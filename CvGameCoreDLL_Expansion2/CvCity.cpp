@@ -7673,7 +7673,7 @@ void CvCity::ChangeEventHappiness(int iValue)
 int CvCity::maxXPValue() const
 {
 	VALIDATE_OBJECT
-	int iMaxValue = -1;
+	int iMaxValue = MAX_INT; // negative values mean no XP limit, and MAX_INT is the same in effect
 
 	if (isBarbarian())
 	{

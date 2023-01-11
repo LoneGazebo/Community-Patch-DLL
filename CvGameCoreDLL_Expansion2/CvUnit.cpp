@@ -17785,7 +17785,7 @@ int CvUnit::defenseXPValue() const
 int CvUnit::maxXPValue() const
 {
 	VALIDATE_OBJECT
-	int iMaxValue = -1; // negative values mean no XP limit
+	int iMaxValue = MAX_INT; // negative values mean no XP limit, and MAX_INT is the same in effect
 
 	if (isBarbarian())
 	{
@@ -21588,7 +21588,7 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 				iCombatExperienceMod += getGreatGeneralModifier();
 			}
 
-			if(iMax == -1)
+			if(iMax < 0)
 			{
 				if(getDomainType() == DOMAIN_SEA)
 				{
