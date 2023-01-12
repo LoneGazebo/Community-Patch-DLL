@@ -205,7 +205,7 @@ UPDATE Buildings
 SET GreatWorkCount = '2'
 WHERE Type = 'BUILDING_BROADCAST_TOWER';
 
--- Barracks 
+-- Barracks
 UPDATE Buildings
 SET PrereqTech = 'TECH_ARCHERY'
 WHERE Type = 'BUILDING_BARRACKS';
@@ -213,7 +213,7 @@ WHERE Type = 'BUILDING_BARRACKS';
 UPDATE Buildings
 SET CitySupplyFlat = '1'
 WHERE Type = 'BUILDING_BARRACKS';
-	
+
 -- Armory
 UPDATE Building_DomainFreeExperiences
 SET Experience = '20'
@@ -243,7 +243,7 @@ WHERE Type = 'BUILDING_STABLE';
 UPDATE Building_ResourceYieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_STABLE';
-	
+
 UPDATE Building_UnitCombatProductionModifiers
 SET Modifier = '33'
 WHERE BuildingType = 'BUILDING_STABLE';
@@ -259,7 +259,7 @@ WHERE Type = 'BUILDING_FORGE';
 
 DELETE FROM Building_ResourceYieldChanges
 WHERE BuildingType = 'BUILDING_FORGE';
-		
+
 DELETE FROM Building_DomainProductionModifiers
 WHERE BuildingType = 'BUILDING_FORGE';
 
@@ -274,10 +274,10 @@ WHERE Type = 'BUILDING_FORGE';
 DELETE FROM Building_LocalResourceAnds
 WHERE BuildingType = 'BUILDING_FORGE';
 
-INSERT INTO Building_SpecialistYieldChangesLocal (BuildingType, SpecialistType, YieldType, Yield) VALUES 
+INSERT INTO Building_SpecialistYieldChangesLocal (BuildingType, SpecialistType, YieldType, Yield) VALUES
 ("BUILDING_FORGE", "SPECIALIST_ENGINEER", "YIELD_PRODUCTION", 2);
 
--- Workshop 
+-- Workshop
 UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_WORKSHOP';
@@ -355,7 +355,7 @@ UPDATE Buildings
 SET MinAreaSize = '10'
 WHERE Type = 'BUILDING_HARBOR';
 
--- Seaport	
+-- Seaport
 UPDATE Buildings
 SET MutuallyExclusiveGroup = '10'
 WHERE Type = 'BUILDING_SEAPORT';
@@ -388,7 +388,7 @@ UPDATE Buildings
 SET MinAreaSize = '10'
 WHERE Type = 'BUILDING_SEAPORT';
 
--- Market	
+-- Market
 UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_MARKET_HELP'
 WHERE Type = 'BUILDING_MARKET';
@@ -412,7 +412,7 @@ WHERE BuildingType = 'BUILDING_MINT';
 
 DELETE FROM Building_LocalResourceOrs
 WHERE BuildingType = 'BUILDING_MINT';
-	
+
 UPDATE Buildings
 SET PrereqTech = 'TECH_GUILDS'
 WHERE Type = 'BUILDING_MINT';
@@ -448,7 +448,7 @@ WHERE Type = 'BUILDING_BANK';
 UPDATE Buildings
 SET SpecialistCount = '1'
 WHERE Type = 'BUILDING_STOCK_EXCHANGE';
-		
+
 -- Caravansary
 UPDATE Buildings
 SET TradeRouteLandGoldBonus = '300'
@@ -461,7 +461,7 @@ WHERE Type = 'BUILDING_CARAVANSARY';
 UPDATE Buildings
 SET PrereqTech = 'TECH_CURRENCY'
 WHERE Type = 'BUILDING_CARAVANSARY';
-	
+
 -- Library
 UPDATE Buildings
 SET SpecialistType = 'SPECIALIST_SCIENTIST'
@@ -487,7 +487,7 @@ WHERE Type = 'BUILDING_UNIVERSITY';
 UPDATE Building_FeatureYieldChanges
 SET Yield = '1'
 WHERE BuildingType = 'BUILDING_UNIVERSITY';
-		
+
 -- Public School
 UPDATE Unit_BuildingClassRequireds
 SET BuildingClassType = 'BUILDINGCLASS_PUBLIC_SCHOOL'
@@ -567,7 +567,6 @@ INSERT INTO Building_ResourceQuantityRequirements
 VALUES
 	('BUILDING_TIDAL_PLANT', 	'RESOURCE_ALUMINUM', 1),
 	('BUILDING_WIND_PLANT', 	'RESOURCE_ALUMINUM', 1),
-	('BUILDING_HYDRO_PLANT', 	'RESOURCE_ALUMINUM', 1),
 	('BUILDING_SOLAR_PLANT', 	'RESOURCE_ALUMINUM', 1);
 -- All plants buff processes
 
@@ -590,7 +589,7 @@ VALUES
 
 INSERT INTO Building_RiverPlotYieldChanges
 	(BuildingType, YieldType, Yield)
-VALUES	
+VALUES
 	('BUILDING_HYDRO_PLANT', 	'YIELD_GOLD', 			3),
 	('BUILDING_HYDRO_PLANT', 	'YIELD_FOOD', 			3);
 
@@ -615,7 +614,7 @@ VALUES
 
 INSERT INTO Building_SeaPlotYieldChanges
 	(BuildingType, YieldType, Yield)
-VALUES	
+VALUES
 	('BUILDING_WIND_PLANT', 	'YIELD_PRODUCTION', 	1),
 	('BUILDING_WIND_PLANT', 	'YIELD_SCIENCE', 		1),
 	('BUILDING_WIND_PLANT', 	'YIELD_GOLD', 			1),
@@ -649,9 +648,9 @@ UPDATE Building_YieldChanges
 SET Yield = '20'
 WHERE BuildingType = 'BUILDING_NUCLEAR_PLANT';
 
-INSERT INTO Building_SpecialistYieldChangesLocal 	
+INSERT INTO Building_SpecialistYieldChangesLocal
 			(BuildingType,				SpecialistType,				YieldType,			Yield)
-VALUES	
+VALUES
 	('BUILDING_NUCLEAR_PLANT',	'SPECIALIST_ENGINEER',		'YIELD_PRODUCTION',	1),
 	('BUILDING_NUCLEAR_PLANT',	'SPECIALIST_ENGINEER',		'YIELD_SCIENCE',	1),
 	('BUILDING_NUCLEAR_PLANT',	'SPECIALIST_ENGINEER',		'YIELD_GOLD',		1),
@@ -704,7 +703,7 @@ WHERE Type = 'BUILDING_COURTHOUSE';
 
 -- Walls
 
-UPDATE Buildings 
+UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_WALLS_HELP'
 WHERE Type = 'BUILDING_WALLS';
 
@@ -756,7 +755,7 @@ SET CityAirStrikeDefense = '10'
 WHERE Type = 'BUILDING_BOMB_SHELTER';
 
 -- Refinery
-UPDATE Buildings  
+UPDATE Buildings
 SET PrereqTech = 'TECH_PLASTIC'
 WHERE Type = 'BUILDING_COAL_PLANT';
 
@@ -805,7 +804,7 @@ WHERE Type = 'BUILDING_AIRPORT';
 UPDATE Buildings
 SET GreatWorksTourismModifier = '0'
 WHERE Type = 'BUILDING_AIRPORT';
-			
+
 -- Circus
 DELETE FROM Building_LocalResourceOrs
 WHERE BuildingType = 'BUILDING_CIRCUS';
@@ -828,7 +827,7 @@ UPDATE Buildings
 SET Happiness = '0'
 WHERE Type = 'BUILDING_COLOSSEUM';
 
-UPDATE Buildings 
+UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_COLOSSEUM_HELP'
 WHERE Type = 'BUILDING_COLOSSEUM';
 
@@ -855,7 +854,7 @@ WHERE Type = 'BUILDING_THEATRE';
 
 -- Stadium
 
-UPDATE Buildings SET 
+UPDATE Buildings SET
 	PrereqTech = 'TECH_ATOMIC_THEORY',
 	WLTKDTurns = 0,
 	Happiness = 0,
@@ -1124,7 +1123,7 @@ VALUES
 INSERT INTO Building_SeaResourceYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HARBOR', 'YIELD_PRODUCTION', 1);	
+	('BUILDING_HARBOR', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_YieldChangesPerPop
 	(BuildingType, YieldType, Yield)
@@ -1192,7 +1191,7 @@ INSERT INTO Building_YieldPerXTerrainTimes100
 	(BuildingType, TerrainType, YieldType, Yield)
 VALUES
 	('BUILDING_OBSERVATORY', 'TERRAIN_MOUNTAIN', 'YIELD_SCIENCE', 100);
-	
+
 INSERT INTO Building_TerrainYieldChanges
 	(BuildingType, TerrainType, YieldType, Yield)
 VALUES
@@ -1215,9 +1214,9 @@ VALUES
 
 INSERT INTO Building_YieldFromBorderGrowth
 		(BuildingType, 		YieldType, 		Yield)
-VALUES	
+VALUES
 	('BUILDING_LODGE', 	'YIELD_FOOD', 	5);
-		
+
 INSERT INTO Building_LocalResourceOrs
 	(BuildingType, ResourceType)
 VALUES
@@ -1239,11 +1238,11 @@ VALUES
 	('BUILDING_STOCKYARD', 'IMPROVEMENT_PASTURE', 'YIELD_GOLD', 2),
 	('BUILDING_CASTLE', 'IMPROVEMENT_QUARRY', 'YIELD_PRODUCTION', 1);
 
-INSERT INTO Building_ImprovementYieldChangesGlobal	
+INSERT INTO Building_ImprovementYieldChangesGlobal
 			(BuildingType, 						ImprovementType,		YieldType,			Yield)
 VALUES		('BUILDING_INTERPRETIVE_CENTER',	'IMPROVEMENT_LANDMARK',	'YIELD_CULTURE',	1),
 			('BUILDING_INTERPRETIVE_CENTER',	'IMPROVEMENT_LANDMARK',	'YIELD_TOURISM',	1);
-			
+
 INSERT INTO Building_ResourceQuantityRequirements
 	(BuildingType, ResourceType, Cost)
 VALUES
@@ -1304,7 +1303,7 @@ INSERT INTO Building_GreatWorkYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_UFFIZI', 'YIELD_CULTURE', 1);
-	
+
 INSERT INTO Building_YieldModifiers
 	(BuildingType, YieldType, Yield)
 VALUES
