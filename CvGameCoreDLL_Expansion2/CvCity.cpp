@@ -28143,7 +28143,7 @@ void CvCity::updateStrengthValue()
 
 	// Garrisoned Unit
 	CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
-	if (pGarrisonedUnit)
+	if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
 	{
 		int iStrengthFromGarrison = (max(pGarrisonedUnit->GetBaseCombatStrength(), pGarrisonedUnit->GetBaseRangedCombatStrength()) * 100) / /*500 in CP, 200 in VP*/ GD_INT_GET(CITY_STRENGTH_UNIT_DIVISOR);
 
