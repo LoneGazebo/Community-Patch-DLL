@@ -125,7 +125,7 @@
 		
 		<!-- Espionage Success -->
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE">
-			<Text>{4_CivAdj} spies [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {3_City}: [NEWLINE] {1_EventChoice} ({2_EventChoiceHelp})</Text>
+			<Text>{4_CivAdj} spies [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Action in {3_City}: [NEWLINE]{1_EventChoice} ({2_EventChoiceHelp})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE">
 			<Text>{2_CivAdj} Operatives Succeeded in {1_City}!</Text>
