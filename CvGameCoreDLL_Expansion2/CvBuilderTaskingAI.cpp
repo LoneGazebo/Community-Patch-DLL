@@ -332,11 +332,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	if (iWildPlots>3 && bSamePlayer && !bHuman)
 		return;
 
-	//maybe a lighthouse is just as good?
-	if (pPlayerCapital->isCoastal() && pTargetCity->isCoastal() && pPlayerCapital->HasSharedAreaWith(pTargetCity,false,true))
-		if (iNetGoldTimes100<500 && !bHuman)
-			return;
-
 	//see if the new route makes sense economically
 	int iValue = -1;
 	if(!bSamePlayer)
@@ -350,13 +345,13 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
-		int iSideBenefits = iRoadLength * 100;
+		int iSideBenefits = 500 + iRoadLength * 100;
 
 		// give an additional bump if we're almost done (don't get distracted and leave half-finished roads)
 		if (iPlotsNeeded < 3 && iRoadLength - iPlotsNeeded > 3)
 			iSideBenefits += 20000;
 
-		//assume one unhappiness is worth .5 gold per turn per city
+		//assume one unhappiness is worth gold per turn per city
 		iSideBenefits += pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
 
 		if(bIndustrialRoute)
@@ -364,10 +359,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD));
 		}
 
-		int iProfit = iGoldForRoute - (iRoadLength*iMaintenancePerTile);
-		iProfit += iSideBenefits;
+		int iProfit = iGoldForRoute - (iRoadLength*iMaintenancePerTile) + iSideBenefits;
 
-		if (!bHuman && (iProfit < 0 || (iProfit + iNetGoldTimes100 < 0)))
+		if (!bHuman && iPlotsNeeded>3 && (iProfit < 0 || (iProfit + iNetGoldTimes100 < 0)))
 			return;
 
 		iValue = iProfit;
@@ -381,7 +375,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 			continue;
-		
+
 		//don't build roads if our trait gives the same benefit
 		if (m_pPlayer->getBestRoute() == ROUTE_ROAD && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() || m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
 		{
@@ -475,10 +469,6 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	// if we already know about this plot, continue on
 	if( GetRouteValue(pPlot)>=iValue )
 		return;
-
-	//prefer extending existing routes
-	if (pPlot->IsAdjacentToRoute())
-		iValue *= 2;
 
 	//if it is the right route, add to needed plots
 	if (pPlot->getRouteType() == eRoute)

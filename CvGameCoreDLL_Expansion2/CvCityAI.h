@@ -45,8 +45,6 @@ protected:
 	int m_iCachePlayerClosenessTurn;
 	int m_iCachePlayerClosenessDistance;
 	map<PlayerTypes,int> m_mapPlotsAcquiredByOtherPlayers;
-
-	void AI_stealPlots();
 };
 
 FDataStream& operator<<(FDataStream&, const CvCityAI&);

@@ -161,6 +161,9 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 	if(iTempWeight < 1)
 		return SR_IMPOSSIBLE;
 
+	if (m_pCity->isUnderSiege())
+		return SR_STRATEGY;
+
 	//this seems to work well to bring the raw flavor weight into a sensible range [0 ... 200]
 	iTempWeight = sqrti(10 * iTempWeight);
 

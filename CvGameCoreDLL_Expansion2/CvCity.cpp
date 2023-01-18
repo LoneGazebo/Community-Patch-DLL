@@ -2772,24 +2772,19 @@ void CvCity::doTurn()
 			UpdateCityYields(eYield);
 		}
 #endif
-		// XXX
-#ifdef _DEBUG
-		{
-			CvPlot* pPlot;
-			int iCount;
 
+#ifdef _DEBUG
+		//checking if yields are correct ... there have been issues
+		{
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
 				CvAssert(getBaseYieldRate((YieldTypes)iI) >= 0);
 				CvAssert(getYieldRate((YieldTypes)iI, false) >= 0);
 
-				iCount = 0;
-
-
+				int iCount = 0;
 				for (int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
 				{
-					pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
-
+					CvPlot* pPlot = GetCityCitizens()->GetCityPlotFromIndex(iJ);
 					if (pPlot != NULL)
 					{
 						if (GetCityCitizens()->IsWorkingPlot(pPlot))
@@ -2824,7 +2819,6 @@ void CvCity::doTurn()
 			}
 		}
 #endif
-		// XXX
 	}
 }
 
@@ -7708,9 +7702,9 @@ void CvCity::SetIndustrialRouteToCapitalConnected(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::SetRouteToCapitalConnected(bool bValue, bool bIgnoreUpdate)
+void CvCity::SetRouteToCapitalConnected(bool bValue, bool bSuppressReligionUpdate)
 {
-	bool bUpdateReligion = !bIgnoreUpdate && (bValue != m_bRouteToCapitalConnectedThisTurn);
+	bool bUpdateReligion = !bSuppressReligionUpdate && (bValue != m_bRouteToCapitalConnectedThisTurn);
 
 	//do this before the religion recalculation ...
 	m_bRouteToCapitalConnectedThisTurn = bValue;
