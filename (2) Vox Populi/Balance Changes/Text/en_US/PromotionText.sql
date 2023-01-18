@@ -632,7 +632,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_EVASION';
 
 	UPDATE Language_en_US
-	SET Text = 'Reduces damage taken from Interception by 50%.'
+	SET Text = '-50% Damage received while performing an [COLOR_POSITIVE_TEXT]Air Strike[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_EVASION_HELP';
 
 	-- Evasion

@@ -33803,12 +33803,14 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	int iBaseValue = 15;
 
 	if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED)
+	{
 		iBaseValue = GetCityAirStrikeDefense();
 
-	if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
-	{
-		iBaseValue = iBaseValue * (100 - pAttacker->GetInterceptionDefenseDamageModifier());
-		iBaseValue /= 100;
+		if (pAttacker != NULL && pAttacker->GetInterceptionDefenseDamageModifier() != 0)
+		{
+			iBaseValue = iBaseValue * (100 + pAttacker->GetInterceptionDefenseDamageModifier());
+			iBaseValue /= 100;
+		}
 	}
 
 	if (bIncludeRand)
