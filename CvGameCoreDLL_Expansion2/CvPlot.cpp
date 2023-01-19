@@ -15107,7 +15107,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 	}
 
 	//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
-	if (iBadNearby == 0 || iNearbyForts > 2)
+	if (iNearbyForts > 2)
 		return 0;
 
 	//Get score for this fortification
