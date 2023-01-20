@@ -881,7 +881,7 @@
 			<Text>Stealth</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_III_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to evade Interception.[NEWLINE]-25% Damage received from [COLOR_POSITIVE_TEXT]Interceptions[ENDCOLOR].[NEWLINE]+50 Hit Points.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to evade Interception.[NEWLINE]-25% Damage received during an [COLOR_POSITIVE_TEXT]Air Strike[ENDCOLOR].[NEWLINE]+50 Hit Points.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_HELI_REPAIR">
