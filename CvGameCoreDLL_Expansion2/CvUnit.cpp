@@ -16363,12 +16363,6 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 		iModifier += GetUnhappinessCombatPenalty();
 	}
 
-	// Great General nearby
-	if (!bIgnoreUnitAdjacencyBoni && !IsIgnoreGreatGeneralBenefit())
-	{
-		iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pBattlePlot);
-	}
-
 #if defined(MOD_BALANCE_CORE)
 	int iCSStrengthMod = 0;
 	if(GET_PLAYER(getOwner()).isMinorCiv())
@@ -16407,29 +16401,36 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	//sometimes we ignore the finer points
 	if (!bQuickAndDirty)
 	{
-		const CvPlot* pCheckPlot = bAttacking ? pFromPlot : pBattlePlot;
+		const CvPlot* pMyPlot = bAttacking ? pFromPlot : pBattlePlot;
+
+		// Great General nearby
+		if (!IsIgnoreGreatGeneralBenefit())
+		{
+			iModifier += kPlayer.GetAreaEffectModifier(AE_GREAT_GENERAL, getDomainType(), pMyPlot);
+		}
+
 		// Reverse Great General nearby
-		iModifier += GetReverseGreatGeneralModifier(pCheckPlot);
+		iModifier += GetReverseGreatGeneralModifier(pMyPlot);
 
 		// Improvement with combat bonus (from trait) nearby
-		iModifier += GetNearbyImprovementModifier(pCheckPlot);
+		iModifier += GetNearbyImprovementModifier(pMyPlot);
 
 		// UnitClass grants a combat bonus if nearby
-		iModifier += GetNearbyUnitClassModifierFromUnitClass(pCheckPlot);
+		iModifier += GetNearbyUnitClassModifierFromUnitClass(pMyPlot);
 
 		// NearbyUnit gives a Combat Modifier?
 		if (MOD_CORE_AREA_EFFECT_PROMOTIONS)
 		{
-			iModifier += GetGiveCombatModToUnit(pCheckPlot);
+			iModifier += GetGiveCombatModToUnit(pMyPlot);
 		}
 
 		// Modifier if no adjacent friendly unit
-		if (!bIgnoreUnitAdjacencyBoni && !pCheckPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+		if (!bIgnoreUnitAdjacencyBoni && !pMyPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 		{
 			iModifier += GetNoAdjacentUnitModifier();
 		}
 		// Adjacent Friendly military Unit?
-		if (!bIgnoreUnitAdjacencyBoni && pCheckPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
+		if (!bIgnoreUnitAdjacencyBoni && pMyPlot->IsFriendlyUnitAdjacent(getTeam(), /*bCombatUnit*/ true))
 		{
 			iModifier += GetAdjacentModifier();
 			for (int iI = 0; iI < GC.getNumUnitCombatClassInfos(); iI++) // Stuff for per adjacent unit combat
@@ -16438,7 +16439,7 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 				int iModPerAdjacent = getCombatModPerAdjacentUnitCombatModifier(eUnitCombat);
 				if (iModPerAdjacent != 0)
 				{
-					int iNumFriendliesAdjacent = pCheckPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
+					int iNumFriendliesAdjacent = pMyPlot->GetNumSpecificFriendlyUnitCombatsAdjacent(getTeam(), eUnitCombat, NULL);
 					iModifier += (iNumFriendliesAdjacent * iModPerAdjacent);
 				}
 			}
