@@ -2989,7 +2989,7 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 	CvUnit* pBestUnit = NULL;
 
 	//we don't consider promotions here ...
-	int iBestBaseCS = 0;
+	int iBestBaseCS = -1;
 	while(pUnitNode != NULL)
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
@@ -2998,9 +2998,9 @@ CvUnit* CvPlot::getBestGarrison(PlayerTypes eOwner) const
 		if(pLoopUnit && (pLoopUnit->getOwner() == eOwner) && pLoopUnit->CanGarrison() && !pLoopUnit->isDelayedDeath())
 		{
 			int iBaseCS = max(pLoopUnit->GetBaseCombatStrength(),pLoopUnit->GetBaseRangedCombatStrength());
-			//naval units considered weaker
+			//naval units are not the best garrison
 			if (!pLoopUnit->isNativeDomain(this))
-				iBaseCS /= 2;
+				iBaseCS = 0;
 
 			if(iBaseCS>iBestBaseCS)
 			{
