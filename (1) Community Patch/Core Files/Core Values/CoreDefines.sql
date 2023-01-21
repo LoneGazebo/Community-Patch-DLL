@@ -687,6 +687,7 @@ INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_MIN', '2';
 -- Misc. Defines
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_GP_RATE', '15'; -- Austria new UA (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_RESTING_POINT_INCREASE', '200'; -- Austria new UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '2'; -- India Growth (VP)
 INSERT INTO Defines (Name, Value) SELECT 'GWAM_THRESHOLD_DECREASE', '0'; -- Great People Rate Mod (Note, this is a subtraction, so positive = negative)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BUILDING_INVESTMENT_BASELINE', '-50'; -- Building Investments Base Rate
