@@ -183,7 +183,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteYieldModifier(0),
 	m_iPositiveWarScoreTourismMod(0),
 #endif
-	m_bNoCSDecayAtWar (false),
+	m_bNoCSDecayAtWar(false),
+	m_iMinimumAllyInfluenceIncreaseAtWar(0),
 	m_bBullyFriendlyCS(false),
 	m_iBullyGlobalCSReduction(0),
 	m_bVassalsNoRebel(false),
@@ -684,6 +685,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteYieldModifier = kResults.GetInt("TradeRouteYieldModifier");
 #endif
 	m_bNoCSDecayAtWar = kResults.GetBool("NoAlliedCSInfluenceDecayAtWar");
+	m_iMinimumAllyInfluenceIncreaseAtWar = kResults.GetInt("MinimumAllyInfluenceIncreaseAtWar");
 	m_bBullyFriendlyCS = kResults.GetBool("CanBullyFriendlyCS");
 	m_iBullyGlobalCSReduction = kResults.GetInt("BullyGlobalCSInfluenceShift");
 	m_bVassalsNoRebel = kResults.GetBool("VassalsNoRebel");
@@ -2257,6 +2259,10 @@ int CvPolicyEntry::GetPositiveWarScoreTourismMod() const
 bool CvPolicyEntry::IsNoCSDecayAtWar() const
 {
 	return m_bNoCSDecayAtWar;
+}
+int CvPolicyEntry::GetMinimumAllyInfluenceIncreaseAtWar() const
+{
+	return m_iMinimumAllyInfluenceIncreaseAtWar;
 }
 bool CvPolicyEntry::CanBullyFriendlyCS() const
 {
