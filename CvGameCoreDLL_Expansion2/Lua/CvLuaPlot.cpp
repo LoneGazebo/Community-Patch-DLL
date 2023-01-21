@@ -1660,7 +1660,7 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 	if (lua_gettop(L) == 6)
 		eRoute = (RouteTypes)lua_tointeger(L, 6);
 
-	const int iResult = pkPlot->calculateImprovementYield(eYield, pkPlot->calculateBestNatureYield(eYield, ePlayer), ePlayer, eImprovement, pkPlot->getEffectiveOwningCity(), bOptimal, eRoute);
+	const int iResult = pkPlot->calculateImprovementYield(eYield, ePlayer, eImprovement, pkPlot->getEffectiveOwningCity(), bOptimal, eRoute);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
