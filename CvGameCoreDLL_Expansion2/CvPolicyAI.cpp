@@ -2384,6 +2384,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GREAT_GENERAL_POINTS] += 50;
 		}
 	}
+	if (PolicyInfo->GetMinimumAllyInfluenceIncreaseAtWar() > 0)
+	{
+		if (pPlayerTraits->IsWarmonger() || pPlayerTraits->IsDiplomat())
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += (250 * PolicyInfo->GetMinimumAllyInfluenceIncreaseAtWar()) / 100;
+		}
+		else
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += (50 * PolicyInfo->GetMinimumAllyInfluenceIncreaseAtWar()) / 100;
+		}
+	}
 	if (PolicyInfo->GetBullyGlobalCSReduction())
 	{
 		if (pPlayerTraits->IsWarmonger() || pPlayerTraits->IsDiplomat())
