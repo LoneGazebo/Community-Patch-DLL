@@ -108,7 +108,7 @@ WHERE Tag = 'TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP';
 
 -- Philanthropy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Foreign Service[ENDCOLOR][NEWLINE]Receive 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game). +1 of every Strategic Resource for every three City-State Alliances you maintain. Earn [ICON_DIPLOMAT] Great Diplomats 50% faster, and gain +50% Rewards from City-State Quests.'
+SET Text = '[COLOR_POSITIVE_TEXT]Foreign Service[ENDCOLOR][NEWLINE]Receive 1 [ICON_SPY] Spy (plus one Spy for every 10 [ICON_CITY_STATE] City-States, if at least 20 city-states ever existed). +1 of every Strategic Resource for every three City-State Alliances you maintain. Earn [ICON_DIPLOMAT] Great Diplomats 50% faster, and gain +50% Rewards from City-State Quests.'
 WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
 
 UPDATE Language_en_US
