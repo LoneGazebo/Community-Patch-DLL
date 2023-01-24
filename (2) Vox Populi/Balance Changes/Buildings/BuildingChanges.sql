@@ -583,9 +583,9 @@ WHERE BuildingType = 'BUILDING_HYDRO_PLANT';
 INSERT INTO Building_LakePlotYieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD', 			3),
-	('BUILDING_HYDRO_PLANT', 'YIELD_PRODUCTION', 	3),
-	('BUILDING_HYDRO_PLANT', 'YIELD_FOOD', 			3);
+	('BUILDING_HYDRO_PLANT', 'YIELD_PRODUCTION',	3),
+	('BUILDING_HYDRO_PLANT', 'YIELD_GOLD',			3),
+	('BUILDING_HYDRO_PLANT', 'YIELD_FOOD',			3);
 
 INSERT INTO Building_RiverPlotYieldChanges
 	(BuildingType, YieldType, Yield)
