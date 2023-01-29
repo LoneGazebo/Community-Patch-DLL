@@ -6877,9 +6877,10 @@ void CvEspionageAI::AttemptCoups()
 				}
 			}
 		}
+		int iSpyRank = m_pPlayer->GetEspionage()->GetSpyByID(uiSpy)->GetSpyRank(m_pPlayer->GetID());
 
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
-		if (iChanceOfSuccess >= 50)
+		if (iChanceOfSuccess >= 60 + 10*iSpyRank)
 		{
 			int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + uiSpy);
 			if (iRoll < iChanceOfSuccess)
@@ -7385,10 +7386,13 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			continue;
 		}
 
-		// if at war with the minor civ, do not try to assign a spy in the city
-		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
+		// CP: if at war with the minor civ, do not try to assign a spy in the city
+		if (!MOD_BALANCE_VP)
 		{
-			continue;
+			if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(eTargetPlayer).getTeam()))
+			{
+				continue;
+			}
 		}
 
 		CvMinorCivAI* pMinorCivAI = GET_PLAYER(eTargetPlayer).GetMinorCivAI();
