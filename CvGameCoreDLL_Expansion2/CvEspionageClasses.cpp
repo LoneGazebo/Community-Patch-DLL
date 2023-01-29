@@ -3951,9 +3951,9 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank,
 			return 0;
 		}
 
-		float fMaxChance = (1.0 - pow((double)(1.0 - range(fBaseChance,0.0,100.0) / 100), (double)(1.0 + 0.2 * iCultureInfluenceBonus) * (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER)) / 100)) * 100;
+		double dMaxChance = (1.0 - pow((double)(1.0 - range(fBaseChance,0.0,100.0) / 100), (double)(1.0 + 0.2 * iCultureInfluenceBonus) * (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER)) / 100)) * 100;
 
-		return range(static_cast<int>(fMaxChance), 0, 100);
+		return range(static_cast<int>(dMaxChance), 0, 100);
 	}
 	else
 	{
