@@ -1721,6 +1721,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED_WAR">
 			<Text>{1_MinorCivName:textkey} revokes quests</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_VP_VASSALS">
+			<Text>Vassals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_CITYSTATES">
+			<Text>City-State Alliances</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_MILITARY">
+			<Text>Military Power</Text>
 		</Row>
 	<!-- UI - Religion Spread -->
 			<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
