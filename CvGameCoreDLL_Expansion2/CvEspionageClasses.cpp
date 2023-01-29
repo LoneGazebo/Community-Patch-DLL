@@ -1883,66 +1883,21 @@ CvString CvPlayerEspionage::GetSpyChanceAtCity(CvCity* pCity, uint uiSpyIndex, b
 		//Minor Spies
 		else if (GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
-			if (pSpy->m_eSpyState != SPY_STATE_TRAVELLING)
+			if (HasEstablishedSurveillance(uiSpyIndex))
 			{
-				int iCoupSuccessChance = GetCoupChanceOfSuccess(uiSpyIndex);
-
-				int iOurVotes = 0;
-				int iTotalVotes = 0;
-
-				for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+				strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT", GetSpyRankName(pSpy->GetSpyRank(m_pPlayer->GetID())), pSpy->GetSpyName(m_pPlayer),pCity->getName());
+				if (MOD_BALANCE_VP)
 				{
-					PlayerTypes eEspionagePlayer = (PlayerTypes)ui;
-					CvPlayerEspionage* pPlayerEspionage = GET_PLAYER(eEspionagePlayer).GetEspionage();
-					int iVotes = 0;
-
-					if (!GET_PLAYER(eEspionagePlayer).isAlive())
+					strSpyAtCity += "[NEWLINE][NEWLINE]";
+					strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_NUMBER_ELECTION_RIGGINGS", GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetNumSuccessfulElectionRiggings(m_pPlayer->GetID()));
+					if (pCity->GetCityReligions()->GetReligiousMajority() != NO_RELIGION)
 					{
-						continue;
-					}
-
-					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-					int iSpyID = pCityEspionage->m_aiSpyAssignment[eEspionagePlayer];
-					// if no spies are assigned here, continue
-					if (iSpyID == -1)
-					{
-						continue;
-					}
-
-					// if the spy assigned here is not rigging the election yet, continue
-					if (pPlayerEspionage->m_aSpyList[iSpyID].m_eSpyState != SPY_STATE_RIG_ELECTION)
-					{
-						continue;
-					}
-
-					iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
-					if (eEspionagePlayer == m_pPlayer->GetID())
-					{
-						iOurVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
-					}
-					if (iVotes > 0)
-					{
-						iTotalVotes += iVotes;
-					}
-				}
-				//We're the only one here?
-				int iVoteChance = (iOurVotes * 100) / max(1, iTotalVotes);
-
-				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_COUP_CHANCE", iCoupSuccessChance);
-				if (GET_PLAYER(pCity->getOwner()).GetMinorCivAI()->GetAlly() == m_pPlayer->GetID())
-				{
-					strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_COUP_CHANCE_ALLIES");
-				}
-				strSpyAtCity += "[NEWLINE][NEWLINE]";
-				strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_RIG_CHANCE", iVoteChance);
-
-				if (pCity->GetCityReligions()->GetReligiousMajority() != NO_RELIGION)
-				{
-					int iSpyPressure = m_pPlayer->GetReligions()->GetSpyPressure(pCity->getOwner());
-					if (iSpyPressure != 0)
-					{
-						strSpyAtCity += "[NEWLINE][NEWLINE]";
-						strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_RELIGOUS_PRESSURE", iSpyPressure);
+						int iSpyPressure = m_pPlayer->GetReligions()->GetSpyPressure(pCity->getOwner());
+						if (iSpyPressure != 0)
+						{
+							strSpyAtCity += "[NEWLINE][NEWLINE]";
+							strSpyAtCity += GetLocalizedText("TXT_KEY_OFFENSIVE_SPY_RELIGOUS_PRESSURE", iSpyPressure);
+						}
 					}
 				}
 			}
@@ -3702,11 +3657,7 @@ bool CvPlayerEspionage::HasEstablishedSurveillance(uint uiSpyIndex)
 	{
 		return true;
 	}
-#if defined(MOD_BALANCE_CORE)
 	else if (m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_RIG_ELECTION || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE)
-#else
-	else if(m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_RIG_ELECTION || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE)
-#endif
 	{
 		return true;
 	}
@@ -3926,7 +3877,7 @@ bool CvPlayerEspionage::CanStageCoup(CvCity* pCity)
 }
 
 /// GetCoupChangeOfSuccess - What is the % chance of success that a spy will be able to pull off a coup?
-int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
+int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex, bool bIgnoreEnemySpies)
 {
 	// if you can't stage a coup, then the likelihood is zero!
 	if(!CanStageCoup(uiSpyIndex))
@@ -3940,66 +3891,11 @@ int CvPlayerEspionage::GetCoupChanceOfSuccess(uint uiSpyIndex)
 	{
 		return 0;
 	}
-
-	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-	CvAssertMsg(pCityEspionage, "No city espionage");
-	if(!pCityEspionage)
-	{
-		return 0;
-	}
-
-	PlayerTypes eCityOwner = pCity->getOwner();
-	CvAssertMsg(GET_PLAYER(eCityOwner).isMinorCiv(), "Owner is not a minor civ");
-	if(!GET_PLAYER(eCityOwner).isMinorCiv())
-	{
-		return 0;
-	}
-
-	CvMinorCivAI* pMinorCivAI = GET_PLAYER(eCityOwner).GetMinorCivAI();
-	CvAssertMsg(pMinorCivAI, "pMinorCivAI is null");
-	if(!pMinorCivAI)
-	{
-		return 0;
-	}
-
-	PlayerTypes eAllyPlayer = pMinorCivAI->GetAlly();
-	int iAllySpyRank = 0;
-	bool bNoAllySpy = true;
-	if(pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
-	{
-		int iAllySpyIndex = pCityEspionage->m_aiSpyAssignment[eAllyPlayer];
-		iAllySpyRank = GET_PLAYER(eAllyPlayer).GetEspionage()->m_aSpyList[iAllySpyIndex].GetSpyRank(eAllyPlayer);
-		bNoAllySpy = false;
-	}
-
-	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(eAllyPlayer);
-	int iMyInfluence = max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
-
-	int iMaxChance = 50;
-
-	iMaxChance -= iAllyInfluence / 25;
-	
-	iMaxChance += iMyInfluence / 25;
-
-	if (iMaxChance <= 5)
-		iMaxChance = 5;
-	else if (iMaxChance >= 75)
-		iMaxChance = 75;
-
 	int iMySpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(m_pPlayer->GetID());
-	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
-	iMySpyRank -= iAllySpyRank;
-	
-	iMaxChance *= 100 + (iMySpyRank * /*3*/ GD_INT_GET(ESPIONAGE_COUP_MULTIPLY_CONSTANT));
-	iMaxChance /= 100;
-
-	iMaxChance *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
-	iMaxChance /= 100;
-
-	return range(iMaxChance, 5, 99);
+	return GetTheoreticalChanceOfCoup(pCity, iMySpyRank, bIgnoreEnemySpies);
 }
 
-int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity)
+int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank, bool bIgnoreEnemySpies)
 {
 	// if you can't stage a coup, then the likelihood is zero!
 	if (!CanStageCoup(pCity))
@@ -4027,42 +3923,108 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity)
 	{
 		return 0;
 	}
-
 	PlayerTypes eAllyPlayer = pMinorCivAI->GetAlly();
 	int iAllySpyRank = 0;
 	bool bNoAllySpy = true;
-	if (pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
+	if (!bIgnoreEnemySpies && pCityEspionage->m_aiSpyAssignment[eAllyPlayer] != -1)
 	{
+		bNoAllySpy = false;
 		int iAllySpyIndex = pCityEspionage->m_aiSpyAssignment[eAllyPlayer];
 		iAllySpyRank = GET_PLAYER(eAllyPlayer).GetEspionage()->m_aSpyList[iAllySpyIndex].GetSpyRank(eAllyPlayer);
-		bNoAllySpy = false;
 	}
 
-	int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(eAllyPlayer);
-	int iMyInfluence = max(0, pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID()));
+	if (MOD_BALANCE_VP)
+	{
+		int iCultureInfluenceBonus = m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
+		int iNumSuccessfulRiggings = pMinorCivAI->GetNumSuccessfulElectionRiggings(m_pPlayer->GetID());
 
-	int iMaxChance = 100;
+		int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(eAllyPlayer);
+		int iMyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajor(m_pPlayer->GetID());
 
-	iMaxChance -= iAllyInfluence / 10;
+		float fBaseChance = 50 - (float)(iAllyInfluence - iMyInfluence) / (25 - 5*(min(4,iMySpyRank - iAllySpyRank))) + 20*iNumSuccessfulRiggings;
+		if (fBaseChance >= 100)
+		{
+			return 100;
+		}
+		if (fBaseChance <= 0)
+		{
+			return 0;
+		}
 
-	iMaxChance += iMyInfluence / 10;
+		float fMaxChance = (1.0 - pow((double)(1.0 - range(fBaseChance,0.0,100.0) / 100), (double)(1.0 + 0.2 * iCultureInfluenceBonus) * (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER)) / 100)) * 100;
 
-	if (iMaxChance <= 5)
-		iMaxChance = 5;
-	else if (iMaxChance >= 25)
-		iMaxChance = 25;
+		return range(static_cast<int>(fMaxChance), 0, 100);
+	}
+	else
+	{
+		int iAllyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(eAllyPlayer);
+		int iMyInfluence = pMinorCivAI->GetEffectiveFriendshipWithMajorTimes100(m_pPlayer->GetID());
+		int iDeltaInfluence = iAllyInfluence - iMyInfluence;
 
-	int iMySpyRank = 1;
-	iMySpyRank += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
-	iMySpyRank -= iAllySpyRank;
+		float fNobodyBonus = 0.5;
+		float fMultiplyConstant = 3.0f;
+		float fSpyLevelDeltaZero = 0.0f;
+		float fSpyLevelDeltaOne = 1.5f;
+		float fSpyLevelDeltaTwo = 2.25;
+		float fSpyLevelDeltaThree = 2.6f;
+		float fSpyLevelDeltaFour = 2.8f;
 
-	iMaxChance *= 100 + (iMySpyRank * /*3*/ GD_INT_GET(ESPIONAGE_COUP_MULTIPLY_CONSTANT));
-	iMaxChance /= 100;
+		float fAllySpyValue = 0.0f;
+		float fMySpyValue = 0.0;
 
-	iMaxChance *= (100 + m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER));
-	iMaxChance /= 100;
+		int iSpyRankModifier = iMySpyRank;
+		iSpyRankModifier += m_pPlayer->GetCulture()->GetInfluenceCityStateSpyRankBonus(eCityOwner);
+		switch (iSpyRankModifier)
+		{
+		case 0:
+			fMySpyValue = fSpyLevelDeltaZero;
+			break;
+		case 1:
+			fMySpyValue = fSpyLevelDeltaOne;
+			break;
+		case 2:
+			fMySpyValue = fSpyLevelDeltaTwo;
+			break;
+		case 3:
+			fMySpyValue = fSpyLevelDeltaThree;
+			break;
+		case 4:
+			fMySpyValue = fSpyLevelDeltaFour;
+			break;
+		}
 
-	return range(iMaxChance, 10, 90);
+		switch (iAllySpyRank)
+		{
+		case 0:
+			fAllySpyValue = fSpyLevelDeltaZero;
+			break;
+		case 1:
+			fAllySpyValue = fSpyLevelDeltaOne;
+			break;
+		case 2:
+			fAllySpyValue = fSpyLevelDeltaTwo;
+			break;
+		}
+
+		float fSpyMultipier = fAllySpyValue - fMySpyValue + fMultiplyConstant;
+		if (bNoAllySpy)
+		{
+			fSpyMultipier *= fNobodyBonus;
+		}
+
+		int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultipier) / 100);
+
+		if (iResultPercentage > 85)
+		{
+			iResultPercentage = 85;
+		}
+		else if (iResultPercentage < 0)
+		{
+			iResultPercentage = 0;
+		}
+
+		return iResultPercentage;
+	}
 }
 
 /// AttemptCoup - Have a spy try to overthrow a city state. If success, the spy's owner becomes the ally. If failure, the spy dies.
@@ -4184,6 +4146,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 		{
 			continue;
 		}
+		pMinorCivAI->ResetNumSuccessfulElectionRiggings(ePlayer);
 
 		// skip the spy player
 		if(ePlayer == m_pPlayer->GetID())
@@ -7475,7 +7438,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 
-			int iValue = pEspionage->GetTheoreticalChanceOfCoup(pLoopCity);
+			int iValue = pEspionage->GetTheoreticalChanceOfCoup(pLoopCity, 0, true);
 			switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
 			{
 			case NO_PLAYER_PROXIMITY:
