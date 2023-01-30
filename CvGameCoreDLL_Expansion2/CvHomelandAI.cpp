@@ -666,6 +666,10 @@ void CvHomelandAI::PlotHealMoves()
 		//this is very simple, we know there are no enemies around, else tactical AI would have kicked in
 		if(pUnit && !pUnit->isHuman() && pUnit->IsHurt())
 		{
+			//sanity check, workers may get hurt while scrubbing fallout
+			if (pUnit->plot()->getFeatureType() == FEATURE_FALLOUT && pUnit->GetCurrHitPoints() > pUnit->GetMaxHitPoints() / 2)
+				continue;
+
 			CvHomelandUnit unit;
 			unit.SetID(pUnit->GetID());
 			m_CurrentMoveUnits.push_back(unit);
