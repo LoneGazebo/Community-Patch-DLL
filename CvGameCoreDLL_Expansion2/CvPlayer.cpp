@@ -3583,34 +3583,25 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				CvMinorCivAI* pMinorAI = GET_PLAYER(eOldOwner).GetMinorCivAI();
 				MinorCivTraitTypes eTrait = pMinorAI->GetTrait();
 				int iYield = GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-
+				iYield *= pMinorAI->GetYieldTheftAmount(GetID());
+				iYield /= 100;
 				switch (eTrait)
 				{
 				case NO_MINOR_CIV_TRAIT_TYPE:
 					UNREACHABLE();
 				case MINOR_CIV_TRAIT_CULTURED:
-					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_CULTURE);
-					iYield /= 100;
 					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_CULTURE);
 					break;
 				case MINOR_CIV_TRAIT_MARITIME:
-					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_FOOD);
-					iYield /= 100;
 					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FOOD);
 					break;
 				case MINOR_CIV_TRAIT_MERCANTILE:
-					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_GOLD);
-					iYield /= 100;
 					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD);
 					break;
 				case MINOR_CIV_TRAIT_MILITARISTIC:
-					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_SCIENCE);
-					iYield /= 100;
 					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_SCIENCE);
 					break;
 				case MINOR_CIV_TRAIT_RELIGIOUS:
-					iYield *= pMinorAI->GetYieldTheftAmount(GetID(), YIELD_FAITH);
-					iYield /= 100;
 					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FAITH);
 					break;
 				}

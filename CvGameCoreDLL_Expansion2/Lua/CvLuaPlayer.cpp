@@ -8830,8 +8830,9 @@ int CvLuaPlayer::lGetMinorCivBullyGoldAmount(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	bool bForUnit = luaL_optbool(L, 3, false);
 
-	const int iValue = pkPlayer->GetMinorCivAI()->GetBullyGoldAmount(eMajor);
+	const int iValue = pkPlayer->GetMinorCivAI()->GetBullyGoldAmount(eMajor, false, bForUnit);
 	lua_pushinteger(L, iValue);
 	return 1;
 }
@@ -8869,14 +8870,13 @@ int CvLuaPlayer::lGetBullyUnit(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int GetYieldTheftAmount(PlayerTypes eMajor, YieldTypes eYield);
+//int GetYieldTheftAmount(PlayerTypes eMajor);
 int CvLuaPlayer::lGetYieldTheftAmount(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
-	const YieldTypes eYield = (YieldTypes) lua_tointeger(L, 3);
 
-	const int iValue = pkPlayer->GetMinorCivAI()->GetYieldTheftAmount(eMajor, eYield);
+	const int iValue = pkPlayer->GetMinorCivAI()->GetYieldTheftAmount(eMajor);
 	lua_pushinteger(L, iValue);
 	return 1;
 }

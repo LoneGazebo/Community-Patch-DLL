@@ -1180,25 +1180,21 @@ function PopulateTakeChoices()
 	SetButtonSize(Controls.GoldTributeLabel, Controls.GoldTributeButton, Controls.GoldTributeAnim, Controls.GoldTributeButtonHL)
 
 -- CBP
-	local iTheftValue = 0;
+	local iGoldTribute = minorPlayer:GetMinorCivBullyGoldAmount(activePlayerID, true);
+	local iTheftValue = minorPlayer:GetYieldTheftAmount(activePlayerID);
 	local iBullyUnitInfluenceLost = (-GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS / 100);
 	local pMajor = Players[activePlayerID];
 	local sBullyUnit = GameInfo.Units[minorPlayer:GetBullyUnit()].Description; --antonjs: todo: XML or fn
 	if(minorPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
-		iTheftValue = minorPlayer:GetYieldTheftAmount(activePlayerID, YieldTypes.YIELD_FOOD);
-		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FOOD_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FOOD_AMOUNT", iGoldTribute, iTheftValue, iBullyUnitInfluenceLost);
 	elseif(minorPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
-		iTheftValue = minorPlayer:GetYieldTheftAmount(activePlayerID, YieldTypes.YIELD_CULTURE);
-		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_CULTURE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_CULTURE_AMOUNT", iGoldTribute, iTheftValue, iBullyUnitInfluenceLost);
 	elseif(minorPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
-		iTheftValue = minorPlayer:GetYieldTheftAmount(activePlayerID, YieldTypes.YIELD_SCIENCE);
-		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_SCIENCE_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_SCIENCE_AMOUNT", iGoldTribute, iTheftValue, iBullyUnitInfluenceLost);
 	elseif(minorPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
-		iTheftValue = minorPlayer:GetYieldTheftAmount(activePlayerID, YieldTypes.YIELD_PRODUCTION);
-		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_PRODUCTION_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_PRODUCTION_AMOUNT", iGoldTribute, iTheftValue, iBullyUnitInfluenceLost);
 	elseif(minorPlayer:GetMinorCivTrait() == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
-		iTheftValue = minorPlayer:GetYieldTheftAmount(activePlayerID, YieldTypes.YIELD_FAITH);
-		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FAITH_AMOUNT", iTheftValue, iBullyUnitInfluenceLost);
+		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_FAITH_AMOUNT", iGoldTribute, iTheftValue, iBullyUnitInfluenceLost);
 	else
 		buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", sBullyUnit, iBullyUnitInfluenceLost);
 	end	

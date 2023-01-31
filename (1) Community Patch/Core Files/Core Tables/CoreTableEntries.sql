@@ -218,7 +218,8 @@ ALTER TABLE Policies ADD COLUMN 'StealGWSlowerModifier' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
 -- Policy - conquered cities keep all their buildings (except for those with NeverCapture==true).
 ALTER TABLE Policies ADD COLUMN 'KeepConqueredBuildings' BOOLEAN DEFAULT 0;
-
+-- Policy - extra non-gold yields from heavy tribute (in percent).
+ALTER TABLE Policies ADD COLUMN 'ExtraYieldsFromHeavyTribute' INTEGER DEFAULT 0;
 
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
