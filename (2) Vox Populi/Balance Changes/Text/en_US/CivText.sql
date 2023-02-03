@@ -254,7 +254,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_CHUKONU';
 -- Denmark
 --------------------
 UPDATE Language_en_US
-SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee Land Units gain the [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units gain the [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
+SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee, Recon, Mounted Melee, Gunpowder, and Armor Units gain the [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units gain the [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY';
 
 UPDATE Language_en_US
@@ -624,7 +624,7 @@ SET Text = 'When you gain a City, one of 3 unique Luxuries will appear nearby. +
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE';
 
 UPDATE Language_en_US
-SET Text = 'Classical Era Melee unit that has a mystical weapon whose abilities will be discovered the first time it is used in combat. May only be built by Indonesia.'
+SET Text = 'Classical Era Melee Unit that has a mystical weapon whose abilities will be discovered the first time it is used in combat. May only be built by Indonesia.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDONESIAN_KRIS_SWORDSMAN';
 
 UPDATE Language_en_US
@@ -857,7 +857,7 @@ SET Text = 'The Janissary is an Ottoman unique unit, replacing the Musketman. Th
 WHERE Tag = 'TXT_KEY_UNIT_OTTOMAN_JANISSARY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'One of the first gunpowder units of the game. Only the Ottomans may build it. This unit is stronger than the Musketman which it replaces, and is available earlier.'
+SET Text = 'The Janissary is stronger than the Musketman which it replaces, and is available earlier.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_JANISSARY';
 
 UPDATE Language_en_US
@@ -1106,7 +1106,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSLIM_CAVALRY';
 -- Sweden
 --------------------
 UPDATE Language_en_US
-SET Text = 'Land Melee Units have +20% [ICON_STRENGTH] Strength when attacking, and Siege Units have +1 [ICON_MOVES] Movement. Military Units are healed and earn +15 XP when a [ICON_GREAT_GENERAL] Great General is born. [ICON_GREAT_GENERAL] Great General combat bonus increased by 15%.'
+SET Text = 'Melee, Recon, Mounted Melee, Gunpowder, and Armor Units have +20% [ICON_STRENGTH] Strength when attacking, and Siege Units have +1 [ICON_MOVES] Movement. Military Units are healed and earn +15 XP when a [ICON_GREAT_GENERAL] Great General is born. [ICON_GREAT_GENERAL] Great General combat bonus increased by 15%.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US
@@ -1156,11 +1156,11 @@ WHERE Tag = 'TXT_KEY_TRAIT_SUPER_CITY_STATE';
 -- Zulu
 --------------------
 UPDATE Language_en_US
-SET Text = 'Grants unique Promotions to all melee Units. +15 XP for all Units. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = 'Grants unique Promotions to Melee and Gunpowder Units. +15 XP for all Units. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_HELP';
 
 UPDATE Language_en_US
-SET Text = 'In addition to the regular abilities of the Barracks which it replaces, the Ikanda grants a unique set of promotions to all melee units created within the City. These include faster movement, better flanking, and greater combat strength. Only the Zulu may build it.'
+SET Text = 'In addition to the regular abilities of the Barracks which it replaces, the Ikanda grants a unique set of promotions to melee units created within the City. These include faster movement, better flanking, and greater combat strength. Only the Zulu may build it.'
 WHERE Tag = 'TXT_KEY_BUILDING_IKANDA_STRATEGY';
 
 UPDATE Language_en_US
@@ -1172,5 +1172,5 @@ SET Text = 'Specialized in defeating mounted and gunpowder units, and stronger o
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ZULU_IMPI';
 
 UPDATE Language_en_US
-SET Text = '50% maintenance for Melee and Gun Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at intimidating [ICON_CITY_STATE] City-States.'
+SET Text = '50% maintenance for Melee and Gunpowder Units. All Units require 25% less Experience for Promotions. Your military ignores Alliance and Protection penalties and is 50% more effective at intimidating [ICON_CITY_STATE] City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_BUFFALO_HORNS';
