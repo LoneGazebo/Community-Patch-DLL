@@ -38,7 +38,7 @@ INSERT INTO UnitClasses
 VALUES
 	('UNITCLASS_ASSYRIAN_SIEGE_TOWER', 'TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER', 'NONE', 2);
 
-UPDATE Units SET CityAttackOnly = '1', Combat = '0', Cost = '100', DefaultUnitAI = 'UNITAI_CITY_SPECIAL', CombatClass = NULL, Moves = '4', Class = 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', PrereqTech = 'TECH_ARCHERY', ObsoleteTech = 'TECH_GUNPOWDER', Pillage = '0', GoodyHutUpgradeUnitClass = NULL  WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
+UPDATE Units SET CityAttackOnly = '1', Combat = '0', Cost = '100', DefaultUnitAI = 'UNITAI_CITY_SPECIAL', CombatClass = NULL, Moves = '4', Class = 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', PrereqTech = 'TECH_ARCHERY', ObsoleteTech = 'NONE', Pillage = '0', GoodyHutUpgradeUnitClass = NULL  WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 INSERT INTO Civilization_UnitClassOverrides
