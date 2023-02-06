@@ -3019,7 +3019,7 @@
 			<PediaEntry>TXT_KEY_PROMOTION_RESPECT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<StrongerDamaged>true</StrongerDamaged>
-            <AttackAbove50HealthMod>20</AttackAbove50HealthMod>
+			<AttackAbove50HealthMod>20</AttackAbove50HealthMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>
