@@ -88,7 +88,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
 UPDATE Language_en_US
-SET Text = '+10% increase in City [ICON_RANGE_STRENGTH] Ranged Combat Strength, and +10% [ICON_PRODUCTION] Production towards Units. Gain [ICON_PEACE] Faith from killing military units'
+SET Text = 'Gain [ICON_PEACE] Faith from killing military units equal to 175% of its [ICON_STRENGTH] Strength, and Melee units heal for 10 points after killing a military unit. +2 [ICON_PEACE] Faith and +2 [ICON_PRODUCTION] Production from Barracks.'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR';
 
 
@@ -126,7 +126,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_ONE_WITH_NATURE';
 
 -- Goddess of Protection
 UPDATE Language_en_US
-SET Text = '+10 HP healed per turn in friendly territory. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Palace, Walls, and Barracks'
+SET Text = '+10 HP healed per turn in friendly territory. +3 [ICON_PEACE] Faith from Palace, +2 [ICON_PEACE] Faith and +2 [ICON_CULTURE] Culture from Walls.'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_STRATEGY';
 
 
