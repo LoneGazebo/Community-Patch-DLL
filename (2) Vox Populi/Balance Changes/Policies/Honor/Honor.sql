@@ -49,21 +49,9 @@ WHERE PolicyType = 'POLICY_WARRIOR_CODE';
 UPDATE Policies
 SET
 	GreatGeneralRateModifier = 0,
-	IncludesOneShotFreeUnits = 1
+	IncludesOneShotFreeUnits = 1,
+	ExtraYieldsFromHeavyTribute = 100
 WHERE Type = 'POLICY_WARRIOR_CODE';
-
-
-INSERT INTO Policy_ConquerorYield
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_WARRIOR_CODE', 'YIELD_CULTURE', 40),
-	('POLICY_WARRIOR_CODE', 'YIELD_SCIENCE', 40);
-
-INSERT INTO Policy_FounderYield
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_WARRIOR_CODE', 'YIELD_CULTURE', 40),
-	('POLICY_WARRIOR_CODE', 'YIELD_SCIENCE', 40);
 
 INSERT INTO Policy_FreeUnitClasses
 	(PolicyType, UnitClassType, Count)
@@ -80,6 +68,17 @@ SET
 	PortraitIndex = 23
 WHERE Type = 'POLICY_DISCIPLINE';
 
+INSERT INTO Policy_ConquerorYield
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 40),
+	('POLICY_DISCIPLINE', 'YIELD_SCIENCE', 40);
+
+INSERT INTO Policy_FounderYield
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 40),
+	('POLICY_DISCIPLINE', 'YIELD_SCIENCE', 40);
 
 -- Military Tradition (Now Dominance)
 
@@ -130,7 +129,8 @@ WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
 
 UPDATE Policies
 SET
-	GoldFromKills = 0
+	GoldFromKills = 0,
+	ExtraYieldsFromHeavyTribute = 100
 WHERE Type = 'POLICY_HONOR_FINISHER';
 
 -- Mercenary Army 
@@ -187,12 +187,6 @@ VALUES
 	('POLICY_DISCIPLINE', 'YIELD_PRODUCTION', 20),
 	('POLICY_HONOR_FINISHER', 'YIELD_GOLD', 20),
 	('POLICY_HONOR_FINISHER', 'YIELD_PRODUCTION', 20);
-
-INSERT INTO Policy_YieldFromMinorDemand
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 25),
-	('POLICY_HONOR_FINISHER', 'YIELD_CULTURE', 25);
 
 
 -- Promotions
