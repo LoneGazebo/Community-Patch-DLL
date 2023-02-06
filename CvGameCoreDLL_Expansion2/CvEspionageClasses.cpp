@@ -7476,6 +7476,10 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 			kEntry.m_pCity = pLoopCity;
 
 			int iValue = pEspionage->GetTheoreticalChanceOfCoup(pLoopCity);
+			if (m_pPlayer->GetProximityToPlayer(eTargetPlayer) == NO_PLAYER_PROXIMITY)
+			{
+				m_pPlayer->DoUpdateProximityToPlayers();
+			}
 			switch (m_pPlayer->GetProximityToPlayer(eTargetPlayer))
 			{
 			case NO_PLAYER_PROXIMITY:

@@ -23986,7 +23986,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	////////////////////////////////////
 	// PROXIMITY
 	////////////////////////////////////
-
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) == NO_PLAYER_PROXIMITY)
+	{
+		GetPlayer()->DoUpdateProximityToPlayers();
+	}
 	switch (GetPlayer()->GetProximityToPlayer(ePlayer))
 	{
 	case PLAYER_PROXIMITY_NEIGHBORS:
