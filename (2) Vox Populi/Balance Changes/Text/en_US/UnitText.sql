@@ -484,11 +484,11 @@
 	WHERE Tag = 'TXT_KEY_UNIT_MARINE';
 
 	UPDATE Language_en_US
-	SET Text = 'Information Era Unit especially useful for embarking and invading across the sea as well as taking out Gun (Melee) units. Can also paradrop behind enemy lines.'
+	SET Text = 'Information Era Unit especially useful for embarking and invading across the sea as well as taking out Gunpowder Units. Can also paradrop behind enemy lines.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_MARINE';
 
 	UPDATE Language_en_US
-	SET Text = 'The Special Forces unit possesses promotions that enhance its Sight and attack strength when embarked at sea. It is also stronger versus Gun (Melee) units, and can paradrop up to 9 tiles away from friendly territory.'
+	SET Text = 'The Special Forces unit possesses promotions that enhance its Sight and attack strength when embarked at sea. It is also stronger versus Gunpowder Units, and can paradrop up to 9 tiles away from friendly territory.'
 	WHERE Tag = 'TXT_KEY_UNIT_MARINE_STRATEGY';
 
 	UPDATE Language_en_US
