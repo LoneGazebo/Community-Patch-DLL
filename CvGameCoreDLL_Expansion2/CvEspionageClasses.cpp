@@ -4006,13 +4006,13 @@ int CvPlayerEspionage::GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank,
 			break;
 		}
 
-		float fSpyMultipier = fAllySpyValue - fMySpyValue + fMultiplyConstant;
+		float fSpyMultiplier = fAllySpyValue - fMySpyValue + fMultiplyConstant;
 		if (bNoAllySpy)
 		{
-			fSpyMultipier *= fNobodyBonus;
+			fSpyMultiplier *= fNobodyBonus;
 		}
 
-		int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultipier) / 100);
+		int iResultPercentage = 100 - (int)((iDeltaInfluence * fSpyMultiplier) / 100);
 
 		if (iResultPercentage > 85)
 		{
