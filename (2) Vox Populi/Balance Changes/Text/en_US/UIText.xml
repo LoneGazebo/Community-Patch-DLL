@@ -1488,6 +1488,12 @@
 		<Row Tag="TXT_KEY_POLICYSCREEN_POLICIES_NEEDED_UNTIL_IDEOLOGY">
 			<Text>Number of Policies Remaining until Ideologies are unlocked: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_CIVS_WITH_OTHER_IDEOLOGY">
+			<Text>Influenced by the number of civilizations not following our Ideology:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_RECENTLY_ADOPTED">
+			<Text>Influence due to only recently adopting/switching Ideologies:</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PEDIA_ERA_YIELD">
 			<Text>Yield increase per Era:</Text>
