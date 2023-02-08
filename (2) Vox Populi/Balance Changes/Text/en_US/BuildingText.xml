@@ -363,7 +363,7 @@
 			<Text>+1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
-			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold on every Tile.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant.</Text>
+			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_GOLD] Gold on every workable Tile (flat, hills and water).[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT_HELP">
 			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold on every Sea Tile.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must be built on the coast. City must not contain another energy-producing Plant.</Text>

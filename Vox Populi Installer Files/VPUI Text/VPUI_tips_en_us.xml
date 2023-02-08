@@ -1,6 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
+		<!-- VP EUI Texts -->
+		<Replace Tag="TXT_KEY_EUI_REQUIRES_RELOAD">
+			<Text>(Requires reload to take effect!)</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_PROMOTION_FLAGS_DISPLAY">
+			<Text>Promotion Flags</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_PROMOTION_FLAGS_BODY">
+			<Text>Display promotion icons above the unit flag.[NEWLINE][COLOR_NEGATIVE_TEXT]{TXT_KEY_EUI_REQUIRES_RELOAD}[ENDCOLOR]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_SEPARATE_CITY_PRODUCTION_DISPLAY">
+			<Text>Separate City Production Items</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_SEPARATE_CITY_PRODUCTION_BODY">
+			<Text>Separate city production items into specific categories. (e.g. Great Person Units, Religious Units, Military Units, Projects, National Wonders, World Wonders.)[NEWLINE][COLOR_NEGATIVE_TEXT]{TXT_KEY_EUI_REQUIRES_RELOAD}[ENDCOLOR]</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_SEPARATE_GP_RELIGIOUS_DISPLAY">
+			<Text>Separate Great Person and Religious Units</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_SEPARATE_MILITARY_DOMAIN_DISPLAY">
+			<Text>Separate Military Units by Domain</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_EUI_SEPARATE_PROJECTS_WONDERS_DISPLAY">
+			<Text>Separate Projects and Wonders</Text>
+		</Replace>
 		<!-- VPUI Tip Titles -->
 		<Replace Tag="TXT_KEY_VPUI_TITLE_TIP">
 			<Text>Tip</Text>

@@ -32406,25 +32406,26 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					{
 						if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 						{		
+							iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(GetID(), false, /*bForUnit*/ true) * iGoldFlavor) / 10;
 							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_SCIENCE) * iScienceFlavor) / 10;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iScienceFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_PRODUCTION) * iProductionFlavor) / 10;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iProductionFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_CULTURE) * iCultureFlavor) / 10;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iCultureFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FAITH) * iFaithFlavor) / 10;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iFaithFlavor) / 10;
 							}
 							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID(), YIELD_FOOD) * iGrowthFlavor) / 10;
+								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iGrowthFlavor) / 10;
 							}
 							iValue += GC.getGame().getSmallFakeRandNum(GetBoldness(), eID+m_pPlayer->GetPseudoRandomSeed()+GC.getGame().GetCultureMedian());
 						}
@@ -32441,7 +32442,12 @@ void CvDiplomacyAI::DoContactMinorCivs()
 								iValue += -25;
 							//antonjs: consider: knock it down if is there a chance the worker will get captured by a nearby rival
 						}
-						//antonjs: consider: if military unit, it would be a good thing to get it near a rival or ongoing war
+
+						// We like to keep bullying the same minor
+						if (pMinor->GetMinorCivAI()->IsEverBulliedByMajor(eID))
+						{
+							iValue += 25;
+						}
 
 						// If this minor has a PtP from someone, bullying it could have big consequences
 						if (!GetPlayer()->GetPlayerTraits()->IgnoreBullyPenalties())
@@ -32485,8 +32491,6 @@ void CvDiplomacyAI::DoContactMinorCivs()
 							}
 						}
 
-						iValue -= GetDiploBalance() * 2;
-
 						//antonjs: consider: allies or friends with another major
 						//antonjs: consider: distance to other majors
 						// If we are getting a bonus, don't mess that up!
@@ -32520,28 +32524,11 @@ void CvDiplomacyAI::DoContactMinorCivs()
 					// Only bother if we can successfully bully
 					if (pMinor->GetMinorCivAI()->CanMajorBullyGold(eID, MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING ? iValue - 25 : 0))
 					{
-						// The closer we are the better
-						// The closer we are the better, because the unit travels less distance to get home
-						if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_NEIGHBORS)
-							iValue += 25;
-						else if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_CLOSE)
-							iValue += 15;
-						else if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_FAR)
-							iValue += -15;
-						else if (GetPlayer()->GetProximityToPlayer(eMinor) == PLAYER_PROXIMITY_DISTANT)
-							iValue += -25;
-
+						iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(GetID()) * iGoldFlavor) / 10;
 						// We like to keep bullying the same minor
 						if(pMinor->GetMinorCivAI()->IsEverBulliedByMajor(eID))
 						{
 							iValue += 25;
-						}
-
-						// If we have not bullied this minor recently, but someone else has, it might be good to wait for an opportunity to gain a lot of INF
-						if(!pMinor->GetMinorCivAI()->IsRecentlyBulliedByMajor(eID) && pMinor->GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
-						{
-							iValue += -15;
-							//antonjs: consider: but if everyone near the minor has bullied it, then there is nobody to come to its rescue, so we can bully safely
 						}
 
 						// If this minor has a PtP from someone, bullying it could have big consequences
