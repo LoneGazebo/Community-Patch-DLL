@@ -14,10 +14,10 @@ WHERE Type = 'BUILD_REMOVE_FOREST';
 INSERT INTO Build_TechTimeChanges
 	(BuildType, TechType, TimeChange)
 VALUES
-	('BUILD_REMOVE_JUNGLE', 'TECH_MACHINERY', -200),
+	('BUILD_REMOVE_JUNGLE', 'TECH_BRONZE_WORKING', -200),
 	('BUILD_REMOVE_JUNGLE', 'TECH_BIOLOGY', -200),
 
-	('BUILD_REMOVE_FOREST', 'TECH_MACHINERY', -200),
+	('BUILD_REMOVE_FOREST', 'TECH_BRONZE_WORKING', -200),
 	('BUILD_REMOVE_FOREST', 'TECH_BIOLOGY', -200),
 
 	('BUILD_REMOVE_MARSH', 'TECH_MACHINERY', -200),
@@ -35,12 +35,8 @@ WHERE FeatureType = 'FEATURE_FOREST';
 
 -- Bronze working gets a chop valuation bonus
 UPDATE Technologies
-SET FeatureProductionModifier = '50'
+SET FeatureProductionModifier = '100'
 WHERE Type = 'TECH_BRONZE_WORKING';
-
-UPDATE Technologies
-SET FeatureProductionModifier = '50'
-WHERE Type = 'TECH_IRON_WORKING';
 
 
 UPDATE BuildFeatures

@@ -1462,15 +1462,24 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 
 	if (GetEffects()->bDecolonization)
 	{
-		if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).isAlive())
+		PlayerTypes eLoopMajor;
+		PlayerTypes eLoopMinor;
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			PlayerTypes eLoopPlayer;
-			for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			eLoopMajor = (PlayerTypes)iMajorLoop;
+			if (GET_PLAYER(eLoopMajor).isAlive() && GET_PLAYER(eLoopMajor).isMajorCiv())
 			{
-				eLoopPlayer = (PlayerTypes) iPlayerLoop;
-				if(GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).isMinorCiv() && (GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() == eTargetPlayer) && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetPermanentAlly() != eTargetPlayer)
+				for (int iMinorLoop = 0; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
-					GET_PLAYER(eLoopPlayer).GetMinorCivAI()->SetFriendshipWithMajor(eTargetPlayer, 50);
+					eLoopMinor = (PlayerTypes)iMinorLoop;
+					if (GET_PLAYER(eLoopMinor).isAlive() && GET_PLAYER(eLoopMinor).isMinorCiv())
+					{
+						if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetPermanentAlly() != eLoopMajor)
+						{
+							if(GET_PLAYER(eLoopMinor).GetMinorCivAI()->GetBaseFriendshipWithMajor(eLoopMajor) > 50)
+								GET_PLAYER(eLoopMinor).GetMinorCivAI()->SetFriendshipWithMajor(eLoopMajor, 50);
+						}
+					}
 				}
 			}
 		}
@@ -13042,91 +13051,93 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 	{
 		iExtra = 0;
 		PlayerTypes ePlayer = GetPlayer()->GetID();
-		if (eTargetPlayer != NO_PLAYER)
-		{
-			if (ePlayer == eTargetPlayer)
-			{
-				int iAllies = 0;
-				int iNearAllies = 0;
-				int iFarAllies = 0;
-				for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
-				{
-					PlayerTypes eMinor = (PlayerTypes)iMinor;
-					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-					{
-						PlayerTypes eAlliedPlayer = NO_PLAYER;
-						eAlliedPlayer = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
-						if (eAlliedPlayer == ePlayer)
-						{
-							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() != ePlayer)
-							{
-								iAllies++;
-							}
-						}
-						else if (eAlliedPlayer != NO_PLAYER && GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() != eAlliedPlayer)
-						{
-							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) * 100 >= 50 * GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer))
-							{
-								iNearAllies++;
-							}
-							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) * 100 >= 25 * GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer))
-							{
-								iFarAllies++;
-							}
-						}
-					}
-				}
-				iExtra -= 150 * iAllies + 100 * iNearAllies + 50 * iFarAllies;
-				if (bForSelf)
-				{
-					iExtra -= 1000;
-				}
-			}
-			else
-			{
-				int iAllies = 0;
-				int iNearAllies = 0;
-				int iFarAllies = 0;
-				for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
-				{
-					PlayerTypes eMinor = (PlayerTypes)iMinor;
-					if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-					{
-						PlayerTypes eAlliedPlayer = NO_PLAYER;
-						eAlliedPlayer = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
-						if (eAlliedPlayer == ePlayer)
-						{
-							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() != ePlayer)
-							{
-								if (GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eTargetPlayer) * 100 >= 50 * GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer))
-								{
-									iAllies++;
-								}
-							}
-						}
-						else if (eAlliedPlayer == eTargetPlayer && GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() != eAlliedPlayer)
-						{
-							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) * 100 >= 50 * GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer))
-							{
-								iNearAllies++;
-							}
-							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer) * 100 >= 25 * GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer))
-							{
-								iFarAllies++;
-							}
-						}
-					}
-				}
-				iExtra += 100 * iAllies + 150 * iNearAllies + 50 * iFarAllies;
-				if (bForSelf)
-				{
-					if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) != NO_CIV_OPINION)
-					{
-						iExtra -= (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eTargetPlayer) - CIV_OPINION_NEUTRAL) * 100;
-					}
-				}
-			}
 
+		// first, check if a player already has enough votes for diplo victory
+		if (bDiploVictoryEnabled)
+		{
+			int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+			for (int iMajor = 0; iMajor < MAX_MAJOR_CIVS; iMajor++)
+			{
+				PlayerTypes eMajor = (PlayerTypes)iMajor;
+				if (GET_PLAYER(eMajor).isAlive())
+				{
+					int iVotes = GC.getGame().GetGameLeagues()->GetActiveLeague()->CalculateStartingVotesForMember(eMajor, true);
+					int iVoteRatio = (iVotes * 100) / max(1, iNeededVotes);
+					if (iVoteRatio >= 100)
+					{
+						if (ePlayer == eMajor)
+						{
+							// we have enough votes for a diplo victory
+							iExtra -= 10000;
+						}
+						else if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eMajor) != NO_CIV_OPINION)
+						{
+							if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eMajor) - CIV_OPINION_FAVORABLE <= 0)
+							{
+								// our enemy has enough votes for a diplo victory
+								iExtra += 10000;
+							}
+						}
+						break;
+					}
+				}
+			}
+		}
+
+		// go though all city-states and check their alliance status
+		for (int iMinor = MAX_MAJOR_CIVS; iMinor < MAX_CIV_PLAYERS; iMinor++)
+		{
+			PlayerTypes eMinor = (PlayerTypes)iMinor;
+			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			{
+				PlayerTypes eAlliedPlayer = NO_PLAYER;
+				eAlliedPlayer = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
+				if (eAlliedPlayer != NO_PLAYER && GET_PLAYER(eMinor).GetMinorCivAI()->GetPermanentAlly() == NO_PLAYER)
+				{
+					int iAllyInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer);
+					// we are allied with the City-State
+					if (eAlliedPlayer == ePlayer)
+					{
+						int iContenderInfluence = 0;
+						for (int iMajor = 0; iMajor < MAX_MAJOR_CIVS; iMajor++)
+						{
+							PlayerTypes eMajor = (PlayerTypes)iMajor;
+							if (eAlliedPlayer != eMajor)
+							{
+								iContenderInfluence = max(iContenderInfluence, GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eMajor));
+							}
+						}
+						// negative score based on how much influence the contender needs to supplant us
+						int iWeight = -range((iAllyInfluence - iContenderInfluence) / 4, 25, 150);
+						if (bForSelf) {
+							iWeight *= 2;
+						}
+						iExtra += iWeight;
+					}
+					// Someone else is the City-State's Ally
+					else
+					{
+						int iOwnInfluence = GET_PLAYER(eMinor).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
+						// positive score based on how much influence we need to become allies
+						int iWeight = range((iAllyInfluence - iOwnInfluence) / 4, 25, 150);
+						// at war with the current ally?
+						if (GetPlayer()->IsAtWarWith(eAlliedPlayer))
+						{
+							iWeight = 150;
+						}
+						if (bForSelf)
+						{
+							if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlliedPlayer) != NO_CIV_OPINION)
+							{
+								// Multiplier between 0 and 2 for our opinion of the ally (higher score if CS allied to enemy, lower score if allied to a friend)
+								iWeight *= 2 * (CIV_OPINION_ALLY - GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eAlliedPlayer));
+								iWeight /= CIV_OPINION_ALLY;
+							}
+						}
+						iExtra += iWeight;
+					}
+				}
+			}
 		}
 		if (bDiploVictoryEnabled)
 		{
@@ -13884,16 +13895,6 @@ bool CvLeagueAI::IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequired
 
 	// Embargo / Sanctions?
 	if (pProposal->GetEffects()->bEmbargoPlayer)
-	{
-		if (eRequiredTarget == NO_PLAYER)
-			return true;
-
-		if (eTargetPlayer == eRequiredTarget)
-			return true;
-	}
-
-	// Decolonization?
-	if (pProposal->GetEffects()->bDecolonization)
 	{
 		if (eRequiredTarget == NO_PLAYER)
 			return true;

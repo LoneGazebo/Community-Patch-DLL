@@ -149,20 +149,52 @@
 				<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O.I" />
 				<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O.I" />
 				<Stack ID="SelectionStacks" Anchor="L,T" StackGrowth="B" >
+					<Button ID="GPUnitButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_GREAT_PERSON_UNITS" />
+					</Button>
+					<Stack ID="GPUnitButtonStack" Anchor="L,T" StackGrowth="B" />
+					<Button ID="ReligiousUnitButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label ID="GPUnitText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_RELIGIOUS_UNITS" />
+					</Button>
+					<Stack ID="ReligiousUnitButtonStack" Anchor="L,T" StackGrowth="B" />
 					<Button ID="UnitButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
-						<Label Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_UNITS" />
+						<Label ID="UnitText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_UNITS" />
 					</Button>
 					<Stack ID="UnitButtonStack" Anchor="L,T" StackGrowth="B" />
+					<Button ID="MilitaryUnitButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label ID="MilitaryUnitText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_MILITARY_UNITS" />
+					</Button>
+					<Stack ID="MilitaryUnitButtonStack" Anchor="L,T" StackGrowth="B" />
+					<Button ID="LandUnitButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label ID="LandUnitText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_LAND_UNITS" />
+					</Button>
+					<Stack ID="LandUnitButtonStack" Anchor="L,T" StackGrowth="B" />
+					<Button ID="SeaUnitButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label ID="SeaUnitText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_SEA_UNITS" />
+					</Button>
+					<Stack ID="SeaUnitButtonStack" Anchor="L,T" StackGrowth="B" />
+					<Button ID="AirUnitButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label ID="AirUnitText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_AIR_UNITS" />
+					</Button>
+					<Stack ID="AirUnitButtonStack" Anchor="L,T" StackGrowth="B" />
 					<Button ID="BuildingsButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
-						<Label Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_BUILDINGS" />
+						<Label ID="BuildingsText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_BUILDINGS" />
 					</Button>
 					<Stack ID="BuildingButtonStack" Anchor="L,T" StackGrowth="B" />
+					<Button ID="ProjectsButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label ID="ProjectsText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_PROJECTS" />
+					</Button>
+					<Stack ID="ProjectButtonStack" Anchor="L,T" StackGrowth="B" />
+					<Button ID="NationalWondersButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
+						<Label ID="NationalWondersText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_NATIONAL_WONDERS" />
+					</Button>
+					<Stack ID="NationalWonderButtonStack" Anchor="L,T" StackGrowth="B" />
 					<Button ID="WondersButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
-						<Label Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_WONDERS" />
+						<Label ID="WondersText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_POP_WONDERS" />
 					</Button>
 					<Stack ID="WonderButtonStack" Anchor="L,T" StackGrowth="B" />
 					<Button ID="OtherButton" Anchor="L,T" Size="272,27" Offset="1,0" Texture="CivilopediaButtons272x27.dds" >
-						<Label Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_OTHER" />
+						<Label ID="OtherText" Anchor="L,C" Offset="40,-1" Font="TwCenMT18" String="TXT_KEY_CITYVIEW_OTHER" />
 					</Button>
 					<Stack ID="OtherButtonStack" Anchor="L,T" Size="256,32" StackGrowth="B" />
 				</Stack>

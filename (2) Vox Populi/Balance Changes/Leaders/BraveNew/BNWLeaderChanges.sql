@@ -91,7 +91,7 @@ SET GoldMaintenance = '0'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY';
 
 UPDATE Buildings
-SET GreatPeopleRateChange = '1'
+SET GreatPeopleRateChange = '2'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY';
 
 UPDATE Buildings

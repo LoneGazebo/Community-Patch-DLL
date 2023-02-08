@@ -4810,7 +4810,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 
 				//naval garrisons cannot attack inside cities and don't increase city strength...
 				if (!pLoopUnit->isNativeDomain(pTarget))
-					iExtraScore -= 50;
+					continue;
 
 				// Don't put units with a defense boosted from promotions in cities, these boosts are ignored
 				iExtraScore -= pLoopUnit->getDefenseModifier();
