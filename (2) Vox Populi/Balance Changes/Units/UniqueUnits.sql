@@ -38,7 +38,7 @@ INSERT INTO UnitClasses
 VALUES
 	('UNITCLASS_ASSYRIAN_SIEGE_TOWER', 'TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER', 'NONE', 2);
 
-UPDATE Units SET CityAttackOnly = '1', Combat = '0', Cost = '100', DefaultUnitAI = 'UNITAI_CITY_SPECIAL', CombatClass = NULL, Moves = '4', Class = 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', PrereqTech = 'TECH_ARCHERY', ObsoleteTech = 'TECH_GUNPOWDER', Pillage = '0', GoodyHutUpgradeUnitClass = NULL  WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
+UPDATE Units SET CityAttackOnly = '1', Combat = '0', Cost = '100', DefaultUnitAI = 'UNITAI_CITY_SPECIAL', CombatClass = NULL, Moves = '4', Class = 'UNITCLASS_ASSYRIAN_SIEGE_TOWER', PrereqTech = 'TECH_ARCHERY', ObsoleteTech = 'NULL', Pillage = '0', GoodyHutUpgradeUnitClass = NULL  WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_ASSYRIAN_SIEGE_TOWER';
 INSERT INTO Civilization_UnitClassOverrides
@@ -457,15 +457,72 @@ UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType 
 
 UPDATE Civilization_UnitClassOverrides Set UnitClassType = 'UNITCLASS_LONGSWORDSMAN' WHERE UnitType = 'UNIT_POLYNESIAN_MAORI_WARRIOR';
 
+-- Polynesian Melee Units can build Fishing Boats (updated text that no longer says "consumes unit", can also change the time for construction here)
+INSERT INTO Builds
+	(Type,						Time,	Description,	HotKey,	HotKeyPriority,	OrderPriority,	AltDown,	Cost,	CostIncreasePerImprovement,	Kill,	Water,	CanBeEmbarked,	PrereqTech,	ImprovementType,	EntityEvent,	IconIndex,	IconAtlas,	ShowInPedia,	ShowInTechTree,	ObsoleteTech,	IsFreeBestDomainUnit,	CultureBoost)
+SELECT
+	'BUILD_POLYNESIAN_BOATS',	NULL,	Description,	HotKey,	HotKeyPriority,	OrderPriority,	1,			Cost,	CostIncreasePerImprovement, 0,		1,		1,				PrereqTech,	ImprovementType,	EntityEvent,	IconIndex,	IconAtlas,	0,				0,				ObsoleteTech,	IsFreeBestDomainUnit,	CultureBoost
+FROM Builds WHERE Type = 'BUILD_FISHING_BOATS';
+
+  -- collect all melee unit classes into table
+CREATE TEMPORARY TABLE temp_uniquemeleeclasses (UnitClassType text UNIQUE ON CONFLICT IGNORE);
+
+INSERT INTO temp_uniquemeleeclasses
+SELECT
+	Class
+FROM Units WHERE CombatClass = 'UNITCOMBAT_MELEE' OR CombatClass = 'UNITCOMBAT_GUN';
+
 INSERT INTO Trait_BuildsUnitClasses
-	(TraitType, UnitClassType, BuildType)
-VALUES
-	('TRAIT_WAYFINDING', 'UNITCLASS_TRIREME', 'BUILD_FISHING_BOATS'),
-	('TRAIT_WAYFINDING', 'UNITCLASS_CARAVEL', 'BUILD_FISHING_BOATS'),
-	('TRAIT_WAYFINDING', 'UNITCLASS_IRONCLAD', 'BUILD_FISHING_BOATS'),
-	('TRAIT_WAYFINDING', 'UNITCLASS_DESTROYER', 'BUILD_FISHING_BOATS'),
-	('TRAIT_WAYFINDING', 'UNITCLASS_PRIVATEER', 'BUILD_FISHING_BOATS'),
-	('TRAIT_WAYFINDING', 'UNITCLASS_MISSILE_CRUISER', 'BUILD_FISHING_BOATS');
+	(TraitType,			UnitClassType,	BuildType)
+SELECT
+	'TRAIT_WAYFINDING',	UnitClassType, 	'BUILD_POLYNESIAN_BOATS'
+From temp_uniquemeleeclasses;
+
+DROP TABLE temp_uniquemeleeclasses;
+  -- if a unit is added with a combat class of melee/gunpowder, add it
+CREATE TRIGGER VP_PolynesiaCompatibility_Build_Insert
+AFTER INSERT ON Units
+FOR EACH ROW
+WHEN (
+		(NEW.CombatClass = 'UNITCOMBAT_MELEE' OR NEW.CombatClass = 'UNITCOMBAT_GUN')
+		AND NOT EXISTS (SELECT * FROM Trait_BuildsUnitClasses
+			WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS')
+	)
+BEGIN
+	INSERT INTO Trait_BuildsUnitClasses
+			(TraitType, UnitClassType, BuildType)
+	SELECT	'TRAIT_WAYFINDING', NEW.Class, 'BUILD_POLYNESIAN_BOATS';
+END;
+  -- if a unit's class or combat class changes, and its new combat class is melee/gunpowder, add it
+CREATE TRIGGER VP_PolynesiaCompatibility_Build_UpdateTo
+AFTER UPDATE OF Class,CombatClass ON Units
+FOR EACH ROW
+WHEN (
+		(NEW.CombatClass = 'UNITCOMBAT_MELEE' OR NEW.CombatClass = 'UNITCOMBAT_GUN')
+		AND NOT EXISTS (SELECT * FROM Trait_BuildsUnitClasses
+			WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = NEW.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS')
+	)
+BEGIN
+	INSERT INTO Trait_BuildsUnitClasses
+			(TraitType, UnitClassType, BuildType)
+	SELECT	'TRAIT_WAYFINDING', NEW.Class, 'BUILD_POLYNESIAN_BOATS';
+END;
+  -- if there are no units left of a given class and melee/gunpowder combat class, remove it
+CREATE TRIGGER VP_PolynesiaCompatibility_Build_UpdateAway
+AFTER UPDATE OF Class,CombatClass ON Units
+FOR EACH ROW 
+WHEN (
+		(OLD.CombatClass = 'UNITCOMBAT_MELEE' OR OLD.CombatClass = 'UNITCOMBAT_GUN') AND (NEW.CombatClass IS NULL OR (NEW.CombatClass <> 'UNITCOMBAT_MELEE' AND NEW.CombatClass <> 'UNITCOMBAT_GUN'))
+		AND EXISTS (SELECT * FROM Trait_BuildsUnitClasses
+			WHERE TraitType = 'TRAIT_WAYFINDING' AND UnitClassType = OLD.Class AND BuildType = 'BUILD_POLYNESIAN_BOATS')
+		AND NOT EXISTS (SELECT * FROM Units
+			WHERE Class = OLD.Class AND (CombatClass = 'UNITCOMBAT_MELEE' OR CombatClass = 'UNITCOMBAT_GUN'))
+	)
+BEGIN
+	DELETE FROM Trait_BuildsUnitClasses
+	WHERE UnitClassType = OLD.Class AND TraitType = 'TRAIT_WAYFINDING' AND BuildType = 'BUILD_POLYNESIAN_BOATS';
+END;
+
 ---------------------------
 --Portugal
 ---------------------------

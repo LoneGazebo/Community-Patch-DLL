@@ -2628,6 +2628,18 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_TOURISM] += PolicyInfo->GetStealGWFasterModifier();
 		}
 	}
+	if (PolicyInfo->GetExtraYieldsFromHeavyTribute() != 0)
+	{
+		int iTraitsModifier = pPlayerTraits->IsWarmonger() ? 4 : 1;
+		iTraitsModifier *= 100 + pPlayerTraits->GetBullyValueModifier();
+		iTraitsModifier /= 100;
+		
+		yield[YIELD_FOOD] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
+		yield[YIELD_PRODUCTION] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
+		yield[YIELD_CULTURE] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
+		yield[YIELD_SCIENCE] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
+		yield[YIELD_FAITH] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
+	}
 	if (PolicyInfo->GetEventTourism() != 0)
 	{
 		if (pPlayerTraits->IsTourism())

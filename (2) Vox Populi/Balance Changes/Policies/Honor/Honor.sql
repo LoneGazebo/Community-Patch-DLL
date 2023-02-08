@@ -65,7 +65,8 @@ WHERE PolicyType = 'POLICY_DISCIPLINE';
 
 UPDATE Policies
 SET
-	PortraitIndex = 23
+	PortraitIndex = 23,
+	ExtraYieldsFromHeavyTribute = 100
 WHERE Type = 'POLICY_DISCIPLINE';
 
 INSERT INTO Policy_ConquerorYield
