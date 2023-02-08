@@ -114,7 +114,7 @@ SET Text = 'The Floating Gardens is the Aztec unique building, replacing both th
 WHERE Tag = 'TXT_KEY_BUILDING_FOATING_GARDENS_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Receive [ICON_GOLD] Gold and [ICON_PEACE] Faith for each Enemy Unit you kill. When you complete a favorable Peace Treaty ([COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] of 25+), a [ICON_GOLDEN_AGE] Golden Age begins.'
+SET Text = 'Killing enemy Units grant 150% of their [ICON_STRENGTH] Strength as [ICON_GOLD] Gold and [ICON_PEACE] Faith. When you complete a favorable Peace Treaty ([COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] of 25+), a [ICON_GOLDEN_AGE] Golden Age begins.'
 WHERE Tag = 'TXT_KEY_TRAIT_CULTURE_FROM_KILLS';
 
 UPDATE Language_en_US
