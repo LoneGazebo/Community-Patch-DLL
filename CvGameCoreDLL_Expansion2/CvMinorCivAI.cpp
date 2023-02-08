@@ -14850,7 +14850,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 	return m_bullyRelevantPlots;
 }
 
-int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling)
+int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling, bool bForUnit)
 {
 	int iGold = /*50*/ GD_INT_GET(MINOR_BULLY_GOLD);
 	int iGoldGrowthFactor = 400;
@@ -14874,7 +14874,7 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 
 	if (!bIgnoreScaling)
 	{
-		int iFactor = CalculateBullyScore(eBullyPlayer, false);
+		int iFactor = CalculateBullyScore(eBullyPlayer, bForUnit);
 		iGold *= iFactor;
 		iGold /= 100;
 	}
@@ -15650,44 +15650,12 @@ void CvMinorCivAI::DoMajorBullyAnnex(PlayerTypes eBully)
 	}
 }
 #if defined(MOD_BALANCE_CORE)
-int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling)
+int CvMinorCivAI::GetYieldTheftAmount(PlayerTypes eBully, bool bIgnoreScaling)
 {
-	int iGold = /*50*/ GD_INT_GET(MINOR_BULLY_GOLD);
-	int iGoldGrowthFactor = 750; //antonjs: todo: XML
-
-	if (eYield == YIELD_SCIENCE)
-	{
-		iGold *= 9;
-		iGold /= 10;
-	}
-
-	// Add gold, more if later in game
-	float fGameProgressFactor = ((float)GC.getGame().getElapsedGameTurns() / (float)GC.getGame().getEstimateEndTurn());
-	CvAssertMsg(fGameProgressFactor >= 0.0f, "fGameProgressFactor is not expected to be negative! Please send Anton your save file and version.");
-	if (fGameProgressFactor > 1.0f)
-		fGameProgressFactor = 1.0f;
-
-	iGold += (int)(fGameProgressFactor * iGoldGrowthFactor);
-
-	// UA, SP Mods
-
-	// Game Speed Mod
-	iGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); //antonjs: consider: separate XML
-	iGold /= 100;
-
-	iGold *= (100 + GET_PLAYER(eBully).GetPlayerTraits()->GetBullyValueModifier());
-	iGold /= 100;
-
-	if (!bIgnoreScaling)
-	{
-		int iFactor = CalculateBullyScore(eBully, true);
-		iGold *= iFactor;
-		iGold /= 100;
-	}
-	if (iGold <= 0)
-		iGold = 0;
-
-	return iGold;
+	int iYield = GetBullyGoldAmount(eBully, bIgnoreScaling, /* bFor Unit*/ true) / 4;
+	iYield *= (100 + GET_PLAYER(eBully).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_YIELDS_FROM_HEAVY_TRIBUTE));
+	iYield /= 100;
+	return iYield;
 }
 #endif
 void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
@@ -15805,13 +15773,47 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			float fDelay = 0.0f;
 			if (pBullyCapital != NULL)
 			{
+				// Heavy tribute gives gold, equal to normal tribute, for all types of city-states.
+				iValue = GetBullyGoldAmount(eBully, false, /*bForUnit*/ true);
+				if (iValue > 0)
+				{
+					GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
+
+					GET_PLAYER(eBully).GetTreasury()->ChangeGold(iValue);
+
+					if (GC.getGame().getActivePlayer() != NO_PLAYER)
+					{
+						if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)
+						{
+							char text[256] = { 0 };
+
+							sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_GOLD]", iValue);
+							SHOW_PLOT_POPUP(pBullyCapital->plot(), pBullyCapital->getOwner(), text);
+						}
+						if (GET_TEAM(GET_PLAYER(GC.getGame().getActivePlayer()).getTeam()).isHasMet(GetPlayer()->getTeam()))
+						{
+							char text[256] = { 0 };
+							fDelay += 1.5f;
+							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_GOLD]", iValue);
+							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
+						}
+					}
+					GET_PLAYER(eBully).GetDiplomacyAI()->LogMinorCivBullyHeavy(GetPlayer()->GetID(), iOldFriendshipTimes100, GetEffectiveFriendshipWithMajorTimes100(eBully), YIELD_GOLD, iValue, bSuccess, iBullyMetric);
+				}
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					// Logging
+					CvString strLogString;
+					strLogString.Format("%s robbed of gold by %s through bullying. X: %d, Y: %d", GetPlayer()->getName(), GET_PLAYER(eBully).getName(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY());
+					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
+				}
+
+				// Heavy Tribute also gives yields equal to 25% of that gold (faith/culture/science/production/food, according to the CS type)
+				iValue = GetYieldTheftAmount(eBully);
 				if (GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
 				{
-					iValue = GetYieldTheftAmount(eBully, YIELD_SCIENCE);
 					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
-
 						TechTypes eCurrentTech = GET_PLAYER(eBully).GetPlayerTechs()->GetCurrentResearch();
 						if (eCurrentTech == NO_TECH)
 						{
@@ -15854,13 +15856,10 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
-				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
+				else if (GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
 				{
-					iValue = GetYieldTheftAmount(eBully, YIELD_CULTURE);
 					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
-
 						GET_PLAYER(eBully).changeJONSCulture(iValue);
 						pBullyCapital->ChangeJONSCultureStored(iValue);
 						if (GC.getGame().getActivePlayer() != NO_PLAYER)
@@ -15896,13 +15895,10 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
-				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
+				else if (GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
 				{
-					iValue = GetYieldTheftAmount(eBully, YIELD_PRODUCTION);
 					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
-
 						pBullyCapital->changeProduction(iValue);
 						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
@@ -15937,13 +15933,10 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
-				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
+				else if (GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
 				{
-					iValue = GetYieldTheftAmount(eBully, YIELD_FAITH);
 					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
-
 						GET_PLAYER(eBully).ChangeFaith(iValue);
 						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
@@ -15978,13 +15971,10 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 					}
 				}
-				else if (pBullyCapital != NULL && GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
+				else if (GetPlayer()->GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 				{
-					iValue = GetYieldTheftAmount(eBully, YIELD_FOOD);
 					if (iValue > 0)
 					{
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iValue, true, NO_PLAYER, NULL, false, pBullyCapital);
-
 						pBullyCapital->changeFood(iValue);
 						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
@@ -16023,52 +16013,48 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				//do we get a lump some of yields from this?
 				if (GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 				{
+					// Gold Tribute
+					int iYield = GetBullyGoldAmount(eBully, true, true);
+					iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+					iYield /= 100;
+					GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_GOLD);
+
+					// Culture/Production/Food/Faith/Science Tribute
+
+					iYield = GetYieldTheftAmount(eBully, true);
+					iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
+					iYield /= 100;
 					MinorCivTraitTypes eTrait = GetTrait();
 
 					switch (eTrait)
 					{
-					case NO_MINOR_CIV_TRAIT_TYPE:
-						UNREACHABLE();
-					case MINOR_CIV_TRAIT_CULTURED:
-					{
-						int iYield = GetYieldTheftAmount(eBully, YIELD_CULTURE, true);
-						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-						iYield /= 100;
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_CULTURE);
-						break;
-					}
-					case MINOR_CIV_TRAIT_MARITIME:
-					{
-						int iYield = GetYieldTheftAmount(eBully, YIELD_FOOD, true);
-						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-						iYield /= 100;
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_FOOD);
-						break;
-					}
-					case(MINOR_CIV_TRAIT_MERCANTILE) :
-					{
-						int iYield = GetYieldTheftAmount(eBully, YIELD_GOLD, true);
-						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-						iYield /= 100;
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_GOLD);
-						break;
-					}
-					case MINOR_CIV_TRAIT_MILITARISTIC:
-					{
-						int iYield = GetYieldTheftAmount(eBully, YIELD_SCIENCE, true);
-						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-						iYield /= 100;
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_SCIENCE);
-						break;
-					}
-					case MINOR_CIV_TRAIT_RELIGIOUS:
-					{
-						int iYield = GetYieldTheftAmount(eBully, YIELD_FAITH, true);
-						iYield *= GET_PLAYER(eBully).GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-						iYield /= 100;
-						GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_FAITH);
-						break;
-					}
+						case NO_MINOR_CIV_TRAIT_TYPE:
+							UNREACHABLE();
+						case MINOR_CIV_TRAIT_CULTURED:
+						{
+							GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_CULTURE);
+							break;
+						}
+						case MINOR_CIV_TRAIT_MARITIME:
+						{
+							GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_FOOD);
+							break;
+						}
+						case(MINOR_CIV_TRAIT_MERCANTILE):
+						{
+							GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_PRODUCTION);
+							break;
+						}
+						case MINOR_CIV_TRAIT_MILITARISTIC:
+						{
+							GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_SCIENCE);
+							break;
+						}
+						case MINOR_CIV_TRAIT_RELIGIOUS:
+						{
+							GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, GetPlayer()->getCapitalCity(), false, true, false, YIELD_FAITH);
+							break;
+						}
 					}
 				}
 			}

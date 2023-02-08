@@ -720,7 +720,7 @@ public:
 	// ************************************
 
 	const ReachablePlots& GetBullyRelevantPlots();
-	int GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling = false);
+	int GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling = false, bool bForUnit = false);
 
 	int CalculateBullyScore(PlayerTypes eBullyPlayer, bool bForUnit, CvString* sTooltipSink = NULL);
 
@@ -742,7 +742,7 @@ public:
 	void DoMajorBullyAnnex(PlayerTypes eBully);
 #endif
 #if defined(MOD_BALANCE_CORE)
-	int GetYieldTheftAmount(PlayerTypes eBully, YieldTypes eYield, bool bIgnoreScaling = false);
+	int GetYieldTheftAmount(PlayerTypes eBully, bool bIgnoreScaling = false);
 #endif
 	
 	void DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceChangeTimes100);

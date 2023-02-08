@@ -77,7 +77,8 @@ WHERE PolicyType = 'POLICY_DISCIPLINE';
 
 UPDATE Policies
 SET
-	PortraitIndex = 23
+	PortraitIndex = 23,
+	ExtraYieldsFromHeavyTribute = 100
 WHERE Type = 'POLICY_DISCIPLINE';
 
 
@@ -130,7 +131,8 @@ WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
 
 UPDATE Policies
 SET
-	GoldFromKills = 0
+	GoldFromKills = 0,
+	ExtraYieldsFromHeavyTribute = 100
 WHERE Type = 'POLICY_HONOR_FINISHER';
 
 -- Mercenary Army 
@@ -187,12 +189,6 @@ VALUES
 	('POLICY_DISCIPLINE', 'YIELD_PRODUCTION', 20),
 	('POLICY_HONOR_FINISHER', 'YIELD_GOLD', 20),
 	('POLICY_HONOR_FINISHER', 'YIELD_PRODUCTION', 20);
-
-INSERT INTO Policy_YieldFromMinorDemand
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 25),
-	('POLICY_HONOR_FINISHER', 'YIELD_CULTURE', 25);
 
 
 -- Promotions
