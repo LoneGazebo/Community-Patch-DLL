@@ -20,7 +20,7 @@ UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_AMBASSADOR';
 
 
-UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT'; 
+UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT';
 
 
 UPDATE Buildings SET PrereqTech = 'TECH_EDUCATION' WHERE Type = 'BUILDING_CHANCERY';
@@ -54,13 +54,6 @@ VALUES
 	('TECH_NAVIGATION', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_GOLD', 1),
 	('TECH_REPLACEABLE_PARTS', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 1),
 	('TECH_INTERNET', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_CULTURE', 1);
-
--- Nuclear Plant -- now buffs specialists
-INSERT INTO Building_SpecialistYieldChangesLocal
-	(BuildingType, SpecialistType, YieldType, Yield)
-VALUES
-	('BUILDING_NUCLEAR_PLANT', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_GOLD', 1),
-	('BUILDING_NUCLEAR_PLANT', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_SCIENCE', 1);
 
 INSERT INTO Policy_FaithPurchaseUnitClasses
 	(PolicyType, UnitClassType)

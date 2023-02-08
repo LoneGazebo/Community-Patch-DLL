@@ -1990,6 +1990,9 @@ public:
 	void ChangeIsNoCSDecayAtWar(int iValue);
 	bool IsNoCSDecayAtWar() const;
 
+	void ChangeMinimumAllyInfluenceIncreaseAtWar(int iValue);
+	bool GetMinimumAllyInfluenceIncreaseAtWar() const;
+
 	void ChangeCanBullyFriendlyCS(int iValue);
 	bool IsCanBullyFriendlyCS() const;
 
@@ -3028,6 +3031,7 @@ protected:
 	int m_iHappinessFromMinorCivs;
 	int m_iPositiveWarScoreTourismMod;
 	int m_iIsNoCSDecayAtWar;
+	int m_iMinimumAllyInfluenceIncreaseAtWar;
 	int m_iCanBullyFriendlyCS;
 	int m_iKeepConqueredBuildings;
 	int m_iBullyGlobalCSReduction;	
@@ -3859,6 +3863,7 @@ SYNC_ARCHIVE_VAR(int, m_iXCSAlliesLowersPolicyNeedWonders)
 SYNC_ARCHIVE_VAR(int, m_iHappinessFromMinorCivs)
 SYNC_ARCHIVE_VAR(int, m_iPositiveWarScoreTourismMod)
 SYNC_ARCHIVE_VAR(int, m_iIsNoCSDecayAtWar)
+SYNC_ARCHIVE_VAR(int, m_iMinimumAllyInfluenceIncreaseAtWar)
 SYNC_ARCHIVE_VAR(int, m_iCanBullyFriendlyCS)
 SYNC_ARCHIVE_VAR(int, m_iKeepConqueredBuildings)
 SYNC_ARCHIVE_VAR(int, m_iBullyGlobalCSReduction)

@@ -186,7 +186,7 @@ UPDATE Policies
 SET
 	MilitaryUnitGiftExtraInfluence = 0,
 	CityStateUnitFrequencyModifier = 300,
-	NoAlliedCSInfluenceDecayAtWar = 1,
+	MinimumAllyInfluenceIncreaseAtWar = 100,
 	ExtraSupplyPerPopulation = 50
 WHERE Type = 'POLICY_UNITED_FRONT';
 

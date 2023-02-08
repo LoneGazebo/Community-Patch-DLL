@@ -2529,12 +2529,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 		return true;
 	}
 
-	int iCurrentNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
-	if(iNumBuilders >= iCurrentNumCities)
-	{
-		return false;
-	}
-
 	// Don't get desperate for training a Builder here unless the City is at least of a certain size
 	if (pCity->getPopulation() >= /*4*/ GD_INT_GET(AI_CITYSTRATEGY_WANT_TILE_IMPROVERS_MINIMUM_SIZE))
 	{
@@ -2542,6 +2536,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_WantTileImprovers(AICityStrategyT
 		if (iNumBuilders < 1)
 			return true;
 
+		int iCurrentNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
 		CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
 		if (iNumBuilders < iCurrentNumCities * pCityStrategy->GetWeightThreshold()) // limit to x builders per city
 			return true;
