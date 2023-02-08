@@ -16150,6 +16150,7 @@ int CvLuaPlayer::lGetCoupChanceOfSuccess(lua_State* L)
 	CvPlayerAI* pkThisPlayer = GetInstance(L);
 	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	bool bIgnoreEnemySpies = luaL_optbool(L, 3, false);
 
 	int iSpyIndex = pkPlayerEspionage->GetSpyIndexInCity(pkCity);
 	CvAssertMsg(iSpyIndex >= 0, "iSpyIndex out of bounds");
@@ -16159,7 +16160,7 @@ int CvLuaPlayer::lGetCoupChanceOfSuccess(lua_State* L)
 		return 1;
 	}
 
-	lua_pushinteger(L, pkPlayerEspionage->GetCoupChanceOfSuccess(iSpyIndex));
+	lua_pushinteger(L, pkPlayerEspionage->GetCoupChanceOfSuccess(iSpyIndex, bIgnoreEnemySpies));
 	return 1;
 }
 //------------------------------------------------------------------------------

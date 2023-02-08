@@ -344,7 +344,7 @@ SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Temple[ENDCOLOR], which
 WHERE Tag = 'TXT_KEY_TECH_PHILOSOPHY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows Workers to build [COLOR_POSITIVE_TEXT]Railroads[ENDCOLOR] on map tiles. Connecting cities with them will increase [ICON_PRODUCTION] Production, and units traveling along them will move more quickly.'
+SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Allows Workers to build [COLOR_POSITIVE_TEXT]Railroads[ENDCOLOR] on map tiles.'
 WHERE Tag = 'TXT_KEY_TECH_RAILROAD_HELP';
 
 UPDATE Language_en_US
@@ -413,3 +413,8 @@ WHERE Tag = 'TXT_KEY_TECH_NANOTECHNOLOGY_HELP';
 UPDATE Language_en_US
 SET Text = 'Who knows what the future holds?[NEWLINE][NEWLINE]A repeating technology that will increase your score and create 1 [ICON_HAPPINESS_1] Happiness in every City each time it is researched.'
 WHERE Tag = 'TXT_KEY_TECH_FUTURE_TECH_HELP';
+
+-- Railroad text fix
+UPDATE Language_en_US
+SET Text = 'A railroad is a set of rails - usually metal - upon which a vehicle runs. The earliest railed vehicles were carts pulled by animal power; the first steam-powered locomotive appeared in England at the end of the 18th century.[NEWLINE][NEWLINE]An unbroken chain of Railroads allows units to move extremely quickly through tiles.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_RAILROAD_TEXT';

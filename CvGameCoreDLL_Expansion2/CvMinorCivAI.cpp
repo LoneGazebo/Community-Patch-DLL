@@ -4286,6 +4286,7 @@ void CvMinorCivAI::Reset()
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 		m_IncomingUnitGifts[iI].reset();
+		m_aiNumSuccessfulElectionRiggings[iI] = 0;
 	}
 
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -4377,6 +4378,7 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_abPermanentWar);
 
 	visitor(minorCivAI.m_abWaryOfTeam);
+	visitor(minorCivAI.m_aiNumSuccessfulElectionRiggings);
 
 	visitor(minorCivAI.m_bIsRebellion);
 	visitor(minorCivAI.m_iTurnsSinceRebellion);
@@ -4744,6 +4746,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
+			ResetNumSuccessfulElectionRiggings(e);
 
 			// Return all incoming unit gifts.
 			returnIncomingUnitGift(e);
@@ -10944,8 +10947,8 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 
 		if (MOD_BALANCE_VP)
 		{
-			//Influence decay increases the higher your influence over 100. >= 100 equals -1, >= 200 equals -2.82, >= 300 equals -5.2, >= 400 equals -8, >= 500 equals -11.18, and so on.
-			int iScalingInfluenceDecay = iCurrentInfluence / 10000;
+			//Influence decay increases the higher your influence over your resting point. >= 100 over resting point equals -1, >= 200 equals -2.82, >= 300 equals -5.2, >= 400 equals -8, >= 500 equals -11.18, and so on.
+			int iScalingInfluenceDecay = (iCurrentInfluence - iRestingPoint) / 10000;
 			if (iScalingInfluenceDecay > 0)
 			{
 				float fExponent = /*1.5*/ GD_FLOAT_GET(MINOR_INFLUENCE_SCALING_DECAY_EXPONENT);
@@ -10982,13 +10985,8 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 
 	if (iChangeThisTurn < 0)
 	{
-		// No City-State decay while at war? (Autocracy tenet)
+		// No City-State decay while at war?
 		if (IsAllies(ePlayer) && GET_PLAYER(ePlayer).IsNoCSDecayAtWar() && GET_PLAYER(ePlayer).IsAtWar())
-		{
-			iChangeThisTurn = 0;
-		}
-		// Diplomatic Marriage active? (Austria UA)
-		else if (!kPlayer.IsAtWarWith(GetPlayer()->GetID()) && GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(ePlayer))
 		{
 			iChangeThisTurn = 0;
 		}
@@ -11177,6 +11175,17 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 		{
 			iAnchor += /*-20*/ GD_INT_GET(MINOR_FRIENDSHIP_ANCHOR_MOD_WARY_OF);
 		}
+	}
+
+	// Diplomatic Marriage? (VP)
+	if (!GetPlayer()->IsAtWarWith(pMajor->GetID()) && pMajor->GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(eMajor))
+	{
+		iAnchor += /*200*/ GD_INT_GET(BALANCE_MARRIAGE_RESTING_POINT_INCREASE);
+	}
+	// United Front? (VP)
+	if (IsAllies(eMajor) && pMajor->IsAtWar())
+	{
+		iAnchor += pMajor->GetMinimumAllyInfluenceIncreaseAtWar();
 	}
 
 	// Social Policies
@@ -16374,6 +16383,7 @@ void CvMinorCivAI::DoElection()
 					iValue *= (iEra + iEra);
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
+				ChangeNumSuccessfulElectionRiggings(ePlayer, 1);
 
 				//Achievements!
 				if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
@@ -17395,6 +17405,28 @@ void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 	}
 }
 #endif
+
+int CvMinorCivAI::GetNumSuccessfulElectionRiggings(PlayerTypes ePlayer) const
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	return m_aiNumSuccessfulElectionRiggings[ePlayer];
+}
+
+void CvMinorCivAI::ChangeNumSuccessfulElectionRiggings(PlayerTypes ePlayer, int iChange)
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	m_aiNumSuccessfulElectionRiggings[ePlayer] += iChange;
+}
+
+void CvMinorCivAI::ResetNumSuccessfulElectionRiggings(PlayerTypes ePlayer)
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	m_aiNumSuccessfulElectionRiggings[ePlayer] = 0;
+}
+
 
 const CvMinorCivIncomingUnitGift& CvMinorCivAI::getIncomingUnitGift(PlayerTypes eMajor) const
 {

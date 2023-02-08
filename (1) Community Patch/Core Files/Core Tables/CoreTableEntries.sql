@@ -636,8 +636,11 @@ ALTER TABLE Policies ADD COLUMN 'CSYieldBonusModifier' INTEGER DEFAULT 0;
 -- Can bully friendly CSs (no penalty)
 ALTER TABLE Policies ADD COLUMN 'CanBullyFriendlyCS' BOOLEAN DEFAULT 0;
 
--- CS influence does not decline at war
+-- Allied CS influence does not decline at war
 ALTER TABLE Policies ADD COLUMN 'NoAlliedCSInfluenceDecayAtWar' BOOLEAN DEFAULT 0;
+
+-- Allied CS influence resting point increases while at war
+ALTER TABLE Policies ADD COLUMN 'MinimumAllyInfluenceIncreaseAtWar' INTEGER DEFAULT 0;
 
 -- Vassals don't rebel and can't be forced out by deals or WC
 ALTER TABLE Policies ADD COLUMN 'VassalsNoRebel' BOOLEAN DEFAULT 0;

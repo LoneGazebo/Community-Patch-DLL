@@ -446,7 +446,7 @@
 
 		<!-- City-State Protection Prompt -->
 		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
-			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR].</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Aesthetics -->
@@ -516,6 +516,9 @@
 		<!-- Espionage Tooltip -->
 		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_PERMA_TT">
 			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} yet because their current Ally has a Sphere of Influence here.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_NUMBER_ELECTION_RIGGINGS">
+			<Text>[COLOR_CYAN]Number of successfully rigged elections since the last coup: {1_NumElectionsRigged}[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Feitoria Production Tooltip-->
@@ -1485,6 +1488,12 @@
 		<Row Tag="TXT_KEY_POLICYSCREEN_POLICIES_NEEDED_UNTIL_IDEOLOGY">
 			<Text>Number of Policies Remaining until Ideologies are unlocked: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_CIVS_WITH_OTHER_IDEOLOGY">
+			<Text>Influenced by the number of civilizations not following our Ideology:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_IDEOLOGY_INFLUENCE_RECENTLY_ADOPTED">
+			<Text>Influence due to only recently adopting/switching Ideologies:</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_PEDIA_ERA_YIELD">
 			<Text>Yield increase per Era:</Text>
@@ -1721,6 +1730,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_REVOKED_WAR">
 			<Text>{1_MinorCivName:textkey} revokes quests</Text>
+		</Row>		
+		<Row Tag="TXT_KEY_VP_VASSALS">
+			<Text>Vassals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_CITYSTATES">
+			<Text>City-State Alliances</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_MILITARY">
+			<Text>Military Power</Text>
 		</Row>
 	<!-- UI - Religion Spread -->
 			<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">

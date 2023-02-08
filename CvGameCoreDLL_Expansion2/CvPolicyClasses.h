@@ -197,6 +197,7 @@ public:
 	BuildingClassTypes GetAllCityFreeBuilding() const;
 	
 	bool IsNoCSDecayAtWar() const;
+	int GetMinimumAllyInfluenceIncreaseAtWar() const;
 	bool CanBullyFriendlyCS() const;
 	int GetBullyGlobalCSReduction() const;
 #endif
@@ -622,6 +623,7 @@ private:
 	BuildingClassTypes m_eNewFoundCityFreeBuilding;
 #endif
 	bool m_bNoCSDecayAtWar;
+	int m_iMinimumAllyInfluenceIncreaseAtWar;
 	bool m_bBullyFriendlyCS;
 	int m_iBullyGlobalCSReduction;
 	bool m_bVassalsNoRebel;

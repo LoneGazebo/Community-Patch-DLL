@@ -497,6 +497,7 @@ CvPlayer::CvPlayer() :
 , m_iHappinessFromMinorCivs()
 , m_iPositiveWarScoreTourismMod()
 , m_iIsNoCSDecayAtWar()
+, m_iMinimumAllyInfluenceIncreaseAtWar()
 , m_iCanBullyFriendlyCS()
 , m_iKeepConqueredBuildings()
 , m_iBullyGlobalCSReduction()
@@ -1291,6 +1292,7 @@ void CvPlayer::uninit()
 	m_iHappinessFromMinorCivs = 0;
 	m_iPositiveWarScoreTourismMod = 0;
 	m_iIsNoCSDecayAtWar = 0;
+	m_iMinimumAllyInfluenceIncreaseAtWar = 0;
 	m_iCanBullyFriendlyCS = 0;
 	m_iKeepConqueredBuildings = 0;
 	m_iBullyGlobalCSReduction = 0;
@@ -23892,6 +23894,14 @@ bool CvPlayer::IsNoCSDecayAtWar() const
 {
 	return m_iIsNoCSDecayAtWar > 0;
 }
+void CvPlayer::ChangeMinimumAllyInfluenceIncreaseAtWar(int iValue)
+{
+	m_iMinimumAllyInfluenceIncreaseAtWar += iValue;
+}
+int CvPlayer::GetMinimumAllyInfluenceIncreaseAtWar() const
+{
+	return m_iMinimumAllyInfluenceIncreaseAtWar;
+}
 void CvPlayer::ChangeCanBullyFriendlyCS(int iValue)
 {
 	m_iCanBullyFriendlyCS += iValue;
@@ -44684,6 +44694,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangePositiveWarScoreTourismMod(pPolicy->GetPositiveWarScoreTourismMod() * iChange);
 
 	ChangeIsNoCSDecayAtWar(pPolicy->IsNoCSDecayAtWar() * iChange);
+	ChangeMinimumAllyInfluenceIncreaseAtWar(pPolicy->GetMinimumAllyInfluenceIncreaseAtWar() * iChange);
 	ChangeCanBullyFriendlyCS(pPolicy->CanBullyFriendlyCS() * iChange);
 	ChangeKeepConqueredBuildings(pPolicy->IsKeepConqueredBuildings() * iChange);
 	ChangeBullyGlobalCSReduction(pPolicy->GetBullyGlobalCSReduction() * iChange);
@@ -46911,6 +46922,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iHappinessFromMinorCivs);
 	visitor(player.m_iPositiveWarScoreTourismMod);
 	visitor(player.m_iIsNoCSDecayAtWar);
+	visitor(player.m_iMinimumAllyInfluenceIncreaseAtWar);
 	visitor(player.m_iCanBullyFriendlyCS);
 	visitor(player.m_iKeepConqueredBuildings);
 	visitor(player.m_iBullyGlobalCSReduction);

@@ -169,10 +169,10 @@
           <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_LAND"/>
           <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_WONDERS"/>
           <Label ID="TechLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_TECH"/>
-          <Label ID="FutureTechLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_FUTURE_TECH"/>
-          <Label ID="VassalLabel" Offset="0,0" Anchor="L,T" String="Vassals"/>
-          <Label ID="CSAllyLabel" Offset="0,0" Anchor="L,T" String="City-State Alliances"/>
-          <Label ID="MilitaryPowerLabel" Offset="0,0" Anchor="L,T" String="Military Power"/>
+          <Label ID="FutureTechLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_FUTURE_TECH"/>          
+          <Label ID="VassalLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_VASSALS"/>
+          <Label ID="CSAllyLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_CITYSTATES"/>
+          <Label ID="MilitaryPowerLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_MILITARY"/>
           <Label ID="PolicyLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_POLICIES"/>
           <Label Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_GREAT_WORKS"/>
           <Label ID="ReligionLabel" Offset="0,0" Anchor="L,T" String="TXT_KEY_VP_RELIGION"/>

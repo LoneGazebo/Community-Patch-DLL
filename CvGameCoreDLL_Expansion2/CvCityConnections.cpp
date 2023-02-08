@@ -126,6 +126,9 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 {
 	m_plotIdsToConnect.clear();
 
+	bool bIsIndustrial = GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute() == GC.getGame().GetIndustrialRoute();
+	bool bHaveGoldToSpare = m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100() > 1000;
+
 	vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
 	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
@@ -144,16 +147,22 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		for (size_t j=0; j<vPlots.size(); j++)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
-
-			if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+			if (pLoopPlot->isWater())
 				continue;
-						
+					
 			//ignore plots which are not exposed
 			if (!pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
 				continue;
 
-			CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
-			if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 20)
+			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			{
+				CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
+				if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 20)
+					m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
+			}
+
+			//in industrial era, AI becomes much more generous with roads ...
+			if (bIsIndustrial && bHaveGoldToSpare && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 		}
 	}

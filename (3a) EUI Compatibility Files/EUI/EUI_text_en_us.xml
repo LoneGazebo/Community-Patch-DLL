@@ -6,6 +6,34 @@
 		<Replace Tag="TXT_KEY_C4DF_VASSAL_OVERVIEW">
 			<Text>Vassal Overview</Text>
 		</Replace>
+<!-- UI additions -->
+		<Replace Tag="TXT_KEY_POP_GREAT_PERSON_UNITS">
+			<Text>GREAT PERSON UNITS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_RELIGIOUS_UNITS">
+			<Text>RELIGIOUS UNITS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_LAND_UNITS">
+			<Text>LAND MILITARY UNITS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_SEA_UNITS">
+			<Text>SEA MILITARY UNITS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_AIR_UNITS">
+			<Text>AIR MILITARY UNITS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_MILITARY_UNITS">
+			<Text>MILITARY UNITS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_NATIONAL_WONDERS">
+			<Text>NATIONAL WONDERS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_WORLD_WONDERS">
+			<Text>WORLD WONDERS</Text>
+		</Replace>
+		<Replace Tag="TXT_KEY_POP_PROJECTS">
+			<Text>PROJECTS</Text>
+		</Replace>
 <!-- UNIT attributes -->
 		<Replace Tag="TXT_KEY_EUI_UNIT_MOVEAFTERPURCHASE">
 			<Text>Can move after purchase</Text>
