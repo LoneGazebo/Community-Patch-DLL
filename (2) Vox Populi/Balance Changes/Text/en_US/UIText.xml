@@ -446,7 +446,7 @@
 
 		<!-- City-State Protection Prompt -->
 		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
-			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR].</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Aesthetics -->
@@ -516,6 +516,9 @@
 		<!-- Espionage Tooltip -->
 		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_PERMA_TT">
 			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} yet because their current Ally has a Sphere of Influence here.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_NUMBER_ELECTION_RIGGINGS">
+			<Text>[COLOR_CYAN]Number of successfully rigged elections since the last coup: {1_NumElectionsRigged}[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Feitoria Production Tooltip-->

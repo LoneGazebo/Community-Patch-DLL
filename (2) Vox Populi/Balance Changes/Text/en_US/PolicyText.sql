@@ -166,7 +166,7 @@ WHERE Tag = 'TXT_KEY_POLICY_CIVIL_SOCIETY_HELP';
 
 -- Covert Action
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Covert Action[ENDCOLOR]: Chance of rigged elections and coups in City-States doubled. Receive one [ICON_SPY] Spy (plus one Spy for every 10 [ICON_CITY_STATE] City-States, if at least 20 city-states ever existed).'
+SET Text = '[COLOR_POSITIVE_TEXT]Covert Action[ENDCOLOR]: Chance of rigged elections and coups in City-States increased. Receive one [ICON_SPY] Spy (plus one Spy for every 10 [ICON_CITY_STATE] City-States, if at least 20 city-states ever existed).'
 WHERE Tag = 'TXT_KEY_POLICY_COVERT_ACTION_HELP';
 
 -- Creative Expression

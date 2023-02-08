@@ -4286,6 +4286,7 @@ void CvMinorCivAI::Reset()
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 		m_IncomingUnitGifts[iI].reset();
+		m_aiNumSuccessfulElectionRiggings[iI] = 0;
 	}
 
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -4377,6 +4378,7 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_abPermanentWar);
 
 	visitor(minorCivAI.m_abWaryOfTeam);
+	visitor(minorCivAI.m_aiNumSuccessfulElectionRiggings);
 
 	visitor(minorCivAI.m_bIsRebellion);
 	visitor(minorCivAI.m_iTurnsSinceRebellion);
@@ -4744,6 +4746,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
+			ResetNumSuccessfulElectionRiggings(e);
 
 			// Return all incoming unit gifts.
 			returnIncomingUnitGift(e);
@@ -16394,6 +16397,7 @@ void CvMinorCivAI::DoElection()
 					iValue *= (iEra + iEra);
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
+				ChangeNumSuccessfulElectionRiggings(ePlayer, 1);
 
 				//Achievements!
 				if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
@@ -17415,6 +17419,28 @@ void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 	}
 }
 #endif
+
+int CvMinorCivAI::GetNumSuccessfulElectionRiggings(PlayerTypes ePlayer) const
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	return m_aiNumSuccessfulElectionRiggings[ePlayer];
+}
+
+void CvMinorCivAI::ChangeNumSuccessfulElectionRiggings(PlayerTypes ePlayer, int iChange)
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	m_aiNumSuccessfulElectionRiggings[ePlayer] += iChange;
+}
+
+void CvMinorCivAI::ResetNumSuccessfulElectionRiggings(PlayerTypes ePlayer)
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	m_aiNumSuccessfulElectionRiggings[ePlayer] = 0;
+}
+
 
 const CvMinorCivIncomingUnitGift& CvMinorCivAI::getIncomingUnitGift(PlayerTypes eMajor) const
 {
