@@ -184,37 +184,38 @@ public:
 	enum
 	{
 		//these values can be called via the dll external interface, don't modify them
-	    MOVEFLAG_ATTACK							= 0x0001, // flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
-	    MOVEFLAG_UNUSED1						= 0x0002, // 
-	    MOVEFLAG_DESTINATION					= 0x0004, // we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
-	    MOVEFLAG_UNUSED2						= 0x0008, // 
-	    MOVEFLAG_IGNORE_STACKING_SELF			= 0x0010, // stacking rules (with owned units) don't apply (on turn end plots)
-	    MOVEFLAG_UNUSED3						= 0x0020, //
-	    MOVEFLAG_UNUSED4						= 0x0040, // 
-	    MOVEFLAG_UNUSED5						= 0x0080, // 
+		MOVEFLAG_ATTACK							= 0x0001, // flag for CvUnit missions to allow attacks (melee combat or ranged capturing civilian). pathfinder handles this automatically
+		MOVEFLAG_UNUSED1						= 0x0002, // 
+		MOVEFLAG_DESTINATION					= 0x0004, // we want to end the turn in the given plot. only relevant for canMoveInto(), pathfinder handles it automatically
+		MOVEFLAG_UNUSED2						= 0x0008, // 
+		MOVEFLAG_IGNORE_STACKING_SELF			= 0x0010, // stacking rules (with owned units) don't apply (on turn end plots)
+		MOVEFLAG_UNUSED3						= 0x0020, //
+		MOVEFLAG_UNUSED4						= 0x0040, // 
+		MOVEFLAG_UNUSED5						= 0x0080, // 
 		//these values are used internally only
-		MOVEFLAG_IGNORE_DANGER					= 0x0100, //do not apply a penalty for dangerous plots
-		MOVEFLAG_NO_EMBARK						= 0x0200, //do not ever embark (but move along if already embarked)
-		MOVEFLAG_NO_ENEMY_TERRITORY				= 0x0400, //don't enter enemy territory, even if we could (but can still pass through enemy *zones*!) 
-		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800, //try to reveal as many plots as possible
-		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000, //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
-		MOVEFLAG_NO_OCEAN						= 0x2000, //don't use deep water even if we could
-		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000, //for civilian with escort
-		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000, //don't need to reach the target exactly, a ring1 tile is good enough
-		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000, //don't need to reach the target exactly, a ring2 tile is good enough
-		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000, //no embarkation on approximate target tile
-		MOVEFLAG_IGNORE_ZOC						= 0x40000, //ignore zones of control
-		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000, //pretend we can enter everybody's territory
-		MOVEFLAG_SELECTIVE_ZOC					= 0x100000, //ignore ZOC from enemy units on given plots
-		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000, //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
-		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000, //abort movement if about to end turn on a dangerous plot (should always check if move was executed afterwards)
-		MOVEFLAG_NO_STOPNODES					= 0x800000, //if we already know we can reach the target plot, don't bother with stop nodes
-		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000, //abort if additional enemies become visible, irrespective of danger level
-		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000, //similar to IGNORE_STACKING but pretend we can pass through enemies
-		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000, //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
-		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000, //same owner of approximate target tile
+		MOVEFLAG_IGNORE_DANGER					= 0x0100,     //do not apply a penalty for dangerous plots
+		MOVEFLAG_NO_EMBARK						= 0x0200,     //do not ever embark (but move along if already embarked)
+		MOVEFLAG_NO_ENEMY_TERRITORY				= 0x0400,     //don't enter enemy territory, even if we could (but can still pass through enemy *zones*!) 
+		MOVEFLAG_MAXIMIZE_EXPLORE				= 0x0800,     //try to reveal as many plots as possible
+		MOVEFLAG_NO_DEFENSIVE_SUPPORT			= 0x1000,     //without this set in a melee attack, the defender can receive support from adjacent ranged units (unless disabled globally)
+		MOVEFLAG_NO_OCEAN						= 0x2000,     //don't use deep water even if we could
+		MOVEFLAG_DONT_STACK_WITH_NEUTRAL		= 0x4000,     //for civilian with escort
+		MOVEFLAG_APPROX_TARGET_RING1			= 0x8000,     //don't need to reach the target exactly, a ring1 tile is good enough
+		MOVEFLAG_APPROX_TARGET_RING2			= 0x10000,    //don't need to reach the target exactly, a ring2 tile is good enough
+		MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN	= 0x20000,    //no embarkation on approximate target tile
+		MOVEFLAG_IGNORE_ZOC						= 0x40000,    //ignore zones of control
+		MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE		= 0x80000,    //pretend we can enter everybody's territory
+		MOVEFLAG_SELECTIVE_ZOC					= 0x100000,   //ignore ZOC from enemy units on given plots
+		MOVEFLAG_PRETEND_ALL_REVEALED			= 0x200000,   //pretend all plots are revealed, ie territory is known. leaks information, only for AI to recognize dead ends
+		MOVEFLAG_AI_ABORT_IN_DANGER				= 0x400000,   //abort movement if about to end turn on a dangerous plot (should always check if move was executed afterwards)
+		MOVEFLAG_NO_STOPNODES					= 0x800000,   //if we already know we can reach the target plot, don't bother with stop nodes
+		MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED	= 0x1000000,  //abort if additional enemies become visible, irrespective of danger level
+		MOVEFLAG_IGNORE_ENEMIES					= 0x2000000,  //similar to IGNORE_STACKING but pretend we can pass through enemies
+		MOVEFLAG_TURN_END_IS_NEXT_TURN			= 0x4000000,  //consider when a unit may take action again, ie if the target plot has zero moves left, add one to the turn count
+		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000,  //same owner of approximate target tile
 		MOVEFLAG_PRETEND_CANALS					= 0x10000000, //pretend ships can move one tile inland to see if a canal would make sense
-	    MOVEFLAG_IGNORE_STACKING_NEUTRAL		= 0x20000000, // stacking rules (with neutral units) don't apply (on turn end plots)
+		MOVEFLAG_IGNORE_STACKING_NEUTRAL		= 0x20000000, //stacking rules (with neutral units) don't apply (on turn end plots)
+		MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT		= 0x40000000, //if the target plot is occupied go to the closest available plot instead
 
 		//some flags are relevant during pathfinding, some only during execution
 		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN),
@@ -627,6 +628,16 @@ public:
 	void UnlinkUnits();
 	void MoveLinkedLeader(CvPlot* pDestPlot);
 	void DoGroupMovement(CvPlot* pDestPlot);
+#endif
+
+	// VP - Squads control groups modmod
+#if defined(MOD_SQUADS)
+	int  GetSquadNumber() const;
+	void AssignToSquad(int iNewSquadNumber);
+	void RemoveFromSquad();
+	void DoSquadMovement(CvPlot* pDestPlot);
+	bool IsSquadMoving();
+	void TryEndSquadMovement();
 #endif
 
 	int GetRange() const;
@@ -2033,6 +2044,8 @@ protected:
 	int m_iBaseCombat;
 	int m_iBaseRangedCombat;
 
+	int m_iSquadNumber;
+
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;
 	int m_iLastMoveTurn;
@@ -2482,6 +2495,7 @@ SYNC_ARCHIVE_VAR(bool, m_bIsGrouped)
 SYNC_ARCHIVE_VAR(int, m_iLinkedMaxMoves)
 SYNC_ARCHIVE_VAR(UnitIdContainer, m_LinkedUnitIDs)
 SYNC_ARCHIVE_VAR(int, m_iLinkedLeaderID)
+SYNC_ARCHIVE_VAR(int, m_iSquadNumber)
 SYNC_ARCHIVE_VAR(int, m_iArmyId)
 SYNC_ARCHIVE_VAR(int, m_iBaseCombat)
 SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)

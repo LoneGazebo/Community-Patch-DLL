@@ -199,6 +199,11 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(MoveLinkedLeader);
 	Method(DoGroupMovement);
 
+	Method(GetSquadNumber);
+	Method(AssignToSquad);
+	Method(RemoveFromSquad);
+	Method(DoSquadMovement);
+
 	Method(Range);
 	Method(NukeDamageLevel);
 
@@ -2491,6 +2496,45 @@ int CvLuaUnit::lDoGroupMovement(lua_State* L)
 	CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
 
 	pkUnit->DoGroupMovement(pkDestPlot);
+	return 0;
+}
+//------------------------------------------------------------------------------
+// int  GetSquadNumber()
+int CvLuaUnit::lGetSquadNumber(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	const int iResult = pkUnit->GetSquadNumber();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+// ChangeSquadNumber(int iNewSquadNumber)
+int CvLuaUnit::lAssignToSquad(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iNewValue = lua_tointeger(L, 2);
+
+	pkUnit->AssignToSquad(iNewValue);
+	return 0;
+}
+//------------------------------------------------------------------------------
+// vChangeSquadNumber(int iNewSquadNumber)
+int CvLuaUnit::lRemoveFromSquad(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+
+	pkUnit->RemoveFromSquad();
+	return 0;
+}
+//------------------------------------------------------------------------------
+// void DoSquadMovement(CvPlot* pDestPlot)
+int CvLuaUnit::lDoSquadMovement(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
+
+	pkUnit->DoSquadMovement(pkDestPlot);
 	return 0;
 }
 //------------------------------------------------------------------------------

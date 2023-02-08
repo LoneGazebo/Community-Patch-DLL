@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -361,6 +361,7 @@ void CvUnitMission::UpdateMission(CvUnit* hUnit)
 /// Yes, please hit me again. I like pain.
 void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 {
+
 	bool bContinueMissionRestart = true;	// to make this function no longer recursive
 	while(bContinueMissionRestart)
 	{
@@ -526,17 +527,49 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						return;
 					}
 
-					int iResult = hUnit->UnitAttackWithMove(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
+					int iResult;
+
+					if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && !hUnit->m_kLastPath.empty()) {
+						// If moving as a squad, continue previous re-routed path instead of original destination again
+						iResult = hUnit->UnitAttackWithMove(hUnit->m_kLastPath.back().m_iX, hUnit->m_kLastPath.back().m_iY, kMissionData.iFlags);
+					}
+					else
+					{
+						iResult = hUnit->UnitAttackWithMove(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
+					}
+
+
 					if (iResult == CvUnit::MOVE_RESULT_CANCEL)
 					{
-						//illegal, cannot execute attack
-						hUnit->ClearMissionQueue();
+						if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
+						{
+							// Only clear mission if no prospects in the future
+							if (hUnit->m_kLastPath.empty())
+							{
+								hUnit->ClearMissionQueue();
+							}		
+						}
+						else
+						{
+							hUnit->ClearMissionQueue();
+						}
+						
+						
 						return;
 					}
 					else if (iResult == CvUnit::MOVE_RESULT_NO_TARGET)
 					{
 						//nothing to attack, continue movement
-						int iResult = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
+						int iResult;
+						if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT)) {
+							// If moving as a squad, continue previous re-routed path instead of original destination again
+							iResult = hUnit->UnitPathTo(hUnit->m_kLastPath.back().m_iX, hUnit->m_kLastPath.back().m_iY, kMissionData.iFlags);
+						}
+						else
+						{
+							iResult = hUnit->UnitPathTo(kMissionData.iData1, kMissionData.iData2, kMissionData.iFlags);
+						}
+
 						if(iResult >= 0) //normal movement
 						{
 							bAction = true;
@@ -550,6 +583,12 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 							bDone = true;
 							if (MOD_LINKED_MOVEMENT && hUnit->IsGrouped()) {
 								hUnit->SetIsGrouped(false);
+							}
+
+							if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
+							{
+								// Wait for rest of squad once arrived
+								hUnit->TryEndSquadMovement();
 							}
 						}
 					}
@@ -714,6 +753,12 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				if(hUnit->m_kLastPath.empty())
 				{
 					bDone = true;
+					//TODO: end squad logic here
+					if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
+					{
+						// Wait for rest of squad once arrived
+						hUnit->TryEndSquadMovement();
+					}
 #ifdef LOG_UNIT_MOVES
 					std::ostringstream updateMsg;
 					updateMsg << "ContinueMission() : player ";
@@ -745,41 +790,41 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 			}
 
 			else if(kMissionData.eMissionType == CvTypes::getMISSION_SET_UP_FOR_RANGED_ATTACK() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_AIRLIFT() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_NUKE() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_PARADROP() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_AIR_SWEEP() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_REBASE() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_RANGE_ATTACK() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_PILLAGE() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_FOUND() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_JOIN() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_CONSTRUCT() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_DISCOVER() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_HURRY() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_TRADE() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_BUY_CITY_STATE() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_REPAIR_FLEET() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_SPACESHIP() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_CULTURE_BOMB() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_FOUND_RELIGION() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_GOLDEN_AGE() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_LEAD() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_DIE_ANIMATION() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_SPREAD_RELIGION() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_ENHANCE_RELIGION() ||
-			        kMissionData.eMissionType == CvTypes::getMISSION_REMOVE_HERESY() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_PLUNDER_TRADE_ROUTE() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_GREAT_WORK() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_SELL_EXOTIC_GOODS() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_GIVE_POLICIES() ||
-					kMissionData.eMissionType == CvTypes::getMISSION_ONE_SHOT_TOURISM() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_AIRLIFT() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_NUKE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_PARADROP() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_AIR_SWEEP() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_REBASE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_RANGE_ATTACK() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_PILLAGE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_FOUND() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_JOIN() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_CONSTRUCT() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_DISCOVER() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_HURRY() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_TRADE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_BUY_CITY_STATE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_REPAIR_FLEET() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_SPACESHIP() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_CULTURE_BOMB() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_FOUND_RELIGION() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_GOLDEN_AGE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_LEAD() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_DIE_ANIMATION() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_SPREAD_RELIGION() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_ENHANCE_RELIGION() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_REMOVE_HERESY() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_ESTABLISH_TRADE_ROUTE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_PLUNDER_TRADE_ROUTE() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_GREAT_WORK() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_CHANGE_TRADE_UNIT_HOME_CITY() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_SELL_EXOTIC_GOODS() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_GIVE_POLICIES() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_ONE_SHOT_TOURISM() ||
 #if defined(MOD_BALANCE_CORE)
-					kMissionData.eMissionType == CvTypes::getMISSION_FREE_LUXURY() ||
+				kMissionData.eMissionType == CvTypes::getMISSION_FREE_LUXURY() ||
 #endif
-					kMissionData.eMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT())
+				kMissionData.eMissionType == CvTypes::getMISSION_CHANGE_ADMIRAL_PORT())
 			{
 				bDone = true;
 			}
@@ -886,8 +931,8 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						const MissionData& kMissionData = *HeadMissionData(kMissionQueue);
 
 						if((kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO()) ||
-						        (kMissionData.eMissionType == CvTypes::getMISSION_ROUTE_TO()) ||
-						        (kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT()))
+							(kMissionData.eMissionType == CvTypes::getMISSION_ROUTE_TO()) ||
+							(kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT()))
 						{
 							// How long does the camera wait before jumping to the next item?
 							int iCameraTime = 0;

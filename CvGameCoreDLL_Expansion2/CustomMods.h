@@ -460,6 +460,8 @@
 #define MOD_LINKED_MOVEMENT							gCustomMods.isLINKED_MOVEMENT()
 // Era scaling for GE & GM yields
 #define MOD_GP_ERA_SCALING							gCustomMods.isGP_ERA_SCALING()
+// Squads control groups modmod
+#define MOD_SQUADS                                  gCustomMods.isSQUADS()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1530,6 +1532,7 @@ public:
 	MOD_OPT_DECL(CIVILIANS_RETREAT_WITH_MILITARY);
 	MOD_OPT_DECL(LINKED_MOVEMENT);
 	MOD_OPT_DECL(GP_ERA_SCALING);
+	MOD_OPT_DECL(SQUADS);
 
 protected:
 	bool m_bInit;

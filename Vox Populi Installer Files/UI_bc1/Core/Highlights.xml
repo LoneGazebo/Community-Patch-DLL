@@ -42,4 +42,12 @@
 
 	<style name="CityLimits" type="SplineBorder" width ="7" texture="hex_contour1.dds" color="0,0,0,164" />
 
+
+	<style name="SquadsHomeBase" type="FilledHex" width ="1" color="0,0,255,64" />
+	<style name="SquadsHomeBasePlace" texture="hex_contour1.dds" type="FilledHex" width ="1" color="0,255,165,200" />
+	<style name="SquadsHomeBaseRemove" type="FilledHex" width ="1" color="255,165,0,200" />
+	<style name="SquadsHomeBaseInvalid" type="FilledHex" width ="1" color="0,255,0,200" />
+	<style name="SquadsGroupMovement" type="FilledHex" width ="1" color="196,196,196,128" />
+	<style name="SquadsBoxSelect" type="FilledHex" width ="1" color="0,255,0,128" />
+	<style name="InfluenceBorder" type="SplineBorder" width="6" texture="spline_border_contour2.dds" color="255,20,147,255"/>
 </Highlights>

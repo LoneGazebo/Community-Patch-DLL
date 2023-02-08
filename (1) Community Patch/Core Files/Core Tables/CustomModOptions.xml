@@ -439,6 +439,8 @@
    <Row Class="4" Name="LINKED_MOVEMENT" Value="0"/>
     <!-- Era scaling for GE & GM yields -->
    <Row Class="4" Name="GP_ERA_SCALING" Value="0"/>
+   <!-- Enables support for squads modmod -->
+   <Row Class="5" Name="SQUADS" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->

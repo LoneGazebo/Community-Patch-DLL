@@ -1,4 +1,4 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
+/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -42140,6 +42140,45 @@ CvUnit* CvPlayer::nextUnit(int* pIterIdx, bool bRev)
 	else
 		(*pIterIdx)++;
 	return m_units.GetAt(*pIterIdx);
+}
+
+//	--------------------------------------------------------------------------------
+CvUnit* CvPlayer::firstUnitInSquad(int* pIterIdx, int iSquadNum)
+{
+	*pIterIdx = 0;
+	CvUnit *firstUnit = m_units.GetAt(*pIterIdx);
+
+	if (firstUnit)
+	{
+		if (firstUnit->GetSquadNumber() == iSquadNum)
+		{
+			return firstUnit;
+		}
+		else
+		{
+			return nextUnitInSquad(pIterIdx, iSquadNum);
+		}
+	}
+	// If player has no units, return null
+	else
+	{
+		return NULL;
+	}
+}
+
+//	--------------------------------------------------------------------------------
+CvUnit* CvPlayer::nextUnitInSquad(int* pIterIdx, int iSquadNum)
+{
+	(*pIterIdx)++;
+	CvUnit* candidateUnit = m_units.GetAt(*pIterIdx);
+
+	while (candidateUnit && candidateUnit->GetSquadNumber() != iSquadNum)
+	{
+		(*pIterIdx)++;
+		candidateUnit = m_units.GetAt(*pIterIdx);
+	}
+
+	return candidateUnit;
 }
 
 #if defined(MOD_BALANCE_CORE)
