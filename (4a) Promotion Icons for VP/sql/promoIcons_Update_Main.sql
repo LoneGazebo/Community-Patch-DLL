@@ -625,6 +625,8 @@ UPDATE UnitPromotions SET PortraitIndex = '3' WHERE Type = 'PROMOTION_HAKKAA_PAA
 
 -- extraPromo_atlas
 
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_GOD_WAR'; --                                ->  Heal on Kill (10hp)
+UPDATE UnitPromotions SET PortraitIndex = '18' WHERE Type = 'PROMOTION_GOD_WAR';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_SKIRMISHER_DOCTRINE'; --                    ->  Skirmisher Doctrine
 UPDATE UnitPromotions SET PortraitIndex = '21' WHERE Type = 'PROMOTION_SKIRMISHER_DOCTRINE';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas' WHERE Type = 'PROMOTION_SCOUT_CAVALRY';  --                         -> Scout Cavalry

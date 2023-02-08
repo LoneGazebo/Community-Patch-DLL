@@ -1127,5 +1127,15 @@
 		<Row Tag="TXT_KEY_UNITCOMBAT_MISSIONARY">
 			<Text>Missionary Units</Text>
 		</Row>
+
+	<!-- Belief Promotion Text -->
+       <Row Tag="TXT_KEY_PROMOTION_GOD_WAR">
+            <Text>God of War</Text>
+        </Row>
+        <Row Tag="TXT_KEY_PROMOTION_GOD_WAR_HELP">
+            <Text>Heal 10 HP after defeating an Enemy Unit.</Text>
+        </Row>
+
+		
 	</Language_en_US>
 </GameData>
