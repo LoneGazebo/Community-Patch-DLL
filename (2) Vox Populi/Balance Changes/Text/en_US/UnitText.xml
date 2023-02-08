@@ -128,7 +128,7 @@
 			<Text>Righteousness</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS_HELP">
-			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_COURAGE">
@@ -149,7 +149,7 @@
 			<Text>Respect</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RESPECT_HELP">
-			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Melee[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Gunpowder Units[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
+			<Text>[ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken.[NEWLINE]+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].[NEWLINE]Heal 10 HP after defeating an Enemy Unit.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SINCERITY">

@@ -2977,7 +2977,7 @@
 			<PediaEntry>TXT_KEY_PROMOTION_RIGHTEOUSNESS</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<StrongerDamaged>true</StrongerDamaged>
-			<AttackWoundedMod>20</AttackWoundedMod>
+			<AttackBelowEqual50HealthMod>20</AttackBelowEqual50HealthMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>
@@ -3019,6 +3019,7 @@
 			<PediaEntry>TXT_KEY_PROMOTION_RESPECT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<StrongerDamaged>true</StrongerDamaged>
+			<AttackAbove50HealthMod>20</AttackAbove50HealthMod>
 			<HPHealedIfDestroyEnemy>10</HPHealedIfDestroyEnemy>
 		</Row>
 		<Row>
