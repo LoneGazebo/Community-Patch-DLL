@@ -49,21 +49,9 @@ WHERE PolicyType = 'POLICY_WARRIOR_CODE';
 UPDATE Policies
 SET
 	GreatGeneralRateModifier = 0,
-	IncludesOneShotFreeUnits = 1
+	IncludesOneShotFreeUnits = 1,
+	ExtraYieldsFromHeavyTribute = 100
 WHERE Type = 'POLICY_WARRIOR_CODE';
-
-
-INSERT INTO Policy_ConquerorYield
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_WARRIOR_CODE', 'YIELD_CULTURE', 40),
-	('POLICY_WARRIOR_CODE', 'YIELD_SCIENCE', 40);
-
-INSERT INTO Policy_FounderYield
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_WARRIOR_CODE', 'YIELD_CULTURE', 40),
-	('POLICY_WARRIOR_CODE', 'YIELD_SCIENCE', 40);
 
 INSERT INTO Policy_FreeUnitClasses
 	(PolicyType, UnitClassType, Count)
@@ -81,6 +69,17 @@ SET
 	ExtraYieldsFromHeavyTribute = 100
 WHERE Type = 'POLICY_DISCIPLINE';
 
+INSERT INTO Policy_ConquerorYield
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 40),
+	('POLICY_DISCIPLINE', 'YIELD_SCIENCE', 40);
+
+INSERT INTO Policy_FounderYield
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 40),
+	('POLICY_DISCIPLINE', 'YIELD_SCIENCE', 40);
 
 -- Military Tradition (Now Dominance)
 
