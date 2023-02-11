@@ -361,7 +361,6 @@ void CvUnitMission::UpdateMission(CvUnit* hUnit)
 /// Yes, please hit me again. I like pain.
 void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 {
-
 	bool bContinueMissionRestart = true;	// to make this function no longer recursive
 	while(bContinueMissionRestart)
 	{
@@ -753,7 +752,6 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				if(hUnit->m_kLastPath.empty())
 				{
 					bDone = true;
-					//TODO: end squad logic here
 					if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
 					{
 						// Wait for rest of squad once arrived

@@ -461,7 +461,7 @@
 // Era scaling for GE & GM yields
 #define MOD_GP_ERA_SCALING							gCustomMods.isGP_ERA_SCALING()
 // Squads control groups modmod
-#define MOD_SQUADS                                  gCustomMods.isSQUADS()
+#define MOD_SQUADS									gCustomMods.isSQUADS()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)

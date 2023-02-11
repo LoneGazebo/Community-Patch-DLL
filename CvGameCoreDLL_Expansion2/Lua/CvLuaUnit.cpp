@@ -2509,7 +2509,7 @@ int CvLuaUnit::lGetSquadNumber(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-// ChangeSquadNumber(int iNewSquadNumber)
+// AssignToSquad(int iNewSquadNumber)
 int CvLuaUnit::lAssignToSquad(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -2519,7 +2519,7 @@ int CvLuaUnit::lAssignToSquad(lua_State* L)
 	return 0;
 }
 //------------------------------------------------------------------------------
-// vChangeSquadNumber(int iNewSquadNumber)
+// RemoveFromSquad(int iNewSquadNumber)
 int CvLuaUnit::lRemoveFromSquad(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
