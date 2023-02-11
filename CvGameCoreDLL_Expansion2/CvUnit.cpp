@@ -16037,7 +16037,16 @@ void CvUnit::TryEndSquadMovement()
 		return;
 	}
 
-	SetActivityType(ACTIVITY_SENTRY);
+	ClearMissionQueue();
+	if(canSentry(plot()))
+	{
+		PushMission(CvTypes::getMISSION_ALERT());
+	}
+	else
+	{
+		PushMission(CvTypes::getMISSION_SKIP());
+	}
+	SetTurnProcessed(true);
 
 	if (!IsSquadMoving())
 	{
