@@ -35,6 +35,8 @@ local UI = UI
 local UIManager = UIManager
 
 local gk_mode = Game.GetReligionName ~= nil;--bc1
+local g_isSquadsModEnabled = Game.IsCustomModOption("SQUADS");
+
 
 local turn1Color = Vector4( 0, 1, 0, 0.25 );
 local rButtonDown = false;
@@ -139,8 +141,14 @@ local InterfaceModeMessageHandler =
 	[InterfaceModeTypes.INTERFACEMODE_EMBARK] = {},
 	[InterfaceModeTypes.INTERFACEMODE_DISEMBARK] = {},
 	[InterfaceModeTypes.INTERFACEMODE_PLACE_UNIT] = {},
-	[InterfaceModeTypes.INTERFACEMODE_GIFT_UNIT] = {}
+	[InterfaceModeTypes.INTERFACEMODE_GIFT_UNIT] = {},
 }
+
+if g_isSquadsModEnabled then
+  InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID] = {};
+  InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_BASE_MANAGEMENT.ID] = {};
+  InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID] = {};
+end
 
 local DefaultMessageHandler = {};
 
@@ -172,6 +180,14 @@ function( wParam )
 	elseif wParam == Keys.VK_ESCAPE and InStrategicView() then
 		ToggleStrategicView();
 		return true;
+	end
+
+	if g_isSquadsModEnabled then
+		-- Forward numeric presses to squads handler
+		if wParam >= Keys["0"] and wParam <= Keys["9"] then
+			LuaEvents.SQUADS_NUMERIC_HOTKEY(
+				wParam - Keys["0"], UIManager:GetControl());
+		end
 	end
 end
 
@@ -209,6 +225,18 @@ function KeyUpHandler( wParam )
 end
 Events.KeyUpEvent.Add( KeyUpHandler );
 
+if g_isSquadsModEnabled then
+	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID][MouseEvents.RButtonDown] = LuaEvents.SQUADS_MANAGE_UNITS_MODE_RIGHT_CLICK_DOWN;
+	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID][MouseEvents.LButtonUp] = LuaEvents.SQUADS_MANAGE_UNITS_MODE_LEFT_CLICK_UP;
+	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID][MouseEvents.RButtonUp] = LuaEvents.SQUADS_MANAGE_UNITS_MODE_RIGHT_CLICK_UP;
+
+	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_BASE_MANAGEMENT.ID][MouseEvents.LButtonUp] = LuaEvents.SQUADS_MANAGE_BASE_MODE_LEFT_CLICK;
+	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_BASE_MANAGEMENT.ID][MouseEvents.RButtonUp] = LuaEvents.SQUADS_MANAGE_BASE_MODE_RIGHT_CLICK_UP;
+
+	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID][MouseEvents.RButtonUp] = LuaEvents.SQUADS_MOVE_MODE_RIGHT_CLICK;
+	InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID][MouseEvents.LButtonUp] = LuaEvents.SQUADS_MOVE_MODE_LEFT_CLICK;
+
+end
 -- INTERFACEMODE_DEBUG
 --local g_PlopperSettings, g_UnitPlopper, g_ResourcePlopper, g_ImprovementPlopper, g_CityPlopper
 
@@ -696,8 +724,8 @@ end
 -- Returns true if unit can move to targetPlot without pathfinder
 function showAlternativeMoveHighlights(unit, targetPlot)
 	Events.ClearHexHighlightStyle("GroupBorder");
-	if canChangeHomePort(unit, targetPlot) 
-		or canChangeTradeHomeCity(unit, targetPlot) 
+	if canChangeHomePort(unit, targetPlot)
+		or canChangeTradeHomeCity(unit, targetPlot)
 		or isAirliftFastestTravelToPlot(unit, targetPlot) then
 
 		highlightAlternativeMove(targetPlot)

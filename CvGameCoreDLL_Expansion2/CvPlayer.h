@@ -1992,7 +1992,7 @@ public:
 
 	void ChangeMinimumAllyInfluenceIncreaseAtWar(int iValue);
 
-	bool GetMinimumAllyInfluenceIncreaseAtWar() const;
+	int GetMinimumAllyInfluenceIncreaseAtWar() const;
 
 	void ChangeCanBullyFriendlyCS(int iValue);
 	bool IsCanBullyFriendlyCS() const;
