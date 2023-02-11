@@ -387,7 +387,7 @@ SET Text = '+2500 [ICON_GOLDEN_AGE] Golden Age Points, and +20 [ICON_INFLUENCE] 
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] Spy Resistance by 50%. When an Enemy [ICON_SPY] Spy is killed in this City, gain 25 [ICON_CULTURE] Culture and [ICON_GOLD] Gold, scaling with Era and the Level of the [ICON_SPY] Spy killed.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, and [ICON_CULTURE] Boredom.'
+SET Text = 'Improves City [ICON_SPY] Spy Resistance by 50%. When you successfully counter a foreign [ICON_SPY] Espionage action in this City, gain 25 [ICON_CULTURE] Culture and [ICON_GOLD] Gold, scaling with Era and the Level of the foreign [ICON_SPY] Spy.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, and [ICON_CULTURE] Boredom.'
 WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_HELP';
 
 UPDATE Language_en_US
@@ -498,7 +498,7 @@ SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] Spy Resistance by 15%, provides 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), and levels up all existing [ICON_SPY] Spies. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you complete a [ICON_CITY_STATE] City-State Coup or Election Rigging or kill a foreign [ICON_SPY] Spy in this City (+25 [ICON_GOLD]/[ICON_RESEARCH] for Spy Events), all scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Improves City [ICON_SPY] Spy Resistance by 15%, provides 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), and levels up all existing [ICON_SPY] Spies. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you succeed in an [ICON_SPY] Espionage action in a foreign City, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP';
 
 UPDATE Language_en_US
