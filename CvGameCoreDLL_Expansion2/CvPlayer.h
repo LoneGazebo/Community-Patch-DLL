@@ -1991,7 +1991,8 @@ public:
 	bool IsNoCSDecayAtWar() const;
 
 	void ChangeMinimumAllyInfluenceIncreaseAtWar(int iValue);
-	int GetMinimumAllyInfluenceIncreaseAtWar() const;
+
+	bool GetMinimumAllyInfluenceIncreaseAtWar() const;
 
 	void ChangeCanBullyFriendlyCS(int iValue);
 	bool IsCanBullyFriendlyCS() const;

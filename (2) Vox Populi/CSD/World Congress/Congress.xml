@@ -16,7 +16,7 @@
 			<Description>TXT_KEY_RESOLUTION_DECOLONIZATION</Description>
 			<Help>TXT_KEY_RESOLUTION_DECOLONIZATION_HELP</Help>
 			<VoterDecision>RESOLUTION_DECISION_YES_OR_NO</VoterDecision>
-			<ProposerDecision>RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER</ProposerDecision>
+			<ProposerDecision>RESOLUTION_DECISION_NONE</ProposerDecision>
 			<Decolonization>true</Decolonization>
 			<TechPrereqAnyMember>TECH_RADIO</TechPrereqAnyMember>
 		</Row>
@@ -87,7 +87,7 @@
 			<Text>Decolonization</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_DECOLONIZATION_HELP">
-			<Text>Enforce decolonization on a Player. If successful, the Player's [ICON_INFLUENCE] Influence is lowered to 50 with all non-Permanent City-State allies. [NEWLINE][NEWLINE]Available once any Civilization discovers Radio.</Text>
+			<Text>Enforce global decolonization. If successful, the [ICON_INFLUENCE] Influence of all Players with all City-States is lowered to 50, unless they are permanent allies. [NEWLINE][NEWLINE]Available once any Civilization discovers Radio.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_OPEN_DOOR">
 			<Text>Open Door</Text>

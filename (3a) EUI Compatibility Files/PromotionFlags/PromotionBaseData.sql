@@ -17,7 +17,7 @@ ALTER TABLE UnitPromotions	ADD ShowInUnitPanel						boolean default 1;
 ALTER TABLE UnitPromotions	ADD IsVisibleAboveFlag					boolean default 1;
 
 -- For promos where the title is the same as the Help text
-UPDATE UnitPromotions SET SimpleHelpText = 1 WHERE Description == Help;
+UPDATE UnitPromotions SET SimpleHelpText = 1 WHERE Description = Help;
 
 ---------------------------------------
 --Define rankings for promotion sets
@@ -60,8 +60,9 @@ UPDATE UnitPromotions SET RankList = 'SCOUTING', RankNumber = 3 WHERE Type = 'PR
   
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 1 WHERE Type = 'PROMOTION_HONOR_BONUS';
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 2 WHERE Type = 'PROMOTION_KILL_HEAL';
-UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 3 WHERE Type = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY'; -- MUC4VP uses it for the Eagle
-UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 4 WHERE Type = 'PROMOTION_HEAL_IF_DESTROY_ENEMY'; -- Janissary
+UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 3 WHERE Type = 'PROMOTION_GOD_WAR';
+UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 4 WHERE Type = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY'; -- MUC4VP uses it for the Eagle
+UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 5 WHERE Type = 'PROMOTION_HEAL_IF_DESTROY_ENEMY'; -- Janissary
   
 
 UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 1 WHERE Type = 'PROMOTION_BUFFALO_LOINS'; -- UndeadDevel: now in the correct order

@@ -200,6 +200,30 @@ UPDATE Language_en_US
 SET Text = '{1_SpyName} has achieved the rank of {2_RankName}.[NEWLINE][NEWLINE]There are three spy ranks: Recruit, Agent, and Special Agent. Each subsequent level makes the spy more effective. A higher ranking spy will operate faster and kill enemy spies that are trying to work against you more frequently, rig elections in City-States more effectively, and have a greater chance of pulling off a coup in a City-State allied with another civilization.[NEWLINE][NEWLINE]Spies level up when they successfully complete Spy Events, kill an enemy spy, schmooze as as a diplomat, or if they uncover intrigue.'
 WHERE Tag = 'TXT_KEY_EO_SPY_RANK_TT';
 
+UPDATE Language_en_US
+SET Text = 'Click to have {1_SpyRank} {2_SpyName} attempt a coup in {3_CityName} to overthrow the {4_CivAdjective} sympathizers there.[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]They have a {5_Num}% chance of success (assuming no enemy counterspy is present).[ENDCOLOR] If {6_SpyRank} {7_SpyName} succeeds, you will become allies with {8_CityName} and {9_CivShortDesc} will be lowered to your current influence amount. Then all other players influence will drop. If {10_SpyRank} {11_SpyName} fails, they will be killed and your influence with {12_CityName} will greatly diminish.[NEWLINE][NEWLINE]To increase your chance of success, you may increase your influence over the City-State, rig elections, use a higher ranking spy, or wait for the current ally''s influence to decay.'
+WHERE Tag = 'TXT_KEY_EO_SPY_COUP_ENABLED_TT';
+
+UPDATE Language_en_US
+SET Text = '{1_SpyRank} {2_SpyName} may attempt to stage a coup in {3_CityName}, bringing into power a group that will be our ally. The leading faction of {4_CivShortDesc} supporters will be ousted and their influence diminished.[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]This operation has a {5_PERCENT}% chance of success (assuming no enemy counterspy is present).[ENDCOLOR] If successful, you will become allies with {6_CityName} and the {7_CivShortDesc} will have their influence dropped. If you fail, your spy will be killed in the attempt and your influence over {8_CityName} will decrease.[NEWLINE][NEWLINE]Do you want {9_SpyRank} {10_SpyName} to attempt a coup in {11_CityName}?'
+WHERE Tag = 'TXT_KEY_EO_STAGE_COUP_QUESTION';
+
+UPDATE Language_en_US
+SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there.[NEWLINE][NEWLINE]Only one civilization may successfuly rig an election. If more than one spy is in a City-State, the highest ranked spy that has been in that City-State the longest has the greatest chance of successfully rigging the election in its favor. Successfully rigging elections also increases the success chance of a coup in the City-State.'
+WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT';
+
+UPDATE Language_en_US
+SET Text = 'Spies can be used to increase your influence with City-States by "rigging" their local elections or staging a coup. To interact with a City-State, first move a spy to a target City-State. Once the spy arrives, there will be a period of time when they are "Establishing Surveillance" (noted in the "Activity" column). Once surveillance is established, your espionage options become available. Rigging an election, a passive ability, occurs every 15 turns while your spy is located within the City-State. If you are the only spy in the City-State, your influence will increase while everyone else''s will drop. The presence of an enemy spy, especially one of a higher rank, can cause this mission to fail. No worries though, failing to rig an election is not dangerous to your spy.[NEWLINE][NEWLINE]Staging a coup is more powerful than rigging an election, but also much riskier. A successful coup essentially allows you to "steal" the allied status from another civiization. To stage a coup, target a City-State that is allied with another player, and place your spy the same way you would with rigging an election. Once surveillance is established, you will have a new button available to you called "Coup". Clicking it will open a pop-up message that gives you the odds of success. The closer you are in influence to the target civilization, the greater your odds. A high-level spy[COLOR_YELLOW] or having succesfully rigged elections in the City-State [ENDCOLOR] also increases your coup chances. The catch? If you fail, your spy is executed.'
+WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_RIG_ELECTION_SUMMARY';
+UPDATE Language_en_US
+SET Text = '[COLOR_YELLOW]Spies and City-States[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_CONCEPT_ESPIONAGE_RIG_ELECTION_TOPIC';
+
+
+UPDATE Language_en_US
+SET Text = '[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Spy is operating {1_SpyBonus} {1_SpyBonus: plural 1?Rank; other?Ranks;} higher than normal when rigging elections since this city state is allied to a civ over which you have strong cultural influence. The success chance of coups is also increased.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_SPY_BONUS_CITY_STATE';
+
 -- Public Opinion
 
 UPDATE Language_en_US

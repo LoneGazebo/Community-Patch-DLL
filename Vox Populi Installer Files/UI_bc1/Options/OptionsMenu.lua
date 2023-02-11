@@ -110,6 +110,11 @@ function OnOK()
 	EUI_options.SetValue( "CivRibbon", Controls.CivRibbonCheckbox:IsChecked() )
 -- balparmak: add promotion flags option
 	EUI_options.SetValue( "PromotionFlags", Controls.PromotionFlagsCheckbox:IsChecked() )
+-- N.Core: add separate city production options
+	EUI_options.SetValue( "SeparateCityProduction", Controls.SeparateCityProductionCheckbox:IsChecked() )
+	EUI_options.SetValue( "SeparateGPReligious", Controls.SeparateGPReligiousCheckbox:IsChecked() )
+	EUI_options.SetValue( "SeparateMilitaryDomain", Controls.SeparateMilitaryDomainCheckbox:IsChecked() )
+	EUI_options.SetValue( "SeparateProjectWonders", Controls.SeparateProjectWondersCheckbox:IsChecked() )
 --
 	OptionsManager.CommitGameOptions();
 	OptionsManager.CommitGraphicsOptions();
@@ -641,14 +646,26 @@ function UpdateGameOptionsDisplay()
 	Controls.CivRibbonCheckbox:SetCheck( EUI_options.GetValue( "CivRibbon" ) ~= 0 )
 -- balparmak: promotion flags
 	Controls.PromotionFlagsCheckbox:SetCheck( EUI_options.GetValue( "PromotionFlags" ) == 1 )
-	local currentLanguage = Locale.GetCurrentLanguage().DisplayName;
-	if currentLanguage ~= "English" then
-		local keyUnitFlag = Locale.LookupLanguage(Locale.GetCurrentLanguage().Type, "TXT_KEY_MAP_OPTIONS_UNIT_FLAGS")
-		local keyPromo = Locale.LookupLanguage(Locale.GetCurrentLanguage().Type, "TXT_KEY_PEDIA_CATEGORY_5_LABEL")
-		local keyReload = Locale.LookupLanguage(Locale.GetCurrentLanguage().Type, "TXT_KEY_OPSCREEN_RELOAD_UI")
-		Controls.PromotionFlagsCheckbox:GetTextButton():SetText( keyUnitFlag.." "..keyPromo );
-		Controls.PromotionFlagsCheckbox:SetToolTipString( keyUnitFlag.." "..keyPromo.."[NEWLINE][COLOR_NEGATIVE_TEXT]"..keyReload.."[ENDCOLOR]" );
-	end	
+-- N.Core: separate city production
+	Controls.SeparateCityProductionCheckbox:SetCheck( EUI_options.GetValue( "SeparateCityProduction" ) == 1 )
+	if EUI_options.GetValue( "SeparateCityProduction" ) == 1 then
+		Controls.SeparateGPReligiousCheckbox:SetDisabled( false );
+		Controls.SeparateMilitaryDomainCheckbox:SetDisabled( false );
+		Controls.SeparateProjectWondersCheckbox:SetDisabled( false );
+		Controls.SeparateGPReligiousCheckbox:SetAlpha( 1 );
+		Controls.SeparateMilitaryDomainCheckbox:SetAlpha( 1 );
+		Controls.SeparateProjectWondersCheckbox:SetAlpha( 1 );
+		Controls.SeparateGPReligiousCheckbox:SetCheck( EUI_options.GetValue( "SeparateGPReligious" ) == 1 )
+		Controls.SeparateMilitaryDomainCheckbox:SetCheck( EUI_options.GetValue( "SeparateMilitaryDomain" ) == 1 )
+		Controls.SeparateProjectWondersCheckbox:SetCheck( EUI_options.GetValue( "SeparateProjectWonders" ) == 1 )
+	else
+		Controls.SeparateGPReligiousCheckbox:SetDisabled( true );
+		Controls.SeparateMilitaryDomainCheckbox:SetDisabled( true );
+		Controls.SeparateProjectWondersCheckbox:SetDisabled( true );
+		Controls.SeparateGPReligiousCheckbox:SetAlpha( 0.5 );
+		Controls.SeparateMilitaryDomainCheckbox:SetAlpha( 0.5 );
+		Controls.SeparateProjectWondersCheckbox:SetAlpha( 0.5 );
+	end
 --
 	Controls.NoCitizenWarningCheckbox:SetCheck( OptionsManager.IsNoCitizenWarning_Cached() );
 	Controls.AutoWorkersDontReplaceCB:SetCheck( OptionsManager.IsAutoWorkersDontReplace_Cached() );
@@ -968,6 +985,28 @@ function OnMultiplayerQuickMovementCheck( bIsChecked )
 	OptionsManager.SetMultiplayerQuickMovementEnabled_Cached(bIsChecked);
 end
 Controls.MPQuickMovementCheckbox:RegisterCheckHandler(OnMultiplayerQuickMovementCheck);
+
+----------------------------------------------------------------
+----------------------------------------------------------------
+function OnSeparateCityProductionCheck( bIsChecked )
+	--mini display update here
+	if bIsChecked then
+		Controls.SeparateGPReligiousCheckbox:SetDisabled( false );
+		Controls.SeparateMilitaryDomainCheckbox:SetDisabled( false );
+		Controls.SeparateProjectWondersCheckbox:SetDisabled( false );
+		Controls.SeparateGPReligiousCheckbox:SetAlpha( 1 );
+		Controls.SeparateMilitaryDomainCheckbox:SetAlpha( 1 );
+		Controls.SeparateProjectWondersCheckbox:SetAlpha( 1 );
+	else
+		Controls.SeparateGPReligiousCheckbox:SetDisabled( true );
+		Controls.SeparateMilitaryDomainCheckbox:SetDisabled( true );
+		Controls.SeparateProjectWondersCheckbox:SetDisabled( true );
+		Controls.SeparateGPReligiousCheckbox:SetAlpha( 0.5 );
+		Controls.SeparateMilitaryDomainCheckbox:SetAlpha( 0.5 );
+		Controls.SeparateProjectWondersCheckbox:SetAlpha( 0.5 );
+	end
+end
+Controls.SeparateCityProductionCheckbox:RegisterCheckHandler( OnSeparateCityProductionCheck );
 
 ----------------------------------------------------------------
 ----------------------------------------------------------------

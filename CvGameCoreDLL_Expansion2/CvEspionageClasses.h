@@ -241,8 +241,8 @@ public:
 
 	bool CanStageCoup(uint uiSpyIndex);
 	bool CanStageCoup(CvCity* pCity);
-	int GetCoupChanceOfSuccess(uint uiSpyIndex);
-	int GetTheoreticalChanceOfCoup(CvCity* pCity);
+	int GetCoupChanceOfSuccess(uint uiSpyIndex, bool bIgnoreEnemySpies = false);
+	int GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank = 0, bool bIgnoreEnemySpies = false);
 	bool AttemptCoup(uint uiSpyIndex);
 
 	int GetTurnsUntilStateComplete(uint uiSpyIndex);

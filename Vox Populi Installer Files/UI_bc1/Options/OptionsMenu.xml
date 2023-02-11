@@ -131,14 +131,14 @@
 
 		<!-- Interface Options -->
 		<Container ID="IFacePanel" Size="971,500" Offset="0,44" Hidden="1">
-			<Stack Anchor="R,T" Offset="550,50" Padding="10" >
+			<Stack Anchor="R,T" Offset="550,50" Padding="4" >
 				<CheckBox ID="PolicyInfo" Anchor="R,C" String="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SHOW_ALL_POLICY_INFO_TT" />
 				<CheckBox ID="ScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_SCORE_LIST_TT" />
 				<CheckBox ID="MPScoreListCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_MP_SCORE_LIST" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_MP_SCORE_LIST_TT" />
 				<CheckBox ID="CivRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_DIPLOMACY_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_DIPLOMACY_OVERVIEW_BODY"/>
 				<CheckBox ID="CityRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_CITY_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_CITY_LIST_BODY"/>
 				<CheckBox ID="UnitRibbonCheckbox" Anchor="R,C" String="TXT_KEY_ADVISOR_SCREEN_UNIT_LIST_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_ADVISOR_SCREEN_UNIT_LIST_BODY"/>
-				<CheckBox ID="PromotionFlagsCheckbox" Anchor="R,C" String="Promotion Flags" LeadingOffset="-10" WrapWidth="450" ToolTip="Display promotions on the unit flag.[NEWLINE][COLOR_NEGATIVE_TEXT] REQUIRES RELOAD [ENDCOLOR]"/>
+				<CheckBox ID="PromotionFlagsCheckbox" Anchor="R,C" String="TXT_KEY_EUI_PROMOTION_FLAGS_DISPLAY" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_EUI_PROMOTION_FLAGS_BODY"/>
 				<CheckBox ID="NoCitizenWarningCheckbox" Anchor="R,C" String="TXT_KEY_CITYVIEW_CITIZEN_ALLOCATION" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_OPSCREEN_NO_CITIZEN_WARNING" />
 				<CheckBox ID="CityAdvisorCheckbox" Anchor="R,C" >
 					<Stack Offset="30.0" Anchor="R,C" StackGrowth="L" >
@@ -172,12 +172,13 @@
 						<Label Anchor="L,C" String="TXT_KEY_CLOSE" />
 					</Stack>
 				</CheckBox>
-				<Image Anchor="R,C" Offset="30.0" Texture="TopPanelBar.dds" Size="100.32" >
-					<CheckBox ID="ClockCheckbox" String="12:34" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" Offset="-30.0"/>
-				</Image>
+				<CheckBox ID="SeparateCityProductionCheckbox" Anchor="R,C" String="TXT_KEY_EUI_SEPARATE_CITY_PRODUCTION_DISPLAY" IsChecked="1" LeadingOffset="-10" WrapWidth="450" ToolTip="TXT_KEY_EUI_SEPARATE_CITY_PRODUCTION_BODY"/>
+				<CheckBox ID="SeparateGPReligiousCheckbox" Anchor="R,T" Offset="24,-6" String="TXT_KEY_EUI_SEPARATE_GP_RELIGIOUS_DISPLAY" Font="TwCenMT16" IsChecked="1" NoStateChange="1" Disabled="0"/>
+				<CheckBox ID="SeparateMilitaryDomainCheckbox" Anchor="R,T" Offset="24,-16" String="TXT_KEY_EUI_SEPARATE_MILITARY_DOMAIN_DISPLAY" Font="TwCenMT16" IsChecked="1" NoStateChange="1" Disabled="0"/>
+				<CheckBox ID="SeparateProjectWondersCheckbox" Anchor="R,T" Offset="24,-16" String="TXT_KEY_EUI_SEPARATE_PROJECTS_WONDERS_DISPLAY" Font="TwCenMT16" IsChecked="1" NoStateChange="1" Disabled="0"/>
 			</Stack>
 
-			<Stack Anchor="R,T" Offset="110,50" Padding="10" >
+			<Stack Anchor="R,T" Offset="110,50" Padding="8" >
 				<CheckBox ID="NoBasicHelpCheckbox" String="TXT_KEY_OPSCREEN_NO_BASIC_HELP" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" ToolTip="TXT_KEY_OPSCREEN_NO_BASIC_HELP_TT" />
 				<Label ID="Tooltip1TimerLength" Anchor="C,T" ToolTip="TXT_KEY_OPSCREEN_TOOLTIP_1_TIMER_LENGTH_TT" />
 				<Slider ID="Tooltip1TimerSlider" Length="300" Anchor="C,C" Style="Slider" WheelSteps="10" />
@@ -192,6 +193,9 @@
 				<Label ID="PinchSpeedValue" Anchor="C,C" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
 				<Slider ID="PinchSpeedSlider" Anchor="C,C" Length="300" Style="Slider" WheelSteps="10" ToolTip="TXT_KEY_PINCH_SPEED_TT" />
 				<CheckBox ID="ZoomCheck" Anchor="R,C" String="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM" IsChecked="0" ToolTip="TXT_KEY_OPSCREEN_DYNAMIC_CAMERA_ZOOM_TT" />
+				<Image Anchor="R,C" Offset="30.0" Texture="TopPanelBar.dds" Size="100.32" >
+					<CheckBox ID="ClockCheckbox" String="12:34" LeadingOffset="-10" WrapWidth="450" Anchor="R,C" Offset="-30.0"/>
+				</Image>
 			</Stack>
 
 		</Container>
