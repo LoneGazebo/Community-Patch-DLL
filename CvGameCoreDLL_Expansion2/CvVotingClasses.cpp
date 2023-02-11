@@ -13283,94 +13283,110 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 		iScore += iExtra;
 	}
 
-	if (!bEnact)
-	{
-		iScore *= -1; // Flip the score when the proposal is to repeal these effects
-	}
-
 	// Sphere of Influence - City-States
 	if (pProposal->GetEffects()->bSphereOfInfluence)
 	{
 		iExtra = 0;
+		PlayerTypes ePlayer = GetPlayer()->GetID();
+		PlayerTypes eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
+		int iInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
 		if (eTargetCityState != NO_PLAYER && GET_PLAYER(eTargetCityState).isMinorCiv())
 		{
-			PlayerTypes ePlayer = GetPlayer()->GetID();
-			// How much do we want to ally the city state?
-			CivApproachTypes eApproach;
-			eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetCityState);
-			int iAllyDesire = 150;
-			if (eApproach > CIV_APPROACH_GUARDED)
+			PlayerTypes ePlayerAffected = bEnact ? eProposer : GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
+			if (ePlayerAffected == ePlayer)
 			{
-				iAllyDesire += (eApproach - CIV_APPROACH_GUARDED) * 150;
-			}
-			if (iAllyDesire > 150)
-			{
+				// SOI for ourselves
+				iExtra += 100;
+				PlayerTypes eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
+				if (eAlliedPlayer != ePlayer)
+				{
+					// extra weight if we're not the current ally of the CS
+					iExtra += 500;
+				}
+				else
+				{
+					// extra weight based on how contended the CS is
+					int iContenderInfluence = 0;
+					for (int iMajor = 0; iMajor < MAX_MAJOR_CIVS; iMajor++)
+					{
+						PlayerTypes eMajor = (PlayerTypes)iMajor;
+						if (eMajor != ePlayer)
+						{
+							iContenderInfluence = max(iContenderInfluence, GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eMajor));
+						}
+					}
+					iExtra += range(500 - (iInfluence - iContenderInfluence), 0, 500);
+				}
 				PlayerProximityTypes eProximity;
 				eProximity = GET_PLAYER(eTargetCityState).GetProximityToPlayer(ePlayer);
 				switch (eProximity)
 				{
 				case PLAYER_PROXIMITY_CLOSE:
-					iAllyDesire += 200;
+					iExtra += 200;
 					break;
 				case PLAYER_PROXIMITY_NEIGHBORS:
-					iAllyDesire += 400;
+					iExtra += 400;
 					break;
 				case NO_PLAYER_PROXIMITY:
-				case PLAYER_PROXIMITY_DISTANT:
 				case PLAYER_PROXIMITY_FAR:
 					break; // No change.
+				case PLAYER_PROXIMITY_DISTANT:
+					iExtra += 200; // distant city-state that's hard to control otherwise
+					break;
 				}
 			}
-			// Do they have a resource we lack?
-			int iResourcesWeLack = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetNumResourcesMajorLacks(ePlayer);
-			if (iResourcesWeLack > 0)
+			else
 			{
-				iAllyDesire += 150 * iResourcesWeLack;
-			}
-			int iInfluence = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(ePlayer);
-			PlayerTypes eAlliedPlayer = NO_PLAYER;
-			eAlliedPlayer = GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly();
-			int iInfluencePercent = range((iInfluence * 100) / max(1, GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer)),0,100);
-			if (bEnact)
-			{
-				if (ePlayer == eProposer)
+				// SOI for a different player
+				// how much do we like to be allies with the CS?
+				int iAllyDesire = 150;
+				CivApproachTypes eApproach;
+				eApproach = GetPlayer()->GetDiplomacyAI()->GetCivApproach(eTargetCityState);
+				if (eApproach > CIV_APPROACH_GUARDED)
 				{
-					iExtra += (iAllyDesire * (120 - iInfluencePercent)) / 100;
+					iAllyDesire += (eApproach - CIV_APPROACH_GUARDED) * 150;
 				}
-				else if (ePlayer == GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetAlly())
+				if (iAllyDesire > 150)
 				{
-					iExtra -= iAllyDesire + 150;
+					PlayerProximityTypes eProximity;
+					eProximity = GET_PLAYER(eTargetCityState).GetProximityToPlayer(ePlayer);
+					switch (eProximity)
+					{
+					case PLAYER_PROXIMITY_CLOSE:
+						iAllyDesire += 200;
+						break;
+					case PLAYER_PROXIMITY_NEIGHBORS:
+						iAllyDesire += 400;
+						break;
+					case NO_PLAYER_PROXIMITY:
+					case PLAYER_PROXIMITY_DISTANT:
+					case PLAYER_PROXIMITY_FAR:
+						break; // No change.
+					}
+				}
+				if (ePlayer == eAlliedPlayer)
+				{
+					iExtra -= iAllyDesire * 150 / 100;
 				}
 				else
 				{
-					if (bForSelf)
-					{
-						iExtra -= (iAllyDesire * iInfluencePercent) / 100;
-					}
-				}
-
-			}
-			else if (!bEnact)
-			{
-				if (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER)
-				{
-					if (GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetPermanentAlly() == ePlayer)
-					{
-						iExtra -= iAllyDesire + 150;
-					}
-					else
-					{
-						if (bForSelf)
-						{
-							iExtra += (iAllyDesire * iInfluencePercent) / 100;
-						}
-					}
-
+					int iInfluencePercent = range((iInfluence * 100) / max(1, GET_PLAYER(eTargetCityState).GetMinorCivAI()->GetEffectiveFriendshipWithMajor(eAlliedPlayer)), 0, 100);
+					iExtra -= iAllyDesire * iInfluencePercent / 100;
 				}
 			}
 		}
 
+		if (bDiploVictoryEnabled)
+		{
+			iExtra *= 2;
+		}
+
 		iScore += iExtra;
+	}
+
+	if (!bEnact)
+	{
+		iScore *= -1; // Flip the score when the proposal is to repeal these effects
 	}
 
 	if (bConsiderGlobal)
