@@ -215,6 +215,7 @@ public:
 		MOVEFLAG_APPROX_TARGET_SAME_OWNER		= 0x8000000, //same owner of approximate target tile
 		MOVEFLAG_PRETEND_CANALS					= 0x10000000, //pretend ships can move one tile inland to see if a canal would make sense
 	    MOVEFLAG_IGNORE_STACKING_NEUTRAL		= 0x20000000, // stacking rules (with neutral units) don't apply (on turn end plots)
+		MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT		= 0x40000000, //if the target plot is occupied go to the closest available plot instead
 
 		//some flags are relevant during pathfinding, some only during execution
 		PATHFINDER_FLAG_MASK					= ~(MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED|MOVEFLAG_TURN_END_IS_NEXT_TURN),
@@ -627,6 +628,16 @@ public:
 	void UnlinkUnits();
 	void MoveLinkedLeader(CvPlot* pDestPlot);
 	void DoGroupMovement(CvPlot* pDestPlot);
+#endif
+
+	// VP - Squads control groups modmod
+#if defined(MOD_SQUADS)
+	int  GetSquadNumber() const;
+	void AssignToSquad(int iNewSquadNumber);
+	void RemoveFromSquad();
+	void DoSquadMovement(CvPlot* pDestPlot);
+	bool IsSquadMoving();
+	void TryEndSquadMovement();
 #endif
 
 	int GetRange() const;
@@ -2033,6 +2044,8 @@ protected:
 	int m_iBaseCombat;
 	int m_iBaseRangedCombat;
 
+	int m_iSquadNumber;
+
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;
 	int m_iLastMoveTurn;
@@ -2482,6 +2495,7 @@ SYNC_ARCHIVE_VAR(bool, m_bIsGrouped)
 SYNC_ARCHIVE_VAR(int, m_iLinkedMaxMoves)
 SYNC_ARCHIVE_VAR(UnitIdContainer, m_LinkedUnitIDs)
 SYNC_ARCHIVE_VAR(int, m_iLinkedLeaderID)
+SYNC_ARCHIVE_VAR(int, m_iSquadNumber)
 SYNC_ARCHIVE_VAR(int, m_iArmyId)
 SYNC_ARCHIVE_VAR(int, m_iBaseCombat)
 SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)

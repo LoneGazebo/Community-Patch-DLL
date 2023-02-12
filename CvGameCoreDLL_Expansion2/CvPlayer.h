@@ -1991,7 +1991,8 @@ public:
 	bool IsNoCSDecayAtWar() const;
 
 	void ChangeMinimumAllyInfluenceIncreaseAtWar(int iValue);
-	bool GetMinimumAllyInfluenceIncreaseAtWar() const;
+
+	int GetMinimumAllyInfluenceIncreaseAtWar() const;
 
 	void ChangeCanBullyFriendlyCS(int iValue);
 	bool IsCanBullyFriendlyCS() const;
@@ -2382,6 +2383,9 @@ public:
 	const CvUnit* nextUnit(int* pIterIdx, bool bRev=false) const;
 	CvUnit* firstUnit(int* pIterIdx, bool bRev=false);
 	CvUnit* nextUnit(int* pIterIdx, bool bRev=false);
+
+	CvUnit* firstUnitInSquad(int* pIterIdx, int iSquadNum);
+	CvUnit* nextUnitInSquad(int* pIterIdx, int iSquadNum);
 #if defined(MOD_BALANCE_CORE)
 	CvUnit* nextUnit(const CvUnit* pCurrent, bool bRev);
 	const CvUnit* nextUnit(const CvUnit* pCurrent, bool bRev) const;

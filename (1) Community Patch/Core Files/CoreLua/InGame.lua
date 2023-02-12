@@ -1,10 +1,10 @@
 -------------------------------------------------
--- Game View 
+-- Game View
 --
 -- this is the parent of both WorldView and CityView
 --
--- This is the final lua message handler that will be 
--- processed in the processing chain, after this is 
+-- This is the final lua message handler that will be
+-- processed in the processing chain, after this is
 -- it is in engine side C++
 -------------------------------------------------
 include( "FLuaVector" );
@@ -14,6 +14,8 @@ include( "Bombardment");
 local g_InstanceManager = InstanceManager:new( "AlertMessageInstance", "AlertMessageLabel", Controls.AlertStack );
 local g_PopupIM = InstanceManager:new( "PopupText", "Anchor", Controls.PopupTextContainer );
 local g_InstanceMap = {};
+
+local g_isSquadsModEnabled = Game.IsCustomModOption("SQUADS");
 
 local alertTable = {};
 local mustRefreshAlerts = false;
@@ -32,7 +34,7 @@ local attackPathBorderStyle = "AMRBorder"; -- attack move
 
 local workerSuggestHighlightColor = Vector4( 0.0, 0.5, 1.0, 0.65 );
 
-local InterfaceModeMessageHandler = 
+local InterfaceModeMessageHandler =
 {
 	[InterfaceModeTypes.INTERFACEMODE_DEBUG] = {},
 	[InterfaceModeTypes.INTERFACEMODE_SELECTION] = {},
@@ -57,10 +59,25 @@ local InterfaceModeMessageHandler =
 	[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT] = {},
 };
 
+if g_isSquadsModEnabled then
+  InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID] = {};
+  InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_BASE_MANAGEMENT.ID] = {};
+  InterfaceModeMessageHandler[GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID] = {};
+end
+
 local DefaultMessageHandler = {};
 
 DefaultMessageHandler[KeyEvents.KeyDown] =
 function( wParam, lParam )
+    if g_isSquadsModEnabled and (wParam == Keys.VK_ESCAPE or wParam == Keys.A) and
+        (UI.GetInterfaceMode() == GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_MOVEMENT.ID or
+         UI.GetInterfaceMode() == GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_UNIT_MANAGEMENT.ID or
+         UI.GetInterfaceMode() == GameInfo.InterfaceModes.INTERFACEMODE_SQUAD_BASE_MANAGEMENT.ID) then
+
+        LuaEvents.SQUADS_ANY_MODE_KEY_DOWN(wParam);
+        return true;
+    end
+
 	if( wParam == Keys.VK_ESCAPE ) then
 	    UIManager:QueuePopup( Controls.GameMenu, PopupPriority.InGameMenu );
         return true;
@@ -75,12 +92,12 @@ function( wParam, lParam )
     if ( wParam == Keys.VK_OEM_3 and UI:ShiftKeyDown() and UI:DebugFlag() and PreGame.IsMultiplayerGame()) then -- shift - ~
         Controls.NetworkDebug:SetHide( not Controls.NetworkDebug:IsHidden() );
         return true;
-        
+
 	elseif ( wParam == Keys.VK_OEM_3 and UI:DebugFlag() and not PreGame.IsMultiplayerGame() and not PreGame.IsHotSeatGame()) then -- ~
         bHideDebug = not bHideDebug;
         Controls.DebugMenu:SetHide( bHideDebug );
         return true;
-        
+
     elseif ( wParam == Keys.Z and UIManager:GetControl() and UI:DebugFlag() and not PreGame.IsMultiplayerGame() and not PreGame.IsHotSeatGame()) then
         Game.ToggleDebugMode();
 		local pPlot;
@@ -97,7 +114,7 @@ function( wParam, lParam )
 
 			pPlot:ChangeVisibilityCount(team, 1, -1, true, true);
 			pPlot:SetRevealed(team, bIsDebug);
-		end       
+		end
 		return true;
     elseif ( wParam == Keys.G ) then
 		UI.ToggleGridVisibleMode();
@@ -139,11 +156,11 @@ function EjectHandler( wParam, lParam )
 	local plotX = plot:GetX();
 	local plotY = plot:GetY();
 	--print("INTERFACEMODE_PLACE_UNIT");
-		
+
 	local unit = UI.GetPlaceUnit();
-	UI.ClearPlaceUnit();	
+	UI.ClearPlaceUnit();
 	local returnValue = false;
-		
+
 	if (unit ~= nil) then
 		--print("INTERFACEMODE_PLACE_UNIT - got placed unit");
 		local city = unitPlot:GetPlotCity();
@@ -152,13 +169,13 @@ function EjectHandler( wParam, lParam )
 			if UI.CanPlaceUnitAt(unit, plot) then
 				--print("INTERFACEMODE_PLACE_UNIT - Can eject unit");
 				--Network.SendCityEjectGarrisonChoice(city:GetID(), plotX, plotY);
-				returnValue =  true;					
+				returnValue =  true;
 			end
 		end
 	end
-	
+
 	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-	
+
 	return returnValue;
 end
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PLACE_UNIT][MouseEvents.LButtonUp] = EjectHandler;
@@ -167,34 +184,34 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_PLACE_UNIT][MouseEv
 
 function GiftUnit( wParam, lParam )
 	local returnValue = false;
-	
+
 	local plot = Map.GetPlot( UI.GetMouseOverHex() );
 	local plotX = plot:GetX();
 	local plotY = plot:GetY();
-	
+
 	local iToPlayer = UI.GetInterfaceModeValue();
 	local iPlayerID = Game.GetActivePlayer();
 	local player = Players[iPlayerID];
 
 	if (player == nil) then
-		print("Error - player index not correct");		
-		return;	
+		print("Error - player index not correct");
+		return;
 	end
-	
+
     local unitCount = plot:GetNumUnits();
     for i = 0, unitCount - 1, 1
     do
     	local pUnit = plot:GetUnit(i);
 		if (pUnit:GetOwner() == iPlayerID) then
 			if (pUnit:CanDistanceGift(iToPlayer)) then
-				
+
 				--print("Picked unit");
 				returnValue = true;
-				
+
 				--print("iPlayerID " .. iPlayerID);
 				--print("Other player id (interfacemodevalue) " .. UI.GetInterfaceModeValue());
 				--print("UnitID " .. pUnit:GetID());
-				
+
 				local popupInfo = {
 					Type = ButtonPopupTypes.BUTTONPOPUP_GIFT_CONFIRM,
 					Data1 = iPlayerID;
@@ -207,7 +224,7 @@ function GiftUnit( wParam, lParam )
 			end
 		end
     end
-	
+
 	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
 	return returnValue;
 end
@@ -219,26 +236,26 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_UNIT][MouseEve
 function AttackIntoTile( wParam, lParam)
 	--print("Calling attack into tile");
 	local returnValue = false;
-	
+
 	local iPlayerID = Game.GetActivePlayer();
 	local player = Players[iPlayerID];
 
 	if (player == nil) then
-		print("Error - player index not correct");		
-		return;	
+		print("Error - player index not correct");
+		return;
 	end
-	
+
 	local plot = Map.GetPlot( UI.GetMouseOverHex() );
 	local plotX = plot:GetX();
-	local plotY = plot:GetY();	
+	local plotY = plot:GetY();
 
 	local pUnit = UI.GetHeadSelectedUnit();
-	
+
 	if (plot:IsVisible(player:GetTeam(), false) and (plot:IsVisibleEnemyUnit(pUnit) or plot:IsEnemyCity(pUnit))) then
 		Game.SelectionListMove(plot, false, false, false);
 		returnValue = true;
 	end
-    
+
 	ClearUnitHexHighlights();
 	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
 	return returnValue;
@@ -254,38 +271,38 @@ InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_ATTACK][MouseEvents
 ------------------------------------------
 function GiftTileImprovement( wParam, lParam )
 	local returnValue = false;
-	
+
 	local pPlot = Map.GetPlot( UI.GetMouseOverHex() );
 	local iFromPlayer = Game.GetActivePlayer();
 	local iToPlayer = UI.GetInterfaceModeValue();
 	local pToPlayer = Players[iToPlayer];
-	
+
 	if (pPlot == nil) then
 		print("Error - pPlot is nil");
 		return false;
 	end
-	
+
 	if (pToPlayer == nil) then
 		print("Error - pToPlayer is nil");
 		return false;
 	end
-	
+
 	local iPlotX = pPlot:GetX();
 	local iPlotY = pPlot:GetY();
 	if (pToPlayer:CanMajorGiftTileImprovementAtPlot(iFromPlayer, iPlotX, iPlotY)) then
 		Game.DoMinorGiftTileImprovement(iFromPlayer, iToPlayer, iPlotX, iPlotY);
 	end
-	
+
 	UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
-	
+
 	return returnValue;
 end
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT][MouseEvents.LButtonUp] = GiftTileImprovement;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT][MouseEvents.RButtonUp] = GiftTileImprovement;
 InterfaceModeMessageHandler[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT][MouseEvents.PointerUp] = GiftTileImprovement;
-----------------------------------------------------------------        
+----------------------------------------------------------------
 -- Input handling
-----------------------------------------------------------------        
+----------------------------------------------------------------
 function InputHandler( uiMsg, wParam, lParam )
 	local interfaceMode = UI.GetInterfaceMode();
 	local currentInterfaceModeHandler = InterfaceModeMessageHandler[interfaceMode];
@@ -301,15 +318,15 @@ ContextPtr:SetInputHandler( InputHandler );
 
 -------------------------------------------------
 -------------------------------------------------
-function SetRecommendationCheck(value)	
+function SetRecommendationCheck(value)
 	-- Value is true if recommendations are hidden.
 	g_ShowWorkerRecommendation = not value;
 	OnUpdateSelection( value );
 end
 LuaEvents.OnRecommendationCheckChanged.Add( SetRecommendationCheck );
 
-----------------------------------------------------------------        
----------------------------------------------------------------- 
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnGameOptionsChanged()
 	local value = not OptionsManager.IsNoTileRecommendations();
 	g_ShowWorkerRecommendation = value;
@@ -317,13 +334,13 @@ function OnGameOptionsChanged()
 end
 Events.GameOptionsChanged.Add(OnGameOptionsChanged);
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnEnterCityScreen()
 
     Controls.UnitFlagManager:SetHide( true );
     Controls.CityBannerManager:SetHide( true );
-    
+
 	lastCityEntered = UI.GetHeadSelectedCity();
 
     if( lastCityEntered ~= nil ) then
@@ -357,24 +374,24 @@ function OnEnterCityScreen()
 	if (not OptionsManager.GetGridOn()) then
 		Events.SerialEventHexGridOn();
 	end
-	
+
 	bCityScreenOpen = true;
-	
+
 	--UI.LookAt(lastCityEntered:Plot(), 1);
-	
+
 end
 Events.SerialEventEnterCityScreen.Add( OnEnterCityScreen );
 
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnExitCityScreen()
 
 	Controls.UnitFlagManager:SetHide( false );
     Controls.CityBannerManager:SetHide( false );
 
     RequestYieldDisplay();
-	
+
     Controls.CityView:SetHide( true );
     Controls.WorldView:SetHide( false );
 
@@ -390,7 +407,7 @@ function OnExitCityScreen()
 				end
 			end
 		end
-		    
+
 		if (aFounderSuggestHighlightPlots ~= nil) then
 			for i, v in ipairs(aFounderSuggestHighlightPlots) do
 				local hexID = ToHexFromGrid( Vector2( v:GetX(), v:GetY() ) );
@@ -408,21 +425,21 @@ function OnExitCityScreen()
 	end
 
 	ClearAllHighlights();
-	
+
 	if lastCityEnteredPlot then
 		UI.LookAt(lastCityEnteredPlot, 2);
 	end
-	
+
 	UI.ClearSelectedCities();
 	lastCityEntered = nil;
 	bCityScreenOpen = false;
-	
+
 	UI.SetDirty(InterfaceDirtyBits.GameData_DIRTY_BIT, true);
 end
 Events.SerialEventExitCityScreen.Add( OnExitCityScreen );
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnGameplayAlertMessage( data )
 	local newAlert = {};
 	newAlert.text = data;
@@ -433,34 +450,34 @@ function OnGameplayAlertMessage( data )
 end
 Events.GameplayAlertMessage.Add( OnGameplayAlertMessage );
 
-----------------------------------------------------------------        
+----------------------------------------------------------------
 -- Allow Lua to do any post and pre-processing of the InterfaceMode change
-----------------------------------------------------------------       
+----------------------------------------------------------------
 
 -- add any functions that you want to have called to the handler table
 local giftUnitColor = Vector4( 1.0, 1.0, 0.0, 0.65 );
 
 function HighlightGiftUnits ()
-	
+
 	local iPlayerID = Game.GetActivePlayer();
 	local player = Players[iPlayerID];
-	
+
 	if (player == nil) then
-		print("Error - player index not correct");		
-		return;	
+		print("Error - player index not correct");
+		return;
 	end
-	
+
 	local iToPlayer = UI.GetInterfaceModeValue();
-	
+
 	--print("iToPlayer: " .. iToPlayer);
-	
+
 	for unit in player:Units() do
 		if (unit:CanDistanceGift(iToPlayer)) then
 			local hexID = ToHexFromGrid( Vector2( unit:GetX(), unit:GetY() ) );
 			Events.SerialEventHexHighlight( hexID, true, Vector4( 1.0, 1.0, 0.0, 1 ), genericUnitHexBorder );
 		end
 	end
-    
+
 end
 
 
@@ -471,22 +488,22 @@ function HighlightEmbarkPlots()
 	if not unit then
 		return;
 	end
-	
+
 	local checkFunction = nil;
 	if unit:IsEmbarked() then
-		checkFunction = function(targetPlot) 
-			return unit:CanDisembarkOnto(targetPlot) 
+		checkFunction = function(targetPlot)
+			return unit:CanDisembarkOnto(targetPlot)
 		end;
 	else
 		checkFunction = function(targetPlot)
 			return unit:CanEmbarkOnto(unit:GetPlot(), targetPlot);
 		end;
 	end
-	
+
 	local unitTeam = unit:GetTeam();
 	local unitX = unit:GetX();
 	local unitY = unit:GetY();
-	
+
 	local iRange = 1;
 	for iX = -iRange, iRange, 1 do
 		for iY = -iRange, iRange, 1 do
@@ -514,7 +531,7 @@ function HighlightUpgradePlots()
 	if not unit then
 		return;
 	end
-	
+
 	local unitX = unit:GetX();
 	local unitY = unit:GetY();
 
@@ -535,7 +552,7 @@ function ClearAllHighlights()
 	Events.ClearHexHighlightStyle("");
 	Events.ClearHexHighlightStyle(pathBorderStyle);
 	Events.ClearHexHighlightStyle(attackPathBorderStyle);
-	Events.ClearHexHighlightStyle(genericUnitHexBorder);  
+	Events.ClearHexHighlightStyle(genericUnitHexBorder);
 	Events.ClearHexHighlightStyle("FireRangeBorder");
 	Events.ClearHexHighlightStyle("GroupBorder");
 	Events.ClearHexHighlightStyle("ValidFireTargetBorder");
@@ -544,7 +561,7 @@ end
 function ClearUnitHexHighlights()
 	Events.ClearHexHighlightStyle(pathBorderStyle);
 	Events.ClearHexHighlightStyle(attackPathBorderStyle);
-	Events.ClearHexHighlightStyle(genericUnitHexBorder);  
+	Events.ClearHexHighlightStyle(genericUnitHexBorder);
 	Events.ClearHexHighlightStyle("FireRangeBorder");
 	Events.ClearHexHighlightStyle("GroupBorder");
 	Events.ClearHexHighlightStyle("ValidFireTargetBorder");
@@ -555,7 +572,7 @@ function ShowMovementRangeIndicator()
 	if not unit then
 		return;
 	end
-	
+
 	local iPlayerID = Game.GetActivePlayer();
 
 	Events.ShowMovementRange( iPlayerID, unit:GetID() );
@@ -574,20 +591,20 @@ function ShowRebaseRangeIndicator()
 	if not pHeadSelectedUnit then
 		return;
 	end
-	
+
 	local iRange= pHeadSelectedUnit:Range();
-	
+
 	print("iRange: " .. iRange);
-	
+
 	iRange = iRange * GameDefines.AIR_UNIT_REBASE_RANGE_MULTIPLIER;
 	iRange = iRange / 100;
 
 	print("iRange: " .. iRange);
-	
+
 	local thisPlot = pHeadSelectedUnit:GetPlot();
 	local thisX = pHeadSelectedUnit:GetX();
 	local thisY = pHeadSelectedUnit:GetY();
-	
+
 	for iDX = -iRange, iRange, 1 do
 		for iDY = -iRange, iRange, 1 do
 			local pTargetPlot = Map.GetPlotXY(thisX, thisY, iDX, iDY);
@@ -618,14 +635,14 @@ function ShowParadropRangeIndicator()
 	if not pHeadSelectedUnit then
 		return;
 	end
-	
+
 	local thisPlot = pHeadSelectedUnit:GetPlot();
 	if pHeadSelectedUnit:CanParadrop(thisPlot, false) then
 		local iRange= pHeadSelectedUnit:GetDropRange();
 		print("irange: "..tostring(iRange))
 		local thisX = pHeadSelectedUnit:GetX();
 		local thisY = pHeadSelectedUnit:GetY();
-		
+
 		for iDX = -iRange, iRange, 1 do
 			for iDY = -iRange, iRange, 1 do
 				local pTargetPlot = Map.GetPlotXY(thisX, thisY, iDX, iDY);
@@ -652,14 +669,14 @@ end
 function ShowAirliftRangeIndicator()
 
 	print ("In ShowAirliftRangeIndicator()");
-	
+
 	local pHeadSelectedUnit = UI.GetHeadSelectedUnit();
 	if not pHeadSelectedUnit then
 		return;
 	end
-	
+
 	local thisPlot = pHeadSelectedUnit:GetPlot();
-	if pHeadSelectedUnit:CanAirlift(thisPlot, false) then		
+	if pHeadSelectedUnit:CanAirlift(thisPlot, false) then
 		for iPlotLoop = 0, Map.GetNumPlots()-1, 1 do
 			pPlot = Map.GetPlotByIndex(iPlotLoop);
 			local plotX = pPlot:GetX();
@@ -674,7 +691,7 @@ end
 
 function HideAirliftRangeIndicator()
 	print ("In HideAirliftRangeIndicator()");
-	
+
 	ClearUnitHexHighlights();
 end
 
@@ -683,7 +700,7 @@ function ShowAttackTargetsIndicator()
 	if not unit then
 		return;
 	end;
-	
+
 	local iPlayerID = Game.GetActivePlayer();
 	Events.ShowAttackTargets(iPlayerID, unit:GetID());
 end
@@ -699,18 +716,18 @@ function HighlightImprovableCityStatePlots()
 		print("Error - pToPlayer is nil");
 		return;
 	end
-	
+
 	print("iToPlayer: " .. iToPlayer);
-	
+
 	local pCityStateCity = Players[iToPlayer]:GetCapitalCity()
 	if (pCityStateCity == nil) then
 		print("Error - pCityStateCity is nil");
 		return;
 	end
-	
+
 	local iCityStateX = pCityStateCity:GetX();
 	local iCityStateY = pCityStateCity:GetY();
-	
+
 	local iRange = GameDefines["MINOR_CIV_RESOURCE_SEARCH_RADIUS"];
 	for iX = -iRange, iRange, 1 do
 		for iY = -iRange, iRange, 1 do
@@ -735,7 +752,7 @@ function HighlightPossibleTradeCities()
 	if not pHeadSelectedUnit then
 		return;
 	end
-	
+
 	local iActivePlayer = Game.GetActivePlayer();
 	local pActivePlayer = Players[iActivePlayer];
 	local thisPlot = pHeadSelectedUnit:GetPlot();
@@ -761,7 +778,7 @@ end
 --end
 --
 -- don't actually add the nils to the table
-local OldInterfaceModeChangeHandler = 
+local OldInterfaceModeChangeHandler =
 {
 	--[InterfaceModeTypes.INTERFACEMODE_DEBUG] = nil,
 	--[InterfaceModeTypes.INTERFACEMODE_SELECTION] = nil,
@@ -788,7 +805,7 @@ local OldInterfaceModeChangeHandler =
 	[InterfaceModeTypes.INTERFACEMODE_GIFT_TILE_IMPROVEMENT] = ClearUnitHexHighlights,
 };
 
-local NewInterfaceModeChangeHandler = 
+local NewInterfaceModeChangeHandler =
 {
 	--[InterfaceModeTypes.INTERFACEMODE_DEBUG] = nil,
 	[InterfaceModeTypes.INTERFACEMODE_SELECTION] = ClearUnitHexHighlights,
@@ -817,8 +834,8 @@ local NewInterfaceModeChangeHandler =
 
 local defaultCursor = GameInfoTypes[GameInfo.InterfaceModes[InterfaceModeTypes.INTERFACEMODE_SELECTION].CursorType];
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnInterfaceModeChanged( oldInterfaceMode, newInterfaceMode)
 	print("OnInterfaceModeChanged");
 	print("oldInterfaceMode: " .. oldInterfaceMode);
@@ -829,7 +846,7 @@ function OnInterfaceModeChanged( oldInterfaceMode, newInterfaceMode)
 		if oldInterfaceModeHandler then
 			oldInterfaceModeHandler();
 		end
-		
+
 		-- update the cursor to reflect this mode - these cursor are defined in Civ5CursorInfo.xml
 		local cursorIndex = GameInfoTypes[GameInfo.InterfaceModes[newInterfaceMode].CursorType];
 		if cursorIndex then
@@ -837,7 +854,7 @@ function OnInterfaceModeChanged( oldInterfaceMode, newInterfaceMode)
 		else
 			UIManager:SetUICursor(defaultCursor);
 		end
-		
+
 		-- do any setup for the new mode
 		local newInterfaceModeHandler = NewInterfaceModeChangeHandler[newInterfaceMode];
 		if newInterfaceModeHandler then
@@ -848,8 +865,8 @@ end
 Events.InterfaceModeChanged.Add( OnInterfaceModeChanged );
 
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnActivePlayerTurnEnd()
 	UIManager:SetUICursor(1); -- busy
 end
@@ -873,14 +890,14 @@ function OnActivePlayerChanged(iActivePlayer, iPrevActivePlayer)
 
 	-- Reset the alert table and display
 	alertTable = {};
-	g_InstanceManager:ResetInstances();	
+	g_InstanceManager:ResetInstances();
 	KillAllPopupText();
-	mustRefreshAlerts = false;	
+	mustRefreshAlerts = false;
 end
 Events.GameplaySetActivePlayer.Add(OnActivePlayerChanged);
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnUnitSelectionChange( p, u, i, j, k, isSelected )
 	local interfaceMode = UI.GetInterfaceMode();
 	if interfaceMode ~= InterfaceModeTypes.INTERFACEMODE_CITY_RANGE_ATTACK then -- this is a bit hacky, but the order of event processing is what it is
@@ -894,7 +911,7 @@ end
 Events.UnitSelectionChanged.Add( OnUnitSelectionChange );
 
 function OnUpdateSelection( isSelected )
-    RequestYieldDisplay();	
+    RequestYieldDisplay();
 
 	local iPlayerID = Game.GetActivePlayer();
 	local player = Players[iPlayerID];
@@ -909,22 +926,22 @@ function OnUpdateSelection( isSelected )
 				Events.GenericWorldAnchor( GenericWorldAnchorTypes.WORLD_ANCHOR_WORKER, false, v.plot:GetX(), v.plot:GetY(), v.buildType );
 			end
 		end
-	end	
+	end
 	aWorkerSuggestHighlightPlots = nil;
-		
+
 	-- founders - clear old list first
 	if (aFounderSuggestHighlightPlots ~= nil) then
 		for i, v in ipairs(aFounderSuggestHighlightPlots) do
 			local hexID = ToHexFromGrid( Vector2( v:GetX(), v:GetY() ) );
 			Events.GenericWorldAnchor( GenericWorldAnchorTypes.WORLD_ANCHOR_SETTLER, false, v:GetX(), v:GetY(), -1 );
 		end
-	end	
+	end
 	aFounderSuggestHighlightPlots = nil;
-		
+
 	if isSelected ~= true then
 		return
 	end
-	
+
 	if (UI.CanSelectionListWork()) then
 		--print("Can Selection List Work");
 		aWorkerSuggestHighlightPlots = player:GetRecommendedWorkerPlots();
@@ -941,13 +958,13 @@ function OnUpdateSelection( isSelected )
 			end
 		end
 	end
-		
+
 	if (UI.CanSelectionListFound() and player:GetNumCities() > 0) then
 		if(g_ShowWorkerRecommendation) then
 			aFounderSuggestHighlightPlots = player:GetRecommendedFoundCityPlots();
 			--print("Founder check");
 			--print("aFounderSuggestHighlightPlots " .. tostring(aFounderSuggestHighlightPlots));
-		
+
 			-- Player can disable tile recommendations
 			if (not OptionsManager.IsNoTileRecommendations()) then
 				for i, v in ipairs(aFounderSuggestHighlightPlots) do
@@ -959,12 +976,12 @@ function OnUpdateSelection( isSelected )
 		end
 	end
 end
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnUnitSelectionCleared()
 
-    RequestYieldDisplay();	
-	
+    RequestYieldDisplay();
+
 	-- Clear Worker recommendations
 	if (not UI.CanSelectionListWork()) then
 		if (aWorkerSuggestHighlightPlots ~= nil) then
@@ -974,10 +991,10 @@ function OnUnitSelectionCleared()
 					Events.GenericWorldAnchor( GenericWorldAnchorTypes.WORLD_ANCHOR_WORKER, false, v.plot:GetX(), v.plot:GetY(), v.buildType );
 				end
 			end
-		end	
+		end
 		aWorkerSuggestHighlightPlots = nil;
 	end
-	
+
 	-- Clear Settler Recommendations
 	if (not UI.CanSelectionListFound()) then
 		if (aFounderSuggestHighlightPlots ~= nil) then
@@ -985,7 +1002,7 @@ function OnUnitSelectionCleared()
 				local hexID = ToHexFromGrid( Vector2( v:GetX(), v:GetY() ) );
 				Events.GenericWorldAnchor( GenericWorldAnchorTypes.WORLD_ANCHOR_SETTLER, false, v:GetX(), v:GetY() );
 			end
-		end	
+		end
 		aFounderSuggestHighlightPlots = nil;
 	end
 end
@@ -1001,8 +1018,8 @@ function OnUnitDestroyed( playerID, unitID )
 end
 Events.SerialEventUnitDestroyed.Add( OnUnitDestroyed );
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnUpdate(fDTime)
 
 	if #alertTable > 0 then
@@ -1014,7 +1031,7 @@ function OnUpdate(fDTime)
 				mustRefreshAlerts = true;
 			end
 		end
-		
+
 		if mustRefreshAlerts then
 			local newAlertTable = {};
 			g_InstanceManager:ResetInstances();
@@ -1034,15 +1051,15 @@ function OnUpdate(fDTime)
 		end
 
 	end
-	
+
 	mustRefreshAlerts = false;
-	
+
 end
 ContextPtr:SetUpdate( OnUpdate );
 
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function AddPopupText( worldPosition, text, delay )
     local instance = g_PopupIM:GetInstance();
     instance.Anchor:SetWorldPosition( worldPosition );
@@ -1052,19 +1069,19 @@ function AddPopupText( worldPosition, text, delay )
     instance.SlideAnim:SetPauseTime( delay );
     instance.AlphaAnimIn:SetPauseTime( delay );
     instance.AlphaAnimOut:SetPauseTime( delay + 0.75 );
-    
+
     g_InstanceMap[ tostring( instance.AlphaAnimOut ) ] = instance;
 end
 Events.AddPopupTextEvent.Add( AddPopupText );
 
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function KillPopupText( control )
 
 	local szKey = tostring( control );
     local instance = g_InstanceMap[ szKey ];
-    
+
     if( instance == nil )
     then
         print( "Error killing popup text" );
@@ -1074,8 +1091,8 @@ function KillPopupText( control )
     end
 end
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function KillAllPopupText( )
 
 	for i, v in pairs(g_InstanceMap) do
@@ -1087,60 +1104,60 @@ function KillAllPopupText( )
 end
 
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function OnUnitHexHighlight( i, j, k, bOn, unitId )
 
     --print( "GotEvent " .. unitId );
     local unit = UI.GetHeadSelectedUnit();
-    
+
     if( unit ~= nil and
         unit:GetID() == unitId and
 	    UI.CanSelectionListFound() ) then
-	    
+
 		-- Yield icons off by default
 	    if (OptionsManager.IsCivilianYields()) then
 			local gridX, gridY = ToGridFromHex( i, j );
 			Events.RequestYieldDisplay( YieldDisplayTypes.AREA, 2, gridX, gridY );
 		end
     end
-    
+
 end
 Events.UnitHexHighlight.Add( OnUnitHexHighlight )
 
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 function RequestYieldDisplay()
 
 	-- Yield icons off by default
 	local bDisplayCivilianYields = OptionsManager.IsCivilianYields();
-	
+
     local unit = UI.GetHeadSelectedUnit();
-	
+
 	local bShowYields = true;
     if( unit ~= nil ) then
 		if (GameInfo.Units[unit:GetUnitType()].DontShowYields) then
 			bShowYields = false;
 		end
 	end
-	
+
 	if( bDisplayCivilianYields and UI.CanSelectionListWork() and bShowYields) then
         Events.RequestYieldDisplay( YieldDisplayTypes.EMPIRE );
-		
+
 	elseif( bDisplayCivilianYields and UI.CanSelectionListFound() ) then
 	    if( unit ~= nil ) then
             Events.RequestYieldDisplay( YieldDisplayTypes.AREA, 2, unit:GetX(), unit:GetY() );
 		end
-		
+
     elseif( not bCityScreenOpen ) then
         Events.RequestYieldDisplay( YieldDisplayTypes.AREA, 0 );
 	end
 end
 
 
-----------------------------------------------------------------        
-----------------------------------------------------------------        
+----------------------------------------------------------------
+----------------------------------------------------------------
 local TOP    = 0;
 local BOTTOM = 1;
 local LEFT   = 2;
@@ -1210,12 +1227,12 @@ function ShowHideHandler( bIsHide )
         if( not OptionsManager.GetFullscreen() ) then
             Controls.ScreenEdgeScrolling:SetHide( true );
         end
-        
-        -- Check to see if we've been kicked.  It's possible that we were kicked while 
+
+        -- Check to see if we've been kicked.  It's possible that we were kicked while
         -- loading into the game.
         if(Network.IsPlayerKicked(Game.GetActivePlayer())) then
 					-- Display kicked popup.
-					local popupInfo = 
+					local popupInfo =
 					{
 						Type  = ButtonPopupTypes.BUTTONPOPUP_KICKED,
 						Data1 = NetKicked.BY_HOST
@@ -1224,8 +1241,8 @@ function ShowHideHandler( bIsHide )
 					Events.SerialEventGameMessagePopup(popupInfo);
 					UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
 				end
-        
-        
+
+
 		Controls.WorldViewControls:SetHide( false );
     end
 end
@@ -1240,7 +1257,7 @@ function OnGameViewTypeChanged(eNewType)
 	local bWorldViewHide = (GetGameViewRenderType() == GameViewTypes.GAMEVIEW_NONE);
 	Controls.WorldViewControls:SetHide( bWorldViewHide );
 	Controls.StagingRoom:SetHide( not bWorldViewHide );
-	
+
 end
 
 Events.GameViewTypeChanged.Add(OnGameViewTypeChanged);
@@ -1253,10 +1270,10 @@ g_uiAddins = {};
 for addin in Modding.GetActivatedModEntryPoints("InGameUIAddin") do
 	local addinFile = Modding.GetEvaluatedFilePath(addin.ModID, addin.Version, addin.File);
 	local addinPath = addinFile.EvaluatedPath;
-	
+
 	-- Get the absolute path and filename without extension.
 	local extension = Path.GetExtension(addinPath);
 	local path = string.sub(addinPath, 1, #addinPath - #extension);
-	
+
 	table.insert(g_uiAddins, ContextPtr:LoadNewContext(path));
 end

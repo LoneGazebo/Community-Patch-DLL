@@ -897,6 +897,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetNumPuppetCities);
 
 	Method(Units);
+	Method(UnitsInSquad);
 	Method(GetNumUnits);
 	Method(GetNumUnitsToSupply);
 	Method(GetNumUnitsOfType);
@@ -10029,6 +10030,49 @@ int CvLuaPlayer::lUnits(lua_State* L)
 	lua_pushcclosure(L, lUnitsAux, 1);		/* generator, */
 	lua_pushvalue(L, 1);					/* state (self)*/
 	return 2;
+}
+//------------------------------------------------------------------------------
+// Method for iterating through units in a squad (behaves like pairs)
+int CvLuaPlayer::lUnitsInSquad(lua_State* L)
+{
+	lua_createtable(L, 1, 0);
+	lua_pushvalue(L, 2);
+	lua_pushcclosure(L, lUnitsInSquadAux, 2);		/* generator, */
+	lua_pushvalue(L, 1);					/* state (self)*/
+	return 2;
+}
+//------------------------------------------------------------------------------
+// Aux Method used by lUnits.
+int CvLuaPlayer::lUnitsInSquadAux(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvUnit* pkUnit = NULL;
+
+	int iSquadNumber = lua_tointeger(L, lua_upvalueindex(2));
+
+	lua_pushvalue(L, lua_upvalueindex(1));
+	int t = lua_gettop(L);
+
+	lua_rawgeti(L, t, 1);
+	int i = -1;
+	if (!lua_isnil(L, -1))
+	{
+		i = lua_tointeger(L, -1);
+	}
+	lua_pop(L, 1);
+
+	pkUnit = (i == -1) ? pkPlayer->firstUnitInSquad(&i, iSquadNumber) : pkPlayer->nextUnitInSquad(&i, iSquadNumber);
+
+	lua_pushinteger(L, i);
+	lua_rawseti(L, t, 1);
+
+	if (pkUnit)
+	{
+		CvLuaUnit::Push(L, pkUnit);
+		return 1;
+	}
+
+	return 0;
 }
 //------------------------------------------------------------------------------
 //CvUnit GetUnitByID();

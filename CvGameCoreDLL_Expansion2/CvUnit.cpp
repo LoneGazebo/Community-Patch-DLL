@@ -1,4 +1,4 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
+/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -148,6 +148,9 @@ CvUnit::CvUnit() :
 	, m_iLinkedMaxMoves()
 	, m_LinkedUnitIDs()
 	, m_iLinkedLeaderID()
+#endif
+#if defined(MOD_SQUADS)
+	, m_iSquadNumber()
 #endif
 	, m_bImmobile()
 	, m_iExperienceTimes100()
@@ -1426,6 +1429,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iLinkedMaxMoves = 0;
 	m_LinkedUnitIDs.clear();
 	m_iLinkedLeaderID = -1;
+#endif
+#if defined(MOD_SQUADS)
+	m_iSquadNumber = -1;
 #endif
 	m_bImmobile = false;
 	m_iExperienceTimes100 = 0;
@@ -15009,6 +15015,12 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			}
 		}
 #endif
+#if defined(MOD_SQUADS)
+		if (MOD_SQUADS && GetSquadNumber() > -1)
+		{
+			pNewUnit->AssignToSquad(GetSquadNumber());
+		}
+#endif
 		pNewUnit->convert(this, true);
 		pNewUnit->setupGraphical();
 		
@@ -15784,6 +15796,272 @@ void CvUnit::DoGroupMovement(CvPlot* pDestPlot)
 	SetLinkedMaxMoves(iLowestMaxMoves);
 	PushMission(CvTypes::getMISSION_MOVE_TO(), pDestPlot->getX(), pDestPlot->getY(), CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED); // the iterator doesn't include the current plot, so move the ordering unit & and its stack here
 }
+
+int CvUnit::GetSquadNumber() const
+{
+	VALIDATE_OBJECT
+
+	return m_iSquadNumber;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::AssignToSquad(int iNewSquadNumber)
+{
+	VALIDATE_OBJECT
+
+	m_iSquadNumber = iNewSquadNumber;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::RemoveFromSquad()
+{
+	VALIDATE_OBJECT
+
+	m_iSquadNumber = -1;
+}
+//	--------------------------------------------------------------------------------
+struct ScoredUnit
+{
+	int distanceToPlot;
+	CvUnit* unit;
+
+	ScoredUnit(int distanceToPlot, CvUnit* unit) : distanceToPlot(distanceToPlot), unit(unit) {}
+
+	bool operator > (const ScoredUnit& o) const
+	{
+		return (distanceToPlot > o.distanceToPlot);
+	}
+};
+
+// Used to hold results of all eligible plots for a particular unit
+struct ScoredPlot
+{
+	int distanceToPlot;
+	CvPlot* plot;
+
+	ScoredPlot(int distanceToPlot, CvPlot* plot) : distanceToPlot(distanceToPlot), plot(plot) {}
+
+	bool operator > (const ScoredUnit& o) const
+	{
+		return (distanceToPlot > o.distanceToPlot);
+	}
+};
+
+void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
+{
+	VALIDATE_OBJECT
+
+	int squadNumber = GetSquadNumber();
+	if (GetSquadNumber() == -1)
+	{
+		return;
+	}
+
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+
+	// First, construct a list of all units in squad eligible to go to target tile
+	std::vector<CvUnit*> stackingUnits;
+	std::vector<CvUnit*> eligibleUnits;
+	int iLoop = 0;
+	CvUnit* pLoopUnit = NULL;
+	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
+	{
+		if (pLoopUnit->canMoveInto(*pDestPlot) && pLoopUnit->isNativeDomain(pDestPlot))
+		{
+			if (!pLoopUnit->IsCombatUnit() || pLoopUnit->IsStackingUnit())
+			{
+				stackingUnits.push_back(pLoopUnit);
+			}
+			else
+			{
+				eligibleUnits.push_back(pLoopUnit);
+			}
+			
+		}
+	}
+
+	// Refuse to handle this absurdidity
+	if (eligibleUnits.size() > 90)
+	{
+		return;
+	}
+
+	// Generate a list of units to move and their distance to the destination plot
+	std::vector<ScoredUnit> unitsToMoveByDistance;
+	for (std::vector<CvUnit*>::iterator it = eligibleUnits.begin(); it != eligibleUnits.end(); ++it)
+	{
+		CvUnit* pLoopUnit = *it;
+		int dist = plotDistance(*pLoopUnit->plot(), *pDestPlot);
+		unitsToMoveByDistance.push_back(ScoredUnit(dist, pLoopUnit));
+	}
+	std::sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
+
+	// Generate a list of eligible plots for these units, only adding another
+	// ring when there are still insufficient plots for the current selection
+	std::vector<CvPlot*> eligiblePlots;
+	int currRingEndIdx = 1;
+	for (int targetPlotIdx = 0; targetPlotIdx < RING_PLOTS[currRingEndIdx]; targetPlotIdx++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pDestPlot, targetPlotIdx);
+		if (!pLoopPlot)
+			continue;
+
+		if (canMoveInto(*pLoopPlot) && isNativeDomain(pLoopPlot))
+		{
+			eligiblePlots.push_back(pLoopPlot);
+		}
+
+		if (targetPlotIdx == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.size() < unitsToMoveByDistance.size())
+		{
+			currRingEndIdx++;
+		}
+	}
+
+	// Give priority to furthest units so they won't have to walk around closer units
+	// that arrive to shortest distance plots first
+	std::map<CvUnit*, CvPlot*> unitToPlot;
+	for (std::vector<ScoredUnit>::iterator it = unitsToMoveByDistance.begin(); it != unitsToMoveByDistance.end(); ++it)
+	{
+		CvUnit* pLoopUnit = (*it).unit;
+
+		CvPlot* closestPlot = NULL;
+		int closestDistance = INT_MAX;
+
+		for (std::vector<CvPlot*>::iterator it = eligiblePlots.begin(); it != eligiblePlots.end(); ++it)
+		{
+			CvPlot* pLoopPlot = *it;
+
+			if (closestPlot)
+			{
+				int dist = plotDistance(*pLoopUnit->plot(), *pLoopPlot);
+				if (dist < closestDistance && pLoopUnit->canMoveInto(*pLoopPlot) && pLoopUnit->isNativeDomain(pLoopPlot))
+				{
+					closestDistance = dist;
+					closestPlot = pLoopPlot;
+				}
+			}
+			else
+			{
+				closestPlot = pLoopPlot;
+			}
+		}
+
+		if (closestPlot)
+		{
+			// Insert into a map and move all at once instead of moving one by one so a unit doesn't
+			// occupy a valid tile as an intermediate step to a further tile
+			unitToPlot.insert(std::make_pair(pLoopUnit, closestPlot));
+			eligiblePlots.erase(std::find(eligiblePlots.begin(), eligiblePlots.end(), closestPlot));
+		}
+	}
+
+	// Send all stacking units to original destination plot
+	for (std::vector<CvUnit*>::iterator it = stackingUnits.begin(); it != stackingUnits.end(); ++it)
+	{
+		CvUnit* pLoopUnit = *it;
+		pLoopUnit->PushMission(
+			CvTypes::getMISSION_MOVE_TO(),
+			pDestPlot->getX(),
+			pDestPlot->getY(),
+			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT);
+	}
+
+	// Now that we have all the units to move and tiles for them, send the move missions
+	for (std::vector<ScoredUnit>::iterator it = unitsToMoveByDistance.begin(); it != unitsToMoveByDistance.end(); ++it)
+	{
+		CvUnit* pLoopUnit = (*it).unit;
+		CvPlot* targetPlot;
+
+		std::map<CvUnit*, CvPlot*>::iterator mit = unitToPlot.find(pLoopUnit);
+		if (mit != unitToPlot.end())
+		{
+			targetPlot = mit->second;
+		}
+		else
+		{
+			targetPlot = pDestPlot;
+		}
+
+		// Push the mission with the original destination plot so it will correct relative to that
+		// near the arrival point, but re-route it via caching a path to its target assigned plot 
+		// so that under ideal circumstances will head to the correct tile
+		pLoopUnit->ClearPathCache();
+		pLoopUnit->ComputePath(targetPlot, CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT, INT_MAX, true);
+
+		pLoopUnit->m_uiLastPathCacheDestination = pDestPlot->GetPlotIndex();
+		pLoopUnit->PushMission(
+			CvTypes::getMISSION_MOVE_TO(),
+			pDestPlot->getX(),
+			pDestPlot->getY(),
+			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT);
+	}
+}
+//	--------------------------------------------------------------------------------
+bool CvUnit::IsSquadMoving()
+{
+	VALIDATE_OBJECT
+
+	int squadNumber = GetSquadNumber();
+	if (GetSquadNumber() == -1)
+	{
+		return false;
+	}
+
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+
+	// If any units are moving, the whole squad is still moving
+	int iLoop = 0;
+	CvUnit* pLoopUnit = NULL;
+	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
+	{
+		// Ignore current unit since this check can be called before final move mission popped off stack
+		if (pLoopUnit == this)
+		{
+			continue;
+		}
+
+		if (pLoopUnit->GetHeadMissionData() && pLoopUnit->GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO())
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::TryEndSquadMovement()
+{
+	VALIDATE_OBJECT
+
+	if (GetSquadNumber() == -1)
+	{
+		return;
+	}
+
+	ClearMissionQueue();
+	if(canSentry(plot()))
+	{
+		PushMission(CvTypes::getMISSION_ALERT());
+	}
+	else
+	{
+		PushMission(CvTypes::getMISSION_SKIP());
+	}
+	SetTurnProcessed(true);
+
+	if (!IsSquadMoving())
+	{
+		// When squad is done moving, wake up all units
+		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+		int iLoop = 0;
+		CvUnit* pLoopUnit = NULL;
+		for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, GetSquadNumber()); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, GetSquadNumber()))
+		{
+			pLoopUnit->ClearMissionQueue();
+			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+		}
+	}
+}
+
 //	--------------------------------------------------------------------------------
 int CvUnit::GetRange() const
 {
@@ -27712,6 +27990,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iLinkedMaxMoves);
 	visitor(unit.m_iLinkedLeaderID);
 	visitor(unit.m_LinkedUnitIDs);
+	visitor(unit.m_iSquadNumber);
 	visitor(unit.m_iArmyId);
 	visitor(unit.m_iBaseCombat);
 	visitor(unit.m_iBaseRangedCombat);
@@ -29215,7 +29494,46 @@ void CvUnit::PlayActionSound()
 int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool bCacheResult)
 {
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
-	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), pToPlot->getX(), pToPlot->getY(), data);
+	const CvPlot* pDestPlot = pToPlot;
+
+	int x = pToPlot->getX();
+	int y = pToPlot->getY();
+
+	if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && !m_kLastPath.empty())
+	{
+		x = m_kLastPath.back().m_iX;
+		y = m_kLastPath.back().m_iY;
+	}
+	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
+
+	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
+	if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot) || !isNativeDomain(pToPlot)))
+	{
+		for (int i = 0; i < RING2_PLOTS; i++)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(pToPlot, i);
+			if (!pLoopPlot)
+				continue;
+
+			if (isNativeDomain(pLoopPlot) && canMoveInto(*pLoopPlot, iFlags | CvUnit::MOVEFLAG_DESTINATION))
+			{
+				newPath = GC.GetPathFinder().GetPath(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY(), data);
+				if (!newPath)
+				{
+					// Unit can technically move into this tile but no path exists so try another one
+					continue;
+				}
+				else
+				{
+					// Break if a new valid tile for this unit to go to was found
+					pDestPlot = pLoopPlot;
+					break;
+				}
+				
+			}
+
+		}
+	}
 
 	//now copy the new path
 	if (bCacheResult)
@@ -29226,7 +29544,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		if (!!newPath)
 		{
 			m_uiLastPathCacheOrigin = plot()->GetPlotIndex();
-			m_uiLastPathCacheDestination = pToPlot->GetPlotIndex();
+			m_uiLastPathCacheDestination = pDestPlot->GetPlotIndex();
 			m_uiLastPathFlags = (iFlags & PATHFINDER_FLAG_MASK); //ignore this one flag as it's added only when executing the path!
 			m_uiLastPathTurnSlice = GC.getGame().getTurnSlice();
 
@@ -29245,9 +29563,11 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	}
 
 	if (!newPath)
-		return INT_MAX;
-	else
 	{
+		return INT_MAX;
+	}
+	else
+	{		
 		if ( (iFlags & CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN) && newPath.vPlots.back().moves == 0 )
 			return newPath.vPlots.back().turns + 1;
 		else
@@ -29262,6 +29582,11 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	// all previous path data is deleted when a mission is started
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
+  // if (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT)
+  // {
+  //   ClearPathCache();
+  // }
+
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
 		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) != INT_MAX;
 
@@ -29377,7 +29702,9 @@ CvUnit::MoveResult CvUnit::UnitAttackWithMove(int iX, int iY, int iFlags)
 
 	//check consistency - we know there's a target there!
 	if (!canMoveInto(*pPathPlot,iFlags|MOVEFLAG_ATTACK))
+	{
 		return CvUnit::MOVE_RESULT_CANCEL;
+	}
 
 	// Publish any queued moves so that the attack doesn't appear to happen out of order
 	PublishQueuedVisualizationMoves();
@@ -29502,12 +29829,15 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			pPathPlot = pDestPlot;
 
 		//the given target may be different from the actual target
-		if ((iFlags & MOVEFLAG_APPROX_TARGET_RING1) || (iFlags & MOVEFLAG_APPROX_TARGET_RING2))
+		if ((iFlags & MOVEFLAG_APPROX_TARGET_RING1) || (iFlags & MOVEFLAG_APPROX_TARGET_RING2) || (iFlags & MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
 			pDestPlot = m_kLastPath.GetFinalPlot();
 
 		//check if we are there yet
-		if (pDestPlot && pDestPlot->getX() == getX() && pDestPlot->getY() == getY())
-			return MOVE_RESULT_CANCEL;
+    if (pDestPlot && pDestPlot->getX() == getX() && pDestPlot->getY() == getY())
+    {
+      return MOVE_RESULT_CANCEL;
+    }
+			
 	}
 
 	if(!m_kLastPath.empty())

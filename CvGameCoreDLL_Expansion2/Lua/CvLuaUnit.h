@@ -201,6 +201,11 @@ protected:
 	static int lMoveLinkedLeader(lua_State* L);
 	static int lDoGroupMovement(lua_State* L);
 
+	static int lGetSquadNumber(lua_State* L);
+	static int lAssignToSquad(lua_State* L);
+	static int lRemoveFromSquad(lua_State* L);
+	static int lDoSquadMovement(lua_State* L);
+
 	static int lRange(lua_State* L);
 	static int lNukeDamageLevel(lua_State* L);
 
