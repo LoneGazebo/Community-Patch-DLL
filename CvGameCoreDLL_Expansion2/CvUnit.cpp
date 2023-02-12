@@ -15857,6 +15857,8 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 
 	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
 
+	bool isDestWater = pDestPlot->isWater();
+
 	// First, construct a list of all units in squad eligible to go to target tile
 	std::vector<CvUnit*> stackingUnits;
 	std::vector<CvUnit*> eligibleUnits;
@@ -15864,7 +15866,7 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 	CvUnit* pLoopUnit = NULL;
 	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
 	{
-		if (pLoopUnit->canMoveInto(*pDestPlot) && pLoopUnit->isNativeDomain(pDestPlot))
+		if (pLoopUnit->canMoveInto(*pDestPlot))
 		{
 			if (!pLoopUnit->IsCombatUnit() || pLoopUnit->IsStackingUnit())
 			{
@@ -15874,7 +15876,6 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 			{
 				eligibleUnits.push_back(pLoopUnit);
 			}
-			
 		}
 	}
 
@@ -15904,7 +15905,7 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 		if (!pLoopPlot)
 			continue;
 
-		if (canMoveInto(*pLoopPlot) && isNativeDomain(pLoopPlot))
+		if (canMoveInto(*pLoopPlot) && (isDestWater == pLoopPlot->isWater()))
 		{
 			eligiblePlots.push_back(pLoopPlot);
 		}
@@ -15932,7 +15933,7 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 			if (closestPlot)
 			{
 				int dist = plotDistance(*pLoopUnit->plot(), *pLoopPlot);
-				if (dist < closestDistance && pLoopUnit->canMoveInto(*pLoopPlot) && pLoopUnit->isNativeDomain(pLoopPlot))
+				if (dist < closestDistance && pLoopUnit->canMoveInto(*pLoopPlot) && (isDestWater == pLoopPlot->isWater()))
 				{
 					closestDistance = dist;
 					closestPlot = pLoopPlot;
@@ -16012,12 +16013,6 @@ bool CvUnit::IsSquadMoving()
 	CvUnit* pLoopUnit = NULL;
 	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
 	{
-		// Ignore current unit since this check can be called before final move mission popped off stack
-		if (pLoopUnit == this)
-		{
-			continue;
-		}
-
 		if (pLoopUnit->GetHeadMissionData() && pLoopUnit->GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO())
 		{
 			return true;
@@ -16030,36 +16025,38 @@ bool CvUnit::IsSquadMoving()
 //	--------------------------------------------------------------------------------
 void CvUnit::TryEndSquadMovement()
 {
-	VALIDATE_OBJECT
+    VALIDATE_OBJECT
 
-	if (GetSquadNumber() == -1)
-	{
-		return;
-	}
+    if (GetSquadNumber() == -1)
+    {
+        return;
+    }
 
-	ClearMissionQueue();
-	if(canSentry(plot()))
-	{
-		PushMission(CvTypes::getMISSION_ALERT());
-	}
-	else
-	{
-		PushMission(CvTypes::getMISSION_SKIP());
-	}
-	SetTurnProcessed(true);
-
-	if (!IsSquadMoving())
-	{
-		// When squad is done moving, wake up all units
-		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-		int iLoop = 0;
-		CvUnit* pLoopUnit = NULL;
-		for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, GetSquadNumber()); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, GetSquadNumber()))
-		{
-			pLoopUnit->ClearMissionQueue();
-			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
-		}
-	}
+    if (!IsSquadMoving())
+    {
+        // When squad is done moving, wake up all units
+        CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+        int iLoop = 0;
+        CvUnit* pLoopUnit = NULL;
+        for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, GetSquadNumber()); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, GetSquadNumber()))
+        {
+            pLoopUnit->ClearMissionQueue();
+            pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+        }
+    }
+    else
+    {
+	    // ClearMissionQueue();
+	    if(canSentry(plot()))
+	    {
+	        PushMission(CvTypes::getMISSION_ALERT());
+	    }
+	    else
+	    {
+	        PushMission(CvTypes::getMISSION_SKIP());
+	    }
+	    SetTurnProcessed(true);
+    }
 }
 
 //	--------------------------------------------------------------------------------
@@ -29506,8 +29503,10 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	}
 	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
 
+	bool isDestWater = pToPlot->isWater();
+
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
-	if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot) || !isNativeDomain(pToPlot)))
+	if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
 	{
 		for (int i = 0; i < RING2_PLOTS; i++)
 		{
@@ -29515,7 +29514,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			if (!pLoopPlot)
 				continue;
 
-			if (isNativeDomain(pLoopPlot) && canMoveInto(*pLoopPlot, iFlags | CvUnit::MOVEFLAG_DESTINATION))
+			if ((isDestWater == pLoopPlot->isWater()) && canMoveInto(*pLoopPlot, iFlags | CvUnit::MOVEFLAG_DESTINATION))
 			{
 				newPath = GC.GetPathFinder().GetPath(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY(), data);
 				if (!newPath)

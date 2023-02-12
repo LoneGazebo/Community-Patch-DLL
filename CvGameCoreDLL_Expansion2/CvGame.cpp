@@ -1,4 +1,4 @@
-﻿/*	-------------------------------------------------------------------------------------------------------
+/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -1576,12 +1576,12 @@ void CvGame::update()
 			}
 
 			if(!isPaused() && !bExternalPause)	// Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
-			{
-				updateScore();
+      {
+        updateScore();
 
-				updateWar();
+        updateWar();
 
-				updateMoves();
+        updateMoves();
 
 				if(!isPaused())	// And again, the player can change after the automoves and that can pause the game
 				{
@@ -1634,6 +1634,11 @@ void CvGame::update()
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateEnd", args.get(), bResult);
 		}
 	}
+
+  if (MOD_SQUADS)
+  {
+    updateTestEndTurn();
+  }
 }
 
 //	---------------------------------------------------------------------------------------------------------
