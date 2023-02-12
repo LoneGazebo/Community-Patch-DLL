@@ -762,21 +762,25 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 	if (!pTarget)
 		return NULL;
 
-	int iBestTurnsAway = INT_MAX;
+	int iBestScore = INT_MAX;
 	CvUnit* pBestWorker = NULL;
 
 	for (std::map<CvUnit*, ReachablePlots>::const_iterator itUnit = allWorkersReachablePlots.begin(); itUnit != allWorkersReachablePlots.end(); ++itUnit)
 	{
-		int iTurns = INT_MAX;
 		ReachablePlots::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
-		if (itPlot != itUnit->second.end())
-			iTurns = itPlot->iPathLength;
-		else
+		if (itPlot == itUnit->second.end())
 			continue;
 
-		if (iTurns < iBestTurnsAway)
+		int iTurns = itPlot->iPathLength;
+		//-1 means the plot is already targeted by another worker
+		if (iTurns < 0)
+			return itUnit->first;
+
+		//use distance as a tiebreaker
+		int iScore = iTurns * 100 + plotDistance(*itUnit->first->plot(), *pTarget);
+		if (iScore < iBestScore)
 		{
-			iBestTurnsAway = iTurns;
+			iBestScore = iScore;
 			pBestWorker = itUnit->first;
 		}
 	}
@@ -970,10 +974,9 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 				iWeight += iResourceWeight;
 			}
 
-#if defined(MOD_BALANCE_CORE)
 			iWeight = min(iWeight,0x7FFF);
-			iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
+			iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
+			iWeight -= plotDistance(*pUnit->plot(),*pPlot); //tiebreaker in case of multiple equal options
 
 			int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
 			iScore = min(iScore,0x7FFF);
@@ -1234,7 +1237,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		}
 
 		iWeight = min(iWeight,0x7FFF);
-		iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+		iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
+		iWeight -= plotDistance(*pUnit->plot(), *pPlot); //tiebreaker in case of multiple equal options
 
 		//overflow danger here
 		iWeight += iScore;
@@ -1310,7 +1314,8 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 
 	iWeight = GetBuildCostWeight(iWeight, pPlot, m_eRemoveRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRemoveRouteBuild, false);
-	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
+	iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
+	iWeight -= plotDistance(*pUnit->plot(), *pPlot); //tiebreaker in case of multiple equal options
 
 	BuilderDirective directive;
 	directive.m_eDirective = eDirectiveType;
@@ -1370,15 +1375,8 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity
 	iWeight = GetBuildCostWeight(iWeight, pPlot, m_eRouteBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRouteBuild, false);
 	iWeight += GetRouteValue(pPlot);
-	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-
-	//if the worker just built a road there are unfortunately many plots with the same value of iMoveTurnsAway
-	//so look at plot distance additionally
-	int iPlotDistance = plotDistance(*pUnit->plot(), *pPlot);
-	if (iPlotDistance == 0)
-		iWeight *= 3; //build right where we are
-	else if (iPlotDistance == 1)
-		iWeight *= 2; //extend the road
+	iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
+	iWeight -= plotDistance(*pUnit->plot(), *pPlot); //tiebreaker in case of multiple equal options
 
 	BuilderDirective directive;
 	directive.m_eDirective = eDirectiveType;
@@ -1497,10 +1495,6 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, eChopBuild, false);
 	iWeight *= iProduction; // times the amount that the plot produces from the chopping
 
-#if defined(MOD_BALANCE_CORE)
-	iWeight = iWeight / (iMoveTurnsAway*iMoveTurnsAway + 1);
-#endif
-
 	int iYieldDifferenceWeight = 0;
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	for(uint ui = 0; ui < NUM_YIELD_TYPES; ui++)
@@ -1581,6 +1575,10 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 		iWeight = iWeight * 2;
 	}
 
+	iWeight = min(iWeight, 0x7FFF);
+	iWeight /= (iMoveTurnsAway * iMoveTurnsAway + 1);
+	iWeight -= plotDistance(*pUnit->plot(), *pPlot); //tiebreaker in case of multiple equal options
+
 	if(iWeight > 0)
 	{
 		BuilderDirective directive;
@@ -1614,6 +1612,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	int iWeight = GetBuildCostWeight(100 * /*1000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_REPAIR), pPlot, m_eRepairBuild);
 	iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eRepairBuild, false);
 	iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
+	iWeight -= plotDistance(*pUnit->plot(), *pPlot); //tiebreaker in case of multiple equal options
 
 	if (pPlot->isRevealedFortification(m_pPlayer->getTeam()))
 		iWeight *= 10;
@@ -1653,6 +1652,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 		int iWeight = GetBuildCostWeight(1000 * /*20000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_SCRUB_FALLOUT), pPlot, m_eFalloutRemove);
 		iWeight += GetBuildTimeWeight(pUnit, pPlot, m_eFalloutRemove, false);
 		iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
+		iWeight -= plotDistance(*pUnit->plot(), *pPlot); //tiebreaker in case of multiple equal options
 
 		BuilderDirective directive;
 		directive.m_eDirective = BuilderDirective::CHOP;

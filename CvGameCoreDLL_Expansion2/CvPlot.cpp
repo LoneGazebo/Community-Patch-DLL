@@ -9789,7 +9789,7 @@ int CvPlot::calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePl
 	return iReligionChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlot::calculateImprovementYield(YieldTypes eYield, int iCurrentYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, bool bOptimal, RouteTypes eAssumeThisRoute) const
+int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, bool bOptimal, RouteTypes eAssumeThisRoute) const
 {
 	ResourceTypes eResource;
 	int iBestYield = 0;
@@ -10537,7 +10537,7 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 	int iYield = calculateNatureYield(eYield, ePlayer, pOwningCity, false, bDisplay);
 	iYield += calculateReligionImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 	iYield += calculateReligionNatureYield(eYield, ePlayer, pOwningCity, pMajorityReligion, pSecondaryPantheon);
-	iYield += calculateImprovementYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, false, eRoute);
+	iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, false, eRoute);
 	iYield += calculatePlayerYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon, pPlayerPantheon, bDisplay);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
@@ -13179,7 +13179,7 @@ int CvPlot::getYieldWithBuild(BuildTypes eBuild, YieldTypes eYield, bool bWithUp
 			}
 		}
 
-		iYield += calculateImprovementYield(eYield, iYield, ePlayer, eImprovement, pOwningCity, false, getRouteType()) + calculateReligionImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon);
+		iYield += calculateImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, false, getRouteType()) + calculateReligionImprovementYield(eYield, ePlayer, eImprovement, pOwningCity, pMajorityReligion, pSecondaryPantheon);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 		if (MOD_RELIGION_PERMANENT_PANTHEON && pPlayerPantheon != NULL)
 		{
