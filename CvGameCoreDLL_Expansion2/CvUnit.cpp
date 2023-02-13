@@ -16013,7 +16013,10 @@ bool CvUnit::IsSquadMoving()
 	CvUnit* pLoopUnit = NULL;
 	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
 	{
-		if (pLoopUnit->GetHeadMissionData() && pLoopUnit->GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO())
+		if (pLoopUnit->GetHeadMissionData() && 
+			pLoopUnit->GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() &&
+			!pLoopUnit->atPlot(*pLoopUnit->GetPathLastPlot())
+		)
 		{
 			return true;
 		}
@@ -16031,8 +16034,6 @@ void CvUnit::TryEndSquadMovement()
 	{
 		return;
 	}
-
-	ClearMissionQueue();
 
 	if (!IsSquadMoving())
 	{
@@ -16054,7 +16055,7 @@ void CvUnit::TryEndSquadMovement()
 		}
 		else
 		{
-			PushMission(CvTypes::getMISSION_SKIP());
+			PushMission(CvTypes::getMISSION_SLEEP());
 		}
 	}
 }
