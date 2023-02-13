@@ -1576,12 +1576,12 @@ void CvGame::update()
 			}
 
 			if(!isPaused() && !bExternalPause)	// Check for paused again, the doTurn call might have called something that paused the game and we don't want an update to sneak through
-      {
-        updateScore();
+			{
+				updateScore();
 
-        updateWar();
+				updateWar();
 
-        updateMoves();
+				updateMoves();
 
 				if(!isPaused())	// And again, the player can change after the automoves and that can pause the game
 				{
@@ -1635,10 +1635,14 @@ void CvGame::update()
 		}
 	}
 
-  if (MOD_SQUADS)
-  {
-    updateTestEndTurn();
-  }
+	// For an uknown reason the game loop stops calling updateTestEndTurn() sometimes, which
+	// can cause the game to become stuck with an out of date ENDTURN_BLOCKING_TYPE that
+	// really should be cleared after squad movement ends. Without this workaround the blocking
+	// type never gets set to NO_ENDTURN_BLOCKING_TYPE even when it should, softlocking the game
+	if (MOD_SQUADS)
+	{
+		updateTestEndTurn();
+	}
 }
 
 //	---------------------------------------------------------------------------------------------------------
