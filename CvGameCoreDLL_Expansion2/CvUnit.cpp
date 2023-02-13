@@ -16025,38 +16025,38 @@ bool CvUnit::IsSquadMoving()
 //	--------------------------------------------------------------------------------
 void CvUnit::TryEndSquadMovement()
 {
-    VALIDATE_OBJECT
+	VALIDATE_OBJECT
 
-    if (GetSquadNumber() == -1)
-    {
-        return;
-    }
+	if (GetSquadNumber() == -1)
+	{
+		return;
+	}
 
-    if (!IsSquadMoving())
-    {
-        // When squad is done moving, wake up all units
-        CvPlayer* pPlayer = &GET_PLAYER(getOwner());
-        int iLoop = 0;
-        CvUnit* pLoopUnit = NULL;
-        for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, GetSquadNumber()); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, GetSquadNumber()))
-        {
-            pLoopUnit->ClearMissionQueue();
-            pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
-        }
-    }
-    else
-    {
-	    // ClearMissionQueue();
-	    if(canSentry(plot()))
-	    {
-	        PushMission(CvTypes::getMISSION_ALERT());
-	    }
-	    else
-	    {
-	        PushMission(CvTypes::getMISSION_SKIP());
-	    }
-	    SetTurnProcessed(true);
-    }
+	ClearMissionQueue();
+
+	if (!IsSquadMoving())
+	{
+		// When squad is done moving, wake up all units
+		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+		int iLoop = 0;
+		CvUnit* pLoopUnit = NULL;
+		for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, GetSquadNumber()); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, GetSquadNumber()))
+		{
+			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+		}
+		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
+	}
+	else
+	{
+		if(canSentry(plot()))
+		{
+			PushMission(CvTypes::getMISSION_ALERT());
+		}
+		else
+		{
+			PushMission(CvTypes::getMISSION_SKIP());
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
