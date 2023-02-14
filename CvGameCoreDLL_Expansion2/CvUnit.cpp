@@ -16015,6 +16015,7 @@ bool CvUnit::IsSquadMoving()
 	{
 		if (pLoopUnit->GetHeadMissionData() && 
 			pLoopUnit->GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() &&
+			pLoopUnit->GetPathLastPlot() &&
 			!pLoopUnit->atPlot(*pLoopUnit->GetPathLastPlot())
 		)
 		{
