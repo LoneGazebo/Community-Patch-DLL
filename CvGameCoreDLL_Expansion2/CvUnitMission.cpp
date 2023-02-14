@@ -542,10 +542,9 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					{
 						if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT))
 						{
-							// Only clear mission if no prospects in the future
 							if (hUnit->m_kLastPath.empty())
 							{
-								hUnit->ClearMissionQueue();
+								hUnit->TryEndSquadMovement();
 							}		
 						}
 						else
