@@ -26,7 +26,7 @@
 			<Where Type="TECH_CALENDAR" />
 		</Update>
 		<Update>
-			<Set Era="ERA_CLASSICAL" GridX="3" GridY="3"/>
+			<Set Era="ERA_CLASSICAL" GoodyTech="false" GridX="3" GridY="3"/>
 			<Where Type="TECH_WRITING" />
 		</Update>
 		<Update>
@@ -46,7 +46,7 @@
 			<Where Type="TECH_OPTICS" />
 		</Update>
 		<Update>
-			<Set Era="ERA_ANCIENT" GridX="2" GridY="3" />
+			<Set Era="ERA_ANCIENT" GoodyTech="true" GridX="2" GridY="3" />
 			<Where Type="TECH_HORSEBACK_RIDING" />
 		</Update>
 		<Update>
