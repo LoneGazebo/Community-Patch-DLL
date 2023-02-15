@@ -2981,6 +2981,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	if (eOldOwner == GetID())
 		return pCity;
 
+	// A player having a city is always alive
+	setAlive(true, false);
+
 	// Is this the capital?
 	bool bCapital = pCity->isCapital();
 	bool bOriginalCapital = pCity->IsOriginalCapitalForPlayer(eOldOwner);
