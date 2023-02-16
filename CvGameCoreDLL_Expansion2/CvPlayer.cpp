@@ -4028,6 +4028,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	if (!pNewCity)
 		return NULL;
 
+	// Verify that this player is alive, in case this function was triggered from LUA while the player was dead
+	verifyAlive();
+
 	iNumCities++;
 	bool bMinorCivBuyout = !bConquest && bGift && GET_PLAYER(eOldOwner).isMinorCiv();
 
