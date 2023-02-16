@@ -292,7 +292,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		return;
 
 	// What are our options for this city?
-	bool bCanLiberate = ePlayerToLiberate != NO_PLAYER;
+	bool bCanLiberate = ePlayerToLiberate != NO_PLAYER && !bGift; //shouldn't liberate cities you bought (exploitable)
 	bool bCanRaze = canRaze(pCity) && !bGift; //shouldn't raze cities you bought
 	bool bCanAnnex = !GetPlayerTraits()->IsNoAnnexing();
 
