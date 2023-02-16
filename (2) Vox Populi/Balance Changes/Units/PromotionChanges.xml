@@ -356,13 +356,11 @@
 			<Description>TXT_KEY_PROMOTION_INDIRECT_FIRE</Description>
 			<Help>TXT_KEY_PROMOTION_INDIRECT_FIRE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_BARRAGE_3</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_SIEGE_III</PromotionPrereqOr3>
 			<OrderPriority>7</OrderPriority>
 			<MinimumRangeRequired>2</MinimumRangeRequired>
 			<RangedAttackModifier>-10</RangedAttackModifier>
 			<RangeAttackIgnoreLOS>true</RangeAttackIgnoreLOS>
+			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>35</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
