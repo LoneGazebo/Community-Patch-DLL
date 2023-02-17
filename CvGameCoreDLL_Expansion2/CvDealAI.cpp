@@ -2476,7 +2476,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 			break;
 		}
 
-		if (!bPeaceTreatyTrade)
+		if (!bPeaceTreatyTrade && !assumedOwner.isHuman())
 		{
 			// don't buy a city we're trying to liberate (exploitable)
 			// this is not an ideal solution - ideally AI would check whether the city is at risk of getting recaptured if liberated ... but will do for now
@@ -2504,7 +2504,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 				}
 			}
 
-			if (ePlayerToLiberate != NO_PLAYER && assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
+			if (assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
 				return INT_MAX;
 		}
 	}
