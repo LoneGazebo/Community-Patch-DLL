@@ -2476,34 +2476,37 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 			break;
 		}
 
-		// don't buy a city we're trying to liberate (exploitable)
-		// this is not an ideal solution - ideally AI would check whether the city is at risk of getting recaptured if liberated ... but will do for now
-		PlayerTypes eOriginalOwner = pCity->getOriginalOwner(), ePreviousOwner = pCity->getPreviousOwner(), ePlayerToLiberate = NO_PLAYER;
-		if (eOriginalOwner != pCity->getOwner() && eOriginalOwner != eAssumedOwner)
+		if (!bPeaceTreatyTrade)
 		{
-			ePlayerToLiberate = eOriginalOwner;
-
-			// If we're at war with the original owner and the last owner was a City-State, we'd be liberating them instead
-			if (assumedOwner.IsAtWarWith(ePlayerToLiberate))
+			// don't buy a city we're trying to liberate (exploitable)
+			// this is not an ideal solution - ideally AI would check whether the city is at risk of getting recaptured if liberated ... but will do for now
+			PlayerTypes eOriginalOwner = pCity->getOriginalOwner(), ePreviousOwner = pCity->getPreviousOwner(), ePlayerToLiberate = NO_PLAYER;
+			if (eOriginalOwner != pCity->getOwner() && eOriginalOwner != eAssumedOwner)
 			{
-				if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
+				ePlayerToLiberate = eOriginalOwner;
+
+				// If we're at war with the original owner and the last owner was a City-State, we'd be liberating them instead
+				if (assumedOwner.IsAtWarWith(ePlayerToLiberate))
 				{
-					ePlayerToLiberate = ePreviousOwner;
+					if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
+					{
+						ePlayerToLiberate = ePreviousOwner;
+					}
+					else
+					{
+						ePlayerToLiberate = NO_PLAYER;
+					}
 				}
-				else
+
+				if (ePlayerToLiberate != NO_PLAYER && !assumedOwner.CanLiberatePlayerCity(ePlayerToLiberate))
 				{
 					ePlayerToLiberate = NO_PLAYER;
 				}
 			}
 
-			if (ePlayerToLiberate != NO_PLAYER && !assumedOwner.CanLiberatePlayerCity(ePlayerToLiberate))
-			{
-				ePlayerToLiberate = NO_PLAYER;
-			}
+			if (ePlayerToLiberate != NO_PLAYER && assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
+				return INT_MAX;
 		}
-
-		if (ePlayerToLiberate != NO_PLAYER && assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
-			return INT_MAX;
 	}
 
 	//OutputDebugString(CvString::format("City value for %s from %s to %s is %d\n", pCity->getName().c_str(), sellingPlayer.getName(), buyingPlayer.getName(), iItemValue).c_str());
