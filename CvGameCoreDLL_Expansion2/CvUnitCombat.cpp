@@ -1383,37 +1383,9 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	CvString strBuffer;
 	int iActivePlayerID = GC.getGame().getActivePlayer();
 
-	// Barbarians don't capture Cities
-	if(pkAttacker && pkDefender)
+	if (pkAttacker && pkDefender)
 	{
-		if(pkAttacker->isBarbarian() && (pkDefender->getDamage() >= pkDefender->GetMaxHitPoints()))
-		{
-			// 1 HP left
-			pkDefender->setDamage(pkDefender->GetMaxHitPoints() - 1);
-
-			int iNumGoldStolen = max(/*200*/ GD_INT_GET(BARBARIAN_CITY_GOLD_RANSOM), GET_PLAYER(pkDefender->getOwner()).GetTreasury()->GetGold());
-
-			// City is ransomed for Gold
-			GET_PLAYER(pkDefender->getOwner()).GetTreasury()->ChangeGold(-iNumGoldStolen);
-
-			if(pkDefender->getOwner() == iActivePlayerID)
-			{
-				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CITY_RANSOMED_BY_BARBARIANS", pkDefender->getNameKey(), iNumGoldStolen);
-				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
-				if (MOD_WH_MILITARY_LOG)
-					MILITARYLOG(pkDefender->getOwner(), strBuffer.c_str(), pkDefender->plot(), pkAttacker->getOwner());
-			}
-
-			if (MOD_API_ACHIEVEMENTS && pkDefender->getOwner() == GC.getGame().getActivePlayer() && pkDefender->isHuman() && !GC.getGame().isGameMultiPlayer())
-			{
-				gDLL->UnlockAchievement(ACHIEVEMENT_REALLY_SUCK);
-			}
-
-			// Barb goes away after ransom
-			pkAttacker->kill(true, NO_PLAYER);
-		}
-		// Attacker died
-		else if(pkAttacker->IsDead())
+		if (pkAttacker->IsDead())
 		{
 			CvInterfacePtr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
