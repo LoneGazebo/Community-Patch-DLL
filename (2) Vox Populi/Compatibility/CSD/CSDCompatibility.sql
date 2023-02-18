@@ -204,7 +204,7 @@ UPDATE Buildings SET Cost = '150' WHERE Type = 'BUILDING_COURT_SCRIBE';
 UPDATE Buildings SET Cost = '300' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET GoldMaintenance = '3' WHERE Type = 'BUILDING_CHANCERY';
 UPDATE Buildings SET Cost = '1800' WHERE Type = 'BUILDING_WIRE_SERVICE';
-UPDATE Buildings SET GoldMaintenance = '6' WHERE Type = 'BUILDING_WIRE_SERVICE';
+UPDATE Buildings SET GoldMaintenance = '11' WHERE Type = 'BUILDING_WIRE_SERVICE';
 
 UPDATE Buildings SET Cost = '200' WHERE Type = 'BUILDING_FORUM';
 UPDATE Buildings SET Cost = '900' WHERE Type = 'BUILDING_SUMMER_PALACE';
