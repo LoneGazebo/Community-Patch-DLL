@@ -4861,14 +4861,38 @@ int CvLeague::GetProjectProgress(LeagueProjectTypes eProject)
 					if (GET_PLAYER(ePlayer).isMajorCiv())
 					{	
 						int iMod = GET_PLAYER(ePlayer).getHandicapInfo().getWorldCreatePercent() - 100;
-						iCivProgress *= 100;
-						iCivProgress /= std::max(100 + iMod, 1);
+						if (iCivProgress > INT_MAX / 100) {
+							// switch order of division and multiplication to avoid integer overflow
+							int iCivProgressRemainder = iCivProgress % std::max(100 + iMod, 1);
+							iCivProgress /= std::max(100 + iMod, 1);
+							iCivProgress *= 100;
+							iCivProgressRemainder *= 100;
+							iCivProgressRemainder /= std::max(100 + iMod, 1);
+							iCivProgress += iCivProgressRemainder;
+						}
+						else
+						{
+							iCivProgress *= 100;
+							iCivProgress /= std::max(100 + iMod, 1);
+						}
 
 						if (!GET_PLAYER(ePlayer).isHuman())
 						{
 							iMod = GC.getGame().getHandicapInfo().getAIWorldCreatePercent() - 100;
-							iCivProgress *= 100;
-							iCivProgress /= std::max(100 + iMod, 1);
+							if (iCivProgress > INT_MAX / 100) {
+								// switch order of division and multiplication to avoid integer overflow
+								int iCivProgressRemainder = iCivProgress % std::max(100 + iMod, 1);
+								iCivProgress /= std::max(100 + iMod, 1);
+								iCivProgress *= 100;
+								iCivProgressRemainder *= 100;
+								iCivProgressRemainder /= std::max(100 + iMod, 1);
+								iCivProgress += iCivProgressRemainder;
+							}
+							else
+							{
+								iCivProgress *= 100;
+								iCivProgress /= std::max(100 + iMod, 1);
+							}
 						}
 					}
 
@@ -4913,14 +4937,37 @@ int CvLeague::GetMemberContribution(PlayerTypes ePlayer, LeagueProjectTypes eLea
 	if (bDifficultyMod)
 	{
 		int iMod = GET_PLAYER(ePlayer).getHandicapInfo().getWorldCreatePercent() - 100;
-		iValue *= 100;
-		iValue /= std::max(100 + iMod, 1);
-
+		if (iValue > INT_MAX / 100) {
+			// switch order of division and multiplication to avoid integer overflow
+			int iValueRemainder = iValue % std::max(100 + iMod, 1);
+			iValue /= std::max(100 + iMod, 1);
+			iValue *= 100;
+			iValueRemainder *= 100;
+			iValueRemainder /= std::max(100 + iMod, 1);
+			iValue += iValueRemainder;
+		}
+		else
+		{
+			iValue *= 100;
+			iValue /= std::max(100 + iMod, 1);
+		}
 		if (!GET_PLAYER(ePlayer).isHuman())
 		{
 			iMod = GC.getGame().getHandicapInfo().getAIWorldCreatePercent() - 100;
-			iValue *= 100;
-			iValue /= std::max(100 + iMod, 1);
+			if (iValue > INT_MAX / 100) {
+				// switch order of division and multiplication to avoid integer overflow
+				int iValueRemainder = iValue % std::max(100 + iMod, 1);
+				iValue /= std::max(100 + iMod, 1);
+				iValue *= 100;
+				iValueRemainder *= 100;
+				iValueRemainder /= std::max(100 + iMod, 1);
+				iValue += iValueRemainder;
+			}
+			else
+			{
+				iValue *= 100;
+				iValue /= std::max(100 + iMod, 1);
+			}
 		}
 	}
 
