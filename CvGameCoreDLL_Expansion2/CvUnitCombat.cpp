@@ -1383,10 +1383,10 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 	CvString strBuffer;
 	int iActivePlayerID = GC.getGame().getActivePlayer();
 
-	// Barbarians don't capture Cities
-	if(pkAttacker && pkDefender)
+	// Barbarians don't capture Cities in Community Patch only
+	if (pkAttacker && pkDefender)
 	{
-		if(pkAttacker->isBarbarian() && (pkDefender->getDamage() >= pkDefender->GetMaxHitPoints()))
+		if (pkAttacker->isBarbarian() && (pkDefender->getDamage() >= pkDefender->GetMaxHitPoints()) && !MOD_BALANCE_VP)
 		{
 			// 1 HP left
 			pkDefender->setDamage(pkDefender->GetMaxHitPoints() - 1);
@@ -1396,7 +1396,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			// City is ransomed for Gold
 			GET_PLAYER(pkDefender->getOwner()).GetTreasury()->ChangeGold(-iNumGoldStolen);
 
-			if(pkDefender->getOwner() == iActivePlayerID)
+			if (pkDefender->getOwner() == iActivePlayerID)
 			{
 				strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_CITY_RANSOMED_BY_BARBARIANS", pkDefender->getNameKey(), iNumGoldStolen);
 				GC.GetEngineUserInterface()->AddMessage(uiParentEventID, pkDefender->getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*,GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitDefeatScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_RED"), pkPlot->getX(), pkPlot->getY()*/);
@@ -1413,7 +1413,7 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 			pkAttacker->kill(true, NO_PLAYER);
 		}
 		// Attacker died
-		else if(pkAttacker->IsDead())
+		else if (pkAttacker->IsDead())
 		{
 			CvInterfacePtr<ICvUnit1> pAttacker = GC.WrapUnitPointer(pkAttacker);
 			gDLL->GameplayUnitDestroyedInCombat(pAttacker.get());
