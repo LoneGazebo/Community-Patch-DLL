@@ -151,6 +151,8 @@ CvUnit::CvUnit() :
 #endif
 #if defined(MOD_SQUADS)
 	, m_iSquadNumber()
+	, m_iSquadDestinationX()
+	, m_iSquadDestinationY()
 #endif
 	, m_bImmobile()
 	, m_iExperienceTimes100()
@@ -1432,6 +1434,8 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 #endif
 #if defined(MOD_SQUADS)
 	m_iSquadNumber = -1;
+	m_iSquadDestinationX = -1;
+	m_iSquadDestinationY = -1;
 #endif
 	m_bImmobile = false;
 	m_iExperienceTimes100 = 0;
@@ -15839,10 +15843,15 @@ struct ScoredPlot
 
 	ScoredPlot(int distanceToPlot, CvPlot* plot) : distanceToPlot(distanceToPlot), plot(plot) {}
 
-	bool operator > (const ScoredUnit& o) const
+	bool operator > (const ScoredPlot& o) const
 	{
 		return (distanceToPlot > o.distanceToPlot);
 	}
+
+  bool operator < (const ScoredPlot& o) const
+  {
+    return (distanceToPlot < o.distanceToPlot);
+  }
 };
 
 void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
@@ -15954,6 +15963,8 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 		}
 	}
 
+	SetSquadDestination(pDestPlot);
+
 	// Send all stacking units to original destination plot
 	for (std::vector<CvUnit*>::iterator it = stackingUnits.begin(); it != stackingUnits.end(); ++it)
 	{
@@ -15981,17 +15992,10 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 			targetPlot = pDestPlot;
 		}
 
-		// Push the mission with the original destination plot so it will correct relative to that
-		// near the arrival point, but re-route it via caching a path to its target assigned plot 
-		// so that under ideal circumstances will head to the correct tile
-		pLoopUnit->ClearPathCache();
-		pLoopUnit->ComputePath(targetPlot, CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT, INT_MAX, true);
-
-		pLoopUnit->m_uiLastPathCacheDestination = pDestPlot->GetPlotIndex();
 		pLoopUnit->PushMission(
 			CvTypes::getMISSION_MOVE_TO(),
-			pDestPlot->getX(),
-			pDestPlot->getY(),
+			targetPlot->getX(),
+			targetPlot->getY(),
 			CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED | CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT);
 	}
 }
@@ -16001,7 +16005,7 @@ bool CvUnit::IsSquadMoving()
 	VALIDATE_OBJECT
 
 	int squadNumber = GetSquadNumber();
-	if (GetSquadNumber() == -1)
+	if (GetSquadNumber() == -1 || !HasSquadDestination())
 	{
 		return false;
 	}
@@ -16031,7 +16035,7 @@ void CvUnit::TryEndSquadMovement()
 {
 	VALIDATE_OBJECT
 
-	if (GetSquadNumber() == -1)
+	if (GetSquadNumber() == -1 || !HasSquadDestination())
 	{
 		return;
 	}
@@ -16046,6 +16050,7 @@ void CvUnit::TryEndSquadMovement()
 		{
 			pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
 		}
+		SetSquadDestination();
 		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 	}
 	else
@@ -16058,6 +16063,51 @@ void CvUnit::TryEndSquadMovement()
 		{
 			PushMission(CvTypes::getMISSION_SLEEP());
 		}
+	}
+}
+
+//  --------------------------------------------------------------------------------
+void CvUnit::SetSquadDestination(CvPlot* pDestPlot)
+{
+	CvPlayer* pPlayer = &GET_PLAYER(getOwner());
+
+	if (pDestPlot)
+	{
+		m_iSquadDestinationX = pDestPlot->getX();
+		m_iSquadDestinationY = pDestPlot->getY();
+	}
+	else
+	{
+		m_iSquadDestinationX = -1;
+		m_iSquadDestinationY = -1;
+	}
+
+	CvUnit* pLoopUnit = NULL;
+	int iLoop = 0;
+	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, GetSquadNumber()); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, GetSquadNumber()))
+	{
+		pLoopUnit->m_iSquadDestinationX = m_iSquadDestinationX;
+		pLoopUnit->m_iSquadDestinationY = m_iSquadDestinationY;
+	}
+}
+
+//  --------------------------------------------------------------------------------
+bool CvUnit::HasSquadDestination()
+{
+	return m_iSquadDestinationX >= 0 && m_iSquadDestinationX >= 0;
+}
+
+//  --------------------------------------------------------------------------------
+CvPlot* CvUnit::GetSquadDestination()
+{
+	VALIDATE_OBJECT
+	if (HasSquadDestination())
+	{
+		return GC.getMap().plotCheckInvalid(m_iSquadDestinationX, m_iSquadDestinationY);
+	}
+	else
+	{
+		return NULL;
 	}
 }
 
@@ -27990,6 +28040,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iLinkedLeaderID);
 	visitor(unit.m_LinkedUnitIDs);
 	visitor(unit.m_iSquadNumber);
+	visitor(unit.m_iSquadDestinationX);
+	visitor(unit.m_iSquadDestinationY);
 	visitor(unit.m_iArmyId);
 	visitor(unit.m_iBaseCombat);
 	visitor(unit.m_iBaseRangedCombat);
@@ -29508,11 +29560,23 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	bool isDestWater = pToPlot->isWater();
 
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
-	if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
+	if (MOD_SQUADS && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
 	{
-		for (int i = 0; i < RING2_PLOTS; i++)
+		const CvPlot* pTargetPlot = pToPlot;
+
+		// We want to find a new plot relative to the squads destination, not this move missions destination
+		if (HasSquadDestination())
 		{
-			CvPlot* pLoopPlot = iterateRingPlots(pToPlot, i);
+			pTargetPlot = GetSquadDestination();
+		}
+
+		// We want to reroute the unit to a plot within the closest available ring to the squad movement
+		// plot, while also minimizing distance from it's current position
+		std::vector<ScoredPlot> eligiblePlots;
+		int currRingEndIdx = 1;
+		for (int i = 0; i < RING_PLOTS[currRingEndIdx]; i++)
+		{
+			CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot, i);
 			if (!pLoopPlot)
 				continue;
 
@@ -29524,16 +29588,25 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 					// Unit can technically move into this tile but no path exists so try another one
 					continue;
 				}
+				else if (newPath.iTotalTurns > 2)
+				{
+					// Don't reroute somewhere too far
+					continue;
+				}
 				else
 				{
-					// Break if a new valid tile for this unit to go to was found
-					pDestPlot = pLoopPlot;
-					break;
+					eligiblePlots.push_back(ScoredPlot(newPath.iTotalCost, pLoopPlot));
 				}
-				
 			}
 
+			if (i == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.empty())
+			{
+				currRingEndIdx++;
+			}
 		}
+
+		std::sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
+		pDestPlot = eligiblePlots.front().plot;
 	}
 
 	//now copy the new path
