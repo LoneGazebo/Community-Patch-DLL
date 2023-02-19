@@ -50,6 +50,7 @@ local UnitMoving = UnitMoving
 -- Cache whether Promotion Flags is active, change settings
 local EUI_options = Modding.OpenUserData( "Enhanced User Interface Options", 1 )
 local isPromotionFlagsEUI = EUI_options.GetValue( "PromotionFlags" ) == 1
+local g_isSquadsModEnabled = Game.IsCustomModOption("SQUADS");
 
 print("Promotion Flags: "..tostring(isPromotionFlagsEUI))
 local PromotionFlagsSettings_ShowUnitFreePromos = false
@@ -636,6 +637,11 @@ local function CreateNewFlag( playerID, unitID, isSelected, isHiddenByFog, isInv
 		flag.CargoBG:SetHide( cargo < 1 )
 		flag.Cargo:SetText( cargo )
 
+		if g_isSquadsModEnabled and unit:GetSquadNumber() > -1 then
+			flag.SquadNumber:SetHide( false )
+			flag.SquadNumber:SetText( tostring(unit:GetSquadNumber()) )
+		end
+
 		---------------------------------------------------------
 		-- update all other info
 		flag.Anchor:SetHide( isHiddenByFog or isInvisibleToActiveTeam )
@@ -1205,6 +1211,32 @@ if isPromotionFlagsEUI then
 		RefreshUnitPromotionsGlobally()
 	end);
 end
+
+if g_isSquadsModEnabled then
+	LuaEvents.OnSquadChangeEvent.Add(function(playerID, unitID)
+		local flag = g_UnitFlags[ playerID ][ unitID ]
+		if flag == nil then 
+			-- DebugPrint("UpdatePromotions, No flag! playerID:" .. tostring(playerID) .. ", unitID:" .. tostring(unitID))
+			return
+		end
+		
+		local player = Players[playerID]
+		local unit = player:GetUnitByID(unitID)
+		if unit == nil then 
+			--that's weird, ah well nevermind!
+			-- DebugPrint("UpdatePromotions, flag exists but, unit appears to be nil, bailing out... playerID:" .. tostring(playerID) ..  ", unitID:".. tostring(unitID))
+			return
+		end
+
+		if unit:GetSquadNumber() > -1 then
+			flag.SquadNumber:SetHide( false )
+			flag.SquadNumber:SetText( tostring(unit:GetSquadNumber()) )
+		else
+			flag.SquadNumber:SetHide( true )
+		end
+	end)
+end
+
 --==========================================================
 -- on shutdown, we need to get our children back,
 -- or they will get duplicted on future hotload

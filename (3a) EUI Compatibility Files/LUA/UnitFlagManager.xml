@@ -58,6 +58,9 @@
 						<Image ID="UnitIcon" Anchor="C,C" Size="32,32" Offset="1,-1" Texture="UnitFlagAtlasWhite.dds" Color="240,199,0,255" />
 					</Image>
 
+					<Label ID="SquadNumber" Anchor="R,B" Hidden="1"
+						Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="3"/>
+
 					<!-- Unit Promotions -->
 					<!--
 					<Stack ID="PromotionStackV" StackGrowth="Bottom" Anchor="C,B" Padding="-2" Offset="0,-26">
