@@ -1215,18 +1215,11 @@ end
 if g_isSquadsModEnabled then
 	LuaEvents.OnSquadChangeEvent.Add(function(playerID, unitID)
 		local flag = g_UnitFlags[ playerID ][ unitID ]
-		if flag == nil then 
-			-- DebugPrint("UpdatePromotions, No flag! playerID:" .. tostring(playerID) .. ", unitID:" .. tostring(unitID))
-			return
-		end
+		if flag == nil then return end
 		
 		local player = Players[playerID]
 		local unit = player:GetUnitByID(unitID)
-		if unit == nil then 
-			--that's weird, ah well nevermind!
-			-- DebugPrint("UpdatePromotions, flag exists but, unit appears to be nil, bailing out... playerID:" .. tostring(playerID) ..  ", unitID:".. tostring(unitID))
-			return
-		end
+		if unit == nil then return end
 
 		if unit:GetSquadNumber() > -1 then
 			flag.SquadNumber:SetHide( false )

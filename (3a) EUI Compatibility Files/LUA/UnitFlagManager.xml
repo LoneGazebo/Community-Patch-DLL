@@ -59,7 +59,7 @@
 					</Image>
 
 					<Label ID="SquadNumber" Anchor="R,B" Hidden="1"
-						Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String="3"/>
+						Font="TwCenMT24" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" String=""/>
 
 					<!-- Unit Promotions -->
 					<!--
