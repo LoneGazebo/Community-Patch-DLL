@@ -638,6 +638,9 @@ public:
 	void DoSquadMovement(CvPlot* pDestPlot);
 	bool IsSquadMoving();
 	void TryEndSquadMovement();
+	void SetSquadDestination(CvPlot* pDestPlot = NULL);
+	bool HasSquadDestination();
+	CvPlot* GetSquadDestination();
 #endif
 
 	int GetRange() const;
@@ -2045,6 +2048,8 @@ protected:
 	int m_iBaseRangedCombat;
 
 	int m_iSquadNumber;
+	int m_iSquadDestinationX;
+	int m_iSquadDestinationY;
 
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;
@@ -2496,6 +2501,8 @@ SYNC_ARCHIVE_VAR(int, m_iLinkedMaxMoves)
 SYNC_ARCHIVE_VAR(UnitIdContainer, m_LinkedUnitIDs)
 SYNC_ARCHIVE_VAR(int, m_iLinkedLeaderID)
 SYNC_ARCHIVE_VAR(int, m_iSquadNumber)
+SYNC_ARCHIVE_VAR(int, m_iSquadDestinationX)
+SYNC_ARCHIVE_VAR(int, m_iSquadDestinationY)
 SYNC_ARCHIVE_VAR(int, m_iArmyId)
 SYNC_ARCHIVE_VAR(int, m_iBaseCombat)
 SYNC_ARCHIVE_VAR(int, m_iBaseRangedCombat)
