@@ -29606,8 +29606,17 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		}
 
 		std::sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
-		pDestPlot = eligiblePlots.front().plot;
+		if (!eligiblePlots.empty())
+		{
+			pDestPlot = eligiblePlots.front().plot;
+		}
 	}
+
+	if (pDestPlot)
+	{
+		newPath = GC.GetPathFinder().GetPath(getX(), getY(), pDestPlot->getX(), pDestPlot->getY(), data);
+	}
+
 
 	//now copy the new path
 	if (bCacheResult)
