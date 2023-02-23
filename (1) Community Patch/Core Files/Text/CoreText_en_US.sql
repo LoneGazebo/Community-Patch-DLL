@@ -725,6 +725,11 @@ WHERE Tag = 'TXT_KEY_CITYSTATE_LIBERATING_HEADING2_BODY';
 
 -- Miscellaneous
 
+
+UPDATE Language_en_US
+SET Text = 'They want you to defeat Barbarian units that are invading their territory. You are allowed to enter their terrority until the Barbarians are defeated.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL';
+
 UPDATE Language_en_US
 SET Text = 'Allowed units receive [COLOR_POSITIVE_TEXT]{@1_PromotionName}[ENDCOLOR] Promotion: {@2_PromotionHelp}'
 WHERE Tag = 'TXT_KEY_FREE_PROMOTION_FROM_TECH';
