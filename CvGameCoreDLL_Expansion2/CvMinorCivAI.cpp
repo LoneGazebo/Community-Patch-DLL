@@ -12039,19 +12039,23 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 }
 
 
+void CvMinorCivAI::DoUpdateNumThreateningBarbarians()
+{
+	m_iNumThreateningBarbarians = GetNumThreateningBarbarians() + GetNumThreateningMajors();
+	if (m_iNumThreateningBarbarians > 0)
+		m_bAllowMajorsToIntrude = true;
+}
+
 /// Major Civs intruding in our lands?
 void CvMinorCivAI::DoIntrusion()
 {
-	int iNewBarbCount = GetNumThreateningBarbarians() + GetNumThreateningMajors();
-	
+	int iNumThreateningBarbariansLastTurn = m_iNumThreateningBarbarians;
+	DoUpdateNumThreateningBarbarians();
+
 	//allow major players in our territory for one turn after the barbarians have been vanquished
-	if (iNewBarbCount > 0)
-		m_bAllowMajorsToIntrude = true;
-	else if (iNewBarbCount == 0 && m_iNumThreateningBarbarians == 0)
+	if (iNumThreateningBarbariansLastTurn == 0 && m_iNumThreateningBarbarians == 0)
 		m_bAllowMajorsToIntrude = false;
 	
-	//remember for next turn
-	m_iNumThreateningBarbarians = iNewBarbCount;
 
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 	{

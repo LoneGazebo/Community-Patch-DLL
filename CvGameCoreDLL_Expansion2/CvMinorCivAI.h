@@ -601,6 +601,7 @@ public:
 
 	void DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies, bool bSuppressNotifications = false, bool bPassedBySomeone = false, PlayerTypes eNewAlly = NO_PLAYER);
 
+	void DoUpdateNumThreateningBarbarians();
 	void DoIntrusion();
 
 	void SetReadyForTakeOver();

@@ -11638,6 +11638,16 @@ void CvGame::SetHighestSpyPotential()
 
 void CvGame::DoBarbCountdown()
 {
+	// Update the number of threatening Barbarians for each City-State
+	// this is done here to make sure it's done after the Barbarians have moved
+	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)iMinorLoop;
+
+		if (GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).isAlive())
+			GET_PLAYER(eMinor).GetMinorCivAI()->DoUpdateNumThreateningBarbarians();
+	}
+
 	if (!MOD_BALANCE_VP)
 		return;
 
