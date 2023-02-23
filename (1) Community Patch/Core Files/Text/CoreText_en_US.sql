@@ -727,7 +727,7 @@ WHERE Tag = 'TXT_KEY_CITYSTATE_LIBERATING_HEADING2_BODY';
 
 
 UPDATE Language_en_US
-SET Text = 'They want you to defeat Barbarian units that are invading their territory. You are allowed to enter their terrority until the Barbarians are defeated.'
+SET Text = 'They want you to defeat Barbarian units that are invading their territory. You are allowed to enter their territory until the Barbarians are defeated.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL';
 
 UPDATE Language_en_US
