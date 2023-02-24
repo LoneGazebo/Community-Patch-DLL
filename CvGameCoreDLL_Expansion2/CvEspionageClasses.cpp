@@ -1230,6 +1230,8 @@ void CvPlayerEspionage::TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex)
 	if (pSpy)
 	{
 		pSpy->UpdateSiphonHistory(pCity, m_pPlayer->GetID(), uiSpyIndex, pSpy->m_eSpyFocus);
+		// set spy progress to zero to make sure the correct mission durations are shown in the popup
+		pCity->GetCityEspionage()->SetActivity(m_pPlayer->GetID(), 0, 1, 0); 
 		CvNotifications* pNotifications = m_pPlayer->GetNotifications();
 		if (pNotifications)
 		{
@@ -4289,7 +4291,6 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 		break;
 	case SPY_STATE_TRAVELLING:
 	case SPY_STATE_SURVEILLANCE:
-	case SPY_STATE_GATHERING_INTEL:
 	case SPY_STATE_BUILDING_NETWORK:
 	case SPY_STATE_MAKING_INTRODUCTIONS:
 		pCity = GetCityWithSpy(uiSpyIndex);
@@ -4309,6 +4310,15 @@ int CvPlayerEspionage::GetTurnsUntilStateComplete(uint uiSpyIndex)
 			}
 		}
 		return iTurnsLeft;
+	case SPY_STATE_GATHERING_INTEL:
+		pCity = GetCityWithSpy(uiSpyIndex);
+		CvAssertMsg(pCity, "GetCityWithSpy returned null. Has the wrong task");
+		if (!pCity)
+		{
+			return -1;
+		}
+		pCityEspionage = pCity->GetCityEspionage();
+		return pCity->GetSpyTurnsToCompleteMission(ePlayer, m_aSpyList[uiSpyIndex].m_eSpyFocus, uiSpyIndex, pCityEspionage->m_aiAmount[ePlayer]);
 	case SPY_STATE_RIG_ELECTION:
 		return GC.getGame().GetTurnsUntilMinorCivElection();
 		break;
