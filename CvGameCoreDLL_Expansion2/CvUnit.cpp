@@ -16000,6 +16000,14 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 	}
 }
 //	--------------------------------------------------------------------------------
+bool CvUnit::IsUnitInActiveMoveMission()
+{
+	return GetHeadMissionData() &&
+		GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() &&
+		(GetPathLastPlot() == NULL || // Case when mission is still ongoing but needs recalculation
+			!atPlot(*this->GetPathLastPlot()));
+}
+//	--------------------------------------------------------------------------------
 bool CvUnit::IsSquadMoving()
 {
 	VALIDATE_OBJECT
@@ -16017,11 +16025,7 @@ bool CvUnit::IsSquadMoving()
 	CvUnit* pLoopUnit = NULL;
 	for(pLoopUnit = pPlayer->firstUnitInSquad(&iLoop, squadNumber); pLoopUnit != NULL; pLoopUnit = pPlayer->nextUnitInSquad(&iLoop, squadNumber))
 	{
-		if (pLoopUnit->GetHeadMissionData() && 
-			pLoopUnit->GetHeadMissionData()->eMissionType == CvTypes::getMISSION_MOVE_TO() &&
-			pLoopUnit->GetPathLastPlot() &&
-			!pLoopUnit->atPlot(*pLoopUnit->GetPathLastPlot())
-		)
+		if (pLoopUnit->IsUnitInActiveMoveMission())
 		{
 			return true;
 		}
@@ -16053,7 +16057,7 @@ void CvUnit::TryEndSquadMovement()
 		SetSquadDestination();
 		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 	}
-	else
+	else if (!IsUnitInActiveMoveMission())
 	{
 		if(canSentry(plot()))
 		{
@@ -29554,6 +29558,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 	{
 		x = m_kLastPath.back().m_iX;
 		y = m_kLastPath.back().m_iY;
+		pDestPlot = m_kLastPath.GetFinalPlot();
 	}
 	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
 
@@ -29588,9 +29593,9 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 					// Unit can technically move into this tile but no path exists so try another one
 					continue;
 				}
-				else if (newPath.iTotalTurns > 2)
+				// Don't want to take forever rerouting if we're already inside the ring of consideration
+				else if (plotDistance(*plot(), *pTargetPlot) <= currRingEndIdx && newPath.iTotalTurns > 2)
 				{
-					// Don't reroute somewhere too far
 					continue;
 				}
 				else
@@ -29953,7 +29958,17 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		{
 			ClearPathCache();
 			PublishQueuedVisualizationMoves();
-			return MOVE_RESULT_CANCEL;
+			// If the path is non-empty but all plots on it aren't valid moves this turn,
+			// wait and recalculate and try again next turn
+			if (MOD_SQUADS && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && CanStackUnitAtPlot(plot()))
+			{
+				finishMoves();
+				return MOVE_RESULT_NEXT_TURN;
+			}
+			else
+			{
+				return MOVE_RESULT_CANCEL;
+			}
 		}
 	}
 

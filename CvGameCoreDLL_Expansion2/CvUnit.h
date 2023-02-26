@@ -636,6 +636,7 @@ public:
 	void AssignToSquad(int iNewSquadNumber);
 	void RemoveFromSquad();
 	void DoSquadMovement(CvPlot* pDestPlot);
+	bool IsUnitInActiveMoveMission();
 	bool IsSquadMoving();
 	void TryEndSquadMovement();
 	void SetSquadDestination(CvPlot* pDestPlot = NULL);
