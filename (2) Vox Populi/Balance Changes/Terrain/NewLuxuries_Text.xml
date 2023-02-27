@@ -27,7 +27,7 @@
 			<Text>Tobacco</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_CIV5_RESOURCE_TOBACCO_TEXT">
-			<Text>Tobacco is a product processed from the dried leaves of plants in the genus Nicotiana. It is used recreationally in cigars and cigarettes, snuff, pipe tobacco, chewing tobacco and flavored shisha. Many Native American tribes have traditionally gReplacen and used tobacco, with some cultivation sites in Mexico dating back to 1400-1000 B.C. Eastern North American tribes carried large amounts of tobacco in pouches as a readily accepted trade item, and often smoked it in peace pipes, either in defined sacred ceremonies or to seal a bargain. Following the arrival of the Europeans, tobacco became increasingly popular as a trade item and grew into its own industry.</Text>
+			<Text>Tobacco is a product processed from the dried leaves of plants in the genus Nicotiana. It is used recreationally in cigars and cigarettes, snuff, pipe tobacco, chewing tobacco and flavored shisha. Many Native American tribes have traditionally grown and used tobacco, with some cultivation sites in Mexico dating back to 1400-1000 B.C. Eastern North American tribes carried large amounts of tobacco in pouches as a readily accepted trade item, and often smoked it in peace pipes, either in defined sacred ceremonies or to seal a bargain. Following the arrival of the Europeans, tobacco became increasingly popular as a trade item and grew into its own industry.</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_RESOURCE_AMBER">
 			<Text>Amber</Text>
@@ -75,5 +75,5 @@
 			<Text>Glass is only available through a Mercantile City-State.</Text>
 		</Replace>
 	</Language_en_US>
-  
+
 </GameData>
