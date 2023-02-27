@@ -41,6 +41,7 @@ struct SCityExtraYields
 	vector<pair<TerrainTypes, int>> forTerrain, forXTerrain, forTerrainFromBuildings, forTerrainFromReligion;
 	vector<pair<FeatureTypes, int>> forFeature, forXFeature, forFeatureFromBuildings, forFeatureFromReligion, forFeatureUnimproved;
 	vector<pair<ImprovementTypes, int>> forImprovement;
+	vector<pair<ImprovementTypes, fraction>> fromImprovement, fromImprovementLocal, fromImprovementGlobal;
 	vector<pair<SpecialistTypes, int>> forSpecialist;
 	vector<pair<ResourceTypes, int>> forResource;
 	vector<pair<PlotTypes, int>> forPlot;
@@ -297,6 +298,8 @@ public:
 	void ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChange);
 	int GetNumImprovementWorked(ImprovementTypes eImprovement);
 
+	void ChangeImprovementCount(ImprovementTypes eImprovement, int iChange);
+	int GetImprovementCount(ImprovementTypes eImprovement);
 
 	int GetYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield) const;
 	void ChangeYieldPerXTerrainFromBuildingsTimes100(TerrainTypes eTerrain, YieldTypes eYield, int iChange);
@@ -319,6 +322,14 @@ public:
 	int GetYieldPerTurnFromUnimprovedFeatures(FeatureTypes eFeature, YieldTypes eYield) const;
 	void SetYieldPerXUnimprovedFeature(FeatureTypes eFeature, YieldTypes eYield, int iValue);
 	void UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eFeature = NO_FEATURE);
+
+	fraction GetYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void ChangeYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange);
+	fraction GetYieldPerXImprovementGlobal(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void ChangeYieldPerXImprovementGlobal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange);
+	fraction GetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes eYield) const;
+	void SetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes eYield, fraction fValue);
+	void UpdateYieldPerXImprovement(YieldTypes eYield, ImprovementTypes eImprovement = NO_IMPROVEMENT);
 
 	int getHurryModifier(HurryTypes eIndex) const;
 	void changeHurryModifier(HurryTypes eIndex, int iChange);
@@ -2153,6 +2164,7 @@ protected:
 	std::vector<int> m_paiNumFeaturelessTerrainWorked;
 	std::vector<int> m_paiNumFeatureWorked;
 	std::vector<int> m_paiNumImprovementWorked;
+	std::vector<int> m_paiImprovementCount;
 #endif
 	CvString m_strScriptData;
 
@@ -2563,6 +2575,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumTerrainWorked)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumFeaturelessTerrainWorked)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumFeatureWorked)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumImprovementWorked)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiImprovementCount)
 SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
 SYNC_ARCHIVE_VAR(int, m_iDamageTakenThisTurn)
 SYNC_ARCHIVE_VAR(int, m_iDamageTakenLastTurn)
