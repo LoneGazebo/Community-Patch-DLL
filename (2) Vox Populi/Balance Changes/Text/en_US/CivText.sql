@@ -79,7 +79,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT';
 -- Austria
 --------------------
 UPDATE Language_en_US
-SET Text = '+50% rewards from [ICON_CITY_STATE] City-State Quests. May arrange Marriages with Allied City-States using [ICON_GOLD] Gold. While at peace with the City-State, Marriages halt [ICON_INFLUENCE] Influence decay, grant 1 [COLOR_POSITIVE_TEXT]Extra[ENDCOLOR] [ICON_DIPLOMAT] World Congress Delegate, and boost [ICON_GREAT_PEOPLE] Great People generation in the [ICON_CAPITAL] Capital by 15%.'
+SET Text = '+50% rewards from [ICON_CITY_STATE] City-State Quests. May arrange Marriages with Allied City-States using [ICON_GOLD] Gold. While at peace with the City-State, Marriages increase resting [ICON_INFLUENCE] Influence by 200, grant 1 [COLOR_POSITIVE_TEXT]Extra[ENDCOLOR] [ICON_DIPLOMAT] World Congress Delegate, and boost [ICON_GREAT_PEOPLE] Great People generation in the [ICON_CAPITAL] Capital by 15%.'
 WHERE Tag = 'TXT_KEY_TRAIT_ANNEX_CITY_STATE';
 
 UPDATE Language_en_US
@@ -163,7 +163,7 @@ SET Text = 'Has a unique "We Love The King Day", Carnival, that gives -50% [ICON
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL';
 
 UPDATE Language_en_US
-SET Text = 'The Pracinha can only be gifted by Minor Civilizations.'
+SET Text = 'The Pracinha can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BRAZILIAN_PRACINHA';
 
 UPDATE Language_en_US
@@ -266,7 +266,7 @@ SET Text = 'The Berserker is the Danish Unique Unit, replacing the Pikeman. This
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Norwegian Ski Infantry can only be gifted by Minor Civilizations.'
+SET Text = 'The Norwegian Ski Infantry can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_HELP';
 
 UPDATE Language_en_US
@@ -304,7 +304,7 @@ SET Text = 'Perfidious Albion'
 WHERE Tag = 'TXT_KEY_TRAIT_OCEAN_MOVEMENT_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'The Longbowman can only be gifted by Minor Civilizations.'
+SET Text = 'The Longbowman can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_LONGBOWMAN';
 
 UPDATE Language_en_US
@@ -529,7 +529,7 @@ SET Text = 'Ancient Era Unit which specializes in defeating Mounted Units. Only 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_HOPLITE';
 
 UPDATE Language_en_US
-SET Text = 'The Companion Cavalry can only be gifted by Minor Civilizations.'
+SET Text = 'The Companion Cavalry can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_COMPANION_CAVALRY';
 
 UPDATE Language_en_US
@@ -544,7 +544,7 @@ SET Text = 'Friendly and Enemy [ICON_WAR] War Weariness is modified by 50%. Moun
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US
-SET Text = 'The Battering Ram can only be gifted by Minor Civilizations.'
+SET Text = 'The Battering Ram can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_HUN_BATTERING_RAM';
 
 UPDATE Language_en_US
@@ -721,7 +721,7 @@ SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Med
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL';
 
 UPDATE Language_en_US
-SET Text = 'The Turtle Ship can only be gifted by Minor Civilizations.'
+SET Text = 'The Turtle Ship can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_CIV5_KOREA_TURTLESHIP_HELP';
 
 UPDATE Language_en_US
@@ -861,7 +861,7 @@ SET Text = 'The Janissary is stronger than the Musketman which it replaces, and 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_JANISSARY';
 
 UPDATE Language_en_US
-SET Text = 'The Sipahi can only be gifted by Minor Civilizations.'
+SET Text = 'The Sipahi can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SIPAHI';
 
 UPDATE Language_en_US
@@ -956,11 +956,11 @@ WHERE Tag = 'TXT_KEY_MISSION_SELL_EXOTIC_GOODS_HELP';
 -- Rome
 --------------------
 UPDATE Language_en_US
-SET Text = 'City-States can be forcefully annexed if Heavy Tribute can be demanded from them.​ Conquered City States continue to provide rewards. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
+SET Text = 'City-States can be forcefully annexed if Heavy Tribute can be demanded from them.​ Conquered City-States provide rewards as if they were Allies. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US
-SET Text = 'The Ballista can only be gifted by Minor Civilizations.'
+SET Text = 'The Ballista can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BALLISTA';
 
 UPDATE Language_en_US
@@ -1118,7 +1118,7 @@ SET Text = 'Caroleans are the backbone of the Industrial era Swedish army. They 
 WHERE Tag = 'TXT_KEY_UNIT_SWEDISH_CAROLEAN_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Hakkapeliitta can only be gifted by Minor Civilizations.'
+SET Text = 'The Hakkapeliitta can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SWEDISH_HAKKAPELIITTA';
 
 UPDATE Language_en_US
@@ -1133,7 +1133,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE_SHORT';
 -- Venice
 --------------------
 UPDATE Language_en_US
-SET Text = 'The Great Galleass can only be gifted by Minor Civilizations.'
+SET Text = 'The Great Galleass can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_VENETIAN_GALLEASS';
 
 UPDATE Language_en_US
