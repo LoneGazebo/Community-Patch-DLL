@@ -123,10 +123,10 @@
 		</Row>-->
 		<!--Diplo National Wonder Strategy-->
 		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY">
-			<Text>This National Wonder cannot be built unless the civilization has a Chancery built in all of its cities. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
+			<Text>This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY">
-			<Text>This National Wonder cannot be built unless the civilization has a Wire Service built in all of its cities. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to send your Diplomatic Units through rival territory without an [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] agreement.</Text>
+			<Text>This National Wonder cannot be built unless the city has a Wire Service. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to send your Diplomatic Units through rival territory without an [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] agreement.</Text>
 		</Row>
 		<!--
 		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY">

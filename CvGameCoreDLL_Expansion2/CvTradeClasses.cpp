@@ -4053,8 +4053,7 @@ int CvPlayerTrade::GetTradeConnectionValueTimes100 (const TradeConnection& kTrad
 			case TRADE_CONNECTION_GOLD_INTERNAL:
 				break;
 			case TRADE_CONNECTION_INTERNATIONAL:
-				break;
-				//UNREACHABLE(); // International trade route types should not be available along this branch. FIXME: This code is reachable, because IsConnectionInternational() returns false for routes between teammates, but the connection type is still TRADE_CONNECTION_INTERNATIONAL
+				UNREACHABLE(); // International trade route types should not be available along this branch.
 			}
 		}
 	}

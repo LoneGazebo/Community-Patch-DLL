@@ -64,7 +64,7 @@ SET Text = 'Unique Assyrian support Unit. Nearby owned Units gain +40% [ICON_STR
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ASSYRIAN_SIEGE_TOWER';
 
 UPDATE Language_en_US
-SET Text = 'Unique Assyrian support Unit. This unit must move close to an enemy City to be effective, but once it has, it is devastating. It [COLOR_NEGATIVE_TEXT]cannot attack or defend itself[ENDCOLOR], so protect it at all costs! You cannot have more than 2 active Siege Towers at one time.[NEWLINE][NEWLINE]If adjacent to a City, the Siege Tower confers a huge combat bonus to all nearby units also attacking the City. If the Siege Tower is two tiles away from the City, all nearby units attacking the City receive half of this bonus. Complement a Siege Tower with melee or ranged units, and make sure it reaches its target before getting killed, and cities will fall much more quickly. Does not obselete.'
+SET Text = 'Unique Assyrian support Unit. This unit must move close to an enemy City to be effective, but once it has, it is devastating. It [COLOR_NEGATIVE_TEXT]cannot attack or defend itself[ENDCOLOR], so protect it at all costs! You cannot have more than 2 active Siege Towers at one time.[NEWLINE][NEWLINE]If adjacent to a City, the Siege Tower confers a huge combat bonus to all nearby units also attacking the City. If the Siege Tower is two tiles away from the City, all nearby units attacking the City receive half of this bonus. Complement a Siege Tower with melee or ranged units, and make sure it reaches its target before getting killed, and cities will fall much more quickly. Does not obsolete.'
 WHERE Tag = 'TXT_KEY_UNIT_ASSYRIAN_SIEGE_TOWER_STRATEGY';
 
 UPDATE Language_en_US

@@ -85,16 +85,8 @@ SET Text = 'Requires [COLOR_MAGENTA]Freedom[ENDCOLOR]. +5% [ICON_FOOD] Food and 
 WHERE Tag = 'TXT_KEY_BUILDING_FINANCE_CENTER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.'
-WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY';
-
-UPDATE Language_en_US
 SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_PRINTING_PRESS_HELP';
-
-UPDATE Language_en_US
-SET Text = 'This National Wonder cannot be built unless the city has a Wire Service. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to send your Diplomatic Units through rival territory without an [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] agreement.'
-WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = '+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Diplomatic Immunity[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
