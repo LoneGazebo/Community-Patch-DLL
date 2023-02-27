@@ -558,7 +558,7 @@ public:
 	bool isEffectiveOwner(const CvCity* pCity) const;
 
 	CvCity* getOwningCityOverride() const;
-	void setOwningCityOverride(const CvCity* pNewValue);
+	void setOwningCityOverride(CvCity* pNewValue);
 
 	int getReconCount() const;
 	void changeReconCount(int iChange);
