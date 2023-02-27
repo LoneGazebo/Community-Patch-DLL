@@ -38360,6 +38360,23 @@ void CvPlayer::changeImprovementCount(ImprovementTypes eIndex, int iChange, bool
 		m_paiImprovementBuiltCount[eIndex] += iChange;
 		ASSERT_DEBUG(getImprovementCount(eIndex, true) >= 0);
 	}
+
+	//Update yields (needs a rewrite of SCityExtraYields in order for this to be optimized)
+	int iLoop = 0;
+	for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		{
+			//Simplification - errata yields not worth considering.
+			if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+				break;
+
+			if (pLoopCity->GetYieldPerXImprovementGlobal(eIndex, (YieldTypes)iI) == 0)
+				continue;
+
+			pLoopCity->UpdateYieldPerXImprovement(((YieldTypes)iI), eIndex);
+		}
+	}
 }
 
 #if defined(MOD_BALANCE_CORE)
