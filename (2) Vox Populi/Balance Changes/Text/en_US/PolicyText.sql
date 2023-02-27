@@ -412,7 +412,7 @@ SET Text = 'National Treasure'
 WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]National Treasure[ENDCOLOR][NEWLINE][ICON_GREAT_WORK] Artifacts gain +2 [ICON_RESEARCH] Science. A [ICON_GREAT_PEOPLE] Great Person of your choice appears near your [ICON_CAPITAL] Capital. +250 [ICON_GOLD] Gold when you construct World Wonders and National Wonders, scaling with Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]National Treasure[ENDCOLOR][NEWLINE][ICON_GREAT_WORK] Artifacts gain +2 [ICON_RESEARCH] Science. A [ICON_GREAT_PEOPLE] Great Person of your choice appears near your [ICON_CAPITAL] Capital. +250 [ICON_GOLD] Gold when you construct World Wonders, scaling with Era.'
 WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS_HELP';
 
 UPDATE Language_en_US
