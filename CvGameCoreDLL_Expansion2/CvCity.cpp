@@ -478,6 +478,7 @@ CvCity::CvCity() :
 	, m_paiNumFeaturelessTerrainWorked()
 	, m_paiNumFeatureWorked()
 	, m_paiNumImprovementWorked()
+	, m_paiImprovementCount()
 #endif
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	, m_paiBuildingClassCulture()
@@ -1822,9 +1823,12 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 
 		m_paiNumImprovementWorked.clear();
 		m_paiNumImprovementWorked.resize(iNumImprovementInfos);
+		m_paiImprovementCount.clear();
+		m_paiImprovementCount.resize(iNumImprovementInfos);
 		for (iI = 0; iI < iNumImprovementInfos; iI++)
 		{
 			m_paiNumImprovementWorked[iI] = 0;
+			m_paiImprovementCount[iI] = 0;
 		}
 #endif
 	}
@@ -14778,7 +14782,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ChangeResourceExtraYield(((ResourceTypes)iJ), eYield, (pkCorporationInfo->GetResourceYieldChange(iJ, eYield) * iChange));
 				}
 			}
-			// Yield Changes to Nearby Improvements
+			// Yield Changes to/from Nearby Improvements
 			for (int iJ = 0; iJ < GC.getNumImprovementInfos(); iJ++)
 			{
 				ImprovementTypes eImprovement = (ImprovementTypes)iJ;
@@ -14788,6 +14792,16 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if (iYieldChange > 0)
 					{
 						ChangeImprovementExtraYield(eImprovement, eYield, (iYieldChange * iChange));
+					}
+					fraction fYieldChange = pBuildingInfo->GetYieldPerXImprovementLocal(eImprovement, eYield);
+					if (fYieldChange != 0)
+					{
+						ChangeYieldPerXImprovementLocal(eImprovement, eYield, fYieldChange);
+					}
+					fYieldChange = pBuildingInfo->GetYieldPerXImprovementGlobal(eImprovement, eYield);
+					if (fYieldChange != 0)
+					{
+						ChangeYieldPerXImprovementGlobal(eImprovement, eYield, fYieldChange);
 					}
 				}
 			}
@@ -17781,6 +17795,35 @@ void CvCity::ChangeNumImprovementWorked(ImprovementTypes eImprovement, int iChan
 	m_paiNumImprovementWorked[eImprovement] = m_paiNumImprovementWorked[eImprovement] + iChange;
 	ASSERT_DEBUG(GetNumImprovementWorked(eImprovement) >= 0);
 }
+// All improvements controlled by city (including city override plots)
+//	--------------------------------------------------------------------------------
+int CvCity::GetImprovementCount(ImprovementTypes eImprovement)
+{
+	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maxiumum bounds (invalid Index)");
+	return m_paiImprovementCount[eImprovement];
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeImprovementCount(ImprovementTypes eImprovement, int iChange)
+{
+	CvAssertMsg(eImprovement >= 0, "eImprovement is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eImprovement < GC.getNumImprovementInfos(), "eImprovement is expected to be within maxiumum bounds (invalid Index)");
+	m_paiImprovementCount[eImprovement] = m_paiImprovementCount[eImprovement] + iChange;
+	CvAssert(GetImprovementCount(eImprovement) >= 0);
+	
+	//Update yields (needs a rewrite of SCityExtraYields in order for this to be optimized)
+	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+	{
+		//Simplification - errata yields not worth considering.
+		if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+			break;
+
+		if (GetYieldPerXImprovementLocal(eImprovement, (YieldTypes)iI) == 0)
+			continue;
+
+		UpdateYieldPerXImprovement(((YieldTypes)iI), eImprovement);
+	}
+}
 
 //	--------------------------------------------------------------------------------
 ///Extra yield for a Terrain this city is working?
@@ -18235,6 +18278,132 @@ void CvCity::UpdateYieldPerXUnimprovedFeature(YieldTypes eYield, FeatureTypes eF
 				}
 				SetYieldPerXUnimprovedFeature(eFeature, eYield, iYield);
 			}
+		}
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield in city for nearby/global improvements?
+//	--------------------------------------------------------------------------------
+//	per instance of Improvement
+fraction CvCity::GetYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return ModifierLookup(m_yieldChanges[eYield].fromImprovementLocal, eImprovement);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldPerXImprovementLocal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumTerrainInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.fromImprovementLocal, eImprovement, fChange, true))
+	{
+		UpdateYieldPerXImprovement(eYield, eImprovement);
+		updateYield(false);
+	}
+}
+//	--------------------------------------------------------------------------------
+fraction CvCity::GetYieldPerXImprovementGlobal(ImprovementTypes eImprovement, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return ModifierLookup(m_yieldChanges[eYield].fromImprovementGlobal, eImprovement);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeYieldPerXImprovementGlobal(ImprovementTypes eImprovement, YieldTypes eYield, fraction fChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumTerrainInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.fromImprovementGlobal, eImprovement, fChange, true))
+	{
+		UpdateYieldPerXImprovement(eYield, eImprovement);
+		updateYield(false);
+	}
+}
+//	--------------------------------------------------------------------------------
+//	total yield due to all instances of Improvement
+fraction CvCity::GetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes eYield) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumImprovementInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	return ModifierLookup(m_yieldChanges[eYield].fromImprovement, eImprovement);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::SetYieldPerXImprovement(ImprovementTypes eImprovement, YieldTypes eYield, fraction fValue)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eImprovement > -1 && eImprovement < GC.getNumFeatureInfos(), "Invalid Improvement index.");
+	CvAssertMsg(eYield > -1 && eYield < NUM_YIELD_TYPES, "Invalid yield index.");
+
+	SCityExtraYields& y = m_yieldChanges[eYield];
+	if (ModifierUpdateInsertRemove(y.fromImprovement, eImprovement, fValue, false))
+		updateYield(false);
+}
+//	--------------------------------------------------------------------------------
+void CvCity::UpdateYieldPerXImprovement(YieldTypes eYield, ImprovementTypes eImprovement)
+{
+	VALIDATE_OBJECT
+	fraction fYield = 0;
+
+	fraction fBaseYieldLocal = 0;
+	fraction fBaseYieldGlobal = 0;
+
+	//Passed in an improvement? Let's only update that.
+	if (eImprovement != NO_IMPROVEMENT)
+	{
+		fBaseYieldLocal = GetYieldPerXImprovementLocal(eImprovement, eYield);
+		fBaseYieldGlobal = GetYieldPerXImprovementGlobal(eImprovement, eYield);
+
+		if (fBaseYieldGlobal != 0)
+		{
+			fYield += (fBaseYieldGlobal * GET_PLAYER(getOwner()).getImprovementCount(eImprovement));
+		}
+		if (fBaseYieldLocal != 0)
+		{
+			fYield += fBaseYieldLocal * GetImprovementCount(eImprovement);
+		}
+		if (fYield != 0)
+		{
+			//Determine +/- of difference from old value
+			int iOriginal = GetYieldPerXImprovement(eImprovement, eYield).Truncate();
+			int iDifference = fYield.Truncate() - iOriginal;
+
+			//Change base rate first
+			ChangeBaseYieldRateFromBuildings(eYield, iDifference);
+
+			//then set base rate for retrieval next time.
+			SetYieldPerXImprovement(eImprovement, eYield, fYield);
+		}
+		else if (GetYieldPerXImprovement(eImprovement, eYield) > 0)
+		{
+			//No bonuses? Clear it out.
+			ChangeBaseYieldRateFromBuildings(eYield, -GetYieldPerXImprovement(eImprovement, eYield).Truncate());
+			SetYieldPerXImprovement(eImprovement, eYield, 0);
+		}
+	}
+	else
+	{
+		for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
+		{
+			eImprovement = (ImprovementTypes)iI;
+			if (eImprovement == NO_IMPROVEMENT)
+			{
+				continue;
+			}
+			UpdateYieldPerXImprovement(eYield, eImprovement);
 		}
 	}
 }
@@ -31821,6 +31990,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_paiNumFeaturelessTerrainWorked);
 	visitor(city.m_paiNumFeatureWorked);
 	visitor(city.m_paiNumImprovementWorked);
+	visitor(city.m_paiImprovementCount);
 	visitor(city.m_strScriptData);
 	visitor(city.m_iDamageTakenThisTurn);
 	visitor(city.m_iDamageTakenLastTurn);
@@ -35273,6 +35443,9 @@ FDataStream& operator<<(FDataStream& saveTo, const SCityExtraYields& readFrom)
 	saveTo << readFrom.forFeatureUnimproved;
 
 	saveTo << readFrom.forImprovement;
+	saveTo << readFrom.fromImprovement;
+	saveTo << readFrom.fromImprovementLocal;
+	saveTo << readFrom.fromImprovementGlobal;
 	saveTo << readFrom.forSpecialist;
 	saveTo << readFrom.forResource;
 	saveTo << readFrom.forPlot;
@@ -35296,6 +35469,9 @@ FDataStream& operator>>(FDataStream& loadFrom, SCityExtraYields& writeTo)
 	loadFrom >> writeTo.forFeatureUnimproved;
 
 	loadFrom >> writeTo.forImprovement;
+	loadFrom >> writeTo.fromImprovement;
+	loadFrom >> writeTo.fromImprovementLocal;
+	loadFrom >> writeTo.fromImprovementGlobal;
 	loadFrom >> writeTo.forSpecialist;
 	loadFrom >> writeTo.forResource;
 	loadFrom >> writeTo.forPlot;
