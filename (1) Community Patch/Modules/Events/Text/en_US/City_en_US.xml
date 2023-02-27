@@ -202,7 +202,7 @@
 			<Text>This is not our problem.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_3_HELP">
-			<Text>City produces -1 Happiness permanently.</Text>
+			<Text>City produces -1 [ICON_HAPPINESS_1] Happiness permanently.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_4">
 			<Text>Set up a permanent stipend for the Hospital.</Text>
