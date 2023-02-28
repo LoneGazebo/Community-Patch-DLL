@@ -4421,7 +4421,58 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<GoldenAgeValueFromKills>1000</GoldenAgeValueFromKills>
 		</Row>
+				<Row>
+			<Type>PROMOTION_ANTI_SHIP_ARMAMENTS</Type>
+			<Description>TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS</Description>
+			<Help>TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_3</PromotionPrereqOr1>
+			<OrderPriority>4</OrderPriority>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_AIR</PediaType>
+			<PediaEntry>TXT_KEY_ANTI_SHIP_ARMAMENTS</PediaEntry>
+		</Row> 
+		<Row>
+			<Type>PROMOTION_BOMB_RACK</Type>
+			<Description>TXT_KEY_PROMOTION_BOMB_RACK</Description>
+			<Help>TXT_KEY_PROMOTION_BOMB_RACK_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_DOGFIGHTING_3</PromotionPrereqOr1>
+			<OrderPriority>4</OrderPriority>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_AIR</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BOMB_RACK</PediaEntry>
+		</Row>
 	</UnitPromotions>
+	
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK">
+			<Text>Bomb Rack</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR]. </Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS">
+			<Text>Anti-Ship Armaments</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS_HELP">
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR]. </Text>
+		</Row>
+	</Language_en_US>
+
+	<UnitPromotions_UnitCombats>
+		<Row>
+			<PromotionType>PROMOTION_BOMB_RACK</PromotionType>
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
+		</Row>
+		<Row>
+			<PromotionType>PROMOTION_ANTI_SHIP_ARMAMENTS</PromotionType>
+			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
+		</Row> 
+	</UnitPromotions_UnitCombats>
 	<PostDefines>
 		<Row Name="PROMOTION_DEFENSIVE_DEEPWATER_EMBARKATION">
 			<Key>PROMOTION_HOVER_UNIT</Key>
