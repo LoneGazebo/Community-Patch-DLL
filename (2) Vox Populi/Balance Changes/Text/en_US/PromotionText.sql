@@ -758,3 +758,13 @@
 	UPDATE Language_en_US
 	SET Text = '+34% [ICON_STRENGTH] Combat Strength when performing an [COLOR_POSITIVE_TEXT]Air Sweep[ENDCOLOR]. If this Air Sweep is not Intercepted, deal [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR] to all Aircraft Units adjacent to Air Sweep target.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DOGFIGHTING_3_HELP';
+	
+	UPDATE Language_en_US 
+	SET Text = '+20% [ICON_STRENGTH]CS [COLOR:255:230:85:255]vs Land Units[ENDCOLOR].' 
+	WHERE Tag = 'TXT_KEY_PROMOTION_BOMB_RACK_HELP';
+	
+	UPDATE Language_en_US 
+	SET Text = '+20% [ICON_STRENGTH]CS [COLOR:255:230:85:255]vs Naval Units[ENDCOLOR].' 
+	WHERE Tag = 'TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS_HELP';
+	
+	
