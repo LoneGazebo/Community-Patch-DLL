@@ -4428,10 +4428,10 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_3</PromotionPrereqOr1>
 			<OrderPriority>4</OrderPriority>
-			<PortraitIndex>5</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>promoVP_atlas_00</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_ANTI_SHIP_ARMAMENTS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS</PediaEntry>
 		</Row> 
 		<Row>
 			<Type>PROMOTION_BOMB_RACK</Type>
@@ -4454,12 +4454,22 @@
 		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
 			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR]. </Text>
 		</Row>
-
+		
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS">
 			<Text>Anti-Ship Armaments</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS_HELP">
 			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR]. </Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PEDIA_PROMOTION_RECON_SMALL_INCREASE">
+			<Text>Air Recon Small Increase</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE">
+			<Text>Air Recon range +1</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE_HELP">
+			<Text>Increase Air Recon range to 7 </Text>
 		</Row>
 	</Language_en_US>
 
