@@ -704,7 +704,7 @@ CvPlayer::CvPlayer() :
 	, m_iTradeReligionModifier()
 	, m_iCityStateCombatModifier()
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	, m_iMaxAirUnits()
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -1574,7 +1574,7 @@ void CvPlayer::uninit()
 	m_iUnitsInLiberatedCities = 0;
 	m_iCityCaptureHealGlobal = 0;
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	m_iMaxAirUnits = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
@@ -36715,7 +36715,7 @@ void CvPlayer::changeBuildingClassCultureChange(BuildingClassTypes eIndex, int i
 	CvAssert(getBuildingClassCultureChange(eIndex) >= 0);
 }
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 void CvPlayer::changeMaxAirUnits(int iChange)
 {
 	if (iChange != 0)

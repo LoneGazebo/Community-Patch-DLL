@@ -246,7 +246,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ACADEMY_SCIENCES_HELP';
 
 -- Cultural Revolution
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +34% [ICON_TOURISM] Tourism to other Order civilizations, and +5 [ICON_TOURISM] Tourism from all [ICON_GREAT_WORK] Great Works. Spies complete Spy Events at double the normal rate.'
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +34% [ICON_TOURISM] Tourism to other Order civilizations, and +5 [ICON_TOURISM] Tourism from all [ICON_GREAT_WORK] Great Works. Spies complete Spy Missions at double the normal rate.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION_HELP';
 
 -- Dictatorship of the Proletariat

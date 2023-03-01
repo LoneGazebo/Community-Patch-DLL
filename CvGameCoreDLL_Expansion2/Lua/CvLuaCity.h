@@ -695,6 +695,7 @@ protected:
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip(lua_State* L);
 	static int lGetScaledEventChoiceValue(lua_State* L);
+	static int lGetSpyMissionOutcome(lua_State* L);
 	static int lIsCityEventChoiceActive(lua_State* L);
 	static int lDoCityEventChoice(lua_State* L);
 	static int lDoCityStartEvent(lua_State* L);

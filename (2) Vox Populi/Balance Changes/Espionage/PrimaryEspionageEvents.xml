@@ -595,7 +595,7 @@
 	<CityEventChoice_Notification>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -605,7 +605,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -615,7 +615,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -625,7 +625,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -635,7 +635,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -645,7 +645,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -655,7 +655,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_URBAN_UNREST</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -665,7 +665,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -675,7 +675,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -685,7 +685,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_GW</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>
@@ -695,7 +695,7 @@
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</CityEventChoiceType>
-			<NotificationType>NOTIFICATION_ESPIONAGE_OUTCOME</NotificationType>
+			<NotificationType>NOTIFICATION_SPY_RIG_ELECTION_SUCCESS</NotificationType>
 			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS</Description>
 			<ShortDescription>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S</ShortDescription>
 			<EspionageEvent>true</EspionageEvent>

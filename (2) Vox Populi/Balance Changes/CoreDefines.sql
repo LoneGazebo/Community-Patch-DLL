@@ -101,6 +101,9 @@ UPDATE GameSpeeds SET InstantYieldPercent = '150' WHERE Type = 'GAMESPEED_EPIC';
 UPDATE GameSpeeds SET InstantYieldPercent = '100' WHERE Type = 'GAMESPEED_STANDARD';
 UPDATE GameSpeeds SET InstantYieldPercent = '75' WHERE Type = 'GAMESPEED_QUICK';
 
+-- Spy Mission Durations (values above 100 make spy missions quicker, values below 100 make them slower)
+UPDATE GameSpeeds SET SpyRatePercent = '150' WHERE Type = 'GAMESPEED_QUICK';
+
 -- City Stuff
 UPDATE Defines SET Value = '2.22' WHERE Name = 'CITY_GROWTH_EXPONENT';
 UPDATE Defines SET Value = '12.0' WHERE Name = 'CITY_GROWTH_MULTIPLIER';

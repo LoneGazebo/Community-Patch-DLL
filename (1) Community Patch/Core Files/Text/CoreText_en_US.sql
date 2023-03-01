@@ -457,45 +457,6 @@ UPDATE Language_en_US
 SET Text = 'Can be purchased with [ICON_PEACE] Faith in any city with a majority Religion that has been enhanced. They can remove other religions from your cities (expending the Inquisitor) or be placed inside or adjacent to a city to protect it from Missionaries and Prophets trying to spread other religions into that city.'
 WHERE Tag = 'TXT_KEY_UNIT_INQUISITOR_STRATEGY';
 
-
--- Espionage
-
-UPDATE Language_en_US
-SET Text = 'Conducting Espionage'
-WHERE Tag = 'TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE';
-
-UPDATE Language_en_US
-SET Text = 'Disrupting Plans'
-WHERE Tag = 'TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR';
-
-UPDATE Language_en_US
-SET Text = 'Security Level'
-WHERE Tag = 'TXT_KEY_EO_POTENTIAL';
-
-UPDATE Language_en_US
-SET Text = 'Security Level reflects the difficulty of Espionage in a City. The higher the value, the more time it will take to complete Spy Actions. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall economic value of the City (relative to all other cities). Security is also affected by Espionage modifiers and buildings in the city, such as the Constabulary and the Police Station. Security also increases when a City has a powerful Counterspy.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
-WHERE Tag = 'TXT_KEY_EO_POTENTIAL_SORT_TT';
-
-UPDATE Language_en_US
-SET Text = 'If your cities have low Security, you should consider protecting them. There are two ways to do this. You may move your own spies to your cities to act as counterspies that have a chance to catch and kill enemy spies before they steal something. You may also slow down how quickly enemy spies can steal things by constructing buildings like the Constabulary, Police Station, and the Great Firewall.'
-WHERE Tag = 'TXT_KEY_EO_OWN_CITY_POTENTIAL_TT';
-
-UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} is stealing from {3_CityName}.[NEWLINE]The current Security Level of {3_CityName} is {4_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city (relative to all other cities). Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
-WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_TT';
-
-UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from {3_CityName}.[NEWLINE][NEWLINE]The Security Level of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station..'
-WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT';
-
-UPDATE Language_en_US
-SET Text = 'The Security Level of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to this City to learn more about it.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value [COLOR_POSITIVE_TEXT](a scale, from 1 to 10)[ENDCOLOR] is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
-WHERE Tag = 'TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT';
-
-UPDATE Language_en_US
-SET Text = 'Options for {1_SpyRank} {2_SpyName}:[NEWLINE][NEWLINE][ICON_BULLET] Move to a City-State and attempt to [COLOR_POSITIVE_TEXT]Rig an Election[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Stage a Coup[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a non-Capital City owned by a Major Civilization and attempt to [COLOR_POSITIVE_TEXT]Steal Technology[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Uncover Intrigue[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a Capital City owned by a Major Civilization and attempt to [COLOR_POSITIVE_TEXT]Steal Technology[ENDCOLOR], [COLOR_POSITIVE_TEXT]Uncover Intrigue[ENDCOLOR], or [COLOR_POSITIVE_TEXT]Schmooze[ENDCOLOR] as a Diplomat.'
-WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
-
 -- Fixed diacritics for spy names.
 UPDATE Language_en_US
 SET Text = 'Antônio'
@@ -512,9 +473,6 @@ WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_4';
 UPDATE Language_en_US
 SET Text = 'Tomé'
 WHERE Tag = 'TXT_KEY_SPY_NAME_BRAZIL_8';
-
-
--- Trade
 
 -- Trade Deals
 UPDATE Language_en_US

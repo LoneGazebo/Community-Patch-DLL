@@ -3427,7 +3427,8 @@ int CvLuaPlayer::lGetInfluenceSpyRankTooltip(lua_State* L)
 	PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 4);
 	bool bNoBasicHelp = luaL_optbool(L, 5, false);
 	int iSpyID = luaL_optint(L, 6, -1);
-	const CvString szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer, bNoBasicHelp, iSpyID);
+	CvString szResult = "";
+	szResult = pkPlayer->GetCulture()->GetInfluenceSpyRankTooltip(szSpyName, szRank, eOtherPlayer, bNoBasicHelp, iSpyID);
 	lua_pushstring(L, szResult);
 	return 1;
 }
@@ -15677,42 +15678,43 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 	lua_createtable(L, 0, 0);
 	int index = 1;
 	// first pass to get the largest base potential available
-#if !defined(MOD_BALANCE_CORE_SPIES)
 	int iLargestBasePotential = 0;
-	for(int i = 0; i < MAX_PLAYERS; ++i)
+	if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 	{
-		const PlayerTypes ePlayer(static_cast<PlayerTypes>(i));
-		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-
-		if(!kPlayer.isAlive() || kPlayer.isBarbarian())
+		for (int i = 0; i < MAX_PLAYERS; ++i)
 		{
-			continue;
-		}
+			const PlayerTypes ePlayer(static_cast<PlayerTypes>(i));
+			CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
-		int iLoop = 0;
-		for(CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
-		{
-			if(pkPlayerEspionage->CanEverMoveSpyTo(pCity))
+			if (!kPlayer.isAlive() || kPlayer.isBarbarian())
 			{
-				CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-				int iPotential = 0;
-				if (pCity->getOwner() == pkThisPlayer->GetID())
-				{
-					iPotential = pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
-				}
-				else
-				{
-					iPotential = pCityEspionage->m_aiLastBasePotential[pkThisPlayer->GetID()];
-				}
+				continue;
+			}
 
-				if (iPotential > iLargestBasePotential)
+			int iLoop = 0;
+			for (CvCity* pCity = kPlayer.firstCity(&iLoop); pCity != NULL; pCity = kPlayer.nextCity(&iLoop))
+			{
+				if (pkPlayerEspionage->CanEverMoveSpyTo(pCity))
 				{
-					iLargestBasePotential = iPotential;
+					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+					int iPotential = 0;
+					if (pCity->getOwner() == pkThisPlayer->GetID())
+					{
+						iPotential = pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
+					}
+					else
+					{
+						iPotential = pCityEspionage->m_aiLastBasePotential[pkThisPlayer->GetID()];
+					}
+
+					if (iPotential > iLargestBasePotential)
+					{
+						iLargestBasePotential = iPotential;
+					}
 				}
 			}
 		}
 	}
-#endif
 	// second pass to set the values
 	for(int i = 0; i < MAX_PLAYERS; ++i)
 	{
@@ -15729,9 +15731,6 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 		{
 			if(pkPlayerEspionage->CanEverMoveSpyTo(pCity))
 			{
-#if !defined(MOD_BALANCE_CORE_SPIES)
-				CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-#endif
 				lua_createtable(L, 0, 0);
 				const int t = lua_gettop(L);
 
@@ -15759,42 +15758,45 @@ int CvLuaPlayer::lGetEspionageCityStatus(lua_State* L)
 
 				lua_pushinteger(L, pCity->getPopulation());
 				lua_setfield(L, t, "Population");
-#if defined(MOD_BALANCE_CORE_SPIES)
-				int iRate = pCity->GetEspionageRanking() / 100;
-				lua_pushinteger(L, iRate);
-				lua_setfield(L, t, "Potential");
-
-				lua_pushinteger(L, iRate);
-				lua_setfield(L, t, "BasePotential");
-
-				lua_pushinteger(L, 10);
-				lua_setfield(L, t, "LargestBasePotential");
-#endif
-#if !defined(MOD_BALANCE_CORE_SPIES)
-				if(pCity->getOwner() == pkThisPlayer->GetID())
+				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 				{
-					int iRate = pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
+					int iRate = pCity->GetEspionageRanking() / 100;
 					lua_pushinteger(L, iRate);
+					lua_setfield(L, t, "Potential");
+
+					lua_pushinteger(L, iRate);
+					lua_setfield(L, t, "BasePotential");
+
+					lua_pushinteger(L, 10);
+					lua_setfield(L, t, "LargestBasePotential");
 				}
 				else
 				{
-					lua_pushinteger(L, pCityEspionage->m_aiLastPotential[pkThisPlayer->GetID()]);
-				}
-				lua_setfield(L, t, "Potential");
+					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+					if (pCity->getOwner() == pkThisPlayer->GetID())
+					{
+						int iRate = pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1);
+						lua_pushinteger(L, iRate);
+					}
+					else
+					{
+						lua_pushinteger(L, pCityEspionage->m_aiLastPotential[pkThisPlayer->GetID()]);
+					}
+					lua_setfield(L, t, "Potential");
 
-				if (pCity->getOwner() == pkThisPlayer->GetID())
-				{
-					lua_pushinteger(L, pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1));
-				}
-				else
-				{
-					lua_pushinteger(L,  pCityEspionage->m_aiLastBasePotential[pkThisPlayer->GetID()]);
-				}
-				lua_setfield(L, t, "BasePotential");
+					if (pCity->getOwner() == pkThisPlayer->GetID())
+					{
+						lua_pushinteger(L, pkPlayerEspionage->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, -1));
+					}
+					else
+					{
+						lua_pushinteger(L, pCityEspionage->m_aiLastBasePotential[pkThisPlayer->GetID()]);
+					}
+					lua_setfield(L, t, "BasePotential");
 
-				lua_pushinteger(L, iLargestBasePotential);
-				lua_setfield(L, t, "LargestBasePotential");
-#endif
+					lua_pushinteger(L, iLargestBasePotential);
+					lua_setfield(L, t, "LargestBasePotential");
+				}
 				lua_rawseti(L, -2, index++);
 			}
 		}

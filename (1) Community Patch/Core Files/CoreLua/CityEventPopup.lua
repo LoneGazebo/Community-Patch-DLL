@@ -53,8 +53,8 @@ function OnPopup( popupInfo )
 			local szTitleString;
 			local szHelpString;
 
-			szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_TITLE", localizedCityName, pEventChoiceInfo.Description);
-			szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, city:GetScaledEventChoiceValue(iEventChoiceType, false, spyID, spyOwnerID));
+			szTitleString = Locale.Lookup("TXT_KEY_SPY_MISSION_COMPLETED");
+			szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_HELP", localizedCityName, city:GetSpyMissionOutcome(iEventChoiceType, spyID, spyOwnerID));
 			-- Test for any Override Strings
 			tChoiceOverrideStrings = {}
 			LuaEvents.EventChoice_OverrideTextStrings(city:GetOwner(), city:GetID(), pEventChoiceInfo, tChoiceOverrideStrings)
@@ -83,8 +83,8 @@ function OnPopup( popupInfo )
 			local szTitleString;
 			local szHelpString;
 
-			szTitleString = Locale.Lookup("TXT_KEY_CITY_EVENT_FLED_TITLE", localizedCityName, pEventChoiceInfo.Description);
-			szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_FLED_HELP", localizedCityName, capitalCity:GetScaledEventChoiceValue(iEventChoiceType, false, spyID, spyOwnerID));
+			szTitleString = Locale.Lookup("TXT_KEY_SPY_MISSION_COMPLETED");
+			szHelpString = Locale.Lookup("TXT_KEY_CITY_EVENT_FLED_HELP", localizedCityName, capitalCity:GetSpyMissionOutcome(iEventChoiceType, spyID, spyOwnerID));
 			-- Test for any Override Strings
 			tChoiceOverrideStrings = {}
 			LuaEvents.EventChoice_OverrideTextStrings(capitalCity:GetOwner(), capitalCity:GetID(), pEventChoiceInfo, tChoiceOverrideStrings)
