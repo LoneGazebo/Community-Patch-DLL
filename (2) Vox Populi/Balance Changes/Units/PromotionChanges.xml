@@ -4423,7 +4423,7 @@
 		</Row>
 				<Row>
 			<Type>PROMOTION_AERIAL_TORPEDO</Type>
-			<Description>TXT_KEY_AERIAL_TORPEDO</Description>
+			<Description>TXT_KEY_PROMOTION_AERIAL_TORPEDO</Description>
 			<Help>TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_3</PromotionPrereqOr1>
@@ -4455,7 +4455,7 @@
 			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR]. </Text>
 		</Row>
 		
-		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_ARMAMENTS">
+		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO">
 			<Text>Aerial Torpedo</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
