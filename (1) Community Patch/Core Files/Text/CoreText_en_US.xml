@@ -5647,7 +5647,7 @@
 
 		<!-- City Rank Increasing -->
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING">
-			<Text>{1_CityName} is [COLOR_NEGATIVE_TEXT]increasingly vulnerable[ENDCOLOR] to foreign [ICON_SPY] Spies.[NEWLINE]The City currently has a Security Level of [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] (out of 10), with lower ranks making it easier for foreign Spies to operate in the city.[NEWLINE]Move a Spy to this city, build Espionage buildings here, and resolve [ICON_HAPPINESS_3] Unhappiness issues to [COLOR_POSITIVE_TEXT]improve[ENDCOLOR] the City's Security Level.</Text>
+			<Text>{1_CityName} is [COLOR_NEGATIVE_TEXT]increasingly vulnerable[ENDCOLOR] to foreign [ICON_SPY] Spies.[NEWLINE]The City currently has a Security Level of [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] (out of 50), with lower ranks making it easier for foreign Spies to operate in the city.[NEWLINE]Move a Spy to this city, build Espionage buildings here, and resolve [ICON_HAPPINESS_3] Unhappiness issues to [COLOR_POSITIVE_TEXT]improve[ENDCOLOR] the City's Security Level.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING_SUMMARY">
 			<Text>Security Level update for {1_CityName}.</Text>
@@ -7487,15 +7487,22 @@
 			<Text>[NEWLINE] [ICON_BULLET] Requires a Counterspy in the city.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_EVENT_SPY_DURATION_SCALED">
-			<Text>[NEWLINE]Chance to be [ICON_VIEW_CITY] Identified: [COLOR_NEGATIVE_TEXT]{2_ID}%[ENDCOLOR][NEWLINE]Chance to be [ICON_PIRATE] Killed (Counterspy): [COLOR_NEGATIVE_TEXT]{3_Death}%[ENDCOLOR][NEWLINE][NEWLINE]</Text>
+		<Row Tag="TXT_KEY_EVENT_SPY_KILL_CHANCE">
+			<Text>[NEWLINE]Chance to be [ICON_VIEW_CITY] Identified: [COLOR_NEGATIVE_TEXT]{1_ID}%[ENDCOLOR][NEWLINE]Chance to be [ICON_PIRATE] Killed (Counterspy): [COLOR_NEGATIVE_TEXT]{2_Death}%[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_SPY_RIGGING_ELECTIONS_SHORT_TT">
+			<Text>{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT">
 			<Text>The Security Level of {1_CityName} is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EO_ENEMY_CITY_POTENTIAL_SHORT_TT">
+			<Text>The Security Level of {1_CityName} is [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT_SHORT">
-			<Text>The Security Level of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to learn more.</Text>
+			<Text>The Security Level of {1_CityName} is believed to be [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR]. Send a [ICON_SPY] Spy to learn more.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
@@ -7514,23 +7521,14 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY">
-			<Text>[NEWLINE]  [ICON_BULLET]Policies: {1_Num}% increased chance in catching enemy spies.</Text>
+			<Text>[COLOR_POSITIVE_TEXT][NEWLINE]Chance of catching enemy spies increased by {1_Num}% because of Policies.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_AGAINST">
-			<Text>[NEWLINE]  [ICON_BULLET]Policies: {1_Num}% increased chance in catching our spies.</Text>
+			<Text>[COLOR_NEGATIVE_TEXT][NEWLINE]Chance of catching our spies increased by {1_Num}% because of Policies.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_POTENTIAL">
-			<Text>Possible outcomes while defending:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_POTENTIAL_AA">
-			<Text>Possible outcomes while defending against Spy Events:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RISKS">
-			<Text>Possible outcomes from Espionage:</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RISKS_AA">
-			<Text>Possible outcomes from Spy Events:</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Possible outcomes while defending:[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPY_INTRIGUE_DISCOVERED">
@@ -7538,98 +7536,83 @@
 		</Row>
 
 
-		
-
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_KILL">
 			<Text>[ICON_BULLET] Chance to kill [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_CATCH">
 			<Text>[ICON_BULLET] Chance to identify [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETECT">
-			<Text>[ICON_BULLET] Chance to detect [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_KILL">
-			<Text>[ICON_BULLET] Chance to be killed (Counterspy): [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_CATCH">
-			<Text>[ICON_BULLET] Chance to be caught: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_DETECT">
-			<Text>[ICON_BULLET] Chance to be detected: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_DANGER_UNDETECTED">
-			<Text>[ICON_BULLET] Chance to remain undetected: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_CITY_ESPIONAGE_RATIO">
-			<Text>Your current Spy Power: [COLOR_POSITIVE_TEXT]{3_Num}[ENDCOLOR].[NEWLINE]Security Threshold for City: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR].[NEWLINE][NEWLINE]Your Spy earns [COLOR_POSITIVE_TEXT]+{2_Num}[ENDCOLOR] Spy Power each turn.[NEWLINE][NEWLINE]When it exceeds the Security Threshold, the [COLOR_POSITIVE_TEXT]Spy Event[ENDCOLOR] will occur.</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_ESPIONAGE_CURRENT_MISSION">
 			<Text>[COLOR_POSITIVE_TEXT]Current Mission:[ENDCOLOR] {1_Mission}</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_TURNS_COMPLETED">
+			<Text>({1_Turns} completed)</Text>
+		</Row>
 
+		<Row Tag="TXT_KEY_ESPIONAGE_MISSION_BASE_DURATION">
+			<Text>Base Mission Duration: {1_Num} Turns</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_POWER">
+			<Text>[COLOR_POSITIVE_TEXT]Total Spy Power in this City:[ENDCOLOR] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_POWER_MODIFIER">
+			<Text>[NEWLINE]  [ICON_BULLET] Spy Power Modifier: [COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_SECURITY_MODIFIER">
+			<Text>[NEWLINE]  [ICON_BULLET] City Resistance Modifier: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER">
 			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES">
-			<Text>Spy Speed Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_GAMESPEED_NEGATIVE_MOD">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Game Speed: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_GAMESPEED_POSITIVE_MOD">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Game Speed: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_OUR_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Policies and Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Policies and Wonders: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Rank Modifier: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Rank Modifier: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_OB">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_INTERNATIONAL_TRADE] Open Borders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_INTERNATIONAL_TRADE] Open Borders: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_TOURISM] Cultural Influence over them: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_DEFENSE">
-			<Text>Mission Duration Modifiers: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES">
-			<Text>[NEWLINE]Mission Duration Modifier: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_THEIR_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Policies and Wonders: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_CITY_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Buildings: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policy Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_RESEARCH] Tech Difference: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Events Against Civ: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_TOURISM] Cultural Influence over them: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
 		
-		<!-- Spy Focus -->
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_ECONOMIC">
-			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Economics and Industry[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_RESISTANCE_MOD_POSITIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Resistance: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_MILITARY">
-			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Military Infiltration[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_RESISTANCE_MOD_NEGATIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_SCIENTIFIC">
-			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Research and Development[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY_POSITIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Fewer Policies than us: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_URBAN">
-			<Text>Current Focus: [COLOR_POSITIVE_TEXT]Embedding in the Citizenry[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY_NEGATIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CULTURE] More Policies than us: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_ALL">
-			<Text>Current Focus: [COLOR_POSITIVE_TEXT]All Opportunities[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH_POSITIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_RESEARCH] Fewer Techs than us: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_FOCUS_NONE">
-			<Text>Current Focus: [COLOR_POSITIVE_TEXT]No Focus[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH_NEGATIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_RESEARCH] More Techs than us: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Previous Spy Missions: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_WONDERCONSTRUCT_POSITIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Constructing a Wonder: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_WONDERCONSTRUCT_NEGATIVE">
+			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Constructing a Wonder: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_SECURITY">
+			<Text>[COLOR_NEGATIVE_TEXT]Total City Resistance against our Spies: {1_Num}[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RELIGOUS_PRESSURE">
@@ -7641,14 +7624,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE_ALLIES">
 			<Text>[NEWLINE][ICON_BULLET]   Reason: already Allies!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_OFFENSIVE_RIG_CHANCE">
-			<Text>Current chance to Rig Election here: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_COUNTERSPY_POSSIBLY_PRESENT">
-			<Text>Foreign [ICON_SPY] Counterspies are rumored to be in the City - be careful!</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST">

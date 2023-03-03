@@ -82,7 +82,10 @@ public:
 	void ResetSpySiphon();
 	CvString GetSiphonHistory();
 	void ResetSiphonHistory();
-	void UpdateSiphonHistory(CvCity* pCity, PlayerTypes eSpyOwner, uint iSpyIndex, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY, CvSpyResult eResult = NUM_SPY_RESULTS);
+	void UpdateSiphonHistory(CvCity* pCity, PlayerTypes eSpyOwner, uint iSpyIndex);
+	CvString GetLastMissionOutcome();
+	void ResetLastMissionOutcome();
+	void UpdateLastMissionOutcome(CvCity* pCity, PlayerTypes eSpyOwner, uint iSpyIndex, CvSpyResult eResult = NUM_SPY_RESULTS);
 
 	// Public data
 	int m_iName;
@@ -101,6 +104,7 @@ public:
 	int m_iYieldSiphon;
 	YieldTypes m_eSiphonYield;
 	CvString m_sSiphonHistory;
+	CvString m_sLastMissionOutcome;
 };
 
 FDataStream& operator>>(FDataStream&, CvEspionageSpy&);
@@ -179,7 +183,6 @@ public:
 
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
-#if defined(MOD_BALANCE_CORE_SPIES)
 	void ProcessSpyFocus();
 	void ProcessSpySiphon(CvCity* pCity, int uiSpyIndex);
 	void TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex);
@@ -203,7 +206,6 @@ public:
 
 	int GetDefenseChance(CvEspionageType eEspionage, CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY, bool bPreview = false);
 	CvSpyResult GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice = NO_EVENT_CHOICE_CITY);
-#endif
 	void UncoverIntrigue(uint uiSpyIndex);
 	void GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex);
 	void GetNextSpyName(CvEspionageSpy* pSpy);
@@ -227,6 +229,7 @@ public:
 	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
 
 	int GetSpyPower(CvCity* pCity, int iSpyIndex, int iSpyState);
+	int GetSpyResistanceModifier(CvCity* pCity, bool bConsiderPotentialSpy = false);
 	int GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSpy = false);
 
 	const char* GetSpyRankName(int iRank) const;

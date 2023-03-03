@@ -4761,7 +4761,7 @@ int CvPlayerCulture::GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const
 	{
 		InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 
-		if (MOD_BALANCE_CORE_SPIES)
+		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 		{
 			switch (eLevel)
 			{
@@ -4877,6 +4877,11 @@ int CvPlayerCulture::GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const
 CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(CvString szName, CvString szRank, PlayerTypes ePlayer, bool bNoBasicHelp, int iSpyID)
 {
 	CvString szRtnValue = "";
+	if (!MOD_BALANCE_CORE_SPIES_ADVANCED) 
+	{
+		szRtnValue = GetLocalizedText("TXT_KEY_EO_SPY_RANK_TT", szName, szRank);
+		return szRtnValue;
+	}
 
 	CvPlayerEspionage* pkPlayerEspionage = m_pPlayer->GetEspionage();
 	if (pkPlayerEspionage)

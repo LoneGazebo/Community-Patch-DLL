@@ -156,7 +156,7 @@ public:
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
 	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER, CvCity* pOriginalCity = NULL);
-	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
+	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER, bool bSpyMissionEnd = false);
 	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 
 	void SetEventActive(CityEventTypes eEvent, bool bValue);
@@ -1048,8 +1048,13 @@ public:
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
 
-#if defined(MOD_BALANCE_CORE_SPIES)
+#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	int GetEspionageRanking() const;
+	int GetSpyDefenseModifier(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice) const;
+	CvString GetSpyDefenseModifierText(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice);
+	int GetSpyOffenseModifier(PlayerTypes ePlayer, uint iSpyIndex) const;
+	CvString GetSpyOffenseModifierText(PlayerTypes ePlayer, uint iSpyIndex) const;
+	CvString GetSpyMissionOutcome(CityEventChoiceTypes eEventChoice, uint iSpyIndex, PlayerTypes ePlayer, bool bOwnSpy = 1, bool bSucceeded = 1, bool bShowPopup = 1);
 	int GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress = 0) const;
 	void ChangeEspionageRanking(int iRank, bool bNotify);
 	void ResetEspionageRanking();
