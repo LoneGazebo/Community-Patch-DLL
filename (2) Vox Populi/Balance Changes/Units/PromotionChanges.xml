@@ -4422,16 +4422,16 @@
 			<GoldenAgeValueFromKills>1000</GoldenAgeValueFromKills>
 		</Row>
 				<Row>
-			<Type>PROMOTION_ANTI_SHIP_ARMAMENTS</Type>
-			<Description>TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS_HELP</Help>
+			<Type>PROMOTION_AERIAL_TORPEDO</Type>
+			<Description>TXT_KEY_PROMOTION_AERIAL_TORPEDO</Description>
+			<Help>TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_INTERCEPTION_3</PromotionPrereqOr1>
 			<OrderPriority>4</OrderPriority>
 			<PortraitIndex>6</PortraitIndex>
 			<IconAtlas>promoVP_atlas_00</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_AERIAL_TORPEDO</PediaEntry>
 		</Row> 
 		<Row>
 			<Type>PROMOTION_BOMB_RACK</Type>
@@ -4455,10 +4455,10 @@
 			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR]. </Text>
 		</Row>
 		
-		<Row Tag="TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS">
-			<Text>Anti-Ship Armaments</Text>
+		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO">
+			<Text>Aerial Torpedo</Text>
 		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_ANTI_SHIP_ARMAMENTS_HELP">
+		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
 			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR]. </Text>
 		</Row>
 		
@@ -4479,7 +4479,7 @@
 			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
 		</Row>
 		<Row>
-			<PromotionType>PROMOTION_ANTI_SHIP_ARMAMENTS</PromotionType>
+			<PromotionType>PROMOTION_AERIAL_TORPEDO</PromotionType>
 			<UnitCombatType>UNITCOMBAT_FIGHTER</UnitCombatType>
 		</Row> 
 	</UnitPromotions_UnitCombats>
