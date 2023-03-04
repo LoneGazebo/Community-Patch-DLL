@@ -195,7 +195,7 @@ SET Text = 'Security Level'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL';
 
 UPDATE Language_en_US
-SET Text = 'Security Level reflects the difficulty of Espionage in a City. The higher the value, the more time it will take to complete Spy Missions. The base value (from 1 to 50) is based on the overall economic value of the City (relative to all other cities). Security is also affected by Espionage modifiers and buildings in the city, such as the Constabulary and the Police Station. Security also increases when a City has a powerful Counterspy.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
+SET Text = 'Security Level reflects the difficulty of Espionage in a City. The higher the value, the more time it will take to complete Spy Missions. The base value (from 5 to 50) is based on the overall economic value of the City (relative to all other cities). Security is also affected by Espionage modifiers and buildings in the city, such as the Constabulary and the Police Station. Security also increases when a City has a powerful Counterspy.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL_SORT_TT';
 
 UPDATE Language_en_US
@@ -207,16 +207,16 @@ SET Text = '{1_SpyRank} {2_SpyName} is stealing from {3_CityName}.[NEWLINE]The c
 WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from {3_CityName}.[NEWLINE][NEWLINE]The Security Level of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value (a scale, from 1 to 50) is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station..'
+SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from {3_CityName}.[NEWLINE][NEWLINE]The Security Level of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value (from 5 to 50) is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station..'
 WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT';
 
 UPDATE Language_en_US
-SET Text = 'The Security Level of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to this City to learn more about it.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value (from 1 to 50) is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
+SET Text = 'The Security Level of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to this City to learn more about it.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value (from 5 to 50) is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
 WHERE Tag = 'TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT';
 
 
 UPDATE Language_en_US
-SET Text = '[ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City''s Security Level will [COLOR_NEGATIVE_TEXT]fall[ENDCOLOR] towards 1 and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 50 and enemy Spies will operate more slowly. [NEWLINE][NEWLINE]If an enemy Spy completes a Mission in the City, the Security Level is reset to 50.'
+SET Text = '[ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City''s Security Level will [COLOR_NEGATIVE_TEXT]fall[ENDCOLOR] towards 5 and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 50 and enemy Spies will operate more slowly. [NEWLINE][NEWLINE]If an enemy Spy completes a Mission in the City, the Security Level is reset to 50.'
 WHERE Tag = 'TXT_KEY_POTENTIAL_CALCULATION';
 UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Estimated Duration:[ENDCOLOR] {1_Num} Turns'
