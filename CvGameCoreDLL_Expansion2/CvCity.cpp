@@ -8509,7 +8509,7 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	{
 		if (GetTurnsSinceLastRankMessage() >= /*60*/ GD_INT_GET(BALANCE_SPY_SABOTAGE_RATE) * 2)
 		{
-			if (iNewRank < GetEspionageRanking() && GetEspionageRanking() < 600 && GetEspionageRanking() > 20)
+			if (iNewRank < GetEspionageRanking() && GetEspionageRanking() < 600 && GetEspionageRanking() > 100)
 			{
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
 				if (pNotifications)
@@ -8548,8 +8548,8 @@ void CvCity::ChangeEspionageRanking(int iAmount, bool bNotify)
 	m_iCitySpyRank = iNewRank;
 
 	//limiters
-	if (m_iCitySpyRank <= 20)
-		m_iCitySpyRank = 20;
+	if (m_iCitySpyRank <= 100)
+		m_iCitySpyRank = 100;
 	if (m_iCitySpyRank >= /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM))
 		m_iCitySpyRank = GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM);
 }
