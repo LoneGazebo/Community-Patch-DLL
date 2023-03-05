@@ -1169,7 +1169,7 @@ bool CvDiplomacyAI::IsAlwaysAtWar(PlayerTypes eOtherPlayer) const
 	if (GetTeam() == GET_PLAYER(eOtherPlayer).getTeam())
 		return false;
 
-	if (eOtherPlayer == BARBARIAN_PLAYER)
+	if (eOtherPlayer == BARBARIAN_PLAYER || GetPlayer()->isBarbarian())
 		return true;
 
 	if (GET_PLAYER(eOtherPlayer).isMinorCiv() && GET_PLAYER(eOtherPlayer).GetMinorCivAI()->IsPermanentWar(GetTeam()))
