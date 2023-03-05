@@ -15,7 +15,10 @@ local g_InstanceManager = InstanceManager:new( "AlertMessageInstance", "AlertMes
 local g_PopupIM = InstanceManager:new( "PopupText", "Anchor", Controls.PopupTextContainer );
 local g_InstanceMap = {};
 
-local g_isSquadsModEnabled = Game.IsCustomModOption("SQUADS");
+local g_isSquadsModEnabled = false;
+if Game.IsCustomModOption ~= nil then
+	g_isSquadsModEnabled = Game.IsCustomModOption("SQUADS");
+end
 
 local alertTable = {};
 local mustRefreshAlerts = false;
