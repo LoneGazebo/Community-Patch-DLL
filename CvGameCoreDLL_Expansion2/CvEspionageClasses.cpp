@@ -1466,7 +1466,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 			strNotification << pSpy->GetSpyName(m_pPlayer);
 			strNotification << GET_PLAYER(eCityOwner).getCivilizationInfo().getAdjectiveKey();
 			strNotification << pCity->getNameKey();
-			strNotification << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), true, false, false);
+			strNotification << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), true, false);
 			pOwnerNotifications->Add(NOTIFICATION_SPY_WAS_KILLED, strNotification.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
 		}
 	}
@@ -1493,7 +1493,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 					strMessage << GetSpyRankName(pSpy->m_eRank);
 					strMessage << pSpy->GetSpyName(m_pPlayer);
 					strMessage << pCity->getNameKey();
-					strMessage << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), true, true, false);
+					strMessage << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), true, false);
 					int iX = -1;
 					int iY = -1;
 					int iVariable = pkEventChoiceInfo->GetNotificationInfo(iI)->GetVariable();
@@ -1527,7 +1527,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE");
 				strMessage << pCity->getNameKey();
 				strMessage << m_pPlayer->getCivilizationAdjectiveKey();
-				strMessage << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), false, true, false);
+				strMessage << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), false, false);
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE");
 				strSummary << pCity->getNameKey();
 				strSummary << m_pPlayer->getCivilizationAdjectiveKey();
@@ -1539,7 +1539,7 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 				Localization::String strSummary;
 				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN");
 				strMessage << pCity->getNameKey();
-				strMessage << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), false, true, false);
+				strMessage << pCity->GetSpyMissionOutcome(eEventChoice, uiSpyIndex, m_pPlayer->GetID(), false, false);
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN");
 				strSummary << pCity->getNameKey();
 				pTheirNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
