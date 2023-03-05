@@ -1054,7 +1054,7 @@ public:
 	CvString GetSpyDefenseModifierText(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice);
 	int GetSpyOffenseModifier(PlayerTypes ePlayer, uint iSpyIndex) const;
 	CvString GetSpyOffenseModifierText(PlayerTypes ePlayer, uint iSpyIndex) const;
-	CvString GetSpyMissionOutcome(CityEventChoiceTypes eEventChoice, uint iSpyIndex, PlayerTypes ePlayer, bool bOwnSpy = 1, bool bSucceeded = 1, bool bShowPopup = 1);
+	CvString GetSpyMissionOutcome(CityEventChoiceTypes eEventChoice, uint iSpyIndex, PlayerTypes ePlayer, bool bOwnSpy = 1, bool bShowPopup = 1);
 	int GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress = 0) const;
 	void ChangeEspionageRanking(int iRank, bool bNotify);
 	void ResetEspionageRanking();

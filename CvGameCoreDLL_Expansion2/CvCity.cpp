@@ -8432,7 +8432,7 @@ CvString CvCity::GetSpyOffenseModifierText(PlayerTypes ePlayer, uint iSpyIndex) 
 	return strSpyOffense;
 }
 
-CvString CvCity::GetSpyMissionOutcome(CityEventChoiceTypes eEventChoice, uint iSpyIndex, PlayerTypes ePlayer, bool bOwnSpy, bool bSucceeded, bool bShowPopup) {
+CvString CvCity::GetSpyMissionOutcome(CityEventChoiceTypes eEventChoice, uint iSpyIndex, PlayerTypes ePlayer, bool bOwnSpy, bool bShowPopup) {
 	CvString strSpyResult = "";
 	CvEspionageSpy* pSpy = GET_PLAYER(ePlayer).GetEspionage()->GetSpyByID(iSpyIndex);
 	if (!pSpy)
