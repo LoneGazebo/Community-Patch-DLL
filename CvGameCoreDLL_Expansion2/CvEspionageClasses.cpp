@@ -2898,6 +2898,7 @@ bool CvPlayerEspionage::MoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDiplom
 		pCityEspionage->m_aiSpyAssignment[m_pPlayer->GetID()] = uiSpyIndex;
 		m_aSpyList[uiSpyIndex].SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_TRAVELLING);
 		m_aSpyList[uiSpyIndex].m_bIsDiplomat = bAsDiplomat;
+		m_aSpyList[uiSpyIndex].ResetSpySiphon();
 		int iRate = CalcPerTurn(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
 		int iGoal = CalcRequired(SPY_STATE_TRAVELLING, pCity, uiSpyIndex);
 		pCityEspionage->SetActivity(m_pPlayer->GetID(), 0, iRate, iGoal);

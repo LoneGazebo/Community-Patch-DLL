@@ -1951,12 +1951,17 @@ bool CvMinorCivQuest::IsExpired()
 				return true;
 			}
 			//Failed coup?
-			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsCoupAttempted(m_eAssignedPlayer))
+			else if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsCoupAttempted(m_eAssignedPlayer))
 			{
-				if(GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() != m_eAssignedPlayer)
+				if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() != m_eAssignedPlayer)
 				{
 					return true;
 				}
+			}
+			// City-state has no ally?
+			else if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly() == NO_PLAYER)
+			{
+				return true;
 			}
 			//already Allied?
 			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllies(m_eAssignedPlayer))
