@@ -31103,6 +31103,10 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) 
 {
 	VALIDATE_OBJECT
 
+	// this should not happen. fixme
+	if (!onMap() || !attacker.onMap())
+		return 0;
+
 	if (isEmbarked() && getDomainType() == DOMAIN_LAND)
 		return 0;
 
