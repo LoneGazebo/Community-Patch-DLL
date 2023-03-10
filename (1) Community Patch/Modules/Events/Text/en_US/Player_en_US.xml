@@ -103,7 +103,7 @@
 			<Text>I'm not sure what this means.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1_HELP">
-			<Text>Gain {2_InstantYield}. 25% chance for this effect: {1_YieldCost}</Text>
+			<Text>Gain {1_YieldCost}. 25% chance for this effect: {2_InstantYield}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1_SUCCESSFUL">
 			<Text>It was a bad omen.{4_Help}</Text>
