@@ -116,8 +116,8 @@ UPDATE UnitPromotions SET PortraitIndex = '31' WHERE Type = 'PROMOTION_BARBARIAN
 
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_SHOCK_4'; --                                ->  Overrun
 UPDATE UnitPromotions SET PortraitIndex = '32' WHERE Type = 'PROMOTION_SHOCK_4';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_ACCURACY_4'; --                             ->  Firing Doctrine
-UPDATE UnitPromotions SET PortraitIndex = '33' WHERE Type = 'PROMOTION_ACCURACY_4';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_BARRAGE_4'; --								 ->  Firing Doctrine
+UPDATE UnitPromotions SET PortraitIndex = '33' WHERE Type = 'PROMOTION_BARRAGE_4';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_SKIRMISHER_POWER'; --                       ->  Coup de Grace
 UPDATE UnitPromotions SET PortraitIndex = '34' WHERE Type = 'PROMOTION_SKIRMISHER_POWER';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_00' WHERE Type = 'PROMOTION_BOMBARDMENT_4'; --                          ->  Broadside
@@ -374,8 +374,8 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION
 UPDATE UnitPromotions SET PortraitIndex = '16' WHERE Type = 'PROMOTION_NATIONALISM';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN_BOOGALOO'; --             ->  Price of The Ancestors
 UPDATE UnitPromotions SET PortraitIndex = '17' WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN_BOOGALOO';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_BARRAGE_4'; --                              ->  Infiltrators
-UPDATE UnitPromotions SET PortraitIndex = '18' WHERE Type = 'PROMOTION_BARRAGE_4';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_ACCURACY_4'; --                              ->  Infiltrators
+UPDATE UnitPromotions SET PortraitIndex = '18' WHERE Type = 'PROMOTION_ACCURACY_4';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_FOREIGN_LANDS'; --                          ->  Foreign Lands Bonus
 UPDATE UnitPromotions SET PortraitIndex = '19' WHERE Type = 'PROMOTION_FOREIGN_LANDS';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_RIVAL_TERRITORY'; --                        ->  Can Enter Rival Territory

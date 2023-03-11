@@ -556,7 +556,7 @@ SET Text = 'The barbarians in this Encampment have joined your army! All hail gl
 WHERE Tag = 'TXT_KEY_NOTIFICATION_BARB_CAMP_CONVERTS';
 
 UPDATE Language_en_US
-SET Text = 'Horse Archers are fast ranged units that do not require Horses. They start with the Accuracy I promotion and are strong flankers. As a mounted unit, the Horse Archer is vulnerable to Spearmen.'
+SET Text = 'Horse Archers are fast ranged units that do not require Horses. They start with the Barrage I promotion and are strong flankers. As a mounted unit, the Horse Archer is vulnerable to Spearmen.'
 WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 
 --------------------
@@ -597,7 +597,7 @@ SET Text = 'A terrifying sight on the battlefield, often as dangerous to its own
 WHERE Tag = 'TXT_KEY_CIV5_ANTIQUITY_INDIANWARELEPHANT_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'A ponderous, mounted Ranged Unit highly effective on flat ground. Only the Indians may build it. This Unit has higher [ICON_STRENGTH] Combat Strength than the Cuirassier, does not require [ICON_RES_HORSE] Horses, receives the [COLOR_POSITIVE_TEXT]Feared Elephant[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Barrage I[ENDCOLOR] promotions for free, and is available earlier than the Cuirassier.'
+SET Text = 'A ponderous, mounted Ranged Unit highly effective on flat ground. Only the Indians may build it. This Unit has higher [ICON_STRENGTH] Combat Strength than the Cuirassier, does not require [ICON_RES_HORSE] Horses, receives the [COLOR_POSITIVE_TEXT]Feared Elephant[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Accuracy I[ENDCOLOR] promotions for free, and is available earlier than the Cuirassier.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_INDIAN_WAR_ELEPHANT';
 
 UPDATE Language_en_US

@@ -101,55 +101,14 @@
 			<CityAttack>25</CityAttack>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_ACCURACY_1</Type>
-			<Description>TXT_KEY_PROMOTION_ACCURACY_1</Description>
-			<Help>TXT_KEY_PROMOTION_ACCURACY_1_HELP</Help>
+			<Type>PROMOTION_BARRAGE_1</Type>
+			<Description>TXT_KEY_PROMOTION_BARRAGE_1</Description>
+			<Help>TXT_KEY_PROMOTION_BARRAGE_1_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
 			<RangedAttackModifier>10</RangedAttackModifier>
 			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
 			<PortraitIndex>0</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_1</PediaEntry>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_ACCURACY_2</Type>
-			<Description>TXT_KEY_PROMOTION_ACCURACY_2</Description>
-			<Help>TXT_KEY_PROMOTION_ACCURACY_2_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_1</PromotionPrereqOr1>
-			<OrderPriority>1</OrderPriority>
-			<RangedAttackModifier>10</RangedAttackModifier>
-			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
-			<PortraitIndex>1</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_2</PediaEntry>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_ACCURACY_3</Type>
-			<Description>TXT_KEY_PROMOTION_ACCURACY_3</Description>
-			<Help>TXT_KEY_PROMOTION_ACCURACY_3_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
-			<OrderPriority>1</OrderPriority>
-			<RangedAttackModifier>10</RangedAttackModifier>
-			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
-			<PortraitIndex>2</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_3</PediaEntry>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_BARRAGE_1</Type>
-			<Description>TXT_KEY_PROMOTION_BARRAGE_1</Description>
-			<Help>TXT_KEY_PROMOTION_BARRAGE_1_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>2</OrderPriority>
-			<RangedAttackModifier>10</RangedAttackModifier>
-			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
-			<PortraitIndex>6</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_1</PediaEntry>
@@ -159,11 +118,11 @@
 			<Description>TXT_KEY_PROMOTION_BARRAGE_2</Description>
 			<Help>TXT_KEY_PROMOTION_BARRAGE_2_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>2</OrderPriority>
+			<OrderPriority>1</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_1</PromotionPrereqOr1>
 			<RangedAttackModifier>10</RangedAttackModifier>
-			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
-			<PortraitIndex>7</PortraitIndex>
+			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
+			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_2</PediaEntry>
@@ -173,14 +132,55 @@
 			<Description>TXT_KEY_PROMOTION_BARRAGE_3</Description>
 			<Help>TXT_KEY_PROMOTION_BARRAGE_3_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>2</OrderPriority>
+			<OrderPriority>1</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
+			<RangedAttackModifier>10</RangedAttackModifier>
+			<AttackAbove50HealthMod>10</AttackAbove50HealthMod>
+			<PortraitIndex>2</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_3</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_ACCURACY_1</Type>
+			<Description>TXT_KEY_PROMOTION_ACCURACY_1</Description>
+			<Help>TXT_KEY_PROMOTION_ACCURACY_1_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<RangedAttackModifier>10</RangedAttackModifier>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
+			<PortraitIndex>6</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_1</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_ACCURACY_2</Type>
+			<Description>TXT_KEY_PROMOTION_ACCURACY_2</Description>
+			<Help>TXT_KEY_PROMOTION_ACCURACY_2_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_1</PromotionPrereqOr1>
+			<RangedAttackModifier>10</RangedAttackModifier>
+			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
+			<PortraitIndex>7</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_2</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_ACCURACY_3</Type>
+			<Description>TXT_KEY_PROMOTION_ACCURACY_3</Description>
+			<Help>TXT_KEY_PROMOTION_ACCURACY_3_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
 			<RangedAttackModifier>10</RangedAttackModifier>
 			<AttackBelowEqual50HealthMod>10</AttackBelowEqual50HealthMod>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_3</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_3</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_TARGETING_1</Type>
@@ -260,8 +260,8 @@
 			<Description>TXT_KEY_PROMOTION_VOLLEY</Description>
 			<Help>TXT_KEY_PROMOTION_VOLLEY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_2</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_BARRAGE_2</PromotionPrereqOr2>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_ACCURACY_2</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_SIEGE_II</PromotionPrereqOr3>
 			<OrderPriority>3</OrderPriority>
 			<AttackFortifiedMod>50</AttackFortifiedMod>
@@ -279,7 +279,7 @@
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SCOUTING_2</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_SURVIVALISM_2</PromotionPrereqOr3>
-			<PromotionPrereqOr4>PROMOTION_ACCURACY_1</PromotionPrereqOr4>
+			<PromotionPrereqOr4>PROMOTION_BARRAGE_1</PromotionPrereqOr4>
 			<PromotionPrereqOr5>PROMOTION_WOODLAND_TRAILBLAZER_II</PromotionPrereqOr5>
 			<PromotionPrereqOr6>PROMOTION_BOARDING_PARTY_2</PromotionPrereqOr6>
 			<OrderPriority>3</OrderPriority>
@@ -329,8 +329,8 @@
 			<OrderPriority>4</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_2</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_ACCURACY_2</PromotionPrereqOr3>
-			<PromotionPrereqOr4>PROMOTION_BARRAGE_1</PromotionPrereqOr4>
+			<PromotionPrereqOr3>PROMOTION_BARRAGE_2</PromotionPrereqOr3>
+			<PromotionPrereqOr4>PROMOTION_ACCURACY_1</PromotionPrereqOr4>
 			<PromotionPrereqOr5>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr5>
 			<RangedDefenseMod>25</RangedDefenseMod>
 			<PortraitIndex>14</PortraitIndex>
@@ -506,7 +506,7 @@
 			<Description>TXT_KEY_PROMOTION_LOGISTICS</Description>
 			<Help>TXT_KEY_PROMOTION_LOGISTICS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_TARGETING_4</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_FIELD_III</PromotionPrereqOr3>
 			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_4</PromotionPrereqOr4>
@@ -523,7 +523,7 @@
 			<Description>TXT_KEY_PROMOTION_RANGE</Description>
 			<Help>TXT_KEY_PROMOTION_RANGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SIEGE_III</PromotionPrereqOr2>
 			<OrderPriority>7</OrderPriority>
 			<MinimumRangeRequired>2</MinimumRangeRequired>
@@ -3309,26 +3309,26 @@
 			<PediaEntry>TXT_KEY_PROMOTION_DRILL_4</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_ACCURACY_4</Type>
-			<Description>TXT_KEY_PROMOTION_ACCURACY_4</Description>
-			<Help>TXT_KEY_PROMOTION_ACCURACY_4_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_FIELD_III</PromotionPrereqOr2>
-			<OrderPriority>1</OrderPriority>
-			<AttackAbove50HealthMod>25</AttackAbove50HealthMod>
-			<PortraitIndex>23</PortraitIndex>
-			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_4</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_BARRAGE_4</Type>
 			<Description>TXT_KEY_PROMOTION_BARRAGE_4</Description>
 			<Help>TXT_KEY_PROMOTION_BARRAGE_4_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<OrderPriority>2</OrderPriority>
+			<OrderPriority>1</OrderPriority>
 			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_FIELD_III</PromotionPrereqOr2>
+			<AttackAbove50HealthMod>25</AttackAbove50HealthMod>
+			<PortraitIndex>23</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_4</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ACCURACY_4</Type>
+			<Description>TXT_KEY_PROMOTION_ACCURACY_4</Description>
+			<Help>TXT_KEY_PROMOTION_ACCURACY_4_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>2</OrderPriority>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SIEGE_III</PromotionPrereqOr2>
 			<OutsideFriendlyLandsModifier>15</OutsideFriendlyLandsModifier>
 			<AttackWoundedMod>15</AttackWoundedMod>
@@ -3336,7 +3336,7 @@
 			<PortraitIndex>23</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_BARRAGE_4</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_4</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_TARGETING_4</Type>
@@ -3556,7 +3556,7 @@
 			<Description>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY</Description>
 			<Help>TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<MountedOnly>true</MountedOnly>
 			<MaximumRangeRequired>1</MaximumRangeRequired>
@@ -3572,7 +3572,7 @@
 			<Description>TXT_KEY_PROMOTION_SKIRMISHER_POWER</Description>
 			<Help>TXT_KEY_PROMOTION_SKIRMISHER_POWER_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<MountedOnly>true</MountedOnly>
 			<MaximumRangeRequired>1</MaximumRangeRequired>
@@ -3587,7 +3587,7 @@
 			<Description>TXT_KEY_PROMOTION_MARCH</Description>
 			<Help>TXT_KEY_PROMOTION_MARCH_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
 			<OrderPriority>7</OrderPriority>
 			<AlwaysHeal>true</AlwaysHeal>
 			<MaximumRangeRequired>1</MaximumRangeRequired>
@@ -3602,7 +3602,7 @@
 			<Description>TXT_KEY_PROMOTION_SENTRY</Description>
 			<Help>TXT_KEY_PROMOTION_SENTRY_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_BARRAGE_3</PromotionPrereqOr1>
+			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<OrderPriority>3</OrderPriority>
 			<VisibilityChange>1</VisibilityChange>
 			<PortraitIndex>43</PortraitIndex>
@@ -3834,8 +3834,8 @@
 			<RangedDefenseMod>10</RangedDefenseMod>
 			<PromotionPrereqOr1>PROMOTION_SHOCK_1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_ACCURACY_1</PromotionPrereqOr3>
-			<PromotionPrereqOr4>PROMOTION_BARRAGE_1</PromotionPrereqOr4>
+			<PromotionPrereqOr3>PROMOTION_BARRAGE_1</PromotionPrereqOr3>
+			<PromotionPrereqOr4>PROMOTION_ACCURACY_1</PromotionPrereqOr4>
 			<PromotionPrereqOr5>PROMOTION_TARGETING_1</PromotionPrereqOr5>
 			<PromotionPrereqOr6>PROMOTION_BOMBARDMENT_1</PromotionPrereqOr6>
 			<PromotionPrereqOr7>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr7>
@@ -4452,14 +4452,14 @@
 			<Text>Bomb Rack</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
-			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR]. </Text>
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO">
 			<Text>Aerial Torpedo</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
-			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR]. </Text>
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_PEDIA_PROMOTION_RECON_SMALL_INCREASE">
@@ -4469,7 +4469,7 @@
 			<Text>Air Recon range +1</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE_HELP">
-			<Text>Increase Air Recon range to 7 </Text>
+			<Text>Increase Air Recon range to 7</Text>
 		</Row>
 	</Language_en_US>
 
