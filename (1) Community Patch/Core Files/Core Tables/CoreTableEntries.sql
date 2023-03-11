@@ -333,9 +333,12 @@ ALTER TABLE Traits ADD COLUMN 'AllianceCSDefense' INTEGER DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'AllianceCSStrength' INTEGER DEFAULT 0;
 
--- Adds a trait that converts x% of tourism to GAP, where x is the integer below.
+-- Adds a trait that converts x% of tourism from cities to GAP, where x is the integer below.
 
 ALTER TABLE Traits ADD COLUMN 'TourismToGAP' INTEGER DEFAULT 0;
+
+-- Adds a trait that converts x% of GROSS GPT to GAP, where x is the interger below.
+
 ALTER TABLE Traits ADD COLUMN 'GoldToGAP' INTEGER DEFAULT 0;
 
 -- Adds a trait that boosts the value of historic event tourism. 1 = 10%, 2 = 20%, etc.

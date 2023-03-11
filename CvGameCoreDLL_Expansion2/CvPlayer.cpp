@@ -25735,10 +25735,11 @@ void CvPlayer::DoProcessGoldenAge()
 #endif
 	}
 }
-#if defined(MOD_BALANCE_CORE)
+
 int CvPlayer::GetGoldenAgePointsFromEmpire()
 {
 	int iGAPoints = 0;
+
 	// GA points from religion
 	iGAPoints += GetYieldPerTurnFromReligion(YIELD_GOLDEN_AGE_POINTS);
 
@@ -25758,30 +25759,36 @@ int CvPlayer::GetGoldenAgePointsFromEmpire()
 int CvPlayer::GetGoldenAgePointsFromCities()
 {
 	int iGAPoints = 0;
+
 	// Add in all the GA points from city yields
 	int iLoop = 0;
-	int iYield = 0;
-	int iCityYield = 0;
+	int iTourismFromCities = 0;
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		iGAPoints += pLoopCity->getYieldRate(YIELD_GOLDEN_AGE_POINTS, false);
 		if (GetPlayerTraits()->GetTourismToGAP() > 0)
 		{
-			iCityYield += pLoopCity->GetBaseTourism();
+			iTourismFromCities += pLoopCity->GetBaseTourism();
 		}
 	}
 
-	iCityYield /= 100;
-	iYield += iCityYield;
+	// Trait which converts x% of Tourism from cities to GAP
+	if (GetPlayerTraits()->GetTourismToGAP() > 0)
+	{
+		iTourismFromCities /= 100;
+		iTourismFromCities *= GetPlayerTraits()->GetTourismToGAP();
+		iTourismFromCities /= 100;
+
+		if (iTourismFromCities > 0)
+		{
+			iGAPoints += iTourismFromCities;
+		}
+	}
+
+	// Trait which converts x% of Gold income to GAP
 	if (GetPlayerTraits()->GetGoldToGAP() > 0)
 	{
-		iYield += GetTreasury()->CalculateBaseNetGold();
-	}
-	iYield *= (GetPlayerTraits()->GetTourismToGAP() + GetPlayerTraits()->GetGoldToGAP());
-	iYield /= 100;
-	if (iYield > 0)
-	{
-		iGAPoints += iYield;
+		iGAPoints += (GetTreasury()->CalculateGrossGold() * GetPlayerTraits()->GetGoldToGAP()) / 100;
 	}
 	
 	return iGAPoints;
