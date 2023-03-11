@@ -1,7 +1,3 @@
-UPDATE Defines
-SET Value = 25
-WHERE Name = 'MINOR_CIV_GLOBAL_QUEST_MIN_TURNS_BETWEEN' AND EXISTS (SELECT * FROM CSD WHERE Type='CSD_AI' AND Value= 1 );
-
 -- Wealth Process Change
 
 UPDATE Process_Flavors

@@ -6009,8 +6009,8 @@ void CvMinorCivAI::DoTurnQuests()
 /// What is the first possible turn of the game we can fire off a Quest for a player?
 int CvMinorCivAI::GetFirstPossibleTurnForPersonalQuests() const
 {
-	int firstTurn = /*30*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN);
-	firstTurn *= sqrti(GC.getGame().getGameSpeedInfo().getTrainPercent());   		// used sqrti because turn 90 seemed too long to wait on marathon
+	int firstTurn = /*30 in CP, 4 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN);
+	firstTurn *= sqrti(GC.getGame().getGameSpeedInfo().getGreatPeoplePercent());   		// used sqrti because turn 90 (Community Patch Only) seemed too long to wait on marathon
 	firstTurn /= 10;
 	return firstTurn;
 }
@@ -6018,8 +6018,8 @@ int CvMinorCivAI::GetFirstPossibleTurnForPersonalQuests() const
 /// What is the first possible turn of the game we can give out global Quests, that are for multiple players?
 int CvMinorCivAI::GetFirstPossibleTurnForGlobalQuests() const
 {
-	int firstTurn = /*30*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN);
-	firstTurn *= sqrti(GC.getGame().getGameSpeedInfo().getTrainPercent());   		// used sqrti because turn 90 seemed too long to wait on marathon
+	int firstTurn = /*30 in CP, 4 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN);
+	firstTurn *= sqrti(GC.getGame().getGameSpeedInfo().getGreatPeoplePercent());   		// used sqrti because turn 90 (Community Patch Only) seemed too long to wait on marathon
 	firstTurn /= 10;
 	return firstTurn;
 }
@@ -8433,22 +8433,21 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 	int iNumTurns = 0;
 
 	// Quests are now available for the first time?
-	if(GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForGlobalQuests())
+	if (GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForGlobalQuests())
 	{
-		int iRand = /*20*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN_RAND);
-		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed()) * 2;
+		iNumTurns += GC.getGame().getSmallFakeRandNum(/*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed() * 2);
 	}
 	else
 	{
-		iNumTurns += /*40 in CP, 25 in CSD*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_MIN_TURNS_BETWEEN);
+		iNumTurns += /*40 in CP, 25 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_MIN_TURNS_BETWEEN);
 
-		int iRand = /*25*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_RAND_TURNS_BETWEEN);
-		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+		int iRand = /*25 in CP, 20 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_RAND_TURNS_BETWEEN);
+		if (GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 		{
 			iRand *= /*200*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER);
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed()) * 5;
+		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed() * 5);
 	}
 
 	// Modify for Game Speed
@@ -8494,21 +8493,21 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 	int iNumTurns = 0;
 
 	// Quests are now available for the first time?
-	if(GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForPersonalQuests())
+	if (GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForPersonalQuests())
 	{
-		iNumTurns += GC.getGame().getSmallFakeRandNum(/*20*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed());
+		iNumTurns += GC.getGame().getSmallFakeRandNum(/*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed());
 	}
 	else
 	{
-		iNumTurns += /*20*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_MIN_TURNS_BETWEEN);
+		iNumTurns += /*20 in CP, 10 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_MIN_TURNS_BETWEEN);
 
-		int iRand = /*25*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN);
-		if(GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
+		int iRand = /*25 in CP, 20 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN);
+		if (GetPersonality() == MINOR_CIV_PERSONALITY_HOSTILE)
 		{
 			iRand *= /*200*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER);
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getSmallFakeRandNum((iRand / 3), m_pPlayer->GetPseudoRandomSeed()) * 4;
+		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed() * 4);
 	}
 
 	// Modify for Game Speed
