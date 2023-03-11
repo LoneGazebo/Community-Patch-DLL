@@ -6946,28 +6946,38 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 		int iLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(eTargetPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTargetPlayer).nextCity(&iLoop))
 		{
-			int iEspVal = MOD_BALANCE_CORE_SPIES_ADVANCED ? pLoopCity->GetEspionageRanking() / 20 : pLoopCity->GetEspionageRanking() * 20;
-
+			
 			CvEspionageSpy* pSpy = pEspionage->GetSpyByID(pEspionage->GetSpyIndexInCity(pLoopCity));
 			CvPlot* pCityPlot = pLoopCity->plot();
 			CvAssertMsg(pCityPlot, "City plot is null!");
 			if (!pCityPlot || !pLoopCity->isRevealed(m_pPlayer->getTeam(),false,true))
 				continue;
 
+			if (GetNumValidSpyMissionsInCityValue(pLoopCity) == 0)
+				continue;
+
 			//hmm...sometimes we want more, sometimes we want less...
 			int iValue = 0;
 
-			//if they're stronger than us in spies, let's go for their weak cities
-			if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > pEspionage->GetNumSpies())
+			if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 			{
-				iValue = (100 + (!MOD_BALANCE_CORE_SPIES_ADVANCED ? 100 : /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM))) - iEspVal;
-				iValue /= 10;
+				int iEspVal = pLoopCity->GetEspionageRanking() * 20;
+				//if they're stronger than us in spies, let's go for their weak cities
+				if (GET_PLAYER(eTargetPlayer).GetEspionage()->GetNumSpies() > pEspionage->GetNumSpies())
+				{
+					iValue = 200 - iEspVal;
+					iValue /= 10;
+				}
+				//if we are stronger than them, target their best cities.
+				else
+				{
+					iValue = iEspVal;
+					iValue /= 5;
+				}
 			}
-			//if we are stronger than them, target their best cities.
 			else
 			{
-				iValue = iEspVal;
-				iValue /= 5;
+				iValue = pLoopCity->getEconomicValue(ePlayer) / 1000;
 			}
 
 			//spy already here? don't discount!
@@ -7073,8 +7083,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			iValue *= iDiploModifier;
 			iValue /= 100;
 
-			int iTargetMod = GetNumValidSpyMissionsInCityValue(pLoopCity) * m_pPlayer->GetDiplomacyAI()->GetDiploBalance();
-			iValue *= (100 + iTargetMod);
+			iValue *= (100 + m_pPlayer->GetDiplomacyAI()->GetDiploBalance());
 			iValue /= 100;
 
 			if (iValue <= 0)
@@ -7132,11 +7141,15 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 		ScoreCityEntry kEntry;
 		kEntry.m_pCity = pLoopCity;
 		
-		int iEspVal = MOD_BALANCE_CORE_SPIES_ADVANCED ? pLoopCity->GetEspionageRanking() / 20 : pLoopCity->GetEspionageRanking() * 20;
-
-		int iValue = (100 + (!MOD_BALANCE_CORE_SPIES_ADVANCED ? 100 : /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM))) - iEspVal;
-		iValue /= 10;
-
+		int iValue = 0;
+		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+		{
+			iValue = 2 * (10 - pLoopCity->GetEspionageRanking());
+		}
+		else
+		{
+			iValue = pLoopCity->getEconomicValue(ePlayer) / 1000;
+		}
 		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
 		{
 			//would adding a counterspy here help things? If not, reduce interest by the difference
