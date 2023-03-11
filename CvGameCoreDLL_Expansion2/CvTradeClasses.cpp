@@ -2591,7 +2591,7 @@ int CvPlayerTrade::GetTradeConnectionBaseValueTimes100(const TradeConnection& kT
 			if (eYield == YIELD_GOLD)
 			{
 				int iResult = 0;
-				int iBase = /*100*/ GD_INT_GET(INTERNATIONAL_TRADE_BASE) * (m_pPlayer->GetCurrentEra()+2);
+				int iBase = /*100 in CP, 80 in VP*/ GD_INT_GET(INTERNATIONAL_TRADE_BASE) * (m_pPlayer->GetCurrentEra()+2);
 				iResult = iBase;
 				return iResult;
 			}
@@ -2754,7 +2754,7 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 					return 0;
 				}
 
-				int iDivisor = /*20 in CP, 65 in VP*/ GD_INT_GET(INTERNATIONAL_TRADE_CITY_GPT_DIVISOR);
+				int iDivisor = /*20 in CP, 80 in VP*/ GD_INT_GET(INTERNATIONAL_TRADE_CITY_GPT_DIVISOR);
 				if (iDivisor == 0)
 				{
 					iDivisor = 1;
