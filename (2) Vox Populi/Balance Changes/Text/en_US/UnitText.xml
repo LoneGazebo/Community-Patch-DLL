@@ -617,17 +617,17 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I">
-			<Text>Penalty vs Barbarians (-20%)</Text>
+			<Text>Penalty vs Barbarians (-30%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I_HELP">
-			<Text>-20% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+			<Text>-30% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II">
-			<Text>Penalty vs Barbarians (-10%)</Text>
+			<Text>Penalty vs Barbarians (-20%)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II_HELP">
-			<Text>-10% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+			<Text>-20% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III">

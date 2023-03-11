@@ -3739,7 +3739,7 @@
 			<Help>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_I_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>90</OrderPriority>
-			<BarbarianCombatBonus>-20</BarbarianCombatBonus>
+			<BarbarianCombatBonus>-30</BarbarianCombatBonus>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
@@ -3752,7 +3752,7 @@
 			<Help>TXT_KEY_PROMOTION_BARBARIAN_PENALTY_II_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>90</OrderPriority>
-			<BarbarianCombatBonus>-10</BarbarianCombatBonus>
+			<BarbarianCombatBonus>-20</BarbarianCombatBonus>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
