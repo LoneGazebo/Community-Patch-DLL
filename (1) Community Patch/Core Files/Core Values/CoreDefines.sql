@@ -505,16 +505,12 @@ INSERT INTO Defines (Name, Value) SELECT 'LOCAL_HAPPINESS_FOOD_MODIFIER', '2'; -
 INSERT INTO Defines (Name, Value) SELECT 'LOCAL_UNHAPPINESS_FOOD_MODIFIER', '10'; -- % penalty to Growth per point of Local Unhappiness above Local Happiness
 
 -- Penalty to Growth if empire is super unhappy
-INSERT INTO Defines (Name, Value) SELECT 'SUPER_UNHAPPY_GROWTH_PENALTY', '-100';
+INSERT INTO Defines (Name, Value) SELECT 'GLOBAL_GROWTH_PENALTY_PER_UNHAPPY', '2.5'; -- Global % penalty to Growth when the empire is unhappy, per approval rating % below 50
 
 -- Production penalties if unhappy
 INSERT INTO Defines (Name, Value) SELECT 'LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-10'; -- Local % penalty to Settler production for each point of Local Unhappiness above Local Happiness
 INSERT INTO Defines (Name, Value) SELECT 'LOCAL_UNHAPPY_COMBAT_UNIT_PRODUCTION_PENALTY', '-10'; -- Local % penalty to combat unit production for each point of Local Unhappiness above Local Happiness
-
-INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-25'; -- Global % penalty to Settler production when the empire is unhappy
-INSERT INTO Defines (Name, Value) SELECT 'VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-50'; -- very unhappy
-INSERT INTO Defines (Name, Value) SELECT 'SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY', '-75'; -- super unhappy
-
+INSERT INTO Defines (Name, Value) SELECT 'GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_UNHAPPY', '2.5'; -- Global % penalty to Settler production when the empire is unhappy, per approval rating % below 50
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY', '-75'; -- Maximum penalty to any kind of unit production from happiness
 
 -- Great Musician Happiness

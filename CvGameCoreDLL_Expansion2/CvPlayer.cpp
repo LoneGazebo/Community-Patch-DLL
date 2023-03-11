@@ -21645,9 +21645,9 @@ int CvPlayer::GetExcessHappiness() const
 /// Get Growth Penalty in all Cities due to Unhappiness
 int CvPlayer::GetUnhappinessGrowthPenalty() const
 {
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_VP)
 	{
-		return range(static_cast<int>(2.5*(GetExcessHappiness()-GD_INT_GET(UNHAPPY_THRESHOLD))),-100, 0);
+		return range(static_cast<int>(/*2.5f*/ GD_FLOAT_GET(GLOBAL_GROWTH_PENALTY_PER_UNHAPPY)*(GetExcessHappiness()-GD_INT_GET(UNHAPPY_THRESHOLD))), -100, 0);
 	}
 
 	return 0;
@@ -21656,16 +21656,9 @@ int CvPlayer::GetUnhappinessGrowthPenalty() const
 /// Get Settler Cost Penality in all Cities due to Unhappiness
 int CvPlayer::GetUnhappinessSettlerCostPenalty() const
 {
-	if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+	if (MOD_BALANCE_VP)
 	{
-		if (IsEmpireSuperUnhappy())
-			return /*-75*/ GD_INT_GET(SUPER_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-		else if (IsEmpireVeryUnhappy())
-			return /*-50*/ GD_INT_GET(VERY_UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-		else if (IsEmpireUnhappy())
-			return /*-25*/ GD_INT_GET(UNHAPPY_SETTLER_PRODUCTION_PENALTY);
-		else
-			return 0;
+		return range(static_cast<int>(/*2.5f*/ GD_FLOAT_GET(GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_UNHAPPY)*(GetExcessHappiness()-GD_INT_GET(UNHAPPY_THRESHOLD))), /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY), 0);
 	}
 
 	return 0;
