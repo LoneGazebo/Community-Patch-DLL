@@ -336,11 +336,11 @@ UPDATE UnitPromotions SET PortraitIndex = '63' WHERE Type = 'PROMOTION_FREE_PILL
 
 -- atlas_02
 
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_TARGETING_1'; --                        ->  Air Targetting I
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_TARGETING_1'; --                        ->  Air Targeting I
 UPDATE UnitPromotions SET PortraitIndex = '0' WHERE Type = 'PROMOTION_AIR_TARGETING_1';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_TARGETING_2'; --                        ->  Air Targetting II
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_TARGETING_2'; --                        ->  Air Targeting II
 UPDATE UnitPromotions SET PortraitIndex = '1' WHERE Type = 'PROMOTION_AIR_TARGETING_2';
-UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_TARGETING_3'; --                        ->  Air Targetting III
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_TARGETING_3'; --                        ->  Air Targeting III
 UPDATE UnitPromotions SET PortraitIndex = '2' WHERE Type = 'PROMOTION_AIR_TARGETING_3';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02' WHERE Type = 'PROMOTION_AIR_RANGE'; --                              ->  Range (Air Units)
 UPDATE UnitPromotions SET PortraitIndex = '3' WHERE Type = 'PROMOTION_AIR_RANGE';

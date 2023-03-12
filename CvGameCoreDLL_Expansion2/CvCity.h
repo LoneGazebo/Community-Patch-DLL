@@ -729,6 +729,8 @@ public:
 	int getCapturePlunderModifier() const;
 	void changeCapturePlunderModifier(int iChange);
 
+	int GetBorderGrowthRateIncreaseTotal();
+
 	int GetBorderGrowthRateIncrease() const;
 	void ChangeBorderGrowthRateIncrease(int iChange);
 

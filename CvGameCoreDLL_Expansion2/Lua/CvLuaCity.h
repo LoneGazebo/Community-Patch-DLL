@@ -241,6 +241,7 @@ protected:
 	static int lChangeBaseGreatPeopleRate(lua_State* L);
 	static int lGetGreatPeopleRateModifier(lua_State* L);
 
+	static int lGetBorderGrowthRateIncreaseTotal(lua_State* L);
 	static int lGetJONSCultureStored(lua_State* L);
 	static int lSetJONSCultureStored(lua_State* L);
 	static int lChangeJONSCultureStored(lua_State* L);

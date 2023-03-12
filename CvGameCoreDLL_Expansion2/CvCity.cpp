@@ -2669,57 +2669,10 @@ void CvCity::doTurn()
 		if (iBorderGrowth > 0)
 		{
 			// Modifiers to border growth rate?
-			int iModifier = GetBorderGrowthRateIncrease() + GET_PLAYER(getOwner()).GetBorderGrowthRateIncreaseGlobal();
-
-			// Religion modifier
-			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if (eMajority != NO_RELIGION)
-			{
-				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
-				{
-					iModifier += pReligion->m_Beliefs.GetBorderGrowthRateIncreaseGlobal(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-					eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBorderGrowthRateIncreaseGlobal();
-					}
-				}
-			}
-
-			// Mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
-			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-					{
-						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-						{
-							iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBorderGrowthRateIncreaseGlobal();
-						}
-					}
-				}
-			}
-
-			iBorderGrowth *= 100 + iModifier;
+			iBorderGrowth *= 100 + GetBorderGrowthRateIncreaseTotal();
 			iBorderGrowth /= 100;
 
 			ChangeJONSCultureStored(iBorderGrowth);
-
-			// Double border growth during GA or WLTKD? These intentionally do not stack!
-			if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthGA() && GET_PLAYER(getOwner()).isGoldenAge())
-			{
-				ChangeJONSCultureStored(iBorderGrowth);
-			}
-			else if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthWLTKD() && GetWeLoveTheKingDayCounter() > 0)
-			{
-				ChangeJONSCultureStored(iBorderGrowth);
-			}
 		}
 
 		// Enough Culture to acquire a new Plot?
@@ -10687,12 +10640,12 @@ void CvCity::SetResourceDemanded(ResourceTypes eResource)
 /// Picks a Resource for this City to want
 void CvCity::DoPickResourceDemanded()
 {
+	if (!GET_PLAYER(getOwner()).isMajorCiv())
+		return;
+
 	ResourceTypes ePreviousResource = GetResourceDemanded(false);
 	SetResourceDemanded(NO_RESOURCE);
 	SetResourceDemandedCounter(0);
-
-	if (!GET_PLAYER(getOwner()).isMajorCiv())
-		return;
 
 	if (MOD_BALANCE_CORE_HAPPINESS && GetWeLoveTheKingDayCounter() > 0)
 		return;
@@ -21170,6 +21123,61 @@ void CvCity::changeCapturePlunderModifier(int iChange)
 	VALIDATE_OBJECT
 	m_iCapturePlunderModifier = (m_iCapturePlunderModifier + iChange);
 	CvAssert(m_iCapturePlunderModifier >= 0);
+}
+
+/// Total % rate increase to border growth in this city
+int CvCity::GetBorderGrowthRateIncreaseTotal()
+{
+	int iModifier = GetBorderGrowthRateIncrease() + GET_PLAYER(getOwner()).GetBorderGrowthRateIncreaseGlobal();
+
+	// Religion modifier
+	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+	BeliefTypes eSecondaryPantheon = NO_BELIEF;
+	if (eMajority != NO_RELIGION)
+	{
+		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+		if (pReligion)
+		{
+			iModifier += pReligion->m_Beliefs.GetBorderGrowthRateIncreaseGlobal(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+			eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			if (eSecondaryPantheon != NO_BELIEF)
+			{
+				iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBorderGrowthRateIncreaseGlobal();
+			}
+		}
+	}
+
+	// Mod for civs keeping their pantheon belief forever
+	if (MOD_RELIGION_PERMANENT_PANTHEON)
+	{
+		if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+		{
+			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			{
+				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				{
+					iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBorderGrowthRateIncreaseGlobal();
+				}
+			}
+		}
+	}
+
+	// Double border growth during GA or WLTKD? These intentionally do not stack!
+	if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthGA() && GET_PLAYER(getOwner()).isGoldenAge())
+	{
+		iModifier *= 2; // double the extra rate
+		iModifier += 100; // double the base rate
+	}
+	else if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthWLTKD() && GetWeLoveTheKingDayCounter() > 0)
+	{
+		iModifier *= 2; // double the extra rate
+		iModifier += 100; // double the base rate
+	}
+
+	return iModifier;
 }
 
 //	--------------------------------------------------------------------------------

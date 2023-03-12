@@ -2554,10 +2554,8 @@ local function UpdateCityViewNow()
 		Controls.CulturePerTurnLabel:LocalizeAndSetText( "TXT_KEY_CITYVIEW_PERTURN_TEXT", culturePerTurn )
 		local cultureDiff = cultureNext - cultureStored
 		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
-
-		if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
-			borderGrowthRate = borderGrowthRate * 2
-		end
+		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
+		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
 
 		if borderGrowthRate > 0 then
 			local cultureTurns = math_max(math_ceil(cultureDiff / borderGrowthRate), 1)

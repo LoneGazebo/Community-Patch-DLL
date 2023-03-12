@@ -25796,7 +25796,7 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 	
 	return iGAPoints;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 /// How much do we need in the GA meter to trigger the next one?
 int CvPlayer::GetGoldenAgeProgressThreshold() const

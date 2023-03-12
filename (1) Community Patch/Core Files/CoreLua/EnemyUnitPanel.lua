@@ -1691,21 +1691,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 			-- DomainModifier
 			iModifier = pMyUnit:DomainModifier(pTheirUnit:GetDomainType());
-			if (iModifier > 0 and bonusCount < maxBonusDisplay) then
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_DOMAIN" );
+				if (iModifier > 0) then
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_BONUS_VS_DOMAIN" );
+				else
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_PENALTY_VS_DOMAIN" );
+				end
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-				--CvBaseInfo kDomainInfo;
-				--Database::SingleResult kResult;
-				--DB.SelectAt(kResult, "Domains", pTheirUnit:getDomainType());
-				--kDomainInfo.CacheResult(kResult);
-
-				--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
-			elseif (iModifier < 0 and bonusCount < maxBonusDisplay) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_PENALTY_VS_DOMAIN" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				bonusCount = bonusCount + 1;
 				--CvBaseInfo kDomainInfo;
 				--Database::SingleResult kResult;
@@ -1720,21 +1713,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 			-- DomainAttackPercent
 			iModifier = pMyUnit:DomainAttackPercent(pTheirUnit:GetDomainType());
-			if (iModifier > 0 and bonusCount < maxBonusDisplay) then
+			if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_BONUS_VS_DOMAIN" );
+				if (iModifier > 0) then
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_BONUS_VS_DOMAIN" );
+				else
+					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_PENALTY_VS_DOMAIN" );
+				end
 				controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-				bonusCount = bonusCount + 1;
-				--CvBaseInfo kDomainInfo;
-				--Database::SingleResult kResult;
-				--DB.SelectAt(kResult, "Domains", pTheirUnit:getDomainType());
-				--kDomainInfo.CacheResult(kResult);
-
-				--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
-			elseif (iModifier < 0 and bonusCount < maxBonusDisplay) then
-				controlTable = g_MyCombatDataIM:GetInstance();
-				controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ATTACK_PENALTY_VS_DOMAIN" );
-				controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
 				bonusCount = bonusCount + 1;
 				--CvBaseInfo kDomainInfo;
 				--Database::SingleResult kResult;
@@ -2597,22 +2583,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 				-- DomainModifier
 				iModifier = pTheirUnit:DomainModifier(pMyUnit:GetDomainType());
-				if (iModifier > 0 and bonusCount < maxBonusDisplay) then
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_VS_DOMAIN" );
+					if (iModifier > 0) then
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_BONUS_VS_DOMAIN" );
+					else
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_PENALTY_VS_DOMAIN" );
+					end
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-
-					--CvBaseInfo kDomainInfo;
-					--Database::SingleResult kResult;
-					--DB.SelectAt(kResult, "Domains", pTheirUnit:getDomainType());
-					--kDomainInfo.CacheResult(kResult);
-
-					--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
-					bonusCount = bonusCount + 1;
-				elseif (iModifier < 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_PENALTY_VS_DOMAIN" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 
 					--CvBaseInfo kDomainInfo;
 					--Database::SingleResult kResult;
@@ -2628,22 +2606,14 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 				-- DomainDefensePercent
 				iModifier = pTheirUnit:DomainDefensePercent(pMyUnit:GetDomainType());
-				if (iModifier > 0 and bonusCount < maxBonusDisplay) then
+				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS_VS_DOMAIN" );
+					if (iModifier > 0) then
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_BONUS_VS_DOMAIN" );
+					else
+						controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_PENALTY_VS_DOMAIN" );
+					end
 					controlTable.Value:SetText( GetFormattedText(strText, iModifier, false, true) );
-
-					--CvBaseInfo kDomainInfo;
-					--Database::SingleResult kResult;
-					--DB.SelectAt(kResult, "Domains", pTheirUnit:getDomainType());
-					--kDomainInfo.CacheResult(kResult);
-
-					--strString.append(GetLocalizedText("TXT_KEY_COMBAT_PLOT_MOD_VS_TYPE", iModifier, kDomainInfo.GetDescription()));
-					bonusCount = bonusCount + 1;
-				elseif (iModifier < 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_TheirCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText(  "TXT_KEY_EUPANEL_DEFENSE_PENALTY_VS_DOMAIN" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 
 					--CvBaseInfo kDomainInfo;
 					--Database::SingleResult kResult;

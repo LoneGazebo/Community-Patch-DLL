@@ -249,6 +249,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(ChangeBaseGreatPeopleRate);
 	Method(GetGreatPeopleRateModifier);
 
+	Method(GetBorderGrowthRateIncreaseTotal);
 	Method(GetJONSCultureStored);
 	Method(SetJONSCultureStored);
 	Method(ChangeJONSCultureStored);
@@ -2900,6 +2901,12 @@ int CvLuaCity::lChangeBaseGreatPeopleRate(lua_State* L)
 int CvLuaCity::lGetGreatPeopleRateModifier(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::getGreatPeopleRateModifier);
+}
+//------------------------------------------------------------------------------
+//int GetBorderGrowthRateIncreaseTotal() const;
+int CvLuaCity::lGetBorderGrowthRateIncreaseTotal(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetBorderGrowthRateIncreaseTotal);
 }
 //------------------------------------------------------------------------------
 //int GetJONSCultureStored() const;

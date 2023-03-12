@@ -1,6 +1,11 @@
 -- DELETE ENTRIES
 
 -- Delete hangovers
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_TARGETING_1';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_TARGETING_2';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_TARGETING_3';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_AIR_TARGETING_1';
+DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_AIR_TARGETING_2';
 DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOMBARDMENT_1';
 DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOMBARDMENT_2';
 DELETE FROM UnitPromotions_Domains WHERE PromotionType = 'PROMOTION_BOMBARDMENT_3';
@@ -52,14 +57,6 @@ WHERE Type = 'PROMOTION_INDIRECT_FIRE';
 
 -- Fix for Astronomy/Compass change
 UPDATE UnitPromotions_Terrains SET PassableTech = 'TECH_COMPASS' WHERE PromotionType = 'PROMOTION_OCEAN_IMPASSABLE_UNTIL_ASTRONOMY';
-
--- Replace Targeting with +10% Combat Strength versus land and sea units.
-UPDATE UnitPromotions_Domains SET Modifier = '10' WHERE PromotionType = 'PROMOTION_TARGETING_1';
-UPDATE UnitPromotions_Domains SET Modifier = '10' WHERE PromotionType = 'PROMOTION_TARGETING_2';
-UPDATE UnitPromotions_Domains SET Modifier = '10' WHERE PromotionType = 'PROMOTION_TARGETING_3';
--- Air Promotions -- Update Air Targeting to Hit Water Domain (PROMOTION_AIR_TARGETING_3 not working at all here)
-UPDATE UnitPromotions_Domains SET Modifier = '15' WHERE PromotionType = 'PROMOTION_AIR_TARGETING_1';
-UPDATE UnitPromotions_Domains SET Modifier = '15' WHERE PromotionType = 'PROMOTION_AIR_TARGETING_2';
 
 -- Reduce anti-sub power a little
 UPDATE UnitPromotions_UnitClasses SET Modifier = '33', Attack = '33' WHERE PromotionType = 'PROMOTION_ANTI_SUBMARINE_I';
@@ -329,11 +326,14 @@ VALUES
 	('PROMOTION_TARGETING_1', 'DOMAIN_LAND', 0, 10, 0),
 	('PROMOTION_TARGETING_2', 'DOMAIN_LAND', 0, 10, 0),
 	('PROMOTION_TARGETING_3', 'DOMAIN_LAND', 0, 10, 0),
+	('PROMOTION_TARGETING_1', 'DOMAIN_SEA', 0, 10, 0),
+	('PROMOTION_TARGETING_2', 'DOMAIN_SEA', 0, 10, 0),
+	('PROMOTION_TARGETING_3', 'DOMAIN_SEA', 0, 10, 0),
 	('PROMOTION_AIR_TARGETING_1', 'DOMAIN_LAND', 0, 15, 0),
-	('PROMOTION_AIR_TARGETING_1', 'DOMAIN_SEA', 0, 15, 0),
 	('PROMOTION_AIR_TARGETING_2', 'DOMAIN_LAND', 0, 15, 0),
-	('PROMOTION_AIR_TARGETING_2', 'DOMAIN_SEA', 0, 15, 0),
 	('PROMOTION_AIR_TARGETING_3', 'DOMAIN_LAND', 0, 25, 0),
+	('PROMOTION_AIR_TARGETING_1', 'DOMAIN_SEA', 0, 15, 0),
+	('PROMOTION_AIR_TARGETING_2', 'DOMAIN_SEA', 0, 15, 0),
 	('PROMOTION_AIR_TARGETING_3', 'DOMAIN_SEA', 0, 25, 0),
 	('PROMOTION_AERIAL_TORPEDO', 'DOMAIN_SEA', 0, 20, 0),
 	('PROMOTION_BOMB_RACK', 'DOMAIN_LAND', 0, 20, 0);

@@ -401,10 +401,8 @@ local function UpdateCity( instance )
 
 		local culturePerTurn = city:GetJONSCulturePerTurn()
 		local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
-
-		if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
-			borderGrowthRate = borderGrowthRate * 2
-		end
+		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
+		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
 
 		instance.BorderGrowth:SetString( borderGrowthRate > 0 and math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / borderGrowthRate ) )
 
@@ -862,9 +860,8 @@ g_cities = g_RibbonManager( "CityInstance", Controls.CityStack, Controls.Scrap,
 		local city = FindCity( control )
 		local cityOwner = Players[city:GetOwner()]
 		local borderGrowthRate = city:GetJONSCulturePerTurn() + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
-		if ((city:GetWeLoveTheKingDayCounter() > 0 and cityOwner:IsDoubleBorderGrowthWLTKD()) or (cityOwner:IsGoldenAge() and cityOwner:IsDoubleBorderGrowthGA())) then
-			borderGrowthRate = borderGrowthRate * 2
-		end
+		local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
+		borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
 		ShowSimpleCityTip( control, city, L("TXT_KEY_CITYVIEW_TURNS_TILL_TILE_TEXT", math_ceil( (city:GetJONSCultureThreshold() - city:GetJONSCultureStored()) / borderGrowthRate ) ), GetCultureTooltip( city ) )
 	end,
 	CityIsCapital = function( control )
