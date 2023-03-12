@@ -729,6 +729,9 @@ public:
 	int getCapturePlunderModifier() const;
 	void changeCapturePlunderModifier(int iChange);
 
+	int GetBorderGrowthRateIncrease() const;
+	void ChangeBorderGrowthRateIncrease(int iChange);
+
 	int getPlotCultureCostModifier() const;
 	void changePlotCultureCostModifier(int iChange);
 
@@ -1799,6 +1802,7 @@ protected:
 	int m_iNumNationalWonders;
 	int m_iWonderProductionModifier;
 	int m_iCapturePlunderModifier;
+	int m_iBorderGrowthRateIncrease;
 	int m_iPlotCultureCostModifier;
 	int m_iPlotBuyCostModifier;
 #if defined(MOD_BUILDINGS_CITY_WORKING)
@@ -2198,6 +2202,7 @@ SYNC_ARCHIVE_VAR(int, m_iNumTeamWonders)
 SYNC_ARCHIVE_VAR(int, m_iNumNationalWonders)
 SYNC_ARCHIVE_VAR(int, m_iWonderProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iCapturePlunderModifier)
+SYNC_ARCHIVE_VAR(int, m_iBorderGrowthRateIncrease)
 SYNC_ARCHIVE_VAR(int, m_iPlotCultureCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iPlotBuyCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iCityWorkingChange)

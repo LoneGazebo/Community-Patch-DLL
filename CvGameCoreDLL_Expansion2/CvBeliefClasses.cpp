@@ -28,6 +28,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_iRiverHappiness(0),
 	m_iHappinessPerCity(0),
 	m_iHappinessPerXPeacefulForeignFollowers(0),
+	m_iBorderGrowthRateIncreaseGlobal(0),
 	m_iPlotCultureCostModifier(0),
 	m_iCityRangeStrikeModifier(0),
 	m_iCombatModifierEnemyCities(0),
@@ -257,7 +258,13 @@ int CvBeliefEntry::GetHappinessPerXPeacefulForeignFollowers() const
 	return m_iHappinessPerXPeacefulForeignFollowers;
 }
 
-/// Accessor:: Boost in speed of acquiring tiles through culture
+/// Accessor:: Boost in speed of acquiring tiles through culture (rate increase)
+int CvBeliefEntry::GetBorderGrowthRateIncreaseGlobal() const
+{
+	return m_iBorderGrowthRateIncreaseGlobal;
+}
+
+/// Accessor:: Boost in speed of acquiring tiles through culture (cost reduction)
 int CvBeliefEntry::GetPlotCultureCostModifier() const
 {
 	return m_iPlotCultureCostModifier;
@@ -1236,6 +1243,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iRiverHappiness				  = kResults.GetInt("RiverHappiness");
 	m_iHappinessPerCity				  = kResults.GetInt("HappinessPerCity");
 	m_iHappinessPerXPeacefulForeignFollowers  = kResults.GetInt("HappinessPerXPeacefulForeignFollowers");
+	m_iBorderGrowthRateIncreaseGlobal = kResults.GetInt("BorderGrowthRateIncreaseGlobal");
 	m_iPlotCultureCostModifier	      = kResults.GetInt("PlotCultureCostModifier");
 	m_iCityRangeStrikeModifier	      = kResults.GetInt("CityRangeStrikeModifier");
 	m_iCombatModifierEnemyCities      = kResults.GetInt("CombatModifierEnemyCities");
@@ -2273,6 +2281,23 @@ int CvReligionBeliefs::GetRiverHappiness(PlayerTypes ePlayer, const CvCity* pCit
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
 		int iValue = pBeliefs->GetEntry(*it)->GetRiverHappiness();
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+int CvReligionBeliefs::GetBorderGrowthRateIncreaseGlobal(PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetBorderGrowthRateIncreaseGlobal();
 		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
 		{
 			rtnValue += iValue;

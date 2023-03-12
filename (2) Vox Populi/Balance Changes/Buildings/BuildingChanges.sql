@@ -144,7 +144,7 @@ SET Yield = '2'
 WHERE BuildingType = 'BUILDING_MONUMENT';
 
 UPDATE Buildings
-SET PlotCultureCostModifier = '-25'
+SET BorderGrowthRateIncrease = '34'
 WHERE Type = 'BUILDING_MONUMENT';
 
 UPDATE Buildings

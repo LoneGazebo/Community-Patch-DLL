@@ -4176,7 +4176,7 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromBorderGrowth(eYield) > 0)
 	{
-		iInstant += pkBuildingInfo->GetYieldFromBorderGrowth(eYield) + (pCity->getPlotCultureCostModifier() * -1) + (kPlayer.GetPlotCultureCostModifier() * -1);
+		iInstant += pkBuildingInfo->GetYieldFromBorderGrowth(eYield) + (pCity->getPlotCultureCostModifier() * -1) + (kPlayer.GetPlotCultureCostModifier() * -1) + pCity->GetBorderGrowthRateIncrease() + kPlayer.GetBorderGrowthRateIncreaseGlobal();
 	}
 	if (pkBuildingInfo->GetYieldFromPolicyUnlock(eYield) > 0)
 	{
@@ -5022,6 +5022,10 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		}
 	}
 
+	if(pkBuildingInfo->GetBorderGrowthRateIncrease() > 0)
+	{
+		iValue += 2 * abs((kPlayer.GetBorderGrowthRateIncreaseGlobal() + pkBuildingInfo->GetBorderGrowthRateIncrease()));
+	}
 	if(pkBuildingInfo->GetPlotCultureCostModifier() < 0)
 	{
 		iValue += 2 * abs((kPlayer.GetPlotCultureCostModifier() + pkBuildingInfo->GetPlotCultureCostModifier()));

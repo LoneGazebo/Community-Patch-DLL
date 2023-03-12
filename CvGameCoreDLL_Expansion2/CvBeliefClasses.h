@@ -36,6 +36,7 @@ public:
 	int GetRiverHappiness() const;
 	int GetHappinessPerCity() const;
 	int GetHappinessPerXPeacefulForeignFollowers() const;
+	int GetBorderGrowthRateIncreaseGlobal() const;
 	int GetPlotCultureCostModifier() const;
 	int GetCityRangeStrikeModifier() const;
 	int GetCombatModifierEnemyCities() const;
@@ -208,6 +209,7 @@ protected:
 	int m_iRiverHappiness;
 	int m_iHappinessPerCity;
 	int m_iHappinessPerXPeacefulForeignFollowers;
+	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iPlotCultureCostModifier;
 	int m_iCityRangeStrikeModifier;
 	int m_iCombatModifierEnemyCities;
@@ -435,6 +437,7 @@ public:
 
 	int GetFaithFromDyingUnits(PlayerTypes ePlayer = NO_PLAYER, bool bHolyCityOnly = false) const;
 	int GetRiverHappiness(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetBorderGrowthRateIncreaseGlobal(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetPlotCultureCostModifier(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCityRangeStrikeModifier(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetCombatModifierEnemyCities(PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

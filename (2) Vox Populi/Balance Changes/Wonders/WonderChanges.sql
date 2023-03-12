@@ -171,6 +171,14 @@ WHERE Type = 'BUILDING_GREAT_WALL';
 -- Angkor Wat
 
 UPDATE Buildings
+SET GlobalPlotCultureCostModifier = '0'
+WHERE Type = 'BUILDING_ANGKOR_WAT';
+
+UPDATE Buildings
+SET BorderGrowthRateIncreaseGlobal = '50'
+WHERE Type = 'BUILDING_ANGKOR_WAT';
+
+UPDATE Buildings
 SET PrereqTech = 'TECH_CURRENCY', Cost = '250', FreeBuildingThisCity = 'BUILDINGCLASS_MANDIR'
 WHERE Type = 'BUILDING_ANGKOR_WAT';
 

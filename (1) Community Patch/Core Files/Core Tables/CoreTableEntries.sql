@@ -169,6 +169,13 @@ ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialistsGlobal' INTEGER DEFAUL
 ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
+
+-- Building, Belief, UA
+-- Increase to border growth expansion rate
+ALTER TABLE Buildings ADD BorderGrowthRateIncrease INTEGER DEFAULT 0; -- For the city
+ALTER TABLE Buildings ADD BorderGrowthRateIncreaseGlobal INTEGER DEFAULT 0; -- For the empire
+ALTER TABLE Beliefs ADD BorderGrowthRateIncreaseGlobal INTEGER DEFAULT 0;
+
 -- Belief requires an improvement on a terrain type to grant its yield.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' BOOLEAN DEFAULT 0;

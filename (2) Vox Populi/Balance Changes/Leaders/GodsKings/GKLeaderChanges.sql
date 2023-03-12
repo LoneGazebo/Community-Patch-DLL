@@ -137,7 +137,7 @@ VALUES
 
 
 UPDATE Buildings
-SET PlotCultureCostModifier = '-25'
+SET BorderGrowthRateIncrease = '34'
 WHERE Type = 'BUILDING_STELE';
 
 UPDATE Building_YieldChanges

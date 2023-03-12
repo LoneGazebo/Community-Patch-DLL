@@ -198,6 +198,7 @@ CvCity::CvCity() :
 	, m_iNumNationalWonders()
 	, m_iWonderProductionModifier()
 	, m_iCapturePlunderModifier()
+	, m_iBorderGrowthRateIncrease()
 	, m_iPlotCultureCostModifier()
 	, m_iPlotBuyCostModifier()
 	, m_iMaintenance()
@@ -1295,6 +1296,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNumNationalWonders = 0;
 	m_iWonderProductionModifier = 0;
 	m_iCapturePlunderModifier = 0;
+	m_iBorderGrowthRateIncrease = 0;
 	m_iPlotCultureCostModifier = 0;
 	m_iPlotBuyCostModifier = 0;
 #if defined(MOD_BUILDINGS_CITY_WORKING)
@@ -2664,6 +2666,47 @@ void CvCity::doTurn()
 		// Culture accumulation
 		if (iBorderGrowth > 0)
 		{
+			// Modifiers to border growth rate?
+			int iModifier = GetBorderGrowthRateIncrease() + GET_PLAYER(getOwner()).GetBorderGrowthRateIncreaseGlobal();
+
+			// Religion modifier
+			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+			BeliefTypes eSecondaryPantheon = NO_BELIEF;
+			if (eMajority != NO_RELIGION)
+			{
+				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+				if (pReligion)
+				{
+					iModifier += pReligion->m_Beliefs.GetBorderGrowthRateIncreaseGlobal(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+					eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+					if (eSecondaryPantheon != NO_BELIEF)
+					{
+						iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetBorderGrowthRateIncreaseGlobal();
+					}
+				}
+			}
+
+			// Mod for civs keeping their pantheon belief forever
+			if (MOD_RELIGION_PERMANENT_PANTHEON)
+			{
+				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+				{
+					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+					{
+						const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, getOwner());
+						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+						{
+							iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetBorderGrowthRateIncreaseGlobal();
+						}
+					}
+				}
+			}
+
+			iBorderGrowth *= 100 + iModifier;
+			iBorderGrowth /= 100;
+
 			ChangeJONSCultureStored(iBorderGrowth);
 
 			// Double border growth during GA or WLTKD? These intentionally do not stack!
@@ -15721,6 +15764,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iBuildingCulture * iChange);
 		changeCultureRateModifier(pBuildingInfo->GetCultureRateModifier() * iChange);
+		ChangeBorderGrowthRateIncrease(pBuildingInfo->GetBorderGrowthRateIncrease() * iChange);
 		changePlotCultureCostModifier(pBuildingInfo->GetPlotCultureCostModifier() * iChange);
 		changePlotBuyCostModifier(pBuildingInfo->GetPlotBuyCostModifier() * iChange);
 #if defined(MOD_BUILDINGS_CITY_WORKING)
@@ -21059,6 +21103,21 @@ void CvCity::changeCapturePlunderModifier(int iChange)
 	VALIDATE_OBJECT
 	m_iCapturePlunderModifier = (m_iCapturePlunderModifier + iChange);
 	CvAssert(m_iCapturePlunderModifier >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetBorderGrowthRateIncrease() const
+{
+	VALIDATE_OBJECT
+	return m_iBorderGrowthRateIncrease;
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeBorderGrowthRateIncrease(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iBorderGrowthRateIncrease = (m_iBorderGrowthRateIncrease + iChange);
 }
 
 
@@ -32984,6 +33043,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iNumNationalWonders);
 	visitor(city.m_iWonderProductionModifier);
 	visitor(city.m_iCapturePlunderModifier);
+	visitor(city.m_iBorderGrowthRateIncrease);
 	visitor(city.m_iPlotCultureCostModifier);
 	visitor(city.m_iPlotBuyCostModifier);
 	visitor(city.m_iCityWorkingChange);

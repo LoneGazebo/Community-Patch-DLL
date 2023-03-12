@@ -122,9 +122,12 @@ VALUES
 	('BELIEF_GODDESS_LOVE', 'SPECIALIST_ENGINEER', 'YIELD_PRODUCTION', 1);
 
 -- Religious Settlements
+UPDATE Beliefs
+SET PlotCultureCostModifier = '0'
+WHERE Type = 'BELIEF_RELIGIOUS_SETTLEMENTS';
 
 UPDATE Beliefs
-SET PlotCultureCostModifier = '-25'
+SET BorderGrowthRateIncreaseGlobal = '34'
 WHERE Type = 'BELIEF_RELIGIOUS_SETTLEMENTS';
 
 -- God of Festivals

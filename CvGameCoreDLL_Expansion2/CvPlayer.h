@@ -2510,6 +2510,9 @@ public:
 	void ChangeCityAutomatonWorkersChange(int iChange);
 #endif
 
+	int GetBorderGrowthRateIncreaseGlobal() const;
+	void ChangeBorderGrowthRateIncreaseGlobal(int iChange);
+
 	int GetPlotCultureCostModifier() const;
 	void ChangePlotCultureCostModifier(int iChange);
 	int GetPlotCultureExponentModifier() const;
@@ -3397,6 +3400,7 @@ protected:
 	int m_iCityAutomatonWorkersChange;
 #endif
 	int m_iCachedGoldRate;
+	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iPlotCultureCostModifier;
 	int m_iPlotCultureExponentModifier;
 	int m_iNumCitiesPolicyCostDiscount;
@@ -4187,6 +4191,7 @@ SYNC_ARCHIVE_VAR(int, m_iPlotGoldCostMod)
 SYNC_ARCHIVE_VAR(int, m_iCityWorkingChange)
 SYNC_ARCHIVE_VAR(int, m_iCityAutomatonWorkersChange)
 SYNC_ARCHIVE_VAR(int, m_iCachedGoldRate)
+SYNC_ARCHIVE_VAR(int, m_iBorderGrowthRateIncreaseGlobal)
 SYNC_ARCHIVE_VAR(int, m_iPlotCultureCostModifier)
 SYNC_ARCHIVE_VAR(int, m_iPlotCultureExponentModifier)
 SYNC_ARCHIVE_VAR(int, m_iNumCitiesPolicyCostDiscount)

@@ -328,6 +328,7 @@ CvPlayer::CvPlayer() :
 	, m_iNumPlotsBought()
 	, m_iPlotGoldCostMod()
 	, m_iCachedGoldRate()
+	, m_iBorderGrowthRateIncreaseGlobal()
 	, m_iPlotCultureCostModifier()
 	, m_iPlotCultureExponentModifier()
 	, m_iNumCitiesPolicyCostDiscount()
@@ -1636,6 +1637,7 @@ void CvPlayer::uninit()
 	m_iCityAutomatonWorkersChange = 0;
 #endif
 	m_iCachedGoldRate = 0;
+	m_iBorderGrowthRateIncreaseGlobal = 0;
 	m_iPlotCultureCostModifier = 0;
 	m_iPlotCultureExponentModifier = 0;
 	m_iNumCitiesPolicyCostDiscount = 0;
@@ -16987,6 +16989,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	ChangePolicyCostBuildingModifier(pBuildingInfo->GetPolicyCostModifier() * iChange);
 
 	// Border growth mods
+	ChangeBorderGrowthRateIncreaseGlobal(pBuildingInfo->GetBorderGrowthRateIncreaseGlobal() * iChange);
 	ChangePlotCultureCostModifier(pBuildingInfo->GetGlobalPlotCultureCostModifier() * iChange);
 	ChangePlotGoldCostMod(pBuildingInfo->GetGlobalPlotBuyCostModifier() * iChange);
 #if defined(MOD_BUILDINGS_CITY_WORKING)
@@ -47284,6 +47287,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iCityWorkingChange);
 	visitor(player.m_iCityAutomatonWorkersChange);
 	visitor(player.m_iCachedGoldRate);
+	visitor(player.m_iBorderGrowthRateIncreaseGlobal);
 	visitor(player.m_iPlotCultureCostModifier);
 	visitor(player.m_iPlotCultureExponentModifier);
 	visitor(player.m_iNumCitiesPolicyCostDiscount);
@@ -48646,6 +48650,23 @@ void CvPlayer::ChangeCityAutomatonWorkersChange(int iChange)
 	}
 }
 #endif
+
+//	--------------------------------------------------------------------------------
+/// Bonus to border growth rate in all cities
+int CvPlayer::GetBorderGrowthRateIncreaseGlobal() const
+{
+	return m_iBorderGrowthRateIncreaseGlobal;
+}
+
+//	--------------------------------------------------------------------------------
+/// Changes bonus to border growth rate in all cities
+void CvPlayer::ChangeBorderGrowthRateIncreaseGlobal(int iChange)
+{
+	if(iChange != 0)
+	{
+		m_iBorderGrowthRateIncreaseGlobal += iChange;
+	}
+}
 
 //	--------------------------------------------------------------------------------
 /// How much Culture is required for this City to acquire a new Plot

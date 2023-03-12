@@ -684,6 +684,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCityConnectionTradeRouteModifier = kResults.GetInt("CityConnectionTradeRouteModifier");
 	m_iCapturePlunderModifier = kResults.GetInt("CapturePlunderModifier");
 	m_iPolicyCostModifier = kResults.GetInt("PolicyCostModifier");
+	m_iBorderGrowthRateIncrease = kResults.GetInt("BorderGrowthRateIncrease");
+	m_iBorderGrowthRateIncreaseGlobal = kResults.GetInt("BorderGrowthRateIncreaseGlobal");
 	m_iPlotCultureCostModifier = kResults.GetInt("PlotCultureCostModifier");
 	m_iGlobalPlotCultureCostModifier = kResults.GetInt("GlobalPlotCultureCostModifier");
 	m_iPlotBuyCostModifier = kResults.GetInt("PlotBuyCostModifier");
@@ -2054,6 +2056,18 @@ int CvBuildingEntry::GetCapturePlunderModifier() const
 int CvBuildingEntry::GetPolicyCostModifier() const
 {
 	return m_iPolicyCostModifier;
+}
+
+/// Increase to rate of border growth in city
+int CvBuildingEntry::GetBorderGrowthRateIncrease() const
+{
+	return m_iBorderGrowthRateIncrease;
+}
+
+/// Increase to rate of border growth in all cities
+int CvBuildingEntry::GetBorderGrowthRateIncreaseGlobal() const
+{
+	return m_iBorderGrowthRateIncreaseGlobal;
 }
 
 /// Change in culture cost to earn a new tile
