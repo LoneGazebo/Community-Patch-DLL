@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.2.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -406,12 +406,12 @@
     <File md5="9A34FF797766BC05B09B63638FDF2EB5" import="0">Balance Changes/Minors/GoodyHuts.sql</File>
     <File md5="AC851E7A43B18C52535954EC2DDC37F9" import="0">Balance Changes/Minors/MinorBonuses.sql</File>
     <File md5="1D4F4B8AD5B00992B23C026AF0BB9701" import="0">Balance Changes/Policies/Aesthetics/Aesthetics.sql</File>
-    <File md5="1CFB62F08592E3C5ED33E8A87E4E8793" import="0">Balance Changes/Policies/Commerce/Commerce.sql</File>
+    <File md5="23BDCA3F7542FD25673F376A8B3191C1" import="0">Balance Changes/Policies/Commerce/Commerce.sql</File>
     <File md5="E1202CD4A4E4CDDA85D31419F1160508" import="0">Balance Changes/Policies/Exploration/Exploration.sql</File>
     <File md5="3CD661531F739AB34B738AE9BF0C2122" import="0">Balance Changes/Policies/Flavors/FlavorNuke.sql</File>
     <File md5="2FA02A593E5B9C359449DB57DCE6AF40" import="0">Balance Changes/Policies/Piety/Piety.sql</File>
     <File md5="1BC500C3FBB0388FF8E6861941E90C54" import="0">Balance Changes/Policies/PolicyBranches.sql</File>
-    <File md5="3E2DB98155A27016BA6DA674487EFC1A" import="0">Balance Changes/Policies/Honor/Honor.sql</File>
+    <File md5="EB644473FC5B6B6A7326E674FB5DC3F3" import="0">Balance Changes/Policies/Honor/Honor.sql</File>
     <File md5="7353A26CE7843E4CBAA34BB7F3E269F3" import="0">Balance Changes/Policies/Liberty/Liberty.sql</File>
     <File md5="DB047C84C508C5B5850A10A1CB4D8F98" import="0">Balance Changes/Policies/Patronage/Patronage.sql</File>
     <File md5="75D69B7DCA3BBC1461DB6C78C670DFE4" import="0">Balance Changes/Policies/Rationalism/Rationalism.sql</File>
@@ -441,7 +441,7 @@
     <File md5="B1F9391436D84155FFE9B3DA21FC03A0" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="ED46B633E374A73B086D6BCFCCBDDA7A" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="2FBABDF9B63704C27B1B23A4A1A0D61B" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
-    <File md5="C1408CFD272870A9F1E1CF71DCBF590A" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
+    <File md5="586FBABE6542A708D8FF014F5C5F242F" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
     <File md5="E7C7EF26A47FC85A8619A2BA4F76374A" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="32ACC8F57AE5AB4349CC5818E0DB9244" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="6E40563A26212F4EE4175893A41C42E9" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
