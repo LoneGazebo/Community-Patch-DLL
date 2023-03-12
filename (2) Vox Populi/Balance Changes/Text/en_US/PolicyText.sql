@@ -620,7 +620,7 @@ SET Text = 'Tribute'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE]Cities gain 20 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production when their borders expand, scaling with Era. Non-Gold Yields from demanding Heavy Tribute from City-States doubled.'
+SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE]Cities gain 20 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production when their borders expand, scaling with Era. Receive 40 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you found or conquer Cities, scaling with era. Conquest bonus also scales based on City [ICON_CITIZEN] population.'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE_HELP';
 
 UPDATE Language_en_US
