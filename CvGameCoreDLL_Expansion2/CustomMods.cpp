@@ -273,6 +273,7 @@ int CustomMods::getOption(const string& sOption, int defValue) {
 			m_options[string(szName)] = iValue;
 		}
 		MOD_OPT_CACHE(BALANCE_VP);
+		MOD_OPT_CACHE(CORE_DEBUGGING);
 		MOD_OPT_CACHE(ALTERNATIVE_DIFFICULTY);
 		MOD_OPT_CACHE(GLOBAL_STACKING_RULES);
 		MOD_OPT_CACHE(GLOBAL_LOCAL_GENERALS);
@@ -584,7 +585,8 @@ void CheckSentinel(uint value)
 	if (pLog)
 	{
 		gStackWalker.SetLog(pLog);
-		gStackWalker.ShowCallstack();
+		gStackWalker.ShowCallstack(5);
+		gStackWalker.SetLog(NULL);
 		pLog->Msg("\r\n");
 	}
 #endif

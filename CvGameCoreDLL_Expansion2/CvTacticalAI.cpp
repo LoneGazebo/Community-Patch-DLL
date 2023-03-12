@@ -302,7 +302,7 @@ void CvTacticalAI::RecruitUnits()
 			CvUnit* pUnit = m_pPlayer->getUnit(*it);
 			if (!pUnit)
 				continue;
-			CvString msg = CvString::format("current turn tactical unit %s %d at %d,%d\n", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY() );
+			CvString msg = CvString::format("using %s %d at %d,%d for tactical ai. power is %d\n", pUnit->getName().c_str(), pUnit->GetID(), pUnit->getX(), pUnit->getY(), pUnit->GetPower() );
 			LogTacticalMessage( msg );
 		}
 	}
@@ -639,6 +639,9 @@ void CvTacticalAI::FindTacticalTargets()
 
 	// since the combat simulation considers a whole area, we don't need to attack for individual units
 	SortTargetListAndDropUselessTargets();
+
+	if (GC.getLogging() && GC.getAILogging())
+		DumpTacticalTargets();
 }
 
 /// Don't allow adjacent tiles to both be sentry points
@@ -2699,10 +2702,22 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	if (iMinDistGlobal>3 || pClosestEnemyPlot==NULL)
 		return false;
 
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Performing opportunity attack with army %d", pArmy->GetID());
+		for (size_t i = 0; i < pArmy->GetNumFormationEntries(); i++)
+		{
+			CvArmyFormationSlot* slot = pArmy->GetSlotStatus(i);
+			strMsg += CvString::format("; unit %d", slot->GetUnitID());
+		}
+		LogTacticalMessage(strMsg);
+	}
+
 	//do we have additional units around?
 	if (FindUnitsWithinStrikingDistance(pClosestEnemyPlot))
-		for (size_t i=0; i<m_CurrentMoveUnits.size(); i++)
-			vUnitsFinal.push_back( m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() ) );
+		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
+			vUnitsFinal.push_back(m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID()));
 
 	//we probably didn't see all enemy units, so doublecheck ...
 	CvPlot* pTargetPlot = pClosestEnemyPlot;
@@ -2740,6 +2755,18 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget, Cv
 			vUnits.push_back(pUnit);
 
 		pUnit = pArmy->GetNextUnit(pUnit);
+	}
+
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		CvString strMsg;
+		strMsg.Format("Gathering army %d", pArmy->GetID());
+		for (size_t i = 0; i < pArmy->GetNumFormationEntries(); i++)
+		{
+			CvArmyFormationSlot* slot = pArmy->GetSlotStatus(i);
+			strMsg += CvString::format("; unit %d", slot->GetUnitID());
+		}
+		LogTacticalMessage(strMsg);
 	}
 
 	//if there are no enemies around the turn target, we move towards the goal blindly
@@ -2902,7 +2929,7 @@ void CvTacticalAI::IdentifyPriorityBarbarianTargets()
 	}
 }
 
-void CvTacticalAI::DumpTacticalTargets(const char* hint)
+void CvTacticalAI::DumpTacticalTargets()
 {
 	for (CvTacticalTarget* pTarget = GetFirstUnitTarget(); pTarget!=NULL; pTarget = GetNextUnitTarget())
 	{
@@ -2924,8 +2951,8 @@ void CvTacticalAI::DumpTacticalTargets(const char* hint)
 
 		CvUnit* pUnit = pTarget->GetUnitPtr();
 		CvString strMsg;
-		strMsg.Format("Enemy unit (%s) at (%d,%d) with prio %s, score %d (%s with %d hp)", hint, pTarget->GetTargetX(), pTarget->GetTargetY(), 
-			prio, pTarget->GetAuxIntData(), pUnit->getName().c_str(), pUnit->GetCurrHitPoints());
+		strMsg.Format("Enemy %s, id %d at (%d,%d) with prio %s, score %d, damage %d", pUnit->getName().c_str(), pUnit->GetID(), pTarget->GetTargetX(), pTarget->GetTargetY(),
+			prio, pTarget->GetAuxIntData(), pUnit->getDamage());
 		LogTacticalMessage(strMsg);
 	}
 }
@@ -3594,6 +3621,11 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 	if (pTargetPlot->getBestDefender(NO_PLAYER, m_pPlayer->GetID(), NULL, true) == NULL && !pTargetPlot->isCity())
 		return true;
 
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
+		LogTacticalMessage(CvString::format("trying attack on %d:%d, agg level %d", pTargetPlot->getX(), pTargetPlot->getY(), eAggLvl));
+#endif
+
 	int iCount = 0;
 	bool bSuccess = false;
 	do
@@ -3616,6 +3648,11 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 {
 	//try to improve visibility. however, if the target is too far away this may fail ... in that case we chance it
 	ExecuteSpotterMove(vUnits, pCloseRangeTarget);
+
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
+		LogTacticalMessage(CvString::format("seeking defensive positioning around %d:%d", pCloseRangeTarget->getX(), pCloseRangeTarget->getY()));
+#endif
 
 	//first round: in case there are enemies around, do a combat simulation
 	int iCount = 0;
@@ -4990,8 +5027,7 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 
 	// Now sort them in the order we'd like them to attack
 	std::stable_sort(m_CurrentMoveUnits.begin(), m_CurrentMoveUnits.end());
-	//if (m_CurrentMoveUnits.size()>0)
-	//	OutputDebugString( CvString::format("player %d recruited %d units for possible attack on %d:%d (zone id %d)\n",m_pPlayer->GetID(),m_CurrentMoveUnits.size(),pTarget->getX(),pTarget->getY(),m_iCurrentZoneID ).c_str() );
+
 	return rtnValue;
 }
 
@@ -5839,6 +5875,11 @@ bool CvTacticalAI::IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget)
 	return bRtnValue;
 }
 
+FILogFile* CvTacticalAI::GetLogFile()
+{
+	return LOGFILEMGR.GetLog(GetLogFileName(m_pPlayer->getCivilizationShortDescription()), FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite);
+}
+
 /// Log current status of the operation
 void CvTacticalAI::LogTacticalMessage(const CvString& strMsg)
 {
@@ -5846,23 +5887,24 @@ void CvTacticalAI::LogTacticalMessage(const CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		CvString strPlayerName;
-		FILogFile* pLog = NULL;
 
-		strPlayerName = m_pPlayer->getCivilizationShortDescription();
-		strPlayerName.Replace(' ', '_'); //no spaces
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(strPlayerName), FILogFile::kDontTimeStamp | FILogFile::kDontFlushOnWrite );
+		CvString strPlayerName(m_pPlayer->getCivilizationShortDescription());
+		strPlayerName.Replace(' ', '_'); //no spaces!
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += strPlayerName + ", ";
+
 		strOutBuf = strBaseString + strMsg;
-		pLog->Msg(strOutBuf);
+
+		FILogFile* pLog = GetLogFile();
+		if (pLog)
+			pLog->Msg(strOutBuf);
 	}
 }
 
 /// Build log filename
-CvString CvTacticalAI::GetLogFileName(CvString& playerName) const
+CvString CvTacticalAI::GetLogFileName(const CvString& playerName) const
 {
 	CvString strLogName;
 
@@ -7425,7 +7467,8 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 
 		//if we have friends around assume they will absorb some damage
 		//of course the enemy will tend to focus fire, but then raw danger does not consider ZoC
-		iDanger /= (iNumAdjFriendlies + 1);
+		//todo: do not share damage for frontline units?
+		iDanger /= max(iNumAdjFriendlies,1);
 
 		//make it relative to current hitpoints
 		int iScaledDanger = (iDanger * /*100*/ GD_INT_GET(COMBAT_AI_OFFENSE_DANGERWEIGHT)) / max(1, pUnit->GetCurrHitPoints());
@@ -7935,7 +7978,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 	return result;
 }
 
-CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const set<CvUnit*>& allOurUnits) : 
+CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const vector<CvUnit*>& allOurUnits) :
 	pPlot(NULL) //important, invalid by default
 {
 	if (!plot || ePlayer == NO_PLAYER)
@@ -8027,7 +8070,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const se
 			}
 		}
 		//owned units not included in sim
-		else if (allOurUnits.find(pPlotUnit) == allOurUnits.end())
+		else if (std::find(allOurUnits.begin(), allOurUnits.end(), pPlotUnit) == allOurUnits.end())
 		{
 			if (pPlotUnit->IsCanDefend())
 			{
@@ -8436,8 +8479,9 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	 					iBonus += TACTICAL_COMBAT_CITADEL_BONUS;
 				}
 
-				//if the current plot is good, assume we can stay here but recheck later. 
-				gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iBonus, A_FINISH_TEMP));
+				//if the current plot is good, assume we can stay here but recheck later.
+				//subtract a little for wasted movement points to balance out what we added in the ref assignment
+				gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, -unit.iMovesLeft/GC.getMOVE_DENOMINATOR(), unit.eStrategy, iBonus, A_FINISH_TEMP));
 			}
 			else
 				//if the current plot is bad, try to find another use for the unit
@@ -9277,7 +9321,7 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 		if (pPlot) //also create plots for neutral units - otherwise edgeOfTheKnownWorld is not correct
 		{
 			//can pass empty set of units - the plot was invisible before so we know there is none of our units there
-			addTacticalPlot(pPlot,set<CvUnit*>()); 
+			addTacticalPlot(pPlot, vector<CvUnit*>());
 
 			//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
 			if (pPlot->isEnemyUnit(ePlayer, true, false))
@@ -9692,7 +9736,7 @@ bool CvTacticalPosition::findTactPlotRecursive(int iPlotIndex) const
 	return false;
 }
 
-bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits)
+bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUnit*>& allOurUnits)
 {
 	//don't check the official visibility here, we might want to create a tactplot that only became visible during simulation
 	if (!pPlot)
@@ -9707,6 +9751,20 @@ bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>
 		pair<int, size_t> newEntry(pPlot->GetPlotIndex(), tactPlots.size());
 		tactPlotLookup.insert(upper_bound(tactPlotLookup.begin(), tactPlotLookup.end(), newEntry, PairCompareFirst()), newEntry);
 		tactPlots.push_back(newPlot);
+
+#if defined(MOD_CORE_DEBUGGING)
+		if (GC.getLogging() && GC.getAILogging() && MOD_CORE_DEBUGGING && iID==1) //log only initial position
+		{
+			CvString strMsg;
+			strMsg.Format("added sim plot (%d:%d), %s, %s",
+				pPlot->getX(), pPlot->getY(),
+				newPlot.isEnemy() ? "enemy" : (newPlot.isBlockedByNonSimUnit(true) ? "blocked" : "available"),
+				newPlot.isVisibleToEnemy() ? "enemy_can_see" : "enemy_cannot_see"
+			);
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+		}
+#endif
+
 		return true;
 	}
 
@@ -9805,6 +9863,24 @@ bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 	availableUnits.push_back( SUnitStats( pUnit, 0, eStrategy ) );
 
 	movePlotUpdateFlag = -1; //lazy update of move plots later
+
+#if defined(MOD_CORE_DEBUGGING)
+	if (GC.getLogging() && GC.getAILogging() && MOD_CORE_DEBUGGING)
+	{
+		CvString strMsg;
+		strMsg.Format("added sim unit %s, id %d, at (%d:%d), moves %d, damage %d, pathfinder count %d",
+			pUnit->getName().c_str(),
+			pUnit->GetID(),
+			pUnit->getX(),
+			pUnit->getY(),
+			pUnit->getMoves(),
+			pUnit->getDamage(),
+			GC.GetPathFinder().GetCurrentGenerationID()
+		);
+		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+	}
+#endif
+
 	return true;
 }
 
@@ -10003,6 +10079,22 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();
 
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
+	{
+		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units", pTarget->getX(), pTarget->getY(), vUnits.size());
+		for (size_t i = 0; i < vUnits.size(); i++)
+			strMsg += CvString::format("; %d", vUnits[i]->GetID());
+		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+
+//#if defined(STACKWALKER)
+//		gStackWalker.SetLog(GET_PLAYER(ePlayer).GetTacticalAI()->GetLogFile());
+//		gStackWalker.ShowCallstack(5);
+//		gStackWalker.SetLog(NULL);
+//#endif
+	}
+#endif
+
 	cvStopWatch timer("tactsim",NULL,0,true);
 	timer.StartPerfTest();
 
@@ -10016,24 +10108,39 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	initialPosition->initFromScratch(ePlayer, eAggLvl, pTarget);
 
 	//first pass: make sure there are no duplicates and other invalid inputs
-	set<CvUnit*> ourUnits;
+	vector<CvUnit*> ourUnits;
 	for (size_t i = 0; i < vUnits.size(); i++)
 	{
 		CvUnit* pUnit = vUnits[i];
+
+		//do no use a set for enforcing uniqueness - the iteration order would depend on memory adress by default
+		//unfortunately the simulation result sometimes seems to depend on the order of the units being processed ...
+		if (std::find(ourUnits.begin(), ourUnits.end(), pUnit) != ourUnits.end())
+			continue;
 
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.
 		//exception: since we ignore garrisoned units for tactsim, we can still use units (ships) in cities if a (land) garrison is present
 		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && !pUnit->TurnProcessed())
 			if (pUnit->isNativeDomain(pUnit->plot()) || pUnit->plot()->getNumUnits()==1 || pUnit->plot()->isCity())
-				ourUnits.insert(vUnits[i]);
+				ourUnits.push_back(vUnits[i]);
 	}
 
 	if (ourUnits.empty())
 		return result;
 
+	//create the tactical plots around the target (up to distance 5)
+	//not equivalent to the union of all reachable plots: we need to consider unreachable enemies as well!
+	//some units may have their initial plots outside of this range but that's ok, we'll fix it later
+	for (int i = 0; i < RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 1]; i++)
+	{
+		CvPlot* pPlot = iterateRingPlots(pTarget, i);
+		if (pPlot && pPlot->isVisible(ourTeam))
+			initialPosition->addTacticalPlot(pPlot, ourUnits);
+	}
+
 	//second pass, now that we know which units will be used, add them to the initial position
-	for(set<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
+	for(vector<CvUnit*>::iterator it=ourUnits.begin(); it!=ourUnits.end(); ++it)
 	{
 		CvUnit* pUnit = *it;
 		if (initialPosition->addAvailableUnit(pUnit))
@@ -10051,16 +10158,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		}
 	}
 
-	//create the tactical plots around the target (up to distance 5)
-	//not equivalent to the union of all reachable plots: we need to consider unreachable enemies as well!
-	//some units may have their initial plots outside of this range but that's ok
-	for (int i = 0; i < RING_PLOTS[TACTICAL_COMBAT_MAX_TARGET_DISTANCE + 1]; i++)
-	{
-		CvPlot* pPlot = iterateRingPlots(pTarget, i);
-		if (pPlot && pPlot->isVisible(ourTeam))
-			initialPosition->addTacticalPlot(pPlot,ourUnits);
-	}
-
 	//find out which plot is frontline, second line etc
 	initialPosition->refreshVolatilePlotProperties();
 
@@ -10075,6 +10172,12 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 7 : 11;
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 	initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
+
+#if defined(MOD_CORE_DEBUGGING)
+	if (MOD_CORE_DEBUGGING)
+		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("starting simulation with %d units and %d enemies on %d plots",
+			initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots() ));
+#endif
 
 	vector<CvTacticalPosition*> openPositionsHeap;
 	vector<CvTacticalPosition*> completedPositions;
@@ -10186,6 +10289,20 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, GET_PLAYER(ePlayer).GetDangerPlotAge(), 
 			iUsedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+
+#if defined(MOD_CORE_DEBUGGING)
+		if (MOD_CORE_DEBUGGING && !completedPositions.empty())
+		{
+			strMsg.Format("best score is %d for id %09d", completedPositions.front()->getScoreTotal(), completedPositions.front()->getID());
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+			for (size_t i = completedPositions.front()->getFirstInterestingAssignment(); i < result.size(); i++)
+			{
+				strMsg.Format("unit %d, from %d, to %d, score %d, damage %d, selfdamage %d, moves %d", 
+					result[i].iUnitID, result[i].iFromPlotIndex, result[i].iToPlotIndex, result[i].iScore, result[i].iDamage, result[i].iSelfDamage, result[i].iRemainingMoves);
+				GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+			}
+		}
+#endif
 
 		if (timer.GetDeltaInSeconds() > 7)
 			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...

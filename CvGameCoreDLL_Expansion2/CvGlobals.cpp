@@ -2022,7 +2022,8 @@ void CreateMiniDump(EXCEPTION_POINTERS *pep)
 			pLog->Msg("Gamecore Callstack\n");
 
 			gStackWalker.SetLog(pLog);	
-			gStackWalker.ShowCallstack( GetCurrentThread(), pep ? pep->ContextRecord : NULL );
+			gStackWalker.ShowCallstack(INT_MAX, GetCurrentThread(), pep ? pep->ContextRecord : NULL );
+			gStackWalker.SetLog(NULL);
 
 			pLog->Msg("\nLua Callstack\n");
 			if (gLuaState)

@@ -18414,14 +18414,11 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 
 bool CvCity::HasGarrison() const
 {
-	if (MOD_CORE_DEBUGGING)
+	if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
 	{
-		if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
-		{
-			CUSTOMLOG("Invalid garrison %d is set in %s!\n", m_hGarrison, getName().c_str());
-			(const_cast<CvCity*>(this))->m_hGarrison = -1;
-			return false;
-		}
+		CUSTOMLOG("Invalid garrison %d is set in %s!\n", m_hGarrison, getName().c_str());
+		(const_cast<CvCity*>(this))->m_hGarrison = -1;
+		return false;
 	}
 
 	return m_hGarrison > -1;
