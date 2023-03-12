@@ -705,6 +705,10 @@ void CvBarbarians::DoCamps()
 				continue;
 		}
 
+		// No camps on Ancient Ruins
+		if (pLoopPlot->isGoody())
+			continue;
+
 		// No camps on Natural Wonders
 		if (pLoopPlot->getFeatureType() != NO_FEATURE && GC.getFeatureInfo(pLoopPlot->getFeatureType())->isNoImprovement())
 			continue;

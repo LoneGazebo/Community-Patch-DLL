@@ -10691,6 +10691,9 @@ void CvCity::DoPickResourceDemanded()
 	SetResourceDemanded(NO_RESOURCE);
 	SetResourceDemandedCounter(0);
 
+	if (!GET_PLAYER(getOwner()).isMajorCiv())
+		return;
+
 	if (MOD_BALANCE_CORE_HAPPINESS && GetWeLoveTheKingDayCounter() > 0)
 		return;
 
@@ -10714,6 +10717,45 @@ void CvCity::DoPickResourceDemanded()
 		}
 	}
 
+	// VP: Only resources discovered by this player (or a player met by this player) are valid prior to researching Astronomy
+	bool bOnlyAllowDiscoveredResources = MOD_BALANCE_VP && !GET_TEAM(getTeam()).canEmbarkAllWaterPassage();
+	set<ResourceTypes> DiscoveredLuxuryResources;
+	if (bOnlyAllowDiscoveredResources)
+	{
+		// First compile a list of the major civ teams this player has met
+		vector<TeamTypes> vTeamsMet;
+		vTeamsMet.push_back(getTeam());
+		CvDiplomacyAI* pDiplo = GET_PLAYER(getOwner()).GetDiplomacyAI();
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (pDiplo->IsPlayerValid(eLoopPlayer) && std::find(vTeamsMet.begin(), vTeamsMet.end(), GET_PLAYER(eLoopPlayer).getTeam()) == vTeamsMet.end())
+				vTeamsMet.push_back(GET_PLAYER(eLoopPlayer).getTeam());
+		}
+
+		// Now go through the map and see which resources have been discovered by civs this player has met
+		CvMap& theMap = GC.getMap();
+		int iNumPlots = theMap.numPlots();
+		for (int iI = 0; iI < iNumPlots; iI++)
+		{
+			CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
+			ResourceTypes eResource = pLoopPlot->getResourceType(getTeam()); // This check will ignore resources that haven't been discovered by this player (tech)
+			if (eResource != NO_RESOURCE)
+			{
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && localLuxuryResources.find(eResource) == localLuxuryResources.end()
+					&& DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
+				{
+					for (std::vector<TeamTypes>::iterator it = vTeamsMet.begin(); it != vTeamsMet.end(); it++)
+					{
+						if (pLoopPlot->isRevealed(*it, false))
+							DiscoveredLuxuryResources.insert(eResource);
+					}
+				}
+			}
+		}
+	}
+
 	// Create list of valid Luxuries
 	vector<ResourceTypes> veValidLuxuryResources;
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -10725,6 +10767,14 @@ void CvCity::DoPickResourceDemanded()
 		CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 		if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 		{
+			// VP: Can't reroll the same resource as before!
+			if (MOD_BALANCE_VP && ePreviousResource == eResource)
+				continue;
+
+			// VP: No unknown tech resources
+			if (MOD_BALANCE_VP && !GET_TEAM(getTeam()).IsResourceRevealed(eResource))
+				continue;
+
 			// Is the Resource actually on the map?
 			if (GC.getMap().getNumResources(eResource) <= 0)
 				continue;
@@ -10735,14 +10785,13 @@ void CvCity::DoPickResourceDemanded()
 			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
 				continue;
 
-			if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
-				continue;
-
-			// VP: Can't reroll the same resource as before!
-			if (MOD_BALANCE_VP && ePreviousResource == eResource)
-				continue;
-
 			if (localLuxuryResources.find(eResource) != localLuxuryResources.end())
+				continue;
+
+			if (bOnlyAllowDiscoveredResources && DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
+				continue;
+
+			if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 				continue;
 
 			veValidLuxuryResources.push_back(eResource);
