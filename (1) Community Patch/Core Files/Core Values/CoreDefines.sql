@@ -92,6 +92,9 @@ INSERT INTO Defines(Name, Value) SELECT 'COMBAT_AI_DEFENSE_SCORE_BIAS', '200';
 -- City Revolt Timer
 UPDATE Defines SET Value = '10' WHERE Name = 'REVOLT_COUNTER_MIN';
 
+-- WLTKD Reset Timer (<= 0 means disabled); scales with game speed
+INSERT INTO Defines (Name, Value) SELECT 'WLTKD_RESOURCE_RESET_TURNS', '0';
+
 -- Religion Spread Rework
 UPDATE Defines SET Value = '9' WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 INSERT INTO Defines(Name, Value) SELECT 'INQUISITION_EFFECTIVENESS', '100'; -- expected value between 1 and 100. percentage of heretics' pressure to be removed by inquisitors. does not affect prophets.

@@ -223,6 +223,7 @@ CvCity::CvCity() :
 	, m_iThreatValue()
 	, m_hGarrison()
 	, m_iResourceDemanded()
+	, m_iResourceDemandedCounter()
 	, m_iWeLoveTheKingDayCounter()
 	, m_iLastTurnGarrisonAssigned()
 	, m_iThingsProduced()
@@ -1342,6 +1343,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iThreatValue = 0;
 	m_hGarrison = -1;
 	m_iResourceDemanded = -1;
+	m_iResourceDemandedCounter = 0;
 	m_iWeLoveTheKingDayCounter = 0;
 	m_iLastTurnGarrisonAssigned = -1;
 	m_iThingsProduced = 0;
@@ -10683,11 +10685,11 @@ void CvCity::SetResourceDemanded(ResourceTypes eResource)
 
 //	--------------------------------------------------------------------------------
 /// Picks a Resource for this City to want
-void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
+void CvCity::DoPickResourceDemanded()
 {
 	ResourceTypes ePreviousResource = GetResourceDemanded(false);
-
 	SetResourceDemanded(NO_RESOURCE);
+	SetResourceDemandedCounter(0);
 
 	if (MOD_BALANCE_CORE_HAPPINESS && GetWeLoveTheKingDayCounter() > 0)
 		return;
@@ -10736,7 +10738,8 @@ void CvCity::DoPickResourceDemanded(bool bCurrentResourceInvalid)
 			if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 				continue;
 
-			if (bCurrentResourceInvalid && ePreviousResource == eResource)
+			// VP: Can't reroll the same resource as before!
+			if (MOD_BALANCE_VP && ePreviousResource == eResource)
 				continue;
 
 			if (localLuxuryResources.find(eResource) != localLuxuryResources.end())
@@ -10865,6 +10868,21 @@ void CvCity::DoTestResourceDemanded()
 						strSummary << getNameKey();
 						pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
 					}
+				}
+			}
+			else
+			{
+				ChangeResourceDemandedCounter(1);
+
+				// Is it time to pick something new?
+				if (GD_INT_GET(WLTKD_RESOURCE_RESET_TURNS) > 0)
+				{
+					int iResetTurns = /*0 in CP, 30 in VP*/ GD_INT_GET(WLTKD_RESOURCE_RESET_TURNS);
+					iResetTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iResetTurns /= 100;
+
+					if (GetResourceDemandedCounter() >= iResetTurns)
+						DoPickResourceDemanded();
 				}
 			}
 		}
@@ -24368,6 +24386,29 @@ bool CvCity::IsBlockaded(DomainTypes eDomain) const
 }
 
 //	--------------------------------------------------------------------------------
+/// Number of turns city has demanded a resource for
+int CvCity::GetResourceDemandedCounter() const
+{
+	VALIDATE_OBJECT
+	return m_iResourceDemandedCounter;
+}
+
+//	--------------------------------------------------------------------------------
+///Sets number of turns city has demanded a resource for
+void CvCity::SetResourceDemandedCounter(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iResourceDemandedCounter = iValue;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeResourceDemandedCounter(int iChange)
+{
+	VALIDATE_OBJECT
+	SetResourceDemandedCounter(GetResourceDemandedCounter() + iChange);
+}
+
+//	--------------------------------------------------------------------------------
 /// Amount of turns left in WLTKD
 int CvCity::GetWeLoveTheKingDayCounter() const
 {
@@ -33079,6 +33120,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iThreatValue);
 	visitor(city.m_hGarrison);
 	visitor(city.m_iResourceDemanded);
+	visitor(city.m_iResourceDemandedCounter);
 	visitor(city.m_iWeLoveTheKingDayCounter);
 	visitor(city.m_iLastTurnGarrisonAssigned);
 	visitor(city.m_iThingsProduced);

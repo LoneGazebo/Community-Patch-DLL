@@ -355,7 +355,7 @@ public:
 
 	ResourceTypes GetResourceDemanded(bool bHideUnknown = true) const;
 	void SetResourceDemanded(ResourceTypes eResource);
-	void DoPickResourceDemanded(bool bCurrentResourceInvalid = true);
+	void DoPickResourceDemanded();
 	void DoTestResourceDemanded();
 
 	void DoSeedResourceDemandedCountdown();
@@ -974,6 +974,10 @@ public:
 	bool IsBlockadedWaterAndLand() const;
 	//check water or land, no domain for both
 	bool IsBlockaded(DomainTypes eDomain) const;
+
+	int GetResourceDemandedCounter() const;
+	void SetResourceDemandedCounter(int iValue);
+	void ChangeResourceDemandedCounter(int iChange);
 
 	int GetWeLoveTheKingDayCounter() const;
 	void SetWeLoveTheKingDayCounter(int iValue);
@@ -1845,6 +1849,7 @@ protected:
 	int m_hGarrison;  // unused
 	mutable int m_hGarrisonOverride; //only temporary, not serialized
 	int m_iResourceDemanded;
+	int m_iResourceDemandedCounter;
 	int m_iWeLoveTheKingDayCounter;
 	int m_iLastTurnGarrisonAssigned;
 	int m_iThingsProduced; // total number of units, buildings, wonders, etc. this city has constructed
@@ -2238,6 +2243,7 @@ SYNC_ARCHIVE_VAR(int, m_iDamage)
 SYNC_ARCHIVE_VAR(int, m_iThreatValue)
 SYNC_ARCHIVE_VAR(int, m_hGarrison)
 SYNC_ARCHIVE_VAR(int, m_iResourceDemanded)
+SYNC_ARCHIVE_VAR(int, m_iResourceDemandedCounter)
 SYNC_ARCHIVE_VAR(int, m_iWeLoveTheKingDayCounter)
 SYNC_ARCHIVE_VAR(int, m_iLastTurnGarrisonAssigned)
 SYNC_ARCHIVE_VAR(int, m_iThingsProduced)
