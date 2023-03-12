@@ -6269,7 +6269,7 @@ int CvGame::ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, Pla
 /// Disable Victory Competition
 bool CvGame::IsVictoryCompetitionEnabled() const
 {
-	if (GD_INT_GET(DIPLOAI_DISABLE_VICTORY_COMPETITION) > 0)
+	if (MOD_BALANCE_VP && isOption(GAMEOPTION_DISABLE_VICTORY_COMPETITION))
 	{
 		return false;
 	}
@@ -6286,7 +6286,7 @@ bool CvGame::IsVictoryCompetitionEnabled() const
 /// Disable Endgame Aggression Boost
 bool CvGame::IsEndgameAggressionEnabled() const
 {
-	if (GD_INT_GET(DIPLOAI_DISABLE_ENDGAME_AGGRESSION) > 0)
+	if (MOD_BALANCE_VP && isOption(GAMEOPTION_DISABLE_ENDGAME_AGGRESSION))
 	{
 		return false;
 	}

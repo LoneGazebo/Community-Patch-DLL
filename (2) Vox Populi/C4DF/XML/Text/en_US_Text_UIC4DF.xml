@@ -696,6 +696,20 @@
 		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY_HELP">
 			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers.</Text>
 		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION">
+			<Text>Disable Victory Competition</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION_HELP">
+			<Text>AI leaders will not resent other players for their progress towards Victory Conditions. This makes the game significantly easier.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION">
+			<Text>Disable Endgame Aggression</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION_HELP">
+			<Text>AI leaders will not receive an aggression boost towards players who are getting close to winning the game. NOTE: This option does nothing if 'Disable Victory Competition' is enabled.</Text>
+		</Row>
 		
 		<!-- End Vassalage Resolution -->
 		<Row Tag="TXT_KEY_RESOLUTION_PLAYER_VASSAL_TAX">

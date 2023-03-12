@@ -1,20 +1,5 @@
--- Diplomacy AI Options
+-- Advanced Diplomacy AI Options
 -- All of these options (except Disable Flavor Randomization) are savegame compatible. Enabling/disabling them and then loading a saved game will activate/deactivate them with no issues.
-
--- [DISABLE VICTORY COMPETITION]
--- If set to 1, AI civilizations will not receive any aggression boosts or reductions towards other players based on their victory progress.
--- Also, you will not receive any diplomacy penalties for victory competition with the AI.
--- This ONLY affects aggression changes that are caused by the AI being mad at the other player for being too successful.
--- Conquering the world or gaining cultural Influence over the AI, for example, can still result in aggression because you pose a threat to them OR because you're simply in their way.
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_DISABLE_VICTORY_COMPETITION', '0';
-
--- [DISABLE ENDGAME AGGRESSION BOOST]
--- If set to 1, AI civilizations will not receive the large late-game aggression boost towards players that are close to victory.
--- Bonuses/penalties for general victory competition will continue to apply.
--- NOTE: If Victory Competition is disabled, this does nothing.
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_DISABLE_ENDGAME_AGGRESSION', '0';
 
 -- [ENABLE NUCLEAR GANDHI]
 -- If set to 1, Gandhi (if he has nukes, and Random Personalities isn't enabled) will do what he's best known for in the Civilization series. ;)
