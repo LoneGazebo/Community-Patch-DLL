@@ -38,7 +38,7 @@ SET
 WHERE Type = 'POLICY_HONOR';
 
 
--- Warrior Code (Now Imperium)
+-- Warrior Code (Now Tribute)
 
 DELETE FROM Policy_UnitCombatProductionModifiers
 WHERE PolicyType = 'POLICY_WARRIOR_CODE';
@@ -59,14 +59,13 @@ VALUES
 	('POLICY_WARRIOR_CODE', 'UNITCLASS_SETTLER', 1);
 
 
--- Discipline (Now Tribute)
+-- Discipline (Now Imperium)
 DELETE FROM Policy_FreePromotions
 WHERE PolicyType = 'POLICY_DISCIPLINE';
 
 UPDATE Policies
 SET
-	PortraitIndex = 23,
-	ExtraYieldsFromHeavyTribute = 100
+	PortraitIndex = 23
 WHERE Type = 'POLICY_DISCIPLINE';
 
 INSERT INTO Policy_ConquerorYield
@@ -99,12 +98,22 @@ VALUES
 
 UPDATE Policies
 SET
-	CulturePerGarrisonedUnit = 2,
-	HappinessPerGarrisonedUnit = 1,
+	CulturePerGarrisonedUnit = 0,
+	HappinessPerGarrisonedUnit = 0,
 	UnitGoldMaintenanceMod = -15,
 	RouteGoldMaintenanceMod = -50,
 	PortraitIndex = 22
 WHERE Type = 'POLICY_MILITARY_CASTE';
+
+INSERT INTO Policy_BuildingClassHappiness
+	(PolicyType, BuildingClassType, Happiness)
+VALUES
+	('POLICY_MILITARY_CASTE', 'BUILDINGCLASS_BARRACKS', 1);
+
+INSERT INTO Policy_BuildingClassYieldChanges
+	(PolicyType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('POLICY_MILITARY_CASTE', 'BUILDINGCLASS_BARRACKS', 'YIELD_CULTURE', 2);
 
 
 -- Professional Army (Now Honor)

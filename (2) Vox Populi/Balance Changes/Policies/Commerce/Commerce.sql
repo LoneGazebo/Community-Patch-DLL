@@ -28,9 +28,6 @@ WHERE Type = 'POLICY_CARAVANS';
 
 -- Mercantilism
 
-DELETE FROM Policy_BuildingClassYieldChanges
-WHERE PolicyType = 'POLICY_MERCANTILISM' AND BuildingClassType = 'BUILDINGCLASS_MARKET';
-
 DELETE FROM Policy_BuildingClassCultureChanges
 WHERE PolicyType = 'POLICY_MERCANTILISM';
 
