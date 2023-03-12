@@ -2079,6 +2079,20 @@ void CvUnitEntry::DoUpdatePower()
 					iTemp /= 100;
 					iBonusPower += iTemp;
 				}
+				// Domain Attack - add one sixth of the bonus
+				if(kPromotion->GetDomainAttackPercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetDomainAttackPercent(iLoop) / 6);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
+				// Domain Defense - add one sixth of the bonus
+				if(kPromotion->GetDomainDefensePercent(iLoop) > 0)
+				{
+					iTemp = (iBasePower * kPromotion->GetDomainDefensePercent(iLoop) / 6);
+					iTemp /= 100;
+					iBonusPower += iTemp;
+				}
 			}
 		}
 	}

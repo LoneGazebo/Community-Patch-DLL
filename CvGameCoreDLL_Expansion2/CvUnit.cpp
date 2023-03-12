@@ -355,6 +355,8 @@ CvUnit::CvUnit() :
 	, m_combatUnit()
 	, m_transportUnit()
 	, m_extraDomainModifiers()
+	, m_extraDomainAttacks()
+	, m_extraDomainDefenses()
 	, m_YieldModifier()
 	, m_YieldChange()
 	, m_iGarrisonYieldChange()
@@ -1730,10 +1732,14 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_combatUnit.reset();
 	m_transportUnit.reset();
 	m_extraDomainModifiers.clear();
+	m_extraDomainAttacks.clear();
+	m_extraDomainDefenses.clear();
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
 		m_extraDomainModifiers.push_back(0);
+		m_extraDomainAttacks.push_back(0);
+		m_extraDomainDefenses.push_back(0);
 	}
 
 	m_YieldModifier.clear();
@@ -17121,6 +17127,9 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 		// Unit Class Attack Modifier
 		iModifier += unitClassAttackModifier(pDefender->getUnitClassType());
 
+		// Domain Attack Modifier
+		iModifier += getExtraDomainAttack(pDefender->getDomainType());
+
 		// Bonus VS fortified
 		if(pDefender->IsFortified())
 			iModifier += attackFortifiedModifier();
@@ -17264,9 +17273,14 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	// KNOWN ATTACKER
 	////////////////////////
 
-	// Unit Class Defense Modifier
 	if(pAttacker != NULL)
+	{
+		// Unit Class Defense Modifier
 		iModifier += unitClassDefenseModifier(pAttacker->getUnitClassType());
+
+		// Domain Defense Modifier
+		iModifier += getExtraDomainDefense(pAttacker->getDomainType());
+	}
 
 	// Unit can't drop below 10% strength
 	if(iModifier < -90)
@@ -17642,6 +17656,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
+
+			// Domain Attack Mod
+			iModifier += getExtraDomainAttack(pOtherUnit->getDomainType());
 		}
 
 		// Ranged DEFENSE
@@ -17649,6 +17666,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		{
 			// Unit Class Defense Mod
 			iModifier += unitClassDefenseModifier(pOtherUnit->getUnitClassType());
+
+			// Domain Defense Mod
+			iModifier += getExtraDomainDefense(pOtherUnit->getDomainType());
 		}
 	}
 
@@ -25953,6 +25973,46 @@ void CvUnit::changeExtraDomainModifier(DomainTypes eIndex, int iChange)
 
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getExtraDomainAttack(DomainTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraDomainAttacks[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraDomainAttack(DomainTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraDomainAttacks[eIndex] = (m_extraDomainAttacks[eIndex] + iChange);
+}
+
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getExtraDomainDefense(DomainTypes eIndex) const
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_extraDomainDefenses[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeExtraDomainDefense(DomainTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < NUM_DOMAIN_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_extraDomainDefenses[eIndex] = (m_extraDomainDefenses[eIndex] + iChange);
+}
+
+
+//	--------------------------------------------------------------------------------
 const CvString CvUnit::getName() const
 {
 	VALIDATE_OBJECT
@@ -27761,6 +27821,8 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 		{
 			changeExtraDomainModifier(((DomainTypes)iI), (thisPromotion.GetDomainModifierPercent(iI) * iChange));
+			changeExtraDomainAttack(((DomainTypes)iI), (thisPromotion.GetDomainAttackPercent(iI) * iChange));
+			changeExtraDomainDefense(((DomainTypes)iI), (thisPromotion.GetDomainDefensePercent(iI) * iChange));
 		}
 		if (getGiveDomain() == NO_DOMAIN && thisPromotion.GetGiveDomain() != NO_DOMAIN)
 		{
@@ -28370,6 +28432,8 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_missionAIUnit.eOwner);
 	visitor(unit.m_missionAIUnit.iID);
 	visitor(unit.m_extraDomainModifiers);
+	visitor(unit.m_extraDomainAttacks);
+	visitor(unit.m_extraDomainDefenses);
 	visitor(unit.m_YieldModifier);
 	visitor(unit.m_YieldChange);
 	visitor(unit.m_iGarrisonYieldChange);

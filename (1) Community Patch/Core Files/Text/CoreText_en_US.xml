@@ -116,6 +116,21 @@
 		<Row Tag="TXT_KEY_EUPANEL_NO_FRIENDLY_UNIT_ADJACENT_BONUS">
 			<Text>No Adjacent Friendly Unit</Text>
 		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_PENALTY_VS_DOMAIN">
+			<Text>Penalty VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_ATTACK_BONUS_VS_DOMAIN">
+			<Text>Attack Bonus VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_ATTACK_PENALTY_VS_DOMAIN">
+			<Text>Attack Penalty VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_DEFENSE_BONUS_VS_DOMAIN">
+			<Text>Defense Bonus VS Domain</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_DEFENSE_PENALTY_VS_DOMAIN">
+			<Text>Defense Penalty VS Domain</Text>
+		</Row>
 
 		<!-- Diplomatic Mission (No Gold) -->
 		<Row Tag="TXT_KEY_DIPLOMATIC_MISSION_RESULT_NO_GOLD">

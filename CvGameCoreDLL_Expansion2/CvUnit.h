@@ -1621,6 +1621,12 @@ public:
 	int getExtraDomainModifier(DomainTypes eIndex) const;
 	void changeExtraDomainModifier(DomainTypes eIndex, int iChange);
 
+	int getExtraDomainAttack(DomainTypes eIndex) const;
+	void changeExtraDomainAttack(DomainTypes eIndex, int iChange);
+
+	int getExtraDomainDefense(DomainTypes eIndex) const;
+	void changeExtraDomainDefense(DomainTypes eIndex, int iChange);
+
 	const CvString getName() const;
 	const char* getNameKey() const;
 #if defined(MOD_PROMOTIONS_UNIT_NAMING)
@@ -2339,6 +2345,8 @@ protected:
 	IDInfo m_transportUnit;
 
 	std::vector<int> m_extraDomainModifiers;
+	std::vector<int> m_extraDomainAttacks;
+	std::vector<int> m_extraDomainDefenses;
 	std::vector<int> m_YieldModifier;
 	std::vector<int> m_YieldChange;
 	std::vector<int> m_iGarrisonYieldChange;

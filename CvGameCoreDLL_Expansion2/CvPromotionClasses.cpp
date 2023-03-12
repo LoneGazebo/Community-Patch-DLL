@@ -286,10 +286,12 @@ CvPromotionEntry::CvPromotionEntry():
 	m_piFortificationYield(NULL),
 	m_piUnitCombatModifierPercent(NULL),
 	m_piUnitClassModifierPercent(NULL),
-	m_piDomainModifierPercent(NULL),
-	m_piFeaturePassableTech(NULL),
 	m_piUnitClassAttackModifier(NULL),
 	m_piUnitClassDefenseModifier(NULL),
+	m_piDomainModifierPercent(NULL),
+	m_piDomainAttackPercent(NULL),
+	m_piDomainDefensePercent(NULL),
+	m_piFeaturePassableTech(NULL),
 #if defined(MOD_BALANCE_CORE)
 	m_piCombatModPerAdjacentUnitCombatModifierPercent(NULL),
 	m_piCombatModPerAdjacentUnitCombatAttackModifier(NULL),
@@ -337,10 +339,12 @@ CvPromotionEntry::~CvPromotionEntry(void)
 	SAFE_DELETE_ARRAY(m_piFortificationYield);
 	SAFE_DELETE_ARRAY(m_piUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piUnitClassModifierPercent);
-	SAFE_DELETE_ARRAY(m_piDomainModifierPercent);
-	SAFE_DELETE_ARRAY(m_piFeaturePassableTech);
 	SAFE_DELETE_ARRAY(m_piUnitClassAttackModifier);
 	SAFE_DELETE_ARRAY(m_piUnitClassDefenseModifier);
+	SAFE_DELETE_ARRAY(m_piDomainModifierPercent);
+	SAFE_DELETE_ARRAY(m_piDomainAttackPercent);
+	SAFE_DELETE_ARRAY(m_piDomainDefensePercent);
+	SAFE_DELETE_ARRAY(m_piFeaturePassableTech);
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatModifierPercent);
 	SAFE_DELETE_ARRAY(m_piCombatModPerAdjacentUnitCombatAttackModifier);
@@ -1063,12 +1067,14 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	//UnitPromotions_Domains
 	{
 		kUtility.InitializeArray(m_piDomainModifierPercent, NUM_DOMAIN_TYPES, 0);
+		kUtility.InitializeArray(m_piDomainAttackPercent, NUM_DOMAIN_TYPES, 0);
+		kUtility.InitializeArray(m_piDomainDefensePercent, NUM_DOMAIN_TYPES, 0);
 
-		std::string sqlKey = "m_piDomainModifierPercent";
+		std::string sqlKey = "UnitPromotions_Domains";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if(pResults == NULL)
 		{
-			const char* szSQL = "select Domains.ID, Modifier from UnitPromotions_Domains inner join Domains on DomainType = Domains.Type where PromotionType = ?;";
+			const char* szSQL = "select Domains.ID, Modifier, Attack, Defense from UnitPromotions_Domains inner join Domains on DomainType = Domains.Type where PromotionType = ?;";
 			pResults = kUtility.PrepareResults(sqlKey, szSQL);
 		}
 
@@ -1082,9 +1088,17 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 			const int iDomainID = pResults->GetInt(0);
 			CvAssert(iDomainID > -1 && iDomainID < iNumDomains);
 
-			const int iDomainMod = pResults->GetInt(1);
+			const int iModifier = pResults->GetInt("Modifier");
 			if (iDomainID > -1 && iDomainID < NUM_DOMAIN_TYPES)
-				m_piDomainModifierPercent[iDomainID] = iDomainMod;
+				m_piDomainModifierPercent[iDomainID] = iModifier;
+
+			const int iAttack = pResults->GetInt("Attack");
+			if (iDomainID > -1 && iDomainID < NUM_DOMAIN_TYPES)
+				m_piDomainAttackPercent[iDomainID] = iAttack;
+
+			const int iDefense = pResults->GetInt("Defense");
+			if (iDomainID > -1 && iDomainID < NUM_DOMAIN_TYPES)
+				m_piDomainDefensePercent[iDomainID] = iDefense;
 		}
 
 		pResults->Reset();
@@ -2787,20 +2801,6 @@ int CvPromotionEntry::GetUnitClassModifierPercent(int i) const
 	return 0;
 }
 
-/// Percentage bonus when fighting against a unit with a specific domain (LAND/SEA/AIR)
-int CvPromotionEntry::GetDomainModifierPercent(int i) const
-{
-	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-
-	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainModifierPercent)
-	{
-		return m_piDomainModifierPercent[i];
-	}
-
-	return 0;
-}
-
 /// Percentage bonus when attacking a specific unit class
 int CvPromotionEntry::GetUnitClassAttackModifier(int i) const
 {
@@ -2824,6 +2824,48 @@ int CvPromotionEntry::GetUnitClassDefenseModifier(int i) const
 	if(i > -1 && i < GC.getNumUnitClassInfos() && m_piUnitClassDefenseModifier)
 	{
 		return m_piUnitClassDefenseModifier[i];
+	}
+
+	return 0;
+}
+
+/// Percentage bonus when fighting against a unit with a specific domain (LAND/SEA/AIR)
+int CvPromotionEntry::GetDomainModifierPercent(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainModifierPercent)
+	{
+		return m_piDomainModifierPercent[i];
+	}
+
+	return 0;
+}
+
+/// Percentage bonus when attacking a unit with a specific domain (LAND/SEA/AIR)
+int CvPromotionEntry::GetDomainAttackPercent(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainAttackPercent)
+	{
+		return m_piDomainAttackPercent[i];
+	}
+
+	return 0;
+}
+
+/// Percentage bonus when defending against a unit with a specific domain (LAND/SEA/AIR)
+int CvPromotionEntry::GetDomainDefensePercent(int i) const
+{
+	CvAssertMsg(i < NUM_DOMAIN_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+
+	if(i > -1 && i < NUM_DOMAIN_TYPES && m_piDomainDefensePercent)
+	{
+		return m_piDomainDefensePercent[i];
 	}
 
 	return 0;

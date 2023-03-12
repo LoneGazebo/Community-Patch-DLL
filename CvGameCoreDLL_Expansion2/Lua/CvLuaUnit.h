@@ -400,6 +400,8 @@ protected:
 	static int lGetMultiAttackBonusCity(lua_State* L);
 #endif
 	static int lDomainModifier(lua_State* L);
+	static int lDomainAttackPercent(lua_State* L);
+	static int lDomainDefensePercent(lua_State* L);
 	static int lGetStrategicResourceCombatPenalty(lua_State* L);
 	static int lGetUnhappinessCombatPenalty(lua_State* L);
 	static int lAirSweepCombatMod(lua_State* L);

@@ -762,7 +762,7 @@
 			<Text>Shrapnel Rounds</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BETTER_BOMBARDMENT_HELP">
-			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 	<!-- Naval Melee Line -->
 		<Row Tag="TXT_KEY_PROMOTION_DAMAGE_REDUCTION">
@@ -874,7 +874,7 @@
 			<Text>Strafing Runs</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AIR_MISFIRE_HELP">
-			<Text>-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
+			<Text>-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]+15% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Land[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_EVASION_III">
@@ -893,7 +893,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_AIR_TARGETING_3_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Naval[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 	<!-- Anti-Air Defense -->
 		<Row Tag="TXT_KEY_PROMOTION_ANTIAIR_LAND_I">
@@ -920,21 +920,21 @@
 			<Text>Naval Target Penalty</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_MISFIRE_HELP">
-			<Text>-20% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Naval Units[ENDCOLOR].</Text>
+			<Text>-20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Naval Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY">
 			<Text>Siege Inaccuracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SIEGE_INACCURACY_HELP">
-			<Text>-33% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>-33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY">
 			<Text>Naval Inaccuracy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_INACCURACY_HELP">
-			<Text>-25% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
+			<Text>-25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_NEGATIVE_TEXT]Land Units[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BIG_CITY_PENALTY">
@@ -1080,9 +1080,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_ENEMY_CITY_BELIEF_BONUS_CBP">
 			<Text>Crusader Zeal</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EUPANEL_NAVAL_DEFENSE_CITY">
-			<Text>Difficult Target</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_TRAIT_LOW_POP_BONUS">
 			<Text>Lower Population than Enemy</Text>

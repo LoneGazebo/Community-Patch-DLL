@@ -391,6 +391,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(BarbarianCombatBonus);
 #endif
 	Method(DomainModifier);
+	Method(DomainAttackPercent);
+	Method(DomainDefensePercent);
 	Method(GetStrategicResourceCombatPenalty);
 	Method(GetUnhappinessCombatPenalty);
 	Method(AirSweepCombatMod);
@@ -4351,6 +4353,26 @@ int CvLuaUnit::lDomainModifier(lua_State* L)
 	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
 
 	const int iResult = pkUnit->domainModifier(eDomain);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lDomainAttackPercent(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->getExtraDomainAttack(eDomain);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lDomainDefensePercent(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const DomainTypes eDomain = (DomainTypes)lua_tointeger(L, 2);
+
+	const int iResult = pkUnit->getExtraDomainDefense(eDomain);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
