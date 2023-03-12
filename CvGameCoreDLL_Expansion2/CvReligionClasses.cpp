@@ -2432,6 +2432,17 @@ int CvGameReligions::GetNumReligionsStillToFound() const
 				return 1;
 		}
 	}
+
+	// VP: Max # of religions is based on number of players, not map size
+	if (MOD_BALANCE_VP)
+	{
+		int iMaxReligions = GC.getGame().countMajorCivsEverAlive() / 2;
+		iMaxReligions++;
+		if (iMaxReligions > 8)
+			iMaxReligions = 8;
+
+		return iMaxReligions - GetNumReligionsFounded(bIgnoreLocal);
+	}
 	return (GC.getMap().getWorldInfo().getMaxActiveReligions() - GetNumReligionsFounded(bIgnoreLocal));
 #else
 	return (GC.getMap().getWorldInfo().getMaxActiveReligions() - GetNumReligionsFounded());
