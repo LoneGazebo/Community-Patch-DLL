@@ -1634,15 +1634,6 @@ void CvGame::update()
 			LuaSupport::CallHook(pkScriptSystem, "GameCoreUpdateEnd", args.get(), bResult);
 		}
 	}
-
-	// For an uknown reason the game loop stops calling updateTestEndTurn() sometimes, which
-	// can cause the game to become stuck with an out of date ENDTURN_BLOCKING_TYPE that
-	// really should be cleared after squad movement ends. Without this workaround the blocking
-	// type never gets set to NO_ENDTURN_BLOCKING_TYPE even when it should, softlocking the game
-	if (MOD_SQUADS)
-	{
-		updateTestEndTurn();
-	}
 }
 
 //	---------------------------------------------------------------------------------------------------------
