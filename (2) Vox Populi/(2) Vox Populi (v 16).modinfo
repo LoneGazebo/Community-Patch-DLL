@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.2.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.2.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -437,7 +437,7 @@
     <File md5="BB20C970F92E146AF072786CC0A1F23D" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="9B6260958850F8C2111096754FFFC2C6" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="BE8A95DFB17CAD28CFA1E6E753F50D8C" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
-    <File md5="037DAA4E8AB45081DA611FC82E6B67B8" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
+    <File md5="F3CCF771F0A231DC0E38CC30AC56DF7D" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="B1F9391436D84155FFE9B3DA21FC03A0" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="ED46B633E374A73B086D6BCFCCBDDA7A" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="2FBABDF9B63704C27B1B23A4A1A0D61B" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
@@ -450,7 +450,7 @@
     <File md5="46951BAF40A6B5C60B275A6E864D1013" import="0">Balance Changes/Text/en_US/TextChanges.sql</File>
     <File md5="BCBD2A7CBF040ADC215A93971895E083" import="0">Balance Changes/Units/AirUnits.sql</File>
     <File md5="D4D0EE67A296ACD5AF86BEAE784D8EF2" import="0">Balance Changes/Units/NewUnits.sql</File>
-    <File md5="F3DFA423215C8D0EC7E6612FF2407F24" import="0">Balance Changes/Units/PromotionChanges.xml</File>
+    <File md5="3BAAC39E8F9C13EFD94C831FC875261A" import="0">Balance Changes/Units/PromotionChanges.xml</File>
     <File md5="844A2A7BCC5757FD8857978F413AB5B6" import="0">Balance Changes/Units/UnitCombat.sql</File>
     <File md5="0E5D49C1F078CB45E1343A2557E4F60B" import="0">Balance Changes/Units/UniqueUnits.sql</File>
     <File md5="EF1399758337125A25A869BA1534C53B" import="0">Balance Changes/Units/MountedUnits.sql</File>
