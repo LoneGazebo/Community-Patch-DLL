@@ -3492,7 +3492,6 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CannotBeChosen>true</CannotBeChosen>
 			<AoEWhileFortified>10</AoEWhileFortified>
-			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>24</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
