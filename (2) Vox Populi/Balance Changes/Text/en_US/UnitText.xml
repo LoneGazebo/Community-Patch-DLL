@@ -350,7 +350,7 @@
 			<Text>Pilum</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_AOE_STRIKE_FORTIFY_HELP">
-			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] at the beginning of every turn.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>While [COLOR_POSITIVE_TEXT]Fortified[ENDCOLOR], adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR] at the beginning of every turn.</Text>
 		</Row>
 	<!-- Longbowman -->
 		<Row Tag="TXT_KEY_PROMOTION_ASSIZE_OF_ARMS">
