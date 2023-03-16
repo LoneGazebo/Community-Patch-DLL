@@ -1423,7 +1423,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_MILITARY_UNITS", MilitaryUnitHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CONNECTED_CITIES", CityConnectionHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_STATE_FRIENDSHIP", CityStateHappiness )
-			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS__FROM_ANNEXED_MINORS", HappinessFromAnnexedMinors )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_FROM_ANNEXED_MINORS", HappinessFromAnnexedMinors )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_VASSALS", VassalHappiness )
     		tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_DIFFICULTY_LEVEL", HandicapHappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_HAPPINESS_CITY_LOCAL", LocalCityHappiness )
