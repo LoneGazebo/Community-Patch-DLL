@@ -578,7 +578,7 @@ SET Text = '{1_Num} from [ICON_CITIZEN] Population in [ICON_OCCUPIED] Occupied, 
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION';
 
 UPDATE Language_en_US
-SET Text = '{1_Num : number "#.##"} from [ICON_CITIZEN] Population of [ICON_PUPPET] Puppet Cities.'
+SET Text = '{1_Num : number "#.##"} from [ICON_PUPPET] Puppet Cities.'
 WHERE Tag = 'TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES';
 
 UPDATE Language_en_US
