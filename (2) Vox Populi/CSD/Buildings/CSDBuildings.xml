@@ -1057,17 +1057,17 @@
 			<Yield>1</Yield>
 		</Row>
 		<Row>
-			<BuildingType>BUILDING_CHANCERY</BuildingType>
-			<YieldType>YIELD_GOLD</YieldType>
-			<Yield>1</Yield>
-		</Row>
-		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<YieldType>YIELD_CULTURE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldPerFriend>
 	<Building_YieldPerAlly>
+		<Row>
+			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
+			<YieldType>YIELD_FOOD</YieldType>
+			<Yield>1</Yield>
+		</Row>
 		<Row>
 			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
 			<YieldType>YIELD_FAITH</YieldType>
@@ -1080,8 +1080,13 @@
 		</Row>
 		<Row>
 			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
+			<YieldType>YIELD_CULTURE</YieldType>
+			<Yield>1</Yield>
+		</Row>
+		<Row>
+			<BuildingType>BUILDING_WIRE_SERVICE</BuildingType>
 			<YieldType>YIELD_SCIENCE</YieldType>
-			<Yield>2</Yield>
+			<Yield>1</Yield>
 		</Row>
 	</Building_YieldPerAlly>
 </GameData>
