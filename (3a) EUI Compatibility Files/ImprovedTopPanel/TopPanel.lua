@@ -1452,6 +1452,7 @@ if civ5_mode then
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_WAR_WEARINESS", WarWearinessUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUBLIC_OPINION", PublicOpinionUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_OCCUPIED_POPULATION", OccupationUnhappiness )
+			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES", PuppetUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_FAMINE", FamineUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_PILLAGED", PillagedTileUnhappiness )
 			tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_UNHAPPINESS_ISOLATION", IsolationUnhappiness )
