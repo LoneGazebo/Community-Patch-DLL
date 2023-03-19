@@ -30159,7 +30159,7 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 			  && m_orderQueue.getAt(currOrderIdx - 1)->eOrderType == ORDER_MAINTAIN
 			  && !IsProcessInternationalProject((ProcessTypes)m_orderQueue.getAt(currOrderIdx - 1)->iData1))
 			{
-				m_orderQueue.swapUp(currOrderIdx - 1);
+				swapOrder(currOrderIdx - 1);
 				currOrderIdx--;
 			}
 		}
