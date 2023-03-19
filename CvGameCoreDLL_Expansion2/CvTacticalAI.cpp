@@ -4816,7 +4816,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				continue;
 
 			//performance optimization ... careful because zero is a valid turn value
-			if(iNumTurnsAway>1 && plotDistance(*pLoopUnit->plot(),*pTarget)>3*iNumTurnsAway)
+			if(iNumTurnsAway>1 && plotDistance(*pLoopUnit->plot(),*pTarget)>5*iNumTurnsAway)
 				continue;
 
 			int iExtraScore = 0;
@@ -7457,12 +7457,10 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
 		if (iDanger / 2 > iRemainingHP && !bIsFrontlineCitadel && assumedPosition.getAggressionLevel() != AL_BRAVEHEART)
 		{
-			//if there is nothing we would cover or we are low on health, don't do it at all
-			if (iRemainingHP*(iNumAdjFriendlies+1) < 23)
+			//if there is nothing we would cover or we are low on health, don't do it
+			int iLowHealthThreshold = 37;
+			if (iRemainingHP*max(iNumAdjFriendlies,1) < iLowHealthThreshold)
 				return INT_MAX;
-			//if we cover one other unit, then maybe
-			else if (iNumAdjFriendlies == 1)
-				iResult -= 50;
 		}
 
 		//if we have friends around assume they will absorb some damage
@@ -7474,9 +7472,9 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		int iScaledDanger = (iDanger * /*100*/ GD_INT_GET(COMBAT_AI_OFFENSE_DANGERWEIGHT)) / max(1, pUnit->GetCurrHitPoints());
 
 		//danger values can get very high if there are many enemy units around, so try to normalize this a bit
-		//this maps 144 to 144, higher values get flattened
-		if (iScaledDanger > 144)
-			iScaledDanger = 12*sqrti(iScaledDanger);
+		//this maps 225 to 225, higher values get flattened
+		if (iScaledDanger > 225)
+			iScaledDanger = 15*sqrti(iScaledDanger);
 
 		//try to be more careful with highly promoted units
 		iScaledDanger += (pUnit->getExperienceTimes100() - GET_PLAYER(assumedPosition.getPlayer()).GetAvgUnitExp100()) / 200;
@@ -7500,13 +7498,13 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	{
 		//carrier really want to be surrounded
 		if (pUnit->AI_getUnitAIType() == UNITAI_CARRIER_SEA)
-			iResult += iNumAdjFriendlies;
+			iResult += iNumAdjFriendlies*11;
 		else
-			iResult++;
+			iResult+=7;
 	}
 	//when in doubt, stay under air cover
 	if (testPlot.hasAirCover())
-		iResult++;
+		iResult+=3;
 	//when in doubt, hide from the enemy
 	if (!testPlot.isVisibleToEnemy())
 		iResult++;
@@ -8481,7 +8479,9 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 				//if the current plot is good, assume we can stay here but recheck later.
 				//subtract a little for wasted movement points to balance out what we added in the ref assignment
-				gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, -unit.iMovesLeft/GC.getMOVE_DENOMINATOR(), unit.eStrategy, iBonus, A_FINISH_TEMP));
+				gPossibleMoves.push_back(
+					STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eStrategy, 
+						iBonus - unit.iMovesLeft / GC.getMOVE_DENOMINATOR(), A_FINISH_TEMP));
 			}
 			else
 				//if the current plot is bad, try to find another use for the unit
@@ -8556,12 +8556,11 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		}
 	}
 
+	//always add a 'do-nothing' move; this does not guarantee that it will get picked though
+	gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
+
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::sort(gPossibleMoves.begin(),gPossibleMoves.end());
-
-	//oops we're blocked with no valid move or only bad moves
-	if (gPossibleMoves.empty() || gPossibleMoves.front().iScore < 0)
-		gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
 
 	//don't return more than requested
 	if (gPossibleMoves.size() > (size_t)nMaxCount)
@@ -8676,6 +8675,8 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gOverAllChoices.insert( gOverAllChoices.end(), gPossibleMoves.begin(), gPossibleMoves.end() );
 	}
 
+	//note that this is a stable sort, meaning in case of ties the original order is maintained
+	//since we have a fixed cutoff, the simulation result depends on the order the moves were created in, ie the order of units
 	std::sort(gOverAllChoices.begin(), gOverAllChoices.end());
 	for (size_t i=0; i<gOverAllChoices.size(); i++)
 	{
@@ -8875,14 +8876,28 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 		//make sure we don't leave a unit in an impossible position
 		const CvTacticalPlot& tactPlot = getTactPlot(unit.iPlotIndex);
 		int iNextTurnScore = ScorePlotForMove(unit, tactPlot, SMovePlot(unit.iPlotIndex), *this, EM_FINAL).iScore;
-		if (iNextTurnScore <= TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
-			return false;
-
-		//everyone ends their turn unless the unit is blocked, then we may use them for other tasks
-		if (unit.eLastAssignment != A_BLOCKED)
+		if (iNextTurnScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 		{
-			//note we do not modify the total score; handing out points for both the move and the finish is double-dipping
-			assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
+			//if the score is acceptable, end their turn. unless the unit is blocked, then we may use them for other tasks
+			if (unit.eLastAssignment != A_BLOCKED)
+				//note we do not modify the total score; handing out points for both the move and the finish is double-dipping
+				assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
+		}
+		else
+		{
+			//cannot leave the unit in this place. instead replace the unit's last assignment with A_BLOCKED and hope for somebody else to assign a good move
+			STacticalAssignment* pLast = getLatestAssignmentMutable(unit.iUnitID);
+			if (pLast->eAssignmentType == A_FINISH_TEMP || pLast->eAssignmentType == A_MOVE)
+			{
+				//if we undo a move, need to undo the score
+				iScoreOverParent -= pLast->iScore;
+				iTotalScore -= pLast->iScore;
+
+				//this messes up some bookkeeping but at the end of the sim it should be ok?
+				*pLast = STacticalAssignment(pLast->iFromPlotIndex, pLast->iFromPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED);
+			}
+			else //too risky
+				return false;
 		}
 	}
 
@@ -9428,6 +9443,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 
 	//now deal with the consequences
 	bool bAffectsScore = true;
+	bool bEndOfSim = false;
 	switch (newAssignment.eAssignmentType)
 	{
 	case A_INITIAL:
@@ -9524,7 +9540,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	case A_FINISH_TEMP:
 	case A_BLOCKED:
 		bAffectsScore = false;
-		itUnit->iMovesLeft = 0;
+		bEndOfSim = true;
 		//todo: mark end turn plot? as opposed to transient blocks
 		break;
 	default:
@@ -9536,7 +9552,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	{
 		movePlotUpdateFlag = -1; //need to update all
 	}
-	else if (itUnit->iMovesLeft>0)
+	else if (itUnit->iMovesLeft>0 && !bEndOfSim)
 	{
 		//make sure we don't regress to a "lower" level
 		if (movePlotUpdateFlag==0) 
@@ -9557,7 +9573,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	}
 
 	//are we done or can we do further moves with this unit?
-	if (itUnit->iMovesLeft == 0)
+	if (itUnit->iMovesLeft == 0 || bEndOfSim)
 	{
 		if (IsCombatUnit(*itUnit) && newAssignment.eAssignmentType != A_BLOCKED)
 			getTactPlotMutable(itUnit->iPlotIndex).setCombatUnitEndTurn(*this,DomainForUnit(itUnit->pUnit));
@@ -10059,8 +10075,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	units are position according to their attack range (melee has range 1 for this purpose)
 	distance to enemy is main criterion, danger is secondary
-	ranged attack are always possible
-	melee attacks are accepted or not depending on aggression level
+	ranged attack are always possible; melee attacks are accepted or not depending on aggression level
+	final confirmation whether an assignement is acceptable happens only at the end
 
 	if aggression level is zero, we do not plan any attacks. only movement.
 		if target is friendly, we try to stay within N plots around it with melee units covering ranged units.
@@ -10245,11 +10261,12 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				for (size_t i = 0; i < openPositionsHeap.size(); i++)
 				{
 					if (openPositionsHeap[i]->addFinishMovesIfAcceptable(false))
-					{
 						completedPositions.push_back(openPositionsHeap[i]);
-						break;
-					}
 				}
+
+				//want at least 3, don't trust the results if we have less
+				if (completedPositions.size() < 3)
+					completedPositions.clear();
 			}
 			break;
 		}

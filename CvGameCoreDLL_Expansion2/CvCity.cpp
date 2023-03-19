@@ -18335,7 +18335,14 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	bool bPreviousGarrison = (m_hGarrison != -1);
 	CvUnit* pOldGarrison = bPreviousGarrison ? GET_PLAYER(getOwner()).getUnit(m_hGarrison) : NULL;
 	if (pOldGarrison)
-		pOldGarrison->SetGarrisonedCity(-1);
+	{
+		if (pOldGarrison == pUnit)
+			//nothing to do
+			return;
+		else
+			//will be replaced
+			pOldGarrison->SetGarrisonedCity(-1);
+	}
 
 	if (pUnit && pUnit->CanGarrison() && pUnit->getOwner() == getOwner())
 	{
