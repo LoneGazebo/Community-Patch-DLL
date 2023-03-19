@@ -13,6 +13,33 @@
 		</Expand>
 	</Type>
 
+	<Type Name="CvUnit">
+		<DisplayString>(id {m_iID}, M{m_iBaseCombat}R{m_iBaseRangedCombat}, player {m_eOwner}, at {m_iX}:{m_iY})</DisplayString>
+		<Expand>
+			<Item Name="m_iID">m_iID</Item>
+			<Item Name="m_eOwner">m_eOwner</Item>
+			<Item Name="m_iX">m_iX</Item>
+			<Item Name="m_iY">m_iY</Item>
+			<Item Name="m_iDamage">m_iDamage</Item>
+			<Item Name="m_iMoves">m_iMoves</Item>
+			<Item Name="m_iBaseCombat">m_iBaseCombat</Item>
+			<Item Name="m_iBaseRangedCombat">m_iBaseCombat</Item>
+			<Item Name="m_iArmyId">m_iArmyId</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="CvPlot">
+		<DisplayString>({m_iX}:{m_iY}, index {m_iPlotIndex}, owner {m_eOwner})</DisplayString>
+		<Expand>
+			<Item Name="m_iX">m_iX</Item>
+			<Item Name="m_iY">m_iY</Item>
+			<Item Name="m_iPlotIndex">m_iPlotIndex</Item>
+			<Item Name="m_eOwner">m_eOwner</Item>
+		</Expand>
+	</Type>
+
+	<!-- stl types -->
+	
 	<Type Name="std::pair&lt;*&gt;">
 		<DisplayString>({first}, {second})</DisplayString>
 		<Expand>
@@ -20,7 +47,6 @@
 			<Item Name="second">second</Item>
 		</Expand>
 	</Type>
-
 
 	<Type Name="std::tuple&lt;std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil,std::_Nil&gt;">
 		<DisplayString>()</DisplayString>
