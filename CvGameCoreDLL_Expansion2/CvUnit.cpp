@@ -153,6 +153,7 @@ CvUnit::CvUnit() :
 	, m_iSquadNumber()
 	, m_iSquadDestinationX()
 	, m_iSquadDestinationY()
+	, m_SquadEndMovementType()
 #endif
 	, m_bImmobile()
 	, m_iExperienceTimes100()
@@ -1438,6 +1439,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iSquadNumber = -1;
 	m_iSquadDestinationX = -1;
 	m_iSquadDestinationY = -1;
+	m_SquadEndMovementType = ALERT_ON_ARRIVAL;
 #endif
 	m_bImmobile = false;
 	m_iExperienceTimes100 = 0;
@@ -16050,7 +16052,7 @@ void CvUnit::TryEndSquadMovement()
 		return;
 	}
 
-	if (!IsSquadMoving())
+	if (!IsSquadMoving() && GetSquadEndMovementType() == WAKE_ON_ALL_ARRIVED)
 	{
 		// When squad is done moving, wake up all units
 		CvPlayer* pPlayer = &GET_PLAYER(getOwner());
@@ -16065,13 +16067,16 @@ void CvUnit::TryEndSquadMovement()
 	}
 	else if (!IsUnitInActiveMoveMission())
 	{
-		if(canSentry(plot()))
+		if (GetSquadEndMovementType() != WAKE_ON_EACH_UNIT_ARRIVED)
 		{
-			PushMission(CvTypes::getMISSION_ALERT());
-		}
-		else
-		{
-			PushMission(CvTypes::getMISSION_SLEEP());
+			if (canSentry(plot()))
+			{
+				PushMission(CvTypes::getMISSION_ALERT());
+			}
+			else
+			{
+				PushMission(CvTypes::getMISSION_SLEEP());
+			}
 		}
 	}
 }
@@ -16119,6 +16124,22 @@ CvPlot* CvUnit::GetSquadDestination()
 	{
 		return NULL;
 	}
+}
+
+//  --------------------------------------------------------------------------------
+SquadsEndMovementType CvUnit::GetSquadEndMovementType() const
+{
+	VALIDATE_OBJECT
+
+	return static_cast<SquadsEndMovementType>(m_SquadEndMovementType);
+}
+
+//  --------------------------------------------------------------------------------
+void CvUnit::SetSquadEndMovementType(SquadsEndMovementType endMovementType)
+{
+	VALIDATE_OBJECT
+
+	m_SquadEndMovementType = endMovementType;
 }
 
 //	--------------------------------------------------------------------------------
@@ -28108,6 +28129,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iSquadNumber);
 	visitor(unit.m_iSquadDestinationX);
 	visitor(unit.m_iSquadDestinationY);
+	visitor(unit.m_SquadEndMovementType);
 	visitor(unit.m_iArmyId);
 	visitor(unit.m_iBaseCombat);
 	visitor(unit.m_iBaseRangedCombat);

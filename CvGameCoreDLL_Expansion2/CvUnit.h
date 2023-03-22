@@ -171,6 +171,13 @@ enum AreaEffectType
 	AE_SIEGETOWER
 };
 
+enum SquadsEndMovementType
+{
+	ALERT_ON_ARRIVAL = 0,
+	WAKE_ON_EACH_UNIT_ARRIVED = 1,
+	WAKE_ON_ALL_ARRIVED = 2
+};
+
 class CvUnit
 {
 	friend class CvUnitMission;
@@ -642,6 +649,8 @@ public:
 	void SetSquadDestination(CvPlot* pDestPlot = NULL);
 	bool HasSquadDestination();
 	CvPlot* GetSquadDestination();
+	SquadsEndMovementType GetSquadEndMovementType() const;
+	void SetSquadEndMovementType(SquadsEndMovementType endMovementType);
 #endif
 
 	int GetRange() const;
@@ -2057,6 +2066,7 @@ protected:
 	int m_iSquadNumber;
 	int m_iSquadDestinationX;
 	int m_iSquadDestinationY;
+	int m_SquadEndMovementType;
 
 	int m_iHotKeyNumber;
 	int m_iDeployFromOperationTurn;
@@ -2510,6 +2520,7 @@ SYNC_ARCHIVE_VAR(int, m_iLinkedMaxMoves)
 SYNC_ARCHIVE_VAR(UnitIdContainer, m_LinkedUnitIDs)
 SYNC_ARCHIVE_VAR(int, m_iLinkedLeaderID)
 SYNC_ARCHIVE_VAR(int, m_iSquadNumber)
+SYNC_ARCHIVE_VAR(int, m_SquadEndMovementType)
 SYNC_ARCHIVE_VAR(int, m_iSquadDestinationX)
 SYNC_ARCHIVE_VAR(int, m_iSquadDestinationY)
 SYNC_ARCHIVE_VAR(int, m_iArmyId)

@@ -203,6 +203,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(AssignToSquad);
 	Method(RemoveFromSquad);
 	Method(DoSquadMovement);
+	Method(SetSquadEndMovementType);
 
 	Method(Range);
 	Method(NukeDamageLevel);
@@ -2537,6 +2538,16 @@ int CvLuaUnit::lDoSquadMovement(lua_State* L)
 	CvPlot* pkDestPlot = CvLuaPlot::GetInstance(L, 2);
 
 	pkUnit->DoSquadMovement(pkDestPlot);
+	return 0;
+}
+//------------------------------------------------------------------------------
+// SetSquadEndMovementType(SquadsEndMovementType endMovementType)
+int CvLuaUnit::lSetSquadEndMovementType(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const SquadsEndMovementType iNewValue = (SquadsEndMovementType)lua_tointeger(L, 2);
+
+	pkUnit->SetSquadEndMovementType(iNewValue);
 	return 0;
 }
 //------------------------------------------------------------------------------
