@@ -7861,7 +7861,7 @@ CityTaskResult CvCity::doTask(TaskTypes eTask, int iData1, int iData2, bool bOpt
 		break;
 
 	case TASK_NO_AUTO_ASSIGN_SPECIALISTS:
-		GetCityCitizens()->SetNoAutoAssignSpecialists(bOption);
+		GetCityCitizens()->SetNoAutoAssignSpecialists(bOption, true);
 		break;
 
 	case TASK_ADD_SPECIALIST:
