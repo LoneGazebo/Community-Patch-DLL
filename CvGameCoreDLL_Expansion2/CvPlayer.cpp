@@ -48083,7 +48083,7 @@ void CvPlayer::removeAnnexedMilitaryCityStates(PlayerTypes eMinor)
 {
 	for (std::vector< std::pair<PlayerTypes, int> >::const_iterator it = m_AnnexedMilitaryCityStatesUnitSpawnTurns.begin(); it != m_AnnexedMilitaryCityStatesUnitSpawnTurns.end(); ++it)
 	{
-		if ((*it).first != eMinor)
+		if ((*it).first == eMinor)
 		{
 			m_AnnexedMilitaryCityStatesUnitSpawnTurns.erase(it);
 			return;
