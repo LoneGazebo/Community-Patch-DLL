@@ -1036,7 +1036,8 @@ BOOL StackWalker::LoadModules()
 static StackWalker::PReadProcessMemoryRoutine s_readMemoryFunction = NULL;
 static LPVOID                                 s_readMemoryFunction_UserData = NULL;
 
-BOOL StackWalker::ShowCallstack(HANDLE                    hThread,
+BOOL StackWalker::ShowCallstack(int                       maxFrames,
+                                HANDLE                    hThread,
                                 const CONTEXT*            context,
                                 PReadProcessMemoryRoutine readMemoryFunction,
                                 LPVOID                    pUserData)
@@ -1267,7 +1268,7 @@ BOOL StackWalker::ShowCallstack(HANDLE                    hThread,
     bLastEntryCalled = false;
     this->OnCallstackEntry(et, csEntry);
 
-    if (s.AddrReturn.Offset == 0)
+    if (s.AddrReturn.Offset == 0 || frameNum>maxFrames)
     {
       bLastEntryCalled = true;
       this->OnCallstackEntry(lastEntry, csEntry);

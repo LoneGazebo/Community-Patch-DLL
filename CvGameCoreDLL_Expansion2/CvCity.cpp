@@ -18669,7 +18669,14 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	bool bPreviousGarrison = (m_hGarrison != -1);
 	CvUnit* pOldGarrison = bPreviousGarrison ? GET_PLAYER(getOwner()).getUnit(m_hGarrison) : NULL;
 	if (pOldGarrison)
-		pOldGarrison->SetGarrisonedCity(-1);
+	{
+		if (pOldGarrison == pUnit)
+			//nothing to do
+			return;
+		else
+			//will be replaced
+			pOldGarrison->SetGarrisonedCity(-1);
+	}
 
 	if (pUnit && pUnit->CanGarrison() && pUnit->getOwner() == getOwner())
 	{
@@ -18748,14 +18755,11 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 
 bool CvCity::HasGarrison() const
 {
-	if (MOD_CORE_DEBUGGING)
+	if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
 	{
-		if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
-		{
-			CUSTOMLOG("Invalid garrison %d is set in %s!\n", m_hGarrison, getName().c_str());
-			(const_cast<CvCity*>(this))->m_hGarrison = -1;
-			return false;
-		}
+		CUSTOMLOG("Invalid garrison %d is set in %s!\n", m_hGarrison, getName().c_str());
+		(const_cast<CvCity*>(this))->m_hGarrison = -1;
+		return false;
 	}
 
 	return m_hGarrison > -1;
@@ -28889,6 +28893,10 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 			return false;
 		}
 	}
+
+	//can't buy plot with enemy combat units
+	if (pTargetPlot->isEnemyUnit(getOwner(), true, false, false, true))
+		return false;
 
 	// Must be adjacent to a plot owned by this city
 	bool bFoundAdjacent = false;

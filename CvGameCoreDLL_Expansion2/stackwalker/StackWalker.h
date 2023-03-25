@@ -114,6 +114,7 @@ public:
   BOOL LoadModules();
 
   BOOL ShowCallstack(
+      int                       maxFrames = INT_MAX,
       HANDLE                    hThread = GetCurrentThread(),
       const CONTEXT*            context = NULL,
       PReadProcessMemoryRoutine readMemoryFunction = NULL,

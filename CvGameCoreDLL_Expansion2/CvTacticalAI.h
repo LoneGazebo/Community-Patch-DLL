@@ -344,6 +344,7 @@ public:
 	bool ShouldRebase(CvUnit* pUnit) const;
 
 	// Public logging
+	FILogFile* GetLogFile();
 	void LogTacticalMessage(const CvString& strMsg);
 
 	// Other people want to know this too
@@ -420,7 +421,7 @@ private:
 	void IdentifyPriorityTargetsByType();
 	void UpdateTargetScores();
 	void SortTargetListAndDropUselessTargets();
-	void DumpTacticalTargets(const char* hint);
+	void DumpTacticalTargets();
 
 	void ClearCurrentMoveUnits(AITacticalMove eNewMove);
 	void ExtractTargetsForZone(CvTacticalDominanceZone* pZone /* Pass in NULL for all zones */);
@@ -485,7 +486,7 @@ private:
 	bool IsMediumPriorityCivilianTarget(CvTacticalTarget* pTarget);
 
 	// Logging functions
-	CvString GetLogFileName(CvString& playerName) const;
+	CvString GetLogFileName(const CvString& playerName) const;
 
 	// Class data - some of it only temporary, does not need to be persisted
 	CvPlayer* m_pPlayer;
@@ -678,7 +679,7 @@ class CvTacticalPlot
 public:
 	enum eTactPlotDomain { TD_LAND, TD_SEA, TD_BOTH };
 
-	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const set<CvUnit*>& allOurUnits=set<CvUnit*>());
+	CvTacticalPlot(const CvPlot* plot=NULL, PlayerTypes ePlayer=NO_PLAYER, const vector<CvUnit*>& allOurUnits= vector<CvUnit*>());
 
 	const CvPlot* getPlot() const { return pPlot; }
 	int getPlotIndex() const { return pPlot ? pPlot->GetPlotIndex() : -1; }
@@ -872,6 +873,10 @@ public:
 	{
 		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
 		{
+			if (lhs->getScoreTotal() == rhs->getScoreTotal())
+				//equal ... try to use number of moves as a tiebraker
+				return lhs->getAssignments().size() < rhs->getAssignments().size();
+			
 			//regular descending sort. only makes sense for "completed" positions!
 			return lhs->getScoreTotal() > rhs->getScoreTotal();
 		}
@@ -894,7 +899,7 @@ public:
 		vector<CvTacticalPosition*>& openPositionsHeap, vector<CvTacticalPosition*>& completedPositions, const PrPositionSortHeapGeneration& heapSort);
 	void updateMovePlotsIfRequired();
 	bool findTactPlotRecursive(int iPlotIndex) const;
-	bool addTacticalPlot(const CvPlot* pPlot, const set<CvUnit*>& allOurUnits);
+	bool addTacticalPlot(const CvPlot* pPlot, const vector<CvUnit*>& allOurUnits);
 	bool addAvailableUnit(const CvUnit* pUnit);
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
 	int countChildren() const;
@@ -931,6 +936,7 @@ public:
 	const UnitIdContainer& getKilledEnemies() const { return killedEnemies; }
 	const int getNumEnemies() const { return nEnemies - killedEnemies.size(); }
 	const PlotIndexContainer& getFreedPlots() const { return freedPlots; }
+	const int getNumPlots() const { return (int)tactPlots.size(); }
 
 	//sort descending cumulative score. only makes sense for "completed" positions
 	bool operator<(const CvTacticalPosition& rhs) { return iTotalScore>rhs.iTotalScore; }

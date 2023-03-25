@@ -285,7 +285,7 @@ public:
 	bool isVisibleEnemyUnit(const CvUnit* pUnit) const;
 	bool isVisibleOtherUnit(PlayerTypes ePlayer) const;
 
-	//if there is a combat unit we can't stack. should really call CvUnit::CanStackWithUnitHere() but sometimes we don't know the unit yet
+	//if there is a combat unit we can't stack. should really call CvUnit::CanStackUnitAtPlot() but sometimes we don't know the unit yet
 	bool isEnemyUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreBarbs = false, bool bIgnoreEmbarked = false) const;
 	bool isNeutralUnit(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;
 	bool isNeutralUnitAdjacent(PlayerTypes ePlayer, bool bCombatOnly, bool bCheckVisibility, bool bIgnoreMinors = false) const;

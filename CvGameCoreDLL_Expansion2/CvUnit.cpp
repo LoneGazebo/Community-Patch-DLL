@@ -2322,7 +2322,8 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		{
 			pLog->Msg(CvString::format("\n%s %d killed by %d\n",getName().c_str(),GetID(),ePlayer).c_str());
 			gStackWalker.SetLog(pLog);
-			gStackWalker.ShowCallstack(GetCurrentThread());
+			gStackWalker.ShowCallstack(5,GetCurrentThread());
+			gStackWalker.SetLog(NULL);
 		}
 	}
 	*/
