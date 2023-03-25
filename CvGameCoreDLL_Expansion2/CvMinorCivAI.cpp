@@ -10302,6 +10302,9 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 		if(bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->GetAlly() == ePlayer)
 			continue;
 
+		if (bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->IsNoAlly())
+			continue;
+
 		if(bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->IsCoupAttempted(ePlayer))
 			continue;
 
