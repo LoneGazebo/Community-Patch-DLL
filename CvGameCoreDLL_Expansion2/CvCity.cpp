@@ -28894,8 +28894,8 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 		}
 	}
 
-	//can't buy plot with enemy combat units
-	if (pTargetPlot->isEnemyUnit(getOwner(), true, false, false, true))
+	//VP: can't buy plot with enemy combat units
+	if (MOD_BALANCE_VP && pTargetPlot->isEnemyUnit(getOwner(), true, false, false, true))
 		return false;
 
 	// Must be adjacent to a plot owned by this city

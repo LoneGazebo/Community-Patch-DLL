@@ -10129,7 +10129,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	{
 		CvUnit* pUnit = vUnits[i];
 
-		//do no use a set for enforcing uniqueness - the iteration order would depend on memory adress by default
+		//do not use a set for enforcing uniqueness - the iteration order would depend on memory address by default
 		//unfortunately the simulation result sometimes seems to depend on the order of the units being processed ...
 		if (std::find(ourUnits.begin(), ourUnits.end(), pUnit) != ourUnits.end())
 			continue;

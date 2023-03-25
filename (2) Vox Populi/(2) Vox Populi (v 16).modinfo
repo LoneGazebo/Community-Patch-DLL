@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.2.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="113" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="114" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -442,7 +442,7 @@
     <File md5="ED46B633E374A73B086D6BCFCCBDDA7A" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="2FBABDF9B63704C27B1B23A4A1A0D61B" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="586FBABE6542A708D8FF014F5C5F242F" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="E7C7EF26A47FC85A8619A2BA4F76374A" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="FB157DFCB88BE19FA855057B53532B92" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="32ACC8F57AE5AB4349CC5818E0DB9244" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="6E40563A26212F4EE4175893A41C42E9" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="1BCC0345CE3DBE680353A37C1CDEC605" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
@@ -687,7 +687,7 @@
     <File md5="E1ABC014DE1A639EE43EAE7F64922667" import="0">CSD/Art/XML/Icons.xml</File>
     <File md5="60EA7C6B159A67D2D7FB54BC732196D2" import="0">CSD/Buildings/BuildingRules.sql</File>
     <File md5="116987565D244CF3F9194304ADFC0791" import="0">CSD/Buildings/BuildingText.xml</File>
-    <File md5="A3A0179ACF8922634D82AE43AF200A02" import="0">CSD/Buildings/CSDBuildings.xml</File>
+    <File md5="59ECE8488E8A97EA26C898F60B857A01" import="0">CSD/Buildings/CSDBuildings.xml</File>
     <File md5="1AF3CC2EF9C371DB9E6D2F0525CB70A6" import="0">CSD/Buildings/DiploBuildingText.sql</File>
     <File md5="2BACCBDFCF69ADDF1F16006406D0CDBA" import="0">CSD/Buildings/BuildingGrowthYield.xml</File>
     <File md5="D68EBF039F03A031C146DA5E8DDFD452" import="0">CSD/Gameplay/UpdateDefines.sql</File>

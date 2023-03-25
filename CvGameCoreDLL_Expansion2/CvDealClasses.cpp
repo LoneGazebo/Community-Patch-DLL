@@ -651,10 +651,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pCity->getOwner() != ePlayer)
 				return false;
 
-			// Cannot trade damaged cities
-			if (pCity->getDamage() > 0)
-				return false;
-
 			// Can't trade a city to a human in an OCC game
 			if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pToPlayer->isHuman())
 				return false;
