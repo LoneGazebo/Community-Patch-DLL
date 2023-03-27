@@ -46680,7 +46680,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 		// Different majority religions?
 		if (eOurStateReligion != eTheirStateReligion && eTheirStateReligion != NO_RELIGION)
 		{
-			iOpinionWeight = /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS) * iEraMod;
+			iOpinionWeight = /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS) * iEraMod;
 		}
 	}
 	// We founded or conquered
@@ -46739,7 +46739,7 @@ int CvDiplomacyAI::GetReligionScore(PlayerTypes ePlayer)
 				// Otherwise, apply a penalty for different majority religions.
 				else
 				{
-					iOpinionWeight = /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_OWNED_RELIGIONS) * iEraMod;
+					iOpinionWeight = /*2*/ GD_INT_GET(OPINION_WEIGHT_DIFFERENT_STATE_RELIGIONS) * iEraMod;
 				}
 			}
 		}
