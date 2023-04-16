@@ -6,6 +6,7 @@ import time
 import tempfile
 from pathlib import Path
 import argparse
+from queue import Queue
 
 class Config(Enum):
     Release = 0
@@ -281,22 +282,22 @@ class Task:
             return None
 
 class TaskMan:
-    pending: list[Task]
+    pending: Queue
     def __init__(self):
-        self.pending = []
+        self.pending = Queue()
 
     def spawn(self, commands: typing.Union[str, list[str]], env: typing.Optional[dict[str, str]]=None, shell: bool=False, log:any =None):
         task = Task(commands, env=env, shell=shell, log=log)
-        self.pending.append(task)
+        self.pending.put(task)
 
     def wait(self) -> list[TaskResult]:
         results: list[TaskResult] = []
-        while len(self.pending) != 0:
-            task = self.pending.pop()
+        while not self.pending.empty():
+            task = self.pending.get()
             if result := task.poll():
                 results.append(result)
             else:
-                self.pending.insert(0, task) # FIXME FIXME FIXME : USE A QUEUE INSTEAD THIS IS DUMB!!
+                self.pending.put(task)
         return results
 
 def build_cl_config_args(config: Config) -> list[str]:
