@@ -2799,8 +2799,9 @@ bool CvPlayerEspionage::CanMoveSpyTo(CvCity* pCity, uint uiSpyIndex, bool bAsDip
 			return false;
 		}
 	}
-	else if(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	else if(MOD_BALANCE_CORE_SPIES_ADVANCED && pCity->getOwner() != ePlayerID)
 	{
+		// check if any offensive spy mission possible (only for foreign cities)
 		bool bEventsPossible = false;
 		for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 		{
