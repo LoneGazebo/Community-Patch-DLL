@@ -29,7 +29,7 @@ local g_RankOffsets = {
 		TXT_KEY_SPY_RANK_1 = {x = 0,y = 21},
 		TXT_KEY_SPY_RANK_2 = {x = 0,y = 0}
 };
-	
+
 -- Progressbar state information based on agent activity.
 local g_ProgressBarStates = {
 	TXT_KEY_SPY_STATE_TRAVELLING = {
@@ -61,7 +61,7 @@ local g_ProgressBarStates = {
 		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
 }
-	
+
 -- Agent text color based on agent activity.
 local g_TextColors = {
 	TXT_KEY_SPY_STATE_TRAVELLING           = {x =  94/255, y = 237/255, z = 105/255, w = 255/255},
@@ -79,7 +79,7 @@ g_Tabs = {
 		Panel = Controls.OverviewPanel,
 		SelectHighlight = Controls.OverviewSelectHighlight,
 	},
-	
+
 	["Intrigue"] = {
 		Panel = Controls.IntriguePanel,
 		SelectHighlight = Controls.IntrigueSelectHighlight,
@@ -142,7 +142,7 @@ g_YourCitiesSortOptions = {
 		CurrentDirection = nil,
 	},
 };
-								
+
 g_TheirCitiesSortOptions = {
 	{
 		Button = Controls.OCSortByCivilization,
@@ -217,15 +217,15 @@ g_CitiesAvailableToRelocate = nil;
 -------------------------------------------------
 -------------------------------------------------
 function OnPopupMessage(popupInfo)
-	
+
 	if (not Game.IsOption("GAMEOPTION_NO_ESPIONAGE")) then
 		local popupType = popupInfo.Type;
 		if popupType ~= ButtonPopupTypes.BUTTONPOPUP_ESPIONAGE_OVERVIEW then
 			return;
 		end
-		
+
 		g_PopupInfo = popupInfo;
-		
+
 		if( g_PopupInfo.Data1 == 1 ) then
     		if( ContextPtr:IsHidden() == false ) then
     			OnClose();
@@ -236,7 +236,7 @@ function OnPopupMessage(popupInfo)
 			UIManager:QueuePopup( ContextPtr, PopupPriority.SocialPolicy );
 		end
     end
-   	
+
 end
 Events.SerialEventGameMessagePopup.Add( OnPopupMessage );
 
@@ -254,9 +254,9 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 function InputHandler( uiMsg, wParam, lParam )
-    ----------------------------------------------------------------        
+    ----------------------------------------------------------------
     -- Key Down Processing
-    ----------------------------------------------------------------        
+    ----------------------------------------------------------------
     if uiMsg == KeyEvents.KeyDown then
         if (wParam == Keys.VK_ESCAPE) then
 			if(Controls.ChooseConfirm:IsHidden())then
@@ -266,7 +266,7 @@ function InputHandler( uiMsg, wParam, lParam )
            	end
 			return true;
         end
-        
+
         -- Do Nothing.
         if(wParam == Keys.VK_RETURN) then
 			return true;
@@ -289,15 +289,15 @@ end
 function ShowHideHandler( bIsHide, bInitState )
     if( not bInitState ) then
         if( not bIsHide ) then
-        	UI.incTurnTimerSemaphore(); 
-        	
+        	UI.incTurnTimerSemaphore();
+
 			if(g_RenaissanceEraType ~= nil) then
 				local activePlayer = Players[Game.GetActivePlayer()];
 				local bUseModern = activePlayer:GetCurrentEra() > g_RenaissanceEraType;
 				Controls.ModernBackground:SetHide(not bUseModern);
 				Controls.EarlyBackground:SetHide(bUseModern);
 			end
-        	
+
         	Events.SerialEventGameMessagePopupShown(g_PopupInfo);
         	TabSelect(g_CurrentTab);
         else
@@ -316,7 +316,7 @@ function TabSelect(tab)
 		v.Panel:SetHide(bHide);
 		v.SelectHighlight:SetHide(bHide);
 	end
-	g_CurrentTab = tab;	
+	g_CurrentTab = tab;
 	Refresh();
 end
 Controls.TabButtonOverview:RegisterCallback( Mouse.eLClick, function() TabSelect("Overview"); end);
@@ -326,31 +326,31 @@ Controls.TabButtonIntrigue:RegisterCallback( Mouse.eLClick, function() TabSelect
 -------------------------------------------------------------------------------
 Controls.CancelButton:RegisterCallback(Mouse.eLClick, function() Refresh(); end);
 function RelocateAgent(agentID, city)
-	local activePlayer = Players[Game.GetActivePlayer()];	
-	local availableCitiesToRelocate = activePlayer:GetAvailableSpyRelocationCities(agentID); 
-	
+	local activePlayer = Players[Game.GetActivePlayer()];
+	local availableCitiesToRelocate = activePlayer:GetAvailableSpyRelocationCities(agentID);
+
 	g_SelectedAgentID = agentID;
 	g_SelectedCity = city;
 	g_CitiesAvailableToRelocate = availableCitiesToRelocate;
-	
-	RefreshMyCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate); 
-	RefreshTheirCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate); 
-	
+
+	RefreshMyCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate);
+	RefreshTheirCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate);
+
 	Controls.UnassignButton:RegisterCallback(Mouse.eLClick, function()
 		g_ConfirmAction = function()
 			Network.SendMoveSpy(Game.GetActivePlayer(), g_SelectedAgentID, -1, -1, false);
 			Refresh();
 		end
 		g_DenyAction = nil;
-		
+
 		local agent = nil;
 		local agents = activePlayer:GetEspionageSpies();
 		for i,v in ipairs(agents) do
 			if(v.AgentID == g_SelectedAgentID) then
 				agent = v;
-			end	
+			end
 		end
-		
+
 		Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_EO_MOVE_SPY_TO_HIDEOUT_CHECK", agent.Rank, agent.Name);
 		Controls.ConfirmContent:CalculateSize();
 		local width, height = Controls.ConfirmContent:GetSizeVal();
@@ -360,40 +360,40 @@ function RelocateAgent(agentID, city)
 		Controls.NoString:LocalizeAndSetText("TXT_KEY_NO_BUTTON");
 	end);
 
-	
+
 	local agent = nil;
 	local agents = activePlayer:GetEspionageSpies();
-	
+
 	for i,v in ipairs(agents) do
 		if(v.AgentID == g_SelectedAgentID) then
 			agent = v;
-		end	
+		end
 	end
-	
+
 	local map = Map;
 	local rankOffsets = g_RankOffsets;
 	local progressBarStates = g_ProgressBarStates;
-		
-		
+
+
 	if (agent.State == "TXT_KEY_SPY_STATE_SURVEILLANCE" and agent.TurnsLeft < 0) then
 		agent.AgentActivity = Locale.Lookup("TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE");
 	else
-		agent.AgentActivity = Locale.Lookup(agent.State);	
-	end		
+		agent.AgentActivity = Locale.Lookup(agent.State);
+	end
 
-	Controls.AgentRank:SetTextureOffset(rankOffsets[agent.Rank]);	
+	Controls.AgentRank:SetTextureOffset(rankOffsets[agent.Rank]);
 	Controls.AgentName:LocalizeAndSetText(agent.Name);
-	Controls.AgentName:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NAMEPLATE_TT", agent.Rank, agent.Name); 
-	
+	Controls.AgentName:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NAMEPLATE_TT", agent.Rank, agent.Name);
+
 	local szSpyRankTooltip = activePlayer:GetInfluenceSpyRankTooltip (agent.Name, agent.Rank, -1, OptionsManager.IsNoBasicHelp(), agent.AgentID);
 	Controls.AgentRank:SetToolTipString(szSpyRankTooltip);
 	Controls.AgentIcon:SetToolTipString(szSpyRankTooltip);
 	Controls.AgentLocationActionsPanel:SetHide(false);
 	Controls.AgentActivityPanel:SetHide(false);
-	
-	Controls.AgentLocation:LocalizeAndSetText("TXT_KEY_SPY_LOCATION_UNASSIGNED");	
+
+	Controls.AgentLocation:LocalizeAndSetText("TXT_KEY_SPY_LOCATION_UNASSIGNED");
 	Controls.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NEEDS_ASSIGNMENT_TT");
-	
+
 	Controls.AgentLocationIcon:SetHide(true);
 	Controls.AgentLocationIconBG:SetHide(true);
 	Controls.AgentLocationIconShadow:SetHide(true);
@@ -404,8 +404,8 @@ function RelocateAgent(agentID, city)
 	if(plot ~= nil) then
 		city = plot:GetPlotCity();
 		if(city ~= nil) then
-			
-			Controls.AgentLocationIcon:SetHide(false);	
+
+			Controls.AgentLocationIcon:SetHide(false);
 			Controls.AgentLocationIconBG:SetHide(false);
 			Controls.AgentLocationIconShadow:SetHide(false);
 			Controls.CivIconHighlight:SetHide(false);
@@ -413,10 +413,10 @@ function RelocateAgent(agentID, city)
 			CivIconHookup(city:GetOwner(), 32, Controls.AgentLocationIcon, Controls.AgentLocationIconBG, Controls.AgentLocationIconShadow, false, true, Controls.CivIconHighlight);
 
 			Controls.AgentLocation:LocalizeAndSetText(city:GetName());
-			
+
 			Controls.AgentLocationIcon:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", agent.Rank, agent.Name, city:GetName());
 			Controls.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", agent.Rank, agent.Name, city:GetName());
-	
+
 			szSpyRankTooltip = activePlayer:GetInfluenceSpyRankTooltip (agent.Name, agent.Rank, plot:GetOwner(), OptionsManager.IsNoBasicHelp(), agent.AgentID);
 			Controls.AgentRank:SetToolTipString(szSpyRankTooltip);
 			Controls.AgentIcon:SetToolTipString(szSpyRankTooltip);
@@ -435,7 +435,7 @@ function RelocateAgent(agentID, city)
 			strActivityTT = activePlayer:GetSpyChanceAtCity(city, agent.AgentID, OptionsManager.IsNoBasicHelp());
 		end
 	end
-	
+
 	Controls.AgentActivity:SetToolTipString(strActivityTT);
 	Controls.AgentActivityProgressFrame:SetHide(bHideActivityInfo);
 	Controls.AgentActivityProgressFrame:SetToolTipString(strActivityTT);
@@ -445,13 +445,13 @@ function RelocateAgent(agentID, city)
 	Controls.AgentActivityProgressBack:SetToolTipString(strActivityTT);
 	Controls.AgentActivityIcon:SetHide(bHideActivityInfo);
 	Controls.AgentActivityIcon:SetToolTipString(strActivityTT);
-	
+
 	Controls.AgentActivityPanel:SetHide(bHideActivityInfo);
 	if(not bHideActivityInfo) then
-		
+
 		local progressBarState = progressBarStates[agent.State];
 		Controls.AgentActivityIcon:SetTextureOffset(progressBarState.IconOffset);
-		
+
 		if (progressBarState.ProgressBarTexture) then
 			Controls.AgentActivityProgress:SetHide(false);
 			Controls.AgentActivityProgressBack:SetHide(false);
@@ -462,26 +462,26 @@ function RelocateAgent(agentID, city)
 			Controls.AgentActivityProgress:SetTexture(progressBarState.ProgressBarTexture);
 			local progresspct = progress/100;
 			local nextprogresspct = progresspct + (1 - progresspct)/agent.TurnsLeft;
-			Controls.AgentActivityProgress:SetPercents( progresspct, nextprogresspct );						
-		else 
+			Controls.AgentActivityProgress:SetPercents( progresspct, nextprogresspct );
+		else
 			Controls.AgentActivityProgress:SetHide(true);
 			Controls.AgentActivityProgressFrame:SetHide(true);
 			Controls.AgentActivityProgressBack:SetHide(true);
 		end
-		
+
 		if (agent.TurnsLeft >= 0) then
 			Controls.AgentProgress:LocalizeAndSetText("TXT_KEY_STR_TURNS", agent.TurnsLeft);
 		else
 			if (agent.State == "TXT_KEY_SPY_STATE_SURVEILLANCE") then
 				Controls.AgentProgress:LocalizeAndSetText("TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR");
 			else
-				Controls.AgentProgress:SetText("");			
+				Controls.AgentProgress:SetText("");
 			end
-		end		
+		end
 	else
 		Controls.AgentProgress:SetText("");
 	end
-			
+
 	Controls.RelocateInstructions:LocalizeAndSetText("TXT_KEY_MOVE_SPY_INSTRUCTIONS", agent.Rank, agent.Name);
 	Controls.AgentMovePanel:SetHide(false);
 	Controls.AgentsListBox:SetHide(true);
@@ -493,27 +493,27 @@ function RefreshAgents()
 
 	--print("Refreshing Agents");
 	g_AgentManager:ResetInstances();
-	
+
 	local map = Map;
 	local rankOffsets = g_RankOffsets;
 	local progressBarStates = g_ProgressBarStates;
-			
+
 	local bTickTock = true;
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local agents = pActivePlayer:GetEspionageSpies();
-	
+
 	local bHasAgents = #agents ~= 0;
 	Controls.NoMoreSpiesLabel:SetHide(bHasAgents);
-	
+
 	for i,v in ipairs(agents) do
 		if (v.State == "TXT_KEY_SPY_STATE_SURVEILLANCE" and v.TurnsLeft < 0) then
 			v.AgentActivity = Locale.Lookup("TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE");
 		else
-			v.AgentActivity = Locale.Lookup(v.State);	
+			v.AgentActivity = Locale.Lookup(v.State);
 		end
-		
+
 		v.AgentName = Locale.Lookup(v.Name);
-		
+
 		v.AgentLocation = Locale.Lookup("TXT_KEY_SPY_LOCATION_UNASSIGNED");
 		local plot = map.GetPlot(v.CityX, v.CityY);
 		if(plot ~= nil) then
@@ -521,21 +521,21 @@ function RefreshAgents()
 			if(city ~= nil) then
 				v.AgentLocation = Locale.Lookup(city:GetName());
 			end
-		end		
+		end
 	end
-	
+
 	table.sort(agents, g_AgentsSortFunction);
-		
+
 	for i,v in ipairs(agents) do
-	
+
 		local agentEntry = g_AgentManager:GetInstance();
-		
-		agentEntry.AgentRank:SetTextureOffset(rankOffsets[v.Rank]);	
+
+		agentEntry.AgentRank:SetTextureOffset(rankOffsets[v.Rank]);
 		agentEntry.AgentName:LocalizeAndSetText(v.Name);
-		agentEntry.AgentName:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NAMEPLATE_TT", v.Rank, v.Name); 
+		agentEntry.AgentName:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NAMEPLATE_TT", v.Rank, v.Name);
 		local szSpyRankTooltip = pActivePlayer:GetInfluenceSpyRankTooltip (v.Name, v.Rank, -1, OptionsManager.IsNoBasicHelp(), v.AgentID);
 		agentEntry.AgentRank:SetToolTipString(szSpyRankTooltip);
-		
+
 		if (v.IsDiplomat) then
 			agentEntry.DiplomatIcon:SetToolTipString(szSpyRankTooltip);
 			agentEntry.DiplomatIcon:SetHide(false);
@@ -545,24 +545,24 @@ function RefreshAgents()
 			agentEntry.AgentIcon:SetHide(false);
 			agentEntry.DiplomatIcon:SetHide(true);
 		end
-		
-		
+
+
 		if(v.State == "TXT_KEY_SPY_STATE_DEAD") then
 			agentEntry.AgentLocationActionsPanel:SetHide(true);
 			agentEntry.AgentActivityPanel:SetHide(true);
 			agentEntry.AgentKIAPanel:SetHide(false);
-			
+
 			agentEntry.Base:SetColorVal(0,0,0,0);
 			bTickTock = not bTickTock;
-			
+
 		else
 			agentEntry.AgentLocationActionsPanel:SetHide(false);
 			agentEntry.AgentActivityPanel:SetHide(false);
 			agentEntry.AgentKIAPanel:SetHide(true);
-			
-			agentEntry.AgentLocation:SetText(v.AgentLocation);	
+
+			agentEntry.AgentLocation:SetText(v.AgentLocation);
 			agentEntry.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NEEDS_ASSIGNMENT_TT");
-			
+
 			agentEntry.Base:SetColorVal(unpack(bTickTock and g_PianoKeys[0] or g_PianoKeys[1]));
 			bTickTock = not bTickTock;
 
@@ -577,27 +577,27 @@ function RefreshAgents()
 				city = plot:GetPlotCity();
 				if(city ~= nil) then
 					local cityOwner = Players[city:GetOwner()];
-				
-					agentEntry.AgentLocationIcon:SetHide(false);	
+
+					agentEntry.AgentLocationIcon:SetHide(false);
 					agentEntry.AgentLocationIconBG:SetHide(false);
 					agentEntry.AgentLocationIconShadow:SetHide(false);
 					agentEntry.CivIconHighlight:SetHide(false);
-							
+
 					CivIconHookup(city:GetOwner(), 32, agentEntry.AgentLocationIcon, agentEntry.AgentLocationIconBG, agentEntry.AgentLocationIconShadow, false, true, agentEntry.CivIconHighlight);
-								
+
 					agentEntry.AgentLocationIcon:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", v.Rank, v.Name, city:GetName());
 					agentEntry.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", v.Rank, v.Name, city:GetName());
-		
+
 					szSpyRankTooltip = pActivePlayer:GetInfluenceSpyRankTooltip (v.Name, v.Rank, plot:GetOwner(), OptionsManager.IsNoBasicHelp(), v.AgentID);
 					agentEntry.AgentRank:SetToolTipString(szSpyRankTooltip);
 					agentEntry.AgentIcon:SetToolTipString(szSpyRankTooltip);
 				end
 			end
-		
+
 			local bHideActivityInfo = progressBarStates[v.State] == nil;
 
 			agentEntry.AgentActivity:SetText(v.AgentActivity);
-			
+
 			local strActivityTT = Locale.Lookup("TXT_KEY_EO_SPY_NEEDS_ASSIGNMENT_TT");
 			local city = nil;
 			if(plot ~= nil) then
@@ -606,7 +606,7 @@ function RefreshAgents()
 					strActivityTT = pActivePlayer:GetSpyChanceAtCity(city, v.AgentID, OptionsManager.IsNoBasicHelp());
 				end
 			end
-			
+
 			agentEntry.AgentActivity:SetToolTipString(strActivityTT);
 			agentEntry.AgentActivityProgressFrame:SetHide(bHideActivityInfo);
 			agentEntry.AgentActivityProgressFrame:SetToolTipString(strActivityTT);
@@ -616,12 +616,12 @@ function RefreshAgents()
 			agentEntry.AgentActivityProgressBack:SetToolTipString(strActivityTT);
 			agentEntry.AgentActivityIcon:SetHide(bHideActivityInfo);
 			agentEntry.AgentActivityIcon:SetToolTipString(strActivityTT);
-			
+
 			if(not bHideActivityInfo) then
-				
+
 				local progressBarState = progressBarStates[v.State];
 				agentEntry.AgentActivityIcon:SetTextureOffset(progressBarState.IconOffset);
-				
+
 				if (progressBarState.ProgressBarTexture) then
 					agentEntry.AgentActivityProgress:SetHide(false);
 					agentEntry.AgentActivityProgressBack:SetHide(false);
@@ -632,34 +632,34 @@ function RefreshAgents()
 					agentEntry.AgentActivityProgress:SetTexture(progressBarState.ProgressBarTexture);
 					local progresspct = progress/100;
 					local nextprogresspct = progresspct + (1 - progresspct)/v.TurnsLeft;
-					agentEntry.AgentActivityProgress:SetPercents( progresspct, nextprogresspct );						
-				else 
+					agentEntry.AgentActivityProgress:SetPercents( progresspct, nextprogresspct );
+				else
 					agentEntry.AgentActivityProgress:SetHide(true);
 					agentEntry.AgentActivityProgressFrame:SetHide(true);
 					agentEntry.AgentActivityProgressBack:SetHide(true);
 				end
-				
-				
+
+
 				if (v.TurnsLeft >= 0) then
 					agentEntry.AgentProgress:LocalizeAndSetText("TXT_KEY_STR_TURNS", v.TurnsLeft);
 				else
 					if (v.State == "TXT_KEY_SPY_STATE_SURVEILLANCE") then
 						agentEntry.AgentProgress:LocalizeAndSetText("TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR");
 					else
-						agentEntry.AgentProgress:SetText("");			
+						agentEntry.AgentProgress:SetText("");
 					end
-				end		
+				end
 			else
 				agentEntry.AgentProgress:SetText("");
 			end
-			
+
 			agentEntry.RelocateButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_MOVE_TT", v.Rank, v.Name);
 			agentEntry.RelocateButton:SetDisabled(v.State == "TXT_KEY_SPY_STATE_DEAD");
 			agentEntry.RelocateButton:RegisterCallback(Mouse.eLClick, function()
 				RelocateAgent(v.AgentID, city);
 			end);
-			
-			
+
+
 			-- CITY SCREEN CLOSED - Don't look, Marc
 			local CityScreenClosed = function()
 				UIManager:DequeuePopup(Controls.EmptyPopup);
@@ -667,10 +667,10 @@ function RefreshAgents()
 				Events.SerialEventExitCityScreen.Remove(CityScreenClosed);
 				UI.SetCityScreenViewingMode(false);
 			end
-		
+
 			-- Initialize 'View City' button.
 			local OnViewCityClicked = function()
-				
+
 				if (city ~= nil) then
 					print("Attempting to show city screen");
 					-- Queue up an empty popup at a higher priority so that it prevents other cities from appearing while we're looking at this one!
@@ -682,14 +682,14 @@ function RefreshAgents()
 					print("city == null");
 				end
 			end
-		
-		
-			local OnCoupClicked =  function()		
+
+
+			local OnCoupClicked =  function()
 				g_ConfirmAction = function()
 					Network.SendStageCoup(Game.GetActivePlayer(), v.AgentID);
 				end
 				g_DenyAction = nil;
-				
+
 				if (city ~= nil) then
 					local iCityAlly = Players[city:GetOwner()]:GetAlly();
 					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_EO_STAGE_COUP_QUESTION", v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationAdjectiveKey(), Players[Game.GetActivePlayer()]:GetCoupChanceOfSuccess(city, true), city:GetNameKey(), Players[iCityAlly]:GetCivilizationDescriptionKey(), city:GetNameKey(), v.Rank, v.Name, city:GetNameKey());
@@ -701,7 +701,7 @@ function RefreshAgents()
 					Controls.NoString:LocalizeAndSetText("TXT_KEY_NO_BUTTON");
 				end
 			end;
-			
+
 			if (city and Players[city:GetOwner()]:IsMinorCiv()) then
 				local bCoupDisabled = not pActivePlayer:CanSpyStageCoup(v.AgentID) or v.State == "TXT_KEY_SPY_STATE_DEAD";
 				agentEntry.StageCoupButton:SetDisabled(bCoupDisabled);
@@ -730,22 +730,22 @@ function RefreshAgents()
 				else
 					agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_ENABLED_TT", v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationAdjectiveKey(), Players[Game.GetActivePlayer()]:GetCoupChanceOfSuccess(city, true), v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationShortDescriptionKey(), v.Rank, v.Name, city:GetNameKey());
 				end
-			
+
 				agentEntry.ViewCityButton:SetHide(true);
-				agentEntry.StageCoupButton:SetHide(false);	
+				agentEntry.StageCoupButton:SetHide(false);
 			else
 				local bIsDiplomat = pActivePlayer:IsSpyDiplomat(v.AgentID);
 				local bIsSchmoozing = pActivePlayer:IsSpySchmoozing(v.AgentID);
 				local bViewDisabled = not pActivePlayer:HasSpyEstablishedSurveillance(v.AgentID) or v.State == "TXT_KEY_SPY_STATE_DEAD"
 				agentEntry.ViewCityButton:SetDisabled(bViewDisabled and not bIsSchmoozing);
-				agentEntry.ViewCityButton:RegisterCallback(Mouse.eLClick, OnViewCityClicked);	
+				agentEntry.ViewCityButton:RegisterCallback(Mouse.eLClick, OnViewCityClicked);
 				if (v.State == "TXT_KEY_SPY_STATE_DEAD") then
 					agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", v.Rank, v.Name);
 				elseif (city) then
 					if (bIsDiplomat and not bIsSchmoozing) then
 						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_DIPLOMAT_WAIT_TT", city:GetNameKey());
 					elseif (city:GetOwner() == Game.GetActivePlayer()) then
-						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_YOUR_CITY_TT", city:GetNameKey());						
+						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_YOUR_CITY_TT", city:GetNameKey());
 					elseif (bViewDisabled and not bIsSchmoozing) then
 						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_WAIT_TT", city:GetNameKey());
 					elseif (bIsSchmoozing) then
@@ -756,16 +756,16 @@ function RefreshAgents()
 				else
 					agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_NO_CITY_TT");
 				end
-				
+
 				agentEntry.ViewCityButton:SetHide(false);
-				agentEntry.StageCoupButton:SetHide(true);		
+				agentEntry.StageCoupButton:SetHide(true);
 			end
-			
+
 			agentEntry.AgentActivitiesStack:CalculateSize();
 			agentEntry.AgentActivitiesStack:ReprocessAnchoring();
 		end
 	end
-	
+
 	Controls.AgentStack:CalculateSize();
 	Controls.AgentStack:ReprocessAnchoring();
 	Controls.AgentScrollPanel:CalculateInternalSize();
@@ -782,38 +782,38 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 	local eActiveTeam = pActivePlayer:GetTeam();
 	local textColors = g_TextColors;
 	local agents = pActivePlayer:GetEspionageSpies();
-	
+
 	local agentsByPlayer = {};
 	for i,v in ipairs(agents) do
 		local plot = map.GetPlot(v.CityX, v.CityY);
 		if(plot ~= nil) then
 			local city = plot:GetPlotCity();
-			
+
 			if(city ~= nil) then
 				local ownerID = city:GetOwner();
 				local cityID = city:GetID();
 				local playerCities = agentsByPlayer[ownerID];
-			
+
 				if(playerCities == nil) then
 					playerCities = {};
 					agentsByPlayer[ownerID] = playerCities;
 				end
-				
+
 				playerCities[cityID] = v;
 			end
 		end
 	end
-	
-	function GetAgentForCity(playerID, cityID) 
+
+	function GetAgentForCity(playerID, cityID)
 		local playerCities = agentsByPlayer[playerID];
 		if(playerCities ~= nil) then
 			return playerCities[cityID];
 		end
 	end
-	
+
 	g_MyCityManager:ResetInstances();
 	g_MyCityButtonManager:ResetInstances();
-	
+
 	function CityAvailableForRelocate(city)
 		if(citiesAvailableForRelocate ~= nil) then
 			for i,v in ipairs(citiesAvailableForRelocate) do
@@ -822,18 +822,18 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 				end
 			end
 		end
-		
+
 		return false;
 	end
-			
+
 	local cityStatus = pActivePlayer:GetEspionageCityStatus();
-	
+
 	local civilization = GameInfo.Civilizations[pActivePlayer:GetCivilizationType()];
 	local myCivilizationNameKey = pActivePlayer:GetCivilizationShortDescriptionKey();
 	local myCivilizationName = Locale.Lookup(myCivilizationNameKey);
 	local myCivIconAtlas = civilization.IconAtlas;
 	local myCivPortraitIndex = civilization.PortraitIndex;
-	
+
 	local myCityStatus = {};
 	for i,v in ipairs(cityStatus) do
 		if(v.PlayerID == Game.GetActivePlayer()) then
@@ -841,16 +841,16 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 			table.insert(myCityStatus, v);
 		end
 	end
-	
+
 	table.sort(myCityStatus, g_YourCitiesSortFunction);
-	
+
 	local bTickTock = true;
-	
+
 	function ApplyGenericEntrySettings(entry, cityInfo, agent, bTickTock)
 		entry.Base:SetColorVal(unpack(bTickTock and g_PianoKeys[0] or g_PianoKeys[1]));
-		
+
 		CivIconHookup(Game.GetActivePlayer(), 32, entry.CivIcon, entry.CivIconBG, entry.CivIconShadow, false, true, entry.CivIconHighlight);
-		
+
 		entry.CivilizationName:SetText(myCivilizationName);
 		entry.CivilizationName:SetAlpha(1.0);
 -- CBP EDIT
@@ -860,7 +860,7 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 		if(pCity ~= nil) then
 			if(pCity:IsCapital())then
 				if (GameInfo.Civilizations[cityInfo.CivilizationType].Type ~= "CIVILIZATION_MINOR") then
-					entry.CapitalCityIcon:SetHide(false);	
+					entry.CapitalCityIcon:SetHide(false);
 					entry.CapitalCityIcon:LocalizeAndSetToolTip("TXT_KEY_YOUR_CAPITAL_CBP_SPY", cityInfo.Name);
 				end
 			end
@@ -868,39 +868,38 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 -- END
 		entry.CityName:LocalizeAndSetText(cityInfo.Name);
 		entry.CityName:SetAlpha(1.0);
-		
+
 		local strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_CITY_NAME_TT", cityInfo.Name, myCivilizationNameKey);
 		local strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_CITY_CIV_TT", cityInfo.Name, myCivilizationNameKey);
 
-		entry.PotentialMeterFront:SetHide(true); 
-					
+		entry.PotentialMeterFront:SetHide(true);
+
 		local width, height = entry.PotentialMeterBack:GetSizeVal();
-		
+
 		local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
-		
+
 		if(cityInfo.BasePotential > 0) then
 			strPotentialToolTip = pActivePlayer:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
-		
+
 			local potentialMeter = entry.PotentialMeterFront;
 			potentialMeter:SetHide(false);
-			
+
 			local pct = cityInfo.BasePotential/cityInfo.LargestBasePotential;
 			potentialMeter:SetPercents(pct,pct);
 		end
-		
+
 		entry.PotentialMeterBack:SetToolTipString(strPotentialToolTip);
 		entry.PotentialMeterFront:SetToolTipString(strPotentialToolTip);
-		
+
 
 		entry.CivIcon:SetToolTipString(strCityCivToolTip);
 		entry.CivilizationName:SetToolTipString(strCityCivToolTip);
-		entry.CityName:SetToolTipString(strCityNameToolTip);		
+		entry.CityName:SetToolTipString(strCityNameToolTip);
 		entry.CityPopulation:SetText(cityInfo.Population);
 		entry.CityPopulation:SetAlpha(1.0);
 		entry.CityPopulation:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_POPULATION_TT", cityInfo.Name, cityInfo.Population);
-		
-		entry.ViewCityIcon:SetHide(true);
 
+		entry.ViewCityIcon:SetHide(true);
 		if(agent ~= nil) then
 			local textColor = textColors[agent.State];
 			entry.CivilizationName:SetColor(textColor, 0);
@@ -915,7 +914,7 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 		else
 			entry.SpyInCityIcon:SetToolTipString(nil);
 			entry.SpyInCityIcon:SetHide(true);
-			
+
 			local colorSet = "Beige_Black_Alpha";
 			entry.CivilizationName:SetColorByName(colorSet);
 			entry.CityName:SetColorByName(colorSet);
@@ -927,35 +926,35 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 		if(selectedAgentIndex == nil) then
 			local cityEntry = g_MyCityManager:GetInstance();
 			local agent = GetAgentForCity(v.PlayerID, v.CityID);
-			
+
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock);
-							
-		elseif(CityAvailableForRelocate(v)) then	
+
+		elseif(CityAvailableForRelocate(v)) then
 			local cityEntry = g_MyCityButtonManager:GetInstance();
 			local agent = GetAgentForCity(v.PlayerID, v.CityID);
-			
+
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock);
-			
+
 			cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
 				Network.SendMoveSpy(Game.GetActivePlayer(), selectedAgentIndex, v.PlayerID, v.CityID, false);
 				Refresh();
 			end);
-			
+
 		else
 			local cityEntry = g_MyCityManager:GetInstance();
 			local agent = GetAgentForCity(v.PlayerID, v.CityID);
 
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock);
-			
+
 			-- Dim Text
 			cityEntry.CivilizationName:SetAlpha(0.4);
 			cityEntry.CityName:SetAlpha(0.4);
 			cityEntry.CityPopulation:SetAlpha(0.4);
-		end		
-		
+		end
+
 		bTickTock = not bTickTock;
 	end
-	
+
 	Controls.MyCityStack:CalculateSize();
 	Controls.MyCityStack:ReprocessAnchoring();
 	Controls.MyCityScrollPanel:CalculateInternalSize();
@@ -965,46 +964,46 @@ end
 -------------------------------------------------------------------------------
 
 function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, selectedAgentCurrentCityID, citiesAvailableForRelocate)
-	
+
 	--print("Refreshing their Cities");
 	g_TheirCityManager:ResetInstances();
 	g_TheirCityButtonManager:ResetInstances();
-	
+
 	local map = Map;
 	local textColors = g_TextColors;
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local eActiveTeam = pActivePlayer:GetTeam();
-	
+
 	local agents = pActivePlayer:GetEspionageSpies();
 	local agentsByCity = {};
 	for i,v in ipairs(agents) do
 		local plot = map.GetPlot(v.CityX, v.CityY);
-	
+
 		if(plot ~= nil) then
 			local city = plot:GetPlotCity();
-			
+
 			if(city ~= nil) then
 				local ownerID = city:GetOwner();
 				local cityID = city:GetID();
 				local playerCities = agentsByCity[ownerID];
-			
+
 				if(playerCities == nil) then
 					playerCities = {};
 					agentsByCity[ownerID] = playerCities;
 				end
-				
+
 				playerCities[cityID] = v;
 			end
 		end
 	end
-	
-	function GetAgentForCity(playerID, cityID) 
+
+	function GetAgentForCity(playerID, cityID)
 		local playerCities = agentsByCity[playerID];
 		if(playerCities ~= nil) then
 			return playerCities[cityID];
 		end
 	end
-	
+
 	function CityAvailableForRelocate(city)
 		if(citiesAvailableForRelocate ~= nil) then
 			for i,v in ipairs(citiesAvailableForRelocate) do
@@ -1013,16 +1012,16 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				end
 			end
 		end
-		
+
 		return false;
 	end
-	
+
 	function ApplyGenericEntrySettings(entry, cityInfo, agent, bTickTock)
 		entry.Base:SetColorVal(unpack(bTickTock and g_PianoKeys[0] or g_PianoKeys[1]));
-		
+
 		CivIconHookup( cityInfo.PlayerID, 32, entry.CivIcon, entry.CivIconBG, entry.CivIconShadow, true, true, nil);
 		entry.CivIconHighlight:SetHide(false);
-		
+
 		entry.CivilizationName:SetText(cityInfo.CivilizationName);
 		entry.CivilizationName:SetAlpha(1.0);
 -- CBP EDIT
@@ -1032,16 +1031,35 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		entry.AllyIconShadow:SetHide(true);
 		entry.AllyIconHighlight:SetHide(true);
 		entry.AllyName:SetHide(true);
+		--ENGINSEER EDIT
+		entry.SphereOfInfluenceIcon:SetHide(true);
+		entry.SphereOfInfluenceMiniIcon:SetHide(true);
+		--END
 		local strAllyToolTip = "";
 		if(cityInfo ~= nil) then
 			local pPlayer = Players[cityInfo.PlayerID];
 			if (pPlayer ~= nil) then
-				local pCity = pPlayer:GetCityByID(cityInfo.CityID);		
+				local pCity = pPlayer:GetCityByID(cityInfo.CityID);
 				if(pCity ~= nil and pCity:IsCapital()) then
 					if (GameInfo.Civilizations[cityInfo.CivilizationType].Type ~= "CIVILIZATION_MINOR") then
 						entry.CapitalCityIcon:LocalizeAndSetToolTip("TXT_KEY_CAPITAL_CBP_SPY", cityInfo.Name, cityInfo.CivilizationNameKey);
 						entry.CapitalCityIcon:SetHide(false);
 					elseif(pPlayer:IsMinorCiv()) then
+						--ENGINSEER EDIT
+						if (pPlayer:GetPermanentAlly() > -1) then
+							entry.SphereOfInfluenceIcon:SetHide(false);
+							entry.SphereOfInfluenceIcon:SetText("[ICON_PUPPET]");
+							entry.SphereOfInfluenceIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT", Players[pPlayer:GetPermanentAlly()]:GetCivilizationShortDescriptionKey());
+						elseif (pPlayer:IsNoAlly()) then
+							entry.SphereOfInfluenceIcon:SetHide(false);
+							entry.SphereOfInfluenceIcon:SetText("[ICON_FLOWER]");
+							entry.SphereOfInfluenceIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA");
+						else
+							entry.SphereOfInfluenceIcon:SetText("");
+							entry.SphereOfInfluenceIcon:LocalizeAndSetToolTip(nil);
+							entry.SphereOfInfluenceIcon:SetHide(true);
+						end
+						--END
 						local iCityAlly = Players[pCity:GetOwner()]:GetAlly();
 						if(iCityAlly ~= -1) then
 							entry.AllyName:SetHide(false);
@@ -1050,7 +1068,13 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 							entry.AllyIconShadow:SetHide(false);
 							entry.AllyIconHighlight:SetHide(false);
 							CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
-							strAllyToolTip = Locale.Lookup("TXT_KEY_ALLY_CBP_SPY", Players[iCityAlly]:GetCivilizationDescriptionKey());
+							--ENGINSEER EDIT
+							if iCityAlly ~= Game.GetActivePlayer() then
+								strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_TT", Players[iCityAlly]:GetCivilizationShortDescription(), pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
+							else
+								strAllyToolTip = Locale.Lookup("TXT_KEY_ALLY_CBP_SPY", Players[iCityAlly]:GetCivilizationDescriptionKey());
+							end
+							--END
 							entry.AllyName:SetToolTipString(strAllyToolTip);
 							entry.AllyIconHighlight:SetToolTipString(strAllyToolTip);
 							entry.AllyIconShadow:SetToolTipString(strAllyToolTip);
@@ -1064,30 +1088,34 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 -- END
 		entry.CityName:LocalizeAndSetText(cityInfo.Name);
 		entry.CityName:SetAlpha(1.0);
-	
+
 		entry.PotentialMeterBack:SetHide(true);
 		entry.PotentialMeterGhost:SetHide(true);
-		entry.PotentialMeterFront:SetHide(true); 
+		entry.PotentialMeterFront:SetHide(true);
 		entry.RigElectionDisabled:SetHide(true);
 		entry.RigElectionEnabled:SetHide(true);
+
 		--CBP
 		entry.RigElectionCooldown:SetHide(true);
 		--END
-		entry.UnknownProgress:SetHide(true);	
-				
+		--ENGINSEER EDIT
+		entry.PledgeToProtect:SetHide(true);
+		--END
+		entry.UnknownProgress:SetHide(true);
+
 		local bIsCityState = false;
 		if (GameInfo.Civilizations[cityInfo.CivilizationType].Type == "CIVILIZATION_MINOR") then
 			bIsCityState = true;
-			
+
 			if(agent ~= nil and agent.State == "TXT_KEY_SPY_STATE_RIGGING_ELECTION") then
 				entry.RigElectionEnabled:SetHide(false);
 			else
 				entry.RigElectionDisabled:SetHide(false);
 			end
 		else
-			--local width, height = entry.PotentialMeterBack:GetSizeVal();		
+			--local width, height = entry.PotentialMeterBack:GetSizeVal();
 			if(cityInfo.BasePotential > 0) then
-				entry.PotentialMeterBack:SetHide(false);	
+				entry.PotentialMeterBack:SetHide(false);
 				local potentialMeter;
 				if (agent ~= nil and cityInfo.Potential > 0) then
 					potentialMeter = entry.PotentialMeterFront;
@@ -1096,14 +1124,14 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				end
 
 				potentialMeter:SetHide(false);
-				
+
 				local pct = cityInfo.BasePotential/cityInfo.LargestBasePotential;
 				potentialMeter:SetPercents(pct,pct);
 			else
 				entry.UnknownProgress:SetHide(false);
 			end
 		end
-	
+
 		local strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_CITY_NAME_TT", cityInfo.Name, cityInfo.CivilizationNameKey);
 		local strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_CITY_CIV_TT", cityInfo.Name, cityInfo.CivilizationNameKey);
 
@@ -1118,19 +1146,19 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 					end
 				end
 			end
-		end		
+		end
 
 		if (bIsCityState) then
 			local strTraitText = GetCityStateTraitText(cityInfo.PlayerID);
 			local strTraitTT = GetCityStateTraitToolTip(cityInfo.PlayerID);
-			
+
 			strCityNameToolTip = Locale.Lookup("TXT_KEY_EO_CITY_NAME_CITY_STATE_TT", cityInfo.Name, strTraitText);
 			strCityNameToolTip = strCityNameToolTip .. "[NEWLINE][NEWLINE]";
 			strCityNameToolTip = strCityNameToolTip .. strTraitTT;
 			strCityCivToolTip = Locale.Lookup("TXT_KEY_EO_CITY_CIV_CITY_STATE_TT", cityInfo.Name, strTraitText);
 			strCityCivToolTip = strCityCivToolTip .. "[NEWLINE][NEWLINE]";
 			strCityCivToolTip = strCityCivToolTip .. strTraitTT;
-			
+
 			local strCityStateTT = Locale.Lookup("TXT_KEY_EO_CITY_STATE_POTENTIAL_TT");
 			strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
 			strCityStateTT = strCityStateTT .. Locale.Lookup("TXT_KEY_EO_CITY_STATE_ELECTION", Game.GetTurnsBetweenMinorCivElections(), Game.GetTurnsUntilMinorCivElection());
@@ -1152,11 +1180,15 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			--END
 			entry.RigElectionDisabled:SetToolTipString(strCityStateTT);
 			entry.RigElectionEnabled:SetToolTipString(strCityStateTT);
+			if (getProtectingPlayers(cityInfo.PlayerID) ~= "") then
+				entry.PledgeToProtect:SetHide(false);
+				entry.PledgeToProtect:SetToolTipString(Locale.Lookup("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT") .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_POP_CSTATE_PROTECTED_BY") .. " " .. getProtectingPlayers(cityInfo.PlayerID));
+			end
 		else
 			local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
 			if(cityInfo.BasePotential > 0) then
 				local pPlayer = Players[cityInfo.PlayerID];
-				local pCity = pPlayer:GetCityByID(cityInfo.CityID);	
+				local pCity = pPlayer:GetCityByID(cityInfo.CityID);
 				strPotentialToolTip = Players[Game.GetActivePlayer()]:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
 				entry.PotentialMeterBack:SetToolTipString(strPotentialToolTip);
 				entry.PotentialMeterGhost:SetToolTipString(strPotentialToolTip);
@@ -1172,7 +1204,7 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		entry.CityPopulation:SetText(cityInfo.Population);
 		entry.CityPopulation:SetAlpha(1.0);
 		entry.CityPopulation:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_POPULATION_TT", cityInfo.Name, cityInfo.Population);
-				
+
 		if(agent ~= nil) then
 			local textColor = textColors[agent.State];
 			print(textColor);
@@ -1181,9 +1213,9 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			entry.CityName:SetColor(textColor, 0);
 			entry.CityPopulation:SetColor(textColor, 0);
 
-			entry.DiplomatInCityIcon:SetHide(true);			
+			entry.DiplomatInCityIcon:SetHide(true);
 			entry.SpyInCityIcon:SetHide(true);
-			
+
 			if (agent.IsDiplomat) then
 				entry.DiplomatInCityIcon:LocalizeAndSetToolTip("TXT_KEY_SPY_OCCUPYING_CITY", agent.Name);
 				entry.DiplomatInCityIcon:SetHide(false);
@@ -1195,8 +1227,12 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				entry.AllyIconShadow:SetHide(true);
 				entry.AllyIconHighlight:SetHide(true);
 				entry.AllyName:SetHide(true);
+				--ENGINSEER EDIT
+				entry.SphereOfInfluenceIcon:SetHide(true);
+				entry.SphereOfInfluenceMiniIcon:SetHide(true);
+				--END
 
--- END		
+-- END
 			else
 				entry.SpyInCityIcon:LocalizeAndSetToolTip("TXT_KEY_SPY_OCCUPYING_CITY", agent.Name);
 				entry.SpyInCityIcon:SetHide(false);
@@ -1208,21 +1244,39 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				entry.AllyIconShadow:SetHide(true);
 				entry.AllyIconHighlight:SetHide(true);
 				entry.AllyName:SetHide(true);
+				--ENGINSEER EDIT
+				entry.SphereOfInfluenceIcon:SetHide(true);
+				if (Players[cityInfo.PlayerID]:IsMinorCiv()) then
+						if (Players[cityInfo.PlayerID]:GetPermanentAlly() > -1) then
+							entry.SphereOfInfluenceMiniIcon:SetHide(false);
+							entry.SphereOfInfluenceMiniIcon:SetText("[ICON_PUPPET]")
+							entry.SphereOfInfluenceMiniIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT", Players[Players[cityInfo.PlayerID]:GetPermanentAlly()]:GetCivilizationShortDescriptionKey());
+						elseif (Players[cityInfo.PlayerID]:IsNoAlly()) then
+							entry.SphereOfInfluenceMiniIcon:SetHide(false);
+							entry.SphereOfInfluenceMiniIcon:SetText("[ICON_FLOWER]")
+							entry.SphereOfInfluenceMiniIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA");
+						else
+							entry.SphereOfInfluenceMiniIcon:SetText("")
+							entry.SphereOfInfluenceMiniIcon:LocalizeAndSetToolTip(nil);
+							entry.SphereOfInfluenceMiniIcon:SetHide(true);
+						end
+				end
+				--END
 -- END
 			end
-			
+
 			if (cityInfo.PlayerID == Game.GetActivePlayer()) then
 				entry.DisabledViewCityIcon:SetHide(false);
 				entry.ViewCityIcon:SetHide(true);
-				entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_YOUR_CITY_TT", cityInfo.Name);				
+				entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_YOUR_CITY_TT", cityInfo.Name);
 			elseif (agent.EstablishedSurveillance) then
 				entry.DisabledViewCityIcon:SetHide(true);
 				entry.ViewCityIcon:SetHide(false);
-				entry.ViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_ENABLED_TT", cityInfo.Name);	
-				
+				entry.ViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_ENABLED_TT", cityInfo.Name);
+
 				local plot = Map.GetPlot(cityInfo.CityX, cityInfo.CityY);
 				local city = plot:GetPlotCity();
-				
+
 				-- Initialize 'View City' button.
 				-- CITY SCREEN CLOSED - Don't look, Marc
 				local CityScreenClosed = function()
@@ -1231,9 +1285,9 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 					Events.SerialEventExitCityScreen.Remove(CityScreenClosed);
 					UI.SetCityScreenViewingMode(false);
 				end
-				
+
 				local OnViewCityClicked = function()
-					
+
 					if (city ~= nil) then
 						--print("Attempting to show city screen");
 						-- Queue up an empty popup at a higher priority so that it prevents other cities from appearing while we're looking at this one!
@@ -1245,50 +1299,50 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 						print("city == null");
 					end
 				end
-				
+
 				entry.ViewCityIcon:RegisterCallback(Mouse.eLClick, OnViewCityClicked);
 			else
 				entry.DisabledViewCityIcon:SetHide(false);
 				entry.ViewCityIcon:SetHide(true);
-				entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_WAIT_TT", cityInfo.Name);	
+				entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_WAIT_TT", cityInfo.Name);
 			end
-					
+
 		else
 			entry.SpyInCityIcon:SetToolTipString(nil);
 			entry.SpyInCityIcon:SetHide(true);
 			entry.DiplomatInCityIcon:SetToolTipString(nil);
 			entry.DiplomatInCityIcon:SetHide(true);
-			
+
 			local colorSet = "Beige_Black_Alpha";
 			entry.CivilizationName:SetColorByName(colorSet);
 			entry.CityName:SetColorByName(colorSet);
 			entry.CityPopulation:SetColorByName(colorSet);
-			
+
 			entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_TT", cityInfo.Name);
 			entry.DisabledViewCityIcon:SetHide(false);
 			entry.ViewCityIcon:SetHide(true);
 		end
-		
+
 		if(bIsCityState == true) then
 			entry.DisabledViewCityIcon:SetHide(true);
 			entry.ViewCityIcon:SetHide(true);
 		end
 	end
-			
+
 	local cityStatus = pActivePlayer:GetEspionageCityStatus();
 	local theirCityStatus = {};
-	
+
 	for i,v in ipairs(cityStatus) do
 		if(v.Team ~= eActiveTeam) then
-			
+
 			local theirCivilization = GameInfo.Civilizations[v.CivilizationType];
-			
+
 			if(theirCivilization.Type == "CIVILIZATION_MINOR") then
 				local minorCivPlayer = Players[v.PlayerID];
 				local minorCivType = minorCivPlayer:GetMinorCivType();
 				local minorCiv = GameInfo.MinorCivilizations[minorCivType];
 				local primary,secondary = minorCivPlayer:GetPlayerColors();
-			
+
 				v.CivilizationPortraitIndex = 22;
 				v.CivilizationIconAtlas = "CIV_ALPHA_ATLAS";
 				v.CivilizationIconColor = secondary;
@@ -1301,39 +1355,39 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				v.CivilizationNameKey = theirCivilization.ShortDescription;
 				v.CivilizationName = Locale.Lookup(theirCivilization.ShortDescription);
 			end
-			
-			
+
+
 			table.insert(theirCityStatus, v);
 		end
 	end
-	
+
 	table.sort(theirCityStatus, g_TheirCitiesSortFunction);
-	
+
 	for i,v in ipairs(theirCityStatus) do
-	
+
 		if(selectedAgentIndex == nil) then
 			local cityEntry = g_TheirCityManager:GetInstance();
-			local agent = GetAgentForCity(v.PlayerID, v.CityID);				
-		
+			local agent = GetAgentForCity(v.PlayerID, v.CityID);
+
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
 
-				
+
 		elseif(CityAvailableForRelocate(v)) then
 			local cityEntry = g_TheirCityButtonManager:GetInstance();
 			local agent = GetAgentForCity(v.PlayerID, v.CityID);
-			
+
 			local plot = map.GetPlot(v.CityX, v.CityY);
 			local city = plot:GetPlotCity();
-			
+
 			local pMyTeam = Teams[Game.GetActiveTeam()]
-			
+
 			local bCheckDiplomat = false;
 			if (city:IsCapital() and (not Players[v.PlayerID]:IsMinorCiv()) and (not pMyTeam:IsAtWar(city:GetTeam()))) then
 				bCheckDiplomat = true;
 			end
 
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
-			
+
 			if (bCheckDiplomat) then
 				cityEntry.CitySelectButton:RegisterCallback(Mouse.eLClick, function()
 					g_ConfirmAction = function()
@@ -1362,34 +1416,34 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		else
 			local cityEntry = g_TheirCityManager:GetInstance();
 			local agent = GetAgentForCity(v.PlayerID, v.CityID);
-			
+
 			ApplyGenericEntrySettings(cityEntry, v, agent, bTickTock)
-			
+
 			cityEntry.CivilizationName:SetAlpha(0.4);
 			cityEntry.CityName:SetAlpha(0.4);
 			cityEntry.CityPopulation:SetAlpha(0.4);
-		end		
-		
+		end
+
 		bTickTock = not bTickTock;
 	end
-	
+
 	Controls.TheirCityStack:CalculateSize();
 	Controls.TheirCityStack:ReprocessAnchoring();
 	Controls.TheirCityScrollPanel:CalculateInternalSize();
 end
 
 function Refresh()
-	
+
 	function TestEspionageStarted()
 		local player = Players[Game.GetActivePlayer()];
 		return player:GetNumSpies() > 0;
 	end
 
 	local bEspionageStarted = TestEspionageStarted();
-	
+
 	Controls.LabelEspionageNotStartedYet:SetHide(bEspionageStarted);
 	Controls.TabPanel:SetHide(not bEspionageStarted);
-	Controls.AgentsListBox:SetHide(not bEspionageStarted);		 
+	Controls.AgentsListBox:SetHide(not bEspionageStarted);
 	Controls.AgentMovePanel:SetHide(true);
 	Controls.CitiesListBox:SetHide(not bEspionageStarted);
 	Controls.CloseButton:SetHide(false);
@@ -1412,7 +1466,7 @@ function OnYes( )
 
 	if(g_ConfirmAction ~= nil) then
 		g_ConfirmAction();
-	end	
+	end
 end
 Controls.Yes:RegisterCallback( Mouse.eLClick, OnYes );
 
@@ -1429,23 +1483,23 @@ Controls.No:RegisterCallback( Mouse.eLClick, OnNo );
 function RefreshIntrigue()
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local intrigueMessages = pActivePlayer:GetIntrigueMessages();
-	
+
 	g_IntrigueManager:ResetInstances();
-	
+
 	if(#intrigueMessages == 0) then
 		Controls.IntrigueMessageHeaders:SetHide(true);
 		Controls.IntrigueMessageScrollPanel:SetHide(true);
 		Controls.NoIntrigueAvailable:SetHide(false);
 	else
-	
+
 		local sortedMessages = {};
-		
+
 		for i,v in ipairs(intrigueMessages) do
 			local strLeaderName = "Unknown player";
 			local pPlayer = Players[v.DiscoveringPlayer];
 			local iPortraitIndex = -1;
 			local strIconAtlas = "";
-			
+
 			if (pPlayer) then
 				local dpCivType = pPlayer:GetCivilizationType();
 				local dpCivInfo = GameInfo.Civilizations[dpCivType];
@@ -1455,9 +1509,9 @@ function RefreshIntrigue()
 					strLeaderName = pPlayer:GetNickName();
 				else
 					strLeaderName = pPlayer:GetName();
-				end			
-			end		
-		
+				end
+			end
+
 			sortedMessages[i] = {
 				DiscoveringPlayer = v.DiscoveringPlayer;
 				Turn = v.Turn,
@@ -1468,26 +1522,26 @@ function RefreshIntrigue()
 				SpyName = v.SpyName;
 			}
 		end
-	
+
 		table.sort(sortedMessages, g_IntrigueSortFunction);
-	
+
 		Controls.IntrigueMessageHeaders:SetHide(false);
 		Controls.IntrigueMessageScrollPanel:SetHide(false);
 		Controls.NoIntrigueAvailable:SetHide(true);
-		
+
 		local bTickTock = true;
 		for i,v in ipairs(sortedMessages) do
-			
+
 			local instance = g_IntrigueManager:GetInstance();
 			instance.Base:SetColorVal(unpack(bTickTock and g_PianoKeys[0] or g_PianoKeys[1]));
 			instance.TurnNum:SetText(v.Turn);
 			instance.Message:SetString(v.Message);
-			
+
 			local width, height = instance.Message:GetSizeVal();
 			local baseWidth, baseHeight = instance.Base:GetSizeVal();
 			instance.Base:SetSizeVal(baseWidth, height + 22);
 			if (v.DiscoveringPlayer == Game.GetActivePlayer()) then
-				instance.CivIcon:SetHide(true);				
+				instance.CivIcon:SetHide(true);
 				instance.CivilizationName:LocalizeAndSetText(v.SpyName);
 				instance.SpyIcon:SetHide(false);
 			else
@@ -1495,12 +1549,12 @@ function RefreshIntrigue()
 				instance.CivIcon:SetHide(false);
 				instance.CivilizationName:SetText(v.From);
 				instance.SpyIcon:SetHide(true);
-			end			
-			
+			end
+
 			bTickTock = not bTickTock;
 		end
 	end
-	
+
 	Controls.IntrigueMessageStack:CalculateSize();
 	Controls.IntrigueMessageStack:ReprocessAnchoring();
 	Controls.IntrigueMessageScrollPanel:CalculateInternalSize();
@@ -1541,41 +1595,41 @@ end
 
 -- Registers the sort option controls click events
 function RegisterSortOptions()
-	
+
 	for i,v in ipairs(g_AgentsSortOptions) do
 		if(v.Button ~= nil) then
 			v.Button:RegisterCallback(Mouse.eLClick, function() AgentsSortOptionSelected(v); end);
 		end
 	end
-	
+
 	for i,v in ipairs(g_YourCitiesSortOptions) do
 		if(v.Button ~= nil) then
 			v.Button:RegisterCallback(Mouse.eLClick, function() YourCitiesSortOptionSelected(v); end);
 		end
 	end
-	
+
 	for i,v in ipairs(g_TheirCitiesSortOptions) do
 		if(v.Button ~= nil) then
 			v.Button:RegisterCallback(Mouse.eLClick, function() TheirCitiesSortOptionSelected(v); end);
 		end
 	end
-	
+
 	for i,v in ipairs(g_IntrigueSortOptions) do
 		if(v.Button ~= nil) then
 			v.Button:RegisterCallback(Mouse.eLClick, function() IntrigueSortOptionSelected(v); end);
 		end
 	end
-	
+
 	UpdateSortOptionsDisplay(g_AgentsSortOptions);
 	UpdateSortOptionsDisplay(g_YourCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_TheirCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_IntrigueSortOptions);
-	
+
 	g_AgentsSortFunction = GetSortFunction(g_AgentsSortOptions);
 	g_YourCitiesSortFunction = GetSortFunction(g_YourCitiesSortOptions);
 	g_TheirCitiesSortFunction = GetSortFunction(g_TheirCitiesSortOptions);
 	g_IntrigueSortFunction = GetSortFunction(g_IntrigueSortOptions);
-	
+
 end
 
 function GetSortFunction(sortOptions)
@@ -1589,19 +1643,19 @@ function GetSortFunction(sortOptions)
 			end
 		end
 	end
-	
+
 	return nil;
 end
 
 -- Updates the sort option structure
 function UpdateSortOptionState(sortOptions, selectedOption)
-	-- Current behavior is to only have 1 sort option enabled at a time 
+	-- Current behavior is to only have 1 sort option enabled at a time
 	-- though the rest of the structure is built to support multiple in the future.
-	-- If a sort option was selected that wasn't already selected, use the default 
+	-- If a sort option was selected that wasn't already selected, use the default
 	-- direction.  Otherwise, toggle to the other direction.
 	for i,v in ipairs(sortOptions) do
 		if(v == selectedOption) then
-			if(v.CurrentDirection == nil) then			
+			if(v.CurrentDirection == nil) then
 				v.CurrentDirection = v.DefaultDirection;
 			else
 				if(v.CurrentDirection == "asc") then
@@ -1629,7 +1683,7 @@ function UpdateSortOptionsDisplay(sortOptions)
 					imageToUse = "SelectedDown.dds";
 				end
 				imageControl:SetTexture(imageToUse);
-				
+
 				imageControl:SetHide(false);
 			end
 		end
@@ -1642,7 +1696,7 @@ function AgentsSortOptionSelected(option)
 	UpdateSortOptionState(sortOptions, option);
 	UpdateSortOptionsDisplay(sortOptions);
 	g_AgentsSortFunction = GetSortFunction(sortOptions);
-	
+
 	RefreshAgents();
 end
 
@@ -1652,7 +1706,7 @@ function TheirCitiesSortOptionSelected(option)
 	UpdateSortOptionState(sortOptions, option);
 	UpdateSortOptionsDisplay(sortOptions);
 	g_TheirCitiesSortFunction = GetSortFunction(sortOptions);
-	
+
 	RefreshTheirCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate);
 end
 
@@ -1662,9 +1716,9 @@ function YourCitiesSortOptionSelected(option)
 	UpdateSortOptionState(sortOptions, option);
 	UpdateSortOptionsDisplay(sortOptions);
 	g_YourCitiesSortFunction = GetSortFunction(sortOptions);
-	
 
-	RefreshMyCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate); 
+
+	RefreshMyCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate);
 end
 
 function IntrigueSortOptionSelected(option)
@@ -1672,10 +1726,34 @@ function IntrigueSortOptionSelected(option)
 	UpdateSortOptionState(sortOptions, option);
 	UpdateSortOptionsDisplay(sortOptions);
 	g_IntrigueSortFunction = GetSortFunction(sortOptions);
-	
+
 	RefreshIntrigue();
 end
 
+----------------------------------------------------------------
+-- Copied from CityState LUA
+----------------------------------------------------------------
+function getProtectingPlayers(iMinorCivID)
+	local sProtecting = "";
+
+	for iPlayerLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+		pOtherPlayer = Players[iPlayerLoop];
+
+		--if (iPlayerLoop ~= Game.GetActivePlayer()) then
+			if (pOtherPlayer:IsAlive()) then
+				if (pOtherPlayer:IsProtectingMinor(iMinorCivID)) then
+					if (sProtecting ~= "") then
+						sProtecting = sProtecting .. ", "
+					end
+
+					sProtecting = sProtecting .. Locale.ConvertTextKey(Players[iPlayerLoop]:GetCivilizationShortDescriptionKey());
+				end
+			end
+		--end
+	end
+
+	return sProtecting
+end
 
 ----------------------------------------------------------------
 -- 'Active' (local human) player has changed
@@ -1689,13 +1767,13 @@ LuaEvents.AdditionalInformationDropdownGatherEntries.Add(function(entries)
 	if (not Game.IsOption("GAMEOPTION_NO_ESPIONAGE")) then
 		table.insert(entries, {
 			text = Locale.Lookup("TXT_KEY_EO_TITLE"),
-			call = function() 
-				Events.SerialEventGameMessagePopup{ 
+			call = function()
+				Events.SerialEventGameMessagePopup{
 					Type = ButtonPopupTypes.BUTTONPOPUP_ESPIONAGE_OVERVIEW,
 				};
 			end,
 		});
-	
+
 	end
 end);
 
@@ -1704,22 +1782,22 @@ function HandleNotificationAdded(notificationId, notificationType, toolTip, summ
 	--If this UI is displayed and the notification is related to staging a coup, popup the status.
 	if(ContextPtr:IsHidden() == false) then
 		if(notificationType == NotificationTypes.NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE) then
-		
+
 			local text = summary .. "[NEWLINE][NEWLINE]" .. toolTip;
-			Controls.NotificationText:SetText(text); 
+			Controls.NotificationText:SetText(text);
 			Controls.NotificationContent:CalculateSize();
 			local width, height = Controls.NotificationContent:GetSizeVal();
 			Controls.NotificationFrame:SetSizeVal(width + 60, height + 140);
 			Controls.NotificationPopup:SetHide(false);
-		
+
 		elseif(notificationType == NotificationTypes.NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS) then
 			local text = summary .. "[NEWLINE][NEWLINE]" .. toolTip;
-			Controls.NotificationText:SetText(text); 
+			Controls.NotificationText:SetText(text);
 			Controls.NotificationContent:CalculateSize();
 			local width, height = Controls.NotificationContent:GetSizeVal();
 			Controls.NotificationFrame:SetSizeVal(width + 60, height + 140);
 			Controls.NotificationPopup:SetHide(false);
-			
+
 		end
 	end
 end

@@ -138,6 +138,9 @@
           <Label Anchor="L,C" Offset="0,0" String="[ICON_DIPLOMAT]" ID="DiplomatInCityIcon"/>
 					<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,40" ID="DisabledViewCityIcon"/>
 					<Button Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" NoStateChange="1" ID="ViewCityIcon"/>
+					<!-- Enginseer Entry -->
+					<Label Anchor="L,C" Offset="20,0" Size="20,20" String="[ICON_PUPPET]" ID="SphereOfInfluenceMiniIcon" Hidden="1"/>
+					<!-- END Entry -->
 <!-- CBP Entry -->
 					<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
 					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
@@ -145,6 +148,9 @@
 						<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 						<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
 						<Image ID="AllyIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+						<!-- Enginseer Entry -->
+						<Label Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" ID="SphereOfInfluenceIcon" Hidden="1"/>
+						<!-- END Entry -->
 					</Box>
 					<Label ID="AllyName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 <!-- END -->
@@ -160,6 +166,9 @@
 					<!-- CBP -->
 					<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
 					<!-- END -->
+					<!-- Enginseer Entry -->
+					<Label ID="PledgeToProtect" Anchor="C,C" String="[ICON_STRENGTH]" Hidden="1" Offset="22,0" Size="22,22"/>
+					<!-- END Entry -->
 				</Box>
 				<Box Size="80,25" Color="0,0,0,0">
 					<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
@@ -191,6 +200,9 @@
             <Label Anchor="L,C" Offset="0,0" String="[ICON_DIPLOMAT]" ID="DiplomatInCityIcon"/>
 						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,40" ID="DisabledViewCityIcon"/>
 						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
+						<!-- Enginseer Entry -->
+						<Label Anchor="L,C" Offset="20,0" Size="20,20" String="[ICON_PUPPET]" ID="SphereOfInfluenceMiniIcon" Hidden="1"/>
+						<!-- END Entry -->
 <!-- CBP Entry -->
 						<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
 						<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
@@ -198,6 +210,9 @@
 							<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 							<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
 							<Image ID="AllyIconHighlight" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="0,0" Texture="CivIconBGSizes_Highlight.dds"/>
+							<!-- Enginseer Entry -->
+							<Label Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" ID="SphereOfInfluenceIcon" Hidden="1"/>
+							<!-- END Entry -->
 						</Box>
 						<Label ID="AllyName" Anchor="L,C" Offset="32,0" TruncateWidth="129" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 <!-- END -->
@@ -213,6 +228,9 @@
 						<!-- CBP -->
 						<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
 						<!-- END -->
+						<!-- Enginseer Entry -->
+						<Label ID="PledgeToProtect" Anchor="C,C" String="[ICON_STRENGTH]" Hidden="1" Offset="22,0" Size="22,22"/>
+						<!-- END Entry -->
 					</Box>
 					<Box Size="80,25" Color="0,0,0,0">
 						<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
@@ -250,11 +268,11 @@
 		</Image>
 		<Image ID="ModernBackground" Anchor="L,T" Offset="20,73" Texture="Espionage_Background953x567.dds" Size="953,470"/>
 		<Image ID="EarlyBackground" Anchor="L,T" Offset="20,73" Texture="Espionage_medieval_BKGRND.dds" Size="953,470" Hidden="1"/>
-   
+
     <!-- Side treatments -->
     <Box Style="MenuLeftSideTreatment"/>
     <Box Style="MenuRightSideTreatment"/>
-    
+
 		<Label Style="MenuTitleCaption" String="TXT_KEY_EO_TITLE" />
 		<!-- Internal Space-->
 		<Box Size="954,566" Offset="19,44" Color="0,0,0,0">
@@ -498,8 +516,8 @@
 			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
 				<Image Anchor="C,C" Offset="0,-1" Size="64,64" Texture="EspionageSpyIcons64_Expansion.dds"/>
 			</Image>
-			
-				
+
+
 			<Stack Anchor="C,T" Offset="0,60" Padding="24" StackGrowth="Bottom" ID="ConfirmContent">
 				<Label Anchor="L,T" Offset="0,0" WrapWidth="400" ID="ConfirmText" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 
