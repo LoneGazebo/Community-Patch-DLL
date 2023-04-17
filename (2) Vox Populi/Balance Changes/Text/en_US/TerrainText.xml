@@ -5,6 +5,15 @@
 		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 Lumber Mills adjacent to this Lumber Mill.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILD_TERRACE_FARM_HELP">
+			<Text>+1 [ICON_FOOD] Food for every Terrace Farm or Mountains adjacent to this Terrace Farm. Adds +1 [ICON_FOOD] Food to nearby Farms.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_POLDER_HELP">
+			<Text>+1 [ICON_GOLD] Gold to nearby Villages and Towns.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILD_POLDER_WATER_HELP">
+			<Text>Allows land units to traverse this Coast tile. +1 [ICON_GOLD] Gold to nearby Villages and Towns. </Text>
+		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO">
 			<Text>Ordo</Text>
 			<Gender>neuter:an</Gender>
