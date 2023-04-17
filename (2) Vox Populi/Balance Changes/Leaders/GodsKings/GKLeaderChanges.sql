@@ -646,6 +646,14 @@ INSERT INTO Builds
 SELECT	'BUILD_POLDER_WATER',	1,		1,				0, 				0, 				'IMPROVEMENT_POLDER_WATER',	HotKey, CtrlDown, PrereqTech, Time, Description, Help, Recommendation, EntityEvent, OrderPriority, IconIndex, IconAtlas
 FROM Builds WHERE Type = 'BUILD_POLDER';
 
+UPDATE Builds
+SET Help = 'TXT_KEY_BUILD_POLDER_HELP'
+WHERE Type = 'BUILD_POLDER';
+
+UPDATE Builds
+SET Help = 'TXT_KEY_BUILD_POLDER_WATER_HELP'
+WHERE Type = 'BUILD_POLDER_WATER';
+
 INSERT INTO Builds
 		(Type,						Water, 	CanBeEmbarked,	ShowInPedia, 	ShowInTechTree, HotKey, CtrlDown, Repair, Time, ImprovementType, Description, Help, Recommendation, EntityEvent, OrderPriority, IconIndex, IconAtlas)
 SELECT 	'BUILD_REPAIR_EMBARKED', 	1, 		1, 				0, 				0, 				HotKey, CtrlDown, Repair, Time, ImprovementType, Description, Help, Recommendation, EntityEvent, OrderPriority, IconIndex, IconAtlas
