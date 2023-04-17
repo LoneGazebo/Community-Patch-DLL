@@ -720,7 +720,7 @@ function AssignReligionColours()
 				--print("Success.")
 			end
 
-			if tColour == {} then
+			if next(tColour) == nil then
 				tColour = GameInfo.Colors["COLOR_PLAYER_GRAY"]
 				--print("Either holy city not found, or civ did not have a colour assigned in database; assigning grey.")
 			end
