@@ -308,6 +308,11 @@ UPDATE Improvements
 SET RequiresFlatlands = '1', RequiresFlatlandsOrFreshWater = '0'
 WHERE Type = 'IMPROVEMENT_FARM';
 
+-- Lumber Mill
+UPDATE Builds
+SET Help = 'TXT_KEY_BUILD_LUMBERMILL_HELP'
+WHERE Type = 'IMPROVEMENT_LUMBERMILL';
+
 
 -- Forts and Citadels 'no two adjacent' and no outside borders for Fort - cannot be built on resources (helps AI quite a bit)	
 -- Forts and Citadels now passable for ships and trade units.
