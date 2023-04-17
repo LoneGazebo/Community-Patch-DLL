@@ -45,7 +45,7 @@ UPDATE Buildings
 SET WLTKDTurns = '15'
 WHERE Type = 'BUILDING_CEILIDH_HALL';
 
-UPDATE Buildings 
+UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_CEILIDH_HALL_HELP'
 WHERE Type = 'BUILDING_CEILIDH_HALL';
 
@@ -331,14 +331,14 @@ VALUES
 UPDATE Beliefs
 SET FriendlyHealChange = '5'
 WHERE Type = 'BELIEF_DAGDA';
-	
+
 INSERT INTO Belief_YieldFromKills
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_MORRIGAN', 'YIELD_GOLD', 200),
 	('BELIEF_MORRIGAN', 'YIELD_CULTURE', 200),
 	('BELIEF_MORRIGAN', 'YIELD_GOLDEN_AGE_POINTS', 200);
-	
+
 INSERT INTO Belief_YieldFromPillageGlobal
 	(BeliefType, YieldType, Yield, 	IsEraScaling)
 VALUES
@@ -377,7 +377,7 @@ VALUES
 UPDATE Beliefs
 SET WonderProductionModifier = '10'
 WHERE Type = 'BELIEF_LUGH';
-	
+
 INSERT INTO Belief_YieldChangeAnySpecialist
 	(BeliefType, YieldType, Yield)
 VALUES
@@ -398,7 +398,7 @@ VALUES
 	('BELIEF_NUADA', 'YIELD_GOLD', 3),
 	('BELIEF_NUADA', 'YIELD_SCIENCE', 3),
 	('BELIEF_NUADA', 'YIELD_GOLDEN_AGE_POINTS', 3);
-	
+
 INSERT INTO Belief_YieldPerActiveTR
 	(BeliefType, YieldType, Yield)
 VALUES
@@ -455,7 +455,7 @@ VALUES
 	('BELIEF_MANANNAN', 'TERRAIN_COAST', 'YIELD_PRODUCTION', 50),
 	('BELIEF_MANANNAN', 'TERRAIN_OCEAN', 'YIELD_GOLD', 50),
 	('BELIEF_MANANNAN', 'TERRAIN_COAST', 'YIELD_GOLD', 50);
-	
+
 INSERT INTO Belief_YieldPerPop
 	(BeliefType, YieldType, Yield)
 VALUES
@@ -465,7 +465,7 @@ INSERT INTO Belief_GreatWorkYieldChanges
 	(BeliefType, YieldType, Yield)
 VALUES
 	('BELIEF_OGMA', 'YIELD_PRODUCTION', 1);
-	
+
 INSERT INTO Belief_GreatPersonPoints
 	(BeliefType, GreatPersonType, Value)
 VALUES
@@ -563,7 +563,7 @@ VALUES
 UPDATE Traits
 SET ImportsCountTowardsMonopolies = 'true'
 WHERE Type = 'TRAIT_LUXURY_RETENTION';
-	
+
 
 INSERT INTO Trait_YieldFromSettle
 	(TraitType, YieldType, Yield)
@@ -666,11 +666,15 @@ VALUES
 
 UPDATE Improvements
 SET	Water = 1,
-	CoastMakesValid = 1,
 	RequiresXAdjacentLand = 3,
 	AllowsWalkWater = 1,
 	MakesPassable = 1
 WHERE Type = 'IMPROVEMENT_POLDER_WATER';
+
+INSERT INTO Improvement_ValidTerrains
+	(ImprovementType, TerrainType)
+VALUES
+	('IMPROVEMENT_POLDER_WATER', 'TERRAIN_COAST');
 
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
@@ -709,7 +713,7 @@ INSERT INTO Improvement_ValidFeatures
 VALUES
 	('IMPROVEMENT_KUNA', 'FEATURE_FOREST'),
 	('IMPROVEMENT_KUNA', 'FEATURE_JUNGLE');
-	
+
 INSERT INTO Improvement_YieldAdjacentTwoSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
@@ -722,7 +726,7 @@ VALUES
 	('UNIT_WORKER', 'BUILD_KUNA'),
 	('UNIT_WORKER', 'BUILD_REPAIR_EMBARKED');
 -- Give build via traits table so that it doesn't appear in the civ select screen
-INSERT INTO Trait_BuildsUnitClasses	
+INSERT INTO Trait_BuildsUnitClasses
 	(TraitType, UnitClassType, BuildType)
-VALUES	
+VALUES
 	('TRAIT_LUXURY_RETENTION', 'UNITCLASS_WORKER', 'BUILD_POLDER_WATER');
