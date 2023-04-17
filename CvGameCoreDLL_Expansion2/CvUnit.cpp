@@ -2960,12 +2960,6 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		kCaptureDef.iSpreadsUsed = GetReligionData()->GetSpreadsUsed();
 	}
 
-	// Captured as is?
-	if(IsCapturedAsIs())
-	{
-		kCaptureDef.bAsIs = true;
-		kCaptureDef.eCaptureUnitType = getUnitType();
-	}
 
 	// Captured as conscripted unit?
 	if (IsCapturedAsConscript())
@@ -2973,6 +2967,12 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		kCaptureDef.bConscript = true;
 	}
 
+	// Captured as is?
+	if(IsCapturedAsIs())
+	{
+		kCaptureDef.bAsIs = true;
+		kCaptureDef.eCaptureUnitType = getUnitType();
+	}
 	// Barbs captured this unit, or a player capturing this unit from the barbs
 	else if(isBarbarian() || (kCaptureDef.eCapturingPlayer != NO_PLAYER && GET_PLAYER(kCaptureDef.eCapturingPlayer).isBarbarian()))
 	{
