@@ -696,13 +696,13 @@ function AssignReligionColours()
 		if religion.Type == "RELIGION_PANTHEON" then
 			tColour = GameInfo.Colors["COLOR_PLAYER_GRAY"]
 			--print("Found the pantheon religion.")
-		elseif Game.AnyoneHasReligion(eReligion) then
+		elseif Game.AnyoneHasReligion(eReligion) or Game.GetNumCitiesFollowing(eReligion) > 0 or Game.GetNumFollowers(eReligion) > 0 then
 			pHolyCity = Game.GetHolyCityForReligion(eReligion, -1)
 			if pHolyCity then -- either religion type was not founded, or holy city has been razed
 				--print("Found holy city.")
-				local pPlayer = Players[pHolyCity:GetOwner()]
+				local pPlayer = Players[pHolyCity:GetOriginalOwner()]
 				if pPlayer then
-					--print("Holy city owner: Player", pHolyCity:GetOwner())
+					--print("Holy city owner: Player", pHolyCity:GetOriginalOwner())
 				end
 				--print("Attempting to get player colours for player,")
 				local ePlayerColour = pPlayer:GetPlayerColor()
@@ -720,13 +720,16 @@ function AssignReligionColours()
 				--print("Success.")
 			end
 
-			if next(tColour) == nil then
-				tColour = GameInfo.Colors["COLOR_PLAYER_GRAY"]
-				--print("Either holy city not found, or civ did not have a colour assigned in database; assigning grey.")
+			if next(tColour) == nil then --if tColour == {} -- Don't attempt this, could cause errors.
+				tColour = GameInfo.Colors["COLOR_PLAYER_PEACH"]
+				--print("Either holy city not found, or civ did not have a colour assigned in database; assigning peach.")
 			end
-			
+
 			--print("Saving colour to table.")
 			tColours[eReligion] = {r = tColour.Red * 255, g = tColour.Green * 255, b = tColour.Blue * 255, a = 1};
+		else
+			tColour = GameInfo.Colors["COLOR_PLAYER_PEACH"] --if it's peach, it's a backup color in case all hope fail
+			--print("Either holy city not found, or civ did not have a colour assigned in database; assigning peaches.")
 		end
 	end
 end
