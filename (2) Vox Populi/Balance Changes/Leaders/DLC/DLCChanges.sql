@@ -307,6 +307,10 @@ UPDATE Traits
 Set MountainPass = '1'
 WHERE Type = 'TRAIT_GREAT_ANDEAN_ROAD';
 
+UPDATE Builds
+SET Help = 'TXT_KEY_BUILD_TERRACE_FARM_HELP'
+WHERE Type = 'BUILD_TERRACE_FARM';
+
 -- Denmark -- Unique National Epic (Jelling Stones) -- Replace Ski Infantry
 
 -- Korea -- Replace Turtle Ship with UB, adjust UA
