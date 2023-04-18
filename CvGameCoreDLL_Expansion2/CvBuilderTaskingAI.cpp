@@ -265,18 +265,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	// for quests we might be targeting a city state ...
 	bool bSamePlayer = (pTargetCity->getOwner() == pPlayerCapital->getOwner());
 
-	// if we already have a connection, bail out
-	bool bIndustrialRoute = (GC.getGame().GetIndustrialRoute() == eRoute);
-	if(bIndustrialRoute)
-	{
-		if (m_pPlayer->GetCityConnections()->AreCitiesDirectlyConnected(pPlayerCapital, pTargetCity, CvCityConnections::CONNECTION_RAILROAD))
-			return;
-	}
-	else if (m_pPlayer->GetCityConnections()->AreCitiesDirectlyConnected(pPlayerCapital, pTargetCity, CvCityConnections::CONNECTION_ROAD))
-	{
-		return;
-	}
-
 	if(pTargetCity->IsRazing())
 	{
 		return;
@@ -354,7 +342,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		//assume one unhappiness is worth gold per turn per city
 		iSideBenefits += pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
 
-		if(bIndustrialRoute)
+		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
 			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD));
 		}
@@ -373,7 +361,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(!pPlot)
 			break;
 
-		if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
+		if(pPlot->isCity())
 			continue;
 
 		//don't build roads if our trait gives the same benefit
