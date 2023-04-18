@@ -265,18 +265,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	// for quests we might be targeting a city state ...
 	bool bSamePlayer = (pTargetCity->getOwner() == pPlayerCapital->getOwner());
 
-	// if we already have a connection, bail out
-	bool bIndustrialRoute = (GC.getGame().GetIndustrialRoute() == eRoute);
-	if(bIndustrialRoute)
-	{
-		if (m_pPlayer->GetCityConnections()->AreCitiesDirectlyConnected(pPlayerCapital, pTargetCity, CvCityConnections::CONNECTION_RAILROAD))
-			return;
-	}
-	else if (m_pPlayer->GetCityConnections()->AreCitiesDirectlyConnected(pPlayerCapital, pTargetCity, CvCityConnections::CONNECTION_ROAD))
-	{
-		return;
-	}
-
 	if(pTargetCity->IsRazing())
 	{
 		return;
@@ -354,7 +342,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		//assume one unhappiness is worth gold per turn per city
 		iSideBenefits += pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
 
-		if(bIndustrialRoute)
+		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
 			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD));
 		}
@@ -373,7 +361,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(!pPlot)
 			break;
 
-		if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
+		if(pPlot->isCity())
 			continue;
 
 		//don't build roads if our trait gives the same benefit
@@ -406,7 +394,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
 	SPath newPath = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
-	//this cannot really happen, but anyway
+	// cities are not on the same landmass? then give up
 	if(!newPath)
 		return;
 
@@ -417,7 +405,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		for (size_t i=0; i<newPath.vPlots.size(); i++)
 		{
 			CvPlot* pPlot = newPath.get(i);
-			if(pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
+			if(pPlot->isCity())
 				continue;
 
 			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
@@ -628,11 +616,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);
-
-		// for citadels also put routes on the neighboring plots ...
-		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()))
-			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
-				AddRoutePlot(iterateRingPlots(pPlot, i), eRoute, 42);
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
@@ -727,26 +710,27 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				if (bConnectOnlyCapitals)
 				{
 					// only need to build roads to the capital for the money and happiness
-					if(!pFirstCity->isCapital() && !pSecondCity->isCapital() && iNetGoldTimes100>0)
+					if (!pFirstCity->isCapital() && !pSecondCity->isCapital() && iNetGoldTimes100 > 0)
 					{
 						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
 						//thus improving unit movement and gold bonus from villages
 						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eBestRoute);
-						continue;
-					}
-
-					if(pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID())
-					{
-						pPlayerCapitalCity = pFirstCity;
-						pTargetCity = pSecondCity;
 					}
 					else
 					{
-						pPlayerCapitalCity = pSecondCity;
-						pTargetCity = pFirstCity;
-					}
+						if (pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID())
+						{
+							pPlayerCapitalCity = pFirstCity;
+							pTargetCity = pSecondCity;
+						}
+						else
+						{
+							pPlayerCapitalCity = pSecondCity;
+							pTargetCity = pFirstCity;
+						}
 
-					ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute, iNetGoldTimes100);
+						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute, iNetGoldTimes100);
+					}
 				}
 				else
 				{
