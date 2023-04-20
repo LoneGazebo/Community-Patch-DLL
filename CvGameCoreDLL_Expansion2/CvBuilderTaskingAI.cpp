@@ -398,9 +398,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(!newPath)
 		return;
 
-	//now compare if the new path is shorter or better than the existing path. 
+	//now compare if the new path is shorter or better than the existing path.
 	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
-	if (newPath.vPlots.size() < existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
+	//if the path is of the same length, we assume it is the same as the existing path, and add route plots there to ensure it is not removed
+	if (newPath.vPlots.size() <= existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
 	{
 		for (size_t i=0; i<newPath.vPlots.size(); i++)
 		{
