@@ -617,6 +617,11 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);
+
+		// for citadels also put routes on the neighboring plots ...
+		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()))
+			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+				AddRoutePlot(iterateRingPlots(pPlot, i), eRoute, 42);
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
