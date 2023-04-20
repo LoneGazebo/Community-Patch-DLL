@@ -398,9 +398,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(!newPath)
 		return;
 
-	//now compare if the new path is shorter or better than the existing path. 
+	//now compare if the new path is shorter or better than the existing path.
 	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
-	if (newPath.vPlots.size() < existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
+	//if the path is of the same length, we assume it is the same as the existing path, and add route plots there to ensure it is not removed
+	if (newPath.vPlots.size() <= existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
 	{
 		for (size_t i=0; i<newPath.vPlots.size(); i++)
 		{
@@ -842,11 +843,23 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 			//some special improvements and roads
 			AddImprovingPlotsDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
+			{
+				// May want to repair and remove road tiles outside of our territory
+				AddRepairTilesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRemoveRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			}
 		}
 		else
 		{
 			//only roads
 			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
+			{
+				// May want to repair and remove road tiles outside of our territory
+				AddRepairTilesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRemoveRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			}
 		}
 	}
 
@@ -1286,6 +1299,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	if (NeedRouteAtPlot(pPlot))
 		return;
 
+	// don't remove routes which we did not create
+	if (pPlot->GetPlayerResponsibleForRoute() != NO_PLAYER && pPlot->GetPlayerResponsibleForRoute() != m_pPlayer->GetID())
+		return;
+
 	//don't touch master's roads!
 	if (pPlot->GetPlayerResponsibleForRoute() != NO_PLAYER && pPlot->GetPlayerResponsibleForRoute() != m_pPlayer->GetID())
 		if (GET_TEAM(m_pPlayer->getTeam()).IsVassal(GET_PLAYER(pPlot->GetPlayerResponsibleForRoute()).getTeam()))
@@ -1585,9 +1602,26 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 
 void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway)
 {
-	// if it's not within a city radius
-	// do not check pWorkingCity for razing but the actual owning city ...
-	if (!pPlot || pPlot->getOwner() != pUnit->getOwner() || pPlot->getOwningCity()->IsRazing())
+	if (!pPlot)
+	{
+		return;
+	}
+
+	bool isOwned = pPlot->isOwned();
+	bool isOwnedByUs = pPlot->getOwner() == pUnit->getOwner();
+	// If it's owned by someone else, ignore it
+	if (isOwned && !isOwnedByUs)
+	{
+		return;
+	}
+	// If it's owned by us, but it's being razed, ignore it (check actual owning city instead of working city)
+	if (isOwnedByUs && pPlot->getOwningCity()->IsRazing())
+	{
+		return;
+	}
+	bool isPillagedRouteWeWantToRepair = NeedRouteAtPlot(pPlot) && pPlot->IsRoutePillaged();
+	// If it's not owned by us, and it's not a route we want to repair, ignore it
+	if (!isOwned && !isPillagedRouteWeWantToRepair)
 	{
 		return;
 	}
