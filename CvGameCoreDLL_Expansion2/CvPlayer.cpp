@@ -11926,7 +11926,7 @@ void CvPlayer::EndTurnsForReadyUnits(bool bLinkedUnitsOnly)
 			{
 				CvString strCiv = GET_PLAYER(pLoopUnit->getOwner()).getCivilizationAdjective();
 				CvString strLogString;
-				strLogString.Format("Warning: Forcing turn end for %s %s at %d,d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
+				strLogString.Format("Warning: Forcing turn end for %s %s at %d,%d", strCiv.c_str(), pLoopUnit->getName().c_str(), pLoopUnit->getX(), pLoopUnit->getY());
 				GetHomelandAI()->LogHomelandMessage(strLogString);
 			}
 		}

@@ -2276,8 +2276,13 @@ void CvHomelandAI::ReviewUnassignedUnits()
 
 					if (pBestPlot != NULL)
 					{
-						if (MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags))
-						{
+
+						if (
+							// check if we are satisfying MOVEFLAG_APPROX_TARGET_RING2 already
+							(iBestDistance < 3 && iBestDistance >= 0) || 
+							// move if not
+							MoveToTargetButDontEndTurn(pUnit, pBestPlot, iFlags)
+						) {
 							pUnit->SetTurnProcessed(true);
 
 							CvString strTemp;
