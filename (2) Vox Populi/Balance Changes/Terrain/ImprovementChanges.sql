@@ -341,6 +341,10 @@ UPDATE Improvements
 SET NoTwoAdjacent = '1'
 WHERE Type = 'IMPROVEMENT_TRADING_POST';
 
+UPDATE Builds
+SET Help = 'TXT_KEY_BUILD_TRADING_POST_HELP'
+WHERE Type = 'BUILD_TRADING_POST';
+
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
 SET Scale= '0.65'
