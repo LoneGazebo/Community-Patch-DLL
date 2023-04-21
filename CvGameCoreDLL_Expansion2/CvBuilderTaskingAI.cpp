@@ -385,6 +385,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(pCity1->getOwner() != pCity2->getOwner())
 		return;
 
+	// don't connect razing cities
+	if (pCity1->IsRazing() || pCity2->IsRazing())
+		return;
+
 	CvCity* pPlayerCapital = m_pPlayer->getCapitalCity();
 	// only build a shortcut if both cities have a connection to the capital (including sea routes)
 	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pPlayerCapital, eRoute, false) || !m_pPlayer->IsCityConnectedToCity(pCity2, pPlayerCapital, eRoute, false))
