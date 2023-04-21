@@ -142,7 +142,8 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			m_plotIdsToConnect.push_back(iPlotIndex);
 		}
 
-		//citadels etc
+		//select strategically important points
+		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
 		for (size_t j=0; j<vPlots.size(); j++)
 		{
@@ -154,14 +155,20 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			if (!pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
 				continue;
 
-			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			//natural defenses
+			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint())
 			{
+				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
+			}
+			else if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			{
+				//citadels and forts
 				CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 				if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 20)
 					m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}
 
-			//in industrial era, AI becomes much more generous with roads ...
+			//in industrial era, AI becomes much more generous with routes ...
 			if (bIsIndustrial && bHaveGoldToSpare && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 		}

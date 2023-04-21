@@ -463,7 +463,7 @@ bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
 
 void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
 {
-	if (!pPlot)
+	if (!pPlot || pPlot->getOwner()!=m_pPlayer->GetID())
 		return;
 
 	// if we already know about this plot, continue on
@@ -623,14 +623,11 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (!pPlot)
 			break;
 
-		if (pPlot->getOwner() != m_pPlayer->GetID())
-			break;
-
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);
 
-		// for citadels also put routes on the neighboring plots ...
-		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()))
+		// for citadels and cities also put routes on the neighboring plots ...
+		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()) || pPlot->isCity())
 			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
 				AddRoutePlot(iterateRingPlots(pPlot, i), eRoute, 42);
 	}
