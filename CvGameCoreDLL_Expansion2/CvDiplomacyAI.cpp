@@ -53624,7 +53624,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	// Original major capitals are worth more.
 	if (pCity->IsOriginalCapitalForPlayer(eNewOwner) && pCity->IsOriginalMajorCapital())
 	{
-		iLiberationValue *= /*150*/ GC.getWARMONGER_THREAT_CAPITAL_CITY_PERCENT();
+		iLiberationValue *= /*150*/ GD_INT_GET(WARMONGER_THREAT_CAPITAL_CITY_PERCENT);
 		iLiberationValue /= 100;
 	}
 
