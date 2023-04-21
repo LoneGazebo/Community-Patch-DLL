@@ -286,7 +286,7 @@ VALUES
 -- Improvements -- Trading Post -- Available at Currency
 
 UPDATE Builds
-SET PrereqTech = 'TECH_CURRENCY'
+SET PrereqTech = 'TECH_CURRENCY', Help = 'TXT_KEY_BUILD_TRADING_POST_HELP'
 WHERE Type = 'BUILD_TRADING_POST';
 
 -- Lumbermill moved to Steel
@@ -340,10 +340,6 @@ WHERE Type = 'IMPROVEMENT_BARBARIAN_CAMP';
 UPDATE Improvements
 SET NoTwoAdjacent = '1'
 WHERE Type = 'IMPROVEMENT_TRADING_POST';
-
-UPDATE Builds
-SET Help = 'TXT_KEY_BUILD_TRADING_POST_HELP'
-WHERE Type = 'BUILD_TRADING_POST';
 
 -- Shrink Trading Post
 UPDATE ArtDefine_Landmarks
