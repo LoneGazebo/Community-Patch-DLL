@@ -336,7 +336,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		int iSideBenefits = 500 + iRoadLength * 100;
 
 		// give an additional bump if we're almost done (don't get distracted and leave half-finished roads)
-		if (iPlotsNeeded < 3 && iRoadLength - iPlotsNeeded > 3)
+		if (iPlotsNeeded > 0 && iPlotsNeeded < 3)
 			iSideBenefits += 20000;
 
 		//assume one unhappiness is worth gold per turn per city
