@@ -886,6 +886,10 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			return;
 	}
 
+	// if city owning this plot is being razed, ignore this plot
+	if (pCity && pCity->IsRazing())
+		return;
+
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 
 	// loop through the build types to find one that we can use
@@ -1047,6 +1051,10 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 	}
 
 	if(!m_bEvaluateAdjacent && !pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
+		return;
+
+	// if city owning this plot is being razed, ignore this plot
+	if (pCity && pCity->IsRazing())
 		return;
 
 	// check to see if a non-bonus resource is here. if so, bail out!
@@ -1418,6 +1426,10 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 	if (pPlot->IsImprovementPillaged())
 		return;
 
+	// if city owning this plot is being razed, ignore this plot
+	if (pCity && pCity->IsRazing())
+		return;
+
 	// check to see if a resource is here. If so, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
 	if(eResource != NO_RESOURCE)
@@ -1620,6 +1632,12 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		return;
 	}
 
+	// if city owning this plot is being razed, and it's not a route we want to repair, ignore this plot
+	if (pWorkingCity && pWorkingCity->IsRazing() && !isPillagedRouteWeWantToRepair)
+	{
+		return;
+	}
+
 	//nothing pillaged here? hmm...
 	if (!pPlot->IsImprovementPillaged() && !pPlot->IsRoutePillaged())
 	{
@@ -1652,7 +1670,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	}
 }
 // Everything means less than zero, hey
-void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	if(m_eFalloutFeature == NO_FEATURE || m_eFalloutRemove == NO_BUILD)
 	{
@@ -1663,6 +1681,10 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 	{
 		return;
 	}
+
+	// if city owning this plot is being razed, ignore this plot
+	if (pCity && pCity->IsRazing())
+		return;
 
 	if(pPlot->getFeatureType() == m_eFalloutFeature && pUnit->canBuild(pPlot, m_eFalloutRemove))
 	{
