@@ -2,14 +2,14 @@
 
 UPDATE Policies
 SET
-	MaxAirUnitsChangeGlobal = 1
+	MaxAirUnitsChangeGlobal = 2, CityStrengthMod = 0, FlatDefenseFromAirUnits = 3
 WHERE Type = 'POLICY_THEIR_FINEST_HOUR';
 
-INSERT INTO Policy_UnitCombatProductionModifiers
+/*INSERT INTO Policy_UnitCombatProductionModifiers
 	(PolicyType, UnitCombatType, ProductionModifier)
 VALUES
 	('POLICY_THEIR_FINEST_HOUR', 'UNITCOMBAT_BOMBER', 25),
-	('POLICY_THEIR_FINEST_HOUR', 'UNITCOMBAT_FIGHTER', 25);
+	('POLICY_THEIR_FINEST_HOUR', 'UNITCOMBAT_FIGHTER', 25);*/
 
 INSERT INTO Policy_UnitClassReplacements
 	(PolicyType, ReplacedUnitClassType, ReplacementUnitClassType)

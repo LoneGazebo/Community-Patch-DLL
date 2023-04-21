@@ -286,7 +286,7 @@ VALUES
 -- Improvements -- Trading Post -- Available at Currency
 
 UPDATE Builds
-SET PrereqTech = 'TECH_CURRENCY'
+SET PrereqTech = 'TECH_CURRENCY', Help = 'TXT_KEY_BUILD_TRADING_POST_HELP'
 WHERE Type = 'BUILD_TRADING_POST';
 
 -- Lumbermill moved to Steel
@@ -307,6 +307,11 @@ WHERE Type = 'BUILD_FARM';
 UPDATE Improvements
 SET RequiresFlatlands = '1', RequiresFlatlandsOrFreshWater = '0'
 WHERE Type = 'IMPROVEMENT_FARM';
+
+-- Lumber Mill
+UPDATE Builds
+SET Help = 'TXT_KEY_BUILD_LUMBERMILL_HELP'
+WHERE Type = 'BUILD_LUMBERMILL';
 
 
 -- Forts and Citadels 'no two adjacent' and no outside borders for Fort - cannot be built on resources (helps AI quite a bit)	

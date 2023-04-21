@@ -233,7 +233,7 @@
 
 	<!-- Imperialism -->
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST">
-			<Text>Ironsides</Text>
+			<Text>Banzai!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST_HELP">
 			<Text>[ICON_STRENGTH] Combat Strength increases from taking damage.</Text>

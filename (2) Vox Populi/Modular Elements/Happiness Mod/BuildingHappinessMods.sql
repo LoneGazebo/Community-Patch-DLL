@@ -15,10 +15,10 @@ UPDATE Policies
 SET PovertyFlatReductionGlobal = '2'
 WHERE Type = 'POLICY_CARAVANS';
 
--- Imperialism
+/*-- Imperialism
 UPDATE Policies
 SET NeedsModifierFromAirUnits = '3'
-WHERE Type = 'POLICY_EXPLORATION_FINISHER';
+WHERE Type = 'POLICY_EXPLORATION_FINISHER';*/
 
 -- Rationalism
 UPDATE Policies
