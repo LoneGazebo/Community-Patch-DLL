@@ -2,6 +2,9 @@
 <!-- Created by ModBuddy on 3/2/2016 4:34:53 PM -->
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILD_TRADING_POST_HELP">
+			<Text>Gain more [ICON_PRODUCTION] Production and [ICON_GOLD] if built over a Road, Railroad, or if a Trade Route passes over this Village.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILD_LUMBERMILL_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 Lumber Mills adjacent to this Lumber Mill.</Text>
 		</Row>
