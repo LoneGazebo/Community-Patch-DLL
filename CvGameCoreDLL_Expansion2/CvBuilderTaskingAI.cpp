@@ -385,9 +385,9 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(pCity1->getOwner() != pCity2->getOwner())
 		return;
 
-	// if we *don't* already have a basic land connection, bail out
-	SPath existingPath;
-	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, ROUTE_ROAD, true, &existingPath))
+	CvCity* pPlayerCapital = m_pPlayer->getCapitalCity();
+	// only build a shortcut if both cities have a connection to the capital (including sea routes)
+	if (!m_pPlayer->IsCityConnectedToCity(pCity1, pPlayerCapital, eRoute, false) || !m_pPlayer->IsCityConnectedToCity(pCity2, pPlayerCapital, eRoute, false))
 		return;
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
@@ -398,26 +398,20 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if(!newPath)
 		return;
 
-	//now compare if the new path is shorter or better than the existing path.
-	//don't use the normalized distance though because we have two different pathfinders here, so it's not quite comparable
-	//if the path is of the same length, we assume it is the same as the existing path, and add route plots there to ensure it is not removed
-	if (newPath.vPlots.size() <= existingPath.vPlots.size() || eRoute>ROUTE_ROAD )
+	for (size_t i=0; i<newPath.vPlots.size(); i++)
 	{
-		for (size_t i=0; i<newPath.vPlots.size(); i++)
-		{
-			CvPlot* pPlot = newPath.get(i);
-			if(pPlot->isCity())
-				continue;
+		CvPlot* pPlot = newPath.get(i);
+		if(pPlot->isCity())
+			continue;
 
-			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
-				continue;
+		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
+			continue;
 
-			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
-				continue;
+		if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
+			continue;
 
-			//remember it
-			AddRoutePlot(pPlot, eRoute, 10);
-		}
+		//remember it
+		AddRoutePlot(pPlot, eRoute, 10);
 	}
 }
 
