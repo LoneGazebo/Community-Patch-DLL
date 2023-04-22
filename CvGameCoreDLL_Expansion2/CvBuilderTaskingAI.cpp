@@ -1396,6 +1396,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	if (NeedRouteAtPlot(pPlot))
 		return;
 
+	// we don't need to remove pillaged routes
+	if (pPlot->IsRoutePillaged())
+		return;
+
 	// don't remove routes which we did not create
 	if (pPlot->GetPlayerResponsibleForRoute() != NO_PLAYER && pPlot->GetPlayerResponsibleForRoute() != m_pPlayer->GetID())
 		return;
