@@ -665,6 +665,10 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (pOriginCity->getOwner() != pTargetPlot->getOwner())
 		return;
 
+	// only connect strategic points to the city they belong to
+	if (pTargetPlot->getOwningCity() != pOriginCity)
+		return;
+
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if (!pRouteInfo)
 		return;
