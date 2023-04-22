@@ -296,6 +296,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	int iRoadLength = 0;
 	int iPlotsNeeded = 0;
 	int iWildPlots = 0; //plots not under our control ... dangerous
+	int iConsecutiveWildPlots = 0; // maximum number of consecutive wild plots encountered
 
 	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
@@ -311,13 +312,24 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		if(pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 			iPlotsNeeded++;
-
-		if (pPlot->getOwner()!=m_pPlayer->GetID())
+		
+		// plots more than one tile away from our borders are dangerous
+		if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+		{
 			iWildPlots++;
+		}
+		else
+		{
+			if (iWildPlots > iConsecutiveWildPlots)
+			{
+				iConsecutiveWildPlots = iWildPlots;
+			}
+			iWildPlots = 0;
+		}
 	}
 
 	//don't build through the wilderness
-	if (iWildPlots>3 && bSamePlayer && !bHuman)
+	if (iConsecutiveWildPlots>1 && bSamePlayer && !bHuman)
 		return;
 
 	//see if the new route makes sense economically
