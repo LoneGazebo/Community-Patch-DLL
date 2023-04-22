@@ -3042,7 +3042,12 @@ int CvLuaCity::lGetYieldFromUnitsInCity(lua_State* L)
 	CvPlot* pCityPlot = pkCity->plot();
 	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
-		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eYieldType);
+		CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+		
+		if (!pLoopUnit)
+			continue;
+
+		int iTempVal = pLoopUnit->GetYieldChange(eYieldType);
 		if (iTempVal != 0)
 		{
 			Total += iTempVal;

@@ -7278,7 +7278,12 @@ CvString CvCityCulture::GetTourismTooltip()
 	CvPlot* pCityPlot = m_pCity->plot();
 	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
-		iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldModifier(YIELD_TOURISM);
+		CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+		if (!pLoopUnit)
+			continue;
+
+		iTempMod = pLoopUnit->GetYieldModifier(YIELD_TOURISM);
 		if (iTempMod != 0)
 		{
 			if (bHasCityModTooltip == false)

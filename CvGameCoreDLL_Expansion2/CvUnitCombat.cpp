@@ -4366,7 +4366,7 @@ CvUnit* CvUnitCombat::GetFireSupportUnit(PlayerTypes eDefender, int iDefendX, in
 				CvUnit* pLoopUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
 
 				// Unit owned by same player?
-				if(pLoopUnit->getOwner() == eDefender)
+				if(pLoopUnit && pLoopUnit->getOwner() == eDefender)
 				{
 					// Can this unit perform a ranged strike on the attacker's plot?
 					if(pLoopUnit->canRangeStrikeAt(iAttackX, iAttackY))

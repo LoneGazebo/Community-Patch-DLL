@@ -2177,6 +2177,9 @@ void CvCity::PreKill()
 	{
 		CvUnit* pLoopUnit = pPlot->getUnitByIndex(iUnitLoop);
 
+		if (!pLoopUnit)
+			continue;
+
 		if (pLoopUnit->IsGarrisoned())
 			pLoopUnit->SetGarrisonedCity(-1);
 
@@ -13649,7 +13652,12 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		CvPlot* pCityPlot = plot();
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getMilitaryProductionModifier();
+			CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+			if (!pLoopUnit)
+				continue;
+
+			iTempMod = pLoopUnit->getMilitaryProductionModifier();
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
@@ -13852,7 +13860,12 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->getWonderProductionModifier();
+			CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+			if (!pLoopUnit)
+				continue;
+
+			iTempMod = pLoopUnit->getWonderProductionModifier();
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
@@ -14017,7 +14030,12 @@ int CvCity::getProductionModifier(BuildingTypes eBuilding, CvString* toolTipSink
 		CvPlot* pCityPlot = plot();
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempMod = (pCityPlot->getUnitByIndex(iUnitLoop)->getWonderProductionModifier() * iMod) / 100;
+			CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+			if (!pLoopUnit)
+				continue;
+
+			iTempMod = (pLoopUnit->getWonderProductionModifier() * iMod) / 100;
 			if (iTempMod != 0)
 			{
 				iMultiplier += iTempMod;
@@ -19635,7 +19653,12 @@ int CvCity::GetBaseJONSCulturePerTurn() const
 	CvPlot* pCityPlot = plot();
 	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
-		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(YIELD_CULTURE);
+		CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+		if (!pLoopUnit)
+			continue;
+
+		int iTempVal = pLoopUnit->GetYieldChange(YIELD_CULTURE);
 		if (iTempVal != 0)
 		{
 			iCulturePerTurn += iTempVal;
@@ -19953,7 +19976,12 @@ int CvCity::GetFaithPerTurn() const
 	CvPlot* pCityPlot = plot();
 	for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 	{
-		int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(YIELD_FAITH);
+		CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+		if (!pLoopUnit)
+			continue;
+
+		int iTempVal = pLoopUnit->GetYieldChange(YIELD_FAITH);
 		if (iTempVal != 0)
 		{
 			iFaith += iTempVal;
@@ -24984,7 +25012,12 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 		CvPlot* pCityPlot = plot();
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			iTempMod = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldModifier(eIndex);
+			CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+			if (!pLoopUnit)
+				continue;
+
+			int iTempMod = pLoopUnit->GetYieldModifier(eIndex);
 			if (iTempMod != 0)
 			{
 				iModifier += iTempMod;
@@ -25569,7 +25602,12 @@ int CvCity::getBaseYieldRate(YieldTypes eIndex) const
 		CvPlot* pCityPlot = plot();
 		for (int iUnitLoop = 0; iUnitLoop < pCityPlot->getNumUnits(); iUnitLoop++)
 		{
-			int iTempVal = pCityPlot->getUnitByIndex(iUnitLoop)->GetYieldChange(eIndex);
+			CvUnit* pLoopUnit = pCityPlot->getUnitByIndex(iUnitLoop);
+
+			if (!pLoopUnit)
+				continue;
+
+			int iTempVal = pLoopUnit->GetYieldChange(eIndex);
 			if (iTempVal != 0)
 			{
 				iValue += iTempVal;
@@ -34329,6 +34367,10 @@ bool CvCity::IsInDanger(PlayerTypes eEnemy) const
 		for (int j = 0; j < pPlot->getNumUnits(); j++)
 		{
 			CvUnit* pUnit = pPlot->getUnitByIndex(j);
+
+			if (!pUnit)
+				continue;
+
 			if (pUnit->IsCombatUnit())
 			{
 				if (pUnit->getTeam() == getTeam())

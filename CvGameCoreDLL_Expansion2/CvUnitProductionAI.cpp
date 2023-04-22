@@ -648,13 +648,16 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						for (int iUnitLoop = 0; iUnitLoop < m_pCity->plot()->getNumUnits(); iUnitLoop++)
 						{
 							pLoopUnit2 = m_pCity->plot()->getUnitByIndex(iUnitLoop);
-							if (pLoopUnit2->isFound() && pLoopUnit2->getArmyID() == -1)
-							{
-								iWarValue += 2;
-							}
-							else if (pLoopUnit2->isFound() && pLoopUnit2->getArmyID() != -1)
-							{
-								iWarValue += 1;
+
+							if (pLoopUnit2 && pLoopUnit2->isFound()) {
+								if (pLoopUnit2->getArmyID() == -1)
+								{
+									iWarValue += 2;
+								}
+								else if (pLoopUnit2->getArmyID() != -1)
+								{
+									iWarValue += 1;
+								}
 							}
 						}
 					}

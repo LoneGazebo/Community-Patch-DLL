@@ -4065,7 +4065,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				for (int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 				{
 					CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
-					if (pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
+					if (pLoopUnit && pLoopUnit->IsGreatGeneral() && pLoopUnit->GetID() != pUnit->GetID())
 						bOccupied = true;
 				}
 
@@ -5274,6 +5274,10 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 			for (int iUnitLoop = 0; iUnitLoop < pTarget->getNumUnits(); iUnitLoop++)
 			{
 				CvUnit *pLoopUnit = pTarget->getUnitByIndex(iUnitLoop);
+
+				if (!pLoopUnit)
+					continue;
+
 				if (pLoopUnit->AI_getUnitAIType() != UNITAI_ARCHAEOLOGIST)
 					continue;
 				

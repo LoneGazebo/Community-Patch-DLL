@@ -3633,7 +3633,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (strcmp(szCivKey, "CIVILIZATION_INDONESIA") == 0)
 			{
 				CvUnit *pConqueringUnit = pCityPlot->getUnitByIndex(0);
-				if (pConqueringUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_KRIS_SWORDSMAN", true))
+				if (pConqueringUnit && pConqueringUnit->getUnitType() == (UnitTypes)GC.getInfoTypeForString("UNIT_KRIS_SWORDSMAN", true))
 				{
 					PromotionTypes ePromotion = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_ENEMY_BLADE", true);
 					if (pConqueringUnit->isHasPromotion(ePromotion))
@@ -3672,7 +3672,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			{
 				CvUnit *pConqueringUnit = pCityPlot->getUnitByIndex(0);
 				PromotionTypes ePromotion = (PromotionTypes)GC.getInfoTypeForString("PROMOTION_PICKETT", true);
-				if (pConqueringUnit->isHasPromotion(ePromotion))
+				if (pConqueringUnit && pConqueringUnit->isHasPromotion(ePromotion))
 				{
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_59);
 				}

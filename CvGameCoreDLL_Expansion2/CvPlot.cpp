@@ -7462,8 +7462,14 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			//must be false now
 			SetImprovementPassable(false);
 			//displace units which cannot stay here any longer (question: what if we replace one passable improvement with another? that let's ignore that case)
-			for (int i = 0; i < getNumUnits(); i++)
-				getUnitByIndex(i)->jumpToNearestValidPlotWithinRange(1);
+			for (int i = 0; i < getNumUnits(); i++) {
+				CvUnit* pLoopUnit = getUnitByIndex(i);
+				
+				if (!pLoopUnit) 
+					continue;
+
+				pLoopUnit->jumpToNearestValidPlotWithinRange(1);
+			}
 
 			// If this improvement can add culture to nearby improvements, update them as well
 			if(area())

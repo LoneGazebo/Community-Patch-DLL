@@ -12552,7 +12552,7 @@ bool CvUnit::repairFleet()
 	for (iUnitLoop = 0; iUnitLoop < pPlot->getNumUnits(); iUnitLoop++)
 	{
 		CvUnit *pUnit = pPlot->getUnitByIndex(iUnitLoop);
-		if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
+		if (pUnit && pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
 		{
 			pUnit->changeDamage(-pUnit->getDamage());
 		}
@@ -12568,7 +12568,7 @@ bool CvUnit::repairFleet()
 			for (iUnitLoop = 0; iUnitLoop < pAdjacentPlot->getNumUnits(); iUnitLoop++)
 			{	
 				CvUnit *pUnit = pAdjacentPlot->getUnitByIndex(iUnitLoop);
-				if (pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
+				if (pUnit && pUnit->getOwner() == getOwner() && (pUnit->isEmbarked() || pUnit->getDomainType() == DOMAIN_SEA))
 				{
 					pUnit->changeDamage(-pUnit->getDamage());
 				}
@@ -21319,7 +21319,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					{
 						for(int iJ = 0; iJ < pAdjacentPlot->getNumUnits(); iJ++)
 						{
-							if(pAdjacentPlot->getUnitByIndex(iJ)->getUnitType() ==  eExplorer && strcmp(pAdjacentPlot->getUnitByIndex(iJ)->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0)
+							CvUnit* pLoopUnit = pAdjacentPlot->getUnitByIndex(iJ);
+							if (pLoopUnit && pLoopUnit->getUnitType() == eExplorer && strcmp(pLoopUnit->getNameNoDesc(), "TXT_KEY_EXPLORER_LIVINGSTON") == 0)
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP2_52);
 							}

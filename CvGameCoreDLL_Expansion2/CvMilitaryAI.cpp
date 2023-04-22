@@ -2775,7 +2775,7 @@ CvPlot *CvMilitaryAI::GetBestAirSweepTarget(CvUnit* pFighter) const
 							{
 								CvUnit *pUnit = pCityPlot->getUnitByIndex(iUnitLoop);
 								{
-									if (pUnit->getDomainType() == DOMAIN_AIR)
+									if (pUnit && pUnit->getDomainType() == DOMAIN_AIR)
 									{
 										if (pUnit->IsAirSweepCapable() || pUnit->canAirDefend())
 										{

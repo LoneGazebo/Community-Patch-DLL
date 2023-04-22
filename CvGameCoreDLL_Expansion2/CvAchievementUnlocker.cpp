@@ -434,7 +434,7 @@ void CvPlayerAchievements::StartTurn()
 						for(int i = 0; i < iNumUnits; ++i)
 						{
 							CvUnit* pStackedUnit = pPlot->getUnitByIndex(i);
-							if(pStackedUnit->getUnitType() == m_eHakkapelittaType)
+							if(pStackedUnit && pStackedUnit->getUnitType() == m_eHakkapelittaType)
 							{
 								gDLL->UnlockAchievement(ACHIEVEMENT_XP1_31);
 								return;
