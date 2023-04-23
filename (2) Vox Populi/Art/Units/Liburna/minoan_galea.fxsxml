@@ -1,0 +1,85 @@
+<Asset>
+	<Mesh file="minoan_galea.gr2"/>
+	<Animation file="U_Carthage_Quinquereme_IdleA.gr2" ec="1000"/>
+	<Animation file="U_Carthage_Quinquereme_FidgetA.gr2" ec="1040"/>
+	<Animation file="U_Carthage_Quinquereme_IdleA_Trans_IdleB.gr2" ec="1020"/>
+	<Animation file="U_Carthage_Quinquereme_IdleB.gr2" ec="2000"/>
+	<Animation file="U_Carthage_Quinquereme_FidgetB.gr2" ec="2040"/>
+	<Animation file="U_Carthage_Quinquereme_IdleB_Trans_IdleA.gr2" ec="2020"/>
+	<Animation file="U_Carthage_Quinquereme_Fortify.gr2" ec="1500"/>
+	<Animation file="U_Carthage_Quinquereme_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="U_Carthage_Quinquereme_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="U_Carthage_Quinquereme_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="U_Carthage_Quinquereme_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="U_Carthage_Quinquereme_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="U_Carthage_Quinquereme_Combat_Ready_Idle.gr2" ec="1620"/>
+	<Animation file="U_Carthage_Quinquereme_Combat_Ready_Idle_Trans_IdleA.gr2" ec="1640"/>
+	<Animation file="U_Carthage_Quinquereme_Run.gr2" ec="1400, 1120"/>
+	<Animation file="U_Carthage_Quinquereme_Stop_Run.gr2" ec="1440"/>
+	<Animation file="U_Carthage_Quinquereme_AttackA.gr2" ec="1100, 1160, 1180"/>
+	<Animation file="U_Carthage_Quinquereme_AttackB.gr2" ec="2100, 2160, 2180"/>
+	<Animation file="U_Carthage_Quinquereme_Victory.gr2" ec="1800"/>
+	<Animation file="U_Carthage_Quinquereme_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="U_Carthage_Quinquereme_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="U_Carthage_Quinquereme_Bombard_Defense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="U_Carthage_Quinquereme_DeathA.gr2" ec="1200"/>
+	<Animation file="U_Carthage_Quinquereme_DeathA_Idle.gr2" ec="1220"/>
+	<Animation file="U_Carthage_Quinquereme_DeathB.gr2" ec="2200"/>
+	<Animation file="U_Carthage_Quinquereme_DeathB_Idle.gr2" ec="2220"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<Texture file="Trireme_DIFF.dds"/>
+	<Texture file="Trireme_DIFF_HeavyDMG.dds"/>
+	<Texture file="Trireme_DIFF_LightDMG.dds"/>
+	<Texture file="Trireme_SREF.dds"/>
+	<Texture file="Trireme_SREF_HeavyDMG.dds"/>
+	<Texture file="Trireme_SREF_LightDMG.dds"/>
+	<Texture file="Quinquereme_DIFF.dds"/>
+	<Texture file="Quinquereme_DMG_DIFF.dds"/>
+	<Texture file="Quinquereme_SREF.dds"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<TimedTrigger file="FX_Triggers_U_Carthage_Quinquereme.ftsxml"/>
+	<BoneUsage>
+		<Bone name="WORLD_center"/>
+		<Bone name="fx_PROJECTILE_L_04"/>
+		<Bone name="fx_PROJECTILE_R_01"/>
+		<Bone name="fx_PROJECTILE_L_03"/>
+		<Bone name="fx_PROJECTILE_R_02"/>
+		<Bone name="fx_PROJECTILE_R_04"/>
+		<Bone name="fx_PROJECTILE_L_02"/>
+		<Bone name="fx_PROJECTILE_R_03"/>
+		<Bone name="fx_PROJECTILE_L_05"/>
+		<Bone name="fx_PROJECTILE_R_05"/>
+		<Bone name="fx_PROJECTILE_L_01"/>
+		<Bone name="fx_PROJECTILE_L_07"/>
+		<Bone name="fx_PROJECTILE_L_06"/>
+		<Bone name="fx_PROJECTILE_R_07"/>
+		<Bone name="fx_PROJECTILE_R_06"/>
+	</BoneUsage>
+	<AnimGraph file="ATTACK_TO_RUN_GRAPH.dge"/>
+	<AnimGraph file="ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="SHIP_STOP_RUNNING.dge"/>
+	<AnimGraph file="SHIP_ATTACKS.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="ATTACK_CITY_TO_RUN.dge"/>
+	<AnimGraph file="RANGED_DEATH.dge"/>
+	<AnimGraph file="START_RUNNING.dge"/>
+	<AnimGraph file="RUNNING_LOOP_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="ENTER_FORTIFY.dge"/>
+	<AnimGraph file="ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<StateMachine file="SHIPS_STATE_01.fsmxml"/>
+</Asset>
+
