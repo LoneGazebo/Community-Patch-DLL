@@ -805,7 +805,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				if (bConnectOnlyCapitals)
 				{
 					// only need to build roads to the capital for the money and happiness
-					if (!pFirstCity->isCapital() && !pSecondCity->isCapital() && iNetGoldTimes100 > 0)
+					if (!pFirstCity->isCapital() && !pSecondCity->isCapital())
 					{
 						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
 						//thus improving unit movement and gold bonus from villages
