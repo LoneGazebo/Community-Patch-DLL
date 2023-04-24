@@ -50,7 +50,7 @@
 			<Text>Construct an [LINK=IMPROVEMENT_EKI]Eki[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI_HELP">
-			<Text>Constructs an Eki, which increases [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food. Provides additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Removes any features on the tile. Must be build on flat tiles without access to Fresh Water. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+		    <Text>+1 [ICON_PRODUCTION] Production for every 2 Ekis adjacent to this Eki. Must be build on flat tiles without access to Fresh Water. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.[NEWLINE][NEWLINE]Building in neutral territory may encourage cities to naturally expand to this Eki.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI_REC">
 			<Text>It will increase [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food. Provides additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
@@ -69,7 +69,7 @@
 			<Text>Construct a [LINK=IMPROVEMENT_SPAIN_HACIENDA]Hacienda[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_HELP">
-			<Text>Constructs a Hacienda, which yields [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold.[NEWLINE]Gains [ICON_FOOD] Food for adjacent Bonus Resource, [ICON_PRODUCTION] Production for adjacent Strategic Resources, [ICON_GOLD] Gold for adjacent Luxury Resources, and [ICON_CULTURE] Culture from adjacent Cities.</Text>
+			<Text>+2 [ICON_Food] Food from adjacent Bonus Resources, +2 [ICON_PRODUCTION] Production from adjacent Strategic Resources, +2 [ICON_GOLD] Gold from adjacent Luxury Resources, and +2 [ICON_CULTURE] from adjacent Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_SPAIN_HACIENDA_REC">
 			<Text>It will increase [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold.[NEWLINE]Gains [ICON_CULTURE] Culture from adjacent Cities and [ICON_FOOD] Food, [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from adjacent resources.</Text>
@@ -110,8 +110,8 @@
 			<Text>Construct an [LINK=IMPROVEMENT_ENCAMPMENT_SHOSHONE]Encampment[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_HELP">
-			<Text>Constructs an Encampment, which increases the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and damages adjacent enemy units for 5 Hit Points.</Text>
-		</Row>
+                    <Text>+15% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Any enemy unit which ends its turn next to the Encampment takes 5 damage.</Text>
+                </Row>
 		<Row Tag="TXT_KEY_BUILD_ENCAMPMENT_SHOSHONE_REC">
 			<Text>It will increase the amount of [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides a small defensive bonuse and lightly damages adjacent enemy units.</Text>
 		</Row>
@@ -128,7 +128,7 @@
 			<Text>Build a [LINK=IMPROVEMENT_SIHEYUAN]Siheyuan[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_SIHEYUAN_HELP">
-			<Text>Constructs a Siheyuan, which increases [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture provided by this tile. Removes any features on the tile. Provides more yields when the nearby city is in a "We Love The Empress Day".</Text>
+			<Text>+1 [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when worked by a City under "We Love The Empress Day." May only be built adjacent to a city or two Siheyuans.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_SIHEYUAN_REC">
 			<Text>It will increase [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Removes any features on the tile. Provides more yields when the nearby city is in a "We Love The Empress Day".</Text>
