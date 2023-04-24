@@ -310,21 +310,25 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		iRoadLength++;
 
-		if(pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
-			iPlotsNeeded++;
-		
-		// plots more than one tile away from our borders are dangerous
-		if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 		{
-			iWildPlots++;
+			iPlotsNeeded++;
 		}
 		else
 		{
-			if (iWildPlots > iConsecutiveWildPlots)
+			// plots more than one tile away from our borders are dangerous
+			if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 			{
-				iConsecutiveWildPlots = iWildPlots;
+				iWildPlots++;
 			}
-			iWildPlots = 0;
+			else
+			{
+				if (iWildPlots > iConsecutiveWildPlots)
+				{
+					iConsecutiveWildPlots = iWildPlots;
+				}
+				iWildPlots = 0;
+			}
 		}
 	}
 
