@@ -1,9 +1,9 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
-	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
-	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
-	All other marks and trademarks are the property of their respective owners.  
-	All rights reserved. 
+	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.
+	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software
+	and their respective logos are all trademarks of Take-Two interactive Software, Inc.
+	All other marks and trademarks are the property of their respective owners.
+	All rights reserved.
 	------------------------------------------------------------------------------------------------------- */
 #include "CvGameCoreDLLPCH.h"
 #include "ICvDLLUserInterface.h"
@@ -63,7 +63,7 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 		{
 			continue;
 		}
-		
+
 		ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
 		if(eImprovement == NO_IMPROVEMENT)
 		{
@@ -313,7 +313,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 		{
 			iPlotsNeeded++;
-		
+
 			// plots more than one tile away from our borders are dangerous
 			if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 			{
@@ -383,7 +383,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		{
 			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
 				continue;
-			
+
 			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 				continue;
 		}
@@ -1913,7 +1913,7 @@ int CvBuilderTaskingAI::GetBuildCostWeight(int iWeight, CvPlot* pPlot, BuildType
 		iWeight = (iWeight * 100) / iBuildCost;
 		return iWeight;
 	}
-	
+
 	return iWeight;
 }
 
@@ -1978,7 +1978,7 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 		int iModifier = pkResource->getHappiness() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
 
 		if (m_pPlayer->getNumResourceAvailable(eResource) > 0)
-			iModifier /= 10; 
+			iModifier /= 10;
 
 		iWeight *= iModifier;
 	}
@@ -2078,7 +2078,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				iYieldScore += iYieldDelta;
 			}
 		}
-			
+
 		//Because this evaluates territory outside of our base territory, let's cut this down a bit.
 		iYieldScore -= iSmallBuff;
 	}
