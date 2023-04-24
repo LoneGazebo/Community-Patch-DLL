@@ -769,7 +769,7 @@
 			<Text>+1 [ICON_PRODUCTION] Production from Camps. +34% faster border growth and the [ICON_GOLD] Gold cost of acquiring new tiles is reduced by 25% in this City. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_COW] Cows: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_HORSE] Horses: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
-			<Text>Unique Mongolian replacement for the Lodge. In addition to the Lodge's bonuses, the Ger provides Food from livestock. It also provides a small amount of Faith, and has no maintenance. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
+			<Text>Unique Mongolian replacement for the Lodge. In addition to the Lodge's bonuses, the Ger provides Food from livestock. It also provides a small amount of Faith. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON">
