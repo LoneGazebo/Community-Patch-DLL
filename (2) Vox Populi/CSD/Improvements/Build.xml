@@ -40,7 +40,7 @@
 			<Text>Construct an [LINK=IMPROVEMENT_EMBASSY]Embassy[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_CONSUMED_HELP_EMBASSY">
-			<Text>Unit will be consumed.[NEWLINE][NEWLINE]This Great Tile Improvement cannot be built on top of Strategic or Luxury Resources. Grants [COLOR_POSITIVE_TEXT]1 World Congress Vote[ENDCOLOR] when constructed.</Text>
+			<Text>Unit will be consumed.[NEWLINE][NEWLINE]This Great Tile Improvement cannot be built on top of Strategic or Luxury Resources. Grants [COLOR_POSITIVE_TEXT]1 World Congress Vote[ENDCOLOR] when constructed. Gain +1 [ICON_RES_PAPER] Paper.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
