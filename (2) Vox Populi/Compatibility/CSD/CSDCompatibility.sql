@@ -108,11 +108,6 @@ INSERT INTO Trait_GreatPersonBornYield
 VALUES
 	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 'YIELD_GOLDEN_AGE_POINTS', 50);
 
-INSERT INTO Trait_GoldenAgeGreatPersonRateModifier
-	(TraitType, GreatPersonType, Modifier)
-VALUES
-	('TRAIT_SCHOLARS_JADE_HALL', 'GREATPERSON_DIPLOMAT', 30);
-
 INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
