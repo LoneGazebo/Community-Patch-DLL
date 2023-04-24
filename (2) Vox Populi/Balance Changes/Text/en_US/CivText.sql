@@ -403,6 +403,10 @@ SET Text = 'A Chateau can only be built adjacent to a Luxury resource. It may no
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CHATEAU_TEXT';
 
 UPDATE Language_en_US
+SET Text = '+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Requires an adjacent Luxury resource to be built.'
+WHERE Tag = 'TXT_KEY_BUILD_CHATEAU_HELP';
+
+UPDATE Language_en_US
 SET Text = 'Established in 1831, the French Foreign Legion is a unique infantry unit in the French army. The legion was specifically created for foreign nationals who wished to fight for France. Famously courageous and totally indifferent to personal safety, the Foreign Legion have seen service in every French war since their inception. The unit has been highly romanticized - according to popular culture, it is a place where heartbroken men go to forget women and scoundrels go to escape justice. This may or may not be accurate, but whatever the case the Legion is a tough and very effective fighting force.[NEWLINE][NEWLINE]The practice of recruiting foreign nationals into its own corps has been emulated by other countries, such as the Dutch KNIL established in 1814, the Chinese Ever Victorious Army in 1860, the Spanish Foreign Legion in 1920, and the Israeli Mahal in 1948.'
 WHERE Tag = 'TXT_KEY_CIV5_INDUSTRIAL_FOREIGNLEGION_TEXT';
 
@@ -826,6 +830,10 @@ UPDATE Language_en_US
 SET Text = 'The Berber Cavalry gives the Moroccans an edge when defending their territory. They they move quickly in the desert, in addition to other difficult terrains. This also allows them to perform raids deep into rough enemy territory but other forces will need to stabilize any gains.'
 WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 
+UPDATE Language_en_US
+SET Text = '+30% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Any enemy unit which ends its turn next to the Kasbah takes 5 damage. This Kasbah will connect any Luxury or Strategic Resources on this tile to the trade network.'
+WHERE Tag = 'TXT_KEY_BUILD_KASBAH_HELP';
+
 --------------------
 -- Netherlands
 --------------------
@@ -933,7 +941,7 @@ SET Text = 'A Feitoria can be constructed by Workers in owned land, or by the Na
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FEITORIA_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Constructs a Feitoria. If in a City-State''s land, it will provide to you one copy of every Luxury Resource type connected by this City-State, regardless of your relationship with the City-State. Also provides a defensive bonus.'
+SET Text = 'If in a City-State''s land, it will provide to you one copy of every Luxury Resource type connected by this City-State, regardless of your relationship with the City-State. +1 [ICON_PRODUCTION] Production to nearby Fishing Boats. +1 [ICON_GOLD] to nearby Coast tiles.[NEWLINE][NEWLINE]+25% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Provides vision within a 2-tile radius.'
 WHERE Tag = 'TXT_KEY_BUILD_FEITORIA_HELP';
 
 UPDATE Language_en_US
