@@ -35,7 +35,7 @@
 	SELECT 'TXT_KEY_BUILD_CONSUMED_HELP_MANUFACTORY', 'Unit will be consumed.[NEWLINE][NEWLINE]Great Tile Improvements will connect Strategic Resources on this tile to the trade network. Manufactories will improve a Great Engineer''s Hurry Production ability by 10%.';
 	UPDATE Builds SET Help = 'TXT_KEY_BUILD_CONSUMED_HELP_MANUFACTORY' WHERE Type = 'BUILD_MANUFACTORY';
 	
-	UPDATE Language_en_US SET Text = 'This order will hurry production on the city's current effort. Every owned Manufactory you've created and own increases the amount of production gained by 10%. It consumes the Great Person.' WHERE Tag = 'TXT_KEY_MISSION_HURRY_PRODUCTION_HELP';
+		UPDATE Language_en_US SET Text = 'This order will hurry production on the city''s current effort. Every owned Manufactory you''ve created and own increases the amount of production gained by 10%. It consumes the Great Person.' WHERE Tag = 'TXT_KEY_MISSION_HURRY_PRODUCTION_HELP';
 
 	UPDATE Language_en_US SET Text = 'Great Engineers can construct the special Manufactory improvement. When worked, it provides a lot of [ICON_PRODUCTION] Production for a city. The Great Engineer can also hurry the production of a unit, building or Wonder in a city, increased by 10% per Manufactory created and owned. The Great Engineer is expended when used in either of these ways.' WHERE Tag = 'TXT_KEY_UNIT_GREAT_ENGINEER_STRATEGY';
 
