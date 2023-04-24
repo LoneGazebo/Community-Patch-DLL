@@ -2,7 +2,7 @@
 -- America
 --------------------
 UPDATE Language_en_US
-SET Text = 'Military Land Units start with [COLOR_POSITIVE_TEXT]Sentry[ENDCOLOR] Promotion. The cost of purchasing a tile is reduced by 25%, and is reset upon founding a City. Purchasing a tile grants +20 [ICON_PRODUCTION] Production, scaling with Era. May purchase tiles owned by other Civilizations.'
+SET Text = 'Military Land Units start with [COLOR_POSITIVE_TEXT]Sentry[ENDCOLOR] Promotion. The cost of purchasing a tile is reduced by 25%, and is reset upon founding a City. Purchasing a tile grants +20 [ICON_PRODUCTION] Production, scaling with Era. Can purchase tiles owned by others.'
 WHERE Tag = 'TXT_KEY_TRAIT_RIVER_EXPANSION';
 
 UPDATE Language_en_US
@@ -159,7 +159,7 @@ WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_STRATEGY';
 -- Brazil
 --------------------
 UPDATE Language_en_US
-SET Text = 'Has a unique "We Love The King Day", Carnival, that gives -50% [ICON_HAPPINESS_3] Unhappiness from Needs in Cities. When a [ICON_GOLDEN_AGE] Golden Age begins, 30% of [ICON_GOLDEN_AGE] Golden Age Points convert into [ICON_GOLD] Gold and [ICON_TOURISM] Tourism, and Cities gain 10 turns of Carnival.'
+SET Text = '"We Love the King Day" become Carnivals, adding -50% [ICON_HAPPINESS_3] Unhappiness from Needs. When a [ICON_GOLDEN_AGE] Golden Age begins, 30% of [ICON_GOLDEN_AGE] Golden Age Points convert into [ICON_GOLD] Gold and [ICON_TOURISM] Tourism, and Cities gain 10 turns of Carnival.'
 WHERE Tag = 'TXT_KEY_TRAIT_CARNIVAL';
 
 UPDATE Language_en_US
@@ -224,7 +224,7 @@ SET Text = 'The Ceilidh Hall is a Medieval-era building unique to the Celts, rep
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Has a unique set of Pantheon Beliefs that no one else can benefit from. Owned Cities with your [ICON_RELIGION] Religion neither generate nor receive foreign Religious Pressure. +3 [ICON_PEACE] Faith in owned Cities where your Pantheon or [ICON_RELIGION] Religion is the majority.'
+SET Text = 'Has a unique set of Pantheon Beliefs that no one else can benefit from. Owned Cities with your [ICON_RELIGION_PANTHEON] Pantheon or [ICON_RELIGION] Religion neither generate nor receive foreign Religious Pressure and generate +3 [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_FAITH_FROM_NATURE';
 
 UPDATE Language_en_US
@@ -254,7 +254,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_CHUKONU';
 -- Denmark
 --------------------
 UPDATE Language_en_US
-SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee, Recon, Mounted Melee, Gunpowder, and Armor Units gain the [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units gain the [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
+SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee Land Units start with [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units start with [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY';
 
 UPDATE Language_en_US
@@ -521,7 +521,7 @@ WHERE Tag = 'TXT_KEY_CITY_NAME_BRAUNSCHWEIG';
 -- Greece
 --------------------
 UPDATE Language_en_US
-SET Text = '[ICON_CITY_STATE] City-State [ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. Each [ICON_CITY_STATE] City-State alliance boosts the [ICON_STRENGTH] Combat Strength of owned and Allied Units by +5% (up to +25% total). [ICON_CITY_STATE] City-State territory treats owned Units as friendly Units.'
+SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. +5% [ICON_STRENGTH] Combat Strength of owned and Allied Units for each [ICON_CITY_STATE] City-State alliance (up to +25%). [ICON_CITY_STATE] City-State territory treats owned Units as friendly Units.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
@@ -540,7 +540,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREEK_COMPANIONCAVALRY_STRATEGY';
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Friendly and Enemy [ICON_WAR] War Weariness is modified by 50%. Mounted Melee and Armor Units may capture defeated Units, and captured Units don''t consume Unit Supply. Adjacent unowned land tiles are claimed when Cities earn a tile of the same type.'
+SET Text = 'Friendly and Enemy [ICON_WAR] War Weariness is modified by 50%. Mounted Melee and Armor Units may capture defeated Units, which do not consume Unit Supply. Claim adjacent unowned land tiles when Cities claim a tile of the same type.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US
@@ -586,7 +586,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 -- India
 --------------------
 UPDATE Language_en_US
-SET Text = 'Starts with a Pantheon, and [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. All owned cities convert when you found a [ICON_RELIGION] Religion. Each Follower of your primary [ICON_RELIGION] Religion in a City increases Religious Pressure and [ICON_FOOD] Growth. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
+SET Text = 'Starts with a [ICON_RELIGION_PANTHEON] Pantheon, and [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. All owned cities convert when you found a [ICON_RELIGION] Religion. Each Follower of your primary [ICON_RELIGION] Religion in a City increases Religious Pressure and [ICON_FOOD] Growth. No [ICON_HAPPINESS_3] from [ICON_RELIGION] Religious Unrest. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH';
 
 UPDATE Language_en_US
@@ -815,7 +815,7 @@ SET Text = 'A Kasbah can only be built adjacent to an owned City. It provides ad
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_KASBAH_TEXT';
 
 UPDATE Language_en_US
-SET Text = '+1 to all Yields in [ICON_CAPITAL] Capital per unique [ICON_INTERNATIONAL_TRADE] Trade Route partner, scaling with Era. [ICON_INTERNATIONAL_TRADE] Trade Route Yields to or from Moroccan Cities are not affected by distance. Can plunder Trade Routes between foreign Cities without declaring war.'
+SET Text = '+1 to all Yields in [ICON_CAPITAL] Capital per unique [ICON_INTERNATIONAL_TRADE] Trade Route partner, scaling with Era. Distance does not reduce [ICON_INTERNATIONAL_TRADE] Trade Route Yields to or from Moroccan Cities. Can plunder [ICON_INTERNATIONAL_TRADE] Trade Routes between foreign Cities without declaring war.'
 WHERE Tag = 'TXT_KEY_TRAIT_GATEWAY_AFRICA';
 
 UPDATE Language_en_US
@@ -830,7 +830,7 @@ WHERE Tag = 'TXT_KEY_UNIT_BERBER_CAVALRY_STRATEGY';
 -- Netherlands
 --------------------
 UPDATE Language_en_US
-SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLD] Gold for each different Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Resources, and Major Civilization imports count towards Monopolies.'
+SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLD] Gold for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Resources from Civilizations which count toward Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
 
 UPDATE Language_en_US
@@ -1106,7 +1106,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSLIM_CAVALRY';
 -- Sweden
 --------------------
 UPDATE Language_en_US
-SET Text = 'Melee, Recon, Mounted Melee, Gunpowder, and Armor Units have +20% [ICON_STRENGTH] Strength when attacking, and Siege Units have +1 [ICON_MOVES] Movement. Military Units are healed and earn +15 XP when a [ICON_GREAT_GENERAL] Great General is born. [ICON_GREAT_GENERAL] Great General combat bonus increased by 15%.'
+SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units gain +1 [ICON_MOVES] Movement. When a [ICON_GREAT_GENERAL] Great General is born, all Military Units heal and earn +15 XP. +15% [ICON_GREAT_GENERAL] Great General combat bonus.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US
