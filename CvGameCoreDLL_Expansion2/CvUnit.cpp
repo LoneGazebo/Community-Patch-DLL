@@ -29757,10 +29757,6 @@ bool CvUnit::VerifyCachedPath(const CvPlot* pDestPlot, int iFlags, int iMaxTurns
 	// all previous path data is deleted when a mission is started
 	// we can assume that other than the unit that is moving, nothing on the map will change
 	// so we can re-use the cached path data most of the time
-  // if (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT)
-  // {
-  //   ClearPathCache();
-  // }
 
 	if (m_kLastPath.empty() || !HaveCachedPathTo(pDestPlot,iFlags))
 		return ComputePath(pDestPlot, iFlags, iMaxTurns, true) != INT_MAX;
@@ -30008,10 +30004,10 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 			pDestPlot = m_kLastPath.GetFinalPlot();
 
 		//check if we are there yet
-    if (pDestPlot && pDestPlot->getX() == getX() && pDestPlot->getY() == getY())
-    {
-      return MOVE_RESULT_CANCEL;
-    }
+		if (pDestPlot && pDestPlot->getX() == getX() && pDestPlot->getY() == getY())
+		{
+		  return MOVE_RESULT_CANCEL;
+		}
 			
 	}
 
