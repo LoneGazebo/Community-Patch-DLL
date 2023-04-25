@@ -313,6 +313,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 		{
 			iPlotsNeeded++;
+
 			// plots more than one tile away from our borders are dangerous
 			if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 			{
@@ -700,8 +701,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);
 
-		// for citadels also put routes on the neighboring plots if they are border tiles
-		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()))
+		// for citadels and cities also put routes on the neighboring plots if they are border tiles
+		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()) || pPlot->isCity())
 		{
 			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
 			{
@@ -1395,6 +1396,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 
 	// keep routes which are needed
 	if (NeedRouteAtPlot(pPlot))
+		return;
+
+	// we don't need to remove pillaged routes
+	if (pPlot->IsRoutePillaged())
 		return;
 
 	// don't remove routes which we did not create
