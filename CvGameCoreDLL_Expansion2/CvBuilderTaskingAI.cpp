@@ -292,6 +292,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	bool bHuman = m_pPlayer->isHuman();
+	PlayerTypes eTargetPlayer = pTargetCity->getOwner();
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadLength = 0;
 	int iPlotsNeeded = 0;
@@ -314,8 +315,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		{
 			iPlotsNeeded++;
 
-			// plots more than one tile away from our borders are dangerous
-			if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+			// plots more than one tile away from our borders are dangerous, if the target is a city state, we consider their plots as safe
+			bool bFriendlyTile = pPlot->getTeam() == m_pPlayer->getTeam() || pPlot->isAdjacentTeam(m_pPlayer->getTeam(), true) 
+				|| (!bSamePlayer && (pPlot->getOwner() == eTargetPlayer || pPlot->isAdjacentPlayer(eTargetPlayer, true)));
+			if (!bFriendlyTile)
 			{
 				iWildPlots++;
 			}
