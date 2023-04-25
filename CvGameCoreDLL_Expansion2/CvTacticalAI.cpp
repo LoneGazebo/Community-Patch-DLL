@@ -1545,34 +1545,36 @@ void CvTacticalAI::PlotBarbarianCampDefense()
 			}
 			else
 			{
-				//melee may leave camp depending on how many enemies are around
-				int iStrongEnemyCount = 0;
-				int iWeakEnemyCount = 0;
-				for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
+				//capture unprotected civilians if we can return to camp in the same turn
+				CvPlot** neighbors = GC.getMap().getNeighborsShuffled(pPlot);
+				for (int i = 0; i < 6; i++)
 				{
-					CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
-					if (pNeighbor && pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true))
+					CvPlot* pNeighbor = neighbors[i];
+					if (!pNeighbor)
+						continue;
+
+					if (!pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true, true, true) &&
+						pNeighbor->isEnemyUnit(m_pPlayer->GetID(), false, true, true, true) &&
+						currentDefender->TurnsToReachTarget(pPlot,0,1)==0)
 					{
-						CvUnit* pEnemy = pNeighbor->getBestDefender(NO_PLAYER, m_pPlayer->GetID());
-						//if the enemy ignores zoc, he might capture the camp behind our back 
-						if (pEnemy->GetBaseCombatStrength() < currentDefender->GetBaseCombatStrength() && !pEnemy->IsIgnoreZOC())
-							iWeakEnemyCount++;
-						else
-							iStrongEnemyCount++;
+						currentDefender->PushMission(CvTypes::getMISSION_MOVE_TO(), pNeighbor->getX(), pNeighbor->getY());
+						currentDefender->PushMission(CvTypes::getMISSION_MOVE_TO(), pPlot->getX(), pPlot->getY());
+						break;
 					}
 				}
 
-				TacticalAIHelpers::PerformOpportunityAttack(currentDefender,iWeakEnemyCount<2 && iStrongEnemyCount==0);
+				//melee may attack but never leave camp (because they won't return then)
+				TacticalAIHelpers::PerformOpportunityAttack(currentDefender,false);
 				currentDefender->PushMission(CvTypes::getMISSION_SKIP());
 			}
 
 			UnitProcessed(currentDefender->GetID());
 		}
-		else if(FindUnitsForHarassing(pPlot,5,-1,-1,DOMAIN_LAND,false,false))
+		else if (FindUnitsForHarassing(pPlot,5,-1,-1,DOMAIN_LAND,false,false))
 		{
 			CvUnit* pUnit = (m_CurrentMoveUnits.size() > 0) ? m_pPlayer->getUnit(m_CurrentMoveUnits.begin()->GetID()) : 0;
 			ExecuteMoveToPlot(pUnit,pPlot);
-			if(GC.getLogging() && GC.getAILogging())
+			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
 				strLogString.Format("Moving to protect camp, X: %d, Y: %d", pTarget->GetTargetX(), pTarget->GetTargetY());

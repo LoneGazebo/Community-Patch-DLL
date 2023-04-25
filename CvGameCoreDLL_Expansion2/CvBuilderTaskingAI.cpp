@@ -310,21 +310,23 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		iRoadLength++;
 
-		if(pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+		{
 			iPlotsNeeded++;
 		
-		// plots more than one tile away from our borders are dangerous
-		if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
-		{
-			iWildPlots++;
-		}
-		else
-		{
-			if (iWildPlots > iConsecutiveWildPlots)
+			// plots more than one tile away from our borders are dangerous
+			if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 			{
-				iConsecutiveWildPlots = iWildPlots;
+				iWildPlots++;
 			}
-			iWildPlots = 0;
+			else
+			{
+				if (iWildPlots > iConsecutiveWildPlots)
+				{
+					iConsecutiveWildPlots = iWildPlots;
+				}
+				iWildPlots = 0;
+			}
 		}
 	}
 
@@ -699,8 +701,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);
 
-		// for citadels also put routes on the neighboring plots if they are border tiles
-		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()))
+		// for citadels and cities also put routes on the neighboring plots if they are border tiles
+		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()) || pPlot->isCity())
 		{
 			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
 			{
@@ -805,7 +807,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				if (bConnectOnlyCapitals)
 				{
 					// only need to build roads to the capital for the money and happiness
-					if (!pFirstCity->isCapital() && !pSecondCity->isCapital() && iNetGoldTimes100 > 0)
+					if (!pFirstCity->isCapital() && !pSecondCity->isCapital())
 					{
 						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
 						//thus improving unit movement and gold bonus from villages
@@ -1394,6 +1396,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 
 	// keep routes which are needed
 	if (NeedRouteAtPlot(pPlot))
+		return;
+
+	// we don't need to remove pillaged routes
+	if (pPlot->IsRoutePillaged())
 		return;
 
 	// don't remove routes which we did not create
