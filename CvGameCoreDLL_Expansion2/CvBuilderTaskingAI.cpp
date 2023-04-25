@@ -313,9 +313,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 		{
 			iPlotsNeeded++;
-		}
-		else
-		{
 			// plots more than one tile away from our borders are dangerous
 			if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 			{
