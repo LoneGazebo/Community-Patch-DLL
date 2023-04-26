@@ -2062,7 +2062,7 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
-			if (pSecondCity && pSecondCity->getTeam() == eTeam)
+			if (pSecondCity)
 				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}

@@ -316,8 +316,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			iPlotsNeeded++;
 
 			// plots more than one tile away from our borders are dangerous, if the target is a city state, we consider their plots as safe
-			bool bFriendlyTile = pPlot->getTeam() == m_pPlayer->getTeam() || pPlot->isAdjacentTeam(m_pPlayer->getTeam(), true) 
-				|| (!bSamePlayer && (pPlot->getOwner() == eTargetPlayer || pPlot->isAdjacentPlayer(eTargetPlayer, true)));
+			bool bFriendlyTile = pPlot->getOwner() == m_pPlayer->GetID() || pPlot->isAdjacentPlayer(m_pPlayer->GetID()) 
+				|| (!bSamePlayer && (pPlot->getOwner() == eTargetPlayer || pPlot->isAdjacentPlayer(eTargetPlayer)));
 			if (!bFriendlyTile)
 			{
 				iWildPlots++;
