@@ -106,6 +106,14 @@ WHERE Type = 'BUILDING_ORDER';
 
 UPDATE Buildings
 SET DistressFlatReduction = '1'
+WHERE Type = 'BUILDING_TEOCALLI';
+
+UPDATE Buildings
+SET DistressFlatReduction = '1'
+WHERE Type = 'BUILDING_GURDWARA';
+
+UPDATE Buildings
+SET DistressFlatReduction = '1'
 WHERE Type = 'BUILDING_ARMORY';
 
 UPDATE Buildings

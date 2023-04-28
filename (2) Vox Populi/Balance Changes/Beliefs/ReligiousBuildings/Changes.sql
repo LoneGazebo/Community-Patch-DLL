@@ -78,6 +78,9 @@ SET Help = 'TXT_KEY_BUILDING_PAGODA_HELP'
 WHERE Type = 'BUILDING_PAGODA';
 
 -- New Building Yields
+INSERT INTO Building_YieldModifiers
+		(BuildingType, 			YieldType, 		Yield)
+VALUES	('BUILDING_GURDWARA', 	'YIELD_FOOD', 	10);
 
 INSERT INTO Building_WLTKDYieldMod
 	(BuildingType, YieldType, Yield)
@@ -99,6 +102,10 @@ VALUES
 	('BUILDING_MOSQUE', 'YIELD_SCIENCE', 2),
 	('BUILDING_CATHEDRAL', 'YIELD_GOLD', 2),
 	('BUILDING_ORDER', 'YIELD_FAITH', 2),
+	('BUILDING_ORDER', 'YIELD_GOLD', 3),
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 2),
+	('BUILDING_GURDWARA', 'YIELD_FAITH', 2),
+	('BUILDING_GURDWARA', 'YIELD_FOOD', 3),
 	('BUILDING_PAGODA', 'YIELD_FAITH', 2);
 
 INSERT INTO Building_YieldChangesPerReligion
@@ -110,6 +117,15 @@ VALUES
 	('BUILDING_PAGODA', 'YIELD_SCIENCE', 100),
 	('BUILDING_PAGODA', 'YIELD_FAITH', 100),
 	('BUILDING_PAGODA', 'YIELD_PRODUCTION', 100);
+
+INSERT INTO Building_YieldFromBirth
+		(BuildingType, 			YieldType, 				Yield)
+VALUES	('BUILDING_MANDIR', 	'YIELD_FOOD', 			5),
+		('BUILDING_MANDIR', 	'YIELD_SCIENCE', 		5),
+		('BUILDING_MANDIR', 	'YIELD_CULTURE', 		5),
+		('BUILDING_MANDIR', 	'YIELD_PRODUCTION', 	5),
+		('BUILDING_MANDIR', 	'YIELD_FAITH', 			5),
+		('BUILDING_MANDIR', 	'YIELD_GOLD', 			5);
 
 INSERT INTO Building_GoldenAgeYieldMod
 	(BuildingType, YieldType, Yield)
@@ -131,7 +147,7 @@ VALUES
 INSERT INTO Building_YieldFromVictoryGlobal
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_ORDER', 'YIELD_FAITH', 3);
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 3);
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
 	(BuildingType, YieldType, Yield)
@@ -141,6 +157,14 @@ VALUES
 INSERT INTO Building_DomainFreeExperiences
 	(BuildingType, DomainType, Experience)
 VALUES
-	('BUILDING_ORDER', 'DOMAIN_LAND', 15),
-	('BUILDING_ORDER', 'DOMAIN_AIR', 15),
-	('BUILDING_ORDER', 'DOMAIN_SEA', 15);
+	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 15),
+	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 15),
+	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 15);
+	
+INSERT INTO Building_YieldFromUnitProduction
+		(BuildingType, YieldType, Yield)
+VALUES	('BUILDING_ORDER', 'YIELD_FAITH', 10);
+
+INSERT INTO Building_YieldFromFaithPurchase
+		(BuildingType,		YieldType,			Yield)
+VALUES	('BUILDING_ORDER',	'YIELD_PRODUCTION',	10);
