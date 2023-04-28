@@ -3971,6 +3971,9 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		{
 			if (pUnit->GetCurrHitPoints()>pUnit->GetMaxHitPoints()/2)
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, false);
+
+			//make sure the unit stays put!
+			pUnit->PushMission(CvTypes::getMISSION_SKIP());
 		}
 		else
 		{
@@ -3984,11 +3987,11 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 			//see if we can do damage after retreating
 			if (pUnit->canMove() && pUnit->canRangeStrike())
 				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, true);
-		}
 
-		//pillage after retreat, if we have movement points to spare
-		if (pUnit->shouldPillage(pUnit->plot()))
-			pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+			//pillage after retreat, if we have movement points to spare
+			if (pUnit->shouldPillage(pUnit->plot()))
+				pUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+		}
 
 		UnitProcessed(pUnit->GetID());
 	}
