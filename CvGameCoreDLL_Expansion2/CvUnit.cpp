@@ -5664,7 +5664,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	}
 
 	//we want lowest scores first
-	std::sort(candidates.begin(), candidates.end());
+	std::stable_sort(candidates.begin(), candidates.end());
 
 	for (size_t i = 0; i < candidates.size(); i++)
 	{
@@ -15884,7 +15884,7 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 		int dist = plotDistance(*pLoopUnit->plot(), *pDestPlot);
 		unitsToMoveByDistance.push_back(ScoredUnit(dist, pLoopUnit));
 	}
-	std::sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
+	std::stable_sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
 
 	// Generate a list of eligible plots for these units, only adding another
 	// ring when there are still insufficient plots for the current selection
@@ -29676,7 +29676,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			}
 		}
 
-		std::sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
+		std::stable_sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
 		if (!eligiblePlots.empty())
 		{
 			pDestPlot = eligiblePlots.front().plot;

@@ -499,7 +499,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 		LogOperationSpecialMessage(strMsg);
 	}
 
-	std::sort(choices.begin(),choices.end());
+	std::stable_sort(choices.begin(),choices.end());
 
 	//rebuild the list
 	int iCount = 0;

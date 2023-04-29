@@ -6007,7 +6007,7 @@ CvString CvLeague::GetResolutionVoteOpinionDetails(ResolutionTypes eResolution, 
 			}
 		}
 	}
-	std::sort(vScores.begin(), vScores.end());
+	std::stable_sort(vScores.begin(), vScores.end());
 	std::reverse(vScores.begin(), vScores.end());
 	bool bPositiveDone = false;
 	bool bNegativeDone = false;
@@ -6109,7 +6109,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(ResolutionTypes eResolutio
 			vScores.push_back(std::make_pair(iScore, it->ePlayer));
 		}
 	}
-	std::sort(vScores.begin(), vScores.end());
+	std::stable_sort(vScores.begin(), vScores.end());
 	std::reverse(vScores.begin(), vScores.end());
 	bool bPositiveDone = false;
 	bool bNegativeDone = false;
@@ -6217,7 +6217,7 @@ CvString CvLeague::GetResolutionProposeOpinionDetails(int iTargetResolutionID, P
 			}
 		}
 	}
-	std::sort(vScores.begin(), vScores.end());
+	std::stable_sort(vScores.begin(), vScores.end());
 	std::reverse(vScores.begin(), vScores.end());
 	bool bPositiveDone = false;
 	bool bNegativeDone = false;

@@ -674,7 +674,7 @@ void CvCityStrategyAI::PrecalcYieldStats()
 	}
 
 	//this sorts in descending order
-	sort(deviations.begin(), deviations.end());
+	std::stable_sort(deviations.begin(), deviations.end());
 
 	m_eMostAbundantYield = deviations.front().score > 0 ? deviations.front().option : NO_YIELD;
 	m_eMostDeficientYield = deviations.back().score < 0 ? deviations.back().option : NO_YIELD;

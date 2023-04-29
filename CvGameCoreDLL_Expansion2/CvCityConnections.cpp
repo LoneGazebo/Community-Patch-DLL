@@ -591,9 +591,9 @@ bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)
 void CvCityConnections::CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState)
 {
 	//make sure the input is sorted and unique
-	std::sort(lastState.begin(),lastState.end());
+	std::stable_sort(lastState.begin(),lastState.end());
 	lastState.erase( std::unique(lastState.begin(),lastState.end()), lastState.end() );
-	std::sort(newState.begin(),newState.end());
+	std::stable_sort(newState.begin(),newState.end());
 	newState.erase( std::unique(newState.begin(),newState.end()), newState.end() );
 
 	PlotIndexStore addedPlots( newState.size() );

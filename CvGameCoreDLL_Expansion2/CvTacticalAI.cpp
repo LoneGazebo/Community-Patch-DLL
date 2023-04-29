@@ -1077,7 +1077,7 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 	}
 
 	//we want to attacks the one we can do most damage to first
-	std::sort(targets.begin(), targets.end());
+	std::stable_sort(targets.begin(), targets.end());
 	std::reverse(targets.begin(), targets.end());
 
 	for (size_t i=0; i<targets.size(); i++)
@@ -3558,7 +3558,7 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 	if (vOptions.empty())
 		return false;
 
-	std::sort(vOptions.begin(), vOptions.end());
+	std::stable_sort(vOptions.begin(), vOptions.end());
 	ExecuteMoveToPlot(vOptions.front().option.first, vOptions.front().option.second, false, CvUnit::MOVEFLAG_NO_EMBARK);
 	return true;
 }
@@ -3699,7 +3699,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	{
 		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return (lhs->IsCombatUnit() ? 0 : 1) < (rhs->IsCombatUnit() ? 0 : 1); }
 	};
-	std::sort(remaining.begin(), remaining.end(), PrSortCombatFirst());
+	std::stable_sort(remaining.begin(), remaining.end(), PrSortCombatFirst());
 
 	//second round: move in as long as there is no danger and we're still far away
 	for (vector<CvUnit*>::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
@@ -3764,7 +3764,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 		CvPlot* pPlot;
 		int iScore;
 		bool bAttack;
-		bool operator<(const SAssignment& rhs) { return iScore>rhs.iScore; }
+		bool operator<(const SAssignment& rhs) const { return iScore>rhs.iScore; }
 	};
 
 	struct PrPlotMatch
@@ -3853,7 +3853,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 	}
 
 	//ok let's go
-	sort(choices.begin(),choices.end());
+	std::stable_sort(choices.begin(),choices.end());
 	while (!choices.empty())
 	{
 		SAssignment next = choices.front();
@@ -5703,7 +5703,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffen
 	}
 
 	//second round. default sort order is descending
-	std::sort(candidates.begin(), candidates.end());
+	std::stable_sort(candidates.begin(), candidates.end());
 	std::reverse(candidates.begin(), candidates.end());
 
 	for (size_t i=0; i<candidates.size(); i++)
@@ -6130,7 +6130,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 	if (meleeTargets.empty())
 		return false;
 
-	std::sort(meleeTargets.begin(), meleeTargets.end());
+	std::stable_sort(meleeTargets.begin(), meleeTargets.end());
 
 	//we will never do attacks with negative scores!
 	if (meleeTargets.back().score < iScoreThreshold)
@@ -6365,10 +6365,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	}
 
 	//high scores are bad, we sort descending
-	sort(aCityList.begin(), aCityList.end());
-	sort(aCoverList.begin(), aCoverList.end());
-	sort(aZeroDangerList.begin(), aZeroDangerList.end());
-	sort(aDangerList.begin(), aDangerList.end());
+	std::stable_sort(aCityList.begin(), aCityList.end());
+	std::stable_sort(aCoverList.begin(), aCoverList.end());
+	std::stable_sort(aZeroDangerList.begin(), aZeroDangerList.end());
+	std::stable_sort(aDangerList.begin(), aDangerList.end());
 
 	// Now that we've gathered up our lists of destinations, pick the most promising one
 	if (aCityList.size()>0)
@@ -8567,7 +8567,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
-	std::sort(gPossibleMoves.begin(),gPossibleMoves.end());
+	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());
 
 	//don't return more than requested
 	if (gPossibleMoves.size() > (size_t)nMaxCount)
@@ -8609,7 +8609,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 		}
 	}
 
-	std::sort(availableUnits.begin(), availableUnits.end());
+	std::stable_sort(availableUnits.begin(), availableUnits.end());
 
 	//simply consider those extra units as blocked.
 	//since addAssignment will modify availableUnits, we copy the relevant units first
@@ -8684,7 +8684,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 	//note that this is a stable sort, meaning in case of ties the original order is maintained
 	//since we have a fixed cutoff, the simulation result depends on the order the moves were created in, ie the order of units
-	std::sort(gOverAllChoices.begin(), gOverAllChoices.end());
+	std::stable_sort(gOverAllChoices.begin(), gOverAllChoices.end());
 	for (size_t i=0; i<gOverAllChoices.size(); i++)
 	{
 		gMovesToAdd.clear();
@@ -10014,7 +10014,7 @@ CvTacticalPlot& CvTacticalPosition::getTactPlotMutable(int plotindex)
 		{
 			//now cache it locally so that we can modify it
 			tactPlotLookup.push_back( make_pair(plotindex, tactPlots.size()) );
-			sort(tactPlotLookup.begin(), tactPlotLookup.end(), PairCompareFirst() );
+			std::stable_sort(tactPlotLookup.begin(), tactPlotLookup.end(), PairCompareFirst() );
 			//this is dangerous, may invalidate references if the vector is reallocated
 			//we should really be storing pointers to plots, not the plots themselves ...
 			tactPlots.push_back(parentResult);
@@ -10264,7 +10264,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			//see if we can just take an unfinished position to salvage the situation
 			if (completedPositions.empty())
 			{
-				sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
+				std::stable_sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 				for (size_t i = 0; i < openPositionsHeap.size(); i++)
 				{
 					if (openPositionsHeap[i]->addFinishMovesIfAcceptable(false))
@@ -10286,7 +10286,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	if (!completedPositions.empty())
 	{
 		//need the predicate, else we sort the pointers by address!
-		sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
+		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 		result = completedPositions.front()->getAssignments();
 
 		if (gTacticalCombatDebugOutput>10)

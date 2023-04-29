@@ -577,7 +577,7 @@ struct SUnitStats
 		pUnit(pUnit_), iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iImportanceScore(iImportance), iSelfDamage(0),
 		eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
 
-	bool operator<(const SUnitStats& rhs) { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
+	bool operator<(const SUnitStats& rhs) const { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
 };
 
 struct SPathFinderStartPos

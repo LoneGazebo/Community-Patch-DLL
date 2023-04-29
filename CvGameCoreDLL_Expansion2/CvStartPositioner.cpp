@@ -857,7 +857,7 @@ struct SStartRegion
 		vNeighbors.insert(vNeighbors.end(), other.vNeighbors.begin(), other.vNeighbors.end());
 
 		//remove obsolete neighbors
-		sort(vNeighbors.begin(), vNeighbors.end());
+		std::stable_sort(vNeighbors.begin(), vNeighbors.end());
 		vNeighbors.erase(remove(vNeighbors.begin(), vNeighbors.end(), iID), vNeighbors.end());
 		vNeighbors.erase(remove(vNeighbors.begin(), vNeighbors.end(), other.iID), vNeighbors.end());
 		vNeighbors.erase(unique(vNeighbors.begin(), vNeighbors.end()), vNeighbors.end());

@@ -3782,7 +3782,7 @@ std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const
 		// sort and remove duplicates
 		if (rtnVector.size() > 1)
 		{
-			std::sort(rtnVector.begin(), rtnVector.end());
+			std::stable_sort(rtnVector.begin(), rtnVector.end());
 			rtnVector.erase( std::unique( rtnVector.begin(), rtnVector.end() ), rtnVector.end() );
 		}
 
