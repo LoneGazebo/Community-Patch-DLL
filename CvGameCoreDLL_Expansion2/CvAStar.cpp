@@ -31,7 +31,7 @@
 #define PATH_STEP_WEIGHT										(10)	//relatively small
 #define	PATH_EXPLORE_NON_HILL_WEIGHT							(1000)	//per hill plot we fail to visit
 #define PATH_EXPLORE_NON_REVEAL_WEIGHT							(1000)	//per (neighboring) plot we fail to reveal
-#define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(20)	//accept four plots detour to save on maintenance
+#define PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT					(40)	//accept two plots detour to save on maintenance
 #define PATH_END_TURN_FOREIGN_TERRITORY							(PATH_BASE_COST*10)		//per turn end plot outside of our territory
 #define PATH_END_TURN_NO_ROUTE									(PATH_BASE_COST*10)		//when in doubt, prefer to end the turn on a plot with a route
 #define PATH_END_TURN_WATER										(PATH_BASE_COST*55)		//embarkation should be avoided (land units only)
@@ -2169,29 +2169,61 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar*)
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(data.ePlayer).GetBuilderTaskingAI();
 
-	if(pPlot->getRouteType() != NO_ROUTE)
-		//do not check if the type matches exactly - put railroads over roads
+	// if we are planning to or have already built a road here, or get a free road here from our trait, provide a discount (cities always have a road)
+	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, (RouteTypes)data.iTypeParameter))
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
-	else
+
+	// if we are planning to build a lower tier route here, provide a smaller discount
+	if ((eBuilderTaskingAi->WantRouteAtPlot(pPlot) || eBuilderTaskingAi->NeedRouteAtPlot(pPlot)) && !eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
+		return PATH_BASE_COST / 2;
+
+	// if there is already a route here, also provide a small discount
+	if (pPlot->getRouteType() == (RouteTypes)data.iTypeParameter)
+		return PATH_BASE_COST * 2 / 3;
+
+	//should we prefer rough terrain because the gain in movement points is greater?
+	int iCost = PATH_BASE_COST;
+
+	//can't build villages on mountains
+	if (pPlot->isMountain())
+		iCost++;
+
+	//prefer plots without resources so we can build more villages
+	if(pPlot->getResourceType()!=NO_RESOURCE)
+		iCost++;
+
+	return iCost;
+}
+
+bool IsSafeForRoute(CvPlot* pPlot, CvPlayer* ePlayer)
+{
+	// Our plots and surrounding plots are safe
+	if (pPlot->getTeam() == ePlayer->getTeam() || pPlot->isAdjacentTeam(ePlayer->getTeam(), false))
 	{
-		// if the tile already been tagged for building a road, then provide a discount
-		if(GET_PLAYER(data.ePlayer).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
-			return PATH_BASE_COST/2;
-
-		//should we prefer rough terrain because the gain in movement points is greater?
-		int iCost = PATH_BASE_COST;
-
-		//can't build anything on mountain
-		if (pPlot->isMountain())
-			iCost++;
-
-		//prefer plots without resources so we can build more villages
-		if(pPlot->getResourceType()!=NO_RESOURCE)
-			iCost++;
-
-		return iCost;
+		return true;
 	}
+
+	// City state plots and surrounding plots are safe
+	if (pPlot->isOwned() && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer->GetID()))
+	{
+		return true;
+	}
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		if (pAdjacentPlot != NULL)
+		{
+			if (pAdjacentPlot->isOwned() && GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pAdjacentPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer->GetID()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2250,6 +2282,14 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	//too dangerous, might be severed any time
 	if (ePlotOwnerPlayer == NO_PLAYER && pNewPlot->IsAdjacentOwnedByTeamOtherThan(thisPlayer.getTeam()))
 		return FALSE;
+
+	//if the plot and its parent are both too far from our borders, don't build here
+	if (!IsSafeForRoute(pNewPlot, &thisPlayer))
+	{
+		CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+		if (!IsSafeForRoute(pFromPlot, &thisPlayer))
+			return FALSE;
+	}
 
 	return TRUE;
 }
