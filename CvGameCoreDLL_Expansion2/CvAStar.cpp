@@ -2169,14 +2169,11 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const SPathFinderUserData& data, CvAStar*)
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
+	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(data.ePlayer).GetBuilderTaskingAI();
 
-	// if the tile is already part of our road network, provide a large discount
-	if(GET_PLAYER(data.ePlayer).GetBuilderTaskingAI()->NeedRouteAtPlot(pPlot))
+	// if we are planning to, or have already built a road here, provide a discount
+	if(eBuilderTaskingAi->NeedRouteAtPlot(pPlot) || eBuilderTaskingAi->WantRouteAtPlot(pPlot))
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
-
-	// if the tile already been tagged for building a road, then provide a discount
-	if(GET_PLAYER(data.ePlayer).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
-		return PATH_BASE_COST/2;
 
 	//should we prefer rough terrain because the gain in movement points is greater?
 	int iCost = PATH_BASE_COST;
