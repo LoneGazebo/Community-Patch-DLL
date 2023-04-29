@@ -3948,7 +3948,7 @@ bool CvPlayerReligions::UpdateStateReligion()
 
 		if (!vHolyReligions.empty())
 		{
-			sort(vHolyReligions.begin(), vHolyReligions.end());
+			std::stable_sort(vHolyReligions.begin(), vHolyReligions.end());
 			eNewStateReligion = vHolyReligions.front().option;
 		}
 	}
@@ -5493,7 +5493,7 @@ void CvCityReligions::RecomputeFollowers(CvReligiousFollowChangeReason eReason, 
 	};
 
 	//just for convenience, sort the local religions by accumulated pressure
-	sort(m_ReligionStatus.begin(), m_ReligionStatus.end(), PrSortByPressureDesc());
+	std::stable_sort(m_ReligionStatus.begin(), m_ReligionStatus.end(), PrSortByPressureDesc());
 }
 
 /// Calculate the number of followers for each religion from simulated data
@@ -6422,7 +6422,7 @@ CvCity* CvReligionAI::ChooseMissionaryTargetCity(CvUnit* pUnit, const vector<pai
 	}
 
 	//this sorts ascending
-	std::sort(vTargets.begin(),vTargets.end());
+	std::stable_sort(vTargets.begin(),vTargets.end());
 	//so reverse it
 	std::reverse(vTargets.begin(),vTargets.end());
 
@@ -6470,7 +6470,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 	}
 
 	//offensive targets first, until we run out
-	std::sort(vTargetsO.begin(),vTargetsO.end());
+	std::stable_sort(vTargetsO.begin(),vTargetsO.end());
 	std::reverse(vTargetsO.begin(),vTargetsO.end());
 
 	for (std::vector<SPlotWithScore>::iterator it=vTargetsO.begin(); it!=vTargetsO.end(); ++it)
@@ -6481,7 +6481,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 	}
 
 	//defensive targets as fallback
-	std::sort(vTargetsD.begin(),vTargetsD.end());
+	std::stable_sort(vTargetsD.begin(),vTargetsD.end());
 	std::reverse(vTargetsD.begin(),vTargetsD.end());
 
 	for (std::vector<SPlotWithScore>::iterator it=vTargetsD.begin(); it!=vTargetsD.end(); ++it)
@@ -6664,7 +6664,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	}
 
 	//sort descending
-	std::sort(vCandidates.begin(),vCandidates.end());
+	std::stable_sort(vCandidates.begin(),vCandidates.end());
 	std::reverse(vCandidates.begin(),vCandidates.end());
 
 	//look at the top two and take the one that is closest

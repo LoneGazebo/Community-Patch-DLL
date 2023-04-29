@@ -6042,7 +6042,7 @@ vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, b
 	}
 
 	//default sort is descending!
-	std::sort( vTargets.begin(), vTargets.end() );
+	std::stable_sort( vTargets.begin(), vTargets.end() );
 
 	vector<SPatrolTarget> vResult;
 	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)

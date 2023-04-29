@@ -11271,7 +11271,7 @@ int CvGame::CalculateMedianNumCities()
 	if (v.empty())
 		return 0;
 
-	std::sort(v.begin(), v.end());
+	std::stable_sort(v.begin(), v.end());
 
 	return v[v.size()/2];
 }
@@ -11292,7 +11292,7 @@ int CvGame::CalculateMedianNumPlots()
 	if (v.empty())
 		return 0;
 
-	std::sort(v.begin(), v.end());
+	std::stable_sort(v.begin(), v.end());
 
 	return v[v.size()/2];
 }
@@ -11313,7 +11313,7 @@ int CvGame::CalculateMedianNumWondersConstructed()
 	if (v.empty())
 		return 0;
 
-	std::sort(v.begin(), v.end());
+	std::stable_sort(v.begin(), v.end());
 
 	return v[v.size()/2];
 }

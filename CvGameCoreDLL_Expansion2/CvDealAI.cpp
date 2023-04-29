@@ -4349,7 +4349,7 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 		}
 	}
 
-	sort(vOptions.begin(), vOptions.end());
+	std::stable_sort(vOptions.begin(), vOptions.end());
 	for (size_t i=0; i<vOptions.size(); i++)
 	{
 		ResourceTypes eResource = vOptions[i].option.first;
@@ -4438,7 +4438,7 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 		}
 	}
 
-	sort(vOptions.begin(), vOptions.end());
+	std::stable_sort(vOptions.begin(), vOptions.end());
 	for (size_t i=0; i<vOptions.size(); i++)
 	{
 		ResourceTypes eResource = vOptions[i].option.first;

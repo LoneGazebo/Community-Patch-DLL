@@ -5290,7 +5290,7 @@ vector<CvCity*> CvPlayer::GetThreatenedCities(bool bCoastalOnly)
 		result.push_back(pLoopCity);
 	}
 
-	sort(result.begin(), result.end(), SortByThreatLevel());
+	std::stable_sort(result.begin(), result.end(), SortByThreatLevel());
 	return result;
 }
 
@@ -18065,7 +18065,7 @@ int CvPlayer::GetAverageProductionTimes100() const
 	}
 	int iNumCities = max((int)viCityProduction.size(), 1);
 	// Sort production from lowest to highest
-	sort(viCityProduction.begin(), viCityProduction.end());
+	std::stable_sort(viCityProduction.begin(), viCityProduction.end());
 
 	// Add the X highest city production together
 	int iCurrentCity = 0;
@@ -18103,7 +18103,7 @@ int CvPlayer::GetAverageInstantProductionTimes100()
 	}
 	int iNumCities = max((int)viCityProduction.size(), 1);
 	// Sort production from lowest to highest
-	sort(viCityProduction.begin(), viCityProduction.end());
+	std::stable_sort(viCityProduction.begin(), viCityProduction.end());
 
 	// Add the X highest city production together
 	int iCurrentCity = 0;
@@ -23747,7 +23747,7 @@ bool CvPlayer::UpdateCityConnection(const CvPlot * pPlot, bool bActive)
 
 		//insert and sort
 		m_vCityConnectionPlots.push_back(pPlot->GetPlotIndex());
-		std::sort(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end());
+		std::stable_sort(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end());
 		return true;
 	}
 	else
@@ -49925,10 +49925,10 @@ void CvPlayer::SetBestWonderCities()
 		for (map<BuildingClassTypes,vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
 		{
 			ASSERT(!it->second.empty());
-			sort(it->second.begin(), it->second.end());
+			std::stable_sort(it->second.begin(), it->second.end());
 			bestScorePerClass.push_back(make_pair(it->second.back().score, it->first));
 		}
-		sort(bestScorePerClass.begin(), bestScorePerClass.end());
+		std::stable_sort(bestScorePerClass.begin(), bestScorePerClass.end());
 
 		//now we starting with the best overall score, find the best city for the type of wonder
 		for (vector<pair<int, BuildingClassTypes>>::reverse_iterator it = bestScorePerClass.rbegin(); it != bestScorePerClass.rend(); ++it)
@@ -49969,7 +49969,7 @@ void CvPlayer::SetBestWonderCities()
 							it2->score -= it2->score / 4; //reduce by 25% for every other world wonder
 
 					//need to sort again ...
-					sort(it->second.begin(), it->second.end());
+					std::stable_sort(it->second.begin(), it->second.end());
 				}
 			}
 		}
@@ -52310,7 +52310,7 @@ void CvPlayer::computeFoundValueThreshold()
 	if (vValues.empty())
 		return;
 
-	std::sort(vValues.begin(), vValues.end());
+	std::stable_sort(vValues.begin(), vValues.end());
 
 	//set our threshold halfway between the worst plot and the median
 	m_iReferenceFoundValue = (vValues[0] + vValues[vValues.size()/2])/2;

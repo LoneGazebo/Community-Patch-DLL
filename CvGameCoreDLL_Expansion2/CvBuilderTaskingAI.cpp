@@ -858,7 +858,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 		}
 	}
 
-	sort(m_aDirectives.begin(), m_aDirectives.end());
+	std::stable_sort(m_aDirectives.begin(), m_aDirectives.end());
 	LogDirectives(pUnit);
 
 	//nothing found?

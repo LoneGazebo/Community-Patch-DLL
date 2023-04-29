@@ -29291,7 +29291,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	}
 
 	//we want only the best
-	std::sort(resultList.begin(), resultList.end());
+	std::stable_sort(resultList.begin(), resultList.end());
 	if (resultList.size() > (size_t)nChoices)
 		resultList.erase(resultList.begin() + nChoices, resultList.end());
 
@@ -31100,7 +31100,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 			if (!freeSlotsPerOp.empty())
 			{ 
 				//default sort order is ascending by first pair member 
-				stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
+				std::stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
 				for (size_t i=0; i<freeSlotsPerOp.size(); i++)
 					if (GET_PLAYER(m_eOwner).getAIOperationByIndex( freeSlotsPerOp[i].second )->RecruitUnit(pUnit))
 						break;

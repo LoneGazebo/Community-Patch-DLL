@@ -520,7 +520,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 
 			// use the modified distance between the two closest seeds to determine the ridge height
 			// ??? are there any other fudge factors I want to add in here???
-			//std::sort(vDistances.begin(),vDistances.end());
+			//std::stable_sort(vDistances.begin(),vDistances.end());
 
 			int iRidgeHeight = (255 * iClosestSeed) / iNextClosestSeed;
 
