@@ -124,6 +124,7 @@ protected:
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild);
 	void AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	int GetRouteValue(CvPlot* pPlot);
+	bool GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute);
 
 	void UpdateCanalPlots();
 

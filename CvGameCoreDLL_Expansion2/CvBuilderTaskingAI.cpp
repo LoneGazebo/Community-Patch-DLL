@@ -517,22 +517,12 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	if (!pPlot)
 		return;
 
-	//don't build roads if our trait gives the same benefit
-	bool bGetBenifitFromTrait = false;
-	if (m_pPlayer->getBestRoute() == ROUTE_ROAD)
-	{
-		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
-			bGetBenifitFromTrait = true;
-		else if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
-			bGetBenifitFromTrait = true;
-	}
-
 	// if we already know about this plot, continue on
 	if( GetRouteValue(pPlot)>=iValue )
 		return;
 
 	//if it is the right route, add to needed plots
-	if (pPlot->getRouteType() == eRoute || bGetBenifitFromTrait)
+	if (pPlot->getRouteType() == eRoute || GetSameRouteBenifitFromTrait(pPlot, eRoute))
 		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
 	else
 		//if no matching route, add to wanted plots
@@ -557,6 +547,18 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 		iCreateValue = it->second.second;
 
 	return max(iKeepValue,iCreateValue);
+}
+
+bool CvBuilderTaskingAI::GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute)
+{
+	if (eRoute == ROUTE_ROAD)
+	{
+		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
+			return true;
+		else if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
+			return true;
+	}
+	return false;
 }
 
 void CvBuilderTaskingAI::UpdateCanalPlots()
@@ -1388,8 +1390,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		return;
 
 	// keep routes which are needed
-	if (NeedRouteAtPlot(pPlot))
+	if (NeedRouteAtPlot(pPlot) && !GetSameRouteBenifitFromTrait(pPlot, pPlot->getRouteType()))
+	{
 		return;
+	}
 
 	// we don't need to remove pillaged routes
 	if (pPlot->IsRoutePillaged())
