@@ -8,14 +8,6 @@ SET Yield = '3'
 WHERE BuildingType = 'BUILDING_MOSQUE' AND YieldType = 'YIELD_FAITH';
 
 UPDATE Buildings
-SET GreatWorkSlotType = 'GREAT_WORK_SLOT_LITERATURE'
-WHERE Type = 'BUILDING_MOSQUE';
-
-UPDATE Buildings
-SET GreatWorkCount = '1'
-WHERE Type = 'BUILDING_MOSQUE';
-
-UPDATE Buildings
 SET ReligiousPressureModifier = '25'
 WHERE Type = 'BUILDING_MOSQUE';
 
@@ -60,14 +52,6 @@ WHERE Type = 'BUILDING_CATHEDRAL';
 
 DELETE FROM Building_YieldChanges
 WHERE BuildingType = 'BUILDING_PAGODA';
-
-UPDATE Buildings
-SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
-WHERE Type = 'BUILDING_PAGODA';
-
-UPDATE Buildings
-SET GreatWorkCount = '1'
-WHERE Type = 'BUILDING_PAGODA';
 
 UPDATE Buildings
 SET Happiness = '0'
