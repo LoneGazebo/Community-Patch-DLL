@@ -262,9 +262,6 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100)
 {
-	// for quests we might be targeting a city state ...
-	bool bSamePlayer = (pTargetCity->getOwner() == pPlayerCapital->getOwner());
-
 	if(pTargetCity->IsRazing())
 	{
 		return;
@@ -291,6 +288,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			return;
 	}
 
+	// for quests we might be targeting a city state ...
+	PlayerTypes eTargetPlayer = pTargetCity->getOwner();
+	bool bSamePlayer = (eTargetPlayer == pPlayerCapital->getOwner());
+
 	bool bHuman = m_pPlayer->isHuman();
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadLength = 0;
@@ -314,8 +315,10 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		{
 			iPlotsNeeded++;
 		
-			// plots more than one tile away from our borders are dangerous
-			if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+			// plots more than one tile away from our borders are dangerous, if the target is a city state, we consider their plots as safe
+			bool bFriendlyTile = pPlot->getOwner() == m_pPlayer->GetID() || pPlot->isAdjacentPlayer(m_pPlayer->GetID())
+				|| (!bSamePlayer && (pPlot->getOwner() == eTargetPlayer || pPlot->isAdjacentPlayer(eTargetPlayer)));
+			if (!bFriendlyTile)
 			{
 				iWildPlots++;
 			}
