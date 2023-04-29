@@ -381,16 +381,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(pPlot->isCity())
 			continue;
 
-		//don't build roads if our trait gives the same benefit
-		if (m_pPlayer->getBestRoute() == ROUTE_ROAD && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() || m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
-		{
-			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
-				continue;
-			
-			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
-				continue;
-		}
-
 		//remember it
 		AddRoutePlot(pPlot, eRoute, iValue);
 	}
@@ -488,16 +478,6 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		if (pPlot->isCity())
 			continue;
 
-		//don't build roads if our trait gives the same benefit
-		if (m_pPlayer->getBestRoute() == ROUTE_ROAD && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() || m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
-		{
-			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
-				continue;
-
-			if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
-				continue;
-		}
-
 		//remember it
 		AddRoutePlot(pPlot, eRoute, iProfit);
 	}
@@ -537,12 +517,22 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	if (!pPlot)
 		return;
 
+	//don't build roads if our trait gives the same benefit
+	bool bGetBenifitFromTrait = false;
+	if (m_pPlayer->getBestRoute() == ROUTE_ROAD)
+	{
+		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
+			bGetBenifitFromTrait = true;
+		else if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
+			bGetBenifitFromTrait = true;
+	}
+
 	// if we already know about this plot, continue on
 	if( GetRouteValue(pPlot)>=iValue )
 		return;
 
 	//if it is the right route, add to needed plots
-	if (pPlot->getRouteType() == eRoute)
+	if (pPlot->getRouteType() == eRoute || bGetBenifitFromTrait)
 		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
 	else
 		//if no matching route, add to wanted plots
@@ -1574,7 +1564,7 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 	//Don't cut down city connections!
 	if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
 	{
-		if(pPlot->IsCityConnection(m_pPlayer->GetID()))
+		if(NeedRouteAtPlot(pPlot))
 		{
 			return;
 		}
