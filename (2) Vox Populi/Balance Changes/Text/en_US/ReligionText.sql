@@ -486,7 +486,9 @@ VALUES
 	('TXT_KEY_BELIEF_GURDWARA',				'Use [ICON_PEACE] Faith to purchase Gurdwaras.'),
 	('TXT_KEY_BELIEF_TEOCALLI_SHORT',		'Teocallis'),
 	('TXT_KEY_BUILDING_TEOCALLI_TOOLTIP',	'+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_TEOCALLI_HELP}'),
-	('TXT_KEY_BELIEF_TEOCALLI',				'Use [ICON_PEACE] Faith to purchase Teocallis.');
+	('TXT_KEY_BELIEF_TEOCALLI',				'Use [ICON_PEACE] Faith to purchase Teocallis.'),
+	('TXT_KEY_BELIEF_COMMUNALISM_SHORT',	'Cooperation'),
+	('TXT_KEY_BELIEF_COMMUNALISM',			'[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, Scaling with Era. +2 [ICON_PRODUCTION] Production if city has a Specialist');
 
 --	//////////////////////////////////////
 --	// ENHANCERS
@@ -518,7 +520,7 @@ SET Text = 'Mendicancy'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CULTURE] Culture and [ICON_PEACE] Faith in all owned Cities following this [ICON_RELIGION] Religion. +1 [ICON_PEACE] Faith in a City for every 10 [ICON_GOLD] Gold per Turn it produces, capped at half the number of Followers in the City.'
+SET Text = '+2 [ICON_CULTURE] Culture and [ICON_PEACE] Faith in all owned Cities following this [ICON_RELIGION] Religion. [ICON_MISSIONARY] Missionaries of this Religion erode existing pressure from other religions by 10% when Spreading Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY';
 
 
@@ -578,7 +580,7 @@ SET Text = 'Zealotry'
 WHERE Tag = 'TXT_KEY_BELIEF_HEATHEN_CONVERSION_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'May spend [ICON_PEACE] Faith to purchase Land Units in Cities. Strategic Resource quantities increase by 1% per following City (up to 25%). [ICON_MISSIONARY] Missionaries of this Religion erode existing pressure from other religions by 15% when Spreading Religion.'
+SET Text = 'May spend [ICON_PEACE] Faith to purchase Land Units in Cities. Strategic Resource quantities increase by 1% per following City (up to 25%).'
 WHERE Tag = 'TXT_KEY_BELIEF_HEATHEN_CONVERSION';
 
 
@@ -653,7 +655,7 @@ SET Text = 'Inspired Works'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Landmarks and Great Person Improvements produce +4 [ICON_PEACE] Faith and [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +2 [ICON_CULTURE] Culture, and you can purchase Archaeologists with [ICON_PEACE] Faith.'
+SET Text = 'Landmarks and Great Person Improvements produce +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +2 [ICON_CULTURE] Culture. Can purchase Archaeologists with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS';
 
 

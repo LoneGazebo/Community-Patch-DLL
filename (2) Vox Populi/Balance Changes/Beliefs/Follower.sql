@@ -2,7 +2,9 @@
 INSERT INTO Beliefs
 		(Type, 						Description, 						ShortDescription, 						Tooltip, 							Pantheon, 	Founder, 	Follower, 	Enhancer, 	Reformation)
 VALUES	('BELIEF_GURDWARA', 		'TXT_KEY_BELIEF_GURDWARA',			'TXT_KEY_BELIEF_GURDWARA_SHORT', 		'TXT_KEY_BELIEF_GURDWARA',			0, 			0, 			1, 			0, 			0),
-		('BELIEF_TEOCALLI', 		'TXT_KEY_BELIEF_TEOCALLI',			'TXT_KEY_BELIEF_TEOCALLI_SHORT', 		'TXT_KEY_BELIEF_TEOCALLI',			0, 			0, 			1, 			0, 			0);
+		('BELIEF_TEOCALLI', 		'TXT_KEY_BELIEF_TEOCALLI',			'TXT_KEY_BELIEF_TEOCALLI_SHORT', 		'TXT_KEY_BELIEF_TEOCALLI',			0, 			0, 			1, 			0, 			0),
+		('BELIEF_COMMUNALISM', 		'TXT_KEY_BELIEF_COMMUNALISM',		'TXT_KEY_BELIEF_COMMUNALISM_SHORT', 	'TXT_KEY_BELIEF_COMMUNALISM',		0, 			0, 			1, 			0, 			0);
+
 
 
 -- Sword into Plowshare (Now Church)
@@ -83,6 +85,14 @@ WHERE BeliefType = 'BELIEF_RELIGIOUS_COMMUNITY';
 DELETE FROM Belief_YieldChangeWorldWonder
 WHERE BeliefType = 'BELIEF_DIVINE_INSPIRATION';
 
+-- Communalism --
+INSERT Into Belief_TradeRouteYieldChange
+		(BeliefType, 			DomainType, 		YieldType, 			Yield)
+VALUES	('BELIEF_COMMUNALISM', 	'DOMAIN_SEA', 		'YIELD_PRODUCTION', 3),
+		('BELIEF_COMMUNALISM', 	'DOMAIN_SEA', 		'YIELD_FOOD', 		3),
+		('BELIEF_COMMUNALISM', 	'DOMAIN_LAND', 		'YIELD_PRODUCTION', 3),
+		('BELIEF_COMMUNALISM', 	'DOMAIN_LAND', 		'YIELD_FOOD', 		3);
+
 -- NEW
 
 INSERT INTO Belief_SpecialistYieldChanges
@@ -136,7 +146,8 @@ VALUES
 INSERT Into Belief_YieldChangeAnySpecialist
 (BeliefType, YieldType, Yield)
 VALUES
-	('BELIEF_DIVINE_INSPIRATION', 'YIELD_FAITH', 2);
+	('BELIEF_DIVINE_INSPIRATION', 'YIELD_FAITH', 2),
+	('BELIEF_COMMUNALISM', 	'YIELD_PRODUCTION', 2);
 
 INSERT INTO Belief_MaxYieldPerFollower
 	(BeliefType, YieldType, Max)
@@ -157,6 +168,8 @@ VALUES
 	('BELIEF_RELIGIOUS_CENTER', 'BUILDINGCLASS_ORDER'),
 	('BELIEF_GURDWARA', 		'BUILDINGCLASS_GURDWARA'),
 	('BELIEF_TEOCALLI', 		'BUILDINGCLASS_TEOCALLI');
+
+
 
 UPDATE Beliefs
 SET Tooltip = 'TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP'
