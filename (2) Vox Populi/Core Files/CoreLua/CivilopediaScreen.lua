@@ -3535,6 +3535,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("CanMoveImpassable");
 		AnalyzePromotion("NoCapture");
 		AnalyzePromotion("OnlyDefensive");
+		AnalyzePromotion("NoAttackInOcean");
 		AnalyzePromotion("NoDefensiveBonus");
 		AnalyzePromotion("NukeImmune");
 		AnalyzePromotion("HiddenNationality");

@@ -209,6 +209,7 @@ CvPromotionEntry::CvPromotionEntry():
 	m_bCanMoveImpassable(false),
 	m_bNoCapture(false),
 	m_bOnlyDefensive(false),
+	m_bNoAttackInOcean(false),
 	m_bNoDefensiveBonus(false),
 	m_bNukeImmune(false),
 	m_bHiddenNationality(false),
@@ -479,6 +480,7 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_bCanMoveImpassable = kResults.GetBool("CanMoveImpassable");
 	m_bNoCapture = kResults.GetBool("NoCapture");
 	m_bOnlyDefensive = kResults.GetBool("OnlyDefensive");
+	m_bNoAttackInOcean = kResults.GetBool("NoAttackInOcean");
 	m_bNoDefensiveBonus = kResults.GetBool("NoDefensiveBonus");
 	m_bNukeImmune = kResults.GetBool("NukeImmune");
 	m_bHiddenNationality = kResults.GetBool("HiddenNationality");
@@ -2325,6 +2327,12 @@ bool CvPromotionEntry::IsNoCapture() const
 bool CvPromotionEntry::IsOnlyDefensive() const
 {
 	return m_bOnlyDefensive;
+}
+
+/// Accessor: Unable to attack enemy units while in deep water
+bool CvPromotionEntry::IsNoAttackInOcean() const
+{
+	return m_bNoAttackInOcean;
 }
 
 /// Accessor: No defensive bonuses

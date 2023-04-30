@@ -221,6 +221,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 
 	Method(IsNoBadGoodies);
 	Method(IsOnlyDefensive);
+	Method(IsNoAttackInOcean);
 
 	Method(IsNoCapture);
 	Method(IsRivalTerritory);
@@ -2661,6 +2662,16 @@ int CvLuaUnit::lIsOnlyDefensive(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 	const bool bResult = pkUnit->isOnlyDefensive();
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool isNoAttackInOcean();
+int CvLuaUnit::lIsNoAttackInOcean(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const bool bResult = pkUnit->isNoAttackInOcean();
 
 	lua_pushboolean(L, bResult);
 	return 1;

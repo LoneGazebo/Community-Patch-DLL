@@ -1694,6 +1694,9 @@ ALTER TABLE Buildings ADD COLUMN 'IgnoreDefensivePactLimit' BOOLEAN DEFAULT 0;
 -- Gifting units to City-States awards Influence per turn while the units remain alive
 ALTER TABLE Traits ADD COLUMN 'MinorInfluencePerGiftedUnit' INTEGER DEFAULT 0;
 
+-- Unit can't attack while in ocean tiles
+ALTER TABLE UnitPromotions ADD COLUMN 'NoAttackInOcean' BOOLEAN DEFAULT 0;
+
 -- CSD
 
 -- Insert SQL Rules Here 
