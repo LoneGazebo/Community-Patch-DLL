@@ -442,7 +442,7 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 				end
 			end
 			if #wars > 0 then
-				table_insert( tips, L("TXT_KEY_AT_WAR_WITH", table_concat(wars, ", ") ) )
+				table_insert( tips, L("TXT_KEY_AT_WAR_WITH_CP", table_concat(wars, ", ") ) )
 			end
 
 		end

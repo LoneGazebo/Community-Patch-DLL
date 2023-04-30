@@ -2642,7 +2642,7 @@ local function GetMoodInfo( playerID )
 	tips:insertIf( #backstabs > 0 and "[ICON_PIRATE]" .. L( "TXT_KEY_DIPLO_BACKSTABBED", backstabs:concat(", ") ) )
 	tips:insertIf( #denouncements > 0 and "[ICON_DENOUNCE]" .. L( "TXT_KEY_DIPLO_DENOUNCED", denouncements:concat(", ") ) )
 	tips:insertIf( #denouncedBy > 0 and "[ICON_DENOUNCE]" .. TextColor( negativeOrPositiveTextColor[false], L( "TXT_KEY_NTFN_DENOUNCED_US_S", denouncedBy:concat(", ") ) ) )
-	tips:insertIf( #wars > 0 and "[ICON_WAR]" .. L( "TXT_KEY_AT_WAR_WITH", wars:concat(", ") ) )
+	tips:insertIf( #wars > 0 and "[ICON_WAR]" .. L( "TXT_KEY_AT_WAR_WITH_CP", wars:concat(", ") ) )
 
 	return tips:concat( "[NEWLINE]" )
 end

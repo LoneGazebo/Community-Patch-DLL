@@ -954,7 +954,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 
 	War = function( control )
 		local player = FindPlayer( g_majorControlTable, control )
-		local tips = table( L( "TXT_KEY_AT_WAR_WITH", player:GetCivilizationShortDescriptionKey() ) )
+		local tips = table( L( "TXT_KEY_AT_WAR_WITH_CP", player:GetCivilizationShortDescriptionKey() ) )
 		local teamID = player:GetTeam()
 		local lockedWarTurns = g_activeTeam:GetNumTurnsLockedIntoWar( teamID )
 		if lockedWarTurns > 0 then
