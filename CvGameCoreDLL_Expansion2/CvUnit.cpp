@@ -2141,7 +2141,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 					bGivePromotion = false;
 				}
 				//Naval Misfire Promotion Catch (sorry for hardcode)
-				else if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainModifierPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
+				else if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainAttackPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
 				{
 					iLostPromotions++;
 					bGivePromotion = false;
@@ -32520,7 +32520,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
-		iTemp = pkPromotionInfo->GetDomainModifierPercent(iI);
+		iTemp = pkPromotionInfo->GetDomainModifierPercent(iI) * 2;
+		iTemp += pkPromotionInfo->GetDomainAttackPercent(iI);
+		iTemp += pkPromotionInfo->GetDomainDefensePercent(iI);
 		// nR: Land + Sea: +10 targeting 1 - 3.		aB: Land + Sea: +15 air targeting 1 - 2, +25 air targeting 3.
 		if (iTemp <= 0)
 			continue;
