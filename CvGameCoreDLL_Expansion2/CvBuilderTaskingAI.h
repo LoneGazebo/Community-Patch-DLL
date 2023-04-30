@@ -125,6 +125,7 @@ protected:
 	void AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	int GetRouteValue(CvPlot* pPlot);
 	bool GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute);
+	bool IsSafeForRoute(CvPlot* pPlot, bool bIsQuestRoute, PlayerTypes eTargetPlayer);
 
 	void UpdateCanalPlots();
 

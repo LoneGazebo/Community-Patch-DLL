@@ -315,10 +315,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		{
 			iPlotsNeeded++;
 		
-			// plots more than one tile away from our borders are dangerous, if the target is a city state, we consider their plots as safe
-			bool bFriendlyTile = pPlot->getOwner() == m_pPlayer->GetID() || pPlot->isAdjacentPlayer(m_pPlayer->GetID())
-				|| (!bSamePlayer && (pPlot->getOwner() == eTargetPlayer || pPlot->isAdjacentPlayer(eTargetPlayer)));
-			if (!bFriendlyTile)
+			if (!IsSafeForRoute(pPlot, !bSamePlayer, eTargetPlayer))
 			{
 				iWildPlots++;
 			}
@@ -438,8 +435,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 			iPlotsNeeded++;
 
-		// plots more than one tile away from our borders are dangerous
-		if (pPlot->getOwner() != m_pPlayer->GetID() && !pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
+		if (!IsSafeForRoute(pPlot, false, pCity2->getOwner()))
 		{
 			iWildPlots++;
 		}
@@ -566,6 +562,29 @@ bool CvBuilderTaskingAI::GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes 
 		else if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 			return true;
 	}
+	return false;
+}
+
+bool CvBuilderTaskingAI::IsSafeForRoute(CvPlot* pPlot, bool bIsQuestRoute, PlayerTypes eTargetPlayer)
+{
+	// Our plots and surrounding plots are safe
+	if (pPlot->getTeam() == m_pPlayer->getTeam() || pPlot->isAdjacentTeam(m_pPlayer->getTeam(), false))
+	{
+		return true;
+	}
+
+	// If we are targeting a city state, their plots and surrounding plots are safe
+	if (bIsQuestRoute && (pPlot->getOwner() == eTargetPlayer || pPlot->isAdjacentPlayer(eTargetPlayer)))
+	{
+		return true;
+	}
+
+	// Our city state allies' plots are safe
+	if (pPlot->isOwned() && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
+	{
+		return true;
+	}
+	
 	return false;
 }
 
