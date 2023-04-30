@@ -2906,6 +2906,16 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 	int iPressureMod = 0;
 
+	// India: +1 base pressure per follower
+	if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
+	{
+		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
+		{
+			int iPopExtraPressure = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
+			iBasePressure += min(24, iPopExtraPressure);
+		}
+	}
+
 	// Does this city have a majority religion?
 	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
 	if (eMajorityReligion != eReligion)
@@ -2987,15 +2997,6 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	if (GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
 	{
 		iPressureMod += 100;
-	}
-
-	if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
-	{
-		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
-		{
-			int iPopReligionModifer = pFromCity->GetCityReligions()->GetNumFollowers(eReligion) * 10;
-			iPressureMod += min(350,iPopReligionModifer);
-		}
 	}
 
 	if (MOD_RELIGION_CONVERSION_MODIFIERS) 
