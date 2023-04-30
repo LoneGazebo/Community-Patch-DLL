@@ -362,6 +362,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
 			iSideBenefits += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD));
+			// railroads have extra benefits over normal roads
+			iSideBenefits += 200 + iRoadLength * 350;
 		}
 
 		int iProfit = iGoldForRoute - (iRoadLength*iMaintenancePerTile) + iSideBenefits;
@@ -459,6 +461,12 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	//route has side benefits also (movement, village gold, trade route range, religion spread)
 	int iSideBenefits = 500 + iRoadLength * 100;
+
+	if (GC.getGame().GetIndustrialRoute() == eRoute)
+	{
+		// railroads have extra benefits over normal roads
+		iSideBenefits += 200 + iRoadLength * 350;
+	}
 
 	// give an additional bump if we're almost done (don't get distracted and leave half-finished roads)
 	if (iPlotsNeeded > 0 && iPlotsNeeded < 3)
@@ -695,19 +703,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);
-
-		// for citadels and cities also put routes on the neighboring plots if they are border tiles
-		if (TacticalAIHelpers::IsPlayerCitadel(pPlot, m_pPlayer->GetID()) || pPlot->isCity())
-		{
-			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
-			{
-				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
-				if (pNeighbor && pNeighbor->getOwner() == m_pPlayer->GetID() && pNeighbor->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), true, true))
-				{
-					AddRoutePlot(pNeighbor, eRoute, 42);
-				}
-			}
-		}
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
@@ -784,13 +779,13 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 				if (pFirstCity && !pSecondCity)
 				{
-					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eBestRoute, iNetGoldTimes100);
+					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eRoute, iNetGoldTimes100);
 					continue;
 				}
 
 				if (!pFirstCity && pSecondCity)
 				{
-					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eBestRoute, iNetGoldTimes100);
+					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eRoute, iNetGoldTimes100);
 					continue;
 				}
 
@@ -806,7 +801,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 					{
 						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
 						//thus improving unit movement and gold bonus from villages
-						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eBestRoute, iNetGoldTimes100);
+						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eRoute, iNetGoldTimes100);
 					}
 					else
 					{
@@ -821,7 +816,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 							pTargetCity = pFirstCity;
 						}
 
-						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eBestRoute, iNetGoldTimes100);
+						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute, iNetGoldTimes100);
 					}
 				}
 				else
