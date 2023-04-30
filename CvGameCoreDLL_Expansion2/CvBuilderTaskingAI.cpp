@@ -821,7 +821,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 							pTargetCity = pFirstCity;
 						}
 
-						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute, iNetGoldTimes100);
+						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eBestRoute, iNetGoldTimes100);
 					}
 				}
 				else
