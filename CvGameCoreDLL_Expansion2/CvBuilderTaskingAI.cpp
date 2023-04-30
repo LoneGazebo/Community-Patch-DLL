@@ -686,11 +686,15 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (!path)
 		return;
 
+	int iStrategicValue = 500 + 100 * path.length();
+
 	//and this to see if we actually build it
 	int iCost = pRouteInfo->GetGoldMaintenance()*(100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	iCost *= path.length();
 	if (iNetGoldTimes100 - iCost <= 6)
 		return;
+
+	int iValue = iStrategicValue - iCost;
 
 	for (int i = 0; i<path.length(); i++)
 	{
@@ -702,7 +706,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 			break;
 
 		// remember the plot
-		AddRoutePlot(pPlot, eRoute, 54);
+		AddRoutePlot(pPlot, eRoute, iValue);
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
