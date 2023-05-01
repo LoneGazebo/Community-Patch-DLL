@@ -72,7 +72,7 @@ SET Text = 'When next to an enemy City, other units within 2 tiles get +40% [ICO
 WHERE Tag = 'TXT_KEY_PROMOTION_SAPPER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'When you conquer a City, gain either a Technology already known by the owner or, if impossible, a large [ICON_RESEARCH] Science boost. All [ICON_GREAT_WORK] Great Works produce +3 [ICON_RESEARCH] Science.'
+SET Text = 'When you conquer a City, gain either a Technology already known by the owner or, if impossible, +20 [ICON_RESEARCH] Science scaling with the City''s [ICON_CITIZEN] Population and Era. All [ICON_GREAT_WORK] Great Works produce +3 [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_TRAIT_SLAYER_OF_TIAMAT';
 
 --------------------
@@ -345,7 +345,7 @@ VALUES ('TXT_KEY_BUILDING_STELE_HELP', '+34% faster border growth in this City. 
 -- France
 --------------------
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. When you conquer a City, gain [ICON_GREAT_WORK] Great Writer/Artist/Musician Points in [ICON_CAPITAL] Capital and a temporary boost to [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production in all Cities.'
+SET Text = '+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. When you conquer a City, gain 50% progress toward [ICON_GREAT_WORK] Great Writer/Artist/Musician in the [ICON_CAPITAL] Capital and a temporary +40% [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production in all Cities, scaling with the conquered City''s [ICON_CITIZEN] Population.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE';
 
 UPDATE Language_en_US
@@ -525,7 +525,7 @@ WHERE Tag = 'TXT_KEY_CITY_NAME_BRAUNSCHWEIG';
 -- Greece
 --------------------
 UPDATE Language_en_US
-SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. +5% [ICON_STRENGTH] Combat Strength of owned and Allied Units for each [ICON_CITY_STATE] City-State alliance (up to +25%). [ICON_CITY_STATE] City-State territory treats owned Units as friendly Units.'
+SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice the normal rate. +5% [ICON_STRENGTH] Combat Strength of owned and Allied Units for each [ICON_CITY_STATE] City-State alliance (up to +25%). Treat neutral [ICON_CITY_STATE] City-State territory as friendly territory.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
@@ -567,7 +567,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HUN_HORSE_ARCHER_STRATEGY';
 -- Inca
 --------------------
 UPDATE Language_en_US
-SET Text = 'Units ignore terrain costs when on Hills and may cross Mountains. Cities, Roads, and Railroads may be built on Mountains, and Mountains produce [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_FOOD] Food, scaling with Era.'
+SET Text = 'Units ignore terrain costs when on Hills and can cross Mountains. Cities, Roads, and Railroads may be built on Mountains, and Mountains can be worked to produce +1 [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_RESEARCH] Science, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_ANDEAN_ROAD';
 
 UPDATE Language_en_US
@@ -694,7 +694,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_LONGHOUSE_STRATEGY';
 -- Japan
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] Culture and [ICON_PEACE] Faith from Defense and Military Training Buildings. When a [ICON_GREAT_ADMIRAL] Great Admiral or [ICON_GREAT_GENERAL] Great General is born, receive [ICON_GREAT_WORK] Great Artist, Writer, and Musician Points in your [ICON_CAPITAL] Capital.'
+SET Text = '+1 [ICON_CULTURE] Culture and [ICON_PEACE] Faith from Defense and Military Training Buildings. When a [ICON_GREAT_ADMIRAL] Great Admiral or [ICON_GREAT_GENERAL] Great General is born, gain 50% progress toward a [ICON_GREAT_WORK] Great Artist, Writer, and Musician in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_FIGHT_WELL_DAMAGED';
 
 UPDATE Language_en_US
@@ -1018,7 +1018,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_COSSACK';
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Gaining tiles generates [ICON_PEACE] Faith and [ICON_GOLD] Gold, scaling with Era. [ICON_INQUISITOR] Inquisitors unlock earlier, do not cost [ICON_GOLD] Gold Maintenance. Gain an [ICON_INQUISITOR] Inquisitor whenever a City is conquered. May purchase Naval Units with [ICON_PEACE] Faith.'
+SET Text = 'Gaining tiles generates 10 [ICON_GOLD] Gold and 4 [ICON_PEACE] Faith, scaling with Era. [ICON_INQUISITOR] Inquisitors unlock earlier and do not cost [ICON_GOLD] Gold Maintenance. Gain an [ICON_INQUISITOR] Inquisitor whenever a City is conquered. May purchase Naval Units with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES';
 
 UPDATE Language_en_US
@@ -1038,7 +1038,7 @@ SET Text = 'The Conquistador is a multi-purpose unit that is strong both on land
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Medieval-Era exploration unit that specializes in conquering and settling advanced Cities overseas. Only Spain may build it. Starts with the [COLOR_POSITIVE_TEXT]Overrun[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Vanguard[ENDCOLOR] Promotions.'
+SET Text = 'Medieval-Era exploration unit that specializes in conquering and settling advanced Cities overseas. Only Spain may build it. Starts with the [COLOR_POSITIVE_TEXT]Overrun[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Vanguard[ENDCOLOR] Promotions. Cities established by this Unit may purchase [COLOR_POSITIVE_TEXT]Mission[ENDCOLOR] with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
 
 --------------------
@@ -1061,7 +1061,7 @@ SET Text = 'The Pathfinder is the game''s first reconnaissance unit. It fights p
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_PATHFINDER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Founded Cities start with additional territory, and Land Units receive a combat bonus when fighting within their own territory. All Recon Units can choose rewards from Ancient Ruins.'
+SET Text = 'Cities claim up to 8 tiles on Founding and 4 tiles on Conquest. Land Units receive a +20% [ICON_STRENGTH] Combat Strength bonus when fighting in friendly territory. All Recon Units can choose rewards from Ancient Ruins.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 
 --------------------
