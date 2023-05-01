@@ -17924,7 +17924,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-					iReligionGrowthMod += (iFollowers * /*2*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
+					iReligionGrowthMod += (iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
 				}
 
 				if (eSecondaryPantheon != NO_BELIEF)
@@ -18110,7 +18110,7 @@ int CvCity::getGrowthMods() const
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-				iReligionGrowthMod += (iFollowers * /*2*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
+				iReligionGrowthMod += (iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
 			}
 
 			if (eSecondaryPantheon != NO_BELIEF)
@@ -25241,6 +25241,18 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture();
 			iModifier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD_TRAIT", iTempMod);
+		}
+	}
+
+	// Trait Yield Rate Modifier per Follower
+	if (eIndex == YIELD_FOOD && eMajority != NO_RELIGION)
+	{
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
+		{
+			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+			iTempMod = iFollowers * /*1*/ GD_INT_GET(BALANCE_FOLLOWER_FOOD_BONUS);
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_TRAIT", iTempMod);
 		}
 	}
 

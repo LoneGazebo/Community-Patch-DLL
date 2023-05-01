@@ -8202,7 +8202,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			}
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
-				iTempValue -= 100;
+				iTempValue += 100;
 			}
 			iTempValue += (pEntry->GetYieldPerBirth(iI) * (iFood / max(1, iEvaluator)));
 		}
@@ -8223,7 +8223,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 			}
 			if (m_pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
 			{
-				iTempValue -= 100;
+				iTempValue += 100;
 			}
 			iTempValue += (pEntry->GetYieldPerHolyCityBirth(iI) * (iFood / max(1, iEvaluator)));
 		}
