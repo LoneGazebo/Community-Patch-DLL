@@ -289,8 +289,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	// for quests we might be targeting a city state ...
-	PlayerTypes eTargetPlayer = pTargetCity->getOwner();
-	bool bSamePlayer = (eTargetPlayer == pPlayerCapital->getOwner());
+	bool bSamePlayer = pTargetCity->getOwner() == pPlayerCapital->getOwner();
 
 	bool bHuman = m_pPlayer->isHuman();
 	// go through the route to see how long it is and how many plots already have roads
@@ -315,7 +314,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		{
 			iPlotsNeeded++;
 		
-			if (!IsSafeForRoute(pPlot, !bSamePlayer, eTargetPlayer))
+			if (!IsSafeForRoute(pPlot))
 			{
 				iWildPlots++;
 			}
@@ -331,7 +330,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	//don't build through the wilderness
-	if (iConsecutiveWildPlots>1 && bSamePlayer && !bHuman)
+	if (iConsecutiveWildPlots>1 && !bHuman)
 		return;
 
 	//see if the new route makes sense economically
@@ -435,7 +434,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 			iPlotsNeeded++;
 
-		if (!IsSafeForRoute(pPlot, false, pCity2->getOwner()))
+		if (!IsSafeForRoute(pPlot))
 		{
 			iWildPlots++;
 		}
@@ -565,7 +564,7 @@ bool CvBuilderTaskingAI::GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes 
 	return false;
 }
 
-bool CvBuilderTaskingAI::IsSafeForRoute(CvPlot* pPlot, bool bIsQuestRoute, PlayerTypes eTargetPlayer)
+bool CvBuilderTaskingAI::IsSafeForRoute(CvPlot* pPlot)
 {
 	// Our plots and surrounding plots are safe
 	if (pPlot->getTeam() == m_pPlayer->getTeam() || pPlot->isAdjacentTeam(m_pPlayer->getTeam(), false))
@@ -573,16 +572,22 @@ bool CvBuilderTaskingAI::IsSafeForRoute(CvPlot* pPlot, bool bIsQuestRoute, Playe
 		return true;
 	}
 
-	// If we are targeting a city state, their plots and surrounding plots are safe
-	if (bIsQuestRoute && (pPlot->getOwner() == eTargetPlayer || pPlot->isAdjacentPlayer(eTargetPlayer)))
+	// City state plots and surrounding plots are safe
+	if (pPlot->isOwned() && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(m_pPlayer->GetID()))
 	{
 		return true;
 	}
-
-	// Our city state allies' plots are safe
-	if (pPlot->isOwned() && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->IsAllies(m_pPlayer->GetID()))
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
-		return true;
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		if (pAdjacentPlot != NULL)
+		{
+			if (pAdjacentPlot->isOwned() && GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pAdjacentPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(m_pPlayer->GetID()))
+			{
+				return true;
+			}
+		}
 	}
 	
 	return false;
