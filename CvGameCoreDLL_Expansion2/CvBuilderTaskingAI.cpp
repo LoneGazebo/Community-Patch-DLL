@@ -729,6 +729,9 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (pPlot->getOwner() != m_pPlayer->GetID())
 			break;
 
+		if (pPlot->isCity())
+			continue;
+
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, iValue);
 	}
