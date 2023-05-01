@@ -1018,7 +1018,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_COSSACK';
 -- Spain
 --------------------
 UPDATE Language_en_US
-SET Text = 'Gaining tiles generates 10 [ICON_GOLD] Gold and 4 [ICON_PEACE] Faith, scaling with Era. [ICON_INQUISITOR] Inquisitors unlock earlier and do not cost [ICON_GOLD] Gold Maintenance. Gain an [ICON_INQUISITOR] Inquisitor whenever a City is conquered. May purchase Naval Units with [ICON_PEACE] Faith.'
+SET Text = '+10 [ICON_GOLD] Gold and 4 [ICON_PEACE] Faith from gaining tiles, scaling with Era. [ICON_INQUISITOR] Inquisitors unlock earlier and do not cost [ICON_GOLD] Gold Maintenance. Gain an [ICON_INQUISITOR] Inquisitor whenever a City is conquered. May purchase Naval Units with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_TRAIT_SEVEN_CITIES';
 
 UPDATE Language_en_US
