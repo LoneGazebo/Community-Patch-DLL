@@ -7233,11 +7233,15 @@ ImprovementTypes CvPlot::getImprovementTypeNeededToImproveResource(PlayerTypes e
 		if (bIgnoreSpecialImprovements && (pImprovementInfo->IsCreatedByGreatPerson() || pImprovementInfo->IsAdjacentCity()))
 			continue;
 
-		if(pImprovementInfo->IsWater() != isWater())
+		if (pImprovementInfo->IsWater() != isWater())
 			continue;
 
-		if(pImprovementInfo->IsCoastMakesValid() != (isWater() && !isLake()))
-			continue;
+		bool isCoast = isWater() && !isLake();
+		if (pImprovementInfo->IsCoastMakesValid() && isCoast)
+		{
+			eImprovementNeeded = eImprovement;
+			break;
+		}
 
 		eImprovementNeeded = eImprovement;
 	}
