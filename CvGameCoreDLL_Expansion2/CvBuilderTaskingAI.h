@@ -97,6 +97,7 @@ public:
 	RouteTypes GetRouteTypeWantedAtPlot(const CvPlot* pPlot) const;
 	RouteTypes GetRouteTypeNeededAtPlot(const CvPlot* pPlot) const;
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
+	bool GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
 
@@ -126,7 +127,6 @@ protected:
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild);
 	void AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	int GetRouteValue(CvPlot* pPlot);
-	bool GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute);
 
 	void UpdateCanalPlots();
 

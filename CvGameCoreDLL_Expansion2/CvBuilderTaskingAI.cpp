@@ -538,7 +538,7 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 	return max(iKeepValue,iCreateValue);
 }
 
-bool CvBuilderTaskingAI::GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute)
+bool CvBuilderTaskingAI::GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const
 {
 	if (eRoute == ROUTE_ROAD)
 	{

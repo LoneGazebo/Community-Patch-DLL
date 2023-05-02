@@ -2171,8 +2171,8 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(data.ePlayer).GetBuilderTaskingAI();
 
-	// if we are planning to, or have already built a road here, provide a discount (cities always have a road)
-	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter)
+	// if we are planning to or have already built a road here, or get a free road here from our trait, provide a discount (cities always have a road)
+	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetSameRouteBenifitFromTrait(pPlot, (RouteTypes) data.iTypeParameter))
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 
 	// if we are planning to build a lower tier route here, provide a smaller discount
@@ -2180,7 +2180,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		return PATH_BASE_COST / 2;
 
 	// if there is already a route here, also provide a discount
-	if(pPlot->getRouteType() != NO_ROUTE)
+	if (pPlot->getRouteType() != NO_ROUTE)
 		return PATH_BASE_COST * 2 / 3;
 
 	//should we prefer rough terrain because the gain in movement points is greater?
