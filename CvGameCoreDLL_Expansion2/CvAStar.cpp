@@ -2172,7 +2172,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(data.ePlayer).GetBuilderTaskingAI();
 
 	// if we are planning to or have already built a road here, or get a free road here from our trait, provide a discount (cities always have a road)
-	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetSameRouteBenifitFromTrait(pPlot, (RouteTypes) data.iTypeParameter))
+	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, (RouteTypes) data.iTypeParameter))
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 
 	// if we are planning to build a lower tier route here, provide a smaller discount

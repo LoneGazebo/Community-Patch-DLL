@@ -308,7 +308,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		iRoadLength++;
 
-		if ((pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged()) && !GetSameRouteBenifitFromTrait(pPlot, eRoute))
+		if ((pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged()) && !GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			iPlotsNeeded++;
 	}
 
@@ -414,7 +414,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 		iRoadLength++;
 
-		if ((pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged()) && !GetSameRouteBenifitFromTrait(pPlot, eRoute))
+		if ((pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged()) && !GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			iPlotsNeeded++;
 	}
 
@@ -511,7 +511,7 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 		return;
 
 	//if it is the right route, add to needed plots
-	if (pPlot->getRouteType() == eRoute || GetSameRouteBenifitFromTrait(pPlot, eRoute))
+	if (pPlot->getRouteType() == eRoute || GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
 	else
 		//if no matching route, add to wanted plots
@@ -538,7 +538,7 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 	return max(iKeepValue,iCreateValue);
 }
 
-bool CvBuilderTaskingAI::GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const
+bool CvBuilderTaskingAI::GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const
 {
 	if (eRoute == ROUTE_ROAD)
 	{
@@ -1376,7 +1376,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		return;
 
 	// keep routes which are needed
-	if (NeedRouteAtPlot(pPlot) && !GetSameRouteBenifitFromTrait(pPlot, pPlot->getRouteType()))
+	if (NeedRouteAtPlot(pPlot) && !GetSameRouteBenefitFromTrait(pPlot, pPlot->getRouteType()))
 	{
 		return;
 	}
