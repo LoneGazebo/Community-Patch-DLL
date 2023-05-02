@@ -2189,6 +2189,35 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	return iCost;
 }
 
+bool IsSafeForRoute(CvPlot* pPlot, CvPlayer* ePlayer)
+{
+	// Our plots and surrounding plots are safe
+	if (pPlot->getTeam() == ePlayer->getTeam() || pPlot->isAdjacentTeam(ePlayer->getTeam(), false))
+	{
+		return true;
+	}
+
+	// City state plots and surrounding plots are safe
+	if (pPlot->isOwned() && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer->GetID()))
+	{
+		return true;
+	}
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		if (pAdjacentPlot != NULL)
+		{
+			if (pAdjacentPlot->isOwned() && GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pAdjacentPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer->GetID()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 /// Build Route path finder - check validity of a coordinate
 int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar*)
@@ -2245,6 +2274,14 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	//too dangerous, might be severed any time
 	if (ePlotOwnerPlayer == NO_PLAYER && pNewPlot->IsAdjacentOwnedByTeamOtherThan(thisPlayer.getTeam()))
 		return FALSE;
+
+	//if the plot and its parent are both too far from our borders, don't build here
+	if (!IsSafeForRoute(pNewPlot, &thisPlayer))
+	{
+		CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
+		if (!IsSafeForRoute(pFromPlot, &thisPlayer))
+			return FALSE;
+	}
 
 	return TRUE;
 }

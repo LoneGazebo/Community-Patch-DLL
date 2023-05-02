@@ -295,8 +295,6 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadLength = 0;
 	int iPlotsNeeded = 0;
-	int iWildPlots = 0; //plots not under our control ... dangerous
-	int iConsecutiveWildPlots = 0; // maximum number of consecutive wild plots encountered
 
 	for (size_t i=0; i<path.vPlots.size(); i++)
 	{
@@ -311,27 +309,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		iRoadLength++;
 
 		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
-		{
 			iPlotsNeeded++;
-		
-			if (!IsSafeForRoute(pPlot))
-			{
-				iWildPlots++;
-			}
-			else
-			{
-				if (iWildPlots > iConsecutiveWildPlots)
-				{
-					iConsecutiveWildPlots = iWildPlots;
-				}
-				iWildPlots = 0;
-			}
-		}
 	}
-
-	//don't build through the wilderness
-	if (iConsecutiveWildPlots>1 && !bHuman)
-		return;
 
 	//see if the new route makes sense economically
 	int iValue = -1;
@@ -416,8 +395,6 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadLength = 0;
 	int iPlotsNeeded = 0;
-	int iWildPlots = 0; //plots not under our control ... dangerous
-	int iConsecutiveWildPlots = 0; // maximum number of consecutive wild plots encountered
 
 	for (size_t i = 0; i < newPath.vPlots.size(); i++)
 	{
@@ -433,24 +410,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
 			iPlotsNeeded++;
-
-		if (!IsSafeForRoute(pPlot))
-		{
-			iWildPlots++;
-		}
-		else
-		{
-			if (iWildPlots > iConsecutiveWildPlots)
-			{
-				iConsecutiveWildPlots = iWildPlots;
-			}
-			iWildPlots = 0;
-		}
 	}
-
-	//don't build through the wilderness
-	if (iConsecutiveWildPlots > 1)
-		return;
 
 	int iMaintenancePerTile = pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
@@ -581,35 +541,6 @@ bool CvBuilderTaskingAI::GetSameRouteBenifitFromTrait(CvPlot* pPlot, RouteTypes 
 		else if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 			return true;
 	}
-	return false;
-}
-
-bool CvBuilderTaskingAI::IsSafeForRoute(CvPlot* pPlot)
-{
-	// Our plots and surrounding plots are safe
-	if (pPlot->getTeam() == m_pPlayer->getTeam() || pPlot->isAdjacentTeam(m_pPlayer->getTeam(), false))
-	{
-		return true;
-	}
-
-	// City state plots and surrounding plots are safe
-	if (pPlot->isOwned() && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(m_pPlayer->GetID()))
-	{
-		return true;
-	}
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		if (pAdjacentPlot != NULL)
-		{
-			if (pAdjacentPlot->isOwned() && GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pAdjacentPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(m_pPlayer->GetID()))
-			{
-				return true;
-			}
-		}
-	}
-	
 	return false;
 }
 
