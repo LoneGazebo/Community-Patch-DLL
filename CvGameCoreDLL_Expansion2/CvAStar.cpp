@@ -2171,8 +2171,8 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(data.ePlayer).GetBuilderTaskingAI();
 
-	// if we are planning to, or have already built a road here, provide a discount
-	if(eBuilderTaskingAi->NeedRouteAtPlot(pPlot) || eBuilderTaskingAi->WantRouteAtPlot(pPlot))
+	// if we are planning to, or have already built a road here, provide a discount (cities always have a road)
+	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter)
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 
 	//should we prefer rough terrain because the gain in movement points is greater?

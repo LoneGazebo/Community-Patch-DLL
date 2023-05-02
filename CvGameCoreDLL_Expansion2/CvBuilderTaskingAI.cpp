@@ -496,6 +496,16 @@ bool CvBuilderTaskingAI::WantRouteAtPlot(const CvPlot* pPlot) const
 	return (it != m_routeWantedPlots.end());
 }
 
+RouteTypes CvBuilderTaskingAI::GetRouteTypeWantedAtPlot(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return NO_ROUTE;
+	RoutePlotContainer::const_iterator it = m_routeWantedPlots.find(pPlot->GetPlotIndex());
+	if (it != m_routeWantedPlots.end())
+		return it->second.first;
+	return NO_ROUTE;
+}
+
 bool CvBuilderTaskingAI::NeedRouteAtPlot(const CvPlot* pPlot) const
 {
 	if (!pPlot)
@@ -503,6 +513,16 @@ bool CvBuilderTaskingAI::NeedRouteAtPlot(const CvPlot* pPlot) const
 
 	RoutePlotContainer::const_iterator it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
 	return (it != m_routeNeededPlots.end());
+}
+
+RouteTypes CvBuilderTaskingAI::GetRouteTypeNeededAtPlot(const CvPlot* pPlot) const
+{
+	if (!pPlot)
+		return NO_ROUTE;
+	RoutePlotContainer::const_iterator it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
+	if (it != m_routeNeededPlots.end())
+		return it->second.first;
+	return NO_ROUTE;
 }
 
 bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
@@ -725,6 +745,9 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
 			break;
+
+		if (pPlot->isCity())
+			continue;
 
 		if (pPlot->getOwner() != m_pPlayer->GetID())
 			break;
