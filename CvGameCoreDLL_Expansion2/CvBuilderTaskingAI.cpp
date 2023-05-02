@@ -404,7 +404,13 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 		//don't count the cities themselves
 		if (pPlot->isCity())
+		{
+			// if we are going via a city, that isn't one of the two cities we are connecting, then this shortcut is not needed
+			CvCity* pPlotCity = pPlot->getPlotCity();
+			if (pPlotCity != pCity1 && pPlotCity != pCity2 && pPlotCity->getOwner() == m_pPlayer->GetID())
+				return;
 			continue;
+		}
 
 		iRoadLength++;
 
