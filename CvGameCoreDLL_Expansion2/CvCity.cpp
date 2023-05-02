@@ -339,6 +339,7 @@ CvCity::CvCity() :
 	, m_iCityWorkingChange()
 	, m_iCitySupplyModifier()
 	, m_iCitySupplyFlat()
+	, m_iDamageReductionFlat()
 	, m_bAllowsProductionTradeRoutes()
 	, m_bAllowsFoodTradeRoutes()
 	, m_bAllowPuppetPurchase()
@@ -1304,6 +1305,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCityWorkingChange = 0;
 	m_iCitySupplyModifier = 0;
 	m_iCitySupplyFlat = 0;
+	m_iDamageReductionFlat = 0;
 	m_bAllowsProductionTradeRoutes = false;
 	m_bAllowsFoodTradeRoutes = false;
 	m_bAllowPuppetPurchase = false;
@@ -15752,6 +15754,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		changeNukeModifier(pBuildingInfo->GetNukeModifier() * iChange);
 		changeHealRate(pBuildingInfo->GetHealRateChange() * iChange);
 		ChangeExtraHitPoints(pBuildingInfo->GetExtraCityHitPoints() * iChange);
+		changeDamageReductionFlat(pBuildingInfo->GetDamageReductionFlat() * iChange);
 
 		ChangeNoOccupiedUnhappinessCount(pBuildingInfo->IsNoOccupiedUnhappiness() * iChange);
 
@@ -21661,6 +21664,19 @@ void CvCity::changeCitySupplyFlat(int iChange)
 {
 	VALIDATE_OBJECT
 	m_iCitySupplyFlat += iChange;
+}
+//	--------------------------------------------------------------------------------
+int CvCity::getDamageReductionFlat() const
+{
+	VALIDATE_OBJECT
+	return m_iDamageReductionFlat;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeDamageReductionFlat(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iDamageReductionFlat += iChange;
 }
 
 void CvCity::SetProductionRoutes(bool bValue)
@@ -33167,6 +33183,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCityWorkingChange);
 	visitor(city.m_iCitySupplyModifier);
 	visitor(city.m_iCitySupplyFlat);
+	visitor(city.m_iDamageReductionFlat);
 	visitor(city.m_bAllowsProductionTradeRoutes);
 	visitor(city.m_bAllowsFoodTradeRoutes);
 	visitor(city.m_bAllowPuppetPurchase);

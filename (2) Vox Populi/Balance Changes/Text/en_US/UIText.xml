@@ -1759,6 +1759,13 @@
 		<Row Tag="TXT_KEY_MO_SORT_XP">
 			<Text>Sort By XP</Text>
 		</Row>
+	<!-- City Damage Reduction -->
+		<Row Tag="TXT_KEY_PEDIA_DAMAGE_REDUCTION">
+			<Text>-{1_Num} Damage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION">
+			<Text>Damage Reduction: +{1_Num}</Text>
+		</Row>
 	</Language_en_US>
 	<Civilization_CityNames>
 		<Row>

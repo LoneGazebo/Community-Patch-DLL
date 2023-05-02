@@ -7002,6 +7002,9 @@
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
 			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_DAMAGE_REDUCTION_LABEL">
+			<Text>Damage Reduction: +{1_Num}</Text>
+		</Row>
 
 		<!-- Great Person Progress -->
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE">

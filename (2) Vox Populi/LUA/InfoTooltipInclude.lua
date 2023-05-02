@@ -381,6 +381,12 @@ function GetHelpTextForBuilding(iBuildingID, bExcludeName, bExcludeHeader, bNoMa
 		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_HITPOINTS", iHitPoints));
 	end
 
+	-- Damage Reduction
+	local iDamageReductionFlat = pBuildingInfo.DamageReductionFlat;
+	if (iDamageReductionFlat ~= nil and iDamageReductionFlat ~= 0) then
+		table.insert(lines, Locale.ConvertTextKey("TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION", iDamageReductionFlat));
+	end
+
 	--CP EVENTS
 	if (pCity ~= nil) then
 		for pYieldInfo in GameInfo.Yields() do

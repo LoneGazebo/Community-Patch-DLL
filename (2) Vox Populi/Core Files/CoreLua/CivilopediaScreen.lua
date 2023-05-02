@@ -4148,6 +4148,11 @@ function SelectBuildingOrWonderArticle( buildingID )
 			table.insert(defenseEntries, Locale.Lookup("TXT_KEY_PEDIA_DEFENSE_HITPOINTS", iExtraHitPoints));
 		end
 
+		local iDamageReductionFlat = thisBuilding.DamageReductionFlat;
+		if(iDamageReductionFlat > 0) then
+			table.insert(defenseEntries, Locale.Lookup("TXT_KEY_PEDIA_DAMAGE_REDUCTION", iDamageReductionFlat));
+		end
+
 		if(#defenseEntries > 0) then
 			Controls.DefenseLabel:SetText(table.concat(defenseEntries, ", "));
 			Controls.DefenseFrame:SetHide(false);
@@ -4687,6 +4692,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("IsDummy");
 		AnalyzeBuilding("AnyWater");
 		AnalyzeBuilding("BuildingDefenseModifier");
+		AnalyzeBuilding("DamageReductionFlat");
 		AnalyzeBuilding("GlobalLandmarksTourismPercent");
 		AnalyzeBuilding("GlobalGreatWorksTourismModifier");
 		AnalyzeBuilding("FaithToVotes", "[COLOR_POSITIVE_TEXT]votes[ENDCOLOR]");

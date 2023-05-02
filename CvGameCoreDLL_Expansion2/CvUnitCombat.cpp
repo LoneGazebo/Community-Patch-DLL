@@ -171,6 +171,11 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 #endif
 
+		// City can have flat damage reduction
+		if (pkCity->getDamageReductionFlat() != 0) {
+			iAttackerDamageInflicted = std::max(0, iAttackerDamageInflicted - pkCity->getDamageReductionFlat());
+		}
+
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkCity->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
 
@@ -792,6 +797,11 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 			}
 		}
 #endif
+
+		// City can have flat damage reduction
+		if (pkCity->getDamageReductionFlat() != 0) {
+			iDamage = std::max(0, iDamage - pkCity->getDamageReductionFlat());
+		}
 
 		// Cities can't be knocked to less than 1 HP
 		if(iDamage + pCity->getDamage() >= pCity->GetMaxHitPoints())
