@@ -208,7 +208,9 @@ WHERE Type = 'TRAIT_EXTRA_TRADE';
 
 
 -- Shoshone
-
+UPDATE Traits
+SET ExtraConqueredCityTerritoryClaimRange = 4
+WHERE Type = 'TRAIT_GREAT_EXPANSE';
 
 -- Casimir III -- Ducal Stable +1 Production
 UPDATE Buildings
