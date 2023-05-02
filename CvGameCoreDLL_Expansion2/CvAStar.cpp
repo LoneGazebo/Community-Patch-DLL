@@ -2175,6 +2175,14 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter)
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 
+	// if we are planning to build a lower tier route here, provide a smaller discount
+	if (eBuilderTaskingAi->WantRouteAtPlot(pPlot) || eBuilderTaskingAi->NeedRouteAtPlot(pPlot))
+		return PATH_BASE_COST / 2;
+
+	// if there is already a route here, also provide a discount
+	if(pPlot->getRouteType() != NO_ROUTE)
+		return PATH_BASE_COST * 2 / 3;
+
 	//should we prefer rough terrain because the gain in movement points is greater?
 	int iCost = PATH_BASE_COST;
 
