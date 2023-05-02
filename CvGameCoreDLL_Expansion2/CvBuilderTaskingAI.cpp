@@ -308,7 +308,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		iRoadLength++;
 
-		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+		if ((pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged()) && !GetSameRouteBenifitFromTrait(pPlot, eRoute))
 			iPlotsNeeded++;
 	}
 
@@ -414,7 +414,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 		iRoadLength++;
 
-		if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+		if ((pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged()) && !GetSameRouteBenifitFromTrait(pPlot, eRoute))
 			iPlotsNeeded++;
 	}
 
