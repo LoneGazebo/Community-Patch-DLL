@@ -1268,7 +1268,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			if (pkHolyCity == pLoopCity)
 				continue;
 
-			int iInitialPressure = GD_INT_GET(RELIGION_FOUND_AUTO_SPREAD_PRESSURE);
+			int iInitialPressure = /*1000*/ GD_INT_GET(RELIGION_FOUND_AUTO_SPREAD_PRESSURE) * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 			pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eReligion, iInitialPressure);
 			pLoopCity->GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_SCRIPTED_CONVERSION);
 		}
@@ -2914,7 +2914,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
 		{
 			int iPopExtraPressure = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
-			iBasePressure += min(24, iPopExtraPressure);
+			iBasePressure += min(24, iPopExtraPressure) * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
 		}
 	}
 
