@@ -334,11 +334,11 @@ SELECT 'TXT_KEY_BUILDING_CHURCH_TOOLTIP', '+4 [ICON_PEACE] Faith, +2 [ICON_CULTU
 
 -- Cooperation (formerly Peace Gardens)
 UPDATE Language_en_US
-SET Text = 'Cooperation'
+SET Text = 'Indulgences'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_GARDENS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Receive +8 to all City yields every time a [ICON_CITIZEN] Citizen is born in the City. Bonus scales with Era.'
+SET Text = '+1 [ICON_PEACE] Faith in a City for every 10 [ICON_GOLD] Gold per turn it produces, capped at half the number of Followers in the City. 10% of the cost of [ICON_PEACE] Faith Purchases in this City is converted into [ICON_GOLD] Gold and [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BELIEF_PEACE_GARDENS';
 
 
@@ -372,7 +372,7 @@ SET Text = 'Use [ICON_PEACE] Faith to purchase Mandirs.'
 WHERE Tag = 'TXT_KEY_BELIEF_GURUSHIP';
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_MANDIR_TOOLTIP', '+3 [ICON_PEACE] Faith, +2 [ICON_FOOD] Food[NEWLINE]+10% [ICON_FOOD] Food[NEWLINE]1 [ICON_GREAT_WORK] Great Work of Music Slot[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_MANDIR_HELP}';
+SELECT '+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_FOOD] Food[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_MANDIR_HELP}';
 
 
 -- Mastery (formerly Religious Art)
@@ -408,7 +408,7 @@ SET Text = 'Use [ICON_PEACE] Faith to purchase Orders.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_CENTER';
 
 INSERT INTO Language_en_US (Tag, Text)
-SELECT 'TXT_KEY_BUILDING_ORDER_TOOLTIP', '+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_ORDER_HELP}';
+SELECT 'TXT_KEY_BUILDING_ORDER_TOOLTIP', '+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLD] Gold[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_ORDER_HELP}';
 
 
 -- Pagodas
@@ -472,13 +472,23 @@ WHERE Tag = 'TXT_KEY_BELIEF_FEED_WORLD';
 
 -- Veneration (formerly Liturgical Drama)
 UPDATE Language_en_US
-SET Text = 'Veneration'
+SET Text = 'Gurukulam'
 WHERE Tag = 'TXT_KEY_BELIEF_LITURGICAL_DRAMA_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, and [ICON_FOOD] Food in the City. 10% of the cost of [ICON_PEACE] Faith Purchases in this City is converted into [ICON_CULTURE] Culture and [ICON_GOLD] Gold.'
+SET Text = '+1 [ICON_PEACE] Faith in a City for every 5 [ICON_RESEARCH] Science per turn it produces, capped at half the number of Followers in the City. 10% of the cost of [ICON_PEACE] Faith Purchases in this City is converted into [ICON_CULTURE] Culture and [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_BELIEF_LITURGICAL_DRAMA';
 
+INSERT INTO Language_en_US (Tag, Text)
+VALUES
+	('TXT_KEY_BELIEF_GURDWARA_SHORT',		'Gurdwaras'),
+	('TXT_KEY_BUILDING_GURDWARA_TOOLTIP',	'+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_FOOD] Food[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_GURDWARA_HELP}'),
+	('TXT_KEY_BELIEF_GURDWARA',				'Use [ICON_PEACE] Faith to purchase Gurdwaras.'),
+	('TXT_KEY_BELIEF_TEOCALLI_SHORT',		'Teocallis'),
+	('TXT_KEY_BUILDING_TEOCALLI_TOOLTIP',	'+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_TEOCALLI_HELP}'),
+	('TXT_KEY_BELIEF_TEOCALLI',				'Use [ICON_PEACE] Faith to purchase Teocallis.'),
+	('TXT_KEY_BELIEF_COMMUNALISM_SHORT',	'Cooperation'),
+	('TXT_KEY_BELIEF_COMMUNALISM',			'[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, Scaling with Era. +2 [ICON_PRODUCTION] Production if city has a Specialist');
 
 --	//////////////////////////////////////
 --	// ENHANCERS
@@ -510,7 +520,7 @@ SET Text = 'Mendicancy'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CULTURE] Culture and [ICON_PEACE] Faith in all owned Cities following this [ICON_RELIGION] Religion. +1 [ICON_PEACE] Faith in a City for every 10 [ICON_GOLD] Gold per Turn it produces, capped at half the number of Followers in the City.'
+SET Text = '+2 [ICON_CULTURE] Culture and [ICON_PEACE] Faith in all owned Cities following this [ICON_RELIGION] Religion. [ICON_MISSIONARY] Missionaries of this Religion erode existing pressure from other religions by 10% when Spreading Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIQUARY';
 
 
@@ -570,7 +580,7 @@ SET Text = 'Zealotry'
 WHERE Tag = 'TXT_KEY_BELIEF_HEATHEN_CONVERSION_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'May spend [ICON_PEACE] Faith to purchase Land Units in Cities. Strategic Resource quantities increase by 1% per following City (up to 25%). [ICON_MISSIONARY] Missionaries of this Religion erode existing pressure from other religions by 15% when Spreading Religion.'
+SET Text = 'May spend [ICON_PEACE] Faith to purchase Land Units in Cities. Strategic Resource quantities increase by 1% per following City (up to 25%).'
 WHERE Tag = 'TXT_KEY_BELIEF_HEATHEN_CONVERSION';
 
 
@@ -645,7 +655,7 @@ SET Text = 'Inspired Works'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Landmarks and Great Person Improvements produce +4 [ICON_PEACE] Faith and [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +2 [ICON_CULTURE] Culture, and you can purchase Archaeologists with [ICON_PEACE] Faith.'
+SET Text = 'Landmarks and Great Person Improvements produce +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science. [ICON_GREAT_WORK] Great Works produce +2 [ICON_CULTURE] Culture. Can purchase Archaeologists with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNITY_OF_PROPHETS';
 
 

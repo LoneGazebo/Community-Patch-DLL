@@ -32,6 +32,18 @@
 			<DefaultBuilding>BUILDING_ORDER</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_ORDER</Description>
 		</Row>
+		<!--Teocalli-->
+		<Row>
+			<Type>BUILDINGCLASS_TEOCALLI</Type>
+			<DefaultBuilding>BUILDING_TEOCALLI</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_TEOCALLI</Description>
+		</Row>
+		<!--Gurdwara-->
+		<Row>
+			<Type>BUILDINGCLASS_GURDWARA</Type>
+			<DefaultBuilding>BUILDING_GURDWARA</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GURDWARA</Description>
+		</Row>
 		<Row>
 			<Type>BUILDINGCLASS_PALACE_THRONE_ROOM</Type>
 			<DefaultBuilding>BUILDING_THRONE_ROOM</DefaultBuilding>
@@ -197,8 +209,6 @@
 			<Civilopedia>TXT_KEY_BUILDING_CHURCH_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_CHURCH_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_CHURCH_HELP</Help>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
-			<GreatWorkCount>1</GreatWorkCount>
 			<WLTKDTurns>15</WLTKDTurns>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
@@ -220,8 +230,6 @@
 			<Civilopedia>TXT_KEY_BUILDING_MANDIR_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_MANDIR_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_MANDIR_HELP</Help>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
-			<GreatWorkCount>1</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
 			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
@@ -240,8 +248,6 @@
 			<Description>TXT_KEY_BUILDING_SYNAGOGUE</Description>
 			<Civilopedia>TXT_KEY_BUILDING_SYNAGOGUE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_SYNAGOGUE_STRATEGY</Strategy>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
-			<GreatWorkCount>1</GreatWorkCount>
 			<Help>TXT_KEY_BUILDING_SYNAGOGUE_HELP</Help>
 			<ConquestProb>100</ConquestProb>
 			<Cost>-1</Cost>
@@ -265,14 +271,52 @@
 			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
-			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
 			<Defense>300</Defense>
-			<ExtraCityHitPoints>50</ExtraCityHitPoints>
+			<RangedStrikeModifier>10</RangedStrikeModifier>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>5</PortraitIndex>
+			<UnlockedByBelief>true</UnlockedByBelief>
+			<FaithCost>200</FaithCost>
+		</Row>
+		<!--Teocalli-->
+		<Row>
+			<Type>BUILDING_TEOCALLI</Type>
+			<BuildingClass>BUILDINGCLASS_TEOCALLI</BuildingClass>
+			<Description>TXT_KEY_BUILDING_TEOCALLI</Description>
+			<Civilopedia>TXT_KEY_BUILDING_TEOCALLI_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_TEOCALLI_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_TEOCALLI_HELP</Help>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>TEMPLE</ArtDefineTag>
+			<Cost>-1</Cost>
+			<CitySupplyFlat>1</CitySupplyFlat>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<IconAtlas>EXPANSION_BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>7</PortraitIndex>
+			<UnlockedByBelief>true</UnlockedByBelief>
+			<FaithCost>200</FaithCost>
+		</Row>
+		<!--Gurdwara-->
+		<Row>
+			<Type>BUILDING_GURDWARA</Type>
+			<BuildingClass>BUILDINGCLASS_GURDWARA</BuildingClass>
+			<Description>TXT_KEY_BUILDING_GURDWARA</Description>
+			<Civilopedia>TXT_KEY_BUILDING_GURDWARA_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_GURDWARA_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_GURDWARA_HELP</Help>
+			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
+			<ConquestProb>100</ConquestProb>
+			<ArtDefineTag>TEMPLE</ArtDefineTag>
+			<Cost>-1</Cost>
+			<BuildingDefenseModifier>10</BuildingDefenseModifier>
+			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<MinAreaSize>-1</MinAreaSize>
+			<IconAtlas>COMMUNITY_ATLAS_3</IconAtlas>
+			<PortraitIndex>3</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
 		</Row>
