@@ -506,21 +506,21 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
 			<Text>Church</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a Great Work of Music slot in the City. Also makes missionaries more effective and begins "We Love the King Day" in the City.</Text>
+			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a potent boost to passive religious pressure. Also begins a "We Love the King Day" in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_TEXT">
 			<Text>A church building, often simply called a church, is a building used for religious activities, particularly worship services. The term in its architectural sense is most often used by Christians to refer to their religious buildings but can be used by other religions. In traditional Christian architecture, the church is often arranged in the shape of a Christian cross. When viewed from plan view the longest part of a cross is represented by the aisle and the junction of the cross is located at the altar area.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>15 turns of "We Love the King Day" in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
+			<Text>15 turns of "We Love the King Day" in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 
 
@@ -528,14 +528,14 @@
 			<Text>Mandir</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Mandirs belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Mandir to gain Faith, Food, and a Great Work of Music slot in the City. Protects your City from certain Advanced Spy Actions.</Text>
+			<Text>Can only be built in cities following a religion with the Mandirs belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Mandir to gain Faith, and Food. Provides a small amount of all yields whenever the city grows.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_TEXT">
 			<Text>A Hindu temple is a house of god(s). It is a space and structure designed to bring human beings and gods together, infused with symbolism to express the ideas and beliefs of Hinduism.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
-			<Text>+10% [ICON_FOOD] Food in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Gain 5 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PEACE] Faith when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 
 
@@ -543,14 +543,14 @@
 			<Text>Synagogue</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Synagogues belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Synagogue to gain Faith, Production, and a Great Work of Writing slot in the City. The City generates more Science during "We Love the King Day."</Text>
+			<Text>Can only be built in cities following a religion with the Synagogues belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Synagogue to gain Faith, Production. The City generates more Science during "We Love the King Day."</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_TEXT">
 			<Text>A synagogue, also spelled synagog, is a Jewish house of prayer. Synagogues have a large hall for prayer (the main sanctuary), and may also have smaller rooms for study and sometimes a social hall and offices. Some have a separate room for Torah study, called the beth midrash.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_HELP">
-			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. During "We Love the King Day", City [ICON_RESEARCH] Science increases by +10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>Increases the City's resistance to [ICON_RELIGION] Religious conversion by 15%. During "We Love the King Day", City [ICON_RESEARCH] Science increases by +10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 
 
@@ -558,21 +558,47 @@
 			<Text>Order</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_STRATEGY">
-			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, additional City Hit Points and [ICON_STRENGTH] Strength, +15 XP for all Military units, and the Morale promotion for your land Military units. Also grants +3 [ICON_PEACE] Faith when you kill an enemy Unit, scaling with Era.</Text>
+			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, Gold and the Morale promotion for all Military units trained in the city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
-			<Text>+3 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle, scaling with Era. +15 XP for all Military Units produced in the City, and the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion for Land Military Units produced in this City. Grants additional City Hit Points and [ICON_STRENGTH] Combat Strength. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>When you construct a Unit in this City, gain [ICON_PEACE] Faith equal to 10% of the Unit's [ICON_PRODUCTION] Production cost. Gain 10% of the Cost of any [ICON_PEACE] Faith Purchase as [ICON_PRODUCTION] Production in this City. Land Military Units produced in the City gain the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Increases City [ICON_STRENGTH] Combat Strength by 3 and [ICON_RANGE_STRENGTH] Bombard Strength by 10%. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI">
+			<Text>Teocalli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_PEDIA">
+			<Text>A Teocalli is a temple of the Aztec peoples. The Teocalli follow a structure that is typical for many Meso-American peoples, with a somewhat small enclosed space atop a massive stepped pyramid with a staircase on one side. The largest of these pyramids exceeded the Egyptian pyramid at Giza in total volume, though they weren't as tall. In a manner similar to Mesopotamian religions, the Aztecs considered their Teocalli as the literal residences of their gods, only permitting priests to climb them for rituals and special occasions. The most infamous of these rituals is the human sacrifices which occured monthly to appease the Aztec gods, where war captives had their beating hearts extracted from their chests and then beheaded. The skulls of the sacrifices were prepared and displayed on a nearby skull rack called a 'tzompantli', while the organs and flesh were offered to the gods.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_HELP">
+			<Text>+3 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle, scaling with Era. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1. +15 XP for all Military Units produced in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Teocallis belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Teocalli offers bonuses towards military training and faith generation.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA">
+			<Text>Gurdwara</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA_PEDIA">
+			<Text>A Gurdwara -- which means "door to the guru" -- is the place of worship for Sikhs. All gurdwaras contain the holy Sikh scripture, the Guru Granth Sahib, placed on an elevated platform. From this platform, a Raagis recites, sings, and explains the scripture for the congregation. The other universal feature of all gurdwaras is a community kitchen called a Langar. Sikhs place great importance on serving free vegetarian meals, allowing all community members, regardless of ethnicity, caste, status or religion, to both eat and volunteer free of charge.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Unhappiness from Distress. +25% Religious pressure and +10% Religious resistance in this city.[NEWLINE][NEWLINE]+10% [ICON_FOOD] Food and +10% [ICON_STRENGTH] Defense in the City. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Music.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Gurdwaras belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Gurdwara offers bonuses towards Growth and Defense.</Text>
+		</Row>
+
 		<!-- Cathedral/Mosque/Pagoda-->
 		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
-			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. Farms, Pastures, and Quarries near this City generate +1 [ICON_GOLD] Gold. Gain +10 [ICON_GOLD] Gold in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%. Farms, Pastures, and Quarries near this City generate +1 [ICON_GOLD] Gold. Gain +10 [ICON_GOLD] Gold in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOSQUE_HELP">
-			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%. +15% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%. +15% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
 			<Text>+1 to all City Yields for every World Religion that has at least one Follower in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom and -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.</Text>
@@ -751,13 +777,13 @@
 			<Text>Seowon</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SEOWON_TEXT">
-			<Text>Seowon were the most common educational institution of Korea during the mid- to late Joseon Dynasty. They were private institutions, and combined the functions of a Confucian shrine and a preparatory school. In educational terms, the seowon were primarily occupied with preparing students for the national civil service examinations. In most cases, seowon served only pupils of the aristocratic yangban class.</Text>
+			<Text>Seowon were the most common educational institution of Korea during the mid- to late Joseon Dynasty. They were private institutions combining the functions of a Confucian shrine and a preparatory school. In educational terms, the seowon were primarily occupied with preparing students for the national civil service examinations. In most cases, seowon served only pupils of the aristocratic yangban class.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_HELP">
-			<Text>+1 [ICON_RESEARCH] Science from Jungle and Snow tiles worked by the City. +1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production from [ICON_GREAT_WORK] Great Works in the City. +15% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>+1 [ICON_RESEARCH] Science from Jungle and Snow tiles worked by the City. +1 [ICON_RESEARCH] Science and [ICON_PRODUCTION] Production from [ICON_GREAT_WORK] Great Works in the City and all nearby Great Person Tile Improvements. Gain 50% of the [ICON_RESEARCH] Science output of the City as an instant boost to your current Research when a [ICON_CITIZEN] Citizen is born in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SEOWON_STRATEGY">
-			<Text>Unique Korean replacement for the University. Generates more Science and Production than the University, generates Faith, and is available earlier. The increased Great Person rate will help you produce Great People more quickly, thus helping you to maximize Korea's Unique Ability.</Text>
+			<Text>Unique Korean replacement for the University. Generates more Science and Production than the University. The increased yields on Great Works and Great Person Tiles reward you for producing Great People from the specialists boosted by Korea's Unique Ability.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT">
 			<Text>Ger</Text>

@@ -1593,6 +1593,9 @@ public:
 	int GetExtraHitPoints() const;
 	void ChangeExtraHitPoints(int iValue);
 
+	int getDamageReductionFlat() const;
+	void changeDamageReductionFlat(int iChange);
+
 	int GetMaxHitPoints() const;
 	const CvSyncArchive<CvCity>& getSyncArchive() const;
 	CvSyncArchive<CvCity>& getSyncArchive();

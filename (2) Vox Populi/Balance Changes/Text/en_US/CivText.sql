@@ -590,7 +590,7 @@ WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 -- India
 --------------------
 UPDATE Language_en_US
-SET Text = 'Starts with a [ICON_RELIGION_PANTHEON] Pantheon, and [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. All owned cities convert when you found a [ICON_RELIGION] Religion. Each Follower of your primary [ICON_RELIGION] Religion in a City increases Religious Pressure and [ICON_FOOD] Growth. No [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
+SET Text = 'Starts with a [ICON_RELIGION_PANTHEON] Pantheon. [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. Founding a [ICON_RELIGION] Religion converts all owned Cities. +1 Religious Pressure and +1% [ICON_FOOD] Food for each Follower of your primary [ICON_RELIGION] Religion in a City. No [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH';
 
 UPDATE Language_en_US
@@ -721,7 +721,7 @@ WHERE Tag = 'TXT_KEY_UNIT_JAPANESE_ZERO_STRATEGY';
 -- Korea
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Medieval, Industrial, and Atomic Eras. +30% [ICON_GREAT_PEOPLE] Great People during [ICON_GOLDEN_AGE] Golden Ages, and +50 [ICON_GOLDEN_AGE] Golden Age Points when a [ICON_GREAT_PEOPLE] Great Person is born, scaling with Era.'
+SET Text = '+1 [ICON_RESEARCH] Science from Specialists, increasing by +1 in Medieval, Industrial, and Atomic Eras. +20% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages, and +50 [ICON_GOLDEN_AGE] Golden Age Points when a [ICON_GREAT_PEOPLE] Great Person is born, scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_SCHOLARS_JADE_HALL';
 
 UPDATE Language_en_US
@@ -1038,7 +1038,7 @@ SET Text = 'The Conquistador is a multi-purpose unit that is strong both on land
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Medieval-Era exploration unit that specializes in conquering and settling advanced Cities overseas. Only Spain may build it. Starts with the [COLOR_POSITIVE_TEXT]Overrun[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Vanguard[ENDCOLOR] Promotions. Cities established by this Unit may purchase [COLOR_POSITIVE_TEXT]Mission[ENDCOLOR] with [ICON_PEACE] Faith.'
+SET Text = 'Medieval-Era exploration unit that specializes in conquering and settling advanced Cities overseas. Only Spain may build it. Starts with the [COLOR_POSITIVE_TEXT]Overrun[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Vanguard[ENDCOLOR] Promotions. Cities established by this Unit may purchase a [COLOR_POSITIVE_TEXT]Mission[ENDCOLOR] with [ICON_PEACE] Faith.'
 WHERE Tag = 'TXT_KEY_CIV5_SPAIN_CONQUISTADOR_HELP';
 
 --------------------
@@ -1118,7 +1118,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSLIM_CAVALRY';
 -- Sweden
 --------------------
 UPDATE Language_en_US
-SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units gain +1 [ICON_MOVES] Movement. When a [ICON_GREAT_GENERAL] Great General is born, all Military Units fully heal and earn +15 XP. +15% [ICON_GREAT_GENERAL] Great General combat bonus.'
+SET Text = 'Melee Land Units gain +20% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and Siege Units gain +1 [ICON_MOVES] Movement. When a [ICON_GREAT_GENERAL] Great General is born, all Military Units fully heal and earn +15 XP. +15% [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] [COLOR_POSITIVE_TEXT]Leadership[ENDCOLOR] combat bonus.'
 WHERE Tag = 'TXT_KEY_TRAIT_DIPLOMACY_GREAT_PEOPLE';
 
 UPDATE Language_en_US

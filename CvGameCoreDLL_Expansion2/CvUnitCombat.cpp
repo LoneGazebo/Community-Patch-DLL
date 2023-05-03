@@ -799,8 +799,8 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 #endif
 
 		// City can have flat damage reduction
-		if (pkCity->getDamageReductionFlat() != 0) {
-			iDamage = std::max(0, iDamage - pkCity->getDamageReductionFlat());
+		if (pCity->getDamageReductionFlat() != 0) {
+			iDamage = std::max(0, iDamage - pCity->getDamageReductionFlat());
 		}
 
 		// Cities can't be knocked to less than 1 HP

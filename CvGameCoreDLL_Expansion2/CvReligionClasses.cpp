@@ -1268,7 +1268,9 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 			if (pkHolyCity == pLoopCity)
 				continue;
 
-			pLoopCity->GetCityReligions()->ConvertPercentFollowers(eReligion, pLoopCity->GetCityReligions()->GetReligiousMajority(), 50);
+			int iInitialPressure = GD_INT_GET(RELIGION_FOUND_AUTO_SPREAD_PRESSURE);
+			pLoopCity->GetCityReligions()->AddReligiousPressure(FOLLOWER_CHANGE_SCRIPTED_CONVERSION, eReligion, iInitialPressure);
+			pLoopCity->GetCityReligions()->RecomputeFollowers(FOLLOWER_CHANGE_SCRIPTED_CONVERSION);
 		}
 	}
 

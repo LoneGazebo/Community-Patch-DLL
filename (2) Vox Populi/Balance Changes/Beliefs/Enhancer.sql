@@ -36,10 +36,9 @@ VALUES
 	('BELIEF_RELIQUARY', 'YIELD_CULTURE', 2),
 	('BELIEF_RELIQUARY', 'YIELD_FAITH', 2);
 
-INSERT INTO Belief_YieldPerGPT
-	(BeliefType, YieldType, Yield)
-VALUES
-	('BELIEF_RELIQUARY', 'YIELD_FAITH', 10);
+UPDATE Beliefs
+SET OtherReligionPressureErosion = '10'
+WHERE Type = 'BELIEF_RELIQUARY';
 
 
 -- Just War (Now Abode of Peace)
@@ -70,10 +69,6 @@ WHERE Type = 'BELIEF_JUST_WAR';
 -- Heathen Conversion (Now Zealotry)
 UPDATE Beliefs
 SET Enhancer = '1'
-WHERE Type = 'BELIEF_HEATHEN_CONVERSION';
-
-UPDATE Beliefs
-SET OtherReligionPressureErosion = '15'
 WHERE Type = 'BELIEF_HEATHEN_CONVERSION';
 
 UPDATE Beliefs

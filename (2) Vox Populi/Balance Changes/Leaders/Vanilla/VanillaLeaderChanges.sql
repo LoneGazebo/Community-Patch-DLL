@@ -1054,7 +1054,8 @@ VALUES
 ------------------------------
 INSERT INTO ArtDefine_LandmarkTypes
 			(Type, LandmarkType, FriendlyName)
-VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'SIHEYUAN');
+VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'SIHEYUAN'),
+			('ART_DEF_IMPROVEMENT_VILLA', 'Improvement', 'VILLA');
 ------------------------------
 -- ArtDefine_Landmarks
 ------------------------------
@@ -1062,13 +1063,17 @@ INSERT INTO ArtDefine_Landmarks
 			(Era, State, Scale, ImprovementType, LayoutHandler, ResourceType, Model, TerrainContour)
 VALUES 		('Any', 'UnderConstruction', 0.8, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'SIHEYUAN_HB.fxsxml', 1),
 			('Any', 'Constructed', 0.8, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'SIHEYUAN.fxsxml', 1),
-			('Any', 'Pillaged', 0.8, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'Siheyuan_PL.fxsxml', 1);
+			('Any', 'Pillaged', 0.8, 'ART_DEF_IMPROVEMENT_SIHEYUAN', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'Siheyuan_PL.fxsxml', 1),
+			('Any', 'UnderConstruction',  0.85, 'ART_DEF_IMPROVEMENT_VILLA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL',	'Mediterranean Villa_HB.fxsxml', 1),
+			('Any', 'Constructed', 0.85, 'ART_DEF_IMPROVEMENT_VILLA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'Mediterranean Villa_B.fxsxml', 1),
+			('Any', 'Pillaged', 0.85, 'ART_DEF_IMPROVEMENT_VILLA', 'SNAPSHOT', 'ART_DEF_RESOURCE_ALL', 'Mediterranean Villa_PL.fxsxml', 1);
 ------------------------------
 -- ArtDefine_StrategicView
 ------------------------------
 INSERT INTO ArtDefine_StrategicView
 			(StrategicViewType, TileType, Asset)
-VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'Siheyuan128.dds');
+VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'Siheyuan128.dds'),
+			('ART_DEF_IMPROVEMENT_VILLA', 'Improvement', 'LatifundiumIcon_128.dds');
 ------------------------------
 -- IconTextureAtlases
 ------------------------------
@@ -1076,9 +1081,12 @@ INSERT INTO IconTextureAtlases
 		(Atlas, IconSize, Filename, IconsPerRow, IconsPerColumn)
 VALUES	('IMPROVEMENT_SIHEYUAN_ATLAS', 256, 'Siheyuan256.dds', 2, 1),
 		('IMPROVEMENT_SIHEYUAN_ATLAS', 64, 'Siheyuan064.dds', 2, 1),
-		('IMPROVEMENT_SIHEYUAN_ATLAS', 45, 'Siheyuan045.dds', 2, 1);
---==========================================================================================================================
-
+		('IMPROVEMENT_SIHEYUAN_ATLAS', 45, 'Siheyuan045.dds', 2, 1),
+		('IMPROVEMENT_ROME_ATLAS', 256, 'LatifundiumIcons_256.dds',	1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 64, 'LatifundiumIcons_064.dds', 1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 45, 'LatifundiumIcons_045.dds', 1, 1),
+		('IMPROVEMENT_ROME_2_ATLAS', 64, 'LatifundiumBuildIcons_064.dds', 1, 1),
+		('IMPROVEMENT_ROME_2_ATLAS', 45, 'LatifundiumBuildIcons_045.dds', 1, 1);
 --==========================================================================================================================
 -- IMPROVEMENTS
 --==========================================================================================================================
@@ -1103,15 +1111,13 @@ INSERT INTO Improvement_Yields
 			(ImprovementType, YieldType, Yield)
 VALUES		('IMPROVEMENT_SIHEYUAN', 'YIELD_GOLD', 1),
 			('IMPROVEMENT_SIHEYUAN', 'YIELD_SCIENCE', 1),
-			('IMPROVEMENT_SIHEYUAN', 'YIELD_PRODUCTION', 1),
-			('IMPROVEMENT_SIHEYUAN', 'YIELD_CULTURE', 1);
+			('IMPROVEMENT_SIHEYUAN', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Improvement_WLTKDYields 	
 			(ImprovementType, YieldType, Yield)
 VALUES		('IMPROVEMENT_SIHEYUAN', 'YIELD_GOLD', 1),
 			('IMPROVEMENT_SIHEYUAN', 'YIELD_SCIENCE', 1),
-			('IMPROVEMENT_SIHEYUAN', 'YIELD_PRODUCTION', 1),
-			('IMPROVEMENT_SIHEYUAN', 'YIELD_CULTURE', 1);
+			('IMPROVEMENT_SIHEYUAN', 'YIELD_PRODUCTION', 1);
 --==========================================================================================================================
 -- BUILDS
 --==========================================================================================================================				
