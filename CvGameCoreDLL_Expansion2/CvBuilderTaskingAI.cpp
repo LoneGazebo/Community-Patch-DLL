@@ -164,6 +164,9 @@ void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& 
 	visitor(builderTaskingAI.m_routeNeededPlots);
 	visitor(builderTaskingAI.m_routeWantedPlots);
 	visitor(builderTaskingAI.m_canalWantedPlots);
+	visitor(builderTaskingAI.m_mainRoutePlots);
+	visitor(builderTaskingAI.m_shortcutRoutePlots);
+	visitor(builderTaskingAI.m_strategicRoutePlots);
 }
 
 /// Serialization read
@@ -384,7 +387,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			continue;
 
 		//remember it
-		AddRoutePlot(pPlot, eRoute, iValue);
+		if (AddRoutePlot(pPlot, eRoute, iValue))
+			m_mainRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 
@@ -468,7 +472,8 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			continue;
 
 		//remember it
-		AddRoutePlot(pPlot, eRoute, iProfit);
+		if (AddRoutePlot(pPlot, eRoute, iProfit))
+			m_shortcutRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 
@@ -521,13 +526,13 @@ bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
 	return (it != m_canalWantedPlots.end());
 }
 
-void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
+bool CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
 {
 	if (!pPlot)
-		return;
+		return false;
 
 	if (iValue <= 0 || eRoute == NO_ROUTE)
-		return;
+		return false;
 
 	RouteTypes eOldRoute = NO_ROUTE;
 	int iOldValue = 0;
@@ -550,7 +555,7 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 
 	// if we already want a better route, ignore this
 	if (eOldRoute > eRoute)
-		return;
+		return false;
 
 	// if we wanted a lower tech route, ignore the old value
 	if (eOldRoute < eRoute)
@@ -562,6 +567,7 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	else
 		//if no matching route, add to wanted plots
 		m_routeWantedPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue + iOldValue);
+	return true;
 }
 
 int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
@@ -582,6 +588,21 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 		iCreateValue = it->second.second;
 
 	return max(iKeepValue,iCreateValue);
+}
+
+set<int> CvBuilderTaskingAI::GetMainRoutePlots() const
+{
+	return m_mainRoutePlots;
+}
+
+set<int> CvBuilderTaskingAI::GetShortcutRoutePlots() const
+{
+	return m_shortcutRoutePlots;
+}
+
+set<int> CvBuilderTaskingAI::GetStrategicRoutePlots() const
+{
+	return m_strategicRoutePlots;
 }
 
 bool CvBuilderTaskingAI::GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const
@@ -735,7 +756,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 			break;
 
 		// remember the plot
-		AddRoutePlot(pPlot, eRoute, 54);
+		if (AddRoutePlot(pPlot, eRoute, 54))
+			m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
@@ -759,6 +781,9 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 	m_routeNeededPlots.clear();
 	m_routeWantedPlots.clear();
+	m_mainRoutePlots.clear();
+	m_shortcutRoutePlots.clear();
+	m_strategicRoutePlots.clear();
 
 	for(int i = GC.getNumBuildInfos() - 1; i >= 0; i--)
 	{

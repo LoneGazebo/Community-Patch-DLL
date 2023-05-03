@@ -1508,6 +1508,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsGlobalQuest);
 	Method(IsPersonalQuest);
+
+	// Debug methods for routes
+	Method(GetMainRouteTiles);
+	Method(GetShortcutRouteTiles);
+	Method(GetStrategicRouteTiles);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -18352,5 +18357,82 @@ int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetMainRouteTiles(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	set<int> mainRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetMainRoutePlots();
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	for (set<int>::iterator it = mainRoutePlots.begin(); it != mainRoutePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (pPlot)
+		{
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, pPlot->getX());
+			lua_setfield(L, t, "x");
+			lua_pushinteger(L, pPlot->getY());
+			lua_setfield(L, t, "y");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+	return 1;
+}
+
+int CvLuaPlayer::lGetShortcutRouteTiles(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	set<int> shortcutRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetShortcutRoutePlots();
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	for (set<int>::iterator it = shortcutRoutePlots.begin(); it != shortcutRoutePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (pPlot)
+		{
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, pPlot->getX());
+			lua_setfield(L, t, "x");
+			lua_pushinteger(L, pPlot->getY());
+			lua_setfield(L, t, "y");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+
+	return 1;
+}
+
+int CvLuaPlayer::lGetStrategicRouteTiles(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	set<int> strategicRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetStrategicRoutePlots();
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	for (set<int>::iterator it = strategicRoutePlots.begin(); it != strategicRoutePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (pPlot)
+		{
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, pPlot->getX());
+			lua_setfield(L, t, "x");
+			lua_pushinteger(L, pPlot->getY());
+			lua_setfield(L, t, "y");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+
 	return 1;
 }
