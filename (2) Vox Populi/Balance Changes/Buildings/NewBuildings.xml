@@ -330,7 +330,7 @@
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
-			<CultureRateModifier>0</CultureRateModifier>
+			<CultureRateModifier>10</CultureRateModifier>
 			<NoUnhappfromXSpecialists>2</NoUnhappfromXSpecialists>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
@@ -594,7 +594,7 @@
 			<Cost>300</Cost>
 			<GoldMaintenance>2</GoldMaintenance>
 			<FreeStartEra>ERA_INDUSTRIAL</FreeStartEra>
-			<PrereqTech>TECH_PHILOSOPHY</PrereqTech>
+			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SEOWON_HELP</Help>
 			<FaithCost>200</FaithCost>
 			<ConquestProb>66</ConquestProb>
