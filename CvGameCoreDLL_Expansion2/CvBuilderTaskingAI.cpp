@@ -667,7 +667,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (!path)
 		return;
 
-	int iStrategicValue = 500 + 100 * path.length();
+	int iStrategicValue = 100 + 100 * path.length();
 
 	//and this to see if we actually build it
 	int iCost = pRouteInfo->GetGoldMaintenance()*(100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
@@ -675,7 +675,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (iNetGoldTimes100 - iCost <= 6)
 		return;
 
-	int iValue = iStrategicValue - iCost;
+	int iValue = iStrategicValue;
 
 	for (int i = 0; i<path.length(); i++)
 	{
@@ -718,7 +718,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	m_routeNeededPlots.clear();
 	m_routeWantedPlots.clear();
 
-	for(int i = 0; i < GC.getNumBuildInfos(); i++)
+	for(int i = GC.getNumBuildInfos() - 1; i >= 0; i--)
 	{
 		BuildTypes eBuild = (BuildTypes)i;
 		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);

@@ -2172,21 +2172,21 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(data.ePlayer).GetBuilderTaskingAI();
 
 	// if we are planning to or have already built a road here, or get a free road here from our trait, provide a discount (cities always have a road)
-	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, (RouteTypes) data.iTypeParameter))
+	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, (RouteTypes)data.iTypeParameter))
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 
 	// if we are planning to build a lower tier route here, provide a smaller discount
-	if (eBuilderTaskingAi->WantRouteAtPlot(pPlot) || eBuilderTaskingAi->NeedRouteAtPlot(pPlot))
+	if ((eBuilderTaskingAi->WantRouteAtPlot(pPlot) || eBuilderTaskingAi->NeedRouteAtPlot(pPlot)) && !eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
 		return PATH_BASE_COST / 2;
 
-	// if there is already a route here, also provide a discount
-	if (pPlot->getRouteType() != NO_ROUTE)
+	// if there is already a route here, also provide a small discount
+	if (pPlot->getRouteType() == (RouteTypes)data.iTypeParameter)
 		return PATH_BASE_COST * 2 / 3;
 
 	//should we prefer rough terrain because the gain in movement points is greater?
 	int iCost = PATH_BASE_COST;
 
-	//can't build anything on mountain
+	//can't build villages on mountains
 	if (pPlot->isMountain())
 		iCost++;
 
