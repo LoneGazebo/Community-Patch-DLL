@@ -4692,7 +4692,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("IsDummy");
 		AnalyzeBuilding("AnyWater");
 		AnalyzeBuilding("BuildingDefenseModifier");
-		AnalyzeBuilding("DamageReductionFlat");
+		AnalyzeBuilding("DamageReductionFlat", "");
 		AnalyzeBuilding("GlobalLandmarksTourismPercent");
 		AnalyzeBuilding("GlobalGreatWorksTourismModifier");
 		AnalyzeBuilding("FaithToVotes", "[COLOR_POSITIVE_TEXT]votes[ENDCOLOR]");
