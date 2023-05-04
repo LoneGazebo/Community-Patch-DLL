@@ -279,6 +279,7 @@ CvUnit::CvUnit() :
 	, m_iFlatMovementCostCount()
 	, m_iCanMoveImpassableCount()
 	, m_iOnlyDefensiveCount()
+	, m_iNoAttackInOceanCount()
 	, m_iNoDefensiveBonusCount()
 	, m_iNoCaptureCount()
 	, m_iNukeImmuneCount()
@@ -1645,6 +1646,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iFlatMovementCostCount = 0;
 	m_iCanMoveImpassableCount = 0;
 	m_iOnlyDefensiveCount = 0;
+	m_iNoAttackInOceanCount = 0;
 	m_iNoDefensiveBonusCount = 0;
 	m_iNoCaptureCount = 0;
 	m_iNukeImmuneCount = 0;
@@ -2139,7 +2141,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 					bGivePromotion = false;
 				}
 				//Naval Misfire Promotion Catch (sorry for hardcode)
-				else if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainModifierPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
+				else if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainAttackPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
 				{
 					iLostPromotions++;
 					bGivePromotion = false;
@@ -15197,6 +15199,9 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 					return true;
 #endif
 
+				if (isNoAttackInOcean() && pPlot->isDeepWater())
+					return false;
+
 				if (canMoveAllTerrain())
 					return true;
 
@@ -19341,6 +19346,28 @@ void CvUnit::changeOnlyDefensiveCount(int iValue)
 	{
 		m_iOnlyDefensiveCount += iValue;
 	}
+}
+
+//	--------------------------------------------------------------------------------
+bool CvUnit::isNoAttackInOcean() const
+{
+	VALIDATE_OBJECT
+	return getNoAttackInOceanCount() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getNoAttackInOceanCount() const
+{
+	VALIDATE_OBJECT
+	return m_iNoAttackInOceanCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeNoAttackInOceanCount(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNoAttackInOceanCount += iValue;
+	CvAssert(getNoAttackInOceanCount() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -27556,6 +27583,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeFlatMovementCostCount((thisPromotion.IsFlatMovementCost()) ? iChange : 0);
 		changeCanMoveImpassableCount((thisPromotion.IsCanMoveImpassable()) ? iChange : 0);
 		changeOnlyDefensiveCount((thisPromotion.IsOnlyDefensive()) ? iChange : 0);
+		changeNoAttackInOceanCount((thisPromotion.IsNoAttackInOcean()) ? iChange : 0);
 		changeNoDefensiveBonusCount((thisPromotion.IsNoDefensiveBonus()) ? iChange : 0);
 		changeNoCaptureCount((thisPromotion.IsNoCapture()) ? iChange : 0);
 		changeNukeImmuneCount((thisPromotion.IsNukeImmune()) ? iChange: 0);
@@ -28316,6 +28344,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iFlatMovementCostCount);
 	visitor(unit.m_iCanMoveImpassableCount);
 	visitor(unit.m_iOnlyDefensiveCount);
+	visitor(unit.m_iNoAttackInOceanCount);
 	visitor(unit.m_iNoDefensiveBonusCount);
 	visitor(unit.m_iNoCaptureCount);
 	visitor(unit.m_iNukeImmuneCount);
@@ -32491,7 +32520,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
-		iTemp = pkPromotionInfo->GetDomainModifierPercent(iI);
+		iTemp = pkPromotionInfo->GetDomainModifierPercent(iI) * 2;
+		iTemp += pkPromotionInfo->GetDomainAttackPercent(iI);
+		iTemp += pkPromotionInfo->GetDomainDefensePercent(iI);
 		// nR: Land + Sea: +10 targeting 1 - 3.		aB: Land + Sea: +15 air targeting 1 - 2, +25 air targeting 3.
 		if (iTemp <= 0)
 			continue;

@@ -1910,6 +1910,8 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<CanMoveImpassable>true</CanMoveImpassable>
+			<CanMoveAllTerrain>true</CanMoveAllTerrain>
+			<NoAttackInOcean>true</NoAttackInOcean>
 			<HoveringUnit>true</HoveringUnit>
 			<PortraitIndex>58</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>

@@ -309,7 +309,7 @@ INSERT INTO Building_Flavors (BuildingType, FlavorType, Flavor) VALUES
 ('BUILDING_HOSPITAL', 'FLAVOR_GROWTH', 35),
 ('BUILDING_HOSPITAL', 'FLAVOR_SCIENCE', 15),
 ----------------------------
-('BUILDING_MINEFIELD', 'FLAVOR_CITY_DEFENSE', 50),
+('BUILDING_MINEFIELD', 'FLAVOR_CITY_DEFENSE', 20),
 ----------------------
 ('BUILDING_COAL_PLANT', 'FLAVOR_PRODUCTION', 30), -- Refinery
 ----------------------------

@@ -6640,6 +6640,9 @@
 		<Row Tag="TXT_KEY_PRODMOD_SPIES">
 			<Text>[NEWLINE][ICON_BULLET]Active Spies Modifier: {1_Num}%</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PRODMOD_YIELD_TRAIT">
+			<Text>[NEWLINE][ICON_BULLET]Modifier from Trait: {1_Num}%</Text>
+		</Row>
 
 		<!-- Lua for Buildings -->
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_LOCAL_FEATURE">
@@ -6998,6 +7001,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_NUM_POPULATION_LOCAL_NEEDED_LABEL">
 			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_DAMAGE_REDUCTION_LABEL">
+			<Text>Damage Reduction:</Text>
 		</Row>
 
 		<!-- Great Person Progress -->
