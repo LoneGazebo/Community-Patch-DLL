@@ -4224,6 +4224,30 @@ int CvPlayerReligions::GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReli
 	return iRtnValue;
 }
 
+int CvPlayerReligions::GetNumCityStateFollowers(ReligionTypes eReligion) const
+{
+	CvCity *pLoopCity = NULL;
+	int iCityLoop = 0;
+	int iRtnValue = 0;
+	
+	if (eReligion > RELIGION_PANTHEON)
+	{
+		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+		{
+			CvPlayer &kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayerLoop);
+			if (kLoopPlayer.isAlive() && kLoopPlayer.isMinorCiv())
+			{
+				for (pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).nextCity(&iCityLoop))
+				{
+					iRtnValue += pLoopCity->GetCityReligions()->GetNumFollowers(eReligion);
+				}
+			}
+		}
+	}
+
+	return iRtnValue;
+}
+
 int CvPlayerReligions::GetNumDomesticFollowers(ReligionTypes eReligion) const
 {
 	int iRtnValue = 0;
@@ -6650,6 +6674,10 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 							iScore *= 2;
 						}
 						else if (pkReligion->m_Beliefs.GetYieldChangePerForeignCity(eYield, m_pPlayer->GetID(), pHolyCity) > 0)
+						{
+							iScore *= 2;
+						}
+						if (kLoopPlayer.isMinorCiv() && pkReligion->m_Beliefs.GetYieldChangePerXCityStateFollowers(eYield, m_pPlayer->GetID(), pHolyCity) > 0)
 						{
 							iScore *= 2;
 						}
@@ -9139,9 +9167,7 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 		if (pEntry->GetFriendlyCityStateSpreadModifier() != 0)
 		{
 			int iSpreadTempCS = (pEntry->GetFriendlyCityStateSpreadModifier() * (m_pPlayer->GetNumCSAllies() + m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive())) / 2;
-
 			iSpreadTemp += iSpreadTempCS;
-
 		}
 
 		if (pEntry->GetSpyPressure() != 0)
@@ -9176,6 +9202,9 @@ int CvReligionAI::ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConque
 			iSpreadYields += pEntry->GetYieldChangePerForeignCity(iI) * 2;
 
 			iSpreadYields += pEntry->GetYieldChangePerXForeignFollowers(iI) * 2;
+
+			if (pEntry->GetYieldChangePerXCityStateFollowers(iI) > 0)
+				iSpreadYields += pEntry->GetYieldChangePerXCityStateFollowers(iI) * (m_pPlayer->GetNumCSAllies() + m_pPlayer->GetNumCSFriends() + GC.getGame().GetNumMinorCivsAlive()) / 2;
 
 			if (pEntry->GetMaxYieldPerFollowerPercent(iI) > 0)
 			{

@@ -63,7 +63,7 @@ SET CityStateMinimumInfluence = '35'
 WHERE Type = 'BELIEF_JUST_WAR';
 
 UPDATE Beliefs
-SET CityStateInfluenceModifier = '20'
+SET CityStateInfluenceModifier = '25'
 WHERE Type = 'BELIEF_JUST_WAR';
 
 -- Heathen Conversion (Now Zealotry)
@@ -210,11 +210,11 @@ WHERE Type = 'BELIEF_MESSIAH';
 
 -- NEW
 
-INSERT INTO Belief_YieldChangePerXForeignFollowers
-	(BeliefType, YieldType, ForeignFollowers)
+INSERT INTO Belief_YieldChangePerXCityStateFollowers
+	(BeliefType, YieldType, PerXFollowers)
 VALUES
-	('BELIEF_JUST_WAR', 'YIELD_GOLD', 10),
-	('BELIEF_JUST_WAR', 'YIELD_FAITH', 10);
+	('BELIEF_JUST_WAR', 'YIELD_GOLD', 2),
+	('BELIEF_JUST_WAR', 'YIELD_FAITH', 2);
 
 INSERT INTO Belief_EraFaithUnitPurchase
 	(BeliefType, EraType)

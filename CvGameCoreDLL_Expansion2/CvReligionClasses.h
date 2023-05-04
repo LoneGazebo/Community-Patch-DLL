@@ -405,6 +405,7 @@ public:
 	int GetSpyPressure(PlayerTypes ePlayer) const;
 	int GetNumForeignCitiesFollowing(ReligionTypes eReligion) const;
 	int GetNumForeignFollowers(bool bAtPeace, ReligionTypes eReligion) const;
+	int GetNumCityStateFollowers(ReligionTypes eReligion) const;
 	int GetNumDomesticFollowers(ReligionTypes eReligion) const;
 	bool ComputeMajority(bool bNotifications = false);
 
