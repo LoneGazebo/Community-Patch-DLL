@@ -24,7 +24,7 @@ SET Text = '15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] C
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%. Build Aqueducts in cities that you want to grow large over time.'
+SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs to increase in size by 15%. Build Aqueducts in cities that you want to grow large over time. The City needs to have a Granary in order to construct the Aqueduct.'
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 UPDATE Language_en_US

@@ -25,7 +25,6 @@ SET EventTourism = '7'
 WHERE Type = 'BUILDING_PALACE';
 
 -- Granary
-
 UPDATE Building_ResourceYieldChanges
 SET Yield = '1'
 WHERE BuildingType = 'BUILDING_GRANARY';
@@ -52,7 +51,6 @@ SET PrereqTech = 'TECH_CONSTRUCTION'
 WHERE Type = 'BUILDING_WATERMILL';
 
 -- Aqueduct
-
 UPDATE Buildings
 SET FoodKept = '15'
 WHERE Type = 'BUILDING_AQUEDUCT';
@@ -86,7 +84,6 @@ VALUES
 	('BUILDING_STOCKYARD', 'YIELD_FOOD', 'YIELD_GOLD', 10);
 
 -- Medical Lab
-
 UPDATE Buildings
 SET FoodKept = '15'
 WHERE Type = 'BUILDING_MEDICAL_LAB';
@@ -181,7 +178,6 @@ SET CultureRateModifier = '5'
 WHERE Type = 'BUILDING_OPERA_HOUSE';
 
 -- Museum
-
 DELETE FROM Building_YieldChanges
 WHERE BuildingType = 'BUILDING_MUSEUM';
 
@@ -282,7 +278,6 @@ UPDATE Building_YieldChanges
 SET Yield = '2'
 WHERE BuildingType = 'BUILDING_WORKSHOP';
 
-
 UPDATE Buildings
 SET PrereqTech = 'TECH_CIVIL_SERVICE'
 WHERE Type = 'BUILDING_WORKSHOP';
@@ -311,7 +306,6 @@ SET Happiness = '0'
 WHERE Type = 'BUILDING_STONE_WORKS';
 
 -- Lighthouse
-
 DELETE FROM Building_ResourceYieldChanges
 WHERE BuildingType = 'BUILDING_LIGHTHOUSE';
 
@@ -406,7 +400,6 @@ SET Yield = '3'
 WHERE BuildingType = 'BUILDING_MARKET';
 
 -- Mint
-
 DELETE FROM Building_ResourceYieldChanges
 WHERE BuildingType = 'BUILDING_MINT';
 
@@ -434,7 +427,6 @@ SET SpecialistCount = '1'
 WHERE Type = 'BUILDING_MINT';
 
 -- Bank
-
 UPDATE Buildings
 SET TradeRouteRecipientBonus = '0'
 WHERE Type = 'BUILDING_BANK';
@@ -444,7 +436,6 @@ SET TradeRouteTargetBonus = '0'
 WHERE Type = 'BUILDING_BANK';
 
 -- Stock Exchange
-
 UPDATE Buildings
 SET SpecialistCount = '1'
 WHERE Type = 'BUILDING_STOCK_EXCHANGE';
@@ -529,10 +520,7 @@ UPDATE Buildings
 SET BuildingProductionModifier = '15'
 WHERE Type = 'BUILDING_WINDMILL';
 
--- Plants -- Remove terrain restrictions
-
--- Move all to Ecology
-
+-- Move all Power Plants to Ecology
 UPDATE Buildings
 SET PrereqTech = 'TECH_ECOLOGY'
 WHERE Type = 'BUILDING_HYDRO_PLANT';
@@ -545,11 +533,12 @@ UPDATE Buildings
 SET PrereqTech = 'TECH_ECOLOGY'
 WHERE Type = 'BUILDING_NUCLEAR_PLANT';
 
-
+-- Solar Plant -- Require Desert nearby
 UPDATE Buildings
 SET NearbyTerrainRequired = 'TERRAIN_DESERT'
 WHERE Type = 'BUILDING_SOLAR_PLANT';
 
+-- Hydro Plant -- Require a Fresh Water source nearby
 UPDATE Buildings
 SET River = '0', FreshWater = '1'
 WHERE Type = 'BUILDING_HYDRO_PLANT';
@@ -568,13 +557,14 @@ VALUES
 	('BUILDING_TIDAL_PLANT', 	'RESOURCE_ALUMINUM', 1),
 	('BUILDING_WIND_PLANT', 	'RESOURCE_ALUMINUM', 1),
 	('BUILDING_SOLAR_PLANT', 	'RESOURCE_ALUMINUM', 1);
--- All plants buff processes
 
+-- All plants buff processes
 INSERT INTO Building_YieldFromProcessModifier (BuildingType, YieldType, Yield) SELECT 'BUILDING_HYDRO_PLANT', Type, 10 FROM Yields WHERE ID < 8;
 INSERT INTO Building_YieldFromProcessModifier (BuildingType, YieldType, Yield) SELECT 'BUILDING_WIND_PLANT', Type, 10 FROM Yields WHERE ID < 8;
 INSERT INTO Building_YieldFromProcessModifier (BuildingType, YieldType, Yield) SELECT 'BUILDING_SOLAR_PLANT', Type, 10 FROM Yields WHERE ID < 8;
 INSERT INTO Building_YieldFromProcessModifier (BuildingType, YieldType, Yield) SELECT 'BUILDING_NUCLEAR_PLANT', Type, 10 FROM Yields WHERE ID < 8;
 INSERT INTO Building_YieldFromProcessModifier (BuildingType, YieldType, Yield) SELECT 'BUILDING_TIDAL_PLANT', Type, 10 FROM Yields WHERE ID < 8;
+
 -- Hydroplant - now buffs river/lake tiles
 UPDATE Building_RiverPlotYieldChanges
 SET Yield = '3' -- 'YIELD_PRODUCTION, do NOT delete this update'
@@ -594,14 +584,12 @@ VALUES
 	('BUILDING_HYDRO_PLANT', 	'YIELD_FOOD', 			3);
 
 -- EXC Group
-
 UPDATE Buildings
 SET MutuallyExclusiveGroup = '1'
 WHERE Type IN ('BUILDING_HYDRO_PLANT', 'BUILDING_WIND_PLANT', 'BUILDING_NUCLEAR_PLANT', 'BUILDING_SOLAR_PLANT', 'BUILDING_TIDAL_PLANT');
 
 
 -- Wind Plant - now buffs all workable tiles
-
 INSERT INTO Building_TerrainYieldChanges
 	(BuildingType, TerrainType, YieldType, Yield)
 VALUES
@@ -718,13 +706,11 @@ SET NeverCapture = '1'
 WHERE Type = 'BUILDING_COURTHOUSE';
 
 -- Walls
-
 UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_WALLS_HELP'
 WHERE Type = 'BUILDING_WALLS';
 
 -- Castle
-
 UPDATE Buildings
 SET GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT'
 WHERE Type = 'BUILDING_CASTLE';
@@ -743,7 +729,6 @@ SET BuildingClassType = 'BUILDINGCLASS_FORTRESS'
 WHERE BuildingType = 'BUILDING_ARSENAL';
 
 -- Military Base
-
 UPDATE Buildings
 SET PrereqTech = 'TECH_RADAR'
 WHERE Type = 'BUILDING_MILITARY_BASE';
@@ -753,7 +738,6 @@ SET EspionageModifier = '-50'
 WHERE Type = 'BUILDING_MILITARY_BASE';
 
 -- Bomb Shelter
-
 UPDATE Buildings
 SET PrereqTech = 'TECH_NUCLEAR_FISSION'
 WHERE Type = 'BUILDING_BOMB_SHELTER';
@@ -808,7 +792,6 @@ SET GreatWorksTourismModifier = '25'
 WHERE Type = 'BUILDING_HOTEL';
 
 -- Airport
-
 UPDATE Buildings
 SET PrereqTech = 'TECH_ROCKETRY'
 WHERE Type = 'BUILDING_AIRPORT';
@@ -842,7 +825,6 @@ SET WLTKDTurns = '10'
 WHERE Type = 'BUILDING_CIRCUS';
 
 -- Colosseum
-
 UPDATE Buildings
 SET Happiness = '0'
 WHERE Type = 'BUILDING_COLOSSEUM';
@@ -873,7 +855,6 @@ SET FinishSeaTRTourism = '5'
 WHERE Type = 'BUILDING_THEATRE';
 
 -- Stadium
-
 UPDATE Buildings SET
 	PrereqTech = 'TECH_ATOMIC_THEORY',
 	WLTKDTurns = 0,
@@ -946,7 +927,6 @@ SET NoUnhappfromXSpecialists = '1'
 WHERE Type = 'BUILDING_MUSICIANS_GUILD';
 
 -- Building Era reductions
-
 UPDATE Eras
 SET LaterEraBuildingConstructMod = '-2';
 
@@ -1199,6 +1179,7 @@ VALUES
 	('BUILDING_CIRCUS', 'BUILDINGCLASS_COLOSSEUM'),
 	('BUILDING_WORKSHOP', 'BUILDINGCLASS_FORGE'),
 	('BUILDING_LONGHOUSE', 'BUILDINGCLASS_FORGE'),
+	('BUILDING_AQUEDUCT', 'BUILDINGCLASS_GRANARY'),
 	('BUILDING_GROCER', 'BUILDINGCLASS_AQUEDUCT'),
 	('BUILDING_STOCKYARD', 'BUILDINGCLASS_GROCER'),
 	('BUILDING_FORTRESS', 'BUILDINGCLASS_CASTLE'),

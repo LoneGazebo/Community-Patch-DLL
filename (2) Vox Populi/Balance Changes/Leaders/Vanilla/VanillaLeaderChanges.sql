@@ -8,17 +8,17 @@ UPDATE Traits
 SET PlotBuyCostModifier = '-25'
 WHERE Type = 'TRAIT_RIVER_EXPANSION';
 
-INSERT INTO BuildingClasses 	
+INSERT INTO BuildingClasses
 			(Type,										Description,							DefaultBuilding,						MaxPlayerInstances)
 VALUES		('BUILDINGCLASS_AMERICA_SMITHSONIAN',		'TXT_KEY_BUILDING_MOMA', 				'BUILDING_AMERICA_SMITHSONIAN',			1),
 			('BUILDINGCLASS_AMERICA_WESTPOINT',			'TXT_KEY_BUILDING_AMERICA_WESTPOINT',	'BUILDING_AMERICA_WESTPOINT',			1),
 			('BUILDINGCLASS_AMERICA_HOOVERDAM',			'TXT_KEY_BUILDING_AMERICA_HOOVERDAM',	'BUILDING_AMERICA_HOOVERDAM',			1);
 
-INSERT INTO Buildings 	
+INSERT INTO Buildings
 			(Type,									Help,												ThemingBonusHelp,								Description,									Civilopedia,										Strategy,												PolicyCostModifier,	BuildingClass,				Cost,	CultureRateModifier,	GreatWorkSlotType,				GreatWorkCount,	NeverCapture,	PrereqTech, 			ArtDefineTag, 							MinAreaSize,	ConquestProb,	HurryCostModifier,	NationalPopRequired,	NumCityCostMod, NukeImmune, IconAtlas,				PortraitIndex)
 VALUES		('BUILDING_AMERICA_INDEPENDENCEHALL',	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_HELP',	'TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL_HELP', 	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL', 	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_TEXT',	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_STRATEGY',	-5,					'BUILDINGCLASS_HERMITAGE', 	125,	10, 					'GREAT_WORK_SLOT_ART_ARTIFACT',	2,				1,				'TECH_ARCHITECTURE',	'ART_DEF_BUILDING_MILITARY_ACADEMY',	-1,				0,				-1,					40,						10,				1,			'COMMUNITY_2_ATLAS',	19);
 
-INSERT INTO Buildings 	
+INSERT INTO Buildings
 			(Type,								CivilizationRequired, 	BuildingClass,							Description,							Help, 											Civilopedia, 												Strategy, 											ArtDefineTag, 					GlobalPlotBuyCostModifier, 	GoldMaintenance,	Cost,	FaithCost,	MutuallyExclusiveGroup, NeverCapture,	NukeImmune, ConquestProb,	HurryCostModifier,	MinAreaSize,	IconAtlas,				PortraitIndex)
 VALUES		('BUILDING_AMERICA_SMITHSONIAN',	'CIVILIZATION_AMERICA', 'BUILDINGCLASS_AMERICA_SMITHSONIAN',	'TXT_KEY_BUILDING_MOMA',				'TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_HELP',	'TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT', 						'TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_STRATEGY',	'ART_DEF_BUILDING_UNIVERSITY',	-25, 						0,					1500,	0,			15, 					1,				1,			0,				-5,					-1,				'COMMUNITY_2_ATLAS',	10),
 			('BUILDING_AMERICA_WESTPOINT',		'CIVILIZATION_AMERICA', 'BUILDINGCLASS_AMERICA_WESTPOINT',		'TXT_KEY_BUILDING_AMERICA_WESTPOINT',	'TXT_KEY_BUILDING_AMERICA_WESTPOINT_HELP',		'TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_WESTPOINT_TEXT', 	'TXT_KEY_BUILDING_AMERICA_WESTPOINT_STRATEGY',		'ART_DEF_BUILDING_UNIVERSITY',	-25, 						0,					1500,	0,			15, 					1,				1,			0,				-5,					-1,				'COMMUNITY_2_ATLAS',	20),
@@ -30,16 +30,16 @@ UPDATE Buildings SET
 WHERE Type = 'BUILDING_AMERICA_SMITHSONIAN';
 
 UPDATE Buildings SET
-	PrereqTech 						= 'TECH_REPLACEABLE_PARTS', 
+	PrereqTech 						= 'TECH_REPLACEABLE_PARTS',
 	FreePromotion 					= 'PROMOTION_SPLASH'
 WHERE Type = 'BUILDING_AMERICA_WESTPOINT';
 
 UPDATE Buildings SET
-	PrereqTech 						= 'TECH_ELECTRICITY', 
-	TRTurnModGlobal 				= -25, 
-	FreshWater 						= 1, 
-	FreeBuildingThisCity 			= 'BUILDINGCLASS_HYDRO_PLANT', 
-	GlobalLandmarksTourismPercent 	= 25 
+	PrereqTech 						= 'TECH_ELECTRICITY',
+	TRTurnModGlobal 				= -25,
+	FreshWater 						= 1,
+	FreeBuildingThisCity 			= 'BUILDINGCLASS_HYDRO_PLANT',
+	GlobalLandmarksTourismPercent 	= 25
 WHERE Type = 'BUILDING_AMERICA_HOOVERDAM';
 
 -- Arabia -- Trade Route distance mod Instead of Luxury Doubling from Bazaar -- Units move faster in Desert -- Bonus yields from TR/Connections over desert.
@@ -373,7 +373,7 @@ UPDATE Traits
 Set ExtraEmbarkMoves = '1'
 WHERE Type = 'TRAIT_OCEAN_MOVEMENT';
 
-INSERT INTO GreatWorks 
+INSERT INTO GreatWorks
 			(Type, 							GreatWorkClassType,	Description,								Quote,												Audio,	Image)
 VALUES		('GREAT_WORK_THE_CROWN_JEWELS', 'GREAT_WORK_ART',	'TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS',		'TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS_QUOTE',		'AS2D_GREAT_ARTIST_ARTWORK',	'TheJewelSplash.dds');
 
@@ -431,7 +431,7 @@ UPDATE Traits
 SET AllianceCSStrength = '5'
 WHERE Type = 'TRAIT_CITY_STATE_FRIENDSHIP';
 
--- India -- Indus Sanitation (replace Mughal Fort) -- Unhappiness from Poverty and Illiteracy reduced by 25% 
+-- India -- Indus Sanitation (replace Mughal Fort) -- Unhappiness from Poverty and Illiteracy reduced by 25%
 DELETE FROM Buildings
 WHERE Type = 'BUILDING_MUGHAL_FORT';
 
@@ -531,7 +531,7 @@ UPDATE Traits
 SET CityConquestGWAM = '50'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE';
 
--- Ottomans -- Receive a free Caravansary in all cities, and Trade Routes generate yields when finishing a Trade Route. 
+-- Ottomans -- Receive a free Caravansary in all cities, and Trade Routes generate yields when finishing a Trade Route.
 
 UPDATE Traits
 SET NavalUnitMaintenanceModifier = '0'
@@ -540,7 +540,7 @@ WHERE Type = 'TRAIT_CONVERTS_SEA_BARBARIANS';
 DELETE FROM Trait_FreePromotionUnitCombats
 WHERE TraitType = 'TRAIT_CONVERTS_SEA_BARBARIANS';
 
-INSERT INTO Building_SpecialistYieldChangesLocal (BuildingType, SpecialistType, YieldType, Yield) VALUES 
+INSERT INTO Building_SpecialistYieldChangesLocal (BuildingType, SpecialistType, YieldType, Yield) VALUES
 ("BUILDING_SIEGE_WORKSHOP", "SPECIALIST_ENGINEER", "YIELD_PRODUCTION", 2);
 
 -- Rome -- Production Bonus in Capital, can annex city-states instead of demanding heavy tribute, conquered city-states continue to give yields
@@ -731,16 +731,17 @@ VALUES
 INSERT INTO Building_ClassesNeededInCity
 	(BuildingType, BuildingClassType)
 VALUES
+	('BUILDING_INDUS_CANAL', 'BUILDINGCLASS_GRANARY'),
 	('BUILDING_ODEON', 'BUILDINGCLASS_MONUMENT'),
 	('BUILDING_WHITE_TOWER', 'BUILDINGCLASS_FORGE');
 
-INSERT INTO Building_ClassNeededAnywhere 	
+INSERT INTO Building_ClassNeededAnywhere
 			(BuildingType, 						BuildingClassType)
 VALUES		('BUILDING_AMERICA_SMITHSONIAN',	'BUILDINGCLASS_HERMITAGE'),
 			('BUILDING_AMERICA_WESTPOINT',		'BUILDINGCLASS_HERMITAGE'),
 			('BUILDING_AMERICA_HOOVERDAM',		'BUILDINGCLASS_HERMITAGE');
 
-INSERT INTO Building_ClassNeededNowhere 	
+INSERT INTO Building_ClassNeededNowhere
 			(BuildingType, 						BuildingClassType)
 VALUES		('BUILDING_AMERICA_HOOVERDAM',		'BUILDINGCLASS_AMERICA_SMITHSONIAN'),
 			('BUILDING_AMERICA_HOOVERDAM',		'BUILDINGCLASS_AMERICA_WESTPOINT'),
@@ -765,7 +766,7 @@ VALUES
 INSERT INTO Building_YieldFromYieldPercent
 		(BuildingType, 		YieldIn, 		YieldOut, 		Value)
 VALUES	('BUILDING_HANSE', 	'YIELD_GOLD', 	'YIELD_SCIENCE', 10);
-	
+
 INSERT INTO Building_YieldFromYieldPercentGlobal
 		(BuildingType, 						YieldIn, 		YieldOut, 			Value)
 VALUES	('BUILDING_AMERICA_SMITHSONIAN', 	'YIELD_GOLD', 	'YIELD_CULTURE', 	10),
@@ -875,7 +876,7 @@ VALUES
 	('BUILDING_ODEON', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL', 4, 1, 0, 2),
 	('BUILDING_ODEON', 'TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL', 6, 0, 1, 3);
 
-INSERT INTO Building_ThemingBonuses	
+INSERT INTO Building_ThemingBonuses
 	(BuildingType,							Description,								Bonus,	RequiresOwner,	MustBeArt,	AIPriority)
 VALUES
 	('BUILDING_AMERICA_INDEPENDENCEHALL',	'TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL',	8,		1,				1,			4);
@@ -887,7 +888,7 @@ VALUES
 	('BUILDING_ODEON', 'YIELD_CULTURE', 2),
 	('BUILDING_AMERICA_INDEPENDENCEHALL', 'YIELD_CULTURE', 3),
 	('BUILDING_AMERICA_INDEPENDENCEHALL', 'YIELD_GOLD',	3);
-	
+
 INSERT INTO Trait_YieldFromHistoricEvent
 	(TraitType, YieldType, Yield)
 VALUES
@@ -978,7 +979,7 @@ VALUES
 	('BUILDING_AMERICA_WESTPOINT',		'BUILDINGCLASS_MILITARY_BASE',		'YIELD_PRODUCTION',	5),
 	('BUILDING_AMERICA_WESTPOINT',		'BUILDINGCLASS_MILITARY_BASE',		'YIELD_SCIENCE',	5);
 
-INSERT INTO Building_YieldChangeWorldWonderGlobal	
+INSERT INTO Building_YieldChangeWorldWonderGlobal
 	(BuildingType,						YieldType,			Yield)
 VALUES
 	('BUILDING_AMERICA_SMITHSONIAN',	'YIELD_CULTURE',	2),
@@ -1045,10 +1046,10 @@ INSERT INTO Trait_GreatPersonCostReduction
 	(TraitType, GreatPersonType, Modifier)
 VALUES
 	('TRAIT_POPULATION_GROWTH', 'GREATPERSON_PROPHET', -35);
-	
+
 --==========================================================================================================================
 -- ARTDEFINES
---==========================================================================================================================	
+--==========================================================================================================================
 ------------------------------
 -- ArtDefine_LandmarkTypes
 ------------------------------
@@ -1077,7 +1078,7 @@ VALUES 		('ART_DEF_IMPROVEMENT_SIHEYUAN', 'Improvement', 'Siheyuan128.dds'),
 ------------------------------
 -- IconTextureAtlases
 ------------------------------
-INSERT INTO IconTextureAtlases 
+INSERT INTO IconTextureAtlases
 		(Atlas, IconSize, Filename, IconsPerRow, IconsPerColumn)
 VALUES	('IMPROVEMENT_SIHEYUAN_ATLAS', 256, 'Siheyuan256.dds', 2, 1),
 		('IMPROVEMENT_SIHEYUAN_ATLAS', 64, 'Siheyuan064.dds', 2, 1),
@@ -1097,46 +1098,46 @@ INSERT INTO Improvements
 			(Type, 						Description, 					Civilopedia, 							ArtDefineTag, 					Help, 									PillageGold,	PortraitIndex, 	IconAtlas)
 VALUES		('IMPROVEMENT_SIHEYUAN',	'TXT_KEY_IMPROVEMENT_SIHEYUAN',	'TXT_KEY_IMPROVEMENT_SIHEYUAN_TEXT',	'ART_DEF_IMPROVEMENT_SIHEYUAN',	'TXT_KEY_IMPROVEMENT_SIHEYUAN_HELP', 	10,				0,				'IMPROVEMENT_SIHEYUAN_ATLAS');
 
-UPDATE Improvements SET 
+UPDATE Improvements SET
 	RequiresFlatlands = 1,
 	XSameAdjacentMakesValid = 2,
 	Cityside = 1,
 	SpecificCivRequired = 1,
 	CivilizationType = 'CIVILIZATION_CHINA'
 WHERE Type = 'IMPROVEMENT_SIHEYUAN';
-------------------------------	
+------------------------------
 -- Improvement_Yields
-------------------------------		
-INSERT INTO Improvement_Yields 	
+------------------------------
+INSERT INTO Improvement_Yields
 			(ImprovementType, YieldType, Yield)
 VALUES		('IMPROVEMENT_SIHEYUAN', 'YIELD_GOLD', 1),
 			('IMPROVEMENT_SIHEYUAN', 'YIELD_SCIENCE', 1),
 			('IMPROVEMENT_SIHEYUAN', 'YIELD_PRODUCTION', 1);
 
-INSERT INTO Improvement_WLTKDYields 	
+INSERT INTO Improvement_WLTKDYields
 			(ImprovementType, YieldType, Yield)
 VALUES		('IMPROVEMENT_SIHEYUAN', 'YIELD_GOLD', 1),
 			('IMPROVEMENT_SIHEYUAN', 'YIELD_SCIENCE', 1),
 			('IMPROVEMENT_SIHEYUAN', 'YIELD_PRODUCTION', 1);
 --==========================================================================================================================
 -- BUILDS
---==========================================================================================================================				
+--==========================================================================================================================
 ------------------------------
 -- Builds
-------------------------------		
-INSERT INTO Builds		
+------------------------------
+INSERT INTO Builds
 			(Type,				PrereqTech,			ImprovementType, 		Description, 				Help, 							Recommendation, 				EntityEvent, 			Time,	OrderPriority, 	Kill, 	IconIndex, 	IconAtlas)
 VALUES		('BUILD_SIHEYUAN',	'TECH_CURRENCY',	'IMPROVEMENT_SIHEYUAN',	'TXT_KEY_BUILD_SIHEYUAN',	'TXT_KEY_BUILD_SIHEYUAN_HELP',	'TXT_KEY_BUILD_SIHEYUAN_REC',	'ENTITY_EVENT_BUILD',	700,	95,				0,		1,			'IMPROVEMENT_SIHEYUAN_ATLAS');
-------------------------------				
+------------------------------
 -- Unit_Builds
-------------------------------				
-INSERT INTO Unit_Builds	
+------------------------------
+INSERT INTO Unit_Builds
 			(UnitType, BuildType)
 VALUES		('UNIT_WORKER', 'BUILD_SIHEYUAN');
-------------------------------				
+------------------------------
 -- BuildFeatures
-------------------------------				
-INSERT INTO BuildFeatures	
+------------------------------
+INSERT INTO BuildFeatures
 			(BuildType, FeatureType, PrereqTech, Time, Production, Remove)
 VALUES		('BUILD_SIHEYUAN', 'FEATURE_JUNGLE', 'TECH_TRAPPING', 400, 40, 1),
 			('BUILD_SIHEYUAN', 'FEATURE_FOREST', 'TECH_MINING', 300, 40, 1),
