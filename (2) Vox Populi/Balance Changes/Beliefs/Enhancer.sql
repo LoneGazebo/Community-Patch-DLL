@@ -9,7 +9,7 @@ SET SpreadStrengthModifier = '0'
 WHERE Type = 'BELIEF_RELIGIOUS_TEXTS';
 
 UPDATE Beliefs
-SET InquisitorCostModifier = '-25'
+SET InquisitorCostModifier = '-33'
 WHERE Type = 'BELIEF_RELIGIOUS_TEXTS';
 
 UPDATE Beliefs

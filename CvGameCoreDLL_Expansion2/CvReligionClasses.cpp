@@ -10065,13 +10065,11 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 	if (pCity == NULL)
 		return 0;
 
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eMyReligion)->IsLocalReligion())
 	{
 		if (pCity->IsOccupied() || pCity->IsPuppet())
 			return 0;
 	}
-#endif
 
 	//Don't go if there are enemies around
 	if (pCity->isUnderSiege())
@@ -10086,7 +10084,7 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 	if (!pMyReligion)
 		return 0;
 
-	//Inquisition causes unrest so don't be overly zeleaous here
+	//Inquisitors are more expensive than Missionaries, so don't be overly zealous here
 
 	//Looking to remove heresy?
 	if (CvReligionAIHelpers::ShouldRemoveHeresy(pCity,eMyReligion))
