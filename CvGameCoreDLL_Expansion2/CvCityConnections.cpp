@@ -169,7 +169,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			}
 
 			//in industrial era, AI becomes much more generous with routes ...
-			if (bIsIndustrial && bHaveGoldToSpare && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam()))
+			if (bIsIndustrial && bHaveGoldToSpare && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), false, true))
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 		}
 	}
