@@ -1269,9 +1269,9 @@ public:
 	// Planning Exchanges
 	/////////////////////////////////////////////////////////
 
-	bool IsPhonyWar(PlayerTypes ePlayer, bool bFromApproachSelection = false) const;
+	bool IsPhonyWar(PlayerTypes ePlayer, bool bIgnoreCurrentApproach = false) const;
 	bool IsWantsToConquer(PlayerTypes ePlayer) const;
-	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bFromApproachSelection = false) const;
+	bool IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bIgnoreCurrentApproach = false) const;
 
 	/////////////////////////////////////////////////////////
 	// Issues of Dispute

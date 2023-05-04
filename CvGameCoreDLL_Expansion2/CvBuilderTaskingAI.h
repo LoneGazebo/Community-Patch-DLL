@@ -94,7 +94,10 @@ public:
 	bool DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTypes eBuild);
 	bool WantRouteAtPlot(const CvPlot* pPlot) const; //build it
 	bool NeedRouteAtPlot(const CvPlot* pPlot) const; //keep it
+	RouteTypes GetRouteTypeWantedAtPlot(const CvPlot* pPlot) const;
+	RouteTypes GetRouteTypeNeededAtPlot(const CvPlot* pPlot) const;
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
+	bool GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
 

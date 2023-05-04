@@ -1468,7 +1468,11 @@ end)
 
 		-- Vox Populi gold button
 		if itemInfo then
-			instance.PQGoldButton:SetHide( not goldCostPQ or g_isViewingMode )
+			if (bnw_mode and g_activePlayer:MayNotAnnex()) then --Venice puppets needs to buy building on production queue
+				instance.PQGoldButton:SetHide( not goldCostPQ or (isActivePlayerCity or isCityCaptureViewingMode)) 
+			else
+				instance.PQGoldButton:SetHide( not goldCostPQ or g_isViewingMode)
+			end
 			if goldCostPQ then
 				instance.PQGoldButton:SetDisabled( not canBuyWithGoldPQ )
 				instance.PQGoldButton:SetAlpha( canBuyWithGoldPQ and 1 or 0.5 )
