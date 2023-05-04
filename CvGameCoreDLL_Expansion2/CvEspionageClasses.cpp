@@ -4101,12 +4101,13 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	{
 		LevelUpSpy(uiSpyIndex, /*50*/ GD_INT_GET(ESPIONAGE_OFFENSIVE_SPY_EXPERIENCE));
 		m_pPlayer->doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
-		pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 
 		//Achievements!
 		if (MOD_API_ACHIEVEMENTS && m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 			gDLL->UnlockAchievement(ACHIEVEMENT_XP1_13);
 	}
+
+	pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 
 	// Update City banners and game info
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
