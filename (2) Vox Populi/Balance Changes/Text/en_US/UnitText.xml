@@ -55,12 +55,12 @@
 			<Text>Double [ICON_MOVES] Movement on Desert Tiles.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER">
+		<!-- <Row Tag="TXT_KEY_PROMOTION_COAST_WALKER">
 			<Text>Coast Walkers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COAST_WALKER_HELP">
 			<Text>Allows embarkation.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Barbarian only.[ENDCOLOR]</Text>
-		</Row>
+		</Row> -->
 
 		<Row Tag="TXT_KEY_PROMOTION_HILL_WALKER">
 			<Text>Hill Walkers</Text>
