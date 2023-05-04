@@ -69,6 +69,8 @@ UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'P
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 100 WHERE PromotionType = 'PROMOTION_ANTI_AIR_II';
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50  WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_1';
 UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50  WHERE PromotionType = 'PROMOTION_AIR_AMBUSH_2';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50  WHERE PromotionType = 'PROMOTION_HELI_AMBUSH_1';
+UPDATE UnitPromotions_UnitCombatMods SET Modifier = 50  WHERE PromotionType = 'PROMOTION_HELI_AMBUSH_2';
 
 -- INSERT NEW ENTRIES
 INSERT INTO UnitPromotions
