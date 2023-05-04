@@ -1965,7 +1965,10 @@ bool CvMinorCivQuest::IsExpired()
 			}
 			//already Allied?
 			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllies(m_eAssignedPlayer))
-				return true;		
+				return true;	
+			//Sphere of Influence?
+			else if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER)
+				return true;
 		}
 	}
 	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
@@ -10303,6 +10306,12 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 			continue;
 
 		if (bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->IsNoAlly())
+			continue;
+
+		if (bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->GetAlly() == NO_PLAYER)
+			continue;
+
+		if (bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER)
 			continue;
 
 		if(bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->IsCoupAttempted(ePlayer))
