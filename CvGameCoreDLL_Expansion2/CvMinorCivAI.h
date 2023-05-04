@@ -620,7 +620,7 @@ public:
 #endif
 	// Protection
 	void DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect, bool bPledgeNowBroken = false);
-	bool CanMajorProtect(PlayerTypes eMajor);
+	bool CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequirement);
 	bool CanMajorStartProtection(PlayerTypes eMajor);
 	bool CanMajorWithdrawProtection(PlayerTypes eMajor);
 	bool IsProtectedByMajor(PlayerTypes eMajor) const;

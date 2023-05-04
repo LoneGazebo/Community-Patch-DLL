@@ -8772,13 +8772,14 @@ int CvLuaPlayer::lIsProtectedByMajor(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool CanMajorProtect(PlayerTypes eMajor);
+//bool CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequirement);
 int CvLuaPlayer::lCanMajorProtect(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	bool bIgnoreMilitaryRequirement = luaL_optbool(L, 3, false);
 
-	const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorProtect(eMajor);
+	const bool bResult = pkPlayer->GetMinorCivAI()->CanMajorProtect(eMajor, bIgnoreMilitaryRequirement);
 	lua_pushboolean(L, bResult);
 	return 1;
 }
