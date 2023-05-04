@@ -272,7 +272,6 @@
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<Cost>-1</Cost>
-			<Defense>300</Defense>
 			<RangedStrikeModifier>10</RangedStrikeModifier>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -372,10 +371,8 @@
 			<ConquestProb>0</ConquestProb>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<Defense>200</Defense>
 			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
-			<ExtraCityHitPoints>50</ExtraCityHitPoints>
 			<CitySupplyModifier>20</CitySupplyModifier>
 			<CapitalOnly>true</CapitalOnly>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
@@ -521,7 +518,6 @@
 			<Strategy>TXT_KEY_BUILDING_ODEON_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_ODEON_HELP</Help>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
-			<Defense>200</Defense>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>2</GreatWorkCount>
 			<ConquestProb>100</ConquestProb>
@@ -658,8 +654,6 @@
 			<ArtDefineTag>CASTLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<AllowsRangeStrike>true</AllowsRangeStrike>
-			<Defense>300</Defense>
-			<ExtraCityHitPoints>100</ExtraCityHitPoints>
 			<InstantReligiousPressure>9999</InstantReligiousPressure>
 			<HurryCostModifier>33</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
@@ -769,7 +763,6 @@
 			<CitySupplyModifier>25</CitySupplyModifier>
 			<CitySupplyFlat>5</CitySupplyFlat>
 			<MinAreaSize>-1</MinAreaSize>
-			<Defense>400</Defense>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<FreePromotion>PROMOTION_ARSENALE</FreePromotion>
 			<NationalPopRequired>15</NationalPopRequired>
@@ -1028,8 +1021,6 @@
 			<ArtDefineTag>CASTLE</ArtDefineTag>
 			<ConquestProb>0</ConquestProb>
 			<NeverCapture>true</NeverCapture>
-			<Defense>1000</Defense>
-			<ExtraCityHitPoints>100</ExtraCityHitPoints>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>54</PortraitIndex>
@@ -1046,10 +1037,8 @@
 			<Help>TXT_KEY_BUILDING_MINEFIELD_HELP</Help>
 			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
 			<MinAreaSize>10</MinAreaSize>
-			<ConquestProb>66</ConquestProb>
+			<ConquestProb>0</ConquestProb>
 			<Water>true</Water>
-			<Defense>500</Defense>
-			<ExtraCityHitPoints>100</ExtraCityHitPoints>
 			<DeepWaterTileDamage>5</DeepWaterTileDamage>
 			<BorderObstacleWater>1</BorderObstacleWater>
 			<HurryCostModifier>0</HurryCostModifier>

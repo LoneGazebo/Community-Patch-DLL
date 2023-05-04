@@ -33,6 +33,8 @@ UPDATE Buildings SET Defense = '1200' WHERE Type = 'BUILDING_ARSENAL';
 UPDATE Buildings SET Defense = '2400' WHERE Type = 'BUILDING_MILITARY_BASE';
 
 -- City HP
+UPDATE Buildings SET ExtraCityHitPoints = '50' WHERE Type = 'BUILDING_CAPITAL_ENGINEER';
+
 UPDATE Buildings SET ExtraCityHitPoints = '100' WHERE Type = 'BUILDING_RED_FORT';
 
 UPDATE Buildings SET ExtraCityHitPoints = '125' WHERE Type = 'BUILDING_WALLS';

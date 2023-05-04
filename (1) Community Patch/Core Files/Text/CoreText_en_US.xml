@@ -7003,7 +7003,7 @@
 			<Text>Local Population Required: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] (Have: {2_Num})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_DAMAGE_REDUCTION_LABEL">
-			<Text>Damage Reduction: +{1_Num}</Text>
+			<Text>Damage Reduction:</Text>
 		</Row>
 
 		<!-- Great Person Progress -->
