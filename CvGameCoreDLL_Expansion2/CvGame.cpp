@@ -11017,6 +11017,47 @@ int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed) const
 	return iResult;
 }
 
+int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed, const CvPlot& input) const
+{
+	//do not use turnslice here, it changes after reload!
+	//do not use the active player either, it can be different on both ends of a MP game
+	unsigned long iState = getGameTurn()*29 + abs(iExtraSeed) + input.getX()*41 + input.getY()*13;
+
+	/*
+	//safety check
+	if (iState == giLastState)
+		OutputDebugString("warning rng seed repeated\n");
+	giLastState = iState;
+	*/
+
+	int iResult = 0;
+	if (iNum > 0)
+		iResult = hash32(iState) % iNum;
+	else if (iNum < 0)
+		iResult = -int(hash32(iState) % (-iNum));
+
+	/*
+	FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
+	if (pLog)
+	{
+		char szOut[1024] = { 0 };
+		sprintf_s(
+			szOut, 
+			"turn %d, turnslice %d, activePlayer %d, max %d, res %d, seed %d\n", 
+			getGameTurn(), 
+			getTurnSlice(), 
+			getActivePlayer(),
+			iNum, 
+			iResult, 
+			iExtraSeed
+		);
+		pLog->Msg(szOut);
+	}
+	*/
+
+	return iResult;
+}
+
 #endif
 
 //	--------------------------------------------------------------------------------
