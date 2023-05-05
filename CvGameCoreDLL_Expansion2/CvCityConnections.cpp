@@ -150,13 +150,23 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
 			if (pLoopPlot->isWater())
 				continue;
+
+			if (pLoopPlot->isCity())
+				continue;
+
+			if (pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+				continue;
 					
 			//ignore plots which are not exposed
 			if (!pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
 				continue;
 
+			//ignore plots that are owned by a city we are razing
+			if (pLoopPlot->getOwningCity() && pLoopPlot->getOwningCity()->IsRazing())
+				continue;
+
 			//natural defenses
-			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint())
+			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 25 || pLoopPlot->IsChokePoint())
 			{
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}

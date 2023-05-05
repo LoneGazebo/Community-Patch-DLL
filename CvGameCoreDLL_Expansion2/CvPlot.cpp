@@ -3458,6 +3458,37 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, 
 	return false;
 }
 
+//	--------------------------------------------------------------------------------
+bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer) const
+{
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	set<PlayerTypes> adjacentPlayers;
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		PlayerTypes ePlotOwner = pAdjacentPlot->getOwner();
+		if (pAdjacentPlot != NULL && ePlotOwner != NO_PLAYER && ePlotOwner != ePlayer)
+		{
+			if (pAdjacentPlot->isImpassable(GET_PLAYER(ePlotOwner).getTeam()))
+				continue;
+
+			if (adjacentPlayers.find(ePlotOwner) == adjacentPlayers.end())
+				adjacentPlayers.insert(ePlotOwner);
+		}
+	}
+
+	if (adjacentPlayers.size() > 0)
+	{
+		set<PlayerTypes>::iterator it;
+		for (it = adjacentPlayers.begin(); it != adjacentPlayers.end(); ++it)
+		{
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(*it))
+				return true;
+		}
+	}
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsAdjacentOwnedByEnemy(TeamTypes eTeam) const
@@ -3691,7 +3722,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 
 	//alternatively see if an adjacent plot is owned by another player
 	//only check adjacent plots, everything else is too expensive
-	return IsAdjacentOwnedByTeamOtherThan(GET_PLAYER(eDefendingPlayer).getTeam(), true);
+	return IsAdjacentOwnedByUnfriendly(eDefendingPlayer);
 }
 
 bool CvPlot::IsChokePoint() const
