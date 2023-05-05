@@ -1092,6 +1092,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
 	Method(IsCarnaval);
+	Method(GetGoldPerTurnFromAnnexedMinors);
 	Method(GetCulturePerTurnFromAnnexedMinors);
 	Method(GetFaithPerTurnFromAnnexedMinors);
 	Method(GetSciencePerTurnFromAnnexedMinors);
@@ -12273,6 +12274,19 @@ int CvLuaPlayer::lIsCarnaval(lua_State* L)
 	return 1;
 }
 #endif
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetGoldPerTurnFromAnnexedMinors(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushinteger(L, pkPlayer->GetGoldPerTurnFromAnnexedMinors());
+		return 1;
+	}
+	//BUG: This can't be right...
+	lua_pushinteger(L, -1);
+	return 0;
+}
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetCulturePerTurnFromAnnexedMinors(lua_State* L)
 {

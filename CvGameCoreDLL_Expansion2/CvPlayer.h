@@ -806,6 +806,8 @@ public:
 	void UpdateFoodInCapitalPerTurnFromAnnexedMinors();
 	int GetFoodInOtherCitiesPerTurnFromAnnexedMinors() const;
 	void UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+	int GetGoldPerTurnFromAnnexedMinors() const;
+	void UpdateGoldPerTurnFromAnnexedMinors();
 	int GetCulturePerTurnFromAnnexedMinors() const;
 	void UpdateCulturePerTurnFromAnnexedMinors();
 	int GetSciencePerTurnFromAnnexedMinors() const;
@@ -3062,6 +3064,7 @@ protected:
 #endif
 	int m_iFoodInCapitalFromAnnexedMinors;
 	int m_iFoodInOtherCitiesFromAnnexedMinors;
+	int m_iGoldPerTurnFromAnnexedMinors;
 	int m_iCulturePerTurnFromAnnexedMinors;
 	int m_iSciencePerTurnFromAnnexedMinors;
 	int m_iFaithPerTurnFromAnnexedMinors;
@@ -3892,6 +3895,7 @@ SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(int, m_iFoodInCapitalFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iFoodInOtherCitiesFromAnnexedMinors)
+SYNC_ARCHIVE_VAR(int, m_iGoldPerTurnFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iCulturePerTurnFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iSciencePerTurnFromAnnexedMinors)
 SYNC_ARCHIVE_VAR(int, m_iFaithPerTurnFromAnnexedMinors)

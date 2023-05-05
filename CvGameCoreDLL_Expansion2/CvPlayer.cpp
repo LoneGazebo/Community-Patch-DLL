@@ -511,6 +511,7 @@ CvPlayer::CvPlayer() :
 #endif
 	, m_iFoodInCapitalFromAnnexedMinors()
 	, m_iFoodInOtherCitiesFromAnnexedMinors()
+	, m_iGoldPerTurnFromAnnexedMinors()
 	, m_iCulturePerTurnFromAnnexedMinors()
 	, m_iSciencePerTurnFromAnnexedMinors()
 	, m_iFaithPerTurnFromAnnexedMinors()
@@ -1309,6 +1310,7 @@ void CvPlayer::uninit()
 #endif
 	m_iFoodInCapitalFromAnnexedMinors = 0;
 	m_iFoodInOtherCitiesFromAnnexedMinors = 0;
+	m_iGoldPerTurnFromAnnexedMinors = 0;
 	m_iCulturePerTurnFromAnnexedMinors = 0;
 	m_iSciencePerTurnFromAnnexedMinors = 0;
 	m_iFaithPerTurnFromAnnexedMinors = 0;
@@ -24092,6 +24094,7 @@ void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 		{
 			iBonus = /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
+		iBonus += GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
 		iBonus *= iNumCityStates;
 		int iFoodDiff = iBonus - iFoodInCapitalFromAnnexedMinorsOld;
 		if (iFoodDiff != 0)
@@ -24130,6 +24133,7 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 		{
 			iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
+		iBonus += GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
 		iBonus *= iNumCityStates;
 		int iFoodDiff = iBonus - iFoodInOtherCitiesFromAnnexedMinorsOld;
 		if (iFoodDiff != 0)
@@ -24137,6 +24141,60 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 			ChangeCityYieldChangeTimes100(YIELD_FOOD, iFoodDiff);
 		}
 		m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
+	}
+}
+//	--------------------------------------------------------------------------------
+/// Get the gold yields per turn from annexed City-States (Rome UA)
+int CvPlayer::GetGoldPerTurnFromAnnexedMinors() const
+{
+	return m_iGoldPerTurnFromAnnexedMinors;
+}
+//	--------------------------------------------------------------------------------
+/// Update the gold yields per turn from annexed City-States (Rome UA)
+void CvPlayer::UpdateGoldPerTurnFromAnnexedMinors()
+{
+	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	{
+		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MERCANTILE];
+		int iBonus = 0;
+
+		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
+
+		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+		// Industrial era or later
+		if (eCurrentEra >= eIndustrial)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+		}
+
+		// Renaissance era
+		else if (eCurrentEra >= eRenaissance)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE);
+		}
+
+		// Medieval era
+		else if (eCurrentEra >= eMedieval)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL);
+		}
+
+		// Classical era
+		else if (eCurrentEra >= eClassical)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL);
+		}
+
+		// Ancient era
+		else
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_ANCIENT);
+		}
+		m_iGoldPerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24160,17 +24218,19 @@ void CvPlayer::UpdateCulturePerTurnFromAnnexedMinors()
 		// Industrial era or Later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus = /*13 in CP, 10 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus += GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
 		}
+
 		// Medieval era or later
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus = /*6 in CP, 4 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL);
+			iBonus += GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_MEDIEVAL);
 		}
+
 		// Pre-Medieval
 		else
 		{
-			iBonus = /*3 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_ANCIENT);
+			iBonus += GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iCulturePerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
@@ -24199,27 +24259,27 @@ void CvPlayer::UpdateSciencePerTurnFromAnnexedMinors()
 		// Industrial era or later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus += /*10*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 		}
 		// Renaissance era
 		else if (eCurrentEra >= eRenaissance)
 		{
-			iBonus += /*6*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE);
 		}
 		// Medieval era
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus += /*4*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL);
 		}
 		// Classical era
 		else if (eCurrentEra >= eClassical)
 		{
-			iBonus += /*2*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL);
 		}
 		// Ancient era
 		else
 		{
-			iBonus += /*1*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iSciencePerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
@@ -24249,27 +24309,27 @@ void CvPlayer::UpdateFaithPerTurnFromAnnexedMinors()
 		// Industrial era or later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus = /*8 in CP, 12 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 		}
 		// Renaissance era
 		else if (eCurrentEra >= eRenaissance)
 		{
-			iBonus = /*4 in CP, 9 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
 		}
 		// Medieval era
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus = /*4 in CP, 7 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
 		}
 		// Classical era
 		else if (eCurrentEra >= eClassical)
 		{
-			iBonus = /*2*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
 		}
 		// Ancient era
 		else
 		{
-			iBonus = /*2 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iFaithPerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
@@ -24297,17 +24357,17 @@ void CvPlayer::UpdateHappinessFromAnnexedMinors()
 		// Industrial era or Later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus = /*3*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus = GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 		}
 		// Medieval era or later
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus = /*3*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL);
+			iBonus = GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL);
 		}
 		// Pre-Medieval
 		else
 		{
-			iBonus = /*2*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
+			iBonus = GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iHappinessFromAnnexedMinors = iBonus * iNumCityStates;
 
@@ -36077,6 +36137,7 @@ void CvPlayer::ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange
 		UpdateFoodInCapitalPerTurnFromAnnexedMinors();
 		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
 		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+		UpdateGoldPerTurnFromAnnexedMinors();
 		UpdateCulturePerTurnFromAnnexedMinors();
 		UpdateSciencePerTurnFromAnnexedMinors();
 		UpdateFaithPerTurnFromAnnexedMinors();
@@ -46988,6 +47049,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iConversionModifier);
 	visitor(player.m_iFoodInCapitalFromAnnexedMinors);
 	visitor(player.m_iFoodInOtherCitiesFromAnnexedMinors);
+	visitor(player.m_iGoldPerTurnFromAnnexedMinors);
 	visitor(player.m_iCulturePerTurnFromAnnexedMinors);
 	visitor(player.m_iSciencePerTurnFromAnnexedMinors);
 	visitor(player.m_iFaithPerTurnFromAnnexedMinors);
