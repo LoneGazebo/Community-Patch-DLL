@@ -21661,14 +21661,8 @@ void CvDiplomacyAI::DoUpdatePlanningExchanges()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		bool bValid = true;
 
-		if (!IsPlayerValid(eLoopPlayer))
-		{
-			bValid = false;
-		}
-
-		if (bValid)
+		if (IsPlayerValid(eLoopPlayer))
 		{
 			vValidPlayers.push_back(eLoopPlayer);
 
@@ -28312,10 +28306,13 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 			{
 				CancelCoopWarsAgainstPlayer(ePeacePlayer, false);
 
-				// Clear penalties for stealing territory now that we made peace
+				// Clear penalties for stealing territory and refusing to go on coop wars now that we made peace
 				if (!GetPlayer()->isHuman())
 				{
 					SetNumTimesCultureBombed(ePeacePlayer, 0);
+					if (GetCoopWarScore(ePeacePlayer) < 0)
+						SetCoopWarScore(ePeacePlayer, 0);
+
 					vPlayersToReevaluate.push_back(ePeacePlayer);
 				}
 			}
@@ -28370,11 +28367,6 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 						ChangeRecentAssistValue(ePlayer, 300);
 						SetDoFBroken(ePlayer, true, true);
 						SetFriendDeclaredWarOnUs(ePlayer, true);
-
-						if (GetCoopWarScore(ePlayer) > 0)
-						{
-							SetCoopWarScore(ePlayer, 0);
-						}
 					}
 
 					// HAD been resurrected by this player
@@ -28382,11 +28374,11 @@ void CvDiplomacyAI::DoPlayerDeclaredWarOnSomeone(PlayerTypes ePlayer, TeamTypes 
 					{
 						ChangeRecentAssistValue(ePlayer, 300);
 						SetResurrectorAttackedUs(ePlayer, true);
+					}
 
-						if (GetCoopWarScore(ePlayer) > 0)
-						{
-							SetCoopWarScore(ePlayer, 0);
-						}
+					if (GetCoopWarScore(ePlayer) > 0)
+					{
+						SetCoopWarScore(ePlayer, 0);
 					}
 				}
 
@@ -56854,6 +56846,12 @@ void CvDiplomacyAI::DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVo
 				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerMilitaryPromiseState(GetID(), NO_PROMISE_STATE);
 				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerAttackCityStatePromiseState(GetID(), NO_PROMISE_STATE);
 				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetPlayerBrokenCoopWarPromise(GetID(), false);
+
+				if (GetCoopWarScore(eLoopPlayer) < 0)
+					SetCoopWarScore(eLoopPlayer, 0);
+
+				if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetCoopWarScore(GetID()) < 0)
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetCoopWarScore(GetID(), 0);
 			}
 		}
 	}

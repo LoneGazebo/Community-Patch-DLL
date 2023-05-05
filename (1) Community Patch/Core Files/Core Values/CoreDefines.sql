@@ -714,7 +714,6 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SCOUT_XP_BASE', '1';
 
 -- City-States
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_CP_QUESTS', '1'; -- New VP Quests
-INSERT INTO Defines (Name, Value) SELECT 'MOD_BALANCE_CORE_MINIMUM_RANKING_PTP', '60'; -- PTP Military Power Needed
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_WAR_COOLDOWN_RATE', '50'; -- How long till a City-State forgets that a major aggressively attacked it?
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MINOR_PROTECTION_MINIMUM_DURATION', '10'; -- How long before a major can revoke a PtP to a CS?
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS', '5'; -- Bonus to CS capital's CS for each PtP

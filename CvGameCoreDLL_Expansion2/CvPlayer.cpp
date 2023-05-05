@@ -3335,6 +3335,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				pOldOwnerDiploAI->SetVassalProtectValue(GetID(), 0);
 				if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
 					pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
+				if (pOldOwnerDiploAI->GetCoopWarScore(GetID()) > 0)
+					pOldOwnerDiploAI->SetCoopWarScore(GetID(), 0);
 			}
 
 			// Warmonger calculations

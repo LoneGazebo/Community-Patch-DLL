@@ -150,6 +150,7 @@ public:
 	int GetHolyCityYieldChange(int i) const;
 	int GetYieldChangePerForeignCity(int i) const;
 	int GetYieldChangePerXForeignFollowers(int i) const;
+	int GetYieldChangePerXCityStateFollowers(int i) const;
 	int GetYieldPerFollowingCity(int i) const;
 	int GetYieldPerXFollowers(int i) const;
 	int GetYieldPerOtherReligionFollower(int i) const;
@@ -275,6 +276,7 @@ protected:
 	int* m_paiHolyCityYieldChange;
 	int* m_paiYieldChangePerForeignCity;
 	int* m_paiYieldChangePerXForeignFollowers;
+	int* m_paiYieldChangePerXCityStateFollowers;
 	int* m_piYieldPerFollowingCity;
 	int* m_piYieldPerXFollowers;
 	int* m_piYieldPerOtherReligionFollower;
@@ -493,6 +495,7 @@ public:
 	int GetHolyCityYieldChange(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldChangePerForeignCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldChangePerXForeignFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
+	int GetYieldChangePerXCityStateFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerXFollowers(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;
 	int GetYieldPerOtherReligionFollower(YieldTypes eYield, PlayerTypes ePlayer = NO_PLAYER, const CvCity* pCity = NULL, bool bHolyCityOnly = false) const;

@@ -6709,39 +6709,12 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_RECENTLY_LIBERATED">
 			<Text>Recently liberated</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED">
-			<Text>After due consideration and plenty of warnings, {1_CSName} believes that your military is no longer capable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT">
-			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING">
-			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening military power. Increase your Military Ranking by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT">
-			<Text>Pledge of Protection warning!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER">
-			<Text>If you do not improve your Military Ranking by {3_Num}% within {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
-			<Text>Pledge of Protection in jeopardy!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED">
-			<Text>Your military status in the world and/or alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT">
-			<Text>Pledge of Protection secured.</Text>
-		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET]Because you broke a previous promise, you must wait {1_Turns} more turn(s) to pledge.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Because you broke a previous promise, you must wait {1_Turns} more turn(s) to pledge.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least 60% of the world's highest Military Power. Your military is ranked at {1_Num}% of the highest Military Power.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least the median Military Power. Your military needs to be {1_Num}% stronger to pledge.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">
@@ -6767,36 +6740,57 @@
 			<Text>[ENDCOLOR][NEWLINE][NEWLINE]One of these attributes must have a [ICON_CHECKBOX] next to it:</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED">
+			<Text>Your military status in the world and/or alliance and/or trade connection to {1_CSName} has been restored, thus your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to {1_CSName} is once again secure.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT">
+			<Text>Pledge of Protection secured.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT">
+			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT">
+			<Text>Pledge of Protection warning!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
+			<Text>Pledge of Protection in jeopardy!</Text>
+		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE">
 			<Text>Because of {1_CSName}'s anger with you, they no longer value your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_INFLUENCE">
-			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_MILITARY_AND_DISTANCE">
+			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances and your weakening Military Power render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_MILITARY_AND_DISTANCE">
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled, both due to distance and your weakening Military Power. Ally {1_CSName} or make sure you are within Trade Route range AND increase your Military Power by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY_AND_DISTANCE">
+			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range AND increase your Military Power by {3_Num}% before {2_Num} turns pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL">
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_MILITARY">
+			<Text>After due consideration and plenty of warnings, {1_CSName} believes that your military is no longer capable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_MILITARY">
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening Military Power. Increase your Military Power by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY">
+			<Text>If you do not improve your Military Power by {3_Num}% within {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_DISTANCE">
 			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_OPTIONAL">
-			<Text>Pledge of Protection annulled by {1_CSName}!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_OPTIONAL">
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_DISTANCE">
 			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to distance. Ally {1_CSName} or make sure you are within Trade Route range within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT_OPTIONAL">
-			<Text>Pledge of Protection warning!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_OPTIONAL">
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_DISTANCE">
 			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range before {2_Num} turns pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL">
-			<Text>Pledge of Protection in jeopardy!</Text>
-		</Row>
 
-		
 
 		<!-- LUA for Warscore -->
 		<Row Tag="TXT_KEY_WAR_SCORE">

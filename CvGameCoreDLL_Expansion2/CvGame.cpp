@@ -12699,9 +12699,9 @@ void CvGame::DoMinorPledgeProtection(PlayerTypes eMajor, PlayerTypes eMinor, boo
 	CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "eMinor is not in expected range (invalid Index)");
 	CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "eMinor is not in expected range (invalid Index)");
 
-	if(bProtect)
+	if (bProtect)
 	{
-		CvAssertMsg(GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorProtect(eMajor), "eMajor is not allowed to protect this minor! Please send Anton your save file and version.");
+		CvAssertMsg(GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorProtect(eMajor, false), "eMajor is not allowed to protect this minor! Please send Anton your save file and version.");
 	}
 
 	gDLL->sendMinorPledgeProtection(eMajor, eMinor, bProtect, bPledgeNowBroken);

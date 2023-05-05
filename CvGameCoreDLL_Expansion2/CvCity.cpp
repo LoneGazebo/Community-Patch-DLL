@@ -24845,6 +24845,16 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
+			iTemp = pReligion->m_Beliefs.GetYieldChangePerXCityStateFollowers(eYield, getOwner(), this, true);
+			if (iTemp > 0)
+			{
+				int iFollowers = kPlayer.GetReligions()->GetNumCityStateFollowers(eReligion);
+				if (iFollowers > 0)
+				{
+					iYieldValue += (iFollowers / iTemp);
+				}
+			}
+
 			int iYieldPerXNonFollowers = pReligion->m_Beliefs.GetYieldPerOtherReligionFollower(eYield, getOwner(), this, true);
 			if (iYieldPerXNonFollowers > 0)
 			{

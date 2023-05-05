@@ -11590,34 +11590,6 @@ bool CvUnit::DoRemoveHeresy()
 				}
 			}
 
-			if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
-			{
-				bool bNoPenalty = false;
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligionData()->GetReligion(), getOwner());
-				if (pReligion)
-				{
-					CvCity* pHolyCity = pReligion->GetHolyCity();
-					if (pHolyCity != NULL)
-					{	
-						for (int i = 0; i < NUM_YIELD_TYPES; i++)
-						{
-							int iTempVal = pReligion->m_Beliefs.GetYieldFromRemoveHeresy((YieldTypes)i, getOwner(), pHolyCity, true);
-							if (iTempVal > 0)
-							{
-								bNoPenalty = true;
-								break;
-							}
-						}
-					}
-				}
-
-				if (!bNoPenalty)
-				{
-					//pCity->changePopulation(-1);
-					pCity->ChangeResistanceTurns(1);
-				}
-			}
-
 			//Achievements
 			if (MOD_API_ACHIEVEMENTS && getOwner() == GC.getGame().getActivePlayer())
 			{
