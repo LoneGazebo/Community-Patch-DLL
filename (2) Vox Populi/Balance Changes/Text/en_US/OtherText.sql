@@ -11,7 +11,7 @@ WHERE Tag = 'TXT_KEY_DIPLO_OPEN_BORDERS_TT';
 UPDATE Language_en_US
 SET Text = '[ICON_TOURISM] Tourism increases by 50% for 20 Turns.  Free Social Policy.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_GAMES_3_HELP';
-	
+
 UPDATE Language_en_US
 SET Text = '[ICON_CULTURE] Culture increases by 33% for 20 Turns.'
 WHERE Tag = 'TXT_KEY_LEAGUE_PROJECT_REWARD_WORLD_FAIR_3_HELP';
@@ -37,84 +37,84 @@ WHERE Tag = 'TXT_KEY_CULTURE_TOURISM_HEADING2_TITLE';
 
 -- Capture Popup
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Puppeting[ENDCOLOR] causes the following:[NEWLINE][ICON_BULLET] Generates 80% less Gold, Science, Culture, Tourism, and Faith than a normal city.[NEWLINE][ICON_BULLET] No longer produces Great Person Points.[NEWLINE][ICON_BULLET] You [COLOR_POSITIVE_TEXT]cannot choose what it produces[ENDCOLOR] or spend Gold in the City.[NEWLINE][ICON_BULLET] Generates 1 [ICON_HAPPINESS_3] Unhappiness for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][ICON_BULLET] Does not increase the cost of Social Policies, Technologies, or Tourism.[NEWLINE][NEWLINE]If you choose this, you may later Annex the City at any point.'
 WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_PUPPET';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Annexing[ENDCOLOR] causes the following:[NEWLINE][ICON_BULLET] Produces [ICON_HAPPINESS_4] Unhappiness equal to the City''s [ICON_CITIZEN] Population (until you construct a Courthouse).[NEWLINE][ICON_BULLET] Invests in a Courthouse in the City, reducing its construction time by at least 50% (if annexed immediately after conquest).[NEWLINE][ICON_BULLET] Halves City [ICON_RESISTANCE] Resistance after capture (if annexed immediately after conquest).'
 WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_ANNEX';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Razing[ENDCOLOR] causes the following:[NEWLINE][ICON_BULLET] City loses [ICON_CITIZEN] Population each turn until it reaches 0 population and is removed from the game.[NEWLINE][ICON_BULLET] Produces [ICON_HAPPINESS_4] Unhappiness equal to the City''s [ICON_CITIZEN] Population.[NEWLINE][ICON_BULLET] Increases your [COLOR_POSITIVE_TEXT]War Score[ENDCOLOR] every time Population is reduced.[NEWLINE][ICON_BULLET] Friendly units within city borders heal as if inside the city (looting).[NEWLINE][ICON_BULLET] May generate [COLOR_NEGATIVE_TEXT]Partisans[ENDCOLOR] loyal to the former owner (if you are still at war with this player) or barbarians each turn while razing.'
 WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE';
 
 -- Citizen Food Consumption
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} eaten by [ICON_CITIZEN] Citizens'
 WHERE Tag = 'TXT_KEY_YIELD_EATEN_BY_POP';
 
 -- Citizen Food Consumption
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'Laborers'
 WHERE Tag = 'TXT_KEY_CITIES_UNEMPLOYEDCITIZENS_HEADING3_TITLE';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'Unemployed Citizens each provide a small amount yields compared to other Specialists, however you can assign as many of your citizens to this position as desired. They should, when possible, be assigned to work tiles or made into specialists.'
 WHERE Tag = 'TXT_KEY_SPECIALIST_CITIZEN_STRATEGY';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'Laborer|Laborers'
 WHERE Tag = 'TXT_KEY_SPECIALIST_CITIZEN';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'Laborers'
 WHERE Tag = 'TXT_KEY_CITYVIEW_UNEMPLOYED_TEXT';
 
 -- CSs
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'City-States can be bullied into giving up large amounts of Yields, but using force in this way will decrease your [ICON_INFLUENCE] Influence over them.'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_TT';
 
 -- Trade Stuff
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = '{1_CivName} has discovered {2_Num} technologies that you do not know, granting you +{4_Num} [ICON_RESEARCH] Science.[NEWLINE]+{3_Num} [ICON_RESEARCH] Science on this route due to your Cultural Influence over them.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'You have discovered {1_Num} technologies that {2_CivName} does not know, granting them +{4_Num} [ICON_RESEARCH] Science.[NEWLINE]+{3_Num} [ICON_RESEARCH] Science on this route due to their Cultural Influence over you.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED';
 
 -- CS Gift Stuff
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = '({1_NumHappiness} [ICON_HAPPINESS_1] Happiness, {2_Gold} [ICON_GOLD] Gold)'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_LOST_MERCANTILE';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'As a [COLOR_POSITIVE_TEXT]Mercantile[ENDCOLOR] City-State, their markets offer exotic goods to your people! (+{1_NumHappiness} [ICON_HAPPINESS_1] Happiness, +{2_Gold} [ICON_GOLD] Gold)'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MERCANTILE';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'As a [COLOR_POSITIVE_TEXT]Mercantile[ENDCOLOR] City-State, their markets spread trade of exotic goods across your empire! (+{1_NumHappiness} [ICON_HAPPINESS_1] Happiness, +{2_Gold} [ICON_GOLD] Gold)'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MERCANTILE';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'They will contribute fewer Units to your military, and less Science! ({1_Science} [ICON_RESEARCH] Science)'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_LOST_ALLIES_MILITARISTIC';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'They will no longer give you military Units or Science! ({1_Science} [ICON_RESEARCH] Science)'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_LOST_FRIENDS_MILITARISTIC';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'As a [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State, they will give you military Units and Science. (+{1_Science} [ICON_RESEARCH] Science)'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC';		
+WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_NOW_FRIENDS_MILITARISTIC';
 
-UPDATE Language_en_US	
+UPDATE Language_en_US
 SET Text = 'As a [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State, they will regularly give you military Units and Science. (+{1_Science} [ICON_RESEARCH] Science)'
-WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC';		
+WHERE Tag = 'TXT_KEY_NOTIFICATION_MINOR_NOW_ALLIES_MILITARISTIC';
 
 -- Change instructions for Ideologies
 
@@ -149,7 +149,7 @@ WHERE Tag = 'TXT_KEY_POLICYSCREEN_IDEOLOGY_NOT_STARTED';
 UPDATE Language_en_US
 SET Text = 'You have moved beyond the Modern Era. The ideas of modernity now permeate your society. Your people clamor for you to pick an Ideology for your civilization.'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CHOOSE_IDEOLOGY_ERA';
-	
+
 UPDATE Language_en_US
 SET Text = 'Allows your Cities to build [COLOR_POSITIVE_TEXT]Atomic Bombs[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Nuclear Missiles[ENDCOLOR].[NEWLINE][NEWLINE]If you are the [COLOR_POSITIVE_TEXT]First[ENDCOLOR] to complete this, receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Atomic Bomb and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in your [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_PROJECT_MANHATTAN_PROJECT_HELP';
@@ -391,6 +391,14 @@ UPDATE Language_en_US
 SET Text = 'Receive an additional [ICON_INTERNATIONAL_TRADE] Trade Route. Reveals [ICON_RES_ALUMINUM] Aluminum, a resource used for many late-game units. Also allows Cities to build the [COLOR_POSITIVE_TEXT]Stock Exchange[ENDCOLOR], a building which boosts [ICON_GOLD] Gold. Also allows you to build the [COLOR_POSITIVE_TEXT]Hydro Plant[ENDCOLOR], which increases [ICON_PRODUCTION] Production from tiles next to a River.'
 WHERE Tag = 'TXT_KEY_TECH_ELECTRICITY_HELP';
 
+UPDATE Language_en_US
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Broadcast Tower[ENDCOLOR], a building which greatly increases the [ICON_CULTURE] Cultural output of a city.'
+WHERE Tag = 'TXT_KEY_TECH_RADIO_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Increases [ICON_TOURISM] Tourism output of all cities by 50%, helping you advance toward a [ICON_VICTORY_CULTURE] [COLOR_POSITIVE_TEXT]Cultural Victory[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_TECH_INTERNET_HELP';
+
 -- Tech Tree small icon fixes
 
 UPDATE Language_en_US
@@ -400,7 +408,7 @@ WHERE Tag = 'TXT_KEY_ABLTY_TECH_BOOST_CHOP';
 INSERT INTO Language_en_US (Tag, Text) VALUES
 ('TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION', "Removing Forests/Jungles needs {1_Turns} Turn(s) to complete." );
 
--- Penicilin and Nanotech 
+-- Penicilin and Nanotech
 
 UPDATE Language_en_US
 SET Text = 'All Workers receive the [COLOR_POSITIVE_TEXT]Fallout Reduction[ENDCOLOR] Promotion, which reduces the amount of damage they take while scrubbing Fallout. Allows you to build the [COLOR_POSITIVE_TEXT]Marine[ENDCOLOR], a Unit that specializes in amphibious assaults. Also allows you to build the [COLOR_POSITIVE_TEXT]Medical Lab[ENDCOLOR], a building which speeds the [ICON_FOOD] growth of your Cities.'
