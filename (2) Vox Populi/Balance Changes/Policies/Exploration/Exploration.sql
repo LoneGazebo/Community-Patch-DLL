@@ -4,6 +4,45 @@ SET EraPrereq = 'ERA_INDUSTRIAL'
 WHERE Type = 'POLICY_BRANCH_EXPLORATION';
 
 
+-- Shift Policies Around
+
+UPDATE Policies
+SET
+	GridX = 3, GridY = 1
+WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
+
+UPDATE Policies
+SET
+	GridX = 5, GridY = 2
+WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
+
+UPDATE Policies
+SET
+	GridX = 1, GridY = 1
+WHERE Type = 'POLICY_TREASURE_FLEETS';
+
+UPDATE Policies
+SET
+	GridX = 1, GridY = 2
+WHERE Type = 'POLICY_MERCHANT_NAVY';
+
+UPDATE Policies
+SET
+	GridX = 5, GridY = 1
+WHERE Type = 'POLICY_NAVAL_TRADITION';
+
+DELETE FROM Policy_PrereqPolicies
+WHERE PolicyType IN
+('POLICY_NAVAL_TRADITION',
+ 'POLICY_MERCHANT_NAVY',
+ 'POLICY_MARITIME_INFRASTRUCTURE');
+
+INSERT INTO Policy_PrereqPolicies
+	(PolicyType, PrereqPolicy)
+VALUES
+	('POLICY_MARITIME_INFRASTRUCTURE', 'POLICY_NAVAL_TRADITION'),
+	('POLICY_MERCHANT_NAVY', 'POLICY_TREASURE_FLEETS');
+
 -- Opener (now Imperialism)
 
 UPDATE Policies
@@ -21,16 +60,13 @@ WHERE PolicyType = 'POLICY_MARITIME_INFRASTRUCTURE';
 UPDATE Policies
 SET
 	PuppetYieldPenaltyMod = 20,
+	HappinessPerGarrisonedUnit = 1,
+	CulturePerGarrisonedUnit = 4,
 	GarrisonFreeMaintenance = 1,
 	PortraitIndex = 0,
 	IconAtlas = 'EXPANSIONPATCH_POLICY_ATLAS',
 	IconAtlasAchieved = 'EXPANSIONPATCH_POLICY_ACHIEVED_ATLAS'
 WHERE Type = 'POLICY_MARITIME_INFRASTRUCTURE';
-
-INSERT INTO Policy_BuildingClassHappiness
-	(PolicyType, BuildingClassType, Happiness)
-VALUES
-	('POLICY_MARITIME_INFRASTRUCTURE', 'BUILDINGCLASS_CONSTABLE', 1);
 
 
 -- Merchant Navy (now Exploitation)
@@ -40,11 +76,6 @@ WHERE PolicyType = 'POLICY_MERCHANT_NAVY';
 
 DELETE FROM Policy_BuildingClassCultureChanges
 WHERE PolicyType = 'POLICY_MERCHANT_NAVY';
-
-UPDATE Policies
-SET
-	UpgradeCSVassalTerritory = 1
-WHERE Type = 'POLICY_MERCHANT_NAVY';
 
 INSERT INTO Policy_PlotYieldChanges
 	(PolicyType, PlotType, YieldType, Yield)
@@ -90,6 +121,7 @@ WHERE PolicyType = 'POLICY_NAVIGATION_SCHOOL';
 
 UPDATE Policies
 SET
+	UpgradeCSVassalTerritory = 1,
 	IncludesOneShotFreeUnits = 0,
 	GreatAdmiralRateModifier = 33,
 	GreatGeneralRateModifier = 33
@@ -110,7 +142,7 @@ VALUES
 	('POLICY_TREASURE_FLEETS', 'YIELD_GOLD', 75);
 
 
---Finisher 
+--Finisher
 
 /*UPDATE Policies
 SET
@@ -126,9 +158,9 @@ WHERE Type = 'POLICY_EXPLORATION_FINISHER';*/
 -- Scaler
 
 UPDATE Policies
-SET 
+SET
 	UnitUpgradeCostMod = -5
-WHERE Type IN 
+WHERE Type IN
 	('POLICY_MARITIME_INFRASTRUCTURE',
 	 'POLICY_NAVAL_TRADITION',
 	 'POLICY_MERCHANT_NAVY',
@@ -252,7 +284,7 @@ VALUES
 	('PROMOTION_NAVAL_DEFENSE_BOOST', 'UNITCOMBAT_NAVALRANGED'),
 	('PROMOTION_NAVAL_DEFENSE_BOOST', 'UNITCOMBAT_CARRIER'),
 	('PROMOTION_NAVAL_DEFENSE_BOOST', 'UNITCOMBAT_SUBMARINE'),
-	('PROMOTION_NAVAL_DEFENSE_BOOST', 'UNITCOMBAT_FIGHTER'),    
+	('PROMOTION_NAVAL_DEFENSE_BOOST', 'UNITCOMBAT_FIGHTER'),
 	('PROMOTION_NAVAL_DEFENSE_BOOST', 'UNITCOMBAT_BOMBER'),
 	('PROMOTION_IMPERIALISM_OPENER', 'UNITCOMBAT_NAVALMELEE'),
 	('PROMOTION_IMPERIALISM_OPENER', 'UNITCOMBAT_MELEE'),
