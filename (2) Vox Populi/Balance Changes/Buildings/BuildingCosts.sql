@@ -196,17 +196,17 @@ UPDATE Buildings SET Cost = '1250' WHERE Type IN
 
 UPDATE Buildings SET Cost = '1500' WHERE Type = 'BUILDING_SEAPORT';
 
-UPDATE Buildings SET GoldMaintenance = '6' WHERE Type = 'BUILDING_SKOLA';
+UPDATE Buildings SET GoldMaintenance = '5' WHERE Type = 'BUILDING_SKOLA';
 
 
-UPDATE Buildings SET GoldMaintenance = '7' WHERE Type IN
+UPDATE Buildings SET GoldMaintenance = '6' WHERE Type IN
 ('BUILDING_HOTEL',
 'BUILDING_MILITARY_ACADEMY',
 'BUILDING_MUSEUM',
 'BUILDING_PUBLIC_SCHOOL',
 'BUILDING_THEATRE');
 
-UPDATE Buildings SET GoldMaintenance = '8' WHERE Type IN
+UPDATE Buildings SET GoldMaintenance = '7' WHERE Type IN
 ('BUILDING_STOCKYARD',
 'BUILDING_FACTORY',
 'BUILDING_TRAINSTATION',
@@ -231,7 +231,7 @@ UPDATE Buildings SET Cost = '2000' WHERE Type IN
 
 UPDATE Buildings SET GoldMaintenance = '0' WHERE Type = 'BUILDING_STOCK_EXCHANGE';
 
-UPDATE Buildings SET GoldMaintenance = '11' WHERE Type IN
+UPDATE Buildings SET GoldMaintenance = '8' WHERE Type IN
 ('BUILDING_MINEFIELD',
 'BUILDING_HOSPITAL',
 'BUILDING_ARSENAL',
@@ -253,7 +253,7 @@ UPDATE Buildings SET Cost = '2250' WHERE Type IN
 'BUILDING_RECYCLING_CENTER',
 'BUILDING_AIRPORT');
 
-UPDATE Buildings SET GoldMaintenance = '15' WHERE Type IN
+UPDATE Buildings SET GoldMaintenance = '10' WHERE Type IN
 ('BUILDING_BOMB_SHELTER',
 'BUILDING_MEDICAL_LAB',
 'BUILDING_MILITARY_BASE',
@@ -273,7 +273,7 @@ UPDATE Buildings SET Cost = '2500' WHERE Type IN
 
 UPDATE Buildings SET Cost = '2750' WHERE Type = 'BUILDING_SPACESHIP_FACTORY';
 
-UPDATE Buildings SET GoldMaintenance = '20' WHERE Type IN
+UPDATE Buildings SET GoldMaintenance = '10' WHERE Type IN
 ('BUILDING_HYDRO_PLANT',
 'BUILDING_WIND_PLANT',
 'BUILDING_TIDAL_PLANT',
