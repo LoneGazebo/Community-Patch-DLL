@@ -215,7 +215,7 @@ SET Text = 'Allows you to build the Leaning Tower of Pisa, and is an gateway to 
 WHERE Tag = 'TXT_KEY_TECH_CHEMISTRY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Cannon[ENDCOLOR], a powerful Renaissance-Era siege unit, and the [COLOR_POSITIVE_TEXT]Arsenal[ENDCOLOR], which boosts City defense.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Cannon[ENDCOLOR], a powerful Renaissance-Era siege unit.'
 WHERE Tag = 'TXT_KEY_TECH_METALLURGY_HELP';
 
 UPDATE Language_en_US
@@ -234,13 +234,13 @@ WHERE Tag = 'TXT_KEY_TECH_RIFLING_HELP';
 
 -- Fix Replaceable Parts Text
 UPDATE Language_en_US
-SET Text = 'Allows you to build the basic land unit [COLOR_POSITIVE_TEXT]Rifleman[ENDCOLOR], and the [COLOR_POSITIVE_TEXT]Military Base[ENDCOLOR], which boosts City defense.'
+SET Text = 'Allows you to build the basic land unit [COLOR_POSITIVE_TEXT]Rifleman[ENDCOLOR], a strong Modern-era gunpowder unit.'
 WHERE Tag = 'TXT_KEY_TECH_REPLACEABLE_PARTS_HELP';
 
 -- Fix Combustion Text
 
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Landship[ENDCOLOR], an incredibly powerful armored Unit that can move after attacking.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Landship[ENDCOLOR], an incredibly powerful armored Unit that can move after attacking, and the [COLOR_POSITIVE_TEXT]Arsenal[ENDCOLOR], which boosts City defense.'
 WHERE Tag = 'TXT_KEY_TECH_COMBUSTION_HELP';
 
 -- Fix Plastics Text
@@ -384,7 +384,7 @@ SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Observatory[ENDCOLOR], 
 WHERE Tag = 'TXT_KEY_TECH_ASTRONOMY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Frigate[ENDCOLOR] and the [COLOR_POSITIVE_TEXT]Corvette[ENDCOLOR], powerful Renaissance-era warships. Also allows coastal cities to build the [COLOR_POSITIVE_TEXT]Seaport[ENDCOLOR], which provides [ICON_PRODUCTION] Production from sea resources.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Frigate[ENDCOLOR] and the [COLOR_POSITIVE_TEXT]Corvette[ENDCOLOR], powerful Renaissance-era warships, and the [COLOR_POSITIVE_TEXT]Bastion Fort[ENDCOLOR], which boosts City defense. Also allows coastal cities to build the [COLOR_POSITIVE_TEXT]Seaport[ENDCOLOR], which provides [ICON_PRODUCTION] Production from sea resources.'
 WHERE Tag = 'TXT_KEY_TECH_NAVIGATION_HELP';
 
 UPDATE Language_en_US
