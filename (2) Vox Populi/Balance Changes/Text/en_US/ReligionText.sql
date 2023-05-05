@@ -625,7 +625,7 @@ SET Text = 'Faith of the Masses'
 WHERE Tag = 'TXT_KEY_BELIEF_UNDERGROUND_SECT_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'May build Amphitheaters, Opera Houses, Museums, Broadcast Towers, and Stadiums with [ICON_PEACE] Faith. These buildings produce +2 [ICON_CULTURE] Culture each. Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every two Cities following this Religion.'
+SET Text = 'May build Amphitheaters, Opera Houses, Museums, and Broadcast Towers with [ICON_PEACE] Faith. These buildings produce +2 [ICON_CULTURE] Culture each. Holy City owner gains +1 [ICON_HAPPINESS_1] Happiness for every two Cities following this Religion.'
 WHERE Tag = 'TXT_KEY_BELIEF_UNDERGROUND_SECT';
 
 
