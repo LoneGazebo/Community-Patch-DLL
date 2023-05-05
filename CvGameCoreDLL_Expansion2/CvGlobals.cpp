@@ -3507,15 +3507,17 @@ void CvGlobals::GameDataPostCache()
 	calcGameDataHash();
 }
 
-template<typename T>
+template <typename T>
 static void HashGameDataCombine(CvGlobals::GameDataHash& seed, std::size_t& word, const T& container)
 {
-	// This hash algorithm could be better...
+	// FNV-1a hash algorithm
+	const unsigned int fnv_prime = 0x01000193; // 16777619
+	const unsigned int fnv_offset_basis = 0x811c9dc5; // 2166136261
 
 	// Hash the size of the container.
 	{
-		const uint32 containerSize = container.size();
-		seed[word] ^= containerSize + 0x9e3779b9 + (seed[word] << 6) + (seed[word] >> 2);
+		const unsigned int containerSize = static_cast<unsigned int>(container.size());
+		seed[word] ^= (containerSize ^ fnv_offset_basis) * fnv_prime;
 		if (++word >= 4)
 			word = 0;
 	}
@@ -3524,27 +3526,31 @@ static void HashGameDataCombine(CvGlobals::GameDataHash& seed, std::size_t& word
 	typedef typename T::const_iterator It;
 	const It begin = container.begin();
 	const It end = container.end();
-	for (It it = begin; it < end; ++it) {
-		uint32 infoHash;
+	for (It it = begin; it != end; ++it) {
+		unsigned int infoHash;
 		// FIXME - NULL entries in the database make no sense yet they're here anyway??
 		// We have no choice but to hash these as well because they impact the database order.
-		if (*it == NULL)
-			infoHash = 0xFFFFFFFF; // Just an unlikely value.
+		if (*it == 0)
+			infoHash = fnv_offset_basis;
 		else
 			infoHash = FString::Hash((*it)->GetType());
-		seed[word] ^= infoHash + 0x9e3779b9 + (seed[word] << 6) + (seed[word] >> 2);
+		seed[word] ^= (infoHash ^ fnv_offset_basis) * fnv_prime;
 		if (++word >= 4)
 			word = 0;
 	}
+
 }
 
 void CvGlobals::calcGameDataHash()
 {
+	// FNV-1a hash algorithm
+	const unsigned int fnv_offset_basis = 0x811c9dc5; // 2166136261
+
 	// 128 bits ought to be enough to prevent collisions.
-	m_gameDataHash[0] = uint32(0xc1ed4a43);
-	m_gameDataHash[1] = uint32(0x8f3cd5e7);
-	m_gameDataHash[2] = uint32(0x653301d3);
-	m_gameDataHash[3] = uint32(0x822fad48);
+	m_gameDataHash[0] = fnv_offset_basis;
+	m_gameDataHash[1] = fnv_offset_basis;
+	m_gameDataHash[2] = fnv_offset_basis;
+	m_gameDataHash[3] = fnv_offset_basis;
 	std::size_t writeWord = 0;
 
 	HashGameDataCombine(m_gameDataHash, writeWord, m_paColorInfo);
