@@ -123,7 +123,7 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="PerXFollowers" type="integer"/>
 	</Table>
-	<Table name="Belief_YieldPerXCityStateFollowers">
+	<Table name="Belief_YieldChangePerXCityStateFollowers">
 		<Column name="BeliefType" type="text" reference="Beliefs(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="PerXFollowers" type="integer"/>
