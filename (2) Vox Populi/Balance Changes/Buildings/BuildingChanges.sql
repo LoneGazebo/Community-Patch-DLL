@@ -1423,7 +1423,7 @@ UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_COURTHOUSE';
 UPDATE Buildings SET NumCityCostMod = '25'
 WHERE BuildingClass IN (
 	SELECT Type FROM BuildingClasses
-	WHERE MaxPlayerInstances <> -1
+	WHERE MaxPlayerInstances = 1
 );
 
 -- Classical T1
