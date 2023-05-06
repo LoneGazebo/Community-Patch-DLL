@@ -16,7 +16,7 @@ class FDataStream;
 
 //for tactical combat
 enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
-extern int TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
+extern const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
 
 // STL "find_if" predicate
 class UnitIDMatch
