@@ -584,7 +584,7 @@ local function UpdateTopPanelNow()
 				if happyNeeded > 0 then
 					Controls.HappyBar:SetPercent( happyProgress / happyNeeded )
 					Controls.HappyBarShadow:SetPercent( happyProgressNext / happyNeeded )
-					if excessHappiness > 0 then
+					if (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities) > 0 then
 						turnsRemaining = math_ceil((happyNeeded - happyProgress) / (excessHappiness + iGAPReligion + iGAPTrait + iGAPCities))
 					end
 					Controls.HappyBox:SetHide(false)
