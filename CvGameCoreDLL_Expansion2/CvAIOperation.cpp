@@ -487,7 +487,11 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 			if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->plot()->getArea() != pMusterPlot->getArea())
 				iTurnsToReachCheckpoint++;
 
-			choices.push_back(OptionWithScore<int>(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() - iTurnsToReachCheckpoint * 30));
+			//prefer units which are not currently guarding the border
+			bool bIsBorderGuard = pLoopUnit->getDomainType() == DOMAIN_LAND && TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner()) && pLoopUnit->plot()->IsBorderLand(pLoopUnit->getOwner());
+			int iExtraScore = bIsBorderGuard ? 0 : 42;
+
+			choices.push_back(OptionWithScore<int>(pLoopUnit->GetID(), 10000 + pLoopUnit->GetPower() + iExtraScore - iTurnsToReachCheckpoint * 30));
 		}
 	}
 

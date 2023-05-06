@@ -36,12 +36,12 @@
 
 int gCurrentUnitToTrack = 0;
 int gTacticalCombatDebugOutput = 0;
-int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
-int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
-int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
-int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permuations
-int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
-int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
+const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
+const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
+const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
+const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permuations
+const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
+const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(32000);
@@ -4798,16 +4798,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */)
 {
 	m_CurrentMoveUnits.clear();
-
-	struct SUnitWithScore
-	{
-		CvUnit* unit;
-		int score;
-		SUnitWithScore(CvUnit* ptr, int i) : unit(ptr), score(i) {}
-		bool operator<(const SUnitWithScore& rhs) const { return score<rhs.score; } //sort ascending
-	};
-
-	std::vector<SUnitWithScore> possibleUnits;
+	std::vector<OptionWithScore<CvUnit*>> possibleUnits;
 
 	// Loop through all units available to tactical AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -4850,7 +4841,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				}
 
 				if (pLoopUnit->canFortify(pTarget))
-					iExtraScore += 10;
+					iExtraScore += 17;
 
 				//naval garrisons cannot attack inside cities and don't increase city strength...
 				if (!pLoopUnit->isNativeDomain(pTarget))
@@ -4879,16 +4870,16 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 
 				// Units with defensive promotions are especially valuable
 				if(pLoopUnit->getDefenseModifier() > 0 || pLoopUnit->getExtraRangedDefenseModifier() > 0)
-					iExtraScore += 30;
+					iExtraScore += 31;
 
 				if (pLoopUnit->getExtraVisibilityRange() > 0)
-					iExtraScore += 20;
+					iExtraScore += 23;
 			}
 			else if(eMove == AI_TACTICAL_GOODY)
 			{
 				// Fast movers are top priority
 				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK) || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_SKIRMISHER))
-					iExtraScore += 30;
+					iExtraScore += 31;
 			}
 
 			//if we have a suitable unit in place already then use it
@@ -4899,8 +4890,9 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
 			if(iTurns != MAX_INT)
 			{
-				int iScore = 100 - 10 * iTurns + iExtraScore;
-				possibleUnits.push_back(SUnitWithScore(pLoopUnit, iScore));
+				//tricky to make a good score avoiding ties ...
+				int iScore = 1000 + iExtraScore - 20 * iTurns - plotDistance(*pTarget,*pLoopUnit->plot());
+				possibleUnits.push_back( OptionWithScore<CvUnit*>(pLoopUnit, iScore));
 			}
 		}
 	}
@@ -4910,8 +4902,8 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 	else
 	{
 		std::stable_sort(possibleUnits.begin(), possibleUnits.end());
-		CheckDebugTrigger(possibleUnits.back().unit->GetID());
-		return possibleUnits.back().unit;
+		CheckDebugTrigger(possibleUnits.front().option->GetID());
+		return possibleUnits.front().option;
 	}
 }
 
@@ -10196,6 +10188,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 	initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
 
+	//hackish performance optimization: if we have "a lot" of units, reduce branching and hope for the best
+	if (initialPosition->getAvailableUnits().size() > 9)
+		iMaxBranches = max(2, iMaxBranches - 1);
+
 #if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("starting simulation with %d units and %d enemies on %d plots",
@@ -10250,7 +10246,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		{
 			timer.EndPerfTest();
 
-#ifdef TACTDEBUG
 			std::stringstream ss;
 			ss << "warning, aborting tactical simulation for lack of memory, " <<
 				initialPosition->getAvailableUnits().size() << " starting units, " <<
@@ -10260,7 +10255,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				completedPositions.size() << " completed. took " <<
 				std::setprecision(3) << timer.GetDeltaInSeconds() << "s\n";
 				CUSTOMLOG(ss.str().c_str());
-#endif
+
 			//see if we can just take an unfinished position to salvage the situation
 			if (completedPositions.empty())
 			{
@@ -10474,8 +10469,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		if (!bPrecondition || !bPostcondition)
 		{
 			stringstream out;
-			out << "could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (bPrecondition?" (postcondition)":" (precondition)") << "\n";
-			OutputDebugString(out.str().c_str());
+			out << "tactsim: could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (bPrecondition?" (postcondition)":" (precondition)") << "\n";
+			CUSTOMLOG(out.str().c_str());
 			return false;
 		}
 #else

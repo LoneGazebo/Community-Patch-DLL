@@ -646,7 +646,7 @@ void CvPlot::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::verifyUnitValidPlot()
+void CvPlot::verifyUnitValidPlot(bool bWakeUp)
 {
 	vector<IDInfo> oldUnitList;
 
@@ -666,6 +666,11 @@ void CvPlot::verifyUnitValidPlot()
 			{
 				if(pLoopUnit->atPlot(*this))
 				{
+					//if plot ownership changes we want to make sure that human units
+					//which would suffer attrition or cause annoyance are woken up
+					if (bWakeUp)
+						pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+
 					if(!(pLoopUnit->isCargo()))
 					{
 						if(!(pLoopUnit->isInCombat()))
@@ -5924,7 +5929,6 @@ void CvPlot::updatePotentialCityWork()
 //	--------------------------------------------------------------------------------
 void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits, bool)
 {
-	IDInfo* pUnitNode = NULL;
 	CvCity* pOldCity = NULL;
 	CvString strBuffer;
 	int iI = 0;
@@ -6166,8 +6170,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if (pOldCity)
 					setIsCity(false, pOldCity->GetID(), pOldCity->getWorkPlotDistance());
 			}
-
-			pUnitNode = headUnitNode();
 
 			// if the plot is being worked and the city is about to change then put the citizen somewhere else
 			if (!m_owningCityOverride.isInvalid() && iAcquiringCityID!=m_owningCityOverride.iID)
@@ -6415,8 +6417,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 			}
 
-			pUnitNode = headUnitNode();
-
 			for(iI = 0; iI < MAX_TEAMS; ++iI)
 			{
 				if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
@@ -6463,7 +6463,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			if(bCheckUnits)
 			{
-				verifyUnitValidPlot();
+				verifyUnitValidPlot(true);
 			}
 
 			if(GC.getGame().isDebugMode())

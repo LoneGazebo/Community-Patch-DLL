@@ -11695,6 +11695,8 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bAdd = false;
 		bFriendsChanged = true;
 		SetFriends(ePlayer, false);
+
+		//todo: should we wake up all units of ePlayer in our territory?
 	}
 
 	// Resolve Allies status with sphere of influence or open door

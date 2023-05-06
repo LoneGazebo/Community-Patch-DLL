@@ -119,7 +119,10 @@ void CvPlayerAI::AI_doTurnPre()
 	{
 		bool operator()(const CvUnit* a, const CvUnit* b)
 		{
-			return ( a->GetPower() > b->GetPower() );
+			if (a->GetPower() != b->GetPower())
+				return a->GetPower() > b->GetPower();
+			else //tiebreak
+				return a->GetID() < b->GetID();
 		}
 	};
 

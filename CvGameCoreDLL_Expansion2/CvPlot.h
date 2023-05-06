@@ -114,7 +114,7 @@ public:
 
 	void updateCenterUnit();
 
-	void verifyUnitValidPlot();
+	void verifyUnitValidPlot(bool bWakeUp=false);
 
 	void nukeExplosion(int iDamageLevel, CvUnit* pNukeUnit = NULL);
 
