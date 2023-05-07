@@ -1585,15 +1585,6 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_SURVEILLANCE);
 		pCityEspionage->SetActivity(ePlayer, 1, 1, 1);
 		TriggerSpyFocusSetup(pCity, uiSpyIndex);
-		/*pSpy->SetSpyFocus(eEventChoice);
-		pSpy->SetSpySiphon(eEventChoice);
-		pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
-		pCityEspionage->ResetProgress(ePlayer);
-		int iPotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-		int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-		pCityEspionage->SetActivity(ePlayer, 0, iPotentialRate, iGoal);
-		pCityEspionage->SetLastProgress(ePlayer, iPotentialRate);
-		pCityEspionage->SetLastPotential(ePlayer, iPotentialRate);*/
 	}
 
 	//AI should reeval to see if they want to stay.

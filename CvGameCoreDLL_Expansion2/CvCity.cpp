@@ -5838,6 +5838,19 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		CvCity* pCity = GET_PLAYER(eSpyOwner).GetEspionage()->GetCityWithSpy(iSpyIndex);
 		if (pCity)
 		{
+			if (pkEventInfo->isEnemyUnhappy() && !GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNHAPPY");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+
+			if (pkEventInfo->isEnemySuperUnhappy() && !GET_PLAYER(pCity->getOwner()).IsEmpireSuperUnhappy())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SUPER_UNHAPPY");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+
+
 			bool bSiphon = true;
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
