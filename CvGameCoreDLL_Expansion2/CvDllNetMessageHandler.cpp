@@ -685,6 +685,7 @@ if (!GC.getGame().isFinalInitialized())
 		return;
 
 	// hijacks message for MP events since it has a few args and is sent to everyone
+	// also handles DoMinorBullyAnnex, DoMinorBuyout
 	if (NetMessageExt::Process::ResponseMoveGreatWorks(ePlayer, iCity1, iBuildingClass1, iWorkIndex1, iCity2, iBuildingClass2, iWorkIndex2))
 		return;
 

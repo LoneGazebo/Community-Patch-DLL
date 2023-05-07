@@ -29,6 +29,20 @@ namespace NetMessageExt
 					Response::DoCityEventChoice(eActualPlayer, iCityID, eEventChoice, eCityEvent, iSpyID, eSpyOwner);
 					break;
 				}
+				case 1001:
+				{
+					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
+					Response::DoMinorBullyAnnex(eActualPlayer, eMinor);
+					break;
+				}
+				case 1002:
+				{
+					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
+					Response::DoMinorBuyout(eActualPlayer, eMinor);
+					break;
+				}
 			}
 			return true;
 		}
@@ -44,6 +58,14 @@ namespace NetMessageExt
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner)
 		{			
 			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<int>(eCityEvent), iCityID, static_cast<int>(eEventChoice), iSpyID, static_cast<PlayerTypes>(eSpyOwner), 1000);
+		}
+		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor)
+		{	
+			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<PlayerTypes>(eMinor), -1, -1, -1, -1, 1001);
+		}
+		void DoMinorBuyout(PlayerTypes ePlayer, PlayerTypes eMinor)
+		{	
+			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<PlayerTypes>(eMinor), -1, -1, -1, -1, 1002);
 		}
 	}
 
@@ -70,6 +92,14 @@ namespace NetMessageExt
 				}
 
 			}
+		}
+		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor)
+		{	
+			GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyAnnex(ePlayer);
+		}
+		void DoMinorBuyout(PlayerTypes ePlayer, PlayerTypes eMinor)
+		{	
+			GET_PLAYER(eMinor).GetMinorCivAI()->DoBuyout(ePlayer);
 		}
 	}
 }
