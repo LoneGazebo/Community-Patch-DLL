@@ -1129,6 +1129,7 @@
     <Folder Include="Art\Improvements\Inca" />
     <Folder Include="Art\Improvements\Siheyuan" />
     <Folder Include="Art\Improvements\Ordo\" />
+    <Folder Include="Art\Promotions" />
     <Folder Include="Art\Resources" />
     <Folder Include="Art\Resources\Font Icon Atlas" />
     <Folder Include="Art\Resources\Icon Atlas" />
@@ -1704,6 +1705,26 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Art\Improvements\Siheyuan\Siheyuan_PL.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Promotions\PDanNewBeliefs_PI_016.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Promotions\PDanNewBeliefs_PI_032.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Promotions\PDanNewBeliefs_PI_045.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Promotions\PDanNewBeliefs_PI_064.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Art\Promotions\PDanNewBeliefs_PI_256.dds">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

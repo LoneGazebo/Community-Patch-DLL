@@ -145,6 +145,11 @@
     <File md5="5DE2B777BE0BE2F85A69AFDC96A6F08F" import="1">Art/Improvements/Siheyuan/siheyuan_neighborhood_PL.gr2</File>
     <File md5="FB425AB734BE761507B6162D30C80DAA" import="1">Art/Improvements/Siheyuan/siheyuan_PL.dds</File>
     <File md5="BD759BBE2E44CF91C0047DFDED687B38" import="1">Art/Improvements/Siheyuan/Siheyuan_PL.fxsxml</File>
+    <File md5="210A2EC9855B2C72A820FE6EEB714E10" import="1">Art/Promotions/PDanNewBeliefs_PI_016.dds</File>
+    <File md5="80F9749002A26D6E76C475F910701540" import="1">Art/Promotions/PDanNewBeliefs_PI_032.dds</File>
+    <File md5="70B77A16732A543B57E5C87099310E2E" import="1">Art/Promotions/PDanNewBeliefs_PI_045.dds</File>
+    <File md5="FFAF47B9D57F65ECB7CC49E7971659BC" import="1">Art/Promotions/PDanNewBeliefs_PI_064.dds</File>
+    <File md5="B4A5BB9E7469952B294C620744E3276C" import="1">Art/Promotions/PDanNewBeliefs_PI_256.dds</File>
     <File md5="8CB2A10240E2775615451981F63B0420" import="0">Art/Resources/GlobalSpiceIslandsArt.xml</File>
     <File md5="1C03FD1E9AC702D4CD52B722054F7AD9" import="1">Art/Resources/Spices/cloves_diff.dds</File>
     <File md5="B27A2B6D05261F9AC58DCB266F5EBBFF" import="1">Art/Resources/Spices/cloves_sref.dds</File>
