@@ -242,8 +242,8 @@ public:
 	bool IsSchmoozing (uint uiSpyIndex);
 	bool IsAnySchmoozing (CvCity* pCity);
 
-	bool CanStageCoup(uint uiSpyIndex);
-	bool CanStageCoup(CvCity* pCity);
+	bool CanStageCoup(uint uiSpyIndex, bool bIgnoreCooldown = false);
+	bool CanStageCoup(CvCity* pCity, bool bIgnoreCooldown = false);
 	int GetCoupChanceOfSuccess(uint uiSpyIndex, bool bIgnoreEnemySpies = false);
 	int GetTheoreticalChanceOfCoup(CvCity* pCity, int iMySpyRank = 0, bool bIgnoreEnemySpies = false);
 	bool AttemptCoup(uint uiSpyIndex);

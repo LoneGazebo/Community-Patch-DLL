@@ -818,9 +818,9 @@ public:
 	bool IsSiphoned(PlayerTypes ePlayer) const;
 	void SetSiphoned(PlayerTypes ePlayer, bool bValue);
 #endif
-	int GetNumSuccessfulElectionRiggings(PlayerTypes ePlayer) const;
-	void ChangeNumSuccessfulElectionRiggings(PlayerTypes ePlayer, int iChange);
-	void ResetNumSuccessfulElectionRiggings(PlayerTypes ePlayer);
+	int GetRiggingCoupChanceIncrease(PlayerTypes ePlayer) const;
+	void ChangeRiggingCoupChanceIncrease(PlayerTypes ePlayer, int iChange);
+	void ResetRiggingCoupChanceIncrease(PlayerTypes ePlayer);
 
 	const CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor) const;
 	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);
@@ -911,7 +911,7 @@ private:
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[MAX_CIV_TEAMS];
 	bool m_abWaryOfTeam[MAX_CIV_TEAMS];
-	int m_aiNumSuccessfulElectionRiggings[MAX_MAJOR_CIVS];
+	int m_aiRiggingCoupChanceIncrease[MAX_MAJOR_CIVS];
 
 	bool m_bDisableNotifications;
 
