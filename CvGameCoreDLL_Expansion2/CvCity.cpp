@@ -4688,6 +4688,10 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	if (eEvent == NO_EVENT_CITY)
 		return false;
 
+	// The mission to establish surveillance can always be chosen
+	if (pkEventInfo->isSurveillance())
+		return true;
+
 	if (pkEventInfo->GetSpyLevelRequired() > pSpy->GetSpyRank(eSpyOwner))
 		return false;
 
@@ -4821,6 +4825,12 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		return false;
 
 	if (pkEventInfo->isSuperUnhappy() && !GET_PLAYER(eSpyOwner).IsEmpireSuperUnhappy())
+		return false;
+
+	if (pkEventInfo->isEnemyUnhappy() && !GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		return false;
+
+	if (pkEventInfo->isEnemySuperUnhappy() && !GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
 		return false;
 
 	if (pkEventInfo->hasMetAnotherCiv())
@@ -6710,7 +6720,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						bDefer = true;
 
 					eResult = GET_PLAYER(eSpyOwner).GetEspionage()->ProcessSpyFocusResult(eSpyOwner, this, iEspionageValue, eEventChoice, bDefer);
-					pSpy->UpdateLastMissionOutcome(this, eSpyOwner, iEspionageValue, eResult);
+					if (!pkEventChoiceInfo->isSurveillance())
+					{
+						pSpy->UpdateLastMissionOutcome(this, eSpyOwner, iEspionageValue, eResult);
+					}
 
 					//if setup, we don't actually fire the choice right now...we wait!
 					if (bDefer && !pkEventChoiceInfo->isExpiresOnCounterSpyExit())

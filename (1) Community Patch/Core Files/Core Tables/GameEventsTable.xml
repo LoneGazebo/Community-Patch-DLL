@@ -807,7 +807,9 @@
 		<Column name="IsEspionageEffect" type="boolean" default="false"/>
 		<!-- Set to true for any mission that's part of the 'setup' phase for a Spy -->
 		<Column name="MissionSetup" type="boolean" default="false"/>
-		<!-- Effect applies to spy owner capital instead! Note: if you use  -->
+		<!-- If true, Spy will go into the State "Surveillance established" and mission selection will be possible again next turn -->
+		<Column name="IsSurveillance" type="boolean" default="false"/>
+		<!-- Effect applies to spy owner capital instead!-->
 		<Column name="IsSpyBenefit" type="boolean" default="false"/>
 		<!-- Modifier to chance to be identified on a spy mission-->
 		<Column name="IDModifier" type="integer" default="0"/>
@@ -839,6 +841,9 @@
 		<Column name="NoLevelUp" type="boolean" default="false"/>
 		<!-- Mission ignores other local spies. -->
 		<Column name="IgnoreLocalForeignSpies" type="boolean" default="false"/>
+		<!-- Checks if empire of the targeted civ is unhappy -->
+		<Column name="IsEnemyUnhappy" type="boolean" default="false"/>
+		<Column name="IsEnemySuperUnhappy" type="boolean" default="false"/>
 
 		<!-- Spy copies num techs; if it fails at end, it converts amount to GA turns -->
 		<Column name="StealNumTechs" type="integer" default="0"/>

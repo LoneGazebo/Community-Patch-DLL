@@ -11486,6 +11486,8 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bHasStateReligion(false),
 	 m_bUnhappy(false),
 	 m_bSuperUnhappy(false),
+	 m_bEnemyUnhappy(false),
+	 m_bEnemySuperUnhappy(false),
 	 m_strEventChoiceSoundEffect(""),
 	 m_piConvertReligion(NULL),
 	 m_piConvertReligionPercent(NULL),
@@ -11552,6 +11554,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iStealTech(0),
 	 m_iForgeGW(0),
 	 m_iSapCityTurns(0),
+	 m_bIsSurveillance(false),
 	 m_bRequiresCounterSpy(false),
 	 m_bExpiresOnCounterSpyExit(false),
 	 m_bIsMissionSetup(false),
@@ -11669,6 +11672,10 @@ int CvModEventCityChoiceInfo::GetDeathModifier() const
 int CvModEventCityChoiceInfo::GetSpyLevelRequired() const
 {
 	return m_iSpyLevelRequired;
+}
+bool CvModEventCityChoiceInfo::isSurveillance() const
+{
+	return m_bIsSurveillance;
 }
 bool CvModEventCityChoiceInfo::isRequiresCounterSpy() const
 {
@@ -12166,6 +12173,16 @@ bool CvModEventCityChoiceInfo::isSuperUnhappy() const
 	return m_bSuperUnhappy;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isEnemyUnhappy() const
+{
+	return m_bEnemyUnhappy;
+}
+//------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isEnemySuperUnhappy() const
+{
+	return m_bEnemySuperUnhappy;
+}
+//------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getLocalResourceRequired() const
 {
 	return m_iLocalResourceRequired;
@@ -12290,6 +12307,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");
 	m_iEspDuration = kResults.GetInt("EspionageMissionDuration");
 	m_iSpyExperience = kResults.GetInt("ExperienceGainedModifier");
+	m_bIsSurveillance = kResults.GetBool("IsSurveillance");
 	m_bRequiresCounterSpy = kResults.GetBool("RequiresCounterSpy");
 	m_bExpiresOnCounterSpyExit = kResults.GetBool("ExpiresOnCounterSpyExit");
 	m_bIsMissionSetup = kResults.GetBool("MissionSetup");
@@ -12624,6 +12642,8 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 
 	m_bRequiresGarrison = kResults.GetBool("RequiresGarrison");
 	m_bHasStateReligion = kResults.GetBool("RequiresAnyStateReligion");
+	m_bEnemyUnhappy = kResults.GetBool("IsEnemyUnhappy");
+	m_bEnemySuperUnhappy = kResults.GetBool("IsEnemySuperUnhappy");
 	m_bUnhappy = kResults.GetBool("IsUnhappy");
 	m_bSuperUnhappy = kResults.GetBool("IsSuperUnhappy");
 	m_bRequiresIdeology = kResults.GetBool("RequiresIdeology");

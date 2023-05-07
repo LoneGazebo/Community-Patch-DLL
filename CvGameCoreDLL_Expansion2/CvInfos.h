@@ -3741,10 +3741,13 @@ public:
 	int getStealTech() const;
 	int getForgeGW() const;
 	int getSapCityTurns() const;
+	bool isSurveillance() const;
 	bool isRequiresCounterSpy() const;
 	bool isExpiresOnCounterSpyExit() const;
 	bool isSpyMissionSetup() const;
 	bool IsIgnoreLocalSpies() const;
+	bool isEnemyUnhappy() const;
+	bool isEnemySuperUnhappy() const;
 	EventChoiceTypes GetTriggerPlayerEventChoice() const;
 
 	//Filters
@@ -3872,6 +3875,7 @@ protected:
 	int m_iEspDuration;
 	int m_iSpyExperience;
 	bool m_bIsMissionSetup;
+	bool m_bIsSurveillance;
 	bool m_bRequiresCounterSpy;
 	bool m_bExpiresOnCounterSpyExit;
 	int m_iDamageCity;
@@ -3906,6 +3910,8 @@ protected:
 	bool m_bHasStateReligion;
 	bool m_bUnhappy;
 	bool m_bSuperUnhappy;
+	bool m_bEnemyUnhappy;
+	bool m_bEnemySuperUnhappy;
 	bool m_bIsResistance;
 	bool m_bIsWLTKD;
 	int m_iWonderConstructionMod;

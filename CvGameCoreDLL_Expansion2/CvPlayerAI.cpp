@@ -982,6 +982,13 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 											iOurFlavor *= 10;
 									}
 
+									if (pkEventChoiceInfo->isSurveillance())
+									{
+										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
+										if (pCity && pCity->IsResistance())
+											iOurFlavor *= 10;
+									}
+
 									//counterspy filter selection
 									if (pCity->getOwner() == GetID())
 									{
