@@ -443,6 +443,9 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	}
 #endif
 
+	// Annexed City-States (Rome UA)
+	iNetGold += m_pPlayer->GetGoldPerTurnFromAnnexedMinors() * 100;
+
 	return iNetGold;
 }
 /// Gross income across entire game
