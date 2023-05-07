@@ -1,5 +1,5 @@
 
--- Free Promotions 
+-- Free Promotions
 INSERT INTO Technology_FreePromotions
 	(TechType, PromotionType)
 VALUES
@@ -58,7 +58,7 @@ WHERE Type = 'TECH_OPTICS';
 
 UPDATE Technologies
 SET InternationalTradeRoutesChange = '0'
-WHERE Type IN 
+WHERE Type IN
 ('TECH_ANIMAL_HUSBANDRY',
 'TECH_SAILING',
 'TECH_ENGINEERING',
@@ -68,7 +68,7 @@ WHERE Type IN
 
 UPDATE Technologies
 SET InternationalTradeRoutesChange = '1'
-WHERE Type IN 
+WHERE Type IN
 ('TECH_OPTICS',
 'TECH_CURRENCY',
 'TECH_HORSEBACK_RIDING',
@@ -83,6 +83,11 @@ INSERT INTO Technology_TradeRouteDomainExtraRange
 	(TechType, DomainType, Range)
 VALUES
 ('TECH_MACHINERY', 'DOMAIN_LAND', '10');
+
+-- Reduce Tourism modifier from Internet
+UPDATE Technologies
+SET InfluenceSpreadModifier = 50
+WHERE Type = 'TECH_INTERNET';
 
 -- City Embark Less/No Cost at Navigation, Rocketry
 UPDATE Technologies
@@ -148,8 +153,8 @@ WHERE Type = 'ERA_FUTURE';
 
 -- Tech Prereqs // NOTE THAT CORPORATIONS.SQL ALSO ALTERS THIS
 
--- Delete Prereqs 
-DELETE FROM Technology_PrereqTechs; 
+-- Delete Prereqs
+DELETE FROM Technology_PrereqTechs;
 
 INSERT INTO Technology_PrereqTechs
 	(TechType, PrereqTech)

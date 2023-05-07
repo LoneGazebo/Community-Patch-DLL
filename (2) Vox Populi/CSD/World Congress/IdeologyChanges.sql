@@ -11,7 +11,7 @@ SET TechPrereqAnyMember = 'TECH_INDUSTRIALIZATION'
 WHERE Type = 'RESOLUTION_WORLD_FAIR' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1);
 
 --Tourism Early Boosts
-
+/*
 UPDATE Technologies
 SET InfluenceSpreadModifier = 15
 WHERE Type = 'TECH_RADIO' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1);
@@ -27,7 +27,7 @@ WHERE Tag = 'TXT_KEY_TECH_RADIO_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='
 UPDATE Language_en_US
 SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Helicopter Gunship[ENDCOLOR], a unit specialized in fighting enemy tanks, and increases [ICON_TOURISM] Tourism output of all cities by 15%.'
 WHERE Tag = 'TXT_KEY_TECH_COMPUTERS_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
-
+*/
 UPDATE Language_en_US
 SET Text = 'Greatly increases empire-wide [ICON_TOURISM] Tourism output.'
 WHERE Tag = 'TXT_KEY_DOUBLE_TOURISM' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
@@ -35,7 +35,7 @@ WHERE Tag = 'TXT_KEY_DOUBLE_TOURISM' AND EXISTS (SELECT * FROM CSD WHERE Type='I
 --Resolution Changes
 
 
--- Sanctions 
+-- Sanctions
 
 UPDATE Language_en_US
 SET Text = 'City-State Sanctions'
