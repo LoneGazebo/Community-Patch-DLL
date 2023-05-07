@@ -1301,7 +1301,7 @@ public:
 	void ChangeNoUnhappfromXSpecialists(int iChange);
 	int GetNoUnhappfromXSpecialists() const;
 
-	bool isBorderCity() const;
+	bool isBorderCity(vector<PlayerTypes>& vUnfriendlyPlayers) const;
 
 	void DoBarbIncursion();
 #endif

@@ -543,7 +543,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iCurrent * 2 < iDesired)
 					iValue *= 2;
 
-				if (iValue > 0)
+				if (iValue > 0 && !kPlayer.isBarbarian())
 				{
 					//emphasize navy if there is nobody to attack over land
 					if (MilitaryAIHelpers::IsTestStrategy_NeedNavalUnitsCritical(&kPlayer))
@@ -551,32 +551,24 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 					else if (MilitaryAIHelpers::IsTestStrategy_NeedNavalUnits(&kPlayer))
 						iValue *= 2;
 
+					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
+					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyPlayers();
+					int iNumPlayers = (int)warPlayers.size();
 					int iWarValue = 0;
-					int iNumPlayers = 0;
-					for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+					for (size_t i=0; i<warPlayers.size(); i++)
 					{
-						PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+						PlayerTypes eLoopPlayer = warPlayers[i];
 
-						if (eLoopPlayer != NO_PLAYER && eLoopPlayer != kPlayer.GetID())
+						if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_SEA)
 						{
-							if (!GET_PLAYER(eLoopPlayer).isAlive())
-								continue;
-
-							iNumPlayers++;
-
-							bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
-
-							if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_SEA)
-							{
-								if (GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) || bPotentialTargetOrThreat)
-									iWarValue += 4;
-								else
-									iWarValue += 2;
-							}
+							if (std::find(vUnfriendlyPlayers.begin(), vUnfriendlyPlayers.end(), eLoopPlayer) != vUnfriendlyPlayers.end())
+								iWarValue += 4;
 							else
-							{
-								iWarValue += 1;
-							}
+								iWarValue += 2;
+						}
+						else
+						{
+							iWarValue += 1;
 						}
 					}
 
@@ -610,21 +602,19 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 				iValue *= max(1, (int)kPlayer.GetCurrentEra());
 
-				if (iValue > 0)
+				if (iValue > 0 && !kPlayer.isBarbarian())
 				{
 					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
+					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyPlayers();
 					int iNumPlayers = (int)warPlayers.size();
-
 					int iWarValue = 0;
 					for (size_t i=0; i<warPlayers.size(); i++)
 					{
 						PlayerTypes eLoopPlayer = warPlayers[i];
 
-						bool bPotentialTargetOrThreat = kPlayer.isMajorCiv() ? kPlayer.GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer) : false;
-
 						if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_LAND)
 						{
-							if (GET_TEAM(kPlayer.getTeam()).isAtWar(GET_PLAYER(eLoopPlayer).getTeam()) || bPotentialTargetOrThreat)
+							if (std::find(vUnfriendlyPlayers.begin(), vUnfriendlyPlayers.end(), eLoopPlayer) != vUnfriendlyPlayers.end())
 								iWarValue += 4;
 							else
 								iWarValue += 2;

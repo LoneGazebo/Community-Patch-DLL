@@ -638,7 +638,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	int iDefenseMod = 100;
-	if (m_pCity->isBorderCity() || m_pCity->isCoastal(12) )
+	vector<PlayerTypes> v;
+	if (m_pCity->isBorderCity(v) || m_pCity->isCoastal(12) )
 	{
 		if (kPlayer.IsAtWarAnyMajor())
 			iDefenseMod += 1000;

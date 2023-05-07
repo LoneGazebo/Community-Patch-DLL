@@ -4800,7 +4800,8 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		if (pCity != NULL)
 		{
-			if (pCity->isBorderCity())
+			vector<PlayerTypes> v;
+			if (pCity->isBorderCity(v))
 			{
 				iConquestValue += 200;
 			}

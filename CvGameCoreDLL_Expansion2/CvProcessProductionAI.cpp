@@ -114,18 +114,19 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	iTempWeight = sqrti(10 * iTempWeight);
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
+	vector<PlayerTypes> v;
 
 	//barbarians can only farm
 	if (kPlayer.isBarbarian() && pProcess->getProductionToYieldModifier(YIELD_FOOD) == 0)
 		return SR_IMPOSSIBLE;
 
 	if (kPlayer.isMinorCiv())
-		return iTempWeight/2; // buildings POST process is not applied for Minors, so they often fall below 400 treshold! also, process is not weighted bu turns as it is considered 1 turn always
+		return iTempWeight/2; // buildings POST process is not applied for Minors, so they often fall below 400 threshold! also, process is not weighted bu turns as it is considered 1 turn always
 
 	int iModifier = 0;
 
 	//Tiny army? Eek, better build units
-	if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2) || (m_pCity->isBorderCity() && !m_pCity->HasGarrison()))
+	if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2) || (!m_pCity->HasGarrison() && m_pCity->isBorderCity(v)))
 	{
 		iModifier -= 100;
 	}
@@ -144,7 +145,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				iModifier -= (iNumWar * 5);
 				iModifier -= m_pCity->getThreatValue();
 
-				if (m_pCity->isBorderCity())
+				if (m_pCity->isBorderCity(v))
 				{
 					iModifier -= 25;
 				}

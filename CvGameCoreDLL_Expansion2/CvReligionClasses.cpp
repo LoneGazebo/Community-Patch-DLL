@@ -6472,10 +6472,11 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		return NULL;
 
 	std::vector<SPlotWithScore> vTargetsO, vTargetsD;
+	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyPlayers();
 
 	// Loop through each of my cities
 	int iLoop = 0;
-	for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		if (pUnit->GetDanger(pLoopCity->plot()) > 0)
 			continue;
@@ -6491,7 +6492,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		int iScoreO = ScoreCityForInquisitorOffensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
 		if (iScoreO>0)
 			vTargetsO.push_back(SPlotWithScore(pLoopCity->plot(),iScoreO));
-		int iScoreD = ScoreCityForInquisitorDefensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
+		int iScoreD = ScoreCityForInquisitorDefensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion(), vUnfriendlyPlayers);
 		if (iScoreD>0)
 			vTargetsD.push_back(SPlotWithScore(pLoopCity->plot(),iScoreD));
 	}
@@ -10108,19 +10109,17 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 }
 
 /// AI's evaluation of this city as a target for an inquisitor
-int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const
+int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion, vector<PlayerTypes>& vUnfriendlyPlayers) const
 {
 	//do not check whether the city already has an inquisitor, that is done on a higher level!
 	if (pCity == NULL)
 		return 0;
 
-#if defined(MOD_RELIGION_LOCAL_RELIGIONS)
 	if (MOD_RELIGION_LOCAL_RELIGIONS && GC.getReligionInfo(eMyReligion)->IsLocalReligion())
 	{
 		if (pCity->IsOccupied() || pCity->IsPuppet())
 			return 0;
 	}
-#endif
 
 	//Don't go if there are enemies around
 	if (pCity->isUnderSiege())
@@ -10136,7 +10135,7 @@ int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, 
 
 	//see how much we want to defend passively here
 	int iScore = pCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion) ? 7 : 0;
-	if (pCity->isBorderCity())
+	if (!vUnfriendlyPlayers.empty() && pCity->isBorderCity(vUnfriendlyPlayers))
 		iScore += 11;
 
 	//how vulnerable is the city to foreign missionaries trying to flip it?

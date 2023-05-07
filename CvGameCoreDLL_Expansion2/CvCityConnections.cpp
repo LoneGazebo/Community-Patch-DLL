@@ -144,6 +144,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 		//select strategically important points
 		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
+		vector<PlayerTypes> vUnfriendlyPlayers = GET_PLAYER(ePlayer).GetUnfriendlyPlayers();
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
 		for (size_t j=0; j<vPlots.size(); j++)
 		{
@@ -154,15 +155,15 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			if (pLoopPlot->isCity())
 				continue;
 
-			if (pLoopPlot->isImpassable(m_pPlayer->getTeam()))
-				continue;
-					
-			//ignore plots which are not exposed
-			if (!pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
-				continue;
-
 			//ignore plots that are owned by a city we are razing
 			if (pLoopPlot->getOwningCity() && pLoopPlot->getOwningCity()->IsRazing())
+				continue;
+
+			if (pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+				continue;
+
+			//ignore plots which are not exposed
+			if (vUnfriendlyPlayers.empty() || !pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyPlayers))
 				continue;
 
 			//natural defenses

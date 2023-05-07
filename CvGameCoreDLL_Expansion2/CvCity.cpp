@@ -27403,10 +27403,10 @@ int CvCity::GetNoUnhappfromXSpecialists() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvCity::isBorderCity() const
+bool CvCity::isBorderCity(vector<PlayerTypes>& vUnfriendlyPlayers) const
 {
 	VALIDATE_OBJECT
-	return plot()->IsBorderLand(m_eOwner);
+	return plot()->IsBorderLand(m_eOwner, vUnfriendlyPlayers);
 }
 #endif
 void CvCity::changeNukeInterceptionChance(int iNewValue)

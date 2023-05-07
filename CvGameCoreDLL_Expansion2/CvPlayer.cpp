@@ -51845,6 +51845,37 @@ vector<PlayerTypes> CvPlayer::GetWarAllies(PlayerTypes ePlayer) const
 	return result;
 }
 
+/// Returns a vector containing pointers to all major civs who are unfriendly and potentially threatening
+vector<PlayerTypes> CvPlayer::GetUnfriendlyPlayers() const
+{
+	vector<PlayerTypes> result;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+		if (eTeam == getTeam() || !GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).getNumCities() <= 0)
+			continue;
+
+		if (isMajorCiv())
+		{
+			if (GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(ePlayer, false))
+				result.push_back(ePlayer);
+		}
+		else if (isMinorCiv())
+		{
+			if (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+			{
+				if (IsAtWarWith(ePlayer) || GetMinorCivAI()->IsWaryOfTeam(eTeam) || GetMinorCivAI()->GetJerkTurnsRemaining(eTeam) > 0)
+					result.push_back(ePlayer);
+			}
+		}
+		else if (isBarbarian())
+			result.push_back(ePlayer);
+	}
+	return result;
+}
+
 int CvPlayer::CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const
 {
 	int iCount = 0;

@@ -18188,13 +18188,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
-		// Only consider potential nearby threats that aren't on this player's team
-		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).getTeam() != eTeam && GetPlayer()->GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE && IsPotentialMilitaryTargetOrThreat(eLoopPlayer, /*bIgnoreCurrentApproach*/ true))
+		// Only consider potential threats that aren't on this player's team
+		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).getTeam() != eTeam && IsPotentialMilitaryTargetOrThreat(eLoopPlayer, true))
 		{
-			// Ignore if game options make it irrelevant
-			if (!IsAtWar(eLoopPlayer) && GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
-				continue;
-
 			// If we're winning against them or they're losing all their wars, don't count this player as a deterrent.
 			if (!GetPlayer()->IsNoNewWars())
 			{
@@ -22354,7 +22350,7 @@ void CvDiplomacyAI::DoUpdatePrimeLeagueAlly()
 }
 
 /// Should we avoid making certain agreements with this player?
-bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly) const
+bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly, bool bIgnoreSelfApproach) const
 {
 	if (IsAtWar(ePlayer))
 		return true;
@@ -22390,21 +22386,23 @@ bool CvDiplomacyAI::AvoidExchangesWithPlayer(PlayerTypes ePlayer, bool bWarOnly)
 				if (pDiploAI->GetGlobalCoopWarAgainstState(vTheirTeam[j]) >= COOP_WAR_STATE_PREPARING)
 					return true;
 
-				if (!GET_PLAYER(vOurTeam[i]).isHuman())
-				{
-					if (bWarOnly)
-					{
-						if (pDiploAI->GetCivApproach(vTheirTeam[j]) == CIV_APPROACH_WAR)
-							return true;
-					}
-					else
-					{
-						if (pDiploAI->GetCivApproach(vTheirTeam[j]) <= CIV_APPROACH_HOSTILE)
-							return true;
+				// Bad approach or opinion?
+				if (GET_PLAYER(vOurTeam[i]).isHuman() || 
+					(bIgnoreSelfApproach && GET_PLAYER(vOurTeam[i]).GetID() == GetID()))
+					continue;
 
-						if (pDiploAI->GetSurfaceApproach(vTheirTeam[j]) != CIV_APPROACH_FRIENDLY && pDiploAI->GetCivOpinion(vTheirTeam[j]) <= CIV_OPINION_ENEMY)
-							return true;
-					}
+				if (bWarOnly)
+				{
+					if (pDiploAI->GetCivApproach(vTheirTeam[j]) == CIV_APPROACH_WAR)
+						return true;
+				}
+				else
+				{
+					if (pDiploAI->GetCivApproach(vTheirTeam[j]) <= CIV_APPROACH_HOSTILE)
+						return true;
+
+					if (pDiploAI->GetSurfaceApproach(vTheirTeam[j]) != CIV_APPROACH_FRIENDLY && pDiploAI->GetCivOpinion(vTheirTeam[j]) <= CIV_OPINION_ENEMY)
+						return true;
 				}
 			}
 			else if (GET_PLAYER(vTheirTeam[j]).isMinorCiv())
@@ -27802,62 +27800,120 @@ bool CvDiplomacyAI::IsWantsToConquer(PlayerTypes ePlayer) const
 }
 
 /// Is this major civ a potential military target or threat?
-bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bIgnoreCurrentApproach /* = false */) const
+bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool bFromApproachSelection) const
 {
-	if (!GET_PLAYER(ePlayer).isMajorCiv() || !GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).getNumCities() <= 0)
+	if (!GET_PLAYER(ePlayer).isMajorCiv() || !GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).getNumCities() <= 0 || IsTeammate(ePlayer))
 		return false;
 
-	if (IsTeammate(ePlayer) || IsVassal(ePlayer) || GET_PLAYER(ePlayer).IsVassalOfSomeone())
+	if (!IsAtWar(ePlayer) && GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 		return false;
 
-	if (IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer) || GetNumCitiesCapturedBy(ePlayer) > 0)
-		return true;
-
-	// If they've lost their capital to someone else, we can ignore them unless they're stronger...
-	if (GET_PLAYER(ePlayer).IsHasLostCapital() && !GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(GetID()) && GetPlayerMilitaryStrengthComparedToUs(ePlayer) <= STRENGTH_AVERAGE)
-		return false;
-
-	// We trust our friends.
-	if ((IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer)) && !IsUntrustworthy(ePlayer))
-		return false;
-
-	if (!bIgnoreCurrentApproach && !GET_PLAYER(ePlayer).isHuman())
+	bool bVassal = IsVassal(ePlayer);
+	if (!bVassal)
 	{
-		CivApproachTypes eApproach = GetCivApproach(ePlayer);
-		if (eApproach != NO_CIV_APPROACH && eApproach <= CIV_APPROACH_AFRAID)
+		if (IsNukedBy(ePlayer) || IsCapitalCapturedBy(ePlayer) || IsHolyCityCapturedBy(ePlayer))
 			return true;
 	}
 
-	if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE)
+	bool bFriends = IsMaster(ePlayer) || IsFriendOrAlly(ePlayer);
+
+	// Only care if this player is close to us
+	if (GetPlayer()->GetProximityToPlayer(ePlayer) >= PLAYER_PROXIMITY_CLOSE || GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE || GetMilitaryAggressivePosture(ePlayer) >= AGGRESSIVE_POSTURE_MEDIUM)
 	{
-		if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE || GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE)
-			return true;
-
-		if (GetWarmongerThreat(ePlayer) >= THREAT_MAJOR)
-			return true;
-
-		// If they're equal or one level below us in strength, let's check diplomacy
-		if (GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POOR)
+		bool bStronger = GetPlayerMilitaryStrengthComparedToUs(ePlayer) > STRENGTH_AVERAGE || GetPlayerEconomicStrengthComparedToUs(ePlayer) > STRENGTH_STRONG || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE;
+		if (!bVassal)
 		{
-			// Backstabber?
-			if (IsUntrustworthy(ePlayer))
+			if (bStronger && !bFriends)
 				return true;
 
-			// Denouncement in either direction?
-			if (IsDenouncedPlayer(ePlayer) || IsDenouncedByPlayer(ePlayer))
+			if (GetNumCitiesCapturedBy(ePlayer) > 0)
 				return true;
 
-			if (GetNumWarsDeclaredOnUs(ePlayer) > 0)
+			// Going to war?
+			if (AvoidExchangesWithPlayer(ePlayer, true, bFromApproachSelection))
 				return true;
+		}
 
-			// Any reason for them to be mad at us?
-			PlayerTypes eMyPlayer = GetID();
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHolyCityCapturedBy(eMyPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetNumCitiesCapturedBy(eMyPlayer) > 0)
-				return true;
+		// If they're stronger than us, our master, or if their military strength is at least POOR (one level below), let's check diplomacy
+		if (bStronger || bVassal || GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POOR)
+		{
+			vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
+			vector<PlayerTypes> vPlayersToCheck = GetLinkedWarPlayers(ePlayer, !GetPlayer()->IsVassalOfSomeone(), false, false);
+			vPlayersToCheck.push_back(ePlayer);
+			for (std::vector<PlayerTypes>::iterator it = vPlayersToCheck.begin(); it != vPlayersToCheck.end(); it++)
+			{
+				for (size_t i=0; i<vMyTeam.size(); i++)
+				{
+					CvPlayer* pMyTeamPlayer = &GET_PLAYER(vMyTeam[i]);
+					CvDiplomacyAI* pDiplo = pMyTeamPlayer->GetDiplomacyAI();
+					if (!pMyTeamPlayer->isMajorCiv() || pMyTeamPlayer->getNumCities() <= 0)
+						continue;
 
-			CivApproachTypes eApproachTowardsUs = GetVisibleApproachTowardsUs(ePlayer);
-			if (eApproachTowardsUs != NO_CIV_APPROACH && eApproachTowardsUs <= CIV_APPROACH_GUARDED)
-				return true;
+					// Backstabber?
+					// Annoying to check it like this, but because this function is called a lot, we want to optimize where possible.
+					if (GET_PLAYER(*it).getTeam() == GET_PLAYER(ePlayer).getTeam() && pDiplo->IsUntrustworthyFriend(*it))
+						return true;
+
+					if (!pMyTeamPlayer->isAlive())
+						continue;
+
+					if (!bVassal)
+					{
+						bool bIgnoreSelfApproach = pMyTeamPlayer->isHuman() || (bFromApproachSelection && pMyTeamPlayer->GetID() == GetID());
+
+						// Is this a Defensive Pact?
+						if (GET_PLAYER(*it).GetDiplomacyAI()->IsHasDefensivePact(ePlayer))
+						{
+							// If we're going to war with their DP, they might be a threat or target.
+							// Otherwise, we don't care.
+							if (AvoidExchangesWithPlayer(*it, true, bIgnoreSelfApproach))
+								return true;
+
+							continue;
+						}
+
+						// Bad approach towards them?
+						if (!bIgnoreSelfApproach)
+						{
+							CivApproachTypes eApproach = pDiplo->GetCivApproach(*it);
+							if (eApproach != NO_CIV_APPROACH)
+							{
+								if (eApproach == CIV_APPROACH_AFRAID && !bFriends)
+									return true;
+
+								if (eApproach <= CIV_APPROACH_GUARDED)
+									return true;
+							}
+						}
+					}
+
+					// Negative approach towards us?
+					CivApproachTypes eApproachTowardsUs = pDiplo->GetVisibleApproachTowardsUs(*it);
+					if (eApproachTowardsUs != NO_CIV_APPROACH && eApproachTowardsUs <= CIV_APPROACH_GUARDED)
+						return true;
+
+					// Denouncement in either direction?
+					if (pDiplo->IsDenouncedPlayer(*it) || pDiplo->IsDenouncedByPlayer(*it))
+						return true;
+
+					// Previous war?
+					if (!bFriends && !bVassal && pDiplo->GetNumWarsDeclaredOnUs(*it) > 0)
+						return true;
+
+					// Any other reason for them to be mad at us?
+					if (!bVassal && GET_PLAYER(*it).GetDiplomacyAI()->GetNumCitiesCapturedBy(vMyTeam[i]) > 0)
+						return true;
+					if (GET_PLAYER(*it).GetDiplomacyAI()->IsPlayerCapturedCapital(vMyTeam[i]) || GET_PLAYER(*it).GetDiplomacyAI()->IsPlayerCapturedHolyCity(vMyTeam[i]))
+						return true;
+					// Run these checks last because they're more expensive.
+					if (GET_PLAYER(*it).GetNumOurCitiesOwnedBy(vMyTeam[i]) > 0)
+						return true;
+					if (GET_PLAYER(*it).GetDiplomacyAI()->IsUntrustworthy(vMyTeam[i]))
+						return true;
+					if (bVassal && pDiplo->GetVassalTreatmentLevel(*it) <= VASSAL_TREATMENT_MISTREATED)
+						return true;
+				}
+			}
 		}
 	}
 
