@@ -2180,7 +2180,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		return PATH_BASE_COST / 2;
 
 	// if there is already a route here, also provide a small discount
-	if (pPlot->getRouteType() == (RouteTypes)data.iTypeParameter)
+	if (pPlot->getRouteType() >= ROUTE_ROAD)
 		return PATH_BASE_COST * 2 / 3;
 
 	//should we prefer rough terrain because the gain in movement points is greater?
