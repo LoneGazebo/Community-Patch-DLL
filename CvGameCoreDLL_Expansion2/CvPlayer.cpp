@@ -4347,18 +4347,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			{
 				eBuilding = eLoopBuilding;
 			}
-			else if (bKeepAllValidBuildings)
-			{
-				// If we have a replacement building, grab the replacement instead.
-				if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
-				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-				}
-				else
-				{
-					eBuilding = eLoopBuilding;
-				}
-			}
 			else
 			{
 				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
@@ -4870,7 +4858,7 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 	if (!bConquest || GetPlayerTraits()->IsKeepConqueredBuildings() || IsKeepConqueredBuildings())
 		return true;
 
-	int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkLoopBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GetPseudoRandomSeed() + GC.getGame().GetGoldMedian());
+	int iConquestChance = GC.getGame().getSmallFakeRandNum(100, pkLoopBuildingInfo->GetID() + GetPseudoRandomSeed(), *pCity->plot());
 
 	return iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
 }

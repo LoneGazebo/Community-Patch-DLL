@@ -359,7 +359,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 		{
-			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(50, plot) + GC.getGame().getSmallFakeRandNum(50, pkDefender->GetID());
+			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID(), plot);
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{

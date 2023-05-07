@@ -529,7 +529,7 @@ UPDATE Buildings
 SET BuildingProductionModifier = '15'
 WHERE Type = 'BUILDING_WINDMILL';
 
--- Plants -- Remove terrain restrictions
+-- Power Plants
 
 -- Move all to Ecology
 
@@ -705,16 +705,9 @@ UPDATE Buildings
 SET PrereqTech = 'TECH_PHILOSOPHY'
 WHERE Type = 'BUILDING_COURTHOUSE';
 
+-- Overridden by BuildingHurryCosts.sql
 UPDATE Buildings
 SET HurryCostModifier = '75'
-WHERE Type = 'BUILDING_COURTHOUSE';
-
-UPDATE Buildings
-SET NumCityCostMod = '10'
-WHERE Type = 'BUILDING_COURTHOUSE';
-
-UPDATE Buildings
-SET NeverCapture = '1'
 WHERE Type = 'BUILDING_COURTHOUSE';
 
 -- Walls
@@ -888,10 +881,6 @@ UPDATE Buildings
 SET EspionageModifier = '-50'
 WHERE Type = 'BUILDING_POLICE_STATION';
 
-UPDATE Buildings
-SET Happiness = '0'
-WHERE Type = 'BUILDING_POLICE_STATION';
-
 INSERT INTO Building_YieldFromSpyDefense
 	(BuildingType, YieldType, Yield)
 VALUES
@@ -901,10 +890,6 @@ VALUES
 -- Constabulary
 UPDATE Buildings
 SET EspionageModifier = '-50'
-WHERE Type = 'BUILDING_CONSTABLE';
-
-UPDATE Buildings
-SET Defense = '0'
 WHERE Type = 'BUILDING_CONSTABLE';
 
 -- Guilds
@@ -1353,4 +1338,140 @@ VALUES
 	('BUILDING_MEDICAL_LAB', 'SPECIALIST_MERCHANT', 'YIELD_GOLD', 2),
 	('BUILDING_CARAVANSARY', 'SPECIALIST_MERCHANT', 'YIELD_GOLD', 1);
 
-UPDATE Buildings SET NeverCapture = '1' WHERE Type IN ('BUILDING_ARTISTS_GUILD', 'BUILDING_MUSICIANS_GUILD', 'BUILDING_WRITERS_GUILD', 'BUILDING_HOTEL', 'BUILDING_KREPOST', 'BUILDING_STABLE');
+
+-- ConquestProb and NeverCapture sweep
+
+-- Base setting
+UPDATE Buildings SET ConquestProb = '80', NeverCapture = '0';
+
+-- World Wonders should always be retained
+UPDATE Buildings SET ConquestProb = '100', NeverCapture = '0' WHERE NOT WonderSplashImage = 'NULL';
+
+-- National Wonders and other limited buildings should never be retained
+UPDATE Buildings SET ConquestProb = '0', NeverCapture = '1'
+WHERE BuildingClass IN (
+	SELECT Type FROM BuildingClasses
+	WHERE MaxPlayerInstances <> -1
+);
+
+-- Instant benefit buildings, courthouse, offices, franchises and mission should never be retained
+UPDATE Buildings SET ConquestProb = '0', NeverCapture = '1'
+WHERE BuildingClass IN (
+	'BUILDINGCLASS_COURTHOUSE',
+	'BUILDINGCLASS_CIRCUS',
+	'BUILDINGCLASS_THEATRE',
+	'BUILDINGCLASS_STADIUM',
+	'BUILDINGCLASS_MEDICAL_LAB',
+	'BUILDINGCLASS_TRADER_SIDS',
+	'BUILDINGCLASS_TRADER_SIDS_FRANCHISE',
+	'BUILDINGCLASS_LANDSEA_EXTRACTORS',
+	'BUILDINGCLASS_LANDSEA_EXTRACTORS_FRANCHISE',
+	'BUILDINGCLASS_HEXXON_REFINERY',
+	'BUILDINGCLASS_HEXXON_REFINERY_FRANCHISE',
+	'BUILDINGCLASS_GIORGIO_ARMEIER',
+	'BUILDINGCLASS_GIORGIO_ARMEIER_FRANCHISE',
+	'BUILDINGCLASS_FIRAXITE_MATERIALS',
+	'BUILDINGCLASS_FIRAXITE_MATERIALS_FRANCHISE',
+	'BUILDINGCLASS_TWOKAY_FOODS',
+	'BUILDINGCLASS_TWOKAY_FOODS_FRANCHISE',
+	'BUILDINGCLASS_CIVILIZED_JEWELERS',
+	'BUILDINGCLASS_CIVILIZED_JEWELERS_FRANCHISE',
+	'BUILDINGCLASS_D_FOR_SPAIN_MISSION',
+	'BUILDINGCLASS_SPAIN_MISSION'
+);
+
+-- Defensive, military and policy-exclusive buildings cannot be captured normally
+UPDATE Buildings SET ConquestProb = '0', NeverCapture = '0'
+WHERE BuildingClass IN (
+	'BUILDINGCLASS_WALLS',
+	'BUILDINGCLASS_CASTLE',
+	'BUILDINGCLASS_FORTRESS',
+	'BUILDINGCLASS_ARSENAL',
+	'BUILDINGCLASS_MILITARY_BASE',
+	'BUILDINGCLASS_BARRACKS',
+	'BUILDINGCLASS_ARMORY',
+	'BUILDINGCLASS_MILITARY_ACADEMY',
+	'BUILDINGCLASS_MINEFIELD',
+	'BUILDINGCLASS_AIRPORT',
+	'BUILDINGCLASS_BOMB_SHELTER',
+	'BUILDINGCLASS_OBSERVATORY',
+	'BUILDINGCLASS_MONASTERY'
+);
+
+-- Religious buildings should always be retained
+UPDATE Buildings SET ConquestProb = '100', NeverCapture = '0'
+WHERE BuildingClass IN (
+	'BUILDINGCLASS_CATHEDRAL',
+	'BUILDINGCLASS_MOSQUE',
+	'BUILDINGCLASS_PAGODA',
+	'BUILDINGCLASS_STUPA',
+	'BUILDINGCLASS_CHURCH',
+	'BUILDINGCLASS_MANDIR',
+	'BUILDINGCLASS_SYNAGOGUE',
+	'BUILDINGCLASS_ORDER',
+	'BUILDINGCLASS_TEOCALLI',
+	'BUILDINGCLASS_GURDWARA'
+);
+
+-- National Wonder Population Requirements
+
+-- Base setting
+UPDATE Buildings SET NationalPopRequired = '0', NumCityCostMod = '0';
+
+UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_COURTHOUSE';
+
+UPDATE Buildings SET NumCityCostMod = '25'
+WHERE BuildingClass IN (
+	SELECT Type FROM BuildingClasses
+	WHERE MaxPlayerInstances = 1
+);
+
+-- Classical T1
+UPDATE Buildings SET NationalPopRequired = '12'
+WHERE Type IN (
+	'BUILDING_HEROIC_EPIC',
+	'BUILDING_COURT_SCRIBE'
+);
+
+-- Classical T2
+UPDATE Buildings SET NationalPopRequired = '15'
+WHERE Type IN (
+	'BUILDING_NATIONAL_COLLEGE',
+	'BUILDING_NATIONAL_EPIC',
+	'BUILDING_CIRCUS_MAXIMUS'
+);
+
+-- Medieval T1
+UPDATE Buildings SET NationalPopRequired = '19'
+WHERE Type IN (
+	'BUILDING_OXFORD_UNIVERSITY',
+	'BUILDING_GRAND_TEMPLE'
+);
+
+-- Medieval T2
+UPDATE Buildings SET NationalPopRequired = '22'
+WHERE Type IN (
+	'BUILDING_OXFORD_UNIVERSITY',
+	'BUILDING_NATIONAL_TREASURY'
+);
+
+-- Renaissance T1
+UPDATE Buildings SET NationalPopRequired = '25'
+WHERE Type IN (
+	'BUILDING_PRINTING_PRESS'
+);
+
+-- Modern T2 + Ideology NW
+UPDATE Buildings SET NationalPopRequired = '40'
+WHERE Type IN (
+	'BUILDING_FOREIGN_OFFICE',
+	'BUILDING_PALACE_SCIENCE_CULTURE',
+	'BUILDING_FINANCE_CENTER',
+	'BUILDING_EHRENHALLE'
+);
+
+-- Atomic T2
+UPDATE Buildings SET NationalPopRequired = '50'
+WHERE Type IN (
+	'BUILDING_INTELLIGENCE_AGENCY'
+);
