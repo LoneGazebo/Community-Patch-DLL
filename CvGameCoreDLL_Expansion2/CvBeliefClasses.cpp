@@ -132,6 +132,7 @@ CvBeliefEntry::CvBeliefEntry() :
 	m_paiHolyCityYieldChange(NULL),
 	m_paiYieldChangePerForeignCity(NULL),
 	m_paiYieldChangePerXForeignFollowers(NULL),
+	m_paiYieldChangePerXCityStateFollowers(NULL),
 	m_piYieldPerFollowingCity(NULL),
 	m_piYieldPerXFollowers(NULL),
 	m_piYieldPerOtherReligionFollower(NULL),
@@ -876,6 +877,12 @@ int CvBeliefEntry::GetYieldChangePerXForeignFollowers(int i) const
 	return m_paiYieldChangePerXForeignFollowers ? m_paiYieldChangePerXForeignFollowers[i] : -1;
 }
 
+/// Accessor:: Additional player-level yield for followers in City-States
+int CvBeliefEntry::GetYieldChangePerXCityStateFollowers(int i) const
+{
+	return m_paiYieldChangePerXCityStateFollowers ? m_paiYieldChangePerXCityStateFollowers[i] : -1;
+}
+
 int CvBeliefEntry::GetYieldPerFollowingCity(int i) const
 {
 	return m_piYieldPerFollowingCity ? m_piYieldPerFollowingCity[i] : 0;
@@ -1367,6 +1374,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_paiBuildingClassTourism, "BuildingClasses", "Belief_BuildingClassTourism", "BuildingClassType", "BeliefType", szBeliefType, "Tourism");
 	kUtility.PopulateArrayByValue(m_paiYieldChangePerForeignCity, "Yields", "Belief_YieldChangePerForeignCity", "YieldType", "BeliefType", szBeliefType, "Yield");
 	kUtility.PopulateArrayByValue(m_paiYieldChangePerXForeignFollowers, "Yields", "Belief_YieldChangePerXForeignFollowers", "YieldType", "BeliefType", szBeliefType, "ForeignFollowers");
+	kUtility.PopulateArrayByValue(m_paiYieldChangePerXCityStateFollowers, "Yields", "Belief_YieldChangePerXCityStateFollowers", "YieldType", "BeliefType", szBeliefType, "PerXFollowers");
 	kUtility.PopulateArrayByValue(m_piYieldPerFollowingCity, "Yields", "Belief_YieldPerFollowingCity", "YieldType", "BeliefType", szBeliefType, "Yield");
 	kUtility.PopulateArrayByValue(m_piYieldPerXFollowers, "Yields", "Belief_YieldPerXFollowers", "YieldType", "BeliefType", szBeliefType, "PerXFollowers");
 	kUtility.PopulateArrayByValue(m_piYieldPerOtherReligionFollower, "Yields", "Belief_YieldPerOtherReligionFollower", "YieldType", "BeliefType", szBeliefType, "Yield");
@@ -3230,6 +3238,23 @@ int CvReligionBeliefs::GetYieldChangePerXForeignFollowers(YieldTypes eYield, Pla
 	return rtnValue;
 }
 
+int CvReligionBeliefs::GetYieldChangePerXCityStateFollowers(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
+{
+	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
+	int rtnValue = 0;
+
+	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
+	{
+		int iValue = pBeliefs->GetEntry(*it)->GetYieldChangePerXCityStateFollowers(eYield);
+		if (iValue != 0 && IsBeliefValid((BeliefTypes)*it, GetReligion(), ePlayer, pCity, bHolyCityOnly))
+		{
+			rtnValue += iValue;
+		}
+	}
+
+	return rtnValue;
+}
+
 int CvReligionBeliefs::GetYieldPerFollowingCity(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pCity, bool bHolyCityOnly) const
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
@@ -3757,7 +3782,7 @@ std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const
 		// sort and remove duplicates
 		if (rtnVector.size() > 1)
 		{
-			std::sort(rtnVector.begin(), rtnVector.end());
+			std::stable_sort(rtnVector.begin(), rtnVector.end());
 			rtnVector.erase( std::unique( rtnVector.begin(), rtnVector.end() ), rtnVector.end() );
 		}
 
@@ -4786,22 +4811,17 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReligionBeliefs& writeTo)
 /// BELIEF HELPER CLASSES
 
 /// Is there an adjacent barbarian naval unit that could be converted?
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit)
-#else
-bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, CvUnit* pUnit)
-#endif
+
 {
 	CvUnit* pNewUnit;
 	CvPlot *pPlot = pUnit->plot();
 
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 	CvPlayer* pPlayer = &GET_PLAYER(pByUnit->getOwner());
 
 	if (MOD_EVENTS_UNIT_CAPTURE) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 4);
 	}
-#endif
 
 	// Convert the barbarian into our unit
 	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);

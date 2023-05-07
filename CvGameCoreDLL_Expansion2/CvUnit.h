@@ -964,6 +964,10 @@ public:
 	int getOnlyDefensiveCount() const;
 	void changeOnlyDefensiveCount(int iValue);
 
+	bool isNoAttackInOcean() const;
+	int getNoAttackInOceanCount() const;
+	void changeNoAttackInOceanCount(int iValue);
+
 	bool noDefensiveBonus() const;
 	int getNoDefensiveBonusCount() const;
 	void changeNoDefensiveBonusCount(int iValue);
@@ -2272,6 +2276,7 @@ protected:
 	int m_iFlatMovementCostCount;
 	int m_iCanMoveImpassableCount;
 	int m_iOnlyDefensiveCount;
+	int m_iNoAttackInOceanCount;
 	int m_iNoDefensiveBonusCount;
 	int m_iNoCaptureCount;
 	int m_iNukeImmuneCount;
@@ -2708,6 +2713,7 @@ SYNC_ARCHIVE_VAR(int, m_iHoveringUnitCount)
 SYNC_ARCHIVE_VAR(int, m_iFlatMovementCostCount)
 SYNC_ARCHIVE_VAR(int, m_iCanMoveImpassableCount)
 SYNC_ARCHIVE_VAR(int, m_iOnlyDefensiveCount)
+SYNC_ARCHIVE_VAR(int, m_iNoAttackInOceanCount)
 SYNC_ARCHIVE_VAR(int, m_iNoDefensiveBonusCount)
 SYNC_ARCHIVE_VAR(int, m_iNoCaptureCount)
 SYNC_ARCHIVE_VAR(int, m_iNukeImmuneCount)

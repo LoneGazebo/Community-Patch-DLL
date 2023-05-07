@@ -2,7 +2,7 @@
 
  -- added Hovering Unit
 	UPDATE Language_en_US
-	SET Text = 'Unit may pass over Mountains.'
+	SET Text = 'Unit may pass over Mountains, and may cross Water tiles without Embarking. Cannot attack in [COLOR_NEGATIVE_TEXT]Ocean tiles[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_HOVERING_UNIT_HELP';
 
  -- added Withdraw Before Melee
@@ -600,8 +600,8 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_HELI_AMBUSH_2';
 
 	INSERT INTO Language_en_US (Tag, Text)
-	VALUES	('TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP', '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].'),
-			('TXT_KEY_PROMOTION_HELI_AMBUSH_2_HELP', '+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].');
+	VALUES	('TXT_KEY_PROMOTION_HELI_AMBUSH_1_HELP', '+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].'),
+			('TXT_KEY_PROMOTION_HELI_AMBUSH_2_HELP', '+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR].');
 
 	UPDATE Language_en_US
 	SET Text = 'Eagle Hunter'

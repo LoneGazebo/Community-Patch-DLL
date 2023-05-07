@@ -271,7 +271,7 @@ CvPlot* CvArmyAI::GetCenterOfMass(bool bClampToUnit, float* pfVarX, float* pfVar
 			return NULL;
 
 		//this sorts ascending!
-		std::sort(vPlots.begin(),vPlots.end());
+		std::stable_sort(vPlots.begin(),vPlots.end());
 		return vPlots.front().pPlot;
 	}
 	else

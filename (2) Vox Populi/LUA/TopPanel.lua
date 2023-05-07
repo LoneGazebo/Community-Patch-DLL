@@ -642,6 +642,7 @@ function GoldTipHandler( control )
 	-- CBP
 	local iInternalRouteGold = pPlayer:GetInternalTradeRouteGoldBonus();
 	local iMinorGold = pPlayer:GetGoldPerTurnFromMinorCivs();
+	local iAnnexedMinorsGold = pPlayer:GetGoldPerTurnFromAnnexedMinors();
 	-- END
 -- C4DF
 	-- Gold from Vassals
@@ -649,7 +650,7 @@ function GoldTipHandler( control )
 	local iGoldFromVassalTax = math.floor(pPlayer:GetMyShareOfVassalTaxes() / 100);
 -- END
 -- C4DF CHANGE
-	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iInternalRouteGold;
+	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iInternalRouteGold + iAnnexedMinorsGold;
 	if (iGoldFromVassals > 0) then
 		fTotalIncome = fTotalIncome + iGoldFromVassals;
 	end
@@ -700,6 +701,9 @@ function GoldTipHandler( control )
 -- COMMUNITY PATCH CHANGE
 	if (iMinorGold > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_MINORS", iMinorGold);
+	end
+	if (iAnnexedMinorsGold > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", iAnnexedMinorsGold);
 	end
 --END
 	strText = strText .. "[/COLOR]";
@@ -1215,7 +1219,7 @@ function CultureTipHandler( control )
 		end
 		
 		-- Culture from Golden Age (COMMUNITY PATCH EDIT)
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns; -- last part added (COMMUNITY PATCH)
+		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCultureFromAnnexedMinors - iCultureFromVassals; -- last part added (COMMUNITY PATCH)
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1345,7 +1349,7 @@ function FaithTipHandler( control )
 		end
 -- END	
 		
-		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0) then
+		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0 or iFaithFromAnnexedMinors ~= 0 or iFaithFromVassals ~= 0) then
 			strText = strText .. "[NEWLINE]";
 		end
 	

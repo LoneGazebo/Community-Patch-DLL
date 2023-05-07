@@ -8899,6 +8899,7 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 			{
 				kPlayer.UpdateFoodInCapitalPerTurnFromAnnexedMinors();
 				kPlayer.UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+				kPlayer.UpdateGoldPerTurnFromAnnexedMinors();
 				kPlayer.UpdateCulturePerTurnFromAnnexedMinors();
 				kPlayer.UpdateSciencePerTurnFromAnnexedMinors();
 				kPlayer.UpdateFaithPerTurnFromAnnexedMinors();

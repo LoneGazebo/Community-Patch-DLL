@@ -339,6 +339,7 @@ CvCity::CvCity() :
 	, m_iCityWorkingChange()
 	, m_iCitySupplyModifier()
 	, m_iCitySupplyFlat()
+	, m_iDamageReductionFlat()
 	, m_bAllowsProductionTradeRoutes()
 	, m_bAllowsFoodTradeRoutes()
 	, m_bAllowPuppetPurchase()
@@ -1304,6 +1305,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iCityWorkingChange = 0;
 	m_iCitySupplyModifier = 0;
 	m_iCitySupplyFlat = 0;
+	m_iDamageReductionFlat = 0;
 	m_bAllowsProductionTradeRoutes = false;
 	m_bAllowsFoodTradeRoutes = false;
 	m_bAllowPuppetPurchase = false;
@@ -15752,6 +15754,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		changeNukeModifier(pBuildingInfo->GetNukeModifier() * iChange);
 		changeHealRate(pBuildingInfo->GetHealRateChange() * iChange);
 		ChangeExtraHitPoints(pBuildingInfo->GetExtraCityHitPoints() * iChange);
+		changeDamageReductionFlat(pBuildingInfo->GetDamageReductionFlat() * iChange);
 
 		ChangeNoOccupiedUnhappinessCount(pBuildingInfo->IsNoOccupiedUnhappiness() * iChange);
 
@@ -17924,7 +17927,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 				{
 					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-					iReligionGrowthMod += (iFollowers * /*2*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
+					iReligionGrowthMod += (iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
 				}
 
 				if (eSecondaryPantheon != NO_BELIEF)
@@ -18110,7 +18113,7 @@ int CvCity::getGrowthMods() const
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 			{
 				int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-				iReligionGrowthMod += (iFollowers * /*2*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
+				iReligionGrowthMod += (iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
 			}
 
 			if (eSecondaryPantheon != NO_BELIEF)
@@ -21662,6 +21665,19 @@ void CvCity::changeCitySupplyFlat(int iChange)
 	VALIDATE_OBJECT
 	m_iCitySupplyFlat += iChange;
 }
+//	--------------------------------------------------------------------------------
+int CvCity::getDamageReductionFlat() const
+{
+	VALIDATE_OBJECT
+	return m_iDamageReductionFlat;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::changeDamageReductionFlat(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iDamageReductionFlat += iChange;
+}
 
 void CvCity::SetProductionRoutes(bool bValue)
 {
@@ -24829,6 +24845,16 @@ void CvCity::UpdateSpecialReligionYields(YieldTypes eYield)
 				}
 			}
 
+			iTemp = pReligion->m_Beliefs.GetYieldChangePerXCityStateFollowers(eYield, getOwner(), this, true);
+			if (iTemp > 0)
+			{
+				int iFollowers = kPlayer.GetReligions()->GetNumCityStateFollowers(eReligion);
+				if (iFollowers > 0)
+				{
+					iYieldValue += (iFollowers / iTemp);
+				}
+			}
+
 			int iYieldPerXNonFollowers = pReligion->m_Beliefs.GetYieldPerOtherReligionFollower(eYield, getOwner(), this, true);
 			if (iYieldPerXNonFollowers > 0)
 			{
@@ -25241,6 +25267,18 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 			iTempMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetWLTKDCulture();
 			iModifier += iTempMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_WLTKD_TRAIT", iTempMod);
+		}
+	}
+
+	// Trait Yield Rate Modifier per Follower
+	if (eIndex == YIELD_FOOD && eMajority != NO_RELIGION)
+	{
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
+		{
+			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
+			iTempMod = iFollowers * /*1*/ GD_INT_GET(BALANCE_FOLLOWER_FOOD_BONUS);
+			iModifier += iTempMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_TRAIT", iTempMod);
 		}
 	}
 
@@ -27365,10 +27403,10 @@ int CvCity::GetNoUnhappfromXSpecialists() const
 }
 
 //	--------------------------------------------------------------------------------
-bool CvCity::isBorderCity() const
+bool CvCity::isBorderCity(vector<PlayerTypes>& vUnfriendlyPlayers) const
 {
 	VALIDATE_OBJECT
-	return plot()->IsBorderLand(m_eOwner);
+	return plot()->IsBorderLand(m_eOwner, vUnfriendlyPlayers);
 }
 #endif
 void CvCity::changeNukeInterceptionChance(int iNewValue)
@@ -29291,7 +29329,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	}
 
 	//we want only the best
-	std::sort(resultList.begin(), resultList.end());
+	std::stable_sort(resultList.begin(), resultList.end());
 	if (resultList.size() > (size_t)nChoices)
 		resultList.erase(resultList.begin() + nChoices, resultList.end());
 
@@ -31100,7 +31138,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 			if (!freeSlotsPerOp.empty())
 			{ 
 				//default sort order is ascending by first pair member 
-				stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
+				std::stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
 				for (size_t i=0; i<freeSlotsPerOp.size(); i++)
 					if (GET_PLAYER(m_eOwner).getAIOperationByIndex( freeSlotsPerOp[i].second )->RecruitUnit(pUnit))
 						break;
@@ -33155,6 +33193,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCityWorkingChange);
 	visitor(city.m_iCitySupplyModifier);
 	visitor(city.m_iCitySupplyFlat);
+	visitor(city.m_iDamageReductionFlat);
 	visitor(city.m_bAllowsProductionTradeRoutes);
 	visitor(city.m_bAllowsFoodTradeRoutes);
 	visitor(city.m_bAllowPuppetPurchase);

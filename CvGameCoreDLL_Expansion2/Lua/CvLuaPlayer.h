@@ -1195,6 +1195,7 @@ protected:
 	static int lIsCarnaval(lua_State* L);
 	static int lGetTraitConquestOfTheWorldCityAttackMod(lua_State* L);
 #endif
+	static int lGetGoldPerTurnFromAnnexedMinors(lua_State* L);
 	static int lGetCulturePerTurnFromAnnexedMinors(lua_State* L);
 	static int lGetFaithPerTurnFromAnnexedMinors(lua_State* L);
 	static int lGetSciencePerTurnFromAnnexedMinors(lua_State* L);

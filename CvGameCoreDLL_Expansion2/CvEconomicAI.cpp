@@ -2115,7 +2115,7 @@ void CvEconomicAI::DoReconState()
 		//choose the one who is farthest out
 		if (!eligibleExplorers.empty())
 		{
-			std::sort( eligibleExplorers.begin(), eligibleExplorers.end() );
+			std::stable_sort( eligibleExplorers.begin(), eligibleExplorers.end() );
 			CvUnit* pNewExplorer = m_pPlayer->getUnit( eligibleExplorers.back().second );
 			pNewExplorer->AI_setUnitAIType(UNITAI_EXPLORE);
 			if(GC.getLogging() && GC.getAILogging())
@@ -2141,7 +2141,7 @@ void CvEconomicAI::DoReconState()
 		//choose the one who is closest
 		if (!eligibleExplorers.empty())
 		{
-			std::sort(eligibleExplorers.begin(), eligibleExplorers.end());
+			std::stable_sort(eligibleExplorers.begin(), eligibleExplorers.end());
 			CvUnit* pExplorer = m_pPlayer->getUnit(eligibleExplorers.front().second);
 
 			pExplorer->AI_setUnitAIType(pExplorer->getUnitInfo().GetDefaultUnitAIType());
@@ -2213,7 +2213,7 @@ void CvEconomicAI::DoReconState()
 			//choose the one who is farthest out
 			if (!eligibleExplorers.empty())
 			{
-				std::sort( eligibleExplorers.begin(), eligibleExplorers.end() );
+				std::stable_sort( eligibleExplorers.begin(), eligibleExplorers.end() );
 				CvUnit* pNewExplorer = m_pPlayer->getUnit( eligibleExplorers.back().second );
 				pNewExplorer->AI_setUnitAIType(UNITAI_EXPLORE_SEA);
 				if(GC.getLogging() && GC.getAILogging())
@@ -2239,7 +2239,7 @@ void CvEconomicAI::DoReconState()
 			//choose the one who is closest
 			if (!eligibleExplorers.empty())
 			{
-				std::sort(eligibleExplorers.begin(), eligibleExplorers.end());
+				std::stable_sort(eligibleExplorers.begin(), eligibleExplorers.end());
 				CvUnit* pExplorer = m_pPlayer->getUnit(eligibleExplorers.front().second);
 
 				pExplorer->AI_setUnitAIType(pExplorer->getUnitInfo().GetDefaultUnitAIType());

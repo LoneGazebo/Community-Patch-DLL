@@ -225,11 +225,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Buildings/BuildingChanges.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Buildings/NationalWonderChanges.sql</FileName>
       </Action>
       <Action>
@@ -406,11 +401,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Units/UnitBuildingPurchaseRequired.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Buildings/BuildingHurryCosts.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -926,6 +916,16 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Buildings/BuildingChanges.sql</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Buildings/BuildingHurryCosts.sql</FileName>
       </Action>
     </ModActions>
     <ModReferences />

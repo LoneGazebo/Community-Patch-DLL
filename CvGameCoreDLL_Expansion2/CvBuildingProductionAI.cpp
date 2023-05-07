@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -607,6 +607,10 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	{
 		iDefense += (pkBuildingInfo->GetExtraCityHitPoints() / 10);
 	}
+	if (pkBuildingInfo->GetDamageReductionFlat() > 0)
+	{
+		iDefense += pkBuildingInfo->GetDamageReductionFlat() * 2;
+	}
 	if (m_pCity->isCoastal())
 	{
 		AICityStrategyTypes eStrategyLakeBound = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_LAKEBOUND");
@@ -634,7 +638,8 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 		}
 	}
 	int iDefenseMod = 100;
-	if (m_pCity->isBorderCity() || m_pCity->isCoastal(12) )
+	vector<PlayerTypes> v;
+	if (m_pCity->isBorderCity(v) || m_pCity->isCoastal(12) )
 	{
 		if (kPlayer.IsAtWarAnyMajor())
 			iDefenseMod += 1000;

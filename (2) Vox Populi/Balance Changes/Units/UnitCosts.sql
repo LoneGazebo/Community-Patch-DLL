@@ -1,6 +1,8 @@
 --- Other --
 
 	UPDATE Units SET FaithCost = '200' WHERE Type = 'UNIT_MISSIONARY';
+	UPDATE Units SET FaithCost = '300' WHERE Type = 'UNIT_INQUISITOR';
+	UPDATE Units SET FaithCost = '300' WHERE Type = 'UNIT_SPAIN_INQUISITOR';
 	UPDATE Units SET HurryCostModifier = '-1' WHERE Type = 'UNIT_SETTLER';
 
 	UPDATE Units SET Cost = '40' WHERE Type = 'UNIT_WORKBOAT';

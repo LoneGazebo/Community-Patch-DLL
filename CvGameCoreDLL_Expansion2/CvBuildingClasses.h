@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -253,6 +253,7 @@ public:
 	int GetLocalUnhappinessModifier() const;
 	int GetGlobalBuildingGoldMaintenanceMod() const;
 	int GetBuildingDefenseModifier() const;
+	int GetDamageReductionFlat() const;
 	int GetCitySupplyModifier() const;
 	int GetCitySupplyModifierGlobal() const;
 	int GetCitySupplyFlat() const;
@@ -738,6 +739,7 @@ private:
 	int m_iLocalUnhappinessModifier;
 	int m_iGlobalBuildingGoldMaintenanceMod;
 	int m_iBuildingDefenseModifier;
+	int m_iDamageReductionFlat;
 	int m_iCitySupplyModifier;
 	int m_iCitySupplyModifierGlobal;
 	int m_iCitySupplyFlat;

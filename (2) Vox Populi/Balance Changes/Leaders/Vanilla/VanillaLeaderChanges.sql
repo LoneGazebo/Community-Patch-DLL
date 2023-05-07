@@ -554,7 +554,7 @@ SET AnnexedCityStatesGiveYields = '1'
 WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Traits
-SET BullyAnnex = '1'
+SET CityStateCombatModifier = '30'
 WHERE Type = 'TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 -- Siam -- adjust Wat

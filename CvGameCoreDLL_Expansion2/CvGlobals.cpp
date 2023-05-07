@@ -1628,6 +1628,8 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(AI_GOLD_TREASURY_BUFFER, 150),
 	GD_INT_INIT(BALANCE_CS_WAR_COOLDOWN_RATE, 50),
 	GD_INT_INIT(BALANCE_FOLLOWER_GROWTH_BONUS, 0),
+	GD_INT_INIT(BALANCE_FOLLOWER_FOOD_BONUS, 0),
+	GD_INT_INIT(RELIGION_FOUND_AUTO_SPREAD_PRESSURE, 0),
 	GD_INT_INIT(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL, 4),
 	GD_INT_INIT(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE, 3),
 	GD_INT_INIT(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL, 2),
@@ -1733,7 +1735,6 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(BALANCE_BUILDING_INVESTMENT_BASELINE, -50),
 	GD_INT_INIT(BALANCE_UNIT_INVESTMENT_BASELINE, -50),
 	GD_INT_INIT(OPEN_BORDERS_MODIFIER_TRADE_GOLD, 20),
-	GD_INT_INIT(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP, 60),
 	GD_INT_INIT(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT, 0),
 	GD_INT_INIT(COMBAT_CAPTURE_HEALTH, 50),
 	GD_INT_INIT(COMBAT_CAPTURE_MIN_CHANCE, 10),
@@ -1758,6 +1759,8 @@ CvGlobals::CvGlobals() :
 	GD_INT_INIT(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT, 25),
 	GD_INT_INIT(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT, 100),
 	GD_INT_INIT(ESPIONAGE_TURNS_BETWEEN_CITY_STATE_ELECTIONS, 15),
+	GD_INT_INIT(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_BASE, 20),
+	GD_INT_INIT(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_PER_SPY_LEVEL, 10),
 	GD_INT_INIT(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION, 20),
 	GD_INT_INIT(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION, 5),
 	GD_INT_INIT(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE, 1),
@@ -3506,15 +3509,17 @@ void CvGlobals::GameDataPostCache()
 	calcGameDataHash();
 }
 
-template<typename T>
+template <typename T>
 static void HashGameDataCombine(CvGlobals::GameDataHash& seed, std::size_t& word, const T& container)
 {
-	// This hash algorithm could be better...
+	// FNV-1a hash algorithm
+	const unsigned int fnv_prime = 0x01000193; // 16777619
+	const unsigned int fnv_offset_basis = 0x811c9dc5; // 2166136261
 
 	// Hash the size of the container.
 	{
-		const uint32 containerSize = container.size();
-		seed[word] ^= containerSize + 0x9e3779b9 + (seed[word] << 6) + (seed[word] >> 2);
+		const unsigned int containerSize = static_cast<unsigned int>(container.size());
+		seed[word] ^= (containerSize ^ fnv_offset_basis) * fnv_prime;
 		if (++word >= 4)
 			word = 0;
 	}
@@ -3523,27 +3528,31 @@ static void HashGameDataCombine(CvGlobals::GameDataHash& seed, std::size_t& word
 	typedef typename T::const_iterator It;
 	const It begin = container.begin();
 	const It end = container.end();
-	for (It it = begin; it < end; ++it) {
-		uint32 infoHash;
+	for (It it = begin; it != end; ++it) {
+		unsigned int infoHash;
 		// FIXME - NULL entries in the database make no sense yet they're here anyway??
 		// We have no choice but to hash these as well because they impact the database order.
-		if (*it == NULL)
-			infoHash = 0xFFFFFFFF; // Just an unlikely value.
+		if (*it == 0)
+			infoHash = fnv_offset_basis;
 		else
 			infoHash = FString::Hash((*it)->GetType());
-		seed[word] ^= infoHash + 0x9e3779b9 + (seed[word] << 6) + (seed[word] >> 2);
+		seed[word] ^= (infoHash ^ fnv_offset_basis) * fnv_prime;
 		if (++word >= 4)
 			word = 0;
 	}
+
 }
 
 void CvGlobals::calcGameDataHash()
 {
+	// FNV-1a hash algorithm
+	const unsigned int fnv_offset_basis = 0x811c9dc5; // 2166136261
+
 	// 128 bits ought to be enough to prevent collisions.
-	m_gameDataHash[0] = uint32(0xc1ed4a43);
-	m_gameDataHash[1] = uint32(0x8f3cd5e7);
-	m_gameDataHash[2] = uint32(0x653301d3);
-	m_gameDataHash[3] = uint32(0x822fad48);
+	m_gameDataHash[0] = fnv_offset_basis;
+	m_gameDataHash[1] = fnv_offset_basis;
+	m_gameDataHash[2] = fnv_offset_basis;
+	m_gameDataHash[3] = fnv_offset_basis;
 	std::size_t writeWord = 0;
 
 	HashGameDataCombine(m_gameDataHash, writeWord, m_paColorInfo);
@@ -5988,6 +5997,8 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(AI_GOLD_TREASURY_BUFFER);
 	GD_INT_CACHE(BALANCE_CS_WAR_COOLDOWN_RATE);
 	GD_INT_CACHE(BALANCE_FOLLOWER_GROWTH_BONUS);
+	GD_INT_CACHE(BALANCE_FOLLOWER_FOOD_BONUS);
+	GD_INT_CACHE(RELIGION_FOUND_AUTO_SPREAD_PRESSURE);
 	GD_INT_CACHE(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 	GD_INT_CACHE(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE);
 	GD_INT_CACHE(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL);
@@ -6093,7 +6104,6 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(BALANCE_BUILDING_INVESTMENT_BASELINE);
 	GD_INT_CACHE(BALANCE_UNIT_INVESTMENT_BASELINE);
 	GD_INT_CACHE(OPEN_BORDERS_MODIFIER_TRADE_GOLD);
-	GD_INT_CACHE(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP);
 	GD_INT_CACHE(BALANCE_CORE_PRODUCTION_DESERT_IMPROVEMENT);
 	GD_INT_CACHE(COMBAT_CAPTURE_HEALTH);
 	GD_INT_CACHE(COMBAT_CAPTURE_MIN_CHANCE);
@@ -6118,6 +6128,8 @@ void CvGlobals::cacheGlobals()
 	GD_INT_CACHE(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
 	GD_INT_CACHE(ESPIONAGE_GATHERING_INTEL_RATE_BASE_PERCENT);
 	GD_INT_CACHE(ESPIONAGE_TURNS_BETWEEN_CITY_STATE_ELECTIONS);
+	GD_INT_CACHE(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_BASE);
+	GD_INT_CACHE(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_PER_SPY_LEVEL);
 	GD_INT_CACHE(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION);
 	GD_INT_CACHE(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION);
 	GD_INT_CACHE(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE);

@@ -116,6 +116,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iLocalUnhappinessModifier(0),
 	m_iGlobalBuildingGoldMaintenanceMod(0),
 	m_iBuildingDefenseModifier(0),
+	m_iDamageReductionFlat(0),
 	m_iCitySupplyModifier(0),
 	m_iCitySupplyModifierGlobal(0),
 	m_iCitySupplyFlat(0),
@@ -663,6 +664,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iLocalUnhappinessModifier = kResults.GetInt("LocalUnhappinessModifier");
 	m_iGlobalBuildingGoldMaintenanceMod = kResults.GetInt("GlobalBuildingGoldMaintenanceMod");
 	m_iBuildingDefenseModifier = kResults.GetInt("BuildingDefenseModifier");
+	m_iDamageReductionFlat = kResults.GetInt("DamageReductionFlat");
 	m_iCitySupplyModifier = kResults.GetInt("CitySupplyModifier");
 	m_iCitySupplyModifierGlobal = kResults.GetInt("CitySupplyModifierGlobal");
 	m_iCitySupplyFlat = kResults.GetInt("CitySupplyFlat");
@@ -2272,6 +2274,10 @@ int CvBuildingEntry::CityRangedStrikeModifier() const
 int CvBuildingEntry::GetBuildingDefenseModifier() const
 {
 	return m_iBuildingDefenseModifier;
+}
+int CvBuildingEntry::GetDamageReductionFlat() const
+{
+	return m_iDamageReductionFlat;
 }
 int CvBuildingEntry::GetCitySupplyModifier() const
 {

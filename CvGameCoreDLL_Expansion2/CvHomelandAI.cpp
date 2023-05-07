@@ -323,6 +323,7 @@ void CvHomelandAI::FindHomelandTargets()
 	// Look at every tile on map
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
+	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyPlayers();
 
 	for(int iI = 0; iI < iNumPlots; iI++)
 	{
@@ -401,7 +402,7 @@ void CvHomelandAI::FindHomelandTargets()
 				pLoopPlot->isFortification(eTeam))
 			{
 				//this check is a bit expensive
-				if (pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
+				if (!vUnfriendlyPlayers.empty() && pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyPlayers))
 				{
 					int iWeight = 100000 + pLoopPlot->defenseModifier(eTeam, false, false);
 
@@ -6047,7 +6048,7 @@ vector<SPatrolTarget> HomelandAIHelpers::GetPatrolTargets(PlayerTypes ePlayer, b
 	}
 
 	//default sort is descending!
-	std::sort( vTargets.begin(), vTargets.end() );
+	std::stable_sort( vTargets.begin(), vTargets.end() );
 
 	vector<SPatrolTarget> vResult;
 	for (size_t i=0; i<MIN(vTargets.size(),(size_t)nMaxTargets); i++)

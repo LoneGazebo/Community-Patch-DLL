@@ -691,7 +691,9 @@ INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_MIN', '2';
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_GP_RATE', '15'; -- Austria new UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_RESTING_POINT_INCREASE', '200'; -- Austria new UA (VP)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '2'; -- India Growth (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '0'; -- India Growth (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_FOOD_BONUS', '1'; -- India Food (VP)
+INSERT INTO Defines (Name, Value) SELECT 'RELIGION_FOUND_AUTO_SPREAD_PRESSURE', '1000'; -- India Pressure on Found (VP)
 INSERT INTO Defines (Name, Value) SELECT 'GWAM_THRESHOLD_DECREASE', '0'; -- Great People Rate Mod (Note, this is a subtraction, so positive = negative)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BUILDING_INVESTMENT_BASELINE', '-50'; -- Building Investments Base Rate
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNIT_INVESTMENT_BASELINE', '-50'; -- Unit Investments Base Rate
@@ -712,7 +714,6 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SCOUT_XP_BASE', '1';
 
 -- City-States
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_CP_QUESTS', '1'; -- New VP Quests
-INSERT INTO Defines (Name, Value) SELECT 'MOD_BALANCE_CORE_MINIMUM_RANKING_PTP', '60'; -- PTP Military Power Needed
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_WAR_COOLDOWN_RATE', '50'; -- How long till a City-State forgets that a major aggressively attacked it?
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MINOR_PROTECTION_MINIMUM_DURATION', '10'; -- How long before a major can revoke a PtP to a CS?
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS', '5'; -- Bonus to CS capital's CS for each PtP

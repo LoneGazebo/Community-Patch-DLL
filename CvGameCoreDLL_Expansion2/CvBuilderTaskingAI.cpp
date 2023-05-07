@@ -507,16 +507,42 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	if (!pPlot)
 		return;
 
-	// if we already know about this plot, continue on
-	if( GetRouteValue(pPlot)>=iValue )
+	if (iValue <= 0 || eRoute == NO_ROUTE)
 		return;
+
+	RouteTypes eOldRoute = NO_ROUTE;
+	int iOldValue = 0;
+
+	RoutePlotContainer::const_iterator it;
+
+	it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
+	if (it != m_routeNeededPlots.end())
+	{
+		eOldRoute = it->second.first;
+		iOldValue = it->second.second;
+	}
+
+	it = m_routeWantedPlots.find(pPlot->GetPlotIndex());
+	if (it != m_routeWantedPlots.end())
+	{
+		eOldRoute = it->second.first;
+		iOldValue = it->second.second;
+	}
+
+	// if we already want a better route, ignore this
+	if (eOldRoute > eRoute)
+		return;
+
+	// if we wanted a lower tech route, ignore the old value
+	if (eOldRoute < eRoute)
+		iOldValue = 0;
 
 	//if it is the right route, add to needed plots
 	if (pPlot->getRouteType() == eRoute || GetSameRouteBenefitFromTrait(pPlot, eRoute))
-		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
+		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue + iOldValue);
 	else
 		//if no matching route, add to wanted plots
-		m_routeWantedPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
+		m_routeWantedPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue + iOldValue);
 }
 
 int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
@@ -668,54 +694,11 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (!path)
 		return;
 
-	int iStrategicValue = 100;
-
-	//citadels and forts
-	CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pTargetPlot->getImprovementType());
-	if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 20)
-	{
-		iStrategicValue += 200;
-	}
-
-	CvDiplomacyAI* pDiploAI = m_pPlayer->GetDiplomacyAI();
-	for (size_t i = 0; i < path.vPlots.size(); i++)
-	{
-		CvPlot* pPlot = path.get(i);
-		if (!pPlot)
-			break;
-
-		//cities don't count
-		if (pPlot->isCity())
-			continue;
-
-		else
-		{
-			//if any neighboring plot is owned by someone else, calculate its strategic value
-			CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-			{
-				CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-				if (pAdjacentPlot != NULL && pAdjacentPlot->isOwned() && pAdjacentPlot->getTeam() != m_pPlayer->getTeam() && !pAdjacentPlot->isImpassable(pAdjacentPlot->getTeam()))
-				{
-					// Neighboring plot is owned by someone else, so this is a strategic point
-					PlayerTypes eAdjacentPlayer = pAdjacentPlot->getOwner();
-					if (pDiploAI->IsPotentialMilitaryTargetOrThreat(eAdjacentPlayer, m_pPlayer->isHuman()))
-					{
-						iStrategicValue += 100;
-						break;
-					}
-				}
-			}
-		}
-	}
-
 	//and this to see if we actually build it
 	int iCost = pRouteInfo->GetGoldMaintenance()*(100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	iCost *= path.length();
 	if (iNetGoldTimes100 - iCost <= 6)
 		return;
-
-	int iValue = iStrategicValue;
 
 	for (int i = 0; i<path.length(); i++)
 	{
@@ -733,7 +716,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 			continue;
 
 		// remember the plot
-		AddRoutePlot(pPlot, eRoute, iValue);
+		AddRoutePlot(pPlot, eRoute, 54);
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
@@ -975,7 +958,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 		}
 	}
 
-	sort(m_aDirectives.begin(), m_aDirectives.end());
+	std::stable_sort(m_aDirectives.begin(), m_aDirectives.end());
 	LogDirectives(pUnit);
 
 	//nothing found?
@@ -1744,12 +1727,12 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	{
 		return;
 	}
+	bool isPillagedRouteWeWantToRepair = NeedRouteAtPlot(pPlot) && pPlot->IsRoutePillaged();
 	// If it's owned by us, but it's being razed, ignore it (check actual owning city instead of working city)
-	if (isOwnedByUs && pPlot->getOwningCity()->IsRazing())
+	if (isOwnedByUs && pPlot->getOwningCity()->IsRazing() && !isPillagedRouteWeWantToRepair)
 	{
 		return;
 	}
-	bool isPillagedRouteWeWantToRepair = NeedRouteAtPlot(pPlot) && pPlot->IsRoutePillaged();
 	// If it's not owned by us, and it's not a route we want to repair, ignore it
 	if (!isOwned && !isPillagedRouteWeWantToRepair)
 	{
@@ -1778,6 +1761,13 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 
 	if (pWorkingCity && pWorkingCity->GetCityCitizens()->IsWorkingPlot(pPlot))
 		iWeight *= 2;
+
+	if (isPillagedRouteWeWantToRepair)
+	{
+		RoutePlotContainer::const_iterator it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
+		if (it != m_routeNeededPlots.end())
+			iWeight += it->second.second;
+	}
 
 	if (iWeight > 0)
 	{

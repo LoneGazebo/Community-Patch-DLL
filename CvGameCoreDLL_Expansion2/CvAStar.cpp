@@ -2180,7 +2180,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		return PATH_BASE_COST / 2;
 
 	// if there is already a route here, also provide a small discount
-	if (pPlot->getRouteType() == (RouteTypes)data.iTypeParameter)
+	if (pPlot->getRouteType() >= ROUTE_ROAD)
 		return PATH_BASE_COST * 2 / 3;
 
 	//should we prefer rough terrain because the gain in movement points is greater?
@@ -2862,7 +2862,7 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 	{
 		bool operator()(const CvPlot* lhs, const CvPlot* rhs) const { return lhs->GetPlotIndex() < rhs->GetPlotIndex(); }
 	};
-	std::sort( vDestPlots.begin(), vDestPlots.end(), PrSortByPlotIndex() );
+	std::stable_sort( vDestPlots.begin(), vDestPlots.end(), PrSortByPlotIndex() );
 
 	//there is no destination! the return value will always be false
 	CvAStar::FindPathWithCurrentConfiguration(pStartPlot->getX(),pStartPlot->getY(), -1, -1, data);
@@ -3679,7 +3679,7 @@ void ReachablePlots::createIndex()
 	lookup.reserve(storage.size());
 	for (size_t i = 0; i < storage.size(); i++)
 		lookup.push_back( make_pair(storage[i].iPlotIndex,i) );
-	sort(lookup.begin(), lookup.end(), PairCompareFirst());
+	std::stable_sort(lookup.begin(), lookup.end(), PairCompareFirst());
 }
 
 struct EqualRangeComparison
@@ -3718,7 +3718,7 @@ void ReachablePlots::insertWithIndex(const SMovePlot& plot)
 {
 	lookup.push_back( make_pair(plot.iPlotIndex,storage.size()) );
 	storage.push_back(plot);
-	sort(lookup.begin(), lookup.end(), PairCompareFirst());
+	std::stable_sort(lookup.begin(), lookup.end(), PairCompareFirst());
 }
 
 FDataStream & operator >> (FDataStream & kStream, CvPathNode & node)

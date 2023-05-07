@@ -506,6 +506,7 @@ public:
 	//get random number from gamestate without a seed in the generator
 	int	getSmallFakeRandNum(int iNum, const CvPlot& input) const;
 	int	getSmallFakeRandNum(int iNum, int iExtraSeed) const;
+	int	getSmallFakeRandNum(int iNum, int iExtraSeed, const CvPlot& input) const;
 #endif
 
 	int calculateSyncChecksum();

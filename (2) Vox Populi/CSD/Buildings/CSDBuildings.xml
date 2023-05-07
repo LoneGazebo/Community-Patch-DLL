@@ -6,14 +6,14 @@
 		<Row>
 			<Type>BUILDING_CHANCERY</Type>
 			<BuildingClass>BUILDINGCLASS_CHANCERY</BuildingClass>
-			<Cost>125</Cost>
-			<PrereqTech>TECH_CIVIL_SERVICE</PrereqTech>
+			<Cost>300</Cost>
+			<PrereqTech>TECH_EDUCATION</PrereqTech>
 			<Help>TXT_KEY_BUILDING_CHANCERY_HELP</Help>
 			<Description>TXT_KEY_BUILDING_CHANCERY</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CHANCERY_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_CHANCERY_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
-			<GoldMaintenance>1</GoldMaintenance>
+			<GoldMaintenance>3</GoldMaintenance>
 			<SpecialistCount>1</SpecialistCount>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<TrainedFreePromotion>PROMOTION_SIGNET</TrainedFreePromotion>
@@ -26,12 +26,12 @@
 		<Row>
 			<Type>BUILDING_WIRE_SERVICE</Type>
 			<BuildingClass>BUILDINGCLASS_WIRE_SERVICE</BuildingClass>
-			<Cost>350</Cost>
-			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
+			<Cost>1800</Cost>
+			<PrereqTech>TECH_REPLACEABLE_PARTS</PrereqTech>
 			<Help>TXT_KEY_BUILDING_WIRE_SERVICE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_WIRE_SERVICE</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_WIRE_SERVICE_TEXT</Civilopedia>
-			<GoldMaintenance>3</GoldMaintenance>
+			<GoldMaintenance>11</GoldMaintenance>
 			<Strategy>TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
@@ -47,7 +47,7 @@
 		<Row>
 			<Type>BUILDING_COURT_SCRIBE</Type>
 			<BuildingClass>BUILDINGCLASS_COURT_SCRIBE</BuildingClass>
-			<Cost>100</Cost>
+			<Cost>150</Cost>
 			<Help>TXT_KEY_BUILDING_COURT_SCRIBE_HELP</Help>
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_COURT_SCRIBE</Description>
@@ -90,7 +90,7 @@
 			<Type>BUILDING_FOREIGN_OFFICE</Type>
 			<BuildingClass>BUILDINGCLASS_FOREIGN_OFFICE</BuildingClass>
 			<Cost>125</Cost>
-			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<PrereqTech>TECH_RADIO</PrereqTech>
 			<Help>TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_FOREIGN_OFFICE</Description>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_FOREIGN_OFFICE_TEXT</Civilopedia>
@@ -118,7 +118,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_PALACE_SCIENCE_CULTURE_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_MARKET</ArtDefineTag>
-			<RAToVotes>1</RAToVotes>
+			<DPToVotes>1</DPToVotes>
 			<NukeImmune>true</NukeImmune>
 			<NeverCapture>true</NeverCapture>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
@@ -128,6 +128,7 @@
 			<CultureRateModifier>5</CultureRateModifier>
 			<ConquestProb>0</ConquestProb>
 			<HurryCostModifier>-1</HurryCostModifier>
+			<IgnoreDefensivePactLimit>true</IgnoreDefensivePactLimit>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<PortraitIndex>28</PortraitIndex>
 		</Row>
@@ -196,6 +197,7 @@
 			<NukeImmune>true</NukeImmune>
 			<FreePromotion>PROMOTION_PAX</FreePromotion>
 			<HurryCostModifier>-1</HurryCostModifier>
+			<NumPoliciesNeeded>3</NumPoliciesNeeded>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<Quote>TXT_KEY_WONDER_FORUM_QUOTE</Quote>
 			<WonderSplashImage>WonderForum.dds</WonderSplashImage>
@@ -204,7 +206,7 @@
 		<Row>
 			<Type>BUILDING_SUMMER_PALACE</Type>
 			<BuildingClass>BUILDINGCLASS_SUMMER_PALACE</BuildingClass>
-			<Cost>500</Cost>
+			<Cost>900</Cost>
 			<PrereqTech>TECH_ACOUSTICS</PrereqTech>
 			<Help>TXT_KEY_BUILDING_SUMMER_PALACE_HELP</Help>
 			<Description>TXT_KEY_BUILDING_SUMMER_PALACE</Description>
@@ -218,6 +220,7 @@
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<NukeImmune>true</NukeImmune>
 			<HurryCostModifier>-1</HurryCostModifier>
+			<NumPoliciesNeeded>11</NumPoliciesNeeded>
 			<FreePromotion>PROMOTION_NOBILITY</FreePromotion>
 			<IconAtlas>CSDBUILDINGS_ATLAS</IconAtlas>
 			<Quote>TXT_KEY_WONDER_SUMMER_PALACE_QUOTE</Quote>
@@ -1016,6 +1019,11 @@
 		</Row>
 	</Building_ResourceQuantity>
 	<Building_FreeUnits>
+		<Row>
+			<BuildingType>BUILDING_COURT_SCRIBE</BuildingType>
+			<UnitType>UNIT_EMISSARY</UnitType>
+			<NumUnits>1</NumUnits>
+		</Row>
 		<Row>
 			<BuildingType>BUILDING_FORUM</BuildingType>
 			<UnitType>UNIT_GREAT_DIPLOMAT</UnitType>

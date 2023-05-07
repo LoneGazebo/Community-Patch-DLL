@@ -1597,6 +1597,9 @@ ALTER TABLE Units ADD 'GoldenAgeFromBirth' BOOLEAN DEFAULT 0;
 -- Define a defense modifier to a building, like GlobalDefenseModifier (but only local).
 ALTER TABLE Buildings ADD 'BuildingDefenseModifier' INTEGER DEFAULT 0;
 
+-- Damage to the city with this building is reduced by this flat amount.
+ALTER TABLE Buildings ADD 'DamageReductionFlat' INTEGER DEFAULT 0;
+
 -- Define a modifier for all tile/building based tourism in all cities.
 ALTER TABLE Buildings ADD 'GlobalLandmarksTourismPercent' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD 'LandmarksTourismPercent' INTEGER DEFAULT 0;
@@ -1693,6 +1696,9 @@ ALTER TABLE Buildings ADD COLUMN 'IgnoreDefensivePactLimit' BOOLEAN DEFAULT 0;
 
 -- Gifting units to City-States awards Influence per turn while the units remain alive
 ALTER TABLE Traits ADD COLUMN 'MinorInfluencePerGiftedUnit' INTEGER DEFAULT 0;
+
+-- Unit can't attack while in ocean tiles
+ALTER TABLE UnitPromotions ADD COLUMN 'NoAttackInOcean' BOOLEAN DEFAULT 0;
 
 -- CSD
 
