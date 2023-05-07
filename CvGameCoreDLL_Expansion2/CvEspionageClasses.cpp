@@ -6968,8 +6968,8 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			if (!pCityPlot || !pLoopCity->isRevealed(m_pPlayer->getTeam(),false,true))
 				continue;
 
-			if (GetNumValidSpyMissionsInCityValue(pLoopCity) == 0)
-				continue;
+			if (MOD_BALANCE_CORE_SPIES_ADVANCED && GetNumValidSpyMissionsInCityValue(pLoopCity) == 0)
+					continue;
 
 			//hmm...sometimes we want more, sometimes we want less...
 			int iValue = 0;

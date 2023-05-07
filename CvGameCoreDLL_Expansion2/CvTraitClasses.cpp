@@ -6694,11 +6694,7 @@ void CvPlayerTraits::AddUniqueLuxuries(CvCity *pCity)
 }
 
 /// Does a unit entering this tile cause a barbarian to convert to the player?
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 bool CvPlayerTraits::CheckForBarbarianConversion(CvUnit* pByUnit, CvPlot* pPlot)
-#else
-bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
-#endif
 {
 	// Loop through all adjacent plots
 	CvPlot* pAdjacentPlot = NULL;
@@ -6718,11 +6714,7 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 					CvUnit* pNavalUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 					if(pNavalUnit)
 					{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 						if (ConvertBarbarianNavalUnit(pByUnit, pNavalUnit))
-#else
-						if (ConvertBarbarianNavalUnit(pNavalUnit))
-#endif
 						{
 							bRtnValue = true;
 						}
@@ -6735,11 +6727,7 @@ bool CvPlayerTraits::CheckForBarbarianConversion(CvPlot* pPlot)
 	else if(GetLandBarbarianConversionPercent() > 0 && pPlot->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) &&
 	        m_eCampGuardType != NO_UNIT)
 	{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 		bRtnValue = ConvertBarbarianCamp(pByUnit, pPlot);
-#else
-		bRtnValue = ConvertBarbarianCamp(pPlot);
-#endif
 	}
 
 	return bRtnValue;
@@ -7747,11 +7735,7 @@ FDataStream& operator<<(FDataStream& stream, const CvPlayerTraits& playerTraits)
 // PRIVATE METHODS
 
 /// Is there an adjacent barbarian camp that could be converted?
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
-#else
-bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
-#endif
 {
 	CvUnit* pGiftUnit = NULL;
 
@@ -7778,16 +7762,13 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 		if (!pGiftUnit->jumpToNearestValidPlot())
 			pGiftUnit->kill(false);
 		else
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 		{
-			if (MOD_EVENTS_UNIT_CAPTURE) {
+			if (MOD_EVENTS_UNIT_CAPTURE)
+			{
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), false, 2);
 			}
-#endif
 			pGiftUnit->finishMoves();
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 		}
-#endif
 
 		// Convert any extra units
 		for(int iI = 0; iI < m_iLandBarbarianConversionExtraUnits; iI++)
@@ -7796,16 +7777,12 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 			if (!pGiftUnit->jumpToNearestValidPlot())
 				pGiftUnit->kill(false);
 			else
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
-		{
+			{
 				if (MOD_EVENTS_UNIT_CAPTURE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), m_pPlayer->GetID(), pGiftUnit->GetID(), false, 2);
 				}
-#endif
 				pGiftUnit->finishMoves();
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
-		}
-#endif
+			}
 		}
 
 		if(GC.getLogging() && GC.getAILogging())
@@ -7837,11 +7814,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvPlot* pPlot)
 }
 
 /// Is there an adjacent barbarian naval unit that could be converted?
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
-#else
-bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
-#endif
 {
 	CvUnit* pGiftUnit = NULL;
 
@@ -7857,11 +7830,9 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pUnit)
 		int iNumGold = /*25*/ GD_INT_GET(GOLD_FROM_BARBARIAN_CONVERSION);
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);
 
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 		if (MOD_EVENTS_UNIT_CAPTURE) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, m_pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 3);
 		}
-#endif
 
 		// Convert the barbarian into our unit
 		pGiftUnit = m_pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);
