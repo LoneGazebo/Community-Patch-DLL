@@ -6472,7 +6472,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		return NULL;
 
 	std::vector<SPlotWithScore> vTargetsO, vTargetsD;
-	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyPlayers();
+	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyMajors();
 
 	// Loop through each of my cities
 	int iLoop = 0;

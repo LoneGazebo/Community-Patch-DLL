@@ -144,7 +144,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 		//select strategically important points
 		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
-		vector<PlayerTypes> vUnfriendlyPlayers = GET_PLAYER(ePlayer).GetUnfriendlyPlayers();
+		vector<PlayerTypes> vUnfriendlyPlayers = GET_PLAYER(ePlayer).GetUnfriendlyMajors();
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
 		for (size_t j=0; j<vPlots.size(); j++)
 		{

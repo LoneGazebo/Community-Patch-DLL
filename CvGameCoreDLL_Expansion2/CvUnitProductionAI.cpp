@@ -552,7 +552,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iValue *= 2;
 
 					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
-					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyPlayers();
+					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyMajors();
 					int iNumPlayers = (int)warPlayers.size();
 					int iWarValue = 0;
 					for (size_t i=0; i<warPlayers.size(); i++)
@@ -605,7 +605,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iValue > 0 && !kPlayer.isBarbarian())
 				{
 					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
-					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyPlayers();
+					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyMajors();
 					int iNumPlayers = (int)warPlayers.size();
 					int iWarValue = 0;
 					for (size_t i=0; i<warPlayers.size(); i++)

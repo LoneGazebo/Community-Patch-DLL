@@ -323,7 +323,7 @@ void CvHomelandAI::FindHomelandTargets()
 	// Look at every tile on map
 	CvMap& theMap = GC.getMap();
 	int iNumPlots = theMap.numPlots();
-	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyPlayers();
+	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyMajors();
 
 	for(int iI = 0; iI < iNumPlots; iI++)
 	{

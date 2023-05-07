@@ -383,7 +383,7 @@ void CvTacticalAI::FindTacticalTargets()
 	m_ZoneTargets.clear();
 
 	bool bNoBarbsAllowedYet = GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn();
-	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyPlayers();
+	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyMajors();
 
 	// Look at every tile on map
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)

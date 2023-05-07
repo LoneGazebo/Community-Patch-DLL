@@ -51846,7 +51846,7 @@ vector<PlayerTypes> CvPlayer::GetWarAllies(PlayerTypes ePlayer) const
 }
 
 /// Returns a vector containing pointers to all major civs who are unfriendly and potentially threatening
-vector<PlayerTypes> CvPlayer::GetUnfriendlyPlayers() const
+vector<PlayerTypes> CvPlayer::GetUnfriendlyMajors() const
 {
 	vector<PlayerTypes> result;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
