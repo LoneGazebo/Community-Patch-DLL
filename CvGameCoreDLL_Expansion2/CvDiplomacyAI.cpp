@@ -27821,7 +27821,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 	if ((IsDoFAccepted(ePlayer) || IsHasDefensivePact(ePlayer)) && !IsUntrustworthy(ePlayer))
 		return false;
 
-	if (!bIgnoreCurrentApproach)
+	if (!bIgnoreCurrentApproach && !GET_PLAYER(ePlayer).isHuman())
 	{
 		CivApproachTypes eApproach = GetCivApproach(ePlayer);
 		if (eApproach != NO_CIV_APPROACH && eApproach <= CIV_APPROACH_AFRAID)
