@@ -29987,7 +29987,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		{
 		  return MOVE_RESULT_CANCEL;
 		}
-			
 	}
 
 	if(!m_kLastPath.empty())

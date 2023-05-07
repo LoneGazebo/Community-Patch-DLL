@@ -520,6 +520,7 @@ UPDATE Buildings
 SET BuildingProductionModifier = '15'
 WHERE Type = 'BUILDING_WINDMILL';
 
+-- Move all Power Plants to Ecology
 UPDATE Buildings
 SET PrereqTech = 'TECH_ECOLOGY'
 WHERE Type = 'BUILDING_HYDRO_PLANT';
@@ -690,11 +691,6 @@ WHERE Type = 'BUILDING_NUCLEAR_PLANT';
 -- Courthouse
 UPDATE Buildings
 SET PrereqTech = 'TECH_PHILOSOPHY'
-WHERE Type = 'BUILDING_COURTHOUSE';
-
--- Overridden by BuildingHurryCosts.sql
-UPDATE Buildings
-SET HurryCostModifier = '75'
 WHERE Type = 'BUILDING_COURTHOUSE';
 
 -- Walls
