@@ -27838,7 +27838,7 @@ bool CvDiplomacyAI::IsPotentialMilitaryTargetOrThreat(PlayerTypes ePlayer, bool 
 		if (bStronger || bVassal || GetPlayerMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_POOR)
 		{
 			vector<PlayerTypes> vMyTeam = GET_TEAM(GetTeam()).getPlayers();
-			vector<PlayerTypes> vPlayersToCheck = GetLinkedWarPlayers(ePlayer, !GetPlayer()->IsVassalOfSomeone(), false, false);
+			vector<PlayerTypes> vPlayersToCheck = GetLinkedWarPlayers(ePlayer, GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()), false, false);
 			vPlayersToCheck.push_back(ePlayer);
 			for (std::vector<PlayerTypes>::iterator it = vPlayersToCheck.begin(); it != vPlayersToCheck.end(); it++)
 			{
