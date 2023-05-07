@@ -4294,7 +4294,7 @@ void CvMinorCivAI::Reset()
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 		m_IncomingUnitGifts[iI].reset();
-		m_aiNumSuccessfulElectionRiggings[iI] = 0;
+		m_aiRiggingCoupChanceIncrease[iI] = 0;
 	}
 
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -4386,7 +4386,7 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_abPermanentWar);
 
 	visitor(minorCivAI.m_abWaryOfTeam);
-	visitor(minorCivAI.m_aiNumSuccessfulElectionRiggings);
+	visitor(minorCivAI.m_aiRiggingCoupChanceIncrease);
 
 	visitor(minorCivAI.m_bIsRebellion);
 	visitor(minorCivAI.m_iTurnsSinceRebellion);
@@ -4754,7 +4754,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
-			ResetNumSuccessfulElectionRiggings(e);
+			ResetRiggingCoupChanceIncrease(e);
 
 			// Return all incoming unit gifts.
 			returnIncomingUnitGift(e);
@@ -16391,14 +16391,29 @@ void CvMinorCivAI::DoElection()
 					iValue *= (iEra + iEra);
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
-				ChangeNumSuccessfulElectionRiggings(ePlayer, 1);
+
+				// find the spy who has rigged the election
+				int iLoop = 0;
+				int iSpyID = -1;
+				for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+				{
+					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+					iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+					if (iSpyID != -1)
+					{
+						break;
+					}
+				}
+				CvAssertMsg(iSpyID==-1, "Couldn't find a spy in any of the cities of the Minor Civ")
+
+				if (GET_PLAYER(ePlayer).GetEspionage()->CanStageCoup(iSpyID, true))
+				{
+					ChangeRiggingCoupChanceIncrease(ePlayer, GD_INT_GET(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_BASE) + apSpy[ui]->GetSpyRank(ePlayer) * GD_INT_GET(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_PER_SPY_LEVEL));
+				}
 
 				//Achievements!
 				if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_14);
-
-				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
-				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
 
 				if (MOD_EVENTS_ESPIONAGE) 
 				{
@@ -16459,8 +16474,18 @@ void CvMinorCivAI::DoElection()
 					//GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
 #if defined(MOD_EVENTS_ESPIONAGE)
-				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
-				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+				int iLoop = 0;
+				int iSpyID = -1;
+				for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+				{
+					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+					iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+					if (iSpyID != -1)
+					{
+						break;
+					}
+				}
+				CvAssertMsg(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ")
 
 				if (MOD_EVENTS_ESPIONAGE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultFailure, (int)ePlayer, iSpyID, iDiminishAmount, pCapital->getX(), pCapital->getY());
@@ -17414,25 +17439,25 @@ void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 }
 #endif
 
-int CvMinorCivAI::GetNumSuccessfulElectionRiggings(PlayerTypes ePlayer) const
+int CvMinorCivAI::GetRiggingCoupChanceIncrease(PlayerTypes ePlayer) const
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	return m_aiNumSuccessfulElectionRiggings[ePlayer];
+	return m_aiRiggingCoupChanceIncrease[ePlayer];
 }
 
-void CvMinorCivAI::ChangeNumSuccessfulElectionRiggings(PlayerTypes ePlayer, int iChange)
+void CvMinorCivAI::ChangeRiggingCoupChanceIncrease(PlayerTypes ePlayer, int iChange)
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	m_aiNumSuccessfulElectionRiggings[ePlayer] += iChange;
+	m_aiRiggingCoupChanceIncrease[ePlayer] += iChange;
 }
 
-void CvMinorCivAI::ResetNumSuccessfulElectionRiggings(PlayerTypes ePlayer)
+void CvMinorCivAI::ResetRiggingCoupChanceIncrease(PlayerTypes ePlayer)
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	m_aiNumSuccessfulElectionRiggings[ePlayer] = 0;
+	m_aiRiggingCoupChanceIncrease[ePlayer] = 0;
 }
 
 

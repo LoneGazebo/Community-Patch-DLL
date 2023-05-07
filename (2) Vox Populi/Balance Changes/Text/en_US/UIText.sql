@@ -227,7 +227,7 @@ SET Text = 'Conducting Spy Mission'
 WHERE Tag = 'TXT_KEY_SPY_STATE_GATHERING_INTEL';
 
 UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there. Successfully rigging elections also increases the success chance of a coup in the City-State.'
+SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there. If a coup is possible in the city (ignoring cooldown time), each successfully rigged election increases its success chance. The success chance of a coup is increased by a higher amount for higher ranking spies.'
 WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_SHORT_TT';
 
 UPDATE Language_en_US
