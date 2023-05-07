@@ -279,6 +279,7 @@ CvUnit::CvUnit() :
 	, m_iFlatMovementCostCount()
 	, m_iCanMoveImpassableCount()
 	, m_iOnlyDefensiveCount()
+	, m_iNoAttackInOceanCount()
 	, m_iNoDefensiveBonusCount()
 	, m_iNoCaptureCount()
 	, m_iNukeImmuneCount()
@@ -1645,6 +1646,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iFlatMovementCostCount = 0;
 	m_iCanMoveImpassableCount = 0;
 	m_iOnlyDefensiveCount = 0;
+	m_iNoAttackInOceanCount = 0;
 	m_iNoDefensiveBonusCount = 0;
 	m_iNoCaptureCount = 0;
 	m_iNukeImmuneCount = 0;
@@ -2139,7 +2141,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 					bGivePromotion = false;
 				}
 				//Naval Misfire Promotion Catch (sorry for hardcode)
-				else if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainModifierPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
+				else if (!IsCanAttackRanged() && pUnit->HasPromotion(ePromotion) && pUnit->IsCanAttackRanged() && (pkPromotionInfo->GetDomainAttackPercent(DOMAIN_SEA) < 0) && (getDomainType() == DOMAIN_LAND))
 				{
 					iLostPromotions++;
 					bGivePromotion = false;
@@ -2830,11 +2832,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	CvUnitCaptureDefinition kCaptureDef;
 	getCaptureDefinition(&kCaptureDef);
 	
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 	if (MOD_EVENTS_UNIT_CAPTURE && (kCaptureDef.eCapturingPlayer != NO_PLAYER && kCaptureDef.eCaptureUnitType != NO_UNIT)) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
-#endif
 
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
@@ -5664,7 +5664,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	}
 
 	//we want lowest scores first
-	std::sort(candidates.begin(), candidates.end());
+	std::stable_sort(candidates.begin(), candidates.end());
 
 	for (size_t i = 0; i < candidates.size(); i++)
 	{
@@ -11588,34 +11588,6 @@ bool CvUnit::DoRemoveHeresy()
 				}
 			}
 
-			if (MOD_BALANCE_CORE_INQUISITOR_TWEAKS)
-			{
-				bool bNoPenalty = false;
-				const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(GetReligionData()->GetReligion(), getOwner());
-				if (pReligion)
-				{
-					CvCity* pHolyCity = pReligion->GetHolyCity();
-					if (pHolyCity != NULL)
-					{	
-						for (int i = 0; i < NUM_YIELD_TYPES; i++)
-						{
-							int iTempVal = pReligion->m_Beliefs.GetYieldFromRemoveHeresy((YieldTypes)i, getOwner(), pHolyCity, true);
-							if (iTempVal > 0)
-							{
-								bNoPenalty = true;
-								break;
-							}
-						}
-					}
-				}
-
-				if (!bNoPenalty)
-				{
-					//pCity->changePopulation(-1);
-					pCity->ChangeResistanceTurns(1);
-				}
-			}
-
 			//Achievements
 			if (MOD_API_ACHIEVEMENTS && getOwner() == GC.getGame().getActivePlayer())
 			{
@@ -15122,7 +15094,6 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 		return NO_UNIT;
 	}
 	
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 	if (MOD_EVENTS_UNIT_CAPTURE) {
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, getOwner(), GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE) {
@@ -15132,7 +15103,6 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 			}
 		}
 	}
-#endif
 
 	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(getOwner()).GetSpecificUnitType((UnitClassTypes)getUnitInfo().GetUnitCaptureClassType()));
 }
@@ -15196,6 +15166,9 @@ bool CvUnit::isNativeDomain(const CvPlot* pPlot) const
 				if (IsEmbarkDeepWater() && pPlot->isShallowWater())
 					return true;
 #endif
+
+				if (isNoAttackInOcean() && pPlot->isDeepWater())
+					return false;
 
 				if (canMoveAllTerrain())
 					return true;
@@ -15911,7 +15884,7 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 		int dist = plotDistance(*pLoopUnit->plot(), *pDestPlot);
 		unitsToMoveByDistance.push_back(ScoredUnit(dist, pLoopUnit));
 	}
-	std::sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
+	std::stable_sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
 
 	// Generate a list of eligible plots for these units, only adding another
 	// ring when there are still insufficient plots for the current selection
@@ -19344,6 +19317,28 @@ void CvUnit::changeOnlyDefensiveCount(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvUnit::isNoAttackInOcean() const
+{
+	VALIDATE_OBJECT
+	return getNoAttackInOceanCount() > 0;
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getNoAttackInOceanCount() const
+{
+	VALIDATE_OBJECT
+	return m_iNoAttackInOceanCount;
+}
+
+//	--------------------------------------------------------------------------------
+void CvUnit::changeNoAttackInOceanCount(int iValue)
+{
+	VALIDATE_OBJECT
+	m_iNoAttackInOceanCount += iValue;
+	CvAssert(getNoAttackInOceanCount() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
 bool CvUnit::noDefensiveBonus() const
 {
 	VALIDATE_OBJECT
@@ -20435,12 +20430,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											}
 										}
 										// Unit was killed instead
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 
 										if (MOD_EVENTS_UNIT_CAPTURE) {
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, getOwner(), GetID(), pLoopUnit->getOwner(), pLoopUnit->GetID(), !bDoCapture, 0);
 										}
-#endif
 										if (!bDoEvade)
 										{
 											if(pLoopUnit->isEmbarked())
@@ -20938,11 +20931,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 								if (pAdjacentUnit)
 								{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 									CvBeliefHelpers::ConvertBarbarianUnit(this, pAdjacentUnit);
-#else
-									CvBeliefHelpers::ConvertBarbarianUnit(&kPlayer, pAdjacentUnit);
-#endif
 								}
 							}
 						}
@@ -20967,11 +20956,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 										if (pReligion->m_Beliefs.IsConvertsBarbarians(getOwner(), pHolyCity))
 										{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 											if (CvBeliefHelpers::ConvertBarbarianUnit(adjUnit, this))
-#else
-											if (CvBeliefHelpers::ConvertBarbarianUnit(&adjUnitPlayer, this))
-#endif
 											{
 												ClearMissionQueue();
 											}
@@ -20994,11 +20979,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 			kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(this, pNewPlot);
-#else
-			kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot);
-#endif
 		}
 
 		if(GC.IsGraphicsInitialized())
@@ -21118,12 +21099,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					// See if we need to remove a temporary focus of attention
 					kPlayer.GetTacticalAI()->DeleteFocusArea(pNewPlot);
 					
-					pNewPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(this, pNewPlot))
-#else
-					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot))
-#endif
 					{
 						CvBarbarians::DoBarbCampCleared(pNewPlot, getOwner(), this);
 					}
@@ -21183,6 +21159,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						}
 					}
 
+					pNewPlot->setImprovementType(NO_IMPROVEMENT);
 					// Set who last cleared the camp here
 					pNewPlot->SetPlayerThatClearedBarbCampHere(getOwner());
 	
@@ -27556,6 +27533,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeFlatMovementCostCount((thisPromotion.IsFlatMovementCost()) ? iChange : 0);
 		changeCanMoveImpassableCount((thisPromotion.IsCanMoveImpassable()) ? iChange : 0);
 		changeOnlyDefensiveCount((thisPromotion.IsOnlyDefensive()) ? iChange : 0);
+		changeNoAttackInOceanCount((thisPromotion.IsNoAttackInOcean()) ? iChange : 0);
 		changeNoDefensiveBonusCount((thisPromotion.IsNoDefensiveBonus()) ? iChange : 0);
 		changeNoCaptureCount((thisPromotion.IsNoCapture()) ? iChange : 0);
 		changeNukeImmuneCount((thisPromotion.IsNukeImmune()) ? iChange: 0);
@@ -28316,6 +28294,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iFlatMovementCostCount);
 	visitor(unit.m_iCanMoveImpassableCount);
 	visitor(unit.m_iOnlyDefensiveCount);
+	visitor(unit.m_iNoAttackInOceanCount);
 	visitor(unit.m_iNoDefensiveBonusCount);
 	visitor(unit.m_iNoCaptureCount);
 	visitor(unit.m_iNukeImmuneCount);
@@ -29697,7 +29676,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			}
 		}
 
-		std::sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
+		std::stable_sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
 		if (!eligiblePlots.empty())
 		{
 			pDestPlot = eligiblePlots.front().plot;
@@ -32491,7 +32470,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	for(iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
 	{
-		iTemp = pkPromotionInfo->GetDomainModifierPercent(iI);
+		iTemp = pkPromotionInfo->GetDomainModifierPercent(iI) * 2;
+		iTemp += pkPromotionInfo->GetDomainAttackPercent(iI);
+		iTemp += pkPromotionInfo->GetDomainDefensePercent(iI);
 		// nR: Land + Sea: +10 targeting 1 - 3.		aB: Land + Sea: +15 air targeting 1 - 2, +25 air targeting 3.
 		if (iTemp <= 0)
 			continue;

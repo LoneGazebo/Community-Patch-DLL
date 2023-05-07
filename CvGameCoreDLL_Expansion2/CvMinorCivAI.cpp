@@ -1965,7 +1965,10 @@ bool CvMinorCivQuest::IsExpired()
 			}
 			//already Allied?
 			else if(GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllies(m_eAssignedPlayer))
-				return true;		
+				return true;	
+			//Sphere of Influence?
+			else if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER)
+				return true;
 		}
 	}
 	else if (m_eType == MINOR_CIV_QUEST_UNIT_GET_CITY)
@@ -4291,7 +4294,7 @@ void CvMinorCivAI::Reset()
 		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 		m_IncomingUnitGifts[iI].reset();
-		m_aiNumSuccessfulElectionRiggings[iI] = 0;
+		m_aiRiggingCoupChanceIncrease[iI] = 0;
 	}
 
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -4383,7 +4386,7 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_abPermanentWar);
 
 	visitor(minorCivAI.m_abWaryOfTeam);
-	visitor(minorCivAI.m_aiNumSuccessfulElectionRiggings);
+	visitor(minorCivAI.m_aiRiggingCoupChanceIncrease);
 
 	visitor(minorCivAI.m_bIsRebellion);
 	visitor(minorCivAI.m_iTurnsSinceRebellion);
@@ -4751,7 +4754,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
-			ResetNumSuccessfulElectionRiggings(e);
+			ResetRiggingCoupChanceIncrease(e);
 
 			// Return all incoming unit gifts.
 			returnIncomingUnitGift(e);
@@ -10305,6 +10308,12 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 		if (bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->IsNoAlly())
 			continue;
 
+		if (bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->GetAlly() == NO_PLAYER)
+			continue;
+
+		if (bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->GetPermanentAlly() != NO_PLAYER)
+			continue;
+
 		if(bMinor && GET_PLAYER(eTarget).GetMinorCivAI()->IsCoupAttempted(ePlayer))
 			continue;
 
@@ -11686,6 +11695,8 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bAdd = false;
 		bFriendsChanged = true;
 		SetFriends(ePlayer, false);
+
+		//todo: should we wake up all units of ePlayer in our territory?
 	}
 
 	// Resolve Allies status with sphere of influence or open door
@@ -12349,14 +12360,16 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	if (!IsProtectedByMajor(eMajor))
 		return;
 
-	if (CanMajorProtect(eMajor))
+	Localization::String strMessage, strSummary;
+
+	if (CanMajorProtect(eMajor, false))
 	{
 		if (GetNumTurnsSincePtPWarning(eMajor) > 0)
 		{
 			SetNumTurnsSincePtPWarning(eMajor, 0);
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
 			strMessage << GetPlayer()->getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
 			strSummary << GetPlayer()->getNameKey();
 			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 		}
@@ -12375,9 +12388,9 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 			pCity->updateStrengthValue();
 		}
 
-		Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE");
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE");
 		strMessage << GetPlayer()->getNameKey();
-		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_INFLUENCE");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
 		strSummary << GetPlayer()->getNameKey();
 		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 
@@ -12388,9 +12401,9 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	iMaxWarningTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iMaxWarningTurns /= 100;
 
-	bool bBadMilitary = false;
-	int iHighestStrength = 0;
-	int iMajorStrength = 0;
+	bool bBadMilitary = false, bDistance = true;
+	int iMajorStrength = 1; // to avoid division by zero issues
+	std::vector<int> viMilitaryStrengths;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -12399,25 +12412,23 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+			viMilitaryStrengths.push_back(iStrength);
 
-			if (ePlayer == eMajor)
-			{
+			if (ePlayer == eMajor && iStrength > 0)
 				iMajorStrength = iStrength;
-			}
-
-			if (iStrength > iHighestStrength)
-			{
-				iHighestStrength = iStrength;
-			}
 		}
 	}
 
-	int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
-	int iMinimumPercent = /*60*/ GD_INT_GET(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP);
+	// This should not happen.
+	if (viMilitaryStrengths.empty())
+		return;
 
-	if (iPercent < iMinimumPercent)
+	size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
+	std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
+	if (iMajorStrength < viMilitaryStrengths[MedianElement])
 	{
 		bBadMilitary = true;
+		bDistance = CanMajorProtect(eMajor, true);
 	}
 
 	if (GetNumTurnsSincePtPWarning(eMajor) > iMaxWarningTurns)
@@ -12433,43 +12444,38 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 		if (bBadMilitary)
 		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED");
+			strMessage = bDistance ? Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_MILITARY_AND_DISTANCE") : Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_MILITARY");
 			strMessage << GetPlayer()->getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
-			strSummary << GetPlayer()->getNameKey();
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 		}
 		else
 		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_OPTIONAL");
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_DISTANCE");
 			strMessage << GetPlayer()->getNameKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT_OPTIONAL");
-			strSummary << GetPlayer()->getNameKey();
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 		}
+
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
+		strSummary << GetPlayer()->getNameKey();
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 	}
 	else if (GetNumTurnsSincePtPWarning(eMajor) <= 0)
 	{
 		if (bBadMilitary)
 		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING");
+			int iPercentIncrease = (viMilitaryStrengths[MedianElement] - iMajorStrength) * 100 / iMajorStrength;
+			strMessage = bDistance ? Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_MILITARY_AND_DISTANCE") : Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_MILITARY");
 			strMessage << GetPlayer()->getNameKey();
 			strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
-			strMessage << (iMinimumPercent - iPercent);
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
-			strSummary << GetPlayer()->getNameKey();
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+			strMessage << iPercentIncrease;		
 		}
 		else
 		{
-			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_OPTIONAL");
+			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_DISTANCE");
 			strMessage << GetPlayer()->getNameKey();
 			strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT_OPTIONAL");
-			strSummary << GetPlayer()->getNameKey();
-			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 		}
 
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_SHORT");
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 		SetNumTurnsSincePtPWarning(eMajor, 1);
 	}
 	else if (GetNumTurnsSincePtPWarning(eMajor) > 0)
@@ -12478,23 +12484,21 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		{
 			if (bBadMilitary)
 			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER");
+				int iPercentIncrease = (viMilitaryStrengths[MedianElement] - iMajorStrength) * 100 / iMajorStrength;
+				strMessage = bDistance ? Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY_AND_DISTANCE") : Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY");
 				strMessage << GetPlayer()->getNameKey(); 
 				strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
-				strMessage << (iMinimumPercent - iPercent);
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
-				strSummary << GetPlayer()->getNameKey();
-				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+				strMessage << iPercentIncrease;
 			}
 			else
 			{
-				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_OPTIONAL");
+				strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_DISTANCE");
 				strMessage << GetPlayer()->getNameKey();
 				strMessage << (iMaxWarningTurns - GetNumTurnsSincePtPWarning(eMajor));
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT_OPTIONAL");
-				strSummary << GetPlayer()->getNameKey();
-				AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 			}
+
+			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT");
+			AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
 		}
 
 		ChangeNumTurnsSincePtPWarning(eMajor, 1);
@@ -12540,8 +12544,8 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		sFactors += sPledgeBroken.toUTF8();
 	}
 
-	int iHighestStrength = 0;
-	int iMajorStrength = 0;
+	int iMajorStrength = 1; // to avoid division by zero issues
+	std::vector<int> viMilitaryStrengths;
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -12550,26 +12554,24 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 		{
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+			viMilitaryStrengths.push_back(iStrength);
 
-			if (ePlayer == eMajor)
-			{
+			if (ePlayer == eMajor && iStrength > 0)
 				iMajorStrength = iStrength;
-			}
-
-			if (iStrength > iHighestStrength)
-			{
-				iHighestStrength = iStrength;
-			}
 		}
 	}
 
-	int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
-
-	if (iPercent < /*60*/ GD_INT_GET(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP))
+	if (!viMilitaryStrengths.empty()) // This should not happen.
 	{
-		Localization::String sMilitaryPower = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT");
-		sMilitaryPower << iPercent;
-		sFactors += sMilitaryPower.toUTF8();
+		size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
+		std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
+		if (iMajorStrength < viMilitaryStrengths[MedianElement])
+		{
+			int iPercentIncrease = (viMilitaryStrengths[MedianElement] - iMajorStrength) * 100 / iMajorStrength;
+			Localization::String sMilitaryPower = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT");
+			sMilitaryPower << iPercentIncrease;
+			sFactors += sMilitaryPower.toUTF8();
+		}
 	}
 
 	Localization::String sOptions = Localization::Lookup("TXT_KEY_POP_CSTATE_PTP_ANY_CORRECT");
@@ -12614,7 +12616,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 
 	if (bProtect)
 	{
-		if (!CanMajorProtect(eMajor))
+		if (!CanMajorProtect(eMajor, false))
 			return;
 
 		SetTurnLastPledgedProtectionByMajor(eMajor, GC.getGame().getGameTurn());
@@ -12658,7 +12660,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
-bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
+bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequirement)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
@@ -12683,45 +12685,42 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 			return false;
 	}
 
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) 
 	{
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}
-#endif
 
 	if (MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
-		int iHighestStrength = 0;
-		int iMajorStrength = 0;
-
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if (!bIgnoreMilitaryRequirement)
 		{
-			PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+			int iMajorStrength = 1;
+			std::vector<int> viMilitaryStrengths;
 
-			if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
-				int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-				if (ePlayer == eMajor)
+				if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
 				{
-					iMajorStrength = iStrength;
-				}
+					int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+					viMilitaryStrengths.push_back(iStrength);
 
-				if (iStrength > iHighestStrength)
-				{
-					iHighestStrength = iStrength;
+					if (ePlayer == eMajor && iStrength > 0)
+						iMajorStrength = iStrength;
 				}
 			}
-		}
 
-		int iPercent = iMajorStrength * 100 / max(iHighestStrength, 1);
+			// This should not happen.
+			if (viMilitaryStrengths.empty())
+				return false;
 
-		if (iPercent < /*60*/ GD_INT_GET(MOD_BALANCE_CORE_MINIMUM_RANKING_PTP))
-		{
-			return false;
+			size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
+			std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
+			if (iMajorStrength < viMilitaryStrengths[MedianElement])
+				return false;
 		}
 
 		// Do they meet one of the three conditions?
@@ -12754,7 +12753,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor)
 bool CvMinorCivAI::CanMajorStartProtection(PlayerTypes eMajor)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
-	return (CanMajorProtect(eMajor) && !IsProtectedByMajor(eMajor));
+	return (CanMajorProtect(eMajor, false) && !IsProtectedByMajor(eMajor));
 }
 
 bool CvMinorCivAI::CanMajorWithdrawProtection(PlayerTypes eMajor)
@@ -16394,14 +16393,29 @@ void CvMinorCivAI::DoElection()
 					iValue *= (iEra + iEra);
 				}
 				ChangeFriendshipWithMajor(ePlayer, iValue, false);
-				ChangeNumSuccessfulElectionRiggings(ePlayer, 1);
+
+				// find the spy who has rigged the election
+				int iLoop = 0;
+				int iSpyID = -1;
+				for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+				{
+					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+					iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+					if (iSpyID != -1)
+					{
+						break;
+					}
+				}
+				CvAssertMsg(iSpyID==-1, "Couldn't find a spy in any of the cities of the Minor Civ")
+
+				if (GET_PLAYER(ePlayer).GetEspionage()->CanStageCoup(iSpyID, true))
+				{
+					ChangeRiggingCoupChanceIncrease(ePlayer, GD_INT_GET(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_BASE) + apSpy[ui]->GetSpyRank(ePlayer) * GD_INT_GET(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_PER_SPY_LEVEL));
+				}
 
 				//Achievements!
 				if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_14);
-
-				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
-				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
 
 				if (MOD_EVENTS_ESPIONAGE) 
 				{
@@ -16462,8 +16476,18 @@ void CvMinorCivAI::DoElection()
 					//GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
 				}
 #if defined(MOD_EVENTS_ESPIONAGE)
-				CvCityEspionage* pCityEspionage = pCapital->GetCityEspionage();
-				int iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+				int iLoop = 0;
+				int iSpyID = -1;
+				for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
+				{
+					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+					iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+					if (iSpyID != -1)
+					{
+						break;
+					}
+				}
+				CvAssertMsg(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ")
 
 				if (MOD_EVENTS_ESPIONAGE) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultFailure, (int)ePlayer, iSpyID, iDiminishAmount, pCapital->getX(), pCapital->getY());
@@ -17417,25 +17441,25 @@ void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 }
 #endif
 
-int CvMinorCivAI::GetNumSuccessfulElectionRiggings(PlayerTypes ePlayer) const
+int CvMinorCivAI::GetRiggingCoupChanceIncrease(PlayerTypes ePlayer) const
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	return m_aiNumSuccessfulElectionRiggings[ePlayer];
+	return m_aiRiggingCoupChanceIncrease[ePlayer];
 }
 
-void CvMinorCivAI::ChangeNumSuccessfulElectionRiggings(PlayerTypes ePlayer, int iChange)
+void CvMinorCivAI::ChangeRiggingCoupChanceIncrease(PlayerTypes ePlayer, int iChange)
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	m_aiNumSuccessfulElectionRiggings[ePlayer] += iChange;
+	m_aiRiggingCoupChanceIncrease[ePlayer] += iChange;
 }
 
-void CvMinorCivAI::ResetNumSuccessfulElectionRiggings(PlayerTypes ePlayer)
+void CvMinorCivAI::ResetRiggingCoupChanceIncrease(PlayerTypes ePlayer)
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	m_aiNumSuccessfulElectionRiggings[ePlayer] = 0;
+	m_aiRiggingCoupChanceIncrease[ePlayer] = 0;
 }
 
 

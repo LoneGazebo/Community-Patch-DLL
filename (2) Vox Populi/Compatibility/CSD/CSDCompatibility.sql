@@ -22,10 +22,6 @@ UPDATE Units SET ProductionCostAddedPerEra = '150' WHERE Type = 'UNIT_AMBASSADOR
 
 UPDATE Units SET GlobalFaithPurchaseCooldown =		5  WHERE Type = 'UNIT_GREAT_DIPLOMAT';
 
-
-UPDATE Buildings SET PrereqTech = 'TECH_EDUCATION' WHERE Type = 'BUILDING_CHANCERY';
-UPDATE Buildings SET PrereqTech = 'TECH_REPLACEABLE_PARTS' WHERE Type = 'BUILDING_WIRE_SERVICE';
-
 UPDATE Units SET PrereqTech = 'TECH_CIVIL_SERVICE' WHERE Type = 'UNIT_ENVOY';
 UPDATE Units SET PrereqTech = 'TECH_INDUSTRIALIZATION' WHERE Type = 'UNIT_DIPLOMAT';
 UPDATE Units SET ObsoleteTech = 'TECH_CIVIL_SERVICE' WHERE Type = 'UNIT_EMISSARY';
@@ -141,21 +137,7 @@ INSERT INTO Concepts
 VALUES
 	('CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_SPECIALISTS_CIVIL_SERVANT', 'TXT_KEY_TOPIC_SPECIALISTSANDGP', 'TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE', 'TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY', 'TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_ADV_QUEST', 'SCIENCE', 'HEADER_PEOPLE','CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_SPECIALISTS_SCIENTIST','CONCEPT_SPECIALISTS_AND_GREAT_PEOPLE_SPECIALISTS_ASSIGNING');
 
--- Hurry Cost - reduced for all buildings (as you now need production as well to make them work)
-UPDATE Buildings SET HurryCostModifier = '-20';
-UPDATE Buildings SET HurryCostModifier = '-5' WHERE NOT WonderSplashImage = 'NULL';
-
-
 UPDATE Policies SET GreatDiplomatRateModifier = '50' WHERE Type = 'POLICY_PHILANTHROPY';
-
--- Building Prereq Techs
-
-UPDATE Buildings SET PrereqTech = 'TECH_RADIO' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
-
--- Set Wonder Policy Requirement
-UPDATE Buildings SET NumPoliciesNeeded = '11' WHERE Type = 'BUILDING_SUMMER_PALACE';
-UPDATE Buildings SET NumPoliciesNeeded = '3' WHERE Type = 'BUILDING_FORUM';
-
 
 UPDATE Policies
 SET MinorScienceAllies = '0'
@@ -185,57 +167,3 @@ VALUES
 	('POLICY_PHILANTHROPY', 'RESOURCE_ALUMINUM', 34),
 	('POLICY_PHILANTHROPY', 'RESOURCE_URANIUM', 34),
 	('POLICY_PHILANTHROPY', 'RESOURCE_OIL', 34);
-
-
--- Change to Order Palace of Science and Culture
-UPDATE Buildings SET DPToVotes = '1' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-UPDATE Buildings SET RAToVotes = '0' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-UPDATE Buildings SET IgnoreDefensivePactLimit = '1' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-
--- Building Costs
-
-UPDATE Buildings SET Cost = '150' WHERE Type = 'BUILDING_COURT_SCRIBE';
-UPDATE Buildings SET Cost = '300' WHERE Type = 'BUILDING_CHANCERY';
-UPDATE Buildings SET GoldMaintenance = '3' WHERE Type = 'BUILDING_CHANCERY';
-UPDATE Buildings SET Cost = '1800' WHERE Type = 'BUILDING_WIRE_SERVICE';
-UPDATE Buildings SET GoldMaintenance = '8' WHERE Type = 'BUILDING_WIRE_SERVICE';
-
-UPDATE Buildings SET Cost = '200' WHERE Type = 'BUILDING_FORUM';
-UPDATE Buildings SET Cost = '900' WHERE Type = 'BUILDING_SUMMER_PALACE';
-
-INSERT INTO Building_FreeUnits (BuildingType, UnitType, NumUnits)
-SELECT 'BUILDING_COURT_SCRIBE' , 'UNIT_EMISSARY' , '1';
-
--- Building Requirements
-DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_PRINTING_PRESS';
-DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_FOREIGN_OFFICE';
-DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_PALACE_SCIENCE_CULTURE';
-DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_FINANCE_CENTER';
-DELETE FROM Building_PrereqBuildingClasses WHERE BuildingType = 'BUILDING_EHRENHALLE';
-
--- Pop Needed
-UPDATE Buildings SET NationalPopRequired = '20' WHERE Type = 'BUILDING_COURT_SCRIBE';
-UPDATE Buildings SET NationalPopRequired = '30' WHERE Type = 'BUILDING_PRINTING_PRESS';
-UPDATE Buildings SET NationalPopRequired = '45' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
-UPDATE Buildings SET NationalPopRequired = '60' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-UPDATE Buildings SET NationalPopRequired = '60' WHERE Type = 'BUILDING_FINANCE_CENTER';
-UPDATE Buildings SET NationalPopRequired = '60' WHERE Type = 'BUILDING_EHRENHALLE';
-
--- Expansion Cost
-
-UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_PRINTING_PRESS';
-UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_FOREIGN_OFFICE';
-UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_PALACE_SCIENCE_CULTURE';
-UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_FINANCE_CENTER';
-UPDATE Buildings SET NumCityCostMod = '10' WHERE Type = 'BUILDING_EHRENHALLE';
-
--- Religious Authority (CSD)
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_MAUSOLEUM';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_HEAVENLY_THRONE';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_GREAT_ALTAR';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_RELIQUARY';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_DIVINE_COURT';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_SACRED_GARDEN';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_HOLY_COUNCIL';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_GRAND_OSSUARY';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_APOSTOLIC_PALACE';

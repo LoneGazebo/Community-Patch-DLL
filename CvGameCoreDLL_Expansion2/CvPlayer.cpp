@@ -511,6 +511,7 @@ CvPlayer::CvPlayer() :
 #endif
 	, m_iFoodInCapitalFromAnnexedMinors()
 	, m_iFoodInOtherCitiesFromAnnexedMinors()
+	, m_iGoldPerTurnFromAnnexedMinors()
 	, m_iCulturePerTurnFromAnnexedMinors()
 	, m_iSciencePerTurnFromAnnexedMinors()
 	, m_iFaithPerTurnFromAnnexedMinors()
@@ -1309,6 +1310,7 @@ void CvPlayer::uninit()
 #endif
 	m_iFoodInCapitalFromAnnexedMinors = 0;
 	m_iFoodInOtherCitiesFromAnnexedMinors = 0;
+	m_iGoldPerTurnFromAnnexedMinors = 0;
 	m_iCulturePerTurnFromAnnexedMinors = 0;
 	m_iSciencePerTurnFromAnnexedMinors = 0;
 	m_iFaithPerTurnFromAnnexedMinors = 0;
@@ -3335,6 +3337,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				pOldOwnerDiploAI->SetVassalProtectValue(GetID(), 0);
 				if (pOldOwnerDiploAI->GetRecentAssistValue(GetID()) < 0)
 					pOldOwnerDiploAI->SetRecentAssistValue(GetID(), 0);
+				if (pOldOwnerDiploAI->GetCoopWarScore(GetID()) > 0)
+					pOldOwnerDiploAI->SetCoopWarScore(GetID(), 0);
 			}
 
 			// Warmonger calculations
@@ -4345,18 +4349,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			{
 				eBuilding = eLoopBuilding;
 			}
-			else if (bKeepAllValidBuildings)
-			{
-				// If we have a replacement building, grab the replacement instead.
-				if (playerCivilizationInfo.isCivilizationBuildingOverridden(eBuildingClass))
-				{
-					eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
-				}
-				else
-				{
-					eBuilding = eLoopBuilding;
-				}
-			}
 			else
 			{
 				eBuilding = (BuildingTypes)playerCivilizationInfo.getCivilizationBuildings(eBuildingClass);
@@ -4868,7 +4860,7 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 	if (!bConquest || GetPlayerTraits()->IsKeepConqueredBuildings() || IsKeepConqueredBuildings())
 		return true;
 
-	int iConquestChance = GC.getGame().getSmallFakeRandNum(34, *pCity->plot()) + GC.getGame().getSmallFakeRandNum(34, pkLoopBuildingInfo->GetID()) + GC.getGame().getSmallFakeRandNum(32, GetPseudoRandomSeed() + GC.getGame().GetGoldMedian());
+	int iConquestChance = GC.getGame().getSmallFakeRandNum(100, pkLoopBuildingInfo->GetID() + GetPseudoRandomSeed(), *pCity->plot());
 
 	return iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
 }
@@ -5290,7 +5282,7 @@ vector<CvCity*> CvPlayer::GetThreatenedCities(bool bCoastalOnly)
 		result.push_back(pLoopCity);
 	}
 
-	sort(result.begin(), result.end(), SortByThreatLevel());
+	std::stable_sort(result.begin(), result.end(), SortByThreatLevel());
 	return result;
 }
 
@@ -18065,7 +18057,7 @@ int CvPlayer::GetAverageProductionTimes100() const
 	}
 	int iNumCities = max((int)viCityProduction.size(), 1);
 	// Sort production from lowest to highest
-	sort(viCityProduction.begin(), viCityProduction.end());
+	std::stable_sort(viCityProduction.begin(), viCityProduction.end());
 
 	// Add the X highest city production together
 	int iCurrentCity = 0;
@@ -18103,7 +18095,7 @@ int CvPlayer::GetAverageInstantProductionTimes100()
 	}
 	int iNumCities = max((int)viCityProduction.size(), 1);
 	// Sort production from lowest to highest
-	sort(viCityProduction.begin(), viCityProduction.end());
+	std::stable_sort(viCityProduction.begin(), viCityProduction.end());
 
 	// Add the X highest city production together
 	int iCurrentCity = 0;
@@ -23747,7 +23739,7 @@ bool CvPlayer::UpdateCityConnection(const CvPlot * pPlot, bool bActive)
 
 		//insert and sort
 		m_vCityConnectionPlots.push_back(pPlot->GetPlotIndex());
-		std::sort(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end());
+		std::stable_sort(m_vCityConnectionPlots.begin(), m_vCityConnectionPlots.end());
 		return true;
 	}
 	else
@@ -24092,6 +24084,7 @@ void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 		{
 			iBonus = /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
+		iBonus += GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
 		iBonus *= iNumCityStates;
 		int iFoodDiff = iBonus - iFoodInCapitalFromAnnexedMinorsOld;
 		if (iFoodDiff != 0)
@@ -24130,6 +24123,7 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 		{
 			iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
+		iBonus += GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
 		iBonus *= iNumCityStates;
 		int iFoodDiff = iBonus - iFoodInOtherCitiesFromAnnexedMinorsOld;
 		if (iFoodDiff != 0)
@@ -24137,6 +24131,60 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 			ChangeCityYieldChangeTimes100(YIELD_FOOD, iFoodDiff);
 		}
 		m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
+	}
+}
+//	--------------------------------------------------------------------------------
+/// Get the gold yields per turn from annexed City-States (Rome UA)
+int CvPlayer::GetGoldPerTurnFromAnnexedMinors() const
+{
+	return m_iGoldPerTurnFromAnnexedMinors;
+}
+//	--------------------------------------------------------------------------------
+/// Update the gold yields per turn from annexed City-States (Rome UA)
+void CvPlayer::UpdateGoldPerTurnFromAnnexedMinors()
+{
+	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
+	{
+		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MERCANTILE];
+		int iBonus = 0;
+
+		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
+
+		EraTypes eIndustrial = (EraTypes)GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
+		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+		EraTypes eMedieval = (EraTypes)GC.getInfoTypeForString("ERA_MEDIEVAL", true);
+		EraTypes eClassical = (EraTypes)GC.getInfoTypeForString("ERA_CLASSICAL", true);
+
+		// Industrial era or later
+		if (eCurrentEra >= eIndustrial)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+		}
+
+		// Renaissance era
+		else if (eCurrentEra >= eRenaissance)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_RENAISSANCE);
+		}
+
+		// Medieval era
+		else if (eCurrentEra >= eMedieval)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_MEDIEVAL);
+		}
+
+		// Classical era
+		else if (eCurrentEra >= eClassical)
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_CLASSICAL);
+		}
+
+		// Ancient era
+		else
+		{
+			iBonus += GD_INT_GET(FRIENDS_GOLD_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_GOLD_FLAT_BONUS_AMOUNT_ANCIENT);
+		}
+		m_iGoldPerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24160,17 +24208,19 @@ void CvPlayer::UpdateCulturePerTurnFromAnnexedMinors()
 		// Industrial era or Later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus = /*13 in CP, 10 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus += GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_INDUSTRIAL);
 		}
+
 		// Medieval era or later
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus = /*6 in CP, 4 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL);
+			iBonus += GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_MEDIEVAL);
 		}
+
 		// Pre-Medieval
 		else
 		{
-			iBonus = /*3 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_ANCIENT);
+			iBonus += GD_INT_GET(FRIENDS_CULTURE_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_CULTURE_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iCulturePerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
@@ -24199,27 +24249,27 @@ void CvPlayer::UpdateSciencePerTurnFromAnnexedMinors()
 		// Industrial era or later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus += /*10*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 		}
 		// Renaissance era
 		else if (eCurrentEra >= eRenaissance)
 		{
-			iBonus += /*6*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_RENAISSANCE);
 		}
 		// Medieval era
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus += /*4*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_MEDIEVAL);
 		}
 		// Classical era
 		else if (eCurrentEra >= eClassical)
 		{
-			iBonus += /*2*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_CLASSICAL);
 		}
 		// Ancient era
 		else
 		{
-			iBonus += /*1*/ GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT);
+			iBonus += GD_INT_GET(FRIENDS_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_SCIENCE_FLAT_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iSciencePerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
@@ -24249,27 +24299,27 @@ void CvPlayer::UpdateFaithPerTurnFromAnnexedMinors()
 		// Industrial era or later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus = /*8 in CP, 12 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 		}
 		// Renaissance era
 		else if (eCurrentEra >= eRenaissance)
 		{
-			iBonus = /*4 in CP, 9 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_RENAISSANCE);
 		}
 		// Medieval era
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus = /*4 in CP, 7 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_MEDIEVAL);
 		}
 		// Classical era
 		else if (eCurrentEra >= eClassical)
 		{
-			iBonus = /*2*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL);
 		}
 		// Ancient era
 		else
 		{
-			iBonus = /*2 in CP, 1 in VP*/ GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
+			iBonus = GD_INT_GET(FRIENDS_FAITH_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_FAITH_FLAT_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iFaithPerTurnFromAnnexedMinors = iBonus * iNumCityStates;
 	}
@@ -24297,17 +24347,17 @@ void CvPlayer::UpdateHappinessFromAnnexedMinors()
 		// Industrial era or Later
 		if (eCurrentEra >= eIndustrial)
 		{
-			iBonus = /*3*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL);
+			iBonus = GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL) + GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 		}
 		// Medieval era or later
 		else if (eCurrentEra >= eMedieval)
 		{
-			iBonus = /*3*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL);
+			iBonus = GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL) + GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL);
 		}
 		// Pre-Medieval
 		else
 		{
-			iBonus = /*2*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
+			iBonus = GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT) + GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
 		}
 		m_iHappinessFromAnnexedMinors = iBonus * iNumCityStates;
 
@@ -36077,6 +36127,7 @@ void CvPlayer::ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange
 		UpdateFoodInCapitalPerTurnFromAnnexedMinors();
 		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
 		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
+		UpdateGoldPerTurnFromAnnexedMinors();
 		UpdateCulturePerTurnFromAnnexedMinors();
 		UpdateSciencePerTurnFromAnnexedMinors();
 		UpdateFaithPerTurnFromAnnexedMinors();
@@ -46988,6 +47039,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iConversionModifier);
 	visitor(player.m_iFoodInCapitalFromAnnexedMinors);
 	visitor(player.m_iFoodInOtherCitiesFromAnnexedMinors);
+	visitor(player.m_iGoldPerTurnFromAnnexedMinors);
 	visitor(player.m_iCulturePerTurnFromAnnexedMinors);
 	visitor(player.m_iSciencePerTurnFromAnnexedMinors);
 	visitor(player.m_iFaithPerTurnFromAnnexedMinors);
@@ -49925,10 +49977,10 @@ void CvPlayer::SetBestWonderCities()
 		for (map<BuildingClassTypes,vector<sct>>::iterator it = allScores.begin(); it != allScores.end(); ++it)
 		{
 			ASSERT(!it->second.empty());
-			sort(it->second.begin(), it->second.end());
+			std::stable_sort(it->second.begin(), it->second.end());
 			bestScorePerClass.push_back(make_pair(it->second.back().score, it->first));
 		}
-		sort(bestScorePerClass.begin(), bestScorePerClass.end());
+		std::stable_sort(bestScorePerClass.begin(), bestScorePerClass.end());
 
 		//now we starting with the best overall score, find the best city for the type of wonder
 		for (vector<pair<int, BuildingClassTypes>>::reverse_iterator it = bestScorePerClass.rbegin(); it != bestScorePerClass.rend(); ++it)
@@ -49969,7 +50021,7 @@ void CvPlayer::SetBestWonderCities()
 							it2->score -= it2->score / 4; //reduce by 25% for every other world wonder
 
 					//need to sort again ...
-					sort(it->second.begin(), it->second.end());
+					std::stable_sort(it->second.begin(), it->second.end());
 				}
 			}
 		}
@@ -51793,6 +51845,37 @@ vector<PlayerTypes> CvPlayer::GetWarAllies(PlayerTypes ePlayer) const
 	return result;
 }
 
+/// Returns a vector containing pointers to all major civs who are unfriendly and potentially threatening
+vector<PlayerTypes> CvPlayer::GetUnfriendlyPlayers() const
+{
+	vector<PlayerTypes> result;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
+		if (eTeam == getTeam() || !GET_PLAYER(ePlayer).isAlive() || GET_PLAYER(ePlayer).getNumCities() <= 0)
+			continue;
+
+		if (isMajorCiv())
+		{
+			if (GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(ePlayer, false))
+				result.push_back(ePlayer);
+		}
+		else if (isMinorCiv())
+		{
+			if (GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+			{
+				if (IsAtWarWith(ePlayer) || GetMinorCivAI()->IsWaryOfTeam(eTeam) || GetMinorCivAI()->GetJerkTurnsRemaining(eTeam) > 0)
+					result.push_back(ePlayer);
+			}
+		}
+		else if (isBarbarian())
+			result.push_back(ePlayer);
+	}
+	return result;
+}
+
 int CvPlayer::CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const
 {
 	int iCount = 0;
@@ -52310,7 +52393,7 @@ void CvPlayer::computeFoundValueThreshold()
 	if (vValues.empty())
 		return;
 
-	std::sort(vValues.begin(), vValues.end());
+	std::stable_sort(vValues.begin(), vValues.end());
 
 	//set our threshold halfway between the worst plot and the median
 	m_iReferenceFoundValue = (vValues[0] + vValues[vValues.size()/2])/2;

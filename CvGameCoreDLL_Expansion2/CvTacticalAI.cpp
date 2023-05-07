@@ -36,12 +36,12 @@
 
 int gCurrentUnitToTrack = 0;
 int gTacticalCombatDebugOutput = 0;
-int TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
-int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
-int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
-int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permuations
-int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
-int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
+const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
+const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
+const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
+const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permuations
+const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
+const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(32000);
@@ -383,6 +383,7 @@ void CvTacticalAI::FindTacticalTargets()
 	m_ZoneTargets.clear();
 
 	bool bNoBarbsAllowedYet = GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn();
+	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyPlayers();
 
 	// Look at every tile on map
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
@@ -562,7 +563,7 @@ void CvTacticalAI::FindTacticalTargets()
 				// ... defensive bastion?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint()) &&
-					pLoopPlot->IsBorderLand(m_pPlayer->GetID())
+					(!vUnfriendlyPlayers.empty() && pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyPlayers))
 					)
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
@@ -579,7 +580,7 @@ void CvTacticalAI::FindTacticalTargets()
 					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
 					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody())
 				{
-					if (pLoopPlot->getOwningCity() != NULL && pLoopPlot->getOwningCity()->isBorderCity())
+					if (pLoopPlot->getOwningCity() != NULL && !vUnfriendlyPlayers.empty() && pLoopPlot->getOwningCity()->isBorderCity(vUnfriendlyPlayers))
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 						newTarget.SetAuxIntData(1);
@@ -1076,7 +1077,7 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 	}
 
 	//we want to attacks the one we can do most damage to first
-	std::sort(targets.begin(), targets.end());
+	std::stable_sort(targets.begin(), targets.end());
 	std::reverse(targets.begin(), targets.end());
 
 	for (size_t i=0; i<targets.size(); i++)
@@ -3557,7 +3558,7 @@ bool CvTacticalAI::ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTa
 	if (vOptions.empty())
 		return false;
 
-	std::sort(vOptions.begin(), vOptions.end());
+	std::stable_sort(vOptions.begin(), vOptions.end());
 	ExecuteMoveToPlot(vOptions.front().option.first, vOptions.front().option.second, false, CvUnit::MOVEFLAG_NO_EMBARK);
 	return true;
 }
@@ -3698,7 +3699,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	{
 		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return (lhs->IsCombatUnit() ? 0 : 1) < (rhs->IsCombatUnit() ? 0 : 1); }
 	};
-	std::sort(remaining.begin(), remaining.end(), PrSortCombatFirst());
+	std::stable_sort(remaining.begin(), remaining.end(), PrSortCombatFirst());
 
 	//second round: move in as long as there is no danger and we're still far away
 	for (vector<CvUnit*>::const_iterator it = remaining.begin(); it != remaining.end(); ++it)
@@ -3763,7 +3764,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 		CvPlot* pPlot;
 		int iScore;
 		bool bAttack;
-		bool operator<(const SAssignment& rhs) { return iScore>rhs.iScore; }
+		bool operator<(const SAssignment& rhs) const { return iScore>rhs.iScore; }
 	};
 
 	struct PrPlotMatch
@@ -3852,7 +3853,7 @@ void CvTacticalAI::ExecuteLandingOperation(CvPlot* pTargetPlot)
 	}
 
 	//ok let's go
-	sort(choices.begin(),choices.end());
+	std::stable_sort(choices.begin(),choices.end());
 	while (!choices.empty())
 	{
 		SAssignment next = choices.front();
@@ -4797,16 +4798,7 @@ void CvTacticalAI::FindAirUnitsToAirSweep(CvPlot* pTarget)
 CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget, int iNumTurnsAway /* = -1 if any distance okay */)
 {
 	m_CurrentMoveUnits.clear();
-
-	struct SUnitWithScore
-	{
-		CvUnit* unit;
-		int score;
-		SUnitWithScore(CvUnit* ptr, int i) : unit(ptr), score(i) {}
-		bool operator<(const SUnitWithScore& rhs) const { return score<rhs.score; } //sort ascending
-	};
-
-	std::vector<SUnitWithScore> possibleUnits;
+	std::vector<OptionWithScore<CvUnit*>> possibleUnits;
 
 	// Loop through all units available to tactical AI this turn
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
@@ -4829,7 +4821,8 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			{
 				// Do not pull units out of important citadels
 				CvPlot* pUnitPlot = pLoopUnit->plot();
-				if (TacticalAIHelpers::IsPlayerCitadel(pUnitPlot, m_pPlayer->GetID()) && pUnitPlot->IsBorderLand(m_pPlayer->GetID()))
+				vector<PlayerTypes> v;
+				if (TacticalAIHelpers::IsPlayerCitadel(pUnitPlot, m_pPlayer->GetID()) && pUnitPlot->IsBorderLand(m_pPlayer->GetID(), v))
 					continue;
 
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)
@@ -4848,7 +4841,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				}
 
 				if (pLoopUnit->canFortify(pTarget))
-					iExtraScore += 10;
+					iExtraScore += 17;
 
 				//naval garrisons cannot attack inside cities and don't increase city strength...
 				if (!pLoopUnit->isNativeDomain(pTarget))
@@ -4877,16 +4870,16 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 
 				// Units with defensive promotions are especially valuable
 				if(pLoopUnit->getDefenseModifier() > 0 || pLoopUnit->getExtraRangedDefenseModifier() > 0)
-					iExtraScore += 30;
+					iExtraScore += 31;
 
 				if (pLoopUnit->getExtraVisibilityRange() > 0)
-					iExtraScore += 20;
+					iExtraScore += 23;
 			}
 			else if(eMove == AI_TACTICAL_GOODY)
 			{
 				// Fast movers are top priority
 				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK) || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_SKIRMISHER))
-					iExtraScore += 30;
+					iExtraScore += 31;
 			}
 
 			//if we have a suitable unit in place already then use it
@@ -4897,8 +4890,9 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
 			if(iTurns != MAX_INT)
 			{
-				int iScore = 100 - 10 * iTurns + iExtraScore;
-				possibleUnits.push_back(SUnitWithScore(pLoopUnit, iScore));
+				//tricky to make a good score avoiding ties ...
+				int iScore = 1000 + iExtraScore - 20 * iTurns - plotDistance(*pTarget,*pLoopUnit->plot());
+				possibleUnits.push_back( OptionWithScore<CvUnit*>(pLoopUnit, iScore));
 			}
 		}
 	}
@@ -4908,8 +4902,8 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 	else
 	{
 		std::stable_sort(possibleUnits.begin(), possibleUnits.end());
-		CheckDebugTrigger(possibleUnits.back().unit->GetID());
-		return possibleUnits.back().unit;
+		CheckDebugTrigger(possibleUnits.front().option->GetID());
+		return possibleUnits.front().option;
 	}
 }
 
@@ -5701,7 +5695,7 @@ CvPlot* CvTacticalAI::FindNearbyTarget(CvUnit* pUnit, int iMaxTurns, bool bOffen
 	}
 
 	//second round. default sort order is descending
-	std::sort(candidates.begin(), candidates.end());
+	std::stable_sort(candidates.begin(), candidates.end());
 	std::reverse(candidates.begin(), candidates.end());
 
 	for (size_t i=0; i<candidates.size(); i++)
@@ -6128,7 +6122,7 @@ bool TacticalAIHelpers::PerformOpportunityAttack(CvUnit* pUnit, bool bAllowMovem
 	if (meleeTargets.empty())
 		return false;
 
-	std::sort(meleeTargets.begin(), meleeTargets.end());
+	std::stable_sort(meleeTargets.begin(), meleeTargets.end());
 
 	//we will never do attacks with negative scores!
 	if (meleeTargets.back().score < iScoreThreshold)
@@ -6363,10 +6357,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	}
 
 	//high scores are bad, we sort descending
-	sort(aCityList.begin(), aCityList.end());
-	sort(aCoverList.begin(), aCoverList.end());
-	sort(aZeroDangerList.begin(), aZeroDangerList.end());
-	sort(aDangerList.begin(), aDangerList.end());
+	std::stable_sort(aCityList.begin(), aCityList.end());
+	std::stable_sort(aCoverList.begin(), aCoverList.end());
+	std::stable_sort(aZeroDangerList.begin(), aZeroDangerList.end());
+	std::stable_sort(aDangerList.begin(), aDangerList.end());
 
 	// Now that we've gathered up our lists of destinations, pick the most promising one
 	if (aCityList.size()>0)
@@ -8565,7 +8559,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
-	std::sort(gPossibleMoves.begin(),gPossibleMoves.end());
+	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());
 
 	//don't return more than requested
 	if (gPossibleMoves.size() > (size_t)nMaxCount)
@@ -8607,7 +8601,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 		}
 	}
 
-	std::sort(availableUnits.begin(), availableUnits.end());
+	std::stable_sort(availableUnits.begin(), availableUnits.end());
 
 	//simply consider those extra units as blocked.
 	//since addAssignment will modify availableUnits, we copy the relevant units first
@@ -8682,7 +8676,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 	//note that this is a stable sort, meaning in case of ties the original order is maintained
 	//since we have a fixed cutoff, the simulation result depends on the order the moves were created in, ie the order of units
-	std::sort(gOverAllChoices.begin(), gOverAllChoices.end());
+	std::stable_sort(gOverAllChoices.begin(), gOverAllChoices.end());
 	for (size_t i=0; i<gOverAllChoices.size(); i++)
 	{
 		gMovesToAdd.clear();
@@ -10012,7 +10006,7 @@ CvTacticalPlot& CvTacticalPosition::getTactPlotMutable(int plotindex)
 		{
 			//now cache it locally so that we can modify it
 			tactPlotLookup.push_back( make_pair(plotindex, tactPlots.size()) );
-			sort(tactPlotLookup.begin(), tactPlotLookup.end(), PairCompareFirst() );
+			std::stable_sort(tactPlotLookup.begin(), tactPlotLookup.end(), PairCompareFirst() );
 			//this is dangerous, may invalidate references if the vector is reallocated
 			//we should really be storing pointers to plots, not the plots themselves ...
 			tactPlots.push_back(parentResult);
@@ -10194,6 +10188,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 	initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
 
+	//hackish performance optimization: if we have "a lot" of units, reduce branching and hope for the best
+	if (initialPosition->getAvailableUnits().size() > 9)
+		iMaxBranches = max(2, iMaxBranches - 1);
+
 #if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("starting simulation with %d units and %d enemies on %d plots",
@@ -10248,7 +10246,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		{
 			timer.EndPerfTest();
 
-#ifdef TACTDEBUG
 			std::stringstream ss;
 			ss << "warning, aborting tactical simulation for lack of memory, " <<
 				initialPosition->getAvailableUnits().size() << " starting units, " <<
@@ -10258,11 +10255,11 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				completedPositions.size() << " completed. took " <<
 				std::setprecision(3) << timer.GetDeltaInSeconds() << "s\n";
 				CUSTOMLOG(ss.str().c_str());
-#endif
+
 			//see if we can just take an unfinished position to salvage the situation
 			if (completedPositions.empty())
 			{
-				sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
+				std::stable_sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 				for (size_t i = 0; i < openPositionsHeap.size(); i++)
 				{
 					if (openPositionsHeap[i]->addFinishMovesIfAcceptable(false))
@@ -10284,7 +10281,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	if (!completedPositions.empty())
 	{
 		//need the predicate, else we sort the pointers by address!
-		sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
+		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 		result = completedPositions.front()->getAssignments();
 
 		if (gTacticalCombatDebugOutput>10)
@@ -10472,8 +10469,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		if (!bPrecondition || !bPostcondition)
 		{
 			stringstream out;
-			out << "could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (bPrecondition?" (postcondition)":" (precondition)") << "\n";
-			OutputDebugString(out.str().c_str());
+			out << "tactsim: could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (bPrecondition?" (postcondition)":" (precondition)") << "\n";
+			CUSTOMLOG(out.str().c_str());
 			return false;
 		}
 #else

@@ -171,6 +171,11 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 #endif
 
+		// City can have flat damage reduction
+		if (pkCity->getDamageReductionFlat() != 0) {
+			iAttackerDamageInflicted = std::max(0, iAttackerDamageInflicted - pkCity->getDamageReductionFlat());
+		}
+
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkCity->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
 
@@ -354,7 +359,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 		{
-			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(50, plot) + GC.getGame().getSmallFakeRandNum(50, pkDefender->GetID());
+			int iCaptureRoll = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID(), plot);
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{
@@ -792,6 +797,11 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 			}
 		}
 #endif
+
+		// City can have flat damage reduction
+		if (pCity->getDamageReductionFlat() != 0) {
+			iDamage = std::max(0, iDamage - pCity->getDamageReductionFlat());
+		}
 
 		// Cities can't be knocked to less than 1 HP
 		if(iDamage + pCity->getDamage() >= pCity->GetMaxHitPoints())

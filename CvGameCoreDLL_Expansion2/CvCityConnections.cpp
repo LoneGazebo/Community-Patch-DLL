@@ -144,19 +144,30 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 		//select strategically important points
 		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
+		vector<PlayerTypes> vUnfriendlyPlayers = GET_PLAYER(ePlayer).GetUnfriendlyPlayers();
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
 		for (size_t j=0; j<vPlots.size(); j++)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
 			if (pLoopPlot->isWater())
 				continue;
-					
+
+			if (pLoopPlot->isCity())
+				continue;
+
+			//ignore plots that are owned by a city we are razing
+			if (pLoopPlot->getOwningCity() && pLoopPlot->getOwningCity()->IsRazing())
+				continue;
+
+			if (pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+				continue;
+
 			//ignore plots which are not exposed
-			if (!pLoopPlot->IsBorderLand(m_pPlayer->GetID()))
+			if (vUnfriendlyPlayers.empty() || !pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyPlayers))
 				continue;
 
 			//natural defenses
-			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint())
+			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 25 || pLoopPlot->IsChokePoint())
 			{
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}
@@ -580,9 +591,9 @@ bool CvCityConnections::ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer)
 void CvCityConnections::CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState)
 {
 	//make sure the input is sorted and unique
-	std::sort(lastState.begin(),lastState.end());
+	std::stable_sort(lastState.begin(),lastState.end());
 	lastState.erase( std::unique(lastState.begin(),lastState.end()), lastState.end() );
-	std::sort(newState.begin(),newState.end());
+	std::stable_sort(newState.begin(),newState.end());
 	newState.erase( std::unique(newState.begin(),newState.end()), newState.end() );
 
 	PlotIndexStore addedPlots( newState.size() );

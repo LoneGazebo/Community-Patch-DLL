@@ -867,7 +867,7 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 	if (!vAttackOptions.empty())
 	{
 		//some might be present twice but we sort that out below
-		std::sort(vAttackOptions.begin(), vAttackOptions.end());
+		std::stable_sort(vAttackOptions.begin(), vAttackOptions.end());
 
 		int iBestScore = vAttackOptions.front().score;
 		for (size_t i = 0; i < vAttackOptions.size(); i++)
@@ -903,7 +903,7 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 
 	if (!vDefenseOptions.empty())
 	{
-		std::sort(vDefenseOptions.begin(), vDefenseOptions.end());
+		std::stable_sort(vDefenseOptions.begin(), vDefenseOptions.end());
 
 		int iBestScore = vDefenseOptions.front().score;
 		for (size_t i = 0; i < vDefenseOptions.size(); i++)
@@ -2511,7 +2511,7 @@ CvUnit* CvMilitaryAI::FindUselessShip()
 	{
 		bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return lhs->getExperienceTimes100() < rhs->getExperienceTimes100(); }
 	};
-	std::sort( candidates.begin(), candidates.end(), PrSortByExperience() );
+	std::stable_sort( candidates.begin(), candidates.end(), PrSortByExperience() );
 
 	//check other areas we can reach before deciding
 	for (size_t i=0; i<candidates.size(); i++)

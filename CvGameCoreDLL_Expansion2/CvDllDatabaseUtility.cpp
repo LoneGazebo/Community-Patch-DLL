@@ -1041,7 +1041,7 @@ void CvDllDatabaseUtility::orderHotkeyInfo(int** ppiSortedIndex, T* pHotkeyInfos
 	}
 
 	// sort the array
-	std::sort(viOrderPriority.begin(), viOrderPriority.end(), sortHotkeyPriority);
+	std::stable_sort(viOrderPriority.begin(), viOrderPriority.end(), sortHotkeyPriority);
 
 	// insert new order into the array to return
 	for(iI=0; iI<iLength; iI++)
@@ -1067,7 +1067,7 @@ void CvDllDatabaseUtility::orderHotkeyInfo(int** ppiSortedIndex, int* pHotkeyInd
 	}
 
 	// sort the array
-	std::sort(viOrderPriority.begin(), viOrderPriority.end(), sortHotkeyPriority);
+	std::stable_sort(viOrderPriority.begin(), viOrderPriority.end(), sortHotkeyPriority);
 
 	// insert new order into the array to return
 	for(iI=0; iI<iLength; iI++)

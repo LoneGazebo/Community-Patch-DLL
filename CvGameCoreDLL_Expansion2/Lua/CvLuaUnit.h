@@ -223,6 +223,7 @@ protected:
 
 	static int lIsNoBadGoodies(lua_State* L);
 	static int lIsOnlyDefensive(lua_State* L);
+	static int lIsNoAttackInOcean(lua_State* L);
 
 	static int lIsNoCapture(lua_State* L);
 	static int lIsRivalTerritory(lua_State* L);

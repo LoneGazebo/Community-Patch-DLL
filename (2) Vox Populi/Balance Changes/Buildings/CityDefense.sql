@@ -26,36 +26,33 @@ UPDATE Buildings SET Defense = '800' WHERE Type = 'BUILDING_CASTLE';
 
 UPDATE Buildings SET Defense = '1000' WHERE Type = 'BUILDING_FORTRESS';
 
-UPDATE Buildings SET Defense = '1000' WHERE Type = 'BUILDING_MINEFIELD';
-
 UPDATE Buildings SET Defense = '1200' WHERE Type = 'BUILDING_KREPOST';
 
 UPDATE Buildings SET Defense = '1200' WHERE Type = 'BUILDING_ARSENAL';
 
-UPDATE Buildings SET Defense = '2000' WHERE Type = 'BUILDING_MILITARY_BASE';
+UPDATE Buildings SET Defense = '2400' WHERE Type = 'BUILDING_MILITARY_BASE';
 
 -- City HP
+UPDATE Buildings SET ExtraCityHitPoints = '50' WHERE Type = 'BUILDING_CAPITAL_ENGINEER';
+
 UPDATE Buildings SET ExtraCityHitPoints = '100' WHERE Type = 'BUILDING_RED_FORT';
 
 UPDATE Buildings SET ExtraCityHitPoints = '125' WHERE Type = 'BUILDING_WALLS';
 
 UPDATE Buildings SET ExtraCityHitPoints = '150' WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
-UPDATE Buildings SET ExtraCityHitPoints = '150' WHERE Type = 'BUILDING_CASTLE';
+UPDATE Buildings SET ExtraCityHitPoints = '0' WHERE Type = 'BUILDING_CASTLE';
 
-UPDATE Buildings SET ExtraCityHitPoints = '150' WHERE Type = 'BUILDING_HARBOR';
-
-UPDATE Buildings SET ExtraCityHitPoints = '150' WHERE Type = 'BUILDING_FORTRESS';
-
-UPDATE Buildings SET ExtraCityHitPoints = '175' WHERE Type = 'BUILDING_KREPOST';
-
-UPDATE Buildings SET ExtraCityHitPoints = '175' WHERE Type = 'BUILDING_ARSENAL';
+UPDATE Buildings SET ExtraCityHitPoints = '300' WHERE Type = 'BUILDING_ARSENAL';
 
 UPDATE Buildings SET ExtraCityHitPoints = '200' WHERE Type = 'BUILDING_MILITARY_BASE';
 
-UPDATE Buildings SET ExtraCityHitPoints = '200' WHERE Type = 'BUILDING_BOMB_SHELTER';
+-- City Damage Reduction
+UPDATE Buildings SET DamageReductionFlat = '2' WHERE Type = 'BUILDING_CASTLE';
 
-UPDATE Buildings SET ExtraCityHitPoints = '300' WHERE Type = 'BUILDING_MINEFIELD';
+UPDATE Buildings SET DamageReductionFlat = '2' WHERE Type = 'BUILDING_FORTRESS';
+
+UPDATE Buildings SET DamageReductionFlat = '2' WHERE Type = 'BUILDING_KREPOST';
 
 -- City Supply
 UPDATE Buildings SET CitySupplyModifier = '10' WHERE Type = 'BUILDING_WALLS';

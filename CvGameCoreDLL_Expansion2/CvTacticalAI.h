@@ -16,7 +16,7 @@ class FDataStream;
 
 //for tactical combat
 enum eAggressionLevel { AL_NONE, AL_LOW, AL_MEDIUM, AL_HIGH, AL_BRAVEHEART };
-extern int TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
+extern const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE;
 
 // STL "find_if" predicate
 class UnitIDMatch
@@ -577,7 +577,7 @@ struct SUnitStats
 		pUnit(pUnit_), iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iImportanceScore(iImportance), iSelfDamage(0),
 		eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
 
-	bool operator<(const SUnitStats& rhs) { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
+	bool operator<(const SUnitStats& rhs) const { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
 };
 
 struct SPathFinderStartPos

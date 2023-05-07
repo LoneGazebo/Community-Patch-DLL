@@ -238,6 +238,7 @@ public:
 	bool IsCanMoveImpassable() const;
 	bool IsNoCapture() const;
 	bool IsOnlyDefensive() const;
+	bool IsNoAttackInOcean() const;
 	bool IsNoDefensiveBonus() const;
 	bool IsNukeImmune() const;
 	bool IsHiddenNationality() const;
@@ -555,6 +556,7 @@ protected:
 	bool m_bCanMoveImpassable;
 	bool m_bNoCapture;
 	bool m_bOnlyDefensive;
+	bool m_bNoAttackInOcean;
 	bool m_bNoDefensiveBonus;
 	bool m_bNukeImmune;
 	bool m_bHiddenNationality;
