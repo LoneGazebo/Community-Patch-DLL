@@ -515,10 +515,13 @@
 
 		<!-- Espionage Tooltip -->
 		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_PERMA_TT">
-			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} yet because their current Ally has a Sphere of Influence here.</Text>
+			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} because their current Ally has a Sphere of Influence here.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_SPY_NUMBER_ELECTION_RIGGINGS">
-			<Text>[COLOR_CYAN]Number of successfully rigged elections since the last coup: {1_NumElectionsRigged}[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_EO_SPY_RIGGING_COUP_CHANCE_INCREASE">
+			<Text>[COLOR_CYAN]Each successfully rigged election increases the success chance of a coup by {1_CoupChanceIncrease}%.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_RIGGING_NO_COUP_POSSIBLE">
+			<Text>[COLOR_NEGATIVE_TEXT]Rigging elections does not increase the success chance of a coup because no coup is possible in this city-state.[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Feitoria Production Tooltip-->
