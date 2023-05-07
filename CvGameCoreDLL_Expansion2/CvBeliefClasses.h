@@ -610,11 +610,7 @@ FDataStream& operator>>(FDataStream&, CvReligionBeliefs&);
 
 namespace CvBeliefHelpers
 {
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 	bool ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit);
-#else
-	bool ConvertBarbarianUnit(CvPlayer *pPlayer, CvUnit* pUnit);
-#endif
 }
 
 #endif //CIV5_BELIEF_CLASSES_H
