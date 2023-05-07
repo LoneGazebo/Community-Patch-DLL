@@ -1200,10 +1200,11 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 -- CBP
 		-- Gold gained from happiness
 	local iInternalRouteGold = g_activePlayer:GetInternalTradeRouteGoldBonus();
-	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs()
+	local iGoldFromMinors = g_activePlayer:GetGoldPerTurnFromMinorCivs();
+	local iGoldFromAnnexedMinors = g_activePlayer:GetGoldPerTurnFromAnnexedMinors();
 
 	local totalIncome, totalWealth
-	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + iGoldFromMinors + iInternalRouteGold -- C4DF
+	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + iGoldFromMinors + iInternalRouteGold + iGoldFromAnnexedMinors -- C4DF
 -- C4DF CHANGE
 	if (iGoldFromVassals > 0) then
 		explicitIncome = explicitIncome + iGoldFromVassals;
@@ -1271,6 +1272,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", math.floor(totalIncome - explicitIncome) )
 -- CBP
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", g_currencyString), iGoldFromAnnexedMinors)
 --END
 	tips:insert( "[ENDCOLOR]" )
 
@@ -1867,7 +1869,7 @@ g_toolTipHandler.CultureString = function()-- control )
 			-- Culture from Golden Age
 -- CBP
 	
-			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals)
+			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals - culturePerTurnFromAnnexedMinors)
 			
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge)
 -- END
