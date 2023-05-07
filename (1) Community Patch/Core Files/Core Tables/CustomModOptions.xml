@@ -401,7 +401,7 @@
     <!-- See also: "Civilization - Morindim" -->
     <Row Class="5" Name="RELIGION_LOCAL_RELIGIONS" Value="0" DbUpdates="1"/>
     <!-- disable passive religious pressure without trade routes -->
-    <Row Class="5" Name="RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY" Value="0" DbUpdates="1"/>
+    <Row Class="5" Name="RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY" Value="0"/>
     <!-- 
 	Various new tables and logics for beliefs. Currently, this is required to activate:
 		- Table 'Belief_FreePromotions'. Columns are 'BeliefType', 'PromotionType'.
@@ -414,7 +414,7 @@
 	<Row Class="5" Name="RELIGION_PERMANENT_PANTHEON" Value="0"/>
 
     <!-- disable ranged strikes from cities -->
-    <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0" DbUpdates="1"/>
+    <Row Class="5" Name="CORE_NO_RANGED_ATTACK_FROM_CITIES" Value="0"/>
 
     <!-- Enables production to be stockpiled (v28) -->
     <!-- See also: "Buildings - Storage Yard and Stockpile" -->
