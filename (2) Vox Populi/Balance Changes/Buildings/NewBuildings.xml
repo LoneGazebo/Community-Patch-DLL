@@ -229,7 +229,8 @@
 			<Help>TXT_KEY_BUILDING_MANDIR_HELP</Help>
 			<ConquestProb>100</ConquestProb>
 			<Cost>-1</Cost>
-			<ReligiousPressureModifier>25</ReligiousPressureModifier>
+			<ReligiousPressureModifier>15</ReligiousPressureModifier>
+			<ConversionModifier>-10</ConversionModifier>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
 			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
