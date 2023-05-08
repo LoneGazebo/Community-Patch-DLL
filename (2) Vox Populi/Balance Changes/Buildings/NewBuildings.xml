@@ -194,7 +194,6 @@
 			<Happiness>1</Happiness>
 			<Help>TXT_KEY_BUILDING_STUPA_HELP</Help>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
-			<ConversionModifier>-10</ConversionModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>11</PortraitIndex>
 			<Cost>-1</Cost>
@@ -212,7 +211,6 @@
 			<WLTKDTurns>15</WLTKDTurns>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
-			<ConversionModifier>-10</ConversionModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<ReligiousPressureModifier>40</ReligiousPressureModifier>
 			<Cost>-1</Cost>
@@ -231,13 +229,12 @@
 			<Strategy>TXT_KEY_BUILDING_MANDIR_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_MANDIR_HELP</Help>
 			<ConquestProb>100</ConquestProb>
-			<ConversionModifier>-10</ConversionModifier>
 			<Cost>-1</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
 		</Row>
@@ -251,12 +248,11 @@
 			<Help>TXT_KEY_BUILDING_SYNAGOGUE_HELP</Help>
 			<ConquestProb>100</ConquestProb>
 			<Cost>-1</Cost>
-			<ReligiousPressureModifier>25</ReligiousPressureModifier>
-			<ConversionModifier>-10</ConversionModifier>
+			<ConversionModifier>-15</ConversionModifier>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>10</PortraitIndex>
+			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
 		</Row>
@@ -275,8 +271,8 @@
 			<RangedStrikeModifier>10</RangedStrikeModifier>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
 		</Row>
@@ -307,14 +303,13 @@
 			<Civilopedia>TXT_KEY_BUILDING_GURDWARA_PEDIA</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_GURDWARA_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_GURDWARA_HELP</Help>
-			<TrainedFreePromotion>PROMOTION_MORALE</TrainedFreePromotion>
 			<ConquestProb>100</ConquestProb>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<Cost>-1</Cost>
 			<BuildingDefenseModifier>10</BuildingDefenseModifier>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<MinAreaSize>-1</MinAreaSize>
-			<IconAtlas>COMMUNITY_ATLAS_3</IconAtlas>
+			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
 			<PortraitIndex>3</PortraitIndex>
 			<UnlockedByBelief>true</UnlockedByBelief>
 			<FaithCost>200</FaithCost>
