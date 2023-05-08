@@ -10,7 +10,7 @@ SET SpecialistType = 'SPECIALIST_SCIENTIST'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 UPDATE Buildings
-SET SpecialistCount = '1'
+SET GreatPeopleRateChange = 3, GoldMaintenance = 0, GreatScientistBeakerModifier = 10
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 -- Mongols
@@ -459,13 +459,8 @@ VALUES
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 2),
 	('BUILDING_YURT', 'YIELD_FAITH', 1),
 	('BUILDING_YURT', 'YIELD_CULTURE_LOCAL', 2),
-	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 1),
+	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 4),
 	('BUILDING_SPAIN_MISSION',	'YIELD_FAITH',	2);
-
-INSERT INTO Building_SpecialistYieldChangesLocal
-	(BuildingType, SpecialistType, YieldType, Yield)
-VALUES
-	('BUILDING_WALLS_OF_BABYLON', 'SPECIALIST_SCIENTIST', 'YIELD_GOLD', 2);
 
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
