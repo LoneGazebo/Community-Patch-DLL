@@ -284,6 +284,9 @@
     <File md5="AD08B844F97B245A630A3018A9C34139" import="1">Art/Units/FieldGun/76mmArtillery.gr2</File>
     <File md5="3E3833B035D33BD12E922661C893EB0B" import="1">Art/Units/FieldGun/76mmDivGun.dds</File>
     <File md5="647FD5F41DB37190AA89AE87C7F75624" import="1">Art/Units/FieldGun/76mmDivGunSREF.dds</File>
+    <File md5="505EEBE5974202F642200C40322D040B" import="1">Art/Units/Galley/battle_galley.fxsxml</File>
+    <File md5="E1475BD75405C36BC818E4C926DEB50D" import="1">Art/Units/Galley/battle_galley.gr2</File>
+    <File md5="53D173221D769A87AEC7ED46D0AD6CFD" import="1">Art/Units/Galley/battle_galley_diff.dds</File>
     <File md5="5B8FBDD532486EB60ECB727286CA7706" import="1">Art/Units/Guerilla/fx_triggers_modernmarine.ftsxml</File>
     <File md5="53D173221D769A87AEC7ED46D0AD6CFD" import="1">Art/Units/Guerilla/japgw1.dds</File>
     <File md5="505EEBE5974202F642200C40322D040B" import="1">Art/Units/Guerilla/japgw1.fxsxml</File>
@@ -312,6 +315,7 @@
     <File md5="D329DF376D32444EFF3B8715399A6B66" import="1">Art/Units/Icons/corvetteflag.dds</File>
     <File md5="2A77DD101BBF5EC2484B39B435BEDE54" import="1">Art/Units/Icons/cuirassierflag.dds</File>
     <File md5="FCB0E1E7CCCCCA610BEFC1A641E52289" import="1">Art/Units/Icons/fieldgunflag.dds</File>
+    <File md5="FCB0E1E7CCCCCA610BEFC1A641E52289" import="1">Art/Units/Icons/GaleaFlag.dds</File>
     <File md5="160AD576F9BC6A24C161937B804A8A52" import="1">Art/Units/Icons/kommandoflag.dds</File>
     <File md5="7BBC851A821B5B701D7BF787A2A9F160" import="1">Art/Units/Icons/mercflag.dds</File>
     <File md5="3FB307CE0882613579AC34C7A027F0AA" import="1">Art/Units/Icons/mountedxbowflag.dds</File>
@@ -325,6 +329,7 @@
     <File md5="F9EEA2147EF8D89EAB0D1B43356DC7DD" import="1">Art/Units/Icons/svmerc.dds</File>
     <File md5="ECF0330A1A7E07D92DF38EF02692773B" import="1">Art/Units/Icons/svmountedxbow.dds</File>
     <File md5="23D9ECF4F5234F22D08EE3F04C699FE2" import="1">Art/Units/Icons/svsoviet.dds</File>
+    <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Art/Units/Icons/sv_galea.dds</File>
     <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Art/Units/Icons/sv_kommando.dds</File>
     <File md5="D2AC8A9ED3C8177823BA24ED262A60F8" import="1">Art/Units/Icons/tercio_flag2.dds</File>
     <File md5="A5DE4C137543B0FCA47C8B85927900DF" import="1">Art/Units/Icons/tercio_flag_white.dds</File>
@@ -371,6 +376,10 @@
     <File md5="A46ECF0ED5D09BF60FB18C2256970125" import="1">Art/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.fxsxml</File>
     <File md5="913B1B54EDD19872B5300CB364174863" import="1">Art/Units/LandsknechtFreeCompany/Landsknecht/Musket_Landsknecht/landsknecht_musket_b.gr2</File>
     <File md5="73DAA769D2261F6617119D8E0A76568B" import="1">Art/Units/LandsknechtFreeCompany/sv_b_FCompany.dds</File>
+    <File md5="33D41B5CD81094144F73E7CF4172E055" import="1">Art/Units/Liburna/minoan_galea.fxsxml</File>
+    <File md5="3C87FBB8DBA9E964C5A2D31B149A304D" import="1">Art/Units/Liburna/minoan_galea.gr2</File>
+    <File md5="8DC5B69E3BD9DDBC890015518CC76CCE" import="1">Art/Units/Liburna/minoan_galea_diff.dds</File>
+    <File md5="CB36AB12AD6FE9D9B9AFD31103A7FCDA" import="1">Art/Units/Liburna/minoan_galea_sref.dds</File>
     <File md5="AF0C8E8F8A6780D0E3E98F7E62906597" import="1">Art/Units/Merc/AN-94_diff.dds</File>
     <File md5="0B21E2FE884261F66A2265B7D9A2654D" import="1">Art/Units/Merc/AN-94_sref.dds</File>
     <File md5="33D41B5CD81094144F73E7CF4172E055" import="1">Art/Units/Merc/RussianSF.fxsxml</File>
