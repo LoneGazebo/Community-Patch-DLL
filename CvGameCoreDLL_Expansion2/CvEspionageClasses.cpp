@@ -1308,18 +1308,19 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 	{
 		if (eCityOwner != m_pPlayer->GetID())
 		{
-
-			pSpy->SetSpyFocus(eEventChoice);
-			pSpy->SetSpySiphon(eEventChoice);
-			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
-			pCityEspionage->ResetProgress(ePlayer);
-			int iPotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-			int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-			pCityEspionage->SetActivity(ePlayer, 0, iPotentialRate, iGoal);
-			pCityEspionage->SetLastProgress(ePlayer, iPotentialRate);
-			pCityEspionage->SetLastPotential(ePlayer, iPotentialRate);
-			pSpy->m_bEvaluateReassignment = false;
-
+			if (!pkEventChoiceInfo->isSurveillance())
+			{
+				pSpy->SetSpyFocus(eEventChoice);
+				pSpy->SetSpySiphon(eEventChoice);
+				pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
+				pCityEspionage->ResetProgress(ePlayer);
+				int iPotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
+				int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
+				pCityEspionage->SetActivity(ePlayer, 0, iPotentialRate, iGoal);
+				pCityEspionage->SetLastProgress(ePlayer, iPotentialRate);
+				pCityEspionage->SetLastPotential(ePlayer, iPotentialRate);
+				pSpy->m_bEvaluateReassignment = false;
+			}
 			return NUM_SPY_RESULTS;
 		}
 		else
@@ -1568,26 +1569,22 @@ CvSpyResult CvPlayerEspionage::ProcessSpyFocusResult(PlayerTypes ePlayer, CvCity
 		pSpy->ResetSpySiphon();
 		pCityEspionage->SetSpyResult(ePlayer, uiSpyIndex, NUM_SPY_RESULTS);
 	}
-	//if we were detected, we don't leave anymore. We stay and do it again!
+	//if we were detected, we don't leave anymore. We stay and can choose another mission!
 	else if (eResult == SPY_RESULT_DETECTED)
 	{
 		if (GC.getLogging())
 		{
 			CvString strMsg;
-			strMsg.Format("Detected, sticking around to do this again, , %d,", uiSpyIndex);
+			strMsg.Format("Detected, selecting new mission, , %d,", uiSpyIndex);
 			strMsg += GetLocalizedText(m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer));
 			LogEspionageMsg(strMsg);
 		}
 
-		pSpy->SetSpyFocus(eEventChoice);
-		pSpy->SetSpySiphon(eEventChoice);
-		pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_GATHERING_INTEL);
-		pCityEspionage->ResetProgress(ePlayer);
-		int iPotentialRate = CalcPerTurn(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-		int iGoal = CalcRequired(SPY_STATE_GATHERING_INTEL, pCity, uiSpyIndex);
-		pCityEspionage->SetActivity(ePlayer, 0, iPotentialRate, iGoal);
-		pCityEspionage->SetLastProgress(ePlayer, iPotentialRate);
-		pCityEspionage->SetLastPotential(ePlayer, iPotentialRate);
+		pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
+		pSpy->ResetSpySiphon();
+		pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_SURVEILLANCE);
+		pCityEspionage->SetActivity(ePlayer, 1, 1, 1);
+		TriggerSpyFocusSetup(pCity, uiSpyIndex);
 	}
 
 	//AI should reeval to see if they want to stay.
@@ -6899,6 +6896,9 @@ int CvEspionageAI::GetNumValidSpyMissionsInCityValue(CvCity* pCity)
 					if (pkEventChoiceInfo != NULL)
 					{
 						if (!pkEventChoiceInfo->isParentEvent(eEvent))
+							continue;
+
+						if (pkEventChoiceInfo->isSurveillance())
 							continue;
 
 						if (pCity->IsCityEventChoiceValidEspionageTest(eEventChoice, eEvent, 1, m_pPlayer->GetID()))

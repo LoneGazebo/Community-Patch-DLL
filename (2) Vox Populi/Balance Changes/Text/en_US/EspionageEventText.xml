@@ -29,6 +29,12 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
 			<Text>Your newly established spy network requires a mission. What would you like them to focus on?</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE">
+			<Text>Defer Mission Selection</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE_HELP">
+			<Text>Mission Selection is deferred, and the Mission Selection Screen appears again next turn. </Text>
+		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM">
 			<Text>Sabotage local [ICON_TOURISM] Tourism</Text>
 		</Row>
@@ -104,7 +110,7 @@
 			<Text>Broaden [ICON_SPY] Surveillance in City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP">
-			<Text>Expand the number of tiles visible around the Target City for {5_Turns}.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+			<Text>Expand the number of tiles visible around the Target City for {5_Turns} after the mission is completed.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">

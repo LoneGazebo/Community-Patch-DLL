@@ -331,6 +331,14 @@
 			<Text>[NEWLINE] [ICON_BULLET] Empire must be Unhappy</Text>
 		</Row>
 		
+		<Row Tag="TXT_KEY_NEED_ENEMY_SUPER_UNHAPPY">
+			<Text>[NEWLINE] [ICON_BULLET] Targeted Civilization must be Very Unhappy</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NEED_ENEMY_UNHAPPY">
+			<Text>[NEWLINE] [ICON_BULLET] Targeted Civilization must be Unhappy</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_NEED_TRADE_SLOT">
 			<Text>[NEWLINE] [ICON_BULLET] Requires an available slot for a Trade Unit</Text>
 		</Row>
