@@ -3374,7 +3374,7 @@
 			<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
-			<CityAttackPlunderModifier>100</CityAttackPlunderModifier>
+			<ExtraWithdrawal>50</ExtraWithdrawal>
 			<RangedDefenseMod>25</RangedDefenseMod>
 			<PortraitIndex>5</PortraitIndex>
 			<OrderPriority>1</OrderPriority>
@@ -3433,7 +3433,7 @@
 			<PortraitIndex>6</PortraitIndex>
 			<OrderPriority>3</OrderPriority>
 			<IconAtlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</IconAtlas>
-			<ExtraWithdrawal>50</ExtraWithdrawal>
+			<CityAttackPlunderModifier>100</CityAttackPlunderModifier>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PIRACY</PediaEntry>
 		</Row>
