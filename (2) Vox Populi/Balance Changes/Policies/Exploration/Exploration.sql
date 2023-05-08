@@ -124,7 +124,8 @@ SET
 	UpgradeCSVassalTerritory = 1,
 	IncludesOneShotFreeUnits = 0,
 	GreatAdmiralRateModifier = 33,
-	GreatGeneralRateModifier = 33
+	GreatGeneralRateModifier = 33,
+	AdmiralLuxuryBonus = 2
 WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
 
 
