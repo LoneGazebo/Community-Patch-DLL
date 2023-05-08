@@ -5840,13 +5840,13 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		{
 			if (pkEventInfo->isEnemyUnhappy() && !GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_UNHAPPY");
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ENEMY_UNHAPPY");
 				DisabledTT += localizedDurationText.toUTF8();
 			}
 
 			if (pkEventInfo->isEnemySuperUnhappy() && !GET_PLAYER(pCity->getOwner()).IsEmpireSuperUnhappy())
 			{
-				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_SUPER_UNHAPPY");
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ENEMY_SUPER_UNHAPPY");
 				DisabledTT += localizedDurationText.toUTF8();
 			}
 
