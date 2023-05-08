@@ -16,10 +16,6 @@ SET Happiness = '0'
 WHERE Type = 'BUILDING_MOSQUE';
 
 UPDATE Buildings
-SET ConversionModifier = '-10'
-WHERE Type = 'BUILDING_MOSQUE';
-
-UPDATE Buildings 
 SET Help = 'TXT_KEY_BUILDING_MOSQUE_HELP'
 WHERE Type = 'BUILDING_MOSQUE';
 
@@ -41,10 +37,6 @@ SET ReligiousPressureModifier = '25'
 WHERE Type = 'BUILDING_CATHEDRAL';
 
 UPDATE Buildings
-SET ConversionModifier = '-10'
-WHERE Type = 'BUILDING_CATHEDRAL';
-
-UPDATE Buildings 
 SET Help = 'TXT_KEY_BUILDING_CATHEDRAL_HELP'
 WHERE Type = 'BUILDING_CATHEDRAL';
 
@@ -57,7 +49,7 @@ UPDATE Buildings
 SET Happiness = '0'
 WHERE Type = 'BUILDING_PAGODA';
 
-UPDATE Buildings 
+UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_PAGODA_HELP'
 WHERE Type = 'BUILDING_PAGODA';
 
@@ -144,7 +136,7 @@ VALUES
 	('BUILDING_TEOCALLI', 'DOMAIN_LAND', 15),
 	('BUILDING_TEOCALLI', 'DOMAIN_AIR', 15),
 	('BUILDING_TEOCALLI', 'DOMAIN_SEA', 15);
-	
+
 INSERT INTO Building_YieldFromUnitProduction
 		(BuildingType, YieldType, Yield)
 VALUES	('BUILDING_ORDER', 'YIELD_FAITH', 10);

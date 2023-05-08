@@ -1083,9 +1083,10 @@ INSERT INTO IconTextureAtlases
 VALUES	('IMPROVEMENT_SIHEYUAN_ATLAS', 256, 'Siheyuan256.dds', 2, 1),
 		('IMPROVEMENT_SIHEYUAN_ATLAS', 64, 'Siheyuan064.dds', 2, 1),
 		('IMPROVEMENT_SIHEYUAN_ATLAS', 45, 'Siheyuan045.dds', 2, 1),
-		('IMPROVEMENT_ROME_ATLAS', 256, 'LatifundiumIcons_256.dds',	1, 1),
-		('IMPROVEMENT_ROME_ATLAS', 64, 'LatifundiumIcons_064.dds', 1, 1),
-		('IMPROVEMENT_ROME_ATLAS', 45, 'LatifundiumIcons_045.dds', 1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 256, 'LatifundiumIcon_256.dds',	1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 128, 'LatifundiumIcon_128.dds',	1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 64, 'LatifundiumIcon_064.dds', 1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 45, 'LatifundiumIcos_045.dds', 1, 1),
 		('IMPROVEMENT_ROME_2_ATLAS', 64, 'LatifundiumBuildIcons_064.dds', 1, 1),
 		('IMPROVEMENT_ROME_2_ATLAS', 45, 'LatifundiumBuildIcons_045.dds', 1, 1);
 --==========================================================================================================================
