@@ -2198,7 +2198,7 @@
 			<Description>TXT_KEY_PROMOTION_STATUE_ZEUS</Description>
 			<Help>TXT_KEY_PROMOTION_STATUE_ZEUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CityAttack>15</CityAttack>
+			<CityAttack>25</CityAttack>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
