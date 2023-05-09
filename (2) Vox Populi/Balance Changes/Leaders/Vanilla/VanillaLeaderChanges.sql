@@ -15,8 +15,8 @@ VALUES		('BUILDINGCLASS_AMERICA_SMITHSONIAN',		'TXT_KEY_BUILDING_MOMA', 				'BUI
 			('BUILDINGCLASS_AMERICA_HOOVERDAM',			'TXT_KEY_BUILDING_AMERICA_HOOVERDAM',	'BUILDING_AMERICA_HOOVERDAM',			1);
 
 INSERT INTO Buildings
-			(Type,									Help,												ThemingBonusHelp,								Description,									Civilopedia,										Strategy,												PolicyCostModifier,	BuildingClass,				Cost,	CultureRateModifier,	GreatWorkSlotType,				GreatWorkCount,	NeverCapture,	PrereqTech, 			ArtDefineTag, 							MinAreaSize,	ConquestProb,	HurryCostModifier,	NationalPopRequired,	NumCityCostMod, NukeImmune, IconAtlas,				PortraitIndex)
-VALUES		('BUILDING_AMERICA_INDEPENDENCEHALL',	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_HELP',	'TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL_HELP', 	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL', 	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_TEXT',	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_STRATEGY',	-5,					'BUILDINGCLASS_HERMITAGE', 	125,	10, 					'GREAT_WORK_SLOT_ART_ARTIFACT',	2,				1,				'TECH_ARCHITECTURE',	'ART_DEF_BUILDING_MILITARY_ACADEMY',	-1,				0,				-1,					40,						10,				1,			'COMMUNITY_2_ATLAS',	19);
+			(Type,									Help,												ThemingBonusHelp,								Description,									Civilopedia,										Strategy,												PolicyCostModifier,	BuildingClass,				Cost,	CultureRateModifier,	GreatWorkSlotType,				GreatWorkCount,	NeverCapture,	PrereqTech, 			ArtDefineTag, 							MinAreaSize,	ConquestProb,	HurryCostModifier,	NumCityCostMod, NukeImmune, IconAtlas,				PortraitIndex)
+VALUES		('BUILDING_AMERICA_INDEPENDENCEHALL',	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_HELP',	'TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL_HELP', 	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL', 	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_TEXT',	'TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_STRATEGY',	-5,					'BUILDINGCLASS_HERMITAGE', 	125,	10, 					'GREAT_WORK_SLOT_ART_ARTIFACT',	2,				1,				'TECH_ARCHITECTURE',	'ART_DEF_BUILDING_MILITARY_ACADEMY',	-1,				0,				-1,					10,				1,			'COMMUNITY_2_ATLAS',	19);
 
 INSERT INTO Buildings
 			(Type,								CivilizationRequired, 	BuildingClass,							Description,							Help, 											Civilopedia, 												Strategy, 											ArtDefineTag, 					GlobalPlotBuyCostModifier, 	GoldMaintenance,	Cost,	FaithCost,	MutuallyExclusiveGroup, NeverCapture,	NukeImmune, ConquestProb,	HurryCostModifier,	MinAreaSize,	IconAtlas,				PortraitIndex)
@@ -1083,9 +1083,10 @@ INSERT INTO IconTextureAtlases
 VALUES	('IMPROVEMENT_SIHEYUAN_ATLAS', 256, 'Siheyuan256.dds', 2, 1),
 		('IMPROVEMENT_SIHEYUAN_ATLAS', 64, 'Siheyuan064.dds', 2, 1),
 		('IMPROVEMENT_SIHEYUAN_ATLAS', 45, 'Siheyuan045.dds', 2, 1),
-		('IMPROVEMENT_ROME_ATLAS', 256, 'LatifundiumIcons_256.dds',	1, 1),
-		('IMPROVEMENT_ROME_ATLAS', 64, 'LatifundiumIcons_064.dds', 1, 1),
-		('IMPROVEMENT_ROME_ATLAS', 45, 'LatifundiumIcons_045.dds', 1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 256, 'LatifundiumIcon_256.dds',	1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 128, 'LatifundiumIcon_128.dds',	1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 64, 'LatifundiumIcon_064.dds', 1, 1),
+		('IMPROVEMENT_ROME_ATLAS', 45, 'LatifundiumIcos_045.dds', 1, 1),
 		('IMPROVEMENT_ROME_2_ATLAS', 64, 'LatifundiumBuildIcons_064.dds', 1, 1),
 		('IMPROVEMENT_ROME_2_ATLAS', 45, 'LatifundiumBuildIcons_045.dds', 1, 1);
 --==========================================================================================================================

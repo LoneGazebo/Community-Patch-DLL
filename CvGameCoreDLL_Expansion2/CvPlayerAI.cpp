@@ -119,7 +119,10 @@ void CvPlayerAI::AI_doTurnPre()
 	{
 		bool operator()(const CvUnit* a, const CvUnit* b)
 		{
-			return ( a->GetPower() > b->GetPower() );
+			if (a->GetPower() != b->GetPower())
+				return a->GetPower() > b->GetPower();
+			else //tiebreak
+				return a->GetID() < b->GetID();
 		}
 	};
 
@@ -689,6 +692,7 @@ void CvPlayerAI::AI_considerAnnex()
 	ReligionTypes eOurReligion = GetReligions()->GetStateReligion(false);
 
 	vector<OptionWithScore<CvCity*>> options;
+	vector<PlayerTypes> vUnfriendlyMajors = GetUnfriendlyMajors();
 	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
@@ -722,7 +726,7 @@ void CvPlayerAI::AI_considerAnnex()
 			iWeight += (iBonus > 0) ? iBonus : 0;
 		}
 
-		if (pCity->isBorderCity() || pCity->isCoastal())
+		if (pCity->isCoastal() || (!vUnfriendlyMajors.empty() && pCity->isBorderCity(vUnfriendlyMajors)))
 			iWeight += 1;
 
 		// Add weight for each World Wonder in the city - cities with Wonders should be annexed quickly so we can benefit from their bonuses
@@ -750,7 +754,7 @@ void CvPlayerAI::AI_considerAnnex()
 	if (!options.empty())
 	{
 		//descending by default
-		sort(options.begin(), options.end());
+		std::stable_sort(options.begin(), options.end());
 
 		CvCity* pTargetCity = options.front().option;
 		if (pTargetCity)
@@ -982,13 +986,20 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 											iOurFlavor *= 10;
 									}
 
+									if (pkEventChoiceInfo->isSurveillance())
+									{
+										CvCity* pCity = GetEspionage()->GetCityWithSpy(uiSpyIndex);
+										if (pCity && pCity->IsResistance())
+											iOurFlavor *= 10;
+									}
+
 									//counterspy filter selection
 									if (pCity->getOwner() == GetID())
 									{
 										if (pCity->getHappinessDelta() < 0 && pkEventChoiceInfo->getCityHappiness() > 0)
 											iOurFlavor *= 2;
 
-										if (pCity->isBorderCity() && IsAtWarAnyMajor() && pkEventChoiceInfo->getCityDefenseModifier() > 0)
+										if (pkEventChoiceInfo->getCityDefenseModifier() > 0 && IsAtWarAnyMajor() && pCity->isBorderCity())
 											iOurFlavor *= 2;
 									}
 									flavorChoices.push_back(eEventChoice, iOurFlavor);
@@ -1926,7 +1937,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 		}
 	}
 
-	sort(vCandidates.begin(), vCandidates.end());
+	std::stable_sort(vCandidates.begin(), vCandidates.end());
 
 	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 	for (size_t i = 0; i < vCandidates.size(); i++)

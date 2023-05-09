@@ -162,11 +162,11 @@
 	
 
 	UPDATE Language_en_US
-	SET Text = '[COLOR_POSITIVE_TEXT]Wealth[ENDCOLOR] converts 25% of the [ICON_PRODUCTION] Production of this City into [ICON_GOLD] Gold, and reduces [ICON_GOLD] Gold Needs by 25%.'
+	SET Text = '[COLOR_POSITIVE_TEXT]Wealth[ENDCOLOR] converts 25% of the [ICON_PRODUCTION] Production of this City into [ICON_GOLD] Gold, and reduces [ICON_GOLD] Poverty by 25%.'
 	WHERE Tag = 'TXT_KEY_PROCESS_WEALTH_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '[COLOR_POSITIVE_TEXT]Research[ENDCOLOR] converts 25% of the [ICON_PRODUCTION] Production of this City into [ICON_RESEARCH] Science, and reduces [ICON_RESEARCH] Science Needs by 25%.'
+	SET Text = '[COLOR_POSITIVE_TEXT]Research[ENDCOLOR] converts 25% of the [ICON_PRODUCTION] Production of this City into [ICON_RESEARCH] Science, and reduces [ICON_RESEARCH] Illiteracy by 25%.'
 	WHERE Tag = 'TXT_KEY_PROCESS_RESEARCH_HELP';
 	
 	-- Resource Stuff

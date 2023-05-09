@@ -160,7 +160,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_HELP">
-			<Text>May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all Holy Sites.[NEWLINE][NEWLINE]Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.</Text>
+			<Text>+5 [ICON_GOLDEN_AGE] Golden Age Points from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).[NEWLINE][NEWLINE]Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE">
 			<Text>Celestial Throne</Text>
@@ -173,7 +173,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR_HELP">
-			<Text>+15% Military Unit [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all Holy Sites.[NEWLINE][NEWLINE] May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.</Text>
+			<Text>+15% Military Unit [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR">
 			<Text>Great Altar</Text>
@@ -205,7 +205,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_HELP">
-			<Text>+5 [ICON_GOLD] Gold from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.</Text>
+			<Text>+5 [ICON_CULTURE] Culture from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT">
 			<Text>Divine Court</Text>
@@ -257,7 +257,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_HELP">
-			<Text>+5 [ICON_CULTURE] Culture from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 50%, and increases the City's resistance to conversion by 10%.</Text>
+			<Text>+5 [ICON_GOLD] Gold from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 50%, and increases the City's resistance to conversion by 10%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY">
 			<Text>Grand Ossuary</Text>
@@ -506,7 +506,7 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
@@ -520,7 +520,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
-			<Text>15 turns of "We Love the King Day" in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
+			<Text>15 turns of "We Love the King Day" in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
 		</Row>
 
 
@@ -535,7 +535,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
-			<Text>Gain 5 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PEACE] Faith when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Gain 5 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PEACE] Faith when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 15%, and increases the City's resistance to [ICON_RELIGION] Religious conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 
 
@@ -561,7 +561,7 @@
 			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, Gold and the Morale promotion for all Military units trained in the city.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
-			<Text>When you construct a Unit in this City, gain [ICON_PEACE] Faith equal to 10% of the Unit's [ICON_PRODUCTION] Production cost. Gain 10% of the Cost of any [ICON_PEACE] Faith Purchase as [ICON_PRODUCTION] Production in this City. Land Military Units produced in the City gain the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Increases City [ICON_STRENGTH] Combat Strength by 3 and [ICON_RANGE_STRENGTH] Bombard Strength by 10%. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>When you construct a Unit in this City, gain [ICON_PEACE] Faith equal to 10% of the Unit's [ICON_PRODUCTION] Production cost. Gain 10% of the Cost of any [ICON_PEACE] Faith Purchase as [ICON_PRODUCTION] Production in this City. Land Military Units produced in the City gain the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Increases City [ICON_STRENGTH] Combat Strength by 3 and [ICON_RANGE_STRENGTH] Bombard Strength by 10%. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
 			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
@@ -574,7 +574,7 @@
 			<Text>A Teocalli is a temple of the Aztec peoples. The Teocalli follow a structure that is typical for many Meso-American peoples, with a somewhat small enclosed space atop a massive stepped pyramid with a staircase on one side. The largest of these pyramids exceeded the Egyptian pyramid at Giza in total volume, though they weren't as tall. In a manner similar to Mesopotamian religions, the Aztecs considered their Teocalli as the literal residences of their gods, only permitting priests to climb them for rituals and special occasions. The most infamous of these rituals is the human sacrifices which occured monthly to appease the Aztec gods, where war captives had their beating hearts extracted from their chests and then beheaded. The skulls of the sacrifices were prepared and displayed on a nearby skull rack called a 'tzompantli', while the organs and flesh were offered to the gods.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_HELP">
-			<Text>+3 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle, scaling with Era. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1. +15 XP for all Military Units produced in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>+3 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle, scaling with Era. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1. +15 XP for all Military Units produced in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_STRATEGY">
 			<Text>Can only be built in cities following a religion with the Teocallis belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Teocalli offers bonuses towards military training and faith generation.</Text>
@@ -587,7 +587,7 @@
 			<Text>A Gurdwara -- which means "door to the guru" -- is the place of worship for Sikhs. All gurdwaras contain the holy Sikh scripture, the Guru Granth Sahib, placed on an elevated platform. From this platform, a Raagis recites, sings, and explains the scripture for the congregation. The other universal feature of all gurdwaras is a community kitchen called a Langar. Sikhs place great importance on serving free vegetarian meals, allowing all community members, regardless of ethnicity, caste, status or religion, to both eat and volunteer free of charge.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GURDWARA_HELP">
-			<Text>Reduces [ICON_HAPPINESS_3] Unhappiness from Distress. +25% Religious pressure and +10% Religious resistance in this city.[NEWLINE][NEWLINE]+10% [ICON_FOOD] Food and +10% [ICON_STRENGTH] Defense in the City. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Music.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]+10% [ICON_FOOD] Food and +10% [ICON_STRENGTH] Defense in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GURDWARA_STRATEGY">
 			<Text>Can only be built in cities following a religion with the Gurdwaras belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Gurdwara offers bonuses towards Growth and Defense.</Text>
@@ -837,16 +837,16 @@
 			<Text>The Smithsonian Institution, established in 1846 "for the increase and diffusion of knowledge," is a group of museums and research centers administered by the Government of the United States. Originally organized as the "United States National Museum," that name ceased to exist as an administrative entity in 1967. Termed "the nation's attic" for its eclectic holdings of 138 million items, the Institution's nineteen museums, nine research centers, and zoo include historical and architectural landmarks, mostly located in the District of Columbia. Additional facilities are located in Arizona, Maryland, Massachusetts, New York City, Virginia, and Panama. A further 170 museums are Smithsonian Affiliates. The Institution's thirty million annual visitors are admitted without charge. Funding comes from the Institution's endowment, private and corporate contributions, membership dues, government support, as well as retail, concession and licensing revenues. Institution publications include Smithsonian and Air and Space magazines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all Museums and Research Labs, and +2 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all World Wonders. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Museum in all Cities on Empire. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all Museums and Research Labs, and +2 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all World Wonders. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Museum in all Cities. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_STRATEGY">
-			<Text>The Smithsonian Institute is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major bonuses towards culture and science generation on empire, giving powerful theming for Great Artifacts, and boosting the power of Museums.</Text>
+			<Text>The Smithsonian Institute is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major empire-wide bonuses towards culture and science generation, giving powerful theming for Great Artifacts, and boosting the power of Museums.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT">
 			<Text>West Point</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Military Bases, and +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all World Wonders.[NEWLINE][NEWLINE]Receive 3 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Artillery and 3 [ICON_RES_IRON] Iron. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All Siege Units on Empire receive the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] Promotion.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Military Bases, and +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all World Wonders.[NEWLINE][NEWLINE]Receive 3 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Artillery and 3 [ICON_RES_IRON] Iron. 10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All owned Siege Units receive the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_WESTPOINT_TEXT">
 			<Text>The United States Military Academy, informally known as West Point, is the oldest service academy, educating cadets to become commissioned officers for the United States Army. The academy is notable for producing some of the most renowned generals in modern history in addition to numerous heads of state, both foreign and domestic. The campus is the oldest continuously operating American army post, originally built as a river fort to overlook and control shipping along the Hudson River. As a result, the campus is a national landmark, dotted with numerous monuments and statues representing its long and storied history.</Text>
@@ -858,7 +858,7 @@
 			<Text>Hoover Dam</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_HOOVERDAM_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City. Can only be built in a City next to fresh water.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all Hotels and Stadiums. +2 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all World Wonders on Empire.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Hydro Plant in this City. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_PRODUCTION] Production Per Turn.[NEWLINE][NEWLINE]25% of the [ICON_CULTURE] Culture from World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output on Empire. All [ICON_INTERNATIONAL_TRADE] Trade Units complete their routes 25% faster.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City. Can only be built in a City next to fresh water.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all Hotels and Stadiums. +2 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all World Wonders in Empire.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Hydro Plant in this City. 10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_PRODUCTION] Production Per Turn.[NEWLINE][NEWLINE]25% of the [ICON_CULTURE] Culture from World Wonders and Tiles is added to the Empire's [ICON_TOURISM] Tourism output. All [ICON_INTERNATIONAL_TRADE] Trade Units complete their routes 25% faster.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_HOOVERDAM_TEXT">
 			<Text>One of the most ambitious and largest public works projects in American history, the Hoover Dam is a marvel of Modern innovation. At the time of its construction, the Hoover Dam was the largest concrete structure in the world, using ambitious and experimental techniques to pour and cure over 3 million cubic meters of concrete, one inch at a time. the dam impounds Lake Mead, the largest man-made reservoir in the United States, regulates flooding of the Colorado river. Its generators provide power for Nevada, Arizona, and California, and its crest was incorporated into US Route 93, making it a major thoroughfare and tourist attraction.</Text>

@@ -2832,11 +2832,9 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	CvUnitCaptureDefinition kCaptureDef;
 	getCaptureDefinition(&kCaptureDef);
 	
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 	if (MOD_EVENTS_UNIT_CAPTURE && (kCaptureDef.eCapturingPlayer != NO_PLAYER && kCaptureDef.eCaptureUnitType != NO_UNIT)) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, kCaptureDef.eCapturingPlayer, kCaptureDef.eCaptureUnitType, eUnitOwner, GetID(), false, 1);
 	}
-#endif
 
 	setXY(INVALID_PLOT_COORD, INVALID_PLOT_COORD, true);
 	if(pPlot)
@@ -5666,7 +5664,7 @@ bool CvUnit::jumpToNearestValidPlot()
 	}
 
 	//we want lowest scores first
-	std::sort(candidates.begin(), candidates.end());
+	std::stable_sort(candidates.begin(), candidates.end());
 
 	for (size_t i = 0; i < candidates.size(); i++)
 	{
@@ -15096,7 +15094,6 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 		return NO_UNIT;
 	}
 	
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 	if (MOD_EVENTS_UNIT_CAPTURE) {
 		int iValue = 0;
 		if (GAMEEVENTINVOKE_VALUE(iValue, GAMEEVENT_UnitCaptureType, getOwner(), GetID(), getUnitType(), eCivilization) == GAMEEVENTRETURN_VALUE) {
@@ -15106,7 +15103,6 @@ UnitTypes CvUnit::getCaptureUnitType(CivilizationTypes eCivilization) const
 			}
 		}
 	}
-#endif
 
 	return ((m_pUnitInfo->GetUnitCaptureClassType() == NO_UNITCLASS) ? NO_UNIT : GET_PLAYER(getOwner()).GetSpecificUnitType((UnitClassTypes)getUnitInfo().GetUnitCaptureClassType()));
 }
@@ -15888,7 +15884,7 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 		int dist = plotDistance(*pLoopUnit->plot(), *pDestPlot);
 		unitsToMoveByDistance.push_back(ScoredUnit(dist, pLoopUnit));
 	}
-	std::sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
+	std::stable_sort(unitsToMoveByDistance.begin(), unitsToMoveByDistance.end(), greater<ScoredUnit>());
 
 	// Generate a list of eligible plots for these units, only adding another
 	// ring when there are still insufficient plots for the current selection
@@ -20434,12 +20430,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 											}
 										}
 										// Unit was killed instead
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 
 										if (MOD_EVENTS_UNIT_CAPTURE) {
 											GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, getOwner(), GetID(), pLoopUnit->getOwner(), pLoopUnit->GetID(), !bDoCapture, 0);
 										}
-#endif
 										if (!bDoEvade)
 										{
 											if(pLoopUnit->isEmbarked())
@@ -20937,11 +20931,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 								CvUnit* pAdjacentUnit = pAdjacentPlot->getBestDefender(BARBARIAN_PLAYER);
 								if (pAdjacentUnit)
 								{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 									CvBeliefHelpers::ConvertBarbarianUnit(this, pAdjacentUnit);
-#else
-									CvBeliefHelpers::ConvertBarbarianUnit(&kPlayer, pAdjacentUnit);
-#endif
 								}
 							}
 						}
@@ -20966,11 +20956,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 										if (pReligion->m_Beliefs.IsConvertsBarbarians(getOwner(), pHolyCity))
 										{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 											if (CvBeliefHelpers::ConvertBarbarianUnit(adjUnit, this))
-#else
-											if (CvBeliefHelpers::ConvertBarbarianUnit(&adjUnitPlayer, this))
-#endif
 											{
 												ClearMissionQueue();
 											}
@@ -20993,11 +20979,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
 		{
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 			kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(this, pNewPlot);
-#else
-			kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot);
-#endif
 		}
 
 		if(GC.IsGraphicsInitialized())
@@ -21117,12 +21099,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					// See if we need to remove a temporary focus of attention
 					kPlayer.GetTacticalAI()->DeleteFocusArea(pNewPlot);
 					
-					pNewPlot->setImprovementType(NO_IMPROVEMENT);
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(this, pNewPlot))
-#else
-					if (!kPlayer.GetPlayerTraits()->CheckForBarbarianConversion(pNewPlot))
-#endif
 					{
 						CvBarbarians::DoBarbCampCleared(pNewPlot, getOwner(), this);
 					}
@@ -21182,6 +21159,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						}
 					}
 
+					pNewPlot->setImprovementType(NO_IMPROVEMENT);
 					// Set who last cleared the camp here
 					pNewPlot->SetPlayerThatClearedBarbCampHere(getOwner());
 	
@@ -29698,7 +29676,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 			}
 		}
 
-		std::sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
+		std::stable_sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
 		if (!eligiblePlots.empty())
 		{
 			pDestPlot = eligiblePlots.front().plot;
@@ -30009,7 +29987,6 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		{
 		  return MOVE_RESULT_CANCEL;
 		}
-			
 	}
 
 	if(!m_kLastPath.empty())

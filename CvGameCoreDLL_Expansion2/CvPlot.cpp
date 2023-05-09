@@ -646,7 +646,7 @@ void CvPlot::updateCenterUnit()
 
 
 //	--------------------------------------------------------------------------------
-void CvPlot::verifyUnitValidPlot()
+void CvPlot::verifyUnitValidPlot(bool bWakeUp)
 {
 	vector<IDInfo> oldUnitList;
 
@@ -666,6 +666,11 @@ void CvPlot::verifyUnitValidPlot()
 			{
 				if(pLoopUnit->atPlot(*this))
 				{
+					//if plot ownership changes we want to make sure that human units
+					//which would suffer attrition or cause annoyance are woken up
+					if (bWakeUp)
+						pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+
 					if(!(pLoopUnit->isCargo()))
 					{
 						if(!(pLoopUnit->isInCombat()))
@@ -3459,7 +3464,7 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, 
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer) const
+bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes>& vUnfriendlyMajors) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	set<PlayerTypes> adjacentPlayers;
@@ -3479,11 +3484,40 @@ bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer) const
 
 	if (adjacentPlayers.size() > 0)
 	{
-		set<PlayerTypes>::iterator it;
-		for (it = adjacentPlayers.begin(); it != adjacentPlayers.end(); ++it)
+		if (GET_PLAYER(ePlayer).isBarbarian())
+			return true;
+
+		// Were we already passed a set of players to check? (performance optimization)
+		if (!vUnfriendlyMajors.empty())
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(*it))
-				return true;
+			for (set<PlayerTypes>::iterator it = adjacentPlayers.begin(); it != adjacentPlayers.end(); ++it)
+			{
+				if (std::find(vUnfriendlyMajors.begin(), vUnfriendlyMajors.end(), *it) != vUnfriendlyMajors.end())
+					return true;
+			}
+		}
+		else
+		{
+			if (GET_PLAYER(ePlayer).isMajorCiv())
+			{
+				for (set<PlayerTypes>::iterator it = adjacentPlayers.begin(); it != adjacentPlayers.end(); ++it)
+				{
+					if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(*it, false))
+						return true;
+				}
+			}
+			else if (GET_PLAYER(ePlayer).isMinorCiv())
+			{
+				for (set<PlayerTypes>::iterator it = adjacentPlayers.begin(); it != adjacentPlayers.end(); ++it)
+				{
+					TeamTypes eAdjacentTeam = GET_PLAYER(*it).getTeam();
+					if (GET_PLAYER(ePlayer).IsAtWarWith(*it) || GET_PLAYER(ePlayer).GetMinorCivAI()->IsWaryOfTeam(eAdjacentTeam)
+						|| GET_PLAYER(ePlayer).GetMinorCivAI()->GetJerkTurnsRemaining(eAdjacentTeam) > 0)
+					{
+						return true;
+					}
+				}
+			}
 		}
 	}
 
@@ -3695,34 +3729,98 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 
 bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
 {
+	vector<PlayerTypes> vUnfriendlyMajors;
+
 	//check distance to all major players' cities
 	//if homefront for at least one ...
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-		if (eLoopPlayer == eDefendingPlayer)
+		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eDefendingPlayer).getTeam())
 			continue;
 
-		if (!GET_PLAYER(eLoopPlayer).isAlive())
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
 			continue;
 
-		//we trust our friends
-		if (GET_PLAYER(eDefendingPlayer).isMajorCiv() && !GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer))
+		if (GET_PLAYER(eDefendingPlayer).isMajorCiv())
 		{
-			continue;
+			if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer, false))
+				vUnfriendlyMajors.push_back(eLoopPlayer);
+			else
+				continue;
 		}
-		else if (GET_PLAYER(eDefendingPlayer).isMinorCiv() && (GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->IsFriends(eLoopPlayer) || (GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->GetAlly() == eLoopPlayer)))
+		else if (GET_PLAYER(eDefendingPlayer).isMinorCiv())
 		{
-			continue;
+			TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+			if (GET_PLAYER(eDefendingPlayer).IsAtWarWith(eLoopPlayer) || GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->IsWaryOfTeam(eLoopTeam)
+				|| GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->GetJerkTurnsRemaining(eLoopTeam) > 0)
+			{
+				vUnfriendlyMajors.push_back(eLoopPlayer);
+			}
+			else
+				continue;			
 		}
 
 		if (IsCloseToCity(eLoopPlayer))
 			return true;
 	}
 
-	//alternatively see if an adjacent plot is owned by another player
+	//alternatively see if an adjacent plot is owned by an unfriendly player
 	//only check adjacent plots, everything else is too expensive
-	return IsAdjacentOwnedByUnfriendly(eDefendingPlayer);
+	return IsAdjacentOwnedByUnfriendly(eDefendingPlayer, vUnfriendlyMajors);
+}
+
+bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUnfriendlyMajors) const
+{
+	// Were we already passed a set of players to check? (performance optimization)
+	if (!vUnfriendlyMajors.empty())
+	{
+		for (std::vector<PlayerTypes>::iterator it = vUnfriendlyMajors.begin(); it != vUnfriendlyMajors.end(); it++)
+		{
+			if (IsCloseToCity(*it))
+				return true;
+		}
+	}
+	else
+	{
+		//check distance to all major players' cities
+		//if homefront for at least one ...
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eDefendingPlayer).getTeam())
+				continue;
+
+			if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
+				continue;
+
+			if (GET_PLAYER(eDefendingPlayer).isMajorCiv())
+			{
+				if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer, false))
+					vUnfriendlyMajors.push_back(eLoopPlayer);
+				else
+					continue;
+			}
+			else if (GET_PLAYER(eDefendingPlayer).isMinorCiv())
+			{
+				TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+				if (GET_PLAYER(eDefendingPlayer).IsAtWarWith(eLoopPlayer) || GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->IsWaryOfTeam(eLoopTeam)
+					|| GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->GetJerkTurnsRemaining(eLoopTeam) > 0)
+				{
+					vUnfriendlyMajors.push_back(eLoopPlayer);
+				}
+				else
+					continue;			
+			}
+
+			if (IsCloseToCity(eLoopPlayer))
+				return true;
+		}
+	}
+
+	//alternatively see if an adjacent plot is owned by an unfriendly player
+	//only check adjacent plots, everything else is too expensive
+	return IsAdjacentOwnedByUnfriendly(eDefendingPlayer, vUnfriendlyMajors);
 }
 
 bool CvPlot::IsChokePoint() const
@@ -5874,7 +5972,6 @@ void CvPlot::updatePotentialCityWork()
 //	--------------------------------------------------------------------------------
 void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUnits, bool)
 {
-	IDInfo* pUnitNode = NULL;
 	CvCity* pOldCity = NULL;
 	CvString strBuffer;
 	int iI = 0;
@@ -6116,8 +6213,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if (pOldCity)
 					setIsCity(false, pOldCity->GetID(), pOldCity->getWorkPlotDistance());
 			}
-
-			pUnitNode = headUnitNode();
 
 			// if the plot is being worked and the city is about to change then put the citizen somewhere else
 			if (!m_owningCityOverride.isInvalid() && iAcquiringCityID!=m_owningCityOverride.iID)
@@ -6365,8 +6460,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				}
 			}
 
-			pUnitNode = headUnitNode();
-
 			for(iI = 0; iI < MAX_TEAMS; ++iI)
 			{
 				if (GET_TEAM((TeamTypes)iI).isObserver() || GET_TEAM((TeamTypes)iI).isAlive())
@@ -6413,7 +6506,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 
 			if(bCheckUnits)
 			{
-				verifyUnitValidPlot();
+				verifyUnitValidPlot(true);
 			}
 
 			if(GC.getGame().isDebugMode())

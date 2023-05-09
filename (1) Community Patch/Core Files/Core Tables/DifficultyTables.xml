@@ -184,7 +184,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>13</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -405,7 +405,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>13</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -626,7 +626,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>42</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -847,7 +847,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>42</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>23</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -1068,7 +1068,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>37</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -1289,7 +1289,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>37</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -1510,7 +1510,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>54</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>37</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->

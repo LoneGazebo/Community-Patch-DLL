@@ -3782,7 +3782,7 @@ std::vector<int> CvReligionBeliefs::GetFreePromotions(PlayerTypes ePlayer, const
 		// sort and remove duplicates
 		if (rtnVector.size() > 1)
 		{
-			std::sort(rtnVector.begin(), rtnVector.end());
+			std::stable_sort(rtnVector.begin(), rtnVector.end());
 			rtnVector.erase( std::unique( rtnVector.begin(), rtnVector.end() ), rtnVector.end() );
 		}
 
@@ -4811,22 +4811,17 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReligionBeliefs& writeTo)
 /// BELIEF HELPER CLASSES
 
 /// Is there an adjacent barbarian naval unit that could be converted?
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit)
-#else
-bool CvBeliefHelpers::ConvertBarbarianUnit(CvPlayer *pPlayer, CvUnit* pUnit)
-#endif
+
 {
 	CvUnit* pNewUnit;
 	CvPlot *pPlot = pUnit->plot();
 
-#if defined(MOD_EVENTS_UNIT_CAPTURE)
 	CvPlayer* pPlayer = &GET_PLAYER(pByUnit->getOwner());
 
 	if (MOD_EVENTS_UNIT_CAPTURE) {
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitCaptured, pPlayer->GetID(), pByUnit->GetID(), pUnit->getOwner(), pUnit->GetID(), false, 4);
 	}
-#endif
 
 	// Convert the barbarian into our unit
 	pNewUnit = pPlayer->initUnit(pUnit->getUnitType(), pUnit->getX(), pUnit->getY(), pUnit->AI_getUnitAIType(), REASON_CONVERT, true /*bNoMove*/, false);

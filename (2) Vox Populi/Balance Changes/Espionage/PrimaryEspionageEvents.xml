@@ -44,6 +44,18 @@
 			<SpyVisionRange>3</SpyVisionRange>
 			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
+		<!-- DEFER MISSION SELECTION FOR ONE TURN -->
+		<Row>
+			<Type>ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE_HELP</Help>
+			<IsEspionageEffect>true</IsEspionageEffect>
+			<MissionSetup>true</MissionSetup>
+			<EventDuration>-1</EventDuration>
+			<EspionageMissionDuration>1</EspionageMissionDuration>
+			<IsSurveillance>1</IsSurveillance>
+			<IgnoreLocalForeignSpies>1</IgnoreLocalForeignSpies>
+		</Row>
 		<!-- CULTURE/TOURISM -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</Type>
@@ -144,7 +156,7 @@
 			<MissionSetup>true</MissionSetup>
 			<IDModifier>60</IDModifier>
 			<EventDuration>-1</EventDuration>
-			<IsUnhappy>true</IsUnhappy>
+			<IsEnemyUnhappy>true</IsEnemyUnhappy>
 			<ExperienceGainedModifier>25</ExperienceGainedModifier>
 			<EspionageMissionDuration>25</EspionageMissionDuration>
 			<ResistanceTurns>2</ResistanceTurns>
@@ -397,6 +409,10 @@
 	</CityEventChoice_SpecialistYieldChange>
 	<CityEvent_ParentEvents>
 		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE</CityEventChoiceType>
+			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
+		</Row>
+		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
@@ -405,11 +421,11 @@
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
-			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH</CityEventChoiceType>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM</CityEventChoiceType>
 			<CityEventType>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</CityEventType>
 		</Row>
 		<Row>
@@ -503,6 +519,11 @@
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_STEAL_TECH</CityEventChoiceType>
 			<FlavorType>FLAVOR_SCIENCE</FlavorType>
 			<Flavor>50</Flavor>
+		</Row>
+		<Row>
+			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE</CityEventChoiceType>
+			<FlavorType>FLAVOR_ESPIONAGE</FlavorType>
+			<Flavor>1</Flavor>
 		</Row>
 		<Row>
 			<CityEventChoiceType>ESPIONAGE_EVENT_CHOICE_REVEAL_AREA</CityEventChoiceType>

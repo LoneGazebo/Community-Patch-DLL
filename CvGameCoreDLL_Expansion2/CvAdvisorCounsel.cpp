@@ -104,7 +104,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
 
-		std::sort(&m_aCounsel[0], &m_aCounsel[0] + m_aCounsel.size(), CounselSort);
+		std::stable_sort(&m_aCounsel[0], &m_aCounsel[0] + m_aCounsel.size(), CounselSort);
 		return;
 	}
 
@@ -1986,7 +1986,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	}
 
 	// sort the list
-	std::sort(&m_aCounsel[0], &m_aCounsel[0] + m_aCounsel.size(), CounselSort);
+	std::stable_sort(&m_aCounsel[0], &m_aCounsel[0] + m_aCounsel.size(), CounselSort);
 }
 
 bool CvAdvisorCounsel::SetCounselEntry(uint uiIndex, AdvisorTypes eAdvisor, const char* strAdvisorCounsel, int iValue)

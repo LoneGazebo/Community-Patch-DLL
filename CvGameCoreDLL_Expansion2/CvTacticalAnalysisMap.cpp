@@ -185,33 +185,33 @@ void CvTacticalDominanceZone::Extend(CvPlot* pPlot)
 	else
 	{
 		//need to take care of wrap-around ... should probably do all this in hex-space
-		int iHalfWidth = GC.getMap().getGridWidth()*1000/2;
-		int iHalfHeight = GC.getMap().getGridHeight()*1000/2;
+		int iHalfWidth = GC.getMap().getGridWidth() * 1000 / 2;
+		int iHalfHeight = GC.getMap().getGridHeight() * 1000 / 2;
 
-		int iDX = pPlot->getX()*1000 - m_iAvgX;
-		int iDY = pPlot->getY()*1000 - m_iAvgY;
+		int iDX = pPlot->getX() * 1000 - m_iAvgX;
+		int iDY = pPlot->getY() * 1000 - m_iAvgY;
 
 		if (GC.getMap().isWrapX() && iDX < -iHalfWidth)
-			iDX += 2*iHalfWidth;
+			iDX += 2 * iHalfWidth;
 		if (GC.getMap().isWrapX() && iDX > +iHalfWidth)
-			iDX -= 2*iHalfWidth;
+			iDX -= 2 * iHalfWidth;
 		if (GC.getMap().isWrapY() && iDY < -iHalfHeight)
-			iDY += 2*iHalfHeight;
+			iDY += 2 * iHalfHeight;
 		if (GC.getMap().isWrapY() && iDY > +iHalfHeight)
-			iDY -= 2*iHalfHeight;
+			iDY -= 2 * iHalfHeight;
 
 		m_iPlotCount++;
-		m_iAvgX += iDX/m_iPlotCount;
-		m_iAvgY += iDY/m_iPlotCount;
+		m_iAvgX += iDX / m_iPlotCount;
+		m_iAvgY += iDY / m_iPlotCount;
 
-		if (m_iAvgX<0)
-			m_iAvgX += iHalfWidth*2;
-		if (m_iAvgX>iHalfWidth*2)
-			m_iAvgX -= iHalfWidth*2;
-		if (m_iAvgY<0)
-			m_iAvgY += iHalfHeight*2;
-		if (m_iAvgY>iHalfHeight*2)
-			m_iAvgY += iHalfHeight*2;
+		if (m_iAvgX < 0)
+			m_iAvgX += iHalfWidth * 2;
+		if (m_iAvgX > iHalfWidth * 2)
+			m_iAvgX -= iHalfWidth * 2;
+		if (m_iAvgY < 0)
+			m_iAvgY += iHalfHeight * 2;
+		if (m_iAvgY > iHalfHeight * 2)
+			m_iAvgY += iHalfHeight * 2;
 	}
 }
 #endif
@@ -237,7 +237,7 @@ void CvTacticalAnalysisMap::Reset(PlayerTypes ePlayer)
 	m_ePlayer = ePlayer;
 	m_iLastUpdate = -1;
 
-	m_vPlotZoneID = vector<int>( GC.getMap().numPlots(), -1 );
+	m_vPlotZoneID = vector<int>(GC.getMap().numPlots(), -1);
 	m_vDominanceZones.clear();
 	m_IdLookup.clear();
 }
@@ -270,13 +270,18 @@ int CvTacticalDominanceZone::GetBorderScore(DomainTypes eDomain, CvCity** ppWors
 			iScore += 2;
 
 			//similar to GetPlayersAtWarWithInFuture() ...
-			if (pNeighbor->GetOwner() != NO_PLAYER && GET_PLAYER(pNeighbor->GetOwner()).isMajorCiv())
+			PlayerTypes eOwner = pNeighbor->GetOwner();
+			if (eOwner == NO_PLAYER)
+				continue;
+
+			PlayerTypes eRefPlayer = GET_PLAYER(eOwner).isMajorCiv() ? eOwner : GET_PLAYER(eOwner).GetMinorCivAI()->GetAlly();
+			if (eRefPlayer != NO_PLAYER)
 			{
-				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetVisibleApproachTowardsUs(pNeighbor->GetOwner()) <= CIV_APPROACH_GUARDED)
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetVisibleApproachTowardsUs(eRefPlayer) <= CIV_APPROACH_GUARDED)
 					iScore++;
-				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(pNeighbor->GetOwner()) <= CIV_APPROACH_GUARDED)
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(eRefPlayer) <= CIV_APPROACH_GUARDED)
 					iScore++;
-				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivOpinion(pNeighbor->GetOwner()) == CIV_OPINION_ENEMY)
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivOpinion(eRefPlayer) <= CIV_OPINION_ENEMY)
 					iScore++;
 			}
 		}

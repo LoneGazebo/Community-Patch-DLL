@@ -32,7 +32,7 @@ SET
 WHERE Type = 'POLICY_NAVAL_TRADITION';
 
 DELETE FROM Policy_PrereqPolicies
-WHERE PolicyType IN
+WHERE PrereqPolicy IN
 ('POLICY_NAVAL_TRADITION',
  'POLICY_MERCHANT_NAVY',
  'POLICY_MARITIME_INFRASTRUCTURE');
@@ -124,7 +124,8 @@ SET
 	UpgradeCSVassalTerritory = 1,
 	IncludesOneShotFreeUnits = 0,
 	GreatAdmiralRateModifier = 33,
-	GreatGeneralRateModifier = 33
+	GreatGeneralRateModifier = 33,
+	AdmiralLuxuryBonus = 2
 WHERE Type = 'POLICY_NAVIGATION_SCHOOL';
 
 

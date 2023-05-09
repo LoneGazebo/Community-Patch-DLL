@@ -483,12 +483,12 @@ INSERT INTO Language_en_US (Tag, Text)
 VALUES
 	('TXT_KEY_BELIEF_GURDWARA_SHORT',		'Gurdwaras'),
 	('TXT_KEY_BUILDING_GURDWARA_TOOLTIP',	'+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_FOOD] Food[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_GURDWARA_HELP}'),
-	('TXT_KEY_BELIEF_GURDWARA',				'Use [ICON_PEACE] Faith to purchase Gurdwaras.'),
+	('TXT_KEY_BELIEF_GURDWARA',				'Use [ICON_PEACE] Faith to purchase Gurdwaras'),
 	('TXT_KEY_BELIEF_TEOCALLI_SHORT',		'Teocallis'),
 	('TXT_KEY_BUILDING_TEOCALLI_TOOLTIP',	'+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_TEOCALLI_HELP}'),
-	('TXT_KEY_BELIEF_TEOCALLI',				'Use [ICON_PEACE] Faith to purchase Teocallis.'),
+	('TXT_KEY_BELIEF_TEOCALLI',				'Use [ICON_PEACE] Faith to purchase Teocallis'),
 	('TXT_KEY_BELIEF_COMMUNALISM_SHORT',	'Cooperation'),
-	('TXT_KEY_BELIEF_COMMUNALISM',			'[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, Scaling with Era. +2 [ICON_PRODUCTION] Production if city has a Specialist');
+	('TXT_KEY_BELIEF_COMMUNALISM',			'[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, scaling with Era. +2 [ICON_PRODUCTION] Production if city has a Specialist');
 
 --	//////////////////////////////////////
 --	// ENHANCERS
@@ -635,7 +635,7 @@ SET Text = 'Global Commandments'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_RELIGION] Religion spreads 15% faster (30% with Printing Press). +10 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points per turn while the Host of the World Congress. Receive 150 of these yields instantly when you pass a Proposal. Bonuses scale with Era.'
+SET Text = '[ICON_RELIGION] Religion spreads 15% faster (30% with Printing Press). Receive 350 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PEACE] Faith, and [ICON_GOLDEN_AGE] Golden Age Points when you pass a Proposal in the World Congress or United Nations, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_CHARITABLE_MISSIONS';
 
 

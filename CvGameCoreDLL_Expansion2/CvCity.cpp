@@ -4688,6 +4688,10 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 	if (eEvent == NO_EVENT_CITY)
 		return false;
 
+	// The mission to establish surveillance can always be chosen
+	if (pkEventInfo->isSurveillance())
+		return true;
+
 	if (pkEventInfo->GetSpyLevelRequired() > pSpy->GetSpyRank(eSpyOwner))
 		return false;
 
@@ -4821,6 +4825,12 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		return false;
 
 	if (pkEventInfo->isSuperUnhappy() && !GET_PLAYER(eSpyOwner).IsEmpireSuperUnhappy())
+		return false;
+
+	if (pkEventInfo->isEnemyUnhappy() && !GET_PLAYER(getOwner()).IsEmpireUnhappy())
+		return false;
+
+	if (pkEventInfo->isEnemySuperUnhappy() && !GET_PLAYER(getOwner()).IsEmpireSuperUnhappy())
 		return false;
 
 	if (pkEventInfo->hasMetAnotherCiv())
@@ -5828,6 +5838,19 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 		CvCity* pCity = GET_PLAYER(eSpyOwner).GetEspionage()->GetCityWithSpy(iSpyIndex);
 		if (pCity)
 		{
+			if (pkEventInfo->isEnemyUnhappy() && !GET_PLAYER(pCity->getOwner()).IsEmpireUnhappy())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ENEMY_UNHAPPY");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+
+			if (pkEventInfo->isEnemySuperUnhappy() && !GET_PLAYER(pCity->getOwner()).IsEmpireSuperUnhappy())
+			{
+				localizedDurationText = Localization::Lookup("TXT_KEY_NEED_ENEMY_SUPER_UNHAPPY");
+				DisabledTT += localizedDurationText.toUTF8();
+			}
+
+
 			bool bSiphon = true;
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
@@ -6710,7 +6733,10 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						bDefer = true;
 
 					eResult = GET_PLAYER(eSpyOwner).GetEspionage()->ProcessSpyFocusResult(eSpyOwner, this, iEspionageValue, eEventChoice, bDefer);
-					pSpy->UpdateLastMissionOutcome(this, eSpyOwner, iEspionageValue, eResult);
+					if (!pkEventChoiceInfo->isSurveillance())
+					{
+						pSpy->UpdateLastMissionOutcome(this, eSpyOwner, iEspionageValue, eResult);
+					}
 
 					//if setup, we don't actually fire the choice right now...we wait!
 					if (bDefer && !pkEventChoiceInfo->isExpiresOnCounterSpyExit())
@@ -27408,6 +27434,11 @@ bool CvCity::isBorderCity() const
 	VALIDATE_OBJECT
 	return plot()->IsBorderLand(m_eOwner);
 }
+bool CvCity::isBorderCity(vector<PlayerTypes>& vUnfriendlyMajors) const
+{
+	VALIDATE_OBJECT
+	return plot()->IsBorderLand(m_eOwner, vUnfriendlyMajors);
+}
 #endif
 void CvCity::changeNukeInterceptionChance(int iNewValue)
 {
@@ -29329,7 +29360,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	}
 
 	//we want only the best
-	std::sort(resultList.begin(), resultList.end());
+	std::stable_sort(resultList.begin(), resultList.end());
 	if (resultList.size() > (size_t)nChoices)
 		resultList.erase(resultList.begin() + nChoices, resultList.end());
 
@@ -31138,7 +31169,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 			if (!freeSlotsPerOp.empty())
 			{ 
 				//default sort order is ascending by first pair member 
-				stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
+				std::stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
 				for (size_t i=0; i<freeSlotsPerOp.size(); i++)
 					if (GET_PLAYER(m_eOwner).getAIOperationByIndex( freeSlotsPerOp[i].second )->RecruitUnit(pUnit))
 						break;
