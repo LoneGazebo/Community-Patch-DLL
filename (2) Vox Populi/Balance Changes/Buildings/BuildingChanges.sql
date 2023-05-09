@@ -1444,7 +1444,7 @@ WHERE Type IN (
 -- Medieval T2
 UPDATE Buildings SET NationalPopRequired = '22'
 WHERE Type IN (
-	'BUILDING_OXFORD_UNIVERSITY',
+	'BUILDING_IRONWORKS',
 	'BUILDING_NATIONAL_TREASURY'
 );
 
@@ -1452,6 +1452,12 @@ WHERE Type IN (
 UPDATE Buildings SET NationalPopRequired = '25'
 WHERE Type IN (
 	'BUILDING_PRINTING_PRESS'
+);
+
+-- Renaissance T2
+UPDATE Buildings SET NationalPopRequired = '30'
+WHERE Type IN (
+	'BUILDINGCLASS_HERMITAGE'
 );
 
 -- Modern T2 + Ideology NW
