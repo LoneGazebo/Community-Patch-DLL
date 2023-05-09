@@ -208,7 +208,7 @@ public:
 	bool isAdjacentOwned() const;
 	bool isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly = false) const;
 	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam=false, bool bIgnoreImpassable=false) const;
-	bool IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes>& vUnfriendlyPlayers) const;
+	bool IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes>& vUnfriendlyMajors) const;
 	bool IsAdjacentOwnedByEnemy(TeamTypes eTeam) const;
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
 	bool IsAdjacentCity(TeamTypes eTeam = NO_TEAM) const;
@@ -218,7 +218,8 @@ public:
 	int GetNumAdjacentMountains() const;
 	int GetSeaBlockadeScore(PlayerTypes ePlayer) const;
 	int countPassableNeighbors(DomainTypes eDomain=NO_DOMAIN, CvPlot** aPassableNeighbors=NULL) const;
-	bool IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUnfriendlyPlayers) const;
+	bool IsBorderLand(PlayerTypes eDefendingPlayer) const;
+	bool IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUnfriendlyMajors) const;
 	bool IsChokePoint() const;
 	bool IsWaterAreaSeparator() const;
 

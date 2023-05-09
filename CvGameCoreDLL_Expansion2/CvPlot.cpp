@@ -3464,7 +3464,7 @@ bool CvPlot::IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam, 
 }
 
 //	--------------------------------------------------------------------------------
-bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes>& vUnfriendlyPlayers) const
+bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes>& vUnfriendlyMajors) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	set<PlayerTypes> adjacentPlayers;
@@ -3488,11 +3488,11 @@ bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes
 			return true;
 
 		// Were we already passed a set of players to check? (performance optimization)
-		if (!vUnfriendlyPlayers.empty())
+		if (!vUnfriendlyMajors.empty())
 		{
 			for (set<PlayerTypes>::iterator it = adjacentPlayers.begin(); it != adjacentPlayers.end(); ++it)
 			{
-				if (std::find(vUnfriendlyPlayers.begin(), vUnfriendlyPlayers.end(), *it) != vUnfriendlyPlayers.end())
+				if (std::find(vUnfriendlyMajors.begin(), vUnfriendlyMajors.end(), *it) != vUnfriendlyMajors.end())
 					return true;
 			}
 		}
@@ -3727,12 +3727,55 @@ int CvPlot::countPassableNeighbors(DomainTypes eDomain, CvPlot** aPassableNeighb
 	return iPassable;
 }
 
-bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUnfriendlyPlayers) const
+bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer) const
+{
+	vector<PlayerTypes> vUnfriendlyMajors;
+
+	//check distance to all major players' cities
+	//if homefront for at least one ...
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
+		if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eDefendingPlayer).getTeam())
+			continue;
+
+		if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
+			continue;
+
+		if (GET_PLAYER(eDefendingPlayer).isMajorCiv())
+		{
+			if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer, false))
+				vUnfriendlyMajors.push_back(eLoopPlayer);
+			else
+				continue;
+		}
+		else if (GET_PLAYER(eDefendingPlayer).isMinorCiv())
+		{
+			TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+			if (GET_PLAYER(eDefendingPlayer).IsAtWarWith(eLoopPlayer) || GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->IsWaryOfTeam(eLoopTeam)
+				|| GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->GetJerkTurnsRemaining(eLoopTeam) > 0)
+			{
+				vUnfriendlyMajors.push_back(eLoopPlayer);
+			}
+			else
+				continue;			
+		}
+
+		if (IsCloseToCity(eLoopPlayer))
+			return true;
+	}
+
+	//alternatively see if an adjacent plot is owned by an unfriendly player
+	//only check adjacent plots, everything else is too expensive
+	return IsAdjacentOwnedByUnfriendly(eDefendingPlayer, vUnfriendlyMajors);
+}
+
+bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUnfriendlyMajors) const
 {
 	// Were we already passed a set of players to check? (performance optimization)
-	if (!vUnfriendlyPlayers.empty())
+	if (!vUnfriendlyMajors.empty())
 	{
-		for (std::vector<PlayerTypes>::iterator it = vUnfriendlyPlayers.begin(); it != vUnfriendlyPlayers.end(); it++)
+		for (std::vector<PlayerTypes>::iterator it = vUnfriendlyMajors.begin(); it != vUnfriendlyMajors.end(); it++)
 		{
 			if (IsCloseToCity(*it))
 				return true;
@@ -3754,7 +3797,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUn
 			if (GET_PLAYER(eDefendingPlayer).isMajorCiv())
 			{
 				if (GET_PLAYER(eDefendingPlayer).GetDiplomacyAI()->IsPotentialMilitaryTargetOrThreat(eLoopPlayer, false))
-					vUnfriendlyPlayers.push_back(eLoopPlayer);
+					vUnfriendlyMajors.push_back(eLoopPlayer);
 				else
 					continue;
 			}
@@ -3764,7 +3807,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUn
 				if (GET_PLAYER(eDefendingPlayer).IsAtWarWith(eLoopPlayer) || GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->IsWaryOfTeam(eLoopTeam)
 					|| GET_PLAYER(eDefendingPlayer).GetMinorCivAI()->GetJerkTurnsRemaining(eLoopTeam) > 0)
 				{
-					vUnfriendlyPlayers.push_back(eLoopPlayer);
+					vUnfriendlyMajors.push_back(eLoopPlayer);
 				}
 				else
 					continue;			
@@ -3777,7 +3820,7 @@ bool CvPlot::IsBorderLand(PlayerTypes eDefendingPlayer, vector<PlayerTypes>& vUn
 
 	//alternatively see if an adjacent plot is owned by an unfriendly player
 	//only check adjacent plots, everything else is too expensive
-	return IsAdjacentOwnedByUnfriendly(eDefendingPlayer, vUnfriendlyPlayers);
+	return IsAdjacentOwnedByUnfriendly(eDefendingPlayer, vUnfriendlyMajors);
 }
 
 bool CvPlot::IsChokePoint() const

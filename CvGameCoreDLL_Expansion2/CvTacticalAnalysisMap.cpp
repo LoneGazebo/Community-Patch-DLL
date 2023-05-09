@@ -281,7 +281,7 @@ int CvTacticalDominanceZone::GetBorderScore(DomainTypes eDomain, CvCity** ppWors
 					iScore++;
 				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivApproach(eRefPlayer) <= CIV_APPROACH_GUARDED)
 					iScore++;
-				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivOpinion(eRefPlayer) == CIV_OPINION_ENEMY)
+				if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetCivOpinion(eRefPlayer) <= CIV_OPINION_ENEMY)
 					iScore++;
 			}
 		}

@@ -471,7 +471,6 @@
 			<GreatWorkCount>1</GreatWorkCount>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<NumCityCostMod>10</NumCityCostMod>
-			<NationalPopRequired>30</NationalPopRequired>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
@@ -715,7 +714,6 @@
 			<ResourceDiversityModifier>25</ResourceDiversityModifier>
 			<TradeRouteRecipientBonus>5</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
-			<NationalPopRequired>20</NationalPopRequired>
 			<NumCityCostMod>10</NumCityCostMod>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -734,7 +732,6 @@
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<PrereqTech>TECH_WRITING</PrereqTech>
-			<NationalPopRequired>10</NationalPopRequired>
 			<CitySupplyFlat>5</CitySupplyFlat>
 			<NumCityCostMod>10</NumCityCostMod>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -760,7 +757,6 @@
 			<MinAreaSize>-1</MinAreaSize>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<FreePromotion>PROMOTION_ARSENALE</FreePromotion>
-			<NationalPopRequired>15</NationalPopRequired>
 			<NumCityCostMod>10</NumCityCostMod>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -785,7 +781,6 @@
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<TradeRouteRecipientBonus>3</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
-			<NationalPopRequired>15</NationalPopRequired>
 			<NumCityCostMod>10</NumCityCostMod>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
@@ -807,7 +802,6 @@
 			<NukeImmune>true</NukeImmune>
 			<MinAreaSize>-1</MinAreaSize>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
-			<NationalPopRequired>15</NationalPopRequired>
 			<NumCityCostMod>10</NumCityCostMod>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
 			<ThemingBonusHelp>TXT_KEY_BUILDING_MURANO_GLASSWORKS_THEMING_BONUS_HELP</ThemingBonusHelp>

@@ -383,7 +383,7 @@ void CvTacticalAI::FindTacticalTargets()
 	m_ZoneTargets.clear();
 
 	bool bNoBarbsAllowedYet = GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn();
-	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyMajors();
+	vector<PlayerTypes> vUnfriendlyMajors = m_pPlayer->GetUnfriendlyMajors();
 
 	// Look at every tile on map
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
@@ -563,7 +563,7 @@ void CvTacticalAI::FindTacticalTargets()
 				// ... defensive bastion?
 				if (m_pPlayer->GetID() == pLoopPlot->getOwner() &&
 					(pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 30 || pLoopPlot->IsChokePoint()) &&
-					(!vUnfriendlyPlayers.empty() && pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyPlayers))
+					(!vUnfriendlyMajors.empty() && pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyMajors))
 					)
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_DEFENSIVE_BASTION);
@@ -580,7 +580,7 @@ void CvTacticalAI::FindTacticalTargets()
 					pLoopPlot->getImprovementType() != NO_IMPROVEMENT &&
 					!pLoopPlot->IsImprovementPillaged() && !pLoopPlot->isGoody())
 				{
-					if (pLoopPlot->getOwningCity() != NULL && !vUnfriendlyPlayers.empty() && pLoopPlot->getOwningCity()->isBorderCity(vUnfriendlyPlayers))
+					if (pLoopPlot->getOwningCity() != NULL && !vUnfriendlyMajors.empty() && pLoopPlot->getOwningCity()->isBorderCity(vUnfriendlyMajors))
 					{
 						newTarget.SetTargetType(AI_TACTICAL_TARGET_IMPROVEMENT_TO_DEFEND);
 						newTarget.SetAuxIntData(1);
@@ -4821,8 +4821,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			{
 				// Do not pull units out of important citadels
 				CvPlot* pUnitPlot = pLoopUnit->plot();
-				vector<PlayerTypes> v;
-				if (TacticalAIHelpers::IsPlayerCitadel(pUnitPlot, m_pPlayer->GetID()) && pUnitPlot->IsBorderLand(m_pPlayer->GetID(), v))
+				if (TacticalAIHelpers::IsPlayerCitadel(pUnitPlot, m_pPlayer->GetID()) && pUnitPlot->IsBorderLand(m_pPlayer->GetID()))
 					continue;
 
 				// Want to put ranged units in cities to give them a ranged attack (but siege units should be used for offense)

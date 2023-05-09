@@ -552,7 +552,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 						iValue *= 2;
 
 					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
-					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyMajors();
+					vector<PlayerTypes> vUnfriendlyMajors = kPlayer.GetUnfriendlyMajors();
 					int iNumPlayers = (int)warPlayers.size();
 					int iWarValue = 0;
 					for (size_t i=0; i<warPlayers.size(); i++)
@@ -561,7 +561,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 						if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_SEA)
 						{
-							if (std::find(vUnfriendlyPlayers.begin(), vUnfriendlyPlayers.end(), eLoopPlayer) != vUnfriendlyPlayers.end())
+							if (std::find(vUnfriendlyMajors.begin(), vUnfriendlyMajors.end(), eLoopPlayer) != vUnfriendlyMajors.end())
 								iWarValue += 4;
 							else
 								iWarValue += 2;
@@ -605,7 +605,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 				if (iValue > 0 && !kPlayer.isBarbarian())
 				{
 					const CivsList& warPlayers = kPlayer.GetPlayersAtWarWith();
-					vector<PlayerTypes> vUnfriendlyPlayers = kPlayer.GetUnfriendlyMajors();
+					vector<PlayerTypes> vUnfriendlyMajors = kPlayer.GetUnfriendlyMajors();
 					int iNumPlayers = (int)warPlayers.size();
 					int iWarValue = 0;
 					for (size_t i=0; i<warPlayers.size(); i++)
@@ -614,7 +614,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 
 						if (kPlayer.GetMilitaryAI()->GetWarType(eLoopPlayer) == WARTYPE_LAND)
 						{
-							if (std::find(vUnfriendlyPlayers.begin(), vUnfriendlyPlayers.end(), eLoopPlayer) != vUnfriendlyPlayers.end())
+							if (std::find(vUnfriendlyMajors.begin(), vUnfriendlyMajors.end(), eLoopPlayer) != vUnfriendlyMajors.end())
 								iWarValue += 4;
 							else
 								iWarValue += 2;

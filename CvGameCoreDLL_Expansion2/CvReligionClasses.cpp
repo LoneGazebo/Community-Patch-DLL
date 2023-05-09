@@ -6472,7 +6472,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		return NULL;
 
 	std::vector<SPlotWithScore> vTargetsO, vTargetsD;
-	vector<PlayerTypes> vUnfriendlyPlayers = m_pPlayer->GetUnfriendlyMajors();
+	vector<PlayerTypes> vUnfriendlyMajors = m_pPlayer->GetUnfriendlyMajors();
 
 	// Loop through each of my cities
 	int iLoop = 0;
@@ -6492,7 +6492,7 @@ CvCity* CvReligionAI::ChooseInquisitorTargetCity(CvUnit* pUnit, const vector<pai
 		int iScoreO = ScoreCityForInquisitorOffensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion());
 		if (iScoreO>0)
 			vTargetsO.push_back(SPlotWithScore(pLoopCity->plot(),iScoreO));
-		int iScoreD = ScoreCityForInquisitorDefensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion(), vUnfriendlyPlayers);
+		int iScoreD = ScoreCityForInquisitorDefensive(pLoopCity, pUnit, pUnit->GetReligionData()->GetReligion(), vUnfriendlyMajors);
 		if (iScoreD>0)
 			vTargetsD.push_back(SPlotWithScore(pLoopCity->plot(),iScoreD));
 	}
@@ -10109,7 +10109,7 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 }
 
 /// AI's evaluation of this city as a target for an inquisitor
-int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion, vector<PlayerTypes>& vUnfriendlyPlayers) const
+int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion, vector<PlayerTypes>& vUnfriendlyMajors) const
 {
 	//do not check whether the city already has an inquisitor, that is done on a higher level!
 	if (pCity == NULL)
@@ -10134,8 +10134,9 @@ int CvReligionAI::ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, 
 		return 0;
 
 	//see how much we want to defend passively here
+	//todo: vUnfriendlyMajors may want to focus on religious threats here, not the usual threats...enemies can share a religion with no issues
 	int iScore = pCity->GetCityReligions()->IsHolyCityForReligion(eMyReligion) ? 7 : 0;
-	if (!vUnfriendlyPlayers.empty() && pCity->isBorderCity(vUnfriendlyPlayers))
+	if (!vUnfriendlyMajors.empty() && pCity->isBorderCity(vUnfriendlyMajors))
 		iScore += 11;
 
 	//how vulnerable is the city to foreign missionaries trying to flip it?

@@ -87,10 +87,6 @@ SET SpecialistType = 'SPECIALIST_SCIENTIST'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY';
 
 UPDATE Buildings
-SET GoldMaintenance = '0'
-WHERE Type = 'BUILDING_ROYAL_LIBRARY';
-
-UPDATE Buildings
 SET GreatPeopleRateChange = '2'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY';
 
@@ -111,10 +107,6 @@ WHERE Type = 'BUILDING_ROYAL_LIBRARY';
 
 UPDATE Buildings
 SET Cost = '125'
-WHERE Type = 'BUILDING_ROYAL_LIBRARY';
-
-UPDATE Buildings
-SET NationalPopRequired = '15'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY';
 
 UPDATE Buildings

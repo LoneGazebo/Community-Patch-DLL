@@ -467,7 +467,7 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
 	vector<OptionWithScore<int>> choices;
-	vector<PlayerTypes> vUnfriendlyPlayers = GET_PLAYER(m_eOwner).GetUnfriendlyMajors();
+	vector<PlayerTypes> vUnfriendlyMajors = GET_PLAYER(m_eOwner).GetUnfriendlyMajors();
 	ReachablePlots turnsFromMuster = GC.GetStepFinder().GetPlotsInReach(pMusterPlot, data);
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = GET_PLAYER(m_eOwner).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(m_eOwner).nextUnit(&iLoop))
@@ -490,9 +490,9 @@ int CvAIOperation::GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTarget
 
 			//prefer units which are not currently guarding the border
 			int iExtraScore = 0;
-			if (!vUnfriendlyPlayers.empty())
+			if (!vUnfriendlyMajors.empty())
 			{
-				if (pLoopUnit->getDomainType() == DOMAIN_LAND && TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner()) && pLoopUnit->plot()->IsBorderLand(pLoopUnit->getOwner(), vUnfriendlyPlayers))
+				if (pLoopUnit->getDomainType() == DOMAIN_LAND && TacticalAIHelpers::IsPlayerCitadel(pLoopUnit->plot(), pLoopUnit->getOwner()) && pLoopUnit->plot()->IsBorderLand(pLoopUnit->getOwner(), vUnfriendlyMajors))
 					iExtraScore += 42;
 			}
 

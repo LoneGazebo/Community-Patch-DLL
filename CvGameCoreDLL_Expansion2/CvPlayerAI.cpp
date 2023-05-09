@@ -692,7 +692,7 @@ void CvPlayerAI::AI_considerAnnex()
 	ReligionTypes eOurReligion = GetReligions()->GetStateReligion(false);
 
 	vector<OptionWithScore<CvCity*>> options;
-	vector<PlayerTypes> vUnfriendlyPlayers = GetUnfriendlyMajors();
+	vector<PlayerTypes> vUnfriendlyMajors = GetUnfriendlyMajors();
 	for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
 	{
 		//simple check to stop razing "good" cities
@@ -726,7 +726,7 @@ void CvPlayerAI::AI_considerAnnex()
 			iWeight += (iBonus > 0) ? iBonus : 0;
 		}
 
-		if (pCity->isCoastal() || (!vUnfriendlyPlayers.empty() && pCity->isBorderCity(vUnfriendlyPlayers)))
+		if (pCity->isCoastal() || (!vUnfriendlyMajors.empty() && pCity->isBorderCity(vUnfriendlyMajors)))
 			iWeight += 1;
 
 		// Add weight for each World Wonder in the city - cities with Wonders should be annexed quickly so we can benefit from their bonuses
@@ -999,8 +999,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 										if (pCity->getHappinessDelta() < 0 && pkEventChoiceInfo->getCityHappiness() > 0)
 											iOurFlavor *= 2;
 
-										vector<PlayerTypes> v;
-										if (pkEventChoiceInfo->getCityDefenseModifier() > 0 && IsAtWarAnyMajor() && pCity->isBorderCity(v))
+										if (pkEventChoiceInfo->getCityDefenseModifier() > 0 && IsAtWarAnyMajor() && pCity->isBorderCity())
 											iOurFlavor *= 2;
 									}
 									flavorChoices.push_back(eEventChoice, iOurFlavor);

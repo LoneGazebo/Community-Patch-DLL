@@ -114,7 +114,6 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	iTempWeight = sqrti(10 * iTempWeight);
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
-	vector<PlayerTypes> v;
 
 	//barbarians can only farm
 	if (kPlayer.isBarbarian() && pProcess->getProductionToYieldModifier(YIELD_FOOD) == 0)
@@ -126,7 +125,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 	int iModifier = 0;
 
 	//Tiny army? Eek, better build units
-	if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2) || (!m_pCity->HasGarrison() && m_pCity->isBorderCity(v)))
+	if (kPlayer.getNumMilitaryUnits() <= (kPlayer.getNumCities() * 2) || (!m_pCity->HasGarrison() && m_pCity->isBorderCity()))
 	{
 		iModifier -= 100;
 	}
@@ -145,7 +144,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 				iModifier -= (iNumWar * 5);
 				iModifier -= m_pCity->getThreatValue();
 
-				if (m_pCity->isBorderCity(v))
+				if (m_pCity->isBorderCity())
 				{
 					iModifier -= 25;
 				}
