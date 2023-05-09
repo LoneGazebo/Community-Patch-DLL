@@ -1446,6 +1446,12 @@ WHERE Type IN (
 	'BUILDING_PRINTING_PRESS'
 );
 
+-- Renaissance T2
+UPDATE Buildings SET NationalPopRequired = '30'
+WHERE Type IN (
+	'BUILDINGCLASS_HERMITAGE'
+);
+
 -- Modern T2 + Ideology NW
 UPDATE Buildings SET NationalPopRequired = '40'
 WHERE Type IN (
