@@ -3471,14 +3471,17 @@ bool CvPlot::IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-		PlayerTypes ePlotOwner = pAdjacentPlot->getOwner();
-		if (pAdjacentPlot != NULL && ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).getTeam() != GET_PLAYER(ePlayer).getTeam())
+		if (pAdjacentPlot != NULL)
 		{
-			if (pAdjacentPlot->isImpassable(GET_PLAYER(ePlotOwner).getTeam()))
-				continue;
+			PlayerTypes ePlotOwner = pAdjacentPlot->getOwner();
+			if (ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).getTeam() != GET_PLAYER(ePlayer).getTeam())
+			{
+				if (pAdjacentPlot->isImpassable(GET_PLAYER(ePlotOwner).getTeam()))
+					continue;
 
-			if (adjacentPlayers.find(ePlotOwner) == adjacentPlayers.end())
-				adjacentPlayers.insert(ePlotOwner);
+				if (adjacentPlayers.find(ePlotOwner) == adjacentPlayers.end())
+					adjacentPlayers.insert(ePlotOwner);
+			}
 		}
 	}
 
