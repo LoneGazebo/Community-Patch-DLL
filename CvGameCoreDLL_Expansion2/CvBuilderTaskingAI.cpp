@@ -14,7 +14,6 @@
 #include "CvAStar.h"
 #include "CvImprovementClasses.h"
 #include "CvCityConnections.h"
-#include "CvDiplomacyAI.h"
 #include "CvEconomicAI.h"
 #include "CvGameCoreEnumSerialization.h" //toString(const YieldTypes& v)
 #include "CvTypes.h"
@@ -711,9 +710,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 		if (pPlot->getOwner() != m_pPlayer->GetID())
 			break;
-
-		if (pPlot->isCity())
-			continue;
 
 		// remember the plot
 		AddRoutePlot(pPlot, eRoute, 54);

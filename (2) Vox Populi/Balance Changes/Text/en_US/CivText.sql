@@ -152,7 +152,7 @@ INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_BABYLON_WALLS_HELP', '[ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Great Scientists provide 10% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
 
 UPDATE Language_en_US
-SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase Defense Strength in a City by 15 and Hit Points by 75, both values much higher than standard Walls. Increases [ICON_SILVER_FIST] Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. The Walls of Babylon also provide Great Scientist points and improve the Yields of all Great Scientists at discovering technology by +10%. Also helps with managing the Empire Size Modifier in this City.'
+SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase City Defense by 8 and City Hit Points by 150, providing more protection than standard Walls. Increases [ICON_SILVER_FIST] Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. The Walls of Babylon also provide Great Scientist points and improve the Yields of all Great Scientists at discovering technology by +10%. Also helps with managing the Empire Size Modifier in this City.'
 WHERE Tag = 'TXT_KEY_CIV5_BABYLON_WALLS_STRATEGY';
 
 --------------------
@@ -254,7 +254,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_CHUKONU';
 -- Denmark
 --------------------
 UPDATE Language_en_US
-SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee Land Units start with [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units start with [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
+SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee Land Units start with the [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units start with the [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY';
 
 UPDATE Language_en_US
@@ -345,7 +345,7 @@ VALUES ('TXT_KEY_BUILDING_STELE_HELP', '+34% faster border growth in this City. 
 -- France
 --------------------
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. When you conquer a City, gain 50% progress toward [ICON_GREAT_WORK] Great Writer/Artist/Musician in the [ICON_CAPITAL] Capital and a temporary +40% [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production in all Cities, scaling with the conquered City''s [ICON_CITIZEN] Population.'
+SET Text = '+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. When you conquer a City, gain 50% progress toward [ICON_GREAT_WORK] Great Writers/Artists/Musicians in the [ICON_CAPITAL] Capital and a temporary +40% [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production in all Cities, scaling with the conquered City''s [ICON_CITIZEN] Population.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE';
 
 UPDATE Language_en_US
@@ -991,7 +991,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY';
 -- Russia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Allows the City''s [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per tile if they move into a tile worked by this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = 'Reduces the city''s damage taken from attacks by 2. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Allows the City''s [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per tile if they move into a tile worked by this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP';
 
 UPDATE Language_en_US
