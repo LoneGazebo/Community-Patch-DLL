@@ -603,18 +603,18 @@ function RefreshWorldReligions()
 			-- Infixo: Religion Spread
 			entry.NumberOfFollowers:SetText(v.NumFollowers);
 			-- Enginseer: Tooltip to see your Followers
-			local pOwnedCities = 0;
-			local pTotalCities = 0;
-			local pOwnedFollowers = 0;
+			local iOwnedCities = 0;
+			local iTotalCities = 0;
+			local iOwnedFollowers = 0;
 			for pCity in activePlayer:Cities() do
 				if pCity:GetReligiousMajority() == v.ReligionID then
-					pOwnedCities = pOwnedCities+1;
+					iOwnedCities = iOwnedCities+1;
 				end
-				pTotalCities = pTotalCities+1;
-				pOwnedFollowers = pOwnedFollowers + pCity:GetNumFollowers(v.ReligionID);
+				iTotalCities = iTotalCities+1;
+				iOwnedFollowers = iOwnedFollowers + pCity:GetNumFollowers(v.ReligionID);
 			end
-			entry.NumberOfCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_RO_WR_OWNED_CITIES", math.floor(v.NumCities/Game.GetNumCities()*100), v.Name, pOwnedCities, v.Name, math.floor(pOwnedCities/pTotalCities*100), math.floor(pOwnedCities/v.NumCities*100), v.Name)); --It is ok if they don't add up to 100%! We want to round down basically!
-			entry.NumberOfFollowers:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_RO_WR_OWNED_FOLLOWERS", math.floor(v.NumFollowers/Game.GetTotalPopulation()*100), v.Name, pOwnedFollowers, v.Name, math.floor(pOwnedFollowers/activePlayer:GetTotalPopulation()*100), math.floor(pOwnedFollowers/v.NumFollowers*100), v.Name)); --It is ok if they don't add up to 100%! We want to round down basically!
+			entry.NumberOfCities:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_RO_WR_OWNED_CITIES", DisplayPercentage(v.NumCities,Game.GetNumCities()), v.Name, iOwnedCities, v.Name, DisplayPercentage(iOwnedCities,iTotalCities), DisplayPercentage(iOwnedCities,v.NumCities), v.Name)); --It is ok if they don't add up to 100%! We want to round down basically!
+			entry.NumberOfFollowers:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_RO_WR_OWNED_FOLLOWERS", DisplayPercentage(v.NumFollowers,Game.GetTotalPopulation()), v.Name, iOwnedFollowers, v.Name, DisplayPercentage(iOwnedFollowers,activePlayer:GetTotalPopulation()), DisplayPercentage(iOwnedFollowers,v.NumFollowers), v.Name)); --It is ok if they don't add up to 100%! We want to round down basically!
 			-- Infixo: Religion Spread
 			IconHookup(v.ReligionIconIndex, 48, v.ReligionIconAtlas, entry.WorldReligionIcon);
 			CivIconHookup(v.FounderID, 45, entry.FounderIcon, entry.FounderIconBG, entry.FounderIconShadow, true, true );
@@ -990,6 +990,14 @@ function WorldReligionSortOptionSelected(option)
 	g_WorldReligionSortFunction = GetSortFunction(sortOptions);
 	
 	RefreshWorldReligions();
+end
+
+function DisplayPercentage(firstnumber, secondnumber)
+	if math.floor(firstnumber/secondnumber*1000)/10 % 1 == 0 then
+		return math.floor(firstnumber/secondnumber*100)
+	else
+		return math.floor(firstnumber/secondnumber*1000)/10
+	end
 end
 
 -------------------------------------------------------------------------------
