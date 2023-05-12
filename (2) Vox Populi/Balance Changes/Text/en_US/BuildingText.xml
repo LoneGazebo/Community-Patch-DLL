@@ -506,7 +506,7 @@
 			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
-			<Text>+3 [ICON_GOLDEN_AGE] Golden Age Points, +5 [ICON_TOURISM] Tourism. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CHURCH">
