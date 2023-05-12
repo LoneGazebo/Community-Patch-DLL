@@ -1754,6 +1754,18 @@
 			<Text>Followers</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_RO_WR_YEAR_FOUNDED">
+			<Text>Founded</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_RO_WR_OWNED_CITIES">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of all Cities follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your Cities have {4_Name} as the [ICON_RELIGION] Majority Religion. They account for [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of the Majority Religion of your Cities. These cities also accounts for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s majority presence.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_RO_WR_OWNED_FOLLOWERS">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR] of the World's Population follows {2_Name}.[NEWLINE][NEWLINE]{3_Num} of your [ICON_CITIZEN] Population follows {4_Name}. They make up [COLOR_POSITIVE_TEXT]{5_Num}%[ENDCOLOR] of your [ICON_CITIZEN] Population. They also make up for [COLOR_POSITIVE_TEXT]{6_Num}%[ENDCOLOR] of {7_Name}'s followers.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_RO_TAB_MAP">
 			<Text>Map</Text>
 		</Row>
