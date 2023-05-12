@@ -1957,9 +1957,7 @@ void CvTacticalAI::PlotAttritionAttacks(CvTacticalDominanceZone* /*pZone*/)
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteAttritionAttacks(*pTarget);
 
-	//if there is a city, don' t forget to bombard it as well
-	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
-		ExecuteAttritionAttacks(*pTarget);
+	//don't expose our units for city attacks here; if we are likely to succeed we don't call PlotAttritionAttacks
 }
 
 /// Defeat enemy units by using our advantage in numbers
@@ -1976,9 +1974,7 @@ void CvTacticalAI::PlotExploitFlanksMoves(CvTacticalDominanceZone* /*pZone*/)
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
 		ExecuteFlankAttack(*pTarget);
 
-	//if there is a city, don' t forget to bombard it as well
-	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_CITY); pTarget!=NULL && pTarget->IsTargetStillAlive(m_pPlayer->GetID()); pTarget = GetNextZoneTarget())
-		ExecuteFlankAttack(*pTarget);
+	//don't expose our units for city attacks here; if we are likely to succeed we don't call PlotExploitFlanksMoves
 }
 
 /// We have more overall strength than enemy, defeat his army first
