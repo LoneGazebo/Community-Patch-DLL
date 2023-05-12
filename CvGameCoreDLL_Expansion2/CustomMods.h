@@ -430,7 +430,7 @@
 // Adds support for "local" religions (ie ones that only have influence within the civ's own territory) (v48)
 #define MOD_RELIGION_LOCAL_RELIGIONS                gCustomMods.isRELIGION_LOCAL_RELIGIONS()
 // if true, you need a trade route to get passive religious pressure to a city
-#define MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY gCustomMods.isRELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY()
+#define MOD_RELIGION_PASSIVE_SPREAD_WITH_CONNECTION_ONLY gCustomMods.isRELIGION_PASSIVE_SPREAD_WITH_CONNECTION_ONLY()
 // Enables several additional tables related to beliefs
 #define MOD_RELIGION_EXTENSIONS						gCustomMods.isRELIGION_EXTENSIONS()
 // Civilizations benefit from their pantheons even after converted to another religion
@@ -1440,7 +1440,7 @@ public:
 	MOD_OPT_DECL(RELIGION_RECURRING_PURCHASE_NOTIFY);
 	MOD_OPT_DECL(RELIGION_POLICY_BRANCH_FAITH_GP);
 	MOD_OPT_DECL(RELIGION_LOCAL_RELIGIONS);
-	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY);
+	MOD_OPT_DECL(RELIGION_PASSIVE_SPREAD_WITH_CONNECTION_ONLY);
 	MOD_OPT_DECL(RELIGION_EXTENSIONS);
 	MOD_OPT_DECL(RELIGION_PERMANENT_PANTHEON);
 

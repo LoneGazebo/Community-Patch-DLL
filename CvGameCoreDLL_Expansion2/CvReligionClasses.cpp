@@ -2940,11 +2940,12 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	}
 	else
 	{
-#if defined(MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY)
-		if (MOD_RELIGION_PASSIVE_SPREAD_WITH_TRADE_ONLY)
+#if defined(MOD_RELIGION_PASSIVE_SPREAD_WITH_CONNECTION_ONLY)
+		if (MOD_RELIGION_PASSIVE_SPREAD_WITH_CONNECTION_ONLY)
 		{
-			//no trade route, no pressure!
-			return 0;
+			//no trade route and no city connection, no pressure!
+			if (pFromCity->getOwner() != pToCity->getOwner() || !GET_PLAYER(pFromCity->getOwner()).IsCityConnectedToCity(pFromCity,pToCity))
+				return 0;
 		}
 #endif
 

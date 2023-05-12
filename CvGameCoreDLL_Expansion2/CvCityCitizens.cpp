@@ -660,14 +660,22 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 
 	if (eYield == YIELD_FOOD)
 	{
-		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD || bEmphasizeFood)
+		//close to starving, we really really want food
+		if (bEmphasizeFood)
+			iYieldMod += iDefaultValue * 3;
+
+		if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FOOD);
 
 		iYieldMod += std::max(cache.iFamine, cache.iDistress);
 	}
 	else if (eYield == YIELD_PRODUCTION)
 	{
-		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION || bEmphasizeProduction)
+		//building a wonder or project, give it a boost but not so much that we start starving
+		if (bEmphasizeProduction)
+			iYieldMod += iDefaultValue;
+
+		if (eFocus == CITY_AI_FOCUS_TYPE_PRODUCTION)
 			iYieldMod += /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_PRODUCTION);
 
 		iYieldMod += cache.iDistress;
