@@ -80,6 +80,7 @@ CL_SUPPRESS = [
     'invalid-offsetof',
     'tautological-constant-out-of-range-compare',
     'comment',
+    'enum-constexpr-conversion', # TODO: #9786
 ]
 PCH_CPP = 'CvGameCoreDLL_Expansion2\\_precompile.cpp'
 PCH_H = 'CvGameCoreDLLPCH.h'
