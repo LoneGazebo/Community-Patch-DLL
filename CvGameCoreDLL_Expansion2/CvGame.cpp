@@ -33,6 +33,7 @@
 #include "CvAdvisorRecommender.h"
 #include "CvWorldBuilderMapLoader.h"
 #include "CvTypes.h"
+#include "CvDllNetMessageExt.h"
 
 #include "cvStopWatch.h"
 #include "CvUnitMission.h"
@@ -12791,7 +12792,7 @@ void CvGame::DoMinorBullyAnnex(PlayerTypes eMajor, PlayerTypes eMinor)
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
 
-	GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyAnnex(eMajor);
+	NetMessageExt::Send::DoMinorBullyAnnex(eMajor, eMinor);
 }
 //	--------------------------------------------------------------------------------
 /// Do the action of a major buying out a minor and marrying it
@@ -12800,7 +12801,7 @@ void CvGame::DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor)
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
 
-	GET_PLAYER(eMinor).GetMinorCivAI()->DoBuyout(eMajor);
+	NetMessageExt::Send::DoMinorBuyout(eMajor, eMinor);
 }
 
 //	--------------------------------------------------------------------------------

@@ -203,9 +203,11 @@ public:
 	typedef typename VarTraits::ValueType ValueType;
 	typedef typename VarTraits::ContainerType ContainerType;
 	typedef typename VarTraits::SyncVarsType SyncVarsType;
+	std::string nameStr;
 
 	CvSyncVar()
-		: CvSyncVarBase<ValueType>(EmptyString, getContainer().getSyncArchive(), currentValue())
+		: CvSyncVarBase<ValueType>(nameStr, getContainer().getSyncArchive(), currentValue()),
+		nameStr(VarTraits::name())
 	{}
 	~CvSyncVar() {}
 
@@ -273,6 +275,12 @@ public:
 		ValueType other;
 		otherValue >> other;
 		const bool result = other == currentValue();
+
+		if (!result) {
+			// std::string desyncValues = std::string("Desync values, current ") + FSerialization::toString(currentValue()) + "; other " + FSerialization::toString(other) + std::string("\n");
+			// gGlobals.getDLLIFace()->netMessageDebugLog(desyncValues);
+		}
+
 		return result; // Place a conditional breakpoint here to help debug sync errors.
 	}
 	virtual void reset()
@@ -281,7 +289,7 @@ public:
 	}
 	virtual const std::string& name() const
 	{
-		return EmptyString;
+		return nameStr;
 	}
 	virtual void setStackTraceRemark()
 	{
@@ -407,6 +415,7 @@ public:
 		typedef CvSyncArchive<ContainerType>::SyncVars SyncVarsType; \
 		static inline const ValueType& Get(const ContainerType& container) { return container.memberName; } \
 		static inline ValueType& Get(ContainerType& container) { return container.memberName; } \
+		static inline const char* name() { return #memberName; } \
 		static inline const SyncVarsType& GetStorage(const CvSyncVar<memberName##_Traits>& var) { \
 			return *reinterpret_cast<const SyncVarsType*>(reinterpret_cast<const char*>(&var) - offsetof(SyncVarsType, memberName)); \
 		} \

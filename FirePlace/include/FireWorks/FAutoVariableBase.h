@@ -67,6 +67,11 @@ namespace FSerialization
 		static const std::string result("UNKNOWN");
 		return result;
 	}
+
+	template<typename ValueType>
+	std::string toString(const CvString & source) {
+		return source.c_str();
+	}
 }
 
 class FAutoVariableBase
