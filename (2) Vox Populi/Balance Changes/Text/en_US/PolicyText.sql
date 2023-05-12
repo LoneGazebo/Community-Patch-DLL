@@ -151,7 +151,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ARSENAL_DEMOCRACY_HELP';
 
 -- Capitalism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Capitalism[ENDCOLOR]: 2 [ICON_CITIZEN] Specialists in each of your cities generate +1 [ICON_HAPPINESS_1] Happiness instead of -1 [ICON_HAPPINESS_3] Unhappiness from Urbanization. Specialists generate +1 [ICON_GOLD] Gold.'
+SET Text = '[COLOR_POSITIVE_TEXT]Capitalism[ENDCOLOR]: 2 [ICON_CITIZEN] Specialists in each of your cities generate +1 [ICON_HAPPINESS_1] Happiness instead of -1 [ICON_HAPPINESS_3] Unhappiness from Urbanization. Specialists generate +1 [ICON_GOLD] Gold and [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_POLICY_CAPITALISM_HELP';
 
 -- Open Society (Avant Garde)
@@ -232,7 +232,7 @@ WHERE Tag = 'TXT_KEY_POLICY_VOLUNTEER_ARMY_TEXT';
 
 -- Space Procurements
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Space Procurements[ENDCOLOR]: May invest in Spaceship parts with [ICON_GOLD] Gold. Build Spaceship Factories in half the usual time. +10% [ICON_RESEARCH] Science from Research Labs.'
+SET Text = '[COLOR_POSITIVE_TEXT]Space Procurements[ENDCOLOR]: May invest in Spaceship parts with [ICON_GOLD] Gold. Build Spaceship Factories in half the usual time. +20% [ICON_RESEARCH] Science from Research Labs.'
 WHERE Tag = 'TXT_KEY_POLICY_SPACE_PROCUREMENTS_HELP';
 
 --------------------
@@ -517,7 +517,7 @@ SET Text = 'Martial Law'
 WHERE Tag = 'TXT_KEY_POLICY_MARITIME_INFRASTRUCTURE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Martial Law[ENDCOLOR][NEWLINE][ICON_BULLET]No [ICON_GOLD] Gold Maintenance from Garrisons.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +4 [ICON_CULTURE] Culture for each Garrison.[NEWLINE][ICON_BULLET]Yield penalties of [ICON_PUPPET] Puppeted Cities reduced to 60% (from 80%).'
+SET Text = '[COLOR_POSITIVE_TEXT]Martial Law[ENDCOLOR][NEWLINE][ICON_BULLET]No [ICON_GOLD] Gold Maintenance from Garrisons.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness and +4 [ICON_CULTURE] Culture for each Garrison.[NEWLINE][ICON_BULLET]-20% Yield penalties of [ICON_PUPPET] Puppeted Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_MARITIME_INFRASTRUCTURE_HELP';
 
 UPDATE Language_en_US
@@ -607,7 +607,7 @@ SET Text = 'Tribute'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE][ICON_BULLET]A [COLOR_POSITIVE_TEXT]Settler[ENDCOLOR] appears near the [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]+25% Non-Gold Yields of Heavy Tribute demands from [ICON_CITY_STATE] City-States (+50% if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted).'
+SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE][ICON_BULLET]A [COLOR_POSITIVE_TEXT]Settler[ENDCOLOR] appears near the [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]+25% Non-Gold Yields of Heavy Tribute demands from [ICON_CITY_STATE] City-States ([COLOR_YELLOW]+50% if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE_HELP';
 
 UPDATE Language_en_US
@@ -620,7 +620,7 @@ SET Text = 'Imperium'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Imperium[ENDCOLOR][NEWLINE][ICON_BULLET]Cities gain 20 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold when their borders expand, scaling with Era (40 if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted).[NEWLINE][ICON_BULLET]Receive 40 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you found or conquer Cities, scaling with Era. Conquest bonus also scales based on City [ICON_CITIZEN] population.'
+SET Text = '[COLOR_POSITIVE_TEXT]Imperium[ENDCOLOR][NEWLINE][ICON_BULLET]Cities gain 20 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold when their borders expand, scaling with Era ([COLOR_YELLOW]40 if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted[ENDCOLOR]).[NEWLINE][ICON_BULLET]Receive 40 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture when you found or conquer Cities, scaling with Era. Conquest bonus also scales based on City [ICON_CITIZEN] population.'
 WHERE Tag = 'TXT_KEY_POLICY_DISCIPLINE_HELP';
 
 UPDATE Language_en_US
