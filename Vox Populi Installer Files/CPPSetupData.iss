@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "Vox Populi"
-#define MyAppVersion "3.4.2"
+#define MyAppVersion "3.5"
 #define MyAppPublisher "Community Patch Project Team"
 #define MyAppURL "http://forums.civfanatics.com/showthread.php?t=528034"
 
@@ -23,7 +23,7 @@ VersionInfoCompany={#MyAppPublisher}
 VersionInfoDescription={#MyAppName}
 VersionInfoProductName={#MyAppName}
 VersionInfoProductVersion={#MyAppVersion}
-VersionInfoCopyright=2022
+VersionInfoCopyright=2023
 OutputBaseFilename={#MyAppName} ({#MyAppVersion})
 DefaultDirName={userdocs}\My Games\Sid Meier's Civilization 5\
 LicenseFile=License.rtf

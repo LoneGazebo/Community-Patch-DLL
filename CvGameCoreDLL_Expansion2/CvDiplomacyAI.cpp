@@ -5315,8 +5315,15 @@ AggressivePostureTypes CvDiplomacyAI::GetExpansionAggressivePosture(PlayerTypes 
 				continue;
 
 			// If we acquired our city after they founded theirs, they're not being aggressive
-			if (pOurLoopCity->getGameTurnAcquired() > iTurnFounded)
+			int iGameTurnAcquired = pOurLoopCity->getGameTurnAcquired();
+			if (iGameTurnAcquired > iTurnFounded)
 				continue;
+			else if (iGameTurnAcquired == iTurnFounded)
+			{
+				// If they're earlier in the player order, they're not being aggressive, they just got there first!
+				if ((int)ePlayer < (int)GetID())
+					continue;
+			}
 
 			// Must be on same land area
 			if (pCityPlot->getLandmass() != pOurCityPlot->getLandmass())
@@ -12050,8 +12057,15 @@ void CvDiplomacyAI::DoExpansionBickering()
 					continue;
 
 				// If we acquired our city after they founded theirs, they're not being aggressive
-				if (pOurLoopCity->getGameTurnAcquired() > iTurnFounded)
+				int iGameTurnAcquired = pOurLoopCity->getGameTurnAcquired();
+				if (iGameTurnAcquired > iTurnFounded)
 					continue;
+				else if (iGameTurnAcquired == iTurnFounded)
+				{
+					// If they're earlier in the player order, they're not being aggressive, they just got there first!
+					if ((int)ePlayer < (int)GetID())
+						continue;
+				}
 
 				// Must be on same land area
 				if (pCityPlot->getLandmass() != pOurCityPlot->getLandmass())
