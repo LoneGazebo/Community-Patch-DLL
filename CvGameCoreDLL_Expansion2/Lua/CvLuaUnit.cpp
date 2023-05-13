@@ -128,6 +128,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetHurryProduction);
 	Method(GetTradeGold);
 	Method(GetTradeInfluence);
+	Method(GetRestingPointChange);
 	Method(CanTrade);
 	Method(CanBuyCityState);
 	Method(CanRepairFleet);
@@ -1879,6 +1880,21 @@ int CvLuaUnit::lGetTradeInfluence(lua_State* L)
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 
 	const int iResult = pkUnit->getTradeInfluence(pkPlot);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaUnit::lGetRestingPointChange(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	CvUnitEntry *pkUnitEntry = GC.getUnitInfo(pkUnit->getUnitType());
+	if (pkUnitEntry == NULL)
+	{
+		lua_pushinteger(L, 0);
+		return 1;
+	}
+
+	const int iResult = pkUnitEntry->GetRestingPointChange();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

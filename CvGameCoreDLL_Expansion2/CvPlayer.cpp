@@ -3031,7 +3031,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Can a sphere of influence be removed from a City-State?
 	bool bAllowSphereRemoval = false;
-	if (MOD_BALANCE_VP && bConquest && isMajorCiv() && GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 1 && getNumCities() > 0 && GET_PLAYER(eOriginalOwner).getTeam() != getTeam())
+	if (MOD_BALANCE_VP && bConquest && isMajorCiv() && GET_PLAYER(eOldOwner).isMinorCiv() && GET_PLAYER(eOldOwner).getNumCities() == 1 && getNumCities() > 0 && GET_PLAYER(eOriginalOwner).getTeam() != getTeam()
+		&& !GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 	{
 		// If the prerequisites are met, check if a Sphere of Influence from another team is currently active
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -3357,7 +3358,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (GET_PLAYER(eOldOwner).isBarbarian())
 				bDoWarmonger = false;
 
-			if (bDoWarmonger && ePlayerToLiberate != NO_PLAYER)
+			if (bDoWarmonger && (ePlayerToLiberate != NO_PLAYER || bAllowSphereRemoval))
 			{
 				bDoWarmonger = false;
 				pCity->SetNoWarmonger(true);
@@ -4639,7 +4640,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// A teammate's city? Automatically liberated!
 			if (ePlayerToLiberate != NO_PLAYER)
 			{
-				DoLiberatePlayer(ePlayerToLiberate, pNewCity->GetID());
+				DoLiberatePlayer(ePlayerToLiberate, pNewCity->GetID(), false, false);
 				pNewCity = NULL; // delete the pointer
 			}
 			else if (iNumCities > 1)
@@ -5185,7 +5186,7 @@ void CvPlayer::DoRevolutionPlayer(PlayerTypes ePlayer, int iOldCityID)
 		pLog->Msg(strBaseString);
 	}
 
-	DoLiberatePlayer(ePlayer, pCity->GetID(), true);
+	DoLiberatePlayer(ePlayer, pCity->GetID(), true, false);
 }
 
 void CvPlayer::UpdateCityThreatCriteria()
@@ -9520,7 +9521,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 
 //	--------------------------------------------------------------------------------
 /// This player liberates iOldCityID and gives it back to ePlayer
-void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced)
+void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced, bool bSphereRemoval)
 {
 	CvCity* pCity = getCity(iOldCityID);
 	CvAssert(pCity);
@@ -9546,10 +9547,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Who originally took out this team?
 	TeamTypes eConquerorTeam = GET_TEAM(eLiberatedTeam).GetKilledByTeam();
 
-	// If the conqueror team is the same as the liberating team, it's a forced liberation
-	if (eConquerorTeam == eTeam)
-		bForced = true;
-
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 	bool bAlive = GET_PLAYER(ePlayer).isAlive();
 
@@ -9557,7 +9554,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	if (!bAlive)
 	{
 		// Mark the liberators
-		if (!bForced)
+		if (!bForced && !bSphereRemoval)
 		{
 			GET_TEAM(eLiberatedTeam).SetLiberatedByTeam(eTeam);
 		}
@@ -9573,24 +9570,21 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 
 	// Diplo bonus for returning the city
-	if (!bForced)
+	if (!bForced && GET_PLAYER(ePlayer).isMajorCiv())
 	{
-		if (GET_PLAYER(ePlayer).isMajorCiv())
+		// Liberated the capital - big diplo bonus!
+		if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
 		{
-			// Liberated the capital - big diplo bonus!
-			if (pCity->getX() == GET_PLAYER(ePlayer).GetOriginalCapitalX() && pCity->getY() == GET_PLAYER(ePlayer).GetOriginalCapitalY())
-			{
-				pDiploAI->SetPlayerLiberatedCapital(m_eID, true);
-			}
-
-			// Liberated the Holy City - big bonus IF the Holy City status still remains
-			if (GET_PLAYER(ePlayer).IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(ePlayer).GetReligions()->GetOriginalReligionCreatedByPlayer()))
-			{
-				pDiploAI->SetPlayerLiberatedHolyCity(m_eID, true);
-			}
-
-			pDiploAI->ChangeNumCitiesLiberatedBy(m_eID, 1);
+			pDiploAI->SetPlayerLiberatedCapital(m_eID, true);
 		}
+
+		// Liberated the Holy City - big bonus IF the Holy City status still remains
+		if (GET_PLAYER(ePlayer).IsHasLostHolyCity() && pCity->GetCityReligions()->IsHolyCityForReligion(GET_PLAYER(ePlayer).GetReligions()->GetOriginalReligionCreatedByPlayer()))
+		{
+			pDiploAI->SetPlayerLiberatedHolyCity(m_eID, true);
+		}
+
+		pDiploAI->ChangeNumCitiesLiberatedBy(m_eID, 1);
 	}
 
 	// Give the city back to the liberated player
@@ -9858,7 +9852,9 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// If a City-State was liberated, adjust Influence levels and give the City-State a basic but state-of-the-art garrison
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{
-		if (!bForced)
+		if (bSphereRemoval)
+			GET_PLAYER(ePlayer).GetMinorCivAI()->SetFriendshipWithMajor(GetID(), /*0*/ GD_INT_GET(MINOR_REMOVE_SPHERE_FRIENDSHIP));
+		else if (!bForced)
 			GET_PLAYER(ePlayer).GetMinorCivAI()->DoLiberationByMajor(eOldOwner, eConquerorTeam);
 		else
 			GET_PLAYER(ePlayer).GetMinorCivAI()->SetFriendshipWithMajor(GetID(), /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
@@ -9871,6 +9867,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 	}
 
+	// Bonuses for liberation only
 	if (!bForced)
 	{
 		if (!pNewCity->isEverLiberated(GetID()))
@@ -9884,7 +9881,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 			// Reduce liberator's war weariness by 25%
 			GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
 		}
+	}
 
+	// Bonuses for liberation OR sphere removal
+	if (!bForced || bSphereRemoval)
+	{
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		//gain yields for liberation
 		int iPop = pNewCity->getPopulation();

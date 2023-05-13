@@ -205,7 +205,7 @@ SET Text = 'Self-Determination'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Self-Determination[ENDCOLOR]: Liberating a city gives 15 XP to all units, 50 [ICON_INFLUENCE] Influence with all City-States, and 40 [ICON_RESEARCH] Science, scaling with Era and City [ICON_CITIZEN] Population. The liberated city gains an Arsenal and 6 units.'
+SET Text = '[COLOR_POSITIVE_TEXT]Self-Determination[ENDCOLOR]: Liberating a city (including removing another civ''s Sphere of Influence on a City-State through conquest) gives 15 XP to all units, 50 [ICON_INFLUENCE] Influence with all City-States, and 40 [ICON_RESEARCH] Science, scaling with Era and City [ICON_CITIZEN] Population. The liberated city gains an Arsenal and 6 units.'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_HELP';
 
 UPDATE Language_en_US

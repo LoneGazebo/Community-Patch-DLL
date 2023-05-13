@@ -744,7 +744,14 @@ void CvDllNetMessageHandler::ResponseLiberatePlayer(PlayerTypes ePlayer, PlayerT
 	if (!GC.getGame().isFinalInitialized() || PlayerInvalid(ePlayer))
 		return;
 
-	GET_PLAYER(ePlayer).DoLiberatePlayer(eLiberatedPlayer, iCityID);
+	// Check for Sphere of Influence removal
+	if (MOD_BALANCE_VP && GET_PLAYER(eLiberatedPlayer).isMinorCiv() && GET_TEAM(GET_PLAYER(eLiberatedPlayer).getTeam()).GetKilledByTeam() == GET_PLAYER(ePlayer).getTeam())
+	{
+		GET_PLAYER(ePlayer).DoLiberatePlayer(eLiberatedPlayer, iCityID, false, true);
+		return;
+	}
+
+	GET_PLAYER(ePlayer).DoLiberatePlayer(eLiberatedPlayer, iCityID, false, false);
 }
 //------------------------------------------------------------------------------
 void CvDllNetMessageHandler::ResponseMinorCivBullyGold(PlayerTypes ePlayer, PlayerTypes eMinor, int iGold)

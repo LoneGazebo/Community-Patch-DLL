@@ -162,7 +162,7 @@ public:
 	bool IsEventFired(EventTypes eEvent) const;
 	void SetEventFired(EventTypes eEvent, bool bValue);
 #endif
-	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced = false);
+	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced, bool bSphereRemoval);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);
 

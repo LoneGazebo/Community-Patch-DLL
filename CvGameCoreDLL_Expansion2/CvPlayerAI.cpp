@@ -307,7 +307,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		// They will liberate their ally's team and no one else
 		if (bCanLiberate && eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == GET_PLAYER(ePlayerToLiberate).getTeam())
 		{
-			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
+			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, false);
 			return;
 		}
 
@@ -318,7 +318,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	// If we have been actively trying to liberate this city, liberate it! (note - some more liberation checks are later in this method)
 	if (bCanLiberate && GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
 	{
-		DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
+		DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, false);
 		return;
 	}
 
@@ -328,15 +328,6 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		pCity->doTask(TASK_RAZE);
 		return;
 	}
-
-	// City has a courthouse (possible with Rome). Should annex.
-	BuildingClassTypes iCourthouse = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURTHOUSE");
-	if (iCourthouse != -1 && pCity->HasBuildingClass(iCourthouse))
-	{
-		pCity->DoAnnex();
-		return;
-	}
-
 
 	// What is our happiness situation?
 	bool bUnhappy = false;
@@ -409,6 +400,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		if (bCanAnnex)
 		{
 			// If we have a unique courthouse, use it!
+			BuildingClassTypes iCourthouse = (BuildingClassTypes)GC.getInfoTypeForString("BUILDINGCLASS_COURTHOUSE");
 			if (iCourthouse != -1 && getCivilizationInfo().isCivilizationBuildingOverridden(iCourthouse))
 			{
 				pCity->DoAnnex();
@@ -438,12 +430,19 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		{
 			if (GET_PLAYER(ePlayerToLiberate).isMinorCiv())
 			{
-				DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
+				DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, false);
 				return;
 			}
 
 			if (GetDiplomacyAI()->DoPossibleMajorLiberation(pCity, ePlayerToLiberate))
 				return;
+		}
+
+		// If we have bonuses for liberating cities, remove Sphere of Influence if possible
+		if (bAllowSphereRemoval && GetPlayerPolicies()->GetNumericModifier(POLICYMOD_LIBERATION_BONUS) > 0)
+		{
+			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, true);
+			return;
 		}
 
 		// If the city is of ok-ish value and we're not too unhappy, let's puppet
@@ -463,10 +462,10 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 			}
 		}
 
-		// Remove sphere of influence? AI will only do this as a last resort.
+		// Remove sphere of influence?
 		if (bAllowSphereRemoval)
 		{
-			DoLiberatePlayer(pCity->getPreviousOwner(), pCity->GetID(), true);
+			DoLiberatePlayer(pCity->getPreviousOwner(), pCity->GetID(), false, true);
 			return;
 		}
 

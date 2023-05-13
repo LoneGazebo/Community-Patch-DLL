@@ -48306,9 +48306,12 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 
 	if (GET_PLAYER(ePlayerToLiberate).isMajorCiv())
 	{
-		// Hate them? Don't consider liberating!
-		if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
-			return false;
+		if (GET_PLAYER(ePlayerToLiberate).isAlive())
+		{
+			// Hate them? Don't consider liberating!
+			if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
+				return false;
+		}
 
 		//diplo civs will try to liberate friendly capitals/holy cities and dead players to get a big bonus
 		if (bIsDiplo)
@@ -48539,7 +48542,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayer
 
 	if (bLiberate)
 	{
-		GetPlayer()->DoLiberatePlayer(ePlayerToLiberate, pCity->GetID());
+		GetPlayer()->DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, false);
 	}
 
 	return bLiberate;

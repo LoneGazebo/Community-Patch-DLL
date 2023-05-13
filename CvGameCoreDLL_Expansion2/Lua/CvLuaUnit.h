@@ -131,6 +131,7 @@ protected:
 	static int lGetHurryProduction(lua_State* L);
 	static int lGetTradeGold(lua_State* L);
 	static int lGetTradeInfluence(lua_State* L);
+	static int lGetRestingPointChange(lua_State* L);
 	static int lCanTrade(lua_State* L);
 	static int lCanBuyCityState(lua_State* L);
 	static int lCanRepairFleet(lua_State* L);

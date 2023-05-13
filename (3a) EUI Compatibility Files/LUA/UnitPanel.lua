@@ -1807,7 +1807,7 @@ function ActionToolTipHandler( control )
 	-- Great Merchant
 	elseif bnw_mode and action.Type == "MISSION_TRADE" then
 
-		toolTip:insertLocalized( "TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP" )
+		toolTip:insertLocalized( "TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP", unit:GetRestingPointChange() )
 
 		if gameCanHandleAction then
 			toolTip:insert( "----------------" )

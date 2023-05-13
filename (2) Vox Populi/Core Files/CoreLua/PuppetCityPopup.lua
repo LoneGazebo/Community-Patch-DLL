@@ -117,10 +117,7 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 
 		local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_REMOVE_SPHERE_CAPTURED_CITY");
 		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_REMOVE_SPHERE", Players[iPreviousOwner]:GetNameKey());
-		if (bConquest) then
-			strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
-			strToolTip = strToolTip .. activePlayer:GetWarmongerPreviewString(iPreviousOwner, newCity, Game.GetActivePlayer());
-		end
+
 		AddButton(buttonText, OnSphereClicked, strToolTip);
 	end
 

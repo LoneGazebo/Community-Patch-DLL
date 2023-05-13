@@ -78,7 +78,7 @@
 			<Text>Remove Sphere of Influence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POPUP_CITY_CAPTURE_INFO_REMOVE_SPHERE">
-			<Text>Removes the Sphere of Influence placed on {1_CivName}. The city will be returned to the City-State, but they will still be angry with you.</Text>
+			<Text>Removes the Sphere of Influence placed on {1_CivName}. The city will be returned to the City-State, and your [ICON_INFLUENCE] Influence with them will be reset to 0. No warmongering penalties will be incurred for removing a Sphere of Influence.</Text>
 		</Row>
 
 		<!-- Tourism Bonus Turns for Tooltip -->

@@ -1306,7 +1306,7 @@ function TipHandler( control )
 			strToolTip = strToolTip .. "[NEWLINE]";
 		end
 		
-		strToolTip = strToolTip .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP");
+		strToolTip = strToolTip .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP", unit:GetRestingPointChange());
 		
 		if (not bDisabled) then
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
