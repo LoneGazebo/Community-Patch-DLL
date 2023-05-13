@@ -740,7 +740,13 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 				end
 				-- Events
 				yieldChange = yieldChange + city:GetEventBuildingClassYield(buildingClassID, yieldID);
-				-- End 
+				-- Tech Enhanced Yield
+				for row in GameInfo.Building_TechEnhancedYieldChanges( thisBuildingType ) do
+					if (Teams[city:GetTeam()]:IsHasTech(GameInfoTypes[ building.EnhancedYieldTech ])) and (row.YieldType == yield.Type) then
+						yieldChange = yieldChange + (row.Yield or 0)
+					end
+				end
+				-- End
 -- END CBP
 			end
 		else -- not Game
