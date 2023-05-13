@@ -998,6 +998,14 @@ local function SetupBuildingList( city, buildings, buildingIM )
 			buildingYieldRate = buildingYieldRate + buildingYieldPerPopInEmpire * populationEmpire / 100
 			-- Events
 			buildingYieldRate = buildingYieldRate + city:GetEventBuildingClassYield(buildingClassID, yieldID);
+			-- Tech Enhanced Yield
+			buildingTechEnhancedYield = 0
+			for row in GameInfo.Building_TechEnhancedYieldChanges( thisBuildingAndYieldTypes ) do
+				if (Teams[city:GetTeam()]:IsHasTech(GameInfoTypes[ building.EnhancedYieldTech ])) then
+					buildingTechEnhancedYield = buildingTechEnhancedYield + (row.Yield or 0)
+				end
+			end
+			buildingYieldRate = buildingYieldRate + buildingTechEnhancedYield
 			-- End
 			-- Vox Populi Comparable Yields
 			cityYieldRateModifier = 100
