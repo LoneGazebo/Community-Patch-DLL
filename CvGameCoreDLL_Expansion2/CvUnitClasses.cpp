@@ -54,6 +54,7 @@ CvUnitEntry::CvUnitEntry(void) :
 	m_iScaleFromNumThemes(0),
 	m_iNumGoldPerEra(0),
 	m_iNumInfPerEra(0),
+	m_iRestingPointChange(0),
 	m_iProductionCostPerEra(0),
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux(0),
@@ -304,6 +305,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 	m_iScaleFromNumThemes = kResults.GetInt("ScaleFromNumThemes");
 	m_iNumGoldPerEra = kResults.GetInt("NumGoldPerEra");
 	m_iNumInfPerEra = kResults.GetInt("NumInfPerEra");
+	m_iRestingPointChange = kResults.GetInt("RestingPointChange");
 	m_iProductionCostPerEra = kResults.GetInt("ProductionCostAddedPerEra");
 #if defined(MOD_BALANCE_CORE)
 	m_iNumFreeLux = kResults.GetInt("NumFreeLux");
@@ -941,11 +943,18 @@ int CvUnitEntry::GetNumGoldPerEra() const
 	return m_iNumGoldPerEra;
 }
 
-/// Era boost to influence (for great people)
+/// Era boost to influence (for Great Diplomat)
 int CvUnitEntry::GetNumInfPerEra() const
 {
 	return m_iNumInfPerEra;
 }
+
+/// Influence Resting Point change (for Great Diplomat)
+int CvUnitEntry::GetRestingPointChange() const
+{
+	return m_iRestingPointChange;
+}
+
 int CvUnitEntry::GetProductionCostPerEra() const
 {
 	return m_iProductionCostPerEra;

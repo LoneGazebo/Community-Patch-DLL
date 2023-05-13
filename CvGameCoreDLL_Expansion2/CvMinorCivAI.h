@@ -822,6 +822,9 @@ public:
 	void ChangeRiggingCoupChanceIncrease(PlayerTypes ePlayer, int iChange);
 	void ResetRiggingCoupChanceIncrease(PlayerTypes ePlayer);
 
+	int GetRestingPointChange(PlayerTypes ePlayer) const;
+	void ChangeRestingPointChange(PlayerTypes ePlayer, int iChange);
+
 	const CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor) const;
 	CvMinorCivIncomingUnitGift& getIncomingUnitGift(PlayerTypes eMajor);
 
@@ -912,6 +915,7 @@ private:
 	bool m_abPermanentWar[MAX_CIV_TEAMS];
 	bool m_abWaryOfTeam[MAX_CIV_TEAMS];
 	int m_aiRiggingCoupChanceIncrease[MAX_MAJOR_CIVS];
+	int m_aiRestingPointChange[MAX_MAJOR_CIVS];
 
 	bool m_bDisableNotifications;
 

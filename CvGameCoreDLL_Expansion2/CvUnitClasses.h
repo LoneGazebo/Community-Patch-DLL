@@ -69,6 +69,7 @@ public:
 	int GetScaleFromNumThemes() const;
 	int GetNumGoldPerEra() const;
 	int GetNumInfPerEra() const;
+	int GetRestingPointChange() const;
 	int GetProductionCostPerEra() const;
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeLux() const;
@@ -303,6 +304,7 @@ private:
 	int m_iScaleFromNumThemes;
 	int m_iNumGoldPerEra;
 	int m_iNumInfPerEra;
+	int m_iRestingPointChange;
 	int m_iProductionCostPerEra;
 #if defined(MOD_BALANCE_CORE)
 	int m_iNumFreeLux;

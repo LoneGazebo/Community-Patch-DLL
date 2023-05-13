@@ -12267,7 +12267,6 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 
 			iInfTimes100 = iInf * (100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier());
 			iInf = iInfTimes100 / 100;
-			
 		}
 	}
 	return iInf;
@@ -12305,9 +12304,15 @@ bool CvUnit::trade()
 			iInfluence /= 100;
 		}
 
-		// Great Diplomat? Reduce everyone else's Influence.
-		if (m_pUnitInfo->GetNumInfPerEra() > 0)
+		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
+
+		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
+		if (m_pUnitInfo->GetNumInfPerEra() > 0 || iRestingPointChange != 0)
 		{
+			if (iRestingPointChange != 0)
+			{
+				GET_PLAYER(eMinor).GetMinorCivAI()->ChangeRestingPointChange(getOwner(), iRestingPointChange);
+			}
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -12319,7 +12324,7 @@ bool CvUnit::trade()
 					if (pNotifications)
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER");
-						strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey() << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey();
+						strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey() << GET_PLAYER(getOwner()).getCivilizationAdjectiveKey() << iRestingPointChange;
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER_SUMMARY");
 						strSummary << getNameKey() << GET_PLAYER(eMinor).getNameKey();
 						pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());
@@ -12330,7 +12335,7 @@ bool CvUnit::trade()
 			if (pNotifications)
 			{
 				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT");
-				strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey();
+				strText << getNameKey() << iInfluence << GET_PLAYER(eMinor).getNameKey() << iRestingPointChange;
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_SUMMARY");
 				strSummary << getNameKey() << GET_PLAYER(eMinor).getNameKey();
 				pNotifications->Add(NOTIFICATION_GREAT_PERSON_ACTIVE_PLAYER, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), getUnitType());

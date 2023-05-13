@@ -1735,6 +1735,7 @@ ALTER TABLE Buildings ADD COLUMN 'RAToVotes' integer default 0;
 ALTER TABLE Buildings ADD COLUMN 'GPExpendInfluence' integer default 0;
 
 ALTER TABLE Units ADD COLUMN 'NumInfPerEra' integer default 0;
+ALTER TABLE Units ADD COLUMN 'RestingPointChange' integer default 0;
 ALTER TABLE Units ADD COLUMN 'ProductionCostAddedPerEra' integer default 0;
 
 ALTER TABLE Policies ADD COLUMN 'GreatDiplomatRateModifier' integer default 0;

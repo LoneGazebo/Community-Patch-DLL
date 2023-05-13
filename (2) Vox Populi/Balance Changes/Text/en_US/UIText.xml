@@ -410,14 +410,14 @@
 
 		<!-- CSD -->
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT">
-			<Text>Your {1_UnitType} increased your [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR], and reduced the Influence of all Major Civilizations known to the City-State by the same amount!</Text>
+			<Text>Your {1_UnitType} increased your [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR], and reduced the Influence of all Major Civilizations known to the City-State by the same amount! Your minimum [ICON_INFLUENCE] Influence with the City-State has also increased by [COLOR_POSITIVE_TEXT]{4_Num}[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_SUMMARY">
 			<Text>Mission of your {1_UnitType} completed!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER">
-			<Text>A {1_UnitType} increased {4_OwnerAdj} [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR], and reduced your [ICON_INFLUENCE] Influence in the City-State by the same amount!</Text>
+			<Text>A {1_UnitType} increased {4_OwnerAdj} [ICON_INFLUENCE] Influence in {3_CivShortDesc} by [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR], and reduced your [ICON_INFLUENCE] Influence in the City-State by the same amount! Their minimum [ICON_INFLUENCE] Influence with the City-State has also increased by [COLOR_NEGATIVE_TEXT]{5_Num}[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_GREAT_DIPLOMAT_OTHER_SUMMARY">
 			<Text>Foreign {1_UnitType} mission completed!</Text>

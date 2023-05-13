@@ -2042,7 +2042,9 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 
 	//Initializations...
 	CvPlot* pPlot = pCity->plot();
+	CvUnitEntry *pkUnitEntry = GC.getUnitInfo(pUnit->getUnitType());
 	int iFriendshipFromUnit = pUnit->getTradeInfluence(pPlot);
+	int iRestingPointChange = pkUnitEntry->GetRestingPointChange();
 
 	CvPlayer& kMinor = GET_PLAYER(pCity->getOwner());
 	CvMinorCivAI* pMinorCivAI = kMinor.GetMinorCivAI();
@@ -2275,6 +2277,12 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_INFLUENCE))
 	{
 		iScore *= 5;
+	}
+
+	// Resting point increase, and our resting point isn't enough for perma-friendship yet?
+	if (iRestingPointChange > 0 && pMinorCivAI->GetFriendshipAnchorWithMajor(GetID()) < pMinorCivAI->GetFriendsThreshold(GetID()))
+	{
+		iScore += (100 * iRestingPointChange) / max(pMinorCivAI->GetFriendsThreshold(GetID()), 1);
 	}
 
 	// **************************

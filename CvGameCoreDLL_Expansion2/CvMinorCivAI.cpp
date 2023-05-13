@@ -4295,6 +4295,7 @@ void CvMinorCivAI::Reset()
 		m_aiTurnsSincePtPWarning[iI] = -1;
 		m_IncomingUnitGifts[iI].reset();
 		m_aiRiggingCoupChanceIncrease[iI] = 0;
+		m_aiRestingPointChange[iI] = 0;
 	}
 
 	for (int iI = 0; iI < MAX_CIV_TEAMS; iI++)
@@ -4387,6 +4388,7 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 
 	visitor(minorCivAI.m_abWaryOfTeam);
 	visitor(minorCivAI.m_aiRiggingCoupChanceIncrease);
+	visitor(minorCivAI.m_aiRestingPointChange);
 
 	visitor(minorCivAI.m_bIsRebellion);
 	visitor(minorCivAI.m_iTurnsSinceRebellion);
@@ -11164,15 +11166,15 @@ void CvMinorCivAI::ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, b
 /// What is the resting point of Influence this major has?  Affected by religion, social policies, Wary Of, etc.
 int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 {
-	int iAnchor = /*0*/ GD_INT_GET(MINOR_FRIENDSHIP_ANCHOR_DEFAULT);
-
 	CvAssertMsg(eMajor >= 0, "eMajor is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eMajor < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
-	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return iAnchor;
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return 0;
 
 	CvPlayer* pMajor = &GET_PLAYER(eMajor);
 	CvAssertMsg(pMajor, "MINOR CIV AI: pMajor not expected to be NULL.  Please send Anton your save file and version.");
-	if (!pMajor) return iAnchor;
+	if (!pMajor) return 0;
+
+	int iAnchor = /*0*/ GD_INT_GET(MINOR_FRIENDSHIP_ANCHOR_DEFAULT) + GetRestingPointChange(eMajor);
 
 	// Pledge to Protect
 	if (IsProtectedByMajor(eMajor))
@@ -16874,7 +16876,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		if (pImprovementInfo != NULL)
 		{
 			// Current improvement connecting this resource is already there, and not pillaged?
-			if (pImprovementInfo != NULL && pImprovementInfo->IsConnectsResource(eResource) && !pPlot->IsImprovementPillaged())
+			if (pImprovementInfo->IsConnectsResource(eResource) && !pPlot->IsImprovementPillaged())
 				return false;
 
 			// Embassy already there?
@@ -17462,6 +17464,21 @@ void CvMinorCivAI::ResetRiggingCoupChanceIncrease(PlayerTypes ePlayer)
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
 	m_aiRiggingCoupChanceIncrease[ePlayer] = 0;
+}
+
+
+int CvMinorCivAI::GetRestingPointChange(PlayerTypes ePlayer) const
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	return m_aiRestingPointChange[ePlayer];
+}
+
+void CvMinorCivAI::ChangeRestingPointChange(PlayerTypes ePlayer, int iChange)
+{
+	CvAssert(ePlayer >= 0);
+	CvAssert(ePlayer < MAX_MAJOR_CIVS);
+	m_aiRestingPointChange[ePlayer] += iChange;
 }
 
 

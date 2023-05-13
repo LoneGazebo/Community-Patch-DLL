@@ -193,6 +193,7 @@
 			<AdvancedStartCost>-1</AdvancedStartCost>
 			<BaseGold>0</BaseGold>
 			<NumInfPerEra>15</NumInfPerEra>
+			<RestingPointChange>30</RestingPointChange>
 			<WorkRate>1</WorkRate>
 			<CombatLimit>0</CombatLimit>
 			<UnitArtInfo>ART_DEF_UNIT_GREAT_DIPLOMAT</UnitArtInfo>
