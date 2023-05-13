@@ -7479,6 +7479,11 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 	if (eNewValue < NO_IMPROVEMENT) return;
 	if (eNewValue > NO_IMPROVEMENT && GC.getImprovementInfo(eNewValue) == NULL) return;
 
+	// Clear the pillage state if the improvement was replaced by any means
+	bool bPillageStateChanged = IsImprovementPillaged();
+	if (bPillageStateChanged)
+		SetImprovementPillaged(false, false);
+
 	// new farm resources: generic farm textures for asia and american are replaced with rice and maize farm texs. 
 	// when a farm is built on those continents, check for plot's resource. if it's a generic, non-resource farm, change the art to another continent to get diverse generic graphics.
 	// if it's built on rice or maize, change the continent art if needed. america 1, asia 2, africa 3, europe 4 (ocean 0, don't use that)
@@ -7722,13 +7727,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		}
 
 		setUpgradeProgress(0);
-
-		// make sure this plot is not disabled
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-		SetImprovementPillaged(false, false);
-#else
-		SetImprovementPillaged(false);
-#endif
 
 		for(iI = 0; iI < MAX_TEAMS; ++iI)
 		{
@@ -8445,14 +8443,15 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 		{
 			setLayoutDirty(true);
 		}
-		
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
+	}
+
+	if (eOldImprovement != eNewValue || bPillageStateChanged)
+	{
 		if (MOD_EVENTS_TILE_IMPROVEMENTS)
 		{
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_TileImprovementChanged, getX(), getY(), getOwner(), eOldImprovement, eNewValue, IsImprovementPillaged());
 		}
-#endif
-#if defined(MOD_IMPROVEMENTS_EXTENSIONS)
+
 		if (MOD_IMPROVEMENTS_EXTENSIONS && eNewValue != NO_IMPROVEMENT)
 		{
 			// this should be called last
@@ -8461,7 +8460,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				setImprovementType(NO_IMPROVEMENT);
 			}
 		}
-#endif
 	}
 }
 

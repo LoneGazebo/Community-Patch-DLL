@@ -16871,8 +16871,16 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if (pImprovementInfo != NULL && pImprovementInfo->IsConnectsResource(eResource))
-			return false;
+		if (pImprovementInfo != NULL)
+		{
+			// Current improvement connecting this resource is already there, and not pillaged?
+			if (pImprovementInfo != NULL && pImprovementInfo->IsConnectsResource(eResource) && !pPlot->IsImprovementPillaged())
+				return false;
+
+			// Embassy already there?
+			if (pImprovementInfo->IsPermanent())
+				return false;
+		}
 	}
 
 	eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
@@ -16949,13 +16957,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 		}
 	}
 #endif
-	// Clear the pillage state on this plot (eg Minor builds a farm, barbs pillage it,
-	// minor discovers iron on the plot, player pays to build a mine, but the plot is still pillaged!)
-#if defined(MOD_EVENTS_TILE_IMPROVEMENTS)
-	pPlot->SetImprovementPillaged(false, false);
-#else
-	pPlot->SetImprovementPillaged(false);
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 	for(int iI = 0; iI < pPlot->getNumUnits(); iI++)
 	{

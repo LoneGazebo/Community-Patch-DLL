@@ -3102,7 +3102,6 @@ void CvPlayerCulture::MoveWorkIntoSlot (CvGreatWorkInMyEmpire kWork, int iCityID
 			BuildingClassTypes eToBuildingClass = (BuildingClassTypes)pkToEntry->GetBuildingClassType();
 			if(eToBuildingClass != NO_BUILDINGCLASS)
 			{
-				int iFromWork = pToCity->GetCityBuildings()->GetBuildingGreatWork(eToBuildingClass, iSlot);
 				CvCity *pFromCity = m_pPlayer->getCity(iFromCityID);
 				BuildingClassTypes eFromBuildingClass = (BuildingClassTypes)pkFromEntry->GetBuildingClassType();
 				if(pFromCity && eFromBuildingClass != NO_BUILDINGCLASS)
