@@ -1,0 +1,208 @@
+[Instructions to Create New Release]
+
+I, Recursive, leave these instructions on the proper method to create a new release, in case I perish or am otherwise unable to create new releases.
+
+PREREQUISITES
+- CivFanatics Account
+- Collaborator permissions on the repository
+- Installed Inno Script Studio and Inno Setup Compiler
+- Installed ModBuddy
+- Installed Python with integration into PATH
+- Installed all the tools required to build the DLL
+
+Tip #1: You may wish to create the autoinstaller in a *COPY* of your repository folder, since ModBuddy will create junk files.
+Tip #2: Make sure to merge necessary changes and test your changes to the database and DLL before creating a new release.
+
+
+[STEP 1]
+Make sure you're on the latest master branch.
+
+
+
+[STEP 2]
+Create a folder somewhere on your computer named "Debug", with two blank folders inside it: "43 Civ" and "Standard".
+
+
+
+[STEP 3]
+If the new release is savegame incompatible:
+- Increment the modinfo version number of (1) Community Patch by one.
+- Increment the modinfo minimum savegame compatible version of (1) Community Patch by one.
+- For (2), (3a), (3b), (4a) and (4b), increment the modinfo minimum version of the Community Patch (required as a dependency) by 1.
+
+NOTE: .gitignore is set to ignore the Vox Populi Installer Files/(1) Community Patch (v. #) between n and n+10, inclusive, where n is the current version number. Should the version number rise by more than 10, .gitignore will need updating.
+
+
+
+[STEP 4]
+A. Change the displayed version number on the teasers for the following mods:
+- (1) Community Patch
+- (2) Vox Populi
+- (3a) VP - EUI Compatibility Files
+- (3b) 43 Civs Community Patch
+
+Remember that the version number format is "X.Y.Z"
+WHERE X = major version number,
+Y = savegame incompatible release,
+Z = savegame compatible release
+
+
+B. Change the current version number on ISSUE_TEMPLATE in the main folder to match the new version number.
+
+
+C. Change MyAppVersion in CPPSetupData.iss to match the new version number.
+
+Tip: Notepad++'s Find in Files feature can be useful for this step, but it will not update ISSUE_TEMPLATE.
+Find what: {Old Version Number}
+Replace with: {New Version Number}
+Filters: *.iss *.civ5proj
+Directory: GitHub\Community-Patch-DLL
+
+
+
+[STEP 5]
+Copy the following folders from the repository and place them in the Vox Populi Installer Files folder:
+- (4a) Promotion Icons for VP
+- (4b) UI - Promotion Tree for VP
+
+
+
+[STEP 6]
+Create a commit for the new release, and tag it as shown below. DO NOT PUSH TO GITHUB yet.
+Commit Name: "{Version Number} Release"
+Tag Name: "Release-{Version Number}"
+
+Tip: This step is necessary to ensure the GameCoreDLL has the correct release identifier, which can be compared later when debugging.
+
+
+[STEP 7]
+A. Build the CvGameCore_Expansion2.dll file using the Release config (instructions are on the main repository page).
+
+
+B. Place the compiled DLL file in the "(1) Community Patch" folder, replacing the existing DLL there.
+
+
+C. Open Command Prompt and run the following commands. Leave the window open once you're done.
+cd {folder path for Community-Patch-DLL}
+py build_vp_clang.py --config debug
+
+
+D. Go to the clang-output/Debug folder. Cut and paste the compiled DLL and PDB files into the "Standard" folder you created earlier.
+
+
+E. Delete the clang-output and clang-build folders in the repository.
+
+
+
+[STEP 8]
+A. Build the 43 Civ version of the game core using the Release config (uncomment "#define MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h, then build normally).
+
+
+B. Place the compiled 43 Civ DLL file in the "(3b) 43 Civs Community Patch" folder, replacing the existing DLL there.
+
+
+C. Using your opened Command Prompt window, run the following command. Close the window when you're done.
+py build_vp_clang.py --config debug
+
+
+D. Go to the clang-output/Debug folder. Cut and paste the compiled DLL and PDB files into the "43 Civ" folder you created earlier.
+
+
+E. Compress the Debug folder into a .zip file, then delete the unzipped folder.
+
+
+F. Delete the clang-output and clang-build folders in the repository.
+
+
+
+[STEP 9]
+Delete the "Release-{Version Number}" tag you've added to the new release commit, and undo the commit.
+
+
+
+[STEP 10]
+A. Build the following mods in ModBuddy:
+- (1) Community Patch
+- (2) Vox Populi
+- (3a) VP - EUI Compatibility Files
+- (3b) 43 Civs Community Patch
+
+B. Copy the compiled mods from your MODS folder and place them in the Vox Populi Installer Files folder.
+
+C. Remove the version numbers at the end of the mod folder names.
+
+
+
+[STEP 11]
+A. Cut and paste the LUA folder in the (1) Community Patch mod into the "LUA for (1) CP" folder.
+
+
+B. Cut and paste the LUA folder in the (2) Vox Populi mod into the "LUA for (2) VP" folder.
+
+
+
+[STEP 12]
+If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.
+
+
+
+[STEP 13]
+Copy the newly compiled .modinfo files for the following mods from Vox Populi Installer Files to the mods' individual folders in the main folder:
+- (1) Community Patch
+- (2) Vox Populi
+- (3a) VP - EUI Compatibility Files
+- (3b) 43 Civs Community Patch
+
+
+
+[STEP 14]
+Create a commit for the new release, and tag it as shown below.
+Commit Name: "{Version Number} Release"
+Tag Name: "Release-{Version Number}"
+
+
+
+[STEP 15]
+Push the release commit to GitHub.
+
+
+
+[STEP 16]
+A. Go to Releases on GitHub and draft a new release. Upload the compiled autoinstaller and zipped Debug folder to the release binaries.
+
+
+B. For the Release title, type in "Version {Version Number}".
+
+
+C. Choose the tag for the new version from the list, and then hit "Generate release notes" above the "Describe this release" text box.
+
+
+D. Change the text in the box as follows:
+
+
+**Release Notes Thread:**
+
+**GitHub Changes Summary:** <Insert the link next to "Full Changelog" here>
+
+## Pull Requests Summary
+<Insert pull requests list>
+
+<Leave anything else that was added as part of the auto-generated notes at the end>
+
+
+E. Make sure "Set as a pre-release" is unchecked, and "Set as the latest release" is checked.
+
+
+F. Publish the release.
+
+
+
+[STEP 17]
+Make a new version thread on CivFanatics. Link to the compiled autoinstaller on the GitHub page for your new release.
+
+After making the thread, copy and paste the forum thread link next to "**Release Notes Thread:**" in the text box from the previous step, and update the release.
+
+
+
+[STEP 18]
+Announce the new version on Vox Populi's Discord server.
