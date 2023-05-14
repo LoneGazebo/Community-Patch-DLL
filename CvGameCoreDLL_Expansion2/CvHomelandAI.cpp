@@ -1395,11 +1395,15 @@ void CvHomelandAI::ExecutePatrolMoves()
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_ARMY_MIXED,-1,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
-		mapReachablePlots[vLandTargets[i].pTarget] = GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].pTarget,data);
+		mapReachablePlots.insert(std::make_pair(vLandTargets[i].pTarget, GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].pTarget,data)));
 	for (size_t i=0; i<vWaterTargets.size(); i++)
 		//the stepfinder works for both land and water, so do the work only if necessary
-		if (mapReachablePlots.find(vWaterTargets[i].pTarget)==mapReachablePlots.end())
-				mapReachablePlots[vWaterTargets[i].pTarget] = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i].pTarget,data);
+		if (mapReachablePlots.find(vWaterTargets[i].pTarget) == mapReachablePlots.end()) {
+		    std::pair<std::map<CvPlot*, ReachablePlots>::iterator, bool> result = mapReachablePlots.insert(std::make_pair(vWaterTargets[i].pTarget, ReachablePlots()));
+		    if (result.second) { // If the key was inserted
+		        result.first->second = GC.GetStepFinder().GetPlotsInReach(vWaterTargets[i].pTarget, data);
+		    }
+		}
 
 	//for each unit, check which city is closest
 	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
