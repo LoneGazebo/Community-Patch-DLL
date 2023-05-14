@@ -274,7 +274,7 @@ bool CvDllNetInitInfo::Commit()
 	char szMapScriptPath[1040] = {0};
 	const bool bResult = gDLL->GetEvaluatedMapScriptPath(m_szMapScriptName.c_str(), szMapScriptPath, 1040);
 
-	CvString strMapScriptPath = szMapScriptPath;
+	CvString const strMapScriptPath = szMapScriptPath;
 
 	logFile->DebugMsg("Evaluating Map Path: (%s)\nOriginal Path: %s\nNew Path: %s", (bResult)? "Success": "Failed", m_szMapScriptName.c_str(), strMapScriptPath.c_str());
 

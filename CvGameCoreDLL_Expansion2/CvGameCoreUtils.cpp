@@ -43,10 +43,10 @@ int dyWrap(int iDY)
 CvPlot* plotXY(int iX, int iY, int iDX, int iDY)
 {
 	// convert the start coord to hex-space coordinates
-	int iStartHexX = xToHexspaceX(iX, iY);
+	int const iStartHexX = xToHexspaceX(iX, iY);
 
 	int iPlotHexX = iStartHexX + iDX;
-	int iPlotY = iY + iDY; // Y is the same in both coordinate systems
+	int const iPlotY = iY + iDY; // Y is the same in both coordinate systems
 
 	// convert from hex-space coordinates to the storage array
 	iPlotHexX = hexspaceXToX(iPlotHexX, iPlotY);
@@ -61,14 +61,14 @@ CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange)
 	// I'm assuming iDX and iDY are in hex-space
 	if((iDX >= 0) == (iDY >= 0))  // the signs match
 	{
-		int iAbsDX = iDX >= 0 ? iDX : -iDX;
-		int iAbsDY = iDY >= 0 ? iDY : -iDY;
+		int const iAbsDX = iDX >= 0 ? iDX : -iDX;
+		int const iAbsDY = iDY >= 0 ? iDY : -iDY;
 		hexRange = iAbsDX + iAbsDY;
 	}
 	else
 	{
-		int iAbsDX = iDX >= 0 ? iDX : -iDX;
-		int iAbsDY = iDY >= 0 ? iDY : -iDY;
+		int const iAbsDX = iDX >= 0 ? iDX : -iDX;
+		int const iAbsDY = iDY >= 0 ? iDY : -iDY;
 		hexRange = iAbsDX >= iAbsDY ? iAbsDX : iAbsDY;
 	}
 
@@ -82,17 +82,17 @@ CvPlot* plotXYWithRangeCheck(int iX, int iY, int iDX, int iDY, int iRange)
 
 int plotDistance(int iX1, int iY1, int iX2, int iY2)
 {
-	int iX1H = xToHexspaceX(iX1,iY1);
-	int iX2H = xToHexspaceX(iX2,iY2);
+	int const iX1H = xToHexspaceX(iX1,iY1);
+	int const iX2H = xToHexspaceX(iX2,iY2);
 
 	//reconstruct the Z coordinate
-	int iZ1H = -iX1H-iY1;
-	int iZ2H = -iX2H-iY2;
+	int const iZ1H = -iX1H-iY1;
+	int const iZ2H = -iX2H-iY2;
 
 	//todo: fixme. wrapping does not work correctly for large distances
-	int iDX = dxWrap(iX2H - iX1H);
-	int iDY = dyWrap(iY2 - iY1);
-	int iDZ = dxWrap(iZ2H - iZ1H); //x and z have same range
+	int const iDX = dxWrap(iX2H - iX1H);
+	int const iDY = dyWrap(iY2 - iY1);
+	int const iDZ = dxWrap(iZ2H - iZ1H); //x and z have same range
 
 	return (abs(iDX) + abs(iDY) + abs(iDZ)) / 2;
 }
@@ -104,7 +104,7 @@ int plotDistance(const CvPlot& plotA, const CvPlot& plotB)
 
 int plotDistance(int iIndexA, int iIndexB)
 {
-	CvMap& kMap = GC.getMap();
+	CvMap const& kMap = GC.getMap();
 	CvPlot* pA = kMap.plotByIndex(iIndexA);
 	CvPlot* pB = kMap.plotByIndex(iIndexB);
 	if (pA && pB)
@@ -151,16 +151,16 @@ DirectionTypes directionXY(const CvPlot* pFromPlot, const CvPlot* pToPlot)
 	//if the direct neighbor lookup fails, use the real method
 	return estimateDirection(pFromPlot->getX(),pFromPlot->getY(),pToPlot->getX(),pToPlot->getY());
 #else
-	int iSourceX = pFromPlot->getX();
-	int iSourceY = pFromPlot->getY();
-	int iDestX = pToPlot->getX();
-	int iDestY = pToPlot->getY();
+	int const iSourceX = pFromPlot->getX();
+	int const iSourceY = pFromPlot->getY();
+	int const iDestX = pToPlot->getX();
+	int const iDestY = pToPlot->getY();
 
-	int iSourceHexX = xToHexspaceX(iSourceX, iSourceY);
-	int iDestHexX = xToHexspaceX(iDestX, iDestY);
+	int const iSourceHexX = xToHexspaceX(iSourceX, iSourceY);
+	int const iDestHexX = xToHexspaceX(iDestX, iDestY);
 
-	int iWrappedXOffset = dxWrap(iDestHexX - iSourceHexX);
-	int iWrappedYOffset = dyWrap(iDestY - iSourceY);
+	int const iWrappedXOffset = dxWrap(iDestHexX - iSourceHexX);
+	int const iWrappedYOffset = dyWrap(iDestY - iSourceY);
 
 	if(iWrappedYOffset > 0)
 	{
@@ -234,9 +234,9 @@ CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 			iHighestValueOnThisRing += iThisRing*6;
 		}
 		// determine what side of the hex we are on
-		int iDiff = (iIndex - iLowestValueOnThisRing);
-		int iSide = iDiff / iThisRing;
-		int iOffset = iDiff % iThisRing;
+		int const iDiff = (iIndex - iLowestValueOnThisRing);
+		int const iSide = iDiff / iThisRing;
+		int const iOffset = iDiff % iThisRing;
 
 		switch(iSide)
 		{
@@ -270,13 +270,13 @@ CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 
 	}
 	// convert the city coord to hex-space coordinates
-	int iCityHexX = xToHexspaceX(iX, iY);
+	int const iCityHexX = xToHexspaceX(iX, iY);
 
-	int iPlotHexX = iCityHexX + iDeltaHexX;
-	int iPlotY = iY + iDeltaHexY; // Y is the same in both coordinate systems
+	int const iPlotHexX = iCityHexX + iDeltaHexX;
+	int const iPlotY = iY + iDeltaHexY; // Y is the same in both coordinate systems
 
 	// convert from hex-space coordinates to the storage array
-	int iPlotX = hexspaceXToX(iPlotHexX, iPlotY);
+	int const iPlotX = hexspaceXToX(iPlotHexX, iPlotY);
 
 	return GC.getMap().plot(iPlotX , iPlotY);
 }
@@ -284,15 +284,15 @@ CvPlot* iterateRingPlots(int iX, int iY, int iIndex)
 
 int getRingIterationIndex(const CvPlot* pCenter, const CvPlot* pPlot)
 {
-	int iWrappedDX = dxWrap(pPlot->getX() - pCenter->getX());
-	int iWrappedDY = dyWrap(pPlot->getY() - pCenter->getY());
+	int const iWrappedDX = dxWrap(pPlot->getX() - pCenter->getX());
+	int const iWrappedDY = dyWrap(pPlot->getY() - pCenter->getY());
 
 	// convert to hex-space coordinates - the coordinate system axes are E and NE (not orthogonal)
-	int iCenterHexX = xToHexspaceX(pCenter->getX(), pCenter->getY());
-	int iPlotHexX = xToHexspaceX(pCenter->getX() + iWrappedDX, pCenter->getY() + iWrappedDY);
+	int const iCenterHexX = xToHexspaceX(pCenter->getX(), pCenter->getY());
+	int const iPlotHexX = xToHexspaceX(pCenter->getX() + iWrappedDX, pCenter->getY() + iWrappedDY);
 
-	int iDX = dxWrap(iPlotHexX - iCenterHexX);
-	int iDY = iWrappedDY;
+	int const iDX = dxWrap(iPlotHexX - iCenterHexX);
+	int const iDY = iWrappedDY;
 
 	// Regardless of the working radius, we need to offset into the array by the maximum radius
 	return GC.getRingIterationIndexHex((iDX + MAX_CITY_RADIUS), (iDY + MAX_CITY_RADIUS));
@@ -309,26 +309,26 @@ static float hexspaceDirections[6][3] = {
 
 DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDestY)
 {
-	int iStartXHex = xToHexspaceX(iStartX,iStartY);
-	int iDestXHex = xToHexspaceX(iDestX,iDestY);
+	int const iStartXHex = xToHexspaceX(iStartX,iStartY);
+	int const iDestXHex = xToHexspaceX(iDestX,iDestY);
 
-	int iDX = dxWrap(iDestXHex - iStartXHex);
-	int iDY = dyWrap(iDestY - iStartY);
+	int const iDX = dxWrap(iDestXHex - iStartXHex);
+	int const iDY = dyWrap(iDestY - iStartY);
 
 	//undefined
 	if (iDX==0 && iDY==0)
 		return NO_DIRECTION;
 
 	//reconstruct the Z coordinate
-	int iStartZ = -iStartXHex-iStartY;
-	int iDestZ = -iDestXHex-iDestY;
-	int iDZ = iDestZ - iStartZ;
+	int const iStartZ = -iStartXHex-iStartY;
+	int const iDestZ = -iDestXHex-iDestY;
+	int const iDZ = iDestZ - iStartZ;
 
 	float maximum = 0;
 	int maximumIndex = -1;
 	for(int i=0; i<6; i++)
 	{
-		float dotProduct = iDX * hexspaceDirections[i][0] + iDY * hexspaceDirections[i][1] + iDZ * hexspaceDirections[i][2];
+		float const dotProduct = iDX * hexspaceDirections[i][0] + iDY * hexspaceDirections[i][1] + iDZ * hexspaceDirections[i][2];
 		if(dotProduct > maximum)
 		{
 			maximum = dotProduct;
@@ -348,27 +348,27 @@ int angularDeviation(int iStartX, int iStartY, int iDestAX, int iDestAY, int iDe
 	if (iStartX==iDestBX && iStartY==iDestBY)
 		return 0;
 
-	int iStartXHex = xToHexspaceX(iStartX,iStartY);
-	int iDestAXHex = xToHexspaceX(iDestAX,iDestAY);
-	int iDestBXHex = xToHexspaceX(iDestBX,iDestBY);
-	int iDXA = dxWrap(iDestAXHex - iStartXHex);
-	int iDYA = dyWrap(iDestAY - iStartY);
-	int iDXB = dxWrap(iDestBXHex - iStartXHex);
-	int iDYB = dyWrap(iDestBY - iStartY);
+	int const iStartXHex = xToHexspaceX(iStartX,iStartY);
+	int const iDestAXHex = xToHexspaceX(iDestAX,iDestAY);
+	int const iDestBXHex = xToHexspaceX(iDestBX,iDestBY);
+	int const iDXA = dxWrap(iDestAXHex - iStartXHex);
+	int const iDYA = dyWrap(iDestAY - iStartY);
+	int const iDXB = dxWrap(iDestBXHex - iStartXHex);
+	int const iDYB = dyWrap(iDestBY - iStartY);
 
 	//reconstruct the Z coordinate
-	int iStartZ = -iStartXHex-iStartY;
-	int iDestAZ = -iDestAXHex-iDestAY;
-	int iDestBZ = -iDestBXHex-iDestBY;
-	int iDZA = iDestAZ - iStartZ;
-	int iDZB = iDestBZ - iStartZ;
+	int const iStartZ = -iStartXHex-iStartY;
+	int const iDestAZ = -iDestAXHex-iDestAY;
+	int const iDestBZ = -iDestBXHex-iDestBY;
+	int const iDZA = iDestAZ - iStartZ;
+	int const iDZB = iDestBZ - iStartZ;
 
-	float fRawDotProduct = (float) iDXA *iDXB + iDYA * iDYB + iDZA * iDZB;
-	float fNormA2 = (float) iDXA*iDXA + iDYA*iDYA + iDZA*iDZA;
-	float fNormB2 = (float) iDXB*iDXB + iDYB*iDYB + iDZB*iDZB;
+	float const fRawDotProduct = (float) iDXA *iDXB + iDYA * iDYB + iDZA * iDZB;
+	float const fNormA2 = (float) iDXA*iDXA + iDYA*iDYA + iDZA*iDZA;
+	float const fNormB2 = (float) iDXB*iDXB + iDYB*iDYB + iDZB*iDZB;
 
 	//this should be between -1 and +1
-	float fNormDotProduct = fRawDotProduct / sqrtf( fNormA2*fNormB2 );
+	float const fNormDotProduct = fRawDotProduct / sqrtf( fNormA2*fNormB2 );
 	//this should be between 0 and 60
 	return (int)((fNormDotProduct-1)*(-30));
 }
@@ -556,15 +556,15 @@ bool isPromotionValid(PromotionTypes ePromotion, UnitTypes eUnit, bool bLeader, 
 		}
 	}
 
-	PromotionTypes ePrereq1 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion1();
-	PromotionTypes ePrereq2 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion2();
-	PromotionTypes ePrereq3 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion3();
-	PromotionTypes ePrereq4 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion4();
-	PromotionTypes ePrereq5 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion5();
-	PromotionTypes ePrereq6 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion6();
-	PromotionTypes ePrereq7 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion7();
-	PromotionTypes ePrereq8 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion8();
-	PromotionTypes ePrereq9 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion9();
+	PromotionTypes const ePrereq1 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion1();
+	PromotionTypes const ePrereq2 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion2();
+	PromotionTypes const ePrereq3 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion3();
+	PromotionTypes const ePrereq4 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion4();
+	PromotionTypes const ePrereq5 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion5();
+	PromotionTypes const ePrereq6 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion6();
+	PromotionTypes const ePrereq7 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion7();
+	PromotionTypes const ePrereq8 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion8();
+	PromotionTypes const ePrereq9 = (PromotionTypes)promotionInfo->GetPrereqOrPromotion9();
 	if(ePrereq1 != NO_PROMOTION ||
 		ePrereq2 != NO_PROMOTION ||
 		ePrereq3 != NO_PROMOTION ||
@@ -860,7 +860,7 @@ bool isLimitedProject(ProjectTypes eProject)
 TechTypes getDiscoveryTech(UnitTypes eUnit, PlayerTypes ePlayer)
 {
 	TechTypes eBestTech = NO_TECH;
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
+	CvPlayerAI const& kPlayer = GET_PLAYER(ePlayer);
 
 	CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 	if(pkUnitInfo)
@@ -1048,7 +1048,7 @@ bool isPickableName(const char* szName)
 {
 	if(szName)
 	{
-		int iLen = strlen(szName);
+		int const iLen = strlen(szName);
 
 		if(!_stricmp(&szName[iLen-6], "NOPICK"))
 		{
@@ -1431,12 +1431,12 @@ void getUnitAIString(CvString& strString, UnitAITypes eUnitAI)
 //	---------------------------------------------------------------------------
 static uint SkipGUIDSeparators(const char* pszGUID, uint uiStartIndex)
 {
-	UINT uiLength = strlen(pszGUID);
+	UINT const uiLength = strlen(pszGUID);
 	if(uiStartIndex < uiLength)
 	{
 		do
 		{
-			char ch = pszGUID[uiStartIndex];
+			char const ch = pszGUID[uiStartIndex];
 			if(ch == '{' || ch == '-' || ch == ' ')
 				++uiStartIndex;
 			else

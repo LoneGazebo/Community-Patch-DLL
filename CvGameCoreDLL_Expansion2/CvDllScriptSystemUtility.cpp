@@ -242,7 +242,7 @@ void CvDllScriptSystemUtility::PushReplayFromStream(lua_State* L, FDataStream& s
 			lua_setfield(L, playerIdx, "CivAdjective");
 
 			lua_createtable(L, 0, 0);
-			int iFinalTurn = pkReplay->getFinalTurn();
+			int const iFinalTurn = pkReplay->getFinalTurn();
 
 			for(int iTurn = pkReplay->getInitialTurn(); iTurn <= iFinalTurn; ++iTurn)
 			{
@@ -279,7 +279,7 @@ void CvDllScriptSystemUtility::PushReplayFromStream(lua_State* L, FDataStream& s
 			lua_pushinteger(L, pkMessage->getType());
 			lua_setfield(L, -2, "Type");
 
-			int iPlayer = pkMessage->getPlayer();
+			int const iPlayer = pkMessage->getPlayer();
 			lua_pushinteger(L, (iPlayer > -1)? iPlayer + 1 : iPlayer);	//Adjust iPlayer to match the 1-based index scheme.
 			lua_setfield(L, -2, "Player");
 

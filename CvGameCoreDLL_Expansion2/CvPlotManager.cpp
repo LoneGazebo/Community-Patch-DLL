@@ -46,7 +46,7 @@ CvSparseIDInfoGrid::~CvSparseIDInfoGrid()
 //	---------------------------------------------------------------------------
 const CvIDInfoFixedVector *CvSparseIDInfoGrid::Get(int iX, int iY) const
 {
-	uint uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
+	uint const uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
 	if (uiIndex < m_uiMaxIndex)
 	{
 		CvIDInfoFixedVector* pkEntry = m_paEntries[uiIndex];
@@ -60,7 +60,7 @@ const CvIDInfoFixedVector *CvSparseIDInfoGrid::Get(int iX, int iY) const
 //	---------------------------------------------------------------------------
 bool CvSparseIDInfoGrid::Add(const IDInfo& kInfo, int iX, int iY)
 {
-	uint uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
+	uint const uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
 	if (uiIndex < m_uiMaxIndex)
 	{
 		CvIDInfoFixedVector* pkEntry = m_paEntries[uiIndex];
@@ -83,7 +83,7 @@ bool CvSparseIDInfoGrid::Add(const IDInfo& kInfo, int iX, int iY)
 //	---------------------------------------------------------------------------
 void CvSparseIDInfoGrid::Remove(const IDInfo& kInfo, int iX, int iY)
 {
-	uint uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
+	uint const uiIndex = ((uint) iY * m_uiWidth) + (uint) iX;
 	if (uiIndex < m_uiMaxIndex)
 	{
 		CvIDInfoFixedVector* pkEntry = m_paEntries[uiIndex];
@@ -263,7 +263,7 @@ void CvPlotManager::RemoveUnit(const IDInfo& kInfo, int iX, int iY, uint uiLayer
 	}
 	else
 	{
-		int iIndex = 0;
+		int const iIndex = 0;
 		for (CvSparseIDInfoGridVector::const_iterator itr = m_aLayers.begin(); itr != m_aLayers.end(); ++itr)
 		{
 			(*itr).GetGrid()->Remove(kInfo, iX, iY);

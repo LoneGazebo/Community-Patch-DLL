@@ -309,7 +309,7 @@ ICvUnit1* CvDllPlayer::NextUnit(int* pIterIdx, bool bRev)
 int CvDllPlayer::GetPlotDanger(ICvPlot1* pPlot) const
 {
 	CvDllPlot* pDllPlot = dynamic_cast<CvDllPlot*>(pPlot);
-	CvPlot& kPlot = (*pDllPlot->GetInstance());
+	CvPlot const& kPlot = (*pDllPlot->GetInstance());
 	return m_pPlayer->GetPlotDanger(kPlot, false);
 }
 //------------------------------------------------------------------------------

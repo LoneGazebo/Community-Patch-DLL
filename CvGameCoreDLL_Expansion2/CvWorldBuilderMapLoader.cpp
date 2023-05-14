@@ -199,7 +199,7 @@ bool CvWorldBuilderMapLoader::Preload(const wchar_t* wszFilename, bool bScenario
 				CvWorldBuilderMap::PlotScenarioData& kPlot = sg_kSave.GetPlotScenarioData(i);
 				if(kPlot.m_byImprovement != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
 				{
-					ImprovementTypes eType = (ImprovementTypes)kPlot.m_byImprovement;
+					ImprovementTypes const eType = (ImprovementTypes)kPlot.m_byImprovement;
 					const CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eType);
 					if(pkImprovement == NULL || !pkImprovement->IsGoody())
 						kPlot.m_byImprovement = CvWorldBuilderMap::PlotScenarioData::InvalidImprovement;
@@ -488,7 +488,7 @@ void SetPlayerInitialItems(CvPlayer& kGameplayPlayer, const CvWorldBuilderMap::P
 					const CvPolicyBranchEntry* pkBranch = GC.getPolicyBranchInfo(ePolicyBranch);
 					if(pkBranch != NULL)
 					{
-						PolicyTypes eFreePolicy = (PolicyTypes)pkBranch->GetFreePolicy();
+						PolicyTypes const eFreePolicy = (PolicyTypes)pkBranch->GetFreePolicy();
 						if(eFreePolicy != NO_POLICY)
 							kGameplayPlayer.setHasPolicy(eFreePolicy, true);
 					}
@@ -1026,7 +1026,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	vector<CvPlayer*> kMinorCivs;
 	for(uint i = 0; i < MAX_CIV_PLAYERS; ++i)
 	{
-		PlayerTypes ePlayer = PlayerTypes(i);
+		PlayerTypes const ePlayer = PlayerTypes(i);
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		if(kPlayer.isAlive() && kPlayer.getStartingPlot() == NULL)
 		{
@@ -1041,7 +1041,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 	uint uiMinorCivsPlaced = 0;
 
 	OutputDebugStringA("Setting up map...\n");
-	uint uiPlotCount = sg_kSave.GetWidth() * sg_kSave.GetHeight();
+	uint const uiPlotCount = sg_kSave.GetWidth() * sg_kSave.GetHeight();
 	for(uint i = 0; i < uiPlotCount; ++i)
 	{
 		const CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
@@ -1051,7 +1051,7 @@ bool CvWorldBuilderMapLoader::InitMap()
 
 		pkPlot->setTerrainType((TerrainTypes)kPlotData.GetTerrainType(), false, false);
 
-		CvWorldBuilderMap::PlotMapData::PlotHeight ePlotHeight = kPlotData.GetPlotHeight();
+		CvWorldBuilderMap::PlotMapData::PlotHeight const ePlotHeight = kPlotData.GetPlotHeight();
 		if(ePlotHeight != CvWorldBuilderMap::PlotMapData::FLAT_TERRAIN)
 		{
 			if(ePlotHeight == CvWorldBuilderMap::PlotMapData::HILLS)
@@ -1269,7 +1269,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 {
 	InitTypeDesc();
 
-	CvMap& kMap = GC.getMap();
+	CvMap const& kMap = GC.getMap();
 	sg_kSave.Resize(kMap.getGridWidth(), kMap.getGridHeight());
 	sg_kSave.ClearScenarioData();
 
@@ -1295,7 +1295,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 
 	sg_kSave.SetWorldType(kMap.getWorldInfo().GetType());
 
-	uint uiPlotCount = sg_kSave.GetWidth() * sg_kSave.GetHeight();
+	uint const uiPlotCount = sg_kSave.GetWidth() * sg_kSave.GetHeight();
 	for(uint i = 0; i < uiPlotCount; ++i)
 	{
 		CvWorldBuilderMap::PlotMapData& kPlotData = sg_kSave.GetPlotData(i);
@@ -1305,7 +1305,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 
 		kPlotData.SetTerrainType((byte)pkPlot->getTerrainType());
 
-		PlotTypes ePlotType = pkPlot->getPlotType();
+		PlotTypes const ePlotType = pkPlot->getPlotType();
 		if(ePlotType == PLOT_HILLS)
 			kPlotData.SetPlotHeight(CvWorldBuilderMap::PlotMapData::HILLS);
 		else if(ePlotType == PLOT_MOUNTAIN)
@@ -1314,7 +1314,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 			kPlotData.SetPlotHeight(CvWorldBuilderMap::
 			                        PlotMapData::FLAT_TERRAIN);
 
-		ResourceTypes eResourceType = pkPlot->getResourceType();
+		ResourceTypes const eResourceType = pkPlot->getResourceType();
 		if(eResourceType == NO_RESOURCE)
 		{
 			kPlotData.SetResourceType(CvWorldBuilderMap::PlotMapData::InvalidResource);
@@ -1325,7 +1325,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 			kPlotData.SetResourceAmount((byte)pkPlot->getNumResource());
 		}
 
-		FeatureTypes eFeatureType = pkPlot->getFeatureType();
+		FeatureTypes const eFeatureType = pkPlot->getFeatureType();
 		if(eFeatureType == NO_FEATURE)
 		{
 			kPlotData.SetFeatureType(CvWorldBuilderMap::PlotMapData::InvalidFeature);
@@ -1406,7 +1406,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 	const int iTop = lua_gettop(L);
 
 	lua_getglobal(L, "MapModData");
-	bool bFoundTable = lua_istable(L, -1);
+	bool const bFoundTable = lua_istable(L, -1);
 
 	FAssertMsg(bFoundTable, "Unable to find mod data table");
 	if(!bFoundTable)
@@ -1458,7 +1458,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 				const ModEnum* pkEnum = sg_kSave.m_kModData.m_kPlotModData.GetFieldEnumType(uiField);
 				if(pkEnum != NULL)
 				{
-					int iValue = kEntry.GetFieldAsInt(uiField);
+					int const iValue = kEntry.GetFieldAsInt(uiField);
 					const char* szMember = pkEnum->GetMember((uint)iValue);
 					if(szMember == NULL) szMember = "";
 					lua_pushstring(L, szMember);
@@ -1519,7 +1519,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 
 			case ModType::TYPE_ENUM:
 			{
-				int iValue = kPlotDataType.GetFieldDefaultAsInt(uiField);
+				int const iValue = kPlotDataType.GetFieldDefaultAsInt(uiField);
 				const ModEnum* pkEnum = sg_kSave.m_kModData.m_kPlotModData.GetFieldEnumType(uiField);
 				if(pkEnum != NULL)
 				{
@@ -1590,7 +1590,7 @@ int CvWorldBuilderMapLoader::LoadModData(lua_State* L)
 
 						case ModType::TYPE_ENUM:
 						{
-							int iValue = kPlot.GetFieldAsInt(uiField);
+							int const iValue = kPlot.GetFieldAsInt(uiField);
 							const ModEnum* pkEnum = kPlotDataType.GetFieldEnumType(uiField);
 							if(pkEnum != NULL)
 							{
@@ -1694,7 +1694,7 @@ int CvWorldBuilderMapLoader::RunPostProcessScript(lua_State* L)
 
 void CvWorldBuilderMapLoader::ValidateTerrain()
 {
-	CvMap& kMap = GC.getMap();
+	CvMap const& kMap = GC.getMap();
 
 	TerrainTypes eValidTerrain = NO_TERRAIN;
 	const int iNumTerrainTypes = GC.getNumTerrainInfos();
@@ -1737,7 +1737,7 @@ void CvWorldBuilderMapLoader::ValidateCoast()
 	//FTimer kTimer;
 	//kTimer.Start();
 
-	CvMap& kMap = GC.getMap();
+	CvMap const& kMap = GC.getMap();
 	const int iMapWidth = kMap.getGridWidth();
 	const int iMapHeight = kMap.getGridHeight();
 	const int iNumTerrainTypes = GC.getNumTerrainInfos();
@@ -1785,7 +1785,7 @@ void CvWorldBuilderMapLoader::ClearGoodies()
 		CvWorldBuilderMap::PlotScenarioData& kPlot = sg_kSave.GetPlotScenarioData(i);
 		if(kPlot.m_byImprovement != CvWorldBuilderMap::PlotScenarioData::InvalidImprovement)
 		{
-			ImprovementTypes eType = (ImprovementTypes)kPlot.m_byImprovement;
+			ImprovementTypes const eType = (ImprovementTypes)kPlot.m_byImprovement;
 			const CvImprovementEntry* pkImprovement = GC.getImprovementInfo(eType);
 			if(pkImprovement == NULL || pkImprovement->IsGoody())
 				kPlot.m_byImprovement = CvWorldBuilderMap::PlotScenarioData::InvalidImprovement;
@@ -1826,8 +1826,8 @@ WorldSizeTypes CvWorldBuilderMapLoader::GetWorldSizeType(const CvWorldBuilderMap
 			CvWorldInfo kInfo;
 			kInfo.CacheResult(kWorldSizes);
 
-			int iSizeTypeArea = kInfo.getGridWidth() * kInfo.getGridHeight();
-			int iAreaDifference = abs(iArea - iSizeTypeArea);
+			int const iSizeTypeArea = kInfo.getGridWidth() * kInfo.getGridHeight();
+			int const iAreaDifference = abs(iArea - iSizeTypeArea);
 			if(iAreaDifference < iSmallestAreaDifference)
 			{
 				iSmallestAreaDifference = iAreaDifference;
@@ -1929,7 +1929,7 @@ int CvWorldBuilderMapLoader::GetMapPreview(lua_State* L)
 	{
 		TempMapLoaded(wszMapFile);
 
-		WorldSizeTypes eWorldSize = GetWorldSizeType(sg_kTempMap);
+		WorldSizeTypes const eWorldSize = GetWorldSizeType(sg_kTempMap);
 
 		const char* szDefaultSpeed = sg_kTempMap.GetDefaultGameSpeed();
 		GameSpeedTypes eDefaultSpeed = (GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED);

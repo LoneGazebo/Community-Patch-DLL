@@ -39,12 +39,12 @@ static void AddToSortedList(CvCityManager::CityList &kCityList, int iFromX, int 
 	else
 	{
 		// Add to the pre-sorted list.
-		int iAddDistance = plotDistance(iFromX, iFromY, pkAddCity->getX(), pkAddCity->getY());
+		int const iAddDistance = plotDistance(iFromX, iFromY, pkAddCity->getX(), pkAddCity->getY());
 		bool bAdded = false;
 		for (CvCityManager::CityList::iterator itrNearby = kCityList.begin(); itrNearby != kCityList.end(); ++itrNearby)
 		{
 			CvCity* pkNearbyCity = (*itrNearby);
-			int iDistance = plotDistance(iFromX, iFromY, pkNearbyCity->getX(), pkNearbyCity->getY());
+			int const iDistance = plotDistance(iFromX, iFromY, pkNearbyCity->getX(), pkNearbyCity->getY());
 			if (iAddDistance <= iDistance)
 			{
 				kCityList.insert(itrNearby, pkAddCity);
@@ -81,8 +81,8 @@ void CvCityManager::OnCityCreated(CvCity* pkAddCity)
 
 	// Instead of adding all the cities, then sorting the list, this will add them to their correctly sorted position one at a time.
 	// This might be a tad slower, but city creation is not happening all the time and if we did the sort, the list would have to store the distance
-	int iFromX = pkAddCity->getX();
-	int iFromY = pkAddCity->getY();
+	int const iFromX = pkAddCity->getX();
+	int const iFromY = pkAddCity->getY();
 	for (CityMap::iterator itr = ms_kCityMap.begin(); itr != ms_kCityMap.end(); ++itr)
 	{
 		CvCity* pkCity = (*itr).first;

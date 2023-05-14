@@ -126,7 +126,7 @@ void CvStartPositioner::ComputeFoundValues()
 		}
 	}
 
-	int iAvg = (iSum / iValidPlots) * 1000;
+	int const iAvg = (iSum / iValidPlots) * 1000;
 	OutputDebugString( CvString::format("Average city site value without flavor is %d\n",iAvg).c_str() );
 }
 
@@ -138,7 +138,7 @@ vector<CvPlayerStartRank> GetPlayerStartOrder()
 	// Add each player
 	for(int iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
-		CvPlayerAI& player = GET_PLAYER((PlayerTypes)iI);
+		CvPlayerAI const& player = GET_PLAYER((PlayerTypes)iI);
 
 		if(player.isAlive())
 		{
@@ -210,7 +210,7 @@ void CvStartPositioner::AssignStartingLocations()
 
 	// MAJOR CIVS AGAIN (those that couldn't be placed normal start distance apart)
 
-	int iHalfMinimumDist = /*5*/ GD_INT_GET(MIN_CIV_STARTING_DISTANCE) / 2;
+	int const iHalfMinimumDist = /*5*/ GD_INT_GET(MIN_CIV_STARTING_DISTANCE) / 2;
 	while(iPlayersPlaced < iMajorCivs && m_iRequiredSeparation >= 0)
 	{
 		// Resort by fertility (based on the fact that some of these regions are filling up)
@@ -361,7 +361,7 @@ void CvStartPositioner::ComputeTileFertilityValues()
 		// Compute fertility and save off in player 0's found value slot
 		//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 		//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-		int iFertility = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot);
+		int const iFertility = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot);
 		pLoopPlot->setFoundValue((PlayerTypes)0, iFertility);
 
 		if(iFertility > 0)
@@ -393,9 +393,9 @@ void CvStartPositioner::SubdivideRegion(CvStartRegion region, int iNumDivisions)
 	else if(iNumDivisions > 1)
 	{
 		// See if region is taller or wider
-		int iHeight = region.m_Boundaries.m_iNorthEdge - region.m_Boundaries.m_iSouthEdge;
-		int iWidth = region.m_Boundaries.m_iEastEdge - region.m_Boundaries.m_iWestEdge;
-		bool bTallerThanWide = (iHeight>iWidth);
+		int const iHeight = region.m_Boundaries.m_iNorthEdge - region.m_Boundaries.m_iSouthEdge;
+		int const iWidth = region.m_Boundaries.m_iEastEdge - region.m_Boundaries.m_iWestEdge;
+		bool const bTallerThanWide = (iHeight>iWidth);
 		if (iHeight < 1 || iWidth < 1)
 			CUSTOMLOG("warning, invalid region for subdivision!");
 
@@ -618,7 +618,7 @@ int CvStartPositioner::ComputeRowFertility(int iAreaID, int xMin, int xMax, int 
 				// Retrieve fertility from player 0's found value slot
 				//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 				//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-				int iValue = pPlot->getFoundValue((PlayerTypes)0);
+				int const iValue = pPlot->getFoundValue((PlayerTypes)0);
 				if (iValue>0)
 					rtnValue += iValue;
 			}
@@ -639,8 +639,8 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 	int iMinorFoodReq = /*2*/ GD_INT_GET(MINOR_CIV_FOOD_REQUIREMENT);
 	int iMajorFoodReq = /*2*/ GD_INT_GET(MAJOR_CIV_FOOD_REQUIREMENT);
 	bool bIsMinorCiv = GET_PLAYER((PlayerTypes)iPlayerIndex).isMinorCiv();
-	PlayerTypes ePlayer = (PlayerTypes)iPlayerIndex;
-	int iPercentOfBest = /*50*/ GD_INT_GET(MIN_START_FOUND_VALUE_AS_PERCENT_OF_BEST);
+	PlayerTypes const ePlayer = (PlayerTypes)iPlayerIndex;
+	int const iPercentOfBest = /*50*/ GD_INT_GET(MIN_START_FOUND_VALUE_AS_PERCENT_OF_BEST);
 
 	MinorCivTypes eMinorCivType = NO_MINORCIV;
 	if(bIsMinorCiv)
@@ -648,7 +648,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 		eMinorCivType =GET_PLAYER((PlayerTypes) iPlayerIndex).GetMinorCivAI()->GetMinorCivType();
 	}
 
-	bool bDebugMap = GC.getMap().getWorldSize() == WORLDSIZE_DEBUG;
+	bool const bDebugMap = GC.getMap().getWorldSize() == WORLDSIZE_DEBUG;
 
 	// ***** Debug *****
 	if(bDebugMap)
@@ -726,7 +726,7 @@ bool CvStartPositioner::AddCivToRegion(int iPlayerIndex, const CvStartRegion& re
 /// Returns true if illegal start position
 bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation)
 {
-	bool rtnValue = false;
+	bool const rtnValue = false;
 
 	CvAssert(pPlot);
 	if(!pPlot)
@@ -752,7 +752,7 @@ bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation)
 				// If in another area, use a fraction of full distance
 				else
 				{
-					int iSeparationIfOnAnotherContinent = iRequiredSeparation * /*75*/ GD_INT_GET(MIN_DISTANCE_OTHER_AREA_PERCENT) / 100;
+					int const iSeparationIfOnAnotherContinent = iRequiredSeparation * /*75*/ GD_INT_GET(MIN_DISTANCE_OTHER_AREA_PERCENT) / 100;
 					if(plotDistance(pPlot->getX(), pPlot->getY(),
 					                pStartPlot->getX(), pStartPlot->getY()) < iSeparationIfOnAnotherContinent)
 					{
@@ -938,7 +938,7 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iPlotWorth = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot,true);
+		int const iPlotWorth = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot,true);
 		
 		//the region id is the plot index of the original plot
 		if (iPlotWorth > 0)

@@ -242,8 +242,8 @@ public:
 		{
 			return NULL;
 		}
-		int iMapX = coordRange(iX, getGridWidth(), isWrapX());
-		int iMapY = coordRange(iY, getGridHeight(), isWrapY());
+		int const iMapX = coordRange(iX, getGridWidth(), isWrapX());
+		int const iMapY = coordRange(iY, getGridHeight(), isWrapY());
 		return ((isPlot(iMapX, iMapY)) ? &(m_pMapPlots[plotNum(iMapX, iMapY)]) : NULL);
 	}
 	__forceinline CvPlot* plotCheckInvalid(int iX, int iY) const

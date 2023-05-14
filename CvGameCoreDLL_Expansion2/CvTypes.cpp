@@ -130,7 +130,7 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		{
 			while(kResults.Step())
 			{
-				std::string strArtifactType = kResults.GetText(0);
+				std::string const strArtifactType = kResults.GetText(0);
 				LookupTable::iterator it = kArtifactTypeLookupTable.find(strArtifactType);
 				if(it != kArtifactTypeLookupTable.end())
 				{
@@ -167,7 +167,7 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		{
 			while(kResults.Step())
 			{
-				std::string strType = kResults.GetText(0);
+				std::string const strType = kResults.GetText(0);
 				LookupTable::iterator it = kTypeLookupTable.find(strType);
 				if(it != kTypeLookupTable.end())
 				{
@@ -260,7 +260,7 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 		{
 			while(kResults.Step())
 			{
-				std::string strMissionType = kResults.GetText(0);
+				std::string const strMissionType = kResults.GetText(0);
 				LookupTable::iterator it = kMissionTypesLookupTable.find(strMissionType);
 				if(it != kMissionTypesLookupTable.end())
 				{
@@ -273,7 +273,7 @@ void CvTypes::AcquireTypes(Database::Connection& db)
 			}
 		}
 
-		int iNumTypes = db.Count("Missions", false);
+		int const iNumTypes = db.Count("Missions", false);
 		if(iNumTypes >= 0)
 		{
 			s_uiNUM_MISSION_TYPES = static_cast<unsigned int>(iNumTypes);

@@ -284,7 +284,7 @@ bool CvDllDatabaseUtility::PerformDatabasePostProcessing()
 //------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::PrefetchGameData()
 {
-	cvStopWatch kTest("PrefetchGameData", "xml-perf.log");
+	cvStopWatch const kTest("PrefetchGameData", "xml-perf.log");
 
 	//Because Colors and PlayerColors are used everywhere during load
 	//(by the translator) we load interface infos first.
@@ -451,7 +451,7 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 
 	//Test that all Tables w/ 'ID' column start at 0 and not 1.
 	{
-		cvStopWatch watch("Ensure All Tables with 'ID' column start at 0");
+		cvStopWatch const watch("Ensure All Tables with 'ID' column start at 0");
 		Database::Results kTables("name");
 		if(DB.SelectAt(kTables, "sqlite_master", "type", "table"))
 		{
@@ -501,13 +501,13 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 
 	//Validate FK constraints
 	{
-		cvStopWatch watch("Validate FK Constraints");
+		cvStopWatch const watch("Validate FK Constraints");
 		DB.ValidateFKConstraints();
 	}
 
 	LogMsg("Performing Localization Checks");
 	{
-		cvStopWatch watch("Localization Checks");
+		cvStopWatch const watch("Localization Checks");
 		LogMsg("Checking Tag Format...");
 		LogMsg("Note: Tags must only use [A-Z_] characters, start with 'TXT_KEY_', and be under 128 characters long.");
 
@@ -578,7 +578,7 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 
 	LogMsg("Validating UnitGameplay2DScripts");
 	{
-		cvStopWatch watch("Validating UnitGameplay2DScripts");
+		cvStopWatch const watch("Validating UnitGameplay2DScripts");
 		Database::Results kResults;
 		if(DB.Execute(kResults, "Select Type from Units where not exists (select 1 from UnitGameplay2DScripts where UnitType = Units.Type limit 1)"))
 		{
@@ -695,7 +695,7 @@ bool CvDllDatabaseUtility::ValidatePrefetchProcess()
 #endif
 
 	// The domains are a special case in that the contents must match a populated enum exactly.
-#define ValidateDomain(domain) { CvDomainInfo* pkDomainInfo; if (GC.getNumUnitDomainInfos() <= (int)domain || (pkDomainInfo = GC.getUnitDomainInfo(domain)) == NULL || strcmp(pkDomainInfo->GetType(), #domain) != 0) bError = true; }
+#define ValidateDomain(domain) { CvDomainInfo* pkDomainInfo; if (GC.getNumUnitDomainInfos() <= (int)(domain) || (pkDomainInfo = GC.getUnitDomainInfo(domain)) == NULL || strcmp(pkDomainInfo->GetType(), #domain) != 0) bError = true; }
 
 	ValidateDomain(DOMAIN_SEA);
 	ValidateDomain(DOMAIN_AIR);
@@ -737,7 +737,7 @@ bool CvDllDatabaseUtility::LoadGlobalDefines()
 //
 bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 {
-	cvStopWatch kPerfTest("UpdatePlayableCivilizationCounts", "xml-perf.log");
+	cvStopWatch const kPerfTest("UpdatePlayableCivilizationCounts", "xml-perf.log");
 
 	int numPlayableCivilizations = 0;
 	int numAIPlayableCivilizations = 0;
@@ -773,7 +773,7 @@ bool CvDllDatabaseUtility::UpdatePlayableCivilizationCounts()
 //------------------------------------------------------------------------------------------------------
 bool CvDllDatabaseUtility::SetGlobalActionInfo()
 {
-	cvStopWatch kPerfTest("SetGlobalActionInfo", "xml-perf.log");
+	cvStopWatch const kPerfTest("SetGlobalActionInfo", "xml-perf.log");
 	LogMsg("SetGlobalActionInfo\n");
 
 	typedef std::vector<CvActionInfo*> ActionInfoVector;
@@ -823,7 +823,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 		LogMsg("NUM_MISSION_TYPES is not greater than zero in CvDllDatabaseUtility::SetGlobalActionInfo.");
 	}
 
-	int iEstimatedNumActionInfos =
+	int const iEstimatedNumActionInfos =
 	    NUM_INTERFACEMODE_TYPES +
 	    GC.getNumBuildInfos() +
 	    GC.getNumPromotionInfos() +
@@ -972,7 +972,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 			pkEntry->SetCommandType(GC.getInfoTypeForString("COMMAND_PROMOTION"));
 			pkEntry->setActionInfoIndex(i);
-			CvString strHotKey = pkEntry->CreateHotKeyFromDescription(pkEntry->getHotKey(), pkEntry->isShiftDown(), pkEntry->isAltDown(), pkEntry->isCtrlDown());
+			CvString const strHotKey = pkEntry->CreateHotKeyFromDescription(pkEntry->getHotKey(), pkEntry->isShiftDown(), pkEntry->isAltDown(), pkEntry->isCtrlDown());
 			pkEntry->setHotKeyDescription(pkEntry->GetDescription(), GC.getCommandInfo((CommandTypes)(pkEntry->GetCommandType()))->GetDescription(), strHotKey);
 		}
 		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_SPECIALIST)
@@ -981,7 +981,7 @@ bool CvDllDatabaseUtility::SetGlobalActionInfo()
 
 			pkSpecialist->setMissionType(GC.getInfoTypeForString("MISSION_JOIN"));
 			pkSpecialist->setActionInfoIndex(i);
-			CvString strHotKey = pkSpecialist->CreateHotKeyFromDescription(pkSpecialist->getHotKey(), pkSpecialist->isShiftDown(), pkSpecialist->isAltDown(), pkSpecialist->isCtrlDown());
+			CvString const strHotKey = pkSpecialist->CreateHotKeyFromDescription(pkSpecialist->getHotKey(), pkSpecialist->isShiftDown(), pkSpecialist->isAltDown(), pkSpecialist->isCtrlDown());
 			pkSpecialist->setHotKeyDescription(pkSpecialist->GetDescription(), GC.getMissionInfo((MissionTypes)(pkSpecialist->getMissionType()))->GetDescription(), strHotKey);
 		}
 		else if((ActionSubTypes)piActionInfoTypeList[piOrderedIndex[i]] == ACTIONSUBTYPE_CONTROL)

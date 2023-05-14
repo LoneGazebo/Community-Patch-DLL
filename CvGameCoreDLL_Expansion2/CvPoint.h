@@ -52,7 +52,7 @@ public:
 
 	inline CvPoint3 operator/ (float fScalar) const
 	{
-		float fInvScalar = 1.0f/fScalar;
+		float const fInvScalar = 1.0f/fScalar;
 		return CvPoint3(fInvScalar*x,fInvScalar*y,fInvScalar*z);
 	}
 
@@ -68,7 +68,7 @@ public:
 
 	inline float Unitize()
 	{
-		float length = Length();
+		float const length = Length();
 		if(length != 0)
 		{
 			x /= length;

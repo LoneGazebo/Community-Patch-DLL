@@ -95,7 +95,7 @@ int CvEventLog::GetNumEvents(void) const
 {
 	if (m_iEventsEndIndex >= m_iEventsBeginIndex)
 	{
-		int iValue = m_iEventsEndIndex - m_iEventsBeginIndex;
+		int const iValue = m_iEventsEndIndex - m_iEventsBeginIndex;
 		return iValue;
 	}
 

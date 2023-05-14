@@ -18,7 +18,7 @@ void CvPlayerManager::Refresh(bool bWarStateChanged)
 	//include the barbarians!
 	for(int iPlayerCivLoop = 0; iPlayerCivLoop < MAX_PLAYERS; iPlayerCivLoop++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerCivLoop;
+		PlayerTypes const ePlayer = (PlayerTypes) iPlayerCivLoop;
 		CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 		// Must be alive
 		if(!kPlayer.isAlive())

@@ -165,7 +165,7 @@ int CvGameQueries::GetTeamClosenessScore(int** aaiDistances, int* aiStartingLocs
 
 								if(iPlayerStart < iOtherPlayerStart)  // Make sure that iPlayerStart > iOtherPlayerStart
 								{
-									int iTemp = iPlayerStart;
+									int const iTemp = iPlayerStart;
 									iPlayerStart = iOtherPlayerStart;
 									iOtherPlayerStart = iTemp;
 								}

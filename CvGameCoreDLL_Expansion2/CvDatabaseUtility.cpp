@@ -89,7 +89,7 @@ bool CvDatabaseUtility::Initialize2DArray(int**& ppArray, const char* szTable1Na
 		return false;
 	}
 
-	unsigned int iNumBytes = iCount1 * sizeof(int*) + iCount1 * iCount2 * sizeof(int);
+	unsigned int const iNumBytes = iCount1 * sizeof(int*) + iCount1 * iCount2 * sizeof(int);
 	unsigned char* pData = FNEW(unsigned char[iNumBytes], c_eCiv5GameplayDLL, 0);
 	ppArray = (int**)pData;
 	ppArray[0] = (int*)(pData + iCount1 * sizeof(int*));
@@ -117,7 +117,7 @@ void CvDatabaseUtility::Initialize2DArray(int**& ppArray, const size_t iCount1, 
 		return;
 	}
 
-	unsigned int iNumBytes = iCount1 * sizeof(int*) + iCount1 * iCount2 * sizeof(int);
+	unsigned int const iNumBytes = iCount1 * sizeof(int*) + iCount1 * iCount2 * sizeof(int);
 	unsigned char* pData = FNEW(unsigned char[iNumBytes], c_eCiv5GameplayDLL, 0);
 	ppArray = (int**)pData;
 	ppArray[0] = (int*)(pData + iCount1 * sizeof(int*));
@@ -217,7 +217,7 @@ bool CvDatabaseUtility::PopulateArrayByExistence(int*& pArray, const char* szTyp
 //------------------------------------------------------------------------------
 bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, const char* szValueColumn, int iDefaultValue /* = 0 */, int iMinArraySize /* = 0 */)
 {
-	int iSize = MaxRows(szTypeTableName);
+	int const iSize = MaxRows(szTypeTableName);
 	InitializeArray(pArray, (iSize<iMinArraySize)?iMinArraySize:iSize, iDefaultValue);
 
 	std::string strKey = "_PABV_";

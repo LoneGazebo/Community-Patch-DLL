@@ -542,7 +542,7 @@ bool CvDllGame::CanMoveUnitTo(ICvUnit1* pUnit, ICvPlot1* pPlot) const
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
 	CvPlot* pkPlot = GC.UnwrapPlotPointer(pPlot);
 
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF,1);
+	SPathFinderUserData const data(pkUnit,CvUnit::MOVEFLAG_IGNORE_DANGER | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF,1);
 
 	// can the unit actually walk there
 	return GC.GetPathFinder().DoesPathExist(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data);

@@ -76,7 +76,7 @@ void CvUnitMission::AutoMission(CvUnit* hUnit)
 				}
 			}
 
-			bool bAbortMission = !hUnit->IsCombatUnit() && !bEscortedBuilder && hUnit->SentryAlert(false);
+			bool const bAbortMission = !hUnit->IsCombatUnit() && !bEscortedBuilder && hUnit->SentryAlert(false);
 			if(bAbortMission)
 			{
 				hUnit->ClearMissionQueue();
@@ -135,7 +135,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
 			if(pkBuildInfo)
 			{
-				FeatureTypes eFeature = hUnit->plot()->getFeatureType();
+				FeatureTypes const eFeature = hUnit->plot()->getFeatureType();
 				if(eFeature != NO_FEATURE && pkBuildInfo->isFeatureRemove(eFeature) && pkBuildInfo->getFeatureTime(eFeature) > 0)
 				{
 					// Don't bother looking if this is the build that removes this feature
@@ -150,10 +150,10 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 							if(pRemoveBuildInfo) {
 								if(pRemoveBuildInfo->isFeatureRemoveOnly(eFeature)) {
 									CvTeamTechs* pTechs = GET_TEAM(GET_PLAYER(hUnit->getOwner()).getTeam()).GetTeamTechs();
-									TechTypes eObsoleteTech = (TechTypes) pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
+									TechTypes const eObsoleteTech = (TechTypes) pRemoveBuildInfo->getFeatureObsoleteTech(eFeature);
 
 									if (eObsoleteTech == NO_TECH || !pTechs->HasTech(eObsoleteTech)) {
-										TechTypes ePrereqTech = (TechTypes) pRemoveBuildInfo->getFeatureTech(eFeature);
+										TechTypes const ePrereqTech = (TechTypes) pRemoveBuildInfo->getFeatureTech(eFeature);
 									
 										// We have a candidate build for removing this feature
 										if (ePrereqTech == NO_TECH) {
@@ -184,7 +184,7 @@ void CvUnitMission::PushMission(CvUnit* hUnit, MissionTypes eMission, int iData1
 							
 							hUnit->SetMissionAI(eMissionAI, pMissionAIPlot, pMissionAIUnit);
 							InsertAtEndMissionQueue(hUnit, removeMission, !bAppend);
-							UnitClassTypes eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
+							UnitClassTypes const eArchaeologistClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARCHAEOLOGIST", true);
 							if (hUnit != NULL && hUnit->getUnitClassType() != eArchaeologistClass)
 							{
 								bAppend = true;
@@ -407,8 +407,8 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				}
 				else
 				{
-					bool bCityAttackInterrupt = gDLL->GetAdvisorCityAttackInterrupt();
-					bool bBadAttackInterrupt = gDLL->GetAdvisorBadAttackInterrupt();
+					bool const bCityAttackInterrupt = gDLL->GetAdvisorCityAttackInterrupt();
+					bool const bBadAttackInterrupt = gDLL->GetAdvisorBadAttackInterrupt();
 					if(hUnit->isHuman() && !CvPreGame::isNetworkMultiplayerGame() && !GC.getGame().IsCombatWarned() && (bCityAttackInterrupt || bBadAttackInterrupt))
 					{
 						if(hUnit->canMoveInto(*pDestPlot, CvUnit::MOVEFLAG_ATTACK) && pDestPlot->isVisible(hUnit->getTeam()))
@@ -438,7 +438,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 								CvUnit* pDefender = pDestPlot->getVisibleEnemyDefender(hUnit->getOwner());
 								if(pDefender)
 								{
-									CombatPredictionTypes ePrediction = GC.getGame().GetCombatPrediction(hUnit, pDefender);
+									CombatPredictionTypes const ePrediction = GC.getGame().GetCombatPrediction(hUnit, pDefender);
 									if(ePrediction == COMBAT_PREDICTION_TOTAL_DEFEAT || ePrediction == COMBAT_PREDICTION_MAJOR_DEFEAT)
 									{
 										if(!GC.getGame().isOption(GAMEOPTION_NO_TUTORIAL))
@@ -490,7 +490,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 
 				if(hUnit->getDomainType() == DOMAIN_AIR)
 				{
-					int iResult = hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags);
+					int const iResult = hUnit->UnitAttackWithMove(pkMissionData->iData1, pkMissionData->iData2, pkMissionData->iFlags);
 					if (iResult == CvUnit::MOVE_RESULT_CANCEL)
 					{
 						//illegal, cannot execute attack
@@ -869,7 +869,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 				// update the amount of a Resource used up by cancelled Build
 				if (MOD_IMPROVEMENTS_EXTENSIONS)
 				{
-					BuildTypes eBuild = hUnit->getBuildType();
+					BuildTypes const eBuild = hUnit->getBuildType();
 					if (eBuild != NO_BUILD)
 					{
 						CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
@@ -1004,7 +1004,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
 	{
-		CvLuaArgsHandle args;
+		CvLuaArgsHandle const args;
 		args->Push(hUnit->getOwner());
 		args->Push(hUnit->GetID());
 		args->Push(iMission);
@@ -1398,7 +1398,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 	CvAssert(hUnit->getOwner() != NO_PLAYER);
 	CvAssert(hUnit->HeadMissionData() != NULL);
 
-	CvPlayerAI& kUnitOwner = GET_PLAYER(hUnit->getOwner());
+	CvPlayerAI const& kUnitOwner = GET_PLAYER(hUnit->getOwner());
 
 	if(!kUnitOwner.isSimultaneousTurns())
 	{
@@ -1557,7 +1557,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_NUKE())
 			{
-				MissionData& kMissionData = *hUnit->HeadMissionData();
+				MissionData const& kMissionData = *hUnit->HeadMissionData();
 				if(GC.getMap().plot(kMissionData.iData1, kMissionData.iData2) == NULL || !hUnit->canNukeAt(hUnit->plot(), kMissionData.iData1, kMissionData.iData2))
 				{
 					// Invalid, delete the mission
@@ -1603,7 +1603,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_RANGE_ATTACK())
 			{
-				MissionData& kMissionData = *hUnit->HeadMissionData();
+				MissionData const& kMissionData = *hUnit->HeadMissionData();
 				if(GC.getMap().plot(kMissionData.iData1, kMissionData.iData2) == NULL || !hUnit->canRangeStrikeAt(kMissionData.iData1, kMissionData.iData2))
 				{
 					// Invalid, delete the mission
@@ -1801,7 +1801,7 @@ void CvUnitMission::StartMission(CvUnit* hUnit)
 
 			else if(pkQueueData->eMissionType == CvTypes::getMISSION_BUILD())
 			{
-				BuildTypes currentBuild = (BuildTypes)(hUnit->HeadMissionData()->iData1);
+				BuildTypes const currentBuild = (BuildTypes)(hUnit->HeadMissionData()->iData1);
 				// Gold cost for Improvement construction
 				kUnitOwner.GetTreasury()->ChangeGold(-kUnitOwner.getBuildCost(hUnit->plot(),currentBuild));
 
@@ -2033,7 +2033,7 @@ int CvUnitMission::CalculateMissionTimer(CvUnit* hUnit, int iSteps)
 	}
 	else if((pkMissionNode = HeadMissionData(hUnit->m_missionQueue)) != NULL)
 	{
-		MissionData& kMissionData = *pkMissionNode;
+		MissionData const& kMissionData = *pkMissionNode;
 
 		iTime = 1;
 
@@ -2333,7 +2333,7 @@ bool CvUnitMission::HasCompletedMoveMission(CvUnit* hUnit)
 	MissionData* pkMissionNode = NULL;
 	if((pkMissionNode = HeadMissionData(hUnit->m_missionQueue)) != NULL)
 	{
-		MissionData& kMissionData = *pkMissionNode;
+		MissionData const& kMissionData = *pkMissionNode;
 		if((kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO()) ||
 		        (kMissionData.eMissionType == CvTypes::getMISSION_ROUTE_TO()) ||
 		        (kMissionData.eMissionType == CvTypes::getMISSION_MOVE_TO_UNIT()))

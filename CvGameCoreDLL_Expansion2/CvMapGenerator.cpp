@@ -48,7 +48,7 @@ CvMapGenerator::~CvMapGenerator()
 bool CvMapGenerator::GetMapInitData(CvMapInitData& kData, WorldSizeTypes eWorldSize)
 {
 	CvWorldInfo	kWorldInfo;
-	Database::Connection& db = *GC.GetGameDatabase();
+	Database::Connection const& db = *GC.GetGameDatabase();
 
 	//Query
 	Database::Results kQuery;
@@ -103,7 +103,7 @@ bool CvMapGenerator::GetGameInitialItemsOverrides(CvGameInitialItemsOverrides& k
 //------------------------------------------------------------------------------
 int CvMapGenerator::pGetMapInitData(lua_State* L)
 {
-	cvStopWatch stopWatch("CvMapGenerator - GetMapInitData()");
+	cvStopWatch const stopWatch("CvMapGenerator - GetMapInitData()");
 	GetMapInitDataArgs* pArgs = (GetMapInitDataArgs*)lua_touserdata(L, 1);
 
 	pArgs->bSuccess = false;
@@ -151,7 +151,7 @@ int CvMapGenerator::pGetMapInitData(lua_State* L)
 //------------------------------------------------------------------------------
 int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 {
-	cvStopWatch stopWatch("CvMapGenerator - GetGameInitialItemsOverrides()");
+	cvStopWatch const stopWatch("CvMapGenerator - GetGameInitialItemsOverrides()");
 	GetGameInitialItemsOverridesArgs* pArgs = (GetGameInitialItemsOverridesArgs*)lua_touserdata(L, 1);
 
 	pArgs->bSuccess = false;
@@ -276,7 +276,7 @@ int CvMapGenerator::pGetGameInitialItemsOverrides(lua_State* L)
 //------------------------------------------------------------------------------
 int CvMapGenerator::pGenerateRandomMap(lua_State* L)
 {
-	cvStopWatch stopWatch("CvMapGenerator - GenerateRandomMap()");
+	cvStopWatch const stopWatch("CvMapGenerator - GenerateRandomMap()");
 	ICvEngineScriptSystem1* pkScriptSystem = (ICvEngineScriptSystem1*)lua_touserdata(L, 1);
 
 	lua_getglobal(L, "GenerateMap");

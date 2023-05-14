@@ -927,7 +927,7 @@ bool CvDllGameContext::RandomNumberGeneratorSyncCheck(PlayerTypes ePlayer, ICvRa
 //------------------------------------------------------------------------------
 unsigned int CvDllGameContext::CreateRandomNumberGenerator()
 {
-	uint index = m_uiRngCounter++;
+	uint const index = m_uiRngCounter++;
 	std::pair<uint, CvRandom*> entry(index, FNEW(CvRandom( CvString::format("GenericRng%02d",index).c_str() ), c_eCiv5GameplayDLL, 0));
 
 	m_RandomNumberGenerators.push_back(entry);
@@ -965,7 +965,7 @@ void CvDllGameContext::DestroyRandomNumberGenerator(unsigned int index)
 //------------------------------------------------------------------------------
 unsigned int CvDllGameContext::CreateNetInitInfo()
 {
-	uint index = m_uiNetInitInfoCounter++;
+	uint const index = m_uiNetInitInfoCounter++;
 	std::pair<uint, CvDllNetInitInfo*> entry(index, new CvDllNetInitInfo());
 
 	m_NetInitInfos.push_back(entry);
@@ -1006,7 +1006,7 @@ void CvDllGameContext::DestroyNetInitInfo(unsigned int index)
 //------------------------------------------------------------------------------
 unsigned int CvDllGameContext::CreateNetLoadGameInfo()
 {
-	uint index = m_uiNetLoadGameInfoCounter++;
+	uint const index = m_uiNetLoadGameInfoCounter++;
 	std::pair<uint, CvDllNetLoadGameInfo*> entry(index, new CvDllNetLoadGameInfo());
 
 	m_NetLoadGameInfos.push_back(entry);
@@ -1048,7 +1048,7 @@ void CvDllGameContext::DestroyNetLoadGameInfo(unsigned int index)
 void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_IGNORE_STACKING_SELF,1);
+	SPathFinderUserData const data(pkUnit,CvUnit::MOVEFLAG_IGNORE_STACKING_SELF,1);
 
 	//potential deadlock - need to use special pathfinder instance
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
@@ -1067,7 +1067,7 @@ void CvDllGameContext::TEMPOnHexUnitChanged(ICvUnit1* pUnit)
 void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 {
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pUnit);
-	SPathFinderUserData data(pkUnit,CvUnit::MOVEFLAG_ATTACK,1);
+	SPathFinderUserData const data(pkUnit,CvUnit::MOVEFLAG_ATTACK,1);
 
 	//potential deadlock - need to use special pathfinder instance
 	ReachablePlots plots = GC.GetPathFinder().GetPlotsInReach(pkUnit->getX(),pkUnit->getY(),data);
@@ -1085,11 +1085,11 @@ void CvDllGameContext::TEMPOnHexUnitChangedAttack(ICvUnit1* pUnit)
 //------------------------------------------------------------------------------
 ICvEnumerator* CvDllGameContext::TEMPCalculatePathFinderUpdates(ICvUnit1* pHeadSelectedUnit, int iMouseMapX, int iMouseMapY)
 {
-	static TurnCountMode eMode = TC_UI; //change this to TC_DEBUG if interested
+	static TurnCountMode const eMode = TC_UI; //change this to TC_DEBUG if interested
 	CvUnit* pkUnit = GC.UnwrapUnitPointer(pHeadSelectedUnit);
 
 	//no caching!
-	SPathFinderUserData data(pkUnit,0);
+	SPathFinderUserData const data(pkUnit,0);
 	//use TC_DEBUG to see path costs in the UI
 	SPath path = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), iMouseMapX, iMouseMapY, data, eMode);
 

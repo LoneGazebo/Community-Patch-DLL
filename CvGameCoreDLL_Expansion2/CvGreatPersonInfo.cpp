@@ -50,7 +50,7 @@ bool CvGreatPersonInfo::CacheResults(Database::Results& kResults, CvDatabaseUtil
 GreatPersonTypes GetGreatPersonFromUnitClass(UnitClassTypes eUnitClass)
 {
 	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); ++iI) {
-		GreatPersonTypes eGreatPerson = (GreatPersonTypes) iI;
+		GreatPersonTypes const eGreatPerson = (GreatPersonTypes) iI;
 
 		if (GC.getGreatPersonInfo(eGreatPerson)->GetUnitClassType() == eUnitClass) {
 			return eGreatPerson;
@@ -63,7 +63,7 @@ GreatPersonTypes GetGreatPersonFromUnitClass(UnitClassTypes eUnitClass)
 GreatPersonTypes GetGreatPersonFromSpecialist(SpecialistTypes eSpecialist)
 {
 	for (int iI = 0; iI < GC.getNumGreatPersonInfos(); ++iI) {
-		GreatPersonTypes eGreatPerson = (GreatPersonTypes) iI;
+		GreatPersonTypes const eGreatPerson = (GreatPersonTypes) iI;
 
 		if (GC.getGreatPersonInfo(eGreatPerson)->GetSpecialistType() == eSpecialist) {
 			return eGreatPerson;

@@ -1086,7 +1086,7 @@ StorageLocation CvDllPreGame::LoadFileStorage()
 //------------------------------------------------------------------------------
 void CvDllPreGame::SetLoadFileName(const char* szFileName, StorageLocation eStorage)
 {
-	CvString strFileName = szFileName;
+	CvString const strFileName = szFileName;
 	CvPreGame::setLoadFileName(strFileName, eStorage);
 }
 //------------------------------------------------------------------------------

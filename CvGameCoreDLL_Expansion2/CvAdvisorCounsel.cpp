@@ -113,7 +113,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 	for(int iStrategiesLoop = 0; iStrategiesLoop < pEconomicAI->GetEconomicAIStrategies()->GetNumEconomicAIStrategies(); iStrategiesLoop++)
 	{
-		EconomicAIStrategyTypes eStrategy = (EconomicAIStrategyTypes) iStrategiesLoop;
+		EconomicAIStrategyTypes const eStrategy = (EconomicAIStrategyTypes) iStrategiesLoop;
 		CvEconomicAIStrategyXMLEntry* pStrategy = pEconomicAI->GetEconomicAIStrategies()->GetEntry(iStrategiesLoop);
 
 		if(pEconomicAI->IsUsingStrategy(eStrategy))
@@ -122,7 +122,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			if(pStrategy->GetAdvisor() != NO_ADVISOR_TYPE)
 			{
 				strLoc = Localization::Lookup(pStrategy->GetAdvisorCounselText());
-				bool bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
+				bool const bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
 				CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
@@ -138,7 +138,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 	for(int iStrategiesLoop = 0; iStrategiesLoop < pMilitaryAI->GetMilitaryAIStrategies()->GetNumMilitaryAIStrategies(); iStrategiesLoop++)
 	{
-		MilitaryAIStrategyTypes eStrategy = (MilitaryAIStrategyTypes) iStrategiesLoop;
+		MilitaryAIStrategyTypes const eStrategy = (MilitaryAIStrategyTypes) iStrategiesLoop;
 
 		if(pMilitaryAI->IsUsingStrategy(eStrategy))
 		{
@@ -150,7 +150,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				if(pStrategy->GetAdvisor() != NO_ADVISOR_TYPE)
 				{
 					strLoc = Localization::Lookup(pStrategy->GetAdvisorCounselText());
-					bool bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
+					bool const bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
 					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
@@ -171,7 +171,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		pCityStrategyAI = pLoopCity->GetCityStrategyAI();
 		for(int i = 0; i < pCityStrategyAI->GetAICityStrategies()->GetNumAICityStrategies(); i++)
 		{
-			AICityStrategyTypes eStrategy = (AICityStrategyTypes)i;
+			AICityStrategyTypes const eStrategy = (AICityStrategyTypes)i;
 			CvAICityStrategyEntry* pStrategy = pCityStrategyAI->GetAICityStrategies()->GetEntry(i);
 			if(pCityStrategyAI->IsUsingCityStrategy(eStrategy))
 			{
@@ -180,7 +180,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				{
 					strLoc = Localization::Lookup(pStrategy->GetAdvisorCounselText());
 					strLoc << pLoopCity->getNameKey();
-					bool bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
+					bool const bSuccess = SetCounselEntry(uiCounselIndex, pStrategy->GetAdvisor(), strLoc.toUTF8(), pStrategy->GetAdvisorCounselImportance());
 					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
@@ -213,7 +213,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	CvPlayerTechs* pPlayerTechs = GET_PLAYER(ePlayer).GetPlayerTechs();
 	for(int iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes const eTech = (TechTypes)iTechLoop;
 		if(pPlayerTechs->CanResearch(eTech) && pPlayerTechs->GetCurrentResearch() != eTech)
 		{
 			// go through recommended research for special units
@@ -227,7 +227,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GC.getUnitInfo(pPlayerTechs->GetCivTechUniqueUnit(eTech))->GetTextKey();
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
 
-					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
+					bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
 					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
@@ -243,7 +243,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
 					strLoc << GC.getBuildingInfo(pPlayerTechs->GetCivTechUniqueBuilding(eTech))->GetTextKey();
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
-					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
+					bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
 					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
@@ -259,7 +259,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
 					strLoc << GC.getImprovementInfo(pPlayerTechs->GetCivTechUniqueImprovement(eTech))->GetTextKey();
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
-					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
+					bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
 					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
@@ -275,7 +275,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc = Localization::Lookup("TXT_KEY_TECHSTRATEGY_CIV_BONUS");
 					strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
 					strLoc << GET_PLAYER(ePlayer).getCivilizationInfo().getAdjectiveKey();
-					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
+					bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 2);
 					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if(!bSuccess)
 					{
@@ -288,7 +288,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			// go through recommended research for resources
 			if(pPlayerTechs->GetLocaleTechPriority(eTech) > 1)
 			{
-				ResourceTypes eResource = pPlayerTechs->GetLocaleTechResource(eTech);
+				ResourceTypes const eResource = pPlayerTechs->GetLocaleTechResource(eTech);
 				if (eResource != NO_RESOURCE)
 				{
 					// say we need this for a special resource
@@ -299,7 +299,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc = Localization::Lookup("TXT_KEY_TECHSTRATEGY_RESOURCE");
 					strLoc << pPlayerTechs->GetTechs()->GetEntry(eTech)->GetTextKey();
 					strLoc << GC.getResourceInfo(eResource)->GetTextKey();
-					bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 60);
+					bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 60);
 					CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 					if (!bSuccess)
 					{
@@ -310,13 +310,13 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			}
 
 			// look at available buildings
-			int iNumBuildingInfos = GC.getNumBuildingInfos();
+			int const iNumBuildingInfos = GC.getNumBuildingInfos();
 			BuildingTypes eBuilding1 = NO_BUILDING;
 			BuildingTypes eBuilding2 = NO_BUILDING;
 			BuildingTypes eBuilding3 = NO_BUILDING;
 			for(int iI = 0; iI < iNumBuildingInfos; iI++)
 			{
-				BuildingTypes eBuilding = (BuildingTypes)iI;
+				BuildingTypes const eBuilding = (BuildingTypes)iI;
 				CvBuildingEntry* pBuilding = GC.getBuildingInfo(eBuilding);
 				if(pBuilding && pBuilding->GetPrereqAndTech() == eTech && pBuilding->GetFlavorValue(eFlavorScience) > 0 && !GC.getGame().isBuildingClassMaxedOut((BuildingClassTypes)pBuilding->GetBuildingClassType()))
 				{
@@ -362,7 +362,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					strLoc << GC.getBuildingInfo(eBuilding1)->GetTextKey();
 				}
 
-				bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 15);
+				bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 15);
 				CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
@@ -373,7 +373,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			for(int i = 0; i < GC.getNumUnitInfos(); i++)
 			{
-				UnitTypes eUnitType = (UnitTypes)i;
+				UnitTypes const eUnitType = (UnitTypes)i;
 				CvUnitEntry* pUnitEntry = GC.getUnitInfo(eUnitType);
 				if(pUnitEntry)
 				{
@@ -400,7 +400,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			for(int i = 0; i < GC.getNumBuildingInfos(); i++)
 			{
-				BuildingTypes eBuildingType = (BuildingTypes)i;
+				BuildingTypes const eBuildingType = (BuildingTypes)i;
 				CvBuildingEntry* pBuildingEntry = GC.getBuildingInfo(eBuildingType);
 				if(!pBuildingEntry || pBuildingEntry->GetPrereqAndTech() != eTech)
 				{
@@ -436,7 +436,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			strLoc << pPlayerTechs->GetTechs()->GetEntry(eMilitaryUnitTech)->GetTextKey();
 			strLoc << pkUnitInfo->GetTextKey();
 
-			bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_MILITARY, strLoc.toUTF8(), 15);
+			bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_MILITARY, strLoc.toUTF8(), 15);
 			DEBUG_VARIABLE(bSuccess);
 			CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;
@@ -452,7 +452,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			strLoc << pPlayerTechs->GetTechs()->GetEntry(eMilitaryBuildingTech)->GetTextKey();
 			strLoc << pkBuildingInfo->GetTextKey();
 
-			bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_MILITARY, strLoc.toUTF8(), 15);
+			bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_MILITARY, strLoc.toUTF8(), 15);
 			DEBUG_VARIABLE(bSuccess);
 			CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;
@@ -472,7 +472,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		CvTreasury* pTreasury = GET_PLAYER(ePlayer).GetTreasury();
 
-		int iGold = pTreasury->GetGold();
+		int const iGold = pTreasury->GetGold();
 		int iRevenue = GET_PLAYER(ePlayer).calculateGoldRate();
 
 		if((iGold + iRevenue) > 0)
@@ -505,7 +505,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			iRating = 99;
 		}
 
-		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), iRating);
+		bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), iRating);
 		DEBUG_VARIABLE(bSuccess);
 		CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
@@ -528,7 +528,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		int iMessageRating = 0;
 		AdvisorTypes eAdvisor = NO_ADVISOR_TYPE;
 
-		PlayerTypes eOtherPlayer = (PlayerTypes)iPlayer;
+		PlayerTypes const eOtherPlayer = (PlayerTypes)iPlayer;
 		TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
 
 		// don't evaluate yourself
@@ -555,8 +555,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			continue;
 		}
 
-		WarStateTypes eWarState = pDiplomacyAI->GetWarState(eOtherPlayer);
-		StrengthTypes eMilitaryStrengthComparedToUs = pDiplomacyAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
+		WarStateTypes const eWarState = pDiplomacyAI->GetWarState(eOtherPlayer);
+		StrengthTypes const eMilitaryStrengthComparedToUs = pDiplomacyAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
 
 		if(GET_TEAM(eTeam).isAtWar(eOtherTeam))
 		{
@@ -568,7 +568,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				//if (GET_TEAM(eTeam).isAtWar(eOtherTeam))
 				//{
-				int iRating = 99;
+				int const iRating = 99;
 				// warn player to back out!
 				if(iRating > iMessageRating)
 				{
@@ -599,7 +599,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//{
 
 				// warn player to back out!
-				int iRating = 98;
+				int const iRating = 98;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -630,7 +630,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//{
 
 				// even fight
-				int iRating = 97;
+				int const iRating = 97;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -652,7 +652,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//{
 
 				// things are going well!
-				int iRating = 96;
+				int const iRating = 96;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -682,7 +682,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				//{
 
 				// things are going very well!
-				int iRating = 97;
+				int const iRating = 97;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -716,7 +716,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				break; // Do nothing; We can't provide useful info.
 			case STRENGTH_PATHETIC:
 			{
-				int iRating = 60;
+				int const iRating = 60;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -728,7 +728,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case STRENGTH_WEAK:
 			{
-				int iRating = 50;
+				int const iRating = 50;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -740,7 +740,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case STRENGTH_POOR:
 			{
-				int iRating = 45;
+				int const iRating = 45;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -752,7 +752,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case STRENGTH_AVERAGE:
 			{
-				int iRating = 40;
+				int const iRating = 40;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -764,7 +764,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case STRENGTH_STRONG:
 			{
-				int iRating = 45;
+				int const iRating = 45;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -776,7 +776,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case STRENGTH_POWERFUL:
 			{
-				int iRating = 80;
+				int const iRating = 80;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -788,7 +788,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case STRENGTH_IMMENSE:
 			{
-				int iRating = 90;
+				int const iRating = 90;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -802,7 +802,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		}
 
 		// look at get military posture
-		AggressivePostureTypes eMilitaryAggressivePostureTypes = pDiplomacyAI->GetMilitaryAggressivePosture(eOtherPlayer);
+		AggressivePostureTypes const eMilitaryAggressivePostureTypes = pDiplomacyAI->GetMilitaryAggressivePosture(eOtherPlayer);
 		if(!GET_TEAM(eTeam).isAtWar(eOtherTeam))
 		{
 			switch(eMilitaryAggressivePostureTypes)
@@ -813,7 +813,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				break;
 			case AGGRESSIVE_POSTURE_MEDIUM:
 			{
-				int iRating = 51;
+				int const iRating = 51;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -825,7 +825,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case AGGRESSIVE_POSTURE_HIGH:
 			{
-				int iRating = 75;
+				int const iRating = 75;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -837,7 +837,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case AGGRESSIVE_POSTURE_INCREDIBLE:
 			{
-				int iRating = 90;
+				int const iRating = 90;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -851,7 +851,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		}
 
 		// look at expansion aggressive posture
-		AggressivePostureTypes eExpansionAggressivePostureTypes = pDiplomacyAI->GetExpansionAggressivePosture(eOtherPlayer);
+		AggressivePostureTypes const eExpansionAggressivePostureTypes = pDiplomacyAI->GetExpansionAggressivePosture(eOtherPlayer);
 		if(!GET_TEAM(eTeam).isAtWar(eOtherTeam))
 		{
 			switch(eExpansionAggressivePostureTypes)
@@ -862,7 +862,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				break;
 			case AGGRESSIVE_POSTURE_MEDIUM:
 			{
-				int iRating = 41;
+				int const iRating = 41;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -874,7 +874,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case AGGRESSIVE_POSTURE_HIGH:
 			{
-				int iRating = 65;
+				int const iRating = 65;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -886,7 +886,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case AGGRESSIVE_POSTURE_INCREDIBLE:
 			{
-				int iRating = 80;
+				int const iRating = 80;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -899,14 +899,14 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			}
 		}
 
-		ThreatTypes eWarmongerThreat = pDiplomacyAI->GetWarmongerThreat(eOtherPlayer);
+		ThreatTypes const eWarmongerThreat = pDiplomacyAI->GetWarmongerThreat(eOtherPlayer);
 		if(!GET_TEAM(eTeam).isAtWar(eOtherTeam))
 		{
 			switch(eWarmongerThreat)
 			{
 			case THREAT_NONE:
 			{
-				int iRating = 20;
+				int const iRating = 20;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -918,7 +918,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case THREAT_MINOR:
 			{
-				int iRating = 25;
+				int const iRating = 25;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -931,7 +931,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case THREAT_MAJOR:
 			{
-				int iRating = 30;
+				int const iRating = 30;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -943,7 +943,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case THREAT_SEVERE:
 			{
-				int iRating = 60;
+				int const iRating = 60;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -955,7 +955,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			break;
 			case THREAT_CRITICAL:
 			{
-				int iRating = 80;
+				int const iRating = 80;
 				if(iRating > iMessageRating)
 				{
 					iMessageRating = iRating;
@@ -970,7 +970,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		if(eAdvisor != NO_ADVISOR_TYPE)
 		{
-			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
+			bool const bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
 			CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			if(!bSuccess)
 			{
@@ -987,7 +987,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		int iMessageRating = 0;
 		AdvisorTypes eAdvisor = NO_ADVISOR_TYPE;
 
-		PlayerTypes eOtherPlayer = (PlayerTypes)iPlayer;
+		PlayerTypes const eOtherPlayer = (PlayerTypes)iPlayer;
 		TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
 
 		// don't evaluate yourself
@@ -1019,7 +1019,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			continue;
 		}
 
-		DisputeLevelTypes eMinorCivDisputeLevel = pDiplomacyAI->GetMinorCivDisputeLevel(eOtherPlayer);
+		DisputeLevelTypes const eMinorCivDisputeLevel = pDiplomacyAI->GetMinorCivDisputeLevel(eOtherPlayer);
 		switch(eMinorCivDisputeLevel)
 		{
 
@@ -1092,7 +1092,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		if(eAdvisor != NO_ADVISOR_TYPE)
 		{
-			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
+			bool const bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
 			CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			if(!bSuccess)
 			{
@@ -1105,11 +1105,11 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	// evaluate our gold situation
 	{
 		int iMessageRating = 0;
-		AdvisorTypes eAdvisor = ADVISOR_ECONOMIC;
+		AdvisorTypes const eAdvisor = ADVISOR_ECONOMIC;
 		CvTreasury* pTreasury = GET_PLAYER(ePlayer).GetTreasury();
 
 		int iGoldIncome = GET_PLAYER(ePlayer).calculateGoldRate();
-		int iGold = pTreasury->GetGold();
+		int const iGold = pTreasury->GetGold();
 
 		int iHighestCost = 0;
 		enum
@@ -1303,7 +1303,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		if(iHighestCost > 0)
 		{
-			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
+			bool const bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
 			DEBUG_VARIABLE(bSuccess);
 			CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;
@@ -1314,11 +1314,11 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	for(uint ui = MAX_MAJOR_CIVS; ui < MAX_CIV_PLAYERS; ui++)
 	{
 		int iMessageRating = 0;
-		AdvisorTypes eAdvisor = ADVISOR_FOREIGN;
+		AdvisorTypes const eAdvisor = ADVISOR_FOREIGN;
 		//MinorCivQuestTypes eQuest = NO_MINOR_CIV_QUEST_TYPE;
-		PlayerTypes eEnemyPlayer = NO_PLAYER;
+		PlayerTypes const eEnemyPlayer = NO_PLAYER;
 
-		PlayerTypes eMinorPlayer = (PlayerTypes)ui;
+		PlayerTypes const eMinorPlayer = (PlayerTypes)ui;
 
 		TeamTypes eMinorTeam = GET_PLAYER(eMinorPlayer).getTeam();
 
@@ -1350,7 +1350,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					break;
 				}
 
-				PlayerTypes eCheckPlayer = (PlayerTypes)ui2;
+				PlayerTypes const eCheckPlayer = (PlayerTypes)ui2;
 
 				int iCityIndex = 0;
 				CvCity* pCapCity = NULL;
@@ -1376,7 +1376,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GET_PLAYER(eCapturingPlayer).getCivilizationInfo().GetTextKey();
 				strLoc << GC.getMinorCivInfo(pMinorCivAI->GetMinorCivType())->GetTextKey();
 
-				bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
+				bool const bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
 				CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
@@ -1610,7 +1610,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		if(iMessageRating > 0)
 		{
-			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
+			bool const bSuccess = SetCounselEntry(uiCounselIndex, eAdvisor, strLoc.toUTF8(), iMessageRating);
 			CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			if(!bSuccess)
 			{
@@ -1657,7 +1657,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			BuildingClassTypes eScienceBuildingClass = NO_BUILDINGCLASS;
 			for(int i = 0; i < GC.getNumBuildingClassInfos(); i++)
 			{
-				BuildingClassTypes eBuildingClass = (BuildingClassTypes)i;
+				BuildingClassTypes const eBuildingClass = (BuildingClassTypes)i;
 
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
 				if(!pkBuildingClassInfo)
@@ -1680,7 +1680,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			BuildingTypes eRecommendedResearchBuilding = NO_BUILDING;
 			for(int i = 0; i < GC.getNumBuildingInfos(); i++)
 			{
-				BuildingTypes eBuildingType = (BuildingTypes)i;
+				BuildingTypes const eBuildingType = (BuildingTypes)i;
 				CvBuildingEntry* pkEntry = GC.getBuildingInfo(eBuildingType);
 				if(!pkEntry || pkEntry->GetBuildingClassType() != eScienceBuildingClass)
 				{
@@ -1702,7 +1702,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				strLoc << GC.getBuildingInfo(eRecommendedResearchBuilding)->GetTextKey();
 				strLoc << GC.getBuildingInfo(eRecommendedResearchBuilding)->GetTextKey();
 
-				bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 20);
+				bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_SCIENCE, strLoc.toUTF8(), 20);
 				CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 				if(!bSuccess)
 				{
@@ -1741,14 +1741,14 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			{
 				for(int iBuild = 0; iBuild < GC.getNumBuildInfos(); iBuild++)
 				{
-					BuildTypes eBuild = (BuildTypes)iBuild;
+					BuildTypes const eBuild = (BuildTypes)iBuild;
 					CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
 					if(pkBuild == NULL)
 					{
 						continue;
 					}
 
-					ImprovementTypes eImprovement = (ImprovementTypes)pkBuild->getImprovement();
+					ImprovementTypes const eImprovement = (ImprovementTypes)pkBuild->getImprovement();
 					if(eImprovement == NO_IMPROVEMENT)
 					{
 						continue;
@@ -1779,7 +1779,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 								}
 
 								// walk through missions
-								int iNumMissions = pLoopUnit->GetLengthMissionQueue();
+								int const iNumMissions = pLoopUnit->GetLengthMissionQueue();
 								for(int i = 0; i < iNumMissions; i++)
 								{
 									const MissionData* pMission = pLoopUnit->GetMissionData(i);
@@ -1823,7 +1823,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		strLoc << GC.getResourceInfo(eRecommendedResource)->GetTextKey();
 		strLoc << pResourcePlot->getEffectiveOwningCity()->getNameKey();
 
-		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 20);
+		bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_ECONOMIC, strLoc.toUTF8(), 20);
 		DEBUG_VARIABLE(bSuccess);
 		CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
@@ -1834,7 +1834,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	TeamTypes ePlayerTeam = GET_PLAYER(ePlayer).getTeam();
 	for(int i = 0; i < GC.getNumResourceInfos(); i++)
 	{
-		ResourceTypes eResource = (ResourceTypes)i;
+		ResourceTypes const eResource = (ResourceTypes)i;
 		CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
 		if (pResourceInfo == NULL)
 		{
@@ -1854,7 +1854,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 		for(int j = 0; j < MAX_MAJOR_CIVS; j++)
 		{
-			PlayerTypes eOtherPlayer = (PlayerTypes)j;
+			PlayerTypes const eOtherPlayer = (PlayerTypes)j;
 			TeamTypes eOtherTeam = GET_PLAYER(eOtherPlayer).getTeam();
 			if(ePlayerTeam == eOtherTeam || !GET_PLAYER(eOtherPlayer).isAlive())
 			{
@@ -1875,7 +1875,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 			for(int k = 0; k < GC.getNumResourceInfos(); k++)
 			{
-				ResourceTypes eTradebackResource = (ResourceTypes)k;
+				ResourceTypes const eTradebackResource = (ResourceTypes)k;
 				const CvResourceInfo* pkTradeResourceInfo = GC.getResourceInfo(eTradebackResource);
 				if(pkTradeResourceInfo == NULL || (pkTradeResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY && pkTradeResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC))
 				{
@@ -1895,8 +1895,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 				if(eTradableResource != NO_RESOURCE)
 				{
-					ResourceUsageTypes eTradableResourceUsage = GC.getResourceInfo(eTradableResource)->getResourceUsage();
-					ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+					ResourceUsageTypes const eTradableResourceUsage = GC.getResourceInfo(eTradableResource)->getResourceUsage();
+					ResourceUsageTypes const eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
 
 					// prefer trading luxury to strategic
 					if(eTradableResourceUsage == RESOURCEUSAGE_STRATEGIC && eResourceUsage == RESOURCEUSAGE_LUXURY)
@@ -1916,7 +1916,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 	if(eTradableResource != NO_RESOURCE)
 	{
-		ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eTradableResource)->getResourceUsage();
+		ResourceUsageTypes const eResourceUsage = GC.getResourceInfo(eTradableResource)->getResourceUsage();
 		if(eResourceUsage == RESOURCEUSAGE_LUXURY)
 		{
 			strLoc = Localization::Lookup("TXT_KEY_RESOURCESTRATEGY_TRADE_LUXURIES");
@@ -1933,7 +1933,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		strLoc << GC.getResourceInfo(eTradableResource)->GetTextKey();
 		strLoc << GET_PLAYER(eTargetPlayer).getCivilizationInfo().GetTextKey();
 
-		bool bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_FOREIGN, strLoc.toUTF8(), 20);
+		bool const bSuccess = SetCounselEntry(uiCounselIndex, ADVISOR_FOREIGN, strLoc.toUTF8(), 20);
 		DEBUG_VARIABLE(bSuccess);
 		CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 		uiCounselIndex++;
@@ -1959,7 +1959,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 	{
 		if(!abAdvisorUsed[ui])
 		{
-			AdvisorTypes eAdvisorTypes = (AdvisorTypes)ui;
+			AdvisorTypes const eAdvisorTypes = (AdvisorTypes)ui;
 			switch(eAdvisorTypes)
 			{
 			case NO_ADVISOR_TYPE:
@@ -1978,7 +1978,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 				break;
 			}
 
-			bool bSuccess = SetCounselEntry(uiCounselIndex, eAdvisorTypes, strLoc.toUTF8(), 0);
+			bool const bSuccess = SetCounselEntry(uiCounselIndex, eAdvisorTypes, strLoc.toUTF8(), 0);
 			DEBUG_VARIABLE(bSuccess);
 			CvAssertMsg(bSuccess, "Unable to add counsel to list. Too many strategies running at once");
 			uiCounselIndex++;

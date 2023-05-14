@@ -142,7 +142,7 @@ bool CvPlotInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility& kU
 #if defined(MOD_PLOTS_EXTENSIONS)
 	//Plot_AdjacentFeatureYieldChanges
 	{
-		std::string strKey("Plot_AdjacentFeatureYieldChanges");
+		std::string const strKey("Plot_AdjacentFeatureYieldChanges");
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{

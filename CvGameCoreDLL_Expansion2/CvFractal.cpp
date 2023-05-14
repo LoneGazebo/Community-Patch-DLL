@@ -66,7 +66,7 @@ void CvFractal::fracInit(int iNewXs, int iNewYs, int iGrain, CvRandom& random, i
 
 void CvFractal::fracInitHinted(int iNewXs, int iNewYs, int iGrain, CvRandom& random, byte* pbyHints, int iHintsLength, int iFlags, CvFractal* pRifts, int iFracXExp/*=7*/, int iFracYExp/*=6*/)
 {
-	int iFlagsNonPolar = iFlags & (~FRAC_POLAR);
+	int const iFlagsNonPolar = iFlags & (~FRAC_POLAR);
 	fracInitInternal(iNewXs, iNewYs, iGrain, random, pbyHints, iHintsLength, iFlagsNonPolar, pRifts, iFracXExp, iFracYExp);
 }
 
@@ -116,8 +116,8 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 	int iMinExp = std::min(m_iFracXExp, m_iFracYExp);
 	iSmooth = range(iMinExp - iGrain, 0, iMinExp);
 
-	int iHintsWidth = (1 << (m_iFracXExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_X) ? 0 : 1);
-	int iHintsHeight = (1 << (m_iFracYExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_Y) ? 0 : 1);
+	int const iHintsWidth = (1 << (m_iFracXExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_X) ? 0 : 1);
+	int const iHintsHeight = (1 << (m_iFracYExp - iSmooth)) + ((m_iFlags & FRAC_WRAP_Y) ? 0 : 1);
 	if(pbyHints != NULL)
 	{
 		CvAssertMsg(iHintsLength == iHintsWidth*iHintsHeight, "pbyHints is the wrong size!")
@@ -203,9 +203,9 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 					}
 					else
 					{
-						int iXX = iX % iHintsWidth;  // wrap
-						int iYY = iY % iHintsHeight; // wrap
-						int iHintsI = iYY*iHintsWidth + iXX;
+						int const iXX = iX % iHintsWidth;  // wrap
+						int const iYY = iY % iHintsHeight; // wrap
+						int const iHintsI = iYY*iHintsWidth + iXX;
 
 						DEBUG_VARIABLE(iHintsLength);
 						CvAssertMsg(iHintsI < iHintsLength, "iHintsI out of range");
@@ -389,9 +389,9 @@ void CvFractal::tectonicAction(CvFractal* pRifts)  //  Assumes FRAC_WRAP_X is on
 		for(int iX = 0; iX < iWidth; iX++)
 		{
 			//  Rift along edge of map.
-			int iDeep = 0;
-			int iRx = yieldX(((((pRifts->m_aaiFrac[iRift2x][iY] - 128) * m_iFracX) / 128) / 8) + iX);
-			int iLx = yieldX(((((pRifts->m_aaiFrac[iRift2x][iY] - 128) * m_iFracX) / 128) / 8) - iX);
+			int const iDeep = 0;
+			int const iRx = yieldX(((((pRifts->m_aaiFrac[iRift2x][iY] - 128) * m_iFracX) / 128) / 8) + iX);
+			int const iLx = yieldX(((((pRifts->m_aaiFrac[iRift2x][iY] - 128) * m_iFracX) / 128) / 8) - iX);
 			m_aaiFrac[iRx][iY] = (((m_aaiFrac[iRx][iY] * iX) + iDeep * (iWidth - iX)) / iWidth);
 			m_aaiFrac[iLx][iY] = (((m_aaiFrac[iLx][iY] * iX) + iDeep * (iWidth - iX)) / iWidth);
 		}
@@ -522,7 +522,7 @@ void CvFractal::ridgeBuilder(CvRandom& random, int iNumVoronoiSeeds, int iRidgeF
 			// ??? are there any other fudge factors I want to add in here???
 			//std::stable_sort(vDistances.begin(),vDistances.end());
 
-			int iRidgeHeight = (255 * iClosestSeed) / iNextClosestSeed;
+			int const iRidgeHeight = (255 * iClosestSeed) / iNextClosestSeed;
 
 			// blend the new ridge height with the previous fractal height
 			m_aaiFrac[iX][iY] = (iRidgeHeight * iBlendRidge + m_aaiFrac[iX][iY] * iBlendFract) / std::max(iBlendRidge + iBlendFract, 1);

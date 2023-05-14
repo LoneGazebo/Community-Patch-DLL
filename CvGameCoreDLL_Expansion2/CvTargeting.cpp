@@ -107,8 +107,8 @@ CvPlot* PlotFromHex(CvMap& kMap, int iHexX, int iHexY)
 //	more than one blockage will cause the LOS to fail.
 static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy, int fromLevel)
 {
-	int originalDX = dx;
-	int originalDY = dy;
+	int const originalDX = dx;
+	int const originalDY = dy;
 
 	CvMap& kMap = GC.getMap();
 
@@ -150,10 +150,10 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 	int currentDY = 0;
 
 	// If in an odd quadrant, stepping down on the short axis requires two checks to be contiguous
-	bool oddQuadrant = stepX != stepY;
+	bool const oddQuadrant = stepX != stepY;
 	// Is the line going to go such that it travels through the centers of the hexes?
 	// If so, we don't have to worry about testing to see if we can look around blocked hexes.
-	bool straightThrough = dx == 0 || dy == 0;
+	bool const straightThrough = dx == 0 || dy == 0;
 
 	// Start from the next cell after the source plot
 	int lastDX = currentDX;
@@ -338,8 +338,8 @@ static bool CanSeeDisplacementPlot_Strict(int startX, int startY, int dx, int dy
 //	This is the 'loose' version that lets you see around partially blocked hexes
 static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy, int fromLevel)
 {
-	int originalDX = dx;
-	int originalDY = dy;
+	int const originalDX = dx;
+	int const originalDY = dy;
 
 	CvMap& kMap = GC.getMap();
 
@@ -382,10 +382,10 @@ static bool CanSeeDisplacementPlot_Loose(int startX, int startY, int dx, int dy,
 
 	bool bBlocked = false;
 	// If in an odd quadrant, stepping down on the short axis requires two checks to be contiguous
-	bool oddQuadrant = stepX != stepY;
+	bool const oddQuadrant = stepX != stepY;
 	// Is the line going to go such that it travels through the centers of the hexes?
 	// If so, we don't have to worry about testing to see if we can look around blocked hexes.
-	bool straightThrough = dx == 0 || dy == 0;
+	bool const straightThrough = dx == 0 || dy == 0;
 
 	// Start from the next cell after the source plot
 	int lastDX = currentDX;
@@ -614,7 +614,7 @@ bool CvTargeting::CanSeeDisplacementPlot(int startX, int startY, int dx, int dy,
 	CvPlot* pPlot = PlotFromHex(kMap, startX + dx, startY + dy);
 	if(pPlot != NULL)
 	{
-		int iHexDistanceBetweenPlots = hexDistance(dx, dy);
+		int const iHexDistanceBetweenPlots = hexDistance(dx, dy);
 		// assume that we can always see our plot and the plot next door
 		if(iHexDistanceBetweenPlots <= 1)
 			return true;

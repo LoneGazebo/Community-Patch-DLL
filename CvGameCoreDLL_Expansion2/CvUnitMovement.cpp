@@ -9,7 +9,7 @@
 //	---------------------------------------------------------------------------
 int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot, const CvPlot* pToPlot, int iTerrainFeatureCostMultiplierFromPromotions, int iTerrainFeatureCostAdderFromPromotions)
 {
-	int iMoveDenominator = GD_INT_GET(MOVE_DENOMINATOR);
+	int const iMoveDenominator = GD_INT_GET(MOVE_DENOMINATOR);
 	int iRegularCost = iMoveDenominator;
 	int iRouteCost = INT_MAX; //assume no route
 
@@ -24,28 +24,28 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return iMoveDenominator;
 	}
 
-	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
+	CvPlayerAI const& kPlayer = GET_PLAYER(pUnit->getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 
-	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
-	bool bHover = pUnit ? pUnit->IsHoveringUnit() : false;
+	bool const bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
+	bool const bHover = pUnit ? pUnit->IsHoveringUnit() : false;
 
-	TeamTypes eUnitTeam = pUnit->getTeam();
-	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+	TeamTypes const eUnitTeam = pUnit->getTeam();
+	CvTeam const& kUnitTeam = GET_TEAM(eUnitTeam);
 
 	//try to avoid calling directionXY too often
-	bool bRiverCrossing = pFromPlot->getRiverCrossingCount()>0 && pToPlot->getRiverCrossingCount()>0 && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot));
-	FeatureTypes eToFeature = pToPlot->getFeatureType();
+	bool const bRiverCrossing = pFromPlot->getRiverCrossingCount()>0 && pToPlot->getRiverCrossingCount()>0 && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot));
+	FeatureTypes const eToFeature = pToPlot->getFeatureType();
 	CvFeatureInfo* pToFeatureInfo = (eToFeature > NO_FEATURE) ? GC.getFeatureInfo(eToFeature) : 0;
-	TerrainTypes eToTerrain = pToPlot->getTerrainType();
+	TerrainTypes const eToTerrain = pToPlot->getTerrainType();
 	CvTerrainInfo* pToTerrainInfo = (eToTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eToTerrain) : 0;
 
 	//route preparation
-	bool bRouteTo = pToPlot->isValidRoute(pUnit);
-	bool bRouteFrom = pFromPlot->isValidRoute(pUnit);
+	bool const bRouteTo = pToPlot->isValidRoute(pUnit);
+	bool const bRouteFrom = pFromPlot->isValidRoute(pUnit);
 
 	//ideally there'd be a check of the river direction to make sure it's the same river
-	bool bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
+	bool const bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
 	bool bFakeRouteTo = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 	bool bFakeRouteFrom = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
 
@@ -62,18 +62,18 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		(bRouteTo || bFakeRouteTo) &&
 		(!bRiverCrossing || kUnitTeam.isBridgeBuilding() || bAmphibious))
 	{
-		RouteTypes eFromRoute = bFakeRouteFrom ? ROUTE_ROAD : pFromPlot->getRouteType();
+		RouteTypes const eFromRoute = bFakeRouteFrom ? ROUTE_ROAD : pFromPlot->getRouteType();
 		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(eFromRoute);
-		int iFromMovementCost = pFromRouteInfo ? pFromRouteInfo->getMovementCost() : 0;
-		int iFromFlatMovementCost = pFromRouteInfo ? pFromRouteInfo->getFlatMovementCost() : 0;
+		int const iFromMovementCost = pFromRouteInfo ? pFromRouteInfo->getMovementCost() : 0;
+		int const iFromFlatMovementCost = pFromRouteInfo ? pFromRouteInfo->getFlatMovementCost() : 0;
 
-		RouteTypes eToRoute = bFakeRouteTo ? ROUTE_ROAD : pToPlot->getRouteType();
+		RouteTypes const eToRoute = bFakeRouteTo ? ROUTE_ROAD : pToPlot->getRouteType();
 		CvRouteInfo* pToRouteInfo = GC.getRouteInfo(eToRoute);
-		int iToMovementCost = pToRouteInfo ? pToRouteInfo->getMovementCost() : 0;
-		int iToFlatMovementCost = pToRouteInfo ? pToRouteInfo->getFlatMovementCost() : 0;
+		int const iToMovementCost = pToRouteInfo ? pToRouteInfo->getMovementCost() : 0;
+		int const iToFlatMovementCost = pToRouteInfo ? pToRouteInfo->getFlatMovementCost() : 0;
 
 		//routes only on land
-		int iBaseMoves = pUnit->baseMoves(false);
+		int const iBaseMoves = pUnit->baseMoves(false);
 
 		int iRouteVariableCost = std::max(iFromMovementCost + kUnitTeam.getRouteChange(eFromRoute), iToMovementCost + kUnitTeam.getRouteChange(eToRoute));
 		int iRouteFlatCost = std::max(iFromFlatMovementCost * iBaseMoves, iToFlatMovementCost * iBaseMoves);
@@ -90,8 +90,8 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	bool bFreeEmbarkStateChange = false;
 	if (pUnit->CanEverEmbark())
 	{
-		bool bFromEmbark = pFromPlot->needsEmbarkation(pUnit);
-		bool bToEmbark = pToPlot->needsEmbarkation(pUnit);
+		bool const bFromEmbark = pFromPlot->needsEmbarkation(pUnit);
+		bool const bToEmbark = pToPlot->needsEmbarkation(pUnit);
 
 		if (!bToEmbark && bFromEmbark)
 		{
@@ -155,11 +155,11 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return iMoveDenominator;
 
 	//check border obstacle - great wall ends the turn
-	TeamTypes eToTeam = pToPlot->getTeam();
-	TeamTypes eFromTeam = pFromPlot->getTeam();
+	TeamTypes const eToTeam = pToPlot->getTeam();
+	TeamTypes const eFromTeam = pFromPlot->getTeam();
 	if (eToTeam != NO_TEAM && eUnitTeam != eToTeam && eToTeam != eFromTeam)
 	{
-		CvTeam& kToPlotTeam = GET_TEAM(eToTeam);
+		CvTeam const& kToPlotTeam = GET_TEAM(eToTeam);
 		CvPlayer& kToPlotPlayer = GET_PLAYER(pToPlot->getOwner());
 
 		if (!kToPlotTeam.IsAllowsOpenBordersToTeam(eUnitTeam))
@@ -332,7 +332,7 @@ int CvUnitMovement::MovementCostNoZOC(const CvUnit* pUnit, const CvPlot* pFromPl
 
 	//now, if there was a domain change, our base moves might change
 	//make sure that the movement cost is always so high that we never end up with more than the base moves for the new domain
-	int iLeftOverMoves = iMovesRemaining - iCost;
+	int const iLeftOverMoves = iMovesRemaining - iCost;
 	if (iLeftOverMoves > iMaxMoves)
 		iCost += (iLeftOverMoves - iMaxMoves);
 
@@ -349,14 +349,14 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0)
 		return false;
 
-	TeamTypes eUnitTeam = pUnit->getTeam();
-	DomainTypes eUnitDomain = pUnit->getDomainType();
-	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+	TeamTypes const eUnitTeam = pUnit->getTeam();
+	DomainTypes const eUnitDomain = pUnit->getDomainType();
+	CvTeam const& kUnitTeam = GET_TEAM(eUnitTeam);
 
 	//there are only two plots we need to check
-	DirectionTypes moveDir = directionXY(pFromPlot, pToPlot);
-	int eRight = (int(moveDir) + 1) % 6;
-	int eLeft = (int(moveDir) + 5) % 6;
+	DirectionTypes const moveDir = directionXY(pFromPlot, pToPlot);
+	int const eRight = (int(moveDir) + 1) % 6;
+	int const eLeft = (int(moveDir) + 5) % 6;
 	CvPlot* aPlotsToCheck[2];
 	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eRight);
 	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eLeft);
@@ -403,11 +403,11 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				continue;
 
 			// At war with this unit's team?
-			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();
+			TeamTypes const eLoopUnitTeam = pLoopUnit->getTeam();
 			if (eLoopUnitTeam == BARBARIAN_TEAM || kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot))
 			{
 				// Same Domain?
-				DomainTypes eLoopUnitDomain = pLoopUnit->getDomainType();
+				DomainTypes const eLoopUnitDomain = pLoopUnit->getDomainType();
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
@@ -454,14 +454,14 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 	if (/*1*/ GD_INT_GET(ZONE_OF_CONTROL_ENABLED) <= 0)
 		return false;
 
-	TeamTypes eUnitTeam = pUnit->getTeam();
-	DomainTypes eUnitDomain = pUnit->getDomainType();
-	CvTeam& kUnitTeam = GET_TEAM(eUnitTeam);
+	TeamTypes const eUnitTeam = pUnit->getTeam();
+	DomainTypes const eUnitDomain = pUnit->getDomainType();
+	CvTeam const& kUnitTeam = GET_TEAM(eUnitTeam);
 
 	//there are only two plots we need to check
-	DirectionTypes moveDir = directionXY(pFromPlot, pToPlot);
-	int eRight = (int(moveDir) + 1) % 6;
-	int eLeft = (int(moveDir) + 5) % 6;
+	DirectionTypes const moveDir = directionXY(pFromPlot, pToPlot);
+	int const eRight = (int(moveDir) + 1) % 6;
+	int const eLeft = (int(moveDir) + 5) % 6;
 	CvPlot* aPlotsToCheck[2];
 	aPlotsToCheck[0] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eRight);
 	aPlotsToCheck[1] = plotDirection(pFromPlot->getX(), pFromPlot->getY(), (DirectionTypes)eLeft);
@@ -504,11 +504,11 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 				continue;
 
 			// At war with this unit's team?
-			TeamTypes eLoopUnitTeam = pLoopUnit->getTeam();
+			TeamTypes const eLoopUnitTeam = pLoopUnit->getTeam();
 			if (kUnitTeam.isAtWar(eLoopUnitTeam) || pLoopUnit->isAlwaysHostile(*pAdjPlot))
 			{
 				// Same Domain?
-				DomainTypes eLoopUnitDomain = pLoopUnit->getDomainType();
+				DomainTypes const eLoopUnitDomain = pLoopUnit->getDomainType();
 				if (eLoopUnitDomain != eUnitDomain)
 				{
 					// hovering units always exert a ZOC
@@ -549,8 +549,8 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot)
 {
 	int iModifier = GD_INT_GET(MOVE_DENOMINATOR);
-	TerrainTypes eToTerrain = pPlot->getTerrainType();
-	FeatureTypes eToFeature = pPlot->getFeatureType();
+	TerrainTypes const eToTerrain = pPlot->getTerrainType();
+	FeatureTypes const eToFeature = pPlot->getFeatureType();
 
 	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
 	{
@@ -581,8 +581,8 @@ int CvUnitMovement::GetMovementCostMultiplierFromPromotions(const CvUnit* pUnit,
 int CvUnitMovement::GetMovementCostAdderFromPromotions(const CvUnit* pUnit, const CvPlot* pPlot)
 {
 	int iModifier = 0;
-	TerrainTypes eToTerrain = pPlot->getTerrainType();
-	FeatureTypes eToFeature = pPlot->getFeatureType();
+	TerrainTypes const eToTerrain = pPlot->getTerrainType();
+	FeatureTypes const eToFeature = pPlot->getFeatureType();
 
 	if (pUnit->isTerrainExtraMove(TERRAIN_HILL) && pPlot->isHills())
 	{
@@ -608,8 +608,8 @@ int CvUnitMovement::GetMovementCostChangeFromPromotions(const CvUnit* pUnit, con
 	bool bIsFaster = false;
 	bool bIsSlower = false;
 
-	TerrainTypes eToTerrain = pPlot->getTerrainType();
-	FeatureTypes eToFeature = pPlot->getFeatureType();
+	TerrainTypes const eToTerrain = pPlot->getTerrainType();
+	FeatureTypes const eToFeature = pPlot->getFeatureType();
 
 	if (pUnit->isHillsDoubleMove() && pPlot->isHills())
 	{

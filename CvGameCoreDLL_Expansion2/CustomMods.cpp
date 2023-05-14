@@ -230,7 +230,7 @@ int CustomMods::getOption(const string& sOption, int defValue) {
 			const int iDbUpdates = kResults.GetInt(MOD_DB_COL_DBUPDATES);
 			int iValue = kResults.GetInt(MOD_DB_COL_VALUE);
 
-			bool bPrefixError = (strncmp(szName, szBadPrefix, strlen(szBadPrefix)) == 0);
+			bool const bPrefixError = (strncmp(szName, szBadPrefix, strlen(szBadPrefix)) == 0);
 
 			if (iValue && iDbUpdates) {
 				Database::Results kUpdates;

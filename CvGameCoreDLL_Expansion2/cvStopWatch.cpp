@@ -62,8 +62,8 @@ void cvStopWatch::EndPerfTest()
 	LARGE_INTEGER newTimerVal;
 	QueryPerformanceCounter(&newTimerVal);
 
-	double dtTime = (double)newTimerVal.QuadPart - m_oldTimerVal.QuadPart;
-	double dTicksPerSecond = (double)ms_ticksPerSecond.QuadPart;
+	double const dtTime = (double)newTimerVal.QuadPart - m_oldTimerVal.QuadPart;
+	double const dTicksPerSecond = (double)ms_ticksPerSecond.QuadPart;
 
 	m_dtseconds = dtTime/dTicksPerSecond;
 

@@ -101,7 +101,7 @@ bool CvDistanceMap::UpdateDistanceIfLower(int iPlotIndex, int iOwner, int iID, i
 		}
 		else if (iDistance == m_vData[iPlotIndex].distance)
 		{
-			int result = tiebreak(m_vData[iPlotIndex].owner, m_vData[iPlotIndex].feature, iOwner, iID);
+			int const result = tiebreak(m_vData[iPlotIndex].owner, m_vData[iPlotIndex].feature, iOwner, iID);
 			if (result > 0)
 			{
 				m_vData[iPlotIndex] = SContent(iDistance,iOwner,iID);
@@ -171,11 +171,11 @@ PlayerTypes CvDistanceMapWrapper::GetFeatureOwner(const CvPlot& plot, bool bAllM
 /// Updates the lookup table
 void CvDistanceMapByPathLength::Update()
 {
-	int iMaxTurns = 36;
-	int iVeryFar = iMaxTurns * 2;
+	int const iMaxTurns = 36;
+	int const iVeryFar = iMaxTurns * 2;
 
 	const CvMap& map = GC.getMap();
-	int nPlots = map.numPlots();
+	int const nPlots = map.numPlots();
 
 	//default
 	PathType ePathType = PT_ARMY_MIXED;
@@ -203,7 +203,7 @@ void CvDistanceMapByPathLength::Update()
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
 			//do not set a player - that way we can traverse unrevealed plots and foreign territory
-			SPathFinderUserData data(NO_PLAYER, ePathType, -1, iMaxTurns);
+			SPathFinderUserData const data(NO_PLAYER, ePathType, -1, iMaxTurns);
 			ReachablePlots turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pLoopCity->plot(), data);
 
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)
@@ -225,7 +225,7 @@ void CvDistanceMapByPathLength::Update()
 void CvDistanceMapByPlots::Update()
 {
 	const CvMap& map = GC.getMap();
-	int nPlots = map.numPlots();
+	int const nPlots = map.numPlots();
 
 	allPlayers.Reset(nPlots, SHRT_MAX);
 	allMajorPlayers.Reset(nPlots, SHRT_MAX);
@@ -254,7 +254,7 @@ void CvDistanceMapByPlots::Update()
 				if (!pPlot)
 					continue;
 
-				int iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());
+				int const iDistance = plotDistance(pCityPlot->getX(), pCityPlot->getY(), pPlot->getX(), pPlot->getY());
 
 				allPlayers.UpdateDistanceIfLower(iPlotIndex, i, pLoopCity->GetID(), iDistance, SCityTiebreak());
 				if (thisPlayer.isMajorCiv())

@@ -20,7 +20,7 @@
 
 void CvGameTextMgr::setYearStr(CvString& strString, int iGameTurn, bool bSave, CalendarTypes eCalendar, int iStartYear, GameSpeedTypes eSpeed)
 {
-	int iTurnYear = getTurnYearForGame(iGameTurn, iStartYear, eCalendar, eSpeed);
+	int const iTurnYear = getTurnYearForGame(iGameTurn, iStartYear, eCalendar, eSpeed);
 
 	if(iTurnYear < 0)
 	{
@@ -62,7 +62,7 @@ void CvGameTextMgr::setDateStr(CvString& strString, int iGameTurn, bool bSave, C
 	CvString strYearBuffer;
 	CvString strWeekBuffer;
 
-	int iTempGameTurn = iGameTurn + /*0*/ GD_INT_GET(HIDDEN_START_TURN_OFFSET);
+	int const iTempGameTurn = iGameTurn + /*0*/ GD_INT_GET(HIDDEN_START_TURN_OFFSET);
 
 	setYearStr(strYearBuffer, iTempGameTurn, bSave, eCalendar, iStartYear, eSpeed);
 
@@ -73,14 +73,14 @@ void CvGameTextMgr::setDateStr(CvString& strString, int iGameTurn, bool bSave, C
 	{
 	case CALENDAR_DEFAULT:
 	{
-		int iTurnMonth = getTurnMonthForGame(iTempGameTurn, iStartYear, eCalendar, eSpeed);
+		int const iTurnMonth = getTurnMonthForGame(iTempGameTurn, iStartYear, eCalendar, eSpeed);
 		if(0 == (getTurnMonthForGame(iTempGameTurn + 1, iStartYear, eCalendar, eSpeed) - iTurnMonth) % iNumMonths)
 		{
 			strString = strYearBuffer;
 		}
 		else
 		{
-			int iMonth = iTurnMonth % iNumMonths;
+			int const iMonth = iTurnMonth % iNumMonths;
 
 			Database::SingleResult kResult;
 			CvBaseInfo kInfo;
@@ -88,7 +88,7 @@ void CvGameTextMgr::setDateStr(CvString& strString, int iGameTurn, bool bSave, C
 			kInfo.CacheResult(kResult);
 
 			Localization::String lstrMonth = Localization::Lookup(kInfo.GetDescription());
-			CvString strMonth = lstrMonth.toUTF8();
+			CvString const strMonth = lstrMonth.toUTF8();
 
 			if(bSave)
 			{

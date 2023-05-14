@@ -524,7 +524,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		//Initialize array to NO_TECH
 		kUtility.InitializeArray(m_piPrereqAndTechs, "Technologies", (int)NO_TECH);
 
-		std::string strKey = "Units - TechTypes";
+		std::string const strKey = "Units - TechTypes";
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if(pResults == NULL)
 		{
@@ -544,7 +544,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	//Unit Unique Names Count
 	{
-		std::string strKey = "Units - UniqueNameCount";
+		std::string const strKey = "Units - UniqueNameCount";
 		Database::Results* pUnitNameCount = kUtility.GetResults(strKey);
 		if(pUnitNameCount == NULL)
 		{
@@ -569,7 +569,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 			m_paeGreatPersonEra = FNEW(EraTypes[m_iNumUnitNames], c_eCiv5GameplayDLL, 0);
 #endif
 
-			std::string strKey = "Units - UniqueNames";
+			std::string const strKey = "Units - UniqueNames";
 			Database::Results* pResults = kUtility.GetResults(strKey);
 			if(pResults == NULL)
 			{
@@ -616,7 +616,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	//MovementRates
 	{
-		std::string strKey = "Units - MovementRates";
+		std::string const strKey = "Units - MovementRates";
 		Database::Results* pMovementRates = kUtility.GetResults(strKey);
 		if(pMovementRates == NULL)
 		{
@@ -627,14 +627,14 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		pMovementRates->Bind(1, szMovementRate, -1, false);
 		while(pMovementRates->Step())
 		{
-			int f0 = pMovementRates->GetInt("NumHexes") - 1;
-			float f1 = pMovementRates->GetFloat("TotalTime");
-			float f2 = pMovementRates->GetFloat("EaseIn");
-			float f3 = pMovementRates->GetFloat("EaseOut");
-			float f4 = pMovementRates->GetFloat("IndividualOffset");
-			float f5 = pMovementRates->GetFloat("RowOffset");
-			float f6 = pMovementRates->GetFloat("CurveRoll");
-			int   iPathSubdivision = pMovementRates->GetInt("PathSubdivision");
+			int const f0 = pMovementRates->GetInt("NumHexes") - 1;
+			float const f1 = pMovementRates->GetFloat("TotalTime");
+			float const f2 = pMovementRates->GetFloat("EaseIn");
+			float const f3 = pMovementRates->GetFloat("EaseOut");
+			float const f4 = pMovementRates->GetFloat("IndividualOffset");
+			float const f5 = pMovementRates->GetFloat("RowOffset");
+			float const f6 = pMovementRates->GetFloat("CurveRoll");
+			int   const iPathSubdivision = pMovementRates->GetInt("PathSubdivision");
 			if(f0 >= 0 && f0 <= 11)
 			{
 				m_unitMoveRate[f0].m_fTotalMoveRate    = f1;
@@ -656,7 +656,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		const int iNumEras = kUtility.MaxRows("Eras");
 		kUtility.Initialize2DArray(m_ppiEraUnitCombatType, iNumUnitCombats, iNumEras);
 
-		std::string sqlKey = "Units - EraCombatType";
+		std::string const sqlKey = "Units - EraCombatType";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if(pResults == NULL)
 		{
@@ -683,7 +683,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 		const int iNumEras = kUtility.MaxRows("Eras");
 		kUtility.Initialize2DArray(m_ppiEraUnitPromotions, iNumPromotions, iNumEras);
 
-		std::string sqlKey = "Units - EraUnitPromotions";
+		std::string const sqlKey = "Units - EraUnitPromotions";
 		Database::Results* pResults = kUtility.GetResults(sqlKey);
 		if(pResults == NULL)
 		{
@@ -706,7 +706,7 @@ bool CvUnitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& k
 
 	//Populate m_piResourceQuantityTotals
 	{
-		std::string strKey("Unit_ResourceQuantityTotals");
+		std::string const strKey("Unit_ResourceQuantityTotals");
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
@@ -1221,7 +1221,7 @@ int CvUnitEntry::GetObsoleteTech() const
 /// Era this unit belongs to
 int CvUnitEntry::GetEra() const
 {
-	TechTypes eTech = (TechTypes)GetPrereqAndTech();
+	TechTypes const eTech = (TechTypes)GetPrereqAndTech();
 	if (eTech != NO_TECH)
 	{
 		CvTechEntry* pTech = GC.getTechInfo((TechTypes)GetPrereqAndTech());
@@ -1901,7 +1901,7 @@ void CvUnitEntry::DoUpdatePower()
 	iPower = int(pow((double) GetCombat(), 1.5));
 
 	// Ranged Strength
-	int iRangedStrength = int(pow((double) GetRangedCombat(), 1.45));
+	int const iRangedStrength = int(pow((double) GetRangedCombat(), 1.45));
 
 	if(iRangedStrength > iPower)
 	{
@@ -1939,7 +1939,7 @@ void CvUnitEntry::DoUpdatePower()
 
 	int iTemp = 0;
 	int iLoop = 0;
-	int iBasePower = iPower;
+	int const iBasePower = iPower;
 	int iBonusPower = 0;
 
 	for (int iPromotionLoop = 0; iPromotionLoop < GC.getNumPromotionInfos(); iPromotionLoop++)

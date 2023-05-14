@@ -171,7 +171,7 @@ bool CvCitySiteEvaluator::CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPla
 			iMinDist = GC.getMap().getWorldInfo().getMinDistanceCities();
 		}
 
-		int iDistanceToExisting = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
+		int const iDistanceToExisting = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
 		//watch out, it's <=
 		if (iDistanceToExisting <= iMinDist)
 			return false;
@@ -286,8 +286,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	CvArea* pArea = pPlot->area();
 	if(pArea && pPlayer)
 	{
-		bool bIsCoastal = pPlot->isCoastalLand();
-		int iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
+		bool const bIsCoastal = pPlot->isCoastalLand();
+		int const iNumAreaCities = pArea->getCitiesPerPlayer(pPlayer->GetID());
 		if(bCoastOnly && !bIsCoastal && iNumAreaCities == 0)
 		{
 			return -1;
@@ -303,7 +303,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		return -1;
 	}
 
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	TeamTypes const eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 
 	//for debugging
 	std::vector<std::string> vQualifiersPositive;
@@ -340,9 +340,9 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	int iTotalStrategicValue = 0;
 
 	//use a slightly negative base value to discourage settling in bad lands
-	int iDefaultPlotValue = -100;
+	int const iDefaultPlotValue = -100;
 
-	int iBorderlandRange = /*5*/ GD_INT_GET(AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT);
+	int const iBorderlandRange = /*5*/ GD_INT_GET(AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FRONT);
 
 	bool bIsAlmostCoast = false;
 
@@ -369,12 +369,12 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			if (ignorePlots.size()==GC.getMap().numPlots() && ignorePlots[pLoopPlot->GetPlotIndex()] > 0)
 				continue;
 
-		int iDistance = plotDistance(*pPlot,*pLoopPlot);
+		int const iDistance = plotDistance(*pPlot,*pLoopPlot);
 		int iRingModifier = m_iRingModifier[iDistance];
 
 		//not only our cities, also other player's cities!
-		int iExistingCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pLoopPlot);
-		int iExistingFriendlyCityDistance = pPlayer ? pPlayer->GetCityDistanceInPlots(pLoopPlot) : 5;
+		int const iExistingCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pLoopPlot);
+		int const iExistingFriendlyCityDistance = pPlayer ? pPlayer->GetCityDistanceInPlots(pLoopPlot) : 5;
 
 		//count the tile only if the city will be able to work it (doesn't need to be passable)
 		if (iExistingCityDistance<2  || pLoopPlot->isBeingWorked()) 
@@ -386,13 +386,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		int iPlotValue = iDefaultPlotValue;
 		if (iRingModifier>0)
 		{
-			int iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*12*/ GD_INT_GET(SETTLER_FOOD_MULTIPLIER);
-			int iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*8*/ GD_INT_GET(SETTLER_PRODUCTION_MULTIPLIER);
-			int	iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*8*/ GD_INT_GET(SETTLER_GOLD_MULTIPLIER);
-			int iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*5*/ GD_INT_GET(SETTLER_SCIENCE_MULTIPLIER);
-			int	iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*4*/ GD_INT_GET(SETTLER_FAITH_MULTIPLIER);
+			int const iFoodValue = ComputeFoodValue(pLoopPlot, pPlayer) * /*12*/ GD_INT_GET(SETTLER_FOOD_MULTIPLIER);
+			int const iProductionValue = ComputeProductionValue(pLoopPlot, pPlayer) * /*8*/ GD_INT_GET(SETTLER_PRODUCTION_MULTIPLIER);
+			int	const iGoldValue = ComputeGoldValue(pLoopPlot, pPlayer) * /*8*/ GD_INT_GET(SETTLER_GOLD_MULTIPLIER);
+			int const iScienceValue = ComputeScienceValue(pLoopPlot, pPlayer) * /*5*/ GD_INT_GET(SETTLER_SCIENCE_MULTIPLIER);
+			int	const iFaithValue = ComputeFaithValue(pLoopPlot, pPlayer) * /*4*/ GD_INT_GET(SETTLER_FAITH_MULTIPLIER);
 			//this is about strategic placement, not resources
-			int iStrategicValue = ComputeStrategicValue(pLoopPlot, iDistance) * /*3*/ GD_INT_GET(SETTLER_STRATEGIC_MULTIPLIER);
+			int const iStrategicValue = ComputeStrategicValue(pLoopPlot, iDistance) * /*3*/ GD_INT_GET(SETTLER_STRATEGIC_MULTIPLIER);
 
 			int iTradeValue = 0;
 			int iHappinessValue = 0;
@@ -471,8 +471,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		workablePlots.push_back( SPlotWithScore(pLoopPlot,iPlotValue) );
 
 		// some civ-specific checks
-		FeatureTypes ePlotFeature = pLoopPlot->getFeatureType();
-		ImprovementTypes ePlotImprovement = pLoopPlot->getImprovementType();
+		FeatureTypes const ePlotFeature = pLoopPlot->getFeatureType();
+		ImprovementTypes const ePlotImprovement = pLoopPlot->getImprovementType();
 
 		if (ePlotFeature == FEATURE_FOREST && iDistance>0)
 		{
@@ -506,7 +506,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			++iIncaHillsCount;
 		}
 
-		ResourceTypes eResource = pLoopPlot->getResourceType(eTeam);
+		ResourceTypes const eResource = pLoopPlot->getResourceType(eTeam);
 		if(eResource != NO_RESOURCE)
 		{
 			switch (GC.getResourceInfo(eResource)->getResourceUsage())
@@ -530,7 +530,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 		if (pLoopPlot->isMountain() && pPlayer && pPlayer->GetPlayerTraits()->IsMountainPass())
 		{
-			int iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
+			int const iAdjacentMountains = pLoopPlot->GetNumAdjacentMountains();
 			//give the bonus if it's hills, with additional if bordered by mountains
 			iCivModifier += (iAdjacentMountains+1) * m_iIncaMultiplier;
 			if (pDebug) vQualifiersPositive.push_back("(C) incan mountains");
@@ -568,13 +568,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Brazil
-		static ImprovementTypes eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
+		static ImprovementTypes const eBrazilImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_BRAZILWOOD_CAMP", true);  
 		if(eBrazilImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eBrazilImprovement);
 			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
 			{
-				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				CivilizationTypes const eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					if (pkEntry->GetFeatureMakesValid(FEATURE_JUNGLE))
@@ -588,13 +588,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Morocco
-		static ImprovementTypes eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);
+		static ImprovementTypes const eMoroccoImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_KASBAH", true);
 		if(eMoroccoImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eMoroccoImprovement);
 			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired() && !pkEntry->IsAdjacentCity())
 			{
-				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				CivilizationTypes const eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += iDesertCount * m_iMorrocoMultiplier;
@@ -604,13 +604,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for France
-		static ImprovementTypes eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);
+		static ImprovementTypes const eFranceImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CHATEAU", true);
 		if(eFranceImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eFranceImprovement);
 			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired() && pkEntry->IsAdjacentLuxury())
 			{
-				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				CivilizationTypes const eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += iResourceLuxuryCount * m_iFranceMultiplier;
@@ -620,13 +620,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		//Custom code for Netherlands
-		static ImprovementTypes ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);
+		static ImprovementTypes const ePolderImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_POLDER", true);
 		if(ePolderImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(ePolderImprovement);
 			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
 			{
-				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				CivilizationTypes const eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					if(pkEntry->IsFreshWaterMakesValid())
@@ -645,13 +645,13 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		}
 
 		// Custom code for Inca
-		static ImprovementTypes eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);
+		static ImprovementTypes const eIncaImprovement = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_TERRACE_FARM", true);
 		if(eIncaImprovement != NO_IMPROVEMENT)
 		{
 			CvImprovementEntry* pkEntry = GC.getImprovementInfo(eIncaImprovement);
 			if(pkEntry != NULL && pkEntry->IsSpecificCivRequired())
 			{
-				CivilizationTypes eCiv = pkEntry->GetRequiredCivilization();
+				CivilizationTypes const eCiv = pkEntry->GetRequiredCivilization();
 				if(eCiv == pPlayer->getCivilizationType())
 				{
 					iCivModifier += (iIncaHillsCount * m_iIncaMultiplier);
@@ -705,7 +705,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 		if (pPlayer)
 		{
-			int iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
+			int const iNavalFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iNavalIndex);
 			// we really like the coast (England, Norway, Polynesia, Carthage, etc.)
 			if (iNavalFlavor > 7 || pPlayer->getCivilizationInfo().isCoastalCiv())
 			{
@@ -731,7 +731,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	if (pPlayer && !pPlayer->isHuman() && pPlayer->getNumCities()>0)
 	{
 		//check if this location can be defended (from majors)
-		int iOwnCityDistance = pPlayer->GetCityDistancePathLength(pPlot);
+		int const iOwnCityDistance = pPlayer->GetCityDistancePathLength(pPlot);
 		PlayerTypes eNeighbor = NO_PLAYER;
 
 		CvCity* pClosestCity = GC.getGame().GetClosestCityByPathLength(pPlot,true);
@@ -742,7 +742,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		else if (pPlayer->GetNumCitiesFounded() < 4) //early game
 		{
 			//if we're still inside our sphere of influence, see if we can make a strategic claim to territory
-			DirectionTypes eDirectionFromCapital = directionXY(pPlayer->getCapitalCity()->plot(), pPlot);
+			DirectionTypes const eDirectionFromCapital = directionXY(pPlayer->getCapitalCity()->plot(), pPlot);
 
 			//go two steps outward
 			CvPlot* pOutwardPlot = pPlot->getNeighboringPlot(eDirectionFromCapital);
@@ -760,11 +760,11 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		//todo: do we want the check the map area as well?
 		if (eNeighbor != NO_PLAYER && pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eNeighbor)!=NO_STRENGTH_VALUE)
 		{
-			int strengthModifiers[NUM_STRENGTH_VALUES] = { 100, 100, 100, 50, -50, -100, -100 };
+			int const strengthModifiers[NUM_STRENGTH_VALUES] = { 100, 100, 100, 50, -50, -100, -100 };
 			int iModifierPercent = strengthModifiers[pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eNeighbor)];
 
 			CvPlayer& kNeighbor = GET_PLAYER(eNeighbor);
-			int iEnemyDistance = kNeighbor.GetCityDistancePathLength(pPlot);
+			int const iEnemyDistance = kNeighbor.GetCityDistancePathLength(pPlot);
 			//are we getting *very* close to the enemy?
 			int iThreshold = min(iOwnCityDistance - 1, iBorderlandRange);
 			if (iEnemyDistance < iThreshold)
@@ -791,7 +791,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 				iModifierPercent -= 30;
 
 			//finally
-			int iAdjustedEffect =  (/*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE) * iModifierPercent) / 100;
+			int const iAdjustedEffect =  (/*30*/ GD_INT_GET(BALANCE_EMPIRE_BORDERLAND_STRATEGIC_VALUE) * iModifierPercent) / 100;
 			iStratModifier += (iTotalPlotValue * iAdjustedEffect) / 100;
 
 			if (pDebug)
@@ -829,7 +829,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		int iSweetMax = iSweetMin+1;
 
 		//check our preferred balance between tall and wide
-		int iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
+		int const iGrowthFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iGrowthIndex);
 		if (iGrowthFlavor > 5)
 		{
 			iSweetMax++;
@@ -841,7 +841,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			iSweetMin--;
 		}
 
-		int iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
+		int const iExpansionFlavor = pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)m_iExpansionIndex);
 		if (iExpansionFlavor > 5)
 		{
 			iSweetMax++;
@@ -857,7 +857,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			iSweetMin = iMinDistance;
 
 		//this affects both friendly and other cities
-		int iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
+		int const iCityDistance = GC.getGame().GetClosestCityDistanceInPlots(pPlot);
 		if (iCityDistance >= iSweetMin && iOwnCityDistance <= iSweetMax)
 		{
 			iValueModifier += (iTotalPlotValue*20)/100; //make this a small bonus, there is a separate distance check anyway
@@ -935,8 +935,8 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 		rtnValue += 1;
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
-	ResourceTypes eResource = pPlot->getResourceType(eTeam);
+	TeamTypes const eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	ResourceTypes const eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -961,8 +961,8 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 		rtnValue += 1;
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
-	ResourceTypes eResource = pPlot->getResourceType(eTeam);
+	TeamTypes const eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	ResourceTypes const eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -982,8 +982,8 @@ int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer
 	int rtnValue = pPlot->calculateNatureYield(YIELD_GOLD, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
-	ResourceTypes eResource = pPlot->getResourceType(eTeam);
+	TeamTypes const eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	ResourceTypes const eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1004,8 +1004,8 @@ int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPla
 	int rtnValue = pPlot->calculateNatureYield(YIELD_SCIENCE, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
-	ResourceTypes eResource = pPlot->getResourceType(eTeam);
+	TeamTypes const eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	ResourceTypes const eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1026,8 +1026,8 @@ int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlaye
 	int rtnValue = pPlot->calculateNatureYield(YIELD_FAITH, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
-	ResourceTypes eResource = pPlot->getResourceType(eTeam);
+	TeamTypes const eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	ResourceTypes const eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		//can we build an improvement on this resource? assume we will do it (natural yield is already considered)
@@ -1048,9 +1048,9 @@ int CvCitySiteEvaluator::ComputeHappinessValue(CvPlot* pPlot, const CvPlayer* pP
 	int rtnValue = 0;
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	TeamTypes const eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 
-	ResourceTypes eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes const eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
 		// Add a bonus if adds Happiness
@@ -1087,11 +1087,11 @@ int CvCitySiteEvaluator::ComputeTradeableResourceValue(CvPlot* pPlot, const CvPl
 		eTeam = pPlayer->getTeam();
 	}
 
-	ResourceTypes eResource = pPlot->getResourceType(eTeam);
+	ResourceTypes const eResource = pPlot->getResourceType(eTeam);
 
 	if(eResource != NO_RESOURCE)
 	{
-		ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+		ResourceUsageTypes const eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
 
 		// Multiply number of tradeable resources by flavor value
 		if(eResourceUsage == RESOURCEUSAGE_LUXURY || eResourceUsage == RESOURCEUSAGE_STRATEGIC)
@@ -1164,7 +1164,7 @@ int CvCitySiteEvaluator::ComputeStrategicValue(CvPlot* pPlot, int iPlotsFromCity
 	// Some Features are less attractive to settle in, (e.g. Jungles, since it takes a while before you can clear them and they slow down movement)
 	if (pPlot->getFeatureType() != NO_FEATURE)
 	{
-		int iWeight = GC.getFeatureInfo(pPlot->getFeatureType())->getStartingLocationWeight();
+		int const iWeight = GC.getFeatureInfo(pPlot->getFeatureType())->getStartingLocationWeight();
 		if (iWeight != 0 && iPlotsFromCity == 1)
 		{
 			rtnValue += iWeight;
@@ -1241,8 +1241,8 @@ int CvCitySiteEvaluator::PlotFoundValue(CvPlot* pPlot, const CvPlayer*, const st
 		}
 		else
 		{
-			int iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
-			int iRingModifier = m_iRingModifier[iDistance];
+			int const iDistance = plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+			int const iRingModifier = m_iRingModifier[iDistance];
 
 			// Skip the city plot itself for now
 			if(iDistance != 0)

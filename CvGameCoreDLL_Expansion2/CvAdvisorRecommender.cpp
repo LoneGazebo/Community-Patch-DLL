@@ -60,7 +60,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	// buildings
 	for(int iBuildingLoop = 0; iBuildingLoop < GC.GetGameBuildings()->GetNumBuildings(); iBuildingLoop++)
 	{
-		BuildingTypes eBuilding = (BuildingTypes)iBuildingLoop;
+		BuildingTypes const eBuilding = (BuildingTypes)iBuildingLoop;
 		if(!pCity->canConstruct(eBuilding))
 		{
 			continue;
@@ -70,8 +70,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_iIndex = iBuildingLoop;
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eBuilding, 0);
 
-		int iFlavorWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
-		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, false, false);
+		int const iFlavorWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
+		int const iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, false, false);
 
 		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
@@ -79,7 +79,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	// units
 	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
-		UnitTypes eUnit = (UnitTypes)iUnitLoop;
+		UnitTypes const eUnit = (UnitTypes)iUnitLoop;
 		if(!pCity->canTrain(eUnit))
 		{
 			continue;
@@ -89,8 +89,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_iIndex = iUnitLoop;
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eUnit, 0);
 		
-		int iFlavorWeight = pCityStrategy->GetUnitProductionAI()->GetWeight(eUnit);
-		int iSaneWeight = pCityStrategy->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iFlavorWeight, false, false);
+		int const iFlavorWeight = pCityStrategy->GetUnitProductionAI()->GetWeight(eUnit);
+		int const iSaneWeight = pCityStrategy->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iFlavorWeight, false, false);
 
 		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
@@ -98,7 +98,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	// projects
 	for(int iProjectLoop = 0; iProjectLoop < GC.GetGameProjects()->GetNumProjects(); iProjectLoop++)
 	{
-		ProjectTypes eProject = (ProjectTypes)iProjectLoop;
+		ProjectTypes const eProject = (ProjectTypes)iProjectLoop;
 		if(!pCity->canCreate(eProject))
 		{
 			continue;
@@ -108,8 +108,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		buildable.m_iIndex = iProjectLoop;
 		buildable.m_iTurnsToConstruct = pCity->getProductionTurnsLeft(eProject, 0);
 		
-		int iFlavorWeight = pCityStrategy->GetProjectProductionAI()->GetWeight(eProject);
-		int iSaneWeight = pCityStrategy->GetProjectProductionAI()->CheckProjectBuildSanity(eProject, iFlavorWeight);
+		int const iFlavorWeight = pCityStrategy->GetProjectProductionAI()->GetWeight(eProject);
+		int const iSaneWeight = pCityStrategy->GetProjectProductionAI()->CheckProjectBuildSanity(eProject, iFlavorWeight);
 	
 		m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
@@ -217,7 +217,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 	// Loop through adding the researchable techs
 	for(int iTechLoop = 0; iTechLoop < pPlayerTechs->GetTechs()->GetNumTechs(); iTechLoop++)
 	{
-		TechTypes eTech = (TechTypes)iTechLoop;
+		TechTypes const eTech = (TechTypes)iTechLoop;
 		if(pPlayerTechs->CanResearch(eTech))
 		{
 			m_aResearchableTechs.push_back(iTechLoop, pPlayerTechAI->GetWeight(eTech));
@@ -286,7 +286,7 @@ bool CvAdvisorRecommender::IsTechRecommended(TechTypes eTech, AdvisorTypes eAdvi
 
 int CvAdvisorRecommender::AdvisorInterestInFlavor(AdvisorTypes eAdvisor, FlavorTypes eFlavor)
 {
-	CvString strFlavorName = GC.getFlavorTypes(eFlavor);
+	CvString const strFlavorName = GC.getFlavorTypes(eFlavor);
 
 	//todo: normalize weights!
 	switch(eAdvisor)
@@ -531,8 +531,8 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForTech(PlayerTypes ePla
 
 	for(int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
-		FlavorTypes eFlavor = (FlavorTypes)i;
-		int iTechFlavorValue = pTechEntry->GetFlavorValue(eFlavor);
+		FlavorTypes const eFlavor = (FlavorTypes)i;
+		int const iTechFlavorValue = pTechEntry->GetFlavorValue(eFlavor);
 		if(iTechFlavorValue <= 0)
 		{
 			continue;
@@ -540,7 +540,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForTech(PlayerTypes ePla
 
 		for(uint uiAdvisor = 0; uiAdvisor < NUM_ADVISOR_TYPES; uiAdvisor++)
 		{
-			AdvisorTypes eAdvisor = (AdvisorTypes)uiAdvisor;
+			AdvisorTypes const eAdvisor = (AdvisorTypes)uiAdvisor;
 			aiAdvisorValues[uiAdvisor] += iTechFlavorValue * AdvisorInterestInFlavor(eAdvisor, eFlavor);
 		}
 	}
@@ -596,7 +596,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 
 	for(int i = 0; i < GC.getNumFlavorTypes(); i++)
 	{
-		FlavorTypes eFlavor = (FlavorTypes)i;
+		FlavorTypes const eFlavor = (FlavorTypes)i;
 		int iFlavorValue = 0;
 		if(pBuilding)
 		{
@@ -618,7 +618,7 @@ AdvisorTypes CvAdvisorRecommender::FindUnassignedAdvisorForBuildable(PlayerTypes
 
 		for(uint uiAdvisor = 0; uiAdvisor < NUM_ADVISOR_TYPES; uiAdvisor++)
 		{
-			AdvisorTypes eAdvisor = (AdvisorTypes)uiAdvisor;
+			AdvisorTypes const eAdvisor = (AdvisorTypes)uiAdvisor;
 			aiAdvisorValues[uiAdvisor] += iFlavorValue * AdvisorInterestInFlavor(eAdvisor, eFlavor);
 		}
 	}

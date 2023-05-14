@@ -12,34 +12,34 @@ namespace NetMessageExt
 			{
 				case 999:				
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
-					EventTypes ePlayerEvent = static_cast<EventTypes>(iArg1);
-					EventChoiceTypes eEventChoice = static_cast<EventChoiceTypes>(iArg3);
+					PlayerTypes const eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					EventTypes const ePlayerEvent = static_cast<EventTypes>(iArg1);
+					EventChoiceTypes const eEventChoice = static_cast<EventChoiceTypes>(iArg3);
 					Response::DoEventChoice(eActualPlayer, eEventChoice, ePlayerEvent);					
 					break;
 				}
 				case 1000:
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
-					CityEventTypes eCityEvent = static_cast<CityEventTypes>(iArg1);
-					int iCityID = iArg2;
-					CityEventChoiceTypes eEventChoice = static_cast<CityEventChoiceTypes>(iArg3);
-					int iSpyID = iArg4;
-					PlayerTypes eSpyOwner = static_cast<PlayerTypes>(iArg5);
+					PlayerTypes const eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					CityEventTypes const eCityEvent = static_cast<CityEventTypes>(iArg1);
+					int const iCityID = iArg2;
+					CityEventChoiceTypes const eEventChoice = static_cast<CityEventChoiceTypes>(iArg3);
+					int const iSpyID = iArg4;
+					PlayerTypes const eSpyOwner = static_cast<PlayerTypes>(iArg5);
 					Response::DoCityEventChoice(eActualPlayer, iCityID, eEventChoice, eCityEvent, iSpyID, eSpyOwner);
 					break;
 				}
 				case 1001:
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
-					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
+					PlayerTypes const eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes const eMinor = static_cast<PlayerTypes>(iArg1);
 					Response::DoMinorBullyAnnex(eActualPlayer, eMinor);
 					break;
 				}
 				case 1002:
 				{
-					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
-					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
+					PlayerTypes const eActualPlayer = static_cast<PlayerTypes>(ePlayer);
+					PlayerTypes const eMinor = static_cast<PlayerTypes>(iArg1);
 					Response::DoMinorBuyout(eActualPlayer, eMinor);
 					break;
 				}
