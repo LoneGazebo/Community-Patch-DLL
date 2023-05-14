@@ -20,6 +20,9 @@
 		<Row Tag="TXT_KEY_TOP_PANEL_ITR_GOLDEN_AGE_POINTS_YIELD_TT">
 			<Text>{1_Num} [ICON_GOLDEN_AGE] Golden Age Points</Text>
 		</Row>
+		<Row Tag="TXT_KEY_TOP_PANEL_TURNS_UNTIL_GOLDEN_AGE">
+			<Text>Next Golden Age: {1_Num} Turn(s)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES">
 			<Text>{1_perTurn:number "#.##"} [ICON_GOLDEN_AGE] from Trade Routes established with this city</Text>
 		</Row>
