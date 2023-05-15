@@ -97,10 +97,10 @@ struct FAllocArray2DType : protected BASE
 		unsigned char* pLocMemStart = static_cast< unsigned char* > ( pRet );
 
 		unsigned int iDataAlignmentFix = sizeof(TYPE) - reinterpret_cast< unsigned int >(pLocMemStart -= nDataBytes) % sizeof(TYPE);
-		TYPE* pFirstElement = (TYPE*)( pLocMemStart + iDataAlignmentFix );
+		TYPE* pFirstElement = reinterpret_cast<TYPE*>( pLocMemStart + iDataAlignmentFix );
 
 		unsigned int iArrayAlignmentFix = sizeof(TYPE*) - reinterpret_cast< unsigned int >(pLocMemStart -= nArrayBytes) % sizeof(TYPE*);
-		TYPE** ppArray = (*static_cast< TYPE*** >(pData->pOut)) = (TYPE**)( pLocMemStart + iArrayAlignmentFix );
+		TYPE** ppArray = (*static_cast< TYPE*** >(pData->pOut)) = reinterpret_cast<TYPE**>( pLocMemStart + iArrayAlignmentFix );
 
 		for( unsigned int i = 0; i < pData->nX; ++i )
 		{
