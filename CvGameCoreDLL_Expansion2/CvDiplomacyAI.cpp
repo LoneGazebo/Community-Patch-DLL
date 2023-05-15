@@ -53208,7 +53208,7 @@ void CvDiplomacyAIHelpers::ApplyWarmongerPenalties(CvCity* pCity, PlayerTypes eC
 			int iWarmonger = GetCityWarmongerValue(pCity, eConqueror, eCityOwner, eObserver);
 			if (iWarmonger > 0)
 			{
-				CUSTOMLOG("WarmongerTimes100: Total=%i", iWarmonger);
+				//CUSTOMLOG("WarmongerTimes100: Total=%i", iWarmonger);
 				GET_PLAYER(eObserver).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eConqueror, iWarmonger * 100);
 				GET_PLAYER(eObserver).GetDiplomacyAI()->DoUpdateWarmongerThreats(true);
 			}

@@ -4972,10 +4972,10 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 				}
 			}
 
-			if (MOD_GLOBAL_CS_GIFTS)
-				CUSTOMLOG("CS Gift: Id %i, Trait %i, Personality %i: %sFriendship=%i, Gold=%i, Culture=%i, Faith=%i, Food=%i, Unit=%i", GetPlayer()->GetID(), eTrait, eRealPersonality, (bFirstMajorCiv ? "First " : ""), iFriendshipBoost, iGoldGift, iCultureGift, iFaithGift, iFoodGift, iUnitGift);
+//			if (MOD_GLOBAL_CS_GIFTS)
+//				CUSTOMLOG("CS Gift: Id %i, Trait %i, Personality %i: %sFriendship=%i, Gold=%i, Culture=%i, Faith=%i, Food=%i, Unit=%i", GetPlayer()->GetID(), eTrait, eRealPersonality, (bFirstMajorCiv ? "First " : ""), iFriendshipBoost, iGoldGift, iCultureGift, iFaithGift, iFoodGift, iUnitGift);
 
- 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
