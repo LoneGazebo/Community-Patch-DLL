@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.5.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.5.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -470,8 +470,8 @@
     <File md5="C1D4FD8FA992AB758357C80EBCF0AAB4" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
     <File md5="CFF2F2A3FCBE75D2B62959CB1A3D66C2" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="5B64163E0942965FD50EC1606BE79463" import="0">Balance Changes/Text/en_US/CivText.sql</File>
-    <File md5="44844B4EF213A12E8130CE1F1F48EE47" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
+    <File md5="2BA547721EEEF441CF67A95FD05B0844" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="8B4214CDB63C76E5F866B60457E4282D" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="3C2F1359DFF7680322AC0865193320F3" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="BE8A95DFB17CAD28CFA1E6E753F50D8C" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
     <File md5="728B5B99849E91B39DA271E1BAB862A0" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
@@ -529,7 +529,7 @@
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
     <File md5="70130E3F879A5124CF82D574C73B2638" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="491042CEAA0DAFD4755C1AF339C74208" import="1">LUA/CityView.lua</File>
+    <File md5="063041553F4CCD9C60C1CBA6CFA61BDE" import="1">LUA/CityView.lua</File>
     <File md5="615971860CD3A30FE4938845DCECF03E" import="1">LUA/CityView.xml</File>
     <File md5="87B455A2A51F036C76A7C77F329D4F39" import="1">LUA/CityView_small.xml</File>
     <File md5="01B66B9C0AEF66DB2239738F352B6026" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
@@ -572,14 +572,14 @@
     <File md5="E4A55299B743305F55BC2F358A7A0191" import="1">LUA/ProductionPopup.lua</File>
     <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
     <File md5="FC67B1778C9CAFE118D569CB6454A047" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
-    <File md5="87058F9A6B919A4AE0111532455B9607" import="1">Core Files/CoreLua/ReligionOverview.lua</File>
+    <File md5="880C4E0769CF89FE6A1A464E4CA2ABB7" import="1">Core Files/CoreLua/ReligionOverview.lua</File>
     <File md5="180D0D9007913D8483373F07C398A32B" import="1">Core Files/CoreLua/ReligionOverview.xml</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">Core Files/CoreLua/ResourceTooltipGenerator.lua</File>
     <File md5="70CC435D4C07712F3DFA40C00C6602F3" import="1">Core Files/CoreLua/SimpleDiploTrade.xml</File>
     <File md5="28060DB8C0A3C26C63F6D43700F294DB" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="7C4BFCCC79C51A21AE439DEFD059D997" import="1">LUA/TechButtonInclude.lua</File>
-    <File md5="4C53E8230ABCC25FA33C3125AF419F19" import="1">LUA/TopPanel.lua</File>
+    <File md5="54F47620C431C41E864B9805D008EF94" import="1">LUA/TopPanel.lua</File>
     <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">LUA/TopPanel.xml</File>
     <File md5="74401FDC01B568AFAC6CC073E890CD4E" import="1">LUA/TradeLogic.lua</File>
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
@@ -665,7 +665,7 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="1">Modular Elements/RandomVictory/RandomVCPopup.xml</File>
     <File md5="C225C6C6C353A80ABD8CEFC86E38D2A2" import="1">Modular Elements/RandomVictory/SpaceRaceVictory.dds</File>
     <File md5="3DFAC7B65FC1B5DDC035D7728960AF09" import="1">Modular Elements/ReligionPopup/ChooseReligionPopup.lua</File>
-    <File md5="F40532380FE0C1F51FF71A8E241F09AF" import="1">Modular Elements/TradeUIMod/ChooseInternationalTradeRoutePopup.lua</File>
+    <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Modular Elements/TradeUIMod/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Modular Elements/TradeUIMod/ChooseInternationalTradeRoutePopup.xml</File>
     <File md5="2DB53C324F540C139A641E42EE04945D" import="1">Modular Elements/TradeUIMod/ChooseTradeUnitNewHome.lua</File>
     <File md5="BD9B995CADF4C24C8DB41AD7FE7CB22F" import="1">Modular Elements/TradeUIMod/ChooseTradeUnitNewHome.xml</File>

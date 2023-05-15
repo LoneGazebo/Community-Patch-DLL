@@ -31707,27 +31707,6 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 				{
 					return false;
 				}
-
-				/* leaving this for easy retrieval for now, will delete on the new release
-				//Exploit prevention
-				int AmountComplete = GetCityBuildings()->GetBuildingProductionTimes100(eBuildingType);
-				if (AmountComplete > 0)
-				{
-					int AmountNeeded = max(1, getProductionNeeded(eBuildingType));
-					AmountComplete /= AmountNeeded;
-
-					int iTotalDiscount = (GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(getOwner()).GetInvestmentModifier());
-					const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
-					if (::isWorldWonderClass(kBuildingClassInfo))
-					{
-						iTotalDiscount /= 2;
-					}
-					iTotalDiscount *= -1;
-
-
-					if (AmountComplete >= (100 - iTotalDiscount))
-						return false;
-				}*/
 			}
 		}
 #endif	
