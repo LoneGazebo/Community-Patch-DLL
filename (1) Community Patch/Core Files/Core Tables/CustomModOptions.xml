@@ -504,6 +504,7 @@
     <!--   GameEvents.PlayerCanBullyGold.Add(function(iPlayer, iCS) return true end) -->
     <!--   GameEvents.PlayerCanBullyUnit.Add(function(iPlayer, iCS) return true end) -->
     <!--   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY) end) -->
+    <!--   GameEvents.PlayerBullied.Add(function(iPlayer, iCS, iGold, iUnitType, iPlotX, iPlotY, iYield) end) [either works]-->
     <!--   GameEvents.PlayerCanGiftGold.Add(function(iPlayer, iCS) return true end) -->
     <!--   GameEvents.PlayerCanGiftUnit.Add(function(iPlayer, iCS, iUnit) return true end) -->
     <!--   GameEvents.PlayerCanGiftImprovement.Add(function(iPlayer, iCS) return true end) -->
