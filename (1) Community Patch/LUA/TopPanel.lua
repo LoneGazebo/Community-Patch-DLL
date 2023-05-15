@@ -831,7 +831,13 @@ function GoldenAgeTipHandler( control )
 		else
 			local iHappiness = pPlayer:GetExcessHappiness();
 
-			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+			if(iHappiness > 0) then
+				local iTurnsUntilGoldenAge = (pPlayer:GetGoldenAgeProgressThreshold() - pPlayer:GetGoldenAgeProgressMeter()) / iHappiness;
+				iTurnsUntilGoldenAge = math.max(0, math.ceil(iTurnsUntilGoldenAge));
+				strText = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TURNS_UNTIL_GOLDEN_AGE", iTurnsUntilGoldenAge);
+				strText = strText .. "[NEWLINE][NEWLINE]"
+			end
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
 			strText = strText .. "[NEWLINE]";
 		
 			if (iHappiness >= 0) then

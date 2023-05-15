@@ -1289,8 +1289,8 @@ function OnCityViewUpdate()
 						end
 					end
 
-					iGPPChange = iGPPChange + pCity:GetExtraSpecialistPoints(pSpecialistInfo.ID);
-					iGPPChange = iGPPChange + pPlayer:GetMonopolyGreatPersonRateChange(pSpecialistInfo.ID);
+					iGPPChange = iGPPChange + pCity:GetExtraSpecialistPoints(pSpecialistInfo.ID) * 100;
+					iGPPChange = iGPPChange + pPlayer:GetMonopolyGreatPersonRateChange(pSpecialistInfo.ID) * 100;
 
 					if iGPPChange > 0 then
 						-- Generic GP mods

@@ -137,7 +137,15 @@ function UpdateData()
 						strGoldenAgeStr = string.format(Locale.ToUpper(Locale.ConvertTextKey("TXT_KEY_GOLDEN_AGE_ANNOUNCE")) .. " (%i)", pPlayer:GetGoldenAgeTurns());
 					end
 				else
-					strGoldenAgeStr = string.format("%i/%i", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+					iChange = pPlayer:GetHappinessForGAP() + pPlayer:GetGAPFromReligion() + pPlayer:GetGAPFromTraits() + pPlayer:GetGAPFromCities();
+					if(iChange > 0) then
+						strGoldenAgeStr = string.format("%i/%i (+%i)", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold(), iChange);
+					elseif(iChange < 0) then
+						strGoldenAgeStr = string.format("%i/%i (%i)", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold(), iChange);
+					else
+						strGoldenAgeStr = string.format("%i/%i", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+					end
+					
 				end
 			
 				strGoldenAgeStr = "[ICON_GOLDEN_AGE][COLOR:255:255:255:255]" .. strGoldenAgeStr .. "[/COLOR]";
@@ -981,18 +989,29 @@ function GoldenAgeTipHandler( control )
 	else
 		local pTeam = Teams[pPlayer:GetTeam()];
 		local pCity = UI.GetHeadSelectedCity();
+		
+		local iHappiness = pPlayer:GetHappinessForGAP();
+		local iGAPReligion = pPlayer:GetGAPFromReligion();
+		local iGAPTrait = pPlayer:GetGAPFromTraits();
+		local iGAPCities = pPlayer:GetGAPFromCities();
+		local iChange = iHappiness + iGAPReligion + iGAPTrait + iGAPCities;
 	
 		if (pPlayer:GetGoldenAgeTurns() > 0) then
 			strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_NOW", pPlayer:GetGoldenAgeTurns());
+		else
+			if (iChange > 0) then
+				iTurnsUntilGoldenAge = (pPlayer:GetGoldenAgeProgressThreshold() - pPlayer:GetGoldenAgeProgressMeter()) / iChange;
+				iTurnsUntilGoldenAge = math.max(0, math.ceil(iTurnsUntilGoldenAge));
+				strText = strText .. Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TURNS_UNTIL_GOLDEN_AGE", iTurnsUntilGoldenAge);
+			end
 		end
 		
-		local iHappiness = pPlayer:GetHappinessForGAP();
 
 		if(strText ~= "") then
 			strText = strText .. "[NEWLINE][NEWLINE]";
 		end
 
-		strText = Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
+		strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_PROGRESS", pPlayer:GetGoldenAgeProgressMeter(), pPlayer:GetGoldenAgeProgressThreshold());
 		strText = strText .. "[NEWLINE]";
 		
 		if (iHappiness >= 0) then
@@ -1001,17 +1020,14 @@ function GoldenAgeTipHandler( control )
 			strText = strText .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_LOSS", -iHappiness) .. "[ENDCOLOR]";
 		end
 		-- CBP
-		local iGAPReligion = pPlayer:GetGAPFromReligion();
 		if (iGAPReligion > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion);
 		end
-		local iGAPTrait = pPlayer:GetGAPFromTraits();
 		if (iGAPTrait > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait);
 		end
-		local iGAPCities = pPlayer:GetGAPFromCities();
 		if (iGAPCities > 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities);
