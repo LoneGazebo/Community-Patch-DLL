@@ -427,11 +427,27 @@ function RefreshYourReligion()
 		elseif (v1 == FaithPurchaseTypes.FAITH_PURCHASE_SAVE_PROPHET) then
 			automaticPurchasePullDown:GetButton():LocalizeAndSetText("TXT_KEY_RO_AUTO_FAITH_PROPHET");		
 		elseif (v1 == FaithPurchaseTypes.FAITH_PURCHASE_UNIT) then
-			local faithCost = capital:GetUnitFaithPurchaseCost(GameInfo.Units[v2].ID, true);
+			local faithCost = capital:GetUnitFaithPurchaseCost(GameInfo.Units[v2].ID, true); --Do a check here, what if Capital has cheaper faith purchases...? If not, iterate again, sadly lol.
+			if (faithCost == 0 and player:DoesUnitPassFaithPurchaseCheck(GameInfo.Units[v2].ID)) then 
+				for pCity in player:Cities() do
+					faithCost = pCity:GetUnitFaithPurchaseCost(GameInfo.Units[v2].ID, true)
+					if (faithCost > 0) then
+						break;
+					end
+				end
+			end
 			local gpString = string.format("%s (%i [ICON_PEACE])", Locale.Lookup(GameInfo.Units[v2].Description), faithCost); 
 			automaticPurchasePullDown:GetButton():LocalizeAndSetText("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString);
 		else
-			local faithCost = capital:GetBuildingFaithPurchaseCost(GameInfo.Buildings[v2].ID, true);
+			local faithCost = capital:GetBuildingFaithPurchaseCost(GameInfo.Buildings[v2].ID, true); --Do a check here, what if Capital has cheaper faith purchases...? If not, iterate again, sadly lol.
+			if (faithCost == 0) then
+				for pCity in player:Cities() do
+					local faithCost = pCity:GetBuildingFaithPurchaseCost(GameInfo.Buildings[v2].ID, true);
+					if (faithCost > 0) then
+						break;
+					end
+				end
+			end
 			local gpString = string.format("%s (%i [ICON_PEACE])", Locale.Lookup(GameInfo.Buildings[v2].Description), faithCost); 
 			automaticPurchasePullDown:GetButton():LocalizeAndSetText("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString);
 		end
@@ -461,36 +477,36 @@ function RefreshYourReligion()
 					AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString), "", FaithPurchaseTypes.FAITH_PURCHASE_UNIT, unit.ID);
 				end
 			elseif (canBuyAnywhere) then --but what if the Capital can't buy it, but some city like.. a non-Capital Holy City?
-				local faithCost = "?";
+				--local faithCost = 0;
 				for pCity in player:Cities() do
-					if (pCity:GetUnitFaithPurchaseCost(unit.ID) > 0) then
-						local faithCost = pCity:GetUnitFaithPurchaseCost(unit.ID);
-						break;
+					if (pCity:GetUnitFaithPurchaseCost(unit.ID, true) > 0) then
+						local faithCost = pCity:GetUnitFaithPurchaseCost(unit.ID, true);
+						if (player:DoesUnitPassFaithPurchaseCheck(unit.ID)) then
+							local gpString = string.format("%s (%i [ICON_PEACE])", Locale.Lookup(unit.Description), faithCost); 
+							AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString), "", FaithPurchaseTypes.FAITH_PURCHASE_UNIT, unit.ID);
+							break;
+						end
 					end
-				end
-				if (player:DoesUnitPassFaithPurchaseCheck(unit.ID)) then
-					local gpString = string.format("%s (%i [ICON_PEACE])", Locale.Lookup(unit.Description), faithCost); 
-					AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString), "", FaithPurchaseTypes.FAITH_PURCHASE_UNIT, unit.ID);
 				end
 			end
 		end
 		
 		for building in GameInfo.Buildings() do
-			local faithCost = capital:GetBuildingFaithPurchaseCost(building.ID);
+			local faithCost = capital:GetBuildingFaithPurchaseCost(building.ID, true);
 			local canBuyAnywhere = player:IsCanPurchaseAnyCity(false, true, -1, building.ID, YieldTypes.YIELD_FAITH);
 			if(faithCost > 0 and canBuyAnywhere) then
 				local gpString = string.format("%s (%i [ICON_PEACE])", Locale.Lookup(building.Description), faithCost); 
 				AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString), "", FaithPurchaseTypes.FAITH_PURCHASE_BUILDING, building.ID);
 			elseif (canBuyAnywhere) then --but what if the Capital can't buy it, but some city like.. a non-Capital Holy City?
-				local faithCost = "?";
+				--local faithCost = 0;
 				for pCity in player:Cities() do
-					if (pCity:GetBuildingFaithPurchaseCost(building.ID) > 0) then
-						local faithCost = pCity:GetBuildingFaithPurchaseCost(building.ID);
+					if (pCity:GetBuildingFaithPurchaseCost(building.ID, true) > 0) then
+						local faithCost = pCity:GetBuildingFaithPurchaseCost(building.ID, true);
+						local gpString = string.format("%s (%i [ICON_PEACE])", Locale.Lookup(building.Description), faithCost); 
+						AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString), "", FaithPurchaseTypes.FAITH_PURCHASE_BUILDING, building.ID);
 						break;
 					end
 				end
-				local gpString = string.format("%s (%i [ICON_PEACE])", Locale.Lookup(building.Description), faithCost); 
-				AddToPullDown(Locale.Lookup("TXT_KEY_RO_AUTO_FAITH_PURCHASE_GREAT_PERSON", gpString), "", FaithPurchaseTypes.FAITH_PURCHASE_BUILDING, building.ID);
 			end
 		end
 	end
