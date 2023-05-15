@@ -464,7 +464,7 @@ function RefreshYourReligion()
 				local faithCost = "?";
 				for pCity in player:Cities() do
 					if (pCity:GetUnitFaithPurchaseCost(unit.ID) > 0) then
-						local faithCost = pCity:GetUnitFaithPurchaseCost(building.ID);
+						local faithCost = pCity:GetUnitFaithPurchaseCost(unit.ID);
 						break;
 					end
 				end

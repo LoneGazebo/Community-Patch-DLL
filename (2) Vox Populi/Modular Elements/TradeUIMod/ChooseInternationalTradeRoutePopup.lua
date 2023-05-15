@@ -175,6 +175,7 @@ function RefreshData()
 --EDITED		tradeRoute.CityName = pTargetCity:GetName();
 
 		tradeRoute.CityIcons = "";
+		tradeRoute.CityIconsTooltip = "";
 		tradeRoute.CivName = pTargetPlayer:GetCivilizationDescription();	
 		
 		if(iTargetOwner == iActivePlayer) then
@@ -185,7 +186,8 @@ function RefreshData()
 			tradeRoute.Category = 3;	-- City States
 
 			if (pTargetPlayer:IsMinorCivActiveQuestForPlayer(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE)) then
-				tradeRoute.CityIcons = " [ICON_INTERNATIONAL_TRADE]"
+				tradeRoute.CityIcons = tradeRoute.CityIcons .. " [ICON_INTERNATIONAL_TRADE]"
+				tradeRoute.CityIconsTooltip = tradeRoute.CityIconsTooltip .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL")
 			end
 		end
 		
@@ -305,12 +307,15 @@ function RefreshData()
 
 		-- CBP
 		if (pTargetCity ~= nil and pTargetCity:IsFranchised(iActivePlayer)) then
-			tradeRoute.CityIcons = " [ICON_CHECKBOX]"
+			tradeRoute.CityIcons = tradeRoute.CityIcons .. " [ICON_CHECKBOX]"
+			tradeRoute.CityIconsTooltip = tradeRoute.CityIconsTooltip  .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_HAS_FRANCHISE_TT") .. pPlayer:GetTradeRouteBenefitHelper()
 		elseif(pTargetCity ~= nil and pOriginCity ~= nil and pOriginCity:HasOffice())then			
 			if (pPlayer:CanCreateFranchiseInCity(pOriginCity, pTargetCity)) then
-				tradeRoute.CityIcons = " [ICON_INVEST]"
+				tradeRoute.CityIcons = tradeRoute.CityIcons .. " [ICON_INVEST]"
+				tradeRoute.CityIconsTooltip = tradeRoute.CityIconsTooltip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CAN_FRANCHISE_TT") .. pPlayer:GetCurrentOfficeBenefit()
 			else
-				tradeRoute.CityIcons = " [ICON_DENOUNCE]"
+				tradeRoute.CityIcons = tradeRoute.CityIcons .. " [ICON_DENOUNCE]"
+				tradeRoute.CityIconsTooltip = tradeRoute.CityIconsTooltip  .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_NO_FRANCHISE_HERE_TT")
 			end
 		end
 -- END
@@ -453,24 +458,8 @@ function DisplayData()
 
 		local pPlayer = Players[Game.GetActivePlayer()];
 
-		itemInstance.CityIcons:SetText("");
-		if(pPlayer ~= nil) then
-			if(tradeRoute.CityIcons == " [ICON_CHECKBOX]") then	
-				local franchiseBonus = pPlayer:GetTradeRouteBenefitHelper();
-				franchiseBonus = Locale.ConvertTextKey("TXT_KEY_HAS_FRANCHISE_TT") .. franchiseBonus;
-				itemInstance.CityIcons:SetText(tradeRoute.CityIcons);
-				itemInstance.CityIcons:SetToolTipString(franchiseBonus);
-			elseif(tradeRoute.CityIcons == " [ICON_INVEST]") then	
-				local officeBonus = pPlayer:GetCurrentOfficeBenefit();
-				officeBonus = Locale.ConvertTextKey("TXT_KEY_CAN_FRANCHISE_TT") .. officeBonus;
-				itemInstance.CityIcons:SetText(tradeRoute.CityIcons);
-				itemInstance.CityIcons:SetToolTipString(officeBonus);
-			elseif(tradeRoute.CityIcons == " [ICON_DENOUNCE]") then	
-				local noFranchiseWhy = Locale.ConvertTextKey("TXT_KEY_NO_FRANCHISE_HERE_TT");
-				itemInstance.CityIcons:SetText(tradeRoute.CityIcons);
-				itemInstance.CityIcons:SetToolTipString(noFranchiseWhy);
-			end
-		end
+		itemInstance.CityIcons:SetText(tradeRoute.CityIcons);
+		itemInstance.CityIcons:SetToolTipString(tradeRoute.CityIconsTooltip);
 --END
 		itemInstance.Bonuses:SetText(tradeRoute.Bonuses);
 		itemInstance.PrevRoute:SetText(tradeRoute.PrevRoute);

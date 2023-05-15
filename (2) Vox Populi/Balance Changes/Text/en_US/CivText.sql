@@ -968,7 +968,7 @@ WHERE Tag = 'TXT_KEY_MISSION_SELL_EXOTIC_GOODS_HELP';
 -- Rome
 --------------------
 UPDATE Language_en_US
-SET Text = '+30% Combat Strength against City-States.​ Conquered City-States provide rewards as if they were Allies. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
+SET Text = '+30% [ICON_DEFENSE] Combat Strength against [ICON_CITY_STATE] City-States. Conquered City-States provide rewards as if they were [COLOR_POSITIVE]Allies[ENDCOLOR]. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US

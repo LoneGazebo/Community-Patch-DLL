@@ -3600,7 +3600,7 @@ function OnMouseOverHex( hexX, hexY )
 								pUnit = pPlot:GetUnit(i);
 								if (pUnit ~= nil and not pUnit:IsInvisible(iTeam, false)) then
 
-									local validLandAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) and (not pPlot:IsWater() or (pPlot:IsWater() and GameInfo.Improvements[pPlot:GetImprovementType()].AllowsWalkWater)); --Observe this if it causes issues.
+									local validLandAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) and (not pPlot:IsWater() or (pPlot:IsWater() and pPlot:GetImprovementType() ~= -1 and GameInfo.Improvements[pPlot:GetImprovementType()].AllowsWalkWater)); --Observe this if it causes issues.
 									local validSeaAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) and (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pUnit:IsEmbarked() or (pPlot:IsWater() and GameInfo.Improvements[pPlot:GetImprovementType()].AllowsWalkWater)); --The behavior of ship being allowed to attack units on Polders/Pontoon Bridges was always there... except no one wanted to fix the UI? Observe this if it causes issues.
 									local validAirAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_AIR);
 
