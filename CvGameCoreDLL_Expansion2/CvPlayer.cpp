@@ -11069,6 +11069,9 @@ void CvPlayer::doTurn()
 		DoWarValueLostDecay();
 		DoUpdateWarDamage();
 
+		//Reset for reevaluation of citystrategy AI
+		countCitiesNeedingTerrainImprovements(true);
+
 		if (isMajorCiv())
 		{
 			GetDiplomacyAI()->SetEndedFriendshipThisTurn(false);
@@ -11157,10 +11160,8 @@ void CvPlayer::doTurn()
 		}
 
 		GetCorporations()->DoTurn();
-	
-		//Reset for reevaluation of citystrategy AI
-		countCitiesNeedingTerrainImprovements(true);
 #endif
+
 		if(GetPlayerTraits()->IsEndOfMayaLongCount())
 		{
 			ChangeNumMayaBoosts(1);

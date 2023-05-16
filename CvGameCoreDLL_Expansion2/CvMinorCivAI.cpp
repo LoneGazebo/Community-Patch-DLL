@@ -5351,26 +5351,19 @@ void CvMinorCivAI::DoTestEndSkirmishes(PlayerTypes eNewAlly)
 void CvMinorCivAI::DoTurnStatus()
 {
 	int iWeight = 0;
-
-	PlayerProximityTypes eProximity;
-
-	CvPlayer* pPlayer = NULL;
-	CvTeam* pTeam = NULL;
-	PlayerTypes ePlayer;
 	for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		ePlayer = (PlayerTypes) iPlayerLoop;
-		pPlayer = &GET_PLAYER(ePlayer);
-		pTeam = &GET_TEAM(pPlayer->getTeam());
+		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
+		CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
 
-		eProximity = pPlayer->GetProximityToPlayer(GetPlayer()->GetID());
+		PlayerProximityTypes eProximity = pPlayer->GetProximityToPlayer(GetPlayer()->GetID());
 
 		// Check how close the player is
 		switch(eProximity)
 		{
 			// DISTANT: Elevated if we're at war
 		case PLAYER_PROXIMITY_DISTANT:
-#if defined(MOD_BALANCE_CORE)
 			if(pTeam->IsMinorCivAggressor())
 			{
 				iWeight += 2;
@@ -5383,16 +5376,10 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 6;
 			}
-#endif
 			break;
-// 			if (IsAtWarWithPlayersTeam(ePlayer))
-// 			{
-// 				iWeight += 10;
-// 			}
 
 			// FAR: Elevated if they're an aggressor OR we're at war (note the ELSE IF)
 		case PLAYER_PROXIMITY_FAR:
-#if defined(MOD_BALANCE_CORE)
 			if(pTeam->IsMinorCivAggressor())
 			{
 				iWeight += 4;
@@ -5405,17 +5392,6 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 8;
 			}
-#endif
-			break;
-// 			if (pTeam->IsMinorCivAggressor())
-// 			{
-// 				iWeight += 10;
-// 			}
-// 			else if (IsAtWarWithPlayersTeam(ePlayer))
-// 			{
-// 				iWeight += 10;
-// 			}
-
 			// CLOSE: Elevated if they're an aggressor, critical if we're at war
 		case PLAYER_PROXIMITY_CLOSE:
 			if(pTeam->IsMinorCivAggressor())
@@ -5426,12 +5402,10 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 20;
 			}
-#if defined(MOD_BALANCE_CORE)
 			if(IsAtWarWithPlayersTeam(ePlayer))
 			{
 				iWeight += 15;
 			}
-#endif
 			break;
 
 			// NEIGHBORS: Pretty much anything makes the situation critical
@@ -5440,12 +5414,10 @@ void CvMinorCivAI::DoTurnStatus()
 			{
 				iWeight += 20;
 			}
-#if defined(MOD_BALANCE_CORE)
 			if(pTeam->IsMinorCivWarmonger())
 			{
 				iWeight += 20;
 			}
-#endif
 			if(IsAtWarWithPlayersTeam(ePlayer))
 			{
 				iWeight += 20;
@@ -5455,7 +5427,7 @@ void CvMinorCivAI::DoTurnStatus()
 			break;
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(GetNumThreateningBarbarians() > 0)
 	{
 		iWeight += GetNumThreateningBarbarians() * 10;
@@ -5468,7 +5440,7 @@ void CvMinorCivAI::DoTurnStatus()
 	{
 		iWeight += 20;
 	}
-#endif
+
 	// Do the final math
 	if(iWeight >= 20)
 	{
