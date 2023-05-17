@@ -7501,10 +7501,10 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 				iDuration -= iDurationMod;
 			}
 		}
-		// Likewise, do not apply the boldness mod if the new value is negative!
+		// Likewise, do not apply the neediness mod if the new value is negative!
 		else if (iCurrentValue < 0 && IsSupportedOurProposalAndThenFoiledUs(ePlayer) && iSetValue > 0)
 		{
-			int iDurationMod = (GetBoldness() - 5) * 2;
+			int iDurationMod = (GetNeediness() - 5) * 2;
 			iDurationMod *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 			iDurationMod /= 100;
 			if (iDurationMod > 0)
@@ -7961,7 +7961,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer) const
 		return false;
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iMostRecentBullyTurn;
-	if (iTurnDifference < /*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN))
+	if (iTurnDifference < AdjustModifierDuration(false, /*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN)))
 	{
 		return true;
 	}
@@ -13034,7 +13034,7 @@ void CvDiplomacyAI::DoTestUntrustworthyFriends()
 /// Do we view this player as a backstabber?
 bool CvDiplomacyAI::DoTestOnePlayerUntrustworthyFriend(PlayerTypes ePlayer)
 {
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+	if (IsAlwaysAtWar(ePlayer))
 	{
 		return true;
 	}
@@ -43035,9 +43035,9 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 				// What is their backstabbing tolerance?
 				if (!kPlayer.GetDiplomacyAI()->WasResurrectedBy(GetID()))
 				{
-					int iFriendDenounceTolerance = (kPlayer.GetDiplomacyAI()->GetLoyalty() < 5) ? 2 : 1;
+					int iFriendDenounceTolerance = GetEstimatePlayerLoyalty(eLoopPlayer) < 5 ? 2 : 1;
 
-					if (kPlayer.GetDiplomacyAI()->GetForgiveness() > 8)
+					if (GetEstimatePlayerForgiveness(eLoopPlayer) > 8)
 						iFriendDenounceTolerance++;
 
 					int iNumCivsEver = GC.getGame().countMajorCivsEverAlive();
@@ -44711,8 +44711,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetReligiousConversionTurn(ePlayer);
-			int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-			iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN), iFlavorReligion);
+			iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN));
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44773,7 +44772,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0 && !IsPlayerWonderSpammer(ePlayer)) // do not remove this penalty if player is spamming World Wonders; this likely means he's been building all the Wonders before we had a chance to build them
 		{
 			iTurnDifference = iTurn - GetBeatenToWonderTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*75*/ GD_INT_GET(BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN), GetWonderCompetitiveness());
+			iDuration = AdjustModifierDuration(false, /*75*/ GD_INT_GET(BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN));
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44787,7 +44786,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetLoweredOurInfluenceTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN), GetMinorCivCompetitiveness());
+			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN));
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44801,7 +44800,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetPerformedCoupTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN), GetMinorCivCompetitiveness());
+			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN));
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44815,7 +44814,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetStoleArtifactTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN), m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")));
+			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN));
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44947,8 +44946,8 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 			{
 				iProposalTurn = GetTheyFoiledOurProposalTurn(ePlayer);
 
-				// The more recent action should carry higher value if Boldness is higher
-				int iDurationMod = (GetBoldness() - 5) * 2;
+				// The more recent action should carry higher value if Neediness is higher
+				int iDurationMod = (GetNeediness() - 5) * 2;
 				iDurationMod *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 				iDurationMod /= 100;
 				if (iDurationMod > 0)
@@ -46075,7 +46074,7 @@ int CvDiplomacyAI::GetTimesPerformedCoupScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = iNumCoups * /*30*/ GD_INT_GET(OPINION_WEIGHT_PERFORMED_COUP);
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN), GetMinorCivCompetitiveness());
+		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN));
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetPerformedCoupTurn(ePlayer), MODIFIER_TYPE_STACKED, iNumCoups);
 	}
 
@@ -46091,7 +46090,7 @@ int CvDiplomacyAI::GetStoleArtifactsScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = iNumArtifacts * /*30*/ GD_INT_GET(OPINION_WEIGHT_EXCAVATED_ARTIFACT);
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN), m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")));
+		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN));
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetStoleArtifactTurn(ePlayer), MODIFIER_TYPE_STACKED, iNumArtifacts);
 	}
 	
@@ -46829,8 +46828,7 @@ int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = (GetNegativeReligiousConversionPoints(ePlayer) * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion() * /*1*/ GD_INT_GET(OPINION_WEIGHT_PER_NEGATIVE_CONVERSION));
 
-		int iFlavorReligion = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
-		int iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN), iFlavorReligion);
+		int iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN));
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetReligiousConversionTurn(ePlayer), MODIFIER_TYPE_STACKED, iPoints);
 	}
 
@@ -46990,7 +46988,7 @@ int CvDiplomacyAI::GetAngryAboutProtectedMinorBulliedScore(PlayerTypes ePlayer)
 		if (GetOtherPlayerNumProtectedMinorsBullied(ePlayer) > 1)					
 			iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_MANY_PROTECTED_MINORS);
 
-		int iDuration = AdjustModifierDuration(false, /*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
+		int iDuration = AdjustModifierDuration(false, /*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN));
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetOtherPlayerBulliedProtectedMinorTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -47662,8 +47660,8 @@ int CvDiplomacyAI::GetSupportedOurProposalScore(PlayerTypes ePlayer)
 		{
 			iTurn = GetTheyFoiledOurProposalTurn(ePlayer);
 
-			// The more recent action should carry higher value if Boldness is higher
-			int iDurationMod = (GetBoldness() - 5) * 2;
+			// The more recent action should carry higher value if Neediness is higher
+			int iDurationMod = (GetNeediness() - 5) * 2;
 			iDurationMod *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
 			iDurationMod /= 100;
 			if (iDurationMod > 0)
@@ -48109,7 +48107,7 @@ int CvDiplomacyAI::GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePla
 	if (IsHappyAboutPlayerVassalagePeacefullyRevoked(ePlayer))
 	{
 		iOpinionWeight = /*-40*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_THEY_PEACEFULLY_REVOKED);
-		int iDuration = AdjustModifierDuration(true, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
+		int iDuration = AdjustModifierDuration(true, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN));
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetVassalagePeacefullyRevokedTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -56823,7 +56821,7 @@ bool CvDiplomacyAI::IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePl
 		return false;
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
-	int iDuration = AdjustModifierDuration(true, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
+	int iDuration = AdjustModifierDuration(true, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN));
 
 	if (iTurnDifference < iDuration)
 	{
