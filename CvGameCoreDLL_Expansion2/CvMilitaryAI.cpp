@@ -1211,6 +1211,9 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 	CvPlot* pMusterPlot = target.GetMusterPlot();
 	CvPlot* pStagingPlot = target.GetStagingPlot();
 	CvPlot* pTargetPlot = target.GetTargetPlot();
+	bool bMountainBonus = GET_PLAYER(ePlayer).CanCrossMountain();
+	bool bForestJungleBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsWoodlandMovementBonus();
+	bool bHillBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsFasterInHills();
 
 	//basic sanity check
 	if (eArmyType == ARMY_TYPE_LAND)
@@ -1244,7 +1247,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 			continue;
 
 		//cannot go here? important, ignore territory checks (typically we are at peace without open borders)
-		if(!pLoopPlot->isValidMovePlot(ePlayer,false) || pLoopPlot->isCity())
+		if (!pLoopPlot->isValidMovePlot(ePlayer,false) || pLoopPlot->isCity())
 			continue;
 
 		//ignore plots owned by third parties
@@ -1282,8 +1285,13 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 		if (TacticalAIHelpers::IsOtherPlayerCitadel(pLoopPlot, ePlayer, false))
 			continue;
 
-		//makes us slow
-		if(!pLoopPlot->isRoughGround())
+		//rough terrain makes us slow
+		bool bWoodlandException = bForestJungleBonus && (pLoopPlot->getFeatureType() == FEATURE_FOREST || pLoopPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam());
+		if (bWoodlandException || (bMountainBonus && pLoopPlot->isMountain()) || (bHillBonus && pLoopPlot->isHills()) || !pLoopPlot->isRoughGround())
+			bIsGood = true;
+
+		// owned by us and has a road?
+		if (pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam() && pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged())
 			bIsGood = true;
 
 		//we want to have plots for our siege units

@@ -569,7 +569,10 @@ bool CvBuilderTaskingAI::GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes 
 	if (eRoute == ROUTE_ROAD)
 	{
 		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
-			return true;
+		{
+			if (MOD_BALANCE_VP || pPlot->getTeam() == m_pPlayer->getTeam())
+				return true;
+		}
 		else if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 			return true;
 	}

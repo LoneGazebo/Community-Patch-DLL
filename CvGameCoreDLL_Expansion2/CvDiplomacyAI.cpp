@@ -18547,9 +18547,9 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	if (IsCompetingForVictory())
 	{
 		// Must be at least in the Medieval Era (or with few players / close to winning / already conquered a capital) to add weight for Domination Victory
-		if (iMyEra >= 2 || bCloseToWorldConquest || GC.getGame().countMajorCivsAlive() <= 4 || GetPlayerNumMajorsConquered(eMyPlayer) > 1)
+		if (iMyEra >= 2 || bCloseToWorldConquest || GC.getGame().countMajorCivsAlive() <= 4 || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 		{
-			if (IsGoingForWorldConquest() || GetPlayerNumMajorsConquered(eMyPlayer) > 1)
+			if (IsGoingForWorldConquest() || GetPlayerNumMajorsConquered(eMyPlayer) > 0)
 			{
 				// Add some weight for leader flavors
 				vApproachScores[CIV_APPROACH_WAR] += (GetBoldness() + m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"))) / 2;
@@ -29202,12 +29202,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bool bValid = false;
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
 						{
 							bValid = true;
 						}
 					}
-					if (bValid && ((GET_PLAYER(GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetID()).GetDiplomacyAI()->GetMeanness() > 6))
+					if (bValid && (GetBoldness() > 6 || GetMeanness() > 6))
 					{
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
@@ -29229,12 +29229,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bool bValid = false;
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
 						{
 							bValid = true;
 						}
 					}
-					if (bValid && ((GET_PLAYER(GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetID()).GetDiplomacyAI()->GetMeanness() > 6))
+					if (bValid && (GetBoldness() > 6 || GetMeanness() > 6))
 					{
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
@@ -29290,12 +29290,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bool bValid = false;
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
 						{
 							bValid = true;
 						}
 					}
-					if (bValid && ((GET_PLAYER(GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetID()).GetDiplomacyAI()->GetMeanness() > 6))
+					if (bValid && (GetBoldness() > 6 || GetMeanness() > 6))
 					{
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
@@ -29312,12 +29312,12 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bool bValid = false;
 					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
 					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GetWarmongerHate())
+						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
 						{
 							bValid = true;
 						}
 					}
-					if (bValid && ((GET_PLAYER(GetID()).GetDiplomacyAI()->GetBoldness() >  6) || GET_PLAYER(GetID()).GetDiplomacyAI()->GetMeanness() > 6))
+					if (bValid && (GetBoldness() > 6 || GetMeanness() > 6))
 					{
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
@@ -29967,7 +29967,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bValid = true;
 				}
 			}
-			if (bValid && ((GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() >  7) || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMeanness() > 7))
+			if (bValid && (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() > 7 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMeanness() > 7))
 			{
 				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 				{
@@ -30005,10 +30005,6 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
 				GC.getGame().GetGameDeals().FinalizeDeal(GetID(), ePlayer, true);
 #endif
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() >= 8)
-				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->DoDenouncePlayer(GetID());
-				}
 			}
 		}
 	}

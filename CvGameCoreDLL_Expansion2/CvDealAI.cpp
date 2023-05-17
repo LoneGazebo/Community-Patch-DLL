@@ -6734,10 +6734,10 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 		}
 
 		// Give a luxury to this player? (only one)
-		if(iOurTotalHappy > 6 &&											// need to have some spare happiness
-			iTheirTotalHappy < 2 &&											// they need happiness
-			(pDiploAI->GetWarmongerThreat(eFromPlayer) < THREAT_MAJOR &&	// don't give out happiness to warmongers
-			pDiploAI->GetWarmongerHate() > 5) &&							// only if we hate warmongers
+		if(iOurTotalHappy > 60 &&											// need to have some spare happiness
+			iTheirTotalHappy < 50 &&										// they need happiness
+			(pDiploAI->GetWarmongerThreat(eFromPlayer) < THREAT_MAJOR ||	// don't give out happiness to warmongers
+			pDiploAI->GetWarmongerHate() <= 5) &&							// only if we hate warmongers
 			!pDiploAI->IsPlayerRecklessExpander(eFromPlayer))				// don't give out happiness to reckless expanders
 		{
 			bGiveUpOneLuxury = true;

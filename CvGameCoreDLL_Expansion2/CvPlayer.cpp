@@ -50366,7 +50366,7 @@ bool CvPlayer::CanCrossOcean() const
 }
 bool CvPlayer::CanCrossMountain() const
 {
-	return GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GetPlayerTraits()->IsMountainPass();
+	return GetPlayerTraits()->IsMountainPass() || (getGreatGeneralsCreated(false) > 0 && GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral());
 }
 bool CvPlayer::CanCrossIce() const
 {
