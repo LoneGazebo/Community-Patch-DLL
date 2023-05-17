@@ -35,11 +35,10 @@
 #endif
 
 int gCurrentUnitToTrack = 0;
-int gTacticalCombatDebugOutput = 0;
 const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
 const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
 const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
-const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permuations
+const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
@@ -971,7 +970,10 @@ void CvTacticalAI::PlotGrabGoodyMoves()
 		{
 			ExecuteMoveToPlot(pUnit, pPlot, false);
 
-			if (!pUnit->canMove())
+			if (pUnit->canMove())
+				//can use this unit for other stuff, reset the tactmove to avoid spamming the log
+				pUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+			else
 				UnitProcessed(pUnit->GetID());
 
 			if(GC.getLogging() && GC.getAILogging())
@@ -3254,8 +3256,15 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 
 			//grab the goodies
 			ExecuteMoveToPlot(pUnit, pTargetPlot, false);
+
 			if (pUnit->plot() == pTargetPlot)
+			{
+				if (pUnit->canMove())
+					//can use this unit for other stuff, reset the tactmove to avoid spamming the log
+					pUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+
 				break;
+			}
 		}
 	}
 }
@@ -8168,8 +8177,12 @@ void CvTacticalPlot::setCombatUnitEndTurn(CvTacticalPosition& currentPosition, e
 			if (tactPlot.isValid())
 			{
 				tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[unitDomain]++;
-				if (unitDomain!=TD_BOTH)
+				FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 7);
+				if (unitDomain != TD_BOTH)
+				{
 					tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[TD_BOTH]++;
+					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 7);
+				}
 			}
 		}
 	}
@@ -8197,8 +8210,12 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 				{
 					CvTacticalPlot::eTactPlotDomain unitDomain = DomainForUnit(pUnit);
 					tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] += iChange;
-					if (unitDomain!=TD_BOTH)
+					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 7);
+					if (unitDomain != TD_BOTH)
+					{
 						tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] += iChange;
+						FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 7);
+					}
 				}
 			}
 		}
@@ -8653,9 +8670,6 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		update unit reachable plots
 	*/
 
-	if (gTacticalCombatDebugOutput>100)
-		dumpPlotStatus( CvString::format("d:\\temp\\plotstatus%06d.dmp",getID()).c_str() );
-
 	//very important, lazy update
 	updateMovePlotsIfRequired();
 
@@ -8785,7 +8799,20 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			break;
 	}
 	
-	return !childPositions.empty();
+	if (childPositions.empty())
+	{
+		//could not find any valid children; typically this happens when the children are not unique
+		//see if we can still use this position; the score should be worse than for the siblings with children but no harm in trying
+		//in fact it can be beneficial to include this not-quite-complete position in case the child moves end up being invalid 
+		//we know that it's not a early finish b/c that would have triggered when we created this position
+		if ( addFinishMovesIfAcceptable(false) )
+			completedPositions.push_back(this);
+
+		//dead end
+		return false;
+	}
+	else
+		return true; //continue
 }
 
 //lazy update of move plots
@@ -9454,10 +9481,14 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	{
 		itUnit->iMovesLeft = newAssignment.iRemainingMoves;
 		itUnit->iPlotIndex = newAssignment.iToPlotIndex;
+
+		//do the visibility update first so all newly neighboring plots become part of the sim
+		visibilityResult = doVisibilityUpdate(newAssignment);
+
+		//now do the accounting for the neighbor plots
 		getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment);
 		getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment);
 
-		visibilityResult = doVisibilityUpdate(newAssignment);
 		//in case this was a move which revealed new plots, pretend it was a forced move so we can move again
 		if (visibilityResult.first > 0 && newAssignment.eAssignmentType == A_MOVE)
 			itUnit->eLastAssignment = A_MOVE_FORCED;
@@ -9497,10 +9528,14 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		if (newAssignment.eAssignmentType == A_MELEEKILL)
 		{
 			itUnit->iPlotIndex = newAssignment.iToPlotIndex; //this is because we're advancing
-			getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment); //this is because we're advancing
-			getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment); //this implicitly removes the enemyUnit flag
+
+			//do the visibility update first so all newly neighboring plots become part of the sim
 			//do this before the distance update
 			visibilityResult = doVisibilityUpdate(newAssignment);
+			
+			//now the accounting
+			getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment); //this is because we're advancing
+			getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment); //this implicitly removes the enemyUnit flag
 		}
 		else //NO_ADVANCE
 			getTactPlotMutable(newAssignment.iToPlotIndex).removeEnemyUnitIfPresent();
@@ -9519,6 +9554,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		}
 
 		freedPlots.push_back(newAssignment.iToPlotIndex);
+
 		//important that we do the visibility update first!
 		refreshVolatilePlotProperties();
 		bRecomputeAllMoves = true; //ZOC changed
@@ -9569,7 +9605,7 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//are we done or can we do further moves with this unit?
 	if (itUnit->iMovesLeft == 0 || bEndOfSim)
 	{
-		if (IsCombatUnit(*itUnit) && newAssignment.eAssignmentType != A_BLOCKED)
+		if (IsCombatUnit(*itUnit))
 			getTactPlotMutable(itUnit->iPlotIndex).setCombatUnitEndTurn(*this,DomainForUnit(itUnit->pUnit));
 		notQuiteFinishedUnits.push_back(*itUnit);
 		availableUnits.erase(itUnit);
@@ -9614,8 +9650,9 @@ const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition*
 	size_t firstIndex = INT_MAX;
 	size_t secondIndex = INT_MAX;
 	bool mismatch = false;
-	//the other may have more moves assigned but they should all be of type FINISH ...
-	for (size_t i = ref->getFirstInterestingAssignment(); i < ref->assignedMoves.size(); i++)
+	//the "other" may have more moves assigned but they should all be of type FINISH ...
+	//for performance do the iteration in reverse; we expect the differences at the end
+	for (size_t i = ref->assignedMoves.size()-1; i >= ref->getFirstInterestingAssignment(); i--)
 	{
 		//ignore matching elements
 		if (ref->assignedMoves[i] == other->assignedMoves[i])
@@ -10084,10 +10121,13 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//meta parameters depending on difficulty setting
 	int iMaxBranches = range(GC.getGame().getHandicapInfo().getTacticalSimMaxBranches(),2,9); //cannot do more, else our ID scheme doesn't work
 	int iMaxChoicesPerUnit = range(GC.getGame().getHandicapInfo().getTacticalSimMaxChoicesPerUnit(),2,9);
-	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(),3,123);
+	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(), 100, 16000);
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();
+
+	static vector<CvTacticalPosition*> openPositionsHeap;
+	static vector<CvTacticalPosition*> completedPositions;
 
 #if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
@@ -10193,8 +10233,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots() ));
 #endif
 
-	vector<CvTacticalPosition*> openPositionsHeap;
-	vector<CvTacticalPosition*> completedPositions;
+	openPositionsHeap.clear();
+	completedPositions.clear();
 	int iUsedPositions = 0;
 
 	//don't need to call make_heap for a single element
@@ -10240,10 +10280,11 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		if (storage.peekNext() == NULL)
 		{
 			timer.EndPerfTest();
+			int iStartingUnits = initialPosition->getAvailableUnits().size();
 
 			std::stringstream ss;
 			ss << "warning, aborting tactical simulation for lack of memory, " <<
-				initialPosition->getAvailableUnits().size() << " starting units, " <<
+				iStartingUnits << " starting units, " <<
 				current->getAvailableUnits().size() << " remaining units, " <<
 				openPositionsHeap.size() << " open positions, " <<
 				iUsedPositions << " processed, " <<
@@ -10275,24 +10316,24 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//but if there are too many unassigned units it can tip
 	if (!completedPositions.empty())
 	{
+#if defined(MOD_CORE_DEBUGGING)
+		if (MOD_CORE_DEBUGGING)
+		{
+			//dump the scores over time (before sorting)
+			ofstream out("c:\\temp\\positionscore.csv", std::ios::app);
+			if (out)
+			{
+				for (size_t i = 0; i < completedPositions.size(); i++)
+					out << completedPositions[i]->getScoreTotal() << ",";
+				out << std::endl;
+			}
+			out.close();
+		}
+#endif
+
 		//need the predicate, else we sort the pointers by address!
 		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 		result = completedPositions.front()->getAssignments();
-
-		if (gTacticalCombatDebugOutput>10)
-			completedPositions.front()->dumpPlotStatus("c:\\temp\\plotstatus_final.csv");
-	}
-
-	//debugging
-	if (gTacticalCombatDebugOutput > 10) //if needed we can set the instruction pointer here
-	{
-		initialPosition->exportToDotFile("c:\\temp\\graph.dot");
-		initialPosition->dumpPlotStatus("c:\\temp\\plotstatus_initial.csv");
-
-		stringstream buffer;
-		for (size_t i = 0; i < result.size(); i++)
-			buffer << result[i] << "\n";
-		OutputDebugString(buffer.str().c_str());
 	}
 
 	if(GC.getLogging() && GC.getAILogging())

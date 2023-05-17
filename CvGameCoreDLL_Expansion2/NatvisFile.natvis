@@ -14,7 +14,7 @@
 	</Type>
 
 	<Type Name="CvUnit">
-		<DisplayString>(id {m_iID}, M{m_iBaseCombat}R{m_iBaseRangedCombat}, player {m_eOwner}, at {m_iX}:{m_iY})</DisplayString>
+		<DisplayString>(id {m_iID}, C{m_iBaseCombat}R{m_iBaseRangedCombat}, M{m_iMoves}, P{m_eOwner}, at {m_iX}:{m_iY})</DisplayString>
 		<Expand>
 			<Item Name="m_iID">m_iID</Item>
 			<Item Name="m_eOwner">m_eOwner</Item>
