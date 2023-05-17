@@ -23735,8 +23735,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 	// UA that increases the benefits of aggression towards City-States
 	if (pTraits->GetCityStateCombatModifier() > 0)
 	{
-		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
-		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
+		vApproachScores[CIV_APPROACH_HOSTILE] += MOD_BALANCE_VP ? 0 : vApproachBias[CIV_APPROACH_HOSTILE] * 2;
+		vApproachScores[CIV_APPROACH_WAR] += MOD_BALANCE_VP ? vApproachBias[CIV_APPROACH_WAR] * 5 : vApproachBias[CIV_APPROACH_WAR] * 2;
 		bAnyAggressionBonus = true;
 	}
 	if (GetPlayer()->GetCityStateCombatModifier() > 0)
