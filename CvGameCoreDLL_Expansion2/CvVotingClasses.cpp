@@ -11529,9 +11529,6 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 		iVotesAllOthersCombined += pLeague->GetRemainingVotesForMember(ePlayer);
 	}
-
-	//how confident are we
-	iVotesAllOthersCombined -= GetPlayer()->GetDiplomacyAI()->GetBoldness();
 	
 	if (iVotesAllOthersCombined <= pLeague->GetNumMembers())
 		iVotesAllOthersCombined = pLeague->GetNumMembers();
@@ -11597,7 +11594,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 			if (chosen.iNumAllocated >= iVotesAllOthersCombined)
 			{
-				// If we have already alocated more than we should need to pass it, don't allocate more votes here.
+				// If we have already allocated more than we should need to pass it, don't allocate more votes here.
 				for (int j = 0; j < vConsiderations.size(); j++)
 				{
 					if (vConsiderations.GetWeight(j) > 0)

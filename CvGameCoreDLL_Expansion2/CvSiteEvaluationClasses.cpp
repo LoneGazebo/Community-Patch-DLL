@@ -769,10 +769,6 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 			int iThreshold = min(iOwnCityDistance - 1, iBorderlandRange);
 			if (iEnemyDistance < iThreshold)
 			{
-				//don't forward settle if we promised not to
-				if (pPlayer->GetDiplomacyAI()->IsPlayerMadeBorderPromise(eNeighbor))
-					return 0;
-
 				//be annoying to our enemies
 				if (pPlayer->GetDiplomacyAI()->GetCivApproach(eNeighbor) <= CIV_APPROACH_GUARDED || pPlayer->GetDiplomacyAI()->GetCivOpinion(eNeighbor) <= CIV_OPINION_COMPETITOR)
 					iModifierPercent += 50;

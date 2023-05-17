@@ -3373,18 +3373,6 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		break;
 	}
 
-	// Target is close to winning the game? Halve the value.
-	if (GET_PLAYER(ePlayerDeclaringWar).isHuman() && GET_PLAYER(eWithPlayer).isMajorCiv() && pDiploAI->IsEndgameAggressiveTo(eWithPlayer))
-	{
-		iItemValue /= 2;
-	}
-
-	// Easy target? Halve the value.
-	if (pDiploAI->IsEasyTarget(eWithPlayer))
-	{
-		iItemValue /= 2;
-	}
-
 	return iItemValue;
 }
 
