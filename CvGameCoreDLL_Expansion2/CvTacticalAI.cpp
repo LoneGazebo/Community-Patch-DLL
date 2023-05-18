@@ -10248,7 +10248,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				openPositionsHeap.size() << " open positions, " <<
 				iUsedPositions << " processed, " <<
 				completedPositions.size() << " completed. took " <<
-				std::setprecision(3) << timer.GetDeltaInSeconds() << "s\n";
+				std::setprecision(3) << timer.GetDeltaInSeconds() << " sec";
 				CUSTOMLOG(ss.str().c_str());
 
 			//see if we can just take an unfinished position to salvage the situation
@@ -10463,9 +10463,9 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		//this can happen sometimes because of randomness or splash damage etc
 		if (!bPrecondition || !bPostcondition)
 		{
-			stringstream out;
-			out << "tactsim: could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (bPrecondition?" (postcondition)":" (precondition)") << "\n";
-			CUSTOMLOG(out.str().c_str());
+			//stringstream out;
+			//out << "tactsim: could not execute " << assignmentTypeNames[ vAssignments[i].eAssignmentType ] << (bPrecondition?" (postcondition)":" (precondition)");
+			//CUSTOMLOG(out.str().c_str());
 			return false;
 		}
 #else

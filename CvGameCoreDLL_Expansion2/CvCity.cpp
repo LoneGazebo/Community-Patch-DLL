@@ -9964,6 +9964,7 @@ void CvCity::UpdateTerrainImprovementNeed()
 			iImprovablePlots++;
 	}
 
+	//should we take into account the population of the city or whether any of these plots are worked or will be worked?
 	m_iTerrainImprovementNeed = iImprovablePlots;
 }
 

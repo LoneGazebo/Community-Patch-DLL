@@ -2092,11 +2092,11 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 	{
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
-				ePlotRoute = ROUTE_ROAD;
+			ePlotRoute = ROUTE_ROAD;
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
-			if (gCustomMods.isBALANCE_CORE() || pNewPlot->getOwner() == data.ePlayer)
+			if (MOD_BALANCE_VP || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -3177,7 +3177,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 		iRouteFactor = 2;
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
-				(gCustomMods.isBALANCE_CORE() || pToPlot->getOwner() == finder->GetData().ePlayer) && 
+				(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) && 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteFactor = 2;
 

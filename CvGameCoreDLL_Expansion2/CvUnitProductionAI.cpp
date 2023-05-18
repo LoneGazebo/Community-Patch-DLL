@@ -1262,8 +1262,8 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			return SR_USELESS;
 
 		int iNumBuilders = kPlayer.GetNumUnitsWithUnitAI(UNITAI_WORKER, true);
-		int iMissingBuilders = kPlayer.getNumCities() + 1 - iNumBuilders; //one for roads
-		int iScale = (iMissingBuilders > 3) ? 3 : 1; //escalate if many are missing
+		int iMissingBuilders = kPlayer.getCitiesNeedingTerrainImprovements() + 1 - iNumBuilders; //one for roads
+		int iScale = (iMissingBuilders > 2) ? 3 : 1; //escalate if many are missing
 
 		AICityStrategyTypes eNoWorkers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS");
 		if (eNoWorkers != NO_AICITYSTRATEGY && m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eNoWorkers))

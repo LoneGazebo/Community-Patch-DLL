@@ -441,7 +441,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (10 - iEra)); // make a little less likely as time goes on
+	iPriority += (GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (10 - iEra); // make a little less likely as time goes on
 
 	CvTeam& pTeam = GET_TEAM(GetPlayer()->getTeam());
 
