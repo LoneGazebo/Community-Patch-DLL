@@ -431,9 +431,9 @@ function UpdateUnitPortrait( unit )
 	if (unit:IsTrade() and not unit:IsRecalledTrader() and unit:GetTradeRouteIndex() ~= -1) then
 		local tr = Game.GetTradeRoute(unit:GetTradeRouteIndex())
 		if (tr ~= nil and tr.TurnsLeft ~= nil and tr.TurnsLeft >= 0) then
-			name = name .. " ([ICON_SWAP]" .. tr.TurnsLeft .. ")"
+			name = name .. " (" .. tr.TurnsLeft .. " [ICON_SWAP])"
 		end
-	end
+	end	
 	
 	name = Locale.ToUpper(name);
   
