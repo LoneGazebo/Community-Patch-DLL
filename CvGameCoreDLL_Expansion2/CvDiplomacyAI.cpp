@@ -7474,7 +7474,7 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 		// Previously opposed us
 		if (iCurrentValue > 0)
 		{
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
 
 			iTurn = IsFoiledOurProposalAndThenSupportedUs(ePlayer) ? GetTheySupportedOurProposalTurn(ePlayer) : GetTheyFoiledOurProposalTurn(ePlayer);
 			if (iTurn < 0)
@@ -7483,7 +7483,7 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 		// Previously supported us
 		else
 		{
-			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
 
 			iTurn = IsSupportedOurProposalAndThenFoiledUs(ePlayer) ? GetTheyFoiledOurProposalTurn(ePlayer) : GetTheySupportedOurProposalTurn(ePlayer);
 			if (iTurn < 0)
@@ -7961,7 +7961,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorBullied(PlayerTypes ePlayer) const
 		return false;
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iMostRecentBullyTurn;
-	if (iTurnDifference < AdjustModifierDuration(false, /*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN)))
+	if (iTurnDifference < AdjustModifierDuration(/*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true))
 	{
 		return true;
 	}
@@ -44431,51 +44431,46 @@ bool CvDiplomacyAI::IsStopDiggingAcceptable(PlayerTypes ePlayer)
 // Opinion modifiers
 /////////////////////////////////////////////////////////
 
-/// Adjusts the duration of a temporary opinion modifier based on flavors and game speed
-int CvDiplomacyAI::AdjustModifierDuration(bool bGood, int iDuration, int iFlavorValue, bool bGamespeed) const
+/// Adjusts the duration of a temporary opinion modifier based on a flavor and game speed
+int CvDiplomacyAI::AdjustModifierDuration(int iDuration, int iFlavorValue, bool bInvertModifier, bool bGamespeed) const
 {
 	if (iDuration <= 0)
 		return 0;
 
-	int iTurns = iDuration;
-	int iTurnMod = 0;
+	int iDurationMod = 0;
 
 	if (iFlavorValue != 0)
 	{
-		iTurnMod = iFlavorValue - 5;
-	}
-	else
-	{
-		if (bGood)
+		if (!bInvertModifier)
 		{
-			iTurnMod = GetLoyalty() - 5;
+			iDurationMod = iFlavorValue - 5;
 		}
 		else
 		{
-			iTurnMod = -GetForgiveness() + 5;
+			iDurationMod = -iFlavorValue + 5;
 		}
 	}
 
-	if (iTurns < 50)
+	if (iDuration < 50)
 	{
-		iTurns += iTurnMod;
+		iDuration += iDurationMod;
 	}
-	else if (iTurns == 50)
+	else if (iDuration == 50)
 	{
-		iTurns += (iTurnMod * 2);
+		iDuration += iDurationMod * 2;
 	}
-	else if (iTurns > 50)
+	else if (iDuration > 50)
 	{
-		iTurns += (iTurnMod * 3);
+		iDuration += iDurationMod * 3;
 	}
 
 	if (bGamespeed)
 	{
-		iTurns *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
-		iTurns /= 100;
+		iDuration *= GC.getGame().getGameSpeedInfo().getOpinionDurationPercent();
+		iDuration /= 100;
 	}
 
-	return max(1, iTurns);
+	return max(1, iDuration);
 }
 
 /// Adjusts the value of a temporary opinion modifier based on modifier type and how many turns have passed
@@ -44643,7 +44638,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetCiviliansReturnedToMeTurn(ePlayer);
-			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(RETURNED_CIVILIAN_TURNS_UNTIL_FORGOTTEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(RETURNED_CIVILIAN_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44657,7 +44652,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetLandmarksBuiltForMeTurn(ePlayer);
-			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(BUILT_LANDMARK_TURNS_UNTIL_FORGOTTEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(BUILT_LANDMARK_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44671,7 +44666,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetLiberatedCitiesTurn(ePlayer);
-			iDuration = AdjustModifierDuration(true, /*75*/ GD_INT_GET(LIBERATED_CITY_TURNS_UNTIL_FORGOTTEN));
+			iDuration = AdjustModifierDuration(/*75*/ GD_INT_GET(LIBERATED_CITY_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44684,7 +44679,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (IsPlayerForgaveForSpying(ePlayer))
 		{
 			iTurnDifference = iTurn - GetForgaveForSpyingTurn(ePlayer);
-			iDuration = AdjustModifierDuration(true, /*30*/ GD_INT_GET(FORGAVE_FOR_SPYING_TURNS_UNTIL_FORGOTTEN));
+			iDuration = AdjustModifierDuration(/*30*/ GD_INT_GET(FORGAVE_FOR_SPYING_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44697,7 +44692,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetDemandMadeTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44711,7 +44706,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetReligiousConversionTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44725,7 +44720,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetRobbedTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(ROBBED_US_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(ROBBED_US_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44739,7 +44734,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetPlunderedTradeRouteTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*25*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44758,7 +44753,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 			iDurationMod *= 2;
 
 			iTurnDifference = iTurn - GetPlottedAgainstUsTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*19*/ GD_INT_GET(PLOTTED_AGAINST_US_TURNS_UNTIL_FORGIVEN), iDurationMod, false); // returns between 14 and 40 turns, inclusive, not scaling with gamespeed
+			iDuration = AdjustModifierDuration(/*19*/ GD_INT_GET(PLOTTED_AGAINST_US_TURNS_UNTIL_FORGIVEN), iDurationMod, false, false); // returns between 14 and 40 turns, inclusive, not scaling with gamespeed
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44772,7 +44767,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0 && !IsPlayerWonderSpammer(ePlayer)) // do not remove this penalty if player is spamming World Wonders; this likely means he's been building all the Wonders before we had a chance to build them
 		{
 			iTurnDifference = iTurn - GetBeatenToWonderTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*75*/ GD_INT_GET(BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*75*/ GD_INT_GET(BEATEN_TO_WONDER_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44786,7 +44781,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetLoweredOurInfluenceTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(LOWERED_OUR_INFLUENCE_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44800,7 +44795,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetPerformedCoupTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44814,7 +44809,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetStoleArtifactTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44828,7 +44823,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iStacks > 0)
 		{
 			iTurnDifference = iTurn - GetIntrigueSharedTurn(ePlayer);
-			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44841,7 +44836,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (GetOtherPlayerSidedWithProtectedMinorTurn(ePlayer) > -1)
 		{
 			iTurnDifference = iTurn - GetOtherPlayerSidedWithProtectedMinorTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN));
+			iDuration = AdjustModifierDuration(/*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44853,7 +44848,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (GetOtherPlayerAttackedProtectedMinorTurn(ePlayer) > -1)
 		{
 			iTurnDifference = iTurn - GetOtherPlayerAttackedProtectedMinorTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*30*/ GD_INT_GET(OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
+			iDuration = AdjustModifierDuration(/*30*/ GD_INT_GET(OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44866,7 +44861,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (GetOtherPlayerKilledProtectedMinorTurn(ePlayer) > -1)
 		{
 			iTurnDifference = iTurn - GetOtherPlayerKilledProtectedMinorTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44879,7 +44874,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (GetWeLikedTheirProposalTurn(ePlayer) > -1)
 		{
 			iTurnDifference = iTurn - GetWeLikedTheirProposalTurn(ePlayer);
-			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44892,7 +44887,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (GetWeDislikedTheirProposalTurn(ePlayer) > -1)
 		{
 			iTurnDifference = iTurn - GetWeDislikedTheirProposalTurn(ePlayer);
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44907,7 +44902,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (iSupportValue > 0)
 		{
 			int iProposalTurn = 0;
-			iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
 
 			if (IsFoiledOurProposalAndThenSupportedUs(ePlayer))
 			{
@@ -44940,7 +44935,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		else if (iSupportValue < 0)
 		{
 			int iProposalTurn = 0;
-			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
 
 			if (IsSupportedOurProposalAndThenFoiledUs(ePlayer))
 			{
@@ -44974,7 +44969,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (GetTheySupportedOurHostingTurn(ePlayer) > -1)
 		{
 			iTurnDifference = iTurn - GetTheySupportedOurHostingTurn(ePlayer);
-			iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS), GetDoFWillingness());
+			iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS), GetDoFWillingness());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44987,7 +44982,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (HasTriedToSanctionUs(ePlayer))
 		{
 			iTurnDifference = iTurn - GetTheySanctionedUsTurn(ePlayer);
-			iDuration = HasEverSanctionedUs(ePlayer) ? AdjustModifierDuration(false, /*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetMeanness()) : AdjustModifierDuration(false, /*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetDenounceWillingness());
+			iDuration = HasEverSanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetMeanness()) : AdjustModifierDuration(/*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetDenounceWillingness());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -44999,7 +44994,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 		if (HasTriedToUnsanctionUs(ePlayer))
 		{
 			iTurnDifference = iTurn - GetTheyUnsanctionedUsTurn(ePlayer);
-			iDuration = HasEverUnsanctionedUs(ePlayer) ? AdjustModifierDuration(false, /*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN)) : AdjustModifierDuration(false, /*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetDoFWillingness());
+			iDuration = HasEverUnsanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetLoyalty()) : AdjustModifierDuration(/*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetDoFWillingness());
 
 			if (iTurnDifference >= iDuration)
 			{
@@ -45515,7 +45510,7 @@ int CvDiplomacyAI::GetTradeRoutesPlunderedScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = (iRoutesPlundered * /*5*/ GD_INT_GET(OPINION_WEIGHT_PLUNDERED_TRADE_ROUTE));
 
-		int iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*25*/ GD_INT_GET(PLUNDERED_TRADE_ROUTE_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetPlunderedTradeRouteTurn(ePlayer), MODIFIER_TYPE_STACKED, iRoutesPlundered);
 	}
 	
@@ -45727,7 +45722,7 @@ int CvDiplomacyAI::GetCiviliansReturnedToMeScore(PlayerTypes ePlayer)
 			iOpinionWeight += /*-5*/ GD_INT_GET(OPINION_WEIGHT_RETURNED_CIVILIAN_SUBSEQUENT) * (iNumCivs - 1);
 		}
 
-		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(RETURNED_CIVILIAN_TURNS_UNTIL_FORGOTTEN));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(RETURNED_CIVILIAN_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetCiviliansReturnedToMeTurn(ePlayer), MODIFIER_TYPE_DIMINISHING, iNumCivs, GD_INT_GET(OPINION_WEIGHT_RETURNED_CIVILIAN));
 	}
 
@@ -45750,7 +45745,7 @@ int CvDiplomacyAI::GetLandmarksBuiltForMeScore(PlayerTypes ePlayer)
 			iOpinionWeight += /*-10*/ GD_INT_GET(OPINION_WEIGHT_BUILT_LANDMARK_SUBSEQUENT) * (iNumLandmarks - 1);
 		}
 
-		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(BUILT_LANDMARK_TURNS_UNTIL_FORGOTTEN));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(BUILT_LANDMARK_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetLandmarksBuiltForMeTurn(ePlayer), MODIFIER_TYPE_DIMINISHING, iNumLandmarks, GD_INT_GET(OPINION_WEIGHT_BUILT_LANDMARK));
 	}
 
@@ -45847,7 +45842,7 @@ int CvDiplomacyAI::GetLiberatedCitiesScore(PlayerTypes ePlayer)
 	if (iNumCitiesLiberated > 0)
 	{
 		int iLiberationValue = /*-30*/ GD_INT_GET(OPINION_WEIGHT_LIBERATED_CITY) * iNumCitiesLiberated;
-		int iDuration = AdjustModifierDuration(true, /*75*/ GD_INT_GET(LIBERATED_CITY_TURNS_UNTIL_FORGOTTEN));
+		int iDuration = AdjustModifierDuration(/*75*/ GD_INT_GET(LIBERATED_CITY_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 		iOpinionWeight = AdjustModifierValue(iLiberationValue, iDuration, GetLiberatedCitiesTurn(ePlayer), MODIFIER_TYPE_STACKED, iNumCitiesLiberated);
 
 		// Double the weight if we're someone's vassal
@@ -45977,7 +45972,7 @@ int CvDiplomacyAI::GetForgaveForSpyingScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = /*-10*/ GD_INT_GET(OPINION_WEIGHT_FORGAVE_FOR_SPYING);
 
-		int iDuration = AdjustModifierDuration(true, /*30*/ GD_INT_GET(FORGAVE_FOR_SPYING_TURNS_UNTIL_FORGOTTEN));
+		int iDuration = AdjustModifierDuration(/*30*/ GD_INT_GET(FORGAVE_FOR_SPYING_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetForgaveForSpyingTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -46000,7 +45995,7 @@ int CvDiplomacyAI::GetTimesIntrigueSharedScore(PlayerTypes ePlayer)
 			iOpinionWeight = /*-5*/ GD_INT_GET(OPINION_WEIGHT_INTRIGUE_SHARED_BY_SUBSEQUENT) * (iNumIntrigue - 1);
 		}
 
-		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(SHARED_INTRIGUE_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetIntrigueSharedTurn(ePlayer), MODIFIER_TYPE_DIMINISHING, iNumIntrigue, GD_INT_GET(OPINION_WEIGHT_INTRIGUE_SHARED_BY));
 	}
 
@@ -46030,7 +46025,7 @@ int CvDiplomacyAI::GetTimesRobbedScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = iTimesRobbed * /*20*/ GD_INT_GET(OPINION_WEIGHT_ROBBED_BY);
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(ROBBED_US_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(ROBBED_US_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetRobbedTurn(ePlayer), MODIFIER_TYPE_STACKED, iTimesRobbed);
 	}
 
@@ -46057,7 +46052,7 @@ int CvDiplomacyAI::GetTimesPlottedAgainstUsScore(PlayerTypes ePlayer)
 		int iDurationMod = (int)GetPlayerMilitaryStrengthComparedToUs(ePlayer); // between 0 and 7, inclusive
 		iDurationMod += ((int)GET_PLAYER(ePlayer).GetProximityToPlayer(GetID()) * 2); // between 0 and 6, inclusive
 		iDurationMod *= 2;
-		int iDuration = AdjustModifierDuration(false, /*19*/ GD_INT_GET(PLOTTED_AGAINST_US_TURNS_UNTIL_FORGIVEN), iDurationMod, false); // returns between 14 and 40 turns, inclusive, not scaling with gamespeed
+		int iDuration = AdjustModifierDuration(/*19*/ GD_INT_GET(PLOTTED_AGAINST_US_TURNS_UNTIL_FORGIVEN), iDurationMod, false, false); // returns between 14 and 40 turns, inclusive, not scaling with gamespeed
 
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetPlottedAgainstUsTurn(ePlayer), MODIFIER_TYPE_DIMINISHING, iNumPlots, GD_INT_GET(OPINION_WEIGHT_PLOTTED_AGAINST_US));
 	}
@@ -46074,7 +46069,7 @@ int CvDiplomacyAI::GetTimesPerformedCoupScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = iNumCoups * /*30*/ GD_INT_GET(OPINION_WEIGHT_PERFORMED_COUP);
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(PERFORMED_COUP_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetPerformedCoupTurn(ePlayer), MODIFIER_TYPE_STACKED, iNumCoups);
 	}
 
@@ -46090,7 +46085,7 @@ int CvDiplomacyAI::GetStoleArtifactsScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = iNumArtifacts * /*30*/ GD_INT_GET(OPINION_WEIGHT_EXCAVATED_ARTIFACT);
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(EXCAVATED_ARTIFACT_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetStoleArtifactTurn(ePlayer), MODIFIER_TYPE_STACKED, iNumArtifacts);
 	}
 	
@@ -46151,7 +46146,7 @@ int CvDiplomacyAI::GetDemandMadeScore(PlayerTypes ePlayer)
 			iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSEQUENT) * (iNumDemands - 1);
 		}
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(MADE_DEMAND_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetDemandMadeTurn(ePlayer), MODIFIER_TYPE_DIMINISHING, iNumDemands, GD_INT_GET(OPINION_WEIGHT_MADE_DEMAND_OF_US));
 	}
 	
@@ -46828,7 +46823,7 @@ int CvDiplomacyAI::GetReligiousConversionPointsScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = (GetNegativeReligiousConversionPoints(ePlayer) * GC.getEraInfo(GC.getGame().getCurrentEra())->getDiploEmphasisReligion() * /*1*/ GD_INT_GET(OPINION_WEIGHT_PER_NEGATIVE_CONVERSION));
 
-		int iDuration = AdjustModifierDuration(false, /*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*25*/ GD_INT_GET(RELIGIOUS_CONVERSION_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetReligiousConversionTurn(ePlayer), MODIFIER_TYPE_STACKED, iPoints);
 	}
 
@@ -46955,7 +46950,7 @@ int CvDiplomacyAI::GetAngryAboutProtectedMinorKilledScore(PlayerTypes ePlayer)
 		if (GetOtherPlayerNumProtectedMinorsKilled(ePlayer) > 1)
 			iOpinionWeight += /*20*/ GD_INT_GET(OPINION_WEIGHT_KILLED_MANY_PROTECTED_MINORS);
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetOtherPlayerKilledProtectedMinorTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 	return iOpinionWeight;
@@ -46971,7 +46966,7 @@ int CvDiplomacyAI::GetAngryAboutProtectedMinorAttackedScore(PlayerTypes ePlayer)
 		if (GetOtherPlayerNumProtectedMinorsAttacked(ePlayer) > 1)
 			iOpinionWeight += /*15*/ GD_INT_GET(OPINION_WEIGHT_ATTACKED_MANY_PROTECTED_MINORS);
 
-		int iDuration = AdjustModifierDuration(false, /*30*/ GD_INT_GET(OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
+		int iDuration = AdjustModifierDuration(/*30*/ GD_INT_GET(OPINION_WEIGHT_ATTACKED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetMinorCivApproachBias(CIV_APPROACH_FRIENDLY));
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetOtherPlayerAttackedProtectedMinorTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -46988,7 +46983,7 @@ int CvDiplomacyAI::GetAngryAboutProtectedMinorBulliedScore(PlayerTypes ePlayer)
 		if (GetOtherPlayerNumProtectedMinorsBullied(ePlayer) > 1)					
 			iOpinionWeight += /*10*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_MANY_PROTECTED_MINORS);
 
-		int iDuration = AdjustModifierDuration(false, /*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*30*/ GD_INT_GET(OPINION_WEIGHT_BULLIED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetOtherPlayerBulliedProtectedMinorTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -47021,7 +47016,7 @@ int CvDiplomacyAI::GetAngryAboutSidedWithProtectedMinorScore(PlayerTypes ePlayer
 			}
 		}
 
-		int iDuration = AdjustModifierDuration(false, /*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN));
+		int iDuration = AdjustModifierDuration(/*10*/ GD_INT_GET(OPINION_WEIGHT_SIDED_WITH_THEIR_MINOR_NUM_TURNS_UNTIL_FORGIVEN), GetForgiveness(), true);
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetOtherPlayerSidedWithProtectedMinorTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -47571,7 +47566,7 @@ int CvDiplomacyAI::GetLikedTheirProposalScore(PlayerTypes ePlayer)
 			iOpinionWeight /= 100;
 		}
 
-		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_LIKED_THEIR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetWeLikedTheirProposalTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -47595,7 +47590,7 @@ int CvDiplomacyAI::GetDislikedTheirProposalScore(PlayerTypes ePlayer)
 			iOpinionWeight /= 100;
 		}
 
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_WE_DISLIKED_THEIR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetWeDislikedTheirProposalTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -47614,7 +47609,7 @@ int CvDiplomacyAI::GetSupportedOurProposalScore(PlayerTypes ePlayer)
 	if (iSupportValue > 0)
 	{
 		int iTurn = 0;
-		int iDuration = AdjustModifierDuration(false, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_FOILED_OUR_PROPOSAL_NUM_TURNS), GetDenounceWillingness());
 
 		if (IsFoiledOurProposalAndThenSupportedUs(ePlayer))
 		{
@@ -47654,7 +47649,7 @@ int CvDiplomacyAI::GetSupportedOurProposalScore(PlayerTypes ePlayer)
 	else if (iSupportValue < 0)
 	{
 		int iTurn = 0;
-		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_PROPOSAL_NUM_TURNS), GetDoFWillingness());
 
 		if (IsSupportedOurProposalAndThenFoiledUs(ePlayer))
 		{
@@ -47717,7 +47712,7 @@ int CvDiplomacyAI::GetSupportedMyHostingScore(PlayerTypes ePlayer)
 			iOpinionWeight /= 100;
 		}
 
-		int iDuration = AdjustModifierDuration(true, /*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS), GetDoFWillingness());
+		int iDuration = AdjustModifierDuration(/*50*/ GD_INT_GET(OPINION_WEIGHT_THEY_SUPPORTED_OUR_HOSTING_NUM_TURNS), GetDoFWillingness());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetTheySupportedOurHostingTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -47747,7 +47742,7 @@ int CvDiplomacyAI::GetSanctionedUsScore(PlayerTypes ePlayer)
 			iOpinionWeight /= /*200*/ max(GD_INT_GET(OPINION_WEIGHT_THEY_SANCTIONED_US_FAILURE_DIVISOR), 1);
 		}
 
-		int iDuration = HasEverSanctionedUs(ePlayer) ? AdjustModifierDuration(false, /*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetMeanness()) : AdjustModifierDuration(false, /*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetDenounceWillingness());
+		int iDuration = HasEverSanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetMeanness()) : AdjustModifierDuration(GD_INT_GET(SANCTIONED_US_TURNS_UNTIL_FORGIVEN), GetDenounceWillingness());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetTheySanctionedUsTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 	else if (HasTriedToUnsanctionUs(ePlayer))
@@ -47766,7 +47761,7 @@ int CvDiplomacyAI::GetSanctionedUsScore(PlayerTypes ePlayer)
 			iOpinionWeight /= /*200*/ max(GD_INT_GET(OPINION_WEIGHT_THEY_UNSANCTIONED_US_FAILURE_DIVISOR), 1);
 		}
 
-		int iDuration = HasEverUnsanctionedUs(ePlayer) ? AdjustModifierDuration(true, /*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN)) : AdjustModifierDuration(true, /*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetDoFWillingness());
+		int iDuration = HasEverUnsanctionedUs(ePlayer) ? AdjustModifierDuration(/*50*/ GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetLoyalty()) : AdjustModifierDuration(GD_INT_GET(UNSANCTIONED_US_TURNS_UNTIL_FORGOTTEN), GetDoFWillingness());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetTheyUnsanctionedUsTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -48107,7 +48102,7 @@ int CvDiplomacyAI::GetHappyAboutVassalagePeacefullyRevokedScore(PlayerTypes ePla
 	if (IsHappyAboutPlayerVassalagePeacefullyRevoked(ePlayer))
 	{
 		iOpinionWeight = /*-40*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_THEY_PEACEFULLY_REVOKED);
-		int iDuration = AdjustModifierDuration(true, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN));
+		int iDuration = AdjustModifierDuration(/*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetVassalagePeacefullyRevokedTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -48121,7 +48116,7 @@ int CvDiplomacyAI::GetAngryAboutVassalageForcefullyRevokedScore(PlayerTypes ePla
 	if (IsAngryAboutPlayerVassalageForcefullyRevoked(ePlayer))
 	{
 		iOpinionWeight += /*50*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_THEY_FORCIBLY_REVOKED);
-		int iDuration = AdjustModifierDuration(false, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN), GetBoldness());
+		int iDuration = AdjustModifierDuration(/*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN), GetBoldness());
 		return AdjustModifierValue(iOpinionWeight, iDuration, GetVassalageForcefullyRevokedTurn(ePlayer), MODIFIER_TYPE_NORMAL);
 	}
 
@@ -56821,7 +56816,7 @@ bool CvDiplomacyAI::IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePl
 		return false;
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
-	int iDuration = AdjustModifierDuration(true, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN));
+	int iDuration = AdjustModifierDuration(/*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 
 	if (iTurnDifference < iDuration)
 	{
@@ -56840,7 +56835,7 @@ bool CvDiplomacyAI::IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePl
 		return false;
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
-	int iDuration = AdjustModifierDuration(false, /*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN), GetBoldness());
+	int iDuration = AdjustModifierDuration(/*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN), GetBoldness());
 
 	if (iTurnDifference < iDuration)
 	{
