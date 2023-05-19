@@ -866,7 +866,7 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP';
 
 -- Organized Religion
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE][ICON_BULLET]+50% Pressure in all nearby Cities without your majority [ICON_RELIGION] Religion.[NEWLINE][ICON_BULLET]+1 [ICON_PEACE] Faith from Specialists.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organized Religion[ENDCOLOR][NEWLINE][ICON_BULLET]Emit +50% Pressure from Cities with your [COLOR_POSITIVE_TEXT]Primary Religion[ENDCOLOR] as your [ICON_RELIGION] Majority Religion to all nearby Cities without your [COLOR_POSITIVE_TEXT]Primary Religion[ENDCOLOR].[NEWLINE][ICON_BULLET]+1 [ICON_PEACE] Faith from Specialists.'
 WHERE Tag = 'TXT_KEY_POLICY_ORGANIZED_RELIGION_HELP';
 
 -- Mandate of Heaven (now Nobility)
