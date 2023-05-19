@@ -277,7 +277,7 @@
 			<Text>Prize Rules</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRIZE_RULES_HELP">
-			<Text>Receive [ICON_GOLD] Gold in your Capital after defeating an Enemy Unit. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50% HP[ENDCOLOR].</Text>
+			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLD] Gold. +20% [ICON_STRENGTH] Combat Strength VS Units [COLOR_POSITIVE_TEXT]at or below 50% HP[ENDCOLOR].</Text>
 		</Row>
 
 	<!-- Order -->
