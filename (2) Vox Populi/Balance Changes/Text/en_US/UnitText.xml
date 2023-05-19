@@ -398,7 +398,7 @@
 			<Text>Gift of the Pharaoh</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ENSLAVEMENT_HELP">
-			<Text>Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_PRODUCTION] Production in the unit's City of origin.</Text>
+			<Text>Gain 150% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_PRODUCTION] Production in the unit's City of origin.</Text>
 		</Row>
 
 	<!-- Commando -->
