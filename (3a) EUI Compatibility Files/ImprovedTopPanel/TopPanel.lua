@@ -615,11 +615,27 @@ local function UpdateTopPanelNow()
 
 				faithTarget = GameInfo.Units[ faithPurchaseIndex ]
 				faithNeeded = capitalCity and capitalCity:GetUnitFaithPurchaseCost(faithTarget.ID, true)
+				if (faithNeeded == 0) then
+					for city in g_activePlayer:Cities() do
+						faithNeeded = city:GetUnitFaithPurchaseCost(faithTarget.ID, true)
+						if (faithNeeded > 0) then
+							break;
+						end
+					end
+				end
 
 			elseif faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_BUILDING then
 
 				faithTarget = GameInfo.Buildings[ faithPurchaseIndex ]
 				faithNeeded = capitalCity and capitalCity:GetBuildingFaithPurchaseCost(faithTarget.ID, true)
+				if (faithNeeded == 0) then
+					for city in g_activePlayer:Cities() do
+						faithNeeded = city:GetBuildingFaithPurchaseCost(faithTarget.ID, true)
+						if (faithNeeded > 0) then
+							break;
+						end
+					end
+				end
 
 			elseif faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_SAVE_PROPHET then
 

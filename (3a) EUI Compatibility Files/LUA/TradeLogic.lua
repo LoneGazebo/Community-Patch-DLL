@@ -617,7 +617,7 @@ function OnShowHide( isHide, bIsInit )
 						g_iNumOtherNonVassals = g_iNumOtherNonVassals + 1;
 					end
 					
-					if (pLoopPlayer:IsEverAlive()) then
+					if (pLoopPlayer:IsEverAlive() and g_OtherPlayersButtons[iLoopPlayer] ~= nil) then --This is a bandaid fix TODO: actually find the issue but oh well
         				if (g_iUs ~= iLoopPlayer and g_iThem ~= iLoopPlayer and
                 			g_pUsTeam:IsHasMet(iLoopTeam) and g_pThemTeam:IsHasMet(iLoopTeam) and
                 			pLoopPlayer:IsAlive()) then
