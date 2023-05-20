@@ -22,10 +22,9 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 
 ## How can I play this
 
-* You can subscribe to CP on the Steam Workshop, but that version is very old.
-* One-click installers for the complete VP pack are available on the forum.
-* Do not mix both options!
 * You need the latest version of Civilization V (1.0.3.279) with all expansions and DLC.
+* This thread on CivFanatics contains a link to the latest release, along with installation instructions: https://forums.civfanatics.com/threads/community-patch-how-to-install.528034/
+* You may also download the automatic installer for your desired version from the Releases page on the repository: https://github.com/LoneGazebo/Community-Patch-DLL/releases
 
 ## How can I build the GameCoreDLL
 

@@ -1,0 +1,8 @@
+-- INSTRUCTIONS --
+
+EUI Compatibility Files cannot be used without the (1) Community Patch and (2) Vox Populi mods.
+
+
+-- MANUAL INSTALLATION NOTE --
+
+Make sure to DELETE the LUA folders in the (1) Community Patch and (2) Vox Populi mod folders (there is one in each).
