@@ -53,6 +53,7 @@ Vox Populi Without EUI
 - Build or copy (1) Community Patch. Delete the LUA folder inside it.
 - Build or copy (2) Vox Populi.
 - Copy the VPUI folder in the Vox Populi Installer Files folder and paste it into your Steam DLC folder.
+- Copy the VPUI Text/VPUI_tips_en_us.xml file to your Text folder (Documents/My Games/Sid Meier's Civilization 5/Text).
 
 Vox Populi With EUI
 - Build or copy (1) Community Patch. Delete the LUA folder inside it.
@@ -60,11 +61,12 @@ Vox Populi With EUI
 - Build or copy (3a) EUI Compatibility Files.
 - Copy the VPUI folder in the Vox Populi Installer Files folder and paste it into your Steam DLC folder.
 - Copy the UI_bc1 folder in the Vox Populi Installer Files folder and paste it into your Steam DLC folder.
+- Copy the VPUI Text/VPUI_tips_en_us.xml file to your Text folder (Documents/My Games/Sid Meier's Civilization 5/Text).
 
 43 Civs
 - Also copy (3b) 43 Civs Community Patch.
 
-Copying the UI folders is not necessary if you already have them installed and no changes have been made to them since. However, make sure you've followed Step 2 and deleted any folders that shouldn't be there.
+Copying the UI folders and text file is not necessary if you already have them installed and no changes have been made to them since. However, make sure you've followed Step 2 and deleted any folders that shouldn't be there.
 
 
 [STEP 5]
