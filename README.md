@@ -51,6 +51,8 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 ## How do I debug this
 
 ### To enable logging (for bug reports)
+https://forums.civfanatics.com/threads/how-to-enable-logging.487482 is useful for basic understanding of  how logging works, down there is below and for more serious bug reports!
+	
 * Logs provide some useful information on AI decisions and other problems
 * Logging can be enabled in My Games\Sid Meier's Civilization V\config.ini
 * Set the following options to 1:
