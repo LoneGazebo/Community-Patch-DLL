@@ -16841,15 +16841,9 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
 		if (pImprovementInfo != NULL)
 		{
-			// Existing improvement that connects the resource?
+			// Existing improvement that connects the resource? If it's pillaged, we can repair it. Otherwise, we can't improve this tile.
 			if (pImprovementInfo->IsConnectsResource(eResource))
-			{
-				// If it's pillaged, we can repair it. Otherwise, we can't improve this tile.
-				if (pPlot->IsImprovementPillaged())
-					return true;
-
-				return false;
-			}
+				return pPlot->IsImprovementPillaged();
 			else if (pImprovementInfo->IsPermanent())
 				return false;
 		}
