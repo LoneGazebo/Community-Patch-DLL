@@ -124,7 +124,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		m_aCityBuildables.SetWeight(iI, iNewWeight);
 	}
 
-	m_aCityBuildables.SortItems();
+	m_aCityBuildables.StableSortItems();
 
 	// move top buildables into final round!
 	for(int i = 0; i < NUM_ADVISOR_TYPES; i++)
@@ -141,7 +141,7 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 	//todo: find best buildable for each advisor, not best advisor for buildable?
 	for(int i = 0; i < m_aFinalRoundBuildables.size(); i++)
 	{
-		m_aFinalRoundBuildables.SortItems();
+		m_aFinalRoundBuildables.StableSortItems();
 
 		buildable = m_aFinalRoundBuildables.GetElement(0);
 		int iScore = m_aFinalRoundBuildables.GetWeight(0);
@@ -248,7 +248,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 		m_aResearchableTechs.SetWeight(iI, iNewWeight);
 	}
 
-	m_aResearchableTechs.SortItems();
+	m_aResearchableTechs.StableSortItems();
 
 	// move techs into final round!
 	for(int i = 0; i < NUM_ADVISOR_TYPES; i++)
@@ -264,7 +264,7 @@ void CvAdvisorRecommender::UpdateTechRecommendations(PlayerTypes ePlayer)
 
 	for(int i = 0; i < m_aFinalRoundTechs.size(); i++)
 	{
-		m_aFinalRoundTechs.SortItems();
+		m_aFinalRoundTechs.StableSortItems();
 
 		TechTypes eTech = (TechTypes)m_aFinalRoundTechs.GetElement(0);
 		int iScore = m_aFinalRoundTechs.GetWeight(0);

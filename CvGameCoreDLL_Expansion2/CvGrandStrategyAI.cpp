@@ -1795,7 +1795,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 					vGrandStrategyPriorities.push_back(NO_AIGRANDSTRATEGY, iPriority);
 					vGrandStrategyPrioritiesForLogging.push_back(iPriority);
 
-					vGrandStrategyPriorities.SortItems();
+					vGrandStrategyPriorities.StableSortItems();
 
 					eGrandStrategy = (AIGrandStrategyTypes) vGrandStrategyPriorities.GetElement(0);
 					iPriority = vGrandStrategyPriorities.GetWeight(0);

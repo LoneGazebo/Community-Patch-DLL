@@ -259,7 +259,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			if(flavorChoices.size() > 0)
 			{
 				//sort em!
-				flavorChoices.SortItems();
+				flavorChoices.StableSortItems();
 				
 				//And grab the top selection.
 				CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)flavorChoices.GetElement(0);
@@ -313,7 +313,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 					}
 				}
 			}
-			randomChoices.SortItems();
+			randomChoices.StableSortItems();
 				
 			//And grab the top selection.
 			CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)randomChoices.GetElement(0);

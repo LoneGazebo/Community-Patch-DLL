@@ -6315,7 +6315,7 @@ WeightedCivsList CvMinorCivAI::CalculateFriendshipFromQuests()
 		vePlayerInfluences.push_back(eMajorLoop, iWeight);
 	}
 
-	vePlayerInfluences.SortItems();
+	vePlayerInfluences.StableSortItems();
 	return vePlayerInfluences;
 }
 
@@ -8819,7 +8819,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 	}
 
 	// Choose the best plot
-	viPlotIndexes.SortItems();
+	viPlotIndexes.StableSortItems();
 	CvPlot* pBestPlot = GC.getMap().plotByIndex(viPlotIndexes.GetElement(0));
 
 	return pBestPlot;
@@ -8875,7 +8875,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyDig()
 	}
 
 	// Choose the best plot
-	viPlotIndexes.SortItems();
+	viPlotIndexes.StableSortItems();
 	CvPlot* pBestPlot = GC.getMap().plotByIndex(viPlotIndexes.GetElement(0));
 
 	return pBestPlot;
@@ -9006,7 +9006,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 		}
 	}
 
-	veMinorRankings.SortItems();
+	veMinorRankings.StableSortItems();
 	if(veMinorRankings.size() != 0)
 	{
 		for(int iRanking = 0; iRanking < veMinorRankings.size(); iRanking++)
@@ -9830,7 +9830,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 	if(veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	veValidTargets.SortItems();
+	veValidTargets.StableSortItems();
 
 	if(!bNoRandom)
 	{
@@ -16332,7 +16332,7 @@ void CvMinorCivAI::DoElection()
 
 	if(wvVotes.size() > 0)
 	{
-		wvVotes.SortItems();
+		wvVotes.StableSortItems();
 		RandomNumberDelegate fcn;
 		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(&fcn, "Choosing CS election winner by weight");
@@ -17712,7 +17712,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 		return NO_TECH;
 	}
 
-	TechVector.SortItems();
+	TechVector.StableSortItems();
 
 	// Our rough estimate is that 20 is a good ceiling for the max Tech value
 	if(iRoughTechValue > 20)

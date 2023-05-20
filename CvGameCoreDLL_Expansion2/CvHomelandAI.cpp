@@ -4670,7 +4670,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 	CvPlot* pBestPlot = NULL;
 	if (aBestPlotList.size()>0)
 	{
-		aBestPlotList.SortItems(); //highest score will be first
+		aBestPlotList.StableSortItems(); //highest score will be first
 		pBestPlot=aBestPlotList.GetElement(0);
 
 		if(pUnit->atPlot(*pBestPlot))

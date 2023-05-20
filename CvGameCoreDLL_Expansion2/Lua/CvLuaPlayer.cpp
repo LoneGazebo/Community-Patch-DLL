@@ -7923,7 +7923,7 @@ int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
 			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
 		}
 	}
-	veMilitaryRankings.SortItems();
+	veMilitaryRankings.StableSortItems();
 	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
 	{
 		if (veMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
@@ -11648,7 +11648,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	uint uiListSize;
 	if ((uiListSize = aBestPlots.size()) > 0)
 	{
-		aBestPlots.SortItems();	// highest score will be first.
+		aBestPlots.StableSortItems();	// highest score will be first.
 		for (uint i = 0; i < uiListSize; ++i )	
 		{
 			CvPlot* pPlot = aBestPlots.GetElement(i);

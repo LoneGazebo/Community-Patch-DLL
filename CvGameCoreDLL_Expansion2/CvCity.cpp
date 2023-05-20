@@ -3578,7 +3578,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 
 	if (veValidEvents.size() > 0)
 	{
-		//		veValidEvents.SortItems();
+		//		veValidEvents.StableSortItems();
 		int iRandIndex = GC.getGame().getSmallFakeRandNum(2500, veValidEvents.size() + GetID());
 
 		if (GC.getLogging())
@@ -7333,7 +7333,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					}
 					if (aBestPlots.size() > 0)
 					{
-						aBestPlots.SortItems();
+						aBestPlots.StableSortItems();
 						//Delete improvents up to the total on the event.
 						int iNumber = 0;
 						int iRuns = pkEventChoiceInfo->getImprovementDestruction(eImprovement);
@@ -7402,7 +7402,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 							}
 							if (aBestPlots.size() > 0)
 							{
-								aBestPlots.SortItems();
+								aBestPlots.StableSortItems();
 								//Delete improvents up to the total on the event.
 								int iNumber = 0;
 								int iRuns = iNumStrategicsToDestroy;
@@ -23311,7 +23311,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 	}
 
 	// Sort sources of Unhappiness from highest to lowest
-	vReasons.SortItems();
+	vReasons.StableSortItems();
 
 	CvString strTooltip = GetLocalizedText("TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS", iTotalUnhappiness, GetYieldMediansCachedTurn());
 
@@ -24236,7 +24236,7 @@ BuildingTypes CvCity::ChooseFreeCultureBuilding() const
 
 	if (buildingChoices.size() > 0)
 	{
-		buildingChoices.SortItems();
+		buildingChoices.StableSortItems();
 		eRtnValue = (BuildingTypes)buildingChoices.GetElement(0);
 	}
 
@@ -24280,7 +24280,7 @@ BuildingTypes CvCity::ChooseFreeFoodBuilding() const
 
 	if (buildingChoices.size() > 0)
 	{
-		buildingChoices.SortItems();
+		buildingChoices.StableSortItems();
 		eRtnValue = (BuildingTypes)buildingChoices.GetElement(0);
 	}
 

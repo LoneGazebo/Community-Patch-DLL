@@ -679,7 +679,7 @@ int CvVoterDecision::GetDecision()
 
 	if (vChoices.size() > 0)
 	{
-		vChoices.SortItems();
+		vChoices.StableSortItems();
 		
 		// Is there a tie?
 		if (vChoices.size() > 1)
@@ -765,7 +765,7 @@ std::vector<int> CvVoterDecision::GetTopVotedChoices(int iNumTopChoices)
 	std::vector<int> vTopChoices;
 	if (vChoices.size() > 0 && iNumTopChoices > 0)
 	{
-		vChoices.SortItems();
+		vChoices.StableSortItems();
 		int iCurrentWeight = 0;
 		for (int i = 0; i < vChoices.size(); i++)
 		{
@@ -8207,7 +8207,7 @@ void CvLeague::AssignProposalPrivileges()
 			CvAssertMsg(it->iProposals == 0, "Found a member with remaining proposals that should not have them. Please send Anton your save file and version.");
 		}
 	}
-	vpPossibleProposers.SortItems();
+	vpPossibleProposers.StableSortItems();
 
 	int iPrivileges = GetNumProposersPerSession();
 
@@ -11548,7 +11548,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 
 	if (vConsiderations.size() > 0)
 	{
-		vConsiderations.SortItems();
+		vConsiderations.StableSortItems();
 
 		// Even if we don't like anything, make sure we have something to choose from
 		if (vConsiderations.GetTotalWeight() <= 0)
@@ -11562,7 +11562,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 		CvWeightedVector<VoteConsideration> vVotesAllocated;
 		for (int iV = 0; iV < iVotes; iV++)
 		{
-			vConsiderations.SortItems();
+			vConsiderations.StableSortItems();
 			VoteConsideration chosen = vConsiderations.GetElement(0);
 			if (chosen.bEnact)
 			{
@@ -11644,7 +11644,7 @@ void CvLeagueAI::AllocateVotes(CvLeague* pLeague)
 			return;
 
 		// Logging
-		vVotesAllocated.SortItems();
+		vVotesAllocated.StableSortItems();
 		for (int i = 0; i < vVotesAllocated.size(); i++)
 		{
 			if (vVotesAllocated.GetElement(i).bEnact)
@@ -11714,7 +11714,7 @@ void CvLeagueAI::FindBestVoteChoices(CvEnactProposal* pProposal, VoteConsiderati
 
 	if (vScoredChoices.size() > 0)
 	{
-		vScoredChoices.SortItems();
+		vScoredChoices.StableSortItems();
 		for (int i = 0; i < vScoredChoices.size() && i < iMaxChoicesToConsider; i++)
 		{
 			considerations.push_back(vScoredChoices.GetElement(i), vScoredChoices.GetWeight(i));
@@ -11761,7 +11761,7 @@ void CvLeagueAI::FindBestVoteChoices(CvRepealProposal* pProposal, VoteConsiderat
 
 	if (vScoredChoices.size() > 0)
 	{
-		vScoredChoices.SortItems();
+		vScoredChoices.StableSortItems();
 		for (int i = 0; i < vScoredChoices.size() && i < iMaxChoicesToConsider; i++)
 		{
 			considerations.push_back(vScoredChoices.GetElement(i), vScoredChoices.GetWeight(i));
@@ -13814,7 +13814,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 
 	if (vConsiderations.size() > 0)
 	{
-		vConsiderations.SortItems();
+		vConsiderations.StableSortItems();
 
 		for (int i = 0; i < vConsiderations.size(); i++)
 		{

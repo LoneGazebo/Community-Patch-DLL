@@ -912,7 +912,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		}
 	}
 
-	m_BuildablesPrecheck.SortItems();
+	m_BuildablesPrecheck.StableSortItems();
 
 	LogPossibleBuilds(m_BuildablesPrecheck,"PRE");
 	SPlotStats plotStats = m_pCity->getPlotStats();
@@ -1005,7 +1005,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 	ReweightByDuration(m_Buildables);
 
-	m_Buildables.SortItems();
+	m_Buildables.StableSortItems();
 
 	LogPossibleBuilds(m_Buildables,"POST");
 
@@ -1327,7 +1327,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		}
 	}
-	m_BuildablesPrecheck.SortItems();
+	m_BuildablesPrecheck.StableSortItems();
 
 	ReweightByDuration(m_BuildablesPrecheck);
 
@@ -1409,7 +1409,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		}
 	}
 
-	m_Buildables.SortItems();
+	m_Buildables.StableSortItems();
 
 	LogPossibleHurries(m_Buildables,"POST");
 

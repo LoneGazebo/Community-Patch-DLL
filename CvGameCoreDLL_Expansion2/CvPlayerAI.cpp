@@ -823,7 +823,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			if(flavorChoices.size() > 0)
 			{
 				//sort em!
-				flavorChoices.SortItems();
+				flavorChoices.StableSortItems();
 				
 				//And grab the top selection.
 				EventChoiceTypes eBestEventChoice = (EventChoiceTypes)flavorChoices.GetElement(0);
@@ -877,7 +877,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 					}
 				}
 			}
-			randomChoices.SortItems();
+			randomChoices.StableSortItems();
 				
 			//And grab the top selection.
 			EventChoiceTypes eBestEventChoice = (EventChoiceTypes)randomChoices.GetElement(0);
@@ -1011,7 +1011,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 			if (flavorChoices.size() > 0)
 			{
 				//sort em!
-				flavorChoices.SortItems();
+				flavorChoices.StableSortItems();
 
 				//And grab the top selection.
 				CityEventChoiceTypes eBestEventChoice = (CityEventChoiceTypes)flavorChoices.GetElement(0);
@@ -1064,7 +1064,7 @@ bool CvPlayerAI::AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex
 					}
 				}
 			}
-			randomChoices.SortItems();
+			randomChoices.StableSortItems();
 			if (randomChoices.size() <= 0)
 				return false;
 
@@ -2017,7 +2017,7 @@ CvCity* CvPlayerAI::FindBestMessengerTargetCity(CvUnit* pUnit, const vector<int>
 	//highest score first ..
 	if(vTargets.size() > 0)
 	{
-		vTargets.SortItems();
+		vTargets.StableSortItems();
 
 		//check if we can actually go there only if the city is promising
 		for (int i = 0; i < vTargets.size(); ++i )

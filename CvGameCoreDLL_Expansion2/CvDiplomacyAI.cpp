@@ -2094,7 +2094,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		SortedVictoryScores.push_back(eVictoryPursuit, VictoryScores[eVictoryPursuit]);
 	}
 
-	SortedVictoryScores.SortItems();
+	SortedVictoryScores.StableSortItems();
 	VictoryPursuitTypes eHighestScore = SortedVictoryScores.GetElement(0), eRunnerUp = SortedVictoryScores.GetElement(1), eChosenPrimary = NO_VICTORY_PURSUIT;
 
 	if (SortedVictoryScores.GetWeight(0) > SortedVictoryScores.GetWeight(1))
@@ -19820,7 +19820,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 
 			// Sort the weights from highest to lowest
-			vePlayerApproachValues.SortItems();
+			vePlayerApproachValues.StableSortItems();
 
 			// Find this player's ranking (how far are they down the list?)
 			for (int iPlayerRanking = 0; iPlayerRanking < vePlayerApproachValues.size(); iPlayerRanking++)
@@ -20588,7 +20588,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScoresForSorting.push_back(eLoopApproach, vApproachScores[iApproachLoop]);
 	}
 
-	vApproachScoresForSorting.SortItems();
+	vApproachScoresForSorting.StableSortItems();
 
 	// All at zero? Neutral is the default.
 	CivApproachTypes eApproach = bAllZero ? CIV_APPROACH_NEUTRAL : vApproachScoresForSorting.GetElement(0);
@@ -23141,7 +23141,7 @@ void CvDiplomacyAI::DoUpdateWarTargets()
 			}
 		}
 
-		viExistingSneakAttacks.SortItems();
+		viExistingSneakAttacks.StableSortItems();
 
 		// If we have an existing (valid) war planned, let's stick with it.
 		for (int iSneakAttackLoop = 0; iSneakAttackLoop < (int) viExistingSneakAttacks.size(); iSneakAttackLoop++)
@@ -23472,7 +23472,7 @@ void CvDiplomacyAI::DoUpdateMinorCivApproaches()
 	// Now sort the list if there's anything in it
 	if (vePlayerApproachWeights.size() > 0)
 	{
-		vePlayerApproachWeights.SortItems();
+		vePlayerApproachWeights.StableSortItems();
 
 		// Now that Minors are sorted, ACTUALLY figure out what our Approach will be, taking everything into account
 		for (int iPlayerVectorIndex = 0; iPlayerVectorIndex < vePlayerApproachWeights.size(); iPlayerVectorIndex++)
@@ -24575,7 +24575,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 		vApproachScoresForSorting.push_back(eLoopApproach, vApproachScores[iApproachLoop]);
 	}
 
-	vApproachScoresForSorting.SortItems();
+	vApproachScoresForSorting.StableSortItems();
 
 	// All at zero? Neutral is the default.
 	CivApproachTypes eApproach = bAllZero ? CIV_APPROACH_NEUTRAL : vApproachScoresForSorting.GetElement(0);
@@ -26684,7 +26684,7 @@ void CvDiplomacyAI::DoUpdateDemands()
 		vePotentialDemandTargets.push_back(ePlayer, iWeight);
 	}
 
-	vePotentialDemandTargets.SortItems();
+	vePotentialDemandTargets.StableSortItems();
 
 	// Any valid possibilities?
 	if (vePotentialDemandTargets.size() > 0)
@@ -26792,7 +26792,7 @@ void CvDiplomacyAI::MakeWar()
 #endif
 		}
 
-		playerList.SortItems();
+		playerList.StableSortItems();
 
 		for (int iI = 0; iI < playerList.size(); iI++)
 		{
@@ -32649,7 +32649,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// Do we want to buyout a minor?
 	if(veMinorsToBuyout.size() > 0)
 	{
-		veMinorsToBuyout.SortItems();
+		veMinorsToBuyout.StableSortItems();
 		int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
 		PlayerTypes eLoopMinor = NO_PLAYER;
 		for(int i = 0; i < veMinorsToBuyout.size(); i++)
@@ -32706,7 +32706,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// Do we want to annex a minor?
 	if (veMinorsToBullyAnnex.size() > 0)
 	{
-		veMinorsToBullyAnnex.SortItems();
+		veMinorsToBullyAnnex.StableSortItems();
 		PlayerTypes eLoopMinor = NO_PLAYER;
 		for (int i = 0; i < veMinorsToBullyAnnex.size(); i++)
 		{
@@ -32727,7 +32727,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// Do we want to give someone Gold enough to actually do it?
 	if(veMinorsToGiveGold.size() > 0)
 	{
-		veMinorsToGiveGold.SortItems(); // Sort from highest desirability to lowest
+		veMinorsToGiveGold.StableSortItems(); // Sort from highest desirability to lowest
 		for(int i = 0; i < veMinorsToGiveGold.size(); i++)
 		{
 			int iGoldLeft = GetPlayer()->GetTreasury()->GetGold();
@@ -32794,7 +32794,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// Do we want a unit enough to bully someone?
 	if(veMinorsToBullyUnit.size() > 0)
 	{
-		veMinorsToBullyUnit.SortItems();
+		veMinorsToBullyUnit.StableSortItems();
 		PlayerTypes eLoopMinor = NO_PLAYER;
 		for(int i = 0; i < veMinorsToBullyUnit.size(); i++)
 		{
@@ -32815,7 +32815,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	// Do we want gold enough to bully someone?
 	if(veMinorsToBullyGold.size() > 0)
 	{
-		veMinorsToBullyGold.SortItems();
+		veMinorsToBullyGold.StableSortItems();
 		PlayerTypes eLoopMinor = NO_PLAYER;
 		for(int i = 0; i < veMinorsToBullyGold.size(); i++)
 		{
@@ -54082,7 +54082,7 @@ CvString CvDiplomacyAIHelpers::GetWarmongerPreviewString(PlayerTypes eCurrentOwn
 		}
 		if (veWarmongerWeights.size() > 0)
 		{
-			veWarmongerWeights.SortItems();
+			veWarmongerWeights.StableSortItems();
 
 			int iHighestVal = veWarmongerWeights.GetWeight(0);
 
@@ -54182,7 +54182,7 @@ CvString CvDiplomacyAIHelpers::GetLiberationPreviewString(PlayerTypes eOriginalO
 		}
 		if (veWarmongerWeights.size() > 0)
 		{
-			veWarmongerWeights.SortItems();
+			veWarmongerWeights.StableSortItems();
 			int iHighestVal = veWarmongerWeights.GetWeight(0);
 			int iCap = 0;
 			int iMax = 8;
@@ -57358,7 +57358,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 		vMoveTroopsWeightsForSorting.push_back(i, viMoveTroopsWeights[i]);
 	}
 
-	vMoveTroopsWeightsForSorting.SortItems();
+	vMoveTroopsWeightsForSorting.StableSortItems();
 
 	MoveTroopsResponseTypes eResponse = (MoveTroopsResponseTypes) vMoveTroopsWeightsForSorting.GetElement(0);
 

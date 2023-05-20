@@ -135,7 +135,7 @@ ProjectTypes CvProjectProductionAI::RecommendProject()
 	// Sort items and grab the first one
 	if(m_Buildables.size() > 0)
 	{
-		m_Buildables.SortItems();
+		m_Buildables.StableSortItems();
 		LogPossibleBuilds();
 		return (ProjectTypes)m_Buildables.GetElement(0);
 	}

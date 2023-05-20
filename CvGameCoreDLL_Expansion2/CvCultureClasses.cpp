@@ -1691,7 +1691,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		bestThemes.push_back(iI, pkEntry->GetThemingBonusInfo(iI)->GetBonus());
 	}
 
-	bestThemes.SortItems();
+	bestThemes.StableSortItems();
 
 	// Try each of the theming bonuses for this building
 	for (int iI = 0; iI < bestThemes.size(); iI++)

@@ -4616,7 +4616,7 @@ int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eD
 	}
 
 	//this should put the closest cities first
-	vPossibleTargets.SortItems();
+	vPossibleTargets.StableSortItems();
 
 	for (int i = 0; i < vPossibleTargets.size(); i++)
 	{

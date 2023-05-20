@@ -9282,7 +9282,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		return NO_UNIT;
 
 	// Choose from weighted unit types
-	veUnitRankings.SortItems();
+	veUnitRankings.StableSortItems();
 	int iNumChoices = /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES);
 	RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	UnitTypes eChosenUnit = veUnitRankings.ChooseFromTopChoices(iNumChoices, &randFn, "Choosing competitive unit from top choices");
@@ -13958,7 +13958,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		eEraWeights.push_back(i,iWeight);
 		iMaxEraWeight += iWeight;
 	}
-	eEraWeights.SortItems();
+	eEraWeights.StableSortItems();
 
 	RandomNumberDelegate fcn;
 	fcn = MakeDelegate(this, &CvGame::getJonRandNum);
@@ -14063,7 +14063,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		}
 
 		// sort the weight vector
-		aDigSiteWeights.SortItems();
+		aDigSiteWeights.StableSortItems();
 
 		// add the best dig site
 		int iBestSite = aDigSiteWeights.GetElement(0);

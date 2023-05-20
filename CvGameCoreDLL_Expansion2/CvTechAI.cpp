@@ -165,7 +165,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// Reweight our possible choices by their cost, but only if cost is actually a factor!
 	ReweightByCost(pPlayer, bFreeTech);
 
-	m_ResearchableTechs.SortItems();
+	m_ResearchableTechs.StableSortItems();
 	LogPossibleResearch();
 
 	// Make and log our tech choice
@@ -196,7 +196,7 @@ TechTypes CvTechAI::RecommendNextTech(CvPlayer *pPlayer, TechTypes eIgnoreTech /
 	}
 
 	ReweightByCost(pPlayer);
-	m_ResearchableTechs.SortItems();
+	m_ResearchableTechs.StableSortItems();
 	LogPossibleResearch();
 
 	// If total weight is above 0, choose top choice as recommendation

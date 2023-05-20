@@ -5729,7 +5729,7 @@ void CvPlayer::DoEvents()
 
 	if (veValidEvents.size() > 0)
 	{
-		//afw		veValidEvents.SortItems();
+		//afw		veValidEvents.StableSortItems();
 		int iRandIndex = GC.getGame().getSmallFakeRandNum(2000, GetTreasury()->GetLifetimeGrossGold()); //afw
 		if (GC.getLogging())
 		{
@@ -19426,7 +19426,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					}
 				}
 			}
-			artChoices.SortItems();
+			artChoices.StableSortItems();
 			int iNotificationArtwork = -1;
 			if (artChoices.size() > 0)
 			{
@@ -20090,7 +20090,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					}
 					if (CitiesSortedByLocalHappiness.size() > 0)
 					{
-						CitiesSortedByLocalHappiness.SortItems();
+						CitiesSortedByLocalHappiness.StableSortItems();
 						int iPopToGive = iPopulationBoost;
 						while (iPopToGive > 0)
 						{
@@ -20661,7 +20661,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					}
 					if (CitiesSortedByLocalHappiness.size() > 0)
 					{
-						CitiesSortedByLocalHappiness.SortItems();
+						CitiesSortedByLocalHappiness.StableSortItems();
 						int iPopToGive = iPopulationBoost;
 						while (iPopToGive > 0)
 						{
@@ -21139,8 +21139,8 @@ void CvPlayer::DistributeHappinessToCities()
 		CitiesSortedByPopulation.push_back(pLoopCity, iPopulation);
 	}
 
-	CitiesSortedByNeed.SortItems();
-	CitiesSortedByPopulation.SortItems();
+	CitiesSortedByNeed.StableSortItems();
+	CitiesSortedByPopulation.StableSortItems();
 
 	// Distribute happiness to cities in descending order of Need until all cities are full
 	bool bAllCitiesFull = false;
@@ -24874,7 +24874,7 @@ PlayerTypes CvPlayer::AidRankGeneric(int eType)
 		iTopTier = 1;
 	}
 
-	veMajorRankings.SortItems();
+	veMajorRankings.StableSortItems();
 	if(veMajorRankings.size() != 0)
 	{
 		for(int iRanking = 0; iRanking < veMajorRankings.size(); iRanking++)
