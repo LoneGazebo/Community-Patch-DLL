@@ -1218,6 +1218,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 	bool bMountainBonus = GET_PLAYER(ePlayer).CanCrossMountain();
 	bool bForestJungleBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsWoodlandMovementBonus();
 	bool bHillBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsFasterInHills();
+	bool bRiverBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsRiverTradeRoad();
 
 	//basic sanity check
 	if (eArmyType == ARMY_TYPE_LAND)
@@ -1291,16 +1292,14 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 
 		//rough terrain makes us slow
 		bool bWoodlandException = bForestJungleBonus && (pLoopPlot->getFeatureType() == FEATURE_FOREST || pLoopPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam());
-		if (bWoodlandException || (bMountainBonus && pLoopPlot->isMountain()) || (bHillBonus && pLoopPlot->isHills()) || !pLoopPlot->isRoughGround())
+		if (bWoodlandException || (bMountainBonus && pLoopPlot->isMountain()) || (bHillBonus && pLoopPlot->isHills()) || (bRiverBonus && pLoopPlot->isRiver()) || !pLoopPlot->isRoughGround())
 			bIsGood = true;
 
 		// owned by us and has a road?
-		if (pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam() && pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged())
-			bIsGood = true;
+		bIsGood |= pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam() && pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged();
 
 		//we want to have plots for our siege units
-		if (iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION))
-			bIsGood = true;
+		bIsGood |= iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION);
 
 		if (bIsGood)
 			nGoodPlots++;

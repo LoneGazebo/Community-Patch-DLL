@@ -198,11 +198,15 @@ F. Publish the release.
 
 
 [STEP 17]
-Make a new version thread on CivFanatics. Link to the compiled autoinstaller on the GitHub page for your new release.
+IF NOT SAVEGAME COMPATIBLE: Make a new version thread on CivFanatics, including the changelog.
+
+IF SAVEGAME COMPATIBLE: Edit the existing release thread on CivFanatics. Edit the title, add the changelog to the OP, and also make a new post in the thread (including the changelog) to alert everyone.
+
+Link to, or update the existing link for, the compiled autoinstaller on the new release's page on GitHub.
 
 After making the thread, copy and paste the forum thread link next to "**Release Notes Thread:**" in the text box from the previous step, and update the release.
 
 
 
 [STEP 18]
-Announce the new version on Vox Populi's Discord server.
+Announce the new version on Vox Populi's Discord server. If the new release is NOT savegame compatible, ping @everyone in your announcement.

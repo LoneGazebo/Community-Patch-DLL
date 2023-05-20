@@ -16847,8 +16847,8 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 				// If it's pillaged, we can repair it. Otherwise, we can't improve this tile.
 				if (pPlot->IsImprovementPillaged())
 					return true;
-				else
-					return false;
+
+				return false;
 			}
 			else if (pImprovementInfo->IsPermanent())
 				return false;

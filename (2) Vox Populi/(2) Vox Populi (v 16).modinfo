@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.5.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.5.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -474,11 +474,11 @@
     <File md5="8B4214CDB63C76E5F866B60457E4282D" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="3C2F1359DFF7680322AC0865193320F3" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="BE8A95DFB17CAD28CFA1E6E753F50D8C" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
-    <File md5="728B5B99849E91B39DA271E1BAB862A0" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
+    <File md5="423B727CFB38217FB0B25ED5833C5679" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="3D2864AE270B4E1E0C3B14F23CC377DD" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="805B5B45BCF916894912AB855EBD558B" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="CFA394A548C539CD8692808647292185" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
-    <File md5="C46DEA9382A88A9537F45F41F61B454A" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
+    <File md5="95979AB75DF7ACB5E274C62845D67AC3" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
     <File md5="65D179A77D575C3D0E078D2E6EF5844B" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="90406D5815395A131D17131660FDC0F4" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="D55BBACC7810253BB969E125C65CD9B7" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
@@ -572,7 +572,7 @@
     <File md5="E4A55299B743305F55BC2F358A7A0191" import="1">LUA/ProductionPopup.lua</File>
     <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
     <File md5="FC67B1778C9CAFE118D569CB6454A047" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
-    <File md5="880C4E0769CF89FE6A1A464E4CA2ABB7" import="1">Core Files/CoreLua/ReligionOverview.lua</File>
+    <File md5="46DBB55FAD37A04B27DAA5E6CC7C51FB" import="1">Core Files/CoreLua/ReligionOverview.lua</File>
     <File md5="180D0D9007913D8483373F07C398A32B" import="1">Core Files/CoreLua/ReligionOverview.xml</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">Core Files/CoreLua/ResourceTooltipGenerator.lua</File>
     <File md5="70CC435D4C07712F3DFA40C00C6602F3" import="1">Core Files/CoreLua/SimpleDiploTrade.xml</File>
@@ -581,10 +581,10 @@
     <File md5="7C4BFCCC79C51A21AE439DEFD059D997" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="54F47620C431C41E864B9805D008EF94" import="1">LUA/TopPanel.lua</File>
     <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">LUA/TopPanel.xml</File>
-    <File md5="74401FDC01B568AFAC6CC073E890CD4E" import="1">LUA/TradeLogic.lua</File>
+    <File md5="ADD8EB28ABB3F4D48FCA598A44A33585" import="1">LUA/TradeLogic.lua</File>
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
-    <File md5="E2726EB1A715A81A212933ECE3414E2B" import="1">LUA/UnitPanel.lua</File>
+    <File md5="402386B269D33E2D55DAE77BF94377CB" import="1">LUA/UnitPanel.lua</File>
     <File md5="1B739783C108C32893CFB3060A2D9B41" import="1">Core Files/CoreLua/VictoryProgress.lua</File>
     <File md5="1789009F209A70B6EBE6CB940152CCF4" import="1">Core Files/CoreLua/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">Core Files/CoreLua/WhosWinningPopup.lua</File>

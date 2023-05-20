@@ -45006,19 +45006,7 @@ void CvDiplomacyAI::DoTestOpinionModifiers()
 
 int CvDiplomacyAI::GetBaseOpinionScore(PlayerTypes ePlayer)
 {
-	int iOpinionWeight = 0;
-
-	// Modder bonus/penalty to opinion
-	if (GET_PLAYER(ePlayer).isHuman())
-	{
-		iOpinionWeight += GET_PLAYER(ePlayer).getHandicapInfo().getHumanOpinionChange();
-	}
-	else
-	{
-		iOpinionWeight += GC.getGame().getHandicapInfo().getAIOpinionChange();
-	}
-
-	return iOpinionWeight;
+	return GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getHumanOpinionChange() : GC.getGame().getHandicapInfo().getAIOpinionChange();
 }
 
 //////////////////////////////////////
