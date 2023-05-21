@@ -1024,6 +1024,12 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 
 		-- Science from Other Players
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_MINORS", g_activePlayer:GetScienceFromOtherPlayersTimes100() / 100 )
+		
+		-- Science from Espionage
+		local iScienceFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false);
+		
+		tips:insertLocalizedIf( iScienceFromEspionage > 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage)
+		tips:insertLocalizedIf( iScienceFromEspionage < 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE", ScienceFromEspionage )
 
 		if civ5_mode then
 			-- Science from Happiness
@@ -1171,6 +1177,8 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	-- Gold from Vassals
 	local iGoldFromVassals = g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
 	local iGoldFromVassalTax = math.floor(g_activePlayer:GetMyShareOfVassalTaxes() / 100);
+	-- Gold from Espionage
+	local iGoldFromEspionageIncoming = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_GOLD, true);
 -- END
 	local playerTraitGold = 0
 	local tradeRouteGold = 0
@@ -1182,6 +1190,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 -- BEGIN C4DF
 	local iExpenseFromVassalTaxes = g_activePlayer:GetExpensePerTurnFromVassalTaxes();
 	local iVassalMaintenance = g_activePlayer:GetVassalGoldMaintenance();
+	local iExpenseFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_GOLD, false);
 -- END C4DF
 	local routeMaintenance = 0
 	local beaconEnergyDelta = 0
@@ -1206,6 +1215,9 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	local totalIncome, totalWealth
 	local explicitIncome = goldPerTurnFromCities + goldPerTurnFromOtherPlayers + cityConnectionGold + goldPerTurnFromReligion + tradeRouteGold + playerTraitGold + iGoldFromMinors + iInternalRouteGold + iGoldFromAnnexedMinors -- C4DF
 -- C4DF CHANGE
+	if (iGoldFromEspionageIncoming > 0) then
+		explicitIncome = explicitIncome + iGoldFromEspionageIncoming;
+	end
 	if (iGoldFromVassals > 0) then
 		explicitIncome = explicitIncome + iGoldFromVassals;
 	end
@@ -1232,6 +1244,9 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	end
 	if (iExpenseFromVassalTaxes > 0) then
 		totalExpenses = totalExpenses + iExpenseFromVassalTaxes;
+	end
+	if(iExpenseFromEspionage > 0) then
+		totalExpenses = totalExpenses + iExpenseFromEspionage;
 	end
 -- END C4DF
 	tips:insert( "" )
@@ -1273,6 +1288,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 -- CBP
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_MINORS", g_currencyString), iGoldFromMinors)
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", g_currencyString), iGoldFromAnnexedMinors)
+	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_INCOMING", g_currencyString), iGoldFromEspionageIncoming)
 --END
 	tips:insert( "[ENDCOLOR]" )
 
@@ -1286,6 +1302,7 @@ g_toolTipHandler.GoldPerTurn = function()-- control )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_ROUTE_MAINT", routeMaintenance )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_MAINT", iVassalMaintenance )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes )	-- Compatibility with Putmalk's Civ IV Diplomacy Features Mod
+	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING", iExpenseFromEspionage )
 	tips:insertLocalizedBulletIfNonZero( S("TXT_KEY_TP_%s_TO_OTHERS", g_currencyString), goldPerTurnToOtherPlayers )
 	tips:insertLocalizedBulletIfNonZero( "TXT_KEY_TP_ENERGY_TO_BEACON", beaconEnergyDelta )
 
@@ -1845,6 +1862,12 @@ g_toolTipHandler.CultureString = function()-- control )
 			-- Culture from Annexed Minors
 			local culturePerTurnFromAnnexedMinors = g_activePlayer:GetCulturePerTurnFromAnnexedMinors()
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", culturePerTurnFromAnnexedMinors )
+		
+			-- Culture from Espionage
+			local iCultureFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, false);
+			tips:insertLocalizedIf( iCultureFromEspionage > 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage)
+			tips:insertLocalizedIf( iCultureFromEspionage < 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE", ScienceFromEspionage )
+		
 -- END
 
 			-- Culture from Religion
@@ -1869,7 +1892,7 @@ g_toolTipHandler.CultureString = function()-- control )
 			-- Culture from Golden Age
 -- CBP
 	
-			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals - culturePerTurnFromAnnexedMinors)
+			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals - culturePerTurnFromAnnexedMinors- iCultureFromEspionage)
 			
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge)
 -- END
@@ -1941,6 +1964,13 @@ if civ5_mode and gk_mode then
 			if g_activePlayer.GetYieldPerTurnFromVassals then
 				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
 			end
+			
+			-- Faith from Espionage
+			local iFaithFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, false);
+			tips:insertLocalizedIf( iFaithFromEspionage > 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage)
+			tips:insertLocalizedIf( iFaithFromEspionage < 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", ScienceFromEspionage )
+		
+		
 -- END			
 -- COMMUNITY PATCH CHANGE
 

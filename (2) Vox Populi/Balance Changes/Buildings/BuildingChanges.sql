@@ -858,7 +858,8 @@ SET PrereqTech = 'TECH_ELECTRONICS'
 WHERE Type = 'BUILDING_POLICE_STATION';
 
 UPDATE Buildings
-SET EspionageModifier = '-50'
+SET EspionageModifier = '-50',
+    EspionageTurnsModifierEnemyCity = '1'
 WHERE Type = 'BUILDING_POLICE_STATION';
 
 INSERT INTO Building_YieldFromSpyDefense
@@ -869,7 +870,8 @@ VALUES
 
 -- Constabulary
 UPDATE Buildings
-SET EspionageModifier = '-50'
+SET EspionageModifier = '-50',
+    EspionageTurnsModifierEnemyCity = '1'
 WHERE Type = 'BUILDING_CONSTABLE';
 
 -- Guilds

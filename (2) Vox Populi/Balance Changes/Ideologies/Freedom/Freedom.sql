@@ -49,7 +49,8 @@ VALUES
 
 UPDATE Policies
 SET
-	FreeSpy = 1
+	FreeSpy = 1,
+	EspionageTurnsModifierFriendly = -2
 WHERE Type = 'POLICY_COVERT_ACTION';
 
 

@@ -111,6 +111,8 @@ public:
 	int GetTradeRouteLandDistanceModifier() const;
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageModifier() const;
+	int GetEspionageTurnsModifierFriendly() const;
+	int GetEspionageTurnsModifierEnemy() const;
 	int GetXCSAlliesLowersPolicyNeedWonders() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
@@ -810,6 +812,8 @@ private:
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iEspionageModifier;
+	int m_iEspionageTurnsModifierFriendly;
+	int m_iEspionageTurnsModifierEnemy;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;

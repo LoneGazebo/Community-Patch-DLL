@@ -102,6 +102,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageModifier(0),
+	m_iEspionageTurnsModifierFriendly(0),
+	m_iEspionageTurnsModifierEnemy(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
@@ -576,6 +578,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
+	m_iEspionageTurnsModifierFriendly = kResults.GetInt("EspionageTurnsModifierFriendly");
+	m_iEspionageTurnsModifierEnemy = kResults.GetInt("EspionageTurnsModifierEnemy");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
@@ -1826,6 +1830,14 @@ int CvPolicyEntry::GetTradeRouteSeaDistanceModifier() const
 int CvPolicyEntry::GetEspionageModifier() const
 {
 	return m_iEspionageModifier;
+}
+int CvPolicyEntry::GetEspionageTurnsModifierFriendly() const
+{
+	return m_iEspionageTurnsModifierFriendly;
+}
+int CvPolicyEntry::GetEspionageTurnsModifierEnemy() const
+{
+	return m_iEspionageTurnsModifierEnemy;
 }
 int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
 {

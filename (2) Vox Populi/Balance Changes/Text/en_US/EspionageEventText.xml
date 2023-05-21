@@ -39,25 +39,25 @@
 			<Text>Sabotage local [ICON_TOURISM] Tourism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM_HELP">
-			<Text>Spy collects 75% of the Target City's [ICON_TOURISM] Tourism output each turn for duration of mission. When complete, Spy steals all collected [ICON_TOURISM] Tourism.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+			<Text>When the mission is completed, [ICON_TOURISM] Tourism is stolen each turn from the Player for {5_Turns}. The amount of Tourism stolen per turn is 75% of the Target City's average [ICON_TOURISM] Tourism output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE">
 			<Text>Infiltrate [ICON_RESEARCH] Science facilities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE_HELP">
-			<Text>Spy collects 50% of the Target City's [ICON_RESEARCH] Science output each turn for duration of mission. When complete, Spy steals all collected [ICON_RESEARCH] Science.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+			<Text>When the mission is completed, [ICON_RESEARCH] Science is stolen each turn from the Player for {5_Turns}. The amount of Science stolen per turn is 50% of the Target City's average [ICON_RESEARCH] Science output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD">
 			<Text>Steal [ICON_GOLD] Gold from treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD_HELP">
-			<Text>Spy collects 50% of the Target City's [ICON_GOLD] Gold output each turn for duration of mission. When complete, Spy steals all collected [ICON_GOLD] Gold.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+			<Text>When the mission is completed, [ICON_GOLD] Gold is stolen each turn from the Player for {5_Turns}. The amount of Gold stolen per turn is 50% of the Target City's average [ICON_GOLD] Gold output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH">
 			<Text>Pilfer [ICON_PEACE] Religious Relics</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH_HELP">
-			<Text>Spy collects 75% of the Target City's [ICON_PEACE] Faith output each turn for duration of mission. When complete, Spy steals all collected [ICON_PEACE] Faith.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+			<Text>When the mission is completed, [ICON_PEACE] Faith is stolen each turn from the Player for {5_Turns}. The amount of Faith stolen per turn is 75% of the Target City's average [ICON_PEACE] Faith output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
 			<Text>Radicalize the rural [ICON_CITIZEN] citizenry</Text>
@@ -78,7 +78,7 @@
 			<Text>In the Target City: -1 [ICON_RESEARCH] Science from Scientists; -1 [ICON_GOLD] Gold from Merchants; -1 [ICON_PRODUCTION] Production from Engineers; -1 [ICON_CULTURE] Culture from Musicians, Artists, and Writers. {7_PlayerEventEffect}.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_BENEFIT">
-			<Text>[COLOR_POSITIVE_TEXT]Your Benefit:[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Your Benefit: [ENDCOLOR]</Text>
 		</Row>
 		Your Benefit:
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON">
@@ -164,16 +164,31 @@
 			<Text>[COLOR_POSITIVE_TEXT]Estimated Mission Duration:[ENDCOLOR] {1_Num} Turns</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_PAST">
-			<Text>[COLOR_POSITIVE_TEXT]Total Amount Stolen:[ENDCOLOR] {1_Yield}</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Amount Stolen:[ENDCOLOR] {1_Yield} per Turn for {2_Turns}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_PAST_ENEMY">
-			<Text>[COLOR_NEGATIVE_TEXT]Total Amount Stolen:[ENDCOLOR] {1_Yield}</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Amount Stolen:[ENDCOLOR] {1_Yield} per Turn for {2_Turns}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_PRESENT">
-			<Text>Preparing Theft: {1_Yield} Collected.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE">
+			<Text>[COLOR_POSITIVE_TEXT]{1_Yield} stolen per Turn[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE_ENEMY">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_Yield} stolen per Turn[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED">
+			<Text>The effects of an Espionage Mission against {2_Civ} have ended: Steal {1_MissionResult} per Turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_T">
+			<Text>Espionage Effect ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_ENEMY">
+			<Text>The effects of a foreign Espionage Mission against you have ended: Steal {1_MissionResult} per Turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_ENEMY_T">
+			<Text>Foreign Espionage Effect ended.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ESTIMATED">
-			<Text>[COLOR_POSITIVE_TEXT]Estimated Total Amount to Steal:[ENDCOLOR] {1_Yield}</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Estimated Amount to Steal:[ENDCOLOR] {1_Yield} per Turn for {2_Turns}</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS">
@@ -198,6 +213,14 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EXTRA_SIGHT_EVENT_HAS_ENDED_CITY_T">
 			<Text>Espionage visibility bonus in {1_City} has ended.</Text>
+		</Row>
+		
+		<!-- Mission Durations -->
+		<Row Tag="TXT_KEY_SPY_DURATION_LEVEL_MODIFIER">
+			<Text>[NEWLINE]  [ICON_BULLET] Spy Rank Modifier: {1_Num}%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_DURATION_TRAIT_MODIFIER">
+			<Text>[NEWLINE]  [ICON_BULLET] Player Traits Modifier: {1_Num}%</Text>
 		</Row>
 		
 	</Language_en_US>

@@ -1338,6 +1338,10 @@ ALTER TABLE Policies ADD COLUMN 'TradeRouteSeaDistanceModifier' INTEGER DEFAULT 
 --Espionage Modifier for Policies - should be negative for player benefit!
 ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 
+--Espionage Modifier for Policies - changes durations of spy missions by a fixed amount of turns for friendly/enemy spies
+ALTER TABLE Policies ADD COLUMN 'EspionageTurnsModifierFriendly' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'EspionageTurnsModifierEnemy' INTEGER DEFAULT 0;
+
 -- C4DF Function
 
 ALTER TABLE Buildings ADD COLUMN 'VassalLevyEra' BOOLEAN DEFAULT 0;
@@ -1563,6 +1567,11 @@ ALTER TABLE Traits ADD COLUMN 'TradeRouteMinorInfluenceAP' BOOLEAN DEFAULT 0;
 
 -- Can this building be built next to any body of water?
 ALTER TABLE Buildings ADD COLUMN 'AnyWater' BOOLEAN DEFAULT 0;
+
+--Espionage Modifier for Policies - changes durations of spy missions by a fixed amount of turns for friendly/enemy spies
+ALTER TABLE Buildings ADD COLUMN 'EspionageTurnsModifierFriendly' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EspionageTurnsModifierEnemyCity' INTEGER DEFAULT 0;
+ALTER TABLE Buildings ADD COLUMN 'EspionageTurnsModifierEnemyGlobal' INTEGER DEFAULT 0;
 
 -- Promotion grants additional combat strength if on a pillaged improvement
 ALTER TABLE UnitPromotions ADD COLUMN 'PillageBonusStrength' INTEGER DEFAULT 0;

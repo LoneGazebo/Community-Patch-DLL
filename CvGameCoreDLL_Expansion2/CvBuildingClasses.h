@@ -287,6 +287,9 @@ public:
 	int GetReligiousPressureModifier() const;
 	int GetEspionageModifier() const;
 	int GetGlobalEspionageModifier() const;
+	int GetEspionageTurnsModifierFriendly() const;
+	int GetEspionageTurnsModifierEnemyCity() const;
+	int GetEspionageTurnsModifierEnemyGlobal() const;
 	int GetExtraSpies() const;
 	int GetSpyRankChange() const;
 	int GetTradeRouteRecipientBonus() const;
@@ -774,6 +777,9 @@ private:
 	int m_iReligiousPressureModifier;
 	int m_iEspionageModifier;
 	int m_iGlobalEspionageModifier;
+	int m_iEspionageTurnsModifierFriendly;
+	int m_iEspionageTurnsModifierEnemyCity;
+	int m_iEspionageTurnsModifierEnemyGlobal;
 	int m_iExtraSpies;
 	int m_iSpyRankChange;
 	int m_iInstantSpyRankChange;

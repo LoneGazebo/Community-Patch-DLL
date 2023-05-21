@@ -153,7 +153,9 @@ VALUES ('BUILDING_OXFORD_UNIVERSITY' , 'UNIT_SCIENTIST' , 1);
 
 -- Spy Agency
 UPDATE Buildings
-SET EspionageModifier = '-15'
+SET EspionageModifier = '-15',
+	EspionageTurnsModifierFriendly = '-1',
+	EspionageTurnsModifierEnemyCity = '2'
 WHERE Type = 'BUILDING_INTELLIGENCE_AGENCY';
 
 UPDATE Buildings

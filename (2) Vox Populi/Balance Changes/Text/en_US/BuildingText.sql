@@ -387,11 +387,11 @@ SET Text = '+2500 [ICON_GOLDEN_AGE] Golden Age Points, and +20 [ICON_INFLUENCE] 
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] Spy Resistance by 50%. When you successfully counter a foreign [ICON_SPY] Espionage action in this City, gain 25 [ICON_CULTURE] Culture and [ICON_GOLD] Gold, scaling with Era and the Level of the foreign [ICON_SPY] Spy.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, and [ICON_CULTURE] Boredom.'
+SET Text = 'Improves City [ICON_SPY] Spy Resistance by 50%. Increases mission duration by 1 turn in the City for Foreign Spies. When you successfully counter a foreign [ICON_SPY] Espionage action in this City, gain 25 [ICON_CULTURE] Culture and [ICON_GOLD] Gold, scaling with Era and the Level of the foreign [ICON_SPY] Spy.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress, [ICON_GOLD] Poverty, [ICON_RESEARCH] Illiteracy, and [ICON_CULTURE] Boredom.'
 WHERE Tag = 'TXT_KEY_BUILDING_POLICE_STATION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] Spy Resistance by 50%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress. '
+SET Text = 'Improves City [ICON_SPY] Spy Resistance by 50%. Increases mission duration by 1 turn in the City for Foreign Spies.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress. '
 WHERE Tag = 'TXT_KEY_BUILDING_CONSTABLE_HELP';
 
 UPDATE Language_en_US
@@ -455,7 +455,7 @@ SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress in all Cities. The National Intelligence Agency provides an additional spy, levels up all your existing spies, and improves City Spy Resistance by 15%. Empires with a lot of offensive spies will benefit greatly from this building. The City must have a Police Station before it can construct the National Intelligence Agency.'
+SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress in all Cities. The National Intelligence Agency provides an additional spy, levels up all your existing spies, and improves City Spy Resistance by 15%. It also decreases mission duration by 1 turn for your Spies and increases mission duration by 2 turns for enemy Spies in the City. Empires with a lot of offensive spies will benefit greatly from this building. The City must have a Police Station before it can construct the National Intelligence Agency.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY';
 
 UPDATE Language_en_US
@@ -498,7 +498,7 @@ SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] Spy Resistance by 15%, provides 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), and levels up all existing [ICON_SPY] Spies. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you succeed in an [ICON_SPY] Espionage action in a foreign City, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Improves City [ICON_SPY] Spy Resistance by 15%, provides 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), and levels up all existing [ICON_SPY] Spies. Spy mission duration decreased by 1 turn for your Spies and increased by 2 turns for enemy Spies in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you successfully complete a [ICON_SPY] Spy Mission in a foreign City, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP';
 
 UPDATE Language_en_US

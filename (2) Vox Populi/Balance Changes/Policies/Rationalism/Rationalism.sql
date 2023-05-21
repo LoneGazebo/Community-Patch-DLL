@@ -106,6 +106,7 @@ SET
 	ExtraHappiness = 0,
 	TechCostXCitiesMod = 0,
 	EspionageModifier = -34,
+	EspionageTurnsModifierEnemy = 2,
 	SpecialistFoodChange = -1
 WHERE Type = 'POLICY_SOVEREIGNTY';
 

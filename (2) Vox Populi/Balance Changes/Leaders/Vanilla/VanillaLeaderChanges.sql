@@ -366,7 +366,7 @@ Set SpyExtraRankBonus = '1'
 WHERE Type = 'TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Traits
-Set EspionageRateModifier = '-25'
+Set EspionageRateModifier = '-10'
 WHERE Type = 'TRAIT_OCEAN_MOVEMENT';
 
 UPDATE Traits
