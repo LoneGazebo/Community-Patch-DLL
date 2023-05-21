@@ -2183,89 +2183,54 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	SetPrimaryVictoryPursuit(eChosenPrimary);
 
 	// Now we pick a secondary pursuit.
-	// Case 1: The default primary pursuit is the one we chose.
+	VictoryPursuitTypes eCandidate = NO_VICTORY_PURSUIT;
+
+	// Case 1: The default primary pursuit is the one we chose. Pick the default secondary pursuit (if any).
 	if (eChosenPrimary == ePrimaryVictory)
 	{
-		// Is there a default secondary pursuit? Then use that, unless the associated victory condition was disabled or Random Personalities is enabled
-		bool bValid = eSecondaryVictory != NO_VICTORY_PURSUIT && !GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES);
-		if (bValid)
-		{
-			if (eSecondaryVictory == VICTORY_PURSUIT_DOMINATION)
-			{
-				if (!bCanConquer || !bDominationVictoryEnabled)
-					bValid = false;
-			}
-			else if (eSecondaryVictory == VICTORY_PURSUIT_DIPLOMACY)
-			{
-				if (!bCanUseLeague || !bDiploVictoryEnabled)
-					bValid = false;
-			}
-			else if (eSecondaryVictory == VICTORY_PURSUIT_CULTURE)
-			{
-				if (!bCanUnlockPolicies || !bCultureVictoryEnabled)
-					bValid = false;
-			}
-			else if (eSecondaryVictory == VICTORY_PURSUIT_SCIENCE)
-			{
-				if (!bCanUnlockTechs || !bScienceVictoryEnabled)
-					bValid = false;
-			}
-		}
-
-		if (bValid)
-			SetSecondaryVictoryPursuit(eSecondaryVictory);
-		// Otherwise go with the second highest scoring pursuit.
-		else if (eChosenPrimary == eHighestScore)
-			SetSecondaryVictoryPursuit(eRunnerUp);
-		else
-			SetSecondaryVictoryPursuit(eHighestScore);
+		eCandidate = eSecondaryVictory;
 	}
-	// Case 2: The default primary pursuit is different from the one we chose.
+	// Case 2: The default primary pursuit is NOT the one we chose, but there is a default primary pursuit. Pick it!
 	else if (eChosenPrimary != ePrimaryVictory && ePrimaryVictory != NO_VICTORY_PURSUIT)
 	{
-		// Use the default primary pursuit as our secondary pursuit unless the associated victory condition was disabled or Random Personalities is enabled
-		bool bValid = ePrimaryVictory != NO_VICTORY_PURSUIT && !GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES);
-		if (bValid)
+		eCandidate = ePrimaryVictory;
+	}
+
+	// Check that our candidate is valid
+	if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+	{
+		bool bValid = true;
+
+		switch (eCandidate)
 		{
-			if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION)
-			{
-				if (!bCanConquer || !bDominationVictoryEnabled)
-					bValid = false;
-			}
-			else if (ePrimaryVictory == VICTORY_PURSUIT_DIPLOMACY)
-			{
-				if (!bCanUseLeague || !bDiploVictoryEnabled)
-					bValid = false;
-			}
-			else if (ePrimaryVictory == VICTORY_PURSUIT_CULTURE)
-			{
-				if (!bCanUnlockPolicies || !bCultureVictoryEnabled)
-					bValid = false;
-			}
-			else if (ePrimaryVictory == VICTORY_PURSUIT_SCIENCE)
-			{
-				if (!bCanUnlockTechs || !bScienceVictoryEnabled)
-					bValid = false;
-			}
+		case NO_VICTORY_PURSUIT:
+			bValid = false;
+			break;
+		case VICTORY_PURSUIT_DOMINATION:
+			bValid = bCanConquer && bDominationVictoryEnabled;
+			break;
+		case VICTORY_PURSUIT_DIPLOMACY:
+			bValid = bCanUseLeague && bDiploVictoryEnabled;
+			break;
+		case VICTORY_PURSUIT_CULTURE:
+			bValid = bCanUnlockPolicies && bCultureVictoryEnabled;
+			break;
+		case VICTORY_PURSUIT_SCIENCE:
+			bValid = bCanUnlockTechs && bScienceVictoryEnabled;
+			break;
 		}
 
 		if (bValid)
-			SetSecondaryVictoryPursuit(ePrimaryVictory);
-		// Otherwise go with the second highest scoring pursuit.
-		else if (eChosenPrimary == eHighestScore)
-			SetSecondaryVictoryPursuit(eRunnerUp);
-		else
-			SetSecondaryVictoryPursuit(eHighestScore);
+		{
+			SetSecondaryVictoryPursuit(eCandidate);
+			return;
+		}
 	}
+
 	// Case 3: No default primary or secondary pursuit in the database (generalist civ, or the modder didn't specify it for a custom civ).
-	else
-	{
-		// Use the second highest scoring pursuit.
-		if (eChosenPrimary == eHighestScore)
-			SetSecondaryVictoryPursuit(eRunnerUp);
-		else
-			SetSecondaryVictoryPursuit(eHighestScore);
-	}
+	// We might also end up here if the pursuit hint is invalid in Case 1 or 2.
+	// In this case, we use the second highest scoring pursuit.
+	SetSecondaryVictoryPursuit(eChosenPrimary == eHighestScore ? eRunnerUp : eHighestScore);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -9160,12 +9125,6 @@ void CvDiplomacyAI::DoUpdateCompetingForVictory()
 				continue;
 			}
 
-			if (WasResurrectedBy(eLoopPlayer))
-			{
-				SetEndgameAggressiveTo(eLoopPlayer, false);
-				continue;
-			}
-
 			if (GET_PLAYER(eLoopPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans() && !IsAtWar(eLoopPlayer))
 			{
 				SetEndgameAggressiveTo(eLoopPlayer, false);
@@ -9559,11 +9518,7 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 	int iDiploBalance = GetDiploBalance();
 	int iTechMod = 0;
 
-	if (IsScientist())
-	{
-		iTechMod++;
-	}
-	else if (GetPlayer()->GetPlayerTraits()->IsNerd())
+	if (IsScientist() || GetPlayer()->GetPlayerTraits()->IsNerd())
 	{
 		iTechMod++;
 	}
@@ -9583,9 +9538,6 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-
-		if (WasResurrectedBy(ePlayer))
-			continue;
 
 		// Don't do this until the Classical Era.
 		if (GetPlayer()->GetCurrentEra() <= 0 && GET_PLAYER(ePlayer).GetCurrentEra() <= 0)
@@ -9685,11 +9637,7 @@ void CvDiplomacyAI::DoUpdatePolicyBlockLevels()
 	int iDiploBalance = GetDiploBalance();
 	int iPolicyMod = 0;
 
-	if (IsCultural())
-	{
-		iPolicyMod++;
-	}
-	else if (GetPlayer()->GetPlayerTraits()->IsTourism())
+	if (IsCultural() || GetPlayer()->GetPlayerTraits()->IsTourism())
 	{
 		iPolicyMod++;
 	}
@@ -9709,9 +9657,6 @@ void CvDiplomacyAI::DoUpdatePolicyBlockLevels()
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-
-		if (WasResurrectedBy(ePlayer))
-			continue;
 
 		// Don't do this until the Classical Era.
 		if (GetPlayer()->GetCurrentEra() <= 0 && GET_PLAYER(ePlayer).GetCurrentEra() <= 0)
@@ -11640,7 +11585,7 @@ void CvDiplomacyAI::DoUpdateEasyTargets()
 			// Minor civ
 			if (GET_PLAYER(ePlayer).isMinorCiv())
 			{
-				if (GetBoldness() > 6)
+				if (GetBoldness() > 6 || GetPlayer()->GetPlayerTraits()->GetCityStateCombatModifier() > 0)
 				{
 					if (GetPlayerTargetValue(ePlayer) >= TARGET_VALUE_AVERAGE)
 					{
@@ -19521,7 +19466,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 
 		// More aggressive if competing for Influence, dig sites or Wonders, more friendly otherwise
-		if (bInfluenceOverUs || bStolenArtifacts || GetWonderDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE)
+		if (bInfluenceOverUs || bStolenArtifacts || GetWonderDisputeLevel(ePlayer) == DISPUTE_LEVEL_FIERCE || IsPlayerWonderSpammer(ePlayer))
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] -= vApproachBias[CIV_APPROACH_FRIENDLY] * iMultiplier;
 			vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * iMultiplier;
