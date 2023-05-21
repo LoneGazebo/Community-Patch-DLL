@@ -101,6 +101,7 @@ public:
 	bool m_bEvaluateReassignment; // used by the AI. Flag to indicate if the spy should be evaluated to be reassigned
 	bool m_bPassive;
 	CityEventChoiceTypes m_eSpyFocus; // focus type for events- events are classified.
+	int m_iTurnSiphonMissionStarted;
 	int m_iYieldSiphon;
 	YieldTypes m_eSiphonYield;
 	CvString m_sSiphonHistory;
@@ -225,10 +226,9 @@ public:
 	void UpdateSpies();
 	void UpdateCity(CvCity* pCity);
 
-	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false, bool bFirstTime = false);
+	int CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
 	int CalcRequired(int iSpyState, CvCity* pCity, int iSpyIndex, bool bGlobalCheck = false);
 
-	int GetSpyPower(CvCity* pCity, int iSpyIndex, int iSpyState);
 	int GetSpyResistanceModifier(CvCity* pCity, bool bConsiderPotentialSpy = false);
 	int GetSpyResistance(CvCity* pCity, bool bConsiderPotentialSpy = false);
 

@@ -11622,7 +11622,7 @@ void CvGame::SetHighestSpyPotential()
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
 					if (iFinalModifier != 0)
 					{
-						pLoopCity->ChangeEspionageRanking(iFinalModifier, iNumSpies > 0);
+						pLoopCity->ChangeEspionageRanking(iFinalModifier, false);
 					}
 				}
 			}

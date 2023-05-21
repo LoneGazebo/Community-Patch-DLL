@@ -259,6 +259,37 @@
 			<Image Anchor="R,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
 		</Box>
 	</Instance>
+	<!-- axatin -->
+	<Instance Name="ActiveMissionsMessageInstance">
+		<Box Size="936,60" Color="0,0,0,0" ID="Base">
+			<Stack Size="936,28" StackGrowth="Right">
+				<Box Size="100,28" Color="0,0,0,0">
+					<Label ID="StartTurnNum" Anchor="L,T" Offset="32,10" TruncateWidth="50" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="100,28" Color="0,0,0,0">
+					<Label ID="EndTurnNum" Anchor="L,T" Offset="32,10" TruncateWidth="50" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="200,28" Color="0,0,0,0">
+					<Image ID="CivIconSpyOwnerBG" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivIconBGSizes.dds" />
+                    <Image ID="CivIconSpyOwnerShadow" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+					<Image ID="CivIconSpyOwner" Texture="CivSymbolsColor256.dds" Anchor="L,T" Size="32,32" Offset="0,0"/>
+					<Label ID="CivilizationNameSpyOwner" Anchor="L,T" Offset="32,10" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="200,28" Color="0,0,0,0">
+					<Image ID="CivIconTargetBG" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivIconBGSizes.dds" />
+                    <Image ID="CivIconTargetShadow" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
+					<Image ID="CivIconTarget" Texture="CivSymbolsColor256.dds" Size="32,32" Anchor="L,T" Offset="0,0"/>
+					<Label ID="CivilizationNameTarget" Anchor="L,T" Offset="32,10" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
+				</Box>
+				<Box Size="336,28" Color="0,0,0,0">
+					<Label ID="Effect" Anchor="L,T" Offset="0,10" WrapWidth="586" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				</Box>
+			</Stack>
+			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
+			<Image Anchor="R,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
+		</Box>
+	</Instance>
+	<!-- END axatin -->
 	<Box Style="BGBlock_ClearTopBar"/>
 	<Grid Size="990,653" Anchor="C,C" Offset="0,6" Padding="0,0" Style="Grid9DetailFive140">
 		<!-- Decoration -->
@@ -297,6 +328,17 @@
 						<!-- Selected State  -->
 						<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="IntrigueSelectHighlight"/>
 					</Button>
+					<!-- axatin -->
+					<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS" ID="TabButtonActiveMissions">
+						<ShowOnMouseOver>
+							<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+								<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+							</AlphaAnim>
+						</ShowOnMouseOver>
+						<!-- Selected State  -->
+						<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="ActiveMissionsSelectHighlight"/>
+					</Button>
+					<!-- END axatin -->
 				</Stack>
 				<Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971.5"/>
 			</Box>
@@ -498,6 +540,46 @@
 				</ScrollPanel>
 				<Label Anchor="C,C" Offset="0,10" WrapWidth="440" ID="NoIntrigueAvailable" Hidden="1" String="TXT_KEY_EO_NO_INTRIGUE_AVAILABLE" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 			</Box>
+			<!-- axatin -->
+			<Box Size="954,463" Offset="0,31" Color="0,0,0,0" ID="ActiveMissionsPanel" Hidden="1">
+				<Stack Size="954,20" StackGrowth="Right" ID="ActiveMissionsMessageHeaders">
+					<Box Size="100,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_START_TURN" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByStartTurn">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByStartTurnImg"/>
+						</TextButton>
+					</Box>
+					<Box Size="100,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_END_TURN" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByEndTurn">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByEndTurnImg"/>
+						</TextButton>
+					</Box>
+					<Box Size="200,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_SPY_OWNER" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortBySpyOwner">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortBySpyOwnerImg"/>
+						</TextButton>
+					</Box>
+					<Box Size="200,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_TARGET" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByTarget">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByTargetImg"/>
+						</TextButton>
+					</Box>
+					<Box Size="336,18" Color="0,0,0,0">
+						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_EFFECT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByEffect">
+							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByEffectImg"/>
+						</TextButton>
+					</Box>
+				</Stack>
+				<ScrollPanel Vertical="1" Size="936,443" Offset="0,24" AutoScrollBar="0" ID="ActiveMissionsMessageScrollPanel">
+					<!-- Scroll Controls -->
+					<ScrollBar Style="VertSlider" Length="427" Anchor="R,C" AnchorSide="O,I"/>
+					<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+					<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+					<Stack StackGrowth="Bottom" ID="ActiveMissionsMessageStack"/>
+				</ScrollPanel>
+				<Label Anchor="C,C" Offset="0,10" WrapWidth="440" ID="NoActiveMissionsAvailable" Hidden="1" String="TXT_KEY_EO_NO_SPY_MISSIONS_ACTIVE" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+			</Box>
+			<!-- END axatin -->
+			
 		</Box>
 		<Box Anchor="C,B" AnchorSide="I.I" Offset="0,54" Size="927,56" Color="255,255,255,0">
 			<!-- Close Button  -->

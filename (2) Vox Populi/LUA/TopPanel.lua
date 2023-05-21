@@ -607,6 +607,30 @@ function ScienceTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_SCIENCE_FROM_MINORS", iScienceFromMinors);
 		end
 		
+		-- Science from Espionage
+		local iScienceFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false);
+		if (iScienceFromEspionage > 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage);
+		elseif (iScienceFromEspionage < 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				bFirstEntry = false;
+			else
+				strText = strText .. "[NEWLINE]";
+			end
+	
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE", iScienceFromEspionage);
+		end
+		
 		-- Let people know that building more cities makes techs harder to get
 		if (not OptionsManager.IsNoBasicHelp()) then
 			strText = strText .. "[NEWLINE][NEWLINE]";
@@ -656,9 +680,15 @@ function GoldTipHandler( control )
 	-- Gold from Vassals
 	local iGoldFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_GOLD);
 	local iGoldFromVassalTax = math.floor(pPlayer:GetMyShareOfVassalTaxes() / 100);
+	-- Gold from Espionage
+	local iGoldFromEspionageIncoming = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_GOLD, true);
+	
 -- END
 -- C4DF CHANGE
 	local fTotalIncome = fGoldPerTurnFromCities + iGoldPerTurnFromOtherPlayers + fCityConnectionGold + iGoldPerTurnFromReligion + fTradeRouteGold + fTraitGold + iMinorGold + iInternalRouteGold + iAnnexedMinorsGold;
+	if (iGoldFromEspionageIncoming > 0) then
+		fTotalIncome = fTotalIncome + iGoldFromEspionageIncoming;
+	end
 	if (iGoldFromVassals > 0) then
 		fTotalIncome = fTotalIncome + iGoldFromVassals;
 	end
@@ -713,6 +743,9 @@ function GoldTipHandler( control )
 	if (iAnnexedMinorsGold > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ANNEXED_MINORS", iAnnexedMinorsGold);
 	end
+	if (iGoldFromEspionageIncoming > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_INCOMING", iGoldFromEspionageIncoming);
+	end
 --END
 	strText = strText .. "[/COLOR]";
 	
@@ -722,6 +755,7 @@ function GoldTipHandler( control )
 -- BEGIN C4DF
 	local iExpenseFromVassalTaxes = pPlayer:GetExpensePerTurnFromVassalTaxes();
 	local iVassalMaintenance = pPlayer:GetVassalGoldMaintenance();
+	local iExpenseFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_GOLD, false);
 -- END C4DF
 	local iTotalExpenses = iUnitCost + iBuildingMaintenance + iImprovementMaintenance + iGoldPerTurnToOtherPlayers;
 -- BEGIN C4DF
@@ -730,6 +764,9 @@ function GoldTipHandler( control )
 	end
 	if (iExpenseFromVassalTaxes > 0) then
 		iTotalExpenses = iTotalExpenses + iExpenseFromVassalTaxes;
+	end
+	if(iExpenseFromEspionage > 0) then
+		iTotalExpenses = iTotalExpenses + iExpenseFromEspionage;
 	end
 -- END C4DF
 --END
@@ -758,6 +795,10 @@ function GoldTipHandler( control )
 	-- Gold from Vassal Tax
 	if (iExpenseFromVassalTaxes > 0) then
 		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_VASSAL_TAX", iExpenseFromVassalTaxes);
+	end
+	-- Gold From Espionage
+	if (iExpenseFromEspionage > 0) then
+		strText = strText .. "[NEWLINE]  [ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING", iExpenseFromEspionage);
 	end
 --  END
 	strText = strText .. "[/COLOR]";
@@ -1203,6 +1244,31 @@ function CultureTipHandler( control )
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", iCultureFromAnnexedMinors);
 		end
+		
+		-- Culture from Espionage
+		local iCultureFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, false);
+		
+		if (iCultureFromEspionage > 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				strText = strText .. "[NEWLINE]";
+				bFirstEntry = false;
+			end
+
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE", iCultureFromEspionage);
+		elseif (iCultureFromEspionage < 0) then
+		
+			-- Add separator for non-initial entries
+			if (bFirstEntry) then
+				strText = strText .. "[NEWLINE]";
+				bFirstEntry = false;
+			end
+
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE", iCultureFromEspionage);
+		end
 -- END
 
 		-- Culture from Religion
@@ -1235,7 +1301,7 @@ function CultureTipHandler( control )
 		end
 		
 		-- Culture from Golden Age (COMMUNITY PATCH EDIT)
-		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCultureFromAnnexedMinors - iCultureFromVassals; -- last part added (COMMUNITY PATCH)
+		local iCultureFromGoldenAge = pPlayer:GetTotalJONSCulturePerTurn() - iCultureForFree - iCultureFromCities - iCultureFromHappiness - iCultureFromMinors - iCultureFromReligion - iCultureFromTraits - iCultureFromBonusTurns - iCultureFromAnnexedMinors - iCultureFromVassals - iCultureFromEspionage; -- last part added (COMMUNITY PATCH)
 		if (iCultureFromGoldenAge ~= 0) then
 		
 			-- Add separator for non-initial entries
@@ -1358,14 +1424,24 @@ function FaithTipHandler( control )
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_RELIGION", iFaithFromReligion);
 		end
 -- C4DF
+		-- Faith from Vassals
 		local iFaithFromVassals = pPlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH);
 		if (iFaithFromVassals ~= 0) then
 			strText = strText .. "[NEWLINE]";
 			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_VASSALS", iFaithFromVassals);
 		end
+		-- Faith from Espionage
+		local iFaithFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, false);
+		if (iFaithFromEspionage > 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", iFaithFromEspionage);
+		elseif (iFaithFromEspionage < 0) then
+			strText = strText .. "[NEWLINE]";
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", iFaithFromEspionage);
+		end
 -- END	
 		
-		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0 or iFaithFromAnnexedMinors ~= 0 or iFaithFromVassals ~= 0) then
+		if (iFaithFromCities ~= 0 or iFaithFromMinorCivs ~= 0 or iFaithFromReligion ~= 0 or iFaithFromAnnexedMinors ~= 0 or iFaithFromVassals ~= 0 or iFaithFromEspionage ~= 0) then
 			strText = strText .. "[NEWLINE]";
 		end
 	

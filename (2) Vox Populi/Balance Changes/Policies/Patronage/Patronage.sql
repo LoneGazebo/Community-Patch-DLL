@@ -67,6 +67,7 @@ SET
 	TradeRouteTourismModifier = 15,
 	IncreasedQuestRewards = 50,
 	FreeSpy = 1,
+	EspionageTurnsModifierFriendly = -1,
 	PortraitIndex = 39
 WHERE Type = 'POLICY_PHILANTHROPY';
 
@@ -88,6 +89,7 @@ UPDATE Policies
 SET
 	MissionInfluenceModifier = 10,
 	MinorScienceAllies = 1,
+	EspionageTurnsModifierFriendly = -1,
 	PortraitIndex = 37
 WHERE Type = 'POLICY_SCHOLASTICISM';
 

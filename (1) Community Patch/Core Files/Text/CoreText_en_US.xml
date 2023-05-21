@@ -6671,6 +6671,19 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE">
 			<Text>Security concerns over the recent coup attempt have faded, and security in {1_City} is returning to normal. [COLOR_POSITIVE_TEXT]Coups[ENDCOLOR] are once again possible against this City-State.</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_SUCCESS_S">
+			<Text>Foreign Coup in {1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_SUCCESS">
+			<Text>An unknown civilization staged a coup in {1_CityName}, ousted the {2_CivAdj} supporters, and installed their own supporters in the government to become the new ally of the city-state.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_FAILURE_S">
+			<Text>Foreign Coup in {1_CityName} Failed</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_FAILURE">
+			<Text>An unknown civilization attempted a coup in {1_CityName} but failed to overthrow the {2_CivAdj} supporters that have an alliance with the city-state.</Text>
+		</Row>
 
 		<!-- Text for 3rd Party Brokering -->
 		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR">
@@ -7534,19 +7547,11 @@
 			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Buildings (+{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num}%)</Text>
 		</Row>
 		
-		<Row Tag="TXT_KEY_CITY_DEFENSIVE_BONUSES_AGAINST">
-			<Text>[NEWLINE]  [ICON_BULLET]Our [ICON_SPY] Spies operate: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% more slowly.</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY">
 			<Text>[COLOR_POSITIVE_TEXT][NEWLINE]Chance of catching enemy spies increased by {1_Num}% because of Policies.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_AGAINST">
 			<Text>[COLOR_NEGATIVE_TEXT][NEWLINE]Chance of catching our spies increased by {1_Num}% because of Policies.[ENDCOLOR]</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_POTENTIAL">
-			<Text>[COLOR_POSITIVE_TEXT]Possible outcomes while defending:[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_SPY_INTRIGUE_DISCOVERED">
@@ -7570,67 +7575,6 @@
 
 		<Row Tag="TXT_KEY_ESPIONAGE_MISSION_BASE_DURATION">
 			<Text>Base Mission Duration: {1_Num} Turns</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_POWER">
-			<Text>[COLOR_POSITIVE_TEXT]Total Spy Power in this City:[ENDCOLOR] [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_POWER_MODIFIER">
-			<Text>[NEWLINE]  [ICON_BULLET] Spy Power Modifier: [COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_SECURITY_MODIFIER">
-			<Text>[NEWLINE]  [ICON_BULLET] City Resistance Modifier: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_BASE_POWER">
-			<Text>Base Spy Power: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_GAMESPEED_NEGATIVE_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Game Speed: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_GAMESPEED_POSITIVE_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Game Speed: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_OUR_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_STAR] Policies and Wonders: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Rank Modifier: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_OB">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_INTERNATIONAL_TRADE] Open Borders: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_INFLUENCE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_TOURISM] Cultural Influence over them: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_RESISTANCE_MOD_POSITIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Resistance: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_RESISTANCE_MOD_NEGATIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY_POSITIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Fewer Policies than us: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_POLICY_NEGATIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_CULTURE] More Policies than us: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH_POSITIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_RESEARCH] Fewer Techs than us: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_TECH_NEGATIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_RESEARCH] More Techs than us: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_MOD_REPEAT">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Previous Spy Missions: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_WONDERCONSTRUCT_POSITIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Constructing a Wonder: [COLOR_NEGATIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_DETAIL_SPY_WONDERCONSTRUCT_NEGATIVE">
-			<Text>[NEWLINE]  [ICON_BULLET] [ICON_SPY] Constructing a Wonder: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_CITY_SECURITY">
-			<Text>[COLOR_NEGATIVE_TEXT]Total City Resistance against our Spies: {1_Num}[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RELIGOUS_PRESSURE">

@@ -1465,6 +1465,8 @@ protected:
 	static int lGetDisabledTooltip (lua_State* L);
 	static int lGetScaledEventChoiceValue (lua_State* L);
 	static int lGetEspionageValues(lua_State* L);
+	static int lGetYieldPerTurnFromEspionageEvents(lua_State* L);
+	static int lGetActiveEspionageEvents(lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);
 	static int lDoEventChoice (lua_State* L);
 	static int lDoStartEvent (lua_State* L);

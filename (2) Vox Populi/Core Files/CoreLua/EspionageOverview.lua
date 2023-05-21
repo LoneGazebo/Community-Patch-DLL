@@ -13,6 +13,7 @@ local g_MyCityButtonManager = GenerationalInstanceManager:new("MyCityButtonInsta
 local g_TheirCityManager = GenerationalInstanceManager:new( "TheirCityInstance", "Base", Controls.TheirCityStack);
 local g_TheirCityButtonManager = GenerationalInstanceManager:new( "TheirCityButtonInstance", "Base", Controls.TheirCityStack);
 local g_IntrigueManager = GenerationalInstanceManager:new( "IntrigueMessageInstance", "Base", Controls.IntrigueMessageStack);
+local g_ActiveMissionsManager = GenerationalInstanceManager:new( "ActiveMissionsMessageInstance", "Base", Controls.ActiveMissionsMessageStack);
 
 
 local g_PreviousLocationBoxColor = "231,213,0,255";
@@ -83,6 +84,11 @@ g_Tabs = {
 	["Intrigue"] = {
 		Panel = Controls.IntriguePanel,
 		SelectHighlight = Controls.IntrigueSelectHighlight,
+	},
+	
+	["Active Missions"] = {
+		Panel = Controls.ActiveMissionsPanel,
+		SelectHighlight = Controls.ActiveMissionsSelectHighlight,
 	},
 }
 
@@ -201,10 +207,51 @@ g_IntrigueSortOptions = {
 	},
 };
 
+g_ActiveMissionsSortOptions = {
+	{
+		Button = Controls.ActiveMissionsSortByStartTurn,
+		ImageControl = Controls.ActiveMissionsSortByStartTurnImg,
+		Column = "StartTurn",
+		DefaultDirection = "desc",
+		CurrentDirection = "desc",
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.ActiveMissionsSortByEndTurn,
+		ImageControl = Controls.ActiveMissionsSortByEndTurnImg,
+		Column = "EndTurn",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+	{
+		Button = Controls.ActiveMissionsSortBySpyOwner,
+		ImageControl = Controls.ActiveMissionsSortBySpyOwnerImg,
+		Column = "SpyOwner",
+		DefaultDirection = "asc",
+		CurrentDirection = nil,
+	},
+	{
+		Button = Controls.ActiveMissionsSortByTarget,
+		ImageControl = Controls.ActiveMissionsSortByTargetImg,
+		Column = "Target",
+		DefaultDirection = "asc",
+		CurrentDirection = nil,
+	},
+	{
+		Button = Controls.ActiveMissionsSortByEffect,
+		ImageControl = Controls.ActiveMissionsSortByEffectImg,
+		Column = "Effect",
+		DefaultDirection = "asc",
+		CurrentDirection = nil,
+	},
+};
+
 g_AgentsSortFunction = nil;
 g_YourCitiesSortFunction = nil;
 g_TheirCitiesSortFunction = nil;
 g_IntrigueSortFunction = nil;
+g_ActiveMissionsSortFunction = nil;
 
 g_CurrentTab = nil;		-- The currently selected Tab.
 
@@ -321,6 +368,7 @@ function TabSelect(tab)
 end
 Controls.TabButtonOverview:RegisterCallback( Mouse.eLClick, function() TabSelect("Overview"); end);
 Controls.TabButtonIntrigue:RegisterCallback( Mouse.eLClick, function() TabSelect("Intrigue"); end );
+Controls.TabButtonActiveMissions:RegisterCallback( Mouse.eLClick, function() TabSelect("Active Missions"); end );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -776,7 +824,7 @@ end
 
 function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, selectedAgentCurrentCityID, citiesAvailableForRelocate)
 
-	print("Refreshing My Cities");
+	--print("Refreshing My Cities");
 	local map = Map;
 	local pActivePlayer = Players[Game.GetActivePlayer()];
 	local eActiveTeam = pActivePlayer:GetTeam();
@@ -1067,12 +1115,19 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 							entry.AllyIconBG:SetHide(false);
 							entry.AllyIconShadow:SetHide(false);
 							entry.AllyIconHighlight:SetHide(false);
-							CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
-							--ENGINSEER EDIT
+							--ENGINSEER AND AXATIN EDIT
 							if iCityAlly ~= Game.GetActivePlayer() then
-								strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_TT", Players[iCityAlly]:GetCivilizationShortDescription(), pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
+								local bHasMet = Teams[Game.GetActiveTeam()]:IsHasMet(Players[iCityAlly]:GetTeam());
+								if (bHasMet == true) then
+									strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_TT", Players[iCityAlly]:GetCivilizationShortDescription(), pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
+									CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+								else
+									strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_UNKNOWN_TT", pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
+									CivIconHookup(-1, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+								end
 							else
 								strAllyToolTip = Locale.Lookup("TXT_KEY_ALLY_CBP_SPY", Players[iCityAlly]:GetCivilizationDescriptionKey());
+								CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
 							end
 							--END
 							entry.AllyName:SetToolTipString(strAllyToolTip);
@@ -1457,6 +1512,7 @@ function Refresh()
 		RefreshMyCities();
 		RefreshTheirCities();
 		RefreshIntrigue();
+		RefreshActiveMissions();
 	end
 end
 Events.SerialEventEspionageScreenDirty.Add(Refresh);
@@ -1560,6 +1616,107 @@ function RefreshIntrigue()
 	Controls.IntrigueMessageScrollPanel:CalculateInternalSize();
 end
 
+function RefreshActiveMissions()
+	local iActivePlayer = Game.GetActivePlayer()
+	local pActivePlayer = Players[iActivePlayer];
+	local activeMissionsMessages = pActivePlayer:GetActiveEspionageEvents();
+
+	g_ActiveMissionsManager:ResetInstances();
+
+	if(#activeMissionsMessages == 0) then
+		Controls.ActiveMissionsMessageHeaders:SetHide(true);
+		Controls.ActiveMissionsMessageScrollPanel:SetHide(true);
+		Controls.NoActiveMissionsAvailable:SetHide(false);
+	else
+
+		local sortedMessages = {};
+
+		for i,v in ipairs(activeMissionsMessages) do
+			
+			local iSpyOwner = iActivePlayer;
+			local iTargetedPlayer = iActivePlayer;
+			if (v.bIncoming == true) then
+				iTargetedPlayer = v.OtherPlayer;
+			else
+				iSpyOwner = v.OtherPlayer;
+			end
+
+			local pSpyOwner = Players[iSpyOwner];
+			local pTargetedPlayer = Players[iTargetedPlayer];
+			
+			local strLeaderNameSpyOwner = "";
+			if(v.bIncoming == false and v.bIdentified == false) then -- we do not know which player stole from use
+				strLeaderNameSpyOwner = Locale.Lookup("TXT_KEY_RO_WR_UNKNOWN_CIV");
+				iSpyOwner = -1;
+			else
+				if(pSpyOwner:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+					strLeaderNameSpyOwner = pSpyOwner:GetNickName();
+				else
+					strLeaderNameSpyOwner = pSpyOwner:GetName();
+				end
+			end
+			
+			local strLeaderNameTarget = "";
+			if(pTargetedPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+				strLeaderNameTarget = pTargetedPlayer:GetNickName();
+			else
+				strLeaderNameTarget = pTargetedPlayer:GetName();
+			end
+
+			local pYield = GameInfo.Yields[v.Yield];
+			local tempstr = Locale.Lookup("TXT_KEY_EVENT_YIELD_SCALED",pYield.Description,pYield.IconString,v.Amount);
+			local strEffect = "";
+			if(v.bIncoming == true) then
+				strEffect = Locale.Lookup("TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE",tempstr);
+			else
+				strEffect = Locale.Lookup("TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE_ENEMY",tempstr);
+			end	
+			
+			sortedMessages[i] = {
+				StartTurn = v.StartTurn,
+				EndTurn = v.EndTurn,
+				strSpyOwner = strLeaderNameSpyOwner,
+				iSpyOwner = iSpyOwner,
+				strTarget = strLeaderNameTarget,
+				iTarget = iTargetedPlayer,
+				Effect = strEffect
+			}
+		end
+
+		table.sort(sortedMessages, g_ActiveMissionsSortFunction);
+
+		Controls.ActiveMissionsMessageHeaders:SetHide(false);
+		Controls.ActiveMissionsMessageScrollPanel:SetHide(false);
+		Controls.NoActiveMissionsAvailable:SetHide(true);
+
+		local bTickTock = true;
+		for i,v in ipairs(sortedMessages) do
+
+			local instance = g_ActiveMissionsManager:GetInstance();
+			instance.Base:SetColorVal(unpack(bTickTock and g_PianoKeys[0] or g_PianoKeys[1]));
+			instance.StartTurnNum:SetText(v.StartTurn);
+			instance.EndTurnNum:SetText(v.EndTurn);
+			instance.Effect:SetString(v.Effect);
+
+			local width, height = instance.Effect:GetSizeVal();
+			local baseWidth, baseHeight = instance.Base:GetSizeVal();
+			instance.Base:SetSizeVal(baseWidth, height + 22);
+			CivIconHookup(v.iSpyOwner, 32, instance.CivIconSpyOwner, instance.CivIconSpyOwnerBG, instance.CivIconSpyOwnerShadow, false, true);
+			instance.CivilizationNameSpyOwner:SetText(v.strSpyOwner);
+			
+			CivIconHookup(v.iTarget, 32, instance.CivIconTarget, instance.CivIconTargetBG, instance.CivIconTargetShadow, false, true);
+			instance.CivilizationNameTarget:SetText(v.strTarget);
+
+			bTickTock = not bTickTock;
+		end
+	end
+
+	Controls.ActiveMissionsMessageStack:CalculateSize();
+	Controls.ActiveMissionsMessageStack:ReprocessAnchoring();
+	Controls.ActiveMissionsMessageScrollPanel:CalculateInternalSize();
+end
+
+
 -------------------------------------------------------------------------------
 -- Sorting Support
 -------------------------------------------------------------------------------
@@ -1619,16 +1776,24 @@ function RegisterSortOptions()
 			v.Button:RegisterCallback(Mouse.eLClick, function() IntrigueSortOptionSelected(v); end);
 		end
 	end
+	
+	for i,v in ipairs(g_ActiveMissionsSortOptions) do
+		if(v.Button ~= nil) then
+			v.Button:RegisterCallback(Mouse.eLClick, function() ActiveMissionsSortOptionSelected(v); end);
+		end
+	end
 
 	UpdateSortOptionsDisplay(g_AgentsSortOptions);
 	UpdateSortOptionsDisplay(g_YourCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_TheirCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_IntrigueSortOptions);
+	UpdateSortOptionsDisplay(g_ActiveMissionsSortOptions);
 
 	g_AgentsSortFunction = GetSortFunction(g_AgentsSortOptions);
 	g_YourCitiesSortFunction = GetSortFunction(g_YourCitiesSortOptions);
 	g_TheirCitiesSortFunction = GetSortFunction(g_TheirCitiesSortOptions);
 	g_IntrigueSortFunction = GetSortFunction(g_IntrigueSortOptions);
+	g_ActiveMissionsSortFunction = GetSortFunction(g_ActiveMissionsSortOptions);
 
 end
 
@@ -1728,6 +1893,15 @@ function IntrigueSortOptionSelected(option)
 	g_IntrigueSortFunction = GetSortFunction(sortOptions);
 
 	RefreshIntrigue();
+end
+
+function ActiveMissionsSortOptionSelected(option)
+	local sortOptions = g_ActiveMissionsSortOptions;
+	UpdateSortOptionState(sortOptions, option);
+	UpdateSortOptionsDisplay(sortOptions);
+	g_ActiveMissionsSortFunction = GetSortFunction(sortOptions);
+
+	RefreshActiveMissions();
 end
 
 ----------------------------------------------------------------

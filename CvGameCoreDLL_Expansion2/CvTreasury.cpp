@@ -446,6 +446,9 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// Annexed City-States (Rome UA)
 	iNetGold += m_pPlayer->GetGoldPerTurnFromAnnexedMinors() * 100;
 
+	//Espionage Events
+	iNetGold += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_GOLD, true) * 100;
+
 	return iNetGold;
 }
 /// Gross income across entire game
@@ -608,6 +611,7 @@ int CvTreasury::CalculateTotalCosts()
 	iTotalCosts += GetVassalGoldMaintenance();
 	iTotalCosts += GetExpensePerTurnFromVassalTaxes();
 	iTotalCosts += MOD_BALANCE_CORE_JFD ? GetContractGoldMaintenance() : 0;
+	iTotalCosts += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_GOLD, false);
 
 	return iTotalCosts;
 }

@@ -362,6 +362,32 @@
 			<Text>{1_Num} from conquered City-States.</Text>
 		</Row>
 		
+		<!-- Espionage Events -->
+		<Row Tag="TXT_KEY_TP_GOLD_FROM_ESPIONAGE_INCOMING">
+			<Text>{1_Num} from [ICON_SPY] Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING">
+			<Text>{1_Num} from [ICON_SPY] Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE">
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE">
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE">
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Espionage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE">
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Espionage.</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_NOTIFICATION_ANNEXED_CITY_STATE_UNIT_SPAWN">
 			<Text>The conquered City-State of {1_CivName:textkey} has given you a new Unit!</Text>
 		</Row>
@@ -526,6 +552,39 @@
 		<Row Tag="TXT_KEY_EO_SPY_RIGGING_NO_COUP_POSSIBLE">
 			<Text>[COLOR_NEGATIVE_TEXT]Rigging elections does not increase the success chance of a coup because no coup is possible in this city-state.[ENDCOLOR]</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS">
+			<Text>Active Spy Effects</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_START_TURN">
+			<Text>Start Turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_END_TURN">
+			<Text>End Turn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_TARGET">
+			<Text>Targeted Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_SPY_OWNER">
+			<Text>Spy Owner</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_EFFECT">
+			<Text>Effect</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_NO_SPY_MISSIONS_ACTIVE">
+			<Text>No Active Spy Effects</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_SPY_MISSION_TURN_MODIFIER_FRIENDLY">
+			<Text>Our Buildings and Policies: -{1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_MISSION_TURN_MODIFIER_ENEMY">
+			<Text>Enemy Buildings and Policies: +{1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
+		</Row>
+		
+		
+		
+		
 
 		<!-- Feitoria Production Tooltip-->
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_PRODUCTION">
