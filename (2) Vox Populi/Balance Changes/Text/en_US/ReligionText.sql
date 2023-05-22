@@ -50,7 +50,7 @@ SET Text = 'God of the Expanse'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+34% faster border growth. Gain 20 [ICON_PEACE] Faith and 10 [ICON_PRODUCTION] Production every time a City expands its borders naturally, scaling with game speed.'
+SET Text = '+34% Faster [ICON_CULTURE_LOCAL] Border Growth. Gain 20 [ICON_PEACE] Faith and 10 [ICON_PRODUCTION] Production every time a City expands its borders naturally, scaling with game speed.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS';
 
 
