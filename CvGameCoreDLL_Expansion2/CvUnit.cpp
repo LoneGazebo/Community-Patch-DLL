@@ -30112,8 +30112,10 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 {
 	//first check if we can continue building on the current plot
 	BuildTypes eBestBuild = NO_BUILD;
-	GetBestBuildRoute(plot(), &eBestBuild);
-	if(eBestBuild != NO_BUILD && UnitBuild(eBestBuild))
+	RouteTypes eBestRoute = GetBestBuildRoute(plot(), &eBestBuild);
+	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(getOwner()).GetBuilderTaskingAI();
+	bool bGetSameBenefitFromTrait = eBuilderTaskingAi->GetSameRouteBenefitFromTrait(plot(), eBestRoute);
+	if(!bGetSameBenefitFromTrait && eBestBuild != NO_BUILD && UnitBuild(eBestBuild))
 		return true;
 
 	//are we at the target plot? then there's nothing else to do
@@ -30126,7 +30128,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 
 	//ok apparently we both can move and need to move
 	//do not use the path cache here, the step finder tells us where to put the route
-	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE);
+	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,eBestRoute);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 
 	//index zero is the current plot!
