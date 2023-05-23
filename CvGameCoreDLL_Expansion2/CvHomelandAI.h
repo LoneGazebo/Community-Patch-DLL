@@ -314,7 +314,7 @@ private:
 
 	void UnitProcessed(int iID);
 	CvPlot* ExecuteWorkerMove(CvUnit* pUnit);
-	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
+	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const map<int,ReachablePlots>& allWorkersReachablePlots);
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;

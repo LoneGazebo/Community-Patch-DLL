@@ -74,8 +74,8 @@ public:
 	void Update(void);
 	void UpdateRoutePlots(void);
 
-	CvUnit* FindBestWorker(const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
-	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
+	CvUnit* FindBestWorker(const map<int, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
+	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const map<int,ReachablePlots>& allWorkersReachablePlots);
 
 	void AddImprovingResourcesDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
 	void AddImprovingPlotsDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);

@@ -607,8 +607,8 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 		data.iMaxNormalizedDistance = m_pPlayer->GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 
 		//get all paths
-		map<CvPlot*, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
-		for (map<CvPlot*, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
+		map<int, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
+		for (map<int, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
 			//the paths may contain not-yet-existing canals but the path cost for them is very high
 			//so they should only be used if there really is no other way.
@@ -838,7 +838,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	}
 }
 
-CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const
+CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<int, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const
 {
 	if (!pTarget)
 		return NULL;
@@ -846,23 +846,25 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 	int iBestScore = INT_MAX;
 	CvUnit* pBestWorker = NULL;
 
-	for (std::map<CvUnit*, ReachablePlots>::const_iterator itUnit = allWorkersReachablePlots.begin(); itUnit != allWorkersReachablePlots.end(); ++itUnit)
+	for (std::map<int, ReachablePlots>::const_iterator itUnit = allWorkersReachablePlots.begin(); itUnit != allWorkersReachablePlots.end(); ++itUnit)
 	{
 		ReachablePlots::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 		if (itPlot == itUnit->second.end())
 			continue;
 
+		CvUnit* currentUnit = m_pPlayer->getUnit(itUnit->first);
+
 		int iTurns = itPlot->iPathLength;
 		//-1 means the plot is already targeted by another worker
 		if (iTurns < 0)
-			return itUnit->first;
+			return currentUnit;
 
 		//use distance as a tiebreaker
-		int iScore = iTurns * 100 + plotDistance(*itUnit->first->plot(), *pTarget);
+		int iScore = iTurns * 100 + plotDistance(*currentUnit->plot(), *pTarget);
 		if (iScore < iBestScore)
 		{
 			iBestScore = iScore;
-			pBestWorker = itUnit->first;
+			pBestWorker = currentUnit;
 		}
 	}
 
@@ -870,7 +872,7 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 }
 
 /// Use the flavor settings to determine what the worker should do
-BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
+BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<int,ReachablePlots>& allWorkersReachablePlots)
 {
 	vector<OptionWithScore<BuilderDirective>> directives;
 
@@ -899,7 +901,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 	}
 
 	// go through all the plots this unit can reach
-	map<CvUnit*, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit);
+	map<int, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit->GetID());
 	if (thisUnitPlots == allWorkersReachablePlots.end())
 		return BuilderDirective();
 

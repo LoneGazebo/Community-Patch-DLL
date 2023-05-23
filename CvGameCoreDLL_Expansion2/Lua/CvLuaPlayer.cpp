@@ -11521,9 +11521,9 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 		return 0;
 
 	//fake the reachable plots, ignore all other workers
-	map<CvUnit*, ReachablePlots> allplots;
+	map<int, ReachablePlots> allplots;
 	SPathFinderUserData data(pWorkerUnit, 0, 3);
-	allplots[pWorkerUnit] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
+	allplots[pWorkerUnit->GetID()] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
 
 	BuilderDirective aDirective = pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit,allplots);
 	if(aDirective.m_eDirective == BuilderDirective::NUM_DIRECTIVES)

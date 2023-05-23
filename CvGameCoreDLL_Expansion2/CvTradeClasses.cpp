@@ -203,14 +203,15 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
 
 		//get all paths
-		map<CvPlot*,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-		for (map<CvPlot*,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
+		map<int,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (map<int,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
 		{
+			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == it->first)
+			if (pOriginCity->plot() == plot)
 				continue;
 
-			CvCity* pDestCity = it->first->getPlotCity();
+			CvCity* pDestCity = plot->getPlotCity();
 			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
@@ -220,14 +221,15 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.ePathType = PT_TRADE_LAND;
 
 		//get all paths
-		map<CvPlot*,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-		for (map<CvPlot*,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
+		map<int,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (map<int,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
 		{
+			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == it->first)
+			if (pOriginCity->plot() == plot)
 				continue;
 
-			CvCity* pDestCity = it->first->getPlotCity();
+			CvCity* pDestCity = plot->getPlotCity();
 			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
