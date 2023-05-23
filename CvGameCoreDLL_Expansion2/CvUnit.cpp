@@ -7338,7 +7338,7 @@ void CvUnit::setTacticalMove(AITacticalMove eMove)
 	//sanity check (ignore units in armies ... especially escorts)
 	if (m_eTacticalMove != AI_TACTICAL_MOVE_NONE && eMove != AI_TACTICAL_MOVE_NONE && m_eTacticalMove != eMove && getArmyID()==-1)
 	{
-		CvString msg = CvString::format("Warning, overwriting tactical move %s with %s\n", tacticalMoveNames[m_eTacticalMove], tacticalMoveNames[eMove] );
+		CvString msg = CvString::format("Warning, overwriting tactical move %s with %s for unit %d\n", tacticalMoveNames[m_eTacticalMove], tacticalMoveNames[eMove], m_iID);
 		OutputDebugString(msg.c_str());
 	}
 #endif
