@@ -1475,7 +1475,7 @@ WHERE Type IN (
 -- Renaissance T2
 UPDATE Buildings SET NationalPopRequired = '30'
 WHERE Type IN (
-	'BUILDINGCLASS_HERMITAGE'
+	'BUILDING_HERMITAGE'
 );
 
 -- Modern T2 + Ideology NW

@@ -339,7 +339,7 @@ SET Text = 'Mehal Sefari are the backbone of the Ethiopian army. They start with
 WHERE Tag = 'TXT_KEY_UNIT_MEHAL_SEFARI_STRATEGY';
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_STELE_HELP', '+34% faster border growth in this City. +25% [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.');
+VALUES ('TXT_KEY_BUILDING_STELE_HELP', '+34% Faster [ICON_CULTURE_LOCAL] Border Growth in this City. +25% [ICON_PEACE] Faith during [ICON_GOLDEN_AGE] Golden Ages.');
 
 --------------------
 -- France

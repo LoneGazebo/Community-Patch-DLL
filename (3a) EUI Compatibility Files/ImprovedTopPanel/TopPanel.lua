@@ -2914,7 +2914,7 @@ for resource in GameInfo.Resources() do
 		ContextPtr:BuildInstanceForControlAtIndex( "ResourceInstance", instance, Controls.TopPanelDiploStack, 8 )
 		g_resourceString[ resourceID ] = instance
 		IconHookup( resource.PortraitIndex, 45, resource.IconAtlas, instance.Image )
-		instance.Image:SetTextureSizeVal( 32, 32 ) --lower numbers look bigger
+		instance.Image:SetTextureSizeVal( 42, 42 ) --lower numbers look bigger
 		instance.Image:NormalizeTexture()
 
 		instance.Count:SetVoid1( resourceID )
