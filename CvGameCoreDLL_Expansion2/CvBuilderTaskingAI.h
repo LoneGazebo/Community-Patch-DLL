@@ -74,16 +74,16 @@ public:
 	void Update(void);
 	void UpdateRoutePlots(void);
 
-	CvUnit* FindBestWorker(const map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
-	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots);
+	CvUnit* FindBestWorker(const map<int, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const;
+	BuilderDirective EvaluateBuilder(CvUnit* pUnit, const map<int,ReachablePlots>& allWorkersReachablePlots);
 
-	void AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
-	void AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
-	void AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
-	void AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
-	void AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
-	void AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
-	void AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
+	void AddImprovingResourcesDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
+	void AddImprovingPlotsDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
+	void AddRouteDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
+	void AddRemoveRouteDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
+	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
+	void AddRepairTilesDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
+	void AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway);
 
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // determines all the logistics if the builder should get to the plot
 
@@ -99,7 +99,7 @@ public:
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 	bool GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const;
 
-	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
+	int ScorePlotBuild(CvUnit* pUnit, CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
 
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
 	BuildTypes GetRepairBuild(void);
@@ -115,7 +115,7 @@ public:
 protected:
 
 	void LogFlavors(FlavorTypes eFlavor);
-	void LogDirectives(CvUnit* pUnit);
+	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit);
 	void LogDirective(BuilderDirective directive, CvUnit* pUnit, int iWeight, bool bChosen = false);
 
 	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100);
@@ -132,7 +132,6 @@ protected:
 
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
-	vector<OptionWithScore<BuilderDirective>> m_aDirectives;
 
 	//plotindex,type,value
 	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;

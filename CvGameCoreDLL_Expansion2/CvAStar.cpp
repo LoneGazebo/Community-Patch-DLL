@@ -2841,14 +2841,14 @@ ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SP
 	return GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
 }
 
-map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<CvPlot*> vDestPlots, const SPathFinderUserData& data)
+map<int,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<CvPlot*> vDestPlots, const SPathFinderUserData& data)
 {
 	//make sure we don't call this from dll and lua at the same time
 	bool bHadLock = gDLL->HasGameCoreLock();
 	if(!bHadLock)
 		gDLL->GetGameCoreLock();
 
-	map<CvPlot*,SPath> result;
+	map<int,SPath> result;
 
 	if (!Configure(data) || !pStartPlot)
 	{
@@ -2909,7 +2909,8 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 				std::reverse(path.vPlots.begin(),path.vPlots.end());
 
 				//store it
-				result[ *bounds.first ] = path;
+				
+				result[ (*bounds.first)->GetPlotIndex() ] = path;
 			}
 
 			//don't need to check this again

@@ -3470,8 +3470,8 @@ bool CvUnit::isActionRecommended(int iAction)
 		//fake this, we're really only interested in one plot
 		ReachablePlots plots;
 		plots.insertWithIndex(SMovePlot(plot()->GetPlotIndex()));
-		map<CvUnit*, ReachablePlots> allplots;
-		allplots[this] = plots;
+		map<int, ReachablePlots> allplots;
+		allplots[this->GetID()] = plots;
 
 		BuilderDirective aDirective = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this,allplots);
 		if(aDirective.m_eDirective != BuilderDirective::NUM_DIRECTIVES && aDirective.m_eBuild == eBuild)
