@@ -3,6 +3,8 @@ To create a test version, you do not need to follow as many steps as for a publi
 PREREQUISITES
 - Installed ModBuddy
 - Installed all the tools required to build the DLL
+- Installed a Git editor, such as GitHub Desktop
+- Cloned local copy of the repository
 - Installed Python with integration into PATH (if testing the DLL)
 
 Tip: You may wish to create the test version in a *COPY* of your repository folder, since ModBuddy will create junk files.

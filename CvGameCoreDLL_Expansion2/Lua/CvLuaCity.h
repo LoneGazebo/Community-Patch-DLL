@@ -173,6 +173,7 @@ protected:
 	static int lIsCapital(lua_State* L);
 	static int lIsOriginalCapital(lua_State* L);
 	static int lIsOriginalMajorCapital(lua_State* L);
+	static int lGetOwnerForDominationVictory(lua_State* L);
 	static int lIsCoastal(lua_State* L);
 	LUAAPIEXTN(IsAddsFreshWater, bool);
 	LUAAPIEXTN(FoodConsumptionSpecialistTimes100, int);

@@ -9,6 +9,8 @@ PREREQUISITES
 - Installed ModBuddy
 - Installed Python with integration into PATH
 - Installed all the tools required to build the DLL
+- Installed a Git editor, such as GitHub Desktop
+- Cloned local copy of the repository
 
 Tip #1: You may wish to create the autoinstaller in a *COPY* of your repository folder, since ModBuddy will create junk files.
 Tip #2: Make sure to merge necessary changes and test your changes to the database and DLL before creating a new release.

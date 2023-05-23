@@ -576,7 +576,7 @@ CvPlayer::CvPlayer() :
 	, m_bNullifyInfluenceModifier()
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_aistrInstantYield()
+	, m_aistrInstantYield() // not serialized
 	, m_aistrInstantGreatPersonProgress()
 	, m_iJFDCurrency()
 	, m_iJFDProsperity()
@@ -47366,7 +47366,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iAbleToAnnexCityStatesCount);
 	visitor(player.m_iOnlyTradeSameIdeology);
 	visitor(player.m_iSupplyFreeUnits);
-	// visitor(player.m_aistrInstantYield);
 	visitor(player.m_abActiveContract);
 	visitor(player.m_iJFDReformCooldownRate);
 	visitor(player.m_iJFDGovernmentCooldownRate);

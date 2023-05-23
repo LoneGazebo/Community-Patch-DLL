@@ -183,6 +183,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsCapital);
 	Method(IsOriginalCapital);
 	Method(IsOriginalMajorCapital);
+	Method(GetOwnerForDominationVictory);
 	Method(IsCoastal);
 	Method(IsAddsFreshWater);
 	Method(FoodConsumptionSpecialistTimes100);
@@ -2327,6 +2328,12 @@ int CvLuaCity::lIsOriginalCapital(lua_State* L)
 int CvLuaCity::lIsOriginalMajorCapital(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvCity::IsOriginalMajorCapital);
+}
+//------------------------------------------------------------------------------
+//PlayerTypes GetOwnerForDominationVictory();
+int CvLuaCity::lGetOwnerForDominationVictory(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetOwnerForDominationVictory);
 }
 //------------------------------------------------------------------------------
 //bool isCoastal(int iMinWaterSize);

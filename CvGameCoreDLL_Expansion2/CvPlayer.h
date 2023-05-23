@@ -3327,7 +3327,7 @@ protected:
 	int m_iOnlyTradeSameIdeology;
 #if defined(MOD_BALANCE_CORE)
 	int m_iSupplyFreeUnits; //military units which don't count against the supply limit
-	std::vector<CvString> m_aistrInstantYield;
+	std::vector<CvString> m_aistrInstantYield; // not serialized
 	std::map<int, CvString> m_aistrInstantGreatPersonProgress;
 	std::vector<bool> m_abActiveContract;
 	int m_iJFDReformCooldownRate;
@@ -4135,7 +4135,6 @@ SYNC_ARCHIVE_VAR(int, m_iMinorResourceBonusCount)
 SYNC_ARCHIVE_VAR(int, m_iAbleToAnnexCityStatesCount)
 SYNC_ARCHIVE_VAR(int, m_iOnlyTradeSameIdeology)
 SYNC_ARCHIVE_VAR(int, m_iSupplyFreeUnits)
-// SYNC_ARCHIVE_VAR(std::vector<CvString>, m_aistrInstantYield)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abActiveContract)
 SYNC_ARCHIVE_VAR(int, m_iJFDReformCooldownRate)
 SYNC_ARCHIVE_VAR(int, m_iJFDGovernmentCooldownRate)

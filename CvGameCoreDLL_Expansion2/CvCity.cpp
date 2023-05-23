@@ -17038,9 +17038,19 @@ PlayerTypes CvCity::GetOwnerForDominationVictory() const
 	{
 		PlayerTypes eAlly = GET_PLAYER(eCapitalOwner).GetMinorCivAI()->GetAlly();
 		if (eAlly != NO_PLAYER)
-			return eAlly;
+		{
+			// However, if the ally is a vassal, then their master controls the City-State's capital.
+			if (GET_TEAM(GET_PLAYER(eAlly).getTeam()).IsVassalOfSomeone())
+			{
+				TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eAlly).getTeam()).GetMaster();
+				if (GET_TEAM(eMasterTeam).getLeaderID() != NO_PLAYER)
+					return GET_TEAM(eMasterTeam).getLeaderID();
+			}
+			else
+				return eAlly;
+		}
 	}
-	// A vassal's master controls their capital.
+	// If a vassal owns a capital, their master controls it.
 	else if (GET_TEAM(eOwnerTeam).IsVassalOfSomeone())
 	{
 		TeamTypes eMasterTeam = GET_TEAM(eOwnerTeam).GetMaster();
