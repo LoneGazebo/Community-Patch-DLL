@@ -47366,7 +47366,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iAbleToAnnexCityStatesCount);
 	visitor(player.m_iOnlyTradeSameIdeology);
 	visitor(player.m_iSupplyFreeUnits);
-	visitor(player.m_aistrInstantYield);
+	// visitor(player.m_aistrInstantYield);
 	visitor(player.m_abActiveContract);
 	visitor(player.m_iJFDReformCooldownRate);
 	visitor(player.m_iJFDGovernmentCooldownRate);
@@ -47489,7 +47489,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumFreePolicies);
 	visitor(player.m_iNumFreePoliciesEver);
 	visitor(player.m_iNumFreeTenets);
-	visitor(player.m_iLastSliceMoved);
+	// visitor(player.m_iLastSliceMoved);
 	visitor(player.m_uiStartTime);
 	visitor(player.m_bHasUUPeriod);
 	visitor(player.m_bNoNewWars);
