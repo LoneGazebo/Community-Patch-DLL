@@ -9,7 +9,7 @@
 include( "EUI_utilities" )
 
 Events.SequenceGameInitComplete.Add(function()
-print( "Loading EUI top panel",ContextPtr,os.clock(), [[ 
+print( "Loading EUI top panel",ContextPtr,os.clock(), [[
  _____           ____                  _
 |_   _|__  _ __ |  _ \ __ _ _ __   ___| |
   | |/ _ \| '_ \| |_) / _` | '_ \ / _ \ |
@@ -45,7 +45,7 @@ if IsDX11 then
 	Controls.HappyTurns:SetAlpha( 1.0 )
 	Controls.UnitSupplyString:SetAlpha( 1.0 )
 	Controls.NavalSupplyString:SetAlpha( 1.0 )
-	Controls.GpTurns:SetAlpha( 1.0 )	
+	Controls.GpTurns:SetAlpha( 1.0 )
 end
 
 -- GP Font Icons
@@ -451,7 +451,7 @@ local function UpdateTopPanelNow()
 	-----------------------------
 	-- Update Resources
 	-----------------------------
-	
+
 	local leaderID = -1;
 	local traitType = "";
 	if g_activePlayer ~= nil then
@@ -500,7 +500,7 @@ local function UpdateTopPanelNow()
 		-- Update gold stats
 		-----------------------------
 
-		if PerTurnOnLeft then 
+		if PerTurnOnLeft then
 			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_ITP_TOP_PANEL_GOLD", g_activePlayer:CalculateGoldRate(), g_activePlayer:GetGold() )
 		else
 			Controls.GoldPerTurn:LocalizeAndSetText( "TXT_KEY_TOP_PANEL_GOLD", g_activePlayer:GetGold(), g_activePlayer:CalculateGoldRate() )
@@ -546,7 +546,7 @@ local function UpdateTopPanelNow()
 				if not ExtraCondensedHappiness then
 					happinessText = happinessText..happycounttext
 				end
-			else				
+			else
 				if percent >= 75 then --ecstatic
 					percentString = "[ICON_CITIZEN] [COLOR_FONT_GREEN]"..L(percent).."%[ENDCOLOR]"
 				elseif percent < 75 and percent > 60 then -- content
@@ -561,7 +561,7 @@ local function UpdateTopPanelNow()
 					percentString = "[ICON_RESISTANCE] [COLOR_RED]"..L(percent).."%[ENDCOLOR]"
 				end
 				happinessText = L( "TXT_KEY_HAPPINESS_TOP_PANEL_VP", percentString, unhappypop, happypop)
-			end											 
+			end
 
 			Controls.HappinessString:SetText(happinessText)
 
@@ -667,7 +667,7 @@ local function UpdateTopPanelNow()
 				Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
 			else
 				Controls.FaithBox:SetHide(true)
-				if PerTurnOnLeft then			
+				if PerTurnOnLeft then
 					Controls.FaithString:SetText( S("+%i[ICON_PEACE]%i", faithPerTurn, faithProgress ) )
 				else
 					Controls.FaithString:SetText( S("[ICON_PEACE]%i(+%i)", faithProgress, faithPerTurn ) )
@@ -682,21 +682,21 @@ local function UpdateTopPanelNow()
 					Controls.FaithIcon:SetOffsetVal(-7,-17)
 					Controls.FaithTurns:SetOffsetVal(-12,9)
 					if faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_BUILDING then
-						Controls.FaithIcon:SetText("[ICON_ITP_RELIGIOUS_BUILDING]")	
+						Controls.FaithIcon:SetText("[ICON_ITP_RELIGIOUS_BUILDING]")
 					elseif faithPurchaseType == FaithPurchaseTypes.FAITH_PURCHASE_UNIT or faithTarget == GameInfo.Units.UNIT_PROPHET then
 						if FaithFontIconList[faithTarget.Class] ~= nil then
-							Controls.FaithIcon:SetText(FaithFontIconList[faithTarget.Class])	
+							Controls.FaithIcon:SetText(FaithFontIconList[faithTarget.Class])
 						else
 							IconHookup(faithTarget.PortraitIndex, iconSize, faithTarget.IconAtlas, Controls.FaithIcon)
 							Controls.FaithIcon:SetOffsetVal(-5,-13)
 							Controls.FaithTurns:SetOffsetVal(0,9)
 						end
-					else 
-						Controls.FaithIcon:SetText("[ICON_ITP_PANTHEON]")	
+					else
+						Controls.FaithIcon:SetText("[ICON_ITP_PANTHEON]")
 					end
 				else
 					Controls.FaithIcon:SetHide(true)
-					Controls.FaithIcon:SetText("")	
+					Controls.FaithIcon:SetText("")
 				end
 			else
 				Controls.FaithIcon:SetHide( not (faithTarget and IconHookup(faithTarget.PortraitIndex, iconSize, faithTarget.IconAtlas, Controls.FaithIcon) ) )
@@ -802,14 +802,14 @@ local function UpdateTopPanelNow()
 		-----------------------------
 		if bnw_mode then
 			local activeRoutes = g_activePlayer:GetNumInternationalTradeRoutesUsed()
-			local availableRoutes = g_activePlayer:GetNumInternationalTradeRoutesAvailable() 
-			
+			local availableRoutes = g_activePlayer:GetNumInternationalTradeRoutesAvailable()
+
 			if activeRoutes < availableRoutes then -- Green when available
 				Controls.InternationalTradeRoutes:SetText( S( "[COLOR_POSITIVE_TEXT]%i/%i[ENDCOLOR] [ICON_INTERNATIONAL_TRADE]", activeRoutes, availableRoutes ) )
 				Controls.InternationalTradeRoutes:SetAlpha(1.5)
 			else
 				Controls.InternationalTradeRoutes:SetText( S( "%i/%i [ICON_INTERNATIONAL_TRADE]", activeRoutes, availableRoutes ) )
-			end	
+			end
 			Controls.TourismString:SetText( S( "%+i [ICON_TOURISM]", g_activePlayer:GetTourism() / 100 ) )
 		end
 	else
@@ -1040,12 +1040,12 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 
 		-- Science from Other Players
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_MINORS", g_activePlayer:GetScienceFromOtherPlayersTimes100() / 100 )
-		
+
 		-- Science from Espionage
 		local iScienceFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false);
-		
-		tips:insertLocalizedIf( iScienceFromEspionage > 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage)
-		tips:insertLocalizedIf( iScienceFromEspionage < 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE", ScienceFromEspionage )
+
+		tips:insertLocalizedIf( iScienceFromEspionage > 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage )
+		tips:insertLocalizedIf( iScienceFromEspionage < 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE", iScienceFromEspionage )
 
 		if civ5_mode then
 			-- Science from Happiness
@@ -1061,14 +1061,14 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 				tips:insertLocalizedIfNonZero( "TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES", g_activePlayer:GetScienceRateFromMinorAllies() )
 				tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FUNDING_FROM_LEAGUE", g_activePlayer:GetScienceRateFromLeagueAid() )
 			end
--- CBP 
+-- CBP
 			-- Science from Annexed Minors
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_ANNEXED_MINORS", g_activePlayer:GetSciencePerTurnFromAnnexedMinors())
 			-- Putmalk
 			local g_bAllowResearchAgreements = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS")
 			-- Science from Religion
 			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_RELIGION", g_activePlayer:GetYieldPerTurnFromReligion(YieldTypes.YIELD_SCIENCE))
-			
+
 			-- Science % lost from unhappiness
 			local iScienceMinors = g_activePlayer:GetSciencePerTurnFromMinorCivs();
 			tips:insertLocalizedIfNonZero( "TXT_KEY_SCIENCE_FROM_MINORS", iScienceMinors)
@@ -1084,7 +1084,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 				local itemType, duration, finalTurn, data1, data2, data3, flag1, fromPlayerID
 				local gameTurn = Game.GetGameTurn() - 1
 				local researchAgreementCounters = {}
-	
+
 				PushScratchDeal()
 				for i = 0, UI.GetNumCurrentDeals( g_activePlayerID ) - 1 do
 					UI.LoadCurrentDeal( g_activePlayerID, i )
@@ -1104,16 +1104,16 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 					until not itemType
 				end
 				PopScratchDeal()
-	
+
 				local tipIndex = #tips
-	
+
 				for playerID = 0, GameDefines.MAX_MAJOR_CIVS-1 do
-	
+
 					local player = Players[playerID]
 					local teamID = player:GetTeam()
-	
+
 					if playerID ~= g_activePlayerID and player:IsAlive() and g_activeTeam:IsHasMet(teamID) then
-	
+
 						-- has reseach agreement ?
 						if g_activeTeam:IsHasResearchAgreement(teamID) then
 							tips:insert( "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. player:GetName() .. "[ENDCOLOR]" )
@@ -1125,7 +1125,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 						end
 					end
 				end
-	
+
 				if #tips > tipIndex then
 					tips:insert( tipIndex+1, "" )
 					tips:insert( tipIndex+2, L"TXT_KEY_DO_RESEARCH_AGREEMENT" )
@@ -1402,7 +1402,7 @@ if civ5_mode then
 				tipText = "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY")
 			elseif (g_activePlayer:IsEmpireSuperUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
 				tipText =  "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_SUPER_UNHAPPY_NO_REBELS")
-			elseif (g_activePlayer:IsEmpireVeryUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then	
+			elseif (g_activePlayer:IsEmpireVeryUnhappy() and not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
 				tipText = "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY")
 			elseif (g_activePlayer:IsEmpireVeryUnhappy() and Game.IsOption(GameOptionTypes.GAMEOPTION_NO_BARBARIANS)) then
 				tipText = "[COLOR_RED]" ..L("TXT_KEY_TP_EMPIRE_VERY_UNHAPPY_NO_REBELS")
@@ -1550,16 +1550,16 @@ if civ5_mode then
 			if (iGAPReligion > 0) then
 				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION", iGAPReligion));
 			end
-				
+
 			if (iGAPTrait > 0) then
 				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_TRAIT", iGAPTrait));
 			end
-				
+
 			if (iGAPCities > 0) then
 				tips:insert( "[NEWLINE]" .. L("TXT_KEY_TP_GOLDEN_AGE_ADDITION_CITIES", iGAPCities));
 			end
 			-- END
-			
+
 			if g_isBasicHelp then
 				tips:insert( "" )
 				if gk_mode and g_activePlayer:IsGoldenAgeCultureBonusDisabled() then
@@ -1878,12 +1878,12 @@ g_toolTipHandler.CultureString = function()-- control )
 			-- Culture from Annexed Minors
 			local culturePerTurnFromAnnexedMinors = g_activePlayer:GetCulturePerTurnFromAnnexedMinors()
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_ANNEXED_MINORS", culturePerTurnFromAnnexedMinors )
-		
+
 			-- Culture from Espionage
 			local iCultureFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_CULTURE, false);
-			tips:insertLocalizedIf( iCultureFromEspionage > 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage)
-			tips:insertLocalizedIf( iCultureFromEspionage < 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE", ScienceFromEspionage )
-		
+			tips:insertLocalizedIf( iCultureFromEspionage > 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE", iCultureFromEspionage )
+			tips:insertLocalizedIf( iCultureFromEspionage < 0 and "TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE", iCultureFromEspionage )
+
 -- END
 
 			-- Culture from Religion
@@ -1907,12 +1907,12 @@ g_toolTipHandler.CultureString = function()-- control )
 -- END
 			-- Culture from Golden Age
 -- CBP
-	
+
 			local iCultureFromGoldenAge = (culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromMinorCivs - culturePerTurnFromReligion - culturePerTurnFromTraits - culturePerTurnFromBonusTurns - culturePerTurnFromVassals - culturePerTurnFromAnnexedMinors- iCultureFromEspionage)
-			
+
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_CULTURE_FROM_GOLDEN_AGE", iCultureFromGoldenAge)
 -- END
-		
+
 		else
 			-- Uncategorized Culture
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_YIELD_FROM_UNCATEGORIZED", culturePerTurn - culturePerTurnForFree - culturePerTurnFromCities - culturePerTurnFromExcessHappiness - culturePerTurnFromTraits )
@@ -1923,7 +1923,7 @@ g_toolTipHandler.CultureString = function()-- control )
 			tips:insert( "[NEWLINE][NEWLINE]" )
 			tips:insert( L("TXT_KEY_TP_TECHS_NEEDED_FOR_NEXT_FREE_POLICY", g_activePlayer:GetTechsToFreePolicy()) )
 		end
---END 
+--END
 
 		-- Let people know that building more cities makes policies harder to get
 
@@ -1968,7 +1968,7 @@ if civ5_mode and gk_mode then
 
 			-- Faith from Minor Civs
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_MINORS", g_activePlayer:GetFaithPerTurnFromMinorCivs() )
-			
+
 -- CBP
 			-- Faith from Minor Civs
 			tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS", g_activePlayer:GetFaithPerTurnFromAnnexedMinors() )
@@ -1980,14 +1980,14 @@ if civ5_mode and gk_mode then
 			if g_activePlayer.GetYieldPerTurnFromVassals then
 				tips:insertLocalizedIfNonZero( "TXT_KEY_TP_FAITH_VASSALS", g_activePlayer:GetYieldPerTurnFromVassals(YieldTypes.YIELD_FAITH) )
 			end
-			
+
 			-- Faith from Espionage
 			local iFaithFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_FAITH, false);
-			tips:insertLocalizedIf( iFaithFromEspionage > 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage)
-			tips:insertLocalizedIf( iFaithFromEspionage < 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", ScienceFromEspionage )
-		
-		
--- END			
+			tips:insertLocalizedIf( iFaithFromEspionage > 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_POSITIVE", iFaithFromEspionage )
+			tips:insertLocalizedIf( iFaithFromEspionage < 0 and "TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE", iFaithFromEspionage )
+
+
+-- END
 -- COMMUNITY PATCH CHANGE
 
 --END
@@ -2059,7 +2059,7 @@ if civ5_mode and gk_mode then
 	Controls.FaithIcon:SetHide( false )
 end
 
-if civ5_mode and gk_mode then 
+if civ5_mode and gk_mode then
 	g_toolTipHandler.InstantYieldsIcon = function()-- control )
 		local iPlayerID = Game.GetActivePlayer();
 		local pPlayer = Players[iPlayerID];
@@ -2068,7 +2068,7 @@ if civ5_mode and gk_mode then
 
 		local tips = table()
 
-		tips:insert( strInstantYieldToolTip )	
+		tips:insert( strInstantYieldToolTip )
 
 		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 	end
@@ -2078,7 +2078,7 @@ if civ5_mode and gk_mode then
 end
 
 -- my modification for Luxury Resources
-if civ5_mode and gk_mode then 
+if civ5_mode and gk_mode then
 	g_toolTipHandler.LuxuryResources = function()-- control )
 			local tips = table()
 		----------------------------
@@ -2288,7 +2288,7 @@ if civ5_mode and gk_mode then
 					end
 				end
 				if #resources > 0 then
-					availableTip = availableTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ") 
+					availableTip = availableTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ")
 				end
 			end
 
@@ -2298,7 +2298,7 @@ if civ5_mode and gk_mode then
 			end
 
 	return setTextToolTip( tips:concat( "[NEWLINE]" ) )
-		
+
 	end
 
 --[[
@@ -2330,7 +2330,7 @@ if civ5_mode and gk_mode then
 		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
 		local iTechReduction = pPlayer:GetTechSupplyReduction();
 		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
-	
+
 		local strUnitSupplyToolTip = "";
 		if(iUnitsOver > 0) then
 			strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
@@ -2348,7 +2348,7 @@ if civ5_mode and gk_mode then
 
 		local tips = table()
 
-		tips:insert( strUnitSupplyToolTip )	
+		tips:insert( strUnitSupplyToolTip )
 
 		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 	end
@@ -2491,7 +2491,7 @@ local function ResourcesToolTip( control )
 				tips:insert( "" )
 				tips:insert( Colorize(numResourceMisc) .. " " .. L"TXT_KEY_EO_MISC_RESOURCES" )
 
-				
+
 				local numResourceGP = g_activePlayer:GetResourcesFromGP(resourceID)
 				local numResourceCorp = g_activePlayer:GetResourcesFromCorporation(resourceID)
 				local numResourceFranchises = g_activePlayer:GetResourcesFromFranchises(resourceID)
@@ -2927,7 +2927,7 @@ for resource in GameInfo.Resources() do
 		Controls.NavalSupplyString:SetVoid1( NavalSupplyID )
 		Controls.NavalSupplyIcon:SetVoid1( NavalSupplyID )
 		Controls.NavalSupplyString:SetToolTipCallback( ResourcesTipHandler )
-		Controls.NavalSupplyIcon:SetToolTipCallback( ResourcesTipHandler )		
+		Controls.NavalSupplyIcon:SetToolTipCallback( ResourcesTipHandler )
 	end
 end
 
