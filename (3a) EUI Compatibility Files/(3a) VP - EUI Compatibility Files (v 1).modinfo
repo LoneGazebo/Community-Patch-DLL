@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(3.5.4) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3.6) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="116" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="117" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="16" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References />
@@ -57,7 +57,7 @@
     <File md5="DDFA8E7A86D2D0FE975610B0E6A1BD60" import="1">LUA/LoadScreen.lua</File>
     <File md5="98B1FEF84BBAD42685E34EB5B558911A" import="1">LUA/MonopoliesInfo.lua</File>
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
-    <File md5="96291197216EDD8B6E4D5CEB83749300" import="1">LUA/NotificationPanel.lua</File>
+    <File md5="4D423DA147A04EB8DEF60D2C9DD2708D" import="1">LUA/NotificationPanel.lua</File>
     <File md5="80592539E39ABCFDEFD8777391C39828" import="1">LUA/NotificationPanel.xml</File>
     <File md5="351CC209DAB2D8ECFB19AEE8374A24CE" import="1">LUA/PlotHelpManager.lua</File>
     <File md5="82063AB8F56003275D0AD6DF8100C691" import="1">LUA/SocialPolicyPopup.lua</File>
@@ -73,8 +73,8 @@
     <File md5="CBF5CA4731D74890572CF98197BD1301" import="1">ImprovedTopPanel/FontIconsITP.ggxml</File>
     <File md5="1CD7B823DB2D56628A876DA93FA1AEF2" import="1">ImprovedTopPanel/FontIconsITP.dds</File>
     <File md5="4422D10FF5171FD8FD620535E7A62AE0" import="0">ImprovedTopPanel/Text.xml</File>
-    <File md5="A8596A0F1EB2336969BB491B66E872BC" import="1">ImprovedTopPanel/TopPanel.lua</File>
-    <File md5="DEAAD04AD0476211B7FA8FF47E846A30" import="1">ImprovedTopPanel/TopPanel.xml</File>
+    <File md5="057ED72ED2A76CED3C7561B9E5BE9C37" import="1">ImprovedTopPanel/TopPanel.lua</File>
+    <File md5="42BD3A4A6964CBB0EC07E6C68EC05D9A" import="1">ImprovedTopPanel/TopPanel.xml</File>
     <File md5="853361CE36726447BF7C31A74F3991D9" import="0">ImprovedTechTree/UpdateTechGrid.sql</File>
     <File md5="5865F1D926DED76F3788BDED968461D2" import="1">ImprovedTechTree/TechTree.lua</File>
     <File md5="5AAAC1FD52775AF649A6EEC04A6BE0C7" import="1">ImprovedTechTree/TechTree.xml</File>

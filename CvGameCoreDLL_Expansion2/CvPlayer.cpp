@@ -440,7 +440,7 @@ CvPlayer::CvPlayer() :
 , m_iNumFreePolicies()
 , m_iNumFreePoliciesEver()
 , m_iNumFreeTenets()
-, m_iLastSliceMoved()
+, m_iLastSliceMoved() // not serialized
 , m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 , m_iEndTurnBlockingNotificationIndex(0)
 , m_activeWaitingForEndTurnMessage(false)
@@ -47488,7 +47488,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumFreePolicies);
 	visitor(player.m_iNumFreePoliciesEver);
 	visitor(player.m_iNumFreeTenets);
-	// visitor(player.m_iLastSliceMoved);
 	visitor(player.m_uiStartTime);
 	visitor(player.m_bHasUUPeriod);
 	visitor(player.m_bNoNewWars);

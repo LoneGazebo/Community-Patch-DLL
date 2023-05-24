@@ -3463,7 +3463,7 @@ protected:
 	int m_iNumFreePoliciesEver; 
 	int m_iNumFreeTenets;
 
-	int m_iLastSliceMoved;
+	int m_iLastSliceMoved; // not serialized
 
 
 	uint m_uiStartTime;  // XXX save these?
@@ -4257,7 +4257,6 @@ SYNC_ARCHIVE_VAR(int, m_iMedianTechPercentage)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePolicies)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePoliciesEver)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeTenets)
-// SYNC_ARCHIVE_VAR(int, m_iLastSliceMoved)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
