@@ -999,7 +999,7 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<in
 }
 
 /// Evaluating a plot to see if we can build resources there
-void CvBuilderTaskingAI::AddImprovingResourcesDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddImprovingResourcesDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	// check to see if a resource is here. If not, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
@@ -1167,7 +1167,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(vector<OptionWithScore<
 }
 
 /// Evaluating a plot to determine what improvement could be best there
-void CvBuilderTaskingAI::AddImprovingPlotsDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddImprovingPlotsDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	ImprovementTypes eExistingImprovement = pPlot->getImprovementType();
 
@@ -1463,7 +1463,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(vector<OptionWithScore<Buil
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRemoveRouteDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRemoveRouteDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
 {
 	//minors stay out
 	if (m_pPlayer->isMinorCiv())
@@ -1552,7 +1552,7 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(vector<OptionWithScore<Builder
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRouteDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRouteDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
 {
 	// if the player can't build a route, bail out!
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
@@ -1619,7 +1619,7 @@ void CvBuilderTaskingAI::AddRouteDirectives(vector<OptionWithScore<BuilderDirect
 }
 
 /// Determines if the builder should "chop" the feature in the tile
-void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	// if it's not within a city radius
 	if(!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
@@ -1820,7 +1820,7 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 	}
 }
 
-void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway)
 {
 	if (!pPlot)
 	{
@@ -1891,7 +1891,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<Builder
 	}
 }
 // Everything means less than zero, hey
-void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	if(m_eFalloutFeature == NO_FEATURE || m_eFalloutRemove == NO_BUILD)
 	{
