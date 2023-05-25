@@ -155,8 +155,8 @@
 	</ToolTipType>
 
 	<Instance Name="ResourceInstance">
-		<Image ID="Image" Size="32,32" Offset="-10,-10" Sampler="Linear" Hidden="1">
-			<Button ID="Count" Size="28,28" String="?" BranchAlpha="1.5" TextAnchor="R,B" Offset="4,3" Font="TwCenMT16" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" ToolTipType="TooltipTypeTopPanel" />
+		<Image ID="Image" Size="45,45" Offset="-13,-13" Sampler="Linear" Hidden="1">
+			<Button ID="Count" Size="28,28" String="?" BranchAlpha="1.5" TextAnchor="R,B" Offset="13,8" Font="TwCenMT16" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" ToolTipType="TooltipTypeTopPanel" />
 		</Image>
 	</Instance>
 
