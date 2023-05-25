@@ -129,7 +129,7 @@
 		<TextButton ID="InternationalTradeRoutes" Anchor="R,T" String="" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel" />
 
 		<!-- Luxury Resources  -->
-		<TextButton ID="LuxuryResources" Anchor="R,T" String="Luxury Resources" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
+		<TextButton ID="LuxuryResources" Anchor="R,T" String="Luxury Resources" Offset="-8,0" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
 
 		<!-- Tourism -->
 		<TextButton ID="TourismString" Anchor="R,T" String="" ColorLayer0="255,255,200,255" ToolTipType="TooltipTypeTopPanel" />
