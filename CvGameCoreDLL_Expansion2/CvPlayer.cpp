@@ -4327,7 +4327,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Award the building!
 			pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 
-			if (pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+			// Only deduct if building is not capital only
+			if (pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0 && !GC.getBuildingInfo(eBuilding)->IsCapitalOnly())
 				ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 		}
 	}
@@ -45841,7 +45842,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 									pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 
-									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+									// Only deduct if building is not capital only
+									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0 && !GC.getBuildingInfo(eBuilding)->IsCapitalOnly())
 									{
 										ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 									}
