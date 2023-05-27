@@ -2303,6 +2303,10 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							continue;
 						}
 					}
+					else {
+						// mark as processed to not hang the game but still do scrap check
+						pUnit->SetTurnProcessed(true);
+					}
 					//Stuck and not at home? Scrap it.
 					if (GC.getGame().getGameTurn() - pUnit->getLastMoveTurn() > 7)
 					{
