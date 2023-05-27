@@ -25,7 +25,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_B17';
 -- Arabia
 --------------------
 UPDATE Language_en_US
-SET Text = 'Upon completing a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one third the amount with every other Civilization.[NEWLINE][NEWLINE]Land trade routes gain 50% range. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for the Trade Route owner.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Cinnamon: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
+SET Text = 'Upon completing a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one third the amount with every other Civilization.[NEWLINE][NEWLINE][ICON_CARAVAN] Land trade routes gain 50% range. Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for the Trade Route owner.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Cinnamon: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_HELP';
 
 UPDATE Language_en_US
