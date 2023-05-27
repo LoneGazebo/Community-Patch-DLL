@@ -8177,11 +8177,11 @@ void CvTacticalPlot::setCombatUnitEndTurn(CvTacticalPosition& currentPosition, e
 			if (tactPlot.isValid())
 			{
 				tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[unitDomain]++;
-				FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 7);
+				FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily
 				if (unitDomain != TD_BOTH)
 				{
 					tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[TD_BOTH]++;
-					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 7);
+					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily
 				}
 			}
 		}
@@ -8210,11 +8210,11 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 				{
 					CvTacticalPlot::eTactPlotDomain unitDomain = DomainForUnit(pUnit);
 					tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] += iChange;
-					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 7);
+					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily
 					if (unitDomain != TD_BOTH)
 					{
 						tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] += iChange;
-						FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 7);
+						FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily
 					}
 				}
 			}
@@ -8691,7 +8691,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gMovesToAdd.clear();
 
 		//blocks don't change anything in the simulation so let's add them together with another move - so we use our allowed branches for "interesting" moves
-		while (gOverAllChoices[i].eAssignmentType == A_BLOCKED && i < gOverAllChoices.size()-1)
+		while (i < gOverAllChoices.size() - 1 && gOverAllChoices[i].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
 			gMovesToAdd.push_back(gOverAllChoices[i++]);
 
 		//easy case, unit moves to an unoccupied plot
@@ -8908,15 +8908,9 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 		{
 			//cannot leave the unit in this place. instead replace the unit's last assignment with A_BLOCKED and hope for somebody else to assign a good move
 			STacticalAssignment* pLast = getLatestAssignmentMutable(unit.iUnitID);
-			if (pLast->eAssignmentType == A_FINISH_TEMP || pLast->eAssignmentType == A_MOVE)
-			{
-				//if we undo a move, need to undo the score
-				iScoreOverParent -= pLast->iScore;
-				iTotalScore -= pLast->iScore;
-
-				//this messes up some bookkeeping but at the end of the sim it should be ok?
+			if (pLast->eAssignmentType == A_FINISH_TEMP && pLast->iRemainingMoves>0)
+				//temp finish did not affect the score, so nothing to undo
 				*pLast = STacticalAssignment(pLast->iFromPlotIndex, pLast->iFromPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED);
-			}
 			else //too risky
 				return false;
 		}
@@ -9357,11 +9351,35 @@ pair<int,int> CvTacticalPosition::doVisibilityUpdate(const STacticalAssignment& 
 		if (pPlot) //also create plots for neutral units - otherwise edgeOfTheKnownWorld is not correct
 		{
 			//can pass empty set of units - the plot was invisible before so we know there is none of our units there
-			addTacticalPlot(pPlot, vector<CvUnit*>());
+			if (addTacticalPlot(pPlot, vector<CvUnit*>()))
+			{
+				//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
+				if (pPlot->isEnemyUnit(ePlayer, true, false))
+					nNewEnemies++;
 
-			//we revealed a new enemy ... need to execute moves up to here, do a danger plot update and reconsider
-			if (pPlot->isEnemyUnit(ePlayer, true, false))
-				nNewEnemies++;
+#if defined(MOD_CORE_DEBUGGING)
+				if (MOD_CORE_DEBUGGING)
+				{
+					//make sure that the adjacent unit count is correct
+					//normally it should because adjacent plots are visible from the beginning but ...
+					CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(GC.getMap().plotByIndexUnchecked(pPlot->GetPlotIndex()));
+					for (int i = 0; i < 6; i++)
+					{
+						CvPlot* pNeighbor = aNeighbors[i];
+						if (!pNeighbor)
+							continue;
+
+						const CvTacticalPlot& neighborPlot = getTactPlot(pNeighbor->GetPlotIndex());
+						if (neighborPlot.isValid())
+						{
+							const vector<STacticalUnit>& units = neighborPlot.getUnitsAtPlot();
+							for (size_t j = 0; j < units.size(); j++)
+								FAssert(!isCombatUnit(units[j].eMoveType));
+						}
+					}
+				}
+#endif
+			}
 		}
 	}
 
@@ -9790,7 +9808,7 @@ bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUni
 		return false;
 
 	if (findTactPlotRecursive(pPlot->GetPlotIndex()))
-		return true; //nothing to do
+		return false; //nothing to do
 
 	CvTacticalPlot newPlot(pPlot, ePlayer, allOurUnits);
 	if (newPlot.isValid())
@@ -10201,8 +10219,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				CvPlot* pPlot = iterateRingPlots(pUnit->plot(), j);
 				if (!pPlot)
 					continue;
-				//there was a strange bug where the plot containing the unit is not visible? wtf
-				if (j==0 || pPlot->isVisible(ourTeam))
+				//there was a strange bug where the plot containing the unit or adjacent plots are not visible? wtf
+				if (j<RING1_PLOTS || pPlot->isVisible(ourTeam))
 					initialPosition->addTacticalPlot(pPlot, ourUnits);
 			}
 		}
@@ -10324,7 +10342,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			if (out)
 			{
 				for (size_t i = 0; i < completedPositions.size(); i++)
-					out << completedPositions[i]->getScoreTotal() << ",";
+					out << completedPositions[i]->getID() << "," << completedPositions[i]->getScoreTotal() << ";";
 				out << std::endl;
 			}
 			out.close();
