@@ -434,16 +434,16 @@
 			<Text>XBuilt Triggers Ideology Choice {1}</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTESEADISTANCEMODIFIER">
-			<Text>Trade Route Sea Distance Modifier {1}%</Text>
+			<Text>[ICON_CARGO_SHIP] Trade Route Sea Distance Modifier {1}%</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTESEAGOLDBONUS">
-			<Text>Trade Route Sea Gold Bonus {1}</Text>
+			<Text>[ICON_CARGO_SHIP] Trade Route Sea Gold Bonus {1}</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTELANDDISTANCEMODIFIER">
-			<Text>Trade Route Land Distance Modifier {1}%</Text>
+			<Text>[ICON_CARAVAN] Trade Route Land Distance Modifier {1}%</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_TRADEROUTELANDGOLDBONUS">
-			<Text>Trade Route Land Gold Bonus {1}</Text>
+			<Text>[ICON_CARAVAN] Trade Route Land Gold Bonus {1}</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_CITYSTATETRADEROUTEPRODUCTIONMODIFIER">
 			<Text>City State Trade Route Production Modifier {1}%</Text>
