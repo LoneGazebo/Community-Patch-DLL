@@ -741,7 +741,7 @@ g_units = g_RibbonManager( "UnitInstance", Controls.UnitStack, Controls.Scrap,
 				if unit:IsGarrisoned() then
 					status = "TXT_KEY_MISSION_GARRISON_HELP"
 				elseif unit:IsEverFortifyable() then
-					status = L"TXT_KEY_UNIT_STATUS_FORTIFIED" .. (" %+i"):format(unit:FortifyModifier()).."%[ICON_DEFENSE]"
+					status = L"TXT_KEY_UNIT_STATUS_FORTIFIED" .. (" %+i"):format(unit:FortifyModifier()).."%[ICON_STRENGTH]"
 				else
 					status = "TXT_KEY_MISSION_SLEEP_HELP"
 				end

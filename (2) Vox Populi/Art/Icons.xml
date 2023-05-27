@@ -358,5 +358,15 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>8</IconMapping>
 		</Row>
+		<Row>
+			<IconName>ICON_CARAVAN</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>9</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_CARGO_SHIP</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>10</IconMapping>
+		</Row>
 	</IconFontMapping>
 </GameData>
