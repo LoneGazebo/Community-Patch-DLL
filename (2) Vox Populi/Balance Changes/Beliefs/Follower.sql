@@ -135,14 +135,6 @@ INSERT Into Belief_YieldPerGPT
 		(BeliefType,				YieldType, 		Yield)
 VALUES	('BELIEF_PEACE_GARDENS', 	'YIELD_FAITH', 	10);
 
-INSERT INTO Belief_CityYieldChanges
-	(BeliefType, YieldType, Yield)
-VALUES
-	('BELIEF_LITURGICAL_DRAMA', 'YIELD_PRODUCTION', 1),
-	('BELIEF_LITURGICAL_DRAMA', 'YIELD_FAITH', 1),
-	('BELIEF_LITURGICAL_DRAMA', 'YIELD_SCIENCE', 1),
-	('BELIEF_LITURGICAL_DRAMA', 'YIELD_FOOD', 1);
-
 INSERT Into Belief_YieldChangeAnySpecialist
 (BeliefType, YieldType, Yield)
 VALUES
