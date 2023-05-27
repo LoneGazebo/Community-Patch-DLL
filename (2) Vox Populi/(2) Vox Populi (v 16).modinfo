@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.6.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.6.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -65,8 +65,8 @@
     <File md5="289BEB45E1C17E01347F9581BCDCC9C2" import="1">Art/Improvements/Hacienda/hacienda_pl.gr2</File>
     <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Art/Improvements/Hacienda/hacienda_pl_decal.dds</File>
     <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Art/Improvements/Hacienda/hacienda_pl_diff.dds</File>
-    <File md5="9455259AE16B49AAF81C159C83683281" import="0">Art/Icons.xml</File>
-    <File md5="98AE7E0C3E5DF521B0F616F37080657C" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
+    <File md5="70456A75F382C3A22486B0A38FE6B547" import="0">Art/Icons.xml</File>
+    <File md5="593355F0CA253385A13394993D31017D" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
     <File md5="5382BD9DD8E67F3688AE2787B1AC39ED" import="1">Art/Icons/VP_FontIconAtlas.ggxml</File>
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Art/Icons/citizenmusician.dds</File>
     <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Art/Icons/citizenwriter.dds</File>
@@ -409,11 +409,11 @@
     <File md5="D406AE7316A73E780627A6F953CD172E" import="1">Art/Units/Model/cruiser_SREF.dds</File>
     <File md5="0D763CB1E8E2206B90FDBBA290B61CDC" import="1">Art/Units/Model/fx_triggers_cruiser.ftsxml</File>
     <File md5="DE9A75FD5CE8213F3D5968BB67BC50C8" import="0">Balance Changes/AI/AIChanges.sql</File>
-    <File md5="9AC95EBE91925B0122FA096DE6A0B3F7" import="0">Balance Changes/AI/LeaderPersonalities.sql</File>
+    <File md5="B9E34EA2F09B82850888E4019FEDBC64" import="0">Balance Changes/AI/LeaderPersonalities.sql</File>
     <File md5="804378EBBE972BC6DD2E5628F8AF3412" import="0">Balance Changes/AI/LeaderFlavors.sql</File>
     <File md5="587062854640240F0AC23E23420BB2E7" import="0">Balance Changes/Barbarians/BarbarianChanges.sql</File>
     <File md5="7F54EF226DCDE5A58E9BAF8A8507178C" import="0">Balance Changes/Beliefs/Founder.sql</File>
-    <File md5="6EB9C9D90998BFF4B1ECA33DBE978B4A" import="0">Balance Changes/Beliefs/Follower.sql</File>
+    <File md5="DADFA40D2C27E18FC7AD249AA89B6DC1" import="0">Balance Changes/Beliefs/Follower.sql</File>
     <File md5="C33FE14C8AB82E66BAC9EA544DB61282" import="0">Balance Changes/Beliefs/Enhancer.sql</File>
     <File md5="79681C37951C01819F30AD61AB663F41" import="0">Balance Changes/Beliefs/Reformation.sql</File>
     <File md5="3584444B56FBE83C396552BC18E95DFD" import="0">Balance Changes/Beliefs/Pantheons.sql</File>
@@ -469,8 +469,8 @@
     <File md5="3D38DD0E413F26530A1842AE0C9B0BEF" import="0">Balance Changes/Terrain/ResourceChanges.sql</File>
     <File md5="C1D4FD8FA992AB758357C80EBCF0AAB4" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
-    <File md5="714E074333DCB262169FA69226DDC3C7" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="1A13B6144A52B6B0FFFABDD9B8F71AEC" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="35ACBD539E30B01E0B1E6ED1517A08CD" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
+    <File md5="6456E32FBCAA5ADB569365F13A2E18AE" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="85697B9C4CE26849025C40CA84784FC4" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="C81904A6D24DB0EEBF7F72E0E9425007" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="BE8A95DFB17CAD28CFA1E6E753F50D8C" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
@@ -581,7 +581,7 @@
     <File md5="7C4BFCCC79C51A21AE439DEFD059D997" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="6C53A09A94CB6D59871CE8740AB5F22D" import="1">LUA/TopPanel.lua</File>
     <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">LUA/TopPanel.xml</File>
-    <File md5="ADD8EB28ABB3F4D48FCA598A44A33585" import="1">LUA/TradeLogic.lua</File>
+    <File md5="B06939B1C21AA492EED59F24D0570E3F" import="1">LUA/TradeLogic.lua</File>
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="402386B269D33E2D55DAE77BF94377CB" import="1">LUA/UnitPanel.lua</File>
