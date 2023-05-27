@@ -936,8 +936,8 @@ WHERE Tag = 'TXT_KEY_BUILD_MOAI_HELP';
 --------------------
 -- Portugal
 --------------------
-UPDATE Language_en_US
-SET Text = 'A Feitoria can be constructed by Workers in owned land, or by the Nau (via Exotic Cargo) in City-State land. Each gives a unique set of benefits.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Worker:[ENDCOLOR] The tile gains [ICON_PRODUCTION] Production and [ICON_GOLD] Gold, adjacent Coast and Lake tiles gain +1 [ICON_GOLD] Gold, and adjacent Fishing Boats gain +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Nau:[ENDCOLOR] It provides a copy of each Luxury Resource type owned by the City-State, but that copy cannot be traded. [ICON_INTERNATIONAL_TRADE] Trade Routes to this City-State generate bonus [ICON_PRODUCTION] Production and [ICON_FOOD] Food based on your [ICON_GOLD] Gold income from the [ICON_INTERNATIONAL_TRADE] Trade Route, and your relationship with the City-State (i.e. Neutral/Friend/Ally).[NEWLINE][NEWLINE]In addition to these bonus, the Feitoria provides vision of its tile and all tiles within a radius of 2 and provides a +25% defense bonus. Can only be built by the Portuguese, can only be built on the coast, cannot be built adjacent to another Feitoria, and cannot be built on top of resources.'
+UPDATE Language_en_US 
+SET Text = 'Adjacent Coast and Lake tiles gain +1 [ICON_GOLD] Gold, and adjacent Fishing Boats gain +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Can be constructed by the Nau (via [COLOR_POSITIVE_TEXT]Exotic Cargo[ENDCOLOR]) in City-State land. Provides an untradeable copy of each Luxury Resource type owned by the City-State. [ICON_INTERNATIONAL_TRADE] Trade Routes to this City-State generate bonus [ICON_FOOD] Food and [ICON_PRODUCTION] Production based on [ICON_GOLD] Gold generated from the [ICON_INTERNATIONAL_TRADE] Trade Route and relationship with the City-State (i.e. Neutral/Friend/Ally).[NEWLINE][NEWLINE]In addition to these bonus, the Feitoria provides vision of all tiles within a radius of 2 and provides a +25% defense bonus. Can only be built on the coast. Cannot be built adjacent to another Feitoria and not on top of resources.' 
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FEITORIA_HELP';
 
 UPDATE Language_en_US
@@ -953,7 +953,7 @@ SET Text = 'Melee naval unit which excels at sea exploration. Has higher [ICON_S
 WHERE Tag = 'TXT_KEY_UNIT_HELP_PORTUGUESE_NAU';
 
 UPDATE Language_en_US
-SET Text = 'When a Trade Unit moves, receive +4 [ICON_RESEARCH] Science, [ICON_GOLD] Gold, [ICON_GREAT_ADMIRAL] Great Admiral Points (for Cargo Ships), and [ICON_GREAT_GENERAL] Great General Points (for Caravans), scaling with Era.'
+SET Text = 'When a Trade Unit moves, receive +4 [ICON_RESEARCH] Science, [ICON_GOLD] Gold, [ICON_GREAT_ADMIRAL] Great Admiral Points ([ICON_CARGO_SHIP]), and [ICON_GREAT_GENERAL] Great General Points ([ICON_CARAVAN]), scaling with Era.'
 WHERE Tag = 'TXT_KEY_TRAIT_EXTRA_TRADE';
 
 UPDATE Language_en_US
@@ -968,7 +968,7 @@ WHERE Tag = 'TXT_KEY_MISSION_SELL_EXOTIC_GOODS_HELP';
 -- Rome
 --------------------
 UPDATE Language_en_US
-SET Text = '+30% [ICON_DEFENSE] Combat Strength against [ICON_CITY_STATE] City-States. Conquered City-States provide rewards as if they were [COLOR_POSITIVE]Allies[ENDCOLOR]. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
+SET Text = '+30% [ICON_STRENGTH] Combat Strength against [ICON_CITY_STATE] City-States. Conquered City-States provide rewards as if they were [COLOR_POSITIVE]Allies[ENDCOLOR]. +15% [ICON_PRODUCTION] Production towards Buildings present in [ICON_CAPITAL] Capital.'
 WHERE Tag = 'TXT_KEY_TRAIT_CAPITAL_BUILDINGS_CHEAPER';
 
 UPDATE Language_en_US
