@@ -389,7 +389,21 @@ function UpdateUnitActions( unit )
 		local thisBuild = GameInfo.Builds[buildType];
 		--print("thisBuild.Type:"..tostring(thisBuild.Type));
 		local civilianUnitStr = Locale.ConvertTextKey(thisBuild.Description);
-		local iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft(buildType, Game.GetActivePlayer(),  0, 0) + 1;	
+		
+		local buildProgress = unit:GetPlot():GetBuildProgress( buildType )
+		local nominalWorkRate = unit:WorkRate( true )
+		-- take into account unit.cpp "wipe out all build progress also" game bug
+		local buildTime = unit:GetPlot():GetBuildTime( buildType, Game.GetActivePlayer() ) - nominalWorkRate
+		local iTurnsLeft
+		if buildProgress == 0 then
+			iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft( buildType, Game.GetActivePlayer(), nominalWorkRate - unit:WorkRate() )
+		else
+			buildProgress = buildProgress - nominalWorkRate
+			iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft( buildType, Game.GetActivePlayer(), -unit:WorkRate() )
+		end
+		if iTurnsLeft > 99999 then
+			iTurnsLeft = math.ceil( ( buildTime - buildProgress ) / nominalWorkRate )
+		end
 		local iTurnsTotal = unit:GetPlot():GetBuildTurnsTotal(buildType);	
 		if (iTurnsLeft < 4000 and iTurnsLeft > 0) then
 			civilianUnitStr = civilianUnitStr.." ("..tostring(iTurnsLeft)..")";
@@ -1647,8 +1661,20 @@ function TipHandler( control )
 			iExtraBuildRate = unit:WorkRate(true, iBuildID);
 		end
 		
-		local iBuildTurns = pPlot:GetBuildTurnsLeft(iBuildID, Game.GetActivePlayer(), iExtraBuildRate, iExtraBuildRate);
-		--print("iBuildTurns: " .. iBuildTurns);
+		local buildProgress = pPlot:GetBuildProgress( iBuildID )
+		local nominalWorkRate = unit:WorkRate( true )
+		-- take into account unit.cpp "wipe out all build progress also" game bug
+		local buildTime = pPlot:GetBuildTime( iBuildID, Game.GetActivePlayer() ) - nominalWorkRate
+		local iBuildTurns
+		if buildProgress == 0 then
+			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), nominalWorkRate - unit:WorkRate() )
+		else
+			buildProgress = buildProgress - nominalWorkRate
+			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), -unit:WorkRate() )
+		end
+		if iBuildTurns > 99999 then
+			iBuildTurns = math.ceil( ( buildTime - buildProgress ) / nominalWorkRate )
+		end
 		if (iBuildTurns > 1) then
 			strBuildTurnsString = " ... " .. Locale.ConvertTextKey("TXT_KEY_BUILD_NUM_TURNS", iBuildTurns);
 		end
