@@ -950,6 +950,15 @@ UPDATE Language_en_US
 SET Text = 'Already bullied this turn'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
 
+-- Quest Changes
+UPDATE Language_en_US
+SET Text = 'They want you to start a land or sea trade route to their city.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL';
+
+UPDATE Language_en_US
+SET Text = 'We want you to start a trade route.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE';
+
 -- Victory Panel
 INSERT INTO Language_en_US (Tag, Text)
 VALUES  ('TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU', ' {1_PlayerName} controls you as a Vassal.'),
