@@ -1822,7 +1822,19 @@ function ActionToolTipHandler( control )
 				toolTip:insert( "+" .. unit:GetTradeInfluence(plot) .. "[ICON_INFLUENCE]" )
 			end
 			if (unit:GetTradeGold(plot) ~= 0) then
-				toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+				local unitTypeID = unit:GetUnitType();
+				local unitInfo = unitTypeID and GameInfo_Units[unitTypeID];
+				if (unitInfo.BaseWLTKDTurns > 0) then
+					local WLTKDTurns = unitInfo.BaseWLTKDTurns or 0;
+					for row in GameInfo.Unit_ScalingFromOwnedImprovements() do
+						if row.UnitType == unitInfo.Type then
+							WLTKDTurns = WLTKDTurns * (1 + g_activePlayer:GetImprovementCount(GameInfo.Improvements[row.ImprovementType].ID) * row.Amount / 100) * (GameInfo.GameSpeeds[Game.GetGameSpeedType()].InstantYieldPercent / 100 or 0)
+						end
+					end
+					toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD][NEWLINE]" .. "+" .. math_floor(WLTKDTurns) .. " " .. L("TXT_KEY_TURNS") .. " " .. L("TXT_KEY_PLOTROLL_EMBASSY", "") .. "[ICON_HAPPINESS_1] [COLOR_POSITIVE_TEXT]" .. L("TXT_KEY_FOOD_WELOVEKING_HEADING3_TITLE") .. "[ENDCOLOR]")
+				else
+					toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+				end
 			end
 		end
 

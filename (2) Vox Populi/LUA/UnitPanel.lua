@@ -1337,6 +1337,18 @@ function TipHandler( control )
 			if (unit:GetTradeGold(unit:GetPlot()) ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]";
 				strToolTip = strToolTip .. "+" .. unit:GetTradeGold(unit:GetPlot()) .. "[ICON_GOLD]";
+				local unitTypeID = unit:GetUnitType();
+				local unitInfo = unitTypeID and GameInfo.Units[unitTypeID];
+				if (unitInfo.BaseWLTKDTurns > 0) then
+					local WLTKDTurns = unitInfo.BaseWLTKDTurns or 0;
+					for row in GameInfo.Unit_ScalingFromOwnedImprovements() do
+						if row.UnitType == unitInfo.Type then
+							WLTKDTurns = WLTKDTurns * (1 + pActivePlayer:GetImprovementCount(GameInfo.Improvements[row.ImprovementType].ID) * row.Amount / 100) * (GameInfo.GameSpeeds[Game.GetGameSpeedType()].InstantYieldPercent / 100 or 0)
+						end
+					end
+					strToolTip = strToolTip .. "[NEWLINE]";
+					strToolTip = strToolTip .. "+" .. math.floor(WLTKDTurns) .. " " .. Locale.Lookup("TXT_KEY_TURNS") .. " " .. Locale.Lookup("TXT_KEY_PLOTROLL_EMBASSY", "") .. "[ICON_HAPPINESS_1] [COLOR_POSITIVE_TEXT]" .. Locale.Lookup("TXT_KEY_FOOD_WELOVEKING_HEADING3_TITLE") .. "[ENDCOLOR]";
+				end
 			end
 		end
 		
