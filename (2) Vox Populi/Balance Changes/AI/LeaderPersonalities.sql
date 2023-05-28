@@ -171,7 +171,7 @@ UPDATE Leaders SET Chattiness = 4 					WHERE Type = 'LEADER_AUGUSTUS';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_IGNORE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 2 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_PROTECTIVE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
-UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
+UPDATE Leader_MinorCivApproachBiases SET Bias = 12 	WHERE LeaderType = 'LEADER_AUGUSTUS' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Bismarck (Germany)
 UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_BISMARCK';
@@ -468,7 +468,7 @@ UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_GE
 UPDATE Leader_MajorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_AFRAID';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_NEUTRAL';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 7 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_FRIENDLY';
-UPDATE Leaders SET VictoryCompetitiveness = 7 		WHERE Type = 'LEADER_GENGHIS_KHAN';
+UPDATE Leaders SET VictoryCompetitiveness = 10 		WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET WonderCompetitiveness = 1 		WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET MinorCivCompetitiveness = 1 		WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET Boldness = 10 					WHERE Type = 'LEADER_GENGHIS_KHAN';
@@ -483,7 +483,7 @@ UPDATE Leaders SET Meanness = 10 					WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leaders SET Chattiness = 4 					WHERE Type = 'LEADER_GENGHIS_KHAN';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 1 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_IGNORE';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 3 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_PROTECTIVE';
-UPDATE Leader_MinorCivApproachBiases SET Bias = 10 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
+UPDATE Leader_MinorCivApproachBiases SET Bias = 12 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_BULLY';
 UPDATE Leader_MinorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_GENGHIS_KHAN' 	AND MinorCivApproachType = 'MINOR_CIV_APPROACH_CONQUEST';
 
 -- Gustavus Adolphus (Sweden)
@@ -858,7 +858,7 @@ UPDATE Leader_MinorCivApproachBiases SET Bias = 8 	WHERE LeaderType = 'LEADER_OD
 UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_SCIENCE' WHERE Type = 'LEADER_PACAL';
 UPDATE Leaders SET SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE' WHERE Type = 'LEADER_PACAL';
 UPDATE Leaders SET Personality = 'PERSONALITY_COALITION' WHERE Type = 'LEADER_PACAL';
-UPDATE Leader_MajorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_PACAL' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
+UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACAL' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_WAR';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACAL' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_HOSTILE';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 5 	WHERE LeaderType = 'LEADER_PACAL' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_DECEPTIVE';
 UPDATE Leader_MajorCivApproachBiases SET Bias = 6 	WHERE LeaderType = 'LEADER_PACAL' 	AND MajorCivApproachType = 'MAJOR_CIV_APPROACH_GUARDED';
