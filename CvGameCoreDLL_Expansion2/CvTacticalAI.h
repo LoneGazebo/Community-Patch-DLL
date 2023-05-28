@@ -912,6 +912,7 @@ public:
 	STacticalAssignment* getInitialAssignmentMutable(int iUnitID);
 	const STacticalAssignment* getLatestAssignment(int iUnitID) const;
 	STacticalAssignment* getLatestAssignmentMutable(int iUnitID);
+	const STacticalAssignment* getLatestMoveAssignment(int iUnitID) const;
 	bool unitHasAssignmentOfType(int iUnitID, eUnitAssignmentType assignmentType) const;
 	bool plotHasAssignmentOfType(int iToPlotIndex, eUnitAssignmentType assignmentType) const;
 	bool addAssignment(const STacticalAssignment& newAssignment);

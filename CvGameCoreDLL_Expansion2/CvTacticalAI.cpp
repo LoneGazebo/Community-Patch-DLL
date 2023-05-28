@@ -1702,7 +1702,7 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
 		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GUARD, pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
 		{
 			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
@@ -1732,7 +1732,7 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GUARD, pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot))
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
 		{
 			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
@@ -4891,7 +4891,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				return pLoopUnit;
 
 			//otherwise collect and sort
-			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, false, false, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
+			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
 			if(iTurns != MAX_INT)
 			{
 				//tricky to make a good score avoiding ties ...
@@ -8691,7 +8691,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gMovesToAdd.clear();
 
 		//blocks don't change anything in the simulation so let's add them together with another move - so we use our allowed branches for "interesting" moves
-		while (i < gOverAllChoices.size() - 1 && gOverAllChoices[i].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
+		while (i < gOverAllChoices.size()-1 && gOverAllChoices[i].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
 			gMovesToAdd.push_back(gOverAllChoices[i++]);
 
 		//easy case, unit moves to an unoccupied plot
@@ -8752,7 +8752,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		if (!gMovesToAdd.empty())
 		{
 			//maybe we have even more blocks following our "primary" move. consume them as well - this should reduce our total search depth
-			while (i < gOverAllChoices.size()-1 && gOverAllChoices[i+1].eAssignmentType == A_BLOCKED)
+			while (i < gOverAllChoices.size()-1 && gOverAllChoices[i+1].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
 				gMovesToAdd.push_back(gOverAllChoices[++i]);
 
 			//we need memory for the new child but we'll commit it only later after the uniqueness check
@@ -8901,14 +8901,23 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 		{
 			//if the score is acceptable, end their turn. unless the unit is blocked, then we may use them for other tasks
 			if (unit.eLastAssignment != A_BLOCKED)
-				//note we do not modify the total score; handing out points for both the move and the finish is double-dipping
+			{
+				//handing out points for both the move and the finish is double-dipping ...
+				const STacticalAssignment* lastMoveAssigment = getLatestMoveAssignment(unit.iUnitID);
+				if (lastMoveAssigment)
+					iTotalScore += max(0, iNextTurnScore - lastMoveAssigment->iScore);
+				else
+					iTotalScore += iNextTurnScore;
+
 				assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
+			}
 		}
 		else
 		{
 			//cannot leave the unit in this place. instead replace the unit's last assignment with A_BLOCKED and hope for somebody else to assign a good move
+			//unless it cannot move or we have another unit we need to protect
 			STacticalAssignment* pLast = getLatestAssignmentMutable(unit.iUnitID);
-			if (pLast->eAssignmentType == A_FINISH_TEMP && pLast->iRemainingMoves>0)
+			if (pLast->eAssignmentType == A_FINISH_TEMP && pLast->iRemainingMoves>0 && (isSupportUnit(unit.eStrategy) || getTactPlot(unit.iPlotIndex).getUnitsAtPlot().size()==1))
 				//temp finish did not affect the score, so nothing to undo
 				*pLast = STacticalAssignment(pLast->iFromPlotIndex, pLast->iFromPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED);
 			else //too risky
@@ -9435,6 +9444,17 @@ STacticalAssignment * CvTacticalPosition::getInitialAssignmentMutable(int iUnitI
 	return NULL;
 }
 
+const STacticalAssignment* CvTacticalPosition::getLatestMoveAssignment(int iUnitID) const
+{
+	for (size_t i = assignedMoves.size()-1; i >= nFirstInterestingAssignment; i--)
+		if (assignedMoves[i].iUnitID == iUnitID)
+			//MOVE_SWAP_REVERSE and MOVE_FORCED can never occur alone, ignore them
+			if (assignedMoves[i].eAssignmentType == A_MOVE || assignedMoves[i].eAssignmentType == A_MOVE_SWAP)
+				return &(assignedMoves[i]);
+
+	return NULL;
+}
+
 const STacticalAssignment* CvTacticalPosition::getLatestAssignment(int iUnitID) const
 {
 	for (vector<STacticalAssignment>::const_reverse_iterator it = assignedMoves.rbegin(); it != assignedMoves.rend(); ++it)
@@ -9623,7 +9643,8 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//are we done or can we do further moves with this unit?
 	if (itUnit->iMovesLeft == 0 || bEndOfSim)
 	{
-		if (IsCombatUnit(*itUnit))
+		//blocked units might still move away
+		if (IsCombatUnit(*itUnit) && newAssignment.eAssignmentType != A_BLOCKED)
 			getTactPlotMutable(itUnit->iPlotIndex).setCombatUnitEndTurn(*this,DomainForUnit(itUnit->pUnit));
 		notQuiteFinishedUnits.push_back(*itUnit);
 		availableUnits.erase(itUnit);
