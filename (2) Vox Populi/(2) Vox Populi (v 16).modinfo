@@ -619,6 +619,7 @@
     <File md5="C9837AE28C480828B49045BDA4547DFF" import="1">Mapscripts/EMP/PangaeaPlus.lua</File>
     <File md5="2702A67600180AC22EDA582CBBDDEFCC" import="1">Mapscripts/EMP/Sandstorm.lua</File>
     <File md5="7974209E813E54FB95B24680C3B006EE" import="1">Mapscripts/West_vs_East.lua</File>
+    <File md5="7974209E813E54FB95B24680C3B006EE" import="1">Mapscripts/mapscripts_en_us.xml</File>
     <File md5="05FBCBEEFAA0D490CC6C843F10C20570" import="1">Modular Elements/ArchaeologistUIMods/AAA/hidden_antiquity_site.fxsxml</File>
     <File md5="051A718FFE56E83C7699A09C0031C328" import="1">Modular Elements/ArchaeologistUIMods/AAA/hidden_antiquity_site.gr2</File>
     <File md5="7D83629E625CA665CB58D71103F50B71" import="1">Modular Elements/ArchaeologistUIMods/AAA/hidden_antiquity_site_decal_diff.dds</File>
@@ -1155,6 +1156,7 @@
       <UpdateDatabase>Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Buildings/BuildingChanges.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Buildings/BuildingHurryCosts.sql</UpdateDatabase>
+      <UpdateDatabase>Mapscripts/mapscripts_en_us.xml</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
