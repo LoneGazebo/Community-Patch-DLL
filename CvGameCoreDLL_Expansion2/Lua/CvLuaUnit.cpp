@@ -3068,7 +3068,7 @@ int CvLuaUnit::lIsEnemyInMovementRange(lua_State* L)
 	const bool bOnlyFortified = lua_toboolean(L, 2);
 	const bool bOnlyCities = lua_toboolean(L, 3);
 
-	lua_pushboolean(L, pkUnit->IsEnemyInMovementRange(bOnlyFortified, bOnlyCities));
+	lua_pushboolean(L, pkUnit->GetPlotsWithEnemyInMovementRange(bOnlyFortified, bOnlyCities).size()>0);
 	return 1;
 }
 
