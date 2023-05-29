@@ -30112,7 +30112,8 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 {
 	//first check if we can continue building on the current plot
 	BuildTypes eBestBuild = NO_BUILD;
-	RouteTypes eBestRoute = GetBestBuildRoute(plot(), &eBestBuild);
+	GetBestBuildRoute(plot(), &eBestBuild);
+	RouteTypes eBestRoute = GET_PLAYER(getOwner()).getBestRoute(plot());
 	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(getOwner()).GetBuilderTaskingAI();
 	bool bGetSameBenefitFromTrait = eBuilderTaskingAi->GetSameRouteBenefitFromTrait(plot(), eBestRoute);
 	if(!bGetSameBenefitFromTrait && eBestBuild != NO_BUILD && UnitBuild(eBestBuild))
