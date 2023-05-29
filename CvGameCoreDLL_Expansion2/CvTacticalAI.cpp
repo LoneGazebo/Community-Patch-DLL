@@ -8690,11 +8690,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	{
 		gMovesToAdd.clear();
 
-		//blocks don't change anything in the simulation so let's add them together with another move - so we use our allowed branches for "interesting" moves
-		while (i < gOverAllChoices.size()-1 && gOverAllChoices[i].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
-			gMovesToAdd.push_back(gOverAllChoices[i++]);
-
-		//easy case, unit moves to an unoccupied plot
+		//easy case first, no conflict
 		if (!isMoveBlockedByOtherUnit(gOverAllChoices[i]))
 		{
 			//just do the original move
@@ -8751,8 +8747,9 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 		if (!gMovesToAdd.empty())
 		{
-			//maybe we have even more blocks following our "primary" move. consume them as well - this should reduce our total search depth
-			while (i < gOverAllChoices.size()-1 && gOverAllChoices[i+1].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
+			//maybe we have a block move following our "primary" move? should be harmless to add them together. this reduces our total search depth
+			//try adding only one block for now ...
+			if (i < gOverAllChoices.size()-1 && gOverAllChoices[i+1].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
 				gMovesToAdd.push_back(gOverAllChoices[++i]);
 
 			//we need memory for the new child but we'll commit it only later after the uniqueness check
