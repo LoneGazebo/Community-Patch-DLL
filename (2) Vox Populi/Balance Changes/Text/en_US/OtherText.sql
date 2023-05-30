@@ -406,7 +406,7 @@ SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production'
 WHERE Tag = 'TXT_KEY_ABLTY_TECH_BOOST_CHOP';
 
 INSERT INTO Language_en_US (Tag, Text) VALUES
-('TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION', "Removing Forests/Jungles needs {1_Turns} Turn(s) to complete." );
+('TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION', "{1_Turns}% Turn(s) to removing Forests/Jungles." );
 
 -- Penicilin and Nanotech
 
