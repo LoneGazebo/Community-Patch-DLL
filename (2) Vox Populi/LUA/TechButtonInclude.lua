@@ -250,7 +250,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		if thisButton then
 			IconHookup( 0, textureSize, "GENERIC_FUNC_ATLAS", thisButton );
 			thisButton:SetHide( false );
-			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100) );
+			thisButton:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100))) );
 			buttonNum = buttonNum + 1;
 		else
 			break
@@ -909,5 +909,13 @@ function AdjustArtOnGrantedActionButton( thisButton, thisBuildInfo, textureSize 
 		thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
 		--techPediaSearchStrings[tostring(thisButton)] = Locale.ConvertTextKey( thisBuildInfo.Description );
 		--thisButton:RegisterCallback( Mouse.eRClick, GetTechPedia );
+	end
+end
+--This displays percentage in a roundup manner.
+function DisplayPercentage(firstnumber)
+	if math.floor(firstnumber*1000)/10 % 1 == 0 then
+		return math.floor(firstnumber*100)
+	else
+		return math.floor(firstnumber*1000)/10
 	end
 end
