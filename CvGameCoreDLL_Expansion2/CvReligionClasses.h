@@ -579,6 +579,7 @@ public:
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread(bool bConsiderForeign) const;
 	ReligionTypes GetFavoriteForeignReligion(bool bForInternalSpread) const;
+	int ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus = false, bool bConsiderFutureTech = true) const;
 
 private:
 #if defined(MOD_BALANCE_CORE)
@@ -598,7 +599,6 @@ private:
 	bool BuyAnyAvailableNonFaithBuilding();
 	bool BuyAnyAvailableFaithBuilding();
 
-	int ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus = false, bool bConsiderFutureTech = true) const;
 	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot, bool bConsiderFutureTech) const;
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const;
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false) const;
