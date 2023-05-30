@@ -47,7 +47,7 @@
 			<Text>Cernunnos, the Horned Stag</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH">
-			<Text>+2 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold in Cities with a Specialist. +10% [ICON_PRODUCTION] Production towards Wonders. +3 [ICON_PRODUCTION] Production from Ceilidh Hall.</Text>
+			<Text>+2 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold in Cities with a Specialist. +10% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders. +3 [ICON_PRODUCTION] Production from Ceilidh Hall.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BELIEF_LUGH_SHORT">
 			<Text>Lugh, the Skilled One</Text>
