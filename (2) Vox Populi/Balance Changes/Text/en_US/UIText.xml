@@ -480,7 +480,7 @@
 
 		<!-- Aesthetics -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_POLICY_AESTHETICS">
-			<Text>{1_Num} [ICON_TOURISM] Tourism from World Wonders</Text>
+			<Text>{1_Num} [ICON_TOURISM] Tourism from [ICON_WONDER] World Wonders</Text>
 		</Row>
 
 		<!--<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
