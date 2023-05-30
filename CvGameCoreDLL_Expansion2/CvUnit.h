@@ -1903,7 +1903,7 @@ public:
 	bool IsCombatUnit() const;
 
 	ReachablePlots GetAllPlotsInReachThisTurn(bool bCheckTerritory=true, bool bCheckZOC=true, bool bAllowEmbark=true, int iMinMovesLeft=0) const;
-	bool IsEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false);
+	vector<int> GetPlotsWithEnemyInMovementRange(bool bOnlyFortified = false, bool bOnlyCities = false, int iMaxPathLength=INT_MAX);
 
 	// Path-finding routines
 	bool GeneratePath(const CvPlot* pToPlot, int iFlags = 0, int iMaxTurns = INT_MAX, int* piPathTurns = NULL);

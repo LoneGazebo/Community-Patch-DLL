@@ -7388,7 +7388,7 @@ bool CvUnit::canUseForAIOperation() const
 		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			return false;
 
-		//do not call FirstTargetInRange, it's too expensive ...
+		//do not call GetPlotsWithEnemyInMovementRange, it's too expensive ...
 		//instead look at our immediate neighbor plots only
 		for (int i = 0; i < RING3_PLOTS; i++)
 		{
@@ -28676,10 +28676,12 @@ bool CvUnit::canEverRangeStrikeAt(int iX, int iY, const CvPlot* pSourcePlot, boo
 		// Can only bombard in domain?
 		if (getUnitInfo().IsRangeAttackOnlyInDomain())
 		{
-			//check areas, not domain types because we want to prevent subs from shooting into lakes
-			bool bForbidden = (pTargetPlot->getArea() != pSourcePlot->getArea());
+			//check "landmasses" not domain types because we want to prevent subs from shooting into lakes
+			//note that getArea does not work, one ocean can have multiple areas!
+			bool bForbidden = (pTargetPlot->getLandmass() != pSourcePlot->getLandmass());
+	
 			//subs should be able to attack cities (they're on the coast, they've got ports, etc.)
-			if (MOD_BALANCE_VP && pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToArea(pSourcePlot->getArea()))
+			if (MOD_BALANCE_VP && pTargetPlot->isCity() && pTargetPlot->getPlotCity()->HasAccessToLandmass(pSourcePlot->getLandmass()))
 				bForbidden = false;
 
 			if (bForbidden)
@@ -30279,7 +30281,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 	case INTERFACEMODE_ATTACK:
 		if(IsCanAttackWithMove() && !isOutOfAttacks())
 		{
-			if(IsEnemyInMovementRange(false, IsCityAttackSupport()) || bTestVisibility)
+			if(GetPlotsWithEnemyInMovementRange(false, IsCityAttackSupport()).size()>0 || bTestVisibility)
 			{
 				return true;
 			}
@@ -30803,12 +30805,17 @@ ReachablePlots CvUnit::GetAllPlotsInReachThisTurn(bool bCheckTerritory, bool bCh
 }
 
 //	--------------------------------------------------------------------------------
-bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
+vector<int> CvUnit::GetPlotsWithEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities, int iMaxPathLength)
 {
+	vector<int> result;
+
 	VALIDATE_OBJECT
 	ReachablePlots plots = GetAllPlotsInReachThisTurn(true, true, false);
 	for (ReachablePlots::const_iterator it=plots.begin(); it!=plots.end(); ++it)
 	{
+		if (it->iPathLength > iMaxPathLength)
+			continue;
+
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(it->iPlotIndex);
 		if(pPlot->isVisible(getTeam()) && (pPlot->isVisibleEnemyUnit(this) || pPlot->isEnemyCity(*this)))
 		{
@@ -30817,27 +30824,21 @@ bool CvUnit::IsEnemyInMovementRange(bool bOnlyFortified, bool bOnlyCities)
 				if(bOnlyFortified)
 				{
 					CvUnit* pEnemyUnit = pPlot->getVisibleEnemyDefender(getOwner());
-					if(pEnemyUnit && pEnemyUnit->IsFortified())
-					{
-						return true;
-					}
+					if (pEnemyUnit && pEnemyUnit->IsFortified())
+						result.push_back(it->iPlotIndex);
 				}
 				else if(bOnlyCities)
 				{
 					if(pPlot->isEnemyCity(*this))
-					{
-						return true;
-					}
+						result.push_back(it->iPlotIndex);
 				}
 				else
-				{
-					return true;
-				}
+					result.push_back(it->iPlotIndex);
 			}
 		}
 	}
 
-	return false;
+	return result;
 }
 
 // PATH-FINDING ROUTINES
