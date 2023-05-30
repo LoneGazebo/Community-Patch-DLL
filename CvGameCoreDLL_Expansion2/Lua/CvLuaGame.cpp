@@ -407,6 +407,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DoEnactResolution);
 	Method(DoRepealResolution);
 	Method(IsBeliefValid);
+	Method(ScoreBelief);
 
 	Method(IsAchievementUnlocked);
 	Method(GetSteamStat);
@@ -3231,6 +3232,23 @@ int CvLuaGame::lIsBeliefValid(lua_State* L)
 	}
 	
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaGame::lScoreBelief(lua_State* L)
+{
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
+	const BeliefTypes eBeliefType = static_cast<BeliefTypes>(luaL_checkint(L, 2));
+	int iScore = 0;
+
+	if (ePlayer != NO_PLAYER && eBeliefType != NO_BELIEF)
+	{
+		CvBeliefEntry* pBelief = GC.GetGameBeliefs()->GetEntry(eBeliefType);
+		if (pBelief)
+			iScore = GET_PLAYER(ePlayer).GetReligionAI()->ScoreBelief(pBelief);
+	}
+
+	lua_pushinteger(L, iScore);
 	return 1;
 }
 
