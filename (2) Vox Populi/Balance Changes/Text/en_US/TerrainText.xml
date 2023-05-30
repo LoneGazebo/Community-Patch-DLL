@@ -81,7 +81,7 @@
 			<Text>Kuna</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT">
-			<Text>'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder![NEWLINE][NEWLINE]A Kuna can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna. Grants [ICON_PEACE] Faith and [ICON_RESEARCH] Science to the City that works the tile.</Text>
+			<Text>{TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP}[NEWLINE][NEWLINE]'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP">
 			<Text>Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna. Generates [ICON_PEACE] Faith and [ICON_RESEARCH] Science.</Text>
@@ -90,7 +90,7 @@
 			<Text>Construct a [LINK=IMPROVEMENT_KUNA]Kuna[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KUNA_HELP">
-			<Text>Constructs a Kuna, which increases [ICON_RESEARCH] Science and [ICON_PEACE] Faith.</Text>
+			<Text>Cannot be built adjacent to another Kuna. Does not remove features on the tile.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KUNA_REC">
 			<Text>It will increase [ICON_RESEARCH] Science and [ICON_PEACE] Faith.</Text>

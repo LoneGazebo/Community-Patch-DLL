@@ -22,5 +22,6 @@
     <glyph ch="9" u="176" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="10" u="198" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="11" u="220" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+	<glyph ch="12" u="242" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
   </glyphs>
 </glyphgen>
