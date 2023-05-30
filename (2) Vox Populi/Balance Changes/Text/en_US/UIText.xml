@@ -1659,7 +1659,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILD_COST_REDUCTION">
-			<Text>{1_Build} needs {2_Turns} Turn(s) to complete.</Text>
+			<Text>{2_Turns} Turn(s) to {1_Build}.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_INVALID_RESOLUTION_ATTEMPTED_LAST_SESSION">
