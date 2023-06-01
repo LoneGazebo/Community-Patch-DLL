@@ -1806,7 +1806,10 @@
 			<Text>Military Power</Text>
 		</Row>
 	<!-- UI - Religion Spread -->
-			<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
+		<Row Tag="TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION">
+			<Text>[COLOR_POSITIVE_TEXT]Your Advisor recommends this belief.[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RO_WR_TOTAL_CITIES">
 			<Text>Cities</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RO_WR_TOTAL_FOLLOWERS">
