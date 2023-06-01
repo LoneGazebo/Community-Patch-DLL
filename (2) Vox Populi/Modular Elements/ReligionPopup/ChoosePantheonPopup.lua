@@ -163,16 +163,6 @@ function RefreshList()
 				if (bDebugScore) then
 					itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " " .. iScore .. ")");
 				end
-				itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_GOLD])");
-				itemInstance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
-			elseif (iScore >= iHigherScore) then
-				itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_SILVER])");
-				itemInstance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
-			elseif (iScore >= iHighScore) then
-				itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_BRONZE])");
-				itemInstance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
-			else 
-				itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " " .. iScore .. ")");
 			end
 		end
 		--itemInstance.Button:SetToolTipString(belief.Description);  
