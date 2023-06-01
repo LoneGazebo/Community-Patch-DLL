@@ -6,7 +6,7 @@
 include( "IconSupport" );
 include( "InstanceManager" );
 
-
+local bDebugScore = false; -- Use this to set to true to see scores for ALL beliefs 
 local g_ReligionButtonManager = InstanceManager:new( "ReligionButtonInstance", "Base", Controls.ReligionStack );
 local g_BeliefItemManager = InstanceManager:new( "BeliefItemInstance", "Button", Controls.BeliefStack );
 
@@ -577,22 +577,36 @@ function SelectFromBeliefs(beliefs, selectFn)
 		if (not OptionsManager.IsNoBasicHelp()) then
 			local iScore = Game.ScoreBelief(Game.GetActivePlayer(), v.ID);
 			if (iScore >= iHighestScore) then
-				itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_GOLD])");
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_GOLD])");
+				else
+					itemInstance.Name:SetText(v.Name .. " (" .. "[ICON_TROPHY_GOLD])");
+				end
 				itemInstance.Button:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 				itemInstance.Name:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 				itemInstance.Description:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 			elseif (iScore >= iHigherScore) then
-				itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_SILVER])");
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_SILVER])");
+				else
+					itemInstance.Name:SetText(v.Name .. " (" .. "[ICON_TROPHY_SILVER])");
+				end
 				itemInstance.Button:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 				itemInstance.Name:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 				itemInstance.Description:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 			elseif (iScore >= iHighScore) then
-				itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_BRONZE])");
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_BRONZE])");
+				else
+					itemInstance.Name:SetText(v.Name .. " (" .. "[ICON_TROPHY_BRONZE])");
+				end
 				itemInstance.Button:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 				itemInstance.Name:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 				itemInstance.Description:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 			else 
-				itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " " .. iScore .. ")");
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " " .. iScore .. ")");
+				end
 			end
 		end
 		local gw,gh = itemInstance.AnimGrid:GetSizeVal();

@@ -13,6 +13,7 @@ local dkBlue = {12/255,22/255,30/255,120/255};
 local g_ItemManager = InstanceManager:new( "ItemInstance", "Button", Controls.ItemStack );
 local bHidden = true;
 local g_bPantheons = true;
+local bDebugScore = false; -- Use this to set to true to see scores for ALL beliefs
 
 local screenSizeX, screenSizeY = UIManager:GetScreenSizeVal()
 local spWidth, spHeight = Controls.ItemScrollPanel:GetSizeVal();
@@ -138,6 +139,30 @@ function RefreshList()
 		if (not OptionsManager.IsNoBasicHelp()) then
 			local iScore = Game.ScoreBelief(Game.GetActivePlayer(), belief.ID);
 			if (iScore >= iHighestScore) then
+				if (bDebugScore) then
+					itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_GOLD])");
+				else
+					itemInstance.Name:SetText(belief.Name .. " (" .. "[ICON_TROPHY_GOLD])");
+				end
+				itemInstance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+			elseif (iScore >= iHigherScore) then
+				if (bDebugScore) then
+					itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_SILVER])");
+				else
+					itemInstance.Name:SetText(belief.Name .. " (" .. "[ICON_TROPHY_SILVER])");
+				end
+				itemInstance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+			elseif (iScore >= iHighScore) then
+				if (bDebugScore) then
+					itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_BRONZE])");
+				else
+					itemInstance.Name:SetText(belief.Name .. " (" .. "[ICON_TROPHY_BRONZE])");
+				end
+				itemInstance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+			else
+				if (bDebugScore) then
+					itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " " .. iScore .. ")");
+				end
 				itemInstance.Name:SetText(belief.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_GOLD])");
 				itemInstance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
 			elseif (iScore >= iHigherScore) then
