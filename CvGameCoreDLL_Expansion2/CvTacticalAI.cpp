@@ -6283,9 +6283,9 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) ||
 			(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pPlot, pUnit->getOwner()));
 
-		//civilians want cover
+		//civilians and embarked units want cover
 		bool bIsInCover = false;
-		if (!pUnit->IsCanDefend())
+		if (pUnit->IsCivilianUnit() || !pUnit->isNativeDomain(pPlot))
 		{
 			CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
 			if (pDefender && pDefender != pUnit)
@@ -6309,7 +6309,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 		//avoid overflow further down and useful handling for civilians
 		if (iDanger == INT_MAX)
-			iDanger = 100000;
+			iDanger = 10000;
 
 		//map 144 to 144, everything above is not so important
 		int iScore = (iDanger > 144) ? 12 * sqrti(iDanger) : iDanger;
