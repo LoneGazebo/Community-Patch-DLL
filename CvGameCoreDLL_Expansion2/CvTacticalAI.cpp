@@ -1149,16 +1149,16 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 					switch(targetType)
 					{
 					case AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing high priority %s, X: %d, Y: %d,", strTemp.GetCString(),
-								            pDefender->getX(), pDefender->getY());
+						strLogString.Format("Looking at killing high priority %s, id %d, X: %d, Y: %d,", strTemp.GetCString(),
+							pDefender->GetID(), pDefender->getX(), pDefender->getY());
 						break;
 					case AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing medium priority %s, X: %d, Y: %d,", strTemp.GetCString(),
-								            pDefender->getX(), pDefender->getY());
+						strLogString.Format("Looking at killing medium priority %s, id %d, X: %d, Y: %d,", strTemp.GetCString(),
+							pDefender->GetID(), pDefender->getX(), pDefender->getY());
 						break;
 					case AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT:
-						strLogString.Format("Looking at killing low priority %s, X: %d, Y: %d,", strTemp.GetCString(),
-								            pDefender->getX(), pDefender->getY());
+						strLogString.Format("Looking at killing low priority %s, id %d, X: %d, Y: %d,", strTemp.GetCString(),
+							pDefender->GetID(), pDefender->getX(), pDefender->getY());
 						break;
 					default:
 						UNREACHABLE(); // Unsupported `targetType`.
@@ -4162,14 +4162,6 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 		//no safe plot to heal ...
 		else if (!bFirstPass && pUnit->getDomainType() != DOMAIN_AIR && pUnit->GetDanger() > /*10*/ GD_INT_GET(NEUTRAL_HEAL_RATE))
 		{
-			//at least try to flee if we're not needed
-			if (!pUnit->IsCoveringFriendlyCivilian())
-			{
-				pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
-				if (pBetterPlot && pBetterPlot != pUnit->plot())
-					ExecuteMoveToPlot(pUnit, pBetterPlot);
-			}
-
 			//why not pillage more tiles?
 			if (pUnit->shouldPillage(pUnit->plot()))
 			{
@@ -4183,7 +4175,16 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 				}
 			}
 
-			UnitProcessed(pUnit->GetID());
+			//at least try to flee if we're not needed
+			if (!pUnit->IsCoveringFriendlyCivilian())
+			{
+				pBetterPlot = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
+				if (pBetterPlot && pBetterPlot != pUnit->plot())
+					ExecuteMoveToPlot(pUnit, pBetterPlot);
+			}
+
+			if (!pUnit->canMove())
+				UnitProcessed(pUnit->GetID());
 		}
 	}
 }
@@ -6282,11 +6283,26 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		bool bIsInCityOrCitadel = (pPlot->isFriendlyCity(*pUnit) && !pPlot->getPlotCity()->isInDangerOfFalling()) ||
 			(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pPlot, pUnit->getOwner()));
 
-		//taking cover only works if the defender will not move away!
-		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
-		bool bIsInCover = pDefender && pDefender != pUnit && pDefender->TurnProcessed() && !pUnit->IsCanDefend();
-		if (bIsInCover) //otherwise we will get only INT_MAX for civilians
-			iDanger = pDefender->GetDanger(pPlot);
+		//civilians want cover
+		bool bIsInCover = false;
+		if (!pUnit->IsCanDefend())
+		{
+			CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
+			if (pDefender && pDefender != pUnit)
+			{
+				//taking cover only works if the defender will not move away!
+				//since we move civilians only after the combat units have moved it should be safe to pin the defender here
+				if (!pDefender->TurnProcessed())
+				{
+					pDefender->PushMission(CvTypes::getMISSION_SKIP());
+					pDefender->SetTurnProcessed(true);
+				}
+
+				bIsInCover = true;
+				//otherwise we will get only INT_MAX for civilians
+				iDanger = pDefender->GetDanger(pPlot);
+			}
+		}
 
 		bool bWrongDomain = pPlot->needsEmbarkation(pUnit);
 		bool bWouldEmbark = bWrongDomain && !pUnit->isEmbarked();
@@ -9606,7 +9622,6 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	case A_BLOCKED:
 		bAffectsScore = false;
 		bEndOfSim = true;
-		//todo: mark end turn plot? as opposed to transient blocks
 		break;
 	default:
 		UNREACHABLE();
