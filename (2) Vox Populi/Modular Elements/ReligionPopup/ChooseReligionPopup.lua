@@ -6,7 +6,7 @@
 include( "IconSupport" );
 include( "InstanceManager" );
 
-
+local bDebugScore = false; -- Use this to set to true to see scores for ALL beliefs 
 local g_ReligionButtonManager = InstanceManager:new( "ReligionButtonInstance", "Base", Controls.ReligionStack );
 local g_BeliefItemManager = InstanceManager:new( "BeliefItemInstance", "Button", Controls.BeliefStack );
 
@@ -551,6 +551,22 @@ end
 function SelectFromBeliefs(beliefs, selectFn)
 	g_BeliefItemManager:ResetInstances();
 	
+	local iHighestScore = 0; --1st Prize
+	local iHigherScore = 0; --2nd Prize
+	local iHighScore = 0; --3rd Prize
+	for i, v in ipairs(beliefs) do --Kinda disgusting to do it twice... but the Player will only see this five times anyway.
+		local iScore = Game.ScoreBelief(Game.GetActivePlayer(), v.ID);
+		if (iScore >= iHighestScore) then
+			iHigherScore = iHighestScore;
+			iHighestScore = iScore;
+		elseif (iScore >= iHigherScore) then
+			iHighScore = iHigherScore;
+			iHigherScore = iScore;
+		elseif (iScore >= iHighScore) then
+			iHighScore = iScore;
+		end
+	end
+	
 	for i,v in ipairs(beliefs) do
 		local itemInstance = g_BeliefItemManager:GetInstance();
 		itemInstance.Name:SetText(v.Name);
@@ -558,7 +574,41 @@ function SelectFromBeliefs(beliefs, selectFn)
 		itemInstance.Button:SetToolTipString(v.Tooltip);
 		itemInstance.Name:SetToolTipString(v.Tooltip);
 		itemInstance.Description:SetToolTipString(v.Tooltip);
-	
+		if (not OptionsManager.IsNoBasicHelp()) then
+			local iScore = Game.ScoreBelief(Game.GetActivePlayer(), v.ID);
+			if (iScore >= iHighestScore) then
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_GOLD])");
+				else
+					itemInstance.Name:SetText(v.Name .. " (" .. "[ICON_TROPHY_GOLD])");
+				end
+				itemInstance.Button:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				itemInstance.Name:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				itemInstance.Description:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+			elseif (iScore >= iHigherScore) then
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_SILVER])");
+				else
+					itemInstance.Name:SetText(v.Name .. " (" .. "[ICON_TROPHY_SILVER])");
+				end
+				itemInstance.Button:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				itemInstance.Name:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				itemInstance.Description:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+			elseif (iScore >= iHighScore) then
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " [COLOR_CYAN]" .. iScore .. "[ENDCOLOR][ICON_TROPHY_BRONZE])");
+				else
+					itemInstance.Name:SetText(v.Name .. " (" .. "[ICON_TROPHY_BRONZE])");
+				end
+				itemInstance.Button:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				itemInstance.Name:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+				itemInstance.Description:SetToolTipString(v.Tooltip .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_RELIGION_CHOOSER_ADVISOR_RECOMMENDATION"));
+			else 
+				if (bDebugScore) then
+					itemInstance.Name:SetText(v.Name .. " (" .. Locale.Lookup("TXT_KEY_GR_SCORE") .. " " .. iScore .. ")");
+				end
+			end
+		end
 		local gw,gh = itemInstance.AnimGrid:GetSizeVal();
 		local dw,dh = itemInstance.Description:GetSizeVal();
 		local bw,bh = itemInstance.Button:GetSizeVal();

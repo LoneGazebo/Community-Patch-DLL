@@ -666,6 +666,7 @@
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="1">Modular Elements/RandomVictory/RandomVCPopup.xml</File>
     <File md5="C225C6C6C353A80ABD8CEFC86E38D2A2" import="1">Modular Elements/RandomVictory/SpaceRaceVictory.dds</File>
     <File md5="3DFAC7B65FC1B5DDC035D7728960AF09" import="1">Modular Elements/ReligionPopup/ChooseReligionPopup.lua</File>
+    <File md5="7C3D84BC8E853B3486CB63F507D880D4" import="1">Modular Elements/ReligionPopup/ChoosePantheonPopup.lua</File>
     <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Modular Elements/TradeUIMod/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Modular Elements/TradeUIMod/ChooseInternationalTradeRoutePopup.xml</File>
     <File md5="2DB53C324F540C139A641E42EE04945D" import="1">Modular Elements/TradeUIMod/ChooseTradeUnitNewHome.lua</File>
