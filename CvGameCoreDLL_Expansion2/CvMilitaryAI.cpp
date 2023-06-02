@@ -3472,7 +3472,7 @@ void CvMilitaryAI::UpdateWarType()
 				{
 					CvString strTemp;
 					CvString strLogString;
-					strLogString.Format("War Type versus %s now WATER. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
+					strLogString.Format("War Type versus %s now WATER. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlySea, iFriendlyLand);
 					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
 				m_aiWarFocus[eLoopPlayer] = WARTYPE_SEA;
@@ -3483,7 +3483,7 @@ void CvMilitaryAI::UpdateWarType()
 				{
 					CvString strTemp;
 					CvString strLogString;
-					strLogString.Format("War Type versus %s now LAND. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlyLand, iFriendlySea);
+					strLogString.Format("War Type versus %s now LAND. Enemy has: %d Water, %d Land, we have %d Water, %d Land", GET_PLAYER(eLoopPlayer).getCivilizationShortDescription(), iEnemyWater, iEnemyLand, iFriendlySea, iFriendlyLand);
 					m_pPlayer->GetTacticalAI()->LogTacticalMessage(strLogString);
 				}
 				m_aiWarFocus[eLoopPlayer] = WARTYPE_LAND;

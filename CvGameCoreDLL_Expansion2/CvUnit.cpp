@@ -19603,7 +19603,7 @@ bool CvUnit::IsCoveringFriendlyCivilian() const
 		pUnitNode = myPlot->nextUnitNode(pUnitNode);
 
 		if(pLoopUnit && pLoopUnit->getTeam() == getTeam())
-			if(!pLoopUnit->IsCanDefend())
+			if(!pLoopUnit->IsCanDefend() && pLoopUnit->TurnProcessed())
 				return true;
 	}
 
@@ -29128,7 +29128,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 		if (GetNumEnemyUnitsAdjacent()>0)
 		{
 			//only run away if strictly necessary
-			return isProjectedToDieNextTurn() || GetDanger() > GetCurrHitPoints();
+			return isProjectedToDieNextTurn() || (GetDanger() > GetCurrHitPoints() && getDamage() > 0);
 		}
 		else
 		{

@@ -1278,7 +1278,7 @@ int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData
 		//we should give more weight to the first end-turn plot, the danger values for future stops are less concrete
 		int iFutureFactor = std::max(1,4-iTurnsInFuture);
 
-		if (pUnit->IsCombatUnit())
+		if (pUnit->IsCombatUnit() && pUnit->isNativeDomain(pToPlot))
 		{
 			//be extra careful if requested but don't really abort, else we might not find a path at all
 			int iScale = bAbortInDanger ? 2 : 1;
