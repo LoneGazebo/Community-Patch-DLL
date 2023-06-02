@@ -1200,7 +1200,7 @@ VALUES
 	('TXT_KEY_GREAT_PERSON_A__050', 'Kano Motonobu'),
 	('TXT_KEY_GREAT_PERSON_A__060', 'Yi Am'),
 	('TXT_KEY_GREAT_PERSON_A__070', 'Judith Leyster'),
-	('TXT_KEY_GREAT_PERSON_A__080', 'Diego Vélasquez'),
+	('TXT_KEY_GREAT_PERSON_A__080', 'Diego Vélazquez'),
 	('TXT_KEY_GREAT_PERSON_A__090', 'Jeong Seon'),
 	('TXT_KEY_GREAT_PERSON_A__100', 'Joseph Mallord William Turner'),
 	('TXT_KEY_GREAT_PERSON_A__110', 'Hyewon'),

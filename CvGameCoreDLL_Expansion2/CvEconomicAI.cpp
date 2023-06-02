@@ -1767,7 +1767,7 @@ void CvEconomicAI::DoHurry()
 	if (m_Buildables.size() <= 0)
 		return;
 
-	m_Buildables.SortItems();
+	m_Buildables.StableSortItems();
 	LogPossibleHurries(m_Buildables);
 
 	int iSelection = 0;

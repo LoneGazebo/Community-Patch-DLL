@@ -155,7 +155,7 @@ public:
 	bool IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int iAssumedLevel, PlayerTypes eSpyOwner);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
 	void DoStartEvent(CityEventTypes eEvent);
-	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER, CvCity* pOriginalCity = NULL);
+	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER, bool bSpyMissionEnd = false);
 	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 
@@ -754,6 +754,9 @@ public:
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
 
+	int GetEspionageTurnsModifierEnemy() const;
+	void ChangeEspionageTurnsModifierEnemy(int iChange);
+
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
 	void ChangeConversionModifier(int iChange);
@@ -1059,12 +1062,9 @@ public:
 
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	int GetEspionageRanking() const;
-	int GetSpyDefenseModifier(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice) const;
-	CvString GetSpyDefenseModifierText(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice);
-	int GetSpyOffenseModifier(PlayerTypes ePlayer, uint iSpyIndex) const;
-	CvString GetSpyOffenseModifierText(PlayerTypes ePlayer, uint iSpyIndex) const;
 	CvString GetSpyMissionOutcome(CityEventChoiceTypes eEventChoice, uint iSpyIndex, PlayerTypes ePlayer, bool bOwnSpy = 1, bool bShowPopup = 1);
 	int GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress = 0) const;
+	CvString GetMissionDurationText(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress = 0) const;
 	void ChangeEspionageRanking(int iRank, bool bNotify);
 	void ResetEspionageRanking();
 	void InitEspionageRanking();
@@ -1867,6 +1867,7 @@ protected:
 	int m_iCountExtraLuxuries;
 	int m_iCheapestPlotInfluenceDistance;
 	int m_iEspionageModifier;
+	int m_iEspionageTurnsModifierEnemy;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
 #endif
@@ -2262,6 +2263,7 @@ SYNC_ARCHIVE_VAR(int, m_iLowestRazingPop)
 SYNC_ARCHIVE_VAR(int, m_iCountExtraLuxuries)
 SYNC_ARCHIVE_VAR(int, m_iCheapestPlotInfluenceDistance)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
+SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierEnemy)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(bool, m_bNeverLost)
 SYNC_ARCHIVE_VAR(bool, m_bDrafted)

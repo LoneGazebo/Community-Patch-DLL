@@ -275,7 +275,7 @@
 			<CityDefenseModifier>50</CityDefenseModifier>
 			<IDModifier>10</IDModifier>
 			<DeathModifier>10</DeathModifier>
-			<SpyLevelRequired>1</SpyLevelRequired>
+			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST</Type>
@@ -286,7 +286,7 @@
 			<IDModifier>15</IDModifier>
 			<ExpiresOnCounterSpyExit>true</ExpiresOnCounterSpyExit>
 			<DeathModifier>15</DeathModifier>
-			<SpyLevelRequired>2</SpyLevelRequired>
+			<SpyLevelRequired>0</SpyLevelRequired>
 		</Row>
 	</CityEventChoices>
 	<CityEventChoice_YieldSiphon>

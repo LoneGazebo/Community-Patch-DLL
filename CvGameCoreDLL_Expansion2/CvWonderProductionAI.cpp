@@ -178,7 +178,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 	// Sort items and grab the first one
 	if (m_Buildables.size() > 0)
 	{
-		m_Buildables.SortItems();
+		m_Buildables.StableSortItems();
 		LogPossibleWonders();
 
 		if (m_Buildables.GetTotalWeight() > 0)

@@ -2303,6 +2303,10 @@ void CvHomelandAI::ReviewUnassignedUnits()
 							continue;
 						}
 					}
+					else {
+						// mark as processed to not hang the game but still do scrap check
+						pUnit->SetTurnProcessed(true);
+					}
 					//Stuck and not at home? Scrap it.
 					if (GC.getGame().getGameTurn() - pUnit->getLastMoveTurn() > 7)
 					{
@@ -2783,7 +2787,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 void CvHomelandAI::ExecuteWorkerMoves()
 {
 	// where can our workers go
-	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
+	std::map<int,ReachablePlots> allWorkersReachablePlots;
 	std::set<int> workersToIgnore;
 
 	//see what each worker can do in its immediate vicinity
@@ -2795,7 +2799,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			continue;
 
 		SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 5);
-		allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+		allWorkersReachablePlots[pUnit->GetID()] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	}
 
 	//humans also have non-automated workers. pretend they are automated as well to avoid going where they are
@@ -2805,10 +2809,10 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		int iLoop = 0;
 		for (CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && allWorkersReachablePlots.find(pLoopUnit) == allWorkersReachablePlots.end())
+			if (pLoopUnit->AI_getUnitAIType() == UNITAI_WORKER && allWorkersReachablePlots.find(pLoopUnit->GetID()) == allWorkersReachablePlots.end())
 			{
 				SPathFinderUserData data(pLoopUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 5);
-				allWorkersReachablePlots[pLoopUnit] = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->plot(), data);
+				allWorkersReachablePlots[pLoopUnit->GetID()] = GC.GetPathFinder().GetPlotsInReach(pLoopUnit->plot(), data);
 
 				workersToIgnore.insert(pLoopUnit->GetID());
 			}
@@ -2853,17 +2857,18 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			for (ReachablePlots::iterator it2 = plots.begin(); it2 != plots.end(); ++it2)
 				it2->iPathLength += iBuildTimeLeft;
 			
-			allWorkersReachablePlots[pUnit] = plots;
+			allWorkersReachablePlots[pUnit->GetID()] = plots;
 		}
 	}
 
 	//see if we have work to do
-	for(std::map<CvUnit*,ReachablePlots>::iterator it = allWorkersReachablePlots.begin(); it != allWorkersReachablePlots.end(); ++it)
+	for(std::map<int,ReachablePlots>::iterator it = allWorkersReachablePlots.begin(); it != allWorkersReachablePlots.end(); ++it)
 	{
-		CvUnit* pUnit = it->first;
+		int currentUnitId = it->first;
+		CvUnit* pUnit = m_pPlayer->getUnit(currentUnitId);
 
 		//cannot use m_CurrentMoveUnits here, need to update the reachable plots ... but not all units in allWorkersReachablePlots are supposed to be used
-		if (workersToIgnore.find(pUnit->GetID()) != workersToIgnore.end())
+		if (workersToIgnore.find(currentUnitId) != workersToIgnore.end())
 			continue;
 
 		//this checks for work in the immediate neighborhood of the workers
@@ -2873,15 +2878,16 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			//make sure no other worker tries to target the same plot
 			it->second.clear();
 			it->second.insertWithIndex( SMovePlot(pTarget->GetPlotIndex(),-1,0,0) );
-			UnitProcessed(pUnit->GetID());
+			UnitProcessed(currentUnitId);
 		}
 	}
 
 	//may need this later
-	map<CvCity*, int> mapCityNeed;
+	// cityId to needValue
+	map<int, int> mapCityNeed;
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		mapCityNeed[pLoopCity] = pLoopCity->GetTerrainImprovementNeed();
+		mapCityNeed[pLoopCity->GetID()] = pLoopCity->GetTerrainImprovementNeed();
 
 	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -2892,23 +2898,23 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		//find the city which is most in need of workers
 		int iMaxNeed = -100;
 		CvCity* pBestCity = NULL;
-		for (map<CvCity*, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
+		for (map<int, int>::iterator it2 = mapCityNeed.begin(); it2 != mapCityNeed.end(); ++it2)
 		{
 			if (it2->second > iMaxNeed)
 			{
 				iMaxNeed = it2->second;
-				pBestCity = it2->first;
+				pBestCity = m_pPlayer->getCity(it2->first);
 			}
 		}
 
 		if (pBestCity && pUnit->GeneratePath(pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, 23))
 		{
 			ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
-			int iCurrentNeed = mapCityNeed[pBestCity];
+			int iCurrentNeed = mapCityNeed[pBestCity->GetID()];
 			if (iCurrentNeed > 0)
-				mapCityNeed[pBestCity] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
+				mapCityNeed[pBestCity->GetID()] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
 			else
-				mapCityNeed[pBestCity]--; //in case all cities have all tiles improved, try spread the workers over all our cities
+				mapCityNeed[pBestCity->GetID()]--; //in case all cities have all tiles improved, try spread the workers over all our cities
 		}
 		else if (pUnit->IsCivilianUnit())
 		{
@@ -4670,7 +4676,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 	CvPlot* pBestPlot = NULL;
 	if (aBestPlotList.size()>0)
 	{
-		aBestPlotList.SortItems(); //highest score will be first
+		aBestPlotList.StableSortItems(); //highest score will be first
 		pBestPlot=aBestPlotList.GetElement(0);
 
 		if(pUnit->atPlot(*pBestPlot))
@@ -5395,14 +5401,14 @@ CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit)
 		return NULL;
 
 	//pretend there are no other workers ...
-	std::map<CvUnit*,ReachablePlots> allWorkersReachablePlots;
+	std::map<int,ReachablePlots> allWorkersReachablePlots;
 	SPathFinderUserData data(pUnit, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 13);
-	allWorkersReachablePlots[pUnit] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
+	allWorkersReachablePlots[pUnit->GetID()] = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
 	return ExecuteWorkerMove(pUnit, allWorkersReachablePlots);
 }
 
 //returns the target plot if sucessful, null otherwise
-CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
+CvPlot* CvHomelandAI::ExecuteWorkerMove(CvUnit* pUnit, const map<int,ReachablePlots>& allWorkersReachablePlots)
 {
 	// find work (considering all other workers as well)
 	BuilderDirective aDirective = m_pPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pUnit, allWorkersReachablePlots);

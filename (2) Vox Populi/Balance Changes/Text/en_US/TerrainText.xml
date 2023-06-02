@@ -81,7 +81,7 @@
 			<Text>Kuna</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_TEXT">
-			<Text>'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder![NEWLINE][NEWLINE]A Kuna can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna. Grants [ICON_PEACE] Faith and [ICON_RESEARCH] Science to the City that works the tile.</Text>
+			<Text>{TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP}[NEWLINE][NEWLINE]'Kuna' is the Mayan word for temple or church. Mayan Kuna were similar in design to the ziggurats and pyramids of Eurasia. Though the Kuna themselves are largely all that remain of these ancient sites, they were once the focal points of large cities. Most famous of these is Chichen Itza, a sight so grand that it qualifies as a World Wonder!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_KUNA_HELP">
 			<Text>Can only be constructed in Forests or Jungles, and cannot be adjacent to another Kuna. Generates [ICON_PEACE] Faith and [ICON_RESEARCH] Science.</Text>
@@ -90,7 +90,7 @@
 			<Text>Construct a [LINK=IMPROVEMENT_KUNA]Kuna[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KUNA_HELP">
-			<Text>Constructs a Kuna, which increases [ICON_RESEARCH] Science and [ICON_PEACE] Faith.</Text>
+			<Text>Cannot be built adjacent to another Kuna. Does not remove features on the tile.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_KUNA_REC">
 			<Text>It will increase [ICON_RESEARCH] Science and [ICON_PEACE] Faith.</Text>
@@ -119,10 +119,10 @@
 			<Text>Siheyuan</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_SIHEYUAN_TEXT">
-			<Text>A Siheyuan can only be built on flat land next to a city or next to two other Siheyuans, but cannot be built on resources. It provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Provides 1 additional [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when worked by a city experiencing a "We Love The Empress Day".[NEWLINE][NEWLINE]The stately Siheyuan are a mainstay of Chinese architecture dating back to antiquity. The style is often referred to as a Chinese quadrangle, and is used from relatively dwellings and monasteries to the most grand palaces. The Forbidden City in Beijing is designed as an enormous Siheyuan. All siheyuan are positioned along a east-west axis, with the main entrance facing south. The universality of this plan allows sequential siheyuan to be arranged in long rows, creating sprawling suburbs in many of China's largest cities. The narrow alleyways between these rows of Siheyuan are known as hutongs in northern China, forming long market streets similar to middle-eastern bazaars. Recent changes in city planning and construction have resulted in many historic neighbourhoods being demolished, but there have been coordinated efforts to preserve some districts as a valuable piece of Chinese cultural identity.</Text>
+			<Text>A Siheyuan can only be built on flat land next to a city or next to two other Siheyuans, but cannot be built on resources. It provides [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production. Provides 1 additional [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production when worked by a city experiencing a "We Love The Empress Day".[NEWLINE][NEWLINE]The stately Siheyuan are a mainstay of Chinese architecture dating back to antiquity. The style is often referred to as a Chinese quadrangle, and is used from relatively dwellings and monasteries to the most grand palaces. The Forbidden City in Beijing is designed as an enormous Siheyuan. All siheyuan are positioned along a east-west axis, with the main entrance facing south. The universality of this plan allows sequential siheyuan to be arranged in long rows, creating sprawling suburbs in many of China's largest cities. The narrow alleyways between these rows of Siheyuan are known as hutongs in northern China, forming long market streets similar to middle-eastern bazaars. Recent changes in city planning and construction have resulted in many historic neighbourhoods being demolished, but there have been coordinated efforts to preserve some districts as a valuable piece of Chinese cultural identity.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_SIHEYUAN_HELP">
-			<Text>A Siheyuan can only be built on flat land next to a city or next to two other Siheyuans, but cannot be built on resources. It provides [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture. Provides 1 additional [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, and [ICON_CULTURE] Culture when worked by a city experiencing a "We Love The Empress Day".</Text>
+			<Text>A Siheyuan can only be built on flat land next to a city or next to two other Siheyuans, but cannot be built on resources. It provides [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production. Provides 1 additional [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production when worked by a city experiencing a "We Love The Empress Day".</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_SIHEYUAN">
 			<Text>Build a [LINK=IMPROVEMENT_SIHEYUAN]Siheyuan[\LINK]</Text>

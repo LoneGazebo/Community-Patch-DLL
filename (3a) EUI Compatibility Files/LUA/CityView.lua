@@ -1838,7 +1838,8 @@ local function UpdateWorkingHexesNow()
 		-- display worked plots buttons
 		local cityOwnerID = city:GetOwner()
 		local notInStrategicView = not InStrategicView()
-		local showButtons = g_workerHeadingOpen and not g_isViewingMode
+		local bAnnex = g_activePlayer:MayNotAnnex()
+		local showButtons = g_workerHeadingOpen and (not g_isViewingMode or bAnnex)
 
 		for cityPlotIndex = 0, cityArea do
 			local plot = city:GetCityIndexPlot( cityPlotIndex )
@@ -1912,7 +1913,9 @@ local function UpdateWorkingHexesNow()
 					instance.PlotButtonImage:LocalizeAndSetToolTip( tipKey )
 					IconHookup( iconID, 45, "CITIZEN_ATLAS", instance.PlotButtonImage )
 					local button = instance.PlotButtonImage
-					if not cityPlotIndex or g_isViewingMode then
+					if not cityPlotIndex or (g_isViewingMode and not bAnnex) then 
+						button:ClearCallback( Mouse.eLCLick )
+					elseif (bAnnex and city:IsPuppet() and iconID ~= 12) then --Another Venice exception huh...
 						button:ClearCallback( Mouse.eLCLick )
 					else
 						button:SetVoid1( cityPlotIndex )
@@ -1924,7 +1927,7 @@ local function UpdateWorkingHexesNow()
 
 		-- display buy plot buttons
 		-- Venice Edit (CBP)
-		local bAnnex = g_activePlayer:MayNotAnnex();
+		--local bAnnex = g_activePlayer:MayNotAnnex();
 		if g_BuyPlotMode then
 			if not g_isViewingMode or bAnnex then
 		--END

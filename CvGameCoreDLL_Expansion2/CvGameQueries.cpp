@@ -112,7 +112,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 		}
 	}
 
-	UnitClassesVector.SortItems();
+	UnitClassesVector.StableSortItems();
 
 	//int iValue;
 

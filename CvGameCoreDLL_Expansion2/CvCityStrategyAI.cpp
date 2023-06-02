@@ -912,7 +912,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		}
 	}
 
-	m_BuildablesPrecheck.SortItems();
+	m_BuildablesPrecheck.StableSortItems();
 
 	LogPossibleBuilds(m_BuildablesPrecheck,"PRE");
 	SPlotStats plotStats = m_pCity->getPlotStats();
@@ -1005,7 +1005,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 
 	ReweightByDuration(m_Buildables);
 
-	m_Buildables.SortItems();
+	m_Buildables.StableSortItems();
 
 	LogPossibleBuilds(m_Buildables,"POST");
 
@@ -1327,7 +1327,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 			}
 		}
 	}
-	m_BuildablesPrecheck.SortItems();
+	m_BuildablesPrecheck.StableSortItems();
 
 	ReweightByDuration(m_BuildablesPrecheck);
 
@@ -1409,7 +1409,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 		}
 	}
 
-	m_Buildables.SortItems();
+	m_Buildables.StableSortItems();
 
 	LogPossibleHurries(m_Buildables,"POST");
 
@@ -5220,9 +5220,9 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		iValue += 5 * kPlayer.getNumCities();
 	}
 
-	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() < 0 || pkBuildingInfo->GetGlobalEspionageModifier() < 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() < 0 || pkBuildingInfo->GetGlobalEspionageModifier() < 0 || pkBuildingInfo->GetEspionageTurnsModifierFriendly() != 0 || pkBuildingInfo->GetEspionageTurnsModifierEnemyCity() != 0 || pkBuildingInfo->GetEspionageTurnsModifierEnemyGlobal() != 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
-		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetEspionageModifier() * -5) + (pkBuildingInfo->GetGlobalEspionageModifier() * -10) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
+		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetEspionageModifier() * -5) + (pkBuildingInfo->GetGlobalEspionageModifier() * -20) + (pkBuildingInfo->GetEspionageTurnsModifierFriendly() * -5) + (pkBuildingInfo->GetEspionageTurnsModifierEnemyCity() * 5) + (pkBuildingInfo->GetEspionageTurnsModifierEnemyGlobal() * 20) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
 
 		iValue += /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM) - pCity->GetEspionageRanking();
 		if(kPlayer.GetEspionageModifier() != 0)

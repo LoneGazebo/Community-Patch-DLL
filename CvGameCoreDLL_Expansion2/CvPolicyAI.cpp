@@ -229,7 +229,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		}
 	}
 
-	m_AdoptablePolicies.SortItems();
+	m_AdoptablePolicies.StableSortItems();
 	LogPossiblePolicies();
 
 	// Make our policy choice from the top choices

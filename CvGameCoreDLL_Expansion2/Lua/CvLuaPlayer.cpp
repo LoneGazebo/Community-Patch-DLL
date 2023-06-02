@@ -1432,6 +1432,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	Method(GetDisabledTooltip);
 	Method(GetEspionageValues);
+	Method(GetYieldPerTurnFromEspionageEvents);
+	Method(GetActiveEspionageEvents);
 	Method(GetScaledEventChoiceValue);
 	Method(IsEventChoiceActive);
 	Method(DoEventChoice);
@@ -7923,7 +7925,7 @@ int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
 			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
 		}
 	}
-	veMilitaryRankings.SortItems();
+	veMilitaryRankings.StableSortItems();
 	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
 	{
 		if (veMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
@@ -11521,9 +11523,9 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 		return 0;
 
 	//fake the reachable plots, ignore all other workers
-	map<CvUnit*, ReachablePlots> allplots;
+	map<int, ReachablePlots> allplots;
 	SPathFinderUserData data(pWorkerUnit, 0, 3);
-	allplots[pWorkerUnit] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
+	allplots[pWorkerUnit->GetID()] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
 
 	BuilderDirective aDirective = pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit,allplots);
 	if(aDirective.m_eDirective == BuilderDirective::NUM_DIRECTIVES)
@@ -11648,7 +11650,7 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 	uint uiListSize;
 	if ((uiListSize = aBestPlots.size()) > 0)
 	{
-		aBestPlots.SortItems();	// highest score will be first.
+		aBestPlots.StableSortItems();	// highest score will be first.
 		for (uint i = 0; i < uiListSize; ++i )	
 		{
 			CvPlot* pPlot = aBestPlots.GetElement(i);
@@ -17306,6 +17308,52 @@ int CvLuaPlayer::lGetEspionageValues(lua_State* L)
 	lua_pushstring(L, CoreYieldTip.c_str());
 	return 1;
 }
+//------------------------------------------------------------------------------
+//int GetYieldPerTurnFromEspionageEvents();
+int CvLuaPlayer::lGetYieldPerTurnFromEspionageEvents(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const YieldTypes eYield = (YieldTypes)lua_tointeger(L, 2);
+	const bool bIncoming = lua_toboolean(L, 3);
+	const int iResult = pkPlayer->GetYieldPerTurnFromEspionageEvents(eYield, bIncoming);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetActiveEspionageEvents(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_createtable(L, 0, 0);
+
+	std::vector<SPlayerActiveEspionageEvent> activeEvents;
+	activeEvents = pkPlayer->GetActiveEspionageEventsList();
+
+	int index = 1;
+	for (int i = activeEvents.size(); i > 0; i--)
+	{
+		lua_createtable(L, 0, 0);
+		const int t = lua_gettop(L);
+		lua_pushinteger(L, activeEvents[i - 1].eOtherPlayer);
+		lua_setfield(L, t, "OtherPlayer");
+		lua_pushboolean(L, activeEvents[i - 1].bIncoming);
+		lua_setfield(L, t, "bIncoming");
+		lua_pushboolean(L, activeEvents[i - 1].bIdentified);
+		lua_setfield(L, t, "bIdentified");
+		lua_pushinteger(L, activeEvents[i - 1].eYield);
+		lua_setfield(L, t, "Yield");
+		lua_pushinteger(L, activeEvents[i - 1].iAmount);
+		lua_setfield(L, t, "Amount");
+		lua_pushinteger(L, activeEvents[i - 1].iStartTurn);
+		lua_setfield(L, t, "StartTurn");
+		lua_pushinteger(L, activeEvents[i - 1].iEndTurn);
+		lua_setfield(L, t, "EndTurn");
+
+		lua_rawseti(L, -2, index++);
+	}
+
+	return 1;
+}
+
 int CvLuaPlayer::lGetScaledEventChoiceValue(lua_State* L)
 {
 	CvString CoreYieldTip = "";

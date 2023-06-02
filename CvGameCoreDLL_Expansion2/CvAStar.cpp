@@ -2092,11 +2092,11 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 	{
 		//what else can count as road depends on the player type
 		if(kPlayer.GetPlayerTraits()->IsRiverTradeRoad() && pNewPlot->isRiver())
-				ePlotRoute = ROUTE_ROAD;
+			ePlotRoute = ROUTE_ROAD;
 		if (kPlayer.GetPlayerTraits()->IsWoodlandMovementBonus() && (pNewPlot->getFeatureType() == FEATURE_FOREST || pNewPlot->getFeatureType() == FEATURE_JUNGLE))
 		{
 			//balance patch does not require plot ownership
-			if (gCustomMods.isBALANCE_CORE() || pNewPlot->getOwner() == data.ePlayer)
+			if (MOD_BALANCE_VP || pNewPlot->getTeam() == GET_PLAYER(ePlayer).getTeam())
 				ePlotRoute = ROUTE_ROAD;
 		}
 	}
@@ -2170,9 +2170,10 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 {
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(data.ePlayer).GetBuilderTaskingAI();
+	RouteTypes eRouteType = (RouteTypes)data.iTypeParameter;
 
 	// if we are planning to or have already built a road here, or get a free road here from our trait, provide a discount (cities always have a road)
-	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= data.iTypeParameter || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, (RouteTypes)data.iTypeParameter))
+	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType))
 		return PATH_BUILD_ROUTE_REUSE_EXISTING_WEIGHT;
 
 	// if we are planning to build a lower tier route here, provide a smaller discount
@@ -2181,7 +2182,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 
 	// if there is already a route here, also provide a small discount
 	if (pPlot->getRouteType() >= ROUTE_ROAD)
-		return PATH_BASE_COST * 2 / 3;
+		return PATH_BASE_COST / 2;
 
 	//should we prefer rough terrain because the gain in movement points is greater?
 	int iCost = PATH_BASE_COST;
@@ -2841,14 +2842,14 @@ ReachablePlots CvPathFinder::GetPlotsInReach(const CvPlot * pStartPlot, const SP
 	return GetPlotsInReach(pStartPlot->getX(),pStartPlot->getY(),data);
 }
 
-map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<CvPlot*> vDestPlots, const SPathFinderUserData& data)
+map<int,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<CvPlot*> vDestPlots, const SPathFinderUserData& data)
 {
 	//make sure we don't call this from dll and lua at the same time
 	bool bHadLock = gDLL->HasGameCoreLock();
 	if(!bHadLock)
 		gDLL->GetGameCoreLock();
 
-	map<CvPlot*,SPath> result;
+	map<int,SPath> result;
 
 	if (!Configure(data) || !pStartPlot)
 	{
@@ -2909,7 +2910,8 @@ map<CvPlot*,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vect
 				std::reverse(path.vPlots.begin(),path.vPlots.end());
 
 				//store it
-				result[ *bounds.first ] = path;
+				
+				result[ (*bounds.first)->GetPlotIndex() ] = path;
 			}
 
 			//don't need to check this again
@@ -3177,7 +3179,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 		iRouteFactor = 2;
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
-				(gCustomMods.isBALANCE_CORE() || pToPlot->getOwner() == finder->GetData().ePlayer) && 
+				(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) && 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
 		iRouteFactor = 2;
 

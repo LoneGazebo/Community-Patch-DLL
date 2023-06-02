@@ -446,6 +446,9 @@ int CvTreasury::CalculateGrossGoldTimes100()
 	// Annexed City-States (Rome UA)
 	iNetGold += m_pPlayer->GetGoldPerTurnFromAnnexedMinors() * 100;
 
+	//Espionage Events
+	iNetGold += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_GOLD, true) * 100;
+
 	return iNetGold;
 }
 /// Gross income across entire game
@@ -536,11 +539,11 @@ int CvTreasury::CalculateUnitCost()
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
 	double fMultiplier = 0.0f;
-	fMultiplier += 1.0f + (iGameProgressFactor * /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER) / 100);
+	fMultiplier += 1.0f + ((float)iGameProgressFactor * /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER) / 100);
 
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
 	double fExponent = 0.0f;
-	fExponent += 1.0f + (iGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR) / 100);
+	fExponent += 1.0f + ((float)iGameProgressFactor / /*7 in CP, 6 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR) / 100);
 
 	double dTempCost = 0.00f;
 	dTempCost += fMultiplier * iBaseUnitCost / 100;
@@ -608,6 +611,7 @@ int CvTreasury::CalculateTotalCosts()
 	iTotalCosts += GetVassalGoldMaintenance();
 	iTotalCosts += GetExpensePerTurnFromVassalTaxes();
 	iTotalCosts += MOD_BALANCE_CORE_JFD ? GetContractGoldMaintenance() : 0;
+	iTotalCosts += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_GOLD, false);
 
 	return iTotalCosts;
 }

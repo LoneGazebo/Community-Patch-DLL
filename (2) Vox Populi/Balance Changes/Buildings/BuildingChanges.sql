@@ -858,7 +858,8 @@ SET PrereqTech = 'TECH_ELECTRONICS'
 WHERE Type = 'BUILDING_POLICE_STATION';
 
 UPDATE Buildings
-SET EspionageModifier = '-50'
+SET EspionageModifier = '-50',
+    EspionageTurnsModifierEnemyCity = '1'
 WHERE Type = 'BUILDING_POLICE_STATION';
 
 INSERT INTO Building_YieldFromSpyDefense
@@ -869,7 +870,8 @@ VALUES
 
 -- Constabulary
 UPDATE Buildings
-SET EspionageModifier = '-50'
+SET EspionageModifier = '-50',
+    EspionageTurnsModifierEnemyCity = '1'
 WHERE Type = 'BUILDING_CONSTABLE';
 
 -- Guilds
@@ -976,6 +978,11 @@ VALUES
 	('BUILDING_LABORATORY', 'RESOURCE_ALUMINUM', 'YIELD_SCIENCE', 4),
 	('BUILDING_LABORATORY', 'RESOURCE_OIL', 'YIELD_SCIENCE', 4),
 	('BUILDING_MINT', 'RESOURCE_BANANA', 'YIELD_GOLD', 2),
+	('BUILDING_MINT', 'RESOURCE_TOBACCO', 'YIELD_GOLD', 3), --More luxuries
+	('BUILDING_MINT', 'RESOURCE_TEA', 'YIELD_GOLD', 2),
+	('BUILDING_MINT', 'RESOURCE_TEA', 'YIELD_PRODUCTION', 1),
+	('BUILDING_MINT', 'RESOURCE_COFFEE', 'YIELD_PRODUCTION', 2),
+	('BUILDING_MINT', 'RESOURCE_COFFEE', 'YIELD_GOLD', 1),
 	('BUILDING_HANSE', 'RESOURCE_BANANA', 'YIELD_GOLD', 2);
 
 INSERT INTO Building_YieldChanges
@@ -1468,7 +1475,7 @@ WHERE Type IN (
 -- Renaissance T2
 UPDATE Buildings SET NationalPopRequired = '30'
 WHERE Type IN (
-	'BUILDINGCLASS_HERMITAGE'
+	'BUILDING_HERMITAGE'
 );
 
 -- Modern T2 + Ideology NW

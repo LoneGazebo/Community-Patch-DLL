@@ -155,7 +155,7 @@ UnitTypes CvUnitProductionAI::RecommendUnit(UnitAITypes eUnitAIType, bool bAllow
 	// Sort items and grab the first one
 	if(m_Buildables.size() > 0)
 	{
-		m_Buildables.SortItems();
+		m_Buildables.StableSortItems();
 		LogPossibleBuilds(eUnitAIType);
 		return (UnitTypes)m_Buildables.GetElement(0);
 	}

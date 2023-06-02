@@ -72,6 +72,18 @@ typedef std::vector< std::pair<CivilizationTypes, LeaderHeadTypes> > CivLeaderAr
 
 const size_t INSTANT_YIELD_HISTORY_LENGTH = 30u;
 
+
+struct SPlayerActiveEspionageEvent
+{
+	PlayerTypes eOtherPlayer;
+	bool bIncoming;
+	bool bIdentified;
+	int iStartTurn;
+	int iEndTurn;
+	YieldTypes eYield;
+	int iAmount;
+};
+
 class CvPlayer
 {
 	friend class CvPlayerPolicies;
@@ -792,6 +804,10 @@ public:
 	// Espionage
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
+	int GetEspionageTurnsModifierFriendly() const;
+	void ChangeEspionageTurnsModifierFriendly(int iChange);
+	int GetEspionageTurnsModifierEnemy() const;
+	void ChangeEspionageTurnsModifierEnemy(int iChange);
 	int GetStartingSpyRank() const;
 	void ChangeStartingSpyRank(int iChange);
 	// END Espionage
@@ -1868,6 +1884,8 @@ public:
 	int getGoldenAgeYieldMod(YieldTypes eIndex)	const;
 	void changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
+	std::vector<SPlayerActiveEspionageEvent> CvPlayer::GetActiveEspionageEventsList() const;
+
 	int GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const;
 	void ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange);
 
@@ -2466,6 +2484,13 @@ public:
 	void removeAnnexedMilitaryCityStates(PlayerTypes eMinor);
 	void updateTimerAnnexedMilitaryCityStates();
 
+	void UpdateEspionageYields(bool bIncoming);
+	void AddEspionageEvent(PlayerTypes eOtherPlayer, bool bIncoming, bool bIdentified, int iStartTurn, int iEndTurn, YieldTypes eYield, int iAmount);
+	void RemoveEspionageEventsForPlayer(PlayerTypes ePlayer);
+	void ProcessEspionageEvents();
+
+	int GetYieldPerTurnFromEspionageEvents(YieldTypes eYield, bool bIncoming) const;
+
 	void launch(VictoryTypes victoryType);
 
 	void invalidatePopulationRankCache();
@@ -3059,6 +3084,8 @@ protected:
 	int m_iExtraHappinessPerXPoliciesFromPolicies;
 	int m_iHappinessPerXGreatWorks;
 	int m_iEspionageModifier;
+	int m_iEspionageTurnsModifierFriendly;
+	int m_iEspionageTurnsModifierEnemy;
 	int m_iSpyStartingRank;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
@@ -3300,7 +3327,7 @@ protected:
 	int m_iOnlyTradeSameIdeology;
 #if defined(MOD_BALANCE_CORE)
 	int m_iSupplyFreeUnits; //military units which don't count against the supply limit
-	std::vector<CvString> m_aistrInstantYield;
+	std::vector<CvString> m_aistrInstantYield; // not serialized
 	std::map<int, CvString> m_aistrInstantGreatPersonProgress;
 	std::vector<bool> m_abActiveContract;
 	int m_iJFDReformCooldownRate;
@@ -3436,7 +3463,7 @@ protected:
 	int m_iNumFreePoliciesEver; 
 	int m_iNumFreeTenets;
 
-	int m_iLastSliceMoved;
+	int m_iLastSliceMoved; // not serialized
 
 
 	uint m_uiStartTime;  // XXX save these?
@@ -3499,6 +3526,9 @@ protected:
 	std::vector<int> m_aiGoldenAgeYieldMod;
 	std::vector<int> m_aiNumAnnexedCityStates;
 	std::vector< std::pair<PlayerTypes, int> > m_AnnexedMilitaryCityStatesUnitSpawnTurns;
+	std::vector<SPlayerActiveEspionageEvent> m_vActiveEspionageEventsList;
+	std::vector<int> m_aiIncomingEspionageYields;
+	std::vector<int> m_aiOutgoingEspionageYields;
 	std::vector<int> m_aiYieldFromNonSpecialistCitizens;
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
@@ -3892,6 +3922,8 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPolicies)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerXPoliciesFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
+SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierFriendly)
+SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierEnemy)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(int, m_iFoodInCapitalFromAnnexedMinors)
@@ -4103,7 +4135,6 @@ SYNC_ARCHIVE_VAR(int, m_iMinorResourceBonusCount)
 SYNC_ARCHIVE_VAR(int, m_iAbleToAnnexCityStatesCount)
 SYNC_ARCHIVE_VAR(int, m_iOnlyTradeSameIdeology)
 SYNC_ARCHIVE_VAR(int, m_iSupplyFreeUnits)
-SYNC_ARCHIVE_VAR(std::vector<CvString>, m_aistrInstantYield)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abActiveContract)
 SYNC_ARCHIVE_VAR(int, m_iJFDReformCooldownRate)
 SYNC_ARCHIVE_VAR(int, m_iJFDGovernmentCooldownRate)
@@ -4226,7 +4257,6 @@ SYNC_ARCHIVE_VAR(int, m_iMedianTechPercentage)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePolicies)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePoliciesEver)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeTenets)
-SYNC_ARCHIVE_VAR(int, m_iLastSliceMoved)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
@@ -4282,6 +4312,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiRelicYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiReligionYieldRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumAnnexedCityStates)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiIncomingEspionageYields)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiOutgoingEspionageYields)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromNonSpecialistCitizens)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromGreatWorks)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldModifierFromActiveSpies)
@@ -4364,5 +4396,9 @@ SYNC_ARCHIVE_VAR(int, m_iMilitarySeaMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryAirMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryLandMight)
 SYNC_ARCHIVE_END()
+
+
+FDataStream& operator>>(FDataStream& loadFrom, SPlayerActiveEspionageEvent& writeTo);
+FDataStream& operator<<(FDataStream& saveTo, const SPlayerActiveEspionageEvent& readFrom);
 
 #endif

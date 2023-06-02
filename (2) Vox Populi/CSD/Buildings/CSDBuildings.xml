@@ -47,7 +47,7 @@
 		<Row>
 			<Type>BUILDING_COURT_SCRIBE</Type>
 			<BuildingClass>BUILDINGCLASS_COURT_SCRIBE</BuildingClass>
-			<Cost>150</Cost>
+			<Cost>125</Cost>
 			<Help>TXT_KEY_BUILDING_COURT_SCRIBE_HELP</Help>
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<Description>TXT_KEY_BUILDING_COURT_SCRIBE</Description>

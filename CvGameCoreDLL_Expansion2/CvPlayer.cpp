@@ -165,6 +165,8 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessPerXPopulation()
 	, m_iHappinessFromLeagues()
 	, m_iEspionageModifier()
+	, m_iEspionageTurnsModifierFriendly()
+	, m_iEspionageTurnsModifierEnemy()
 	, m_iSpyStartingRank()
 	, m_iExtraLeagueVotes()
 	, m_iWoundedUnitDamageMod()
@@ -438,7 +440,7 @@ CvPlayer::CvPlayer() :
 , m_iNumFreePolicies()
 , m_iNumFreePoliciesEver()
 , m_iNumFreeTenets()
-, m_iLastSliceMoved()
+, m_iLastSliceMoved() // not serialized
 , m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 , m_iEndTurnBlockingNotificationIndex(0)
 , m_activeWaitingForEndTurnMessage(false)
@@ -574,7 +576,7 @@ CvPlayer::CvPlayer() :
 	, m_bNullifyInfluenceModifier()
 #endif
 #if defined(MOD_BALANCE_CORE)
-	, m_aistrInstantYield()
+	, m_aistrInstantYield() // not serialized
 	, m_aistrInstantGreatPersonProgress()
 	, m_iJFDCurrency()
 	, m_iJFDProsperity()
@@ -1223,6 +1225,9 @@ void CvPlayer::uninit()
 	m_AIOperations.clear();
 
 	m_AnnexedMilitaryCityStatesUnitSpawnTurns.clear();
+	m_vActiveEspionageEventsList.clear();
+	m_aiIncomingEspionageYields.clear();
+	m_aiOutgoingEspionageYields.clear();
 
 	m_aiPlots.clear();
 	m_bfEverConqueredBy.ClearAll();
@@ -1304,6 +1309,8 @@ void CvPlayer::uninit()
 	m_iCSYieldBonusModifier = 0;
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
+	m_iEspionageTurnsModifierFriendly = 0;
+	m_iEspionageTurnsModifierEnemy = 0;
 	m_iSpyStartingRank = 0;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier = 0;
@@ -2304,6 +2311,11 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 		m_aUnitExtraCosts.clear();
 		m_AnnexedMilitaryCityStatesUnitSpawnTurns.clear();
+		m_vActiveEspionageEventsList.clear();
+		m_aiIncomingEspionageYields.clear();
+		m_aiIncomingEspionageYields.resize(NUM_YIELD_TYPES, 0);
+		m_aiOutgoingEspionageYields.clear();
+		m_aiOutgoingEspionageYields.resize(NUM_YIELD_TYPES, 0);
 
 		AI_reset();
 	}
@@ -4315,7 +4327,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// Award the building!
 			pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 
-			if (pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+			// Only deduct if building is not capital only
+			if (pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0 && !GC.getBuildingInfo(eBuilding)->IsCapitalOnly())
 				ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 		}
 	}
@@ -5729,7 +5742,7 @@ void CvPlayer::DoEvents()
 
 	if (veValidEvents.size() > 0)
 	{
-		//afw		veValidEvents.SortItems();
+		//afw		veValidEvents.StableSortItems();
 		int iRandIndex = GC.getGame().getSmallFakeRandNum(2000, GetTreasury()->GetLifetimeGrossGold()); //afw
 		if (GC.getLogging())
 		{
@@ -11083,6 +11096,7 @@ void CvPlayer::doTurn()
 	{
 		RefreshCSAlliesFriends();
 		UpdateHappinessFromMinorCivs();
+		ProcessEspionageEvents();
 #endif
 		DoUnitDiversity();
 		DoUpdateCramped();
@@ -17094,6 +17108,31 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 
+	int iOldEspionageTurnsModifier = GetEspionageTurnsModifierEnemy();
+	ChangeEspionageTurnsModifierEnemy(pBuildingInfo->GetEspionageTurnsModifierEnemyGlobal() * iChange);
+	if (iOldEspionageTurnsModifier != GetEspionageTurnsModifierEnemy())
+	{
+		int iLoop = 0;
+		for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+			{
+				PlayerTypes ePlayer = (PlayerTypes)ui;
+				GET_PLAYER(ePlayer).GetEspionage()->UpdateCity(pLoopCity);
+			}
+		}
+	}
+
+	ChangeEspionageTurnsModifierFriendly(pBuildingInfo->GetEspionageTurnsModifierFriendly() * iChange);
+	if (pBuildingInfo->GetEspionageTurnsModifierFriendly() * iChange != 0)
+	{
+		for (int ui = 0; ui < GetEspionage()->GetNumSpies(); ui++)
+		{
+			CvCity* pLoopCity = GetEspionage()->GetCityWithSpy(ui);
+			GetEspionage()->UpdateCity(pLoopCity);
+		}
+	}
+
 	ChangeExtraLeagueVotes(pBuildingInfo->GetExtraLeagueVotes() * iChange);
 	changeMaxAirUnits(pBuildingInfo->GetAirModifierGlobal() * iChange);
 	for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -18549,6 +18588,10 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 	// Culture from Annexed Minors
 	iCulturePerTurn += GetCulturePerTurnFromAnnexedMinors();
 
+	// Culture from Espionage Events
+	iCulturePerTurn += GetYieldPerTurnFromEspionageEvents(YIELD_CULTURE, true);
+	iCulturePerTurn -= GetYieldPerTurnFromEspionageEvents(YIELD_CULTURE, false);
+
 	// Culture from Religion
 	iCulturePerTurn += GetCulturePerTurnFromReligion();
 	
@@ -18569,7 +18612,7 @@ int CvPlayer::GetTotalJONSCulturePerTurn() const
 		iCulturePerTurn += ((iCulturePerTurn * /*20*/ GD_INT_GET(GOLDEN_AGE_CULTURE_MODIFIER)) / 100);
 	}
 
-	return iCulturePerTurn;
+	return max(0, iCulturePerTurn);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19426,7 +19469,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					}
 				}
 			}
-			artChoices.SortItems();
+			artChoices.StableSortItems();
 			int iNotificationArtwork = -1;
 			if (artChoices.size() > 0)
 			{
@@ -20090,7 +20133,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					}
 					if (CitiesSortedByLocalHappiness.size() > 0)
 					{
-						CitiesSortedByLocalHappiness.SortItems();
+						CitiesSortedByLocalHappiness.StableSortItems();
 						int iPopToGive = iPopulationBoost;
 						while (iPopToGive > 0)
 						{
@@ -20661,7 +20704,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					}
 					if (CitiesSortedByLocalHappiness.size() > 0)
 					{
-						CitiesSortedByLocalHappiness.SortItems();
+						CitiesSortedByLocalHappiness.StableSortItems();
 						int iPopToGive = iPopulationBoost;
 						while (iPopToGive > 0)
 						{
@@ -20836,6 +20879,10 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	// Faith per turn from Annexed City-States
 	iFaithPerTurn += GetFaithPerTurnFromAnnexedMinors();
 
+	// Faith from Espionage Events
+	iFaithPerTurn += GetYieldPerTurnFromEspionageEvents(YIELD_FAITH, true);
+	iFaithPerTurn -= GetYieldPerTurnFromEspionageEvents(YIELD_FAITH, false);
+
 	// Faith per turn from Religion (Founder beliefs)
 	iFaithPerTurn += GetFaithPerTurnFromReligion();
 
@@ -20844,7 +20891,7 @@ int CvPlayer::GetTotalFaithPerTurn() const
 	if (MOD_BALANCE_CORE_JFD)
 		iFaithPerTurn += GetYieldPerTurnFromMinors(YIELD_FAITH);
 
-	return iFaithPerTurn;
+	return max(0, iFaithPerTurn);
 }
 
 //	--------------------------------------------------------------------------------
@@ -21139,8 +21186,8 @@ void CvPlayer::DistributeHappinessToCities()
 		CitiesSortedByPopulation.push_back(pLoopCity, iPopulation);
 	}
 
-	CitiesSortedByNeed.SortItems();
-	CitiesSortedByPopulation.SortItems();
+	CitiesSortedByNeed.StableSortItems();
+	CitiesSortedByPopulation.StableSortItems();
 
 	// Distribute happiness to cities in descending order of Need until all cities are full
 	bool bAllCitiesFull = false;
@@ -24024,6 +24071,36 @@ void CvPlayer::ChangeEspionageModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+/// Get the global change of espionage mission duration for friendly spies
+int CvPlayer::GetEspionageTurnsModifierFriendly() const
+{
+	return m_iEspionageTurnsModifierFriendly;
+}
+
+//	--------------------------------------------------------------------------------
+/// Change the global change of espionage mission duration for friendly spies
+void CvPlayer::ChangeEspionageTurnsModifierFriendly(int iChange)
+{
+	m_iEspionageTurnsModifierFriendly = (m_iEspionageTurnsModifierFriendly + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+/// Get the global change of espionage mission duration for enemy spies
+int CvPlayer::GetEspionageTurnsModifierEnemy() const
+{
+	return m_iEspionageTurnsModifierEnemy;
+}
+
+//	--------------------------------------------------------------------------------
+/// Change the global change of espionage mission duration for enemy spies
+void CvPlayer::ChangeEspionageTurnsModifierEnemy(int iChange)
+{
+	m_iEspionageTurnsModifierEnemy = (m_iEspionageTurnsModifierEnemy + iChange);
+}
+
+
+
+//	--------------------------------------------------------------------------------
 /// At what rank do spies start the game at?
 int CvPlayer::GetStartingSpyRank() const
 {
@@ -24874,7 +24951,7 @@ PlayerTypes CvPlayer::AidRankGeneric(int eType)
 		iTopTier = 1;
 	}
 
-	veMajorRankings.SortItems();
+	veMajorRankings.StableSortItems();
 	if(veMajorRankings.size() != 0)
 	{
 		for(int iRanking = 0; iRanking < veMajorRankings.size(); iRanking++)
@@ -34494,9 +34571,9 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	// Player is now dead
 	else
 	{
-		// Reset war value lost
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
+			// Reset war value lost
 			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 			if (getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
 				continue;
@@ -34505,6 +34582,8 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			SetWarDamageValue(eLoopPlayer, 0);
 			GET_PLAYER(eLoopPlayer).SetWarValueLost(GetID(), 0);
 			GET_PLAYER(eLoopPlayer).SetWarDamageValue(GetID(), 0);
+			// Cancel active Espionage Events
+			GET_PLAYER(eLoopPlayer).RemoveEspionageEventsForPlayer(GetID());
 		}
 
 		// Wipe out everything involving this player
@@ -36108,6 +36187,12 @@ void CvPlayer::changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+std::vector<SPlayerActiveEspionageEvent> CvPlayer::GetActiveEspionageEventsList() const
+{
+	return m_vActiveEspionageEventsList;
+}
+
+//	--------------------------------------------------------------------------------
 int CvPlayer::GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
@@ -37117,7 +37202,7 @@ int CvPlayer::GetScienceTimes100() const
 
 	if (MOD_BALANCE_CORE_JFD)
 	{
-		iValue += GetYieldPerTurnFromMinors(YIELD_FAITH) * 100;
+		iValue += GetYieldPerTurnFromMinors(YIELD_SCIENCE) * 100;
 	}
 
 	if (MOD_BALANCE_CORE_MINOR_CIV_GIFT)
@@ -37126,6 +37211,10 @@ int CvPlayer::GetScienceTimes100() const
 	}
 
 	iValue += GetSciencePerTurnFromAnnexedMinors() * 100;
+
+	// Science from Espionage Events
+	iValue += GetYieldPerTurnFromEspionageEvents(YIELD_SCIENCE, true) * 100;
+	iValue -= GetYieldPerTurnFromEspionageEvents(YIELD_SCIENCE, false) * 100;
 
 	//Science Funding Rate Boost
 	if (MOD_BALANCE_VP && IsLeagueAid())
@@ -44873,6 +44962,34 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		ChangeEspionageModifier(pPolicy->GetEspionageModifier() * iChange);
 	}
+	if (pPolicy->GetEspionageTurnsModifierFriendly() != 0)
+	{
+		ChangeEspionageTurnsModifierFriendly(pPolicy->GetEspionageTurnsModifierFriendly() * iChange);
+		if (pPolicy->GetEspionageTurnsModifierFriendly() * iChange)
+		{
+			for (int ui = 0; ui < GetEspionage()->GetNumSpies(); ui++)
+			{
+				CvCity* pLoopCity = GetEspionage()->GetCityWithSpy(ui);
+				GetEspionage()->UpdateCity(pLoopCity);
+			}
+		}
+	}
+	if (pPolicy->GetEspionageTurnsModifierEnemy() != 0)
+	{
+		ChangeEspionageTurnsModifierEnemy(pPolicy->GetEspionageTurnsModifierEnemy() * iChange);
+		if (pPolicy->GetEspionageTurnsModifierEnemy() * iChange != 0)
+		{
+			int iLoop = 0;
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+				{
+					PlayerTypes ePlayer = (PlayerTypes)ui;
+					GET_PLAYER(ePlayer).GetEspionage()->UpdateCity(pLoopCity);
+				}
+			}
+		}
+	}
 	ChangeGreatScientistBeakerMod(pPolicy->GetGreatScientistBeakerModifier() * iChange);
 	ChangeGreatEngineerHurryMod(pPolicy->GetGreatEngineerHurryModifier() * iChange);
 	ChangeTechCostXCitiesModifier(pPolicy->GetTechCostXCitiesMod() * iChange);
@@ -45725,7 +45842,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 									pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 
-									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
+									// Only deduct if building is not capital only
+									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0 && !GC.getBuildingInfo(eBuilding)->IsCapitalOnly())
 									{
 										ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 									}
@@ -47037,6 +47155,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iExtraHappinessPerXPoliciesFromPolicies);
 	visitor(player.m_iHappinessPerXGreatWorks);
 	visitor(player.m_iEspionageModifier);
+	visitor(player.m_iEspionageTurnsModifierFriendly);
+	visitor(player.m_iEspionageTurnsModifierEnemy);
 	visitor(player.m_iSpyStartingRank);
 	visitor(player.m_iConversionModifier);
 	visitor(player.m_iFoodInCapitalFromAnnexedMinors);
@@ -47248,7 +47368,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iAbleToAnnexCityStatesCount);
 	visitor(player.m_iOnlyTradeSameIdeology);
 	visitor(player.m_iSupplyFreeUnits);
-	visitor(player.m_aistrInstantYield);
 	visitor(player.m_abActiveContract);
 	visitor(player.m_iJFDReformCooldownRate);
 	visitor(player.m_iJFDGovernmentCooldownRate);
@@ -47371,7 +47490,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumFreePolicies);
 	visitor(player.m_iNumFreePoliciesEver);
 	visitor(player.m_iNumFreeTenets);
-	visitor(player.m_iLastSliceMoved);
 	visitor(player.m_uiStartTime);
 	visitor(player.m_bHasUUPeriod);
 	visitor(player.m_bNoNewWars);
@@ -47656,6 +47774,9 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 
 	visitor(player.m_aUnitExtraCosts);
 	visitor(player.m_AnnexedMilitaryCityStatesUnitSpawnTurns);
+	visitor(player.m_vActiveEspionageEventsList);
+	visitor(player.m_aiIncomingEspionageYields);
+	visitor(player.m_aiOutgoingEspionageYields);
 
 	visitor(player.m_aiPlots);
 
@@ -48164,8 +48285,152 @@ void CvPlayer::updateTimerAnnexedMilitaryCityStates()
 	}
 }
 
+//	--------------------------------------------------------------------------------
+void CvPlayer::UpdateEspionageYields(bool bIncoming)
+{
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		PlayerTypes eLoopYield = (PlayerTypes)iYieldLoop;
+		int iYields = 0;
+		for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
+		{
+			if ((*it).bIncoming == bIncoming)
+			{
+				if((*it).eYield == eLoopYield)
+					iYields += (*it).iAmount;
+			}
+		}
+		if (bIncoming)
+		{
+			m_aiIncomingEspionageYields[eLoopYield] = iYields;
+		}
+		else
+		{
+			m_aiOutgoingEspionageYields[eLoopYield] = iYields;
+		}
+	}
+}
+
+void CvPlayer::AddEspionageEvent(PlayerTypes eOtherPlayer, bool bIncoming, bool bIdentified, int iStartTurn, int iEndTurn, YieldTypes eYield, int iAmount)
+{
+	SPlayerActiveEspionageEvent EspionageEvent = {
+		eOtherPlayer,
+		bIncoming,
+		bIdentified,
+		iStartTurn,
+		iEndTurn,
+		eYield,
+		iAmount,
+	};
+	m_vActiveEspionageEventsList.push_back(EspionageEvent);
+	UpdateEspionageYields(bIncoming);
+}
+
+void CvPlayer::RemoveEspionageEventsForPlayer(PlayerTypes ePlayer)
+{
+	bool bChanged = false;
+	for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
+	{
+		if ((*it).eOtherPlayer == ePlayer)
+		{
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
+			{
+				CvYieldInfo* pYield = GC.getYieldInfo((*it).eYield);
+				if (pYield)
+				{
+					Localization::String localizedSiphonText;
+					localizedSiphonText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED");
+					localizedSiphonText << pYield->GetDescription();
+					localizedSiphonText << pYield->getIconString();
+					localizedSiphonText << (*it).iAmount;
+					CvString tempStr = localizedSiphonText.toUTF8();
+
+					Localization::String strMessage;
+					Localization::String strSummary;
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED");
+					strMessage << tempStr;
+					strMessage << GET_PLAYER(ePlayer).getNameKey();
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_T");
+
+					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
+				}
+			}
+			m_vActiveEspionageEventsList.erase(it--);
+			bChanged = true;
+		}
+	}
+	if (bChanged)
+	{
+		UpdateEspionageYields(/*bIncoming*/ true);
+		UpdateEspionageYields(/*bIncoming*/ false);
+	}
+}
+
+void CvPlayer::ProcessEspionageEvents()
+{
+	int iTurn = GC.getGame().getGameTurn();
+	for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
+	{
+		if ((*it).iEndTurn == iTurn)
+		{
+			bool bIncoming = (*it).bIncoming;
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
+			{
+				CvYieldInfo* pYield = GC.getYieldInfo((*it).eYield);
+				if (pYield)
+				{
+					Localization::String localizedSiphonText;
+					localizedSiphonText = Localization::Lookup("TXT_KEY_EVENT_YIELD_SCALED");
+					localizedSiphonText << pYield->GetDescription();
+					localizedSiphonText << pYield->getIconString();
+					localizedSiphonText << (*it).iAmount;
+					CvString tempStr = localizedSiphonText.toUTF8();
+
+					Localization::String strMessage;
+					Localization::String strSummary;
+					if (bIncoming)
+					{
+						strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED");
+						strMessage << tempStr;
+						strMessage << GET_PLAYER((*it).eOtherPlayer).getNameKey();
+						strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_T");
+					}
+					else
+					{
+						strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_ENEMY");
+						strMessage << tempStr;
+						strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_ENEMY_T");
+					}
+
+					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1, GetID());
+				}
+			}
+			m_vActiveEspionageEventsList.erase(it--);
+			UpdateEspionageYields(bIncoming);
+		}
+	}
+}
+
+
+int CvPlayer::GetYieldPerTurnFromEspionageEvents(YieldTypes eYield, bool bIncoming) const
+{
+	CvAssertMsg(eYield >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eYield < NUM_YIELD_TYPES, "eIndex is expected to be within maximum bounds (invalid Index)");
+	if (bIncoming)
+	{
+		return m_aiIncomingEspionageYields[eYield];
+	}
+	else
+	{
+		return m_aiOutgoingEspionageYields[eYield];
+	}
+}
+
 // CACHE: cache frequently used values
 ///////////////////////////////////////
+
 
 //	--------------------------------------------------------------------------------
 void CvPlayer::invalidatePopulationRankCache()
@@ -50366,7 +50631,7 @@ bool CvPlayer::CanCrossOcean() const
 }
 bool CvPlayer::CanCrossMountain() const
 {
-	return GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral() || GetPlayerTraits()->IsMountainPass();
+	return GetPlayerTraits()->IsMountainPass() || (getGreatGeneralsCreated(false) > 0 && GetPlayerTraits()->IsAbleToCrossMountainsWithGreatGeneral());
 }
 bool CvPlayer::CanCrossIce() const
 {
@@ -52495,4 +52760,27 @@ void CvPlayer::setPlotFoundValue(int iX, int iY, int iValue)
 int CvPlayer::GetAvgUnitExp100() const
 {
 	return m_iAvgUnitExp100;
+}
+
+FDataStream& operator<<(FDataStream& saveTo, const SPlayerActiveEspionageEvent& readFrom)
+{
+	saveTo << readFrom.eOtherPlayer;
+	saveTo << readFrom.bIncoming;
+	saveTo << readFrom.bIdentified;
+	saveTo << readFrom.iStartTurn;
+	saveTo << readFrom.iEndTurn;
+	saveTo << readFrom.eYield;
+	saveTo << readFrom.iAmount;
+	return saveTo;
+}
+FDataStream& operator>>(FDataStream& loadFrom, SPlayerActiveEspionageEvent& writeTo)
+{
+	loadFrom >> writeTo.eOtherPlayer;
+	loadFrom >> writeTo.bIncoming;
+	loadFrom >> writeTo.bIdentified;
+	loadFrom >> writeTo.iStartTurn;
+	loadFrom >> writeTo.iEndTurn;
+	loadFrom >> writeTo.eYield;
+	loadFrom >> writeTo.iAmount;
+	return loadFrom;
 }

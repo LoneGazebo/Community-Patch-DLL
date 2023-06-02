@@ -949,3 +949,43 @@ WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT';
 UPDATE Language_en_US
 SET Text = 'Already bullied this turn'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
+
+-- Quest Changes
+UPDATE Language_en_US
+SET Text = 'They want you to start a land or sea trade route to their city.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL';
+
+UPDATE Language_en_US
+SET Text = 'We want you to start a trade route.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE';
+
+-- Victory Panel
+INSERT INTO Language_en_US (Tag, Text)
+VALUES  ('TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU', ' {1_PlayerName} controls you as a Vassal.'),
+	('TXT_KEY_VP_DIPLO_TT_YOU_VASSALIZE_OTHER_PLAYER', ' You control {1_CivName} as a Vassal.'),
+	('TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_OTHER_PLAYER', ' {1_PlayerName} controls {2_CivName} as a Vassal.'),
+	('TXT_KEY_VP_DIPLO_TT_UNMET_PLAYER_VASSALIZE_UNMET_PLAYER', ' An unmet player controls another unmet civilization as a Vassal.'),
+	('TXT_KEY_VP_DIPLO_CAPITALS_TEAM_LEADING_TT', 'Team {1_Team} controls {2_num} original [ICON_CAPITAL] Capitals/Vassals.'),
+	('TXT_KEY_VP_DIPLO_CAPITALS_ACTIVE_PLAYER_LEADING_TT', 'You are leading by controlling {1_num} original [ICON_CAPITAL] Capitals/Vassals.'),
+	('TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING_TT', '{1_player} controls {2_num} original [ICON_CAPITAL] Capitals/Vassals.'),
+	('TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING_TT', 'An unmet player controls {1_num} original [ICON_CAPITAL] Capitals/Vassals.'),
+	('TXT_KEY_VP_DIPLO_TT_MINOR_PLAYER_CONTROLS_CAPITAL_ALLY', 'The City-State of {1_Name} controls {2_Num}. They contribute the City to their Ally. Break their alliance or take the [ICON_CAPITAL] Capital from them![NEWLINE][NEWLINE]'),
+	('TXT_KEY_VP_DIPLO_TT_MINOR_PLAYER_CONTROLS_CAPITAL_VASSAL_ALLY', 'The City-State of {1_Name} controls {2_Num}. They contribute the City to their Ally''s Master. Break their alliance, liberate their ally, or take the [ICON_CAPITAL] Capital from them![NEWLINE][NEWLINE]'),
+	('TXT_KEY_VP_DIPLO_TT_MINOR_PLAYER_CONTROLS_CAPITAL_NO_ALLY', 'The City-State of {1_Name} controls {2_Num}. They have no current ally. Ally with them or take the [ICON_CAPITAL] Capital from them![NEWLINE][NEWLINE]'),
+	('TXT_KEY_VP_DIPLO_TT_MINOR_VASSAL_CONTROLS_CAPITAL', '{1_Name} controls {2_Num}. They contribute the City to their Master. Liberate them or take the [ICON_CAPITAL] Capital from them![NEWLINE][NEWLINE]');
+
+UPDATE Language_en_US
+SET Text = '{1_Team} needs [COLOR_POSITIVE_TEXT]{2_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!'
+WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_TEAM_LEADING';
+
+UPDATE Language_en_US 
+SET Text = 'Control [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] more original [ICON_CAPITAL] Capitals/Vassals to win!' 
+WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_ACTIVE_PLAYER_LEADING';
+
+UPDATE Language_en_US 
+SET Text = '{1_player} will need [COLOR_POSITIVE_TEXT]{2_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!' 
+WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING';
+
+UPDATE Language_en_US 
+SET Text = 'An unmet player needs [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!.' 
+WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING';

@@ -1,0 +1,89 @@
+To create a test version, you do not need to follow as many steps as for a public release.
+
+PREREQUISITES
+- Installed ModBuddy
+- Installed all the tools required to build the DLL
+- Installed a Git editor, such as GitHub Desktop
+- Cloned local copy of the repository
+- Installed Python with integration into PATH (if testing the DLL)
+
+Tip: You may wish to create the test version in a *COPY* of your repository folder, since ModBuddy will create junk files.
+
+
+[STEP 1]
+Make sure on the latest version of the branch you're working from.
+
+
+[STEP 2]
+Delete any existing VP mod folders from your MODS folder.
+
+If testing Community Patch Only, you'll also need to delete the VPUI and UI_bc1 folders from your Steam DLC folder.
+
+If testing Vox Populi Without EUI, you'll also need to delete the UI_bc1 folder (only) from your Steam DLC folder.
+
+Typical locations on Windows:
+Documents/My Games/Sid Meier's Civilization 5/MODS
+Program Files (x86)/Steam/steamapps/common/Sid Meier's Civilization V/Assets/DLC
+
+
+[STEP 3]
+If changes were made to the DLL since the latest release commit, you'll need to build the DLL. If the DLL doesn't successfully build, you must fix your code before continuing. Any new build warnings that pop up in Visual Studio (not the ones that are always there) should also be addressed before continuing.
+
+If you're testing the 43 Civs version, uncomment "#define MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h before building the DLL.
+
+If you don't need to use the debugger or test the DLL, then build the Release config normally, since it runs faster.
+
+
+If you do want to use the debugger or test the DLL, build the Debug configuration using Clang. To do so, open Command Prompt and run the following commands:
+cd {folder path for Community-Patch-DLL}
+py build_vp_clang.py --config debug
+
+Go to the clang-output/Debug folder. Cut and paste the compiled DLL and PDB files into the (1) Community Patch mod folder, replacing the existing DLL file there.
+
+Then, delete the clang-output and clang-build folders in the repository.
+
+
+[STEP 4]
+Based on which version you're testing, you'll need to build or copy some of the mods into your MODS folder and/or your Steam DLC folder.
+
+If new files/folders were added to a mod (or its files were renamed), you will need to build the mod using ModBuddy (copying will not work).
+
+Community Patch Only
+- Build or copy (1) Community Patch.
+
+Vox Populi Without EUI
+- Build or copy (1) Community Patch. Delete the LUA folder inside it.
+- Build or copy (2) Vox Populi.
+- Copy the VPUI folder in the Vox Populi Installer Files folder and paste it into your Steam DLC folder.
+- Copy the VPUI Text/VPUI_tips_en_us.xml file to your Text folder (Documents/My Games/Sid Meier's Civilization 5/Text).
+
+Vox Populi With EUI
+- Build or copy (1) Community Patch. Delete the LUA folder inside it.
+- Build or copy (2) Vox Populi. Delete the LUA folder inside it.
+- Build or copy (3a) EUI Compatibility Files.
+- Copy the VPUI folder in the Vox Populi Installer Files folder and paste it into your Steam DLC folder.
+- Copy the UI_bc1 folder in the Vox Populi Installer Files folder and paste it into your Steam DLC folder.
+- Copy the VPUI Text/VPUI_tips_en_us.xml file to your Text folder (Documents/My Games/Sid Meier's Civilization 5/Text).
+
+43 Civs
+- Also copy (3b) 43 Civs Community Patch.
+
+Copying the UI folders and text file is not necessary if you already have them installed and no changes have been made to them since. However, make sure you've followed Step 2 and deleted any folders that shouldn't be there.
+
+
+[STEP 5]
+Delete your cache folder, if it is present (typical location on Windows is Documents/My Games/Sid Meier's Civilization 5/cache).
+
+
+[STEP 6]
+Make sure you have enabled logging. See here for instructions: https://github.com/LoneGazebo/Community-Patch-DLL#to-enable-logging-for-bug-reports
+
+
+[STEP 7]
+You may now test your changes!
+
+If you modified the database, it is always a good idea to check database.log to make sure there are no new database errors caused by your changes. If you're unsure where a database error is, you can check stopwatch.log and compare the timestamps to narrow the list of files that could be causing the issue.
+
+If you modified Lua files, Lua.log will generate runtime errors which indicate the line number if there are any bugged function calls.
+
+If you modified the DLL, some tips can be found here: https://github.com/LoneGazebo/Community-Patch-DLL#to-debug-the-gamecoredll

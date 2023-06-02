@@ -129,9 +129,10 @@
 		<TextButton ID="InternationalTradeRoutes" Anchor="R,T" String="" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel" />
 
 		<!-- Luxury Resources  -->
-		<TextButton ID="LuxuryResources" Anchor="R,T" String="Luxury Resources" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
+		<TextButton ID="LuxuryResources" Anchor="R,T" String="Luxury Resources" Offset="-6,0" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
 
 		<!-- Tourism -->
+		<Container Size="1,1" />
 		<TextButton ID="TourismString" Anchor="R,T" String="" ColorLayer0="255,255,200,255" ToolTipType="TooltipTypeTopPanel" />
 
 		<!-- Yields  -->
@@ -155,8 +156,8 @@
 	</ToolTipType>
 
 	<Instance Name="ResourceInstance">
-		<Image ID="Image" Size="32,32" Offset="-12,-12" Sampler="Linear" Hidden="1">
-			<Button ID="Count" Size="28,28" String="?" BranchAlpha="1.5" TextAnchor="R,B" Offset="4,3" Font="TwCenMT16" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" ToolTipType="TooltipTypeTopPanel" />
+		<Image ID="Image" Size="45,45" Offset="-18,-13" Sampler="Linear" Hidden="1">
+			<Button ID="Count" Size="28,28" String="?" BranchAlpha="1.5" TextAnchor="R,B" Offset="13,8" Font="TwCenMT16" FontStyle="Stroke" Color0="Beige,255" Color1="Black,155" ToolTipType="TooltipTypeTopPanel" />
 		</Image>
 	</Instance>
 

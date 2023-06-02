@@ -6166,6 +6166,10 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 							}
 						}
 #endif
+						else if (isCity())
+						{
+							GET_PLAYER(eOldOwner).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(eOldOwner));
+						}
 					}
 				}
 			}

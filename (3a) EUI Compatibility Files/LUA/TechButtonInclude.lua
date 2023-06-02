@@ -580,30 +580,37 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 
+	local playerID = Game.GetActivePlayer();	
+	local player = Players[playerID];
+	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+	
 	local bAddedForest = false
 	for row in GameInfo.Build_TechTimeChanges(thisTechType) do
---[[
-		if not addSmallGenericButton( "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100 ) then
-			break
-		end
-]]--
 		if bAddedForest == false and (row.BuildType == "BUILD_REMOVE_JUNGLE" or row.BuildType == "BUILD_REMOVE_FOREST") then
 			bAddedForest = true
-			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", row.TimeChange/100 ) then
+			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
 				break
 			end
 		end
 		if row.BuildType == "BUILD_REMOVE_MARSH" then
-			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100 ) then
+			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
 				break
 			end
 		end
-	end 
-	
+		--Why did we remove this...? there was no reason to.. anyway
+		if (GameInfo.Builds[row.BuildType].ImprovementType ~= nil and GameInfo.Improvements[GameInfo.Builds[row.BuildType].ImprovementType].CivilizationType ~= nil and GameInfo.Improvements[GameInfo.Builds[row.BuildType].ImprovementType].CivilizationType == civType) then
+			if not addSmallActionButton( {IconIndex = GameInfo.Builds[row.BuildType].IconIndex, IconAtlas = GameInfo.Builds[row.BuildType].IconAtlas, Description = ""}, "", "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
+				break
+			end
+		else
+			if (GameInfo.Builds[row.BuildType].ImprovementType ~= nil and GameInfo.Improvements[GameInfo.Builds[row.BuildType].ImprovementType].CivilizationType == nil) then
+				if not addSmallActionButton( {IconIndex = GameInfo.Builds[row.BuildType].IconIndex, IconAtlas = GameInfo.Builds[row.BuildType].IconAtlas, Description = ""}, "", "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
+					break
+				end
+			end
+		end
 
-	local playerID = Game.GetActivePlayer();	
-	local player = Players[playerID];
-	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
+	end 
 
 	if (tonumber(tech.EmbarkedMoveChange) or 0) > 0 then
 		addSmallActionButton( {IconIndex = 14, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_FASTER_EMBARKED_MOVEMENT" )
@@ -862,5 +869,13 @@ function AddCallbackToSmallButtons( thisTechButtonInstance, maxSmallButtons, voi
 		else
 			break
 		end
+	end
+end
+--This displays percentage in a roundup manner.
+function DisplayPercentage(firstnumber)
+	if math.floor(firstnumber*1000)/10 % 1 == 0 then
+		return math.floor(firstnumber*100)
+	else
+		return math.floor(firstnumber*1000)/10
 	end
 end

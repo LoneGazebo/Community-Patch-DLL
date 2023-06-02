@@ -196,6 +196,8 @@
 			<SpyRankChange>1</SpyRankChange>
 			<InstantSpyRankChange>1</InstantSpyRankChange>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
+			<EspionageTurnsModifierFriendly>-2</EspionageTurnsModifierFriendly>
+			<EspionageTurnsModifierEnemyGlobal>2</EspionageTurnsModifierEnemyGlobal>
 			<PortraitIndex>44</PortraitIndex>
 		</Row>
 		<Row>

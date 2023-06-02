@@ -6142,7 +6142,7 @@ void CvReligionAI::DoTurn()
 			}
 		}
 
-		m_aFaithPriorities.SortItems();
+		m_aFaithPriorities.StableSortItems();
 		for (int iLoop = 0; iLoop < m_aFaithPriorities.size(); iLoop++)
 			DoFaithPurchasesInCities(m_aFaithPriorities.GetElement(iLoop));
 	}
@@ -6178,7 +6178,7 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 	}
 
 	// Choose from weighted vector
-	beliefChoices.SortItems();
+	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
@@ -6219,7 +6219,7 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 	}
 
 	// Choose from weighted vector
-	beliefChoices.SortItems();
+	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
@@ -6260,7 +6260,7 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 	}
 
 	// Choose from weighted vector
-	beliefChoices.SortItems();
+	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
@@ -6301,7 +6301,7 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 	}
 
 	// Choose from weighted vector
-	beliefChoices.SortItems();
+	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
@@ -6345,7 +6345,7 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 	}
 
 	// Choose from weighted vector
-	beliefChoices.SortItems();
+	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
@@ -6386,7 +6386,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 	}
 
 	// Choose from weighted vector
-	beliefChoices.SortItems();
+	beliefChoices.StableSortItems();
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{

@@ -560,7 +560,7 @@ function GetActiveQuestText(iMajor, iMinor)
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE) then
 				sIconText = sIconText .. GameInfo.Resources[iQuestData1].IconString;
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER) then
-				sIconText = sIconText .. "[ICON_GOLDEN_AGE]";
+				sIconText = sIconText .. "[ICON_WONDER]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON) then
 				sIconText = sIconText .. GetGreatPersonQuestIconText(iQuestData1);
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE) then

@@ -3535,7 +3535,7 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("CanMoveImpassable");
 		AnalyzePromotion("NoCapture");
 		AnalyzePromotion("OnlyDefensive");
-		if thisPromotion.NoAttackInOcean then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Cannot attack in ocean[ENDCOLOR]"; end
+		if thisPromotion.NoAttackInOcean == 1 then sText = sText.."[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]Cannot attack in ocean[ENDCOLOR]"; end
 		AnalyzePromotion("NoDefensiveBonus");
 		AnalyzePromotion("NukeImmune");
 		AnalyzePromotion("HiddenNationality");

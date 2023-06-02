@@ -441,7 +441,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	{
 		iEra = 1;
 	}
-	iPriority += ((GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (10 - iEra)); // make a little less likely as time goes on
+	iPriority += (GetPlayer()->GetDiplomacyAI()->GetBoldness() + iGeneralApproachModifier + GetPlayer()->GetDiplomacyAI()->GetMeanness()) * (10 - iEra); // make a little less likely as time goes on
 
 	CvTeam& pTeam = GET_TEAM(GetPlayer()->getTeam());
 
@@ -1795,7 +1795,7 @@ void CvGrandStrategyAI::DoGuessOtherPlayersActiveGrandStrategy()
 					vGrandStrategyPriorities.push_back(NO_AIGRANDSTRATEGY, iPriority);
 					vGrandStrategyPrioritiesForLogging.push_back(iPriority);
 
-					vGrandStrategyPriorities.SortItems();
+					vGrandStrategyPriorities.StableSortItems();
 
 					eGrandStrategy = (AIGrandStrategyTypes) vGrandStrategyPriorities.GetElement(0);
 					iPriority = vGrandStrategyPriorities.GetWeight(0);

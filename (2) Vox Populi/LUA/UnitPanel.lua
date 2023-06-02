@@ -389,7 +389,21 @@ function UpdateUnitActions( unit )
 		local thisBuild = GameInfo.Builds[buildType];
 		--print("thisBuild.Type:"..tostring(thisBuild.Type));
 		local civilianUnitStr = Locale.ConvertTextKey(thisBuild.Description);
-		local iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft(buildType, Game.GetActivePlayer(),  0, 0) + 1;	
+		
+		local buildProgress = unit:GetPlot():GetBuildProgress( buildType )
+		local nominalWorkRate = unit:WorkRate( true )
+		-- take into account unit.cpp "wipe out all build progress also" game bug
+		local buildTime = unit:GetPlot():GetBuildTime( buildType, Game.GetActivePlayer() ) - nominalWorkRate
+		local iTurnsLeft
+		if buildProgress == 0 then
+			iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft( buildType, Game.GetActivePlayer(), nominalWorkRate - unit:WorkRate() )
+		else
+			buildProgress = buildProgress - nominalWorkRate
+			iTurnsLeft = unit:GetPlot():GetBuildTurnsLeft( buildType, Game.GetActivePlayer(), -unit:WorkRate() )
+		end
+		if iTurnsLeft > 99999 then
+			iTurnsLeft = math.ceil( ( buildTime - buildProgress ) / nominalWorkRate )
+		end
 		local iTurnsTotal = unit:GetPlot():GetBuildTurnsTotal(buildType);	
 		if (iTurnsLeft < 4000 and iTurnsLeft > 0) then
 			civilianUnitStr = civilianUnitStr.." ("..tostring(iTurnsLeft)..")";
@@ -427,6 +441,13 @@ function UpdateUnitPortrait( unit )
 	else
 		name = unit:GetName();
 	end
+	
+	if (unit:IsTrade() and not unit:IsRecalledTrader() and unit:GetTradeRouteIndex() ~= -1) then
+		local tr = Game.GetTradeRoute(unit:GetTradeRouteIndex())
+		if (tr ~= nil and tr.TurnsLeft ~= nil and tr.TurnsLeft >= 0) then
+			name = name .. " (" .. tr.TurnsLeft .. " [ICON_SWAP])"
+		end
+	end	
 	
 	name = Locale.ToUpper(name);
   
@@ -1316,6 +1337,18 @@ function TipHandler( control )
 			if (unit:GetTradeGold(unit:GetPlot()) ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]";
 				strToolTip = strToolTip .. "+" .. unit:GetTradeGold(unit:GetPlot()) .. "[ICON_GOLD]";
+				local unitTypeID = unit:GetUnitType();
+				local unitInfo = unitTypeID and GameInfo.Units[unitTypeID];
+				if (unitInfo.BaseWLTKDTurns > 0) then
+					local WLTKDTurns = unitInfo.BaseWLTKDTurns or 0;
+					for row in GameInfo.Unit_ScalingFromOwnedImprovements() do
+						if row.UnitType == unitInfo.Type then
+							WLTKDTurns = WLTKDTurns * (1 + pActivePlayer:GetImprovementCount(GameInfo.Improvements[row.ImprovementType].ID) * row.Amount / 100) * (GameInfo.GameSpeeds[Game.GetGameSpeedType()].InstantYieldPercent / 100 or 0)
+						end
+					end
+					strToolTip = strToolTip .. "[NEWLINE]";
+					strToolTip = strToolTip .. "+" .. math.floor(WLTKDTurns) .. " " .. Locale.Lookup("TXT_KEY_TURNS") .. " " .. Locale.Lookup("TXT_KEY_PLOTROLL_EMBASSY", "") .. "[ICON_HAPPINESS_1] [COLOR_POSITIVE_TEXT]" .. Locale.Lookup("TXT_KEY_FOOD_WELOVEKING_HEADING3_TITLE") .. "[ENDCOLOR]";
+				end
 			end
 		end
 		
@@ -1640,8 +1673,20 @@ function TipHandler( control )
 			iExtraBuildRate = unit:WorkRate(true, iBuildID);
 		end
 		
-		local iBuildTurns = pPlot:GetBuildTurnsLeft(iBuildID, Game.GetActivePlayer(), iExtraBuildRate, iExtraBuildRate);
-		--print("iBuildTurns: " .. iBuildTurns);
+		local buildProgress = pPlot:GetBuildProgress( iBuildID )
+		local nominalWorkRate = unit:WorkRate( true )
+		-- take into account unit.cpp "wipe out all build progress also" game bug
+		local buildTime = pPlot:GetBuildTime( iBuildID, Game.GetActivePlayer() ) - nominalWorkRate
+		local iBuildTurns
+		if buildProgress == 0 then
+			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), nominalWorkRate - unit:WorkRate() )
+		else
+			buildProgress = buildProgress - nominalWorkRate
+			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), -unit:WorkRate() )
+		end
+		if iBuildTurns > 99999 then
+			iBuildTurns = math.ceil( ( buildTime - buildProgress ) / nominalWorkRate )
+		end
 		if (iBuildTurns > 1) then
 			strBuildTurnsString = " ... " .. Locale.ConvertTextKey("TXT_KEY_BUILD_NUM_TURNS", iBuildTurns);
 		end

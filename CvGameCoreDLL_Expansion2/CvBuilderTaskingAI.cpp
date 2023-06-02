@@ -43,7 +43,6 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 	m_eRemoveRouteBuild = GetRemoveRoute();
 	m_eRouteBuild = NO_BUILD; //will be updated each turn!
 
-	m_aDirectives.clear();
 	m_bLogging = GC.getLogging() && GC.getAILogging() && GC.GetBuilderAILogging();
 
 	// special case code so the Dutch don't remove marshes
@@ -152,8 +151,6 @@ void CvBuilderTaskingAI::Uninit(void)
 	m_eRepairBuild = NO_BUILD;
 	m_eFalloutFeature = NO_FEATURE;
 	m_eFalloutRemove = NO_BUILD;
-
-	m_aDirectives.clear();
 
 	m_bKeepMarshes = false;
 	m_bKeepJungle = false;
@@ -569,7 +566,10 @@ bool CvBuilderTaskingAI::GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes 
 	if (eRoute == ROUTE_ROAD)
 	{
 		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
-			return true;
+		{
+			if (MOD_BALANCE_VP || pPlot->getTeam() == m_pPlayer->getTeam())
+				return true;
+		}
 		else if (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
 			return true;
 	}
@@ -607,8 +607,8 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 		data.iMaxNormalizedDistance = m_pPlayer->GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
 
 		//get all paths
-		map<CvPlot*, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
-		for (map<CvPlot*, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
+		map<int, SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pOriginCity->plot(), vDestPlots, data);
+		for (map<int, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
 			//the paths may contain not-yet-existing canals but the path cost for them is very high
 			//so they should only be used if there really is no other way.
@@ -838,7 +838,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	}
 }
 
-CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const
+CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<int, ReachablePlots>& allWorkersReachablePlots, const CvPlot* pTarget) const
 {
 	if (!pTarget)
 		return NULL;
@@ -846,23 +846,25 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 	int iBestScore = INT_MAX;
 	CvUnit* pBestWorker = NULL;
 
-	for (std::map<CvUnit*, ReachablePlots>::const_iterator itUnit = allWorkersReachablePlots.begin(); itUnit != allWorkersReachablePlots.end(); ++itUnit)
+	for (std::map<int, ReachablePlots>::const_iterator itUnit = allWorkersReachablePlots.begin(); itUnit != allWorkersReachablePlots.end(); ++itUnit)
 	{
 		ReachablePlots::const_iterator itPlot = itUnit->second.find(pTarget->GetPlotIndex());
 		if (itPlot == itUnit->second.end())
 			continue;
 
+		CvUnit* currentUnit = m_pPlayer->getUnit(itUnit->first);
+
 		int iTurns = itPlot->iPathLength;
 		//-1 means the plot is already targeted by another worker
 		if (iTurns < 0)
-			return itUnit->first;
+			return currentUnit;
 
 		//use distance as a tiebreaker
-		int iScore = iTurns * 100 + plotDistance(*itUnit->first->plot(), *pTarget);
+		int iScore = iTurns * 100 + plotDistance(*currentUnit->plot(), *pTarget);
 		if (iScore < iBestScore)
 		{
 			iBestScore = iScore;
-			pBestWorker = itUnit->first;
+			pBestWorker = currentUnit;
 		}
 	}
 
@@ -870,9 +872,9 @@ CvUnit* CvBuilderTaskingAI::FindBestWorker(const std::map<CvUnit*, ReachablePlot
 }
 
 /// Use the flavor settings to determine what the worker should do
-BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<CvUnit*,ReachablePlots>& allWorkersReachablePlots)
+BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<int,ReachablePlots>& allWorkersReachablePlots)
 {
-	m_aDirectives.clear();
+	vector<OptionWithScore<BuilderDirective>> directives;
 
 	// check for no brainer bail-outs
 	// if the builder is already building something
@@ -887,8 +889,19 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 		return nd;
 	}
 
+	if (m_bLogging) {
+		CvString strLog;
+		strLog.Format(
+			"%i,Started handling unit,%d,%d",
+			pUnit->GetID(),
+			pUnit->getX(),
+			pUnit->getY()
+		);
+		LogInfo(strLog, m_pPlayer, true);
+	}
+
 	// go through all the plots this unit can reach
-	map<CvUnit*, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit);
+	map<int, ReachablePlots>::const_iterator thisUnitPlots = allWorkersReachablePlots.find(pUnit->GetID());
 	if (thisUnitPlots == allWorkersReachablePlots.end())
 		return BuilderDirective();
 
@@ -899,12 +912,33 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 
 		if(!ShouldBuilderConsiderPlot(pUnit, pPlot))
 		{
+			if (m_bLogging) {
+				CvString strLog;
+				strLog.Format(
+					"%i,Skipping plot,%d,%d",
+					pUnit->GetID(),
+					pPlot->getX(),
+					pPlot->getY()
+				);
+				LogInfo(strLog, m_pPlayer, true);
+			}
 			continue;
 		}
 
 		CvUnit* pBestWorker = FindBestWorker(allWorkersReachablePlots,pPlot);
 		if (pBestWorker != pUnit)
 		{
+			if (m_bLogging) {
+				CvString strLog;
+				strLog.Format(
+					"%i,Skipping plot because not best worker,%i,%d,%d",
+					pUnit->GetID(),
+					pBestWorker->GetID(),
+					pPlot->getX(),
+					pPlot->getY()
+				);
+				LogInfo(strLog, m_pPlayer, true);
+			}
 			continue;
 		}
 
@@ -916,15 +950,15 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 		{
 			UpdateCurrentPlotYields(pPlot);
 
-			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-			AddImprovingResourcesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-			AddImprovingPlotsDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddRouteDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddImprovingResourcesDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddImprovingPlotsDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
 			{
-				AddChopDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-				AddScrubFalloutDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-				AddRepairTilesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-				AddRemoveRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddChopDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddScrubFalloutDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRepairTilesDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRemoveRouteDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			}
 		}
 		else if (m_bEvaluateAdjacent && !pPlot->isOwned() && pPlot->isAdjacentPlayer(pUnit->getOwner()))
@@ -932,40 +966,40 @@ BuilderDirective CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, const map<Cv
 			UpdateCurrentPlotYields(pPlot);
 
 			//some special improvements and roads
-			AddImprovingPlotsDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddImprovingPlotsDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddRouteDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
 			{
 				// May want to repair and remove road tiles outside of our territory
-				AddRepairTilesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-				AddRemoveRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRepairTilesDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRemoveRouteDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			}
 		}
 		else
 		{
 			//only roads
-			AddRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+			AddRouteDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			if (pUnit->AI_getUnitAIType() == UNITAI_WORKER)
 			{
 				// May want to repair and remove road tiles outside of our territory
-				AddRepairTilesDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
-				AddRemoveRouteDirectives(pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRepairTilesDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
+				AddRemoveRouteDirectives(directives, pUnit, pPlot, pWorkingCity, iMoveTurnsAway);
 			}
 		}
 	}
 
-	std::stable_sort(m_aDirectives.begin(), m_aDirectives.end());
-	LogDirectives(pUnit);
+	std::stable_sort(directives.begin(), directives.end());
+	LogDirectives(directives, pUnit);
 
 	//nothing found?
-	if (m_aDirectives.empty())
+	if (directives.empty())
 		return BuilderDirective();
 
-	return m_aDirectives.front().option;
+	return directives.front().option;
 }
 
 /// Evaluating a plot to see if we can build resources there
-void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddImprovingResourcesDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	// check to see if a resource is here. If not, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
@@ -1075,7 +1109,7 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			iWeight /= (iMoveTurnsAway*iMoveTurnsAway + 1);
 			iWeight -= plotDistance(*pUnit->plot(),*pPlot); //tiebreaker in case of multiple equal options
 
-			int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
+			int iScore = ScorePlotBuild(pUnit, pPlot, eImprovement, eBuild);
 			iScore = min(iScore,0x7FFF);
 
 			if(iScore > 0)
@@ -1116,17 +1150,24 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(CvUnit* pUnit, CvPlot* 
 			if(m_bLogging)
 			{
 				CvString strTemp;
-				strTemp.Format("%d, Build Time Weight, %d, Weight, %d", pUnit->GetID(), iBuildTimeWeight, iWeight);
+				strTemp.Format(
+					"%d,Build Time Weight,%d,%i,%i,%d", 
+					pUnit->GetID(),
+					pPlot->getX(),
+					pPlot->getY(),
+					iBuildTimeWeight,
+					iWeight
+				);
 				LogInfo(strTemp, m_pPlayer);
 			}
 
-			m_aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
+			directives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
 		}
 	}
 }
 
 /// Evaluating a plot to determine what improvement could be best there
-void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddImprovingPlotsDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	ImprovementTypes eExistingImprovement = pPlot->getImprovementType();
 
@@ -1138,7 +1179,13 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			if (m_bLogging)
 			{
 				CvString strTemp;
-				strTemp.Format("Weight,Improvement Blocked by Special Improvement,%s,,,,%i, %i", GC.getImprovementInfo(pPlot->getImprovementType())->GetType(), pPlot->getX(), pPlot->getY());
+				strTemp.Format(
+					"%i,Weight,Improvement Blocked by Special Improvement,%s,%i,%i", 
+					pUnit->GetID(),
+					GC.getImprovementInfo(pPlot->getImprovementType())->GetType(),
+					pPlot->getX(),
+					pPlot->getY()
+				);
 				LogInfo(strTemp, m_pPlayer);
 			}
 			return;
@@ -1194,33 +1241,53 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		{
 			if (!pImprovement->IsConnectsResource(eResource))
 			{
-				if(m_bLogging){
+				/*if (m_bLogging) {
 					CvString strTemp;
-					strTemp.Format("Weight,!pImprovement->IsConnectsResource(eResource),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eResource, pPlot->getX(), pPlot->getY());
+					strTemp.Format(
+						"%i,Weight,!pImprovement->IsConnectsResource(eResource),%s,%i,%i,%i", 
+						pUnit->GetID(),
+						GC.getBuildInfo(eBuild)->GetType(),
+						eResource,
+						pPlot->getX(),
+						pPlot->getY()
+					);
 					LogInfo(strTemp, m_pPlayer);
-				}
+				}*/
 				continue;
 			}
 		}
 
 		if(eImprovement == pPlot->getImprovementType())
 		{
-			if(m_bLogging){
+			/*if (m_bLogging) {
 				CvString strTemp;
-				strTemp.Format("Weight,eImprovement == pPlot->getImprovementType(),%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), eImprovement, pPlot->getX(), pPlot->getY());
+				strTemp.Format(
+					"%i,Weight,eImprovement == pPlot->getImprovementType(),%s,%i,%i,%i", 
+					pUnit->GetID(),
+					GC.getBuildInfo(eBuild)->GetType(), 
+					eImprovement,
+					pPlot->getX(),
+					pPlot->getY()
+				);
 				LogInfo(strTemp, m_pPlayer);
-			}
+			}*/
 			continue;
 		}
 
 		// Only check to make sure our unit can build this after possibly switching this to a repair build in the block of code above
 		if(!pUnit->canBuild(pPlot, eBuild))
 		{
-			if(m_bLogging){
+			/*if (m_bLogging) {
 				CvString strTemp;
-				strTemp.Format("Weight,!pUnit->canBuild(),%s,,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), pPlot->getX(), pPlot->getY());
+				strTemp.Format(
+					"%i,Weight,!pUnit->canBuild(),%s,%i,%i", 
+					pUnit->GetID(),
+					GC.getBuildInfo(eBuild)->GetType(),
+					pPlot->getX(),
+					pPlot->getY()
+				);
 				LogInfo(strTemp, m_pPlayer);
-			}
+			}*/
 			continue;
 		}
 
@@ -1241,7 +1308,13 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			{
 				if(m_bLogging){
 					CvString strTemp;
-					strTemp.Format("Weight,Marsh Remove,%s,,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), pPlot->getX(), pPlot->getY());
+					strTemp.Format(
+						"%i,Weight,Marsh Remove,%s,%i,%i", 
+						pUnit->GetID(),
+						GC.getBuildInfo(eBuild)->GetType(),
+						pPlot->getX(),
+						pPlot->getY()
+					);
 					LogInfo(strTemp, m_pPlayer);
 				}
 				continue;
@@ -1255,7 +1328,13 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			{
 				if(m_bLogging){
 					CvString strTemp;
-					strTemp.Format("Weight,Jungle Remove,%s,,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), pPlot->getX(), pPlot->getY());
+					strTemp.Format(
+						"%i,Weight,Jungle Remove,%s,%i,%i", 
+						pUnit->GetID(),
+						GC.getBuildInfo(eBuild)->GetType(),
+						pPlot->getX(),
+						pPlot->getY()
+					);
 					LogInfo(strTemp, m_pPlayer);
 				}
 				if (pPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
@@ -1271,14 +1350,20 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 			{
 				if(m_bLogging){
 					CvString strTemp;
-					strTemp.Format("Weight,Keep Forests,%s,,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), pPlot->getX(), pPlot->getY());
+					strTemp.Format(
+						"%i,Weight,Keep Forests,%s,%i,%i", 
+						pUnit->GetID(),
+						GC.getBuildInfo(eBuild)->GetType(),
+						pPlot->getX(),
+						pPlot->getY()
+					);
 					LogInfo(strTemp, m_pPlayer);
 				}
 				continue;
 			}
 		}
 
-		int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
+		int iScore = ScorePlotBuild(pUnit, pPlot, eImprovement, eBuild);
 		if (pCity && pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
 			iScore *= 2;
 
@@ -1289,7 +1374,13 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		{
 			if(m_bLogging){
 				CvString strTemp;
-				strTemp.Format("Weight,Negative Score,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+				strTemp.Format(
+					"%i,Weight,Negative Score,%s,%i,%i,%i", 
+					pUnit->GetID(),
+					GC.getBuildInfo(eBuild)->GetType(), 
+					iScore, 
+					pPlot->getX(), 
+					pPlot->getY());
 				LogInfo(strTemp, m_pPlayer);
 			}
 			continue;
@@ -1355,16 +1446,24 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(CvUnit* pUnit, CvPlot* pPlo
 		if(m_bLogging)
 		{
 			CvString strTemp;
-			strTemp.Format("Weight,Directive Score Added,%s,,,,%i, %i, %i, %d", GC.getBuildInfo(eBuild)->GetType(), directive.m_sX, directive.m_sY, directive.m_sMoveTurnsAway, iWeight);
+			strTemp.Format(
+				"%i,Weight,Directive Score Added,%s,%i,%i,%i,%d", 
+				pUnit->GetID(),
+				GC.getBuildInfo(eBuild)->GetType(),
+				directive.m_sX,
+				directive.m_sY,
+				directive.m_sMoveTurnsAway,
+				iWeight
+			);
 			LogInfo(strTemp, m_pPlayer);
 		}
 
-		m_aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
+		directives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
 	}
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRemoveRouteDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
 {
 	//minors stay out
 	if (m_pPlayer->isMinorCiv())
@@ -1439,15 +1538,21 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 	if (m_bLogging)
 	{
 		CvString strTemp;
-		strTemp.Format("RemoveRouteDirectives, adding, x: %d y: %d, Weight, %d", pPlot->getX(), pPlot->getY(), iWeight);
+		strTemp.Format(
+			"%i,RemoveRouteDirectives,%d,%d,%d",
+			pUnit->GetID(),
+			pPlot->getX(), 
+			pPlot->getY(), 
+			iWeight
+		);
 		LogInfo(strTemp, m_pPlayer);
 	}
 
-	m_aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
+	directives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
 }
 
 /// Adds a directive if the unit can construct a road in the plot
-void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRouteDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* /*pCity*/, int iMoveTurnsAway)
 {
 	// if the player can't build a route, bail out!
 	RouteTypes eBestRouteType = m_pPlayer->getBestRoute();
@@ -1500,15 +1605,21 @@ void CvBuilderTaskingAI::AddRouteDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity
 	if(m_bLogging)
 	{
 		CvString strTemp;
-		strTemp.Format("AddRouteDirectives, adding, x: %d y: %d, Weight, %d", pPlot->getX(), pPlot->getY(), iWeight);
+		strTemp.Format(
+			"%i,AddRouteDirectives,%d,%d,%d", 
+			pUnit->GetID(),
+			pPlot->getX(),
+			pPlot->getY(),
+			iWeight
+		);
 		LogInfo(strTemp, m_pPlayer);
 	}
 
-	m_aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
+	directives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
 }
 
 /// Determines if the builder should "chop" the feature in the tile
-void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	// if it's not within a city radius
 	if(!pPlot->isWithinTeamCityRadius(pUnit->getTeam()))
@@ -1705,11 +1816,11 @@ void CvBuilderTaskingAI::AddChopDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity*
 		//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eChopBuild);
 		directive.m_sMoveTurnsAway = iMoveTurnsAway;
 
-		m_aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
+		directives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
 	}
 }
 
-void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pWorkingCity, int iMoveTurnsAway)
 {
 	if (!pPlot)
 	{
@@ -1776,11 +1887,11 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(CvUnit* pUnit, CvPlot* pPlot, 
 		//directive.m_iGoldCost = m_pPlayer->getBuildCost(pPlot, eChopBuild);
 		directive.m_sMoveTurnsAway = iMoveTurnsAway;
 
-		m_aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
+		directives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
 	}
 }
 // Everything means less than zero, hey
-void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
+void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>>& directives, CvUnit* pUnit, CvPlot* pPlot, CvCity* pCity, int iMoveTurnsAway)
 {
 	if(m_eFalloutFeature == NO_FEATURE || m_eFalloutRemove == NO_BUILD)
 	{
@@ -1810,7 +1921,7 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(CvUnit* pUnit, CvPlot* pPlot,
 		directive.m_sX = pPlot->getX();
 		directive.m_sY = pPlot->getY();
 		directive.m_sMoveTurnsAway = iMoveTurnsAway;
-		m_aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
+		directives.push_back( OptionWithScore<BuilderDirective>(directive, iWeight));
 	}
 }
 
@@ -1863,7 +1974,13 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 		{
 			CvString strLog;
-			strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to potential attackers", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, true));
+			strLog.Format(
+				"%i,Bailing due to potential attackers,%d,%d,%d", 
+				pUnit->GetID(),
+				pPlot->getX(), 
+				pPlot->getY(),
+				m_pPlayer->GetPlotDanger(*pPlot, true)
+			);
 			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 		}
 		return false;
@@ -1875,7 +1992,13 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		if(GC.getLogging() && GC.getAILogging() && m_bLogging)
 		{
 			CvString strLog;
-			strLog.Format("plotX: %d plotY: %d, danger: %d, bailing due to fallout", pPlot->getX(), pPlot->getY(), m_pPlayer->GetPlotDanger(*pPlot, true));
+			strLog.Format(
+				"%i,Bailing due to fallout,%d,%d,%d", 
+				pUnit->GetID(),
+				pPlot->getX(),
+				pPlot->getY(),
+				m_pPlayer->GetPlotDanger(*pPlot, true)
+			);
 			m_pPlayer->GetHomelandAI()->LogHomelandMessage(strLog);
 		}
 		return false;
@@ -1890,7 +2013,12 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 		if(m_bLogging)
 		{
 			CvString strLog;
-			strLog.Format("plotX: %d plotY: %d,, this tile is full with another unit. bailing!", pPlot->getX(), pPlot->getY());
+			strLog.Format(
+				"%i,This tile is full with another unit - bailing,%d,%d", 
+				pUnit->GetID(),
+				pPlot->getX(),
+				pPlot->getY()
+			);
 			LogInfo(strLog, m_pPlayer, true);
 		}
 
@@ -2048,7 +2176,7 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 	return false;
 }
 
-int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild)
+int CvBuilderTaskingAI::ScorePlotBuild(CvUnit* pUnit, CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild)
 {
 	UpdateProjectedPlotYields(pPlot, eBuild);
 
@@ -2247,7 +2375,14 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 									if(m_bLogging)
 									{
 										CvString strTemp;
-										strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+										strTemp.Format(
+											"%i,Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus,%s,%i,%i,%i", 
+											pUnit->GetID(),
+											GC.getBuildInfo(eBuild)->GetType(),
+											iScore,
+											pPlot->getX(),
+											pPlot->getY()
+										);
 										LogInfo(strTemp, m_pPlayer);
 									}
 									bAdjacent = true;
@@ -2261,7 +2396,14 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 							if(m_bLogging)
 							{
 								CvString strTemp;
-								strTemp.Format("Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus, but no adjacent tile yet... %s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+								strTemp.Format(
+									"%i,Weight,Found a Tile outside our Territory for our UI with Adjacency Bonus, but no adjacent tile yet,%s,%i,%i,%i", 
+									pUnit->GetID(),
+									GC.getBuildInfo(eBuild)->GetType(),
+									iScore,
+									pPlot->getX(),
+									pPlot->getY()
+								);
 								LogInfo(strTemp, m_pPlayer);
 							}
 						}
@@ -2274,7 +2416,14 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 						if(m_bLogging)
 						{
 							CvString strTemp;
-							strTemp.Format("Weight,Found a Tile outside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+							strTemp.Format(
+								"%i,Weight,Found a Tile outside our Territory for our UI,%s,%i,%i,%i",
+								pUnit->GetID(),
+								GC.getBuildInfo(eBuild)->GetType(),
+								iScore,
+								pPlot->getX(),
+								pPlot->getY()
+							);
 							LogInfo(strTemp, m_pPlayer);
 						}
 					}
@@ -2285,7 +2434,14 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 					if(m_bLogging)
 					{
 						CvString strTemp;
-						strTemp.Format("Weight,Found a Tile inside our Territory for our UI,%s,%i,,,%i, %i", GC.getBuildInfo(eBuild)->GetType(), iScore, pPlot->getX(), pPlot->getY());
+						strTemp.Format(
+							"%i,Weight,Found a Tile inside our Territory for our UI,%s,%i,%i,%i", 
+							pUnit->GetID(),
+							GC.getBuildInfo(eBuild)->GetType(),
+							iScore,
+							pPlot->getX(),
+							pPlot->getY()
+						);
 						LogInfo(strTemp, m_pPlayer);
 					}
 				}
@@ -2852,12 +3008,12 @@ void CvBuilderTaskingAI::LogFlavors(FlavorTypes eFlavor)
 }
 
 /// Logs all the directives for the unit
-void CvBuilderTaskingAI::LogDirectives(CvUnit* pUnit)
+void CvBuilderTaskingAI::LogDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit)
 {
 	if(!m_bLogging)
 		return;
 
-	if(m_aDirectives.empty())
+	if(directives.empty())
 	{
 		CvString strLog;
 		CvString strTemp;
@@ -2870,8 +3026,8 @@ void CvBuilderTaskingAI::LogDirectives(CvUnit* pUnit)
 	}
 	else
 	{
-		for(size_t i = 0; i < m_aDirectives.size(); i++)
-			LogDirective(m_aDirectives[i].option, pUnit, m_aDirectives[i].score);
+		for(size_t i = 0; i < directives.size(); i++)
+			LogDirective(directives[i].option, pUnit, directives[i].score);
 	}
 }
 
@@ -2906,9 +3062,11 @@ void CvBuilderTaskingAI::LogDirective(BuilderDirective directive, CvUnit* pUnit,
 		strLog += "BUILD_ROUTE,";
 		break;
 	case BuilderDirective::CHOP:
-		strLog += "CHOP";
+		strLog += "CHOP,";
+		break;
 	case BuilderDirective::REMOVE_ROAD:
-		strLog += "REMOVE_ROAD";
+		strLog += "REMOVE_ROAD,";
+		break;
 	}
 
 	strLog += GC.getBuildInfo(directive.m_eBuild)->GetType();

@@ -2137,6 +2137,12 @@ void CvCityCitizens::ChangeNumForcedWorkingPlots(int iChange)
 /// Can our City work a particular CvPlot if we override ownership?
 bool CvCityCitizens::IsCanWorkWithOverride(CvPlot* pPlot) const
 {
+	// Cannot work another city center
+	if (pPlot->getPlotCity() != NULL && pPlot->getPlotCity()->GetID() != m_pCity->GetID())
+	{
+		return false;
+	}
+
 	if (pPlot->getOwner() != m_pCity->getOwner())
 	{
 		return false;

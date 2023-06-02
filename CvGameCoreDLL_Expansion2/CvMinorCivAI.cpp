@@ -6315,7 +6315,7 @@ WeightedCivsList CvMinorCivAI::CalculateFriendshipFromQuests()
 		vePlayerInfluences.push_back(eMajorLoop, iWeight);
 	}
 
-	vePlayerInfluences.SortItems();
+	vePlayerInfluences.StableSortItems();
 	return vePlayerInfluences;
 }
 
@@ -8819,7 +8819,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 	}
 
 	// Choose the best plot
-	viPlotIndexes.SortItems();
+	viPlotIndexes.StableSortItems();
 	CvPlot* pBestPlot = GC.getMap().plotByIndex(viPlotIndexes.GetElement(0));
 
 	return pBestPlot;
@@ -8875,7 +8875,7 @@ CvPlot* CvMinorCivAI::GetBestNearbyDig()
 	}
 
 	// Choose the best plot
-	viPlotIndexes.SortItems();
+	viPlotIndexes.StableSortItems();
 	CvPlot* pBestPlot = GC.getMap().plotByIndex(viPlotIndexes.GetElement(0));
 
 	return pBestPlot;
@@ -9006,7 +9006,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 		}
 	}
 
-	veMinorRankings.SortItems();
+	veMinorRankings.StableSortItems();
 	if(veMinorRankings.size() != 0)
 	{
 		for(int iRanking = 0; iRanking < veMinorRankings.size(); iRanking++)
@@ -9830,7 +9830,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 	if(veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	veValidTargets.SortItems();
+	veValidTargets.StableSortItems();
 
 	if(!bNoRandom)
 	{
@@ -16332,7 +16332,7 @@ void CvMinorCivAI::DoElection()
 
 	if(wvVotes.size() > 0)
 	{
-		wvVotes.SortItems();
+		wvVotes.StableSortItems();
 		RandomNumberDelegate fcn;
 		fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(&fcn, "Choosing CS election winner by weight");
@@ -16828,18 +16828,12 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 
 	// Only allowed to improve Luxury and Strategic resources
 	ResourceTypes eResource = pPlot->getResourceType(GET_PLAYER(eMajor).getTeam());
-	if(eResource == NO_RESOURCE)
-	{
+	if (eResource == NO_RESOURCE)
 		return false;
-	}
-	else
-	{
-		ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-		if(eUsage != RESOURCEUSAGE_STRATEGIC && eUsage != RESOURCEUSAGE_LUXURY)
-		{
-			return false;
-		}
-	}
+
+	ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+	if (eUsage != RESOURCEUSAGE_STRATEGIC && eUsage != RESOURCEUSAGE_LUXURY)
+		return false;
 
 	ImprovementTypes eImprovement = (ImprovementTypes)pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
@@ -16847,12 +16841,11 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 		CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eImprovement);
 		if (pImprovementInfo != NULL)
 		{
-			// Current improvement connecting this resource is already there, and not pillaged?
-			if (pImprovementInfo->IsConnectsResource(eResource) && !pPlot->IsImprovementPillaged())
-				return false;
-
-			// Embassy already there?
-			if (pImprovementInfo->IsPermanent())
+			// Existing improvement that connects the resource? If it's pillaged, we can repair it. Otherwise, we can't improve this tile.
+			// todo: remove yucky hardcoding of GPTIs connecting resources
+			if (pImprovementInfo->IsConnectsResource(eResource) || pImprovementInfo->IsCreatedByGreatPerson())
+				return pPlot->IsImprovementPillaged();
+			else if (pImprovementInfo->IsPermanent())
 				return false;
 		}
 	}
@@ -16860,7 +16853,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
 
 	// There must be a valid improvement for the player to build
-	if(eImprovement == NO_IMPROVEMENT)
+	if (eImprovement == NO_IMPROVEMENT)
 		return false;
 
 	return true;
@@ -16898,24 +16891,32 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 		return;
 	}
 
-	ImprovementTypes eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
-	if(eImprovement == NO_IMPROVEMENT)
+	ResourceTypes eResource = pPlot->getResourceType(GET_PLAYER(eMajor).getTeam());
+	ImprovementTypes eImprovement = NO_IMPROVEMENT;
+	ImprovementTypes eCurrentImprovement = (ImprovementTypes)pPlot->getImprovementType();
+	CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(eCurrentImprovement);
+	if (eCurrentImprovement != NO_IMPROVEMENT && pImprovementInfo != NULL && (pImprovementInfo->IsConnectsResource(eResource) || pImprovementInfo->IsCreatedByGreatPerson()))
 	{
-		return;
+		// If we got here, IsLackingGiftableTileImprovementAtPlot() has verified that there is an existing improvement which connects the resource on the tile, and it's pillaged.
+		// So unpillage it instead of building something new. Calling setImprovementType() will unpillage it.
+		eImprovement = eCurrentImprovement;
+	}
+	else
+	{
+		eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
+		if (eImprovement == NO_IMPROVEMENT)
+			return;
 	}
 
 	pPlot->setImprovementType(eImprovement, eMajor);
 
-#if defined(MOD_BALANCE_CORE)
 	if (pPlot->getFeatureType() != NO_FEATURE)
 	{
 		for (int iI = 0; iI < GC.getNumBuildInfos(); ++iI)
 		{
 			CvBuildInfo* pkBuildInfo = GC.getBuildInfo((BuildTypes)iI);
 			if (!pkBuildInfo)
-			{
 				continue;
-			}
 
 			ImprovementTypes eLoopImprovement = ((ImprovementTypes)(pkBuildInfo->getImprovement()));
 
@@ -16927,18 +16928,15 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 					break;
 				}
 			}
-
 		}
 	}
-#endif
 
-#if defined(MOD_BALANCE_CORE)
-	for(int iI = 0; iI < pPlot->getNumUnits(); iI++)
+	for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 	{
 		CvUnit* pLoopUnit = pPlot->getUnitByIndex(iI);
-		if(pLoopUnit != NULL)
+		if (pLoopUnit != NULL)
 		{
-			if(pLoopUnit->getBuildType() != NO_BUILD)
+			if (pLoopUnit->getBuildType() != NO_BUILD)
 			{
 				pLoopUnit->SetAutomateType(NO_AUTOMATE);
 				pLoopUnit->ClearMissionQueue();
@@ -16946,7 +16944,7 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 			}
 		}
 	}
-#endif
+
 	// VFX
 	CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(pPlot));
 	gDLL->GameplayDoFX(pDllPlot.get());
@@ -16955,11 +16953,8 @@ void CvMinorCivAI::DoTileImprovementGiftFromMajor(PlayerTypes eMajor, int iPlotX
 	GET_PLAYER(eMajor).GetTreasury()->LogExpenditure(GetPlayer()->GetMinorCivAI()->GetNamesListAsString( CivsList(1,GetPlayer()->GetID()) ), iCost,5);
 	pPlayer->GetTreasury()->ChangeGold(-iCost);
 
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-	if (MOD_EVENTS_MINORS_INTERACTION) {
+	if (MOD_EVENTS_MINORS_INTERACTION)
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerGifted, eMajor, GetPlayer()->GetID(), -1, -1, iPlotX, iPlotY);
-	}
-#endif
 }
 
 /// Now at war with eTeam
@@ -17712,7 +17707,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 		return NO_TECH;
 	}
 
-	TechVector.SortItems();
+	TechVector.StableSortItems();
 
 	// Our rough estimate is that 20 is a good ceiling for the max Tech value
 	if(iRoughTechValue > 20)

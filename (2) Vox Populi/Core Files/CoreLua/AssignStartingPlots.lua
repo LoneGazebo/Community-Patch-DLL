@@ -11674,15 +11674,15 @@ function AssignStartingPlots:Plot_GetFertility(plot, yieldID, ignoreStrategics)
 	local resID = plot:GetResourceType(-1)
 	
 	if yieldID then
-		value = value + plot:CalculateYield(yieldID, true)
+		value = value + plot:CalculateYield(yieldID, false)
 	else
 		-- Science, Culture and Faith are worth more than the others at start
-		value = value + plot:CalculateYield(YieldTypes.YIELD_FOOD, true)
-		value = value + plot:CalculateYield(YieldTypes.YIELD_PRODUCTION, true)
-		value = value + plot:CalculateYield(YieldTypes.YIELD_GOLD, true)
-		value = value + 2 * plot:CalculateYield(YieldTypes.YIELD_SCIENCE, true)
-		value = value + 2 * plot:CalculateYield(YieldTypes.YIELD_CULTURE, true)
-		value = value + 2 * plot:CalculateYield(YieldTypes.YIELD_FAITH, true)
+		value = value + plot:CalculateYield(YieldTypes.YIELD_FOOD, false)
+		value = value + plot:CalculateYield(YieldTypes.YIELD_PRODUCTION, false)
+		value = value + plot:CalculateYield(YieldTypes.YIELD_GOLD, false)
+		value = value + 2 * plot:CalculateYield(YieldTypes.YIELD_SCIENCE, false)
+		value = value + 2 * plot:CalculateYield(YieldTypes.YIELD_CULTURE, false)
+		value = value + 2 * plot:CalculateYield(YieldTypes.YIELD_FAITH, false)
 	end
 	
 	if plot:IsFreshWater() and plot:GetPlotType() ~= PlotTypes.PLOT_HILLS then

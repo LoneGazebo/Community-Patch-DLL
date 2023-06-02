@@ -33,7 +33,9 @@ WHERE Type = 'POLICY_DICTATORSHIP_PROLETARIAT';
 
 UPDATE Policies
 SET
-	FreeSpy = 3
+	FreeSpy = 3,
+	EspionageTurnsModifierFriendly = -1,
+	EspionageTurnsModifierEnemy = 1
 WHERE Type = 'POLICY_DOUBLE_AGENTS';
 
 

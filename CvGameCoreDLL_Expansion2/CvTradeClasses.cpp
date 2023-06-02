@@ -203,14 +203,15 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
 
 		//get all paths
-		map<CvPlot*,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-		for (map<CvPlot*,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
+		map<int,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (map<int,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
 		{
+			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == it->first)
+			if (pOriginCity->plot() == plot)
 				continue;
 
-			CvCity* pDestCity = it->first->getPlotCity();
+			CvCity* pDestCity = plot->getPlotCity();
 			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
@@ -220,14 +221,15 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.ePathType = PT_TRADE_LAND;
 
 		//get all paths
-		map<CvPlot*,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
-		for (map<CvPlot*,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
+		map<int,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		for (map<int,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
 		{
+			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == it->first)
+			if (pOriginCity->plot() == plot)
 				continue;
 
-			CvCity* pDestCity = it->first->getPlotCity();
+			CvCity* pDestCity = plot->getPlotCity();
 			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
@@ -2445,7 +2447,7 @@ void CvPlayerTrade::MoveUnits (void)
 													strMessage << pOriginCity->getNameKey();
 													strMessage << pDestCity->getNameKey();
 													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
-													strMessage << (iTourism / 4);
+													strMessage << (iTourism / 3);
 													if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(pDestCity->getOwner()).isHuman())
 													{
 														strMessage << GET_PLAYER(pDestCity->getOwner()).getNickName();
@@ -2507,7 +2509,7 @@ void CvPlayerTrade::MoveUnits (void)
 													strMessage << pOriginCity->getNameKey();
 													strMessage << pDestCity->getNameKey();
 													strMessage << GET_PLAYER(pDestCity->getOwner()).getCivilizationShortDescriptionKey();
-													strMessage << (iTourism / 4);
+													strMessage << (iTourism / 3);
 													strSummary = Localization::Lookup("TXT_KEY_TOURISM_EVENT_SUMMARY_TRADE");
 													pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pOriginCity->getX(), pOriginCity->getY(), pOriginCity->getOwner());
 												}
@@ -4616,7 +4618,7 @@ int CvPlayerTrade::GetNumPotentialConnections (CvCity* pFromCity, DomainTypes eD
 	}
 
 	//this should put the closest cities first
-	vPossibleTargets.SortItems();
+	vPossibleTargets.StableSortItems();
 
 	for (int i = 0; i < vPossibleTargets.size(); i++)
 	{

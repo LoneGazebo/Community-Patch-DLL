@@ -2526,7 +2526,7 @@ TeamTypes CvTeam::GetTeamVotingForInDiplo() const
 		if (veVoteCandidates.size() > 0)
 		{
 			// Our most favored other team ends up at the top after sorting
-			veVoteCandidates.SortItems();
+			veVoteCandidates.StableSortItems();
 			int iTopWeight = veVoteCandidates.GetWeight(0);
 
 			// If there is a tie at the top, choose randomly from those that tied

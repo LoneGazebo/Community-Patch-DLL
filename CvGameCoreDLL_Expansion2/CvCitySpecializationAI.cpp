@@ -827,7 +827,7 @@ vector<CitySpecializationTypes> CvCitySpecializationAI::SelectSpecializations()
 	while(specializationsNeeded.size() < iSpecializationsToAssign)
 	{
 		// Find highest weighted specialization
-		yieldWeights.SortItems();
+		yieldWeights.StableSortItems();
 
 		// Mark that we need one city of this type
 		YieldTypes eYield = yieldWeights.GetElement(0);
@@ -869,7 +869,7 @@ CitySpecializationTypes CvCitySpecializationAI::SelectProductionSpecialization(
 	map<ProductionSpecializationSubtypes,int>& numSpecializationsPerSubtype)
 {
 	// Find current highest weighted subtype
-	prodSubtypeWeights.SortItems();
+	prodSubtypeWeights.StableSortItems();
 	ProductionSpecializationSubtypes eSubtype = prodSubtypeWeights.GetElement(0);
 
 	// find the matching specialization in the stupidest possible way

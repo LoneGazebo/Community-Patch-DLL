@@ -22,10 +22,9 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 
 ## How can I play this
 
-* You can subscribe to CP on the Steam Workshop, but that version is very old.
-* One-click installers for the complete VP pack are available on the forum.
-* Do not mix both options!
 * You need the latest version of Civilization V (1.0.3.279) with all expansions and DLC.
+* This thread on CivFanatics contains a link to the latest release, along with installation instructions: https://forums.civfanatics.com/threads/community-patch-how-to-install.528034/
+* You may also download the automatic installer for your desired version from the Releases page on the repository: https://github.com/LoneGazebo/Community-Patch-DLL/releases
 
 ## How can I build the GameCoreDLL
 
@@ -52,6 +51,8 @@ Check out the forum at https://forums.civfanatics.com/forums/community-patch-pro
 ## How do I debug this
 
 ### To enable logging (for bug reports)
+https://forums.civfanatics.com/threads/how-to-enable-logging.487482 is useful for basic understanding of  how logging works, down there is below and for more serious bug reports!
+	
 * Logs provide some useful information on AI decisions and other problems
 * Logging can be enabled in My Games\Sid Meier's Civilization V\config.ini
 * Set the following options to 1:

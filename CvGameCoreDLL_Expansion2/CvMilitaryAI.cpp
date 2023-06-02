@@ -1065,9 +1065,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	//Going after a City-State? Depends if it has allies
 	if(GET_PLAYER(pTargetCity->getOwner()).isMinorCiv())
 	{
-		//in general prefer to target major players ...
-		//todo: maybe also factor in traits? austria, venice, germany, greece? what about statecraft
-		fDesirability /= 2;
+		//in general prefer to target major players, except rome
+		//todo: maybe also factor in other traits? austria, venice, germany, greece? what about statecraft
+		if (m_pPlayer->GetPlayerTraits()->GetCityStateCombatModifier() <= 0)
+			fDesirability /= 2;
 
 		//unless they are allied to our enemy
 		PlayerTypes eAlly = GET_PLAYER(pTargetCity->getOwner()).GetMinorCivAI()->GetAlly();
@@ -1075,14 +1076,19 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		{
 			if (GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
 			{
-				fDesirability *= 100;
+				fDesirability *= m_pPlayer->GetPlayerTraits()->GetCityStateCombatModifier() > 0 ? 200 : 100;
 				fDesirability /= max(1, /*250*/ GD_INT_GET(AI_MILITARY_CAPTURING_ORIGINAL_CAPITAL));
 			}
 		}
 		else if (m_pPlayer->IsAtWarAnyMajor() && !m_pPlayer->IsAtWarWith(pTargetCity->getOwner()))
 		{
-			//don't target minors at all while at war with an unrelated major
-			return 0;
+			if (!MOD_BALANCE_VP || m_pPlayer->GetPlayerTraits()->GetCityStateCombatModifier() <= 0)
+			{
+				//don't target minors at all while at war with an unrelated major, except rome
+				return 0;
+			}
+			else
+				fDesirability /= 2; // reduce emphasis for rome
 		}
 	}
 
@@ -1161,7 +1167,6 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
@@ -1180,7 +1185,6 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 			}
 		}
 	}
-#endif
 
 	// Economic value / hardness of target
 	float fEconomicValue =  sqrt( pTargetCity->getEconomicValue( GetPlayer()->GetID() ) / float(max(1,pTargetCity->GetMaxHitPoints()-pTargetCity->getDamage())) );
@@ -1211,6 +1215,10 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 	CvPlot* pMusterPlot = target.GetMusterPlot();
 	CvPlot* pStagingPlot = target.GetStagingPlot();
 	CvPlot* pTargetPlot = target.GetTargetPlot();
+	bool bMountainBonus = GET_PLAYER(ePlayer).CanCrossMountain();
+	bool bForestJungleBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsWoodlandMovementBonus();
+	bool bHillBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsFasterInHills();
+	bool bRiverBonus = GET_PLAYER(ePlayer).GetPlayerTraits()->IsRiverTradeRoad();
 
 	//basic sanity check
 	if (eArmyType == ARMY_TYPE_LAND)
@@ -1244,7 +1252,7 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 			continue;
 
 		//cannot go here? important, ignore territory checks (typically we are at peace without open borders)
-		if(!pLoopPlot->isValidMovePlot(ePlayer,false) || pLoopPlot->isCity())
+		if (!pLoopPlot->isValidMovePlot(ePlayer,false) || pLoopPlot->isCity())
 			continue;
 
 		//ignore plots owned by third parties
@@ -1282,13 +1290,16 @@ int MilitaryAIHelpers::EvaluateTargetApproach(const CvAttackTarget& target, Play
 		if (TacticalAIHelpers::IsOtherPlayerCitadel(pLoopPlot, ePlayer, false))
 			continue;
 
-		//makes us slow
-		if(!pLoopPlot->isRoughGround())
+		//rough terrain makes us slow
+		bool bWoodlandException = bForestJungleBonus && (pLoopPlot->getFeatureType() == FEATURE_FOREST || pLoopPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam());
+		if (bWoodlandException || (bMountainBonus && pLoopPlot->isMountain()) || (bHillBonus && pLoopPlot->isHills()) || (bRiverBonus && pLoopPlot->isRiver()) || !pLoopPlot->isRoughGround())
 			bIsGood = true;
 
+		// owned by us and has a road?
+		bIsGood |= pLoopPlot->getTeam() == GET_PLAYER(ePlayer).getTeam() && pLoopPlot->getRouteType() != NO_ROUTE && !pLoopPlot->IsRoutePillaged();
+
 		//we want to have plots for our siege units
-		if (iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION))
-			bIsGood = true;
+		bIsGood |= iTargetDistance == 2 && pLoopPlot->canSeePlot(pTargetPlot,NO_TEAM,2,NO_DIRECTION);
 
 		if (bIsGood)
 			nGoodPlots++;

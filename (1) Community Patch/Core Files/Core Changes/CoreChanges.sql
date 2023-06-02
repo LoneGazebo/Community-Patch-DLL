@@ -708,9 +708,13 @@ WHEN (Loyalty <= 3 OR WonderCompetitiveness <= 3) THEN 'PERSONALITY_EXPANSIONIST
 ELSE Personality END
 WHERE Type = NEW.Type;
 
+UPDATE Leaders SET Chattiness = '4' WHERE Type = NEW.Type;
+
 END;
 -- End override section
 
+-- Set Chattiness to 4 across the board
+UPDATE Leaders SET Chattiness = '4';
 
 -- Sets default victory pursuits for all the default Civ V leaders.
 UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_AHMAD_ALMANSUR'; -- Morocco

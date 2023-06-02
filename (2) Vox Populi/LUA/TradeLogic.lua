@@ -617,7 +617,7 @@ function OnShowHide( isHide, bIsInit )
 						g_iNumOtherNonVassals = g_iNumOtherNonVassals + 1;
 					end
 					
-					if (pLoopPlayer:IsEverAlive()) then
+					if (pLoopPlayer:IsEverAlive() and g_OtherPlayersButtons[iLoopPlayer] ~= nil) then --This is a bandaid fix TODO: actually find the issue but oh well
         				if (g_iUs ~= iLoopPlayer and g_iThem ~= iLoopPlayer and
                 			g_pUsTeam:IsHasMet(iLoopTeam) and g_pThemTeam:IsHasMet(iLoopTeam) and
                 			pLoopPlayer:IsAlive()) then
@@ -1880,7 +1880,12 @@ function ResetDisplay()
 
 			pResource = GameInfo.Resources[resType];
 			iResourceCount = g_pUs:GetNumResourceAvailable(resType, false);
-			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			-- VP Dutch UA. This use hardcoded stuff ok dont rework the UA or ur stinky add a method or something
+			if (g_pUs:GetCivilizationType() == GameInfoTypes.CIVILIZATION_NETHERLANDS and (g_pUs:GetResourceExport(resType) > 0 or g_pUs:GetResourceImport(resType) > 0) and pResource.ResourceUsage == 2) then
+				strString = "[ICON_CHECKBOX] " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			else
+				strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			end
 			instance.Button:SetText(strString);
 		else
 			instance.Button:SetHide(true);
@@ -1958,13 +1963,21 @@ function ResetDisplay()
 			
 			pResource = GameInfo.Resources[resType];
 			iResourceCount = g_pThem:GetNumResourceAvailable(resType, false);
-			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-			instance.Button:SetText(strString);
-
+			-- VP Dutch UA / City-State stuff. Checks if you already own one.
+			if (g_pUs:IsShowImports() and (g_pUs:GetResourceExport(resType) > 0 or g_pUs:GetResourceImport(resType) > 0) and pResource.ResourceUsage == 2) then
+				strString = "[ICON_CHECKBOX] " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			else 
+				strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			end
+			
+			-- Add a happy face if WLTKD procs something here I guess
 			local WLTKDTT = g_pUs:GetWLTKDResourceTT(resType);
 			if (WLTKDTT ~= "") then
+				strString = strString .. " [ICON_HAPPINESS_1]";
 				instance.Button:SetToolTipString(WLTKDTT);
 			end
+			--Move it down here it'll be fun
+			instance.Button:SetText(strString);
 		else
 			instance.Button:SetHide(true);
 		end

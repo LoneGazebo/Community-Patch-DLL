@@ -1691,7 +1691,7 @@ bool CvPlayerCulture::ThemeBuilding(vector<CvGreatWorkBuildingInMyEmpire>::const
 		bestThemes.push_back(iI, pkEntry->GetThemingBonusInfo(iI)->GetBonus());
 	}
 
-	bestThemes.SortItems();
+	bestThemes.StableSortItems();
 
 	// Try each of the theming bonuses for this building
 	for (int iI = 0; iI < bestThemes.size(); iI++)
@@ -4378,6 +4378,10 @@ int CvPlayerCulture::GetInfluencePerTurn(PlayerTypes ePlayer) const
 			}
 		}
 
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, true) * 100;
+		iRtnValue -= m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, false) * 100;
+		iRtnValue = max(0, iRtnValue);
+
 		iRtnValue += iExtraInfluenceToAdd;
 
 		iRtnValue = iRtnValue * (100 + iModifier) / 100;
@@ -4945,9 +4949,13 @@ int CvPlayerCulture::GetTourism()
 
 		// Trait bonus which adds Tourism for trade partners? 
 		iRtnValue += m_pPlayer->GetYieldPerTurnFromTraits(YIELD_TOURISM) * 100;
+
+		// Tourism from Espionage Events
+		iRtnValue += m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, true) * 100;
+		iRtnValue -= m_pPlayer->GetYieldPerTurnFromEspionageEvents(YIELD_TOURISM, false) * 100;
 	}
 
-	return iRtnValue;
+	return max(0, iRtnValue);
 }
 
 /// At the player level, what is the modifier for tourism between these players?

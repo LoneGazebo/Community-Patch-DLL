@@ -741,7 +741,7 @@ g_units = g_RibbonManager( "UnitInstance", Controls.UnitStack, Controls.Scrap,
 				if unit:IsGarrisoned() then
 					status = "TXT_KEY_MISSION_GARRISON_HELP"
 				elseif unit:IsEverFortifyable() then
-					status = L"TXT_KEY_UNIT_STATUS_FORTIFIED" .. (" %+i"):format(unit:FortifyModifier()).."%[ICON_DEFENSE]"
+					status = L"TXT_KEY_UNIT_STATUS_FORTIFIED" .. (" %+i"):format(unit:FortifyModifier()).."%[ICON_STRENGTH]"
 				else
 					status = "TXT_KEY_MISSION_SLEEP_HELP"
 				end
@@ -1184,6 +1184,13 @@ local function UpdateUnitPortrait( unit )
 	else
 		name = unit:GetName()
 	end
+			
+	if (unit:IsTrade() and not unit:IsRecalledTrader() and unit:GetTradeRouteIndex() ~= -1) then
+		local tr = Game.GetTradeRoute(unit:GetTradeRouteIndex())
+		if (tr ~= nil and tr.TurnsLeft ~= nil and tr.TurnsLeft >= 0) then
+			name = name .. " (" .. tr.TurnsLeft .. " [ICON_SWAP])"
+		end
+	end	
 
 	name = Locale_ToUpper(name)
 
@@ -1815,7 +1822,19 @@ function ActionToolTipHandler( control )
 				toolTip:insert( "+" .. unit:GetTradeInfluence(plot) .. "[ICON_INFLUENCE]" )
 			end
 			if (unit:GetTradeGold(plot) ~= 0) then
-				toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+				local unitTypeID = unit:GetUnitType();
+				local unitInfo = unitTypeID and GameInfo_Units[unitTypeID];
+				if (unitInfo.BaseWLTKDTurns > 0) then
+					local WLTKDTurns = unitInfo.BaseWLTKDTurns or 0;
+					for row in GameInfo.Unit_ScalingFromOwnedImprovements() do
+						if row.UnitType == unitInfo.Type then
+							WLTKDTurns = WLTKDTurns * (1 + g_activePlayer:GetImprovementCount(GameInfo.Improvements[row.ImprovementType].ID) * row.Amount / 100) * (GameInfo.GameSpeeds[Game.GetGameSpeedType()].InstantYieldPercent / 100 or 0)
+						end
+					end
+					toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD][NEWLINE]" .. "+" .. math_floor(WLTKDTurns) .. " " .. L("TXT_KEY_TURNS") .. " " .. L("TXT_KEY_PLOTROLL_EMBASSY", "") .. "[ICON_HAPPINESS_1] [COLOR_POSITIVE_TEXT]" .. L("TXT_KEY_FOOD_WELOVEKING_HEADING3_TITLE") .. "[ENDCOLOR]")
+				else
+					toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+				end
 			end
 		end
 

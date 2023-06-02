@@ -151,6 +151,9 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iReligiousPressureModifier(0),
 	m_iEspionageModifier(0),
 	m_iGlobalEspionageModifier(0),
+	m_iEspionageTurnsModifierFriendly(0),
+	m_iEspionageTurnsModifierEnemyCity(0),
+	m_iEspionageTurnsModifierEnemyGlobal(0),
 	m_iExtraSpies(0),
 	m_iSpyRankChange(0),
 	m_iTradeRouteRecipientBonus(0),
@@ -721,6 +724,9 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 	m_iGlobalEspionageModifier = kResults.GetInt("GlobalEspionageModifier");
+	m_iEspionageTurnsModifierFriendly = kResults.GetInt("EspionageTurnsModifierFriendly");
+	m_iEspionageTurnsModifierEnemyCity = kResults.GetInt("EspionageTurnsModifierEnemyCity");
+	m_iEspionageTurnsModifierEnemyGlobal = kResults.GetInt("EspionageTurnsModifierEnemyGlobal");
 	m_iExtraSpies = kResults.GetInt("ExtraSpies");
 	m_iSpyRankChange = kResults.GetInt("SpyRankChange");
 	m_iTradeRouteRecipientBonus = kResults.GetInt("TradeRouteRecipientBonus");
@@ -2363,6 +2369,23 @@ int CvBuildingEntry::GetGlobalEspionageModifier() const
 {
 	return m_iGlobalEspionageModifier;
 }
+
+/// Modifier to espionage mission durations for all friendly spies
+int CvBuildingEntry::GetEspionageTurnsModifierFriendly() const
+{
+	return m_iEspionageTurnsModifierFriendly;
+}
+/// Modifier to espionage mission durations for all enemy spies in this city
+int CvBuildingEntry::GetEspionageTurnsModifierEnemyCity() const
+{
+	return m_iEspionageTurnsModifierEnemyCity;
+}
+/// Modifier to espionage mission durations for all enemy spies in all cities
+int CvBuildingEntry::GetEspionageTurnsModifierEnemyGlobal() const
+{
+	return m_iEspionageTurnsModifierEnemyGlobal;
+}
+
 
 /// Extra spies after this is built
 int CvBuildingEntry::GetExtraSpies() const

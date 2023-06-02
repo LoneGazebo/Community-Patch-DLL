@@ -1189,10 +1189,10 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 		local team = Teams[ player:GetTeam() ]
 		if team:IsAtWar( g_activeTeamID ) then
 			ShowSimpleTip( L"TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_WAR" )
-		elseif not bnw_mode or player:IsDoF( g_activePlayerID ) then
+		else --if not bnw_mode or player:IsDoF( g_activePlayerID ) then 
 			ShowSimpleTip( L"TXT_KEY_REPLAY_DATA_TOTALGOLD" )
-		else
-			ShowSimpleTip( L"TXT_KEY_REPLAY_DATA_GOLDPERTURN" )
+		--else
+			--ShowSimpleTip( L"TXT_KEY_REPLAY_DATA_GOLDPERTURN" ) We are no longer using it since it displays ONLY the total gold now.
 		end
 	end;
 	
