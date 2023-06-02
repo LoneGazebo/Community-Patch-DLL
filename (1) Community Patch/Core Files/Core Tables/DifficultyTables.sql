@@ -125,8 +125,8 @@ ALTER TABLE HandicapInfos ADD COLUMN 'CityStateVisionBonus' INTEGER DEFAULT 0;
 -- Barbarians
 ALTER TABLE HandicapInfos ADD COLUMN 'BonusVSBarbarians' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIBonusVSBarbarians' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'BarbarianCampGold' INTEGER DEFAULT 25;
-ALTER TABLE HandicapInfos ADD COLUMN 'AIBarbarianCampGold' INTEGER DEFAULT 25;
+ALTER TABLE HandicapInfos ADD COLUMN 'BarbarianCampGold' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'AIBarbarianCampGold' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'BarbarianSpawnDelay' INTEGER DEFAULT 0;
 
 -- AI Behavior Modifiers
@@ -136,9 +136,9 @@ ALTER TABLE HandicapInfos ADD COLUMN 'TechChoiceCutoffThreshold' INTEGER DEFAULT
 ALTER TABLE HandicapInfos ADD COLUMN 'PolicyChoiceCutoffThreshold' INTEGER DEFAULT 90;
 ALTER TABLE HandicapInfos ADD COLUMN 'BeliefChoiceCutoffThreshold' INTEGER DEFAULT 90;
 -- Tactical AI
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxCompletedPositions' INTEGER DEFAULT 54;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxBranches' INTEGER DEFAULT 5;
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxChoicesPerUnit' INTEGER DEFAULT 5;
+ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxCompletedPositions' INTEGER DEFAULT 500;
+ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxBranches' INTEGER DEFAULT 4;
+ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxChoicesPerUnit' INTEGER DEFAULT 4;
 -- Diplomacy AI
 ALTER TABLE HandicapInfos ADD COLUMN 'LandDisputePercent' INTEGER DEFAULT 100;
 ALTER TABLE HandicapInfos ADD COLUMN 'WonderDisputePercent' INTEGER DEFAULT 100;
