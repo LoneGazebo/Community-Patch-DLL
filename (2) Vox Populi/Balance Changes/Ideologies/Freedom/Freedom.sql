@@ -156,6 +156,10 @@ WHERE Type = 'POLICY_ECONOMIC_UNION';
 
 -- Media Culture
 
+UPDATE Policy_BuildingClassTourismModifiers
+SET TourismModifier = 25
+WHERE PolicyType = 'POLICY_MEDIA_CULTURE' AND BuildingClassType = 'BUILDINGCLASS_BROADCAST_TOWER';
+
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
 VALUES
