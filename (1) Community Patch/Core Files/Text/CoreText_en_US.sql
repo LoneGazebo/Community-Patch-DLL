@@ -896,7 +896,7 @@ SET Text = 'You have denounced a leader they made a Declaration of Friendship wi
 WHERE Tag = 'TXT_KEY_DIPLO_HUMAN_DENOUNCED_FRIEND';
 
 UPDATE Language_en_US
-SET Text = 'We have denounced the same leaders!'
+SET Text = 'You have denounced one of their declared enemies!'
 WHERE Tag = 'TXT_KEY_DIPLO_MUTUAL_ENEMY';
 
 UPDATE Language_en_US

@@ -700,6 +700,10 @@ public:
 	int GetSpawnBaseTurns(PlayerTypes ePlayer, bool bCityStateAnnexed = false);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);
 
+	// Disable Quest Influence
+	bool IsQuestInfluenceDisabled(PlayerTypes ePlayer) const;
+	void SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue);
+
 	// Austria UA Stuff
 	bool IsMarried(PlayerTypes eMajor) const;
 	void SetMajorMarried(PlayerTypes eMajor, bool bValue);
@@ -909,6 +913,7 @@ private:
 	int m_aiTurnLastPledged[MAX_MAJOR_CIVS];
 	int m_aiTurnLastBrokePledge[MAX_MAJOR_CIVS];
 	bool m_abUnitSpawningDisabled[MAX_MAJOR_CIVS];
+	bool m_abQuestInfluenceDisabled[MAX_MAJOR_CIVS];
 	bool m_abEverFriends[MAX_MAJOR_CIVS];
 	bool m_abFriends[MAX_MAJOR_CIVS];
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];

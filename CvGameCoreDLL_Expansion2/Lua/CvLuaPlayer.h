@@ -425,8 +425,8 @@ protected:
 
 	LUAAPIEXTN(GetCombatBonusVsHigherPop, int);
 	LUAAPIEXTN(GetWarScore, int);
-	LUAAPIEXTN(GetPlayerMilitaryStrengthComparedToUs, int);
-	LUAAPIEXTN(GetPlayerEconomicStrengthComparedToUs, int);
+	LUAAPIEXTN(GetMilitaryStrengthComparedToUs, int);
+	LUAAPIEXTN(GetEconomicStrengthComparedToUs, int);
 	LUAAPIEXTN(GetWarDamageValue, int);
 	LUAAPIEXTN(IsWantsPeaceWithPlayer, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
@@ -781,6 +781,8 @@ protected:
 	LUAAPIEXTN(GetCapitalNeedModifier, int);
 #endif
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
+	static int lGetRestingPointChange(lua_State* L);
+	static int lChangeRestingPointChange(lua_State* L);
 	static int lGetActiveQuestForPlayer(lua_State* L); // DEPRECATED
 	static int lIsMinorCivActiveQuestForPlayer(lua_State* L);
 	static int lSetMinorCivActiveQuestForPlayer(lua_State* L);
@@ -801,6 +803,8 @@ protected:
 	static int lGetMinorCivContestValueForLeader(lua_State* L);
 	static int lGetMinorCivContestValueForPlayer(lua_State* L);
 	static int lIsMinorCivUnitSpawningDisabled(lua_State* L);
+	static int lIsQuestInfluenceDisabled(lua_State* L);
+	static int lSetQuestInfluenceDisabled(lua_State* L);
 	static int lIsMinorCivRouteEstablishedWithMajor(lua_State* L);
 	static int lIsMinorWarQuestWithMajorActive(lua_State* L); // DEPRECATED, no longer a quest
 	static int lGetMinorWarQuestWithMajorRemainingCount(lua_State* L); // DEPRECATED, no longer a quest

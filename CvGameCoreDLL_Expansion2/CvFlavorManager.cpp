@@ -162,7 +162,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 					CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
 					if (pkLeaderHeadInfo)
 					{
-						int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+						int iDefaultFlavorValue = /*5*/ GD_INT_GET(DEFAULT_FLAVOR_VALUE);
 						int iNumFlavorTypes = GC.getNumFlavorTypes();
 
 						for (int iI = 0; iI < iNumFlavorTypes; iI++)
@@ -194,7 +194,7 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 			// Human player, just set all flavors to average (5)
 			else
 			{
-				int iDefaultFlavorValue = /*5*/ GC.getGame().GetDefaultFlavorValue();
+				int iDefaultFlavorValue = /*5*/ GD_INT_GET(DEFAULT_FLAVOR_VALUE);
 				int iNumFlavors = GC.getNumFlavorTypes();
 				for (int iI = 0; iI < iNumFlavors; iI++)
 				{
@@ -439,14 +439,11 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 	// If the flavor is zeroed out or deleted, we have to account for that - use the default value
 	if (iValue <= 0)
 	{
-		return /*5*/ GC.getGame().GetDefaultFlavorValue();
+		return 5;
 	}
 
 	// Must be within upper and lower bounds
-	int iMax = range(/*10*/ GD_INT_GET(DIPLO_PERSONALITY_FLAVOR_MAX_VALUE), 1, 20);
-	int iMin = range(/*1*/ GD_INT_GET(DIPLO_PERSONALITY_FLAVOR_MIN_VALUE), 1, iMax);
-
-	return range(iValue, iMin, iMax);
+	return range(iValue, 1, 10);
 }
 
 // PRIVATE METHODS

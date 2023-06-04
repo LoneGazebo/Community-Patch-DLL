@@ -556,7 +556,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		}
 
 		WarStateTypes eWarState = pDiplomacyAI->GetWarState(eOtherPlayer);
-		StrengthTypes eMilitaryStrengthComparedToUs = pDiplomacyAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
+		StrengthTypes eMilitaryStrengthComparedToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(eOtherPlayer);
 
 		if(GET_TEAM(eTeam).isAtWar(eOtherTeam))
 		{

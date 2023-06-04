@@ -4735,8 +4735,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					else
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
-						vector<PlayerTypes> v;
-						v.push_back(eReceivingPlayer);
+						vector<PlayerTypes> v(1, eReceivingPlayer);
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
 					}
 				}
@@ -4838,6 +4837,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			TeamTypes eTargetTeam = (TeamTypes)it->m_iData1;
 			bool bCityState = GET_TEAM(eTargetTeam).isMinorCiv();
 			vector<PlayerTypes> vTargetTeam = GET_TEAM(eTargetTeam).getPlayers();
+			vector<PlayerTypes> vReceivingTeam = GET_TEAM(eReceivingTeam).getPlayers();
 
 			// First loop, check to see who established surveillance
 			vector<PlayerTypes> vPlayersWithSurveillance;
@@ -5159,45 +5159,60 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				}
 			}
 
+			// Negate warmongering penalties for the team that made the purchase
+			for (std::vector<PlayerTypes>::iterator iter = vReceivingTeam.begin(); iter != vReceivingTeam.end(); iter++)
+			{
+				if (!GET_PLAYER(*iter).isAlive() || !GET_PLAYER(*iter).isMajorCiv())
+					continue;
+
+				GET_PLAYER(*iter).GetDiplomacyAI()->SetIgnoreWarmonger(true);
+			}
+
 			// Declare war!
 			if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->DeclareWar(eTargetTeam))
 			{
 				int iLockedTurns = /*15*/ GD_INT_GET(COOP_WAR_LOCKED_LENGTH);
 				GET_TEAM(eGivingTeam).ChangeNumTurnsLockedIntoWar(eTargetTeam, iLockedTurns);
-			}
-			else
-				break;
 
-			// All AI players on the attacking team go to war now.
-			vector<PlayerTypes> vAttackingTeam = GET_TEAM(eGivingTeam).getPlayers();
-			for (size_t i=0; i<vAttackingTeam.size(); i++)
-			{
-				if (!GET_PLAYER(vAttackingTeam[i]).isAlive() || !GET_PLAYER(vAttackingTeam[i]).isMajorCiv() || GET_PLAYER(vAttackingTeam[i]).isHuman() || GET_PLAYER(vAttackingTeam[i]).getNumCities() <= 0)
-					continue;
-
-				for (size_t j=0; j<vTargetTeam.size(); j++)
+				// All AI players on the attacking team go to war now.
+				vector<PlayerTypes> vAttackingTeam = GET_TEAM(eGivingTeam).getPlayers();
+				for (size_t i=0; i<vAttackingTeam.size(); i++)
 				{
-					if (!GET_PLAYER(vTargetTeam[j]).isAlive() || GET_PLAYER(vTargetTeam[j]).getNumCities() <= 0)
+					if (!GET_PLAYER(vAttackingTeam[i]).isAlive() || !GET_PLAYER(vAttackingTeam[i]).isMajorCiv() || GET_PLAYER(vAttackingTeam[i]).isHuman() || GET_PLAYER(vAttackingTeam[i]).getNumCities() <= 0)
 						continue;
 
-					bool bCareful = GET_PLAYER(vAttackingTeam[i]).CountNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(vAttackingTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(vTargetTeam[j]) < COOP_WAR_STATE_PREPARING;
-
-					if (!GET_PLAYER(vAttackingTeam[i]).HasAnyOffensiveOperationsAgainstPlayer(vTargetTeam[j]))
+					for (size_t j=0; j<vTargetTeam.size(); j++)
 					{
-						GET_PLAYER(vAttackingTeam[i]).GetMilitaryAI()->RequestCityAttack(vTargetTeam[j], 2, bCareful);
+						if (!GET_PLAYER(vTargetTeam[j]).isAlive() || GET_PLAYER(vTargetTeam[j]).getNumCities() <= 0)
+							continue;
+
+						bool bCareful = GET_PLAYER(vAttackingTeam[i]).CountNumDangerousMajorsAtWarWith(true, false) > 0 && GET_PLAYER(vAttackingTeam[i]).GetDiplomacyAI()->GetGlobalCoopWarAgainstState(vTargetTeam[j]) < COOP_WAR_STATE_PREPARING;
+
+						if (!GET_PLAYER(vAttackingTeam[i]).HasAnyOffensiveOperationsAgainstPlayer(vTargetTeam[j]))
+						{
+							GET_PLAYER(vAttackingTeam[i]).GetMilitaryAI()->RequestCityAttack(vTargetTeam[j], 2, bCareful);
+						}
+					}
+				}
+
+				// Notified players reevaluate the broker!
+				for (std::vector<PlayerTypes>::iterator iter = vNotifiedPlayers.begin(); iter != vNotifiedPlayers.end(); iter++)
+				{
+					if (!GET_PLAYER(*iter).isHuman())
+					{
+						vector<PlayerTypes> v(1, eReceivingPlayer);
+						GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayers(v);
 					}
 				}
 			}
 
-			// Notified players reevaluate the broker!
-			for (std::vector<PlayerTypes>::iterator iter = vNotifiedPlayers.begin(); iter != vNotifiedPlayers.end(); iter++)
+			// Cancel the previous negation
+			for (std::vector<PlayerTypes>::iterator iter = vReceivingTeam.begin(); iter != vReceivingTeam.end(); iter++)
 			{
-				if (!GET_PLAYER(*iter).isHuman())
-				{
-					vector<PlayerTypes> v;
-					v.push_back(eReceivingPlayer);
-					GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayers(v);
-				}
+				if (!GET_PLAYER(*iter).isAlive() || !GET_PLAYER(*iter).isMajorCiv())
+					continue;
+
+				GET_PLAYER(*iter).GetDiplomacyAI()->SetIgnoreWarmonger(false);
 			}
 
 			break;

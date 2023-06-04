@@ -3500,7 +3500,7 @@
 		<Row Tag="TXT_KEY_WARMONGER_HATE_MINIMAL">
 			<Text> (They ignore most warmongering.)</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WARMONGER_HATE_AZTECS">
+		<Row Tag="TXT_KEY_WARMONGER_HATE_BLOODTHIRSTY">
 			<Text> (They are bloodthirsty warmongers!)</Text>
 		</Row>
 		

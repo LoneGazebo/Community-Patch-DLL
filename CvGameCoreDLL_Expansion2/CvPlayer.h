@@ -2807,7 +2807,6 @@ public:
 	bool IsAtWarAnyMajor() const;
 	bool IsAtWarAnyMinor() const;
 	bool IsAtWarWith(PlayerTypes iPlayer) const;
-	vector<PlayerTypes> GetWarAllies(PlayerTypes ePlayer) const;
 	vector<PlayerTypes> GetUnfriendlyMajors() const;
 	int CountNumDangerousMajorsAtWarWith(bool bExcludePhonyWars, bool bExcludeIfNoTarget) const;
 	bool HasPantheon() const;

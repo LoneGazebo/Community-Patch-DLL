@@ -927,6 +927,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Buildings/BuildingHurryCosts.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Mapscripts/mapscripts_en_us.xml</FileName>
+      </Action>
     </ModActions>
     <ModReferences />
     <ReloadStrategicViewSystem>true</ReloadStrategicViewSystem>
@@ -3538,6 +3543,10 @@
     <Content Include="Mapscripts\Lakes.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\mapscripts_en_us.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Mapscripts\North_vs_South.lua">
       <SubType>Lua</SubType>
