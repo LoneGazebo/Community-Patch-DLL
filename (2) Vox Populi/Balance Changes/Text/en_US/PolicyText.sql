@@ -43,7 +43,7 @@ WHERE Tag = 'TXT_KEY_POLICY_FORTIFIED_BORDERS_HELP';
 
 -- Futurism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR]: [ICON_TOURISM] Tourism bonus from Historic Events increased by 20%. +2 [ICON_CULTURE] Culture from Great Works. Earn 50 [ICON_TOURISM] Tourism when you conquer a city for the first time, scaling with Era and city size.'
+SET Text = '[COLOR_POSITIVE_TEXT]Futurism[ENDCOLOR]: [ICON_TOURISM] Tourism bonus from Historic Events unlocked at game start increased by 43%. +2 [ICON_CULTURE] Culture from Great Works. Earn 50 [ICON_TOURISM] Tourism when you conquer a city for the first time, scaling with Era and city size.'
 WHERE Tag = 'TXT_KEY_POLICY_FUTURISM_HELP';
 
 -- Industrial Espionage (now Lebensraum)
@@ -214,7 +214,7 @@ WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_TEXT';
 
 -- New Deal
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]New Deal[ENDCOLOR]: Landmarks and Great Person improvements produce +6 of the appropriate yield, and +2 [ICON_TOURISM] Tourism.'
+SET Text = '[COLOR_POSITIVE_TEXT]New Deal[ENDCOLOR]: Landmarks and Great Person improvements produce +6 of their base yield types ([ICON_PRODUCTION] Manufactory/Citadel, [ICON_GOLD] Town, [ICON_RESEARCH] Academy, [ICON_CULTURE] Embassy, [ICON_PEACE] Holy Site, [ICON_TOURISM] Landmark), and +2 [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_POLICY_NEW_DEAL_HELP';
 
 -- Volunteer Army (now Draft Registration)
@@ -317,7 +317,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SOCIALIST_REALISM_TEXT';
 
 -- Worker's Faculties
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Worker Faculties[ENDCOLOR]: Factories increase City [ICON_RESEARCH] Science output by 10%. Receive 5 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factories immediately, and build all other Factories in half the usual time.'
+SET Text = '[COLOR_POSITIVE_TEXT]Worker Faculties[ENDCOLOR]: Factories increase City [ICON_RESEARCH] Science output by 10%. +100% [ICON_PRODUCTION] Production towards Factories, and receive 5 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factories in your Empire.'
 WHERE Tag = 'TXT_KEY_POLICY_WORKERS_FACULTIES_HELP';
 
 -- Young Pioneers (now Great Leap Forward)
@@ -976,7 +976,7 @@ SET Text = 'Scientific Revolution'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE][ICON_BULLET]Can construct [COLOR_POSITIVE_TEXT]Observatories[ENDCOLOR] (+6 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science from nearby Mountains, 1 Scientist Specialist).[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Jungle and Snow.'
+SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE][ICON_BULLET]Can construct [COLOR_POSITIVE_TEXT]Observatories[ENDCOLOR] (+6 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science from nearby Mountains, 2 Scientist Specialists).[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Jungle and Snow.'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_HELP';
 
 UPDATE Language_en_US

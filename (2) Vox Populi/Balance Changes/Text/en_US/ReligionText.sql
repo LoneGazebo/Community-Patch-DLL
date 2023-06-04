@@ -381,7 +381,7 @@ SET Text = 'Mastery'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Specialists generate +1 [ICON_GOLDEN_AGE] Golden Age Point and +1 of their primary Yield ([ICON_RESEARCH]/[ICON_GOLD]/[ICON_PRODUCTION]/[ICON_CULTURE]).'
+SET Text = 'Specialists generate +1 [ICON_GOLDEN_AGE] Golden Age Point and +1 of their primary Yield ([ICON_RESEARCH] Scientist, [ICON_GOLD] Merchant/Civil Servant, [ICON_PRODUCTION] Engineer, [ICON_CULTURE] Writer/Artist/Musician).'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_ART';
 
 

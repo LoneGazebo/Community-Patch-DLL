@@ -64,24 +64,27 @@ WHERE Type = 'POLICY_OPEN_SOCIETY';
 
 -- New Deal
 
-UPDATE Policy_ImprovementYieldChanges
-SET
-	Yield = 6
+DELETE FROM Policy_ImprovementYieldChanges
 WHERE PolicyType = 'POLICY_NEW_DEAL';
-
-INSERT INTO Policy_ImprovementYieldChanges
-		(PolicyType, 		ImprovementType, YieldType, 		Yield)
-SELECT 	'POLICY_NEW_DEAL', 	ImprovementType, 'YIELD_TOURISM', 	2
-FROM Policy_ImprovementYieldChanges WHERE PolicyType = 'POLICY_NEW_DEAL';
 
 INSERT INTO Policy_ImprovementYieldChanges
 	(PolicyType, ImprovementType, YieldType, Yield)
 VALUES
 	('POLICY_NEW_DEAL', 'IMPROVEMENT_LANDMARK', 'YIELD_TOURISM', 8),
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_ACADEMY', 'YIELD_SCIENCE', 6),
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_CUSTOMS_HOUSE', 'YIELD_GOLD', 6),
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_MANUFACTORY', 'YIELD_PRODUCTION', 6),
 	('POLICY_NEW_DEAL', 'IMPROVEMENT_CITADEL', 'YIELD_PRODUCTION', 6),
-	('POLICY_NEW_DEAL', 'IMPROVEMENT_CITADEL', 'YIELD_TOURISM', 2),
-	('POLICY_NEW_DEAL', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_PRODUCTION', 6),
-	('POLICY_NEW_DEAL', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_TOURISM', 2);
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_HOLY_SITE', 'YIELD_FAITH', 6),
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_EMBASSY', 'YIELD_CULTURE', 6),
+	('POLICY_NEW_DEAL', 'IMPROVEMENT_MONGOLIA_ORDO', 'YIELD_PRODUCTION', 6);
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+SELECT
+	'POLICY_NEW_DEAL', Type, 'YIELD_TOURISM', 2
+FROM Improvements
+WHERE CreatedByGreatPerson = 1;
 
 
 -- Civil Society
@@ -155,6 +158,10 @@ WHERE Type = 'POLICY_ECONOMIC_UNION';
 
 
 -- Media Culture
+
+UPDATE Policy_BuildingClassTourismModifiers
+SET TourismModifier = 25
+WHERE PolicyType = 'POLICY_MEDIA_CULTURE' AND BuildingClassType = 'BUILDINGCLASS_BROADCAST_TOWER';
 
 INSERT INTO Policy_BuildingClassHappiness
 	(PolicyType, BuildingClassType, Happiness)
