@@ -559,8 +559,15 @@ function InitMinorCivList()
 			
 			local minorCivType = pOtherPlayer:GetMinorCivType();
 			local civInfo = GameInfo.MinorCivilizations[minorCivType];
-			
-			controlTable.MinorName:SetText( Locale.ConvertTextKey( civInfo.Description ) );
+			if (pOtherPlayer:GetPermanentAlly() > -1) then
+				controlTable.MinorName:SetText("[ICON_PUPPET]" .. Locale.ConvertTextKey( civInfo.Description ) );
+				controlTable.MinorName:SetToolTipString(Locale.Lookup("TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT", Players[pOtherPlayer:GetPermanentAlly()]:GetCivilizationShortDescriptionKey()))
+			elseif (pOtherPlayer:IsNoAlly()) then
+				controlTable.MinorName:SetText("[ICON_FLOWER]" .. Locale.ConvertTextKey( civInfo.Description ) );
+				controlTable.MinorName:SetToolTipString(Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA"));
+			else
+				controlTable.MinorName:SetText( Locale.ConvertTextKey( civInfo.Description ) );
+			end
 			controlTable.MinorName:SetColor( color, 0 );
 
 			local strDiploState = "";
@@ -614,6 +621,7 @@ function InitMinorCivList()
 			-- Ally Status
 			local iAlly = pOtherPlayer:GetAlly();
 			local bHideIcon = true;
+			
 			if (iAlly ~= nil and iAlly ~= -1) then
 				if (iAlly == g_iPlayer or Teams[Players[iAlly]:GetTeam()]:IsHasMet(g_iTeam)) then
 					bHideIcon = false;
@@ -623,6 +631,7 @@ function InitMinorCivList()
 					CivIconHookup(-1, 32, controlTable.AllyIcon, controlTable.AllyIconBG, controlTable.AllyIconShadow, false, true);
 				end
 			end
+			--END
 			local strAllyTT = GetAllyToolTip(g_iPlayer, iPlayerLoop);
 			controlTable.AllyIcon:SetToolTipString(strAllyTT);
 			controlTable.AllyIconBG:SetToolTipString(strAllyTT);
