@@ -118,7 +118,7 @@ function MapGlobals:New()
 
 
 	-- Rain
-	mglobal.marshPercent			= 0.02 -- Percent chance increase for marsh from each nearby watery tile
+	mglobal.marshPercent			= 0.025-- Percent chance increase for marsh from each nearby watery tile
 										   --    junglePercent to 1 : marsh
 	mglobal.junglePercent			= 0.75 --    junglePercent to 1 : jungle
 	mglobal.zeroTreesPercent		= 0.15 -- zeroTreesPercent to 1 : forest
@@ -582,7 +582,7 @@ function MapGlobals:New()
 			-- Determine how many NWs to attempt to place. Target is regulated per map size.
 			-- The final number cannot exceed the number the map has locations to support.
 			local target_number = mg.numNaturalWonders;
-			local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists(target_number)
+			local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists(target_number) or {}
 			local iNumNWCandidates = table.maxn(NW_eligibility_order);
 			if iNumNWCandidates == 0 then
 				print("No Natural Wonders placed, no eligible sites found for any of them.");
@@ -1873,7 +1873,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.6.1",
+		Name = "Communitu_79a v2.6.2",
 		Description = "Communitas mapscript for Vox Populi (version 3.1+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -4651,7 +4651,6 @@ function Plot_AddMainFeatures(plot, zeroTreesThreshold, jungleThreshold)
 	end
 
 	-- Too dry for jungle
-
 	if rainfallMap.data[i] < jungleThreshold then
 		if (rainfallMap.data[i] > zeroTreesThreshold) and (temperatureMap.data[i] > mg.treesMinTemperature) then
 			if IsGoodFeaturePlot(plot) then
@@ -4676,12 +4675,13 @@ function Plot_AddMainFeatures(plot, zeroTreesThreshold, jungleThreshold)
 		end
 	end
 
-	-- This tile is tropical forest or jungle
+	-- This tile is tropical marsh or jungle, or featureless
 	table.insert(mg.tropicalPlots, plot)
 
 	-- Check marsh
 	if temperatureMap.data[i] > mg.treesMinTemperature and IsGoodFeaturePlot(plot, FeatureTypes.FEATURE_MARSH) then
 		plot:SetPlotType(PlotTypes.PLOT_LAND,false,false)
+		plot:SetTerrainType(TerrainTypes.TERRAIN_GRASS,false,false)
 		plot:SetFeatureType(FeatureTypes.FEATURE_MARSH,-1)
 		return
 	end
@@ -4698,33 +4698,34 @@ function Plot_AddMainFeatures(plot, zeroTreesThreshold, jungleThreshold)
 end
 
 function IsGoodFeaturePlot(plot, featureID)
-	local odds = 0
+	local odds, oddsMultiplier
 
 	if featureID == FeatureTypes.FEATURE_MARSH then
 		if plot:GetPlotType() ~= PlotTypes.PLOT_LAND then
 			return false
 		end
+		odds = mg.marshPercent
+		oddsMultiplier = 1
 		for nearPlot in Plot_GetPlotsInCircle(plot, 0, 1) do
 			local nearTerrainID = nearPlot:GetTerrainType()
-			if nearPlot:GetPlotType() == PlotTypes.PLOT_OCEAN then
-				if plot:IsRiverSide() then
-					odds = odds + 2 * mg.marshPercent
-				end
+			if nearPlot:GetFeatureType() == FeatureTypes.FEATURE_MARSH then
+				oddsMultiplier = oddsMultiplier + 8 -- encourage clumping
+			elseif nearPlot:GetPlotType() == PlotTypes.PLOT_OCEAN then
 				if nearPlot:IsLake() then
-					odds = odds + 4 * mg.marshPercent
+					oddsMultiplier = oddsMultiplier + 4
+				elseif plot:IsRiverSide() then
+					oddsMultiplier = oddsMultiplier + 2
 				else
-					odds = odds + mg.marshPercent
+					oddsMultiplier = oddsMultiplier + 1
 				end
-			-- elseif nearTerrainID == TerrainTypes.TERRAIN_DESERT or nearTerrainID == TerrainTypes.TERRAIN_SNOW or nearTerrainID == TerrainTypes.TERRAIN_TUNDRA then
 			elseif nearTerrainID == TerrainTypes.TERRAIN_DESERT or nearTerrainID == TerrainTypes.TERRAIN_SNOW then
 				return 0
-			elseif nearPlot:GetFeatureType() == FeatureTypes.FEATURE_MARSH then
-				odds = odds - 8 * mg.marshPercent -- avoid clumping
 			elseif plot:IsRiverSide() and nearPlot:IsFreshWater() then
-				odds = odds + mg.marshPercent
+				oddsMultiplier = oddsMultiplier + 1
 			end
 		end
-		return math.min(odds, mg.featurePercent) >= PWRand()
+		odds = modifyOdds(odds, oddsMultiplier)
+		return odds >= PWRand()
 	end
 
 --	No features on deserts and snow
@@ -4733,10 +4734,11 @@ function IsGoodFeaturePlot(plot, featureID)
 	end
 
 	odds = mg.featurePercent
+	oddsMultiplier = 1.0
 	if plot:IsFreshWater() then
-		oddsMultiplier = 1.0 + mg.featureWetVariance
+		oddsMultiplier = oddsMultiplier + mg.featureWetVariance
 	else
-		oddsMultiplier = 1.0 - mg.featureWetVariance
+		oddsMultiplier = oddsMultiplier - mg.featureWetVariance
 	end
 
 --	Increase chance for features when there are other features nearby already.
