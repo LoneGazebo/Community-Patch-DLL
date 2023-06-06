@@ -4658,7 +4658,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 	return true;
 }
 
-bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner)
+bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner, bool bStartMission)
 {
 	if (eSpyOwner == NO_PLAYER)
 		return false;
@@ -4736,19 +4736,23 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		}
 	}
 
-	if (pkEventInfo->getStealTech() > 0)
+	if (bStartMission)
 	{
-		GET_PLAYER(eSpyOwner).GetEspionage()->BuildStealableTechList(getOwner());
-		int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
-		if (iNumTechsWeDontHave < pkEventInfo->getStealTech())
-			return false;
-	}
+		// these missions can be started only if a tech/GW is available to steal, but they are not canceled if that changes during the mission
+		if (pkEventInfo->getStealTech() > 0)
+		{
+			GET_PLAYER(eSpyOwner).GetEspionage()->BuildStealableTechList(getOwner());
+			int iNumTechsWeDontHave = GET_PLAYER(eSpyOwner).GetEspionage()->GetNumTechsToSteal(getOwner());
+			if (iNumTechsWeDontHave < pkEventInfo->getStealTech())
+				return false;
+		}
 
-	if (pkEventInfo->getForgeGW() > 0)
-	{
-		int iNumGWInCity = GetCityCulture()->GetNumGreatWorks();
-		if (iNumGWInCity < pkEventInfo->getForgeGW())
-			return false;
+		if (pkEventInfo->getForgeGW() > 0)
+		{
+			int iNumGWInCity = GetCityCulture()->GetNumGreatWorks();
+			if (iNumGWInCity < pkEventInfo->getForgeGW())
+				return false;
+		}
 	}
 
 	for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -6833,7 +6837,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 				else
 				{
-					int iGoldenAgeTurns = GET_PLAYER(eSpyOwner).getGoldenAgeLength(pkEventChoiceInfo->getForgeGW() * 10);
+					int iGoldenAgeTurns = GET_PLAYER(eSpyOwner).getGoldenAgeLength(pkEventChoiceInfo->getStealTech() * 10);
 					GET_PLAYER(eSpyOwner).changeGoldenAgeTurns(iGoldenAgeTurns);
 				}
 			}
