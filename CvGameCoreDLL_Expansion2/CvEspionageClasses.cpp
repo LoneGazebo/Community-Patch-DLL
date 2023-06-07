@@ -1010,7 +1010,7 @@ void CvPlayerEspionage::ProcessSpyFocus()
 					CityEventChoiceTypes eEventChoice = pSpy->m_eSpyFocus;
 					if (eEventChoice != NO_EVENT_CHOICE_CITY)
 					{
-						if (!pCity->IsCityEventChoiceValidEspionage(eEventChoice, NO_EVENT_CITY, uiSpy, m_pPlayer->GetID()))
+						if (!pCity->IsCityEventChoiceValidEspionage(eEventChoice, NO_EVENT_CITY, uiSpy, m_pPlayer->GetID(), false))
 						{
 						
 							pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
