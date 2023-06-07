@@ -1115,8 +1115,12 @@ void CvPlayerEspionage::DoSpyFocusEvent(uint uiSpyIndex, int iDebug)
 	CityEventChoiceTypes eEventChoice = pSpy->m_eSpyFocus;
 	if (eEventChoice != NO_EVENT_CHOICE_CITY)
 	{
-		pCity->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, uiSpyIndex, m_pPlayer->GetID());
-		if (m_pPlayer->isHuman())
+		pCity->DoEventChoice(eEventChoice, NO_EVENT_CITY, false, uiSpyIndex, m_pPlayer->GetID());
+		if (
+			m_pPlayer->isHuman() && 
+			// show popup for the spy owner only
+			GC.getGame().getActivePlayer() == m_pPlayer->GetID()
+		)
 		{
 			CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, m_pPlayer->GetID(), uiSpyIndex, 0, true);
 			GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
