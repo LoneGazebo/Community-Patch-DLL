@@ -5458,7 +5458,7 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 	CvAssertMsg(eBranchType >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eBranchType < m_pPolicies->GetNumPolicyBranches(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
-	if(IsPolicyBranchUnlocked(eBranchType) != bNewValue)
+	if (IsPolicyBranchUnlocked(eBranchType) != bNewValue)
 	{
 		CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranchType);
 
@@ -5468,7 +5468,7 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 			int iFreePolicies = PolicyHelpers::GetNumFreePolicies(eBranchType);
 
 			// Late-game tree so want to issue notification?
-			if(pkPolicyBranchInfo != NULL)
+			if (pkPolicyBranchInfo != NULL)
 			{
 				if (pkPolicyBranchInfo->IsPurchaseByLevel())
 				{
@@ -5477,14 +5477,9 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 						iFreePolicies += m_pPlayer->GetPlayerTraits()->GetExtraTenetsFirstAdoption();
 					}
 					m_pPlayer->ChangeNumFreeTenets(iFreePolicies, !bRevolution);
-#if defined(MOD_BALANCE_CORE)
-					if(!bRevolution)
-					{
-						GAMEEVENTINVOKE_HOOK(GAMEEVENT_IdeologyAdopted, m_pPlayer->GetID(), eBranchType);
-					}
-#endif
-					for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
-						PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
+
+					for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop) {
+						PlayerTypes eNotifyPlayer = (PlayerTypes)iNotifyLoop;
 						CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
 
 						// Issue notification if OTHER than target player
@@ -5494,10 +5489,10 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 							const bool bHasMet = kNotifyTeam.isHasMet(m_pPlayer->getTeam());
 
 							CvNotifications* pNotifications = kCurNotifyPlayer.GetNotifications();
-							if(pNotifications)
+							if (pNotifications)
 							{
 								CvString strBuffer;
-								if(bHasMet)
+								if (bHasMet)
 								{
 									if (bRevolution)
 										strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_IDEOLOGY_CHANGE", m_pPlayer->getCivilizationShortDescriptionKey(), pkPolicyBranchInfo->GetDescriptionKey());
@@ -5541,10 +5536,16 @@ void CvPlayerPolicies::SetPolicyBranchUnlocked(PolicyBranchTypes eBranchType, bo
 		}
 
 		m_pabPolicyBranchUnlocked[eBranchType] = bNewValue;
+#if defined(MOD_BALANCE_CORE)
+		if (!bRevolution)
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_IdeologyAdopted, m_pPlayer->GetID(), eBranchType);
+		}
+#endif
 	}
 
 	//if it's an ideology, remember the turn we first chose one
-	if (bNewValue && m_pPlayer->GetCulture()->GetTurnIdeologyAdopted()==-1)
+	if (bNewValue && m_pPlayer->GetCulture()->GetTurnIdeologyAdopted() == -1)
 	{
 		PolicyBranchTypes eFreedomBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_FREEDOM);
 		PolicyBranchTypes eAutocracyBranch = (PolicyBranchTypes)GD_INT_GET(POLICY_BRANCH_AUTOCRACY);

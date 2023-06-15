@@ -7592,17 +7592,19 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 		return "";
 	}
 
-	CvString strOverrideText = GetLocalizedText(pkEventInfo->getDisabledTooltip());
-	if(strOverrideText != "")
-	{
-		return strOverrideText.c_str();
-	}
-
 	//Lua Hook
-	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventChoiceCanTake, GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE) 
+	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventChoiceCanTake, GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE)
 	{
-		localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_DISABLED_LUA");
-		DisabledTT += localizedDurationText.toUTF8();
+		CvString strOverrideText = GetLocalizedText(pkEventInfo->getDisabledTooltip());
+		if (strOverrideText != "")
+		{
+			DisabledTT += strOverrideText;
+		}
+		else
+		{
+			localizedDurationText = Localization::Lookup("TXT_KEY_EVENT_DISABLED_LUA");
+			DisabledTT += localizedDurationText.toUTF8();
+		}
 	}
 
 	if(pkEventInfo->isOneShot() && IsEventChoiceFired(eChosenEventChoice))
