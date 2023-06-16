@@ -11667,13 +11667,17 @@ void CvPlayer::DoUnitReset()
 			CvCity* pOwner = pUnitPlot->getEffectiveOwningCity();
 			if (pOwner != NULL && GET_TEAM(pOwner->getTeam()).isAtWar(getTeam()))
 			{
+				
 				int iTempDamage = pUnitPlot->getEffectiveOwningCity()->GetDeepWaterTileDamage();
 				if (iTempDamage > 0)
 				{
-					pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
+					if (pLoopUnit->getDomainType() == DOMAIN_SEA || pLoopUnit->isEmbarked())
+					{
+						pLoopUnit->changeDamage(iTempDamage, pUnitPlot->getOwner(), /*fAdditionalTextDelay*/ 0.5f);
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
-					pLoopUnit->addDamageReceivedThisTurn(iTempDamage);
+						pLoopUnit->addDamageReceivedThisTurn(iTempDamage);
 #endif
+					}
 				}
 			}
 		}
