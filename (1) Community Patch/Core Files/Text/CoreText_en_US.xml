@@ -2770,10 +2770,13 @@
 			<Text>Adjacent Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_TWOADJIMPROVYIELD_LABEL">
-			<Text>Two-Adjacencent Bonus:</Text>
+			<Text>Two-Adjacent Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_IMPROVEMENT_RESOURCE_CBP_LABEL">
 			<Text>Improvement Yield:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_YIELDPERERA_LABEL">
+			<Text>Yield Per Era:</Text>
 		</Row>
 
 		<!-- Score Text -->
@@ -3091,10 +3094,10 @@
 
 		<!-- No Supply -->
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY">
-			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are well beyond your maximum Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_PRODUCTION] Train this unit, as you are at your maximum Supply cap!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE">
-			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are well beyond your maximum Supply cap!</Text>
+			<Text>[NEWLINE]Cannot [ICON_GOLD] Purchase this unit, as you are at your maximum Supply cap!</Text>
 		</Row>
 		
 		<!-- Lack of gross resource (before deductions) -->

@@ -911,6 +911,20 @@
 							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="YieldLabel"/>
 						</Grid>
 					</Grid>
+					<!-- Yield Per Era -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="YieldPerEraFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_YIELDPERERA_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="YieldPerEraLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Terrain Adjacency Yield -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="PlotAdjacentTerrainYieldFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="PlotAdjacentTerrainYieldFrame2">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_IMPROVADJTERRAINYIELD_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="PlotAdjacentTerrainYieldLabel"/>
+						</Grid>
+					</Grid>
 					<!-- Mountain Adjacency Yield -->
 					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="MountainYieldFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
@@ -946,6 +960,13 @@
 						<Grid Anchor="C,C" Offset="0,0" Size="208,80" Padding="0,0" Style="Grid9Frame" Hidden="0">
 							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_ADJIMPROVYIELD_LABEL"/>
 							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AdjacentImprovYieldLabel"/>
+						</Grid>
+					</Grid>
+					<!-- Yield per Era Improvement Yield-->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,36" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="ImprovYieldPerEraFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,40" Padding="0,0" Style="Grid9Frame" Hidden="0">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_YIELDPERERA_LABEL"/>
+							<Label Anchor="L,C" Offset="8,-2" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="ImprovYieldPerEraLabel"/>
 						</Grid>
 					</Grid>
 					<!-- Two Adjacent Improvement Yield-->
