@@ -2152,11 +2152,7 @@ bool CvPlot::canHaveImprovement(ImprovementTypes eImprovement, PlayerTypes ePlay
 		{
 			return false;
 		}
-#if defined(MOD_PSEUDO_NATURAL_WONDER)
-		if(GC.getFeatureInfo(getFeatureType())->IsNaturalWonder(true))
-#else
 		if(GC.getFeatureInfo(getFeatureType())->IsNaturalWonder())
-#endif
 		{
 			return false;
 		}
