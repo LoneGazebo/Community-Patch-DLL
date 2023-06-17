@@ -381,7 +381,13 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		end
 		
 		local ttText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT")
-		local ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. city:GetStrengthValue(true) / 100
+		local iRange, iIndirect = city:GetBombardRange()
+		if (iIndirect == 1) then
+			ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. city:GetStrengthValue(true) / 100 .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. Locale.Lookup("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_POSITIVE_TEXT]" .. Locale.Lookup("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+		else 
+			ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. city:GetStrengthValue(true) / 100 .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. Locale.Lookup("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_NEGATIVE_TEXT]" .. Locale.Lookup("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+		end
+		--local ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. city:GetStrengthValue(true) / 100
 
 		controls.CityStrength:SetToolTipString(ttText)
 

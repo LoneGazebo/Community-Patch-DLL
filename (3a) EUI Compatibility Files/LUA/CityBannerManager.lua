@@ -1152,7 +1152,13 @@ local function RefreshCityBannersNow()
 				UpdateRangeIcons( plotIndex, city, instance )
 
 				local ttText = Locale.ConvertTextKey("TXT_KEY_CITYVIEW_CITY_COMB_STRENGTH_TT")
-				local ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+				--local ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+				local iRange, iIndirect = city:GetBombardRange()
+				if (iIndirect == 1) then
+					ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100) .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. L("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_POSITIVE_TEXT]" .. L("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+				else 
+					ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100) .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. L("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+				end
 
 				instance.CityStrength:SetToolTipString(ttText)
 				instance.CityStrengthContainer:SetToolTipString(ttText)
@@ -1183,7 +1189,13 @@ local function RefreshCityBannersNow()
 						instance.Pledge2:SetHide( not free )
 						-- UndeadDevel: include tributing information on City Strength element
 						if plot:IsVisible( activeTeamID ) then
-							ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+							--ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+							local iRange, iIndirect = city:GetBombardRange()
+							if (iIndirect == 1) then
+								ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100) .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. L("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_POSITIVE_TEXT]" .. L("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+							else 
+								ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100) .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. L("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+							end
 						end
 
 						if cityOwner:IsMinorCiv() then
@@ -1201,7 +1213,13 @@ local function RefreshCityBannersNow()
 					local civInfo = GameInfo.Civilizations[ cityOwner:GetCivilizationType() ]
 
 					if plot:IsVisible( activeTeamID ) then
-						ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+						--ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100)
+						local iRange, iIndirect = city:GetBombardRange()
+						if (iIndirect == 1) then
+							ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100) .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. L("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_POSITIVE_TEXT]" .. L("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+						else 
+							ttText = ttText .. ": [ICON_RANGE_STRENGTH] " .. math_floor(city:GetStrengthValue(true) / 100) .. "[NEWLINE][ICON_RANGE_STRENGTH] " .. L("TXT_KEY_COMBAT_RANGE_HEADING3_TITLE") .. ": " .. iRange .. "[NEWLINE][COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PROMOTION_INDIRECT_FIRE") .. "[ENDCOLOR]"
+						end
 					end
 
 					instance.CityStrength:SetToolTipString(ttText )

@@ -2770,10 +2770,13 @@
 			<Text>Adjacent Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_TWOADJIMPROVYIELD_LABEL">
-			<Text>Two-Adjacencent Bonus:</Text>
+			<Text>Two-Adjacent Bonus:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_IMPROVEMENT_RESOURCE_CBP_LABEL">
 			<Text>Improvement Yield:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_YIELDPERERA_LABEL">
+			<Text>Yield Per Era:</Text>
 		</Row>
 
 		<!-- Score Text -->

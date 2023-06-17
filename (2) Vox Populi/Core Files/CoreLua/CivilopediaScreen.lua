@@ -1384,7 +1384,7 @@ CivilopediaCategory[CategoryImprovements].PopulateList = function()
 
 	-- for each improvement
 	for row in GameInfo.Improvements() do
-		if not row.GraphicalOnly then
+		if (not row.GraphicalOnly and row.ShowInPedia == 1) then
 			-- add an article to the list (localized name, unit tag, etc.)
 			local article = {};
 			local name = Locale.ConvertTextKey( row.Description );
@@ -5840,6 +5840,63 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 				else
 					Controls.YieldLabel:SetText( Locale.ConvertTextKey( yieldString ) );
 				end
+				
+				-- Yield per Era
+				Controls.YieldPerEraFrame:SetHide( false );
+				local numYields = 0;
+				local yieldString = "";
+				for row in GameInfo.Feature_EraYieldChanges( condition ) do
+					numYields = numYields + 1;
+					yieldString = yieldString..tostring(row.Yield).." ";
+					yieldString = yieldString..GameInfo.Yields[row.YieldType].IconString.." ";
+				end
+				if numYields == 0 then
+					Controls.YieldPerEraFrame:SetHide( true );
+				else
+					Controls.YieldPerEraLabel:SetText( Locale.ConvertTextKey( yieldString ) );
+					Controls.YieldPerEraFrame:SetHide( false );
+				end
+				
+				-- Plot Adjacency Yield
+				Controls.PlotAdjacentTerrainYieldFrame:SetHide( false );
+				Controls.PlotAdjacentTerrainYieldFrame:SetSizeY(36);
+				Controls.PlotAdjacentTerrainYieldFrame2:SetSizeY(40);
+				local numYields = 0;
+				local yieldString = "";
+				local plotString = "";
+				local fullstring = "";
+				local basePlot = "";
+				for row in GameInfo.Plot_AdjacentFeatureYieldChanges( condition ) do
+					numYields = numYields + 1;
+					local Plot = GameInfo.Plots[row.PlotType];
+					if Plot then
+						plotString = Locale.ConvertTextKey(Plot.Description)..": ";
+						if(Plot ~= basePlot) then
+							basePlot = Plot;
+							if(fullstring == "") then
+								fullstring = fullstring .. plotString;
+							else
+								fullstring = fullstring .. "[NEWLINE]" .. plotString;
+								Controls.PlotAdjacentTerrainYieldFrame:SetSizeY( Controls.PlotAdjacentTerrainYieldFrame:GetSizeY() + 40 );
+								Controls.PlotAdjacentTerrainYieldFrame2:SetSizeY( Controls.PlotAdjacentTerrainYieldFrame2:GetSizeY() + 40 );
+							end
+						end
+						if (row.Yield > 0) then
+							yieldString = "+" .. tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+						else
+							yieldString = tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+						end
+						fullstring = fullstring .. Locale.ConvertTextKey( yieldString );
+					end
+				end
+				if numYields == 0 then
+					Controls.PlotAdjacentTerrainYieldFrame:SetHide( true );
+				else
+					Controls.PlotAdjacentTerrainYieldLabel:SetText( fullstring );
+					Controls.PlotAdjacentTerrainYieldFrame:SetHide( false );
+				end
+				
+				
 
 				-- Movement
 				Controls.MovementCostFrame:SetHide( false );
@@ -6423,8 +6480,24 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 				Controls.AdjacentImprovYieldLabel:SetText( fullstring );
 				Controls.AdjacentImprovYieldFrame:SetHide( false );
 			end
-			--END
 
+			local numYields = 0;
+			local yieldString = "";
+			for row in GameInfo.Improvement_YieldPerEra( condition ) do
+				numYields = numYields + 1;
+				if row.Yield > 0 then
+					yieldString = yieldString.."+";
+				end
+				yieldString = yieldString..tostring(row.Yield)..GameInfo.Yields[row.YieldType].IconString.." ";
+			end
+			if numYields == 0 then
+				Controls.ImprovYieldPerEraFrame:SetHide( true );
+			else
+				Controls.ImprovYieldPerEraLabel:SetText( Locale.ConvertTextKey( yieldString ) );
+				Controls.ImprovYieldPerEraFrame:SetHide( false );
+			end
+			--END
+			
 			buttonAdded = 0;
 			if thisImprovement.CivilizationType then
 				local thisCiv = GameInfo.Civilizations[thisImprovement.CivilizationType];
@@ -9000,6 +9073,8 @@ function ClearArticle()
 	Controls.TitlesFrame:SetHide( true );
 	Controls.SubtitleID:SetHide( true );
 	Controls.YieldFrame:SetHide( true );
+	Controls.YieldPerEraFrame:SetHide( true );
+	Controls.PlotAdjacentTerrainYieldFrame:SetHide( true );
 	Controls.MountainYieldFrame:SetHide( true );
 	--CBP
 	Controls.CorporationResourceBonusFrame:SetHide( true );
@@ -9010,6 +9085,7 @@ function ClearArticle()
 	Controls.AdjacentTerrainYieldFrame:SetHide( true );
 	Controls.AdjacentImprovYieldFrame:SetHide( true );
 	Controls.TwoAdjacentImprovYieldFrame:SetHide( true );
+	Controls.ImprovYieldPerEraFrame:SetHide( true );
 	Controls.ImprovementYieldFrame:SetHide( true );
 	--END
 	Controls.MovementCostFrame:SetHide( true );

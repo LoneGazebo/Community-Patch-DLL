@@ -676,7 +676,8 @@ UPDATE Improvements
 SET	Water = 1,
 	RequiresXAdjacentLand = 3,
 	AllowsWalkWater = 1,
-	MakesPassable = 1
+	MakesPassable = 1,
+	ShowInPedia = 0
 WHERE Type = 'IMPROVEMENT_POLDER_WATER';
 
 INSERT INTO Improvement_ValidTerrains

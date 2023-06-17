@@ -1118,8 +1118,12 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 
 	// City Production Modifier
 	pkCity->canTrain(eUnit, false, false, false, false, &toolTip);
+	
+        int iMaxSupplyPenalty = /*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD);
+        int iSupplyPenaltyPerUnit = /*10 in CP, 5 in VP*/ GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY);
+        int iMaxUnitsOverSupply = (iMaxSupplyPenalty > 0 && iSupplyPenaltyPerUnit > 0) ? iMaxSupplyPenalty / iSupplyPenaltyPerUnit : INT_MAX;
 
-	if (MOD_BALANCE_CORE && GET_PLAYER(pkCity->getOwner()).GetNumUnitsOutOfSupply() > 0)
+	if (MOD_BALANCE_CORE && GET_PLAYER(pkCity->getOwner()).GetNumUnitsOutOfSupply() >= iMaxUnitsOverSupply)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE");
 

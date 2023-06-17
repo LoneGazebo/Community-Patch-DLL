@@ -314,16 +314,19 @@ function PopulateDomination()
 
 					for pCity in pPlayer:Cities() do
 						if (pCity:IsOriginalMajorCapital()) then
+							print(pCity:GetName());
 							iNumCapitals = iNumCapitals + 1;
-							iNumDisplayCapital = iNumCapitals;
 							aiCapitalOwner[pCity:GetOriginalOwner()] = iPlayerLoop;
 							if (Teams[Players[pCity:GetOriginalOwner()]:GetTeam()]:IsVassal(iTeamLoop)) then
 								iNumCapitals = iNumCapitals - 1; --Don't double count Vassal and Capturing Enemy Capital
 							end
+							iNumDisplayCapital = iNumCapitals;
 						end
 					end
 					iNumVassals = Teams[pPlayer:GetTeam()]:GetNumVassals(); -- Vassalage: Get Number here
 					iNumDisplayCapital = iNumDisplayCapital + iNumVassals; --Get Total of Vassals and Captured Enemy Capitals
+					--print(pPlayer:GetName() .. "iNumCapitals: " .. iNumCapitals);
+					--print(pPlayer:GetName() .. "iNumVassals: " .. iNumVassals);
 				end
 			end
 			
@@ -364,7 +367,12 @@ function PopulateDomination()
 				local dominatingPlayer = Players[aiCapitalOwner[iPlayerLoop]];
 				--print("who is" .. aiCapitalOwner[iPlayerLoop])
 				if (Teams[pPlayer:GetTeam()]:GetMaster() ~= -1) then --Vassalage: Get Master's Team Leader first, then move on!
-					dominatingPlayer = Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()]
+					dominatingPlayer = Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()];
+					if (pPlayer:GetOriginalCapitalPlot() ~= nil) then
+						if (pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory() ~= dominatingPlayer and pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory() ~= iPlayerLoop) then --Ok maybe someone MIGHT hold a capital AND vassalize them... awkwardly.
+							dominatingPlayer = Players[pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory()];
+						end
+					end
 				end
 				if (dominatingPlayer == nil and pPlayer:GetOriginalCapitalPlot() ~= nil) then 
 					dominatingPlayer = Players[pPlayer:GetOriginalCapitalPlot():GetWorkingCity():GetOwnerForDominationVictory()];
@@ -385,7 +393,7 @@ function PopulateDomination()
 		
 		local pActivePlayer = Players[Game.GetActivePlayer()];
 		local pActiveTeam = Teams[pActivePlayer:GetTeam()];
-		local iDomWinner = math.max(math.min(math.ceil(OriginalCapitalSize*GameDefines["VICTORY_DOMINATION_CONTROL_PERCENT"] / 100), OriginalCapitalSize-1), 2);
+		local iDomWinner = math.max(math.min(math.ceil(OriginalCapitalSize*GameDefines["VICTORY_DOMINATION_CONTROL_PERCENT"] / 100), OriginalCapitalSize), 2);
 		
 		if (iLeadingTeam == -1) then
 			if (bAnyoneLostControlOfCapital) then
@@ -1253,12 +1261,12 @@ function SetConquestCivIcon(pPlayer, iconSize, controlTable, controlTableTT, con
 						if (pDominatingPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 							tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_CONTROLS_YOUR_CAPITAL", pDominatingPlayer:GetNickName(), pOriginalCapital:GetNameKey());
 							if (pDominatingTeam:IsVassal(Game.GetActiveTeam())) then
-								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU", pDominatingPlayer:GetNickName());
+								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU", Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()]:GetNickName());
 							end
 						else
 							tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_CONTROLS_YOUR_CAPITAL", pDominatingPlayer:GetName(), pOriginalCapital:GetNameKey());
 							if (pDominatingTeam:IsVassal(Game.GetActiveTeam())) then
-								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU", pDominatingPlayer:GetName());
+								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU", Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()]:GetName());
 							end
 						end
 					else
@@ -1266,17 +1274,21 @@ function SetConquestCivIcon(pPlayer, iconSize, controlTable, controlTableTT, con
 							tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_YOU_CONTROL_OTHER_PLAYER_CAPITAL", pOriginalCapital:GetNameKey(), pPlayer:GetCivilizationShortDescriptionKey());
 							if (iDominatingPlayer == Game.GetActivePlayer() and Teams[pPlayer:GetTeam()]:IsVassal(Game.GetActiveTeam())) then
 								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_YOU_VASSALIZE_OTHER_PLAYER", pPlayer:GetCivilizationShortDescriptionKey());
+							elseif (Teams[pPlayer:GetTeam()]:IsVassalOfSomeone()) then
+								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_OTHER_PLAYER", Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()]:GetName(), pPlayer:GetCivilizationShortDescriptionKey());
 							end
 						else
 							if (pDominatingPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
 								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_CONTROLS_OTHER_PLAYER_CAPITAL", pDominatingPlayer:GetNickName(), pOriginalCapital:GetNameKey(), pPlayer:GetCivilizationShortDescriptionKey())
-								if (Teams[pPlayer:GetTeam()]:IsVassal(pDominatingTeam:GetID())) then
-									tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_OTHER_PLAYER", pDominatingPlayer:GetNickName(), pPlayer:GetCivilizationShortDescriptionKey())
+								if (Teams[pPlayer:GetTeam()]:IsVassalOfSomeone()) then --if (Teams[pPlayer:GetTeam()]:IsVassal(pDominatingTeam:GetID())) then
+									tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_OTHER_PLAYER", Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()]:GetNickName(), pPlayer:GetCivilizationShortDescriptionKey())
+								elseif (iDominatingPlayer == Game.GetActivePlayer() and Teams[pPlayer:GetTeam()]:IsVassal(Game.GetActiveTeam())) then
+									tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_YOU_VASSALIZE_OTHER_PLAYER", pPlayer:GetCivilizationShortDescriptionKey());
 								end
 							else
 								tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_CONTROLS_OTHER_PLAYER_CAPITAL", pDominatingPlayer:GetName(), pOriginalCapital:GetNameKey(), pPlayer:GetCivilizationShortDescriptionKey())
-								if (Teams[pPlayer:GetTeam()]:IsVassal(pDominatingTeam:GetID())) then
-									tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_OTHER_PLAYER", pDominatingPlayer:GetName(), pPlayer:GetCivilizationShortDescriptionKey());
+								if (Teams[pPlayer:GetTeam()]:IsVassalOfSomeone()) then --if (Teams[pPlayer:GetTeam()]:IsVassal(pDominatingTeam:GetID())) then
+									tooltipDomination = tooltipDomination .. Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_OTHER_PLAYER", Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()]:GetName(), pPlayer:GetCivilizationShortDescriptionKey());
 								end
 							end
 						end
