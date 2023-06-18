@@ -418,6 +418,16 @@ VALUES
 	('BUILDING_PIAZZA_SAN_MARCO', 'YIELD_PRODUCTION', 2),
 	('BUILDING_PIAZZA_SAN_MARCO', 'YIELD_FOOD', 2);
 
+INSERT INTO Building_YieldFromBirth
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PIAZZA_SAN_MARCO', 'YIELD_CULTURE', 15);
+	
+INSERT INTO Building_YieldFromPolicyUnlock
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_PIAZZA_SAN_MARCO', 'YIELD_GOLDEN_AGE_POINTS', 50);
+
 INSERT INTO Building_ThemingBonuses
 	(BuildingType, Description, Bonus, RequiresAnyButOwner, AIPriority)
 VALUES
