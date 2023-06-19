@@ -694,6 +694,10 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsProductionRoutes);
 	Method(IsFoodRoutes);
 
+	Method(GetSappedTurns);
+	Method(ChangeSappedTurns);
+	Method(SetSappedTurns);
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	Method(GetDisabledTooltip);
 	Method(GetScaledEventChoiceValue);
@@ -6410,6 +6414,27 @@ int CvLuaCity::lIsCityEventChoiceValidEspionage(lua_State* L)
 	return 1;
 }
 #endif
+
+int CvLuaCity::lGetSappedTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	lua_pushinteger(L, pkCity->GetSappedTurns());
+	return 1;
+}
+int CvLuaCity::lChangeSappedTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeSappedTurns(iValue);
+	return 1;
+}
+int CvLuaCity::lSetSappedTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->SetSappedTurns(iValue);
+	return 1;
+}
 
 #if defined(MOD_BALANCE_CORE_JFD)
 int CvLuaCity::lIsColony(lua_State* L)
