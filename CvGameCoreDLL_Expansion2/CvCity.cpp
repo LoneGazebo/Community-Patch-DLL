@@ -31511,7 +31511,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		// Building
 		else if (eBuildingType != NO_BUILDING)
 		{
-			if (!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
+			if (!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/) && !bVenetianException)
 			{
 				bool bAlreadyUnderConstruction = canConstruct(eBuildingType, true, !bTestTrainable) && getFirstBuildingOrder(eBuildingType) != -1;
 				if (!bAlreadyUnderConstruction)
