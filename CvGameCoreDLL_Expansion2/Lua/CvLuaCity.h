@@ -694,6 +694,10 @@ protected:
 	LUAAPIEXTN(IsProductionRoutes, bool);
 	LUAAPIEXTN(IsFoodRoutes, bool);
 
+	static int lGetSappedTurns(lua_State* L);
+	static int lChangeSappedTurns(lua_State* L);
+	static int lSetSappedTurns(lua_State* L);
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	static int lGetDisabledTooltip(lua_State* L);
 	static int lGetScaledEventChoiceValue(lua_State* L);
