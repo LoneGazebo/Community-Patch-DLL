@@ -103,6 +103,9 @@ INSERT INTO Defines (Name, Value) SELECT 'WLTKD_RESOURCE_RESET_TURNS', '0';
 UPDATE Defines SET Value = '9' WHERE Name = 'RELIGION_ADJACENT_CITY_DISTANCE';
 INSERT INTO Defines(Name, Value) SELECT 'INQUISITION_EFFECTIVENESS', '100'; -- expected value between 1 and 100. percentage of heretics' pressure to be removed by inquisitors. does not affect prophets.
 INSERT INTO Defines(Name, Value) SELECT 'INQUISITOR_CONVERSION_REDUCTION_FACTOR', '2'; -- only relevant if MOD_BALANCE_CORE_INQUISITOR_TWEAKS is active. divides missionary and prophet conversion strength by this number if an Inquisitor is defending the target city.
+INSERT INTO Defines(Name, Value) SELECT 'RELIGION_MAXIMUM_FIXED_AMOUNT', '1'; -- this number is added to the religion maximum (VP only)
+INSERT INTO Defines(Name, Value) SELECT 'RELIGION_MAXIMUM_PER_PLAYER_DIVISOR', '200'; -- the number of majors in the game * 100 / this number is added to the religion maximum (VP only)
+INSERT INTO Defines(Name, Value) SELECT 'RELIGION_MAXIMUM_CAP', '8'; -- cap on religion maximum (VP only)
 
 -- Trade Stuff
 INSERT INTO Defines (Name, Value) SELECT 'OPEN_BORDERS_MODIFIER_TRADE_GOLD', '20'; -- Open Borders Trade Gold Value (halved if not mutual)
@@ -340,7 +343,6 @@ UPDATE Defines SET Value = '75' WHERE Name = 'ECONOMIC_STRENGTH_AVERAGE_THRESHOL
 UPDATE Defines SET Value = '50' WHERE Name = 'ECONOMIC_STRENGTH_POOR_THRESHOLD';
 UPDATE Defines SET Value = '33' WHERE Name = 'ECONOMIC_STRENGTH_WEAK_THRESHOLD';
 
-INSERT INTO Defines (Name, Value) SELECT 'MILITARY_STRENGTH_CITY_MOD', '33';
 INSERT INTO Defines (Name, Value) SELECT 'MILITARY_STRENGTH_REDUCTION_PER_BOLDNESS', '-3';
 UPDATE Defines SET Value = '300' WHERE Name = 'MILITARY_STRENGTH_IMMENSE_THRESHOLD';
 UPDATE Defines SET Value = '200' WHERE Name = 'MILITARY_STRENGTH_POWERFUL_THRESHOLD';
@@ -381,9 +383,6 @@ UPDATE Defines SET Value = '0' WHERE Name = 'TARGET_MINOR_BACKUP_POOR';
 UPDATE Defines SET Value = '0' WHERE Name = 'TARGET_MINOR_BACKUP_WEAK';
 UPDATE Defines SET Value = '0' WHERE Name = 'TARGET_MINOR_BACKUP_PATHETIC';
 UPDATE Defines SET Value = '100' WHERE Name = 'TARGET_MINOR_BACKUP_NEIGHBORS';
-UPDATE Defines SET Value = '50' WHERE Name = 'TARGET_MINOR_BACKUP_CLOSE';
-UPDATE Defines SET Value = '0' WHERE Name = 'TARGET_MINOR_BACKUP_FAR';
-UPDATE Defines SET Value = '0' WHERE Name = 'TARGET_MINOR_BACKUP_DISTANT';
 
 INSERT INTO Defines (Name, Value) SELECT 'TARGET_MAJOR_BACKUP_IMMENSE', '50';
 INSERT INTO Defines (Name, Value) SELECT 'TARGET_MAJOR_BACKUP_POWERFUL', '35';
