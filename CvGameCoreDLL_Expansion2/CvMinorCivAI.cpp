@@ -14500,6 +14500,10 @@ bool CvMinorCivAI::IsQuestInfluenceDisabled(PlayerTypes ePlayer) const
 
 void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
 {
+	// Not MP compatible yet
+	if (GC.getGame().isGameMultiPlayer())
+		return;
+
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 	if (bValue != m_abQuestInfluenceDisabled[ePlayer])
 	{
