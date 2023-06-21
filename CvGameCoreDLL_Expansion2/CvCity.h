@@ -1724,8 +1724,8 @@ public:
 	void SetPlagueTurns(int iValue);
 
 	int GetSappedTurns() const;
-	void ChangeSappedTurns(int iValue);
 	void SetSappedTurns(int iValue);
+	void ChangeSappedTurns(int iValue);
 
 	int GetPlagueType() const;
 	void SetPlagueType(int iValue);

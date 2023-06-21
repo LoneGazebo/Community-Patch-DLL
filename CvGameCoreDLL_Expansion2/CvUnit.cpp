@@ -10395,7 +10395,7 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 			}
 		}
 
-		if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(pPlot->getOwner()) > STRENGTH_AVERAGE || GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetPlayerTargetValue(pPlot->getOwner()) <= TARGET_VALUE_BAD)
+		if (GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(pPlot->getOwner()) > STRENGTH_AVERAGE || GET_PLAYER(m_eOwner).GetDiplomacyAI()->GetRawTargetValue(pPlot->getOwner()) <= TARGET_VALUE_DIFFICULT)
 			return true;
 
 		if (!GET_PLAYER(m_eOwner).GetMilitaryAI()->IsPreferredAttackTarget(pPlot->getOwningCity()))
@@ -16607,23 +16607,7 @@ int CvUnit::GetStrategicResourceCombatPenalty() const
 /// Unhappy?
 int CvUnit::GetUnhappinessCombatPenalty() const
 {
-	CvPlayer &kPlayer = GET_PLAYER(getOwner());
-
-	if (MOD_BALANCE_CORE_HAPPINESS)
-	{
-		return kPlayer.GetUnhappinessCombatStrengthPenalty();
-	}
-	else
-	{
-		if (kPlayer.IsEmpireUnhappy())
-		{
-			//negative result!
-			int iPenalty = (-1 * kPlayer.GetExcessHappiness()) * /*-2*/ GD_INT_GET(VERY_UNHAPPY_COMBAT_PENALTY_PER_UNHAPPY);
-			return max(iPenalty, /*-40*/ GD_INT_GET(VERY_UNHAPPY_MAX_COMBAT_PENALTY));
-		}
-		else
-			return 0;
-	}
+	return GET_PLAYER(getOwner()).GetUnhappinessCombatStrengthPenalty();
 }
 
 //	--------------------------------------------------------------------------------

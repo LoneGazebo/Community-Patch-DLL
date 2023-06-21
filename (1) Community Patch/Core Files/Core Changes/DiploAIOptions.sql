@@ -1,9 +1,21 @@
 -- Advanced Diplomacy AI Options
--- All of these options (except Disable Flavor Randomization) are savegame compatible. Enabling/disabling them and then loading a saved game will activate/deactivate them with no issues.
+-- All of these options (except Limit Victory Pursuit Randomization and Disable Flavor Randomization) are savegame compatible.
+-- This means that enabling/disabling them and then loading a saved game will activate/deactivate them with no issues.
+
+-- [LIMIT VICTORY PURSUIT RANDOMIZATION]
+-- If set to 1, the AI will always select the Primary Victory Pursuit that it receives a hint for in XML. If Random Personalities is enabled, it will use the hint of the leader it's acting as.
+-- If there isn't a Primary Victory Pursuit hint defined in XML, or if the Primary Victory Pursuit hint is for a disabled victory condition, one will be selected randomly.
+-- If set to 2, the AI will ALSO avoid selecting a Secondary Victory Pursuit unless one has been defined in XML.
+-- If set to 3, all AI players will also *ALWAYS* choose their Primary Victory Pursuit hint as their Current Victory Pursuit. If the victory condition is disabled but the secondary pursuit is valid, it will use that one instead.
+-- NOTE 1: Options 1 and 2 only increase the likelihood that the AI will go for that pursuit (and modify diplo AI behavior in favor of that). Option 3 guarantees it, but forbids the AI from adapting to circumstances.
+-- NOTE 2: Option 3 also ignores the Random Personalities game option.
+-- NOTE 3: For Option 3, Domination Victory will be attempted if it is possible for the AI to eliminate all other major civs, ignoring whether or not Domination Victory is enabled in game options.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION', '0';
 
 -- [ENABLE NUCLEAR GANDHI]
 -- If set to 1, Gandhi (if he has nukes, and Random Personalities isn't enabled) will do what he's best known for in the Civilization series. ;)
--- NOTE: Does nothing if the Community Balance Overhaul is not enabled.
+-- If set to 2, he'll do it even if Random Personalities is enabled.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_NUCLEAR_GANDHI', '1';
 
@@ -100,7 +112,7 @@ SELECT 'DIPLOAI_NO_FLAVOR_RANDOMIZATION', '0';
 -- Option 2 is exploitable, so enabling this option reduces the difficulty if you take advantage of it!
 -- Human-to-human trades, trades with "Permanent Peace" or "Permanent War or Peace" enabled, and trades between teammates are always unrestricted.
 INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING', '1';
+SELECT 'DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING', '0';
 
 -- [CUSTOMIZE WARSCORE THRESHOLD FOR THIRD PARTY PEACE]
 -- The minimum warscore required before someone can make a third party peace offer to the winner of a war.
@@ -121,7 +133,8 @@ INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_GIFT_OFFERS', '0';
 
 -- [DISABLE COOP WAR REQUESTS]
--- If set to 1, AI civilizations will not request that friends join them in a cooperative war against other players.
+-- If set to 1, AI civilizations will not request that HUMAN friends join them in a cooperative war against other players.
+-- If set to 2, AI civilizations will also not request coop wars from AI friends.
 -- This does not affect offers in the Trade screen to declare war on a third party.
 -- Humans can still request that AI friends join them in a cooperative war.
 INSERT INTO Defines (Name, Value)
@@ -201,7 +214,7 @@ SELECT 'DIPLOAI_ENABLE_DEBUG_MODE', '0';
 -- EFFECTS:
 -- Activates Show Hidden Opinion Modifiers, Show All Opinion Values, and Show Base Human Opinion options. Deactivates Hide Opinion Table option.
 -- AI civilizations will display their true approach towards you in their table of opinion modifiers.
--- AI civilizations will display their top friend choice, top DP choice, top competitor, and top World Congress competitor in their table of opinion modifiers.
+-- AI civilizations will display their top friend choice, top DP choice, top competitor, top World Congress ally, and top World Congress competitor in their table of opinion modifiers.
 -- AI will always agree to share their Approach towards other players, and will always share their true Approach.
 -- Notifications will be displayed when any AI civ agrees to a bribed war or peace deal.
 -- You also have full knowledge of all AI civs' World Congress desires while this option is enabled, regardless of ideology/diplomats.

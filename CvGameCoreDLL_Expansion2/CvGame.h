@@ -334,15 +334,17 @@ public:
 	bool isPaused();
 	void setPausePlayer(PlayerTypes eNewValue);
 
-	int GetDefaultFlavorValue() const;
+	int GetStartingMilitaryRating() const;
+	int GetMinimumHumanMilitaryRating() const;
+	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer) const;
+	int ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer = NO_PLAYER) const;
 
-	int ComputeRatingStrengthAdjustment(PlayerTypes ePlayer, PlayerTypes ePerceivingPlayer);
-	int ComputeAverageMajorMilitaryRating(PlayerTypes ePerceivingPlayer, PlayerTypes eExcludedPlayer = NO_PLAYER);
-
-	// Diplomacy AI Options (configurable in DiploAIOptions.sql)
+	// Diplomacy AI Options (all except the first two are configurable in DiploAIOptions.sql)
 	// Also consolidates some checks from various game options, for simplicity.
 	bool IsVictoryCompetitionEnabled() const;
 	bool IsEndgameAggressionEnabled() const;
+	bool IsNoPrimaryVictoryPursuitRandomization() const;
+	bool IsNoSecondaryVictoryPursuitRandomization() const;
 	bool IsNuclearGandhiEnabled() const;
 	bool IsAllWarBribesDisabled() const;
 	bool IsAIWarBribesDisabled() const;
@@ -362,7 +364,8 @@ public:
 	bool IsPermanentForTemporaryTradingAllowed() const;
 	bool IsFriendshipRequestsDisabled() const; // Only affects AI messages sent to humans
 	bool IsGiftOffersDisabled() const; // Only affects AI messages sent to humans
-	bool IsCoopWarRequestsDisabled() const; // Only affects AI messages sent to humans
+	bool IsCoopWarRequestsWithHumansDisabled() const; // Only affects AI messages sent to humans
+	bool IsCoopWarRequestsDisabled() const;
 	bool IsHelpRequestsDisabled() const; // Only affects AI messages sent to humans
 	bool IsTradeOffersDisabled(bool bIncludeRenewals = false) const; // Only affects AI messages sent to humans
 	bool IsPeaceOffersDisabled() const; // Only affects AI messages sent to humans
@@ -371,7 +374,7 @@ public:
 	bool IsAllDiploStatementsDisabled() const; // Only affects AI messages sent to humans
 	bool IsAIPassiveMode() const;
 	bool IsAIPassiveTowardsHumans() const;
-	bool CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer = NO_PLAYER) const;
+	bool CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer, bool bCheckEliminationPossible) const;
 	bool WouldMakingPeacePreventDominationVictory(PlayerTypes ePlayer, PlayerTypes eMakePeacePlayer) const;
 	bool IsAIAggressiveMode() const;
 	bool IsAIAggressiveTowardsHumans() const;
@@ -387,7 +390,6 @@ public:
 	int GetFaithCost(CvUnitEntry *pkUnit) const;
 
 	TeamTypes getWinner() const;
-	bool IsGameWon() const;
 	VictoryTypes getVictory() const;
 	void setWinner(TeamTypes eNewWinner, VictoryTypes eNewVictory);
 

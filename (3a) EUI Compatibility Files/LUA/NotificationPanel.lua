@@ -1062,7 +1062,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 				strWarInfo = strWarInfo .. Locale.ConvertTextKey( "TXT_KEY_WAR_NO_PEACE_OFFER" );
 			end
 
-			local iStrengthAverage = g_activePlayer:GetPlayerMilitaryStrengthComparedToUs(playerID);
+			local iStrengthAverage = g_activePlayer:GetMilitaryStrengthComparedToUs(playerID);
 			if( iStrengthAverage == StrengthTypes.STRENGTH_PATHETIC ) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_PATHETIC" );
 			elseif( iStrengthAverage == StrengthTypes.STRENGTH_WEAK ) then
@@ -1079,7 +1079,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_IMMENSE" );
 			end
 
-			local iEconomicAverage = g_activePlayer:GetPlayerEconomicStrengthComparedToUs(playerID);
+			local iEconomicAverage = g_activePlayer:GetEconomicStrengthComparedToUs(playerID);
 			if( iEconomicAverage == StrengthTypes.STRENGTH_PATHETIC ) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_PATHETIC" );
 			elseif( iEconomicAverage == StrengthTypes.STRENGTH_WEAK ) then

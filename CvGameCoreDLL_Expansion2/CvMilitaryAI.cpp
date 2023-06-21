@@ -1706,7 +1706,7 @@ void CvMilitaryAI::SetRecommendedArmyNavySize()
 
 	int iFlavorOffense = m_pPlayer->GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE"));
 	// this is the total number for offense, we split between land and sea later
-	// in practise some defensive land units can be used as offensive land units as well ...
+	// in practice some defensive land units can be used as offensive land units as well ...
 	int iNumUnitsWantedOffense = m_pPlayer->GetCurrentEra() + m_pPlayer->GetDiplomacyAI()->GetBoldness()/2 + iFlavorOffense/2;
 
 	//Look at our competitors ...
@@ -2140,7 +2140,7 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 {
 	bool bLaunchNuke = false;
-	StrengthTypes eMilitaryStrength = m_pPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+	StrengthTypes eMilitaryStrength = m_pPlayer->GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(ePlayer);
 	WarStateTypes eCurrentWarState = m_pPlayer->GetDiplomacyAI()->GetWarState(ePlayer);
 
 	// only evaluate nukes when we have nukes and we've declared war on someone
@@ -3950,7 +3950,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedANuke(CvPlayer* pPlayer)
 		return false;
 	}
 
-	if (GC.getGame().IsNuclearGandhiEnabled() && !pPlayer->isHuman() && pPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+	if (pPlayer->GetDiplomacyAI()->IsNuclearGandhi(true))
 	{
 		return true;
 	}

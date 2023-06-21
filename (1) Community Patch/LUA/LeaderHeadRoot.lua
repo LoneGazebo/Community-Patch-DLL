@@ -201,7 +201,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_NO_PEACE_OFFER" );
 		end
 
-		local iStrengthAverage = pActivePlayer:GetPlayerMilitaryStrengthComparedToUs(g_iAIPlayer);
+		local iStrengthAverage = pActivePlayer:GetMilitaryStrengthComparedToUs(g_iAIPlayer);
 		if( iStrengthAverage == StrengthTypes.STRENGTH_PATHETIC ) then
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_PATHETIC" );
 		elseif( iStrengthAverage == StrengthTypes.STRENGTH_WEAK ) then
@@ -218,7 +218,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_STRENGTH_IMMENSE" );
 		end
 
-		local iEconomicAverage = pActivePlayer:GetPlayerEconomicStrengthComparedToUs(g_iAIPlayer);
+		local iEconomicAverage = pActivePlayer:GetEconomicStrengthComparedToUs(g_iAIPlayer);
 		if( iEconomicAverage == StrengthTypes.STRENGTH_PATHETIC ) then
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_ECONOMY_PATHETIC" );
 		elseif( iEconomicAverage == StrengthTypes.STRENGTH_WEAK ) then

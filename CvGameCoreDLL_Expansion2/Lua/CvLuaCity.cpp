@@ -695,8 +695,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(IsFoodRoutes);
 
 	Method(GetSappedTurns);
-	Method(ChangeSappedTurns);
 	Method(SetSappedTurns);
+	Method(ChangeSappedTurns);
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	Method(GetDisabledTooltip);
@@ -1122,12 +1122,12 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 
 	// City Production Modifier
 	pkCity->canTrain(eUnit, false, false, false, false, &toolTip);
-	
-        int iMaxSupplyPenalty = /*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD);
-        int iSupplyPenaltyPerUnit = /*10 in CP, 5 in VP*/ GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY);
-        int iMaxUnitsOverSupply = (iMaxSupplyPenalty > 0 && iSupplyPenaltyPerUnit > 0) ? iMaxSupplyPenalty / iSupplyPenaltyPerUnit : INT_MAX;
 
-	if (MOD_BALANCE_CORE && GET_PLAYER(pkCity->getOwner()).GetNumUnitsOutOfSupply() >= iMaxUnitsOverSupply)
+	int iMaxSupplyPenalty = /*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD);
+	int iSupplyPenaltyPerUnit = /*10 in CP, 5 in VP*/ GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY);
+	int iMaxUnitsOverSupply = (iMaxSupplyPenalty > 0 && iSupplyPenaltyPerUnit > 0) ? iMaxSupplyPenalty / iSupplyPenaltyPerUnit : INT_MAX;
+
+	if (MOD_BALANCE_VP && GET_PLAYER(pkCity->getOwner()).GetNumUnitsOutOfSupply() >= iMaxUnitsOverSupply)
 	{
 		Localization::String localizedText = Localization::Lookup("TXT_KEY_NO_ACTION_NO_SUPPLY_PURCHASE");
 
@@ -6425,18 +6425,18 @@ int CvLuaCity::lGetSappedTurns(lua_State* L)
 	lua_pushinteger(L, pkCity->GetSappedTurns());
 	return 1;
 }
-int CvLuaCity::lChangeSappedTurns(lua_State* L)
-{
-	CvCity* pkCity = GetInstance(L);
-	const int iValue = lua_tointeger(L, 2);
-	pkCity->ChangeSappedTurns(iValue);
-	return 1;
-}
 int CvLuaCity::lSetSappedTurns(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const int iValue = lua_tointeger(L, 2);
 	pkCity->SetSappedTurns(iValue);
+	return 1;
+}
+int CvLuaCity::lChangeSappedTurns(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const int iValue = lua_tointeger(L, 2);
+	pkCity->ChangeSappedTurns(iValue);
 	return 1;
 }
 

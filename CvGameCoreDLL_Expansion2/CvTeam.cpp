@@ -4126,22 +4126,23 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 
 	updateTechShare();
 
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && isHuman() && GetID() != eIndex)
-	{
-		declareWar(eIndex, false, getLeaderID());
-	}
-
 	const vector<PlayerTypes>& vMyTeam = getPlayers();
 	const vector<PlayerTypes>& vTheirTeam = GET_TEAM(eIndex).getPlayers();
 
-	// Update military strengths before doing first contact (avoids a crash in DoUpdatePlayerTargetValues() in games with teams)
+	// Update strength estimates before doing first contact
+	// "Sets the scene" for AI's initial evaluations
 	for (size_t i=0; i<vMyTeam.size(); i++)
 	{
 		PlayerTypes eMyPlayer = vMyTeam[i];
 		if (!GET_PLAYER(eMyPlayer).isAlive() || !GET_PLAYER(eMyPlayer).isMajorCiv())
 			continue;
 
-		GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoUpdatePlayerMilitaryStrengths();
+		GET_PLAYER(eMyPlayer).GetDiplomacyAI()->DoUpdatePlayerStrengthEstimates();
+	}
+
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) && isHuman() && GetID() != eIndex)
+	{
+		declareWar(eIndex, false, getLeaderID());
 	}
 
 	// First Contact in Diplo AI (Civ 5)
@@ -9363,10 +9364,21 @@ bool CvTeam::canEndAllVassal()
 // Can we end our vassalage with eTeam?
 bool CvTeam::canEndVassal(TeamTypes eTeam) const
 {
-	if(eTeam == NO_TEAM) return false;
+	if (eTeam == NO_TEAM || eTeam == GetID()) return false;
 	
 	// Can't end a vassalage if we're not the vassal of eTeam.
-	if(!IsVassal(eTeam))
+	if (!IsVassal(eTeam))
+		return false;
+
+	if (!isAlive())
+		return false;
+
+	if (!GET_TEAM(eTeam).isAlive())
+		return true;
+
+	// Too soon to end our vassalage with ePlayer
+	int iMinTurns = IsVoluntaryVassal(eTeam) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
+	if (GetNumTurnsIsVassal() < iMinTurns)
 	{
 		return false;
 	}
@@ -9385,25 +9397,12 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 		}
 	}
 
-	// can't end vassalage with ourselves
-	if(eTeam == GetID())
-	{
-		return false;
-	}
-
-	if(!isAlive())
+	// Not allowed to go to war?
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GC.getGame().IsAIPassiveMode())
 		return false;
 
-	if(!GET_TEAM(eTeam).isAlive())
-		return true;
-
-	// Too soon to end our vassalage with ePlayer
-	int iMinTurns = IsVoluntaryVassal(eTeam) ? /*10*/ GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : /*50*/ GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();
-
-	if (GetNumTurnsIsVassal() < iMinTurns)
-	{
+	if (GC.getGame().IsAIPassiveTowardsHumans() && GET_TEAM(eTeam).isHuman())
 		return false;
-	}
 
 	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the 50% rules
 	if (IsVoluntaryVassal(eTeam))

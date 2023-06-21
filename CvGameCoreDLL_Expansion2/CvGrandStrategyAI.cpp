@@ -420,7 +420,7 @@ int CvGrandStrategyAI::GetConquestPriority()
 	}
 	
 	// Game options have disabled war as an option to win, so pick something else
-	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetPlayer()->GetID()))
+	if (!GC.getGame().CanPlayerAttemptDominationVictory(GetPlayer()->GetID(), NO_PLAYER, GC.getGame().areNoVictoriesValid()))
 		return -100;
 
 	// If we're close to winning, let's go to the finish line!
@@ -1946,7 +1946,7 @@ bool CvGrandStrategyAI::OtherPlayerDoingBetterThanUs(PlayerTypes ePlayer, AIGran
 int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, int iWorldMilitaryAverage)
 {
 	// If they can't attempt Domination Victory because of game options, then don't bother with any of this.
-	if (!GC.getGame().CanPlayerAttemptDominationVictory(ePlayer))
+	if (!GC.getGame().CanPlayerAttemptDominationVictory(ePlayer, NO_PLAYER, GC.getGame().areNoVictoriesValid()))
 		return -100;
 
 	int iConquestPriority = 0;

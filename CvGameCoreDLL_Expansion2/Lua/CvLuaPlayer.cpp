@@ -438,8 +438,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeBarbarianCombatBonus);
 	Method(GetCombatBonusVsHigherPop);
 	Method(GetWarScore);
-	Method(GetPlayerMilitaryStrengthComparedToUs);
-	Method(GetPlayerEconomicStrengthComparedToUs);
+	Method(GetMilitaryStrengthComparedToUs);
+	Method(GetEconomicStrengthComparedToUs);
 	Method(GetWarDamageValue);
 	Method(IsWantsPeaceWithPlayer);
 	Method(GetTreatyWillingToOffer);
@@ -681,6 +681,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(ChangeMinorCivFriendshipWithMajor);
 	Method(GetMinorCivFriendshipAnchorWithMajor);
 	Method(GetMinorCivFriendshipLevelWithMajor);
+	Method(GetRestingPointChange);
+	Method(ChangeRestingPointChange);
 	Method(GetActiveQuestForPlayer);
 	Method(IsMinorCivActiveQuestForPlayer);
 	Method(SetMinorCivActiveQuestForPlayer);
@@ -701,6 +703,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivContestValueForLeader);
 	Method(GetMinorCivContestValueForPlayer);
 	Method(IsMinorCivUnitSpawningDisabled);
+	Method(IsQuestInfluenceDisabled);
+	Method(SetQuestInfluenceDisabled);
 	Method(IsMinorCivRouteEstablishedWithMajor);
 	Method(IsMinorWarQuestWithMajorActive);
 	Method(GetMinorWarQuestWithMajorRemainingCount);
@@ -6477,19 +6481,19 @@ int CvLuaPlayer::lGetWarScore(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-int CvLuaPlayer::lGetPlayerMilitaryStrengthComparedToUs(lua_State* L)
+int CvLuaPlayer::lGetMilitaryStrengthComparedToUs(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(ePlayer);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-int CvLuaPlayer::lGetPlayerEconomicStrengthComparedToUs(lua_State* L)
+int CvLuaPlayer::lGetEconomicStrengthComparedToUs(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
-	const int iResult = pkPlayer->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(ePlayer);
+	const int iResult = pkPlayer->GetDiplomacyAI()->GetEconomicStrengthComparedToUs(ePlayer);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -8315,6 +8319,26 @@ int CvLuaPlayer::lGetMinorCivFriendshipLevelWithMajor(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
+int CvLuaPlayer::lGetRestingPointChange(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetRestingPointChange(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lChangeRestingPointChange(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	int iChange = lua_tointeger(L, 3);
+
+	pkPlayer->GetMinorCivAI()->ChangeRestingPointChange(ePlayer, iChange);
+	return 1;
+}
+//------------------------------------------------------------------------------
 // Deprecated
 int CvLuaPlayer::lGetActiveQuestForPlayer(lua_State* L)
 {
@@ -8509,6 +8533,26 @@ int CvLuaPlayer::lIsMinorCivUnitSpawningDisabled(lua_State* L)
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsUnitSpawningDisabled(ePlayer);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsQuestInfluenceDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsQuestInfluenceDisabled(ePlayer);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetQuestInfluenceDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const bool bValue = lua_toboolean(L, 3);
+
+	pkPlayer->GetMinorCivAI()->SetQuestInfluenceDisabled(ePlayer, bValue);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -11252,12 +11296,10 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_NEW);
 	}
 
-	vector<PlayerTypes> v;
-	v.push_back(eOtherPlayer);
+	vector<PlayerTypes> v(1, eOtherPlayer);
 	pkPlayer->GetDiplomacyAI()->DoReevaluatePlayers(v);
 
-	vector<PlayerTypes> v2;
-	v2.push_back(pkPlayer->GetID());
+	vector<PlayerTypes> v2(1, pkPlayer->GetID());
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2);
 
 	return 1;
@@ -13041,15 +13083,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			}
 
 			// Gandhi? :)
-			if (GC.getGame().IsNuclearGandhiEnabled() && pDiplo->IsAtWar(ePlayer) && pkPlayer->GetPlayerTraits()->IsPopulationBoostReligion())
+			if (pDiplo->IsNuclearGandhi() && pDiplo->IsAtWar(ePlayer))
 			{
-				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsNukedBy(pkPlayer->GetID()) || pkPlayer->getNumNukeUnits() > 0)
-				{
-					Opinion kOpinion;
-					kOpinion.m_iValue = 9999;
-					kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NUCLEAR_GANDHI");
-					aOpinions.push_back(kOpinion);
-				}
+				Opinion kOpinion;
+				kOpinion.m_iValue = 9999;
+				kOpinion.m_str = Localization::Lookup("TXT_KEY_DIPLO_NUCLEAR_GANDHI");
+				aOpinions.push_back(kOpinion);
 			}
 		}
 	}
@@ -14081,12 +14120,12 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			str += " ";
 
 			// Aztecs have a special message.
-			if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && pkPlayer->GetPlayerTraits()->GetGoldenAgeFromVictory() != 0)
+			if (GET_PLAYER(pkPlayer->GetID()).getLeaderInfo().GetWarmongerHate() <= -1)
 			{
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_AZTECS").toUTF8();
+				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_BLOODTHIRSTY").toUTF8();
 			}
 			// India/Venice have a special message.
-			else if (!GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) && (pkPlayer->GetPlayerTraits()->IsNoAnnexing() || pkPlayer->GetPlayerTraits()->IsPopulationBoostReligion()))
+			else if (GET_PLAYER(pkPlayer->GetID()).getLeaderInfo().GetWarmongerHate() >= 12)
 			{
 				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MAXIMAL").toUTF8();
 			}

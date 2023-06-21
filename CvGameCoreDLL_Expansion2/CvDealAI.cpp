@@ -437,8 +437,8 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(eMyPlayer).GetDiplomacyAI();
 
 	CivApproachTypes eApproach = pDiploAI->GetCivApproach(eFromPlayer);
-	StrengthTypes eMilitaryStrength = pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eFromPlayer);
-	StrengthTypes eEconomicStrength = pDiploAI->GetPlayerEconomicStrengthComparedToUs(eFromPlayer);
+	StrengthTypes eMilitaryStrength = pDiploAI->GetMilitaryStrengthComparedToUs(eFromPlayer);
+	StrengthTypes eEconomicStrength = pDiploAI->GetEconomicStrengthComparedToUs(eFromPlayer);
 	AggressivePostureTypes eMilitaryPosture = pDiploAI->GetMilitaryAggressivePosture(eFromPlayer);
 	PlayerProximityTypes eProximity = GET_PLAYER(eMyPlayer).GetProximityToPlayer(eFromPlayer);
 
@@ -3264,11 +3264,11 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	// AI sanity check - who else would we go to war with?
 	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
 	{
-		vector<PlayerTypes> vLinkedWarPlayers = pDiploAI->GetLinkedWarPlayers(eWithPlayer, false, true, false);
-		for (std::vector<PlayerTypes>::iterator it = vLinkedWarPlayers.begin(); it != vLinkedWarPlayers.end(); it++)
+		vector<PlayerTypes> vDefensiveWarAllies = pDiploAI->GetDefensiveWarAllies(eWithPlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true, /*bNewWarsOnly*/ true);
+		for (std::vector<PlayerTypes>::iterator it = vDefensiveWarAllies.begin(); it != vDefensiveWarAllies.end(); it++)
 		{
 			// Would we be declaring war on a powerful neighbor?
-			if (GET_PLAYER(ePlayerDeclaringWar).GetProximityToPlayer(*it) >= PLAYER_PROXIMITY_CLOSE)
+			if (GET_PLAYER(*it).GetProximityToPlayer(ePlayerDeclaringWar) >= PLAYER_PROXIMITY_CLOSE)
 			{
 				if (GET_PLAYER(*it).isMajorCiv())
 				{
@@ -3279,13 +3279,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 					// If we're already planning a war/demand against them, then we don't care.
 					else if (pDiploAI->GetCivApproach(*it) != CIV_APPROACH_WAR && pDiploAI->GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
 					{
-						// Bold AIs will take more risks.
-						if (pDiploAI->GetBoldness() > 6)
-						{
-							if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_STRONG)
-								return INT_MAX;
-						}
-						else if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+						if (pDiploAI->GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 						{
 							return INT_MAX;
 						}
@@ -3299,7 +3293,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 				{
 					if (pDiploAI->GetCivApproach(*it) > CIV_APPROACH_HOSTILE)
 					{
-						if (pDiploAI->GetPlayerMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+						if (pDiploAI->GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
 						{
 							return INT_MAX;
 						}
@@ -3313,9 +3307,9 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 	UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayerDeclaringWar, true, true, false, false, true);
 	int iItemValue = pCapital->GetPurchaseCost(eUnit);
 
-	// How much does this AI like to go to war?
-	int iWarApproachWeight = pDiploAI->GetMajorCivApproachBias(CIV_APPROACH_WAR);
-	iItemValue *= max(1, (5 - iWarApproachWeight/2));
+	// Scale with WarmongerHate flavor
+	// Rationale: If the AI hates warmongers, they'll require more in order to go to war, and they'll also pay more to have others wage their battles
+	iItemValue *= bFromMe ? GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() : GetPlayer()->GetDiplomacyAI()->GetWarmongerHate() / 2;
 
 	if (!GET_PLAYER(ePlayerDeclaringWar).isHuman())
 	{
@@ -5747,7 +5741,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 
 	int iIdealValue = 25 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
-	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer);
+	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eOtherPlayer);
 	if (Value > 0)
 		iIdealValue *= Value;
 
@@ -6279,7 +6273,7 @@ bool CvDealAI::IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDe
 		return false;
 
 	// Don't ask for war if they are weaker than us
-	if (GetPlayer()->GetDiplomacyAI()->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE && GetPlayer()->GetDiplomacyAI()->GetPlayerEconomicStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE)
+	if (GetPlayer()->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE && GetPlayer()->GetDiplomacyAI()->GetEconomicStrengthComparedToUs(eOtherPlayer) < STRENGTH_AVERAGE)
 	{
 		return false;
 	}
@@ -7320,7 +7314,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		// ex: 2 wars and 2 vassals = 500 + 1000 + 1000 = a 2500 gold before modifiers!
 
 		// The point of Vassalage is protection, if they're not militarily dominant - what's the point?
-		switch (m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
+		switch (m_pDiploAI->GetMilitaryStrengthComparedToUs(eOtherPlayer))
 		{
 		case STRENGTH_IMMENSE:
 			iItemValue *= 80;
@@ -7423,7 +7417,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 		// ex: 2 wars and 2 vassals = 500 + 1000 + 1000 = a 2500 gold before modifiers!
 
 		// The point of Vassalage is protection, if they're militarily dominant - what's the point?
-		switch (m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
+		switch (m_pDiploAI->GetMilitaryStrengthComparedToUs(eOtherPlayer))
 		{
 		case STRENGTH_IMMENSE:
 		case STRENGTH_POWERFUL:
@@ -7566,7 +7560,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 		}
 
 		// What's the power of the asking party? They need to be real strong to push us out of this.
-		switch(m_pDiploAI->GetPlayerMilitaryStrengthComparedToUs(eOtherPlayer))
+		switch(m_pDiploAI->GetMilitaryStrengthComparedToUs(eOtherPlayer))
 		{
 			case STRENGTH_IMMENSE:
 				iItemValue *= 80;

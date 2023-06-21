@@ -9074,7 +9074,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 			}
 		}
 
-		if (MOD_BALANCE_CORE_MILITARY && !isBarbarian() && !pUnitInfo.IsNoSupply() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
+		if (MOD_BALANCE_VP && !isBarbarian() && !pUnitInfo.IsNoSupply() && (pUnitInfo.GetCombat() > 0 || pUnitInfo.GetRangedCombat() > 0))
 		{
 			int iMaxSupplyPenalty = /*70*/ GD_INT_GET(MAX_UNIT_SUPPLY_PRODMOD);
 			int iSupplyPenaltyPerUnit = /*10 in CP, 5 in VP*/ GD_INT_GET(PRODUCTION_PENALTY_PER_UNIT_OVER_SUPPLY);
@@ -28798,8 +28798,8 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 		}
 	}
 
-	//VP: can't buy plot with enemy combat units
-	if (MOD_BALANCE_VP && pTargetPlot->isEnemyUnit(getOwner(), true, false, false, true))
+	//VP: can't buy plot with enemy combat units (except Barbarians)
+	if (MOD_BALANCE_VP && pTargetPlot->isEnemyUnit(getOwner(), true, false, true, false))
 		return false;
 
 	// Must be adjacent to a plot owned by this city
@@ -28860,10 +28860,8 @@ bool CvCity::CanBuyPlot(int iPlotX, int iPlotY, bool bIgnoreCost)
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanBuyPlot", args.get(), bResult))
 		{
 			// Check the result.
-			if (bResult == false)
-			{
+			if (!bResult)
 				return false;
-			}
 		}
 	}
 
@@ -28892,9 +28890,8 @@ bool CvCity::CanBuyAnyPlot(void)
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanBuyAnyPlot", args.get(), bResult))
 		{
 			// Check the result.
-			if (bResult == false)
+			if (!bResult)
 			{
-#if defined(MOD_BALANCE_CORE)
 				if (GC.getLogging() && GC.getAILogging())
 				{
 					const CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -28903,7 +28900,7 @@ bool CvCity::CanBuyAnyPlot(void)
 						GC.getGame().getElapsedGameTurns(), strPlayerName.c_str(), getName().GetCString());
 					kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 				}
-#endif
+
 				return false;
 			}
 		}
@@ -36074,19 +36071,13 @@ int CvCity::GetSappedTurns() const
 {
 	return m_iSappedTurns;
 }
-void CvCity::ChangeSappedTurns(int iValue) //Set in city::doturn
-{
-	if (iValue != 0)
-	{
-		m_iSappedTurns += iValue;
-	}
-}
 void CvCity::SetSappedTurns(int iValue)
 {
-	if (iValue != m_iSappedTurns)
-	{
-		m_iSappedTurns = iValue;
-	}
+	m_iSappedTurns = iValue;
+}
+void CvCity::ChangeSappedTurns(int iValue) //Set in city::doturn
+{
+	m_iSappedTurns += iValue;
 }
 
 int CvCity::GetBonusEspionageSightTurns(PlayerTypes ePlayer) const

@@ -372,18 +372,26 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	// Influence (no gamespeed scaling!)
 	if (pkSmallAwardInfo->GetInfluence() > 0)
 	{
-		int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
-		int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-		if (bRecalc)
+		// Have Influence gains from quests been manually disabled by the player?
+		if (pMinor->GetMinorCivAI()->IsQuestInfluenceDisabled(ePlayer))
 		{
-			if (iBonus > GetInfluence())
-			{
-				SetInfluence(iBonus);
-			}
+			SetInfluence(0);
 		}
 		else
-			SetInfluence(iBonus);
+		{
+			int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
+			int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+			if (bRecalc)
+			{
+				if (iBonus > GetInfluence())
+				{
+					SetInfluence(iBonus);
+				}
+			}
+			else
+				SetInfluence(iBonus);
+		}
 	}
 
 	// Gold
@@ -4282,6 +4290,7 @@ void CvMinorCivAI::Reset()
 		m_aiTurnLastPledged[iI] = -1;
 		m_aiTurnLastBrokePledge[iI] = -1;
 		m_abUnitSpawningDisabled[iI] = false;
+		m_abQuestInfluenceDisabled[iI] = false;
 		m_abEverFriends[iI] = false;
 		m_abFriends[iI] = false;
 		m_abPledgeToProtect[iI] = false;
@@ -4379,6 +4388,7 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_aiTurnLastBrokePledge);
 
 	visitor(minorCivAI.m_abUnitSpawningDisabled);
+	visitor(minorCivAI.m_abQuestInfluenceDisabled);
 	visitor(minorCivAI.m_abEverFriends);
 	visitor(minorCivAI.m_abFriends);
 
@@ -14479,6 +14489,23 @@ int CvMinorCivAI::GetCurrentSpawnEstimate(PlayerTypes ePlayer)
 	iNumTurns += (iRand / 2);
 
 	return iNumTurns / 100;
+}
+
+/// Has the player chosen to disable Influence rewards from quests?
+bool CvMinorCivAI::IsQuestInfluenceDisabled(PlayerTypes ePlayer) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return false;
+	return m_abQuestInfluenceDisabled[ePlayer];
+}
+
+void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
+{
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (bValue != m_abQuestInfluenceDisabled[ePlayer])
+	{
+		m_abQuestInfluenceDisabled[ePlayer] = bValue;
+		RecalculateRewards(ePlayer);
+	}
 }
 
 
