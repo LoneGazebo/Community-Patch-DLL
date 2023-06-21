@@ -4271,7 +4271,7 @@ function AssignStartingPlots:AttemptToPlaceCattleAtGrassPlot(x, y)
 		if featureType == FeatureTypes.NO_FEATURE then
 			local terrainType = plot:GetTerrainType()
 			if terrainType == TerrainTypes.TERRAIN_GRASS then -- Place Cattle
-				plot:SetResourceType(self.cow_ID, -1);
+				plot:SetResourceType(self.cow_ID, 1);
 				--print("Placed Cattle.");
 				return true
 			end
