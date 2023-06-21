@@ -864,12 +864,16 @@ void CvDiplomacyAI::SlotStateChange()
 			pOther->SetPlotBuyingAggressivePosture(ID, AGGRESSIVE_POSTURE_NONE);
 
 			// Reset strength evaluations
-			SetMilitaryStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
 			SetEconomicStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
+			SetMilitaryStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
+			SetRawMilitaryStrengthComparedToUs(eMajor, STRENGTH_IMMENSE);
 			SetTargetValue(eMajor, TARGET_VALUE_IMPOSSIBLE);
-			pOther->SetMilitaryStrengthComparedToUs(ID, STRENGTH_PATHETIC);
+			SetRawTargetValue(eMajor, TARGET_VALUE_IMPOSSIBLE);
 			pOther->SetEconomicStrengthComparedToUs(ID, STRENGTH_PATHETIC);
+			pOther->SetMilitaryStrengthComparedToUs(ID, STRENGTH_PATHETIC);
+			pOther->SetRawMilitaryStrengthComparedToUs(ID, STRENGTH_PATHETIC);
 			pOther->SetTargetValue(ID, TARGET_VALUE_CAKEWALK);
+			pOther->SetRawTargetValue(ID, TARGET_VALUE_CAKEWALK);
 
 			// Reset dispute values
 			SetMajorCompetitor(eMajor, false);
@@ -11592,13 +11596,17 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		if (GetPlayer()->getNumCities() <= 0 && GET_PLAYER(ePlayer).getNumCities() > 0 && iOurMilitaryStrength < iTheirMilitaryStrength * 10)
 		{
 			SetMilitaryStrengthComparedToUs(ePlayer, STRENGTH_IMMENSE);
+			SetRawMilitaryStrengthComparedToUs(ePlayer, STRENGTH_IMMENSE);
 			SetTargetValue(ePlayer, TARGET_VALUE_IMPOSSIBLE);
+			SetRawTargetValue(ePlayer, TARGET_VALUE_IMPOSSIBLE);
 			continue;
 		}
 		else if (GET_PLAYER(ePlayer).getNumCities() <= 0 && GetPlayer()->getNumCities() > 0 && iTheirMilitaryStrength < iOurMilitaryStrength * 10)
 		{
 			SetMilitaryStrengthComparedToUs(ePlayer, STRENGTH_PATHETIC);
+			SetRawMilitaryStrengthComparedToUs(ePlayer, STRENGTH_PATHETIC);
 			SetTargetValue(ePlayer, TARGET_VALUE_CAKEWALK);
+			SetRawTargetValue(ePlayer, TARGET_VALUE_CAKEWALK);
 			continue;
 		}
 
