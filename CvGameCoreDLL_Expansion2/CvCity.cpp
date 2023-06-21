@@ -9224,8 +9224,8 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		return false;
 	}
 
-	//no wonders in puppets (also affects venice)
-	if (IsPuppet())
+	//no wonders in puppets (also affects venice unless invest or already invested)
+	if (IsPuppet() && !(GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing() && (bContinue || bWillPurchase)))
 	{
 		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 		{
@@ -30005,7 +30005,8 @@ void CvCity::pushOrder(OrderTypes eOrder, int iData1, int iData2, bool bSave, bo
 		break;
 
 	case ORDER_CONSTRUCT:
-		if (canConstruct((BuildingTypes)iData1))
+		// If city is a Venice puppet, it's a legal investment and don't move it off the queue
+		if (canConstruct((BuildingTypes)iData1) || (IsPuppet() && GET_PLAYER(m_eOwner).GetPlayerTraits()->IsNoAnnexing()))
 		{
 			CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo((BuildingTypes)iData1);
 			if (pkBuildingInfo)
@@ -31508,7 +31509,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		// Building
 		else if (eBuildingType != NO_BUILDING)
 		{
-			if (!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/) && !bVenetianException)
+			if (!canConstruct(eBuildingType, vPreExistingBuildings, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 			{
 				bool bAlreadyUnderConstruction = canConstruct(eBuildingType, true, !bTestTrainable) && getFirstBuildingOrder(eBuildingType) != -1;
 				if (!bAlreadyUnderConstruction)
