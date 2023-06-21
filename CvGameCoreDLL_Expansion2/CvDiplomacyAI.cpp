@@ -11549,8 +11549,11 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 	int iBase = /*30*/ GD_INT_GET(MILITARY_STRENGTH_BASE);
 	int iMilitaryStrength = max(iBase + GetPlayer()->GetMilitaryMight(), 1);
 
-	// First we update economic strength, that's easy
+	PlayerTypes eOurPlayer = GetID();
+	TeamTypes eOurTeam = GetTeam();
+	vector<PlayerTypes> vOurTeam = GET_TEAM(eOurTeam).getPlayers();
 	vector<PlayerTypes> vValidPlayers;
+
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
@@ -11559,6 +11562,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 		vValidPlayers.push_back(ePlayer);
 
+		// First we update economic strength, that's easy
 		int iTheirEconomicStrength = GET_PLAYER(ePlayer).getNumCities() > 0 ? max(GET_PLAYER(ePlayer).GetEconomicMight(), 1) : 1;
 		int iEconomicRatio = iTheirEconomicStrength * /*100*/ GD_INT_GET(ECONOMIC_STRENGTH_RATIO_MULTIPLIER) / iEconomicStrength;
 
@@ -11579,16 +11583,8 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 		// Set the value
 		SetEconomicStrengthComparedToUs(ePlayer, eEconomicStrength);
-	}
 
-	PlayerTypes eOurPlayer = GetID();
-	TeamTypes eOurTeam = GetTeam();
-	vector<PlayerTypes> vOurTeam = GET_TEAM(eOurTeam).getPlayers();
 
-	// Now loop through all valid players and compute their military strengths
-	for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); it++)
-	{
-		PlayerTypes ePlayer = GET_PLAYER(*it).GetID();
 		int iOurMilitaryStrength = iMilitaryStrength;
 		int iTheirMilitaryStrength = max(iBase + GET_PLAYER(ePlayer).GetMilitaryMight(), 1);
 
@@ -11701,9 +11697,9 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		}
 
 		// Go through the lists of allies and see which of them are relevant for ATTACK and DEFENSE evaluations
-		for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
+		for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); it++)
 		{
-			PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
+			PlayerTypes eLoopPlayer = GET_PLAYER(*it).GetID();
 			if (eLoopPlayer == ePlayer)
 				continue;
 
@@ -11740,9 +11736,9 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		int iEnemyDefenseBonus = 0;
 
 		// Our allies
-		for (std::vector<PlayerTypes>::iterator iter = vOurAllies.begin(); iter != vOurAllies.end(); iter++)
+		for (std::vector<PlayerTypes>::iterator it = vOurAllies.begin(); it != vOurAllies.end(); it++)
 		{
-			PlayerTypes eAllyPlayer = GET_PLAYER(*iter).GetID();
+			PlayerTypes eAllyPlayer = GET_PLAYER(*it).GetID();
 			int iAllyMight = max(iBase + GET_PLAYER(eAllyPlayer).GetMilitaryMight(), 1);
 			int iTheirMight = max(iBase + GET_PLAYER(ePlayer).GetMilitaryMight(), 1);
 
@@ -11974,9 +11970,9 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 		}
 
 		// Their allies
-		for (std::vector<PlayerTypes>::iterator iter = vTheirAllies.begin(); iter != vTheirAllies.end(); iter++)
+		for (std::vector<PlayerTypes>::iterator it = vTheirAllies.begin(); it != vTheirAllies.end(); it++)
 		{
-			PlayerTypes eEnemyPlayer = GET_PLAYER(*iter).GetID();
+			PlayerTypes eEnemyPlayer = GET_PLAYER(*it).GetID();
 			int iOurMight = iMilitaryStrength;
 			int iEnemyMight = max(iBase + GET_PLAYER(eEnemyPlayer).GetMilitaryMight(), 1);
 
@@ -12286,8 +12282,8 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 
 
 		// Calculate our overall ATTACK vs. their overall DEFENSE
-		int iOurOverallAttack = iOurMilitaryStrength + iAllyAttackBonus + (iEconomicStrength * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100);
-		int iTheirOverallDefense = iTheirMilitaryStrength + (max(GET_PLAYER(ePlayer).GetEconomicMight(), 1) * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100);
+		int iOurOverallAttack = iOurMilitaryStrength + iAllyAttackBonus + iEconomicStrength * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100;
+		int iTheirOverallDefense = iTheirMilitaryStrength + iTheirEconomicStrength * /*100*/ GD_INT_GET(TARGET_ECONOMIC_MOD) / 100;
 
 		// Careful in the early game when the number of units is very low ...
 		if (bEarlyGameCaution)
