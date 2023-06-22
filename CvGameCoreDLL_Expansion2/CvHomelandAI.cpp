@@ -578,8 +578,14 @@ void CvHomelandAI::PlotExplorerMoves()
 			if (ExecuteExplorerMoves(pUnit))
 				break;
 
-		//only finish the turn if we spent all movement - we might be done exploring, and need to do something else
-		if (!pUnit->canMove())
+		if (pUnit->canMove())
+		{
+			//must be stuck ...
+			if (pUnit->IsAutomated())
+				pUnit->SetAutomateType(NO_AUTOMATE);
+		}
+		else
+			//only finish the turn if we spent all movement - we might be done exploring, and need to do something else
 			UnitProcessed(pUnit->GetID());
 	}
 }

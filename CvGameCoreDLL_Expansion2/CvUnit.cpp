@@ -29993,9 +29993,14 @@ int CvUnit::UnitPathTo(int iX, int iY, int iFlags)
 		for (size_t iIndex=0; iIndex<m_kLastPath.size(); iIndex++)
 		{
 			CvPlot* pTestPlot = m_kLastPath.GetPlotByIndex(iIndex);
+
+			//very rarely there are unexplained bugs with visibility, but we know adjacent plots must be visible ...
+			//make sure our units don't get stuck in the fog of war (assume zero-vis units have no stacking problems)
+			bool bCanSee = pTestPlot->isVisible(getTeam()) || plotDistance(pTestPlot->getX(), pTestPlot->getY(), getX(), getY())<=1;
+
 			//it's possible that there is an enemy civilian we want to capture so we need to allow attacking
 			//(real attacks are handled in UnitAttackWithMove)
-			if (pTestPlot->isVisible(getTeam()) && canMoveOrAttackInto(*pTestPlot, iFlags | MOVEFLAG_DESTINATION))
+			if (bCanSee && canMoveOrAttackInto(*pTestPlot, iFlags | MOVEFLAG_DESTINATION))
 			{
 				bRejectMove = false;
 				break;
