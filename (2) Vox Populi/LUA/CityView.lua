@@ -401,11 +401,14 @@ function AddBuildingButton( pCity, building )
 				local iGreatWorkIndex = pCity:GetBuildingGreatWork(iBuildingClass, i);
 				if (iGreatWorkIndex >= 0) then
 					filledGreatWorkSlot:SetHide(false);
-					filledGreatWorkSlot:SetTexture(filledTexture);
-					filledGreatWorkSlot:SetToolTipString(Game.GetGreatWorkTooltip(iGreatWorkIndex, pCity:GetOwner()));
-					
 					local greatWorkType = Game.GetGreatWorkType(iGreatWorkIndex);
 					local greatWork = GameInfo.GreatWorks[greatWorkType];
+					if greatWork and greatWork.GreatWorkClassType == "GREAT_WORK_ARTIFACT" then
+						filledGreatWorkSlot:SetTexture("GreatWorks_Artifact.dds")
+					else
+						filledGreatWorkSlot:SetTexture(filledTexture);
+					end
+					filledGreatWorkSlot:SetToolTipString(Game.GetGreatWorkTooltip(iGreatWorkIndex, pCity:GetOwner()));
 					
 					filledGreatWorkSlot:ClearCallback(Mouse.eLClick);
 					
@@ -947,7 +950,13 @@ function OnCityViewUpdate()
 		-- Blockaded
 		if (pCity:IsBlockaded()) then
 			Controls.BlockadedIcon:SetHide(false);
-			Controls.BlockadedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_BLOCKADED");
+			if (pCity:GetSappedTurns() > 0) then
+				Controls.BlockadedIcon:SetText("[ICON_VP_SAPPED]")
+				Controls.BlockadedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_SAPPED", pCity:GetSappedTurns())
+			else
+				Controls.BlockadedIcon:SetText("[ICON_BLOCKADED]")
+				Controls.BlockadedIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_BLOCKADED")
+			end
 		else
 			Controls.BlockadedIcon:SetHide(true);
 		end

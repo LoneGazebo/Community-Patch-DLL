@@ -137,7 +137,7 @@
 	</Concepts_RelatedConcept>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_TOPIC">
-			<Text>[COLOR_GREEN]Scaling with Era[ENDCOLOR]</Text>
+			<Text>[COLOR_GREEN]Yields Scaling with Era[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_SUMMARY">
 			<Text>Many Yields, especially those from Policies, Beliefs, and Buildings, state that they [COLOR_POSITIVE_TEXT]''Scale with Era''[ENDCOLOR]. This means that, as the game progresses, indicated Yield values increase in a linear fashion based on the current Era:[NEWLINE]1x in the Ancient and Classical Eras.[NEWLINE]2x in the Medieval Era.[NEWLINE]3x in the Renaissance Era.[NEWLINE]4x in the Industrial Era.[NEWLINE]5x in the Modern Era.[NEWLINE]6x in the Atomic Era.[NEWLINE]7x in the Information Era.[NEWLINE][NEWLINE]In special cases like Korea, they may scale with Odd Era or skipping an era before scaling and follow a format based on the Current era like:[NEWLINE]1x in the Ancient/Classical Eras.[NEWLINE]2x in the Medieval/Renaissance Eras.[NEWLINE]3x in the Industrial/Modern Eras.[NEWLINE]4x in the Atomic/Information Eras.</Text>
@@ -839,6 +839,19 @@
 			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 
+		<!-- Deny Quest Influence -->
+		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES_TT">
+			<Text>You currently refuse to receive [ICON_INFLUENCE] Influence of completing Quests from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]. You may change your stance and allow [ICON_INFLUENCE] Influence to be rewarded again from completing Quests.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO_TT">
+			<Text>You may reject the [ICON_INFLUENCE] Influence of completing Quests from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]. This attempts to avoid political repercussions from major leaders when they see you contesting for the [ICON_INFLUENCE] Influence of this City-State.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES">
+			<Text>Enable [ICON_INFLUENCE] Quest Influence Rewards</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO">
+			<Text>Disable [ICON_VP_NOINFLUENCE] Quest Influence Rewards</Text>
+		</Row>
 		<!-- Bully Metric Values -->
 		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_FOOD_AMOUNT">
 			<Text>Take {1_GoldValue} [ICON_GOLD] Gold and {2_Value} [ICON_FOOD] Food (-{3_NumInfluence} [ICON_INFLUENCE])</Text>
@@ -1772,11 +1785,14 @@
 		<Row Tag="TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS">
 			<Text>Your {@1_UnitName} encountered no resistance, and attacked enemy air and anti-air units on the ground!</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_SAPPED">
+			<Text>City is [ICON_VP_SAPPED] Sapped for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] Turns. This has the same effects as a [ICON_BLOCKADED] Blockade, but does not require an enemy unit nearby to take effect!</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_MINED">
-			<Text>Deep Water Mine Field Present</Text>
+			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City. Units ending their turn in Ocean tiles owned by this City take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
-			<Text>Has Airport</Text>
+			<Text>Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. Increased Air Unit Capacity of the City. +10 [ICON_STRENGTH] Damage to Enemy Air Units during Air Strikes on the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_AUTOMATE_PRODUCTION_TT">
 			<Text>Automate production for this city.</Text>

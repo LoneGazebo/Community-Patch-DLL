@@ -822,6 +822,9 @@ function RefreshYourCulture()
 					if(greatWorkIndex >= 0) then
 						greatWorksCount = greatWorksCount + 10;
 						greatWorkToolTip = Game.GetGreatWorkTooltip(greatWorkIndex, playerID);
+						local greatWorkType = Game.GetGreatWorkType(greatWorkIndex);
+						local greatWork = GameInfo.GreatWorks[greatWorkType];
+						isArtifact = greatWork.GreatWorkClassType == "GREAT_WORK_ARTIFACT";
 					else
 						greatWorksCount = greatWorksCount + 1;
 					end
@@ -829,6 +832,7 @@ function RefreshYourCulture()
 					greatWorks[greatWorkSlotIndex] = {
 						Index = greatWorkIndex,
 						ToolTip = greatWorkToolTip,
+						IsArtifact = isArtifact,
 					};
 
 				end
@@ -936,8 +940,12 @@ function SortAndDisplayYourCulture()
 			if(	currentGreatWorkSlot.CityID == data.CityID and 
 				currentGreatWorkSlot.BuildingClassID == data.BuildingClassID and
 				currentGreatWorkSlot.GreatWorkSlotIndex == data.GreatWorkSlotIndex) then
-				
-				return data.Icons.SelectedIcon;
+				--Artifact Workaround
+				if (data.GreatWorkIsArtifact) then
+					return "GreatWorks_Artifact_HL_34.dds";
+				else
+					return data.Icons.SelectedIcon;
+				end
 			else
 				--Design Note: This is where we could alter icon based on potential theme bonus.
 				return "GreatWorks_Yellow_HL_34.dds";
@@ -1018,9 +1026,15 @@ function SortAndDisplayYourCulture()
 					
 					local greatWork = buildingData.GreatWorks[greatWorkSlotIndex];
 					if(greatWork and greatWork.Index >= 0) then
-						icon:SetTexture(icons.FilledIcon);
+						--Artifact Workaround
+						if (greatWork.IsArtifact) then
+							icon:SetTexture("GreatWorks_Artifact.dds");
+						else
+							icon:SetTexture(icons.FilledIcon);
+						end
 						icon:SetToolTipString(greatWork.ToolTip);
 					else
+						--icon:SetTexture("GreatWorks_Artifact_Empty.dds");
 						icon:SetTexture(icons.EmptyIcon);
 					end
 					
@@ -1178,7 +1192,12 @@ function SortAndDisplayYourCulture()
 					control.Box:SetHide(false);
 						
 					if(greatWork.Index >= 0) then
-						control.Icon:SetTexture(icons.FilledIcon);
+						--Artifact Workaround
+						if (greatWork.IsArtifact) then
+							control.Icon:SetTexture("GreatWorks_Artifact.dds");
+						else
+							control.Icon:SetTexture(icons.FilledIcon);
+						end
 						control.Icon:SetToolTipString(greatWork.ToolTip);
 					else
 						control.Icon:SetTexture(icons.EmptyIcon);
@@ -1414,7 +1433,7 @@ function SelectYourWork (iIndex)
 		if (iClass == 1) then
 			strTexture = "GreatWorks.dds";
 		elseif (iClass == 2) then
-			strTexture = "GreatWorks.dds";
+			strTexture = "GreatWorks_Artifact.dds";
 		elseif (iClass == 3) then
 			strTexture = "GreatWorks_Book.dds";
 		elseif (iClass == 4) then
@@ -1488,7 +1507,7 @@ function SelectOthersWork (iIndex)
 		if (iClass == 1) then
 			strTexture = "GreatWorks.dds";
 		elseif (iClass == 2) then
-			strTexture = "GreatWorks.dds";
+			strTexture = "GreatWorks_Artifact.dds";
 		elseif (iClass == 3) then
 			strTexture = "GreatWorks_Book.dds";
 		elseif (iClass == 4) then
@@ -1666,14 +1685,14 @@ function RefreshSwappingItems()
 	local strTT = Locale.Lookup("TXT_KEY_ARTIFACT_SLOT_TT");
 	local iArtifactSwapIndex = activePlayer:GetSwappableGreatArtifact();
 	if (iArtifactSwapIndex == -1) then
-		Controls.YourSwapArtifactIcon:SetTexture("GreatWorks_Empty.dds");
+		Controls.YourSwapArtifactIcon:SetTexture("GreatWorks_Artifact_Empty.dds");
 		Controls.YourSwapArtifactEra:SetHide(true);
 		Controls.YourSwapArtifactCivIcon:SetHide(true);
 		Controls.YourSwapArtifactCivIconBG:SetHide(true);
 		Controls.YourSwapArtifactCivIconShadow:SetHide(true);
 		Controls.YourSwapArtifactCivIconHilite:SetHide(true);
 	else
-		Controls.YourSwapArtifactIcon:SetTexture("GreatWorks.dds");
+		Controls.YourSwapArtifactIcon:SetTexture("GreatWorks_Artifact.dds");
 		Controls.YourSwapArtifactEra:SetText(Locale.Lookup(Game.GetGreatWorkEraShort(iArtifactSwapIndex)));
 		Controls.YourSwapArtifactEra:SetHide(false);
 		Controls.YourSwapArtifactCivIcon:SetHide(false);
@@ -1832,7 +1851,7 @@ function DisplayOthersWorks ()
 		--  GreatWorks_Empty.dds
 		if (v.ArtifactIndex == -1) then
 			-- show empty art outline
-			SwapWorkLineInstance.WonderGreatArtifactWork:SetTexture("GreatWorks_Empty.dds");
+			SwapWorkLineInstance.WonderGreatArtifactWork:SetTexture("GreatWorks_Artifact_Empty.dds");
 			-- hide civ symbol
 			SwapWorkLineInstance.ArtifactCivIconBG:SetHide(true);
 			SwapWorkLineInstance.ArtifactCivIconShadow:SetHide(true);
@@ -1844,7 +1863,7 @@ function DisplayOthersWorks ()
 			strGreatWorkToolTip = Locale.Lookup("TXT_KEY_ARTIFACT_OTHERS_SLOT_EMPTY", Players[v.iPlayer]:GetCivilizationShortDescriptionKey());
 		else
 			-- show correct art image
-			SwapWorkLineInstance.WonderGreatArtifactWork:SetTexture("GreatWorks.dds");
+			SwapWorkLineInstance.WonderGreatArtifactWork:SetTexture("GreatWorks_Artifact.dds");
 			-- display civ symbol
 			SwapWorkLineInstance.ArtifactCivIconBG:SetHide(false);
 			SwapWorkLineInstance.ArtifactCivIconShadow:SetHide(false);

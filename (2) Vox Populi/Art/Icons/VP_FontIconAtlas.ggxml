@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <glyphgen>
-  <textures width="256" height="24">
+  <textures width="256" height="72">
     <texture name="" src="VP_FontIconAtlas.dds" allowcolor="1" alloweffects="1" inuse="1" />
   </textures>
   <styles count="1">
@@ -22,6 +22,20 @@
     <glyph ch="9" u="176" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="10" u="198" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="11" u="220" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
-	<glyph ch="12" u="242" v="0" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="12" u="0" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="13" u="22" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="14" u="44" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="15" u="66" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="16" u="88" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="17" u="110" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="18" u="132" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="19" u="154" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="20" u="176" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="21" u="198" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="22" u="220" v="24" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+	<glyph ch="23" u="0" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="24" u="22" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+    <glyph ch="25" u="44" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+	<glyph ch="26" u="66" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
   </glyphs>
 </glyphgen>

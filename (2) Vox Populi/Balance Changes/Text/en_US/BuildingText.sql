@@ -28,7 +28,7 @@ SET Text = 'The Aqueduct decreases the amount of [ICON_FOOD] Food a City needs t
 WHERE Tag = 'TXT_KEY_BUILDING_AQUEDUCT_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+2 [ICON_CITIZEN] Population when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. Scientist, Merchant, and Engineer Specialists in the City produce +2 of their base Yield.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
+SET Text = '+2 [ICON_CITIZEN] Population when completed. 15% of [ICON_FOOD] Food is carried over after a new [ICON_CITIZEN] Citizen is born. [ICON_VP_SCIENTIST] Scientists, [ICON_VP_MERCHANT] Merchants, and [ICON_VP_ENGINEER] Engineers in the City produce +2 of their base Yield.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.'
 WHERE Tag = 'TXT_KEY_BUILDING_MEDICAL_LAB_HELP';
 
 UPDATE Language_en_US
@@ -46,7 +46,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_GARDEN_STRATEGY';
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_HOSPITAL_HELP', '+1 [ICON_FOOD] Food for every 10 [ICON_CITIZEN] Citizens in the City. 5% of the City''s [ICON_FOOD] Food is converted into [ICON_RESEARCH] Science every turn. Land Units in this City heal 15 points per turn whether or not they take an action.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.');
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_TEMPLE_HELP', 'Generates +25% Religious Pressure. Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.');
+VALUES ('TXT_KEY_BUILDING_TEMPLE_HELP', 'Generates +25% Religious Pressure. Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.');
 
 INSERT INTO Language_en_US (Tag, Text)
 VALUES ('TXT_KEY_BUILDING_MONUMENT_HELP', '+34% Faster [ICON_CULTURE_LOCAL] Border Growth in this City.');
@@ -97,7 +97,7 @@ SET Text = '+33% [ICON_PRODUCTION] Production when building Mounted Melee Units.
 WHERE Tag = 'TXT_KEY_BUILDING_STABLE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Mines worked by this City and Engineer Specialists gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.'
+SET Text = 'Mines worked by this City and [ICON_VP_ENGINEER] Engineers gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_HELP';
 
 UPDATE Language_en_US
@@ -184,7 +184,7 @@ SET Text = '+1 [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens in the City.
 WHERE Tag = 'TXT_KEY_BUILDING_STOCK_EXCHANGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold for every 3 Desert or 3 Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold, Merchant Specialists in this City gain +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold for every 3 Desert or 3 Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold, [ICON_VP_MERCHANT] Merchants in this City gain +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_CARAVANSARY_HELP';
 
 UPDATE Language_en_US
@@ -557,7 +557,7 @@ SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Mandir in the City in
 WHERE Tag = 'TXT_KEY_WONDER_ANGKOR_WAT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] Great General and [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Walls in the City in which it is built. Enemy Land Units expend all [ICON_MOVES] Movement when entering your territory. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 3. These bonuses become obsolete upon discovering [COLOR_NEGATIVE_TEXT]Gunpowder[ENDCOLOR].'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] Great General and [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Walls in the City in which it is built. Enemy Land Units expend all [ICON_MOVES] Movement when entering your territory by land. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 3. All of the bonuses obsolete upon discovering [COLOR_NEGATIVE_TEXT]Gunpowder[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_GREAT_WALL_HELP';
 
 UPDATE Language_en_US
@@ -605,11 +605,11 @@ SET Text = 'Requires completion of [COLOR_MAGENTA]Progress[ENDCOLOR] Branch. Cos
 WHERE Tag = 'TXT_KEY_WONDER_FORBIDDEN_PALACE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WRITER] Great Writer. Writer, Artist, and Musician Specialists in all Cities gain +2 [ICON_GOLDEN_AGE] Golden Age Points. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Writing. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in this City. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WRITER] Great Writer. [ICON_VP_WRITER] Writers, [ICON_VP_ARTIST] Artists, and [ICON_VP_MUSICIAN] Musicians in all Cities gain +2 [ICON_GOLDEN_AGE] Golden Age Points. Contains 2 slots for [ICON_VP_GREATWRITING] Great Works of Writing. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in this City. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works in all Cities. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Art. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works in all Cities. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP';
 
 -- Here is in fact the TAJ MAHAL, in the original files is wrong defined
@@ -628,7 +628,7 @@ SET Text = 'A Settler appears near the City. +50 [ICON_GOLDEN_AGE] Golden Age Po
 WHERE Tag = 'TXT_KEY_WONDER_CHICHEN_ITZA_HELP';
 
 UPDATE Language_en_US
-SET Text = '+10% [ICON_CULTURE] Culture in all Cities. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Art. +3 [ICON_PEACE] Faith and [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = '+10% [ICON_CULTURE] Culture in all Cities. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +3 [ICON_PEACE] Faith and [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_SISTINE_CHAPEL_HELP';
 
 UPDATE Language_en_US
@@ -648,7 +648,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_GENERAL] G
 WHERE Tag = 'TXT_KEY_WONDER_BRANDENBURG_GATE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of [COLOR_MAGENTA]Artistry[ENDCOLOR] Branch. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist, 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Archaeologists, and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Museum in the City in which it is built. Contains 4 slots for [ICON_GREAT_WORK] Great Works of Art. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Requires completion of [COLOR_MAGENTA]Artistry[ENDCOLOR] Branch. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist, 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Archaeologists, and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Museum in the City in which it is built. Contains 4 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_LOUVRE_HELP';
 
 UPDATE Language_en_US
@@ -668,7 +668,7 @@ SET Text = 'Can only be built in a City within 2 tiles of a Mountain that is ins
 WHERE Tag = 'TXT_KEY_WONDER_NEUSCHWANSTEIN_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Requires completion of [COLOR_MAGENTA]Industry[ENDCOLOR] Branch. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_MUSICIAN] Great Musician. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Music. +250 [ICON_CULTURE] Culture when you construct a building in this City, scaling with Era. +20 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Requires completion of [COLOR_MAGENTA]Industry[ENDCOLOR] Branch. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_MUSICIAN] Great Musician. Contains 3 slots for [ICON_VP_GREATMUSIC] Great Works of Music. +250 [ICON_CULTURE] Culture when you construct a building in this City, scaling with Era. +20 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_BROADWAY_HELP';
 
 UPDATE Language_en_US
@@ -682,7 +682,7 @@ WHERE Tag = 'TXT_KEY_WONDER_STATUE_OF_LIBERTY_HELP';
 
 -- added line for International Space Station
 UPDATE Language_en_US
-SET Text = 'May only be built collaboratively through the World Congress. +1 [ICON_PRODUCTION] Production from Scientists, and +1 [ICON_RESEARCH] Science from Engineers. [ICON_GREAT_SCIENTIST] Great Scientists provide 33% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE]+100 [ICON_PRODUCTION] in City where it is built when you unlock a new Technology, scaling with Era.'
+SET Text = 'May only be built collaboratively through the World Congress. +1 [ICON_PRODUCTION] Production from [ICON_VP_SCIENTIST] Scientists, and +1 [ICON_RESEARCH] Science from [ICON_VP_ENGINEER]  Engineers. [ICON_GREAT_SCIENTIST] Great Scientists provide 33% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE]+100 [ICON_PRODUCTION] in City where it is built when you unlock a new Technology, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTERNATIONAL_SPACE_STATION_HELP';
 
 UPDATE Language_en_US
@@ -703,7 +703,7 @@ SET Text = '+25 [ICON_TOURISM] Tourism. Hotels provide +2 [ICON_GOLDEN_AGE] Gold
 WHERE Tag = 'TXT_KEY_WONDER_CRISTO_REDENTOR_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Can only be constructed in a Coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy and +25% [ICON_CULTURE] Culture in this City. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Music. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Can only be constructed in a Coastal City. Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Social Policy and +25% [ICON_CULTURE] Culture in this City. Contains 2 slots for [ICON_VP_GREATMUSIC] Great Works of Music. +15 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_SYDNEY_OPERA_HOUSE_HELP';
 
 UPDATE Language_en_US

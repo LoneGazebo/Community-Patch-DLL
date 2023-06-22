@@ -110,6 +110,7 @@ if not gk_mode then
 	--CBP
 	Controls.MarriageButton:SetHide ( true )
 	Controls.BullyAnnexButton:SetHide (true)
+	Controls.DenyInfluenceButton:SetHide (true)
 	--END
 	Controls.RevokePledgeButton:SetHide( true )
 	Controls.TakeButton:SetHide( true )
@@ -1051,6 +1052,17 @@ function PopulateGiftChoices()
 		Controls.TileImprovementGift:SetText(buttonText)
 		SetButtonSize(Controls.TileImprovementGift, Controls.TileImprovementGiftButton, Controls.TileImprovementGiftAnim, Controls.TileImprovementGiftButtonHL)
 	end
+	
+	--Controls.DenyInfluenceButton:SetHide(false);
+	--Controls.DenyInfluenceAnim:SetHide(false);
+	if (minorPlayer:IsQuestInfluenceDisabled(activePlayerID)) then
+		Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES"))
+		Controls.DenyInfluenceButton:SetToolTipString(L("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()))
+	else
+		Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO"))
+		Controls.DenyInfluenceButton:SetToolTipString(L("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO_TT", minorPlayer:GetName()))
+	end
+	SetButtonSize(Controls.DenyInfluenceLabel, Controls.DenyInfluenceButton, Controls.DenyInfluenceAnim, Controls.DenyInfluenceButtonHL)
 
 	-- Tooltip info
 	local iFriendsAmount = GameDefines["FRIENDSHIP_THRESHOLD_FRIENDS"]
@@ -1327,6 +1339,23 @@ function OnBullyAnnexButtonClicked()
 	end
 end
 Controls.BullyAnnexButton:RegisterCallback( Mouse.eLClick, OnBullyAnnexButtonClicked );
+
+----------------------------------------------------------------
+-- CBP: Deny Quest Influence
+----------------------------------------------------------------
+function OnNoQuestInfluenceButtonClicked()
+	local minorPlayer = Players[g_minorCivID]
+	local activePlayerID = Game.GetActivePlayer()
+	
+	if (minorPlayer:IsQuestInfluenceDisabled(activePlayerID)) then
+		minorPlayer:SetQuestInfluenceDisabled(activePlayerID, false);
+		OnCloseTake();
+	else
+		minorPlayer:SetQuestInfluenceDisabled(activePlayerID, true);
+		OnCloseTake();
+	end
+end
+Controls.DenyInfluenceButton:RegisterCallback( Mouse.eLClick, OnNoQuestInfluenceButtonClicked );
 
 ----------------------------------------------------------------
 -- Close Take Submenu

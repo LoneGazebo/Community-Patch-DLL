@@ -636,6 +636,10 @@ if gk_mode then
 			if bnw_mode and minorPlayer:IsMarried(majorPlayerID) then
 				sIconText = sIconText .. "[ICON_RES_MARRIAGE] "
 			end
+			--Denied Quest Influence
+			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
+				sIconText = sIconText .. "[ICON_VP_NOINFLUENCE]"
+			end
 			-- END
 
 			for _, questID in pairs(ktQuestsDisplayOrder) do
@@ -799,6 +803,10 @@ if gk_mode then
 			--Married
 			if minorPlayer:IsMarried(majorPlayerID) then
 				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT") )
+			end
+			--Denied Quest Influence
+			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
+				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()) )
 			end
 			-- END
 			for _, questID in pairs(ktQuestsDisplayOrder) do

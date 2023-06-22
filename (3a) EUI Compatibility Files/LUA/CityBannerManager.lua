@@ -506,8 +506,12 @@ local g_cityToolTips = {
 		end
 		return connectionTip
 	end,
-	CityIsBlockaded = function()
-		return L"TXT_KEY_CITY_BLOCKADED"
+	CityIsBlockaded = function( city )
+		if (city:GetSappedTurns() > 0) then
+			return L("TXT_KEY_CITY_SAPPED", city:GetSappedTurns());
+		else	
+			return L"TXT_KEY_CITY_BLOCKADED"
+		end
 	end,
 	CityIsOccupied = function()
 		return L"TXT_KEY_CITY_OCCUPIED"
@@ -1009,8 +1013,13 @@ local function RefreshCityBannersNow()
 			-- Has airport ?
 			instance.CityHasAirport:SetHide( not city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"]) )
 
-			-- Blockaded ?
+			-- Blockaded ? / Sapped ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
+			if (city:GetSappedTurns() > 0) then
+				instance.CityIsBlockaded:SetText("[ICON_VP_SAPPED]")
+			else
+				instance.CityIsBlockaded:SetText("[ICON_BLOCKADED]")
+			end
 			
 			-- Garrisoned ?
 			instance.GarrisonFrame:SetHide( not ( plot:IsVisible( activeTeamID, true ) and city:GetGarrisonedUnit() ) )

@@ -801,7 +801,13 @@ local function SetupBuildingList( city, buildings, buildingIM )
 					local greatWorkID = city:GetBuildingGreatWork( buildingClassID, i )
 					slot:SetVoids( greatWorkID, buildingGreatWorkSlot.ID )
 					if greatWorkID >= 0 then
-						slot:SetTexture( buildingGreatWorkSlot.FilledIcon )
+						--Artifact Workaround
+						local greatWork = GameInfo.GreatWorks[ Game.GetGreatWorkType( greatWorkID or -1 ) or -1 ]
+						if greatWork and greatWork.GreatWorkClassType == "GREAT_WORK_ARTIFACT" then
+							slot:SetTexture( "GreatWorks_Artifact.dds " )
+						else
+							slot:SetTexture( buildingGreatWorkSlot.FilledIcon )
+						end
 						slot:RegisterCallback( Mouse.eRClick, GreatWorkPopup )
 					else
 						slot:SetTexture( buildingGreatWorkSlot.EmptyIcon )
@@ -2048,8 +2054,15 @@ local function UpdateCityViewNow()
 		-- Connected to capital?
 		Controls.CityIsConnected:SetHide( isCapital or city:IsBlockaded() or not cityOwner:IsCapitalConnectedToCity(city) or city:GetTeam() ~= Game.GetActiveTeam() )
 
-		-- Blockaded
+		-- Blockaded ? / Sapped ?
 		Controls.CityIsBlockaded:SetHide( not city:IsBlockaded() )
+		if (city:GetSappedTurns() > 0) then
+			Controls.CityIsBlockaded:SetText("[ICON_VP_SAPPED]")
+			Controls.CityIsBlockaded:LocalizeAndSetToolTip("TXT_KEY_CITY_SAPPED", city:GetSappedTurns())
+		else
+			Controls.CityIsBlockaded:SetText("[ICON_BLOCKADED]")
+			Controls.CityIsBlockaded:LocalizeAndSetToolTip("TXT_KEY_CITY_BLOCKADED")
+		end
 
 		-- Being Razed
 		if city:IsRazing() then
