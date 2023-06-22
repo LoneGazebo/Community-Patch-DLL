@@ -703,6 +703,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivContestValueForLeader);
 	Method(GetMinorCivContestValueForPlayer);
 	Method(IsMinorCivUnitSpawningDisabled);
+	Method(GetQuestRewardModifier);
 	Method(IsQuestInfluenceDisabled);
 	Method(SetQuestInfluenceDisabled);
 	Method(IsMinorCivRouteEstablishedWithMajor);
@@ -8533,6 +8534,16 @@ int CvLuaPlayer::lIsMinorCivUnitSpawningDisabled(lua_State* L)
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsUnitSpawningDisabled(ePlayer);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetQuestRewardModifier(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetQuestRewardModifier(ePlayer);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------

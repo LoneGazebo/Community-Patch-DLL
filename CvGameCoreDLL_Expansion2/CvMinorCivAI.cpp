@@ -38,6 +38,7 @@ CvMinorCivQuest::CvMinorCivQuest()
 	m_iData2 = NO_QUEST_DATA; /* -1 */
 	m_iData3 = NO_QUEST_DATA; /* -1 */
 	m_iInfluence = 0;
+	m_iDisabledInfluence = 0;
 	m_iGold = 0;
 	m_iScience = 0;
 	m_iCulture = 0;
@@ -67,6 +68,7 @@ CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer
 	m_iData2 = NO_QUEST_DATA; /* -1 */
 	m_iData3 = NO_QUEST_DATA; /* -1 */
 	m_iInfluence = 0;
+	m_iDisabledInfluence = 0;
 	m_iGold = 0;
 	m_iScience = 0;
 	m_iCulture = 0;
@@ -178,6 +180,10 @@ int CvMinorCivQuest::GetInfluence() const
 {
 	return m_iInfluence;
 }
+int CvMinorCivQuest::GetDisabledInfluence() const
+{
+	return m_iDisabledInfluence;
+}
 int CvMinorCivQuest::GetGold() const
 {
 	return m_iGold;
@@ -238,6 +244,10 @@ int CvMinorCivQuest::GetExperience() const
 void CvMinorCivQuest::SetInfluence(int iValue)
 {
 	m_iInfluence = iValue;
+}
+void CvMinorCivQuest::SetDisabledInfluence(int iValue)
+{
+	m_iDisabledInfluence = iValue;
 }
 void CvMinorCivQuest::SetGold(int iValue)
 {
@@ -333,7 +343,6 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 		iEraScaler += (100 * (iEra-1)) / 2;
 	}
 
-
 	// Random contribution (VP only)
 	int iRandomContribution = 0;
 	if (MOD_BALANCE_CORE_MINORS)
@@ -349,49 +358,33 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 		}
 	}
 
-	// Calculate this player's modifier for the base value
-	int iBaseModifier = 100;
-	iBaseModifier += GET_PLAYER(m_eAssignedPlayer).GetIncreasedQuestInfluence();
-	iBaseModifier += pMinor->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer) ? /*0 in CP, 15 in VP*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0;
-
-	if (ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)
-		iBaseModifier += /*0 in CP, 25 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FRIENDLY);
-	else if (ePersonality == MINOR_CIV_PERSONALITY_HOSTILE)
-		iBaseModifier += /*0 in CP, -25 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_HOSTILE);
-
-	if (pMinor->GetMinorCivAI()->IsSameReligionAsMajor(m_eAssignedPlayer))
-	{
-		int iFriendshipMod = GET_PLAYER(m_eAssignedPlayer).GetReligions()->GetCityStateInfluenceModifier(m_eAssignedPlayer);
-		iBaseModifier *= (100 + iFriendshipMod);
-		iBaseModifier /= 100;
-	}
-	iBaseModifier = max(iBaseModifier, 0);
-
 	// Now determine the rewards!
+	int iBaseModifier = pMinor->GetMinorCivAI()->GetQuestRewardModifier(ePlayer);
 
 	// Influence (no gamespeed scaling!)
 	if (pkSmallAwardInfo->GetInfluence() > 0)
 	{
-		// Have Influence gains from quests been manually disabled by the player?
-		if (pMinor->GetMinorCivAI()->IsQuestInfluenceDisabled(ePlayer))
+		int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
+		int iBonus = (iBaseBonus * iBaseModifier)/100;
+
+		if (bRecalc)
 		{
-			SetInfluence(0);
+			if (pMinor->GetMinorCivAI()->IsQuestInfluenceDisabled(ePlayer))
+			{
+				if (iBonus > GetDisabledInfluence())
+					SetDisabledInfluence(iBonus);
+			}
+			else if (iBonus > GetInfluence())
+			{
+				SetInfluence(iBonus);
+			}
+		}
+		else if (pMinor->GetMinorCivAI()->IsQuestInfluenceDisabled(ePlayer))
+		{
+			SetDisabledInfluence(iBonus);
 		}
 		else
-		{
-			int iBaseBonus = (pkSmallAwardInfo->GetInfluence() * iEraScaler)/100 + iRandomContribution;
-			int iBonus = (iBaseBonus * iBaseModifier)/100;
-
-			if (bRecalc)
-			{
-				if (iBonus > GetInfluence())
-				{
-					SetInfluence(iBonus);
-				}
-			}
-			else
-				SetInfluence(iBonus);
-		}
+			SetInfluence(iBonus);
 	}
 
 	// Gold
@@ -1018,12 +1011,29 @@ void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
 	if (!GetPlayer()->isAlive())
 		return;
 
-	// Recursive to-do: check this
 	if (m_QuestsGiven.empty() || m_QuestsGiven.size() <= (size_t)ePlayer)
 		return;
 
 	for (QuestListForPlayer::iterator itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
 		itr_quest->CalculateRewards(ePlayer, true);
+}
+
+void CvMinorCivQuest::DisableInfluence(PlayerTypes ePlayer)
+{
+	if (ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
+		return;
+
+	SetDisabledInfluence(GetInfluence());
+	SetInfluence(0);
+}
+
+void CvMinorCivQuest::EnableInfluence(PlayerTypes ePlayer)
+{
+	if (ePlayer == NO_PLAYER || m_eMinor == NO_PLAYER || !GET_PLAYER(ePlayer).isMajorCiv())
+		return;
+
+	SetInfluence(GetDisabledInfluence());
+	SetDisabledInfluence(0);
 }
 
 CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) const
@@ -3813,6 +3823,7 @@ void CvMinorCivQuest::Serialize(MinorCivQuest& minorCivQuest, Visitor& visitor)
 	visitor(minorCivQuest.m_iData2);
 	visitor(minorCivQuest.m_iData3);
 	visitor(minorCivQuest.m_iInfluence);
+	visitor(minorCivQuest.m_iDisabledInfluence);
 	visitor(minorCivQuest.m_iGold);
 	visitor(minorCivQuest.m_iScience);
 	visitor(minorCivQuest.m_iCulture);
@@ -4637,6 +4648,33 @@ void CvMinorCivAI::DoPickUniqueUnit()
 																	bCoastal, GetPlayer()->getStartingPlot()->getX(), GetPlayer()->getStartingPlot()->getY());
 		}
 	}
+}
+
+
+int CvMinorCivAI::GetQuestRewardModifier(PlayerTypes ePlayer)
+{
+	if (!GET_PLAYER(ePlayer).isMajorCiv() || !GET_PLAYER(ePlayer).isAlive() || !GetPlayer()->isAlive())
+		return 0;
+
+	// Calculate this player's modifier for the base value
+	int iBaseModifier = 100;
+	iBaseModifier += GET_PLAYER(ePlayer).GetIncreasedQuestInfluence();
+	iBaseModifier += IsProtectedByMajor(ePlayer) ? /*0 in CP, 15 in VP*/ GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) : 0;
+
+	MinorCivPersonalityTypes ePersonality = GetPersonality();
+	if (ePersonality == MINOR_CIV_PERSONALITY_FRIENDLY)
+		iBaseModifier += /*0 in CP, 25 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_FRIENDLY);
+	else if (ePersonality == MINOR_CIV_PERSONALITY_HOSTILE)
+		iBaseModifier += /*0 in CP, -25 in VP*/ GD_INT_GET(MINOR_CIV_QUEST_REWARD_HOSTILE);
+
+	if (IsSameReligionAsMajor(ePlayer))
+	{
+		int iFriendshipMod = GET_PLAYER(ePlayer).GetReligions()->GetCityStateInfluenceModifier(ePlayer);
+		iBaseModifier *= 100 + iFriendshipMod;
+		iBaseModifier /= 100;
+	}
+
+	return max(iBaseModifier, 0);
 }
 
 
@@ -9383,6 +9421,40 @@ BuildingTypes CvMinorCivAI::GetBestWonderForQuest(PlayerTypes ePlayer)
 			continue;
 		}
 
+		// Must not be mutually exclusive
+		if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
+			continue;
+
+		bool bBad = false;
+		const CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType());
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			BuildingClassTypes eLockedBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetLockedBuildingClasses(iI);
+
+			if (eLockedBuildingClass != NO_BUILDINGCLASS)
+			{
+				BuildingTypes eLockedBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(eLockedBuildingClass));
+
+				if (eLockedBuilding != NO_BUILDING)
+				{
+					bBad = true;
+					break;
+				}
+			}
+			if (pkBuildingInfo->IsBuildingClassNeededNowhere(iI))
+			{
+				BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI));
+
+				if (ePrereqBuilding != NO_BUILDING)
+				{
+					bBad = true;
+					break;
+				}
+			}
+		}
+		if (bBad)
+			continue;
+
 		// Someone CAN be building this wonder right now, but they can't be more than a certain % of the way done (25% by default)
 		for(iWorldPlayerLoop = 0; iWorldPlayerLoop < MAX_MAJOR_CIVS; iWorldPlayerLoop++)
 		{
@@ -9474,6 +9546,39 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer)
 			continue;
 		}
 #endif
+		// Must not be mutually exclusive
+		if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
+			continue;
+
+		bool bBad = false;
+		const CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType());
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			BuildingClassTypes eLockedBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetLockedBuildingClasses(iI);
+
+			if (eLockedBuildingClass != NO_BUILDINGCLASS)
+			{
+				BuildingTypes eLockedBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(eLockedBuildingClass));
+
+				if (eLockedBuilding != NO_BUILDING)
+				{
+					bBad = true;
+					break;
+				}
+			}
+			if (pkBuildingInfo->IsBuildingClassNeededNowhere(iI))
+			{
+				BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI));
+
+				if (ePrereqBuilding != NO_BUILDING)
+				{
+					bBad = true;
+					break;
+				}
+			}
+		}
+		if (bBad)
+			continue;
 
 		// Must be able to build it
 		if(!GET_PLAYER(ePlayer).canConstruct(eBuilding,allBuildingCount))
@@ -9977,14 +10082,45 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 		if(pkBuildingClassInfo == NULL)
 			continue;
 
-		// Must be a wonder
-		if(isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
-		{
+		// Must not be a wonder
+		if (isWorldWonderClass(pkBuildingInfo->GetBuildingClassInfo()) || isNationalWonderClass(pkBuildingInfo->GetBuildingClassInfo()))
 			continue;
+
+		// Must not be mutually exclusive
+		if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
+			continue;
+
+		bool bBad = false;
+		const CvCivilizationInfo& thisCivInfo = *GC.getCivilizationInfo(GET_PLAYER(ePlayer).getCivilizationType());
+		for (int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
+		{
+			BuildingClassTypes eLockedBuildingClass = (BuildingClassTypes)pkBuildingInfo->GetLockedBuildingClasses(iI);
+
+			if (eLockedBuildingClass != NO_BUILDINGCLASS)
+			{
+				BuildingTypes eLockedBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(eLockedBuildingClass));
+
+				if (eLockedBuilding != NO_BUILDING)
+				{
+					bBad = true;
+					break;
+				}
+			}
+			if (pkBuildingInfo->IsBuildingClassNeededNowhere(iI))
+			{
+				BuildingTypes ePrereqBuilding = (BuildingTypes)(thisCivInfo.getCivilizationBuildings(iI));
+
+				if (ePrereqBuilding != NO_BUILDING)
+				{
+					bBad = true;
+					break;
+				}
+			}
 		}
+		if (bBad)
+			continue;
 
 		int iLoopCity = 0;
-		bool bBad = false;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoopCity, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoopCity, true))
 		{
 			if(!pLoopCity->canConstruct(eBuilding,allBuildingCount))
@@ -9994,16 +10130,12 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer)
 			}
 		}
 		// Must be able to build it in all cities.
-		if(bBad)
-		{
+		if (bBad)
 			continue;
-		}
 
-		// Haven't built this building but once.
-		if(GET_PLAYER(ePlayer).getNumBuildings(eBuilding) > 1)
-		{
+		// Haven't built this building more than once already.
+		if (GET_PLAYER(ePlayer).getNumBuildings(eBuilding) > 1)
 			continue;
-		}
 
 		veValidBuildings.push_back(eBuilding);
 	}
@@ -14500,16 +14632,44 @@ bool CvMinorCivAI::IsQuestInfluenceDisabled(PlayerTypes ePlayer) const
 
 void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
 {
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+
 	// Not MP compatible yet
 	if (GC.getGame().isGameMultiPlayer())
 		return;
-
-	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	
 	if (bValue != m_abQuestInfluenceDisabled[ePlayer])
 	{
 		m_abQuestInfluenceDisabled[ePlayer] = bValue;
-		RecalculateRewards(ePlayer);
+		if (bValue)
+			DisableQuestInfluence(ePlayer);
+		else
+			EnableQuestInfluence(ePlayer);
 	}
+}
+
+void CvMinorCivAI::DisableQuestInfluence(PlayerTypes ePlayer)
+{
+	if (!GetPlayer()->isAlive())
+		return;
+
+	if (m_QuestsGiven.empty() || m_QuestsGiven.size() <= (size_t)ePlayer)
+		return;
+
+	for (QuestListForPlayer::iterator itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
+		itr_quest->DisableInfluence(ePlayer);
+}
+
+void CvMinorCivAI::EnableQuestInfluence(PlayerTypes ePlayer)
+{
+	if (!GetPlayer()->isAlive())
+		return;
+
+	if (m_QuestsGiven.empty() || m_QuestsGiven.size() <= (size_t)ePlayer)
+		return;
+
+	for (QuestListForPlayer::iterator itr_quest = m_QuestsGiven[ePlayer].begin(); itr_quest != m_QuestsGiven[ePlayer].end(); itr_quest++)
+		itr_quest->EnableInfluence(ePlayer);
 }
 
 

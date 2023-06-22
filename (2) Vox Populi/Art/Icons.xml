@@ -374,7 +374,7 @@
 			<IconMapping>11</IconMapping>
 		</Row>
 		<Row>
-			<IconName>ICON_VP_SAPPED </IconName>
+			<IconName>ICON_VP_SAPPED</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>12</IconMapping>
 		</Row>

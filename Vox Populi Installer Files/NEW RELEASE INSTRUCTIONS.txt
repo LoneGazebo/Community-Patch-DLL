@@ -31,6 +31,7 @@ If the new release is savegame incompatible:
 - Increment the modinfo version number of (1) Community Patch by one.
 - Increment the modinfo minimum savegame compatible version of (1) Community Patch by one.
 - For (2), (3a), (3b), (4a) and (4b), increment the modinfo minimum version of the Community Patch (required as a dependency) by 1.
+- Increment the version numbers at the beginning of the CvGameCoreDLL_Expansion2/CustomMods.h file by 1.
 
 NOTE: .gitignore is set to ignore the Vox Populi Installer Files/(1) Community Patch (v. #) between n and n+10, inclusive, where n is the current version number. Should the version number rise by more than 10, .gitignore will need updating.
 

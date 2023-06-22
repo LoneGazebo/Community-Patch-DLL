@@ -129,6 +129,7 @@ public:
 	int GetTertiaryData() const;
 
 	int GetInfluence() const;
+	int GetDisabledInfluence() const;
 	int GetGold() const;
 	int GetScience() const;
 	int GetCulture() const;
@@ -145,6 +146,7 @@ public:
 	int GetExperience() const;
 
 	void SetInfluence(int iValue);
+	void SetDisabledInfluence(int iValue);
 	void SetGold(int iValue);
 	void SetScience(int iValue);
 	void SetCulture(int iValue);
@@ -167,6 +169,9 @@ public:
 	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
 	void DoRewards(PlayerTypes ePlayer);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish) const;
+
+	void EnableInfluence(PlayerTypes ePlayer);
+	void DisableInfluence(PlayerTypes ePlayer);
 
 	// Contest helper functions
 	int GetContestValueForPlayer(PlayerTypes ePlayer) const;
@@ -197,6 +202,7 @@ public:
 	int m_iData2;
 	int m_iData3;
 	int m_iInfluence;
+	int m_iDisabledInfluence;
 	int m_iGold;
 	int m_iScience;
 	int m_iCulture;
@@ -353,6 +359,8 @@ public:
 	void SetUniqueUnit(UnitTypes eUnit);
 	void DoPickUniqueUnit();
 
+	int GetQuestRewardModifier(PlayerTypes ePlayer);
+
 	// ******************************
 	// Main functions
 	// ******************************
@@ -367,6 +375,8 @@ public:
 
 	void DoTestEndSkirmishes(PlayerTypes eNewAlly);
 	void RecalculateRewards(PlayerTypes ePlayer);
+	void DisableQuestInfluence(PlayerTypes ePlayer);
+	void EnableQuestInfluence(PlayerTypes ePlayer);
 
 	void DoTurnStatus();
 	MinorCivStatusTypes GetStatus() const;

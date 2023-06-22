@@ -1056,11 +1056,11 @@ function PopulateGiftChoices()
 	--Controls.DenyInfluenceButton:SetHide(false);
 	--Controls.DenyInfluenceAnim:SetHide(false);
 	if (minorPlayer:IsQuestInfluenceDisabled(activePlayerID)) then
-		Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES"))
-		Controls.DenyInfluenceButton:SetToolTipString(L("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()))
+		Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES"))
+		Controls.DenyInfluenceButton:SetToolTipString(L("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()))
 	else
-		Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO"))
-		Controls.DenyInfluenceButton:SetToolTipString(L("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO_TT", minorPlayer:GetName()))
+		Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_NO"))
+		Controls.DenyInfluenceButton:SetToolTipString(L("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_NO_TT", minorPlayer:GetName()))
 	end
 	SetButtonSize(Controls.DenyInfluenceLabel, Controls.DenyInfluenceButton, Controls.DenyInfluenceAnim, Controls.DenyInfluenceButtonHL)
 

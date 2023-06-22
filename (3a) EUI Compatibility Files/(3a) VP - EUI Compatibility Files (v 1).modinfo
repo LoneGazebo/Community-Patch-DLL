@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(3.6.2) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3.7) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -17,7 +17,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="117" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="118" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="16" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References />
@@ -37,12 +37,12 @@
     <File md5="A91B599BEA9A2A79205B5FD813F723AA" import="1">PromotionFlags/promotions128.dds</File>
     <File md5="516CC305BD7415A57D46F27044224704" import="0">PromotionFlags/IconAtlases.xml</File>
     <File md5="C52425B04177AAF715C9ED3450FBEFCF" import="0">PromotionFlags/PromotionBaseData.sql</File>
-    <File md5="3EC2C3FBA15F2C0171CF429F001A203B" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="18A092880FBB844874AA1FE56BB9D533" import="1">LUA/CityBannerManager.lua</File>
     <File md5="73619449A132023E26FFE9B1C3134FBB" import="1">LUA/CityBannerManager.xml</File>
-    <File md5="CE2993A3A8DE523B9FABB08F996904E9" import="1">LUA/CityStateDiploPopup.lua</File>
-    <File md5="5C23AA512C221C491CD26DF62F218066" import="1">LUA/CityStateDiploPopup.xml</File>
-    <File md5="47DB8D0DFFAB0F911F09C6449B3BC07E" import="1">LUA/CityStateStatusHelper.lua</File>
-    <File md5="8C66EBEF805F1A02A12858286DF1B0DB" import="1">LUA/CityView.lua</File>
+    <File md5="057125EC8362D7521F400EFB0BB911C4" import="1">LUA/CityStateDiploPopup.lua</File>
+    <File md5="908C089812571BAB530B4E639E9DDC20" import="1">LUA/CityStateDiploPopup.xml</File>
+    <File md5="EAD3654370DA92527E31D6A9B2B8F82E" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="AFAF90A480FA24E378F639A7907F2A5A" import="1">LUA/CityView.lua</File>
     <File md5="008FC5032EEAF4E3D312DEA0D3C1A8D9" import="1">LUA/CityView.xml</File>
     <File md5="1EBA1EC6EFAC3449321C2420332F54F3" import="1">LUA/CityView_small.xml</File>
     <File md5="3125858296BA493F375BF6520FC55343" import="1">LUA/DiploCorner.lua</File>
@@ -51,22 +51,22 @@
     <File md5="D329F174F8E039EBD9E482F9B7ACF6A7" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="FC4666BDE2F58684AF9157221B0B6607" import="1">LUA/HappinessInfo.lua</File>
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
-    <File md5="A175817D0764E0D2D387381DE53B2CA1" import="1">LUA/LeaderHeadRoot.lua</File>
+    <File md5="D289BEDF0B5853B28C947C184162658E" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="B9AEF2178F780FF72B0E4B6B9D859742" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="1703629C4CC87BC00CC86932CFA2EA49" import="1">LUA/LoadScreen.xml</File>
     <File md5="DDFA8E7A86D2D0FE975610B0E6A1BD60" import="1">LUA/LoadScreen.lua</File>
     <File md5="98B1FEF84BBAD42685E34EB5B558911A" import="1">LUA/MonopoliesInfo.lua</File>
     <File md5="52E682B47359A59132BFD2A853CADD5B" import="1">LUA/MonopoliesInfo.xml</File>
-    <File md5="4D423DA147A04EB8DEF60D2C9DD2708D" import="1">LUA/NotificationPanel.lua</File>
+    <File md5="28BF681704AB64664C8B8A24E28A915B" import="1">LUA/NotificationPanel.lua</File>
     <File md5="80592539E39ABCFDEFD8777391C39828" import="1">LUA/NotificationPanel.xml</File>
     <File md5="351CC209DAB2D8ECFB19AEE8374A24CE" import="1">LUA/PlotHelpManager.lua</File>
     <File md5="82063AB8F56003275D0AD6DF8100C691" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
-    <File md5="C2262F723044F08999B28F8780DD9900" import="1">LUA/TechButtonInclude.lua</File>
+    <File md5="30125F287FCCFBE86CB08936BA860B05" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="E36862CAC52C398C3901F584048DBE0E" import="1">LUA/TradeLogic.lua</File>
     <File md5="624B8C87786011831D77419F239BECFD" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
-    <File md5="42A3FB3C0DB2B5D0077F7DEB81692FE9" import="1">LUA/UnitPanel.lua</File>
+    <File md5="16F1F2C3C7D1028DEF032F40E76E198A" import="1">LUA/UnitPanel.lua</File>
     <File md5="42911908162E0D88373F6CB90EC56F5A" import="1">LUA/UnitPanel.xml</File>
     <File md5="E2EB22365D80AD1BA0E01143870CD2C0" import="1">LUA/UnitPanel_small.xml</File>
     <File md5="645B31579AD0E8018CAA2CA895C9B299" import="0">ImprovedTopPanel/FontIconsITP.xml</File>

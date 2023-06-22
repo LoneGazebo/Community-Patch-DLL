@@ -840,16 +840,16 @@
 		</Row>
 
 		<!-- Deny Quest Influence -->
-		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES_TT">
-			<Text>You currently refuse to receive [ICON_INFLUENCE] Influence of completing Quests from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]. You may change your stance and allow [ICON_INFLUENCE] Influence to be rewarded again from completing Quests.</Text>
+		<Row Tag="TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT">
+			<Text>You currently refuse to receive [ICON_INFLUENCE] Influence from completing Quests for [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]. You may change your stance and allow [ICON_INFLUENCE] Influence to be rewarded again for completing Quests.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO_TT">
-			<Text>You may reject the [ICON_INFLUENCE] Influence of completing Quests from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]. This attempts to avoid political repercussions from major leaders when they see you contesting for the [ICON_INFLUENCE] Influence of this City-State.</Text>
+		<Row Tag="TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_NO_TT">
+			<Text>You may reject the [ICON_INFLUENCE] Influence from completing Quests for [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]. This attempts to avoid political repercussions from other civilizations when they see you competing for the [ICON_INFLUENCE] Influence of this City-State.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES">
+		<Row Tag="TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES">
 			<Text>Enable [ICON_INFLUENCE] Quest Influence Rewards</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO">
+		<Row Tag="TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_NO">
 			<Text>Disable [ICON_VP_NOINFLUENCE] Quest Influence Rewards</Text>
 		</Row>
 		<!-- Bully Metric Values -->

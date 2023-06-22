@@ -803,6 +803,7 @@ protected:
 	static int lGetMinorCivContestValueForLeader(lua_State* L);
 	static int lGetMinorCivContestValueForPlayer(lua_State* L);
 	static int lIsMinorCivUnitSpawningDisabled(lua_State* L);
+	static int lGetQuestRewardModifier(lua_State* L);
 	static int lIsQuestInfluenceDisabled(lua_State* L);
 	static int lSetQuestInfluenceDisabled(lua_State* L);
 	static int lIsMinorCivRouteEstablishedWithMajor(lua_State* L);

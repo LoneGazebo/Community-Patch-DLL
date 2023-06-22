@@ -806,7 +806,7 @@ if gk_mode then
 			end
 			--Denied Quest Influence
 			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
-				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()) )
+				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()) )
 			end
 			-- END
 			for _, questID in pairs(ktQuestsDisplayOrder) do

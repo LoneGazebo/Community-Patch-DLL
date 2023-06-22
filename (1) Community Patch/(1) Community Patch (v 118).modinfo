@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="117">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="118">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(3.6.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(3.7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>117</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>118</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -76,7 +76,7 @@
     <File md5="0429CDBB6DB69F18C354FA6B36B459E8" import="1">Core Files/Core Changes/CompressedArt/wu.dds</File>
     <File md5="A0A9667CB76696355590235F4E887F33" import="0">Core Files/Core Changes/CoreChanges.sql</File>
     <File md5="39DA1B7C4E75242EC0FC2E5382716A94" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.xml</File>
-    <File md5="7DEE5BE81677CF9DBBCE68E95999C09C" import="0">Core Files/Core Changes/DiploAIOptions.sql</File>
+    <File md5="F11DAA7639C6319B9C7A04A281AB9B12" import="0">Core Files/Core Changes/DiploAIOptions.sql</File>
     <File md5="C2070A14115CDA6745C2F02C6C6C9C9B" import="0">Core Files/Core Changes/EraSpecificWriters.sql</File>
     <File md5="054A6A9E14333EA341EC48437593B7D7" import="0">Core Files/Core Changes/EraSpecificArtists.sql</File>
     <File md5="33FFE3155B63B94D2523F31DC964BD3A" import="0">Core Files/Core Changes/EraSpecificMusicians.sql</File>
@@ -110,19 +110,19 @@
     <File md5="4E508F5AA1D796DB0A5E1A4CDACBBD4F" import="0">Core Files/Core Changes/NewText.xml</File>
     <File md5="B2F0CFF1DF2DD8539265D9873D6A61FD" import="0">Core Files/Core Changes/TextChanges.sql</File>
     <File md5="4FF1A900882C4A92CE7955CC921897BD" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
-    <File md5="29BA4A3F96E03CB0F0159CB6C228E206" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
+    <File md5="7094948EE6116867140D0751EEC66D5F" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
     <File md5="E5BF3BCC8B133425A3F39BA2A1C9511B" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
-    <File md5="6D12686F235DB5B3C668E3738BC141E7" import="0">Core Files/Core Tables/DifficultyTables.sql</File>
+    <File md5="822AF54CB02227ADD1D54E662DC13548" import="0">Core Files/Core Tables/DifficultyTables.sql</File>
     <File md5="696EC398AA893BB83885D4FB900DA52A" import="0">Core Files/Core Tables/DifficultyTables.xml</File>
     <File md5="B30D8A1A7F42B7F9711F05EA64771F59" import="0">Core Files/Core Tables/JFDContracts.xml</File>
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="0E40315D1278F83F6202E5F7EF1CB6EC" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="BD85B2763CA1B35F46241DB6B6C1DBA7" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="60375596237BDA0A71EE97AFCA2FD031" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
-    <File md5="A7F0ECA52F3E1F9CD7B1BBDE78CBAB7F" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
-    <File md5="B4BD0F3D8B884E7B94A6F4D548EB9607" import="0">Core Files/Core Values/DiploOpinionWeights.sql</File>
+    <File md5="4AFC5D6AE55CBB92B5EDB35EF5203B0A" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
+    <File md5="DDD3B36275278D012AB2C5006B1C1D51" import="0">Core Files/Core Values/DiploOpinionWeights.sql</File>
     <File md5="4294BB607CA8995F0DC562AA8B1F8C20" import="0">Core Files/Core Values/Automates.xml</File>
     <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/DummyTrigger.sql</File>
     <File md5="709ECD2A7C0807C8ED2E945DA5B4718E" import="0">Core Files/Core Values/FasterAircraft.sql</File>
@@ -229,9 +229,9 @@
     <File md5="D60500F862DCB87C573F5B6A1388EB76" import="0">Core Files/PNM Mods DB/TRAITS/OtherPrereqs.sql</File>
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
-    <File md5="41CC204A9283C4B83530DBFCC9CD89D0" import="0">Core Files/Text/CoreText_en_US.xml</File>
-    <File md5="06679AD64E254F58B0486A8BBA08ECEF" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="ADB029DA174D44697811EEBF2518E217" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="D53E5B175AFDE992549560E871B5844A" import="0">Core Files/Text/CoreText_en_US.xml</File>
+    <File md5="9735A222B1C1BE55B3C9723D3894F296" import="0">Core Files/Text/CoreText_en_US.sql</File>
+    <File md5="3F3E73277E709162347FDA262CCDA192" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
@@ -255,7 +255,7 @@
     <File md5="F5AFCB468D395D7CE2A0B8711B4104EE" import="1">LUA/EspionageOverview.xml</File>
     <File md5="63853D883DD64E748DC516729E562B56" import="1">LUA/GPList.lua</File>
     <File md5="66DBAC543FF7C7A2958AF547048D62D6" import="1">LUA/InfoTooltipInclude.lua</File>
-    <File md5="F59E91D23B97355D0E2A612DB82D0334" import="1">LUA/LeaderHeadRoot.lua</File>
+    <File md5="948270F0E1DD6B1A7820891B0993B56D" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="F54B1EA651FC8C87A6BBB648F9D4CB0F" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="7DF4AF6E9D5F16CD06D0CD576615869F" import="1">LUA/LeagueOverview.lua</File>
     <File md5="D1B2B6362725A779E49BAD0C8366DE6A" import="1">LUA/LeagueOverview.xml</File>
@@ -276,7 +276,7 @@
     <File md5="FA968EB5791BBCC528EABF9409939F56" import="0">Modules/Events/Text/en_US/City_en_US.xml</File>
     <File md5="CC702153CB36B1507757DE4EC31FC4C5" import="0">Modules/Events/Text/en_US/EventCore_en_US.xml</File>
     <File md5="78A1F4E286D44157AE0DA6DD917F90B8" import="0">Modules/Events/Text/en_US/Player_en_US.xml</File>
-    <File md5="E25EB368711D0D7F9C41B9519C6C038F" import="0">Modules/MoreGP/ExtraGPs.sql</File>
+    <File md5="8F982205CED116A567918B735A11BC23" import="0">Modules/MoreGP/ExtraGPs.sql</File>
     <File md5="107907C11CF75C7CD8E6A25D625178B7" import="1">Modules/MoreGP/Extra_GPs_items/A__010.dds</File>
     <File md5="2656B1ABE575B89A2BB7633157D0BDC1" import="1">Modules/MoreGP/Extra_GPs_items/A__020.dds</File>
     <File md5="D53DBF656D964C3BD845970D5DBE1C4F" import="1">Modules/MoreGP/Extra_GPs_items/A__030.dds</File>

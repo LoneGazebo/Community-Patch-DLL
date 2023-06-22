@@ -569,7 +569,7 @@ SET Text = 'Civilizing Mission'
 WHERE Tag = 'TXT_KEY_POLICY_TREASURE_FLEETS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Civilizing Mission[ENDCOLOR][NEWLINE][ICON_BULLET]Retain all buildings from conqeured Cities.[NEWLINE][ICON_BULLET]Receive 75 [ICON_GOLD] Gold when you conquer a city, scaling with Era and City [ICON_CITIZEN] Population.[NEWLINE][ICON_BULLET]+10% [ICON_PRODUCTION] Production toward Buildings, with an additional +10% [ICON_PRODUCTION] Production per Era difference between your current Era and the building''s Era in all [ICON_PUPPET] Puppeted Cities and Cities with a Courthouse.'
+SET Text = '[COLOR_POSITIVE_TEXT]Civilizing Mission[ENDCOLOR][NEWLINE][ICON_BULLET]Retain all buildings from conquered Cities.[NEWLINE][ICON_BULLET]Receive 75 [ICON_GOLD] Gold when you conquer a city, scaling with Era and City [ICON_CITIZEN] Population.[NEWLINE][ICON_BULLET]+10% [ICON_PRODUCTION] Production toward Buildings, with an additional +10% [ICON_PRODUCTION] Production per Era difference between your current Era and the building''s Era in all [ICON_PUPPET] Puppeted Cities and Cities with a Courthouse.'
 WHERE Tag = 'TXT_KEY_POLICY_TREASURE_FLEETS_HELP';
 
 UPDATE Language_en_US
