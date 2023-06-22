@@ -653,6 +653,12 @@ function GetActiveQuestText(iMajor, iMinor)
 	end
 	-- END
 	
+	--Denied Quest Influence
+	if pMinor:IsQuestInfluenceDisabled(iMajor) then
+		sIconText = sIconText .. "[ICON_VP_NOINFLUENCE]"
+	end
+	-- END
+	
 	if (iNumQuests <= 0) then
 		sIconText = Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_NONE");
 	end

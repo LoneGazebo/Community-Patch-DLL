@@ -421,10 +421,10 @@ function PopulateDomination()
 					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING", pOtherPlayer:GetNickName(),math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
 					Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING_TT", pOtherPlayer:GetNickName(), iLeadingNumDisplayCapital));
 				elseif (not pActiveTeam:IsHasMet(iLeadingTeam)) then
-					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING", pOtherPlayer:GetNickName(), math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
+					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING", math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
 					Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING_TT", iLeadingNumDisplayCapital));
 				else
-					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING", pOtherPlayer:GetNickName(), math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
+					Controls.DominationLabel:SetText(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING", pOtherPlayer:GetName(), math.max(iDomWinner-iLeadingNumDisplayCapital, 0)));
 					Controls.DominationLabel:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING_TT", pOtherPlayer:GetName(), iLeadingNumDisplayCapital));
     			end
 			end

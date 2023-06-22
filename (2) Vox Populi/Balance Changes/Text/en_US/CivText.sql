@@ -33,7 +33,7 @@ SET Text = 'The Bazaar is the Arabian unique building, replacing the Market. The
 WHERE Tag = 'TXT_KEY_BUILDING_BAZAAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'When you complete a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and 15% towards the progress of a random [ICON_GREAT_PEOPLE] Great Person.'
+SET Text = 'When you complete a Historic Event, your [ICON_CAPITAL] Capital gains +1 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and 15% towards the progress of a random [ICON_GREAT_PEOPLE] Great Person.'
 WHERE Tag = 'TXT_KEY_TRAIT_LAND_TRADE_GOLD2';
 
 UPDATE Language_en_US
@@ -52,7 +52,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ARABIAN_CAMELARCHER_STRATEGY';
 -- Assyria
 --------------------
 UPDATE Language_en_US
-SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Writing, and comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WORK] Great Work and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Library in the City. Every [ICON_GREAT_WORK] Great Work of Writing you control grants +5 XP to Units created in any City (maximum of 45 XP). 1 Specialist no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities. +2[ICON_GREAT_PEOPLE] Great Scientist points. [NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = '+20% [ICON_RESEARCH] Science in the City during [ICON_GOLDEN_AGE] Golden Ages. +1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City, and all Libraries produce +3 [ICON_RESEARCH] Science. Contains 3 slots for [ICON_VP_GREATWRITING] Great Works of Writing, and comes with both a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_VP_GREATWRITING] Great Work of Writing and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Library in the City. Every [ICON_VP_GREATWRITING] Great Work of Writing you control grants +5 XP to Units created in any City (maximum of 45 XP). 1 Specialist no longer produces [ICON_HAPPINESS_3] Unhappiness from Urbanization.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities. +2[ICON_GREAT_PEOPLE] Great Scientist points. [NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+3 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_HELP';
 
 UPDATE Language_en_US
@@ -277,7 +277,7 @@ WHERE Tag = 'TXT_KEY_CIV5_DENMARK_SKI_INFANTRY_STRATEGY';
 -- Egypt
 --------------------
 UPDATE Language_en_US
-SET Text = 'Receive a free unique Egyptian [ICON_GREAT_WORK] Artifact when constructed.[NEWLINE][NEWLINE]Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_FOOD] Food for every 2 Desert or Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold, Merchant Specialists in this City gain +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Receive a free unique Egyptian [ICON_VP_ARTIFACT] Artifact when constructed.[NEWLINE][NEWLINE]Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_FOOD] Food for every 2 Desert or Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold, [ICON_VP_MERCHANT] Merchants in this City gain +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP';
 
 UPDATE Language_en_US
@@ -289,7 +289,7 @@ SET Text = 'A fast Ranged Unit. Only the Egyptians may build it. This Unit does 
 WHERE Tag = 'TXT_KEY_UNIT_HELP_EGYPTIAN_WAR_CHARIOT';
 
 UPDATE Language_en_US
-SET Text = '+20% [ICON_PRODUCTION] Production towards Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). [ICON_GREAT_WORK] Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
+SET Text = '+20% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders (+40% during [ICON_GOLDEN_AGE] Golden Ages). [ICON_VP_ARTIFACT] Artifacts gain +5 [ICON_RESEARCH] Science and [ICON_CULTURE] Culture, and Landmarks gain +5 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.'
 WHERE Tag = 'TXT_KEY_TRAIT_WONDER_BUILDER';
 
 --------------------
@@ -884,7 +884,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_CONVERTS_SEA_BARBARIANS';
 -- Persia
 --------------------
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold per turn for every 3 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold for Scientist, Engineer, and Merchant Specialists in the City. Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPIED] Occupied City (if it is [ICON_OCCUPIED] Occupied).'
+SET Text = '+1 [ICON_GOLD] Gold per turn for every 3 [ICON_CITIZEN] Citizens in the City. +1 [ICON_GOLD] Gold for [ICON_VP_SCIENTIST] Scientists, [ICON_VP_ENGINEER] Engineers, and [ICON_VP_MERCHANT] Merchants in the City. Eliminates extra [ICON_HAPPINESS_4] Unhappiness from an [ICON_OCCUPIED] Occupied City (if it is [ICON_OCCUPIED] Occupied).'
 WHERE Tag = 'TXT_KEY_BUILDING_SATRAPS_COURT_HELP';
 
 UPDATE Language_en_US
@@ -991,7 +991,7 @@ WHERE Tag = 'TXT_KEY_UNIT_ROMAN_LEGION_STRATEGY';
 -- Russia
 --------------------
 UPDATE Language_en_US
-SET Text = 'Reduces the city''s damage taken from attacks by 2. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Allows the City''s [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Enemy land Units must expend 1 extra [ICON_MOVES] Movement per tile if they move into a tile worked by this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
+SET Text = 'Reduces the city''s damage taken from attacks by 2. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold to Camps, Mines, Lumbermills, and Strategic Resources. Allows the City''s [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Enemy Land Units expend all [ICON_MOVES] Movement when entering land territory owned by this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_KREPOST_HELP';
 
 UPDATE Language_en_US

@@ -90,6 +90,9 @@
     <File md5="B6181DB8D582AE62F6EA670398D298CA" import="1">Art/Icons/LockedSpecialistIcons/locked_scientist.dds</File>
     <File md5="CA684194A3C656557B00598D7D705D53" import="1">Art/Icons/LockedSpecialistIcons/locked_servant.dds</File>
     <File md5="35F6F1468ACCE5AE572247F5E2FEFD69" import="1">Art/Icons/LockedSpecialistIcons/locked_writer.dds</File>
+	  <File md5="FFAF47B9D57F65ECB7CC49E7971659BD" import="1">Art/Icons/GreatWorks_Artifact_HL_34.dds</File>
+    <File md5="B4A5BB9E7469952B294C620744E3276D" import="1">Art/Icons/GreatWorks_Artifact_Empty.dds</File>
+    <File md5="210A2EC9855B2C72A820FE6EEB714E1D" import="1">Art/Icons/GreatWorks_Artifact.dds</File>
     <File md5="CA19F6683F0AC98FDC70C3FEE70E7E1B" import="1">Art/Improvements/Eki/EkiAtlas64.dds</File>
     <File md5="23EFC6142448F267565EA8A08CE85927" import="1">Art/Improvements/Eki/EkiBuildIcon45.dds</File>
     <File md5="1EB5AEEBB11A3A58DEC66E0DDFF892A1" import="1">Art/Improvements/Eki/EkiBuildIcon64.dds</File>

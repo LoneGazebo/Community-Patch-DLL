@@ -269,8 +269,15 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			
 		-- Blockaded
 		if (city:IsBlockaded()) then
-			controls.BlockadedIcon:SetHide(false);
-			controls.BlockadedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_BLOCKADED"));
+			if (city:GetSappedTurns() > 0) then
+				controls.BlockadedIcon:SetHide(false);
+				controls.BlockadedIcon:SetText("[ICON_VP_SAPPED]");
+				controls.BlockadedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_SAPPED", tostring(city:GetSappedTurns())));
+			else
+				controls.BlockadedIcon:SetHide(false);
+				controls.BlockadedIcon:SetText("[ICON_BLOCKADED]")
+				controls.BlockadedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_BLOCKADED"));
+			end
 		else
 			controls.BlockadedIcon:SetHide(true);
 		end

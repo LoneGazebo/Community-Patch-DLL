@@ -1145,6 +1145,17 @@ function PopulateTakeChoices()
 	Controls.UnitTributeLabel:SetText(buttonText);
 	Controls.UnitTributeButton:SetToolTipString(ttText);
 	SetButtonSize(Controls.UnitTributeLabel, Controls.UnitTributeButton, Controls.UnitTributeAnim, Controls.UnitTributeButtonHL);
+
+-- CBP: Deny Quest Influence Award
+	if (pPlayer:IsQuestInfluenceDisabled(iActivePlayer)) then
+			Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES"))
+			Controls.DenyInfluenceButton:SetToolTipString(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_YES_TT", pPlayer:GetName()))
+		else
+			Controls.DenyInfluenceLabel:SetText(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO"))
+			Controls.DenyInfluenceButton:SetToolTipString(Locale.Lookup("TXT_KEY_CITY_STATE_DIABLED_QUEST_INFLUENCE_NO_TT", pPlayer:GetName()))
+		end
+	SetButtonSize(Controls.DenyInfluenceLabel, Controls.DenyInfluenceButton, Controls.DenyInfluenceAnim, Controls.DenyInfluenceButtonHL)
+-- END
 	
 -- CBP: Forced Annex
 	if(pMajor:IsBullyAnnex()) then
@@ -1268,6 +1279,23 @@ function OnBullyAnnexButtonClicked()
 	end
 end
 Controls.BullyAnnexButton:RegisterCallback( Mouse.eLClick, OnBullyAnnexButtonClicked );
+
+----------------------------------------------------------------
+-- CBP: Deny Quest Influence
+----------------------------------------------------------------
+function OnNoQuestInfluenceButtonClicked()
+	local pPlayer = Players[g_iMinorCivID];
+	local iActivePlayer = Game.GetActivePlayer();
+	
+	if (pPlayer:IsQuestInfluenceDisabled(iActivePlayer)) then
+		pPlayer:SetQuestInfluenceDisabled(iActivePlayer, false);
+		OnCloseTake();
+	else
+		pPlayer:SetQuestInfluenceDisabled(iActivePlayer, true);
+		OnCloseTake();
+	end
+end
+Controls.DenyInfluenceButton:RegisterCallback( Mouse.eLClick, OnNoQuestInfluenceButtonClicked );
 
 ----------------------------------------------------------------
 -- Close Take Submenu

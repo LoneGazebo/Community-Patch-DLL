@@ -729,7 +729,7 @@
 				<!-- 3 column configuration -->
 				<Button Size="284,64" ID="WritingWorkButton">
 					<Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
-						<Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatWritingWork"/>
+						<Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks_Book.dds" ID="WonderGreatWritingWork"/>
 						<Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
 							<Image ID="WritingCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 							<Image ID="WritingCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
@@ -753,7 +753,7 @@
 				</Button>
 				<Button Size="284,64" ID="ArtifactWorkButton">
 					<Stack Anchor="L,C" StackGrowth="Right" Offset="2,0" Padding="0">
-						<Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="assets\UI\Art\Icons\GreatWorks.dds" ID="WonderGreatArtifactWork"/>
+						<Image Anchor="L,C" Size="32,32" Offset="0,0" Texture="Art\Icons\GreatWorks_Artifact.dds" ID="WonderGreatArtifactWork"/>
 						<Box Size="32,32" Anchor="L,C" Offset="0,-3" Color="0,0,0,0">
 							<Image ID="ArtifactCivIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 							<Image ID="ArtifactCivIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
