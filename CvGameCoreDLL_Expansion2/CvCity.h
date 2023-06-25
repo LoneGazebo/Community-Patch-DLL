@@ -154,7 +154,7 @@ public:
 	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner, bool bStartMission = true);
 	bool IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int iAssumedLevel, PlayerTypes eSpyOwner);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
-	void DoStartEvent(CityEventTypes eEvent);
+	void DoStartEvent(CityEventTypes eEvent, bool bSendMsg);
 	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER, bool bSpyMissionEnd = false);
 	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
