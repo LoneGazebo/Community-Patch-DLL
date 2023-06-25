@@ -29,6 +29,7 @@
 #include "../CvInternalGameCoreUtils.h"
 #include "ICvDLLUserInterface.h"
 #include "CvDllInterfaces.h"
+#include "CvDllNetMessageExt.h"
 
 #pragma warning(disable:4800 ) //forcing value to bool 'true' or 'false'
 
@@ -8563,7 +8564,7 @@ int CvLuaPlayer::lSetQuestInfluenceDisabled(lua_State* L)
 	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
 	const bool bValue = lua_toboolean(L, 3);
 
-	pkPlayer->GetMinorCivAI()->SetQuestInfluenceDisabled(ePlayer, bValue);
+	NetMessageExt::Send::DoQuestInfluenceDisabled(ePlayer, pkPlayer->GetID(), bValue);
 	return 1;
 }
 //------------------------------------------------------------------------------

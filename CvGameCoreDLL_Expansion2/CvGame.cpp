@@ -12578,7 +12578,7 @@ void CvGame::DoMinorMarriage(PlayerTypes eMajor, PlayerTypes eMinor)
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 	if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS) return;
 
-	NetMessageExt::Send::DoMinorBuyout(eMajor, eMinor);
+	gDLL->sendMinorBuyout(eMajor, eMinor);
 }
 
 //	--------------------------------------------------------------------------------

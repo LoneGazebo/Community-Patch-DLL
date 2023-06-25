@@ -14634,10 +14634,6 @@ void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
-	// Not MP compatible yet
-	if (GC.getGame().isGameMultiPlayer())
-		return;
-	
 	if (bValue != m_abQuestInfluenceDisabled[ePlayer])
 	{
 		m_abQuestInfluenceDisabled[ePlayer] = bValue;

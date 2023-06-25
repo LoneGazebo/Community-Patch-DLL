@@ -15,7 +15,7 @@ namespace NetMessageExt
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent);
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner);
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor);
-		void DoMinorBuyout(PlayerTypes ePlayer, PlayerTypes eMinor);
+		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue);
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 
@@ -25,7 +25,7 @@ namespace NetMessageExt
 		void DoEventChoice(PlayerTypes ePlayer, EventChoiceTypes eEventChoice, EventTypes eEvent);
 		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner);
 		void DoMinorBullyAnnex(PlayerTypes ePlayer, PlayerTypes eMinor);
-		void DoMinorBuyout(PlayerTypes ePlayer, PlayerTypes eMinor);
+		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue);
 		//void RefreshTradeRouteCache(PlayerTypes ePlayer);
 	}
 }

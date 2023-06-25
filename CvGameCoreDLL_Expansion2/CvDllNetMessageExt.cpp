@@ -40,7 +40,14 @@ namespace NetMessageExt
 				{
 					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
 					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
-					Response::DoMinorBuyout(eActualPlayer, eMinor);
+					bool booleanFromInt;
+					if (iArg2 == 1) {
+						booleanFromInt = true;
+					}
+					else {
+						booleanFromInt = false;
+					}
+					Response::DoQuestInfluenceDisabled(eActualPlayer, eMinor, booleanFromInt);
 					break;
 				}
 			}
@@ -63,9 +70,15 @@ namespace NetMessageExt
 		{	
 			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<PlayerTypes>(eMinor), -1, -1, -1, -1, 1001);
 		}
-		void DoMinorBuyout(PlayerTypes ePlayer, PlayerTypes eMinor)
+		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
 		{	
-			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<PlayerTypes>(eMinor), -1, -1, -1, -1, 1002);
+			int booleanToInt;
+			if (bValue) {
+				booleanToInt = 1;
+			} else {
+				booleanToInt = 0;
+			}
+			gDLL->sendMoveGreatWorks(static_cast<PlayerTypes>(ePlayer), static_cast<PlayerTypes>(eMinor), booleanToInt, -1, -1, -1, 1002);
 		}
 	}
 
@@ -97,9 +110,9 @@ namespace NetMessageExt
 		{	
 			GET_PLAYER(eMinor).GetMinorCivAI()->DoMajorBullyAnnex(ePlayer);
 		}
-		void DoMinorBuyout(PlayerTypes ePlayer, PlayerTypes eMinor)
+		void DoQuestInfluenceDisabled(PlayerTypes ePlayer, PlayerTypes eMinor, bool bValue)
 		{	
-			GET_PLAYER(eMinor).GetMinorCivAI()->DoBuyout(ePlayer);
+			GET_PLAYER(eMinor).GetMinorCivAI()->SetQuestInfluenceDisabled(ePlayer, bValue);
 		}
 	}
 }
