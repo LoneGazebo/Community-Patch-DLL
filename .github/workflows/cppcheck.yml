@@ -21,12 +21,12 @@ jobs:
         # sudo apt-get --yes install cppcheck
         # cppcheck --version
     
-    - name: Build cppcheck 2.10 # https://stackoverflow.com/a/72307265
+    - name: Build cppcheck 2.11 # https://stackoverflow.com/a/72307265
       run: |
         cd /tmp
         git clone https://github.com/danmar/cppcheck.git
         cd cppcheck 
-        git checkout 2.10
+        git checkout 2.11
         sudo make MATCHCOMPILER=yes FILESDIR=/usr/share/cppcheck HAVE_RULES=yes CXXFLAGS="-O2 -DNDEBUG -Wall -Wno-sign-compare -Wno-unused-function" install
         cd /tmp
         sudo rm -rf /tmp/cppcheck
