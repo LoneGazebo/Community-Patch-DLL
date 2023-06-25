@@ -3621,7 +3621,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
 			if (pkEventInfo != NULL)
 			{
-				DoStartEvent(eChosenEvent);
+				DoStartEvent(eChosenEvent, false);
 
 				ChangeCityEventCooldown(/*25*/ GD_INT_GET(CITY_EVENT_MIN_DURATION_BETWEEN));
 
@@ -3678,7 +3678,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 		}
 	}
 }
-void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
+void CvCity::DoStartEvent(CityEventTypes eChosenEvent, bool bSendMsg)
 {
 	if (eChosenEvent != NO_EVENT_CITY)
 	{
@@ -3731,7 +3731,7 @@ void CvCity::DoStartEvent(CityEventTypes eChosenEvent)
 							iNumEvent++;
 							if (pkEventInfo->getNumChoices() == 1)
 							{
-								DoEventChoice(eEventChoice, eChosenEvent);
+								DoEventChoice(eEventChoice, eChosenEvent, bSendMsg);
 								if (isHuman())
 								{
 									CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_7, eEventChoice, GetID(), getOwner());
@@ -6603,7 +6603,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 }
 void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, bool bSendMsg, int iEspionageValue, PlayerTypes eSpyOwner)
 {
-	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && GET_PLAYER(getOwner()).isHuman()) {
+	if (GC.getGame().isNetworkMultiPlayer() && bSendMsg && (GET_PLAYER(getOwner()).isHuman() || (eSpyOwner != NO_PLAYER && GET_PLAYER(eSpyOwner).isHuman()))) {
 		NetMessageExt::Send::DoCityEventChoice(getOwner(), GetID(), eEventChoice, eCityEvent, iEspionageValue, eSpyOwner);
 		return;
 	}
@@ -6695,7 +6695,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						{
 							if (pSpy->m_eSpyFocus == eEventChoice)
 							{
-								GET_PLAYER(eSpyOwner).DoEventChoice(eEventChoicePlayer, NO_EVENT, true, true);
+								GET_PLAYER(eSpyOwner).DoEventChoice(eEventChoicePlayer, NO_EVENT, false, true);
 								bAlreadyApplied = true;
 							}
 						}
@@ -6703,7 +6703,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				}
 				else
 				{
-					GET_PLAYER(getOwner()).DoEventChoice(eEventChoicePlayer, NO_EVENT, true, pkEventChoiceInfo->IsEspionageEffect());
+					GET_PLAYER(getOwner()).DoEventChoice(eEventChoicePlayer, NO_EVENT, false, pkEventChoiceInfo->IsEspionageEffect());
 				}
 			}
 

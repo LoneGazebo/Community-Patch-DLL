@@ -6339,7 +6339,7 @@ int CvLuaCity::lDoCityStartEvent(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const CityEventTypes eEvent = (CityEventTypes)lua_tointeger(L, 2);
-	pkCity->DoStartEvent(eEvent);
+	pkCity->DoStartEvent(eEvent, true);
 	return 1;
 }
 int CvLuaCity::lDoCancelCityEventChoice(lua_State* L)

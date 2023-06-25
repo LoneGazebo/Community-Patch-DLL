@@ -851,7 +851,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
 				if(eBestEventChoice != NO_EVENT_CHOICE)
 				{
-					DoEventChoice(eBestEventChoice);
+					DoEventChoice(eBestEventChoice, NO_EVENT, false);
 					return;
 				}
 			}
@@ -905,7 +905,7 @@ void CvPlayerAI::AI_DoEventChoice(EventTypes eChosenEvent)
 			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
 			if(eBestEventChoice != NO_EVENT_CHOICE)
 			{
-				DoEventChoice(eBestEventChoice);
+				DoEventChoice(eBestEventChoice, NO_EVENT, false);
 				return;
 			}
 		}

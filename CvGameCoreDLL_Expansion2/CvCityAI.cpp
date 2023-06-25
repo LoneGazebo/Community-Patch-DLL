@@ -287,7 +287,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 				//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
 				if(eBestEventChoice != NO_EVENT_CHOICE_CITY)
 				{
-					DoEventChoice(eBestEventChoice);
+					DoEventChoice(eBestEventChoice, NO_EVENT_CITY, false);
 					return;
 				}
 			}
@@ -341,7 +341,7 @@ void CvCityAI::AI_DoEventChoice(CityEventTypes eChosenEvent)
 			//If didn't find something (probably because a modder forgot to set flavors...), do a random selection.
 			if(eBestEventChoice != NO_EVENT_CHOICE_CITY)
 			{
-				DoEventChoice(eBestEventChoice);
+			    DoEventChoice(eBestEventChoice, NO_EVENT_CITY, false);
 				return;
 			}
 		}

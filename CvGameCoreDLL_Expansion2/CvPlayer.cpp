@@ -5792,7 +5792,7 @@ void CvPlayer::DoEvents()
 						if (!pkEventInfo->isGlobal() && ePlayer != GetID())
 							continue;
 
-						GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent);
+						GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent, false);
 
 						GET_PLAYER(ePlayer).ChangePlayerEventCooldown(/*10*/ GD_INT_GET(EVENT_MIN_DURATION_BETWEEN));
 
@@ -6848,7 +6848,7 @@ bool CvPlayer::IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventType
 
 	return true;
 }
-void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
+void CvPlayer::DoStartEvent(EventTypes eChosenEvent, bool bSendMsg)
 {
 	if(eChosenEvent != NO_EVENT)
 	{
@@ -6902,7 +6902,7 @@ void CvPlayer::DoStartEvent(EventTypes eChosenEvent)
 							iNumEvents++;
 							if(pkEventInfo->getNumChoices() == 1)
 							{
-								DoEventChoice(eEventChoice, eChosenEvent);
+								DoEventChoice(eEventChoice, eChosenEvent, bSendMsg);
 								if(isHuman())
 								{
 									CvPopupInfo kPopupInfo(BUTTONPOPUP_MODDER_9, eEventChoice, GetID());
