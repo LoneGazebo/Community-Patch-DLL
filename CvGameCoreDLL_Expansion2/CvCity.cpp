@@ -6743,7 +6743,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						if (pkEventChoiceInfo->IsApplyEffectToSpyOwner())
 						{
 							if (GET_PLAYER(eSpyOwner).getCapitalCity() != NULL)
-								GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, true, -1, getOwner());
+								GET_PLAYER(eSpyOwner).getCapitalCity()->DoEventChoice(eEventChoice, NO_EVENT_CITY, false, -1, getOwner());
 
 							return;
 						}
