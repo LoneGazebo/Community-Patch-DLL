@@ -9429,6 +9429,10 @@ bool CvDiplomacyAI::IsTooSoonForMoveTroopsRequest(PlayerTypes ePlayer) const
 	if (IsAtWar(ePlayer))
 		return true;
 
+	// Can't ask this if the AI can't declare war
+	if (!GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
+		return true;
+
 	return false;
 }
 
