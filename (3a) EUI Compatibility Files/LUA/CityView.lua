@@ -804,7 +804,7 @@ local function SetupBuildingList( city, buildings, buildingIM )
 						--Artifact Workaround
 						local greatWork = GameInfo.GreatWorks[ Game.GetGreatWorkType( greatWorkID or -1 ) or -1 ]
 						if greatWork and greatWork.GreatWorkClassType == "GREAT_WORK_ARTIFACT" then
-							slot:SetTexture( "GreatWorks_Artifact.dds " )
+							slot:SetTexture( "GreatWorks_Artifact.dds" )
 						else
 							slot:SetTexture( buildingGreatWorkSlot.FilledIcon )
 						end

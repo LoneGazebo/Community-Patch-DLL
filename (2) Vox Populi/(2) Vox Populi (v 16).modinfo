@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.7.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.7.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -68,7 +68,7 @@
     <File md5="289BEB45E1C17E01347F9581BCDCC9C2" import="1">Art/Improvements/Hacienda/hacienda_pl.gr2</File>
     <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Art/Improvements/Hacienda/hacienda_pl_decal.dds</File>
     <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Art/Improvements/Hacienda/hacienda_pl_diff.dds</File>
-    <File md5="0A0EAB4770EB98ADB874399C4D23C989" import="0">Art/Icons.xml</File>
+    <File md5="BC35CB2E07E5C2D6612292959E6E90DB" import="0">Art/Icons.xml</File>
     <File md5="35AF967C607A5A6B20F789CBC4D4AEB8" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
     <File md5="0C2F0F61FEF45927073FBC36BA11BC60" import="1">Art/Icons/VP_FontIconAtlas.ggxml</File>
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Art/Icons/citizenmusician.dds</File>
@@ -473,7 +473,7 @@
     <File md5="C1D4FD8FA992AB758357C80EBCF0AAB4" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
     <File md5="C4702C3CBF653AF0BC39151771C3A756" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="1906BBB63B6C7B606157EC9414FA0BDE" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="12BF8F236363C4613B55590A330C315C" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="30B44239875F660F936B14DB48A81F47" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="C81904A6D24DB0EEBF7F72E0E9425007" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="BE8A95DFB17CAD28CFA1E6E753F50D8C" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
