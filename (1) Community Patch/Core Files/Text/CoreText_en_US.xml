@@ -7370,7 +7370,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_WONDER_COST_INCREASE_METRIC">
-			<Text>Additional [ICON_PRODUCTION] Production cost due to owned World Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].[NEWLINE][ICON_PRODUCTION] Production cost increase metric:[NEWLINE][ICON_BULLET] Wonders from the same Era: [COLOR_POSITIVE_TEXT]25%.[ENDCOLOR][NEWLINE][ICON_BULLET] Wonders from the previous Era: [COLOR_POSITIVE_TEXT]15%[ENDCOLOR].[NEWLINE][ICON_BULLET] Wonders from two Eras earlier: [COLOR_POSITIVE_TEXT]10%.[ENDCOLOR][NEWLINE][ICON_BULLET] Note: Wonders three Eras earlier or more do not count towards the cost.</Text>
+			<Text>Additional [ICON_PRODUCTION] Production cost due to owned World Wonders: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].[NEWLINE][ICON_PRODUCTION] Production cost increase metric:[NEWLINE][ICON_BULLET] Wonders from the same Era: [COLOR_POSITIVE_TEXT]25%.[ENDCOLOR][NEWLINE][ICON_BULLET] Wonders from the previous Era: [COLOR_POSITIVE_TEXT]15%[ENDCOLOR].[NEWLINE][ICON_BULLET] Wonders from two Eras earlier: [COLOR_POSITIVE_TEXT]10%.[ENDCOLOR]</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_GAME_OPTION_EVENTS">

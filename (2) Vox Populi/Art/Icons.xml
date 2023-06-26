@@ -434,12 +434,12 @@
 			<IconMapping>23</IconMapping>
 		</Row>
 		<Row>
-			<IconName>ICON_VP_GREATART</IconName>
+			<IconName>ICON_VP_GREATWRITING</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>24</IconMapping>
 		</Row>
 		<Row>
-			<IconName>ICON_VP_GREATWRITING</IconName>
+			<IconName>ICON_VP_GREATART</IconName>
 			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>25</IconMapping>
 		</Row>
