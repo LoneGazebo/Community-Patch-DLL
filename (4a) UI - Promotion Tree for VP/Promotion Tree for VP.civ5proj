@@ -1,0 +1,152 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Deploy" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Default</Configuration>
+    <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
+    <Name>(4a) UI - Promotion Tree for VP</Name>
+    <Guid>1f0a153b-26ae-4496-a2c0-a106d9b43c95</Guid>
+    <ModVersion>23</ModVersion>
+    <Stability>Stable</Stability>
+    <Teaser>(3.7.3) Shows promotions as a tree</Teaser>
+    <Description>Displays promotions in a tree format either for the current unit or by selecting one of the various combat classes (melee, naval, recon, siege, mounted, etc) from a drop-down menu
+
+Hooks into the DiploCorner drop-down.
+
+Layout derived from http://gaming.stackexchange.com/questions/15846/122</Description>
+    <Authors>William Howard (Updated for EUI by Amir Kamal; Enhancement update for VP by UndeadDevel)</Authors>
+    <SpecialThanks>Translation: Russian - Tomahawk.nsk</SpecialThanks>
+    <Categories>$Categories$</Categories>
+    <AffectsSavedGames>false</AffectsSavedGames>
+    <MinCompatibleSaveVersion>23</MinCompatibleSaveVersion>
+    <SupportsSinglePlayer>true</SupportsSinglePlayer>
+    <SupportsMultiplayer>false</SupportsMultiplayer>
+    <SupportsHotSeat>true</SupportsHotSeat>
+    <SupportsMac>true</SupportsMac>
+    <ReloadUnitSystem>false</ReloadUnitSystem>
+    <ReloadLandmarkSystem>false</ReloadLandmarkSystem>
+    <ReloadStrategicViewSystem>false</ReloadStrategicViewSystem>
+    <ReloadAudioSystem>false</ReloadAudioSystem>
+    <HideSetupGame>false</HideSetupGame>
+    <Homepage>https://forums.civfanatics.com/threads/community-patch-how-to-install.528034/</Homepage>
+    <AssemblyName>Mod Template</AssemblyName>
+    <RootNamespace>Mod Template</RootNamespace>
+    <ModDependencies>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(1) Community Patch</Name>
+        <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
+        <MinVersion>118</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>(2) Vox Populi</Name>
+        <Id>8411a7a8-dad3-4622-a18e-fcc18324c799</Id>
+        <MinVersion>16</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModDependencies>
+    <ModReferences>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Utils - Modular DiploCorner</Name>
+        <Id>21e78f1f-06f9-4147-ac61-75aa7c403d18</Id>
+        <MinVersion>3</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Promotions - Subs Silent Running</Name>
+        <Id>609a05b4-0231-4eaa-9ad1-a2d79e1fc16d</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Promotions - AntiAir Specialisations</Name>
+        <Id>a6e2d8b9-4675-4409-aa06-b9a9469d3cef</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
+    </ModReferences>
+    <ModBlockers>
+    </ModBlockers>
+    <ModActions>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>XML/UIPromotionTree.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>SQL/UIPromotionTree.sql</FileName>
+      </Action>
+    </ModActions>
+    <ModContent>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>PromotionTree</Name>
+        <Description>
+        </Description>
+        <FileName>UI/PromotionTree.xml</FileName>
+      </Content>
+    </ModContent>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Default' ">
+    <OutputPath>.</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Package Only' ">
+    <PackageMod>true</PackageMod>
+    <DeployMod>false</DeployMod>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Deploy Only' ">
+    <PackageMod>false</PackageMod>
+    <DeployMod>true</DeployMod>
+  </PropertyGroup>
+  <ItemGroup>
+    <Folder Include="LUA\" />
+    <Folder Include="SQL\" />
+    <Folder Include="UI\" />
+    <Folder Include="XML\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="LUA\ButtonManager.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\ControlUtils.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\DebugPrint.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\PipeManager.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="LUA\PromotionUtils.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="SQL\UIPromotionTree.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="UI\PromotionTree.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="UI\PromotionTree.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="XML\UIPromotionTree.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
+</Project>
