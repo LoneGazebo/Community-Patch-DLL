@@ -14131,17 +14131,17 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 
 			str += " ";
 
-			// Aztecs have a special message.
-			if (GET_PLAYER(pkPlayer->GetID()).getLeaderInfo().GetWarmongerHate() <= -1)
-			{
-				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_BLOODTHIRSTY").toUTF8();
-			}
 			// India/Venice have a special message.
-			else if (GET_PLAYER(pkPlayer->GetID()).getLeaderInfo().GetWarmongerHate() >= 12)
+			if (GET_PLAYER(pkPlayer->GetID()).getLeaderInfo().GetWarmongerHate() >= 12 || GET_PLAYER(pkPlayer->GetID()).getLeaderInfo().GetWarmongerHate() == -12)
 			{
 				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_MAXIMAL").toUTF8();
 			}
-			// Otherwise, give a hint as to this player's WarmongerHate flavor. This is relevant for humans too!
+			// Aztecs have a special message.
+			else if (GET_PLAYER(pkPlayer->GetID()).getLeaderInfo().GetWarmongerHate() <= -1)
+			{
+				str += Localization::Lookup("TXT_KEY_WARMONGER_HATE_BLOODTHIRSTY").toUTF8();
+			}
+			// Otherwise, give a hint as to this player's WarmongerHate flavor.
 			else
 			{
 				if (pDiplo->GetWarmongerHate() >= 9)

@@ -2394,17 +2394,17 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 			if (pkLeaderHeadInfo)
 			{
 				int iSeed = ID * ID * ID;
-				m_iVictoryCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetVictoryCompetitiveness(), iSeed);
-				m_iWonderCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWonderCompetitiveness(), iSeed);
-				m_iMinorCivCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), iSeed);
 
 				// Some flavors can be set to -12 to guarantee that the AI will pursue a specific victory condition, if it is enabled.
 				// These should be treated as a 10 for all other purposes.
 				m_iBoldness = pkLeaderHeadInfo->GetBoldness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetBoldness(), iSeed);
-				m_iDiploBalance = pkLeaderHeadInfo->GetDiploBalance() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDiploBalance(), iSeed);
+				m_iMinorCivCompetitiveness = pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), iSeed);
+				m_iWonderCompetitiveness = pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWonderCompetitiveness(), iSeed);
 				m_iWarmongerHate = pkLeaderHeadInfo->GetWarmongerHate() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarmongerHate(), iSeed);
-				m_iDoFWillingness = pkLeaderHeadInfo->GetDoFWillingness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDoFWillingness(), iSeed);
 
+				m_iVictoryCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetVictoryCompetitiveness(), iSeed);
+				m_iDiploBalance = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDiploBalance(), iSeed);
+				m_iDoFWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDoFWillingness(), iSeed);
 				m_iDenounceWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDenounceWillingness(), iSeed);
 				m_iLoyalty = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetLoyalty(), iSeed);
 				m_iForgiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetForgiveness(), iSeed);
@@ -3438,10 +3438,10 @@ VictoryPursuitTypes CvDiplomacyAI::GetEternalVictoryPursuit() const
 			if (pkLeaderHeadInfo->GetBoldness() == -12 && bDominationVictoryEnabled)
 				return VICTORY_PURSUIT_DOMINATION;
 
-			if (pkLeaderHeadInfo->GetDiploBalance() == -12 && bDiploVictoryEnabled)
+			if (pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 && bDiploVictoryEnabled)
 				return VICTORY_PURSUIT_DIPLOMACY;
 
-			if (pkLeaderHeadInfo->GetDoFWillingness() == -12 && bCultureVictoryEnabled)
+			if (pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 && bCultureVictoryEnabled)
 				return VICTORY_PURSUIT_CULTURE;
 
 			if (pkLeaderHeadInfo->GetWarmongerHate() == -12 && bScienceVictoryEnabled)
@@ -16208,21 +16208,6 @@ void CvDiplomacyAI::SelectApproachTowardsVassal(PlayerTypes ePlayer)
 								}
 							}
 
-							if (GetBoldness() > 6)
-							{
-								if (eHighestStrength >= STRENGTH_POWERFUL)
-								{
-									bAbort = true;
-								}
-							}
-							else
-							{
-								if (eHighestStrength >= STRENGTH_STRONG)
-								{
-									bAbort = true;
-								}
-							}
-
 							if (!GET_TEAM(GetTeam()).canDeclareWar(eMaster, GetID()))
 							{
 								bAbort = true;
@@ -19166,10 +19151,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 								iDenouncedByFriendGuardedReduction += vApproachBias[CIV_APPROACH_GUARDED];
 							}
 
-							// Need to add these ones now as they depend on the OTHER player's DiploBalance flavor...slightly less fidelity when it comes to rounding but that's ok, we should favor caution if our friend has denounced this guy!
-							int iLoopDiploBalance = GetEstimatePlayerDiploBalance(eLoopPlayer);
-							vApproachScores[CIV_APPROACH_GUARDED] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendGuardedReduction * 2, iLoopDiploBalance, true) : AdjustConditionalModifier(iDenouncedByFriendGuardedReduction, iLoopDiploBalance, true);
-							vApproachScores[CIV_APPROACH_AFRAID] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendAfraidReduction * 2, iLoopDiploBalance, true) : AdjustConditionalModifier(iDenouncedByFriendAfraidReduction, iLoopDiploBalance, true);
+							// Need to add these ones now as they depend on the OTHER player's DenounceWillingness flavor...slightly less fidelity when it comes to rounding but that's ok, we should favor caution if our friend has denounced this guy!
+							int iLoopDenounceWillingness = GetEstimatePlayerDenounceWillingness(eLoopPlayer);
+							vApproachScores[CIV_APPROACH_GUARDED] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendGuardedReduction * 2, iLoopDenounceWillingness) : AdjustConditionalModifier(iDenouncedByFriendGuardedReduction, iLoopDenounceWillingness);
+							vApproachScores[CIV_APPROACH_AFRAID] -= bEarlyGameCompetitor && GET_PLAYER(eLoopPlayer).GetCurrentEra() <= 2 ? AdjustConditionalModifier(iDenouncedByFriendAfraidReduction * 2, iLoopDenounceWillingness) : AdjustConditionalModifier(iDenouncedByFriendAfraidReduction, iLoopDenounceWillingness);
 						}
 
 						if (!pTheirDiplo->IsDenouncedPlayer(eLoopPlayer)) // Do not stack with above modifier to avoid excessive religious/ideological fervor.
@@ -30626,34 +30611,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvAssert(eMinorCiv != NO_PLAYER);
 			if(eMinorCiv != NO_PLAYER)
 			{
-				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_FRIENDLY)
-				{
-					SetOtherPlayerSidedWithProtectedMinorTurn(ePlayer, GC.getGame().getGameTurn());
-
-					// For now the AI will always give in
-					bool bValid = false;
-					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
-					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
-						{
-							bValid = true;
-						}
-					}
-					if (bValid && (GetBoldness() > 6 || GetMeanness() > 6))
-					{
-						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
-						{
-							pDeal->ClearItems();
-							bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
-
-							if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
-							{
-								GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 3, bCareful);
-							}
-						}
-					}
-				}
-				else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_FRIENDLY || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
 				{
 					SetOtherPlayerSidedWithProtectedMinorTurn(ePlayer, GC.getGame().getGameTurn());
 
@@ -30690,7 +30648,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 
 	// We bullied a Minor someone has a PtP with
-	else if(eStatement == 	DIPLO_STATEMENT_WE_BULLIED_YOUR_MINOR)
+	else if (eStatement == DIPLO_STATEMENT_WE_BULLIED_YOUR_MINOR)
 	{
 		if(bHuman)
 		{
@@ -30714,7 +30672,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvAssert(eMinorCiv != NO_PLAYER);
 			if(eMinorCiv != NO_PLAYER)
 			{
-				if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_FRIENDLY)
+				if (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetCivApproach(eMinorCiv) == CIV_APPROACH_FRIENDLY || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
 				{
 					SetOtherPlayerSidedWithProtectedMinorTurn(ePlayer, GC.getGame().getGameTurn());
 
@@ -30727,29 +30685,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 							bValid = true;
 						}
 					}
-					if (bValid && (GetBoldness() > 6 || GetMeanness() > 6))
-					{
-						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
-						{
-							pDeal->ClearItems();
-							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer,3);
-						}
-					}
-				}
-				else if(GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMinorCivCompetitiveness() > 6)
-				{
-					SetOtherPlayerSidedWithProtectedMinorTurn(ePlayer, GC.getGame().getGameTurn());
-
-					// For now the AI will always give in
-					bool bValid = false;
-					if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
-					{
-						if (GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian()) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
-						{
-							bValid = true;
-						}
-					}
-					if (bValid && (GetBoldness() > 6 || GetMeanness() > 6))
+					if (bValid && (GetBoldness() > 7 || GetMeanness() > 7))
 					{
 						if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
 						{
@@ -30968,158 +30904,65 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	}
 
 	// We'd like to work with a player
-	else if(eStatement == DIPLO_STATEMENT_WORK_WITH_US)
+	else if (eStatement == DIPLO_STATEMENT_WORK_WITH_US || eStatement == DIPLO_STATEMENT_DOF_BB || eStatement == DIPLO_STATEMENT_DOF_ALLIES || eStatement == DIPLO_STATEMENT_DOF_FRIENDS || eStatement == DIPLO_STATEMENT_DOF_UNTRUSTWORTHY)
 	{
 		// Send message to human
-		if(bHuman)
+		if (bHuman)
 		{
-			szText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_WITH_US);
-			CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_WORK_WITH_US, szText, LEADERHEAD_ANIM_REQUEST);
-		}
-		// AI resolution
-		else
-		{
-			// Accept - reject is assumed from the counter
-			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetID()))
+			switch (eStatement)
 			{
-				SetDoFAccepted(ePlayer, true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetID(), true);
-				SetDoFType(ePlayer, DOF_TYPE_FRIENDS);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetID(), DOF_TYPE_FRIENDS);	
-
-				// Update diplomacy stuff
-				vector<PlayerTypes> v(1, ePlayer);
-				DoReevaluatePlayers(v, false, false);
-
-				vector<PlayerTypes> v2(1, GetID());
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2, false, false);
-
-				LogDoF(ePlayer);
+			case DIPLO_STATEMENT_DOF_BB:
+				szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_BATTLE_BROTHERS);
+				break;
+			case DIPLO_STATEMENT_DOF_ALLIES:
+				szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_OLD_FRIENDS);
+				break;
+			case DIPLO_STATEMENT_DOF_FRIENDS:
+				szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_FRIENDS);
+				break;
+			case DIPLO_STATEMENT_DOF_UNTRUSTWORTHY:
+				szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_UNTRUSTWORTHY);
+				break;
+			default:
+				szText = GetDiploStringForMessage(DIPLO_MESSAGE_WORK_WITH_US);
+				break;
 			}
-		}
-	}
 
-	// We'd like to work with a player
-	else if(eStatement == DIPLO_STATEMENT_DOF_BB)
-	{
-		// Send message to human
-		if(bHuman)
-		{
-			szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_BATTLE_BROTHERS);
 			CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_WORK_WITH_US, szText, LEADERHEAD_ANIM_REQUEST);
 		}
 		// AI resolution
-		else
+		// Accept - reject is assumed from the counter
+		else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetID()))
 		{
-			// Accept - reject is assumed from the counter
-			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetID()))
-			{
-				SetDoFAccepted(ePlayer, true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetID(), true);
-				
-				// Update diplomacy stuff
-				vector<PlayerTypes> v(1, ePlayer);
-				DoReevaluatePlayers(v, false, false);
+			SetDoFAccepted(ePlayer, true);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetID(), true);
 
-				vector<PlayerTypes> v2(1, GetID());
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2, false, false);
-
-				LogDoF(ePlayer);
-			}
-		}
-	}
-	// We'd like to work with a player
-	else if(eStatement == DIPLO_STATEMENT_DOF_ALLIES)
-	{
-		// Send message to human
-		if(bHuman)
-		{
-			szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_OLD_FRIENDS);
-			CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_WORK_WITH_US, szText, LEADERHEAD_ANIM_REQUEST);
-		}
-		// AI resolution
-		else
-		{
-			// Accept - reject is assumed from the counter
-			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetID()))
+			switch (eStatement)
 			{
-				SetDoFAccepted(ePlayer, true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetID(), true);
+			case DIPLO_STATEMENT_DOF_BB:
+				break;
+			case DIPLO_STATEMENT_DOF_ALLIES:
 				SetDoFType(ePlayer, DOF_TYPE_BATTLE_BROTHERS);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetID(), DOF_TYPE_BATTLE_BROTHERS);
-
-				// Update diplomacy stuff
-				vector<PlayerTypes> v(1, ePlayer);
-				DoReevaluatePlayers(v, false, false);
-
-				vector<PlayerTypes> v2(1, GetID());
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2, false, false);
-
-				LogDoF(ePlayer);
-			}
-		}
-	}
-	// We'd like to work with a player
-	else if(eStatement == DIPLO_STATEMENT_DOF_FRIENDS)
-	{
-		// Send message to human
-		if(bHuman)
-		{
-			szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_FRIENDS);
-			CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_WORK_WITH_US, szText, LEADERHEAD_ANIM_REQUEST);
-		}
-		// AI resolution
-		else
-		{
-			// Accept - reject is assumed from the counter
-			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetID()))
-			{
-				SetDoFAccepted(ePlayer, true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetID(), true);
+				break;
+			case DIPLO_STATEMENT_DOF_FRIENDS:
 				SetDoFType(ePlayer, DOF_TYPE_ALLIES);
 				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetID(), DOF_TYPE_ALLIES);
-
-				// Update diplomacy stuff
-				vector<PlayerTypes> v(1, ePlayer);
-				DoReevaluatePlayers(v, false, false);
-
-				vector<PlayerTypes> v2(1, GetID());
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2, false, false);
-
-				LogDoF(ePlayer);
-			}
-		}
-	}
-	// We'd like to work with a player
-	else if(eStatement == DIPLO_STATEMENT_DOF_UNTRUSTWORTHY)
-	{
-		// Send message to human
-		if(bHuman)
-		{
-			szText = GetDiploStringForMessage(DIPLO_MESSAGE_DOF_UNTRUSTWORTHY);
-			CvDiplomacyRequests::SendRequest(GetID(), ePlayer, DIPLO_UI_STATE_DISCUSS_WORK_WITH_US, szText, LEADERHEAD_ANIM_REQUEST);
-		}
-		// AI resolution
-		else
-		{
-			// Accept - reject is assumed from the counter
-			if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAcceptable(GetID()))
-			{
-				SetDoFAccepted(ePlayer, true);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFAccepted(GetID(), true);
-
+				break;
+			default:
 				SetDoFType(ePlayer, DOF_TYPE_FRIENDS);
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetID(), DOF_TYPE_FRIENDS);		
-
-				// Update diplomacy stuff
-				vector<PlayerTypes> v(1, ePlayer);
-				DoReevaluatePlayers(v, false, false);
-
-				vector<PlayerTypes> v2(1, GetID());
-				GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2, false, false);
-
-				LogDoF(ePlayer);
+				GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFType(GetID(), DOF_TYPE_FRIENDS);
+				break;
 			}
+
+			// Update diplomacy stuff
+			vector<PlayerTypes> v(1, ePlayer);
+			DoReevaluatePlayers(v, false, false);
+
+			vector<PlayerTypes> v2(1, GetID());
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2, false, false);
+
+			LogDoF(ePlayer);
 		}
 	}
 
@@ -42694,7 +42537,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	}
 
 	// Coop war score with ally?
-	iScore += (GetCoopWarScore(eAllyPlayer) * 3);
+	iScore += GetCoopWarScore(eAllyPlayer) * 3;
 
 	// How do we feel about the target?
 	switch (GetCivApproach(eTargetPlayer))
@@ -42773,7 +42616,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		bBadness = true;
 
 	// Coop war score with target?
-	iScore -= (GetCoopWarScore(eTargetPlayer) * 3);
+	iScore -= GetCoopWarScore(eTargetPlayer) * 3;
 
 	// Coop war already planned against this target with somebody else?
 	if (GetGlobalCoopWarAgainstState(eTargetPlayer) >= COOP_WAR_STATE_PREPARING)
@@ -42884,7 +42727,7 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 	// World Conquest?
 	if (IsGoingForWorldConquest() || IsCloseToWorldConquest())
 	{
-		iScore += (GetBoldness() * 2);
+		iScore += GetBoldness() * 2;
 	}
 
 	// Diplomatic Victory?
@@ -44521,7 +44364,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 
 	if (eOpinion == CIV_OPINION_COMPETITOR)
 	{
-		iChance -= GetDiploBalance();
+		iChance -= GetDenounceWillingness();
 	}
 
 	if (GetWarmongerThreat(ePlayer) >= THREAT_SEVERE)
@@ -51134,7 +50977,12 @@ int CvDiplomacyAI::GetEstimatePlayerWonderCompetitiveness(PlayerTypes ePlayer) c
 	}
 
 	// AI? Use the other player's base XML value.
-	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetWonderCompetitiveness(), 1, 10);
+	// WonderCompetitiveness can be set to -12 to guarantee that the AI will pursue Culture Victory if possible. This is treated as a 10.
+	int iWonderCompetitiveness = GET_PLAYER(ePlayer).getLeaderInfo().GetWonderCompetitiveness();
+	if (iWonderCompetitiveness == -12)
+		iWonderCompetitiveness = 10;
+
+	return range(iWonderCompetitiveness, 1, 10);
 }
 
 /// How much do we estimate this other leader gets angry when another player is befriending "their" minor civs?
@@ -51155,7 +51003,12 @@ int CvDiplomacyAI::GetEstimatePlayerMinorCivCompetitiveness(PlayerTypes ePlayer)
 	}
 
 	// AI? Use the other player's base XML value.
-	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivCompetitiveness(), 1, 10);
+	// MinorCivCompetitiveness can be set to -12 to guarantee that the AI will pursue Diplomatic Victory if possible. This is treated as a 10.
+	int iMinorCivCompetitiveness = GET_PLAYER(ePlayer).getLeaderInfo().GetMinorCivCompetitiveness();
+	if (iMinorCivCompetitiveness == -12)
+		iMinorCivCompetitiveness = 10;
+
+	return range(iMinorCivCompetitiveness, 1, 10);
 }
 
 /// What is this other leader's estimated likelihood to take risks / go for World Conquest?
@@ -51202,12 +51055,7 @@ int CvDiplomacyAI::GetEstimatePlayerDiploBalance(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	// DiploBalance can be set to -12 to guarantee that the AI will pursue Diplomatic Victory if possible. This is treated as a 10.
-	int iDiploBalance = GET_PLAYER(ePlayer).getLeaderInfo().GetDiploBalance();
-	if (iDiploBalance == -12)
-		iDiploBalance = 10;
-
-	return range(iDiploBalance, 1, 10);
+	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetDiploBalance(), 1, 10);
 }
 
 /// How much does this other leader gets angry when someone's being a warmonger?
@@ -51307,12 +51155,7 @@ int CvDiplomacyAI::GetEstimatePlayerDoFWillingness(PlayerTypes ePlayer) const
 	}
 
 	// AI? Use the other player's base XML value.
-	// DoFWillingness can be set to -12 to guarantee that the AI will pursue Culture Victory if possible. This is treated as a 10.
-	int iDoFWillingness = GET_PLAYER(ePlayer).getLeaderInfo().GetDoFWillingness();
-	if (iDoFWillingness == -12)
-		iDoFWillingness = 10;
-
-	return range(iDoFWillingness, 1, 10);
+	return range(GET_PLAYER(ePlayer).getLeaderInfo().GetDoFWillingness(), 1, 10);
 }
 
 /// What is this other leader's estimated likelihood to work with someone AGAINST another player?
