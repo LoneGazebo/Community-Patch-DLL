@@ -9865,7 +9865,7 @@ void CvDiplomacyAI::DoUpdateConquestStats()
 		for (CvCity* pLoopCity = GET_PLAYER(eLoopPlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eLoopPlayer).nextCity(&iLoop))
 		{
 			CvPlot* pCityPlot = pLoopCity->plot();
-			if (pCityPlot == NULL || !pLoopCity->isRevealed(GetTeam(),false,true))
+			if (pCityPlot == NULL || !pLoopCity->isRevealed(GetTeam(),false,false))
 				continue;
 
 			PlayerTypes eCityOwner = pCityPlot->getOwner();
