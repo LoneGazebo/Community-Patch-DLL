@@ -6512,30 +6512,47 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			if (kPlayer.getTeam() == GET_PLAYER(ePlayer).getTeam())
 				continue;
 
-			// Ignore players who never founded an original capital
-			if (kPlayer.GetNumCitiesFounded() == 0)
-				continue;
-
-			int iX = kPlayer.GetOriginalCapitalX();
-			int iY = kPlayer.GetOriginalCapitalY();
-			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
-			if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
-				continue;
-
-			PlayerTypes eCapitalOwner = pCapitalPlot->getPlotCity()->GetOwnerForDominationVictory();
-
-			// Not already at war?
-			if (!GET_PLAYER(eCapitalOwner).IsAtWarWith(ePlayer))
+			// If testing elimination, ignore capitals and just look at war status
+			if (bCheckEliminationPossible)
 			{
-				return false;
+				if (!kPlayer.isAlive())
+					continue;
+
+				// Not already at war?
+				if (!kPlayer.IsAtWarWith(ePlayer))
+					return false;
+
+				// Already at war, but making peace with this player would stop us from eliminating everyone?
+				if (eMakePeacePlayer != NO_PLAYER && eMakePeacePlayer == kPlayer.GetID())
+					return false;
 			}
-
-			// Already at war, but making peace with this player would block us from achieving Domination Victory?
-			if (eMakePeacePlayer != NO_PLAYER)
+			else
 			{
-				if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+				// Ignore players who never founded an original capital
+				if (kPlayer.GetNumCitiesFounded() == 0)
+					continue;
+
+				int iX = kPlayer.GetOriginalCapitalX();
+				int iY = kPlayer.GetOriginalCapitalY();
+				CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
+					continue;
+
+				PlayerTypes eCapitalOwner = pCapitalPlot->getPlotCity()->GetOwnerForDominationVictory();
+
+				// Not already at war?
+				if (!GET_PLAYER(eCapitalOwner).IsAtWarWith(ePlayer))
 				{
 					return false;
+				}
+
+				// Already at war, but making peace with this player would block us from achieving Domination Victory?
+				if (eMakePeacePlayer != NO_PLAYER)
+				{
+					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					{
+						return false;
+					}
 				}
 			}
 		}
@@ -6550,34 +6567,55 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			if (kPlayer.getTeam() == GET_PLAYER(ePlayer).getTeam())
 				continue;
 
-			// Ignore players who never founded an original capital
-			if (kPlayer.GetNumCitiesFounded() == 0)
-				continue;
-
-			int iX = kPlayer.GetOriginalCapitalX();
-			int iY = kPlayer.GetOriginalCapitalY();
-			CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
-			if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
-				continue;
-
-			PlayerTypes eCapitalOwner = pCapitalPlot->getPlotCity()->GetOwnerForDominationVictory();
-
-			// It's only humans we can't make peace with ...
-			if (!GET_PLAYER(eCapitalOwner).isHuman())
-				continue;
-
-			// Not already at war?
-			if (!GET_PLAYER(eCapitalOwner).IsAtWarWith(ePlayer))
+			// If testing elimination, ignore capitals and just look at war status
+			if (bCheckEliminationPossible)
 			{
-				return false;
+				if (!kPlayer.isAlive())
+					continue;
+
+				// It's only humans we can't make peace with ...
+				if (!kPlayer.isHuman())
+					continue;
+
+				// Not already at war?
+				if (!kPlayer.IsAtWarWith(ePlayer))
+					return false;
+
+				// Already at war, but making peace with this player would stop us from eliminating everyone?
+				if (eMakePeacePlayer != NO_PLAYER && eMakePeacePlayer == kPlayer.GetID())
+					return false;
 			}
-
-			// Already at war, but making peace with this player would block us from achieving Domination Victory?
-			if (eMakePeacePlayer != NO_PLAYER)
+			else
 			{
-				if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+				// Ignore players who never founded an original capital
+				if (kPlayer.GetNumCitiesFounded() == 0)
+					continue;
+
+				int iX = kPlayer.GetOriginalCapitalX();
+				int iY = kPlayer.GetOriginalCapitalY();
+				CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
+					continue;
+
+				PlayerTypes eCapitalOwner = pCapitalPlot->getPlotCity()->GetOwnerForDominationVictory();
+
+				// It's only humans we can't make peace with ...
+				if (!GET_PLAYER(eCapitalOwner).isHuman())
+					continue;
+
+				// Not already at war?
+				if (!GET_PLAYER(eCapitalOwner).IsAtWarWith(ePlayer))
 				{
 					return false;
+				}
+
+				// Already at war, but making peace with this player would block us from achieving Domination Victory?
+				if (eMakePeacePlayer != NO_PLAYER)
+				{
+					if (GET_PLAYER(eCapitalOwner).getTeam() == GET_PLAYER(eMakePeacePlayer).getTeam())
+					{
+						return false;
+					}
 				}
 			}
 		}
