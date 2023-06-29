@@ -28,9 +28,9 @@ Create a folder somewhere on your computer named "Debug", with two blank folders
 
 [STEP 3]
 If the new release is savegame incompatible:
-- Increment the modinfo version number of (1) Community Patch by one.
-- Increment the modinfo minimum savegame compatible version of (1) Community Patch by one.
-- For (2), (3a), (3b), (4a) and (4b), increment the modinfo minimum version of the Community Patch (required as a dependency) by 1.
+- Increment the .civ5proj version number of (1) Community Patch by one.
+- Increment the .civ5proj minimum savegame compatible version of (1) Community Patch by one.
+- For (2), (3a), (3b), and (4a), increment the .civ5proj file's minimum version of the Community Patch (required as a dependency) by 1.
 - Increment the version numbers at the beginning of the CvGameCoreDLL_Expansion2/CustomMods.h file by 1.
 
 NOTE: .gitignore is set to ignore the Vox Populi Installer Files/(1) Community Patch (v. #) between n and n+10, inclusive, where n is the current version number. Should the version number rise by more than 10, .gitignore will need updating.
@@ -64,13 +64,6 @@ Directory: GitHub\Community-Patch-DLL
 
 
 [STEP 5]
-Copy the following folders from the repository and place them in the Vox Populi Installer Files folder:
-- (4a) Promotion Icons for VP
-- (4b) UI - Promotion Tree for VP
-
-
-
-[STEP 6]
 Create a commit for the new release, and tag it as shown below. DO NOT PUSH TO GITHUB yet.
 Commit Name: "{Version Number} Release"
 Tag Name: "Release-{Version Number}"
@@ -78,7 +71,7 @@ Tag Name: "Release-{Version Number}"
 Tip: This step is necessary to ensure the GameCoreDLL has the correct release identifier, which can be compared later when debugging.
 
 
-[STEP 7]
+[STEP 6]
 A. Build the CvGameCore_Expansion2.dll file using the Release config (instructions are on the main repository page).
 
 
@@ -97,7 +90,7 @@ E. Delete the clang-output and clang-build folders in the repository.
 
 
 
-[STEP 8]
+[STEP 7]
 A. Build the 43 Civ version of the game core using the Release config (uncomment "#define MAX_MAJOR_CIVS (43)" in CvGameCoreDLLUtil/include/CustomModsGlobal.h, then build normally).
 
 
@@ -118,17 +111,18 @@ F. Delete the clang-output and clang-build folders in the repository.
 
 
 
-[STEP 9]
+[STEP 8]
 Delete the "Release-{Version Number}" tag you've added to the new release commit, and undo the commit.
 
 
 
-[STEP 10]
+[STEP 9]
 A. Build the following mods in ModBuddy:
 - (1) Community Patch
 - (2) Vox Populi
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
+- (4a) UI - Promotion Tree for VP
 
 B. Copy the compiled mods from your MODS folder and place them in the Vox Populi Installer Files folder.
 
@@ -136,7 +130,7 @@ C. Remove the version numbers at the end of the mod folder names.
 
 
 
-[STEP 11]
+[STEP 10]
 A. Cut and paste the LUA folder in the (1) Community Patch mod into the "LUA for (1) CP" folder.
 
 
@@ -144,33 +138,34 @@ B. Cut and paste the LUA folder in the (2) Vox Populi mod into the "LUA for (2) 
 
 
 
-[STEP 12]
+[STEP 11]
 If you've done everything correctly, you can open the CPPSetupData.iss file and hit "Compile". When it finishes, the compiled autoinstaller will be located in the "Output" subfolder.
 
 
 
-[STEP 13]
+[STEP 12]
 Copy the newly compiled .modinfo files for the following mods from Vox Populi Installer Files to the mods' individual folders in the main folder:
 - (1) Community Patch
 - (2) Vox Populi
 - (3a) VP - EUI Compatibility Files
 - (3b) 43 Civs Community Patch
+- (4a) UI - Promotion Free for VP
 
 
 
-[STEP 14]
+[STEP 13]
 Create a commit for the new release, and tag it as shown below.
 Commit Name: "{Version Number} Release"
 Tag Name: "Release-{Version Number}"
 
 
 
-[STEP 15]
+[STEP 14]
 Push the release commit to GitHub.
 
 
 
-[STEP 16]
+[STEP 15]
 A. Go to Releases on GitHub and draft a new release. Upload the compiled autoinstaller and zipped Debug folder to the release binaries.
 
 
@@ -200,7 +195,7 @@ F. Publish the release.
 
 
 
-[STEP 17]
+[STEP 16]
 IF NOT SAVEGAME COMPATIBLE: Make a new version thread on CivFanatics, including the changelog.
 
 IF SAVEGAME COMPATIBLE: Edit the existing release thread on CivFanatics. Edit the title, add the changelog to the OP, and also make a new post in the thread (including the changelog) to alert everyone.
@@ -211,5 +206,5 @@ After making the thread, copy and paste the forum thread link next to "**Release
 
 
 
-[STEP 18]
+[STEP 17]
 Announce the new version on Vox Populi's Discord server. If the new release is NOT savegame compatible, ping @everyone in your announcement.

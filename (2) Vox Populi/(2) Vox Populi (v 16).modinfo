@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.7.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.7.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -69,7 +69,7 @@
     <File md5="289BEB45E1C17E01347F9581BCDCC9C2" import="1">Art/Improvements/Hacienda/hacienda_pl.gr2</File>
     <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Art/Improvements/Hacienda/hacienda_pl_decal.dds</File>
     <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Art/Improvements/Hacienda/hacienda_pl_diff.dds</File>
-    <File md5="BC35CB2E07E5C2D6612292959E6E90DB" import="0">Art/Icons.xml</File>
+    <File md5="D982B736DF2AED875E5DC97839C558E5" import="0">Art/Icons.xml</File>
     <File md5="35AF967C607A5A6B20F789CBC4D4AEB8" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
     <File md5="0C2F0F61FEF45927073FBC36BA11BC60" import="1">Art/Icons/VP_FontIconAtlas.ggxml</File>
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Art/Icons/citizenmusician.dds</File>
@@ -167,47 +167,47 @@
     <File md5="5F654393CEE6AFE546DB6AF3C99DF8CD" import="1">Art/Improvements/Villa/Mediterranean Villa.gr2</File>
     <File md5="53A5E988462B51CE49BC694DEC83609F" import="1">Art/Improvements/Villa/MediterraneanCityCenter01Ground.DDS</File>
     <File md5="C55133CCD6BD324A8AEAF1AB4419C0FF" import="1">Art/Improvements/Villa/westernCourthouse_cm.dds</File>
-    <File md5="23d32db7956af35953dd896f6bdac929" import="1">Art/Promotions/extraPromo_016.dds</File>
-    <File md5="61c1c97da4bc3242d5cf9cf9a82a069b" import="1">Art/Promotions/extraPromo_032.dds</File>
-    <File md5="5015c3fa07d87e5ffb57b523251e67f3" import="1">Art/Promotions/extraPromo_045.dds</File>
-    <File md5="8341bd50eaa245dbe05a15f09c0366fa" import="1">Art/Promotions/extraPromo_064.dds</File>
-    <File md5="46d6c357c6e857d8e97a635918bfd7b8" import="1">Art/Promotions/extraPromo_256.dds</File>
+    <File md5="23D32DB7956AF35953DD896F6BDAC929" import="1">Art/Promotions/extraPromo_016.dds</File>
+    <File md5="61C1C97DA4BC3242D5CF9CF9A82A069B" import="1">Art/Promotions/extraPromo_032.dds</File>
+    <File md5="5015C3FA07D87E5FFB57B523251E67F3" import="1">Art/Promotions/extraPromo_045.dds</File>
+    <File md5="8341BD50EAA245DBE05A15F09C0366FA" import="1">Art/Promotions/extraPromo_064.dds</File>
+    <File md5="46D6C357C6E857D8E97A635918BFD7B8" import="1">Art/Promotions/extraPromo_256.dds</File>
     <File md5="E6401F7B8E511BBD31E2965C89556CE5" import="1">Art/Promotions/PDanNewBeliefs_PI_016.dds</File>
     <File md5="A51E10A1C2EF259758B8E9FDD86BB569" import="1">Art/Promotions/PDanNewBeliefs_PI_032.dds</File>
     <File md5="7CB27DFB48374FFE41060C1B3248ED6D" import="1">Art/Promotions/PDanNewBeliefs_PI_045.dds</File>
     <File md5="DE6FF00713EBEDBE7A052726C18D51A5" import="1">Art/Promotions/PDanNewBeliefs_PI_064.dds</File>
     <File md5="6A5CEF3E82D9B64FD00EE6871F4BC5CB" import="1">Art/Promotions/PDanNewBeliefs_PI_256.dds</File>
-    <File md5="51ac21c1b109126bb17a68bdde77d91a" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
-    <File md5="51ac21c1b109126bb17a68bdde77d91a" import="1">Art/Promotions/promoVP_00_016.dds</File>
-    <File md5="8fea4c187f2de97abcb8a16ab161beb9" import="1">Art/Promotions/promoVP_00_032.dds</File>
-    <File md5="0fb9793be3b9931613e9eafc190dacb8" import="1">Art/Promotions/promoVP_00_045.dds</File>
-    <File md5="0ed3ef48bad4f51352f1e08775b6643e" import="1">Art/Promotions/promoVP_00_064.dds</File>
-    <File md5="1fff8656b3f28452f690a2251fb495eb" import="1">Art/Promotions/promoVP_00_256.dds</File>
-    <File md5="41389759d9bd4e011d7a318b0141165e" import="1">Art/Promotions/promoVP_01_016.dds</File>
-    <File md5="7ace0f53ba3e0d4016c101dbd5130548" import="1">Art/Promotions/promoVP_01_032.dds</File>
-    <File md5="7b34c7701e20d95eb551d075f68a4315" import="1">Art/Promotions/promoVP_01_045.dds</File>
-    <File md5="e41cf9c78556214be8062564e6341021" import="1">Art/Promotions/promoVP_01_064.dds</File>
-    <File md5="ca7b1ee8764c8dc398d73f8443506d96" import="1">Art/Promotions/promoVP_01_256.dds</File>
-    <File md5="b9b8cfc434da113b167c3f4941038d47" import="1">Art/Promotions/promoVP_02_016.dds</File>
-    <File md5="9a9bb56ad02b859880f3bda91827fb03" import="1">Art/Promotions/promoVP_02_032.dds</File>
-    <File md5="78e9b0fa1f508abd62a6d1374c366c38" import="1">Art/Promotions/promoVP_02_045.dds</File>
-    <File md5="158e6189db618b83275bd3cce032b0f4" import="1">Art/Promotions/promoVP_02_064.dds</File>
-    <File md5="6689408c2796e7530c489cd4e086239b" import="1">Art/Promotions/promoVP_02_256.dds</File>
-    <File md5="0cc86315f794983da3b409c614802d8b" import="1">Art/Promotions/promoVP_03_016.dds</File>
-    <File md5="32410c75c4f43935cd84e4054b4e4222" import="1">Art/Promotions/promoVP_03_032.dds</File>
-    <File md5="eb788c00a49398503841bd6eda639a7d" import="1">Art/Promotions/promoVP_03_045.dds</File>
-    <File md5="9a7db5868f5b5a0fa3a3767c697ad838" import="1">Art/Promotions/promoVP_03_064.dds</File>
-    <File md5="88a551ea1d0d3fd8900d6a77a8ac2760" import="1">Art/Promotions/promoVP_03_256.dds</File>
-    <File md5="6a7d8549eac4d538fec2e16de42c7b95" import="1">Art/Promotions/promoVP_04_016.dds</File>
-    <File md5="17dc173e2c90f35e94d809851b3e6149" import="1">Art/Promotions/promoVP_04_032.dds</File>
-    <File md5="3af5ed1bdb6910c57f10f1c3c5654c15" import="1">Art/Promotions/promoVP_04_045.dds</File>
-    <File md5="cda0f91898cec393f0c68ffee4e7f6ea" import="1">Art/Promotions/promoVP_04_064.dds</File>
-    <File md5="33234857d791d372cac5eed049b5c868" import="1">Art/Promotions/promoVP_04_256.dds</File>
-    <File md5="41f57259ea46fe46eb95225b822faef8" import="1">Art/Promotions/tempVPPI_016.dds</File>
-    <File md5="34dd10bc8e3fbf593c730aaff21d0524" import="1">Art/Promotions/tempVPPI_032.dds</File>
-    <File md5="fa2b7db502d6b850dfbda1fdcf81c722" import="1">Art/Promotions/tempVPPI_045.dds</File>
-    <File md5="b0e81971f669cadfea2baeeb0762977d" import="1">Art/Promotions/tempVPPI_064.dds</File>
-    <File md5="1b53270a1c6c517bbbaf1b2ef0e1f5f5" import="1">Art/Promotions/tempVPPI_256.dds</File>
+    <File md5="6733F95C5AB546FD2559CA894657CC2A" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
+    <File md5="51AC21C1B109126BB17A68BDDE77D91A" import="1">Art/Promotions/promoVP_00_016.dds</File>
+    <File md5="8FEA4C187F2DE97ABCB8A16AB161BEB9" import="1">Art/Promotions/promoVP_00_032.dds</File>
+    <File md5="0FB9793BE3B9931613E9EAFC190DACB8" import="1">Art/Promotions/promoVP_00_045.dds</File>
+    <File md5="0ED3EF48BAD4F51352F1E08775B6643E" import="1">Art/Promotions/promoVP_00_064.dds</File>
+    <File md5="1FFF8656B3F28452F690A2251FB495EB" import="1">Art/Promotions/promoVP_00_256.dds</File>
+    <File md5="41389759D9BD4E011D7A318B0141165E" import="1">Art/Promotions/promoVP_01_016.dds</File>
+    <File md5="7ACE0F53BA3E0D4016C101DBD5130548" import="1">Art/Promotions/promoVP_01_032.dds</File>
+    <File md5="7B34C7701E20D95EB551D075F68A4315" import="1">Art/Promotions/promoVP_01_045.dds</File>
+    <File md5="E41CF9C78556214BE8062564E6341021" import="1">Art/Promotions/promoVP_01_064.dds</File>
+    <File md5="CA7B1EE8764C8DC398D73F8443506D96" import="1">Art/Promotions/promoVP_01_256.dds</File>
+    <File md5="B9B8CFC434DA113B167C3F4941038D47" import="1">Art/Promotions/promoVP_02_016.dds</File>
+    <File md5="9A9BB56AD02B859880F3BDA91827FB03" import="1">Art/Promotions/promoVP_02_032.dds</File>
+    <File md5="78E9B0FA1F508ABD62A6D1374C366C38" import="1">Art/Promotions/promoVP_02_045.dds</File>
+    <File md5="158E6189DB618B83275BD3CCE032B0F4" import="1">Art/Promotions/promoVP_02_064.dds</File>
+    <File md5="6689408C2796E7530C489CD4E086239B" import="1">Art/Promotions/promoVP_02_256.dds</File>
+    <File md5="E479F045C82C91D91993D6955AFAF1A7" import="1">Art/Promotions/promoVP_03_016.dds</File>
+    <File md5="192DBB8680BF68AC79F5499D428513D1" import="1">Art/Promotions/promoVP_03_032.dds</File>
+    <File md5="70D6F970C76E5660B3D60F597440899A" import="1">Art/Promotions/promoVP_03_045.dds</File>
+    <File md5="3FA81807839CB828BB53FDFA500EA653" import="1">Art/Promotions/promoVP_03_064.dds</File>
+    <File md5="8D45B411AFEDA5FC453C436DE95E707E" import="1">Art/Promotions/promoVP_03_256.dds</File>
+    <File md5="6A7D8549EAC4D538FEC2E16DE42C7B95" import="1">Art/Promotions/promoVP_04_016.dds</File>
+    <File md5="17DC173E2C90F35E94D809851B3E6149" import="1">Art/Promotions/promoVP_04_032.dds</File>
+    <File md5="3AF5ED1BDB6910C57F10F1C3C5654C15" import="1">Art/Promotions/promoVP_04_045.dds</File>
+    <File md5="CDA0F91898CEC393F0C68FFEE4E7F6EA" import="1">Art/Promotions/promoVP_04_064.dds</File>
+    <File md5="33234857D791D372CAC5EED049B5C868" import="1">Art/Promotions/promoVP_04_256.dds</File>
+    <File md5="41F57259EA46FE46EB95225B822FAEF8" import="1">Art/Promotions/tempVPPI_016.dds</File>
+    <File md5="34DD10BC8E3FBF593C730AAFF21D0524" import="1">Art/Promotions/tempVPPI_032.dds</File>
+    <File md5="FA2B7DB502D6B850DFBDA1FDCF81C722" import="1">Art/Promotions/tempVPPI_045.dds</File>
+    <File md5="B0E81971F669CADFEA2BAEEB0762977D" import="1">Art/Promotions/tempVPPI_064.dds</File>
+    <File md5="1B53270A1C6C517BBBAF1B2EF0E1F5F5" import="1">Art/Promotions/tempVPPI_256.dds</File>
     <File md5="8CB2A10240E2775615451981F63B0420" import="0">Art/Resources/GlobalSpiceIslandsArt.xml</File>
     <File md5="1C03FD1E9AC702D4CD52B722054F7AD9" import="1">Art/Resources/Spices/cloves_diff.dds</File>
     <File md5="B27A2B6D05261F9AC58DCB266F5EBBFF" import="1">Art/Resources/Spices/cloves_sref.dds</File>
@@ -543,7 +543,7 @@
     <File md5="B934CCE442F8E254C4E33E928F067ADA" import="0">Balance Changes/Units/UnitAITypes.sql</File>
     <File md5="BC54188EB58609ECE643FFB5A09C964F" import="0">Balance Changes/Units/UnitFlavors.sql</File>
     <File md5="CC09B40E17075CFD2EAF2F87AA70E8B4" import="0">Balance Changes/Units/PromotionChanges.sql</File>
-    <File md5="CC09B40E17075CFD2EAF2F87AA70E8B4" import="0">Balance Changes/Units/PromotionIcons.sql</File>
+    <File md5="D9E4B18F7D3CD8D3F40CF46B8A2F06F3" import="0">Balance Changes/Units/PromotionIcons.sql</File>
     <File md5="68EF7E3A7213DB6520C6C66D64904105" import="0">Balance Changes/Units/UnitFreePromotions.sql</File>
     <File md5="A6271BC4456C2C740B1F23CDD76DDADD" import="0">Balance Changes/Wonders/NewWonders.xml</File>
     <File md5="787B6A3BD45A5472ED620F1F64BECE36" import="0">Balance Changes/Wonders/WonderCultureCosts.sql</File>
