@@ -11321,6 +11321,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	bool bRevealed = isRevealed(eTeam) != bNewValue;
 	if(bRevealed)
 	{
+		bVisbilityUpdated = true;
 		m_bfRevealed.ToggleBit(eTeam);
 
 		bool bEligibleForAchievement = MOD_API_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman() && !GC.getGame().isGameMultiPlayer() : false;
@@ -11543,7 +11544,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 
 		if(eTeam == eActiveTeam)
 		{
-			bVisbilityUpdated = true;
 			updateSymbols();
 			updateFog(true);
 			updateVisibility();
