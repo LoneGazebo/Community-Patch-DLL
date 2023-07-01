@@ -1812,6 +1812,10 @@ bool CvMinorCivQuest::IsExpired()
 	// Trade Route
 	else if(m_eType == MINOR_CIV_QUEST_TRADE_ROUTE)
 	{
+		// City-State Sanctions resolution in effect?
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL && pLeague->IsTradeEmbargoed(m_eAssignedPlayer, m_eMinor))
+			return true;
 	}
 	// War on other Major
 	else if(m_eType == MINOR_CIV_QUEST_WAR)
@@ -7190,6 +7194,11 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		// This player must be able to build a trade route either by land or sea
 		if(!GC.getGame().GetGameTrade()->CanCreateTradeRoute(ePlayer,GetPlayer()->GetID(), DOMAIN_LAND) &&
 			!GC.getGame().GetGameTrade()->CanCreateTradeRoute(ePlayer,GetPlayer()->GetID(), DOMAIN_SEA))
+			return false;
+
+		// City-State Sanctions resolution in effect?
+		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+		if (pLeague != NULL && pLeague->IsTradeEmbargoed(ePlayer, GetPlayer()->GetID()))
 			return false;
 	}
 	// War Major
