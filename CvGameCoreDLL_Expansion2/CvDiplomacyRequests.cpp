@@ -599,11 +599,6 @@ void CvDiplomacyRequests::SendDealRequest(PlayerTypes eFromPlayer, PlayerTypes e
 		CvAssert(eFromPlayer != NO_PLAYER);
 		CvAssertMsg(!GET_PLAYER(eFromPlayer).isHuman(), "CvDiplomacyRequests::SendDealRequest must not be used by a human player!");
 
-		if (GC.getGame().isNetworkMultiPlayer() && eToPlayer != GC.getGame().getActivePlayer())
-		{
-			return;
-		}
-
 		CvPlayer& kTo = GET_PLAYER(eToPlayer);
 		CvDiplomacyRequests* pDiploRequests = kTo.GetDiplomacyRequests();
 		if (pDiploRequests && pkDeal)
