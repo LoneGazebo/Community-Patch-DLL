@@ -11685,9 +11685,11 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 				vTheirOffensiveAllies = GetOffensiveWarAllies(eEvaluate, /*bIncludeMinors*/ true, /*bReverseMode*/ true);
 			}
 			// But do include their ally in the list, since GetDefensiveWarAllies() won't include it
+			// And exclude the City-State player we're already looking at!
 			else if (GET_PLAYER(ePlayer).isMinorCiv())
 			{
 				vTheirDefensiveAllies.push_back(eEvaluate);
+				std::remove(vTheirDefensiveAllies.begin(), vTheirDefensiveAllies.end(), ePlayer);
 			}
 		}
 

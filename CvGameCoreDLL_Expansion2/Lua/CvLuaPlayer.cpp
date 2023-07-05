@@ -7919,28 +7919,48 @@ int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 
-	CvWeightedVector<PlayerTypes> veMilitaryRankings;
-	PlayerTypes eMajorLoop;
+	int iGlobalMilitaryScore = 0;
 
-	int iRankRatio = 0;
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	if (MOD_BALANCE_VP)
 	{
-		eMajorLoop = (PlayerTypes)iMajorLoop;
-		if (GET_PLAYER(eMajorLoop).isAlive() && !GET_PLAYER(eMajorLoop).isMinorCiv())
+		int iTotalMilitaryMight = 0;
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
-			veMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight(true)); // Don't recalculate within a turn, can cause inconsistency
+			PlayerTypes eMajorLoop = (PlayerTypes)iMajorLoop;
+			if (GET_PLAYER(eMajorLoop).isAlive() && GET_PLAYER(eMajorLoop).getNumCities() > 0)
+				iTotalMilitaryMight += GET_PLAYER(eMajorLoop).GetMilitaryMight();
+		}
+
+		int iMilitaryMightPercent = 100 * pkPlayer->GetMilitaryMight() / max(1, iTotalMilitaryMight);
+		iGlobalMilitaryScore = iMilitaryMightPercent * 50 / 100;
+	}
+	else
+	{
+		CvWeightedVector<PlayerTypes> viMilitaryRankings;
+		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+		{
+			PlayerTypes eMajorLoop = (PlayerTypes)iMajorLoop;
+			if (GET_PLAYER(eMajorLoop).isAlive() && GET_PLAYER(eMajorLoop).getNumCities() > 0)
+				viMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight());
+		}
+		viMilitaryRankings.StableSortItems();
+		for (int iRanking = 0; iRanking < viMilitaryRankings.size(); iRanking++)
+		{
+			if (viMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
+			{
+				float fRankRatio = (float)(viMilitaryRankings.size() - iRanking) / (float)(viMilitaryRankings.size());
+				iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
+				break;
+			}
 		}
 	}
-	veMilitaryRankings.StableSortItems();
-	for (int iRanking = 0; iRanking < veMilitaryRankings.size(); iRanking++)
-	{
-		if (veMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
-		{
-			iRankRatio = ((veMilitaryRankings.size() - iRanking) * 100) / veMilitaryRankings.size();
-			break;
-		}
-	}
-	lua_pushinteger(L, iRankRatio);
+
+	iGlobalMilitaryScore *= 100 + pkPlayer->GetPlayerTraits()->GetBullyMilitaryStrengthModifier();
+	iGlobalMilitaryScore /= 100;
+	iGlobalMilitaryScore *= 100 + pkPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_MINOR_BULLY_SCORE_MODIFIER);
+	iGlobalMilitaryScore /= 100;
+
+	lua_pushinteger(L, iGlobalMilitaryScore);
 	return 1;
 }
 

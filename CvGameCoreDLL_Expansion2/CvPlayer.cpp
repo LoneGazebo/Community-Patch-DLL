@@ -33860,19 +33860,11 @@ int CvPlayer::getPower() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetMilitaryMight(bool bForMinor) const
+int CvPlayer::GetMilitaryMight() const
 {
 	// more lazy evaluation
 	if (m_iTurnSliceMightRecomputed < GC.getGame().getGameTurn())
 		const_cast<CvPlayer*>(this)->updateMightStatistics();
-
-	if (bForMinor && GetPlayerTraits()->GetBullyMilitaryStrengthModifier() != 0)
-	{
-		int iBonus = m_iMilitaryMight;
-		iBonus *= (100 + GetPlayerTraits()->GetBullyMilitaryStrengthModifier());
-		iBonus /= 100;
-		return iBonus;
-	}
 
 	return m_iMilitaryMight;
 }

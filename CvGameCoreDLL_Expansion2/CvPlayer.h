@@ -1674,7 +1674,7 @@ public:
 
 	//power is military + economic
 	int getPower() const;
-	int GetMilitaryMight(bool bForMinor = false) const;
+	int GetMilitaryMight() const;
 	int GetEconomicMight() const;
 	int GetProductionMight() const;
 	void ResetMightCalcTurn();
