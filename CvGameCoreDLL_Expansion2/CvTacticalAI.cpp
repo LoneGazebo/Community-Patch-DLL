@@ -3950,7 +3950,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		return;
 
 	//see if we can do damage before retreating
-	if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>1 && pUnit->canRangeStrike())
+	if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 	//so easy
@@ -3976,7 +3976,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		if (pUnit->plot() == pBestPlot)
 		{
 			if (pUnit->GetCurrHitPoints()>pUnit->GetMaxHitPoints()/2)
-				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit, false);
+				TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 
 			//make sure the unit stays put!
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
@@ -4063,9 +4063,9 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 			}
 		}
 
-		//ranged attack before fleeing
-		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>1 && pUnit->canRangeStrike())
-			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,pUnit->getMoves()>2);
+		//ranged attack before fleeing for fast units
+		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves() > 3*GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 
 		//find a suitable spot for healing
 		if (pUnit->getDomainType() == DOMAIN_LAND)
