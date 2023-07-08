@@ -7943,14 +7943,17 @@ int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
 			if (GET_PLAYER(eMajorLoop).isAlive() && GET_PLAYER(eMajorLoop).getNumCities() > 0)
 				viMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight());
 		}
-		viMilitaryRankings.StableSortItems();
-		for (int iRanking = 0; iRanking < viMilitaryRankings.size(); iRanking++)
+		if (viMilitaryRankings.size() > 0)
 		{
-			if (viMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
+			viMilitaryRankings.StableSortItems();
+			for (int iRanking = 0; iRanking < viMilitaryRankings.size(); iRanking++)
 			{
-				float fRankRatio = (float)(viMilitaryRankings.size() - iRanking) / (float)(viMilitaryRankings.size());
-				iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
-				break;
+				if (viMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
+				{
+					float fRankRatio = (float)(viMilitaryRankings.size() - iRanking) / (float)(viMilitaryRankings.size());
+					iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
+					break;
+				}
 			}
 		}
 	}

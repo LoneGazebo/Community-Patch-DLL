@@ -33198,7 +33198,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			CivApproachTypes eApproach = GetCivApproach(eMinor);
 
 			// Do we want to change our protection of this minor?
-			DoUpdateMinorCivProtection(eMinor, eApproach);
+			DoUpdateMinorCivProtection(eMinor);
 
 			// Do we want to connect to this player?
 			int iEra = GetPlayer()->GetCurrentEra();
@@ -34091,28 +34091,24 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	}
 }
 
-void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTypes eApproach)
+void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor)
 {
-	// Only change protection if this player is not human controlled!
-	if (!GetPlayer()->isHuman())
+	if (GetCivApproach(eMinor) == CIV_APPROACH_FRIENDLY || GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
 	{
-		if (eApproach == CIV_APPROACH_FRIENDLY || GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
+		// We are protective, so do a PtP if we are able to and haven't already
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorStartProtection(GetID()))
 		{
-			// We are protective, so do a PtP if we are able to and haven't already
-			if (GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorStartProtection(GetID()))
-			{
-				GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, true);
-				DoMakePublicDeclaration(PUBLIC_DECLARATION_PROTECT_MINOR, eMinor, -1, eMinor);
-			}
+			GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, true);
+			DoMakePublicDeclaration(PUBLIC_DECLARATION_PROTECT_MINOR, eMinor, -1, eMinor);
 		}
-		else
+	}
+	else if (!MOD_BALANCE_VP) // no real reason to revoke a PTP in VP
+	{
+		// We are not protective, so revoke PtP if we can
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetID()))
 		{
-			// We are not protective, so revoke PtP if we can
-			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetID()))
-			{
-				GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, false);
-				DoMakePublicDeclaration(PUBLIC_DECLARATION_ABANDON_MINOR, eMinor, -1, eMinor);
-			}
+			GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, false);
+			DoMakePublicDeclaration(PUBLIC_DECLARATION_ABANDON_MINOR, eMinor, -1, eMinor);
 		}
 	}
 }

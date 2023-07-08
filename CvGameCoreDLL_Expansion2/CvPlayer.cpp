@@ -33927,12 +33927,12 @@ int CvPlayer::calculateMilitaryMight(DomainTypes eDomain) const
 {
 	int iSum = 0;
 	int iLoop = 0;
-	for(const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	for (const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
 	{
-		if(!pLoopUnit->IsCombatUnit())
+		if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
 			continue;
 
-		if (eDomain != NO_DOMAIN && pLoopUnit->getDomainType() != eDomain)
+		if (pLoopUnit->IsCivilianUnit())
 			continue;
 
 		//we are interested in the offensive capabilities of the player
