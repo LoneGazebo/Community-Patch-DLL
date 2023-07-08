@@ -4,7 +4,7 @@
 	<Language_en_US>
 		<!-- Event System-->
 		<Row Tag="TXT_KEY_TP_HAPPINESS_EVENT">
-			<Text>{1_Happiness} Happiness from Events.</Text>
+			<Text>{1_Happiness} from Events.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED">
 			<Text>The effects of an Event have worn off:[NEWLINE]{1_Event}</Text>

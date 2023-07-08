@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="118">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(3.7.6) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(3.7.7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -231,7 +231,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="4B7E0B230AFC302A11F5E4C7B8DD7BE2" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="9735A222B1C1BE55B3C9723D3894F296" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="1FEF715203FD538F5D39D69FAAA6FED2" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="35CB84D6CE7FEF11392F2CCBD537F936" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
@@ -274,7 +274,7 @@
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">LUA/YieldIconManager.xml</File>
     <File md5="C5BF6F015FBCE7EE9AEB4F844425A75E" import="0">Modules/Events/CoreEvents.sql</File>
     <File md5="FA968EB5791BBCC528EABF9409939F56" import="0">Modules/Events/Text/en_US/City_en_US.xml</File>
-    <File md5="CC702153CB36B1507757DE4EC31FC4C5" import="0">Modules/Events/Text/en_US/EventCore_en_US.xml</File>
+    <File md5="28AF1A064F36983BD468D329457995D8" import="0">Modules/Events/Text/en_US/EventCore_en_US.xml</File>
     <File md5="78A1F4E286D44157AE0DA6DD917F90B8" import="0">Modules/Events/Text/en_US/Player_en_US.xml</File>
     <File md5="8F982205CED116A567918B735A11BC23" import="0">Modules/MoreGP/ExtraGPs.sql</File>
     <File md5="107907C11CF75C7CD8E6A25D625178B7" import="1">Modules/MoreGP/Extra_GPs_items/A__010.dds</File>

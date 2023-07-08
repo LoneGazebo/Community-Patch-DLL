@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.7.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.7.7) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -716,7 +716,7 @@
     <File md5="B1422A1813124C05E74A50A3FBB39075" import="1">Modular Elements/TradeUIMod/TradeRouteHelpers.lua</File>
     <File md5="721C4142F9A38E92D58532486E244098" import="1">Modular Elements/TradeUIMod/TradeRouteOverview.lua</File>
     <File md5="AB738F4C7D7411D8A21F9D9EC84F7570" import="1">Modular Elements/TradeUIMod/TradeRouteOverview.xml</File>
-    <File md5="3E27E0E7B5A878CF7A52F8F37F4CE5D0" import="0">Modular Elements/TradeUIMod/UITradeRoutesEnhancements.xml</File>
+    <File md5="458FFA44DB9E83276E7DA4E469A7D236" import="0">Modular Elements/TradeUIMod/UITradeRoutesEnhancements.xml</File>
     <File md5="1D5C46B0F7EFB8FF17F3F3D250BA9741" import="0">INSTRUCTIONS.txt</File>
     <File md5="2FD19CE605F62008D040723D283C8DC2" import="1">CSD/Art/Buildings/Icons/CSDBuildings128.dds</File>
     <File md5="0301700960A767AA20117D7DF442591D" import="1">CSD/Art/Buildings/Icons/CSDBuildings256.dds</File>
