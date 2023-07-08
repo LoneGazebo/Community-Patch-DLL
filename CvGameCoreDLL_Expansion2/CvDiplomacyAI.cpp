@@ -9797,6 +9797,13 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if (!GetPlayer()->isHuman())
 	{
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		if(eDiploMode == DIPLO_HUMAN_PLAYERS && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		{
+			// in the beginning of turn - remove all the proposed deals from/to this AI
+			GC.getGame().GetGameDeals().DoCancelAllProposedMPDealsWithPlayer(GetID(), DIPLO_ALL_PLAYERS);
+		}
+#endif
 		DetermineVassalTaxRates();
 		DoUpdateDemands();
 		MakeWar();

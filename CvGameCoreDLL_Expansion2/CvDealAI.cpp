@@ -967,15 +967,6 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 		bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValue, &bCantMatchOffer, true);
 		bDealGoodToBeginWith = bMakeOffer;
 
-		// If we set this pointer again it clears the data out!
-		if (pDeal != GC.getGame().GetGameDeals().GetTempDeal())
-		{
-			GC.getGame().GetGameDeals().SetTempDeal(pDeal);
-		}
-
-		// WTF is this about
-		CvDeal* pCounterDeal = GC.getGame().GetGameDeals().GetTempDeal();
-
 		if(!bMakeOffer)
 		{
 			//if a human sent this, don't modify their offer, that's annoying.
@@ -988,17 +979,17 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			// See if there are items we can add or remove from either side to balance out the deal if it's not already even
 			/////////////////////////////
 			int iLoops = 0;
-			while (iLoops < 5 && !WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue))
+			while (iLoops < 5 && !WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue))
 			{
 				int iPrevValue = GetDealValue(pDeal);
 
 				if (iTotalValue > 0)
 				{
-					DoAddItemsToUs(pCounterDeal, eOtherPlayer, iTotalValue);
+					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue);
 				}
 				else if (iTotalValue < 0)
 				{
-					DoAddItemsToThem(pCounterDeal, eOtherPlayer, iTotalValue);
+					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue);
 				}
 
 				//bail if we're stuck
@@ -1009,26 +1000,26 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			}
 
 			// Make sure we haven't removed everything from the deal!
-			if (BothSidesIncluded(pCounterDeal))
+			if (BothSidesIncluded(pDeal))
 			{
-				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue);
+				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 			}
 
 			// if we still don't have a deal, try to equalize with GPT only (may have been to greedy with other picks)
-			if (!bMakeOffer && pCounterDeal->RemoveAllByPlayer(eOtherPlayer))
+			if (!bMakeOffer && pDeal->RemoveAllByPlayer(eOtherPlayer))
 			{
 				iTotalValue = GetDealValue(pDeal);
 
 				//first try rounding up the GPT amount (better for us)
 				DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue);
-				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue);
+				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 
 				//alternatively try with one GPT less (worse for us)
 				if (!bMakeOffer && pDeal->GetGoldPerTurnTrade(eOtherPlayer) > 1)
 				{
 					DoRemoveGPTFromThem(pDeal, eOtherPlayer, 1);
 					iTotalValue = GetDealValue(pDeal);
-					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue);
+					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 				}
 			}
 
@@ -1115,14 +1106,6 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 		}
 	}
 
-	// If we set this pointer again it clears the data out!
-	if(pDeal != GC.getGame().GetGameDeals().GetTempDeal())
-	{
-		GC.getGame().GetGameDeals().SetTempDeal(pDeal);
-	}
-
-	CvDeal* pCounterDeal = GC.getGame().GetGameDeals().GetTempDeal();
-
 	if(!bMakeOffer)
 	{
 		/////////////////////////////
@@ -1134,12 +1117,12 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 			int iPrevValue = GetDealValue(pDeal);
 			if (iTotalValue > 0)
 			{
-				DoAddItemsToUs(pCounterDeal, eOtherPlayer, iTotalValue);
+				DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue);
 				iOtherTotalValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealValue(pDeal);
 			}
 			else if (iOtherTotalValue > 0)
 			{
-				GET_PLAYER(eOtherPlayer).GetDealAI()->DoAddItemsToUs(pCounterDeal, eMyPlayer, iOtherTotalValue);
+				GET_PLAYER(eOtherPlayer).GetDealAI()->DoAddItemsToUs(pDeal, eMyPlayer, iOtherTotalValue);
 				iTotalValue = GetDealValue(pDeal);
 			}			
 
@@ -1151,9 +1134,9 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 		}
 
 		// Make sure we haven't removed everything from the deal!
-		if(pCounterDeal->m_TradedItems.size() > 0)
+		if(pDeal->m_TradedItems.size() > 0)
 		{
-			bMakeOffer = BothSidesIncluded(pCounterDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(), iOtherTotalValue)));
+			bMakeOffer = BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(), iOtherTotalValue)));
 		}
 	}
 
