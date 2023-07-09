@@ -2280,6 +2280,10 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		}
 	}
 
+	//Free routes from traits are always safe
+	if (thisPlayer.GetBuilderTaskingAI()->GetSameRouteBenefitFromTrait(pNewPlot, eRoute))
+		return TRUE;
+
 	//too dangerous, might be severed any time
 	if (ePlotOwnerPlayer == NO_PLAYER && pNewPlot->IsAdjacentOwnedByTeamOtherThan(thisPlayer.getTeam()))
 		return FALSE;
