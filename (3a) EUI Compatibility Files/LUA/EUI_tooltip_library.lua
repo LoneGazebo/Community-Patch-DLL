@@ -1101,7 +1101,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		if g_isReligionEnabled then
 			for row in GameInfo.Building_ResourceFaithChanges( thisBuildingAndResourceTypes ) do
 				if (row.FaithChange or 0)~= 0 then
-					tip = S("%s %+i[ICON_FAITH]", tip, row.FaithChange )
+					tip = S("%s %+i[ICON_PEACE]", tip, row.FaithChange )
 				end
 			end
 		end

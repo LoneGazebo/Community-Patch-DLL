@@ -2322,6 +2322,7 @@ if civ5_mode and gk_mode then
 		local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
 		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
 		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
+		local iUnitsTotalMilitary = pPlayer:GetNumMilitaryUnits();
 		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
 		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
@@ -2338,8 +2339,7 @@ if civ5_mode and gk_mode then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 		end
 
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople);
-
+		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople, iUnitsTotalMilitary);
 		if(strUnitSupplyToolTip ~= "") then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 		else
