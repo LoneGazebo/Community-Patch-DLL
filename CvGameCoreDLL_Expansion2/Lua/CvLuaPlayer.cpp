@@ -2177,7 +2177,11 @@ int CvLuaPlayer::lReceiveGoody(lua_State* L)
 //void doGoody(CyPlot* pPlot, CyUnit* pUnit);
 int CvLuaPlayer::lDoGoody(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::doGoody);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlot* pPlot = CvLuaPlot::GetInstance(L, 2);
+	CvUnit* pUnit = CvLuaUnit::GetInstance(L, 3, false);
+	pkPlayer->doGoody(pPlot, pUnit);
+	return 1;
 }
 //------------------------------------------------------------------------------
 // This function checks the handicap as well as CanReceiveGoody to test validity
