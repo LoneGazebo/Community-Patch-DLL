@@ -334,7 +334,7 @@ bool CvImprovementEntry::CacheResults(Database::Results& kResults, CvDatabaseUti
 	const char* szFeatureType = kResults.GetText("CreatesFeature");
 	m_eCreatesFeature = (FeatureTypes)GC.getInfoTypeForString(szFeatureType, true);
 	m_eRandResourceChance = kResults.GetInt("RandResourceChance");
-	m_eRemovesSelf = kResults.GetBool("RemovesSelf");
+	m_eRemovesSelf = kResults.GetBool("RemoveWhenComplete");
 	m_bNewOwner = kResults.GetBool("NewOwner");
 	m_bOwnerOnly = kResults.GetBool("OwnerOnly");
 	m_iMovesChange = kResults.GetInt("MovesChange");
