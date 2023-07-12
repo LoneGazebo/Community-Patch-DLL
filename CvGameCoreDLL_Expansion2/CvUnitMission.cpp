@@ -526,7 +526,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 						return;
 					}
 
-					int iResult;
+					int iResult = CvUnit::MOVE_RESULT_CANCEL;
 
 					if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && !hUnit->m_kLastPath.empty()) {
 						// If moving as a squad, continue previous re-routed path instead of original destination again
