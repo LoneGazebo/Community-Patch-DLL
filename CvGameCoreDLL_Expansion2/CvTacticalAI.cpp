@@ -397,7 +397,7 @@ void CvTacticalAI::FindTacticalTargets()
 		if (bValidPlot)
 		{
 			//camps are typically revealed but not visible; also the camp might since have been cleared but we don't know yet - so check if it is owned now
-			bool bIsBarbCamp = pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && !pLoopPlot->isOwned();
+			bool bSuspectedBarbCamp = pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT) && !pLoopPlot->isOwned();
 
 			CvTacticalTarget newTarget;
 			newTarget.SetTargetX(pLoopPlot->getX());
@@ -480,7 +480,7 @@ void CvTacticalAI::FindTacticalTargets()
 
 				// ... barbarian camp? doesn't matter if it has a unit inside
 				// note that minors ignore barb camps, cannot clear them anyway
-				if (bIsBarbCamp && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian()))
+				if (bSuspectedBarbCamp && (m_pPlayer->isMajorCiv() || m_pPlayer->isBarbarian()))
 				{
 					int iBaseScore = pLoopPlot->isVisible(m_pPlayer->getTeam()) ? 100 : 50;
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_BARBARIAN_CAMP);
@@ -986,6 +986,7 @@ void CvTacticalAI::PlotGrabGoodyMoves()
 	}
 
 	//then barb camps, occupied or not
+	ClearCurrentMoveUnits(AI_TACTICAL_BARBARIAN_CAMP);
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_BARBARIAN_CAMP); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
@@ -3254,17 +3255,18 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 			if (!pUnit)
 				continue;
 
-			//grab the goodies
-			ExecuteMoveToPlot(pUnit, pTargetPlot, false);
+			//try to get into position
+			//some of the camps the player has revealed may since have been cleared ... but we need to check
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+
+			if (pUnit->canMove())
+				//can use this unit for other stuff, reset the tactmove to avoid spamming the log
+				pUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+			else
+				UnitProcessed(pUnit->GetID());
 
 			if (pUnit->plot() == pTargetPlot)
-			{
-				if (pUnit->canMove())
-					//can use this unit for other stuff, reset the tactmove to avoid spamming the log
-					pUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
-
 				break;
-			}
 		}
 	}
 }
@@ -4274,7 +4276,6 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 
 	//for inspection in GUI
 	pUnit->SetMissionAI(MISSIONAI_TACTMOVE, pTarget, NULL);
-	pUnit->setTacticalMove(m_CurrentMoveUnits.getCurrentTacticalMove());
 
 	// Unit already at target plot?
 	if(pTarget == pUnit->plot() && pUnit->canEndTurnAtPlot(pTarget))
@@ -6237,7 +6238,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	CvPlot* pCurrentPlot = pUnit->plot();
 	bool bIsInCityOrCitadelNow = (pCurrentPlot->isFriendlyCity(*pUnit) && !pCurrentPlot->getPlotCity()->isInDangerOfFalling()) || 
 								(pUnit->IsCombatUnit() && TacticalAIHelpers::IsPlayerCitadel(pCurrentPlot, pUnit->getOwner()));
-	if (bIsInCityOrCitadelNow && !pUnit->isProjectedToDieNextTurn())
+	if (bIsInCityOrCitadelNow && !pUnit->isProjectedToDieNextTurn() && pUnit->canEndTurnAtPlot(pCurrentPlot))
 		if (pUnit->AI_getUnitAIType()!=UNITAI_CITY_BOMBARD || pUnit->GetDanger(pCurrentPlot)<pUnit->GetCurrHitPoints())
 			return pCurrentPlot;
 
@@ -7133,6 +7134,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		if (!pUnit->IsCanAttackRanged()) //only for melee
 		{
 			//it works both ways!
+			//note that this can go quite wrong if we're facing multiple enemy players!
 			int iDelta = tactPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), assumedPlot.getPlotIndex()) - assumedPlot.getNumAdjacentEnemies(DomainForUnit(pUnit));
 			iDamageDealt += (iDelta*iDamageDealt) / 10;
 			iDamageReceived -= (iDelta*iDamageReceived) / 10;
@@ -7163,7 +7165,10 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 	}
 
 	//bonus for a kill
-	if (iDamageDealt >= iPrevHitPoints)
+	//also consider near-kills as kills
+	//if it doesn't work out we can try again
+	//better than assuming it's not a kill and having a melee unit end up in a bad place
+	if (iDamageDealt >= iPrevHitPoints - 1)
 	{
 		//don't hand out points for over-killing (but make an allowance for randomness)
 		iDamageDealt = min(iDamageDealt, iPrevHitPoints + 10);
@@ -7188,9 +7193,12 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		}
 		else //enemy unit killed
 		{
+			//tbd: same bonus for melee kill and range kill? do we have a preference? what about move-after-attack?
 			iExtraScore += 30;
+
 			if (pTestPlot->getNumUnits() > 1 && !pTestPlot->isNeutralUnit(pUnit->getOwner(), false, false))
 				iExtraScore += 20; //even more points for a double kill
+
 			if (pUnit->getHPHealedIfDefeatEnemy() > 0)
 				iDamageReceived = max(iDamageReceived - pUnit->getHPHealedIfDefeatEnemy(), -pUnit->getDamage()); //may turn negative, but can't heal more than current damage
 
@@ -7474,10 +7482,11 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	{
 		//avoid extreme danger, except in citadels
 		int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
-		if (iDanger / 2 > iRemainingHP && !bIsFrontlineCitadel && assumedPosition.getAggressionLevel() != AL_BRAVEHEART)
+		int iOverkill = iDanger / max(1,iRemainingHP); //truncated to int but good enough ...
+		if (iOverkill > 2 && !bIsFrontlineCitadel && assumedPosition.getAggressionLevel() != AL_BRAVEHEART)
 		{
 			//if there is nothing we would cover or we are low on health, don't do it
-			int iLowHealthThreshold = 37;
+			int iLowHealthThreshold = 23*iOverkill;
 			if (iRemainingHP*max(iNumAdjFriendlies,1) < iLowHealthThreshold)
 				return INT_MAX;
 		}
@@ -9871,7 +9880,7 @@ bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUni
 
 bool CvTacticalPosition::addAvailableUnit(const CvUnit* pUnit)
 {
-	if (!pUnit || !pUnit->canMove())
+	if (!pUnit || !pUnit->canMove() || !pUnit->canEndTurnAtPlot(pUnit->plot()))
 		return false;
 
 	eUnitMovementStrategy eStrategy = MS_NONE;

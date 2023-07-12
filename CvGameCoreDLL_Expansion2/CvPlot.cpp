@@ -7683,6 +7683,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 #if defined(MOD_GLOBAL_STACKING_RULES)
 		calculateAdditionalUnitsFromImprovement();
 #endif
+		//reset the counter
+		setImprovementDuration(0);
 
 		if (eOldImprovement != NO_IMPROVEMENT)
 		{
@@ -7707,11 +7709,6 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			}
 			if (oldImprovementEntry.IsEmbassy())
 				SetImprovementEmbassy(false);
-		}
-
-		if(getImprovementType() == NO_IMPROVEMENT)
-		{
-			setImprovementDuration(0);
 		}
 
 		// Reset who cleared a Barb camp here last (if we're putting a new one down)
