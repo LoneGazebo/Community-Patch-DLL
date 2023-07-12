@@ -1100,7 +1100,7 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 	else
 	{
 		// Deal is already even enough for us
-		if (BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(),iOtherTotalValue))))
+		if (BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue)) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(),iOtherTotalValue)))
 		{
 			bMakeOffer = true;
 		}
@@ -1136,7 +1136,7 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 		// Make sure we haven't removed everything from the deal!
 		if(pDeal->m_TradedItems.size() > 0)
 		{
-			bMakeOffer = BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(), iOtherTotalValue)));
+			bMakeOffer = BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue)) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(), iOtherTotalValue));
 		}
 	}
 
