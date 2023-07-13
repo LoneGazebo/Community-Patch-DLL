@@ -2072,6 +2072,10 @@ int CvPlayerAI::ScoreCityForMessenger(CvCity* pCity, CvUnit* pUnit)
 	if (pMinorCivAI->IsRecentlyBulliedByMajor(GetID()))
 		return 0;
 
+	// If player has manually disabled Influence gain from quests with this City-State, don't send diplomats here.
+	if (pMinorCivAI->IsQuestInfluenceDisabled(GetID()))
+		return 0;
+
 	// They captured one of our cities? Do not raise influence; we want to recapture.
 	if (GetNumOurCitiesOwnedBy(kMinor.GetID()) > 0)
 		return 0;

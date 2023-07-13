@@ -16066,6 +16066,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			CvCity* pBullyCapital = GET_PLAYER(eBully).getCapitalCity();
 			int iValue = 0;
 			float fDelay = 0.0f;
+			CvString bullyText;
 			if (pBullyCapital != NULL)
 			{
 				// Heavy tribute gives gold, equal to normal tribute, for all types of city-states.

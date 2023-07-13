@@ -34109,7 +34109,9 @@ void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor)
 			DoMakePublicDeclaration(PUBLIC_DECLARATION_PROTECT_MINOR, eMinor, -1, eMinor);
 		}
 	}
-	else if (!MOD_BALANCE_VP) // no real reason to revoke a PTP in VP
+	// Don't cancel a pledge in VP unless the City-State has no capital (we won't get the Influence boost from quests) or they've taken damage (so we'll lose Influence faster)
+	// Pledges will be automatically cancelled if AI decides to bully or war the City-State, and the consequences for doing so aren't any more severe
+	else if (!MOD_BALANCE_VP || GET_PLAYER(eMinor).getCapitalCity() == NULL || GET_PLAYER(eMinor).getCapitalCity()->getDamage() > 0)
 	{
 		// We are not protective, so revoke PtP if we can
 		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetID()))

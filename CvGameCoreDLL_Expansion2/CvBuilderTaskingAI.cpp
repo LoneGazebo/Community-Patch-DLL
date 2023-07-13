@@ -1386,7 +1386,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(vector<OptionWithScore<Buil
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild));
 		iWeight += iBuildTimeWeight;
 
-		if (bWillRemoveForestOrJungle)
+		if (bWillRemoveForest || bWillRemoveJungle)
 		{
 			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
 				iWeight /= 100;
