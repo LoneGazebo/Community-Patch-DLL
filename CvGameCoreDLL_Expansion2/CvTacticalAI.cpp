@@ -8611,31 +8611,32 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	if (availableUnits.size() <= (size_t)iMaxUnitsToKeep)
 		return;
 
-	//depending on distance to enemy
-	int iPlotTypeScore[] = { 0,30,20,10,0 };
+	//very important, lazy update
+	updateMovePlotsIfRequired();
 
-	//try to find out who is most relevant
+	//get the best move for each unit
+	gOverAllChoices.clear();
 	bool bHaveSupport = false;
-	for (vector<SUnitStats>::iterator itUnit = availableUnits.begin(); itUnit != availableUnits.end(); ++itUnit)
+	for (size_t i = 0; i < availableUnits.size(); i++)
 	{
-		const CvTacticalPlot& currentPlot = getTactPlot(itUnit->iPlotIndex);
-		itUnit->iImportanceScore = iPlotTypeScore[ currentPlot.getEnemyDistance() ] + 
-			currentPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH) + 
-			itUnit->iMovesLeft/GD_INT_GET(MOVE_DENOMINATOR) + getRangeAttackPlotsForUnit(*itUnit).size();
+		getPreferredAssignmentsForUnit(availableUnits[i], 1);
+		int iScore = gPossibleMoves.empty() ? 0 : gPossibleMoves.front().iScore;
 
-		if (pTargetPlot->isCity() && eAggression > AL_NONE && itUnit->eStrategy == MS_SECONDLINE)
-			itUnit->iImportanceScore += 11; //we need siege units for attacking cities
-
-		if (itUnit->eStrategy == MS_SUPPORT)
+		//make sure to include a general if we have one
+		if (availableUnits[i].eStrategy == MS_SUPPORT)
 		{
 			if (bHaveSupport)
-				itUnit->iImportanceScore = 0;
+			{
+				iScore = 0;
+			}
 			else
 			{
-				itUnit->iImportanceScore += 13;
+				iScore += 1000;
 				bHaveSupport = true;
 			}
 		}
+		//this will be our sorting criterion
+		availableUnits[i].iImportanceScore = iScore;
 	}
 
 	std::stable_sort(availableUnits.begin(), availableUnits.end());
@@ -10279,13 +10280,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	initialPosition->countEnemies();
 
 	//if we have a lot of units, ignore the unimportant ones
-	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 7 : 11;
+	int iMaxActiveUnits = initialPosition->getNumEnemies() < 2 ? 7 : 9;
 	initialPosition->dropSuperfluousUnits(iMaxActiveUnits);
 	initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
-
-	//hackish performance optimization: if we have "a lot" of units, reduce branching and hope for the best
-	if (initialPosition->getAvailableUnits().size() > 9)
-		iMaxBranches = max(2, iMaxBranches - 1);
 
 #if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
@@ -10408,13 +10405,17 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 #if defined(MOD_CORE_DEBUGGING)
 		if (MOD_CORE_DEBUGGING && !completedPositions.empty())
 		{
-			strMsg.Format("best score is %d for id %09d", completedPositions.front()->getScoreTotal(), completedPositions.front()->getID());
-			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
-			for (size_t i = completedPositions.front()->getFirstInterestingAssignment(); i < result.size(); i++)
+			for (size_t j = 0; j < min(10u, completedPositions.size()); j++)
 			{
-				strMsg.Format("unit %d, from %d, to %d, score %d, damage %d, selfdamage %d, moves %d", 
-					result[i].iUnitID, result[i].iFromPlotIndex, result[i].iToPlotIndex, result[i].iScore, result[i].iDamage, result[i].iSelfDamage, result[i].iRemainingMoves);
+				strMsg.Format("----\nscore is %d for id %09d", completedPositions[j]->getScoreTotal(), completedPositions[j]->getID());
 				GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+				const vector<STacticalAssignment>& moves = completedPositions[j]->getAssignments();
+				for (size_t i = completedPositions[j]->getFirstInterestingAssignment(); i < moves.size(); i++)
+				{
+					strMsg.Format("unit %d, from %d, to %d, score %d, damage %d, selfdamage %d, moves %d",
+						moves[i].iUnitID, moves[i].iFromPlotIndex, moves[i].iToPlotIndex, moves[i].iScore, moves[i].iDamage, moves[i].iSelfDamage, moves[i].iRemainingMoves);
+					GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
+				}
 			}
 		}
 #endif
