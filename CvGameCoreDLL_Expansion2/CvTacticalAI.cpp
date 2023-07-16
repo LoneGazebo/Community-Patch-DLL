@@ -53,9 +53,11 @@ vector<STacticalAssignment> gMovesToAdd;
 map<int, vector<STacticalAssignment>> gChoicePerUnit;
 
 //just some statistics
-int gMovePlotsCacheHit = 0, gMovePlotsCacheMiss = 0;
-int gAttackPlotsCacheHit = 0, gAttackPlotsCacheMiss = 0;
-int gAttackCacheHit = 0, gAttackCacheMiss = 0;
+unsigned long gMovePlotsCacheHit = 0, gMovePlotsCacheMiss = 0;
+unsigned long gAttackPlotsCacheHit = 0, gAttackPlotsCacheMiss = 0;
+unsigned long gAttackCacheHit = 0, gAttackCacheMiss = 0;
+unsigned long long giEquivalent = 0;
+unsigned long long giDifferent = 0;
 #endif
 
 void CheckDebugTrigger(int iUnitID)
@@ -7348,7 +7350,7 @@ int TacticalAIHelpers::SentryScore(const CvPlot * pPlot, PlayerTypes ePlayer)
 STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -7567,7 +7569,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 											const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode) 
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -7609,7 +7611,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		{ -1, 1, 8, 12, -1 }, //thirdline
 		{ -1, 1, 8,  8, -1 }, //support (can happen for damaged melee units)
 	};
-	iPlotScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
+	iPlotScore = iPlotTypeScores[unit.eMoveStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 
 	//if we made a kill, assume we are in a good plot
 	//this is very important because enemy distance changes and we might end up with -1
@@ -7677,7 +7679,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 											const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode)
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 
 	//the plot we're checking right now
 	const CvPlot* pTestPlot = testPlot.getPlot();
@@ -7710,7 +7712,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 		{ -1, 1, 8, 12, 1 }, //thirdline
 		{ -1, 1, 8, 8, -1 }, //support (can happen for damaged melee units)
 	};
-	iPlotScore = iPlotTypeScores[unit.eStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
+	iPlotScore = iPlotTypeScores[unit.eMoveStrategy][testPlot.getEnemyDistance(eRelevantDomain)];
 
 	//we use defensive moves also for gathering armies when there are no enemies around ...
 	const CvTacticalPlot& targetPlot = assumedPosition.getTactPlot( assumedPosition.getTarget()->GetPlotIndex() );
@@ -7754,7 +7756,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 											const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode)
 {
 	//default action is do nothing and invalid score (not -INT_MAX to to prevent overflows!)
-	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
+	STacticalAssignment result(unit.iPlotIndex,movePlot.iPlotIndex,unit.iUnitID,movePlot.iMovesLeft,unit.eMoveStrategy,TACTICAL_COMBAT_IMPOSSIBLE_SCORE,A_MOVE);
 	int iScore = 0;
 		
 	//the plot we're checking right now
@@ -7775,7 +7777,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 	}
 
 	//generals and admirals
-	if (unit.eStrategy == MS_SUPPORT)
+	if (unit.eMoveStrategy == MS_SUPPORT)
 	{
 		//check distance to enemy in any case
 		switch (testPlot.getEnemyDistance())
@@ -7856,7 +7858,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 			iScore /= 2;
 	}
 	//plain embarked units
-	else if (unit.eStrategy == MS_EMBARKED)
+	else if (unit.eMoveStrategy == MS_EMBARKED)
 	{
 		//check distance to enemy in any case
 		switch (testPlot.getEnemyDistance())
@@ -7907,7 +7909,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 
 STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTacticalPlot& assumedUnitPlot, const CvTacticalPlot& enemyPlot, const CvTacticalPosition& assumedPosition)
 {
-	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eStrategy,-1,A_RANGEATTACK);
+	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eMoveStrategy,-1,A_RANGEATTACK);
 
 	//received damage is zero here but still use the correct unit number ratio so as not to distort scores
 	ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), newAssignment);
@@ -7918,7 +7920,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	if (AttackEndsTurn(unit.pUnit, unit.iAttacksLeft))
 	{
 		//if we have movement to spare, we should be able to disengage before attacking?
-		if (newAssignment.iRemainingMoves > GD_INT_GET(MOVE_DENOMINATOR) && assumedUnitPlot.getEnemyDistance()==1 && unit.eStrategy != MS_FIRSTLINE)
+		if (newAssignment.iRemainingMoves > GD_INT_GET(MOVE_DENOMINATOR) && assumedUnitPlot.getEnemyDistance()==1 && unit.eMoveStrategy != MS_FIRSTLINE)
 			newAssignment.iScore /= 2;
 
 		newAssignment.iRemainingMoves = 0;
@@ -7942,7 +7944,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTacticalPlot& assumedUnitPlot, const CvTacticalPlot& enemyPlot, const SMovePlot& movePlot, const CvTacticalPosition& assumedPosition)
 {
 	//default action is invalid
-	STacticalAssignment result(unit.iPlotIndex, movePlot.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eStrategy, -INT_MAX, A_MELEEATTACK);
+	STacticalAssignment result(unit.iPlotIndex, movePlot.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, -INT_MAX, A_MELEEATTACK);
 
 	//the plot we're checking right now
 	const CvPlot* pEnemyPlot = enemyPlot.getPlot();
@@ -8202,11 +8204,11 @@ void CvTacticalPlot::setCombatUnitEndTurn(CvTacticalPosition& currentPosition, e
 			if (tactPlot.isValid())
 			{
 				tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[unitDomain]++;
-				FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily
+//				FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily
 				if (unitDomain != TD_BOTH)
 				{
 					tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[TD_BOTH]++;
-					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily
+//					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily
 				}
 			}
 		}
@@ -8235,11 +8237,11 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 				{
 					CvTacticalPlot::eTactPlotDomain unitDomain = DomainForUnit(pUnit);
 					tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] += iChange;
-					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily
+//					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily ...
 					if (unitDomain != TD_BOTH)
 					{
 						tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] += iChange;
-						FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily
+//						FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily ...
 					}
 				}
 			}
@@ -8421,7 +8423,7 @@ const ReachablePlots& CvTacticalPosition::getReachablePlotsForUnit(const SUnitSt
 
 bool IsCombatUnit(const SUnitStats& unit)
 {
-	switch (unit.eStrategy)
+	switch (unit.eMoveStrategy)
 	{
 	case MS_FIRSTLINE:
 	case MS_SECONDLINE:
@@ -8516,12 +8518,12 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				//if the current plot is good, assume we can stay here but recheck later.
 				//subtract a little for wasted movement points to balance out what we added in the ref assignment
 				gPossibleMoves.push_back(
-					STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eStrategy, 
+					STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, 
 						iBonus - unit.iMovesLeft / GC.getMOVE_DENOMINATOR(), A_FINISH_TEMP));
 			}
 			else
 				//if the current plot is bad, try to find another use for the unit
-				gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
+				gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eMoveStrategy, 0, A_BLOCKED));
 		}
 		else
 		{
@@ -8529,6 +8531,14 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			//note: if a move increases tile visibility we change it to MOVE_FORCED so we can move again!
 			if (unit.eLastAssignment == A_MOVE || unit.eLastAssignment == A_MOVE_SWAP)
 				continue;
+
+			//make sure we have a chance to execute this move ... so skip it if there is an unmoveable block
+			if (IsCombatUnit(unit))
+			{
+				vector<STacticalUnit> blocks = findBlockingUnitsAtPlot(testPlot.getPlotIndex(), unit.eMoveStrategy);
+				if (blocks.size() > 1 || (blocks.size() == 1 && getAvailableUnitStats(blocks.front().iUnitID) == NULL))
+					continue;
+			}
 
 			STacticalAssignment newAssignment = ScorePlotForMove(unit, testPlot, *it, *this, EM_INTERMEDIATE);
 			//may be invalid
@@ -8593,7 +8603,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	}
 
 	//always add a 'do-nothing' move; this does not guarantee that it will get picked though
-	gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED));
+	gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eMoveStrategy, 0, A_BLOCKED));
 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());
@@ -8623,7 +8633,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 		int iScore = gPossibleMoves.empty() ? 0 : gPossibleMoves.front().iScore;
 
 		//make sure to include a general if we have one
-		if (availableUnits[i].eStrategy == MS_SUPPORT)
+		if (availableUnits[i].eMoveStrategy == MS_SUPPORT)
 		{
 			if (bHaveSupport)
 			{
@@ -8646,7 +8656,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	vector<SUnitStats> unitsToDrop( availableUnits.begin()+iMaxUnitsToKeep, availableUnits.end() );
 	for (vector<SUnitStats>::iterator itUnit = unitsToDrop.begin(); itUnit != unitsToDrop.end(); ++itUnit)
 	{
-		STacticalAssignment fakeBlock(itUnit->iPlotIndex,itUnit->iPlotIndex,itUnit->iUnitID,itUnit->iMovesLeft,itUnit->eStrategy,0,A_BLOCKED);
+		STacticalAssignment fakeBlock(itUnit->iPlotIndex,itUnit->iPlotIndex,itUnit->iUnitID,itUnit->iMovesLeft,itUnit->eMoveStrategy,0,A_BLOCKED);
 		addAssignment(fakeBlock);
 	}
 
@@ -8665,7 +8675,7 @@ void CvTacticalPosition::addInitialAssignments()
 			//we pretend the unit has zero moves, this means we do not score any possible attacks
 			//this is important for symmetry with canStayInPlot()
 			int iScore = ScorePlotForMove(*itUnit, tactPlot, SMovePlot(itUnit->iPlotIndex), *this, EM_INITIAL).iScore;
-			addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eStrategy, iScore, A_INITIAL));
+			addAssignment(STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eMoveStrategy, iScore, A_INITIAL));
 		}
 	}
 
@@ -8717,16 +8727,20 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gMovesToAdd.clear();
 
 		//easy case first, no conflict
-		if (!isMoveBlockedByOtherUnit(gOverAllChoices[i]))
+		if (gOverAllChoices[i].eMoveType != A_MOVE)
 		{
 			//just do the original move
 			gMovesToAdd.push_back(gOverAllChoices[i]);
 		}
 		else
 		{
-			 //usually there is at most one, but sometimes two. we skip that case because to complex
-			vector<STacticalUnit> blocks = findBlockingUnitsAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i]);
-			if (blocks.size()==1)
+			 //possibly our target plot is still occupied ...
+			vector<STacticalUnit> blocks = findBlockingUnitsAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType);
+			if (blocks.size() == 0)
+			{
+				gMovesToAdd.push_back(gOverAllChoices[i]);
+			}
+			else if (blocks.size() == 1)
 			{
 				//find best non-blocked move for blocking unit (search only one level deep)
 				vector<STacticalAssignment> blockingUnitChoices = gChoicePerUnit[blocks.front().iUnitID];
@@ -8764,10 +8778,12 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 						}
 					}
 				}
-			}
 
-			//did we find a block we can move?
-			if (gMovesToAdd.size() != 2)
+				//did we find a block we can move?
+				if (gMovesToAdd.size() != 2)
+					continue;
+			}
+			else //to many block to sort out
 				continue;
 		}
 
@@ -8862,10 +8878,10 @@ bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& mov
 	if (move.eAssignmentType != A_MOVE)
 		return false;
 
-	return !findBlockingUnitsAtPlot(move.iToPlotIndex, move).empty();
+	return !findBlockingUnitsAtPlot(move.iToPlotIndex, move.eMoveType).empty();
 }
 
-vector<STacticalUnit> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const
+vector<STacticalUnit> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const
 {
 	vector<STacticalUnit> result;
 	const CvTacticalPlot& tactPlot = getTactPlot(iPlotIndex);
@@ -8873,11 +8889,11 @@ vector<STacticalUnit> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlotIndex
 
 	for (size_t i = 0; i < units.size(); i++)
 	{
-		if (isCombatUnit(move.eMoveType) && isCombatUnit(units[i].eMoveType))
+		if (isCombatUnit(moveType) && isCombatUnit(units[i].eMoveType))
 			result.push_back(units[i]);
-		if (isEmbarkedUnit(move.eMoveType) && isEmbarkedUnit(units[i].eMoveType))
+		if (isEmbarkedUnit(moveType) && isEmbarkedUnit(units[i].eMoveType))
 			result.push_back(units[i]);
-		if (isSupportUnit(move.eMoveType) && isSupportUnit(units[i].eMoveType))
+		if (isSupportUnit(moveType) && isSupportUnit(units[i].eMoveType))
 			result.push_back(units[i]);
 	}
 
@@ -8932,20 +8948,11 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 				else
 					iTotalScore += iNextTurnScore;
 
-				assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eStrategy, iNextTurnScore, A_FINISH));
+				assignedMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eMoveStrategy, iNextTurnScore, A_FINISH));
 			}
 		}
 		else
-		{
-			//cannot leave the unit in this place. instead replace the unit's last assignment with A_BLOCKED and hope for somebody else to assign a good move
-			//unless it cannot move or we have another unit we need to protect
-			STacticalAssignment* pLast = getLatestAssignmentMutable(unit.iUnitID);
-			if (pLast->eAssignmentType == A_FINISH_TEMP && pLast->iRemainingMoves>0 && (isSupportUnit(unit.eStrategy) || getTactPlot(unit.iPlotIndex).getUnitsAtPlot().size()==1))
-				//temp finish did not affect the score, so nothing to undo
-				*pLast = STacticalAssignment(pLast->iFromPlotIndex, pLast->iFromPlotIndex, unit.iUnitID, 0, unit.eStrategy, 0, A_BLOCKED);
-			else //too risky
-				return false;
-		}
+			return false;
 	}
 
 	//scores look good and target was killed, we're done
@@ -8992,12 +8999,12 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 		if (final.eAssignmentType == A_FINISH)
 		{
 			const STacticalAssignment* initial = getInitialAssignment(final.iUnitID);
-			const SUnitStats* unit = root->getUnitStats(final.iUnitID);
+			const SUnitStats* unit = root->getAvailableUnitStats(final.iUnitID);
 			const CvTacticalPlot& initialPlot = root->getTactPlot(initial->iFromPlotIndex);
 			const CvTacticalPlot& finalPlot = getTactPlot(final.iFromPlotIndex);
 
 			//which domain to use here? for simplicity assume firstline is melee and in-domain, everything else cross-domain
-			CvTacticalPlot::eTactPlotDomain eRelevantDomain = unit->eStrategy== MS_FIRSTLINE ? (finalPlot.getPlot()->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND) : CvTacticalPlot::TD_BOTH;
+			CvTacticalPlot::eTactPlotDomain eRelevantDomain = unit->eMoveStrategy == MS_FIRSTLINE ? (finalPlot.getPlot()->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND) : CvTacticalPlot::TD_BOTH;
 			int iInitialDistance = initialPlot.getEnemyDistance(eRelevantDomain);
 			int iFinalDistance = finalPlot.getEnemyDistance(eRelevantDomain);
 
@@ -9005,7 +9012,7 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 			bool bIsStayingInFrontlineCitadel = (initialPlot.getPlotIndex() == finalPlot.getPlotIndex()) && 
 				finalPlot.getEnemyDistance() < 3 && TacticalAIHelpers::IsPlayerCitadel(finalPlot.getPlot(), getPlayer());
 
-			switch (unit->eStrategy)
+			switch (unit->eMoveStrategy)
 			{
 			case MS_NONE:
 				UNREACHABLE(); // Units are always supposed to be assigned a strategy.
@@ -9295,7 +9302,7 @@ void CvTacticalPosition::updateMoveAndAttackPlotsForUnit(SUnitStats unit)
 			if (plotDistance(*pPlot, *pTargetPlot) > TACTICAL_COMBAT_MAX_TARGET_DISTANCE)
 				continue;
 
-			if (unit.eStrategy == MS_EMBARKED)
+			if (unit.eMoveStrategy == MS_EMBARKED)
 			{
 				//only allow disembarking if it takes us closer to the target
 				if (pUnit->isNativeDomain(pPlot) && plotDistance(*pPlot, *pTargetPlot) >= plotDistance(*pUnit->plot(), *pTargetPlot))
@@ -9440,7 +9447,7 @@ bool CvTacticalPosition::lastAssignmentIsAfterRestart(int iUnitID) const
 	return false;
 }
 
-const SUnitStats * CvTacticalPosition::getUnitStats(int iUnitID) const
+const SUnitStats * CvTacticalPosition::getAvailableUnitStats(int iUnitID) const
 {
 	for (vector<SUnitStats>::const_iterator it = availableUnits.begin(); it != availableUnits.end(); ++it)
 		if (it->iUnitID == iUnitID)
@@ -9688,9 +9695,6 @@ bool STacticalAssignment::operator==(const STacticalAssignment& rhs) const
 	return memcmp(this, &rhs, sizeof(STacticalAssignment)) == 0;
 }
 
-static unsigned long long giEquivalent = 0;
-static unsigned long long giDifferent = 0;
-
 //try to detect simple permutations in the unit assigments which result in equivalent results
 const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition* ref, const CvTacticalPosition* other)
 {
@@ -9698,18 +9702,26 @@ const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition*
 	if (ref == other)
 		return NULL;
 
-	//trivial case .. do not compare assignedMoves.size() because "other" might have finish moves tacked on!
-	if (ref->getGeneration() != other->getGeneration())
-		return NULL;
-
-	//"ref" is the new position we are evaluating. so if within the same generation it has more moves assigned, 
-	//that means we are dealing with forced moves or restarts and we exclude that case to simplify the logic below
+	//"ref" is the new position we are evaluating. the "other" may already have finish moves tacked on, so size may be larger!
 	if (ref->getAssignments().size() > other->getAssignments().size())
 		return NULL;
 
-	//now check for simple permutations (A.B -> B.A)
-	size_t firstIndex = INT_MAX;
-	size_t secondIndex = INT_MAX;
+	//now check the scores
+	int iRefScore = 0;
+	int iOtherScore = 0;
+	for (size_t i = ref->assignedMoves.size() - 1; i >= ref->getFirstInterestingAssignment(); i--)
+	{
+		iRefScore += ref->assignedMoves[i].iScore;
+		iOtherScore += other->assignedMoves[i].iScore;
+	}
+	if (iRefScore != iOtherScore)
+		return NULL;
+
+	//now check for simple (A.B -> B.A) and less simple (A.B.C -> C.A.B | B.C.A), (A.B.C.D -> D.A.B.C | C.D.A.B | B.C.D.A ) permutations
+	size_t A = INT_MAX;
+	size_t B = INT_MAX;
+	size_t C = INT_MAX;
+	size_t D = INT_MAX;
 	bool mismatch = false;
 	//the "other" may have more moves assigned but they should all be of type FINISH ...
 	//for performance do the iteration in reverse; we expect the differences at the end
@@ -9720,31 +9732,91 @@ const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition*
 			continue;
 
 		//remember where the differences occurred
-		if (firstIndex == INT_MAX)
-			firstIndex = i;
-		else if (secondIndex == INT_MAX)
-			secondIndex = i;
+		if (A == INT_MAX)
+			A = i;
+		else if (B == INT_MAX)
+			B = i;
+		else if (C == INT_MAX)
+			C = i;
+		else if (D == INT_MAX)
+			D = i;
 
 		//if we found two differences, check if the elements are flipped
-		if (firstIndex != INT_MAX && secondIndex != INT_MAX)
+		if (A != INT_MAX && B != INT_MAX)
 		{
-			if (ref->assignedMoves[firstIndex] == other->assignedMoves[secondIndex] && ref->assignedMoves[secondIndex] == other->assignedMoves[firstIndex])
+			//simple flip?
+			if (C == INT_MAX)
 			{
-				//found a flip, go on checking
-				firstIndex = INT_MAX;
-				secondIndex = INT_MAX;
+				if (ref->assignedMoves[A] == other->assignedMoves[B] && ref->assignedMoves[B] == other->assignedMoves[A])
+				{
+					//go on checking
+					A = INT_MAX;
+					B = INT_MAX;
+				}
+				else
+				{
+					//check for a three-element permutation before giving up
+				}
 			}
-			else
+			else //C != INT_MAX
 			{
-				//real difference or more complex permutations
-				mismatch = true;
-				break;
+				if (D == INT_MAX)
+				{
+					bool CAB = ref->assignedMoves[A] == other->assignedMoves[C] &&
+						ref->assignedMoves[B] == other->assignedMoves[A] &&
+						ref->assignedMoves[C] == other->assignedMoves[B];
+					bool BCA = ref->assignedMoves[A] == other->assignedMoves[B] &&
+						ref->assignedMoves[B] == other->assignedMoves[C] &&
+						ref->assignedMoves[C] == other->assignedMoves[A];
+
+					if (CAB || BCA)
+					{
+						//go on checking
+						A = INT_MAX;
+						B = INT_MAX;
+						C = INT_MAX;
+					}
+					else
+					{
+						//check for a four-element permutation before giving up
+					}
+				}
+				else //D != INT_MAX
+				{
+					bool DABC = ref->assignedMoves[A] == other->assignedMoves[D] &&
+						ref->assignedMoves[B] == other->assignedMoves[A] &&
+						ref->assignedMoves[C] == other->assignedMoves[B] &&
+						ref->assignedMoves[D] == other->assignedMoves[C];
+					bool CDAB = ref->assignedMoves[A] == other->assignedMoves[C] &&
+						ref->assignedMoves[B] == other->assignedMoves[D] &&
+						ref->assignedMoves[C] == other->assignedMoves[A] &&
+						ref->assignedMoves[D] == other->assignedMoves[B];
+					bool BCDA = ref->assignedMoves[A] == other->assignedMoves[B] &&
+						ref->assignedMoves[B] == other->assignedMoves[C] &&
+						ref->assignedMoves[C] == other->assignedMoves[D] &&
+						ref->assignedMoves[D] == other->assignedMoves[A];
+
+					if (DABC || CDAB || BCDA)
+					{
+						//go on checking
+						A = INT_MAX;
+						B = INT_MAX;
+						C = INT_MAX;
+						D = INT_MAX;
+					}
+					else
+					{
+						//real difference or more complex permutations
+						mismatch = true;
+						break;
+					}
+				}
 			}
 		}
 	}
 
-	//gotcha - there might be a singular mismatch!
-	if (firstIndex != INT_MAX && secondIndex == INT_MAX)
+	//gotcha - there might be an "unfinished" mismatch!
+	if (A != INT_MAX)
 		mismatch = true;
 
 	if (mismatch)
@@ -10191,18 +10263,18 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	static vector<CvTacticalPosition*> completedPositions;
 
 #if defined(MOD_CORE_DEBUGGING)
-	if (MOD_CORE_DEBUGGING)
+	if (0)
 	{
 		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units", pTarget->getX(), pTarget->getY(), vUnits.size());
 		for (size_t i = 0; i < vUnits.size(); i++)
 			strMsg += CvString::format("; %d", vUnits[i]->GetID());
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
-//#if defined(STACKWALKER)
-//		gStackWalker.SetLog(GET_PLAYER(ePlayer).GetTacticalAI()->GetLogFile());
-//		gStackWalker.ShowCallstack(5);
-//		gStackWalker.SetLog(NULL);
-//#endif
+#if defined(STACKWALKER)
+		gStackWalker.SetLog(GET_PLAYER(ePlayer).GetTacticalAI()->GetLogFile());
+		gStackWalker.ShowCallstack(5);
+		gStackWalker.SetLog(NULL);
+#endif
 	}
 #endif
 
@@ -10374,7 +10446,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	if (!completedPositions.empty())
 	{
 #if defined(MOD_CORE_DEBUGGING)
-		if (MOD_CORE_DEBUGGING)
+		if (gCurrentUnitToTrack == -1)
 		{
 			//dump the scores over time (before sorting)
 			ofstream out("c:\\temp\\positionscore.csv", std::ios::app);
@@ -10395,6 +10467,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
+		if (timer.GetDeltaInSeconds() > 7)
+			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
+
 		CvString strMsg;
 		strMsg.Format("tactsim %s, target %d:%d with %d units (agglvl %d). last dangerplots update at %d. tested %d, completed %d, open %d (%.2f ms).", 
 			result.empty() ? "failed" : "success",
@@ -10402,26 +10477,24 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			iUsedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
+		//debug dump
 #if defined(MOD_CORE_DEBUGGING)
-		if (MOD_CORE_DEBUGGING && !completedPositions.empty())
+		if (0)
 		{
-			for (size_t j = 0; j < min(10u, completedPositions.size()); j++)
+			for (size_t j = 0; j < min(13u, completedPositions.size()); j++)
 			{
-				strMsg.Format("----\nscore is %d for id %09d", completedPositions[j]->getScoreTotal(), completedPositions[j]->getID());
+				strMsg.Format("----\nscore is %d for id %llu", completedPositions[j]->getScoreTotal(), completedPositions[j]->getID());
 				GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 				const vector<STacticalAssignment>& moves = completedPositions[j]->getAssignments();
 				for (size_t i = completedPositions[j]->getFirstInterestingAssignment(); i < moves.size(); i++)
 				{
-					strMsg.Format("unit %d, from %d, to %d, score %d, damage %d, selfdamage %d, moves %d",
-						moves[i].iUnitID, moves[i].iFromPlotIndex, moves[i].iToPlotIndex, moves[i].iScore, moves[i].iDamage, moves[i].iSelfDamage, moves[i].iRemainingMoves);
+					strMsg.Format("unit %d, move %d, from %d, to %d, score %d, damage %d, selfdamage %d, moves %d",
+						moves[i].iUnitID, moves[i].eMoveType, moves[i].iFromPlotIndex, moves[i].iToPlotIndex, moves[i].iScore, moves[i].iDamage, moves[i].iSelfDamage, moves[i].iRemainingMoves);
 					GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 				}
 			}
 		}
 #endif
-
-		if (timer.GetDeltaInSeconds() > 7)
-			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
 	}
 
 	return result;
