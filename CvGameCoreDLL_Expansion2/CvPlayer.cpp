@@ -12181,7 +12181,7 @@ int CvPlayer::GetScoreFromPolicies() const
 		return 0;
 	}
 
-	int iScore = GetPlayerPolicies()->GetNumPoliciesOwned() * /*4 in CP, 16 in VP*/ GD_INT_GET(SCORE_POLICY_MULTIPLIER);
+	int iScore = GetPlayerPolicies()->GetNumPoliciesOwned(true, false, true) * /*4 in CP, 16 in VP*/ GD_INT_GET(SCORE_POLICY_MULTIPLIER);
 
 	return iScore;
 }
