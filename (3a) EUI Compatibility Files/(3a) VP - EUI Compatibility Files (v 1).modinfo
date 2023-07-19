@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(3.7.7) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3.7.8) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -48,7 +48,7 @@
     <File md5="3125858296BA493F375BF6520FC55343" import="1">LUA/DiploCorner.lua</File>
     <File md5="66BFFDAC10E0E688F10948C69D752D91" import="1">LUA/DiploCorner.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>
-    <File md5="D329F174F8E039EBD9E482F9B7ACF6A7" import="1">LUA/EUI_tooltip_library.lua</File>
+    <File md5="F8C8AF30C8277E3367980B13C38331AC" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="FC4666BDE2F58684AF9157221B0B6607" import="1">LUA/HappinessInfo.lua</File>
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
     <File md5="D289BEDF0B5853B28C947C184162658E" import="1">LUA/LeaderHeadRoot.lua</File>
@@ -73,7 +73,7 @@
     <File md5="CBF5CA4731D74890572CF98197BD1301" import="1">ImprovedTopPanel/FontIconsITP.ggxml</File>
     <File md5="1CD7B823DB2D56628A876DA93FA1AEF2" import="1">ImprovedTopPanel/FontIconsITP.dds</File>
     <File md5="4422D10FF5171FD8FD620535E7A62AE0" import="0">ImprovedTopPanel/Text.xml</File>
-    <File md5="1DF70012E6233423B931AD3B6FA181A8" import="1">ImprovedTopPanel/TopPanel.lua</File>
+    <File md5="1F3DEC1B670E1FE80FFEAFDD6B456856" import="1">ImprovedTopPanel/TopPanel.lua</File>
     <File md5="FF214362325C096DB17FE9779F099D70" import="1">ImprovedTopPanel/TopPanel.xml</File>
     <File md5="853361CE36726447BF7C31A74F3991D9" import="0">ImprovedTechTree/UpdateTechGrid.sql</File>
     <File md5="5865F1D926DED76F3788BDED968461D2" import="1">ImprovedTechTree/TechTree.lua</File>
