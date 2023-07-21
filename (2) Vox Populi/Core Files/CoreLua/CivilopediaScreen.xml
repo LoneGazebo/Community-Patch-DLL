@@ -418,6 +418,42 @@
 		</Button>
 	</Instance>
 	<!--=======================================================================================================================-->
+	<!--    Instance of a Civilization Start button  -->
+	<!--=======================================================================================================================-->
+	<Instance Name="StartAlongRegionInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNIQUEIMPR_NAME" ID="StartAlongRegionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="TerrainImage"/>
+		</Button>
+	</Instance>
+	<Instance Name="StartPriorityRegionInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNIQUEIMPR_NAME" ID="StartPriorityRegionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="TerrainImage"/>
+		</Button>
+	</Instance>
+	<Instance Name="StartAvoidRegionInstance">
+		<Button Anchor="L,T" Size="64,64" Offset="0,0" Texture="64x64FrameButtons.dds" ToolTip="TXT_KEY_PEDIA_UNIQUEIMPR_NAME" ID="StartAvoidRegionButton">
+			<ShowOnMouseOver>
+				<AlphaAnim Anchor="R,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="16.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<AlphaAnim Anchor="L,C" AnchorSide="O.O" Offset="-9,0" Size="16,32" TextureOffset="0.0" Texture="buttonsidesglow.dds" Pause="0" Cycle="Bounce" Speed="1" AlphaStart=".99" AlphaEnd=".25" Hidden="0"/>
+				<Image Anchor="R,C" Offset="-9,0" TextureOffset="8,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+				<Image Anchor="L,C" Offset="-9,0" TextureOffset="0,0" AnchorSide="O.O" Texture="buttonsides.dds" Size="8,16"/>
+			</ShowOnMouseOver>
+			<Image Anchor="C,C" Texture="WonderAtlas512.dds" Size="64,64" ID="TerrainImage"/>
+		</Button>
+	</Instance>
+	<!--=======================================================================================================================-->
 	<!--    Instance of a replaces button  -->
 	<!--=======================================================================================================================-->
 	<Instance Name="ReplaceInstance">
@@ -1053,6 +1089,22 @@
 					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="UniqueImprovementsFrame">
 						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="UniqueImprovementsInnerFrame">
 							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_UNIQUEIMPRV_LABEL"/>
+						</Grid>
+					</Grid>
+					<!-- Civilization Start -->
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="StartAlongRegionFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="StartAlongRegionInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_PREFERSTARTBIAS_LABEL"/>
+						</Grid>
+					</Grid>
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="StartPriorityRegionFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="StartPriorityRegionInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_PRIORITYSTARTBIAS_LABEL"/>
+						</Grid>
+					</Grid>
+					<Grid Anchor="L,T" Offset="0,24" Size="204,136" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="StartAvoidRegionFrame">
+						<Grid Anchor="C,C" Offset="0,0" Size="208,140" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="StartAvoidRegionInnerFrame">
+							<Label Anchor="L,T" Offset="4,-16" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_AVOIDSTARTBIAS_LABEL"/>
 						</Grid>
 					</Grid>
 					<!-- Required Policies -->

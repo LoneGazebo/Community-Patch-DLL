@@ -12193,6 +12193,25 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 				iExtra += 100;
 			}
 		}
+		//Bare Minimum Support for Custom Resolutions: Disagree if you can't get rewards, slightly disagree if you can get bronze, slightly agree if you can get silver if you can get gold, you want it!
+		else {
+			if (bCanGold)
+			{
+				iExtra += 2 * iPercentofWinning;
+			}
+			if (bCanSilver)
+			{
+				iExtra += 150;
+			}
+			if (bCanBronze)
+			{
+				iExtra += 100;
+			}
+			if (bForSelf)
+			{
+				iExtra -= 200;
+			}
+		}
 
 		iScore += iExtra;
 	}
