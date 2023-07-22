@@ -4951,8 +4951,16 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 	}
 	else //passable. need to check for negative promotions / traits and their exceptions
 	{
+		if (enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
+		{
+			return false;
+		}
+		else if (enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
+		{
+			return false;
+		}
 		//special handling for ocean
-		if (enterPlot.isDeepWater() && enterPlot.getFeatureType()==NO_FEATURE)
+		else if (enterPlot.isDeepWater())
 		{
 			//true naval units can enter ocean plots if they don't stay there. embarked units need the tech in any case
 			if ( (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION) || enterPlot.needsEmbarkation(this))
@@ -4960,9 +4968,7 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
 				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
 				if(bOceanImpassable)
-				{
 					return false;
-				}
 
 				if (canCrossOceans())
 					return true;
@@ -4975,14 +4981,6 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 				if (eDomain == DOMAIN_LAND)
 					return IsEmbarkDeepWater() || IsEmbarkAllWater() || kPlayer.CanCrossOcean();
 			}
-		}
-		else if(enterPlot.getFeatureType() != NO_FEATURE && isFeatureImpassable(enterPlot.getFeatureType()))
-		{
-			return false;
-		}
-		else if(enterPlot.getTerrainType() != NO_TERRAIN && isTerrainImpassable(enterPlot.getTerrainType()))
-		{
-			return false;
 		}
 		else if (kPlayer.isMinorCiv() && enterPlot.getRevealedImprovementType(getTeam()) == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
 		{
