@@ -436,7 +436,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_ARCHER';
 
 	UPDATE Language_en_US
-	SET Text = 'The Archer is an early ranged unit. It is the first in the unit line to have 2 range, allowing it to initiate fights and keep away from melee attackers. Use archers to soften up stargets before a melee strike.'
+	SET Text = 'The Archer is an early ranged unit. It is the first in the unit line to have 2 range, allowing it to initiate fights and keep away from melee attackers. Use archers to soften up targets before a melee strike.'
 	WHERE Tag = 'TXT_KEY_UNIT_ARCHER_STRATEGY';
 
 	-- Melee
