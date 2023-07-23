@@ -43,7 +43,7 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(32000);
+CvTactPosStorage gTactPosStorage(16000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
@@ -8204,12 +8204,11 @@ void CvTacticalPlot::setCombatUnitEndTurn(CvTacticalPosition& currentPosition, e
 			if (tactPlot.isValid())
 			{
 				tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[unitDomain]++;
-//				FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily
 				if (unitDomain != TD_BOTH)
-				{
 					tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[TD_BOTH]++;
-//					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily
-				}
+
+				if (tactPlot.aiFriendlyCombatUnitsAdjacentEndTurn[TD_BOTH] > 7)
+					OutputDebugString("implausible amount of neighbors");
 			}
 		}
 	}
@@ -8237,12 +8236,11 @@ void CvTacticalPlot::changeNeighboringUnitCount(CvTacticalPosition& currentPosit
 				{
 					CvTacticalPlot::eTactPlotDomain unitDomain = DomainForUnit(pUnit);
 					tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] += iChange;
-//					FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[unitDomain] < 8); //with swap moves we can have two units in one plot temporarily ...
 					if (unitDomain != TD_BOTH)
-					{
 						tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] += iChange;
-//						FAssert(tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] < 8); //with swap moves we can have two units in one plot temporarily ...
-					}
+
+					if (tactPlot.aiFriendlyCombatUnitsAdjacent[TD_BOTH] > 7)
+						OutputDebugString("implausible amount of neighbors");
 				}
 			}
 		}
@@ -8727,7 +8725,7 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gMovesToAdd.clear();
 
 		//easy case first, no conflict
-		if (gOverAllChoices[i].eMoveType != A_MOVE)
+		if (gOverAllChoices[i].eAssignmentType != A_MOVE)
 		{
 			//just do the original move
 			gMovesToAdd.push_back(gOverAllChoices[i]);
