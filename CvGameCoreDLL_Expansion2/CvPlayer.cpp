@@ -51757,7 +51757,7 @@ CvString CvPlayer::GetVassalIndependenceTooltipAsVassal() const
 	
 	szTooltip += GetLocalizedText("TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_TT") + "[NEWLINE][NEWLINE]";
 
-	bool bVoluntary = kVassalTeam.IsVoluntaryVassal(getTeam());
+	bool bVoluntary = kVassalTeam.IsVoluntaryVassal(eMaster);
 	bool bSatisfied = false;
 
 	int iMinimumVassalTurns = bVoluntary ? GC.getGame().getGameSpeedInfo().getMinimumVoluntaryVassalTurns() : GC.getGame().getGameSpeedInfo().getMinimumVassalTurns();

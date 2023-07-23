@@ -299,13 +299,13 @@ function MasterSelected( ePlayer )
 	-- Can't request? Set up tooltip
 	if( not bCanRequestIndependence ) then
 		local iMinimumTurns = 0;
-		if ( g_pTeam:IsVoluntaryVassal(iVassalTeam) ) then
+		if ( g_pTeam:IsVoluntaryVassal(iMasterTeam) ) then
 			iMinimumTurns = Game.GetMinimumVoluntaryVassalTurns();
 		else 
 			iMinimumTurns = Game.GetMinimumVassalTurns();
 		end
 
-		local iNumTurnsIsVassal = g_pTeam:GetNumTurnsIsVassal( iVassalTeam );
+		local iNumTurnsIsVassal = g_pTeam:GetNumTurnsIsVassal();
 
 		if(iNumTurnsIsVassal < iMinimumTurns) then
 			strTooltip = strTooltip .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_REQUEST_INDEPENDENCE_TOO_SOON", iMinimumTurns, iMinimumTurns - iNumTurnsIsVassal);
