@@ -15369,7 +15369,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 			}
 		}
 
-		if (iBulliedVeryRecentlyScore > 0)
+		if (iBulliedVeryRecentlyScore != 0)
 		{
 			iScore += iBulliedVeryRecentlyScore;
 			if (sTooltipSink)
@@ -15380,7 +15380,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if (iBulliedRecentlyScore > 0)
+		else if (iBulliedRecentlyScore != 0)
 		{
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)

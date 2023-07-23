@@ -565,17 +565,17 @@ struct SUnitStats
 	int iImportanceScore;
 	int iSelfDamage; //melee units take damage when attacking
 	eUnitAssignmentType eLastAssignment;
-	eUnitMovementStrategy eStrategy;
+	eUnitMovementStrategy eMoveStrategy;
 	const CvUnit* pUnit;
 
 	//convenience constructor - do not use pUnit here because it's initialized last! (pUnit_ is ok)
-	SUnitStats(const CvUnit* pUnit_, int iImportance, eUnitMovementStrategy eStrategy_) :
+	SUnitStats(const CvUnit* pUnit_, int iImportance, eUnitMovementStrategy eMoveStrategy_) :
 		pUnit(pUnit_), iUnitID(pUnit_->GetID()), iPlotIndex(pUnit_->plot()->GetPlotIndex()), iAttacksLeft(pUnit_->getNumAttacks() - pUnit_->getNumAttacksMadeThisTurn()), 
-		iMovesLeft(pUnit_->getMoves()), iImportanceScore(iImportance), iSelfDamage(0), eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
+		iMovesLeft(pUnit_->getMoves()), iImportanceScore(iImportance), iSelfDamage(0), eLastAssignment(A_INITIAL), eMoveStrategy(eMoveStrategy_) {}
 	//use with caution, this may lead to an inconsistent state
-	SUnitStats(const CvUnit* pUnit_, int iUnit, int iPlot, int iAttacks, int iMoves, int iImportance, eUnitMovementStrategy eStrategy_) : 
+	SUnitStats(const CvUnit* pUnit_, int iUnit, int iPlot, int iAttacks, int iMoves, int iImportance, eUnitMovementStrategy eMoveStrategy_) :
 		pUnit(pUnit_), iUnitID(iUnit), iPlotIndex(iPlot), iAttacksLeft(iAttacks), iMovesLeft(iMoves), iImportanceScore(iImportance), iSelfDamage(0),
-		eLastAssignment(A_INITIAL), eStrategy(eStrategy_) {}
+		eLastAssignment(A_INITIAL), eMoveStrategy(eMoveStrategy_) {}
 
 	bool operator<(const SUnitStats& rhs) const { return iImportanceScore > rhs.iImportanceScore; } //sort descending by default
 };
@@ -904,10 +904,10 @@ public:
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
 	int countChildren() const;
 	float getAggressionBias() const;
-	vector<STacticalUnit> findBlockingUnitsAtPlot(int iPlotIndex, const STacticalAssignment& move) const;
+	vector<STacticalUnit> findBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
 	bool lastAssignmentIsAfterRestart(int iUnitID) const;
-	const SUnitStats* getUnitStats(int iUnitID) const;
+	const SUnitStats* getAvailableUnitStats(int iUnitID) const;
 	const STacticalAssignment* getInitialAssignment(int iUnitID) const;
 	STacticalAssignment* getInitialAssignmentMutable(int iUnitID);
 	const STacticalAssignment* getLatestAssignment(int iUnitID) const;
