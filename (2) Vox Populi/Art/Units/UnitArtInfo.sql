@@ -427,7 +427,7 @@ INSERT INTO ArtDefine_UnitMemberCombatWeapons (UnitMemberType, "Index", SubIndex
     FROM ArtDefine_UnitMemberCombatWeapons WHERE (UnitMemberType = 'ART_DEF_UNIT_MEMBER_TRIREME');
  
 INSERT INTO ArtDefine_UnitMemberInfos (Type, Scale, ZOffset, Domain, Model, MaterialTypeTag, MaterialTypeSoundOverrideTag)
-    SELECT  ('ART_DEF_UNIT_MEMBER_VP_LIBURNA'), Scale-0.1, ZOffset, Domain, ('minoan_galea.fxsxml'), MaterialTypeTag, MaterialTypeSoundOverrideTag
+    SELECT  ('ART_DEF_UNIT_MEMBER_VP_LIBURNA'), 0.05, ZOffset, Domain, ('minoan_galea.fxsxml'), MaterialTypeTag, MaterialTypeSoundOverrideTag
     FROM ArtDefine_UnitMemberInfos WHERE (Type = 'ART_DEF_UNIT_MEMBER_TRIREME');
  
 INSERT INTO ArtDefine_StrategicView (StrategicViewType, TileType, Asset )

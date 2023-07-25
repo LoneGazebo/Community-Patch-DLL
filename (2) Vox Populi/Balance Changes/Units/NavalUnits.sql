@@ -25,7 +25,7 @@
 	UPDATE Units SET PrereqTech = 'TECH_NUCLEAR_FISSION',	ObsoleteTech = NULL						WHERE Type = 'UNIT_BATTLESHIP';
 
 	UPDATE Units SET Moves = '4' WHERE Type IN (
-	'UNIT_LIBURNA'
+	'UNIT_LIBURNA',
 	'UNIT_BYZANTINE_DROMON',  -- half moves in ocean
 	'UNIT_GALLEASS', -- half moves in ocean
 	'UNIT_VENETIAN_GALLEASS', -- half moves in ocean
@@ -35,6 +35,7 @@
 	-- Tech Melee
 	
 	UPDATE Units SET PrereqTech = 'TECH_SAILING', ObsoleteTech = 'TECH_PHILOSOPHY' 	WHERE Type = 'UNIT_GALLEY';
+	UPDATE Units SET PrereqTech = 'TECH_SAILING', ObsoleteTech = 'TECH_PHILOSOPHY' 	WHERE Type = 'UNIT_VP_GALLEY';
 	UPDATE Units SET PrereqTech = 'TECH_PHILOSOPHY', ObsoleteTech = 'TECH_COMPASS'		WHERE Type = 'UNIT_TRIREME';
 	UPDATE Units SET PrereqTech = 'TECH_PHILOSOPHY', ObsoleteTech = 'TECH_NAVIGATION'	WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
 
@@ -53,8 +54,11 @@
 	UPDATE Units SET PrereqTech = 'TECH_STEALTH' WHERE Type = 'UNIT_NUCLEAR_SUBMARINE';
 	UPDATE Units SET PrereqTech = 'TECH_COMPUTERS' WHERE Type = 'UNIT_CARRIER';
 
+UPDATE Units SET Moves = '3' WHERE Type IN (
+	'UNIT_GALLEY',
+	'UNIT_VP_GALLEY'); -- half moves in ocean
+
 	UPDATE Units SET Moves = '4' WHERE Type IN (
-	'UNIT_GALLEY', -- half moves in ocean
 	'UNIT_KOREAN_TURTLE_SHIP', -- half moves in ocean
 	'UNIT_CARAVEL',	
 	'UNIT_PORTUGUESE_NAU',

@@ -522,17 +522,21 @@
 	-- Naval Units
 
 	INSERT INTO Language_en_US (Tag, Text)
-		VALUES 	('TXT_KEY_UNIT_GALLEY_HELP', 		'Ancient Era Naval Unit used to wrest control of the seas.'),
-				('TXT_KEY_UNIT_GALLEY_PEDIA', 		'A galley is any type of ship that is mainly propelled by oars. Many galleys also used sails in favorable winds, but rowing with oars was relied on for maneuvering and for independence from wind power. The plan and size of galleys varied greatly from ancient times, but early vessels were often small enough to be picked up and carried onto shore when not in use, and were multipurpose vessels, used in both trade and warfare.'), 
-				('TXT_KEY_UNIT_GALLEY_STRATEGY', 	'Galleys are the earliest naval unit. They are slow and weak, but can be used to establish an early naval presence. Use Galleys to protect your cities from early Barbarian incursions.');
+		VALUES 	('TXT_KEY_UNIT_GALLEY_HELP', 'Ancient Era Naval Unit used to wrest control of the seas.');
+	
+	UPDATE Language_en_US
+	SET Text = 'A galley is any type of ship that is mainly propelled by oars. Many galleys also used sails in favorable winds, but rowing with oars was relied on for maneuvering and for independence from wind power. The plan and size of galleys varied greatly from ancient times, but early vessels were often small enough to be picked up and carried onto shore when not in use, and were multipurpose vessels, used in both trade and warfare.'
+	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_PEDIA';
+	
+	UPDATE Language_en_US
+	SET Text = 'Galleys are the earliest naval unit. They are slow and weak, but can be used to establish an early naval presence. Use Galleys to protect your cities from early Barbarian incursions.'
+	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_STRATEGY';
 
-INSERT INTO Language_en_US (Tag, Text)
-		VALUES 	('TXT_KEY_UNIT_LIBURNA', 			'Liburna')
+	INSERT INTO Language_en_US (Tag, Text)
+		VALUES 	('TXT_KEY_UNIT_LIBURNA', 			'Liburna'),
 				('TXT_KEY_UNIT_LIBURNA_HELP', 		'Dominant Classical Era Naval Unit used to own the seas well into the Medieval Era with its ranged attack.'),
 				('TXT_KEY_UNIT_LIBURNA_PEDIA', 		'A Liburna was a small, fast type of Galley used for raiding and patrols in the Mediterranean sea. First invented by Liburnians in present-day Dalmatia, the Liburna was later adopted by the Roman Navy as an agile patrol ship against pirates.'), 
 				('TXT_KEY_UNIT_LIBURNA_STRATEGY', 	'Attacks with lethal barrages of arrows, making it the first naval unit with a ranged attack. It cannot end its turn in Ocean Tiles outside of the city borders.');
-	
-('TXT_KEY_UNIT_LIBURNA'), ('TXT_KEY_UNIT_LIBURNA_PEDIA') , ('TXT_KEY_UNIT_LIBURNA_STRATEGY'), ('TXT_KEY_UNIT_LIBURNA_HELP')
 	
 	INSERT INTO Language_en_US (Tag, Text)
 		VALUES ('TXT_KEY_DESC_CRUISER', 'Cruiser');
