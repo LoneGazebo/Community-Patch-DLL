@@ -10410,7 +10410,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			int iStartingUnits = initialPosition->getAvailableUnits().size();
 
 			std::stringstream ss;
-			ss << "warning, aborting tactical simulation for lack of memory, " <<
+			ss << "warning: tactsim out of memory, " <<
 				iStartingUnits << " starting units, " <<
 				current->getAvailableUnits().size() << " remaining units, " <<
 				openPositionsHeap.size() << " open positions, " <<
@@ -10443,21 +10443,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//but if there are too many unassigned units it can tip
 	if (!completedPositions.empty())
 	{
-#if defined(MOD_CORE_DEBUGGING)
-		if (gCurrentUnitToTrack == -1)
-		{
-			//dump the scores over time (before sorting)
-			ofstream out("c:\\temp\\positionscore.csv", std::ios::app);
-			if (out)
-			{
-				for (size_t i = 0; i < completedPositions.size(); i++)
-					out << completedPositions[i]->getID() << "," << completedPositions[i]->getScoreTotal() << ";";
-				out << std::endl;
-			}
-			out.close();
-		}
-#endif
-
 		//need the predicate, else we sort the pointers by address!
 		std::stable_sort(completedPositions.begin(), completedPositions.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
 		result = completedPositions.front()->getAssignments();
@@ -10477,6 +10462,22 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 		//debug dump
 #if defined(MOD_CORE_DEBUGGING)
+		if (gCurrentUnitToTrack == -1)
+		{
+			ofstream out("c:\\temp\\positionscores.csv", std::ios::app);
+			if (out)
+			{
+				for (int i = 0; i < storage.getSize(); i++)
+				{
+					CvTacticalPosition* pos = storage.first() + i;
+					bool isComplete = pos->isEarlyFinish() || pos->isExhausted();
+					out << pos->getID() << "," << pos->getScoreLastRound() << "," << pos->getScoreTotal() << "," << (isComplete ? 1:0) << ";";
+				}
+				out << std::endl;
+			}
+			out.close();
+		}
+
 		if (0)
 		{
 			for (size_t j = 0; j < min(13u, completedPositions.size()); j++)

@@ -3158,7 +3158,10 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 
 }
 
-//	--------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+// need to be very careful here - trade distance is used in lots of places
+// what's more, there is a maximum trade distance and cities might appear unreachable
+// --------------------------------------------------------------------------------
 int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();

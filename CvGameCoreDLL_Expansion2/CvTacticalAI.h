@@ -958,7 +958,9 @@ public:
 	~CvTactPosStorage() { delete[] aPositions; }
 	void reset() { iCount = 0; attackCache.clear(); }
 	int getSizeLimit() const { return iSize; }
-	CvTacticalPosition* peekNext() {	return (iCount < iSize) ? aPositions + iCount : NULL;	}
+	int getSize() const { return iCount; }
+	CvTacticalPosition* first() { return aPositions; }
+	CvTacticalPosition* peekNext() { return (iCount < iSize) ? aPositions + iCount : NULL; }
 	int consumeOne() { return iCount++; }
 	CAttackCache& getCache() { return attackCache; }
 
