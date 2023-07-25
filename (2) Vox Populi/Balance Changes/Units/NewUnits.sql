@@ -37,6 +37,8 @@ INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	VALUES ('UNIT_CRUISER', 'UNITCLASS_BATTLESHIP');
 
+INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
+	VALUES ('UNIT_CRUISER', 'RESOURCE_IRON', '1');
 -- Galley
 UPDATE UnitClasses SET DefaultUnit = 'UNIT_VP_GALLEY' WHERE Type = 'UNITCLASS_GALLEY';
 
