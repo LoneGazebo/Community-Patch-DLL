@@ -201,6 +201,14 @@ UPDATE Language_en_US
 SET Text = 'The Cataphract is a Byzantine unique unit, replacing the Knight. Cataphracts are slower but more powerful than the Knight unit, making them one of the most dangerous cavalry units until the arrival of the Lancer. They can move after attacking. They are able to gain defensive bonuses, unlike the Knight. Also their penalty for attacking cities is not as severe.'
 WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_CATAPHRACT_STRATEGY';
 
+UPDATE Language_en_US
+SET Text = 'The Dromon can only be gifted by City-States.'
+WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_DROMON';
+
+UPDATE Language_en_US
+SET Text = 'The Dromon performs similarly to the Liburna, but is much more powerful against units. Starts with the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Targeting I[ENDCOLOR] Promotions.'
+WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
+
 --------------------
 -- Carthage
 --------------------

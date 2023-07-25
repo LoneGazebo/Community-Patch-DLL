@@ -108,6 +108,11 @@ UPDATE Units SET Class = 'UNITCLASS_BRAZILIAN_PRACINHA', MinorCivGift = '1', Cos
 -- Removed Dromon
 
 DELETE FROM Civilization_UnitClassOverrides WHERE UnitType = 'UNIT_BYZANTINE_DROMON';
+INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_DROMON', 'TXT_KEY_UNIT_BYZANTIUM_DROMON', 'UNIT_BYZANTINE_DROMON');
+
+UPDATE Units SET Class = 'UNITCLASS_DROMON', MinorCivGift = '1', Cost = '-1', GoodyHutUpgradeUnitClass = 'UNITCLASS_GALLEASS' WHERE Type = 'UNIT_BYZANTINE_DROMON';
+
+UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_GALLEASS' WHERE UnitType = 'UNIT_BYZANTINE_DROMON';
 
 UPDATE Units SET Class = 'UNITCLASS_KNIGHT', GoodyHutUpgradeUnitClass = 'UNITCLASS_LANCER'  WHERE Type = 'UNIT_BYZANTINE_CATAPHRACT';
 

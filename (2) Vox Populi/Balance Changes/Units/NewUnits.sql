@@ -22,7 +22,6 @@ INSERT INTO UnitClasses (Type, Description, DefaultUnit)
 VALUES ('UNITCLASS_TERCIO', 'TXT_KEY_UNIT_SPANISH_TERCIO', 'UNIT_SPANISH_TERCIO');
 
 -- Cruiser
-
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
 	VALUES ('UNITCLASS_CRUISER', 'TXT_KEY_DESC_CRUISER', 'UNIT_CRUISER');
 
@@ -38,8 +37,36 @@ INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
 	VALUES ('UNIT_CRUISER', 'UNITCLASS_BATTLESHIP');
 
-INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost)
-	VALUES ('UNIT_CRUISER', 'RESOURCE_IRON', '1');
+-- Galley
+UPDATE UnitClasses SET DefaultUnit = 'UNIT_VP_GALLEY' WHERE Type = 'UNITCLASS_GALLEY';
+
+INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements, Combat, Cost, Moves, Immobile, BaseSightRange, Class, Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, PrereqTech, ObsoleteTech, GoodyHutUpgradeUnitClass, HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness, UnitArtInfo, UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, UnitFlagIconOffset, PortraitIndex, IconAtlas, UnitFlagAtlas)
+	SELECT	('UNIT_VP_GALLEY'), ('TXT_KEY_UNIT_GALLEY'), ('TXT_KEY_UNIT_GALLEY_PEDIA') , ('TXT_KEY_UNIT_GALLEY_STRATEGY'), ('TXT_KEY_UNIT_GALLEY_HELP'), Requirements, ('12'), ('70'), ('3'), Immobile, BaseSightRange, ('UNITCLASS_GALLEY'), Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, ('TECH_SAILING'), ('TECH_PHILOSOPHY'), GoodyHutUpgradeUnitClass, HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness,
+			('ART_DEF_UNIT_VP_GALLEY'), UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, ('23'), ('14'), ('COMMUNITY_3_ATLAS'), ('UNIT_FLAG_ATLAS')
+	FROM Units WHERE (Type = 'UNIT_TRIREME');
+
+INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
+	SELECT 'UNIT_VP_GALLEY', SelectionSound, FirstSelectionSound
+	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_TRIREME');
+
+INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
+	VALUES ('UNIT_VP_GALLEY', 'UNIT_TRIREME');
+
+-- Liburna
+INSERT INTO UnitClasses (Type, Description, DefaultUnit )
+	VALUES ('UNITCLASS_LIBURNA', 'TXT_KEY_UNIT_LIBURNA', 'UNIT_LIBURNA');
+
+INSERT INTO Units (Type, Description, Civilopedia, Strategy, Help, Requirements, Combat, RangedCombat, Cost, Moves, Immobile, Range, BaseSightRange, Class, Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, PrereqTech, ObsoleteTech, GoodyHutUpgradeUnitClass, HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness, UnitArtInfo, UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, UnitFlagIconOffset, PortraitIndex, IconAtlas, UnitFlagAtlas)
+	SELECT	('UNIT_LIBURNA'), ('TXT_KEY_UNIT_LIBURNA'), ('TXT_KEY_UNIT_LIBURNA_PEDIA') , ('TXT_KEY_UNIT_LIBURNA_STRATEGY'), ('TXT_KEY_UNIT_LIBURNA_HELP'), Requirements, ('7'), ('16'), ('100'), ('4'), ('1'), Immobile, BaseSightRange, ('UNITCLASS_LIBURNA'), Special, Capture, CombatClass, Domain, CivilianAttackPriority, DefaultUnitAI, Food, NoBadGoodies, RivalTerritory, MilitarySupport, MilitaryProduction, Pillage, Found, FoundAbroad, CultureBombRadius, GoldenAgeTurns, IgnoreBuildingDefense, PrereqResources, Mechanized, Suicide, CaptureWhileEmbarked, ('TECH_OPTICS'), ('TECH_GUILDS'), GoodyHutUpgradeUnitClass, HurryCostModifier, AdvancedStartCost, MinAreaSize, AirUnitCap, NukeDamageLevel, WorkRate, NumFreeTechs, RushBuilding, BaseHurry, HurryMultiplier, BaseGold, NumGoldPerEra, SpreadReligion, CombatLimit, RangeAttackOnlyInDomain, RangeAttackIgnoreLOS, RangedCombatLimit, XPValueAttack, XPValueDefense, SpecialCargo, DomainCargo, Conscription, ExtraMaintenanceCost, NoMaintenance, Unhappiness,
+			('ART_DEF_UNIT_VP_LIBURNA'), UnitArtInfoCulturalVariation, UnitArtInfoEraVariation, ProjectPrereq, SpaceshipProject, LeaderPromotion, LeaderExperience, DontShowYields, ShowInPedia, MoveRate, ('0'), ('15'), ('COMMUNITY_3_ATLAS'), ('LEMBOS_FLAG_ATLAS')
+	FROM Units WHERE (Type = 'UNIT_TRIREME');
+
+INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound)
+	SELECT 'UNIT_LIBURNA', SelectionSound, FirstSelectionSound
+	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_GALLEASS');
+
+INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
+	VALUES ('UNIT_LIBURNA', 'UNIT_GALLEASS');
 
 -- Mounted XBOW
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
