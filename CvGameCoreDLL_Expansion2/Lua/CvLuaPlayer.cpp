@@ -1098,6 +1098,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
 	Method(IsCarnaval);
+	Method(IsAnnexedCityStatesGiveYields);
 	Method(GetGoldPerTurnFromAnnexedMinors);
 	Method(GetCulturePerTurnFromAnnexedMinors);
 	Method(GetFaithPerTurnFromAnnexedMinors);
@@ -12357,6 +12358,16 @@ int CvLuaPlayer::lIsCarnaval(lua_State* L)
 	return 1;
 }
 #endif
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsAnnexedCityStatesGiveYields(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushboolean(L, (pkPlayer->GetPlayerTraits()->IsAnnexedCityStatesGiveYields()));
+	}
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldPerTurnFromAnnexedMinors(lua_State* L)
 {
