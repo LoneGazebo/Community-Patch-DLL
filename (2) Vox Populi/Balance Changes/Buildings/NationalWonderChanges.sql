@@ -139,6 +139,9 @@ UPDATE Buildings
 SET CultureRateModifier = '10'
 WHERE Type = 'BUILDING_HERMITAGE';
 
+UPDATE Building_ClassesNeededInCity
+SET BuildingClassType = 'BUILDINGCLASS_GALLERY'
+WHERE BuildingType = 'BUILDING_HERMITAGE';
 -- Oxford Change
 UPDATE Buildings
 SET FreeTechs = '0'

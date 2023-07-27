@@ -106,6 +106,11 @@
 			<Description>TXT_KEY_BUILDING_GROCER</Description>
 		</Row>
 		<Row>
+			<Type>BUILDINGCLASS_GALLERY</Type>
+			<DefaultBuilding>BUILDING_GALLERY</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_GALLERY</Description>
+		</Row>
+		<Row>
 			<Type>BUILDINGCLASS_WIND_PLANT</Type>
 			<DefaultBuilding>BUILDING_WIND_PLANT</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_WIND_PLANT</Description>
@@ -925,6 +930,26 @@
 			<HurryCostModifier>25</HurryCostModifier>
 			<IconAtlas>BW_ATLAS_1</IconAtlas>
 			<PortraitIndex>41</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>BUILDING_GALLERY</Type>
+			<BuildingClass>BUILDINGCLASS_GALLERY</BuildingClass>
+			<Cost>600</Cost>
+			<GoldMaintenance>4</GoldMaintenance>
+			<PrereqTech>TECH_ARCHITECTURE</PrereqTech>
+			<Description>TXT_KEY_BUILDING_GALLERY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_GALLERY_TEXT</Civilopedia>
+			<Strategy>TXT_KEY_BUILDING_GALLERY_STRATEGY</Strategy>
+			<Help>TXT_KEY_BUILDING_GALLERY_HELP</Help>
+			<FreeStartEra>ERA_FUTURE</FreeStartEra>
+			<ArtDefineTag>ART_DEF_BUILDING_GARDEN</ArtDefineTag>
+			<MinAreaSize>-1</MinAreaSize>
+			<ConquestProb>66</ConquestProb>
+			<HurryCostModifier>25</HurryCostModifier>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
+			<GreatWorkCount>1</GreatWorkCount>
+			<IconAtlas>BW_ATLAS_1</IconAtlas>
+			<PortraitIndex>22</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_WIND_PLANT</Type>
