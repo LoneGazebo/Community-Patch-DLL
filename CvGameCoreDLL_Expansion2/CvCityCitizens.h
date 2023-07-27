@@ -23,6 +23,10 @@ struct SPrecomputedExpensiveNumbers
 	int iPoverty;
 	int iIlliteracy;
 	int iBoredom;
+	int iAmountForDistressReductionTimes100;
+	int iAmountForPovertyReductionTimes100;
+	int iAmountForIlliteracyReductionTimes100;
+	int iAmountForBoredomReductionTimes100;
 	int iReligiousUnrest;
 	bool bWantArt;
 	bool bWantScience;

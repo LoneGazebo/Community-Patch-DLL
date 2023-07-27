@@ -539,6 +539,7 @@ public:
 	void SetIgnoredForExpansionBickering(PlayerTypes ePlayer, bool bValue);
 	bool IsIgnoredForExpansionBickering(PlayerTypes ePlayer) const;
 #endif
+	int foodConsumptionNonSpecialistTimes100() const;
 	int foodConsumptionSpecialistTimes100() const;
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0) const;
@@ -548,6 +549,7 @@ public:
 
 	int getGrowthMods() const;
 #if defined(MOD_BALANCE_CORE)
+	int GetNumFreeSpecialists();
 	int GetUnhappinessFromCitySpecialists();
 #endif
 
