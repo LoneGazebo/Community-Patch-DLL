@@ -3719,8 +3719,7 @@ int CvLuaCity::lChangeCityAutomatonWorkersChange(lua_State* L)
 int CvLuaCity::lGetRemainingFreeSpecialists(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	int iCapital = pkCity->isCapital() ? GET_PLAYER(pkCity->getOwner()).GetNoUnhappfromXSpecialistsCapital() : 0;
-	int iTotalSpecialists = (pkCity->GetNoUnhappfromXSpecialists() + GET_PLAYER(pkCity->getOwner()).GetNoUnhappfromXSpecialists() + iCapital) - pkCity->GetCityCitizens()->GetTotalSpecialistCount();
+	int iTotalSpecialists = pkCity->GetNumFreeSpecialists() - pkCity->GetCityCitizens()->GetTotalSpecialistCount();
 	lua_pushinteger(L, iTotalSpecialists);
 	return 1;
 }
