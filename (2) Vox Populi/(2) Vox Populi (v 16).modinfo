@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.7.8) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.7.9) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -468,7 +468,7 @@
     <File md5="392AACA6A7E483CBBC10A48626A3F5E2" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
     <File md5="78D0FAC95249E2681C96819A7DE16A41" import="0">Balance Changes/CoreDefines.sql</File>
     <File md5="7D267EDC0C4869F533CCA6C1BD979595" import="0">Balance Changes/Difficulty/DifficultyMod.sql</File>
-    <File md5="B1EA676A5357E176352338A83625CBEB" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
+    <File md5="3186928DA7C6B4FD70AE35FBA82EF994" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
     <File md5="3E5E7E62C553124F734DFFBC7B47C215" import="0">Balance Changes/Espionage/PrimaryEspionageEvents.xml</File>
     <File md5="7179E5AB68B12C5ED3D013B1F2815121" import="0">Balance Changes/Ideologies/Autocracy/Autocracy.sql</File>
     <File md5="95CC85DBBDB9EB093D8302FB853DFE71" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
@@ -513,7 +513,7 @@
     <File md5="12BF8F236363C4613B55590A330C315C" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="30B44239875F660F936B14DB48A81F47" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="C81904A6D24DB0EEBF7F72E0E9425007" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
-    <File md5="BE8A95DFB17CAD28CFA1E6E753F50D8C" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
+    <File md5="7B1127DA192902CDA7090927B623EDF7" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
     <File md5="423B727CFB38217FB0B25ED5833C5679" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="9FA97DAB254E99C785C74A7D79157C58" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="1835446D388B07D42B77DD0FD6FBEBE8" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
@@ -521,7 +521,7 @@
     <File md5="287C5261EF861B62A3A7E8228C06418B" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
     <File md5="FFEA5C6D2332E2FF964100136EA2722C" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="A762ED09C91BB395DEACF648C211FE2A" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
-    <File md5="C28A88994798531C7426A631788B1B50" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
+    <File md5="859CDEF70A2C0F9B095BB4559A313547" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="96C0F000DC4BB45D51AE993D7C04C60E" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
     <File md5="DD0B50F39B3265064A8B05BF71EF565B" import="0">Balance Changes/Text/en_US/NewText.xml</File>
     <File md5="9DCDF08B952589BFC829D7928946D66E" import="0">Balance Changes/Text/en_US/TextChanges.sql</File>
@@ -574,7 +574,7 @@
     <File md5="615971860CD3A30FE4938845DCECF03E" import="1">LUA/CityView.xml</File>
     <File md5="87B455A2A51F036C76A7C77F329D4F39" import="1">LUA/CityView_small.xml</File>
     <File md5="FCDF13849919203F23989D891EFD5E2E" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
-    <File md5="AA1FF66EB5DDBB1E88459D97EABBE900" import="1">Core Files/CoreLua/CivilopediaScreen.xml</File>
+    <File md5="BCA09FCF702B305481F54C5879D72D47" import="1">Core Files/CoreLua/CivilopediaScreen.xml</File>
     <File md5="C685427D94F5842B6668BAA830DA2DAB" import="1">Core Files/CoreLua/CultureOverview.lua</File>
     <File md5="3A2AD4D08923BB72995A2536EBDBCB8B" import="1">Core Files/CoreLua/CultureOverview.xml</File>
     <File md5="63036BCCAF2955F36009341BBC01DEAD" import="1">Core Files/CoreLua/DeclareWarPopup.lua</File>
@@ -796,7 +796,7 @@
     <File md5="F4BB850D8D3F95E68FD332F49933B787" import="0">CSD/World Congress/Projects.xml</File>
     <File md5="E9029C9E9851D1E0138D792ED5F5A471" import="1">C4DF/Images/vassal80.dds</File>
     <File md5="8050930951C51832D14A659C7DD22C3F" import="1">C4DF/Images/vassal80hl.dds</File>
-    <File md5="EBFC0930CA7CF1C4F9629A962A7710C8" import="1">C4DF/LUA/VassalageOverview.lua</File>
+    <File md5="ABEFCE642BD1E247075B30866340A90E" import="1">C4DF/LUA/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="1">C4DF/LUA/VassalageOverview.xml</File>
     <File md5="E294C0751A95D8CA5F49E516BBF2D61B" import="0">C4DF/SQL/NewColumns.sql</File>
     <File md5="B150DE1D6850A1BB7F6E4873AE35380E" import="0">C4DF/XML/Gameplay/C4DFConcepts.xml</File>
@@ -805,7 +805,7 @@
     <File md5="FD36146DAEBC1FB26D9E59C2F22A7D17" import="0">C4DF/XML/Gameplay/C4DFResolutions.xml</File>
     <File md5="9673C39ED8080005A2B11B854BAD3AB4" import="0">C4DF/XML/Text/en_US_Text_CivilopediaC4DF.xml</File>
     <File md5="F95FE6C61C42FE0D629511AFC327818C" import="0">C4DF/XML/Text/en_US_Text_Generic_DiplomacyC4DF.xml</File>
-    <File md5="592FA9383146854EB0B1C73491CD9E4D" import="0">C4DF/XML/Text/en_US_Text_UIC4DF.xml</File>
+    <File md5="1B6C7792056BAAEB3C363390B19180A6" import="0">C4DF/XML/Text/en_US_Text_UIC4DF.xml</File>
     <File md5="9BD9C9A1F021FABE111824AF049D42DA" import="1">Art/Resources/Font Icon Atlas/fonticons_newluxuries.dds</File>
     <File md5="DA735B47F82483C7B4CACF2DF4BD1EB7" import="1">Art/Resources/Font Icon Atlas/FontIcons_NewLuxuries.ggxml</File>
     <File md5="17966C2E77DEAA3831C5EB4ED533881A" import="1">Art/Resources/Icon Atlas/VP_ResourceAtlas256.dds</File>
