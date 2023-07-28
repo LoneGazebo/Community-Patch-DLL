@@ -617,7 +617,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WRITER] Gr
 WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works in all Cities. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Gallery in the City in which it is built. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works in all Cities. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP';
 
 -- Here is in fact the TAJ MAHAL, in the original files is wrong defined

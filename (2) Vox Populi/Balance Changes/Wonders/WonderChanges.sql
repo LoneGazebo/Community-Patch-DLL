@@ -277,7 +277,7 @@ WHERE Type = 'BUILDING_LEANING_TOWER';
 
 -- Uffizi
 UPDATE Buildings
-SET PrereqTech = 'TECH_ECONOMICS', PolicyBranchType = NULL, Cost = '900', NoUnhappfromXSpecialistsGlobal = '1'
+SET PrereqTech = 'TECH_ECONOMICS', PolicyBranchType = NULL, Cost = '900', NoUnhappfromXSpecialistsGlobal = '1', FreeBuildingThisCity = 'BUILDINGCLASS_GALLERY'
 WHERE Type = 'BUILDING_UFFIZI';
 
 UPDATE Building_ThemingBonuses SET Bonus = '14' WHERE BuildingType = 'BUILDING_UFFIZI';
