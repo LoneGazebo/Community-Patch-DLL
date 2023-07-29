@@ -1040,7 +1040,6 @@
       <UpdateDatabase>Balance Changes/Buildings/NewBuildings.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Units/PromotionChanges.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Units/PromotionChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Balance Changes/Units/PromotionIcons.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Minors/MinorBonuses.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Beliefs/Pantheons.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Beliefs/ReligiousNW/Changes.sql</UpdateDatabase>
@@ -1200,6 +1199,7 @@
       <UpdateDatabase>Balance Changes/Buildings/BuildingChanges.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Buildings/BuildingHurryCosts.sql</UpdateDatabase>
       <UpdateDatabase>Mapscripts/mapscripts_en_us.xml</UpdateDatabase>
+      <UpdateDatabase>Balance Changes/Units/PromotionIcons.sql</UpdateDatabase>
     </OnModActivated>
   </Actions>
   <EntryPoints>
