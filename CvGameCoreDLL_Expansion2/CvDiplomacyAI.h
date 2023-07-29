@@ -105,6 +105,7 @@ public:
 	bool IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const;
 	vector<PlayerTypes> GetOffensiveWarAllies(PlayerTypes eOtherPlayer, bool bIncludeMinors, bool bReverseMode) const;
 	vector<PlayerTypes> GetDefensiveWarAllies(PlayerTypes eOtherPlayer, bool bIncludeMinors, bool bReverseMode, bool bNewWarsOnly) const;
+	vector<PlayerTypes> GetWarAllies(PlayerTypes eOtherPlayer, bool bDefensive, bool bIncludeWars, bool bReverseMode, bool bNewWarsOnly) const;
 	bool IsNuclearGandhi(bool bPotentially = false) const;
 
 	// ************************************

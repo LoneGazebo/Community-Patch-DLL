@@ -1274,509 +1274,7 @@ bool CvDiplomacyAI::IsVoluntaryVassalage(PlayerTypes eOtherPlayer) const
 /// bReverseMode = Which allies does eOtherPlayer have if they declare war on us / in their ongoing war against us?
 vector<PlayerTypes> CvDiplomacyAI::GetOffensiveWarAllies(PlayerTypes eOtherPlayer, bool bIncludeMinors, bool bReverseMode) const
 {
-	vector<PlayerTypes> result;
-	vector<PlayerTypes> vMinorsToCheck;
-	vector<PlayerTypes> vCheckVassals;
-	vector<PlayerTypes> vValidPlayers;
-	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-		bIncludeMinors = false;
-
-	// Not valid for City-States.
-	if (bReverseMode && !GET_PLAYER(eOtherPlayer).isMajorCiv())
-		return result;
-
-	int iLoopUntil = bIncludeMinors ? MAX_CIV_PLAYERS : MAX_MAJOR_CIVS;
-	vector<PlayerTypes> vOurTeam = GET_TEAM(GetTeam()).getPlayers();
-	vector<PlayerTypes> vTheirTeam = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).getPlayers();
-
-	if (!bReverseMode)
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < iLoopUntil; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (eLoopPlayer == GetID())
-				continue;
-
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
-				continue;
-
-			if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
-				continue;
-
-			if (!IsHasMet(eLoopPlayer, true))
-				continue;
-
-			if (IsAtWar(eLoopPlayer))
-				continue;
-
-			if (IsAtWar(eOtherPlayer) && !GET_PLAYER(eLoopPlayer).IsAtWarWith(eOtherPlayer))
-				continue;
-
-			if (GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{
-				if (bIncludeMinors && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER)
-					vMinorsToCheck.push_back(eLoopPlayer);
-
-				continue;
-			}
-
-			// Our teammate?
-			if (IsTeammate(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				continue;
-			}
-
-			if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-				continue;
-
-			vValidPlayers.push_back(eLoopPlayer);
-
-			// Our vassal?
-			if (IsMaster(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				continue;
-			}
-			// Our master?
-			if (IsVassal(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				continue;
-			}
-			// Our Defensive Pact? Only applies if they're currently at war.
-			if (IsHasDefensivePact(eLoopPlayer) && GET_PLAYER(eLoopPlayer).IsAtWarWith(eOtherPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				vCheckVassals.push_back(eLoopPlayer);
-				continue;
-			}
-
-			// Our coop war ally?
-			bool bBreak = false;
-			bool bAvoidExchanges = AvoidExchangesWithPlayer(eLoopPlayer);
-			vector<PlayerTypes> vLoopTeam = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).getPlayers();
-			for (size_t i=0; i<vOurTeam.size(); i++)
-			{
-				if (!GET_PLAYER(vOurTeam[i]).isAlive() || !GET_PLAYER(vOurTeam[i]).isMajorCiv())
-					continue;
-
-				CvDiplomacyAI* pTeamDiplo = GET_PLAYER(vOurTeam[i]).GetDiplomacyAI();
-
-				// Are they at war? Also consider friends and liberators.
-				if (GET_PLAYER(eLoopPlayer).IsAtWarWith(eOtherPlayer))
-				{
-					if (pTeamDiplo->IsDoFAccepted(eLoopPlayer) || pTeamDiplo->WasResurrectedBy(eLoopPlayer) || pTeamDiplo->IsLiberator(eLoopPlayer, true, false))
-					{
-						result.push_back(eLoopPlayer);
-						vCheckVassals.push_back(eLoopPlayer);
-						bBreak = true;
-						break;
-					}
-					else if (!bAvoidExchanges && !GET_PLAYER(vOurTeam[i]).isHuman() && pTeamDiplo->GetBiggestCompetitor() != eLoopPlayer && (pTeamDiplo->GetCivOpinion(eLoopPlayer) == CIV_OPINION_ALLY || pTeamDiplo->GetDoFType(eLoopPlayer) == DOF_TYPE_ALLIES))
-					{
-						result.push_back(eLoopPlayer);
-						vCheckVassals.push_back(eLoopPlayer);
-						bBreak = true;
-						break;
-					}
-				}
-
-				if (GetPlayer()->IsVassalOfSomeone() || GET_PLAYER(eOtherPlayer).isMinorCiv())
-					continue;
-
-				for (size_t j=0; j<vLoopTeam.size(); j++)
-				{
-					if (!GET_PLAYER(vLoopTeam[j]).isAlive() || !GET_PLAYER(vLoopTeam[j]).isMajorCiv())
-						continue;
-
-					for (size_t k=0; k<vTheirTeam.size(); k++)
-					{
-						if (!GET_PLAYER(vTheirTeam[k]).isAlive() || !GET_PLAYER(vTheirTeam[k]).isMajorCiv())
-							continue;
-
-						if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], vTheirTeam[k]) >= COOP_WAR_STATE_PREPARING)
-						{
-							result.push_back(eLoopPlayer);
-							vCheckVassals.push_back(eLoopPlayer);
-							bBreak = true;
-							break;
-						}
-					}
-					if (bBreak)
-						break;
-
-					// Coop wars against a DP of theirs, master of theirs, or DP of their master also count...
-					for (int iPlayerLoopTwo = 0; iPlayerLoopTwo < MAX_MAJOR_CIVS; iPlayerLoopTwo++)
-					{
-						PlayerTypes eLoopOtherPlayer = (PlayerTypes) iPlayerLoopTwo;
-						if (!GET_PLAYER(eLoopOtherPlayer).isAlive() || !GET_PLAYER(eLoopOtherPlayer).isMajorCiv() || GET_PLAYER(eLoopOtherPlayer).getNumCities() <= 0)
-							continue;
-
-						TeamTypes eLoopOtherTeam = GET_PLAYER(eLoopOtherPlayer).getTeam();
-						if (eLoopOtherTeam == GET_PLAYER(eOtherPlayer).getTeam() || !IsHasMet(eLoopOtherPlayer))
-							continue;
-
-						if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
-						{
-							if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer) >= COOP_WAR_STATE_PREPARING)
-							{
-								result.push_back(eLoopPlayer);
-								vCheckVassals.push_back(eLoopPlayer);
-								bBreak = true;
-								break;
-							}
-						}
-						else
-						{
-							TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetMaster();
-							if (eMasterTeam != NO_TEAM && (eLoopOtherTeam == eMasterTeam || GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(eMasterTeam)))
-							{
-								if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer) >= COOP_WAR_STATE_PREPARING)
-								{
-									result.push_back(eLoopPlayer);
-									vCheckVassals.push_back(eLoopPlayer);
-									bBreak = true;
-									break;
-								}
-							}
-						}
-					}
-					if (bBreak)
-						break;
-				}
-				if (bBreak)
-					break;
-			}
-		}
-
-		if (!GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && !GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-		{
-			// Do we have a master? Let's include their vassals and DPs, if they're at war with this guy.
-			if (GetPlayer()->IsVassalOfSomeone())
-			{
-				TeamTypes eMasterTeam = GET_TEAM(GetTeam()).GetMaster();
-				vector<PlayerTypes> vMasterTeam = GET_TEAM(eMasterTeam).getPlayers();
-				PlayerTypes eMasterPlayer = NO_PLAYER;
-
-				for (size_t i=0; i<vMasterTeam.size(); i++)
-				{
-					if (!GET_PLAYER(vMasterTeam[i]).isAlive() || !GET_PLAYER(vMasterTeam[i]).isMajorCiv())
-						continue;
-
-					eMasterPlayer = vMasterTeam[i];
-					break;
-				}
-
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
-				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
-
-					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eMasterPlayer).getTeam())
-						continue;
-
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMasterPlayer))
-					{
-						// Make sure not to include them more than once!
-						if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
-						{
-							result.push_back(eLoopPlayer);
-						}
-					}
-					else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(eMasterPlayer))
-					{
-						// Make sure not to include them more than once!
-						if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
-						{
-							result.push_back(eLoopPlayer);
-						}
-						if (std::find(vCheckVassals.begin(), vCheckVassals.end(), eLoopPlayer) == vCheckVassals.end())
-						{
-							vCheckVassals.push_back(eLoopPlayer);
-						}
-					}
-				}
-			}
-
-			// For all relevant allies, check if they have vassals and include them too!
-			for (std::vector<PlayerTypes>::iterator it = vCheckVassals.begin(); it != vCheckVassals.end(); it++)
-			{
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
-				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
-
-					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*it).getTeam())
-						continue;
-
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(*it))
-					{
-						// Make sure not to include them more than once!
-						if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
-						{
-							result.push_back(eLoopPlayer);
-						}
-					}
-				}
-			}
-
-			// Include any City-State allies of our major allies!
-			if (bIncludeMinors)
-			{
-				for (std::vector<PlayerTypes>::iterator it = vMinorsToCheck.begin(); it != vMinorsToCheck.end(); it++)
-				{
-					PlayerTypes eAlly = GET_PLAYER(*it).GetMinorCivAI()->GetAlly();
-
-					if (eAlly == GetID() || std::find(result.begin(), result.end(), eAlly) != result.end())
-					{
-						result.push_back(*it);
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < iLoopUntil; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-
-			if (eLoopPlayer == eOtherPlayer)
-				continue;
-
-			if (GET_PLAYER(eLoopPlayer).getTeam() == GetTeam())
-				continue;
-
-			if (!GET_PLAYER(eLoopPlayer).isAlive() || GET_PLAYER(eLoopPlayer).getNumCities() <= 0)
-				continue;
-
-			if (!IsHasMet(eLoopPlayer))
-				continue;
-
-			if (GET_PLAYER(eOtherPlayer).IsAtWarWith(eLoopPlayer))
-				continue;
-
-			if (IsAtWar(eOtherPlayer) && !IsAtWar(eLoopPlayer))
-				continue;
-
-			if (GET_PLAYER(eLoopPlayer).isMinorCiv())
-			{
-				if (bIncludeMinors && GET_PLAYER(eLoopPlayer).GetMinorCivAI()->GetAlly() != NO_PLAYER)
-					vMinorsToCheck.push_back(eLoopPlayer);
-
-				continue;
-			}
-
-			CvDiplomacyAI* pDiplo = GET_PLAYER(eOtherPlayer).GetDiplomacyAI();
-
-			// Their teammate?
-			if (pDiplo->IsTeammate(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				continue;
-			}
-
-			if (GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-				continue;
-
-			vValidPlayers.push_back(eLoopPlayer);
-
-			// Their vassal?
-			if (pDiplo->IsMaster(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				continue;
-			}
-			// Their master?
-			if (pDiplo->IsVassal(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				continue;
-			}
-			// Their Defensive Pact? Only applies if they're currently at war.
-			if (pDiplo->IsHasDefensivePact(eLoopPlayer) && IsAtWar(eLoopPlayer))
-			{
-				result.push_back(eLoopPlayer);
-				vCheckVassals.push_back(eLoopPlayer);
-				continue;
-			}
-
-			// Their coop war ally?
-			bool bBreak = false;
-			vector<PlayerTypes> vLoopTeam = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).getPlayers();
-			for (size_t i=0; i<vTheirTeam.size(); i++)
-			{
-				if (!GET_PLAYER(vTheirTeam[i]).isAlive() || !GET_PLAYER(vTheirTeam[i]).isMajorCiv())
-					continue;
-
-				CvDiplomacyAI* pTeamDiplo = GET_PLAYER(vTheirTeam[i]).GetDiplomacyAI();
-
-				// Are they at war? Also consider friends and liberators.
-				if (IsAtWar(eLoopPlayer))
-				{
-					if (pTeamDiplo->IsDoFAccepted(eLoopPlayer) || pTeamDiplo->WasResurrectedBy(eLoopPlayer) || pTeamDiplo->IsLiberator(eLoopPlayer, true, false))
-					{
-						result.push_back(eLoopPlayer);
-						vCheckVassals.push_back(eLoopPlayer);
-						bBreak = true;
-						break;
-					}
-				}
-
-				if (GET_PLAYER(eOtherPlayer).IsVassalOfSomeone())
-					continue;
-
-				for (size_t j=0; j<vLoopTeam.size(); j++)
-				{
-					if (!GET_PLAYER(vLoopTeam[j]).isAlive() || !GET_PLAYER(vLoopTeam[j]).isMajorCiv())
-						continue;
-
-					for (size_t k=0; k<vOurTeam.size(); k++)
-					{
-						if (!GET_PLAYER(vOurTeam[k]).isAlive() || !GET_PLAYER(vOurTeam[k]).isMajorCiv())
-							continue;
-
-						if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], vOurTeam[k]) == COOP_WAR_STATE_ONGOING)
-						{
-							result.push_back(eLoopPlayer);
-							vCheckVassals.push_back(eLoopPlayer);
-							bBreak = true;
-							break;
-						}
-					}
-					if (bBreak)
-						break;
-
-					// Coop wars against a DP of ours, master of ours, or DP of our master also count...
-					for (int iPlayerLoopTwo = 0; iPlayerLoopTwo < MAX_MAJOR_CIVS; iPlayerLoopTwo++)
-					{
-						PlayerTypes eLoopOtherPlayer = (PlayerTypes) iPlayerLoopTwo;
-						if (!GET_PLAYER(eLoopOtherPlayer).isAlive() || !GET_PLAYER(eLoopOtherPlayer).isMajorCiv() || GET_PLAYER(eLoopOtherPlayer).getNumCities() <= 0)
-							continue;
-
-						TeamTypes eLoopOtherTeam = GET_PLAYER(eLoopOtherPlayer).getTeam();
-						if (!IsHasMet(eLoopOtherPlayer))
-							continue;
-
-						if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(GetTeam()))
-						{
-							if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer) == COOP_WAR_STATE_ONGOING)
-							{
-								result.push_back(eLoopPlayer);
-								vCheckVassals.push_back(eLoopPlayer);
-								bBreak = true;
-								break;
-							}
-						}
-						else
-						{
-							TeamTypes eMasterTeam = GET_TEAM(GetTeam()).GetMaster();
-							if (eMasterTeam != NO_TEAM && (eLoopOtherTeam == eMasterTeam || GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(eMasterTeam)))
-							{
-								if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer) == COOP_WAR_STATE_ONGOING)
-								{
-									result.push_back(eLoopPlayer);
-									vCheckVassals.push_back(eLoopPlayer);
-									bBreak = true;
-									break;
-								}
-							}
-						}
-					}
-					if (bBreak)
-						break;
-				}
-				if (bBreak)
-					break;
-			}
-		}
-
-		if (!GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) && !GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
-		{
-			// Do they have a master? Let's include their vassals and any applicable DPs.
-			if (GET_PLAYER(eOtherPlayer).IsVassalOfSomeone())
-			{
-				TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetMaster();
-				vector<PlayerTypes> vMasterTeam = GET_TEAM(eMasterTeam).getPlayers();
-				PlayerTypes eMasterPlayer = NO_PLAYER;
-
-				for (size_t i=0; i<vMasterTeam.size(); i++)
-				{
-					if (!GET_PLAYER(vMasterTeam[i]).isAlive() || !GET_PLAYER(vMasterTeam[i]).isMajorCiv())
-						continue;
-
-					eMasterPlayer = vMasterTeam[i];
-					break;
-				}
-
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
-				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
-
-					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(eMasterPlayer).getTeam())
-						continue;
-
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMasterPlayer))
-					{
-						// Make sure not to include them more than once!
-						if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
-						{
-							result.push_back(eLoopPlayer);
-						}
-					}
-					else if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(eMasterPlayer))
-					{
-						// Make sure not to include them more than once!
-						if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
-						{
-							result.push_back(eLoopPlayer);
-						}
-						if (std::find(vCheckVassals.begin(), vCheckVassals.end(), eLoopPlayer) == vCheckVassals.end())
-						{
-							vCheckVassals.push_back(eLoopPlayer);
-						}
-					}
-				}
-			}
-
-			// For all relevant allies, check if they have vassals and include them too!
-			for (std::vector<PlayerTypes>::iterator it = vCheckVassals.begin(); it != vCheckVassals.end(); it++)
-			{
-				for (std::vector<PlayerTypes>::iterator iter = vValidPlayers.begin(); iter != vValidPlayers.end(); iter++)
-				{
-					PlayerTypes eLoopPlayer = GET_PLAYER(*iter).GetID();
-
-					if (GET_PLAYER(eLoopPlayer).getTeam() == GET_PLAYER(*it).getTeam())
-						continue;
-
-					if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(*it))
-					{
-						// Make sure not to include them more than once!
-						if (std::find(result.begin(), result.end(), eLoopPlayer) == result.end())
-						{
-							result.push_back(eLoopPlayer);
-						}
-					}
-				}
-			}
-
-			// Include any City-State allies of their major allies!
-			if (bIncludeMinors)
-			{
-				for (std::vector<PlayerTypes>::iterator it = vMinorsToCheck.begin(); it != vMinorsToCheck.end(); it++)
-				{
-					PlayerTypes eAlly = GET_PLAYER(*it).GetMinorCivAI()->GetAlly();
-
-					if (eAlly == eOtherPlayer || std::find(result.begin(), result.end(), eAlly) != result.end())
-					{
-						result.push_back(*it);
-					}
-				}
-			}
-		}
-	}
-
-	return result;
+	return GetWarAllies(eOtherPlayer, /*bDefensive*/ false, bIncludeMinors, bReverseMode, /*bNewWarsOnly*/ false);
 }
 
 /// Which allies do we have if eOtherPlayer declares war on us / in our ongoing war against them?
@@ -1784,12 +1282,21 @@ vector<PlayerTypes> CvDiplomacyAI::GetOffensiveWarAllies(PlayerTypes eOtherPlaye
 /// bNewWarOnly = Only consider new wars we (or they) would get into if war were declared. Returns an empty vector if called while already at war.
 vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlayer, bool bIncludeMinors, bool bReverseMode, bool bNewWarsOnly) const
 {
+	return GetWarAllies(eOtherPlayer, /*bDefensive*/ true, bIncludeMinors, bReverseMode, bNewWarsOnly);
+}
+
+/// Which allies do we have in a war with eOtherPlayer?
+/// See the two helper functions above for usage notes.
+vector<PlayerTypes> CvDiplomacyAI::GetWarAllies(PlayerTypes eOtherPlayer, bool bDefensive, bool bIncludeMinors, bool bReverseMode, bool bNewWarsOnly) const
+{
 	vector<PlayerTypes> result;
 	vector<PlayerTypes> vMinorsToCheck;
 	vector<PlayerTypes> vCheckVassals;
 	vector<PlayerTypes> vValidPlayers;
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 		bIncludeMinors = false;
+	if (!bDefensive)
+		bNewWarsOnly = false;
 
 	if (bNewWarsOnly && (IsAtWar(eOtherPlayer) || GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR)))
 		return result;
@@ -1858,8 +1365,8 @@ vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlaye
 				result.push_back(eLoopPlayer);
 				continue;
 			}
-			// Our Defensive Pact?
-			if (IsHasDefensivePact(eLoopPlayer))
+			// Our Defensive Pact? Only applies if they're currently at war or we're looking at defensive allies.
+			if (IsHasDefensivePact(eLoopPlayer) && (bDefensive || GET_PLAYER(eLoopPlayer).IsAtWarWith(eOtherPlayer)))
 			{
 				result.push_back(eLoopPlayer);
 				vCheckVassals.push_back(eLoopPlayer);
@@ -1920,7 +1427,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlaye
 					if (bBreak)
 						break;
 
-					// Coop wars against a master of theirs, DP of theirs, or DP of their master also count (the latter two only if ongoing)
+					// Coop wars against a DP of theirs, master of theirs, or DP of their master also count (if defensive, the latter two only if ongoing)
 					for (int iPlayerLoopTwo = 0; iPlayerLoopTwo < MAX_MAJOR_CIVS; iPlayerLoopTwo++)
 					{
 						PlayerTypes eLoopOtherPlayer = (PlayerTypes) iPlayerLoopTwo;
@@ -1933,7 +1440,8 @@ vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlaye
 
 						if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
 						{
-							if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer) == COOP_WAR_STATE_ONGOING)
+							CoopWarStates eCoopWarState = pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer);
+							if (eCoopWarState == COOP_WAR_STATE_ONGOING || (!bDefensive && eCoopWarState == COOP_WAR_STATE_PREPARING))
 							{
 								result.push_back(eLoopPlayer);
 								vCheckVassals.push_back(eLoopPlayer);
@@ -1958,7 +1466,8 @@ vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlaye
 								}
 								else if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(eMasterTeam))
 								{
-									if (pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer) == COOP_WAR_STATE_ONGOING)
+									CoopWarStates eCoopWarState = pTeamDiplo->GetCoopWarState(vLoopTeam[j], eLoopOtherPlayer);
+									if (eCoopWarState == COOP_WAR_STATE_ONGOING || (!bDefensive && eCoopWarState == COOP_WAR_STATE_PREPARING))
 									{
 										result.push_back(eLoopPlayer);
 										vCheckVassals.push_back(eLoopPlayer);
@@ -2120,7 +1629,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlaye
 				continue;
 			}
 			// Their Defensive Pact?
-			if (pDiplo->IsHasDefensivePact(eLoopPlayer))
+			if (pDiplo->IsHasDefensivePact(eLoopPlayer) && (bDefensive || IsAtWar(eLoopPlayer)))
 			{
 				result.push_back(eLoopPlayer);
 				vCheckVassals.push_back(eLoopPlayer);
