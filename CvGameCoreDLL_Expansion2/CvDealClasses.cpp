@@ -366,7 +366,7 @@ int CvDeal::GetGoldAvailable(PlayerTypes ePlayer, TradeableItems eItemToBeChange
 }
 
 /// Is it actually possible for a player to offer up this trade item?
-/// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
+/// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means "can we trade ANY amount of Gold?")
 bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1, bool bFinalizing)
 {
 	if (eItem <= TRADE_ITEM_NONE || eItem >= NUM_TRADEABLE_ITEMS)
@@ -551,15 +551,10 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	case TRADE_ITEM_RESOURCES:
 		{
 			ResourceTypes eResource = (ResourceTypes) iData1;
-			int iResourceQuantity = iData2;
 
 			// If this is true, the function is asking if we can trade ANY resource. Usually, the answer is yes!
 			if (eResource == NO_RESOURCE)
 				return true;
-
-			// Can't trade nothing
-			if (iResourceQuantity <= 0)
-				return false;
 
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (!pkResourceInfo)
@@ -585,39 +580,47 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!pToPlayer->isHuman() && pToTeam->IsResourceObsolete(eResource))
 				return false;
 
-			// How much of this resource do we and the other guy have? Don't call getNumResourceAvailable() for the other player for strategic resources since that's not relevant.
-			int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false), iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
-
-			// If a renewal deal, add/subtract the resources already included in the renewal.
-			// Recursive: Is this identifying the correct deal?
-			if (pRenewDeals.size() > 0)
+			if (iData2 != -1)
 			{
-				for (uint i = 0; i < pRenewDeals.size(); i++)
-				{
-					CvDeal* pRenewDeal = pRenewDeals[i];
+				int iResourceQuantity = iData2;
+				// Can't trade nothing
+				if (iResourceQuantity == 0)
+					return false;
 
-					int iResourcesAlreadyInDeal = pRenewDeal->GetNumResourcesInDeal(ePlayer, eResource);
-					if (iResourcesAlreadyInDeal > 0)
+				// How much of this resource do we and the other guy have? Don't call getNumResourceAvailable() for the other player for strategic resources since that's not relevant.
+				int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false), iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
+
+				// If a renewal deal, add/subtract the resources already included in the renewal.
+				// Recursive: Is this identifying the correct deal?
+				if (pRenewDeals.size() > 0)
+				{
+					for (uint i = 0; i < pRenewDeals.size(); i++)
 					{
-						iNumAvailableToUs += iResourcesAlreadyInDeal;
-						iNumAvailableToOther -= iResourcesAlreadyInDeal;
+						CvDeal* pRenewDeal = pRenewDeals[i];
+
+						int iResourcesAlreadyInDeal = pRenewDeal->GetNumResourcesInDeal(ePlayer, eResource);
+						if (iResourcesAlreadyInDeal > 0)
+						{
+							iNumAvailableToUs += iResourcesAlreadyInDeal;
+							iNumAvailableToOther -= iResourcesAlreadyInDeal;
+						}
 					}
 				}
-			}
 
-			// Can't trade more of a resource than you have!
-			if (iNumAvailableToUs < iResourceQuantity)
-				return false;
-
-			if (eUsage == RESOURCEUSAGE_LUXURY)
-			{
-				// Civs other than the Netherlands can't import duplicate copies of luxury resources
-				if (iNumAvailableToOther > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+				// Can't trade more of a resource than you have!
+				if (iNumAvailableToUs < iResourceQuantity)
 					return false;
 
-				// Can't trade banned luxuries
-				if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
-					return false;
+				if (eUsage == RESOURCEUSAGE_LUXURY)
+				{
+					// Civs other than the Netherlands can't import duplicate copies of luxury resources
+					if (iNumAvailableToOther > 0 && !pToPlayer->GetPlayerTraits()->IsImportsCountTowardsMonopolies())
+						return false;
+
+					// Can't trade banned luxuries
+					if (GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(ePlayer, eResource) || GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(eToPlayer, eResource))
+						return false;
+				}
 			}
 
 			// Can't trade them something they're already giving us in the deal
@@ -637,20 +640,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			else if (GC.getGame().IsAICityTradingHumanOnly() && !pFromPlayer->isHuman() && !pToPlayer->isHuman())
 				return false;
 
-			// Make sure the city actually exists
-			CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
-			CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
-			if (pCity == NULL)
-				return false;
-
-			// Can't trade your capital
-			if (pCity->isCapital())
-				return false;
-
-			// Can't trade someone else's city
-			if (pCity->getOwner() != ePlayer)
-				return false;
-
 			// Can't trade a city to a human in an OCC game
 			if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && pToPlayer->isHuman())
 				return false;
@@ -659,30 +648,46 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!bPeaceDeal && !pToTeam->HasEmbassyAtTeam(eFromTeam))
 				return false;
 
+			if (iData1 != -1)
+			{
+				// Make sure the city actually exists
+				CvPlot* pPlot = GC.getMap().plot(iData1, iData2);
+				CvCity* pCity = pPlot ? pPlot->getPlotCity() : NULL;
+				if (pCity == NULL)
+					return false;
+
+				// Can't trade your capital
+				if (pCity->isCapital())
+					return false;
+
+				// Can't trade someone else's city
+				if (pCity->getOwner() != ePlayer)
+					return false;
+
+				// Can't trade a city if sapped, blockaded, or took damage last turn (except in a peace deal)
+				if (!bPeaceDeal)
+				{
+					if (pCity->GetSappedTurns() > 0)
+						return false;
+
+					if (pCity->getDamageTakenLastTurn() > 0)
+						return false;
+
+					if (pCity->GetCityCitizens()->AnyPlotBlockaded())
+						return false;
+				}
+			}
+
 			if (!bFinalizing)
 			{
 				// Can't already have this city in the deal
-				if (IsCityTrade(ePlayer, iData1, iData2))
+				if (iData1 != -1 && IsCityTrade(ePlayer, iData1, iData2))
 					return false;
 
 				// If trading with AI, can't trade more than one city per player at a time
 				if (!bHumanToHuman && ContainsItemType(TRADE_ITEM_CITIES, ePlayer))
 					return false;
 			}
-
-			// Can't trade a city if sapped, blockaded, or took damage last turn (except in a peace deal)
-			if (!bPeaceDeal)
-			{
-				if (pCity->GetSappedTurns() > 0)
-					return false;
-
-				if (pCity->getDamageTakenLastTurn() > 0)
-					return false;
-
-				if (pCity->GetCityCitizens()->AnyPlotBlockaded())
-					return false;
-			}
-
 			break;
 		}
 
@@ -1393,7 +1398,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	// This item is temporary - it cannot be traded for a permanent item
 	if (bTemporary)
 	{
-		if (!bToHuman || bNoHumans)
+		if (!bCanTradeHumanPermanentForAITemporary || bFromHuman || bNoHumans)
 		{
 			vector<TradeableItems> vProhibitedItems;
 			vProhibitedItems.push_back(TRADE_ITEM_GOLD);
@@ -5244,6 +5249,8 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	}
 
 	LogDealComplete(&kDeal);
+	// to avoid caching issues
+	GC.getGame().changeTurnSlice(1);
 }
 
 CvDeal* CvGameDeals::GetTempDeal()

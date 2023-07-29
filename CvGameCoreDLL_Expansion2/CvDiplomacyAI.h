@@ -1334,7 +1334,7 @@ public:
 
 	// Possible contact options follow:
 
-	void DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTypes eApproach);
+	void DoUpdateMinorCivProtection(PlayerTypes eMinor);
 
 	//void DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);
 	void DoCoopWarStatement(PlayerTypes ePlayer, DiploStatementTypes& eStatement, int& iData1);

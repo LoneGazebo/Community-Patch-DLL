@@ -967,15 +967,6 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 		bMakeOffer = IsDealWithHumanAcceptable(pDeal, eOtherPlayer, /*Passed by reference*/ iTotalValue, &bCantMatchOffer, true);
 		bDealGoodToBeginWith = bMakeOffer;
 
-		// If we set this pointer again it clears the data out!
-		if (pDeal != GC.getGame().GetGameDeals().GetTempDeal())
-		{
-			GC.getGame().GetGameDeals().SetTempDeal(pDeal);
-		}
-
-		// WTF is this about
-		CvDeal* pCounterDeal = GC.getGame().GetGameDeals().GetTempDeal();
-
 		if(!bMakeOffer)
 		{
 			//if a human sent this, don't modify their offer, that's annoying.
@@ -988,17 +979,17 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			// See if there are items we can add or remove from either side to balance out the deal if it's not already even
 			/////////////////////////////
 			int iLoops = 0;
-			while (iLoops < 5 && !WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue))
+			while (iLoops < 5 && !WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue))
 			{
 				int iPrevValue = GetDealValue(pDeal);
 
 				if (iTotalValue > 0)
 				{
-					DoAddItemsToUs(pCounterDeal, eOtherPlayer, iTotalValue);
+					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue);
 				}
 				else if (iTotalValue < 0)
 				{
-					DoAddItemsToThem(pCounterDeal, eOtherPlayer, iTotalValue);
+					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue);
 				}
 
 				//bail if we're stuck
@@ -1009,26 +1000,34 @@ bool CvDealAI::DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, 
 			}
 
 			// Make sure we haven't removed everything from the deal!
-			if (BothSidesIncluded(pCounterDeal))
+			if (BothSidesIncluded(pDeal))
 			{
-				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue);
+				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 			}
 
-			// if we still don't have a deal, try to equalize with GPT only (may have been to greedy with other picks)
-			if (!bMakeOffer && pCounterDeal->RemoveAllByPlayer(eOtherPlayer))
+			// if we still don't have a deal, try to equalize with GPT only (may have been too greedy with other picks)
+			if (!bMakeOffer && pDeal->RemoveAllByPlayer(eMyPlayer))
 			{
 				iTotalValue = GetDealValue(pDeal);
 
 				//first try rounding up the GPT amount (better for us)
-				DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue);
-				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue);
+				DoAddGPTToUs(pDeal, eOtherPlayer, iTotalValue);
+				bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 
 				//alternatively try with one GPT less (worse for us)
-				if (!bMakeOffer && pDeal->GetGoldPerTurnTrade(eOtherPlayer) > 1)
+				if (!bMakeOffer && pDeal->GetGoldPerTurnTrade(eMyPlayer) > 1)
 				{
-					DoRemoveGPTFromThem(pDeal, eOtherPlayer, 1);
+					DoRemoveGPTFromThem(pDeal, eMyPlayer, 1);
 					iTotalValue = GetDealValue(pDeal);
-					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pCounterDeal->GetMaxValue(), iTotalValue);
+					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
+				}
+
+				// alternatively try to equalize the deal with a fixed amount of Gold
+				if (!bMakeOffer && pDeal->RemoveAllByPlayer(eMyPlayer))
+				{
+					iTotalValue = GetDealValue(pDeal);
+					DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
+					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 				}
 			}
 
@@ -1109,19 +1108,11 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 	else
 	{
 		// Deal is already even enough for us
-		if (BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(),iOtherTotalValue))))
+		if (BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue)) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(),iOtherTotalValue)))
 		{
 			bMakeOffer = true;
 		}
 	}
-
-	// If we set this pointer again it clears the data out!
-	if(pDeal != GC.getGame().GetGameDeals().GetTempDeal())
-	{
-		GC.getGame().GetGameDeals().SetTempDeal(pDeal);
-	}
-
-	CvDeal* pCounterDeal = GC.getGame().GetGameDeals().GetTempDeal();
 
 	if(!bMakeOffer)
 	{
@@ -1134,12 +1125,12 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 			int iPrevValue = GetDealValue(pDeal);
 			if (iTotalValue > 0)
 			{
-				DoAddItemsToUs(pCounterDeal, eOtherPlayer, iTotalValue);
+				DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue);
 				iOtherTotalValue = GET_PLAYER(eOtherPlayer).GetDealAI()->GetDealValue(pDeal);
 			}
 			else if (iOtherTotalValue > 0)
 			{
-				GET_PLAYER(eOtherPlayer).GetDealAI()->DoAddItemsToUs(pCounterDeal, eMyPlayer, iOtherTotalValue);
+				GET_PLAYER(eOtherPlayer).GetDealAI()->DoAddItemsToUs(pDeal, eMyPlayer, iOtherTotalValue);
 				iTotalValue = GetDealValue(pDeal);
 			}			
 
@@ -1151,9 +1142,9 @@ bool CvDealAI::DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer)
 		}
 
 		// Make sure we haven't removed everything from the deal!
-		if(pCounterDeal->m_TradedItems.size() > 0)
+		if(pDeal->m_TradedItems.size() > 0)
 		{
-			bMakeOffer = BothSidesIncluded(pCounterDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(), iOtherTotalValue)));
+			bMakeOffer = BothSidesIncluded(pDeal) && (iTotalValue > 0 || WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue)) && (iOtherTotalValue >= 0 || GET_PLAYER(eOtherPlayer).GetDealAI()->WithinAcceptableRange(eMyPlayer, pDeal->GetMaxValue(), iOtherTotalValue));
 		}
 	}
 
@@ -2064,6 +2055,14 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	//this is to reduce rounding errors
 	int iValueScale = 10;
 
+	//the value of each item is a multiple of the value of 1 GPT, to prevent rounding errors
+	int iGPTValue = iNumTurns;
+	//let's assume an interest rate of 0.5% per turn, no compounding
+	int iInterestPercent = (5 * /*5*/ GD_INT_GET(EACH_GOLD_PER_TURN_VALUE_PERCENT) * iNumTurns) / max(1, GC.getGame().getGameSpeedInfo().GetDealDuration());
+	//subtract interest. 100 gold now is better than 100 gold in the future
+	iGPTValue *= 100;
+	iGPTValue /= max(1, 100 + iInterestPercent);
+
 	//more or less arbitrary base value
 	int iItemValue = (GC.getGame().getCurrentEra()+2) * 5;
 
@@ -2165,22 +2164,27 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 		//Scale with game speed.
 		iItemValue *= iNumTurns;
+		iItemValue /= iValueScale;
 
 		// Scale with resource quantity.
 		// If this trade leaves us with 1 or 2 of the resource, we'll charge way more for those.
 		int iFinalValue = 0;
-
+		int iValueToAdd = 0;
 		for (int iLoop = 1; iLoop <= iResourceQuantity; iLoop++)
 		{
 			int iAmountAfterThisResource = iNumberAvailableToUs - iLoop;
 
 			if (iAmountAfterThisResource <= 2)
-				iFinalValue += iItemValue * 10;
+				iValueToAdd = iItemValue * 10;
 			else
-				iFinalValue += iItemValue;
+				iValueToAdd = iItemValue;
+
+			//round up to the next multiple of iGPTValue
+			iValueToAdd = iValueToAdd / iGPTValue + ((iValueToAdd % iGPTValue > 0) ? 1 : 0);
+			iFinalValue += iValueToAdd * iGPTValue;
 		}
 
-		return iFinalValue/iValueScale;
+		return iFinalValue;
 	}
 	else
 	{
@@ -2273,16 +2277,17 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 		//Scale with game speed.
 		iItemValue *= iNumTurns;
+		iItemValue /= iValueScale;
 
 		// Scale with resource quantity.
 		// How much of an excess would we have after this purchase? Diminishing returns, bby.
 		int iFinalValue = 0;
-
+		int iValueToAdd = 0;
 		for (int iLoop = 1; iLoop <= iResourceQuantity; iLoop++)
 		{
-			int iValueToAdd = iItemValue;
 			int iAmountAfterThisResource = iLoop + iNumberAvailableToUs;
 
+			iValueToAdd = iItemValue;
 			if (iAmountAfterThisResource > 5)
 			{
 				iValueToAdd = 0;
@@ -2297,10 +2302,12 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 				iValueToAdd += iItemValue / 2;
 			}
 
-			iFinalValue += iValueToAdd;
+			//round up to the next multiple of iGPTValue
+			iValueToAdd = iValueToAdd / iGPTValue + ((iValueToAdd % iGPTValue > 0) ? 1 : 0);
+			iFinalValue += iValueToAdd * iGPTValue;
 		}
 
-		return iFinalValue/iValueScale;
+		return iFinalValue;
 	}
 }
 
@@ -4584,6 +4591,9 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Open Borders to Us, but them is us.  Please show Jon");
 
+	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_CITIES))
+		return;
+
 	// If we're not the one surrendering here, don't bother
 	if(pDeal->IsPeaceTreatyTrade(eThem) && pDeal->GetSurrenderingPlayer() != m_pPlayer->GetID())
 		return;
@@ -4664,6 +4674,9 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Open Borders to Us, but them is us.  Please show Jon");
 
+	if(!pDeal->IsPossibleToTradeItem(eThem, GetPlayer()->GetID(), TRADE_ITEM_CITIES))
+		return;
+
 	// If they're not the one surrendering here, don't bother
 	if(pDeal->IsPeaceTreatyTrade(eThem) && pDeal->GetSurrenderingPlayer() != eThem)
 		return;
@@ -4743,6 +4756,10 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Gold to Them, but them is us.  Please show Jon");
 
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	if (!pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_GOLD))
+		return;
+
 	int iNumGoldAlreadyInTrade = pDeal->GetGoldTrade(eThem);
 	//if raw gold in deal, remove so we can refresh.
 	if (iNumGoldAlreadyInTrade > 0)
@@ -4753,8 +4770,6 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	}
 	if (iTotalValue < 0 || pDeal->GetDemandingPlayer() != NO_PLAYER)
 	{
-		PlayerTypes eMyPlayer = GetPlayer()->GetID();
-
 		// Can't already be Gold from the other player in the Deal
 		if(pDeal->GetGoldTrade(eMyPlayer) == 0)
 		{
@@ -4788,6 +4803,9 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Gold to Us, but them is us.  Please show Jon");
 
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	if (!pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_GOLD))
+		return;
+
 	int iNumGoldAlreadyInTrade = pDeal->GetGoldTrade(eMyPlayer);
 
 	//if raw gold in deal, remove so we can refresh.
@@ -4831,6 +4849,10 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add GPT to Them, but them is us.  Please show Jon");
 
+	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	if (!pDeal->IsPossibleToTradeItem(eThem, eMyPlayer, TRADE_ITEM_GOLD_PER_TURN))
+		return;
+
 	int iDealDuration = pDeal->GetDuration();
 	int iNumGPTAlreadyInTrade = pDeal->GetGoldPerTurnTrade(eThem);
 	//if they already have GPT in this trade, remove it so we can refresh the value.
@@ -4849,7 +4871,6 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 		}
 		if (iGoldRate > 0)
 		{
-			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
 			// Can't already be GPT from the other player in the Deal
 			if(pDeal->GetGoldPerTurnTrade(eMyPlayer) == 0)
@@ -4901,9 +4922,11 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add GPT to Us, but them is us.  Please show Jon");
 
-	int iDealDuration = pDeal->GetDuration();
-
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	if (!pDeal->IsPossibleToTradeItem(eMyPlayer, eThem, TRADE_ITEM_GOLD_PER_TURN))
+		return;
+
+	int iDealDuration = pDeal->GetDuration();
 	int iNumGPTAlreadyInTrade = pDeal->GetGoldPerTurnTrade(eMyPlayer);
 
 	//if we already have GPT in this trade, remove it so we can refresh the value.
@@ -5781,6 +5804,10 @@ bool CvDealAI::IsMakeOfferForLuxuryResource(PlayerTypes eOtherPlayer, CvDeal* pD
 
 		// Only look at Luxuries
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+
+		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eResource))
+			continue;
+
 		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_LUXURY)
 		{
 			continue;
@@ -5880,6 +5907,9 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 		// Only look at strategic resources here
 		const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 		if(pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_STRATEGIC)
+			continue;
+
+		if (!pDeal->IsPossibleToTradeItem(eOtherPlayer, GetPlayer()->GetID(), TRADE_ITEM_RESOURCES, eResource))
 			continue;
 
 		// If we have some to spare, don't get more

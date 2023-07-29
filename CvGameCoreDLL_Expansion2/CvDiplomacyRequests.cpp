@@ -254,7 +254,8 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 		{
 			if (iter->m_iLookupIndex >= 0)
 			{
-				CvDeal* pDeal = GC.getGame().GetGameDeals().GetProposedMPDeal(iter->m_eFromPlayer, m_ePlayer, false);
+				// get last proposed deal
+				CvDeal* pDeal = GC.getGame().GetGameDeals().GetProposedMPDeal(iter->m_eFromPlayer, m_ePlayer, true);
 				if (!pDeal)
 				{
 					iter = m_aRequests.erase(iter);
@@ -265,7 +266,7 @@ void CvDiplomacyRequests::CheckRemainingNotifications()
 
 				if (!bDealOk)
 				{
-					GC.getGame().GetGameDeals().RemoveProposedDeal(iter->m_eFromPlayer, m_ePlayer, NULL, false);
+					GC.getGame().GetGameDeals().RemoveProposedDeal(iter->m_eFromPlayer, m_ePlayer, NULL, true);
 
 					if (iter->m_iLookupIndex >= 0)
 						GET_PLAYER(m_ePlayer).GetNotifications()->Dismiss(iter->m_iLookupIndex, false);
@@ -315,11 +316,12 @@ foundRequest:
 	PlayerTypes eFrom = requestIter->m_eFromPlayer;
 	PlayerTypes eTo = m_ePlayer;
 
-	// we remove the first proposed deal and use it as the scratch deal ...
+	// we remove the last (last because why do we need to get first? it can be outdated)
+	//   proposed deal and use it as the scratch deal ...
 	if (!(CvPreGame::isHuman(m_ePlayer) && CvPreGame::isHuman(eFrom)))
 	{
 		// ... but only for AI to human requests
-		if (!GC.getGame().GetGameDeals().RemoveProposedDeal(eFrom, m_ePlayer, &kDeal, false))
+		if (!GC.getGame().GetGameDeals().RemoveProposedDeal(eFrom, m_ePlayer, &kDeal, true))
 		{
 			// Well, that should never happen ...
 			// TODO: log error

@@ -2280,6 +2280,10 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		}
 	}
 
+	//Free routes from traits are always safe
+	if (thisPlayer.GetBuilderTaskingAI()->GetSameRouteBenefitFromTrait(pNewPlot, eRoute))
+		return TRUE;
+
 	//too dangerous, might be severed any time
 	if (ePlotOwnerPlayer == NO_PLAYER && pNewPlot->IsAdjacentOwnedByTeamOtherThan(thisPlayer.getTeam()))
 		return FALSE;
@@ -3154,7 +3158,10 @@ void TradePathUninitialize(const SPathFinderUserData&, CvAStar*)
 
 }
 
-//	--------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
+// need to be very careful here - trade distance is used in lots of places
+// what's more, there is a maximum trade distance and cities might appear unreachable
+// --------------------------------------------------------------------------------
 int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();

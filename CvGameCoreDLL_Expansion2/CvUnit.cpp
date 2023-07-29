@@ -5211,6 +5211,7 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 		// Check to see if any units are present at this full-turn move plot
 		if(!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_STACKING_SELF) && !(iMoveFlags & CvUnit::MOVEFLAG_ATTACK))
 		{
+			//this does not account for unit visibility!
 			if (!CanStackUnitAtPlot(&plot))
 			{
 				return false;
@@ -29105,7 +29106,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	{
 		//also depends on what we can do with the unit
 		int iHpLimit = GetMaxHitPoints() / 3;
-		return GetCurrHitPoints() < iHpLimit && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		return !IsGarrisoned() && GetCurrHitPoints() < iHpLimit && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{

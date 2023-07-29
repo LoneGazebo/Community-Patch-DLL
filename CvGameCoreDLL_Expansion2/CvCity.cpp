@@ -17524,52 +17524,49 @@ void CvCity::CheckForOperationUnits()
 #endif
 
 //	--------------------------------------------------------------------------------
+//	Returns food consumed by a non-specialist citizen
+int CvCity::foodConsumptionNonSpecialistTimes100() const
+{
+	VALIDATE_OBJECT
+
+	int iFoodPerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
+	iFoodPerPop += GetAdditionalFood() * 100;
+	iFoodPerPop += GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
+	iFoodPerPop = max(100, iFoodPerPop); //cannot reduce food per citizen to less than 1
+	return iFoodPerPop;
+}
+
+//	--------------------------------------------------------------------------------
 //	Returns food consumed by a specialist depending on Era and applicable modifiers
 int CvCity::foodConsumptionSpecialistTimes100() const
 {
 	VALIDATE_OBJECT
 	int iFoodPerSpec = 0;
-#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
 	if (MOD_BALANCE_YIELD_SCALE_ERA)
 	{
 		iFoodPerSpec = max((int)GET_PLAYER(getOwner()).GetCurrentEra(), /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION)) + 1;
 		iFoodPerSpec = min(iFoodPerSpec, 10) * 100;
-
-		iFoodPerSpec += GET_PLAYER(getOwner()).GetSpecialistFoodChange() * 100;
-
-		// Specialists eat less food? (Policies, etc.)
-		if (GET_PLAYER(getOwner()).isHalfSpecialistFood())
-		{
-			iFoodPerSpec /= 2;
-		}
-		if (GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
-		{
-			iFoodPerSpec /= 2;
-		}
-		if (iFoodPerSpec <= 100)
-		{
-			iFoodPerSpec = 100;
-		}
 	}
 	else
 	{
-#endif
-		iFoodPerSpec = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION);
-		// Specialists eat less food? (Policies, etc.)
-		if (GET_PLAYER(getOwner()).isHalfSpecialistFood())
-		{
-			iFoodPerSpec *= 50; // half, then *100
-		}
+		iFoodPerSpec = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
+	}
+
+	iFoodPerSpec += GET_PLAYER(getOwner()).GetSpecialistFoodChange() * 100;
+
+	// Specialists eat less food? (Policies, etc.)
+	if (GET_PLAYER(getOwner()).isHalfSpecialistFood())
+	{
+		iFoodPerSpec /= 2;
+	}
 #if defined(MOD_BALANCE_CORE)
-		else if (GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
-		{
-			iFoodPerSpec *= 50; // half, then *100
-		}
-#endif
-#if defined(MOD_BALANCE_YIELD_SCALE_ERA)
+	if (GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
+	{
+		iFoodPerSpec /= 2;
 	}
 #endif
-	return iFoodPerSpec;
+
+	return max(100, iFoodPerSpec);
 }
 
 // --------------------------------------------------------------------------------
@@ -17582,56 +17579,12 @@ int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
 {
 	VALIDATE_OBJECT
 
-	if (MOD_BALANCE_YIELD_SCALE_ERA)
-	{
-		int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount() + iExtra;
+	int iSpecialists = GetCityCitizens()->GetTotalSpecialistCount();
+	int iNonSpecialists = max(0, (getPopulation() - iSpecialists)) + iExtra;
 
-		int iPopulation = max(0, (getPopulation() - iSpecialists)); //guard against stupidity
-
-		int iFoodPerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
-
-		iFoodPerPop += GetAdditionalFood() * 100;
-		iFoodPerPop += GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
-		iFoodPerPop = max(100, iFoodPerPop); //cannot reduce food per citizen to less than 1
-
-		int iNormalFood = iPopulation * iFoodPerPop;
-		int iSpecialistFood = (foodConsumptionSpecialistTimes100() * iSpecialists);
-		return max(iNormalFood + iSpecialistFood, 100);
-	}
-	else
-	{
-		int iPopulation = getPopulation() + iExtra;
-
-		int iFoodPerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
-		iFoodPerPop += GetAdditionalFood() * 100;
-
-		int iNum = iPopulation * iFoodPerPop;
-		// Specialists eat less food? (Policies, etc.)
-		if (GET_PLAYER(getOwner()).isHalfSpecialistFood())
-		{
-			int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
-			iFoodReduction /= 2;
-			iNum -= iFoodReduction;
-		}
-		else if (GET_PLAYER(getOwner()).isHalfSpecialistFoodCapital() && isCapital())
-		{
-			int iFoodReduction = GetCityCitizens()->GetTotalSpecialistCount() * iFoodPerPop;
-			iFoodReduction /= 2;
-			iNum -= iFoodReduction;
-		}
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange() != 0)
-		{
-			int iFoodChangePerPop = GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
-			if (GC.getFOOD_CONSUMPTION_PER_POPULATION() + iFoodChangePerPop < 100)
-			{
-				iFoodChangePerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) - 100;
-			}
-			iNum += max(0, (getPopulation() - GetCityCitizens()->GetTotalSpecialistCount())) * iFoodChangePerPop; //can't reduce food consumption per citizen to less than 1
-		}
-
-		return max(iNum, 100);
-	}
+	return max(100, foodConsumptionNonSpecialistTimes100() * iNonSpecialists + foodConsumptionSpecialistTimes100() * iSpecialists);
 }
+
 
 //	--------------------------------------------------------------------------------
 int CvCity::foodDifference(bool bBottom, bool bJustCheckingStarve) const
@@ -18064,6 +18017,18 @@ int CvCity::growthThreshold() const
 
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
+int CvCity::GetNumFreeSpecialists()
+{
+	int iFreeSpecialists = 0;
+	if (isCapital())
+	{
+		iFreeSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialistsCapital();
+	}
+	//...elsewhere?	
+	iFreeSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
+	return iFreeSpecialists;
+}
+//	--------------------------------------------------------------------------------
 int CvCity::GetUnhappinessFromCitySpecialists()
 {
 	float iUnhappiness = 0;
@@ -18097,17 +18062,7 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 		{
 			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
-			int iNoHappinessSpecialists = 0;
-			if (iPopulation > 0)
-			{
-				//...in capital?
-				if (isCapital())
-				{
-					iNoHappinessSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialistsCapital();
-				}
-				//...elsewhere?	
-				iNoHappinessSpecialists += GET_PLAYER(getOwner()).GetNoUnhappfromXSpecialists() + GetNoUnhappfromXSpecialists();
-			}
+			int iNoHappinessSpecialists = GetNumFreeSpecialists();
 			//Can't give more free happiness than specialists.
 			if (iNoHappinessSpecialists > iPopulation)
 			{
@@ -31670,9 +31625,9 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 							bSpecificBeliefBlocked = false;
 							if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 							{
-								if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
+								if (iFaithCost > GET_PLAYER(getOwner()).GetFaith())
 								{
-									return true;
+									return false;
 								}
 							}
 						}

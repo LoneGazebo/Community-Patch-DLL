@@ -1291,67 +1291,60 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(vector<OptionWithScore<Buil
 			continue;
 		}
 
-		bool bWillRemoveForestOrJungle = false;
 		FeatureTypes eFeature = pPlot->getFeatureType();
-		if(eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE)
-		{
-			if (pkBuild->isFeatureRemove(eFeature))
-			{
-				bWillRemoveForestOrJungle = true;
-			}
-		}
+		bool bWillRemoveFeature = pkBuild->isFeatureRemove(eFeature);
+		bool bWillRemoveForest = eFeature == FEATURE_FOREST && bWillRemoveFeature;
+		bool bWillRemoveJungle = eFeature == FEATURE_JUNGLE && bWillRemoveFeature;
+		bool bWillRemoveMarsh = eFeature == FEATURE_MARSH && bWillRemoveFeature;
 
 		// special case for Dutch
-		if (m_bKeepMarshes && eFeature == FEATURE_MARSH)
+		if (m_bKeepMarshes && bWillRemoveMarsh)
 		{
-			if (pkBuild->isFeatureRemove(FEATURE_MARSH))
+			if(m_bLogging){
+				CvString strTemp;
+				strTemp.Format(
+					"%i,Weight,Marsh Remove,%s,%i,%i", 
+					pUnit->GetID(),
+					GC.getBuildInfo(eBuild)->GetType(),
+					pPlot->getX(),
+					pPlot->getY()
+				);
+				LogInfo(strTemp, m_pPlayer);
+			}
+			if (eResource == NO_RESOURCE)
 			{
-				if(m_bLogging){
-					CvString strTemp;
-					strTemp.Format(
-						"%i,Weight,Marsh Remove,%s,%i,%i", 
-						pUnit->GetID(),
-						GC.getBuildInfo(eBuild)->GetType(),
-						pPlot->getX(),
-						pPlot->getY()
-					);
-					LogInfo(strTemp, m_pPlayer);
-				}
 				continue;
 			}
 		}
 
 		// special case for Brazil
-		if (m_bKeepJungle && eFeature == FEATURE_JUNGLE)
+		if (m_bKeepJungle && bWillRemoveJungle)
 		{
-			if (pkBuild->isFeatureRemove(FEATURE_JUNGLE))
+			if(m_bLogging){
+				CvString strTemp;
+				strTemp.Format(
+					"%i,Weight,Jungle Remove,%s,%i,%i", 
+					pUnit->GetID(),
+					GC.getBuildInfo(eBuild)->GetType(),
+					pPlot->getX(),
+					pPlot->getY()
+				);
+				LogInfo(strTemp, m_pPlayer);
+			}
+			if (eResource == NO_RESOURCE)
 			{
-				if(m_bLogging){
-					CvString strTemp;
-					strTemp.Format(
-						"%i,Weight,Jungle Remove,%s,%i,%i", 
-						pUnit->GetID(),
-						GC.getBuildInfo(eBuild)->GetType(),
-						pPlot->getX(),
-						pPlot->getY()
-					);
-					LogInfo(strTemp, m_pPlayer);
-				}
-				if (pPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
-				{
-					continue;
-				}
+				continue;
 			}
 		}
 
 		if(GET_PLAYER(pUnit->getOwner()).isOption(PLAYEROPTION_LEAVE_FORESTS) && GET_PLAYER(pUnit->getOwner()).isHuman())
 		{
-			if(bWillRemoveForestOrJungle && eResource == NO_RESOURCE)
+			if((bWillRemoveForest || bWillRemoveJungle || bWillRemoveMarsh) && eResource == NO_RESOURCE)
 			{
 				if(m_bLogging){
 					CvString strTemp;
 					strTemp.Format(
-						"%i,Weight,Keep Forests,%s,%i,%i", 
+						"%i,Weight,Keep Features,%s,%i,%i", 
 						pUnit->GetID(),
 						GC.getBuildInfo(eBuild)->GetType(),
 						pPlot->getX(),
@@ -1393,7 +1386,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirectives(vector<OptionWithScore<Buil
 		int iBuildTimeWeight = GetBuildTimeWeight(pUnit, pPlot, eBuild, DoesBuildHelpRush(pUnit, pPlot, eBuild));
 		iWeight += iBuildTimeWeight;
 
-		if (bWillRemoveForestOrJungle)
+		if (bWillRemoveForest || bWillRemoveJungle)
 		{
 			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
 				iWeight /= 100;

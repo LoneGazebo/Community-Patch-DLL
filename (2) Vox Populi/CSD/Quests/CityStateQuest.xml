@@ -44,22 +44,22 @@
 		
 		<!-- Gift a Unit -->
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT">
-			<Text>We want you to send us a {1_UnitName}.</Text>
+			<Text>We want you to send us {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_UnitName}}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GIFT_SPECIFIC_UNIT">
-			<Text>The leaders of {@2_CivName} want to strengthen their armies. A {1_UnitName} will redeem their imperial grandeur, and with it the favor of this city-state.</Text>
+			<Text>The leaders of {@2_CivName} want to strengthen their armies. Sending them {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_UnitName}} will redeem their imperial grandeur and gain their favor.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_GIFT_SPECIFIC_UNIT">
-			<Text>{@2_CivName} longs for a {1_UnitName}</Text>
+			<Text>{@2_CivName} longs for {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_UnitName}}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_GIFT_SPECIFIC_UNIT">
-			<Text>As {@2_CivName} hoped, you sent them a {1_UnitName}!</Text>
+			<Text>As {@2_CivName} hoped, you sent them {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_UnitName}}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_GIFT_SPECIFIC_UNIT">
 			<Text>{1_UnitName} sent to {@2_CivName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL">
-			<Text>They want you to send them a {1_UnitName}.</Text>
+			<Text>They want you to send them {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_UnitName}}.</Text>
 		</Row>
 
 		<!-- Find City State -->

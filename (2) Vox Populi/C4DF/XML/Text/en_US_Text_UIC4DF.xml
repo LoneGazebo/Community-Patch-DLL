@@ -319,7 +319,7 @@
 			<Text>If a vassal can declare independence, they may revoke their status of being your vassal at any time . If you refuse this request, you will declare war on your vassal. They are more likely to ask if they feel they have a good chance at succeeding in their revolution.[NEWLINE][NEWLINE]Your vassal may declare independence after the following conditions are satisfied:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_MASTER_TT">
-			<Text>If you can declare independence, you may revoke your status of being their vassal at any time. Be careful, as if they refuse your request, they will declare war on you. They are more likely to respect your declaration of independence if you have a strong military presence.[NEWLINE][NEWLINE]Your may declare independence after the following conditions are satisfied:</Text>
+			<Text>If you can declare independence, you may revoke your status of being their vassal at any time. Be careful, as if they refuse your request, they will declare war on you. They are more likely to respect your declaration of independence if you have a strong military presence.[NEWLINE][NEWLINE]You may declare independence after the following conditions are satisfied:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TURNS_TT">
 			<Text>1. Vassal for {1_NumTurns} Turns</Text>

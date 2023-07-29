@@ -15369,7 +15369,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 			}
 		}
 
-		if (iBulliedVeryRecentlyScore > 0)
+		if (iBulliedVeryRecentlyScore != 0)
 		{
 			iScore += iBulliedVeryRecentlyScore;
 			if (sTooltipSink)
@@ -15380,7 +15380,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
-		else if (iBulliedRecentlyScore > 0)
+		else if (iBulliedRecentlyScore != 0)
 		{
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)
@@ -16066,6 +16066,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			CvCity* pBullyCapital = GET_PLAYER(eBully).getCapitalCity();
 			int iValue = 0;
 			float fDelay = 0.0f;
+			CvString bullyText;
 			if (pBullyCapital != NULL)
 			{
 				// Heavy tribute gives gold, equal to normal tribute, for all types of city-states.
@@ -16089,7 +16090,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						{
 							char text[256] = { 0 };
 							fDelay += 1.5f;
-							sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_GOLD]", iValue);
+							bullyText = GetLocalizedText("TXT_KEY_MISC_BULLIED_POPUP");
+							sprintf_s(text, "[COLOR_RED]%s -%d[ENDCOLOR][ICON_GOLD]", bullyText.c_str(), iValue);
 							SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 						}
 					}
@@ -16131,7 +16133,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 							{
 								char text[256] = { 0 };
 								fDelay += 1.5f;
-								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_RESEARCH]", iValue);
+								bullyText = GetLocalizedText("TXT_KEY_MISC_BULLIED_POPUP");
+								sprintf_s(text, "[COLOR_RED]%s -%d[ENDCOLOR][ICON_RESEARCH]", bullyText.c_str(), iValue);
 								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 							}
 						}
@@ -16170,7 +16173,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 							{
 								char text[256] = { 0 };
 								fDelay += 1.5f;
-								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_CULTURE]", iValue);
+								bullyText = GetLocalizedText("TXT_KEY_MISC_BULLIED_POPUP");
+								sprintf_s(text, "[COLOR_RED]%s -%d[ENDCOLOR][ICON_CULTURE]", bullyText.c_str(), iValue);
 								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 							}
 						}
@@ -16208,7 +16212,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 							{
 								char text[256] = { 0 };
 								fDelay += 1.5f;
-								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PRODUCTION]", iValue);
+								bullyText = GetLocalizedText("TXT_KEY_MISC_BULLIED_POPUP");
+								sprintf_s(text, "[COLOR_RED]%s -%d[ENDCOLOR][ICON_PRODUCTION]", bullyText.c_str(), iValue);
 								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 							}
 						}
@@ -16246,7 +16251,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 							{
 								char text[256] = { 0 };
 								fDelay += 1.5f;
-								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_PEACE]", iValue);
+								bullyText = GetLocalizedText("TXT_KEY_MISC_BULLIED_POPUP");
+								sprintf_s(text, "[COLOR_RED]%s -%d[ENDCOLOR][ICON_PEACE]", bullyText.c_str(), iValue);
 								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 							}
 						}
@@ -16284,7 +16290,8 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 							{
 								char text[256] = { 0 };
 								fDelay += 1.5f;
-								sprintf_s(text, "[COLOR_RED]BULLIED: -%d[ENDCOLOR][ICON_FOOD]", iValue);
+								bullyText = GetLocalizedText("TXT_KEY_MISC_BULLIED_POPUP");
+								sprintf_s(text, "[COLOR_RED]%s -%d[ENDCOLOR][ICON_FOOD]", bullyText.c_str(), iValue);
 								SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 							}
 						}

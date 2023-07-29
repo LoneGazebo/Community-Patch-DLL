@@ -90,5 +90,14 @@
 				[ICON_BULLET][COLOR_CYAN]Massed Strike Mode[ENDCOLOR]: [COLOR_YELLOW]SHIFT+RCLICK[ENDCOLOR] on an enemy will air strike the unit on the target hex until all aircraft have attacked or the target is dead. Attack order prioritizes higher HP aircraft, with ties being broken by unit level. Aircraft that can attack twice will do so before the next aircraft begins attacking. [NEWLINE]
 			</Text>
 		</Row>
+		<Row Tag="TXT_KEY_PEDIA_PREFERSTARTBIAS_LABEL">
+			<Text>Start Bias (Prefer):</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_PRIORITYSTARTBIAS_LABEL">
+			<Text>Start Bias (Priority):</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_AVOIDSTARTBIAS_LABEL">
+			<Text>Start Bias (Avoid):</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

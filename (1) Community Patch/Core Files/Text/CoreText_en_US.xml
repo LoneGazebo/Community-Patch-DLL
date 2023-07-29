@@ -3791,6 +3791,11 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_BULLIED_BY_SOMEONE">
 			<Text>Our diplomats report that {2_Civ} recently bullied {1_CS}!</Text>
 		</Row>
+
+		<!-- Bully popup texts -->
+		<Row Tag="TXT_KEY_MISC_BULLIED_POPUP">
+			<Text>BULLIED:</Text>
+		</Row>
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
 		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_3">

@@ -3846,33 +3846,37 @@ int CvDiplomacyAI::GetDominationVictoryProgress() const
 		return 0;
 	}
 
-	int iCivsProgress = 0, iTotalCivs = 0, iOurMight = 0, iTotalMight = 0;
+	int iCapitalsProgress = 0, iTotalCapitals = 0, iOurMight = 0, iTotalMight = 0;
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+		if (!GET_PLAYER(ePlayer).isMajorCiv())
+			continue;
+
+		CvPlot* pOriginalCapitalPlot = GC.getMap().plot(GET_PLAYER(ePlayer).GetOriginalCapitalX(), GET_PLAYER(ePlayer).GetOriginalCapitalY());
+		if (!pOriginalCapitalPlot || !pOriginalCapitalPlot->isCity())
+			continue;
+
+		iTotalCapitals++;
+
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
-			iTotalCivs++;
 			int iMight = GET_PLAYER(ePlayer).GetMilitaryMight();
 			iTotalMight += iMight;
 
-			if (ePlayer == GetID() || IsMaster(ePlayer))
-			{
+			if (GET_PLAYER(ePlayer).getTeam() == GetTeam() || IsMaster(ePlayer))
 				iOurMight += iMight;
-				iCivsProgress += 1;
-			}
-			else if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCapitalCapturedBy(GetID(), true))
-			{
-				iCivsProgress += 1;
-			}
 		}
+
+		if (pOriginalCapitalPlot->getPlotCity()->GetOwnerForDominationVictory() == GetID())
+			iCapitalsProgress += 1;
 	}
 
 	iOurMight = (iOurMight * 100) / max(1, iTotalMight);
-	iCivsProgress = (iCivsProgress * 100) / max(1, iTotalCivs);
+	iCapitalsProgress = (iCapitalsProgress * 100) / max(1, iTotalCapitals);
 
-	return max(iOurMight, iCivsProgress);
+	return max(iOurMight, iCapitalsProgress);
 }
 
 /// How close are we to achieving a Diplomatic victory?
@@ -3948,7 +3952,7 @@ int CvDiplomacyAI::GetScienceVictoryProgress() const
 		if (GET_TEAM(m_pPlayer->getTeam()).getProjectCount(eApollo) > 0)
 		{
 			iProjectsCompleted++;
-		}			
+		}
 	}
 
 	int iScienceProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / max(1, GC.getNumTechInfos() - 1);
@@ -3971,7 +3975,7 @@ int CvDiplomacyAI::GetCultureVictoryProgress() const
 
 	if (MOD_BALANCE_CORE_VICTORY_GAME_CHANGES)
 	{
-		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(false, true);
+		int iPolicies = GetPlayer()->GetPlayerPolicies()->GetNumPoliciesOwned(true, true, true);
 		iPolicies = min(iPolicies, 27);
 		iProgress = min(iLowestPercent, 18 + iPolicies * 3);
 	}
@@ -9797,6 +9801,13 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 	// These functions actually DO things, and we don't want the shadow AI behind a human player doing things for him
 	if (!GetPlayer()->isHuman())
 	{
+#if defined(MOD_ACTIVE_DIPLOMACY)
+		if(eDiploMode == DIPLO_HUMAN_PLAYERS && GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+		{
+			// in the beginning of turn - remove all the proposed deals from/to this AI
+			GC.getGame().GetGameDeals().DoCancelAllProposedMPDealsWithPlayer(GetID(), DIPLO_ALL_PLAYERS);
+		}
+#endif
 		DetermineVassalTaxRates();
 		DoUpdateDemands();
 		MakeWar();
@@ -10180,10 +10191,19 @@ void CvDiplomacyAI::DoUpdateCompetingForVictory()
 				continue;
 			}
 
-			if (GET_PLAYER(eLoopPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans() && !IsAtWar(eLoopPlayer))
+			if (!IsAtWar(eLoopPlayer))
 			{
-				SetEndgameAggressiveTo(eLoopPlayer, false);
-				continue;
+				if (GC.getGame().IsAIPassiveMode())
+				{
+					SetEndgameAggressiveTo(eLoopPlayer, false);
+					continue;
+				}
+
+				if (GET_PLAYER(eLoopPlayer).isHuman() && GC.getGame().IsAIPassiveTowardsHumans())
+				{
+					SetEndgameAggressiveTo(eLoopPlayer, false);
+					continue;
+				}
 			}
 
 			SetEndgameAggressiveTo(eLoopPlayer, GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToAnyVictoryCondition());
@@ -10418,21 +10438,21 @@ void CvDiplomacyAI::DoUpdateRecklessExpanders()
 			}
 
 			// If this guy's military is as strong as ours, then it probably means he's just stronger than us
-			if (GetMilitaryStrengthComparedToUs(ePlayer) >= STRENGTH_AVERAGE)
+			if (GetTargetValue(ePlayer) <= TARGET_VALUE_DIFFICULT)
 			{
 				SetPlayerRecklessExpander(ePlayer, false);
 				continue;
 			}
 
 			// What's the global average, not counting this player?
-			double fAverageNumCities = ((fTotalNumCities - iNumCities) / max(1, iNumPlayers));
-			double fAverageNumPlots = ((fTotalNumPlots - iNumPlots) / max(1, iNumPlayers));
+			double dAverageNumCities = ((fTotalNumCities - iNumCities) / max(1, iNumPlayers - 1));
+			double dAverageNumPlots = ((fTotalNumPlots - iNumPlots) / max(1, iNumPlayers - 1));
 
 			// Do they have way more cities than the average player in the game?
 			if ((iNumCities*100) > (iMedianNumCities * /*200*/ GD_INT_GET(RECKLESS_EXPANDER_CITIES_THRESHOLD)))
 			{
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
-				if (iNumCities > (fAverageNumCities * 1.5))
+				if (iNumCities > (dAverageNumCities * 1.5))
 				{
 					SetPlayerRecklessExpander(ePlayer, true);
 					continue;
@@ -10443,7 +10463,7 @@ void CvDiplomacyAI::DoUpdateRecklessExpanders()
 			if ((iNumPlots*100) > (iMedianNumPlots * /*250*/ GD_INT_GET(RECKLESS_EXPANDER_LAND_THRESHOLD)))
 			{
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
-				if (iNumPlots > (fAverageNumPlots * 1.5))
+				if (iNumPlots > (dAverageNumPlots * 1.5))
 				{
 					SetPlayerRecklessExpander(ePlayer, true);
 					continue;
@@ -10476,7 +10496,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 	}
 
 	int iMedianNumWonders = GC.getGame().CalculateMedianNumWondersConstructed();
-	double fAverageNumWonders = 0;
+	double dAverageNumWonders = 0;
 	int iNumPlayers = 0;
 
 	// Calculate the global average
@@ -10490,11 +10510,11 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 			continue;
 
 		iNumPlayers++;
-		fAverageNumWonders += pPlayer->GetWondersConstructed();
+		dAverageNumWonders += pPlayer->GetWondersConstructed();
 	}
 
 	// Find the mean value
-	fAverageNumWonders /= max(1, iNumPlayers);
+	dAverageNumWonders /= max(1, iNumPlayers);
 
 	bool bCultural = GetPlayer()->GetPlayerTraits()->IsTourism() || IsGoingForCultureVictory();
 	bool bConqueror = GetPlayer()->GetPlayerTraits()->IsWarmonger() || IsGoingForWorldConquest();
@@ -10572,7 +10592,7 @@ void CvDiplomacyAI::DoUpdateWonderSpammers()
 			if (iNumWonders > (iMedianNumWonders + /*3*/ GD_INT_GET(WONDER_SPAMMER_THRESHOLD) - iWonderBlockMod))
 			{
 				// Must also have at least 50% more than the global average, just to prevent anything stupid
-				if (iNumWonders >= (fAverageNumWonders * 1.5))
+				if (iNumWonders >= (dAverageNumWonders * 1.5))
 				{
 					SetPlayerWonderSpammer(ePlayer, true);
 					continue;
@@ -10642,13 +10662,10 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 			continue;
 		}
 
-		if (bSpaceshipValid && IsEndgameAggressiveTo(ePlayer))
+		if (bSpaceshipValid && IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSpaceshipVictory())
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToSpaceshipVictory())
-			{
-				SetTechBlockLevel(ePlayer, BLOCK_LEVEL_FIERCE);
-				continue;
-			}
+			SetTechBlockLevel(ePlayer, BLOCK_LEVEL_FIERCE);
+			continue;
 		}
 
 		int iTechDifference = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown() - iOurTechs;
@@ -10671,7 +10688,7 @@ void CvDiplomacyAI::DoUpdateTechBlockLevels()
 				iTechDifference--;
 			}
 			// Reduce if we're friends and they can trade tech to us
-			if (IsDoFAccepted(ePlayer) && IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
+			if (!GC.getGame().isOption(GAMEOPTION_NO_TECH_TRADING) && IsDoFAccepted(ePlayer) && IsHasEmbassy(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasEmbassy(GetID()) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isTechTrading())
 			{
 				iTechDifference--;
 			}
@@ -10761,13 +10778,10 @@ void CvDiplomacyAI::DoUpdatePolicyBlockLevels()
 			continue;
 		}
 
-		if (bCultureValid && IsEndgameAggressiveTo(ePlayer))
+		if (bCultureValid && IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
 		{
-			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsCloseToCultureVictory())
-			{
-				SetPolicyBlockLevel(ePlayer, BLOCK_LEVEL_FIERCE);
-				continue;
-			}
+			SetPolicyBlockLevel(ePlayer, BLOCK_LEVEL_FIERCE);
+			continue;
 		}
 
 		int iPolicyDifference = GET_PLAYER(ePlayer).GetPlayerPolicies()->GetNumPoliciesOwned(true, true, true) - iOurPolicies;
@@ -10819,7 +10833,7 @@ void CvDiplomacyAI::DoUpdatePolicyBlockLevels()
 	}
 }
 
-/// Updates what our level of Dispute is with all players over Victory
+/// Updates what our level of Dispute is with all players over Victory (for the SAME victory condition)
 void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 {
 	if (GetPlayer()->isHuman())
@@ -10851,7 +10865,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
 		{
 			AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer);
-			if (eTheirGrandStrategy == NO_AIGRANDSTRATEGY)
+			if (eTheirGrandStrategy == NO_AIGRANDSTRATEGY || eTheirGrandStrategy != eMyGrandStrategy)
 			{
 				SetVictoryDisputeLevel(eLoopPlayer, DISPUTE_LEVEL_NONE);
 				continue;
@@ -10865,21 +10879,17 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 			DisputeLevelTypes eDisputeLevel = DISPUTE_LEVEL_NONE;
 			int iVictoryDisputeWeight = 0;
 
-			// Does the other player's (estimated) Grand Strategy match our own?
-			if (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer) == eMyGrandStrategy)
+			switch (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
 			{
-				switch (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
-				{
-				case GUESS_CONFIDENCE_POSITIVE:
-					iVictoryDisputeWeight = /*25*/ GD_INT_GET(VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE);
-					break;
-				case GUESS_CONFIDENCE_LIKELY:
-					iVictoryDisputeWeight = /*15*/ GD_INT_GET(VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY);
-					break;
-				case GUESS_CONFIDENCE_UNSURE:
-					iVictoryDisputeWeight = /*5*/ GD_INT_GET(VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_UNSURE);
-					break;
-				}
+			case GUESS_CONFIDENCE_POSITIVE:
+				iVictoryDisputeWeight = /*25*/ GD_INT_GET(VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_POSITIVE);
+				break;
+			case GUESS_CONFIDENCE_LIKELY:
+				iVictoryDisputeWeight = /*15*/ GD_INT_GET(VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_LIKELY);
+				break;
+			case GUESS_CONFIDENCE_UNSURE:
+				iVictoryDisputeWeight = /*5*/ GD_INT_GET(VICTORY_DISPUTE_GRAND_STRATEGY_MATCH_UNSURE);
+				break;
 			}
 
 			// Reduce competitiveness in earlier eras
@@ -10912,7 +10922,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 	}
 }
 
-/// Updates what our level of Dispute is with all players over Victory
+/// Updates what our level of Dispute is with all players over Victory (for a DIFFERENT victory condition)
 void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 {
 	if (GetPlayer()->isHuman())
@@ -10949,7 +10959,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 		if (IsPlayerValid(eLoopPlayer) && GET_PLAYER(eLoopPlayer).isMajorCiv())
 		{
 			AIGrandStrategyTypes eTheirGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategy(eLoopPlayer);
-			if (eTheirGrandStrategy == NO_AIGRANDSTRATEGY)
+			if (eTheirGrandStrategy == NO_AIGRANDSTRATEGY || eTheirGrandStrategy == eMyGrandStrategy)
 			{
 				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
 				continue;
@@ -10960,121 +10970,110 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 				continue;
 			}
 
-			BlockLevelTypes eBlockLevel = BLOCK_LEVEL_NONE;
+			// Exclusions: Exclude anyone who isn't a competitor in this realm...
 			int iVictoryBlockWeight = 0;
 
-			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-			bool bLeagueCompetitor = false;
-			bool bSpaceRace = false;
-			bool bCulture = false;
-			bool bWar = false;
-
-			if (pLeague != NULL)
+            if (eConquestGrandStrategy == eTheirGrandStrategy)
 			{
-				int iVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer);
+				if (GetWarmongerThreat(eLoopPlayer) < THREAT_SEVERE && GetPlayerNumMajorsConquered(eLoopPlayer) >= GC.getGame().countMajorCivsEverAlive() / 3)
+				{
+					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+					continue;
+				}
+			}
+
+			if (eUNGrandStrategy == eTheirGrandStrategy)
+			{
+				CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+				if (pLeague == NULL)
+				{
+					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+					continue;
+				}
+				
+				int iVotes = pLeague->CalculateStartingVotesForMember(eLoopPlayer, /*bFakeUN*/ true);
 				int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
 
-				if (iNeededVotes > 0)
+				// 33% there? Close!
+				if (iVotes < iNeededVotes / 3)
 				{
-					// 33% there? Close!
-					if (iVotes >= (iNeededVotes / 3))
-					{
-						bLeagueCompetitor = true;
-					}
+					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+					continue;
 				}
 			}
 
-			int iProjectCount = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetSSProjectCount();
-			if (iProjectCount > 0)
+			if (eCultureGrandStrategy == eTheirGrandStrategy)
 			{
-				bSpaceRace = true;
-				iVictoryBlockWeight += iProjectCount * 10;
-			}
-			else
-			{
-				int iTheirTechNum = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
-				int iNumOtherPlayers = 0;
-				int iNumPlayersAheadInTech = 0;
-
-				for (int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
+				if (!IsPlayerWonderSpammer(eLoopPlayer) && GetPolicyBlockLevel(eLoopPlayer) < BLOCK_LEVEL_STRONG && GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > 1)
 				{
-					PlayerTypes eOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
-
-					if (GET_PLAYER(eOtherPlayer).getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
-						continue;
-
-					if (!IsPlayerValid(eOtherPlayer))
-						continue;
-
-					iNumOtherPlayers++;
-					int iNumTechs = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
-					if (iTheirTechNum > iNumTechs)
-					{
-						iNumPlayersAheadInTech++;
-					}
+					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+					continue;
 				}
-				if (iNumPlayersAheadInTech >= iNumOtherPlayers)
+			}
+
+			if (eSpaceshipGrandStrategy == eTheirGrandStrategy)
+			{
+				bool bSpaceRace = false;
+
+				int iProjectCount = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetSSProjectCount();
+				if (iProjectCount > 0)
+				{
+					bSpaceRace = true;
+					iVictoryBlockWeight += iProjectCount * 10;
+				}
+				else if (GetTechBlockLevel(eLoopPlayer) >= BLOCK_LEVEL_STRONG)
 				{
 					bSpaceRace = true;
 				}
-				if (GetTechBlockLevel(eLoopPlayer) >= BLOCK_LEVEL_STRONG)
+				else
 				{
-					bSpaceRace = true;
+					int iTheirTechNum = GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+					int iNumOtherPlayers = 0;
+					int iNumPlayersAheadInTech = 0;
+
+					for (int iOtherPlayerLoop = 0; iOtherPlayerLoop < MAX_MAJOR_CIVS; iOtherPlayerLoop++)
+					{
+						PlayerTypes eOtherPlayer = (PlayerTypes) iOtherPlayerLoop;
+
+						if (GET_PLAYER(eOtherPlayer).getTeam() == GET_PLAYER(eLoopPlayer).getTeam())
+							continue;
+
+						if (!IsPlayerValid(eOtherPlayer, true))
+							continue;
+
+						iNumOtherPlayers++;
+						int iNumTechs = GET_TEAM(GET_PLAYER(eOtherPlayer).getTeam()).GetTeamTechs()->GetNumTechsKnown();
+						if (iTheirTechNum > iNumTechs)
+						{
+							iNumPlayersAheadInTech++;
+						}
+					}
+					if (iNumPlayersAheadInTech >= iNumOtherPlayers / 2)
+					{
+						bSpaceRace = true;
+					}
+				}
+				if (!bSpaceRace)
+				{
+					SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
+					continue;
 				}
 			}
 
-			if (GetWarmongerThreat(eLoopPlayer) >= THREAT_SEVERE || (GetPlayerNumMajorsConquered(eLoopPlayer) >= (GC.getGame().countMajorCivsEverAlive() / 3)))
+			switch (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
 			{
-				bWar = true;
+			case GUESS_CONFIDENCE_POSITIVE:
+				iVictoryBlockWeight += /*20*/ GD_INT_GET(VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_POSITIVE);
+				break;
+			case GUESS_CONFIDENCE_LIKELY:
+				iVictoryBlockWeight += /*15*/ GD_INT_GET(VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_LIKELY);
+				break;
+			case GUESS_CONFIDENCE_UNSURE:
+				iVictoryBlockWeight += /*5*/ GD_INT_GET(VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_UNSURE);
+				break;
 			}
 
-			if (IsPlayerWonderSpammer(eLoopPlayer) || GET_PLAYER(eLoopPlayer).GetCulture()->GetNumCivsInfluentialOn() > 1)
-			{
-				bCulture = true;
-			}
-			else if (GetPolicyBlockLevel(eLoopPlayer) >= BLOCK_LEVEL_STRONG)
-			{
-				bCulture = true;
-			}
-
-			if ((eConquestGrandStrategy == eTheirGrandStrategy) && !bWar)
-			{
-				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-				continue;
-			}
-			if ((eCultureGrandStrategy == eTheirGrandStrategy) && !bCulture)
-			{
-				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-				continue;
-			}
-			if ((eUNGrandStrategy == eTheirGrandStrategy) && !bLeagueCompetitor)
-			{
-				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-				continue;
-			}
-			if ((eSpaceshipGrandStrategy == eTheirGrandStrategy) && !bSpaceRace)
-			{
-				SetVictoryBlockLevel(eLoopPlayer, BLOCK_LEVEL_NONE);
-				continue;
-			}
-
-			// Does the other player's (estimated) Grand Strategy differ from ours? If so, how positive are we about this?
-			if (eTheirGrandStrategy != eMyGrandStrategy)
-			{
-				switch (GetPlayer()->GetGrandStrategyAI()->GetGuessOtherPlayerActiveGrandStrategyConfidence(eLoopPlayer))
-				{
-				case GUESS_CONFIDENCE_POSITIVE:
-					iVictoryBlockWeight += /*20*/ GD_INT_GET(VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_POSITIVE);
-					break;
-				case GUESS_CONFIDENCE_LIKELY:
-					iVictoryBlockWeight += /*15*/ GD_INT_GET(VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_LIKELY);
-					break;
-				case GUESS_CONFIDENCE_UNSURE:
-					iVictoryBlockWeight += /*5*/ GD_INT_GET(VICTORY_BLOCK_GRAND_STRATEGY_DIFFERENCE_UNSURE);
-					break;
-				}
-			}
-
+			BlockLevelTypes eBlockLevel = BLOCK_LEVEL_NONE;
 			if (iVictoryBlockWeight > 0)
 			{
 				int DifficultyModifier = GET_PLAYER(eLoopPlayer).isHuman() ? GET_PLAYER(eLoopPlayer).getHandicapInfo().getVictoryBlockMod() : GC.getGame().getHandicapInfo().getVictoryBlockMod();
@@ -11086,17 +11085,11 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 
 				// Now see what our new Block Level should be
 				if (iVictoryBlockWeight >= /*40*/ GD_INT_GET(VICTORY_BLOCK_FIERCE_THRESHOLD))
-				{
 					eBlockLevel = BLOCK_LEVEL_FIERCE;
-				}
 				else if (iVictoryBlockWeight >= /*30*/ GD_INT_GET(VICTORY_BLOCK_STRONG_THRESHOLD))
-				{			
 					eBlockLevel = BLOCK_LEVEL_STRONG;
-				}
 				else if (iVictoryBlockWeight >= /*20*/ GD_INT_GET(VICTORY_BLOCK_WEAK_THRESHOLD))
-				{		
 					eBlockLevel = BLOCK_LEVEL_WEAK;
-				}
 			}
 
 			// Actually set the new level
@@ -33198,7 +33191,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 			CivApproachTypes eApproach = GetCivApproach(eMinor);
 
 			// Do we want to change our protection of this minor?
-			DoUpdateMinorCivProtection(eMinor, eApproach);
+			DoUpdateMinorCivProtection(eMinor);
 
 			// Do we want to connect to this player?
 			int iEra = GetPlayer()->GetCurrentEra();
@@ -34091,28 +34084,26 @@ void CvDiplomacyAI::DoContactMinorCivs()
 	}
 }
 
-void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor, CivApproachTypes eApproach)
+void CvDiplomacyAI::DoUpdateMinorCivProtection(PlayerTypes eMinor)
 {
-	// Only change protection if this player is not human controlled!
-	if (!GetPlayer()->isHuman())
+	if (GetCivApproach(eMinor) == CIV_APPROACH_FRIENDLY || GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
 	{
-		if (eApproach == CIV_APPROACH_FRIENDLY || GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() == GetID())
+		// We are protective, so do a PtP if we are able to and haven't already
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorStartProtection(GetID()))
 		{
-			// We are protective, so do a PtP if we are able to and haven't already
-			if (GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorStartProtection(GetID()))
-			{
-				GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, true);
-				DoMakePublicDeclaration(PUBLIC_DECLARATION_PROTECT_MINOR, eMinor, -1, eMinor);
-			}
+			GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, true);
+			DoMakePublicDeclaration(PUBLIC_DECLARATION_PROTECT_MINOR, eMinor, -1, eMinor);
 		}
-		else
+	}
+	// Don't cancel a pledge in VP unless the City-State has no capital (we won't get the Influence boost from quests) or they've taken damage (so we'll lose Influence faster)
+	// Pledges will be automatically cancelled if AI decides to bully or war the City-State, and the consequences for doing so aren't any more severe
+	else if (GD_INT_GET(BALANCE_INFLUENCE_BOOST_PROTECTION_MINOR) <= 0 || GET_PLAYER(eMinor).getCapitalCity() == NULL || (GET_PLAYER(eMinor).getCapitalCity()->getDamage() > 0 && GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER) > 100))
+	{
+		// We are not protective, so revoke PtP if we can
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetID()))
 		{
-			// We are not protective, so revoke PtP if we can
-			if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(GetID()) && GET_PLAYER(eMinor).GetMinorCivAI()->CanMajorWithdrawProtection(GetID()))
-			{
-				GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, false);
-				DoMakePublicDeclaration(PUBLIC_DECLARATION_ABANDON_MINOR, eMinor, -1, eMinor);
-			}
+			GC.getGame().DoMinorPledgeProtection(GetID(), eMinor, false);
+			DoMakePublicDeclaration(PUBLIC_DECLARATION_ABANDON_MINOR, eMinor, -1, eMinor);
 		}
 	}
 }

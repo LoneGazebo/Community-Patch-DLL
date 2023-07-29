@@ -1098,6 +1098,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsDiplomaticMarriage);
 	Method(IsGPWLTKD);
 	Method(IsCarnaval);
+	Method(IsAnnexedCityStatesGiveYields);
 	Method(GetGoldPerTurnFromAnnexedMinors);
 	Method(GetCulturePerTurnFromAnnexedMinors);
 	Method(GetFaithPerTurnFromAnnexedMinors);
@@ -2177,7 +2178,11 @@ int CvLuaPlayer::lReceiveGoody(lua_State* L)
 //void doGoody(CyPlot* pPlot, CyUnit* pUnit);
 int CvLuaPlayer::lDoGoody(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::doGoody);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlot* pPlot = CvLuaPlot::GetInstance(L, 2);
+	CvUnit* pUnit = CvLuaUnit::GetInstance(L, 3, false);
+	pkPlayer->doGoody(pPlot, pUnit);
+	return 1;
 }
 //------------------------------------------------------------------------------
 // This function checks the handicap as well as CanReceiveGoody to test validity
@@ -7943,14 +7948,17 @@ int CvLuaPlayer::lGetMilitaryMightForCS(lua_State* L)
 			if (GET_PLAYER(eMajorLoop).isAlive() && GET_PLAYER(eMajorLoop).getNumCities() > 0)
 				viMilitaryRankings.push_back(eMajorLoop, GET_PLAYER(eMajorLoop).GetMilitaryMight());
 		}
-		viMilitaryRankings.StableSortItems();
-		for (int iRanking = 0; iRanking < viMilitaryRankings.size(); iRanking++)
+		if (viMilitaryRankings.size() > 0)
 		{
-			if (viMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
+			viMilitaryRankings.StableSortItems();
+			for (int iRanking = 0; iRanking < viMilitaryRankings.size(); iRanking++)
 			{
-				float fRankRatio = (float)(viMilitaryRankings.size() - iRanking) / (float)(viMilitaryRankings.size());
-				iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
-				break;
+				if (viMilitaryRankings.GetElement(iRanking) == pkPlayer->GetID())
+				{
+					float fRankRatio = (float)(viMilitaryRankings.size() - iRanking) / (float)(viMilitaryRankings.size());
+					iGlobalMilitaryScore = (int)(fRankRatio * 75); // A score between 75*(1 / num majors alive) and 75, with the highest rank major getting 75
+					break;
+				}
 			}
 		}
 	}
@@ -12350,6 +12358,16 @@ int CvLuaPlayer::lIsCarnaval(lua_State* L)
 	return 1;
 }
 #endif
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsAnnexedCityStatesGiveYields(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	if (pkPlayer)
+	{
+		lua_pushboolean(L, (pkPlayer->GetPlayerTraits()->IsAnnexedCityStatesGiveYields()));
+	}
+	return 1;
+}
 //------------------------------------------------------------------------------
 int CvLuaPlayer::lGetGoldPerTurnFromAnnexedMinors(lua_State* L)
 {
