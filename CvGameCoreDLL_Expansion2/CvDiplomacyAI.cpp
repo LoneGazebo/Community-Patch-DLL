@@ -1415,7 +1415,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetOffensiveWarAllies(PlayerTypes eOtherPlaye
 							continue;
 
 						TeamTypes eLoopOtherTeam = GET_PLAYER(eLoopOtherPlayer).getTeam();
-						if (eLoopOtherTeam == GET_PLAYER(eOtherPlayer).getTeam())
+						if (eLoopOtherTeam == GET_PLAYER(eOtherPlayer).getTeam() || !IsHasMet(eLoopOtherPlayer))
 							continue;
 
 						if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
@@ -1655,7 +1655,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetOffensiveWarAllies(PlayerTypes eOtherPlaye
 							continue;
 
 						TeamTypes eLoopOtherTeam = GET_PLAYER(eLoopOtherPlayer).getTeam();
-						if (eLoopOtherTeam == GetTeam())
+						if (!IsHasMet(eLoopOtherPlayer))
 							continue;
 
 						if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(GetTeam()))
@@ -1928,7 +1928,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlaye
 							continue;
 
 						TeamTypes eLoopOtherTeam = GET_PLAYER(eLoopOtherPlayer).getTeam();
-						if (eLoopOtherTeam == GET_PLAYER(eOtherPlayer).getTeam())
+						if (eLoopOtherTeam == GET_PLAYER(eOtherPlayer).getTeam() || !IsHasMet(eLoopOtherPlayer))
 							continue;
 
 						if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(GET_PLAYER(eOtherPlayer).getTeam()))
@@ -2181,7 +2181,7 @@ vector<PlayerTypes> CvDiplomacyAI::GetDefensiveWarAllies(PlayerTypes eOtherPlaye
 							continue;
 
 						TeamTypes eLoopOtherTeam = GET_PLAYER(eLoopOtherPlayer).getTeam();
-						if (eLoopOtherTeam == GetTeam())
+						if (!IsHasMet(eLoopOtherPlayer))
 							continue;
 
 						if (GET_TEAM(eLoopOtherTeam).IsHasDefensivePact(GetTeam()))
