@@ -140,11 +140,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Balance Changes/Units/PromotionIcons.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Balance Changes/Minors/MinorBonuses.sql</FileName>
       </Action>
       <Action>
@@ -936,6 +931,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Mapscripts/mapscripts_en_us.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Balance Changes/Units/PromotionIcons.sql</FileName>
       </Action>
     </ModActions>
     <ModReferences />
