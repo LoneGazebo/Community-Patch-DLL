@@ -4957,12 +4957,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			//true naval units can enter ocean plots if they don't stay there. embarked units need the tech in any case
 			if ( (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION) || enterPlot.needsEmbarkation(this))
 			{
+				//this promotion overrides the exception ...
 				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
 				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
 				if(bOceanImpassable)
-				{
 					return false;
-				}
 
 				if (canCrossOceans())
 					return true;

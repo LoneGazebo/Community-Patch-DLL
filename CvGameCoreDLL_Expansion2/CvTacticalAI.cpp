@@ -40,7 +40,7 @@ const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override first
 const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
 const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
-const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
+const int TACTSIM_ANNEALING_FACTOR = 2; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(16000);
@@ -2683,10 +2683,14 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	CvPlot* pClosestEnemyPlot = NULL;
 	for (size_t i = 0; i < vUnitsInitial.size(); i++)
 	{
+		CvUnit* pOurUnit = vUnitsInitial[i];
 		int iMinDistForThisUnit = INT_MAX;
 		for (set<CvPlot*>::iterator it = allEnemyPlots.begin(); it != allEnemyPlots.end(); ++it)
 		{
-			int iDistance = plotDistance(*vUnitsInitial[i]->plot(), **it);
+			int iDistance = plotDistance(*pOurUnit->plot(), **it);
+			if (pOurUnit->getDomainType() != (*it)->getDomain())
+				iDistance++;
+
 			if (iDistance < iMinDistGlobal)
 			{
 				iMinDistGlobal = iDistance;
@@ -2699,7 +2703,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 		}
 
 		if (iMinDistForThisUnit <= 4)
-			vUnitsFinal.push_back(vUnitsInitial[i]);
+			vUnitsFinal.push_back(pOurUnit);
 	}
 
 	//don't get sidetracked
@@ -2724,8 +2728,9 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 			vUnitsFinal.push_back(m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID()));
 
 	//we probably didn't see all enemy units, so doublecheck ...
-	CvPlot* pTargetPlot = pClosestEnemyPlot;
-	CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pClosestEnemyPlot);
+	//but take care to pick the right zone in the right domain
+	CvCity* pClosestEnemyCity = GC.getGame().GetClosestCityByPlots(pClosestEnemyPlot, NO_PLAYER);
+	CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pClosestEnemyCity,pArmy->GetType()!=ARMY_TYPE_LAND);
 	if (pZone && pZone->GetZoneCity() && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_ENEMY)
 		return false;
 
@@ -2733,7 +2738,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnitsFinal, pTargetPlot, AL_MEDIUM, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnitsFinal, pClosestEnemyPlot, AL_MEDIUM, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 
@@ -7034,6 +7039,12 @@ bool CAttackCache::findAttack(int iAttackerId, int iAttackerPlot, int iDefenderI
 //note that the score returned from this function is not multiplied by 10 yet
 void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTacticalPlot& assumedPlot, eAggressionLevel eAggLvl, float fAggBias, CAttackCache& cache, STacticalAssignment& result)
 {
+	if (eAggLvl == AL_NONE)
+	{
+		result.iScore = -INT_MAX;
+		return;
+	}
+
 	int iDamageDealt = 0;
 	int iDamageReceived = 0; //always zero for ranged attack
 	int iExtraScore = 0; //splash damage and other bonuses
@@ -8606,9 +8617,14 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());
 
-	//don't return more than requested
+	//don't return more than requested unless there is a tie
 	if (gPossibleMoves.size() > (size_t)nMaxCount)
+	{
+		while (gPossibleMoves[nMaxCount].iScore == gPossibleMoves[nMaxCount-1].iScore && nMaxCount<gPossibleMoves.size())
+			nMaxCount++;
+
 		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
+	}
 }
 
 //if we have many units we won't look at all of them (for performance reasons)
@@ -9555,8 +9571,8 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 		getTactPlotMutable(newAssignment.iFromPlotIndex).friendlyUnitMovingOut(*this, newAssignment);
 		getTactPlotMutable(newAssignment.iToPlotIndex).friendlyUnitMovingIn(*this, newAssignment);
 
-		//in case this was a move which revealed new plots, pretend it was a forced move so we can move again
-		if (visibilityResult.first > 0 && newAssignment.eAssignmentType == A_MOVE)
+		//in case this was a move which revealed new enemies, pretend it was a forced move so we can move again
+		if (visibilityResult.second > 0 && newAssignment.eAssignmentType == A_MOVE)
 			itUnit->eLastAssignment = A_MOVE_FORCED;
 		break;
 	}
