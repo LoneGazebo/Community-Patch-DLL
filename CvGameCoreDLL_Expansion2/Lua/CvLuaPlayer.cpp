@@ -1152,6 +1152,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(GetEspionageCityStatus);
 	Method(IsTradeSanctioned);
+	Method(IsTradeItemValuedImpossible);
 	Method(GetTotalValueToMeNormal);
 	Method(GetTotalValueToMe);
 	Method(GetRandomIntrigue);
@@ -15630,6 +15631,31 @@ int CvLuaPlayer::lIsTradeSanctioned(lua_State* L)
 	}
 
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsTradeItemValuedImpossible(lua_State* L)
+{
+	CvPlayerAI* pkThisPlayer = GetInstance(L);
+	const TradeableItems eItem = (TradeableItems)lua_tointeger(L, 2);
+	const PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 3);
+	const bool bFromMe = lua_toboolean(L, 4);
+	const int iDuration = lua_tointeger(L, 5);
+	const int iData1 = luaL_optint(L, 6, -1);
+	const int iData2 = luaL_optint(L, 7, -1);
+	const int iData3 = luaL_optint(L, 8, -1);
+	const bool bFlag1 = luaL_optbool(L, 9, false);
+
+	if (!GET_PLAYER(pkThisPlayer->GetID()).isHuman())
+	{
+		int iResult = pkThisPlayer->GetDealAI()->GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration);
+		if (iResult == INT_MAX || iResult == (INT_MAX * -1))
+		{
+			lua_pushboolean(L, true);
+			return 1;
+		}
+	}
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------
