@@ -7,7 +7,7 @@
     <Guid>1f0a153b-26ae-4496-a2c0-a106d9b43c95</Guid>
     <ModVersion>23</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(3.7.5) Shows promotions as a tree</Teaser>
+    <Teaser>(3.7.6) Shows promotions as a tree</Teaser>
     <Description>Displays promotions in a tree format either for the current unit or by selecting one of the various combat classes (melee, naval, recon, siege, mounted, etc) from a drop-down menu
 
 Hooks into the DiploCorner drop-down.
