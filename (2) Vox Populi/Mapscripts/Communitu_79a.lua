@@ -719,7 +719,7 @@ function MapGlobals:New()
 					local plot = Map.GetPlot(x, y);
 					local plotType = plot:GetPlotType()
 					local terrainType = plot:GetTerrainType()
-					if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and terrainType ~= TerrainTypes.TERRAIN_SNOW then -- Habitable land plot, process it.
+					if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and self:CanPlaceCityStateAt(x, y, plot:GetArea(), false, false) then -- Habitable land plot, process it.
 						local iArea = plot:GetArea();
 						-- AreaID-based method must be applied, which cannot all be done in this loop
 						if TestMembership(land_area_IDs, iArea) == false then -- This plot is the first detected in its AreaID.
@@ -757,7 +757,7 @@ function MapGlobals:New()
 						local y = (plotIndex - x - 1) / iW;
 						local plot = Map.GetPlot(x, y);
 						local terrainType = plot:GetTerrainType();
-						if terrainType ~= TerrainTypes.TERRAIN_SNOW then
+						if self:CanPlaceCityStateAt(x, y, areaID, false, false) then
 							if self.plotDataIsCoastal[plotIndex] == true then
 								table.insert(self.uninhabited_areas_coastal_plots, plotIndex);
 							else
@@ -1873,7 +1873,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.6.2",
+		Name = "Communitu_79a v2.6.3",
 		Description = "Communitas mapscript for Vox Populi (version 3.1+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
