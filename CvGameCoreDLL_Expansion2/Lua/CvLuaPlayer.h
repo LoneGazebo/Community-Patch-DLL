@@ -1258,6 +1258,7 @@ protected:
 	static int lGetCachedValueOfPeaceWithHuman(lua_State* L);
 	static int lGetTotalValueToMe(lua_State* L);
 	static int lIsTradeSanctioned(lua_State* L);
+	static int lIsTradeItemValuedImpossible(lua_State* L);
 	static int lGetTotalValueToMeNormal(lua_State* L);
 	static int lGetSpyChanceAtCity(lua_State* L);
 	static int lGetCityPotentialInfo(lua_State* L);

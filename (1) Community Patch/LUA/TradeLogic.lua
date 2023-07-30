@@ -1223,7 +1223,7 @@ function ResetDisplay()
 
     	Controls.UsText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pUs:GetNameKey() ) ) );
 
-        if (pOtherPlayer:IsHuman()) then
+        if (g_pThem:IsHuman()) then
         	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetNickName() ) ) );
         else
         	Controls.ThemText:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_ITEMS_LABEL", Locale.ConvertTextKey( g_pThem:GetName() ) ) );
@@ -1379,7 +1379,11 @@ function ResetDisplay()
 		end
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
-	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+	    if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_GOLD_PER_TURN, g_iUs, false, g_iDealDuration, 1)) then
+			Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Red_Black");
+		else
+			Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		end
 		Controls.UsPocketGoldPerTurn:SetToolTipString(nil);
     end
 
@@ -1407,7 +1411,11 @@ function ResetDisplay()
 		end
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);
-	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+	    if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_GOLD_PER_TURN, g_iUs, true, g_iDealDuration, 1)) then
+			Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Red_Black");
+		else
+			Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		end
 		Controls.ThemPocketGoldPerTurn:SetToolTipString(nil);
     end
 
@@ -1433,7 +1441,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketAllowEmbassy:SetDisabled(false);
-			Controls.UsPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketAllowEmbassy:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketAllowEmbassy:SetToolTipString(strTooltip);
 		end
 
@@ -1453,7 +1465,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketAllowEmbassy:SetDisabled(false);
-			Controls.ThemPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketAllowEmbassy:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketAllowEmbassy:SetToolTipString(strTooltip);
 		end
 	end
@@ -1480,7 +1496,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketOpenBorders:SetDisabled(false);
-			Controls.UsPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketOpenBorders:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketOpenBorders:SetToolTipString(strTooltip);
 		end
 
@@ -1500,7 +1520,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketOpenBorders:SetDisabled(false);
-			Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketOpenBorders:SetToolTipString(strTooltip);
 		end
 	end
@@ -1533,7 +1557,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketDefensivePact:SetDisabled(false);
-			Controls.UsPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketDefensivePact:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketDefensivePact:SetToolTipString(strTooltip);
 		end
 
@@ -1553,7 +1581,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketDefensivePact:SetDisabled(false);
-			Controls.ThemPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketDefensivePact:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketDefensivePact:SetToolTipString(strTooltip);
 		end
 	end
@@ -1580,7 +1612,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketResearchAgreement:SetDisabled(false);
-			Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketResearchAgreement:SetToolTipString(strTooltip);
 		end
 
@@ -1600,7 +1636,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketResearchAgreement:SetDisabled(false);
-			Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketResearchAgreement:SetToolTipString(strTooltip);
 		end
 	end
@@ -1766,6 +1806,9 @@ function ResetDisplay()
 			pResource = GameInfo.Resources[resType];
 			iResourceCount = g_pUs:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, false, g_iDealDuration, resType, 1)) then
+				strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
+			end
 			instance.Button:SetText(strString);
 		else
 			instance.Button:SetHide(true);
@@ -1840,6 +1883,9 @@ function ResetDisplay()
 			pResource = GameInfo.Resources[resType];
 			iResourceCount = g_pThem:GetNumResourceAvailable(resType, false);
 			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, true, g_iDealDuration, resType, 1)) then
+				strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
+			end
 			instance.Button:SetText(strString);
 
 			local WLTKDTT = g_pUs:GetWLTKDResourceTT(resType);
@@ -3067,6 +3113,9 @@ function RefreshPocketVotes(iIsUs)
 					g_bAnyVoteUs = true;
 					local cInstance = g_UsPocketVoteIM:GetInstance();
 					cInstance.ProposalLabel:SetText(sProposalText);
+					if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, g_iUs, false, g_iDealDuration, tVote.ID, tVote.VoteChoice, iNumUsVotes, tVote.Repeal)) then
+						sChoiceText = "[COLOR_NEGATIVE_TEXT]" .. sChoiceText .. "[ENDCOLOR]";
+					end
 					cInstance.VoteLabel:SetText(sChoiceText);
 					cInstance.Button:SetToolTipString(sTooltip);
 					cInstance.Button:SetVoids(g_iUs, i);
@@ -3082,6 +3131,9 @@ function RefreshPocketVotes(iIsUs)
 					g_bAnyVoteThem = true;
 					local cInstance = g_ThemPocketVoteIM:GetInstance();
 					cInstance.ProposalLabel:SetText(sProposalText);
+					if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, g_iUs, true, g_iDealDuration, tVote.ID, tVote.VoteChoice, iNumUsVotes, tVote.Repeal)) then
+						sChoiceText = "[COLOR_NEGATIVE_TEXT]" .. sChoiceText .. "[ENDCOLOR]";
+					end
 					cInstance.VoteLabel:SetText(sChoiceText);
 					cInstance.Button:SetToolTipString(sTooltip);
 					cInstance.Button:SetVoids(g_iThem, i);
@@ -3267,9 +3319,13 @@ function ShowCityChooser( isUs )
         
         if ( g_Deal:IsPossibleToTradeItem( m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
             local instance = m_pIM:GetInstance();
-            
-            instance.CityName:SetText( pCity:GetName() );
-            instance.CityPop:SetText( pCity:GetPopulation() );
+            if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_CITIES, g_iUs, isUs==0, g_iDealDuration, pCity:GetX(), pCity:GetY())) then
+				instance.CityName:SetText("[COLOR_NEGATIVE_TEXT]" ..  pCity:GetName()  .."[ENDCOLOR]")
+				instance.CityPop:SetText("[COLOR_NEGATIVE_TEXT]" ..  pCity:GetPopulation()  .."[ENDCOLOR]");
+			else
+				instance.CityName:SetText( pCity:GetName() );
+				instance.CityPop:SetText( pCity:GetPopulation() );
+			end
             instance.Button:SetVoids( m_iFrom, iCityID );
             instance.Button:RegisterCallback( Mouse.eLClick, OnChooseCity );
             
@@ -3361,8 +3417,19 @@ function ShowOtherPlayerChooser(isUs, type)
 				otherPlayerButtonSubTableNameButton:SetHide(false);
 				local strTooltip = "";
 
+				local szName;
+				if( pLoopPlayer:IsHuman() ) then
+					szName = pLoopPlayer:GetNickName();
+				else
+					szName = pLoopPlayer:GetName();
+				end
+				szName = szName .. " (" .. Locale.ConvertTextKey(GameInfo.Civilizations[pLoopPlayer:GetCivilizationType()].ShortDescription) .. ")";
+					
 				if (g_Deal:IsPossibleToTradeItem(iFromPlayer, iToPlayer, tradeType, iLoopTeam)) then
 					otherPlayerButtonSubTableNameButton:SetDisabled(false);
+					if(g_pThem:IsTradeItemValuedImpossible(tradeType, g_iUs, isUs==0, g_iDealDuration, iLoopTeam)) then
+						szName = "[COLOR_NEGATIVE_TEXT]" .. szName .. "[ENDCOLOR]";
+					end
 					otherPlayerButtonSubTableNameButton:SetAlpha(1);
 				else
 					otherPlayerButtonSubTableNameButton:SetDisabled(true);
@@ -3375,6 +3442,7 @@ function ShowOtherPlayerChooser(isUs, type)
 					end
 				end
 
+				TruncateString(otherPlayerButton[SubTableName].Name, otherPlayerButton[SubTableName].ButtonSize:GetSizeX() - otherPlayerButton[SubTableName].Name:GetOffsetX(), szName);
 				otherPlayerButtonSubTableNameButton:SetToolTipString(strTooltip);
 			end
 		end
