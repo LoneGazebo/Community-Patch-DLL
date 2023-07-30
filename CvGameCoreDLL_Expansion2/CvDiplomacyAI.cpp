@@ -3550,7 +3550,7 @@ bool CvDiplomacyAI::IsCloseToWorldConquest() const
 /// Is this player close to a diplomatic victory?
 bool CvDiplomacyAI::IsCloseToDiploVictory() const
 {
-	return GetDiplomaticVictoryProgress() >= /*75*/ GD_INT_GET(CLOSE_TO_DIPLOMATIC_VICTORY_THRESHOLD);
+	return GetDiplomaticVictoryProgress() >= /*55*/ GD_INT_GET(CLOSE_TO_DIPLOMATIC_VICTORY_THRESHOLD);
 }
 
 /// Is this player close to a science victory?
@@ -3562,7 +3562,7 @@ bool CvDiplomacyAI::IsCloseToSpaceshipVictory() const
 /// Is this player close to a cultural victory?
 bool CvDiplomacyAI::IsCloseToCultureVictory() const
 {
-	return GetCultureVictoryProgress() >= /*75*/ GD_INT_GET(CLOSE_TO_CULTURE_VICTORY_THRESHOLD);
+	return GetCultureVictoryProgress() >= /*60*/ GD_INT_GET(CLOSE_TO_CULTURE_VICTORY_THRESHOLD);
 }
 
 //	-----------------------------------------------------------------------------------------------

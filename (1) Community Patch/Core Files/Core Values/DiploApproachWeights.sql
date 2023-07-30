@@ -108,6 +108,6 @@ INSERT INTO Defines (Name, Value) VALUES
 -- Affects AI calculations and (if Endgame Aggression isn't disabled for that player) triggers the Endgame Aggression boost to approach.
 INSERT INTO Defines (Name, Value) VALUES
 ('CLOSE_TO_DOMINATION_VICTORY_THRESHOLD', '50'),
-('CLOSE_TO_DIPLOMATIC_VICTORY_THRESHOLD', '75'),
+('CLOSE_TO_DIPLOMATIC_VICTORY_THRESHOLD', '55'),
 ('CLOSE_TO_SCIENCE_VICTORY_THRESHOLD', '80'),
-('CLOSE_TO_CULTURE_VICTORY_THRESHOLD', '75');
+('CLOSE_TO_CULTURE_VICTORY_THRESHOLD', '60');
