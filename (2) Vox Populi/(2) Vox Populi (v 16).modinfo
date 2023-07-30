@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.7.9) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.7.10) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -622,7 +622,7 @@
     <File md5="E161DE2ADCA0FCADBEE67171504BAB43" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="2E65633B54D14564B425438716E3AD26" import="1">LUA/TopPanel.lua</File>
     <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">LUA/TopPanel.xml</File>
-    <File md5="B06939B1C21AA492EED59F24D0570E3F" import="1">LUA/TradeLogic.lua</File>
+    <File md5="95EBA7D6D0F764844BE004C890A83108" import="1">LUA/TradeLogic.lua</File>
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="0AFCDAFFD890E4F74B8C76D3FDD960C1" import="1">LUA/UnitPanel.lua</File>
