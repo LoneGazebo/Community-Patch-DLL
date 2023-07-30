@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(3.7.10) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3.7.11) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
