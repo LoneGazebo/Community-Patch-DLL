@@ -136,9 +136,9 @@ public:
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_SAME_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_SAME_AREA), iFlags(0), ePlayer(NO_PLAYER), iUnitID(0), iTypeParameter(-1), bIsForCapital(false), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX);
-	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX);
+	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iTypeParameter=-1, int iMaxTurns=INT_MAX, bool bIsForCapital=false);
 
 	//do not compare max turns and max cost ...
 	bool operator==(const SPathFinderUserData& rhs) const 
@@ -147,6 +147,7 @@ struct SPathFinderUserData
 
 	PathType	ePathType;
 	int			iTypeParameter;		//route type dependent parameter
+	bool        bIsForCapital;      //route type dependent parameter
 	int			iFlags;				//see CvUnit::MOVEFLAG*
 	PlayerTypes ePlayer;			//optional
 	int			iUnitID;			//optional
