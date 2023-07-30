@@ -1247,7 +1247,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	bool bCanAffordSpecialist = false;
 	if (m_pCity->foodConsumptionSpecialistTimes100() <= m_pCity->foodConsumptionNonSpecialistTimes100())
 	{
-		bCanAffordSpecialist = pBestPlot->getYield(YIELD_FOOD) == 0;
+		bCanAffordSpecialist = pBestPlot ? (pBestPlot->getYield(YIELD_FOOD) == 0) : true;
 	}
 	else
 	{
@@ -1610,7 +1610,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		bool bCanAffordSpecialist = false;
 		if (m_pCity->foodConsumptionSpecialistTimes100() <= m_pCity->foodConsumptionNonSpecialistTimes100())
 		{
-			bCanAffordSpecialist = pBestFreePlot->getYield(YIELD_FOOD) == 0;
+			bCanAffordSpecialist = pBestFreePlot ? (pBestFreePlot->getYield(YIELD_FOOD) == 0) : true;
 		}
 		else
 		{
