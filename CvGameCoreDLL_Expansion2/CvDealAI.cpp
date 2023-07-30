@@ -3477,25 +3477,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			iValue /= 100;
 			break;
 		}
-		CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
-		if (pProposal != NULL)
+		if (bRepeal)
 		{
-			// Is this the World Leader vote?
-			if (pProposal->GetEffects()->bDiplomaticVictory)
-			{
-				int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
-				int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-				int iOurPercent = (iOurVotes * 100) / max(1,iNeededVotes);
-				if (iOurPercent >= 50)
-				{
-					return INT_MAX;
-				}
-				else
-				{
-					iValue *= 20;
-				}
-			}
-			else
+			CvRepealProposal* pProposal = pLeague->GetRepealProposal(iProposalID);
+			if (pProposal != NULL)
 			{
 				PlayerTypes eTargetPlayer = NO_PLAYER;
 				ResolutionDecisionTypes eProposerDecision = pProposal->GetProposerDecision()->GetType();
@@ -3503,7 +3488,7 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
 					eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
 				{
-					eTargetPlayer = (PlayerTypes) pProposal->GetProposerDecision()->GetDecision();
+					eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
 					// They shouldn't ask us to vote on things that have to do with us personally.
 					if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
 					{
@@ -3512,12 +3497,48 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 				}
 			}
 		}
+		else
+		{
+			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
+			if (pProposal != NULL)
+			{
+				// Is this the World Leader vote?
+				if (pProposal->GetEffects()->bDiplomaticVictory)
+				{
+					int iOurVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+					int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+					int iOurPercent = (iOurVotes * 100) / max(1, iNeededVotes);
+					if (iOurPercent >= 50)
+					{
+						return INT_MAX;
+					}
+					else
+					{
+						iValue *= 20;
+					}
+				}
+				else
+				{
+					PlayerTypes eTargetPlayer = NO_PLAYER;
+					ResolutionDecisionTypes eProposerDecision = pProposal->GetProposerDecision()->GetType();
+					if (eProposerDecision == RESOLUTION_DECISION_ANY_MEMBER ||
+						eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
+						eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
+					{
+						eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
+						// They shouldn't ask us to vote on things that have to do with us personally.
+						if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GetPlayer()->getTeam())
+						{
+							return INT_MAX;
+						}
+					}
+				}
+			}
+		}
 	}
 	// Giving their votes to something we want - Higher value for voting on things we like
 	else
 	{
-		CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
-
 		// Adjust based on how favorable this proposal is for us
 		CvLeagueAI::DesireLevels eDesire = GetPlayer()->GetLeagueAI()->EvaluateVoteForTrade(iProposalID, iVoteChoice, iNumVotes, bRepeal);
 		switch (eDesire)
@@ -3579,28 +3600,10 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 			break;
 		}
 
-		if (pProposal != NULL)
+		if (bRepeal)
 		{
-			if (pProposal->GetEffects()->bDiplomaticVictory)
-			{
-				PlayerTypes eLeader = GET_TEAM(GetPlayer()->getTeam()).getLeaderID();
-				if (eLeader == NO_PLAYER)
-					return INT_MAX;
-
-				int iOurVotes = pLeague->CalculateStartingVotesForMember(eLeader);
-				int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
-				PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
-				
-				if (iOurVotes + iNumVotes < iNeededVotes || eChoicePlayer != eLeader)
-				{
-					return INT_MAX;
-				}
-				else
-				{
-					iValue *= 10;
-				}
-			}
-			else
+			CvRepealProposal* pProposal = pLeague->GetRepealProposal(iProposalID);
+			if (pProposal != NULL)
 			{
 				PlayerTypes eTargetPlayer = NO_PLAYER;
 				ResolutionDecisionTypes eProposerDecision = pProposal->GetProposerDecision()->GetType();
@@ -3613,6 +3616,48 @@ int CvDealAI::GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int
 					if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
 					{
 						return INT_MAX;
+					}
+				}
+			}
+		}
+		else
+		{
+			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iProposalID);
+			if (pProposal != NULL)
+			{
+				if (pProposal->GetEffects()->bDiplomaticVictory)
+				{
+					PlayerTypes eLeader = GET_TEAM(GetPlayer()->getTeam()).getLeaderID();
+					if (eLeader == NO_PLAYER)
+						return INT_MAX;
+
+					int iOurVotes = pLeague->CalculateStartingVotesForMember(eLeader);
+					int iNeededVotes = GC.getGame().GetVotesNeededForDiploVictory();
+					PlayerTypes eChoicePlayer = (PlayerTypes)iVoteChoice;
+
+					if (iOurVotes + iNumVotes < iNeededVotes || eChoicePlayer != eLeader)
+					{
+						return INT_MAX;
+					}
+					else
+					{
+						iValue *= 10;
+					}
+				}
+				else
+				{
+					PlayerTypes eTargetPlayer = NO_PLAYER;
+					ResolutionDecisionTypes eProposerDecision = pProposal->GetProposerDecision()->GetType();
+					if (eProposerDecision == RESOLUTION_DECISION_ANY_MEMBER ||
+						eProposerDecision == RESOLUTION_DECISION_MAJOR_CIV_MEMBER ||
+						eProposerDecision == RESOLUTION_DECISION_OTHER_MAJOR_CIV_MEMBER)
+					{
+						eTargetPlayer = (PlayerTypes)pProposal->GetProposerDecision()->GetDecision();
+						//we don't ask them about things that involve themselves!
+						if (eTargetPlayer != NO_PLAYER && GET_PLAYER(eTargetPlayer).getTeam() == GET_PLAYER(eOtherPlayer).getTeam())
+						{
+							return INT_MAX;
+						}
 					}
 				}
 			}

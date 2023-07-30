@@ -1119,12 +1119,22 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!pLeague->IsProposed(iID, bRepeal))
 				return false;
 
-			CvEnactProposal* pProposal = pLeague->GetEnactProposal(iID);
-			if (pProposal == NULL)
-				return false;
+			if (bRepeal)
+			{
+				CvRepealProposal* pProposal = pLeague->GetRepealProposal(iID);
+				if (pProposal == NULL)
+					return false;
+			}
+			else
+			{
+				CvEnactProposal* pProposal = pLeague->GetEnactProposal(iID);
+				if (pProposal == NULL)
+					return false;
+			}
+			CvResolutionEffects* pResolutionEffects = bRepeal ? pLeague->GetRepealProposal(iID)->GetEffects() : pLeague->GetEnactProposal(iID)->GetEffects();
 
 			// Make sure vassals can't vote for World Leader
-			if (pProposal->GetEffects()->bDiplomaticVictory)
+			if (pResolutionEffects->bDiplomaticVictory)
 			{
 				if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 					return false;
@@ -1141,7 +1151,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!pFromPlayer->isHuman())
 			{
 				// Is this the World Leader vote?
-				if (pProposal->GetEffects()->bDiplomaticVictory)
+				if (pResolutionEffects->bDiplomaticVictory)
 				{
 					// Forbidden by game options
 					if (GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 1)
@@ -1152,7 +1162,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 				}
 				// For compatibility with any modmods that allow a host change at different times...
-				if (pProposal->GetEffects()->bChangeLeagueHost)
+				if (pResolutionEffects->bChangeLeagueHost)
 				{
 					// Forbidden by game options
 					if (GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0)
@@ -1166,7 +1176,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (!pToPlayer->isHuman())
 			{
 				// Is this the World Leader vote?
-				if (pProposal->GetEffects()->bDiplomaticVictory)
+				if (pResolutionEffects->bDiplomaticVictory)
 				{
 					// Forbidden by game options
 					if (!pFromPlayer->isHuman() && GD_INT_GET(DIPLOAI_NO_OTHER_WORLD_LEADER_VOTES) > 1)
@@ -1179,7 +1189,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 						return false;
 				}
 				// For compatibility with any modmods that allow a host change at different times...
-				if (pProposal->GetEffects()->bChangeLeagueHost)
+				if (pResolutionEffects->bChangeLeagueHost)
 				{
 					// Forbidden by game options
 					if (!pFromPlayer->isHuman() && GD_INT_GET(DIPLOAI_NO_OTHER_HOST_VOTES) > 0)
