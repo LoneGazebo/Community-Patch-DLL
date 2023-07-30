@@ -126,9 +126,6 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 {
 	m_plotIdsToConnect.clear();
 
-	bool bIsIndustrial = GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute() == GC.getGame().GetIndustrialRoute();
-	bool bHaveGoldToSpare = m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100() > 1000;
-
 	vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
 	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
