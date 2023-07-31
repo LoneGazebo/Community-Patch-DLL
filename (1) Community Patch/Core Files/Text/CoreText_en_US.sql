@@ -64,7 +64,7 @@ WHERE Tag = 'TXT_KEY_CITYVIEW_FOCUS_AVOID_GROWTH_TT';
 
 -- All Growth Modifier Tooltips with Icons
 UPDATE Language_en_US
-SET Text = '[NEWLINE][ICON_BULLET][ICON_CONNECTED] Empire Modifier: {1_Num}%'
+SET Text = '[NEWLINE][ICON_BULLET][ICON_CONNECTED] Empire Modifier from Policies etc: {1_Num}%'
 WHERE Tag = 'TXT_KEY_FOODMOD_PLAYER';
 
 UPDATE Language_en_US

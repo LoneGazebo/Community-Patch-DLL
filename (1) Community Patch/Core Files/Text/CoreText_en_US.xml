@@ -6599,13 +6599,13 @@
 
 		<!-- Tooltips for Growth Modifiers -->
 		<Row Tag="TXT_KEY_FOODMOD_EATEN_FOOD">
-			<Text>[NEWLINE][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
+			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE">
-			<Text>[NEWLINE][COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers (growing)</Text>
+			<Text>[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE">
-			<Text>[NEWLINE][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers (starving)</Text>
+			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_PUPPET">
 			<Text>[NEWLINE][ICON_BULLET][ICON_PUPPET] Modifier for Puppet: {1_Num}%</Text>
@@ -6631,16 +6631,16 @@
 
 		<!-- Tooltips for Standard Base Modifiers -->
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Buildings): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Buildings): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Policies): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Policies): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Beliefs): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Beliefs): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_TRAITS">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Traits): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Traits): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_WLTKD">
 			<Text>[NEWLINE][ICON_BULLET]"We Love the King Day" Modifier: {1_Num}%</Text>

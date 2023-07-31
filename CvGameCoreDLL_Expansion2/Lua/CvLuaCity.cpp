@@ -2110,11 +2110,11 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
-		int iExcessNoMod = pkCity->foodDifference(true, true);
+		int iExcessNoMod = pkCity->foodDifference(true);
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
 		GC.getGame().BuildProdModHelpText(&toolTip, iExcessNoMod >= 0 ? "TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE" : "TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE", iExcessNoMod);
 		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
-		pkCity->foodDifferenceTimes100(true, false, pkCity->GetTradeRouteCityMod(YIELD_FOOD), &toolTip);
+		pkCity->foodDifferenceTimes100(false, &toolTip);
 	}
 
 	lua_pushstring(L, toolTip.c_str());
@@ -2379,7 +2379,7 @@ int CvLuaCity::lFoodDifference(lua_State* L)
 int CvLuaCity::lFoodDifferenceTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->foodDifferenceTimes100(true, false,-1,NULL);
+	const int iResult = pkCity->foodDifferenceTimes100(false,NULL);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

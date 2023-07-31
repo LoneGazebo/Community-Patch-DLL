@@ -10772,10 +10772,10 @@ void CvCity::ChangeResourceDemandedCountdown(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::getFoodTurnsLeft(int iCorpMod) const
+int CvCity::getFoodTurnsLeft() const
 {
 	VALIDATE_OBJECT
-	int iDeltaPerTurn = foodDifferenceTimes100(true, false, iCorpMod);
+	int iDeltaPerTurn = foodDifferenceTimes100(false);
 	int iFoodStored = getFoodTimes100();
 	int iFoodNeededToGrow = (growthThreshold() * 100 - iFoodStored);
 
@@ -17587,15 +17587,15 @@ int CvCity::foodConsumptionTimes100(bool /*bNoAngry*/, int iExtra) const
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::foodDifference(bool bBottom, bool bJustCheckingStarve) const
+int CvCity::foodDifference(bool bJustCheckingStarve) const
 {
 	VALIDATE_OBJECT
-	return foodDifferenceTimes100(bBottom, bJustCheckingStarve) / 100;
+	return foodDifferenceTimes100(bJustCheckingStarve) / 100;
 }
 
 
 //	--------------------------------------------------------------------------------
-int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int iCorpMod, CvString* toolTipSink) const
+int CvCity::foodDifferenceTimes100(bool bJustCheckingStarve, CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
 	int iDifference = 0;
@@ -17609,12 +17609,10 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 		iDifference = (getYieldRateTimes100(YIELD_FOOD, false) - foodConsumptionTimes100());
 	}
 
-	if (bBottom)
+	//can starve if at size 1 and nothing stored
+	if (getPopulation() == 1 && getFood() == 0)
 	{
-		if ((getPopulation() == 1) && (getFood() == 0))
-		{
-			iDifference = std::max(0, iDifference);
-		}
+		iDifference = std::max(0, iDifference);
 	}
 
 	if (bJustCheckingStarve) //important, otherwise we can get into endless recursion (happiness depends on food which depends on happiness!)
@@ -17643,18 +17641,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 			iTotalMod += iCityGrowthMod;
 			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PLAYER", iCityGrowthMod);
 		}
-#if defined(MOD_BALANCE_CORE)
-		//override default only if necessary - this call is quite expensive
-		if (iCorpMod == -1)
-			iCorpMod = (GetTradeRouteCityMod(YIELD_FOOD));
 
-		if (iCorpMod > 0)
-		{
-			iTotalMod += iCorpMod;
-			if (toolTipSink)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_CORPORATION", iCorpMod);
-		}
-#endif
 #if defined(MOD_BALANCE_CORE)
 		if (GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) != 0))
 		{
@@ -17853,8 +17840,7 @@ int CvCity::getGrowthMods() const
 		iTotalMod += iCityGrowthMod;
 	}
 
-	int iCorpMod = (GetTradeRouteCityMod(YIELD_FOOD));
-
+	int iCorpMod = GetTradeRouteCityMod(YIELD_FOOD);
 	if (iCorpMod > 0)
 	{
 		iTotalMod += iCorpMod;
@@ -23822,7 +23808,7 @@ int CvCity::GetUnhappinessFromFamine() const
 	if (IsPuppet() || IsResistance() || IsRazing())
 		return 0;
 
-	int iDiff = foodDifference(true, true);
+	int iDiff = foodDifference(true);
 	if (iDiff < 0 && !isFoodProduction())
 	{
 		iDiff *= -1;
@@ -24845,7 +24831,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	if (toolTipSink)
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_RESOURCES", iTempMod);
 
-	// Happiness Yield Rate Modifier
+	// Empire Happiness Yield Rate Modifier
 	iTempMod = getHappinessModifier(eIndex);
 	iModifier += iTempMod;
 	if (toolTipSink)
