@@ -2110,7 +2110,9 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
+		int iExcessNoMod = pkCity->foodDifference(true, true);
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
+		GC.getGame().BuildProdModHelpText(&toolTip, iExcessNoMod >= 0 ? "TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE" : "TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE", iExcessNoMod);
 		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
 		pkCity->foodDifferenceTimes100(true, false, pkCity->GetTradeRouteCityMod(YIELD_FOOD), &toolTip);
 	}

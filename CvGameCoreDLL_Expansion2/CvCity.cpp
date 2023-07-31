@@ -17776,8 +17776,7 @@ int CvCity::foodDifferenceTimes100(bool bBottom, bool bJustCheckingStarve, int i
 				iHappiness += GET_PLAYER(getOwner()).GetUnhappinessGrowthPenalty();
 			}
 
-			if (iHappiness < -100)
-				iHappiness = -100;
+			iHappiness = range(iHappiness, -100, 100);
 
 			iTotalMod += iHappiness;
 
@@ -30897,7 +30896,7 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 
 	if (MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED && !pUnit->IsCivilianUnit())
 	{
-		int iCityDamagePercent = (100 * getDamage()) / max(1,GetMaxHitPoints());
+		int iCityDamagePercent = min(80, (100 * getDamage()) / max(1,GetMaxHitPoints()));
 		int iUnitDamage = (pUnit->GetCurrHitPoints() * iCityDamagePercent) / 100;
 		pUnit->changeDamage( min(iUnitDamage,pUnit->GetMaxHitPoints()-1) );
 	}

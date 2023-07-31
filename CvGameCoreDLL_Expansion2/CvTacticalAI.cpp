@@ -43,7 +43,7 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 2; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(16000);
+CvTactPosStorage gTactPosStorage(32000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
@@ -10268,7 +10268,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//meta parameters depending on difficulty setting
 	int iMaxBranches = range(GC.getGame().getHandicapInfo().getTacticalSimMaxBranches(),2,9); //cannot do more, else our ID scheme doesn't work
 	int iMaxChoicesPerUnit = range(GC.getGame().getHandicapInfo().getTacticalSimMaxChoicesPerUnit(),2,9);
-	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(), 100, 16000);
+	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(), 1, 1000);
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();

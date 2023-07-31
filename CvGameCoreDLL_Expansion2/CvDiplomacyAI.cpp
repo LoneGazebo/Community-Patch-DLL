@@ -54183,7 +54183,7 @@ void CvDiplomacyAIHelpers::ApplyLiberationBonuses(CvCity* pCity, PlayerTypes eLi
 			int iLiberation = GetCityLiberationValue(pCity, eLiberator, eNewOwner, eObserver);
 			if (iLiberation < 0)
 			{
-				CUSTOMLOG("LiberationTimes100: Total=%i", iLiberation);
+				//CUSTOMLOG("LiberationTimes100: Total=%i", iLiberation);
 				GET_PLAYER(eObserver).GetDiplomacyAI()->ChangeOtherPlayerWarmongerAmountTimes100(eLiberator, iLiberation * 100);
 				GET_PLAYER(eObserver).GetDiplomacyAI()->DoUpdateWarmongerThreats(true);
 			}

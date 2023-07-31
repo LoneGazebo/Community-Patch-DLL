@@ -6601,6 +6601,12 @@
 		<Row Tag="TXT_KEY_FOODMOD_EATEN_FOOD">
 			<Text>[NEWLINE][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
 		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE">
+			<Text>[NEWLINE][COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers (growing)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE">
+			<Text>[NEWLINE][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers (starving)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_PUPPET">
 			<Text>[NEWLINE][ICON_BULLET][ICON_PUPPET] Modifier for Puppet: {1_Num}%</Text>
 		</Row>
@@ -6620,7 +6626,7 @@
 			<Text>[NEWLINE][ICON_BULLET][ICON_CITIZEN] Event Modifier: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY">
-			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Military Unit Supply Cap): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Supply Cap): {1_Num}%</Text>
 		</Row>
 
 		<!-- Tooltips for Standard Base Modifiers -->
