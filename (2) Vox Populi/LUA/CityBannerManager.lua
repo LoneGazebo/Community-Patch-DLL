@@ -310,6 +310,46 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		else
 			controls.PuppetIcon:SetHide(true);
 		end
+
+		-- Rome UA (Annexed City-States)
+		controls.CityStateIcon:SetHide ( not player:IsAnnexedCityStatesGiveYields())
+		if Players[city:GetOriginalOwner()]:IsMinorCiv() and player:IsAnnexedCityStatesGiveYields() then
+			local cityOriginalOwner = Players[city:GetOriginalOwner()];	
+			if (cityOriginalOwner ~= nil) then
+				local iTrait = cityOriginalOwner:GetMinorCivTrait();
+				if (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
+					controls.CityStateIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED"));
+				elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
+					controls.CityStateIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MILITARISTIC_NO_UU_TT_ANNEXED"));
+					if (cityOriginalOwner:IsMinorCivHasUniqueUnit()) then
+						local eUniqueUnit = cityOriginalOwner:GetMinorCivUniqueUnit();
+						if (GameInfo.Units[eUniqueUnit] ~= nil) then
+							local ePrereqTech = GameInfo.Units[eUniqueUnit].PrereqTech;
+							if (ePrereqTech == nil) then
+								-- If no prereq then just make it Agriculture, but make sure that Agriculture is in our database. Otherwise, show the fallback tooltip.
+								if (GameInfo.Technologies["TECH_AGRICULTURE"] ~= nil) then
+									ePrereqTech = GameInfo.Technologies["TECH_AGRICULTURE"].ID;
+								end
+							end
+							
+							if (ePrereqTech ~= nil) then
+								if (GameInfo.Technologies[ePrereqTech] ~= nil) then
+									controls.CityStateIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MILITARISTIC_TT_ANNEXED", GameInfo.Units[eUniqueUnit].Description, GameInfo.Technologies[ePrereqTech].Description));
+								end
+							end
+						else
+							print("Scripting error - City-State's unique unit not found!");
+						end
+					end
+				elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
+					controls.CityStateIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MARITIME_TT_ANNEXED"));
+				elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
+					controls.CityStateIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MERCANTILE_TT_ANNEXED"));
+				elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
+					controls.CityStateIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED"));
+				end
+			end
+		end
 		
 		-- Occupation Status
 		if (city:IsOccupied() and not city:IsNoOccupiedUnhappiness()) then

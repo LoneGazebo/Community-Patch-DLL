@@ -31625,9 +31625,12 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 							bSpecificBeliefBlocked = false;
 							if (canTrain(eUnitType, false, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 							{
-								if (iFaithCost > GET_PLAYER(getOwner()).GetFaith())
+								if (!bTestPurchaseCost) {
+									return true;
+								}
+								if (iFaithCost <= GET_PLAYER(getOwner()).GetFaith())
 								{
-									return false;
+									return true;
 								}
 							}
 						}
