@@ -222,8 +222,8 @@ g_HistoricEventsSortOptions = {
 	{
 		Button = Controls.HistoricEventHeader,
 		Column = "HistoricEventName",
-		DefaultDirection = "desc",
-		CurrentDirection = "desc",
+		DefaultDirection = "asc",
+		CurrentDirection = "asc",
 	},
 	{
 		Button = Controls.InfluenceTourismHeader,
