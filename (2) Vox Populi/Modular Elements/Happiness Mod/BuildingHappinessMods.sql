@@ -386,7 +386,7 @@ WHERE Type = 'BUILDING_DIVINE_COURT';
 
 UPDATE Buildings
 SET ReligiousUnrestFlatReduction = '1'
-WHERE Type = 'BUILDING_RELIQUARY';
+WHERE Type = 'BUILDING_RELIGIOUS_LIBRARY';
 
 UPDATE Buildings
 SET ReligiousUnrestFlatReduction = '1'
