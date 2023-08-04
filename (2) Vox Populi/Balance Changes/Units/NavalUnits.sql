@@ -1,14 +1,18 @@
 -- NAVAL UNITS
-
-	-- Dromon (new Classical Unit)
-	INSERT INTO UnitClasses (Type, Description, DefaultUnit) VALUES ('UNITCLASS_BYZANTINE_DROMON', 'TXT_KEY_UNIT_BYZANTINE_DROMON', 'UNIT_BYZANTINE_DROMON');
-	UPDATE Units SET Class = 'UNITCLASS_BYZANTINE_DROMON' WHERE Type = 'UNIT_BYZANTINE_DROMON';
+		-- need to change things about the barbarian Galley to match the new base unit
+	UPDATE Units SET
+		Cost = 70,
+		Moves = 3,
+		PrereqTech = 'TECH_SAILING', 
+		ObsoleteTech = 'TECH_PHILOSOPHY'
+	WHERE Type = 'UNIT_GALLEY';
 	
 	-- Frigate upgrades into new Cruiser
 	UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_CRUISER' WHERE UnitType = 'UNIT_FRIGATE';
 	
 	-- Tech Ranged
 
+	UPDATE Units SET PrereqTech = 'TECH_OPTICS', ObsoleteTech = 'TECH_GUILDS' WHERE Type = 'UNIT_LIBURNA';
 	UPDATE Units SET PrereqTech = 'TECH_OPTICS', ObsoleteTech = 'TECH_GUILDS' WHERE Type = 'UNIT_BYZANTINE_DROMON';
 
 	UPDATE Units SET PrereqTech = 'TECH_GUILDS', ObsoleteTech = 'TECH_NAVIGATION' WHERE Type = 'UNIT_GALLEASS';
@@ -21,6 +25,7 @@
 	UPDATE Units SET PrereqTech = 'TECH_NUCLEAR_FISSION',	ObsoleteTech = NULL						WHERE Type = 'UNIT_BATTLESHIP';
 
 	UPDATE Units SET Moves = '4' WHERE Type IN (
+	'UNIT_LIBURNA',
 	'UNIT_BYZANTINE_DROMON',  -- half moves in ocean
 	'UNIT_GALLEASS', -- half moves in ocean
 	'UNIT_VENETIAN_GALLEASS', -- half moves in ocean
@@ -29,9 +34,10 @@
 	
 	-- Tech Melee
 	
-	UPDATE Units SET PrereqTech = 'TECH_SAILING', ObsoleteTech = 'TECH_OPTICS' 		WHERE Type = 'UNIT_GALLEY';
-	UPDATE Units SET PrereqTech = 'TECH_OPTICS', ObsoleteTech = 'TECH_COMPASS'		WHERE Type = 'UNIT_TRIREME';
-	UPDATE Units SET 							 ObsoleteTech = 'TECH_NAVIGATION'	WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
+	UPDATE Units SET PrereqTech = 'TECH_SAILING', ObsoleteTech = 'TECH_PHILOSOPHY' 	WHERE Type = 'UNIT_GALLEY';
+	UPDATE Units SET PrereqTech = 'TECH_SAILING', ObsoleteTech = 'TECH_PHILOSOPHY' 	WHERE Type = 'UNIT_VP_GALLEY';
+	UPDATE Units SET PrereqTech = 'TECH_PHILOSOPHY', ObsoleteTech = 'TECH_COMPASS'		WHERE Type = 'UNIT_TRIREME';
+	UPDATE Units SET PrereqTech = 'TECH_PHILOSOPHY', ObsoleteTech = 'TECH_NAVIGATION'	WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
 
 	UPDATE Units SET PrereqTech = 'TECH_COMPASS', ObsoleteTech = 'TECH_NAVIGATION'			WHERE Type = 'UNIT_CARAVEL';
 	UPDATE Units SET PrereqTech = 'TECH_COMPASS', ObsoleteTech = 'TECH_INDUSTRIALIZATION'	WHERE Type = 'UNIT_PORTUGUESE_NAU';
@@ -48,8 +54,11 @@
 	UPDATE Units SET PrereqTech = 'TECH_STEALTH' WHERE Type = 'UNIT_NUCLEAR_SUBMARINE';
 	UPDATE Units SET PrereqTech = 'TECH_COMPUTERS' WHERE Type = 'UNIT_CARRIER';
 
+UPDATE Units SET Moves = '3' WHERE Type IN (
+	'UNIT_GALLEY',
+	'UNIT_VP_GALLEY'); -- half moves in ocean
+
 	UPDATE Units SET Moves = '4' WHERE Type IN (
-	'UNIT_GALLEY', -- half moves in ocean
 	'UNIT_KOREAN_TURTLE_SHIP', -- half moves in ocean
 	'UNIT_CARAVEL',	
 	'UNIT_PORTUGUESE_NAU',
@@ -96,7 +105,8 @@
 
 	-- Ranged ships - now start at range 1, jump to range 2 in industrial
 	UPDATE Units SET Range = '1' WHERE Type IN 
-	('UNIT_BYZANTINE_DROMON',
+	('UNIT_LIBURNA',
+	'UNIT_BYZANTINE_DROMON',
 	'UNIT_GALLEASS',
 	'UNIT_VENETIAN_GALLEASS');
 

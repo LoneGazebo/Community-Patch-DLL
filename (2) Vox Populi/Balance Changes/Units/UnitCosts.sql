@@ -29,8 +29,8 @@
 	UPDATE Units SET Cost = '90' , FaithCost = '100' WHERE Type = 'UNIT_HORSEMAN';	
 	UPDATE Units SET Cost = '125', FaithCost = '100' WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
-
-	UPDATE Units SET Cost = '80' , FaithCost = '125' WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME'; -- available early, cheaper as benefit
+	
+	UPDATE Units SET Cost = '70',  FaithCost = '100' WHERE Type = 'UNIT_VP_GALLEY';
 
 --- Classical ---
 
@@ -46,8 +46,9 @@
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_CATAPULT';
 	UPDATE Units SET Cost = '135', FaithCost = '200' WHERE Type = 'UNIT_DANISH_BERSERKER'; -- UNIT_PIKEMAN replacement, available early
 
-	UPDATE Units SET Cost = '90',  FaithCost = '250' WHERE Type = 'UNIT_TRIREME';
-	UPDATE Units SET Cost = '100', FaithCost = '250' WHERE Type = 'UNIT_BYZANTINE_DROMON';
+	UPDATE Units SET Cost = '120',  FaithCost = '250' WHERE Type = 'UNIT_TRIREME';
+	UPDATE Units SET Cost = '120' , FaithCost = '250' WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
+	UPDATE Units SET Cost = '100', FaithCost = '250' WHERE Type = 'UNIT_LIBURNA';
 
 --- Medieval ---
 
