@@ -2456,26 +2456,32 @@ function RefreshHistoricEvents()
 	for row in GameInfo.HistoricEventTypes() do
 		if (activePlayer:GetHistoricEventTourism(row.ID) > 0 or row.Type == "HISTORIC_EVENT_TRADE_LAND" or row.Type == "HISTORIC_EVENT_TRADE_SEA") then --if row.ID < 9 then
 			if (row.Type == "HISTORIC_EVENT_TRADE_LAND" or row.Type == "HISTORIC_EVENT_TRADE_SEA") then
-				for pCity in activePlayer:Cities() do
-					local HistoricEvents = {};
-					if (activePlayer:GetHistoricEventTourism(row.ID, pCity:GetID()) > 0) then
-						if row.Type == "HISTORIC_EVENT_TRADE_LAND" then
-							HistoricEvents.TradeEvent = "HISTORIC_EVENT_TRADE_LAND";
-							HistoricEvents.HistoricEventName = pCity:GetName();
-						else
-							HistoricEvents.TradeEvent = "HISTORIC_EVENT_TRADE_SEA";
-							HistoricEvents.HistoricEventName = pCity:GetName();
+				activePlayerTradeRoutes = activePlayer:GetTradeRoutes();
+				if activePlayerTradeRoutes ~= nil then
+					for _,v in ipairs(activePlayerTradeRoutes) do
+						if (v.FromID ~= v.ToID and not Players[v.ToID]:IsMinorCiv()) then
+							if (v.Domain == DomainTypes.DOMAIN_LAND and row.Type == "HISTORIC_EVENT_TRADE_LAND") then
+								local HistoricEvents = {};
+								HistoricEvents.TradeEvent = "HISTORIC_EVENT_TRADE_LAND";
+								HistoricEvents.HistoricEventName = v.FromCity:GetName();
+								HistoricEvents.HistoricEventNameDestination = v.ToCityName;
+								HistoricEvents.TourismGenerated = activePlayer:GetHistoricEventTourism(row.ID, v.FromCity:GetID());
+								table.insert(g_HistoricEvents, HistoricEvents);
+							elseif (v.Domain == DomainTypes.DOMAIN_SEA and row.Type == "HISTORIC_EVENT_TRADE_SEA") then
+								local HistoricEvents = {};
+								HistoricEvents.TradeEvent = "HISTORIC_EVENT_TRADE_SEA";
+								HistoricEvents.HistoricEventName = v.FromCity:GetName();
+								HistoricEvents.HistoricEventNameDestination = v.ToCityName;
+								HistoricEvents.TourismGenerated = activePlayer:GetHistoricEventTourism(row.ID, v.FromCity:GetID());
+								table.insert(g_HistoricEvents, HistoricEvents);
+							end
 						end
-						--HistoricEvents.NameTT = row.Type;
-						HistoricEvents.TourismGenerated = activePlayer:GetHistoricEventTourism(row.ID, pCity:GetID());
-						table.insert(g_HistoricEvents, HistoricEvents);
 					end
 				end
 			else
 				local HistoricEvents = {};
 				HistoricEvents.TradeEvent = "";
 				HistoricEvents.HistoricEventName = row.Type;
-				--HistoricEvents.NameTT = row.Type;
 				HistoricEvents.TourismGenerated = activePlayer:GetHistoricEventTourism(row.ID);
 				table.insert(g_HistoricEvents, HistoricEvents);
 			end
@@ -2494,7 +2500,7 @@ function SortAndDisplayHistoricEvents()
 		ContextPtr:BuildInstanceForControl( "HistoricEventInstance", instance, Controls.HistoricEventsStack );
 		if (historicEventer.TradeEvent == "HISTORIC_EVENT_TRADE_LAND" or historicEventer.TradeEvent == "HISTORIC_EVENT_TRADE_SEA") then
 			if (historicEventer.TradeEvent == "HISTORIC_EVENT_TRADE_LAND") then
-				instance.HistoricEventName:LocalizeAndSetText(historicEventer.HistoricEventName .. " ([ICON_CARAVAN])");
+				instance.HistoricEventName:LocalizeAndSetText(historicEventer.HistoricEventName .. " [ICON_MOVES] " .. historicEventer.HistoricEventNameDestination .. " ([ICON_CARAVAN])");
 				instance.HistoricEventName:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND_TT", historicEventer.HistoricEventName));
 				instance.TourismGenerated:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND_TT", historicEventer.HistoricEventName));
 			else
