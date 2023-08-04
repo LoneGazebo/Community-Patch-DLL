@@ -59,6 +59,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(InitUnit);
 	Method(InitUnitWithNameOffset);
 	Method(InitNamedUnit);
+	Method(GetHistoricEventTourism);
+	Method(GetNumHistoricEvents);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetResourceMonopolyPlayer);
 	Method(GetMonopolyPercent);
@@ -1632,6 +1634,44 @@ int CvLuaPlayer::lInitNamedUnit(lua_State* L)
 		pkUnit->setFacingDirection(eFacingDirection);
 
 	CvLuaUnit::Push(L, pkUnit);
+	return 1;
+}
+
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetHistoricEventTourism(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const HistoricEventTypes eHistoricEvent = (HistoricEventTypes)lua_tointeger(L, 2);
+	int iCity = luaL_optint(L, 3, -1);
+	CvCity* pkCity = NULL;
+	if (iCity != -1)
+	{
+		pkCity = pkPlayer->getCity(iCity);
+
+		//sometimes Lua city IDs are actually sequential indices
+		//global IDs start at 1000
+		if (!pkCity && iCity < 1000)
+		{
+			if (iCity > 0)
+			{
+				iCity--;
+				pkCity = pkPlayer->nextCity(&iCity);
+			}
+			else
+			{
+				pkCity = pkPlayer->firstCity(&iCity);
+			}
+		}
+	}
+	const int iResult = pkPlayer->GetHistoricEventTourism(eHistoricEvent, pkCity);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetNumHistoricEvents(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	lua_pushinteger(L, pkPlayer->GetNumHistoricEvents());
 	return 1;
 }
 

@@ -49,6 +49,11 @@ g_Tabs = {
 		Panel = Controls.PlayerInfluencePanel,
 		SelectHighlight = Controls.PlayerInfluenceSelectHighlight,
 	},
+	
+	["HistoricEvents"] = {
+		Panel = Controls.HistoricEventPanel,
+		SelectHighlight = Controls.HistoricEventsSelectHighlight,
+	},
 }
 
 -------------------------------------------------
@@ -61,6 +66,7 @@ g_iSelectedPlayerID = Game.GetActivePlayer();
 g_YourCulture = nil;			-- The data model for the "Your Culture" tab.
 g_CultureVictory = nil;			-- The data model for the "Culture Victory" tab.
 g_InfluenceByPlayer = nil;		-- The data model for the "Influence by Player" tab.
+g_HistoricEvents = nil;			-- The data model for the "Historic Events" tab.
 
 g_YourCultureSelectionMode = "ClickToMove";	-- Determines whether to use "click to move" or "click to view".
 
@@ -212,9 +218,26 @@ g_InfluenceByPlayerSortOptions = {
 	},
 };
 
+g_HistoricEventsSortOptions = {
+	{
+		Button = Controls.HistoricEventHeader,
+		Column = "HistoricEventName",
+		DefaultDirection = "asc",
+		CurrentDirection = "asc",
+	},
+	{
+		Button = Controls.InfluenceTourismHeader,
+		Column = "TourismGenerated",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+		SortType = "numeric",
+	},
+};
+
 g_YourCultureSortFunction = nil;
 g_CultureVictorySortFunction = nil;
 g_InfluenceByPlayerSortFunction = nil;
+g_HistoricEventsSortFunction = nil;
 
 
 -------------------------------------------------------------------------------
@@ -293,9 +316,16 @@ function RegisterSortOptions()
 		end
 	end
 	
+	for i,v in ipairs(g_HistoricEventsSortOptions) do
+		if(v.Button ~= nil) then
+			v.Button:RegisterCallback(Mouse.eLClick, function() HistoricEventSortOptionSelected(v); end);
+		end
+	end
+	
 	g_YourCultureSortFunction = GetSortFunction(g_YourCultureSortOptions);
 	g_CultureVictorySortFunction = GetSortFunction(g_CultureVictorySortOptions);
 	g_InfluenceByPlayerSortFunction = GetSortFunction(g_InfluenceByPlayerSortOptions);
+	g_HistoricEventsSortFunction = GetSortFunction(g_HistoricEventsSortOptions);
 end
 
 function GetSortFunction(sortOptions)
@@ -370,6 +400,15 @@ function InfluenceByPlayerSortOptionSelected(option)
 	g_InfluenceByPlayerSortFunction = GetSortFunction(sortOptions);
 	
 	SortAndDisplayPlayerInfluence();
+end
+
+-- Callback for when sort options are selected.
+function HistoricEventSortOptionSelected(option)
+	local sortOptions = g_HistoricEventsSortOptions;
+	UpdateSortOptionState(sortOptions, option);
+	g_HistoricEventsSortFunction = GetSortFunction(sortOptions);
+	
+	SortAndDisplayHistoricEvents();
 end
 
 
@@ -477,6 +516,7 @@ Controls.TabButtonYourCulture:RegisterCallback( Mouse.eLClick, function() TabSel
 Controls.TabButtonSwapGreatWorks:RegisterCallback( Mouse.eLClick, function() TabSelect("SwapGreatWorks"); end);
 Controls.TabButtonCultureVictory:RegisterCallback( Mouse.eLClick, function() TabSelect("CultureVictory"); end );
 Controls.TabButtonPlayerInfluence:RegisterCallback( Mouse.eLClick, function() TabSelect("PlayerInfluence"); end );
+Controls.TabButtonHistoricEvents:RegisterCallback( Mouse.eLClick, function() TabSelect("HistoricEvents"); end );
 
 --Kyte
 function getBuildings()
@@ -2395,6 +2435,96 @@ end
 g_Tabs["PlayerInfluence"].RefreshContent = function()
 	RefreshPlayerInfluence();
 	SortAndDisplayPlayerInfluence();
+end;
+
+function RefreshHistoricEvents()
+	local activePlayer = Players[Game.GetActivePlayer()];
+	local activeTeam = Teams[activePlayer:GetTeam()];
+	
+	g_HistoricEvents = {};
+	
+	Controls.CurrentCulturePerTurn:SetText(activePlayer:GetTotalJONSCulturePerTurn());
+	Controls.CurrentCulturePerTurn:SetToolTipString(Locale.Lookup("TXT_KEY_CO_CULTURE_OUTPUT_TT"));
+	Controls.CurrentCulturePerTurn2:SetToolTipString(Locale.Lookup("TXT_KEY_CO_CULTURE_OUTPUT_TT"));
+	Controls.CurrentTourismPerTurn:SetText(activePlayer:GetTourism() / 100);
+	Controls.CurrentTourismPerTurn:SetToolTipString(Locale.Lookup("TXT_KEY_CO_TOURISM_OUTPUT_TT"));
+	Controls.CurrentTourismPerTurn2:SetToolTipString(Locale.Lookup("TXT_KEY_CO_TOURISM_OUTPUT_TT"));
+	Controls.TotalHistoricEvents:SetText("[COLOR_POSITIVE_TEXT]" .. activePlayer:GetNumHistoricEvents() .. "[ENDCOLOR]");
+	Controls.TotalHistoricEvents2:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENTS_COUNTER_TT"));
+	Controls.TotalHistoricEvents:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENTS_COUNTER_TT"));
+	
+	for row in GameInfo.HistoricEventTypes() do
+		if (activePlayer:GetHistoricEventTourism(row.ID) > 0 or row.Type == "HISTORIC_EVENT_TRADE_LAND" or row.Type == "HISTORIC_EVENT_TRADE_SEA") then --if row.ID < 9 then
+			if (row.Type == "HISTORIC_EVENT_TRADE_LAND" or row.Type == "HISTORIC_EVENT_TRADE_SEA") then
+				activePlayerTradeRoutes = activePlayer:GetTradeRoutes();
+				if activePlayerTradeRoutes ~= nil then
+					for _,v in ipairs(activePlayerTradeRoutes) do
+						if (v.FromID ~= v.ToID and not Players[v.ToID]:IsMinorCiv()) then
+							if (v.Domain == DomainTypes.DOMAIN_LAND and row.Type == "HISTORIC_EVENT_TRADE_LAND") then
+								local HistoricEvents = {};
+								HistoricEvents.TradeEvent = "HISTORIC_EVENT_TRADE_LAND";
+								HistoricEvents.HistoricEventName = v.FromCity:GetName();
+								HistoricEvents.HistoricEventNameDestination = v.ToCityName;
+								HistoricEvents.TourismGenerated = activePlayer:GetHistoricEventTourism(row.ID, v.FromCity:GetID());
+								table.insert(g_HistoricEvents, HistoricEvents);
+							elseif (v.Domain == DomainTypes.DOMAIN_SEA and row.Type == "HISTORIC_EVENT_TRADE_SEA") then
+								local HistoricEvents = {};
+								HistoricEvents.TradeEvent = "HISTORIC_EVENT_TRADE_SEA";
+								HistoricEvents.HistoricEventName = v.FromCity:GetName();
+								HistoricEvents.HistoricEventNameDestination = v.ToCityName;
+								HistoricEvents.TourismGenerated = activePlayer:GetHistoricEventTourism(row.ID, v.FromCity:GetID());
+								table.insert(g_HistoricEvents, HistoricEvents);
+							end
+						end
+					end
+				end
+			else
+				local HistoricEvents = {};
+				HistoricEvents.TradeEvent = "";
+				HistoricEvents.HistoricEventName = row.Type;
+				HistoricEvents.TourismGenerated = activePlayer:GetHistoricEventTourism(row.ID);
+				table.insert(g_HistoricEvents, HistoricEvents);
+			end
+		end
+	end
+end
+
+function SortAndDisplayHistoricEvents()
+	Controls.HistoricEventsStack:DestroyAllChildren();
+	
+	local model = g_HistoricEvents;
+	table.sort(model, g_HistoricEventsSortFunction);
+	
+	for i, historicEventer in ipairs(model) do
+		local instance = {};
+		ContextPtr:BuildInstanceForControl( "HistoricEventInstance", instance, Controls.HistoricEventsStack );
+		if (historicEventer.TradeEvent == "HISTORIC_EVENT_TRADE_LAND" or historicEventer.TradeEvent == "HISTORIC_EVENT_TRADE_SEA") then
+			if (historicEventer.TradeEvent == "HISTORIC_EVENT_TRADE_LAND") then
+				instance.HistoricEventName:LocalizeAndSetText(historicEventer.HistoricEventName .. " [ICON_MOVES] " .. historicEventer.HistoricEventNameDestination .. " ([ICON_CARAVAN])");
+				instance.HistoricEventName:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND_TT", historicEventer.HistoricEventName));
+				instance.TourismGenerated:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND_TT", historicEventer.HistoricEventName));
+			else
+				instance.HistoricEventName:LocalizeAndSetText(historicEventer.HistoricEventName .. " ([ICON_CARGO_SHIP])");
+				instance.HistoricEventName:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENT_TRADE_SEA_TT", historicEventer.HistoricEventName));
+				instance.TourismGenerated:SetToolTipString(Locale.Lookup("TXT_KEY_CO_HISTORIC_EVENT_TRADE_SEA_TT", historicEventer.HistoricEventName));
+			end
+		else
+			instance.HistoricEventName:LocalizeAndSetText(Locale.Lookup("TXT_KEY_CO_" .. historicEventer.HistoricEventName));
+			instance.HistoricEventName:SetToolTipString(Locale.Lookup("TXT_KEY_CO_" .. historicEventer.HistoricEventName .. "_TT"));
+			instance.TourismGenerated:SetToolTipString(Locale.Lookup("TXT_KEY_CO_" .. historicEventer.HistoricEventName .. "_TT"));
+		end
+		instance.TourismGenerated:SetText(historicEventer.TourismGenerated);
+    end
+	
+	Controls.HistoricEventsStack:CalculateSize();
+    Controls.HistoricEventsStack:ReprocessAnchoring();
+    Controls.HistoricEventsScroll:CalculateInternalSize();
+	
+end
+
+g_Tabs["HistoricEvents"].RefreshContent = function()
+	RefreshHistoricEvents();
+	SortAndDisplayHistoricEvents();
 end;
 
 -------------------------------------------------------------------------------

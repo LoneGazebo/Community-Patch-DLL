@@ -51,6 +51,8 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lInitNamedUnit(lua_State* L);
 #endif
+	static int lGetHistoricEventTourism(lua_State* L);
+	static int lGetNumHistoricEvents(lua_State* L);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetResourceMonopolyPlayer(lua_State* L);
 	static int lGetMonopolyPercent(lua_State* L);

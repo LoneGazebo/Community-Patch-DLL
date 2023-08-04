@@ -488,6 +488,47 @@ local g_cityToolTips = {
 			return L"TXT_KEY_CITY_PUPPET".."[NEWLINE][NEWLINE]"..L"TXT_KEY_CITY_ANNEX_TT"
 		end
 	end,
+	
+	CityIsCityState = function( city )
+		local cityOriginalOwner = Players[city:GetOriginalOwner()];	
+		local strTraitTT = "";
+		if (cityOriginalOwner ~= nil) then
+			local iTrait = cityOriginalOwner:GetMinorCivTrait();
+			if (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED");
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MILITARISTIC_NO_UU_TT_ANNEXED");
+				if (cityOriginalOwner:IsMinorCivHasUniqueUnit()) then
+					local eUniqueUnit = cityOriginalOwner:GetMinorCivUniqueUnit();
+					if (GameInfo.Units[eUniqueUnit] ~= nil) then
+						local ePrereqTech = GameInfo.Units[eUniqueUnit].PrereqTech;
+						if (ePrereqTech == nil) then
+							-- If no prereq then just make it Agriculture, but make sure that Agriculture is in our database. Otherwise, show the fallback tooltip.
+							if (GameInfo.Technologies["TECH_AGRICULTURE"] ~= nil) then
+								ePrereqTech = GameInfo.Technologies["TECH_AGRICULTURE"].ID;
+							end
+						end
+						
+						if (ePrereqTech ~= nil) then
+							if (GameInfo.Technologies[ePrereqTech] ~= nil) then
+								strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MILITARISTIC_TT_ANNEXED", GameInfo.Units[eUniqueUnit].Description, GameInfo.Technologies[ePrereqTech].Description);
+							end
+						end
+					else
+						print("Scripting error - City-State's unique unit not found!");
+					end
+				end
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MARITIME_TT_ANNEXED");
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MERCANTILE_TT_ANNEXED");
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED");
+			end
+		end
+		return strTraitTT;
+	end,
+	
 	CityIsRazing = function( city )
 		return L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
 	end,
@@ -1003,6 +1044,11 @@ local function RefreshCityBannersNow()
 
 			-- Puppet ?
 			instance.CityIsPuppet:SetHide( not isPuppet )
+			
+			-- Rome UA (Annexed City-States)
+			if Players[city:GetOriginalOwner()]:IsMinorCiv() and cityOwner:IsAnnexedCityStatesGiveYields() then
+				instance.CityIsCityState:SetHide ( not cityOwner:IsAnnexedCityStatesGiveYields())
+			end
 
 			-- Occupied ?
 			instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )

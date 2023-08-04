@@ -1046,6 +1046,50 @@ SET Text = Text
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS')/100.0 AS NUMERIC) || 'x[ENDCOLOR] Experience.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_RELIGIOUS_TT';
 
+INSERT INTO Language_en_US (Tag, Text)
+VALUES	('TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Cultured[ENDCOLOR] City-State will provide you gifts of [ICON_CULTURE] Culture, allowing you to obtain Social Policies more quickly.'),
+	('TXT_KEY_CITY_STATE_MILITARISTIC_NO_UU_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State will provide you occasional gifts of advanced military units.'),
+	('TXT_KEY_CITY_STATE_MILITARISTIC_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State will provide you occasional gifts of advanced military units.[NEWLINE][NEWLINE]They know the secrets of the [COLOR_POSITIVE_TEXT]{@1_UniqueUnitName}[ENDCOLOR]. If you have researched [COLOR_CYAN]{@2_PrereqTech}[ENDCOLOR], they will provide that unit as their gift.'),
+	('TXT_KEY_CITY_STATE_MARITIME_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Maritime[ENDCOLOR] City-State will boost the [ICON_FOOD] Food of your [ICON_CAPITAL] Capital greatly, and all of your cities.'),
+	('TXT_KEY_CITY_STATE_MERCANTILE_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Mercantile[ENDCOLOR] City-State will provide extra [ICON_HAPPINESS_1] Happiness in your empire, and manufactures special luxury resources which cannot be acquired any other way.'),
+	('TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Religious[ENDCOLOR] City-State will increase your [ICON_PEACE] Faith, allowing you to empower your religion with new beliefs and units.');
+	
+-- Culture Overview
+INSERT INTO Language_en_US (Tag, Text)
+VALUES  ('TXT_KEY_CO_TAB_HISTORIC_EVENTS', ' Historic Events'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_HEADER', ' Historic Events'),
+	('TXT_KEY_CO_CULTURE_OUTPUT', 'Current [ICON_CULTURE] Culture Output: '),
+	('TXT_KEY_CO_HISTORIC_EVENTS_COUNTER', 'Total Historic Events Achieved: '),
+	('TXT_KEY_CO_CULTURE_OUTPUT_TT', 'A fraction of [ICON_CULTURE] Culture generated per turn and instant yields of [ICON_CULTURE] Culture gained in the prior 10 turns influences the amount of [ICON_TOURISM] Tourism generated from [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR].'),
+	('TXT_KEY_CO_TOURISM_OUTPUT_TT', '[ICON_TOURISM] Tourism generated per turn and instant yields of [ICON_TOURISM] Tourism gained in the prior 10 turns influences the amount of Tourism generated from [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR].'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_COUNTER_TT', 'This is how many [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] you have accomplished with your Civilization in total of all types!'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_HEADER_TT', 'This is the list of [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] available for you to achieve. You can unlock some more through Buildings or Social Policies.'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_TOURISM_HEADER_TT', 'This is the amount of [ICON_TOURISM] Tourism you will generate from this [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR] to all known Civilizations unless stated otherwise!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_ERA_CHANGE', '[ICON_RESEARCH] Era Transition'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WORLD_WONDER', '[ICON_WONDER] World Wonder Construction'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GREAT_PERSON', '[ICON_GREAT_PEOPLE] Great People Birth'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WON_WAR', '[ICON_WAR] Favorable Peace Treaty'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GOLDEN_AGE', '[ICON_GOLDEN_AGE] Entering a Golden Age'),
+	('TXT_KEY_CO_HISTORIC_EVENT_DIG', '[ICON_RES_ARTIFACTS] Digging Archaeological Sites'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND', '[ICON_CARAVAN] Trade with a Major City'), --Also Unused kinda it uses City Name
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_SEA', '[ICON_CARGO_SHIP] Trade with a Major City'), --Also Unused kinda it uses City Name
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS', '[ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade with a [ICON_CITY_STATE] City-State'),
+	('TXT_KEY_CO_HISTORIC_EVENT_CITY_FOUND_CAPITAL', 'Founding Capital ([ICON_CAPITAL])'), --Unused
+	('TXT_KEY_CO_HISTORIC_EVENT_ERA_CHANGE_TT', 'Each [ICON_RESEARCH] Era you advance to will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WORLD_WONDER_TT', 'Each [ICON_WONDER] World Wonders you finish will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GREAT_PERSON_TT', 'Each [ICON_GREAT_PEOPLE] Great Person born in your Civilization will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WON_WAR_TT', 'Each [ICON_PEACE] favorable peace treaty ([COLOR_POSITIVE_TEXT]War Score 25+[ENDCOLOR]) you complete will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GOLDEN_AGE_TT', 'Each [ICON_GOLDEN_AGE] Golden Age you enter will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_DIG_TT', 'Each [ICON_RES_ARTIFACTS] Archaeological Sites evacuated will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND_TT', 'Each [ICON_CARAVAN] Land Trade Route completed from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] to another foreign Major City will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! The amount here will be sent toward the targeted Major Civilization and one-third of the amount will be sent to every other Civilizations.'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_SEA_TT', 'Each [ICON_CARGO_SHIP] Sea Trade Route completed from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] to another foreign Major City will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! The amount here will be sent toward the targeted Major Civilization and one-third of the amount will be sent to every other Civilizations.'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS_TT', 'Each [ICON_INTERNATIONAL_TRADE] Trade Route completed either by land or sea with a [ICON_CITY_STATE] City-State will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! Unlike trading with a foreign Major City, this amount will be the same sent to all other Civilizations.'),
+	('TXT_KEY_CO_HISTORIC_EVENT_CITY_FOUND', 'Founding a City'), --Unused
+	('TXT_KEY_CO_HISTORIC_EVENT_CITY_CONQUEST', 'City Conquest'), --Unused
+	('TXT_KEY_CO_HISTORIC_EVENT_PLAYER_TURNS_PASSED', 'Time Passage'), --Unused
+	('TXT_KEY_CO_HISTORIC_EVENT_AI_TURNS_PASSED', 'Time Passage'); --Unused
+
+
 -- Victory Panel
 INSERT INTO Language_en_US (Tag, Text)
 VALUES  ('TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU', ' {1_PlayerName} controls you as a Vassal.'),

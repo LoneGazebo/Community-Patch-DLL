@@ -122,6 +122,7 @@
 				<Label ID="CityIsConnected" String="[ICON_CONNECTED]"/>
 				<Label ID="CityIsBlockaded" String="[ICON_BLOCKADED]"/>
 				<Label ID="CityIsOccupied" String="[ICON_OCCUPIED]"/>
+				<Label ID="CityIsCityState" String="[ICON_CITY_STATE]" Hidden="1"/>
 				<Label ID="CityIsMined" String="[ICON_MINEFIELD]"/>
 				<Label ID="CityIsUnhappy" String="[ICON_HAPPINESS_3]"/>
 				<Label ID="CityHasAirport" String="[ICON_AIRPORT]"/>
@@ -213,6 +214,7 @@
 				<TextButton ID="CityQuests"/>
 				<Label ID="CityIsAutomated" String="[ICON_AUTOMATED]" Hidden="1"/>
 				<Label ID="CityIsPuppet" String="[ICON_PUPPET]" ToolTip="TXT_KEY_CITY_PUPPET_OTHER"/>
+				<Label ID="CityIsCityState" String="[ICON_CITY_STATE]" Hidden="1"/>
 				<Label ID="CityIsRazing" String="[ICON_RAZING]"/>
 				<Label ID="CityIsResistance" String="[ICON_RESISTANCE]"/>
 				<Label ID="CityIsBlockaded" String="[ICON_BLOCKADED]"/>
