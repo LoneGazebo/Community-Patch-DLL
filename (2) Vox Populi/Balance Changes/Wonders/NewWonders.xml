@@ -59,11 +59,11 @@
 			<Description>TXT_KEY_BUILDING_GREAT_ALTAR</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
-		<!--Reliquary-->
+		<!--Chartarium-->
 		<Row>
-			<Type>BUILDINGCLASS_RELIQUARY</Type>
-			<DefaultBuilding>BUILDING_RELIQUARY</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_RELIQUARY</Description>
+			<Type>BUILDINGCLASS_RELIGIOUS_LIBRARY</Type>
+			<DefaultBuilding>BUILDING_RELIGIOUS_LIBRARY</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY</Description>
 			<MaxPlayerInstances>1</MaxPlayerInstances>
 		</Row>
 		<!--Divine Court-->
@@ -317,15 +317,15 @@
 		</Row>
 		<!--Reliquary-->
 		<Row>
-			<Type>BUILDING_RELIQUARY</Type>
-			<BuildingClass>BUILDINGCLASS_RELIQUARY</BuildingClass>
-			<Help>TXT_KEY_BUILDING_RELIQUARY_HELP</Help>
-			<Description>TXT_KEY_BUILDING_RELIQUARY</Description>
-			<Civilopedia>TXT_KEY_BUILDING_RELIQUARY_TEXT</Civilopedia>
-			<ThemingBonusHelp>TXT_KEY_THEMING_BONUS_RELIQUARY_HELP</ThemingBonusHelp>
-			<Strategy>TXT_KEY_BUILDING_RELIQUARY_STRATEGY</Strategy>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
-			<GreatWorkCount>4</GreatWorkCount>
+			<Type>BUILDING_RELIGIOUS_LIBRARY</Type>
+			<BuildingClass>BUILDINGCLASS_RELIGIOUS_LIBRARY</BuildingClass>
+			<Help>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_HELP</Help>
+			<Description>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY</Description>
+			<Civilopedia>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_PEDIA</Civilopedia>
+			<ThemingBonusHelp>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_THEMING_BONUS_HELP</ThemingBonusHelp>
+			<Strategy>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_STRATEGY</Strategy>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
+			<GreatWorkCount>3</GreatWorkCount>
 			<ArtDefineTag>TEMPLE</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<ConversionModifier>-20</ConversionModifier>
@@ -333,8 +333,8 @@
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<NeverCapture>true</NeverCapture>
-			<IconAtlas>EXPANSION_BW_ATLAS_1</IconAtlas>
-			<PortraitIndex>7</PortraitIndex>
+			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
 			<Cost>125</Cost>
 			<ReligiousPressureModifier>25</ReligiousPressureModifier>
 			<IsReformation>true</IsReformation>

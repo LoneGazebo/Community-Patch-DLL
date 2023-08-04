@@ -185,23 +185,23 @@
 			<Text>An altar is any structure upon which offerings such as sacrifices are made for religious purposes. Altars are usually found at shrines, and they can be located in temples, churches and other places of worship. Today they are used particularly in Christianity, Buddhism, Hinduism, Shinto, Taoism, as well as in Neopaganism and Ceremonial Magic. Judaism used such a structure until the destruction of the Second Temple. Many historical faiths also made use of them, including Greek and Norse religion.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_HELP">
-			<Text>+5 [ICON_TOURISM] Tourism from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]Contains 4 slots for Great Works of Art or Artifacts. +10 [ICON_PEACE] Faith if Themed.</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_HELP">
+			<Text>+5 [ICON_RESEARCH] Science from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.[NEWLINE][NEWLINE] Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegates in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.[NEWLINE][NEWLINE]Contains 3 slots for Great Works of Writing[NEWLINE]+6 [ICON_RESEARCH] Science and +4 [ICON_PEACE] Faith when Themed</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY">
-			<Text>Reliquary</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_STRATEGY">
+			<Text>Build the Religious Library to gain [ICON_GOLDEN_AGE] Golden Age Points, [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture from researching techs and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_STRATEGY">
-			<Text>Build the Reliquary for a powerful Tourism-centric bonus and bonuses for all Holy Sites. The building's Tourism bonus is only possible if all four Works of Art/Artifacts come from differing players. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_PEDIA">
+			<Text>The Chartarium was a collection of correspondences and minutes held privately by the office of the Papacy. This collection formed the precursor to the Vatican's Secret Archives.</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY">
+			<Text>Chartarium</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_TEXT">
-			<Text>A reliquary is a container for relics. These may be the purported physical remains of saints, such as bones, pieces of clothing, or some object associated with saints or other religious figures. The authenticity of any given relic is often a matter of debate; for that reason, some churches require documentation of the relic's provenance. Relics have long been important to Buddhists, Christians, Hindus and many other religions. In these cultures, reliquaries are often presented in shrines, churches, or temples to which the faithful make pilgrimages in order to gain blessings. In Central West Africa, reliquaries used in the Bwete rituals contain objects considered magical, or the bones of ancestors, and are commonly constructed with a guardian figure attached to the reliquary.</Text>
+		<Row Tag="TXT_KEY_THEMING_BONUS_RELIGIOUS_LIBRARY">
+			<Text>Repository of Secret {2_CivAdjective} Correspondences</Text>
 		</Row>
-		<Row Tag="TXT_KEY_THEMING_BONUS_RELIQUARY_HELP">
-			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Works of Art/Artifacts from differing players.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_THEMING_BONUS_RELIQUARY">
-			<Text>Holy Reliquary of {2_CivAdjective}</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure all slots are filled with Writing from the Same Civilization.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_HELP">
