@@ -43,7 +43,7 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(32000);
+CvTactPosStorage gTactPosStorage(16000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
@@ -3264,11 +3264,18 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 
 			//try to get into position
 			//some of the camps the player has revealed may since have been cleared ... but we need to check
+			//if the camp has been cleared there might be a neutral unit in the plot and our pathfinding could fail without the approximate flag!
 			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
 
 			if (pUnit->canMove())
-				//can use this unit for other stuff, reset the tactmove to avoid spamming the log
+			{
+				//capture the camp if it still exists - if there is an enemy then we'll attack later
+				if (pTargetPlot->GetNumCombatUnits()==0)
+					ExecuteMoveToPlot(pUnit, pTargetPlot, false);
+
+				//can use this unit for other moves, reset the tactmove to avoid spamming the log
 				pUnit->setTacticalMove(AI_TACTICAL_MOVE_NONE);
+			}
 			else
 				UnitProcessed(pUnit->GetID());
 

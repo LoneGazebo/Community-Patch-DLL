@@ -3519,10 +3519,11 @@ bool CvMinorCivQuest::DoFinishQuest()
 	CvString sSummary = strSummary.toUTF8();
 
 	// This quest involved multiple minors, so grab their names for the notification
-	if(veNamesToShow.size() > 0)
-	{
-		sMessage = sMessage + pMinor->GetMinorCivAI()->GetNamesListAsString(veNamesToShow);
-	}
+	if (veNamesToShow.size() > 0)
+		sMessage += pMinor->GetMinorCivAI()->GetNamesListAsString(veNamesToShow);
+	else
+		sMessage += "(None)";
+
 	// This quest reward changed our status, so grab that info for the notification
 	if ((!bWasFriends && bNowFriends) || (!bWasAllies && bNowAllies))
 	{
