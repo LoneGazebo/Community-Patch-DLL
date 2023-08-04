@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.7.11) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.7.12) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -471,7 +471,7 @@
     <File md5="3186928DA7C6B4FD70AE35FBA82EF994" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
     <File md5="3E5E7E62C553124F734DFFBC7B47C215" import="0">Balance Changes/Espionage/PrimaryEspionageEvents.xml</File>
     <File md5="7179E5AB68B12C5ED3D013B1F2815121" import="0">Balance Changes/Ideologies/Autocracy/Autocracy.sql</File>
-    <File md5="95CC85DBBDB9EB093D8302FB853DFE71" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
+    <File md5="19B2B237080E2B0927825A3EC0BA4570" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
     <File md5="8D72C69DC698E7BF6D7940383305B1AC" import="0">Balance Changes/Ideologies/Order/Order.sql</File>
     <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
     <File md5="046A0B4E2F42CE561FE583129AF9B3B2" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
@@ -518,8 +518,8 @@
     <File md5="9FA97DAB254E99C785C74A7D79157C58" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="1835446D388B07D42B77DD0FD6FBEBE8" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="CFA394A548C539CD8692808647292185" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
-    <File md5="287C5261EF861B62A3A7E8228C06418B" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="FFEA5C6D2332E2FF964100136EA2722C" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="FBB15AC3F417250AFBFCD7509520AE1D" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
+    <File md5="1E7CEBEF24ADA5EAD1F8AD51074C1C2F" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="A762ED09C91BB395DEACF648C211FE2A" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="859CDEF70A2C0F9B095BB4559A313547" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="96C0F000DC4BB45D51AE993D7C04C60E" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
@@ -561,8 +561,8 @@
     <File md5="65F9F720C39A22E8F1D033DAAF06FF47" import="1">Core Files/CoreLua/ActionInfoPanel.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">Core Files/CoreLua/Bombardment.lua</File>
     <File md5="66D5F875BCC8CEEF7B18F866147D6AF4" import="1">Core Files/CoreLua/ChooseMayaBonus.lua</File>
-    <File md5="A2C816A69BA575FD6D7E35AD9BA34FBD" import="1">LUA/CityBannerManager.lua</File>
-    <File md5="AE08355212B325DB0780CB88B6741E81" import="1">LUA/CityBannerManager.xml</File>
+    <File md5="C26B46B41A0010D3276C49DFBF9CC4A9" import="1">LUA/CityBannerManager.lua</File>
+    <File md5="93084A119696F8C8766F524D3F808739" import="1">LUA/CityBannerManager.xml</File>
     <File md5="2CF206FA965AF40CCAAC04AE36992C6B" import="1">Core Files/CoreLua/CityList.lua</File>
     <File md5="46FF699BA0B84969AF9316F8781E6F69" import="1">Core Files/CoreLua/CityList.xml</File>
     <File md5="187B8D8AE21103B55CC7ACB26046F232" import="1">LUA/CityStateDiploPopup.lua</File>
@@ -573,10 +573,10 @@
     <File md5="84D164B3661A5A6EA831CFCC173CE723" import="1">LUA/CityView.lua</File>
     <File md5="615971860CD3A30FE4938845DCECF03E" import="1">LUA/CityView.xml</File>
     <File md5="87B455A2A51F036C76A7C77F329D4F39" import="1">LUA/CityView_small.xml</File>
-    <File md5="FCDF13849919203F23989D891EFD5E2E" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
+    <File md5="CB9A4645EFBF1C45534403B55EBDF836" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
     <File md5="BCA09FCF702B305481F54C5879D72D47" import="1">Core Files/CoreLua/CivilopediaScreen.xml</File>
-    <File md5="C685427D94F5842B6668BAA830DA2DAB" import="1">Core Files/CoreLua/CultureOverview.lua</File>
-    <File md5="3A2AD4D08923BB72995A2536EBDBCB8B" import="1">Core Files/CoreLua/CultureOverview.xml</File>
+    <File md5="F6417FE8ED4E43193BAF66F824138EF6" import="1">Core Files/CoreLua/CultureOverview.lua</File>
+    <File md5="FF24766DBE44C7F381A9DAAFF9E555C9" import="1">Core Files/CoreLua/CultureOverview.xml</File>
     <File md5="63036BCCAF2955F36009341BBC01DEAD" import="1">Core Files/CoreLua/DeclareWarPopup.lua</File>
     <File md5="86D353FD71335DE6C35F3F049187FC36" import="1">Core Files/CoreLua/DeclareWarPopup.xml</File>
     <File md5="39254AD35391E09158C0CA312BCABA11" import="1">Core Files/CoreLua/Demographics.lua</File>
@@ -689,7 +689,7 @@
     <File md5="E683E2A0566C83B2B719C59EE3BDBA76" import="1">Modular Elements/Corporations/CorporationsOverview.lua</File>
     <File md5="56582B9EFE6B3561D73566F476E886F5" import="1">Modular Elements/Corporations/CorporationsOverview.xml</File>
     <File md5="0B9F0CBFA2325D055888381B705FB887" import="0">Modular Elements/Corporations/Text/en_US/CorporationOverviewText.xml</File>
-    <File md5="70A5DF2E226ACDE6ABF076B2D04E1251" import="0">Modular Elements/Corporations/Text/en_US/CorpText.xml</File>
+    <File md5="A95CF1C2D8F18EEFF182EDDC59E1F0FE" import="0">Modular Elements/Corporations/Text/en_US/CorpText.xml</File>
     <File md5="721579C155F1BE83F4D8628CC0B08BE7" import="0">Modular Elements/Corporations/Corporations.sql</File>
     <File md5="1379EAB56666648BD6A378C5C03789FA" import="0">Modular Elements/Events/CBOEvents.sql</File>
     <File md5="C083847CE6A3DE9C2B4C6ED37B3A807E" import="0">Modular Elements/Events/Text/EventText_en_US.xml</File>
