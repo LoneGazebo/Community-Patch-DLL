@@ -52,7 +52,7 @@ SET Value = '3'
 WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK';
 
 UPDATE Defines
-SET Value = '3'
+SET Value = '2'
 WHERE Name = 'BASE_TOURISM_PER_GREAT_WORK';
 
 UPDATE Defines

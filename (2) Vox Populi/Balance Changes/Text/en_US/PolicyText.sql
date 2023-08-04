@@ -421,7 +421,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS_TEXT';
 
 -- Cultural Exchange
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness for every 3 [ICON_GREAT_WORK] Great Works in a City.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Amphitheaters and Opera Houses.[NEWLINE][ICON_BULLET]+10% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations.'
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness for every 3 [ICON_GREAT_WORK] Great Works in a City.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Amphitheaters, Galleries, and Opera Houses.[NEWLINE][ICON_BULLET]+10% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations.'
 WHERE Tag = 'TXT_KEY_POLICY_ETHICS_HELP';
 
 --------------------
