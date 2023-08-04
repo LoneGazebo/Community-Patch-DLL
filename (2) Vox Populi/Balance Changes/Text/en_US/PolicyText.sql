@@ -199,17 +199,17 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Universal Suffrage[ENDCOLOR]: A [ICON_GOLDEN_AGE] Golden Age begins, and [ICON_GOLDEN_AGE] Golden Ages last 50% longer. Cities produce +1 [ICON_HAPPINESS_1] Happiness.'
 WHERE Tag = 'TXT_KEY_POLICY_UNIVERSAL_SUFFRAGE_HELP';
 
--- Urbanization (now Self-Determination)
+-- Urbanization (now Self Determination)
 UPDATE Language_en_US
-SET Text = 'Self-Determination'
+SET Text = 'Self Determination'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Self-Determination[ENDCOLOR]: Liberating a city (including removing another civ''s Sphere of Influence on a City-State through conquest) gives 15 XP to all units, 50 [ICON_INFLUENCE] Influence with all City-States, and 40 [ICON_RESEARCH] Science, scaling with Era and City [ICON_CITIZEN] Population. The liberated city gains an Arsenal and 6 units.'
+SET Text = '[COLOR_POSITIVE_TEXT]Self Determination[ENDCOLOR]: Liberating a city (including removing another civ''s Sphere of Influence on a City-State through conquest) gives 15 XP to all units, 50 [ICON_INFLUENCE] Influence with all City-States, and 40 [ICON_RESEARCH] Science, scaling with Era and City [ICON_CITIZEN] Population. The liberated city gains an Arsenal and 6 units.'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Self-Determination is the idea that every group of people has the right to choose, or determine, how they are ruled. While the idea had already spread, one of the first major declarations of it was the Fourteen Points by US President Woodrow Wilson, which among other things, attempted to establish this principle in post World War I Europe. After World War II the Allies made similar pledges, and the UN holds this as a policy to this day. Self-Determination is a simple idea, but it has had great impacts on many things, most importantly Independence. Though, it can be more complex as what exactly the people determine is not necessarily Independence, and many paths are open. Additionally, what group counts as a single people can further complicate the matter.'
+SET Text = 'Self Determination is the idea that every group of people has the right to choose, or determine, how they are ruled. While the idea had already spread, one of the first major declarations of it was the Fourteen Points by US President Woodrow Wilson, which among other things, attempted to establish this principle in post World War I Europe. After World War II the Allies made similar pledges, and the UN holds this as a policy to this day. Self Determination is a simple idea, but it has had great impacts on many things, most importantly Independence. Though, it can be more complex as what exactly the people determine is not necessarily Independence, and many paths are open. Additionally, what group counts as a single people can further complicate the matter.'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_TEXT';
 
 -- New Deal

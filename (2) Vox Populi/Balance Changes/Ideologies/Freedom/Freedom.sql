@@ -180,7 +180,7 @@ SET
 WHERE Type = 'POLICY_UNIVERSAL_SUFFRAGE';
 
 
--- Urbanization (now Self-Determination)
+-- Urbanization (now Self Determination)
 
 DELETE FROM Policy_BuildingClassHappiness
 WHERE PolicyType = 'POLICY_URBANIZATION';
