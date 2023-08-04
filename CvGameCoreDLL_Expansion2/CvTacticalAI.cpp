@@ -40,7 +40,7 @@ const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override first
 const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
 const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
-const int TACTSIM_ANNEALING_FACTOR = 2; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
+const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(32000);
@@ -7663,6 +7663,12 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		int iMaxAttacks = NumAttacksForUnit(movePlot.iMovesLeft, unit.iAttacksLeft);
 		iDamageScore = ScorePotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, assumedPosition);
 
+		//some indication of danger as a tiebreaker - final danger will be checked later
+		int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), unit.iSelfDamage);
+		int iRemainingHP = pUnit->GetCurrHitPoints() - unit.iSelfDamage;
+		int iOverkillFactor = min(3, iDanger / max(1, iRemainingHP));
+		iDangerScore -= iOverkillFactor;
+
 		//give a bonus for occupying a citadel even if it's just intermediate for now
 		//but we want our units to take turns soaking damage, so we have to incentivise moving in.
 		//bonus should be larger than 60 to override the difference between firstline/secondline base score.
@@ -7749,6 +7755,14 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
+	}
+	else
+	{
+		//some indication of danger as a tiebreaker - final danger will be checked later
+		int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), unit.iSelfDamage);
+		int iRemainingHP = pUnit->GetCurrHitPoints() - unit.iSelfDamage;
+		int iOverkillFactor = min(3, iDanger / max(1, iRemainingHP));
+		iDangerScore -= iOverkillFactor;
 	}
 
 	//introduce some bias so that all valid scores are > 0
@@ -8620,7 +8634,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	//don't return more than requested unless there is a tie
 	if (gPossibleMoves.size() > (size_t)nMaxCount)
 	{
-		while (gPossibleMoves[nMaxCount].iScore == gPossibleMoves[nMaxCount-1].iScore && nMaxCount<gPossibleMoves.size())
+		while (gPossibleMoves[nMaxCount].iScore == gPossibleMoves[nMaxCount-1].iScore && (size_t)nMaxCount<gPossibleMoves.size())
 			nMaxCount++;
 
 		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
@@ -10268,7 +10282,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	//meta parameters depending on difficulty setting
 	int iMaxBranches = range(GC.getGame().getHandicapInfo().getTacticalSimMaxBranches(),2,9); //cannot do more, else our ID scheme doesn't work
 	int iMaxChoicesPerUnit = range(GC.getGame().getHandicapInfo().getTacticalSimMaxChoicesPerUnit(),2,9);
-	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(), 1, 1000);
+	int iMaxCompletedPositions = range(GC.getGame().getHandicapInfo().getTacticalSimMaxCompletedPositions(), 1, 4000);
 
 	PlayerTypes ePlayer = vUnits.front()->getOwner();
 	TeamTypes ourTeam = GET_PLAYER(ePlayer).getTeam();
