@@ -276,7 +276,7 @@
 			<Text>Council</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE">
-			<Text>Lodge</Text>
+			<Text>Smokehouse</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GALLERY">
 			<Text>Gallery</Text>
@@ -312,7 +312,7 @@
 			<Text>The Council generates Science every time a City grows, and is available very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the City becomes larger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_STRATEGY">
-			<Text>The Lodge boosts production from Camps and camp resources, and provides food to your City whenever it claims new tiles. Build Lodges throughout your empire to boost local yields from camps.</Text>
+			<Text>The Smokehouse boosts production from Camps and camp resources, and provides food to your City whenever it claims new tiles. Build Smokehouses throughout your empire to boost local yields from camps.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GALLERY_STRATEGY">
 			<Text>The Gallery boosts the production of Great Artists, strengthens your Artist Guilds, and Great Works. Build Galleries in your Guild cities to boost the production of Artists and Great Works.</Text>
@@ -396,7 +396,7 @@
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_TEXT">
-			<Text>A lodge is a small dwelling set apart from a main dwelling, used for recreation. The term has become associated with recreational hunting, especially in relation to nobility and the recreational sportsmen in modern times. In many cultures, wild preserves were set aside for kings and their entourages to engage in hunting for pleausre.</Text>
+			<Text>A smokehouse is a building where meat or fish is cured with smoke. The finished product might be stored in the building, sometimes for a year or more. Even when smoke is not used, such a building--typically a subsidiary building--is sometimes referred to as a "smokehouse". The meat is hung to keep it from the reach of vermin. Traditionally, a smokehouse is a small enclosed outbuilding often with a vent, a single entrance, no windows, and frequently has a gabled or pyramid-style roof. The use of slightly warmed, dry air from a very slow hardwood fire ensures the proper drying of meats.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GALLERY_TEXT">
 			<Text>An Art Gallery is a space dedicated to displaying visual art like paintings or sculptures. The original galleries were long covered hallways in the private palaces and churches, which were lined with private art collections as a display of status. Today, many Art Galleries are publicly owned and display art to the public for its historic, educational, and aesthetic value. Galleries continue to serve as places for networking and promotion of local artists, art collectors, and tastemakers in the world of fine art.</Text>
@@ -807,7 +807,7 @@
 			<Text>+1 [ICON_PRODUCTION] Production from Camps. +34% Faster [ICON_CULTURE_LOCAL] Border Growth and the [ICON_GOLD] Gold cost of acquiring new tiles is reduced by 25% in this City. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era. +2 [ICON_CULTURE_LOCAL] Border Growth in this City.[NEWLINE][NEWLINE]Nearby [ICON_RES_COW] Cows: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_HORSE] Horses: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
-			<Text>Unique Mongolian replacement for the Lodge. In addition to the Lodge's bonuses, the Ger provides Food from livestock. It also provides a small amount of Faith. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
+			<Text>Unique Mongolian replacement for the Smokehouse. In addition to the Smokehouse's bonuses, the Ger provides Food from livestock. It also provides a small amount of Faith. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON">
