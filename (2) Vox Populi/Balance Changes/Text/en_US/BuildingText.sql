@@ -379,11 +379,11 @@ SET Description = 'TXT_KEY_BUILDING_STADIUM_DESC'
 WHERE Type = 'BUILDINGCLASS_STADIUM';
 
 UPDATE Language_en_US
-SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXT]Culture Victory[ENDCOLOR]. Provides a huge sum of Golden Age Points when completed, and increases your influence with all City-States by 20. Coordinate the construction of Stadiums across your empire for a global boost in diplomatic relations.'
+SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXT]Culture Victory[ENDCOLOR]. Increases your influence with all City-States by 20 when completed. Coordinate the construction of Stadiums across your empire for a global boost in diplomatic relations.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+2500 [ICON_GOLDEN_AGE] Golden Age Points, and +20 [ICON_INFLUENCE] Influence with all City-States when completed. +1 [ICON_GOLDEN_AGE] Golden Age Point for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE][ICON_TOURISM] Tourism output from [ICON_GREAT_WORK] Great Works increased by +50%. Requires a Zoo in the City.'
+SET Text = '+20 [ICON_INFLUENCE] Influence with all City-States when completed. +1 [ICON_GOLDEN_AGE] Golden Age Point for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE][ICON_TOURISM] Tourism output from [ICON_GREAT_WORK] Great Works increased by +50%. Requires a Zoo in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP';
 
 UPDATE Language_en_US
