@@ -1072,7 +1072,7 @@ SET Text = 'Ceremony'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from National Wonders with Building requirements.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Court Astrologer[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science to every Councils, Lodges, and Herbalists; 1 [ICON_VP_SCIENTIST] Scientist Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from National Wonders with Building requirements.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Court Astrologer[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science to every Councils, Smokehouses, and Herbalists; 1 [ICON_VP_SCIENTIST] Scientist Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM_HELP';
 
 UPDATE Language_en_US
