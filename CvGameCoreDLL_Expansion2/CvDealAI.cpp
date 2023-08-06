@@ -150,11 +150,11 @@ bool CvDealAI::WithinAcceptableRange(PlayerTypes ePlayer, int iMaxValue, int iNe
 	int iMaxDeviation = iMaxValue * iLeewayPercent + min(100, iMaxValue) * 15;
 	iMaxDeviation /= 100;
 
-	// a deal value of less than half the value of 1 GPT should always be acceptable, to avoid deals that can't be equalized with GPT
+	// a deal value of less than or equal to half the value of 1 GPT should always be acceptable, to avoid deals that can't be equalized with GPT
 	int iGPTValue = GetOneGPTValue();
 
 	//put some sanity checks
-	return abs(iNetValue) < min(max(iMaxDeviation,iGPTValue/2),500);
+	return abs(iNetValue) <= min(max(iMaxDeviation,iGPTValue/2),500);
 }
 
 bool CvDealAI::BothSidesIncluded(CvDeal* pDeal)
