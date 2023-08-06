@@ -52,7 +52,7 @@ INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_TRIREME');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
-	VALUES ('UNIT_VP_GALLEY', 'UNIT_TRIREME');
+	VALUES ('UNIT_VP_GALLEY', 'UNITCLASS_TRIREME');
 
 -- Liburna
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
@@ -68,7 +68,7 @@ INSERT INTO UnitGameplay2DScripts (UnitType, SelectionSound, FirstSelectionSound
 	FROM UnitGameplay2DScripts WHERE (UnitType = 'UNIT_GALLEASS');
 
 INSERT INTO Unit_ClassUpgrades (UnitType, UnitClassType)
-	VALUES ('UNIT_LIBURNA', 'UNIT_GALLEASS');
+	VALUES ('UNIT_LIBURNA', 'UNITCLASS_GALLEASS');
 
 -- Mounted XBOW
 INSERT INTO UnitClasses (Type, Description, DefaultUnit )
