@@ -906,7 +906,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iYield100 = m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
 
 		if ((eSpecialist != (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST)) && (eYield == YIELD_FOOD))
-			iYield100 -= (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
+			iYield100 += (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
 
 		if (iYield100 > 0)
 		{
@@ -1522,7 +1522,7 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 	{
 		CityAIFocusTypes eFocus = GetFocusType();
 		if (eFocus == NO_CITY_AI_FOCUS_TYPE)
-			return max(200, m_pCity->getPopulation() * 25);
+			return max(200, m_pCity->getPopulation() * max(25, 50 - m_pCity->getPopulation()/2));
 		else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 			return max(200, m_pCity->getPopulation() * 50);
 		else if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)

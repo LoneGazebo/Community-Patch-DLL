@@ -8923,7 +8923,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly)
+UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -9098,7 +9098,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 
 	// Choose from weighted unit types
 	veUnitRankings.StableSortItems();
-	int iNumChoices = /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES);
+	int iNumChoices = bRandom ? /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES) : 1;
 	RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	UnitTypes eChosenUnit = veUnitRankings.ChooseFromTopChoices(iNumChoices, &randFn, "Choosing competitive unit from top choices");
 

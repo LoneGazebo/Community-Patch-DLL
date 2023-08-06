@@ -149,219 +149,236 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	g_pThemTeam = Teams[ g_iThemTeam ];
 
 
-	-- Leader head fix for more than 22 civs DLL...	
-	local playerLeaderInfo = GameInfo.Leaders[Players[iPlayer]:GetLeaderType()];
-	local leaderTextures = {
-		["LEADER_ALEXANDER"] = "alexander.dds",
-		["LEADER_ASKIA"] = "askia.dds",
-		["LEADER_AUGUSTUS"] = "augustus.dds",
-		["LEADER_BISMARCK"] = "bismark.dds",
-		["LEADER_CATHERINE"] = "catherine.dds",
-		["LEADER_DARIUS"] = "darius.dds",
-		["LEADER_ELIZABETH"] = "elizabeth.dds",
-		["LEADER_GANDHI"] = "ghandi.dds",
-		["LEADER_HARUN_AL_RASHID"] = "alrashid.dds",
-		["LEADER_HIAWATHA"] = "hiawatha.dds",
-		["LEADER_MONTEZUMA"] = "montezuma.dds",
-		["LEADER_NAPOLEON"] = "napoleon.dds",
-		["LEADER_ODA_NOBUNAGA"] = "oda.dds",
-		["LEADER_RAMESSES"] = "ramesses.dds",
-		["LEADER_RAMKHAMHAENG"] = "ramkhamaeng.dds",
-		["LEADER_SULEIMAN"] = "sulieman.dds",
-		["LEADER_WASHINGTON"] = "washington.dds",
-		["LEADER_WU_ZETIAN"] = "wu.dds",
-		["LEADER_GENGHIS_KHAN"] = "genghis.dds",
-		["LEADER_ISABELLA"] = "isabella.dds",
-		["LEADER_PACHACUTI"] = "pachacuti.dds",
-		["LEADER_KAMEHAMEHA"] = "kamehameha.dds",
-		["LEADER_HARALD"] = "harald.dds",
-		["LEADER_SEJONG"] = "sejong.dds",
-		["LEADER_NEBUCHADNEZZAR"] = "nebuchadnezzar.dds",
-		["LEADER_ATTILA"] = "attila.dds",
-		["LEADER_BOUDICCA"] = "boudicca.dds",
-		["LEADER_DIDO"] = "dido.dds",
-		["LEADER_GUSTAVUS_ADOLPHUS"] = "gustavus adolphus.dds",
-		["LEADER_MARIA"] = "mariatheresa.dds",
-		["LEADER_PACAL"] = "pacal_the_great.dds",
-		["LEADER_THEODORA"] = "theodora.dds",
-		["LEADER_SELASSIE"] = "haile_selassie.dds",
-		["LEADER_WILLIAM"] = "william_of_orange.dds",		
-		["LEADER_SHAKA"] = "Shaka.dds",
-		["LEADER_POCATELLO"] = "Pocatello.dds",
-		["LEADER_PEDRO"] = "Pedro.dds",
-		["LEADER_MARIA_I"] = "Maria_I.dds",
-		["LEADER_GAJAH_MADA"] = "Gajah.dds",
-		["LEADER_ENRICO_DANDOLO"] = "Dandolo.dds",
-		["LEADER_CASIMIR"] = "Casimir.dds",
-		["LEADER_ASHURBANIPAL"] = "Ashurbanipal.dds",
-		["LEADER_AHMAD_ALMANSUR"] = "Almansur.dds",
-	}
+	-- if the AI offers a deal, its valuation might have changed during the AI's turn. Reevaluate the deal and change deal items if necessary
+	if(g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
+		local bDealCanceled = g_Deal:DoReevaluateDeal(g_iThem, g_iUs);
+		if(bDealCanceled) then
+			-- it was no longer possible to offer an acceptable deal and the deal has been canceled
+			g_iDiploUIState = DiploUIStateTypes.NO_DIPLO_UI_STATE;
+		end
+		if(g_Deal:IsCheckedForRenewal()) then
+			-- modify leader message if necessary
+			szLeaderMessage = g_Deal:GetRenewDealMessage(g_iThem, g_iUs);
+		end
+	end
 	
-	if iPlayer > 21 then
-		print ("LeaderMessageHandler: Player ID > 21")
-		local backupTexture = "loadingbasegame_9.dds"
-		if leaderTextures[playerLeaderInfo.Type] then
-			backupTexture = leaderTextures[playerLeaderInfo.Type]
-		end
-
-		-- get screen and texture size to set the texture on full screen
-
-		Controls.BackupTexture:SetTexture( backupTexture )
-		local screenW, screenH = Controls.BackupTexture:GetSizeVal() -- works, but maybe there is a direct way to get screen size ?
-			
-		Controls.BackupTexture:SetTextureAndResize( backupTexture )
-		local textureW, textureH = Controls.BackupTexture:GetSizeVal()	
-		
-		print ("Screen Width = " .. tostring(screenW) .. ", Screen Height = " .. tostring(screenH) .. ", Texture Width = " .. tostring(textureW) .. ", Texture Height = " .. tostring(textureH))
-
-		local ratioW = screenW / textureW
-		local ratioH = screenH / textureH
-		
-		print ("Width ratio = " .. tostring(ratioW) .. ", Height ratio = " .. tostring(ratioH))
-
-		local ratio = ratioW
-		if ratioH > ratioW then
-			ratio = ratioH
-		end
-		Controls.BackupTexture:SetSizeVal( math.floor(textureW * ratio), math.floor(textureH * ratio) )
-
-		Controls.BackupTexture:SetHide( false )
+	if(g_iDiploUIState == DiploUIStateTypes.NO_DIPLO_UI_STATE) then
+		OnBack();
 	else
 		
-		Controls.BackupTexture:UnloadTexture()
-		Controls.BackupTexture:SetHide( true )
-
-	end
-	-- End of leader head fix
-	
-	
-	-- Are we in Trade Mode?
-	if iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND
-		or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER
-	then
-
-		--print("TradeScreen: It's MY mode!");
-
-		if (ContextPtr:IsHidden()) then
-			UIManager:QueuePopup( ContextPtr, PopupPriority.LeaderTrade );
-		end
-
-		--print("Handling LeaderMessage: " .. iDiploUIState .. ", ".. szLeaderMessage);
-
-		g_Deal:SetFromPlayer(g_iUs);
-		g_Deal:SetToPlayer(g_iThem);
-
-		-- Unhide our pocket, in case the last thing we were doing in this screen was a human demand
-		Controls.UsPanel:SetHide(false);
-		Controls.UsGlass:SetHide(false);
-
-		local bClearTableAndDisplayDeal = false;
-
-		-- Is this a UI State where we should be displaying a deal?
-		if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE) then
-			--print("DiploUIState: Default Trade");
-			bClearTableAndDisplayDeal = true;
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND) then
-			--print("DiploUIState: AI making demand");
-			bClearTableAndDisplayDeal = true;
-
-			DoDemandState(true);
-
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
-			--print("DiploUIState: AI making Request");
-			bClearTableAndDisplayDeal = true;
-
-			DoDemandState(true);
-		-- Putmalk: Open Trade window when AI is giving a gift and set it to the demand state
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
-			--print("DiploUIState: AI making Offer");
-			bClearTableAndDisplayDeal = true;
-			
-			DoDemandState(true);
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-			bClearTableAndDisplayDeal = true;
-			-- If we're demanding something, there's no need to show OUR items
-			Controls.UsPanel:SetHide(true);
-			Controls.UsGlass:SetHide(true);
-
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS) then
-			--print("DiploUIState: Human offers concessions");
-			bClearTableAndDisplayDeal = true;
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
-			--print("DiploUIState: AI making offer");
-			bClearTableAndDisplayDeal = true;
-			g_bAIMakingOffer = true;
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER) then
-			--print("DiploUIState: AI accepted offer");
-			g_iConcessionsPreviousDiploUIState = -1;		-- Clear out the fact that we were offering concessions if the AI has agreed to a deal
-			bClearTableAndDisplayDeal = true;
-
-		-- If the AI rejects a deal, don't clear the table: keep the items where they are in case the human wants to change things
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER) then
-			--print("DiploUIState: AI rejects offer");
-			bClearTableAndDisplayDeal = false;
-		else
-			--print("DiploUIState: ?????");
-		end
-
-		-- Clear table and display the deal currently stored in InterfaceBuddy
-		if (bClearTableAndDisplayDeal) then
-			g_bMessageFromDiploAI = true;
-
-			Controls.DiscussionText:SetText( szLeaderMessage );
-
-			DoClearTable();
-			DisplayDeal();
-
-			if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-				-- Hide Defensive Pact/Research Agreement on their side
-				Controls.ThemPocketDefensivePact:SetHide(true);
-				Controls.ThemPocketResearchAgreement:SetHide(true);
+		-- Leader head fix for more than 22 civs DLL...	
+		local playerLeaderInfo = GameInfo.Leaders[Players[iPlayer]:GetLeaderType()];
+		local leaderTextures = {
+			["LEADER_ALEXANDER"] = "alexander.dds",
+			["LEADER_ASKIA"] = "askia.dds",
+			["LEADER_AUGUSTUS"] = "augustus.dds",
+			["LEADER_BISMARCK"] = "bismark.dds",
+			["LEADER_CATHERINE"] = "catherine.dds",
+			["LEADER_DARIUS"] = "darius.dds",
+			["LEADER_ELIZABETH"] = "elizabeth.dds",
+			["LEADER_GANDHI"] = "ghandi.dds",
+			["LEADER_HARUN_AL_RASHID"] = "alrashid.dds",
+			["LEADER_HIAWATHA"] = "hiawatha.dds",
+			["LEADER_MONTEZUMA"] = "montezuma.dds",
+			["LEADER_NAPOLEON"] = "napoleon.dds",
+			["LEADER_ODA_NOBUNAGA"] = "oda.dds",
+			["LEADER_RAMESSES"] = "ramesses.dds",
+			["LEADER_RAMKHAMHAENG"] = "ramkhamaeng.dds",
+			["LEADER_SULEIMAN"] = "sulieman.dds",
+			["LEADER_WASHINGTON"] = "washington.dds",
+			["LEADER_WU_ZETIAN"] = "wu.dds",
+			["LEADER_GENGHIS_KHAN"] = "genghis.dds",
+			["LEADER_ISABELLA"] = "isabella.dds",
+			["LEADER_PACHACUTI"] = "pachacuti.dds",
+			["LEADER_KAMEHAMEHA"] = "kamehameha.dds",
+			["LEADER_HARALD"] = "harald.dds",
+			["LEADER_SEJONG"] = "sejong.dds",
+			["LEADER_NEBUCHADNEZZAR"] = "nebuchadnezzar.dds",
+			["LEADER_ATTILA"] = "attila.dds",
+			["LEADER_BOUDICCA"] = "boudicca.dds",
+			["LEADER_DIDO"] = "dido.dds",
+			["LEADER_GUSTAVUS_ADOLPHUS"] = "gustavus adolphus.dds",
+			["LEADER_MARIA"] = "mariatheresa.dds",
+			["LEADER_PACAL"] = "pacal_the_great.dds",
+			["LEADER_THEODORA"] = "theodora.dds",
+			["LEADER_SELASSIE"] = "haile_selassie.dds",
+			["LEADER_WILLIAM"] = "william_of_orange.dds",		
+			["LEADER_SHAKA"] = "Shaka.dds",
+			["LEADER_POCATELLO"] = "Pocatello.dds",
+			["LEADER_PEDRO"] = "Pedro.dds",
+			["LEADER_MARIA_I"] = "Maria_I.dds",
+			["LEADER_GAJAH_MADA"] = "Gajah.dds",
+			["LEADER_ENRICO_DANDOLO"] = "Dandolo.dds",
+			["LEADER_CASIMIR"] = "Casimir.dds",
+			["LEADER_ASHURBANIPAL"] = "Ashurbanipal.dds",
+			["LEADER_AHMAD_ALMANSUR"] = "Almansur.dds",
+		}
+		
+		if iPlayer > 21 then
+			print ("LeaderMessageHandler: Player ID > 21")
+			local backupTexture = "loadingbasegame_9.dds"
+			if leaderTextures[playerLeaderInfo.Type] then
+				backupTexture = leaderTextures[playerLeaderInfo.Type]
 			end
 
-		-- Don't clear the table, leave things as they are
+			-- get screen and texture size to set the texture on full screen
+
+			Controls.BackupTexture:SetTexture( backupTexture )
+			local screenW, screenH = Controls.BackupTexture:GetSizeVal() -- works, but maybe there is a direct way to get screen size ?
+				
+			Controls.BackupTexture:SetTextureAndResize( backupTexture )
+			local textureW, textureH = Controls.BackupTexture:GetSizeVal()	
+			
+			print ("Screen Width = " .. tostring(screenW) .. ", Screen Height = " .. tostring(screenH) .. ", Texture Width = " .. tostring(textureW) .. ", Texture Height = " .. tostring(textureH))
+
+			local ratioW = screenW / textureW
+			local ratioH = screenH / textureH
+			
+			print ("Width ratio = " .. tostring(ratioW) .. ", Height ratio = " .. tostring(ratioH))
+
+			local ratio = ratioW
+			if ratioH > ratioW then
+				ratio = ratioH
+			end
+			Controls.BackupTexture:SetSizeVal( math.floor(textureW * ratio), math.floor(textureH * ratio) )
+
+			Controls.BackupTexture:SetHide( false )
+		else
+			
+			Controls.BackupTexture:UnloadTexture()
+			Controls.BackupTexture:SetHide( true )
+
+		end
+		-- End of leader head fix
+		
+		
+		-- Are we in Trade Mode?
+		if iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND
+			or iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER
+		then
+
+			--print("TradeScreen: It's MY mode!");
+
+			if (ContextPtr:IsHidden()) then
+				UIManager:QueuePopup( ContextPtr, PopupPriority.LeaderTrade );
+			end
+
+			--print("Handling LeaderMessage: " .. iDiploUIState .. ", ".. szLeaderMessage);
+
+			g_Deal:SetFromPlayer(g_iUs);
+			g_Deal:SetToPlayer(g_iThem);
+
+			-- Unhide our pocket, in case the last thing we were doing in this screen was a human demand
+			Controls.UsPanel:SetHide(false);
+			Controls.UsGlass:SetHide(false);
+
+			local bClearTableAndDisplayDeal = false;
+
+			-- Is this a UI State where we should be displaying a deal?
+			if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE) then
+				--print("DiploUIState: Default Trade");
+				bClearTableAndDisplayDeal = true;
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND) then
+				--print("DiploUIState: AI making demand");
+				bClearTableAndDisplayDeal = true;
+
+				DoDemandState(true);
+
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
+				--print("DiploUIState: AI making Request");
+				bClearTableAndDisplayDeal = true;
+
+				DoDemandState(true);
+			-- Putmalk: Open Trade window when AI is giving a gift and set it to the demand state
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
+				--print("DiploUIState: AI making Offer");
+				bClearTableAndDisplayDeal = true;
+				
+				DoDemandState(true);
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
+				bClearTableAndDisplayDeal = true;
+				-- If we're demanding something, there's no need to show OUR items
+				Controls.UsPanel:SetHide(true);
+				Controls.UsGlass:SetHide(true);
+
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS) then
+				--print("DiploUIState: Human offers concessions");
+				bClearTableAndDisplayDeal = true;
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
+				--print("DiploUIState: AI making offer");
+				bClearTableAndDisplayDeal = true;
+				g_bAIMakingOffer = true;
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER) then
+				--print("DiploUIState: AI accepted offer");
+				g_iConcessionsPreviousDiploUIState = -1;		-- Clear out the fact that we were offering concessions if the AI has agreed to a deal
+				bClearTableAndDisplayDeal = true;
+
+			-- If the AI rejects a deal, don't clear the table: keep the items where they are in case the human wants to change things
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER) then
+				--print("DiploUIState: AI rejects offer");
+				bClearTableAndDisplayDeal = false;
+			else
+				--print("DiploUIState: ?????");
+			end
+
+			-- Clear table and display the deal currently stored in InterfaceBuddy
+			if (bClearTableAndDisplayDeal) then
+				g_bMessageFromDiploAI = true;
+
+				Controls.DiscussionText:SetText( szLeaderMessage );
+
+				DoClearTable();
+				DisplayDeal();
+
+				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
+					-- Hide Defensive Pact/Research Agreement on their side
+					Controls.ThemPocketDefensivePact:SetHide(true);
+					Controls.ThemPocketResearchAgreement:SetHide(true);
+				end
+
+			-- Don't clear the table, leave things as they are
+			else
+
+				--print("NOT clearing table");
+
+				g_bMessageFromDiploAI = true;
+
+				Controls.DiscussionText:SetText( szLeaderMessage );
+			end
+
+			-- Resize the height of the box to fit the text
+			local contentSize = Controls.DiscussionText:GetSize().y + offsetOfString + bonusPadding;
+			local frameSize = {};
+			frameSize.x = innerFrameWidth;
+			frameSize.y = contentSize;
+			Controls.LeaderSpeechBorderFrame:SetSize( frameSize );
+			frameSize.x = outerFrameWidth;
+			frameSize.y = contentSize - offsetsBetweenFrames;
+			Controls.LeaderSpeechFrame:SetSize( frameSize );
+
+			DoUpdateButtons();
+
+		-- Not in trade mode
 		else
 
-			--print("NOT clearing table");
+			--print("TradeScreen: NOT my mode! Hiding!");
+			--print("iDiploUIState: " .. iDiploUIState);
 
-			g_bMessageFromDiploAI = true;
+			g_Deal:ClearItems();
 
-			Controls.DiscussionText:SetText( szLeaderMessage );
+			if (not ContextPtr:IsHidden()) then
+				ContextPtr:SetHide( true );
+			end
+
 		end
-
-		-- Resize the height of the box to fit the text
-		local contentSize = Controls.DiscussionText:GetSize().y + offsetOfString + bonusPadding;
-		local frameSize = {};
-		frameSize.x = innerFrameWidth;
-		frameSize.y = contentSize;
-		Controls.LeaderSpeechBorderFrame:SetSize( frameSize );
-		frameSize.x = outerFrameWidth;
-		frameSize.y = contentSize - offsetsBetweenFrames;
-		Controls.LeaderSpeechFrame:SetSize( frameSize );
-
-		DoUpdateButtons();
-
-	-- Not in trade mode
-	else
-
-		--print("TradeScreen: NOT my mode! Hiding!");
-		--print("iDiploUIState: " .. iDiploUIState);
-
-		g_Deal:ClearItems();
-
-		if (not ContextPtr:IsHidden()) then
-			ContextPtr:SetHide( true );
-		end
-
 	end
-
 end
 --Events.AILeaderMessage.Add( LeaderMessageHandler );
 

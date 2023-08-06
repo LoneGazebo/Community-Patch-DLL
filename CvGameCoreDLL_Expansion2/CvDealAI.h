@@ -63,6 +63,7 @@ public:
 
 	// What is something worth? - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
 
+	int GetOneGPTValue() const;
 	int GetDealValue(CvDeal* pDeal, bool bLogging = false);
 	int GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bLogging = false);
 
@@ -86,34 +87,34 @@ public:
 
 	// Potential items an AI can try to add to a deal to even it out - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
 
-	void DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddEmbassyToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddEmbassyToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddEmbassyToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddEmbassyToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddOpenBordersToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddOpenBordersToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddOpenBordersToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddOpenBordersToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iDemandValue = 0);
 	void DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
-	void DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iDemandValue = 0);
 	void DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
 
 	void DoRemoveGPTFromThem(CvDeal* pDeal, PlayerTypes eThem, int iNumToRemove);
@@ -122,8 +123,8 @@ public:
 	void DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iNumGoldAlreadyInTrade);
 	void DoRemoveGoldFromUs(CvDeal* pDeal, int& iNumGoldAlreadyInTrade);
 
-	void DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue = 0, bool bGoldOnly = false);
+	void DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue = 0, bool bGoldOnly = false);
 
 	// Possible deals the AI can offer
 	bool IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqualizingDeals);
@@ -168,15 +169,15 @@ public:
 	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
 	// Will adding item to deal even it out?
-	void DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
-	void DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
+	void DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
-	void DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue);
+	void DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
 protected:
 	void UpdateResearchRateCache(PlayerTypes eOther);
