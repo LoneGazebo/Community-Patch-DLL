@@ -938,7 +938,7 @@ SET Text = 'Near Combat Bonus Tile'
 WHERE Tag = 'TXT_KEY_EUPANEL_IMPROVEMENT_NEAR';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] for every Moai adjacent to this Moai. Can only be built adjacent to water.[NEWLINE][NEWLINE]+20% [ICON_STRENGTH] Combat Strength to any nearby Polynesian Units within a 3-tile radius.'
+SET Text = '+1 [ICON_CULTURE] for every Moai and City adjacent to this Moai. Can only be built adjacent to water.[NEWLINE][NEWLINE]+20% [ICON_STRENGTH] Combat Strength to any nearby Polynesian Units within a 3-tile radius.'
 WHERE Tag = 'TXT_KEY_BUILD_MOAI_HELP';
 
 --------------------
