@@ -17896,7 +17896,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		0 ) / 100;
 
 	//extra damage with special promotion
-	if (GetMoraleBreakChance() > 0 && pDefender && !pDefender->CanFallBack(*this,false))
+	if (GetMoraleBreakChance() != 0 && pDefender && !pDefender->CanFallBack(*this,false))
 		iDamage = (iDamage * 150) / 100;
 
 	return iDamage;
@@ -25105,6 +25105,11 @@ int CvUnit::GetMoraleBreakChance() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeMoraleBreakChance(int iChange)
 {
+	if (iChange < 0)
+	{
+		m_iCanMoraleBreak = MIN_INT;
+		return;
+	}
 	m_iCanMoraleBreak += iChange;
 }
 

@@ -323,7 +323,7 @@
 			<Text>Withering Fire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]25%[ENDCOLOR] Chance to force an Enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
+			<Text>+50% damage to Enemy Units that cannot retreat.</Text>
 		</Row>
 	<!--Doppelsöldner-->
 		<Row Tag="TXT_KEY_PROMOTION_DOPPELSOLDNER">

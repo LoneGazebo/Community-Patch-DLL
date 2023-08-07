@@ -3258,7 +3258,7 @@
 			<Help>TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
-			<MoraleBreakChance>25</MoraleBreakChance>
+			<MoraleBreakChance>-1</MoraleBreakChance>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_RANGED</PediaType>
