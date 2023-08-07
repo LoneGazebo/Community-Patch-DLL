@@ -259,7 +259,7 @@ WHERE Type = 'BUILDING_HIMEJI_CASTLE';
 -- Chichen Itza
 
 UPDATE Buildings
-SET PrereqTech = 'TECH_ASTRONOMY', Cost = '800', Happiness = '0'
+SET PrereqTech = 'TECH_ASTRONOMY', Cost = '800', Happiness = '0', FreeBuildingThisCity = 'BUILDINGCLASS_TEOCALLI'
 WHERE Type = 'BUILDING_CHICHEN_ITZA';
 
 -- Globe Theater
