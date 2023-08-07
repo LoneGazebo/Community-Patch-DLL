@@ -15324,28 +15324,9 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 
 	// **************************
 	// CP Only: Very low Influence
-	// VP: Influence above Neutral threshold
 	// **************************
 
-	if (MOD_BALANCE_VP)
-	{
-		if (!GET_PLAYER(eBullyPlayer).IsCanBullyFriendlyCS())
-		{
-			if (GetEffectiveFriendshipWithMajor(eBullyPlayer) > /*0*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_BULLY))
-			{
-				int iInfluencePenalty = (GetEffectiveFriendshipWithMajor(eBullyPlayer) - /*0*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_BULLY)) * -1;
-				iScore += iInfluencePenalty;
-				if (sTooltipSink)
-				{
-					Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-					strNegativeFactor << iInfluencePenalty;
-					strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_LOW_INFLUENCE";
-					sFactors += strNegativeFactor.toUTF8();
-				}
-			}
-		}
-	}
-	else if (GetEffectiveFriendshipWithMajor(eBullyPlayer) < /*-30*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_BULLY))
+	if (!MOD_BALANCE_VP && GetEffectiveFriendshipWithMajor(eBullyPlayer) < /*-30*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_BULLY))
 	{
 		iScore -= 300;
 		if (sTooltipSink)
@@ -15383,12 +15364,12 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 
 
 	// **************************
-	// Heavy Tribute
+	// CP only: Heavy Tribute
 	// **************************
 
-	if (bHeavyTribute)
+	if (!MOD_BALANCE_VP && bHeavyTribute)
 	{
-		int iHeavyTributeScore = MOD_BALANCE_VP ? -15 : -30;
+		int iHeavyTributeScore = -30;
 		iScore += iHeavyTributeScore;
 		if (sTooltipSink)
 		{
@@ -15400,12 +15381,12 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 	}
 
 	// **************************
-	// Low population (Heavy Tribute only)
+	// CP only: Low population (Heavy Tribute only)
 	// **************************
 
-	if (bHeavyTribute && pMinorCapital->getPopulation() < 5)
+	if (!MOD_BALANCE_VP && bHeavyTribute && pMinorCapital->getPopulation() < 5)
 	{
-		int iLowPopScore = MOD_BALANCE_VP ? -100 : -300;
+		int iLowPopScore = -300;
 		iScore += iLowPopScore;
 		if (sTooltipSink)
 		{
@@ -15489,7 +15470,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 
 		if (GetAlly() != NO_PLAYER && GET_PLAYER(GetAlly()).getTeam() != GET_PLAYER(eBullyPlayer).getTeam())
 		{
-			int iAllyScore = MOD_BALANCE_VP ? -50 : -10;
+			int iAllyScore = MOD_BALANCE_VP ? -15 : -10;
 			iScore += iAllyScore;
 			if (sTooltipSink)
 			{
@@ -15501,11 +15482,10 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 		}
 
 		// **************************
-		// Has Pledge(s) of Protection & Has Friends
+		// Has Pledge(s) of Protection
 		// **************************
 
 		int iProtectionScore = 0;
-		int iFriendScore = 0;
 		for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
 		{
 			PlayerTypes eMajorLoop = (PlayerTypes)iMajorLoop;
@@ -15514,11 +15494,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 
 			if (IsProtectedByMajor(eMajorLoop))
 			{
-				iProtectionScore -= MOD_BALANCE_VP ? 10 : 20;
-			}
-			if (IsFriends(eMajorLoop))
-			{
-				iFriendScore -= MOD_BALANCE_VP ? 5 : 0;
+				iProtectionScore -= MOD_BALANCE_VP ? 15 : 20;
 			}
 		}
 
@@ -15533,17 +15509,6 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
 				strNegativeFactor << iProtectionScore;
 				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-		if (iFriendScore != 0)
-		{
-			iScore += iFriendScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iFriendScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_FRIENDS";
 				sFactors += strNegativeFactor.toUTF8();
 			}
 		}
