@@ -1484,7 +1484,11 @@ CivilopediaCategory[CategoryBeliefs].PopulateList = function()
 			-- add a tech entry to a list (localized name, tag, etc.)
  			local article = {};
  			local name = Locale.ConvertTextKey( belief.ShortDescription )
- 			article.entryName = name;
+			if (belief.CivilizationType ~= nil and GameInfo.Civilizations[belief.CivilizationType] ~= nil) then
+				article.entryName = "([COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Civilizations[belief.CivilizationType].Adjective) .. "[ENDCOLOR]) " .. name;
+			else
+				article.entryName = name;
+			end
  			article.entryID = {"Beliefs", belief.ID};
 			article.entryCategory = CategoryBeliefs;
 
