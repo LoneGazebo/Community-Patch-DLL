@@ -2906,13 +2906,15 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 	int iPressureMod = 0;
 
-	// India: +1 base pressure per follower
+	// India: +10% base pressure per follower
 	if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
 	{
 		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
 		{
 			int iPopExtraPressure = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
-			iBasePressure += min(24, iPopExtraPressure) * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+			int iBasePressureMod = min(35, iPopExtraPressure) * 10;
+			iBasePressure *= 100 + iBasePressureMod;
+			iBasePressure /= 100;
 		}
 	}
 

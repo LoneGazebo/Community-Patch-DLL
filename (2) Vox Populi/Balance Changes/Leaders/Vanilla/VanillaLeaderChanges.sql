@@ -459,10 +459,6 @@ UPDATE Traits
 SET PopulationBoostReligion = '1'
 WHERE Type = 'TRAIT_POPULATION_GROWTH';
 
-UPDATE Traits
-SET IsNoReligiousStrife = '1'
-WHERE Type = 'TRAIT_POPULATION_GROWTH';
-
 -- Iroquois -- All units receive Woodsman promotion
 
 DELETE FROM Building_YieldChanges
