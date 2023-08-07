@@ -366,7 +366,13 @@ INSERT INTO Improvement_Yields
 	(ImprovementType, YieldType, Yield)
 VALUES
 	('IMPROVEMENT_TERRACE_FARM', 'YIELD_PRODUCTION', 2),
-	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1);
+	('IMPROVEMENT_MOAI', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_MOAI', 'YIELD_CULTURE_LOCAL', 2);
+	
+INSERT INTO Improvement_AdjacentCityYields
+	(ImprovementType, YieldType, Yield)
+VALUES
+	('IMPROVEMENT_MOAI', 'YIELD_CULTURE', 1);
 
 --INSERT INTO Trait_YieldFromConquest
 --	(TraitType, YieldType, Yield)
