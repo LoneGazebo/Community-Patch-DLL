@@ -32631,25 +32631,8 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	int iPreviousTurnsToCount = iTourism;
 
 	// Calculate boost
-	int iTotalBonus = getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount / 3);
+	int iTotalBonus = getYieldPerTurnHistory(YIELD_CULTURE, iPreviousTurnsToCount) / 5;
 	iTotalBonus += getYieldPerTurnHistory(YIELD_TOURISM, iPreviousTurnsToCount);
-
-	// Mod for City Count
-	int iMod = (GC.getMap().getWorldInfo().GetNumCitiesPolicyCostMod() / 2);	// Default is 5, gets smaller on larger maps
-
-	int iNumCities = GetNumEffectiveCities();
-
-	iMod *= (iNumCities - 1);
-
-	if (iMod <= 0)
-		iMod = 1;
-	else if (iMod >= 75)
-		iMod = 75;
-
-	int iSubtraction = (iTotalBonus * iMod);
-	iSubtraction /= 100;
-
-	iTotalBonus -= iSubtraction;
 
 	switch (eHistoricEvent)
 	{
