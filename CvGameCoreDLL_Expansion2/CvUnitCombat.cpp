@@ -231,10 +231,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
 
 		int iDefenderStrength = pkDefender->GetMaxDefenseStrength(&plot, &kAttacker, kAttacker.plot());
-		int iAttackerStrength = 0;
-		if(kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true) > 0 && kAttacker.getDomainType() == DOMAIN_AIR)
+		int iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true);
+		if(iAttackerStrength > 0 && kAttacker.getDomainType() == DOMAIN_AIR)
 		{
-			iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true);
 			if(pkDefender->getDomainType() != DOMAIN_AIR)
 			{
 				iDefenderStrength /= 2;
@@ -308,10 +307,10 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		// Fear Damage
 		pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, bIncludeRand, false, true));
 
-		int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
-		iAttackerEffectiveStrength = iAttackerEffectiveStrength > 0 ? iAttackerEffectiveStrength : 1;
-		int iDefenderEffectiveStrength = iDefenderStrength * (iDefenderMaxHP - range(pkDefender->getDamage(), 0, iDefenderMaxHP - 1)) / iDefenderMaxHP;
-		iDefenderEffectiveStrength = iDefenderEffectiveStrength > 0 ? iDefenderEffectiveStrength : 1;
+		// int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
+		// iAttackerEffectiveStrength = iAttackerEffectiveStrength > 0 ? iAttackerEffectiveStrength : 1;
+		// int iDefenderEffectiveStrength = iDefenderStrength * (iDefenderMaxHP - range(pkDefender->getDamage(), 0, iDefenderMaxHP - 1)) / iDefenderMaxHP;
+		// iDefenderEffectiveStrength = iDefenderEffectiveStrength > 0 ? iDefenderEffectiveStrength : 1;
 
 		//int iExperience = kAttacker.defenseXPValue();
 		//iExperience = ((iExperience * iAttackerEffectiveStrength) / iDefenderEffectiveStrength); // is this right? looks like more for less [Jon: Yes, it's XP for the defender]
@@ -367,9 +366,12 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 				pkCombatInfo->setDefenderCaptured(true);
 			}
 		}
-		else if (kAttacker.IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && (iAttackerDamageInflicted > iDefenderDamageInflicted) )
+		else if (kAttacker.IsCanHeavyCharge() && !pkDefender->isDelayedDeath())
 		{
-			bAdvance = true;
+			if (!MOD_BALANCE_VP && iAttackerTotalDamageInflicted > iDefenderTotalDamageInflicted)
+				bAdvance = true;
+			if (MOD_BALANCE_VP && iAttackerStrength > iDefenderStrength)
+				bAdvance = true;
 		}
 
 		if (kAttacker.plot()->isFortification(kAttacker.getTeam()))
@@ -377,6 +379,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 		pkCombatInfo->setAttackerAdvances(bAdvance);
 		pkCombatInfo->setDefenderRetaliates(true);
+		pkCombatInfo->setAttackerIsStronger(iAttackerStrength > iDefenderStrength);
 	}
 
 	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
@@ -627,12 +630,18 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		{
 			if(pkTargetPlot)
 			{
-				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && bAttackerDidMoreDamage)
+				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath())
 				{
 					if (MOD_ATTRITION && (pkDefender->plot()->isFortification(pkDefender->getTeam()) || pkDefender->plot()->HasBarbarianCamp()))
 					{ }
-					else
+					else if (!MOD_BALANCE_VP && bAttackerDidMoreDamage)
+					{
 						pkDefender->DoFallBack(*pkAttacker);
+					}
+					else if (MOD_BALANCE_VP && kCombatInfo.getAttackerIsStronger())
+					{
+						pkDefender->DoFallBack(*pkAttacker);
+					}
 					//no notifications?
 				}
 

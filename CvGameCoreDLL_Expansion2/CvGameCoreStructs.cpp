@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -168,6 +168,7 @@ void checkBattleUnitType(BattleUnitTypes unitType)
 CvCombatInfo::CvCombatInfo() :
 	m_pTargetPlot(NULL),
 	m_bAttackerAdvances(false),
+	m_bAttackerIsStronger(false),
 	m_bAttackIsRanged(false),
 	m_bAttackIsBombingMission(false),
 	m_bAttackIsAirSweep(false),
@@ -196,6 +197,7 @@ CvCombatInfo& CvCombatInfo::operator=(const CvCombatInfo& rhs)
 {
 	m_pTargetPlot = rhs.m_pTargetPlot;
 	m_bAttackerAdvances = rhs.m_bAttackerAdvances;
+	m_bAttackerIsStronger = rhs.m_bAttackerIsStronger;
 	m_bAttackIsRanged = rhs.m_bAttackIsRanged;
 	m_bAttackIsBombingMission = rhs.m_bAttackIsBombingMission;
 	m_bAttackIsAirSweep = rhs.m_bAttackIsAirSweep;
@@ -278,6 +280,16 @@ bool CvCombatInfo::getAttackerAdvances() const
 void CvCombatInfo::setAttackerAdvances(bool bAdvance)
 {
 	m_bAttackerAdvances = bAdvance;
+}
+
+bool CvCombatInfo::getAttackerIsStronger() const
+{
+	return m_bAttackerIsStronger;
+}
+
+void CvCombatInfo::setAttackerIsStronger(bool bStronger)
+{
+	m_bAttackerIsStronger = bStronger;
 }
 
 bool CvCombatInfo::getDefenderRetaliates() const
