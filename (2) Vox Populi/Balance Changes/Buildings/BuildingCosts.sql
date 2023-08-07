@@ -102,6 +102,7 @@ UPDATE Buildings SET GoldMaintenance = '3' WHERE Type = 'BUILDING_COURTHOUSE';
 
 UPDATE Buildings SET FaithCost = '200' WHERE Type = 'BUILDING_AMPHITHEATER';
 UPDATE Buildings SET FaithCost = '200' WHERE Type = 'BUILDING_ODEON';
+UPDATE Buildings SET FaithCost = '200' WHERE Type = 'BUILDING_LIBRARY';
 
 UPDATE Buildings SET Cost = '300' WHERE Type IN
 ('BUILDING_ARMORY',

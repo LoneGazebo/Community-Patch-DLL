@@ -615,7 +615,7 @@ SET Text = 'Divine Teachings'
 WHERE Tag = 'TXT_KEY_BELIEF_JESUIT_EDUCATION_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'May build Universities, Public Schools, and Research Labs with [ICON_PEACE] Faith, and each building gains +2 [ICON_RESEARCH] Science. Holy City gains 20 [ICON_PEACE] Faith each time the owner expends a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
+SET Text = 'May build Libraries, Universities, Public Schools, and Research Labs with [ICON_PEACE] Faith, and each building gains +2 [ICON_RESEARCH] Science. Holy City gains 20 [ICON_PEACE] Faith each time the owner expends a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_JESUIT_EDUCATION';
 
 
