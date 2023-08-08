@@ -191,9 +191,8 @@ UPDATE UnitPromotions SET RankList = 'SHOSHONE_BIG_HORSE_DANCE_CE', RankNumber =
 UPDATE UnitPromotions SET RankList = 'SHOSHONE_BIG_HORSE_DANCE_CE', RankNumber = 2 WHERE Type = 'PROMOTION_UNIT_SHOSHONE_BIG_HORSE_DANCE_PERFORMED';
 
 -- UndeadDevel: group these since they're not lost on upgrade and Scouts are too promotion-laden
-UPDATE UnitPromotions SET RankList = 'SCOUT_GOODY_BONUS_U', RankNumber = 1 WHERE Type = 'PROMOTION_SCOUT_GOODY_BONUS';
-UPDATE UnitPromotions SET RankList = 'SCOUT_GOODY_BONUS_U', RankNumber = 2 WHERE Type = 'PROMOTION_GOODY_HUT_PICKER';
-UPDATE UnitPromotions SET RankList = 'SCOUT_GOODY_BONUS_U', RankNumber = 3 WHERE Type = 'PROMOTION_UNIT_MAYA_SCOUT_GOODY_BONUS_2';
+UPDATE UnitPromotions SET RankList = 'SCOUT_GOODY_BONUS_U', RankNumber = 1 WHERE Type = 'PROMOTION_GOODY_HUT_PICKER';
+UPDATE UnitPromotions SET RankList = 'SCOUT_GOODY_BONUS_U', RankNumber = 2 WHERE Type = 'PROMOTION_UNIT_MAYA_SCOUT_GOODY_BONUS_2';
 
 -- UndeadDevel: group these two since they're both present on all siege units and the row is really long with lots of penalties
 UPDATE UnitPromotions SET RankList = 'SIEGE_PENALTIES', RankNumber = 1 WHERE Type = 'PROMOTION_MUST_SET_UP';
@@ -743,7 +742,6 @@ UPDATE UnitPromotions SET FlagPromoOrder = 87 WHERE Type IN (
 -- <<< this is where all promos that are not manually ordered here will be inserted
 
 UPDATE UnitPromotions SET FlagPromoOrder = 91 WHERE Type IN (
-	'PROMOTION_SCOUT_GOODY_BONUS',
 	'PROMOTION_GOODY_HUT_PICKER',
 	'PROMOTION_CAN_MOVE_IMPASSABLE', -- may enter ice tiles (subs)
 	'PROMOTION_FLAT_MOVEMENT_COST'

@@ -944,6 +944,8 @@
 	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
 	<!-- Pantheons can be picked even if they are already picked by someone else. -->
 	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
+	<!-- Only recon units (and city border growth) can take ancient ruins. -->
+	<Row Class="6" Name="BALANCE_CORE_GOODY_RECON_ONLY" Value="0"/>
 	 
 	<Row Class="6" Name="YIELD_MODIFIER_FROM_UNITS" Value="0"/>
 

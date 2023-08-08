@@ -1869,10 +1869,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -1889,7 +1885,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- Rewards exclusive to Settler -->
 		<Row>
@@ -1927,10 +1923,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -1947,7 +1939,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- Warlord -->
 		<Row>
@@ -1976,10 +1968,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -1996,7 +1984,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- Prince -->
 		<Row>
@@ -2025,10 +2013,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -2045,7 +2029,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- King -->
 		<Row>
@@ -2074,10 +2058,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -2094,7 +2074,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- Emperor -->
 		<Row>
@@ -2123,10 +2103,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -2143,7 +2119,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- Immortal -->
 		<Row>
@@ -2172,10 +2148,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -2192,7 +2164,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- Deity -->
 		<Row>
@@ -2221,10 +2193,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -2241,7 +2209,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 		<!-- AI Players -->
 		<Row>
@@ -2270,10 +2238,6 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_TECH</GoodyType>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
 			<GoodyType>GOODY_UPGRADE_UNIT</GoodyType>
 		</Row>
 		<Row>
@@ -2290,7 +2254,7 @@
 		</Row>
 		<Row>
 			<HandicapType>HANDICAP_AI_DEFAULT</HandicapType>
-			<GoodyType>GOODY_EXPERIENCE</GoodyType>
+			<GoodyType>GOODY_SCIENCE</GoodyType>
 		</Row>
 	</HandicapInfo_Goodies>
 	<HandicapInfo_AIDifficultyBonus>

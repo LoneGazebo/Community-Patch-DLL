@@ -4897,6 +4897,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			}
 			else if(eMove == AI_TACTICAL_GOODY)
 			{
+				// Mod option: only recon units can claim ruins
+				if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pLoopUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+					continue;
+
 				// Fast movers are top priority
 				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK) || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_SKIRMISHER))
 					iExtraScore += 31;

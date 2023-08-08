@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -4789,6 +4789,7 @@ void CvPlayerTraits::InitPlayerTraits()
 						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileEarnTerrainType[iTerrainLoop];
 						yields[iYield] = (m_ppiYieldFromTileEarnTerrainType[iTerrainLoop][iYield] + iChange);
 						m_ppiYieldFromTileEarnTerrainType[iTerrainLoop] = yields;
+						m_bHasYieldFromTileEarn = true;
 					}
 					iChange = trait->GetYieldFromTilePurchaseTerrainType((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
 					if (iChange > 0)
@@ -4796,6 +4797,7 @@ void CvPlayerTraits::InitPlayerTraits()
 						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop];
 						yields[iYield] = (m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop][iYield] + iChange);
 						m_ppiYieldFromTilePurchaseTerrainType[iTerrainLoop] = yields;
+						m_bHasYieldFromTilePurchase = true;
 					}
 					iChange = trait->GetYieldFromTileConquest((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
 					if (iChange > 0)
@@ -4810,6 +4812,7 @@ void CvPlayerTraits::InitPlayerTraits()
 						Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiYieldFromTileCultureBomb[iTerrainLoop];
 						yields[iYield] = (m_ppiYieldFromTileCultureBomb[iTerrainLoop][iYield] + iChange);
 						m_ppiYieldFromTileCultureBomb[iTerrainLoop] = yields;
+						m_bHasYieldFromTileCultureBomb = true;
 					}
 					iChange = trait->GetYieldFromTileStealCultureBomb((TerrainTypes)iTerrainLoop, (YieldTypes)iYield);
 					if (iChange > 0)
@@ -4884,7 +4887,15 @@ void CvPlayerTraits::InitPlayerTraits()
 				m_iYieldFromExport[iYield] = trait->GetYieldFromExport(iYield);
 				m_iYieldFromImport[iYield] = trait->GetYieldFromImport(iYield);
 				m_iYieldFromTilePurchase[iYield] = trait->GetYieldFromTilePurchase(iYield);
+				if (m_iYieldFromTilePurchase[iYield] > 0)
+				{
+					m_bHasYieldFromTilePurchase = true;
+				}
 				m_iYieldFromTileEarn[iYield] = trait->GetYieldFromTileEarn(iYield);
+				if (m_iYieldFromTileEarn[iYield] > 0)
+				{
+					m_bHasYieldFromTileEarn = true;
+				}
 				m_iYieldFromCSAlly[iYield] = trait->GetYieldFromCSAlly(iYield);
 				m_iYieldFromCSFriend[iYield] = trait->GetYieldFromCSFriend(iYield);
 				m_iYieldFromSettle[iYield] = trait->GetYieldFromSettle(iYield);
@@ -7657,6 +7668,9 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_ppiYieldFromTileSettle);
 	visitor(playerTraits.m_ppaaiYieldChangePerImprovementBuilt);
 	visitor(playerTraits.m_pbiYieldFromBarbarianCampClear);
+	visitor(playerTraits.m_bHasYieldFromTileCultureBomb);
+	visitor(playerTraits.m_bHasYieldFromTileEarn);
+	visitor(playerTraits.m_bHasYieldFromTilePurchase);
 	visitor(playerTraits.m_aiGoldenAgeYieldModifier);
 	visitor(playerTraits.m_aibUnitCombatProductionCostModifier);
 	visitor(playerTraits.m_iNonSpecialistFoodChange);

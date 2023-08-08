@@ -3709,19 +3709,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FIELD_III</PediaEntry>
 		</Row>
 		<Row>
-			<Type>PROMOTION_SCOUT_GOODY_BONUS</Type>
-			<Description>TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS</Description>
-			<Help>TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CannotBeChosen>true</CannotBeChosen>
-			<OrderPriority>3</OrderPriority>
-			<GoodyHutYieldBonus>25</GoodyHutYieldBonus>
-			<PortraitIndex>11</PortraitIndex>
-			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
-			<PediaType>PEDIA_SCOUTING</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS</PediaEntry>
-		</Row>
-		<Row>
 			<Type>PROMOTION_SCOUT_XP_PILLAGE</Type>
 			<Description>TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE</Description>
 			<Help>TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE_HELP</Help>

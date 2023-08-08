@@ -602,13 +602,6 @@
 			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Unit can Embark, cross Mountains, and use Enemy Roads/Railroads.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">
-			<Text>Treasure Hunter</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP">
-			<Text>+25% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE">
 			<Text>Scavenger</Text>
 		</Row>
