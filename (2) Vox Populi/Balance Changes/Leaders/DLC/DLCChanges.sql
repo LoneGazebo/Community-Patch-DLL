@@ -23,7 +23,7 @@ SET IgnoreBullyPenalties = '0'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits
-SET CSBullyValueModifier = '100'
+SET CSBullyValueModifier = '0'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits
@@ -36,6 +36,16 @@ WHERE Type = 'TRAIT_TERROR';
 
 DELETE FROM Trait_MovesChangeUnitCombats
 WHERE TraitType = 'TRAIT_TERROR';
+
+INSERT INTO Trait_YieldFromMinorDemand
+		(TraitType, YieldType, Yield)
+VALUES
+		('TRAIT_TERROR', 'YIELD_GOLD', 20),
+		('TRAIT_TERROR', 'YIELD_CULTURE', 20),
+		('TRAIT_TERROR', 'YIELD_SCIENCE', 20),
+		('TRAIT_TERROR', 'YIELD_FAITH', 20),
+		('TRAIT_TERROR', 'YIELD_FOOD', 20),
+		('TRAIT_TERROR', 'YIELD_PRODUCTION', 20);
 
 INSERT INTO ArtDefine_LandmarkTypes
 			(Type, 									LandmarkType, 	FriendlyName)
@@ -420,6 +430,7 @@ INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, 				ImprovementType,				YieldType,		Yield)
 VALUES	
 	('BUILDING_SPAIN_MISSION',	'IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FAITH',	1),
+	('BUILDING_YURT',	'IMPROVEMENT_PASTURE',	'YIELD_PRODUCTION',	1),
 	('BUILDING_YURT',	'IMPROVEMENT_CAMP',	'YIELD_PRODUCTION',	1);
 
 INSERT INTO Building_UnitCombatProductionModifiers
@@ -431,7 +442,8 @@ VALUES
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, 		YieldType, 		Yield)
 VALUES	
-	('BUILDING_YURT', 	'YIELD_FOOD', 	5);
+	('BUILDING_YURT', 	'YIELD_FOOD', 	5),
+	('BUILDING_YURT', 	'YIELD_PRODUCTION', 	5);
 		
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
@@ -496,9 +508,6 @@ VALUES
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
 VALUES
-	('BUILDING_YURT', 'RESOURCE_HORSE', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_SHEEP', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_COW', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_DEER', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_BISON', 'YIELD_FOOD', 1);
 

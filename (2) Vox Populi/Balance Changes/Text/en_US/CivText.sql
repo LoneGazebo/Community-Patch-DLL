@@ -770,7 +770,7 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Mounted Ranged Units benefit from Flanking [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and gain a +10% Flanking bonus. +100% Tribute Yields from [ICON_CITY_STATE] City-State bullying.'
+SET Text = 'Mounted Ranged Units have an extra Attack. Gain All Yields equal to 20% of the [ICON_GOLD] Gold from bullying [ICON_CITY_STATE] City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
