@@ -246,6 +246,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 60 WHE
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 61 WHERE Type = 'PROMOTION_HEAVY_SHIP';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 62 WHERE Type = 'PROMOTION_SURVIVALISM_3';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 63 WHERE Type = 'PROMOTION_LOGISTICS';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 63 WHERE Type = 'PROMOTION_MONGOL_TERROR';
 
 -- atlas_03
 -- 1st row

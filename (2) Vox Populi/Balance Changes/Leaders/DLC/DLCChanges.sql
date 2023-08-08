@@ -426,6 +426,7 @@ INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, 				ImprovementType,				YieldType,		Yield)
 VALUES	
 	('BUILDING_SPAIN_MISSION',	'IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FAITH',	1),
+	('BUILDING_YURT',	'IMPROVEMENT_PASTURE',	'YIELD_PRODUCTION',	1),
 	('BUILDING_YURT',	'IMPROVEMENT_CAMP',	'YIELD_PRODUCTION',	1);
 
 INSERT INTO Building_UnitCombatProductionModifiers
@@ -437,7 +438,8 @@ VALUES
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, 		YieldType, 		Yield)
 VALUES	
-	('BUILDING_YURT', 	'YIELD_FOOD', 	5);
+	('BUILDING_YURT', 	'YIELD_FOOD', 	5),
+	('BUILDING_YURT', 	'YIELD_PRODUCTION', 	5);
 		
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
@@ -502,9 +504,6 @@ VALUES
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
 VALUES
-	('BUILDING_YURT', 'RESOURCE_HORSE', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_SHEEP', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_COW', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_DEER', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_BISON', 'YIELD_FOOD', 1);
 
