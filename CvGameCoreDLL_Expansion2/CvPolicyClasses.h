@@ -66,6 +66,7 @@ public:
 	int GetGreatScientistRateModifier() const;
 	int GetGreatDiplomatRateModifier() const;
 	int GetDomesticGreatGeneralRateModifier() const;
+	int GetGAPFromHappinessModifier() const;
 	int GetExtraHappiness() const;
 	int GetExtraHappinessPerCity() const;
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -518,6 +519,7 @@ private:
 	int m_iGreatScientistRateModifier;
 	int m_iGreatDiplomatRateModifier;
 	int m_iDomesticGreatGeneralRateModifier;
+	int	m_iGAPFromHappinessModifier;
 	int m_iExtraHappiness;
 	int m_iExtraHappinessPerCity;
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -989,6 +991,7 @@ enum CLOSED_ENUM PolicyModifierType
 	POLICYMOD_GREAT_PERSON_RATE,
 	POLICYMOD_GREAT_GENERAL_RATE,
 	POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE,
+	POLICYMOD_GAP_FROM_HAPPINESS_MODIFIER,
 	POLICYMOD_POLICY_COST_MODIFIER,
 	POLICYMOD_WONDER_PRODUCTION_MODIFIER,
 	POLICYMOD_BUILDING_PRODUCTION_MODIFIER,
