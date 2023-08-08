@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -5470,6 +5470,7 @@ CvGoodyInfo::CvGoodyInfo() : CvBaseInfo()
 	, m_iCulture(0)
 	, m_iFaith(0)
 	, m_iProphetPercent(0)
+	, m_iPantheonPercent(0)
 	, m_iRevealNearbyBarbariansRange(0)
 	, m_iBarbarianUnitProb(0)
 	, m_iMinBarbarians(0)
@@ -5541,6 +5542,11 @@ int CvGoodyInfo::getFaith() const
 int CvGoodyInfo::getProphetPercent() const
 {
 	return m_iProphetPercent;
+}
+
+int CvGoodyInfo::getPantheonPercent() const
+{
+	return m_iPantheonPercent;
 }
 
 int CvGoodyInfo::getRevealNearbyBarbariansRange() const
@@ -5681,6 +5687,7 @@ bool CvGoodyInfo::CacheResults(Database::Results& results, CvDatabaseUtility& kU
 	m_iCulture = results.GetInt("Culture");
 	m_iFaith = results.GetInt("Faith");
 	m_iProphetPercent = results.GetInt("ProphetPercent");
+	m_iPantheonPercent = results.GetInt("PantheonPercent");
 	m_iRevealNearbyBarbariansRange = results.GetInt("RevealNearbyBarbariansRange");
 	m_iBarbarianUnitProb = results.GetInt("BarbarianUnitProb");
 	m_iMinBarbarians = results.GetInt("MinBarbarians");

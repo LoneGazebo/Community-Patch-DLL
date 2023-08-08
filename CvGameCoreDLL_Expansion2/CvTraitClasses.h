@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1793,6 +1793,19 @@ public:
 	vector<ImprovementTypes> GetImprovementTypesWithYieldChange() const;
 	void UpdateYieldChangeImprovementTypes();
 	int GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const;
+
+	bool HasYieldFromTileCultureBomb() const
+	{
+		return m_bHasYieldFromTileCultureBomb;
+	};
+	bool HasYieldFromTileEarn() const
+	{
+		return m_bHasYieldFromTileEarn;
+	};
+	bool HasYieldFromTilePurchase() const
+	{
+		return m_bHasYieldFromTilePurchase;
+	};
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
@@ -2350,6 +2363,10 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
 	vector<ImprovementTypes> m_vYieldChangeImprovementTypes; //not serialized, built on the fly
 	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
+
+	bool m_bHasYieldFromTileCultureBomb;
+	bool m_bHasYieldFromTileEarn;
+	bool m_bHasYieldFromTilePurchase;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;

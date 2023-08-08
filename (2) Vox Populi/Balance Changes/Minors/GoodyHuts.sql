@@ -1,35 +1,29 @@
 UPDATE GoodyHuts
-SET Experience = '10'
-WHERE Type = 'GOODY_EXPERIENCE';
-
-UPDATE GoodyHuts
 SET Culture = '15'
 WHERE Type = 'GOODY_CULTURE';
 
 UPDATE GoodyHuts
-SET MapOffset = '10'
+SET
+	MapOffset = 10,
+	MapRange = 3,
+	MapProb = 110
 WHERE Type = 'GOODY_MAP';
 
 UPDATE GoodyHuts
-SET MapProb = '110'
-WHERE Type = 'GOODY_MAP';
-
--- Goody Hut Payout
-UPDATE GoodyHuts
-SET GoldRandAmount = '20'
+SET
+	Gold = 100,
+	NumGoldRandRolls = 0
 WHERE Type = 'GOODY_GOLD';
 
-UPDATE GoodyHuts
-SET GoldRandAmount = '20'
-WHERE Type = 'GOODY_LOW_GOLD';
+UPDATE GoodyHuts SET PantheonFaith = 0, PantheonPercent = 60 WHERE Type = 'GOODY_PANTHEON_FAITH';
+UPDATE GoodyHuts SET ProphetPercent = 25 WHERE Type = 'GOODY_PROPHET_FAITH';
+UPDATE GoodyHuts SET Production = 50 WHERE Type = 'GOODY_PRODUCTION';
 
-UPDATE GoodyHuts
-SET GoldRandAmount = '20'
-WHERE Type = 'GOODY_HIGH_GOLD';
-
-UPDATE GoodyHuts
-SET Experience = '20'
-WHERE Type = 'GOODY_EXPERIENCE';
+-- New science ruin
+INSERT INTO GoodyHuts
+	(Type, Description, ChooseDescription, Science)
+VALUES
+	('GOODY_SCIENCE', 'TXT_KEY_GOODY_SCIENCE', 'TXT_KEY_GOODY_CHOOSE_SCIENCE', 35);
 
 INSERT INTO Concepts
 	(Type, Topic, Description, Summary, AdvisorQuestion, Advisor, CivilopediaHeaderType, InsertBefore, InsertAfter)

@@ -12904,7 +12904,7 @@ void CvPlayer::disband(CvCity* pCity)
 
 //	--------------------------------------------------------------------------------
 /// Is a Particular Goody ID a valid Goody for a certain plot?
-bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) const
+bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 {
 	CvCity* pCity = NULL;
 	UnitTypes eUnit;
@@ -12917,6 +12917,39 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	DEBUG_VARIABLE(bResult);
 	CvAssertMsg(bResult, "Cannot find goody info.");
 	kGoodyInfo.CacheResult(kResult);
+
+	// Wishing we had lambdas right about now
+	struct BestCityFinder
+	{
+		CvCity* operator()(CvPlayer& kPlayer, const CvPlot& kPlot)
+		{
+			int iBestCityDistance = 0;
+			bool bBestCityIsProductive = false;
+			CvCity* pBestCity = NULL;
+
+			int iLoop = 0;
+			for (CvCity* pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
+			{
+				bool bCityIsProductive = !(pLoopCity->IsResistance() || pLoopCity->IsRazing());
+
+				// Only select unproductive cities if we also have no productive cities
+				if (bBestCityIsProductive && !bCityIsProductive)
+					continue;
+
+				// Prefer cities nearest the plot
+				int iDistance = plotDistance(kPlot.getX(), kPlot.getY(), pLoopCity->getX(), pLoopCity->getY());
+
+				if (pBestCity == NULL || iDistance < iBestCityDistance || (!bBestCityIsProductive && bCityIsProductive))
+				{
+					iBestCityDistance = iDistance;
+					bBestCityIsProductive = bCityIsProductive;
+					pBestCity = pLoopCity;
+				}
+			}
+
+			return pBestCity;
+		}
+	} bestCityFinder;
 
 #if defined(MOD_EVENTS_GOODY_CHOICE)
 	if (MOD_EVENTS_GOODY_CHOICE) {
@@ -12957,7 +12990,8 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 	}
 
 	// Faith towards pantheon or Great Prophet
-	if (kGoodyInfo.isPantheonFaith() || kGoodyInfo.getProphetPercent() > 0)
+	bool bPantheon = kGoodyInfo.isPantheonFaith() || kGoodyInfo.getPantheonPercent() > 0;
+	if (bPantheon || kGoodyInfo.getProphetPercent() > 0)
 	{
 		if (GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 			return false;
@@ -12971,10 +13005,10 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 		if (GC.getGame().GetGameReligions()->GetNumReligionsStillToFound() <= 0 && !GetPlayerTraits()->IsAlwaysReligion())
 			return false;
 
-		if (kGoodyInfo.isPantheonFaith() && GC.getGame().GetGameReligions()->GetNumReligionsFounded() > 0)
+		if (bPantheon && GC.getGame().GetGameReligions()->GetNumReligionsFounded() > 0)
 			return false;
 
-		return kGoodyInfo.isPantheonFaith() ? !GetReligions()->HasCreatedPantheon() : GetReligions()->HasCreatedPantheon();
+		return bPantheon ? !GetReligions()->HasCreatedPantheon() : GetReligions()->HasCreatedPantheon();
 	}
 
 	// Population
@@ -13022,6 +13056,21 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) 
 
 		if (getNumCities() == 0)
 			return false;
+
+		// Check whether player has traits that benefit from buying or naturally gaining tiles only
+		CvPlayerTraits* pTraits = GetPlayerTraits();
+		if (pTraits->HasYieldFromTileEarn() || pTraits->HasYieldFromTilePurchase())
+			if (!pTraits->HasYieldFromTileCultureBomb())
+				return false;
+
+		// Check whether nearest city still has tiles to claim
+		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
+		if(pBestCity != NULL)
+		{
+			CvPlot* pPlotToAcquire = pBestCity->GetNextBuyablePlot(false);
+			if (pPlotToAcquire == NULL)
+				return false;
+		}
 	}
 
 	// Science
@@ -13474,21 +13523,19 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	strBuffer = kGoodyInfo.GetDescription();
 
 	// Gold
-	int iGold = 0;
+	int iGold = kGoodyInfo.getGold();
+	if (kGoodyInfo.getNumGoldRandRolls() > 0 && kGoodyInfo.getGoldRandAmount() > 0)
 	{
-		if (kGoodyInfo.getNumGoldRandRolls() > 0 && kGoodyInfo.getGoldRandAmount() > 0)
-		{
-			iGold = kGoodyInfo.getGold() + (kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getSmallFakeRandNum(kGoodyInfo.getGoldRandAmount(), *pPlot));
-		}
+		iGold += kGoodyInfo.getNumGoldRandRolls() * GC.getGame().getSmallFakeRandNum(kGoodyInfo.getGoldRandAmount(), *pPlot);
+	}
 
-		if (iGold != 0)
-		{
-			goodyValueModifier(iGold, GC.getGame().getGameSpeedInfo().getGoldPercent(), true, true);
-			GetTreasury()->ChangeGold(iGold);
-			changeInstantYieldValue(YIELD_GOLD, iGold);
-			strBuffer += " ";
-			strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_GOLD", iGold);
-		}
+	if (iGold > 0)
+	{
+		goodyValueModifier(iGold, GC.getGame().getGameSpeedInfo().getGoldPercent(), true, true);
+		GetTreasury()->ChangeGold(iGold);
+		changeInstantYieldValue(YIELD_GOLD, iGold);
+		strBuffer += " ";
+		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_GOLD", iGold);
 	}
 
 	// Population
@@ -13609,6 +13656,9 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			kTeam.GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
 		}
 
+		strBuffer += " ";
+		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_SCIENCE", iScience);
+
 		changeInstantYieldValue(YIELD_SCIENCE, iScience);
 	}
 
@@ -13700,6 +13750,23 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_FAITH", iFaith);
 	}
 
+	// Faith for percent of pantheon
+	int iPantheonPercent = kGoodyInfo.getPantheonPercent();
+	if(iPantheonPercent > 0)
+	{
+		iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon();
+		iFaith *= iPantheonPercent;
+		iFaith /= 100;
+
+		goodyValueModifier(iFaith, -1, false, false);
+		ChangeFaith(iFaith);
+
+		changeInstantYieldValue(YIELD_FAITH, iFaith);
+
+		strBuffer += " ";
+		strBuffer += GetLocalizedText("TXT_KEY_MISC_RECEIVED_FAITH", iFaith);
+	}
+
 	// Faith for percent of great prophet
 	int iProphetPercent = kGoodyInfo.getProphetPercent();
 	if(iProphetPercent > 0)
@@ -13713,7 +13780,14 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		iFaith /= iDivisor;
 		iFaith *= (iDivisor / 2);
 
-		goodyValueModifier(iFaith, -1, false, true);
+		if (MOD_BALANCE_VP)
+		{
+			goodyValueModifier(iFaith, -1, false, false);
+		}
+		else
+		{
+			goodyValueModifier(iFaith, -1, false, true);
+		}
 		ChangeFaith(iFaith);
 
 		changeInstantYieldValue(YIELD_FAITH, iFaith);
@@ -14244,120 +14318,123 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 
 	CvAssertMsg(pPlot->isGoody(), "pPlot->isGoody is expected to be true");
 
-	if(!isBarbarian())
-	{
-		m_bEverPoppedGoody = true;
-		pPlot->removeGoody();
+	// Barbarians don't claim ruins
+	if (isBarbarian())
+		return;
 
-		// Minors don't get Goodies :(
-		if(isMinorCiv())
+	// Minors don't claim ruins in VP
+	if (MOD_BALANCE_VP && isMinorCiv())
+		return;
+
+	// Mod option: only recon units can claim ruins
+	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pUnit && pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+		return;
+
+	m_bEverPoppedGoody = true;
+	pPlot->removeGoody();
+
+	// Need to have Goodies in the Handicap file to pick from
+	if(playerHandicapInfo.getNumGoodies() > 0)
+	{
+		// Make a list of valid Goodies to pick randomly from
+		int iValidGoodiesLoop = 0;
+		bool bValid = false;
+
+		std::vector<GoodyTypes> avValidGoodies;
+		for(int iGoodyLoop = 0; iGoodyLoop < playerHandicapInfo.getNumGoodies(); iGoodyLoop++)
 		{
-			return;
+			eGoody = (GoodyTypes) playerHandicapInfo.getGoodies(iGoodyLoop);
+			bValid = false;
+
+			// Check to see if we've already verified this Goody is valid (since there can be multiples in the vector)
+			for(iValidGoodiesLoop = 0; iValidGoodiesLoop < (int) avValidGoodies.size(); iValidGoodiesLoop++)
+			{
+				if(avValidGoodies[iValidGoodiesLoop] == eGoody)
+				{
+					avValidGoodies.push_back(eGoody);
+					bValid = true;
+					break;
+				}
+			}
+
+			if(bValid)
+				continue;
+
+			if(canReceiveGoody(pPlot, eGoody, pUnit))
+			{
+				avValidGoodies.push_back(eGoody);
+			}
 		}
 
-		// Need to have Goodies in the Handicap file to pick from
-		if(playerHandicapInfo.getNumGoodies() > 0)
+#if defined(MOD_GLOBAL_ANYTIME_GOODY_GOLD)
+		// Any valid Goodies?  If not, add back the gold goody hut(s)
+		if(MOD_GLOBAL_ANYTIME_GOODY_GOLD && avValidGoodies.size() == 0)
 		{
-			// Make a list of valid Goodies to pick randomly from
-			int iValidGoodiesLoop = 0;
-			bool bValid = false;
-
-			std::vector<GoodyTypes> avValidGoodies;
 			for(int iGoodyLoop = 0; iGoodyLoop < playerHandicapInfo.getNumGoodies(); iGoodyLoop++)
 			{
 				eGoody = (GoodyTypes) playerHandicapInfo.getGoodies(iGoodyLoop);
-				bValid = false;
 
-				// Check to see if we've already verified this Goody is valid (since there can be multiples in the vector)
-				for(iValidGoodiesLoop = 0; iValidGoodiesLoop < (int) avValidGoodies.size(); iValidGoodiesLoop++)
-				{
-					if(avValidGoodies[iValidGoodiesLoop] == eGoody)
-					{
-						avValidGoodies.push_back(eGoody);
-						bValid = true;
-						break;
-					}
-				}
+				Database::SingleResult kResult;
+				const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
+				DEBUG_VARIABLE(bResult);
+				CvAssertMsg(bResult, "Cannot find goody info.");
 
-				if(bValid)
-					continue;
+				CvGoodyInfo kGoodyInfo;
+				kGoodyInfo.CacheResult(kResult);
 
-				if(canReceiveGoody(pPlot, eGoody, pUnit))
+				if (kGoodyInfo.getGold() > 0)
 				{
 					avValidGoodies.push_back(eGoody);
 				}
 			}
-
-#if defined(MOD_GLOBAL_ANYTIME_GOODY_GOLD)
-			// Any valid Goodies?  If not, add back the gold goody hut(s)
-			if(MOD_GLOBAL_ANYTIME_GOODY_GOLD && avValidGoodies.size() == 0)
-			{
-				for(int iGoodyLoop = 0; iGoodyLoop < playerHandicapInfo.getNumGoodies(); iGoodyLoop++)
-				{
-					eGoody = (GoodyTypes) playerHandicapInfo.getGoodies(iGoodyLoop);
-
-					Database::SingleResult kResult;
-					const bool bResult = DB.SelectAt(kResult, "GoodyHuts", eGoody);
-					DEBUG_VARIABLE(bResult);
-					CvAssertMsg(bResult, "Cannot find goody info.");
-
-					CvGoodyInfo kGoodyInfo;
-					kGoodyInfo.CacheResult(kResult);
-
-					if (kGoodyInfo.getGold() > 0)
-					{
-						avValidGoodies.push_back(eGoody);
-					}
-				}
-			}
-#endif
-
-			// Any valid Goodies?
-			if(avValidGoodies.size() > 0)
-			{
-				// Fix the bug where the AI won't get anything for Goody Hut pickers!!!
-				if (pUnit && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && GET_PLAYER(pUnit->getOwner()).isHuman())
-				{
-					if (GC.getGame().getActivePlayer() == GetID())
-
-					{
-						CvPopupInfo kPopupInfo(BUTTONPOPUP_CHOOSE_GOODY_HUT_REWARD, GetID(), pUnit->GetID());
-						GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
-						// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
-						if (!GC.getGame().isReallyNetworkMultiPlayer())
-						{
-							CancelActivePlayerEndTurn();
-						}
-					}
-				}
-				else
-				{
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
-					int iRand = GC.getGame().getSmallFakeRandNum(avValidGoodies.size(),*pPlot);
-#else
-					int iRand = GC.getGame().getJonRandNum(avValidGoodies.size(), "Picking a Goody result");
-#endif
-					eGoody = (GoodyTypes) avValidGoodies[iRand];
-					receiveGoody(pPlot, eGoody, pUnit);
-#if defined(MOD_EVENTS_GOODY_CHOICE)
-					if (MOD_EVENTS_GOODY_CHOICE)
-						//   GameEvents.GoodyHutReceivedBonus.Add(function(iPlayer, iUnit, eGoody, iX, iY) end)
-						GAMEEVENTINVOKE_HOOK(GAMEEVENT_GoodyHutReceivedBonus, GetID(), pUnit ? pUnit->GetID() : -1, eGoody, pPlot->getX(), pPlot->getY());
-#endif
-				}
-
-				if (MOD_API_ACHIEVEMENTS && pUnit && isHuman() && !GC.getGame().isGameMultiPlayer())
-				{
-					pUnit->SetNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped() + 1);
-					if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && pUnit->GetNumGoodyHutsPopped() >= 5)
-					{
-						gDLL->UnlockAchievement(ACHIEVEMENT_XP2_25);
-					}
-				}
-			}
-
-			pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), m_eID, NO_PLAYER);
 		}
+#endif
+
+		// Any valid Goodies?
+		if(avValidGoodies.size() > 0)
+		{
+			// Fix the bug where the AI won't get anything for Goody Hut pickers!!!
+			if (pUnit && pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && GET_PLAYER(pUnit->getOwner()).isHuman())
+			{
+				if (GC.getGame().getActivePlayer() == GetID())
+
+				{
+					CvPopupInfo kPopupInfo(BUTTONPOPUP_CHOOSE_GOODY_HUT_REWARD, GetID(), pUnit->GetID());
+					GC.GetEngineUserInterface()->AddPopup(kPopupInfo);
+					// We are adding a popup that the player must make a choice in, make sure they are not in the end-turn phase.
+					if (!GC.getGame().isReallyNetworkMultiPlayer())
+					{
+						CancelActivePlayerEndTurn();
+					}
+				}
+			}
+			else
+			{
+#if defined(MOD_CORE_REDUCE_RANDOMNESS)
+				int iRand = GC.getGame().getSmallFakeRandNum(avValidGoodies.size(),*pPlot);
+#else
+				int iRand = GC.getGame().getJonRandNum(avValidGoodies.size(), "Picking a Goody result");
+#endif
+				eGoody = (GoodyTypes) avValidGoodies[iRand];
+				receiveGoody(pPlot, eGoody, pUnit);
+#if defined(MOD_EVENTS_GOODY_CHOICE)
+				if (MOD_EVENTS_GOODY_CHOICE)
+					//   GameEvents.GoodyHutReceivedBonus.Add(function(iPlayer, iUnit, eGoody, iX, iY) end)
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_GoodyHutReceivedBonus, GetID(), pUnit ? pUnit->GetID() : -1, eGoody, pPlot->getX(), pPlot->getY());
+#endif
+			}
+
+			if (MOD_API_ACHIEVEMENTS && pUnit && isHuman() && !GC.getGame().isGameMultiPlayer())
+			{
+				pUnit->SetNumGoodyHutsPopped(pUnit->GetNumGoodyHutsPopped() + 1);
+				if (pUnit->isHasPromotion((PromotionTypes)GD_INT_GET(PROMOTION_GOODY_HUT_PICKER)) && pUnit->GetNumGoodyHutsPopped() >= 5)
+				{
+					gDLL->UnlockAchievement(ACHIEVEMENT_XP2_25);
+				}
+			}
+		}
+
+		pPlot->AddArchaeologicalRecord(CvTypes::getARTIFACT_ANCIENT_RUIN(), m_eID, NO_PLAYER);
 	}
 }
 
@@ -28019,6 +28096,27 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					const std::pair<int, int> unitPillageYield = pUnit->getYieldFromPillage(eYield);
 					iValue += unitPillageYield.first;
 					iValue += unitPillageYield.second * iEra;
+				}
+				case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+				{
+					if(pUnit == NULL)
+						continue;
+
+					if(eYield == YIELD_GREAT_ADMIRAL_POINTS && !bDomainSea)
+					{
+						continue;
+					}
+					if(eYield == YIELD_GREAT_GENERAL_POINTS && bDomainSea)
+					{
+						continue;
+					}
+
+					if (iPassYield > 0)
+					{
+						iValue = iPassYield * pLoopCity->GetYieldFromCombatExperience(eYield);
+						iValue /= 100;
+					}
+					break;
 				}
 			}
 			//Now, let's apply these yields here as total yields.
