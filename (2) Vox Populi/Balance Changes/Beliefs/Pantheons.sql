@@ -77,26 +77,6 @@ UPDATE Beliefs
 SET FaithFromKills = '175'
 WHERE Type = 'BELIEF_GOD_WAR';
 
-INSERT INTO Belief_FreePromotions
-	(BeliefType, PromotionType)
-VALUES
-	('BELIEF_GOD_WAR', 'PROMOTION_GOD_WAR');
-
-INSERT INTO UnitPromotions
-	(Type, Description, Help, Sound, CannotBeChosen, PortraitIndex, IconAtlas, PediaType, PediaEntry, HPHealedIfDestroyEnemy)
-VALUES
-	('PROMOTION_GOD_WAR', 'TXT_KEY_PROMOTION_GOD_WAR', 'TXT_KEY_PROMOTION_GOD_WAR_HELP', 'AS2D_IF_LEVELUP', 1, 59, 'ABILITY_ATLAS', 'PEDIA_HEAL', 'TXT_KEY_PROMOTION_GOD_WAR', 10);
-
-INSERT INTO UnitPromotions_UnitCombats
-	(PromotionType, UnitCombatType)
-VALUES
-	('PROMOTION_GOD_WAR', 'UNITCOMBAT_RECON'),
-	('PROMOTION_GOD_WAR', 'UNITCOMBAT_MOUNTED'),
-	('PROMOTION_GOD_WAR', 'UNITCOMBAT_MELEE'),
-	('PROMOTION_GOD_WAR', 'UNITCOMBAT_GUN'),
-	('PROMOTION_GOD_WAR', 'UNITCOMBAT_ARMOR'),
-	('PROMOTION_GOD_WAR', 'UNITCOMBAT_NAVALMELEE');
-
 -- Sacred Waters
 
 -- Goddess of Love
