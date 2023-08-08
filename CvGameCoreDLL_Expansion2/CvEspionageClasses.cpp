@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2270,11 +2270,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 
 			if(MOD_BALANCE_CORE_SPIES_ADVANCED && pSpy->m_bIsDiplomat && (iSpyRank <= SPY_RANK_AGENT))
 			{
-				int iNewResult = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
-				if(iNewResult >= 85)
-				{
-					LevelUpSpy(uiSpyIndex);
-				}
+				LevelUpSpy(uiSpyIndex, /*25*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
 			}
 		}
 	}
@@ -3059,7 +3055,7 @@ void CvPlayerEspionage::LevelUpSpy(uint uiSpyIndex, int iExperience)
 			}
 			else
 			{
-				m_aSpyList[uiSpyIndex].m_iExperience = 0;
+				m_aSpyList[uiSpyIndex].m_iExperience -= /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR);
 			}
 		}
 		if (bCanLevel)
