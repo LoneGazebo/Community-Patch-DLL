@@ -56,6 +56,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGreatScientistRateModifier(0),
 	m_iGreatDiplomatRateModifier(0),
 	m_iDomesticGreatGeneralRateModifier(0),
+	m_iGAPFromHappinessModifier(0),
 	m_iExtraHappiness(0),
 	m_iExtraHappinessPerCity(0),
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -529,6 +530,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
 	m_iGreatScientistRateModifier = kResults.GetInt("GreatScientistRateModifier");
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
+	m_iGAPFromHappinessModifier = kResults.GetInt("GAPFromHappinessModifier");
 	m_iExtraHappiness = kResults.GetInt("ExtraHappiness");
 	m_iExtraHappinessPerCity = kResults.GetInt("ExtraHappinessPerCity");
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -1602,6 +1604,12 @@ int CvPolicyEntry::GetGreatScientistRateModifier() const
 int CvPolicyEntry::GetDomesticGreatGeneralRateModifier() const
 {
 	return m_iDomesticGreatGeneralRateModifier;
+}
+
+///  Change in rate of golden age points generation from happiness
+int CvPolicyEntry::GetGAPFromHappinessModifier() const
+{
+	return m_iGAPFromHappinessModifier;
 }
 
 ///  Extra Happiness
@@ -4568,6 +4576,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDomesticGreatGeneralRateModifier();
+				break;
+			case POLICYMOD_GAP_FROM_HAPPINESS_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGAPFromHappinessModifier();
 				break;
 			case POLICYMOD_POLICY_COST_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPolicyCostModifier();
