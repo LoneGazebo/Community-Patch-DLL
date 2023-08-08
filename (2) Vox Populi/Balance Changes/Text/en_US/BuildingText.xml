@@ -620,7 +620,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+1 tile work radius. +10% to all City Yields. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_VP_GREATMUSIC] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
+			<Text>+1 tile work radius. +10% to all City Yields.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_VP_GREATMUSIC] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
@@ -629,7 +629,7 @@
 			<Text>State Treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Allows for a Merchant specialist in your [ICON_CAPITAL] Capital. Can only be constructed via the [COLOR_MAGENTA]Majesty[ENDCOLOR] Policy.</Text>
+			<Text>Allows for a Merchant specialist in your [ICON_CAPITAL] Capital. Boosts the [ICON_CULTURE] Culture output of Gardens and Monuments by +2 in all Cities. Can only be constructed via the [COLOR_MAGENTA]Majesty[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
 			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>
@@ -647,7 +647,7 @@
 			<Text>Palace Gardens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_HELP">
-			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_VP_GREATWRITING] Great Work of Writing. Boosts the [ICON_CULTURE] Culture output of Gardens and Monuments by +2 in all Cities. Can only be constructed via the [COLOR_MAGENTA]Splendor[ENDCOLOR] Policy.</Text>
+			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. +25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. Has a slot for a [ICON_VP_GREATWRITING] Great Work of Writing. Can only be constructed via the [COLOR_MAGENTA]Splendor[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_PEDIA">
 			<Text>A garden is a planned space, usually outdoors, set aside for the display, cultivation, and enjoyment of plants and other forms of nature. The garden can incorporate both natural and man-made materials. The most common form today is known as a residential garden, but the term garden has traditionally been a more general one. Zoos, which display wild animals in simulated natural habitats, were formerly called zoological gardens.[1][2] Western gardens are almost universally based on plants, with garden often signifying a shortened form of botanical garden.</Text>
