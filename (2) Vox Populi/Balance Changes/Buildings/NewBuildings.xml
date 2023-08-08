@@ -738,6 +738,8 @@
 			<NukeImmune>true</NukeImmune>
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<CitySupplyFlat>5</CitySupplyFlat>
+			<PurchaseCooldownReduction>3</PurchaseCooldownReduction>
+			<PurchaseCooldownReductionCivilian>1</PurchaseCooldownReductionCivilian>
 			<NumCityCostMod>10</NumCityCostMod>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
@@ -757,14 +759,16 @@
 			<Strategy>TXT_KEY_BUILDING_VENETIAN_ARSENALE_STRATEGY</Strategy>
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<CitySupplyModifier>25</CitySupplyModifier>
-			<CitySupplyFlat>5</CitySupplyFlat>
+			<CitySupplyModifier>5</CitySupplyModifier>
+			<CitySupplyModifierGlobal>10</CitySupplyModifierGlobal>
+			<GlobalDefenseMod>10</GlobalDefenseMod>
+			<BuildingDefenseModifier>5</BuildingDefenseModifier>
 			<MinAreaSize>-1</MinAreaSize>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<FreePromotion>PROMOTION_ARSENALE</FreePromotion>
 			<NumCityCostMod>10</NumCityCostMod>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
-			<SpecialistCount>1</SpecialistCount>
+			<SpecialistCount>2</SpecialistCount>
 			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>0</PortraitIndex>
@@ -782,13 +786,14 @@
 			<ArtDefineTag>ART_DEF_BUILDING_NATIONAL_TREASURY</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
 			<MinAreaSize>-1</MinAreaSize>
-			<VotesPerGPT>100</VotesPerGPT>
+			<VotesPerGPT>200</VotesPerGPT>
 			<CivilizationRequired>CIVILIZATION_VENICE</CivilizationRequired>
 			<TradeRouteRecipientBonus>3</TradeRouteRecipientBonus>
 			<TradeRouteTargetBonus>3</TradeRouteTargetBonus>
+			<NumTradeRouteBonus>1</NumTradeRouteBonus>
 			<NumCityCostMod>10</NumCityCostMod>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
-			<SpecialistCount>1</SpecialistCount>
+			<SpecialistCount>2</SpecialistCount>
 			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>2</PortraitIndex>
@@ -812,7 +817,9 @@
 			<ThemingBonusHelp>TXT_KEY_BUILDING_MURANO_GLASSWORKS_THEMING_BONUS_HELP</ThemingBonusHelp>
 			<GreatWorkCount>2</GreatWorkCount>
 			<SpecialistType>SPECIALIST_ARTIST</SpecialistType>
-			<SpecialistCount>1</SpecialistCount>
+			<SpecialistCount>2</SpecialistCount>
+			<FinishLandTRTourism>5</FinishLandTRTourism>
+			<FinishSeaTRTourism>5</FinishSeaTRTourism>
 			<NeverCapture>true</NeverCapture>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>1</PortraitIndex>
