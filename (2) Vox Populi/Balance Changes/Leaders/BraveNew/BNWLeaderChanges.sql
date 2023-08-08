@@ -230,11 +230,6 @@ INSERT INTO Building_ResourceQuantity
 VALUES
 	('BUILDING_DUCAL_STABLE', 'RESOURCE_HORSE', 1);
 
-INSERT INTO Building_InstantYield
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_DUCAL_STABLE', 'YIELD_CULTURE', 100);
-
 DELETE FROM Building_LocalResourceOrs
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE';
 

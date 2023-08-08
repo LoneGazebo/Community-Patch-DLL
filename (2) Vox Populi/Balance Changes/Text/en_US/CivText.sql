@@ -911,7 +911,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_IMMORTAL';
 -- Poland
 --------------------
 UPDATE Language_en_US
-SET Text = 'Unique Polish Stable replacement. +100 [ICON_CULTURE] Culture when completed. Provides 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_HORSE] Horse, and grants +50% [ICON_PRODUCTION] Production and +15 XP for Mounted Melee Units. Increases the Military Unit Supply Cap from Population in the City by 10%. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.'
+SET Text = 'Unique Polish Stable replacement. Provides 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_HORSE] Horse, and grants +50% [ICON_PRODUCTION] Production and +15 XP for Mounted Melee Units. Increases the Military Unit Supply Cap from Population in the City by 10%. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP';
 
 UPDATE Language_en_US
