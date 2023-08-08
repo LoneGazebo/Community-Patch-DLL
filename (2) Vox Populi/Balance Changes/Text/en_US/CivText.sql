@@ -854,7 +854,7 @@ SET Text = 'Naval Unit used to attack coastal cities and capture enemy ships. On
 WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'A Polder can be built on Marshes and on any Water tiles adjacent to at least 3 land tiles. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched. Does not remove any features on the tile.[NEWLINE][NEWLINE]Polders can be walked on by land units as if they are land tiles.'
+SET Text = 'A Polder can be built on Marshes and on any Water tiles adjacent to at least 3 land tiles. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production. Provides additional yields once later techs are researched. Does not remove any features on the tile.[NEWLINE][NEWLINE]Polders can be walked on by land units as if they are land tiles.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP';
 
 UPDATE Language_en_US
