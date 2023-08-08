@@ -519,7 +519,7 @@ private:
 	int m_iGreatScientistRateModifier;
 	int m_iGreatDiplomatRateModifier;
 	int m_iDomesticGreatGeneralRateModifier;
-	int	m_iGAPFromHappinessModifier;
+	int m_iGAPFromHappinessModifier;
 	int m_iExtraHappiness;
 	int m_iExtraHappinessPerCity;
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
