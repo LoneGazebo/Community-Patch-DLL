@@ -3236,10 +3236,36 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	else
 	{
 		// restore combat units at some percentage of their original health
+		// (5-82): Captured Units can still move/pillage (but not attack)
+		// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
 		if (pkCapturedUnit != NULL)
 		{
 			int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * /*50 in CP, 75 in VP*/ GD_INT_GET(COMBAT_CAPTURE_HEALTH)) / 100;
 			pkCapturedUnit->setDamage(iCapturedHealth);
+			pkCapturedUnit->restoreFullMoves();
+			pkCapturedUnit->setMadeAttack(true);
+			pkCapturedUnit->SetTurnProcessed(false);
+			if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman()) {
+				if (pkCapturedUnit->shouldPillage(pkPlot, true))
+				{
+					pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+				}
+				CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pkCapturedUnit, true, true);
+				if (pBestPlot != NULL)
+				{
+					//check if we need to bump somebody else
+					CvUnit* pBumpUnit = pkCapturedUnit->GetPotentialUnitToPushOut(*pBestPlot);
+					if (pBumpUnit)
+					{
+						pkCapturedUnit->PushBlockingUnitOutOfPlot(*pBestPlot);
+					}
+					pkCapturedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
+				}
+				else 
+				{
+					pkCapturedUnit->PushMission(CvTypes::getMISSION_SKIP());
+				}
+			}
 		}
 	}
 
