@@ -226,17 +226,11 @@ VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_PLAINS'),
 	
 INSERT INTO Improvement_Yields 	
 			(ImprovementType, 				YieldType,			Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_GOLD',		1),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FOOD',		1),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_PRODUCTION',	1);
-	
-INSERT INTO Improvement_AdjacentCityYields 	
-			(ImprovementType, 				YieldType,				Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_CULTURE',	2);
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_CULTURE',	1);
 	
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType,				ResourceType,	YieldType,		Yield)
-SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_GOLD',	2
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_GOLD',	3
 FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_LUXURY';
 
 CREATE TRIGGER VP_HaciendaCompatibility_Luxury
@@ -245,12 +239,12 @@ WHEN NEW.ResourceClassType = 'RESOURCECLASS_LUXURY'
 BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 				(ImprovementType, ResourceType, YieldType, Yield)
-	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_GOLD', 2;
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
 END;
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType,				ResourceType,	YieldType,		Yield)
-SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_FOOD',	2
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_FOOD',	3
 FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_BONUS';
 
 CREATE TRIGGER VP_HaciendaCompatibility_Bonus
@@ -259,18 +253,18 @@ WHEN NEW.ResourceClassType = 'RESOURCECLASS_BONUS'
 BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 				(ImprovementType, ResourceType, YieldType, Yield)
-	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_FOOD', 2;
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_FOOD', 3;
 END;
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType,				ResourceType,	YieldType,			Yield)
-SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_PRODUCTION',	2
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_PRODUCTION',	3
 FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_MODERN';
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType, 				ResourceType,			YieldType,				Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_HORSE',		'YIELD_PRODUCTION',		2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IRON',		'YIELD_PRODUCTION',		2);
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_HORSE',		'YIELD_PRODUCTION',		3),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IRON',		'YIELD_PRODUCTION',		3);
 
 CREATE TRIGGER VP_HaciendaCompatibility_Strategic
 AFTER INSERT ON Resources 
@@ -278,7 +272,7 @@ WHEN NEW.ResourceClassType IN('RESOURCECLASS_MODERN', 'RESOURCECLASS_RUSH')
 BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 				(ImprovementType, ResourceType, YieldType, Yield)
-	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 2;
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 3;
 END;
 
 INSERT INTO Builds
