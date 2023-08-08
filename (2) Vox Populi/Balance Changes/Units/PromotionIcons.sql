@@ -333,7 +333,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04', PortraitIndex = 5  WHE
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 18 WHERE Type = 'PROMOTION_GOD_WAR';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 21 WHERE Type = 'PROMOTION_SKIRMISHER_DOCTRINE';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 22 WHERE Type = 'PROMOTION_SCOUT_CAVALRY';
-UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 23 WHERE Type = 'PROMOTION_MONGOL_TERROR';
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 23 WHERE Type = 'PROMOTION_ENVELOPMENT';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 56 WHERE Type = 'PROMOTION_DOPPELSOLDNER';
 
 --

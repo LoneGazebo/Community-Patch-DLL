@@ -671,6 +671,13 @@
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP">
 			<Text>Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]+1 [ICON_MOVES] Movement.</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT">
+			<Text>Envelopment</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT_HELP">
+			<Text>Benefits from Flanking when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.</Text>
+		</Row>
 	<!-- Melee Line -->
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4">
 			<Text>Overrun</Text>

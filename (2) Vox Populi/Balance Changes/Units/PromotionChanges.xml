@@ -4479,6 +4479,23 @@
 			<ExtraFlankPower>1</ExtraFlankPower>
 			<FlankAttackModifier>10</FlankAttackModifier>
 		</Row>
+		<Row>
+			<Type>PROMOTION_ENVELOPMENT</Type>
+			<Description>TXT_KEY_PROMOTION_ENVELOPMENT</Description>
+			<Help>TXT_KEY_PROMOTION_ENVELOPMENT_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_ACCURACY_2</PromotionPrereqOr2>
+			<OrderPriority>7</OrderPriority>
+			<MountedOnly>true</MountedOnly>
+			<MaximumRangeRequired>1</MaximumRangeRequired>
+			<RangedFlankAttack>1</RangedFlankAttack>
+			<FlankAttackModifier>10</FlankAttackModifier>
+			<PortraitIndex>23</PortraitIndex>
+			<IconAtlas>extraPromo_Atlas</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ENVELOPMENT</PediaEntry>
+		</Row>
 	</UnitPromotions>
 	
 	<Language_en_US>
