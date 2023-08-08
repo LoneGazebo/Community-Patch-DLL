@@ -330,7 +330,6 @@
 			<SpecialistType>SPECIALIST_MUSICIAN</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<CultureRateModifier>10</CultureRateModifier>
-			<NoUnhappfromXSpecialists>2</NoUnhappfromXSpecialists>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_MUSIC</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
 			<MinAreaSize>-1</MinAreaSize>
@@ -355,7 +354,6 @@
 			<NukeImmune>true</NukeImmune>
 			<CapitalOnly>true</CapitalOnly>
 			<NeverCapture>true</NeverCapture>
-			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
 			<SpecialistType>SPECIALIST_MERCHANT</SpecialistType>
 			<SpecialistCount>1</SpecialistCount>
 			<IconAtlas>NEW_BLDG_ATLAS_DLC</IconAtlas>
@@ -396,6 +394,8 @@
 			<SpecialistCount>1</SpecialistCount>
 			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>1</GreatWorkCount>
+			<NoUnhappfromXSpecialists>2</NoUnhappfromXSpecialists>
+			<GreatPeopleRateModifier>25</GreatPeopleRateModifier>
 			<CapitalOnly>true</CapitalOnly>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>22</PortraitIndex>
