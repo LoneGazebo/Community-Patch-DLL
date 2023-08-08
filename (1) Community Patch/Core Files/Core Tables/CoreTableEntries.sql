@@ -1809,3 +1809,36 @@ UPDATE Eras SET EraSplashImage = 'ERA_Industrial.dds' 		WHERE Type = 'ERA_INDUST
 UPDATE Eras SET EraSplashImage = 'ERA_Modern.dds'     		WHERE Type = 'ERA_MODERN';
 UPDATE Eras SET EraSplashImage = 'ERA_Atomic.dds'     		WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET EraSplashImage = 'ERA_Future.dds'     		WHERE Type = 'ERA_FUTURE';
+
+-- Add useful properties to UnitCombatInfos for easy SQL reference
+-- Please don't use this to determine properties of individual unit classes/units
+ALTER TABLE UnitCombatInfos ADD IsMilitary BOOLEAN DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsRanged BOOLEAN DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsNaval BOOLEAN DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsAerial BOOLEAN DEFAULT 0;
+
+UPDATE UnitCombatInfos SET IsMilitary = 1
+WHERE ID <= 13;
+
+UPDATE UnitCombatInfos SET IsRanged = 1
+WHERE Type IN (
+	'UNITCOMBAT_ARCHER',
+	'UNITCOMBAT_SIEGE',
+	'UNITCOMBAT_NAVALRANGED',
+	'UNITCOMBAT_SUBMARINE',
+	'UNITCOMBAT_CARRIER'
+);
+
+UPDATE UnitCombatInfos SET IsNaval = 1
+WHERE Type IN (
+	'UNITCOMBAT_NAVALRANGED',
+	'UNITCOMBAT_NAVALMELEE',
+	'UNITCOMBAT_SUBMARINE',
+	'UNITCOMBAT_CARRIER'
+);
+
+UPDATE UnitCombatInfos SET IsAerial = 1
+WHERE Type IN (
+	'UNITCOMBAT_FIGHTER',
+	'UNITCOMBAT_BOMBER'
+);

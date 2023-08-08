@@ -12475,11 +12475,17 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	// ALL OTHERS
 	else
 	{
-		// Cost goes up in later eras
 		iCost = pkUnitInfo->GetFaithCost();
-		EraTypes eEra = GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCurrentEra();
-		int iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
-		iCost = iCost * iMultiplier / 100;
+		int iMultiplier;
+
+		// Cost goes up in later eras
+		// Only Missionaries and Inquisitors for VP
+		if (!MOD_BALANCE_VP || pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
+		{
+			EraTypes eEra = GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCurrentEra();
+			iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
+			iCost = iCost * iMultiplier / 100;
+		}
 
 		if (pkUnitInfo->IsSpreadReligion() || pkUnitInfo->IsRemoveHeresy())
 		{
@@ -12741,11 +12747,17 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 		return 0;
 	}
 
-	// Cost goes up in later eras
 	int iCost = pkBuildingInfo->GetFaithCost();
-	EraTypes eEra = GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCurrentEra();
-	int iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
-	iCost = iCost * iMultiplier / 100;
+	int iMultiplier;
+
+	// Cost goes up in later eras (CP only)
+	if (!MOD_BALANCE_VP)
+	{
+		EraTypes eEra = GET_TEAM(GET_PLAYER(getOwner()).getTeam()).GetCurrentEra();
+		iMultiplier = GC.getEraInfo(eEra)->getFaithCostMultiplier();
+		iCost = iCost * iMultiplier / 100;
+	}
+
 	iMultiplier = (100 + GET_PLAYER(getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_FAITH_COST_MODIFIER));
 	iCost = iCost * iMultiplier / 100;
 
