@@ -4464,6 +4464,21 @@
 			<Amphib>true</Amphib>
 			<River>true</River>
 		</Row>
+		<Row>
+			<Type>PROMOTION_SCREENING</Type>
+			<Description>TXT_KEY_PROMOTION_SCREENING</Description>
+			<Help>TXT_KEY_PROMOTION_SCREENING_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOODLAND_TRAILBLAZER_III</PromotionPrereqOr2>
+			<OrderPriority>2</OrderPriority>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>promoVP_atlas_04</IconAtlas>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SCREENING</PediaEntry>
+			<ExtraFlankPower>1</ExtraFlankPower>
+			<FlankAttackModifier>10</FlankAttackModifier>
+		</Row>
 	</UnitPromotions>
 	
 	<Language_en_US>

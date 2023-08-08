@@ -643,6 +643,13 @@
 		<Row Tag="TXT_KEY_PROMOTION_FROGMAN_HELP">
 			<Text>[COLOR_POSITIVE_TEXT]Embarking[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Disembarking[ENDCOLOR] Costs 1 [ICON_MOVES] Movement.[NEWLINE]Eliminates combat penalties for attacking from the sea or over a river.</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING">
+			<Text>Screening</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]Counted twice for Flanking bonuses.</Text>
+		</Row>
 	<!-- Mounted Line -->
 		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II">
 			<Text>Charge II</Text>
