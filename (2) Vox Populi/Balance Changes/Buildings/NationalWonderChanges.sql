@@ -83,6 +83,10 @@ INSERT INTO Building_BuildingClassYieldChanges
 VALUES
 	('BUILDING_CIRCUS_MAXIMUS', 'BUILDINGCLASS_COLOSSEUM', 'YIELD_GOLD', 2);
 
+INSERT INTO Building_ResourceQuantity
+	(BuildingType, ResourceType, Quantity)
+VALUES
+	('BUILDING_CIRCUS_MAXIMUS', 'RESOURCE_HORSE', 2);
 -- National Intelligence Agency
 
 -- Oxford University
