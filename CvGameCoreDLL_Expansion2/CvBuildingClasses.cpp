@@ -332,6 +332,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldFromPolicyUnlock(NULL),
 	m_piYieldFromUnitLevelUp(NULL),
+	m_piYieldFromCombatExperience(NULL),
 	m_piYieldFromPurchase(NULL),
 	m_piYieldFromFaithPurchase(NULL),
 #endif
@@ -466,6 +467,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitLevelUp);
+	SAFE_DELETE_ARRAY(m_piYieldFromCombatExperience);
 	SAFE_DELETE_ARRAY(m_piYieldFromPurchase);
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchase);
 #endif
@@ -949,6 +951,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitLevelUp, "Building_YieldFromUnitLevelUp", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromCombatExperience, "Building_YieldFromCombatExperience", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromFaithPurchase, "Building_YieldFromFaithPurchase", "BuildingType", szBuildingType);
 #endif
@@ -3272,6 +3275,18 @@ int CvBuildingEntry::GetYieldFromUnitLevelUp(int i) const
 int* CvBuildingEntry::GetYieldFromUnitLevelUpArray() const
 {
 	return m_piYieldFromUnitLevelUp;
+}
+
+int CvBuildingEntry::GetYieldFromCombatExperience(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromCombatExperience[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromCombatExperienceArray() const
+{
+	return m_piYieldFromCombatExperience;
 }
 
 

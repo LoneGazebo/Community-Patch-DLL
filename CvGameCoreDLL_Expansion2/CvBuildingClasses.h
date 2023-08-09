@@ -475,6 +475,9 @@ public:
 	int GetYieldFromUnitLevelUp(int i) const;
 	int* GetYieldFromUnitLevelUpArray() const;
 
+	int GetYieldFromCombatExperience(int i) const;
+	int* GetYieldFromCombatExperienceArray() const;
+
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
 
@@ -971,6 +974,7 @@ private:
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromUnitLevelUp;
+	int* m_piYieldFromCombatExperience;
 	int* m_piYieldFromPurchase;
 	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromInternalTREnd;

@@ -22005,6 +22005,21 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
 			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
 		}
+
+		int iRealExperienceTimes100 = min(iMaxTimes100 - m_iExperienceTimes100, iUnitExperienceTimes100);
+		CvCity* pOriginCity = getOriginCity();
+		if (pOriginCity)
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pOriginCity, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+		}
+		else
+		{
+			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+			if (pCapital)
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+			}
+		}
 	}
 
 	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);

@@ -1300,6 +1300,13 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
+	<!-- BUILDING: Allows you to define a building yield that is gained when a unit gains experience in combat - only grants to unit's origin city -->
+	<Table name="Building_YieldFromCombatExperience">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 	
 	<!-- POLICY: Allows you to define a yield granted from citizen birth in a city -->
 	<Table name="Policy_YieldFromBirth">
