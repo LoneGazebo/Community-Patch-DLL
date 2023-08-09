@@ -1587,6 +1587,12 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>
 	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained in all Cities based on # of military units you have alive. -->
+	<Table name="Trait_YieldFromXMilitaryUnits">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
 
 	<!-- TRAIT: Allows you to define a yield that is gained when you conquer a city for the first time. -->
 	<Table name="Trait_YieldFromConquest">

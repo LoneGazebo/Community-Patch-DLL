@@ -512,6 +512,26 @@ WHERE Type = 'BUILDING_DOJO';
 
 -- Napoleon -- GWAM from combat!
 UPDATE Traits
+SET ExtraSupplyPerPopulation = 25
+WHERE Type = 'TRAIT_ENHANCED_CULTURE';
+
+INSERT INTO Trait_FreePromotionUnitCombats 
+	(TraitType, UnitCombatType, PromotionType)
+VALUES
+	('TRAIT_ENHANCED_CULTURE', 'UNITCOMBAT_MELEE', 'PROMOTION_COERCION'),
+	('TRAIT_ENHANCED_CULTURE', 'UNITCOMBAT_GUN', 'PROMOTION_COERCION');
+	
+INSERT INTO Trait_YieldFromXMilitaryUnits 
+	(TraitType, YieldType, Yield)
+VALUES
+	('TRAIT_ENHANCED_CULTURE', 'YIELD_CULTURE', 10);
+	
+UPDATE Improvements
+SET NoFollowUp = 1
+WHERE Type = 'IMPROVEMENT_CHATEAU';
+
+/* Stashing it for now.
+UPDATE Traits
 SET CultureBonusModifierConquest = '40'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE';
 
@@ -529,7 +549,7 @@ WHERE Type = 'TRAIT_ENHANCED_CULTURE';
 
 UPDATE Traits
 SET CityConquestGWAM = '50'
-WHERE Type = 'TRAIT_ENHANCED_CULTURE';
+WHERE Type = 'TRAIT_ENHANCED_CULTURE';*/
 
 -- Ottomans -- Receive a free Caravansary in all cities, and Trade Routes generate yields when finishing a Trade Route.
 

@@ -31129,6 +31129,24 @@ int CvPlayer::GetHappinessFromMilitaryUnits() const
 	return iCount / iHappyPerXUnits;
 }
 
+int CvPlayer::GetYieldFromMilitaryUnits(YieldTypes eIndex) const
+{
+	int iYieldPerXUnits = GetPlayerTraits()->GetYieldFromXMilitaryUnits(eIndex);
+	if (iYieldPerXUnits <= 0)
+		return 0;
+
+	int iLoop = 0, iCount = 0;
+	for (const CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = nextUnit(&iLoop))
+	{
+		if (pLoopUnit->IsCivilianUnit() || pLoopUnit->isDelayedDeath())
+			continue;
+
+		iCount++;
+	}
+
+	return iCount / iYieldPerXUnits;
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getHappinessToCulture() const
 {

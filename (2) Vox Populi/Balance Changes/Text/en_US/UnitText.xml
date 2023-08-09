@@ -108,9 +108,9 @@
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
 			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking or defending [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].</Text>
 		</Row>
-	<!-- Huns -->
+	<!-- France -->
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
-			<Text>Coercion</Text>
+			<Text>Par le Sang Versé</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COERCION_HELP">
 			<Text>Defeated land units may join your side as conscripted, supply-free units. </Text>

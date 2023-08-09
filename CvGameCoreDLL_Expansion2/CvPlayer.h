@@ -1344,6 +1344,7 @@ public:
 	int getHappyPerMilitaryUnit() const;
 	void changeHappyPerMilitaryUnit(int iChange);
 	int GetHappinessFromMilitaryUnits() const;
+	int GetYieldFromMilitaryUnits(YieldTypes eIndex) const;
 
 	int getHappinessToCulture() const;
 	void changeHappinessToCulture(int iChange);
