@@ -178,18 +178,20 @@ VALUES
 	('POLICY_LEGALISM', 'BUILDINGCLASS_HERMITAGE', 1),
 	('POLICY_LEGALISM', 'BUILDINGCLASS_INTELLIGENCE_AGENCY', 1),
 	('POLICY_LEGALISM', 'BUILDINGCLASS_TOURIST_CENTER', 1);
-	
--- Trigger: Whatever Legalism buffs for Happiness will be added into being faster to build as well.
-INSERT INTO Policy_BuildingClassProductionModifiers (PolicyType, BuildingClassType, ProductionModifier)
-SELECT 'POLICY_LEGALISM', (b.BuildingClassType), 25 FROM Policy_BuildingClassHappiness b WHERE b.PolicyType = 'POLICY_LEGALISM';
 
-CREATE TRIGGER CeremonyDetectingNationalWonder AFTER INSERT ON Policy_BuildingClassHappiness
-WHEN EXISTS (SELECT * FROM Policy_BuildingClassHappiness WHERE NEW.PolicyType = 'POLICY_LEGALISM')
-BEGIN
-  INSERT INTO Policy_BuildingClassProductionModifiers (PolicyType, BuildingClassType, ProductionModifier)
-	SELECT 'POLICY_LEGALISM', NEW.BuildingClassType, 25;
-END;
--- End Trigger
+INSERT INTO Policy_BuildingClassProductionModifiers
+	(PolicyType, BuildingClassType, ProductionModifier)
+VALUES
+	('POLICY_LEGALISM', 'BUILDINGCLASS_NATIONAL_COLLEGE', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_NATIONAL_EPIC', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_HEROIC_EPIC', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_NATIONAL_TREASURY', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_GRAND_TEMPLE', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_OXFORD_UNIVERSITY', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_CIRCUS_MAXIMUS', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_IRONWORKS', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_HERMITAGE', 25),
+	('POLICY_LEGALISM', 'BUILDINGCLASS_INTELLIGENCE_AGENCY', 25);
 
 -- New Building Yield Data
 
