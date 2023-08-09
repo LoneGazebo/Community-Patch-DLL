@@ -3151,6 +3151,19 @@
 			<PediaEntry>TXT_KEY_PROMOTION_COERCION</PediaEntry>
 		</Row>
 		<Row>
+			<Type>PROMOTION_FOCUS_FIRE</Type>
+			<Description>TXT_KEY_PROMOTION_FOCUS_FIRE</Description>
+			<Help>TXT_KEY_PROMOTION_FOCUS_FIRE_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>1</OrderPriority>
+			<CannotBeChosen>true</CannotBeChosen>
+			<MultiAttackBonus>10</MultiAttackBonus>
+			<PortraitIndex>30</PortraitIndex>
+			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_COERCION</PediaEntry>
+		</Row>
+		<Row>
 			<Type>PROMOTION_KNOCKOUT_I</Type>
 			<Description>TXT_KEY_PROMOTION_KNOCKOUT_I</Description>
 			<Help>TXT_KEY_PROMOTION_KNOCKOUT_I_HELP</Help>

@@ -282,6 +282,7 @@ public:
 	int YieldFromRouteMovement(int i) const;
 	int YieldFromOwnPantheon(int i) const;
 	int YieldFromHistoricEvent(int i) const;
+	int YieldFromXMilitaryUnits(int i) const;
 	int YieldFromLevelUp(int i) const;
 #endif
 
@@ -386,6 +387,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromLevelUp(int i) const;
 	int GetYieldFromHistoricEvent(int i) const;
+	int GetYieldFromXMilitaryUnits(int i) const;
 	int GetYieldFromOwnPantheon(int i) const;
 	std::pair<int, int> GetTradeRouteEndYield(YieldTypes eYield) const;
 	int GetYieldFromRouteMovement(int i) const;
@@ -737,6 +739,7 @@ protected:
 	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
+	int* m_piYieldFromXMilitaryUnits;
 	std::map<int, std::pair<int, int>> m_tradeRouteEndYield;
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
@@ -1801,6 +1804,10 @@ public:
 	{
 		return m_iYieldFromHistoricEvent[(int)eYield];
 	};
+	int GetYieldFromXMilitaryUnits(YieldTypes eYield) const
+	{
+		return m_iYieldFromXMilitaryUnits[(int)eYield];
+	};
 	int GetYieldFromOwnPantheon(YieldTypes eYield) const
 	{
 		return m_iYieldFromOwnPantheon[(int)eYield];
@@ -2347,6 +2354,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iYieldFromLevelUp[NUM_YIELD_TYPES];
 	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
+	int m_iYieldFromXMilitaryUnits[NUM_YIELD_TYPES];
 	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
 	std::map<int, int> m_tradeRouteEndYieldDomestic;
 	std::map<int, int> m_tradeRouteEndYieldInternational;

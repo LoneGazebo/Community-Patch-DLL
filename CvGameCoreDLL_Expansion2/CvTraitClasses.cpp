@@ -250,6 +250,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_piYieldFromLevelUp(NULL),
 	m_piYieldFromHistoricEvent(NULL),
 	m_piYieldFromOwnPantheon(NULL),
+	m_piYieldFromXMilitaryUnits(NULL),
 	m_tradeRouteEndYield(),
 	m_piYieldFromRouteMovement(NULL),
 	m_piYieldFromExport(NULL),
@@ -1128,6 +1129,10 @@ int CvTraitEntry::YieldFromHistoricEvent(int i) const
 {
 	return m_piYieldFromHistoricEvent ? m_piYieldFromHistoricEvent[i] : -1;
 }
+int CvTraitEntry::YieldFromXMilitaryUnits(int i) const
+{
+	return m_piYieldFromXMilitaryUnits ? m_piYieldFromXMilitaryUnits[i] : -1;
+}
 int CvTraitEntry::YieldFromLevelUp(int i) const
 {
 	return m_piYieldFromLevelUp ? m_piYieldFromLevelUp[i] : -1;
@@ -1561,6 +1566,10 @@ int CvTraitEntry::GetPlotYieldChanges(PlotTypes eIndex1, YieldTypes eIndex2) con
 int CvTraitEntry::GetYieldFromHistoricEvent(int i) const
 {
 	return m_piYieldFromHistoricEvent? m_piYieldFromHistoricEvent[i] : -1;
+}
+int CvTraitEntry::GetYieldFromXMilitaryUnits(int i) const
+{
+	return m_piYieldFromXMilitaryUnits ? m_piYieldFromXMilitaryUnits[i] : -1;
 }
 int CvTraitEntry::GetYieldFromLevelUp(int i) const
 {
@@ -3242,6 +3251,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 #if defined(MOD_BALANCE_CORE)
 	kUtility.SetYields(m_piYieldFromLevelUp, "Trait_YieldFromLevelUp", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromHistoricEvent, "Trait_YieldFromHistoricEvent", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromXMilitaryUnits, "Trait_YieldFromXMilitaryUnits", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromOwnPantheon, "Trait_YieldFromOwnPantheon", "TraitType", szTraitType);
 	// Trait_TradeRouteEndYield
 	{
@@ -4256,7 +4266,8 @@ void CvPlayerTraits::SetIsReligious()
 		GetExtraMissionaryStrength() > 0 ||
 		GetGoldenAgeYieldModifier(YIELD_FAITH) > 0 ||
 		GetYieldFromBarbarianCampClear(YIELD_FAITH, true) > 0 ||
-		GetYieldFromBarbarianCampClear(YIELD_FAITH, false) > 0)
+		GetYieldFromBarbarianCampClear(YIELD_FAITH, false) > 0 ||
+		GetYieldFromXMilitaryUnits(YIELD_FAITH) != 0)
 	{
 		m_bIsReligious = true;
 		return;
@@ -4820,6 +4831,7 @@ void CvPlayerTraits::InitPlayerTraits()
 #if defined(MOD_BALANCE_CORE)
 				m_iYieldFromLevelUp[iYield] = trait->GetYieldFromLevelUp(iYield);
 				m_iYieldFromHistoricEvent[iYield] = trait->GetYieldFromHistoricEvent(iYield);
+				m_iYieldFromXMilitaryUnits[iYield] = trait->GetYieldFromXMilitaryUnits(iYield);
 				m_iYieldFromOwnPantheon[iYield] = trait->GetYieldFromOwnPantheon(iYield);
 				// TradeRouteEndYield
 				{
@@ -5485,6 +5497,7 @@ void CvPlayerTraits::Reset()
 #if defined(MOD_BALANCE_CORE)
 		m_iYieldFromLevelUp[iYield] = 0;
 		m_iYieldFromHistoricEvent[iYield] = 0;
+		m_iYieldFromXMilitaryUnits[iYield] = 0;
 		m_iYieldFromOwnPantheon[iYield] = 0;
 		m_iYieldFromRouteMovement[iYield] = 0;
 		m_iYieldFromExport[iYield] = 0;

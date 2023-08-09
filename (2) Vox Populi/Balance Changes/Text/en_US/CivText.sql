@@ -353,11 +353,11 @@ VALUES ('TXT_KEY_BUILDING_STELE_HELP', '+34% Faster [ICON_CULTURE_LOCAL] Border 
 -- France
 --------------------
 UPDATE Language_en_US
-SET Text = '+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn. When you conquer a City, gain 50% progress toward [ICON_GREAT_WORK] Great Writers/Artists/Musicians in the [ICON_CAPITAL] Capital and a temporary +40% [ICON_CULTURE] Culture and [ICON_PRODUCTION] Production in all Cities, scaling with the conquered City''s [ICON_CITIZEN] Population.'
+SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_WAR] Unit Supply. +1 [ICON_CULTURE] Culture in every City for every 10 Military Units. +25% [ICON_SILVER_FIST] Unit Supply from [ICON_CITIZEN] Population.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE';
 
 UPDATE Language_en_US
-SET Text = 'Esprit de Corps'
+SET Text = 'La Grande Armée'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT';
 
 UPDATE Language_en_US
@@ -411,7 +411,7 @@ SET Text = 'A Chateau can only be built adjacent to a Luxury resource. It may no
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_CHATEAU_TEXT';
 
 UPDATE Language_en_US
-SET Text = '+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Requires an adjacent Luxury resource to be built.'
+SET Text = '+50% [ICON_STRENGTH] Defensive Strength for any Unit stationed in this Tile. Requires an adjacent Luxury resource to be built. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in the Tile after attacking.'
 WHERE Tag = 'TXT_KEY_BUILD_CHATEAU_HELP';
 
 UPDATE Language_en_US
@@ -552,7 +552,7 @@ WHERE Tag = 'TXT_KEY_UNIT_GREEK_COMPANIONCAVALRY_STRATEGY';
 -- Huns
 --------------------
 UPDATE Language_en_US
-SET Text = 'Friendly and Enemy [ICON_WAR] War Weariness is modified by 50%. Mounted Melee and Armor Units may capture defeated Units, which do not consume Unit Supply. Claim adjacent unowned land tiles when Cities claim a tile of the same type.'
+SET Text = 'Friendly and Enemy [ICON_WAR] [COLOR_POSITIVE_TEXT]War Weariness[ENDCOLOR] is modified by 50%. Mounted Melee and Armor Units may capture defeated Units, which do not consume Unit Supply. Claim adjacent unowned land tiles when Cities claim a tile of the same type.'
 WHERE Tag = 'TXT_KEY_TRAIT_RAZE_AND_HORSES';
 
 UPDATE Language_en_US

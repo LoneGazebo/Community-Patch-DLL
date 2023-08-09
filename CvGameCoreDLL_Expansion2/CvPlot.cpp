@@ -9499,6 +9499,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 			}
 		}
 
+		// GetYieldFromXMilitaryUnits (France UA)
+		iYield += GET_PLAYER(ePlayer).GetYieldFromMilitaryUnits(eYield);
+
 		// Mod for Player; used for Policies and such
 		iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityYieldChanges(eYield);
 
