@@ -43459,6 +43459,11 @@ void CvPlayer::LogInstantYield(YieldTypes eYield, int iValue, InstantYieldType e
 				instantYieldName = "Pillage (Unit)";
 				break;
 			}
+	case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+			{
+				instantYieldName = "Unit Combat";
+				break;
+			}
 	}
 
 	CvString strFileName = "InstantYieldSummary.csv";

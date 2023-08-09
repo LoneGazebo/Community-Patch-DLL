@@ -1173,6 +1173,9 @@ public:
 	int GetYieldFromUnitLevelUp(YieldTypes eIndex) const;
 	void ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromCombatExperience(YieldTypes eIndex) const;
+	void ChangeYieldFromCombatExperience(YieldTypes eIndex, int iChange);
+
 	int GetYieldPerAlly(YieldTypes eIndex) const;
 	void ChangeYieldPerAlly(YieldTypes eYield, int iChange);
 
@@ -1937,6 +1940,7 @@ protected:
 	std::vector<int> m_aiYieldFromPurchase;
 	std::vector<int> m_aiYieldFromFaithPurchase;
 	std::vector<int> m_aiYieldFromUnitLevelUp;
+	std::vector<int> m_aiYieldFromCombatExperience;
 	std::vector<int> m_aiYieldPerAlly;
 	std::vector<int> m_aiYieldPerFriend;
 	std::vector<int> m_aiYieldFromInternalTREnd;
@@ -2326,6 +2330,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPolicyUnlock)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromFaithPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUp)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)
