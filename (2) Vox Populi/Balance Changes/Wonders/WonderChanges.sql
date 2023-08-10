@@ -35,9 +35,6 @@ WHERE Type = 'BUILDING_STATUE_ZEUS';
 INSERT INTO Building_YieldChanges (BuildingType, YieldType, Yield)
 VALUES ('BUILDING_STATUE_ZEUS' , 'YIELD_FAITH' , '1');
 
-INSERT INTO Building_FreeUnits (BuildingType, UnitType, NumUnits)
-VALUES ('BUILDING_STATUE_ZEUS' , 'UNIT_WORKER' , '1');
-
 -- Stonehenge
 UPDATE Buildings
 SET Cost = '150', PrereqTech = 'TECH_THE_WHEEL', FreeBuildingThisCity = 'BUILDINGCLASS_GROVE', Help = 'TXT_KEY_BUILDING_STONEHENGE_HELP'

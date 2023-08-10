@@ -518,7 +518,7 @@ SET Text = 'Can only be constructed in a Coastal City. Gains 1 [COLOR_POSITIVE_T
 WHERE Tag = 'TXT_KEY_WONDER_COLOSSUS_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A Worker appears near the City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Barracks in the City in which it is built. All Units gain +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
+SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Barracks in the City in which it is built. All Military Units gain +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Workers do not suffer a reduced improvement rate when captured. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
 WHERE Tag = 'TXT_KEY_WONDER_STATUE_ZEUS_HELP';
 
 INSERT INTO Language_en_US (Tag, Text)
