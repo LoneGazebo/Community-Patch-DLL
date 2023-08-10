@@ -441,7 +441,7 @@
 			<Text>Brute Force</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_BONUS_HELP">
-			<Text>+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 	<!-- Recon Line -->

@@ -158,7 +158,7 @@
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>50</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>50</BonusVSBarbarians>
+			<BonusVSBarbarians>60</BonusVSBarbarians>
 			<AIBonusVSBarbarians>0</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
@@ -379,8 +379,8 @@
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>47</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>33</BonusVSBarbarians>
-			<AIBonusVSBarbarians>10</AIBonusVSBarbarians>
+			<BonusVSBarbarians>40</BonusVSBarbarians>
+			<AIBonusVSBarbarians>20</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
@@ -600,8 +600,8 @@
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>44</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>20</BonusVSBarbarians>
-			<AIBonusVSBarbarians>20</AIBonusVSBarbarians>
+			<BonusVSBarbarians>33</BonusVSBarbarians>
+			<AIBonusVSBarbarians>33</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
@@ -821,8 +821,8 @@
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>41</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>20</BonusVSBarbarians>
-			<AIBonusVSBarbarians>20</AIBonusVSBarbarians>
+			<BonusVSBarbarians>33</BonusVSBarbarians>
+			<AIBonusVSBarbarians>33</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
@@ -1042,8 +1042,8 @@
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>38</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>10</BonusVSBarbarians>
-			<AIBonusVSBarbarians>25</AIBonusVSBarbarians>
+			<BonusVSBarbarians>25</BonusVSBarbarians>
+			<AIBonusVSBarbarians>40</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
@@ -1263,8 +1263,8 @@
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>35</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>10</BonusVSBarbarians>
-			<AIBonusVSBarbarians>25</AIBonusVSBarbarians>
+			<BonusVSBarbarians>25</BonusVSBarbarians>
+			<AIBonusVSBarbarians>40</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
@@ -1484,8 +1484,8 @@
 
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>32</EarliestBarbarianReleaseTurn>
-			<BonusVSBarbarians>0</BonusVSBarbarians>
-			<AIBonusVSBarbarians>30</AIBonusVSBarbarians>
+			<BonusVSBarbarians>10</BonusVSBarbarians>
+			<AIBonusVSBarbarians>50</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
@@ -1706,7 +1706,7 @@
 			<!-- Barbarians -->
 			<EarliestBarbarianReleaseTurn>30</EarliestBarbarianReleaseTurn>
 			<BonusVSBarbarians>0</BonusVSBarbarians>
-			<AIBonusVSBarbarians>30</AIBonusVSBarbarians>
+			<AIBonusVSBarbarians>50</AIBonusVSBarbarians>
 			<BarbarianCampGold>50</BarbarianCampGold>
 			<AIBarbarianCampGold>50</AIBarbarianCampGold>
 			<BarbarianSpawnDelay>0</BarbarianSpawnDelay>
