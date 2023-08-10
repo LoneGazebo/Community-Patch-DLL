@@ -564,13 +564,13 @@ SET Text = 'Holy City gains +5 [ICON_GOLDEN_AGE] Golden Age Points and +2 [ICON_
 WHERE Tag = 'TXT_KEY_BELIEF_ITINERANT_PREACHERS';
 
 
--- Syncretism (formerly Religious Unity)
+-- Universalism (formerly Religious Unity)
 UPDATE Language_en_US
-SET Text = 'Syncretism'
+SET Text = 'Universalism'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production in Holy City for every 2 followers of other Religions in owned Cities. +1 [ICON_PEACE] Faith in a City for every 15 [ICON_RESEARCH] Science per turn it produces, capped at half the number of Followers in the City.'
+SET Text = '+1 [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production in Holy City for every 5 followers of other Religions in owned Cities. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY';
 
 
