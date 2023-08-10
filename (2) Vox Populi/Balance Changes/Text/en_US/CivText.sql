@@ -591,9 +591,20 @@ SET Text = 'The Waraq''Ak is an Ancient Era ranged infantry Unit that can strike
 WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Terrace Farm can only be built on hills and does not need a source of fresh water to do so. If built next to a mountain it will provide additional [ICON_FOOD] Food (1 per adjacent Mountain). +1 [ICON_FOOD] Food for each adjacent Terrace Farm, and all adjacent Farms gain +1 [ICON_FOOD] Food.'
+SET Text = 'Pata-Pata'
+WHERE Tag = 'TXT_KEY_IMPROVEMENT_TERRACE_FARM';
+
+UPDATE Language_en_US
+SET Text = 'The Pata-Pata can only be built on hills and does not need a source of fresh water to do so. If built next to a mountain it will provide additional [ICON_FOOD] Food (1 per adjacent Mountain). +1 [ICON_FOOD] Food for each adjacent Pata-Pata, and all adjacent Farms gain +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 
+UPDATE Language_en_US
+SET Text = 'Terrace Farming developed in mountainous areas simultaneously around the world, including Bali, the Philippines, China, and Peru.  These skinny, stepped fields are cut into hill and mountain sides, preventing the run off of irrigation water and providing space for arable land, usually where none previously was possible. The Incas in particular were masters of terrace farming, a technique handed down to them by the older Wari culture, and called Pata-Pata (meaning levelled place) in their native Quechua. The Inca erected large, drystone walls to hold their terraces in place and constructed systems of canals and aqueducts to provide the terraces with constant water, increasing the land''s fertility.  The Incan terracing techniques were so successful that modern Peruvian farmers still employ them in their farms today.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'Construct a [LINK=IMPROVEMENT_TERRACE_FARM]Pata-Pata[\LINK]'
+WHERE Tag = 'TXT_KEY_BUILD_TERRACE_FARM';
 --------------------
 -- India
 --------------------
