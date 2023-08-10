@@ -66,7 +66,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<CityAttack>25</CityAttack>
+			<DamageReductionCityAssault>15</DamageReductionCityAssault>
 			<PortraitIndex>19</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -81,7 +81,7 @@
 			<OrderPriority>2</OrderPriority>
 			<CombatPercent>10</CombatPercent>
 			<PortraitIndex>20</PortraitIndex>
-			<CityAttack>25</CityAttack>
+			<DamageReductionCityAssault>15</DamageReductionCityAssault>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DRILL_2</PediaEntry>
@@ -94,11 +94,11 @@
 			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<CombatPercent>10</CombatPercent>
+			<DamageReductionCityAssault>15</DamageReductionCityAssault>
 			<PortraitIndex>21</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DRILL_3</PediaEntry>
-			<CityAttack>25</CityAttack>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_BARRAGE_1</Type>
@@ -244,12 +244,11 @@
 			<Description>TXT_KEY_PROMOTION_SIEGE</Description>
 			<Help>TXT_KEY_PROMOTION_SIEGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr3>
+			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<OrderPriority>3</OrderPriority>
-			<CityAttack>33</CityAttack>
-			<DamageReductionCityAssault>33</DamageReductionCityAssault>
+			<CityAttack>100</CityAttack>
+			<CombatPercent>-10</CombatPercent>
 			<PortraitIndex>40</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>

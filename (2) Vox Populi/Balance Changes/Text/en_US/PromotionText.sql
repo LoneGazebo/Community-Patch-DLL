@@ -161,15 +161,15 @@
 -- Replace Drill
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Damage from Cities reduced by 15%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_1_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Damage from Cities reduced by 15%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_2_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Damage from Cities reduced by 15%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_3_HELP';
 
 -- Replace Shock
@@ -429,11 +429,11 @@
 
 	-- City Assault
 	UPDATE Language_en_US
-	SET Text = '+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]Damage from Cities reduced by 33%.'
+	SET Text = '-10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+100% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SIEGE_HELP';
 
 	UPDATE Language_en_US
-	SET Text = 'City Assault'
+	SET Text = 'Forlorn Hope'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SIEGE';
 
 	-- City Siege
