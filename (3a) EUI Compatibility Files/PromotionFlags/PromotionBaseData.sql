@@ -64,10 +64,10 @@ UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 3 WHERE Type = 'PROMO
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 4 WHERE Type = 'PROMOTION_PARTIAL_HEAL_IF_DESTROY_ENEMY'; -- MUC4VP uses it for the Eagle
 UPDATE UnitPromotions SET RankList = 'HONOR', RankNumber = 5 WHERE Type = 'PROMOTION_HEAL_IF_DESTROY_ENEMY'; -- Janissary
   
-
-UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 1 WHERE Type = 'PROMOTION_BUFFALO_LOINS'; -- UndeadDevel: now in the correct order
-UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 2 WHERE Type = 'PROMOTION_BUFFALO_CHEST';
-UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 3 WHERE Type = 'PROMOTION_BUFFALO_HORNS';
+UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 1 WHERE Type = 'PROMOTION_IKLWA'; -- UndeadDevel: now in the correct order
+UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 2 WHERE Type = 'PROMOTION_BUFFALO_LOINS'; -- UndeadDevel: now in the correct order
+UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 3 WHERE Type = 'PROMOTION_BUFFALO_CHEST';
+UPDATE UnitPromotions SET RankList = 'BUFFALO', RankNumber = 4 WHERE Type = 'PROMOTION_BUFFALO_HORNS';
 
 UPDATE UnitPromotions SET RankList = 'PROMOTION_MEDIC', RankNumber = 1 WHERE Type = 'PROMOTION_MEDIC';
 UPDATE UnitPromotions SET RankList = 'PROMOTION_MEDIC', RankNumber = 2 WHERE Type = 'PROMOTION_MEDIC_II';
