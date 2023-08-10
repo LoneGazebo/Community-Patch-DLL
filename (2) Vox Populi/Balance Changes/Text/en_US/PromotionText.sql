@@ -32,7 +32,7 @@
 
  -- added Statue Of Zeus Promotion
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '[COLOR_POSITIVE_TEXT]Military Units:[ENDCOLOR] +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Workers:[ENDCOLOR] Immune to Prisoner of War Work Rate reduction.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_STATUE_ZEUS_HELP';
 
  -- added 1 Extra Movement
