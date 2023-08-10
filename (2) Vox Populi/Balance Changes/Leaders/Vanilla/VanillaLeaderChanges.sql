@@ -197,7 +197,7 @@ SET YieldType = 'YIELD_SCIENCE'
 WHERE TraitType = 'TRAIT_STRATEGIC_RICHES';
 
 UPDATE Traits
-SET PlotCultureCostModifier = '-25'
+SET PlotCultureCostModifier = '-33'
 WHERE Type = 'TRAIT_STRATEGIC_RICHES';
 
 DELETE FROM Trait_YieldChangesStrategicResources
