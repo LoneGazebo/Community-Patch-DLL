@@ -49,7 +49,7 @@ WHERE PolicyType = 'POLICY_COLLECTIVE_RULE';
 UPDATE Policies
 SET
 	CapitalSettlerProductionModifier = 0,
-	ExtraMoves = 1,
+	ExtraMoves = 0,
 	PortraitIndex = 29,
 	IconAtlas = 'POLICY_ATLAS',
 	IconAtlasAchieved = 'POLICY_A_ATLAS'
@@ -58,11 +58,14 @@ WHERE Type = 'POLICY_COLLECTIVE_RULE';
 INSERT INTO Policy_UnitClassProductionModifiers
 	(PolicyType, UnitClassType, ProductionModifier)
 VALUES
-	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_SETTLER', 25),
 	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_WORKER', 25),
 	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_CARGO_SHIP', 25),
 	('POLICY_COLLECTIVE_RULE', 'UNITCLASS_CARAVAN', 25);
 
+INSERT INTO Policy_FreePromotions
+	(PolicyType, PromotionType)
+VALUES
+	('POLICY_COLLECTIVE_RULE', 'PROMOTION_FASTER_WORKER');
 
 -- Citizenship (now Liberty)
 

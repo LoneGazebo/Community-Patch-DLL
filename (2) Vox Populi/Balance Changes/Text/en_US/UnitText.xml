@@ -209,6 +209,14 @@
 		</Row>
 
 <!-- Policy Promotion -->
+	<!-- Progress -->
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_WORKER">
+			<Text>Faster Worker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_WORKER_HELP">
+			<Text>+1 [ICON_MOVES] Movement</Text>
+		</Row>
+
 	<!-- Authority -->
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
 			<Text>Conscription</Text>
@@ -244,10 +252,11 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL_HELP">
 			<Text>+1 [ICON_MOVES] Movement</Text>
-		</Row><Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER">
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER">
 			<Text>Imperialism</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER_HELP">
 			<Text>+1 Sight.</Text>
 		</Row>
