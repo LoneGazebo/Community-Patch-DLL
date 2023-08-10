@@ -1020,7 +1020,7 @@
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>17</PortraitIndex>
+			<PortraitIndex>57</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_FORTRESS</Type>

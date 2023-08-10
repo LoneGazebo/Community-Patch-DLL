@@ -15,7 +15,7 @@ UPDATE Buildings SET NumPoliciesNeeded = '18' WHERE Type = 'BUILDING_KREMLIN';
 -- Industrial
 UPDATE Buildings SET NumPoliciesNeeded = '16' WHERE Type = 'BUILDING_BRANDENBURG_GATE';
 UPDATE Buildings SET NumPoliciesNeeded = '15' WHERE Type = 'BUILDING_EIFFEL_TOWER';
-UPDATE Buildings SET NumPoliciesNeeded = '14' WHERE Type = 'BUILDING_SLATER_MILL';
+UPDATE Buildings SET NumPoliciesNeeded = '14' WHERE Type = 'BUILDING_SOHO_FOUNDRY';
 UPDATE Buildings SET NumPoliciesNeeded = '14' WHERE Type = 'BUILDING_NEUSCHWANSTEIN';
 --Renaissance
 UPDATE Buildings SET NumPoliciesNeeded = '12' WHERE Type = 'BUILDING_TAJ_MAHAL';

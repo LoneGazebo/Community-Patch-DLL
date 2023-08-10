@@ -16,6 +16,8 @@ UPDATE Buildings SET Defense = '400' WHERE Type = 'BUILDING_PALACE';
 
 UPDATE Buildings SET Defense = '500' WHERE Type = 'BUILDING_BOMB_SHELTER';
 
+UPDATE Buildings SET Defense = '500' WHERE Type = 'BUILDING_AMERICA_WESTPOINT';
+
 UPDATE Buildings SET Defense = '600' WHERE Type = 'BUILDING_RED_FORT';
 
 UPDATE Buildings SET Defense = '600' WHERE Type = 'BUILDING_WALLS';

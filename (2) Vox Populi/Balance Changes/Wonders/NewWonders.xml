@@ -9,9 +9,9 @@
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
 		<Row>
-			<Type>BUILDINGCLASS_SLATER_MILL</Type>
-			<DefaultBuilding>BUILDING_SLATER_MILL</DefaultBuilding>
-			<Description>TXT_KEY_BUILDING_SLATER_MILL</Description>
+			<Type>BUILDINGCLASS_SOHO_FOUNDRY</Type>
+			<DefaultBuilding>BUILDING_SOHO_FOUNDRY</DefaultBuilding>
+			<Description>TXT_KEY_BUILDING_SOHO_FOUNDRY</Description>
 			<MaxGlobalInstances>1</MaxGlobalInstances>
 		</Row>
 		<Row>
@@ -126,18 +126,17 @@
 			<PortraitIndex>22</PortraitIndex>
 		</Row>
 		<Row>
-			<Type>BUILDING_SLATER_MILL</Type>
-			<BuildingClass>BUILDINGCLASS_SLATER_MILL</BuildingClass>
+			<Type>BUILDING_SOHO_FOUNDRY</Type>
+			<BuildingClass>BUILDINGCLASS_SOHO_FOUNDRY</BuildingClass>
 			<Cost>1000</Cost>
 			<PrereqTech>TECH_STEAM_POWER</PrereqTech>
-			<Description>TXT_KEY_BUILDING_SLATER_MILL</Description>
-			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT</Civilopedia>
-			<Help>TXT_KEY_BUILDING_SLATER_MILL_HELP</Help>
+			<Description>TXT_KEY_BUILDING_SOHO_FOUNDRY</Description>
+			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_SOHO_FOUNDRY_TEXT</Civilopedia>
+			<Help>TXT_KEY_BUILDING_SOHO_FOUNDRY_HELP</Help>
 			<MaxStartEra>ERA_MEDIEVAL</MaxStartEra>
-			<Quote>TXT_KEY_WONDER_SLATER_MILL_QUOTE</Quote>
+			<Quote>TXT_KEY_WONDER_SOHO_FOUNDRY_QUOTE</Quote>
 			<ArtDefineTag>COLESSEUM</ArtDefineTag>
 			<NukeImmune>true</NukeImmune>
-			<River>true</River>
 			<SpecialistType>SPECIALIST_ENGINEER</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
 			<HurryCostModifier>-1</HurryCostModifier>
@@ -147,7 +146,7 @@
 			<DisplayPosition>1</DisplayPosition>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<WonderSplashImage>SlaterSplash.dds</WonderSplashImage>
-			<PortraitIndex>57</PortraitIndex>
+			<PortraitIndex>17</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_MOTHERLAND_STATUE</Type>
