@@ -429,6 +429,7 @@ public:
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldFromMinorDemand(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
@@ -786,6 +787,7 @@ protected:
 	int** m_ppiTerrainYieldChanges;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
+	int* m_piYieldFromMinorDemand;
 	int* m_piYieldChangeTradeRoute;
 	int* m_piYieldChangeWorldWonder;
 	int** m_ppiTradeRouteYieldChange;
@@ -1965,6 +1967,7 @@ public:
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldFromMinorDemand(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(YieldTypes eYield) const
 	{
 		return m_iYieldChangeTradeRoute[(int)eYield];
@@ -2412,6 +2415,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
 	int m_iYieldFromKills[NUM_YIELD_TYPES];
 	int m_iYieldFromBarbarianKills[NUM_YIELD_TYPES];
+	int m_iYieldFromMinorDemand[NUM_YIELD_TYPES];
 	int m_iYieldChangeTradeRoute[NUM_YIELD_TYPES];
 	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;

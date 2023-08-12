@@ -414,6 +414,11 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<Table name="Trait_YieldFromMinorDemand">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<Table name="Unit_YieldFromBarbarianKills">
 		<!-- Refer to Policies.CultureFromBarbarianKills, Yield is percentage of combat str of killed unit -->
