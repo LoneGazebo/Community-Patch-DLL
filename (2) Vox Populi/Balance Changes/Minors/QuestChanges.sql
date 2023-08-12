@@ -42,7 +42,7 @@ UPDATE SmallAwards SET Influence = '50', Gold = '200', GoldenAgePoints = '200', 
 UPDATE SmallAwards SET Influence = '30', Science = '50', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
 
 -- Find NW
-UPDATE SmallAwards SET Influence = '30', GoldenAgePoints = '150', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_FIND_NATURAL_WONDER';
+UPDATE SmallAwards SET Influence = '30', GoldenAgePoints = '150', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_FIND_NATURAL_WONDER';
 
 -- Give Gold
 UPDATE SmallAwards SET Influence = '25', Food = '100', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_GIVE_GOLD';

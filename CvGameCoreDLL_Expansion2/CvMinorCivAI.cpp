@@ -1735,8 +1735,17 @@ bool CvMinorCivQuest::IsExpired()
 	}
 
 	// Find a Natural Wonder
-	else if(m_eType == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
+	else if (m_eType == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
 	{
+		int iNumFoundBefore = GetPrimaryData();
+		int iNumInWorld = GC.getMap().GetNumNaturalWonders();
+
+		// Sanity check in case the number of Natural Wonders changed for some reason
+		if (iNumFoundBefore >= iNumInWorld)
+			return true;
+
+		if (GET_TEAM(GET_PLAYER(m_eAssignedPlayer).getTeam()).GetNumNaturalWondersDiscovered() >= iNumInWorld)
+			return true;
 	}
 
 	// Give Gold
@@ -10783,23 +10792,17 @@ bool CvMinorCivAI::IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer)
 	CvTeam* pTeam = &GET_TEAM(pPlayer->getTeam());
 
 	// No starting plot?
-	if(pPlayer->getStartingPlot() == NULL)
-	{
+	if (pPlayer->getStartingPlot() == NULL)
 		return false;
-	}
 
 	// Player's already found them all
-	if(pTeam->GetNumNaturalWondersDiscovered() == GC.getMap().GetNumNaturalWonders())
-	{
+	if (pTeam->GetNumNaturalWondersDiscovered() >= GC.getMap().GetNumNaturalWonders())
 		return false;
-	}
 
 	// Player hasn't yet found all the NWs in his area
 	int iNumNaturalWondersInStartingArea = GC.getMap().getAreaById(pPlayer->getStartingPlot()->getArea())->GetNumNaturalWonders();
-	if(pPlayer->GetNumNaturalWondersDiscoveredInArea() < iNumNaturalWondersInStartingArea)
-	{
+	if (pPlayer->GetNumNaturalWondersDiscoveredInArea() < iNumNaturalWondersInStartingArea)
 		return false;
-	}
 
 	return true;
 }
