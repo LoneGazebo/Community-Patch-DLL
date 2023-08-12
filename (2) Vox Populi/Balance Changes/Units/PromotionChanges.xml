@@ -3161,7 +3161,7 @@
 			<PortraitIndex>30</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_COERCION</PediaEntry>
+			<PediaEntry>TXT_KEY_PROMOTION_FOCUS_FIRE</PediaEntry>
 		</Row>
 		<Row>
 			<Type>PROMOTION_KNOCKOUT_I</Type>

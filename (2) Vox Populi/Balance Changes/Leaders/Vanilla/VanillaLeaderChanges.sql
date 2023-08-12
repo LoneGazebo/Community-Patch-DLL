@@ -512,7 +512,7 @@ WHERE Type = 'BUILDING_DOJO';
 
 -- Napoleon -- GWAM from combat!
 UPDATE Traits
-SET ExtraSupplyPerPopulation = 25
+SET CapitalThemingBonusModifier = 0, ExtraSupplyPerPopulation = 25
 WHERE Type = 'TRAIT_ENHANCED_CULTURE';
 
 INSERT INTO Trait_FreePromotionUnitCombats 
@@ -537,10 +537,6 @@ WHERE Type = 'TRAIT_ENHANCED_CULTURE';
 
 UPDATE Traits
 SET ProductionBonusModifierConquest = '40'
-WHERE Type = 'TRAIT_ENHANCED_CULTURE';
-
-UPDATE Traits
-SET CapitalThemingBonusModifier = '0'
 WHERE Type = 'TRAIT_ENHANCED_CULTURE';
 
 UPDATE Traits

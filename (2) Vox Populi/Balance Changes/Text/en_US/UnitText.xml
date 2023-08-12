@@ -115,6 +115,13 @@
 		<Row Tag="TXT_KEY_PROMOTION_COERCION_HELP">
 			<Text>Defeated land units may join your side as conscripted, supply-free units. </Text>
 		</Row>
+	<!-- Huns -->
+		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE">
+			<Text>Focus Fire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn.</Text>
+		</Row>
 	<!-- Japan -->
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
 			<Text>Eight Virtues of Bushido</Text>
