@@ -607,6 +607,10 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_TRIREME';
 
 	UPDATE Language_en_US
+	SET Text = 'The Trireme is the upgrade to the Galley. It is a melee attack unit, engaging naval units and coastal cities. The Trireme is good at clearing barbarian ships from your waters and for limited exploration (it cannot end its turn on Deep Ocean hexes outside of city borders unless you are Polynesia).'
+	WHERE Tag = 'TXT_KEY_UNIT_TRIREME_STRATEGY';
+	
+	UPDATE Language_en_US
 	SET Text = 'Initially carries 2 Aircraft; capacity may be boosted through promotions. Will intercept Enemy Aircraft which try to attack nearby Units.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARRIER';
 
