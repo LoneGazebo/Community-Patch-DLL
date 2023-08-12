@@ -9881,68 +9881,78 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		}
 	}
 
-	// Bonuses for liberation only
-	if (!bForced)
+	// Is this a first liberation? Removing a Sphere of Influence also counts as 'liberating' the city for one-time bonuses.
+	bool bFirstLiberation = false;
+	if (!bForced || bSphereRemoval)
 	{
 		if (!pNewCity->isEverLiberated(GetID()))
 		{
+			bFirstLiberation = true;
 			pNewCity->setEverLiberated(GetID(), true);
-
-			// Reduce liberator's warmongering penalties (if any), unless this is their own team's city
-			if (getTeam() != GET_PLAYER(ePlayer).getTeam())
-				CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
-
-			// Reduce liberator's war weariness by 25%
-			GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
 		}
 	}
 
+	// Bonuses for first liberation only (remove sphere doesn't count)
+	if (!bSphereRemoval && bFirstLiberation)
+	{
+		// Reduce liberator's warmongering penalties (if any), unless this is their own team's city
+		if (getTeam() != GET_PLAYER(ePlayer).getTeam())
+			CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
+
+		// Reduce liberator's war weariness by 25%
+		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
+	}
+
 	// Bonuses for liberation OR sphere removal
+	// Liberator's bonuses apply only on first liberation
+	// Liberated player's bonuses always apply
 	if (!bForced || bSphereRemoval)
 	{
-#if defined(MOD_BALANCE_CORE_POLICIES)
-		//gain yields for liberation
-		int iPop = pNewCity->getPopulation();
-		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+		if (bFirstLiberation)
 		{
-			YieldTypes eYield = (YieldTypes)iI;
-			int iLiberationYield = getYieldForLiberation(eYield);
-			if (iLiberationYield > 0)
-				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
-		}
-
-		//liberator gets influence with all City-States?
-		int iInfluence = getInfluenceForLiberation();
-		if (iInfluence > 0)
-		{
-			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			//gain yields for liberation
+			int iPop = pNewCity->getPopulation();
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
-				if (eMinorLoop != NO_PLAYER)
+				YieldTypes eYield = (YieldTypes)iI;
+				int iLiberationYield = getYieldForLiberation(eYield);
+				if (iLiberationYield > 0)
+					doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iLiberationYield * iPop, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, true, eYield);
+			}
+
+			//liberator gets influence with all City-States?
+			int iInfluence = getInfluenceForLiberation();
+			if (iInfluence > 0)
+			{
+				for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 				{
-					CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-					if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
+					PlayerTypes eMinorLoop = (PlayerTypes)iMinorLoop;
+					if (eMinorLoop != NO_PLAYER)
 					{
-						if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
+						CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
+						if (pMinorLoop->isMinorCiv() && pMinorLoop->isAlive())
 						{
-							pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
+							if (GET_TEAM(pMinorLoop->getTeam()).isHasMet(getTeam()))
+							{
+								pMinorLoop->GetMinorCivAI()->ChangeFriendshipWithMajor(GetID(), iInfluence, false);
+							}
 						}
 					}
 				}
 			}
-		}
 
-		//liberator gets XP with all of their units?
-		int iNumXP = getExperienceForLiberation();
-		if (iNumXP > 0)
-		{
-			doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
-			int iLoop = 0;
-			for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
+			//liberator gets XP with all of their units?
+			int iNumXP = getExperienceForLiberation();
+			if (iNumXP > 0)
 			{
-				if (pLoopUnit && pLoopUnit->IsCombatUnit())
+				doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iNumXP, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_JFD_SOVEREIGNTY);
+				int iLoop = 0;
+				for (CvUnit* pLoopUnit = firstUnit(&iLoop); NULL != pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 				{
-					pLoopUnit->changeExperienceTimes100(iNumXP * 100);
+					if (pLoopUnit && pLoopUnit->IsCombatUnit())
+					{
+						pLoopUnit->changeExperienceTimes100(iNumXP * 100);
+					}
 				}
 			}
 		}
@@ -9975,7 +9985,6 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 					GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 			}
 		}
-#endif
 	}
 
 	// Meet the team, if we haven't already

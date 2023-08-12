@@ -25935,113 +25935,108 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		bool bPhonyWar = IsPhonyWar(*it);
 		bool bCapturedAnyCityFromUs = bCapturedKeyCity;
 		bool bCapturedAnyCityWeWantToLiberate = false;
-		bool bReadyForVassalage = false;
+		bool bReadyForVassalage = GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()) && iWarScore >= 75 && !bCapturedKeyCity && !IsEndgameAggressiveTo(*it) && !IsUntrustworthy(*it);
 
-		if (GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()))
+		if (!bInTerribleShape)
 		{
-			if (iWarScore >= 75 && !bCapturedKeyCity && !IsEndgameAggressiveTo(*it) && !IsUntrustworthy(*it))
+			// Let's check if they have any of our cities. If they do, no vassalage!
+			for (CvCity* pLoopCity = GET_PLAYER(*it).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iLoop))
 			{
-				bReadyForVassalage = true;
+				PlayerTypes eOriginalOwner = pLoopCity->getOriginalOwner();
 
-				if (!bInTerribleShape)
+				if (GET_PLAYER(eOriginalOwner).getTeam() == GET_PLAYER(*it).getTeam())
+					continue;
+
+				CvPlot* pCityPlot = pLoopCity->plot();
+				if (!pCityPlot)
+					continue;
+
+				bool bEndangeredPeriod = std::find(vEnemyCitiesEndangered.begin(), vEnemyCitiesEndangered.end(), pLoopCity->GetID()) != vEnemyCitiesEndangered.end();
+				bool bEndangeredByOurTeam = bEndangeredPeriod && std::find(vEnemyCitiesEndangeredByUs.begin(), vEnemyCitiesEndangeredByUs.end(), pLoopCity->GetID()) != vEnemyCitiesEndangeredByUs.end();
+
+				// Ignore cities that are too far away from us (unless endangered).
+				if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > 12)
 				{
-					// Let's check if they have any of our cities. If they do, no vassalage!
-					for (CvCity* pLoopCity = GET_PLAYER(*it).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(*it).nextCity(&iLoop))
+					if (!bEndangeredByOurTeam && (!bEndangeredPeriod || GET_PLAYER(eOriginalOwner).getTeam() != GetTeam()))
+						continue;
+				}
+
+				if (GET_PLAYER(eOriginalOwner).getTeam() == GetTeam())
+				{
+					bReadyForVassalage = false;
+					bCapturedAnyCityFromUs = true;
+					continue;
+				}
+				else
+				{
+					// Can we liberate this city?
+					PlayerTypes ePlayerToLiberate = eOriginalOwner;
+
+					// If we're at war with the original owner and the last owner was a City-State, liberate them instead
+					if (IsAtWar(ePlayerToLiberate))
 					{
-						PlayerTypes eOriginalOwner = pLoopCity->getOriginalOwner();
+						PlayerTypes ePreviousOwner = pLoopCity->getPreviousOwner();
 
-						if (GET_PLAYER(eOriginalOwner).getTeam() == GET_PLAYER(*it).getTeam())
-							continue;
-
-						CvPlot* pCityPlot = pLoopCity->plot();
-						if (!pCityPlot)
-							continue;
-
-						bool bEndangeredPeriod = std::find(vEnemyCitiesEndangered.begin(), vEnemyCitiesEndangered.end(), pLoopCity->GetID()) != vEnemyCitiesEndangered.end();
-						bool bEndangeredByOurTeam = bEndangeredPeriod && std::find(vEnemyCitiesEndangeredByUs.begin(), vEnemyCitiesEndangeredByUs.end(), pLoopCity->GetID()) != vEnemyCitiesEndangeredByUs.end();
-
-						// Ignore cities that are too far away from us (unless endangered).
-						if (GetPlayer()->GetCityDistanceInPlots(pCityPlot) > 12)
+						if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
 						{
-							if (!bEndangeredByOurTeam && (!bEndangeredPeriod || GET_PLAYER(eOriginalOwner).getTeam() != GetTeam()))
-								continue;
-						}
-
-						if (GET_PLAYER(eOriginalOwner).getTeam() == GetTeam())
-						{
-							bReadyForVassalage = false;
-							bCapturedAnyCityFromUs = true;
-							break;
+							ePlayerToLiberate = ePreviousOwner;
 						}
 						else
 						{
-							// Can we liberate this city?
-							PlayerTypes ePlayerToLiberate = eOriginalOwner;
+							ePlayerToLiberate = NO_PLAYER;
+						}
+					}
 
-							// If we're at war with the original owner and the last owner was a City-State, liberate them instead
-							if (IsAtWar(ePlayerToLiberate))
-							{
-								PlayerTypes ePreviousOwner = pLoopCity->getPreviousOwner();
+					if (ePlayerToLiberate != NO_PLAYER && !GetPlayer()->CanLiberatePlayerCity(ePlayerToLiberate))
+					{
+						ePlayerToLiberate = NO_PLAYER;
+					}
 
-								if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
-								{
-									ePlayerToLiberate = ePreviousOwner;
-								}
-								else
-								{
-									ePlayerToLiberate = NO_PLAYER;
-								}
-							}
+					// Is this a city that we want to liberate?
+					if (IsTryingToLiberate(pLoopCity, ePlayerToLiberate))
+					{
+						bReadyForVassalage = false;
+						bCapturedAnyCityWeWantToLiberate = true;
+					}
+				}
 
-							if (ePlayerToLiberate != NO_PLAYER && !GetPlayer()->CanLiberatePlayerCity(ePlayerToLiberate))
-							{
-								ePlayerToLiberate = NO_PLAYER;
-							}
+				// Is this a valuable city endangered by our team?
+				// Alternatively, if we're nasty/hateful or get bonuses from conquering cities, we're rarely willing to vassalize if ANY city is vulnerable.
+				if (bEndangeredByOurTeam)
+				{
+					bool bProceed = bUABonusesFromCityConquest || IsBackstabber() || GetMeanness() >= 8 || GetDiploBalance() <= 2 || GetCivOpinion(*it) == CIV_OPINION_UNFORGIVABLE;
+					bProceed |= pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->HasAnyWonder();
 
-							// Is this a city that we want to liberate?
-							if (IsTryingToLiberate(pLoopCity, ePlayerToLiberate))
+					if (bProceed)
+					{
+						if (GetPlayer()->GetMilitaryAI()->IsPreferredAttackTarget(pLoopCity))
+						{
+							bReadyForVassalage = false;
+						}
+						else if (pLoopCity->isUnderSiege())
+						{
+							bReadyForVassalage = false;
+						}
+						else
+						{
+							//look at the tactical map (is it up to date?)
+							CvTacticalDominanceZone* pLandZone = GET_PLAYER(*it).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
+							CvTacticalDominanceZone* pWaterZone = GET_PLAYER(*it).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
+							
+							if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 							{
 								bReadyForVassalage = false;
-								bCapturedAnyCityWeWantToLiberate = true;
 							}
-						}
-
-						// Is this a valuable city endangered by our team?
-						// Alternatively, if we're nasty/hateful or get bonuses from conquering cities, we're rarely willing to vassalize if ANY city is vulnerable.
-						if (bEndangeredByOurTeam)
-						{
-							bool bProceed = bUABonusesFromCityConquest || IsBackstabber() || GetMeanness() >= 8 || GetDiploBalance() <= 2 || GetCivOpinion(*it) == CIV_OPINION_UNFORGIVABLE;
-							bProceed |= pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->HasAnyWonder();
-
-							if (bProceed)
+							else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
 							{
-								if (GetPlayer()->GetMilitaryAI()->IsPreferredAttackTarget(pLoopCity))
-								{
-									bReadyForVassalage = false;
-								}
-								else if (pLoopCity->isUnderSiege())
-								{
-									bReadyForVassalage = false;
-								}
-								else
-								{
-									//look at the tactical map (is it up to date?)
-									CvTacticalDominanceZone* pLandZone = GET_PLAYER(*it).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
-									CvTacticalDominanceZone* pWaterZone = GET_PLAYER(*it).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,true);
-									
-									if (pLandZone && pLandZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-									{
-										bReadyForVassalage = false;
-									}
-									else if (pWaterZone && pWaterZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_ENEMY)
-									{
-										bReadyForVassalage = false;
-									}
-								}
+								bReadyForVassalage = false;
 							}
 						}
 					}
 				}
+
+				if (bCapturedAnyCityFromUs && bCapturedAnyCityWeWantToLiberate)
+					break;
 			}
 		}
 
@@ -26959,9 +26954,13 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).isMinorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < /*1*/ GD_INT_GET(WAR_MINOR_MINIMUM_TURNS))
 		return PEACE_BLOCK_REASON_TOO_SOON;
 
-	// Enemy captured a city and wants peace right away? Not if we can retaliate ...
+	// Enemy captured a city and wants peace right away? Not if we can retaliate ... (sanity check: and our capital isn't about to fall)
 	if (GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
-		return PEACE_BLOCK_REASON_CITY_JUST_CAPTURED;
+	{
+		CvCity* pCapital = GetPlayer()->getCapitalCity();
+		if (!pCapital || !pCapital->isInDangerOfFalling(true))
+			return PEACE_BLOCK_REASON_CITY_JUST_CAPTURED;
+	}
 
 	if (GET_PLAYER(ePlayer).isMinorCiv())
 	{

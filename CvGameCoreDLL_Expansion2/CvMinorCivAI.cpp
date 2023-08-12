@@ -11103,13 +11103,13 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 				int iExtraDecay = (iCurrentInfluence - iRestingPoint) / -100;
 				iChangeThisTurn += iExtraDecay;
 			}
+		}
 
-			// Multiply decay rate towards protectors if capital has taken damage
-			if (GetPlayer()->getCapitalCity()->getDamage() > 0 && IsProtectedByMajor(ePlayer))
-			{
-				iChangeThisTurn *= /*300*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER);
-				iChangeThisTurn /= 100;
-			}
+		// Multiply decay rate towards protectors if capital has taken damage
+		if (GetPlayer()->getCapitalCity()->getDamage() > 0 && IsProtectedByMajor(ePlayer))
+		{
+			iChangeThisTurn *= /*100 in CP, 300 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER);
+			iChangeThisTurn /= 100;
 		}
 
 		// Reductions to decay?
