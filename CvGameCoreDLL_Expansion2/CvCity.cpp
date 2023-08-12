@@ -17345,7 +17345,7 @@ void CvCity::CheckForOperationUnits()
 						//take the money...
 						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-						bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
+						bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 						if (bInvest)
 						{
 							const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
@@ -17460,7 +17460,7 @@ void CvCity::CheckForOperationUnits()
 				//take the money...
 				kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
 
-				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 				if (bInvest)
 				{
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
@@ -31436,7 +31436,7 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			}
 			//Have we already invested here?
 			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT))
+			if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pGameUnit->GetSpaceshipProject() != NO_PROJECT))
 			{
 				const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 				if (IsUnitInvestment(eUnitClass))
@@ -31863,7 +31863,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
 			if (pGameUnit)
 			{
-				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pGameUnit->GetSpaceshipProject() != NO_PROJECT);
+				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pGameUnit->GetSpaceshipProject() != NO_PROJECT);
 				if (bInvest)
 				{
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
