@@ -309,6 +309,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
 	m_piYieldFromVictoryGlobal(NULL),
+	m_piYieldFromVictoryGlobalEraScaling(NULL),
 	m_piYieldFromVictoryGlobalPlayer(NULL),
 	m_piYieldFromPillage(NULL),
 	m_piYieldFromPillageGlobal(NULL),
@@ -442,6 +443,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobal);
@@ -923,7 +925,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "IsEraScaling = 'false'");
+	kUtility.SetYields(m_piYieldFromVictoryGlobalEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "IsEraScaling = 'true'");
 	kUtility.SetYields(m_piYieldFromVictoryGlobalPlayer, "Building_YieldFromVictoryGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
@@ -3080,6 +3083,19 @@ int CvBuildingEntry::GetYieldFromVictoryGlobal(int i) const
 int* CvBuildingEntry::GetYieldFromVictoryGlobalArray() const
 {
 	return m_piYieldFromVictoryGlobal;
+}
+
+/// Change to yield if victorious in battle, scaling with era.
+int CvBuildingEntry::GetYieldFromVictoryGlobalEraScaling(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryGlobalEraScaling ? m_piYieldFromVictoryGlobalEraScaling[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryGlobalArrayEraScaling() const
+{
+	return m_piYieldFromVictoryGlobalEraScaling;
 }
 
 

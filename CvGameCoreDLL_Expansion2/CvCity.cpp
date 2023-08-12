@@ -396,6 +396,7 @@ CvCity::CvCity() :
 	, m_iBaseTourismBeforeModifiers()
 	, m_aiYieldFromVictory()
 	, m_aiYieldFromVictoryGlobal()
+	, m_aiYieldFromVictoryGlobalEraScaling()
 	, m_aiYieldFromPillage()
 	, m_aiYieldFromPillageGlobal()
 	, m_aiNumTimesAttackedThisTurn()
@@ -1444,6 +1445,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromVictoryGlobal.resize(NUM_YIELD_TYPES);
+	m_aiYieldFromVictoryGlobalEraScaling.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillage.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromPillageGlobal.resize(NUM_YIELD_TYPES);
 	m_aiYieldFromKnownPantheons.resize(NUM_YIELD_TYPES);
@@ -1532,6 +1534,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 		m_aiYieldFromKnownPantheons[iI] = 0;
 		m_aiYieldFromVictory[iI] = 0;
 		m_aiYieldFromVictoryGlobal[iI] = 0;
+		m_aiYieldFromVictoryGlobalEraScaling[iI] = 0;
 		m_aiYieldFromPillage[iI] = 0;
 		m_aiYieldFromPillageGlobal[iI] = 0;
 		m_aiGoldenAgeYieldMod[iI] = 0;
@@ -16091,6 +16094,11 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				ChangeYieldFromVictoryGlobal(eYield, pBuildingInfo->GetYieldFromVictoryGlobal(eYield) * iChange);
 			}
 
+			if ((pBuildingInfo->GetYieldFromVictoryGlobalEraScaling(eYield) > 0))
+			{
+				ChangeYieldFromVictoryGlobalEraScaling(eYield, pBuildingInfo->GetYieldFromVictoryGlobalEraScaling(eYield) * iChange);
+			}
+
 			if ((pBuildingInfo->GetYieldFromPillage(eYield) > 0))
 			{
 				ChangeYieldFromPillage(eYield, pBuildingInfo->GetYieldFromPillage(eYield) * iChange);
@@ -25774,6 +25782,7 @@ void CvCity::ChangeYieldFromVictory(YieldTypes eIndex, int iChange)
 	}
 }
 
+//	--------------------------------------------------------------------------------
 /// Extra yield from building
 int CvCity::GetYieldFromVictoryGlobal(YieldTypes eIndex) const
 {
@@ -25783,8 +25792,6 @@ int CvCity::GetYieldFromVictoryGlobal(YieldTypes eIndex) const
 	return m_aiYieldFromVictoryGlobal[eIndex];
 }
 
-//	--------------------------------------------------------------------------------
-/// Extra yield from building
 void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
 {
 	VALIDATE_OBJECT
@@ -25795,6 +25802,29 @@ void CvCity::ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange)
 	{
 		m_aiYieldFromVictoryGlobal[eIndex] = m_aiYieldFromVictoryGlobal[eIndex] + iChange;
 		CvAssert(GetYieldFromVictoryGlobal(eIndex) >= 0);
+	}
+}
+
+//	--------------------------------------------------------------------------------
+/// Extra yield from building, scaling with era
+int CvCity::GetYieldFromVictoryGlobalEraScaling(YieldTypes eIndex) const
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+	return m_aiYieldFromVictoryGlobalEraScaling[eIndex];
+}
+
+void CvCity::ChangeYieldFromVictoryGlobalEraScaling(YieldTypes eIndex, int iChange)
+{
+	VALIDATE_OBJECT
+		CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
+	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
+
+	if (iChange != 0)
+	{
+		m_aiYieldFromVictoryGlobalEraScaling[eIndex] = m_aiYieldFromVictoryGlobalEraScaling[eIndex] + iChange;
+		CvAssert(GetYieldFromVictoryGlobalEraScaling(eIndex) >= 0);
 	}
 }
 
@@ -33063,6 +33093,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiYieldFromKnownPantheons);
 	visitor(city.m_aiYieldFromVictory);
 	visitor(city.m_aiYieldFromVictoryGlobal);
+	visitor(city.m_aiYieldFromVictoryGlobalEraScaling);
 	visitor(city.m_aiYieldFromPillage);
 	visitor(city.m_aiYieldFromPillageGlobal);
 	visitor(city.m_aiGoldenAgeYieldMod);

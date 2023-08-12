@@ -129,9 +129,9 @@ SET PolicyBranchType = NULL, Cost = '200', CitySupplyFlat = '5', WorkerSpeedModi
 WHERE Type = 'BUILDING_TERRACOTTA_ARMY';
 
 INSERT INTO Building_YieldFromVictoryGlobal 
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES  
-	('BUILDING_TERRACOTTA_ARMY' , 'YIELD_CULTURE' , '10');
+	('BUILDING_TERRACOTTA_ARMY' , 'YIELD_CULTURE' , '10', 'true');
 
 -- Parthenon
 UPDATE Buildings
