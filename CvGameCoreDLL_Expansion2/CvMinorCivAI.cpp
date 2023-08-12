@@ -1808,10 +1808,26 @@ bool CvMinorCivQuest::IsExpired()
 		PlayerTypes eTargetPlayer = (PlayerTypes) GetPrimaryData();
 		CvPlayer* pTargetPlayer = &GET_PLAYER(eTargetPlayer);
 
-		if(pTargetPlayer)
+		if (pTargetPlayer)
 		{
+			// We're now Allies with the Major
+			if (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly() == eTargetPlayer)
+				return true;
+
+			// Assigned player is now friends/DPs with the Major
+			if (GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsDoFAccepted(eTargetPlayer) || GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsHasDefensivePact(eTargetPlayer))
+				return true;
+
+			// Humans are unable to denounce each other
+			if (GET_PLAYER(m_eAssignedPlayer).isHuman() && GET_PLAYER(eTargetPlayer).isHuman())
+				return true;
+
+			// No master/vassal relationship, please.
+			if (GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsVassal(eTargetPlayer) || GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsMaster(eTargetPlayer))
+				return true;
+
 			// Someone killed the Major
-			if(!pTargetPlayer->isAlive())
+			if (!pTargetPlayer->isAlive())
 				return true;
 		}
 	}
@@ -1831,20 +1847,44 @@ bool CvMinorCivQuest::IsExpired()
 			return true;
 	}
 	// War on other Major
-	else if(m_eType == MINOR_CIV_QUEST_WAR)
+	else if (m_eType == MINOR_CIV_QUEST_WAR)
 	{
 		PlayerTypes eTargetPlayer = (PlayerTypes) GetPrimaryData();
 		CvPlayer* pTargetPlayer = &GET_PLAYER(eTargetPlayer);
 
-		if(pTargetPlayer)
+		if (pTargetPlayer)
 		{
-			// We're now Allies with the Major
-			if (GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly() == eTargetPlayer)
+			// We're now Allies with the Major (or one of their teammates)
+			PlayerTypes eMinorAlly = GET_PLAYER(m_eMinor).GetMinorCivAI()->GetAlly();
+			if (eMinorAlly != NO_PLAYER && GET_PLAYER(eMinorAlly).getTeam() == GET_PLAYER(eTargetPlayer).getTeam())
+				return true;
+
+			// Assigned player is now friends/DPs with the Major
+			if (GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsDoFAccepted(eTargetPlayer) || GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsHasDefensivePact(eTargetPlayer))
+				return true;
+
+			// One of the players is now a vassal
+			if (GET_PLAYER(m_eAssignedPlayer).IsVassalOfSomeone() || GET_PLAYER(eTargetPlayer).IsVassalOfSomeone())
 				return true;
 
 			// Someone killed the Major
-			if(!pTargetPlayer->isAlive())
+			if (!pTargetPlayer->isAlive())
 				return true;
+
+			// Loop through the target's teammates, Defensive Pacts and vassals - avoid backstabbing
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				if (eLoopPlayer == eTargetPlayer || !GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+					continue;
+
+				if (GET_PLAYER(eLoopPlayer).getTeam() != GET_PLAYER(eTargetPlayer).getTeam() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(eTargetPlayer) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eTargetPlayer))
+					continue;
+
+				// Is this ally also a friend or DP of the player?
+				if (GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GET_PLAYER(m_eAssignedPlayer).GetDiplomacyAI()->IsHasDefensivePact(eLoopPlayer))
+					return true;
+			}
 		}
 	}
 	// FIND ANOTHER CITY STATE
@@ -7134,44 +7174,44 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	else if(eQuest == MINOR_CIV_QUEST_DENOUNCE_MAJOR)
 	{
 		// We don't need help if we've never been bullied
-		if(!IsEverBulliedByAnyMajor())
+		if (!IsEverBulliedByAnyMajor())
 			return false;
 
 		// This player must not have bullied us recently
-		if(IsRecentlyBulliedByMajor(ePlayer))
+		if (IsRecentlyBulliedByMajor(ePlayer))
 			return false;
 
 		// Is there a recent bully?
-		if(!IsGoodTimeForDenounceMajorQuest())
+		if (!IsGoodTimeForDenounceMajorQuest())
 			return false;
 
 		// Don't ask in always war games
-		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+		if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
 			return false;
 		
 		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
 
-		if(eMostRecentBully == NO_PLAYER)
-			return false;
-
-		// This player must not be the most recent bully
-		if(eMostRecentBully == ePlayer)
-			return false;
-
-		// This player must not be teammates with the most recent bully (cannot denounce)
-		if(GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eMostRecentBully).getTeam())
+		if (eMostRecentBully == NO_PLAYER || eMostRecentBully == GetAlly())
 			return false;
 
 		// This player must have met the most recent bully
-		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eMostRecentBully).getTeam()))
+		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eMostRecentBully))
 			return false;
 
 		// Humans are unable to denounce each other
-		if(GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eMostRecentBully).isHuman())
+		if (GET_PLAYER(ePlayer).isHuman() && GET_PLAYER(eMostRecentBully).isHuman())
+			return false;
+
+		// Can't be friends or DPs with the target
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eMostRecentBully) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(eMostRecentBully))
+			return false;
+
+		// No master/vassal relationship, please.
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsVassal(eMostRecentBully) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsMaster(eMostRecentBully))
 			return false;
 
 		// This player must not have already denounced the most recent bully
-		if(GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetMostRecentBullyForQuest()))
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(eMostRecentBully))
 			return false;
 	}
 	// Spread your religion to us
@@ -7216,40 +7256,56 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 			return false;
 	}
 	// War Major
-	else if(eQuest == MINOR_CIV_QUEST_WAR)
+	else if (eQuest == MINOR_CIV_QUEST_WAR)
 	{
 		// This player must not have bullied us recently
-		if(IsRecentlyBulliedByMajor(ePlayer))
+		if (IsRecentlyBulliedByMajor(ePlayer))
 			return false;
 
 		// Is there a recent bully?
-		if(!IsGoodTimeForWarMajorQuest())
+		if (!IsGoodTimeForWarMajorQuest())
 			return false;
 
 		// Don't ask in always war games
-		if(GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
 			return false;
 		
 		PlayerTypes eMostRecentBully = GetMostRecentBullyForQuest();
+		PlayerTypes eAlly = GetAlly();
 
-		if(eMostRecentBully == NO_PLAYER)
-			return false;
-
-		// This player must not be the ally
-		if(eMostRecentBully == GetAlly())
-			return false;
-
-		// This player must not be teammates with the most recent bully (cannot denounce)
-		if(GET_PLAYER(ePlayer).getTeam() == GET_PLAYER(eMostRecentBully).getTeam())
+		if (eMostRecentBully == NO_PLAYER || (eAlly != NO_PLAYER && GET_PLAYER(eMostRecentBully).getTeam() == GET_PLAYER(GetAlly()).getTeam()))
 			return false;
 
 		// This player must have met the most recent bully
-		if(!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GET_PLAYER(eMostRecentBully).getTeam()))
+		if (!GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasMet(eMostRecentBully))
 			return false;
 
-		// This player must not be at war with the most recent bully (cannot denounce)
-		if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(eMostRecentBully).getTeam()))
+		// Can't be friends or DPs with the target
+		if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eMostRecentBully) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(eMostRecentBully))
 			return false;
+
+		// Neither player can be a vassal
+		if (GET_PLAYER(ePlayer).IsVassalOfSomeone() || GET_PLAYER(eMostRecentBully).IsVassalOfSomeone())
+			return false;
+
+		// This player must not already be at war with the most recent bully
+		if (GET_PLAYER(ePlayer).IsAtWarWith(eMostRecentBully))
+			return false;
+
+		// Loop through the target's Defensive Pacts and vassals - avoid backstabbing
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (eLoopPlayer == eMostRecentBully || !GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+				continue;
+
+			if (GET_PLAYER(eLoopPlayer).getTeam() != GET_PLAYER(eMostRecentBully).getTeam() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsHasDefensivePact(eMostRecentBully) && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsVassal(eMostRecentBully))
+				continue;
+
+			// Is this ally also a friend or DP of the player?
+			if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsHasDefensivePact(eLoopPlayer))
+				return false;
+		}
 	}
 	// FIND ANOTHER CITY STATE
 	else if(eQuest == MINOR_CIV_QUEST_FIND_CITY_STATE)
