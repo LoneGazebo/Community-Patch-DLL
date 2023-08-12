@@ -2916,15 +2916,8 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 		int iValue = GetTotalJONSCulturePerTurn() * 4;
 		changeJONSCulture(iValue);
 		if (getCapitalCity())
-		{
-			if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-				getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-			}
-			else
-			{
-				getCapitalCity()->ChangeJONSCultureStored(iValue);
-			}
-		}
+			getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 		CvNotifications* pNotifications = GetNotifications();
 		if (pNotifications)
 		{
@@ -13649,19 +13642,11 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		int iBorderGrowth = kGoodyInfo.getBorderGrowth();
 		if (iBorderGrowth > 0)
 		{
-
 			CvCity* pBestCity = bestCityFinder(*this, *pPlot);
 			if (pBestCity != NULL)
 			{
 				goodyValueModifier(iBorderGrowth, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
-				if (pBestCity->GetBorderGrowthRateIncreaseTotal() > 0) {
-					pBestCity->ChangeJONSCultureStored(iBorderGrowth * (100+pBestCity->GetBorderGrowthRateIncreaseTotal())/100);
-				}
-				else
-				{
-					pBestCity->ChangeJONSCultureStored(iBorderGrowth);
-				}
-				
+				pBestCity->ChangeJONSCultureStored(iBorderGrowth);
 				changeInstantYieldValue(YIELD_CULTURE_LOCAL, iBorderGrowth);
 			}
 			else
@@ -19838,7 +19823,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					if (vValidCities.size() > 0)
 					{
 						int iFoodPerCity = iFood / vValidCities.size();
-						int iFoodRemainder = iFood - (iFoodPerCity * vValidCities.size());
+						int iFoodRemainder = iFood % vValidCities.size();
 						if (iFoodPerCity <= 0)
 							iFoodPerCity = 1;
 
@@ -19892,7 +19877,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					if (vValidCities.size() > 0)
 					{
 						int iProductionPerCity = iProduction / vValidCities.size();
-						int iProductionRemainder = iProduction - (iProductionPerCity * vValidCities.size());
+						int iProductionRemainder = iProduction % vValidCities.size();
 						if (iProductionPerCity <= 0)
 							iProductionPerCity = 1;
 
@@ -20207,7 +20192,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					if (vValidCities.size() > 0)
 					{
 						int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
-						int iBGPRemainder = iBorderGrowthPoints - (iBGPPerCity * vValidCities.size());
+						int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
 						if (iBGPPerCity <= 0)
 							iBGPPerCity = 1;
 
@@ -20417,7 +20402,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					if (vValidCities.size() > 0)
 					{
 						int iFoodPerCity = iFood / vValidCities.size();
-						int iFoodRemainder = iFood - (iFoodPerCity * vValidCities.size());
+						int iFoodRemainder = iFood % vValidCities.size();
 						if (iFoodPerCity <= 0)
 							iFoodPerCity = 1;
 
@@ -20467,7 +20452,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					if (vValidCities.size() > 0)
 					{
 						int iProductionPerCity = iProduction / vValidCities.size();
-						int iProductionRemainder = iProduction - (iProductionPerCity * vValidCities.size());
+						int iProductionRemainder = iProduction % vValidCities.size();
 						if (iProductionPerCity <= 0)
 							iProductionPerCity = 1;
 
@@ -20774,7 +20759,7 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 					if (vValidCities.size() > 0)
 					{
 						int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
-						int iBGPRemainder = iBorderGrowthPoints - (iBGPPerCity * vValidCities.size());
+						int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
 						if (iBGPPerCity <= 0)
 							iBGPPerCity = 1;
 
@@ -28100,14 +28085,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					case YIELD_CULTURE:
 					{
 						changeJONSCulture(iValue);
-						if (pLoopCity->GetBorderGrowthRateIncreaseTotal() > 0) {
-							pLoopCity->ChangeJONSCultureStored(iValue * (100+pLoopCity->GetBorderGrowthRateIncreaseTotal())/100);
-						}
-						else
-						{
-							pLoopCity->ChangeJONSCultureStored(iValue);
-						}
-						if(pLoopCity->GetJONSCultureStored() <= 0)
+						pLoopCity->ChangeJONSCultureStored(iValue);
+
+						if (pLoopCity->GetJONSCultureStored() <= 0)
 						{
 							pLoopCity->SetJONSCultureStored(0);
 						}
@@ -28219,13 +28199,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						else
 						{
-							if (pLoopCity->GetBorderGrowthRateIncreaseTotal() > 0) {
-								pLoopCity->ChangeJONSCultureStored(iValue * (100+pLoopCity->GetBorderGrowthRateIncreaseTotal())/100);
-							}
-							else
-							{
-								pLoopCity->ChangeJONSCultureStored(iValue);
-							}
+							pLoopCity->ChangeJONSCultureStored(iValue);
+
 							if (pLoopCity->GetJONSCultureStored() <= 0)
 							{
 								pLoopCity->SetJONSCultureStored(0);
@@ -30166,20 +30141,13 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			{
 				changeGoldenAgeTurns(getGoldenAgeLength());
 			}
-			if(pNewGreatPeople->isCultureBoost())
+			if (pNewGreatPeople->isCultureBoost())
 			{
 				int iValue = GetTotalJONSCulturePerTurn() * 4;
 				changeJONSCulture(iValue);
-				if(getCapitalCity() != NULL)
-				{
-					if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-						getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-					}
-					else
-					{
-						getCapitalCity()->ChangeJONSCultureStored(iValue);
-					}
-				}
+				if (getCapitalCity() != NULL)
+					getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 				CvNotifications* pNotifications = GetNotifications();
 				if (pNotifications)
 				{
@@ -46082,20 +46050,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									{
 										changeGoldenAgeTurns(getGoldenAgeLength());
 									}
-									if(pNewUnit->isCultureBoost())
+									if (pNewUnit->isCultureBoost())
 									{
 										int iValue = GetTotalJONSCulturePerTurn() * 4;
 										changeJONSCulture(iValue);
-										if(getCapitalCity() != NULL)
-										{
-											if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-												getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-											}
-											else
-											{
-												getCapitalCity()->ChangeJONSCultureStored(iValue);
-											}
-										}
+										if (getCapitalCity() != NULL)
+											getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 										CvNotifications* pNotifications = GetNotifications();
 										if (pNotifications)
 										{
@@ -48021,20 +47982,13 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	{
 		changeGoldenAgeTurns(getGoldenAgeLength());
 	}
-	if(pGreatPeopleUnit->isCultureBoost())
+	if (pGreatPeopleUnit->isCultureBoost())
 	{
 		int iValue = GetTotalJONSCulturePerTurn() * 4;
 		changeJONSCulture(iValue);
-		if(getCapitalCity() != NULL)
-		{
-			if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-				getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-			}
-			else
-			{
-				getCapitalCity()->ChangeJONSCultureStored(iValue);
-			}
-		}
+		if (getCapitalCity() != NULL)
+			getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 		CvNotifications* pNotifications = GetNotifications();
 		if (pNotifications)
 		{
@@ -48181,21 +48135,13 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	{
 		changeGoldenAgeTurns(getGoldenAgeLength());
 	}
-	if(pGreatPeopleUnit->isCultureBoost())
+	if (pGreatPeopleUnit->isCultureBoost())
 	{
 		int iValue = GetTotalJONSCulturePerTurn() * 4;
 		changeJONSCulture(iValue);
-		if(getCapitalCity() != NULL)
-		{
-			if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-				getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-			}
-			else
-			{
-				getCapitalCity()->ChangeJONSCultureStored(iValue);
-			}
-			
-		}
+		if (getCapitalCity() != NULL)
+			getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 		CvNotifications* pNotifications = GetNotifications();
 		if (pNotifications)
 		{

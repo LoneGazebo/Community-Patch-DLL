@@ -3347,15 +3347,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
 			kPlayer.changeJONSCulture(iValue);
 			if (kPlayer.getCapitalCity() != NULL)
-			{
-				if (kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-					kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-				}
-				else
-				{
-					kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-				}
-			}
+				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if (pNotifications)
 			{
@@ -3561,15 +3554,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
 			kPlayer.changeJONSCulture(iValue);
 			if (kPlayer.getCapitalCity() != NULL)
-			{
-				if (kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-					kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-				}
-				else
-				{
-					kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-				}
-			}
+				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if (pNotifications)
 			{

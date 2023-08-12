@@ -13359,16 +13359,8 @@ bool CvUnit::givePolicies()
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
-		if (pPlot->getOwningCity() && pPlot->getOwner() == getOwner()) {
-			if (pPlot->getOwningCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-				pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus * (100+pPlot->getOwningCity()->GetBorderGrowthRateIncreaseTotal())/100);
-			}
-			else
-			{
-				pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
-			}
-			
-		}
+		if (pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
+			pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
 		// Refresh - we might get to pick a policy this turn
 	}
 
@@ -14071,21 +14063,14 @@ bool CvUnit::build(BuildTypes eBuild)
 						}
 					}
 				}
-				if(pkBuildInfo->IsCultureBoost())
+				if (pkBuildInfo->IsCultureBoost())
 				{
 					int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 2;
 					kPlayer.changeJONSCulture(iValue);
-					if(kPlayer.getCapitalCity() != NULL)
-					{
-						if (kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-						}
-						else
-						{
-							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-						}
-					}
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+					if (kPlayer.getCapitalCity() != NULL)
+						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+
+					if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);

@@ -2672,10 +2672,6 @@ void CvCity::doTurn()
 		// Culture accumulation
 		if (iBorderGrowth > 0)
 		{
-			// Modifiers to border growth rate?
-			iBorderGrowth *= 100 + GetBorderGrowthRateIncreaseTotal();
-			iBorderGrowth /= 100;
-
 			ChangeJONSCultureStored(iBorderGrowth);
 		}
 
@@ -14716,15 +14712,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										int iValue = owningPlayer.GetTotalJONSCulturePerTurn() * 4;
 										owningPlayer.changeJONSCulture(iValue);
 										if (owningPlayer.getCapitalCity() != NULL)
-										{
-											if (owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-											}
-											else
-											{
-												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-											}
-										}
+											owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 										CvNotifications* pNotifications = owningPlayer.GetNotifications();
 										if (pNotifications)
 										{
@@ -15042,15 +15031,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										int iValue = owningPlayer.GetTotalJONSCulturePerTurn() * 4;
 										owningPlayer.changeJONSCulture(iValue);
 										if (owningPlayer.getCapitalCity() != NULL)
-										{
-											if (owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
-												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
-											}
-											else
-											{
-												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-											}
-										}
+											owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+
 										CvNotifications* pNotifications = owningPlayer.GetNotifications();
 										if (pNotifications)
 										{
@@ -19089,6 +19071,11 @@ void CvCity::SetJONSCultureStored(int iValue)
 void CvCity::ChangeJONSCultureStored(int iChange)
 {
 	VALIDATE_OBJECT
+
+	// Modifiers to border growth rate?
+	iChange *= 100 + GetBorderGrowthRateIncreaseTotal();
+	iChange /= 100;
+
 	SetJONSCultureStored(GetJONSCultureStored() + iChange);
 }
 
@@ -32516,13 +32503,7 @@ bool CvCity::doCheckProduction()
 							//Wonders converted into Culture Points.
 							iProductionGold = (iProductionGold * /*33*/ GD_INT_GET(BALANCE_CULTURE_PERCENTAGE_VALUE)) / 100;
 							thisPlayer.changeJONSCulture(iProductionGold * iEra);
-							if (GetBorderGrowthRateIncreaseTotal() > 0) {
-								ChangeJONSCultureStored(iProductionGold * iEra * (100+GetBorderGrowthRateIncreaseTotal())/100);
-							}
-							else
-							{
-								ChangeJONSCultureStored(iProductionGold* iEra);
-							}
+							ChangeJONSCultureStored(iProductionGold * iEra);
 						}
 						if (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) == 3)
 						{
