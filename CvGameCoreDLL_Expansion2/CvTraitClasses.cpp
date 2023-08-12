@@ -301,6 +301,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_ppiTerrainYieldChanges(NULL),
 	m_piYieldFromKills(NULL),
 	m_piYieldFromBarbarianKills(NULL),
+	m_piYieldFromMinorDemand(NULL),
 	m_piYieldChangeTradeRoute(NULL),
 	m_piYieldChangeWorldWonder(NULL),
 	m_ppiTradeRouteYieldChange(NULL),
@@ -1777,6 +1778,13 @@ int CvTraitEntry::GetYieldFromBarbarianKills(YieldTypes eYield) const
 	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
 	return m_piYieldFromBarbarianKills ? m_piYieldFromBarbarianKills[(int)eYield] : 0;
+}
+
+int CvTraitEntry::GetYieldFromMinorDemand(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_piYieldFromMinorDemand ? m_piYieldFromMinorDemand[(int)eYield] : 0;
 }
 
 int CvTraitEntry::GetYieldChangeTradeRoute(int i) const
@@ -3416,6 +3424,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	
 	kUtility.SetYields(m_piYieldFromKills, "Trait_YieldFromKills", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldFromBarbarianKills, "Trait_YieldFromBarbarianKills", "TraitType", szTraitType);
+	kUtility.SetYields(m_piYieldFromMinorDemand, "Trait_YieldFromMinorDemand", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldChangeTradeRoute, "Trait_YieldChangeTradeRoute", "TraitType", szTraitType);
 	kUtility.SetYields(m_piYieldChangeWorldWonder, "Trait_YieldChangeWorldWonder", "TraitType", szTraitType);
 
@@ -4957,6 +4966,7 @@ void CvPlayerTraits::InitPlayerTraits()
 
 				m_iYieldFromKills[iYield] = trait->GetYieldFromKills((YieldTypes) iYield);
 				m_iYieldFromBarbarianKills[iYield] = trait->GetYieldFromBarbarianKills((YieldTypes) iYield);
+				m_iYieldFromMinorDemand[iYield] = trait->GetYieldFromMinorDemand((YieldTypes)iYield);
 				m_iYieldChangeTradeRoute[iYield] = trait->GetYieldChangeTradeRoute(iYield);
 				m_iYieldChangeWorldWonder[iYield] = trait->GetYieldChangeWorldWonder(iYield);
 
@@ -5543,6 +5553,7 @@ void CvPlayerTraits::Reset()
 		}
 		m_iYieldFromKills[iYield] = 0;
 		m_iYieldFromBarbarianKills[iYield] = 0;
+		m_iYieldFromMinorDemand[iYield] = 0;
 		m_iYieldChangeTradeRoute[iYield] = 0;
 		m_iYieldChangeWorldWonder[iYield] = 0;
 		for(int iDomain = 0; iDomain < NUM_DOMAIN_TYPES; iDomain++)
@@ -6054,6 +6065,13 @@ int CvPlayerTraits::GetYieldFromBarbarianKills(YieldTypes eYield) const
 	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
 	CvAssertMsg((int)eYield > -1, "Index out of bounds");
 	return m_iYieldFromBarbarianKills[(int)eYield];
+}
+
+int CvPlayerTraits::GetYieldFromMinorDemand(YieldTypes eYield) const
+{
+	CvAssertMsg((int)eYield < NUM_YIELD_TYPES, "Yield type out of bounds");
+	CvAssertMsg((int)eYield > -1, "Index out of bounds");
+	return m_iYieldFromMinorDemand[(int)eYield];
 }
 
 /// Extra yield from this specialist
@@ -7682,6 +7700,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_ppiTerrainYieldChange);
 	visitor(playerTraits.m_iYieldFromKills);
 	visitor(playerTraits.m_iYieldFromBarbarianKills);
+	visitor(playerTraits.m_iYieldFromMinorDemand);
 	visitor(playerTraits.m_iYieldChangeTradeRoute);
 	visitor(playerTraits.m_iYieldChangeWorldWonder);
 	visitor(playerTraits.m_ppiTradeRouteYieldChange);

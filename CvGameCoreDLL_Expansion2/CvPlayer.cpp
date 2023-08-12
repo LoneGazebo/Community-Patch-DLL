@@ -27714,12 +27714,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						continue;
 
 					if (iPassYield == 0)
-						iValue += GetYieldFromMinorDemand(eYield);
+						iValue += GetYieldFromMinorDemand(eYield) + GetPlayerTraits()->GetYieldFromMinorDemand(eYield);
 					else if (ePassYield != NO_YIELD)
 						iValue += iPassYield;
 					else
 					{
-						int iTemp = GetYieldFromMinorDemand(eYield) * iPassYield;
+						int iTemp = (GetYieldFromMinorDemand(eYield) + GetPlayerTraits()->GetYieldFromMinorDemand(eYield)) * iPassYield;
 						iTemp /= 100;
 						iValue += iTemp;
 					}
