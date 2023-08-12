@@ -19080,9 +19080,13 @@ void CvCity::ChangeJONSCultureStored(int iChange)
 {
 	VALIDATE_OBJECT
 
-	// Modifiers to border growth rate?
-	iChange *= 100 + GetBorderGrowthRateIncreaseTotal();
-	iChange /= 100;
+	// Positive modifier to border growth rate?
+	int iModifier = GetBorderGrowthRateIncreaseTotal();
+	if (iModifier > 0)
+	{
+		iChange *= 100 + iModifier;
+		iChange /= 100;
+	}
 
 	SetJONSCultureStored(GetJONSCultureStored() + iChange);
 }
