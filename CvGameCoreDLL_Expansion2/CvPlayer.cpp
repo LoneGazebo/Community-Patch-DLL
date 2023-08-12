@@ -27356,13 +27356,14 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						if(pReligion)
 						{
-							iValue += (pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true)) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+							int iChange = (pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true)) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
 				
 							//Scale it here to avoid scaling the growth yield below.
 							if (eYield == YIELD_CULTURE && bEraScale)
 							{
-								iValue *= iEra;
+								iChange *= iEra;
 							}
+              iValue += iChange;
 						}
 					}
 					if(eYield == YIELD_FAITH)
