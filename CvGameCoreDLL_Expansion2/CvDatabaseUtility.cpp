@@ -215,7 +215,7 @@ bool CvDatabaseUtility::PopulateArrayByExistence(int*& pArray, const char* szTyp
 	return true;
 }
 //------------------------------------------------------------------------------
-bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, const char* szValueColumn, int iDefaultValue /* = 0 */, int iMinArraySize /* = 0 */)
+bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTableName, const char* szDataTableName, const char* szTypeColumn, const char* szFilterColumn, const char* szFilterValue, const char* szValueColumn, int iDefaultValue /* = 0 */, int iMinArraySize /* = 0 */, const char* szAdditionalCondition /* = "" */)
 {
 	int iSize = MaxRows(szTypeTableName);
 	InitializeArray(pArray, (iSize<iMinArraySize)?iMinArraySize:iSize, iDefaultValue);
@@ -225,12 +225,19 @@ bool CvDatabaseUtility::PopulateArrayByValue(int*& pArray, const char* szTypeTab
 	strKey.append(szDataTableName);
 	strKey.append(szFilterColumn);
 	strKey.append(szValueColumn);
+	strKey.append(szAdditionalCondition);
 
 	Database::Results* pResults = GetResults(strKey);
 	if(pResults == NULL)
 	{
+		std::string strAddedClause = "";
+		if (szAdditionalCondition && szAdditionalCondition[0] != '\0')
+		{
+			strAddedClause.append(" and ");
+			strAddedClause.append(szAdditionalCondition);
+		}
 		char szSQL[512];
-		sprintf_s(szSQL, "select %s.ID, %s from %s inner join %s on %s = %s.Type where %s = ?", szTypeTableName, szValueColumn, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn);
+		sprintf_s(szSQL, "select %s.ID, %s from %s inner join %s on %s = %s.Type where %s = ?%s", szTypeTableName, szValueColumn, szDataTableName, szTypeTableName, szTypeColumn, szTypeTableName, szFilterColumn, strAddedClause.c_str());
 		pResults = PrepareResults(strKey, szSQL);
 		if(pResults == NULL)
 			return false;
@@ -266,10 +273,11 @@ bool CvDatabaseUtility::SetFlavors(int*& pFlavorsArray,
 bool CvDatabaseUtility::SetYields(int*& pYieldsArray,
                                   const char* szTableName,
                                   const char* szFilterColumn,
-                                  const char* szFilterValue)
+                                  const char* szFilterValue,
+	                              const char* szAdditionalCondition)
 {
 	return PopulateArrayByValue(pYieldsArray, "Yields", szTableName,
-	                            "YieldType", szFilterColumn, szFilterValue, "Yield");
+	                            "YieldType", szFilterColumn, szFilterValue, "Yield", 0, 0, szAdditionalCondition);
 }
 //------------------------------------------------------------------------------
 int CvDatabaseUtility::MaxRows(const char* szTableName)
