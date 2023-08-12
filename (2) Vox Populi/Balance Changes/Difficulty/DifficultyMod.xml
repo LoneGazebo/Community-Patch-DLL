@@ -2313,12 +2313,6 @@
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -2335,12 +2329,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
@@ -2352,12 +2340,6 @@
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2383,12 +2365,6 @@
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2435,23 +2411,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -2499,12 +2463,6 @@
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -2521,12 +2479,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
@@ -2538,12 +2490,6 @@
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2569,12 +2515,6 @@
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2621,23 +2561,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -2685,12 +2613,6 @@
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -2707,12 +2629,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
@@ -2724,12 +2640,6 @@
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2755,12 +2665,6 @@
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2807,23 +2711,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -2871,12 +2763,6 @@
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -2893,12 +2779,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
@@ -2910,12 +2790,6 @@
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2941,12 +2815,6 @@
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -2993,23 +2861,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -3057,12 +2913,6 @@
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -3079,12 +2929,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
@@ -3096,12 +2940,6 @@
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3127,12 +2965,6 @@
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3179,23 +3011,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -3243,12 +3063,6 @@
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -3265,12 +3079,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
@@ -3282,12 +3090,6 @@
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3313,12 +3115,6 @@
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3365,23 +3161,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -3429,12 +3213,6 @@
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -3451,12 +3229,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
@@ -3468,12 +3240,6 @@
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3499,12 +3265,6 @@
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3551,23 +3311,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -3615,12 +3363,6 @@
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -3637,12 +3379,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
@@ -3654,12 +3390,6 @@
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3685,12 +3415,6 @@
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3737,23 +3461,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -3805,12 +3517,6 @@
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -3827,12 +3533,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
@@ -3844,12 +3544,6 @@
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3875,12 +3569,6 @@
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -3927,23 +3615,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_SETTLER</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_SETTLER</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -3991,12 +3667,6 @@
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -4013,12 +3683,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
@@ -4030,12 +3694,6 @@
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4061,12 +3719,6 @@
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4113,23 +3765,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_CHIEFTAIN</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -4177,12 +3817,6 @@
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -4199,12 +3833,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
@@ -4216,12 +3844,6 @@
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4247,12 +3869,6 @@
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4299,23 +3915,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_WARLORD</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_WARLORD</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -4363,12 +3967,6 @@
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -4385,12 +3983,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
@@ -4402,12 +3994,6 @@
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4433,12 +4019,6 @@
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4485,23 +4065,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_PRINCE</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_PRINCE</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -4549,12 +4117,6 @@
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -4571,12 +4133,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
@@ -4588,12 +4144,6 @@
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4619,12 +4169,6 @@
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4671,23 +4215,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_KING</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_KING</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -4735,12 +4267,6 @@
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -4757,12 +4283,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
@@ -4774,12 +4294,6 @@
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4805,12 +4319,6 @@
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4857,23 +4365,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_EMPEROR</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_EMPEROR</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -4921,12 +4417,6 @@
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -4943,12 +4433,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
@@ -4960,12 +4444,6 @@
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -4991,12 +4469,6 @@
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -5043,23 +4515,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_IMMORTAL</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
@@ -5107,12 +4567,6 @@
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>300</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_ERA_CHANGE</HistoricEventType>
 			<YieldType>YIELD_CULTURE</YieldType>
 			<Multiplier>300</Multiplier>
 		</Row>
@@ -5129,12 +4583,6 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND_CAPITAL</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_CITY_FOUND -->
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
@@ -5146,12 +4594,6 @@
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_CITY_FOUND</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -5177,12 +4619,6 @@
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WON_WAR</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<Row>
@@ -5229,23 +4665,11 @@
 			<YieldType>YIELD_GOLD</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_WORLD_WONDER</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
 		<!-- HISTORIC_EVENT_GREAT_PERSON -->
 		<Row>
 			<HandicapType>HANDICAP_DEITY</HandicapType>
 			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
 			<YieldType>YIELD_GOLD</YieldType>
-			<Multiplier>100</Multiplier>
-		</Row>
-		<Row>
-			<HandicapType>HANDICAP_DEITY</HandicapType>
-			<HistoricEventType>HISTORIC_EVENT_GREAT_PERSON</HistoricEventType>
-			<YieldType>YIELD_GOLDEN_AGE_POINTS</YieldType>
 			<Multiplier>100</Multiplier>
 		</Row>
 		<!-- HISTORIC_EVENT_DIG -->
