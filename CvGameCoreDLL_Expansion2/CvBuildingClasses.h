@@ -430,6 +430,9 @@ public:
 	int GetYieldFromVictoryGlobal(int i) const;
 	int* GetYieldFromVictoryGlobalArray() const;
 
+	int GetYieldFromVictoryGlobalEraScaling(int i) const;
+	int* GetYieldFromVictoryGlobalArrayEraScaling() const;
+
 	int GetYieldFromVictoryGlobalPlayer(int i) const;
 	int* GetYieldFromVictoryGlobalPlayerArray() const;
 
@@ -950,6 +953,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
 	int* m_piYieldFromVictoryGlobal;
+	int* m_piYieldFromVictoryGlobalEraScaling;
 	int* m_piYieldFromVictoryGlobalPlayer;
 	int* m_piYieldFromPillage;
 	int* m_piYieldFromPillageGlobal;

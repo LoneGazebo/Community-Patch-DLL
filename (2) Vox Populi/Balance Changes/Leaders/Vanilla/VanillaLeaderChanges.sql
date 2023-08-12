@@ -848,10 +848,10 @@ VALUES
 	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_GREAT_ADMIRAL_POINTS', 10);
 
 INSERT INTO Building_YieldFromVictoryGlobal
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_ODEON', 'YIELD_CULTURE_LOCAL', 5),
-	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_GOLDEN_AGE_POINTS', 5);
+	('BUILDING_ODEON', 'YIELD_CULTURE_LOCAL', 5, 'true'),
+	('BUILDING_FLAVIAN_COLOSSEUM', 'YIELD_GOLDEN_AGE_POINTS', 5, 'true');
 
 INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)

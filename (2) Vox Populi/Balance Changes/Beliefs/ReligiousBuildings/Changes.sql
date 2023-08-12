@@ -121,9 +121,9 @@ VALUES
 	('BUILDING_CATHEDRAL', 'IMPROVEMENT_QUARRY', 'YIELD_GOLD', 1);
 
 INSERT INTO Building_YieldFromVictoryGlobal
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES
-	('BUILDING_TEOCALLI', 'YIELD_FAITH', 3);
+	('BUILDING_TEOCALLI', 'YIELD_FAITH', 5, 'false');
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
 	(BuildingType, YieldType, Yield)

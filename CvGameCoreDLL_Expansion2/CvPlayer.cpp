@@ -27592,7 +27592,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						continue;
 					}
-					iValue += GetYieldFromVictory(eYield) + pLoopCity->GetYieldFromVictoryGlobal(eYield);
+					iValue += GetYieldFromVictory(eYield) * iEra + pLoopCity->GetYieldFromVictoryGlobal(eYield) + pLoopCity->GetYieldFromVictoryGlobalEraScaling(eYield) * iEra;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_PILLAGE:
@@ -28012,7 +28012,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					}
 
 					//Exclusion for birth yields and GP expense and policy unlocks (as we do it up above to avoid % growth and religion bonuses from being scaled).
-					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK && iType != INSTANT_YIELD_TYPE_BORDERS && iType != INSTANT_YIELD_TYPE_REMOVE_HERESY && iType != INSTANT_YIELD_TYPE_VICTORY)
+					if (bEraScale && iType != INSTANT_YIELD_TYPE_BIRTH && iType != INSTANT_YIELD_TYPE_GP_USE && iType != INSTANT_YIELD_TYPE_POLICY_UNLOCK && iType != INSTANT_YIELD_TYPE_BORDERS && iType != INSTANT_YIELD_TYPE_REMOVE_HERESY && iType != INSTANT_YIELD_TYPE_VICTORY && iType != INSTANT_YIELD_TYPE_VICTORY_GLOBAL)
 					{
 						iValue *= iEra;
 					}
