@@ -1790,10 +1790,14 @@ bool CvMinorCivQuest::IsExpired()
 		PlayerTypes eTargetCityState = (PlayerTypes) GetPrimaryData();
 		CvPlayer* pTargetCityState = &GET_PLAYER(eTargetCityState);
 
-		if(pTargetCityState)
+		if (pTargetCityState)
 		{
 			// Someone killed the City State...ouch
-			if(!pTargetCityState->isAlive())
+			if (!pTargetCityState->isAlive())
+				return true;
+
+			// Assigned player has allied or pledged to protect the City-State
+			if (pTargetCityState->GetMinorCivAI()->GetAlly() == m_eAssignedPlayer || pTargetCityState->GetMinorCivAI()->IsProtectedByMajor(m_eAssignedPlayer))
 				return true;
 		}
 	}
@@ -9864,32 +9868,32 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 	PlayerProximityTypes eClosestProximity = PLAYER_PROXIMITY_DISTANT;
 
 	// First, loop through the Minors in the game to what the closest proximity is to any of the players
-	int iTargetLoop = 0;
-	PlayerTypes eTarget;
-	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
+	for (int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 	{
-		eTarget = (PlayerTypes) iTargetLoop;
+		PlayerTypes eTarget = (PlayerTypes) iTargetLoop;
 
-		if(!GET_PLAYER(eTarget).isAlive())
+		if (!GET_PLAYER(eTarget).isAlive() || !GET_PLAYER(eTarget).isMinorCiv())
 			continue;
 
-		if(GetPlayer()->getTeam() == GET_PLAYER(eTarget).getTeam())
+		if (GetPlayer()->getTeam() == GET_PLAYER(eTarget).getTeam())
 			continue;
 
-#if defined(MOD_BALANCE_CORE)
-		//Don't pick civs that are allied to anyone - only unallied civs for both target ends.
-		if(GET_PLAYER(eTarget).isMinorCiv() && GET_PLAYER(eTarget).GetMinorCivAI()->GetAlly() != NO_PLAYER)
+		// Don't pick City-States the player has pledged to protect
+		if (GET_PLAYER(eTarget).GetMinorCivAI()->IsProtectedByMajor(eForPlayer))
 			continue;
-#endif
 
-		if(GetPlayer()->GetProximityToPlayer(eTarget) > eClosestProximity)
+		// Don't pick civs that are allied to anyone - only unallied civs for both target ends.
+		if (GET_PLAYER(eTarget).GetMinorCivAI()->GetAlly() != NO_PLAYER)
+			continue;
+
+		if (GetPlayer()->GetProximityToPlayer(eTarget) > eClosestProximity)
 		{
 			eClosestProximity = GetPlayer()->GetProximityToPlayer(eTarget);
 		}
 	}
 
 	// Found nobody, or only people far away
-	if(eClosestProximity == PLAYER_PROXIMITY_DISTANT)
+	if (eClosestProximity == PLAYER_PROXIMITY_DISTANT)
 	{
 		return NO_PLAYER;
 	}

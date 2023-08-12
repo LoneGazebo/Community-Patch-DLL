@@ -60,7 +60,7 @@ UPDATE SmallAwards SET Influence = '30', GlobalGPPoints = '20', RandomMod = '10'
 UPDATE SmallAwards SET Influence = '25', Tourism = '300', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TECHS';
 
 -- Bully
-UPDATE SmallAwards SET Influence = '20', Gold = '60', RandomMod = '5' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
+UPDATE SmallAwards SET Influence = '20', Gold = '60', RandomMod = '5', QuestDuration = '0' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
 
 -- Denounce
 UPDATE SmallAwards SET Influence = '30', GeneralPoints = '50', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_DENOUNCE_MAJOR';
