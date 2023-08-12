@@ -9901,11 +9901,11 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes eForPlayer, bool bN
 	CvWeightedVector<PlayerTypes> veValidTargets;
 
 	// Now loop through and come up with a list of valid players based on the proximity we found out earlier
-	for(iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
+	for (int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
 	{
 		int iWeight = 10;
 
-		eTarget = (PlayerTypes) iTargetLoop;
+		PlayerTypes eTarget = (PlayerTypes) iTargetLoop;
 
 		if(!GET_PLAYER(eTarget).isAlive())
 			continue;
