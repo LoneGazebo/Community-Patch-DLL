@@ -3242,28 +3242,30 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		{
 			int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * /*50 in CP, 75 in VP*/ GD_INT_GET(COMBAT_CAPTURE_HEALTH)) / 100;
 			pkCapturedUnit->setDamage(iCapturedHealth);
-			pkCapturedUnit->restoreFullMoves();
-			pkCapturedUnit->setMadeAttack(true);
-			pkCapturedUnit->SetTurnProcessed(false);
-			if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman()) {
-				if (pkCapturedUnit->shouldPillage(pkPlot, true))
-				{
-					pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-				}
-				CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pkCapturedUnit, true, true);
-				if (pBestPlot != NULL)
-				{
-					//check if we need to bump somebody else
-					CvUnit* pBumpUnit = pkCapturedUnit->GetPotentialUnitToPushOut(*pBestPlot);
-					if (pBumpUnit)
+			if (MOD_BALANCE_VP) {
+				pkCapturedUnit->restoreFullMoves();
+				pkCapturedUnit->setMadeAttack(true);
+				pkCapturedUnit->SetTurnProcessed(false);
+				if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman()) {
+					if (pkCapturedUnit->shouldPillage(pkPlot, true))
 					{
-						pkCapturedUnit->PushBlockingUnitOutOfPlot(*pBestPlot);
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
 					}
-					pkCapturedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
-				}
-				else 
-				{
-					pkCapturedUnit->PushMission(CvTypes::getMISSION_SKIP());
+					CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pkCapturedUnit, true, true);
+					if (pBestPlot != NULL)
+					{
+						//check if we need to bump somebody else
+						CvUnit* pBumpUnit = pkCapturedUnit->GetPotentialUnitToPushOut(*pBestPlot);
+						if (pBumpUnit)
+						{
+							pkCapturedUnit->PushBlockingUnitOutOfPlot(*pBestPlot);
+						}
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
+					}
+					else
+					{
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_SKIP());
+					}
 				}
 			}
 		}
@@ -13357,9 +13359,16 @@ bool CvUnit::givePolicies()
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
-		if(pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
-			pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
-
+		if (pPlot->getOwningCity() && pPlot->getOwner() == getOwner()) {
+			if (pPlot->getOwningCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+				pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus * (100+pPlot->getOwningCity()->GetBorderGrowthRateIncreaseTotal())/100);
+			}
+			else
+			{
+				pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
+			}
+			
+		}
 		// Refresh - we might get to pick a policy this turn
 	}
 
@@ -14068,7 +14077,13 @@ bool CvUnit::build(BuildTypes eBuild)
 					kPlayer.changeJONSCulture(iValue);
 					if(kPlayer.getCapitalCity() != NULL)
 					{
-						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+						if (kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+kPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+						}
+						else
+						{
+							kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+						}
 					}
 					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
 					{

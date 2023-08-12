@@ -2917,7 +2917,13 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 		changeJONSCulture(iValue);
 		if (getCapitalCity())
 		{
-			getCapitalCity()->ChangeJONSCultureStored(iValue);
+			if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+				getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+			}
+			else
+			{
+				getCapitalCity()->ChangeJONSCultureStored(iValue);
+			}
 		}
 		CvNotifications* pNotifications = GetNotifications();
 		if (pNotifications)
@@ -13648,7 +13654,14 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			if (pBestCity != NULL)
 			{
 				goodyValueModifier(iBorderGrowth, GC.getGame().getGameSpeedInfo().getInstantYieldPercent(), true, true);
-				pBestCity->ChangeJONSCultureStored(iBorderGrowth);
+				if (pBestCity->GetBorderGrowthRateIncreaseTotal() > 0) {
+					pBestCity->ChangeJONSCultureStored(iBorderGrowth * (100+pBestCity->GetBorderGrowthRateIncreaseTotal())/100);
+				}
+				else
+				{
+					pBestCity->ChangeJONSCultureStored(iBorderGrowth);
+				}
+				
 				changeInstantYieldValue(YIELD_CULTURE_LOCAL, iBorderGrowth);
 			}
 			else
@@ -28087,7 +28100,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					case YIELD_CULTURE:
 					{
 						changeJONSCulture(iValue);
-						pLoopCity->ChangeJONSCultureStored(iValue);
+						if (pLoopCity->GetBorderGrowthRateIncreaseTotal() > 0) {
+							pLoopCity->ChangeJONSCultureStored(iValue * (100+pLoopCity->GetBorderGrowthRateIncreaseTotal())/100);
+						}
+						else
+						{
+							pLoopCity->ChangeJONSCultureStored(iValue);
+						}
 						if(pLoopCity->GetJONSCultureStored() <= 0)
 						{
 							pLoopCity->SetJONSCultureStored(0);
@@ -28200,7 +28219,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						}
 						else
 						{
-							pLoopCity->ChangeJONSCultureStored(iValue);
+							if (pLoopCity->GetBorderGrowthRateIncreaseTotal() > 0) {
+								pLoopCity->ChangeJONSCultureStored(iValue * (100+pLoopCity->GetBorderGrowthRateIncreaseTotal())/100);
+							}
+							else
+							{
+								pLoopCity->ChangeJONSCultureStored(iValue);
+							}
 							if (pLoopCity->GetJONSCultureStored() <= 0)
 							{
 								pLoopCity->SetJONSCultureStored(0);
@@ -30147,7 +30172,13 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 				changeJONSCulture(iValue);
 				if(getCapitalCity() != NULL)
 				{
-					getCapitalCity()->ChangeJONSCultureStored(iValue);
+					if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+						getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+					}
+					else
+					{
+						getCapitalCity()->ChangeJONSCultureStored(iValue);
+					}
 				}
 				CvNotifications* pNotifications = GetNotifications();
 				if (pNotifications)
@@ -46057,7 +46088,13 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 										changeJONSCulture(iValue);
 										if(getCapitalCity() != NULL)
 										{
-											getCapitalCity()->ChangeJONSCultureStored(iValue);
+											if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+												getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+											}
+											else
+											{
+												getCapitalCity()->ChangeJONSCultureStored(iValue);
+											}
 										}
 										CvNotifications* pNotifications = GetNotifications();
 										if (pNotifications)
@@ -47990,7 +48027,13 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		changeJONSCulture(iValue);
 		if(getCapitalCity() != NULL)
 		{
-			getCapitalCity()->ChangeJONSCultureStored(iValue);
+			if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+				getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+			}
+			else
+			{
+				getCapitalCity()->ChangeJONSCultureStored(iValue);
+			}
 		}
 		CvNotifications* pNotifications = GetNotifications();
 		if (pNotifications)
@@ -48144,7 +48187,14 @@ void CvPlayer::createGreatAdmiral(UnitTypes eGreatPersonUnit, int iX, int iY)
 		changeJONSCulture(iValue);
 		if(getCapitalCity() != NULL)
 		{
-			getCapitalCity()->ChangeJONSCultureStored(iValue);
+			if (getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+				getCapitalCity()->ChangeJONSCultureStored(iValue * (100+getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+			}
+			else
+			{
+				getCapitalCity()->ChangeJONSCultureStored(iValue);
+			}
+			
 		}
 		CvNotifications* pNotifications = GetNotifications();
 		if (pNotifications)

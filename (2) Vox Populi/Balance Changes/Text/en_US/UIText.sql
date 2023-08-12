@@ -23,6 +23,11 @@ UPDATE Language_en_US
 SET Text = '[ICON_FOOD]/[ICON_PRODUCTION] Penalty'
 WHERE Tag = 'TXT_KEY_SUPPLY_DEFICIT_PENALTY';
 
+-- Fortifications
+UPDATE Language_en_US
+SET Text = 'Many units have the ability to "fortify." This means that the unit "digs in" and creates defensive works in its current location. This gives the unit certain defensive bonuses, making it much tougher to kill. However, fortifications are strictly defensive: if the unit moves or attacks, the fortifications are destroyed.  While fortified, a unit will not activate. It will remain inactive until you manually activate it by clicking on the unit.[NEWLINE][NEWLINE]An improvement may contain [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR] which means units stationed on this improvement will follow the behavior as a city garrison of not following up after a victory in combat.'
+WHERE Tag = 'TXT_KEY_COMBAT_FORTIFICATION_HEADING3_BODY';
+
 -- Wonders
 UPDATE Language_en_US
 SET Text = 'Wonders are the remarkable, one-of-a-kind buildings that ensure that a civilization will be remembered throughout all of history. Wonders engage the mind and lift the spirits.[NEWLINE][NEWLINE]The Pyramids, Notre Dame Cathedral, and Stonehenge are examples of wonders. Wonders require much time and energy from your cities to construct, but once completed, they provide your civilization with many benefits.[NEWLINE][NEWLINE]There are three basic types of wonders: World Wonders, National Wonders and Project Wonders. Only one copy of a World Wonder may be constructed anywhere in the world in a given game. National Wonders are less exclusive: each nation may construct one (but only one) copy of a National Wonder.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Modifiers[ENDCOLOR]: In addition to certain Traits and Policies, [ICON_RES_MARBLE] Marble and [ICON_RES_STONE] Stone increase the production modifier of cities with these resources nearby. Marble increases Wonder production by 15% for all pre-Industrial Wonders, whereas Stone increases Wonder production by 10% for all pre-Medieval Wonders.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Costs[ENDCOLOR]: For every Wonder you control, the cost of future Wonders goes up. This cost varies based on the Era of the Wonder.[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder of the same Era: 25%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from the previous Era: 15%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from two Eras prior: 10% (Wonders earlier than two eras do not count).[NEWLINE][NEWLINE]If you build too many Wonders during an Era, your ability to gain future Wonders will be compromised, so don''t be too greedy!'
@@ -504,7 +509,7 @@ WHERE Tag = 'TXT_KEY_BUILD_RAILROAD_HELP';
 
 -- Fort
 UPDATE Language_en_US
-SET Text = 'A fort is a special improvement that improves the defensive bonus of the tile by 50% for units stationed in that tile. However, forts do not provide a defensive bonus to units in enemy territory. Cannot be built adjacent to one another.'
+SET Text = 'A fort is a special improvement that improves the defensive bonus of the tile by 50% for units stationed in that tile. However, forts do not provide a defensive bonus to units in enemy territory. Cannot be built adjacent to one another. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in the Tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through this tile.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FORT_TEXT';
 
 -- Landmark
@@ -796,15 +801,6 @@ WHERE Tag = 'TXT_KEY_CITIES_WHERETOCONSTRUCT_HEADING2_BODY';
 UPDATE Language_en_US
 SET Text = 'Trade Routes are established between two cities of different civilizations, providing Gold to each every turn. The civilization that the Trade Route originates from gets a larger sum of Gold than the destination civilization. The amount of Gold a Trade Route produces is dependent upon the resource diversity and revenue of the origin city.[NEWLINE][NEWLINE]Trade Routes can also be created between two cities of the same civilization. Once the origin city has a Granary, it can send Food to the destination city, and once it has a Workshop it can send Production. These types of internal Trade Routes do not benefit the origin city.[NEWLINE][NEWLINE]You can only have a limited number of Trade Routes at any time. Researching certain technologies increases the number of routes you have available. For details about your existing Trade Routes, open the Trade Route Overview screen, located in the Additional Information drop-down menu.[NEWLINE][NEWLINE]The distance that Trade Routes can travel is affected by roads, terrain, hostile troops, and features. Keep this in mind when expanding, and when trying to link cities via trade routes.'
 WHERE Tag = 'TXT_KEY_TRADE_ROUTES_HEADING2_BODY';
-
--- Moai
-UPDATE Language_en_US
-SET Text = 'Moai can only be built on the coast.  If built next to another Moai or City, it provides additional [ICON_CULTURE] Culture. Provides additional yields once later techs are researched.[NEWLINE][NEWLINE]If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Moai can only be built on the coast.  If built next to another Moai or City, it provides additional [ICON_CULTURE] Culture. Provides additional yields once later techs are researched. If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE]Perhaps better known as the "Easter Island Statues", the Moai are large, humanoid figures carved mostly from volcanic rocks like tuff. 887 of these statues dot Easter Island, and are believed to have been created sometime between 1250 and 1500 AD.  Almost half still remain at the original quarry site, but the rest were transported and erected around the island''s coastline.  Easily recognizable by their large heads and elongated features, it is believed that they were individual depictions of deceased ancestors and powerful chiefs.[NEWLINE][NEWLINE]While most scholars agree on why and how the statues were created, the method of their transportation still remains a mystery.  Weighing from 9 to 86 tons a piece, they would have required an amazing feat of engineering to move from quarry to final resting place.[NEWLINE][NEWLINE]In 1994, the Moai statues were given official protection on the UNESCO World Heritage site list.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_TEXT';
 
 -- Warscore Diplo
 
