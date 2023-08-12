@@ -14717,7 +14717,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										owningPlayer.changeJONSCulture(iValue);
 										if (owningPlayer.getCapitalCity() != NULL)
 										{
-											owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+											if (owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+											}
+											else
+											{
+												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+											}
 										}
 										CvNotifications* pNotifications = owningPlayer.GetNotifications();
 										if (pNotifications)
@@ -15037,7 +15043,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 										owningPlayer.changeJONSCulture(iValue);
 										if (owningPlayer.getCapitalCity() != NULL)
 										{
-											owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+											if (owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue * (100+owningPlayer.getCapitalCity()->GetBorderGrowthRateIncreaseTotal())/100);
+											}
+											else
+											{
+												owningPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
+											}
 										}
 										CvNotifications* pNotifications = owningPlayer.GetNotifications();
 										if (pNotifications)
@@ -32504,7 +32516,13 @@ bool CvCity::doCheckProduction()
 							//Wonders converted into Culture Points.
 							iProductionGold = (iProductionGold * /*33*/ GD_INT_GET(BALANCE_CULTURE_PERCENTAGE_VALUE)) / 100;
 							thisPlayer.changeJONSCulture(iProductionGold * iEra);
-							ChangeJONSCultureStored(iProductionGold * iEra);
+							if (GetBorderGrowthRateIncreaseTotal() > 0) {
+								ChangeJONSCultureStored(iProductionGold * iEra * (100+GetBorderGrowthRateIncreaseTotal())/100);
+							}
+							else
+							{
+								ChangeJONSCultureStored(iProductionGold* iEra);
+							}
 						}
 						if (GD_INT_GET(BALANCE_WONDER_BEATEN_CONSOLATION_PRIZE) == 3)
 						{

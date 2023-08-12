@@ -16165,7 +16165,14 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					if (iValue > 0)
 					{
 						GET_PLAYER(eBully).changeJONSCulture(iValue);
-						pBullyCapital->ChangeJONSCultureStored(iValue);
+						
+						if (pBullyCapital->GetBorderGrowthRateIncreaseTotal() > 0) {
+							pBullyCapital->ChangeJONSCultureStored(iValue * (100+pBullyCapital->GetBorderGrowthRateIncreaseTotal())/100);
+						}
+						else
+						{
+							pBullyCapital->ChangeJONSCultureStored(iValue);
+						}
 						if (GC.getGame().getActivePlayer() != NO_PLAYER)
 						{
 							if (GET_PLAYER(GC.getGame().getActivePlayer()).GetID() == eBully)

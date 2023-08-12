@@ -3623,7 +3623,13 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 		m_pPlayer->changeJONSCulture(iValue);
 		if (pPlot->getEffectiveOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
 		{
-			pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue);
+			if (pPlot->getEffectiveOwningCity()->GetBorderGrowthRateIncreaseTotal() > 0) {
+				pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue * (100+pPlot->getEffectiveOwningCity()->GetBorderGrowthRateIncreaseTotal())/100);
+			}
+			else
+			{
+				pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue);
+			}
 		}
 
 		if (pUnit)
