@@ -63,7 +63,7 @@ UPDATE Units SET Moves = '3' WHERE Type IN (
 	'UNIT_CARAVEL',	
 	'UNIT_PORTUGUESE_NAU',
 	'UNIT_PRIVATEER',
-	'UNIT_DUTCH_SEA_BAGGER');
+	'UNIT_DUTCH_SEA_BEGGAR');
 
 	UPDATE Units SET Moves = '5' WHERE Type IN (
 	'UNIT_TRIREME', -- half moves in ocean
