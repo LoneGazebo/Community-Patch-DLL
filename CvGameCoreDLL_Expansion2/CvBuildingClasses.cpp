@@ -925,8 +925,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "IsEraScaling = 'false'");
-	kUtility.SetYields(m_piYieldFromVictoryGlobalEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "IsEraScaling = 'true'");
+	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
+	kUtility.SetYields(m_piYieldFromVictoryGlobalEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
 	kUtility.SetYields(m_piYieldFromVictoryGlobalPlayer, "Building_YieldFromVictoryGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
