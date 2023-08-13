@@ -809,6 +809,9 @@ INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.
 -- Disable Gold Gifts
 INSERT INTO Defines (Name, Value) SELECT 'CSD_GOLD_GIFT_DISABLED', '0';
 
+-- Threshold for demanding heavy tribute
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD', '0';
+
 -- Quest stuff
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_GIFT_SPECIFIC_UNIT', '0';
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_WAR', '0';

@@ -751,7 +751,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivBullyGoldAmount);
 	Method(SetBullyUnit);
 	Method(GetBullyUnit);
-	Method(GetYieldTheftAmount);
 	Method(GetPledgeProtectionInvalidReason);
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
@@ -8998,17 +8997,6 @@ int CvLuaPlayer::lGetBullyUnit(lua_State* L)
 	}		
 
 	lua_pushinteger(L, (UnitTypes) GC.getInfoTypeForString("UNIT_WORKER"));
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetYieldTheftAmount(PlayerTypes eMajor);
-int CvLuaPlayer::lGetYieldTheftAmount(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
-
-	const int iValue = pkPlayer->GetMinorCivAI()->GetYieldTheftAmount(eMajor);
-	lua_pushinteger(L, iValue);
 	return 1;
 }
 //------------------------------------------------------------------------------

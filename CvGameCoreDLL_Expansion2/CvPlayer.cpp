@@ -3603,28 +3603,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				CvMinorCivAI* pMinorAI = GET_PLAYER(eOldOwner).GetMinorCivAI();
 				MinorCivTraitTypes eTrait = pMinorAI->GetTrait();
 				int iYield = GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
-				iYield *= pMinorAI->GetYieldTheftAmount(GetID());
+				iYield *= pMinorAI->GetBullyGoldAmount(GetID());
 				iYield /= 100;
-				switch (eTrait)
-				{
-				case NO_MINOR_CIV_TRAIT_TYPE:
-					UNREACHABLE();
-				case MINOR_CIV_TRAIT_CULTURED:
-					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_CULTURE);
-					break;
-				case MINOR_CIV_TRAIT_MARITIME:
-					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FOOD);
-					break;
-				case MINOR_CIV_TRAIT_MERCANTILE:
-					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD);
-					break;
-				case MINOR_CIV_TRAIT_MILITARISTIC:
-					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_SCIENCE);
-					break;
-				case MINOR_CIV_TRAIT_RELIGIOUS:
-					doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_FAITH);
-					break;
-				}
+				doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, NULL, pCity);
 			}
 
 			// Other instant yields from conquering a city?
@@ -27724,13 +27705,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_BULLY:
 				{
-					if (eYield != ePassYield && ePassYield != NO_YIELD)
-						continue;
-
-					if (iPassYield == 0)
-						iValue += GetYieldFromMinorDemand(eYield) + GetPlayerTraits()->GetYieldFromMinorDemand(eYield);
-					else if (ePassYield != NO_YIELD)
+					if (ePassYield != NO_YIELD)
+					{
+						if (eYield != ePassYield)
+							continue;
 						iValue += iPassYield;
+					}
 					else
 					{
 						int iTemp = (GetYieldFromMinorDemand(eYield) + GetPlayerTraits()->GetYieldFromMinorDemand(eYield)) * iPassYield;
@@ -28324,136 +28304,131 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		{
 			case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
 				{
-					CvString MoreData = NULL;
+					CvString MoreData = "";
 					if (pQuestData != NULL)
 					{
-						const char* MinorName = GET_PLAYER(pQuestData->GetMinor()).getNameKey();
 						switch (pQuestData->GetType())
 						{
 						case NO_MINOR_CIV_QUEST_TYPE:
 							UNREACHABLE();
 						case MINOR_CIV_QUEST_ROUTE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME");
 							break;
 						case MINOR_CIV_QUEST_KILL_CAMP:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_KILL_CAMP_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_KILL_CAMP_NAME");
 							break;
 						case MINOR_CIV_QUEST_CONNECT_RESOURCE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONNECT_RESOURCE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONNECT_RESOURCE_NAME");
 							break;
 						case MINOR_CIV_QUEST_CONSTRUCT_WONDER:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_WONDER_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_WONDER_NAME");
 							break;
 						case MINOR_CIV_QUEST_GREAT_PERSON:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GREAT_PERSON_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GREAT_PERSON_NAME");
 							break;
 						case MINOR_CIV_QUEST_KILL_CITY_STATE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_KILL_CITY_STATE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_KILL_CITY_STATE_NAME");
 							break;
 						case MINOR_CIV_QUEST_FIND_PLAYER:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_PLAYER_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_PLAYER_NAME");
 							break;
 						case MINOR_CIV_QUEST_FIND_NATURAL_WONDER:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_NATURAL_WONDER_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_NATURAL_WONDER_NAME");
 							break;
 						case MINOR_CIV_QUEST_GIVE_GOLD:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GIVE_GOLD_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GIVE_GOLD_NAME");
 							break;
 						case MINOR_CIV_QUEST_PLEDGE_TO_PROTECT:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_PLEDGE_TO_PROTECT_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_PLEDGE_TO_PROTECT_NAME");
 							break;
 						case MINOR_CIV_QUEST_CONTEST_CULTURE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_CULTURE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_CULTURE_NAME");
 							break;
 						case MINOR_CIV_QUEST_CONTEST_FAITH:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_FAITH_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_FAITH_NAME");
 							break;
 						case MINOR_CIV_QUEST_CONTEST_TECHS:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_TECHS_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_TECHS_NAME");
 							break;
 						case MINOR_CIV_QUEST_INVEST:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_INVEST_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_INVEST_NAME");
 							break;
 						case MINOR_CIV_QUEST_BULLY_CITY_STATE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BULLY_CITY_STATE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BULLY_CITY_STATE_NAME");
 							break;
 						case MINOR_CIV_QUEST_DENOUNCE_MAJOR:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DENOUNCE_MAJOR_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DENOUNCE_MAJOR_NAME");
 							break;
 						case MINOR_CIV_QUEST_SPREAD_RELIGION:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_SPREAD_RELIGION_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_SPREAD_RELIGION_NAME");
 							break;
 						case MINOR_CIV_QUEST_TRADE_ROUTE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_TRADE_ROUTE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_TRADE_ROUTE_NAME");
 							break;
 						case MINOR_CIV_QUEST_WAR:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_WAR_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_WAR_NAME");
 							break;
 						case MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME");
 							break;
 						case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME");
 							break;
 						case MINOR_CIV_QUEST_FIND_CITY_STATE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME");
 							break;
 						case MINOR_CIV_QUEST_INFLUENCE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_INFLUENCE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_INFLUENCE_NAME");
 							break;
 						case MINOR_CIV_QUEST_CONTEST_TOURISM:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_TOURISM_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CONTEST_TOURISM_NAME");
 							break;
 						case MINOR_CIV_QUEST_ARCHAEOLOGY:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME");
 							break;
 						case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CIRCUMNAVIGATION_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_CIRCUMNAVIGATION_NAME");
 							break;
 						case MINOR_CIV_QUEST_LIBERATION:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_LIBERATION_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_LIBERATION_NAME");
 							break;
 						case MINOR_CIV_QUEST_HORDE:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_HORDE_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_HORDE_NAME");
 							break;
 						case MINOR_CIV_QUEST_REBELLION:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME");
 							break;
 						case MINOR_CIV_QUEST_DISCOVER_PLOT:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DISCOVER_PLOT_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DISCOVER_PLOT_NAME");
 							break;
 						case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME");
 							break;
 						case MINOR_CIV_QUEST_UNIT_STEAL_FROM:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_STEAL_FROM_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_STEAL_FROM_NAME");
 							break;
 						case MINOR_CIV_QUEST_UNIT_COUP_CITY:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_COUP_CITY_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_COUP_CITY_NAME");
 							break;
 						case MINOR_CIV_QUEST_UNIT_GET_CITY:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME", MinorName);
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME");
 							break;
 						}
 					}
 
-					if (MoreData != NULL)
+					const char* MinorName = GET_PLAYER(pQuestData->GetMinor()).getNameKey();
+					localizedText = bEvent ? Localization::Lookup("TXT_KEY_INSTANT_YIELD_HEAVY_TRIBUTE_QUEST") : Localization::Lookup("TXT_KEY_INSTANT_YIELD_MINOR_QUEST");
+					localizedText << MoreData;
+					localizedText << MinorName;
+					localizedText << totalyieldString;
+
+					//If this was not caused by demanding heavy tribute, we do this at the player level once per turn.
+					if (!bEvent)
 					{
-						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_MINOR_QUEST");
-						localizedText << MoreData;
-						localizedText << totalyieldString;
-						//We do this at the player level once per turn.
 						addInstantYieldText(iType, localizedText.toUTF8());
-					}
-					else
-					{
-						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_MINOR_QUEST");
-						localizedText << "";
-						localizedText << totalyieldString;
-						//We do this at the player level once per turn.
-						addInstantYieldText(iType, localizedText.toUTF8());
+						return;
 					}
 				}
 				else
@@ -28462,8 +28437,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					localizedText << totalyieldString;
 					//We do this at the player level once per turn.
 					addInstantYieldText(iType, localizedText.toUTF8());
+					return;
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_BIRTH:
 			case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
@@ -28801,8 +28777,10 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_BULLY:
 			{
+				const char* MinorName = (pOtherCity != NULL) ? GET_PLAYER(pOtherCity->getOwner()).getNameKey() : "";
 				localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BULLY");
 				localizedText << totalyieldString;
+				localizedText << MinorName;
 				break;
 			}
 			case INSTANT_YIELD_TYPE_SPREAD:

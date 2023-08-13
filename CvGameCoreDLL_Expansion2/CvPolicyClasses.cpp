@@ -217,7 +217,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bHalfSpecialistFoodCapital(false),
 	m_iStealGWSlowerModifier(0),
 	m_iStealGWFasterModifier(0),
-	m_iExtraYieldsFromHeavyTribute(0),
 	m_iEventTourism(0),
 	m_iEventTourismCS(0),
 	m_iMonopolyModFlat(0),
@@ -642,7 +641,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE)
 	m_iStealGWSlowerModifier = kResults.GetInt("StealGWSlowerModifier");
 	m_iStealGWFasterModifier = kResults.GetInt("StealGWFasterModifier");
-	m_iExtraYieldsFromHeavyTribute = kResults.GetInt("ExtraYieldsFromHeavyTribute");
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
 	m_iEventTourism = kResults.GetInt("EventTourism");
 	m_iEventTourismCS = kResults.GetInt("EventTourismCS");
@@ -2409,10 +2407,6 @@ int CvPolicyEntry::GetStealGWSlowerModifier() const
 int CvPolicyEntry::GetStealGWFasterModifier() const
 {
 	return m_iStealGWFasterModifier;
-}
-int CvPolicyEntry::GetExtraYieldsFromHeavyTribute() const
-{
-	return m_iExtraYieldsFromHeavyTribute;
 }
 int CvPolicyEntry::GetEventTourism() const
 {
@@ -4560,9 +4554,6 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_STEAL_GW_FASTER_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetStealGWFasterModifier();
-				break;
-			case POLICYMOD_EXTRA_YIELDS_FROM_HEAVY_TRIBUTE:
-				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetExtraYieldsFromHeavyTribute();
 				break;
 			case POLICYMOD_CITY_DEFENSE_BOOST:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDefenseBoost();

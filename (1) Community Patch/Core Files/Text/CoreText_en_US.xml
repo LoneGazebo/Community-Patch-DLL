@@ -3796,6 +3796,9 @@
 		<Row Tag="TXT_KEY_MISC_BULLIED_POPUP">
 			<Text>BULLIED:</Text>
 		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD">
+			<Text>They are currently [COLOR_WARNING_TEXT]resilient[ENDCOLOR], because you are {1_FactorScore}% below the required tribute threshold of [COLOR_CYAN]+{2_Threshold}%[ENDCOLOR]:</Text>
+		</Row>
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
 		<Row Tag="TXT_KEY_HOSTILE_WE_ATTACKED_YOUR_MINOR_3">
@@ -7136,7 +7139,7 @@
 			<Text>[ICON_PIRATE] Death of a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
-			<Text>[ICON_PIRATE] Bullying a City-State:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName}:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SPREAD">
 			<Text>Spreading your [ICON_RELIGION] Religion to a City:[NEWLINE]{1_YieldString}</Text>
@@ -7163,9 +7166,12 @@
 			<Text>[ICON_SPY] Spy Actions:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_MINOR_QUEST">
-			<Text>[ICON_CITY_STATE] City-State Quest ({1_Data}):[NEWLINE]{2_YieldString}</Text>
+			<Text>[ICON_CITY_STATE] Completing Quest for {2_MinorName} ({1_Data}):[NEWLINE]{3_YieldString}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
+		<Row Tag="TXT_KEY_INSTANT_YIELD_HEAVY_TRIBUTE_QUEST">
+			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName} - Quest Reward ({1_Data}):[NEWLINE]{3_YieldString}</Text>
+		</Row>
+			<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
 			<Text>Expanding [ICON_CULTURE] Borders by Great Person:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_REMOVE_HERESY">
@@ -7198,106 +7204,106 @@
 
 		<!-- Quest Data -->
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">
-			<Text>Construct Route for {1_CSName}</Text>
+			<Text>Construct Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_KILL_CAMP_NAME">
-			<Text>Kill Camp for {1_CSName}</Text>
+			<Text>Kill Camp</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONNECT_RESOURCE_NAME">
-			<Text>Connect Resource for {1_CSName}</Text>
+			<Text>Connect Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_WONDER_NAME">
-			<Text>Build Wonder for {1_CSName}</Text>
+			<Text>Build Wonder</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GREAT_PERSON_NAME">
-			<Text>Great Person for {1_CSName}</Text>
+			<Text>Generate Great Person</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_KILL_CITY_STATE_NAME">
-			<Text>Kill City-State for {1_CSName}</Text>
+			<Text>Kill City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_PLAYER_NAME">
-			<Text>Find Player for {1_CSName}</Text>
+			<Text>Find Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_NATURAL_WONDER_NAME">
-			<Text>Find Natural Wonder for {1_CSName}</Text>
+			<Text>Find Natural Wonder</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIVE_GOLD_NAME">
-			<Text>Give Gold to {1_CSName}</Text>
+			<Text>Give Gold</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_PLEDGE_TO_PROTECT_NAME">
-			<Text>Pledge Protection to {1_CSName}</Text>
+			<Text>Pledge Protection</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_CULTURE_NAME">
-			<Text>Culture Contest for {1_CSName}</Text>
+			<Text>Culture Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_FAITH_NAME">
-			<Text>Faith Contest for {1_CSName}</Text>
+			<Text>Faith Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_TECHS_NAME">
-			<Text>Tech Contest for {1_CSName}</Text>
+			<Text>Tech Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_INVEST_NAME">
-			<Text>Invest in {1_CSName}</Text>
+			<Text>Invest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BULLY_CITY_STATE_NAME">
-			<Text>Bully City-State for {1_CSName}</Text>
+			<Text>Demand Tribute from City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DENOUNCE_MAJOR_NAME">
-			<Text>Denounce Player for {1_CSName}</Text>
+			<Text>Denounce Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPREAD_RELIGION_NAME">
-			<Text>Spread Religion to {1_CSName}</Text>
+			<Text>Spread Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_TRADE_ROUTE_NAME">
-			<Text>Trade Route to {1_CSName}</Text>
+			<Text>Establish Trade Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_WAR_NAME">
-			<Text>War for {1_CSName}</Text>
+			<Text>Start War against Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME">
-			<Text>Built National Wonder for {1_CSName}</Text>
+			<Text>Build National Wonder</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME">
-			<Text>Gifted unit to {1_CSName}</Text>
+			<Text>Gift Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME">
-			<Text>Found City-State for {1_CSName}</Text>
+			<Text>Find City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_INFLUENCE_NAME">
-			<Text>Influence for {1_CSName}</Text>
+			<Text>Influence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_TOURISM_NAME">
-			<Text>Tourism Contest for {1_CSName}</Text>
+			<Text>Tourism Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME">
-			<Text>Archaeology for {1_CSName}</Text>
+			<Text>Archaeology</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CIRCUMNAVIGATION_NAME">
-			<Text>Circumnavigation for {1_CSName}</Text>
+			<Text>Circumnavigation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_LIBERATION_NAME">
-			<Text>Liberation for {1_CSName}</Text>
+			<Text>Liberate City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_HORDE_NAME">
-			<Text>Quell Horde for {1_CSName}</Text>
+			<Text>Quell Horde</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME">
-			<Text>Quell Rebellion for {1_CSName}</Text>
+			<Text>Quell Rebellion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DISCOVER_PLOT_NAME">
-			<Text>Discover Land for {1_CSName}</Text>
+			<Text>Discover Land</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME">
-			<Text>Construct Buildings for {1_CSName}</Text>
+			<Text>Construct Buildings</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_STEAL_FROM_NAME">
-			<Text>Spy for {1_CSName}</Text>
+			<Text>Conduct Espionage</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_COUP_CITY_NAME">
-			<Text>Coup for {1_CSName}</Text>
+			<Text>Perform Coup</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME">
-			<Text>Conquest for {1_CSName}</Text>
+			<Text>Conquer City</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS_HAPPINESS">
