@@ -142,7 +142,9 @@
 			<Text>Increases international travel between Civilizations. Increases the [ICON_TOURISM] Tourism modifier for all Civilizations by 50%.[NEWLINE][NEWLINE]Available once any Civilization discovers Flight.</Text>
 		</Row>
 		
-		<!-- Sweden Grenadiers -->
+		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE">
+			<Text>Viking</Text>
+		</Row>
 		<Row Tag="TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE">
 			<Text>Area Damage</Text>
 		</Row>

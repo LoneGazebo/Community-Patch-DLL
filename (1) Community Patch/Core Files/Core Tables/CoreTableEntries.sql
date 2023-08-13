@@ -449,6 +449,8 @@ ALTER TABLE Terrains ADD COLUMN 'AdjacentUnitFreePromotion' TEXT DEFAULT NULL;
 ALTER TABLE Units ADD MaxHitPoints INTEGER DEFAULT 100;
 ALTER TABLE UnitPromotions ADD MaxHitPointsChange INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaxHitPointsModifier INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD PartialHealOnPillage INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD AOEDamageOnPillage INTEGER DEFAULT 0;
 
 -- Adds ability for settlers to get free buildings when a city is founded.
 ALTER TABLE Units ADD COLUMN 'FoundMid' BOOLEAN DEFAULT 0;
