@@ -184,7 +184,9 @@ CvUnit::CvUnit() :
 	, m_iEmbarkFlatCostCount()
 	, m_iDisembarkFlatCostCount()
 	, m_iAOEDamageOnKill()
+	, m_iAOEDamageOnPillage()
 	, m_iAoEDamageOnMove()
+	, m_iPartialHealOnPillage()
 	, m_iSplashDamage()
 	, m_iMultiAttackBonus()
 	, m_iLandAirDefenseValue()
@@ -1476,7 +1478,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iEmbarkFlatCostCount = 0;
 	m_iDisembarkFlatCostCount = 0;
 	m_iAOEDamageOnKill = 0;
+	m_iAOEDamageOnPillage = 0;
 	m_iAoEDamageOnMove = 0;
+	m_iPartialHealOnPillage = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
 	m_iLandAirDefenseValue = 0;
@@ -10735,6 +10739,9 @@ bool CvUnit::pillage()
 		{
 			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
 		}
+
+		DoAdjacentPlotDamage(pPlot, getAOEDamageOnPillage(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE");
+
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
 		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
@@ -10750,6 +10757,7 @@ bool CvUnit::pillage()
 				else
 				{
 					int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+					iHealAmount += getPartialHealOnPillage();
 					changeDamage(-iHealAmount);
 				}
 			}
@@ -22515,6 +22523,20 @@ void CvUnit::changeAOEDamageOnKill(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getAOEDamageOnPillage() const
+{
+	VALIDATE_OBJECT
+		return m_iAOEDamageOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeAOEDamageOnPillage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
+	CvAssert(getAOEDamageOnPillage() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getAoEDamageOnMove() const
 {
 	VALIDATE_OBJECT
@@ -22526,6 +22548,20 @@ void CvUnit::changeAoEDamageOnMove(int iChange)
 	VALIDATE_OBJECT
 	m_iAoEDamageOnMove = (m_iAoEDamageOnMove + iChange);
 	CvAssert(getAoEDamageOnMove() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getPartialHealOnPillage() const
+{
+	VALIDATE_OBJECT
+		return m_iPartialHealOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changePartialHealOnPillage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iPartialHealOnPillage = (m_iPartialHealOnPillage + iChange);
+	CvAssert(getPartialHealOnPillage() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -27572,7 +27608,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
 #if defined(MOD_BALANCE_CORE)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
+		changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
 		changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() *  iChange);
+		changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
 		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
@@ -28168,7 +28206,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iEmbarkFlatCostCount);
 	visitor(unit.m_iDisembarkFlatCostCount);
 	visitor(unit.m_iAOEDamageOnKill);
+	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAoEDamageOnMove);
+	visitor(unit.m_iPartialHealOnPillage);
 	visitor(unit.m_iSplashDamage);
 	visitor(unit.m_iMultiAttackBonus);
 	visitor(unit.m_iLandAirDefenseValue);
@@ -31781,7 +31821,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-			// Other modifiers
+	// Other modifiers
 
 	iTemp = pkPromotionInfo->GetHPHealedIfDefeatEnemy();
 	// nM: +10 Encirclement.

@@ -1208,7 +1208,13 @@ public:
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
-	
+
+	int getAOEDamageOnPillage() const;
+	void changeAOEDamageOnPillage(int iChange);
+
+	int getPartialHealOnPillage() const;
+	void changePartialHealOnPillage(int iChange);
+
 	int getAoEDamageOnMove() const;
 	void changeAoEDamageOnMove(int iChange);
 
@@ -2116,7 +2122,9 @@ protected:
 	int m_iEmbarkFlatCostCount;
 	int m_iDisembarkFlatCostCount;
 	int m_iAOEDamageOnKill;
+	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
+	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
 	int m_iMultiAttackBonus;
 	int m_iLandAirDefenseValue;
@@ -2572,7 +2580,9 @@ SYNC_ARCHIVE_VAR(int, m_iMountainsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
+SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
+SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
 SYNC_ARCHIVE_VAR(int, m_iMultiAttackBonus)
 SYNC_ARCHIVE_VAR(int, m_iLandAirDefenseValue)
