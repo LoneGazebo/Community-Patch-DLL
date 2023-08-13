@@ -226,7 +226,6 @@ public:
 	bool IsHalfSpecialistFoodCapital() const;
 	int GetStealGWSlowerModifier() const;
 	int GetStealGWFasterModifier() const;
-	int GetExtraYieldsFromHeavyTribute() const;
 	int GetEventTourism() const;
 	int GetEventTourismCS() const;
 	int GetMonopolyModFlat() const;
@@ -658,7 +657,6 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iStealGWSlowerModifier;
 	int m_iStealGWFasterModifier;
-	int m_iExtraYieldsFromHeavyTribute;
 	bool m_bHalfSpecialistFoodCapital;
 	int m_iEventTourism;
 	int m_iEventTourismCS;
@@ -1016,7 +1014,6 @@ enum CLOSED_ENUM PolicyModifierType
 #if defined(MOD_BALANCE_CORE)
 	POLICYMOD_STEAL_GW_SLOWER_MODIFIER,
 	POLICYMOD_STEAL_GW_FASTER_MODIFIER,
-	POLICYMOD_EXTRA_YIELDS_FROM_HEAVY_TRIBUTE,
 	POLICYMOD_GREAT_ENGINEER_RATE,
 	POLICYMOD_CITY_DEFENSE_BOOST,
 #endif

@@ -852,7 +852,6 @@ protected:
 #if defined(MOD_BALANCE_CORE)
 	static int lSetBullyUnit(lua_State* L);
 	static int lGetBullyUnit(lua_State* L);
-	static int lGetYieldTheftAmount(lua_State* L);
 	static int lGetPledgeProtectionInvalidReason(lua_State* L);
 #endif
 	static int lCanMajorBullyGold(lua_State* L);

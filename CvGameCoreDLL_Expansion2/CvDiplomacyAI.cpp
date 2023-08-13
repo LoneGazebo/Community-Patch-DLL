@@ -33229,32 +33229,37 @@ void CvDiplomacyAI::DoContactMinorCivs()
 				if(eApproach == CIV_APPROACH_HOSTILE)
 				{
 					// Only bother if we can successfully bully
-					if (pMinor->GetMinorCivAI()->CanMajorBullyUnit(eID, MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING ? iValue - 25 : 0))
+					if (pMinor->GetMinorCivAI()->CanMajorBullyUnit(eID))
 					{
 						if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 						{		
 							iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetBullyGoldAmount(GetID(), false, /*bForUnit*/ true) * iGoldFlavor) / 10;
-							if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC)
+
+							// yields from quests
+							int iNumCities = GetPlayer()->getNumCities();
+							int iNumUnits = GetPlayer()->getNumMilitaryUnits();
+							QuestListForPlayer::iterator itr_quest;
+							for (itr_quest = pMinorCivAI->m_QuestsGiven[eID].begin(); itr_quest != pMinorCivAI->m_QuestsGiven[eID].end(); itr_quest++)
 							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iScienceFlavor) / 10;
+								if (itr_quest->IsObsolete(true)) // is this quest canceled by demanding heavy tribute?
+								{
+									// half of the quest rewards are given
+									iValue += itr_quest->GetGold() / 2 * iGoldFlavor / 10;
+									iValue += itr_quest->GetScience() / 2 * iScienceFlavor / 10;
+									iValue += itr_quest->GetCulture() / 2 * iCultureFlavor / 10;
+									iValue += itr_quest->GetFaith() / 2 * iFaithFlavor / 10;
+									iValue += itr_quest->GetGoldenAgePoints() / 2 * iCultureFlavor / 10;
+									iValue += itr_quest->GetFood() / 2 * iGrowthFlavor / 10;
+									iValue += itr_quest->GetProduction() / 2 * iProductionFlavor / 10;
+									iValue += itr_quest->GetTourism() / 2 * iCultureFlavor / 10;
+									iValue += itr_quest->GetHappiness() / 2 * iHappinessFlavor / 10;
+									iValue += itr_quest->GetGP() / 2 * (iGoldFlavor + iScienceFlavor + 3 * iCultureFlavor + iProductionFlavor) / 10; // we get GP for each specialist
+									iValue += itr_quest->GetGPGlobal() / 2 * (iGoldFlavor + iScienceFlavor + 3 * iCultureFlavor + iProductionFlavor) * iNumCities / 10;
+									iValue += itr_quest->GetGeneralPoints() / 2 * iOffenseFlavor / 10;
+									iValue += itr_quest->GetAdmiralPoints() / 2 * iOffenseFlavor / 10;
+									iValue += itr_quest->GetExperience() / 2 * iNumUnits * iOffenseFlavor / 10;
+								}
 							}
-							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MERCANTILE)
-							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iProductionFlavor) / 10;
-							}
-							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_CULTURED)
-							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iCultureFlavor) / 10;
-							}
-							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_RELIGIOUS)
-							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iFaithFlavor) / 10;
-							}
-							else if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
-							{
-								iValue += (GET_PLAYER(eMinor).GetMinorCivAI()->GetYieldTheftAmount(GetID()) * iGrowthFlavor) / 10;
-							}
-							iValue += GC.getGame().getSmallFakeRandNum(GetBoldness(), eID+m_pPlayer->GetPseudoRandomSeed()+GC.getGame().GetCultureMedian());
 						}
 						else
 						{
