@@ -262,7 +262,11 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_CHUKONU';
 -- Denmark
 --------------------
 UPDATE Language_en_US
-SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee Land Units start with the [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units start with the [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
+SET Text = 'Mycel Hæþen Here'
+WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY_SHORT';
+
+UPDATE Language_en_US
+SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Embark or Disembark. Units with Melee Attacks Heal 10 HP, deal 10 damage to adjacent enemies, earn [ICON_GOLD] Gold, and spend no movement when Pillaging.'
 WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY';
 
 UPDATE Language_en_US

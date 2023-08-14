@@ -96,17 +96,17 @@
 <!-- Civilization Promotions -->
 	<!-- Denmark -->
 		<Row Tag="TXT_KEY_PROMOTION_VIKING">
-			<Text>Viking</Text>
+			<Text>Viking (Land)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
-			<Text>Base [ICON_STRENGTH] Combat Strength increased by +25% while on [COLOR_POSITIVE_TEXT]Pillaged Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]+5 HP when healing in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR].</Text>
+			<Text>Pillaging costs no [ICON_MOVES] Movement and heals an extra [COLOR_POSITIVE_TEXT]10 HP[ENDCOLOR].[NEWLINE]When pillaging [COLOR_POSITIVE_TEXT]non-Road Improvements[ENDCOLOR], Gain 30 [ICON_GOLD] Gold, Scaling with Era, and adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
-			<Text>Longboat</Text>
+			<Text>Viking (Sea)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking or defending [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].</Text>
+			<Text>Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.[NEWLINE]When pillaging [COLOR_POSITIVE_TEXT]Improvement[ENDCOLOR], Gain 60 [ICON_GOLD] Gold, Scaling with Era, and adjacent Enemy Units take [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR]</Text>
 		</Row>
 	<!-- Huns -->
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">

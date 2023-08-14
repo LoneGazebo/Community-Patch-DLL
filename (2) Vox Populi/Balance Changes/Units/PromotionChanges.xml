@@ -3897,9 +3897,9 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_VIKING</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<NeutralHealChange>5</NeutralHealChange>
+			<PartialHealOnPillage>10</PartialHealOnPillage>
+			<AOEDamageOnPillage>10</AOEDamageOnPillage>
 			<FreePillageMoves>true</FreePillageMoves>
-			<PillageBonusStrength>25</PillageBonusStrength>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LONGBOAT</Type>
@@ -3912,6 +3912,8 @@
 			<PediaEntry>TXT_KEY_PROMOTION_LONGBOAT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<FreePillageMoves>true</FreePillageMoves>
+			<HealOnPillage>true</HealOnPillage>
+			<AOEDamageOnPillage>15</AOEDamageOnPillage>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_INACCURACY</Type>

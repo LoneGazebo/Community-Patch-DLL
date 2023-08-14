@@ -437,6 +437,7 @@ INSERT INTO Building_UnitCombatProductionModifiers
 	(BuildingType, UnitCombatType, Modifier)
 VALUES
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_MELEE', 25),
+	('BUILDING_JELLING_STONES', 'UNITCOMBAT_GUN', 25),
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 25);
 
 INSERT INTO Building_YieldFromBorderGrowth
@@ -448,7 +449,6 @@ VALUES
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
 VALUES 
-	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 30),
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 30);
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
