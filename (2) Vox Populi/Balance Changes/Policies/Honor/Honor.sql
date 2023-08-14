@@ -199,7 +199,7 @@ VALUES
 INSERT INTO Policy_YieldFromMinorDemand
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_DISCIPLINE', 'YIELD_CULTURE', 25),
+	('POLICY_WARRIOR_CODE', 'YIELD_CULTURE', 25),
 	('POLICY_HONOR_FINISHER', 'YIELD_CULTURE', 25);
 
 -- Promotions
