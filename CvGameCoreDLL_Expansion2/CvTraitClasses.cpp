@@ -7673,6 +7673,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_ppiPlotYieldChange);
 	visitor(playerTraits.m_iYieldFromLevelUp);
 	visitor(playerTraits.m_iYieldFromHistoricEvent);
+	visitor(playerTraits.m_iYieldFromXMilitaryUnits);
 	visitor(playerTraits.m_iYieldFromOwnPantheon);
 	visitor(playerTraits.m_tradeRouteEndYieldDomestic);
 	visitor(playerTraits.m_tradeRouteEndYieldInternational);
