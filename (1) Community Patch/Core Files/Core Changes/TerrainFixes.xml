@@ -94,4 +94,13 @@
 				 />
 		</Update>
 	</Natural_Wonder_Placement>
+	
+	<!-- the SPECIAL type needs to exist for use in ArtDefine_Landmarks (Feitoria, Moai, Pontoon Bridge) -->
+	<ArtDefine_LandmarkTypes>
+		<Row>
+			<Type>"SPECIAL"</Type>
+			<LandmarkType>"LayoutHandler"</LandmarkType>
+			<FriendlyName>"Special"</FriendlyName>
+		</Row>
+	</ArtDefine_LandmarkTypes>
 </GameData>
