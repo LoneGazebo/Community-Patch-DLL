@@ -884,5 +884,8 @@
 		<Row Tag="TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL_HELP">
 			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Art from your Civilization.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_WONDER_AMERICA_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"My country 'tis of thee,[NEWLINE]Sweet land of liberty.[NEWLINE][TAB][TAB] - Samuel F. Smith[NEWLINE][TAB]</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
