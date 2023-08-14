@@ -1298,18 +1298,6 @@
 			<PediaType>PEDIA_CIVILIAN</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_FAST_ADMIRAL</PediaEntry>
 		</Replace>
-		<Replace>
-			<Type>PROMOTION_FASTER_WORKER</Type>
-			<Description>TXT_KEY_PROMOTION_FASTER_WORKER</Description>
-			<Help>TXT_KEY_PROMOTION_FASTER_WORKER_HELP</Help>
-			<Sound>AS2D_IF_LEVELUP</Sound>
-			<CannotBeChosen>true</CannotBeChosen>
-			<MovesChange>1</MovesChange>
-			<PortraitIndex>59</PortraitIndex>
-			<IconAtlas>ABILITY_ATLAS</IconAtlas>
-			<PediaType>PEDIA_CIVILIAN</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_FASTER_WORKER</PediaEntry>
-		</Replace>
 		<!--Entries below this are intrinsic special Unit abilities, and never awarded for gaining XP/levels-->
 		<Replace>
 			<Type>PROMOTION_EMBARKATION</Type>
@@ -4524,6 +4512,18 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MONGOL_TERROR</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FASTER_WORKER</Type>
+			<Description>TXT_KEY_PROMOTION_FASTER_WORKER</Description>
+			<Help>TXT_KEY_PROMOTION_FASTER_WORKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<MovesChange>1</MovesChange>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_CIVILIAN</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FASTER_WORKER</PediaEntry>
 		</Row>
 	</UnitPromotions>
 	
