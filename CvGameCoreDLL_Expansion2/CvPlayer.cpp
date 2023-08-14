@@ -3601,7 +3601,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (MOD_BALANCE_CORE_AFRAID_ANNEX && GET_PLAYER(eOldOwner).isMinorCiv() && GetPlayerTraits()->IsBullyAnnex() && GetPlayerTraits()->GetBullyYieldMultiplierAnnex() != 0)
 			{
 				CvMinorCivAI* pMinorAI = GET_PLAYER(eOldOwner).GetMinorCivAI();
-				MinorCivTraitTypes eTrait = pMinorAI->GetTrait();
 				int iYield = GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
 				iYield *= pMinorAI->GetBullyGoldAmount(GetID());
 				iYield /= 100;
@@ -4789,7 +4788,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 	// Possible difficulty bonus!
 	if (bFirstConquest && getNumCities() > 0)
-		DoDifficultyBonus(HISTORIC_EVENT_CITY_CONQUEST);
+		DoDifficultyBonus(DIFFICULTY_BONUS_CITY_CONQUEST);
 
 	// Now that everything is done, we need to update diplomacy!
 	// This prevents the AI from getting exploited in peace deals, among other things
@@ -11062,13 +11061,13 @@ void CvPlayer::doTurn()
 		int iTurnInterval = getHandicapInfo().getDifficultyBonusTurnInterval();
 		if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
 		{
-			DoDifficultyBonus(HISTORIC_EVENT_PLAYER_TURNS_PASSED);
+			DoDifficultyBonus(DIFFICULTY_BONUS_PLAYER_TURNS_PASSED);
 		}
 
 		iTurnInterval = isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIDifficultyBonusTurnInterval();
 		if (iTurnInterval > 0 && GC.getGame().getElapsedGameTurns() % iTurnInterval == 0)
 		{
-			DoDifficultyBonus(HISTORIC_EVENT_AI_TURNS_PASSED);
+			DoDifficultyBonus(DIFFICULTY_BONUS_AI_TURNS_PASSED);
 		}
 	}
 
@@ -19713,20 +19712,38 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			case HISTORIC_EVENT_TRADE_CS:
 				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
-				strTemp.Format("HISTORIC EVENT: CAPITAL FOUNDING - Received Handicap Bonus");
+			case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
+				strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_CITY_FOUND:
-				strTemp.Format("HISTORIC EVENT: CITY FOUNDING - Received Handicap Bonus");
+			case DIFFICULTY_BONUS_CITY_FOUND:
+				strTemp.Format("CITY FOUNDING - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_CITY_CONQUEST:
-				strTemp.Format("HISTORIC EVENT: CITY CONQUEST - Received Handicap Bonus");
+			case DIFFICULTY_BONUS_CITY_CONQUEST:
+				strTemp.Format("CITY CONQUEST - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_PLAYER_TURNS_PASSED:
-				strTemp.Format("HISTORIC EVENT: %d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
+			case DIFFICULTY_BONUS_RESEARCHED_TECH:
+				strTemp.Format("RESEARCHING TECH - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_AI_TURNS_PASSED:
-				strTemp.Format("HISTORIC EVENT: %d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
+			case DIFFICULTY_BONUS_ADOPTED_POLICY:
+				strTemp.Format("ADOPTING POLICY - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:
+				strTemp.Format("COMPLETING POLICY TREE - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:
+				strTemp.Format("KILLING MAJOR CIV UNIT - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT:
+				strTemp.Format("KILLING CITY-STATE UNIT - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:
+				strTemp.Format("KILLING BARBARIAN UNIT - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:
+				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
+				break;
+			case DIFFICULTY_BONUS_AI_TURNS_PASSED:
+				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
 				break;
 			default:
 				return;
@@ -20296,20 +20313,38 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 			case HISTORIC_EVENT_TRADE_CS:
 				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
-				strTemp.Format("HISTORIC EVENT: CAPITAL FOUNDING - Received Handicap Bonus");
+			case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
+				strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_CITY_FOUND:
-				strTemp.Format("HISTORIC EVENT: CITY FOUNDING - Received Handicap Bonus");
+			case DIFFICULTY_BONUS_CITY_FOUND:
+				strTemp.Format("CITY FOUNDING - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_CITY_CONQUEST:
-				strTemp.Format("HISTORIC EVENT: CITY CONQUEST - Received Handicap Bonus");
+			case DIFFICULTY_BONUS_CITY_CONQUEST:
+				strTemp.Format("CITY CONQUEST - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_PLAYER_TURNS_PASSED:
-				strTemp.Format("HISTORIC EVENT: %d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
+			case DIFFICULTY_BONUS_RESEARCHED_TECH:
+				strTemp.Format("RESEARCHING TECH - Received Handicap Bonus");
 				break;
-			case HISTORIC_EVENT_AI_TURNS_PASSED:
-				strTemp.Format("HISTORIC EVENT: %d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
+			case DIFFICULTY_BONUS_ADOPTED_POLICY:
+				strTemp.Format("ADOPTING POLICY - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:
+				strTemp.Format("COMPLETING POLICY TREE - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:
+				strTemp.Format("KILLING MAJOR CIV UNIT - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT:
+				strTemp.Format("KILLING CITY-STATE UNIT - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:
+				strTemp.Format("KILLING BARBARIAN UNIT - Received Handicap Bonus");
+				break;
+			case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:
+				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
+				break;
+			case DIFFICULTY_BONUS_AI_TURNS_PASSED:
+				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
 				break;
 			default:
 				return;
@@ -25281,7 +25316,7 @@ void CvPlayer::setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < GC.getNumPolicyInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 	
-	if(m_pPlayerPolicies->HasPolicy(eIndex) != bNewValue)
+	if (m_pPlayerPolicies->HasPolicy(eIndex) != bNewValue)
 	{
 		m_pPlayerPolicies->SetPolicy(eIndex, bNewValue, bFree);
 		processPolicies(eIndex, bNewValue ? 1 : -1);
@@ -28079,11 +28114,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					{
 						changeJONSCulture(iValue);
 						pLoopCity->ChangeJONSCultureStored(iValue);
-
-						if (pLoopCity->GetJONSCultureStored() <= 0)
-						{
-							pLoopCity->SetJONSCultureStored(0);
-						}
 					}
 					break;
 					case YIELD_FAITH:
@@ -28193,11 +28223,6 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						else
 						{
 							pLoopCity->ChangeJONSCultureStored(iValue);
-
-							if (pLoopCity->GetJONSCultureStored() <= 0)
-							{
-								pLoopCity->SetJONSCultureStored(0);
-							}
 						}
 						// keep track of local yields in city
 						pLoopCity->ChangeInstantYieldTotal(eYield, iValue);
@@ -30132,7 +30157,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			{
 				changeGoldenAgeTurns(getGoldenAgeLength());
 			}
-			if (pNewGreatPeople->isCultureBoost())
+			if(pNewGreatPeople->isCultureBoost())
 			{
 				int iValue = GetTotalJONSCulturePerTurn() * 4;
 				changeJONSCulture(iValue);
@@ -32512,11 +32537,9 @@ int CvPlayer::GetNumHistoricEvents() const
 }
 int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity* pCity)
 {
-
 	int iTourism = 0;
+	CvString strLogString;
 
-	CvString strLogString; 
-	
 	switch (eHistoricEvent)
 	{
 	case HISTORIC_EVENT_GREAT_PERSON:
@@ -32588,11 +32611,17 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 			iTourism = pCity->GetSeaTourismBonus();
 		}
 		break;
-	case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
-	case HISTORIC_EVENT_CITY_FOUND:
-	case HISTORIC_EVENT_CITY_CONQUEST:
-	case HISTORIC_EVENT_PLAYER_TURNS_PASSED:
-	case HISTORIC_EVENT_AI_TURNS_PASSED:
+	case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
+	case DIFFICULTY_BONUS_CITY_FOUND:
+	case DIFFICULTY_BONUS_CITY_CONQUEST:
+	case DIFFICULTY_BONUS_RESEARCHED_TECH:
+	case DIFFICULTY_BONUS_ADOPTED_POLICY:
+	case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:
+	case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:
+	case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT:
+	case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:
+	case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:
+	case DIFFICULTY_BONUS_AI_TURNS_PASSED:
 		break; // These events offer no tourism bonus.
 	}
 
@@ -32651,8 +32680,7 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	case HISTORIC_EVENT_TRADE_SEA:
 		iTotalBonus /= 15;
 		break;
-	case HISTORIC_EVENT_CITY_FOUND_CAPITAL:
-	case HISTORIC_EVENT_CITY_FOUND:
+	default:
 		UNREACHABLE();
 	}
 

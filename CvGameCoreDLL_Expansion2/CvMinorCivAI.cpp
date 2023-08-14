@@ -14536,13 +14536,12 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	// Where to put the Unit?
 	CvPlot* pUnitPlot = NULL;
-	//  CvCity* pXPCity = MOD_GLOBAL_CS_GIFTS_LOCAL_XP ? pMajorCapital : pMinorCapital;
-	CvCity* pXPCity = NULL; // changed line
+	CvCity* pXPCity = NULL;
 
 	// Local units spawn in the minor's capital
 	if (bLocal)
 	{
-		pXPCity = pMinorCapital; // new line
+		pXPCity = pMinorCapital;
 		pUnitPlot = pMinorCapital->GetPlotForNewUnit(eUnit);
 		if (!pUnitPlot)
 			pUnitPlot = pMinorCapital->plot();
@@ -14554,7 +14553,6 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		if (pkUnitInfo && pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 		{
 			pXPCity = MOD_GLOBAL_CS_GIFTS_LOCAL_XP ? pClosestCoastalCity : pMinorCapital;
-			//          pXPCity = pClosestCoastalCity; // changed line
 			pUnitPlot = pClosestCoastalCity->GetPlotForNewUnit(eUnit);
 			if (!pUnitPlot)
 				pUnitPlot = pClosestCoastalCity->plot();
@@ -14562,7 +14560,6 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		else
 		{
 			pXPCity = MOD_GLOBAL_CS_GIFTS_LOCAL_XP ? pClosestCity : pMinorCapital;
-			//          pXPCity = pClosestCity; // changed line
 			pUnitPlot = pClosestCity->GetPlotForNewUnit(eUnit);
 			if (!pUnitPlot)
 				pUnitPlot = pClosestCity->plot();

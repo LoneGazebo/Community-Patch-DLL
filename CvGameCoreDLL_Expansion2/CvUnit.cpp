@@ -2659,15 +2659,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 		}
 	}
-	
-#if defined(MOD_EVENTS_UNIT_PREKILL)
+
 	if (MOD_EVENTS_UNIT_PREKILL)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, eUnitOwner, GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
 	}
 	else
 	{
-#endif
 		if (pkScriptSystem) 
 		{
 			CvLuaArgsHandle args;
@@ -2682,51 +2680,47 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
 		}
-#if defined(MOD_EVENTS_UNIT_PREKILL)
 	}
-#endif
 
-	if(bDelay)
+	// Check for Difficulty Bonus
+	if (ePlayer != NO_PLAYER && !IsCivilianUnit())
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(isCultureFromExperienceDisbandUpgrade())
+		if (GET_PLAYER(eUnitOwner).isMajorCiv())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_MAJOR_UNIT);
+		else if (GET_PLAYER(eUnitOwner).isMinorCiv())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT);
+		else if (GET_PLAYER(eUnitOwner).isBarbarian())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT);
+	}
+
+	if (bDelay)
+	{
+		if (ePlayer == NO_PLAYER && isCultureFromExperienceDisbandUpgrade())
 		{
-			if(ePlayer == -1)
+			int iExperience = getExperienceTimes100() / 100;
+			if (iExperience > 0)
 			{
-				int iExperience = getExperienceTimes100() / 100;
-				if(iExperience > 0)
+				GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
+				if (eUnitOwner == GC.getGame().getActivePlayer())
 				{
-					GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
-					if (eUnitOwner == GC.getGame().getActivePlayer())
-					{
-						char text[256] = { 0 };
-						
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-						SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
-					}
+					char text[256] = { 0 };
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+					SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
 				}
 			}
 		}
-#endif
 		startDelayedDeath();
 		return;
 	}
-
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-	if(MOD_GLOBAL_NO_LOST_GREATWORKS && !bDelay)
-	{
-		if (HasUnusedGreatWork())
-		{
-			GC.getGame().removeGreatPersonBornName(getGreatName());
-		}
-	}
-#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// EVERYTHING AFTER THIS LINE OCCURS UPON THE ACTUAL DELETION OF THE UNIT AND NOT WITH A DELAYED DEATH
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-	if(IsSelected())
+	if (MOD_GLOBAL_NO_LOST_GREATWORKS && HasUnusedGreatWork())
+		GC.getGame().removeGreatPersonBornName(getGreatName());
+
+	if (IsSelected())
 	{
 		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 		if(DLLUI->GetLengthSelectionList() == 1)
@@ -2757,18 +2751,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	pTransportUnit = getTransportUnit();
 
-	if(pTransportUnit != NULL)
-	{
+	if (pTransportUnit != NULL)
 		setTransportUnit(NULL);
-	}
 
 	if (MOD_LINKED_MOVEMENT)
 	{
 		// remove linked status
-		if (IsLinkedLeader()) {
+		if (IsLinkedLeader())
+		{
 			SetIsLinkedLeader(false);
 		}
-		else if (IsLinked()) {
+		else if (IsLinked())
+		{
 			CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
 			pLinkedLeader->SetIsLinkedLeader(false);
 		}
@@ -2810,12 +2804,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 #endif
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
 		GET_PLAYER(eUnitOwner).changeNumUnitsSupplyFree(-1);
 	}
-#endif
 
 	// A unit dying reduces the Great General meter
 	if (getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
@@ -2929,7 +2921,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	// Create the captured unit that will replace this unit (if the capture definition is valid)
 	CvUnit::createCaptureUnit(kCaptureDef);
 
-	if(GC.getGame().getActivePlayer() == kCaptureDef.eOldPlayer)
+	if (GC.getGame().getActivePlayer() == kCaptureDef.eOldPlayer)
 	{
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
@@ -2938,9 +2930,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	/// If checking for murder, do that now
 	if (bCheckForMurder)
 		GET_PLAYER(ePlayer).CheckForMurder(eUnitOwner);
-
-	//////////////////////////////////////////////////////////////////////////
-	// Do not add anything below here in this method
 }
 
 //	---------------------------------------------------------------------------
@@ -3240,17 +3229,20 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 	else
 	{
 		// restore combat units at some percentage of their original health
-		// (5-82): Captured Units can still move/pillage (but not attack)
-		// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
 		if (pkCapturedUnit != NULL)
 		{
 			int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * /*50 in CP, 75 in VP*/ GD_INT_GET(COMBAT_CAPTURE_HEALTH)) / 100;
 			pkCapturedUnit->setDamage(iCapturedHealth);
-			if (MOD_BALANCE_VP) {
+
+			// (5-82): Captured Units can still move/pillage (but not attack)
+			// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
+			if (MOD_BALANCE_VP)
+			{
 				pkCapturedUnit->restoreFullMoves();
 				pkCapturedUnit->setMadeAttack(true);
 				pkCapturedUnit->SetTurnProcessed(false);
-				if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman()) {
+				if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
+				{
 					if (pkCapturedUnit->shouldPillage(pkPlot, true))
 					{
 						pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
@@ -13369,6 +13361,7 @@ bool CvUnit::givePolicies()
 		kPlayer.changeJONSCulture(iCultureBonus);
 		if (pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
 			pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
+
 		// Refresh - we might get to pick a policy this turn
 	}
 

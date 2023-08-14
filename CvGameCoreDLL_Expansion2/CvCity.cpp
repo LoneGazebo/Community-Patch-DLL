@@ -976,7 +976,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	if (bInitialFounding)
 	{
-		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? HISTORIC_EVENT_CITY_FOUND_CAPITAL : HISTORIC_EVENT_CITY_FOUND);
+		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? DIFFICULTY_BONUS_CITY_FOUND_CAPITAL : DIFFICULTY_BONUS_CITY_FOUND);
 	}
 
 	// How long before this City picks a Resource to demand?
@@ -2674,9 +2674,7 @@ void CvCity::doTurn()
 		iBorderGrowth += getYieldRate(YIELD_CULTURE_LOCAL, false);
 		// Culture accumulation
 		if (iBorderGrowth > 0)
-		{
 			ChangeJONSCultureStored(iBorderGrowth);
-		}
 
 		// Enough Culture to acquire a new Plot?
 		if (GetJONSCultureStored() >= GetJONSCultureThreshold())
@@ -19071,7 +19069,7 @@ void CvCity::SetJONSCultureStored(int iValue)
 		OutputDebugString(CvString::format("Turn %d, culture %d, delta %d\n", GC.getGame().getGameTurn(), m_iJONSCultureStored, iValue - m_iJONSCultureStored).c_str());
 	}
 
-	m_iJONSCultureStored = iValue;
+	m_iJONSCultureStored = max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -19082,7 +19080,7 @@ void CvCity::ChangeJONSCultureStored(int iChange)
 
 	// Positive modifier to border growth rate?
 	int iModifier = GetBorderGrowthRateIncreaseTotal();
-	if (iModifier > 0)
+	if (iChange > 0 && iModifier > 0)
 	{
 		iChange *= 100 + iModifier;
 		iChange /= 100;
@@ -20971,15 +20969,11 @@ int CvCity::GetBorderGrowthRateIncreaseTotal()
 		}
 	}
 
-	// Double border growth during GA or WLTKD? These intentionally do not stack!
-	if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthGA() && GET_PLAYER(getOwner()).isGoldenAge())
+	// Double border growth during GA or WLTKD? These intentionally do not stack with each other, but do stack multiplicatively with other modifiers.
+	if ((GET_PLAYER(getOwner()).IsDoubleBorderGrowthGA() && GET_PLAYER(getOwner()).isGoldenAge())
+		|| (GET_PLAYER(getOwner()).IsDoubleBorderGrowthWLTKD() && GetWeLoveTheKingDayCounter() > 0))
 	{
-		iModifier *= 2; // double the extra rate
-		iModifier += 100; // double the base rate
-	}
-	else if (GET_PLAYER(getOwner()).IsDoubleBorderGrowthWLTKD() && GetWeLoveTheKingDayCounter() > 0)
-	{
-		iModifier *= 2; // double the extra rate
+		iModifier *= 2; // double the extra rate (if any)
 		iModifier += 100; // double the base rate
 	}
 
@@ -22821,8 +22815,8 @@ int CvCity::GetEmpireSizeModifier() const
 
 		iPopMod += pLoopCity->getPopulation();
 	}
-	iPopMod *= /*25*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_POP);
-	iPopMod /= 100;
+	iPopMod *= /*125*/ GD_INT_GET(EMPIRE_SIZE_NEED_MODIFIER_POP);
+	iPopMod /= 1000;
 	if (iPopMod < 0)
 		iPopMod = 0;
 

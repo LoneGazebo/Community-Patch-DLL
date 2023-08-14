@@ -1,5 +1,5 @@
 -- HistoricEventTypes table: Defines the different types of historic events. The order used here matches with the enum used in the DLL. Do not change without changing the DLL as well!
--- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus.
+-- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus. These are prefixed with DIFFICULTY_BONUS.
 CREATE TABLE IF NOT EXISTS HistoricEventTypes(
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE
@@ -15,11 +15,17 @@ INSERT INTO HistoricEventTypes(Type) VALUES
 ('HISTORIC_EVENT_TRADE_LAND'), -- 6
 ('HISTORIC_EVENT_TRADE_SEA'), -- 7
 ('HISTORIC_EVENT_TRADE_CS'), -- 8
-('HISTORIC_EVENT_CITY_FOUND_CAPITAL'), -- 9
-('HISTORIC_EVENT_CITY_FOUND'), -- 10
-('HISTORIC_EVENT_CITY_CONQUEST'), -- 11
-('HISTORIC_EVENT_PLAYER_TURNS_PASSED'), -- 12
-('HISTORIC_EVENT_AI_TURNS_PASSED'); -- 13
+('DIFFICULTY_BONUS_CITY_FOUND_CAPITAL'), -- 9
+('DIFFICULTY_BONUS_CITY_FOUND'), -- 10
+('DIFFICULTY_BONUS_CITY_CONQUEST'), -- 11
+('DIFFICULTY_BONUS_RESEARCHED_TECH'), -- 12
+('DIFFICULTY_BONUS_ADOPTED_POLICY'), -- 13
+('DIFFICULTY_BONUS_COMPLETED_POLICY_TREE'), -- 14
+('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT'), -- 15
+('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT'), -- 16
+('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT'), -- 17
+('DIFFICULTY_BONUS_PLAYER_TURNS_PASSED'), -- 18
+('DIFFICULTY_BONUS_AI_TURNS_PASSED'); -- 19
 
 
 -- VictoryPursuitTypes table: Used by the Leaders Table. Allows modders to give a hint to the AI about which victory conditions a civ's UA is best suited for.

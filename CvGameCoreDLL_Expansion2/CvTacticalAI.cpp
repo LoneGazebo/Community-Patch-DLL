@@ -3966,7 +3966,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		return;
 
 	//see if we can do damage before retreating
-	if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+	if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>GD_INT_GET(MOVE_DENOMINATOR) && pUnit->canRangeStrike())
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 	//so easy
@@ -4080,7 +4080,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 		}
 
 		//ranged attack before fleeing for fast units
-		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves() > 3*GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves() > 3*GD_INT_GET(MOVE_DENOMINATOR) && pUnit->canRangeStrike())
 			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 
 		//find a suitable spot for healing
