@@ -23,7 +23,7 @@ SET IgnoreBullyPenalties = '0'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits
-SET CSBullyValueModifier = '100'
+SET CSBullyValueModifier = '0'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits
@@ -36,6 +36,16 @@ WHERE Type = 'TRAIT_TERROR';
 
 DELETE FROM Trait_MovesChangeUnitCombats
 WHERE TraitType = 'TRAIT_TERROR';
+
+INSERT INTO Trait_YieldFromMinorDemand
+		(TraitType, YieldType, Yield)
+VALUES
+		('TRAIT_TERROR', 'YIELD_GOLD', 20),
+		('TRAIT_TERROR', 'YIELD_CULTURE', 20),
+		('TRAIT_TERROR', 'YIELD_SCIENCE', 20),
+		('TRAIT_TERROR', 'YIELD_FAITH', 20),
+		('TRAIT_TERROR', 'YIELD_FOOD', 20),
+		('TRAIT_TERROR', 'YIELD_PRODUCTION', 20);
 
 INSERT INTO ArtDefine_LandmarkTypes
 			(Type, 									LandmarkType, 	FriendlyName)

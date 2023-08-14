@@ -555,10 +555,6 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_FRIGATE';
 	
 	UPDATE Language_en_US
-	SET Text = 'The Galley is a Barbarian unit which remains in coast tiles, looking for embarked units to destroy. The Galley can annoy cities and units near the coast.'
-	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_STRATEGY';
-
-	UPDATE Language_en_US
 	SET Text = 'The Galleass is the second naval unit with a ranged attack available to the civilizations in the game. It is much stronger than earlier naval ships, and can enter the ocean. The Galleass is useful for clearing enemy ships out of shallow waters and supporting sieges.'
 	WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';
 
