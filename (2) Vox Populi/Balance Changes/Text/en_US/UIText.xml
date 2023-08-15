@@ -408,7 +408,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Married[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT">
-			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] Your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] Your [ICON_INFLUENCE] Resting Influence is increased by 75, scaling with Era, and you gain +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<!-- America! -->
 		<Row Tag="TXT_KEY_NOTIFICATION_UA_STOLE_PLOT">

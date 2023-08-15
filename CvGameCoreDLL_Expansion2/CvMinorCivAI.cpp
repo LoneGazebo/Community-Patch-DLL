@@ -11399,7 +11399,12 @@ int CvMinorCivAI::GetFriendshipAnchorWithMajor(PlayerTypes eMajor)
 	// Diplomatic Marriage? (VP)
 	if (!GetPlayer()->IsAtWarWith(pMajor->GetID()) && pMajor->GetPlayerTraits()->IsDiplomaticMarriage() && IsMarried(eMajor))
 	{
-		iAnchor += /*200*/ GD_INT_GET(BALANCE_MARRIAGE_RESTING_POINT_INCREASE);
+		int iEra = pMajor->GetCurrentEra();
+		if (iEra <= 0)
+		{
+			iEra = 1;
+		}
+		iAnchor += /*75*/ GD_INT_GET(BALANCE_MARRIAGE_RESTING_POINT_INCREASE) * iEra;
 	}
 	// United Front? (VP)
 	if (IsAllies(eMajor) && pMajor->IsAtWar())
@@ -14874,7 +14879,7 @@ int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return -1;
 
-	int iGold = /*500*/ GD_INT_GET(MINOR_CIV_BUYOUT_COST);
+	int iGold = /*200*/ GD_INT_GET(BALANCE_MARRIAGE_COST_BASE);
 
 	// Increase based on the number of marriages we've already got.
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
@@ -14882,7 +14887,7 @@ int CvMinorCivAI::GetMarriageCost(PlayerTypes eMajor)
 		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
 		if (GET_PLAYER(eMinorLoop).isMinorCiv() && GET_PLAYER(eMinorLoop).GetMinorCivAI()->IsMarried(eMajor))
 		{
-			iGold += 100;
+			iGold += /*200*/ GD_INT_GET(BALANCE_MARRIAGE_COST_INCREASE_PER_PREVIOUS_MARRIAGE);
 		}
 	}
 

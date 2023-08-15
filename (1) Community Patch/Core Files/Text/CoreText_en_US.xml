@@ -5728,22 +5728,19 @@
 			<Text>Marriage between {@2_MinorCivName} and {@1_CivName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1">
-			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and increases their resting [ICON_INFLUENCE] Influence with the City-State by 200.</Text>
+			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2">
-			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and increases their resting [ICON_INFLUENCE] Influence with the City-State by 200.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_Num} from Diplomatic Marriages</Text>
+			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
-			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +15% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
-			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +15% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
-			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +15% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Venice Tooltip -->
