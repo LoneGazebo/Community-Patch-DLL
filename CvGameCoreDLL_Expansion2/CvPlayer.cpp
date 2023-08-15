@@ -27441,22 +27441,30 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					if(pLoopCity->isCapital())
 					{
-						iValue += getYieldGPExpend(eYield);
+						int iChange = getYieldGPExpend(eYield);
 						if(eYield == YIELD_GOLD)
 						{
-							iValue += GetGreatPersonExpendGold();
+							iChange += GetGreatPersonExpendGold();
 						}
+						// Community Patch Behavior: Assume all GP Expend Yields scale with Era!
+						// Vanilla Behavior: Except the one that has the Mausoleum of Halicarnassus...
+						if (MOD_BALANCE_VP && bEraScale) 
+						{
+							iChange *= iEra;
+						}
+						iValue += iChange;
 					}
 					if(eGreatPerson != NO_GREATPERSON)
 					{
 						if(pLoopCity->isCapital())
 						{
-							iValue += getGreatPersonExpendedYield(eGreatPerson, eYield);
+							int iChange = getGreatPersonExpendedYield(eGreatPerson, eYield);
 							//Scale it here to avoid scaling the growth yield below.
 							if (bEraScale)
 							{
-								iValue *= iEra;
+								iChange *= iEra;
 							}
+							iValue += iChange;
 						}
 						if(pReligion)
 						{
@@ -27467,19 +27475,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							{
 								iChange *= iEra;
 							}
-              iValue += iChange;
+							iValue += iChange;
 						}
 					}
 					if(eYield == YIELD_FAITH)
 					{
 						if(pReligion)
 						{
-							iValue += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
+							int iChange = pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
 							//Scale it here to avoid scaling the growth yield below.
 							if (bEraScale)
 							{
-								iValue *= iEra;
+								iChange *= iEra;
 							}
+							iValue += iChange;
 						}
 					}
 					break;
