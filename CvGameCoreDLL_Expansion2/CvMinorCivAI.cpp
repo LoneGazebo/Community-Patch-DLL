@@ -1261,6 +1261,9 @@ CivsList CvMinorCivQuest::GetContestLeaders()
 			veTiedForLead.push_back(ePlayer);
 	}
 
+	if (veTiedForLead.empty())
+		veTiedForLead.push_back(NO_PLAYER);
+
 	return veTiedForLead;
 }
 
@@ -3574,8 +3577,6 @@ bool CvMinorCivQuest::DoFinishQuest()
 	// This quest involved multiple minors, so grab their names for the notification
 	if (veNamesToShow.size() > 0)
 		sMessage += pMinor->GetMinorCivAI()->GetNamesListAsString(veNamesToShow);
-	else
-		sMessage += "(None)";
 
 	// This quest reward changed our status, so grab that info for the notification
 	if ((!bWasFriends && bNowFriends) || (!bWasAllies && bNowAllies))
@@ -18266,11 +18267,18 @@ CvString CvMinorCivAI::GetNamesListAsString(CivsList veNames)
 		for (uint ui = 0; ui < veNames.size(); ui++)
 		{
 			PlayerTypes ePlayerLoop = veNames[ui];
-			CvPlayer* pPlayerLoop = &GET_PLAYER(ePlayerLoop);
-			if (pPlayerLoop)
+			if (ePlayerLoop != NO_PLAYER)
 			{
-				Localization::String sName = Localization::Lookup(pPlayerLoop->getCivilizationShortDescriptionKey());
-				s = s + "[NEWLINE]" + sName.toUTF8();
+				CvPlayer* pPlayerLoop = &GET_PLAYER(ePlayerLoop);
+				if (pPlayerLoop)
+				{
+					Localization::String sName = Localization::Lookup(pPlayerLoop->getCivilizationShortDescriptionKey());
+					s = s + "[NEWLINE]" + sName.toUTF8();
+				}
+			}
+			else
+			{
+				s += "[NEWLINE](None)";
 			}
 		}
 	}
