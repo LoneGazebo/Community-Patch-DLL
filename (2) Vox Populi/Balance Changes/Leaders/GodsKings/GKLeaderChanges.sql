@@ -1,19 +1,11 @@
 -- Attila
 
 UPDATE Traits
-SET LandBarbarianConversionPercent = '0'
+SET LandBarbarianConversionPercent = 0, RazeSpeedModifier = 0
 WHERE Type = 'TRAIT_RAZE_AND_HORSES';
 
 UPDATE Traits
-SET RazeSpeedModifier = '0'
-WHERE Type = 'TRAIT_RAZE_AND_HORSES';
-
-UPDATE Traits
-SET WarWearinessModifier = '50'
-WHERE Type = 'TRAIT_RAZE_AND_HORSES';
-
-UPDATE Traits
-SET EnemyWarWearinessModifier = '50'
+SET WarWearinessModifier = 50, EnemyWarWearinessModifier = 100, MultipleAttackBonus = 10
 WHERE Type = 'TRAIT_RAZE_AND_HORSES';
 
 DELETE FROM Civilization_FreeTechs
@@ -638,7 +630,7 @@ FROM Improvements WHERE Type = 'IMPROVEMENT_POLDER';
 INSERT INTO Builds
 	(Type, Time, ImprovementType, PrereqTech, Description, Help, Recommendation, EntityEvent, HotKey, OrderPriority, IconIndex, IconAtlas)
 VALUES
-	('BUILD_EKI', 800, 'IMPROVEMENT_EKI', 'TECH_ARCHERY', 'TXT_KEY_BUILD_EKI', 'TXT_KEY_BUILD_EKI_HELP', 'TXT_KEY_BUILD_EKI_REC', 'ENTITY_EVENT_BUILD', 'KB_E', 1, 0, 'UNIT_ACTION_EKI'),
+	('BUILD_EKI', 500, 'IMPROVEMENT_EKI', 'TECH_ARCHERY', 'TXT_KEY_BUILD_EKI', 'TXT_KEY_BUILD_EKI_HELP', 'TXT_KEY_BUILD_EKI_REC', 'ENTITY_EVENT_BUILD', 'KB_E', 1, 0, 'UNIT_ACTION_EKI'),
 	('BUILD_KUNA', 700, 'IMPROVEMENT_KUNA', 'TECH_MASONRY', 'TXT_KEY_BUILD_KUNA', 'TXT_KEY_BUILD_KUNA_HELP', 'TXT_KEY_BUILD_KUNA_REC', 'ENTITY_EVENT_BUILD', 'KB_E', 1, 0, 'UNIT_ACTION_KUNA');
 
 INSERT INTO Builds
@@ -662,8 +654,8 @@ FROM Builds WHERE Type = 'BUILD_REPAIR';
 INSERT INTO BuildFeatures
 	(BuildType, FeatureType, PrereqTech, Time, Production, Remove)
 VALUES
-	('BUILD_EKI', 'FEATURE_JUNGLE', 'TECH_CALENDAR', 400, 20, 1),
-	('BUILD_EKI', 'FEATURE_FOREST', 'TECH_MINING', 300, 30, 1),
+	('BUILD_EKI', 'FEATURE_JUNGLE', 'TECH_CALENDAR', 400, 40, 1),
+	('BUILD_EKI', 'FEATURE_FOREST', 'TECH_MINING', 300, 40, 1),
 	('BUILD_EKI', 'FEATURE_MARSH', 'TECH_IRON_WORKING', 600, 0, 1);
 
 INSERT INTO Improvements
@@ -718,7 +710,8 @@ VALUES
 INSERT INTO Improvement_YieldAdjacentTwoSameType
 	(ImprovementType, YieldType, Yield)
 VALUES
-	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1);
+	('IMPROVEMENT_EKI', 'YIELD_PRODUCTION', 1),
+	('IMPROVEMENT_EKI', 'YIELD_GOLD', 1);
 
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)

@@ -3347,9 +3347,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
 			kPlayer.changeJONSCulture(iValue);
 			if (kPlayer.getCapitalCity() != NULL)
-			{
 				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-			}
+
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if (pNotifications)
 			{
@@ -3555,9 +3554,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
 			kPlayer.changeJONSCulture(iValue);
 			if (kPlayer.getCapitalCity() != NULL)
-			{
 				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-			}
+
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if (pNotifications)
 			{

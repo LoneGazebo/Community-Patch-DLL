@@ -184,7 +184,9 @@ CvUnit::CvUnit() :
 	, m_iEmbarkFlatCostCount()
 	, m_iDisembarkFlatCostCount()
 	, m_iAOEDamageOnKill()
+	, m_iAOEDamageOnPillage()
 	, m_iAoEDamageOnMove()
+	, m_iPartialHealOnPillage()
 	, m_iSplashDamage()
 	, m_iMultiAttackBonus()
 	, m_iLandAirDefenseValue()
@@ -1476,7 +1478,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iEmbarkFlatCostCount = 0;
 	m_iDisembarkFlatCostCount = 0;
 	m_iAOEDamageOnKill = 0;
+	m_iAOEDamageOnPillage = 0;
 	m_iAoEDamageOnMove = 0;
+	m_iPartialHealOnPillage = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
 	m_iLandAirDefenseValue = 0;
@@ -2655,15 +2659,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 		}
 	}
-	
-#if defined(MOD_EVENTS_UNIT_PREKILL)
+
 	if (MOD_EVENTS_UNIT_PREKILL)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, eUnitOwner, GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
 	}
 	else
 	{
-#endif
 		if (pkScriptSystem) 
 		{
 			CvLuaArgsHandle args;
@@ -2678,51 +2680,47 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
 		}
-#if defined(MOD_EVENTS_UNIT_PREKILL)
 	}
-#endif
 
-	if(bDelay)
+	// Check for Difficulty Bonus
+	if (ePlayer != NO_PLAYER && !IsCivilianUnit())
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(isCultureFromExperienceDisbandUpgrade())
+		if (GET_PLAYER(eUnitOwner).isMajorCiv())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_MAJOR_UNIT);
+		else if (GET_PLAYER(eUnitOwner).isMinorCiv())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT);
+		else if (GET_PLAYER(eUnitOwner).isBarbarian())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT);
+	}
+
+	if (bDelay)
+	{
+		if (ePlayer == NO_PLAYER && isCultureFromExperienceDisbandUpgrade())
 		{
-			if(ePlayer == -1)
+			int iExperience = getExperienceTimes100() / 100;
+			if (iExperience > 0)
 			{
-				int iExperience = getExperienceTimes100() / 100;
-				if(iExperience > 0)
+				GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
+				if (eUnitOwner == GC.getGame().getActivePlayer())
 				{
-					GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
-					if (eUnitOwner == GC.getGame().getActivePlayer())
-					{
-						char text[256] = { 0 };
-						
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-						SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
-					}
+					char text[256] = { 0 };
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+					SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
 				}
 			}
 		}
-#endif
 		startDelayedDeath();
 		return;
 	}
-
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-	if(MOD_GLOBAL_NO_LOST_GREATWORKS && !bDelay)
-	{
-		if (HasUnusedGreatWork())
-		{
-			GC.getGame().removeGreatPersonBornName(getGreatName());
-		}
-	}
-#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// EVERYTHING AFTER THIS LINE OCCURS UPON THE ACTUAL DELETION OF THE UNIT AND NOT WITH A DELAYED DEATH
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-	if(IsSelected())
+	if (MOD_GLOBAL_NO_LOST_GREATWORKS && HasUnusedGreatWork())
+		GC.getGame().removeGreatPersonBornName(getGreatName());
+
+	if (IsSelected())
 	{
 		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 		if(DLLUI->GetLengthSelectionList() == 1)
@@ -2753,18 +2751,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	pTransportUnit = getTransportUnit();
 
-	if(pTransportUnit != NULL)
-	{
+	if (pTransportUnit != NULL)
 		setTransportUnit(NULL);
-	}
 
 	if (MOD_LINKED_MOVEMENT)
 	{
 		// remove linked status
-		if (IsLinkedLeader()) {
+		if (IsLinkedLeader())
+		{
 			SetIsLinkedLeader(false);
 		}
-		else if (IsLinked()) {
+		else if (IsLinked())
+		{
 			CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
 			pLinkedLeader->SetIsLinkedLeader(false);
 		}
@@ -2806,12 +2804,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 #endif
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
 		GET_PLAYER(eUnitOwner).changeNumUnitsSupplyFree(-1);
 	}
-#endif
 
 	// A unit dying reduces the Great General meter
 	if (getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
@@ -2925,7 +2921,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	// Create the captured unit that will replace this unit (if the capture definition is valid)
 	CvUnit::createCaptureUnit(kCaptureDef);
 
-	if(GC.getGame().getActivePlayer() == kCaptureDef.eOldPlayer)
+	if (GC.getGame().getActivePlayer() == kCaptureDef.eOldPlayer)
 	{
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
@@ -2934,9 +2930,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	/// If checking for murder, do that now
 	if (bCheckForMurder)
 		GET_PLAYER(ePlayer).CheckForMurder(eUnitOwner);
-
-	//////////////////////////////////////////////////////////////////////////
-	// Do not add anything below here in this method
 }
 
 //	---------------------------------------------------------------------------
@@ -3240,6 +3233,37 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		{
 			int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * /*50 in CP, 75 in VP*/ GD_INT_GET(COMBAT_CAPTURE_HEALTH)) / 100;
 			pkCapturedUnit->setDamage(iCapturedHealth);
+
+			// (5-82): Captured Units can still move/pillage (but not attack)
+			// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
+			if (MOD_BALANCE_VP)
+			{
+				pkCapturedUnit->restoreFullMoves();
+				pkCapturedUnit->setMadeAttack(true);
+				pkCapturedUnit->SetTurnProcessed(false);
+				if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
+				{
+					if (pkCapturedUnit->shouldPillage(pkPlot, true))
+					{
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+					}
+					CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pkCapturedUnit, true, true);
+					if (pBestPlot != NULL)
+					{
+						//check if we need to bump somebody else
+						CvUnit* pBumpUnit = pkCapturedUnit->GetPotentialUnitToPushOut(*pBestPlot);
+						if (pBumpUnit)
+						{
+							pkCapturedUnit->PushBlockingUnitOutOfPlot(*pBestPlot);
+						}
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
+					}
+					else
+					{
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_SKIP());
+					}
+				}
+			}
 		}
 	}
 
@@ -10707,6 +10731,9 @@ bool CvUnit::pillage()
 		{
 			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
 		}
+
+		DoAdjacentPlotDamage(pPlot, getAOEDamageOnPillage(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE");
+
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
 		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
@@ -10722,6 +10749,7 @@ bool CvUnit::pillage()
 				else
 				{
 					int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+					iHealAmount += getPartialHealOnPillage();
 					changeDamage(-iHealAmount);
 				}
 			}
@@ -13331,7 +13359,7 @@ bool CvUnit::givePolicies()
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
-		if(pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
+		if (pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
 			pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
 
 		// Refresh - we might get to pick a policy this turn
@@ -14036,15 +14064,14 @@ bool CvUnit::build(BuildTypes eBuild)
 						}
 					}
 				}
-				if(pkBuildInfo->IsCultureBoost())
+				if (pkBuildInfo->IsCultureBoost())
 				{
 					int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 2;
 					kPlayer.changeJONSCulture(iValue);
-					if(kPlayer.getCapitalCity() != NULL)
-					{
+					if (kPlayer.getCapitalCity() != NULL)
 						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-					}
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+
+					if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
@@ -17869,7 +17896,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		0 ) / 100;
 
 	//extra damage with special promotion
-	if (GetMoraleBreakChance() > 0 && pDefender && !pDefender->CanFallBack(*this,false))
+	if (GetMoraleBreakChance() != 0 && pDefender && !pDefender->CanFallBack(*this,false))
 		iDamage = (iDamage * 150) / 100;
 
 	return iDamage;
@@ -21978,6 +22005,21 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
 			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
 		}
+
+		int iRealExperienceTimes100 = min(iMaxTimes100 - m_iExperienceTimes100, iUnitExperienceTimes100);
+		CvCity* pOriginCity = getOriginCity();
+		if (pOriginCity)
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pOriginCity, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+		}
+		else
+		{
+			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+			if (pCapital)
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+			}
+		}
 	}
 
 	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);
@@ -22489,6 +22531,20 @@ void CvUnit::changeAOEDamageOnKill(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getAOEDamageOnPillage() const
+{
+	VALIDATE_OBJECT
+		return m_iAOEDamageOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeAOEDamageOnPillage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
+	CvAssert(getAOEDamageOnPillage() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getAoEDamageOnMove() const
 {
 	VALIDATE_OBJECT
@@ -22500,6 +22556,20 @@ void CvUnit::changeAoEDamageOnMove(int iChange)
 	VALIDATE_OBJECT
 	m_iAoEDamageOnMove = (m_iAoEDamageOnMove + iChange);
 	CvAssert(getAoEDamageOnMove() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getPartialHealOnPillage() const
+{
+	VALIDATE_OBJECT
+		return m_iPartialHealOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changePartialHealOnPillage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iPartialHealOnPillage = (m_iPartialHealOnPillage + iChange);
+	CvAssert(getPartialHealOnPillage() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -25050,6 +25120,11 @@ int CvUnit::GetMoraleBreakChance() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeMoraleBreakChance(int iChange)
 {
+	if (iChange < 0)
+	{
+		m_iCanMoraleBreak = MIN_INT;
+		return;
+	}
 	m_iCanMoraleBreak += iChange;
 }
 
@@ -27546,7 +27621,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
 #if defined(MOD_BALANCE_CORE)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
+		changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
 		changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() *  iChange);
+		changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
 		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
@@ -28142,7 +28219,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iEmbarkFlatCostCount);
 	visitor(unit.m_iDisembarkFlatCostCount);
 	visitor(unit.m_iAOEDamageOnKill);
+	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAoEDamageOnMove);
+	visitor(unit.m_iPartialHealOnPillage);
 	visitor(unit.m_iSplashDamage);
 	visitor(unit.m_iMultiAttackBonus);
 	visitor(unit.m_iLandAirDefenseValue);
@@ -31755,7 +31834,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-			// Other modifiers
+	// Other modifiers
 
 	iTemp = pkPromotionInfo->GetHPHealedIfDefeatEnemy();
 	// nM: +10 Encirclement.

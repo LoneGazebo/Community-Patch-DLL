@@ -22,16 +22,16 @@
 			<Gender>neuter:an</Gender>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_TEXT">
-			<Text>Simply translated, “ordo” means “palace tent.” However, an ordo was something much more than just a simple tent —- it was the center of the tribe for the nomadic Mongolians.[NEWLINE][NEWLINE]An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.[NEWLINE][NEWLINE]You can construct an Ordo anywhere within your territory, or directly adjacent to your territory. Upon constructing the Ordo, your Military Unit Supply Cap will increase by 1, and your Culture borders will also expand to surround the Ordo on all sides by one hex. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Any unit stationed within an Ordo receives a 50% defensive strength bonus and +1 Move. However, any enemy unit which ends its turn next to an Ordo take no damage (Contrary to ending its turn next to a Citadel).</Text>
+			<Text>{TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_HELP}[NEWLINE][NEWLINE]Simply translated, “ordo” means “palace tent.” However, an ordo was something much more than just a simple tent —- it was the center of the tribe for the nomadic Mongolians.[NEWLINE][NEWLINE]An ordo served as the headquarters and main encampment for the Khan and his warriors. Though built for travel, it had style, from simple decorations to carefully sewn patterns. The ordo moved with the Khan and his warriors as they went on campaign, ensuring they always felt at home no matter where they traveled.[NEWLINE][NEWLINE]You can construct an Ordo anywhere within your territory, or directly adjacent to your territory. Upon constructing the Ordo, your Military Unit Supply Cap will increase by 1, and your Culture borders will also expand to surround the Ordo on all sides by one hex. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. Unlike the Citadel, any enemy unit which ends its turn next to an Ordo takes no damage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_MONGOLIA_ORDO_HELP">
-			<Text>Unique Mongolian Great Person Tile Improvement, replacing the Citadel. Provides [ICON_FOOD] Food, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Ordo claims adjacent tiles.[NEWLINE][NEWLINE]Units standing on an Ordo receive +50% [ICON_STRENGTH] Tile Defense and +1 [ICON_MOVES] Movement for that turn.</Text>
+			<Text>Unique Mongolian Great Person Tile Improvement, replacing the Citadel. Provides [ICON_FOOD] Food, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Building an Ordo claims adjacent tiles.[NEWLINE][NEWLINE]Units standing on an Ordo receive +50% [ICON_STRENGTH] Tile Defense and +1 [ICON_MOVES] Movement for that turn. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO">
 			<Text>Construct an [LINK=IMPROVEMENT_MONGOLIA_ORDO]Ordo[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO_HELP">
-			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Constructing the Ordo will expand your Culture borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. [NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength and +1 [ICON_MOVES] Movement for any Unit stationed in this Tile.</Text>
+			<Text>Can only be built in owned territory or adjacent to your own borders in an unowned tile, and cannot be adjacent to other Ordos. Constructing the Ordo will expand your Culture borders to surround the Ordo, increase your [ICON_WAR] Military Unit Supply Cap by 1, and will consume this unit. If the new Culture border claims hexes already owned by another civilization, you will incur a diplomatic penalty as a result. [NEWLINE][NEWLINE]+50% [ICON_STRENGTH] Defensive Strength and +1 [ICON_MOVES] Movement for any Unit stationed in this tile. Contains [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], allowing owned Units to stay stationed in this tile after attacking and a [COLOR_POSITIVE_TEXT]Canal[ENDCOLOR], allowing friendly [COLOR_POSITIVE_TEXT]Sea[ENDCOLOR] Units to traverse through it.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_MONGOLIA_ORDO_REC">
 			<Text>Unit will be consumed.[NEWLINE]Unique Mongolian Tile Improvement. Provides [ICON_FOOD] Food, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture. Gives a [ICON_STRENGTH] Defense Bonus and [ICON_MOVES] Movement to units stationed on it.</Text>
@@ -41,19 +41,19 @@
 			<Gender>neuter:an</Gender>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EKI_TEXT">
-			<Text>'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh pastures on which to graze. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both—in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practised in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice. [NEWLINE][NEWLINE]An Eki can only be built on flat land tiles without access to Fresh Water. It provides [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food, as well as additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Removes any features on the tile. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+			<Text>{TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP}[NEWLINE][NEWLINE]'Eki' is a term that the Huns likely used to describe the earth, particularly that which was essential to grazing livestock. Nomadic pastoralism is a form of pastoralism where livestock are herded in order to find fresh pastures on which to graze. Strictly speaking, true nomads follow an irregular pattern of movement, in contrast with transhumance where seasonal pastures are fixed. However this distinction is often not observed and the term nomad used for both—in historical cases the regularity of movements is often unknown in any case. The herded livestock include cattle, yaks, sheep, goats, reindeer, horses, donkeys or camels, or mixtures of species. Nomadic pastoralism is commonly practised in regions with little arable land, typically in the developing world. Of the estimated 30 to 40 million nomadic pastoralists worldwide, most are found in central Asia and the Sahel region of West Africa. Increasing numbers of stock may lead to overgrazing of the area and desertification if lands are not allowed to fully recover between one grazing period and the next. Increased enclosure and fencing of land has reduced the amount of land available for this practice.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_IMPROVEMENTS_EKI_HELP">
-			<Text>An Eki can only be built on flat land tiles without access to Fresh Water. It provides [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food, as well as additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Removes any features on the tile. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+			<Text>An Eki can only be built on flat land tiles without access to Fresh Water. It provides [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food, as well as additional [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Removes any features on the tile. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI">
 			<Text>Construct an [LINK=IMPROVEMENT_EKI]Eki[\LINK]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI_HELP">
-		    <Text>+1 [ICON_PRODUCTION] Production for every 2 Ekis adjacent to this Eki. Must be build on flat tiles without access to Fresh Water. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.[NEWLINE][NEWLINE]Building in neutral territory may encourage cities to naturally expand to this Eki.</Text>
+		    <Text>+1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 Ekis adjacent to this Eki. Must be build on flat tiles without access to Fresh Water. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.[NEWLINE][NEWLINE]Building in neutral territory may encourage cities to naturally expand to this Eki.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_EKI_REC">
-			<Text>It will increase [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food. Provides additional [ICON_PRODUCTION] Production if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
+			<Text>It will increase [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_FOOD] Food. Provides additional [ICON_PRODUCTION] Production and [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]adjacent to two[ENDCOLOR] other Eki. Can be built [COLOR_POSITIVE_TEXT]in or adjacent to[ENDCOLOR] Hunnic territory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_IMPROVEMENT_SPAIN_HACIENDA">
 			<Text>Hacienda</Text>
@@ -172,6 +172,9 @@
 		<Row Tag="TXT_KEY_GOODY_CHOOSE_FREE_TILES">
 			<Text>A tribe that gives you land around your nearest City.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_SCIENCE">
+			<Text>Ancient artifacts for [ICON_RESEARCH] Science.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_TITLE">
 			<Text>[COLOR_GREEN]Golden Age Points[ENDCOLOR]</Text>
 		</Row>
@@ -268,6 +271,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +25% [ICON_GOLDEN_AGE] Golden Age Length, +2 [ICON_GOLDEN_AGE] Golden Age Points from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH_ONLY">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +30% [ICON_GOLDEN_AGE] Golden Age Length.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION">
 			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>

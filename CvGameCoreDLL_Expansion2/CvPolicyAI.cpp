@@ -1191,6 +1191,25 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * max(1, pPlayer->GetNumGoldenAges());
 		}
 	}
+	if (PolicyInfo->GetGAPFromHappinessModifier() != 0)
+	{
+		int iTotalGAP = 0;
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+		{
+			int iGAP = pLoopCity->getHappinessDelta();
+			if (iGAP > 0)
+				iTotalGAP += iGAP;
+		}
+		if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
+		{
+			yield[YIELD_GOLDEN_AGE_POINTS] += iTotalGAP * PolicyInfo->GetGAPFromHappinessModifier() / 100 * 2;
+		}
+		else
+		{
+			yield[YIELD_GOLDEN_AGE_POINTS] += iTotalGAP * PolicyInfo->GetGAPFromHappinessModifier() / 100;
+		}
+	}
 	if (PolicyInfo->GetGoldenAgeDurationMod() != 0)
 	{
 		if (pPlayerTraits->IsTourism())
@@ -2627,18 +2646,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 		{
 			yield[YIELD_TOURISM] += PolicyInfo->GetStealGWFasterModifier();
 		}
-	}
-	if (PolicyInfo->GetExtraYieldsFromHeavyTribute() != 0)
-	{
-		int iTraitsModifier = pPlayerTraits->IsWarmonger() ? 4 : 1;
-		iTraitsModifier *= 100 + pPlayerTraits->GetBullyValueModifier();
-		iTraitsModifier /= 100;
-		
-		yield[YIELD_FOOD] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_PRODUCTION] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_CULTURE] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_SCIENCE] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_FAITH] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
 	}
 	if (PolicyInfo->GetEventTourism() != 0)
 	{

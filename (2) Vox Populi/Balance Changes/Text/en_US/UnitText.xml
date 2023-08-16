@@ -108,12 +108,19 @@
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
 			<Text>Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.[NEWLINE]When pillaging [COLOR_POSITIVE_TEXT]Improvement[ENDCOLOR], Gain 60 [ICON_GOLD] Gold, Scaling with Era, and adjacent Enemy Units take [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR]</Text>
 		</Row>
-	<!-- Huns -->
+	<!-- France -->
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
-			<Text>Coercion</Text>
+			<Text>Par le Sang Versé</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COERCION_HELP">
 			<Text>Defeated land units may join your side as conscripted, supply-free units. </Text>
+		</Row>
+	<!-- Huns -->
+		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE">
+			<Text>Focus Fire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn.</Text>
 		</Row>
 	<!-- Japan -->
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
@@ -325,7 +332,7 @@
 			<Text>Withering Fire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]25%[ENDCOLOR] Chance to force an Enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
+			<Text>+50% damage to Enemy Units that cannot retreat.</Text>
 		</Row>
 	<!--Doppelsöldner-->
 		<Row Tag="TXT_KEY_PROMOTION_DOPPELSOLDNER">
@@ -602,13 +609,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WOODLAND_TRAILBLAZER_III_HELP">
 			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Unit can Embark, cross Mountains, and use Enemy Roads/Railroads.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">
-			<Text>Treasure Hunter</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP">
-			<Text>+25% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE">

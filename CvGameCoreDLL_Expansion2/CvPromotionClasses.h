@@ -185,7 +185,9 @@ public:
 	bool IsDisembarkFlatCost() const;
 	bool IsMountedOnly() const;
 	int GetAOEDamageOnKill() const;
+	int GetAOEDamageOnPillage() const;
 	int GetAoEDamageOnMove() const;
+	int GetPartialHealOnPillage() const;
 	int GetSplashDamage() const;
 	int GetMinRange() const;
 	int GetMaxRange() const;
@@ -525,7 +527,9 @@ protected:
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
 	int m_iWonderProductionModifier;
 	int m_iAOEDamageOnKill;
+	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
+	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
 	int m_iMinRange;
 	int m_iMaxRange;

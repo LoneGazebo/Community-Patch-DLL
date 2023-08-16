@@ -266,6 +266,8 @@ UPDATE Units SET MinorCivGift = '1', Cost = '-1', Class = 'UNITCLASS_COMPANIONCA
 -- Huns
 ---------------------------
 -- Removed Battering Ram, tweaked Horse Archer to fit into new mounted ranged line
+INSERT INTO Unit_ResourceQuantityRequirements (UnitType, ResourceType, Cost) VALUES ('UNIT_HUN_HORSE_ARCHER', 'RESOURCE_HORSE', 1);
+
 UPDATE Units SET Class = 'UNITCLASS_HORSE_ARCHER', GoodyHutUpgradeUnitClass = 'UNITCLASS_MOUNTED_BOWMAN' WHERE Type = 'UNIT_HUN_HORSE_ARCHER';
 
 UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_HORSE_ARCHER' WHERE CivilizationType = 'CIVILIZATION_HUNS' AND UnitClassType = 'UNITCLASS_CHARIOT_ARCHER';
@@ -280,12 +282,6 @@ UPDATE Units SET Cost = '-1', MinorCivGift = '1', Class = 'UNITCLASS_HUNNIC_BATT
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_TERCIO' WHERE UnitType = 'UNIT_HUN_BATTERING_RAM';
 
-
-INSERT INTO Trait_FreePromotionUnitCombats
-	(TraitType, UnitCombatType, PromotionType)
-VALUES
-	('TRAIT_RAZE_AND_HORSES', 'UNITCOMBAT_MOUNTED', 'PROMOTION_COERCION'),
-	('TRAIT_RAZE_AND_HORSES', 'UNITCOMBAT_ARMOR', 'PROMOTION_COERCION');
 ---------------------------
 -- Inca
 ---------------------------

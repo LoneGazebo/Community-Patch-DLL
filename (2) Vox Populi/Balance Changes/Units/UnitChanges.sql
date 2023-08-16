@@ -34,7 +34,7 @@
 	UPDATE Units SET BaseGold = '0', NumGoldPerEra = '0', BaseGoldTurnsToCount = '5', BaseWLTKDTurns = '5' WHERE Type = 'UNIT_MERCHANT';
 
 	-- Reduced base golden age turns of artist, added scaling bonus for num themed GWs
-	UPDATE Units SET GoldenAgeTurns = '0', BaseTurnsForGAPToCount = '10', ScaleFromNumThemes = '20' WHERE Type = 'UNIT_ARTIST';
+	UPDATE Units SET GoldenAgeTurns = '0', BaseTurnsForGAPToCount = '10', ScaleFromNumThemes = '10' WHERE Type = 'UNIT_ARTIST';
 
 	-- Engineer production boost switched to average city production
 	UPDATE Units SET BaseHurry = '0', HurryMultiplier = '0', BaseProductionTurnsToCount = '5' WHERE Type = 'UNIT_ENGINEER';

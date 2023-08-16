@@ -1,5 +1,5 @@
 -- HistoricEventTypes table: Defines the different types of historic events. The order used here matches with the enum used in the DLL. Do not change without changing the DLL as well!
--- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus.
+-- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus. These are prefixed with DIFFICULTY_BONUS.
 CREATE TABLE IF NOT EXISTS HistoricEventTypes(
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE
@@ -15,11 +15,17 @@ INSERT INTO HistoricEventTypes(Type) VALUES
 ('HISTORIC_EVENT_TRADE_LAND'), -- 6
 ('HISTORIC_EVENT_TRADE_SEA'), -- 7
 ('HISTORIC_EVENT_TRADE_CS'), -- 8
-('HISTORIC_EVENT_CITY_FOUND_CAPITAL'), -- 9
-('HISTORIC_EVENT_CITY_FOUND'), -- 10
-('HISTORIC_EVENT_CITY_CONQUEST'), -- 11
-('HISTORIC_EVENT_PLAYER_TURNS_PASSED'), -- 12
-('HISTORIC_EVENT_AI_TURNS_PASSED'); -- 13
+('DIFFICULTY_BONUS_CITY_FOUND_CAPITAL'), -- 9
+('DIFFICULTY_BONUS_CITY_FOUND'), -- 10
+('DIFFICULTY_BONUS_CITY_CONQUEST'), -- 11
+('DIFFICULTY_BONUS_RESEARCHED_TECH'), -- 12
+('DIFFICULTY_BONUS_ADOPTED_POLICY'), -- 13
+('DIFFICULTY_BONUS_COMPLETED_POLICY_TREE'), -- 14
+('DIFFICULTY_BONUS_KILLED_MAJOR_UNIT'), -- 15
+('DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT'), -- 16
+('DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT'), -- 17
+('DIFFICULTY_BONUS_PLAYER_TURNS_PASSED'), -- 18
+('DIFFICULTY_BONUS_AI_TURNS_PASSED'); -- 19
 
 
 -- VictoryPursuitTypes table: Used by the Leaders Table. Allows modders to give a hint to the AI about which victory conditions a civ's UA is best suited for.
@@ -225,8 +231,9 @@ ALTER TABLE Policies ADD COLUMN 'StealGWSlowerModifier' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'StealGWFasterModifier' INTEGER DEFAULT 0;
 -- Policy - conquered cities keep all their buildings (except for those with NeverCapture==true).
 ALTER TABLE Policies ADD COLUMN 'KeepConqueredBuildings' BOOLEAN DEFAULT 0;
--- Policy - extra non-gold yields from heavy tribute (in percent).
-ALTER TABLE Policies ADD COLUMN 'ExtraYieldsFromHeavyTribute' INTEGER DEFAULT 0;
+
+-- Policy - extra GAP generation from excess happiness.
+ALTER TABLE Policies ADD COLUMN 'GAPFromHappinessModifier' INTEGER DEFAULT 0;
 
 -- Policy Branch - number of unlocked policies (finishers excluded) before branch is unlocked.
 ALTER TABLE PolicyBranchTypes ADD COLUMN 'NumPolicyRequirement' INTEGER DEFAULT 100;
@@ -447,6 +454,8 @@ ALTER TABLE Terrains ADD COLUMN 'AdjacentUnitFreePromotion' TEXT DEFAULT NULL;
 ALTER TABLE Units ADD MaxHitPoints INTEGER DEFAULT 100;
 ALTER TABLE UnitPromotions ADD MaxHitPointsChange INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD MaxHitPointsModifier INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD PartialHealOnPillage INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD AOEDamageOnPillage INTEGER DEFAULT 0;
 
 -- Adds ability for settlers to get free buildings when a city is founded.
 ALTER TABLE Units ADD COLUMN 'FoundMid' BOOLEAN DEFAULT 0;
@@ -1033,6 +1042,7 @@ ALTER TABLE GoodyHuts ADD COLUMN 'Production' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'GoldenAge' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'FreeTiles' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'Science' INTEGER DEFAULT 0;
+ALTER TABLE GoodyHuts ADD COLUMN 'PantheonPercent' INTEGER DEFAULT 0;
 
 -- Additional Goody Hut options, requires NEW_GOODIES CustomModOptions to set True
 ALTER TABLE GoodyHuts ADD COLUMN 'Food' INTEGER DEFAULT 0;
@@ -1105,6 +1115,7 @@ ALTER TABLE UnitPromotions ADD COLUMN 'CapturedUnitsConscripted' BOOLEAN DEFAULT
 ALTER TABLE UnitPromotions ADD COLUMN 'BarbarianCombatBonus' INTEGER DEFAULT 0;
 
 -- Ranged units have a % chance to force another unit to retreat, taking additional damage if they cannot do so.
+-- Negative means no force retreat but target still takes additional damage (overrides any positive value already on the same unit)
 ALTER TABLE UnitPromotions ADD COLUMN 'MoraleBreakChance' INTEGER DEFAULT 0;
 
 -- Promotion bonuses restricted to Barbarians.
@@ -1798,3 +1809,36 @@ UPDATE Eras SET EraSplashImage = 'ERA_Industrial.dds' 		WHERE Type = 'ERA_INDUST
 UPDATE Eras SET EraSplashImage = 'ERA_Modern.dds'     		WHERE Type = 'ERA_MODERN';
 UPDATE Eras SET EraSplashImage = 'ERA_Atomic.dds'     		WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET EraSplashImage = 'ERA_Future.dds'     		WHERE Type = 'ERA_FUTURE';
+
+-- Add useful properties to UnitCombatInfos for easy SQL reference
+-- Please don't use this to determine properties of individual unit classes/units
+ALTER TABLE UnitCombatInfos ADD IsMilitary BOOLEAN DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsRanged BOOLEAN DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsNaval BOOLEAN DEFAULT 0;
+ALTER TABLE UnitCombatInfos ADD IsAerial BOOLEAN DEFAULT 0;
+
+UPDATE UnitCombatInfos SET IsMilitary = 1
+WHERE ID <= 13;
+
+UPDATE UnitCombatInfos SET IsRanged = 1
+WHERE Type IN (
+	'UNITCOMBAT_ARCHER',
+	'UNITCOMBAT_SIEGE',
+	'UNITCOMBAT_NAVALRANGED',
+	'UNITCOMBAT_SUBMARINE',
+	'UNITCOMBAT_CARRIER'
+);
+
+UPDATE UnitCombatInfos SET IsNaval = 1
+WHERE Type IN (
+	'UNITCOMBAT_NAVALRANGED',
+	'UNITCOMBAT_NAVALMELEE',
+	'UNITCOMBAT_SUBMARINE',
+	'UNITCOMBAT_CARRIER'
+);
+
+UPDATE UnitCombatInfos SET IsAerial = 1
+WHERE Type IN (
+	'UNITCOMBAT_FIGHTER',
+	'UNITCOMBAT_BOMBER'
+);

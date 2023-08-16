@@ -70,7 +70,8 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 	                          const char* szFilterValue,
 	                          const char* szValueColumn,
 							  int iDefaultValue = 0,
-							  int iMinArraySize = 0);
+							  int iMinArraySize = 0,
+							  const char* szAdditionalCondition = "");
 
 
 	//------------------------------------------------------------------------------
@@ -91,7 +92,7 @@ void InitializeArray(T*& pArray, const char* szTableName, T default_ = (T)0);
 	//	*YieldTable must have a 'YieldType' column.
 	// RETURNS:
 	//	True on success.
-	bool SetYields(int*& pYieldsArray, const char* szTableName, const char* szFilterColumn, const char* szFilterValue);
+	bool SetYields(int*& pYieldsArray, const char* szTableName, const char* szFilterColumn, const char* szFilterValue, const char* szAdditionalCondition = "");
 
 	//! Retrieves the maximum number of a given column for a given table.
 	int MaxRows(const char* szTableName);

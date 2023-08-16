@@ -1718,6 +1718,7 @@ public:
 	int getCulture() const;
 	int getFaith() const;
 	int getProphetPercent() const;
+	int getPantheonPercent() const;
 	int getRevealNearbyBarbariansRange() const;
 	int getBarbarianUnitProb() const;
 	int getMinBarbarians() const;
@@ -1760,6 +1761,7 @@ protected:
 	int m_iCulture;
 	int m_iFaith;
 	int m_iProphetPercent;
+	int m_iPantheonPercent;
 	int m_iRevealNearbyBarbariansRange;
 	int m_iBarbarianUnitProb;
 	int m_iMinBarbarians;

@@ -56,6 +56,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iGreatScientistRateModifier(0),
 	m_iGreatDiplomatRateModifier(0),
 	m_iDomesticGreatGeneralRateModifier(0),
+	m_iGAPFromHappinessModifier(0),
 	m_iExtraHappiness(0),
 	m_iExtraHappinessPerCity(0),
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -216,7 +217,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_bHalfSpecialistFoodCapital(false),
 	m_iStealGWSlowerModifier(0),
 	m_iStealGWFasterModifier(0),
-	m_iExtraYieldsFromHeavyTribute(0),
 	m_iEventTourism(0),
 	m_iEventTourismCS(0),
 	m_iMonopolyModFlat(0),
@@ -529,6 +529,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iGreatDiplomatRateModifier = kResults.GetInt("GreatDiplomatRateModifier");
 	m_iGreatScientistRateModifier = kResults.GetInt("GreatScientistRateModifier");
 	m_iDomesticGreatGeneralRateModifier = kResults.GetInt("DomesticGreatGeneralRateModifier");
+	m_iGAPFromHappinessModifier = kResults.GetInt("GAPFromHappinessModifier");
 	m_iExtraHappiness = kResults.GetInt("ExtraHappiness");
 	m_iExtraHappinessPerCity = kResults.GetInt("ExtraHappinessPerCity");
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -640,7 +641,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #if defined(MOD_BALANCE_CORE)
 	m_iStealGWSlowerModifier = kResults.GetInt("StealGWSlowerModifier");
 	m_iStealGWFasterModifier = kResults.GetInt("StealGWFasterModifier");
-	m_iExtraYieldsFromHeavyTribute = kResults.GetInt("ExtraYieldsFromHeavyTribute");
 	m_bHalfSpecialistFoodCapital = kResults.GetBool("HalfSpecialistFoodCapital");
 	m_iEventTourism = kResults.GetInt("EventTourism");
 	m_iEventTourismCS = kResults.GetInt("EventTourismCS");
@@ -1604,6 +1604,12 @@ int CvPolicyEntry::GetDomesticGreatGeneralRateModifier() const
 	return m_iDomesticGreatGeneralRateModifier;
 }
 
+///  Change in rate of golden age points generation from happiness
+int CvPolicyEntry::GetGAPFromHappinessModifier() const
+{
+	return m_iGAPFromHappinessModifier;
+}
+
 ///  Extra Happiness
 int CvPolicyEntry::GetExtraHappiness() const
 {
@@ -2401,10 +2407,6 @@ int CvPolicyEntry::GetStealGWSlowerModifier() const
 int CvPolicyEntry::GetStealGWFasterModifier() const
 {
 	return m_iStealGWFasterModifier;
-}
-int CvPolicyEntry::GetExtraYieldsFromHeavyTribute() const
-{
-	return m_iExtraYieldsFromHeavyTribute;
 }
 int CvPolicyEntry::GetEventTourism() const
 {
@@ -4241,40 +4243,39 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 	CvAssertMsg(eIndex < m_pPolicies->GetNumPolicies(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	CvPolicyEntry* pkPolicyInfo = GC.getPolicyInfo(eIndex);
-	if(pkPolicyInfo == NULL)
+	if (pkPolicyInfo == NULL)
 		return;
 
-	if(HasPolicy(eIndex) != bNewValue)
+	if (HasPolicy(eIndex) != bNewValue)
 	{
 		m_pabHasPolicy[eIndex] = bNewValue;
-		int iChange = bNewValue ? 1 : -1;
-
 		m_pabFreePolicy[eIndex] = bFree;
+		int iChange = bNewValue ? 1 : -1;
 		if (bFree) 
 			iChange = 0;
 
 		GetPlayer()->ChangeNumPolicies(iChange);
-
-#if defined(MOD_BALANCE_CORE)
 		UpdateModifierCache();
-#endif
 
-		if(bNewValue)
+		if (bNewValue)
 		{
+			if (GC.getGame().isFinalInitialized())
+				GetPlayer()->DoDifficultyBonus(DIFFICULTY_BONUS_ADOPTED_POLICY);
+
 			DoNewPolicyPickedForHistory(eIndex);
 
-			if(m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+			if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())
 				GC.GetEngineUserInterface()->SetPolicyNotificationSeen(false);
 		}
 
 		PolicyBranchTypes eThisBranch = (PolicyBranchTypes) pkPolicyInfo->GetPolicyBranchType();
 
-		if(eThisBranch != NO_POLICY_BRANCH_TYPE)
+		if (eThisBranch != NO_POLICY_BRANCH_TYPE)
 		{
 			bool bBranchFinished = false;
 
 			// We don't have this Policy, so this branch is definitely not finished
-			if(!bNewValue)
+			if (!bNewValue)
 			{
 				bBranchFinished = false;
 			}
@@ -4284,43 +4285,37 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 				bBranchFinished = true;
 
 				// Is the branch this policy is in finished?
-				for(int iPolicyLoop = 0; iPolicyLoop < GetPolicies()->GetNumPolicies(); iPolicyLoop++)
+				for (int iPolicyLoop = 0; iPolicyLoop < GetPolicies()->GetNumPolicies(); iPolicyLoop++)
 				{
 					const PolicyTypes eLoopPolicy = static_cast<PolicyTypes>(iPolicyLoop);
-
 					CvPolicyEntry* pkLoopPolicyInfo = GC.getPolicyInfo(eLoopPolicy);
-					if(pkLoopPolicyInfo)
+					if (pkLoopPolicyInfo && pkLoopPolicyInfo->GetPolicyBranchType() == eThisBranch)
 					{
-						// This policy belongs to our branch
-						if(pkLoopPolicyInfo->GetPolicyBranchType() == eThisBranch)
+						// We don't have this policy!
+						if (!HasPolicy(eLoopPolicy))
 						{
-							// We don't have this policy!
-							if(!HasPolicy(eLoopPolicy))
-							{
-								bBranchFinished = false;
-
-								// No need to continue, we already know we don't have the branch
-								break;
-							}
+							bBranchFinished = false;
+							break;
 						}
 					}
 				}
 			}
 
 			SetPolicyBranchFinished(eThisBranch, bBranchFinished);
+			CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eThisBranch);
+			PolicyTypes eFinisher = pkPolicyBranchInfo ? (PolicyTypes)pkPolicyBranchInfo->GetFreeFinishingPolicy() : NO_POLICY;
 
-			if(bBranchFinished)
+			if (eFinisher != NO_POLICY)
 			{
-				CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eThisBranch);
-				if(pkPolicyBranchInfo)
+				if (bBranchFinished)
 				{
-					PolicyTypes eFinisher = (PolicyTypes)pkPolicyBranchInfo->GetFreeFinishingPolicy();
-					if(eFinisher != NO_POLICY)
+					GetPlayer()->setHasPolicy(eFinisher, true);
+					GetPlayer()->ChangeNumFreePoliciesEver(1);
+
+					if (GC.getGame().isFinalInitialized())
 					{
-						GetPlayer()->setHasPolicy(eFinisher, true);
-						GetPlayer()->ChangeNumFreePoliciesEver(1);
-#if defined(MOD_BALANCE_CORE)
-						if(GetPlayer()->GetPlayerTraits()->IsAdoptionFreeTech())
+						GetPlayer()->DoDifficultyBonus(DIFFICULTY_BONUS_COMPLETED_POLICY_TREE);
+						if (GetPlayer()->GetPlayerTraits()->IsAdoptionFreeTech())
 						{
 							if (!GetPlayer()->isHuman())
 							{
@@ -4332,9 +4327,11 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 								GetPlayer()->chooseTech(1, strBuffer.GetCString());
 							}
 						}
-#endif
 					}
 				}
+				// Policy removed from a finished branch (via IGE, event, whatever)? Remove the finisher bonus!
+				else
+					GetPlayer()->setHasPolicy(eFinisher, false);
 			}
 		}
 	}
@@ -4553,9 +4550,6 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 			case POLICYMOD_STEAL_GW_FASTER_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetStealGWFasterModifier();
 				break;
-			case POLICYMOD_EXTRA_YIELDS_FROM_HEAVY_TRIBUTE:
-				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetExtraYieldsFromHeavyTribute();
-				break;
 			case POLICYMOD_CITY_DEFENSE_BOOST:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDefenseBoost();
 				break;
@@ -4568,6 +4562,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetDomesticGreatGeneralRateModifier();
+				break;
+			case POLICYMOD_GAP_FROM_HAPPINESS_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetGAPFromHappinessModifier();
 				break;
 			case POLICYMOD_POLICY_COST_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetPolicyCostModifier();

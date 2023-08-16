@@ -1140,6 +1140,11 @@ VALUES
 	('BUILDING_STADIUM', 'YIELD_GOLDEN_AGE_POINTS', 50),
 	('BUILDING_HOSPITAL', 'YIELD_FOOD', 10),
 	('BUILDING_COLOSSEUM', 'YIELD_TOURISM', 25);
+	
+INSERT INTO Building_YieldChangesPerPopInEmpire
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_RIALTO_DISTRICT', 'YIELD_GOLD', 33);
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
 	(BuildingType, YieldType, Yield)
@@ -1157,8 +1162,9 @@ VALUES
 	('BUILDING_TRAINSTATION', 'YIELD_FOOD', 6),
 	('BUILDING_STABLE', 'YIELD_PRODUCTION', 2),
 	('BUILDING_DUCAL_STABLE', 'YIELD_PRODUCTION', 2),
-	('BUILDING_WORKSHOP', 'YIELD_PRODUCTION', 4);
-
+	('BUILDING_WORKSHOP', 'YIELD_PRODUCTION', 4),
+	('BUILDING_VENETIAN_ARSENALE', 'YIELD_PRODUCTION', 4);
+	
 INSERT INTO Building_GrowthExtraYield
 	(BuildingType, YieldType, Yield)
 VALUES
@@ -1445,48 +1451,68 @@ WHERE Type IN (
 );
 
 -- Classical T1
-UPDATE Buildings SET NationalPopRequired = '12'
+UPDATE Buildings SET NationalPopRequired = '12', Cost = 60
 WHERE Type IN (
 	'BUILDING_HEROIC_EPIC',
 	'BUILDING_COURT_SCRIBE'
 );
 
 -- Classical T2
-UPDATE Buildings SET NationalPopRequired = '15'
+UPDATE Buildings SET NationalPopRequired = '15', Cost = 80
 WHERE Type IN (
 	'BUILDING_NATIONAL_COLLEGE',
 	'BUILDING_NATIONAL_EPIC',
 	'BUILDING_CIRCUS_MAXIMUS'
 );
 
+UPDATE Buildings SET Cost = 80
+WHERE Type IN (
+	'BUILDING_PIAZZA_SAN_MARCO',
+	'BUILDING_ROYAL_LIBRARY'
+);
+
 -- Medieval T1
-UPDATE Buildings SET NationalPopRequired = '19'
+UPDATE Buildings SET NationalPopRequired = '19', Cost = 120
 WHERE Type IN (
 	'BUILDING_OXFORD_UNIVERSITY',
 	'BUILDING_GRAND_TEMPLE'
 );
 
 -- Medieval T2
-UPDATE Buildings SET NationalPopRequired = '22'
+UPDATE Buildings SET NationalPopRequired = '22', Cost = 140
 WHERE Type IN (
 	'BUILDING_IRONWORKS',
 	'BUILDING_NATIONAL_TREASURY'
 );
 
+UPDATE Buildings SET Cost = 140
+WHERE Type IN (
+	'BUILDING_GREAT_COTHON',
+	'BUILDING_VENETIAN_ARSENALE',
+	'BUILDING_MURANO_GLASSWORKS',
+	'BUILDING_RIALTO_DISTRICT',
+	'BUILDING_WHITE_TOWER'
+);
+
 -- Renaissance T1
-UPDATE Buildings SET NationalPopRequired = '25'
+UPDATE Buildings SET NationalPopRequired = '25', Cost = 200
 WHERE Type IN (
 	'BUILDING_PRINTING_PRESS'
 );
 
 -- Renaissance T2
-UPDATE Buildings SET NationalPopRequired = '30'
+UPDATE Buildings SET NationalPopRequired = '30', Cost = 240
 WHERE Type IN (
 	'BUILDING_HERMITAGE'
 );
 
+UPDATE Buildings SET Cost = 240
+WHERE Type IN (
+	'BUILDING_AMERICA_INDEPENDENCEHALL'
+);
+
 -- Modern T2 + Ideology NW
-UPDATE Buildings SET NationalPopRequired = '40'
+UPDATE Buildings SET NationalPopRequired = '40', Cost = 800
 WHERE Type IN (
 	'BUILDING_FOREIGN_OFFICE',
 	'BUILDING_PALACE_SCIENCE_CULTURE',
@@ -1495,7 +1521,7 @@ WHERE Type IN (
 );
 
 -- Atomic T2
-UPDATE Buildings SET NationalPopRequired = '50'
+UPDATE Buildings SET NationalPopRequired = '50', Cost = 900
 WHERE Type IN (
 	'BUILDING_INTELLIGENCE_AGENCY'
 );

@@ -309,6 +309,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 #if defined(MOD_BALANCE_CORE)
 	m_piYieldFromVictory(NULL),
 	m_piYieldFromVictoryGlobal(NULL),
+	m_piYieldFromVictoryGlobalEraScaling(NULL),
 	m_piYieldFromVictoryGlobalPlayer(NULL),
 	m_piYieldFromPillage(NULL),
 	m_piYieldFromPillageGlobal(NULL),
@@ -331,6 +332,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_piYieldFromBorderGrowth(NULL),
 	m_piYieldFromPolicyUnlock(NULL),
 	m_piYieldFromUnitLevelUp(NULL),
+	m_piYieldFromCombatExperience(NULL),
 	m_piYieldFromPurchase(NULL),
 	m_piYieldFromFaithPurchase(NULL),
 #endif
@@ -442,6 +444,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 #if defined(MOD_BALANCE_CORE)
 	SAFE_DELETE_ARRAY(m_piYieldFromVictory);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobal);
+	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalEraScaling);
 	SAFE_DELETE_ARRAY(m_piYieldFromVictoryGlobalPlayer);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillage);
 	SAFE_DELETE_ARRAY(m_piYieldFromPillageGlobal);
@@ -464,6 +467,7 @@ CvBuildingEntry::~CvBuildingEntry(void)
 	SAFE_DELETE_ARRAY(m_piYieldFromBorderGrowth);
 	SAFE_DELETE_ARRAY(m_piYieldFromPolicyUnlock);
 	SAFE_DELETE_ARRAY(m_piYieldFromUnitLevelUp);
+	SAFE_DELETE_ARRAY(m_piYieldFromCombatExperience);
 	SAFE_DELETE_ARRAY(m_piYieldFromPurchase);
 	SAFE_DELETE_ARRAY(m_piYieldFromFaithPurchase);
 #endif
@@ -923,7 +927,8 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piGrowthExtraYield, "Building_GrowthExtraYield", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromDeath, "Building_YieldFromDeath", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromVictory, "Building_YieldFromVictory", "BuildingType", szBuildingType);
-	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromVictoryGlobal, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='false' or IsEraScaling='0')");
+	kUtility.SetYields(m_piYieldFromVictoryGlobalEraScaling, "Building_YieldFromVictoryGlobal", "BuildingType", szBuildingType, "(IsEraScaling='true' or IsEraScaling='1')");
 	kUtility.SetYields(m_piYieldFromVictoryGlobalPlayer, "Building_YieldFromVictoryGlobalPlayer", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillage, "Building_YieldFromPillage", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPillageGlobal, "Building_YieldFromPillageGlobal", "BuildingType", szBuildingType);
@@ -946,6 +951,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	kUtility.SetYields(m_piYieldFromBorderGrowth, "Building_YieldFromBorderGrowth", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPolicyUnlock, "Building_YieldFromPolicyUnlock", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromUnitLevelUp, "Building_YieldFromUnitLevelUp", "BuildingType", szBuildingType);
+	kUtility.SetYields(m_piYieldFromCombatExperience, "Building_YieldFromCombatExperience", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromPurchase, "Building_YieldFromPurchase", "BuildingType", szBuildingType);
 	kUtility.SetYields(m_piYieldFromFaithPurchase, "Building_YieldFromFaithPurchase", "BuildingType", szBuildingType);
 #endif
@@ -3082,6 +3088,19 @@ int* CvBuildingEntry::GetYieldFromVictoryGlobalArray() const
 	return m_piYieldFromVictoryGlobal;
 }
 
+/// Change to yield if victorious in battle, scaling with era.
+int CvBuildingEntry::GetYieldFromVictoryGlobalEraScaling(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromVictoryGlobalEraScaling ? m_piYieldFromVictoryGlobalEraScaling[i] : -1;
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromVictoryGlobalArrayEraScaling() const
+{
+	return m_piYieldFromVictoryGlobalEraScaling;
+}
+
 
 /// Change to yield if victorious in battle.
 int CvBuildingEntry::GetYieldFromVictoryGlobalPlayer(int i) const
@@ -3256,6 +3275,18 @@ int CvBuildingEntry::GetYieldFromUnitLevelUp(int i) const
 int* CvBuildingEntry::GetYieldFromUnitLevelUpArray() const
 {
 	return m_piYieldFromUnitLevelUp;
+}
+
+int CvBuildingEntry::GetYieldFromCombatExperience(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldFromCombatExperience[i];
+}
+/// Array of yield changes
+int* CvBuildingEntry::GetYieldFromCombatExperienceArray() const
+{
+	return m_piYieldFromCombatExperience;
 }
 
 

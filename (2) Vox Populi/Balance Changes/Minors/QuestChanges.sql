@@ -23,7 +23,7 @@ UPDATE Defines SET Value = '200' WHERE Name = 'MINOR_CIV_PERSONAL_QUEST_RAND_TUR
 UPDATE SmallAwards SET Influence = '40', Production = '70', RandomMod = '10', QuestDuration = '50'  WHERE Type = 'MINOR_CIV_QUEST_ROUTE';
 
 -- Camp
-UPDATE SmallAwards SET Influence = '25', GeneralPoints = '30', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_KILL_CAMP';
+UPDATE SmallAwards SET Influence = '25', GeneralPoints = '30', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_KILL_CAMP';
 
 -- Resource
 UPDATE SmallAwards SET Influence = '25', Gold = '90', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_CONNECT_RESOURCE';
@@ -42,7 +42,7 @@ UPDATE SmallAwards SET Influence = '50', Gold = '200', GoldenAgePoints = '200', 
 UPDATE SmallAwards SET Influence = '30', Science = '50', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_FIND_PLAYER';
 
 -- Find NW
-UPDATE SmallAwards SET Influence = '30', GoldenAgePoints = '150', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_FIND_NATURAL_WONDER';
+UPDATE SmallAwards SET Influence = '30', GoldenAgePoints = '150', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_FIND_NATURAL_WONDER';
 
 -- Give Gold
 UPDATE SmallAwards SET Influence = '25', Food = '100', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_GIVE_GOLD';
@@ -60,7 +60,7 @@ UPDATE SmallAwards SET Influence = '30', GlobalGPPoints = '20', RandomMod = '10'
 UPDATE SmallAwards SET Influence = '25', Tourism = '300', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TECHS';
 
 -- Bully
-UPDATE SmallAwards SET Influence = '20', Gold = '60', RandomMod = '5' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
+UPDATE SmallAwards SET Influence = '20', Gold = '60', RandomMod = '5', QuestDuration = '0' WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
 
 -- Denounce
 UPDATE SmallAwards SET Influence = '30', GeneralPoints = '50', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_DENOUNCE_MAJOR';
@@ -87,10 +87,10 @@ UPDATE SmallAwards SET Influence = '15', Production = '60', RandomMod = '10', Qu
 UPDATE SmallAwards SET Influence = '50', Culture = '80', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CONTEST_TOURISM';
 
 -- Archaeology
-UPDATE SmallAwards SET Influence = '25', Tourism = '200', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_ARCHAEOLOGY';
+UPDATE SmallAwards SET Influence = '25', Tourism = '200', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_ARCHAEOLOGY';
 
 -- Circumnavigation
-UPDATE SmallAwards SET Influence = '30', AdmiralPoints = '25', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION';
+UPDATE SmallAwards SET Influence = '30', AdmiralPoints = '25', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_CIRCUMNAVIGATION';
 
 -- Liberation
 UPDATE SmallAwards SET Influence = '40', Happiness = '1', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_LIBERATION';

@@ -49,8 +49,7 @@ WHERE PolicyType = 'POLICY_WARRIOR_CODE';
 UPDATE Policies
 SET
 	GreatGeneralRateModifier = 0,
-	IncludesOneShotFreeUnits = 1,
-	ExtraYieldsFromHeavyTribute = 100
+	IncludesOneShotFreeUnits = 1
 WHERE Type = 'POLICY_WARRIOR_CODE';
 
 INSERT INTO Policy_FreeUnitClasses
@@ -139,8 +138,7 @@ WHERE PolicyType = 'POLICY_PROFESSIONAL_ARMY';
 
 UPDATE Policies
 SET
-	GoldFromKills = 0,
-	ExtraYieldsFromHeavyTribute = 100
+	GoldFromKills = 0
 WHERE Type = 'POLICY_HONOR_FINISHER';
 
 -- Mercenary Army 
@@ -198,6 +196,11 @@ VALUES
 	('POLICY_HONOR_FINISHER', 'YIELD_GOLD', 20),
 	('POLICY_HONOR_FINISHER', 'YIELD_PRODUCTION', 20);
 
+INSERT INTO Policy_YieldFromMinorDemand
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_WARRIOR_CODE', 'YIELD_CULTURE', 25),
+	('POLICY_HONOR_FINISHER', 'YIELD_CULTURE', 25);
 
 -- Promotions
 

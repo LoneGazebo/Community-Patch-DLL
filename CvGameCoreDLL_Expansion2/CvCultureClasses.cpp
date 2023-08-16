@@ -3622,9 +3622,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		m_pPlayer->changeJONSCulture(iValue);
 		if (pPlot->getEffectiveOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
-		{
 			pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue);
-		}
 
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);

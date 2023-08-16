@@ -7170,11 +7170,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
-		if(bNewValue)
+		if (bNewValue)
 		{
-			if(bAnnounce)
+			if (bAnnounce)
 			{
-				if(GC.getGame().isFinalInitialized())
+				if (GC.getGame().isFinalInitialized())
 				{
 					CvAssert(ePlayer != NO_PLAYER);
 					if(GET_PLAYER(ePlayer).isHuman())
@@ -7217,28 +7217,34 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
-		if(GC.getGame().isFinalInitialized())
+		if (GC.getGame().isFinalInitialized())
 		{
-			if(GetID() == GC.getGame().getActiveTeam())
+			if (GetID() == GC.getGame().getActiveTeam())
 			{
 				DLLUI->setDirty(MiscButtons_DIRTY_BIT, true);
 				DLLUI->setDirty(SelectionButtons_DIRTY_BIT, true);
 				DLLUI->setDirty(ResearchButtons_DIRTY_BIT, true);
 			}
 
-			if(eIndex != NO_TECH && bNewValue)
+			if (eIndex != NO_TECH && bNewValue)
 			{
+				vector<PlayerTypes> vMembers = getPlayers();
+				for (size_t i=0; i<vMembers.size(); i++)
+				{
+					GET_PLAYER(vMembers[i]).DoDifficultyBonus(DIFFICULTY_BONUS_RESEARCHED_TECH);
+				}
+
 				bool bDontShowRewardPopup = DLLUI->IsOptionNoRewardPopups();
 
 				// Notification in MP games
-				if(bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
+				if (bDontShowRewardPopup || GC.getGame().isReallyNetworkMultiPlayer())
 				{
 					Localization::String localizedText = Localization::Lookup("TXT_KEY_MISC_YOU_DISCOVERED_TECH");
 					localizedText << pkTechInfo->GetTextKey();
 					AddNotification(NOTIFICATION_TECH_AWARD, localizedText.toUTF8(), localizedText.toUTF8(), -1, -1, 0, (int) eIndex);
 				}
 				// Popup in SP games
-				else if(GetID() == GC.getGame().getActiveTeam())
+				else if (GetID() == GC.getGame().getActiveTeam())
 				{
 					CvPopupInfo kPopup(BUTTONPOPUP_TECH_AWARD, GC.getGame().getActivePlayer(), 0, eIndex);
 					//kPopup.setText(localizedText.toUTF8());
@@ -7247,7 +7253,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 		}
 
-		if(bNewValue)
+		if (bNewValue)
 		{
 			gDLL->GameplayTechAcquired(GetID(), eIndex);
 		}

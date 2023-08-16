@@ -235,9 +235,7 @@
 			<Text>[COLOR_GREEN]Calculation of Needs Thresholds[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_BODY">
-			<Text>
-				The calculation of Unhappiness from Needs is done by comparing a City's yield outputs per population to certain reference values, the Needs Thresholds. These values are based on the global median of yield outputs per population (i.e. the value of yield output per population that is exceeded by exactly 50% of cities worldwide). Only Cities with a population of at least 3 are considered when calculating the median, softening Unhappiness in the very early game. The Needs Thresholds are modified by a number of Needs Modifiers in each City. A positive Need Modifier makes it harder to reach the threshold and might therefore increase local Unhappiness, while a negative one might reduce it. The following modifiers are always applied:[NEWLINE] [COLOR_NEGATIVE_TEXT]Capital Status[ENDCOLOR]: The Needs Thresholds of the Capital are increased by 25%.[NEWLINE] [COLOR_NEGATIVE_TEXT]Empire Size[ENDCOLOR]: Each City in your Empire (excluding the Capital and Puppet Cities) increases the Needs Thresholds in every City by 5%. Additionally, every four Citizens in your Empire (excluding Citizens in Puppet Cities) increase them by 1%.[NEWLINE] [COLOR_POSITIVE_TEXT]Difficulty Level[ENDCOLOR]: On the Difficulty Levels "Settler" and "Chieftain", Needs Thresholds are reduced for human players and increased for the AI. On Difficulty Levels above Chieftain, no modifiers are applied.[NEWLINE][NEWLINE]Certain Policies and Spy Events can also modify Needs Thresholds in a City. In addition, the Processes that convert Production into some other yield provide a reduction of the respective Need Threshold equal to the conversion rate (which can be increased using Power Plants), e.g. Farming converts 25% of Production into Food and decreases the Distress Need Threshold by 25%.
-			</Text>
+			<Text>The calculation of Unhappiness from Needs is done by comparing a City's yield outputs per population to certain reference values, the Needs Thresholds. These values are based on the global median of yield outputs per population (i.e. the value of yield output per population that is exceeded by exactly 50% of cities worldwide). Only Cities with a population of at least 3 are considered when calculating the median, softening Unhappiness in the very early game. The Needs Thresholds are modified by a number of Needs Modifiers in each City. A positive Need Modifier makes it harder to reach the threshold and might therefore increase local Unhappiness, while a negative one might reduce it. The following modifiers are always applied:[NEWLINE] [COLOR_NEGATIVE_TEXT]Capital Status[ENDCOLOR]: The Needs Thresholds of the Capital are increased by 25%.[NEWLINE] [COLOR_NEGATIVE_TEXT]Empire Size[ENDCOLOR]: Each City in your Empire (excluding the Capital and Puppet Cities) increases the Needs Thresholds in every City by 5%. Additionally, every eight Citizens in your Empire (excluding Citizens in Puppet Cities) increase them by 1%.[NEWLINE] [COLOR_POSITIVE_TEXT]Difficulty Level[ENDCOLOR]: On the Difficulty Levels "Settler" and "Chieftain", Needs Thresholds are reduced for human players and increased for the AI. On Difficulty Levels above Chieftain, no modifiers are applied.[NEWLINE][NEWLINE]Certain Policies and Spy Events can also modify Needs Thresholds in a City. In addition, the Processes that convert Production into some other yield provide a reduction of the respective Need Threshold equal to the conversion rate (which can be increased using Power Plants), e.g. Farming converts 25% of Production into Food and decreases the Distress Need Threshold by 25%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_ADV_QUEST">
 			<Text>How are Needs Thresholds calculated?</Text>
@@ -410,7 +408,7 @@
 			<Text>[COLOR_POSITIVE_TEXT]Married[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT">
-			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] Your [ICON_INFLUENCE] Influence does not decay, you gain +1 Delegate to the World Congress, and +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Diplomatic Marriage:[ENDCOLOR] Your [ICON_INFLUENCE] Resting Influence is increased by 75, scaling with Era, and you gain +15% [ICON_GREAT_PEOPLE] Great Person Rate in your [ICON_CAPITAL] Capital.</Text>
 		</Row>
 		<!-- America! -->
 		<Row Tag="TXT_KEY_NOTIFICATION_UA_STOLE_PLOT">
@@ -852,24 +850,9 @@
 		<Row Tag="TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_NO">
 			<Text>Disable [ICON_VP_NOINFLUENCE] Quest Influence Rewards</Text>
 		</Row>
-		<!-- Bully Metric Values -->
-		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_FOOD_AMOUNT">
-			<Text>Take {1_GoldValue} [ICON_GOLD] Gold and {2_Value} [ICON_FOOD] Food (-{3_NumInfluence} [ICON_INFLUENCE])</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_CULTURE_AMOUNT">
-			<Text>Take {1_GoldValue} [ICON_GOLD] Gold and {2_Value} [ICON_CULTURE] Culture (-{3_NumInfluence} [ICON_INFLUENCE])</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_SCIENCE_AMOUNT">
-			<Text>Take {1_GoldValue} [ICON_GOLD] Gold and {2_Value} [ICON_RESEARCH] Science (-{3_NumInfluence} [ICON_INFLUENCE])</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_PRODUCTION_AMOUNT">
-			<Text>Take {1_GoldValue} [ICON_GOLD] Gold and {2_Value} [ICON_PRODUCTION] Production (-{3_NumInfluence} [ICON_INFLUENCE])</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POPUP_MINOR_BULLY_FAITH_AMOUNT">
-			<Text>Take {1_GoldValue} [ICON_GOLD] Gold and {2_Value} [ICON_PEACE] Faith (-{3_NumInfluence} [ICON_INFLUENCE])</Text>
-		</Row>
+		
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP">
-			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take heavy tribute from them. Doing so will net you [ICON_GOLD] Gold as well as [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_PRODUCTION] Production, [ICON_PEACE] Faith, or [ICON_FOOD] Food, depending on the City-State being targeted.[NEWLINE][NEWLINE]Local Yields, like [ICON_FOOD] Food or [ICON_PRODUCTION] Production, will be delivered to your Capital.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
+			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take heavy tribute from them. Doing so will net you [ICON_GOLD] Gold as well half of the non-influence yields of all active quests from the City-States. The quests will then be canceled.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
 		</Row>
 
 		<!-- City-State Diplo Popup -->

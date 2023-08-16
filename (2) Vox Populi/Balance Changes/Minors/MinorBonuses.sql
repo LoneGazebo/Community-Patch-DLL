@@ -79,11 +79,6 @@ UPDATE Defines
 SET Value = '2'
 WHERE Name = 'ALLIES_FAITH_FLAT_BONUS_AMOUNT_ANCIENT';
 
--- Minor Civ Stuff
-UPDATE Defines
-SET Value = '0'
-WHERE Name = 'FRIENDSHIP_THRESHOLD_CAN_BULLY';
-
 
 -- CS Yield Rewards
 UPDATE Defines

@@ -311,7 +311,7 @@ public:
 	void unraze(CvCity* pCity);
 	void disband(CvCity* pCity);
 
-	bool canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit) const;
+	bool canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit);
 	void receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit);
 	void doGoody(CvPlot* pPlot, CvUnit* pUnit);
 
@@ -1344,6 +1344,7 @@ public:
 	int getHappyPerMilitaryUnit() const;
 	void changeHappyPerMilitaryUnit(int iChange);
 	int GetHappinessFromMilitaryUnits() const;
+	int GetYieldFromMilitaryUnits(YieldTypes eIndex) const;
 
 	int getHappinessToCulture() const;
 	void changeHappinessToCulture(int iChange);

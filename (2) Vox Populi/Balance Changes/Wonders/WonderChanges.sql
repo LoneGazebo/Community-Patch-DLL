@@ -126,9 +126,9 @@ SET PolicyBranchType = NULL, Cost = '200', CitySupplyFlat = '5', WorkerSpeedModi
 WHERE Type = 'BUILDING_TERRACOTTA_ARMY';
 
 INSERT INTO Building_YieldFromVictoryGlobal 
-	(BuildingType, YieldType, Yield)
+	(BuildingType, YieldType, Yield, IsEraScaling)
 VALUES  
-	('BUILDING_TERRACOTTA_ARMY' , 'YIELD_CULTURE' , '10');
+	('BUILDING_TERRACOTTA_ARMY' , 'YIELD_CULTURE' , '10', 'true');
 
 -- Parthenon
 UPDATE Buildings
@@ -256,7 +256,7 @@ WHERE Type = 'BUILDING_HIMEJI_CASTLE';
 -- Chichen Itza
 
 UPDATE Buildings
-SET PrereqTech = 'TECH_ASTRONOMY', Cost = '800', Happiness = '0'
+SET PrereqTech = 'TECH_ASTRONOMY', Cost = '800', Happiness = '0', FreeBuildingThisCity = 'BUILDINGCLASS_TEOCALLI'
 WHERE Type = 'BUILDING_CHICHEN_ITZA';
 
 -- Globe Theater

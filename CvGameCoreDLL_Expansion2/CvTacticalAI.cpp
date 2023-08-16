@@ -3966,7 +3966,7 @@ void CvTacticalAI::ExecuteMovesToSafestPlot(CvUnit* pUnit)
 		return;
 
 	//see if we can do damage before retreating
-	if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+	if (pUnit->canMoveAfterAttacking() && pUnit->getMoves()>GD_INT_GET(MOVE_DENOMINATOR) && pUnit->canRangeStrike())
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit,true);
 
 	//so easy
@@ -4080,7 +4080,7 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 		}
 
 		//ranged attack before fleeing for fast units
-		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves() > 3*GC.getMOVE_DENOMINATOR() && pUnit->canRangeStrike())
+		if (pUnit->canMoveAfterAttacking() && pUnit->getMoves() > 3*GD_INT_GET(MOVE_DENOMINATOR) && pUnit->canRangeStrike())
 			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 
 		//find a suitable spot for healing
@@ -4897,6 +4897,10 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			}
 			else if(eMove == AI_TACTICAL_GOODY)
 			{
+				// Mod option: only recon units can claim ruins
+				if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pLoopUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
+					continue;
+
 				// Fast movers are top priority
 				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK) || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_SKIRMISHER))
 					iExtraScore += 31;

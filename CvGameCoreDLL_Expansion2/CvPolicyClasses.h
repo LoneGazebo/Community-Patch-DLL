@@ -66,6 +66,7 @@ public:
 	int GetGreatScientistRateModifier() const;
 	int GetGreatDiplomatRateModifier() const;
 	int GetDomesticGreatGeneralRateModifier() const;
+	int GetGAPFromHappinessModifier() const;
 	int GetExtraHappiness() const;
 	int GetExtraHappinessPerCity() const;
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -225,7 +226,6 @@ public:
 	bool IsHalfSpecialistFoodCapital() const;
 	int GetStealGWSlowerModifier() const;
 	int GetStealGWFasterModifier() const;
-	int GetExtraYieldsFromHeavyTribute() const;
 	int GetEventTourism() const;
 	int GetEventTourismCS() const;
 	int GetMonopolyModFlat() const;
@@ -518,6 +518,7 @@ private:
 	int m_iGreatScientistRateModifier;
 	int m_iGreatDiplomatRateModifier;
 	int m_iDomesticGreatGeneralRateModifier;
+	int m_iGAPFromHappinessModifier;
 	int m_iExtraHappiness;
 	int m_iExtraHappinessPerCity;
 #if defined(HH_MOD_NATURAL_WONDER_MODULARITY)
@@ -656,7 +657,6 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iStealGWSlowerModifier;
 	int m_iStealGWFasterModifier;
-	int m_iExtraYieldsFromHeavyTribute;
 	bool m_bHalfSpecialistFoodCapital;
 	int m_iEventTourism;
 	int m_iEventTourismCS;
@@ -989,6 +989,7 @@ enum CLOSED_ENUM PolicyModifierType
 	POLICYMOD_GREAT_PERSON_RATE,
 	POLICYMOD_GREAT_GENERAL_RATE,
 	POLICYMOD_DOMESTIC_GREAT_GENERAL_RATE,
+	POLICYMOD_GAP_FROM_HAPPINESS_MODIFIER,
 	POLICYMOD_POLICY_COST_MODIFIER,
 	POLICYMOD_WONDER_PRODUCTION_MODIFIER,
 	POLICYMOD_BUILDING_PRODUCTION_MODIFIER,
@@ -1013,7 +1014,6 @@ enum CLOSED_ENUM PolicyModifierType
 #if defined(MOD_BALANCE_CORE)
 	POLICYMOD_STEAL_GW_SLOWER_MODIFIER,
 	POLICYMOD_STEAL_GW_FASTER_MODIFIER,
-	POLICYMOD_EXTRA_YIELDS_FROM_HEAVY_TRIBUTE,
 	POLICYMOD_GREAT_ENGINEER_RATE,
 	POLICYMOD_CITY_DEFENSE_BOOST,
 #endif

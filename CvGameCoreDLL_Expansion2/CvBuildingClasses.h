@@ -430,6 +430,9 @@ public:
 	int GetYieldFromVictoryGlobal(int i) const;
 	int* GetYieldFromVictoryGlobalArray() const;
 
+	int GetYieldFromVictoryGlobalEraScaling(int i) const;
+	int* GetYieldFromVictoryGlobalArrayEraScaling() const;
+
 	int GetYieldFromVictoryGlobalPlayer(int i) const;
 	int* GetYieldFromVictoryGlobalPlayerArray() const;
 
@@ -471,6 +474,9 @@ public:
 
 	int GetYieldFromUnitLevelUp(int i) const;
 	int* GetYieldFromUnitLevelUpArray() const;
+
+	int GetYieldFromCombatExperience(int i) const;
+	int* GetYieldFromCombatExperienceArray() const;
 
 	int GetYieldFromPurchase(int i) const;
 	int* GetYieldFromPurchaseArray() const;
@@ -950,6 +956,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int* m_piYieldFromVictory;
 	int* m_piYieldFromVictoryGlobal;
+	int* m_piYieldFromVictoryGlobalEraScaling;
 	int* m_piYieldFromVictoryGlobalPlayer;
 	int* m_piYieldFromPillage;
 	int* m_piYieldFromPillageGlobal;
@@ -967,6 +974,7 @@ private:
 	int* m_piYieldFromBorderGrowth;
 	int* m_piYieldFromPolicyUnlock;
 	int* m_piYieldFromUnitLevelUp;
+	int* m_piYieldFromCombatExperience;
 	int* m_piYieldFromPurchase;
 	int* m_piYieldFromFaithPurchase;
 	int* m_piYieldFromInternalTREnd;

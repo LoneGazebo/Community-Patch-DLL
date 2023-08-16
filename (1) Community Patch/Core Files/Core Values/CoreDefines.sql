@@ -124,6 +124,7 @@ UPDATE Defines SET Value = '20' WHERE Name = 'PERMANENT_WAR_OTHER_CHANCE_CLOSE';
 UPDATE Defines SET Value = '25' WHERE Name = 'PERMANENT_WAR_OTHER_CHANCE_NEIGHBORS';
 UPDATE Defines SET Value = '20' WHERE Name = 'PERMANENT_WAR_OTHER_AT_WAR';
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_REMOVE_SPHERE_FRIENDSHIP', '0';
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_LIBERATION_RESTING_INFLUENCE', '0';
 
 
 -- Settler Stuff
@@ -598,7 +599,7 @@ INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_ABOVE_MEDI
 INSERT INTO Defines (Name, Value) SELECT 'TECH_NEED_MODIFIER_PER_TECH_BELOW_MEDIAN', '0'; -- Modifier to needs for each tech behind the median # of techs researched you are. Disabled by default. -100 = -1%.
 INSERT INTO Defines (Name, Value) SELECT 'CITY_SIZE_NEED_MODIFIER', '0'; -- Modifier to needs per citizen in the city. Disabled by default. -100 = -1%.
 INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_CITIES', '500'; -- Modifier to needs per non-puppet city in the empire, excluding the capital. Scales with map size. Default is 500 (+5%). Does not support negative values.
-INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '25'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size. Default is 25 (+1% per 4 citizens). Does not support negative values.
+INSERT INTO Defines (Name, Value) SELECT 'EMPIRE_SIZE_NEED_MODIFIER_POP', '125'; --  Modifier to needs per citizen in the empire, excluding those in puppet cities. Scales with map size. Default is 125 (+1% per 8 citizens). Does not support negative values.
 
 -- Unhappiness from Other Sources
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_STARVING_POP', '1.0'; -- Unhappiness point per starving citizen. (rounded down)
@@ -739,7 +740,9 @@ INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_MIN', '2';
 -- Misc. Defines
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', '600';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_GP_RATE', '15'; -- Austria new UA (VP)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_RESTING_POINT_INCREASE', '200'; -- Austria new UA (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_RESTING_POINT_INCREASE', '75'; -- Austria new UA (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_COST_BASE', '200'; -- Austria new UA (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_COST_INCREASE_PER_PREVIOUS_MARRIAGE', '200'; -- Austria new UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', '0'; -- India Growth (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_FOOD_BONUS', '1'; -- India Food (VP)
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_FOUND_AUTO_SPREAD_PRESSURE', '1000'; -- India Pressure on Found (VP)
@@ -808,6 +811,9 @@ INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', '0.
 -- Disable Gold Gifts
 INSERT INTO Defines (Name, Value) SELECT 'CSD_GOLD_GIFT_DISABLED', '0';
 
+-- Threshold for demanding heavy tribute
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD', '0';
+
 -- Quest stuff
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_GIFT_SPECIFIC_UNIT', '0';
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_WAR', '0';
@@ -823,7 +829,7 @@ INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_REBELLION', '0';
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_TIMER', '20';
 INSERT INTO Defines (Name, Value) SELECT 'INFLUENCE_MINOR_QUEST_BOOST', '20';
 
-INSERT INTO Defines (Name, Value) SELECT 'MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER', '300';
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER', '100';
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_INFLUENCE_SCALING_DECAY_EXPONENT', '1.5';
 
 -- Quest proclivity values

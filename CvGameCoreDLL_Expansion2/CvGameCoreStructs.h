@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -306,6 +306,9 @@ public:
 	bool getAttackerAdvances() const;
 	void setAttackerAdvances(bool bAdvance);
 
+	bool getAttackerIsStronger() const;
+	void setAttackerIsStronger(bool bStronger);
+
 	bool getDefenderRetaliates() const;
 	void setDefenderRetaliates(bool bRetaliate);
 
@@ -364,6 +367,7 @@ protected:
 
 	CvPlot* 	m_pTargetPlot;									//!< The plot that the attacker is attacking
 	bool		m_bAttackerAdvances;							//!< Should the attacker advance?
+	bool		m_bAttackerIsStronger;							//!< Attacker has higher CS than defender after all modifiers
 	bool		m_bAttackIsRanged;								//!< Attack is ranged
 	bool		m_bAttackIsBombingMission;						//!< Attack is a bombing mission by an airplane
 	bool		m_bAttackIsAirSweep;							//!< Attack is a bombing mission by an airplane

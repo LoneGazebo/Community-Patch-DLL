@@ -167,7 +167,7 @@ public:
 
 	// Handle rewards
 	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
-	void DoRewards(PlayerTypes ePlayer);
+	void DoRewards(PlayerTypes ePlayer, bool bHeavyTribute = false);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish) const;
 
 	void EnableInfluence(PlayerTypes ePlayer);
@@ -441,7 +441,7 @@ public:
 	WeightedCivsList CalculateFriendshipFromQuests();
 	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
 	void DoObsoleteQuests();
-	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, bool bWar = false);
+	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, bool bWar = false, bool bHeavyTribute = false);
 	void DoQuestsCleanup();
 	void DoQuestsCleanupForPlayer(PlayerTypes ePlayer);
 
@@ -755,9 +755,6 @@ public:
 
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	void DoMajorBullyAnnex(PlayerTypes eBully);
-#endif
-#if defined(MOD_BALANCE_CORE)
-	int GetYieldTheftAmount(PlayerTypes eBully, bool bIgnoreScaling = false);
 #endif
 	
 	void DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceChangeTimes100);

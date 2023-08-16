@@ -567,6 +567,11 @@
 	SET Text = '-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Range.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP';
 
+	-- Heavy Charge
+	UPDATE Language_en_US
+	SET Text = '+50% [ICON_STRENGTH] Combat Strength when attacking if the defender cannot retreat. The defender is forced to retreat (if possible) if it has lower [ICON_STRENGTH] Combat Strength than this Unit after all modifiers.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HEAVY_CHARGE_HELP';
+
 	-- Changed English UA
 	UPDATE Language_en_US
 	SET Text = '+1 [ICON_MOVES] Movement for Naval Units.'
