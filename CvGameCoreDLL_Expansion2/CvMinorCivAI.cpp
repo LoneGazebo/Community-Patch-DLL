@@ -14984,6 +14984,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 		strMessage = iCoinToss == 0 ? Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1") : Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2");
 		strMessage << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();
 		strMessage << GetPlayer()->getCivilizationShortDescriptionKey();
+		strMessage << GetFriendshipAnchorWithMajor(eMajor);
 
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_MARRIAGE");
 		strSummary << GET_PLAYER(eMajor).getCivilizationShortDescriptionKey();

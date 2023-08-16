@@ -5728,10 +5728,10 @@
 			<Text>Marriage between {@2_MinorCivName} and {@1_CivName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1">
-			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
+			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased to {@3_RestingInfluence}, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2">
-			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
+			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased to {@3_RestingInfluence}, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
 			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
