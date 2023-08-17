@@ -1453,6 +1453,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCombatTimer = 0;
 	m_iCombatFirstStrikes = 0;
 	m_bMovedThisTurn = false;
+	m_bHasWithdrawnThisTurn = false;
 	m_bFortified = false;
 	m_iBlitzCount = 0;
 	m_iAmphibCount = 0;
@@ -15050,6 +15051,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			pNewUnit->m_iMadeInterceptionCount = m_iMadeInterceptionCount;
 			pNewUnit->m_eActivityType = m_eActivityType;
 			pNewUnit->m_bMovedThisTurn = m_bMovedThisTurn;
+			pNewUnit->m_bHasWithdrawnThisTurn = m_bHasWithdrawnThisTurn;
 			pNewUnit->m_bFortified = m_bFortified;
 		}
 		else 
@@ -17158,7 +17160,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackBelow50HealthModifier();
 
 		//Heavy charge without escape
-		if (IsCanHeavyCharge() && !pDefender->CanFallBack(*this, false))
+		if (IsCanHeavyCharge() && pDefender->GetNumFallBackPlotsAvailable(*this)==0)
 		{
 			if (MOD_ATTRITION)
 				iModifier += 25;
@@ -17896,7 +17898,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		0 ) / 100;
 
 	//extra damage with special promotion
-	if (GetMoraleBreakChance() != 0 && pDefender && !pDefender->CanFallBack(*this,false))
+	if (GetMoraleBreakChance() != 0 && pDefender && pDefender->GetNumFallBackPlotsAvailable(*this) == 0)
 		iDamage = (iDamage * 150) / 100;
 
 	return iDamage;
@@ -20404,10 +20406,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										bool bDoCapture = false;
 #if defined(MOD_BALANCE_CORE)
 										bool bDoEvade = false;
-										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->getExtraWithdrawal() > 0 && pLoopUnit->CanFallBack(*this, true))
+										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->CheckWithdrawal(*this))
 										{
 											bDoEvade = true;
-											pLoopUnit->DoFallBack(*this);
+											pLoopUnit->DoFallBack(*this, true);
 
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
 											if (pNotification)
@@ -22226,6 +22228,18 @@ void CvUnit::SetFortified(bool bValue)
 		triggerFortifyAnimation(bValue);
 		m_bFortified = bValue;
 	}
+}
+
+bool CvUnit::getHasWithdrawnThisTurn() const
+{
+	VALIDATE_OBJECT
+		return m_bHasWithdrawnThisTurn;
+}
+
+void CvUnit::setHasWithdrawnThisTurn(bool bNewValue)
+{
+	VALIDATE_OBJECT
+		m_bHasWithdrawnThisTurn = bNewValue;
 }
 
 int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
@@ -28195,6 +28209,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCombatTimer);
 	visitor(unit.m_iCombatFirstStrikes);
 	visitor(unit.m_bMovedThisTurn);
+	visitor(unit.m_bHasWithdrawnThisTurn);
 	visitor(unit.m_bFortified);
 	visitor(unit.m_iBlitzCount);
 	visitor(unit.m_iAmphibCount);
@@ -31220,24 +31235,8 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 #endif
 
 //	--------------------------------------------------------------------------------
-//	--------------------------------------------------------------------------------
-bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
-{
-	VALIDATE_OBJECT
 
-	int iWithdrawChance = GetWithdrawChance(attacker, bCheckChances);
-
-	if (bCheckChances && iWithdrawChance > 0)
-	{
-		//include damage so the result changes for each attack
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
-		return iRoll < iWithdrawChance;
-	}
-	else
-		return iWithdrawChance > 0;
-}
-
-int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) const
+int CvUnit::GetNumFallBackPlotsAvailable(const CvUnit& attacker) const
 {
 	VALIDATE_OBJECT
 
@@ -31249,7 +31248,7 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) 
 		return 0;
 
 	// Are some of the retreat hexes away from the attacker blocked?
-	int iBlockedHexes = 0;
+	int iFreeHexes = 3;
 	DirectionTypes eAttackDirection = directionXY(attacker.plot(), plot());
 	int iBiases[3] = { 0,-1,1 };
 
@@ -31260,73 +31259,160 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) 
 
 		if (pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
-			iBlockedHexes++;
+			iFreeHexes--;
 		}
 	}
 
-	// If all three hexes away from attacker blocked, we can't withdraw
-	if (iBlockedHexes >= 3)
+	return iFreeHexes;
+}
+
+int CvUnit::GetWithdrawChance(const CvUnit& attacker) const
+{
+	VALIDATE_OBJECT
+	int iWithdrawChance = getExtraWithdrawal();
+	if (iWithdrawChance == 0)
 		return 0;
-	
-	if (bCheckChances)
+
+	if (GetNumFallBackPlotsAvailable(attacker) == 0)
+		return 0;	
+
+	if (MOD_BALANCE_VP)
 	{
-		int iWithdrawChance = getExtraWithdrawal();
+		return getHasWithdrawnThisTurn() ? 0 : 100;
+	}
+	else
+	{
 		// Does attacker have a greater speed than defender? Reduce withdrawal chance for each point the attacker is faster
 		int iDefenderMovementRange = baseMoves(isEmbarked());
 		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
 		if (iAttackerMovementRange > iDefenderMovementRange)
 			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - iDefenderMovementRange));
 
-		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * iBlockedHexes);
+		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * (3 - GetNumFallBackPlotsAvailable(attacker)));
 		return iWithdrawChance;
 	}
-	else
-		return 100;
 }
 
+// returns true if the unit should withdraw from a melee attack
+bool CvUnit::CheckWithdrawal(const CvUnit& attacker) const
+{
+	VALIDATE_OBJECT
+	int iWithdrawChance = GetWithdrawChance(attacker);
+	if (iWithdrawChance == 0)
+		return false;
+
+	//include damage so the result changes for each attack
+	int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GetID() + getDamage()) * 10;
+	return iRoll < iWithdrawChance;
+}
 //	--------------------------------------------------------------------------------
-bool CvUnit::DoFallBack(const CvUnit& attacker)
+bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 {
 	VALIDATE_OBJECT
 
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
 
-	int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) < 5) ? 1 : -1;
-	int iBiases[3] = {0,-1,1};
-	
-	for(int i = 0; i < 3; i++)
-	{
-		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
-
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
+	CvPlot* pDestPlot = NULL;
+	if (MOD_BALANCE_VP)
 		{
+		std::vector<CvPlot*> aValidPlotList;
+		for (int i = 0; i < 3; i++)
+		{
+			int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; // possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
+			CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-			if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian units also retreat
+			if (pDirectionPlot && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK) && isNativeDomain(pDirectionPlot))
 			{
-				CvPlot* pUnitPlot = plot();
-				IDInfoVector currentUnits;
-				if (pUnitPlot->getUnits(&currentUnits) > 0)
-				{
-					for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
-					{
-						CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+				aValidPlotList.push_back(pDirectionPlot);
+			}
+		}
 
-						if (pLoopUnit)
-						{
-							pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
-						}
-					}
-				}
+		if (aValidPlotList.size() == 0)
+			return false;
+		else if (aValidPlotList.size() == 1)
+			pDestPlot = aValidPlotList[0];
+		else
+		{
+			// if there's more than one valid plot, select the plot with the fewest number of enemies
+			int iMinNumEnemies = INT_MAX;
+			std::vector<int> aNumEnemiesList;
+			for (size_t i = 0; i < aValidPlotList.size(); i++)
+			{
+				aNumEnemiesList.push_back(aValidPlotList[i]->GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()));
+				iMinNumEnemies = min(iMinNumEnemies, aNumEnemiesList[i]);
+			}
+			std::vector<CvPlot*> aMinEnemiesPlotList;
+			for (size_t i = 0; i < aValidPlotList.size(); i++)
+			{
+				if (aNumEnemiesList[i] == iMinNumEnemies)
+					aMinEnemiesPlotList.push_back(aValidPlotList[i]);
 			}
 
-			setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
-			PublishQueuedVisualizationMoves();
-			return true;
+			if (aMinEnemiesPlotList.size() == 1)
+				pDestPlot = aMinEnemiesPlotList[0];
+			else
+			{
+				// if there is still more than one possible plot, select the plot with the highest number of adjacent friendly units
+				int iMaxNumFriendlyUnits = 0;
+				std::vector<int> aFriendlyUnitsList;
+				for (size_t i = 0; i < aMinEnemiesPlotList.size(); i++)
+				{
+					aFriendlyUnitsList.push_back(aMinEnemiesPlotList[i]->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true));
+					iMaxNumFriendlyUnits = max(iMaxNumFriendlyUnits, aFriendlyUnitsList[i]);
+				}
+				std::vector<CvPlot*> aMaxFriendlyUnitsPlotList;
+				for (size_t i = 0; i < aMinEnemiesPlotList.size(); i++)
+				{
+					if (aFriendlyUnitsList[i] == iMaxNumFriendlyUnits)
+						aMaxFriendlyUnitsPlotList.push_back(aMinEnemiesPlotList[i]);
+				}
+				// make a random selection from the remaining plots
+				pDestPlot = aMaxFriendlyUnitsPlotList[GC.getGame().getSmallFakeRandNum(aMaxFriendlyUnitsPlotList.size(), plot()->GetPlotIndex() + GetID() + getDamage())];
+			}
 		}
 	}
-	return false;
+	else
+	{
+		int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GetID() + getDamage()) < 5) ? 1 : -1;
+		int iBiases[3] = { 0,-1,1 };
+
+		for (int i = 0; i < 3; i++)
+		{
+			int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
+			pDestPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
+
+			if (pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
+				break;
+		}
+	}
+
+	if (!pDestPlot)
+		return false;
+
+	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian units also retreat
+	{
+		CvPlot* pUnitPlot = plot();
+		IDInfoVector currentUnits;
+		if (pUnitPlot->getUnits(&currentUnits) > 0)
+		{
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			{
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if (pLoopUnit)
+				{
+					pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+				}
+			}
+		}
+	}
+
+	setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+	PublishQueuedVisualizationMoves();
+	if (bWithdraw)
+		m_bHasWithdrawnThisTurn = true;
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
