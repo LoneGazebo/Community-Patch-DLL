@@ -67,7 +67,7 @@ WHERE PromotionType = 'PROMOTION_NATIONALISM';
 
 UPDATE Policies
 SET
-	CityCaptureHealGlobal = 100
+	CityCaptureHealLocal = 100
 WHERE Type = 'POLICY_PATRIOTIC_WAR';
 
 INSERT INTO Policy_UnitClassReplacements

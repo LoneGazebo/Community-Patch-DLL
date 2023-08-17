@@ -345,6 +345,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piFranchisesPerImprovement(NULL),
 	m_iMaxAirUnitsChange(0),
 	m_iCityCaptureHealGlobal(0),
+	m_iCityCaptureHealLocal(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -1241,7 +1242,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piFranchisesPerImprovement, "Improvements", "Policy_FranchisePerImprovement", "ImprovementType", "PolicyType", szPolicyType, "NumFranchise");
 
 	m_iCityCaptureHealGlobal = kResults.GetInt("CityCaptureHealGlobal");
-
+	m_iCityCaptureHealLocal = kResults.GetInt("CityCaptureHealLocal");
 	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChangeGlobal");
 #endif
 
@@ -3698,6 +3699,11 @@ int CvPolicyEntry::GetMaxAirUnitsChange() const
 int CvPolicyEntry::GetCityCaptureHealGlobal() const
 {
 	return m_iCityCaptureHealGlobal;
+}
+/// All units in the area X% whenever you conquer a city
+int CvPolicyEntry::GetCityCaptureHealLocal() const
+{
+	return m_iCityCaptureHealLocal;
 }
 
 #endif

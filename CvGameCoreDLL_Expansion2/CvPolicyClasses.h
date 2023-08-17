@@ -362,6 +362,7 @@ public:
 	int GetBuildingClassInLiberatedCities(int i) const;
 	int GetUnitsInLiberatedCities() const;
 	int GetCityCaptureHealGlobal() const;
+	int GetCityCaptureHealLocal() const;
 	int getFranchisesPerImprovement(int i) const;
 	int GetMaxAirUnitsChange() const;
 #endif
@@ -834,6 +835,7 @@ private:
 	int* m_piFranchisesPerImprovement;
 	int m_iMaxAirUnitsChange;
 	int m_iCityCaptureHealGlobal;
+	int m_iCityCaptureHealLocal;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
