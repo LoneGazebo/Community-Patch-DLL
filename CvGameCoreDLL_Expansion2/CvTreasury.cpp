@@ -536,10 +536,13 @@ int CvTreasury::CalculateUnitCost()
 
 	// Game progress factor ranges from 0 to 100 based on how far into the game we are
 	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 100) / GC.getGame().getDefaultEstimateEndTurn();
+	// in VP: game progress is calculated based on tech progress, not on elapsed game turns
+	if (MOD_BALANCE_VP)
+		iGameProgressFactor = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
 	double fMultiplier = 0.0f;
-	fMultiplier += 1.0f + ((float)iGameProgressFactor * /*8*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER) / 100);
+	fMultiplier += 1.0f + ((float)iGameProgressFactor * /*8 in CP, 7 in VP*/ GD_INT_GET(UNIT_MAINTENANCE_GAME_MULTIPLIER) / 100);
 
 	// Exponential increase - this one really punishes those with a HUGE military - the LOWER this number the more is paid
 	double fExponent = 0.0f;
