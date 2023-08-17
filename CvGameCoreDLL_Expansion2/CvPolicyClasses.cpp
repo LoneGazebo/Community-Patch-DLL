@@ -257,6 +257,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
 	m_iSpecialistFoodChange(0),
+	m_iNonSpecialistFoodChange(0),
 	m_iWarWearinessModifier(0),
 	m_iWarScoreModifier(0),
 	m_iGreatGeneralExtraBonus(0),
@@ -732,6 +733,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iHappfromXSpecialists = kResults.GetInt("HappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
 	m_iSpecialistFoodChange = kResults.GetInt("SpecialistFoodChange");
+	m_iNonSpecialistFoodChange = kResults.GetInt("NonSpecialistFoodChange");
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
 	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
@@ -2619,6 +2621,10 @@ int CvPolicyEntry::GetNoUnhappfromXSpecialistsCapital() const
 int CvPolicyEntry::GetSpecialistFoodChange() const
 {
 	return m_iSpecialistFoodChange;
+}
+int CvPolicyEntry::GetNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
 }
 int CvPolicyEntry::GetWarWearinessModifier() const
 {

@@ -941,7 +941,7 @@ WHERE Tag = 'TXT_KEY_RATIONALISM_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Rationalism[ENDCOLOR] focuses on maximizing [ICON_FOOD] Growth and [ICON_RESEARCH] Science output.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +3 [ICON_RESEARCH] Science and +2 [ICON_PRODUCTION] Production from all Strategic Resources.[NEWLINE][ICON_BULLET] +5% [ICON_RESEARCH] Science, and -1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Rationalism policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +2% [ICON_RESEARCH] Science.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building [COLOR_POSITIVE_TEXT]Bletchley Park[ENDCOLOR]. [NEWLINE][ICON_BULLET] Earn [ICON_GREAT_SCIENTIST] Great Scientists +33% faster. [NEWLINE][ICON_BULLET] -1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities. [NEWLINE][ICON_BULLET] +25% [ICON_FOOD] Growth in all cities.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_SCIENTIST] Great Scientists with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Rationalism[ENDCOLOR] focuses on maximizing [ICON_FOOD] Growth and [ICON_RESEARCH] Science output.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +3 [ICON_RESEARCH] Science and +2 [ICON_PRODUCTION] Production from all Strategic Resources.[NEWLINE][ICON_BULLET] +5% [ICON_RESEARCH] Science in all Cities.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Rationalism policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +2% [ICON_RESEARCH] Science.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building [COLOR_POSITIVE_TEXT]Bletchley Park[ENDCOLOR]. [NEWLINE][ICON_BULLET] -1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities. [NEWLINE][ICON_BULLET]+34% [ICON_SPY] Spy Resistance in all Cities.[NEWLINE][ICON_BULLET]Spy mission duration increased by 2 turns for enemy Spies in your Cities.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_SCIENTIST] Great Scientists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_RATIONALISM_HELP';
 
 -- Humanism (now Enlightenment)
@@ -950,24 +950,24 @@ SET Text = 'Enlightenment'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from Universities.[NEWLINE][ICON_BULLET]+10% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from Universities.'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_HELP';
 
 UPDATE Language_en_US
 SET Text = 'The Age of Enlightenment (or simply the Enlightenment or Age of Reason) is the time period in which cultural and social changes occurred emphasizing reason, analysis and individualism rather than traditional ways of thinking. Initiated by philosophes beginning in late 17th-century Western Europe the process of change fueled from voluntary organizations of men who were committed to the betterment of society. These men convened at coffeehouses, salons and masonic lodges. Institutions that were deeply rooted in society, such as religion and the government began to be questioned and a greater emphasis was placed on ways to reform society with toleration, science and skepticism.'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_TEXT';
 
--- Scientific Revolution (now Rights of Man)
+-- Scientific Revolution (now Empiricism)
 UPDATE Language_en_US
-SET Text = 'Rights of Man'
+SET Text = 'Empiricism'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Rights of Man[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food in Cities for every 2 non-Specialist [ICON_CITIZEN] Citizens.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Villages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE][ICON_BULLET]All citizens consume 1 less [ICON_FOOD] Food than normal (minimum 1).[NEWLINE][ICON_BULLET] +25% [ICON_FOOD] Growth in all cities.[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Declaration was drafted by General Lafayette, Thomas Jefferson, and Honoré Mirabeau. Influenced by the doctrine of ''natural right'', the rights of man are held to be universal: valid at all times and in every place, pertaining to human nature itself. It became the basis for a nation of free individuals protected equally by the law. It is included in the beginning of the constitutions of both the Fourth French Republic (1946) and Fifth Republic (1958) and is still current. Inspired by the Enlightenment philosophers, the Declaration was a core statement of the values of the French Revolution and had a major impact on the development of freedom and democracy in Europe and worldwide.'
+SET Text = 'Empiricism is a theory which states that knowledge comes only or primarily from sensory experience. One of several views of epistemology, the study of human knowledge, along with rationalism and skepticism, empiricism emphasizes the role of experience and evidence, especially sensory experience, in the formation of ideas, over the notion of innate ideas or traditions; empiricists may argue however that traditions (or customs) arise due to relations of previous sense experiences.'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFICREVOLUTION_TEXT';
 
 -- Secularism (now Scientific Revolution)
@@ -976,29 +976,29 @@ SET Text = 'Scientific Revolution'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE][ICON_BULLET]Can construct [COLOR_POSITIVE_TEXT]Observatories[ENDCOLOR] (+6 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science from nearby Mountains, 2 [ICON_VP_SCIENTIST] Scientist Slot).[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Jungle and Snow.'
+SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE][ICON_BULLET]Can construct [COLOR_POSITIVE_TEXT]Observatories[ENDCOLOR] (+6 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science from nearby Mountains, 2 [ICON_VP_SCIENTIST] Scientist Slot).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Jungle and Snow.'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_HELP';
 
 UPDATE Language_en_US
 SET Text = 'A scientific revolution is a period when rapid advances in human knowledge or technology overturns the current worldview, as a result triggering yet more advancements in thought and knowledge. Much of Europe underwent a scientific revolution in the 16th century, following the publication of Nicolaus Copernicus'' work, "On the Revolutions of the Heavenly Spheres" and Andreas Vesalius'' "On the Fabric of the Human Body In Seven Books." Both used modern (for the period) scientific practices to examine parts of the world around them and overturned incorrect scientific theories, some dating back to the ancient Greeks. Following the success of these books, the floodgates were opened, and scientists began carefully examining everything around them, and human knowledge increased exponentially over the succeeding centuries.'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT';
 
--- Sovereignty (now Empiricism)
+-- Sovereignty (now Rights of Man)
 UPDATE Language_en_US
-SET Text = 'Empiricism'
+SET Text = 'Rights of Man'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE][ICON_BULLET]Specialists consume 1 less [ICON_FOOD] Food than normal (minimum 1).[NEWLINE][ICON_BULLET]+34% [ICON_SPY] Spy Resistance in all Cities.[NEWLINE][ICON_BULLET]Spy mission duration increased by 2 turns for enemy Spies in your Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Rights of Man[ENDCOLOR][NEWLINE][ICON_BULLET]-1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Villages.[NEWLINE][ICON_BULLET]+10% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Empiricism is a theory which states that knowledge comes only or primarily from sensory experience. One of several views of epistemology, the study of human knowledge, along with rationalism and skepticism, empiricism emphasizes the role of experience and evidence, especially sensory experience, in the formation of ideas, over the notion of innate ideas or traditions; empiricists may argue however that traditions (or customs) arise due to relations of previous sense experiences.'
+SET Text = 'The Declaration was drafted by General Lafayette, Thomas Jefferson, and Honoré Mirabeau. Influenced by the doctrine of ''natural right'', the rights of man are held to be universal: valid at all times and in every place, pertaining to human nature itself. It became the basis for a nation of free individuals protected equally by the law. It is included in the beginning of the constitutions of both the Fourth French Republic (1946) and Fifth Republic (1958) and is still current. Inspired by the Enlightenment philosophers, the Declaration was a core statement of the values of the French Revolution and had a major impact on the development of freedom and democracy in Europe and worldwide.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_TEXT';
 
 -- Free Thought
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+25% Yields for [ICON_GREAT_SCIENTIST] Great Scientists when you expend them for their Instant Yield abilities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+25% Instant Yields from [ICON_GREAT_SCIENTIST] Great Scientists.[NEWLINE][ICON_BULLET] Earn [ICON_GREAT_SCIENTIST] Great Scientists +33% faster.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT_HELP';
 
 --------------------

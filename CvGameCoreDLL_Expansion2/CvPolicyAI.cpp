@@ -3089,11 +3089,23 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism() || pPlayerTraits->IsNerd())
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -10 * max(1, (iPopulation / 5));
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -2 * max(1, (iPopulation / 3));
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -4 * max(1, (iPopulation / 10));
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -1 * max(1, (iPopulation / 5));
+		}
+	}
+
+	if (PolicyInfo->GetNonSpecialistFoodChange() != 0)
+	{
+		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism() || pPlayerTraits->IsNerd())
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetNonSpecialistFoodChange() * -2 * max(1, (iPopulation * 2 / 3));
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetNonSpecialistFoodChange() * -1 * max(1, (iPopulation * 4 / 5));
 		}
 	}
 

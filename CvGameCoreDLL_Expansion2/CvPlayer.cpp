@@ -639,6 +639,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappfromXSpecialists()
 	, m_iNoUnhappfromXSpecialistsCapital()
 	, m_iSpecialistFoodChange()
+	, m_iNonSpecialistFoodChange()
 	, m_iWarWearinessModifier()
 	, m_iWarScoreModifier()
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
@@ -1551,6 +1552,7 @@ void CvPlayer::uninit()
 	m_iHappfromXSpecialists = 0;
 	m_iNoUnhappfromXSpecialistsCapital = 0;
 	m_iSpecialistFoodChange = 0;
+	m_iNonSpecialistFoodChange = 0;
 	m_iWarWearinessModifier = 0;
 	m_iWarScoreModifier = 0;
 	m_iPlayerEventCooldown = 0;
@@ -33018,6 +33020,18 @@ void CvPlayer::ChangeSpecialistFoodChange(int iChange)
 	m_iSpecialistFoodChange += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeNonSpecialistFoodChange(int iChange)
+{
+	m_iNonSpecialistFoodChange += iChange;
+}
+
 
 
 //	--------------------------------------------------------------------------------
@@ -45246,6 +45260,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappfromXSpecialists(pPolicy->GetHappfromXSpecialists() * iChange);
 	ChangeNoUnhappfromXSpecialistsCapital(pPolicy->GetNoUnhappfromXSpecialistsCapital() * iChange);
 	ChangeSpecialistFoodChange(pPolicy->GetSpecialistFoodChange() * iChange);
+	ChangeNonSpecialistFoodChange(pPolicy->GetNonSpecialistFoodChange() * iChange);
 	ChangeWarWearinessModifier(pPolicy->GetWarWearinessModifier() * iChange);
 	ChangeWarScoreModifier(pPolicy->GetWarScoreModifier() * iChange);
 
