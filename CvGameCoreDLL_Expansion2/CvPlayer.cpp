@@ -683,6 +683,7 @@ CvPlayer::CvPlayer() :
 	, m_iInfluenceForLiberation()
 	, m_iExperienceForLiberation()
 	, m_iCityCaptureHealGlobal()
+	, m_iCityCaptureHealLocal()
 	, m_aiBuildingClassInLiberatedCities()
 	, m_iUnitsInLiberatedCities()
 	, m_paiBuildingClassCulture()
@@ -1583,6 +1584,7 @@ void CvPlayer::uninit()
 	m_iExperienceForLiberation = 0;
 	m_iUnitsInLiberatedCities = 0;
 	m_iCityCaptureHealGlobal = 0;
+	m_iCityCaptureHealLocal = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	m_iMaxAirUnits = 0;
@@ -3611,10 +3613,14 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			int iScaler = max(1, (iPopulation / 2) - GetCurrentEra());
 			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pCity);
 
-			// All units heal from conquering a city?
+			// Units heal from conquering a city?
 			if (MOD_BALANCE_CORE_POLICIES && getCityCaptureHealGlobal() > 0)
 			{
 				DoHealGlobal(getCityCaptureHealGlobal());
+			}
+			if (MOD_BALANCE_CORE_POLICIES && getCityCaptureHealLocal() > 0)
+			{
+				DoHealLocal(getCityCaptureHealLocal(), pCityPlot);
 			}
 		}
 
@@ -20946,6 +20952,33 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 		}
 	}
 }
+
+void CvPlayer::DoHealLocal(int iHealPercent, CvPlot* pPlot)
+{
+	IDInfoVector currentUnits;
+	for (int i = 0; i < RING3_PLOTS; i++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+		if (pLoopPlot->getUnits(&currentUnits) > 0)
+		{
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			{
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if (pLoopUnit && pLoopUnit->getOwner() == GetID() && pLoopUnit->IsCombatUnit())
+				{
+					if (iHealPercent == 100)
+						pLoopUnit->changeDamage(-pLoopUnit->getDamage());
+					else
+					{
+						int iHealHP = pLoopUnit->GetMaxHitPoints() * iHealPercent / 100;
+						pLoopUnit->changeDamage(-iHealHP);
+					}
+				}
+			}
+		}
+	}
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -36502,6 +36535,16 @@ void CvPlayer::changeCityCaptureHealGlobal(int iChange)
 	m_iCityCaptureHealGlobal += iChange;
 }
 
+int CvPlayer::getCityCaptureHealLocal() const
+{
+	return m_iCityCaptureHealLocal;
+}
+
+void CvPlayer::changeCityCaptureHealLocal(int iChange)
+{
+	m_iCityCaptureHealLocal += iChange;
+}
+
 //	--------------------------------------------------------------------------------
 int CvPlayer::getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const
 {
@@ -45013,6 +45056,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
 	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
 	changeCityCaptureHealGlobal(pPolicy->GetCityCaptureHealGlobal() * iChange);
+	changeCityCaptureHealLocal(pPolicy->GetCityCaptureHealLocal() * iChange);
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalYieldBonusModifier(pPolicy->GetVassalYieldBonusModifier() * iChange);
 	ChangeCSYieldBonusModifier(pPolicy->GetCSYieldBonusModifier() * iChange);
@@ -47671,6 +47715,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iInfluenceForLiberation);
 	visitor(player.m_iExperienceForLiberation);
 	visitor(player.m_iCityCaptureHealGlobal);
+	visitor(player.m_iCityCaptureHealLocal);
 	visitor(player.m_aiBuildingClassInLiberatedCities);
 	visitor(player.m_iUnitsInLiberatedCities);
 	visitor(player.m_paiBuildingClassCulture);

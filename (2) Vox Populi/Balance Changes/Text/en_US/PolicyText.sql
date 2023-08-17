@@ -281,7 +281,7 @@ WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP_HELP';
 
 -- Patriotic War
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land Units gain +20% [ICON_STRENGTH] Strength when in or adjacent to a City. When you conquer a City for the first time, all Combat Units are fully healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
+SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land Units gain +20% [ICON_STRENGTH] Strength when in or adjacent to a City. When you conquer a City for the first time, all Combat Units within 3 Tiles of the City are fully healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR_HELP';
 
 -- Resettlement

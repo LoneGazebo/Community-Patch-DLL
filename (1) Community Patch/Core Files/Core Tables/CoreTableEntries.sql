@@ -571,6 +571,9 @@ ALTER TABLE Policies ADD COLUMN 'ExperienceAllUnitsFromLiberation' INTEGER DEFAU
 -- Conquering a city heals all units (by X%)
 ALTER TABLE Policies ADD COLUMN 'CityCaptureHealGlobal' INTEGER DEFAULT 0;
 
+-- Conquering a city heals all units near the city (by X%)
+ALTER TABLE Policies ADD COLUMN 'CityCaptureHealLocal' INTEGER DEFAULT 0;
+
 -- % modifiers to empire size modifier - negative = good!
 ALTER TABLE Buildings ADD COLUMN 'EmpireSizeModifierReduction' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'EmpireSizeModifierReductionGlobal' INTEGER DEFAULT 0;

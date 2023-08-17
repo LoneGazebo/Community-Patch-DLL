@@ -558,6 +558,7 @@ public:
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 
 	void DoHealGlobal(int iValue);
+	void DoHealLocal(int iValue, CvPlot* pPlot);
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
@@ -1914,6 +1915,9 @@ public:
 	int getCityCaptureHealGlobal() const;
 	void changeCityCaptureHealGlobal(int iChange);
 
+	int getCityCaptureHealLocal() const;
+	void changeCityCaptureHealLocal(int iChange);
+
 	int getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const;
 	void changeNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex, int iChange);
 
@@ -3233,6 +3237,7 @@ protected:
 	int m_iExperienceForLiberation;
 	int m_iUnitsInLiberatedCities;
 	int m_iCityCaptureHealGlobal;
+	int m_iCityCaptureHealLocal;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iMaxAirUnits;
