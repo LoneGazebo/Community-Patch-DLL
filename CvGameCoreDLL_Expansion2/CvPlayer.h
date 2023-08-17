@@ -1632,6 +1632,9 @@ public:
 	int GetSpecialistFoodChange() const;
 	void ChangeSpecialistFoodChange(int iChange);
 
+	int GetNonSpecialistFoodChange() const;
+	void ChangeNonSpecialistFoodChange(int iChange);
+
 	int GetWarWearinessModifier() const;
 	void ChangeWarWearinessModifier(int iChange);
 
@@ -3215,6 +3218,7 @@ protected:
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
+	int m_iNonSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -4044,6 +4048,7 @@ SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iHappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistFoodChange)
+SYNC_ARCHIVE_VAR(int, m_iNonSpecialistFoodChange)
 SYNC_ARCHIVE_VAR(int, m_iWarWearinessModifier)
 SYNC_ARCHIVE_VAR(int, m_iWarScoreModifier)
 SYNC_ARCHIVE_VAR(int, m_iGarrisonsOccupiedUnhappinessMod)
