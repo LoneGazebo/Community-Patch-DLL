@@ -500,6 +500,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 		//base yield plus combo bonuses. 
 		int iYield100 = pPlot->getYield(eYield) * 100;
 
+		iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizens(eYield);
+
 		//FIXME: if we're trying to find the worst worked plot, we have to consider losing the combo bonus!
 		if (!bIsWorking)
 			iYield100 += GetBonusPlotValue(pPlot, eYield, cache) * 100;
