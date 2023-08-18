@@ -2077,7 +2077,24 @@ bool CvMinorCivQuest::IsExpired()
 		}
 		if (GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUnitType))
 		{
-			return false;
+			const CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnitType);
+			// Can we train a unit type this unit upgrades to?
+			bool bCanUpgrade = false;
+			for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+			{
+				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+				if (pkUnitClassInfo && pkUnitInfo->GetUpgradeUnitClass(iI))
+				{
+					UnitTypes eUpgradeUnit = GET_PLAYER(m_eAssignedPlayer).GetSpecificUnitType(eUnitClass);
+					if (GET_PLAYER(m_eAssignedPlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
+					{
+						bCanUpgrade = true;
+						break;
+					}
+				}
+			}
+			return bCanUpgrade;
 		}
 		else
 		{
@@ -2197,14 +2214,16 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	{
 		UnitTypes eUnitType = pMinor->GetMinorCivAI()->GetBestUnitGiftFromPlayer(m_eAssignedPlayer);
 
-		FAssertMsg(eUnitType != NO_UNIT, "MINOR CIV AI: For some reason we got NO_BUILDING when starting a quest for a major to find a Wonder.");
+		FAssertMsg(eUnitType != NO_UNIT, "MINOR CIV AI: For some reason we got NO_UNIT when starting a quest for a major to gift a unit.");
 
 		m_iData1 = eUnitType;
+		m_iData2 = pMinor->GetMinorCivAI()->GetExperienceForUnitGiftQuest(m_eAssignedPlayer, eUnitType);
 
 		const char* strUnitName = GC.getUnitInfo(eUnitType)->GetDescriptionKey();
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_GIFT_SPECIFIC_UNIT");
 		strMessage << strUnitName;
+		strMessage << m_iData2;
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_GIFT_SPECIFIC_UNIT");
 		strSummary << strUnitName;
 	}
@@ -6998,6 +7017,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		if (eUnitType == NO_UNIT)
 			return false;
+
+		int iExperience = GetExperienceForUnitGiftQuest(ePlayer, eUnitType);
+		if (iExperience == 0)
+			return false;
 	}
 	// GREAT PERSON
 	else if(eQuest == MINOR_CIV_QUEST_GREAT_PERSON)
@@ -10264,8 +10287,29 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 			if (pkUnitInfo->GetDomainType() == DOMAIN_SEA && !bNaval)
 				continue;
 
+
 			// No settlers! (Block Conquistador, etc.)
 			if (pkUnitInfo->IsFound() || pkUnitInfo->IsFoundAbroad() || pkUnitInfo->GetNumColonyFound() > 0)
+				continue;
+
+			// Can we train a unit type this unit upgrades to?
+			bool bCanUpgrade = false;
+			for (int iI = 0; iI < GC.getNumUnitClassInfos(); iI++)
+			{
+				const UnitClassTypes eUnitClass = static_cast<UnitClassTypes>(iI);
+				CvUnitClassInfo* pkUnitClassInfo = GC.getUnitClassInfo(eUnitClass);
+				if (pkUnitClassInfo && pkUnitInfo->GetUpgradeUnitClass(iI))
+				{
+					UnitTypes eUpgradeUnit = GET_PLAYER(ePlayer).GetSpecificUnitType(eUnitClass);
+					if (GET_PLAYER(ePlayer).canTrainUnit(eUpgradeUnit, false, false, false, false))
+					{
+						bCanUpgrade = true;
+						break;
+					}
+				}
+			}
+
+			if (bCanUpgrade)
 				continue;
 
 			iBonusValue = 1000;
@@ -10357,6 +10401,43 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 
 	return eBestUnit;
 }
+
+int CvMinorCivAI::GetExperienceForUnitGiftQuest(PlayerTypes ePlayer, UnitTypes eUnitType)
+{
+	int iExperience = 0;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+	{
+		if (!pLoopCity->IsPuppet() && !pLoopCity->IsRazing())
+		{
+			iExperience = max(iExperience, pLoopCity->getProductionExperience(eUnitType));
+		}
+	}
+	return iExperience;
+}
+
+bool CvMinorCivAI::IsUnitValidGiftForCityStateQuest(PlayerTypes ePlayer, CvUnit* pUnit)
+{
+	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
+	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS)
+		return false;
+
+	CvAssertMsg(pUnit != NULL, "pUnit is NULL");
+	if (pUnit == NULL)
+		return false;
+
+	if (IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT))
+	{
+		if ((UnitTypes)GetQuestData1(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) == pUnit->getUnitType() && GetQuestData2(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) * 100 <= pUnit->getExperienceTimes100())
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+
 bool CvMinorCivAI::GetHasSentUnitForQuest(PlayerTypes ePlayer)
 {
 	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
@@ -16662,13 +16743,10 @@ void CvMinorCivAI::DoUnitGiftFromMajor(PlayerTypes eFromPlayer, CvUnit*& pGiftUn
 	int iInfluence = GetFriendshipFromUnitGift(eFromPlayer, pGiftUnit->IsGreatPerson(), bDistanceGift);
 	ChangeFriendshipWithMajor(eFromPlayer, iInfluence);
 
-	if (IsActiveQuestForPlayer(eFromPlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT))
+	if (IsUnitValidGiftForCityStateQuest(eFromPlayer, pGiftUnit))
 	{
-		if ((UnitTypes)GetQuestData1(eFromPlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT) == pGiftUnit->getUnitType())
-		{
-			SetHasSentUnitForQuest(eFromPlayer, true);
-			DoTestActiveQuestsForPlayer(eFromPlayer, true, false, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
-		}
+		SetHasSentUnitForQuest(eFromPlayer, true);
+		DoTestActiveQuestsForPlayer(eFromPlayer, true, false, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
 	}
 
 #if defined(MOD_EVENTS_MINORS_INTERACTION)

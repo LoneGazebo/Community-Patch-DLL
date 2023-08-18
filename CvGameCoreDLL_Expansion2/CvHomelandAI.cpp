@@ -1145,6 +1145,7 @@ void CvHomelandAI::ExecuteUnitGift()
 		return;
 
 	UnitTypes eUnitType = NO_UNIT;
+	int iMinExperienceRequired = 0;
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvPlayer* pMinor = NULL;
 
@@ -1164,6 +1165,7 @@ void CvHomelandAI::ExecuteUnitGift()
 					if (pMinorCivAI->getIncomingUnitGift(ePlayer).getArrivalCountdown() == -1)
 					{
 						eUnitType = (UnitTypes)pMinorCivAI->GetQuestData1(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
+						iMinExperienceRequired = pMinorCivAI->GetQuestData2(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT);
 						break;
 					}
 				}
@@ -1177,7 +1179,7 @@ void CvHomelandAI::ExecuteUnitGift()
 		int iLoop = 0;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
-			if (pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath())
+			if (pUnit->getUnitType() == eUnitType && !pUnit->IsGarrisoned() && !pUnit->isDelayedDeath() && pUnit->getExperienceTimes100() >= iMinExperienceRequired * 100)
 			{
 				if (pUnit->CanDistanceGift(pMinor->GetID()) && pUnit->canUseForAIOperation())
 				{
