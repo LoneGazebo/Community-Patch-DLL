@@ -17551,8 +17551,8 @@ int CvCity::foodConsumptionNonSpecialistTimes100() const
 
 	int iFoodPerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
 	iFoodPerPop += GetAdditionalFood() * 100;
-	iFoodPerPop += GET_PLAYER(getOwner()).GetNonSpecialistFoodChange() * 100 + GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange() * 100;
-	iFoodPerPop = max(100, iFoodPerPop); //cannot reduce food per citizen to less than 1
+	iFoodPerPop += GET_PLAYER(getOwner()).GetNonSpecialistFoodChange() * 100 + GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
+	iFoodPerPop = max(0, iFoodPerPop); //cannot reduce food per citizen to less than 0
 	return iFoodPerPop;
 }
 
