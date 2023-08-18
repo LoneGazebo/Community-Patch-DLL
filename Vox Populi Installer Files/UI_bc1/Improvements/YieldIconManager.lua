@@ -124,6 +124,9 @@ function( x, y, isShown )
 			if anchor then
 				-- just show it
 				anchor.Anchor:ChangeParent( Controls_YieldStore )
+				-- updating world position to make it synchronized with current camera position
+				local a,b,c= GridToWorld( x, y )
+				anchor.Anchor:SetWorldPositionVal( a,b,c )
 			else
 				-- set up anchor
 				anchor = table_remove( g_AvailableAnchors )
