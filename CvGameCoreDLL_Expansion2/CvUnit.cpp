@@ -31273,7 +31273,9 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker) const
 	if (iWithdrawChance == 0)
 		return 0;
 
-	if (GetNumFallBackPlotsAvailable(attacker) == 0)
+	int iNumFallBackPlotsAvailable = GetNumFallBackPlotsAvailable(attacker);
+
+	if (iNumFallBackPlotsAvailable == 0)
 		return 0;	
 
 	if (MOD_BALANCE_VP)
@@ -31288,7 +31290,7 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker) const
 		if (iAttackerMovementRange > iDefenderMovementRange)
 			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - iDefenderMovementRange));
 
-		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * (3 - GetNumFallBackPlotsAvailable(attacker)));
+		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * (3 - iNumFallBackPlotsAvailable));
 		return iWithdrawChance;
 	}
 }
@@ -31300,6 +31302,9 @@ bool CvUnit::CheckWithdrawal(const CvUnit& attacker) const
 	int iWithdrawChance = GetWithdrawChance(attacker);
 	if (iWithdrawChance == 0)
 		return false;
+
+	if (iWithdrawChance == 100)
+		return true;
 
 	//include damage so the result changes for each attack
 	int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GetID() + getDamage()) * 10;
