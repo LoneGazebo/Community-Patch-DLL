@@ -7,7 +7,7 @@
 
  -- added Withdraw Before Melee
 	UPDATE Language_en_US
-	SET Text = '80% chance to withdraw from Melee combat. Chance of withdrawal decreased against faster Enemy Units or if there are limited open tiles behind the Unit.'
+	SET Text = 'Unit withdraws from the first Melee attack each turn if there are open tiles behind the Unit'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP';
 
  -- added Great Himeji Castle
@@ -367,7 +367,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]40% chance to withdraw from Melee combat.'
+	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]Unit withdraws from the first Melee attack each turn if possible.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3_HELP';
 
 	UPDATE Language_en_US

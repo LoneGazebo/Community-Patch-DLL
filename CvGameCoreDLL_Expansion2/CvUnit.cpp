@@ -31280,7 +31280,7 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker) const
 
 	if (MOD_BALANCE_VP)
 	{
-		return getHasWithdrawnThisTurn() ? 0 : 100;
+		return getHasWithdrawnThisTurn() ? 0 : iWithdrawChance;
 	}
 	else
 	{
