@@ -1211,6 +1211,10 @@
 		<Row Tag="TXT_KEY_TP_UNHAPPINESS_PUPPET_CITIES_SPECIALISTS">
 			<Text>{1_Num} from [ICON_URBANIZATION] Urbanization in [ICON_PUPPET] Puppet Cities.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_SPY_POINTS_TT">
+			<Text>Your Current Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of Spy Points exceeds the threshold of {2_Threshold}. The threshold value depends on the number of Players and City-States at the start of the game. When the first Player reaches Renaissance, or when you reach any later Era, you gain 100 Spy Points. Some Buildings and Policies also provide Spy Points.[NEWLINE][NEWLINE]Total Number of Spy Points ever accumulated: {3_NumTotal}
+			</Text>
+		</Row>
 
 		<!-- Economic Overview -->
 		<Row Tag="TXT_KEY_EO_CITY_LOCAL_UNHAPPINESS">

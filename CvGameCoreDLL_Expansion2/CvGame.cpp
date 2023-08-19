@@ -420,6 +420,7 @@ bool CvGame::init2()
 	CheckGenerateArchaeology();
 
 	initScoreCalculation();
+	initSpyThreshold();
 	setFinalInitialized(true);
 
 #if defined(MOD_EVENTS_TERRAFORMING)
@@ -1135,6 +1136,8 @@ void CvGame::uninit()
 	m_iNumVictoryVotesExpected = 0;
 	m_iVotesNeededForDiploVictory = 0;
 	m_iMapScoreMod = 0;
+	m_iNumMajorCivsAliveAtGameStart = 0;
+	m_iNumMinorCivsAliveAtGameStart = 0;
 
 	m_uiInitialTime = 0;
 
@@ -1182,6 +1185,8 @@ void CvGame::uninit()
 	m_iGoldMedian = 0;
 	m_iScienceMedian = 0;
 	m_iCultureMedian = 0;
+
+	m_iSpyThreshold = 0;
 
 	m_iLastTurnCSSurrendered = 0;
 
@@ -1462,7 +1467,25 @@ void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 			{
 				if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE,false) == 0 && kPlayer.getNumCities() == 0)
 				{
-					kPlayer.initFreeUnits();
+					// if a civ has no starting plot, it has been discarded during map generation due to insufficient space
+					if (kPlayer.getStartingPlot())
+					{
+						kPlayer.initFreeUnits();
+						// count the number of major/minor civs alive at game start
+						if (kPlayer.isMinorCiv())
+						{
+							m_iNumMinorCivsAliveAtGameStart++;
+						}
+						else
+						{
+							m_iNumMajorCivsAliveAtGameStart++;
+						}
+					}
+					else
+					{
+						kPlayer.setEverAlive(false);
+						kPlayer.setAlive(false);
+					}
 				}
 			}
 		}
@@ -4502,32 +4525,36 @@ int CvGame::getNumHumanPlayers()
 	return CvPreGame::numHumans();
 }
 
+//	--------------------------------------------------------------------------------
+int CvGame::GetNumMajorCivsEver(bool bOnlyStart)
+{
+	if (bOnlyStart)
+		return m_iNumMajorCivsAliveAtGameStart;
+
+	int iNumCivs = 0;
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		if (GET_PLAYER((PlayerTypes)iMajorLoop).isEverAlive())
+		{
+			iNumCivs++;
+		}
+	}
+
+	return iNumCivs;
+}
 
 //	--------------------------------------------------------------------------------
 int CvGame::GetNumMinorCivsEver(bool bOnlyStart)
 {
-	int iNumCivs = 0;
+	if (bOnlyStart)
+		return m_iNumMinorCivsAliveAtGameStart;
 
+	int iNumCivs = 0;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		if(GET_PLAYER((PlayerTypes) iMinorLoop).isEverAlive())
 		{
-			if (!bOnlyStart)
-				iNumCivs++;
-			else
-			{
-				CvPlot* pPlot = GC.getMap().plot(GET_PLAYER((PlayerTypes)iMinorLoop).GetOriginalCapitalX(), GET_PLAYER((PlayerTypes)iMinorLoop).GetOriginalCapitalY());
-				if (pPlot != NULL)
-				{
-					CvCity* pCity = pPlot->getPlotCity();
-					if (pCity != NULL)
-					{
-						if (pCity->getGameTurnFounded() <= 15)
-							iNumCivs++;
-					}
-				}
-			}
-
+			iNumCivs++;
 		}
 	}
 
@@ -11379,6 +11406,18 @@ int CvGame::GetCultureMedian() const
 {
 	return m_iCultureMedian;
 }
+
+
+void CvGame::initSpyThreshold()
+{
+	if(MOD_BALANCE_CORE_SPIES)
+		m_iSpyThreshold = max(33, min(100, 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (2*GetNumMajorCivsEver(true) + GetNumMinorCivsEver(true))));
+}
+
+int CvGame::GetSpyThreshold() const
+{
+	return m_iSpyThreshold;
+}
 //	--------------------------------------------------------------------------------
 
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -11596,6 +11635,8 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iNumVictoryVotesExpected);
 	visitor(game.m_iVotesNeededForDiploVictory);
 	visitor(game.m_iMapScoreMod);
+	visitor(game.m_iNumMajorCivsAliveAtGameStart);
+	visitor(game.m_iNumMinorCivsAliveAtGameStart);
 
 	// m_uiInitialTime not saved
 
@@ -11641,6 +11682,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iScienceMedian);
 	visitor(game.m_iCultureMedian);
 
+	visitor(game.m_iSpyThreshold);
 	visitor(game.m_iLastTurnCSSurrendered);
 
 	visitor(game.m_aiGreatestMonopolyPlayer);

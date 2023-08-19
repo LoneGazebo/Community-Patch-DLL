@@ -143,6 +143,7 @@ public:
 	void ReviveActivePlayer();
 
 	int getNumHumanPlayers();
+	int GetNumMajorCivsEver(bool bOnlyStart = false);
 	int GetNumMinorCivsEver(bool bOnlyStart = false);
 	int GetNumMinorCivsAlive();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
@@ -552,6 +553,8 @@ public:
 	int GetScienceMedian() const;
 	int GetCultureMedian() const;
 
+	void initSpyThreshold();
+	int GetSpyThreshold() const;
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestSpyPotential();
 #endif
@@ -800,6 +803,8 @@ protected:
 	int m_iNumVictoryVotesExpected;
 	int m_iVotesNeededForDiploVictory;
 	int m_iMapScoreMod;
+	int m_iNumMajorCivsAliveAtGameStart;
+	int m_iNumMinorCivsAliveAtGameStart;
 
 	unsigned int m_uiInitialTime;
 
@@ -857,6 +862,7 @@ protected:
 	int m_iGoldMedian;
 	int m_iScienceMedian;
 	int m_iCultureMedian;
+	int m_iSpyThreshold;
 
 	int m_iLastTurnCSSurrendered;
 	CvEnumMap<ResourceTypes, PlayerTypes> m_aiGreatestMonopolyPlayer;
