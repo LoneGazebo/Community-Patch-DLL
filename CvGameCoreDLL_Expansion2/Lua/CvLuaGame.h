@@ -335,6 +335,7 @@ protected:
 	static int lGetCorporationHeadquarters(lua_State* L);
 	static int lGetNumCorporationsFounded(lua_State* L);
 	static int lGetNumAvailableCorporations(lua_State* L);
+	static int lGetSpyThreshold(lua_State* L);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	static int lGetGreatestPlayerResourceMonopoly(lua_State* L);
 #endif

@@ -167,6 +167,8 @@ CvPlayer::CvPlayer() :
 	, m_iEspionageModifier()
 	, m_iEspionageTurnsModifierFriendly()
 	, m_iEspionageTurnsModifierEnemy()
+	, m_iSpyPoints()
+	, m_iSpyPointsTotal()
 	, m_iSpyStartingRank()
 	, m_iExtraLeagueVotes()
 	, m_iWoundedUnitDamageMod()
@@ -1312,6 +1314,8 @@ void CvPlayer::uninit()
 	m_iEspionageModifier = 0;
 	m_iEspionageTurnsModifierFriendly = 0;
 	m_iEspionageTurnsModifierEnemy = 0;
+	m_iSpyPoints = 0;
+	m_iSpyPointsTotal = 0;
 	m_iSpyStartingRank = 0;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier = 0;
@@ -16898,27 +16902,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 		if(pBuildingInfo->GetExtraSpies() > 0)
 		{
-			CvPlayerEspionage* pEspionage = GetEspionage();
-			CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
-			if(pEspionage)
-			{
-				int iNumSpies = pBuildingInfo->GetExtraSpies();
-#if defined(MOD_BALANCE_CORE_SPIES)
-				if (MOD_BALANCE_CORE_SPIES) 
-				{
-					//Optional: Spies scaled for the number of City-States in the game.
-					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
-					if(iNumMinor > 1)
-					{
-						iNumSpies += iNumMinor;
-					}
-				}
-#endif
-				for(int i = 0; i < iNumSpies; i++)
-				{
-					pEspionage->CreateSpy();
-				}
-			}
+			CreateSpies(pBuildingInfo->GetExtraSpies());
 		}
 
 		if(pBuildingInfo->GetInstantSpyRankChange() > 0)
@@ -24257,6 +24241,60 @@ int CvPlayer::GetStartingSpyRank() const
 void CvPlayer::ChangeStartingSpyRank(int iChange)
 {
 	m_iSpyStartingRank = (m_iSpyStartingRank + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+/// Get the number of collected spy points of the player. When they exceed the threshold, a new spy is created
+int CvPlayer::GetSpyPoints(bool bTotal) const
+{
+	return bTotal ? m_iSpyPointsTotal : m_iSpyPoints;
+}
+
+//	--------------------------------------------------------------------------------
+/// Create spies for the player
+void CvPlayer::CreateSpies(int iNumSpies, bool bScaling)
+{
+	if (iNumSpies <= 0)
+		return;
+
+	if (GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		return;
+
+	CvPlayerEspionage* pEspionage = GetEspionage();
+	CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
+	if (!pEspionage)
+		return;
+
+	if (!MOD_BALANCE_CORE_SPIES)
+	{
+		for (int i = 0; i < iNumSpies; i++)
+		{
+			pEspionage->CreateSpy();
+		}
+	}
+	else
+	{
+		int iThreshold = max(1, GC.getGame().GetSpyThreshold());
+		if (bScaling)
+		{
+			// spies scaling with era. Instead of 1 spy, we gain 100 spy points. For each time the number of spy points exceeds the threshold, a spy is created
+			m_iSpyPointsTotal += iNumSpies * 100;
+			m_iSpyPoints += iNumSpies * 100;
+			while (m_iSpyPoints >= iThreshold)
+			{
+				pEspionage->CreateSpy();
+				m_iSpyPoints -= iThreshold;
+			}
+		}
+		else
+		{
+			m_iSpyPointsTotal += iNumSpies * iThreshold;
+			for (int i = 0; i < iNumSpies; i++)
+			{
+				pEspionage->CreateSpy();
+			}
+		}
+	}
 }
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -34668,6 +34706,21 @@ void CvPlayer::SetHasBetrayedMinorCiv(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayer::setEverAlive(bool bNewValue)
+{
+	// No state change - ignore
+	if (isEverAlive() == bNewValue)
+		return;
+
+	// Can't kill Barbarians
+	if (!bNewValue && isBarbarian())
+		return;
+
+	// Update memory values
+	m_bEverAlive = bNewValue;
+	GET_TEAM(getTeam()).changeEverAliveCount(bNewValue ? 1 : -1);
+}
+//	--------------------------------------------------------------------------------
 void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 {
 	// No state change - ignore
@@ -34684,10 +34737,9 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	{
 		GET_TEAM(getTeam()).changeAliveCount(1);
 
-		if (!isEverAlive() && !isObserver())
+		if (!isObserver())
 		{
-			m_bEverAlive = true;
-			GET_TEAM(getTeam()).changeEverAliveCount(1);
+			setEverAlive(true);
 		}
 
 		if (getNumCities() == 0)
@@ -45343,28 +45395,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		if(GetFreeSpy() > 0)
 		{
-			CvPlayerEspionage* pEspionage = GetEspionage();
-			CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
-			if(pEspionage)
-			{
-				int iNumSpies = GetFreeSpy();
-
-				if (MOD_BALANCE_CORE_SPIES) 
-				{
-					//Optional: Spies scaled for the number of City-States in the game.
-					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
-					if(iNumMinor > 1)
-					{
-						iNumSpies += iNumMinor;
-					}
-				}
-
-				for(int i = 0; i < iNumSpies; i++)
-				{
-					pEspionage->CreateSpy();
-				}
-				changeFreeSpy(GetFreeSpy() * -1);
-			}
+			CreateSpies(GetFreeSpy());
+			changeFreeSpy(GetFreeSpy() * -1);
 		}
 		
 		int iLoop = 0;

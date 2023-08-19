@@ -9089,8 +9089,8 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 
 	int iTarget = 0;
 
-	//Top 20%
-	int iTopTier = (GC.getGame().GetNumMinorCivsEver() / 4);
+	//Top 25%
+	int iTopTier = (GC.getGame().GetNumMinorCivsAlive() / 4);
 	if(iTopTier <= 0)
 	{
 		iTopTier = 1;

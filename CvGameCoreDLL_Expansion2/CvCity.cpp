@@ -1194,16 +1194,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 	if (bInitialFounding && owningPlayer.GetPlayerTraits()->GetStartingSpies() > 0 && owningPlayer.getNumCities() == 1)
 	{
-		CvPlayerEspionage* pEspionage = owningPlayer.GetEspionage();
-		CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
-		if (pEspionage)
-		{
-			int iNumSpies = owningPlayer.GetPlayerTraits()->GetStartingSpies();
-			for (int i = 0; i < iNumSpies; i++)
-			{
-				pEspionage->CreateSpy();
-			}
-		}
+		owningPlayer.CreateSpies(owningPlayer.GetPlayerTraits()->GetStartingSpies(), false);
 	}
 
 	owningPlayer.CalculateNetHappiness();
@@ -24948,7 +24939,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
-		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
+		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetSpyPoints(true) / 100));
 		iModifier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPIES", iTempMod);
 	}

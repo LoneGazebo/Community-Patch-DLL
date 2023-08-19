@@ -348,6 +348,7 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(GetCorporationHeadquarters);
 	Method(GetNumCorporationsFounded);
 	Method(GetNumAvailableCorporations);
+	Method(GetSpyThreshold);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	Method(GetGreatestPlayerResourceMonopoly);
 #endif
@@ -2569,6 +2570,12 @@ int CvLuaGame::lGetNumAvailableCorporations(lua_State* L)
 	return 1;
 }
 
+int CvLuaGame::lGetSpyThreshold(lua_State* L)
+{
+	int iReturn = GC.getGame().GetSpyThreshold();
+	lua_pushinteger(L, iReturn);
+	return 1;
+}
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 int CvLuaGame::lGetGreatestPlayerResourceMonopoly(lua_State* L)
