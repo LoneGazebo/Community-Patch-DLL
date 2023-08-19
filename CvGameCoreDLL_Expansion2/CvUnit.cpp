@@ -31322,9 +31322,10 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	if (MOD_BALANCE_VP)
 		{
 		std::vector<CvPlot*> aValidPlotList;
+		// possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
 		for (int i = 0; i < 3; i++)
 		{
-			int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; // possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
+			int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
 			CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
 			if (pDirectionPlot && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK) && isNativeDomain(pDirectionPlot))
@@ -31332,7 +31333,6 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 				aValidPlotList.push_back(pDirectionPlot);
 			}
 		}
-
 		if (aValidPlotList.size() == 0)
 			return false;
 		else if (aValidPlotList.size() == 1)
@@ -31340,40 +31340,34 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 		else
 		{
 			// if there's more than one valid plot, select the plot with the fewest number of enemies
-			int iMinNumEnemies = INT_MAX;
-			std::vector<int> aNumEnemiesList;
-			for (size_t i = 0; i < aValidPlotList.size(); i++)
+			multimap<int, CvPlot*> aNumEnemies;
+			for (vector<CvPlot*>::iterator it = aValidPlotList.begin(); it != aValidPlotList.end(); ++it)
 			{
-				aNumEnemiesList.push_back(aValidPlotList[i]->GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()));
-				iMinNumEnemies = min(iMinNumEnemies, aNumEnemiesList[i]);
+				aNumEnemies.insert(make_pair((*it)->GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()), (*it)));
 			}
-			std::vector<CvPlot*> aMinEnemiesPlotList;
-			for (size_t i = 0; i < aValidPlotList.size(); i++)
-			{
-				if (aNumEnemiesList[i] == iMinNumEnemies)
-					aMinEnemiesPlotList.push_back(aValidPlotList[i]);
-			}
+			// remove plots that have more enemies than the minimum
+			multimap<int, CvPlot*>::iterator itRemove = aNumEnemies.lower_bound(aNumEnemies.begin()->first + 1);
+			aNumEnemies.erase(itRemove, aNumEnemies.end());
 
-			if (aMinEnemiesPlotList.size() == 1)
-				pDestPlot = aMinEnemiesPlotList[0];
+			if (aNumEnemies.size() == 1)
+				pDestPlot = aNumEnemies.begin()->second;
 			else
 			{
 				// if there is still more than one possible plot, select the plot with the highest number of adjacent friendly units
-				int iMaxNumFriendlyUnits = 0;
-				std::vector<int> aFriendlyUnitsList;
-				for (size_t i = 0; i < aMinEnemiesPlotList.size(); i++)
+				multimap<int, CvPlot*> aNumFriendlies;
+				for (multimap<int, CvPlot*>::iterator it = aNumEnemies.begin(); it != aNumEnemies.end(); ++it)
 				{
-					aFriendlyUnitsList.push_back(aMinEnemiesPlotList[i]->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true));
-					iMaxNumFriendlyUnits = max(iMaxNumFriendlyUnits, aFriendlyUnitsList[i]);
+					aNumFriendlies.insert(make_pair(it->second->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true, this), it->second));
 				}
-				std::vector<CvPlot*> aMaxFriendlyUnitsPlotList;
-				for (size_t i = 0; i < aMinEnemiesPlotList.size(); i++)
-				{
-					if (aFriendlyUnitsList[i] == iMaxNumFriendlyUnits)
-						aMaxFriendlyUnitsPlotList.push_back(aMinEnemiesPlotList[i]);
-				}
+				// remove plots that have fewer friendlies than the maximum
+				itRemove = aNumFriendlies.lower_bound(aNumFriendlies.rbegin()->first); // highest key is the first key in reverse order
+				aNumFriendlies.erase(aNumFriendlies.begin(), itRemove);
+
 				// make a random selection from the remaining plots
-				pDestPlot = aMaxFriendlyUnitsPlotList[GC.getGame().getSmallFakeRandNum(aMaxFriendlyUnitsPlotList.size(), plot()->GetPlotIndex() + GetID() + getDamage())];
+				multimap<int, CvPlot*>::iterator itChosenPlot = aNumFriendlies.begin();
+				if (aNumFriendlies.size() > 1)
+					advance(itChosenPlot, GC.getGame().getSmallFakeRandNum(aNumFriendlies.size(), plot()->GetPlotIndex() + GetID() + getDamage()));
+				pDestPlot = itChosenPlot->second;
 			}
 		}
 	}
