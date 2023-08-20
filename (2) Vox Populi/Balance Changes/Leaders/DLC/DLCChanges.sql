@@ -10,7 +10,7 @@ SET SpecialistType = 'SPECIALIST_SCIENTIST'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 UPDATE Buildings
-SET GreatPeopleRateChange = 3, GoldMaintenance = 0, GreatScientistBeakerModifier = 10
+SET GreatPeopleRateChange = 3, GoldMaintenance = 1, GreatScientistBeakerModifier = 5
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 -- Mongols
@@ -23,7 +23,7 @@ SET IgnoreBullyPenalties = '0'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits
-SET CSBullyValueModifier = '100'
+SET CSBullyValueModifier = '0'
 WHERE Type = 'TRAIT_TERROR';
 
 UPDATE Traits
@@ -36,6 +36,16 @@ WHERE Type = 'TRAIT_TERROR';
 
 DELETE FROM Trait_MovesChangeUnitCombats
 WHERE TraitType = 'TRAIT_TERROR';
+
+INSERT INTO Trait_YieldFromMinorDemand
+		(TraitType, YieldType, Yield)
+VALUES
+		('TRAIT_TERROR', 'YIELD_GOLD', 20),
+		('TRAIT_TERROR', 'YIELD_CULTURE', 20),
+		('TRAIT_TERROR', 'YIELD_SCIENCE', 20),
+		('TRAIT_TERROR', 'YIELD_FAITH', 20),
+		('TRAIT_TERROR', 'YIELD_FOOD', 20),
+		('TRAIT_TERROR', 'YIELD_PRODUCTION', 20);
 
 INSERT INTO ArtDefine_LandmarkTypes
 			(Type, 									LandmarkType, 	FriendlyName)
@@ -226,17 +236,11 @@ VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'TERRAIN_PLAINS'),
 	
 INSERT INTO Improvement_Yields 	
 			(ImprovementType, 				YieldType,			Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_GOLD',		1),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FOOD',		1),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_PRODUCTION',	1);
-	
-INSERT INTO Improvement_AdjacentCityYields 	
-			(ImprovementType, 				YieldType,				Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_CULTURE',	2);
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_CULTURE',	1);
 	
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType,				ResourceType,	YieldType,		Yield)
-SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_GOLD',	2
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_GOLD',	3
 FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_LUXURY';
 
 CREATE TRIGGER VP_HaciendaCompatibility_Luxury
@@ -245,12 +249,12 @@ WHEN NEW.ResourceClassType = 'RESOURCECLASS_LUXURY'
 BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 				(ImprovementType, ResourceType, YieldType, Yield)
-	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_GOLD', 2;
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_GOLD', 3;
 END;
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType,				ResourceType,	YieldType,		Yield)
-SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_FOOD',	2
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_FOOD',	3
 FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_BONUS';
 
 CREATE TRIGGER VP_HaciendaCompatibility_Bonus
@@ -259,18 +263,18 @@ WHEN NEW.ResourceClassType = 'RESOURCECLASS_BONUS'
 BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 				(ImprovementType, ResourceType, YieldType, Yield)
-	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_FOOD', 2;
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_FOOD', 3;
 END;
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType,				ResourceType,	YieldType,			Yield)
-SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_PRODUCTION',	2
+SELECT		'IMPROVEMENT_SPAIN_HACIENDA',	Type,			'YIELD_PRODUCTION',	3
 FROM Resources WHERE ResourceClassType = 'RESOURCECLASS_MODERN';
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges	
 			(ImprovementType, 				ResourceType,			YieldType,				Yield)
-VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_HORSE',		'YIELD_PRODUCTION',		2),
-			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IRON',		'YIELD_PRODUCTION',		2);
+VALUES		('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_HORSE',		'YIELD_PRODUCTION',		3),
+			('IMPROVEMENT_SPAIN_HACIENDA',	'RESOURCE_IRON',		'YIELD_PRODUCTION',		3);
 
 CREATE TRIGGER VP_HaciendaCompatibility_Strategic
 AFTER INSERT ON Resources 
@@ -278,7 +282,7 @@ WHEN NEW.ResourceClassType IN('RESOURCECLASS_MODERN', 'RESOURCECLASS_RUSH')
 BEGIN
 	INSERT INTO Improvement_AdjacentResourceYieldChanges
 				(ImprovementType, ResourceType, YieldType, Yield)
-	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 2;
+	SELECT		'IMPROVEMENT_SPAIN_HACIENDA', NEW.Type, 'YIELD_PRODUCTION', 3;
 END;
 
 INSERT INTO Builds
@@ -432,23 +436,25 @@ INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, 				ImprovementType,				YieldType,		Yield)
 VALUES	
 	('BUILDING_SPAIN_MISSION',	'IMPROVEMENT_SPAIN_HACIENDA',	'YIELD_FAITH',	1),
+	('BUILDING_YURT',	'IMPROVEMENT_PASTURE',	'YIELD_PRODUCTION',	1),
 	('BUILDING_YURT',	'IMPROVEMENT_CAMP',	'YIELD_PRODUCTION',	1);
 
 INSERT INTO Building_UnitCombatProductionModifiers
 	(BuildingType, UnitCombatType, Modifier)
 VALUES
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_MELEE', 25),
+	('BUILDING_JELLING_STONES', 'UNITCOMBAT_GUN', 25),
 	('BUILDING_JELLING_STONES', 'UNITCOMBAT_NAVALMELEE', 25);
 
 INSERT INTO Building_YieldFromBorderGrowth
 	(BuildingType, 		YieldType, 		Yield)
 VALUES	
-	('BUILDING_YURT', 	'YIELD_FOOD', 	5);
+	('BUILDING_YURT', 	'YIELD_FOOD', 	5),
+	('BUILDING_YURT', 	'YIELD_PRODUCTION', 	5);
 		
 INSERT INTO Building_YieldFromPillage
 	(BuildingType, YieldType, Yield)
 VALUES 
-	('BUILDING_JELLING_STONES', 'YIELD_GOLD', 30),
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 30);
 
 INSERT INTO Building_GreatWorkYieldChangesLocal
@@ -465,7 +471,7 @@ VALUES
 	('BUILDING_JELLING_STONES', 'YIELD_CULTURE', 2),
 	('BUILDING_YURT', 'YIELD_FAITH', 1),
 	('BUILDING_YURT', 'YIELD_CULTURE_LOCAL', 2),
-	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 4),
+	('BUILDING_WALLS_OF_BABYLON', 'YIELD_SCIENCE', 3),
 	('BUILDING_SPAIN_MISSION',	'YIELD_FAITH',	2);
 
 INSERT INTO Building_GrowthExtraYield
@@ -508,9 +514,6 @@ VALUES
 INSERT INTO Building_ResourceYieldChanges
 	(BuildingType, ResourceType, YieldType, Yield)
 VALUES
-	('BUILDING_YURT', 'RESOURCE_HORSE', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_SHEEP', 'YIELD_FOOD', 1),
-	('BUILDING_YURT', 'RESOURCE_COW', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_DEER', 'YIELD_FOOD', 1),
 	('BUILDING_YURT', 'RESOURCE_BISON', 'YIELD_FOOD', 1);
 

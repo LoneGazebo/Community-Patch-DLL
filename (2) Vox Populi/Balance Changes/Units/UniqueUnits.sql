@@ -388,11 +388,6 @@ UPDATE Units SET Class = 'UNITCLASS_HORSE_ARCHER', Moves = '4', UnitFlagAtlas = 
 
 UPDATE Unit_ClassUpgrades SET UnitClassType = 'UNITCLASS_MOUNTED_BOWMAN' WHERE UnitType = 'UNIT_MONGOLIAN_KESHIK';
 
-INSERT INTO UnitPromotions
-	(Type, Description, Help, Sound, OrderPriority, PortraitIndex, IconAtlas, PediaType, RangedFlankAttack, FlankAttackModifier, CannotBeChosen, PediaEntry)
-VALUES
-	('PROMOTION_MONGOL_TERROR', 'TXT_KEY_PROMOTION_MONGOL_TERROR', 'TXT_KEY_PROMOTION_MONGOL_TERROR_HELP', 'AS2D_IF_LEVELUP', 99, 1, 'EXPANSION2_PROMOTION_ATLAS', 'PEDIA_ATTRIBUTES', 1, 10, 1, 'TXT_KEY_PROMOTION_MONGOL_TERROR');
-
 INSERT INTO Trait_FreePromotionUnitClass
 	(TraitType, UnitClassType, PromotionType)
 VALUES

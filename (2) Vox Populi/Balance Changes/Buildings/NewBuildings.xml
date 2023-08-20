@@ -572,7 +572,7 @@
 			<PrereqTech>TECH_TRAPPING</PrereqTech>
 			<Help>TXT_KEY_BUILDING_YURT_HELP</Help>
 			<Description>TXT_KEY_BUILDING_YURT</Description>
-			<BorderGrowthRateIncrease>34</BorderGrowthRateIncrease>
+			<BorderGrowthRateIncrease>50</BorderGrowthRateIncrease>
 			<PlotBuyCostModifier>-25</PlotBuyCostModifier>
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_YURT_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_YURT_STRATEGY</Strategy>
@@ -1027,7 +1027,7 @@
 			<ConquestProb>66</ConquestProb>
 			<HurryCostModifier>0</HurryCostModifier>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>17</PortraitIndex>
+			<PortraitIndex>57</PortraitIndex>
 		</Row>
 		<Row>
 			<Type>BUILDING_FORTRESS</Type>

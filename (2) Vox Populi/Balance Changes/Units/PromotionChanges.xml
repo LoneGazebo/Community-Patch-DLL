@@ -66,7 +66,7 @@
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>2</OrderPriority>
 			<CombatPercent>10</CombatPercent>
-			<CityAttack>25</CityAttack>
+			<DamageReductionCityAssault>15</DamageReductionCityAssault>
 			<PortraitIndex>19</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -81,7 +81,7 @@
 			<OrderPriority>2</OrderPriority>
 			<CombatPercent>10</CombatPercent>
 			<PortraitIndex>20</PortraitIndex>
-			<CityAttack>25</CityAttack>
+			<DamageReductionCityAssault>15</DamageReductionCityAssault>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DRILL_2</PediaEntry>
@@ -94,11 +94,11 @@
 			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
 			<OrderPriority>2</OrderPriority>
 			<CombatPercent>10</CombatPercent>
+			<DamageReductionCityAssault>15</DamageReductionCityAssault>
 			<PortraitIndex>21</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_DRILL_3</PediaEntry>
-			<CityAttack>25</CityAttack>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_BARRAGE_1</Type>
@@ -244,12 +244,11 @@
 			<Description>TXT_KEY_PROMOTION_SIEGE</Description>
 			<Help>TXT_KEY_PROMOTION_SIEGE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<PromotionPrereqOr1>PROMOTION_SHOCK_3</PromotionPrereqOr1>
-			<PromotionPrereqOr2>PROMOTION_DRILL_2</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr3>
+			<PromotionPrereqOr1>PROMOTION_DRILL_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr2>
 			<OrderPriority>3</OrderPriority>
-			<CityAttack>33</CityAttack>
-			<DamageReductionCityAssault>33</DamageReductionCityAssault>
+			<CityAttack>100</CityAttack>
+			<CombatPercent>-10</CombatPercent>
 			<PortraitIndex>40</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_MELEE</PediaType>
@@ -3245,7 +3244,7 @@
 			<Help>TXT_KEY_PROMOTION_BARBARIAN_BONUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<OrderPriority>1</OrderPriority>
-			<BarbarianCombatBonus>33</BarbarianCombatBonus>
+			<BarbarianCombatBonus>25</BarbarianCombatBonus>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
@@ -3885,9 +3884,9 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_VIKING</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
-			<NeutralHealChange>5</NeutralHealChange>
+			<PartialHealOnPillage>10</PartialHealOnPillage>
+			<AOEDamageOnPillage>10</AOEDamageOnPillage>
 			<FreePillageMoves>true</FreePillageMoves>
-			<PillageBonusStrength>25</PillageBonusStrength>
 		</Row>
 		<Row>
 			<Type>PROMOTION_LONGBOAT</Type>
@@ -3900,6 +3899,8 @@
 			<PediaEntry>TXT_KEY_PROMOTION_LONGBOAT</PediaEntry>
 			<CannotBeChosen>true</CannotBeChosen>
 			<FreePillageMoves>true</FreePillageMoves>
+			<HealOnPillage>true</HealOnPillage>
+			<AOEDamageOnPillage>15</AOEDamageOnPillage>
 		</Row>
 		<Row>
 			<Type>PROMOTION_NAVAL_INACCURACY</Type>
@@ -4422,7 +4423,7 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<GoldenAgeValueFromKills>1000</GoldenAgeValueFromKills>
 		</Row>
-				<Row>
+		<Row>
 			<Type>PROMOTION_AERIAL_TORPEDO</Type>
 			<Description>TXT_KEY_PROMOTION_AERIAL_TORPEDO</Description>
 			<Help>TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP</Help>
@@ -4445,6 +4446,81 @@
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_AIR</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_BOMB_RACK</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FROGMAN</Type>
+			<Description>TXT_KEY_PROMOTION_FROGMAN</Description>
+			<Help>TXT_KEY_PROMOTION_FROGMAN_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<TechPrereq>TECH_RAILROAD</TechPrereq>
+			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOODLAND_TRAILBLAZER_III</PromotionPrereqOr2>
+			<OrderPriority>2</OrderPriority>
+			<PortraitIndex>4</PortraitIndex>
+			<IconAtlas>promoVP_atlas_04</IconAtlas>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FROGMAN</PediaEntry>
+			<EmbarkFlatCost>1</EmbarkFlatCost>
+			<DisembarkFlatCost>1</DisembarkFlatCost>
+			<Amphib>true</Amphib>
+			<River>true</River>
+		</Row>
+		<Row>
+			<Type>PROMOTION_SCREENING</Type>
+			<Description>TXT_KEY_PROMOTION_SCREENING</Description>
+			<Help>TXT_KEY_PROMOTION_SCREENING_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_SURVIVALISM_3</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOODLAND_TRAILBLAZER_III</PromotionPrereqOr2>
+			<OrderPriority>2</OrderPriority>
+			<PortraitIndex>5</PortraitIndex>
+			<IconAtlas>promoVP_atlas_04</IconAtlas>
+			<PediaType>PEDIA_SCOUTING</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_SCREENING</PediaEntry>
+			<ExtraFlankPower>1</ExtraFlankPower>
+			<FlankAttackModifier>10</FlankAttackModifier>
+		</Row>
+		<Row>
+			<Type>PROMOTION_ENVELOPMENT</Type>
+			<Description>TXT_KEY_PROMOTION_ENVELOPMENT</Description>
+			<Help>TXT_KEY_PROMOTION_ENVELOPMENT_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<PromotionPrereqOr1>PROMOTION_BARRAGE_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_ACCURACY_2</PromotionPrereqOr2>
+			<OrderPriority>7</OrderPriority>
+			<MountedOnly>true</MountedOnly>
+			<MaximumRangeRequired>1</MaximumRangeRequired>
+			<RangedFlankAttack>1</RangedFlankAttack>
+			<FlankAttackModifier>10</FlankAttackModifier>
+			<PortraitIndex>23</PortraitIndex>
+			<IconAtlas>extraPromo_Atlas</IconAtlas>
+			<PediaType>PEDIA_RANGED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ENVELOPMENT</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_MONGOL_TERROR</Type>
+			<Description>TXT_KEY_PROMOTION_MONGOL_TERROR</Description>
+			<Help>TXT_KEY_PROMOTION_MONGOL_TERROR_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<OrderPriority>99</OrderPriority>
+			<ExtraAttacks>1</ExtraAttacks>
+			<PortraitIndex>63</PortraitIndex>
+			<IconAtlas>promoVP_atlas_02</IconAtlas>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_MONGOL_TERROR</PediaEntry>
+			<CannotBeChosen>true</CannotBeChosen>
+		</Row>
+		<Row>
+			<Type>PROMOTION_FASTER_WORKER</Type>
+			<Description>TXT_KEY_PROMOTION_FASTER_WORKER</Description>
+			<Help>TXT_KEY_PROMOTION_FASTER_WORKER_HELP</Help>
+			<Sound>AS2D_IF_LEVELUP</Sound>
+			<CannotBeChosen>true</CannotBeChosen>
+			<MovesChange>1</MovesChange>
+			<PortraitIndex>59</PortraitIndex>
+			<IconAtlas>ABILITY_ATLAS</IconAtlas>
+			<PediaType>PEDIA_CIVILIAN</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_FASTER_WORKER</PediaEntry>
 		</Row>
 	</UnitPromotions>
 	

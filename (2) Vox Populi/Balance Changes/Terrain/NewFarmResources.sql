@@ -25,8 +25,8 @@ INSERT INTO Resource_YieldChanges (ResourceType, YieldType, Yield) VALUES
 ('RESOURCE_RICE', 'YIELD_FOOD', 1);
 
 INSERT INTO Improvement_AdjacentResourceYieldChanges (ImprovementType, ResourceType, YieldType, Yield) VALUES
-( 'IMPROVEMENT_SPAIN_HACIENDA', 'RESOURCE_MAIZE', 'YIELD_FOOD', 2),
-( 'IMPROVEMENT_SPAIN_HACIENDA', 'RESOURCE_RICE', 'YIELD_FOOD', 2);
+( 'IMPROVEMENT_SPAIN_HACIENDA', 'RESOURCE_MAIZE', 'YIELD_FOOD', 3),
+( 'IMPROVEMENT_SPAIN_HACIENDA', 'RESOURCE_RICE', 'YIELD_FOOD', 3);
 
 INSERT INTO Improvement_ResourceTypes (ImprovementType, ResourceType) VALUES
 ( 'IMPROVEMENT_FARM', 'RESOURCE_MAIZE'),

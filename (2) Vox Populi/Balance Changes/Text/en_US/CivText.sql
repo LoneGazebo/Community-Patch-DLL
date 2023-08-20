@@ -149,7 +149,7 @@ SET Help = 'TXT_KEY_BUILDING_BABYLON_WALLS_HELP'
 WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_BABYLON_WALLS_HELP', '[ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Great Scientists provide 10% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
+VALUES ('TXT_KEY_BUILDING_BABYLON_WALLS_HELP', '[ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 10%. Increases the City''s [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. Great Scientists provide 5% more [ICON_RESEARCH] Science when used to discover new Technology.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.');
 
 UPDATE Language_en_US
 SET Text = 'The Walls of Babylon are a Babylonian Unique Building, replacing the standard city Walls. The Walls of Babylon increase City Defense by 8 and City Hit Points by 150, providing more protection than standard Walls. Increases [ICON_SILVER_FIST] Military Units supplied by this City''s population by 10%, and increases the City''s Ranged Strike range by 1. The Walls of Babylon also provide Great Scientist points and improve the Yields of all Great Scientists at discovering technology by +10%. Also helps with managing the Empire Size Modifier in this City.'
@@ -218,7 +218,7 @@ WHERE Tag = 'TXT_KEY_TRAIT_PHOENICIAN_HERITAGE';
 
 
 UPDATE Language_en_US
-SET Text = 'Strong Ancient Era Naval Unit, cheaper and available earlier than the Trireme; it dominates the seas through melee attacks on naval units and cities. Receives the [COLOR_POSITIVE_TEXT]Reconnaissance[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Heavy Assault[ENDCOLOR] Promotions for free, making it a very strong attacker and allowing it to gain experience from exploration. Promotions are lost on upgrade. Only the Carthaginians may build it.'
+SET Text = 'Imposing Classical Era Naval Unit, stron against both cities and other ships. Only the Carthaginians may build it.[NEWLINE][NEWLINE]Receives the [COLOR_POSITIVE_TEXT]Pincer[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Heavy Assault[ENDCOLOR] Promotions for free.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CARTHAGINIAN_QUINQUEREME';
 
 --------------------
@@ -262,7 +262,11 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_CHUKONU';
 -- Denmark
 --------------------
 UPDATE Language_en_US
-SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Disembark. Melee Land Units start with the [COLOR_POSITIVE_TEXT]Viking[ENDCOLOR] Promotion, and Melee Naval Units start with the [COLOR_POSITIVE_TEXT]Longboat[ENDCOLOR] Promotion.'
+SET Text = 'Mycel Hæþen Here'
+WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY_SHORT';
+
+UPDATE Language_en_US
+SET Text = 'Embarked Units gain +1 [ICON_MOVES] Movement and pay just 1 [ICON_MOVES] Movement to Embark or Disembark. Units with Melee Attacks Heal 10 HP, deal 10 damage to adjacent enemies, earn [ICON_GOLD] Gold, and spend no movement when Pillaging.'
 WHERE Tag = 'TXT_KEY_TRAIT_VIKING_FURY';
 
 UPDATE Language_en_US
@@ -442,7 +446,7 @@ SET Text = 'T-34'
 WHERE Tag = 'TXT_KEY_UNIT_GERMAN_PANZER';
 
 UPDATE Language_en_US
-SET Text = 'Unique Land Unit that is incredibly effective on open ground.[NEWLINE][NEWLINE]Starts with [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR], [COLOR_POSITIVE_TEXT]Armor Plating II[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] promotions.[NEWLINE][NEWLINE]Only available to Civilizations following the [COLOR_MAGENTA]Order[ENDCOLOR] Ideology. Requires the [COLOR_MAGENTA]Patriotic War[ENDCOLOR] Tenet to be unlocked.'
+SET Text = 'Unique Land Unit that is incredibly effective on open ground.[NEWLINE][NEWLINE]Starts with [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] promotions.[NEWLINE][NEWLINE]Only available to Civilizations following the [COLOR_MAGENTA]Order[ENDCOLOR] Ideology. Requires the [COLOR_MAGENTA]Patriotic War[ENDCOLOR] Tenet to be unlocked.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_PANZER';
 
 UPDATE Language_en_US
@@ -595,9 +599,20 @@ SET Text = 'The Waraq''Ak is an Ancient Era ranged infantry Unit that can strike
 WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Terrace Farm can only be built on hills and does not need a source of fresh water to do so. If built next to a mountain it will provide additional [ICON_FOOD] Food (1 per adjacent Mountain). +1 [ICON_FOOD] Food for each adjacent Terrace Farm, and all adjacent Farms gain +1 [ICON_FOOD] Food.'
+SET Text = 'Pata-Pata'
+WHERE Tag = 'TXT_KEY_IMPROVEMENT_TERRACE_FARM';
+
+UPDATE Language_en_US
+SET Text = 'The Pata-Pata can only be built on hills and does not need a source of fresh water to do so. If built next to a mountain it will provide additional [ICON_FOOD] Food (1 per adjacent Mountain). +1 [ICON_FOOD] Food for each adjacent Pata-Pata, and all adjacent Farms gain +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 
+UPDATE Language_en_US
+SET Text = 'Terrace Farming developed in mountainous areas simultaneously around the world, including Bali, the Philippines, China, and Peru.  These skinny, stepped fields are cut into hill and mountain sides, preventing the run off of irrigation water and providing space for arable land, usually where none previously was possible. The Incas in particular were masters of terrace farming, a technique handed down to them by the older Wari culture, and called Pata-Pata (meaning levelled place) in their native Quechua. The Inca erected large, drystone walls to hold their terraces in place and constructed systems of canals and aqueducts to provide the terraces with constant water, increasing the land''s fertility.  The Incan terracing techniques were so successful that modern Peruvian farmers still employ them in their farms today.'
+WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_TEXT';
+
+UPDATE Language_en_US
+SET Text = 'Construct a [LINK=IMPROVEMENT_TERRACE_FARM]Pata-Pata[\LINK]'
+WHERE Tag = 'TXT_KEY_BUILD_TERRACE_FARM';
 --------------------
 -- India
 --------------------
@@ -763,7 +778,7 @@ WHERE Tag = 'TXT_KEY_UNIT_MAYAN_ATLATLIST_STRATEGY';
 -- Mongols
 --------------------
 UPDATE Language_en_US
-SET Text = 'Mounted Ranged Units benefit from Flanking [COLOR_POSITIVE_TEXT]when attacking[ENDCOLOR], and gain a +10% Flanking bonus. +100% Tribute Yields from [ICON_CITY_STATE] City-State bullying.'
+SET Text = 'Mounted Ranged Units have an extra Attack. Gain All Yields equal to 20% of the [ICON_GOLD] Gold from bullying [ICON_CITY_STATE] City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_TERROR';
 
 UPDATE Language_en_US
@@ -858,7 +873,7 @@ SET Text = 'Naval Unit used to attack coastal cities and capture enemy ships. On
 WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'A Polder can be built on Marshes and on any Water tiles adjacent to at least 3 land tiles. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production, and grants [ICON_GOLD] Gold to adjacent Villages and Towns. Provides additional yields once later techs are researched. Does not remove any features on the tile.[NEWLINE][NEWLINE]Polders can be walked on by land units as if they are land tiles.'
+SET Text = 'A Polder can be built on Marshes and on any Water tiles adjacent to at least 3 land tiles. It generates [ICON_FOOD] Food, [ICON_GOLD] Gold, and [ICON_PRODUCTION] Production. Provides additional yields once later techs are researched. Does not remove any features on the tile.[NEWLINE][NEWLINE]Polders can be walked on by land units as if they are land tiles.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_POLDER_HELP';
 
 UPDATE Language_en_US
@@ -915,7 +930,7 @@ WHERE Tag = 'TXT_KEY_UNIT_HELP_IMMORTAL';
 -- Poland
 --------------------
 UPDATE Language_en_US
-SET Text = 'Unique Polish Stable replacement. +100 [ICON_CULTURE] Culture when completed. Provides 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_HORSE] Horse, and grants +50% [ICON_PRODUCTION] Production and +15 XP for Mounted Melee Units. Increases the Military Unit Supply Cap from Population in the City by 10%. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.'
+SET Text = 'Unique Polish Stable replacement. Provides 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_HORSE] Horse, and grants +50% [ICON_PRODUCTION] Production and +15 XP for Mounted Melee Units. Increases the Military Unit Supply Cap from Population in the City by 10%. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_HORSE] Horses: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COW] Cattle: +3 [ICON_PRODUCTION] Production, +3 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_DUCAL_STABLE_HELP';
 
 UPDATE Language_en_US
@@ -1027,7 +1042,7 @@ SET Text = 'Ostrog is a Russian term for a small fort, typically wooden and ofte
 WHERE Tag = 'TXT_KEY_BUILDINGS_KREPOST_PEDIA';
 
 UPDATE Language_en_US
-SET Text = 'All Strategic Resource deposits provide double their normal quantity. Receive +20 [ICON_RESEARCH] Science when your borders expand naturally, scaling with Era. [ICON_CULTURE] Culture cost of acquiring new tiles reduced by 25%.'
+SET Text = 'All Strategic Resource deposits provide double their normal quantity. Receive +20 [ICON_RESEARCH] Science when your borders expand, scaling with Era. [ICON_CULTURE] Culture cost of acquiring new tiles reduced by 33%.'
 WHERE Tag = 'TXT_KEY_TRAIT_STRATEGIC_RICHES';
 
 UPDATE Language_en_US

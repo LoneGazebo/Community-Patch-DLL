@@ -555,10 +555,6 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_FRIGATE';
 	
 	UPDATE Language_en_US
-	SET Text = 'The Galley is a Barbarian unit which remains in coast tiles, looking for embarked units to destroy. The Galley can annoy cities and units near the coast.'
-	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_STRATEGY';
-
-	UPDATE Language_en_US
 	SET Text = 'The Galleass is the second naval unit with a ranged attack available to the civilizations in the game. It is much stronger than earlier naval ships, and can enter the ocean. The Galleass is useful for clearing enemy ships out of shallow waters and supporting sieges.'
 	WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';
 
@@ -606,6 +602,10 @@
 	SET Text = 'Classical Era Naval Unit used to wrest control of the seas.'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_TRIREME';
 
+	UPDATE Language_en_US
+	SET Text = 'The Trireme is the upgrade to the Galley. It is a melee attack unit, engaging naval units and coastal cities. The Trireme is good at clearing barbarian ships from your waters and for limited exploration (it cannot end its turn on Deep Ocean hexes outside of city borders unless you are Polynesia).'
+	WHERE Tag = 'TXT_KEY_UNIT_TRIREME_STRATEGY';
+	
 	UPDATE Language_en_US
 	SET Text = 'Initially carries 2 Aircraft; capacity may be boosted through promotions. Will intercept Enemy Aircraft which try to attack nearby Units.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARRIER';
