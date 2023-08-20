@@ -650,7 +650,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->updateCityRoute();
 
 	//force recalculation of trade routes
-	GC.getGame().GetGameTrade()->InvalidateTradePathCache(eOwner);
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		GC.getGame().GetGameTrade()->InvalidateTradePathCache((PlayerTypes) iPlayer);
+	}
 
 	for (iI = 0; iI < MAX_TEAMS; iI++)
 	{
