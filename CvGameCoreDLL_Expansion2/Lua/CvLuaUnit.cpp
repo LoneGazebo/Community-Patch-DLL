@@ -3721,7 +3721,7 @@ int CvLuaUnit::lGetWithdrawChance(lua_State* L)
 	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 2);
 	int iResult;
 	if (pkUnit->getExtraWithdrawal() > 0)
-		iResult = pkUnit->GetWithdrawChance(*pkAttacker, true);
+		iResult = pkUnit->GetWithdrawChance(*pkAttacker);
 	else
 		iResult = -1;
 		

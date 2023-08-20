@@ -11692,6 +11692,7 @@ void CvPlayer::DoUnitReset()
 
 		// Finally (now that healing is done), restore movement points
 		pLoopUnit->restoreFullMoves();
+		pLoopUnit->setHasWithdrawnThisTurn(false);
 
 		// Archaeologist can't move on turn he finishes a dig (while waiting for user to decide his next action)
 		if (pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)

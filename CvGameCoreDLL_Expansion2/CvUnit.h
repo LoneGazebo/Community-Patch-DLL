@@ -1163,6 +1163,8 @@ public:
 	void triggerFortifyAnimation(bool bState);
 	bool IsFortified() const;
 	void SetFortified(bool bValue);
+	bool getHasWithdrawnThisTurn() const;
+	void setHasWithdrawnThisTurn(bool bNewValue);
 	
 	int DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
 
@@ -2095,6 +2097,7 @@ protected:
 	int m_iCombatTimer;
 	int m_iCombatFirstStrikes;
 	bool m_bMovedThisTurn;
+	bool m_bHasWithdrawnThisTurn;
 	bool m_bFortified;
 	int m_iBlitzCount;
 	int m_iAmphibCount;
@@ -2487,9 +2490,10 @@ protected:
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
 
-	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
-	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
-	bool DoFallBack(const CvUnit& pAttacker);
+	int  GetNumFallBackPlotsAvailable(const CvUnit& pAttacker) const;
+	int  GetWithdrawChance(const CvUnit& pAttacker) const;
+	bool CheckWithdrawal(const CvUnit& pAttacker) const;
+	bool DoFallBack(const CvUnit& pAttacker, bool bWithdraw = false);
 
 private:
 
@@ -2556,6 +2560,7 @@ SYNC_ARCHIVE_VAR(int, m_iAttackPlotY)
 SYNC_ARCHIVE_VAR(int, m_iCombatTimer)
 SYNC_ARCHIVE_VAR(int, m_iCombatFirstStrikes)
 SYNC_ARCHIVE_VAR(bool, m_bMovedThisTurn)
+SYNC_ARCHIVE_VAR(bool, m_bHasWithdrawnThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bFortified)
 SYNC_ARCHIVE_VAR(int, m_iBlitzCount)
 SYNC_ARCHIVE_VAR(int, m_iAmphibCount)

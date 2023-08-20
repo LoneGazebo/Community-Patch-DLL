@@ -1112,7 +1112,7 @@
 			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
 			<PortraitIndex>20</PortraitIndex>
 			<OrderPriority>1</OrderPriority>
-			<ExtraWithdrawal>40</ExtraWithdrawal>
+			<ExtraWithdrawal>100</ExtraWithdrawal>
 			<IconAtlas>EXPANSION2_PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_WOLFPACK_3</PediaEntry>
@@ -2235,7 +2235,7 @@
 			<Description>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE</Description>
 			<Help>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<ExtraWithdrawal>80</ExtraWithdrawal>
+			<ExtraWithdrawal>100</ExtraWithdrawal>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
 			<PediaType>PEDIA_SHARED</PediaType>
@@ -2246,7 +2246,7 @@
 			<Description>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_I</Description>
 			<Help>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP_I</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
-			<ExtraWithdrawal>60</ExtraWithdrawal>
+			<ExtraWithdrawal>100</ExtraWithdrawal>
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
@@ -3387,7 +3387,7 @@
 			<Help>TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_3</PromotionPrereqOr1>
-			<ExtraWithdrawal>50</ExtraWithdrawal>
+			<ExtraWithdrawal>100</ExtraWithdrawal>
 			<RangedDefenseMod>25</RangedDefenseMod>
 			<PortraitIndex>5</PortraitIndex>
 			<OrderPriority>1</OrderPriority>
@@ -4375,7 +4375,7 @@
 			<LostWithUpgrade>true</LostWithUpgrade>
 			<OrderPriority>6</OrderPriority>
 			<AttackMod>15</AttackMod>
-			<ExtraWithdrawal>50</ExtraWithdrawal>
+			<ExtraWithdrawal>100</ExtraWithdrawal>
 			<PortraitIndex>24</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
