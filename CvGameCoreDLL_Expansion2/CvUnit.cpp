@@ -31319,70 +31319,53 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
 
 	CvPlot* pDestPlot = NULL;
-	if (MOD_BALANCE_VP)
-		{
-		std::vector<CvPlot*> aValidPlotList;
-		// possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
-		for (int i = 0; i < 3; i++)
-		{
-			int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
-			CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
+	std::vector<CvPlot*> aValidPlotList;
+	// possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
+	for (int i = 0; i < 3; i++)
+	{
+		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
+		CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-			if (pDirectionPlot && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK) && isNativeDomain(pDirectionPlot))
-			{
-				aValidPlotList.push_back(pDirectionPlot);
-			}
-		}
-		if (aValidPlotList.size() == 0)
-			return false;
-		else if (aValidPlotList.size() == 1)
-			pDestPlot = aValidPlotList[0];
-		else
+		if (pDirectionPlot && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK) && isNativeDomain(pDirectionPlot))
 		{
-			// if there's more than one valid plot, select the plot with the fewest number of enemies
-			multimap<int, CvPlot*> aNumEnemies;
-			for (vector<CvPlot*>::iterator it = aValidPlotList.begin(); it != aValidPlotList.end(); ++it)
-			{
-				aNumEnemies.insert(make_pair((*it)->GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()), (*it)));
-			}
-			// remove plots that have more enemies than the minimum
-			multimap<int, CvPlot*>::iterator itRemove = aNumEnemies.lower_bound(aNumEnemies.begin()->first + 1);
-			aNumEnemies.erase(itRemove, aNumEnemies.end());
-
-			if (aNumEnemies.size() == 1)
-				pDestPlot = aNumEnemies.begin()->second;
-			else
-			{
-				// if there is still more than one possible plot, select the plot with the highest number of adjacent friendly units
-				multimap<int, CvPlot*> aNumFriendlies;
-				for (multimap<int, CvPlot*>::iterator it = aNumEnemies.begin(); it != aNumEnemies.end(); ++it)
-				{
-					aNumFriendlies.insert(make_pair(it->second->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true, this), it->second));
-				}
-				// remove plots that have fewer friendlies than the maximum
-				itRemove = aNumFriendlies.lower_bound(aNumFriendlies.rbegin()->first); // highest key is the first key in reverse order
-				aNumFriendlies.erase(aNumFriendlies.begin(), itRemove);
-
-				// make a random selection from the remaining plots
-				multimap<int, CvPlot*>::iterator itChosenPlot = aNumFriendlies.begin();
-				if (aNumFriendlies.size() > 1)
-					advance(itChosenPlot, GC.getGame().getSmallFakeRandNum(aNumFriendlies.size(), plot()->GetPlotIndex() + GetID() + getDamage()));
-				pDestPlot = itChosenPlot->second;
-			}
+			aValidPlotList.push_back(pDirectionPlot);
 		}
 	}
+	if (aValidPlotList.size() == 0)
+		return false;
+	else if (aValidPlotList.size() == 1)
+		pDestPlot = aValidPlotList[0];
 	else
 	{
-		int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GetID() + getDamage()) < 5) ? 1 : -1;
-		int iBiases[3] = { 0,-1,1 };
-
-		for (int i = 0; i < 3; i++)
+		// if there's more than one valid plot, select the plot with the fewest number of enemies
+		multimap<int, CvPlot*> aNumEnemies;
+		for (vector<CvPlot*>::iterator it = aValidPlotList.begin(); it != aValidPlotList.end(); ++it)
 		{
-			int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
-			pDestPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
+			aNumEnemies.insert(make_pair((*it)->GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()), (*it)));
+		}
+		// remove plots that have more enemies than the minimum
+		multimap<int, CvPlot*>::iterator itRemove = aNumEnemies.lower_bound(aNumEnemies.begin()->first + 1);
+		aNumEnemies.erase(itRemove, aNumEnemies.end());
 
-			if (pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
-				break;
+		if (aNumEnemies.size() == 1)
+			pDestPlot = aNumEnemies.begin()->second;
+		else
+		{
+			// if there is still more than one possible plot, select the plot with the highest number of adjacent friendly units
+			multimap<int, CvPlot*> aNumFriendlies;
+			for (multimap<int, CvPlot*>::iterator it = aNumEnemies.begin(); it != aNumEnemies.end(); ++it)
+			{
+				aNumFriendlies.insert(make_pair(it->second->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true, this), it->second));
+			}
+			// remove plots that have fewer friendlies than the maximum
+			itRemove = aNumFriendlies.lower_bound(aNumFriendlies.rbegin()->first); // highest key is the first key in reverse order
+			aNumFriendlies.erase(aNumFriendlies.begin(), itRemove);
+
+			// make a random selection from the remaining plots
+			multimap<int, CvPlot*>::iterator itChosenPlot = aNumFriendlies.begin();
+			if (aNumFriendlies.size() > 1)
+				advance(itChosenPlot, GC.getGame().getSmallFakeRandNum(aNumFriendlies.size(), plot()->GetPlotIndex() + GetID() + getDamage()));
+			pDestPlot = itChosenPlot->second;
 		}
 	}
 
