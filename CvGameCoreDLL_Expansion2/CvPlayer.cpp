@@ -27439,58 +27439,49 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_GP_USE:
 				{
-					if(pLoopCity->isCapital())
+					// Don't use this case if you aren't using a Great Person
+					ASSERT(eGreatPerson != NO_GREATPERSON);
+
+					if (pLoopCity->isCapital())
 					{
-						int iChange = getYieldGPExpend(eYield);
-						if(eYield == YIELD_GOLD)
-						{
-							iChange += GetGreatPersonExpendGold();
-						}
-						// Community Patch Behavior: Assume all GP Expend Yields scale with Era!
-						// Vanilla Behavior: Except the one that has the Mausoleum of Halicarnassus...
-						if (MOD_BALANCE_VP && bEraScale) 
+						iValue += getYieldGPExpend(eYield);
+						iValue += getGreatPersonExpendedYield(eGreatPerson, eYield);
+					}
+					if (bEraScale)
+					{
+						iValue *= iEra;
+					}
+
+					if (pReligion)
+					{
+						int iChange = 0;
+						// GetYieldFromGPUse (does scale with era + city limiter)
+						iChange = pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+						if (bEraScale)
 						{
 							iChange *= iEra;
 						}
 						iValue += iChange;
+						// GetGreatPersonExpendedYield (does not scale with era but with city)
+						iChange = pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+						iValue += iChange;
 					}
-					if(eGreatPerson != NO_GREATPERSON)
+
+					// Base Game Yield Generation, doesn't scale with era except with VP
+					int iChange = 0;
+					if (eYield == YIELD_GOLD)
 					{
-						if(pLoopCity->isCapital())
-						{
-							int iChange = getGreatPersonExpendedYield(eGreatPerson, eYield);
-							//Scale it here to avoid scaling the growth yield below.
-							if (bEraScale)
-							{
-								iChange *= iEra;
-							}
-							iValue += iChange;
-						}
-						if(pReligion)
-						{
-							int iChange = (pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true)) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
-				
-							//Scale it here to avoid scaling the growth yield below.
-							if (eYield == YIELD_CULTURE && bEraScale)
-							{
-								iChange *= iEra;
-							}
-							iValue += iChange;
-						}
+						iChange += GetGreatPersonExpendGold();
 					}
-					if(eYield == YIELD_FAITH)
+					if (eYield == YIELD_FAITH && pReligion)
 					{
-						if(pReligion)
-						{
-							int iChange = pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
-							//Scale it here to avoid scaling the growth yield below.
-							if (bEraScale)
-							{
-								iChange *= iEra;
-							}
-							iValue += iChange;
-						}
+						iChange += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
 					}
+					if (MOD_BALANCE_VP && bEraScale)
+					{
+						iChange *= iEra;
+					}
+					iValue += iChange;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_GP_BORN:
