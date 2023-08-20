@@ -5363,7 +5363,7 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 		m_pCity->processBuilding(eIndex, iChangeNumFreeBuilding, true, false, false, true);
 
 		CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
-		if(buildingEntry->IsCityWall())
+		if(buildingEntry && buildingEntry->IsCityWall())
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
 			gDLL->GameplayWallCreated(pDllPlot.get());
@@ -5658,9 +5658,10 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildin
 			}
 			if(NO_BUILDING != eBuilding)
 			{
-				if (GetNumBuilding(eBuilding) > 0)
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pkBuildingInfo && GetNumBuilding(eBuilding) > 0)
 				{
-					int iNumSlots = GC.getBuildingInfo(eBuilding)->GetGreatWorkCount();
+					int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
 					for (int jJ = 0; jJ < iNumSlots; jJ++)
 					{
 						if (GetBuildingGreatWork (eLoopBuildingClass, jJ) == NO_GREAT_WORK)
@@ -5698,11 +5699,12 @@ bool CvCityBuildings::GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWork
 			}
 			if(NO_BUILDING != eBuilding)
 			{
-				if (GetNumBuilding(eBuilding) > 0)
+				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+				if (pkBuildingInfo && GetNumBuilding(eBuilding) > 0)
 				{
-					if (GC.getBuildingInfo(eBuilding)->GetGreatWorkSlotType() == eGreatWorkSlot)
+					if (pkBuildingInfo->GetGreatWorkSlotType() == eGreatWorkSlot)
 					{
-						int iNumSlots = GC.getBuildingInfo(eBuilding)->GetGreatWorkCount();
+						int iNumSlots = pkBuildingInfo->GetGreatWorkCount();
 						for (int jJ = 0; jJ < iNumSlots; jJ++)
 						{
 							if (GetBuildingGreatWork (eLoopBuildingClass, jJ) == NO_GREAT_WORK)

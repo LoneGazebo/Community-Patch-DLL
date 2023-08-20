@@ -5347,8 +5347,12 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 
 							for(iJ = 0; iJ < GC.getNumProjectInfos(); iJ++)
 							{
-								if((getProjectCount(eIndex) >= GC.getProjectInfo((ProjectTypes)iJ)->GetProjectsNeeded(eIndex)) &&
-								        (iOldProjectCount < GC.getProjectInfo((ProjectTypes)iJ)->GetProjectsNeeded(eIndex)))
+								CvProjectEntry* pkProject = GC.getProjectInfo((ProjectTypes)iJ);
+								if (!pkProject) {
+									continue;
+								}
+								if((getProjectCount(eIndex) >= pkProject->GetProjectsNeeded(eIndex)) &&
+								        (iOldProjectCount < pkProject->GetProjectsNeeded(eIndex)))
 								{
 									bChangeProduction = true;
 									break;
@@ -5766,7 +5770,7 @@ int CvTeam::getVictoryDelay(VictoryTypes eVictory) const
 		CvProjectEntry* pkProject = GC.getProjectInfo((ProjectTypes)iProject);
 		int iCount = getProjectCount((ProjectTypes)iProject);
 
-		if(iCount < pkProject->GetVictoryMinThreshold(eVictory))
+		if(pkProject && iCount < pkProject->GetVictoryMinThreshold(eVictory))
 		{
 			CvAssert(false);
 			return -1;
@@ -6220,6 +6224,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				{
 					CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
 					CvAssert(pResourceInfo);
+					if (!pResourceInfo) {
+						continue;
+					}
 
 					if(bNewValue)
 					{
@@ -6407,10 +6414,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			bool bHiddenArtifactRevealed = false;
 
 			ResourceTypes eArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_ARTIFACTS", true);
-			CvResourceInfo* pArtifactResource = NULL;
-			if(eArtifactResource != NO_RESOURCE)
+			CvResourceInfo* pArtifactResource = GC.getResourceInfo(eArtifactResource);
+			if(eArtifactResource != NO_RESOURCE && pArtifactResource)
 			{
-				pArtifactResource = GC.getResourceInfo(eArtifactResource);
 				TechTypes eDefaultTech = (TechTypes)pArtifactResource->getTechReveal();
 				PolicyTypes eRevealPolicy = (PolicyTypes)pArtifactResource->getPolicyReveal();
 
@@ -6447,10 +6453,9 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 			}
 
 			ResourceTypes eHiddenArtifactResource = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_HIDDEN_ARTIFACTS", true);
-			CvResourceInfo* pHiddenArtifactResource = NULL;
-			if(eHiddenArtifactResource != NO_RESOURCE)
+			CvResourceInfo* pHiddenArtifactResource = pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
+			if(eHiddenArtifactResource != NO_RESOURCE && pHiddenArtifactResource)
 			{
-				pHiddenArtifactResource = GC.getResourceInfo(eHiddenArtifactResource);
 				TechTypes eDefaultTech = (TechTypes)pHiddenArtifactResource->getTechReveal();
 				PolicyTypes eRevealPolicy = (PolicyTypes)pHiddenArtifactResource->getPolicyReveal();
 
@@ -6989,11 +6994,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						if(pLoopPlot->getTeam() == GetID() && pLoopPlot->getOwner() == GC.getGame().getActivePlayer())
 						{
 							ResourceTypes eResource = pLoopPlot->getResourceType();
+							CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 
-							if(eResource != NO_RESOURCE)
+							if(eResource != NO_RESOURCE && pkResourceInfo)
 							{
-								TechTypes eDefaultTech = (TechTypes)GC.getResourceInfo(eResource)->getTechReveal();
-								PolicyTypes eRevealPolicy = (PolicyTypes)GC.getResourceInfo(eResource)->getPolicyReveal();
+								TechTypes eDefaultTech = (TechTypes)pkResourceInfo->getTechReveal();
+								PolicyTypes eRevealPolicy = (PolicyTypes)pkResourceInfo->getPolicyReveal();
 								bool bRevealed = false;
 								bool bReveals = false;
 
@@ -7036,17 +7042,19 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									{
 										CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
 
-										if(strcmp(pResourceInfo->GetType(), "RESOURCE_ARTIFACTS") == 0)
-										{
-											strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_ARTIFACTS_NEAR", pCity->getNameKey());
-										}
-										else if(strcmp(pResourceInfo->GetType(), "RESOURCE_HIDDEN_ARTIFACTS") == 0)
-										{
-											strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_HIDDEN_ARTIFACTS_NEAR", pCity->getNameKey());
-										}
-										else
-										{
-											strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_DISCOVERED_RESOURCE", pResourceInfo->GetTextKey(), pCity->getNameKey());
+										if (pResourceInfo) {
+											if (strcmp(pResourceInfo->GetType(), "RESOURCE_ARTIFACTS") == 0)
+											{
+												strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_ARTIFACTS_NEAR", pCity->getNameKey());
+											}
+											else if (strcmp(pResourceInfo->GetType(), "RESOURCE_HIDDEN_ARTIFACTS") == 0)
+											{
+												strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_HIDDEN_ARTIFACTS_NEAR", pCity->getNameKey());
+											}
+											else
+											{
+												strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_DISCOVERED_RESOURCE", pResourceInfo->GetTextKey(), pCity->getNameKey());
+											}
 										}
 
 										DLLUI->AddPlotMessage(0, pLoopPlot->GetPlotIndex(), pLoopPlot->getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, "AS2D_DISCOVERRESOURCE", MESSAGE_TYPE_INFO, GC.getResourceInfo(eResource)->GetButton(), (ColorTypes)GC.getInfoTypeForString("COLOR_WHITE"), pLoopPlot->getX(), pLoopPlot->getY(), true, true*/);
@@ -8148,10 +8156,11 @@ void CvTeam::processTech(TechTypes eTech, int iChange)
 
 		eResource = pLoopPlot->getResourceType();
 
-		if(eResource != NO_RESOURCE)
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if(eResource != NO_RESOURCE && pkResourceInfo)
 		{
-			TechTypes eDefaultTech = (TechTypes)GC.getResourceInfo(eResource)->getTechReveal();
-			PolicyTypes eRevealPolicy = (PolicyTypes)GC.getResourceInfo(eResource)->getPolicyReveal();
+			TechTypes eDefaultTech = (TechTypes)pkResourceInfo->getTechReveal();
+			PolicyTypes eRevealPolicy = (PolicyTypes)pkResourceInfo->getPolicyReveal();
 			bool bRevealTech = false;
 			bool bRevealed = false;
 

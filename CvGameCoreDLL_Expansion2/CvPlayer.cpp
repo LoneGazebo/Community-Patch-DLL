@@ -4319,7 +4319,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			pNewCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 
 			// Only deduct if building is not capital only
-			if (pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0 && !GC.getBuildingInfo(eBuilding)->IsCapitalOnly())
+			if (pNewCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0 && !pkBuilding->IsCapitalOnly())
 				ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 		}
 	}
@@ -8142,9 +8142,12 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingRequired());
 					if (eBuildingType != NO_BUILDING)
 					{
-						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
-						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
-						DisabledTT += localizedDurationText.toUTF8();
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+						if (pkBuildingInfo) {
+							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
+							localizedDurationText << pkBuildingInfo->GetDescription();
+							DisabledTT += localizedDurationText.toUTF8();
+						}
 					}
 				}
 			}
@@ -8175,9 +8178,12 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingLimiter());
 					if (eBuildingType != NO_BUILDING)
 					{
-						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
-						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
-						DisabledTT += localizedDurationText.toUTF8();
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+						if (pkBuildingInfo) {
+							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
+							localizedDurationText << pkBuildingInfo->GetDescription();
+							DisabledTT += localizedDurationText.toUTF8();
+						}
 					}
 				}
 			}
@@ -17253,7 +17259,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 			{
 				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eTestBuilding);
 				CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-				if(pkBuilding)
+				if(pkBuilding && pkBuildingClassInfo)
 				{
 					iBuildingCount = pLoopCityBuildings->GetNumBuilding(eTestBuilding);
 					if(iBuildingCount > 0)
@@ -25773,7 +25779,7 @@ void CvPlayer::DoProcessVotes()
 				CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
 			
 				// Has this Building
-				if(pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				if(pkBuildingInfo && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				{
 					if(pkBuildingInfo->GetFaithToVotes() > 0)
 					{
@@ -29503,19 +29509,22 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				{
 					if (eBuilding != NO_BUILDING)
 					{
-						TechTypes eTech = (TechTypes)GC.getBuildingInfo(eBuilding)->GetPrereqAndTech();
-						int iEra = 0;
-						if (eTech == NO_TECH)
-						{
-							iEra = 0;
-						}
-						else
-						{
-							iEra = GC.getTechInfo(eTech)->GetEra();
-						}
-						for (int iLoopEra = 0; iLoopEra <= iEra; ++iLoopEra)
-						{
-							iValue += pLoopCity->GetGreatPersonProgressFromConstruction(eGreatPerson, (EraTypes)iLoopEra);
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+						if (pkBuildingInfo) {
+							TechTypes eTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
+							int iEra = 0;
+							if (eTech == NO_TECH)
+							{
+								iEra = 0;
+							}
+							else
+							{
+								iEra = GC.getTechInfo(eTech)->GetEra();
+							}
+							for (int iLoopEra = 0; iLoopEra <= iEra; ++iLoopEra)
+							{
+								iValue += pLoopCity->GetGreatPersonProgressFromConstruction(eGreatPerson, (EraTypes)iLoopEra);
+							}
 						}
 					}
 					break;
@@ -39867,11 +39876,11 @@ bool CvPlayer::WouldGainMonopoly(ResourceTypes eResource, int iExtraResource) co
 	int iExtra = (iExtraResource * 100) / max(1,GC.getMap().getNumResources(eResource));
 
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-	if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
+	if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && !GC.getGame().GetGameLeagues()->IsLuxuryHappinessBanned(GetID(), eResource))
 	{
 		return (iCurrent + iExtra) > /*50*/ GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD);
 	}
-	else if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+	else if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
 		return (iCurrent + iExtra) > /*25*/ GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD);
 	}
@@ -46054,9 +46063,12 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									pLoopCity->GetCityBuildings()->SetNumFreeBuilding(eBuilding, 1);
 
 									// Only deduct if building is not capital only
-									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0 && !GC.getBuildingInfo(eBuilding)->IsCapitalOnly())
+									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
 									{
-										ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+										CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+										if (pkBuilding && pkBuilding->IsCapitalOnly()) {
+											ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
+										}
 									}
 									if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
 									{

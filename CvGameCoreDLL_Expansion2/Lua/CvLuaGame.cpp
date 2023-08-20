@@ -38,6 +38,8 @@
 
 #define Method(func) RegisterMethod(L, l##func, #func);
 
+using namespace CvLuaArgs;
+
 //------------------------------------------------------------------------------
 const char* CvLuaGame::GetInstanceName()
 {
@@ -1208,9 +1210,16 @@ int CvLuaGame::lGetNumWorldWonders(lua_State* L)
 //bool isWorldWonderClass(const CvBuildingClassInfo& kBuildingClass);
 int CvLuaGame::lIsWorldWonderClass(lua_State* L)
 {
-	const BuildingClassTypes eBuildingClass = (BuildingClassTypes) lua_tointeger(L, 1);
-	CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(eBuildingClass);
-	const bool bResult = ::isWorldWonderClass(*pkBuildingClassInfo);
+	bool bResult = false;
+	const BuildingClassTypes iIndex = toValue<BuildingClassTypes>(L, 2);
+	if(iIndex != NO_BUILDINGCLASS)
+	{
+		CvBuildingClassInfo* pkBuildingClassInfo = GC.getBuildingClassInfo(iIndex);
+		if(pkBuildingClassInfo)
+		{
+			bResult = ::isWorldWonderClass(*pkBuildingClassInfo);
+		}
+	}
 	lua_pushboolean(L, bResult);
 	return 1;
 }
@@ -1996,7 +2005,7 @@ int CvLuaGame::lGetResourceUsageType(lua_State* L)
 	const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 	if (pkResourceInfo)
 	{
-		ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+		ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 		lua_pushinteger(L, eUsage);
 	}
 	else

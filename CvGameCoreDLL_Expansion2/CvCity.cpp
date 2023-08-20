@@ -6417,9 +6417,12 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 					BuildingTypes eBuildingType = (BuildingTypes)pCivilizationInfo->getCivilizationBuildings((BuildingClassTypes)pkEventInfo->getBuildingRequired());
 					if (eBuildingType != NO_BUILDING)
 					{
-						localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS_LOCAL");
-						localizedDurationText << GC.getBuildingInfo(eBuildingType)->GetDescription();
-						DisabledTT += localizedDurationText.toUTF8();
+						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
+						if (pkBuildingInfo) {
+							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS_LOCAL");
+							localizedDurationText << pkBuildingInfo->GetDescription();
+							DisabledTT += localizedDurationText.toUTF8();
+						}
 					}
 				}
 			}
@@ -12678,8 +12681,7 @@ int CvCity::GetPurchaseCost(BuildingTypes eBuilding)
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && (NO_BUILDING != eBuilding))
 	{
 		//Have we already invested here?
-		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
-		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pkBuildingInfo->GetBuildingClassType());
 		if (IsBuildingInvestment(eBuildingClass))
 		{
 			return -1;
@@ -14545,7 +14547,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			// Global Pop change
 			if (pBuildingInfo->GetPopulationChange() != 0)
 			{
-				setPopulation(std::max(1, (getPopulation() + iChange * GC.getBuildingInfo(eBuilding)->GetPopulationChange())));
+				setPopulation(std::max(1, (getPopulation() + iChange * pBuildingInfo->GetPopulationChange())));
 			}
 
 			// Capital
@@ -15981,7 +15983,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (IsHasResourceLocal(eResource, /*bTestVisible*/ false))
 			{
 				// Our Building does give culture with eResource
-				iCulture = GC.getBuildingInfo(eBuilding)->GetResourceCultureChange(eResource);
+				iCulture = pBuildingInfo->GetResourceCultureChange(eResource);
 
 				if (iCulture != 0)
 				{
@@ -15989,7 +15991,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 				}
 
 				// What about faith?
-				iFaith = GC.getBuildingInfo(eBuilding)->GetResourceFaithChange(eResource);
+				iFaith = pBuildingInfo->GetResourceFaithChange(eResource);
 
 				if (iFaith != 0)
 				{
@@ -16336,12 +16338,12 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 			for (int iJ = 0; iJ < GC.getNumResourceInfos(); iJ++)
 			{
-				ChangeResourceExtraYield(((ResourceTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetResourceYieldChange(iJ, eYield) * iChange));
+				ChangeResourceExtraYield(((ResourceTypes)iJ), eYield, (pBuildingInfo->GetResourceYieldChange(iJ, eYield) * iChange));
 			}
 
 			for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 			{
-				ChangeFeatureExtraYield(((FeatureTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetFeatureYieldChange(iJ, eYield) * iChange));
+				ChangeFeatureExtraYield(((FeatureTypes)iJ), eYield, (pBuildingInfo->GetFeatureYieldChange(iJ, eYield) * iChange));
 			}
 
 			// Is this building part of a Corporation?
@@ -16381,18 +16383,18 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 			for (int iJ = 0; iJ < GC.getNumTerrainInfos(); iJ++)
 			{
-				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetTerrainYieldChange(iJ, eYield) * iChange));
-				ChangeYieldPerXTerrainFromBuildingsTimes100(((TerrainTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetYieldPerXTerrain(iJ, eYield) * iChange));
+				ChangeTerrainExtraYield(((TerrainTypes)iJ), eYield, (pBuildingInfo->GetTerrainYieldChange(iJ, eYield) * iChange));
+				ChangeYieldPerXTerrainFromBuildingsTimes100(((TerrainTypes)iJ), eYield, (pBuildingInfo->GetYieldPerXTerrain(iJ, eYield) * iChange));
 			}
 
 			for (int iJ = 0; iJ < GC.getNumPlotInfos(); iJ++)
 			{
-				ChangePlotExtraYield(((PlotTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetPlotYieldChange(iJ, eYield) * iChange));
+				ChangePlotExtraYield(((PlotTypes)iJ), eYield, (pBuildingInfo->GetPlotYieldChange(iJ, eYield) * iChange));
 			}
 
 			for (int iJ = 0; iJ < GC.getNumFeatureInfos(); iJ++)
 			{
-				ChangeYieldPerXFeatureFromBuildingsTimes100(((FeatureTypes)iJ), eYield, (GC.getBuildingInfo(eBuilding)->GetYieldPerXFeature(iJ, eYield) * iChange));
+				ChangeYieldPerXFeatureFromBuildingsTimes100(((FeatureTypes)iJ), eYield, (pBuildingInfo->GetYieldPerXFeature(iJ, eYield) * iChange));
 			}
 
 			// Research agreements are not active, therefore this building now increases science yield by 25%
@@ -16424,9 +16426,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 		}
 
-		if (GC.getBuildingInfo(eBuilding)->GetSpecialistType() != NO_SPECIALIST)
+		if (pBuildingInfo->GetSpecialistType() != NO_SPECIALIST)
 		{
-			GetCityCitizens()->ChangeBuildingGreatPeopleRateChanges((SpecialistTypes)GC.getBuildingInfo(eBuilding)->GetSpecialistType(), pBuildingInfo->GetGreatPeopleRateChange() * iChange);
+			GetCityCitizens()->ChangeBuildingGreatPeopleRateChanges((SpecialistTypes)pBuildingInfo->GetSpecialistType(), pBuildingInfo->GetGreatPeopleRateChange() * iChange);
 		}
 
 		// Process for our player
@@ -31536,6 +31538,10 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			{
 				//Have we already invested here?
 				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+				if (!pGameBuilding) {
+					return false;
+				}
+
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 				if (IsBuildingInvestment(eBuildingClass))
 				{

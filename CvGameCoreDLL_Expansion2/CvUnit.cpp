@@ -7586,18 +7586,21 @@ void CvUnit::LogWorkerEvent(BuildTypes eBuildType, bool bStartingConstruction)
 	if(eImprovement != NO_IMPROVEMENT)
 	{
 		ResourceTypes eResource = plot()->getResourceType(getTeam());
-		if(eResource != NO_RESOURCE)
-		{
-			strResource = GC.getResourceInfo(eResource)->GetType();
-			strResource += ",";
-		}
-		else if(plot()->getResourceType(NO_TEAM) != NO_RESOURCE)
-		{
-			eResource = plot()->getResourceType(NO_TEAM);
-			strResource = GC.getResourceInfo(eResource)->GetType();
-			strResource += ",";
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo) {
+			if (eResource != NO_RESOURCE)
+			{
+				strResource = pkResourceInfo->GetType();
+				strResource += ",";
+			}
+			else if (plot()->getResourceType(NO_TEAM) != NO_RESOURCE)
+			{
+				eResource = plot()->getResourceType(NO_TEAM);
+				strResource = pkResourceInfo->GetType();
+				strResource += ",";
 
-			strCanSee = "Can't see!,";
+				strCanSee = "Can't see!,";
+			}
 		}
 	}
 
@@ -10415,8 +10418,14 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 			ResourceTypes eResource = pPlot->getResourceType(getTeam());
 			if (eResource != NO_RESOURCE)
 			{
-				if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC || GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (
+					pkResourceInfo && 
+					(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC ||
+					pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				) {
 					return true;
+				}
 			}
 		}
 
