@@ -571,6 +571,9 @@ ALTER TABLE Policies ADD COLUMN 'ExperienceAllUnitsFromLiberation' INTEGER DEFAU
 -- Conquering a city heals all units (by X%)
 ALTER TABLE Policies ADD COLUMN 'CityCaptureHealGlobal' INTEGER DEFAULT 0;
 
+-- Conquering a city heals all units near the city (by X%)
+ALTER TABLE Policies ADD COLUMN 'CityCaptureHealLocal' INTEGER DEFAULT 0;
+
 -- % modifiers to empire size modifier - negative = good!
 ALTER TABLE Buildings ADD COLUMN 'EmpireSizeModifierReduction' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'EmpireSizeModifierReductionGlobal' INTEGER DEFAULT 0;
@@ -1414,6 +1417,7 @@ ALTER TABLE Policies ADD COLUMN 'HappinessPerXGreatWorks' INTEGER DEFAULT 0;
 
 -- Alters food consumption of specialists - use integer (is raised to 100s later)
 ALTER TABLE Policies ADD COLUMN 'SpecialistFoodChange' INTEGER DEFAULT 0;
+ALTER TABLE Policies ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
 
 -- Trade Routes
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;

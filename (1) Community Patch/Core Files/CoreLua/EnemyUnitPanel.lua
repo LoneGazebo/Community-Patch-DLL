@@ -2138,7 +2138,12 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			---------------------
 			if (not bRanged) then
 				iChance = pTheirUnit:GetWithdrawChance(pMyUnit);
-				if (iChance >= 0) then
+				if (iChance == 100) then
+				   controlTable = g_TheirCombatDataIM:GetInstance();
+				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE_100_PERCENT");
+				   controlTable.Value:SetText("");
+				   bonusCount = bonusCount + 1;
+				elseif (iChance > 0) then
 				   controlTable = g_TheirCombatDataIM:GetInstance();
 				   controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_WITHDRAW_CHANCE");
 				   controlTable.Value:SetText( GetFormattedText(strText, iChance, false, true, "[COLOR_CYAN]") );

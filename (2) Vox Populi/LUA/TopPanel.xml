@@ -27,6 +27,8 @@
 	<TextButton Anchor="C,T" String="RESOURCES!" ColorLayer0="255,0,255,255"  ID="ResourceString" ToolTipType="TooltipTypeTopPanel"/>
 
 	<TextButton Anchor="C,T" String="MANPOWER!" ColorLayer0="255,0,255,255"  ID="UnitSupplyString" ToolTipType="TooltipTypeTopPanel"/>
+	
+	<TextButton Anchor="C,T" String="SPY POINTS!" ColorLayer0="255,0,255,255"  ID="SpyPointsString" ToolTipType="TooltipTypeTopPanel"/>
 		
 	</Stack>
 

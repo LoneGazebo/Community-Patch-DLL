@@ -257,6 +257,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iHappfromXSpecialists(0),
 	m_iNoUnhappfromXSpecialistsCapital(0),
 	m_iSpecialistFoodChange(0),
+	m_iNonSpecialistFoodChange(0),
 	m_iWarWearinessModifier(0),
 	m_iWarScoreModifier(0),
 	m_iGreatGeneralExtraBonus(0),
@@ -345,6 +346,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piFranchisesPerImprovement(NULL),
 	m_iMaxAirUnitsChange(0),
 	m_iCityCaptureHealGlobal(0),
+	m_iCityCaptureHealLocal(0),
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	m_iInvestmentModifier(0),
@@ -732,6 +734,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iHappfromXSpecialists = kResults.GetInt("HappfromXSpecialists");
 	m_iNoUnhappfromXSpecialistsCapital = kResults.GetInt("NoUnhappfromXSpecialistsCapital");
 	m_iSpecialistFoodChange = kResults.GetInt("SpecialistFoodChange");
+	m_iNonSpecialistFoodChange = kResults.GetInt("NonSpecialistFoodChange");
 	m_iWarWearinessModifier = kResults.GetInt("WarWearinessModifier");
 	m_iWarScoreModifier = kResults.GetInt("WarScoreModifier");
 	m_iGreatGeneralExtraBonus = kResults.GetInt("GreatGeneralExtraBonus");
@@ -1241,7 +1244,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piFranchisesPerImprovement, "Improvements", "Policy_FranchisePerImprovement", "ImprovementType", "PolicyType", szPolicyType, "NumFranchise");
 
 	m_iCityCaptureHealGlobal = kResults.GetInt("CityCaptureHealGlobal");
-
+	m_iCityCaptureHealLocal = kResults.GetInt("CityCaptureHealLocal");
 	m_iMaxAirUnitsChange = kResults.GetInt("MaxAirUnitsChangeGlobal");
 #endif
 
@@ -2620,6 +2623,10 @@ int CvPolicyEntry::GetSpecialistFoodChange() const
 {
 	return m_iSpecialistFoodChange;
 }
+int CvPolicyEntry::GetNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
+}
 int CvPolicyEntry::GetWarWearinessModifier() const
 {
 	return m_iWarWearinessModifier;
@@ -3698,6 +3705,11 @@ int CvPolicyEntry::GetMaxAirUnitsChange() const
 int CvPolicyEntry::GetCityCaptureHealGlobal() const
 {
 	return m_iCityCaptureHealGlobal;
+}
+/// All units in the area X% whenever you conquer a city
+int CvPolicyEntry::GetCityCaptureHealLocal() const
+{
+	return m_iCityCaptureHealLocal;
 }
 
 #endif

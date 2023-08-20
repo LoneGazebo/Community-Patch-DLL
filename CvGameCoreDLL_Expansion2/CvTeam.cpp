@@ -8634,52 +8634,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 					if(kPlayer.isAlive() && kPlayer.getTeam() == GetID() && !kPlayer.isMinorCiv() && !kPlayer.isBarbarian())
 					{
 						// provide the player with the extra spies according to their trait when they get their first spy
-#if defined(MOD_BALANCE_CORE)
-						if (kPlayer.GetEspionage()->GetNumSpies() <= kPlayer.GetFreeSpy())
-#else
 						if (kPlayer.GetEspionage()->GetNumSpies() == 0)
-#endif
 						{
-							int iNumTraitSpies = kPlayer.GetPlayerTraits()->GetExtraSpies();
-#if defined(MOD_BALANCE_CORE_SPIES)
-							if(MOD_BALANCE_CORE_SPIES && iNumTraitSpies > 0)
-							{
-								//Optional: Additional Trait Spies scaled for the number of City-States in the game.
-								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
-								if((iNumMinor - 1) > 0)
-								{
-									iNumMinor = iNumMinor - 1;
-									for(int i = 0; i < iNumMinor; i++)
-									{
-										kPlayer.GetEspionage()->CreateSpy();
-									}
-								}			
-							}
-#endif
-							for (int i = 0; i < iNumTraitSpies; i++)
-							{
-								kPlayer.GetEspionage()->CreateSpy();
-							}
+							kPlayer.CreateSpies(kPlayer.GetPlayerTraits()->GetExtraSpies(), false);
 						}
-
-						for(int i = 0; i < pEraInfo->getSpiesGrantedForPlayer(); i++)
-						{
-							kPlayer.GetEspionage()->CreateSpy();
-						}
-#if defined(MOD_BALANCE_CORE_SPIES)
-						if(MOD_BALANCE_CORE_SPIES){
-							//Optional: Spies scaled for the number of City-States in the game.
-							int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
-							if((iNumMinor - 1) > 0)
-							{
-								iNumMinor = iNumMinor - 1;
-								for(int i = 0; i < iNumMinor; i++)
-								{
-									kPlayer.GetEspionage()->CreateSpy();
-								}
-							}			
-						}
-#endif
+						kPlayer.CreateSpies(pEraInfo->getSpiesGrantedForPlayer());
 					}
 				}
 			}
@@ -8721,33 +8680,11 @@ void CvTeam::SetCurrentEra(EraTypes eNewValue)
 							continue;
 						}
 
-						for(int i = 0; i < pEraInfo->getSpiesGrantedForEveryone(); i++)
+						if (kPlayer.GetEspionage()->GetNumSpies() == 0)
 						{
-							// provide the player with the extra spies according to their trait when they get their first spy
-							if (kPlayer.GetEspionage()->GetNumSpies() <= kPlayer.GetFreeSpy())
-							{
-								int iNumTraitSpies = kPlayer.GetPlayerTraits()->GetExtraSpies();
-								for (int iIndex = 0; iIndex < iNumTraitSpies; iIndex++)
-								{
-									kPlayer.GetEspionage()->CreateSpy();
-								}
-							}
-							kPlayer.GetEspionage()->CreateSpy();
-
-							if (MOD_BALANCE_CORE_SPIES)
-							{
-								//Optional: Spies scaled for the number of City-States in the game.
-								int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
-								if((iNumMinor - 1) > 0)
-								{
-									iNumMinor = iNumMinor - 1;
-									for(int i = 0; i < iNumMinor; i++)
-									{
-										kPlayer.GetEspionage()->CreateSpy();
-									}
-								}			
-							}
+							kPlayer.CreateSpies(kPlayer.GetPlayerTraits()->GetExtraSpies(), false);
 						}
+						kPlayer.CreateSpies(pEraInfo->getSpiesGrantedForEveryone());
 					}
 				}
 			}

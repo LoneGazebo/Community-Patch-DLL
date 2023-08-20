@@ -94,7 +94,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP';
 
 -- Philanthropy
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Foreign Service[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 1 [ICON_SPY] Spy (plus one Spy for every 10 [ICON_CITY_STATE] City-States, if at least 20 city-states ever existed).[NEWLINE][ICON_BULLET]Spy mission duration reduced by 1 turn for your Spies.[NEWLINE][ICON_BULLET]Earn [ICON_DIPLOMAT] Great Diplomats 50% faster.[NEWLINE][ICON_BULLET]+50% Rewards from [ICON_CITY_STATE] City-State Quests.[NEWLINE][ICON_BULLET]+1 of every Strategic Resource for every three City-State Alliances you maintain.'
+SET Text = '[COLOR_POSITIVE_TEXT]Foreign Service[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 100 [ICON_SPY] Spy Points.[NEWLINE][ICON_BULLET]Spy mission duration reduced by 1 turn for your Spies.[NEWLINE][ICON_BULLET]Earn [ICON_DIPLOMAT] Great Diplomats 50% faster.[NEWLINE][ICON_BULLET]+50% Rewards from [ICON_CITY_STATE] City-State Quests.[NEWLINE][ICON_BULLET]+1 of every Strategic Resource for every three City-State Alliances you maintain.'
 WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
 
 UPDATE Language_en_US

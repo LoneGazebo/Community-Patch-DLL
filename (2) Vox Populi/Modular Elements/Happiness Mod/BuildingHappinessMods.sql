@@ -23,7 +23,7 @@ WHERE Type = 'POLICY_EXPLORATION_FINISHER';*/
 -- Rationalism
 UPDATE Policies
 SET DistressFlatReductionGlobal = '1', PovertyFlatReductionGlobal = '1', IlliteracyFlatReductionGlobal = '1', BoredomFlatReductionGlobal = '1', ReligiousUnrestFlatReductionGlobal = '1'
-WHERE Type = 'POLICY_RATIONALISM';
+WHERE Type = 'POLICY_SOVEREIGNTY';
 
 UPDATE Policies
 SET ReligiousUnrestFlatReductionGlobal = '5'

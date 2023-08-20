@@ -20,7 +20,7 @@
 		<!-- This affects spies scaling with game size.-->
 		<Update>
 			<Where Name="BALANCE_CORE_SPIES"/>
-			<Set Value="1"/>
+			<Set Value="0"/>
 		</Update>
 		<!-- This affects AI Tactical and Military Performance-->
 		<Update>

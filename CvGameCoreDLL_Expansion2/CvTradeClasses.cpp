@@ -203,6 +203,8 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.iMaxNormalizedDistance = iMaxNormDistSea;
 
 		//get all paths
+		//paths from origin city to dest city
+		//map<index of dest's city plot, path to this city>
 		map<int,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
 		for (map<int,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
 		{
@@ -2162,6 +2164,25 @@ void CvGameTrade::LogTradeMsg(CvString& strMsg) const
 		FILogFile* pLog = NULL;
 
 		pLog = LOGFILEMGR.GetLog(GetLogFileName(), FILogFile::kDontTimeStamp);
+
+		// Get the leading info for this line
+		strBaseString.Format("%03d,", GC.getGame().getElapsedGameTurns());
+		strOutBuf = strBaseString + strMsg;
+		pLog->Msg(strOutBuf);
+	}
+}
+void CvPlayerTrade::LogTradeMsg(CvString& strMsg) const
+{
+	if(GC.getLogging())
+	{
+		CvString strOutBuf;
+		CvString strBaseString;
+		FILogFile* pLog = NULL;
+
+		CvString logName;
+		logName.Format("TradePlayerRouteLog_%s.csv", m_pPlayer->getCivilizationShortDescription());
+
+		pLog = LOGFILEMGR.GetLog(logName.c_str(), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d,", GC.getGame().getElapsedGameTurns());
@@ -5138,6 +5159,10 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange)
 {
 	int iLongestRoute = 0;
+	
+	CvString strMsg;
+	strMsg.Format("%s,,%d,Finding the longest trade route", pOriginCity->getNameKey(), iMaxRange * SPath::getNormalizedDistanceBase());
+	LogTradeMsg(strMsg);
 
 	// Check the route, but not the path
 	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
@@ -5146,18 +5171,51 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 		{
+
 			if (CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, TRADE_CONNECTION_INTERNATIONAL, false, false))
 			{
-				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain);
-				if (iLength <= 0)
+				SPath outPath;
+				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain, &outPath);
+
+				if (iLength <= 0) {
+					strMsg.Format("%s,%s,,Skipping", pOriginCity->getNameKey(), pDestCity->getNameKey());
+					LogTradeMsg(strMsg);
 					continue;
+				}
 
 				if (iLength > iLongestRoute)
 				{
+					strMsg.Format("%s,%s,,New longest trade route,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
+					LogTradeMsg(strMsg);
+
+					/*strMsg.Format("%s,%s,,Logging the whole path", pOriginCity->getNameKey(), pDestCity->getNameKey());
+					LogTradeMsg(strMsg);
+					for (std::vector<SPathNode>::iterator it = outPath.vPlots.begin(); it != outPath.vPlots.end(); ++it) {
+						strMsg.Format(
+							"%s,%s,,X:%d / Y:%d / Moves:%d / Turns:%d", 
+							pOriginCity->getNameKey(),
+							pDestCity->getNameKey(),
+							it->x,
+							it->y,
+							it->moves,
+							it->turns
+						);
+						LogTradeMsg(strMsg);
+					}*/
+
 					iLongestRoute = iLength;
-					if (iLongestRoute == iMaxRange)
+					if (iLongestRoute >= iMaxRange * SPath::getNormalizedDistanceBase()) {
 						break;
+					}
 				}
+				else {
+					strMsg.Format("%s,%s,,Trade route is not the longest,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
+					LogTradeMsg(strMsg);
+				}
+			}
+			else {
+				strMsg.Format("%s,%s,,Can't create trade route", pOriginCity->getNameKey(), pDestCity->getNameKey());
+				LogTradeMsg(strMsg);
 			}
 		}
 	}

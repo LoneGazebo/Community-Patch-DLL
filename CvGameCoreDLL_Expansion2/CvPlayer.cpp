@@ -167,6 +167,8 @@ CvPlayer::CvPlayer() :
 	, m_iEspionageModifier()
 	, m_iEspionageTurnsModifierFriendly()
 	, m_iEspionageTurnsModifierEnemy()
+	, m_iSpyPoints()
+	, m_iSpyPointsTotal()
 	, m_iSpyStartingRank()
 	, m_iExtraLeagueVotes()
 	, m_iWoundedUnitDamageMod()
@@ -639,6 +641,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappfromXSpecialists()
 	, m_iNoUnhappfromXSpecialistsCapital()
 	, m_iSpecialistFoodChange()
+	, m_iNonSpecialistFoodChange()
 	, m_iWarWearinessModifier()
 	, m_iWarScoreModifier()
 #if defined(MOD_TRAITS_CITY_WORKING) || defined(MOD_BUILDINGS_CITY_WORKING) || defined(MOD_POLICIES_CITY_WORKING) || defined(MOD_TECHS_CITY_WORKING)
@@ -683,6 +686,7 @@ CvPlayer::CvPlayer() :
 	, m_iInfluenceForLiberation()
 	, m_iExperienceForLiberation()
 	, m_iCityCaptureHealGlobal()
+	, m_iCityCaptureHealLocal()
 	, m_aiBuildingClassInLiberatedCities()
 	, m_iUnitsInLiberatedCities()
 	, m_paiBuildingClassCulture()
@@ -1311,6 +1315,8 @@ void CvPlayer::uninit()
 	m_iEspionageModifier = 0;
 	m_iEspionageTurnsModifierFriendly = 0;
 	m_iEspionageTurnsModifierEnemy = 0;
+	m_iSpyPoints = 0;
+	m_iSpyPointsTotal = 0;
 	m_iSpyStartingRank = 0;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier = 0;
@@ -1551,6 +1557,7 @@ void CvPlayer::uninit()
 	m_iHappfromXSpecialists = 0;
 	m_iNoUnhappfromXSpecialistsCapital = 0;
 	m_iSpecialistFoodChange = 0;
+	m_iNonSpecialistFoodChange = 0;
 	m_iWarWearinessModifier = 0;
 	m_iWarScoreModifier = 0;
 	m_iPlayerEventCooldown = 0;
@@ -1583,6 +1590,7 @@ void CvPlayer::uninit()
 	m_iExperienceForLiberation = 0;
 	m_iUnitsInLiberatedCities = 0;
 	m_iCityCaptureHealGlobal = 0;
+	m_iCityCaptureHealLocal = 0;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
 	m_iMaxAirUnits = 0;
@@ -3611,10 +3619,14 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			int iScaler = max(1, (iPopulation / 2) - GetCurrentEra());
 			doInstantYield(INSTANT_YIELD_TYPE_F_CONQUEST, false, NO_GREATPERSON, NO_BUILDING, iScaler, true, NO_PLAYER, NULL, false, NULL, pCity->isCoastal(), true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pCity);
 
-			// All units heal from conquering a city?
+			// Units heal from conquering a city?
 			if (MOD_BALANCE_CORE_POLICIES && getCityCaptureHealGlobal() > 0)
 			{
 				DoHealGlobal(getCityCaptureHealGlobal());
+			}
+			if (MOD_BALANCE_CORE_POLICIES && getCityCaptureHealLocal() > 0)
+			{
+				DoHealLocal(getCityCaptureHealLocal(), pCityPlot);
 			}
 		}
 
@@ -11682,6 +11694,7 @@ void CvPlayer::DoUnitReset()
 
 		// Finally (now that healing is done), restore movement points
 		pLoopUnit->restoreFullMoves();
+		pLoopUnit->setHasWithdrawnThisTurn(false);
 
 		// Archaeologist can't move on turn he finishes a dig (while waiting for user to decide his next action)
 		if (pLoopUnit->AI_getUnitAIType() == UNITAI_ARCHAEOLOGIST)
@@ -16892,27 +16905,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 
 		if(pBuildingInfo->GetExtraSpies() > 0)
 		{
-			CvPlayerEspionage* pEspionage = GetEspionage();
-			CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
-			if(pEspionage)
-			{
-				int iNumSpies = pBuildingInfo->GetExtraSpies();
-#if defined(MOD_BALANCE_CORE_SPIES)
-				if (MOD_BALANCE_CORE_SPIES) 
-				{
-					//Optional: Spies scaled for the number of City-States in the game.
-					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
-					if(iNumMinor > 1)
-					{
-						iNumSpies += iNumMinor;
-					}
-				}
-#endif
-				for(int i = 0; i < iNumSpies; i++)
-				{
-					pEspionage->CreateSpy();
-				}
-			}
+			CreateSpies(pBuildingInfo->GetExtraSpies());
 		}
 
 		if(pBuildingInfo->GetInstantSpyRankChange() > 0)
@@ -20946,6 +20939,33 @@ void CvPlayer::DoHealGlobal(int iHealPercent)
 		}
 	}
 }
+
+void CvPlayer::DoHealLocal(int iHealPercent, CvPlot* pPlot)
+{
+	IDInfoVector currentUnits;
+	for (int i = 0; i < RING3_PLOTS; i++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(pPlot, i);
+		if (pLoopPlot->getUnits(&currentUnits) > 0)
+		{
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			{
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if (pLoopUnit && pLoopUnit->getOwner() == GetID() && pLoopUnit->IsCombatUnit())
+				{
+					if (iHealPercent == 100)
+						pLoopUnit->changeDamage(-pLoopUnit->getDamage());
+					else
+					{
+						int iHealHP = pLoopUnit->GetMaxHitPoints() * iHealPercent / 100;
+						pLoopUnit->changeDamage(-iHealHP);
+					}
+				}
+			}
+		}
+	}
+}
 #endif
 
 //	--------------------------------------------------------------------------------
@@ -24226,6 +24246,60 @@ void CvPlayer::ChangeStartingSpyRank(int iChange)
 	m_iSpyStartingRank = (m_iSpyStartingRank + iChange);
 }
 
+//	--------------------------------------------------------------------------------
+/// Get the number of collected spy points of the player. When they exceed the threshold, a new spy is created
+int CvPlayer::GetSpyPoints(bool bTotal) const
+{
+	return bTotal ? m_iSpyPointsTotal : m_iSpyPoints;
+}
+
+//	--------------------------------------------------------------------------------
+/// Create spies for the player
+void CvPlayer::CreateSpies(int iNumSpies, bool bScaling)
+{
+	if (iNumSpies <= 0)
+		return;
+
+	if (GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE))
+		return;
+
+	CvPlayerEspionage* pEspionage = GetEspionage();
+	CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
+	if (!pEspionage)
+		return;
+
+	if (!MOD_BALANCE_CORE_SPIES)
+	{
+		for (int i = 0; i < iNumSpies; i++)
+		{
+			pEspionage->CreateSpy();
+		}
+	}
+	else
+	{
+		int iThreshold = max(1, GC.getGame().GetSpyThreshold());
+		if (bScaling)
+		{
+			// spies scaling with era. Instead of 1 spy, we gain 100 spy points. For each time the number of spy points exceeds the threshold, a spy is created
+			m_iSpyPointsTotal += iNumSpies * 100;
+			m_iSpyPoints += iNumSpies * 100;
+			while (m_iSpyPoints >= iThreshold)
+			{
+				pEspionage->CreateSpy();
+				m_iSpyPoints -= iThreshold;
+			}
+		}
+		else
+		{
+			m_iSpyPointsTotal += iNumSpies * iThreshold;
+			for (int i = 0; i < iNumSpies; i++)
+			{
+				pEspionage->CreateSpy();
+			}
+		}
+	}
+}
+
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 //	--------------------------------------------------------------------------------
 /// Get the global modifier on the conversion progress rate
@@ -27439,49 +27513,49 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				}
 				case INSTANT_YIELD_TYPE_GP_USE:
 				{
-					if(pLoopCity->isCapital())
+					// Don't use this case if you aren't using a Great Person
+					ASSERT(eGreatPerson != NO_GREATPERSON);
+
+					if (pLoopCity->isCapital())
 					{
 						iValue += getYieldGPExpend(eYield);
-						if(eYield == YIELD_GOLD)
-						{
-							iValue += GetGreatPersonExpendGold();
-						}
+						iValue += getGreatPersonExpendedYield(eGreatPerson, eYield);
 					}
-					if(eGreatPerson != NO_GREATPERSON)
+					if (bEraScale)
 					{
-						if(pLoopCity->isCapital())
-						{
-							iValue += getGreatPersonExpendedYield(eGreatPerson, eYield);
-							//Scale it here to avoid scaling the growth yield below.
-							if (bEraScale)
-							{
-								iValue *= iEra;
-							}
-						}
-						if(pReligion)
-						{
-							int iChange = (pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) + pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true)) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
-				
-							//Scale it here to avoid scaling the growth yield below.
-							if (eYield == YIELD_CULTURE && bEraScale)
-							{
-								iChange *= iEra;
-							}
-              iValue += iChange;
-						}
+						iValue *= iEra;
 					}
-					if(eYield == YIELD_FAITH)
+
+					if (pReligion)
 					{
-						if(pReligion)
+						int iChange = 0;
+						// GetYieldFromGPUse (does scale with era + city limiter)
+						iChange = pReligion->m_Beliefs.GetYieldFromGPUse(eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+						if (bEraScale)
 						{
-							iValue += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
-							//Scale it here to avoid scaling the growth yield below.
-							if (bEraScale)
-							{
-								iValue *= iEra;
-							}
+							iChange *= iEra;
 						}
+						iValue += iChange;
+						// GetGreatPersonExpendedYield (does not scale with era but with city)
+						iChange = pReligion->m_Beliefs.GetGreatPersonExpendedYield(eGreatPerson, eYield, GetID(), pLoopCity, true) * pReligion->m_Beliefs.GetCityScalerLimiter(iNumFollowerCities);
+						iValue += iChange;
 					}
+
+					// Base Game Yield Generation, doesn't scale with era except with VP
+					int iChange = 0;
+					if (eYield == YIELD_GOLD)
+					{
+						iChange += GetGreatPersonExpendGold();
+					}
+					if (eYield == YIELD_FAITH && pReligion)
+					{
+						iChange += pReligion->m_Beliefs.GetGreatPersonExpendedFaith(GetID(), pLoopCity, true);
+					}
+					if (MOD_BALANCE_VP && bEraScale)
+					{
+						iChange *= iEra;
+					}
+					iValue += iChange;
 					break;
 				}
 				case INSTANT_YIELD_TYPE_GP_BORN:
@@ -33018,6 +33092,18 @@ void CvPlayer::ChangeSpecialistFoodChange(int iChange)
 	m_iSpecialistFoodChange += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetNonSpecialistFoodChange() const
+{
+	return m_iNonSpecialistFoodChange;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeNonSpecialistFoodChange(int iChange)
+{
+	m_iNonSpecialistFoodChange += iChange;
+}
+
 
 
 //	--------------------------------------------------------------------------------
@@ -34635,6 +34721,21 @@ void CvPlayer::SetHasBetrayedMinorCiv(bool bValue)
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayer::setEverAlive(bool bNewValue)
+{
+	// No state change - ignore
+	if (isEverAlive() == bNewValue)
+		return;
+
+	// Can't kill Barbarians
+	if (!bNewValue && isBarbarian())
+		return;
+
+	// Update memory values
+	m_bEverAlive = bNewValue;
+	GET_TEAM(getTeam()).changeEverAliveCount(bNewValue ? 1 : -1);
+}
+//	--------------------------------------------------------------------------------
 void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 {
 	// No state change - ignore
@@ -34651,10 +34752,9 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	{
 		GET_TEAM(getTeam()).changeAliveCount(1);
 
-		if (!isEverAlive() && !isObserver())
+		if (!isObserver())
 		{
-			m_bEverAlive = true;
-			GET_TEAM(getTeam()).changeEverAliveCount(1);
+			setEverAlive(true);
 		}
 
 		if (getNumCities() == 0)
@@ -36500,6 +36600,16 @@ int CvPlayer::getCityCaptureHealGlobal() const
 void CvPlayer::changeCityCaptureHealGlobal(int iChange)
 {
 	m_iCityCaptureHealGlobal += iChange;
+}
+
+int CvPlayer::getCityCaptureHealLocal() const
+{
+	return m_iCityCaptureHealLocal;
+}
+
+void CvPlayer::changeCityCaptureHealLocal(int iChange)
+{
+	m_iCityCaptureHealLocal += iChange;
 }
 
 //	--------------------------------------------------------------------------------
@@ -45013,6 +45123,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	changeUnitsInLiberatedCities(pPolicy->GetUnitsInLiberatedCities() * iChange);
 	changeMaxAirUnits(pPolicy->GetMaxAirUnitsChange() * iChange);
 	changeCityCaptureHealGlobal(pPolicy->GetCityCaptureHealGlobal() * iChange);
+	changeCityCaptureHealLocal(pPolicy->GetCityCaptureHealLocal() * iChange);
 	ChangeIsVassalsNoRebel(pPolicy->IsVassalsNoRebel() * iChange);
 	ChangeVassalYieldBonusModifier(pPolicy->GetVassalYieldBonusModifier() * iChange);
 	ChangeCSYieldBonusModifier(pPolicy->GetCSYieldBonusModifier() * iChange);
@@ -45246,6 +45357,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	ChangeHappfromXSpecialists(pPolicy->GetHappfromXSpecialists() * iChange);
 	ChangeNoUnhappfromXSpecialistsCapital(pPolicy->GetNoUnhappfromXSpecialistsCapital() * iChange);
 	ChangeSpecialistFoodChange(pPolicy->GetSpecialistFoodChange() * iChange);
+	ChangeNonSpecialistFoodChange(pPolicy->GetNonSpecialistFoodChange() * iChange);
 	ChangeWarWearinessModifier(pPolicy->GetWarWearinessModifier() * iChange);
 	ChangeWarScoreModifier(pPolicy->GetWarScoreModifier() * iChange);
 
@@ -45299,28 +45411,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		if(GetFreeSpy() > 0)
 		{
-			CvPlayerEspionage* pEspionage = GetEspionage();
-			CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
-			if(pEspionage)
-			{
-				int iNumSpies = GetFreeSpy();
-
-				if (MOD_BALANCE_CORE_SPIES) 
-				{
-					//Optional: Spies scaled for the number of City-States in the game.
-					int iNumMinor = ((GC.getGame().GetNumMinorCivsEver(true) * /*10*/ GD_INT_GET(BALANCE_SPY_TO_MINOR_RATIO)) / 100);
-					if(iNumMinor > 1)
-					{
-						iNumSpies += iNumMinor;
-					}
-				}
-
-				for(int i = 0; i < iNumSpies; i++)
-				{
-					pEspionage->CreateSpy();
-				}
-				changeFreeSpy(GetFreeSpy() * -1);
-			}
+			CreateSpies(GetFreeSpy());
+			changeFreeSpy(GetFreeSpy() * -1);
 		}
 		
 		int iLoop = 0;
@@ -47671,6 +47763,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iInfluenceForLiberation);
 	visitor(player.m_iExperienceForLiberation);
 	visitor(player.m_iCityCaptureHealGlobal);
+	visitor(player.m_iCityCaptureHealLocal);
 	visitor(player.m_aiBuildingClassInLiberatedCities);
 	visitor(player.m_iUnitsInLiberatedCities);
 	visitor(player.m_paiBuildingClassCulture);

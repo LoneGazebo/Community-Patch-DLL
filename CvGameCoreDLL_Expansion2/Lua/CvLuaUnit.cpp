@@ -64,6 +64,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetScrapGold);
 	Method(CanGift);
 	Method(CanDistanceGift);
+	Method(IsUnitValidGiftForCityStateQuest);
 	Method(CanLoadUnit);
 	Method(CanLoad);
 	Method(CanUnload);
@@ -1169,6 +1170,21 @@ int CvLuaUnit::lCanDistanceGift(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 2);
 	const bool bResult = pkUnit->CanDistanceGift(eToPlayer);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool CanDistanceGift();
+int CvLuaUnit::lIsUnitValidGiftForCityStateQuest(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eToPlayer = (PlayerTypes)lua_tointeger(L, 3);
+
+	bool bResult = false;
+	if (GET_PLAYER(eToPlayer).isMinorCiv())
+		 bResult = GET_PLAYER(eToPlayer).GetMinorCivAI()->IsUnitValidGiftForCityStateQuest(eFromPlayer, pkUnit);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -3705,7 +3721,7 @@ int CvLuaUnit::lGetWithdrawChance(lua_State* L)
 	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 2);
 	int iResult;
 	if (pkUnit->getExtraWithdrawal() > 0)
-		iResult = pkUnit->GetWithdrawChance(*pkAttacker, true);
+		iResult = pkUnit->GetWithdrawChance(*pkAttacker);
 	else
 		iResult = -1;
 		

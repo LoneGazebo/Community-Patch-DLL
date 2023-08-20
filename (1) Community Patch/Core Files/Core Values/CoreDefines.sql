@@ -772,9 +772,9 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_B
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_PLEDGE_TO_PROTECT_DEFENSE_BONUS_MAX', '25'; -- Max bonus to CS capital's CS from PtPs
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_ALLIANCE_DEFENSE_BONUS', '25'; -- Bonus to CS capital's CS for having an ally
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MAX_CS_ALLY_STRENGTH', '5'; -- Max number of CSs calc'd for bonus for Greek UA (VP)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_TO_MINOR_RATIO', '10';
 
 -- Spies
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_TO_PLAYER_RATIO', '20';
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_RESISTANCE_MAXIMUM', '1000';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_SABOTAGE_RATE', '30';
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_RESPAWN_TIMER', '5';

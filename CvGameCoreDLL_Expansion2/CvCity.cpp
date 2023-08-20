@@ -650,7 +650,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->updateCityRoute();
 
 	//force recalculation of trade routes
-	GC.getGame().GetGameTrade()->InvalidateTradePathCache(eOwner);
+	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		GC.getGame().GetGameTrade()->InvalidateTradePathCache((PlayerTypes) iPlayer);
+	}
 
 	for (iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -1194,16 +1197,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 	if (bInitialFounding && owningPlayer.GetPlayerTraits()->GetStartingSpies() > 0 && owningPlayer.getNumCities() == 1)
 	{
-		CvPlayerEspionage* pEspionage = owningPlayer.GetEspionage();
-		CvAssertMsg(pEspionage, "pEspionage is null! What's up with that?!");
-		if (pEspionage)
-		{
-			int iNumSpies = owningPlayer.GetPlayerTraits()->GetStartingSpies();
-			for (int i = 0; i < iNumSpies; i++)
-			{
-				pEspionage->CreateSpy();
-			}
-		}
+		owningPlayer.CreateSpies(owningPlayer.GetPlayerTraits()->GetStartingSpies(), false);
 	}
 
 	owningPlayer.CalculateNetHappiness();
@@ -17551,8 +17545,8 @@ int CvCity::foodConsumptionNonSpecialistTimes100() const
 
 	int iFoodPerPop = /*2*/ GD_INT_GET(FOOD_CONSUMPTION_PER_POPULATION) * 100;
 	iFoodPerPop += GetAdditionalFood() * 100;
-	iFoodPerPop += GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
-	iFoodPerPop = max(100, iFoodPerPop); //cannot reduce food per citizen to less than 1
+	iFoodPerPop += GET_PLAYER(getOwner()).GetNonSpecialistFoodChange() * 100 + GET_PLAYER(getOwner()).GetPlayerTraits()->GetNonSpecialistFoodChange();
+	iFoodPerPop = max(0, iFoodPerPop); //cannot reduce food per citizen to less than 0
 	return iFoodPerPop;
 }
 
@@ -24948,7 +24942,7 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	}
 	if (isCapital() && GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) != 0)
 	{
-		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetEspionage()->GetNumAssignedSpies()));
+		iTempMod = min(30, (GET_PLAYER(getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(getOwner()).GetSpyPoints(true) / 100));
 		iModifier += iTempMod;
 		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_SPIES", iTempMod);
 	}

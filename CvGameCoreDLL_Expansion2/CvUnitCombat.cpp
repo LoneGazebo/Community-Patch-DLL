@@ -1084,7 +1084,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->getNameKey(), pkAttacker->getNameKey(), iDamage);
 #if defined(MOD_BALANCE_CORE)
-						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
+						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->GetNumFallBackPlotsAvailable(*pkAttacker) > 0)
 						{
 							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
@@ -3767,9 +3767,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 	CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
-	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanFallBack(kAttacker,true))
+	if(pDefender->CheckWithdrawal(kAttacker))
 	{
-		pDefender->DoFallBack(kAttacker);
+		pDefender->DoFallBack(kAttacker, true);
 
 		if(kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{

@@ -64,6 +64,10 @@ WHERE Name = 'BALANCE_CORE_POLICIES';
 
 UPDATE CustomModOptions
 SET Value = '1'
+WHERE Name = 'BALANCE_CORE_SPIES';
+
+UPDATE CustomModOptions
+SET Value = '1'
 WHERE Name = 'BALANCE_CORE_BARBARIAN_THEFT';
 
 UPDATE CustomModOptions

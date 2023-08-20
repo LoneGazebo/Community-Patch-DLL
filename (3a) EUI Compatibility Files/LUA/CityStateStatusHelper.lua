@@ -689,7 +689,7 @@ else
 	end
 end
 
-local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
+local function QuestString(majorPlayerID, minorPlayer, questID, questData1, questData2)
 	if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE then
 		return L( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL" )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP then
@@ -759,7 +759,7 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER then
 			return L( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER_FORMAL", GameInfo.Buildings[questData1].Description )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT then
-			return L( "TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL", GameInfo.Units[questData1].Description )
+			return L( "TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL", GameInfo.Units[questData1].Description, questData2 )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE then
 			return L( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE_FORMAL", Players[questData1]:GetNameKey() )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE then
@@ -813,7 +813,8 @@ if gk_mode then
 
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
 					local questData1 = minorPlayer:GetQuestData1(majorPlayerID, questID)
-					local questString = QuestString(majorPlayerID, minorPlayer, questID, questData1)
+					local questData2 = minorPlayer:GetQuestData2(majorPlayerID, questID)
+					local questString = QuestString(majorPlayerID, minorPlayer, questID, questData1, questData2)
 					local turnsRemaining = minorPlayer:GetQuestTurnsRemaining(majorPlayerID, questID, Game_GetGameTurn() - 1)	-- add 1 since began on CS's turn (1 before), and avoids "0 turns remaining"
 					if turnsRemaining >= 0 then
 						questString = questString .. " " .. L( "TXT_KEY_CITY_STATE_QUEST_TURNS_REMAINING_FORMAL", turnsRemaining )
@@ -859,7 +860,7 @@ else
 		if minorPlayer then
 			local questID = minorPlayer:GetActiveQuestForPlayer(majorPlayerID)
 			if questID and questID >= 0 then
-				return QuestString( majorPlayerID, minorPlayer, questID, minorPlayer:GetQuestData1(majorPlayerID) )
+				return QuestString( majorPlayerID, minorPlayer, questID, minorPlayer:GetQuestData1(majorPlayerID), minorPlayer:GetQuestData2(majorPlayerID) )
 			end
 		else
 			print("Lua error - invalid player index")

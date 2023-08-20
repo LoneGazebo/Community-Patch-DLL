@@ -558,6 +558,7 @@ public:
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 
 	void DoHealGlobal(int iValue);
+	void DoHealLocal(int iValue, CvPlot* pPlot);
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
@@ -810,6 +811,8 @@ public:
 	void ChangeEspionageTurnsModifierEnemy(int iChange);
 	int GetStartingSpyRank() const;
 	void ChangeStartingSpyRank(int iChange);
+	int GetSpyPoints(bool bTotal) const;
+	void CreateSpies(int iNumSpies, bool bScaling = true);
 	// END Espionage
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -1629,6 +1632,9 @@ public:
 	int GetSpecialistFoodChange() const;
 	void ChangeSpecialistFoodChange(int iChange);
 
+	int GetNonSpecialistFoodChange() const;
+	void ChangeNonSpecialistFoodChange(int iChange);
+
 	int GetWarWearinessModifier() const;
 	void ChangeWarWearinessModifier(int iChange);
 
@@ -1726,6 +1732,7 @@ public:
 	bool IsHasBetrayedMinorCiv() const;
 	void SetHasBetrayedMinorCiv(bool bValue);
 
+	void setEverAlive(bool bNewValue);
 	void setAlive(bool bNewValue, bool bNotify = true);
 	void verifyAlive(PlayerTypes eKiller = NO_PLAYER);
 	bool isAlive() const
@@ -1913,6 +1920,9 @@ public:
 
 	int getCityCaptureHealGlobal() const;
 	void changeCityCaptureHealGlobal(int iChange);
+
+	int getCityCaptureHealLocal() const;
+	void changeCityCaptureHealLocal(int iChange);
 
 	int getNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex)	const;
 	void changeNumBuildingClassInLiberatedCities(BuildingClassTypes eIndex, int iChange);
@@ -3086,6 +3096,8 @@ protected:
 	int m_iEspionageModifier;
 	int m_iEspionageTurnsModifierFriendly;
 	int m_iEspionageTurnsModifierEnemy;
+	int m_iSpyPoints;
+	int m_iSpyPointsTotal;
 	int m_iSpyStartingRank;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
@@ -3206,6 +3218,7 @@ protected:
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
+	int m_iNonSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -3233,6 +3246,7 @@ protected:
 	int m_iExperienceForLiberation;
 	int m_iUnitsInLiberatedCities;
 	int m_iCityCaptureHealGlobal;
+	int m_iCityCaptureHealLocal;
 #endif
 #if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iMaxAirUnits;
@@ -3924,6 +3938,8 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
 SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierFriendly)
 SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierEnemy)
+SYNC_ARCHIVE_VAR(int, m_iSpyPoints)
+SYNC_ARCHIVE_VAR(int, m_iSpyPointsTotal)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(int, m_iFoodInCapitalFromAnnexedMinors)
@@ -4032,6 +4048,7 @@ SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iHappfromXSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iNoUnhappfromXSpecialistsCapital)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistFoodChange)
+SYNC_ARCHIVE_VAR(int, m_iNonSpecialistFoodChange)
 SYNC_ARCHIVE_VAR(int, m_iWarWearinessModifier)
 SYNC_ARCHIVE_VAR(int, m_iWarScoreModifier)
 SYNC_ARCHIVE_VAR(int, m_iGarrisonsOccupiedUnhappinessMod)

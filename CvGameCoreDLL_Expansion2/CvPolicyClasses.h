@@ -362,6 +362,7 @@ public:
 	int GetBuildingClassInLiberatedCities(int i) const;
 	int GetUnitsInLiberatedCities() const;
 	int GetCityCaptureHealGlobal() const;
+	int GetCityCaptureHealLocal() const;
 	int getFranchisesPerImprovement(int i) const;
 	int GetMaxAirUnitsChange() const;
 #endif
@@ -475,6 +476,7 @@ public:
 	int GetHappfromXSpecialists() const;
 	int GetNoUnhappfromXSpecialistsCapital() const;
 	int GetSpecialistFoodChange() const;
+	int GetNonSpecialistFoodChange() const;
 
 	int GetWarWearinessModifier() const;
 	int GetWarScoreModifier() const;
@@ -706,6 +708,7 @@ private:
 	int m_iHappfromXSpecialists;
 	int m_iNoUnhappfromXSpecialistsCapital;
 	int m_iSpecialistFoodChange;
+	int m_iNonSpecialistFoodChange;
 	int m_iWarWearinessModifier;
 	int m_iWarScoreModifier;
 
@@ -834,6 +837,7 @@ private:
 	int* m_piFranchisesPerImprovement;
 	int m_iMaxAirUnitsChange;
 	int m_iCityCaptureHealGlobal;
+	int m_iCityCaptureHealLocal;
 #endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;

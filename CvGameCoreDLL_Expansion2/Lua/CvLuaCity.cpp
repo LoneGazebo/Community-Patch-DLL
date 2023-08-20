@@ -5676,7 +5676,7 @@ int CvLuaCity::lGetActiveSpyYieldMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iResult = min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
+	const int iResult = min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetSpyPoints(true) / 100));
 
 	lua_pushinteger(L, iResult);
 	return 1;

@@ -64,6 +64,7 @@
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="30125F287FCCFBE86CB08936BA860B05" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="08B4247324BDC60A84BD33B850656E14" import="1">LUA/TradeLogic.lua</File>
+    <File md5="A49047CB3FEBFBBD02352B22fCC679A2" import="1">LUA/YieldIconManager.lua</File>
     <File md5="624B8C87786011831D77419F239BECFD" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="C9640C05F6EDAA4ADF5E67E5D17FC01A" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="16F1F2C3C7D1028DEF032F40E76E198A" import="1">LUA/UnitPanel.lua</File>

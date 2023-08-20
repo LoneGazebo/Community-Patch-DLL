@@ -59,6 +59,7 @@ protected:
 	static int lGetScrapGold(lua_State* L);
 	static int lCanGift(lua_State* L);
 	static int lCanDistanceGift(lua_State* L);
+	static int lIsUnitValidGiftForCityStateQuest(lua_State* L);
 	static int lCanLoadUnit(lua_State* L);
 	static int lCanLoad(lua_State* L);
 	static int lCanUnload(lua_State* L);
