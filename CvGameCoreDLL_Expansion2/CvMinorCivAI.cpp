@@ -15806,7 +15806,9 @@ CvString CvMinorCivAI::GetMajorBullyUnitDetails(PlayerTypes ePlayer)
 	if (!bCanBully)
 	{
 		sFear = (iBullyThreshold > 0) ? Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD") : Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
+		iScore = iScore - iBullyThreshold;
 	}
+
 	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
 		if (iScore < 0)
