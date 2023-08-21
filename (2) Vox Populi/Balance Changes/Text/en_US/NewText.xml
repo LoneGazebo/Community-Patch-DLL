@@ -171,5 +171,16 @@
 		<Row Tag="TXT_KEY_CONFIRM_BULLYANNEX">
 			<Text>Are you sure you want to forcefully annex {1_MinorCivName:textkey}?</Text>
 		</Row>
+
+		<!-- Propaganda Process -->
+		<Row Tag="TXT_KEY_PROCESS_TOURISM">
+			<Text>Propaganda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_TOURISM_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Propaganda[ENDCOLOR] converts 15% of the [ICON_PRODUCTION] Production of this City into [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]Requires the Socialist Realism Tenet to be unlocked.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_TOURISM_STRATEGY">
+			<Text>{TXT_KEY_PROCESS_TOURISM_HELP}[NEWLINE][NEWLINE]Investing production in propaganda is a good way to boost your City's influence in the world, which can be useful if you are currently in a revolutionary wave, or if you want to force other Civilizations to experience one.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>

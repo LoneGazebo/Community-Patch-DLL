@@ -244,15 +244,31 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Academy of Sciences[ENDCOLOR]: -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities, +100% [ICON_PRODUCTION] Production towards Research Labs, and receive 5 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Labs in your Empire. Research Labs generate an additional +2 [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_POLICY_ACADEMY_SCIENCES_HELP';
 
--- Cultural Revolution
+-- Cultural Revolution (now Socialist Realism)
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +34% [ICON_TOURISM] Tourism to other Order civilizations, and +5 [ICON_TOURISM] Tourism from all [ICON_GREAT_WORK] Great Works. Spies complete Spy Missions at double the normal rate.'
+SET Text = 'Socialist Realism'
+WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Socialist Realism[ENDCOLOR]: Unlocks the Propaganda Process (converts 15% of [ICON_PRODUCTION] Production into [ICON_TOURISM] Tourism). +25% [ICON_TOURISM] Tourism to other Civilizations following Order. +4 [ICON_PRODUCTION] Production from all [ICON_GREAT_WORK] Great Works.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION_HELP';
 
--- Dictatorship of the Proletariat
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Dictatorship of the Proletariat[ENDCOLOR]: +50% [ICON_TOURISM] Tourism to civilizations with less [ICON_HAPPINESS_1] Happiness. +1 [ICON_HAPPINESS_1] Happiness from Factories.'
+SET Text = 'The Socialist Realism movement, a style of "realistic expression" that began in Soviet Russia and became dominant in communist countries around the world, promoted the triumph of socialism through art, photography, film and public monuments. Along with the Socialist Classical style of architecture, Socialist Realism was the only Party approved style of public art in the Soviet Union for sixty years. The dramatic and minimalist monuments that resulted were seen as powerful propaganda tools in promoting the dictatorship of the proletariat and the physical display of communist beliefs.'
+WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION_TEXT';
+
+-- Dictatorship of the Proletariat (now Cultural Revolution)
+UPDATE Language_en_US
+SET Text = 'Cultural Revolution'
+WHERE Tag = 'TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +25% [ICON_TOURISM] Tourism to civilizations with less [ICON_HAPPINESS_1] Happiness. +1 [ICON_HAPPINESS_1] Happiness from Factories.'
 WHERE Tag = 'TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_HELP';
+
+UPDATE Language_en_US
+SET Text = 'The Great Proletarian Cultural Revolution was a social movement conducted from 1966 through 1976 in the People''s Republic of China. Begun by Mao Zedong and the Communist Party, the Cultural Revolution sought to re-educate the common people by removing or repressing capitalist, traditional and religious elements, through arrests and violence if necessary. The cultural struggle spread through all levels of society, students, the military, the party and urban workers, delaying China''s reemergence in world affairs for decades.'
+WHERE Tag = 'TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_TEXT';
 
 -- Double Agents
 UPDATE Language_en_US
@@ -274,10 +290,18 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Spaceflight Pioneers[ENDCOLOR]: Gain a free Great Engineer and Great Scientist. May finish Spaceship parts with Great Engineers, and expending a [ICON_GREAT_PEOPLE] Great Person grants 100 [ICON_RESEARCH] Science, scaling with Era. Hurrying [ICON_PRODUCTION] Production with Great Engineers now 50% more effective.'
 WHERE Tag = 'TXT_KEY_POLICY_SPACEFLIGHT_PIONEERS_HELP';
 
--- Party Leadership
+-- Party Leadership (now Dictatorship of the Proletariat)
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Party Leadership[ENDCOLOR]: +7 [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture per city.'
+SET Text = 'Dictatorship of the Proletariat'
+WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Dictatorship of the Proletariat[ENDCOLOR]: +7 [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture per city.'
 WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP_HELP';
+
+UPDATE Language_en_US
+SET Text = 'In Marxist socio-political theory, the Dictatorship of the Proletariat refers to a social state where the working class has direct control of political power; "dictatorship" in this case does not refer to the common definition but rather that an entire social class holds control of the nation. Whether or not capitalists or others were disenfranchised in such a political order would depend, according to Marx and Engels, on specific circumstances at the time. Bringing about such a political order might, or might not, entail violence; but whatever the means, in the end the proletariat would supplant the bourgeoisie.'
+WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP_TEXT';
 
 -- Patriotic War
 UPDATE Language_en_US
@@ -326,7 +350,7 @@ SET Text = 'Great Leap Forward'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR]: Receive two free Technologies.'
+SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR]: Receive a free Technology. Spies complete Spy Missions at double the normal rate. +1 [ICON_RESEARCH] Science in Cities for every 3 non-Specialist [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_HELP';
 
 UPDATE Language_en_US

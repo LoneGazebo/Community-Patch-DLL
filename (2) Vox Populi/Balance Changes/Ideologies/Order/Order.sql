@@ -7,24 +7,35 @@ UPDATE Policies
 SET AllCityFreeBuilding = NULL
 WHERE Type = 'POLICY_ACADEMY_SCIENCES';
 
--- Cultural Revolution
+-- Cultural Revolution (now Socialist Realism)
 
 UPDATE Policies
 SET
-	StealTechFasterModifier = 100
+	SharedIdeologyTourismModifier = 25,
+	Level = 3
 WHERE Type = 'POLICY_CULTURAL_REVOLUTION';
 
 INSERT INTO Policy_GreatWorkYieldChanges
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_CULTURAL_REVOLUTION', 'YIELD_TOURISM', 5);
+	('POLICY_CULTURAL_REVOLUTION', 'YIELD_PRODUCTION', 4);
+
+INSERT INTO Processes
+	(Type, Description, Help, Strategy, IconAtlas, PortraitIndex, RequiredPolicy)
+VALUES
+	('PROCESS_TOURISM', 'TXT_KEY_PROCESS_TOURISM', 'TXT_KEY_PROCESS_TOURISM_HELP', 'TXT_KEY_PROCESS_TOURISM_STRATEGY', 'VP_PROCESS_ATLAS', 1, 'POLICY_CULTURAL_REVOLUTION');
+
+INSERT INTO Process_ProductionYields
+	(ProcessType, YieldType, Yield)
+VALUES
+	('PROCESS_TOURISM', 'YIELD_TOURISM', 15);
 
 
--- Dictatorship of the Proletariat
+-- Dictatorship of the Proletariat (now Cultural Revolution)
 
 UPDATE Policies
 SET
-	LessHappyTourismModifier = 50,
+	LessHappyTourismModifier = 25,
 	Level = 2
 WHERE Type = 'POLICY_DICTATORSHIP_PROLETARIAT';
 
@@ -49,7 +60,7 @@ SET
 WHERE Type = 'POLICY_HERO_OF_THE_PEOPLE';
 
 
--- Party Leadership
+-- Party Leadership (now Dictatorship of the Proletariat)
 
 DELETE FROM Policy_CityYieldChanges
 WHERE PolicyType = 'POLICY_PARTY_LEADERSHIP' AND YieldType = 'YIELD_PRODUCTION';
@@ -154,10 +165,16 @@ WHERE PolicyType = 'POLICY_YOUNG_PIONEERS';
 
 UPDATE Policies
 SET
-	NumFreeTechs = 2,
+	NumFreeTechs = 1,
 	OneShot = 1,
-	Level = 3
+	StealTechFasterModifier = 100,
+	Level = 2
 WHERE Type = 'POLICY_YOUNG_PIONEERS';
+
+INSERT INTO Policy_YieldFromNonSpecialistCitizens
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_YOUNG_PIONEERS', 'YIELD_SCIENCE', 34);
 
 
 -- Iron Curtain

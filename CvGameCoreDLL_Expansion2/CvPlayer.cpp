@@ -15972,7 +15972,14 @@ bool CvPlayer::canMaintain(ProcessTypes eProcess, bool) const
 	if (!pkProcessInfo)
 		return false;
 
-	if(!(GET_TEAM(getTeam()).GetTeamTechs()->HasTech((TechTypes)(pkProcessInfo->getTechPrereq()))))
+	TechTypes eRequiredTech = (TechTypes)pkProcessInfo->getTechPrereq();
+	if (eRequiredTech != NO_TECH && !GET_TEAM(getTeam()).GetTeamTechs()->HasTech(eRequiredTech))
+	{
+		return false;
+	}
+
+	PolicyTypes eRequiredPolicy = (PolicyTypes)pkProcessInfo->getRequiredPolicy();
+	if (eRequiredPolicy != NO_POLICY && !GetPlayerPolicies()->HasPolicy(eRequiredPolicy))
 	{
 		return false;
 	}

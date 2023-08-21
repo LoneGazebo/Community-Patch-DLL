@@ -8663,6 +8663,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvSeaLevelInfo& writeTo)
 //======================================================================================================
 CvProcessInfo::CvProcessInfo() :
 	m_iTechPrereq(NO_TECH),
+	m_iRequiredPolicy(NO_POLICY),
 	m_iDefenseValue(0),
 #if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
 	m_eRequiredCivilization(NO_CIVILIZATION),
@@ -8681,6 +8682,12 @@ CvProcessInfo::~CvProcessInfo()
 int CvProcessInfo::getTechPrereq() const
 {
 	return m_iTechPrereq;
+}
+
+//------------------------------------------------------------------------------
+int CvProcessInfo::getRequiredPolicy() const
+{
+	return m_iRequiredPolicy;
 }
 
 //------------------------------------------------------------------------------
@@ -8722,6 +8729,9 @@ bool CvProcessInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 
 	const char* szTechPrereq = kResults.GetText("TechPrereq");
 	m_iTechPrereq = GC.getInfoTypeForString(szTechPrereq, true);
+
+	const char* szRequiredPolicy = kResults.GetText("RequiredPolicy");
+	m_iRequiredPolicy = GC.getInfoTypeForString(szRequiredPolicy, true);
 
 	m_iDefenseValue = kResults.GetInt("DefenseValue");
 

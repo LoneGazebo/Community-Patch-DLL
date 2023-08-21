@@ -992,6 +992,9 @@ ALTER TABLE Policies ADD COLUMN 'NoXPLossUnitPurchase' BOOLEAN DEFAULT 0;
 -- Allows you to set a % of warscore that is added to a tourism bonus against a civ
 ALTER TABLE Policies ADD COLUMN 'PositiveWarScoreTourismMod' INTEGER DEFAULT 0;
 
+-- Allows you to set a policy requirement to unlock a process
+ALTER TABLE Processes ADD COLUMN 'RequiredPolicy' TEXT DEFAULT NULL REFERENCES Policies(Type);
+
 -- Allows for Unit to be purchased in puppet city
 ALTER TABLE Units ADD COLUMN 'PuppetPurchaseOverride' BOOLEAN DEFAULT 0;
 

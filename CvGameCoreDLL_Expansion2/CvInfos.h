@@ -2670,6 +2670,7 @@ public:
 	virtual ~CvProcessInfo();
 
 	int getTechPrereq() const;
+	int getRequiredPolicy() const;
 	int getDefenseValue() const;
 
 #if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
@@ -2684,6 +2685,7 @@ public:
 
 protected:
 	int m_iTechPrereq;
+	int m_iRequiredPolicy;
 	int m_iDefenseValue;
 
 #if defined(MOD_CIVILIZATIONS_UNIQUE_PROCESSES)
