@@ -11439,38 +11439,11 @@ void CvGame::SetHighestSpyPotential()
 				int iLoop = 0;
 				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 				{
-					int iUnhappinessMod = 0;
-					int iPop = pLoopCity->getPopulation();
-					if (iPop > 0)
-					{
-						iUnhappinessMod = (pLoopCity->getUnhappyCitizenCount() * 100) / iPop;
-						iPop *= 2;
-					}
-
-					int iTradeMod = kLoopPlayer.GetTrade()->GetNumberOfTradeRoutesCity(pLoopCity);
-					iTradeMod *= 10;
-
-					//negative!
-					int iCityEspionageModifier = pLoopCity->GetEspionageModifier() * -1;
-					//negative!
-					int iPlayerEspionageModifier = GET_PLAYER(pLoopCity->getOwner()).GetEspionageModifier() * -1;
-					int iTheirPoliciesEspionageModifier = GET_PLAYER(pLoopCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER);
-
-					int iCounterSpy = 0;
-					if (pLoopCity->GetCityEspionage()->HasCounterSpy())
-					{
-						int iCounterspyIndex = GET_PLAYER(pLoopCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pLoopCity);
-						int iSpyRank = GET_PLAYER(pLoopCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pLoopCity->getOwner()) + 1;
-						iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
-					}
-
-					int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy;
-					iFinalModifier -= (iPop + iTradeMod + iUnhappinessMod);
-
+					int iFinalModifier = kLoopPlayer.GetEspionage()->GetSpyResistanceModifier(pLoopCity);
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
 					if (iFinalModifier != 0)
 					{
-						pLoopCity->ChangeEspionageRanking(iFinalModifier, false);
+						pLoopCity->ChangeEspionageRanking(iFinalModifier/5, false);
 					}
 				}
 			}

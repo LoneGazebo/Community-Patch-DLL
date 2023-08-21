@@ -1956,16 +1956,15 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 	if (pCity->getOwner() == m_pPlayer->GetID())
 	{
+		int iPop = pCity->getPopulation() * 4;
 		int iUnhappinessMod = 0;
-		int iPop = pCity->getPopulation();
-		if (iPop > 0)
+		if (pCity->getHappinessDelta() < 0)
 		{
-			iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 100) / iPop;
-			iPop *= 2;
+			iUnhappinessMod = min(-pCity->getHappinessDelta() * 10, 100);
 		}
 
 		int iTradeMod = GET_PLAYER(pCity->getOwner()).GetTrade()->GetNumberOfTradeRoutesCity(pCity);
-		iTradeMod *= 10;
+		iTradeMod *= 4;
 
 		//negative!
 		int iCityEspionageModifier = pCity->GetEspionageModifier() * -1;
@@ -1979,6 +1978,8 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 			int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
 			int iSpyRank = GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) + 1;
 			iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+			if (MOD_BALANCE_VP)
+				iCounterSpy *= 2;
 		}
 
 		int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy;
@@ -2006,6 +2007,7 @@ CvString CvPlayerEspionage::GetCityPotentialInfo(CvCity* pCity, bool bNoBasic)
 
 		if (pSpy != NULL && (pSpy->m_eSpyState == SPY_STATE_GATHERING_INTEL || pSpy->m_eSpyState == SPY_STATE_SCHMOOZE))
 		{
+			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_CITY_POTENTIAL_TT", GetSpyRankName(pSpy->GetSpyRank(m_pPlayer->GetID())), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey(), iRank);
 			int iEspionageMod = GET_PLAYER(pCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_CATCH_SPIES_MODIFIER);
 			if (iEspionageMod != 0)
 			{
@@ -3180,17 +3182,16 @@ void CvPlayerEspionage::UpdateCity(CvCity* pCity)
 
 int CvPlayerEspionage::GetSpyResistanceModifier(CvCity* pCity, bool bConsiderPotentialSpy)
 {
-	// if you change this function, don't forget to update CvCity::GetSpyDefenseModifierText as well!
+	// if you change this function, don't forget to update CvPlayerEspionage::GetCityPotentialInfo as well!
+	int iPop = pCity->getPopulation() * 4;
 	int iUnhappinessMod = 0;
-	int iPop = pCity->getPopulation();
-	if (iPop > 0)
+	if (pCity->getHappinessDelta() < 0)
 	{
-		iUnhappinessMod = (pCity->getUnhappyCitizenCount() * 100) / iPop;
-		iPop *= 2;
+		iUnhappinessMod = min(-pCity->getHappinessDelta() * 10, 100);
 	}
 
 	int iTradeMod = GET_PLAYER(pCity->getOwner()).GetTrade()->GetNumberOfTradeRoutesCity(pCity);
-	iTradeMod *= 10;
+	iTradeMod *= 4;
 
 	//negative!
 	int iCityEspionageModifier = pCity->GetEspionageModifier() * -1;
@@ -3204,12 +3205,16 @@ int CvPlayerEspionage::GetSpyResistanceModifier(CvCity* pCity, bool bConsiderPot
 		if (bConsiderPotentialSpy)
 		{
 			iCounterSpy = /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+			if (MOD_BALANCE_VP)
+				iCounterSpy *= 2;
 		}
 		else
 		{
 			int iCounterspyIndex = GET_PLAYER(pCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pCity);
 			int iSpyRank = GET_PLAYER(pCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pCity->getOwner()) + 1;
 			iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
+			if (MOD_BALANCE_VP)
+				iCounterSpy *= 2;
 		}
 	}
 
@@ -7158,7 +7163,7 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 		kEntry.m_pCity = pLoopCity;
 		
 		int iValue = 0;
-		if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+		if (!MOD_BALANCE_CORE_SPIES_ADVANCED)
 		{
 			iValue = 2 * (10 - pLoopCity->GetEspionageRanking());
 		}
