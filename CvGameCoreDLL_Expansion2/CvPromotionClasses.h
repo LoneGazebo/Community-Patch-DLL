@@ -140,7 +140,6 @@ public:
 	int GetExtraWithdrawal() const;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int GetPlagueChance() const;
-	bool IsPlague() const;
 	int GetPlaguePromotion() const;
 	int GetPlagueID() const;
 	int GetPlaguePriority() const;
@@ -459,7 +458,6 @@ protected:
 	int m_iExtraWithdrawal;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int m_iPlagueChance;
-	bool m_bIsPlague;
 	int m_iPlaguePromotion;
 	int m_iPlagueID;
 	int m_iPlaguePriority;

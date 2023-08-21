@@ -268,15 +268,11 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			if (iAttackerDamageInflicted <= 0)
 				iAttackerDamageInflicted = 0;
 		}
+
 		//Chance to spread promotion?
-		if(kAttacker.getPlagueChance() > 0)
-		{
-			kAttacker.DoPlagueTransfer(*pkDefender);
-		}
-		if (pkDefender->getPlagueChance() > 0 && !pkDefender->IsCanAttackRanged())
-		{
+		kAttacker.DoPlagueTransfer(*pkDefender);
+		if (!pkDefender->IsCanAttackRanged())
 			pkDefender->DoPlagueTransfer(kAttacker);
-		}
 #endif
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -750,10 +746,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 
 		//Chance to spread promotion?
-		if (kAttacker.getPlagueChance() > 0)
-		{
-			kAttacker.DoPlagueTransfer(*pkDefender);
-		}
+		kAttacker.DoPlagueTransfer(*pkDefender);
 	}
 	else
 	{

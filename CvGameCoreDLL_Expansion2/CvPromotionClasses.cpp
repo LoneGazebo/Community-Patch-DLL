@@ -111,7 +111,6 @@ CvPromotionEntry::CvPromotionEntry():
 	m_iExtraWithdrawal(0),
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance(0),
-	m_bIsPlague(false),
 	m_iPlaguePromotion(NO_PROMOTION),
 	m_iPlagueID(NO_PROMOTION),
 	m_iPlaguePriority(0),
@@ -634,7 +633,6 @@ bool CvPromotionEntry::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iExtraWithdrawal = kResults.GetInt("ExtraWithdrawal");
 #if defined(MOD_BALANCE_CORE_JFD)
 	m_iPlagueChance = kResults.GetInt("PlagueChance");
-	m_bIsPlague = kResults.GetBool("IsPlague");
 
 	const char* szPlaguePromotion = kResults.GetText("PlaguePromotion");
 	m_iPlaguePromotion = GC.getInfoTypeForString(szPlaguePromotion, true);
@@ -1876,17 +1874,12 @@ int CvPromotionEntry::GetExtraWithdrawal() const
 	return m_iExtraWithdrawal;
 }
 #if defined(MOD_BALANCE_CORE_JFD)
-/// Chance to transmit a promotion on melee (heyo)
+/// Chance to transmit a promotion on attack (heyo)
 int CvPromotionEntry::GetPlagueChance() const
 {
 	return m_iPlagueChance;
 }
 /// Transmittable promotions
-bool CvPromotionEntry::IsPlague() const
-{
-	return m_bIsPlague;
-}
-
 int CvPromotionEntry::GetPlaguePromotion() const
 {
 	return m_iPlaguePromotion;
