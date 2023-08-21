@@ -755,7 +755,7 @@
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>25</AIWorkRateModifier>
 			<AIImprovementCostPercent>100</AIImprovementCostPercent>
@@ -976,7 +976,7 @@
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>1</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>35</AIWorkRateModifier>
 			<AIImprovementCostPercent>100</AIImprovementCostPercent>
@@ -1197,7 +1197,7 @@
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>50</AIWorkRateModifier>
 			<AIImprovementCostPercent>100</AIImprovementCostPercent>
@@ -1418,7 +1418,7 @@
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>60</AIWorkRateModifier>
 			<AIImprovementCostPercent>100</AIImprovementCostPercent>
@@ -1639,7 +1639,7 @@
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
-			<AIStartingDefenseUnits>2</AIStartingDefenseUnits>
+			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
 			<AIStartingExploreUnits>0</AIStartingExploreUnits>
 			<AIWorkRateModifier>70</AIWorkRateModifier>
 			<AIImprovementCostPercent>100</AIImprovementCostPercent>

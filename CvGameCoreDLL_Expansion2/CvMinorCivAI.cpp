@@ -1641,11 +1641,28 @@ bool CvMinorCivQuest::IsExpired()
 	}
 	case MINOR_CIV_QUEST_CONNECT_RESOURCE:
 	{
-		// The player's capital city's landmass must contain this resource
 		ResourceTypes eResource = (ResourceTypes)m_iData1;
-		CvLandmass* pLandmass = GC.getMap().getLandmassById(pAssignedPlayer->getCapitalCity()->plot()->getLandmass());
-		if (pLandmass->getNumResources(eResource) == 0)
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+
+		// Resource must exist on the map
+		if (GC.getMap().getNumResources(eResource) <= 0)
 			return true;
+
+		// No banned resources
+		if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+		{
+			CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+			if (pLeague && pLeague->IsLuxuryHappinessBanned(eResource))
+				return true;
+		}
+
+		// The player's capital city's landmass must contain this resource, or the player must be able to cross the ocean
+		if (!GET_PLAYER(m_eAssignedPlayer).CanCrossOcean())
+		{
+			CvLandmass* pLandmass = GC.getMap().getLandmassById(pAssignedPlayer->getCapitalCity()->plot()->getLandmass());
+			if (pLandmass->getNumResources(eResource) == 0)
+				return true;
+		}
 
 		break;
 	}
@@ -1839,6 +1856,10 @@ bool CvMinorCivQuest::IsExpired()
 
 		// Someone killed the Major
 		if (!GET_PLAYER(eTargetPlayer).isAlive())
+			return true;
+
+		// We can't go to war with the Major
+		if (!GET_PLAYER(m_eAssignedPlayer).IsAtWarWith(eTargetPlayer) && !GET_TEAM(pAssignedPlayer->getTeam()).canDeclareWar(GET_PLAYER(eTargetPlayer).getTeam(), m_eAssignedPlayer))
 			return true;
 
 		// Is this now a bad target (backstabbing)?
@@ -6791,6 +6812,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		if (GET_PLAYER(ePlayer).IsAtWarWith(eMostRecentBully))
 			return false;
 
+		// This player must be able to declare war on the most recent bully
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), ePlayer))
+			return true;
+
 		// Is this a bad target? (Same team, haven't met, backstabbing?)
 		if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_WAR, ePlayer, eMostRecentBully))
 			return false;
@@ -8736,6 +8761,8 @@ bool CvMinorCivAI::IsAcceptableQuestEnemy(MinorCivQuestTypes eQuest, PlayerTypes
 /// Find a Resource that a Minor would want a major to connect
 ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 {
+	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
+	bool bCanCrossOcean = GET_PLAYER(ePlayer).CanCrossOcean();
 	CvPlot* pCapitalPlot = GET_PLAYER(ePlayer).getCapitalCity()->plot();
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 	CvLandmass* pLandmass = GC.getMap().getLandmassById(pCapitalPlot->getLandmass());
@@ -8755,6 +8782,10 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 		if (!GET_TEAM(eTeam).IsResourceRevealed(eResource) || !GET_TEAM(eTeam).IsResourceCityTradeable(eResource))
 			continue;
 
+		// Resource must exist on the map
+		if (GC.getMap().getNumResources(eResource) <= 0)
+			continue;
+
 		// Player can't already have this resource
 		if (GET_PLAYER(ePlayer).getNumResourceTotal(eResource, /*bIncludeImport*/ true) > 0)
 			continue;
@@ -8766,8 +8797,12 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 			continue;
 		}
 
-		// The player's capital city's landmass must contain this resource
-		if (pLandmass->getNumResources(eResource) == 0)
+		// No banned resources
+		if (pLeague && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY && pLeague->IsLuxuryHappinessBanned(eResource))
+			continue;
+
+		// The player's capital city's landmass must contain this resource, or the player must be able to cross the ocean
+		if (bCanCrossOcean || pLandmass->getNumResources(eResource) == 0)
 			continue;
 
 		veValidResources.push_back(eResource);
