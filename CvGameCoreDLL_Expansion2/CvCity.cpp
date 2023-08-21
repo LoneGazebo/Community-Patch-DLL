@@ -15819,6 +15819,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		m_pCityBuildings->ChangeGreatWorksTourismModifier(pBuildingInfo->GetGreatWorksTourismModifier() * iChange);
 		ChangeWonderProductionModifier(pBuildingInfo->GetWonderProductionModifier() * iChange);
 		changeCapturePlunderModifier(pBuildingInfo->GetCapturePlunderModifier() * iChange);
+		ChangeEspionageModifier(pBuildingInfo->GetEspionageModifier() * iChange);
 		ChangeEspionageTurnsModifierEnemy(pBuildingInfo->GetEspionageTurnsModifierEnemyCity() * iChange);
 		if (pBuildingInfo->GetEspionageTurnsModifierEnemyCity() * iChange != 0)
 		{
