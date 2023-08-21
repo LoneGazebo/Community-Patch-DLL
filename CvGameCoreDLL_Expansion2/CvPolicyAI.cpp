@@ -3860,7 +3860,8 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			}
 		}
 
-		if (GC.getResourceInfo(eResource) != NULL && GC.getResourceInfo(eResource)->getPolicyReveal() == ePolicy)
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo != NULL && pkResourceInfo->getPolicyReveal() == ePolicy)
 		{
 			yield[YIELD_GOLD] += 100;
 		}

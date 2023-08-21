@@ -6993,8 +6993,8 @@ CvString CvCityCulture::GetTourismTooltip()
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
 		if (pkBuilding)
 		{
-			int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
-			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
+			int iTechEnhancedTourism = pkBuilding->GetTechEnhancedTourism();
+			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
 			{
 				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 

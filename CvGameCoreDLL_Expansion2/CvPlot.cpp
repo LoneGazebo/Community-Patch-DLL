@@ -2031,6 +2031,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 	}
 
 	CvResourceInfo& thisResourceInfo = *GC.getResourceInfo(eResource);
+
 	if(getFeatureType() != NO_FEATURE)
 	{
 		if(!(thisResourceInfo.isFeature(getFeatureType())))
@@ -9434,10 +9435,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	if(eTeam != NO_TEAM)
 	{
 		ResourceTypes eResource = getResourceType(eTeam);
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 
-		if(eResource != NO_RESOURCE)
+		if(eResource != NO_RESOURCE && pkResourceInfo)
 		{
-			iYield += GC.getResourceInfo(eResource)->getYieldChange(eYield);
+			iYield += pkResourceInfo->getYieldChange(eYield);
 		}
 	}
 
@@ -10504,7 +10506,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 
 				if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
 				{
-					int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+					int iTemp = pkResourceInfo->getYieldChangeFromMonopoly(eYield);
 					if (iTemp > 0)
 					{
 						iTemp += GET_PLAYER(ePlayer).GetMonopolyModFlat();

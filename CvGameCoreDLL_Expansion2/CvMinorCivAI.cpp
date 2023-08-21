@@ -16240,7 +16240,11 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	if (eResource == NO_RESOURCE)
 		return false;
 
-	ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+	CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+	if (!pkResourceInfo)
+		return false;
+
+	ResourceUsageTypes eUsage = pkResourceInfo->getResourceUsage();
 	if (eUsage != RESOURCEUSAGE_STRATEGIC && eUsage != RESOURCEUSAGE_LUXURY)
 		return false;
 
@@ -17439,7 +17443,7 @@ pair<CvString, CvString> CvMinorCivAI::GetStatusChangeNotificationStrings(Player
 						const CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 						if (pkResourceInfo != NULL)
 						{
-							eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+							eUsage = pkResourceInfo->getResourceUsage();
 
 							if (eUsage == RESOURCEUSAGE_STRATEGIC || eUsage == RESOURCEUSAGE_LUXURY)
 							{

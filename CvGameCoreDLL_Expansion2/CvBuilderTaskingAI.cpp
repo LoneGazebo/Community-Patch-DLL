@@ -1029,6 +1029,11 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(vector<OptionWithScore<
 	if(eResource == NO_RESOURCE)
 		return;
 
+	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+	if (!pkResource) {
+		return;
+	}
+
 	ImprovementTypes eExistingPlotImprovement = pPlot->getImprovementType();
 	if (eExistingPlotImprovement != NO_IMPROVEMENT)
 	{
@@ -1043,8 +1048,6 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(vector<OptionWithScore<
 	// if city owning this plot is being razed, ignore this plot
 	if (pCity && pCity->IsRazing())
 		return;
-
-	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 
 	// loop through the build types to find one that we can use
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
