@@ -433,8 +433,8 @@
    <Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
     <!-- Units take damage when moving through enemy lands -->
    <Row Class="4" Name="ATTRITION" Value="0"/>
-    <!-- When a military unit retreats, civilians units on the same tile also retreat -->
-   <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="0"/>
+    <!-- When a military unit retreats, civilian and embarked units on the same tile also retreat -->
+   <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="1"/>
     <!-- Linked & group movement -->
    <Row Class="4" Name="LINKED_MOVEMENT" Value="0"/>
     <!-- Era scaling for GE & GM yields -->

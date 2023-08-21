@@ -31372,7 +31372,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	if (!pDestPlot)
 		return false;
 
-	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian units also retreat
+	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian and embarked units also retreat (if possible)
 	{
 		CvPlot* pUnitPlot = plot();
 		IDInfoVector currentUnits;
@@ -31382,7 +31382,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 			{
 				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
 
-				if (pLoopUnit)
+				if (pLoopUnit && pLoopUnit->CanStackUnitAtPlot(pDestPlot))
 				{
 					pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 				}
@@ -31394,6 +31394,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	PublishQueuedVisualizationMoves();
 	if (bWithdraw)
 		m_bHasWithdrawnThisTurn = true;
+
 	return true;
 }
 
