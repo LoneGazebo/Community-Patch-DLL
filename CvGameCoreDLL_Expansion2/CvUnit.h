@@ -1280,7 +1280,7 @@ public:
 	std::vector<int> GetInflictedPlagueIDs() const;
 	PromotionTypes GetInflictedPlague(int iPlagueID, int& iPlagueChance) const;
 	bool HasPlague(int iPlagueID = -1, int iMinimumPriority = -1) const;
-	void RemovePlague(int iPlagueID = -1, int iMaximumPriority = -1);
+	void RemovePlague(int iPlagueID = -1, int iHigherPriority = -1);
 	bool ImmuneToPlague(int iPlagueID = -1) const;
 	bool CanPlague(CvUnit* pOtherUnit) const;
 
