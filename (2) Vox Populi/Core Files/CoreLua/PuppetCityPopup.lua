@@ -47,7 +47,11 @@ PopupLayouts[ButtonPopupTypes.BUTTONPOPUP_CITY_CAPTURED] = function(popupInfo)
 		end
 		
 		local buttonText = Locale.ConvertTextKey("TXT_KEY_POPUP_LIBERATE_CITY");
-		strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", Players[iLiberatedPlayer]:GetNameKey());
+		if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE) and not Players[iLiberatedPlayer]:IsAlive() and not Players[iLiberatedPlayer]:IsMinorCiv()) then
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_RESURRECT", Players[iLiberatedPlayer]:GetNameKey());
+		else
+			strToolTip = Locale.ConvertTextKey("TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", Players[iLiberatedPlayer]:GetNameKey());
+		end
 		strToolTip = strToolTip .. "[NEWLINE][NEWLINE]"
 		strToolTip = strToolTip .. activePlayer:GetLiberationPreviewString(iLiberatedPlayer, newCity, newCity:IsCapital(), Game.GetActivePlayer());
 		AddButton(buttonText, OnLiberateClicked, strToolTip);

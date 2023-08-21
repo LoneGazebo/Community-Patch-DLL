@@ -1124,3 +1124,7 @@ WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING';
 UPDATE Language_en_US 
 SET Text = 'An unmet player needs [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!.' 
 WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING';
+
+INSERT INTO Language_en_US (Tag, Text)
+VALUES  ('TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_NO', 'This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Due to past hostile actions committed on them, you do not have the opportunity to return it to them.[ENDCOLOR]');
+
