@@ -411,6 +411,10 @@ ALTER TABLE Improvements ADD COLUMN 'WaterAdjacencyMakesValid' BOOLEAN DEFAULT 0
 -- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
 ALTER TABLE Improvements ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
 
+-- Table for Civilopedia Game Concepts to add more in boxes...
+ALTER TABLE Concepts ADD COLUMN 'Extended' TEXT DEFAULT NULL;
+ALTER TABLE Concepts ADD COLUMN 'DesignNotes' TEXT DEFAULT NULL;
+
 -- Allows you to set a tech that makes an impassable terrain/feature element passable.
 ALTER TABLE Features ADD COLUMN 'PassableTechFeature' TEXT DEFAULT NULL;
 
