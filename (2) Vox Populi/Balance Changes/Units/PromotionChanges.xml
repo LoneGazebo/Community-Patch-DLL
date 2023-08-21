@@ -2198,6 +2198,7 @@
 			<Help>TXT_KEY_PROMOTION_STATUE_ZEUS_HELP</Help>
 			<Sound>AS2D_IF_LEVELUP</Sound>
 			<CityAttack>25</CityAttack>
+			<PlagueIDImmunity>3</PlagueIDImmunity>
 			<CannotBeChosen>true</CannotBeChosen>
 			<PortraitIndex>59</PortraitIndex>
 			<IconAtlas>ABILITY_ATLAS</IconAtlas>
@@ -3935,6 +3936,8 @@
 			<CannotBeChosen>true</CannotBeChosen>
 			<OrderPriority>1</OrderPriority>
 			<WorkRateMod>-50</WorkRateMod>
+			<PlagueID>3</PlagueID>
+			<PlaguePriority>0</PlaguePriority>
 			<PromotionDuration>50</PromotionDuration>
 			<PortraitIndex>57</PortraitIndex>
 			<IconAtlas>PROMOTION_ATLAS</IconAtlas>
