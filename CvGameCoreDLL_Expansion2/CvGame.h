@@ -143,8 +143,8 @@ public:
 	void ReviveActivePlayer();
 
 	int getNumHumanPlayers();
-	int GetNumMajorCivsEver(bool bOnlyStart = false);
-	int GetNumMinorCivsEver(bool bOnlyStart = false);
+	int GetNumMajorCivsEver(bool bOnlyStart = false) const;
+	int GetNumMinorCivsEver(bool bOnlyStart = false) const;
 	int GetNumMinorCivsAlive();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);

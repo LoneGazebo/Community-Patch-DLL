@@ -2330,6 +2330,7 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_vCityConnectionPlots.clear();
 	m_iNumUnitsSuppliedCached = -1;
+	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 	m_bUnlockedGrowthAnywhereThisTurn = false;
 
 	m_iPlotFoundValuesUpdateTurn = -1;
@@ -17856,6 +17857,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 {
 	if (m_iNumUnitsSuppliedCached == -1)
 	{
+		// update m_iNumUnitsSuppliedCached and m_iNumUnitsSuppliedCachedWarWeariness
 		int iFreeUnits = GetNumUnitsSuppliedByHandicap(!MOD_BALANCE_VP);
 		iFreeUnits += GetNumUnitsSuppliedByCities(!MOD_BALANCE_VP);
 		iFreeUnits += GetNumUnitsSuppliedByPopulation(!MOD_BALANCE_VP);
@@ -17878,18 +17880,20 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 			iFreeUnits /= 100;
 		}
 
-		if (MOD_BALANCE_VP && bCheckWarWeariness)
-		{
-			int iWarWeariness = GetCulture()->GetWarWeariness()/2;
-			int iMod = (100 - min(75, iWarWeariness));
-			iFreeUnits *= iMod;
-			iFreeUnits /= 100;
-		}
+		m_iNumUnitsSuppliedCached = max(0, iFreeUnits);
 
-		m_iNumUnitsSuppliedCached = max(0,iFreeUnits);
+		int iNumUnitsSuppliedWarWeariness = m_iNumUnitsSuppliedCached;
+		if (MOD_BALANCE_VP)
+		{
+			int iWarWeariness = GetCulture()->GetWarWeariness() / 2;
+			int iMod = (100 - min(75, iWarWeariness));
+			iNumUnitsSuppliedWarWeariness *= iMod;
+			iNumUnitsSuppliedWarWeariness /= 100;
+		}
+		m_iNumUnitsSuppliedCachedWarWeariness = iNumUnitsSuppliedWarWeariness;
 	}
 
-	return m_iNumUnitsSuppliedCached;
+	return bCheckWarWeariness ? m_iNumUnitsSuppliedCachedWarWeariness : m_iNumUnitsSuppliedCached;
 }
 
 //	--------------------------------------------------------------------------------

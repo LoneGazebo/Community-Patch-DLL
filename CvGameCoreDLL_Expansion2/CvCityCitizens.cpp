@@ -1068,7 +1068,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	// Valuation of the GPP Points
 
 	//default valuation. todo: xml
-	int iGPPValuation = MOD_BALANCE_CORE_HAPPINESS ? 10 : 8; // higher base value in VP because the value can later be reduced by urbanization
+	int iGPPValuation = MOD_BALANCE_CORE_HAPPINESS ? 5 : 4; // higher base value in VP because the value can later be reduced by urbanization
 	int iMod = 0;
 	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 	{
@@ -1154,8 +1154,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		}
 	}
 
-	//Bonus for existing progress towards a Great Person of that type
+	//Bonus for existing progress towards a Great Person of that type, or if there's already another specialist of that type
 	int iSpecialistProgress = 100 * GetSpecialistGreatPersonProgress(eSpecialist) / GetSpecialistUpgradeThreshold(eUnitClass);
+	if (m_aiSpecialistCounts[eSpecialist] > 0)
+	{
+		iSpecialistProgress = max(iSpecialistProgress, 25);
+	}
 	iMod += min(50, iSpecialistProgress);
 
 	iGPPValuation *= (100 + iMod);
