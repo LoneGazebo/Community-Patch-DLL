@@ -1030,9 +1030,8 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirectives(vector<OptionWithScore<
 		return;
 
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
-	if (!pkResource) {
+	if (!pkResource)
 		return;
-	}
 
 	ImprovementTypes eExistingPlotImprovement = pPlot->getImprovementType();
 	if (eExistingPlotImprovement != NO_IMPROVEMENT)

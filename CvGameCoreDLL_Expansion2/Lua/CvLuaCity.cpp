@@ -1406,12 +1406,13 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
+
+	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
 	{
 		//Have we already invested here?
 		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
-		if (pGameBuilding) {
+		if (pGameBuilding)
+		{
 			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 			if (pkCity->IsBuildingInvestment(eBuildingClass))
 			{
@@ -1436,7 +1437,7 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 			}
 		}
 	}
-#endif
+
 	// Not enough cash money
 	if(pkCity->GetPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetTreasury()->GetGold())
 	{
@@ -1760,7 +1761,7 @@ int CvLuaCity::lGetBuildingProductionNeeded(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+
 //------------------------------------------------------------------------------
 //bool IsBuildingInvestment();
 int CvLuaCity::lGetBuildingInvestment(lua_State* L)
@@ -1770,7 +1771,8 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 	int iTotalDiscount = 0;
 	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 2);
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-	if (pGameBuilding) {
+	if (pGameBuilding)
+	{
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 		if (pkCity->IsBuildingInvestment(eBuildingClass))
 		{
@@ -1797,7 +1799,8 @@ int CvLuaCity::lIsWorldWonder(lua_State* L)
 	bool bResult = false;
 	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-	if (pGameBuilding) {
+	if (pGameBuilding)
+	{
 		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
 		if (::isWorldWonderClass(kBuildingClassInfo))
 		{
@@ -1965,7 +1968,7 @@ int CvLuaCity::lGetUnitInvestment(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 //int GetProjectProductionNeeded();
 int CvLuaCity::lGetProjectProductionNeeded(lua_State* L)
@@ -3574,7 +3577,8 @@ int CvLuaCity::lGetLeagueBuildingClassYieldChange(lua_State* L)
 	BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
 	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 3);
 
-	if (eBuildingClass != NO_BUILDINGCLASS) {
+	if (eBuildingClass != NO_BUILDINGCLASS)
+	{
 		CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(eBuildingClass);
 		if (pInfo && pInfo->getMaxGlobalInstances() != -1)
 		{

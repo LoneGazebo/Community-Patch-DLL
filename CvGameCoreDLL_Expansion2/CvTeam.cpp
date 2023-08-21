@@ -5348,11 +5348,11 @@ void CvTeam::changeProjectCount(ProjectTypes eIndex, int iChange)
 							for(iJ = 0; iJ < GC.getNumProjectInfos(); iJ++)
 							{
 								CvProjectEntry* pkProject = GC.getProjectInfo((ProjectTypes)iJ);
-								if (!pkProject) {
+								if (!pkProject)
 									continue;
-								}
-								if((getProjectCount(eIndex) >= pkProject->GetProjectsNeeded(eIndex)) &&
-								        (iOldProjectCount < pkProject->GetProjectsNeeded(eIndex)))
+
+								if (getProjectCount(eIndex) >= pkProject->GetProjectsNeeded(eIndex) &&
+									iOldProjectCount < pkProject->GetProjectsNeeded(eIndex))
 								{
 									bChangeProduction = true;
 									break;
@@ -6224,9 +6224,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				{
 					CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
 					CvAssert(pResourceInfo);
-					if (!pResourceInfo) {
+					if (!pResourceInfo)
 						continue;
-					}
 
 					if(bNewValue)
 					{
@@ -7042,7 +7041,8 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 									{
 										CvResourceInfo* pResourceInfo = GC.getResourceInfo(eResource);
 
-										if (pResourceInfo) {
+										if (pResourceInfo)
+										{
 											if (strcmp(pResourceInfo->GetType(), "RESOURCE_ARTIFACTS") == 0)
 											{
 												strBuffer = GetLocalizedText("TXT_KEY_MISC_DISCOVERED_ARTIFACTS_NEAR", pCity->getNameKey());

@@ -6426,7 +6426,8 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 					if (eBuildingType != NO_BUILDING)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-						if (pkBuildingInfo) {
+						if (pkBuildingInfo)
+						{
 							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS_LOCAL");
 							localizedDurationText << pkBuildingInfo->GetDescription();
 							DisabledTT += localizedDurationText.toUTF8();
@@ -31511,9 +31512,8 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 			{
 				//Have we already invested here?
 				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-				if (!pGameBuilding) {
+				if (!pGameBuilding)
 					return false;
-				}
 
 				const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 				if (IsBuildingInvestment(eBuildingClass))

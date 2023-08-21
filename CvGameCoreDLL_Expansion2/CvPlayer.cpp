@@ -8123,7 +8123,8 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 					if (eBuildingType != NO_BUILDING)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-						if (pkBuildingInfo) {
+						if (pkBuildingInfo)
+						{
 							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_BUILDING_CLASS");
 							localizedDurationText << pkBuildingInfo->GetDescription();
 							DisabledTT += localizedDurationText.toUTF8();
@@ -8159,7 +8160,8 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 					if (eBuildingType != NO_BUILDING)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuildingType);
-						if (pkBuildingInfo) {
+						if (pkBuildingInfo)
+						{
 							localizedDurationText = Localization::Lookup("TXT_KEY_NEED_NO_BUILDING_CLASS");
 							localizedDurationText << pkBuildingInfo->GetDescription();
 							DisabledTT += localizedDurationText.toUTF8();
@@ -29545,7 +29547,8 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 					if (eBuilding != NO_BUILDING)
 					{
 						CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-						if (pkBuildingInfo) {
+						if (pkBuildingInfo)
+						{
 							TechTypes eTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
 							int iEra = 0;
 							if (eTech == NO_TECH)
@@ -46103,9 +46106,8 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
 									{
 										CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-										if (pkBuilding && pkBuilding->IsCapitalOnly()) {
+										if (pkBuilding && pkBuilding->IsCapitalOnly())
 											ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
-										}
 									}
 									if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
 									{

@@ -6797,7 +6797,8 @@ int CvPlayerTraits::GetCapitalBuildingDiscount(BuildingTypes eBuilding)
 int CvPlayerTraits::GetWonderProductionToBuildingDiscount(BuildingTypes eBuilding)
 {
 	CvBuildingEntry* thisBuildingEntry = GC.getBuildingInfo(eBuilding);
-	if (thisBuildingEntry) {
+	if (thisBuildingEntry)
+	{
 		const CvBuildingClassInfo& kBuildingClassInfo = thisBuildingEntry->GetBuildingClassInfo();
 		if (GetWonderProductionModifierToBuilding() > 0)
 		{

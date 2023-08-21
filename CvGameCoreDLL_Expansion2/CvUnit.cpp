@@ -7565,7 +7565,8 @@ void CvUnit::LogWorkerEvent(BuildTypes eBuildType, bool bStartingConstruction)
 	{
 		ResourceTypes eResource = plot()->getResourceType(getTeam());
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (pkResourceInfo) {
+		if (pkResourceInfo)
+		{
 			if (eResource != NO_RESOURCE)
 			{
 				strResource = pkResourceInfo->GetType();
@@ -10397,13 +10398,8 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 			if (eResource != NO_RESOURCE)
 			{
 				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-				if (
-					pkResourceInfo && 
-					(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC ||
-					pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-				) {
+				if (pkResourceInfo && (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY))
 					return true;
-				}
 			}
 		}
 

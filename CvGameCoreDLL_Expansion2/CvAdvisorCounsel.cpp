@@ -1734,14 +1734,12 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 			continue;
 		}
 		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
-		if (!pkResourceInfo) {
+		if (!pkResourceInfo)
 			continue;
-		}
 
-		if(
-			pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY || 
-			pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC
-		) {
+		if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY || 
+			pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		{
 			// if we don't have any of this resource
 			if(GET_PLAYER(ePlayer).getNumResourceTotal(eResource) < iNumOfResource)
 			{
