@@ -25785,6 +25785,11 @@ void CvPlayer::DoProcessVotes()
 	{
 		// Loop through Cities
 		int iLoop = 0;
+		int iTestFaith = 0;
+		int iTestCapital = 0;
+		int iTestDoF = 0;
+		int iTestRA = 0;
+		int iTestDP = 0;
 		for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 		{
 			for(int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
@@ -25797,32 +25802,36 @@ void CvPlayer::DoProcessVotes()
 				{
 					if(pkBuildingInfo->GetFaithToVotes() > 0)
 					{
-						int iTestFaith = TestFaithToVotes(pkBuildingInfo->GetFaithToVotes());
-						ChangeFaithToVotes(iTestFaith);
+						iTestFaith += TestFaithToVotes(pkBuildingInfo->GetFaithToVotes());
 					}
 					if(pkBuildingInfo->GetCapitalsToVotes() > 0)
 					{
-						int iTestCapital = TestCapitalsToVotes(pkBuildingInfo->GetCapitalsToVotes());
-						ChangeCapitalsToVotes(iTestCapital);	
+						iTestCapital += TestCapitalsToVotes(pkBuildingInfo->GetCapitalsToVotes());
+							
 					}
 					if(pkBuildingInfo->GetDoFToVotes() > 0)
 					{
-						int iTestDoF = TestDoFToVotes(pkBuildingInfo->GetDoFToVotes());
-						ChangeDoFToVotes(iTestDoF);
+						iTestDoF += TestDoFToVotes(pkBuildingInfo->GetDoFToVotes());
+						
 					}
 					if(pkBuildingInfo->GetRAToVotes() > 0)
 					{
-						int iTestRA = TestRAToVotes(pkBuildingInfo->GetRAToVotes());
-						ChangeRAToVotes(iTestRA);
+						iTestRA += TestRAToVotes(pkBuildingInfo->GetRAToVotes());
+						
 					}
 					if(pkBuildingInfo->GetDPToVotes() > 0)
 					{
-						int iTestDP = TestDefensePactsToVotes(pkBuildingInfo->GetDPToVotes());
-						ChangeDefensePactsToVotes(iTestDP);
+						iTestDP += TestDefensePactsToVotes(pkBuildingInfo->GetDPToVotes());
+						
 					}
 				}
 			}
 		}
+		ChangeFaithToVotes(iTestFaith);
+		ChangeCapitalsToVotes(iTestCapital);
+		ChangeDoFToVotes(iTestDoF);
+		ChangeRAToVotes(iTestRA);
+		ChangeDefensePactsToVotes(iTestDP);
 	}
 }
 
