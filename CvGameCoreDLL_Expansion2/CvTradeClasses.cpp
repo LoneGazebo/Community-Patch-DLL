@@ -2157,7 +2157,7 @@ CvString CvGameTrade::GetLogFileName() const
 //	----------------------------------------------------------------------------
 void CvGameTrade::LogTradeMsg(CvString& strMsg) const
 {
-	if(GC.getLogging())
+	if (GC.getLogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
@@ -2171,9 +2171,10 @@ void CvGameTrade::LogTradeMsg(CvString& strMsg) const
 		pLog->Msg(strOutBuf);
 	}
 }
+
 void CvPlayerTrade::LogTradeMsg(CvString& strMsg) const
 {
-	if(GC.getLogging())
+	if (GC.getLogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
@@ -5171,13 +5172,13 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 		{
-
 			if (CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, TRADE_CONNECTION_INTERNATIONAL, false, false))
 			{
 				SPath outPath;
 				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain, &outPath);
 
-				if (iLength <= 0) {
+				if (iLength <= 0)
+				{
 					strMsg.Format("%s,%s,,Skipping", pOriginCity->getNameKey(), pDestCity->getNameKey());
 					LogTradeMsg(strMsg);
 					continue;
@@ -5190,7 +5191,8 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 
 					/*strMsg.Format("%s,%s,,Logging the whole path", pOriginCity->getNameKey(), pDestCity->getNameKey());
 					LogTradeMsg(strMsg);
-					for (std::vector<SPathNode>::iterator it = outPath.vPlots.begin(); it != outPath.vPlots.end(); ++it) {
+					for (std::vector<SPathNode>::iterator it = outPath.vPlots.begin(); it != outPath.vPlots.end(); ++it)
+					{
 						strMsg.Format(
 							"%s,%s,,X:%d / Y:%d / Moves:%d / Turns:%d", 
 							pOriginCity->getNameKey(),
@@ -5204,16 +5206,17 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 					}*/
 
 					iLongestRoute = iLength;
-					if (iLongestRoute >= iMaxRange * SPath::getNormalizedDistanceBase()) {
+					if (iLongestRoute >= iMaxRange * SPath::getNormalizedDistanceBase())
 						break;
-					}
 				}
-				else {
+				else
+				{
 					strMsg.Format("%s,%s,,Trade route is not the longest,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
 					LogTradeMsg(strMsg);
 				}
 			}
-			else {
+			else
+			{
 				strMsg.Format("%s,%s,,Can't create trade route", pOriginCity->getNameKey(), pDestCity->getNameKey());
 				LogTradeMsg(strMsg);
 			}

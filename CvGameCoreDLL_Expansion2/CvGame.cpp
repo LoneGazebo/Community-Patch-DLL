@@ -6556,12 +6556,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			else
 			{
 				// Ignore players who never founded an original capital
-				if (kPlayer.GetNumCitiesFounded() == 0)
-					continue;
-
-				int iX = kPlayer.GetOriginalCapitalX();
-				int iY = kPlayer.GetOriginalCapitalY();
-				CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+				CvPlot* pCapitalPlot = GC.getMap().plot(kPlayer.GetOriginalCapitalX(), kPlayer.GetOriginalCapitalY());
 				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
 					continue;
 
@@ -6615,12 +6610,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			else
 			{
 				// Ignore players who never founded an original capital
-				if (kPlayer.GetNumCitiesFounded() == 0)
-					continue;
-
-				int iX = kPlayer.GetOriginalCapitalX();
-				int iY = kPlayer.GetOriginalCapitalY();
-				CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+				CvPlot* pCapitalPlot = GC.getMap().plot(kPlayer.GetOriginalCapitalX(), kPlayer.GetOriginalCapitalY());
 				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
 					continue;
 

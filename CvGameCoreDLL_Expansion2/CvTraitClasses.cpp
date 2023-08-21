@@ -3857,7 +3857,7 @@ void CvPlayerTraits::SetIsWarmonger()
 		GetLandUnitMaintenanceModifier() != 0 ||
 		GetNavalUnitMaintenanceModifier() != 0 ||
 		GetProductionBonusModifierConquest() != 0 ||
-		GetGoldenAgeFromVictory() != 0 ||
+		GetGoldenAgeFromVictory() > 0 ||
 		GetWarWearinessModifier() != 0 ||
 		GetEnemyWarWearinessModifier() != 0 ||
 		GetGoldenAgeFromGreatPersonBirth(GetGreatPersonFromUnitClass((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))) != 0 ||

@@ -244,6 +244,14 @@ int CvLandmass::getTotalPopulation() const
 
 	return iResult;
 }
+int CvLandmass::getNumResources(ResourceTypes eResource) const
+{
+	int iResult = 0;
+	for (vector<int>::const_iterator it = m_vAreas.begin(); it != m_vAreas.end(); ++it)
+		iResult += GC.getMap().getAreaById(*it)->getNumResources(eResource);
+
+	return iResult;
+}
 
 //	--------------------------------------------------------------------------------
 template<typename Landmass, typename Visitor>

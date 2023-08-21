@@ -3021,32 +3021,9 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		else
 			bHolyCity = false;
 	}
-	
-	PlayerTypes ePlayerToLiberate = NO_PLAYER;
 
-	// Can this city be liberated?
-	if (eOriginalOwner != eOldOwner && eOriginalOwner != GetID())
-	{
-		ePlayerToLiberate = eOriginalOwner;
-
-		// If we're at war with the original owner and the last owner was a City-State, liberate them instead
-		if (IsAtWarWith(ePlayerToLiberate))
-		{
-			if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
-			{
-				ePlayerToLiberate = ePreviousOwner;
-			}
-			else
-			{
-				ePlayerToLiberate = NO_PLAYER;
-			}
-		}
-
-		if (ePlayerToLiberate != NO_PLAYER && !CanLiberatePlayerCity(ePlayerToLiberate))
-		{
-			ePlayerToLiberate = NO_PLAYER;
-		}
-	}
+	// Can we liberate this city for someone if we want to?
+	PlayerTypes ePlayerToLiberate = GetPlayerToLiberate(pCity);
 
 	// Can a sphere of influence be removed from a City-State?
 	bool bAllowSphereRemoval = false;
@@ -3252,8 +3229,11 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				iLoserProgressValue *= /*150*/ GD_INT_GET(WAR_PROGRESS_HOLY_CITY_MULTIPLIER);
 				iLoserProgressValue /= 100;
 
-				GET_PLAYER(eOldOwner).SetHasLostHolyCity(true, GetID());
-				GET_PLAYER(eOldOwner).SetLostHolyCityXY(iCityX, iCityY);
+				if (!GET_PLAYER(eOldOwner).IsHasLostHolyCity()) // Only the first lost Holy City triggers diplo penalties and the like.
+				{
+					GET_PLAYER(eOldOwner).SetHasLostHolyCity(true, GetID());
+					GET_PLAYER(eOldOwner).SetLostHolyCityXY(iCityX, iCityY);
+				}
 
 				if (isMajorCiv())
 				{
@@ -4126,8 +4106,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	// Reacquired our Holy City?
 	if (bHolyCity && IsHasLostHolyCity() && pNewCity->GetCityReligions()->IsHolyCityForReligion(GetReligions()->GetOriginalReligionCreatedByPlayer()))
 	{
-		// Notify, etc.
 		SetHasLostHolyCity(false, NO_PLAYER);
+		SetLostHolyCityXY(-1, -1);
 	}
 
 	// Reacquired our original capital?
@@ -4751,7 +4731,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			// AI decides what to do with a City
 			else if (!isHuman())
 			{
-				AI_conquerCity(pNewCity, ePlayerToLiberate, bGift, bAllowSphereRemoval); // Calling this could delete the pointer...
+				AI_conquerCity(pNewCity, bGift, bAllowSphereRemoval); // Calling this could delete the pointer...
 
 				// So we will check to see if the plot still contains the city.
 				CvCity* pkCurrentCity = pCityPlot->getPlotCity();
@@ -10039,17 +10019,17 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 {
 	// Other Player must be dead now
-	if(GET_PLAYER(ePlayer).isAlive())
+	if (GET_PLAYER(ePlayer).isAlive())
 	{
 		return false;
 	}
 
-	if(GET_PLAYER(ePlayer).IsEverConqueredBy(m_eID))
+	if (GET_PLAYER(ePlayer).IsEverConqueredBy(m_eID))
 	{
 		return false;
 	}
 
-	if(GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetKilledByTeam() == getTeam())
+	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetKilledByTeam() == getTeam())
 	{
 		return false;
 	}
@@ -10063,19 +10043,16 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	// Exploit fix - if we attacked a player we resurrected, we can't resurrect them again
-	if (GET_PLAYER(ePlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(m_eID))
+	// Exploit fix - if we attacked a major we resurrected, we can't resurrect them again
+	if (GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).GetDiplomacyAI()->IsResurrectorAttackedUs(m_eID))
 	{
 		return false;
 	}
-	
-#if defined(MOD_EVENTS_LIBERATION)
-	if (MOD_EVENTS_LIBERATION) {
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanLiberate, GetID(), ePlayer) == GAMEEVENTRETURN_FALSE) {
-			return false;
-		}
+
+	if (MOD_EVENTS_LIBERATION && GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanLiberate, GetID(), ePlayer) == GAMEEVENTRETURN_FALSE)
+	{
+		return false;
 	}
-#endif
 
 	return true;
 }
@@ -10083,12 +10060,45 @@ bool CvPlayer::CanLiberatePlayer(PlayerTypes ePlayer)
 //	--------------------------------------------------------------------------------
 bool CvPlayer::CanLiberatePlayerCity(PlayerTypes ePlayer)
 {
+	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
+		return false;
+
 	if (!GET_PLAYER(ePlayer).isAlive())
 	{
 		return CanLiberatePlayer(ePlayer);
 	}
 
 	return IsAtPeaceWith(ePlayer);
+}
+
+//	--------------------------------------------------------------------------------
+PlayerTypes CvPlayer::GetPlayerToLiberate(CvCity* pCity)
+{
+	PlayerTypes eOriginalOwner = pCity->getOriginalOwner();
+	PlayerTypes ePreviousOwner = pCity->getPreviousOwner();
+	PlayerTypes ePlayerToLiberate = eOriginalOwner;
+	if (ePlayerToLiberate == m_eID)
+		return NO_PLAYER;
+
+	// If we're at war with the original owner (or we otherwise can't liberate them) and the last owner was a City-State, liberate them instead
+	if (!CanLiberatePlayerCity(ePlayerToLiberate))
+	{
+		if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
+		{
+			ePlayerToLiberate = ePreviousOwner;
+		}
+		else
+		{
+			ePlayerToLiberate = NO_PLAYER;
+		}
+
+		if (ePlayerToLiberate != NO_PLAYER && !CanLiberatePlayerCity(ePlayerToLiberate))
+		{
+			ePlayerToLiberate = NO_PLAYER;
+		}
+	}
+
+	return ePlayerToLiberate;
 }
 
 //	--------------------------------------------------------------------------------
@@ -12840,12 +12850,6 @@ void CvPlayer::disband(CvCity* pCity)
 		setFoundedFirstCity(false);
 	}
 
-	// Remove Holy City status!
-	if (pCity->GetCityReligions()->IsHolyCityAnyReligion())
-	{
-		GC.getGame().GetGameReligions()->SetHolyCity(pCity->GetCityReligions()->GetReligionForHolyCity(), NULL);
-	}
-
 	GC.getGame().addDestroyedCityName(pCity->getNameKey());
 
 	for (int eBuildingType = 0; eBuildingType < GC.getNumBuildingInfos(); eBuildingType++)
@@ -13698,6 +13702,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		int iBorderGrowth = kGoodyInfo.getBorderGrowth();
 		if (iBorderGrowth > 0)
 		{
+
 			CvCity* pBestCity = bestCityFinder(*this, *pPlot);
 			if (pBestCity != NULL)
 			{
@@ -28531,6 +28536,9 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						case MINOR_CIV_QUEST_FIND_PLAYER:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_PLAYER_NAME");
 							break;
+						case MINOR_CIV_QUEST_FIND_CITY:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_NAME");
+							break;
 						case MINOR_CIV_QUEST_FIND_NATURAL_WONDER:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_FIND_NATURAL_WONDER_NAME");
 							break;
@@ -33228,11 +33236,8 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 		if (pNewCapitalCity != NULL)
 		{
 			// Need to set our original capital x,y?
-			if (GetOriginalCapitalX() == -1 || GetOriginalCapitalY() == -1)
-			{
-				m_iOriginalCapitalX = pNewCapitalCity->getX();
-				m_iOriginalCapitalY = pNewCapitalCity->getY();
-			}
+			if (GetOriginalCapitalX() == -1 && pNewCapitalCity->getOriginalOwner() == m_eID)
+				setOriginalCapitalXY(pNewCapitalCity);
 
 			m_iCapitalCityID = pNewCapitalCity->GetID();
 		}
@@ -33257,11 +33262,16 @@ int CvPlayer::GetOriginalCapitalY() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::setOriginalCapitalXY(CvCity* pCapitalCity)
 {
-	if (pCapitalCity != NULL)
+	if (pCapitalCity != NULL && pCapitalCity->plot() != NULL)
 	{
 		m_iOriginalCapitalX = pCapitalCity->getX();
 		m_iOriginalCapitalY = pCapitalCity->getY();
 	}
+}
+void CvPlayer::resetOriginalCapitalXY()
+{
+	m_iOriginalCapitalX = -1;
+	m_iOriginalCapitalY = -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -49827,11 +49837,11 @@ int CvPlayer::GetNumEffectiveCities(bool bIncludePuppets)
 	if (!bIncludePuppets)
 		iNumCities -= GetNumPuppetCities();
 
-	// Don't count cities where the player hasn't decided yet what to do with them or ones that are currently being razed
+	// Don't count cities where the player hasn't decided yet what to do with them
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->IsIgnoreCityForHappiness() || (!MOD_BALANCE_CORE && pLoopCity->IsRazing()))
+		if (pLoopCity->IsIgnoreCityForHappiness())
 		{
 			iNumCities--;
 		}
@@ -49849,16 +49859,18 @@ int CvPlayer::GetNumEffectiveCoastalCities() const
 	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
-		if (pLoopCity->IsIgnoreCityForHappiness() || pLoopCity->IsRazing())
+		if (pLoopCity->IsIgnoreCityForHappiness())
+			continue;
+
+		// Exclude cities that are being razed and puppets (except Venice)
+		if (pLoopCity->IsRazing())
 			continue;
 
 		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
 			continue;
 
-		if (pLoopCity->IsOccupied() && !pLoopCity->IsNoOccupiedUnhappiness())
-			continue;
-
-		if (pLoopCity->isCoastal())
+		// Require a decently-sized body of water
+		if (pLoopCity->isCoastal(10))
 			iNum++;
 	}
 

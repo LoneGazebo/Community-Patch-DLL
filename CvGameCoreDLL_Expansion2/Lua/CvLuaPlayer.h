@@ -41,6 +41,8 @@ protected:
 
 	static int lInitCity(lua_State* L);
 	static int lAcquireCity(lua_State* L);
+	static int lCanLiberatePlayer(lua_State* L);
+	static int lGetPlayerToLiberate(lua_State* L);
 	static int lKillCities(lua_State* L);
 
 	static int lGetNewCityName(lua_State* L);
@@ -271,6 +273,7 @@ protected:
 	LUAAPIEXTN(GetWoundedUnitDamageMod, int);
 	LUAAPIEXTN(SetCapitalCity, void);
 	LUAAPIEXTN(SetOriginalCapitalXY, void);
+	LUAAPIEXTN(ResetOriginalCapitalXY, void);
 	LUAAPIEXTN(GetNumWonders, int);
 	LUAAPIEXTN(GetOriginalCapitalPlot, int);
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -793,6 +796,7 @@ protected:
 	static int lGetMinorCivNumDisplayedQuestsForPlayer(lua_State* L);
 	static int lGetQuestData1(lua_State* L);
 	static int lGetQuestData2(lua_State* L);
+	static int lGetQuestData3(lua_State* L);
 	static int lGetQuestTurnsRemaining(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetRewardString(lua_State* L);

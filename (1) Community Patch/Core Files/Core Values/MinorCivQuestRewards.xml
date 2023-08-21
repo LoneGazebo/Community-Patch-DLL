@@ -34,6 +34,10 @@
 			<Influence>35</Influence>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_QUEST_FIND_CITY</Type>
+			<Influence>20</Influence>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_QUEST_FIND_NATURAL_WONDER</Type>
 			<Influence>40</Influence>
 		</Row>

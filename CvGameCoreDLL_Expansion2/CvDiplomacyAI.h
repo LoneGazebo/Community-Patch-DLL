@@ -1748,8 +1748,8 @@ public:
 	// Miscellaneous
 	/////////////////////////////////////////////////////////
 
-	bool IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiberate);
-	bool DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayerToLiberate);
+	bool IsTryingToLiberate(CvCity* pCity);
+	bool DoPossibleMajorLiberation(CvCity* pCity);
 
 	bool IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eTheftType, const CvPlot* pPlot = NULL);
 

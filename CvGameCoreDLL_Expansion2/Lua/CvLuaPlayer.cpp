@@ -51,6 +51,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 {
 	Method(InitCity);
 	Method(AcquireCity);
+	Method(CanLiberatePlayer);
+	Method(GetPlayerToLiberate);
 	Method(KillCities);
 
 	Method(GetNewCityName);
@@ -286,6 +288,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWoundedUnitDamageMod);
 	Method(SetCapitalCity);
 	Method(SetOriginalCapitalXY);
+	Method(ResetOriginalCapitalXY);
 	Method(GetNumWonders);
 	Method(GetOriginalCapitalPlot);
 #if defined(MOD_BALANCE_CORE_POLICIES)
@@ -694,6 +697,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMinorCivNumDisplayedQuestsForPlayer);
 	Method(GetQuestData1);
 	Method(GetQuestData2);
+	Method(GetQuestData3);
 	Method(GetQuestTurnsRemaining);
 	Method(QuestSpyActionsRemaining);
 	Method(GetXQuestBuildingRemaining);
@@ -1534,7 +1538,7 @@ int CvLuaPlayer::lInitCity(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//void acquireCity(CyCity* pCity, bool bConquest, bool bTrade);
+//void acquireCity(CvCity* pCity, bool bConquest, bool bTrade);
 int CvLuaPlayer::lAcquireCity(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
@@ -1545,6 +1549,28 @@ int CvLuaPlayer::lAcquireCity(lua_State* L)
 	pkPlayer->acquireCity(pkCity, bConquest, bGift);
 	return 0;
 }
+//------------------------------------------------------------------------------
+//bool CanLiberatePlayerCity(PlayerTypes ePlayer);
+int CvLuaPlayer::lCanLiberatePlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const bool bResult = pkPlayer->CanLiberatePlayerCity(ePlayer);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//PlayerTypes GetPlayerToLiberate(CvCity* pCity);
+int CvLuaPlayer::lGetPlayerToLiberate(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
+	const int iResult = pkPlayer->GetPlayerToLiberate(pkCity);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+
 //------------------------------------------------------------------------------
 //void killCities();
 int CvLuaPlayer::lKillCities(lua_State* L)
@@ -3319,6 +3345,13 @@ int CvLuaPlayer::lSetOriginalCapitalXY(lua_State* L)
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 2);
 	
 	pkPlayer->setOriginalCapitalXY(pkCity);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lResetOriginalCapitalXY(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	pkPlayer->resetOriginalCapitalXY();
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -8490,6 +8523,17 @@ int CvLuaPlayer::lGetQuestData2(lua_State* L)
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 
 	const int iResult = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetQuestData3(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetQuestData3(ePlayer, eType);
 	lua_pushinteger(L, iResult);
 	return 1;
 }

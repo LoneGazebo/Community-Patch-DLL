@@ -15,22 +15,6 @@ WHERE Type = 'BUILDING_WALLS_OF_BABYLON';
 
 -- Mongols
 UPDATE Traits
-SET BullyAnnex = '0'
-WHERE Type = 'TRAIT_TERROR';
-
-UPDATE Traits
-SET IgnoreBullyPenalties = '0'
-WHERE Type = 'TRAIT_TERROR';
-
-UPDATE Traits
-SET CSBullyValueModifier = '0'
-WHERE Type = 'TRAIT_TERROR';
-
-UPDATE Traits
-SET BullyYieldMultiplierAnnex = '0'
-WHERE Type = 'TRAIT_TERROR';
-
-UPDATE Traits
 SET CityStateCombatModifier = '0'
 WHERE Type = 'TRAIT_TERROR';
 

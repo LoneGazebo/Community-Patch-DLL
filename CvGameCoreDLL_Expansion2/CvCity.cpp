@@ -552,6 +552,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 	BuildingTypes eLoopBuilding;
 	int iI = 0;
+	bool bFoundingCapital = bInitialFounding && GET_PLAYER(eOwner).GetOriginalCapitalX() == -1;
 
 	//--------------------------------
 	// Init saved data
@@ -650,7 +651,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	pPlot->updateCityRoute();
 
 	//force recalculation of trade routes
-	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
 		GC.getGame().GetGameTrade()->InvalidateTradePathCache((PlayerTypes) iPlayer);
 	}
@@ -978,11 +979,6 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 		}
 	}
 
-	if (bInitialFounding)
-	{
-		owningPlayer.DoDifficultyBonus(owningPlayer.getNumCities() <= 1 ? DIFFICULTY_BONUS_CITY_FOUND_CAPITAL : DIFFICULTY_BONUS_CITY_FOUND);
-	}
-
 	// How long before this City picks a Resource to demand?
 	DoSeedResourceDemandedCountdown();
 
@@ -1211,6 +1207,10 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	}
 
 	UpdateCachedYieldMedians();
+
+	// Possible difficulty bonus!
+	if (bInitialFounding)
+		owningPlayer.DoDifficultyBonus(bFoundingCapital ? DIFFICULTY_BONUS_CITY_FOUND_CAPITAL : DIFFICULTY_BONUS_CITY_FOUND);
 
 	AI_init();
 
@@ -2311,6 +2311,14 @@ void CvCity::kill()
 			}
 		}
 	}
+
+	// Original capital destroyed somehow? Treat it as if it was never founded.
+	if (IsOriginalCapital())
+		GET_PLAYER(m_eOriginalOwner).resetOriginalCapitalXY();
+
+	// Remove Holy City status!
+	if (GetCityReligions()->IsHolyCityAnyReligion())
+		GC.getGame().GetGameReligions()->SetHolyCity(GetCityReligions()->GetReligionForHolyCity(), NULL);
 
 	PreKill();
 
@@ -16979,14 +16987,11 @@ bool CvCity::isCapital() const
 bool CvCity::IsOriginalCapital() const
 {
 	VALIDATE_OBJECT
+	if (m_eOriginalOwner == NO_PLAYER || m_eOriginalOwner == BARBARIAN_PLAYER)
+		return false;
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_eOriginalOwner);
-	if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
-	{
-		return true;
-	}
-
-	return false;
+	return getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY();
 }
 
 //	--------------------------------------------------------------------------------
@@ -16994,18 +16999,7 @@ bool CvCity::IsOriginalCapital() const
 bool CvCity::IsOriginalMajorCapital() const
 {
 	VALIDATE_OBJECT
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-		if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return IsOriginalCapital() && GET_PLAYER(m_eOriginalOwner).isMajorCiv();
 }
 
 //	--------------------------------------------------------------------------------
@@ -17013,18 +17007,7 @@ bool CvCity::IsOriginalMajorCapital() const
 bool CvCity::IsOriginalMinorCapital() const
 {
 	VALIDATE_OBJECT
-
-	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
-		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-		if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
-		{
-			return true;
-		}
-	}
-
-	return false;
+	return IsOriginalCapital() && GET_PLAYER(m_eOriginalOwner).isMinorCiv();
 }
 
 //	--------------------------------------------------------------------------------
@@ -17032,17 +17015,7 @@ bool CvCity::IsOriginalMinorCapital() const
 bool CvCity::IsOriginalCapitalForPlayer(PlayerTypes ePlayer) const
 {
 	VALIDATE_OBJECT
-
-	if (ePlayer == NO_PLAYER || ePlayer == BARBARIAN_PLAYER)
-		return false;
-
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	if (getX() == kPlayer.GetOriginalCapitalX() && getY() == kPlayer.GetOriginalCapitalY())
-	{
-		return true;
-	}
-
-	return false;
+	return IsOriginalCapital() && ePlayer == m_eOriginalOwner;
 }
 
 //	--------------------------------------------------------------------------------

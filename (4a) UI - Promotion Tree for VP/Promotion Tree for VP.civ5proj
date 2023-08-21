@@ -17,7 +17,7 @@ Layout derived from http://gaming.stackexchange.com/questions/15846/122</Descrip
     <SpecialThanks>Translation: Russian - Tomahawk.nsk</SpecialThanks>
     <Categories>$Categories$</Categories>
     <AffectsSavedGames>false</AffectsSavedGames>
-    <MinCompatibleSaveVersion>23</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>0</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
     <SupportsMultiplayer>false</SupportsMultiplayer>
     <SupportsHotSeat>true</SupportsHotSeat>

@@ -1063,7 +1063,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	}
 
 	//Going after a City-State? Depends if it has allies
-	if(GET_PLAYER(pTargetCity->getOwner()).isMinorCiv())
+	if (GET_PLAYER(pTargetCity->getOwner()).isMinorCiv())
 	{
 		//in general prefer to target major players, except rome
 		//todo: maybe also factor in other traits? austria, venice, germany, greece? what about statecraft
@@ -1077,7 +1077,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 			if (GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(GetPlayer()->getTeam()))
 			{
 				fDesirability *= m_pPlayer->GetPlayerTraits()->GetCityStateCombatModifier() > 0 ? 200 : 100;
-				fDesirability /= max(1, /*250*/ GD_INT_GET(AI_MILITARY_CAPTURING_ORIGINAL_CAPITAL));
+				fDesirability /= 250;
 			}
 		}
 		else if (m_pPlayer->IsAtWarAnyMajor() && !m_pPlayer->IsAtWarWith(pTargetCity->getOwner()))
@@ -1092,59 +1092,61 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		}
 	}
 
-	//If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
-	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	if (m_pPlayer->isMajorCiv())
 	{
-		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
-		CvPlayer* pMinor = &GET_PLAYER(eMinor);
-		if (!pMinor->isAlive())
-			continue;
-
-		CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-
-		if(pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
+		// If we were given a quest to go to war with this player, that should influence our decision. Plus, it probably means he's a total jerk.
+		bool bAnyLiberationQuest = false;
+		for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 		{
-			if(pTargetCity->getOriginalOwner() == pMinor->GetMinorCivAI()->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
-			{
-				fDesirability *= /*200*/ GD_INT_GET(AI_MILITARY_RECAPTURING_CITY_STATE);
-				fDesirability /= 100;
-			}	
-		}
+			PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
+			CvPlayer* pMinor = &GET_PLAYER(eMinor);
+			if (!pMinor->isAlive())
+				continue;
 
-		if(pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR))
-		{
-			if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR) == pTargetCity->getOwner())
+			CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
+
+			if (pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
 			{
-				fDesirability *= /*150*/ GD_INT_GET(AI_MILITARY_RECAPTURING_OWN_CITY);
-				fDesirability /= 100;
+				if (m_pPlayer->GetPlayerToLiberate(pTargetCity) == pMinor->GetMinorCivAI()->GetQuestData3(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION)
+					&& pTargetCity->getX() == pMinor->GetMinorCivAI()->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION)
+					&& pTargetCity->getY() == pMinor->GetMinorCivAI()->GetQuestData2(m_pPlayer->GetID(), MINOR_CIV_QUEST_LIBERATION))
+				{
+					fDesirability *= /*200*/ GD_INT_GET(AI_MILITARY_RECAPTURING_CITY_STATE);
+					fDesirability /= 100;
+					bAnyLiberationQuest = true;
+				}
 			}
-		}
-		if(pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION))
-		{
-			if(pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_LIBERATION) == eMinor)
+
+			if (pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR))
 			{
-				TeamTypes eConquerorTeam = GET_TEAM(pMinor->getTeam()).GetKilledByTeam();	
-				if(eConquerorTeam == pTargetCity->getTeam())
+				if (pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_WAR) == pTargetCity->getOwner())
 				{
 					fDesirability *= /*150*/ GD_INT_GET(AI_MILITARY_RECAPTURING_OWN_CITY);
 					fDesirability /= 100;
 				}
 			}
-		}
-		if(pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY))
-		{
-			int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
-			int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
 
-			CvPlot* pPlot = GC.getMap().plot(iX, iY);
-			if(pPlot != NULL && pPlot->isCity())
+			if (pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY))
 			{
-				if(pPlot->getOwner() == pTargetCity->getOwner())
+				int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+				int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+
+				CvPlot* pPlot = GC.getMap().plot(iX, iY);
+				if (pPlot != NULL && pPlot->isCity())
 				{
-					fDesirability *= /*150*/ GD_INT_GET(AI_MILITARY_RECAPTURING_OWN_CITY);
-					fDesirability /= 100;
+					if (pPlot->getOwner() == pTargetCity->getOwner())
+					{
+						fDesirability *= /*150*/ GD_INT_GET(AI_MILITARY_RECAPTURING_OWN_CITY);
+						fDesirability /= 100;
+					}
 				}
 			}
+		}
+		// Are we trying to liberate this city for a non-quest reason? That deserves a bonus.
+		if (!bAnyLiberationQuest && m_pPlayer->GetDiplomacyAI()->IsTryingToLiberate(pTargetCity))
+		{
+			fDesirability *= /*150*/ GD_INT_GET(AI_MILITARY_RECAPTURING_OWN_CITY);
+			fDesirability /= 100;
 		}
 	}
 
@@ -1167,7 +1169,7 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 		}
 	}
 
-	if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
+	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	{
 		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{

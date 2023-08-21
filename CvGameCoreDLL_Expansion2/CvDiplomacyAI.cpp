@@ -1066,6 +1066,20 @@ void CvDiplomacyAI::SlotStateChange()
 			}
 		}
 	}
+
+	// Test if backstabber flag should be disabled
+	// This code makes turning off Nuclear Gandhi savegame compatible
+	if (IsBackstabber())
+	{
+		if (GetPlayer()->IsVassalOfSomeone())
+		{
+			SetBackstabber(false);
+		}
+		else if (GetLoyalty() > 2 && !IsNuclearGandhi() && GetWeDeclaredWarOnFriendCount() == 0)
+		{
+			SetBackstabber(false);
+		}
+	}
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -2003,6 +2017,8 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		SetPrimaryVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		SetSecondaryVictoryPursuit(NO_VICTORY_PURSUIT);
 		return;
+	default:
+		break;
 	}
 
 	CvPlayerTraits* pTraits = GetPlayer()->GetPlayerTraits();
@@ -7324,10 +7340,6 @@ bool CvDiplomacyAI::IsCapitalCapturedBy(PlayerTypes ePlayer, bool bCurrently, bo
 				return true;
 		}
 	}
-	else if (bCurrently) // Capital somehow no longer exists
-	{
-		return false;
-	}
 
 	if (bTeammates && !bCurrently)
 	{
@@ -7391,10 +7403,6 @@ bool CvDiplomacyAI::IsHolyCityCapturedBy(PlayerTypes ePlayer, bool bCurrently, b
 			if (pHolyCityPlot->getOwner() == ePlayer)
 				return true;
 		}
-	}
-	else if (bCurrently) // City was destroyed, or status was removed
-	{
-		return false;
 	}
 
 	if (bTeammates && !bCurrently)
@@ -9755,6 +9763,8 @@ void CvDiplomacyAI::DoUpdateCurrentVictoryPursuit()
 	case VICTORY_PURSUIT_SCIENCE:
 		SetCurrentVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
 		return;
+	default:
+		break;
 	}
 
 	// Always War scenarios - always Domination
@@ -9780,6 +9790,8 @@ void CvDiplomacyAI::DoUpdateCurrentVictoryPursuit()
 			break;
 		case VICTORY_PURSUIT_SCIENCE:
 			SetCurrentVictoryPursuit(VICTORY_PURSUIT_SCIENCE);
+			break;
+		default:
 			break;
 		}
 		return;
@@ -10632,7 +10644,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 
 		// War?
-		if (IsPlayerValid(eLoopPlayer) && IsAtWar(eLoopPlayer))
+		if (GET_PLAYER(eLoopPlayer).isAlive() && IsAtWar(eLoopPlayer))
 		{
 			WarStateTypes eWarState = NO_WAR_STATE_TYPE;
 			ReligionTypes eTheirReligion = GET_PLAYER(eLoopPlayer).isMinorCiv() ? NO_RELIGION : GET_PLAYER(eLoopPlayer).GetReligions()->GetOwnedReligion();
@@ -10775,6 +10787,12 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				iTheirDanger += iDangerMod;
 			}
 
+			if (iNumOurCities == 0)
+				bSeriousDangerUs = true;
+
+			if (iNumTheirCities == 0)
+				bSeriousDangerThem = true;
+
 			int WarScore = GetWarScore(eLoopPlayer);
 			bool bWeAreLosing = WarScore <= -75;
 			bool bTheyAreLosing = WarScore >= 75;
@@ -10838,7 +10856,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 					iTheirDanger /= 100;
 				}
 
-				bool bDangerValid = (iTheirDanger > 0) || (iOurDanger > 0);
+				bool bDangerValid = iNumOurCities > 0 && iNumTheirCities > 0 && (iTheirDanger > 0 || iOurDanger > 0);
 				int iDangerPercent = (iTheirDanger * 100) / max(iOurDanger, 1);
 
 				if (iDangerPercent < 100 && bDangerValid)
@@ -10861,12 +10879,15 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				}
 				else
 				{
+					bool bWeAreNomadic = iNumOurCities == 0 && iNumTheirCities > 0;
+					bool bTheyAreNomadic = iNumTheirCities == 0 && iNumOurCities > 0;
+
 					if (WarScore >= GetWarscoreThresholdPositive())
-						eWarState = WAR_STATE_OFFENSIVE;
-					else if (WarScore <= GetWarscoreThresholdNegative())
-						eWarState = WAR_STATE_TROUBLED;
+						eWarState = bWeAreNomadic ? WAR_STATE_STALEMATE : WAR_STATE_OFFENSIVE;
+					else if (WarScore <= GetWarscoreThresholdNegative() || bWeAreNomadic)
+						eWarState = bWeAreNomadic ? WAR_STATE_DEFENSIVE : WAR_STATE_TROUBLED;
 					else
-						eWarState = WAR_STATE_STALEMATE;
+						eWarState = bTheyAreNomadic ? WAR_STATE_OFFENSIVE : WAR_STATE_STALEMATE;
 				}
 			}
 
@@ -10907,9 +10928,9 @@ void CvDiplomacyAI::DoUpdateWarStates()
 				{
 					iStateAllWars -= bSeriousDangerUs ? 4 : 2;
 
-					// If we are defensive in any war and our capital has been damaged to 75% or lower, overall state should be defensive
+					// If we are defensive in any war and we don't have a capital, or our capital has been damaged to 75% or lower, overall state should be defensive
 					CvCity *pCapital = m_pPlayer->getCapitalCity();
-					if (pCapital && pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/4))
+					if (!pCapital || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/4))
 					{
 						SetStateAllWars(STATE_ALL_WARS_LOSING);
 					}
@@ -11354,6 +11375,8 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_PATHETIC);
 					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_PATHETIC);
 					break;
+				default:
+					UNREACHABLE();
 				}
 			}
 			else
@@ -11388,6 +11411,8 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_PATHETIC);
 					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_PATHETIC);
 					break;
+				default:
+					UNREACHABLE();
 				}
 			}
 
@@ -11588,6 +11613,8 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MINOR_BACKUP_PATHETIC);
 					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MINOR_BACKUP_PATHETIC);
 					break;
+				default:
+					UNREACHABLE();
 				}
 			}
 			else
@@ -11622,6 +11649,8 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 					iThirdPartyAttackValue *= /*0*/ GD_INT_GET(MILITARY_STRENGTH_MAJOR_BACKUP_PATHETIC);
 					iThirdPartyDefenseValue *= /*0*/ GD_INT_GET(TARGET_MAJOR_BACKUP_PATHETIC);
 					break;
+				default:
+					UNREACHABLE();
 				}
 			}
 
@@ -16013,21 +16042,18 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
 					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
-
 					CvPlot* pPlot = GC.getMap().plot(iX, iY);
-					if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == ePlayer)
+					if (pPlot->isCity() && pPlot->getOwner() == ePlayer)
 					{
 						iNumWarQuests++;
 					}
 				}
 				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_LIBERATION))
 				{
-					PlayerTypes eMinorToLiberate = (PlayerTypes) pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
-					int iX = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalX();
-					int iY = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalY();
-
+					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
+					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
 					CvPlot* pPlot = GC.getMap().plot(iX, iY);
-					if (pPlot != NULL && pPlot->isCity() && pPlot->getOwner() == ePlayer)
+					if (pPlot->isCity() && pPlot->getOwner() == ePlayer)
 					{
 						iNumWarQuests++;
 					}
@@ -16041,6 +16067,18 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_FIND_PLAYER) && pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_FIND_PLAYER) == ePlayer)
 				{
 					iNumFriendlyQuests++;
+				}
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_FIND_CITY))
+				{
+					// Minor cheating: Allow the AI to know who owns the city
+					// Humans can do the same in many cases by memorizing the city names
+					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
+					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
+					CvPlot* pPlot = GC.getMap().plot(iX, iY);
+					if (pPlot->isCity() && pPlot->getOwner() == ePlayer)
+					{
+						iNumFriendlyQuests++;
+					}
 				}
 				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_CONNECT_RESOURCE))
 				{
@@ -20424,7 +20462,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Aztecs - More likely to declare war than any other civ, everything else equal, plus an extra bonus for war when not in a Golden Age (or in the early game)
-	else if (pTraits->GetGoldenAgeFromVictory() != 0)
+	else if (pTraits->GetGoldenAgeFromVictory() > 0)
 	{
 		vApproachScores[CIV_APPROACH_WAR] += vApproachBias[CIV_APPROACH_WAR] * 2;
 		vApproachScores[CIV_APPROACH_HOSTILE] += vApproachBias[CIV_APPROACH_HOSTILE] * 2;
@@ -25496,7 +25534,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	bool bLog = bMyTurn && GC.getLogging() && GC.getAILogging(); // Only log this once per turn to prevent log spam
 	int iLoop = 0;
 
-	if (!pCapital || GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->isHuman() || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->IsVassalOfSomeone())
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE) || GetPlayer()->isHuman() || GetPlayer()->IsAITeammateOfHuman() || GetPlayer()->IsVassalOfSomeone())
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -25540,7 +25578,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 	}
 
 	// STEP 1: See if we're in a critical state and check which players are valid
-	bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy() || pCapital->isInDangerOfFalling(true) || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2);
+	bool bCriticalState = GetPlayer()->IsEmpireSuperUnhappy() || !pCapital || pCapital->isInDangerOfFalling(true) || pCapital->getDamage() >= (pCapital->GetMaxHitPoints()/2);
 	bool bMakePeaceWithAllMinors = false;
 	bool bWorldConquest = IsGoingForWorldConquest() || IsCloseToWorldConquest();
 	bool bDiplomatic = IsGoingForDiploVictory() || IsDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat();
@@ -25604,16 +25642,19 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				}
 			}
 
-			WarStateTypes eWarState = GetWarState(eLoopPlayer);
+			if (!bCriticalState)
+			{
+				WarStateTypes eWarState = GetWarState(eLoopPlayer);
 
-			if (eWarState == WAR_STATE_NEARLY_DEFEATED)
-			{
-				bCriticalState = true;
-			}
-			else if (eWarState <= WAR_STATE_TROUBLED)
-			{
-				if (GetPlayer()->IsNoNewWars() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !IsPhonyWar(eLoopPlayer) || GetWarScore(eLoopPlayer) <= WARSCORE_THRESHOLD_NEGATIVE)
-					bMakePeaceWithAllMinors = true;
+				if (eWarState == WAR_STATE_NEARLY_DEFEATED)
+				{
+					bCriticalState = true;
+				}
+				else if (eWarState <= WAR_STATE_TROUBLED)
+				{
+					if (GetPlayer()->IsNoNewWars() || !GET_PLAYER(eLoopPlayer).isMajorCiv() || !IsPhonyWar(eLoopPlayer) || GetWarScore(eLoopPlayer) <= WARSCORE_THRESHOLD_NEGATIVE)
+						bMakePeaceWithAllMinors = true;
+				}
 			}
 		}
 		else if (GET_PLAYER(eLoopPlayer).isMajorCiv())
@@ -25751,20 +25792,25 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 
 	// STEP 3: Determine whether we're willing to make peace with any majors
 	vector<PlayerTypes> vMakePeacePlayers;
-	bool bInTerribleShape = GetPlayer()->IsInTerribleShapeForWar();
-	bool bUABonusesFromCityConquest = false;
-	if (!bInTerribleShape)
+	bool bInTerribleShape = false, bUABonusesFromCityConquest = false;
+	if (!bCriticalState)
 	{
-		// France, Assyria, Japan, Rome and Indonesia will prolong wars longer if they are winning and the enemy's cities are in danger from them.
-		bUABonusesFromCityConquest = GetPlayer()->GetPlayerTraits()->GetCultureBonusModifierConquest() > 0;
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->GetProductionBonusModifierConquest() > 0;
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->IsTechFromCityConquer();
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->IsFreeGreatWorkOnConquest();
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->IsConquestOfTheWorld();
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->GetCityConquestGWAM() > 0;
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->IsKeepConqueredBuildings();
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->GetExtraConqueredCityTerritoryClaimRange() > 0;
-		bUABonusesFromCityConquest |= GetPlayer()->GetPlayerTraits()->GetUniqueLuxuryQuantity() > 0;
+		bInTerribleShape = GetPlayer()->IsInTerribleShapeForWar();
+		CvPlayerTraits* pTraits = GetPlayer()->GetPlayerTraits();
+		if (!bInTerribleShape)
+		{
+			// Assyria, Japan, Indonesia, The Aztecs, Nuclear Gandhi, and anyone who keeps conquered buildings will prolong wars longer if they are winning and the enemy's cities are in danger from them.
+			bUABonusesFromCityConquest = pTraits->IsTechFromCityConquer();
+			bUABonusesFromCityConquest |= pTraits->GetCityConquestGWAM() > 0;
+			bUABonusesFromCityConquest |= pTraits->GetUniqueLuxuryQuantity() > 0;
+			bUABonusesFromCityConquest |= pTraits->GetGoldenAgeFromVictory() > 0;
+			bUABonusesFromCityConquest |= pTraits->IsKeepConqueredBuildings() || GetPlayer()->IsKeepConqueredBuildings();
+			bUABonusesFromCityConquest |= pTraits->GetCultureBonusModifierConquest() > 0;
+			bUABonusesFromCityConquest |= pTraits->GetProductionBonusModifierConquest() > 0;
+			bUABonusesFromCityConquest |= pTraits->IsFreeGreatWorkOnConquest();
+			bUABonusesFromCityConquest |= pTraits->IsConquestOfTheWorld();
+			bUABonusesFromCityConquest |= IsNuclearGandhi();
+		}
 	}
 
 	for (std::vector<PlayerTypes>::iterator it = vValidPlayers.begin(); it != vValidPlayers.end(); it++)
@@ -25935,7 +25981,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		bool bPhonyWar = IsPhonyWar(*it);
 		bool bCapturedAnyCityFromUs = bCapturedKeyCity;
 		bool bCapturedAnyCityWeWantToLiberate = false;
-		bool bReadyForVassalage = GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()) && iWarScore >= 75 && !bCapturedKeyCity && !IsEndgameAggressiveTo(*it) && !IsUntrustworthy(*it);
+		bool bReadyForVassalage = iWarScore >= 75 && !bCapturedKeyCity && !IsEndgameAggressiveTo(*it) && GET_TEAM(GET_PLAYER(*it).getTeam()).canBecomeVassal(GetTeam()) && !IsUntrustworthy(*it);
 
 		if (!bInTerribleShape)
 		{
@@ -25965,44 +26011,20 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				{
 					bReadyForVassalage = false;
 					bCapturedAnyCityFromUs = true;
-					continue;
 				}
-				else
+				// Is this a city that we want to liberate?
+				else if (IsTryingToLiberate(pLoopCity))
 				{
-					// Can we liberate this city?
-					PlayerTypes ePlayerToLiberate = eOriginalOwner;
-
-					// If we're at war with the original owner and the last owner was a City-State, liberate them instead
-					if (IsAtWar(ePlayerToLiberate))
-					{
-						PlayerTypes ePreviousOwner = pLoopCity->getPreviousOwner();
-
-						if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
-						{
-							ePlayerToLiberate = ePreviousOwner;
-						}
-						else
-						{
-							ePlayerToLiberate = NO_PLAYER;
-						}
-					}
-
-					if (ePlayerToLiberate != NO_PLAYER && !GetPlayer()->CanLiberatePlayerCity(ePlayerToLiberate))
-					{
-						ePlayerToLiberate = NO_PLAYER;
-					}
-
-					// Is this a city that we want to liberate?
-					if (IsTryingToLiberate(pLoopCity, ePlayerToLiberate))
-					{
-						bReadyForVassalage = false;
-						bCapturedAnyCityWeWantToLiberate = true;
-					}
+					bReadyForVassalage = false;
+					bCapturedAnyCityWeWantToLiberate = true;
 				}
+
+				if (bCapturedAnyCityFromUs && bCapturedAnyCityWeWantToLiberate)
+					break;
 
 				// Is this a valuable city endangered by our team?
 				// Alternatively, if we're nasty/hateful or get bonuses from conquering cities, we're rarely willing to vassalize if ANY city is vulnerable.
-				if (bEndangeredByOurTeam)
+				if (bEndangeredByOurTeam && bReadyForVassalage)
 				{
 					bool bProceed = bUABonusesFromCityConquest || IsBackstabber() || GetMeanness() >= 8 || GetDiploBalance() <= 2 || GetCivOpinion(*it) == CIV_OPINION_UNFORGIVABLE;
 					bProceed |= pLoopCity->IsOriginalMajorCapital() || pLoopCity->GetCityReligions()->IsHolyCityAnyReligion() || pLoopCity->HasAnyWonder();
@@ -26034,9 +26056,6 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						}
 					}
 				}
-
-				if (bCapturedAnyCityFromUs && bCapturedAnyCityWeWantToLiberate)
-					break;
 			}
 		}
 
@@ -26700,6 +26719,8 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			iPeaceScore -= 20;
 		}
 
+		bool bAztecException = false;
+
 		if (iPeaceScore > 0)
 		{
 			// If we're going for world conquest, we want to fight our wars until we get their capital or can vassalize them
@@ -26709,7 +26730,12 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			{
 				if (iWarScore > 0 || (iWarScore > GetWarscoreThresholdNegative()/2 && GetRawTargetValue(*it) >= TARGET_VALUE_AVERAGE && GetWarState(*it) > WAR_STATE_TROUBLED))
 				{
-					if (bCapturedAnyCityFromUs)
+					if (iWarScore < WARSCORE_THRESHOLD_POSITIVE && GetPlayer()->GetPlayerTraits()->GetGoldenAgeFromVictory() > 0)
+					{
+						bAztecException = true;
+						iPeaceScore /= 2;
+					}
+					else if (bCapturedAnyCityFromUs)
 					{
 						if (iWarScore > (iWarDuration / 2))
 							iPeaceScore /= 2;
@@ -26769,15 +26795,11 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			// High Meanness leaders will fight to the bitter end when losing, high Diplo Balance leaders like to return to status quo when winning
 			if (iWarScore > 0)
 			{
-				int iModifier = (GetDiploBalance() - 5) * 10;
-				iPeaceScore *= (100 + iModifier);
-				iPeaceScore /= 100;
+				iPeaceScore = AdjustConditionalModifier(iPeaceScore, GetDiploBalance());
 			}
 			else if (iWarScore < 0)
 			{
-				int iModifier = (-GetMeanness() + 5) * 10;
-				iPeaceScore *= (100 + iModifier);
-				iPeaceScore /= 100;
+				iPeaceScore = AdjustConditionalModifier(iPeaceScore, GetMeanness(), true);
 			}
 		}
 
@@ -26786,7 +26808,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		if (iWarCount <= 0)
 			iWarCount = 0;
 
-		bool bWantedPeaceLastTime = IsWantsPeaceWithPlayer(*it); // if we were willing to make peace last update, add some leeway here to prevent flip-flopping
+		bool bWantedPeaceLastTime = IsWantsPeaceWithPlayer(*it) && !bAztecException; // if we were willing to make peace last update, add some leeway here to prevent flip-flopping
 		int iThreshold = bWantedPeaceLastTime ? /*17*/ GD_INT_GET(REQUEST_PEACE_LEEWAY_THRESHOLD) : /*20*/ GD_INT_GET(REQUEST_PEACE_TURN_THRESHOLD);
 		int iThresholdReductionPerOtherWar = bWantedPeaceLastTime ? /*3*/ GD_INT_GET(REQUEST_PEACE_LEEWAY_THRESHOLD_REDUCTION_PER_WAR) : /*2*/ GD_INT_GET(REQUEST_PEACE_THRESHOLD_REDUCTION_PER_WAR);
 
@@ -26975,8 +26997,8 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (GET_TEAM(GetTeam()).GetNumTurnsLockedIntoWar(GET_PLAYER(ePlayer).getTeam()) > 0)
 		return PEACE_BLOCK_REASON_WAR_DEAL;
 
-	// Other player has no capital, so don't bother updating war status
-	if (GET_PLAYER(ePlayer).getCapitalCity() == NULL)
+	// Other player has no capital, so don't bother updating war status most of the time
+	if (GET_PLAYER(ePlayer).getCapitalCity() == NULL && GetPlayer()->getCapitalCity() && GetRawMilitaryStrengthComparedToUs(ePlayer) < STRENGTH_POOR)
 		return PEACE_BLOCK_REASON_NO_ENEMY_CAPITAL;
 
 	// Planning a coop war against someone this guy has a Defensive Pact with?
@@ -42508,6 +42530,9 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 		case TARGET_VALUE_SOFT:
 			iScore *= 200;
 			break;
+		case TARGET_VALUE_CAKEWALK:
+			iScore *= 300;
+			break;
 		}
 	}
 	else
@@ -42529,6 +42554,9 @@ int CvDiplomacyAI::GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eT
 			break;
 		case TARGET_VALUE_SOFT:
 			iScore *= 150;
+			break;
+		case TARGET_VALUE_CAKEWALK:
+			iScore *= 200;
 			break;
 		}
 	}
@@ -49272,11 +49300,12 @@ int CvDiplomacyAI::GetScenarioModifier3(PlayerTypes ePlayer)
 /////////////////////////////////////////////////////////
 
 /// Are we *actively* trying and wanting to liberate a city?
-bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiberate)
+bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity)
 {
 	if (!pCity)
 		return false;
 
+	PlayerTypes ePlayerToLiberate = GetPlayer()->GetPlayerToLiberate(pCity);
 	if (ePlayerToLiberate == NO_PLAYER)
 		return false;
 
@@ -49341,22 +49370,19 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 			{
 				CvPlayer* pMinor = &GET_PLAYER(eMinor);
 				CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-				if (pMinor && pMinorCivAI)
+				if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_LIBERATION))
 				{
-					if (pMinorCivAI->IsActiveQuestForPlayer(GetID(), MINOR_CIV_QUEST_LIBERATION))
+					PlayerTypes eQuestTarget = (PlayerTypes)pMinorCivAI->GetQuestData3(GetID(), MINOR_CIV_QUEST_LIBERATION);
+					int iX = pMinorCivAI->GetQuestData1(GetID(), MINOR_CIV_QUEST_LIBERATION);
+					int iY = pMinorCivAI->GetQuestData2(GetID(), MINOR_CIV_QUEST_LIBERATION);
+
+					if (eQuestTarget == ePlayerToLiberate && pCity->getX() == iX && pCity->getY() == iY)
 					{
-						PlayerTypes eMinorToLiberate = (PlayerTypes)pMinorCivAI->GetQuestData1(GetID(), MINOR_CIV_QUEST_LIBERATION);
-						int iX = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalX();
-						int iY = GET_PLAYER(eMinorToLiberate).GetOriginalCapitalY();
+						bHasLiberateQuest = true;
+						if (eApproach == CIV_APPROACH_FRIENDLY || pMinorCivAI->GetAlly() == GetID())
+							bWantsLiberateQuest = true;
 
-						if (pCity->getX() == iX && pCity->getY() == iY)
-						{
-							bHasLiberateQuest = true;
-							if (eApproach == CIV_APPROACH_FRIENDLY || pMinorCivAI->GetAlly() == GetID())
-								bWantsLiberateQuest = true;
-
-							break;
-						}
+						break;
 					}
 				}
 			}
@@ -49383,11 +49409,12 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity, PlayerTypes ePlayerToLiber
 
 /// Will this player liberate a Major's City that it now owns?
 /// Only used for CvPlayerAI::AI_conquerCity()
-bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity, PlayerTypes ePlayerToLiberate)
+bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 {
 	if (!pCity)
 		return false;
 
+	PlayerTypes ePlayerToLiberate = GetPlayer()->GetPlayerToLiberate(pCity);
 	if (ePlayerToLiberate == NO_PLAYER)
 		return false;
 
@@ -52684,6 +52711,9 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 		break;
 	case MINOR_CIV_QUEST_FIND_PLAYER:
 		strTemp.Format("Find Player");
+		break;
+	case MINOR_CIV_QUEST_FIND_CITY:
+		strTemp.Format("Find City");
 		break;
 	case MINOR_CIV_QUEST_FIND_NATURAL_WONDER:
 		strTemp.Format("Find Natural Wonder");

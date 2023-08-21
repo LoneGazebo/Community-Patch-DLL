@@ -39,7 +39,7 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_WAR,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION,
-	-- Then other pesonal quests
+	-- Then other personal quests
 	MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM,
@@ -50,6 +50,7 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON,
@@ -571,6 +572,8 @@ function GetActiveQuestText(iMajor, iMinor)
 				else
 					sIconText = sIconText .. "[ICON_CAPITAL]";
 				end
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY) then
+				sIconText = sIconText .. "[ICON_CAPITAL]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER) then
 				sIconText = sIconText .. "[ICON_HAPPINESS_1]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD) then
@@ -733,6 +736,8 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[iQuestData1]:GetNameKey() );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[iQuestData1]:GetCivilizationShortDescriptionKey() );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL" );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD) then
@@ -796,7 +801,7 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_CIRCUMNAVIGATION_FORMAL" );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL", Players[iQuestData1]:GetNameKey() );
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL" );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION) then

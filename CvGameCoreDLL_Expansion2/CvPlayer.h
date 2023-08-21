@@ -177,6 +177,7 @@ public:
 	void DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForced, bool bSphereRemoval);
 	bool CanLiberatePlayer(PlayerTypes ePlayer);
 	bool CanLiberatePlayerCity(PlayerTypes ePlayer);
+	PlayerTypes GetPlayerToLiberate(CvCity* pCity);
 
 	CvUnit* initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bNoMove = false, bool bSetupGraphical = true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, CvUnit* pPassUnit = NULL);
 	CvUnit* initUnitWithNameOffset(UnitTypes eUnit, int nameOffset, int iX, int iY, UnitAITypes eUnitAI = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bNoMove = false, bool bSetupGraphical = true, int iMapLayer = 0, int iNumGoodyHutsPopped = 0, ContractTypes eContract = NO_CONTRACT, bool bHistoric = true, CvUnit* pPassUnit = NULL);
@@ -1662,6 +1663,7 @@ public:
 	int GetOriginalCapitalX() const;
 	int GetOriginalCapitalY() const;
 	void setOriginalCapitalXY(CvCity* pCapitalCity);
+	void resetOriginalCapitalXY();
 	bool IsHasLostCapital() const;
 	void SetHasLostCapital(bool bValue, PlayerTypes eConqueror);
 
@@ -2870,7 +2872,7 @@ public:
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
 	virtual void AI_unitUpdate() = 0;
-	virtual void AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift, bool bAllowSphereRemoval) = 0;
+	virtual void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
 
 #if defined(MOD_BALANCE_CORE_EVENTS)

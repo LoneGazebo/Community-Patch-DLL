@@ -194,25 +194,25 @@
 			<Text>Liberate a City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_LIBERATION">
-			<Text>Partisans from the conquered city of {1_MinorCivName:textkey} have allied with the leaders of {2_MinorCivName:textkey}, and request your help in retaking their capital. If you help the partisans from {1_MinorCivName:textkey} liberate their capital, your [ICON_INFLUENCE] Influence with both city-states will increase greatly.</Text>
+			<Text>Partisans from the conquered city of {1_CityName:textkey} have allied with the leaders of {2_MinorCivName:textkey}, and request your help in retaking their capital. If you help the partisans from {1_CityName:textkey} liberate their capital, your [ICON_INFLUENCE] Influence with both City-States will increase greatly.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_LIBERATION">
-			<Text>{2_MinorCivName:textkey} calls for the liberation of {1_MinorCivName:textkey}</Text>
+			<Text>{2_MinorCivName:textkey} calls for the liberation of {1_CityName:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_LIBERATION">
-			<Text>The leaders of {2_MinorCivName:textkey} praise your heroic deeds, and thank you for liberating {1_MinorCivName:textkey}.</Text>
+			<Text>The leaders of {2_MinorCivName:textkey} praise your heroic deeds, and thank you for liberating {1_CityName:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_LIBERATION">
-			<Text>Liberation of {1_MinorCivName:textkey} achieved for {2_MinorCivName:textkey}!</Text>
+			<Text>Liberation of {1_CityName:textkey} achieved for {2_MinorCivName:textkey}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL">
-			<Text>They want you to liberate the City-State of {1_CityStateName:textkey}.</Text>
+			<Text>They want you to liberate the city of {1_CityName:textkey}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ENDED_LIBERATION">
-			<Text>The partisans of {1_CityStateName:textkey} no longer desire your help. As a result, the leaders of {2_MinorCivName:textkey} have revoked their request for assistance.</Text>
+			<Text>The partisans of {1_CityName:textkey} no longer desire your help. As a result, the leaders of {2_MinorCivName:textkey} have revoked their request for assistance.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_ENDED_LIBERATION">
-			<Text>Assistance with the liberation of {1_MinorCivName:textkey} no longer needed</Text>
+			<Text>Assistance with the liberation of {1_CityName:textkey} no longer needed</Text>
 		</Row>
 
 		<!-- Horde -->

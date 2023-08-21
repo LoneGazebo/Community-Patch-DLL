@@ -1175,7 +1175,7 @@ int CvLuaUnit::lCanDistanceGift(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//bool CanDistanceGift();
+//bool IsUnitValidGiftForCityStateQuest(PlayerTypes ePlayer, CvUnit* pUnit);
 int CvLuaUnit::lIsUnitValidGiftForCityStateQuest(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
@@ -1184,7 +1184,7 @@ int CvLuaUnit::lIsUnitValidGiftForCityStateQuest(lua_State* L)
 
 	bool bResult = false;
 	if (GET_PLAYER(eToPlayer).isMinorCiv())
-		 bResult = GET_PLAYER(eToPlayer).GetMinorCivAI()->IsUnitValidGiftForCityStateQuest(eFromPlayer, pkUnit);
+		bResult = GET_PLAYER(eToPlayer).GetMinorCivAI()->IsUnitValidGiftForCityStateQuest(eFromPlayer, pkUnit);
 
 	lua_pushboolean(L, bResult);
 	return 1;

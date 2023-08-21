@@ -90,7 +90,8 @@ local ktQuestsIcon = {
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR or false ] = function() return "[ICON_DENOUNCE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION or false ] = function(i) local row = GameInfo.Religions[i] return row and row.IconString or "" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE or false ] = function() return "[ICON_INTERNATIONAL_TRADE]" end,
--- CBP
+-- VP
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY or false ] = function() return "[ICON_CAPITAL]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false ] = function() return "[ICON_SILVER_FIST]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER or false ] = function() return "[ICON_TRADE_WHITE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT or false ] = function() return "[ICON_STRENGTH]" end,
@@ -118,38 +119,39 @@ if gk_mode then
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST or false,		-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false, -- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP or false,		-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false, -- VP
 		-- Then personal support quests
 		MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD or false,		-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR or false,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false, -- CSD
-		-- Then other pesonal quests
-		MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY or false,		-- CBP+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false, -- VP
+		-- Then other personal quests
+		MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE or false,		-- bnw+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER or false,	-- vanilla+ but NOT civBE
 		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER or false,		-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY or false,			-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE or false,	-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false, -- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON or false,	-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER or false,	-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE or false,	-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE or false,		-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false, -- VP
 	}
 	kMinorWar = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_WAR
 	kMinorAllies = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_ALLIES
@@ -704,6 +706,8 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1, ques
 		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[questData1]:GetNameKey() )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER then
 		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
+	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY then
+		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_FORMAL", minorPlayer:GetTargetCityString(majorPlayerID , questID ))
 	elseif civ5_mode and questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER then
 		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL" )
 	elseif gk_mode then
@@ -769,7 +773,7 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1, ques
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION then
 			return L( "TXT_KEY_CITY_STATE_QUEST_CIRCUMNAVIGATION_FORMAL" )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION then
-			return L( "TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL", Players[questData1]:GetNameKey() )
+			return L( "TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL" , minorPlayer:GetTargetCityString(majorPlayerID , questID ))
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE then
 			return L( "TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL" )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION then

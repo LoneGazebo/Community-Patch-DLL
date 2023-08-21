@@ -2149,8 +2149,14 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 	// Uranium is extra valuable
 	ResourceTypes eUranium = (ResourceTypes)GC.getInfoTypeForString("RESOURCE_URANIUM", true);
 	if (eResource == eUranium)
+	{
 		iItemValue *= 2;
-	
+
+		// Don't sell it to Nuclear Gandhi!
+		if (bFromMe && GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->IsNuclearGandhi(true))
+			return INT_MAX;
+	}
+
 	if (bFromMe)
 	{
 		//Never trade away everything.
@@ -2564,31 +2570,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 		{
 			// don't buy a city we're trying to liberate (exploitable)
 			// this is not an ideal solution - ideally AI would check whether the city is at risk of getting recaptured if liberated ... but will do for now
-			PlayerTypes eOriginalOwner = pCity->getOriginalOwner(), ePreviousOwner = pCity->getPreviousOwner(), ePlayerToLiberate = NO_PLAYER;
-			if (eOriginalOwner != pCity->getOwner() && eOriginalOwner != eAssumedOwner)
-			{
-				ePlayerToLiberate = eOriginalOwner;
-
-				// If we're at war with the original owner and the last owner was a City-State, we'd be liberating them instead
-				if (assumedOwner.IsAtWarWith(ePlayerToLiberate))
-				{
-					if (ePreviousOwner != NO_PLAYER && eOriginalOwner != ePreviousOwner && GET_PLAYER(ePreviousOwner).isMinorCiv())
-					{
-						ePlayerToLiberate = ePreviousOwner;
-					}
-					else
-					{
-						ePlayerToLiberate = NO_PLAYER;
-					}
-				}
-
-				if (ePlayerToLiberate != NO_PLAYER && !assumedOwner.CanLiberatePlayerCity(ePlayerToLiberate))
-				{
-					ePlayerToLiberate = NO_PLAYER;
-				}
-			}
-
-			if (assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
+			if (assumedOwner.GetDiplomacyAI()->IsTryingToLiberate(pCity))
 				return INT_MAX;
 		}
 	}

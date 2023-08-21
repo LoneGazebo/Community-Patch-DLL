@@ -322,10 +322,6 @@ SET CSBullyMilitaryStrengthModifier = '50'
 WHERE Type = 'TRAIT_BUFFALO_HORNS';
 
 UPDATE Traits
-SET CSBullyValueModifier = '0'
-WHERE Type = 'TRAIT_BUFFALO_HORNS';
-
-UPDATE Traits
 SET IgnoreBullyPenalties = 1
 WHERE Type = 'TRAIT_BUFFALO_HORNS';
 

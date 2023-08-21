@@ -360,7 +360,7 @@ WHERE Tag = 'TXT_KEY_AESTHETICS_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] allows you to maximize the potential of [ICON_GREAT_WORK] Great Works and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Earn Great [ICON_GREAT_WRITER] Writers, [ICON_GREAT_ARTIST] Artists, and [ICON_GREAT_MUSICIAN] Musician 25% faster.[NEWLINE][ICON_BULLET]+10% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production toward all Guilds.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science in every City and +20% progress towards [ICON_GOLDEN_AGE] Golden Ages from Excess [ICON_HAPPINESS_1] Happiness on Empire[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Louvre[ENDCOLOR]. [NEWLINE][ICON_BULLET]Completing an [ICON_RES_ARTIFACTS] Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age triggers (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR] with all known Civilizations.[NEWLINE][ICON_BULLET]Allows you to see [ICON_RES_HIDDEN_ARTIFACTS] Hidden Antiquity Sites.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] allows you to maximize the potential of [ICON_GREAT_WORK] Great Works and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Earn Great [ICON_GREAT_WRITER] Writers, [ICON_GREAT_ARTIST] Artists, and [ICON_GREAT_MUSICIAN] Musicians 25% faster.[NEWLINE][ICON_BULLET]+10% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production toward all Guilds.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science in every City and +20% progress towards [ICON_GOLDEN_AGE] Golden Ages from Excess [ICON_HAPPINESS_1] Happiness in Empire.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Louvre[ENDCOLOR]. [NEWLINE][ICON_BULLET]Completing an [ICON_RES_ARTIFACTS] Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age triggers (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR] with all known Civilizations.[NEWLINE][ICON_BULLET]Allows you to see [ICON_RES_HIDDEN_ARTIFACTS] Hidden Antiquity Sites.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_AESTHETICS_HELP';
 
 UPDATE Language_en_US
@@ -963,7 +963,7 @@ SET Text = 'Empiricism'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE][ICON_BULLET]All citizens consume 1 less [ICON_FOOD] Food than normal (minimum 1).[NEWLINE][ICON_BULLET] +25% [ICON_FOOD] Growth in all cities.[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE][ICON_BULLET]All citizens consume 1 less [ICON_FOOD] Food than normal (minimum 1).[NEWLINE][ICON_BULLET]+25% [ICON_FOOD] Growth in all cities.[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION_HELP';
 
 UPDATE Language_en_US
@@ -998,7 +998,7 @@ WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_TEXT';
 
 -- Free Thought
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+25% Instant Yields from [ICON_GREAT_SCIENTIST] Great Scientists.[NEWLINE][ICON_BULLET] Earn [ICON_GREAT_SCIENTIST] Great Scientists +33% faster.'
+SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+25% Instant Yields from [ICON_GREAT_SCIENTIST] Great Scientists.[NEWLINE][ICON_BULLET]Earn [ICON_GREAT_SCIENTIST] Great Scientists +33% faster.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT_HELP';
 
 --------------------

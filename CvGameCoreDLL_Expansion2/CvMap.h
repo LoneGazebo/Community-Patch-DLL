@@ -66,6 +66,7 @@ public:
 	int getNumUnits() const;
 	int getNumCities() const;
 	int getTotalPopulation() const;
+	int getNumResources(ResourceTypes eResource) const;
 
 	// for serialization
 	template<typename Landmass, typename Visitor>

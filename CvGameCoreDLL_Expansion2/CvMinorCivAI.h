@@ -54,6 +54,7 @@ enum CLOSED_ENUM MinorCivQuestTypes
     MINOR_CIV_QUEST_GREAT_PERSON,
     MINOR_CIV_QUEST_KILL_CITY_STATE,
     MINOR_CIV_QUEST_FIND_PLAYER,
+	MINOR_CIV_QUEST_FIND_CITY,
     MINOR_CIV_QUEST_FIND_NATURAL_WONDER,
     MINOR_CIV_QUEST_GIVE_GOLD,
     MINOR_CIV_QUEST_PLEDGE_TO_PROTECT,
@@ -486,6 +487,7 @@ public:
 
 	int GetQuestData1(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
 	int GetQuestData2(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
+	int GetQuestData3(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
 #if defined(MOD_BALANCE_CORE)
 	CvString GetRewardString(PlayerTypes ePlayer, MinorCivQuestTypes eType);
 	CvString GetTargetCityString(PlayerTypes ePlayer, MinorCivQuestTypes eType);
@@ -522,18 +524,20 @@ public:
 	int GetCooldownSpawn() const;
 	void SetCooldownSpawn(int iValue);
 
+	bool IsAcceptableQuestEnemy(MinorCivQuestTypes eQuest, PlayerTypes ePlayer, PlayerTypes eEnemyPlayer);
+
 	ResourceTypes GetNearbyResourceForQuest(PlayerTypes ePlayer);
-	BuildingTypes GetBestWonderForQuest(PlayerTypes ePlayer);
-	BuildingTypes GetBestNationalWonderForQuest(PlayerTypes ePlayer);
+	BuildingTypes GetBestWorldWonderForQuest(PlayerTypes ePlayer, int iDuration);
+	BuildingTypes GetBestNationalWonderForQuest(PlayerTypes ePlayer, int iDuration);
 	UnitTypes GetBestGreatPersonForQuest(PlayerTypes ePlayer);
-	PlayerTypes GetBestCityStateTarget(PlayerTypes eForPlayer, bool bNoRandom = false);
-	PlayerTypes GetBestCityStateLiberate(PlayerTypes eForPlayer);
-	PlayerTypes GetBestCityStateMeetTarget(PlayerTypes eForPlayer);
+	PlayerTypes GetBestCityStateTarget(PlayerTypes ePlayer, bool bKillQuest);
+	PlayerTypes GetBestCityStateLiberate(PlayerTypes ePlayer);
+	PlayerTypes GetBestCityStateMeetTarget(PlayerTypes ePlayer);
 
 	CvCity* GetBestCityForQuest(PlayerTypes ePlayer);
 	CvPlot* GetTargetPlot(PlayerTypes ePlayer);
 	int GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
-	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer);
+	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer, int iDuration);
 	CvCity* GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor);
 	UnitTypes GetBestUnitGiftFromPlayer(PlayerTypes ePlayer);
 	int GetExperienceForUnitGiftQuest(PlayerTypes ePlayer, UnitTypes eUnitType);
@@ -555,11 +559,8 @@ public:
 	PlayerTypes GetMostRecentBullyForQuest() const;
 	bool IsWantsMinorDead(PlayerTypes eMinor);
 	PlayerTypes GetBestPlayerToFind(PlayerTypes ePlayer);
+	CvCity* GetBestCityToFind(PlayerTypes ePlayer);
 	bool IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer);
-	bool IsGoodTimeForGiveGoldQuest() const;
-	bool IsGoodTimeForPledgeToProtectQuest() const;
-	bool IsGoodTimeForDenounceMajorQuest() const;
-	bool IsGoodTimeForWarMajorQuest() const;
 
 	// ******************************
 	// ***** Friendship *****

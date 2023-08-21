@@ -8,11 +8,6 @@ UPDATE Defines
 SET Value = '70'
 WHERE Name = 'MINOR_MAX_XP_VALUE';
 
--- New Quests
-UPDATE Defines
-SET Value = '0'
-WHERE Name = 'QUEST_DISABLED_CP_QUESTS';
-
 -- Maritime Civs Buffed
 
 UPDATE Defines

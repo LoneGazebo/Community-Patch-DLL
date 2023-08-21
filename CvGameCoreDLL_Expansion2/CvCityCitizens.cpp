@@ -657,7 +657,7 @@ bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 
 int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache)
 {
-	int iDefaultValue = 6; //not too low to limit influence of moddable values
+	int iDefaultValue = 0;
 	switch (eYield)
 	{
 	case YIELD_FOOD:
@@ -678,6 +678,8 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	case YIELD_FAITH:
 		iDefaultValue = /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FAITH) / 2;
 		break;
+	default:
+		iDefaultValue = 6; //not too low to limit influence of moddable values
 	}
 
 	int iYieldMod = iDefaultValue;

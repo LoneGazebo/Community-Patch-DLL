@@ -446,7 +446,7 @@ SET Text = 'T-34'
 WHERE Tag = 'TXT_KEY_UNIT_GERMAN_PANZER';
 
 UPDATE Language_en_US
-SET Text = 'Unique Land Unit that is incredibly effective on open ground.[NEWLINE][NEWLINE]Starts with [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] promotions.[NEWLINE][NEWLINE]Only available to Civilizations following the [COLOR_MAGENTA]Order[ENDCOLOR] Ideology. Requires the [COLOR_MAGENTA]Patriotic War[ENDCOLOR] Tenet to be unlocked.'
+SET Text = 'Unique Land Unit that is incredibly effective on open ground.[NEWLINE][NEWLINE]Starts with the [COLOR_POSITIVE_TEXT]Armor Plating I[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Mobility[ENDCOLOR] promotions.[NEWLINE][NEWLINE]Only available to Civilizations following the [COLOR_MAGENTA]Order[ENDCOLOR] Ideology. Requires the [COLOR_MAGENTA]Patriotic War[ENDCOLOR] Tenet to be unlocked.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_PANZER';
 
 UPDATE Language_en_US
