@@ -55,6 +55,11 @@ INSERT INTO Defines (Name, Value) SELECT 'PUPPET_GOLDEN_AGE_MODIFIER', '0';
 INSERT INTO Defines (Name, Value) SELECT 'PUPPET_TOURISM_MODIFIER', '0';
 
 
+-- Golden Age Stuff
+INSERT INTO Defines (Name, Value) SELECT 'GOLDEN_AGE_BASE_THRESHOLD_INITIAL', '500';
+UPDATE Defines SET Value = '1' WHERE Name = 'GOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER';
+
+
 -- Combat Stuff
 UPDATE Defines SET Value = '5' WHERE Name = 'AI_TACTICAL_MAP_TEMP_ZONE_TURNS'; -- Number of turns AI waits while recruiting before disbanding an operation
 UPDATE Defines SET Value = '10' WHERE Name = 'AI_OPERATIONAL_MAX_RECRUIT_TURNS_ENEMY_TERRITORY'; -- ...in enemy territory

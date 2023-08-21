@@ -26117,14 +26117,34 @@ int CvPlayer::GetGoldenAgePointsFromCities()
 /// How much do we need in the GA meter to trigger the next one?
 int CvPlayer::GetGoldenAgeProgressThreshold() const
 {
-	int iThreshold = /*500 in CP, 400 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS);
-	iThreshold += GetNumGoldenAges() * /*250 in CP, 2000 in VP*/ GD_INT_GET(GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS);
+	int iThreshold = 0;
+	int iNumGoldenAges = GetNumGoldenAges();
+
+	if (iNumGoldenAges == 0)
+	{
+		iThreshold = /*500 in CP, 1000 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_INITIAL);
+	}
+	else
+	{
+		iThreshold = /*500 in CP, 400 in VP*/ GD_INT_GET(GOLDEN_AGE_BASE_THRESHOLD_HAPPINESS);
+		iThreshold += iNumGoldenAges * /*250 in CP, 2000 in VP*/ GD_INT_GET(GOLDEN_AGE_EACH_GA_ADDITIONAL_HAPPINESS);
+	}
 
 	// Increase cost based on the # of cities in the empire
-	int iCostExtra = int(iThreshold * (getNumCities() - 1) * /*0.01f*/ GD_FLOAT_GET(GOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER));
-	iThreshold += iCostExtra;
+	if (MOD_BALANCE_VP)
+	{
+		int iExtraCostMod = GetNumEffectiveCities() * /*5*/ GD_INT_GET(GOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER);
+		iThreshold *= 100 + iExtraCostMod;
+		iThreshold /= 100;
+	}
+	else
+	{
+		int iExtraCostMod = max(getNumCities() - 1, 0) * /*1*/ GD_INT_GET(GOLDEN_AGE_THRESHOLD_CITY_MULTIPLIER);
+		iThreshold *= 100 + iExtraCostMod;
+		iThreshold /= 100;
+	}
 
-	if(GetGoldenAgeMeterMod() != 0)
+	if (GetGoldenAgeMeterMod() != 0)
 	{
 		iThreshold *= (100 + GetGoldenAgeMeterMod());
 		iThreshold /= 100;
@@ -49830,7 +49850,7 @@ bool CvPlayer::HasCityInDanger(bool bAboutToFall, int iMinDanger) const
 
 //	--------------------------------------------------------------------------------
 // How many Cities does this player have for policy/tech cost purposes?
-int CvPlayer::GetNumEffectiveCities(bool bIncludePuppets)
+int CvPlayer::GetNumEffectiveCities(bool bIncludePuppets) const
 {
 	int iNumCities = getNumCities();
 
