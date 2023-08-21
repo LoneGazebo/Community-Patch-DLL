@@ -4526,7 +4526,7 @@ int CvGame::getNumHumanPlayers()
 }
 
 //	--------------------------------------------------------------------------------
-int CvGame::GetNumMajorCivsEver(bool bOnlyStart)
+int CvGame::GetNumMajorCivsEver(bool bOnlyStart) const
 {
 	if (bOnlyStart)
 		return m_iNumMajorCivsAliveAtGameStart;
@@ -4544,7 +4544,7 @@ int CvGame::GetNumMajorCivsEver(bool bOnlyStart)
 }
 
 //	--------------------------------------------------------------------------------
-int CvGame::GetNumMinorCivsEver(bool bOnlyStart)
+int CvGame::GetNumMinorCivsEver(bool bOnlyStart) const
 {
 	if (bOnlyStart)
 		return m_iNumMinorCivsAliveAtGameStart;
@@ -11416,6 +11416,10 @@ void CvGame::initSpyThreshold()
 
 int CvGame::GetSpyThreshold() const
 {
+	// failsafe: if initSpyThreshold has not been called yet for some reason, calculate the threshold based on the number of players ever alive
+	if(m_iSpyThreshold == 0)
+		return max(33, min(100, 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (2 * GetNumMajorCivsEver(false) + GetNumMinorCivsEver(false))));
+
 	return m_iSpyThreshold;
 }
 //	--------------------------------------------------------------------------------

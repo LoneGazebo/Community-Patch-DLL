@@ -3818,6 +3818,7 @@ protected:
 #endif
 
 	mutable int m_iNumUnitsSuppliedCached; //not serialized
+	mutable int m_iNumUnitsSuppliedCachedWarWeariness; //not serialized
 
 #if defined(MOD_BATTLE_ROYALE)
 	int m_iNumMilitarySeaUnits;

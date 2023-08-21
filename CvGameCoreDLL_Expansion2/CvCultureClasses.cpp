@@ -5350,6 +5350,8 @@ int CvPlayerCulture::ComputeWarWeariness()
 			continue;
 		if (kPlayer.getNumCities() <= 0)
 			continue;
+		if (m_pPlayer->GetID() == ePlayer)
+			continue;
 
 		iNumOtherCivs++;
 
