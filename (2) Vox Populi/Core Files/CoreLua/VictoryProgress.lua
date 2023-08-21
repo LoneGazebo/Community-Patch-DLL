@@ -314,9 +314,9 @@ function PopulateDomination()
 
 					for pCity in pPlayer:Cities() do
 						if (pCity:IsOriginalMajorCapital()) then
-							print(pCity:GetName());
+							--print(pCity:GetName());
 							iNumCapitals = iNumCapitals + 1;
-							aiCapitalOwner[pCity:GetOriginalOwner()] = iPlayerLoop;
+							aiCapitalOwner[pCity:GetOriginalOwner()] = pCity:GetOwnerForDominationVictory();
 							if (Teams[Players[pCity:GetOriginalOwner()]:GetTeam()]:IsVassal(iTeamLoop)) then
 								iNumCapitals = iNumCapitals - 1; --Don't double count Vassal and Capturing Enemy Capital
 							end
@@ -324,6 +324,18 @@ function PopulateDomination()
 						end
 					end
 					iNumVassals = Teams[pPlayer:GetTeam()]:GetNumVassals(); -- Vassalage: Get Number here
+					if (iNumVassals > 0) then -- Vassalage: And then we need to suddenly iterate through every player again... to count vassal's conquered capitals.
+						for iVassalLoop = 0, GameDefines.MAX_MAJOR_CIVS-1, 1 do
+							local pVassal = Players[iVassalLoop];
+							if (Teams[pVassal:GetTeam()]:IsVassal(pPlayer:GetTeam())) then
+								for pCity in pVassal:Cities() do
+									if (pCity:IsOriginalMajorCapital() and pCity:GetOriginalOwner() ~= iVassalLoop and pCity:GetOriginalOwner() ~= iPlayerLoop) then
+										iNumDisplayCapital = iNumDisplayCapital + 1;
+									end
+								end
+							end
+						end
+					end
 					iNumDisplayCapital = iNumDisplayCapital + iNumVassals; --Get Total of Vassals and Captured Enemy Capitals
 					--print(pPlayer:GetName() .. "iNumCapitals: " .. iNumCapitals);
 					--print(pPlayer:GetName() .. "iNumVassals: " .. iNumVassals);
@@ -365,6 +377,7 @@ function PopulateDomination()
 				end
 
 				local dominatingPlayer = Players[aiCapitalOwner[iPlayerLoop]];
+
 				--print("who is" .. aiCapitalOwner[iPlayerLoop])
 				if (Teams[pPlayer:GetTeam()]:GetMaster() ~= -1) then --Vassalage: Get Master's Team Leader first, then move on!
 					dominatingPlayer = Players[Teams[Teams[pPlayer:GetTeam()]:GetMaster()]:GetLeaderID()];
