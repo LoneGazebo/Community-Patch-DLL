@@ -31384,7 +31384,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 			{
 				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
 
-				if (pLoopUnit && pLoopUnit->CanStackUnitAtPlot(pDestPlot))
+				if (pLoopUnit && pLoopUnit->canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 				{
 					pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 				}
