@@ -292,9 +292,9 @@ VALUES
 	('IMPROVEMENT_BRAZILWOOD_CAMP', 'RESOURCE_BRAZILWOOD', '1', '1', '0', '0');
 
 INSERT INTO Units
-	(Class, Type, Combat, Cost, FaithCost, WorkRate, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, NoBadGoodies, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate, BaseSightRange)
+	(Class, Type, Combat, Cost, FaithCost, WorkRate, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate, BaseSightRange)
 VALUES
-	('UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES', 19, 180, 200, 100, 1, 4, 'TECH_COMPASS', 'TECH_ROCKETRY', 'UNITCOMBAT_RECON', 'DOMAIN_LAND', 1, 'UNITAI_EXPLORE', 'TXT_KEY_UNIT_BANDEIRANTES', 'TXT_KEY_UNIT_BANDEIRANTES_TEXT', 'TXT_KEY_UNIT_BANDEIRANTES_STRATEGY', 'TXT_KEY_UNIT_BANDEIRANTES_HELP', 1, 1, 'UNITCLASS_COMMANDO', 1, 30, 3, 3, 'ART_DEF_UNIT_BANDEIRANTES', 'BANDEIRANTES_FLAG_ATLAS', 0, 4, 'COMMUNITY_2_ATLAS', 'BIPED', 3);
+	('UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES', 19, 180, 200, 100, 1, 4, 'TECH_COMPASS', 'TECH_ROCKETRY', 'UNITCOMBAT_RECON', 'DOMAIN_LAND', 'UNITAI_EXPLORE', 'TXT_KEY_UNIT_BANDEIRANTES', 'TXT_KEY_UNIT_BANDEIRANTES_TEXT', 'TXT_KEY_UNIT_BANDEIRANTES_STRATEGY', 'TXT_KEY_UNIT_BANDEIRANTES_HELP', 1, 1, 'UNITCLASS_COMMANDO', 1, 30, 3, 3, 'ART_DEF_UNIT_BANDEIRANTES', 'BANDEIRANTES_FLAG_ATLAS', 0, 4, 'COMMUNITY_2_ATLAS', 'BIPED', 3);
 
 INSERT INTO UnitGameplay2DScripts
 	(UnitType, SelectionSound, FirstSelectionSound)
