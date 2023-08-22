@@ -6814,7 +6814,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		// This player must be able to declare war on the most recent bully
 		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canDeclareWar(GET_PLAYER(eMostRecentBully).getTeam(), ePlayer))
-			return true;
+			return false;
 
 		// Is this a bad target? (Same team, haven't met, backstabbing?)
 		if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_WAR, ePlayer, eMostRecentBully))
