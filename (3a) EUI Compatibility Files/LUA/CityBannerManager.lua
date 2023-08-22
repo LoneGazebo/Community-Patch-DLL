@@ -1306,7 +1306,7 @@ local function RefreshCityBannersNow()
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_RESURRECT", originalCityOwner:GetCivilizationShortDescription() )
 						elseif (Players[cityOwnerID]:CanLiberatePlayer(originalCityOwnerID)) then
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", originalCityOwner:GetCivilizationShortDescription() )
-						elseif (not Players[originalCityOwnerID]:IsAlive() and not Players[cityOwnerID]:CanLiberatePlayer(originalCityOwnerID) and cityOwnerID == Game.GetActivePlayer() ) then
+						elseif (not Players[originalCityOwnerID]:IsAlive() and cityOwnerID == Game.GetActivePlayer() ) then
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_CAPTURED", originalCityOwner:GetCivilizationShortDescription() )
 						else
 							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_NO", originalCityOwner:GetCivilizationShortDescription() )
