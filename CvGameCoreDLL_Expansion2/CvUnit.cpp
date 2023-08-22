@@ -31314,19 +31314,55 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 {
 	VALIDATE_OBJECT
 
+	CvPlot* pDestPlot = NULL;
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
-
-	CvPlot* pDestPlot = NULL;
+	std::vector<CvUnit*> aEscortedUnits;
 	std::vector<CvPlot*> aValidPlotList;
+
+	// Store escorted units for later
+	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY)
+	{
+		CvPlot* pUnitPlot = plot();
+		IDInfoVector currentUnits;
+		if (pUnitPlot->getUnits(&currentUnits) > 0)
+		{
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			{
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+
+				if (pLoopUnit && pLoopUnit != this && !pLoopUnit->isDelayedDeath())
+				{
+					aEscortedUnits.push_back(pLoopUnit);
+				}
+			}
+		}
+	}
+
 	// possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
 	for (int i = 0; i < 3; i++)
 	{
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
 		CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-		if (pDirectionPlot && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK) && isNativeDomain(pDirectionPlot))
+		if (pDirectionPlot && isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
+			// Do not withdraw if we're escorting a unit who can't move here!
+			if (aEscortedUnits.size() > 0)
+			{
+				bool bNoRetreat = false;
+				for (size_t j = 0; j < aEscortedUnits.size(); j++)
+				{
+					if (!aEscortedUnits[j]->isNativeDomain(pDirectionPlot) || !aEscortedUnits[j]->canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+					{
+						bNoRetreat = true;
+						break;
+					}
+				}
+				if (bNoRetreat)
+					continue;
+			}
+
 			aValidPlotList.push_back(pDirectionPlot);
 		}
 	}
@@ -31371,22 +31407,19 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	if (!pDestPlot)
 		return false;
 
-	CvPlot* pUnitPlot = plot();
+	// Actually do the withdrawal
 	setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 
-	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian and embarked units also retreat (if possible)
+	if (aEscortedUnits.size() > 0)
 	{
-		IDInfoVector currentUnits;
-		if (pUnitPlot->getUnits(&currentUnits) > 0)
+		for (size_t i = 0; i < aEscortedUnits.size(); i++)
 		{
-			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
+			// Civilian and embarked units also retreat (if possible)
+			// Need to check whether the unit can enter the plot again, because it might have changed (stacking rules)
+			if (aEscortedUnits[i]->canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 			{
-				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
-
-				if (pLoopUnit && pLoopUnit->canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
-				{
-					pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
-				}
+				aEscortedUnits[i]->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+				aEscortedUnits[i]->PublishQueuedVisualizationMoves(); // Display the civilians retreating before the escort does
 			}
 		}
 	}

@@ -28932,14 +28932,11 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	int iPLOT_INFLUENCE_ADJACENT_ENEMY_COST = -20;
 
 	int iYieldLoop = 0;
-	int iDirectionLoop = 0;
-	bool bFoundAdjacentOwnedByCity = false;
 
 	SPathFinderUserData data(getOwner(), PT_CITY_INFLUENCE, iMaxRange);
 	ReachablePlots influencePlots = GC.GetStepFinder().GetPlotsInReach(pThisPlot, data);
 
 	int iWorkPlotDistance = getWorkPlotDistance();
-	ImprovementTypes eBarbCamptype = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 
 	for (int iDX = -iMaxRange; iDX <= iMaxRange; iDX++)
 	{
