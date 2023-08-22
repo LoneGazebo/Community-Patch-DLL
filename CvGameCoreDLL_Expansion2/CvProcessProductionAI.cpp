@@ -315,6 +315,7 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 
 					iModifier += kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() ? 300 : 100;
 				}
+				break;
 				default:
 				// No default processes exist for other yield types.
 				// Not unreachable though because a mod could add more.
