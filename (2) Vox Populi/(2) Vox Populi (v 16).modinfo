@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.7.12) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.8) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="118" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="119" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -40,12 +40,12 @@
     <File md5="210A2EC9855B2C72A820FE6EEB714E10" import="1">Art/Community2Art45.dds</File>
     <File md5="80F9749002A26D6E76C475F910701540" import="1">Art/Community2Art64.dds</File>
     <File md5="70B77A16732A543B57E5C87099310E2E" import="1">Art/Community2Art80.dds</File>
-    <File md5="A2E207E7A0C7034066A9C5912978893A" import="1">Art/CommunityArt128.dds</File>
+    <File md5="2E245366950D9381FFAD0C2ED7B7976E" import="1">Art/CommunityArt128.dds</File>
     <File md5="26B1113AD41720EF367F01FD0EEE7A4C" import="1">Art/CommunityArt214.dds</File>
-    <File md5="7598F1D7E7371D11AE3600B51C560409" import="1">Art/CommunityArt256.dds</File>
-    <File md5="0C33DC9DBD114BDE79D410EF456E0234" import="1">Art/CommunityArt45.dds</File>
-    <File md5="7786B41D59C35432B7722560B1C3FB00" import="1">Art/CommunityArt64.dds</File>
-    <File md5="B4338886B4E5FD210BD3CCDB43BACC2F" import="1">Art/CommunityArt80.dds</File>
+    <File md5="B6D71E48E2FB68F604E094266080D9A5" import="1">Art/CommunityArt256.dds</File>
+    <File md5="6ACFD6C34E2D55BFAF1AFB700C8DA3E0" import="1">Art/CommunityArt45.dds</File>
+    <File md5="A138D225F48B31882B8494332B26F3F5" import="1">Art/CommunityArt64.dds</File>
+    <File md5="DD9BC69FF6F7FDE5D06FFC1C59609B3C" import="1">Art/CommunityArt80.dds</File>
     <File md5="21A4F24886A9D9C80C28D6A4A2B77357" import="1">Art/CommunityAtlas3_045.dds</File>
     <File md5="3128526D22BDB879EA6FCAF35748148E" import="1">Art/CommunityAtlas3_064.dds</File>
     <File md5="24C0E6FCDE3B225B361B07162DDF37DC" import="1">Art/CommunityAtlas3_080.dds</File>
@@ -69,7 +69,7 @@
     <File md5="289BEB45E1C17E01347F9581BCDCC9C2" import="1">Art/Improvements/Hacienda/hacienda_pl.gr2</File>
     <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Art/Improvements/Hacienda/hacienda_pl_decal.dds</File>
     <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Art/Improvements/Hacienda/hacienda_pl_diff.dds</File>
-    <File md5="D982B736DF2AED875E5DC97839C558E5" import="0">Art/Icons.xml</File>
+    <File md5="77494393CAFF77330B617A06CE089E37" import="0">Art/Icons.xml</File>
     <File md5="35AF967C607A5A6B20F789CBC4D4AEB8" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
     <File md5="0C2F0F61FEF45927073FBC36BA11BC60" import="1">Art/Icons/VP_FontIconAtlas.ggxml</File>
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Art/Icons/citizenmusician.dds</File>
@@ -167,17 +167,18 @@
     <File md5="5F654393CEE6AFE546DB6AF3C99DF8CD" import="1">Art/Improvements/Villa/Mediterranean Villa.gr2</File>
     <File md5="53A5E988462B51CE49BC694DEC83609F" import="1">Art/Improvements/Villa/MediterraneanCityCenter01Ground.DDS</File>
     <File md5="C55133CCD6BD324A8AEAF1AB4419C0FF" import="1">Art/Improvements/Villa/westernCourthouse_cm.dds</File>
+    <File md5="33B99D7804B54C24994D76751B37DC37" import="1">Art/ProcessAtlas128.dds</File>
+    <File md5="ADF2E503841D29EE33991B69355C75F2" import="1">Art/ProcessAtlas256.dds</File>
+    <File md5="B412CED3BC3DDBAA285A1ECF593402B7" import="1">Art/ProcessAtlas32.dds</File>
+    <File md5="53F6DF1A79AB1940B25B1807E127D395" import="1">Art/ProcessAtlas45.dds</File>
+    <File md5="F5AD786DBA0BDD995A40BE46BC17FC17" import="1">Art/ProcessAtlas64.dds</File>
+    <File md5="28FD7BA4146694F3057804E48609F406" import="1">Art/ProcessAtlas80.dds</File>
     <File md5="23D32DB7956AF35953DD896F6BDAC929" import="1">Art/Promotions/extraPromo_016.dds</File>
     <File md5="61C1C97DA4BC3242D5CF9CF9A82A069B" import="1">Art/Promotions/extraPromo_032.dds</File>
     <File md5="5015C3FA07D87E5FFB57B523251E67F3" import="1">Art/Promotions/extraPromo_045.dds</File>
     <File md5="8341BD50EAA245DBE05A15F09C0366FA" import="1">Art/Promotions/extraPromo_064.dds</File>
     <File md5="46D6C357C6E857D8E97A635918BFD7B8" import="1">Art/Promotions/extraPromo_256.dds</File>
-    <File md5="E6401F7B8E511BBD31E2965C89556CE5" import="1">Art/Promotions/PDanNewBeliefs_PI_016.dds</File>
-    <File md5="A51E10A1C2EF259758B8E9FDD86BB569" import="1">Art/Promotions/PDanNewBeliefs_PI_032.dds</File>
-    <File md5="7CB27DFB48374FFE41060C1B3248ED6D" import="1">Art/Promotions/PDanNewBeliefs_PI_045.dds</File>
-    <File md5="DE6FF00713EBEDBE7A052726C18D51A5" import="1">Art/Promotions/PDanNewBeliefs_PI_064.dds</File>
-    <File md5="6A5CEF3E82D9B64FD00EE6871F4BC5CB" import="1">Art/Promotions/PDanNewBeliefs_PI_256.dds</File>
-    <File md5="6733F95C5AB546FD2559CA894657CC2A" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
+    <File md5="85005B8DE8ADD1498B7E5A545C9C4AFF" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
     <File md5="51AC21C1B109126BB17A68BDDE77D91A" import="1">Art/Promotions/promoVP_00_016.dds</File>
     <File md5="8FEA4C187F2DE97ABCB8A16AB161BEB9" import="1">Art/Promotions/promoVP_00_032.dds</File>
     <File md5="0FB9793BE3B9931613E9EAFC190DACB8" import="1">Art/Promotions/promoVP_00_045.dds</File>
@@ -198,11 +199,11 @@
     <File md5="70D6F970C76E5660B3D60F597440899A" import="1">Art/Promotions/promoVP_03_045.dds</File>
     <File md5="3FA81807839CB828BB53FDFA500EA653" import="1">Art/Promotions/promoVP_03_064.dds</File>
     <File md5="8D45B411AFEDA5FC453C436DE95E707E" import="1">Art/Promotions/promoVP_03_256.dds</File>
-    <File md5="6A7D8549EAC4D538FEC2E16DE42C7B95" import="1">Art/Promotions/promoVP_04_016.dds</File>
-    <File md5="17DC173E2C90F35E94D809851B3E6149" import="1">Art/Promotions/promoVP_04_032.dds</File>
-    <File md5="3AF5ED1BDB6910C57F10F1C3C5654C15" import="1">Art/Promotions/promoVP_04_045.dds</File>
-    <File md5="CDA0F91898CEC393F0C68FFEE4E7F6EA" import="1">Art/Promotions/promoVP_04_064.dds</File>
-    <File md5="33234857D791D372CAC5EED049B5C868" import="1">Art/Promotions/promoVP_04_256.dds</File>
+    <File md5="D4C48623E82C96658E39EB246C1FC89C" import="1">Art/Promotions/promoVP_04_016.dds</File>
+    <File md5="4DA47C39E2BBBABC2894855738C9F9EA" import="1">Art/Promotions/promoVP_04_032.dds</File>
+    <File md5="F1DBC0AD941A0AF1BFA7F75F0697FC2E" import="1">Art/Promotions/promoVP_04_045.dds</File>
+    <File md5="A921B34FC3AD8440DADE92A1F5CE995E" import="1">Art/Promotions/promoVP_04_064.dds</File>
+    <File md5="F06A1B7F8B01D28843D288E0321B57F6" import="1">Art/Promotions/promoVP_04_256.dds</File>
     <File md5="41F57259EA46FE46EB95225B822FAEF8" import="1">Art/Promotions/tempVPPI_016.dds</File>
     <File md5="34DD10BC8E3FBF593C730AAFF21D0524" import="1">Art/Promotions/tempVPPI_032.dds</File>
     <File md5="FA2B7DB502D6B850DFBDA1FDCF81C722" import="1">Art/Promotions/tempVPPI_045.dds</File>
@@ -440,7 +441,7 @@
     <File md5="95095077B7A7CA01A0F6ADF052195564" import="1">Art/Units/Slinger/hebrew_slinger_sref.dds</File>
     <File md5="C5726AA5925E695295B019FC868676AA" import="1">Art/Units/Slinger/Slinger_Flag.dds</File>
     <File md5="AB93C013DB8FE2C8D5B8A5EF02314195" import="1">Art/Units/Slinger/Slinger_SV_128.dds</File>
-    <File md5="CD7E0FE96CEE89C0DFBB368D47937F52" import="0">Art/Units/UnitArtInfo.sql</File>
+    <File md5="D50EC11D684B8BD83C31A7CD4CBE39A0" import="0">Art/Units/UnitArtInfo.sql</File>
     <File md5="A02AE2480576BFED0B07DEAE9E0FED83" import="1">Art/Units/Icons/cruiserflag.dds</File>
     <File md5="BDF27D6560BC7A5D7EC2AC75D521FECF" import="1">Art/Units/Icons/svcruiser.dds</File>
     <File md5="E91401F6D6BBB3F0B61D15D9BF24B0F8" import="1">Art/Units/Model/cruiser.fxsxml</File>
@@ -452,47 +453,47 @@
     <File md5="71578351705DDE7A4EDB73CD7745256B" import="0">Balance Changes/AI/LeaderPersonalities.sql</File>
     <File md5="804378EBBE972BC6DD2E5628F8AF3412" import="0">Balance Changes/AI/LeaderFlavors.sql</File>
     <File md5="587062854640240F0AC23E23420BB2E7" import="0">Balance Changes/Barbarians/BarbarianChanges.sql</File>
-    <File md5="7F54EF226DCDE5A58E9BAF8A8507178C" import="0">Balance Changes/Beliefs/Founder.sql</File>
+    <File md5="F52735D8F37D8B7E6FDCE06580772D9D" import="0">Balance Changes/Beliefs/Founder.sql</File>
     <File md5="DADFA40D2C27E18FC7AD249AA89B6DC1" import="0">Balance Changes/Beliefs/Follower.sql</File>
-    <File md5="C33FE14C8AB82E66BAC9EA544DB61282" import="0">Balance Changes/Beliefs/Enhancer.sql</File>
-    <File md5="79681C37951C01819F30AD61AB663F41" import="0">Balance Changes/Beliefs/Reformation.sql</File>
-    <File md5="3584444B56FBE83C396552BC18E95DFD" import="0">Balance Changes/Beliefs/Pantheons.sql</File>
-    <File md5="1AE0FC7BED70608ECA03FC741FEDECFF" import="0">Balance Changes/Beliefs/ReligiousBuildings/Changes.sql</File>
-    <File md5="A2C3C8DDCC37E906BC60AB9F34027D40" import="0">Balance Changes/Beliefs/ReligiousNW/Changes.sql</File>
-    <File md5="3A58AD27C677AFD38A19E8452E2724FE" import="0">Balance Changes/Buildings/BuildingChanges.sql</File>
-    <File md5="CDDB4A03F6407C1B5EF30BD068FE425A" import="0">Balance Changes/Buildings/BuildingCosts.sql</File>
+    <File md5="F0162A6C0A0C228819BA38069AF358A3" import="0">Balance Changes/Beliefs/Enhancer.sql</File>
+    <File md5="0BA625C71EC03D0A336410DC722F016A" import="0">Balance Changes/Beliefs/Reformation.sql</File>
+    <File md5="F13F3742074F67CC1F30D7E131267885" import="0">Balance Changes/Beliefs/Pantheons.sql</File>
+    <File md5="EB36354BF281BDB63285CCB67465C0FD" import="0">Balance Changes/Beliefs/ReligiousBuildings/Changes.sql</File>
+    <File md5="E7F25BA85CD32C9D4143E4F3E599E8B4" import="0">Balance Changes/Beliefs/ReligiousNW/Changes.sql</File>
+    <File md5="4D1E01148632F88130F8278E81F4CA81" import="0">Balance Changes/Buildings/BuildingChanges.sql</File>
+    <File md5="EA82DC38F9C0AD9DE77FFE2376D09393" import="0">Balance Changes/Buildings/BuildingCosts.sql</File>
     <File md5="42ADCA6F9E9696DAD67610A3CC775CAA" import="0">Balance Changes/Buildings/BuildingHurryCosts.sql</File>
-    <File md5="4DB891754ABC013220240651FEEE7BDA" import="0">Balance Changes/Buildings/CityDefense.sql</File>
-    <File md5="84BFBD4D9082B03A91C523C5886B1237" import="0">Balance Changes/Buildings/NationalWonderChanges.sql</File>
-    <File md5="93E9B1BC4B8CFE7419AE5DAD604740B7" import="0">Balance Changes/Buildings/BuildingFlavors.sql</File>
-    <File md5="392AACA6A7E483CBBC10A48626A3F5E2" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
-    <File md5="78D0FAC95249E2681C96819A7DE16A41" import="0">Balance Changes/CoreDefines.sql</File>
+    <File md5="F5A554A92FAB4E23B3A42C2C53A6C9D3" import="0">Balance Changes/Buildings/CityDefense.sql</File>
+    <File md5="0E7D2F62997C17EDE3EFD0DD4599EB27" import="0">Balance Changes/Buildings/NationalWonderChanges.sql</File>
+    <File md5="159EAAFB84BD69169D67F4CF36273C7F" import="0">Balance Changes/Buildings/BuildingFlavors.sql</File>
+    <File md5="D93C98C894C4038CCCE18DD71B7C7677" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
+    <File md5="B961EB15C81DC6DC6973CAC8792E9BD9" import="0">Balance Changes/CoreDefines.sql</File>
     <File md5="7D267EDC0C4869F533CCA6C1BD979595" import="0">Balance Changes/Difficulty/DifficultyMod.sql</File>
-    <File md5="3186928DA7C6B4FD70AE35FBA82EF994" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
+    <File md5="0495C5D0A5A0BCE49682F713564A174D" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
     <File md5="3E5E7E62C553124F734DFFBC7B47C215" import="0">Balance Changes/Espionage/PrimaryEspionageEvents.xml</File>
     <File md5="7179E5AB68B12C5ED3D013B1F2815121" import="0">Balance Changes/Ideologies/Autocracy/Autocracy.sql</File>
     <File md5="19B2B237080E2B0927825A3EC0BA4570" import="0">Balance Changes/Ideologies/Freedom/Freedom.sql</File>
-    <File md5="8D72C69DC698E7BF6D7940383305B1AC" import="0">Balance Changes/Ideologies/Order/Order.sql</File>
-    <File md5="201AAA5ABCB3CFAA967590FC0CD39A51" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
+    <File md5="CFDEF87855658BC49032B1BD14195083" import="0">Balance Changes/Ideologies/Order/Order.sql</File>
+    <File md5="BBC44048CACC7D6E9ECC70EC61B5219C" import="0">Balance Changes/Ideologies/TourismChanges.sql</File>
     <File md5="046A0B4E2F42CE561FE583129AF9B3B2" import="0">Balance Changes/Leaders/CivStartBiases.sql</File>
-    <File md5="34D1AF6515E590A3DE0CFA585C174C5E" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
-    <File md5="31A15B77E96761A32650E19350916AD6" import="0">Balance Changes/Leaders/DLC/DLCChanges.sql</File>
-    <File md5="4B5A6116FC99020F54C13CC3DA9AC865" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
-    <File md5="ABAE3099D1B8EDEA9A378716B93D0FF7" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
-    <File md5="3924BAF8A8E38B9CB48C54086BE67721" import="0">Balance Changes/Minors/QuestChanges.sql</File>
-    <File md5="9A34FF797766BC05B09B63638FDF2EB5" import="0">Balance Changes/Minors/GoodyHuts.sql</File>
-    <File md5="AC851E7A43B18C52535954EC2DDC37F9" import="0">Balance Changes/Minors/MinorBonuses.sql</File>
-    <File md5="1D4F4B8AD5B00992B23C026AF0BB9701" import="0">Balance Changes/Policies/Aesthetics/Aesthetics.sql</File>
+    <File md5="AC00A4AC16217024C4BF038CB37A3744" import="0">Balance Changes/Leaders/BraveNew/BNWLeaderChanges.sql</File>
+    <File md5="B5C6396074710367E830F72F6EF9765A" import="0">Balance Changes/Leaders/DLC/DLCChanges.sql</File>
+    <File md5="5D53EBD7269CF74A78621C4C2B79B17E" import="0">Balance Changes/Leaders/GodsKings/GKLeaderChanges.sql</File>
+    <File md5="743300BD82F9B2688A46506B15B7BD2C" import="0">Balance Changes/Leaders/Vanilla/VanillaLeaderChanges.sql</File>
+    <File md5="E5114E428E3663540E5266D42C580C49" import="0">Balance Changes/Minors/QuestChanges.sql</File>
+    <File md5="CAE992E547449B070E9A85C29B502E4B" import="0">Balance Changes/Minors/GoodyHuts.sql</File>
+    <File md5="332E3446FB28DE7B6AADE31A1C6134D4" import="0">Balance Changes/Minors/MinorBonuses.sql</File>
+    <File md5="B9B2482D45C3C52E7D4D11AEB2E6E2BA" import="0">Balance Changes/Policies/Aesthetics/Aesthetics.sql</File>
     <File md5="23BDCA3F7542FD25673F376A8B3191C1" import="0">Balance Changes/Policies/Commerce/Commerce.sql</File>
     <File md5="7BBFCDDC3EABC6698234EF11F8FA8DEE" import="0">Balance Changes/Policies/Exploration/Exploration.sql</File>
-    <File md5="F9C9353DC96AF589877E77ADE09D6A54" import="0">Balance Changes/Policies/Flavors/FlavorNuke.sql</File>
+    <File md5="D152F573496E7FE363FE9122EB347A58" import="0">Balance Changes/Policies/Flavors/FlavorNuke.sql</File>
     <File md5="2FA02A593E5B9C359449DB57DCE6AF40" import="0">Balance Changes/Policies/Piety/Piety.sql</File>
     <File md5="1BC500C3FBB0388FF8E6861941E90C54" import="0">Balance Changes/Policies/PolicyBranches.sql</File>
-    <File md5="EB644473FC5B6B6A7326E674FB5DC3F3" import="0">Balance Changes/Policies/Honor/Honor.sql</File>
-    <File md5="7353A26CE7843E4CBAA34BB7F3E269F3" import="0">Balance Changes/Policies/Liberty/Liberty.sql</File>
-    <File md5="5DA3F90F9E8D600227350D4020455DDD" import="0">Balance Changes/Policies/Patronage/Patronage.sql</File>
-    <File md5="3EB259F8F48FF17834E15E7DAD0BE9A1" import="0">Balance Changes/Policies/Rationalism/Rationalism.sql</File>
-    <File md5="D41FC22FFF5A062D11881992045D019C" import="0">Balance Changes/Policies/Tradition/Tradition.sql</File>
+    <File md5="8CB7A367678E9960DE66D7EFBA836439" import="0">Balance Changes/Policies/Honor/Honor.sql</File>
+    <File md5="014DB569C574A06E0BF312F44DC06072" import="0">Balance Changes/Policies/Liberty/Liberty.sql</File>
+    <File md5="9CFB42B85369D3A718B00D38AF3C98B4" import="0">Balance Changes/Policies/Patronage/Patronage.sql</File>
+    <File md5="7143CB8B6976DCD317390378AAA267FB" import="0">Balance Changes/Policies/Rationalism/Rationalism.sql</File>
+    <File md5="7CE12B01CB0CD13FE198A23D24DC6F8F" import="0">Balance Changes/Policies/Tradition/Tradition.sql</File>
     <File md5="58A633B56B1E089B7F28DF2CE5D5B376" import="0">Balance Changes/Projects/NewProjects.xml</File>
     <File md5="F2A4623D7F178BAC489128761215C762" import="0">Balance Changes/Projects/Projects.sql</File>
     <File md5="14F983427C4698143A87E2CEC9893D77" import="0">Balance Changes/Specialists/GPChanges.sql</File>
@@ -502,55 +503,55 @@
     <File md5="6D923F67470AD8896FE83E1E018CD63F" import="0">Balance Changes/Tech/TechChanges.sql</File>
     <File md5="7D76B80CC0845EB8D590A4971892B05D" import="0">Balance Changes/Tech/TechFlavors.sql</File>
     <File md5="F4B18149E21A503FBD08FC38F6D631DB" import="0">Balance Changes/Terrain/NaturalWonderChanges.sql</File>
-    <File md5="0405F453C3517FB58D96145CEAC443A1" import="0">Balance Changes/Terrain/ImprovementChanges.sql</File>
-    <File md5="8ED8FC3FDB484170F01F6AA6AD973358" import="0">Balance Changes/Terrain/NewFarmResources.sql</File>
+    <File md5="2D1BE761068C0B3E828B65E6C119767B" import="0">Balance Changes/Terrain/ImprovementChanges.sql</File>
+    <File md5="950815343709C27E389BC3F530BF33BE" import="0">Balance Changes/Terrain/NewFarmResources.sql</File>
     <File md5="F4F546C19DFE39C5F4AD17E84D184288" import="0">Balance Changes/Terrain/NewFarmResources_Text.xml</File>
     <File md5="C557742B9E08C3BCB2D5A5C0DB664C7D" import="0">Balance Changes/Terrain/ResourceReveal.sql</File>
-    <File md5="3D38DD0E413F26530A1842AE0C9B0BEF" import="0">Balance Changes/Terrain/ResourceChanges.sql</File>
+    <File md5="0E0EA2DA13918F50D484B669CFFC258E" import="0">Balance Changes/Terrain/ResourceChanges.sql</File>
     <File md5="C1D4FD8FA992AB758357C80EBCF0AAB4" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
-    <File md5="BE12385D6C3187F8F9F2C281D94805E6" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="12BF8F236363C4613B55590A330C315C" import="0">Balance Changes/Text/en_US/CivText.sql</File>
-    <File md5="30B44239875F660F936B14DB48A81F47" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
+    <File md5="8EAEA696EAD8AD888FC92932920A86A4" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
+    <File md5="9D204FD62C59562542330871E9550C51" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="922E015E6AD96280392407ED258E3B30" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="C81904A6D24DB0EEBF7F72E0E9425007" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="7B1127DA192902CDA7090927B623EDF7" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
-    <File md5="423B727CFB38217FB0B25ED5833C5679" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
-    <File md5="9FA97DAB254E99C785C74A7D79157C58" import="0">Balance Changes/Text/en_US/UIText.xml</File>
-    <File md5="1835446D388B07D42B77DD0FD6FBEBE8" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
-    <File md5="CFA394A548C539CD8692808647292185" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
-    <File md5="FBB15AC3F417250AFBFCD7509520AE1D" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="1E7CEBEF24ADA5EAD1F8AD51074C1C2F" import="0">Balance Changes/Text/en_US/UIText.sql</File>
-    <File md5="A762ED09C91BB395DEACF648C211FE2A" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
-    <File md5="859CDEF70A2C0F9B095BB4559A313547" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
-    <File md5="96C0F000DC4BB45D51AE993D7C04C60E" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
-    <File md5="DD0B50F39B3265064A8B05BF71EF565B" import="0">Balance Changes/Text/en_US/NewText.xml</File>
-    <File md5="9DCDF08B952589BFC829D7928946D66E" import="0">Balance Changes/Text/en_US/TextChanges.sql</File>
+    <File md5="7BAB831719D43945FEA82345D1F084C8" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
+    <File md5="CC6F5B8EA5D344149AD31909F3DC2930" import="0">Balance Changes/Text/en_US/UIText.xml</File>
+    <File md5="9B8FFC8B60CCC0A8A4BD60E27AC208B9" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
+    <File md5="F99F40D5B231E4CC95BF6E3E4836B84E" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
+    <File md5="45C6969F17C16A393C5FF13B6B97E3D4" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
+    <File md5="6551C9C12FA45D30EA5E7D4236CD8255" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="2A6BB18043C03B52481402D4A446D989" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
+    <File md5="4D26560D1AC9781213A73FE2061EB914" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
+    <File md5="CBA1F1A37EB2A2EE406A92B74F7F2C2D" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
+    <File md5="C7A11EDAB4C8B15FC7A518CE1C31E11D" import="0">Balance Changes/Text/en_US/NewText.xml</File>
+    <File md5="111D09B75C3C7E39B068E52D1292C001" import="0">Balance Changes/Text/en_US/TextChanges.sql</File>
     <File md5="BCBD2A7CBF040ADC215A93971895E083" import="0">Balance Changes/Units/AirUnits.sql</File>
-    <File md5="C69891409947A572FE193937F8646EB1" import="0">Balance Changes/Units/NewUnits.sql</File>
-    <File md5="5ABBFA2CAE22B35FA37F6FFA26A2B954" import="0">Balance Changes/Units/PromotionChanges.xml</File>
-    <File md5="844A2A7BCC5757FD8857978F413AB5B6" import="0">Balance Changes/Units/UnitCombat.sql</File>
-    <File md5="0E5D49C1F078CB45E1343A2557E4F60B" import="0">Balance Changes/Units/UniqueUnits.sql</File>
+    <File md5="1BF1F23198D455C50259A9377BE743F9" import="0">Balance Changes/Units/NewUnits.sql</File>
+    <File md5="ABF9BC806A43E408DD0F96569BAD7C25" import="0">Balance Changes/Units/PromotionChanges.xml</File>
+    <File md5="46F517FE05E41855BBFCFF1B97F42FCF" import="0">Balance Changes/Units/UnitCombat.sql</File>
+    <File md5="DCA5ADF1FD95DD8502BF853FD1A5417F" import="0">Balance Changes/Units/UniqueUnits.sql</File>
     <File md5="EF1399758337125A25A869BA1534C53B" import="0">Balance Changes/Units/MountedUnits.sql</File>
     <File md5="3D1BBE0E6FEEE169EBA5D5298FDFAAFD" import="0">Balance Changes/Units/RangedUnits.sql</File>
     <File md5="42B41EA0642BF3C7FBA5B244CCC746E9" import="0">Balance Changes/Units/MeleeUnits.sql</File>
-    <File md5="B6E240E4E5E3AE9569AE390CA6A1453D" import="0">Balance Changes/Units/NavalUnits.sql</File>
-    <File md5="459B614E8FFABD8EFD66C45572629762" import="0">Balance Changes/Units/UnitBuildingPurchaseRequired.sql</File>
+    <File md5="EE7774B0963249480BA43459EA94040F" import="0">Balance Changes/Units/NavalUnits.sql</File>
+    <File md5="E763DBEA0DEDD8E2275CA3091DC5C093" import="0">Balance Changes/Units/UnitBuildingPurchaseRequired.sql</File>
     <File md5="5B731A636B34E05CDEE39D54A99ABF37" import="0">Balance Changes/Units/UnitCooldowns.sql</File>
     <File md5="107D6FA8C6B525E06EC528727EF9A662" import="0">Balance Changes/Units/LeftOverUnits.sql</File>
-    <File md5="475F122777B905B2AF0D52757A09549B" import="0">Balance Changes/Units/UnitCosts.sql</File>
+    <File md5="7CA8863EAF116DD59DABF96476C4AD83" import="0">Balance Changes/Units/UnitCosts.sql</File>
     <File md5="B4835D43F73DE5197A736980AA5FE2BF" import="0">Balance Changes/Units/PromotionNuke.sql</File>
-    <File md5="0F7369DEDEDF8ACEE11A84CD39B40D39" import="0">Balance Changes/Units/UnitChanges.sql</File>
-    <File md5="B934CCE442F8E254C4E33E928F067ADA" import="0">Balance Changes/Units/UnitAITypes.sql</File>
-    <File md5="BC54188EB58609ECE643FFB5A09C964F" import="0">Balance Changes/Units/UnitFlavors.sql</File>
-    <File md5="CC09B40E17075CFD2EAF2F87AA70E8B4" import="0">Balance Changes/Units/PromotionChanges.sql</File>
-    <File md5="D9E4B18F7D3CD8D3F40CF46B8A2F06F3" import="0">Balance Changes/Units/PromotionIcons.sql</File>
-    <File md5="68EF7E3A7213DB6520C6C66D64904105" import="0">Balance Changes/Units/UnitFreePromotions.sql</File>
-    <File md5="A6271BC4456C2C740B1F23CDD76DDADD" import="0">Balance Changes/Wonders/NewWonders.xml</File>
-    <File md5="787B6A3BD45A5472ED620F1F64BECE36" import="0">Balance Changes/Wonders/WonderCultureCosts.sql</File>
-    <File md5="96F12BBA61B1F88A5ED35251F7D3944F" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
+    <File md5="0C85E06DD9D7858FB09BD38D41681B3A" import="0">Balance Changes/Units/UnitChanges.sql</File>
+    <File md5="B1F0764D073998D7F8B7FA7777F7FF91" import="0">Balance Changes/Units/UnitAITypes.sql</File>
+    <File md5="D67D077110D9503231918565837C05CA" import="0">Balance Changes/Units/UnitFlavors.sql</File>
+    <File md5="950DF0FBF2FD8069501CF457500254BD" import="0">Balance Changes/Units/PromotionChanges.sql</File>
+    <File md5="4BE5B99ADA97178181B71E4CB1681627" import="0">Balance Changes/Units/PromotionIcons.sql</File>
+    <File md5="A6F0D35D9F652BE8FC28792B9C757B82" import="0">Balance Changes/Units/UnitFreePromotions.sql</File>
+    <File md5="F6088B31D06A18C48211752671CE06C6" import="0">Balance Changes/Wonders/NewWonders.xml</File>
+    <File md5="08823C1082CCB3AB5FB4BA458E68DEE4" import="0">Balance Changes/Wonders/WonderCultureCosts.sql</File>
+    <File md5="06FF590E720F2FDDB8CA071920FD7017" import="0">Balance Changes/Wonders/WonderChanges.sql</File>
     <File md5="CC83B83AB81435CD8A9AA268155FD57B" import="0">Balance Changes/Worlds/WorldSizes.sql</File>
     <File md5="141A4126B327E5610F6396C10F26322A" import="0">CommunityOptions.sql</File>
-    <File md5="05D795ECD89E3AB886D1DB12B9126415" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
+    <File md5="CC12EB89422C29558D5BED27D1EDFA74" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.sql</File>
     <File md5="63B3FC73D1D8FFBF6CAEC7AA481AD2DA" import="1">Core Files/Core Changes/farm_types.xml</File>
     <File md5="C057BCE947986426184DDEDA4310F3DE" import="1">Core Files/CoreLua/EspionageOverview.lua</File>
     <File md5="54C16FFF22C4B63BBBA581E52B32DC95" import="1">Core Files/CoreLua/EspionageOverview.xml</File>
@@ -565,15 +566,15 @@
     <File md5="93084A119696F8C8766F524D3F808739" import="1">LUA/CityBannerManager.xml</File>
     <File md5="2CF206FA965AF40CCAAC04AE36992C6B" import="1">Core Files/CoreLua/CityList.lua</File>
     <File md5="46FF699BA0B84969AF9316F8781E6F69" import="1">Core Files/CoreLua/CityList.xml</File>
-    <File md5="187B8D8AE21103B55CC7ACB26046F232" import="1">LUA/CityStateDiploPopup.lua</File>
+    <File md5="2430CC4BCF703CAB731FA5F748E58AE9" import="1">LUA/CityStateDiploPopup.lua</File>
     <File md5="1E7CE276A4B2B9A80A6DD9535468A09F" import="1">LUA/CityStateDiploPopup.xml</File>
     <File md5="E5084A1F6168876EBFB78B060FF77E42" import="1">LUA/CityStateGreetingPopup.lua</File>
     <File md5="54A274DCE10B48B9583FB6C939F1F46F" import="1">LUA/CityStateGreetingPopup.xml</File>
-    <File md5="CCBCD3125068C8FA8CAB90404ED9FD22" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="012868110506BDBBFB47B7E76D2EC627" import="1">LUA/CityStateStatusHelper.lua</File>
     <File md5="84D164B3661A5A6EA831CFCC173CE723" import="1">LUA/CityView.lua</File>
     <File md5="615971860CD3A30FE4938845DCECF03E" import="1">LUA/CityView.xml</File>
     <File md5="87B455A2A51F036C76A7C77F329D4F39" import="1">LUA/CityView_small.xml</File>
-    <File md5="CB9A4645EFBF1C45534403B55EBDF836" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
+    <File md5="82FDB844799721FE45B460C7AF3BD10E" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
     <File md5="BCA09FCF702B305481F54C5879D72D47" import="1">Core Files/CoreLua/CivilopediaScreen.xml</File>
     <File md5="F6417FE8ED4E43193BAF66F824138EF6" import="1">Core Files/CoreLua/CultureOverview.lua</File>
     <File md5="FF24766DBE44C7F381A9DAAFF9E555C9" import="1">Core Files/CoreLua/CultureOverview.xml</File>
@@ -612,7 +613,7 @@
     <File md5="C8D1868CF6223141AC122D2B29E2A8C7" import="1">Core Files/CoreLua/PlotMouseoverInclude.lua</File>
     <File md5="E4A55299B743305F55BC2F358A7A0191" import="1">LUA/ProductionPopup.lua</File>
     <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
-    <File md5="FC67B1778C9CAFE118D569CB6454A047" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
+    <File md5="9A65A3AF08EE7842D2A6AE11BC1A625B" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
     <File md5="46DBB55FAD37A04B27DAA5E6CC7C51FB" import="1">Core Files/CoreLua/ReligionOverview.lua</File>
     <File md5="180D0D9007913D8483373F07C398A32B" import="1">Core Files/CoreLua/ReligionOverview.xml</File>
     <File md5="5D08BC8926176FD7F7081872EBB56472" import="1">Core Files/CoreLua/ResourceTooltipGenerator.lua</File>
@@ -620,17 +621,17 @@
     <File md5="28060DB8C0A3C26C63F6D43700F294DB" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
     <File md5="E161DE2ADCA0FCADBEE67171504BAB43" import="1">LUA/TechButtonInclude.lua</File>
-    <File md5="2E65633B54D14564B425438716E3AD26" import="1">LUA/TopPanel.lua</File>
-    <File md5="91D4A7DF00FAE1B0ADD6667FD1E76CC9" import="1">LUA/TopPanel.xml</File>
-    <File md5="95EBA7D6D0F764844BE004C890A83108" import="1">LUA/TradeLogic.lua</File>
+    <File md5="0E9B191E9FE6AD806D61582AF882D1AD" import="1">LUA/TopPanel.lua</File>
+    <File md5="BE275E9C46B30AE03520677C3561776B" import="1">LUA/TopPanel.xml</File>
+    <File md5="489BE82DF02C4453AD92E7D95BC52616" import="1">LUA/TradeLogic.lua</File>
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
     <File md5="0AFCDAFFD890E4F74B8C76D3FDD960C1" import="1">LUA/UnitPanel.lua</File>
-    <File md5="FC48CDD4858698161FDB79B7CE68C69C" import="1">Core Files/CoreLua/VictoryProgress.lua</File>
+    <File md5="CBEDB9BB5F5D33491342B2618D85B99E" import="1">Core Files/CoreLua/VictoryProgress.lua</File>
     <File md5="1789009F209A70B6EBE6CB940152CCF4" import="1">Core Files/CoreLua/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">Core Files/CoreLua/WhosWinningPopup.lua</File>
     <File md5="69CFBC274D9F6171F1FE4FF6D699A28D" import="1">Core Files/CoreLua/WorldView.lua</File>
-    <File md5="AF34BDAF7884346D2B12EFC63B4782CD" import="1">LUA/YieldIconManager.lua</File>
+    <File md5="CDED9721A7136B8AC78BA3724E3CEAAA" import="1">LUA/YieldIconManager.lua</File>
     <File md5="BA353EE3D799C2396658056D9FB2173A" import="1">LUA/YieldIconManager.xml</File>
     <File md5="C2B379400AF1B1DE67683A326C90EAB9" import="1">Mapscripts/Amazon_XP.lua</File>
     <File md5="1995E2306C1938AF9E0B5D2509561B4D" import="1">Mapscripts/Arborea.lua</File>
@@ -695,7 +696,7 @@
     <File md5="C083847CE6A3DE9C2B4C6ED37B3A807E" import="0">Modular Elements/Events/Text/EventText_en_US.xml</File>
     <File md5="9E9413423E76DAA8D884CC45D0516E72" import="0">Modular Elements/GlobalCityBombardRange.lua</File>
     <File md5="72A300697B93B9A5ABEB75DD73309B49" import="0">Modular Elements/Happiness Mod/CityHappiness.sql</File>
-    <File md5="555CA00156F9C7A81E2B3825281F0B4F" import="0">Modular Elements/Happiness Mod/BuildingHappinessMods.sql</File>
+    <File md5="DC267FF2581BA01A1E5DA03D097995F8" import="0">Modular Elements/Happiness Mod/BuildingHappinessMods.sql</File>
     <File md5="DB9ADDB2D809401FA02916094DA3AB86" import="0">Modular Elements/Happiness Mod/StartingHappiness.sql</File>
     <File md5="87F9DFE6E5C93B7CD4BDB95C6D492AD2" import="0">Modular Elements/Happiness Mod/HappinessTests.xml</File>
     <File md5="BCADC28061ADE6823469A76BEE3282A1" import="0">Modular Elements/Happiness Mod/LuxuryHappiness.sql</File>
@@ -767,7 +768,7 @@
     <File md5="E1ABC014DE1A639EE43EAE7F64922667" import="0">CSD/Art/XML/Icons.xml</File>
     <File md5="6DC1052F4F989ED78D67D31358E086F1" import="0">CSD/Buildings/BuildingRules.sql</File>
     <File md5="3C72D912F5EC550A975A1BEF58E0384E" import="0">CSD/Buildings/BuildingText.xml</File>
-    <File md5="8C840BDC1B56D4103D38854F7EBD3AC3" import="0">CSD/Buildings/CSDBuildings.xml</File>
+    <File md5="4CE69AE0A68448BF6E5DC778F1509809" import="0">CSD/Buildings/CSDBuildings.xml</File>
     <File md5="BFEB57B83B3536D17DA7B362A1AFDA33" import="0">CSD/Buildings/DiploBuildingText.sql</File>
     <File md5="2BACCBDFCF69ADDF1F16006406D0CDBA" import="0">CSD/Buildings/BuildingGrowthYield.xml</File>
     <File md5="D68EBF039F03A031C146DA5E8DDFD452" import="0">CSD/Gameplay/UpdateDefines.sql</File>
@@ -781,7 +782,7 @@
     <File md5="AF61ACE754D1326A408C55621FC6DE72" import="0">CSD/Options.sql</File>
     <File md5="BB5F1C4BE813246558AABE879830E743" import="0">CSD/Promotions/Promotions.xml</File>
     <File md5="58BA7B52861BB2343DE47C078DDBDA41" import="0">CSD/Promotions/PromotionText.xml</File>
-    <File md5="3767161D54C6C6F01266F38578E3C779" import="0">CSD/Quests/CityStateQuest.xml</File>
+    <File md5="2F1C038D27E1FD1792A02DB22F0D1FFF" import="0">CSD/Quests/CityStateQuest.xml</File>
     <File md5="A8B940DA3B84B9B8D9FDD9AC3EF0518D" import="0">CSD/Resource/Paper.xml</File>
     <File md5="E8FE68E7A7B1E207173B6DFDA8D36F35" import="0">CSD/Specialist/CivilServant.xml</File>
     <File md5="752627F3AD5CF5D5B7C67CBCFB34DB3D" import="0">CSD/Units/MoreGreatDiplomats.sql</File>
@@ -1010,9 +1011,9 @@
     <File md5="3F476A71188724BC528A087525301A9A" import="0">Compatibility/Corporations/Corporations.sql</File>
     <File md5="94863D7E9ED068366807182FC439E215" import="0">Compatibility/Corporations/Text/CorpText_en_US.xml</File>
     <File md5="F2B4529383B3A7F7AEC8F9CA82C9A83C" import="0">Compatibility/Corporations/Text/CorpText_en_US.sql</File>
-    <File md5="6CBBC01321D44E7253068A156765F5D9" import="0">Compatibility/CSD/CompatibilityText/Compatibility_en_US.sql</File>
+    <File md5="78B82AE911A5C2D40BEC0044C633AF34" import="0">Compatibility/CSD/CompatibilityText/Compatibility_en_US.sql</File>
     <File md5="C44788E96BF96666D8D2D42F68A9FD3B" import="0">Compatibility/CSD/CompatibilityText/Compatibility_en_US.xml</File>
-    <File md5="70E779A78B91DD2803D38BCA37550450" import="0">Compatibility/CSD/CSDCompatibility.sql</File>
+    <File md5="DE27D699183D7753890DAD5FAF4C7667" import="0">Compatibility/CSD/CSDCompatibility.sql</File>
     <File md5="E0635CA37CA0F94F3E08245215D67479" import="0">Compatibility/MoreLuxuries/MoreLuxuries.sql</File>
   </Files>
   <Actions>
@@ -1075,7 +1076,6 @@
       <UpdateDatabase>Balance Changes/Difficulty/DifficultyMod.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Difficulty/DifficultyMod.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Units/UnitChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Balance Changes/Units/UnitCosts.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Wonders/WonderChanges.sql</UpdateDatabase>
       <UpdateDatabase>Modular Elements/Corporations/Art/CorporationIcons.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Tech/TechChanges.sql</UpdateDatabase>
@@ -1115,6 +1115,7 @@
       <UpdateDatabase>Balance Changes/Units/UnitAITypes.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Units/UnitFlavors.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Units/UnitFreePromotions.sql</UpdateDatabase>
+      <UpdateDatabase>Balance Changes/Units/UnitCosts.sql</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Barbarians/BarbarianChanges.sql</UpdateDatabase>
       <UpdateDatabase>Modular Elements/Corporations/Text/en_US/CorpText.xml</UpdateDatabase>
       <UpdateDatabase>Balance Changes/Text/en_US/NewText.xml</UpdateDatabase>

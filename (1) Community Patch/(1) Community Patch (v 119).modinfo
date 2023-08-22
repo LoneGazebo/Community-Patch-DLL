@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="118">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="119">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(3.7.12) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(3.8) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>118</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>119</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -74,8 +74,8 @@
     <File md5="12D7AE7B46F4A1CFC9C04068B91EC4EA" import="1">Core Files/Core Changes/CompressedArt/wonderconceptgreatwall.dds</File>
     <File md5="B0F68066FF301B6B10E15EC0E85CFDE6" import="1">Core Files/Core Changes/CompressedArt/wonderconceptnotredame.dds</File>
     <File md5="0429CDBB6DB69F18C354FA6B36B459E8" import="1">Core Files/Core Changes/CompressedArt/wu.dds</File>
-    <File md5="A0A9667CB76696355590235F4E887F33" import="0">Core Files/Core Changes/CoreChanges.sql</File>
-    <File md5="39DA1B7C4E75242EC0FC2E5382716A94" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.xml</File>
+    <File md5="914065A0E84BF66BA8AC7D98FF227ED6" import="0">Core Files/Core Changes/CoreChanges.sql</File>
+    <File md5="E35E2AB9285C3871AF4C3BDBF5EEECE8" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.xml</File>
     <File md5="F11DAA7639C6319B9C7A04A281AB9B12" import="0">Core Files/Core Changes/DiploAIOptions.sql</File>
     <File md5="C2070A14115CDA6745C2F02C6C6C9C9B" import="0">Core Files/Core Changes/EraSpecificWriters.sql</File>
     <File md5="054A6A9E14333EA341EC48437593B7D7" import="0">Core Files/Core Changes/EraSpecificArtists.sql</File>
@@ -87,8 +87,8 @@
     <File md5="5C22D61C78351504F7FA15D7A1565CF0" import="0">Core Files/Core Changes/UnitFixes.sql</File>
     <File md5="E2B19CBFFF8F783398DF4BD00E5633D1" import="1">Core Files/Core Changes/GreatArt/esp_spy_rigginelectioncooldown22.dds</File>
     <File md5="B5951BFB8C5655834700B8218EE03B4E" import="0">Core Files/Core Changes/SaneTerrain.sql</File>
-    <File md5="78CE113418D7FD0BCE6240A7E58BE60F" import="0">Core Files/Core Changes/WorldChanges.sql</File>
-    <File md5="5D3F7DB8143B4D1AF76146432B7D468E" import="0">Core Files/Core Changes/TerrainFixes.xml</File>
+    <File md5="3D1DA5C5C96C830EB3ADED51E6F64281" import="0">Core Files/Core Changes/WorldChanges.sql</File>
+    <File md5="388C9B9A183F805027511F720F2591E3" import="0">Core Files/Core Changes/TerrainFixes.xml</File>
     <File md5="D6A84377DC0A60D68C78E911777E9E88" import="1">Core Files/Core Changes/GreatArt/ancientchina.dds</File>
     <File md5="1154AB813A0500E7664C5894CEAFCB15" import="1">Core Files/Core Changes/GreatArt/ancientjapan.dds</File>
     <File md5="D437F09F6BF878F68FE10C0AB39725E5" import="1">Core Files/Core Changes/GreatArt/ancientpersia.dds</File>
@@ -109,16 +109,16 @@
     <File md5="12A0F1F3F4AC7D09CBD28E06B17F8BF3" import="0">Core Files/Core Changes/NewArtists.xml</File>
     <File md5="4E508F5AA1D796DB0A5E1A4CDACBBD4F" import="0">Core Files/Core Changes/NewText.xml</File>
     <File md5="B2F0CFF1DF2DD8539265D9873D6A61FD" import="0">Core Files/Core Changes/TextChanges.sql</File>
-    <File md5="4FF1A900882C4A92CE7955CC921897BD" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
-    <File md5="7094948EE6116867140D0751EEC66D5F" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
-    <File md5="E5BF3BCC8B133425A3F39BA2A1C9511B" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
+    <File md5="E75B6D9A2177C4A29A0520B87F33908D" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
+    <File md5="6C7860736FA6B88B01442DFF6F89BF34" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
+    <File md5="F2B00F2B8C718D798C6A8930AD8B3D1B" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="FEBB701DD870A8D1A6AB1E6CE2E6E67E" import="0">Core Files/Core Tables/DifficultyTables.sql</File>
     <File md5="D9AD9FE1AE09A90AF7E6BC707C80C781" import="0">Core Files/Core Tables/DifficultyTables.xml</File>
     <File md5="B30D8A1A7F42B7F9711F05EA64771F59" import="0">Core Files/Core Tables/JFDContracts.xml</File>
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="0E40315D1278F83F6202E5F7EF1CB6EC" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
     <File md5="4FC51835F4E1FACE48D5D92A36189955" import="0">Core Files/Core Values/CargoShipMod.sql</File>
-    <File md5="60375596237BDA0A71EE97AFCA2FD031" import="0">Core Files/Core Values/CoreDefines.sql</File>
+    <File md5="28797A790F33D7E1FD0F583ACDC66EA2" import="0">Core Files/Core Values/CoreDefines.sql</File>
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="0F68C811F29F1026E081B8D1F405159A" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
@@ -126,7 +126,7 @@
     <File md5="4294BB607CA8995F0DC562AA8B1F8C20" import="0">Core Files/Core Values/Automates.xml</File>
     <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/DummyTrigger.sql</File>
     <File md5="709ECD2A7C0807C8ED2E945DA5B4718E" import="0">Core Files/Core Values/FasterAircraft.sql</File>
-    <File md5="44E52B48910669CA0F96867FEAFB24C1" import="0">Core Files/Core Values/MinorCivQuestRewards.xml</File>
+    <File md5="3686F696BAFF9498A6FB6398D3D7F5DA" import="0">Core Files/Core Values/MinorCivQuestRewards.xml</File>
     <File md5="55680AD4774BC1DC4991E321F40A183E" import="0">Core Files/Core Values/New_CIV5AICityStrategies.xml</File>
     <File md5="22C823A2A9A00B2B73B7983130602DDB" import="0">Core Files/Core Values/New_CIV5AIMilitaryStrategies.xml</File>
     <File md5="75EEAD91038B5C127112C8A9F428C19A" import="0">Core Files/Core Values/New_CIV5MultiUnitFormations.xml</File>
@@ -142,7 +142,7 @@
     <File md5="716E665A7374FEC615837C8A85AF18F8" import="1">Core Files/CoreLua/CityEventsInfo.xml</File>
     <File md5="AFC9BD9DA3C2699D77FDCEB759EDD1AF" import="1">Core Files/CoreLua/CityRecentEventsInfo.lua</File>
     <File md5="F101066874ED5BEDE778EE71E4BB4D4A" import="1">Core Files/CoreLua/CityRecentEventsInfo.xml</File>
-    <File md5="12C76E26746C9860279EE08C0CBB8CC3" import="1">Core Files/CoreLua/EnemyUnitPanel.lua</File>
+    <File md5="EEBD4A8C1DFFCB9AB102298BD3E9A260" import="1">Core Files/CoreLua/EnemyUnitPanel.lua</File>
     <File md5="D3B55C6D6224C3204FB57D3FE19C80D9" import="1">Core Files/CoreLua/EventArt/AirBalloon.dds</File>
     <File md5="9E7761E30571871032525344A0968D9B" import="1">Core Files/CoreLua/EventArt/CounterSpy.dds</File>
     <File md5="99618C8CE11438AAE41475DE0929CD11" import="1">Core Files/CoreLua/EventArt/FireWorks.dds</File>
@@ -161,7 +161,7 @@
     <File md5="695FACA1BA4A5C15D3595EF99B6B658C" import="0">Core Files/CoreLua/EventPopup.xml</File>
     <File md5="D34DBE771326E8740FF4354E860675FD" import="0">Core Files/CoreLua/EventOverview.lua</File>
     <File md5="AE2515A56CC80041728985BA2BF89F09" import="0">Core Files/CoreLua/EspionageChoicePopup.xml</File>
-    <File md5="3A270875B1B031066905D01017F1644E" import="1">Core Files/CoreLua/InGame.lua</File>
+    <File md5="F155C5D37C0E2D97C7F48C8ABDB30B1A" import="1">Core Files/CoreLua/InGame.lua</File>
     <File md5="56E67473CBCDEA9E3AAE1D815B738FB1" import="0">Core Files/CoreLua/EspionageChoicePopup.lua</File>
     <File md5="BF44E18E8DB303517A633F14D43BAC69" import="1">Core Files/CoreLua/MPList.lua</File>
     <File md5="91DEEC22E933A63497BBDA0E5066D8D3" import="1">Core Files/CoreLua/NewEraPopup.lua</File>
@@ -189,7 +189,7 @@
     <File md5="8DBF300FFEC8BB9D400845CA40DD933D" import="1">Core Files/PNM Mods DB/ART/YieldAtlas_128_GoldenAge.dds</File>
     <File md5="ABD5FA5416A63C4E062E3F9113215550" import="1">Core Files/PNM Mods DB/ART/YieldAtlas_128_Tourism.dds</File>
     <File md5="5A5C367FAC1919557D7709D2FBB4A369" import="0">Core Files/PNM Mods DB/BUGFIX/FeatureRemoval.sql</File>
-    <File md5="E8750DF83A985489BF5005EF9860625F" import="0">Core Files/PNM Mods DB/BUGFIX/GoodyHutMessages.xml</File>
+    <File md5="6FF81DE5138AE05BFE18A3D603B05F3D" import="0">Core Files/PNM Mods DB/BUGFIX/GoodyHutMessages.xml</File>
     <File md5="F05356D5D0E61F6D8D34D00F4BA9AA35" import="0">Core Files/PNM Mods DB/BUGFIX/SpyNames.xml</File>
     <File md5="FA3BCC26D8997291AEBFFD57DCED931B" import="0">Core Files/PNM Mods DB/BUGFIX/UnitclassNotUnit.sql</File>
     <File md5="EC46E85CA29BC011585D0F50E27B7287" import="0">Core Files/PNM Mods DB/BUGFIX/UnitclassNotUnit.xml</File>
@@ -229,15 +229,15 @@
     <File md5="D60500F862DCB87C573F5B6A1388EB76" import="0">Core Files/PNM Mods DB/TRAITS/OtherPrereqs.sql</File>
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
-    <File md5="2E0F4136C42814C97211E6B3C9D041E9" import="0">Core Files/Text/CoreText_en_US.xml</File>
-    <File md5="64E4A365C82A56C28C0B573D383AFFBC" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="D5C3CAA1BA4CEB837351F8E0C9C67F6E" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="2E93182CEB2A539761A4692B9198C126" import="0">Core Files/Text/CoreText_en_US.xml</File>
+    <File md5="7BC1A5912807640F6AD1622FE1B15BF3" import="0">Core Files/Text/CoreText_en_US.sql</File>
+    <File md5="C9D5BAE863AA7464EA60AA292EFE4CE7" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
     <File md5="ED8CCC7A358D1EDDCFE7444E11D45CAF" import="1">LUA/CityStateDiploPopup.lua</File>
-    <File md5="325500D4679F2EECB349A5FF5E60D1F5" import="1">LUA/CityStateStatusHelper.lua</File>
+    <File md5="A7CEB452C1CA114E75D7A4A8FB7B2E17" import="1">LUA/CityStateStatusHelper.lua</File>
     <File md5="CADBDCD66FF2272D4B074D54BEFDD92A" import="1">LUA/CityView.lua</File>
     <File md5="0A5F81CD98BFD26E06897E5B19683469" import="1">LUA/CultureOverview.lua</File>
     <File md5="BF85D174CA9D4F2EC2AD7E3FBB6C0D6D" import="1">LUA/CultureOverview.xml</File>
@@ -268,7 +268,7 @@
     <File md5="7D73FAAE45A92670C2C6C52BCA912E58" import="1">LUA/ReligionOverview.lua</File>
     <File md5="710424C27FAC6C807302F68A7C729370" import="1">LUA/SimpleDiploTrade.xml</File>
     <File md5="32E0A8436F69C27FB13E8357226EE897" import="1">LUA/TopPanel.lua</File>
-    <File md5="405AD1ECB5C2A593CAE2BABF718DE528" import="1">LUA/TradeLogic.lua</File>
+    <File md5="239927AD51C3093A6A6F6237A6C0C341" import="1">LUA/TradeLogic.lua</File>
     <File md5="1D6FBE79C3778843EA7DDCE693BDD499" import="1">LUA/TradeRouteHelpers.lua</File>
     <File md5="5A87219957975A85A1D3CEDA1D98A835" import="1">LUA/YieldIconManager.lua</File>
     <File md5="8FD4EF5AAB5BD6E16DB8EBE95963FC33" import="1">LUA/YieldIconManager.xml</File>

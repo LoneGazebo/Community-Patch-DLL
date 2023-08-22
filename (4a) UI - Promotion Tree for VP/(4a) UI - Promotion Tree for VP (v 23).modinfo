@@ -2,7 +2,7 @@
 <Mod id="1f0a153b-26ae-4496-a2c0-a106d9b43c95" version="23">
   <Properties>
     <Name>(4a) UI - Promotion Tree for VP</Name>
-    <Teaser>(3.7.12) Shows promotions as a tree</Teaser>
+    <Teaser>(3.8) Shows promotions as a tree</Teaser>
     <Description>Displays promotions in a tree format either for the current unit or by selecting one of the various combat classes (melee, naval, recon, siege, mounted, etc) from a drop-down menu
 
 Hooks into the DiploCorner drop-down.
@@ -23,7 +23,7 @@ Layout derived from http://gaming.stackexchange.com/questions/15846/122</Descrip
     <ReloadUnitSystem>0</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="118" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="119" maxversion="999" title="(1) Community Patch" />
     <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="16" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References>
