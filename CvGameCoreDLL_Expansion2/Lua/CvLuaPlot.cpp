@@ -1665,10 +1665,15 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 	return 1;
 }
 //------------------------------------------------------------------------------
-//int calculateYield(YieldTypes eIndex, bool bDisplay);
+//int calculateYield(YieldTypes eIndex, bool bDisplay = false, const CvCity* pOwningCity = NULL);
 int CvLuaPlot::lCalculateYield(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlot::calculateYield);
+	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
+	const YieldTypes eYield = CvLuaArgs::toValue<YieldTypes>(L, 2);
+	const bool bDisplay = luaL_optbool(L, 3, false);
+	const int iResult = pkPlot->calculateYield(eYield, bDisplay);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //bool hasYield();

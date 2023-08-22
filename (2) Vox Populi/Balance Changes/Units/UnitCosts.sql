@@ -234,6 +234,7 @@ SET FaithCost = (
 	)
 )
 WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1)
+AND PurchaseOnly = 0
 AND EXISTS (
 	SELECT 1 FROM UnitTechTier_FaithCost WHERE TechTier = (
 		SELECT GridX FROM Technologies WHERE Type = PrereqTech

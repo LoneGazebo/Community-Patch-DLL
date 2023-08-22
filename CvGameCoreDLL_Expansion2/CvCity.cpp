@@ -28927,10 +28927,9 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 	int iPLOT_INFLUENCE_NW_COST =				/*-105 in CP, -500 in VP*/ GD_INT_GET(PLOT_INFLUENCE_NW_COST);
 	int iPLOT_INFLUENCE_WATER_COST =			/*25 in CP, 20 in VP*/ GD_INT_GET(PLOT_INFLUENCE_WATER_COST);
 	int iPLOT_INFLUENCE_YIELD_POINT_COST =		/*-1 in CP, -40 in VP*/ GD_INT_GET(PLOT_INFLUENCE_YIELD_POINT_COST);
-	int iPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST = /*1000*/ GD_INT_GET(PLOT_INFLUENCE_NO_ADJACENT_OWNED_COST);
-	int iPLOT_INFLUENCE_ADJACENT_NW_COST = -3;
-	int iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST = -2;
-	int iPLOT_INFLUENCE_ADJACENT_ENEMY_COST = -1;
+	int iPLOT_INFLUENCE_ADJACENT_NW_COST = -60;
+	int iPLOT_INFLUENCE_ADJACENT_RESOURCE_COST = -40;
+	int iPLOT_INFLUENCE_ADJACENT_ENEMY_COST = -20;
 
 	int iYieldLoop = 0;
 	int iDirectionLoop = 0;
@@ -29070,27 +29069,16 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						iInfluenceCost += iResourceMod;
 
 					// if we can't work this tile in this city make it much less likely to be picked
-					if (plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), getX(), getY()) > iWorkPlotDistance)
+					// Unless it's a Natural Wonder. We always want those.
+					if (!pLoopPlot->IsNaturalWonder() && plotDistance(pLoopPlot->getX(), pLoopPlot->getY(), getX(), getY()) > iWorkPlotDistance)
 					{
 						iInfluenceCost += iPLOT_INFLUENCE_RING_COST * 2;
-					}
-
-					// avoid barbarian camps
-					ImprovementTypes thisImprovement = pLoopPlot->getImprovementType();
-					if (thisImprovement == eBarbCamptype)
-					{
-						iInfluenceCost += iPLOT_INFLUENCE_RING_COST;
 					}
 
 					// while we're at it grab Natural Wonders quickly also
 					if (pLoopPlot->IsNaturalWonder())
 					{
 						iInfluenceCost += iPLOT_INFLUENCE_NW_COST;
-					}
-
-					if (pLoopPlot->isLake())
-					{
-						iInfluenceCost += (iPLOT_INFLUENCE_NW_COST / 2);
 					}
 
 					// More Yield == more desirable
@@ -29101,8 +29089,9 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 							break;
 
 						int iWeight = (iYieldLoop == GetCityStrategyAI()->GetMostDeficientYield()) ? 3 : 1;
+						int iYield = pLoopPlot->calculateYield((YieldTypes)iYieldLoop, false, this);
 
-						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * pLoopPlot->getYield((YieldTypes)iYieldLoop) * iWeight);
+						iInfluenceCost += (iPLOT_INFLUENCE_YIELD_POINT_COST * iYield * iWeight);
 					}
 
 					// all other things being equal move towards unclaimed resources
@@ -29146,27 +29135,6 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 					// move towards enemy
 					if (bEnemyPlotAdjacent)
 						iInfluenceCost += iPLOT_INFLUENCE_ADJACENT_ENEMY_COST;
-
-					// Plots not adjacent to another Plot acquired by this City are pretty much impossible to get
-					bFoundAdjacentOwnedByCity = false;
-					for (iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
-					{
-						CvPlot* pAdjacentPlot = plotDirection(pLoopPlot->getX(), pLoopPlot->getY(), (DirectionTypes)iDirectionLoop);
-
-						if (pAdjacentPlot != NULL)
-						{
-							if (pAdjacentPlot->getOwner() == getOwner() && pAdjacentPlot->getOwningCityID() == GetID())
-							{
-								bFoundAdjacentOwnedByCity = true;
-								break;
-							}
-						}
-					}
-
-					if (!bFoundAdjacentOwnedByCity)
-					{
-						iInfluenceCost += iPLOT_INFLUENCE_NO_ADJACENT_OWNED_COST;
-					}
 
 					resultList.push_back(std::make_pair(iInfluenceCost, pLoopPlot->GetPlotIndex()));
 				}

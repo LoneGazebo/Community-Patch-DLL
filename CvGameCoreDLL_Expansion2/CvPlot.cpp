@@ -10577,9 +10577,12 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	return iYield;
 }
 
-int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
+int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity)
 {
-	const CvCity* pOwningCity = getEffectiveOwningCity();
+	if (!pOwningCity)
+	{
+		pOwningCity = getEffectiveOwningCity();
+	}
 	if(pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
