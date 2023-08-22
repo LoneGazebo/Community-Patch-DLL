@@ -7663,11 +7663,11 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus, bool bConsi
 	{
 		int iModifier = 0;
 		if (pEntry->IsFounderBelief())
-			iModifier += 5;
+			iModifier += 8;
 		else if(pEntry->IsPantheonBelief())
 			iModifier += -5;
 		else if (pEntry->IsEnhancerBelief())
-			iModifier += 5;
+			iModifier += 2;
 		else if (pEntry->IsFollowerBelief())
 		{
 			bool bNoBuilding = true;

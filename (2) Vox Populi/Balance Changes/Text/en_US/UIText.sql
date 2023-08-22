@@ -507,8 +507,12 @@ SET Text = 'During a game, you will create "workers" - non-military units who wi
 WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENT_HELP_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Costs[ENDCOLOR] 2 [ICON_GOLD] Gold per turn to maintain.[NEWLINE][NEWLINE]An unbroken chain of Railroads allows Units to move extremely quickly through Tiles.'
+SET Text = '[COLOR_NEGATIVE_TEXT]Costs[ENDCOLOR] 3 [ICON_GOLD] Gold per turn to maintain.[NEWLINE][NEWLINE]An unbroken chain of Railroads allows Units to move extremely quickly through Tiles.'
 WHERE Tag = 'TXT_KEY_BUILD_RAILROAD_HELP';
+
+UPDATE Language_en_US
+SET Text = 'Total cost of maintaining Roads and Railroads you have built, or are responsible for. Roads cost 1 [ICON_GOLD] Gold per turn, and Railroads cost 3 [ICON_GOLD].'
+WHERE Tag = 'TXT_KEY_EO_EX_IMPROVEMENTS';
 
 -- Landmark
 UPDATE Language_en_US
@@ -1120,3 +1124,7 @@ WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING';
 UPDATE Language_en_US 
 SET Text = 'An unmet player needs [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!.' 
 WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING';
+
+INSERT INTO Language_en_US (Tag, Text)
+VALUES  ('TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_NO', 'This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Due to past hostile actions committed on them, you do not have the opportunity to return it to them.[ENDCOLOR]');
+
