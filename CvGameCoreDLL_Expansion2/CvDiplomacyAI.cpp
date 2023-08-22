@@ -16072,8 +16072,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					// Minor cheating: Allow the AI to know who owns the city
 					// Humans can do the same in many cases by memorizing the city names
-					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
-					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_LIBERATION);
+					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_FIND_CITY);
+					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_FIND_CITY);
 					CvPlot* pPlot = GC.getMap().plot(iX, iY);
 					if (pPlot->isCity() && pPlot->getOwner() == ePlayer)
 					{

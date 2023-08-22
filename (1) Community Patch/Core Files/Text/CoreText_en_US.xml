@@ -3817,7 +3817,7 @@
 			<Text>BULLIED:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD">
-			<Text>They are currently [COLOR_WARNING_TEXT]resilient[ENDCOLOR], because you are {1_FactorScore}% below the required tribute threshold of [COLOR_CYAN]+{2_Threshold}%[ENDCOLOR]:</Text>
+			<Text>They are currently [COLOR_WARNING_TEXT]resilient[ENDCOLOR], because you are {1_FactorScore}% below the tribute threshold of [COLOR_CYAN]{2_Threshold}%[ENDCOLOR]:</Text>
 		</Row>
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->

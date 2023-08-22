@@ -27556,7 +27556,7 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		int iPlagueImmunityID = thisPromotion.GetPlagueIDImmunity();
 
 		// ERROR! This should not happen.
-		if (iPlagueID == iPlagueImmunityID)
+		if (iPlagueID > -1 && iPlagueID == iPlagueImmunityID)
 			return;
 
 		if (bNewValue)

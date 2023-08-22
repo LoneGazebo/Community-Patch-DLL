@@ -9715,6 +9715,10 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 		veValidUnits.push_back(eLoopUnit, max(iValue, 1));
 	}
 
+	// Didn't find any valid units
+	if (veValidUnits.size() == 0)
+		return NO_UNIT;
+
 	// Add WEIGHT copies of each unit into the second vector from which the pseudorandom choice will be made
 	for (int iUnitLoop = 0; iUnitLoop < veValidUnits.size(); iUnitLoop++)
 	{
@@ -10047,7 +10051,7 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 			for (int iPlotLoop = 0; iPlotLoop < GC.getMap().numPlots(); iPlotLoop++)
 			{
 				CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iPlotLoop);
-				if (pPlot && pPlot->getArea() == pBestArea->GetID())
+				if (pPlot && pPlot->getArea() == pLoopArea->GetID())
 				{
 					// We want a distant, unrevealed, unowned, non-coastal plot. Doesn't have to be fancy.
 					if (pPlot->isRevealed(eTeam))
