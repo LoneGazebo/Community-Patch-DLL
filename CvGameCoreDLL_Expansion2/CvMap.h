@@ -105,7 +105,7 @@ inline int coordRange(int iCoord, int iRange, bool bWrap)
 }
 
 class CvPlotManager;
-typedef std::set<CvPlot*> DeferredFogPlots;
+typedef std::set<CvPlot*, PrSortByPlotIndex> DeferredFogPlots;
 typedef std::map<PlayerTypes, std::map<int, int>> UnitKillCount;
 
 //

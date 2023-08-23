@@ -2939,10 +2939,6 @@ map<int,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<C
 	}
 
 	//sort for fast search
-	struct PrSortByPlotIndex
-	{
-		bool operator()(const CvPlot* lhs, const CvPlot* rhs) const { return lhs->GetPlotIndex() < rhs->GetPlotIndex(); }
-	};
 	std::stable_sort( vDestPlots.begin(), vDestPlots.end(), PrSortByPlotIndex() );
 
 	//there is no destination! the return value will always be false

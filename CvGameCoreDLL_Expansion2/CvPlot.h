@@ -1035,6 +1035,11 @@ SYNC_ARCHIVE_BEGIN(CvPlot)
 SYNC_ARCHIVE_VAR(char, m_eFeatureType)
 SYNC_ARCHIVE_END()
 
+struct PrSortByPlotIndex
+{
+	bool operator()(const CvPlot* lhs, const CvPlot* rhs) const { return lhs->GetPlotIndex() < rhs->GetPlotIndex(); }
+};
+
 #if defined(MOD_BALANCE_CORE_MILITARY)
 struct SPlotWithScore
 {

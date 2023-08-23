@@ -619,7 +619,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 	m_IdLookup[0] = 0;
 
 	//not all plots belong to a city
-	std::tr1::unordered_set<CvPlot*> nonCityZonePlots;
+	std::set<CvPlot*, PrSortByPlotIndex> nonCityZonePlots;
 
 	//don't make our zones too large
 	int iMaxRange = 4;
@@ -739,7 +739,7 @@ void CvTacticalAnalysisMap::CreateDominanceZones()
 				//must be same area but do not create extra zones for small lakes or islands
 				if (neighbor->getArea() == current->getArea() || neighbor->area()->getNumTiles()<4 || current->area()->getNumTiles()<4)
 				{
-					std::tr1::unordered_set<CvPlot*>::iterator it = nonCityZonePlots.find(neighbor);
+					std::set<CvPlot*, PrSortByPlotIndex>::iterator it = nonCityZonePlots.find(neighbor);
 					if (it != nonCityZonePlots.end())
 					{
 						stack.push_back(*it);

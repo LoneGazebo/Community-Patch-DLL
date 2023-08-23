@@ -2646,7 +2646,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 		return false;
 
 	//make a unique set of enemy units
-	set<CvPlot*> allEnemyPlots;
+	set<CvPlot*, PrSortByPlotIndex> allEnemyPlots;
 	vector<CvUnit*> vUnitsInitial, vUnitsFinal;
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
@@ -2685,7 +2685,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	{
 		CvUnit* pOurUnit = vUnitsInitial[i];
 		int iMinDistForThisUnit = INT_MAX;
-		for (set<CvPlot*>::iterator it = allEnemyPlots.begin(); it != allEnemyPlots.end(); ++it)
+		for (set<CvPlot*, PrSortByPlotIndex>::iterator it = allEnemyPlots.begin(); it != allEnemyPlots.end(); ++it)
 		{
 			int iDistance = plotDistance(*pOurUnit->plot(), **it);
 			if (pOurUnit->getDomainType() != (*it)->getDomain())

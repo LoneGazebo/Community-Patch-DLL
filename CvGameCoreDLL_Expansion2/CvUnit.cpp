@@ -2859,15 +2859,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		//check if this removes a blockade immediately (would be lifted anyhow once the enemy turn starts but nice for humans)
 		if (IsCombatUnit())
 		{
-			set<CvCity*> affectedCities;
+			vector<CvCity*> affectedCities;
 			for (int i = 0; i < RING_PLOTS[GetBlockadeRange()]; i++)
 			{
 				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
 				if (pNeighbor && pNeighbor->getLandmass()==pPlot->getLandmass() && pNeighbor->isBlockaded(pNeighbor->getOwner()))
-					affectedCities.insert( pPlot->getEffectiveOwningCity() );
+					affectedCities.push_back( pPlot->getEffectiveOwningCity() );
 			}
 
-			for (set<CvCity*>::iterator it = affectedCities.begin(); it != affectedCities.end(); ++it)
+			for (vector<CvCity*>::iterator it = affectedCities.begin(); it != affectedCities.end(); ++it)
 			{
 				//we assume blockades are lifted ... so find better plot assignments
 				if ((*it) && (*it)->GetCityCitizens()->DoVerifyWorkingPlots())
