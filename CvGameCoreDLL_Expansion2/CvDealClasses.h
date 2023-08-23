@@ -337,7 +337,7 @@ public:
 	void DestroyDeal(uint index);
 
 	void DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2);
-	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bCancelPeaceTreaties = true);
 	void DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled, bool bSkip = false);
