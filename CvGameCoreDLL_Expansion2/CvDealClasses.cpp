@@ -5590,8 +5590,8 @@ void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 	}
 }
 
-/// Deals between these two Players were interrupted (death)
-void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
+/// Deals between these two Players were interrupted (death or world congress sanctions)
+void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bCancelPeaceTreaties)
 {
 	DealList::iterator it;
 	DealList tempDeals;
@@ -5609,9 +5609,9 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 		m_CurrentDeals.clear();
 		for(it = tempDeals.begin(); it != tempDeals.end(); ++it)
 		{
-			// Players on this deal match?
-			if(it->m_eFromPlayer == eFromPlayer && it->m_eToPlayer == eToPlayer ||
-			        it->m_eFromPlayer == eToPlayer && it->m_eToPlayer == eFromPlayer)
+			// Players on this deal match? Are peace treaties canceled as well?
+			if((it->m_eFromPlayer == eFromPlayer && it->m_eToPlayer == eToPlayer ||
+			        it->m_eFromPlayer == eToPlayer && it->m_eToPlayer == eFromPlayer) && (bCancelPeaceTreaties || !it->IsPeaceTreatyTrade(eFromPlayer)))
 			{
 				// Change final turn
 				it->m_iFinalTurn = GC.getGame().getGameTurn();
