@@ -10666,6 +10666,12 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		ePlayer = getOwner();
 		eImprovement = getImprovementType();
 		eRoute = getRouteType();
+
+		// For tile picker
+		if (ePlayer == NO_PLAYER && pOwningCity)
+		{
+			ePlayer = pOwningCity->getOwner();
+		}
 	}
 
 	int iYield = calculateNatureYield(eYield, ePlayer, pOwningCity, false, bDisplay);
