@@ -16038,10 +16038,10 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				{
 					iNumWarQuests++;
 				}
-				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY))
+				if (pMinorCivAI->IsActiveQuestForPlayer(eMyPlayer, MINOR_CIV_QUEST_ACQUIRE_CITY))
 				{
-					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
-					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_UNIT_GET_CITY);
+					int iX = pMinorCivAI->GetQuestData1(eMyPlayer, MINOR_CIV_QUEST_ACQUIRE_CITY);
+					int iY = pMinorCivAI->GetQuestData2(eMyPlayer, MINOR_CIV_QUEST_ACQUIRE_CITY);
 					CvPlot* pPlot = GC.getMap().plot(iX, iY);
 					if (pPlot->isCity() && pPlot->getOwner() == ePlayer)
 					{
@@ -52781,19 +52781,19 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_REBELLION:
 		strTemp.Format("Rebellion");
 		break;
-	case MINOR_CIV_QUEST_DISCOVER_PLOT:
+	case MINOR_CIV_QUEST_DISCOVER_AREA:
 		strTemp.Format("Discover a Plot");
 		break;
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 		strTemp.Format("Build X Buildings");
 		break;
-	case MINOR_CIV_QUEST_UNIT_STEAL_FROM:
+	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 		strTemp.Format("Steal From");
 		break;
-	case MINOR_CIV_QUEST_UNIT_COUP_CITY:
+	case MINOR_CIV_QUEST_COUP:
 		strTemp.Format("Coup City");
 		break;
-	case MINOR_CIV_QUEST_UNIT_GET_CITY:
+	case MINOR_CIV_QUEST_ACQUIRE_CITY:
 		strTemp.Format("Conquer a City");
 		break;
 	default:

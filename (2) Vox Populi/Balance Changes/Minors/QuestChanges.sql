@@ -35,11 +35,11 @@ UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_CIRCUMNAVIGATION';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_LIBERATION';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_HORDE';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_REBELLION';
-UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_DISCOVER_PLOT';
+UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_DISCOVER_AREA';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_BUILD_X_BUILDINGS';
-UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_UNIT_STEAL_FROM';
-UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_UNIT_COUP_CITY';
-UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_UNIT_GET_CITY';
+UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_SPY_ON_MAJOR';
+UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_COUP';
+UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_ACQUIRE_CITY';
 
 -- Route
 UPDATE SmallAwards SET Influence = '40', Production = '70', RandomMod = '10', QuestDuration = '50'  WHERE Type = 'MINOR_CIV_QUEST_ROUTE';
@@ -120,19 +120,19 @@ UPDATE SmallAwards SET Influence = '30', AdmiralPoints = '25', RandomMod = '10' 
 UPDATE SmallAwards SET Influence = '40', Happiness = '1', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_LIBERATION';
 
 -- Discover Plot
-UPDATE SmallAwards SET Influence = '30', Gold = '100', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_DISCOVER_PLOT';
+UPDATE SmallAwards SET Influence = '30', Gold = '100', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_DISCOVER_AREA';
 
 -- Production
 UPDATE SmallAwards SET Influence = '40', Production = '75', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_BUILD_X_BUILDINGS';
 
 -- Stealing
-UPDATE SmallAwards SET Influence = '60', Science = '150', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_UNIT_STEAL_FROM';
+UPDATE SmallAwards SET Influence = '60', Science = '150', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_SPY_ON_MAJOR';
 
 -- Coup
-UPDATE SmallAwards SET Influence = '40', CapitalGPPoints = '150', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_UNIT_COUP_CITY';
+UPDATE SmallAwards SET Influence = '40', CapitalGPPoints = '150', RandomMod = '10' WHERE Type = 'MINOR_CIV_QUEST_COUP';
 
 -- Conquest
-UPDATE SmallAwards SET Influence = '80', GlobalExperience = '15', RandomMod = '5', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_UNIT_GET_CITY';
+UPDATE SmallAwards SET Influence = '80', GlobalExperience = '15', RandomMod = '5', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_ACQUIRE_CITY';
 
 -- Quest Weights
 UPDATE Defines SET Value = '150' WHERE Name = 'MINOR_CIV_QUEST_WEIGHT_MULTIPLIER_MILITARISTIC_KILL_CITY_STATE';

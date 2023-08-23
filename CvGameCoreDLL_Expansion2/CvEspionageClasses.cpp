@@ -7023,9 +7023,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 						if (pMinor && pMinor->isMinorCiv())
 						{
 							CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-							if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM))
+							if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_ON_MAJOR))
 							{
-								if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_STEAL_FROM) == eTargetPlayer)
+								if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_SPY_ON_MAJOR) == eTargetPlayer)
 								{
 									iDiploModifier += 25;
 								}
@@ -7309,9 +7309,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 				if (pMinor && pMinor->isMinorCiv())
 				{
 					CvMinorCivAI* pMinorCivAI = pMinor->GetMinorCivAI();
-					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY))
+					if (pMinorCivAI && pMinorCivAI->IsActiveQuestForPlayer(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP))
 					{
-						if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_UNIT_COUP_CITY) == eTargetPlayer)
+						if (pMinorCivAI->GetQuestData1(m_pPlayer->GetID(), MINOR_CIV_QUEST_COUP) == eTargetPlayer)
 						{
 							iModifier += 50;
 						}

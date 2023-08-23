@@ -805,10 +805,10 @@ local isQuestKillCamp
 local questDig = MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY
 local isQuestDig
 
-local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT
+local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA
 local isQuestPlot
 
-local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY
+local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY
 local isQuestCity
 -- END
 if bnw_mode then

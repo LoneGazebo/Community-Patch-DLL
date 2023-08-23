@@ -33,11 +33,11 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR,
 	-- Then other personal quests
-	MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY,
-	MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_COUP,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE,
@@ -542,15 +542,15 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. GameInfo.Religions[iQuestData1].IconString;
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE) then
 				sIconText = sIconText .. "[ICON_INTERNATIONAL_TRADE]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT) then
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA) then
 				sIconText = sIconText .. "[ICON_RANGE_STRENGTH]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
 				sIconText = sIconText .. "[ICON_PRODUCTION]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM) then
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR) then
 				sIconText = sIconText .. "[ICON_VIEW_CITY]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY) then
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP) then
 				sIconText = sIconText .. "[ICON_INQUISITOR]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY) then
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY) then
 				sIconText = sIconText .. "[ICON_VICTORY_DOMINATION]";
 			end
 		end
@@ -689,19 +689,19 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game.GetReligionName(iQuestData1) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE) then
 				sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL");
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_PLOT_FORMAL", pMinor:GetExplorePercent(iMajor , eType) );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_AREA_FORMAL", pMinor:GetExplorePercent(iMajor , eType) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_BUILD_X_BUILDINGS_FORMAL" , GameInfo.Buildings[iQuestData1].Description, pMinor:GetXQuestBuildingRemaining(iMajor, eType, iQuestData1 ) );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_STEAL_FROM_FORMAL" , Players[iQuestData1]:GetNameKey(), pMinor:QuestSpyActionsRemaining(iMajor, eType) );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_COUP_CITY_FORMAL", Players[iQuestData1]:GetNameKey() );
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL" , GameInfo.Buildings[iQuestData1].Description, pMinor:GetXQuestBuildingRemaining(iMajor, eType, iQuestData1 ) );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL" , Players[iQuestData1]:GetNameKey(), pMinor:QuestSpyActionsRemaining(iMajor, eType) );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_COUP_FORMAL", Players[iQuestData1]:GetNameKey() );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY) then
 				if (Players[iMajor]:IsHuman() and Game.IsOption(GameOptionTypes.GAMEOPTION_ONE_CITY_CHALLENGE)) then
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_GET_CITY_OCC_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_OCC_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
 				else
-					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
+					sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_FORMAL", pMinor:GetTargetCityString(iMajor , eType ) );
 				end
 			end				
 			if (iTurnsRemaining >= 0) then

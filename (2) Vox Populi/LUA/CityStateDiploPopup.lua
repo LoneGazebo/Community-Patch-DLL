@@ -711,9 +711,9 @@ function OnQuestInfoClicked()
 				Events.GameplayFX(hex.x, hex.y, -1);
 			end
 		end
-		if (pMinor:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT)) then
-			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
-			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT);
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA)) then
+			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA);
+			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA);
 			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
 			if (pPlot) then
 				UI.LookAt(pPlot, 0);
@@ -721,9 +721,9 @@ function OnQuestInfoClicked()
 				Events.GameplayFX(hex.x, hex.y, -1);
 			end
 		end
-		if (pMinor:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY)) then
-			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
-			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY);
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY)) then
+			local iQuestData1 = pMinor:GetQuestData1(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY);
+			local iQuestData2 = pMinor:GetQuestData2(iActivePlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY);
 			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
 			if (pPlot) then
 				UI.LookAt(pPlot, 0);

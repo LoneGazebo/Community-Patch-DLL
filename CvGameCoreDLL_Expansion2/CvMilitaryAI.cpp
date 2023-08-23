@@ -1126,10 +1126,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 				}
 			}
 
-			if (pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY))
+			if (pMinorCivAI->IsActiveQuestForPlayer(GetPlayer()->GetID(), MINOR_CIV_QUEST_ACQUIRE_CITY))
 			{
-				int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
-				int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_UNIT_GET_CITY);
+				int iX = pMinorCivAI->GetQuestData1(GetPlayer()->GetID(), MINOR_CIV_QUEST_ACQUIRE_CITY);
+				int iY = pMinorCivAI->GetQuestData2(GetPlayer()->GetID(), MINOR_CIV_QUEST_ACQUIRE_CITY);
 
 				CvPlot* pPlot = GC.getMap().plot(iX, iY);
 				if (pPlot != NULL && pPlot->isCity())

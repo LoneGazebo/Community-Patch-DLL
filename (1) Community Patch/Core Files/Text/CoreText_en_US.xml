@@ -2461,32 +2461,32 @@
 		</Row>
 
 		<!-- Capture City -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CAPTURE_CITY">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY">
 			<Text>Tactical experts from {@2_CivName} believe {@1_CityName} to be of significant strategic importance. Acquire it by any means, and you will be greatly rewarded!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CAPTURE_CITY">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY">
 			<Text>{@2_CivName} wants you to capture {@1_CityName}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_COMPLETE">
 			<Text>The tactical experts from {@1_CivName} commend you for your efforts, and hope that the city is as militarily useful as they foresaw.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_COMPLETE">
 			<Text>Successful city capture for {@1_CivName}!</Text>
 		</Row>
 
 		<!-- Capture City (OCC) -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_UNIT_GET_CITY_OCC">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC">
 			<Text>Tactical experts from {@2_CivName} believe that the city of {@1_CityName} is a significant threat to their safety. Conquer it by any means, and you will be greatly rewarded!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_UNIT_GET_CITY_OCC">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_OCC">
 			<Text>{@2_CivName} wants you to conquer {@1_CityName}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_OCC_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC_COMPLETE">
 			<Text>The tactical experts from {@1_CivName} thank you for conquering the city they targeted.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_OCC_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_OCC_COMPLETE">
 			<Text>Successfully conquered city for {@1_CivName}!</Text>
 		</Row>
     
@@ -2498,10 +2498,10 @@
 			<Text>Intelligence from {@1_Civ}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP_CITY_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP_COMPLETE">
 			<Text>{@2_Civname} commends you for your successful coup against {@1_CityName}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_COUP_CITY_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_COUP_COMPLETE">
 			<Text>Successful coup for {@1_Civname}!</Text>
 		</Row>
 
@@ -2521,47 +2521,47 @@
 
 
 		<!-- Steal -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR">
 			<Text>Rogue agents in {@3_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Espionage actions against {@1_Civ} (Spy Events or Technology Theft), you will be greatly rewarded.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_STEAL_FROM">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_ON_MAJOR">
 			<Text>Intelligence update from {@1_Civ}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR_COMPLETE">
 			<Text>The rogue agents in {@2_Civ} are proud of your successful espionage efforts against {@1_Civ}!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_STEAL_FROM_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_SPY_ON_MAJOR_COMPLETE">
 			<Text>Espionage action completed!</Text>
 		</Row>
 
 		<!-- Construction -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CONSTRUCT_X_BUILDING">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS">
 			<Text>Builders from {3_Civ} are eager to study the value of the [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR]. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_X_BUILDING">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_BUILD_X_BUILDINGS">
 			<Text>Construction project from {@1_Civ}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS_COMPLETE">
 			<Text>The builders from {@1_Civ} are dazzled by your monumental construction efforts.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_BUILDINGS_COMPLETE">
 			<Text>Construction project completed!</Text>
 		</Row>
 
 		<!-- Discovery -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVERY_PLOT">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVER_AREA">
 			<Text>Cartographers from {@1_Civ} request your help completing a mapmaking project. Explore the general vicinity of the indicated area as much as needed. They will reward you with what they have.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVERY_PLOT">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVER_AREA">
 			<Text>Cartographic commission</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVERY_PLOT_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVER_AREA_COMPLETE">
 			<Text>The cartographers from {@1_Civ} thank you for your assistance in their mapmaking project.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVERY_PLOT_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVER_AREA_COMPLETE">
 			<Text>Cartographic mission complete!</Text>
 		</Row>
 
@@ -2594,30 +2594,30 @@
 
 
 		<!-- Formal Text-->
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_PLOT_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_AREA_FORMAL">
 			<Text>Explore an unrevealed area of the world ([COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% complete).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_BUILD_X_BUILDINGS_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL">
 			<Text>Construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {@1_Building} {2_Num: plural 1?building; other?buildings;} in your empire.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_STEAL_FROM_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL">
 			<Text>Conduct intelligence operations against {1_Civ} ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] remaining).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_COUP_CITY_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_COUP_FORMAL">
 			<Text>Stage a coup in {1_Civ}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_FORMAL">
 			<Text>Acquire the city of {1_City}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GET_CITY_OCC_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_OCC_FORMAL">
 			<Text>They want you to conquer the city of {1_City}.</Text>
 		</Row>
 		<!-- Plot Helpers -->
 
-		<Row Tag="TXT_KEY_CITY_STATE_GET_CITY_QUEST_LONG">
+		<Row Tag="TXT_KEY_CITY_STATE_ACQUIRE_CITY_QUEST_LONG">
 			<Text>{1_Civ} wants you to acquire this city.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_FIND_PLOT_QUEST_LONG">
+		<Row Tag="TXT_KEY_CITY_STATE_DISCOVER_AREA_QUEST_LONG">
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
 		</Row>
 
@@ -7310,19 +7310,19 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME">
 			<Text>Quell Rebellion</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DISCOVER_PLOT_NAME">
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DISCOVER_AREA_NAME">
 			<Text>Discover Land</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME">
 			<Text>Construct Buildings</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_STEAL_FROM_NAME">
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPY_ON_MAJOR_NAME">
 			<Text>Conduct Espionage</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_COUP_CITY_NAME">
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_COUP_NAME">
 			<Text>Perform Coup</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME">
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ACQUIRE_CITY_NAME">
 			<Text>Conquer City</Text>
 		</Row>
 		

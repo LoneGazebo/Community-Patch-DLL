@@ -23768,7 +23768,7 @@ int CvCity::GetUnhappinessFromPillagedTiles() const
 	if (iPillagedTiles > 0)
 	{
 		float fUnhappiness = 0.00f;
-		float fUnhappyPerTile = /*0.50f*/ GD_FLOAT_GET(UNHAPPINESS_PER_PILLAGED_TILE);
+		float fUnhappyPerTile = /*0.5f*/ GD_FLOAT_GET(UNHAPPINESS_PER_PILLAGED_TILE);
 		fUnhappiness += (float)iPillagedTiles * fUnhappyPerTile;
 
 		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : getPopulation();

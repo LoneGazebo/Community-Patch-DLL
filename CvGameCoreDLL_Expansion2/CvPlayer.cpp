@@ -28653,20 +28653,20 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						case MINOR_CIV_QUEST_REBELLION:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME");
 							break;
-						case MINOR_CIV_QUEST_DISCOVER_PLOT:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DISCOVER_PLOT_NAME");
+						case MINOR_CIV_QUEST_DISCOVER_AREA:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DISCOVER_AREA_NAME");
 							break;
 						case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME");
 							break;
-						case MINOR_CIV_QUEST_UNIT_STEAL_FROM:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_STEAL_FROM_NAME");
+						case MINOR_CIV_QUEST_SPY_ON_MAJOR:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_SPY_ON_MAJOR_NAME");
 							break;
-						case MINOR_CIV_QUEST_UNIT_COUP_CITY:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_COUP_CITY_NAME");
+						case MINOR_CIV_QUEST_COUP:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_COUP_NAME");
 							break;
-						case MINOR_CIV_QUEST_UNIT_GET_CITY:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME");
+						case MINOR_CIV_QUEST_ACQUIRE_CITY:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_ACQUIRE_CITY_NAME");
 							break;
 						}
 					}
