@@ -9999,13 +9999,13 @@ int CvMinorCivAI::GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQue
 			CvPlot* pPlot = GC.getMap().plot(iX, iY);
 			if(pPlot)
 			{
-				CvLandmass* pLandmass = pPlot->landmass();
-				if(pLandmass)
+				CvArea* pArea = pPlot->area();
+				if(pArea)
 				{
-					if(pLandmass->getNumUnrevealedTiles(eTeam) <= 0)
+					if(pArea->getNumUnrevealedTiles(eTeam) <= 0)
 						return 100;
 					
-					return MIN(100, (100 * pLandmass->getNumRevealedTiles(eTeam)) / pLandmass->getNumUnrevealedTiles(eTeam));
+					return MIN(100, (100 * pArea->getNumRevealedTiles(eTeam)) / pArea->getNumUnrevealedTiles(eTeam));
 				}
 			}
 		}
