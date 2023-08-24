@@ -439,6 +439,9 @@ function DoUpdateEspionageButton()
 	else
 		Controls.UnassignedSpiesLabel:SetHide(true);
 	end
+
+	strToolTip = strToolTip .. "[NEWLINE][NEWLINE]";
+	strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pLocalPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pLocalPlayer:GetSpyPoints(true));
 	
 	Controls.EspionageButton:SetToolTipString(strToolTip);
 end
