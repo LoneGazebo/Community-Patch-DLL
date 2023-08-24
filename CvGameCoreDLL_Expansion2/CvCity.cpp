@@ -12228,25 +12228,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		bool bSettler = pkUnitInfo->IsFound() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate() || pkUnitInfo->IsFoundAbroad();
 
-		// If a unit can fight AND settle, use the highest of the two penalties, don't add them
-		if (bCombat && bSettler)
-		{
-			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
-			int iSettlerPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1) + GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
-			// Can't be lower than -75% from Unhappiness.
-			if (iSettlerPenalty < /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY))
-			{
-				iSettlerPenalty = GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY);
-			}
-
-			int iCostMod = std::max(iWarWeariness, iSettlerPenalty*-1);
-			if (iCostMod > 0)
-			{
-				iCost *= 100 + iCostMod;
-				iCost /= 100;
-			}
-		}
-		else if (bCombat)
+		if (bCombat)
 		{
 			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
@@ -12620,25 +12602,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 		bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
 		bool bSettler = pkUnitInfo->IsFound() || pkUnitInfo->IsFoundMid() || pkUnitInfo->IsFoundLate() || pkUnitInfo->IsFoundAbroad();
 
-		// If a unit can fight AND settle, use the highest of the two penalties, don't add them
-		if (bCombat && bSettler)
-		{
-			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
-			int iSettlerPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1) + GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
-			// Can't be lower than -75% from Unhappiness.
-			if (iSettlerPenalty < /*-75*/ GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY))
-			{
-				iSettlerPenalty = GD_INT_GET(UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY);
-			}
-
-			int iCostMod = std::max(iWarWeariness, iSettlerPenalty*-1);
-			if (iCostMod > 0)
-			{
-				iCost *= 100 + iCostMod;
-				iCost /= 100;
-			}
-		}
-		else if (bCombat)
+		if (bCombat)
 		{
 			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
 			if (iWarWeariness > 0)
@@ -13463,14 +13427,7 @@ int CvCity::getProductionModifier(UnitTypes eUnit, CvString* toolTipSink, bool b
 		bool bCombat = pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0 || pUnitEntry->GetNukeDamageLevel() != -1;
 		bool bSettler = pUnitEntry->IsFound() || pUnitEntry->IsFoundMid() || pUnitEntry->IsFoundLate() || pUnitEntry->IsFoundAbroad();
 
-		// If a unit can fight AND settle, use the highest of the two penalties, don't add them
-		if (bCombat && bSettler)
-		{
-			int iCombatPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_COMBAT_UNIT_PRODUCTION_PENALTY) * -1);
-			int iSettlerPenalty = std::min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_SETTLER_PRODUCTION_PENALTY) * -1) + GET_PLAYER(getOwner()).GetUnhappinessSettlerCostPenalty();
-			iTempMod = std::min(iCombatPenalty, iSettlerPenalty);
-		}
-		else if (bCombat)
+		if (bCombat)
 		{
 			iTempMod = min(0, getHappinessDelta() * /*10*/ GD_INT_GET(LOCAL_UNHAPPY_COMBAT_UNIT_PRODUCTION_PENALTY) * -1);
 		}
