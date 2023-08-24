@@ -132,7 +132,7 @@
 		<TextButton ID="LuxuryResources" Anchor="R,T" String="Luxury Resources" Offset="-6,0" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
 
 		<!-- Spy Points -->
-		<TextButton ID="SpyPointsString" Anchor="L,T" String="Spy Points" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/>
+		<!-- <TextButton ID="SpyPointsString" Anchor="L,T" String="Spy Points" ColorLayer0="255,235,0,255" ToolTipType="TooltipTypeTopPanel"/> -->
 		
 		<!-- Tourism -->
 		<Container Size="1,1" />

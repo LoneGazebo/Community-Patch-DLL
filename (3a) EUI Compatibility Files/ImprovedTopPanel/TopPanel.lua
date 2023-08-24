@@ -46,7 +46,7 @@ if IsDX11 then
 	Controls.UnitSupplyString:SetAlpha( 1.0 )
 	Controls.NavalSupplyString:SetAlpha( 1.0 )
 	Controls.GpTurns:SetAlpha( 1.0 )
-	Controls.SpyPointsString:SetAlpha( 1.0 )
+	--Controls.SpyPointsString:SetAlpha( 1.0 )
 end
 
 -- GP Font Icons
@@ -780,10 +780,10 @@ local function UpdateTopPanelNow()
 		end
 		
 		-----------------------------
-		-- Update Spy Points
+		-- Update Spy Points (Moved to Espionage Overview, commented if needed to revert)
 		-----------------------------
 		
-		if (Game.IsOption("GAMEOPTION_NO_ESPIONAGE") or Game.GetSpyThreshold() == 0) then
+		--[[if (Game.IsOption("GAMEOPTION_NO_ESPIONAGE") or Game.GetSpyThreshold() == 0) then
 			Controls.SpyPointsString:SetText("");
 			Controls.SpyPointsString:SetHide(true);
 		else
@@ -792,7 +792,7 @@ local function UpdateTopPanelNow()
 			Controls.SpyPointsString:SetText(strSpiesStr);
 			Controls.SpyPointsString:SetToolTipCallback( requestTextToolTip )
 			Controls.SpyPointsString:SetHide(false);
-		end
+		end]]
 		
 
 		-----------------------------
@@ -2096,7 +2096,7 @@ end
 -------------------------------------------------
 -- Spy Points Tooltip
 -------------------------------------------------
-if civ5_mode and gk_mode then
+--[[if civ5_mode and gk_mode then
 	g_toolTipHandler.SpyPointsString = function()-- control )
 		local tips = table()
 		
@@ -2113,7 +2113,7 @@ if civ5_mode and gk_mode then
 		tips:insert( strSpiesStr );
 		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 	end
-end
+end]]
 
 -- my modification for Luxury Resources
 if civ5_mode and gk_mode then

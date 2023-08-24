@@ -257,7 +257,7 @@
 			<Text>Master of the Fleet</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_PROJECT_REWARD_TREASURE_FLEET_3_HELP">
-			<Text>Grand Canal wonder appears in [ICON_CAPITAL] Capital. (Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route. Grants all Naval Units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% [ICON_STRENGTH] Combat Strength when attacking, +1 Sight, and the ability to heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].)</Text>
+			<Text>Grand Canal wonder appears in [ICON_CAPITAL] Capital. (Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route. Grants all Naval Units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]Treasure Fleet[ENDCOLOR] Promotion, which grants +10% [ICON_STRENGTH] Combat Strength when attacking, +1 [ICON_VP_VISION] Sight, and the ability to heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].)</Text>
 		</Row>
 		<!-- Wargames -->
 		<Row Tag="TXT_KEY_PROCESS_WARGAMES">

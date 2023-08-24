@@ -700,5 +700,15 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>26</IconMapping>
 		</Row>
+		<Row>
+			<IconName>ICON_VP_SPY_POINTS</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>27</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_VP_VISION</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>28</IconMapping>
+		</Row>
 	</IconFontMapping>
 </GameData>

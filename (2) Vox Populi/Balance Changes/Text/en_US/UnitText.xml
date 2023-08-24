@@ -265,7 +265,7 @@
 			<Text>Imperialism</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER_HELP">
-			<Text>+1 Sight.</Text>
+			<Text>+1 [ICON_VP_VISION] Sight.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BETTER_LEADERSHIP">
 			<Text>Regimental Traditions</Text>
@@ -305,6 +305,30 @@
 			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]+10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]All Tiles cost 1 [ICON_MOVES] Movement.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK">
+			<Text>Bomb Rack</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO">
+			<Text>Aerial Torpedo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PEDIA_PROMOTION_RECON_SMALL_INCREASE">
+			<Text>Air Recon Small Increase</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE">
+			<Text>Air Recon range +1</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE_HELP">
+			<Text>Increase Air Recon range to 7</Text>
+		</Row>
+		
 <!-- Unit Free Promotions -->
 	<!-- Atatlist -->
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
@@ -346,7 +370,7 @@
 			<Text>Scout Cavalry</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_CAVALRY_HELP">
-			<Text>-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 Sight and Pillaging costs no [ICON_MOVES] Movement.</Text>
+			<Text>-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 [ICON_VP_VISION] Sight and Pillaging costs no [ICON_MOVES] Movement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE">
 			<Text>Hakkaa Päälle!</Text>
@@ -883,14 +907,14 @@
 			<Text>Navigator I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_HELP">
-			<Text>+1 [ICON_MOVES] Movement and Sight.</Text>
+			<Text>+1 [ICON_MOVES] Movement and [ICON_VP_VISION] Sight.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II">
 			<Text>Navigator II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II_HELP">
-			<Text>+1 [ICON_MOVES] Movement and Sight.</Text>
+			<Text>+1 [ICON_MOVES] Movement and [ICON_VP_VISION] Sight.</Text>
 		</Row>
 	<!-- Misc Air -->
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">

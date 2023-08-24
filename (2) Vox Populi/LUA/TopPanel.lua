@@ -263,13 +263,13 @@ function UpdateData()
 			-----------------------------
 			-- Update Spy Points
 			-----------------------------
-			local strSpiesStr;
+			--[[local strSpiesStr;
 			if (Game.IsOption("GAMEOPTION_NO_ESPIONAGE") or Game.GetSpyThreshold() == 0) then
 				strSpiesStr = "";
 			else
 				strSpiesStr = "[ICON_SPY]"; --.. string.format(" %i/%i", pPlayer:GetSpyPoints(), Game.GetSpyThreshold());
 			end
-			Controls.SpyPointsString:SetText(strSpiesStr);
+			Controls.SpyPointsString:SetText(strSpiesStr);]]
 			
 		-- No Cities, so hide science
 		else
@@ -418,7 +418,7 @@ function DoInitTooltips()
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
 	Controls.UnitSupplyString:SetToolTipCallback( UnitSupplyHandler );
 	Controls.InstantYields:SetToolTipCallback( InstantYieldHandler );
-	Controls.SpyPointsString:SetToolTipCallback( SpyPointsTipHandler );
+	--Controls.SpyPointsString:SetToolTipCallback( SpyPointsTipHandler );
 end
 
 -- Science Tooltip
@@ -1585,8 +1585,8 @@ function InstantYieldHandler( control )
     tipControlTable.TopPanelMouseover:DoAutoSize();
 end
 
--- Spy Points Tooptip
-function SpyPointsTipHandler( control )
+-- Spy Points Tooptip (hidden for now)
+--[[function SpyPointsTipHandler( control )
 
 	local iPlayerID = Game.GetActivePlayer();
 	local pPlayer = Players[iPlayerID];
@@ -1606,7 +1606,7 @@ function SpyPointsTipHandler( control )
     
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();
-end
+end]]
 
 -- Resources Tooltip
 function ResourcesTipHandler( control )
