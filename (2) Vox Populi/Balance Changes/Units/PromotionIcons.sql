@@ -347,6 +347,7 @@ UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 30 WHER
 -- Set "+1 Movement" Icon
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_MOON_STRIKER';
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_FASTER_GENERAL';
+UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_FASTER_WORKER';
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_EXTRA_MOVES_I';
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_SCOUTING_3';
 
