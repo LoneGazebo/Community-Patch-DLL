@@ -2433,9 +2433,6 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 
 	if (m_pPlayer->isMinorCiv())
 	{
-		if (m_pPlayer->GetMinorCivAI()->IsRecentlyBulliedByAnyMajor())
-			return;
-
 		if (m_pPlayer->GetMinorCivAI()->GetNumThreateningBarbarians() > 0)
 			return;
 	}

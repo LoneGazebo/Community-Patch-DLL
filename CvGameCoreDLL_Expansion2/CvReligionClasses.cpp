@@ -10093,6 +10093,10 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 	{
 		// How much impact would using the inquistor have? let's ignore resilience here ...
 		int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
+
+		//should we consider GD_INT_GET(INQUISITION_EFFECTIVENESS)?
+		//it could happen that the inquisitor changes nothing ...
+		//but doesn't matter usually, we still want to target the same cities!
 	
 		// More pressing if majority is another religion
 		if (pCity->GetCityReligions()->GetReligiousMajority() != eMyReligion)
