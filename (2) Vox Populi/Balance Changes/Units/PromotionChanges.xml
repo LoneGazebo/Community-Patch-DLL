@@ -4526,32 +4526,6 @@
 			<PediaEntry>TXT_KEY_PROMOTION_FASTER_WORKER</PediaEntry>
 		</Row>
 	</UnitPromotions>
-	
-	<Language_en_US>
-		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK">
-			<Text>Bomb Rack</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
-			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO">
-			<Text>Aerial Torpedo</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
-			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_PEDIA_PROMOTION_RECON_SMALL_INCREASE">
-			<Text>Air Recon Small Increase</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE">
-			<Text>Air Recon range +1</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE_HELP">
-			<Text>Increase Air Recon range to 7</Text>
-		</Row>
-	</Language_en_US>
 
 	<UnitPromotions_UnitCombats>
 		<Row>

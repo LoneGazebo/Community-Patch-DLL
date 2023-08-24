@@ -336,6 +336,16 @@ function PopulateDomination()
 							end
 						end
 					end
+					for iCityStateLoop = GameDefines.MAX_MAJOR_CIVS, GameDefines.MAX_MINOR_CIVS-1, 1 do
+						local pCityState = Players[iCityStateLoop];
+						if pCityState:IsAlive() and pCityState:IsAllies(iPlayerLoop) then
+							for pCity in pCityState:Cities() do
+								if (pCity:IsOriginalMajorCapital() and pCity:GetOriginalOwner() ~= iCityStateLoop and pCity:GetOriginalOwner() ~= iPlayerLoop) then
+									iNumDisplayCapital = iNumDisplayCapital + 1;
+								end
+							end
+						end
+					end
 					iNumDisplayCapital = iNumDisplayCapital + iNumVassals; --Get Total of Vassals and Captured Enemy Capitals
 					--print(pPlayer:GetName() .. "iNumCapitals: " .. iNumCapitals);
 					--print(pPlayer:GetName() .. "iNumVassals: " .. iNumVassals);

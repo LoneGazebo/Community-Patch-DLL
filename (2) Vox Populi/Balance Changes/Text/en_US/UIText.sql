@@ -292,6 +292,10 @@ UPDATE Language_en_US
 SET Text = '[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Spy is operating {1_SpyBonus} {1_SpyBonus: plural 1?Rank; other?Ranks;} higher than normal when rigging elections since this city state is allied to a civ over which you have strong cultural influence. The success chance of coups is also increased.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPY_BONUS_CITY_STATE';
 
+UPDATE Language_en_US
+SET Text = 'You have {1_Num: plural 1?a spy that is not; other?{1_Num} spies that are not;} assigned to tasks.[NEWLINE][NEWLINE]Spies can sabotage and steal from other civilizations, uncover other civilization''s plans through intrigue, and increase your influence over City-States by rigging elections. Assign spies in the Espionage Overview screen to have them start working!'
+WHERE Tag = 'TXT_KEY_EO_UNASSIGNED_SPIES_TT';
+
 -- Public Opinion
 
 UPDATE Language_en_US

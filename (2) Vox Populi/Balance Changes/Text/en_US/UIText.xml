@@ -124,6 +124,15 @@
 			<InsertAfter>CONCEPT_COMBAT_BONUSES_FORT</InsertAfter>
 			<InsertBefore>CONCEPT_COMBAT_FORTIFICATION_EXPLANATION</InsertBefore>
 		</Row>
+		<Row>
+			<Type>CONCEPT_SPY_POINTS</Type>
+			<Topic>TXT_KEY_TOPIC_ESPIONAGE</Topic>
+			<Description>TXT_KEY_CONCEPT_SPY_POINTS_TITLE</Description>
+			<Summary>TXT_KEY_CONCEPT_SPY_POINTS_BODY</Summary>
+			<AdvisorQuestion>TXT_KEY_CONCEPT_SPY_POINTS_ADV_QUEST</AdvisorQuestion>
+			<Advisor>FOREIGN</Advisor>
+			<CivilopediaHeaderType>HEADER_ESPIONAGE</CivilopediaHeaderType>
+		</Row>
 	</Concepts>
 	<Concepts_RelatedConcept>
 		<Row>
@@ -219,6 +228,16 @@
 		</Row>
 		<Row Tag="TXT_KEY_CONCEPT_CANALS_ADV_QUEST">
 			<Text>What are canals?</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_CONCEPT_SPY_POINTS_TITLE">
+			<Text>[COLOR_GREEN]Spy Points[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_SPY_POINTS_BODY">
+			<Text>You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold (minimum: 100). The threshold value is reduced based on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_SPY_POINTS_ADV_QUEST">
+			<Text>What are Spy Points?</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_TITLE">
@@ -1212,7 +1231,7 @@
 			<Text>{1_Num} from [ICON_URBANIZATION] Urbanization in [ICON_PUPPET] Puppet Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_POINTS_TT">
-			<Text>Your Current Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of Spy Points exceeds the threshold of {2_Threshold}. The threshold value depends on the number of Players and City-States at the start of the game. When the first Player reaches Renaissance, or when you reach any later Era, you gain 100 Spy Points. Some Buildings and Policies also provide Spy Points.[NEWLINE][NEWLINE]Total Number of Spy Points ever accumulated: {3_NumTotal}
+			<Text>Your Current [ICON_VP_SPY_POINTS] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_VP_SPY_POINTS] Spy Points ever accumulated: {3_NumTotal}
 			</Text>
 		</Row>
 
