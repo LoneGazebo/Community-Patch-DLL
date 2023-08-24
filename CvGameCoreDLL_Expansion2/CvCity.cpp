@@ -22457,7 +22457,7 @@ int CvCity::updateNetHappiness()
 		m_iHappinessDelta = -getPopulation();
 		return m_iHappinessDelta;
 	}
-	else if (IsPuppet() && !kPlayer.GetPlayerTraits()->IsNoAnnexing())
+	else if (IsPuppet() && (!MOD_BALANCE_VP || !kPlayer.GetPlayerTraits()->IsNoAnnexing()))
 	{
 		m_iHappinessDelta = 0;
 		return 0;

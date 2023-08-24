@@ -780,7 +780,7 @@
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
 
     <!-- Enables the Achievements table (v45) -->
-    <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="API_ACHIEVEMENTS" Value="0"/>
 
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>

@@ -13000,7 +13000,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			return false;
 		}
 
-		if (MOD_BALANCE_CORE && pUnit->IsGainsXPFromScouting())
+		if (pUnit->IsGainsXPFromScouting())
 		{
 			return false;
 		}
@@ -13051,9 +13051,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	// Production
 	if (kGoodyInfo.getProduction() > 0)
 	{
-		if (!MOD_BALANCE_CORE)
-			return false;
-
 		if (getNumCities() == 0)
 			return false;
 	}
@@ -13061,9 +13058,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	//Golden Age
 	if (kGoodyInfo.getGoldenAge() > 0)
 	{
-		if (!MOD_BALANCE_CORE)
-			return false;
-
 		if (GetNumGoldenAges() > 0)
 			return false;
 
@@ -13074,9 +13068,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	//Free Tiles
 	if (kGoodyInfo.getFreeTiles() > 0)
 	{
-		if (!MOD_BALANCE_CORE)
-			return false;
-
 		if (pPlot == NULL)
 			return false;
 
@@ -13085,13 +13076,19 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 
 		// Check whether player has traits that benefit from buying or naturally gaining tiles only
 		CvPlayerTraits* pTraits = GetPlayerTraits();
-		if (pTraits->HasYieldFromTileEarn() || pTraits->HasYieldFromTilePurchase())
-			if (!pTraits->HasYieldFromTileCultureBomb())
-				return false;
+		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
+		{
+			YieldTypes eYield = (YieldTypes)iYield;
+			if (pTraits->GetYieldFromTilePurchase(eYield) != 0 || pTraits->GetYieldFromTileEarn(eYield) != 0)
+			{
+				if (!pTraits->HasYieldFromTileCultureBomb())
+					return false;
+			}
+		}
 
 		// Check whether nearest city still has tiles to claim
 		CvCity* pBestCity = bestCityFinder(*this, *pPlot);
-		if(pBestCity != NULL)
+		if (pBestCity != NULL)
 		{
 			CvPlot* pPlotToAcquire = pBestCity->GetNextBuyablePlot(false);
 			if (pPlotToAcquire == NULL)
@@ -13102,9 +13099,6 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	// Science
 	if (kGoodyInfo.getScience() > 0)
 	{
-		if (!MOD_BALANCE_CORE)
-			return false;
-
 		if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
 			return false;
 	}
@@ -13125,7 +13119,7 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if (pUnit == NULL)
 			return false;
 
-		if (MOD_BALANCE_CORE && !pUnit->IsGainsXPFromScouting())
+		if (MOD_BALANCE_VP && !pUnit->IsGainsXPFromScouting())
 			return false;
 
 		bool bGood = false;

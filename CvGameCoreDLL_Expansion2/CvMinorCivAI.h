@@ -456,7 +456,7 @@ public:
 	bool IsGlobalQuest(MinorCivQuestTypes eQuest) const;
 	bool IsPersonalQuest(MinorCivQuestTypes eQuest) const;
 	int GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const;
-	int GetPersonalityQuestBias(MinorCivQuestTypes eQuest) const;
+	int GetNumQuestCopies(MinorCivQuestTypes eQuest) const;
 
 	int GetNumActiveGlobalQuests() const;
 	int GetNumActiveQuestsForAllPlayers() const;
