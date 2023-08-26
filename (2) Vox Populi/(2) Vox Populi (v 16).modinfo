@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.8.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.8.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -459,7 +459,7 @@
     <File md5="0BA625C71EC03D0A336410DC722F016A" import="0">Balance Changes/Beliefs/Reformation.sql</File>
     <File md5="F13F3742074F67CC1F30D7E131267885" import="0">Balance Changes/Beliefs/Pantheons.sql</File>
     <File md5="EB36354BF281BDB63285CCB67465C0FD" import="0">Balance Changes/Beliefs/ReligiousBuildings/Changes.sql</File>
-    <File md5="E7F25BA85CD32C9D4143E4F3E599E8B4" import="0">Balance Changes/Beliefs/ReligiousNW/Changes.sql</File>
+    <File md5="2CF157761F8F06290B0761460EDC46AD" import="0">Balance Changes/Beliefs/ReligiousNW/Changes.sql</File>
     <File md5="4D1E01148632F88130F8278E81F4CA81" import="0">Balance Changes/Buildings/BuildingChanges.sql</File>
     <File md5="EA82DC38F9C0AD9DE77FFE2376D09393" import="0">Balance Changes/Buildings/BuildingCosts.sql</File>
     <File md5="42ADCA6F9E9696DAD67610A3CC775CAA" import="0">Balance Changes/Buildings/BuildingHurryCosts.sql</File>
