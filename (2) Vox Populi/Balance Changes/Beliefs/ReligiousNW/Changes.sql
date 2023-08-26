@@ -66,12 +66,12 @@ VALUES
 	('BUILDING_MAUSOLEUM', 'YIELD_FAITH', 30);
 
 -- Religious Authority (CSD)
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_MAUSOLEUM';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_HEAVENLY_THRONE';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_GREAT_ALTAR';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_RELIGIOUS_LIBRARY';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_DIVINE_COURT';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_SACRED_GARDEN';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_HOLY_COUNCIL';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_GRAND_OSSUARY';
-UPDATE Buildings SET FaithToVotes = '10' WHERE Type = 'BUILDING_APOSTOLIC_PALACE';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_MAUSOLEUM';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_HEAVENLY_THRONE';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_GREAT_ALTAR';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_RELIGIOUS_LIBRARY';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_DIVINE_COURT';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_SACRED_GARDEN';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_HOLY_COUNCIL';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_GRAND_OSSUARY';
+UPDATE Buildings SET FaithToVotes = '10', MutuallyExclusiveGroup = '7' WHERE Type = 'BUILDING_APOSTOLIC_PALACE';
