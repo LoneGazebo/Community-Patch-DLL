@@ -7494,12 +7494,12 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 	// * freshly revealed enemy units are not considered
 	int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), iSelfDamage);
 	int iNumAdjFriendlies = (evalMode==EM_FINAL) ? testPlot.getNumAdjacentFriendliesEndTurn(eRelevantDomain) : testPlot.getNumAdjacentFriendlies(eRelevantDomain, -1);
-	bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) && testPlot.getEnemyDistance() < 3;
+	bool bIsFrontlineCitadelOrCity = (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer()) || testPlot.getPlot()->isCity()) && testPlot.getEnemyDistance() < 3;
 
 	//don't do it if it's a death trap (unless there is no other choice ...)
 	int iNumAdjEnemies = testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_BOTH);
 	if (iNumAdjEnemies > 3 || (iNumAdjEnemies == 3 && assumedPosition.getAggressionBias() < 1))
-		if (!bIsFrontlineCitadel)
+		if (!bIsFrontlineCitadelOrCity)
 			return INT_MAX;
 
 	//extra careful with siege units / carriers
@@ -7532,11 +7532,14 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		//avoid extreme danger, except in citadels
 		int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
 		int iOverkill = iDanger / max(1,iRemainingHP); //truncated to int but good enough ...
-		if (iOverkill > 2 && !bIsFrontlineCitadel && assumedPosition.getAggressionLevel() != AL_BRAVEHEART)
+		if (iOverkill >= 2 && !bIsFrontlineCitadelOrCity && assumedPosition.getAggressionLevel() != AL_BRAVEHEART)
 		{
 			//if there is nothing we would cover or we are low on health, don't do it
 			int iLowHealthThreshold = 23*iOverkill;
-			if (iRemainingHP*max(iNumAdjFriendlies,1) < iLowHealthThreshold)
+			if (iRemainingHP*(iNumAdjFriendlies+1) < iLowHealthThreshold)
+				return INT_MAX;
+
+			if (iNumAdjFriendlies==0)
 				return INT_MAX;
 		}
 
@@ -7591,7 +7594,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 		iResult += 11;
 
 	//also occupy our own citadels
-	if (bIsFrontlineCitadel)
+	if (bIsFrontlineCitadelOrCity)
 	{
 		if (pUnit->GetRange() > 1 || testPlot.getNumAdjacentFriendlies(CvTacticalPlot::TD_LAND, -1)==0 || testPlot.getNumAdjacentEnemies(CvTacticalPlot::TD_LAND)>0)
 			iResult += TACTICAL_COMBAT_CITADEL_BONUS;
@@ -8614,7 +8617,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 			//score functions are biased so that only scores > 0 are interesting moves
 			//still allow mildy negative moves here, maybe we want to do combo moves later!
-			if (newAssignment.iScore > -200)
+			if (newAssignment.iScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 				gPossibleMoves.push_back(newAssignment);
 		}
 	}
@@ -10687,8 +10690,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			break;
 		case A_FINISH:
 			pUnit->PushMission(CvTypes::getMISSION_SKIP());
-			//this is the difference to a blocked unit, we may prevent anyone else from moving it
-			if (!pUnit->shouldHeal(false))
+			//this is the difference to a blocked unit, we prevent anyone else from moving it unless we want it to heal
+			if (!pUnit->shouldHeal(false) || pUnit->getMoves()==0)
 				//important ... this allows civilian units to use this one as cover!
 				GET_PLAYER(ePlayer).GetTacticalAI()->UnitProcessed(pUnit->GetID());
 			bPrecondition = true;
