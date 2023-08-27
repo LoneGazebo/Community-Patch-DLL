@@ -11117,6 +11117,10 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 					if (pPlot->isCoastalLand())
 						continue;
 
+					// Do not pick a Natural Wonder because the quest reveals the tile, which automatically fulfills the "Find Natural Wonder" quest without any effort
+					if (pPlot->IsNaturalWonder())
+						continue;
+
 					int iDistance = plotDistance(GET_PLAYER(ePlayer).getCapitalCity()->getX(), GET_PLAYER(ePlayer).getCapitalCity()->getY(), pPlot->getX(), pPlot->getY());
 					if (iDistance < iWorldWidth)
 						continue;
@@ -11130,28 +11134,50 @@ CvPlot* CvMinorCivAI::GetTargetPlot(PlayerTypes ePlayer)
 						bAreaHasValidPlot = true;
 					}
 
-					iValue = 1;
+					iValue = 2;
 
-					if (pPlot->IsNaturalWonder())
-						iValue += 50;
+					// However, plots adjacent to a Natural Wonder are more rewarding...give a big bonus
+					// BUT, we want to avoid picking a plot adjacent to an already-revealed plot
+					bool bAdjacentToRevealed = false;
+					bool bAdjacentToNW = false;
+					CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+					for (int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+						if (pAdjacentPlot != NULL)
+						{
+							if (pAdjacentPlot->isRevealed(eTeam))
+							{
+								bAdjacentToRevealed = true;
+								iValue = 1;
+								break;
+							}
+							if (pAdjacentPlot->IsNaturalWonder())
+								bAdjacentToNW = true;
+						}
+					}
+					if (!bAdjacentToRevealed)
+					{
+						if (bAdjacentToNW)
+							iValue += 50;
 
-					if (pPlot->isMountain())
-						iValue += 25;
-			
-					if (pPlot->isLake())
-						iValue += 25;
+						// Favor plots with resources
+						if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
+							iValue += 30;
 
-					if (pPlot->isHills())
-						iValue += 25;
+						// Favor "more interesting" plots
+						if (pPlot->getFeatureType() != NO_FEATURE)
+							iValue += 10;
 
-					if (pPlot->isRiver())
-						iValue += 10;
-
-					if (pPlot->getFeatureType() != NO_FEATURE)
-						iValue += 10;
-
-					if (pPlot->getResourceType(eTeam) != NO_RESOURCE)
-						iValue += 10;
+						if (pPlot->isMountain())
+							iValue += 15;
+						else if (pPlot->isHills())
+							iValue += 15;
+						else if (pPlot->isLake())
+							iValue += 10;
+						else if (pPlot->isRiver())
+							iValue += 5;
+					}
 
 					if (iValue > iBestPlotValue)
 					{
