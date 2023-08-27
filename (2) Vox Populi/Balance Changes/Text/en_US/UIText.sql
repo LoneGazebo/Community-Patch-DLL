@@ -1126,11 +1126,22 @@ SET Text = '{1_player} will need [COLOR_POSITIVE_TEXT]{2_num}[ENDCOLOR] original
 WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING';
 
 UPDATE Language_en_US 
-SET Text = 'An unmet player needs [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!.' 
+SET Text = 'An unmet player needs [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!' 
 WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING';
 
 INSERT INTO Language_en_US (Tag, Text)
 VALUES  
 	('TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_NO', 'This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Due to past hostile actions committed against them, you do not have the opportunity to return it to them.[ENDCOLOR]'),
 	('TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_CAPTURED', 'This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Because you have chosen not to liberate them, you do not have the opportunity to return this city to them.[ENDCOLOR]');
+	
+UPDATE Language_en_US 
+SET Text = 'City is [ICON_BLOCKADED] Blockaded by an enemy unit![NEWLINE][ICON_BULLET]Disables Hit Point recovery of the City.[NEWLINE][ICON_BULLET]Enemy Units gain [COLOR_POSITIVE_TEXT]+' || (SELECT Value FROM Defines WHERE Name = 'BLOCKADED_CITY_ATTACK_MODIFIER') || '%[ENDCOLOR] Combat Strength when attacking the City.' 
+WHERE Tag = 'TXT_KEY_CITY_BLOCKADED';
 
+UPDATE Language_en_US 
+SET Text = '{1_Num} base [ICON_GOLD] Gold per Route[NEWLINE]{2_Num} [ICON_GOLD] Gold per [ICON_CAPITAL] Capital Citizen ({3_Num})[NEWLINE]{4_Num} [ICON_GOLD] Gold per [ICON_CITIZEN] Citizen' 
+WHERE Tag = 'TXT_KEY_TRADE_ROUTE_INCOME_INFO';
+
+UPDATE Language_en_US 
+SET Text = '{1_Num}% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections' 
+WHERE Tag = 'TXT_KEY_EGI_TRADE_ROUTE_MOD_INFO';
