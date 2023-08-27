@@ -738,8 +738,8 @@
 			<NukeImmune>true</NukeImmune>
 			<PrereqTech>TECH_WRITING</PrereqTech>
 			<CitySupplyFlat>5</CitySupplyFlat>
-			<PurchaseCooldownReduction>3</PurchaseCooldownReduction>
-			<PurchaseCooldownReductionCivilian>1</PurchaseCooldownReductionCivilian>
+			<PurchaseCooldownReduction>1</PurchaseCooldownReduction>
+			<PurchaseCooldownReductionCivilian>3</PurchaseCooldownReductionCivilian>
 			<NumCityCostMod>10</NumCityCostMod>
 			<HurryCostModifier>-1</HurryCostModifier>
 			<MinAreaSize>-1</MinAreaSize>
