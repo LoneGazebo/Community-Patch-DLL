@@ -763,6 +763,9 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 	PlotHealMoves(true);
 	//move armies first
 	PlotOperationalArmyMoves();
+
+	//try to make sure our most important fortifications have units in them
+	PlotBastionMoves(2, true);
 }
 
 /// Choose which tactics to run and assign units to it
@@ -780,7 +783,7 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 	//make sure our frontline cities and fortresses have a garrison
 	//garrisons sometimes make a sortie so we have to get them back
 	PlotGarrisonMoves(2);
-	PlotBastionMoves(2);
+	PlotBastionMoves(2,false);
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
@@ -1694,14 +1697,36 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 }
 
 /// Establish a defensive bastion adjacent to a city
-void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway)
+void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway, bool bEmergencyOnly)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GUARD);
 
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_DEFENSIVE_BASTION); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
-		// Grab units that make sense for this move type
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
+		if (bEmergencyOnly)
+		{
+			bool bHaveEnemy = false;
+			//bail if there is no enemy plot around
+			for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
+			{
+				CvPlot* pTestPlot = iterateRingPlots(pPlot, i);
+				if (pTestPlot && m_pPlayer->IsAtWarWith(pTestPlot->getOwner()) && pTestPlot->getDomain()==DOMAIN_LAND)
+				{
+					CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pTestPlot);
+					if (pZone && pZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_FRIENDLY)
+						continue;
+
+					bHaveEnemy = true;
+					break;
+				}
+			}
+
+			if (!bHaveEnemy)
+				continue;
+		}
+
+		// Grab units that make sense for this move type
 		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GUARD, pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
@@ -8067,6 +8092,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	bEnemyCivilianPresent = false;
 	bEdgeOfTheKnownWorld = false;
 	bAdjacentToEnemyCitadel = false;
+	bHasEnemyCombatUnit = false;
 
 	//set only once
 	bFriendlyDefenderEndTurn = false;
@@ -8109,6 +8135,9 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 			//combat units (embarked or not)
 			if (pPlotUnit->IsCanDefend())
 			{
+				//enemy distance alone is not enough
+				bHasEnemyCombatUnit = true;
+
 				//enemy distance for other plots will be set afterwards in refreshVolatilePlotProperties
 				//but we need to set the zeros here!
 				aiEnemyDistance[TD_BOTH] = 0;
@@ -8330,6 +8359,7 @@ int CvTacticalPlot::getNumAdjacentFriendliesEndTurn(eTactPlotDomain eDomain) con
 bool CvTacticalPlot::removeEnemyUnitIfPresent()
 {
 	bool bReturn = false;
+	bHasEnemyCombatUnit = false;
 
 	if (aiEnemyDistance[TD_BOTH] == 0)
 	{
@@ -9123,9 +9153,10 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 
 	for (vector<CvTacticalPlot>::iterator it = tactPlots.begin(); it != tactPlots.end(); ++it)
 	{
-		if (it->getEnemyDistance(CvTacticalPlot::TD_LAND) == 0)
+		//need to check whether this is a city or actual units
+		if (it->getEnemyDistance(CvTacticalPlot::TD_LAND) == 0 && it->isEnemyCombatUnit())
 			gLandEnemies.push_back( it->getPlotIndex() );
-		if (it->getEnemyDistance(CvTacticalPlot::TD_SEA) == 0)
+		if (it->getEnemyDistance(CvTacticalPlot::TD_SEA) == 0 && it->isEnemyCombatUnit())
 			gSeaEnemies.push_back( it->getPlotIndex() );
 
 		it->resetVolatileProperties();

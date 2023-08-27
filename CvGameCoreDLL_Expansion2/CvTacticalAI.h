@@ -390,7 +390,7 @@ private:
 //	unify these?
 ///------------------------------
 	void PlotGarrisonMoves(int iTurnsToArrive);
-	void PlotBastionMoves(int iTurnsToArrive);
+	void PlotBastionMoves(int iTurnsToArrive, bool bEmergencyOnly);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
 //--------------------------------
 
@@ -693,7 +693,6 @@ public:
 
 	bool isEnemy(eTactPlotDomain eDomain = TD_BOTH) const { return aiEnemyDistance[eDomain]==0; }
 	bool isEnemyCity() const { return isEnemy() && pPlot->isCity(); }
-	bool isEnemyCombatUnit() const { return isEnemy() && !pPlot->isCity(); } //garrisons are ignored ...
 	bool isEnemyCivilian() const { return bEnemyCivilianPresent; }
 
 	bool isEdgePlot() const { return bEdgeOfTheKnownWorld; }
@@ -720,6 +719,7 @@ public:
 	void setEnemyDistance(eTactPlotDomain eDomain, int iDistance);
 	bool checkEdgePlotsForSurprises(const CvTacticalPosition& currentPosition, vector<int>& landEnemies, vector<int>& seaEnemies);
 	bool isValid() const { return pPlot != NULL; }
+	bool isEnemyCombatUnit() const { return bHasEnemyCombatUnit; }
 	bool isCombatEndTurn() const { return bFriendlyDefenderEndTurn; }
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
 	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
@@ -752,6 +752,7 @@ protected:
 	bool bAdjacentToEnemyCitadel:1;
 
 	bool bFriendlyDefenderEndTurn:1; 
+	bool bHasEnemyCombatUnit:1; //there may also be cities without garrison!
 };
 
 struct SAttackStats
