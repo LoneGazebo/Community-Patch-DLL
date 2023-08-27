@@ -1516,10 +1516,10 @@ bool CvMinorCivQuest::IsComplete()
 
 		return false;
 	}
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
 		// Explored the area?
-		return pMinor->GetMinorCivAI()->GetExplorePercent(m_eAssignedPlayer, MINOR_CIV_QUEST_DISCOVER_AREA) >= 100;
+		return pMinor->GetMinorCivAI()->GetExplorePercent(m_eAssignedPlayer, MINOR_CIV_QUEST_EXPLORE_AREA) >= 100;
 	}
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 	{
@@ -2795,7 +2795,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		}
 		break;
 	}
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
 		CvPlot* pPlot = pMinor->GetMinorCivAI()->GetTargetPlot(m_eAssignedPlayer);
 		m_iData1 = pPlot->getX();
@@ -2806,8 +2806,8 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 		pPlot->setRevealed(pAssignedPlayer->getTeam(), true);
 
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_DISCOVER_AREA");
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_DISCOVER_AREA");
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA");
 
 		iNotificationX = pPlot->getX();
 		iNotificationY = pPlot->getY();
@@ -3420,12 +3420,12 @@ bool CvMinorCivQuest::DoFinishQuest()
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_REBELLION");
 		break;
 	}
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
 		pMinor->GetMinorCivAI()->SetTargetedAreaID(m_eAssignedPlayer, -1);
 
-		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_DISCOVER_AREA_COMPLETE");
-		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_DISCOVER_AREA_COMPLETE");
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA_COMPLETE");
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA_COMPLETE");
 		break;
 	}
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
@@ -3704,7 +3704,7 @@ bool CvMinorCivQuest::DoCancelQuest()
 		}
 		break;
 	}
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
 		pMinor->GetMinorCivAI()->SetTargetedAreaID(m_eAssignedPlayer, -1);
 
@@ -6386,7 +6386,7 @@ bool CvMinorCivAI::IsTargetQuest(MinorCivQuestTypes eQuest)
 	case MINOR_CIV_QUEST_BULLY_CITY_STATE:
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 	case MINOR_CIV_QUEST_LIBERATION:
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	case MINOR_CIV_QUEST_ACQUIRE_CITY:
 		return true;
 	default:
@@ -6467,7 +6467,7 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 	case MINOR_CIV_QUEST_INFLUENCE:
 		return GD_INT_GET(QUEST_DISABLED_INFLUENCE) < 1;
 	case MINOR_CIV_QUEST_CONTEST_TOURISM:
-		return GD_INT_GET(QUEST_DISABLED_TOURISM) < 1;
+		return GD_INT_GET(QUEST_DISABLED_CONTEST_TOURISM) < 1;
 	case MINOR_CIV_QUEST_ARCHAEOLOGY:
 		return GD_INT_GET(QUEST_DISABLED_ARCHAEOLOGY) < 1;
 	case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
@@ -6478,8 +6478,8 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 		return !GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) && GD_INT_GET(QUEST_DISABLED_HORDE) < 1;
 	case MINOR_CIV_QUEST_REBELLION:
 		return !GC.getGame().isOption(GAMEOPTION_NO_BARBARIANS) && GD_INT_GET(QUEST_DISABLED_REBELLION) < 1;
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
-		return GD_INT_GET(QUEST_DISABLED_DISCOVER_AREA) < 1;
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
+		return GD_INT_GET(QUEST_DISABLED_EXPLORE_AREA) < 1;
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 		return GD_INT_GET(QUEST_DISABLED_BUILD_X_BUILDINGS) < 1;
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
@@ -6945,7 +6945,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		break;
 	}
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
 		if (GetTargetPlot(ePlayer) == NULL)
 			return false;
@@ -7958,26 +7958,26 @@ int CvMinorCivAI::GetNumQuestCopies(MinorCivQuestTypes eQuest) const
 		break;
 	}
 
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
-		iNumCopies = /*5*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_BASE);
+		iNumCopies = /*5*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_BASE);
 
 		switch (eTrait)
 		{
 		case MINOR_CIV_TRAIT_CULTURED:
-			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_CULTURED);
+			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_CULTURED);
 			break;
 		case MINOR_CIV_TRAIT_MILITARISTIC:
-			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_MILITARISTIC);
+			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_MILITARISTIC);
 			break;
 		case MINOR_CIV_TRAIT_MARITIME:
-			iNumCopies += /*22*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_MARITIME);
+			iNumCopies += /*22*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_MARITIME);
 			break;
 		case MINOR_CIV_TRAIT_MERCANTILE:
-			iNumCopies += /*15*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_MERCANTILE);
+			iNumCopies += /*15*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_MERCANTILE);
 			break;
 		case MINOR_CIV_TRAIT_RELIGIOUS:
-			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_RELIGIOUS);
+			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_RELIGIOUS);
 			break;
 		default:
 			UNREACHABLE();
@@ -7986,16 +7986,16 @@ int CvMinorCivAI::GetNumQuestCopies(MinorCivQuestTypes eQuest) const
 		switch (ePersonality)
 		{
 		case MINOR_CIV_PERSONALITY_FRIENDLY:
-			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_FRIENDLY);
+			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_FRIENDLY);
 			break;
 		case MINOR_CIV_PERSONALITY_NEUTRAL:
-			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_NEUTRAL);
+			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_NEUTRAL);
 			break;
 		case MINOR_CIV_PERSONALITY_HOSTILE:
-			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_HOSTILE);
+			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_HOSTILE);
 			break;
 		case MINOR_CIV_PERSONALITY_IRRATIONAL:
-			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_DISCOVER_AREA_COPIES_IRRATIONAL);
+			iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_EXPLORE_AREA_COPIES_IRRATIONAL);
 			break;
 		default:
 			UNREACHABLE();

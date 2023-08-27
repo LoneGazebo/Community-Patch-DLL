@@ -29,13 +29,13 @@ UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_CONSTRUCT_NATIONAL_W
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_GIFT_SPECIFIC_UNIT';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_FIND_CITY_STATE';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_INFLUENCE';
-UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_TOURISM';
+UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_CONTEST_TOURISM';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_ARCHAEOLOGY';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_CIRCUMNAVIGATION';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_LIBERATION';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_HORDE';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_REBELLION';
-UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_DISCOVER_AREA';
+UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_EXPLORE_AREA';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_BUILD_X_BUILDINGS';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_SPY_ON_MAJOR';
 UPDATE Defines SET Value = '0' WHERE Name = 'QUEST_DISABLED_COUP';
@@ -120,7 +120,7 @@ UPDATE SmallAwards SET Influence = '30', AdmiralPoints = '25', RandomMod = '10' 
 UPDATE SmallAwards SET Influence = '40', Happiness = '1', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_LIBERATION';
 
 -- Discover Plot
-UPDATE SmallAwards SET Influence = '30', Gold = '100', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_DISCOVER_AREA';
+UPDATE SmallAwards SET Influence = '30', Gold = '100', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_EXPLORE_AREA';
 
 -- Production
 UPDATE SmallAwards SET Influence = '40', Production = '75', RandomMod = '10', QuestDuration = '50' WHERE Type = 'MINOR_CIV_QUEST_BUILD_X_BUILDINGS';

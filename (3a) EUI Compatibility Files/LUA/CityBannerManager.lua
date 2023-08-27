@@ -656,7 +656,7 @@ local IsActiveQuestKillCamp
 local questDig = MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY
 local IsActiveQuestDig
 
-local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA
+local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA
 local IsActiveQuestPlot
 
 local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY

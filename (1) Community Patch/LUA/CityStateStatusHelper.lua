@@ -33,7 +33,7 @@ ktQuestsDisplayOrder = {
 	MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR,
 	-- Then other personal quests
-	MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA,
+	MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR,
 	MinorCivQuestTypes.MINOR_CIV_QUEST_COUP,
@@ -542,7 +542,7 @@ function GetActiveQuestText(iMajor, iMinor)
 				sIconText = sIconText .. GameInfo.Religions[iQuestData1].IconString;
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE) then
 				sIconText = sIconText .. "[ICON_INTERNATIONAL_TRADE]";
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA) then
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA) then
 				sIconText = sIconText .. "[ICON_RANGE_STRENGTH]";
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
 				sIconText = sIconText .. "[ICON_PRODUCTION]";
@@ -689,8 +689,8 @@ function GetActiveQuestToolTip(iMajor, iMinor)
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_SPREAD_RELIGION_FORMAL", Game.GetReligionName(iQuestData1) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE) then
 				sToolTipText = sToolTipText .. Locale.Lookup("TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE_FORMAL");
-			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA) then
-				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_AREA_FORMAL", pMinor:GetExplorePercent(iMajor , eType) );
+			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA) then
+				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL", pMinor:GetExplorePercent(iMajor , eType) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS) then
 				sToolTipText = sToolTipText .. Locale.Lookup( "TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL" , GameInfo.Buildings[iQuestData1].Description, pMinor:GetXQuestBuildingRemaining(iMajor, eType, iQuestData1 ) );
 			elseif (eType == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR) then

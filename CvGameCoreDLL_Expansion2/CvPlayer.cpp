@@ -28647,8 +28647,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 						case MINOR_CIV_QUEST_REBELLION:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME");
 							break;
-						case MINOR_CIV_QUEST_DISCOVER_AREA:
-							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_DISCOVER_AREA_NAME");
+						case MINOR_CIV_QUEST_EXPLORE_AREA:
+							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_EXPLORE_AREA_NAME");
 							break;
 						case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 							MoreData = GetLocalizedText("TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME");

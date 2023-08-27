@@ -759,9 +759,9 @@ function OnQuestInfoClicked()
 			end
 		--END
 		--CBP
-		elseif (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA)) then
-			local iQuestData1 = minorPlayer:GetQuestData1(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA);
-			local iQuestData2 = minorPlayer:GetQuestData2(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA);
+		elseif (minorPlayer:IsMinorCivDisplayedQuestForPlayer(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA)) then
+			local iQuestData1 = minorPlayer:GetQuestData1(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA);
+			local iQuestData2 = minorPlayer:GetQuestData2(activePlayerID, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA);
 			local plot = Map.GetPlot( iQuestData1, iQuestData2 )
 			if plot then
 				UI.LookAt( plot, 0 )

@@ -52781,7 +52781,7 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_REBELLION:
 		strTemp.Format("Rebellion");
 		break;
-	case MINOR_CIV_QUEST_DISCOVER_AREA:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
 		strTemp.Format("Discover a Plot");
 		break;
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:

@@ -701,9 +701,9 @@ function OnQuestIconClicked( PlayerID )
 				Events.GameplayFX(hex.x, hex.y, -1);
 			end
 		end
-		if (pMinor:IsMinorCivDisplayedQuestForPlayer(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA)) then
-			local iQuestData1 = pMinor:GetQuestData1(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA);
-			local iQuestData2 = pMinor:GetQuestData2(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_AREA);
+		if (pMinor:IsMinorCivDisplayedQuestForPlayer(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA)) then
+			local iQuestData1 = pMinor:GetQuestData1(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA);
+			local iQuestData2 = pMinor:GetQuestData2(g_iPlayer, MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA);
 			local pPlot = Map.GetPlot(iQuestData1, iQuestData2);
 			if (pPlot) then
 				UI.LookAt(pPlot, 0);

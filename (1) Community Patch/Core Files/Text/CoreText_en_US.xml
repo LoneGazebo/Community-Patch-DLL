@@ -2551,17 +2551,17 @@
 		</Row>
 
 		<!-- Discovery -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVER_AREA">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA">
 			<Text>Cartographers from {@1_Civ} request your help completing a mapmaking project. Explore the general vicinity of the indicated area as much as needed. They will reward you with what they have.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVER_AREA">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA">
 			<Text>Cartographic commission</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVER_AREA_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA_COMPLETE">
 			<Text>The cartographers from {@1_Civ} thank you for your assistance in their mapmaking project.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVER_AREA_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA_COMPLETE">
 			<Text>Cartographic mission complete!</Text>
 		</Row>
 
@@ -2594,7 +2594,7 @@
 
 
 		<!-- Formal Text-->
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_AREA_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL">
 			<Text>Explore an unrevealed area of the world ([COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% complete).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL">
@@ -2617,7 +2617,7 @@
 		<Row Tag="TXT_KEY_CITY_STATE_ACQUIRE_CITY_QUEST_LONG">
 			<Text>{1_Civ} wants you to acquire this city.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_DISCOVER_AREA_QUEST_LONG">
+		<Row Tag="TXT_KEY_CITY_STATE_EXPLORE_AREA_QUEST_LONG">
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
 		</Row>
 
@@ -7310,7 +7310,7 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME">
 			<Text>Quell Rebellion</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DISCOVER_AREA_NAME">
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_EXPLORE_AREA_NAME">
 			<Text>Discover Land</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME">

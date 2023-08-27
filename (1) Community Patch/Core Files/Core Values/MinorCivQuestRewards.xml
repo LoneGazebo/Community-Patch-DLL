@@ -34,10 +34,6 @@
 			<Influence>35</Influence>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_QUEST_FIND_CITY</Type>
-			<Influence>20</Influence>
-		</Row>
-		<Row>
 			<Type>MINOR_CIV_QUEST_FIND_NATURAL_WONDER</Type>
 			<Influence>40</Influence>
 		</Row>
@@ -90,6 +86,10 @@
 			<Influence>40</Influence>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_QUEST_FIND_CITY</Type>
+			<Influence>20</Influence>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_QUEST_WAR</Type>
 			<Influence>40</Influence>
 		</Row>
@@ -138,7 +138,7 @@
 			<QuestDuration>20</QuestDuration>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_QUEST_DISCOVER_AREA</Type>
+			<Type>MINOR_CIV_QUEST_EXPLORE_AREA</Type>
 			<Influence>20</Influence>
 		</Row>
 		<Row>
