@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.8.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.8.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -178,7 +178,7 @@
     <File md5="5015C3FA07D87E5FFB57B523251E67F3" import="1">Art/Promotions/extraPromo_045.dds</File>
     <File md5="8341BD50EAA245DBE05A15F09C0366FA" import="1">Art/Promotions/extraPromo_064.dds</File>
     <File md5="46D6C357C6E857D8E97A635918BFD7B8" import="1">Art/Promotions/extraPromo_256.dds</File>
-    <File md5="85005B8DE8ADD1498B7E5A545C9C4AFF" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
+    <File md5="6733F95C5AB546FD2559CA894657CC2A" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
     <File md5="51AC21C1B109126BB17A68BDDE77D91A" import="1">Art/Promotions/promoVP_00_016.dds</File>
     <File md5="8FEA4C187F2DE97ABCB8A16AB161BEB9" import="1">Art/Promotions/promoVP_00_032.dds</File>
     <File md5="0FB9793BE3B9931613E9EAFC190DACB8" import="1">Art/Promotions/promoVP_00_045.dds</File>
@@ -456,7 +456,7 @@
     <File md5="F52735D8F37D8B7E6FDCE06580772D9D" import="0">Balance Changes/Beliefs/Founder.sql</File>
     <File md5="DADFA40D2C27E18FC7AD249AA89B6DC1" import="0">Balance Changes/Beliefs/Follower.sql</File>
     <File md5="F0162A6C0A0C228819BA38069AF358A3" import="0">Balance Changes/Beliefs/Enhancer.sql</File>
-    <File md5="0BA625C71EC03D0A336410DC722F016A" import="0">Balance Changes/Beliefs/Reformation.sql</File>
+    <File md5="EFE93B87BA59C60E20A8953CBE829C17" import="0">Balance Changes/Beliefs/Reformation.sql</File>
     <File md5="F13F3742074F67CC1F30D7E131267885" import="0">Balance Changes/Beliefs/Pantheons.sql</File>
     <File md5="EB36354BF281BDB63285CCB67465C0FD" import="0">Balance Changes/Beliefs/ReligiousBuildings/Changes.sql</File>
     <File md5="2CF157761F8F06290B0761460EDC46AD" import="0">Balance Changes/Beliefs/ReligiousNW/Changes.sql</File>
@@ -466,7 +466,7 @@
     <File md5="F5A554A92FAB4E23B3A42C2C53A6C9D3" import="0">Balance Changes/Buildings/CityDefense.sql</File>
     <File md5="0E7D2F62997C17EDE3EFD0DD4599EB27" import="0">Balance Changes/Buildings/NationalWonderChanges.sql</File>
     <File md5="159EAAFB84BD69169D67F4CF36273C7F" import="0">Balance Changes/Buildings/BuildingFlavors.sql</File>
-    <File md5="D93C98C894C4038CCCE18DD71B7C7677" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
+    <File md5="87ACEE4341D15213C4F30E779D10A0CF" import="0">Balance Changes/Buildings/NewBuildings.xml</File>
     <File md5="B961EB15C81DC6DC6973CAC8792E9BD9" import="0">Balance Changes/CoreDefines.sql</File>
     <File md5="7D267EDC0C4869F533CCA6C1BD979595" import="0">Balance Changes/Difficulty/DifficultyMod.sql</File>
     <File md5="0495C5D0A5A0BCE49682F713564A174D" import="0">Balance Changes/Difficulty/DifficultyMod.xml</File>
@@ -520,7 +520,7 @@
     <File md5="9B8FFC8B60CCC0A8A4BD60E27AC208B9" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="67CE33FDF5F8E24551F7892789CD84F7" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="7E482324FF59BC52FB36726A2F72DE24" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="7CDE8DA392C3E5DB1C14100E2CB7BDA2" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="077CDE8D396BD30784DB1203E7B25716" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="2A6BB18043C03B52481402D4A446D989" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="4D26560D1AC9781213A73FE2061EB914" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="CBA1F1A37EB2A2EE406A92B74F7F2C2D" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
@@ -592,7 +592,7 @@
     <File md5="94E06FE9E7FABA558227B99885BC65B7" import="1">Core Files/CoreLua/DiploTrade.xml</File>
     <File md5="FEC43D5B8C316CCB38815B2076597D60" import="1">Core Files/CoreLua/DiscussionDialog.lua</File>
     <File md5="D708ADD4055DD571EDBDC2588DF0DC0E" import="1">Core Files/CoreLua/DiscussionDialog.xml</File>
-    <File md5="1D28C361F2EA4EA1C888DD01B5EBD4A7" import="1">Core Files/CoreLua/EconomicGeneralInfo.lua</File>
+    <File md5="E22EFD089D99036D8C6937C87543271D" import="1">Core Files/CoreLua/EconomicGeneralInfo.lua</File>
     <File md5="3A73B221D228BD6508038FCA62239692" import="1">Core Files/CoreLua/EconomicGeneralInfo.xml</File>
     <File md5="16B07AAA25EB4AA80C4FAEAD0AC32D02" import="1">Core Files/CoreLua/EconomicOverview.lua</File>
     <File md5="B12E739314E3C06185B3872698E62F60" import="1">Core Files/CoreLua/GoodyHutPopup.lua</File>
