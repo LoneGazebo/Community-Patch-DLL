@@ -2977,8 +2977,9 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iUnitSupplyBase(0),
 	m_iUnitSupplyPerCity(0),
 	m_iUnitSupplyPopulationPercent(0),
-	m_iUnitSupplyBonusPercent(0),
+	m_iUnitSupplyPerEraFlat(0),
 	m_iUnitSupplyPerEraModifier(0),
+	m_iUnitSupplyBonusPercent(0),
 	m_iStartingUnitMultiplier(0),
 	m_iStartingWorkerUnits(0),
 	m_iStartingDefenseUnits(0),
@@ -3040,8 +3041,9 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIUnitSupplyBase(0),
 	m_iAIUnitSupplyPerCity(0),
 	m_iAIUnitSupplyPopulationPercent(0),
-	m_iAIUnitSupplyBonusPercent(0),
+	m_iAIUnitSupplyPerEraFlat(0),
 	m_iAIUnitSupplyPerEraModifier(0),
+	m_iAIUnitSupplyBonusPercent(0),
 	m_iAIStartingUnitMultiplier(0),
 	m_iAIStartingWorkerUnits(0),
 	m_iAIStartingDefenseUnits(0),
@@ -3092,6 +3094,12 @@ CvHandicapInfo::CvHandicapInfo() :
 	// City-States
 	m_iStartingCityStateWorkerUnits(0),
 	m_iStartingCityStateDefenseUnits(0),
+	m_iCityStateUnitSupplyBase(0),
+	m_iCityStateUnitSupplyPerCity(0),
+	m_iCityStateUnitSupplyPopulationPercent(0),
+	m_iCityStateUnitSupplyPerEraFlat(0),
+	m_iCityStateUnitSupplyPerEraModifier(0),
+	m_iCityStateUnitSupplyBonusPercent(0),
 	m_iCityStateWorkRateModifier(0),
 	m_iCityStateGrowthPercent(0),
 	m_iCityStateGrowthPerEraModifier(0),
@@ -3274,14 +3282,19 @@ int CvHandicapInfo::getUnitSupplyPopulationPercent() const
 	return m_iUnitSupplyPopulationPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getUnitSupplyBonusPercent() const
+int CvHandicapInfo::getUnitSupplyPerEraFlat() const
 {
-	return m_iUnitSupplyBonusPercent;
+	return m_iUnitSupplyPerEraFlat;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getUnitSupplyPerEraModifier() const
 {
 	return m_iUnitSupplyPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getUnitSupplyBonusPercent() const
+{
+	return m_iUnitSupplyBonusPercent;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getStartingUnitMultiplier() const
@@ -3585,14 +3598,19 @@ int CvHandicapInfo::getAIUnitSupplyPopulationPercent() const
 	return m_iAIUnitSupplyPopulationPercent;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIUnitSupplyBonusPercent() const
+int CvHandicapInfo::getAIUnitSupplyPerEraFlat() const
 {
-	return m_iAIUnitSupplyBonusPercent;
+	return m_iAIUnitSupplyPerEraFlat;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIUnitSupplyPerEraModifier() const
 {
 	return m_iAIUnitSupplyPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIUnitSupplyBonusPercent() const
+{
+	return m_iAIUnitSupplyBonusPercent;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAIStartingUnitMultiplier() const
@@ -3839,6 +3857,36 @@ int CvHandicapInfo::getStartingCityStateWorkerUnits() const
 int CvHandicapInfo::getStartingCityStateDefenseUnits() const
 {
 	return m_iStartingCityStateDefenseUnits;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateUnitSupplyBase() const
+{
+	return m_iCityStateUnitSupplyBase;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateUnitSupplyPerCity() const
+{
+	return m_iCityStateUnitSupplyPerCity;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateUnitSupplyPopulationPercent() const
+{
+	return m_iCityStateUnitSupplyPopulationPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateUnitSupplyPerEraFlat() const
+{
+	return m_iCityStateUnitSupplyPerEraFlat;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateUnitSupplyPerEraModifier() const
+{
+	return m_iCityStateUnitSupplyPerEraModifier;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getCityStateUnitSupplyBonusPercent() const
+{
+	return m_iCityStateUnitSupplyBonusPercent;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getCityStateWorkRateModifier() const
@@ -4284,8 +4332,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iUnitSupplyBase = kResults.GetInt("UnitSupplyBase");
 	m_iUnitSupplyPerCity = kResults.GetInt("UnitSupplyPerCity");
 	m_iUnitSupplyPopulationPercent = kResults.GetInt("UnitSupplyPopulationPercent");
-	m_iUnitSupplyBonusPercent = kResults.GetInt("UnitSupplyBonusPercent");
+	m_iUnitSupplyPerEraFlat = kResults.GetInt("UnitSupplyPerEraFlat");
 	m_iUnitSupplyPerEraModifier = kResults.GetInt("UnitSupplyPerEraModifier");
+	m_iUnitSupplyBonusPercent = kResults.GetInt("UnitSupplyBonusPercent");
 	m_iStartingUnitMultiplier = kResults.GetInt("StartingUnitMultiplier");
 	m_iStartingWorkerUnits = kResults.GetInt("StartingWorkerUnits");
 	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
@@ -4347,8 +4396,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIUnitSupplyBase = kResults.GetInt("AIUnitSupplyBase");
 	m_iAIUnitSupplyPerCity = kResults.GetInt("AIUnitSupplyPerCity");
 	m_iAIUnitSupplyPopulationPercent = kResults.GetInt("AIUnitSupplyPopulationPercent");
-	m_iAIUnitSupplyBonusPercent = kResults.GetInt("AIUnitSupplyBonusPercent");
+	m_iAIUnitSupplyPerEraFlat = kResults.GetInt("AIUnitSupplyPerEraFlat");
 	m_iAIUnitSupplyPerEraModifier = kResults.GetInt("AIUnitSupplyPerEraModifier");
+	m_iAIUnitSupplyBonusPercent = kResults.GetInt("AIUnitSupplyBonusPercent");
 	m_iAIStartingUnitMultiplier = kResults.GetInt("AIStartingUnitMultiplier");
 	m_iAIStartingWorkerUnits = kResults.GetInt("AIStartingWorkerUnits");
 	m_iAIStartingDefenseUnits = kResults.GetInt("AIStartingDefenseUnits");
@@ -4399,6 +4449,12 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	// City-States
 	m_iStartingCityStateWorkerUnits = kResults.GetInt("StartingCityStateWorkerUnits");
 	m_iStartingCityStateDefenseUnits = kResults.GetInt("StartingCityStateDefenseUnits");
+	m_iCityStateUnitSupplyBase = kResults.GetInt("CityStateUnitSupplyBase");
+	m_iCityStateUnitSupplyPerCity = kResults.GetInt("CityStateUnitSupplyPerCity");
+	m_iCityStateUnitSupplyPopulationPercent = kResults.GetInt("CityStateUnitSupplyPopulationPercent");
+	m_iCityStateUnitSupplyPerEraFlat = kResults.GetInt("CityStateUnitSupplyPerEraFlat");
+	m_iCityStateUnitSupplyPerEraModifier = kResults.GetInt("CityStateUnitSupplyPerEraModifier");
+	m_iCityStateUnitSupplyBonusPercent = kResults.GetInt("CityStateUnitSupplyBonusPercent");
 	m_iCityStateWorkRateModifier = kResults.GetInt("CityStateWorkRateModifier");
 	m_iCityStateGrowthPercent = kResults.GetInt("CityStateGrowthPercent");
 	m_iCityStateGrowthPerEraModifier = kResults.GetInt("CityStateGrowthPerEraModifier");

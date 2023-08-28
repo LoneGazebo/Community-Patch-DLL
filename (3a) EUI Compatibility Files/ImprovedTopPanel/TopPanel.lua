@@ -2370,25 +2370,27 @@ if civ5_mode and gk_mode then
 		local iTechReduction = pPlayer:GetTechSupplyReduction();
 		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
+		-- Bonuses from unlisted sources are added to the handicap value
+		local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople + iTechReduction + iWarWearinessActualReduction);
+		iPerHandicap = iPerHandicap + iExtra;
+
 		local strUnitSupplyToolTip = "";
-		if(iUnitsOver > 0) then
+		if (iUnitsOver > 0) then
 			strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 		end
 
 		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople, iUnitsTotalMilitary);
-		if(strUnitSupplyToolTip ~= "") then
+		if (strUnitSupplyToolTip ~= "") then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 		else
 			strUnitSupplyToolTip = strUnitSupplyToolUnderTip;
 		end
 
 		local tips = table()
-
-		tips:insert( strUnitSupplyToolTip )
-
-		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+		tips:insert(strUnitSupplyToolTip)
+		return setTextToolTip(tips:concat("[NEWLINE]"))
 	end
 
 	g_toolTipHandler.UnitSupplyIcon = g_toolTipHandler.UnitSupplyString

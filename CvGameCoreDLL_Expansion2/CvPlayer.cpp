@@ -17792,9 +17792,6 @@ void CvPlayer::UpdateUnitProductionMaintenanceMod()
 /// How much Production is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitProductionMaintenanceMod() const
 {
-	if (isBarbarian())
-		return 0;
-
 	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
 	if (iUnitsOverSupply > 0)
 	{
@@ -17831,9 +17828,6 @@ void CvPlayer::UpdateUnitGrowthMaintenanceMod()
 /// How much Growth is being eaten up by Units over the supply limit?
 int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 {
-	if (isBarbarian())
-		return 0;
-
 	int iUnitsOverSupply = GetNumUnitsOutOfSupply();
 	if (iUnitsOverSupply > 0)
 	{
@@ -17849,42 +17843,110 @@ int CvPlayer::calculateUnitGrowthMaintenanceMod() const
 /// How many Units can we support for free without losing Production and Growth?
 int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 {
+	if (isBarbarian())
+		return INT_MAX;
+
+	if (!isAlive())
+		return 0;
+
 	if (m_iNumUnitsSuppliedCached == -1)
 	{
 		// update m_iNumUnitsSuppliedCached and m_iNumUnitsSuppliedCachedWarWeariness
-		int iFreeUnits = GetNumUnitsSuppliedByHandicap(!MOD_BALANCE_VP);
-		iFreeUnits += GetNumUnitsSuppliedByCities(!MOD_BALANCE_VP);
-		iFreeUnits += GetNumUnitsSuppliedByPopulation(!MOD_BALANCE_VP);
-		iFreeUnits += GetUnitSupplyFromExpendedGreatPeople();
+		int iUnitSupply = GetNumUnitsSuppliedByHandicap();
+		iUnitSupply += GetNumUnitsSuppliedByCities();
+		iUnitSupply += GetNumUnitsSuppliedByPopulation();
+		iUnitSupply += GetUnitSupplyFromExpendedGreatPeople();
 
 		if (isMajorCiv())
 		{
-			int iMod = 100;
 			if (isHuman())
 			{
-				iMod += getHandicapInfo().getUnitSupplyBonusPercent();
-				iMod += std::max(0, getHandicapInfo().getUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra());
+				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
+				iUnitSupply /= 100;
+
+				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent();
+				iUnitSupply /= 100;
 			}
 			else
 			{
-				iMod += getHandicapInfo().getUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getAIUnitSupplyBonusPercent();
-				iMod += std::max(0, (getHandicapInfo().getUnitSupplyPerEraModifier() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraModifier()) * GC.getGame().getCurrentEra());
+				iUnitSupply *= 100 + (getHandicapInfo().getUnitSupplyPerEraModifier() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraModifier()) * GC.getGame().getCurrentEra();
+				iUnitSupply /= 100;
+
+				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getAIUnitSupplyBonusPercent();
+				iUnitSupply /= 100;
 			}
-			iFreeUnits *= iMod;
-			iFreeUnits /= 100;
+		}
+		else if (isMinorCiv())
+		{
+			iUnitSupply *= 100 + GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
+			iUnitSupply /= 100;
+
+			iUnitSupply *= 100 + GC.getGame().getHandicapInfo().getCityStateUnitSupplyBonusPercent();
+			iUnitSupply /= 100;
+
+			int iModifier = 0;
+			switch (GetMinorCivAI()->GetTrait())
+			{
+			case MINOR_CIV_TRAIT_CULTURED:
+				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED);
+				break;
+			case MINOR_CIV_TRAIT_MILITARISTIC:
+				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC);
+				break;
+			case MINOR_CIV_TRAIT_MARITIME:
+				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MARITIME);
+				break;
+			case MINOR_CIV_TRAIT_MERCANTILE:
+				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_MERCANTILE);
+				break;
+			case MINOR_CIV_TRAIT_RELIGIOUS:
+				iModifier = /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_RELIGIOUS);
+				break;
+			default:
+				return 0; // Might trigger if a new City-State hasn't picked its trait yet.
+			}
+
+			switch (GetMinorCivAI()->GetPersonality())
+			{
+			case MINOR_CIV_PERSONALITY_FRIENDLY:
+				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_FRIENDLY);
+				break;
+			case MINOR_CIV_PERSONALITY_NEUTRAL:
+				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_NEUTRAL);
+				break;
+			case MINOR_CIV_PERSONALITY_HOSTILE:
+				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_HOSTILE);
+				break;
+			case MINOR_CIV_PERSONALITY_IRRATIONAL:
+				iModifier += /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MODIFIER_IRRATIONAL);
+				break;
+			default:
+				return 0; // Might trigger if a new City-State hasn't picked its personality yet.
+			}
+
+			iUnitSupply *= 100 + iModifier;
+			iUnitSupply /= 100;
+
+			int iExtraCities = getNumCities() - 1;
+			if (iExtraCities > 0)
+			{
+				iUnitSupply *= 100 + /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MULTIPLIER_PER_EXTRA_CITY);
+				iUnitSupply /= 100;
+			}
 		}
 
-		m_iNumUnitsSuppliedCached = max(0, iFreeUnits);
+		m_iNumUnitsSuppliedCached = max(0, iUnitSupply);
 
 		int iNumUnitsSuppliedWarWeariness = m_iNumUnitsSuppliedCached;
-		if (MOD_BALANCE_VP)
+		if (MOD_BALANCE_VP && isMajorCiv())
 		{
-			int iWarWeariness = GetCulture()->GetWarWeariness() / 2;
-			int iMod = (100 - min(75, iWarWeariness));
-			iNumUnitsSuppliedWarWeariness *= iMod;
+			int iWarWeariness = GetCulture()->GetWarWeariness() * /*50*/ GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION) / 100;
+			int iReducedToPercent = 100 - min(iWarWeariness, /*75*/ GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_REDUCTION_MAX));
+			iNumUnitsSuppliedWarWeariness *= iReducedToPercent;
 			iNumUnitsSuppliedWarWeariness /= 100;
 		}
-		m_iNumUnitsSuppliedCachedWarWeariness = iNumUnitsSuppliedWarWeariness;
+
+		m_iNumUnitsSuppliedCachedWarWeariness = max(0, iNumUnitsSuppliedWarWeariness);
 	}
 
 	return bCheckWarWeariness ? m_iNumUnitsSuppliedCachedWarWeariness : m_iNumUnitsSuppliedCached;
@@ -17894,100 +17956,162 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 /// Units supplied from Difficulty Level
 int CvPlayer::GetNumUnitsSuppliedByHandicap(bool bIgnoreReduction) const
 {
-	int iSupply = getHandicapInfo().getUnitSupplyBase() + m_pTraits->GetExtraSupply() + GC.getGame().getStartEraInfo().getUnitSupplyBase();
-	iSupply += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyBase();
+	if (!isAlive())
+		return 0;
 
-	if (!bIgnoreReduction)
+	int iSupply = 0;
+	if (isMajorCiv())
 	{
-		iSupply -= GetCurrentEra() * /*0 in CP, 100 in VP*/ GD_INT_GET(UNIT_SUPPLY_BASE_TECH_REDUCTION_PER_ERA) / 100;
-		if (iSupply <= 0)
-			iSupply = 0;
+		iSupply = m_pTraits->GetExtraSupply() + GC.getGame().getStartEraInfo().getUnitSupplyBase();
+		iSupply += getHandicapInfo().getUnitSupplyBase() + getHandicapInfo().getUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
+		iSupply += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyBase() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
+	}
+	else if (isMinorCiv())
+	{
+		iSupply = GC.getGame().getHandicapInfo().getCityStateUnitSupplyBase() + GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerEraFlat() * GC.getGame().getCurrentEra();
 	}
 
-	return iSupply;
+	if (!bIgnoreReduction && (!MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP || isMajorCiv()))
+	{
+		iSupply -= GetCurrentEra() * /*0 in CP, 100 in VP*/ GD_INT_GET(UNIT_SUPPLY_BASE_TECH_REDUCTION_PER_ERA) / 100;
+	}
+
+	return max(iSupply, 0);
 }
 
 //	--------------------------------------------------------------------------------
 /// Units supplied by Cities
 int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 {
-	int iStartingSupplyPerCity = getHandicapInfo().getUnitSupplyPerCity() + m_pTraits->GetExtraSupplyPerCity() + getCitySupplyFlatGlobal();
-	iStartingSupplyPerCity += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPerCity();
-	int iValue = 0;
-	int iLoop = 0;
-	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	if (!isAlive())
+		return 0;
+
+	int iSupply = 0;
+	if (isMajorCiv())
 	{
-		int iSupply = iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat();
-		iValue += iSupply;
+		int iStartingSupplyPerCity = m_pTraits->GetExtraSupplyPerCity() + getCitySupplyFlatGlobal();
+		iStartingSupplyPerCity += getHandicapInfo().getUnitSupplyPerCity();
+		iStartingSupplyPerCity += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPerCity();
+
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			int iCitySupply = iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat();
+			iSupply += iCitySupply;
+		}
+	}
+	else if (isMinorCiv())
+	{
+		int iStartingSupplyPerCity = GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerCity();
+		if (MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP)
+		{
+			iSupply = iStartingSupplyPerCity * getNumCities();
+		}
+		else
+		{
+			iStartingSupplyPerCity += getCitySupplyFlatGlobal();
+			int iLoop = 0;
+			for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+			{
+				int iCitySupply = iStartingSupplyPerCity + pLoopCity->getCitySupplyFlat();
+				iSupply += iCitySupply;
+			}
+		}
 	}
 
-	if (!bIgnoreReduction)
+	if (!bIgnoreReduction && (!MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP || isMajorCiv()))
 	{
 		int iTechProgress = range((GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos(), 0, 100);
 
 		iTechProgress *= /*0 in CP, 5 in VP*/ GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER);
 		iTechProgress /= /*1 in CP, 6 in VP*/ max(1, GD_INT_GET(UNIT_SUPPLY_CITIES_TECH_REDUCTION_DIVISOR));
 
-		iValue *= 100;
-		iValue /= (100 + iTechProgress);
+		iSupply *= 100;
+		iSupply /= max(100 + iTechProgress, 1);
 	}
 
-	if (iValue < 0)
-		return 0;
-
-	return iValue;
+	return max(iSupply, 0);
 }
 
 //	--------------------------------------------------------------------------------
 /// Units supplied by Population
 int CvPlayer::GetNumUnitsSuppliedByPopulation(bool bIgnoreReduction) const
 {
-	int iPlayerSupplyModifier = getHandicapInfo().getUnitSupplyPopulationPercent() + m_pTraits->GetExtraSupplyPerPopulation() + GetExtraSupplyPerPopulation();
-	iPlayerSupplyModifier += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPopulationPercent();
+	if (!isAlive())
+		return 0;
 
-	int iValue = 0;
-	int iLoop = 0;
-	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	int iSupply = 0;
+	if (isMajorCiv())
 	{
-		int iPopulation = 0;
-		int iSupply = iPlayerSupplyModifier + pLoopCity->getCitySupplyModifier();
-		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-		{
-			iPopulation = pLoopCity->getPopulation() * /*100 in CP, 50 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT);
-		}
-		else
-		{
-			iPopulation = pLoopCity->getPopulation() * 100;
-		}
+		int iStartingPopulationPercent = m_pTraits->GetExtraSupplyPerPopulation() + GetExtraSupplyPerPopulation();
+		iStartingPopulationPercent += getHandicapInfo().getUnitSupplyPopulationPercent();
+		iStartingPopulationPercent += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPopulationPercent();
 
-		iValue += ((iPopulation * iSupply) / 100);
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			int iPopulationPercent = iStartingPopulationPercent + pLoopCity->getCitySupplyModifier();
+			int iPopulation = 0;
+
+			// In VP, Venice gets 100% population percent from its puppet cities
+			if ((MOD_BALANCE_VP && CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity)) || (!MOD_BALANCE_VP && pLoopCity->IsPuppet()))
+			{
+				iPopulation = pLoopCity->getPopulation() * /*100 in CP, 50 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT);
+			}
+			else
+			{
+				iPopulation = pLoopCity->getPopulation() * 100;
+			}
+
+			iSupply += (iPopulation * iPopulationPercent) / 100;
+		}
+	}
+	else if (isMinorCiv())
+	{
+		int iStartingPopulationPercent = MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP ? 0 : GetExtraSupplyPerPopulation();
+		iStartingPopulationPercent += GC.getGame().getHandicapInfo().getCityStateUnitSupplyPopulationPercent();
+
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+		{
+			int iPopulationPercent = MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP ? iStartingPopulationPercent : iStartingPopulationPercent + pLoopCity->getCitySupplyModifier();
+			int iPopulation = 0;
+
+			if (pLoopCity->IsPuppet())
+			{
+				iPopulation = pLoopCity->getPopulation() * /*100 in CP, 50 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_PUPPET_PERCENT);
+			}
+			else
+			{
+				iPopulation = pLoopCity->getPopulation() * 100;
+			}
+
+			iSupply += (iPopulation * iPopulationPercent) / 100;
+		}
 	}
 
-	if (!bIgnoreReduction)
+	if (!bIgnoreReduction && (!MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP || isMajorCiv()))
 	{
 		int iTechProgress = range((GET_TEAM(getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos(), 0, 100);
 		iTechProgress *= /*0 in CP, 700 in VP*/ GD_INT_GET(UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER);
 		iTechProgress /= 100;
 
-		iValue *= 100;
-		iValue /= (100 + iTechProgress);
+		iSupply *= 100;
+		iSupply /= max(100 + iTechProgress, 1);
 	}
 
-	iValue /= 100;
-
-	if (iValue < 0)
-		return 0;
-
-	return iValue;
+	return max(iSupply/100, 0);
 }
 
 //	--------------------------------------------------------------------------------
 /// How much Units are eating Production?
 int CvPlayer::GetNumUnitsOutOfSupply(bool bCheckWarWeariness) const
 {
-	bool bCheckWW = bCheckWarWeariness;
+	if (!isAlive() || isBarbarian())
+		return 0;
+
 	int iNumUnitsToSupply = getNumMilitaryUnits() - getNumUnitsSupplyFree();
-	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied(bCheckWW));
+	return std::max(0, iNumUnitsToSupply - GetNumUnitsSupplied(bCheckWarWeariness));
 }
 
 int CvPlayer::GetNumUnitsToSupply() const
@@ -49925,7 +50049,6 @@ int CvPlayer::GetNumEffectiveCoastalCities() const
 	return iNum++;
 }
 
-#if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetExtraSupplyPerPopulation() const
 {
@@ -49950,13 +50073,16 @@ void CvPlayer::changeCitySupplyFlatGlobal(int iChange)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetUnitSupplyFromExpendedGreatPeople() const
 {
+	if (!isAlive() || (MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP && isMinorCiv()))
+		return 0;
+
 	return m_iUnitSupplyFromExpendedGP;
 }
 void CvPlayer::ChangeUnitSupplyFromExpendedGreatPeople(int iChange)
 {
 	m_iUnitSupplyFromExpendedGP += iChange;
 }
-#endif
+
 //	--------------------------------------------------------------------------------
 /// How many Natural Wonders has this player found in its area?
 int CvPlayer::GetNumNaturalWondersDiscoveredInArea() const

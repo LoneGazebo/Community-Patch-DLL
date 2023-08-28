@@ -94,6 +94,10 @@
 					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_POPULATION_SUPPLY"/>
 					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="PopulationSupplyValue"/>
 				</Box>
+				<Box Size="200,24" Color="0.0.0.0" ID="GreatPeopleSupply" ToolTip="TXT_KEY_GREAT_PEOPLE_SUPPLY_TT">
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_GREAT_PEOPLE_SUPPLY"/>
+					<Label Offset="10,0" Font="TwCenMT18" Anchor="R,C" ID="GreatPeopleSupplyValue"/>
+				</Box>
 				<!-- Infixo VP specific start -->
 				<Box Size="200,24" Color="0.0.0.0" ID="WarWearinessReduction" ToolTip="TXT_KEY_WAR_WEARINESS_SUPPLY_TT" >
 					<Label Offset="10,0" Font="TwCenMT18" Anchor="L,C" String="TXT_KEY_WAR_WEARINESS_SUPPLY" />

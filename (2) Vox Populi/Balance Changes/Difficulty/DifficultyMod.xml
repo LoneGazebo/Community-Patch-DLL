@@ -25,8 +25,9 @@
 			<UnitSupplyBase>10</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>35</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
@@ -88,8 +89,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -140,6 +142,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>0</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -246,8 +254,9 @@
 			<UnitSupplyBase>9</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>30</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
@@ -309,8 +318,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -361,6 +371,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>0</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>0</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -467,8 +483,9 @@
 			<UnitSupplyBase>8</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>25</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
@@ -530,8 +547,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -582,6 +600,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>1</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>0</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -688,8 +712,9 @@
 			<UnitSupplyBase>8</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>25</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
@@ -751,8 +776,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -803,6 +829,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>1</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>25</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -909,8 +941,9 @@
 			<UnitSupplyBase>8</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
@@ -972,8 +1005,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -1024,6 +1058,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>2</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>35</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -1130,8 +1170,9 @@
 			<UnitSupplyBase>7</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>20</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
@@ -1193,8 +1234,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -1245,6 +1287,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>2</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>50</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -1351,8 +1399,9 @@
 			<UnitSupplyBase>7</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>15</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
@@ -1414,8 +1463,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -1466,6 +1516,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>3</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>60</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -1572,8 +1628,9 @@
 			<UnitSupplyBase>6</UnitSupplyBase>
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>15</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>0</StartingDefenseUnits>
@@ -1635,8 +1692,9 @@
 			<AIUnitSupplyBase>8</AIUnitSupplyBase>
 			<AIUnitSupplyPerCity>1</AIUnitSupplyPerCity>
 			<AIUnitSupplyPopulationPercent>25</AIUnitSupplyPopulationPercent>
-			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
+			<AIUnitSupplyPerEraFlat>0</AIUnitSupplyPerEraFlat>
 			<AIUnitSupplyPerEraModifier>0</AIUnitSupplyPerEraModifier>
+			<AIUnitSupplyBonusPercent>0</AIUnitSupplyBonusPercent>
 			<AIStartingUnitMultiplier>0</AIStartingUnitMultiplier>
 			<AIStartingWorkerUnits>0</AIStartingWorkerUnits>
 			<AIStartingDefenseUnits>0</AIStartingDefenseUnits>
@@ -1687,6 +1745,12 @@
 			<!-- City-States -->
 			<StartingCityStateWorkerUnits>0</StartingCityStateWorkerUnits>
 			<StartingCityStateDefenseUnits>3</StartingCityStateDefenseUnits>
+			<CityStateUnitSupplyBase>8</CityStateUnitSupplyBase>
+			<CityStateUnitSupplyPerCity>1</CityStateUnitSupplyPerCity>
+			<CityStateUnitSupplyPopulationPercent>25</CityStateUnitSupplyPopulationPercent>
+			<CityStateUnitSupplyPerEraFlat>0</CityStateUnitSupplyPerEraFlat>
+			<CityStateUnitSupplyPerEraModifier>0</CityStateUnitSupplyPerEraModifier>
+			<CityStateUnitSupplyBonusPercent>0</CityStateUnitSupplyBonusPercent>
 			<CityStateWorkRateModifier>70</CityStateWorkRateModifier>
 			<CityStateGrowthPercent>75</CityStateGrowthPercent>
 			<CityStateGrowthPerEraModifier>0</CityStateGrowthPerEraModifier>
@@ -1792,8 +1856,9 @@
 			<UnitSupplyBase>0</UnitSupplyBase>
 			<UnitSupplyPerCity>0</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>0</UnitSupplyPopulationPercent>
-			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
+			<UnitSupplyPerEraFlat>0</UnitSupplyPerEraFlat>
 			<UnitSupplyPerEraModifier>0</UnitSupplyPerEraModifier>
+			<UnitSupplyBonusPercent>0</UnitSupplyBonusPercent>
 			<StartingUnitMultiplier>0</StartingUnitMultiplier>
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>0</StartingDefenseUnits>

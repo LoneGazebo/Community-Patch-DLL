@@ -17872,7 +17872,7 @@ int CvMinorCivAI::GetJerkTurnsRemaining(TeamTypes eTeam) const
 	if (iTurnDifference >= iJerkTurns)
 		return 0;
 
-	return (GC.getGame().getGameTurn() - iTurn);
+	return iJerkTurns - iTurnDifference;
 }
 
 bool CvMinorCivAI::IsIgnoreJerk(TeamTypes eTeam) const

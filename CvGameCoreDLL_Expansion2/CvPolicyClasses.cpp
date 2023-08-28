@@ -4271,7 +4271,7 @@ void CvPlayerPolicies::SetPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree)
 
 		if (bNewValue)
 		{
-			if (GC.getGame().isFinalInitialized())
+			if (GC.getGame().isFinalInitialized() && !pkPolicyInfo->IsDummy())
 				GetPlayer()->DoDifficultyBonus(DIFFICULTY_BONUS_ADOPTED_POLICY);
 
 			DoNewPolicyPickedForHistory(eIndex);

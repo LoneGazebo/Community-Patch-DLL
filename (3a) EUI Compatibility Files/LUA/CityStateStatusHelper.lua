@@ -461,12 +461,12 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 				table_insert( tips, L("TXT_KEY_CSTATE_CANNOT_BULLY", minorPlayer:GetMajorBullyValue(majorPlayerID)) )
 			end
 		end
--- CBP
-		local iJerk = minorPlayer:GetJerk(majorPlayerID);
-		if(iJerk > 0) then
-			table_insert( tips, L("TXT_KEY_CSTATE_JERK_STATUS", iJerk ))
+
+		local iJerkTurnsRemaining = minorPlayer:GetJerkTurnsRemaining(majorPlayerID);
+		if (iJerkTurnsRemaining > 0) then
+			table_insert( tips, L("TXT_KEY_CSTATE_JERK_STATUS", iJerkTurnsRemaining))
 		end
--- END
+
 		if isFullInfo then
 			-- Bonuses
 			local bonuses = GetCityStateBonuses( majorPlayerID, minorPlayerID )

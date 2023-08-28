@@ -214,6 +214,9 @@
 // Purchased units do not have full health when the city is damaged
 #define MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED		 gCustomMods.isBALANCE_CORE_UNIT_CREATION_DAMAGED()
 
+// City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply.
+#define MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP			gCustomMods.isUNIT_SUPPLY_MINORS_USE_HANDICAP()
+
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
 #if defined(MOD_COMMUNITY_PATCH)
@@ -1336,6 +1339,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_PROMOTION_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_LOGGING);
 	MOD_OPT_DECL(BALANCE_CORE_UNIT_CREATION_DAMAGED);
+	MOD_OPT_DECL(UNIT_SUPPLY_MINORS_USE_HANDICAP);
 	MOD_OPT_DECL(BALANCE_CORE_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC);
 	MOD_OPT_DECL(BALANCE_CORE_BUILDING_INVESTMENTS);

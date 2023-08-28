@@ -341,12 +341,11 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
 		strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_CANNOT_BULLY", pMinor:GetMajorBullyValue(iMajor));
 	end
--- CBP
-	local iJerk = pMinor:GetJerk(iMajor);
-	if(iJerk > 0) then
-		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CSTATE_JERK_STATUS", iJerk);
+
+	local iJerkTurnsRemaining = pMinor:GetJerkTurnsRemaining(iMajor);
+	if (iJerkTurnsRemaining > 0) then
+		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_CSTATE_JERK_STATUS", iJerkTurnsRemaining);
 	end
--- END
 	
 	if (bFullInfo) then
 		-- Open Borders

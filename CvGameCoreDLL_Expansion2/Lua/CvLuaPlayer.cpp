@@ -774,7 +774,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(AddMinorCivQuestIfAble);
 	Method(GetFriendshipFromUnitGift);
 #if defined(MOD_BALANCE_CORE_MINORS)
-	Method(GetJerk);
+	Method(GetJerkTurnsRemaining);
 	Method(GetCoupCooldown);
 #endif
 	Method(GetNumDenouncements);
@@ -7787,7 +7787,10 @@ int CvLuaPlayer::lGetUnitProductionMaintenanceMod(lua_State* L)
 //int GetNumUnitsSupplied();
 int CvLuaPlayer::lGetNumUnitsSupplied(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsSupplied);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSupplied(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int GetNumUnitsSuppliedByHandicap();
@@ -7820,7 +7823,10 @@ int CvLuaPlayer::lGetNumUnitsSuppliedByPopulation(lua_State* L)
 //int GetNumUnitsOutOfSupply();
 int CvLuaPlayer::lGetNumUnitsOutOfSupply(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::GetNumUnitsOutOfSupply);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsOutOfSupply(true);
+	lua_pushinteger(L, iResult);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getCityDefenseModifier();
@@ -9279,8 +9285,8 @@ int CvLuaPlayer::lGetFriendshipFromUnitGift(lua_State* L)
 
 #if defined(MOD_BALANCE_CORE_MINORS)
 //------------------------------------------------------------------------------
-//int GetJerk(TeamTypes eTeam);
-int CvLuaPlayer::lGetJerk(lua_State* L)
+//int GetJerkTurnsRemaining(TeamTypes eTeam);
+int CvLuaPlayer::lGetJerkTurnsRemaining(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);

@@ -965,8 +965,9 @@ public:
 	int getUnitSupplyBase() const;
 	int getUnitSupplyPerCity() const;
 	int getUnitSupplyPopulationPercent() const;
-	int getUnitSupplyBonusPercent() const;
+	int getUnitSupplyPerEraFlat() const;
 	int getUnitSupplyPerEraModifier() const;
+	int getUnitSupplyBonusPercent() const;
 	int getStartingUnitMultiplier() const;
 	int getStartingWorkerUnits() const;
 	int getStartingDefenseUnits() const;
@@ -1029,8 +1030,9 @@ public:
 	int getAIUnitSupplyBase() const;
 	int getAIUnitSupplyPerCity() const;
 	int getAIUnitSupplyPopulationPercent() const;
-	int getAIUnitSupplyBonusPercent() const;
+	int getAIUnitSupplyPerEraFlat() const;
 	int getAIUnitSupplyPerEraModifier() const;
+	int getAIUnitSupplyBonusPercent() const;
 	int getAIStartingUnitMultiplier() const;
 	int getAIStartingWorkerUnits() const;
 	int getAIStartingDefenseUnits() const;
@@ -1082,6 +1084,12 @@ public:
 	// City-States
 	int getStartingCityStateWorkerUnits() const;
 	int getStartingCityStateDefenseUnits() const;
+	int getCityStateUnitSupplyBase() const;
+	int getCityStateUnitSupplyPerCity() const;
+	int getCityStateUnitSupplyPopulationPercent() const;
+	int getCityStateUnitSupplyPerEraFlat() const;
+	int getCityStateUnitSupplyPerEraModifier() const;
+	int getCityStateUnitSupplyBonusPercent() const;
 	int getCityStateWorkRateModifier() const;
 	int getCityStateGrowthPercent() const;
 	int getCityStateGrowthPerEraModifier() const;
@@ -1191,8 +1199,9 @@ protected:
 	int m_iUnitSupplyBase;
 	int m_iUnitSupplyPerCity;
 	int m_iUnitSupplyPopulationPercent;
-	int m_iUnitSupplyBonusPercent;
+	int m_iUnitSupplyPerEraFlat;
 	int m_iUnitSupplyPerEraModifier;
+	int m_iUnitSupplyBonusPercent;
 	int m_iStartingUnitMultiplier;
 	int m_iStartingWorkerUnits;
 	int m_iStartingDefenseUnits;
@@ -1254,8 +1263,9 @@ protected:
 	int m_iAIUnitSupplyBase;
 	int m_iAIUnitSupplyPerCity;
 	int m_iAIUnitSupplyPopulationPercent;
-	int m_iAIUnitSupplyBonusPercent;
+	int m_iAIUnitSupplyPerEraFlat;
 	int m_iAIUnitSupplyPerEraModifier;
+	int m_iAIUnitSupplyBonusPercent;
 	int m_iAIStartingUnitMultiplier;
 	int m_iAIStartingWorkerUnits;
 	int m_iAIStartingDefenseUnits;
@@ -1306,6 +1316,12 @@ protected:
 	// City-States
 	int m_iStartingCityStateWorkerUnits;
 	int m_iStartingCityStateDefenseUnits;
+	int m_iCityStateUnitSupplyBase;
+	int m_iCityStateUnitSupplyPerCity;
+	int m_iCityStateUnitSupplyPopulationPercent;
+	int m_iCityStateUnitSupplyPerEraFlat;
+	int m_iCityStateUnitSupplyPerEraModifier;
+	int m_iCityStateUnitSupplyBonusPercent;
 	int m_iCityStateWorkRateModifier;
 	int m_iCityStateGrowthPercent;
 	int m_iCityStateGrowthPerEraModifier;
