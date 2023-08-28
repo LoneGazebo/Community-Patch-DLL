@@ -17861,27 +17861,18 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		{
 			if (isHuman())
 			{
-				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
-				iUnitSupply /= 100;
-
-				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent();
+				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent() + getHandicapInfo().getUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
 				iUnitSupply /= 100;
 			}
 			else
 			{
-				iUnitSupply *= 100 + (getHandicapInfo().getUnitSupplyPerEraModifier() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraModifier()) * GC.getGame().getCurrentEra();
-				iUnitSupply /= 100;
-
-				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getAIUnitSupplyBonusPercent();
+				iUnitSupply *= 100 + getHandicapInfo().getUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getAIUnitSupplyBonusPercent() + (getHandicapInfo().getUnitSupplyPerEraModifier() + GC.getGame().getHandicapInfo().getAIUnitSupplyPerEraModifier()) * GC.getGame().getCurrentEra();
 				iUnitSupply /= 100;
 			}
 		}
 		else if (isMinorCiv())
 		{
-			iUnitSupply *= 100 + GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
-			iUnitSupply /= 100;
-
-			iUnitSupply *= 100 + GC.getGame().getHandicapInfo().getCityStateUnitSupplyBonusPercent();
+			iUnitSupply *= 100 + GC.getGame().getHandicapInfo().getCityStateUnitSupplyBonusPercent() + GC.getGame().getHandicapInfo().getCityStateUnitSupplyPerEraModifier() * GC.getGame().getCurrentEra();
 			iUnitSupply /= 100;
 
 			int iModifier = 0;
