@@ -17930,7 +17930,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 			int iExtraCities = getNumCities() - 1;
 			if (iExtraCities > 0)
 			{
-				iUnitSupply *= 100 + /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MULTIPLIER_PER_EXTRA_CITY);
+				iUnitSupply *= 100 + iExtraCities * /*0*/ GD_INT_GET(MINOR_CIV_UNIT_SUPPLY_MULTIPLIER_PER_EXTRA_CITY);
 				iUnitSupply /= 100;
 			}
 		}
