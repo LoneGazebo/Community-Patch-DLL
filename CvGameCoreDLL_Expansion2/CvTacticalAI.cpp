@@ -8586,7 +8586,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				//subtract a little for wasted movement points to balance out what we added in the ref assignment
 				gPossibleMoves.push_back(
 					STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, 
-						iBonus - unit.iMovesLeft / GC.getMOVE_DENOMINATOR(), A_FINISH_TEMP));
+						iBonus - unit.iMovesLeft / GD_INT_GET(MOVE_DENOMINATOR), A_FINISH_TEMP));
 			}
 			else
 				//if the current plot is bad, try to find another use for the unit

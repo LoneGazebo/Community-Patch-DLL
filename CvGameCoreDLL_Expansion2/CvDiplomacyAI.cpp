@@ -8545,7 +8545,7 @@ bool CvDiplomacyAI::IsAngryAboutProtectedMinorKilled(PlayerTypes ePlayer) const
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
 
-	if (iTurnDifference < /*50*/ GC.getOPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN())
+	if (iTurnDifference < /*50*/ GD_INT_GET(OPINION_WEIGHT_KILLED_PROTECTED_MINOR_NUM_TURNS_UNTIL_FORGIVEN))
 		return true;
 
 	return false;
@@ -32631,7 +32631,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 
 	bool bWantsToBullyGold = false;
 
-	if(iGoldFlavor >= 6 ||  //antonjs: todo: GC.getMC_ALWAYS_BULLY_GOLD_THRESHOLD()
+	if(iGoldFlavor >= 6 ||  //antonjs: todo: GD_INT_GET(MC_ALWAYS_BULLY_GOLD_THRESHOLD)
 	        IsGoingForWorldConquest() ||
 	        GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_UNIT) ||
 	        GetPlayer()->GetEconomicAI()->IsSavingForThisPurchase(PURCHASE_TYPE_BUILDING) ||
@@ -33691,7 +33691,7 @@ void CvDiplomacyAI::DoCoopWarTimeStatement(PlayerTypes ePlayer, DiploStatementTy
 			// Agreed to go to war soon... what's the counter at?
 			if(GetCoopWarAcceptedState(ePlayer, eTargetPlayer) == COOP_WAR_STATE_SOON)
 			{
-				if(GetCoopWarCounter(ePlayer, eTargetPlayer) == GC.getCOOP_WAR_SOON_COUNTER())
+				if(GetCoopWarCounter(ePlayer, eTargetPlayer) == GD_INT_GET(COOP_WAR_SOON_COUNTER))
 				{
 					eTargetTeam = GET_PLAYER(eTargetPlayer).getTeam();
 
@@ -40002,7 +40002,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 				// Human declaration
 				TeamTypes eAgainstTeam = GET_PLAYER(eAgainstPlayer).getTeam();
-				int iLockedTurns = GC.getCOOP_WAR_LOCKED_LENGTH();
+				int iLockedTurns = GD_INT_GET(COOP_WAR_LOCKED_LENGTH);
 				GET_TEAM(GetTeam()).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
 				GET_TEAM(eFromTeam).ChangeNumTurnsLockedIntoWar(eAgainstTeam, iLockedTurns);
 			}
@@ -46379,7 +46379,7 @@ int CvDiplomacyAI::GetWonderSpammerScore(PlayerTypes ePlayer)
 		int iWonderDifference = min(iCivDifference, iMedianDifference);
 		int iDifficultyMod = GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getWonderBlockMod() : GC.getGame().getHandicapInfo().getWonderBlockMod();
 
-		if (iWonderDifference > /*4*/ (GC.getWONDER_SPAMMER_THRESHOLD() + 1 - iDifficultyMod))
+		if (iWonderDifference > /*4*/ (GD_INT_GET(WONDER_SPAMMER_THRESHOLD) + 1 - iDifficultyMod))
 		{
 			iOpinionWeight += ((iWonderDifference - (GD_INT_GET(WONDER_SPAMMER_THRESHOLD) + 1 - iDifficultyMod)) * /*5*/ GD_INT_GET(OPINION_WEIGHT_WONDER_SPAMMER_PER_WONDER));
 

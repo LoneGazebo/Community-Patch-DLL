@@ -900,13 +900,6 @@ enum BattleTypeTypes
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 
-// Message wrappers
-#define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       if (pPlayer) DLLUI->AddMessage(0, (pPlayer)->GetID(), false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, (pCity)->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, (pUnit)->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, (pPlot)->GetPlotIndex(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) (pPlot)->showPopupText(ePlayer, szMessage)
-
 // GlobalDefines wrappers
 #define GD_INT_DECL(name)         int m_i##name
 #define GD_INT_DEF(name)          inline int get##name() const { return m_i##name; }
@@ -921,6 +914,14 @@ enum BattleTypeTypes
 #define GD_FLOAT_INIT(name, def)  m_f##name(def)
 #define GD_FLOAT_CACHE(name)      getDatabaseValue(#name,m_f##name)
 #define GD_FLOAT_GET(name)        GC.get##name()
+
+
+// Message wrappers
+#define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       if (pPlayer) DLLUI->AddMessage(0, (pPlayer)->GetID(), false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, (pCity)->GetIDInfo(), ePlayer, false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, (pUnit)->GetIDInfo(), ePlayer, false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, (pPlot)->GetPlotIndex(), ePlayer, false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) (pPlot)->showPopupText(ePlayer, szMessage)
 
 
 // LUA API wrappers

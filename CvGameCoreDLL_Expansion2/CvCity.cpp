@@ -2078,10 +2078,10 @@ void CvCity::setupSpaceshipGraphics()
 
 	if (isCapital() && thisTeam.getProjectCount((ProjectTypes)ApolloProgram) == 1)
 	{
-		ProjectTypes capsuleID = (ProjectTypes)GC.getSPACESHIP_CAPSULE();
-		ProjectTypes boosterID = (ProjectTypes)GC.getSPACESHIP_BOOSTER();
-		ProjectTypes stasisID = (ProjectTypes)GC.getSPACESHIP_STASIS();
-		ProjectTypes engineID = (ProjectTypes)GC.getSPACESHIP_ENGINE();
+		ProjectTypes capsuleID = (ProjectTypes)GD_INT_GET(SPACESHIP_CAPSULE);
+		ProjectTypes boosterID = (ProjectTypes)GD_INT_GET(SPACESHIP_BOOSTER);
+		ProjectTypes stasisID = (ProjectTypes)GD_INT_GET(SPACESHIP_STASIS);
+		ProjectTypes engineID = (ProjectTypes)GD_INT_GET(SPACESHIP_ENGINE);
 
 		enum eSpaceshipState
 		{
@@ -14313,7 +14313,7 @@ int CvCity::getConscriptPopulation() const
 int CvCity::conscriptMinCityPopulation() const
 {
 	VALIDATE_OBJECT
-	return getConscriptPopulation() + /*5*/ GC.getCONSCRIPT_MIN_CITY_POPULATION();
+	return getConscriptPopulation() + /*5*/ GD_INT_GET(CONSCRIPT_MIN_CITY_POPULATION);
 }
 
 //	--------------------------------------------------------------------------------
@@ -31046,10 +31046,10 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 	changeProjectCount(eProjectType, 1);
 
 	ProjectTypes ApolloProgram = (ProjectTypes)GD_INT_GET(SPACE_RACE_TRIGGER_PROJECT);
-	ProjectTypes capsuleID = (ProjectTypes)GC.getSPACESHIP_CAPSULE();
-	ProjectTypes boosterID = (ProjectTypes)GC.getSPACESHIP_BOOSTER();
-	ProjectTypes stasisID = (ProjectTypes)GC.getSPACESHIP_STASIS();
-	ProjectTypes engineID = (ProjectTypes)GC.getSPACESHIP_ENGINE();
+	ProjectTypes capsuleID = (ProjectTypes)GD_INT_GET(SPACESHIP_CAPSULE);
+	ProjectTypes boosterID = (ProjectTypes)GD_INT_GET(SPACESHIP_BOOSTER);
+	ProjectTypes stasisID = (ProjectTypes)GD_INT_GET(SPACESHIP_STASIS);
+	ProjectTypes engineID = (ProjectTypes)GD_INT_GET(SPACESHIP_ENGINE);
 
 	enum eSpaceshipState
 	{
