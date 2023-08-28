@@ -47425,6 +47425,8 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iEspionageModifier);
 	visitor(player.m_iEspionageTurnsModifierFriendly);
 	visitor(player.m_iEspionageTurnsModifierEnemy);
+	visitor(player.m_iSpyPoints);
+	visitor(player.m_iSpyPointsTotal);
 	visitor(player.m_iSpyStartingRank);
 	visitor(player.m_iConversionModifier);
 	visitor(player.m_iFoodInCapitalFromAnnexedMinors);
