@@ -388,6 +388,34 @@ int CvLuaDeal::lAddVoteCommitment(lua_State* L)
 	pkDeal->AddVoteCommitment(eFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
 	return 0;
 }
+//------------------------------------------------------------------------------
+int CvLuaDeal::lAddTechTrade(lua_State* L)
+{
+	CvDeal* pkDeal = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const TechTypes eTech = (TechTypes)lua_tointeger(L, 3);
+
+	pkDeal->AddTechTrade(eFromPlayer, eTech);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaDeal::lAddVassalageTrade(lua_State* L)
+{
+	CvDeal* pkDeal = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	pkDeal->AddVassalageTrade(eFromPlayer);
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaDeal::lAddRevokeVassalageTrade(lua_State* L)
+{
+	CvDeal* pkDeal = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+
+	pkDeal->AddRevokeVassalageTrade(eFromPlayer);
+	return 0;
+}
 
 //------------------------------------------------------------------------------
 int CvLuaDeal::lRemoveVoteCommitment(lua_State* L)
