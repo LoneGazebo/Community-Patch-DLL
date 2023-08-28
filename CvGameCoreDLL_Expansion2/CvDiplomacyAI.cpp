@@ -52689,7 +52689,7 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 {
 	CvString strTemp;
 
-	switch(eQuestType)
+	switch (eQuestType)
 	{
 	case MINOR_CIV_QUEST_ROUTE:
 		strTemp.Format("Route");
@@ -52707,13 +52707,10 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 		strTemp.Format("Great Person");
 		break;
 	case MINOR_CIV_QUEST_KILL_CITY_STATE:
-		strTemp.Format("Kill City State");
+		strTemp.Format("Kill City-State");
 		break;
 	case MINOR_CIV_QUEST_FIND_PLAYER:
 		strTemp.Format("Find Player");
-		break;
-	case MINOR_CIV_QUEST_FIND_CITY:
-		strTemp.Format("Find City");
 		break;
 	case MINOR_CIV_QUEST_FIND_NATURAL_WONDER:
 		strTemp.Format("Find Natural Wonder");
@@ -52748,17 +52745,20 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_TRADE_ROUTE:
 		strTemp.Format("Trade Route");
 		break;
+	case MINOR_CIV_QUEST_FIND_CITY:
+		strTemp.Format("Find City");
+		break;
 	case MINOR_CIV_QUEST_WAR:
-		strTemp.Format("Declare War on Major");
+		strTemp.Format("War");
 		break;
 	case MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER:
 		strTemp.Format("Construct National Wonder");
 		break;
 	case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
-		strTemp.Format("Send Unit");
+		strTemp.Format("Gift Specific Unit");
 		break;
 	case MINOR_CIV_QUEST_FIND_CITY_STATE:
-		strTemp.Format("Find City State");
+		strTemp.Format("Find City-State");
 		break;
 	case MINOR_CIV_QUEST_INFLUENCE:
 		strTemp.Format("Influence");
@@ -52782,22 +52782,22 @@ void CvDiplomacyAI::LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes
 		strTemp.Format("Rebellion");
 		break;
 	case MINOR_CIV_QUEST_EXPLORE_AREA:
-		strTemp.Format("Discover a Plot");
+		strTemp.Format("Explore Area");
 		break;
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 		strTemp.Format("Build X Buildings");
 		break;
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
-		strTemp.Format("Steal From");
+		strTemp.Format("Spy On Major");
 		break;
 	case MINOR_CIV_QUEST_COUP:
-		strTemp.Format("Coup City");
+		strTemp.Format("Coup");
 		break;
 	case MINOR_CIV_QUEST_ACQUIRE_CITY:
-		strTemp.Format("Conquer a City");
+		strTemp.Format("Acquire City");
 		break;
 	default:
-		strTemp.Format("Quest_Unknown");
+		strTemp.Format("Unknown Quest");
 		break;
 	}
 

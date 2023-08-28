@@ -95,6 +95,10 @@ SET Value = '1'
 WHERE Name = 'GLOBAL_CS_UPGRADES';
 
 UPDATE CustomModOptions
+SET Value = 1
+WHERE Name = 'GLOBAL_CS_GIFTS_LOCAL_XP';
+
+UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'GLOBAL_TRULY_FREE_GP';
 

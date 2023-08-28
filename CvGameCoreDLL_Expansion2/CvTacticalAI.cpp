@@ -8616,7 +8616,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			newAssignment.iScore -= refAssignment.iScore;
 
 			//score functions are biased so that only scores > 0 are interesting moves
-			//still allow mildy negative moves here, maybe we want to do combo moves later!
+			//still allow mildly negative moves here, maybe we want to do combo moves later!
 			if (newAssignment.iScore > TACTICAL_COMBAT_IMPOSSIBLE_SCORE)
 				gPossibleMoves.push_back(newAssignment);
 		}
