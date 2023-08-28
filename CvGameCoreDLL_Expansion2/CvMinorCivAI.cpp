@@ -16234,7 +16234,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 			iGold /= 100;
 		}
 
-		GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, true, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, NULL, pMinorCapital);
+		GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, false, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, NULL, pMinorCapital);
 
 		if (GC.getGame().getActivePlayer() != NO_PLAYER)
 		{
@@ -16254,7 +16254,7 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 		}
 
 		// additional instant yields from policies etc.
-		GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, true, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pMinorCapital);
+		GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, false, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pMinorCapital);
 
 		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() > 0)
 		{
@@ -16433,7 +16433,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
 			if (pCapital != NULL)
 			{
-				GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, pCapital);
+				GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCapital);
 			}
 		}
 #endif
@@ -16536,10 +16536,10 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 						iGold /= 100;
 					}
 
-					GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, true, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, NULL, pMinorCapital);
+					GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, false, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, NULL, pMinorCapital);
 
 					// additional yields from policies etc.
-					GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, true, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pMinorCapital);
+					GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iGold, false, NO_PLAYER, NULL, false, pBullyCapital, false, true, false, NO_YIELD, NULL, NO_TERRAIN, NULL, pMinorCapital);
 
 
 					if (GC.getGame().getActivePlayer() != NO_PLAYER)

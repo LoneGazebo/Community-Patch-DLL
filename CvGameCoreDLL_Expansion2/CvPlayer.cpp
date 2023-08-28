@@ -3593,7 +3593,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				int iYield = GetPlayerTraits()->GetBullyYieldMultiplierAnnex();
 				iYield *= pMinorAI->GetBullyGoldAmount(GetID());
 				iYield /= 100;
-				doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, true, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, NULL, pCity);
+				doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, getCapitalCity(), false, true, false, YIELD_GOLD, NULL, NO_TERRAIN, NULL, pCity);
 			}
 
 			// Other instant yields from conquering a city?
