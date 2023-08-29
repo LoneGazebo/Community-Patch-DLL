@@ -1526,8 +1526,20 @@ bool CvMinorCivQuest::IsComplete()
 		BuildingTypes eBuilding = (BuildingTypes)m_iData1;
 		int iNumToConstruct = m_iData2;
 
+		int iNumConstructed = 0;
+		int iCityLoop = 0;
+		for (CvCity* pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iCityLoop))
+		{
+			// Exclude puppets
+			if (pLoopCity->IsPuppet())
+				continue;
+
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+				iNumConstructed++;
+		}
+
 		// Built X of this building?
-		return eBuilding != NO_BUILDING && pAssignedPlayer->getNumBuildings(eBuilding) >= iNumToConstruct;
+		return iNumConstructed >= iNumToConstruct;
 	}
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
@@ -1685,7 +1697,11 @@ bool CvMinorCivQuest::IsExpired()
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iCityLoop))
 		{
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eWonder) == 0 && pLoopCity->getProductionBuilding() != eWonder && !pLoopCity->canConstruct(eWonder,allBuildingCount))
+			// Exclude puppets
+			if (pLoopCity->IsPuppet())
+				continue;
+
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eWonder) == 0 && !pLoopCity->isBuildingInQueue(eWonder) && !pLoopCity->canConstruct(eWonder,allBuildingCount))
 				continue;
 
 			bNoValidCity = false;
@@ -1885,7 +1901,11 @@ bool CvMinorCivQuest::IsExpired()
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iCityLoop))
 		{
-			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eWonder) == 0 && pLoopCity->getProductionBuilding() != eWonder && !pLoopCity->canConstruct(eWonder,allBuildingCount))
+			// Exclude puppets
+			if (pLoopCity->IsPuppet())
+				continue;
+
+			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eWonder) == 0 && !pLoopCity->isBuildingInQueue(eWonder) && !pLoopCity->canConstruct(eWonder,allBuildingCount))
 				continue;
 
 			bNoValidCity = false;
@@ -2075,13 +2095,17 @@ bool CvMinorCivQuest::IsExpired()
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(m_eAssignedPlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(m_eAssignedPlayer).nextCity(&iCityLoop))
 		{
+			// Exclude puppets
+			if (pLoopCity->IsPuppet())
+				continue;
+
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				iNumValidCities++;
 				continue;
 			}
 
-			if (pLoopCity->getProductionBuilding() != eBuilding && !pLoopCity->canConstruct(eBuilding,allBuildingCount))
+			if (!pLoopCity->isBuildingInQueue(eBuilding) && !pLoopCity->canConstruct(eBuilding,allBuildingCount))
 				continue;
 
 			iNumValidCities++;
@@ -6954,6 +6978,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
 	{
+		// Don't give this quest to Venice
+		if (GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoAnnexing())
+			return false;
+
 		if (GetBestBuildingForQuest(ePlayer, iQuestDuration) == NO_BUILDING)
 			return false;
 
@@ -9964,11 +9992,15 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 		{
+			// Exclude puppets
+			if (pLoopCity->IsPuppet())
+				continue;
+
 			// Don't look at cities in resistance, being razed, about to fall, or that can't construct the Wonder
 			if (pLoopCity->IsResistance() || pLoopCity->IsRazing() || pLoopCity->isInDangerOfFalling(true))
 				continue;
 
-			if (pLoopCity->getProductionBuilding() != eBuilding && !pLoopCity->canConstruct(eBuilding,allBuildingCount))
+			if (!pLoopCity->isBuildingInQueue(eBuilding) && !pLoopCity->canConstruct(eBuilding,allBuildingCount))
 				continue;
 
 			// How many turns will it take to produce the Wonder? Is it a reasonable delay?
@@ -10062,11 +10094,15 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer, i
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 				break;
 
+			// Exclude puppets
+			if (pLoopCity->IsPuppet())
+				continue;
+
 			// Don't look at cities in resistance, being razed, about to fall, or that can't construct the Wonder
 			if (pLoopCity->IsResistance() || pLoopCity->IsRazing() || pLoopCity->isInDangerOfFalling(true))
 				continue;
 
-			if (pLoopCity->getProductionBuilding() != eBuilding && !pLoopCity->canConstruct(eBuilding,allBuildingCount))
+			if (!pLoopCity->isBuildingInQueue(eBuilding) && !pLoopCity->canConstruct(eBuilding,allBuildingCount))
 				continue;
 
 			// How many turns will it take to produce the Wonder?
@@ -10600,11 +10636,15 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDu
 		if (bBad)
 			continue;
 
-		// Must be able to build it in all cities.
+		// Must be able to build it in all non-puppet cities.
 		int iNumCitiesAlreadyBuilt = 0;
 		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop, true))
 		{
+			// Exclude puppets
+			if (pLoopCity->IsPuppet())
+				continue;
+
 			if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 			{
 				iNumCitiesAlreadyBuilt++;
@@ -10618,7 +10658,7 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDu
 
 				continue;
 			}
-			if (!pLoopCity->canConstruct(eBuilding,allBuildingCount))
+			if (!pLoopCity->isBuildingInQueue(eBuilding) && !pLoopCity->canConstruct(eBuilding,allBuildingCount))
 			{
 				bBad = true;
 				break;
