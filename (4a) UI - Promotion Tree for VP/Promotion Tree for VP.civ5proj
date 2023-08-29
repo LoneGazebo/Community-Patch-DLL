@@ -7,7 +7,7 @@
     <Guid>1f0a153b-26ae-4496-a2c0-a106d9b43c95</Guid>
     <ModVersion>23</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(3.8.4) Shows promotions as a tree</Teaser>
+    <Teaser>(3.9) Shows promotions as a tree</Teaser>
     <Description>Displays promotions in a tree format either for the current unit or by selecting one of the various combat classes (melee, naval, recon, siege, mounted, etc) from a drop-down menu
 
 Hooks into the DiploCorner drop-down.
@@ -35,7 +35,7 @@ Layout derived from http://gaming.stackexchange.com/questions/15846/122</Descrip
         <Type>Mod</Type>
         <Name>(1) Community Patch</Name>
         <Id>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Id>
-        <MinVersion>119</MinVersion>
+        <MinVersion>120</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
       <Association>
