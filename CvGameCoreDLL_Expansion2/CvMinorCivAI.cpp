@@ -15625,7 +15625,7 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 	}
 
 	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
-	int iTurnDifference = iLastBullyTurn - GC.getGame().getGameTurn();
+	int iTurnDifference = GC.getGame().getGameTurn() - iLastBullyTurn;
 	int iBlockedTurns = 10;
 	iBlockedTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iBlockedTurns /= 100;
