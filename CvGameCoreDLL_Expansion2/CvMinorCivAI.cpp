@@ -4444,6 +4444,10 @@ CvPlayer* CvMinorCivAI::GetPlayer()
 {
 	return m_pPlayer;
 }
+const CvPlayer* CvMinorCivAI::GetPlayer() const
+{
+	return m_pPlayer;
+}
 
 /// Returns the MinorCivType this Minor is playing as (e.g. Scotland, Switzerland, etc.)
 MinorCivTypes CvMinorCivAI::GetMinorCivType() const
@@ -5762,8 +5766,8 @@ bool CvMinorCivAI::IsPlayerCloseEnoughForThreatenedAnnouncement(PlayerTypes eMaj
 /// NOTE: Player can get credit even if we haven't sent him a notification (ex. is only one barb, player is far away)
 void CvMinorCivAI::DoThreateningBarbKilled(PlayerTypes eKillingPlayer, int iX, int iY)
 {
-	CvAssertMsg(eKillingPlayer >= 0, "eMajor is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eKillingPlayer < MAX_MAJOR_CIVS, "eMajor is expected to be within maximum bounds (invalid Index)");
+	if (!GET_PLAYER(eKillingPlayer).isAlive() || !GET_PLAYER(eKillingPlayer).isMajorCiv())
+		return;
 
 	if (IsThreateningBarbariansEventActiveForPlayer(eKillingPlayer))
 	{
@@ -5786,40 +5790,27 @@ void CvMinorCivAI::DoThreateningBarbKilled(PlayerTypes eKillingPlayer, int iX, i
 /// Time to send out a "Help us with Units" notification?
 void CvMinorCivAI::DoTestProxyWarAnnouncement()
 {
-	for(int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		return;
+
+	TeamTypes eMyTeam = GetPlayer()->getTeam();
+
+	for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; iNotifyLoop++)
+	{
 		PlayerTypes eNotifyPlayer = (PlayerTypes) iNotifyLoop;
-		CvPlayerAI& kCurNotifyPlayer = GET_PLAYER(eNotifyPlayer);
-		CvTeam* pNotifyTeam = &GET_TEAM(kCurNotifyPlayer.getTeam());
-		if (!pNotifyTeam->isHasMet(GetPlayer()->getTeam()))
-		{
-			continue;
-		}
 
-		for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+		for (int i = 0; i < MAX_CIV_TEAMS; i++)
 		{
-			PlayerTypes eOtherMajor = (PlayerTypes) i;
-			if (IsProxyWarActiveForMajor(eNotifyPlayer, eOtherMajor))
+			TeamTypes eTeam = (TeamTypes) i;
+			if (GET_TEAM(eMyTeam).GetNumTurnsAtWar(eTeam) == 1 && IsProxyWarActiveForMajor(eNotifyPlayer, eTeam))
 			{
-				CvPlayer* pOtherMajor = &GET_PLAYER(eOtherMajor);
-				CvAssertMsg(pOtherMajor, "Error sending out proxy war notification from a city-state. Please send Anton your save file and version.");
-				if (pOtherMajor)
-				{
-					TeamTypes eEnemyTeam = pOtherMajor->getTeam();
-					PlayerTypes eEnemyTeamLeader = GET_TEAM(eEnemyTeam).getLeaderID();
-					CvPlayer* pEnemyTeamLeader = &GET_PLAYER(eEnemyTeamLeader);
-					CvAssert(pEnemyTeamLeader);
-					if (pEnemyTeamLeader && GET_TEAM(GetPlayer()->getTeam()).GetNumTurnsAtWar(eEnemyTeam) == 1)
-					{
-						Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
-						strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << pEnemyTeamLeader->getCivilizationShortDescriptionKey();
-						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
-						strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
-
-						AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eNotifyPlayer);
-
-						break;
-					}
-				}
+				PlayerTypes eEnemyTeamLeader = GET_TEAM(eTeam).getLeaderID();
+				Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
+				strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << GET_PLAYER(eEnemyTeamLeader).getCivilizationShortDescriptionKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
+				strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+				AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eNotifyPlayer);
+				break;
 			}
 		}
 	}
@@ -5827,75 +5818,87 @@ void CvMinorCivAI::DoTestProxyWarAnnouncement()
 
 void CvMinorCivAI::DoTestProxyWarAnnouncementOnFirstContact(PlayerTypes eMajor)
 {
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		return;
+
+	for (int i = 0; i < MAX_CIV_TEAMS; i++)
 	{
-		PlayerTypes eOtherMajor = (PlayerTypes) i;
-		if (IsProxyWarActiveForMajor(eMajor, eOtherMajor))
+		TeamTypes eTeam = (TeamTypes) i;
+		if (IsProxyWarActiveForMajor(eMajor, eTeam))
 		{
-			CvPlayer* pOtherMajor = &GET_PLAYER(eOtherMajor);
-			CvAssertMsg(pOtherMajor, "Error sending out proxy war notification from a city-state. Please send Anton your save file and version.");
-			if (pOtherMajor)
-			{
-				TeamTypes eEnemyTeam = pOtherMajor->getTeam();
-				PlayerTypes eEnemyTeamLeader = GET_TEAM(eEnemyTeam).getLeaderID();
-				CvPlayer* pEnemyTeamLeader = &GET_PLAYER(eEnemyTeamLeader);
-				CvAssert(pEnemyTeamLeader);
-				if (pEnemyTeamLeader)
-				{
-					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
-					strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << pEnemyTeamLeader->getCivilizationShortDescriptionKey();
-					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
-					strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
-
-					AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-
-					break;
-				}
-			}
+			PlayerTypes eEnemyTeamLeader = GET_TEAM(eTeam).getLeaderID();
+			Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_MINOR_WAR_UNIT_HELP");
+			strMessage << GetPlayer()->getCivilizationShortDescriptionKey() << GET_PLAYER(eEnemyTeamLeader).getCivilizationShortDescriptionKey();
+			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_MINOR_WAR_UNIT_HELP");
+			strSummary << GetPlayer()->getCivilizationShortDescriptionKey();
+			AddQuestNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+			break;
 		}
 	}
 }
 
-bool CvMinorCivAI::IsProxyWarActiveForMajor(PlayerTypes eMajor, PlayerTypes eOtherMajor)
+bool CvMinorCivAI::IsProxyWarActiveForMajor(PlayerTypes eMajor, TeamTypes eEnemyTeam)
 {
-	CvAssert(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS);
-	CvAssert(eOtherMajor >= 0 && eOtherMajor < MAX_MAJOR_CIVS);
-	if (eMajor != eOtherMajor && eMajor >= 0 && eMajor < MAX_MAJOR_CIVS && eOtherMajor >= 0 && eOtherMajor < MAX_MAJOR_CIVS)
-	{
-		TeamTypes eOtherTeam = GET_PLAYER(eOtherMajor).getTeam();
-		CvAssert(eOtherTeam != NO_TEAM);
-		if (eOtherTeam != NO_TEAM)
-		{
-			// eMajor is at peace with us and eOtherMajor
-			if (GET_PLAYER(eMajor).isAlive() && !IsAtWarWithPlayersTeam(eMajor) && !GET_TEAM(eOtherTeam).isAtWar(GET_PLAYER(eMajor).getTeam()))
-			{
-				// eOtherMajor is at war with us
-				if (GET_PLAYER(eOtherMajor).isAlive() && IsAtWarWithPlayersTeam(eOtherMajor) && !IsPeaceBlocked(eOtherTeam))
-				{
-					// Do some additional checks to safeguard against weird scenario cases (ex. major and minor on same team, major is dead)
-					PlayerTypes eOtherTeamLeader = GET_TEAM(eOtherTeam).getLeaderID();
-					CvPlayer* pOtherTeamLeader = &GET_PLAYER(eOtherTeamLeader);
-					if (pOtherTeamLeader && !pOtherTeamLeader->isMinorCiv() && pOtherTeamLeader->isAlive())
-					{
-						return true;
-					}
-				}
-			}
-		}
-	}
-	return false;
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		return false;
+
+	if (!GetPlayer()->isAlive() || GetPlayer()->getCapitalCity() == NULL)
+		return false;
+
+	if (!GET_PLAYER(eMajor).isAlive() || !GET_PLAYER(eMajor).isMajorCiv() || !GET_TEAM(eEnemyTeam).isAlive() || GET_PLAYER(eMajor).getCapitalCity() == NULL || GET_TEAM(eEnemyTeam).getNumCities() == 0)
+		return false;
+
+	PlayerTypes eEnemyTeamLeader = GET_TEAM(eEnemyTeam).getLeaderID();
+	if (eEnemyTeamLeader == NO_PLAYER || !GET_PLAYER(eEnemyTeamLeader).isMajorCiv())
+		return false;
+
+	TeamTypes eMajorTeam = GET_PLAYER(eMajor).getTeam();
+
+	// The teams must have met each other, and this guy must have met us
+	if (!GET_TEAM(eMajorTeam).isHasMet(eEnemyTeam) || !GET_TEAM(eMajorTeam).isHasMet(GetPlayer()->getTeam()))
+		return false;
+
+	// Must be at peace with this guy, and at war with the other guy
+	if (IsAtWarWithPlayersTeam(eMajor) || !IsAtWarWithPlayersTeam(eEnemyTeamLeader))
+		return false;
+
+	// Not for permanent wars
+	if (IsPermanentWar(eEnemyTeam))
+		return false;
+
+	// Not if our ally is at war with them (since our ally decides when we make peace ... the proxy war announcement is for defenseless City-States)
+	if (IsAllyAtWar(eEnemyTeam))
+		return false;
+
+	return true;
 }
 
 bool CvMinorCivAI::IsProxyWarActiveForMajor(PlayerTypes eMajor)
 {
-	CvAssert(eMajor >= 0 && eMajor < MAX_MAJOR_CIVS);
-	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR))
+		return false;
+
+	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS)
+		return false;
+
+	if (!GetPlayer()->isAlive() || GetPlayer()->getCapitalCity() == NULL)
+		return false;
+
+	if (!GET_PLAYER(eMajor).isAlive())
+		return false;
+
+	if (IsAtWarWithPlayersTeam(eMajor))
+		return false;
+
+	for (int i = 0; i < MAX_CIV_TEAMS; i++)
 	{
-		if (IsProxyWarActiveForMajor(eMajor, (PlayerTypes)i))
+		TeamTypes eTeam = (TeamTypes) i;
+		if (IsProxyWarActiveForMajor(eMajor, eTeam))
 		{
 			return true;
 		}
 	}
+
 	return false;
 }
 
@@ -9204,19 +9207,15 @@ CvString CvMinorCivAI::GetTargetCityString(PlayerTypes ePlayer, MinorCivQuestTyp
 	{
 		if (m_QuestsGiven[ePlayer][iQuestLoop].GetType() == eType)
 		{
-			PlayerTypes eTargetPlayer = (PlayerTypes)m_QuestsGiven[ePlayer][iQuestLoop].m_iData3;
-			if (eTargetPlayer != NO_PLAYER)
+			int iX = m_QuestsGiven[ePlayer][iQuestLoop].m_iData1;
+			int iY = m_QuestsGiven[ePlayer][iQuestLoop].m_iData2;
+			CvPlot* pPlot = GC.getMap().plot(iX, iY);
+			if (pPlot && pPlot->isCity())
 			{
-				int iX = m_QuestsGiven[ePlayer][iQuestLoop].m_iData1;
-				int iY = m_QuestsGiven[ePlayer][iQuestLoop].m_iData2;
-				CvPlot* pPlot = GC.getMap().plot(iX, iY);
-				if(pPlot != NULL && pPlot->isCity())
+				CvCity* pCity = pPlot->getPlotCity();
+				if (pCity)
 				{
-					CvCity* pCity = pPlot->getPlotCity();
-					if(pCity != NULL)
-					{
-						return pCity->getNameKey();
-					}
+					return pCity->getNameKey();
 				}
 			}
 		}
@@ -15605,21 +15604,33 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 // May be modified after return, if the task is easier or harder (ex. bully a worker vs. bully gold)
 int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribute, CvString* sTooltipSink)
 {
-	const int iFailScore = -100;
+	const int iFailScore = -1000;
+	CvString sFactors = "";
 	if (eBullyPlayer < 0 || eBullyPlayer >= MAX_MAJOR_CIVS)
 		return iFailScore;
 
-	// Can't bully the dead
-	if (!GetPlayer()->isAlive() || !GET_PLAYER(eBullyPlayer).isAlive())
-		return iFailScore;
-
+	// Can't bully the dead, and both players must have capital cities
 	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-	if (pMinorCapital == NULL || GET_PLAYER(eBullyPlayer).getCapitalCity() == NULL)
+	if (!GetPlayer()->isAlive() || !GET_PLAYER(eBullyPlayer).isAlive() || pMinorCapital == NULL || GET_PLAYER(eBullyPlayer).getCapitalCity() == NULL)
+	{
+		if (sTooltipSink)
+		{
+			Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
+			strNegativeFactor << iFailScore;
+			strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_NO_CAPITAL";
+			sFactors += strNegativeFactor.toUTF8();
+			(*sTooltipSink) += sFactors;
+		}
 		return iFailScore;
+	}
 
-	CvString sFactors = "";
+	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
+	int iTurnDifference = iLastBullyTurn - GC.getGame().getGameTurn();
+	int iBlockedTurns = 10;
+	iBlockedTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iBlockedTurns /= 100;
 
-	if (GC.getGame().getGameTurn() == GetTurnLastBulliedByMajor(eBullyPlayer))
+	if (iLastBullyTurn >= 0 && iTurnDifference < max(iBlockedTurns, 1))
 	{
 		if (sTooltipSink)
 		{
@@ -15847,51 +15858,24 @@ int CvMinorCivAI::CalculateBullyScore(PlayerTypes eBullyPlayer, bool bHeavyTribu
 	// Gave you tribute recently
 	// **************************
 
-	int iLastBullyTurn = GetTurnLastBulliedByMajor(eBullyPlayer);
-
 	if (iLastBullyTurn >= 0)
 	{
-		int iBulliedVeryRecentlyScore = 0;
 		int iBulliedRecentlyScore = 0;
+		int iCooldown = MOD_BALANCE_VP ? 30 : 20;
+		iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iCooldown /= 100;
+
 		if (MOD_BALANCE_VP)
 		{
-			int iCooldown = 30;
-			iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iCooldown /= 100;
-
-			if (iLastBullyTurn + iCooldown >= GC.getGame().getGameTurn())
-				iBulliedRecentlyScore = (iLastBullyTurn + iCooldown - GC.getGame().getGameTurn()) * -10;
+			if (iTurnDifference < iCooldown)
+				iBulliedRecentlyScore = (iCooldown - iTurnDifference) * -10;
 		}
-		else
+		else if (iTurnDifference <= iCooldown)
 		{
-			int iCooldown = 10;
-			iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iCooldown /= 100;
-
-			if (iLastBullyTurn + iCooldown >= GC.getGame().getGameTurn())
-			{
-				iBulliedVeryRecentlyScore = -300;
-			}
-			else
-			{
-				iCooldown *= 2;
-				if (iLastBullyTurn + iCooldown >= GC.getGame().getGameTurn())
-					iBulliedRecentlyScore = -40;
-			}
+			iBulliedRecentlyScore = -40;
 		}
 
-		if (iBulliedVeryRecentlyScore != 0)
-		{
-			iScore += iBulliedVeryRecentlyScore;
-			if (sTooltipSink)
-			{
-				Localization::String strNegativeFactor = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_FACTOR_NEGATIVE");
-				strNegativeFactor << iBulliedVeryRecentlyScore;
-				strNegativeFactor << "TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY";
-				sFactors += strNegativeFactor.toUTF8();
-			}
-		}
-		else if (iBulliedRecentlyScore != 0)
+		if (iBulliedRecentlyScore != 0)
 		{
 			iScore += iBulliedRecentlyScore;
 			if (sTooltipSink)
@@ -17144,7 +17128,8 @@ int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreat
 		iInfluence += /*5 in CP, 15 in VP*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_GIFTED);
 
 		// War state
-		if (IsProxyWarActiveForMajor(eFromPlayer))
+		bool bProxyWarActive = IsProxyWarActiveForMajor(eFromPlayer);
+		if (bProxyWarActive)
 		{
 			iInfluence *= 2;
 		}
@@ -17156,7 +17141,9 @@ int CvMinorCivAI::GetFriendshipFromUnitGift(PlayerTypes eFromPlayer, bool bGreat
 			iInfluence += iMilitaryInfluence;
 		}
 
-		iInfluence -= min((/*7*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_GIFTED) / 2), (GetPlayer()->getNumMilitaryUnits()));
+		// VP: When proxy war not active, reduce value of unit gifts by 1 for each military unit the City-State already has, to a minimum of half
+		if (MOD_BALANCE_VP && !bProxyWarActive)
+			iInfluence -= min(/*7*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_GIFTED) / 2, GetPlayer()->getNumMilitaryUnits());
 	}
 
 	return iInfluence;
@@ -17612,6 +17599,34 @@ void CvMinorCivAI::DoNowPeaceWithTeam(TeamTypes eTeam)
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
 
+/// Is this City-State's ally at war with ePlayer?
+bool CvMinorCivAI::IsAllyAtWar(TeamTypes eTeam) const
+{
+	PlayerTypes eAlly = GetAlly();
+	if (eAlly == NO_PLAYER)
+		return false;
+
+	return GET_TEAM(GET_PLAYER(eAlly).getTeam()).isAtWar(eTeam);
+}
+
+/// Has this City-State been aggressively attacked too recently?
+int CvMinorCivAI::GetPeaceBlockedTurns(TeamTypes eTeam) const
+{
+	int iTurnLastAttacked = GetTurnLastAttacked(eTeam);
+	if (iTurnLastAttacked == -1)
+		return 0;
+
+	int iTurnsSinceAttacked = GC.getGame().getGameTurn() - iTurnLastAttacked;
+	int iPeaceBlockedTurns = /*1*/ GD_INT_GET(WAR_MINOR_PEACE_BLOCKED_TURNS);
+	if (iPeaceBlockedTurns < 1 || iTurnsSinceAttacked >= iPeaceBlockedTurns)
+		return 0;
+
+	if (!GET_TEAM(eTeam).isAtWar(GetPlayer()->getTeam()))
+		return 0;
+
+	return iPeaceBlockedTurns - iTurnsSinceAttacked;
+}
+
 /// Will this AI allow peace with ePlayer?
 bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 {
@@ -17619,27 +17634,15 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 	if (GC.getGame().isOption(GAMEOPTION_ALWAYS_WAR) || IsPermanentWar(eTeam))
 		return true;
 
-	// Allies with someone at war with this guy?
-	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
-	{
-		PlayerTypes eMajor = (PlayerTypes) iMajorLoop;
-
-		// Major must be alive
-		if (!GET_PLAYER(eMajor).isAlive())
-			continue;
-
-		// Must be allies
-		if (!IsAllies(eMajor))
-			continue;
-
-		// Ally must be at war with this team
-		if (!GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(eTeam))
-			continue;
-
+	// Too soon since last attacked?
+	if (GetPeaceBlockedTurns(eTeam) > 0)
 		return true;
-	}
 
-	return false;
+	// Allies with someone at war with this guy?
+	if (IsAllyAtWar(eTeam))
+		return true;
+
+	return !GET_TEAM(eTeam).canChangeWarPeace(GetPlayer()->getTeam());
 }
 
 /// eTeam declared war on us
@@ -17834,13 +17837,9 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			AddNotification(strMessage, strSummary, eEnemyMajorLoop);
 		}
 	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (MOD_BALANCE_CORE_MINORS) 
-	{
-		SetTurnLastAttacked(eEnemyTeam, GC.getGame().getGameTurn());
-		SetIgnoreJerk(eEnemyTeam, false);
-	}
-#endif
+
+	SetTurnLastAttacked(eEnemyTeam, GC.getGame().getGameTurn());
+	SetIgnoreJerk(eEnemyTeam, false);
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 }
@@ -17894,6 +17893,9 @@ void CvMinorCivAI::SetTurnLastAttacked(TeamTypes eTeam, int iTurn)
 
 int CvMinorCivAI::GetJerkTurnsRemaining(TeamTypes eTeam) const
 {
+	if (!MOD_BALANCE_VP)
+		return 0;
+
 	if (IsIgnoreJerk(eTeam))
 		return 0;
 

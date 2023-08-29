@@ -295,7 +295,13 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		elseif minorPlayer:IsMinorPermanentWar(majorTeamID) then	-- Permanent War
 			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PERMANENT_WAR")
 
-		elseif minorPlayer:IsPeaceBlocked(majorTeamID) then		-- Peace blocked by being at war with ally
+		elseif minorPlayer:IsAllyAtWar(majorTeamID) then		-- Peace blocked by being at war with ally
+			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED")
+
+		elseif minorPlayer:GetPeaceBlockedTurns(majorTeamID) > 0 then	-- Peace blocked due to attacking too recently
+			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED_TURNS", minorPlayer:GetPeaceBlockedTurns(majorTeamID))
+
+		elseif minorPlayer:IsPeaceBlocked(majorTeamID) then		-- Can't make peace for some other reason
 			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED")
 
 		elseif isAtWar then		-- War

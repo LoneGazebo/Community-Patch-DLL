@@ -435,8 +435,6 @@ protected:
 	LUAAPIEXTN(GetWarDamageValue, int);
 	LUAAPIEXTN(IsWantsPeaceWithPlayer, bool);
 	LUAAPIEXTN(GetTreatyWillingToOffer, int);
-	LUAAPIEXTN(DoUpdateWarDamage, void);
-	LUAAPIEXTN(DoUpdatePeaceTreatyWillingness, void);
 	LUAAPIEXTN(GetDominationResistance, int);
 	LUAAPIEXTN(GetCivOpinion, int);
 	LUAAPIEXTN(GetMajorityReligion, int);
@@ -843,6 +841,8 @@ protected:
 	static int lGetCurrentSpawnEstimate(lua_State* L);
 	static int lGetCurrentScienceFriendshipBonusTimes100(lua_State* L);
 	static int lIsPeaceBlocked(lua_State* L);
+	static int lGetPeaceBlockedTurns(lua_State* L);
+	static int lIsAllyAtWar(lua_State* L);
 	static int lIsMinorPermanentWar(lua_State* L);
 	static int lGetNumMinorCivsMet(lua_State* L);
 	static int lDoMinorLiberationByMajor(lua_State* L);

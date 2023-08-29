@@ -26973,8 +26973,18 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 	if (GET_PLAYER(ePlayer).isMajorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
 		return PEACE_BLOCK_REASON_TOO_SOON;
 
-	if (GET_PLAYER(ePlayer).isMinorCiv() && GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < /*1*/ GD_INT_GET(WAR_MINOR_MINIMUM_TURNS))
-		return PEACE_BLOCK_REASON_TOO_SOON;
+	if (GET_PLAYER(ePlayer).isMinorCiv())
+	{
+		if (GetPlayer()->GetPlayerNumTurnsAtWar(ePlayer) < /*1*/ GD_INT_GET(WAR_MINOR_MINIMUM_TURNS))
+			return PEACE_BLOCK_REASON_TOO_SOON;
+
+		if (GET_PLAYER(ePlayer).GetMinorCivAI()->GetPeaceBlockedTurns(GetTeam()) > 0)
+			return PEACE_BLOCK_REASON_TOO_SOON;
+
+		// At war with ally?
+		if (GET_PLAYER(ePlayer).GetMinorCivAI()->IsAllyAtWar(GetTeam()))
+			return PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY;
+	}
 
 	// Enemy captured a city and wants peace right away? Not if we can retaliate ... (sanity check: and our capital isn't about to fall)
 	if (GET_PLAYER(ePlayer).GetPlayerNumTurnsSinceCityCapture(GetID()) <= 1 && CountUnitsAroundEnemyCities(ePlayer,3)>1)
@@ -26982,15 +26992,6 @@ PeaceBlockReasons CvDiplomacyAI::GetPeaceBlockReason(PlayerTypes ePlayer) const
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
 		if (!pCapital || !pCapital->isInDangerOfFalling(true))
 			return PEACE_BLOCK_REASON_CITY_JUST_CAPTURED;
-	}
-
-	if (GET_PLAYER(ePlayer).isMinorCiv())
-	{
-		// Can't make peace with a City-State if at war with their ally!
-		PlayerTypes eAlly = GET_PLAYER(ePlayer).GetMinorCivAI()->GetAlly();
-
-		if (eAlly != NO_PLAYER && IsAtWar(eAlly))
-			return PEACE_BLOCK_REASON_AT_WAR_WITH_ALLY;
 	}
 
 	// Locked into war?

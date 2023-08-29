@@ -342,6 +342,7 @@ public:
 	void DoPickInitialItems();
 
 	CvPlayer* GetPlayer();
+	const CvPlayer* GetPlayer() const;
 
 	MinorCivTypes GetMinorCivType() const;
 
@@ -412,7 +413,7 @@ public:
 	void DoTestProxyWarAnnouncement();
 	void DoTestProxyWarAnnouncementOnFirstContact(PlayerTypes eMajor);
 
-	bool IsProxyWarActiveForMajor(PlayerTypes eMajor, PlayerTypes eOtherMajor);
+	bool IsProxyWarActiveForMajor(PlayerTypes eMajor, TeamTypes eEnemyTeam);
 	bool IsProxyWarActiveForMajor(PlayerTypes eMajor);
 
 	// ******************************
@@ -802,6 +803,8 @@ public:
 	void DoNowAtWarWithTeam(TeamTypes eTeam);
 	void DoNowPeaceWithTeam(TeamTypes eTeam);
 
+	bool IsAllyAtWar(TeamTypes eTeam) const;
+	int GetPeaceBlockedTurns(TeamTypes eTeam) const;
 	bool IsPeaceBlocked(TeamTypes eTeam) const;
 
 	void DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam);

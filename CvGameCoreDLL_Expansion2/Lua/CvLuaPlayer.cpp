@@ -449,8 +449,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetWarDamageValue);
 	Method(IsWantsPeaceWithPlayer);
 	Method(GetTreatyWillingToOffer);
-	Method(DoUpdateWarDamage);
-	Method(DoUpdatePeaceTreatyWillingness);
 	Method(GetDominationResistance);
 	Method(GetCombatBonusVsHigherTech);
 	Method(GetCombatBonusVsLargerCiv);
@@ -743,6 +741,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetCurrentSpawnEstimate);
 	Method(GetCurrentScienceFriendshipBonusTimes100);
 	Method(IsPeaceBlocked);
+	Method(GetPeaceBlockedTurns);
+	Method(IsAllyAtWar);
 	Method(IsMinorPermanentWar);
 	Method(GetNumMinorCivsMet);
 	Method(DoMinorLiberationByMajor);
@@ -6603,24 +6603,6 @@ int CvLuaPlayer::lGetTreatyWillingToOffer(lua_State* L)
 	return 1;
 }
 
-// void DoUpdateWarDamage();
-int CvLuaPlayer::lDoUpdateWarDamage(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	
-	pkPlayer->DoUpdateWarDamage();
-	return 0;
-}
-
-// void DoUpdatePeaceTreatyWillingness();
-int CvLuaPlayer::lDoUpdatePeaceTreatyWillingness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	
-	pkPlayer->GetDiplomacyAI()->DoUpdatePeaceTreatyWillingness();
-	return 0;
-}
-
 int CvLuaPlayer::lGetDominationResistance(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
@@ -8368,8 +8350,43 @@ int CvLuaPlayer::lIsPeaceBlocked(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	if (!pkPlayer->isMinorCiv())
+	{
+		lua_pushboolean(L, false);
+		return 0;
+	}
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsPeaceBlocked(eTeam);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetPeaceBlockedTurns(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	if (!pkPlayer->isMinorCiv())
+	{
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	const int iResult = pkPlayer->GetMinorCivAI()->GetPeaceBlockedTurns(eTeam);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lIsAllyAtWar(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const TeamTypes eTeam = (TeamTypes) lua_tointeger(L, 2);
+	if (!pkPlayer->isMinorCiv())
+	{
+		lua_pushboolean(L, false);
+		return 0;
+	}
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsAllyAtWar(eTeam);
 	lua_pushboolean(L, bResult);
 	return 1;
 }

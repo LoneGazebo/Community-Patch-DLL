@@ -51,6 +51,14 @@
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
 
+		<!-- No Peace With City-State -->
+		<Row Tag="TXT_KEY_PEACE_BLOCKED_TURNS">
+			<Text>Peace Blocked for {1_Num} turn(s)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEACE_BLOCKED_CSTATE_TURNS_TT">
+			<Text>You aggressively attacked this City-State and cannot make peace for {1_Num} turns!</Text>
+		</Row>
+
 		<!-- Text for Preview Combat Miscellaneous Bonuses -->
 		<Row Tag="TXT_KEY_MISC_BONUS">
 			<Text>Miscellaneous</Text>

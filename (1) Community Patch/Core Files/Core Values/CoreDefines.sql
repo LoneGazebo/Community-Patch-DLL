@@ -24,6 +24,9 @@ UPDATE Defines SET Value = 5 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FR
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', 10;
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', 1;
 
+-- Minimum war duration for aggressively attacked City-States
+INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 1;
+
 
 -- Defensive Pact limits (note that these values are updated in (2) Vox Populi)
 INSERT INTO Defines (Name, Value) SELECT 'DEFENSIVE_PACT_LIMIT_BASE', 99; -- The base number of Defensive Pacts that a civilization can form. If set to -1 or lower, Defensive Pacts cannot be formed. Each player on a team counts as 1 Defensive Pact.

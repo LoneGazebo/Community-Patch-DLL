@@ -2425,9 +2425,12 @@ void CvMilitaryAI::DisbandObsoleteUnits()
 		return;
 
 	// Don't do this if at war
-	if(GetNumberCivsAtWarWith(false) > 0)
+	if (GetNumberCivsAtWarWith(m_pPlayer->isMinorCiv()) > 0)
 	{
-		if (m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+		if (m_pPlayer->isMinorCiv())
+			return;
+
+		if (m_pPlayer->isMajorCiv() && m_pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 			return;
 	}
 

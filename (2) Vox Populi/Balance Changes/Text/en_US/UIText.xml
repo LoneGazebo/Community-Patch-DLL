@@ -879,7 +879,7 @@
 		</Row>
 		
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_VARIABLE_CBP">
-			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take heavy tribute from them. Doing so will net you [ICON_GOLD] Gold as well half of the non-influence yields of all active quests from the City-States. The quests will then be canceled.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
+			<Text>If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can take heavy tribute from them. Doing so will net you [ICON_GOLD] Gold as well as half of the non-influence yields of all active quests from the City-States. The quests will then be canceled.[NEWLINE][NEWLINE]{1_FearLevel}{2_FactorDetails}</Text>
 		</Row>
 
 		<!-- City-State Diplo Popup -->
@@ -1788,12 +1788,8 @@
 			<Text>Ranged Strike Modifier</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_EMPIRE_PROXIMITY">
-			<Text>Empire Proximity</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_FRIENDS">
-			<Text>Has Friends</Text>
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_NO_CAPITAL">
+			<Text>No Capital City</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS">
