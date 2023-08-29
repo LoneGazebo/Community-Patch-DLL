@@ -569,7 +569,11 @@ local g_cityToolTips = {
 
 	CityIsUnhappy = function( city)
 		local delta = city:getHappinessDelta() * -1;
-		return L("TXT_KEY_CITY_UNHAPPY", delta) .. "[NEWLINE][NEWLINE]" .. L(city:GetCityUnhappinessBreakdown(false, true))
+		if (delta == 0) then
+			return L(city:GetCityUnhappinessBreakdown(false, true))
+		else
+			return L("TXT_KEY_CITY_UNHAPPY", delta) .. "[NEWLINE][NEWLINE]" .. L(city:GetCityUnhappinessBreakdown(false, true))
+		end
 	end,
 } -- g_cityToolTips
 
@@ -1080,8 +1084,13 @@ local function RefreshCityBannersNow()
 			if isActiveType then
 
 				local delta = city:getHappinessDelta();
-				if(delta < 0) then
+				if(delta <= 0) then
 					instance.CityIsUnhappy:SetHide(false)
+					if (delta == 0) then
+						instance.CityIsUnhappy:SetText("[ICON_ITP_HAPPINESS_NEUTRAL]");
+					else
+						instance.CityIsUnhappy:SetText("[ICON_HAPPINESS_3]");
+					end
 				else
 					instance.CityIsUnhappy:SetHide(true)
 				end
