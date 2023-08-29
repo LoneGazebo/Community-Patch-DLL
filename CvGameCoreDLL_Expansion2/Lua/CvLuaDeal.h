@@ -168,18 +168,9 @@ protected:
 
 	static TradedItemList::iterator m_iterator;
 
-	static int lAddTechTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddTechTrade);
-	};
-	static int lAddVassalageTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddVassalageTrade);
-	};
-	static int lAddRevokeVassalageTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddRevokeVassalageTrade);
-	};
+	static int lAddTechTrade(lua_State* L);
+	static int lAddVassalageTrade(lua_State* L);
+	static int lAddRevokeVassalageTrade(lua_State* L);
 	static int lRemoveTechTrade(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveTechTrade);
