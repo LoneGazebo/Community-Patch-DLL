@@ -280,6 +280,7 @@ function UpdateGPT()
     -- Trade income breakdown tooltip
     local iBaseGold = GameDefines.TRADE_ROUTE_BASE_GOLD / 100;
 	local iGoldPerCapitalPop = GameDefines.TRADE_ROUTE_CAPITAL_POP_GOLD_MULTIPLIER / 100
+	local iCapitalPop = 0;
     local iGoldPerPop = GameDefines.TRADE_ROUTE_CITY_POP_GOLD_MULTIPLIER / 100;
     local strTooltip = Locale.ConvertTextKey("TXT_KEY_EO_INCOME_TRADE");
     strTooltip = strTooltip .. "[NEWLINE][NEWLINE]";
@@ -292,7 +293,10 @@ function UpdateGPT()
 		end
 		strTooltip = strTooltip .. "[NEWLINE]";
 	end
-    strTooltip = strTooltip .. Locale.ConvertTextKey("TXT_KEY_TRADE_ROUTE_INCOME_INFO", iBaseGold, iGoldPerCapitalPop, pPlayer:GetCapitalCity():GetPopulation(), iGoldPerPop);
+	if pPlayer:GetCapitalCity() ~= nil then
+		iCapitalPop = pPlayer:GetCapitalCity():GetPopulation();
+	end
+    strTooltip = strTooltip .. Locale.ConvertTextKey("TXT_KEY_TRADE_ROUTE_INCOME_INFO", iBaseGold, iGoldPerCapitalPop, iCapitalPop, iGoldPerPop);
     Controls.TradeIncomeValue:SetToolTipString( strTooltip );
     
     local bFoundTrade = false;
