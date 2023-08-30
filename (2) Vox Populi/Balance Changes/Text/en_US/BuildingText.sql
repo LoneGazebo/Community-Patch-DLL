@@ -133,7 +133,7 @@ SET Text = 'City Connections'
 WHERE Tag = 'TXT_KEY_GOLD_TRADE_ROUTES_HEADING3_TITLE';
 
 UPDATE Language_en_US
-SET Text = 'Completing a [ICON_CARGO_SHIP] Sea Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. [ICON_CARGO_SHIP] Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, and +2 to [ICON_SILVER_FIST] Military Unit Supply Cap.[NEWLINE][NEWLINE]Can only be constructed in a Coastal City.'
+SET Text = 'Completing a [ICON_CARGO_SHIP] Sea Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food from Coast and Ocean tiles, and +1 [ICON_PRODUCTION] Production from Sea Resources worked by this City. [ICON_CARGO_SHIP] Sea Trade Routes gain +50% Range and +2 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production of Naval Units, and +2 to [ICON_SILVER_FIST] Military Unit Supply Cap.[NEWLINE][NEWLINE]Can only be constructed in a Coastal City.'
 WHERE Tag = 'TXT_KEY_BUILDING_HARBOR_HELP';
 
 UPDATE Language_en_US
@@ -184,7 +184,7 @@ SET Text = '+1 [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens in the City.
 WHERE Tag = 'TXT_KEY_BUILDING_STOCK_EXCHANGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third the amount with every other Civilization.[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold for every 3 Desert or 3 Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold, [ICON_VP_MERCHANT] Merchants in this City gain +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]+1 [ICON_FOOD] Food and [ICON_GOLD] Gold for every 3 Desert or 3 Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold, [ICON_VP_MERCHANT] Merchants in this City gain +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_CARAVANSARY_HELP';
 
 UPDATE Language_en_US
@@ -362,7 +362,7 @@ SET Text = 'Arena'
 WHERE Tag = 'TXT_KEY_BUILDING_COLOSSEUM';
 
 UPDATE Language_en_US
-SET Text = '+500 [ICON_RESEARCH] Science when completed. Nearby Jungle and Forest tiles gain +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]Upon completing a [ICON_INTERNATIONAL_TRADE] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) Historic Event, producing [ICON_TOURISM] Tourism with the targeted Civilization and one third the amount with every other Civilization.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.'
+SET Text = '+500 [ICON_RESEARCH] Science when completed. Nearby Jungle and Forest tiles gain +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]Completing a [ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.'
 WHERE Tag = 'TXT_KEY_BUILDING_THEATRE_HELP';
 
 UPDATE Language_en_US
