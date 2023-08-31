@@ -132,236 +132,252 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	g_pThem = Players[ g_iThem ];
 	g_iThemTeam = g_pThem:GetTeam();
 	g_pThemTeam = Teams[ g_iThemTeam ];
-
-
-	-- Leader head fix for more than 22 civs DLL...	
-	local playerLeaderInfo = GameInfo.Leaders[Players[iPlayer]:GetLeaderType()];
-	local leaderTextures = {
-		["LEADER_ALEXANDER"] = "alexander.dds",
-		["LEADER_ASKIA"] = "askia.dds",
-		["LEADER_AUGUSTUS"] = "augustus.dds",
-		["LEADER_BISMARCK"] = "bismark.dds",
-		["LEADER_CATHERINE"] = "catherine.dds",
-		["LEADER_DARIUS"] = "darius.dds",
-		["LEADER_ELIZABETH"] = "elizabeth.dds",
-		["LEADER_GANDHI"] = "ghandi.dds",
-		["LEADER_HARUN_AL_RASHID"] = "alrashid.dds",
-		["LEADER_HIAWATHA"] = "hiawatha.dds",
-		["LEADER_MONTEZUMA"] = "montezuma.dds",
-		["LEADER_NAPOLEON"] = "napoleon.dds",
-		["LEADER_ODA_NOBUNAGA"] = "oda.dds",
-		["LEADER_RAMESSES"] = "ramesses.dds",
-		["LEADER_RAMKHAMHAENG"] = "ramkhamaeng.dds",
-		["LEADER_SULEIMAN"] = "sulieman.dds",
-		["LEADER_WASHINGTON"] = "washington.dds",
-		["LEADER_WU_ZETIAN"] = "wu.dds",
-		["LEADER_GENGHIS_KHAN"] = "genghis.dds",
-		["LEADER_ISABELLA"] = "isabella.dds",
-		["LEADER_PACHACUTI"] = "pachacuti.dds",
-		["LEADER_KAMEHAMEHA"] = "kamehameha.dds",
-		["LEADER_HARALD"] = "harald.dds",
-		["LEADER_SEJONG"] = "sejong.dds",
-		["LEADER_NEBUCHADNEZZAR"] = "nebuchadnezzar.dds",
-		["LEADER_ATTILA"] = "attila.dds",
-		["LEADER_BOUDICCA"] = "boudicca.dds",
-		["LEADER_DIDO"] = "dido.dds",
-		["LEADER_GUSTAVUS_ADOLPHUS"] = "gustavus adolphus.dds",
-		["LEADER_MARIA"] = "mariatheresa.dds",
-		["LEADER_PACAL"] = "pacal_the_great.dds",
-		["LEADER_THEODORA"] = "theodora.dds",
-		["LEADER_SELASSIE"] = "haile_selassie.dds",
-		["LEADER_WILLIAM"] = "william_of_orange.dds",		
-		["LEADER_SHAKA"] = "Shaka.dds",
-		["LEADER_POCATELLO"] = "Pocatello.dds",
-		["LEADER_PEDRO"] = "Pedro.dds",
-		["LEADER_MARIA_I"] = "Maria_I.dds",
-		["LEADER_GAJAH_MADA"] = "Gajah.dds",
-		["LEADER_ENRICO_DANDOLO"] = "Dandolo.dds",
-		["LEADER_CASIMIR"] = "Casimir.dds",
-		["LEADER_ASHURBANIPAL"] = "Ashurbanipal.dds",
-		["LEADER_AHMAD_ALMANSUR"] = "Almansur.dds",
-	}
 	
-	if iPlayer > 21 then
-		print ("LeaderMessageHandler: Player ID > 21")
-		local backupTexture = "loadingbasegame_9.dds"
-		if leaderTextures[playerLeaderInfo.Type] then
-			backupTexture = leaderTextures[playerLeaderInfo.Type]
+	-- if the AI offers a deal, its valuation might have changed during the AI's turn. Reevaluate the deal and change deal items if necessary
+	if(g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
+		local bDealCanceled = g_Deal:DoReevaluateDeal(g_iThem, g_iUs);
+		if(bDealCanceled) then
+			-- it was no longer possible to offer an acceptable deal and the deal has been canceled
+			g_iDiploUIState = DiploUIStateTypes.NO_DIPLO_UI_STATE;
 		end
-
-		-- get screen and texture size to set the texture on full screen
-
-		Controls.BackupTexture:SetTexture( backupTexture )
-		local screenW, screenH = Controls.BackupTexture:GetSizeVal() -- works, but maybe there is a direct way to get screen size ?
-			
-		Controls.BackupTexture:SetTextureAndResize( backupTexture )
-		local textureW, textureH = Controls.BackupTexture:GetSizeVal()	
-		
-		print ("Screen Width = " .. tostring(screenW) .. ", Screen Height = " .. tostring(screenH) .. ", Texture Width = " .. tostring(textureW) .. ", Texture Height = " .. tostring(textureH))
-
-		local ratioW = screenW / textureW
-		local ratioH = screenH / textureH
-		
-		print ("Width ratio = " .. tostring(ratioW) .. ", Height ratio = " .. tostring(ratioH))
-
-		local ratio = ratioW
-		if ratioH > ratioW then
-			ratio = ratioH
+		if(g_Deal:IsCheckedForRenewal()) then
+			-- modify leader message if necessary
+			szLeaderMessage = g_Deal:GetRenewDealMessage(g_iThem, g_iUs);
 		end
-		Controls.BackupTexture:SetSizeVal( math.floor(textureW * ratio), math.floor(textureH * ratio) )
-
-		Controls.BackupTexture:SetHide( false )
+	end
+	
+	if(g_iDiploUIState == DiploUIStateTypes.NO_DIPLO_UI_STATE) then
+		OnBack();
 	else
-		
-		Controls.BackupTexture:UnloadTexture()
-		Controls.BackupTexture:SetHide( true )
 
-	end
-	-- End of leader head fix
+		-- Leader head fix for more than 22 civs DLL...	
+		local playerLeaderInfo = GameInfo.Leaders[Players[iPlayer]:GetLeaderType()];
+		local leaderTextures = {
+			["LEADER_ALEXANDER"] = "alexander.dds",
+			["LEADER_ASKIA"] = "askia.dds",
+			["LEADER_AUGUSTUS"] = "augustus.dds",
+			["LEADER_BISMARCK"] = "bismark.dds",
+			["LEADER_CATHERINE"] = "catherine.dds",
+			["LEADER_DARIUS"] = "darius.dds",
+			["LEADER_ELIZABETH"] = "elizabeth.dds",
+			["LEADER_GANDHI"] = "ghandi.dds",
+			["LEADER_HARUN_AL_RASHID"] = "alrashid.dds",
+			["LEADER_HIAWATHA"] = "hiawatha.dds",
+			["LEADER_MONTEZUMA"] = "montezuma.dds",
+			["LEADER_NAPOLEON"] = "napoleon.dds",
+			["LEADER_ODA_NOBUNAGA"] = "oda.dds",
+			["LEADER_RAMESSES"] = "ramesses.dds",
+			["LEADER_RAMKHAMHAENG"] = "ramkhamaeng.dds",
+			["LEADER_SULEIMAN"] = "sulieman.dds",
+			["LEADER_WASHINGTON"] = "washington.dds",
+			["LEADER_WU_ZETIAN"] = "wu.dds",
+			["LEADER_GENGHIS_KHAN"] = "genghis.dds",
+			["LEADER_ISABELLA"] = "isabella.dds",
+			["LEADER_PACHACUTI"] = "pachacuti.dds",
+			["LEADER_KAMEHAMEHA"] = "kamehameha.dds",
+			["LEADER_HARALD"] = "harald.dds",
+			["LEADER_SEJONG"] = "sejong.dds",
+			["LEADER_NEBUCHADNEZZAR"] = "nebuchadnezzar.dds",
+			["LEADER_ATTILA"] = "attila.dds",
+			["LEADER_BOUDICCA"] = "boudicca.dds",
+			["LEADER_DIDO"] = "dido.dds",
+			["LEADER_GUSTAVUS_ADOLPHUS"] = "gustavus adolphus.dds",
+			["LEADER_MARIA"] = "mariatheresa.dds",
+			["LEADER_PACAL"] = "pacal_the_great.dds",
+			["LEADER_THEODORA"] = "theodora.dds",
+			["LEADER_SELASSIE"] = "haile_selassie.dds",
+			["LEADER_WILLIAM"] = "william_of_orange.dds",		
+			["LEADER_SHAKA"] = "Shaka.dds",
+			["LEADER_POCATELLO"] = "Pocatello.dds",
+			["LEADER_PEDRO"] = "Pedro.dds",
+			["LEADER_MARIA_I"] = "Maria_I.dds",
+			["LEADER_GAJAH_MADA"] = "Gajah.dds",
+			["LEADER_ENRICO_DANDOLO"] = "Dandolo.dds",
+			["LEADER_CASIMIR"] = "Casimir.dds",
+			["LEADER_ASHURBANIPAL"] = "Ashurbanipal.dds",
+			["LEADER_AHMAD_ALMANSUR"] = "Almansur.dds",
+		}
+		
+		if iPlayer > 21 then
+			print ("LeaderMessageHandler: Player ID > 21")
+			local backupTexture = "loadingbasegame_9.dds"
+			if leaderTextures[playerLeaderInfo.Type] then
+				backupTexture = leaderTextures[playerLeaderInfo.Type]
+			end
 
-	local bMyMode = false;
+			-- get screen and texture size to set the texture on full screen
 
-	-- Are we in Trade Mode?
-	if (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE) then
-		bMyMode = true;
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND) then
-		bMyMode = true;
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
-		bMyMode = true;
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS) then
-		bMyMode = true;
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
-		bMyMode = true;
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER) then
-		bMyMode = true;
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER) then
-		bMyMode = true;
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-		bMyMode = true;
-	-- Putmalk: Open trade window when AI is giving the player a gift
-	elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
-		bMyMode = true;
-	end
-	
-	if (bMyMode) then
-		
-		--print("TradeScreen: It's MY mode!");
-		
-		if (ContextPtr:IsHidden()) then
-			UIManager:QueuePopup( ContextPtr, PopupPriority.LeaderTrade );
-		end
-		
-		--print("Handling LeaderMessage: " .. iDiploUIState .. ", ".. szLeaderMessage);
-	    
-		g_Deal:SetFromPlayer(g_iUs);
-		g_Deal:SetToPlayer(g_iThem);
-		
-		-- Unhide our pocket, in case the last thing we were doing in this screen was a human demand
-		Controls.UsPanel:SetHide(false);
-		Controls.UsGlass:SetHide(false);
-		
-		local bClearTableAndDisplayDeal = false;
-		
-		-- Is this a UI State where we should be displaying a deal?
-		if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE) then
-			--print("DiploUIState: Default Trade");
-			bClearTableAndDisplayDeal = true;
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND) then
-			--print("DiploUIState: AI making demand");
-			bClearTableAndDisplayDeal = true;
+			Controls.BackupTexture:SetTexture( backupTexture )
+			local screenW, screenH = Controls.BackupTexture:GetSizeVal() -- works, but maybe there is a direct way to get screen size ?
+				
+			Controls.BackupTexture:SetTextureAndResize( backupTexture )
+			local textureW, textureH = Controls.BackupTexture:GetSizeVal()	
 			
-			DoDemandState(true);
+			print ("Screen Width = " .. tostring(screenW) .. ", Screen Height = " .. tostring(screenH) .. ", Texture Width = " .. tostring(textureW) .. ", Texture Height = " .. tostring(textureH))
+
+			local ratioW = screenW / textureW
+			local ratioH = screenH / textureH
 			
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
-			--print("DiploUIState: AI making Request");
-			bClearTableAndDisplayDeal = true;
-			
-			DoDemandState(true);
-			
-		-- Putmalk: Open Trade window when AI is giving a gift and set it to the demand state
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
-			--print("DiploUIState: AI making Offer");
-			bClearTableAndDisplayDeal = true;
-			
-			DoDemandState(true);
-			
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-			bClearTableAndDisplayDeal = true;
-			-- If we're demanding something, there's no need to show OUR items
-			Controls.UsPanel:SetHide(true);
-			Controls.UsGlass:SetHide(true);
-			
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS) then
-			--print("DiploUIState: Human offers concessions");
-			bClearTableAndDisplayDeal = true;
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
-			--print("DiploUIState: AI making offer");
-			bClearTableAndDisplayDeal = true;
-			g_bAIMakingOffer = true;
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER) then
-			--print("DiploUIState: AI accepted offer");
-			g_iConcessionsPreviousDiploUIState = -1;		-- Clear out the fact that we were offering concessions if the AI has agreed to a deal
-			bClearTableAndDisplayDeal = true;
-			
-		-- If the AI rejects a deal, don't clear the table: keep the items where they are in case the human wants to change things
-		elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER) then
-			--print("DiploUIState: AI rejects offer");
-			bClearTableAndDisplayDeal = false;
+			print ("Width ratio = " .. tostring(ratioW) .. ", Height ratio = " .. tostring(ratioH))
+
+			local ratio = ratioW
+			if ratioH > ratioW then
+				ratio = ratioH
+			end
+			Controls.BackupTexture:SetSizeVal( math.floor(textureW * ratio), math.floor(textureH * ratio) )
+
+			Controls.BackupTexture:SetHide( false )
 		else
-			--print("DiploUIState: ?????");
+			
+			Controls.BackupTexture:UnloadTexture()
+			Controls.BackupTexture:SetHide( true )
+
+		end
+		-- End of leader head fix
+
+		local bMyMode = false;
+
+		-- Are we in Trade Mode?
+		if (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE) then
+			bMyMode = true;
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND) then
+			bMyMode = true;
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
+			bMyMode = true;
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS) then
+			bMyMode = true;
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
+			bMyMode = true;
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER) then
+			bMyMode = true;
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER) then
+			bMyMode = true;
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
+			bMyMode = true;
+		-- Putmalk: Open trade window when AI is giving the player a gift
+		elseif (iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
+			bMyMode = true;
 		end
 		
-		-- Clear table and display the deal currently stored in InterfaceBuddy
-		if (bClearTableAndDisplayDeal) then
-			g_bMessageFromDiploAI = true;
+		if (bMyMode) then
 			
-			Controls.DiscussionText:SetText( szLeaderMessage );
-		    
-			DoClearTable();
-			DisplayDeal();
-
-			if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-				-- Hide Defensive Pact/Research Agreement on their side
-				Controls.ThemPocketDefensivePact:SetHide(true);
-				Controls.ThemPocketResearchAgreement:SetHide(true);
+			--print("TradeScreen: It's MY mode!");
+			
+			if (ContextPtr:IsHidden()) then
+				UIManager:QueuePopup( ContextPtr, PopupPriority.LeaderTrade );
 			end
 			
-		-- Don't clear the table, leave things as they are
+			--print("Handling LeaderMessage: " .. iDiploUIState .. ", ".. szLeaderMessage);
+			
+			g_Deal:SetFromPlayer(g_iUs);
+			g_Deal:SetToPlayer(g_iThem);
+			
+			-- Unhide our pocket, in case the last thing we were doing in this screen was a human demand
+			Controls.UsPanel:SetHide(false);
+			Controls.UsGlass:SetHide(false);
+			
+			local bClearTableAndDisplayDeal = false;
+			
+			-- Is this a UI State where we should be displaying a deal?
+			if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE) then
+				--print("DiploUIState: Default Trade");
+				bClearTableAndDisplayDeal = true;
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_DEMAND) then
+				--print("DiploUIState: AI making demand");
+				bClearTableAndDisplayDeal = true;
+				
+				DoDemandState(true);
+				
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_REQUEST) then
+				--print("DiploUIState: AI making Request");
+				bClearTableAndDisplayDeal = true;
+				
+				DoDemandState(true);
+				
+			-- Putmalk: Open Trade window when AI is giving a gift and set it to the demand state
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_GENEROUS_OFFER) then
+				--print("DiploUIState: AI making Offer");
+				bClearTableAndDisplayDeal = true;
+				
+				DoDemandState(true);
+				
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
+				bClearTableAndDisplayDeal = true;
+				-- If we're demanding something, there's no need to show OUR items
+				Controls.UsPanel:SetHide(true);
+				Controls.UsGlass:SetHide(true);
+				
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_HUMAN_OFFERS_CONCESSIONS) then
+				--print("DiploUIState: Human offers concessions");
+				bClearTableAndDisplayDeal = true;
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
+				--print("DiploUIState: AI making offer");
+				bClearTableAndDisplayDeal = true;
+				g_bAIMakingOffer = true;
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_ACCEPTS_OFFER) then
+				--print("DiploUIState: AI accepted offer");
+				g_iConcessionsPreviousDiploUIState = -1;		-- Clear out the fact that we were offering concessions if the AI has agreed to a deal
+				bClearTableAndDisplayDeal = true;
+				
+			-- If the AI rejects a deal, don't clear the table: keep the items where they are in case the human wants to change things
+			elseif (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_REJECTS_OFFER) then
+				--print("DiploUIState: AI rejects offer");
+				bClearTableAndDisplayDeal = false;
+			else
+				--print("DiploUIState: ?????");
+			end
+			
+			-- Clear table and display the deal currently stored in InterfaceBuddy
+			if (bClearTableAndDisplayDeal) then
+				g_bMessageFromDiploAI = true;
+				
+				Controls.DiscussionText:SetText( szLeaderMessage );
+				
+				DoClearTable();
+				DisplayDeal();
+
+				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
+					-- Hide Defensive Pact/Research Agreement on their side
+					Controls.ThemPocketDefensivePact:SetHide(true);
+					Controls.ThemPocketResearchAgreement:SetHide(true);
+				end
+				
+			-- Don't clear the table, leave things as they are
+			else
+				
+				--print("NOT clearing table");
+				
+				g_bMessageFromDiploAI = true;
+				
+				Controls.DiscussionText:SetText( szLeaderMessage );
+			end
+			
+			-- Resize the height of the box to fit the text
+			local contentSize = Controls.DiscussionText:GetSize().y + offsetOfString + bonusPadding;
+			local frameSize = {};
+			frameSize.x = innerFrameWidth;
+			frameSize.y = contentSize;
+			Controls.LeaderSpeechBorderFrame:SetSize( frameSize );
+			frameSize.x = outerFrameWidth;
+			frameSize.y = contentSize - offsetsBetweenFrames;
+			Controls.LeaderSpeechFrame:SetSize( frameSize );
+			
+			DoUpdateButtons();
+			
+		-- Not in trade mode
 		else
 			
-			--print("NOT clearing table");
+			--print("TradeScreen: NOT my mode! Hiding!");
+			--print("iDiploUIState: " .. iDiploUIState);
 			
-			g_bMessageFromDiploAI = true;
-			
-			Controls.DiscussionText:SetText( szLeaderMessage );
-		end
-		
-		-- Resize the height of the box to fit the text
-		local contentSize = Controls.DiscussionText:GetSize().y + offsetOfString + bonusPadding;
-		local frameSize = {};
-		frameSize.x = innerFrameWidth;
-		frameSize.y = contentSize;
-		Controls.LeaderSpeechBorderFrame:SetSize( frameSize );
-		frameSize.x = outerFrameWidth;
-		frameSize.y = contentSize - offsetsBetweenFrames;
-		Controls.LeaderSpeechFrame:SetSize( frameSize );
-		
-		DoUpdateButtons();
-		
-	-- Not in trade mode
-	else
-		
-		--print("TradeScreen: NOT my mode! Hiding!");
-		--print("iDiploUIState: " .. iDiploUIState);
-		
-        g_Deal:ClearItems();
+			g_Deal:ClearItems();
 
-		if (not ContextPtr:IsHidden()) then
-			ContextPtr:SetHide( true );
-	    end
-	
+			if (not ContextPtr:IsHidden()) then
+				ContextPtr:SetHide( true );
+			end
+		
+		end
 	end
-	
 end
 --Events.AILeaderMessage.Add( LeaderMessageHandler );
 
@@ -1468,7 +1484,11 @@ function ResetDisplay()
 		end
 	else
 	    Controls.UsPocketGoldPerTurn:SetDisabled(false);
-	    Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_GOLD_PER_TURN, g_iUs, false, g_iDealDuration, 1)) then
+			Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Red_Black");
+		else
+			Controls.UsPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		end
 		Controls.UsPocketGoldPerTurn:SetToolTipString(nil);
     end
 
@@ -1498,7 +1518,11 @@ function ResetDisplay()
 		end
 	else
 	    Controls.ThemPocketGoldPerTurn:SetDisabled(false);
-	    Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_GOLD_PER_TURN, g_iUs, true, g_iDealDuration, 1)) then
+			Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Red_Black");
+		else
+			Controls.ThemPocketGoldPerTurn:GetTextControl():SetColorByName("Beige_Black");
+		end
 		Controls.ThemPocketGoldPerTurn:SetToolTipString(nil);
     end
 
@@ -1526,7 +1550,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketAllowEmbassy:SetDisabled(false);
-			Controls.UsPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketAllowEmbassy:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketAllowEmbassy:SetToolTipString(strTooltip);
 		end
 
@@ -1548,7 +1576,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketAllowEmbassy:SetDisabled(false);
-			Controls.ThemPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_ALLOW_EMBASSY, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketAllowEmbassy:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketAllowEmbassy:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketAllowEmbassy:SetToolTipString(strTooltip);
 		end
 	end
@@ -1577,7 +1609,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketOpenBorders:SetDisabled(false);
-			Controls.UsPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketOpenBorders:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketOpenBorders:SetToolTipString(strTooltip);
 		end
 
@@ -1599,7 +1635,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketOpenBorders:SetDisabled(false);
-			Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_OPEN_BORDERS, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketOpenBorders:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketOpenBorders:SetToolTipString(strTooltip);
 		end
 	end
@@ -1634,7 +1674,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketDefensivePact:SetDisabled(false);
-			Controls.UsPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketDefensivePact:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketDefensivePact:SetToolTipString(strTooltip);
 		end
 
@@ -1656,7 +1700,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketDefensivePact:SetDisabled(false);
-			Controls.ThemPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_DEFENSIVE_PACT, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketDefensivePact:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketDefensivePact:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketDefensivePact:SetToolTipString(strTooltip);
 		end
 	end
@@ -1685,7 +1733,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketResearchAgreement:SetDisabled(false);
-			Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketResearchAgreement:SetToolTipString(strTooltip);
 		end
 
@@ -1707,7 +1759,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketResearchAgreement:SetDisabled(false);
-			Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESEARCH_AGREEMENT, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketResearchAgreement:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketResearchAgreement:SetToolTipString(strTooltip);
 		end
 	end
@@ -1880,11 +1936,13 @@ function ResetDisplay()
 
 			pResource = GameInfo.Resources[resType];
 			iResourceCount = g_pUs:GetNumResourceAvailable(resType, false);
+			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, false, g_iDealDuration, resType, 1)) then
+				strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
+			end
 			-- VP Dutch UA. This use hardcoded stuff ok dont rework the UA or ur stinky add a method or something
 			if (g_pUs:GetCivilizationType() == GameInfoTypes.CIVILIZATION_NETHERLANDS and (g_pUs:GetResourceExport(resType) > 0 or g_pUs:GetResourceImport(resType) > 0) and pResource.ResourceUsage == 2) then
-				strString = "[ICON_CHECKBOX] " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-			else
-				strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+				strString = "[ICON_CHECKBOX] " .. strString;
 			end
 			instance.Button:SetText(strString);
 		else
@@ -1963,11 +2021,13 @@ function ResetDisplay()
 			
 			pResource = GameInfo.Resources[resType];
 			iResourceCount = g_pThem:GetNumResourceAvailable(resType, false);
+			strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_RESOURCES, g_iUs, true, g_iDealDuration, resType, 1)) then
+				strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
+			end
 			-- VP Dutch UA / City-State stuff. Checks if you already own one.
 			if (g_pUs:IsShowImports() and (g_pUs:GetResourceExport(resType) > 0 or g_pUs:GetResourceImport(resType) > 0) and pResource.ResourceUsage == 2) then
-				strString = "[ICON_CHECKBOX] " .. pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
-			else 
-				strString = pResource.IconString .. " " .. Locale.ConvertTextKey(pResource.Description) .. " (" .. iResourceCount .. ")";
+				strString = "[ICON_CHECKBOX] " .. strString;
 			end
 			
 			-- Add a happy face if WLTKD procs something here I guess
@@ -2142,7 +2202,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketTradeMap:SetDisabled(false);
-			Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_MAPS, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketTradeMap:SetToolTipString(strTooltip);
 		end
 
@@ -2164,7 +2228,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketTradeMap:SetDisabled(false);
-			Controls.ThemPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_MAPS, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketTradeMap:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketTradeMap:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketTradeMap:SetToolTipString(strTooltip);
 		end
 	end
@@ -2201,7 +2269,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketVassalage:SetDisabled(false);
-			Controls.UsPocketVassalage:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VASSALAGE, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketVassalage:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketVassalage:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketVassalage:SetToolTipString(strTooltip);
 		end
 
@@ -2223,7 +2295,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketVassalage:SetDisabled(false);
-			Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VASSALAGE, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketVassalage:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketVassalage:SetToolTipString(strTooltip);
 		end
 	end
@@ -2252,7 +2328,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.UsPocketRevokeVassalage:SetDisabled(false);
-			Controls.UsPocketRevokeVassalage:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iUs, false, g_iDealDuration)) then
+				Controls.UsPocketRevokeVassalage:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.UsPocketRevokeVassalage:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.UsPocketRevokeVassalage:SetToolTipString(strTooltip);
 		end
 
@@ -2274,7 +2354,11 @@ function ResetDisplay()
 			end
 		else
 			Controls.ThemPocketRevokeVassalage:SetDisabled(false);
-			Controls.ThemPocketRevokeVassalage:GetTextControl():SetColorByName("Beige_Black");
+			if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VASSALAGE_REVOKE, g_iUs, true, g_iDealDuration)) then
+				Controls.ThemPocketRevokeVassalage:GetTextControl():SetColorByName("Red_Black");
+			else
+				Controls.ThemPocketRevokeVassalage:GetTextControl():SetColorByName("Beige_Black");
+			end
 			Controls.ThemPocketRevokeVassalage:SetToolTipString(strTooltip);
 		end
 	end
@@ -2297,7 +2381,11 @@ function ResetDisplay()
 				bFoundTech = true;
 				instance.Button:SetHide(false);
 				pTech = GameInfo.Technologies[techType];
-				instance.Button:SetText(Locale.ConvertTextKey(pTech.Description));
+				strString =  Locale.ConvertTextKey(pTech.Description);
+				if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_TECHS, g_iUs, false, g_iDealDuration, techType)) then
+					strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
+				end
+				instance.Button:SetText(strString);
 				instance.Button:SetToolTipString(GetShortHelpTextForTech(pTech.ID, false));
 			else
 				instance.Button:SetHide(true);
@@ -2361,7 +2449,11 @@ function ResetDisplay()
 				bFoundTech = true;
 				instance.Button:SetHide(false);
 				pTech = GameInfo.Technologies[techType];
-				instance.Button:SetText(Locale.ConvertTextKey(pTech.Description));
+				strString =  Locale.ConvertTextKey(pTech.Description);
+				if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_TECHS, g_iUs, true, g_iDealDuration, techType)) then
+					strString = "[COLOR_NEGATIVE_TEXT]" .. strString .."[ENDCOLOR]";
+				end
+				instance.Button:SetText(strString);
 				instance.Button:SetToolTipString(GetShortHelpTextForTech(pTech.ID, false));
 			else
 				instance.Button:SetHide(true);
@@ -3761,6 +3853,9 @@ function RefreshPocketVotes(iIsUs)
 					g_bAnyVoteUs = true;
 					local cInstance = g_UsPocketVoteIM:GetInstance();
 					cInstance.ProposalLabel:SetText(sProposalText);
+					if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, g_iUs, false, g_iDealDuration, tVote.ID, tVote.VoteChoice, iNumUsVotes, tVote.Repeal)) then
+						sChoiceText = "[COLOR_NEGATIVE_TEXT]" .. sChoiceText .. "[ENDCOLOR]";
+					end
 					cInstance.VoteLabel:SetText(sChoiceText);
 					cInstance.Button:SetToolTipString(sTooltip);
 					cInstance.Button:SetVoids(g_iUs, i);
@@ -3776,6 +3871,9 @@ function RefreshPocketVotes(iIsUs)
 					g_bAnyVoteThem = true;
 					local cInstance = g_ThemPocketVoteIM:GetInstance();
 					cInstance.ProposalLabel:SetText(sProposalText);
+					if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_VOTE_COMMITMENT, g_iUs, true, g_iDealDuration, tVote.ID, tVote.VoteChoice, iNumUsVotes, tVote.Repeal)) then
+						sChoiceText = "[COLOR_NEGATIVE_TEXT]" .. sChoiceText .. "[ENDCOLOR]";
+					end
 					cInstance.VoteLabel:SetText(sChoiceText);
 					cInstance.Button:SetToolTipString(sTooltip);
 					cInstance.Button:SetVoids(g_iThem, i);
@@ -3961,9 +4059,13 @@ function ShowCityChooser( isUs )
         
         if ( g_Deal:IsPossibleToTradeItem( m_iFrom, m_iTo, TradeableItems.TRADE_ITEM_CITIES, pCity:GetX(), pCity:GetY() ) ) then
             local instance = m_pIM:GetInstance();
-            
-            instance.CityName:SetText( pCity:GetName() );
-            instance.CityPop:SetText( pCity:GetPopulation() );
+            if(g_pThem:IsTradeItemValuedImpossible(TradeableItems.TRADE_ITEM_CITIES, g_iUs, isUs==0, g_iDealDuration, pCity:GetX(), pCity:GetY())) then
+				instance.CityName:SetText("[COLOR_NEGATIVE_TEXT]" ..  pCity:GetName()  .."[ENDCOLOR]")
+				instance.CityPop:SetText("[COLOR_NEGATIVE_TEXT]" ..  pCity:GetPopulation()  .."[ENDCOLOR]");
+			else
+				instance.CityName:SetText( pCity:GetName() );
+				instance.CityPop:SetText( pCity:GetPopulation() );
+			end
             instance.Button:SetVoids( m_iFrom, iCityID );
             instance.Button:RegisterCallback( Mouse.eLClick, OnChooseCity );
             
@@ -4056,8 +4158,19 @@ function ShowOtherPlayerChooser(isUs, type)
 				otherPlayerButtonSubTableNameButton:SetHide(false);
 				local strTooltip = "";
 
+				local szName;
+				if( pLoopPlayer:IsHuman() ) then
+					szName = pLoopPlayer:GetNickName();
+				else
+					szName = pLoopPlayer:GetName();
+				end
+				szName = szName .. " (" .. Locale.ConvertTextKey(GameInfo.Civilizations[pLoopPlayer:GetCivilizationType()].ShortDescription) .. ")";
+					
 				if (g_Deal:IsPossibleToTradeItem(iFromPlayer, iToPlayer, tradeType, iLoopTeam)) then
 					otherPlayerButtonSubTableNameButton:SetDisabled(false);
+					if(g_pThem:IsTradeItemValuedImpossible(tradeType, g_iUs, isUs==0, g_iDealDuration, iLoopTeam)) then
+						szName = "[COLOR_NEGATIVE_TEXT]" .. szName .. "[ENDCOLOR]";
+					end
 					otherPlayerButtonSubTableNameButton:SetAlpha(1);
 				else
 					otherPlayerButtonSubTableNameButton:SetDisabled(true);
@@ -4072,6 +4185,7 @@ function ShowOtherPlayerChooser(isUs, type)
 					end
 				end
 
+				TruncateString(otherPlayerButton[SubTableName].Name, otherPlayerButton[SubTableName].ButtonSize:GetSizeX() - otherPlayerButton[SubTableName].Name:GetOffsetX(), szName);
 				otherPlayerButtonSubTableNameButton:SetToolTipString(strTooltip);
 			end
 		end

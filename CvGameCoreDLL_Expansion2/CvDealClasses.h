@@ -67,6 +67,7 @@ struct CvTradedItem
 	PlayerTypes m_eFromPlayer;      // Which player is giving up this item?
 	int m_iValue;					// not serialized, only temporary
 	bool m_bValueIsEven;			// not serialized, only temporary
+	bool m_bDoNotRemove;			// not serialized, only temporary. Is set to true when the AI makes an offer for a particular deal item or when a human player adds something to a deal. Is false for all items added by the AI when trying to equalize a deal. The AI can't remove items with bNoNotRemove == true when trying to equalize a deal. Human players can always remove all items.
 };
 FDataStream& operator>>(FDataStream&, CvTradedItem&);
 FDataStream& operator<<(FDataStream&, const CvTradedItem&);
@@ -120,8 +121,6 @@ public:
 	bool m_bConsideringForRenewal; // is currently considering renewing this deal
 	bool m_bCheckedForRenewal; // this deal has been discussed with the player for renewal
 	bool m_bIsGift;
-	bool m_bDoNotModifyFrom;
-	bool m_bDoNotModifyTo;
 
 	TradedItemList m_TradedItems;
 
@@ -140,8 +139,6 @@ public:
 
 	void SetDuration(int iValue);
 
-	void SetDoNotModifyFrom(bool bValue);
-	void SetDoNotModifyTo(bool bValue);
 
 	PlayerTypes GetOtherPlayer(PlayerTypes eFromPlayer) const;
 	PlayerTypes GetToPlayer()   const
@@ -173,15 +170,6 @@ public:
 		return m_iToPlayerValue;
 	};
 
-	bool DoNotModifyFrom() const
-	{
-		return m_bDoNotModifyFrom;
-	};
-
-	bool DoNotModifyTo() const
-	{
-		return m_bDoNotModifyTo;
-	};
 
 	// Peace Treaty stuff
 	PeaceTreatyTypes GetPeaceTreatyType() const;
@@ -217,24 +205,24 @@ public:
 	int GetNumCitiesInDeal(PlayerTypes ePlayer);
 
 	// Methods to add a CvTradedItem to a deal
-	void AddGoldTrade(PlayerTypes eFrom, int iAmount);
-	void AddGoldPerTurnTrade(PlayerTypes eFrom, int iAmount, int iDuration);
-	void AddMapTrade(PlayerTypes eFrom);
-	void AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);
-	void AddCityTrade(PlayerTypes eFrom, int iCityID);
-	void AddAllowEmbassy(PlayerTypes eFrom);
-	void AddOpenBorders(PlayerTypes eFrom, int iDuration);
-	void AddDefensivePact(PlayerTypes eFrom, int iDuration);
-	void AddResearchAgreement(PlayerTypes eFrom, int iDuration);
-	void AddPeaceTreaty(PlayerTypes eFrom, int iDuration);
-	void AddThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iDuration);
-	void AddThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
-	void AddDeclarationOfFriendship(PlayerTypes eFrom);
-	void AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
+	void AddGoldTrade(PlayerTypes eFrom, int iAmount, bool bDoNotRemove = true);
+	void AddGoldPerTurnTrade(PlayerTypes eFrom, int iAmount, int iDuration, bool bDoNotRemove = true);
+	void AddMapTrade(PlayerTypes eFrom, bool bDoNotRemove = true);
+	void AddResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration, bool bDoNotRemove = true);
+	void AddCityTrade(PlayerTypes eFrom, int iCityID, bool bDoNotRemove = true);
+	void AddAllowEmbassy(PlayerTypes eFrom, bool bDoNotRemove = true);
+	void AddOpenBorders(PlayerTypes eFrom, int iDuration, bool bDoNotRemove = true);
+	void AddDefensivePact(PlayerTypes eFrom, int iDuration, bool bDoNotRemove = true);
+	void AddResearchAgreement(PlayerTypes eFrom, int iDuration, bool bDoNotRemove = true);
+	void AddPeaceTreaty(PlayerTypes eFrom, int iDuration, bool bDoNotRemove = true);
+	void AddThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, int iDuration, bool bDoNotRemove = true);
+	void AddThirdPartyWar(PlayerTypes eFrom, TeamTypes eThirdPartyTeam, bool bDoNotRemove = true);
+	void AddDeclarationOfFriendship(PlayerTypes eFrom, bool bDoNotRemove = true);
+	void AddVoteCommitment(PlayerTypes eFrom, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bDoNotRemove = true);
 
-	void AddTechTrade(PlayerTypes eFrom, TechTypes eTech);
-	void AddVassalageTrade(PlayerTypes eFrom);
-	void AddRevokeVassalageTrade(PlayerTypes eFrom);
+	void AddTechTrade(PlayerTypes eFrom, TechTypes eTech, bool bDoNotRemove = true);
+	void AddVassalageTrade(PlayerTypes eFrom, bool bDoNotRemove = true);
+	void AddRevokeVassalageTrade(PlayerTypes eFrom, bool bDoNotRemove = true);
 
 	void RemoveTechTrade(TechTypes eTech);
 
@@ -269,9 +257,11 @@ public:
 	bool IsVoteCommitmentTrade(PlayerTypes eFrom);
 	static DealRenewStatus GetItemTradeableState(TradeableItems eItem);
 	bool IsPotentiallyRenewable();
+	bool IsCheckedForRenewal();
 
-	//return true if anything was removed
-	bool RemoveAllByPlayer(PlayerTypes eFrom);
+	void RemoveAllPossibleItems();
+
+	//return true if the item was removed
 	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveResourceTrade(ResourceTypes eResource);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);
@@ -336,7 +326,7 @@ public:
 	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
-	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
+	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX, bool bOnlyCheckedDeals = false);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
 	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration = true);
 	int GetTurnsBeforeRegainingLuxury(PlayerTypes ePlayer, ResourceTypes eResource);
@@ -347,7 +337,7 @@ public:
 	void DestroyDeal(uint index);
 
 	void DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2);
-	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
+	void DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, bool bCancelPeaceTreaties = true);
 	void DoCancelAllDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoCancelAllProposedDealsWithPlayer(PlayerTypes eCancelPlayer);
 	void DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bool bCancelled, bool bSkip = false);

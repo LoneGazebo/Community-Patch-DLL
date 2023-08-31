@@ -433,8 +433,8 @@
    <Row Class="4" Name="ADJACENT_BLOCKADE" Value="0"/>
     <!-- Units take damage when moving through enemy lands -->
    <Row Class="4" Name="ATTRITION" Value="0"/>
-    <!-- When a military unit retreats, civilians units on the same tile also retreat -->
-   <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="0"/>
+    <!-- When a military unit retreats, civilian and embarked units on the same tile also retreat -->
+   <Row Class="4" Name="CIVILIANS_RETREAT_WITH_MILITARY" Value="1"/>
     <!-- Linked & group movement -->
    <Row Class="4" Name="LINKED_MOVEMENT" Value="0"/>
     <!-- Era scaling for GE & GM yields -->
@@ -780,7 +780,7 @@
     <Row Class="3" Name="EVENTS_CAN_MOVE_INTO" Value="0" DbUpdates="1"/>
 
     <!-- Enables the Achievements table (v45) -->
-    <Row Class="2" Name="API_ACHIEVEMENTS" Value="0" DbUpdates="1"/>
+    <Row Class="2" Name="API_ACHIEVEMENTS" Value="0"/>
 
 	  <!-- Changes for the Community Patch  -->	
 	<Row Class="6" Name="COMMUNITY_PATCH" Value="0"/>
@@ -844,8 +844,10 @@
 	<Row Class="6" Name="BALANCE_CORE_SETTLER_ADVANCED" Value="0"/>
 	<!-- Advanced military changes (promotions) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MILITARY_PROMOTION_ADVANCED" Value="0"/>
-	  <!-- Purchased COMBAT units do not have full health when the city is damaged  -->	
+	<!-- Purchased COMBAT units do not have full health when the city is damaged  -->
 	<Row Class="6" Name="BALANCE_CORE_UNIT_CREATION_DAMAGED" Value="0"/>
+	<!-- City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply. -->
+	<Row Class="6" Name="UNIT_SUPPLY_MINORS_USE_HANDICAP" Value="0"/>
 	<!-- Luxury Trait change (indonesia) - COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_LUXURIES_TRAIT" Value="0"/>
 	<!-- Advanced Spy actions - COMMUNITY_PATCH -->
@@ -944,6 +946,8 @@
 	<Row Class="6" Name="CITY_STATE_SCALE" Value="0"/>
 	<!-- Pantheons can be picked even if they are already picked by someone else. -->
 	<Row Class="6" Name="ANY_PANTHEON" Value="0"/>
+	<!-- Only recon units (and city border growth) can take ancient ruins. -->
+	<Row Class="6" Name="BALANCE_CORE_GOODY_RECON_ONLY" Value="0"/>
 	 
 	<Row Class="6" Name="YIELD_MODIFIER_FROM_UNITS" Value="0"/>
 

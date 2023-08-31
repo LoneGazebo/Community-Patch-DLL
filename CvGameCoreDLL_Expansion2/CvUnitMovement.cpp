@@ -475,6 +475,10 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 		if (pAdjPlot->isEnemyCity(*pUnit))
 			return true;
 
+		// units need to be visible
+		if (!pAdjPlot->isVisible(pUnit->getTeam()))
+			continue;
+
 		// Loop through all units to see if there's an enemy unit here
 		IDInfo* pAdjUnitNode = pAdjPlot->headUnitNode();
 		while (pAdjUnitNode != NULL)

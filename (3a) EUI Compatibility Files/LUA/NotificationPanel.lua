@@ -805,10 +805,10 @@ local isQuestKillCamp
 local questDig = MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY
 local isQuestDig
 
-local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT
+local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA
 local isQuestPlot
 
-local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY
+local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY
 local isQuestCity
 -- END
 if bnw_mode then
@@ -1032,9 +1032,6 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 		-- UndeadDevel: update war status and peace willingness and add war info to tool tip
 		if (not Game.IsOption( GameOptionTypes.GAMEOPTION_ALWAYS_WAR ) and playerID ~= g_leaderID and not g_leaderMode and playerID ~= g_activePlayerID and not player:IsHuman() and not player:IsMinorCiv() and not player:IsBarbarian() and not IsGameCoreBusy()) then
 
-			player:DoUpdateWarDamage();
-			player:DoUpdatePeaceTreatyWillingness();
-			
 			local strWarInfo = "";
 	
 			if(player:IsWantsPeaceWithPlayer(g_activePlayerID)) then
@@ -1276,8 +1273,6 @@ local g_civListInstanceCallBacks = {-- the callback function table names need to
 				elseif bnw_mode and UI.CtrlKeyDown() and g_activeTeam:CanChangeWarPeace( teamID ) then
 					if g_activeTeam:IsAtWar( teamID ) then
 					-- Asking for Peace (currently at war) - bring up the trade screen
-						player:DoUpdateWarDamage(); -- UndeadDevel: since we're bypassing the default diplo screen, which would update these two things we need to do it manually here
-						player:DoUpdatePeaceTreatyWillingness();
 						Game.DoFromUIDiploEvent( FromUIDiploEventTypes.FROM_UI_DIPLO_EVENT_HUMAN_NEGOTIATE_PEACE, playerID, 0, 0 )
 					elseif g_activeTeam:CanDeclareWar( teamID ) then
 					-- Declaring War - bring up the BNW popup

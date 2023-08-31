@@ -105,62 +105,27 @@ protected:
 	static int lGetReasonsItemUntradeable(lua_State* L);
 	static int lBlockTemporaryForPermanentTrade(lua_State* L);
 
-	static int lAddGoldTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddGoldTrade);
-	};
-	static int lAddGoldPerTurnTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddGoldPerTurnTrade);
-	};
-	static int lAddMapTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddMapTrade);
-	};
-	static int lAddResourceTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddResourceTrade);
-	};
-	static int lAddCityTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddCityTrade);
-	};
-	static int lAddAllowEmbassy(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddAllowEmbassy);
-	};
-	static int lAddOpenBorders(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddOpenBorders);
-	};
-	static int lAddDefensivePact(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddDefensivePact);
-	};
-	static int lAddResearchAgreement(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddResearchAgreement);
-	};
-	static int lAddPeaceTreaty(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddPeaceTreaty);
-	};
-	static int lAddThirdPartyPeace(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddThirdPartyPeace);
-	};
-	static int lAddThirdPartyWar(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddThirdPartyWar);
-	};
+	static int lAddGoldTrade(lua_State* L);
+	static int lAddGoldPerTurnTrade(lua_State* L);
+	static int lAddMapTrade(lua_State* L);
+	static int lAddResourceTrade(lua_State* L);
+	static int lAddCityTrade(lua_State* L);
+	static int lAddAllowEmbassy(lua_State* L);
+	static int lAddOpenBorders(lua_State* L);
+	static int lAddDefensivePact(lua_State* L);
+	static int lAddResearchAgreement(lua_State* L);
+	static int lAddPeaceTreaty(lua_State* L);
+	static int lAddThirdPartyPeace(lua_State* L);
+	static int lAddThirdPartyWar(lua_State* L);
+	static int lAddDeclarationOfFriendship(lua_State* L);
+	static int lAddVoteCommitment(lua_State* L);
 
-	static int lAddDeclarationOfFriendship(lua_State* L)
+	static int lDoReevaluateDeal(lua_State* L);
+	static int lGetRenewDealMessage(lua_State* L);
+	static int lIsCheckedForRenewal(lua_State* L)
 	{
-		return BasicLuaMethod(L, &CvDeal::AddDeclarationOfFriendship);
+		return BasicLuaMethod(L, &CvDeal::IsCheckedForRenewal);
 	};
-
-	static int lAddVoteCommitment(lua_State* L); // Too many args for template, defined in cpp
-
 	static int lChangeGoldTrade(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::ChangeGoldTrade);
@@ -203,18 +168,9 @@ protected:
 
 	static TradedItemList::iterator m_iterator;
 
-	static int lAddTechTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddTechTrade);
-	};
-	static int lAddVassalageTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddVassalageTrade);
-	};
-	static int lAddRevokeVassalageTrade(lua_State* L)
-	{
-		return BasicLuaMethod(L, &CvDeal::AddRevokeVassalageTrade);
-	};
+	static int lAddTechTrade(lua_State* L);
+	static int lAddVassalageTrade(lua_State* L);
+	static int lAddRevokeVassalageTrade(lua_State* L);
 	static int lRemoveTechTrade(lua_State* L)
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveTechTrade);

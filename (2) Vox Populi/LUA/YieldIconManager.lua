@@ -3,6 +3,7 @@
 -- re-written by bc1, compatible with all Civ V and BE versions
 -- fix quantity erratic display & make code much more efficient
 -- add compatibility with "DLL - Various Mod Components" v63
+-- fixed invisible yields bug
 -------------------------------------------------
 
 -- Minor optimizations
@@ -120,6 +121,9 @@ function( x, y, isShown )
 			if anchor then
 				-- just show it
 				anchor.Anchor:ChangeParent( ControlsYieldStore )
+				-- updating world position to make it synchronized with current camera position
+				local a,b,c= GridToWorld( x, y )
+				anchor.Anchor:SetWorldPositionVal( a,b,c )
 			else
 				-- create new anchor
 				anchor = TableRemove( g_AvailableAnchors )

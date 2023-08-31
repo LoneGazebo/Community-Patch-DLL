@@ -1437,6 +1437,11 @@ bool CvPlayerTechs::IsResearch() const
 /// Accessor: Is this tech disabled?
 bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 {
+	if (GC.getGame().isOption(GAMEOPTION_NO_SCIENCE))
+	{
+		return false;
+	}
+
 	CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
 	if(pkTechInfo == NULL)
 	{

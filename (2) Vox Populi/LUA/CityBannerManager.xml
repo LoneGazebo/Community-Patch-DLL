@@ -99,6 +99,7 @@
 				<Label ID="ConnectedIcon" Anchor="C,C" Offset="0,0" String="[ICON_CONNECTED]" Hidden="1"/>
 				<Label ID="BlockadedIcon" Anchor="C,C" Offset="0,0" String="[ICON_BLOCKADED]" Hidden="1"/>
 				<Label ID="PuppetIcon" Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" Hidden="1"/>
+				<Label ID="CityStateIcon" Anchor="C,C" Offset="0,0" String="[ICON_CITY_STATE]" Hidden="1"/>
 				<Label ID="OccupiedIcon" Anchor="C,C" Offset="0,0" String="[ICON_OCCUPIED]" Hidden="1"/>
 				<Label ID="CityIsMined" Anchor="C,C" Offset="0,0" String="[ICON_MINEFIELD]" Hidden="1"/>
 				<Label ID="CityHasAirport" Anchor="C,C" Offset="0,0" String="[ICON_AIRPORT]" Hidden="1"/>
@@ -171,6 +172,7 @@
 				<Label ID="ConnectedIcon" Anchor="C,C" Offset="0,0" String="[ICON_CONNECTED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="BlockadedIcon" Anchor="C,C" Offset="0,0" String="[ICON_BLOCKADED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="PuppetIcon" Anchor="C,C" Offset="0,0" String="[ICON_PUPPET]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
+				<Label ID="CityStateIcon" Anchor="C,C" Offset="0,0" String="[ICON_CITY_STATE]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="OccupiedIcon" Anchor="C,C" Offset="0,0" String="[ICON_OCCUPIED]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="CityIsMined" Anchor="C,C" Offset="0,0" String="[ICON_MINEFIELD]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>
 				<Label ID="CityHasAirport" Anchor="C,C" Offset="0,0" String="[ICON_AIRPORT]" Font="TwCenMT18" FontStyle="Shadow" Hidden="1"/>

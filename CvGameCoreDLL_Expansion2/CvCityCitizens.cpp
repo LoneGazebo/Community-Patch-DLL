@@ -500,6 +500,8 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 		//base yield plus combo bonuses. 
 		int iYield100 = pPlot->getYield(eYield) * 100;
 
+		iYield100 += GET_PLAYER(GetOwner()).getYieldFromNonSpecialistCitizens(eYield);
+
 		//FIXME: if we're trying to find the worst worked plot, we have to consider losing the combo bonus!
 		if (!bIsWorking)
 			iYield100 += GetBonusPlotValue(pPlot, eYield, cache) * 100;
@@ -655,7 +657,7 @@ bool CvCityCitizens::SetFocusType(CityAIFocusTypes eFocus, bool bReallocate)
 
 int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFocus, bool bEmphasizeFood, bool bEmphasizeProduction, const SPrecomputedExpensiveNumbers& cache)
 {
-	int iDefaultValue = 6; //not too low to limit influence of moddable values
+	int iDefaultValue = 0;
 	switch (eYield)
 	{
 	case YIELD_FOOD:
@@ -676,6 +678,8 @@ int CvCityCitizens::GetYieldModForFocus(YieldTypes eYield, CityAIFocusTypes eFoc
 	case YIELD_FAITH:
 		iDefaultValue = /*12*/ GD_INT_GET(AI_CITIZEN_VALUE_FAITH) / 2;
 		break;
+	default:
+		iDefaultValue = 6; //not too low to limit influence of moddable values
 	}
 
 	int iYieldMod = iDefaultValue;
@@ -906,7 +910,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 			iYield100 = m_pCity->GetCultureFromSpecialist(eSpecialist) * 100;
 
 		if ((eSpecialist != (SpecialistTypes)GD_INT_GET(DEFAULT_SPECIALIST)) && (eYield == YIELD_FOOD))
-			iYield100 -= (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
+			iYield100 += (m_pCity->foodConsumptionSpecialistTimes100() - m_pCity->foodConsumptionNonSpecialistTimes100());
 
 		if (iYield100 > 0)
 		{
@@ -1064,7 +1068,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	// Valuation of the GPP Points
 
 	//default valuation. todo: xml
-	int iGPPValuation = MOD_BALANCE_CORE_HAPPINESS ? 10 : 8; // higher base value in VP because the value can later be reduced by urbanization
+	int iGPPValuation = MOD_BALANCE_CORE_HAPPINESS ? 5 : 4; // higher base value in VP because the value can later be reduced by urbanization
 	int iMod = 0;
 	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 	{
@@ -1150,8 +1154,12 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 		}
 	}
 
-	//Bonus for existing progress towards a Great Person of that type
+	//Bonus for existing progress towards a Great Person of that type, or if there's already another specialist of that type
 	int iSpecialistProgress = 100 * GetSpecialistGreatPersonProgress(eSpecialist) / GetSpecialistUpgradeThreshold(eUnitClass);
+	if (m_aiSpecialistCounts[eSpecialist] > 0)
+	{
+		iSpecialistProgress = max(iSpecialistProgress, 25);
+	}
 	iMod += min(50, iSpecialistProgress);
 
 	iGPPValuation *= (100 + iMod);
@@ -1247,7 +1255,7 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	bool bCanAffordSpecialist = false;
 	if (m_pCity->foodConsumptionSpecialistTimes100() <= m_pCity->foodConsumptionNonSpecialistTimes100())
 	{
-		bCanAffordSpecialist = pBestPlot->getYield(YIELD_FOOD) == 0;
+		bCanAffordSpecialist = pBestPlot ? (pBestPlot->getYield(YIELD_FOOD) == 0) : true;
 	}
 	else
 	{
@@ -1522,7 +1530,7 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 	{
 		CityAIFocusTypes eFocus = GetFocusType();
 		if (eFocus == NO_CITY_AI_FOCUS_TYPE)
-			return max(200, m_pCity->getPopulation() * 25);
+			return max(200, m_pCity->getPopulation() * max(25, 50 - m_pCity->getPopulation()/2));
 		else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
 			return max(200, m_pCity->getPopulation() * 50);
 		else if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
@@ -1610,7 +1618,7 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		bool bCanAffordSpecialist = false;
 		if (m_pCity->foodConsumptionSpecialistTimes100() <= m_pCity->foodConsumptionNonSpecialistTimes100())
 		{
-			bCanAffordSpecialist = pBestFreePlot->getYield(YIELD_FOOD) == 0;
+			bCanAffordSpecialist = pBestFreePlot ? (pBestFreePlot->getYield(YIELD_FOOD) == 0) : true;
 		}
 		else
 		{
@@ -3347,9 +3355,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
 			kPlayer.changeJONSCulture(iValue);
 			if (kPlayer.getCapitalCity() != NULL)
-			{
 				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-			}
+
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if (pNotifications)
 			{
@@ -3555,9 +3562,8 @@ void CvCityCitizens::DoSpawnGreatPerson(UnitTypes eUnit, bool bIncrementCount, b
 			int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 4;
 			kPlayer.changeJONSCulture(iValue);
 			if (kPlayer.getCapitalCity() != NULL)
-			{
 				kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-			}
+
 			CvNotifications* pNotifications = kPlayer.GetNotifications();
 			if (pNotifications)
 			{

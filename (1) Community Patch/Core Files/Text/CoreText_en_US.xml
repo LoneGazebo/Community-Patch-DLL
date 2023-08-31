@@ -51,6 +51,14 @@
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
 
+		<!-- No Peace With City-State -->
+		<Row Tag="TXT_KEY_PEACE_BLOCKED_TURNS">
+			<Text>Peace Blocked for {1_Num} turn(s)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEACE_BLOCKED_CSTATE_TURNS_TT">
+			<Text>You aggressively attacked this City-State and cannot make peace for {1_Num} turns!</Text>
+		</Row>
+
 		<!-- Text for Preview Combat Miscellaneous Bonuses -->
 		<Row Tag="TXT_KEY_MISC_BONUS">
 			<Text>Miscellaneous</Text>
@@ -110,6 +118,9 @@
 		<!-- New Blue Indicators (Enemy Unit Panel) -->
 		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE">
 			<Text>[COLOR_CYAN]Withdraw Chance[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EUPANEL_WITHDRAW_CHANCE_100_PERCENT">
+			<Text>[COLOR_CYAN]Unit will withdraw from the attack[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EUPANEL_RANGED_SUPPORT">
 			<Text>[COLOR_CYAN]Additional Ranged Attack[ENDCOLOR]</Text>
@@ -2440,33 +2451,50 @@
 
 		<!-- NEW CS Quests -->
 
+		<!-- Find City -->
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_FIND_CITY_FORMAL">
+			<Text>They want you to find the city of {@1_CityName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_FIND_CITY">
+			<Text>{@2_CivName} is looking for new trade opportunities. They have heard of a distant city named "{@1_CityName}." If you are able to find the city of {@1_CityName}, you will be rewarded.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_FIND_CITY">
+			<Text>{@2_CivName} seeks {@1_CityName}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COMPLETE_FIND_CITY">
+			<Text>Your discovery of {@1_CityName} has greatly pleased the merchants of {@2_MinorCivName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_FIND_CITY">
+			<Text>{@1_CityName} discovered for {@2_CivName}!</Text>
+		</Row>
+
 		<!-- Capture City -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CAPTURE_CITY">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY">
 			<Text>Tactical experts from {@2_CivName} believe {@1_CityName} to be of significant strategic importance. Acquire it by any means, and you will be greatly rewarded!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CAPTURE_CITY">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY">
 			<Text>{@2_CivName} wants you to capture {@1_CityName}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_COMPLETE">
 			<Text>The tactical experts from {@1_CivName} commend you for your efforts, and hope that the city is as militarily useful as they foresaw.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_COMPLETE">
 			<Text>Successful city capture for {@1_CivName}!</Text>
 		</Row>
 
 		<!-- Capture City (OCC) -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_UNIT_GET_CITY_OCC">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC">
 			<Text>Tactical experts from {@2_CivName} believe that the city of {@1_CityName} is a significant threat to their safety. Conquer it by any means, and you will be greatly rewarded!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_UNIT_GET_CITY_OCC">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_OCC">
 			<Text>{@2_CivName} wants you to conquer {@1_CityName}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_GET_CITY_OCC_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_ACQUIRE_CITY_OCC_COMPLETE">
 			<Text>The tactical experts from {@1_CivName} thank you for conquering the city they targeted.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_GET_CITY_OCC_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_ACQUIRE_CITY_OCC_COMPLETE">
 			<Text>Successfully conquered city for {@1_CivName}!</Text>
 		</Row>
     
@@ -2478,10 +2506,10 @@
 			<Text>Intelligence from {@1_Civ}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP_CITY_COMPLETE">
-			<Text>{@1_Civname} commends you for your successful coup.</Text>
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_COUP_COMPLETE">
+			<Text>{@2_Civname} commends you for your successful coup against {@1_CityName}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_COUP_CITY_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_COUP_COMPLETE">
 			<Text>Successful coup for {@1_Civname}!</Text>
 		</Row>
 
@@ -2501,47 +2529,47 @@
 
 
 		<!-- Steal -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR">
 			<Text>Rogue agents in {@3_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Espionage actions against {@1_Civ} (Spy Events or Technology Theft), you will be greatly rewarded.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_STEAL_FROM">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_ON_MAJOR">
 			<Text>Intelligence update from {@1_Civ}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_STEAL_FROM_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR_COMPLETE">
 			<Text>The rogue agents in {@2_Civ} are proud of your successful espionage efforts against {@1_Civ}!</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_STEAL_FROM_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_SPY_ON_MAJOR_COMPLETE">
 			<Text>Espionage action completed!</Text>
 		</Row>
 
 		<!-- Construction -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_CONSTRUCT_X_BUILDING">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS">
 			<Text>Builders from {3_Civ} are eager to study the value of the [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR]. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_CONSTRUCT_X_BUILDING">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_BUILD_X_BUILDINGS">
 			<Text>Construction project from {@1_Civ}</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS_COMPLETE">
 			<Text>The builders from {@1_Civ} are dazzled by your monumental construction efforts.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_BUILD_X_BUILDINGS_COMPLETE">
 			<Text>Construction project completed!</Text>
 		</Row>
 
 		<!-- Discovery -->
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVERY_PLOT">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA">
 			<Text>Cartographers from {@1_Civ} request your help completing a mapmaking project. Explore the general vicinity of the indicated area as much as needed. They will reward you with what they have.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVERY_PLOT">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA">
 			<Text>Cartographic commission</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_DISCOVERY_PLOT_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_EXPLORE_AREA_COMPLETE">
 			<Text>The cartographers from {@1_Civ} thank you for your assistance in their mapmaking project.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DISCOVERY_PLOT_COMPLETE">
+		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_EXPLORE_AREA_COMPLETE">
 			<Text>Cartographic mission complete!</Text>
 		</Row>
 
@@ -2574,30 +2602,30 @@
 
 
 		<!-- Formal Text-->
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_PLOT_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL">
 			<Text>Explore an unrevealed area of the world ([COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% complete).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_BUILD_X_BUILDINGS_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL">
 			<Text>Construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {@1_Building} {2_Num: plural 1?building; other?buildings;} in your empire.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_STEAL_FROM_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL">
 			<Text>Conduct intelligence operations against {1_Civ} ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] remaining).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_COUP_CITY_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_COUP_FORMAL">
 			<Text>Stage a coup in {1_Civ}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_FORMAL">
 			<Text>Acquire the city of {1_City}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GET_CITY_OCC_FORMAL">
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_OCC_FORMAL">
 			<Text>They want you to conquer the city of {1_City}.</Text>
 		</Row>
 		<!-- Plot Helpers -->
 
-		<Row Tag="TXT_KEY_CITY_STATE_GET_CITY_QUEST_LONG">
+		<Row Tag="TXT_KEY_CITY_STATE_ACQUIRE_CITY_QUEST_LONG">
 			<Text>{1_Civ} wants you to acquire this city.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CITY_STATE_FIND_PLOT_QUEST_LONG">
+		<Row Tag="TXT_KEY_CITY_STATE_EXPLORE_AREA_QUEST_LONG">
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
 		</Row>
 
@@ -3795,6 +3823,9 @@
 		<!-- Bully popup texts -->
 		<Row Tag="TXT_KEY_MISC_BULLIED_POPUP">
 			<Text>BULLIED:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD">
+			<Text>They are currently [COLOR_WARNING_TEXT]resilient[ENDCOLOR], because you are {1_FactorScore}% below the tribute threshold of [COLOR_CYAN]{2_Threshold}%[ENDCOLOR]:</Text>
 		</Row>
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
@@ -5725,22 +5756,19 @@
 			<Text>Marriage between {@2_MinorCivName} and {@1_CivName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_1">
-			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and increases their resting [ICON_INFLUENCE] Influence with the City-State by 200.</Text>
+			<Text>A beautiful princess of {@1_CivName} has been married off to a nobleman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_MINOR_MARRIAGE_TT_2">
-			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, {@2_MinorCivName} grants {@1_CivName} an additional Delegate in the World Congress, boosts their [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate, and increases their resting [ICON_INFLUENCE] Influence with the City-State by 200.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES">
-			<Text>[NEWLINE][ICON_BULLET]{1_Num} from Diplomatic Marriages</Text>
+			<Text>A handsome prince of {@1_CivName} has been married off to a noblewoman of {@2_MinorCivName}. With a diplomatic relationship united by marriage, your resting [ICON_INFLUENCE] Influence with {@2_MinorCivName} is increased by 75, scaling with Era, and your [ICON_CAPITAL] Capital's [ICON_GREAT_PEOPLE] Great Person rate is increased by 15%.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_TT">
-			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +15% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
+			<Text>You may spend {1_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_TT">
-			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +15% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
-			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants: an additional delegate in the World Congress, +15% [ICON_GREAT_PEOPLE] Great Person rate in [ICON_CAPITAL] Capital, and an increase of resting [ICON_INFLUENCE] Influence with the City-State of 200.[NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Venice Tooltip -->
@@ -6599,7 +6627,13 @@
 
 		<!-- Tooltips for Growth Modifiers -->
 		<Row Tag="TXT_KEY_FOODMOD_EATEN_FOOD">
-			<Text>[NEWLINE][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
+			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] [ICON_FOOD] eaten by [ICON_CITIZEN] Citizens</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE">
+			<Text>[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE">
+			<Text>[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] excess [ICON_FOOD] before modifiers</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_PUPPET">
 			<Text>[NEWLINE][ICON_BULLET][ICON_PUPPET] Modifier for Puppet: {1_Num}%</Text>
@@ -6620,21 +6654,21 @@
 			<Text>[NEWLINE][ICON_BULLET][ICON_CITIZEN] Event Modifier: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY">
-			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Military Unit Supply Cap): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_SILVER_FIST] Growth [COLOR_NEGATIVE_TEXT]Penalty[ENDCOLOR] (Over Supply Cap): {1_Num}%</Text>
 		</Row>
 
 		<!-- Tooltips for Standard Base Modifiers -->
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_BUILDINGS">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Buildings): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Buildings): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_POLICIES">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Policies): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Policies): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_RELIGION">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Beliefs): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Beliefs): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_YIELD_GOLDEN_AGE_TRAITS">
-			<Text>[NEWLINE][ICON_BULLET]Golden Age Modifier (Traits): {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_GOLDEN_AGE]Golden Age Modifier (Traits): {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_WLTKD">
 			<Text>[NEWLINE][ICON_BULLET]"We Love the King Day" Modifier: {1_Num}%</Text>
@@ -7130,7 +7164,7 @@
 			<Text>[ICON_PIRATE] Death of a Military Unit:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BULLY">
-			<Text>[ICON_PIRATE] Bullying a City-State:[NEWLINE]{1_YieldString}</Text>
+			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName}:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_SPREAD">
 			<Text>Spreading your [ICON_RELIGION] Religion to a City:[NEWLINE]{1_YieldString}</Text>
@@ -7157,9 +7191,12 @@
 			<Text>[ICON_SPY] Spy Actions:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_MINOR_QUEST">
-			<Text>[ICON_CITY_STATE] City-State Quest ({1_Data}):[NEWLINE]{2_YieldString}</Text>
+			<Text>[ICON_CITY_STATE] Completing Quest for {2_MinorName} ({1_Data}):[NEWLINE]{3_YieldString}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
+		<Row Tag="TXT_KEY_INSTANT_YIELD_HEAVY_TRIBUTE_QUEST">
+			<Text>[ICON_PIRATE] Demanding Tribute from {2_MinorName} - Quest Reward ({1_Data}):[NEWLINE]{3_YieldString}</Text>
+		</Row>
+			<Row Tag="TXT_KEY_INSTANT_YIELD_CULTURE_BOMB">
 			<Text>Expanding [ICON_CULTURE] Borders by Great Person:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_REMOVE_HERESY">
@@ -7192,106 +7229,109 @@
 
 		<!-- Quest Data -->
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ROUTE_NAME">
-			<Text>Construct Route for {1_CSName}</Text>
+			<Text>Construct Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_KILL_CAMP_NAME">
-			<Text>Kill Camp for {1_CSName}</Text>
+			<Text>Kill Camp</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONNECT_RESOURCE_NAME">
-			<Text>Connect Resource for {1_CSName}</Text>
+			<Text>Connect Resource</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_WONDER_NAME">
-			<Text>Build Wonder for {1_CSName}</Text>
+			<Text>Build Wonder</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GREAT_PERSON_NAME">
-			<Text>Great Person for {1_CSName}</Text>
+			<Text>Generate Great Person</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_KILL_CITY_STATE_NAME">
-			<Text>Kill City-State for {1_CSName}</Text>
+			<Text>Kill City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_PLAYER_NAME">
-			<Text>Find Player for {1_CSName}</Text>
+			<Text>Find Player</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_NAME">
+			<Text>Find City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_NATURAL_WONDER_NAME">
-			<Text>Find Natural Wonder for {1_CSName}</Text>
+			<Text>Find Natural Wonder</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIVE_GOLD_NAME">
-			<Text>Give Gold to {1_CSName}</Text>
+			<Text>Give Gold</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_PLEDGE_TO_PROTECT_NAME">
-			<Text>Pledge Protection to {1_CSName}</Text>
+			<Text>Pledge Protection</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_CULTURE_NAME">
-			<Text>Culture Contest for {1_CSName}</Text>
+			<Text>Culture Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_FAITH_NAME">
-			<Text>Faith Contest for {1_CSName}</Text>
+			<Text>Faith Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_TECHS_NAME">
-			<Text>Tech Contest for {1_CSName}</Text>
+			<Text>Tech Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_INVEST_NAME">
-			<Text>Invest in {1_CSName}</Text>
+			<Text>Invest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BULLY_CITY_STATE_NAME">
-			<Text>Bully City-State for {1_CSName}</Text>
+			<Text>Demand Tribute from City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DENOUNCE_MAJOR_NAME">
-			<Text>Denounce Player for {1_CSName}</Text>
+			<Text>Denounce Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPREAD_RELIGION_NAME">
-			<Text>Spread Religion to {1_CSName}</Text>
+			<Text>Spread Religion</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_TRADE_ROUTE_NAME">
-			<Text>Trade Route to {1_CSName}</Text>
+			<Text>Establish Trade Route</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_WAR_NAME">
-			<Text>War for {1_CSName}</Text>
+			<Text>Start War against Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER_NAME">
-			<Text>Built National Wonder for {1_CSName}</Text>
+			<Text>Build National Wonder</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT_NAME">
-			<Text>Gifted unit to {1_CSName}</Text>
+			<Text>Gift Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_FIND_CITY_STATE_NAME">
-			<Text>Found City-State for {1_CSName}</Text>
+			<Text>Find City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_INFLUENCE_NAME">
-			<Text>Influence for {1_CSName}</Text>
+			<Text>Influence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CONTEST_TOURISM_NAME">
-			<Text>Tourism Contest for {1_CSName}</Text>
+			<Text>Tourism Contest</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ARCHAEOLOGY_NAME">
-			<Text>Archaeology for {1_CSName}</Text>
+			<Text>Archaeology</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_CIRCUMNAVIGATION_NAME">
-			<Text>Circumnavigation for {1_CSName}</Text>
+			<Text>Circumnavigation</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_LIBERATION_NAME">
-			<Text>Liberation for {1_CSName}</Text>
+			<Text>Liberate City-State</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_HORDE_NAME">
-			<Text>Quell Horde for {1_CSName}</Text>
+			<Text>Quell Horde</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_REBELLION_NAME">
-			<Text>Quell Rebellion for {1_CSName}</Text>
+			<Text>Quell Rebellion</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_DISCOVER_PLOT_NAME">
-			<Text>Discover Land for {1_CSName}</Text>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_EXPLORE_AREA_NAME">
+			<Text>Discover Land</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_BUILD_X_BUILDINGS_NAME">
-			<Text>Construct Buildings for {1_CSName}</Text>
+			<Text>Construct Buildings</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_STEAL_FROM_NAME">
-			<Text>Spy for {1_CSName}</Text>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_SPY_ON_MAJOR_NAME">
+			<Text>Conduct Espionage</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_COUP_CITY_NAME">
-			<Text>Coup for {1_CSName}</Text>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_COUP_NAME">
+			<Text>Perform Coup</Text>
 		</Row>
-		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_UNIT_GET_CITY_NAME">
-			<Text>Conquest for {1_CSName}</Text>
+		<Row Tag="TXT_KEY_MINOR_CIV_QUEST_ACQUIRE_CITY_NAME">
+			<Text>Conquer City</Text>
 		</Row>
 		
 		<Row Tag="TXT_KEY_INSTANT_YIELD_DETAILS_HAPPINESS">

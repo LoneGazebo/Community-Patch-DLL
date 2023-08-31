@@ -420,6 +420,7 @@ bool CvGame::init2()
 	CheckGenerateArchaeology();
 
 	initScoreCalculation();
+	initSpyThreshold();
 	setFinalInitialized(true);
 
 #if defined(MOD_EVENTS_TERRAFORMING)
@@ -1135,6 +1136,8 @@ void CvGame::uninit()
 	m_iNumVictoryVotesExpected = 0;
 	m_iVotesNeededForDiploVictory = 0;
 	m_iMapScoreMod = 0;
+	m_iNumMajorCivsAliveAtGameStart = 0;
+	m_iNumMinorCivsAliveAtGameStart = 0;
 
 	m_uiInitialTime = 0;
 
@@ -1182,6 +1185,8 @@ void CvGame::uninit()
 	m_iGoldMedian = 0;
 	m_iScienceMedian = 0;
 	m_iCultureMedian = 0;
+
+	m_iSpyThreshold = 0;
 
 	m_iLastTurnCSSurrendered = 0;
 
@@ -1462,7 +1467,25 @@ void CvGame::initFreeUnits(CvGameInitialItemsOverrides& kOverrides)
 			{
 				if(kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE,false) == 0 && kPlayer.getNumCities() == 0)
 				{
-					kPlayer.initFreeUnits();
+					// if a civ has no starting plot, it has been discarded during map generation due to insufficient space
+					if (kPlayer.getStartingPlot())
+					{
+						kPlayer.initFreeUnits();
+						// count the number of major/minor civs alive at game start
+						if (kPlayer.isMinorCiv())
+						{
+							m_iNumMinorCivsAliveAtGameStart++;
+						}
+						else
+						{
+							m_iNumMajorCivsAliveAtGameStart++;
+						}
+					}
+					else
+					{
+						kPlayer.setEverAlive(false);
+						kPlayer.setAlive(false);
+					}
 				}
 			}
 		}
@@ -4502,32 +4525,36 @@ int CvGame::getNumHumanPlayers()
 	return CvPreGame::numHumans();
 }
 
+//	--------------------------------------------------------------------------------
+int CvGame::GetNumMajorCivsEver(bool bOnlyStart) const
+{
+	if (bOnlyStart)
+		return m_iNumMajorCivsAliveAtGameStart;
+
+	int iNumCivs = 0;
+	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
+	{
+		if (GET_PLAYER((PlayerTypes)iMajorLoop).isEverAlive())
+		{
+			iNumCivs++;
+		}
+	}
+
+	return iNumCivs;
+}
 
 //	--------------------------------------------------------------------------------
-int CvGame::GetNumMinorCivsEver(bool bOnlyStart)
+int CvGame::GetNumMinorCivsEver(bool bOnlyStart) const
 {
-	int iNumCivs = 0;
+	if (bOnlyStart)
+		return m_iNumMinorCivsAliveAtGameStart;
 
+	int iNumCivs = 0;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		if(GET_PLAYER((PlayerTypes) iMinorLoop).isEverAlive())
 		{
-			if (!bOnlyStart)
-				iNumCivs++;
-			else
-			{
-				CvPlot* pPlot = GC.getMap().plot(GET_PLAYER((PlayerTypes)iMinorLoop).GetOriginalCapitalX(), GET_PLAYER((PlayerTypes)iMinorLoop).GetOriginalCapitalY());
-				if (pPlot != NULL)
-				{
-					CvCity* pCity = pPlot->getPlotCity();
-					if (pCity != NULL)
-					{
-						if (pCity->getGameTurnFounded() <= 15)
-							iNumCivs++;
-					}
-				}
-			}
-
+			iNumCivs++;
 		}
 	}
 
@@ -6529,12 +6556,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			else
 			{
 				// Ignore players who never founded an original capital
-				if (kPlayer.GetNumCitiesFounded() == 0)
-					continue;
-
-				int iX = kPlayer.GetOriginalCapitalX();
-				int iY = kPlayer.GetOriginalCapitalY();
-				CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+				CvPlot* pCapitalPlot = GC.getMap().plot(kPlayer.GetOriginalCapitalX(), kPlayer.GetOriginalCapitalY());
 				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
 					continue;
 
@@ -6588,12 +6610,7 @@ bool CvGame::CanPlayerAttemptDominationVictory(PlayerTypes ePlayer, PlayerTypes 
 			else
 			{
 				// Ignore players who never founded an original capital
-				if (kPlayer.GetNumCitiesFounded() == 0)
-					continue;
-
-				int iX = kPlayer.GetOriginalCapitalX();
-				int iY = kPlayer.GetOriginalCapitalY();
-				CvPlot* pCapitalPlot = GC.getMap().plot(iX, iY);
+				CvPlot* pCapitalPlot = GC.getMap().plot(kPlayer.GetOriginalCapitalX(), kPlayer.GetOriginalCapitalY());
 				if (pCapitalPlot == NULL || !pCapitalPlot->isCity())
 					continue;
 
@@ -8923,7 +8940,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly)
+UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -9098,7 +9115,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 
 	// Choose from weighted unit types
 	veUnitRankings.StableSortItems();
-	int iNumChoices = /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES);
+	int iNumChoices = bRandom ? /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES) : 1;
 	RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	UnitTypes eChosenUnit = veUnitRankings.ChooseFromTopChoices(iNumChoices, &randFn, "Choosing competitive unit from top choices");
 
@@ -11379,6 +11396,22 @@ int CvGame::GetCultureMedian() const
 {
 	return m_iCultureMedian;
 }
+
+
+void CvGame::initSpyThreshold()
+{
+	if(MOD_BALANCE_CORE_SPIES)
+		m_iSpyThreshold = max(33, min(100, 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (2*GetNumMajorCivsEver(true) + GetNumMinorCivsEver(true))));
+}
+
+int CvGame::GetSpyThreshold() const
+{
+	// failsafe: if initSpyThreshold has not been called yet for some reason, calculate the threshold based on the number of players ever alive
+	if(m_iSpyThreshold == 0)
+		return max(33, min(100, 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (2 * GetNumMajorCivsEver(false) + GetNumMinorCivsEver(false))));
+
+	return m_iSpyThreshold;
+}
 //	--------------------------------------------------------------------------------
 
 #if defined(MOD_BALANCE_CORE_SPIES)
@@ -11406,38 +11439,11 @@ void CvGame::SetHighestSpyPotential()
 				int iLoop = 0;
 				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
 				{
-					int iUnhappinessMod = 0;
-					int iPop = pLoopCity->getPopulation();
-					if (iPop > 0)
-					{
-						iUnhappinessMod = (pLoopCity->getUnhappyCitizenCount() * 100) / iPop;
-						iPop *= 2;
-					}
-
-					int iTradeMod = kLoopPlayer.GetTrade()->GetNumberOfTradeRoutesCity(pLoopCity);
-					iTradeMod *= 10;
-
-					//negative!
-					int iCityEspionageModifier = pLoopCity->GetEspionageModifier() * -1;
-					//negative!
-					int iPlayerEspionageModifier = GET_PLAYER(pLoopCity->getOwner()).GetEspionageModifier() * -1;
-					int iTheirPoliciesEspionageModifier = GET_PLAYER(pLoopCity->getOwner()).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_SLOWER_MODIFIER);
-
-					int iCounterSpy = 0;
-					if (pLoopCity->GetCityEspionage()->HasCounterSpy())
-					{
-						int iCounterspyIndex = GET_PLAYER(pLoopCity->getOwner()).GetEspionage()->GetSpyIndexInCity(pLoopCity);
-						int iSpyRank = GET_PLAYER(pLoopCity->getOwner()).GetEspionage()->m_aSpyList[iCounterspyIndex].GetSpyRank(pLoopCity->getOwner()) + 1;
-						iCounterSpy = iSpyRank * /*25 in CP, 20 in VP*/ GD_INT_GET(ESPIONAGE_GATHERING_INTEL_RATE_BY_SPY_RANK_PERCENT);
-					}
-
-					int iFinalModifier = iCityEspionageModifier + iPlayerEspionageModifier + iTheirPoliciesEspionageModifier + iCounterSpy;
-					iFinalModifier -= (iPop + iTradeMod + iUnhappinessMod);
-
+					int iFinalModifier = kLoopPlayer.GetEspionage()->GetSpyResistanceModifier(pLoopCity);
 					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
 					if (iFinalModifier != 0)
 					{
-						pLoopCity->ChangeEspionageRanking(iFinalModifier, false);
+						pLoopCity->ChangeEspionageRanking(iFinalModifier/5, false);
 					}
 				}
 			}
@@ -11596,6 +11602,8 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iNumVictoryVotesExpected);
 	visitor(game.m_iVotesNeededForDiploVictory);
 	visitor(game.m_iMapScoreMod);
+	visitor(game.m_iNumMajorCivsAliveAtGameStart);
+	visitor(game.m_iNumMinorCivsAliveAtGameStart);
 
 	// m_uiInitialTime not saved
 
@@ -11641,6 +11649,7 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iScienceMedian);
 	visitor(game.m_iCultureMedian);
 
+	visitor(game.m_iSpyThreshold);
 	visitor(game.m_iLastTurnCSSurrendered);
 
 	visitor(game.m_aiGreatestMonopolyPlayer);
@@ -11737,7 +11746,7 @@ void CvGame::Read(FDataStream& kStream)
 
 		CUSTOMLOG("Savefile was generated from gamecore version %s", save_gamecore_version.c_str());
 		if (strcmp(save_gamecore_version.c_str(), CURRENT_GAMECORE_VERSION)!=0)
-			CUSTOMLOG("----> Potental savefile format mismatch!");
+			CUSTOMLOG("----> Potential savefile format mismatch!");
 	}
 
 	CvStreamLoadVisitor serialVisitor(kStream);

@@ -43,32 +43,24 @@ INSERT INTO Policy_BuildingClassHappiness
 VALUES
 	('POLICY_HUMANISM', 'BUILDINGCLASS_UNIVERSITY', 1);
 
-INSERT INTO Policy_GoldenAgeYieldMod
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_HUMANISM', 'YIELD_SCIENCE', 10);
 
-
--- Scientific Revolution (now Rights of Man)
+-- Scientific Revolution (now Empiricism)
 
 UPDATE Policies
 SET
 	OneShot = 0,
-	MedianTechPercentChange = 0
+	MedianTechPercentChange = 0,
+	CityGrowthMod = 25,
+	SpecialistFoodChange = -1,
+	NonSpecialistFoodChange = -1
 WHERE Type = 'POLICY_SCIENTIFIC_REVOLUTION';
 
-INSERT INTO Policy_YieldFromNonSpecialistCitizens
+
+INSERT INTO Policy_YieldModifierFromGreatWorks
 	(PolicyType, YieldType, Yield)
 VALUES
-	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_FOOD', 50);
-
-INSERT INTO Policy_ImprovementYieldChanges
-	(PolicyType, ImprovementType, YieldType, Yield)
-VALUES
-	('POLICY_SCIENTIFIC_REVOLUTION', 'IMPROVEMENT_TRADING_POST', 'YIELD_PRODUCTION', 2),
-	('POLICY_SCIENTIFIC_REVOLUTION', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 2);
-
-
+	('POLICY_SCIENTIFIC_REVOLUTION', 'YIELD_SCIENCE', 3);
+	
 -- Secularism (now Scientific Revolution)
 
 DELETE FROM Policy_SpecialistExtraYields
@@ -79,10 +71,6 @@ SET
 	PolicyType = 'POLICY_SECULARISM'
 WHERE Type = 'BUILDING_OBSERVATORY';
 
-INSERT INTO Policy_YieldModifierFromGreatWorks
-	(PolicyType, YieldType, Yield)
-VALUES
-	('POLICY_SECULARISM', 'YIELD_SCIENCE', 3);
 
 INSERT INTO Policy_FeatureYieldChanges
 	(PolicyType, FeatureType, YieldType, Yield)
@@ -95,7 +83,7 @@ VALUES
 	('POLICY_SECULARISM', 'TERRAIN_SNOW', 'YIELD_SCIENCE', 2);
 
 
--- Sovereignty (now Empiricism)
+-- Sovereignty (now Rights of Man)
 
 DELETE FROM Policy_BuildingClassYieldChanges
 WHERE PolicyType = 'POLICY_SOVEREIGNTY';
@@ -104,11 +92,19 @@ UPDATE Policies
 SET
 	HappinessPerTradeRoute = 0,
 	ExtraHappiness = 0,
-	TechCostXCitiesMod = 0,
-	EspionageModifier = -34,
-	EspionageTurnsModifierEnemy = 2,
-	SpecialistFoodChange = -1
+	TechCostXCitiesMod = 0
 WHERE Type = 'POLICY_SOVEREIGNTY';
+
+INSERT INTO Policy_ImprovementYieldChanges
+	(PolicyType, ImprovementType, YieldType, Yield)
+VALUES
+	('POLICY_SOVEREIGNTY', 'IMPROVEMENT_TRADING_POST', 'YIELD_PRODUCTION', 2),
+	('POLICY_SOVEREIGNTY', 'IMPROVEMENT_TRADING_POST', 'YIELD_GOLD', 2);
+
+INSERT INTO Policy_GoldenAgeYieldMod
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_SOVEREIGNTY', 'YIELD_SCIENCE', 10);
 
 
 -- Free Thought
@@ -122,6 +118,7 @@ WHERE PolicyType = 'POLICY_FREE_THOUGHT' AND YieldType = 'YIELD_SCIENCE';
 UPDATE Policies
 SET
 	GreatEngineerHurryModifier = 0,
+	GreatScientistRateModifier = 33,
 	GreatScientistBeakerModifier = 25
 WHERE Type = 'POLICY_FREE_THOUGHT';
 
@@ -132,8 +129,8 @@ UPDATE Policies
 SET
 	OneShot = 0,
 	NumFreeTechs = 0,
-	GreatScientistRateModifier = 33,
-	CityGrowthMod = 25
+	EspionageModifier = -34,
+	EspionageTurnsModifierEnemy = 2
 WHERE Type = 'POLICY_RATIONALISM_FINISHER';
 
 

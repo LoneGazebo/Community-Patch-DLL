@@ -1191,6 +1191,25 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_TOURISM] += PolicyInfo->GetGoldenAgeMeterMod() * max(1, pPlayer->GetNumGoldenAges());
 		}
 	}
+	if (PolicyInfo->GetGAPFromHappinessModifier() != 0)
+	{
+		int iTotalGAP = 0;
+		int iLoop = 0;
+		for (const CvCity* pLoopCity = pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = pPlayer->nextCity(&iLoop))
+		{
+			int iGAP = pLoopCity->getHappinessDelta();
+			if (iGAP > 0)
+				iTotalGAP += iGAP;
+		}
+		if (pPlayerTraits->IsTourism() || pPlayerTraits->IsSmaller())
+		{
+			yield[YIELD_GOLDEN_AGE_POINTS] += iTotalGAP * PolicyInfo->GetGAPFromHappinessModifier() / 100 * 2;
+		}
+		else
+		{
+			yield[YIELD_GOLDEN_AGE_POINTS] += iTotalGAP * PolicyInfo->GetGAPFromHappinessModifier() / 100;
+		}
+	}
 	if (PolicyInfo->GetGoldenAgeDurationMod() != 0)
 	{
 		if (pPlayerTraits->IsTourism())
@@ -2628,18 +2647,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_TOURISM] += PolicyInfo->GetStealGWFasterModifier();
 		}
 	}
-	if (PolicyInfo->GetExtraYieldsFromHeavyTribute() != 0)
-	{
-		int iTraitsModifier = pPlayerTraits->IsWarmonger() ? 4 : 1;
-		iTraitsModifier *= 100 + pPlayerTraits->GetBullyValueModifier();
-		iTraitsModifier /= 100;
-		
-		yield[YIELD_FOOD] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_PRODUCTION] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_CULTURE] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_SCIENCE] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-		yield[YIELD_FAITH] += iTraitsModifier * PolicyInfo->GetExtraYieldsFromHeavyTribute() / 20;
-	}
 	if (PolicyInfo->GetEventTourism() != 0)
 	{
 		if (pPlayerTraits->IsTourism())
@@ -3082,11 +3089,23 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism() || pPlayerTraits->IsNerd())
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -10 * max(1, (iPopulation / 5));
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -2 * max(1, (iPopulation / 3));
 		}
 		else
 		{
-			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -4 * max(1, (iPopulation / 10));
+			yield[YIELD_FOOD] += PolicyInfo->GetSpecialistFoodChange() * -1 * max(1, (iPopulation / 5));
+		}
+	}
+
+	if (PolicyInfo->GetNonSpecialistFoodChange() != 0)
+	{
+		if (pPlayerTraits->IsSmaller() || pPlayerTraits->IsTourism() || pPlayerTraits->IsNerd())
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetNonSpecialistFoodChange() * -2 * max(1, (iPopulation * 2 / 3));
+		}
+		else
+		{
+			yield[YIELD_FOOD] += PolicyInfo->GetNonSpecialistFoodChange() * -1 * max(1, (iPopulation * 4 / 5));
 		}
 	}
 
@@ -3841,7 +3860,8 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			}
 		}
 
-		if (GC.getResourceInfo(eResource) != NULL && GC.getResourceInfo(eResource)->getPolicyReveal() == ePolicy)
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo != NULL && pkResourceInfo->getPolicyReveal() == ePolicy)
 		{
 			yield[YIELD_GOLD] += 100;
 		}

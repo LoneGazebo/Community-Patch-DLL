@@ -246,6 +246,7 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 60 WHE
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 61 WHERE Type = 'PROMOTION_HEAVY_SHIP';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 62 WHERE Type = 'PROMOTION_SURVIVALISM_3';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 63 WHERE Type = 'PROMOTION_LOGISTICS';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_02', PortraitIndex = 63 WHERE Type = 'PROMOTION_MONGOL_TERROR';
 
 -- atlas_03
 -- 1st row
@@ -326,12 +327,14 @@ UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04', PortraitIndex = 0  WHE
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04', PortraitIndex = 1  WHERE Type = 'PROMOTION_OCEAN_HALF_MOVES';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04', PortraitIndex = 2  WHERE Type = 'PROMOTION_ASSIZE_OF_ARMS';
 UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04', PortraitIndex = 3  WHERE Type = 'PROMOTION_HAKKAA_PAALLE';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04', PortraitIndex = 4  WHERE Type = 'PROMOTION_FROGMAN';
+UPDATE UnitPromotions SET IconAtlas = 'promoVP_atlas_04', PortraitIndex = 5  WHERE Type = 'PROMOTION_SCREENING';
 
 -- extraPromo_atlas
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 18 WHERE Type = 'PROMOTION_GOD_WAR';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 21 WHERE Type = 'PROMOTION_SKIRMISHER_DOCTRINE';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 22 WHERE Type = 'PROMOTION_SCOUT_CAVALRY';
-UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 23 WHERE Type = 'PROMOTION_MONGOL_TERROR';
+UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 23 WHERE Type = 'PROMOTION_ENVELOPMENT';
 UPDATE UnitPromotions SET IconAtlas = 'extraPromo_Atlas', PortraitIndex = 56 WHERE Type = 'PROMOTION_DOPPELSOLDNER';
 
 --
@@ -344,6 +347,7 @@ UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 30 WHER
 -- Set "+1 Movement" Icon
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_MOON_STRIKER';
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_FASTER_GENERAL';
+UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_FASTER_WORKER';
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_EXTRA_MOVES_I';
 UPDATE UnitPromotions SET IconAtlas = 'PROMOTION_ATLAS', PortraitIndex = 33 WHERE Type = 'PROMOTION_SCOUTING_3';
 

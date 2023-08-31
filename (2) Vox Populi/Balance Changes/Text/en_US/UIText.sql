@@ -23,6 +23,11 @@ UPDATE Language_en_US
 SET Text = '[ICON_FOOD]/[ICON_PRODUCTION] Penalty'
 WHERE Tag = 'TXT_KEY_SUPPLY_DEFICIT_PENALTY';
 
+-- Fortifications
+UPDATE Language_en_US
+SET Text = 'Many units have the ability to "fortify." This means that the unit "digs in" and creates defensive works in its current location. This gives the unit certain defensive bonuses, making it much tougher to kill. However, fortifications are strictly defensive: if the unit moves or attacks, the fortifications are destroyed.  While fortified, a unit will not activate. It will remain inactive until you manually activate it by clicking on the unit.[NEWLINE][NEWLINE]An improvement may also contain [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], which means units stationed on this improvement, like those garrisoning a city, will not move out of the tile after a victory in melee combat.'
+WHERE Tag = 'TXT_KEY_COMBAT_FORTIFICATION_HEADING3_BODY';
+
 -- Wonders
 UPDATE Language_en_US
 SET Text = 'Wonders are the remarkable, one-of-a-kind buildings that ensure that a civilization will be remembered throughout all of history. Wonders engage the mind and lift the spirits.[NEWLINE][NEWLINE]The Pyramids, Notre Dame Cathedral, and Stonehenge are examples of wonders. Wonders require much time and energy from your cities to construct, but once completed, they provide your civilization with many benefits.[NEWLINE][NEWLINE]There are three basic types of wonders: World Wonders, National Wonders and Project Wonders. Only one copy of a World Wonder may be constructed anywhere in the world in a given game. National Wonders are less exclusive: each nation may construct one (but only one) copy of a National Wonder.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Modifiers[ENDCOLOR]: In addition to certain Traits and Policies, [ICON_RES_MARBLE] Marble and [ICON_RES_STONE] Stone increase the production modifier of cities with these resources nearby. Marble increases Wonder production by 15% for all pre-Industrial Wonders, whereas Stone increases Wonder production by 10% for all pre-Medieval Wonders.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]World Wonder Production Costs[ENDCOLOR]: For every Wonder you control, the cost of future Wonders goes up. This cost varies based on the Era of the Wonder.[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder of the same Era: 25%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from the previous Era: 15%. [NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]For every owned Wonder from two Eras prior: 10% (Wonders earlier than two eras do not count).[NEWLINE][NEWLINE]If you build too many Wonders during an Era, your ability to gain future Wonders will be compromised, so don''t be too greedy!'
@@ -287,6 +292,10 @@ UPDATE Language_en_US
 SET Text = '[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Spy is operating {1_SpyBonus} {1_SpyBonus: plural 1?Rank; other?Ranks;} higher than normal when rigging elections since this city state is allied to a civ over which you have strong cultural influence. The success chance of coups is also increased.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPY_BONUS_CITY_STATE';
 
+UPDATE Language_en_US
+SET Text = 'You have {1_Num: plural 1?a spy that is not; other?{1_Num} spies that are not;} assigned to tasks.[NEWLINE][NEWLINE]Spies can sabotage and steal from other civilizations, uncover other civilization''s plans through intrigue, and increase your influence over City-States by rigging elections. Assign spies in the Espionage Overview screen to have them start working!'
+WHERE Tag = 'TXT_KEY_EO_UNASSIGNED_SPIES_TT';
+
 -- Public Opinion
 
 UPDATE Language_en_US
@@ -437,6 +446,9 @@ UPDATE Language_en_US
 SET Text = 'They do not fear you, and will resist tribute demands, as you are [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR] below the threshold.'
 WHERE Tag = 'TXT_KEY_CSTATE_CANNOT_BULLY';	
 
+UPDATE Language_en_US
+SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold and Partial Quest Rewards (-{2_Influence} [ICON_INFLUENCE])'
+WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
 
 UPDATE Language_en_US
 SET Text = '[COLOR_NEGATIVE_TEXT]Fallout deals 15 Damage to Units that end their turn on a tile with Fallout.[ENDCOLOR][NEWLINE][NEWLINE]Fallout is the residual radiation left over following a nuclear explosion. The fallout "falls out" of the air as a layer of radioactive particles which are highly dangerous to plants and animals, killing them immediately or damaging their DNA, giving them cancer, other diseases, or unfortunate mutations. Depending upon the type of nuclear explosion, the land may remain poisoned for decades, possibly centuries. Cleanup requires the replacement of the contaminated buildings, soil and vegetation.'
@@ -499,13 +511,12 @@ SET Text = 'During a game, you will create "workers" - non-military units who wi
 WHERE Tag = 'TXT_KEY_PEDIA_IMPROVEMENT_HELP_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_NEGATIVE_TEXT]Costs[ENDCOLOR] 2 [ICON_GOLD] Gold per turn to maintain.[NEWLINE][NEWLINE]An unbroken chain of Railroads allows Units to move extremely quickly through Tiles.'
+SET Text = '[COLOR_NEGATIVE_TEXT]Costs[ENDCOLOR] 3 [ICON_GOLD] Gold per turn to maintain.[NEWLINE][NEWLINE]An unbroken chain of Railroads allows Units to move extremely quickly through Tiles.'
 WHERE Tag = 'TXT_KEY_BUILD_RAILROAD_HELP';
 
--- Fort
 UPDATE Language_en_US
-SET Text = 'A fort is a special improvement that improves the defensive bonus of the tile by 50% for units stationed in that tile. However, forts do not provide a defensive bonus to units in enemy territory. Cannot be built adjacent to one another.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_FORT_TEXT';
+SET Text = 'Total cost of maintaining Roads and Railroads you have built, or are responsible for. Roads cost 1 [ICON_GOLD] Gold per turn, and Railroads cost 3 [ICON_GOLD].'
+WHERE Tag = 'TXT_KEY_EO_EX_IMPROVEMENTS';
 
 -- Landmark
 UPDATE Language_en_US
@@ -797,15 +808,6 @@ UPDATE Language_en_US
 SET Text = 'Trade Routes are established between two cities of different civilizations, providing Gold to each every turn. The civilization that the Trade Route originates from gets a larger sum of Gold than the destination civilization. The amount of Gold a Trade Route produces is dependent upon the resource diversity and revenue of the origin city.[NEWLINE][NEWLINE]Trade Routes can also be created between two cities of the same civilization. Once the origin city has a Granary, it can send Food to the destination city, and once it has a Workshop it can send Production. These types of internal Trade Routes do not benefit the origin city.[NEWLINE][NEWLINE]You can only have a limited number of Trade Routes at any time. Researching certain technologies increases the number of routes you have available. For details about your existing Trade Routes, open the Trade Route Overview screen, located in the Additional Information drop-down menu.[NEWLINE][NEWLINE]The distance that Trade Routes can travel is affected by roads, terrain, hostile troops, and features. Keep this in mind when expanding, and when trying to link cities via trade routes.'
 WHERE Tag = 'TXT_KEY_TRADE_ROUTES_HEADING2_BODY';
 
--- Moai
-UPDATE Language_en_US
-SET Text = 'Moai can only be built on the coast.  If built next to another Moai, it provides additional [ICON_CULTURE] Culture. Provides additional yields once later techs are researched.[NEWLINE][NEWLINE]If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_HELP';
-
-UPDATE Language_en_US
-SET Text = 'Moai can only be built on the coast.  If built next to another Moai, it provides additional [ICON_CULTURE] Culture. Provides additional yields once later techs are researched. If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.[NEWLINE][NEWLINE]Perhaps better known as the "Easter Island Statues", the Moai are large, humanoid figures carved mostly from volcanic rocks like tuff. 887 of these statues dot Easter Island, and are believed to have been created sometime between 1250 and 1500 AD.  Almost half still remain at the original quarry site, but the rest were transported and erected around the island''s coastline.  Easily recognizable by their large heads and elongated features, it is believed that they were individual depictions of deceased ancestors and powerful chiefs.[NEWLINE][NEWLINE]While most scholars agree on why and how the statues were created, the method of their transportation still remains a mystery.  Weighing from 9 to 86 tons a piece, they would have required an amazing feat of engineering to move from quarry to final resting place.[NEWLINE][NEWLINE]In 1994, the Moai statues were given official protection on the UNESCO World Heritage site list.'
-WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_TEXT';
-
 -- Warscore Diplo
 
 UPDATE Language_en_US
@@ -1046,6 +1048,56 @@ SET Text = Text
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS')/100.0 AS NUMERIC) || 'x[ENDCOLOR] Experience.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_RELIGIOUS_TT';
 
+INSERT INTO Language_en_US (Tag, Text)
+VALUES	('TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Cultured[ENDCOLOR] City-State will provide you gifts of [ICON_CULTURE] Culture, allowing you to obtain Social Policies more quickly.'),
+	('TXT_KEY_CITY_STATE_MILITARISTIC_NO_UU_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State will provide you occasional gifts of advanced military units.'),
+	('TXT_KEY_CITY_STATE_MILITARISTIC_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State will provide you occasional gifts of advanced military units.[NEWLINE][NEWLINE]They know the secrets of the [COLOR_POSITIVE_TEXT]{@1_UniqueUnitName}[ENDCOLOR]. If you have researched [COLOR_CYAN]{@2_PrereqTech}[ENDCOLOR], they will provide that unit as their gift.'),
+	('TXT_KEY_CITY_STATE_MARITIME_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Maritime[ENDCOLOR] City-State will boost the [ICON_FOOD] Food of your [ICON_CAPITAL] Capital greatly, and all of your cities.'),
+	('TXT_KEY_CITY_STATE_MERCANTILE_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Mercantile[ENDCOLOR] City-State will provide extra [ICON_HAPPINESS_1] Happiness in your empire, and manufactures special luxury resources which cannot be acquired any other way.'),
+	('TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Religious[ENDCOLOR] City-State will increase your [ICON_PEACE] Faith, allowing you to empower your religion with new beliefs and units.');
+	
+-- Culture Overview
+INSERT INTO Language_en_US (Tag, Text)
+VALUES  ('TXT_KEY_CO_TAB_HISTORIC_EVENTS', ' Historic Events'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_HEADER', ' Historic Events'),
+	('TXT_KEY_CO_CULTURE_OUTPUT', 'Current [ICON_CULTURE] Culture Output: '),
+	('TXT_KEY_CO_HISTORIC_EVENTS_COUNTER', 'Total Historic Events Achieved: '),
+	('TXT_KEY_CO_CULTURE_OUTPUT_TT', 'A fraction of [ICON_CULTURE] Culture generated per turn and instant yields of [ICON_CULTURE] Culture gained in the prior 10 turns influences the amount of [ICON_TOURISM] Tourism generated from [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR].'),
+	('TXT_KEY_CO_TOURISM_OUTPUT_TT', '[ICON_TOURISM] Tourism generated per turn and instant yields of [ICON_TOURISM] Tourism gained in the prior 10 turns influences the amount of Tourism generated from [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR].'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_COUNTER_TT', 'This is how many [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] you have accomplished with your Civilization in total of all types!'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_HEADER_TT', 'This is the list of [COLOR_POSITIVE_TEXT]Historic Events[ENDCOLOR] available for you to achieve. You can unlock some more through Buildings or Social Policies.'),
+	('TXT_KEY_CO_HISTORIC_EVENTS_TOURISM_HEADER_TT', 'This is the amount of [ICON_TOURISM] Tourism you will generate from this [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR] to all known Civilizations unless stated otherwise!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_ERA_CHANGE', '[ICON_RESEARCH] Era Transition'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WORLD_WONDER', '[ICON_WONDER] World Wonder Construction'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GREAT_PERSON', '[ICON_GREAT_PEOPLE] Great People Birth'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WON_WAR', '[ICON_WAR] Favorable Peace Treaty'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GOLDEN_AGE', '[ICON_GOLDEN_AGE] Entering a Golden Age'),
+	('TXT_KEY_CO_HISTORIC_EVENT_DIG', '[ICON_RES_ARTIFACTS] Digging Archaeological Sites'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND', '[ICON_CARAVAN] Trade with a Major City'), --Also Unused kinda it uses City Name
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_SEA', '[ICON_CARGO_SHIP] Trade with a Major City'), --Also Unused kinda it uses City Name
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS', '[ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade with a [ICON_CITY_STATE] City-State'),
+	('TXT_KEY_CO_HISTORIC_EVENT_ERA_CHANGE_TT', 'Each [ICON_RESEARCH] Era you advance to will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WORLD_WONDER_TT', 'Each [ICON_WONDER] World Wonders you finish will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GREAT_PERSON_TT', 'Each [ICON_GREAT_PEOPLE] Great Person born in your Civilization will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_WON_WAR_TT', 'Each [ICON_PEACE] favorable peace treaty ([COLOR_POSITIVE_TEXT]War Score 25+[ENDCOLOR]) you complete will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_GOLDEN_AGE_TT', 'Each [ICON_GOLDEN_AGE] Golden Age you enter will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_DIG_TT', 'Each [ICON_RES_ARTIFACTS] Archaeological Sites evacuated will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]!'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_LAND_TT', 'Each [ICON_CARAVAN] Land Trade Route completed from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] to another foreign Major City will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! The amount here will be sent toward the targeted Major Civilization and one-third of the amount will be sent to every other Civilizations.'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_SEA_TT', 'Each [ICON_CARGO_SHIP] Sea Trade Route completed from [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] to another foreign Major City will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! The amount here will be sent toward the targeted Major Civilization and one-third of the amount will be sent to every other Civilizations.'),
+	('TXT_KEY_CO_HISTORIC_EVENT_TRADE_CS_TT', 'Each [ICON_INTERNATIONAL_TRADE] Trade Route completed either by land or sea with a [ICON_CITY_STATE] City-State will be a [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]! Unlike trading with a foreign Major City, this amount will be the same sent to all other Civilizations.');
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_CITY_FOUND_CAPITAL', 'Founding Capital ([ICON_CAPITAL])'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_CITY_FOUND', 'Founding a City'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_CITY_CONQUEST', 'City Conquest'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_RESEARCHED_TECH', 'Researching a new Technology'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_ADOPTED_POLICY', 'Adopting a new Social Policy'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_COMPLETED_POLICY_TREE', 'Completing a Social Policy Tree'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_KILLED_MAJOR_UNIT', 'Killing a Major Civ Unit'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT', 'Killing a City-State Unit'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT', 'Killing a Barbarian Unit'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_PLAYER_TURNS_PASSED', 'Time Passage'), --Unused
+	--('TXT_KEY_CO_DIFFICULTY_BONUS_AI_TURNS_PASSED', 'Time Passage'), --Unused
+
+
 -- Victory Panel
 INSERT INTO Language_en_US (Tag, Text)
 VALUES  ('TXT_KEY_VP_DIPLO_TT_OTHER_PLAYER_VASSALIZE_YOU', ' {1_PlayerName} controls you as a Vassal.'),
@@ -1074,5 +1126,22 @@ SET Text = '{1_player} will need [COLOR_POSITIVE_TEXT]{2_num}[ENDCOLOR] original
 WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_PLAYER_LEADING';
 
 UPDATE Language_en_US 
-SET Text = 'An unmet player needs [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!.' 
+SET Text = 'An unmet player needs [COLOR_POSITIVE_TEXT]{1_num}[ENDCOLOR] original [ICON_CAPITAL] Capitals/Vassals to win!' 
 WHERE Tag = 'TXT_KEY_VP_DIPLO_CAPITALS_UNMET_PLAYER_LEADING';
+
+INSERT INTO Language_en_US (Tag, Text)
+VALUES  
+	('TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_NO', 'This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Due to past hostile actions committed against them, you do not have the opportunity to return it to them.[ENDCOLOR]'),
+	('TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_CAPTURED', 'This City was formerly owned by [COLOR_POSITIVE_TEXT]{@1_PlayerName}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Because you have chosen not to liberate them, you do not have the opportunity to return this city to them.[ENDCOLOR]');
+	
+UPDATE Language_en_US 
+SET Text = 'City is [ICON_BLOCKADED] Blockaded by an enemy unit![NEWLINE][ICON_BULLET]Disables Hit Point recovery of the City.[NEWLINE][ICON_BULLET]Enemy Units gain [COLOR_POSITIVE_TEXT]+' || (SELECT Value FROM Defines WHERE Name = 'BLOCKADED_CITY_ATTACK_MODIFIER') || '%[ENDCOLOR] Combat Strength when attacking the City.' 
+WHERE Tag = 'TXT_KEY_CITY_BLOCKADED';
+
+UPDATE Language_en_US 
+SET Text = '{1_Num} base [ICON_GOLD] Gold per Route[NEWLINE]{2_Num} [ICON_GOLD] Gold per [ICON_CAPITAL] Capital Citizen ({3_Num})[NEWLINE]{4_Num} [ICON_GOLD] Gold per [ICON_CITIZEN] Citizen' 
+WHERE Tag = 'TXT_KEY_TRADE_ROUTE_INCOME_INFO';
+
+UPDATE Language_en_US 
+SET Text = '{1_Num}% [ICON_GOLD] Gold from [ICON_CONNECTED] City Connections' 
+WHERE Tag = 'TXT_KEY_EGI_TRADE_ROUTE_MOD_INFO';

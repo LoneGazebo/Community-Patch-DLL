@@ -477,7 +477,11 @@ function HighlightGiftUnits ()
 	for unit in player:Units() do
 		if (unit:CanDistanceGift(iToPlayer)) then
 			local hexID = ToHexFromGrid( Vector2( unit:GetX(), unit:GetY() ) );
-			Events.SerialEventHexHighlight( hexID, true, Vector4( 1.0, 1.0, 0.0, 1 ), genericUnitHexBorder );
+			if (unit:IsUnitValidGiftForCityStateQuest(iPlayerID, iToPlayer)) then
+				Events.SerialEventHexHighlight( hexID, true, Vector4( 0.0, 1.0, 0.0, 1 ), genericUnitHexBorder );
+			else
+				Events.SerialEventHexHighlight( hexID, true, Vector4( 1.0, 1.0, 0.0, 1 ), genericUnitHexBorder );
+			end
 		end
 	end
 

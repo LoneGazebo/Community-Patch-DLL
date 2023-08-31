@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v118 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 118)
+#define MOD_DLL_NAME "Community Patch v120 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 120)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -214,6 +214,9 @@
 // Purchased units do not have full health when the city is damaged
 #define MOD_BALANCE_CORE_UNIT_CREATION_DAMAGED		 gCustomMods.isBALANCE_CORE_UNIT_CREATION_DAMAGED()
 
+// City-States' unit supply is equal to their handicap amount, which can be modified by globals based on trait, personality, and number of cities. No other unit supply bonuses/penalties apply.
+#define MOD_UNIT_SUPPLY_MINORS_USE_HANDICAP			gCustomMods.isUNIT_SUPPLY_MINORS_USE_HANDICAP()
+
 //Community Patch Info
 #define MOD_COMMUNITY_PATCH							gCustomMods.isCOMMUNITY_PATCH()
 #if defined(MOD_COMMUNITY_PATCH)
@@ -291,6 +294,7 @@
 #define MOD_BALANCE_CORE_INQUISITOR_TWEAKS			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_INQUISITOR_TWEAKS())
 #define MOD_CORE_DISABLE_LUA_HOOKS					(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_DISABLE_LUA_HOOKS())
 #define MOD_CORE_AREA_EFFECT_PROMOTIONS				(MOD_COMMUNITY_PATCH && gCustomMods.isCORE_AREA_EFFECT_PROMOTIONS())
+#define MOD_BALANCE_CORE_GOODY_RECON_ONLY			(MOD_COMMUNITY_PATCH && gCustomMods.isBALANCE_CORE_GOODY_RECON_ONLY())
 #define MOD_YIELD_MODIFIER_FROM_UNITS				(MOD_COMMUNITY_PATCH && gCustomMods.isYIELD_MODIFIER_FROM_UNITS())
 #endif
 
@@ -899,13 +903,6 @@ enum BattleTypeTypes
 	sLine += '\n'; OutputDebugString(sLine.c_str());																			\
 }
 
-// Message wrappers
-#define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       if (pPlayer) DLLUI->AddMessage(0, (pPlayer)->GetID(), false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, (pCity)->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, (pUnit)->GetIDInfo(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, (pPlot)->GetPlotIndex(), ePlayer, false, GC.getEVENT_MESSAGE_TIME(), szMessage)
-#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) (pPlot)->showPopupText(ePlayer, szMessage)
-
 // GlobalDefines wrappers
 #define GD_INT_DECL(name)         int m_i##name
 #define GD_INT_DEF(name)          inline int get##name() const { return m_i##name; }
@@ -920,6 +917,14 @@ enum BattleTypeTypes
 #define GD_FLOAT_INIT(name, def)  m_f##name(def)
 #define GD_FLOAT_CACHE(name)      getDatabaseValue(#name,m_f##name)
 #define GD_FLOAT_GET(name)        GC.get##name()
+
+
+// Message wrappers
+#define SHOW_PLAYER_MESSAGE(pPlayer, szMessage)       if (pPlayer) DLLUI->AddMessage(0, (pPlayer)->GetID(), false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_CITY_MESSAGE(pCity, ePlayer, szMessage)  if (pCity) DLLUI->AddCityMessage(0, (pCity)->GetIDInfo(), ePlayer, false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_UNIT_MESSAGE(pUnit, ePlayer, szMessage)  if (pUnit) DLLUI->AddUnitMessage(0, (pUnit)->GetIDInfo(), ePlayer, false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_PLOT_MESSAGE(pPlot, ePlayer, szMessage)  if (pPlot) DLLUI->AddPlotMessage(0, (pPlot)->GetPlotIndex(), ePlayer, false, GD_INT_GET(EVENT_MESSAGE_TIME), szMessage)
+#define SHOW_PLOT_POPUP(pPlot, ePlayer, szMessage)  if (pPlot) (pPlot)->showPopupText(ePlayer, szMessage)
 
 
 // LUA API wrappers
@@ -1334,6 +1339,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_PROMOTION_ADVANCED);
 	MOD_OPT_DECL(BALANCE_CORE_MILITARY_LOGGING);
 	MOD_OPT_DECL(BALANCE_CORE_UNIT_CREATION_DAMAGED);
+	MOD_OPT_DECL(UNIT_SUPPLY_MINORS_USE_HANDICAP);
 	MOD_OPT_DECL(BALANCE_CORE_RESOURCE_MONOPOLIES);
 	MOD_OPT_DECL(BALANCE_CORE_RESOURCE_MONOPOLIES_STRATEGIC);
 	MOD_OPT_DECL(BALANCE_CORE_BUILDING_INVESTMENTS);
@@ -1375,6 +1381,7 @@ public:
 	MOD_OPT_DECL(CORE_DISABLE_LUA_HOOKS);
 	MOD_OPT_DECL(CORE_AREA_EFFECT_PROMOTIONS);
 	MOD_OPT_DECL(YIELD_MODIFIER_FROM_UNITS);
+	MOD_OPT_DECL(BALANCE_CORE_GOODY_RECON_ONLY);
 
 	MOD_OPT_DECL(CIV6_WORKER);
 	MOD_OPT_DECL(CIV6_ROADS);

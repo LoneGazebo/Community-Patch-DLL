@@ -85,7 +85,7 @@
 			<Text>+15 [ICON_INFLUENCE] Influence when you conduct a Diplomatic Mission with a City-State, and the ability to enter a rival player's territory without an Open Borders agreement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_TREASURE_FLEET_HELP">
-			<Text>+1 Sight, +10% Combat Bonus when attacking, and the ability to heal in non-friendly waters.</Text>
+			<Text>+1 [ICON_VP_VISION] Sight, +10% Combat Bonus when attacking, and the ability to heal in non-friendly waters.</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

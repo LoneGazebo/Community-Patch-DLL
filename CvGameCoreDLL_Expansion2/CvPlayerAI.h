@@ -41,7 +41,7 @@ public:
 	void AI_doTurnUnitsPost();
 
 	void AI_unitUpdate();
-	void AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift, bool bAllowSphereRemoval);
+	void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval);
 
 	void AI_chooseFreeGreatPerson();
 	void AI_chooseFreeTech();

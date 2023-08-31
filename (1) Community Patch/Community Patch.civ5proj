@@ -5,16 +5,16 @@
     <ProjectGuid>{0d66d522-b624-4bc5-acfe-15a0c5b729f4}</ProjectGuid>
     <Name>(1) Community Patch</Name>
     <Guid>d1b6328c-ff44-4b0d-aad7-c657f83610cd</Guid>
-    <ModVersion>118</ModVersion>
+    <ModVersion>120</ModVersion>
     <Stability>Stable</Stability>
-    <Teaser>(3.7.9) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(3.9.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <SpecialThanks>
     </SpecialThanks>
     <Categories>$Categories$</Categories>
     <AffectsSavedGames>true</AffectsSavedGames>
-    <MinCompatibleSaveVersion>118</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>120</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>true</SupportsSinglePlayer>
     <SupportsMultiplayer>true</SupportsMultiplayer>
     <SupportsHotSeat>true</SupportsHotSeat>

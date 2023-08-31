@@ -143,7 +143,8 @@ public:
 	void ReviveActivePlayer();
 
 	int getNumHumanPlayers();
-	int GetNumMinorCivsEver(bool bOnlyStart = false);
+	int GetNumMajorCivsEver(bool bOnlyStart = false) const;
+	int GetNumMinorCivsEver(bool bOnlyStart = false) const;
 	int GetNumMinorCivsAlive();
 	int getNumHumansInHumanWars(PlayerTypes ignorePlayer = NO_PLAYER);
 	int getNumSequentialHumans(PlayerTypes ignorePlayer = NO_PLAYER);
@@ -552,6 +553,8 @@ public:
 	int GetScienceMedian() const;
 	int GetCultureMedian() const;
 
+	void initSpyThreshold();
+	int GetSpyThreshold() const;
 #if defined(MOD_BALANCE_CORE_SPIES)
 	void SetHighestSpyPotential();
 #endif
@@ -602,7 +605,7 @@ public:
 	void SetBarbarianReleaseTurn(int iValue);
 
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
-	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false);
+	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false, bool bRandom = true);
 	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips);
 
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY);
@@ -800,6 +803,8 @@ protected:
 	int m_iNumVictoryVotesExpected;
 	int m_iVotesNeededForDiploVictory;
 	int m_iMapScoreMod;
+	int m_iNumMajorCivsAliveAtGameStart;
+	int m_iNumMinorCivsAliveAtGameStart;
 
 	unsigned int m_uiInitialTime;
 
@@ -857,6 +862,7 @@ protected:
 	int m_iGoldMedian;
 	int m_iScienceMedian;
 	int m_iCultureMedian;
+	int m_iSpyThreshold;
 
 	int m_iLastTurnCSSurrendered;
 	CvEnumMap<ResourceTypes, PlayerTypes> m_aiGreatestMonopolyPlayer;

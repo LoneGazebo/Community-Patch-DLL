@@ -64,6 +64,10 @@ WHERE Name = 'BALANCE_CORE_POLICIES';
 
 UPDATE CustomModOptions
 SET Value = '1'
+WHERE Name = 'BALANCE_CORE_SPIES';
+
+UPDATE CustomModOptions
+SET Value = '1'
 WHERE Name = 'BALANCE_CORE_BARBARIAN_THEFT';
 
 UPDATE CustomModOptions
@@ -89,6 +93,10 @@ WHERE Name = 'TRADE_ROUTE_SCALING';
 UPDATE CustomModOptions
 SET Value = '1'
 WHERE Name = 'GLOBAL_CS_UPGRADES';
+
+UPDATE CustomModOptions
+SET Value = 1
+WHERE Name = 'GLOBAL_CS_GIFTS_LOCAL_XP';
 
 UPDATE CustomModOptions
 SET Value = '1'
@@ -268,3 +276,5 @@ UPDATE CustomModOptions SET Value = 1 WHERE Name='GLOBAL_CS_GIFTS';
 UPDATE CustomModOptions SET Value = 1 WHERE Name='GLOBAL_CS_GIFT_SHIPS';  
 
 UPDATE CustomModOptions SET Value = 1 WHERE Name='POLICIES_UNIT_CLASS_REPLACEMENTS';
+
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'BALANCE_CORE_GOODY_RECON_ONLY';

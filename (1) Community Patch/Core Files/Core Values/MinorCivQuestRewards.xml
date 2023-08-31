@@ -86,6 +86,10 @@
 			<Influence>40</Influence>
 		</Row>
 		<Row>
+			<Type>MINOR_CIV_QUEST_FIND_CITY</Type>
+			<Influence>20</Influence>
+		</Row>
+		<Row>
 			<Type>MINOR_CIV_QUEST_WAR</Type>
 			<Influence>40</Influence>
 		</Row>
@@ -134,7 +138,7 @@
 			<QuestDuration>20</QuestDuration>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_QUEST_DISCOVER_PLOT</Type>
+			<Type>MINOR_CIV_QUEST_EXPLORE_AREA</Type>
 			<Influence>20</Influence>
 		</Row>
 		<Row>
@@ -142,15 +146,15 @@
 			<Influence>30</Influence>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_QUEST_UNIT_STEAL_FROM</Type>
+			<Type>MINOR_CIV_QUEST_SPY_ON_MAJOR</Type>
 			<Influence>40</Influence>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_QUEST_UNIT_COUP_CITY</Type>
+			<Type>MINOR_CIV_QUEST_COUP</Type>
 			<Influence>50</Influence>
 		</Row>
 		<Row>
-			<Type>MINOR_CIV_QUEST_UNIT_GET_CITY</Type>
+			<Type>MINOR_CIV_QUEST_ACQUIRE_CITY</Type>
 			<Influence>60</Influence>
 		</Row>
 	</SmallAwards>

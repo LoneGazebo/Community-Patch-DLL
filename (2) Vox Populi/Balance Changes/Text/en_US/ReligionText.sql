@@ -50,7 +50,7 @@ SET Text = 'God of the Expanse'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+34% Faster [ICON_CULTURE_LOCAL] Border Growth. Gain 20 [ICON_PEACE] Faith and 10 [ICON_PRODUCTION] Production every time a City expands its borders naturally, scaling with game speed.'
+SET Text = '+34% Faster [ICON_CULTURE_LOCAL] Border Growth. Gain 25 [ICON_PEACE] Faith and 15 [ICON_PRODUCTION] Production every time a City expands its borders naturally, scaling with game speed.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_SETTLEMENTS';
 
 
@@ -88,7 +88,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
 UPDATE Language_en_US
-SET Text = 'Gain [ICON_PEACE] Faith from killing military units equal to 175% of its [ICON_STRENGTH] Strength, and Melee units heal for 10 points after killing a military unit. +2 [ICON_PEACE] Faith and +2 [ICON_PRODUCTION] Production from Barracks.'
+SET Text = 'Gain [ICON_PEACE] Faith from killing military units equal to 175% of its [ICON_STRENGTH] Strength. +2 [ICON_PEACE] Faith and +2 [ICON_PRODUCTION] Production from Barracks.'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR';
 
 
@@ -172,7 +172,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_FERTILITY_RITES';
 
 -- Goddess of the Hunt
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps, +2 [ICON_FOOD] Food from Lodges.'
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture from Camps, +2 [ICON_FOOD] Food from Smokehouses.'
 WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_HUNT';
 
 
@@ -212,11 +212,11 @@ WHERE Tag = 'TXT_KEY_BELIEF_GODDESS_LOVE';
 
 -- Apostolic Tradition (now Pilgrimage)
 UPDATE Language_en_US
-SET Text = 'Apostolic Tradition'
+SET Text = 'Evangelism'
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+20 [ICON_FOOD] Food in Holy City when you spread this [ICON_RELIGION] Religion, scaling with the number of new Followers of your [ICON_RELIGION] Religion. When you unlock a new [ICON_RESEARCH] Technology, receive 2 [ICON_PEACE] Faith for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Apostolic Palace National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_GOLDEN_AGE] Golden Age Points from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you spread your [ICON_RELIGION] Religion to foreign Cities, gain +15 [ICON_FOOD] Food in Holy City, scaling with the number of new Followers of your [ICON_RELIGION] Religion, and 15 [ICON_TOURISM] Tourism, scaling with the number of Followers of other [ICON_RELIGION] Religions in the City.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Apostolic Palace National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +4 [ICON_GOLDEN_AGE] Golden Age Points; +5 [ICON_TOURISM] Tourism from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_PILGRIMAGE';
 
 
@@ -288,11 +288,11 @@ WHERE Tag = 'TXT_KEY_BELIEF_INITIATION_RITES';
 
 -- Way of Noble Truths (formerly Tithe)
 UPDATE Language_en_US
-SET Text = 'Way of Noble Truths'
+SET Text = 'Revelation'
 WHERE Tag = 'TXT_KEY_BELIEF_TITHE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Receive 30 [ICON_TOURISM] Tourism when you spread your [ICON_RELIGION] Religion to foreign Cities, scaling with the number of Followers of other [ICON_RELIGION] Religions. +10 [ICON_INFLUENCE] Influence with City-States when Missionaries spread your [ICON_RELIGION] Religion to them (scaling with Era), and +1 Global [ICON_HAPPINESS_1] Happiness for every 10 Followers in peaceful foreign Civilizations.[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Reliquary National Wonder[ENDCOLOR] (+4 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture, 4 [ICON_GREAT_WORK] Art/Artfiact slots; +5 [ICON_TOURISM] Tourism from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
+SET Text = 'When you research a technology, gain +2 [ICON_GOLDEN_AGE] Golden Age Points, [ICON_PEACE] Faith, and [ICON_CULTURE] Culture for every Follower of your [ICON_RELIGION] Religion (max 250 Followers).[NEWLINE]Unlocks [COLOR_POSITIVE_TEXT]Chartarium National Wonder[ENDCOLOR] (+5 [ICON_RESEARCH] Science from [ICON_RELIGION] Holy Sites; unlocks [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_BELIEF_TITHE';
 
 
@@ -564,13 +564,13 @@ SET Text = 'Holy City gains +5 [ICON_GOLDEN_AGE] Golden Age Points and +2 [ICON_
 WHERE Tag = 'TXT_KEY_BELIEF_ITINERANT_PREACHERS';
 
 
--- Syncretism (formerly Religious Unity)
+-- Universalism (formerly Religious Unity)
 UPDATE Language_en_US
-SET Text = 'Syncretism'
+SET Text = 'Universalism'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith, [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production in Holy City for every 2 followers of other Religions in owned Cities. +1 [ICON_PEACE] Faith in a City for every 15 [ICON_RESEARCH] Science per turn it produces, capped at half the number of Followers in the City.'
+SET Text = '+1 [ICON_RESEARCH] Science, and [ICON_PRODUCTION] Production in Holy City for every 5 followers of other Religions in owned Cities. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 10 followers of this [ICON_RELIGION] Religion in Foreign Cities.'
 WHERE Tag = 'TXT_KEY_BELIEF_RELIGIOUS_UNITY';
 
 
@@ -615,7 +615,7 @@ SET Text = 'Divine Teachings'
 WHERE Tag = 'TXT_KEY_BELIEF_JESUIT_EDUCATION_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'May build Universities, Public Schools, and Research Labs with [ICON_PEACE] Faith, and each building gains +2 [ICON_RESEARCH] Science. Holy City gains 20 [ICON_PEACE] Faith each time the owner expends a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
+SET Text = 'May build Libraries, Universities, Public Schools, and Research Labs with [ICON_PEACE] Faith, and each building gains +2 [ICON_RESEARCH] Science. Holy City gains 20 [ICON_PEACE] Faith each time the owner expends a [ICON_GREAT_PEOPLE] Great Person, scaling with Era.'
 WHERE Tag = 'TXT_KEY_BELIEF_JESUIT_EDUCATION';
 
 

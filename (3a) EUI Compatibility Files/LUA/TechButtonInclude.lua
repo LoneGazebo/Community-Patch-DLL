@@ -801,7 +801,11 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 			if (row.Yield or 0)~=0 then
 				local icon = YieldIcons[row.YieldType] or "???"
 				icons = icons .. icon
-				toolTip = toolTip .. (" +%g"):format(row.Yield) .. icon
+				if (row.Yield > 0) then
+					toolTip = toolTip .. (" +%g"):format(row.Yield) .. icon
+				else
+					toolTip = toolTip .. row.Yield .. icon
+				end
 			end
 		end
 		if not addSmallActionButton( GameInfo.Builds{ ImprovementType = improvement.Type }() or "???", icons, toolTip ) then

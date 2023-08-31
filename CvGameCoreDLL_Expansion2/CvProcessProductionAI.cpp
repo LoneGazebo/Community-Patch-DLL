@@ -9,6 +9,7 @@
 #include "CvProcessProductionAI.h"
 #include "CvInfosSerializationHelper.h"
 #if defined(MOD_BALANCE_CORE)
+#include "CvDiplomacyAI.h"
 #include "CvMilitaryAI.h"
 #include "CvEconomicAI.h"
 #include "CvVotingClasses.h"
@@ -305,6 +306,14 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 					{
 						iModifier += 20;
 					}
+				}
+				break;
+				case YIELD_TOURISM:
+				{
+					if (!kPlayer.isMajorCiv())
+						return 0;
+
+					iModifier += kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() ? 300 : 100;
 				}
 				break;
 				default:

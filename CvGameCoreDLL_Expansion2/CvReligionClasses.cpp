@@ -2906,13 +2906,15 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
 	int iPressureMod = 0;
 
-	// India: +1 base pressure per follower
+	// India: +10% base pressure per follower
 	if (GET_PLAYER(pFromCity->getOwner()).GetPlayerTraits()->IsPopulationBoostReligion())
 	{
 		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
 		{
 			int iPopExtraPressure = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
-			iBasePressure += min(24, iPopExtraPressure) * /*10*/ GD_INT_GET(RELIGION_MISSIONARY_PRESSURE_MULTIPLIER);
+			int iBasePressureMod = min(35, iPopExtraPressure) * 10;
+			iBasePressure *= 100 + iBasePressureMod;
+			iBasePressure /= 100;
 		}
 	}
 
@@ -7661,11 +7663,11 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus, bool bConsi
 	{
 		int iModifier = 0;
 		if (pEntry->IsFounderBelief())
-			iModifier += 5;
+			iModifier += 8;
 		else if(pEntry->IsPantheonBelief())
 			iModifier += -5;
 		else if (pEntry->IsEnhancerBelief())
-			iModifier += 5;
+			iModifier += 2;
 		else if (pEntry->IsFollowerBelief())
 		{
 			bool bNoBuilding = true;
@@ -8165,7 +8167,7 @@ int CvReligionAI::ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const
 
 			iTempValue += (pEntry->GetYieldPerLux(iI) * max(1, iNumLuxuries)) * ModifierValue;
 		}
-		if (pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) > 0)
+		if (pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) > 0) // FIXME: also evaluate the yields that are scaling with era
 		{
 			int iVal = ((pEntry->GetYieldPerBorderGrowth((YieldTypes)iI) * iCulture) / max(4, pCity->GetJONSCultureLevel() * 4));
 			if (m_pPlayer->GetPlayerTraits()->IsBuyOwnedTiles()) // America UA has an anti-synergy with this
@@ -10091,6 +10093,10 @@ int CvReligionAI::ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, 
 	{
 		// How much impact would using the inquistor have? let's ignore resilience here ...
 		int iNumOtherFollowers = pCity->GetCityReligions()->GetFollowersOtherReligions(eMyReligion);
+
+		//should we consider GD_INT_GET(INQUISITION_EFFECTIVENESS)?
+		//it could happen that the inquisitor changes nothing ...
+		//but doesn't matter usually, we still want to target the same cities!
 	
 		// More pressing if majority is another religion
 		if (pCity->GetCityReligions()->GetReligiousMajority() != eMyReligion)

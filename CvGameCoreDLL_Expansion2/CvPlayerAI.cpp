@@ -289,12 +289,13 @@ void CvPlayerAI::AI_unitUpdate()
 	}
 }
 
-void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bool bGift, bool bAllowSphereRemoval)
+void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval)
 {
 	if (isHuman())
 		return;
 
 	// What are our options for this city?
+	PlayerTypes ePlayerToLiberate = GetPlayerToLiberate(pCity);
 	bool bCanLiberate = ePlayerToLiberate != NO_PLAYER && !bGift; //shouldn't liberate cities you bought (exploitable)
 	bool bCanRaze = canRaze(pCity) && !bGift; //shouldn't raze cities you bought
 	bool bCanAnnex = !GetPlayerTraits()->IsNoAnnexing();
@@ -316,7 +317,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	}
 
 	// If we have been actively trying to liberate this city, liberate it! (note - some more liberation checks are later in this method)
-	if (bCanLiberate && GetDiplomacyAI()->IsTryingToLiberate(pCity, ePlayerToLiberate))
+	if (bCanLiberate && GetDiplomacyAI()->IsTryingToLiberate(pCity))
 	{
 		DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, false);
 		return;
@@ -367,9 +368,9 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 		bKeepCity = true;
 	}
 
-	//only city in the area? may be strategically important
-	CvArea* pArea = pCity->plot()->area();
-	if (pArea != NULL && pArea->getCitiesPerPlayer(GetID()) < 1)
+	//only city on a landmass? may be strategically important
+	CvLandmass* pLandmass = GC.getMap().getLandmassById(pCity->plot()->getLandmass());
+	if (pLandmass != NULL && pLandmass->getCitiesPerPlayer(GetID()) < 1)
 	{
 		bKeepCity = true;
 	}
@@ -381,7 +382,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 	}
 
 	// Want to keep city - will puppet/annex
-	if (bKeepCity || (!bCanLiberate && !bCanRaze))
+	if (bKeepCity || (!bCanLiberate && !bCanRaze && !bAllowSphereRemoval))
 	{
 		// Can't annex? Have to puppet.
 		if (!bCanAnnex)
@@ -434,7 +435,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, PlayerTypes ePlayerToLiberate, bo
 				return;
 			}
 
-			if (GetDiplomacyAI()->DoPossibleMajorLiberation(pCity, ePlayerToLiberate))
+			if (GetDiplomacyAI()->DoPossibleMajorLiberation(pCity))
 				return;
 		}
 

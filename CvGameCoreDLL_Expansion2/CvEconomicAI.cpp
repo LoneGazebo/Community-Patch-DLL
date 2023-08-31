@@ -3520,10 +3520,6 @@ bool EconomicAIHelpers::IsTestStrategy_CitiesNeedNavalGrowth(EconomicAIStrategyT
 		int iCurrentWeight = (pPlayer->getNumCities() - 1) * 10;
 		iCurrentWeight /= iWeightThreshold;
 
-		// See CvStrategyAI::IsTestStrategy_CitiesNeedBorders for a couple examples on how the math here works
-
-		// Do enough of our Cities want NavalGrowth? [Average is 10/30; range is 10/25 to 10/35]
-//		if (iNumCitiesNeedNavalGrowth > (GetPlayer()->getNumCities() - 1) / GC.getAI_STRATEGY_CITIES_NAVAL_GROWTH_DIVISOR())	// 3
 		if(iNumCitiesNeedNavalGrowth > iCurrentWeight)
 		{
 			return true;

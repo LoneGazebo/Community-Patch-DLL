@@ -45,26 +45,27 @@ FDataStream& operator>>(FDataStream&, MinorCivPersonalityTypes&);
 
 enum CLOSED_ENUM MinorCivQuestTypes
 {
-    NO_MINOR_CIV_QUEST_TYPE = -1,
+	NO_MINOR_CIV_QUEST_TYPE = -1,
 
-    MINOR_CIV_QUEST_ROUTE,
-    MINOR_CIV_QUEST_KILL_CAMP,
-    MINOR_CIV_QUEST_CONNECT_RESOURCE,
-    MINOR_CIV_QUEST_CONSTRUCT_WONDER,
-    MINOR_CIV_QUEST_GREAT_PERSON,
-    MINOR_CIV_QUEST_KILL_CITY_STATE,
-    MINOR_CIV_QUEST_FIND_PLAYER,
-    MINOR_CIV_QUEST_FIND_NATURAL_WONDER,
-    MINOR_CIV_QUEST_GIVE_GOLD,
-    MINOR_CIV_QUEST_PLEDGE_TO_PROTECT,
-    MINOR_CIV_QUEST_CONTEST_CULTURE,
-    MINOR_CIV_QUEST_CONTEST_FAITH,
-    MINOR_CIV_QUEST_CONTEST_TECHS,
-    MINOR_CIV_QUEST_INVEST,
-    MINOR_CIV_QUEST_BULLY_CITY_STATE,
-    MINOR_CIV_QUEST_DENOUNCE_MAJOR,
-    MINOR_CIV_QUEST_SPREAD_RELIGION,
+	MINOR_CIV_QUEST_ROUTE,
+	MINOR_CIV_QUEST_KILL_CAMP,
+	MINOR_CIV_QUEST_CONNECT_RESOURCE,
+	MINOR_CIV_QUEST_CONSTRUCT_WONDER,
+	MINOR_CIV_QUEST_GREAT_PERSON,
+	MINOR_CIV_QUEST_KILL_CITY_STATE,
+	MINOR_CIV_QUEST_FIND_PLAYER,
+	MINOR_CIV_QUEST_FIND_NATURAL_WONDER,
+	MINOR_CIV_QUEST_GIVE_GOLD,
+	MINOR_CIV_QUEST_PLEDGE_TO_PROTECT,
+	MINOR_CIV_QUEST_CONTEST_CULTURE,
+	MINOR_CIV_QUEST_CONTEST_FAITH,
+	MINOR_CIV_QUEST_CONTEST_TECHS,
+	MINOR_CIV_QUEST_INVEST,
+	MINOR_CIV_QUEST_BULLY_CITY_STATE,
+	MINOR_CIV_QUEST_DENOUNCE_MAJOR,
+	MINOR_CIV_QUEST_SPREAD_RELIGION,
 	MINOR_CIV_QUEST_TRADE_ROUTE,
+	MINOR_CIV_QUEST_FIND_CITY,
 	MINOR_CIV_QUEST_WAR,
 	MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER,
 	MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT,
@@ -76,13 +77,13 @@ enum CLOSED_ENUM MinorCivQuestTypes
 	MINOR_CIV_QUEST_LIBERATION,
 	MINOR_CIV_QUEST_HORDE,
 	MINOR_CIV_QUEST_REBELLION,
-	MINOR_CIV_QUEST_DISCOVER_PLOT,
+	MINOR_CIV_QUEST_EXPLORE_AREA,
 	MINOR_CIV_QUEST_BUILD_X_BUILDINGS,
-	MINOR_CIV_QUEST_UNIT_STEAL_FROM,
-	MINOR_CIV_QUEST_UNIT_COUP_CITY,
-	MINOR_CIV_QUEST_UNIT_GET_CITY,
+	MINOR_CIV_QUEST_SPY_ON_MAJOR,
+	MINOR_CIV_QUEST_COUP,
+	MINOR_CIV_QUEST_ACQUIRE_CITY,
 
-    NUM_MINOR_CIV_QUEST_TYPES ENUM_META_VALUE,
+	NUM_MINOR_CIV_QUEST_TYPES ENUM_META_VALUE,
 };
 FDataStream& operator<<(FDataStream&, const MinorCivQuestTypes&);
 FDataStream& operator>>(FDataStream&, MinorCivQuestTypes&);
@@ -167,7 +168,7 @@ public:
 
 	// Handle rewards
 	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
-	void DoRewards(PlayerTypes ePlayer);
+	void DoRewards(PlayerTypes ePlayer, bool bHeavyTribute = false);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish) const;
 
 	void EnableInfluence(PlayerTypes ePlayer);
@@ -341,6 +342,7 @@ public:
 	void DoPickInitialItems();
 
 	CvPlayer* GetPlayer();
+	const CvPlayer* GetPlayer() const;
 
 	MinorCivTypes GetMinorCivType() const;
 
@@ -411,7 +413,7 @@ public:
 	void DoTestProxyWarAnnouncement();
 	void DoTestProxyWarAnnouncementOnFirstContact(PlayerTypes eMajor);
 
-	bool IsProxyWarActiveForMajor(PlayerTypes eMajor, PlayerTypes eOtherMajor);
+	bool IsProxyWarActiveForMajor(PlayerTypes eMajor, TeamTypes eEnemyTeam);
 	bool IsProxyWarActiveForMajor(PlayerTypes eMajor);
 
 	// ******************************
@@ -441,7 +443,7 @@ public:
 	WeightedCivsList CalculateFriendshipFromQuests();
 	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
 	void DoObsoleteQuests();
-	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, bool bWar = false);
+	void DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE, bool bWar = false, bool bHeavyTribute = false);
 	void DoQuestsCleanup();
 	void DoQuestsCleanupForPlayer(PlayerTypes ePlayer);
 
@@ -455,7 +457,7 @@ public:
 	bool IsGlobalQuest(MinorCivQuestTypes eQuest) const;
 	bool IsPersonalQuest(MinorCivQuestTypes eQuest) const;
 	int GetMinPlayersNeededForQuest(MinorCivQuestTypes eQuest) const;
-	int GetPersonalityQuestBias(MinorCivQuestTypes eQuest) const;
+	int GetNumQuestCopies(MinorCivQuestTypes eQuest) const;
 
 	int GetNumActiveGlobalQuests() const;
 	int GetNumActiveQuestsForAllPlayers() const;
@@ -486,6 +488,7 @@ public:
 
 	int GetQuestData1(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
 	int GetQuestData2(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
+	int GetQuestData3(PlayerTypes ePlayer, MinorCivQuestTypes eType) const;
 #if defined(MOD_BALANCE_CORE)
 	CvString GetRewardString(PlayerTypes ePlayer, MinorCivQuestTypes eType);
 	CvString GetTargetCityString(PlayerTypes ePlayer, MinorCivQuestTypes eType);
@@ -522,20 +525,24 @@ public:
 	int GetCooldownSpawn() const;
 	void SetCooldownSpawn(int iValue);
 
+	bool IsAcceptableQuestEnemy(MinorCivQuestTypes eQuest, PlayerTypes ePlayer, PlayerTypes eEnemyPlayer);
+
 	ResourceTypes GetNearbyResourceForQuest(PlayerTypes ePlayer);
-	BuildingTypes GetBestWonderForQuest(PlayerTypes ePlayer);
-	BuildingTypes GetBestNationalWonderForQuest(PlayerTypes ePlayer);
+	BuildingTypes GetBestWorldWonderForQuest(PlayerTypes ePlayer, int iDuration);
+	BuildingTypes GetBestNationalWonderForQuest(PlayerTypes ePlayer, int iDuration);
 	UnitTypes GetBestGreatPersonForQuest(PlayerTypes ePlayer);
-	PlayerTypes GetBestCityStateTarget(PlayerTypes eForPlayer, bool bNoRandom = false);
-	PlayerTypes GetBestCityStateLiberate(PlayerTypes eForPlayer);
-	PlayerTypes GetBestCityStateMeetTarget(PlayerTypes eForPlayer);
+	PlayerTypes GetBestCityStateTarget(PlayerTypes ePlayer, bool bKillQuest);
+	PlayerTypes GetBestCityStateLiberate(PlayerTypes ePlayer);
+	PlayerTypes GetBestCityStateMeetTarget(PlayerTypes ePlayer);
 
 	CvCity* GetBestCityForQuest(PlayerTypes ePlayer);
 	CvPlot* GetTargetPlot(PlayerTypes ePlayer);
 	int GetExplorePercent(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
-	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer);
+	BuildingTypes GetBestBuildingForQuest(PlayerTypes ePlayer, int iDuration);
 	CvCity* GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor);
 	UnitTypes GetBestUnitGiftFromPlayer(PlayerTypes ePlayer);
+	int GetExperienceForUnitGiftQuest(PlayerTypes ePlayer, UnitTypes eUnitType);
+	bool IsUnitValidGiftForCityStateQuest(PlayerTypes ePlayer, CvUnit* pUnit);
 	bool GetHasSentUnitForQuest(PlayerTypes ePlayer);
 	void SetHasSentUnitForQuest(PlayerTypes ePlayer, bool bValue);
 	void SetCoupAttempted(PlayerTypes ePlayer, bool bValue);
@@ -553,11 +560,8 @@ public:
 	PlayerTypes GetMostRecentBullyForQuest() const;
 	bool IsWantsMinorDead(PlayerTypes eMinor);
 	PlayerTypes GetBestPlayerToFind(PlayerTypes ePlayer);
+	CvCity* GetBestCityToFind(PlayerTypes ePlayer);
 	bool IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer);
-	bool IsGoodTimeForGiveGoldQuest() const;
-	bool IsGoodTimeForPledgeToProtectQuest() const;
-	bool IsGoodTimeForDenounceMajorQuest() const;
-	bool IsGoodTimeForWarMajorQuest() const;
 
 	// ******************************
 	// ***** Friendship *****
@@ -756,9 +760,6 @@ public:
 #if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
 	void DoMajorBullyAnnex(PlayerTypes eBully);
 #endif
-#if defined(MOD_BALANCE_CORE)
-	int GetYieldTheftAmount(PlayerTypes eBully, bool bIgnoreScaling = false);
-#endif
 	
 	void DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceChangeTimes100);
 
@@ -802,6 +803,8 @@ public:
 	void DoNowAtWarWithTeam(TeamTypes eTeam);
 	void DoNowPeaceWithTeam(TeamTypes eTeam);
 
+	bool IsAllyAtWar(TeamTypes eTeam) const;
+	int GetPeaceBlockedTurns(TeamTypes eTeam) const;
 	bool IsPeaceBlocked(TeamTypes eTeam) const;
 
 	void DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam);

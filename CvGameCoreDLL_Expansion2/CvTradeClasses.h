@@ -359,6 +359,8 @@ public:
 
 	static UnitTypes GetTradeUnit (DomainTypes eDomain, CvPlayer* pPlayer);
 
+	void LogTradeMsg(CvString& strMsg) const;
+
 	std::vector<CvString> GetPlotToolTips (CvPlot* pPlot);
 	std::vector<CvString> GetPlotMouseoverToolTips (CvPlot* pPlot);
 

@@ -414,6 +414,11 @@
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
 	</Table>
+	<Table name="Trait_YieldFromMinorDemand">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 
 	<Table name="Unit_YieldFromBarbarianKills">
 		<!-- Refer to Policies.CultureFromBarbarianKills, Yield is percentage of combat str of killed unit -->
@@ -965,6 +970,7 @@
 		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
+		<Column name="IsEraScaling" type="boolean" default="false"/>
 	</Table>
 
 	<!-- BUILDING: Allows you to define a building to grant a yield when an owned unit is victorious, where X is the number below. Same as above, but from any combat. Operates at the player level, so be careful about using this on anything but wonders! -->
@@ -1294,6 +1300,13 @@
 		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" default="0"/>
 	</Table>
+
+	<!-- BUILDING: Allows you to define a building yield that is gained when a unit gains experience in combat - only grants to unit's origin city -->
+	<Table name="Building_YieldFromCombatExperience">
+		<Column name="BuildingType" type="text" reference="Buildings(Type)"/>
+		<Column name="YieldType" type="integer" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" default="0"/>
+	</Table>
 	
 	<!-- POLICY: Allows you to define a yield granted from citizen birth in a city -->
 	<Table name="Policy_YieldFromBirth">
@@ -1583,6 +1596,12 @@
 	</Table>
 	<!-- TRAIT: Allows you to define a yield that is gained in Capital based on # of historic events you have completed. -->
 	<Table name="Trait_YieldFromHistoricEvent">
+		<Column name="TraitType" type="text" reference="Traits(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer" notnull="true"/>
+	</Table>
+	<!-- TRAIT: Allows you to define a yield that is gained in all Cities based on # of military units you have alive. -->
+	<Table name="Trait_YieldFromXMilitaryUnits">
 		<Column name="TraitType" type="text" reference="Traits(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer" notnull="true"/>

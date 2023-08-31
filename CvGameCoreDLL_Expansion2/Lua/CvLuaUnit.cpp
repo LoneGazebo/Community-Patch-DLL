@@ -64,6 +64,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetScrapGold);
 	Method(CanGift);
 	Method(CanDistanceGift);
+	Method(IsUnitValidGiftForCityStateQuest);
 	Method(CanLoadUnit);
 	Method(CanLoad);
 	Method(CanUnload);
@@ -1169,6 +1170,21 @@ int CvLuaUnit::lCanDistanceGift(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	const PlayerTypes eToPlayer = (PlayerTypes) lua_tointeger(L, 2);
 	const bool bResult = pkUnit->CanDistanceGift(eToPlayer);
+
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsUnitValidGiftForCityStateQuest(PlayerTypes ePlayer, CvUnit* pUnit);
+int CvLuaUnit::lIsUnitValidGiftForCityStateQuest(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const PlayerTypes eToPlayer = (PlayerTypes)lua_tointeger(L, 3);
+
+	bool bResult = false;
+	if (GET_PLAYER(eToPlayer).isMinorCiv())
+		bResult = GET_PLAYER(eToPlayer).GetMinorCivAI()->IsUnitValidGiftForCityStateQuest(eFromPlayer, pkUnit);
 
 	lua_pushboolean(L, bResult);
 	return 1;
@@ -3621,52 +3637,32 @@ int CvLuaUnit::lGetMovementRules(lua_State* L)
 
 	if (pkUnit != NULL && pkOtherUnit != NULL && pkOtherUnit->CanPlague(pkUnit))
 	{
-		PromotionTypes ePlague = (PromotionTypes)pkOtherUnit->getPlaguePromotion();
-		if (ePlague == NO_PROMOTION)
+		vector<int> vInflictedPlagues = pkOtherUnit->GetInflictedPlagueIDs();
+		if (vInflictedPlagues.size() > 0)
 		{
-			//Next let's grab the promotion.
-			for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-			{
-				const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
-				if (ePromotion != NO_PROMOTION && pkOtherUnit->HasPromotion(ePromotion))
-				{
-					CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
-					if (pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
-					{
-						if (!pkUnit->HasPromotion(ePromotion) && (pkUnit->getPlagueIDImmunity() == -1 || pkUnit->getPlagueIDImmunity() != pkPlaguePromotionInfo->GetPlagueID()))
-						{
-							ePlague = ePromotion;
-							break;
-						}
-					}
-				}
-			}
-		}
-		if (ePlague != NO_PROMOTION)
-		{
+			//FIXME: The UI currently supports only one plague being inflicted.
+			//If anyone is inclined to do so, they can write the code to make the UI support this.
+			//For now, just grab the first plague.
+			int iPlagueChance = 0;
+			PromotionTypes ePlague = pkOtherUnit->GetInflictedPlague(vInflictedPlagues[0], iPlagueChance);
 			CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
 			int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
 			if (pkPlaguePromotionInfo)
 			{
-				// Already have this plague?
-				if (pkUnit->HasPromotion(ePlague))
-				{
-					text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
-				}
-				// Already have a stronger version of this plague?
-				else if (iPlagueID == pkUnit->getPlagueID() && pkPlaguePromotionInfo->GetPlaguePriority() <= pkUnit->getPlaguePriority())
+				// Already have this plague, or a stronger version of this plague?
+				if (pkUnit->HasPlague(iPlagueID, pkPlaguePromotionInfo->GetPlaguePriority()))
 				{
 					text = GetLocalizedText("TXT_KEY_UNIT_ALREADY_PLAGUED", pkPlaguePromotionInfo->GetText());
 				}
 				// Immune to this plague?
-				else if (pkUnit->getPlagueIDImmunity() != -1 && pkUnit->getPlagueIDImmunity() == iPlagueID)
+				else if (pkUnit->ImmuneToPlague(iPlagueID))
 				{
 					text = GetLocalizedText("TXT_KEY_UNIT_IMMUNE_PLAGUED", pkPlaguePromotionInfo->GetText());
 				}
 				else
 				{
 					text = GetLocalizedText("TXT_KEY_UNIT_PLAGUE_CHANCE", pkPlaguePromotionInfo->GetText());
-					iChance = pkOtherUnit->getPlagueChance();
+					iChance = iPlagueChance;
 				}
 			}
 		}
@@ -3705,7 +3701,7 @@ int CvLuaUnit::lGetWithdrawChance(lua_State* L)
 	CvUnit* pkAttacker = CvLuaUnit::GetInstance(L, 2);
 	int iResult;
 	if (pkUnit->getExtraWithdrawal() > 0)
-		iResult = pkUnit->GetWithdrawChance(*pkAttacker, true);
+		iResult = pkUnit->GetWithdrawChance(*pkAttacker);
 	else
 		iResult = -1;
 		

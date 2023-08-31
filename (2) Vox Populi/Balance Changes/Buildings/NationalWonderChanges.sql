@@ -83,6 +83,10 @@ INSERT INTO Building_BuildingClassYieldChanges
 VALUES
 	('BUILDING_CIRCUS_MAXIMUS', 'BUILDINGCLASS_COLOSSEUM', 'YIELD_GOLD', 2);
 
+INSERT INTO Building_ResourceQuantity
+	(BuildingType, ResourceType, Quantity)
+VALUES
+	('BUILDING_CIRCUS_MAXIMUS', 'RESOURCE_HORSE', 2);
 -- National Intelligence Agency
 
 -- Oxford University
@@ -139,6 +143,9 @@ UPDATE Buildings
 SET CultureRateModifier = '10'
 WHERE Type = 'BUILDING_HERMITAGE';
 
+UPDATE Building_ClassesNeededInCity
+SET BuildingClassType = 'BUILDINGCLASS_GALLERY'
+WHERE BuildingType = 'BUILDING_HERMITAGE';
 -- Oxford Change
 UPDATE Buildings
 SET FreeTechs = '0'

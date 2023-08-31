@@ -66,6 +66,7 @@ public:
 	int getNumUnits() const;
 	int getNumCities() const;
 	int getTotalPopulation() const;
+	int getNumResources(ResourceTypes eResource) const;
 
 	// for serialization
 	template<typename Landmass, typename Visitor>
@@ -105,7 +106,7 @@ inline int coordRange(int iCoord, int iRange, bool bWrap)
 }
 
 class CvPlotManager;
-typedef std::set<CvPlot*> DeferredFogPlots;
+typedef std::set<CvPlot*, PrSortByPlotIndex> DeferredFogPlots;
 typedef std::map<PlayerTypes, std::map<int, int>> UnitKillCount;
 
 //

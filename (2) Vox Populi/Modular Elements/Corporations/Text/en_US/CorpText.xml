@@ -364,15 +364,11 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PRODMOD_CORPORATION">
-			<Text>[NEWLINE][ICON_BULLET]City Modifier from your Corporation: {1_Num}%</Text>
+			<Text>[NEWLINE][ICON_BULLET][ICON_INVEST]Corporation Modifier: {1_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_FROM_CORPORATIONS">
 			<Text>{1_Num} {2_IconString} from your Corporation</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_FOODMOD_CORPORATION">
-			<Text>[NEWLINE][ICON_BULLET][ICON_INVEST]Corporation Modifier: {1_Num}%</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_HAS_FRANCHISE_TT">

@@ -184,7 +184,9 @@ CvUnit::CvUnit() :
 	, m_iEmbarkFlatCostCount()
 	, m_iDisembarkFlatCostCount()
 	, m_iAOEDamageOnKill()
+	, m_iAOEDamageOnPillage()
 	, m_iAoEDamageOnMove()
+	, m_iPartialHealOnPillage()
 	, m_iSplashDamage()
 	, m_iMultiAttackBonus()
 	, m_iLandAirDefenseValue()
@@ -203,12 +205,6 @@ CvUnit::CvUnit() :
 	, m_iExtraChanceFirstStrikes()
 	, m_iExtraWithdrawal()
 #if defined(MOD_BALANCE_CORE_JFD)
-	, m_iPlagueChance()
-	, m_bIsPlagued()
-	, m_iPlagueID()
-	, m_iPlaguePriority()
-	, m_iPlagueIDImmunity()
-	, m_iPlaguePromotion()
 	, m_eUnitContract()
 	, m_iNegatorPromotion()
 #endif
@@ -1451,6 +1447,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iCombatTimer = 0;
 	m_iCombatFirstStrikes = 0;
 	m_bMovedThisTurn = false;
+	m_bHasWithdrawnThisTurn = false;
 	m_bFortified = false;
 	m_iBlitzCount = 0;
 	m_iAmphibCount = 0;
@@ -1476,7 +1473,9 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iEmbarkFlatCostCount = 0;
 	m_iDisembarkFlatCostCount = 0;
 	m_iAOEDamageOnKill = 0;
+	m_iAOEDamageOnPillage = 0;
 	m_iAoEDamageOnMove = 0;
+	m_iPartialHealOnPillage = 0;
 	m_iSplashDamage = 0;
 	m_iMultiAttackBonus = 0;
 	m_iLandAirDefenseValue = 0;
@@ -1498,12 +1497,6 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iExtraChanceFirstStrikes = 0;
 	m_iExtraWithdrawal = 0;
 #if defined(MOD_BALANCE_CORE_JFD)
-	m_iPlagueChance = 0;
-	m_bIsPlagued = false;
-	m_iPlagueID = 0;
-	m_iPlaguePriority = 0;
-	m_iPlagueIDImmunity = -1;
-	m_iPlaguePromotion = NO_PROMOTION;
 	m_eUnitContract = NO_CONTRACT;
 	m_iNegatorPromotion = -1;
 #endif
@@ -2655,15 +2648,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			}
 		}
 	}
-	
-#if defined(MOD_EVENTS_UNIT_PREKILL)
+
 	if (MOD_EVENTS_UNIT_PREKILL)
 	{
 		GAMEEVENTINVOKE_HOOK(GAMEEVENT_UnitPrekill, eUnitOwner, GetID(), getUnitType(), getX(), getY(), bDelay, ePlayer);
 	}
 	else
 	{
-#endif
 		if (pkScriptSystem) 
 		{
 			CvLuaArgsHandle args;
@@ -2678,51 +2669,47 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 			bool bResult = false;
 			LuaSupport::CallHook(pkScriptSystem, "UnitPrekill", args.get(), bResult);
 		}
-#if defined(MOD_EVENTS_UNIT_PREKILL)
 	}
-#endif
 
-	if(bDelay)
+	// Check for Difficulty Bonus
+	if (ePlayer != NO_PLAYER && !IsCivilianUnit())
 	{
-#if defined(MOD_BALANCE_CORE)
-		if(isCultureFromExperienceDisbandUpgrade())
+		if (GET_PLAYER(eUnitOwner).isMajorCiv())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_MAJOR_UNIT);
+		else if (GET_PLAYER(eUnitOwner).isMinorCiv())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT);
+		else if (GET_PLAYER(eUnitOwner).isBarbarian())
+			GET_PLAYER(ePlayer).DoDifficultyBonus(DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT);
+	}
+
+	if (bDelay)
+	{
+		if (ePlayer == NO_PLAYER && isCultureFromExperienceDisbandUpgrade())
 		{
-			if(ePlayer == -1)
+			int iExperience = getExperienceTimes100() / 100;
+			if (iExperience > 0)
 			{
-				int iExperience = getExperienceTimes100() / 100;
-				if(iExperience > 0)
+				GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
+				if (eUnitOwner == GC.getGame().getActivePlayer())
 				{
-					GET_PLAYER(eUnitOwner).changeJONSCulture(iExperience);
-					if (eUnitOwner == GC.getGame().getActivePlayer())
-					{
-						char text[256] = { 0 };
-						
-						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
-						SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
-					}
+					char text[256] = { 0 };
+					sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iExperience);
+					SHOW_PLOT_POPUP(plot(),eUnitOwner, text);
 				}
 			}
 		}
-#endif
 		startDelayedDeath();
 		return;
 	}
-
-#if defined(MOD_GLOBAL_NO_LOST_GREATWORKS)
-	if(MOD_GLOBAL_NO_LOST_GREATWORKS && !bDelay)
-	{
-		if (HasUnusedGreatWork())
-		{
-			GC.getGame().removeGreatPersonBornName(getGreatName());
-		}
-	}
-#endif
 
 	///////////////////////////////////////////////////////////////////////////////////////////////
 	// EVERYTHING AFTER THIS LINE OCCURS UPON THE ACTUAL DELETION OF THE UNIT AND NOT WITH A DELAYED DEATH
 	///////////////////////////////////////////////////////////////////////////////////////////////
 
-	if(IsSelected())
+	if (MOD_GLOBAL_NO_LOST_GREATWORKS && HasUnusedGreatWork())
+		GC.getGame().removeGreatPersonBornName(getGreatName());
+
+	if (IsSelected())
 	{
 		DLLUI->setDirty(UnitInfo_DIRTY_BIT, true);
 		if(DLLUI->GetLengthSelectionList() == 1)
@@ -2753,18 +2740,18 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 	pTransportUnit = getTransportUnit();
 
-	if(pTransportUnit != NULL)
-	{
+	if (pTransportUnit != NULL)
 		setTransportUnit(NULL);
-	}
 
 	if (MOD_LINKED_MOVEMENT)
 	{
 		// remove linked status
-		if (IsLinkedLeader()) {
+		if (IsLinkedLeader())
+		{
 			SetIsLinkedLeader(false);
 		}
-		else if (IsLinked()) {
+		else if (IsLinked())
+		{
 			CvUnit* pLinkedLeader = GET_PLAYER(m_eOwner).getUnit(GetLinkedLeaderID());
 			pLinkedLeader->SetIsLinkedLeader(false);
 		}
@@ -2806,12 +2793,10 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 #endif
 	}
 
-#if defined(MOD_BALANCE_CORE)
 	if (getUnitInfo().IsMilitarySupport() && (isNoSupply() || isContractUnit()))
 	{
 		GET_PLAYER(eUnitOwner).changeNumUnitsSupplyFree(-1);
 	}
-#endif
 
 	// A unit dying reduces the Great General meter
 	if (getExperienceTimes100() > 0 && ePlayer != NO_PLAYER)
@@ -2859,15 +2844,15 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 		//check if this removes a blockade immediately (would be lifted anyhow once the enemy turn starts but nice for humans)
 		if (IsCombatUnit())
 		{
-			set<CvCity*> affectedCities;
+			vector<CvCity*> affectedCities;
 			for (int i = 0; i < RING_PLOTS[GetBlockadeRange()]; i++)
 			{
 				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
 				if (pNeighbor && pNeighbor->getLandmass()==pPlot->getLandmass() && pNeighbor->isBlockaded(pNeighbor->getOwner()))
-					affectedCities.insert( pPlot->getEffectiveOwningCity() );
+					affectedCities.push_back( pPlot->getEffectiveOwningCity() );
 			}
 
-			for (set<CvCity*>::iterator it = affectedCities.begin(); it != affectedCities.end(); ++it)
+			for (vector<CvCity*>::iterator it = affectedCities.begin(); it != affectedCities.end(); ++it)
 			{
 				//we assume blockades are lifted ... so find better plot assignments
 				if ((*it) && (*it)->GetCityCitizens()->DoVerifyWorkingPlots())
@@ -2925,7 +2910,7 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	// Create the captured unit that will replace this unit (if the capture definition is valid)
 	CvUnit::createCaptureUnit(kCaptureDef);
 
-	if(GC.getGame().getActivePlayer() == kCaptureDef.eOldPlayer)
+	if (GC.getGame().getActivePlayer() == kCaptureDef.eOldPlayer)
 	{
 		CvMap& theMap = GC.getMap();
 		theMap.updateDeferredFog();
@@ -2934,9 +2919,6 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 	/// If checking for murder, do that now
 	if (bCheckForMurder)
 		GET_PLAYER(ePlayer).CheckForMurder(eUnitOwner);
-
-	//////////////////////////////////////////////////////////////////////////
-	// Do not add anything below here in this method
 }
 
 //	---------------------------------------------------------------------------
@@ -3240,6 +3222,37 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 		{
 			int iCapturedHealth = (pkCapturedUnit->GetMaxHitPoints() * /*50 in CP, 75 in VP*/ GD_INT_GET(COMBAT_CAPTURE_HEALTH)) / 100;
 			pkCapturedUnit->setDamage(iCapturedHealth);
+
+			// (5-82): Captured Units can still move/pillage (but not attack)
+			// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
+			if (MOD_BALANCE_VP)
+			{
+				pkCapturedUnit->restoreFullMoves();
+				pkCapturedUnit->setMadeAttack(true);
+				pkCapturedUnit->SetTurnProcessed(false);
+				if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
+				{
+					if (pkCapturedUnit->shouldPillage(pkPlot, true))
+					{
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
+					}
+					CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pkCapturedUnit, true, true);
+					if (pBestPlot != NULL)
+					{
+						//check if we need to bump somebody else
+						CvUnit* pBumpUnit = pkCapturedUnit->GetPotentialUnitToPushOut(*pBestPlot);
+						if (pBumpUnit)
+						{
+							pkCapturedUnit->PushBlockingUnitOutOfPlot(*pBestPlot);
+						}
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
+					}
+					else
+					{
+						pkCapturedUnit->PushMission(CvTypes::getMISSION_SKIP());
+					}
+				}
+			}
 		}
 	}
 
@@ -3366,30 +3379,21 @@ void CvUnit::doTurn()
 		gDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ false);
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
+	// Remove any expired promotions
+	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
 	{
 		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iI);
 		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
-		if(pkPromotionInfo)
+		if (pkPromotionInfo && pkPromotionInfo->PromotionDuration() > 0 && isHasPromotion(ePromotion))
 		{
-			if(isHasPromotion(ePromotion) && pkPromotionInfo->PromotionDuration() > 0)
+			int iTurnsElapsed = GC.getGame().getGameTurn() - getTurnPromotionGained(ePromotion);
+			if (iTurnsElapsed > getPromotionDuration(ePromotion))
 			{
-				int iTurnsElapsed = (GC.getGame().getGameTurn() - getTurnPromotionGained(ePromotion));
-				if(iTurnsElapsed > getPromotionDuration(ePromotion))
-				{
-					setHasPromotion(ePromotion, false);
-
-					if (pkPromotionInfo != NULL)
-						return;
-
-					//plagued? remove plague.
-					if (getPlagueID() == pkPromotionInfo->GetPlagueID())
-						setPlagueID(-1);
-				}
+				setHasPromotion(ePromotion, false);
+				continue;
 			}
 		}
-	}				
+	}
 
 	// prevent linked units in movement from asking orders
 	if (MOD_LINKED_MOVEMENT && IsLinked() && !IsLinkedLeader())
@@ -3397,7 +3401,6 @@ void CvUnit::doTurn()
 		SetTurnProcessed(true);
 	}
 
-#endif
 	doDelayedDeath();
 #if defined(MOD_BALANCE_CORE)
 	DoImprovementExperience(plot());
@@ -4957,12 +4960,11 @@ bool CvUnit::canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags) const
 			//true naval units can enter ocean plots if they don't stay there. embarked units need the tech in any case
 			if ( (iMoveFlags&CvUnit::MOVEFLAG_DESTINATION) || enterPlot.needsEmbarkation(this))
 			{
+				//this promotion overrides the exception ...
 				PromotionTypes ePromotionOceanImpassable = (PromotionTypes)GD_INT_GET(PROMOTION_OCEAN_IMPASSABLE);
 				bool bOceanImpassable = isHasPromotion(ePromotionOceanImpassable);
 				if(bOceanImpassable)
-				{
 					return false;
-				}
 
 				if (canCrossOceans())
 					return true;
@@ -7562,18 +7564,22 @@ void CvUnit::LogWorkerEvent(BuildTypes eBuildType, bool bStartingConstruction)
 	if(eImprovement != NO_IMPROVEMENT)
 	{
 		ResourceTypes eResource = plot()->getResourceType(getTeam());
-		if(eResource != NO_RESOURCE)
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (pkResourceInfo)
 		{
-			strResource = GC.getResourceInfo(eResource)->GetType();
-			strResource += ",";
-		}
-		else if(plot()->getResourceType(NO_TEAM) != NO_RESOURCE)
-		{
-			eResource = plot()->getResourceType(NO_TEAM);
-			strResource = GC.getResourceInfo(eResource)->GetType();
-			strResource += ",";
+			if (eResource != NO_RESOURCE)
+			{
+				strResource = pkResourceInfo->GetType();
+				strResource += ",";
+			}
+			else if (plot()->getResourceType(NO_TEAM) != NO_RESOURCE)
+			{
+				eResource = plot()->getResourceType(NO_TEAM);
+				strResource = pkResourceInfo->GetType();
+				strResource += ",";
 
-			strCanSee = "Can't see!,";
+				strCanSee = "Can't see!,";
+			}
 		}
 	}
 
@@ -10391,7 +10397,8 @@ bool CvUnit::shouldPillage(const CvPlot* pPlot, bool bConservative) const
 			ResourceTypes eResource = pPlot->getResourceType(getTeam());
 			if (eResource != NO_RESOURCE)
 			{
-				if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC || GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (pkResourceInfo && (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY))
 					return true;
 			}
 		}
@@ -10708,6 +10715,9 @@ bool CvUnit::pillage()
 		{
 			SetBaseCombatStrength(getUnitInfo().GetCombat() + ((getPillageBonusStrengthPercent() * getUnitInfo().GetCombat()) / 100));			
 		}
+
+		DoAdjacentPlotDamage(pPlot, getAOEDamageOnPillage(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_PILLAGE");
+
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 		//if the plot isn't guarded by a gainless pillage building for this player, nor this city
 		if (!(pPlot->getOwner() != NO_PLAYER && GET_PLAYER(pPlot->getOwner()).isBorderGainlessPillage()) )
@@ -10723,6 +10733,7 @@ bool CvUnit::pillage()
 				else
 				{
 					int iHealAmount = min(getDamage(), /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT));
+					iHealAmount += getPartialHealOnPillage();
 					changeDamage(-iHealAmount);
 				}
 			}
@@ -13332,7 +13343,7 @@ bool CvUnit::givePolicies()
 	if (iCultureBonus != 0)
 	{
 		kPlayer.changeJONSCulture(iCultureBonus);
-		if(pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
+		if (pPlot->getOwningCity() && pPlot->getOwner() == getOwner())
 			pPlot->getOwningCity()->ChangeJONSCultureStored(iCultureBonus);
 
 		// Refresh - we might get to pick a policy this turn
@@ -14037,15 +14048,14 @@ bool CvUnit::build(BuildTypes eBuild)
 						}
 					}
 				}
-				if(pkBuildInfo->IsCultureBoost())
+				if (pkBuildInfo->IsCultureBoost())
 				{
 					int iValue = kPlayer.GetTotalJONSCulturePerTurn() * 2;
 					kPlayer.changeJONSCulture(iValue);
-					if(kPlayer.getCapitalCity() != NULL)
-					{
+					if (kPlayer.getCapitalCity() != NULL)
 						kPlayer.getCapitalCity()->ChangeJONSCultureStored(iValue);
-					}
-					if(kPlayer.GetID() == GC.getGame().getActivePlayer())
+
+					if (kPlayer.GetID() == GC.getGame().getActivePlayer())
 					{
 						char text[256] = {0};
 						sprintf_s(text, "[COLOR_MAGENTA]+%d[ENDCOLOR][ICON_CULTURE]", iValue);
@@ -15024,6 +15034,7 @@ CvUnit* CvUnit::DoUpgradeTo(UnitTypes eUnitType, bool bFree)
 			pNewUnit->m_iMadeInterceptionCount = m_iMadeInterceptionCount;
 			pNewUnit->m_eActivityType = m_eActivityType;
 			pNewUnit->m_bMovedThisTurn = m_bMovedThisTurn;
+			pNewUnit->m_bHasWithdrawnThisTurn = m_bHasWithdrawnThisTurn;
 			pNewUnit->m_bFortified = m_bFortified;
 		}
 		else 
@@ -17132,7 +17143,7 @@ int CvUnit::GetMaxAttackStrength(const CvPlot* pFromPlot, const CvPlot* pToPlot,
 			iModifier += attackBelow50HealthModifier();
 
 		//Heavy charge without escape
-		if (IsCanHeavyCharge() && !pDefender->CanFallBack(*this, false))
+		if (IsCanHeavyCharge() && pDefender->GetNumFallBackPlotsAvailable(*this)==0)
 		{
 			if (MOD_ATTRITION)
 				iModifier += 25;
@@ -17870,7 +17881,7 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		0 ) / 100;
 
 	//extra damage with special promotion
-	if (GetMoraleBreakChance() > 0 && pDefender && !pDefender->CanFallBack(*this,false))
+	if (GetMoraleBreakChance() != 0 && pDefender && pDefender->GetNumFallBackPlotsAvailable(*this) == 0)
 		iDamage = (iDamage * 150) / 100;
 
 	return iDamage;
@@ -20378,10 +20389,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										bool bDoCapture = false;
 #if defined(MOD_BALANCE_CORE)
 										bool bDoEvade = false;
-										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->getExtraWithdrawal() > 0 && pLoopUnit->CanFallBack(*this, true))
+										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->CheckWithdrawal(*this))
 										{
 											bDoEvade = true;
-											pLoopUnit->DoFallBack(*this);
+											pLoopUnit->DoFallBack(*this, true);
 
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
 											if (pNotification)
@@ -21979,6 +21990,21 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
 			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
 		}
+
+		int iRealExperienceTimes100 = min(iMaxTimes100 - m_iExperienceTimes100, iUnitExperienceTimes100);
+		CvCity* pOriginCity = getOriginCity();
+		if (pOriginCity)
+		{
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pOriginCity, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+		}
+		else
+		{
+			CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+			if (pCapital)
+			{
+				GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE, false, NO_GREATPERSON, NO_BUILDING, iRealExperienceTimes100, false, NO_PLAYER, NULL, false, pCapital, getDomainType() == DOMAIN_SEA, true, false, NO_YIELD, this);
+			}
+		}
 	}
 
 	setExperienceTimes100((getExperienceTimes100() + iUnitExperienceTimes100), iMax);
@@ -22185,6 +22211,18 @@ void CvUnit::SetFortified(bool bValue)
 		triggerFortifyAnimation(bValue);
 		m_bFortified = bValue;
 	}
+}
+
+bool CvUnit::getHasWithdrawnThisTurn() const
+{
+	VALIDATE_OBJECT
+		return m_bHasWithdrawnThisTurn;
+}
+
+void CvUnit::setHasWithdrawnThisTurn(bool bNewValue)
+{
+	VALIDATE_OBJECT
+		m_bHasWithdrawnThisTurn = bNewValue;
 }
 
 int CvUnit::DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey)
@@ -22490,6 +22528,20 @@ void CvUnit::changeAOEDamageOnKill(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::getAOEDamageOnPillage() const
+{
+	VALIDATE_OBJECT
+		return m_iAOEDamageOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changeAOEDamageOnPillage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iAOEDamageOnPillage = (m_iAOEDamageOnPillage + iChange);
+	CvAssert(getAOEDamageOnPillage() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::getAoEDamageOnMove() const
 {
 	VALIDATE_OBJECT
@@ -22501,6 +22553,20 @@ void CvUnit::changeAoEDamageOnMove(int iChange)
 	VALIDATE_OBJECT
 	m_iAoEDamageOnMove = (m_iAoEDamageOnMove + iChange);
 	CvAssert(getAoEDamageOnMove() >= 0);
+}
+
+//	--------------------------------------------------------------------------------
+int CvUnit::getPartialHealOnPillage() const
+{
+	VALIDATE_OBJECT
+		return m_iPartialHealOnPillage;
+}
+//	--------------------------------------------------------------------------------
+void CvUnit::changePartialHealOnPillage(int iChange)
+{
+	VALIDATE_OBJECT
+		m_iPartialHealOnPillage = (m_iPartialHealOnPillage + iChange);
+	CvAssert(getPartialHealOnPillage() >= 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -22761,92 +22827,153 @@ void CvUnit::changeExtraWithdrawal(int iChange)
 	CvAssert(getExtraWithdrawal() >= 0);
 }
 
-#if defined(MOD_BALANCE_CORE_JFD)
 //	--------------------------------------------------------------------------------
-int CvUnit::getPlagueChance() const
+/// Returns a vector containing the plagues that a unit can attempt to inflict
+vector<int> CvUnit::GetInflictedPlagueIDs() const
 {
-	VALIDATE_OBJECT
-	return m_iPlagueChance;
-}
-//	--------------------------------------------------------------------------------
-void CvUnit::changePlagueChance(int iChange)
-{
-	VALIDATE_OBJECT
-	m_iPlagueChance = min(100, (m_iPlagueChance + iChange));
-	CvAssert(getPlagueChance() >= 0);
-}
-//	--------------------------------------------------------------------------------
-bool CvUnit::isPlagued() const
-{
-	VALIDATE_OBJECT
-	return m_bIsPlagued;
-}
-//	--------------------------------------------------------------------------------
-void CvUnit::setPlagued(bool bValue)
-{
-	VALIDATE_OBJECT
-	m_bIsPlagued = bValue;
-}
-//	--------------------------------------------------------------------------------
-int CvUnit::getPlaguePromotionID() const
-{
-	VALIDATE_OBJECT
-	return m_iPlaguePromotion;
+	vector<int> result;
+
+	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
+		{
+			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
+			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
+			{
+				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
+				if (pkPlaguePromotionInfo)
+				{
+					int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
+					if (std::find(result.begin(), result.end(), iPlagueID) == result.end())
+						result.push_back(iPlagueID);
+				}
+			}
+		}
+	}
+
+	return result;
 }
 
-void CvUnit::setPlagueID(int iValue)
+/// What specific promotion can be inflicted by this unit with iPlagueID?
+PromotionTypes CvUnit::GetInflictedPlague(int iPlagueID, int& iPlagueChance) const
 {
-	VALIDATE_OBJECT
-	m_iPlagueID = iValue;
-}
-//	--------------------------------------------------------------------------------
-int CvUnit::getPlagueID() const
-{
-	VALIDATE_OBJECT
-	return m_iPlagueID;
+	int iHighestPriority = -1;
+	PromotionTypes eHighestPlague = NO_PROMOTION;
+
+	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if (pkPromotionInfo && pkPromotionInfo->GetPlagueChance() > 0)
+		{
+			PromotionTypes eInflictedPlague = (PromotionTypes)pkPromotionInfo->GetPlaguePromotion();
+			if (eInflictedPlague != NO_PROMOTION && isHasPromotion(ePromotion))
+			{
+				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
+				if (pkPlaguePromotionInfo)
+				{
+					int iPromotionPlagueID = pkPlaguePromotionInfo->GetPlagueID();
+					if (iPlagueID == iPromotionPlagueID)
+					{
+						int iPlaguePriority = pkPlaguePromotionInfo->GetPlaguePriority();
+						if (iPlaguePriority > iHighestPriority)
+						{
+							iHighestPriority = iPlaguePriority;
+							eHighestPlague = eInflictedPlague;
+							iPlagueChance = pkPromotionInfo->GetPlagueChance();
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return eHighestPlague;
 }
 
-void CvUnit::setPlaguePriority(int iValue)
+/// Does this unit have a plague?
+/// iPlagueID = With a specific plague ID only? Defaults to -1 (any plague).
+/// iMinimumPriority = With a specific priority or higher only? Defaults to -1 (any priority). Requires iPlagueID to be specified.
+bool CvUnit::HasPlague(int iPlagueID, int iMinimumPriority) const
 {
-	VALIDATE_OBJECT
-		m_iPlaguePriority = iValue;
+	if (iPlagueID == -1)
+		iMinimumPriority = -1;
+
+	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if (pkPromotionInfo)
+		{
+			int iPromotionPlagueID = pkPromotionInfo->GetPlagueID();
+			if (iPromotionPlagueID != -1 && isHasPromotion(ePromotion))
+			{
+				if (iPlagueID == -1 || iPlagueID == iPromotionPlagueID)
+				{
+					if (iMinimumPriority == -1 || pkPromotionInfo->GetPlaguePriority() >= iMinimumPriority)
+						return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
-//	--------------------------------------------------------------------------------
-int CvUnit::getPlagueIDImmunity() const
+/// Removes plague promotions from a unit
+/// iPlagueID = With a specific Plague ID only. Defaults to -1 (any plague).
+/// iHigherPriority = Below a specific priority only. Defaults to -1 (any priority).
+void CvUnit::RemovePlague(int iPlagueID, int iHigherPriority)
 {
-	VALIDATE_OBJECT
-		return m_iPlagueIDImmunity;
+	if (iPlagueID == -1)
+		iHigherPriority = -1;
+
+	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if (pkPromotionInfo)
+		{
+			int iPromotionPlagueID = pkPromotionInfo->GetPlagueID();
+			if (iPromotionPlagueID != -1)
+			{
+				if (iPlagueID == -1 || iPlagueID == iPromotionPlagueID)
+				{
+					if (iHigherPriority == -1 || pkPromotionInfo->GetPlaguePriority() < iHigherPriority)
+						setHasPromotion(ePromotion, false);
+				}
+			}
+		}
+	}
 }
 
-void CvUnit::setPlagueIDImmunity(int iValue)
+/// Is this unit immune to a plague?
+/// iPlagueID = With a specific plague ID only? Defaults to -1 (any plague).
+bool CvUnit::ImmuneToPlague(int iPlagueID) const
 {
-	VALIDATE_OBJECT
-		m_iPlagueIDImmunity = iValue;
-}
+	for (int iLoop = 0; iLoop < GC.getNumPromotionInfos(); iLoop++)
+	{
+		const PromotionTypes ePromotion = static_cast<PromotionTypes>(iLoop);
+		CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(ePromotion);
+		if (pkPromotionInfo)
+		{
+			int iPlagueImmunityID = pkPromotionInfo->GetPlagueIDImmunity();
+			if (iPlagueImmunityID != -1 && isHasPromotion(ePromotion))
+			{
+				if (iPlagueID == -1 || iPlagueID == iPlagueImmunityID)
+					return true;
+			}
+		}
+	}
 
-//	--------------------------------------------------------------------------------
-int CvUnit::getPlaguePriority() const
-{
-	VALIDATE_OBJECT
-		return m_iPlaguePriority;
-}
-
-int CvUnit::getPlaguePromotion() const
-{
-	return m_iPlaguePromotion;
-}
-void CvUnit::setPlaguePromotion(int iValue)
-{
-	m_iPlaguePromotion = iValue;
+	return false;
 }
 
 bool CvUnit::CanPlague(CvUnit* pOtherUnit) const
 {
-	if (pOtherUnit == NULL)
-		return false;
-
-	if (getPlagueChance() <= 0)
+	if (pOtherUnit == NULL || pOtherUnit->isDelayedDeath())
 		return false;
 
 	if (getDomainType() != pOtherUnit->getDomainType())
@@ -22870,8 +22997,6 @@ ContractTypes CvUnit::getContract() const
 {
 	return m_eUnitContract;
 }
-
-#endif
 
 bool CvUnit::IsNoMaintenance() const
 {
@@ -25051,6 +25176,11 @@ int CvUnit::GetMoraleBreakChance() const
 //	--------------------------------------------------------------------------------
 void CvUnit::ChangeMoraleBreakChance(int iChange)
 {
+	if (iChange < 0)
+	{
+		m_iCanMoraleBreak = MIN_INT;
+		return;
+	}
 	m_iCanMoraleBreak += iChange;
 }
 
@@ -27421,6 +27551,32 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			}
 		}
 
+		// Plague Stuff
+		int iPlagueID = thisPromotion.GetPlagueID();
+		int iPlagueImmunityID = thisPromotion.GetPlagueIDImmunity();
+
+		// ERROR! This should not happen.
+		if (iPlagueID > -1 && iPlagueID == iPlagueImmunityID)
+			return;
+
+		if (bNewValue)
+		{
+			if (iPlagueID > -1)
+			{
+				// Is this a plague that we're immune to? Abort!
+				if (ImmuneToPlague(iPlagueID))
+					return;
+
+				// If we just got a plague, remove any weaker version of the plague
+				RemovePlague(iPlagueID, thisPromotion.GetPlaguePriority());
+			}
+			// If we just got immunity to a plague, remove the plague
+			if (iPlagueImmunityID > -1)
+			{
+				RemovePlague(iPlagueImmunityID, -1);
+			}
+		}
+
 		m_Promotions.SetPromotion(eIndex, bNewValue);
 		iChange = ((isHasPromotion(eIndex)) ? 1 : -1);
 
@@ -27547,7 +27703,9 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		ChangeCaptureDefeatedEnemyCount((thisPromotion.IsCaptureDefeatedEnemy()) ? iChange : 0);
 #if defined(MOD_BALANCE_CORE)
 		changeAOEDamageOnKill(thisPromotion.GetAOEDamageOnKill() *  iChange);
+		changeAOEDamageOnPillage(thisPromotion.GetAOEDamageOnPillage() * iChange);
 		changeAoEDamageOnMove(thisPromotion.GetAoEDamageOnMove() *  iChange);
+		changePartialHealOnPillage(thisPromotion.GetPartialHealOnPillage() * iChange);
 		changeSplashDamage(thisPromotion.GetSplashDamage() *  iChange);
 		changeMultiAttackBonus(thisPromotion.GetMultiAttackBonus() *  iChange);
 		changeLandAirDefenseValue(thisPromotion.GetLandAirDefenseValue() *  iChange);
@@ -27621,20 +27779,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 		changeHPHealedIfDefeatEnemy(thisPromotion.GetHPHealedIfDefeatEnemy() * iChange);
 		ChangeGoldenAgeValueFromKills(thisPromotion.GetGoldenAgeValueFromKills() * iChange);
 		changeExtraWithdrawal(thisPromotion.GetExtraWithdrawal() * iChange);
-#if defined(MOD_BALANCE_CORE_JFD)
-		changePlagueChance(thisPromotion.GetPlagueChance() * iChange);
-		if (thisPromotion.GetPlagueIDImmunity() > 0)
-		{
-			setPlagueIDImmunity(iChange > 0 ? thisPromotion.GetPlagueIDImmunity() : -1);
-		}
-		if (thisPromotion.GetPlaguePromotion() != NO_PROMOTION)
-		{
-			if (iChange > 0)
-				setPlaguePromotion(thisPromotion.GetPlaguePromotion());
-			else
-				setPlaguePromotion(NO_PROMOTION);
-		}
-#endif
 		changeExtraRange(thisPromotion.GetRangeChange() * iChange);
 		ChangeRangedAttackModifier(thisPromotion.GetRangedAttackModifier() * iChange);
 		ChangeInterceptionCombatModifier(thisPromotion.GetInterceptionCombatModifier() * iChange);
@@ -28119,6 +28263,7 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iCombatTimer);
 	visitor(unit.m_iCombatFirstStrikes);
 	visitor(unit.m_bMovedThisTurn);
+	visitor(unit.m_bHasWithdrawnThisTurn);
 	visitor(unit.m_bFortified);
 	visitor(unit.m_iBlitzCount);
 	visitor(unit.m_iAmphibCount);
@@ -28143,7 +28288,9 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iEmbarkFlatCostCount);
 	visitor(unit.m_iDisembarkFlatCostCount);
 	visitor(unit.m_iAOEDamageOnKill);
+	visitor(unit.m_iAOEDamageOnPillage);
 	visitor(unit.m_iAoEDamageOnMove);
+	visitor(unit.m_iPartialHealOnPillage);
 	visitor(unit.m_iSplashDamage);
 	visitor(unit.m_iMultiAttackBonus);
 	visitor(unit.m_iLandAirDefenseValue);
@@ -28158,12 +28305,6 @@ void CvUnit::Serialize(Unit& unit, Visitor& visitor)
 	visitor(unit.m_iExtraFirstStrikes);
 	visitor(unit.m_iExtraChanceFirstStrikes);
 	visitor(unit.m_iExtraWithdrawal);
-	visitor(unit.m_iPlagueChance);
-	visitor(unit.m_bIsPlagued);
-	visitor(unit.m_iPlagueID);
-	visitor(unit.m_iPlaguePriority);
-	visitor(unit.m_iPlagueIDImmunity);
-	visitor(unit.m_iPlaguePromotion);
 	visitor(unit.m_eUnitContract);
 	visitor(unit.m_iNegatorPromotion);
 	visitor(unit.m_bIsNoMaintenance);
@@ -30990,97 +31131,49 @@ CvUnit* CvUnit::rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllow
 	return NULL;
 }
 
-#if defined(MOD_BALANCE_CORE)
 void CvUnit::DoPlagueTransfer(CvUnit& defender)
 {
 	//We got here without being able to plague someone? Abort!
 	if (!CanPlague(&defender))
-	{
 		return;
-	}
 
-	int iPlagueChance = getPlagueChance();
+	vector<int> vInflictedPlagues = GetInflictedPlagueIDs();
 
-	int iRoll = GC.getGame().getSmallFakeRandNum(100, *plot());
-
-	if(iRoll > iPlagueChance)
-	{
+	// This unit does not inflict plagues.
+	if (vInflictedPlagues.size() == 0)
 		return;
-	}
 
-	PromotionTypes ePlague = (PromotionTypes)getPlaguePromotion();
-	bool bTransferred = false;
-	if (ePlague == NO_PROMOTION)
+	int iCount = vInflictedPlagues.size() + 1;
+
+	for (std::vector<int>::iterator it = vInflictedPlagues.begin(); it != vInflictedPlagues.end(); it++)
 	{
-		//Next let's grab the promotion.
-		int iI = 0;
-		for (iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-		{
-			const PromotionTypes ePromotion(static_cast<PromotionTypes>(iI));
-			if (ePromotion != NO_PROMOTION && HasPromotion(ePromotion))
-			{
-				CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePromotion);
-				if (pkPlaguePromotionInfo && pkPlaguePromotionInfo->IsPlague())
-				{
-					if (!defender.HasPromotion(ePromotion) && (defender.getPlagueIDImmunity() == -1 || defender.getPlagueIDImmunity() != pkPlaguePromotionInfo->GetPlagueID()))
-					{
-						defender.setHasPromotion(ePromotion, true);
-						ePlague = ePromotion;
-						bTransferred = true;
-						break;
-					}
-				}
-			}
-		}
-	}
-	else if (!defender.HasPromotion(ePlague))
-	{
-		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(ePlague);
-		if (pkPlaguePromotionInfo == NULL)
+		int iPlagueChance = 0;
+		PromotionTypes eInflictedPlague = GetInflictedPlague(*it, iPlagueChance);
+		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
+
+		// Is the plague inflicted?
+		int iRoll = GC.getGame().getSmallFakeRandNum(100, (int)GetID() + ((int)defender.GetID() / 2) + (iCount * 493));
+		iCount--;
+		if (iRoll > iPlagueChance)
 			return;
 
-		int iPlagueID = pkPlaguePromotionInfo->GetPlagueID();
-
-		//we're immune to this?
-		if (defender.getPlagueIDImmunity() != -1 && defender.getPlagueIDImmunity() == pkPlaguePromotionInfo->GetPlagueID())
+		// Is the defender immune to the plague?
+		if (defender.ImmuneToPlague(*it))
 			return;
 
-		//we already have this plague? let's see if we've been hit with a more severe version of the same plague...
-		if (iPlagueID == defender.getPlagueID())
-		{
-			//weaker? ignore.
-			if (pkPlaguePromotionInfo->GetPlaguePriority() <= defender.getPlaguePriority())
-				return;
+		// Does the defender already have a stronger version of this plague?
+		if (defender.HasPlague(*it, pkPlaguePromotionInfo->GetPlaguePriority() + 1))
+			return;
 
-			//what are we plagued with?
-			PromotionTypes eCurrentPlague = (PromotionTypes)defender.getPlaguePromotionID();
+		// This might kill ye a little!
+		defender.setHasPromotion(eInflictedPlague, true);
 
-			//remove the weaker one.
-			if (eCurrentPlague != NO_PROMOTION)
-			{
-				defender.setHasPromotion(eCurrentPlague, false);
-			}
-		}
-
-		defender.setHasPromotion(ePlague, true);
+		// Remove any excess movement the defender now has (plagues can reduce max moves)
 		if (defender.getMoves() > defender.maxMoves())
-		{
 			defender.setMoves(defender.maxMoves());
-		}
 
-
-		defender.setPlagued(true);
-		defender.setPlaguePromotion(ePlague);
-		defender.setPlagueID(pkPlaguePromotionInfo->GetPlagueID());
-		defender.setPlaguePriority(pkPlaguePromotionInfo->GetPlaguePriority());
-
-		bTransferred = true;
-	}
-	if(bTransferred && ePlague != NO_PROMOTION)
-	{
-		CvPromotionEntry* pkPromotionEntry = GC.getPromotionInfo(ePlague);
-		const char* szPromotionDesc = (pkPromotionEntry != NULL) ? pkPromotionEntry->GetDescription() : "Unknown Promotion";
-		if(GC.getLogging() && GC.getAILogging())
+		const char* szPromotionDesc = pkPlaguePromotionInfo->GetDescription();
+		if (GC.getLogging() && GC.getAILogging())
 		{
 			CvString szMsg;
 			szMsg.Format("Promotion, %s, Transferred by %s to %s in melee",
@@ -31139,27 +31232,10 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 		}
 	}
 }
-#endif
 
 //	--------------------------------------------------------------------------------
-//	--------------------------------------------------------------------------------
-bool CvUnit::CanFallBack(const CvUnit& attacker, bool bCheckChances) const
-{
-	VALIDATE_OBJECT
 
-	int iWithdrawChance = GetWithdrawChance(attacker, bCheckChances);
-
-	if (bCheckChances && iWithdrawChance > 0)
-	{
-		//include damage so the result changes for each attack
-		int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) * 10;
-		return iRoll < iWithdrawChance;
-	}
-	else
-		return iWithdrawChance > 0;
-}
-
-int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) const
+int CvUnit::GetNumFallBackPlotsAvailable(const CvUnit& attacker) const
 {
 	VALIDATE_OBJECT
 
@@ -31171,7 +31247,7 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) 
 		return 0;
 
 	// Are some of the retreat hexes away from the attacker blocked?
-	int iBlockedHexes = 0;
+	int iFreeHexes = 3;
 	DirectionTypes eAttackDirection = directionXY(attacker.plot(), plot());
 	int iBiases[3] = { 0,-1,1 };
 
@@ -31182,73 +31258,177 @@ int CvUnit::GetWithdrawChance(const CvUnit& attacker, const bool bCheckChances) 
 
 		if (pDestPlot && !canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
 		{
-			iBlockedHexes++;
+			iFreeHexes--;
 		}
 	}
 
-	// If all three hexes away from attacker blocked, we can't withdraw
-	if (iBlockedHexes >= 3)
+	return iFreeHexes;
+}
+
+int CvUnit::GetWithdrawChance(const CvUnit& attacker) const
+{
+	VALIDATE_OBJECT
+	int iWithdrawChance = getExtraWithdrawal();
+	if (iWithdrawChance == 0)
 		return 0;
-	
-	if (bCheckChances)
+
+	int iNumFallBackPlotsAvailable = GetNumFallBackPlotsAvailable(attacker);
+
+	if (iNumFallBackPlotsAvailable == 0)
+		return 0;	
+
+	if (MOD_BALANCE_VP)
 	{
-		int iWithdrawChance = getExtraWithdrawal();
+		return getHasWithdrawnThisTurn() ? 0 : iWithdrawChance;
+	}
+	else
+	{
 		// Does attacker have a greater speed than defender? Reduce withdrawal chance for each point the attacker is faster
 		int iDefenderMovementRange = baseMoves(isEmbarked());
 		int iAttackerMovementRange = attacker.baseMoves(attacker.isEmbarked());
 		if (iAttackerMovementRange > iDefenderMovementRange)
 			iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_ENEMY_MOVES) * (iAttackerMovementRange - iDefenderMovementRange));
 
-		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * iBlockedHexes);
+		iWithdrawChance += (/*-20*/ GD_INT_GET(WITHDRAW_MOD_BLOCKED_TILE) * (3 - iNumFallBackPlotsAvailable));
 		return iWithdrawChance;
 	}
-	else
-		return 100;
 }
 
+// returns true if the unit should withdraw from a melee attack
+bool CvUnit::CheckWithdrawal(const CvUnit& attacker) const
+{
+	VALIDATE_OBJECT
+	int iWithdrawChance = GetWithdrawChance(attacker);
+	if (iWithdrawChance == 0)
+		return false;
+
+	if (iWithdrawChance == 100)
+		return true;
+
+	//include damage so the result changes for each attack
+	int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GetID() + getDamage()) * 10;
+	return iRoll < iWithdrawChance;
+}
 //	--------------------------------------------------------------------------------
-bool CvUnit::DoFallBack(const CvUnit& attacker)
+bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 {
 	VALIDATE_OBJECT
 
+	CvPlot* pDestPlot = NULL;
 	CvPlot* pAttackerFromPlot = attacker.plot();
 	DirectionTypes eAttackDirection = directionXY(pAttackerFromPlot, plot());
+	std::vector<CvUnit*> aEscortedUnits;
+	std::vector<CvPlot*> aValidPlotList;
 
-	int iRightOrLeftBias = (GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex()+GetID()+getDamage()) < 5) ? 1 : -1;
-	int iBiases[3] = {0,-1,1};
-	
-	for(int i = 0; i < 3; i++)
+	// Store escorted units for later
+	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY)
 	{
-		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + (iBiases[i] * iRightOrLeftBias)) % NUM_DIRECTION_TYPES;
-		CvPlot* pDestPlot = plotDirection(getX(), getY(), (DirectionTypes) iMovementDirection);
-
-		if(pDestPlot && canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION|MOVEFLAG_NO_EMBARK) && isNativeDomain(pDestPlot))
+		CvPlot* pUnitPlot = plot();
+		IDInfoVector currentUnits;
+		if (pUnitPlot->getUnits(&currentUnits) > 0)
 		{
-
-			if (MOD_CIVILIANS_RETREAT_WITH_MILITARY) // civilian units also retreat
+			for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
 			{
-				CvPlot* pUnitPlot = plot();
-				IDInfoVector currentUnits;
-				if (pUnitPlot->getUnits(&currentUnits) > 0)
-				{
-					for (IDInfoVector::const_iterator itr = currentUnits.begin(); itr != currentUnits.end(); ++itr)
-					{
-						CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
+				CvUnit* pLoopUnit = (CvUnit*)GetPlayerUnit(*itr);
 
-						if (pLoopUnit)
-						{
-							pLoopUnit->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
-						}
-					}
+				if (pLoopUnit && pLoopUnit != this && !pLoopUnit->isDelayedDeath())
+				{
+					aEscortedUnits.push_back(pLoopUnit);
 				}
 			}
-
-			setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
-			PublishQueuedVisualizationMoves();
-			return true;
 		}
 	}
-	return false;
+
+	// possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
+	for (int i = 0; i < 3; i++)
+	{
+		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
+		CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
+
+		if (pDirectionPlot && isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+		{
+			// Do not withdraw if we're escorting a unit who can't move here!
+			if (aEscortedUnits.size() > 0)
+			{
+				bool bNoRetreat = false;
+				for (size_t j = 0; j < aEscortedUnits.size(); j++)
+				{
+					if (!aEscortedUnits[j]->isNativeDomain(pDirectionPlot) || !aEscortedUnits[j]->canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+					{
+						bNoRetreat = true;
+						break;
+					}
+				}
+				if (bNoRetreat)
+					continue;
+			}
+
+			aValidPlotList.push_back(pDirectionPlot);
+		}
+	}
+	if (aValidPlotList.size() == 0)
+		return false;
+	else if (aValidPlotList.size() == 1)
+		pDestPlot = aValidPlotList[0];
+	else
+	{
+		// if there's more than one valid plot, select the plot with the fewest number of enemies
+		multimap<int, CvPlot*> aNumEnemies;
+		for (vector<CvPlot*>::iterator it = aValidPlotList.begin(); it != aValidPlotList.end(); ++it)
+		{
+			aNumEnemies.insert(make_pair((*it)->GetNumEnemyUnitsAdjacent(getTeam(), getDomainType()), (*it)));
+		}
+		// remove plots that have more enemies than the minimum
+		multimap<int, CvPlot*>::iterator itRemove = aNumEnemies.lower_bound(aNumEnemies.begin()->first + 1);
+		aNumEnemies.erase(itRemove, aNumEnemies.end());
+
+		if (aNumEnemies.size() == 1)
+			pDestPlot = aNumEnemies.begin()->second;
+		else
+		{
+			// if there is still more than one possible plot, select the plot with the highest number of adjacent friendly units
+			multimap<int, CvPlot*> aNumFriendlies;
+			for (multimap<int, CvPlot*>::iterator it = aNumEnemies.begin(); it != aNumEnemies.end(); ++it)
+			{
+				aNumFriendlies.insert(make_pair(it->second->GetNumFriendlyUnitsAdjacent(getTeam(), getDomainType(), true, this), it->second));
+			}
+			// remove plots that have fewer friendlies than the maximum
+			itRemove = aNumFriendlies.lower_bound(aNumFriendlies.rbegin()->first); // highest key is the first key in reverse order
+			aNumFriendlies.erase(aNumFriendlies.begin(), itRemove);
+
+			// make a random selection from the remaining plots
+			multimap<int, CvPlot*>::iterator itChosenPlot = aNumFriendlies.begin();
+			if (aNumFriendlies.size() > 1)
+				advance(itChosenPlot, GC.getGame().getSmallFakeRandNum(aNumFriendlies.size(), plot()->GetPlotIndex() + GetID() + getDamage()));
+			pDestPlot = itChosenPlot->second;
+		}
+	}
+
+	if (!pDestPlot)
+		return false;
+
+	// Actually do the withdrawal
+	setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+
+	if (aEscortedUnits.size() > 0)
+	{
+		for (size_t i = 0; i < aEscortedUnits.size(); i++)
+		{
+			// Civilian and embarked units also retreat (if possible)
+			// Need to check whether the unit can enter the plot again, because it might have changed (stacking rules)
+			if (aEscortedUnits[i]->canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+			{
+				aEscortedUnits[i]->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+				aEscortedUnits[i]->PublishQueuedVisualizationMoves(); // Display the civilians retreating before the escort does
+			}
+		}
+	}
+
+	PublishQueuedVisualizationMoves();
+	if (bWithdraw)
+		m_bHasWithdrawnThisTurn = true;
+
+	return true;
 }
 
 //	--------------------------------------------------------------------------------
@@ -31756,7 +31936,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iValue += iExtra;
 	}
 
-			// Other modifiers
+	// Other modifiers
 
 	iTemp = pkPromotionInfo->GetHPHealedIfDefeatEnemy();
 	// nM: +10 Encirclement.

@@ -90,7 +90,8 @@ local ktQuestsIcon = {
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR or false ] = function() return "[ICON_DENOUNCE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION or false ] = function(i) local row = GameInfo.Religions[i] return row and row.IconString or "" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE or false ] = function() return "[ICON_INTERNATIONAL_TRADE]" end,
--- CBP
+-- VP
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY or false ] = function() return "[ICON_CAPITAL]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false ] = function() return "[ICON_SILVER_FIST]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER or false ] = function() return "[ICON_TRADE_WHITE]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT or false ] = function() return "[ICON_STRENGTH]" end,
@@ -102,11 +103,11 @@ local ktQuestsIcon = {
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false ] = function() return "[ICON_OCCUPIED]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or false ] = function() return "[ICON_HAPPINESS_3]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false ] = function() return "[ICON_HAPPINESS_4]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT or false ] = function() return "[ICON_RANGE_STRENGTH]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA or false ] = function() return "[ICON_RANGE_STRENGTH]" end,
 	[ MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false ] = function() return "[ICON_PRODUCTION]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM or false ] = function() return "[ICON_VIEW_CITY]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY or false ] = function() return "[ICON_INQUISITOR]" end,
-	[ MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY or false ] = function() return "[ICON_VICTORY_DOMINATION]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR or false ] = function() return "[ICON_VIEW_CITY]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_COUP or false ] = function() return "[ICON_INQUISITOR]" end,
+	[ MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY or false ] = function() return "[ICON_VICTORY_DOMINATION]" end,
 -- END
 } ktQuestsIcon[-1] = nil
 
@@ -118,38 +119,39 @@ if gk_mode then
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_FAITH or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TECHS or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_INVEST or false,		-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONTEST_TOURISM or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE or false, -- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP or false,		-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION or false, -- VP
 		-- Then personal support quests
 		MinorCivQuestTypes.MINOR_CIV_QUEST_GIVE_GOLD or false,		-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_PLEDGE_TO_PROTECT or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_DENOUNCE_MAJOR or false,	-- g&k+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false, -- CSD
-		-- Then other pesonal quests
-		MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY or false,		-- CBP+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY or false,		-- CBP+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_WAR or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION or false, -- VP
+		-- Then other personal quests
+		MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_COUP or false,		-- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY or false,		-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE or false,		-- bnw+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_SPREAD_RELIGION or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_BULLY_CITY_STATE or false,	-- g&k+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER or false,	-- vanilla+ but NOT civBE
 		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER or false,		-- vanilla+
+		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY or false,			-- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CITY_STATE or false,	-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE or false, -- VP
 		MinorCivQuestTypes.MINOR_CIV_QUEST_GREAT_PERSON or false,	-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_WONDER or false,	-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_CONNECT_RESOURCE or false,	-- vanilla+
 		MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE or false,		-- vanilla+
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false, -- CSD
-		MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false, -- CSD
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY or false, -- VP
+		MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION or false, -- VP
 	}
 	kMinorWar = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_WAR
 	kMinorAllies = GameInfo.MinorCivTraits_Status.MINOR_FRIENDSHIP_STATUS_ALLIES
@@ -293,7 +295,13 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 		elseif minorPlayer:IsMinorPermanentWar(majorTeamID) then	-- Permanent War
 			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PERMANENT_WAR")
 
-		elseif minorPlayer:IsPeaceBlocked(majorTeamID) then		-- Peace blocked by being at war with ally
+		elseif minorPlayer:IsAllyAtWar(majorTeamID) then		-- Peace blocked by being at war with ally
+			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED")
+
+		elseif minorPlayer:GetPeaceBlockedTurns(majorTeamID) > 0 then	-- Peace blocked due to attacking too recently
+			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED_TURNS", minorPlayer:GetPeaceBlockedTurns(majorTeamID))
+
+		elseif minorPlayer:IsPeaceBlocked(majorTeamID) then		-- Can't make peace for some other reason
 			strStatusText = "[COLOR_NEGATIVE_TEXT]" .. L("TXT_KEY_PEACE_BLOCKED")
 
 		elseif isAtWar then		-- War
@@ -459,12 +467,12 @@ function GetCityStateStatusToolTip( majorPlayerID, minorPlayerID, isFullInfo )
 				table_insert( tips, L("TXT_KEY_CSTATE_CANNOT_BULLY", minorPlayer:GetMajorBullyValue(majorPlayerID)) )
 			end
 		end
--- CBP
-		local iJerk = minorPlayer:GetJerk(majorPlayerID);
-		if(iJerk > 0) then
-			table_insert( tips, L("TXT_KEY_CSTATE_JERK_STATUS", iJerk ))
+
+		local iJerkTurnsRemaining = minorPlayer:GetJerkTurnsRemaining(majorPlayerID);
+		if (iJerkTurnsRemaining > 0) then
+			table_insert( tips, L("TXT_KEY_CSTATE_JERK_STATUS", iJerkTurnsRemaining))
 		end
--- END
+
 		if isFullInfo then
 			-- Bonuses
 			local bonuses = GetCityStateBonuses( majorPlayerID, minorPlayerID )
@@ -689,7 +697,7 @@ else
 	end
 end
 
-local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
+local function QuestString(majorPlayerID, minorPlayer, questID, questData1, questData2)
 	if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_ROUTE then
 		return L( "TXT_KEY_CITY_STATE_QUEST_ROUTE_FORMAL" )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_KILL_CAMP then
@@ -704,6 +712,8 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 		return L( "TXT_KEY_CITY_STATE_QUEST_KILL_CITY_STATE_FORMAL", Players[questData1]:GetNameKey() )
 	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_PLAYER then
 		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_PLAYER_FORMAL", Players[questData1]:GetCivilizationShortDescriptionKey() )
+	elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY then
+		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_FORMAL", minorPlayer:GetTargetCityString(majorPlayerID , questID ))
 	elseif civ5_mode and questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_NATURAL_WONDER then
 		return L( "TXT_KEY_CITY_STATE_QUEST_FIND_NATURAL_WONDER_FORMAL" )
 	elseif gk_mode then
@@ -759,7 +769,7 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER then
 			return L( "TXT_KEY_CITY_STATE_QUEST_CONSTRUCT_NATIONAL_WONDER_FORMAL", GameInfo.Buildings[questData1].Description )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT then
-			return L( "TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL", GameInfo.Units[questData1].Description )
+			return L( "TXT_KEY_CITY_STATE_QUEST_GIFT_SPECIFIC_UNIT_FORMAL", GameInfo.Units[questData1].Description, questData2 )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_FIND_CITY_STATE then
 			return L( "TXT_KEY_CITY_STATE_QUEST_FIND_CITY_STATE_FORMAL", Players[questData1]:GetNameKey() )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_INFLUENCE then
@@ -769,21 +779,21 @@ local function QuestString(majorPlayerID, minorPlayer, questID, questData1)
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_CIRCUMNAVIGATION then
 			return L( "TXT_KEY_CITY_STATE_QUEST_CIRCUMNAVIGATION_FORMAL" )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_LIBERATION then
-			return L( "TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL", Players[questData1]:GetNameKey() )
+			return L( "TXT_KEY_CITY_STATE_QUEST_LIBERATION_FORMAL" , minorPlayer:GetTargetCityString(majorPlayerID , questID ))
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_HORDE then
 			return L( "TXT_KEY_CITY_STATE_QUEST_HORDE_FORMAL" )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_REBELLION then
 			return L( "TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL" )
-		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT then
-			return L( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_PLOT_FORMAL", minorPlayer:GetExplorePercent(majorPlayerID , questID) )
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA then
+			return L( "TXT_KEY_CITY_STATE_QUEST_EXPLORE_AREA_FORMAL", minorPlayer:GetExplorePercent(majorPlayerID , questID) )
 		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_BUILD_X_BUILDINGS then
-			return L( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_BUILD_X_BUILDINGS_FORMAL", GameInfo.Buildings[questData1].Description, minorPlayer:GetXQuestBuildingRemaining(majorPlayerID, questID, questData1 ) )
-		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_STEAL_FROM then
-			return L( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_STEAL_FROM_FORMAL", Players[questData1]:GetNameKey(), minorPlayer:QuestSpyActionsRemaining(majorPlayerID, questID) )
-		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_COUP_CITY then
-			return L( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_COUP_CITY_FORMAL", Players[questData1]:GetNameKey() )
-		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY then
-			return L( "TXT_KEY_CITY_STATE_QUEST_DISCOVER_GET_CITY_FORMAL" , minorPlayer:GetTargetCityString(majorPlayerID , questID ))
+			return L( "TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL", GameInfo.Buildings[questData1].Description, minorPlayer:GetXQuestBuildingRemaining(majorPlayerID, questID, questData1 ) )
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_SPY_ON_MAJOR then
+			return L( "TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL", Players[questData1]:GetNameKey(), minorPlayer:QuestSpyActionsRemaining(majorPlayerID, questID) )
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_COUP then
+			return L( "TXT_KEY_CITY_STATE_QUEST_COUP_FORMAL", Players[questData1]:GetNameKey() )
+		elseif questID == MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY then
+			return L( "TXT_KEY_CITY_STATE_QUEST_ACQUIRE_CITY_FORMAL" , minorPlayer:GetTargetCityString(majorPlayerID , questID ))
 -- END
 		elseif bnw_mode then
 			if questID == MinorCivQuestTypes.MINOR_CIV_QUEST_TRADE_ROUTE then
@@ -813,7 +823,8 @@ if gk_mode then
 
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
 					local questData1 = minorPlayer:GetQuestData1(majorPlayerID, questID)
-					local questString = QuestString(majorPlayerID, minorPlayer, questID, questData1)
+					local questData2 = minorPlayer:GetQuestData2(majorPlayerID, questID)
+					local questString = QuestString(majorPlayerID, minorPlayer, questID, questData1, questData2)
 					local turnsRemaining = minorPlayer:GetQuestTurnsRemaining(majorPlayerID, questID, Game_GetGameTurn() - 1)	-- add 1 since began on CS's turn (1 before), and avoids "0 turns remaining"
 					if turnsRemaining >= 0 then
 						questString = questString .. " " .. L( "TXT_KEY_CITY_STATE_QUEST_TURNS_REMAINING_FORMAL", turnsRemaining )
@@ -859,7 +870,7 @@ else
 		if minorPlayer then
 			local questID = minorPlayer:GetActiveQuestForPlayer(majorPlayerID)
 			if questID and questID >= 0 then
-				return QuestString( majorPlayerID, minorPlayer, questID, minorPlayer:GetQuestData1(majorPlayerID) )
+				return QuestString( majorPlayerID, minorPlayer, questID, minorPlayer:GetQuestData1(majorPlayerID), minorPlayer:GetQuestData2(majorPlayerID) )
 			end
 		else
 			print("Lua error - invalid player index")

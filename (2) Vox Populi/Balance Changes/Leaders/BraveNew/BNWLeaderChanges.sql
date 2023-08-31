@@ -13,8 +13,7 @@ VALUES
 	('TRAIT_GATEWAY_AFRICA', 'YIELD_SCIENCE', 1),
 	('TRAIT_GATEWAY_AFRICA', 'YIELD_FAITH', 1),
 	('TRAIT_GATEWAY_AFRICA', 'YIELD_FOOD', 1),
-	('TRAIT_GATEWAY_AFRICA', 'YIELD_PRODUCTION', 1),
-	('TRAIT_GATEWAY_AFRICA', 'YIELD_GOLDEN_AGE_POINTS', 1);
+	('TRAIT_GATEWAY_AFRICA', 'YIELD_PRODUCTION', 1);
 
 UPDATE Improvement_Yields
 SET Yield = '2'
@@ -179,25 +178,12 @@ SET PrereqTech = 'TECH_COMPASS'
 WHERE Type = 'BUILD_FEITORIA';
 
 UPDATE Improvements
-SET GrantsVisionXTiles = '2'
-WHERE Type = 'IMPROVEMENT_FEITORIA';
-
-UPDATE Improvements
-SET OnlyCityStateTerritory = '0'
-WHERE Type = 'IMPROVEMENT_FEITORIA';
-
-UPDATE Improvements
-SET NoTwoAdjacent = '1'
-WHERE Type = 'IMPROVEMENT_FEITORIA';
-
-UPDATE Improvements
-SET DefenseModifier = '25'
+SET GrantsVisionXTiles = 2, OnlyCityStateTerritory = 0, NoTwoAdjacent = 1, DefenseModifier = 25, MakesPassable = 1
 WHERE Type = 'IMPROVEMENT_FEITORIA';
 
 UPDATE Traits
 SET TradeRouteResourceModifier = '0'
 WHERE Type = 'TRAIT_EXTRA_TRADE';
-
 
 -- Shoshone
 UPDATE Traits
@@ -229,11 +215,6 @@ INSERT INTO Building_ResourceQuantity
 	(BuildingType, ResourceType, Quantity)
 VALUES
 	('BUILDING_DUCAL_STABLE', 'RESOURCE_HORSE', 1);
-
-INSERT INTO Building_InstantYield
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_DUCAL_STABLE', 'YIELD_CULTURE', 100);
 
 DELETE FROM Building_LocalResourceOrs
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE';
@@ -311,9 +292,9 @@ VALUES
 	('IMPROVEMENT_BRAZILWOOD_CAMP', 'RESOURCE_BRAZILWOOD', '1', '1', '0', '0');
 
 INSERT INTO Units
-	(Class, Type, Combat, Cost, FaithCost, WorkRate, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, NoBadGoodies, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate, BaseSightRange)
+	(Class, Type, Combat, Cost, FaithCost, WorkRate, RequiresFaithPurchaseEnabled, Moves, PrereqTech, ObsoleteTech, CombatClass, Domain, DefaultUnitAI, Description, Civilopedia, Strategy, Help, Pillage, MilitarySupport, GoodyHutUpgradeUnitClass, MilitaryProduction, AdvancedStartCost, XPValueAttack, XPValueDefense, UnitArtInfo, UnitFlagAtlas, UnitFlagIconOffset, PortraitIndex, IconAtlas, MoveRate, BaseSightRange)
 VALUES
-	('UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES', 19, 180, 200, 100, 1, 4, 'TECH_COMPASS', 'TECH_ROCKETRY', 'UNITCOMBAT_RECON', 'DOMAIN_LAND', 1, 'UNITAI_EXPLORE', 'TXT_KEY_UNIT_BANDEIRANTES', 'TXT_KEY_UNIT_BANDEIRANTES_TEXT', 'TXT_KEY_UNIT_BANDEIRANTES_STRATEGY', 'TXT_KEY_UNIT_BANDEIRANTES_HELP', 1, 1, 'UNITCLASS_COMMANDO', 1, 30, 3, 3, 'ART_DEF_UNIT_BANDEIRANTES', 'BANDEIRANTES_FLAG_ATLAS', 0, 4, 'COMMUNITY_2_ATLAS', 'BIPED', 3);
+	('UNITCLASS_EXPLORER', 'UNIT_BANDEIRANTES', 19, 180, 200, 100, 1, 4, 'TECH_COMPASS', 'TECH_ROCKETRY', 'UNITCOMBAT_RECON', 'DOMAIN_LAND', 'UNITAI_EXPLORE', 'TXT_KEY_UNIT_BANDEIRANTES', 'TXT_KEY_UNIT_BANDEIRANTES_TEXT', 'TXT_KEY_UNIT_BANDEIRANTES_STRATEGY', 'TXT_KEY_UNIT_BANDEIRANTES_HELP', 1, 1, 'UNITCLASS_COMMANDO', 1, 30, 3, 3, 'ART_DEF_UNIT_BANDEIRANTES', 'BANDEIRANTES_FLAG_ATLAS', 0, 4, 'COMMUNITY_2_ATLAS', 'BIPED', 3);
 
 INSERT INTO UnitGameplay2DScripts
 	(UnitType, SelectionSound, FirstSelectionSound)
@@ -338,10 +319,6 @@ VALUES
 
 UPDATE Traits
 SET CSBullyMilitaryStrengthModifier = '50'
-WHERE Type = 'TRAIT_BUFFALO_HORNS';
-
-UPDATE Traits
-SET CSBullyValueModifier = '0'
 WHERE Type = 'TRAIT_BUFFALO_HORNS';
 
 UPDATE Traits

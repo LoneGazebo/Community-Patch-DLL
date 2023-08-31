@@ -231,10 +231,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		int iDefenderMaxHP = pkDefender->GetMaxHitPoints();
 
 		int iDefenderStrength = pkDefender->GetMaxDefenseStrength(&plot, &kAttacker, kAttacker.plot());
-		int iAttackerStrength = 0;
-		if(kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true) > 0 && kAttacker.getDomainType() == DOMAIN_AIR)
+		int iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true);
+		if(iAttackerStrength > 0 && kAttacker.getDomainType() == DOMAIN_AIR)
 		{
-			iAttackerStrength = kAttacker.GetMaxRangedCombatStrength(NULL, /*pCity*/ NULL, true);
 			if(pkDefender->getDomainType() != DOMAIN_AIR)
 			{
 				iDefenderStrength /= 2;
@@ -269,15 +268,11 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 			if (iAttackerDamageInflicted <= 0)
 				iAttackerDamageInflicted = 0;
 		}
+
 		//Chance to spread promotion?
-		if(kAttacker.getPlagueChance() > 0)
-		{
-			kAttacker.DoPlagueTransfer(*pkDefender);
-		}
-		if (pkDefender->getPlagueChance() > 0 && !pkDefender->IsCanAttackRanged())
-		{
+		kAttacker.DoPlagueTransfer(*pkDefender);
+		if (!pkDefender->IsCanAttackRanged())
 			pkDefender->DoPlagueTransfer(kAttacker);
-		}
 #endif
 		int iAttackerTotalDamageInflicted = iAttackerDamageInflicted + pkDefender->getDamage();
 		int iDefenderTotalDamageInflicted = iDefenderDamageInflicted + kAttacker.getDamage();
@@ -308,15 +303,15 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		// Fear Damage
 		pkCombatInfo->setFearDamageInflicted(BATTLE_UNIT_ATTACKER, kAttacker.getCombatDamage(iAttackerStrength, iDefenderStrength, bIncludeRand, false, true));
 
-		int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
-		iAttackerEffectiveStrength = iAttackerEffectiveStrength > 0 ? iAttackerEffectiveStrength : 1;
-		int iDefenderEffectiveStrength = iDefenderStrength * (iDefenderMaxHP - range(pkDefender->getDamage(), 0, iDefenderMaxHP - 1)) / iDefenderMaxHP;
-		iDefenderEffectiveStrength = iDefenderEffectiveStrength > 0 ? iDefenderEffectiveStrength : 1;
+		// int iAttackerEffectiveStrength = iAttackerStrength * (iAttackerMaxHP - range(kAttacker.getDamage(), 0, iAttackerMaxHP - 1)) / iAttackerMaxHP;
+		// iAttackerEffectiveStrength = iAttackerEffectiveStrength > 0 ? iAttackerEffectiveStrength : 1;
+		// int iDefenderEffectiveStrength = iDefenderStrength * (iDefenderMaxHP - range(pkDefender->getDamage(), 0, iDefenderMaxHP - 1)) / iDefenderMaxHP;
+		// iDefenderEffectiveStrength = iDefenderEffectiveStrength > 0 ? iDefenderEffectiveStrength : 1;
 
 		//int iExperience = kAttacker.defenseXPValue();
 		//iExperience = ((iExperience * iAttackerEffectiveStrength) / iDefenderEffectiveStrength); // is this right? looks like more for less [Jon: Yes, it's XP for the defender]
-		//iExperience = range(iExperience, GC.getMIN_EXPERIENCE_PER_COMBAT(), GC.getMAX_EXPERIENCE_PER_COMBAT());
-		int iExperience = /*4*/ GC.getEXPERIENCE_DEFENDING_UNIT_MELEE();
+		//iExperience = range(iExperience, GD_INT_GET(MIN_EXPERIENCE_PER_COMBAT), GD_INT_GET(MAX_EXPERIENCE_PER_COMBAT));
+		int iExperience = /*4*/ GD_INT_GET(EXPERIENCE_DEFENDING_UNIT_MELEE);
 		pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, iExperience);
 		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, kAttacker.maxXPValue());
 		pkCombatInfo->setInBorders(BATTLE_UNIT_DEFENDER, plot.getOwner() == pkDefender->getOwner());
@@ -333,7 +328,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		pkCombatInfo->setUpdateGlobal(BATTLE_UNIT_DEFENDER, !kAttacker.isBarbarian());
 #endif
 		//iExperience = ((iExperience * iDefenderEffectiveStrength) / iAttackerEffectiveStrength);
-		//iExperience = range(iExperience, GC.getMIN_EXPERIENCE_PER_COMBAT(), GC.getMAX_EXPERIENCE_PER_COMBAT());
+		//iExperience = range(iExperience, GD_INT_GET(MIN_EXPERIENCE_PER_COMBAT), GD_INT_GET(MAX_EXPERIENCE_PER_COMBAT));
 		iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_UNIT_MELEE);
 		pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkDefender->maxXPValue());
@@ -367,9 +362,12 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 				pkCombatInfo->setDefenderCaptured(true);
 			}
 		}
-		else if (kAttacker.IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && (iAttackerDamageInflicted > iDefenderDamageInflicted) )
+		else if (kAttacker.IsCanHeavyCharge() && !pkDefender->isDelayedDeath())
 		{
-			bAdvance = true;
+			if (!MOD_BALANCE_VP && iAttackerTotalDamageInflicted > iDefenderTotalDamageInflicted)
+				bAdvance = true;
+			if (MOD_BALANCE_VP && iAttackerStrength > iDefenderStrength)
+				bAdvance = true;
 		}
 
 		if (kAttacker.plot()->isFortification(kAttacker.getTeam()))
@@ -377,6 +375,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 
 		pkCombatInfo->setAttackerAdvances(bAdvance);
 		pkCombatInfo->setDefenderRetaliates(true);
+		pkCombatInfo->setAttackerIsStronger(iAttackerStrength > iDefenderStrength);
 	}
 
 	GC.GetEngineUserInterface()->setDirty(UnitInfo_DIRTY_BIT, true);
@@ -627,12 +626,18 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		{
 			if(pkTargetPlot)
 			{
-				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath() && bAttackerDidMoreDamage)
+				if (pkAttacker->IsCanHeavyCharge() && !pkDefender->isDelayedDeath())
 				{
 					if (MOD_ATTRITION && (pkDefender->plot()->isFortification(pkDefender->getTeam()) || pkDefender->plot()->HasBarbarianCamp()))
 					{ }
-					else
+					else if (!MOD_BALANCE_VP && bAttackerDidMoreDamage)
+					{
 						pkDefender->DoFallBack(*pkAttacker);
+					}
+					else if (MOD_BALANCE_VP && kCombatInfo.getAttackerIsStronger())
+					{
+						pkDefender->DoFallBack(*pkAttacker);
+					}
 					//no notifications?
 				}
 
@@ -741,10 +746,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvUnit& kAttacker, CvUnit* pkDefende
 		iTotalDamage = std::max(pkDefender->getDamage(), pkDefender->getDamage() + iDamage);
 
 		//Chance to spread promotion?
-		if (kAttacker.getPlagueChance() > 0)
-		{
-			kAttacker.DoPlagueTransfer(*pkDefender);
-		}
+		kAttacker.DoPlagueTransfer(*pkDefender);
 	}
 	else
 	{
@@ -1075,7 +1077,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 						}
 						strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_ARE_ATTACKED_BY_AIR", pkDefender->getNameKey(), pkAttacker->getNameKey(), iDamage);
 #if defined(MOD_BALANCE_CORE)
-						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->CanFallBack(*pkAttacker,false))
+						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->GetNumFallBackPlotsAvailable(*pkAttacker) > 0)
 						{
 							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
@@ -2256,7 +2258,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 
 		//int iExperience = kAttacker.defenseXPValue();
 		//iExperience = ((iExperience * iAttackerEffectiveStrength) / iDefenderEffectiveStrength); // is this right? looks like more for less [Jon: Yes, it's XP for the defender]
-		//iExperience = range(iExperience, GC.getMIN_EXPERIENCE_PER_COMBAT(), GC.getMAX_EXPERIENCE_PER_COMBAT());
+		//iExperience = range(iExperience, GD_INT_GET(MIN_EXPERIENCE_PER_COMBAT), GD_INT_GET(MAX_EXPERIENCE_PER_COMBAT));
 		pkCombatInfo->setExperience(BATTLE_UNIT_DEFENDER, iDefenderExperience);
 		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_ATTACKER, pkDefender->maxXPValue());
 		pkCombatInfo->setInBorders(BATTLE_UNIT_ATTACKER, plot.getOwner() == pkDefender->getOwner());
@@ -2275,7 +2277,7 @@ void CvUnitCombat::GenerateAirSweepCombatInfo(CvUnit& kAttacker, CvUnit* pkDefen
 #endif
 
 		//iExperience = ((iExperience * iDefenderEffectiveStrength) / iAttackerEffectiveStrength);
-		//iExperience = range(iExperience, GC.getMIN_EXPERIENCE_PER_COMBAT(), GC.getMAX_EXPERIENCE_PER_COMBAT());
+		//iExperience = range(iExperience, GD_INT_GET(MIN_EXPERIENCE_PER_COMBAT), GD_INT_GET(MAX_EXPERIENCE_PER_COMBAT));
 		int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_AIR_SWEEP);
 		pkCombatInfo->setExperience(BATTLE_UNIT_ATTACKER, iExperience);
 		pkCombatInfo->setMaxExperienceAllowed(BATTLE_UNIT_DEFENDER, kAttacker.maxXPValue());
@@ -3758,9 +3760,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 	CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
-	if(pDefender->getExtraWithdrawal() > 0 && pDefender->CanFallBack(kAttacker,true))
+	if(pDefender->CheckWithdrawal(kAttacker))
 	{
-		pDefender->DoFallBack(kAttacker);
+		pDefender->DoFallBack(kAttacker, true);
 
 		if(kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{

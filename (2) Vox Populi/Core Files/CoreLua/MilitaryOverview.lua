@@ -125,34 +125,47 @@ function UpdateScreen()
     Controls.GAMeter:SetPercent( fProgress / fThreshold );
     Controls.GABox:LocalizeAndSetToolTip( "TXT_KEY_MO_ADMIRAL_TT", fProgress, fThreshold );
     
-    --------------------------------------------------------
-    -- Supply Details
-    Controls.HandicapSupplyValue:SetText(   pPlayer:GetNumUnitsSuppliedByHandicap() );
-    Controls.CitiesSupplyValue:SetText(     pPlayer:GetNumUnitsSuppliedByCities() );
-    Controls.PopulationSupplyValue:SetText( pPlayer:GetNumUnitsSuppliedByPopulation() );
-	Controls.WarWearinessReductionValue:SetText( -pPlayer:GetWarWearinessSupplyReduction() );
-	Controls.TechReductionValue:SetText( -pPlayer:GetTechSupplyReduction() );
-    Controls.SupplyCapValue:SetText(        pPlayer:GetNumUnitsSupplied() );
-	-- CBP
-	Controls.SupplyUseValue:SetText(        pPlayer:GetNumUnitsToSupply() );
-	-- END
-    local iSupplyDeficit = pPlayer:GetNumUnitsOutOfSupply();
-    local bInDeficit = (iSupplyDeficit ~= 0 );
-    
-    if( not bInDeficit ) then
-	--CBP
-		Controls.SupplyRemainingValue:SetText( pPlayer:GetNumUnitsSupplied() - pPlayer:GetNumUnitsToSupply() );
-	-- END
-    else
-	    Controls.SupplyDeficitValue:SetText( iSupplyDeficit );
-	    Controls.SupplyDeficitPenaltyValue:SetText( pPlayer:GetUnitProductionMaintenanceMod() .. "%" );
-    end
-    
-    Controls.SupplyRemaining:SetHide( bInDeficit );
-    Controls.SupplyDeficit:SetHide( not bInDeficit );
-    Controls.DeficitPenalty:SetHide( not bInDeficit );
-    
-    
+	--------------------------------------------------------
+	-- Supply Details
+	local iUnitSupplyMod = pPlayer:GetUnitProductionMaintenanceMod();
+	local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
+	local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
+	local iUnitsTotalMilitary = pPlayer:GetNumMilitaryUnits();
+	local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
+	local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
+	local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
+	local iWarWearinessReduction = pPlayer:GetWarWeariness();
+	local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
+	local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
+	local iTechReduction = pPlayer:GetTechSupplyReduction();
+	local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
+
+	-- Bonuses from unlisted sources are added to the handicap value
+	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople + iTechReduction + iWarWearinessActualReduction);
+	iPerHandicap = iPerHandicap + iExtra;
+
+	Controls.HandicapSupplyValue:SetText(iPerHandicap);
+	Controls.CitiesSupplyValue:SetText(iPerCity);
+	Controls.PopulationSupplyValue:SetText(iPercentPerPop);
+	Controls.GreatPeopleSupplyValue:SetText(iSupplyFromGreatPeople);
+	Controls.WarWearinessReductionValue:SetText(-iWarWearinessActualReduction);
+	Controls.TechReductionValue:SetText(-iTechReduction);
+	Controls.SupplyCapValue:SetText(iUnitsSupplied);
+	Controls.SupplyUseValue:SetText(iUnitsTotal);
+
+	if (iUnitsOver ~= 0) then
+		Controls.SupplyDeficit:SetHide(false);
+		Controls.DeficitPenalty:SetHide(false);
+		Controls.SupplyRemaining:SetHide(true);
+		Controls.SupplyDeficitValue:SetText(iUnitsOver);
+		Controls.SupplyDeficitPenaltyValue:SetText(iUnitSupplyMod .. "%");
+	else
+		Controls.SupplyDeficit:SetHide(true);
+		Controls.DeficitPenalty:SetHide(true);
+		Controls.SupplyRemaining:SetHide(false);
+		Controls.SupplyRemainingValue:SetText(iUnitsSupplied - iUnitsTotal);
+	end
+
     --------------------------------------------------------
     -- Unit List
 

@@ -1163,6 +1163,8 @@ public:
 	void triggerFortifyAnimation(bool bState);
 	bool IsFortified() const;
 	void SetFortified(bool bValue);
+	bool getHasWithdrawnThisTurn() const;
+	void setHasWithdrawnThisTurn(bool bNewValue);
 	
 	int DoAdjacentPlotDamage(CvPlot* pWhere, int iValue, const char* chTextKey = NULL);
 
@@ -1208,7 +1210,13 @@ public:
 
 	int getAOEDamageOnKill() const;
 	void changeAOEDamageOnKill(int iChange);
-	
+
+	int getAOEDamageOnPillage() const;
+	void changeAOEDamageOnPillage(int iChange);
+
+	int getPartialHealOnPillage() const;
+	void changePartialHealOnPillage(int iChange);
+
 	int getAoEDamageOnMove() const;
 	void changeAoEDamageOnMove(int iChange);
 
@@ -1268,28 +1276,15 @@ public:
 	int getExtraWithdrawal() const;
 	void changeExtraWithdrawal(int iChange);
 
-#if defined(MOD_BALANCE_CORE_JFD)
-	int getPlagueChance() const;
-	void changePlagueChance(int iChange);
-
-	int getPlaguePromotionID() const;
-	void setPlagued(bool bValue);
-	bool isPlagued() const;
-
-	int getPlagueID() const;
-	void setPlagueID(int iValue);
-
-	int getPlaguePriority() const;
-	void setPlaguePriority(int iValue);
-
-	int getPlagueIDImmunity() const;
-	void setPlagueIDImmunity(int iValue);
-
-	int getPlaguePromotion() const;
-	void setPlaguePromotion(int iValue);
-
+	// Plague Stuff
+	std::vector<int> GetInflictedPlagueIDs() const;
+	PromotionTypes GetInflictedPlague(int iPlagueID, int& iPlagueChance) const;
+	bool HasPlague(int iPlagueID = -1, int iMinimumPriority = -1) const;
+	void RemovePlague(int iPlagueID = -1, int iHigherPriority = -1);
+	bool ImmuneToPlague(int iPlagueID = -1) const;
 	bool CanPlague(CvUnit* pOtherUnit) const;
 
+#if defined(MOD_BALANCE_CORE_JFD)
 	void setContractUnit(ContractTypes eContract);
 	bool isContractUnit() const;
 	ContractTypes getContract() const;
@@ -2089,6 +2084,7 @@ protected:
 	int m_iCombatTimer;
 	int m_iCombatFirstStrikes;
 	bool m_bMovedThisTurn;
+	bool m_bHasWithdrawnThisTurn;
 	bool m_bFortified;
 	int m_iBlitzCount;
 	int m_iAmphibCount;
@@ -2116,7 +2112,9 @@ protected:
 	int m_iEmbarkFlatCostCount;
 	int m_iDisembarkFlatCostCount;
 	int m_iAOEDamageOnKill;
+	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
+	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
 	int m_iMultiAttackBonus;
 	int m_iLandAirDefenseValue;
@@ -2135,12 +2133,6 @@ protected:
 	int m_iExtraChanceFirstStrikes;
 	int m_iExtraWithdrawal;
 #if defined(MOD_BALANCE_CORE_JFD)
-	int m_iPlagueChance;
-	bool m_bIsPlagued;
-	int m_iPlagueID;
-	int m_iPlaguePriority;
-	int m_iPlagueIDImmunity;
-	int m_iPlaguePromotion;
 	ContractTypes m_eUnitContract;
 	int m_iNegatorPromotion;
 #endif
@@ -2479,9 +2471,10 @@ protected:
 	void RemoveCargoPromotions(CvUnit& cargounit);
 #endif
 
-	bool CanFallBack(const CvUnit& pAttacker, bool bCheckChances) const;
-	int  GetWithdrawChance(const CvUnit& pAttacker, const bool bCheckChances) const;
-	bool DoFallBack(const CvUnit& pAttacker);
+	int  GetNumFallBackPlotsAvailable(const CvUnit& pAttacker) const;
+	int  GetWithdrawChance(const CvUnit& pAttacker) const;
+	bool CheckWithdrawal(const CvUnit& pAttacker) const;
+	bool DoFallBack(const CvUnit& pAttacker, bool bWithdraw = false);
 
 private:
 
@@ -2548,6 +2541,7 @@ SYNC_ARCHIVE_VAR(int, m_iAttackPlotY)
 SYNC_ARCHIVE_VAR(int, m_iCombatTimer)
 SYNC_ARCHIVE_VAR(int, m_iCombatFirstStrikes)
 SYNC_ARCHIVE_VAR(bool, m_bMovedThisTurn)
+SYNC_ARCHIVE_VAR(bool, m_bHasWithdrawnThisTurn)
 SYNC_ARCHIVE_VAR(bool, m_bFortified)
 SYNC_ARCHIVE_VAR(int, m_iBlitzCount)
 SYNC_ARCHIVE_VAR(int, m_iAmphibCount)
@@ -2572,7 +2566,9 @@ SYNC_ARCHIVE_VAR(int, m_iMountainsDoubleMoveCount)
 SYNC_ARCHIVE_VAR(int, m_iEmbarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iDisembarkFlatCostCount)
 SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnKill)
+SYNC_ARCHIVE_VAR(int, m_iAOEDamageOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iAoEDamageOnMove)
+SYNC_ARCHIVE_VAR(int, m_iPartialHealOnPillage)
 SYNC_ARCHIVE_VAR(int, m_iSplashDamage)
 SYNC_ARCHIVE_VAR(int, m_iMultiAttackBonus)
 SYNC_ARCHIVE_VAR(int, m_iLandAirDefenseValue)
@@ -2587,12 +2583,6 @@ SYNC_ARCHIVE_VAR(int, m_iExtraEvasion)
 SYNC_ARCHIVE_VAR(int, m_iExtraFirstStrikes)
 SYNC_ARCHIVE_VAR(int, m_iExtraChanceFirstStrikes)
 SYNC_ARCHIVE_VAR(int, m_iExtraWithdrawal)
-SYNC_ARCHIVE_VAR(int, m_iPlagueChance)
-SYNC_ARCHIVE_VAR(bool, m_bIsPlagued)
-SYNC_ARCHIVE_VAR(int, m_iPlagueID)
-SYNC_ARCHIVE_VAR(int, m_iPlaguePriority)
-SYNC_ARCHIVE_VAR(int, m_iPlagueIDImmunity)
-SYNC_ARCHIVE_VAR(int, m_iPlaguePromotion)
 SYNC_ARCHIVE_VAR(ContractTypes, m_eUnitContract)
 SYNC_ARCHIVE_VAR(int, m_iNegatorPromotion)
 SYNC_ARCHIVE_VAR(bool, m_bIsNoMaintenance)

@@ -37,5 +37,7 @@
     <glyph ch="24" u="22" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
     <glyph ch="25" u="44" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
 	<glyph ch="26" u="66" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+	<glyph ch="27" u="88" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
+	<glyph ch="28" u="110" v="48" width="22" height="22" a="0" b="22" c="0" originx="0" originy="22" />
   </glyphs>
 </glyphgen>

@@ -273,7 +273,7 @@
 	UPDATE Language_en_US SET Text = 'This order will remove the presence of other religions from the nearby, friendly-controlled city. An inquisitor is consumed by this action.' WHERE Tag = 'TXT_KEY_MISSION_REMOVE_HERESY_HELP';
 	-- Archaeologist Text
 
-	UPDATE Language_en_US SET Text = 'Maximum [COLOR_POSITIVE_TEXT]3[ENDCOLOR] active Archaeologists per player at any one time. Archaeologists are a special subtype of Worker that are used to excavate Antiquity Sites to either create Landmark improvements or to extract [ICON_VP_ARTIFACT] Artifacts to fill in [ICON_GREAT_WORK] Great Work of Art slots in Museums, Palaces, Hermitages, and selected Wonders. Archaeologists may work in territory owned by any player. They are consumed once they complete an Archaeological Dig at an Antiquity Site. Archaeologists may not be purchased with [ICON_GOLD] Gold and may only be built in a City with a [COLOR_POSITIVE_TEXT]Public School[ENDCOLOR].' WHERE Tag = 'TXT_KEY_UNIT_HELP_ARCHAEOLOGIST';
+	UPDATE Language_en_US SET Text = 'Maximum [COLOR_POSITIVE_TEXT]3[ENDCOLOR] active Archaeologists per player at any one time. Archaeologists are a special subtype of Worker that are used to excavate Antiquity Sites to either create Landmark improvements or to extract [ICON_VP_ARTIFACT] Artifacts to fill in [ICON_GREAT_WORK] Great Work of Art slots in Museums, Palaces, Hermitages, and selected Wonders. Archaeologists may work in territory owned by any player. They are consumed once they complete an Archaeological Dig at an Antiquity Site. Archaeologists may not be purchased with [ICON_GOLD] Gold and may only be built in a City with a [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MUSEUM}[ENDCOLOR].' WHERE Tag = 'TXT_KEY_UNIT_HELP_ARCHAEOLOGIST';
 
 	UPDATE Language_en_US
 	SET Text = 'A town is a human settlement larger than a village but smaller than a city. The size definition for what constitutes a "town" varies considerably in different parts of the world. The word town shares an origin with the German word Zaun, the Dutch word tuin, and the Old Norse tun. The German word Zaun comes closest to the original meaning of the word: a fence of any material.[NEWLINE][NEWLINE]Towns receive +2 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production if built on a Road that connects two owned Cities, and +4 [ICON_GOLD] and [ICON_PRODUCTION] Production if a Railroad. Receive additional [ICON_GOLD] Gold and [ICON_PRODUCTION] Production (+2 for Roads, +4 for Railroads) if a Trade Route, either internal or international, passes over this Town.'
@@ -522,6 +522,23 @@
 	-- Naval Units
 
 	INSERT INTO Language_en_US (Tag, Text)
+		VALUES 	('TXT_KEY_UNIT_GALLEY_HELP', 'Ancient Era Naval Unit used to wrest control of the seas.');
+	
+	UPDATE Language_en_US
+	SET Text = 'A galley is any type of ship that is mainly propelled by oars. Many galleys also used sails in favorable winds, but rowing with oars was relied on for maneuvering and for independence from wind power. The plan and size of galleys varied greatly from ancient times, but early vessels were often small enough to be picked up and carried onto shore when not in use, and were multipurpose vessels, used in both trade and warfare.'
+	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_PEDIA';
+	
+	UPDATE Language_en_US
+	SET Text = 'Galleys are the earliest naval unit. They are slow and weak, but can be used to establish an early naval presence. Use Galleys to protect your cities from early Barbarian incursions.'
+	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_STRATEGY';
+
+	INSERT INTO Language_en_US (Tag, Text)
+		VALUES 	('TXT_KEY_UNIT_LIBURNA', 			'Liburna'),
+				('TXT_KEY_UNIT_LIBURNA_HELP', 		'Dominant Classical Era Naval Unit used to own the seas well into the Medieval Era with its ranged attack.'),
+				('TXT_KEY_UNIT_LIBURNA_PEDIA', 		'A Liburna was a small, fast type of Galley used for raiding and patrols in the Mediterranean sea. First invented by Liburnians in present-day Dalmatia, the Liburna was later adopted by the Roman Navy as an agile patrol ship against pirates.'), 
+				('TXT_KEY_UNIT_LIBURNA_STRATEGY', 	'Attacks with lethal barrages of arrows, making it the first naval unit with a ranged attack. It cannot end its turn in Ocean Tiles outside of the city borders.');
+	
+	INSERT INTO Language_en_US (Tag, Text)
 		VALUES ('TXT_KEY_DESC_CRUISER', 'Cruiser');
 
 	INSERT INTO Language_en_US (Tag, Text)
@@ -537,18 +554,6 @@
 	SET Text = 'Powerful Renaissance Era Naval Unit used to wrest control of the seas.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_FRIGATE';
 	
-	UPDATE Language_en_US
-	SET Text = 'The Galley is a Barbarian unit which remains in coast tiles, looking for embarked units to destroy. The Galley can annoy cities and units near the coast.'
-	WHERE Tag = 'TXT_KEY_UNIT_GALLEY_STRATEGY';
-
-	UPDATE Language_en_US
-	SET Text = 'Dominant Classical Era Naval Unit used to own the seas well into the Medieval Era with its ranged attack.'
-	WHERE Tag = 'TXT_KEY_UNIT_HELP_BYZANTINE_DROMON';
-
-	UPDATE Language_en_US
-	SET Text = 'Attacks with lethal Greek Fire, making it the first naval unit with a ranged attack. It cannot end its turn in Ocean Tiles outside of the city borders.'
-	WHERE Tag = 'TXT_KEY_UNIT_BYZANTINE_DROMON_STRATEGY';
-
 	UPDATE Language_en_US
 	SET Text = 'The Galleass is the second naval unit with a ranged attack available to the civilizations in the game. It is much stronger than earlier naval ships, and can enter the ocean. The Galleass is useful for clearing enemy ships out of shallow waters and supporting sieges.'
 	WHERE Tag = 'TXT_KEY_UNIT_GALLEASS_STRATEGY';
@@ -598,6 +603,10 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_TRIREME';
 
 	UPDATE Language_en_US
+	SET Text = 'The Trireme is the upgrade to the Galley. It is a melee attack unit, engaging naval units and coastal cities. The Trireme is good at clearing barbarian ships from your waters and for limited exploration (it cannot end its turn on Deep Ocean hexes outside of city borders unless you are Polynesia).'
+	WHERE Tag = 'TXT_KEY_UNIT_TRIREME_STRATEGY';
+	
+	UPDATE Language_en_US
 	SET Text = 'Initially carries 2 Aircraft; capacity may be boosted through promotions. Will intercept Enemy Aircraft which try to attack nearby Units.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]'
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_CARRIER';
 
@@ -618,7 +627,7 @@
 	WHERE Tag = 'TXT_KEY_UNIT_HELP_DESTROYER';
 	
 	UPDATE Language_en_US
-	SET Text = 'The Missile Cruiser is a modern warship. It''s fast and tough, carries a mean punch and is pretty good at intercepting enemy aircraft. Most importantly, the Missile Cruiser can carry Guided Missiles and Nuclear Missiles, allowing you to carry these deadly weapons right up to the enemy''s shore. Missile Cruisers combined with carriers, submarines, and battleships make a fiendishly powerful armada.'
+	SET Text = 'The Missile Cruiser is a modern warship. It''s fast and tough, carries a mean punch and is pretty good at intercepting enemy aircraft. Most importantly, the Missile Cruiser can carry Guided Missiles and Nuclear Missiles, allowing you to carry these deadly weapons right up to the enemy''s shore. Missile Cruisers combined with carriers, submarines, and battleships make a fiendishly powerful armada as its promotion to withdraw before an enemy naval melee attack can be a nuisance to take down.'
 	WHERE Tag = 'TXT_KEY_UNIT_MISSILE_CRUISER_STRATEGY';
 
 

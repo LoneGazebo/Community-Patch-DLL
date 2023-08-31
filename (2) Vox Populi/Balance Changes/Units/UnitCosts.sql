@@ -29,8 +29,8 @@
 	UPDATE Units SET Cost = '90' , FaithCost = '100' WHERE Type = 'UNIT_HORSEMAN';	
 	UPDATE Units SET Cost = '125', FaithCost = '100' WHERE Type = 'UNIT_CARTHAGINIAN_FOREST_ELEPHANT';
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
-
-	UPDATE Units SET Cost = '80' , FaithCost = '125' WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME'; -- available early, cheaper as benefit
+	
+	UPDATE Units SET Cost = '70',  FaithCost = '100' WHERE Type = 'UNIT_VP_GALLEY';
 
 --- Classical ---
 
@@ -46,8 +46,9 @@
 	UPDATE Units SET Cost = '100', FaithCost = '200' WHERE Type = 'UNIT_CATAPULT';
 	UPDATE Units SET Cost = '135', FaithCost = '200' WHERE Type = 'UNIT_DANISH_BERSERKER'; -- UNIT_PIKEMAN replacement, available early
 
-	UPDATE Units SET Cost = '90',  FaithCost = '250' WHERE Type = 'UNIT_TRIREME';
-	UPDATE Units SET Cost = '100', FaithCost = '250' WHERE Type = 'UNIT_BYZANTINE_DROMON';
+	UPDATE Units SET Cost = '120',  FaithCost = '250' WHERE Type = 'UNIT_TRIREME';
+	UPDATE Units SET Cost = '120' , FaithCost = '250' WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
+	UPDATE Units SET Cost = '100', FaithCost = '250' WHERE Type = 'UNIT_LIBURNA';
 
 --- Medieval ---
 
@@ -199,3 +200,51 @@
 	'UNIT_SWEDISH_CAROLEAN',
 	'UNIT_JAPANESE_ZERO',
 	'UNIT_AMERICAN_B17');
+
+CREATE TEMP TABLE UnitTechTier_FaithCost (
+	TechTier INTEGER,
+	UnitFaithCost INTEGER
+);
+
+INSERT INTO UnitTechTier_FaithCost
+VALUES
+	(0, 100),
+	(1, 100),
+	(2, 150),
+	(3, 200),
+	(4, 250),
+	(5, 300),
+	(6, 350),
+	(7, 400),
+	(8, 500),
+	(9, 600),
+	(10, 700),
+	(11, 800),
+	(12, 900),
+	(13, 1000),
+	(14, 1200),
+	(15, 1400),
+	(16, 1600),
+	(17, 1600);
+
+UPDATE Units
+SET FaithCost = (
+	SELECT UnitFaithCost FROM UnitTechTier_FaithCost WHERE TechTier = (
+		SELECT GridX FROM Technologies WHERE Type = PrereqTech
+	)
+)
+WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1)
+AND PurchaseOnly = 0
+AND EXISTS (
+	SELECT 1 FROM UnitTechTier_FaithCost WHERE TechTier = (
+		SELECT GridX FROM Technologies WHERE Type = PrereqTech
+	)
+);
+
+DROP TABLE UnitTechTier_FaithCost;
+
+UPDATE Units SET FaithCost = 200 WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
+UPDATE Units SET FaithCost = 320 WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';
+UPDATE Units SET FaithCost = 350 WHERE Type = 'UNIT_GERMAN_LANDSKNECHT';
+UPDATE Units SET FaithCost = 550 WHERE Type = 'UNIT_ETHIOPIAN_MEHAL_SEFARI';
+UPDATE Units SET FaithCost = 450 WHERE Type = 'UNIT_ARCHAEOLOGIST';

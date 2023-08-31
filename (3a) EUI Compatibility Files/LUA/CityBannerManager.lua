@@ -488,6 +488,47 @@ local g_cityToolTips = {
 			return L"TXT_KEY_CITY_PUPPET".."[NEWLINE][NEWLINE]"..L"TXT_KEY_CITY_ANNEX_TT"
 		end
 	end,
+	
+	CityIsCityState = function( city )
+		local cityOriginalOwner = Players[city:GetOriginalOwner()];	
+		local strTraitTT = "";
+		if (cityOriginalOwner ~= nil) then
+			local iTrait = cityOriginalOwner:GetMinorCivTrait();
+			if (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_CULTURED) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED");
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MILITARISTIC) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MILITARISTIC_NO_UU_TT_ANNEXED");
+				if (cityOriginalOwner:IsMinorCivHasUniqueUnit()) then
+					local eUniqueUnit = cityOriginalOwner:GetMinorCivUniqueUnit();
+					if (GameInfo.Units[eUniqueUnit] ~= nil) then
+						local ePrereqTech = GameInfo.Units[eUniqueUnit].PrereqTech;
+						if (ePrereqTech == nil) then
+							-- If no prereq then just make it Agriculture, but make sure that Agriculture is in our database. Otherwise, show the fallback tooltip.
+							if (GameInfo.Technologies["TECH_AGRICULTURE"] ~= nil) then
+								ePrereqTech = GameInfo.Technologies["TECH_AGRICULTURE"].ID;
+							end
+						end
+						
+						if (ePrereqTech ~= nil) then
+							if (GameInfo.Technologies[ePrereqTech] ~= nil) then
+								strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MILITARISTIC_TT_ANNEXED", GameInfo.Units[eUniqueUnit].Description, GameInfo.Technologies[ePrereqTech].Description);
+							end
+						end
+					else
+						print("Scripting error - City-State's unique unit not found!");
+					end
+				end
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MARITIME) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MARITIME_TT_ANNEXED");
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_MERCANTILE) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_MERCANTILE_TT_ANNEXED");
+			elseif (iTrait == MinorCivTraitTypes.MINOR_CIV_TRAIT_RELIGIOUS) then
+				strTraitTT = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED");
+			end
+		end
+		return strTraitTT;
+	end,
+	
 	CityIsRazing = function( city )
 		return L( "TXT_KEY_CITY_BURNING", city:GetRazingTurns() )
 	end,
@@ -528,7 +569,11 @@ local g_cityToolTips = {
 
 	CityIsUnhappy = function( city)
 		local delta = city:getHappinessDelta() * -1;
-		return L("TXT_KEY_CITY_UNHAPPY", delta) .. "[NEWLINE][NEWLINE]" .. L(city:GetCityUnhappinessBreakdown(false, true))
+		if (delta == 0) then
+			return L(city:GetCityUnhappinessBreakdown(false, true))
+		else
+			return L("TXT_KEY_CITY_UNHAPPY", delta) .. "[NEWLINE][NEWLINE]" .. L(city:GetCityUnhappinessBreakdown(false, true))
+		end
 	end,
 } -- g_cityToolTips
 
@@ -615,10 +660,10 @@ local IsActiveQuestKillCamp
 local questDig = MinorCivQuestTypes.MINOR_CIV_QUEST_ARCHAEOLOGY
 local IsActiveQuestDig
 
-local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_DISCOVER_PLOT
+local questPlot = MinorCivQuestTypes.MINOR_CIV_QUEST_EXPLORE_AREA
 local IsActiveQuestPlot
 
-local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_UNIT_GET_CITY
+local questCity = MinorCivQuestTypes.MINOR_CIV_QUEST_ACQUIRE_CITY
 local IsActiveQuestCity
 -- END
 if bnw_mode then
@@ -1003,6 +1048,11 @@ local function RefreshCityBannersNow()
 
 			-- Puppet ?
 			instance.CityIsPuppet:SetHide( not isPuppet )
+			
+			-- Rome UA (Annexed City-States)
+			if Players[city:GetOriginalOwner()]:IsMinorCiv() and cityOwner:IsAnnexedCityStatesGiveYields() then
+				instance.CityIsCityState:SetHide ( not cityOwner:IsAnnexedCityStatesGiveYields())
+			end
 
 			-- Occupied ?
 			instance.CityIsOccupied:SetHide( not city:IsOccupied() or city:IsNoOccupiedUnhappiness() )
@@ -1034,8 +1084,13 @@ local function RefreshCityBannersNow()
 			if isActiveType then
 
 				local delta = city:getHappinessDelta();
-				if(delta < 0) then
+				if(delta <= 0) then
 					instance.CityIsUnhappy:SetHide(false)
+					if (delta == 0) then
+						instance.CityIsUnhappy:SetText("[ICON_ITP_HAPPINESS_NEUTRAL]");
+					else
+						instance.CityIsUnhappy:SetText("[ICON_HAPPINESS_3]");
+					end
 				else
 					instance.CityIsUnhappy:SetHide(true)
 				end
@@ -1256,7 +1311,15 @@ local function RefreshCityBannersNow()
 				else
 					otherCivAlpha = 0.5
 					otherCivID = g_activeTeam:IsHasMet( originalCityOwner:GetTeam() ) and originalCityOwnerID
-					instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", originalCityOwner:GetCivilizationShortDescription() )
+					if (not Game.IsOption(GameOptionTypes.GAMEOPTION_NO_VASSALAGE) and not Players[originalCityOwnerID]:IsAlive() and Teams[Players[Game.GetActivePlayer()]:GetTeam()]:GetCurrentEra() >= Game.GetVassalageEnabledEra() and Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
+							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_RESURRECT", originalCityOwner:GetCivilizationShortDescription() )
+						elseif (Players[Game.GetActivePlayer()]:CanLiberatePlayer(originalCityOwnerID)) then
+							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE", originalCityOwner:GetCivilizationShortDescription() )
+						elseif (not Players[originalCityOwnerID]:IsAlive() and cityOwnerID == Game.GetActivePlayer() ) then
+							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_CAPTURED", originalCityOwner:GetCivilizationShortDescription() )
+						else
+							instance.CivIndicator:LocalizeAndSetToolTip( "TXT_KEY_POPUP_CITY_CAPTURE_INFO_LIBERATE_NO", originalCityOwner:GetCivilizationShortDescription() )
+					end
 				end
 			end
 			if otherCivID then

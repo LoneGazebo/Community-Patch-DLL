@@ -140,7 +140,6 @@ public:
 	int GetExtraWithdrawal() const;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int GetPlagueChance() const;
-	bool IsPlague() const;
 	int GetPlaguePromotion() const;
 	int GetPlagueID() const;
 	int GetPlaguePriority() const;
@@ -185,7 +184,9 @@ public:
 	bool IsDisembarkFlatCost() const;
 	bool IsMountedOnly() const;
 	int GetAOEDamageOnKill() const;
+	int GetAOEDamageOnPillage() const;
 	int GetAoEDamageOnMove() const;
+	int GetPartialHealOnPillage() const;
 	int GetSplashDamage() const;
 	int GetMinRange() const;
 	int GetMaxRange() const;
@@ -457,7 +458,6 @@ protected:
 	int m_iExtraWithdrawal;
 #if defined(MOD_BALANCE_CORE_JFD)
 	int m_iPlagueChance;
-	bool m_bIsPlague;
 	int m_iPlaguePromotion;
 	int m_iPlagueID;
 	int m_iPlaguePriority;
@@ -525,7 +525,9 @@ protected:
 	UnitClassTypes m_iCombatBonusFromNearbyUnitClass;
 	int m_iWonderProductionModifier;
 	int m_iAOEDamageOnKill;
+	int m_iAOEDamageOnPillage;
 	int m_iAoEDamageOnMove;
+	int m_iPartialHealOnPillage;
 	int m_iSplashDamage;
 	int m_iMinRange;
 	int m_iMaxRange;

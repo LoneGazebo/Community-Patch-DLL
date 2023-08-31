@@ -90,30 +90,37 @@
 			<Text>Jinete</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ALHAMBRA_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]50% chance to withdraw from Melee combat.</Text>
+			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]Unit withdraws from the first Melee attack each turn if possible.</Text>
 		</Row>
 
 <!-- Civilization Promotions -->
 	<!-- Denmark -->
 		<Row Tag="TXT_KEY_PROMOTION_VIKING">
-			<Text>Viking</Text>
+			<Text>Viking (Land)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_VIKING_HELP">
-			<Text>Base [ICON_STRENGTH] Combat Strength increased by +25% while on [COLOR_POSITIVE_TEXT]Pillaged Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]+5 HP when healing in [COLOR_POSITIVE_TEXT]Neutral Territory[ENDCOLOR].</Text>
+			<Text>Pillaging costs no [ICON_MOVES] Movement and heals an extra [COLOR_POSITIVE_TEXT]10 HP[ENDCOLOR].[NEWLINE]When pillaging [COLOR_POSITIVE_TEXT]non-Road Improvements[ENDCOLOR], Gain 30 [ICON_GOLD] Gold, Scaling with Era, and adjacent Enemy Units take [COLOR_POSITIVE_TEXT]10 Damage[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT">
-			<Text>Longboat</Text>
+			<Text>Viking (Sea)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_LONGBOAT_HELP">
-			<Text>+15% [ICON_STRENGTH] Combat Strength when attacking or defending [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].[NEWLINE]Pillaging costs no [ICON_MOVES] Movement.[NEWLINE]Recovers Hit Points [COLOR_POSITIVE_TEXT]Twice as Quickly[ENDCOLOR] while healing on [COLOR_POSITIVE_TEXT]Coast Tiles[ENDCOLOR].</Text>
+			<Text>Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.[NEWLINE]When pillaging [COLOR_POSITIVE_TEXT]Improvement[ENDCOLOR], Gain 60 [ICON_GOLD] Gold, Scaling with Era, and adjacent Enemy Units take [COLOR_POSITIVE_TEXT]15 Damage[ENDCOLOR]</Text>
 		</Row>
-	<!-- Huns -->
+	<!-- France -->
 		<Row Tag="TXT_KEY_PROMOTION_COERCION">
-			<Text>Coercion</Text>
+			<Text>Par le Sang Versé</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COERCION_HELP">
 			<Text>Defeated land units may join your side as conscripted, supply-free units. </Text>
+		</Row>
+	<!-- Huns -->
+		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE">
+			<Text>Focus Fire</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FOCUS_FIRE_HELP">
+			<Text>+10% [ICON_STRENGTH] Combat Strength for each subsequent attack against a single target during a turn.</Text>
 		</Row>
 	<!-- Japan -->
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO">
@@ -184,7 +191,7 @@
 			<Text>Steppe Nomads</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_MONGOL_TERROR_HELP">
-			<Text>Benefits from Flanking when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.</Text>
+			<Text>May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].</Text>
 		</Row>
 	<!-- Sweden -->
 		<Row Tag="TXT_KEY_PROMOTION_ATTACK_BONUS_SWEDEN">
@@ -209,6 +216,14 @@
 		</Row>
 
 <!-- Policy Promotion -->
+	<!-- Progress -->
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_WORKER">
+			<Text>Faster Worker</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FASTER_WORKER_HELP">
+			<Text>+1 [ICON_MOVES] Movement</Text>
+		</Row>
+
 	<!-- Authority -->
 		<Row Tag="TXT_KEY_PROMOTION_HONOR_BONUS">
 			<Text>Conscription</Text>
@@ -244,12 +259,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_FASTER_GENERAL_HELP">
 			<Text>+1 [ICON_MOVES] Movement</Text>
-		</Row><Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER">
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER">
 			<Text>Imperialism</Text>
 		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_IMPERIALISM_OPENER_HELP">
-			<Text>+1 Sight.</Text>
+			<Text>+1 [ICON_VP_VISION] Sight.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BETTER_LEADERSHIP">
 			<Text>Regimental Traditions</Text>
@@ -289,6 +305,30 @@
 			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Wounded Units[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]+10 HP when healing in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].[NEWLINE]Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]All Tiles cost 1 [ICON_MOVES] Movement.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK">
+			<Text>Bomb Rack</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_BOMB_RACK_HELP">
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Land Units[ENDCOLOR].</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO">
+			<Text>Aerial Torpedo</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP">
+			<Text>+20%[ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Naval Units[ENDCOLOR].</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PEDIA_PROMOTION_RECON_SMALL_INCREASE">
+			<Text>Air Recon Small Increase</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE">
+			<Text>Air Recon range +1</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_RECON_SMALL_INCREASE_HELP">
+			<Text>Increase Air Recon range to 7</Text>
+		</Row>
+		
 <!-- Unit Free Promotions -->
 	<!-- Atatlist -->
 		<Row Tag="TXT_KEY_PROMOTION_ATLATL_ATTACK">
@@ -316,7 +356,7 @@
 			<Text>Withering Fire</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ESPRIT_DE_CORPS_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]25%[ENDCOLOR] Chance to force an Enemy Unit to retreat after taking [ICON_RANGE_STRENGTH] Ranged Damage. If the Unit cannot retreat, it takes [COLOR_POSITIVE_TEXT]50%[ENDCOLOR] more damage than normal.</Text>
+			<Text>+50% damage to Enemy Units that cannot retreat.</Text>
 		</Row>
 	<!--Doppelsöldner-->
 		<Row Tag="TXT_KEY_PROMOTION_DOPPELSOLDNER">
@@ -330,7 +370,7 @@
 			<Text>Scout Cavalry</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_CAVALRY_HELP">
-			<Text>-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 Sight and Pillaging costs no [ICON_MOVES] Movement.</Text>
+			<Text>-20% [ICON_STRENGTH] Combat Strength.[NEWLINE]+1 [ICON_VP_VISION] Sight and Pillaging costs no [ICON_MOVES] Movement.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_HAKKAA_PAALLE">
 			<Text>Hakkaa Päälle!</Text>
@@ -406,7 +446,7 @@
 			<Text>Commando</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP_I">
-			<Text>60% chance to withdraw from Melee combat. Chance of withdrawal decreased against faster Enemy Units or if there are limited open tiles behind the Unit.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
+			<Text>Unit withdraws from the first Melee attack each turn if there are open tiles behind the unit.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 	<!-- Explorer -->
 		<Row Tag="TXT_KEY_PROMOTION_OCEAN_CROSSING">
@@ -441,7 +481,7 @@
 			<Text>Brute Force</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_BONUS_HELP">
-			<Text>+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
 
 	<!-- Recon Line -->
@@ -595,13 +635,6 @@
 			<Text>+10% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].[NEWLINE]Unit can Embark, cross Mountains, and use Enemy Roads/Railroads.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS">
-			<Text>Treasure Hunter</Text>
-		</Row>
-		<Row Tag="TXT_KEY_PROMOTION_SCOUT_GOODY_BONUS_HELP">
-			<Text>+25% Yields from [COLOR_POSITIVE_TEXT]Ancient Ruins[ENDCOLOR].</Text>
-		</Row>
-
 		<Row Tag="TXT_KEY_PROMOTION_SCOUT_XP_PILLAGE">
 			<Text>Scavenger</Text>
 		</Row>
@@ -636,6 +669,20 @@
 		<Row Tag="TXT_KEY_PROMOTION_BARBARIAN_PENALTY_III_HELP">
 			<Text>-10% [ICON_STRENGTH] Combat Strength VS [COLOR_NEGATIVE_TEXT]Barbarians[ENDCOLOR].</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_FROGMAN">
+			<Text>Frogman</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_FROGMAN_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Embarking[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Disembarking[ENDCOLOR] Costs 1 [ICON_MOVES] Movement.[NEWLINE]Eliminates combat penalties for attacking from the sea or over a river.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING">
+			<Text>Screening</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_SCREENING_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.[NEWLINE]Counted twice for Flanking bonuses.</Text>
+		</Row>
 	<!-- Mounted Line -->
 		<Row Tag="TXT_KEY_PROMOTION_CHARGE_II">
 			<Text>Charge II</Text>
@@ -656,6 +703,13 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_SKIRMISHER_MOBILITY_HELP">
 			<Text>Ignores [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].[NEWLINE]+1 [ICON_MOVES] Movement.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT">
+			<Text>Envelopment</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_ENVELOPMENT_HELP">
+			<Text>Benefits from Flanking when [COLOR_POSITIVE_TEXT]Attacking[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Flanking bonus[ENDCOLOR] increased by 10%.</Text>
 		</Row>
 	<!-- Melee Line -->
 		<Row Tag="TXT_KEY_PROMOTION_SHOCK_4">
@@ -824,7 +878,7 @@
 			<Text>Blockade</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_COASTAL_RAIDER_4_HELP">
-			<Text>+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]50% chance to withdraw from Melee combat.</Text>
+			<Text>+25% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]Unit withdraws from the first Melee attack each turn if possible.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BOARDING_PARTY_4">
@@ -853,14 +907,14 @@
 			<Text>Navigator I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_HELP">
-			<Text>+1 [ICON_MOVES] Movement and Sight.</Text>
+			<Text>+1 [ICON_MOVES] Movement and [ICON_VP_VISION] Sight.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II">
 			<Text>Navigator II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_SENTRY_II_HELP">
-			<Text>+1 [ICON_MOVES] Movement and Sight.</Text>
+			<Text>+1 [ICON_MOVES] Movement and [ICON_VP_VISION] Sight.</Text>
 		</Row>
 	<!-- Misc Air -->
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_AIR_HELP">
@@ -973,7 +1027,7 @@
 			<Text>Commandos are scouts and attack units, specializing in striking vulnerable targets through difficult terrain and quickly withdrawing. Use these units to outflank and disrupt enemies on their back lines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_HELP_COMMANDO_CBP">
-			<Text>Industrial-era exploration Unit. Has additional strength when Attacking, and a 60% chance to withdraw from Melee Combat. Gains Experience from pillaging non-road Improvements.</Text>
+			<Text>Industrial-era exploration Unit. Has additional strength when Attacking, and withdraws from the first Melee attack each turn if possible. Gains Experience from pillaging non-road Improvements.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_COMMANDO_TEXT">
 			<Text>A Commando is an elite light infantry specialized in attacking high-value targets and front-line reconnaissance. The term entered common usage after the Boer Wars and the Great Trek, where Boer Kommando militia employed guerilla and asymmetric tactics to great success against the Xhosa, Zulu, and British armies.</Text>
@@ -1049,7 +1103,7 @@
 			<Text>Pioneer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_PIONEER_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lodge[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
+			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Pioneers start with 3 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Pioneers!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_PIONEER_TEXT">
 			<Text>Pioneers are any of the people in history who migrated to join in settling and developing new areas. The term especially refers to those who were going to settle any territory which had previously not been settled or developed by European or American society, although the territory may have been inhabited by or utilized by native peoples. The pioneer concept and ethos greatly predate the migration to parts of the United States now called Western, as many places now considered as East were also settled by pioneers from the coast. For example, Daniel Boone, a key figure in American history, settled in Kentucky, when that "Dark and Bloody Ground" was still undeveloped. One important development in the Western settlement was the Homestead Act, which provided formal legislation which regulated the settlement process.</Text>
@@ -1062,7 +1116,7 @@
 			<Text>Colonist</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_COLONIST_STRATEGY">
-			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Aqueduct[NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Lodge[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
+			<Text>Use this unit to construct new cities. It cannot defend itself, so accompany it with a combat unit. When founded, cities built by Colonists start with 5 Citizens, claim additional territory, and automatically receive the following selection of buildings:[NEWLINE][NEWLINE][ICON_BULLET] Amphitheater[NEWLINE][ICON_BULLET] Aqueduct[NEWLINE][ICON_BULLET] Arena[NEWLINE][ICON_BULLET] Barracks[NEWLINE][ICON_BULLET] Council[NEWLINE][ICON_BULLET] Forge[NEWLINE][ICON_BULLET] Granary[NEWLINE][ICON_BULLET] Harbor[NEWLINE][ICON_BULLET] Herbalist[NEWLINE][ICON_BULLET] Library[NEWLINE][ICON_BULLET] Lighthouse[NEWLINE][ICON_BULLET] Market[NEWLINE][ICON_BULLET] Monument[NEWLINE][ICON_BULLET] Shrine[NEWLINE][ICON_BULLET] Smokehouse[NEWLINE][ICON_BULLET] Temple[NEWLINE][ICON_BULLET] Water Mill (if applicable)[NEWLINE][ICON_BULLET] Well (if applicable)[NEWLINE][ICON_BULLET] Windmill[NEWLINE][ICON_BULLET] Workshop[NEWLINE][NEWLINE]Note: the bonuses for constructing buildings from the Progress and Industry policy branches do not apply to the buildings constructed by Colonists!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_COLONIST_TEXT">
 			<Text>

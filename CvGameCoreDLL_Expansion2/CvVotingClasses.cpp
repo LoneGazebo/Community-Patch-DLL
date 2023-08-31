@@ -1563,7 +1563,7 @@ void CvActiveResolution::DoEffects(PlayerTypes ePlayer)
 				if (GET_TEAM(GET_PLAYER(eLoopPlayer).getTeam()).IsVassal(GET_PLAYER(eTargetPlayer).getTeam()))
 					continue;
 
-				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(eLoopPlayer, eTargetPlayer);
+				GC.getGame().GetGameDeals().DoCancelDealsBetweenPlayers(eLoopPlayer, eTargetPlayer, false);
 			}
 		}
 
@@ -4111,7 +4111,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	int iHostVotes = IsHostMember(ePlayer) ? pInfo->GetHostDelegates() : 0;
 
 	// Base votes from City-State allies
-	int iCityStateVotes = 0, iNumAllies = 0, iNumMinorsFollowingReligion = 0, iNumMarriages = 0;
+	int iCityStateVotes = 0, iNumAllies = 0, iNumMinorsFollowingReligion = 0;
 	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
 		PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
@@ -4126,10 +4126,6 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsSameReligionAsMajor(ePlayer)) // for later
 		{
 			iNumMinorsFollowingReligion++;
-		}
-		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsMarried(ePlayer) && !GET_PLAYER(eMinor).IsAtWarWith(ePlayer)) // for later
-		{
-			iNumMarriages++;
 		}
 	}
 
@@ -4270,11 +4266,6 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	int iWorldIdeologyVotes = GetExtraVotesForFollowingIdeology(ePlayer);
 	iVotes += iWorldIdeologyVotes;
 
-	if (GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomaticMarriage() && iNumMarriages > 0)
-	{
-		iVotes += iNumMarriages;
-	}
-
 	// Vote Sources - Normally this is only updated when we are not in session
 	if ((bForceUpdateSources || !IsInSession()) && !bFakeUN)
 	{
@@ -4369,12 +4360,6 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 		{
 			Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_TRAIT_VOTES");
 			sTemp << iTraitVotes;
-			thisMember->sVoteSources += sTemp.toUTF8();
-		}
-		if (GET_PLAYER(ePlayer).GetPlayerTraits()->IsDiplomaticMarriage() && iNumMarriages > 0)
-		{
-			Localization::String sTemp = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_MEMBER_DETAILS_MARRIED_VOTES");
-			sTemp << iNumMarriages;
 			thisMember->sVoteSources += sTemp.toUTF8();
 		}
 		if (iGPTVotes > 0)
@@ -5033,12 +5018,12 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 	{
 	case CONTRIBUTION_TIER_1:
 		{
-			fThreshold = /*0.5f*/ GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_1_THRESHOLD) * GetProjectCostPerPlayer(eLeagueProject);
+			fThreshold = GetProjectCostPerPlayer(eLeagueProject) * /*0.5f*/ GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_1_THRESHOLD);
 			break;
 		}
 	case CONTRIBUTION_TIER_2:
 		{
-			fThreshold = /*1.0f*/ GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD) * GetProjectCostPerPlayer(eLeagueProject);
+			fThreshold = GetProjectCostPerPlayer(eLeagueProject) * /*1.0f*/ GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD);
 			break;
 		}
 	case CONTRIBUTION_TIER_3:
@@ -5052,7 +5037,7 @@ float CvLeague::GetContributionTierThreshold(ContributionTier eTier, LeagueProje
 					iBestContribution = iContribution;
 				}
 			}
-			fThreshold = MAX((float)iBestContribution, GC.getLEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD() * GetProjectCostPerPlayer(eLeagueProject));
+			fThreshold = MAX((float)iBestContribution, GetProjectCostPerPlayer(eLeagueProject) * /*1.0f*/ GD_FLOAT_GET(LEAGUE_PROJECT_REWARD_TIER_2_THRESHOLD));
 			break;
 		}
 	default:

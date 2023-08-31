@@ -32,10 +32,10 @@
 			<Text> The Rialto is and has been for many centuries the financial and commercial centre of Venice. It is an area of the San Polo sestiere of Venice, Italy, also known for its markets and for the Rialto Bridge across the Grand Canal. The area was settled by the ninth century, when a small area in the middle of the Realtine Islands on either side of the Rio Businiacus was known as the Rivoaltus, or "high bank". Eventually the Businiacus became known as the Grand Canal, and the district the Rialto, referring only to the area on the left bank.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT_STRATEGY">
-			<Text>Unique Venetian building, only buildable in Venice's Capital. This building boosts the value of Trade Routes to and from the City, and generates 1 World Congress Delegate for every 100 Gold Per Turn that Venice produces, up to 25% of all City-States ever alive in the game (minimum of 1 Delegate). In addition, this building reduces the Gold cost of purchasing Units and Buildings in the City by 10%. Cannot be constructed if the Arsenale di Venezia or Murano Glassworks are present in the City.</Text>
+			<Text>Unique Venetian building, only buildable in Venice's Capital. This building boosts the value of Trade Routes to and from the City, and generates 1 World Congress Delegate for every 200 Gold Per Turn that Venice produces, up to 25% of all City-States ever alive in the game (minimum of 1 Delegate). In addition, this building reduces the Gold cost of purchasing Units and Buildings in the City by 10%. Cannot be constructed if the Arsenale di Venezia or Murano Glassworks are present in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_RIALTO_DISTRICT_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE]Cost of [ICON_GOLD] Gold purchases in all Cities reduced by 10% (15% in [ICON_CAPITAL] Capital). Provides 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 100 [ICON_GOLD] Gold Per Turn produced (caps at 25% of all [ICON_CITY_STATE] City-States ever alive).[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +3 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE]Cost of [ICON_GOLD] Gold purchases in all Cities reduced by 10% (15% in [ICON_CAPITAL] Capital). +1 [ICON_GOLD] Gold for every 3 [ICON_CITIZEN] Citizens in your Empire. Gains 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route slot. Provides 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 200 [ICON_GOLD] Gold Per Turn produced (caps at 25% of all [ICON_CITY_STATE] City-States ever alive).[NEWLINE][NEWLINE]Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +3 [ICON_GOLD] Gold for the City, and +3 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_VENETIAN_ARSENALE">
@@ -48,7 +48,7 @@
 			<Text>Unique Venetian building, only buildable in Venice's Capital. This building boosts Production, increases City Defense, increases Military Supply, and provides all Naval Units with the 'Venetian Craftsmanship' promotion, which increases Combat Strength and Movement. Cannot be constructed if the Rialto District or Murano Glassworks are present in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_VENETIAN_ARSENALE_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE]+15% [ICON_PRODUCTION] Production in City. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 5, and Military Units Supplied by this City's population increased by 25%.[NEWLINE][NEWLINE]All Naval Units gain the [COLOR_POSITIVE_TEXT]Venetian Craftsmanship[ENDCOLOR] Promotion, which gives +10% [ICON_STRENGTH] Combat Strength and +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE]+10% [ICON_STRENGTH] Combat Strength and [ICON_SILVER_FIST] Military Units supplied by City's population in all Cities (15% in [ICON_CAPITAL] Capital).[NEWLINE][NEWLINE]Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]All Naval Units gain the [COLOR_POSITIVE_TEXT]Venetian Craftsmanship[ENDCOLOR] Promotion, which gives +10% [ICON_STRENGTH] Combat Strength and +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO">
@@ -61,7 +61,7 @@
 			<Text>Unique Venetian building, replacing the National Monument. Eschews most National Monument abilities in favor of providing a small boost to City yields and a boost to the City's Great People rate. This means that your Capital is well-defended against the theft of Gold, Science, and other important resources. Unlocks access to Murano Glassworks, Arsenale di Venezia, and Rialto District once Guilds is researched. Only one of these buildings may be constructed per game.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PIAZZA_SAN_MARCO_HELP">
-			<Text>+33% [ICON_GREAT_PEOPLE] Great People rate in City. Receive 15 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in the City, and 50 [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a Policy, scaling with Era. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 5.[NEWLINE][NEWLINE]Unlocks access to the [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.[NEWLINE][NEWLINE]May only be built in the [ICON_CAPITAL] Capital. The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
+			<Text>+33% [ICON_GREAT_PEOPLE] Great People rate in City. Receive 15 [ICON_CULTURE] Culture when a [ICON_CITIZEN] Citizen is born in the City, and 50 [ICON_GOLDEN_AGE] Golden Age Points whenever you unlock a Policy, scaling with Era. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 5. Reduces the purchase cooldown of Civilian Units by 3 turns and removes the purchase cooldown of Military Units in this City.[NEWLINE][NEWLINE]Unlocks access to the [COLOR_POSITIVE_TEXT]Murano Glassworks[ENDCOLOR], [COLOR_POSITIVE_TEXT]Arsenale di Venezia[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Rialto District[ENDCOLOR] once [COLOR_CYAN]Guilds[ENDCOLOR] is researched.[NEWLINE][NEWLINE]May only be built in the [ICON_CAPITAL] Capital. The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS">
@@ -74,7 +74,7 @@
 			<Text>Unique Venetian building, only buildable in Venice's Capital. Boosts the value of Great Person Improvements and Villages for all Cities, and provides two Art/Artifact slots. Construct this building if you are pursuing a Cultural Victory. Cannot be constructed if the Arsenale di Venezia or Rialto District are present in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE][ICON_GREAT_PEOPLE] Great Person Improvements and Villages worked by all Cities gain +2 [ICON_FOOD] Food and +2 [ICON_TOURISM] Tourism. Provides 2 [ICON_GREAT_WORK] Great Work Slots for Art or Artifacts.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE][ICON_GREAT_PEOPLE] Great Person Improvements and Villages worked by all Cities gain +2 [ICON_FOOD] Food and +2 [ICON_TOURISM] Tourism. Completing a [ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third with every other known Civilizations. Provides 2 [ICON_GREAT_WORK] Great Work Slots for Art or Artifacts.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure both Great Works were created by the Building Owner.</Text>
@@ -119,7 +119,7 @@
 			<Text>Unique Swedish replacement for the Public School. This building is cheaper, more effective, and costs less maintenance than the building it replaces, and also boosts the City's [ICON_CULTURE] Culture.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_SKOLA_HELP">
-			<Text>Allows [COLOR_YELLOW]Archaeologists[ENDCOLOR] to be built in this City. +1 [ICON_CULTURE] Culture for every 3 [ICON_CITIZEN] Citizens, and +1 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+			<Text>+1 [ICON_CULTURE] Culture for every 2 [ICON_CITIZEN] Citizens, and +3 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BASILICA_DESC">
 			<Text>Tetraconch</Text>
@@ -185,23 +185,23 @@
 			<Text>An altar is any structure upon which offerings such as sacrifices are made for religious purposes. Altars are usually found at shrines, and they can be located in temples, churches and other places of worship. Today they are used particularly in Christianity, Buddhism, Hinduism, Shinto, Taoism, as well as in Neopaganism and Ceremonial Magic. Judaism used such a structure until the destruction of the Second Temple. Many historical faiths also made use of them, including Greek and Norse religion.</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_HELP">
-			<Text>+5 [ICON_TOURISM] Tourism from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 10%.[NEWLINE][NEWLINE]Contains 4 slots for Great Works of Art or Artifacts. +10 [ICON_PEACE] Faith if Themed.</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_HELP">
+			<Text>+5 [ICON_RESEARCH] Science from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the city's resistance to conversion by 20%.[NEWLINE][NEWLINE] Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegates in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.[NEWLINE][NEWLINE]Contains 3 slots for Great Works of Writing[NEWLINE]+6 [ICON_RESEARCH] Science and +4 [ICON_PEACE] Faith when Themed</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY">
-			<Text>Reliquary</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_STRATEGY">
+			<Text>Build the Religious Library to gain [ICON_GOLDEN_AGE] Golden Age Points, [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture from researching techs and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_STRATEGY">
-			<Text>Build the Reliquary for a powerful Tourism-centric bonus and bonuses for all Holy Sites. The building's Tourism bonus is only possible if all four Works of Art/Artifacts come from differing players. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_PEDIA">
+			<Text>The Chartarium was a collection of correspondences and minutes held privately by the office of the Papacy. This collection formed the precursor to the Vatican's Secret Archives.</Text>
+		</Row>	
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY">
+			<Text>Chartarium</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_RELIQUARY_TEXT">
-			<Text>A reliquary is a container for relics. These may be the purported physical remains of saints, such as bones, pieces of clothing, or some object associated with saints or other religious figures. The authenticity of any given relic is often a matter of debate; for that reason, some churches require documentation of the relic's provenance. Relics have long been important to Buddhists, Christians, Hindus and many other religions. In these cultures, reliquaries are often presented in shrines, churches, or temples to which the faithful make pilgrimages in order to gain blessings. In Central West Africa, reliquaries used in the Bwete rituals contain objects considered magical, or the bones of ancestors, and are commonly constructed with a guardian figure attached to the reliquary.</Text>
+		<Row Tag="TXT_KEY_THEMING_BONUS_RELIGIOUS_LIBRARY">
+			<Text>Repository of Secret {2_CivAdjective} Correspondences</Text>
 		</Row>
-		<Row Tag="TXT_KEY_THEMING_BONUS_RELIQUARY_HELP">
-			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Works of Art/Artifacts from differing players.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_THEMING_BONUS_RELIQUARY">
-			<Text>Holy Reliquary of {2_CivAdjective}</Text>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure all slots are filled with Writing from the Same Civilization.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_HELP">
@@ -276,7 +276,10 @@
 			<Text>Council</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE">
-			<Text>Lodge</Text>
+			<Text>Smokehouse</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GALLERY">
+			<Text>Gallery</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HERBALIST">
 			<Text>Herbalist</Text>
@@ -309,7 +312,10 @@
 			<Text>The Council generates Science every time a City grows, and is available very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the City becomes larger.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_STRATEGY">
-			<Text>The Lodge boosts production from Camps and camp resources, and provides food to your City whenever it claims new tiles. Build Lodges throughout your empire to boost local yields from camps.</Text>
+			<Text>The Smokehouse boosts production from Camps and camp resources, and provides food to your City whenever it claims new tiles. Build Smokehouses throughout your empire to boost local yields from camps.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GALLERY_STRATEGY">
+			<Text>The Gallery boosts the production of Great Artists, strengthens your Artist Guilds, and Great Works. Build Galleries in your Guild cities to boost the production of Artists and Great Works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
 			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to fresh water.</Text>
@@ -350,6 +356,9 @@
 		<Row Tag="TXT_KEY_BUILDING_LODGE_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production from Camps. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era. +2 [ICON_CULTURE_LOCAL] Border Growth in this City.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GALLERY_HELP">
+			<Text>[ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_ARTIST] Great Artist Rate in the City, and all Artists' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
 			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
 		</Row>
@@ -387,7 +396,10 @@
 			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_TEXT">
-			<Text>A lodge is a small dwelling set apart from a main dwelling, used for recreation. The term has become associated with recreational hunting, especially in relation to nobility and the recreational sportsmen in modern times. In many cultures, wild preserves were set aside for kings and their entourages to engage in hunting for pleausre.</Text>
+			<Text>A smokehouse is a building where meat or fish is cured with smoke. The finished product might be stored in the building, sometimes for a year or more. Even when smoke is not used, such a building--typically a subsidiary building--is sometimes referred to as a "smokehouse". The meat is hung to keep it from the reach of vermin. Traditionally, a smokehouse is a small enclosed outbuilding often with a vent, a single entrance, no windows, and frequently has a gabled or pyramid-style roof. The use of slightly warmed, dry air from a very slow hardwood fire ensures the proper drying of meats.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GALLERY_TEXT">
+			<Text>An Art Gallery is a space dedicated to displaying visual art like paintings or sculptures. The original galleries were long covered hallways in the private palaces and churches, which were lined with private art collections as a display of status. Today, many Art Galleries are publicly owned and display art to the public for its historic, educational, and aesthetic value. Galleries continue to serve as places for networking and promotion of local artists, art collectors, and tastemakers in the world of fine art.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
 			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>
@@ -435,17 +447,17 @@
 		<Row Tag="TXT_KEY_WONDER_KARLSTEJN_QUOTE">
 			<Text>[NEWLINE][TAB][TAB]"Seek the truth, hear the truth, learn the truth, love the truth, speak the truth, hold the truth, and defend the truth unto death."[NEWLINE][TAB][TAB] - Jan Hus[NEWLINE][TAB]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL">
-			<Text>Slater Mill</Text>
+		<Row Tag="TXT_KEY_BUILDING_SOHO_FOUNDRY">
+			<Text>Soho Foundry</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_SLATER_MILL_HELP">
-			<Text>Can only be built in a City next to a River. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and +5 [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
+		<Row Tag="TXT_KEY_BUILDING_SOHO_FOUNDRY_HELP">
+			<Text>Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and +5 [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SLATER_MILL_TEXT">
-			<Text>A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.</Text>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SOHO_FOUNDRY_TEXT">
+			<Text>Soho Foundry was established in 1795 by James Watt and Matthew Boulton for the production of Watt's newest invention: The steam engine. An ingenious tinkerer, James Watt created several improvements over the old Newcomen designs to create a new steam engine which produced rotary motion with less wear and using one quarter of the coal. Watt patented his new machine and partnered with Matthew Boulton, a businessman and inventor in his own right, to found a new factory in Smethwick, England. The Soho Foundry was unprecedented for its time, producing standardized and interchangeable parts using new techniques like breaking larger tasks into smaller, specialized jobs. Management at Soho was also ahead of its time, providing sick leave benefits, as well as professional development and welfare programmes to its employees. The management theory, mass production techniques and steam engines produced at Soho Foundry were crucial to the industrialization of Britain and have made a lasting, global impact.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_WONDER_SLATER_MILL_QUOTE">
-			<Text>[NEWLINE][TAB][TAB]"If I do not make as good of yarn as they do in England, I will have nothing for my services, but will throw the whole of what I have attempted over the bridge."[NEWLINE][TAB][TAB] - Samuel Slater[NEWLINE][TAB]</Text>
+		<Row Tag="TXT_KEY_WONDER_SOHO_FOUNDRY_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I sell here, Sir, what all the world desires to have: Power."[NEWLINE][TAB][TAB] - Matthew Boulton[NEWLINE][TAB]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_STATUE">
 			<Text>The Motherland Calls</Text>
@@ -463,7 +475,7 @@
 			<Text>Bletchley Park</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP">
-			<Text>Requires completion of [COLOR_MAGENTA]Rationalism[ENDCOLOR] Branch. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in the City in which it is built, and all [ICON_VP_SCIENTIST] Scientists gain +1 [ICON_RESEARCH] Science. Receive 2 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), levels up all your existing [ICON_SPY] Spies, and improves Spy Resistance by 15% in all Cities. Spy mission duration reduced by 2 turn for your Spies and increased by 2 turns for enemy Spies in your Cities.</Text>
+			<Text>Requires completion of [COLOR_MAGENTA]Rationalism[ENDCOLOR] Branch. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in the City in which it is built, and all [ICON_VP_SCIENTIST] Scientists gain +1 [ICON_RESEARCH] Science. Receive 200 [ICON_VP_SPY_POINTS] Spy Points, and all your existing [ICON_SPY] Spies are leveled up. Spy Resistance is improved by 15% in all Cities. Spy mission duration reduced by 2 turn for your Spies and increased by 2 turns for enemy Spies in your Cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
 			<Text>Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Powers, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.</Text>
@@ -574,7 +586,7 @@
 			<Text>A Teocalli is a temple of the Aztec peoples. The Teocalli follow a structure that is typical for many Meso-American peoples, with a somewhat small enclosed space atop a massive stepped pyramid with a staircase on one side. The largest of these pyramids exceeded the Egyptian pyramid at Giza in total volume, though they weren't as tall. In a manner similar to Mesopotamian religions, the Aztecs considered their Teocalli as the literal residences of their gods, only permitting priests to climb them for rituals and special occasions. The most infamous of these rituals is the human sacrifices which occured monthly to appease the Aztec gods, where war captives had their beating hearts extracted from their chests and then beheaded. The skulls of the sacrifices were prepared and displayed on a nearby skull rack called a 'tzompantli', while the organs and flesh were offered to the gods.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_HELP">
-			<Text>+3 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle, scaling with Era. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1. +15 XP for all Military Units produced in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>+5 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1. +15 XP for all Military Units produced in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_STRATEGY">
 			<Text>Can only be built in cities following a religion with the Teocallis belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Teocalli offers bonuses towards military training and faith generation.</Text>
@@ -608,7 +620,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+1 tile work radius. +10% to all City Yields. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_VP_GREATMUSIC] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
+			<Text>+1 tile work radius. +10% to all City Yields.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_VP_GREATMUSIC] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
@@ -617,7 +629,7 @@
 			<Text>State Treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
-			<Text>+25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Allows for a Merchant specialist in your [ICON_CAPITAL] Capital. Can only be constructed via the [COLOR_MAGENTA]Majesty[ENDCOLOR] Policy.</Text>
+			<Text>Allows for a Merchant specialist in your [ICON_CAPITAL] Capital. Boosts the [ICON_CULTURE] Culture output of Gardens and Monuments by +2 in all Cities. Can only be constructed via the [COLOR_MAGENTA]Majesty[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
 			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>
@@ -635,7 +647,7 @@
 			<Text>Palace Gardens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_HELP">
-			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_VP_GREATWRITING] Great Work of Writing. Boosts the [ICON_CULTURE] Culture output of Gardens and Monuments by +2 in all Cities. Can only be constructed via the [COLOR_MAGENTA]Splendor[ENDCOLOR] Policy.</Text>
+			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. +25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. Has a slot for a [ICON_VP_GREATWRITING] Great Work of Writing. Can only be constructed via the [COLOR_MAGENTA]Splendor[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_PEDIA">
 			<Text>A garden is a planned space, usually outdoors, set aside for the display, cultivation, and enjoyment of plants and other forms of nature. The garden can incorporate both natural and man-made materials. The most common form today is known as a residential garden, but the term garden has traditionally been a more general one. Zoos, which display wild animals in simulated natural habitats, were formerly called zoological gardens.[1][2] Western gardens are almost universally based on plants, with garden often signifying a shortened form of botanical garden.</Text>
@@ -678,10 +690,10 @@
 			<Text>A dojo is a Japanese term which literally means "place of the way". Initially, dojos were adjunct to temples. The term can refer to a formal training place for any of the Japanese do arts[which?] but typically it is considered the formal gathering place for students of any Japanese martial arts style such as karate, judo, or samurai, to conduct training, examinations and other related encounters. The concept of a dojo only referring to a training place specifically for Asian martial arts is a Western concept; in Japan, any physical training facility, including professional wrestling schools, may be called dojo because of its close martial arts roots.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_HELP">
-			<Text>Unique Japanese replacement for the Armory. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]Grants +25 Experience to all Military Units trained in this City. All Melee, Mounted Melee, Naval Melee, Gunpowder, and Armor Units trained in this City receive the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion. When Units are promoted, gain [ICON_CULTURE] Culture and [ICON_RESEARCH] Science based on their current Level.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+			<Text>Unique Japanese replacement for the Armory. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 2.[NEWLINE][NEWLINE]Grants +25 Experience to all Military Units trained in this City. All Melee, Mounted Melee, Gunpowder, and Armor Units trained in this City receive the [COLOR_POSITIVE_TEXT]Eight Virtues of Bushido[ENDCOLOR] Promotion. When Units gain Experience through combat, gain [ICON_CULTURE] Culture and [ICON_RESEARCH] Science equal to the gained Experience.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_DOJO_STRATEGY">
-			<Text>Build these unique Armories to produce dominant military units. Does not require a Barracks. All Melee, Mounted Melee, Naval Melee, Gunpowder, and Armor Units trained in this City receive the Eight Virtues of Bushido Promotion, which offers one of eight possible promotions to these unit types after their first combat and increases the Unit's power as it takes damage.</Text>
+			<Text>Build these unique Armories to produce dominant military units. Does not require a Barracks. All Melee, Mounted Melee, Gunpowder, and Armor Units trained in this City receive the Eight Virtues of Bushido Promotion, which offers one of eight possible promotions to these unit types after their first combat and increases the Unit's power as it takes damage. This City gains Science and Culture when Units trained here gain Experience through combat.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_ODEON">
 			<Text>Acropolis</Text>
@@ -768,7 +780,7 @@
 			<Text>A runestone is typically a raised stone with a runic inscription, but the term can also be applied to inscriptions on boulders and on bedrock. The tradition began in the 4th century and lasted into the 12th century, but most of the runestones date from the late Viking Age. Most runestones are located in Scandinavia, but there are also scattered runestones in locations that were visited by Norsemen during the Viking Age. Runestones are often memorials to dead men. Runestones were usually brightly coloured when erected, though this is no longer evident as the colour has worn off.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_HELP">
-			<Text>When a Unit [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR] pillages a Tile, gain 30 [ICON_GOLD] Gold and [ICON_CULTURE] Culture in this City, scaling with Era.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production towards Melee and Naval Melee Units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +6 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Runestones.</Text>
+			<Text>When a Unit [COLOR_POSITIVE_TEXT]created by this City[ENDCOLOR] pillages a Tile, gain 30 [ICON_CULTURE] Culture in this City, scaling with Era.[NEWLINE][NEWLINE]+25% [ICON_PRODUCTION] Production towards Melee, Gun, and Naval Melee Units.[NEWLINE][NEWLINE]+2 [ICON_FOOD] Food and +1 [ICON_GOLD] Gold from Coast and Ocean tiles. Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +4 [ICON_FOOD] Food.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities via water if they also have Runestones.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_JELLING_STONES_STRATEGY">
 			<Text>Unique Danish replacement for the Lighthouse. In addition to the Lighthouse's bonuses, Runestones produce [ICON_CULTURE] Culture and [ICON_GOLD] Gold when units from this City pillage tiles (Roads and Railroads do not count), generates more Food from ocean tiles, and increases production of melee land and naval units. Unlike the Lighthouse, the City does not have to be built on the coast.</Text>
@@ -792,10 +804,10 @@
 			<Text>A yurt, called a 'Ger' by Mongolians, is a portable, bent dwelling structure traditionally used by nomads in the steppes of Central Asia as their home. The structure comprises a crown or compression wheel, usually steam bent, supported by roof ribs which are bent down at the end where they meet the lattice wall (again, steam bent). The top of the wall is prevented from spreading by means of a tension band which opposes the force of the roof ribs. The structure is usually covered by layers of fabric and sheep's wool felt for insulation and weatherproofing. The traditional decoration within a yurt is primarily pattern based. These patterns are generally not according to taste, but are derived from sacred ornaments with certain symbolism. Symbols representing strength are among the most common, including the khas (swastika) and four powerful beasts (lion, tiger, garuda and dragon), as well as stylized representations of the five elements (fire, water, earth, metal, and wood), considered to be the fundamental, unchanging elements of the cosmos. Such patterns are commonly used in the home with the belief that they will bring strength and offer protection.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production from Camps. +34% Faster [ICON_CULTURE_LOCAL] Border Growth and the [ICON_GOLD] Gold cost of acquiring new tiles is reduced by 25% in this City. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era. +2 [ICON_CULTURE_LOCAL] Border Growth in this City.[NEWLINE][NEWLINE]Nearby [ICON_RES_COW] Cows: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_SHEEP] Sheep: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_HORSE] Horses: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production from Camps and Pastures. +50% Faster [ICON_CULTURE_LOCAL] Border Growth and the [ICON_GOLD] Gold cost of acquiring new tiles is reduced by 25% in this City. Gain 5 [ICON_FOOD] Food and [ICON_PRODUCTION] Production in the City when its borders expand, scaling with Era. +2 [ICON_CULTURE_LOCAL] Border Growth in this City.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_YURT_STRATEGY">
-			<Text>Unique Mongolian replacement for the Lodge. In addition to the Lodge's bonuses, the Ger provides Food from livestock. It also provides a small amount of Faith. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
+			<Text>Unique Mongolian replacement for the Smokehouse. In addition to the Smokehouse's bonuses, the Ger provides Production to Pastures. It also provides a small amount of Faith. Build Gers in your cities to maximize their growth, and to get an early Pantheon.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON">
@@ -822,7 +834,7 @@
 			<Text>Independence Hall</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_HELP">
-			<Text>Unique American replacement for the Hermitage.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. +10% [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost of adopting new Policies reduced by 5%. Unlocks access to the [COLOR_POSITIVE_TEXT]Hoover Dam[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Modern Era[ENDCOLOR].[NEWLINE][NEWLINE]Contains 2 Slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+3 [ICON_CULTURE] Culture and +3 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+			<Text>Unique American replacement for the Hermitage.[NEWLINE][NEWLINE]+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City. +10% [ICON_CULTURE] Culture in the City.[NEWLINE][NEWLINE][ICON_CULTURE] Culture cost of adopting new Policies reduced by 5%. Unlocks access to the [COLOR_POSITIVE_TEXT]Slater Mill[ENDCOLOR], [COLOR_POSITIVE_TEXT]West Point[ENDCOLOR], and [COLOR_POSITIVE_TEXT]Smithsonian Institute[ENDCOLOR] in the [COLOR_CYAN]Modern Era[ENDCOLOR].[NEWLINE][NEWLINE]Contains 2 Slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in all Cities.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.[NEWLINE][NEWLINE]+3 [ICON_CULTURE] Culture and +3 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_INDEPENDENCEHALL_TEXT">
 			<Text>Originally constructed as the state house of Pennsylvannia, Independence Hall is where the United States Declaration of Independence and Constitution were debated and formally adopted, making it the birthplace of the American nation. Today, Independence Hall is a museum and the centre of the Independence National Park in the heart of Philadelphia.</Text>
@@ -831,22 +843,22 @@
 			<Text>Independence Hall is the unique Hermitage for America. In addition to the bonuses of the Hermitage, Independence Hall reduces the cost of future policies and unlocks the ability for American to build 1 of 3 unique wonders in the Modern Era.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MOMA">
-			<Text>The Smithsonian</Text>
+			<Text>Smithsonian Institute</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOMA_TEXT">
-			<Text>The Smithsonian Institution, established in 1846 "for the increase and diffusion of knowledge," is a group of museums and research centers administered by the Government of the United States. Originally organized as the "United States National Museum," that name ceased to exist as an administrative entity in 1967. Termed "the nation's attic" for its eclectic holdings of 138 million items, the Institution's nineteen museums, nine research centers, and zoo include historical and architectural landmarks, mostly located in the District of Columbia. Additional facilities are located in Arizona, Maryland, Massachusetts, New York City, Virginia, and Panama. A further 170 museums are Smithsonian Affiliates. The Institution's thirty million annual visitors are admitted without charge. Funding comes from the Institution's endowment, private and corporate contributions, membership dues, government support, as well as retail, concession and licensing revenues. Institution publications include Smithsonian and Air and Space magazines.</Text>
+			<Text>The Smithsonian Institution, originally established in 1846 as the United States National Museum is a group of museums and research centers administered by the Government of the United States. Lovingly called "the nation's attic" for its eclectic holdings of 138 million items, the Institution's nineteen museums, nine research centers, and zoo include historical and architectural landmarks, mostly located in the District of Columbia. Additional facilities are located in Arizona, Maryland, Massachusetts, New York City, Virginia, and Panama. A further 170 museums are Smithsonian Affiliates. The Institution's thirty million annual visitors are admitted without charge; funding comes from the Institution's endowment, private, corporate, and government contributions, membership dues, as well as retail, concession and licensing revenues. Institution publications include Smithsonian and Air and Space magazines.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all Museums and Research Labs, and +2 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all [ICON_WONDER] World Wonders. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Museum in all Cities. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all Museums and Research Labs, and +2 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science to all [ICON_WONDER] World Wonders. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Museum in this City. 10% of [ICON_GOLD] Gold created by all Cities on Empire counts as [ICON_CULTURE] Culture Per Turn.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science to all Landmarks and +1 [ICON_RESEARCH] to all [ICON_GREAT_WORK] Great Works on Empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_SMITHSONIAN_STRATEGY">
-			<Text>The Smithsonian Institute is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major empire-wide bonuses towards culture and science generation, giving powerful theming for Great Artifacts, and boosting the power of Museums.</Text>
+			<Text>The Smithsonian Institute is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major empire-wide bonuses towards culture and science generation, boosting the power of Museums, Artifacts, and Great Works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT">
 			<Text>West Point</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Military Bases, and +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive 3 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Artillery and 3 [ICON_RES_IRON] Iron. 10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All owned Siege Units receive the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] Promotion.</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all Military Academies and Arsenals, and +2 [ICON_PRODUCTION] Production and [ICON_RESEARCH] Science to all [ICON_WONDER] World Wonders.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Military Academy in this City. 10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_RESEARCH] Science Per Turn.[NEWLINE][NEWLINE]All Siege Units and Naval Ranged Units receive the [COLOR_POSITIVE_TEXT]Splash I[ENDCOLOR] Promotion.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_WESTPOINT_TEXT">
 			<Text>The United States Military Academy, informally known as West Point, is the oldest service academy, educating cadets to become commissioned officers for the United States Army. The academy is notable for producing some of the most renowned generals in modern history in addition to numerous heads of state, both foreign and domestic. The campus is the oldest continuously operating American army post, originally built as a river fort to overlook and control shipping along the Hudson River. As a result, the campus is a national landmark, dotted with numerous monuments and statues representing its long and storied history.</Text>
@@ -854,23 +866,26 @@
 		<Row Tag="TXT_KEY_BUILDING_AMERICA_WESTPOINT_STRATEGY">
 			<Text>West Point is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major bonuses towards science and your siege units.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_HOOVERDAM">
-			<Text>Hoover Dam</Text>
+		<Row Tag="TXT_KEY_BUILDING_AMERICA_SLATERMILL">
+			<Text>Slater Mill</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_HOOVERDAM_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City. Can only be built in a City next to fresh water.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all Hotels and Stadiums. +2 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all [ICON_WONDER] World Wonders in Empire.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Hydro Plant in this City. 10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_PRODUCTION] Production Per Turn.[NEWLINE][NEWLINE]25% of the [ICON_CULTURE] Culture from [ICON_WONDER] World Wonders and Tiles is added to the Empire's [ICON_TOURISM] Tourism output. All [ICON_INTERNATIONAL_TRADE] Trade Units complete their routes 25% faster.</Text>
+		<Row Tag="TXT_KEY_BUILDING_AMERICA_SLATERMILL_HELP">
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique American Wonders. Requires Construction of Independence Hall in any owned City. Can only be built in a City next to fresh water.[NEWLINE][NEWLINE][ICON_GOLD] Gold costs of acquiring new tiles reduced by 25% in every City. +5 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all Factories and Stock Exchanges. +2 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production to all [ICON_WONDER] World Wonders in Empire.[NEWLINE][NEWLINE]Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory in this City. 10% of [ICON_GOLD] Gold output in all Cities is added as [ICON_PRODUCTION] Production Per Turn.[NEWLINE][NEWLINE]Grants 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route, and All [ICON_INTERNATIONAL_TRADE] Trade Units complete their routes 25% faster.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_HOOVERDAM_TEXT">
-			<Text>One of the most ambitious and largest public works projects in American history, the Hoover Dam is a marvel of Modern innovation. At the time of its construction, the Hoover Dam was the largest concrete structure in the world, using ambitious and experimental techniques to pour and cure over 3 million cubic meters of concrete, one inch at a time. the dam impounds Lake Mead, the largest man-made reservoir in the United States, regulates flooding of the Colorado river. Its generators provide power for Nevada, Arizona, and California, and its crest was incorporated into US Route 93, making it a major thoroughfare and tourist attraction.</Text>
+		<Row Tag="TXT_KEY_CIVILOPEDIA_BUILDINGS_AMERICA_SLATERMILL_TEXT">
+			<Text>A National Historic Landmark, the Slater Mill is located next to the Blackstone River in Pawtucket, Rhode Island. Modeled after cotton spinning mills first established in England, the Slater Mill is the first water-powered cotton spinning mill in North America to utilize the Arkwright system of cotton spinning as developed by Richard Arkwright. Samuel Slater, the mill's founder, apprenticed as a young man in Belper, England with industrialist Jedediah Strutt. Shortly after immigrating to the United States, Slater was hired by Moses Brown of Providence, Rhode Island to produce a working set of machines necessary to spin cotton yarn using water-power. Construction of the machines, as well as a dam, waterway, waterwheel and mill was completed in 1793. Manufacturing was based on Richard Arkwright's cotton spinning system which included carding, drawing, and spinning machines. Slater initially hired children and families to work in his mill, establishing a pattern that was replicated throughout the Blackstone Valley and known as the "Rhode Island System". It was later eclipsed by Francis Cabot Lowell's Waltham System. Slater Mill was the first property to be listed on the National Register of Historic Places, and was designated a National Historic Landmark on November 13, 1966.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_BUILDING_AMERICA_HOOVERDAM_STRATEGY">
-			<Text>The Hoover Dam is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major bonuses towards a production and Cultural Victory, increasing the tourism of Wonders and Culture from tiles. The Hoover Dam also halves the time for Trade Routes to complete, greatly increasing your tourism and franchise production towards civilizations you trade with.</Text>
+		<Row Tag="TXT_KEY_BUILDING_AMERICA_SLATERMILL_STRATEGY">
+			<Text>Slater Mill is one of three mutually exclusive wonders that America can build after it has completed Independence Hall. It gives major bonuses towards a production and Trade. Slater Mill reduces the time for Trade Routes to complete, increasing the rate that you generate tourism and establish franchises with civilizations you trade with.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL">
 			<Text>National Treasures</Text>
 		</Row>
 		<Row Tag="TXT_KEY_THEMING_BONUS_INDEPENDENCEHALL_HELP">
 			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Art from your Civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_AMERICA_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"My country 'tis of thee,[NEWLINE]Sweet land of liberty.[NEWLINE][TAB][TAB] - Samuel F. Smith[NEWLINE][TAB]</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

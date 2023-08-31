@@ -1406,35 +1406,38 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 		}
 	}
 #endif
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-	if(MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
+
+	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && eBuilding != NO_BUILDING)
 	{
 		//Have we already invested here?
 		CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuilding);
-		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-		if(pkCity->IsBuildingInvestment(eBuildingClass))
+		if (pGameBuilding)
 		{
-			int iValue = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
-			iValue *= -1;
-			const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
-			if(::isWorldWonderClass(kBuildingClassInfo))
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+			if (pkCity->IsBuildingInvestment(eBuildingClass))
 			{
-				iValue /= 2;
-			}
-			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED");
-			localizedText << iValue;
+				int iValue = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+				iValue *= -1;
+				const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+				if (::isWorldWonderClass(kBuildingClassInfo))
+				{
+					iValue /= 2;
+				}
+				Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED");
+				localizedText << iValue;
 
-			const char* const localized = localizedText.toUTF8();
-			if(localized)
-			{
-				if(!toolTip.IsEmpty())
-					toolTip += "[NEWLINE]";
+				const char* const localized = localizedText.toUTF8();
+				if (localized)
+				{
+					if (!toolTip.IsEmpty())
+						toolTip += "[NEWLINE]";
 
-				toolTip += localized;
+					toolTip += localized;
+				}
 			}
 		}
 	}
-#endif
+
 	// Not enough cash money
 	if(pkCity->GetPurchaseCost(eBuilding) > GET_PLAYER(pkCity->getOwner()).GetTreasury()->GetGold())
 	{
@@ -1758,7 +1761,7 @@ int CvLuaCity::lGetBuildingProductionNeeded(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+
 //------------------------------------------------------------------------------
 //bool IsBuildingInvestment();
 int CvLuaCity::lGetBuildingInvestment(lua_State* L)
@@ -1768,18 +1771,21 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 	int iTotalDiscount = 0;
 	const BuildingTypes eBuildingType = (BuildingTypes) lua_tointeger(L, 2);
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-	const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-	if(pkCity->IsBuildingInvestment(eBuildingClass))
+	if (pGameBuilding)
 	{
-		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eBuildingType);
-		iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
-		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
-		if(::isWorldWonderClass(kBuildingClassInfo))
+		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+		if (pkCity->IsBuildingInvestment(eBuildingClass))
 		{
-			iTotalDiscount /= 2;
+			iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eBuildingType);
+			iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+			if (::isWorldWonderClass(kBuildingClassInfo))
+			{
+				iTotalDiscount /= 2;
+			}
+			iResult *= (iTotalDiscount + 100);
+			iResult /= 100;
 		}
-		iResult *= (iTotalDiscount + 100);
-		iResult /= 100;
 	}
 
 	lua_pushinteger(L, iResult);
@@ -1793,10 +1799,13 @@ int CvLuaCity::lIsWorldWonder(lua_State* L)
 	bool bResult = false;
 	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-	const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
-	if (::isWorldWonderClass(kBuildingClassInfo))
+	if (pGameBuilding)
 	{
-		bResult = true;
+		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+		if (::isWorldWonderClass(kBuildingClassInfo))
+		{
+			bResult = true;
+		}
 	}
 
 	lua_pushboolean(L, bResult);
@@ -1809,51 +1818,53 @@ int CvLuaCity::lGetWorldWonderCost(lua_State* L)
 
 	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
 	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-	const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
-	if (MOD_BALANCE_CORE_WONDER_COST_INCREASE && ::isWorldWonderClass(kBuildingClassInfo))
+	if (MOD_BALANCE_CORE_WONDER_COST_INCREASE && pGameBuilding)
 	{
-		const CvCity* pLoopCity;
-		int iLoop;
-		for (pLoopCity = GET_PLAYER(pkCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pkCity->getOwner()).nextCity(&iLoop))
-		{
-			if (pLoopCity->getNumWorldWonders() > 0)
+		const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+		if (::isWorldWonderClass(kBuildingClassInfo)) {
+			const CvCity* pLoopCity;
+			int iLoop;
+			for (pLoopCity = GET_PLAYER(pkCity->getOwner()).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(pkCity->getOwner()).nextCity(&iLoop))
 			{
-				for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
+				if (pLoopCity->getNumWorldWonders() > 0)
 				{
-					const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
-					CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
-
-					// Has this Building
-					if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+					for (int iBuildingLoop = 0; iBuildingLoop < GC.getNumBuildingInfos(); iBuildingLoop++)
 					{
-						if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
+						const BuildingTypes eBuilding = static_cast<BuildingTypes>(iBuildingLoop);
+						CvBuildingEntry* pkeBuildingInfo = GC.getBuildingInfo(eBuilding);
+
+						// Has this Building
+						if (pkeBuildingInfo && pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
 						{
-							if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
-								continue;
-
-							CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
-							if (pkTechInfo)
+							if (isWorldWonderClass(pkeBuildingInfo->GetBuildingClassInfo()))
 							{
-								// Loop through all eras and apply Building production mod based on how much time has passed
-								EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
-
-								if (eBuildingUnlockedEra == NO_ERA)
+								if (pkeBuildingInfo->GetPrereqAndTech() == NO_TECH)
 									continue;
 
-								int iEraDifference = GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra;
-								switch (iEraDifference)
+								CvTechEntry* pkTechInfo = GC.getTechInfo((TechTypes)pkeBuildingInfo->GetPrereqAndTech());
+								if (pkTechInfo)
 								{
-								case 0:
-									iNumWorldWonderPercent += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
-									break;
-								case 1:
-									iNumWorldWonderPercent += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
-									break;
-								case 2:
-									iNumWorldWonderPercent += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
-									break;
-								default:
-									iNumWorldWonderPercent += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
+									// Loop through all eras and apply Building production mod based on how much time has passed
+									EraTypes eBuildingUnlockedEra = (EraTypes)pkTechInfo->GetEra();
+
+									if (eBuildingUnlockedEra == NO_ERA)
+										continue;
+
+									int iEraDifference = GET_PLAYER(pkCity->getOwner()).GetCurrentEra() - eBuildingUnlockedEra;
+									switch (iEraDifference)
+									{
+									case 0:
+										iNumWorldWonderPercent += /*25*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SAME_ERA_COST_MODIFIER);
+										break;
+									case 1:
+										iNumWorldWonderPercent += /*15*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_PREVIOUS_ERA_COST_MODIFIER);
+										break;
+									case 2:
+										iNumWorldWonderPercent += /*10*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_SECOND_PREVIOUS_ERA_COST_MODIFIER);
+										break;
+									default:
+										iNumWorldWonderPercent += /*5*/ GD_INT_GET(BALANCE_CORE_WORLD_WONDER_EARLIER_ERA_COST_MODIFIER);
+									}
 								}
 							}
 						}
@@ -1957,7 +1968,7 @@ int CvLuaCity::lGetUnitInvestment(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 //int GetProjectProductionNeeded();
 int CvLuaCity::lGetProjectProductionNeeded(lua_State* L)
@@ -2110,9 +2121,11 @@ int CvLuaCity::lGetYieldModifierTooltip(lua_State* L)
 	// City Food Modifier
 	if(eYield == YIELD_FOOD)
 	{	
+		int iExcessNoMod = pkCity->foodDifference(true);
 		GC.getGame().BuildProdModHelpText(&toolTip, "TXT_KEY_FOODMOD_EATEN_FOOD", pkCity->foodConsumption());
+		GC.getGame().BuildProdModHelpText(&toolTip, iExcessNoMod >= 0 ? "TXT_KEY_FOODMOD_EXCESS_FOOD_POSITIVE" : "TXT_KEY_FOODMOD_EXCESS_FOOD_NEGATIVE", iExcessNoMod);
 		pkCity->GetTradeYieldModifier(YIELD_FOOD, &toolTip);
-		pkCity->foodDifferenceTimes100(true, false, pkCity->GetTradeRouteCityMod(YIELD_FOOD), &toolTip);
+		pkCity->foodDifferenceTimes100(false, &toolTip);
 	}
 
 	lua_pushstring(L, toolTip.c_str());
@@ -2377,7 +2390,7 @@ int CvLuaCity::lFoodDifference(lua_State* L)
 int CvLuaCity::lFoodDifferenceTimes100(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->foodDifferenceTimes100(true, false,-1,NULL);
+	const int iResult = pkCity->foodDifferenceTimes100(false,NULL);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -3509,14 +3522,15 @@ int CvLuaCity::lGetReligionBuildingClassYieldChange(lua_State* L)
 
 	ReligionTypes eMajority = pkCity->GetCityReligions()->GetReligiousMajority();
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
-	if(eMajority != NO_RELIGION)
+	if(eMajority != NO_RELIGION && eBuildingClass != NO_BUILDINGCLASS)
 	{
 		const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(eMajority, pkCity->getOwner());
-		if(pReligion)
+		CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(eBuildingClass);
+		if(pReligion && pInfo)
 		{	
 			int iFollowers = pkCity->GetCityReligions()->GetNumFollowers(eMajority);
 			iYieldFromBuilding += pReligion->m_Beliefs.GetBuildingClassYieldChange(eBuildingClass, eYieldType, iFollowers, pkCity->getOwner(), pkCity);
-			if (::isWorldWonderClass(*GC.getBuildingClassInfo(eBuildingClass)))
+			if (::isWorldWonderClass(*pInfo))
 			{
 				iYieldFromBuilding += pReligion->m_Beliefs.GetYieldChangeWorldWonder(eYieldType, pkCity->getOwner(), pkCity);
 			}
@@ -3563,13 +3577,16 @@ int CvLuaCity::lGetLeagueBuildingClassYieldChange(lua_State* L)
 	BuildingClassTypes eBuildingClass = (BuildingClassTypes)lua_tointeger(L, 2);
 	YieldTypes eYieldType = (YieldTypes)lua_tointeger(L, 3);
 
-	CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(eBuildingClass);
-	if (pInfo && pInfo->getMaxGlobalInstances() != -1)
+	if (eBuildingClass != NO_BUILDINGCLASS)
 	{
-		int iYieldChange = GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(pkCity->getOwner(), eYieldType);
-		if (iYieldChange != 0)
+		CvBuildingClassInfo* pInfo = GC.getBuildingClassInfo(eBuildingClass);
+		if (pInfo && pInfo->getMaxGlobalInstances() != -1)
 		{
-			iYieldFromBuilding += iYieldChange;
+			int iYieldChange = GC.getGame().GetGameLeagues()->GetWorldWonderYieldChange(pkCity->getOwner(), eYieldType);
+			if (iYieldChange != 0)
+			{
+				iYieldFromBuilding += iYieldChange;
+			}
 		}
 	}
 
@@ -5674,7 +5691,7 @@ int CvLuaCity::lGetActiveSpyYieldMod(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
-	const int iResult = min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
+	const int iResult = min(30, (GET_PLAYER(pkCity->getOwner()).getYieldModifierFromActiveSpies(eIndex) * GET_PLAYER(pkCity->getOwner()).GetSpyPoints(true) / 100));
 
 	lua_pushinteger(L, iResult);
 	return 1;

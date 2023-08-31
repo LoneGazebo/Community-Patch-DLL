@@ -1665,7 +1665,7 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 					continue;
 				}
 
-				if(GC.getBuildingClassInfo(eBuildingClass)->GetType() == strBuildingClass)
+				if(pkBuildingClassInfo->GetType() == strBuildingClass)
 				{
 					eScienceBuildingClass = eBuildingClass;
 					break;
@@ -1733,8 +1733,12 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 		{
 			continue;
 		}
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+		if (!pkResourceInfo)
+			continue;
 
-		if(GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY || GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		if (pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY || 
+			pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 		{
 			// if we don't have any of this resource
 			if(GET_PLAYER(ePlayer).getNumResourceTotal(eResource) < iNumOfResource)
@@ -1895,8 +1899,8 @@ void CvAdvisorCounsel::BuildCounselList(PlayerTypes ePlayer)
 
 				if(eTradableResource != NO_RESOURCE)
 				{
-					ResourceUsageTypes eTradableResourceUsage = GC.getResourceInfo(eTradableResource)->getResourceUsage();
-					ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+					ResourceUsageTypes eTradableResourceUsage = pkTradeResourceInfo->getResourceUsage();
+					ResourceUsageTypes eResourceUsage = pResourceInfo->getResourceUsage();
 
 					// prefer trading luxury to strategic
 					if(eTradableResourceUsage == RESOURCEUSAGE_STRATEGIC && eResourceUsage == RESOURCEUSAGE_LUXURY)

@@ -576,7 +576,7 @@ public:
 	int calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 	int calculateReligionImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, ImprovementTypes eImprovement, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon) const;
 
-	int calculateYield(YieldTypes eYield, bool bDisplay = false);
+	int calculateYield(YieldTypes eYield, bool bDisplay = false, const CvCity* pOwningCity = NULL);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 	int calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
 #else
@@ -1034,6 +1034,11 @@ void ClearPlotDeltas();
 SYNC_ARCHIVE_BEGIN(CvPlot)
 SYNC_ARCHIVE_VAR(char, m_eFeatureType)
 SYNC_ARCHIVE_END()
+
+struct PrSortByPlotIndex
+{
+	bool operator()(const CvPlot* lhs, const CvPlot* rhs) const { return lhs->GetPlotIndex() < rhs->GetPlotIndex(); }
+};
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 struct SPlotWithScore

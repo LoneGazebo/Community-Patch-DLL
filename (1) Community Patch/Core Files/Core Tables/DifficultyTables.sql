@@ -18,8 +18,9 @@ ALTER TABLE HandicapInfos ADD COLUMN 'MaintenanceFreeUnits' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyBase' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPerCity' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPopulationPercent' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyBonusPercent' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPerEraFlat' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPerEraModifier' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyBonusPercent' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingUnitMultiplier' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'WorkRateModifier' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitUpgradePercent' INTEGER DEFAULT 100;
@@ -72,8 +73,9 @@ ALTER TABLE HandicapInfos ADD COLUMN 'AIMaintenanceFreeUnits' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitSupplyBase' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitSupplyPerCity' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitSupplyPopulationPercent' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitSupplyBonusPercent' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitSupplyPerEraFlat' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitSupplyPerEraModifier' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitSupplyBonusPercent' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIImprovementCostPercent' INTEGER DEFAULT 100;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIUnitUpgradePerEraModifier' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIGrowthPerEraModifier' INTEGER DEFAULT 0;
@@ -106,6 +108,12 @@ ALTER TABLE HandicapInfos ADD COLUMN 'AIDifficultyBonusC' INTEGER DEFAULT 0;
 -- City-States
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingCityStateWorkerUnits' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingCityStateDefenseUnits' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'CityStateUnitSupplyBase' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'CityStateUnitSupplyPerCity' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'CityStateUnitSupplyPopulationPercent' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'CityStateUnitSupplyPerEraFlat' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'CityStateUnitSupplyPerEraModifier' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'CityStateUnitSupplyBonusPercent' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'CityStateWorkRateModifier' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'CityStateGrowthPercent' INTEGER DEFAULT 100;
 ALTER TABLE HandicapInfos ADD COLUMN 'CityStateGrowthPerEraModifier' INTEGER DEFAULT 0;
@@ -136,7 +144,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'TechChoiceCutoffThreshold' INTEGER DEFAULT
 ALTER TABLE HandicapInfos ADD COLUMN 'PolicyChoiceCutoffThreshold' INTEGER DEFAULT 90;
 ALTER TABLE HandicapInfos ADD COLUMN 'BeliefChoiceCutoffThreshold' INTEGER DEFAULT 90;
 -- Tactical AI
-ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxCompletedPositions' INTEGER DEFAULT 500;
+ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxCompletedPositions' INTEGER DEFAULT 640;
 ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxBranches' INTEGER DEFAULT 4;
 ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxChoicesPerUnit' INTEGER DEFAULT 4;
 -- Diplomacy AI

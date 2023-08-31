@@ -166,7 +166,7 @@ WHERE Tag = 'TXT_KEY_POLICY_CIVIL_SOCIETY_HELP';
 
 -- Covert Action
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Covert Action[ENDCOLOR]: Chance of rigged elections and coups in City-States increased (as if attempted twice). Receive one [ICON_SPY] Spy (plus one Spy for every 10 [ICON_CITY_STATE] City-States, if at least 20 city-states ever existed). Spy mission duration reduced by 2 turns for your Spies.'
+SET Text = '[COLOR_POSITIVE_TEXT]Covert Action[ENDCOLOR]: Chance of rigged elections and coups in City-States increased (as if attempted twice). Receive 100 [ICON_VP_SPY_POINTS] Spy Points. Spy mission duration reduced by 2 turns for your Spies.'
 WHERE Tag = 'TXT_KEY_POLICY_COVERT_ACTION_HELP';
 
 -- Creative Expression
@@ -199,17 +199,17 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Universal Suffrage[ENDCOLOR]: A [ICON_GOLDEN_AGE] Golden Age begins, and [ICON_GOLDEN_AGE] Golden Ages last 50% longer. Cities produce +1 [ICON_HAPPINESS_1] Happiness.'
 WHERE Tag = 'TXT_KEY_POLICY_UNIVERSAL_SUFFRAGE_HELP';
 
--- Urbanization (now Self-Determination)
+-- Urbanization (now Self Determination)
 UPDATE Language_en_US
-SET Text = 'Self-Determination'
+SET Text = 'Self Determination'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Self-Determination[ENDCOLOR]: Liberating a city (including removing another civ''s Sphere of Influence on a City-State through conquest) gives 15 XP to all units, 50 [ICON_INFLUENCE] Influence with all City-States, and 40 [ICON_RESEARCH] Science, scaling with Era and City [ICON_CITIZEN] Population. The liberated city gains an Arsenal and 6 units.'
+SET Text = '[COLOR_POSITIVE_TEXT]Self Determination[ENDCOLOR]: Liberating a city (including removing another civ''s Sphere of Influence on a City-State through conquest) gives 15 XP to all units, 50 [ICON_INFLUENCE] Influence with all City-States, and 40 [ICON_RESEARCH] Science, scaling with Era and City [ICON_CITIZEN] Population. The liberated city gains an Arsenal and 6 units.'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Self-Determination is the idea that every group of people has the right to choose, or determine, how they are ruled. While the idea had already spread, one of the first major declarations of it was the Fourteen Points by US President Woodrow Wilson, which among other things, attempted to establish this principle in post World War I Europe. After World War II the Allies made similar pledges, and the UN holds this as a policy to this day. Self-Determination is a simple idea, but it has had great impacts on many things, most importantly Independence. Though, it can be more complex as what exactly the people determine is not necessarily Independence, and many paths are open. Additionally, what group counts as a single people can further complicate the matter.'
+SET Text = 'Self Determination is the idea that every group of people has the right to choose, or determine, how they are ruled. While the idea had already spread, one of the first major declarations of it was the Fourteen Points by US President Woodrow Wilson, which among other things, attempted to establish this principle in post World War I Europe. After World War II the Allies made similar pledges, and the UN holds this as a policy to this day. Self Determination is a simple idea, but it has had great impacts on many things, most importantly Independence. Though, it can be more complex as what exactly the people determine is not necessarily Independence, and many paths are open. Additionally, what group counts as a single people can further complicate the matter.'
 WHERE Tag = 'TXT_KEY_POLICY_URBANIZATION_TEXT';
 
 -- New Deal
@@ -244,19 +244,35 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Academy of Sciences[ENDCOLOR]: -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy in all Cities, +100% [ICON_PRODUCTION] Production towards Research Labs, and receive 5 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Labs in your Empire. Research Labs generate an additional +2 [ICON_RESEARCH] Science.'
 WHERE Tag = 'TXT_KEY_POLICY_ACADEMY_SCIENCES_HELP';
 
--- Cultural Revolution
+-- Cultural Revolution (now Socialist Realism)
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +34% [ICON_TOURISM] Tourism to other Order civilizations, and +5 [ICON_TOURISM] Tourism from all [ICON_GREAT_WORK] Great Works. Spies complete Spy Missions at double the normal rate.'
+SET Text = 'Socialist Realism'
+WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Socialist Realism[ENDCOLOR]: Unlocks the Propaganda Process (converts 15% of [ICON_PRODUCTION] Production into [ICON_TOURISM] Tourism). +25% [ICON_TOURISM] Tourism to other Civilizations following Order. +4 [ICON_PRODUCTION] Production from all [ICON_GREAT_WORK] Great Works.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION_HELP';
 
--- Dictatorship of the Proletariat
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Dictatorship of the Proletariat[ENDCOLOR]: +50% [ICON_TOURISM] Tourism to civilizations with less [ICON_HAPPINESS_1] Happiness. +1 [ICON_HAPPINESS_1] Happiness from Factories.'
+SET Text = 'The Socialist Realism movement, a style of "realistic expression" that began in Soviet Russia and became dominant in communist countries around the world, promoted the triumph of socialism through art, photography, film and public monuments. Along with the Socialist Classical style of architecture, Socialist Realism was the only Party approved style of public art in the Soviet Union for sixty years. The dramatic and minimalist monuments that resulted were seen as powerful propaganda tools in promoting the dictatorship of the proletariat and the physical display of communist beliefs.'
+WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_REVOLUTION_TEXT';
+
+-- Dictatorship of the Proletariat (now Cultural Revolution)
+UPDATE Language_en_US
+SET Text = 'Cultural Revolution'
+WHERE Tag = 'TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Revolution[ENDCOLOR]: +25% [ICON_TOURISM] Tourism to civilizations with less [ICON_HAPPINESS_1] Happiness. +1 [ICON_HAPPINESS_1] Happiness from Factories.'
 WHERE Tag = 'TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_HELP';
+
+UPDATE Language_en_US
+SET Text = 'The Great Proletarian Cultural Revolution was a social movement conducted from 1966 through 1976 in the People''s Republic of China. Begun by Mao Zedong and the Communist Party, the Cultural Revolution sought to re-educate the common people by removing or repressing capitalist, traditional and religious elements, through arrests and violence if necessary. The cultural struggle spread through all levels of society, students, the military, the party and urban workers, delaying China''s reemergence in world affairs for decades.'
+WHERE Tag = 'TXT_KEY_POLICY_DICTATORSHIP_PROLETARIAT_TEXT';
 
 -- Double Agents
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Double Agents[ENDCOLOR]: Receive 3 [ICON_SPY] Spies (plus one Spy for every 10 [ICON_CITY_STATE] City-States, if at least 20 city-states ever existed). Spies twice as likely to capture enemy spies in owned Cities. Spy mission duration reduced by 1 turn for your Spies and increased by 1 turn for enemy Spies in your Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Double Agents[ENDCOLOR]: Receive 300 [ICON_VP_SPY_POINTS] Spy Points. Spies twice as likely to capture enemy spies in owned Cities. Spy mission duration reduced by 1 turn for your Spies and increased by 1 turn for enemy Spies in your Cities.'
 WHERE Tag = 'TXT_KEY_POLICY_DOUBLE_AGENTS_HELP';
 
 -- Hero of the People
@@ -274,14 +290,22 @@ UPDATE Language_en_US
 SET Text = '[COLOR_POSITIVE_TEXT]Spaceflight Pioneers[ENDCOLOR]: Gain a free Great Engineer and Great Scientist. May finish Spaceship parts with Great Engineers, and expending a [ICON_GREAT_PEOPLE] Great Person grants 100 [ICON_RESEARCH] Science, scaling with Era. Hurrying [ICON_PRODUCTION] Production with Great Engineers now 50% more effective.'
 WHERE Tag = 'TXT_KEY_POLICY_SPACEFLIGHT_PIONEERS_HELP';
 
--- Party Leadership
+-- Party Leadership (now Dictatorship of the Proletariat)
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Party Leadership[ENDCOLOR]: +7 [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture per city.'
+SET Text = 'Dictatorship of the Proletariat'
+WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Dictatorship of the Proletariat[ENDCOLOR]: +7 [ICON_FOOD] Food, [ICON_RESEARCH] Science, [ICON_GOLD] Gold, and [ICON_CULTURE] Culture per city.'
 WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP_HELP';
+
+UPDATE Language_en_US
+SET Text = 'In Marxist socio-political theory, the Dictatorship of the Proletariat refers to a social state where the working class has direct control of political power; "dictatorship" in this case does not refer to the common definition but rather that an entire social class holds control of the nation. Whether or not capitalists or others were disenfranchised in such a political order would depend, according to Marx and Engels, on specific circumstances at the time. Bringing about such a political order might, or might not, entail violence; but whatever the means, in the end the proletariat would supplant the bourgeoisie.'
+WHERE Tag = 'TXT_KEY_POLICY_PARTY_LEADERSHIP_TEXT';
 
 -- Patriotic War
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land Units gain +20% [ICON_STRENGTH] Strength when in or adjacent to a City. When you conquer a City for the first time, all Combat Units are fully healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
+SET Text = '[COLOR_POSITIVE_TEXT]Patriotic War[ENDCOLOR]: Land Units gain +20% [ICON_STRENGTH] Strength when in or adjacent to a City. When you conquer a City for the first time, all Combat Units within 3 Tiles of the City are fully healed. Can build [COLOR_YELLOW]T-34s[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_POLICY_PATRIOTIC_WAR_HELP';
 
 -- Resettlement
@@ -326,7 +350,7 @@ SET Text = 'Great Leap Forward'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR]: Receive two free Technologies.'
+SET Text = '[COLOR_POSITIVE_TEXT]Great Leap Forward[ENDCOLOR]: Receive a free Technology. Spies complete Spy Missions at double the normal rate. +1 [ICON_RESEARCH] Science in Cities for every 3 non-Specialist [ICON_CITIZEN] Citizens.'
 WHERE Tag = 'TXT_KEY_POLICY_YOUNG_PIONEERS_HELP';
 
 UPDATE Language_en_US
@@ -360,7 +384,7 @@ WHERE Tag = 'TXT_KEY_AESTHETICS_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] allows you to maximize the potential of [ICON_GREAT_WORK] Great Works and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Earn Great [ICON_GREAT_WRITER] Writers, [ICON_GREAT_ARTIST] Artists, and [ICON_GREAT_MUSICIAN] Musician 25% faster.[NEWLINE][ICON_BULLET] +10% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET] +100% [ICON_PRODUCTION] Production toward all Guilds.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +2 [ICON_GOLDEN_AGE] Golden Age Points and +1 [ICON_RESEARCH] Science in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_POSITIVE_TEXT]Louvre[ENDCOLOR]. [NEWLINE][ICON_BULLET] Completing an [ICON_RES_ARTIFACTS] Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age triggers (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR] with all known Civilizations.[NEWLINE][ICON_BULLET] Allows you to see [ICON_RES_HIDDEN_ARTIFACTS] Hidden Antiquity Sites.[NEWLINE][ICON_BULLET] +3 [ICON_RESEARCH] Science and [ICON_GOLDEN_AGE] Golden Age Points from [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Artistry[ENDCOLOR] allows you to maximize the potential of [ICON_GREAT_WORK] Great Works and [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Earn Great [ICON_GREAT_WRITER] Writers, [ICON_GREAT_ARTIST] Artists, and [ICON_GREAT_MUSICIAN] Musicians 25% faster.[NEWLINE][ICON_BULLET]+10% [ICON_CULTURE] Culture during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][ICON_BULLET]+100% [ICON_PRODUCTION] Production toward all Guilds.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Artistry policy unlocked grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science in every City.[NEWLINE][ICON_BULLET]20% of Excess [ICON_HAPPINESS_1] Happiness produced in each City is added as progress toward a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Artistry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Louvre[ENDCOLOR]. [NEWLINE][ICON_BULLET]Completing an [ICON_RES_ARTIFACTS] Archaeological Dig or starting a [ICON_GOLDEN_AGE] Golden Age triggers (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR] with all known Civilizations.[NEWLINE][ICON_BULLET]Allows you to see [ICON_RES_HIDDEN_ARTIFACTS] Hidden Antiquity Sites.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MUSICIAN] Great Musicians with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_AESTHETICS_HELP';
 
 UPDATE Language_en_US
@@ -373,7 +397,7 @@ SET Text = 'Humanism'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Humanism[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_GOLDEN_AGE] Golden Age Points from [ICON_VP_GREATWRITING] Great Works of Writing.[NEWLINE][ICON_BULLET]-25% [ICON_GOLDEN_AGE] Golden Age Points needed to trigger a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from all Guilds.'
+SET Text = '[COLOR_POSITIVE_TEXT]Humanism[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_PEACE] Faith from [ICON_VP_GREATWRITING] Great Works of Writing.[NEWLINE][ICON_BULLET]-25% [ICON_GOLDEN_AGE] Golden Age Points needed to trigger a [ICON_GOLDEN_AGE] Golden Age.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from all Guilds.'
 WHERE Tag = 'TXT_KEY_POLICY_CULTURAL_CENTERS_HELP';
 
 UPDATE Language_en_US
@@ -399,7 +423,7 @@ SET Text = 'Heritage'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE][ICON_BULLET]+4 [ICON_GOLD] Gold from [ICON_VP_GREATMUSIC] Great Works of Music.[NEWLINE][ICON_BULLET]+4 [ICON_TOURISM] Tourism and [ICON_GOLDEN_AGE] Golden Age Points from Universities.[NEWLINE][ICON_BULLET]25% of the [ICON_CULTURE] Culture from [ICON_WONDER] World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the city.'
+SET Text = '[COLOR_POSITIVE_TEXT]Heritage[ENDCOLOR][NEWLINE][ICON_BULLET]+4 [ICON_GOLD] Gold from [ICON_VP_GREATMUSIC] Great Works of Music.[NEWLINE][ICON_BULLET]+50% to all [ICON_TOURISM]/[ICON_CULTURE] Theming Bonuses on Empire[NEWLINE][ICON_BULLET]25% of the [ICON_CULTURE] Culture from [ICON_WONDER] World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the city.'
 WHERE Tag = 'TXT_KEY_POLICY_FLOURISHING_OF_ARTS_HELP';
 
 UPDATE Language_en_US
@@ -421,7 +445,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ARTISTIC_GENIUS_TEXT';
 
 -- Cultural Exchange
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness for every 3 [ICON_GREAT_WORK] Great Works in a City.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Amphitheaters and Opera Houses.[NEWLINE][ICON_BULLET]+10% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations.'
+SET Text = '[COLOR_POSITIVE_TEXT]Cultural Exchange[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness for every 3 [ICON_GREAT_WORK] Great Works in a City.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_CULTURE] Culture from Amphitheaters, Galleries, and Opera Houses.[NEWLINE][ICON_BULLET]+10% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] with other Civilizations.'
 WHERE Tag = 'TXT_KEY_POLICY_ETHICS_HELP';
 
 --------------------
@@ -442,7 +466,7 @@ WHERE Tag = 'TXT_KEY_COMMERCE_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] provides bonuses to empires focused on [ICON_GOLD] Gold and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +2 [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET] -5% [ICON_GOLD] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] -5% [ICON_GOLD] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building [COLOR_POSITIVE_TEXT]Broadway[ENDCOLOR]. [NEWLINE][ICON_BULLET] +3 [ICON_HAPPINESS_1] Happiness per unique owned Luxury Resource. [NEWLINE][ICON_BULLET] +2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Specialists.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Industry[ENDCOLOR] provides bonuses to empires focused on [ICON_GOLD] Gold and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Industry grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+2 [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET]-5% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Industry policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]-5% [ICON_INVEST] Gold needed for purchases.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Industry grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building [COLOR_POSITIVE_TEXT]Broadway[ENDCOLOR]. [NEWLINE][ICON_BULLET]+3 [ICON_HAPPINESS_1] Happiness per unique owned Luxury Resource. [NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Specialists.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_MERCHANT] Great Merchants with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_COMMERCE_HELP';
 
 UPDATE Language_en_US
@@ -487,7 +511,7 @@ WHERE Tag = 'TXT_KEY_POLICY_ENTREPRENEURSHIP_HELP';
 
 --Protectionism
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Protectionism[ENDCOLOR][NEWLINE][ICON_BULLET][ICON_GOLD] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.[NEWLINE][ICON_BULLET]+33% Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET]+10% [ICON_FOOD] Food and [ICON_RESEARCH] Science during "[COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR]."'
+SET Text = '[COLOR_POSITIVE_TEXT]Protectionism[ENDCOLOR][NEWLINE][ICON_BULLET][ICON_INVEST] Gold investments in Buildings reduce their [ICON_PRODUCTION] Production cost by an additional 10%.[NEWLINE][ICON_BULLET]+33% Yields from Internal [ICON_INTERNATIONAL_TRADE] Trade Routes.[NEWLINE][ICON_BULLET]+10% [ICON_FOOD] Food and [ICON_RESEARCH] Science during "[COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR]."'
 WHERE Tag = 'TXT_KEY_POLICY_PROTECTIONISM_HELP';
 
 --------------------
@@ -508,7 +532,7 @@ WHERE Tag = 'TXT_KEY_EXPLORATION_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Imperialism[ENDCOLOR] enhances your ability to spread your empire through military power, particularly naval (and later air) supremacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Imperialism grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +1 [ICON_MOVES] Movement for Naval Units, Embarked Units, and [ICON_GREAT_GENERAL] Great Generals, as well as +1 Sight for Melee, Recon, Naval Melee and Gunpowder Units. [NEWLINE][ICON_BULLET] +10% [ICON_PRODUCTION] Production toward Military Units, -10% [ICON_GOLD] Gold required for upgrades.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Imperialism policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +5% [ICON_PRODUCTION] Production for Military Units, -5% [ICON_GOLD] Gold required for upgrades.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Imperialism grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_POSITIVE_TEXT]Pentagon[ENDCOLOR]. [NEWLINE][ICON_BULLET] All Naval and Air units gain the [COLOR_POSITIVE_TEXT]Banzai![ENDCOLOR] Promotion (become stronger as they take damage).[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_ADMIRAL] Great Admirals with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Imperialism[ENDCOLOR] enhances your ability to spread your empire through military power, particularly naval (and later air) supremacy.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Imperialism grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+1 [ICON_MOVES] Movement for Naval Units, Embarked Units, and [ICON_GREAT_GENERAL] Great Generals, as well as +1 Sight for Melee, Recon, Naval Melee and Gunpowder Units. [NEWLINE][ICON_BULLET]+10% [ICON_PRODUCTION] Production toward Military Units, -10% [ICON_GOLD] Gold required for upgrades.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Imperialism policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+5% [ICON_PRODUCTION] Production for Military Units, -5% [ICON_GOLD] Gold required for upgrades.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Imperialism grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Pentagon[ENDCOLOR]. [NEWLINE][ICON_BULLET]All Naval and Air units gain the [COLOR_POSITIVE_TEXT]Banzai![ENDCOLOR] Promotion (become stronger as they take damage).[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_ADMIRAL] Great Admirals with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_EXPLORATION_HELP';
 
 -- Maritime Infrastructure (now Martial Law)
@@ -594,7 +618,7 @@ WHERE Tag = 'TXT_KEY_HONOR_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Authority[ENDCOLOR] will greatly benefit warlike and expansionist civilizations.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Authority grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +25% combat bonus VS Barbarians and receive announcements when Barbarian Camps spawn in revealed territory. [NEWLINE][ICON_BULLET] Receive 25 [ICON_CULTURE] Culture when you clear Barbarian Camps, scaling with Era. [NEWLINE][ICON_BULLET] Gain [ICON_CULTURE] Culture when you kill Units equal to 100% of its [ICON_STRENGTH] Strength.[NEWLINE][ICON_BULLET] +1 [ICON_PRODUCTION] Production in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Authority policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +1 [ICON_PRODUCTION] Production in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Authority grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building [COLOR_POSITIVE_TEXT]Alhambra[ENDCOLOR]. [NEWLINE][ICON_BULLET] Allows the purchasing of [COLOR_YELLOW]Free Companies[ENDCOLOR], [COLOR_YELLOW]Foreign Legions[ENDCOLOR], and [COLOR_YELLOW]Mercenaries[ENDCOLOR] as their prerequisite technologies are researched.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_GENERAL] Great Generals with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Authority[ENDCOLOR] will greatly benefit warlike and expansionist civilizations.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Authority grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+25% combat bonus VS Barbarians and receive announcements when Barbarian Camps spawn in revealed territory. [NEWLINE][ICON_BULLET]Receive 25 [ICON_CULTURE] Culture when you clear Barbarian Camps, scaling with Era. [NEWLINE][ICON_BULLET]Gain [ICON_CULTURE] Culture when you kill Units equal to 100% of its [ICON_STRENGTH] Strength.[NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Authority policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+1 [ICON_PRODUCTION] Production in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Authority grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building [COLOR_POSITIVE_TEXT]Alhambra[ENDCOLOR]. [NEWLINE][ICON_BULLET]Allows the purchasing of [COLOR_YELLOW]Free Companies[ENDCOLOR], [COLOR_YELLOW]Foreign Legions[ENDCOLOR], and [COLOR_YELLOW]Mercenaries[ENDCOLOR] as their prerequisite technologies are researched.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_GENERAL] Great Generals with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_HONOR_HELP';
 
 UPDATE Language_en_US
@@ -607,7 +631,7 @@ SET Text = 'Tribute'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE][ICON_BULLET]A [COLOR_POSITIVE_TEXT]Settler[ENDCOLOR] appears near the [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]+25% Non-Gold Yields of Heavy Tribute demands from [ICON_CITY_STATE] City-States ([COLOR_YELLOW]+50% if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted[ENDCOLOR]).'
+SET Text = '[COLOR_POSITIVE_TEXT]Tribute[ENDCOLOR][NEWLINE][ICON_BULLET]A [COLOR_POSITIVE_TEXT]Settler[ENDCOLOR] appears near the [ICON_CAPITAL] Capital.[NEWLINE][ICON_BULLET]Gain [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital equal to 25% of the Gold Tribute demanded from City-States ([COLOR_YELLOW]50% if all {TXT_KEY_POLICY_BRANCH_HONOR} policies are adopted[ENDCOLOR]).'
 WHERE Tag = 'TXT_KEY_POLICY_WARRIOR_CODE_HELP';
 
 UPDATE Language_en_US
@@ -689,7 +713,7 @@ WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Progress[ENDCOLOR] is best for civilizations which desire robust infrastructure and scientific advancement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Progress grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Receive 20 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born in your [ICON_CAPITAL] Capital and 15 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in your [ICON_CAPITAL] Capital, both scaling with Era.[NEWLINE][ICON_BULLET] Receive 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era, and for every Technology already unlocked (not scaling with Era).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Progress policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Gain an additional 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_POSITIVE_TEXT]Forbidden Palace[ENDCOLOR]. [NEWLINE][ICON_BULLET] Receive 25 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, scaling with Era.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Progress[ENDCOLOR] is best for civilizations which desire robust infrastructure and scientific advancement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Progress grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]Receive 20 [ICON_RESEARCH] Science when a [ICON_CITIZEN] Citizen is born in your [ICON_CAPITAL] Capital and 15 [ICON_RESEARCH] Science for every [ICON_CITIZEN] Citizen already in your [ICON_CAPITAL] Capital, both scaling with Era.[NEWLINE][ICON_BULLET]Receive 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era, and for every Technology already unlocked (not scaling with Era).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Progress policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]Gain an additional 15 [ICON_CULTURE] Culture when a Technology is researched, scaling with Era.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Progress grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Forbidden Palace[ENDCOLOR]. [NEWLINE][ICON_BULLET]Receive 25 [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born in any city, scaling with Era.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_WRITER] Great Writers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_LIBERTY_HELP';
 
 UPDATE Language_en_US
@@ -702,7 +726,7 @@ SET Text = 'Organization'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Organization[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production in every City.[NEWLINE][ICON_BULLET]+25% [ICON_PRODUCTION] Production toward Settlers, Workers, and Trade Units.[NEWLINE][ICON_BULLET]+1 [ICON_MOVES] Movement for all Civilian Units.'
+SET Text = '[COLOR_POSITIVE_TEXT]Organization[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_PRODUCTION] Production in every City.[NEWLINE][ICON_BULLET]+25% [ICON_PRODUCTION] Production toward Workers and Trade Units.[NEWLINE][ICON_BULLET]+1 [ICON_MOVES] Movement for Workers.'
 WHERE Tag = 'TXT_KEY_POLICY_COLLECTIVE_RULE_HELP';
 
 UPDATE Language_en_US
@@ -779,7 +803,7 @@ WHERE Tag = 'TXT_KEY_PATRONAGE_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Statecraft[ENDCOLOR] improves your ability to benefit from [ICON_INTERNATIONAL_TRADE] Trade Routes, [ICON_CITY_STATE] City-States, [ICON_SPY] Spies, and [ICON_DIPLOMAT] the World Congress.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Statecraft grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +1 of every Yield in [ICON_CAPITAL] Capital for every 20 [ICON_CITIZEN] Citizens in your Empire.[NEWLINE][ICON_BULLET] +1 [ICON_GOLD] Gold in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Statecraft policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +10% [ICON_INFLUENCE] Influence from Trade Missions, and +1 [ICON_GOLD] Gold in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Statecraft grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_POSITIVE_TEXT]Palace of Westminster[ENDCOLOR]. [NEWLINE][ICON_BULLET] Every World Congress Session, gain 5 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for each [ICON_DIPLOMAT] Delegate you control, scaling with Era.[NEWLINE][ICON_BULLET] [ICON_WONDER] World Wonders require 1 less unlocked Policy for every 3 City-State alliances you maintain.'
+SET Text = '[COLOR_POSITIVE_TEXT]Statecraft[ENDCOLOR] improves your ability to benefit from [ICON_INTERNATIONAL_TRADE] Trade Routes, [ICON_CITY_STATE] City-States, [ICON_SPY] Spies, and [ICON_DIPLOMAT] the World Congress.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Statecraft grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+1 of every Yield in [ICON_CAPITAL] Capital for every 20 [ICON_CITIZEN] Citizens in your Empire.[NEWLINE][ICON_BULLET]+1 [ICON_GOLD] Gold in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Statecraft policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+10% [ICON_INFLUENCE] Influence from {TXT_KEY_POP_CSTATE_GIFT_GOLD}, and +1 [ICON_GOLD] Gold in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all policies in Statecraft grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Palace of Westminster[ENDCOLOR]. [NEWLINE][ICON_BULLET]Every World Congress Session, gain 5 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_GOLD] Gold for each [ICON_DIPLOMAT] Delegate you control, scaling with Era.[NEWLINE][ICON_BULLET][ICON_WONDER] World Wonders require 1 less unlocked Policy for every 3 City-State alliances you maintain.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PATRONAGE_HELP';
 
 UPDATE Language_en_US
@@ -792,7 +816,7 @@ SET Text = 'Foreign Service'
 WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Foreign Service[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 1 [ICON_SPY] Spy (plus one Spy for every 10 [ICON_CITY_STATE] City-States, if at least 20 city-states ever existed).[NEWLINE][ICON_BULLET]Spy mission duration reduced by 1 turn for your Spies.[NEWLINE][ICON_BULLET]+50% Rewards from [ICON_CITY_STATE] City-State Quests.'
+SET Text = '[COLOR_POSITIVE_TEXT]Foreign Service[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 100 [ICON_VP_SPY_POINTS] Spy Points.[NEWLINE][ICON_BULLET]Spy mission duration reduced by 1 turn for your Spies.[NEWLINE][ICON_BULLET]+50% Rewards from [ICON_CITY_STATE] City-State Quests.'
 WHERE Tag = 'TXT_KEY_POLICY_PHILANTHROPY_HELP';
 
 UPDATE Language_en_US
@@ -810,7 +834,7 @@ SET Text = 'Shadow Networks'
 WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 25% of [ICON_RESEARCH] Science generated by [COLOR_POSITIVE_TEXT]Allied[ENDCOLOR] City-States.[NEWLINE][ICON_BULLET]+3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every active [ICON_SPY] Spy or [ICON_DIPLOMAT] Diplomat (up to 30%).[NEWLINE][ICON_BULLET]Spy mission duration reduced by 1 turn for your Spies.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from Constabularies and Police Stations.[NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science from Specialists.'
+SET Text = '[COLOR_POSITIVE_TEXT]Shadow Networks[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 25% of [ICON_RESEARCH] Science generated by [COLOR_POSITIVE_TEXT]Allied[ENDCOLOR] City-States.[NEWLINE][ICON_BULLET]+3% [ICON_CULTURE] Culture in [ICON_CAPITAL] Capital for every 100 [ICON_VP_SPY_POINTS] Spy Points ever accumulated (up to 30%).[NEWLINE][ICON_BULLET]Spy mission duration reduced by 1 turn for your Spies.[NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science from Constabularies and Police Stations.[NEWLINE][ICON_BULLET]+1 [ICON_RESEARCH] Science from Specialists.'
 WHERE Tag = 'TXT_KEY_POLICY_SCHOLASTICISM_HELP';
 
 UPDATE Language_en_US
@@ -861,7 +885,7 @@ WHERE Tag = 'TXT_KEY_PIETY_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Fealty[ENDCOLOR] is best for empires focused on [ICON_RELIGION] Religion, City [ICON_PRODUCTION] Infrastructure, and [ICON_FOOD] Growth.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Can purchase Monasteries with [ICON_PEACE] Faith (+3 [ICON_FOOD] Food, +3 [ICON_RESEARCH] Science, +2 [ICON_PEACE] Faith).[NEWLINE][ICON_BULLET] -25% [ICON_PEACE] Faith costs for purchasing Buildings, Missionaries, and Inquisitors.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Fealty policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +1 [ICON_FOOD] Food and [ICON_STRENGTH] Strength in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] Unlocks building the [COLOR_POSITIVE_TEXT]Red Fort[ENDCOLOR].[NEWLINE][ICON_BULLET] +25% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Shared Religion[ENDCOLOR].[NEWLINE][ICON_BULLET] Cities that follow your [ICON_RELIGION] Majority Religion generate +3 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Fealty[ENDCOLOR] is best for empires focused on [ICON_RELIGION] Religion, City [ICON_PRODUCTION] Infrastructure, and [ICON_FOOD] Growth.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]Can purchase Monasteries with [ICON_PEACE] Faith (+3 [ICON_FOOD] Food, +3 [ICON_RESEARCH] Science, +2 [ICON_PEACE] Faith).[NEWLINE][ICON_BULLET]-25% [ICON_PEACE] Faith costs for purchasing Buildings, Missionaries, and Inquisitors.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Fealty policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food and [ICON_STRENGTH] Strength in every City.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Fealty grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]Red Fort[ENDCOLOR].[NEWLINE][ICON_BULLET]+25% [ICON_TOURISM] Tourism modifier for [COLOR_POSITIVE_TEXT]Shared Religion[ENDCOLOR].[NEWLINE][ICON_BULLET]Cities that follow your [ICON_RELIGION] Majority Religion generate +3 [ICON_RESEARCH] Science, [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_ARTIST] Great Artists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_PIETY_HELP';
 
 -- Organized Religion
@@ -941,7 +965,7 @@ WHERE Tag = 'TXT_KEY_RATIONALISM_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Rationalism[ENDCOLOR] focuses on maximizing [ICON_FOOD] Growth and [ICON_RESEARCH] Science output.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET] +3 [ICON_RESEARCH] Science and +2 [ICON_PRODUCTION] Production from all Strategic Resources.[NEWLINE][ICON_BULLET] +5% [ICON_RESEARCH] Science, and -1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Rationalism policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +2% [ICON_RESEARCH] Science.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building [COLOR_POSITIVE_TEXT]Bletchley Park[ENDCOLOR]. [NEWLINE][ICON_BULLET] Earn [ICON_GREAT_SCIENTIST] Great Scientists +33% faster. [NEWLINE][ICON_BULLET] -1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities. [NEWLINE][ICON_BULLET] +25% [ICON_FOOD] Growth in all cities.[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_SCIENTIST] Great Scientists with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Rationalism[ENDCOLOR] focuses on maximizing [ICON_FOOD] Growth and [ICON_RESEARCH] Science output.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET]+3 [ICON_RESEARCH] Science and +2 [ICON_PRODUCTION] Production from all Strategic Resources.[NEWLINE][ICON_BULLET]+5% [ICON_RESEARCH] Science in all Cities.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Rationalism policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+2% [ICON_RESEARCH] Science.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Rationalism grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building [COLOR_POSITIVE_TEXT]Bletchley Park[ENDCOLOR]. [NEWLINE][ICON_BULLET]-1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities. [NEWLINE][ICON_BULLET]+34% [ICON_SPY] Spy Resistance in all Cities.[NEWLINE][ICON_BULLET]Spy mission duration increased by 2 turns for enemy Spies in your Cities.[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_SCIENTIST] Great Scientists with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_RATIONALISM_HELP';
 
 -- Humanism (now Enlightenment)
@@ -950,24 +974,24 @@ SET Text = 'Enlightenment'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from Universities.[NEWLINE][ICON_BULLET]+10% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Enlightenment[ENDCOLOR][NEWLINE][ICON_BULLET]Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology.[NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from Universities.'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_HELP';
 
 UPDATE Language_en_US
 SET Text = 'The Age of Enlightenment (or simply the Enlightenment or Age of Reason) is the time period in which cultural and social changes occurred emphasizing reason, analysis and individualism rather than traditional ways of thinking. Initiated by philosophes beginning in late 17th-century Western Europe the process of change fueled from voluntary organizations of men who were committed to the betterment of society. These men convened at coffeehouses, salons and masonic lodges. Institutions that were deeply rooted in society, such as religion and the government began to be questioned and a greater emphasis was placed on ways to reform society with toleration, science and skepticism.'
 WHERE Tag = 'TXT_KEY_POLICY_HUMANISM_TEXT';
 
--- Scientific Revolution (now Rights of Man)
+-- Scientific Revolution (now Empiricism)
 UPDATE Language_en_US
-SET Text = 'Rights of Man'
+SET Text = 'Empiricism'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Rights of Man[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food in Cities for every 2 non-Specialist [ICON_CITIZEN] Citizens.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Villages.'
+SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE][ICON_BULLET]All citizens consume 1 less [ICON_FOOD] Food than normal (minimum 1).[NEWLINE][ICON_BULLET]+25% [ICON_FOOD] Growth in all cities.[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFIC_REVOLUTION_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Declaration was drafted by General Lafayette, Thomas Jefferson, and Honoré Mirabeau. Influenced by the doctrine of ''natural right'', the rights of man are held to be universal: valid at all times and in every place, pertaining to human nature itself. It became the basis for a nation of free individuals protected equally by the law. It is included in the beginning of the constitutions of both the Fourth French Republic (1946) and Fifth Republic (1958) and is still current. Inspired by the Enlightenment philosophers, the Declaration was a core statement of the values of the French Revolution and had a major impact on the development of freedom and democracy in Europe and worldwide.'
+SET Text = 'Empiricism is a theory which states that knowledge comes only or primarily from sensory experience. One of several views of epistemology, the study of human knowledge, along with rationalism and skepticism, empiricism emphasizes the role of experience and evidence, especially sensory experience, in the formation of ideas, over the notion of innate ideas or traditions; empiricists may argue however that traditions (or customs) arise due to relations of previous sense experiences.'
 WHERE Tag = 'TXT_KEY_POLICY_SCIENTIFICREVOLUTION_TEXT';
 
 -- Secularism (now Scientific Revolution)
@@ -976,29 +1000,29 @@ SET Text = 'Scientific Revolution'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE][ICON_BULLET]Can construct [COLOR_POSITIVE_TEXT]Observatories[ENDCOLOR] (+6 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science from nearby Mountains, 2 [ICON_VP_SCIENTIST] Scientist Slot).[NEWLINE][ICON_BULLET]+3% [ICON_RESEARCH] Science in a City for every [ICON_GREAT_WORK] Great Work present (up to 20%).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Jungle and Snow.'
+SET Text = '[COLOR_POSITIVE_TEXT]Scientific Revolution[ENDCOLOR][NEWLINE][ICON_BULLET]Can construct [COLOR_POSITIVE_TEXT]Observatories[ENDCOLOR] (+6 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science from nearby Mountains, 2 [ICON_VP_SCIENTIST] Scientist Slot).[NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science from Jungle and Snow.'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_HELP';
 
 UPDATE Language_en_US
 SET Text = 'A scientific revolution is a period when rapid advances in human knowledge or technology overturns the current worldview, as a result triggering yet more advancements in thought and knowledge. Much of Europe underwent a scientific revolution in the 16th century, following the publication of Nicolaus Copernicus'' work, "On the Revolutions of the Heavenly Spheres" and Andreas Vesalius'' "On the Fabric of the Human Body In Seven Books." Both used modern (for the period) scientific practices to examine parts of the world around them and overturned incorrect scientific theories, some dating back to the ancient Greeks. Following the success of these books, the floodgates were opened, and scientists began carefully examining everything around them, and human knowledge increased exponentially over the succeeding centuries.'
 WHERE Tag = 'TXT_KEY_POLICY_SECULARISM_TEXT';
 
--- Sovereignty (now Empiricism)
+-- Sovereignty (now Rights of Man)
 UPDATE Language_en_US
-SET Text = 'Empiricism'
+SET Text = 'Rights of Man'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Empiricism[ENDCOLOR][NEWLINE][ICON_BULLET]Specialists consume 1 less [ICON_FOOD] Food than normal (minimum 1).[NEWLINE][ICON_BULLET]+34% [ICON_SPY] Spy Resistance in all Cities.[NEWLINE][ICON_BULLET]Spy mission duration increased by 2 turns for enemy Spies in your Cities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Rights of Man[ENDCOLOR][NEWLINE][ICON_BULLET]-1 [ICON_HAPPINESS_3] Unhappiness from all Needs in all Cities.[NEWLINE][ICON_BULLET]+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Villages.[NEWLINE][ICON_BULLET]+10% [ICON_RESEARCH] Science during [ICON_GOLDEN_AGE] Golden Ages.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Empiricism is a theory which states that knowledge comes only or primarily from sensory experience. One of several views of epistemology, the study of human knowledge, along with rationalism and skepticism, empiricism emphasizes the role of experience and evidence, especially sensory experience, in the formation of ideas, over the notion of innate ideas or traditions; empiricists may argue however that traditions (or customs) arise due to relations of previous sense experiences.'
+SET Text = 'The Declaration was drafted by General Lafayette, Thomas Jefferson, and Honoré Mirabeau. Influenced by the doctrine of ''natural right'', the rights of man are held to be universal: valid at all times and in every place, pertaining to human nature itself. It became the basis for a nation of free individuals protected equally by the law. It is included in the beginning of the constitutions of both the Fourth French Republic (1946) and Fifth Republic (1958) and is still current. Inspired by the Enlightenment philosophers, the Declaration was a core statement of the values of the French Revolution and had a major impact on the development of freedom and democracy in Europe and worldwide.'
 WHERE Tag = 'TXT_KEY_POLICY_SOVEREIGNTY_TEXT';
 
 -- Free Thought
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+25% Yields for [ICON_GREAT_SCIENTIST] Great Scientists when you expend them for their Instant Yield abilities.'
+SET Text = '[COLOR_POSITIVE_TEXT]Free Thought[ENDCOLOR][NEWLINE][ICON_BULLET]-5 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest in all Cities.[NEWLINE][ICON_BULLET]+25% Instant Yields from [ICON_GREAT_SCIENTIST] Great Scientists.[NEWLINE][ICON_BULLET]Earn [ICON_GREAT_SCIENTIST] Great Scientists +33% faster.'
 WHERE Tag = 'TXT_KEY_POLICY_FREE_THOUGHT_HELP';
 
 --------------------
@@ -1011,7 +1035,7 @@ WHERE Tag = 'TXT_KEY_TRADITION_TITLE';
 
 -- Opener/Finisher
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] focuses on generating Great People and the construction of an impressive Capital.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Tradition grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +2 [ICON_FOOD] Food, [ICON_CITIZEN] Population, and [ICON_HAPPINESS_1] Happiness in the [ICON_CAPITAL] Capital. [NEWLINE][ICON_BULLET] +1 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital for every 2 [ICON_CITIZEN] Citizens. [NEWLINE][ICON_BULLET] +5% [ICON_FOOD] Growth in all Cities.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Tradition policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET] +3% [ICON_FOOD] Growth in all Cities, and +1 [ICON_RESEARCH] Science in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Tradition grants:[ENDCOLOR][NEWLINE][ICON_BULLET] Unlocks building the [COLOR_POSITIVE_TEXT]University of Sankore[ENDCOLOR]. [NEWLINE][ICON_BULLET] +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from all Great Person Improvements and [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET] [COLOR_POSITIVE_TEXT]Throne Room[ENDCOLOR] built in [ICON_CAPITAL] Capital (+10% to all Yields, +1 City tile working range, 1 [ICON_VP_GREATMUSIC] Great Work of Music slot, 1 [ICON_VP_MUSICIAN] Musician Slot).[NEWLINE][ICON_BULLET] Allows for the purchase of [ICON_GREAT_ENGINEER] Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.'
+SET Text = '[COLOR_POSITIVE_TEXT]Tradition[ENDCOLOR] focuses on generating Great People and the construction of an impressive Capital.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting Tradition grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+2 [ICON_FOOD] Food, [ICON_CITIZEN] Population, and [ICON_HAPPINESS_1] Happiness in the [ICON_CAPITAL] Capital. [NEWLINE][ICON_BULLET]+1 [ICON_CULTURE] Culture in the [ICON_CAPITAL] Capital for every 2 [ICON_CITIZEN] Citizens. [NEWLINE][ICON_BULLET]+5% [ICON_FOOD] Growth in all Cities.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Each Tradition policy unlocked grants:[ENDCOLOR] [NEWLINE][ICON_BULLET]+3% [ICON_FOOD] Growth in all Cities, and +1 [ICON_RESEARCH] Science in your [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Adopting all Policies in Tradition grants:[ENDCOLOR][NEWLINE][ICON_BULLET]Unlocks building the [COLOR_POSITIVE_TEXT]University of Sankore[ENDCOLOR]. [NEWLINE][ICON_BULLET]+1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from all Great Person Improvements and [ICON_RES_ARTIFACTS] Landmarks.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Throne Room[ENDCOLOR] built in [ICON_CAPITAL] Capital (+10% to all Yields, +1 City tile working range, 1 [ICON_VP_GREATMUSIC] Great Work of Music slot, 1 [ICON_VP_MUSICIAN] Musician Slot).[NEWLINE][ICON_BULLET]Allows for the purchase of [ICON_GREAT_ENGINEER] Great Engineers with [ICON_PEACE] Faith starting in the Industrial Era.'
 WHERE Tag = 'TXT_KEY_POLICY_BRANCH_TRADITION_HELP';
 
 -- Aristocracy (now Justice)
@@ -1046,7 +1070,7 @@ SET Text = 'Majesty'
 WHERE Tag = 'TXT_KEY_POLICY_MONARCHY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE][ICON_BULLET]Specialists in [ICON_CAPITAL] Capital consume half the normal amount of [ICON_FOOD] Food.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]State Treasury[ENDCOLOR] built in [ICON_CAPITAL] Capital (+4 [ICON_GOLD] Gold, +25% [ICON_GREAT_PEOPLE] Great Person Rate, 1 [ICON_VP_MERCHANT] Merchant Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Majesty[ENDCOLOR][NEWLINE][ICON_BULLET]Specialists in [ICON_CAPITAL] Capital consume half the normal amount of [ICON_FOOD] Food.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Palace Garden[ENDCOLOR] built in [ICON_CAPITAL] Capital (+5 [ICON_FOOD] Food, +25% [ICON_GREAT_PEOPLE] Great Person Rate, -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization, 1 [ICON_GREAT_WORK] Great Work of Writing slot, 1 [ICON_VP_WRITER] Writer Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_MONARCHY_HELP';
 
 UPDATE Language_en_US
@@ -1059,7 +1083,7 @@ SET Text = 'Splendor'
 WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELITE';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Splendor[ENDCOLOR][NEWLINE][ICON_BULLET]Expending a [ICON_GREAT_PEOPLE] Great Person grants 50 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Palace Garden[ENDCOLOR] built in [ICON_CAPITAL] Capital (+5 [ICON_FOOD] Food, 1 [ICON_VP_GREATWRITING] Great Work of Writing slot, +2 [ICON_CULTURE] Culture to every Monuments, Gardens, and Baths; 1 [ICON_VP_WRITER] Writer Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Splendor[ENDCOLOR][NEWLINE][ICON_BULLET]Expending a [ICON_GREAT_PEOPLE] Great Person grants 50 [ICON_CULTURE] Culture, scaling with Era.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]State Treasury[ENDCOLOR] built in [ICON_CAPITAL] Capital (+4 [ICON_GOLD] Gold, +2 [ICON_CULTURE] Culture to every Monuments, Gardens, and Baths; 1 [ICON_VP_MERCHANT] Merchant Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_LANDED_ELITE_HELP';
 
 UPDATE Language_en_US
@@ -1072,7 +1096,7 @@ SET Text = 'Ceremony'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from National Wonders with Building requirements.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Court Astrologer[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science to every Councils, Lodges, and Herbalists; 1 [ICON_VP_SCIENTIST] Scientist Slot).'
+SET Text = '[COLOR_POSITIVE_TEXT]Ceremony[ENDCOLOR][NEWLINE][ICON_BULLET]+1 [ICON_HAPPINESS_1] Happiness from National Wonders with Building requirements.[NEWLINE][ICON_BULLET]+25% [ICON_PRODUCTION] Production toward National Wonders with Building requirements.[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]Court Astrologer[ENDCOLOR] built in [ICON_CAPITAL] Capital (+3 [ICON_RESEARCH] Science, +1 [ICON_RESEARCH] Science to every Councils, Smokehouses, and Herbalists; 1 [ICON_VP_SCIENTIST] Scientist Slot).'
 WHERE Tag = 'TXT_KEY_POLICY_LEGALISM_HELP';
 
 UPDATE Language_en_US

@@ -365,7 +365,7 @@ public:
 
 	// End Resource Demanded
 
-	int getFoodTurnsLeft(int iCorpMod = -1) const;
+	int getFoodTurnsLeft() const;
 	bool isProduction() const;
 	bool isProductionLimited() const;
 	bool isProductionUnit() const;
@@ -543,8 +543,8 @@ public:
 	int foodConsumptionSpecialistTimes100() const;
 	int foodConsumption(bool bNoAngry = false, int iExtra = 0) const;
 	int foodConsumptionTimes100(bool bNoAngry = false, int iExtra = 0) const;
-	int foodDifference(bool bBottom = true, bool bJustCheckingStarve = false) const;
-	int foodDifferenceTimes100(bool bBottom = true, bool bJustCheckingStarve = false, int iCorpMod = -1, CvString* toolTipSink = NULL) const;
+	int foodDifference(bool bJustCheckingStarve = false) const;
+	int foodDifferenceTimes100(bool bJustCheckingStarve = false, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
 
 	int getGrowthMods() const;
@@ -1126,6 +1126,9 @@ public:
 	int GetYieldFromVictoryGlobal(YieldTypes eIndex) const;
 	void ChangeYieldFromVictoryGlobal(YieldTypes eIndex, int iChange);
 
+	int GetYieldFromVictoryGlobalEraScaling(YieldTypes eIndex) const;
+	void ChangeYieldFromVictoryGlobalEraScaling(YieldTypes eIndex, int iChange);
+
 	int GetYieldFromPillage(YieldTypes eIndex) const;
 	void ChangeYieldFromPillage(YieldTypes eIndex, int iChange);
 
@@ -1169,6 +1172,9 @@ public:
 
 	int GetYieldFromUnitLevelUp(YieldTypes eIndex) const;
 	void ChangeYieldFromUnitLevelUp(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromCombatExperience(YieldTypes eIndex) const;
+	void ChangeYieldFromCombatExperience(YieldTypes eIndex, int iChange);
 
 	int GetYieldPerAlly(YieldTypes eIndex) const;
 	void ChangeYieldPerAlly(YieldTypes eYield, int iChange);
@@ -1920,6 +1926,7 @@ protected:
 	std::vector<int> m_aiYieldFromKnownPantheons;
 	std::vector<int> m_aiYieldFromVictory;
 	std::vector<int> m_aiYieldFromVictoryGlobal;
+	std::vector<int> m_aiYieldFromVictoryGlobalEraScaling;
 	std::vector<int> m_aiYieldFromPillage;
 	std::vector<int> m_aiYieldFromPillageGlobal;
 	std::vector<int> m_aiGoldenAgeYieldMod;
@@ -1933,6 +1940,7 @@ protected:
 	std::vector<int> m_aiYieldFromPurchase;
 	std::vector<int> m_aiYieldFromFaithPurchase;
 	std::vector<int> m_aiYieldFromUnitLevelUp;
+	std::vector<int> m_aiYieldFromCombatExperience;
 	std::vector<int> m_aiYieldPerAlly;
 	std::vector<int> m_aiYieldPerFriend;
 	std::vector<int> m_aiYieldFromInternalTREnd;
@@ -2308,6 +2316,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromKnownPantheons)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictoryGlobalEraScaling)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillage)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPillageGlobal)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGoldenAgeYieldMod)
@@ -2321,6 +2330,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPolicyUnlock)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromFaithPurchase)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromUnitLevelUp)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCombatExperience)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerAlly)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldPerFriend)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromInternalTREnd)

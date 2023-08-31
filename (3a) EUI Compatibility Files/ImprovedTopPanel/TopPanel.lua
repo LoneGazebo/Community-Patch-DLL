@@ -46,6 +46,7 @@ if IsDX11 then
 	Controls.UnitSupplyString:SetAlpha( 1.0 )
 	Controls.NavalSupplyString:SetAlpha( 1.0 )
 	Controls.GpTurns:SetAlpha( 1.0 )
+	--Controls.SpyPointsString:SetAlpha( 1.0 )
 end
 
 -- GP Font Icons
@@ -777,6 +778,22 @@ local function UpdateTopPanelNow()
 			Controls.NavalSupplyString:SetHide(false);
 			Controls.NavalSupplyIcon:SetHide(false);
 		end
+		
+		-----------------------------
+		-- Update Spy Points (Moved to Espionage Overview, commented if needed to revert)
+		-----------------------------
+		
+		--[[if (Game.IsOption("GAMEOPTION_NO_ESPIONAGE") or Game.GetSpyThreshold() == 0) then
+			Controls.SpyPointsString:SetText("");
+			Controls.SpyPointsString:SetHide(true);
+		else
+			local strSpiesStr;
+			strSpiesStr = "[ICON_SPY]"; --.. string.format(" %i/%i", pPlayer:GetSpyPoints(), Game.GetSpyThreshold());	
+			Controls.SpyPointsString:SetText(strSpiesStr);
+			Controls.SpyPointsString:SetToolTipCallback( requestTextToolTip )
+			Controls.SpyPointsString:SetHide(false);
+		end]]
+		
 
 		-----------------------------
 		-- Update Alerts
@@ -2076,6 +2093,27 @@ if civ5_mode and gk_mode then
 	Controls.InstantYieldsIcon:SetToolTipCallback( requestTextToolTip )
 	Controls.InstantYieldsIcon:SetHide( false )
 end
+-------------------------------------------------
+-- Spy Points Tooltip
+-------------------------------------------------
+--[[if civ5_mode and gk_mode then
+	g_toolTipHandler.SpyPointsString = function()-- control )
+		local tips = table()
+		
+		local iPlayerID = Game.GetActivePlayer();
+		local pPlayer = Players[iPlayerID];
+		local strSpiesStr;
+		if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or Game.GetSpyThreshold() == 0) then
+			strSpiesStr = "";
+		else
+		
+			strSpiesStr = Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pPlayer:GetSpyPoints(true));
+		end
+
+		tips:insert( strSpiesStr );
+		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+	end
+end]]
 
 -- my modification for Luxury Resources
 if civ5_mode and gk_mode then
@@ -2332,25 +2370,27 @@ if civ5_mode and gk_mode then
 		local iTechReduction = pPlayer:GetTechSupplyReduction();
 		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
+		-- Bonuses from unlisted sources are added to the handicap value
+		local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople + iTechReduction + iWarWearinessActualReduction);
+		iPerHandicap = iPerHandicap + iExtra;
+
 		local strUnitSupplyToolTip = "";
-		if(iUnitsOver > 0) then
+		if (iUnitsOver > 0) then
 			strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 		end
 
 		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople, iUnitsTotalMilitary);
-		if(strUnitSupplyToolTip ~= "") then
+		if (strUnitSupplyToolTip ~= "") then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 		else
 			strUnitSupplyToolTip = strUnitSupplyToolUnderTip;
 		end
 
 		local tips = table()
-
-		tips:insert( strUnitSupplyToolTip )
-
-		return setTextToolTip( tips:concat( "[NEWLINE]" ) )
+		tips:insert(strUnitSupplyToolTip)
+		return setTextToolTip(tips:concat("[NEWLINE]"))
 	end
 
 	g_toolTipHandler.UnitSupplyIcon = g_toolTipHandler.UnitSupplyString

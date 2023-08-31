@@ -64,6 +64,9 @@ UPDATE ArtDefine_Landmarks
 SET Scale = 0.8
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
 
+-- Bad goodies are never triggered even in BNW, so we can remove this ability to reduce clutter
+UPDATE Units SET NoBadGoodies = '0';
+
 -- Set Forbidden Palace to 2 votes for CP (we'll reset in CBP)
 UPDATE Buildings
 SET SingleLeagueVotes = 2

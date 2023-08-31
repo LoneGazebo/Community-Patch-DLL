@@ -1711,7 +1711,11 @@ CvPlot* CvAIOperationPillageEnemy::FindBestTarget(CvPlot** ppMuster) const
 		for (int iResourceLoop = 0; iResourceLoop < iNumResourceInfos; iResourceLoop++)
 		{
 			ResourceTypes eResource = (ResourceTypes)iResourceLoop;
-			ResourceUsageTypes eResourceUsage = GC.getResourceInfo(eResource)->getResourceUsage();
+			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+			if (!pkResourceInfo)
+				continue;
+
+			ResourceUsageTypes eResourceUsage = pkResourceInfo->getResourceUsage();
 			if (eResourceUsage==RESOURCEUSAGE_LUXURY || eResourceUsage==RESOURCEUSAGE_STRATEGIC)
 				iValue += pLoopCity->CountNumWorkedResource(eResource);
 		}

@@ -3622,9 +3622,7 @@ void CvPlayerCulture::DoArchaeologyChoice (ArchaeologyChoiceType eChoice)
 
 		m_pPlayer->changeJONSCulture(iValue);
 		if (pPlot->getEffectiveOwningCity() != NULL && pPlot->getOwner() == m_pPlayer->GetID())
-		{
 			pPlot->getEffectiveOwningCity()->ChangeJONSCultureStored(iValue);
-		}
 
 		if (pUnit)
 			pPlot->setImprovementType(NO_IMPROVEMENT);
@@ -5352,6 +5350,8 @@ int CvPlayerCulture::ComputeWarWeariness()
 			continue;
 		if (kPlayer.getNumCities() <= 0)
 			continue;
+		if (m_pPlayer->getTeam() == kPlayer.getTeam())
+			continue;
 
 		iNumOtherCivs++;
 
@@ -6995,8 +6995,8 @@ CvString CvCityCulture::GetTourismTooltip()
 		CvBuildingEntry *pkBuilding = GC.getBuildingInfo(eBuilding);
 		if (pkBuilding)
 		{
-			int iTechEnhancedTourism = GC.getBuildingInfo(eBuilding)->GetTechEnhancedTourism();
-			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)GC.getBuildingInfo(eBuilding)->GetEnhancedYieldTech()))
+			int iTechEnhancedTourism = pkBuilding->GetTechEnhancedTourism();
+			if (iTechEnhancedTourism != 0 && GET_TEAM(m_pCity->getTeam()).GetTeamTechs()->HasTech((TechTypes)pkBuilding->GetEnhancedYieldTech()))
 			{
 				iTechEnhancedTourism *= m_pCity->GetCityBuildings()->GetNumBuilding(eBuilding);
 
@@ -7453,8 +7453,7 @@ CvString CvCityCulture::GetTourismTooltip()
 		}
 		szRtnValue += GetLocalizedText("TXT_KEY_PRODMOD_GREAT_WORKS", iTempMod);
 	}
-
-	iTempMod = min(30, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromActiveSpies(YIELD_TOURISM) * GET_PLAYER(m_pCity->getOwner()).GetEspionage()->GetNumAssignedSpies()));
+	iTempMod = min(30, (GET_PLAYER(m_pCity->getOwner()).getYieldModifierFromActiveSpies(YIELD_TOURISM) * GET_PLAYER(m_pCity->getOwner()).GetSpyPoints(true) / 100));
 	if (iTempMod != 0)
 	{
 		if (bHasCityModTooltip == false)

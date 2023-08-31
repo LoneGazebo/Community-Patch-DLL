@@ -2031,6 +2031,7 @@ bool CvPlot::canHaveResource(ResourceTypes eResource, bool bIgnoreLatitude, bool
 	}
 
 	CvResourceInfo& thisResourceInfo = *GC.getResourceInfo(eResource);
+
 	if(getFeatureType() != NO_FEATURE)
 	{
 		if(!(thisResourceInfo.isFeature(getFeatureType())))
@@ -9434,10 +9435,11 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 	if(eTeam != NO_TEAM)
 	{
 		ResourceTypes eResource = getResourceType(eTeam);
+		CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 
-		if(eResource != NO_RESOURCE)
+		if(eResource != NO_RESOURCE && pkResourceInfo)
 		{
-			iYield += GC.getResourceInfo(eResource)->getYieldChange(eYield);
+			iYield += pkResourceInfo->getYieldChange(eYield);
 		}
 	}
 
@@ -9498,6 +9500,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 				iYield += (pOwningCity->getPopulation() + kYield.getPopulationChangeOffset()) / kYield.getPopulationChangeDivisor();
 			}
 		}
+
+		// GetYieldFromXMilitaryUnits (France UA)
+		iYield += GET_PLAYER(ePlayer).GetYieldFromMilitaryUnits(eYield);
 
 		// Mod for Player; used for Policies and such
 		iYield += GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityYieldChanges(eYield);
@@ -10501,7 +10506,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 
 				if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES && kPlayer.HasGlobalMonopoly(eResource))
 				{
-					int iTemp = GC.getResourceInfo(eResource)->getYieldChangeFromMonopoly(eYield);
+					int iTemp = pkResourceInfo->getYieldChangeFromMonopoly(eYield);
 					if (iTemp > 0)
 					{
 						iTemp += GET_PLAYER(ePlayer).GetMonopolyModFlat();
@@ -10572,9 +10577,12 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 	return iYield;
 }
 
-int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay)
+int CvPlot::calculateYield(YieldTypes eYield, bool bDisplay, const CvCity* pOwningCity)
 {
-	const CvCity* pOwningCity = getEffectiveOwningCity();
+	if (!pOwningCity)
+	{
+		pOwningCity = getEffectiveOwningCity();
+	}
 	if(pOwningCity)
 	{
 		ReligionTypes eMajority = pOwningCity->GetCityReligions()->GetReligiousMajority();
@@ -10658,6 +10666,12 @@ int CvPlot::calculateYieldFast(YieldTypes eYield, bool bDisplay, const CvCity* p
 		ePlayer = getOwner();
 		eImprovement = getImprovementType();
 		eRoute = getRouteType();
+
+		// For tile picker
+		if (ePlayer == NO_PLAYER && pOwningCity)
+		{
+			ePlayer = pOwningCity->getOwner();
+		}
 	}
 
 	int iYield = calculateNatureYield(eYield, ePlayer, pOwningCity, false, bDisplay);

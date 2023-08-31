@@ -8,11 +8,6 @@ UPDATE Defines
 SET Value = '70'
 WHERE Name = 'MINOR_MAX_XP_VALUE';
 
--- New Quests
-UPDATE Defines
-SET Value = '0'
-WHERE Name = 'QUEST_DISABLED_CP_QUESTS';
-
 -- Maritime Civs Buffed
 
 UPDATE Defines
@@ -78,11 +73,6 @@ WHERE Name = 'ALLIES_FAITH_FLAT_BONUS_AMOUNT_CLASSICAL';
 UPDATE Defines
 SET Value = '2'
 WHERE Name = 'ALLIES_FAITH_FLAT_BONUS_AMOUNT_ANCIENT';
-
--- Minor Civ Stuff
-UPDATE Defines
-SET Value = '0'
-WHERE Name = 'FRIENDSHIP_THRESHOLD_CAN_BULLY';
 
 
 -- CS Yield Rewards

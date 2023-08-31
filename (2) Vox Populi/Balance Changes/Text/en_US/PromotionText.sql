@@ -7,7 +7,7 @@
 
  -- added Withdraw Before Melee
 	UPDATE Language_en_US
-	SET Text = '80% chance to withdraw from Melee combat. Chance of withdrawal decreased against faster Enemy Units or if there are limited open tiles behind the Unit.'
+	SET Text = 'Unit withdraws from the first Melee attack each turn if there are open tiles behind the Unit'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP';
 
  -- added Great Himeji Castle
@@ -17,7 +17,7 @@
 
  -- added Great Lighthouse Promotion
 	UPDATE Language_en_US
-	SET Text = '+1 Sight.[NEWLINE]+1 [ICON_MOVES] Movement.'
+	SET Text = '+1 [ICON_VP_VISION] Sight.[NEWLINE]+1 [ICON_MOVES] Movement.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GREAT_LIGHTHOUSE_HELP';
 
  -- added Damaged Enemy Bonus (33)
@@ -32,7 +32,7 @@
 
  -- added Statue Of Zeus Promotion
 	UPDATE Language_en_US
-	SET Text = '+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '[COLOR_POSITIVE_TEXT]Military Units:[ENDCOLOR] +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE][COLOR_POSITIVE_TEXT]Workers:[ENDCOLOR] Immune to [COLOR_NEGATIVE_TEXT]Prisoners of War[ENDCOLOR] Work Rate reduction.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_STATUE_ZEUS_HELP';
 
  -- added 1 Extra Movement
@@ -161,15 +161,15 @@
 -- Replace Drill
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Damage from Cities reduced by 15%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_1_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Damage from Cities reduced by 15%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_2_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
+	SET Text = '+10% [ICON_STRENGTH] Combat Strength.[NEWLINE]Damage from Cities reduced by 15%.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_DRILL_3_HELP';
 
 -- Replace Shock
@@ -359,7 +359,7 @@
 -- Wolfpack extremely strong
 
 	UPDATE Language_en_US
-	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Sight.'
+	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 [ICON_VP_VISION] Sight.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1_HELP';
 
 	UPDATE Language_en_US
@@ -367,7 +367,7 @@
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]40% chance to withdraw from Melee combat.'
+	SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]Unit withdraws from the first Melee attack each turn if possible.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3_HELP';
 
 	UPDATE Language_en_US
@@ -429,11 +429,11 @@
 
 	-- City Assault
 	UPDATE Language_en_US
-	SET Text = '+33% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].[NEWLINE]Damage from Cities reduced by 33%.'
+	SET Text = '-10% [ICON_STRENGTH] Combat Strength.[NEWLINE]+100% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SIEGE_HELP';
 
 	UPDATE Language_en_US
-	SET Text = 'City Assault'
+	SET Text = 'Forlorn Hope'
 	WHERE Tag = 'TXT_KEY_PROMOTION_SIEGE';
 
 	-- City Siege
@@ -567,6 +567,11 @@
 	SET Text = '-20% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 Range.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_RANGE_HELP';
 
+	-- Heavy Charge
+	UPDATE Language_en_US
+	SET Text = '+50% [ICON_STRENGTH] Combat Strength when attacking if the defender cannot retreat. The defender is forced to retreat (if possible) if it has lower [ICON_STRENGTH] Combat Strength than this Unit after all modifiers.'
+	WHERE Tag = 'TXT_KEY_PROMOTION_HEAVY_CHARGE_HELP';
+
 	-- Changed English UA
 	UPDATE Language_en_US
 	SET Text = '+1 [ICON_MOVES] Movement for Naval Units.'
@@ -655,7 +660,7 @@
 
 	-- Embarkation
 	UPDATE Language_en_US
-	SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and have +2 Sight.'
+	SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and have +2 [ICON_VP_VISION] Sight.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
 	-- Golden Age Points from Kills

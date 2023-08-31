@@ -192,7 +192,10 @@ function UpdateData()
 				strFaithStr = "[ICON_PEACE]" .. strFaithStr;
 			end
 			Controls.FaithString:SetText(strFaithStr);
-
+			
+			-----------------------------
+			-- Update Units Supplied
+			-----------------------------
 			local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
 			local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 
@@ -256,6 +259,17 @@ function UpdateData()
 			end
 			
 			Controls.ResourceString:SetText(strResourceText);
+			
+			-----------------------------
+			-- Update Spy Points
+			-----------------------------
+			--[[local strSpiesStr;
+			if (Game.IsOption("GAMEOPTION_NO_ESPIONAGE") or Game.GetSpyThreshold() == 0) then
+				strSpiesStr = "";
+			else
+				strSpiesStr = "[ICON_SPY]"; --.. string.format(" %i/%i", pPlayer:GetSpyPoints(), Game.GetSpyThreshold());
+			end
+			Controls.SpyPointsString:SetText(strSpiesStr);]]
 			
 		-- No Cities, so hide science
 		else
@@ -404,6 +418,7 @@ function DoInitTooltips()
 	Controls.InternationalTradeRoutes:SetToolTipCallback( InternationalTradeRoutesTipHandler );
 	Controls.UnitSupplyString:SetToolTipCallback( UnitSupplyHandler );
 	Controls.InstantYields:SetToolTipCallback( InstantYieldHandler );
+	--Controls.SpyPointsString:SetToolTipCallback( SpyPointsTipHandler );
 end
 
 -- Science Tooltip
@@ -1527,8 +1542,12 @@ function UnitSupplyHandler(control)
 	local iTechReduction = pPlayer:GetTechSupplyReduction();
 	local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
+	-- Bonuses from unlisted sources are added to the handicap value
+	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople + iTechReduction + iWarWearinessActualReduction);
+	iPerHandicap = iPerHandicap + iExtra;
+
 	local strUnitSupplyToolTip = "";
-	if(iUnitsOver > 0) then
+	if (iUnitsOver > 0) then
 		strUnitSupplyToolTip = "[COLOR_NEGATIVE_TEXT]";
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REACHED_TOOLTIP", iUnitsSupplied, iUnitsOver, -iUnitSupplyMod);
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
@@ -1536,20 +1555,20 @@ function UnitSupplyHandler(control)
 
 	local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople, iUnitsTotalMilitary);
 
-	if(strUnitSupplyToolTip ~= "") then
+	if (strUnitSupplyToolTip ~= "") then
 		strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 	else
 		strUnitSupplyToolTip = strUnitSupplyToolUnderTip;
 	end
-	if(strUnitSupplyToolTip ~= "") then
+	if (strUnitSupplyToolTip ~= "") then
 		tipControlTable.TopPanelMouseover:SetHide(false);
 		tipControlTable.TooltipLabel:SetText( strUnitSupplyToolTip );
 	else
 		tipControlTable.TopPanelMouseover:SetHide(true);
 	end
-    
-    -- Autosize tooltip
-    tipControlTable.TopPanelMouseover:DoAutoSize();
+
+	-- Autosize tooltip
+	tipControlTable.TopPanelMouseover:DoAutoSize();
 end
 
 function InstantYieldHandler( control )
@@ -1569,6 +1588,29 @@ function InstantYieldHandler( control )
     -- Autosize tooltip
     tipControlTable.TopPanelMouseover:DoAutoSize();
 end
+
+-- Spy Points Tooptip (hidden for now)
+--[[function SpyPointsTipHandler( control )
+
+	local iPlayerID = Game.GetActivePlayer();
+	local pPlayer = Players[iPlayerID];
+	local strSpiesStr;
+	if (Game.IsOption(GameOptionTypes.GAMEOPTION_NO_ESPIONAGE) or Game.GetSpyThreshold() == 0) then
+		strSpiesStr = "";
+	else
+		strSpiesStr = Locale.ConvertTextKey("TXT_KEY_SPY_POINTS_TT", pPlayer:GetSpyPoints(false), Game.GetSpyThreshold(), pPlayer:GetSpyPoints(true));
+	end
+
+	if(strSpiesStr ~= "") then
+		tipControlTable.TopPanelMouseover:SetHide(false);
+		tipControlTable.TooltipLabel:SetText( strSpiesStr );
+	else
+		tipControlTable.TopPanelMouseover:SetHide(true);
+	end
+    
+    -- Autosize tooltip
+    tipControlTable.TopPanelMouseover:DoAutoSize();
+end]]
 
 -- Resources Tooltip
 function ResourcesTipHandler( control )

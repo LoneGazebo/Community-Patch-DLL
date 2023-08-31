@@ -66,11 +66,11 @@ SET Text = 'The Opera House is a Renaissance-era building which increases the [I
 WHERE Tag = 'TXT_KEY_BUILDING_OPERA_HOUSE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'The Museum is a mid-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output and reduces Boredom. Also boosts the City''s Great Artist rate and the value of Artists'' Guilds. Contains 2 slots for Great Works of Art.  Requires an Opera House in the City before it can be constructed.'
+SET Text = 'The Museum is a mid-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output and reduces Boredom. Contains 2 slots for Great Works of Art.  Requires a Gallery in the City before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_MUSEUM_STRATEGY';
 
 INSERT INTO Language_en_US (Tag, Text)
-VALUES ('TXT_KEY_BUILDING_MUSEUM_HELP', '+1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 4 [ICON_CITIZEN] Citizens in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_ARTIST] Great Artist Rate in the City, and all Artists'' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]+4 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].');
+VALUES ('TXT_KEY_BUILDING_MUSEUM_HELP', 'Allows [COLOR_YELLOW]Archaeologists[ENDCOLOR] to be built in this City. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 4 [ICON_CITIZEN] Citizens in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Contains 2 slots for  [ICON_GREAT_WORK] Great Works of Art or Artifacts. +4 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].');
 
 UPDATE Language_en_US
 SET Text = '+1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 2 [ICON_CITIZEN] Citizens in the City. [ICON_GREAT_WORK] Great Works in the City produce +2 [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]+10 [ICON_GOLD] Gold if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
@@ -172,7 +172,7 @@ SET Text = 'A custom house or customs house was a building housing the offices f
 WHERE Tag = 'TXT_KEY_CIV5_BUILDINGS_MINT_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'When you spend [ICON_GOLD] Gold to purchase Units or invest in Buildings in this City, 15% of the cost is converted into [ICON_RESEARCH] Science. Caravansaries and Customs Houses in the City gain +3 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
+SET Text = 'When you spend [ICON_INVEST] Gold to purchase Units or invest in Buildings in this City, 15% of the cost is converted into [ICON_RESEARCH] Science. Caravansaries and Customs Houses in the City gain +3 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_GOLD] Gold: +3 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILVER] Silver: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_GEMS] Gems: +2 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_BANK_HELP';
 
 UPDATE Language_en_US
@@ -200,7 +200,7 @@ SET Text = 'The University is a Medieval-era building. It increases the [ICON_RE
 WHERE Tag = 'TXT_KEY_BUILDING_UNIVERSITY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Allows [COLOR_YELLOW]Archaeologists[ENDCOLOR] to be built in this City. +1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.'
+SET Text = '+1 [ICON_RESEARCH] Science for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.'
 WHERE Tag = 'TXT_KEY_BUILDING_PUBLIC_SCHOOL_HELP';
 
 UPDATE Language_en_US
@@ -379,11 +379,11 @@ SET Description = 'TXT_KEY_BUILDING_STADIUM_DESC'
 WHERE Type = 'BUILDINGCLASS_STADIUM';
 
 UPDATE Language_en_US
-SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXT]Culture Victory[ENDCOLOR]. Provides a huge sum of Golden Age Points when completed, and increases your influence with all City-States by 20. Coordinate the construction of Stadiums across your empire for a global boost in diplomatic relations.'
+SET Text = 'Build the Stadium if you are going for a [COLOR_POSITIVE_TEXT]Culture Victory[ENDCOLOR]. Increases your influence with all City-States by 20 when completed. Coordinate the construction of Stadiums across your empire for a global boost in diplomatic relations.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+2500 [ICON_GOLDEN_AGE] Golden Age Points, and +20 [ICON_INFLUENCE] Influence with all City-States when completed. +1 [ICON_GOLDEN_AGE] Golden Age Point for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE][ICON_TOURISM] Tourism output from [ICON_GREAT_WORK] Great Works increased by +50%. Requires a Zoo in the City.'
+SET Text = '+20 [ICON_INFLUENCE] Influence with all City-States when completed. +1 [ICON_GOLDEN_AGE] Golden Age Point for every 2 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE][ICON_TOURISM] Tourism output from [ICON_GREAT_WORK] Great Works increased by +50%. Requires a Zoo in the City.'
 WHERE Tag = 'TXT_KEY_BUILDING_STADIUM_HELP';
 
 UPDATE Language_en_US
@@ -423,6 +423,14 @@ SET Text = 'Philosophy is the study of general and fundamental problems, such as
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_COLLEGE_PEDIA';
 
 UPDATE Language_en_US
+SET Text = 'Royal Collection'
+WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE';
+
+UPDATE Language_en_US
+SET Text = 'The largest private collections of fine art pieces have historically accrued to royalty, who purchase and patronize artistic works as an exercise of their prestige. Many of the largest art collections in the world have started from the private collections of monarchs which were handed down for generations. In response to public pressure and popular desire for a stronger national identity, many royal collections (and often the private residences that house them) have been nationalized by their respective governments to form State Galleries and National Art Museums in the modern day.'
+WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_PEDIA';
+
+UPDATE Language_en_US
 SET Text = 'This National Wonder gives all land units built in this City (past and future) the "Morale" promotion, increasing their combat strength by +10%. +1 [ICON_PRODUCTION] Production in the City for every 5 [ICON_CITIZEN] Citizens. Increases Military Units supplied by this City''s population by 10%. Also creates a free Great Writer upon completion. The City must have a Barracks before it can construct the Heroic Epic.'
 WHERE Tag = 'TXT_KEY_BUILDING_HEROIC_EPIC_STRATEGY';
 
@@ -431,7 +439,7 @@ SET Text = 'This National Wonder increases the [ICON_GREAT_PEOPLE] Great People 
 WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder provides +2 [ICON_HAPPINESS_1] Happiness, +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City where it is built. The City must have an Arena before it can construct the Circus Maximus.'
+SET Text = 'This National Wonder provides +2 [ICON_HAPPINESS_1] Happiness, 2 [ICON_RES_HORSE] Horses, +1 [ICON_CULTURE] Culture, and reduces [ICON_HAPPINESS_3] Boredom, and generates +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City where it is built. The City must have an Arena before it can construct the Circus Maximus.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_STRATEGY';
 
 UPDATE Language_en_US
@@ -451,11 +459,11 @@ SET Text = 'The Oxford University National Wonder provides +1 [ICON_CULTURE] Cul
 WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City, and +10% [ICON_CULTURE] Culture for the City. The City must have an Opera House before it can be constructed.'
+SET Text = 'This National Wonder produces +1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the City, and +10% [ICON_CULTURE] Culture for the City. The City must have a Gallery before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress in all Cities. The National Intelligence Agency provides an additional spy, levels up all your existing spies, and improves City Spy Resistance by 15%. It also decreases mission duration by 1 turn for your Spies and increases mission duration by 2 turns for enemy Spies in the City. Empires with a lot of offensive spies will benefit greatly from this building. The City must have a Police Station before it can construct the National Intelligence Agency.'
+SET Text = 'An important defensive National Wonder for a technology-driven civilization. Reduces [ICON_HAPPINESS_3] Distress in all Cities. The National Intelligence Agency provides 100 [ICON_VP_SPY_POINTS] Spy Points, levels up all your existing Spies, and improves City Spy Resistance by 15%. It also decreases mission duration by 1 turn for your Spies and increases mission duration by 2 turns for enemy Spies in the City. Empires with a lot of offensive spies will benefit greatly from this building. The City must have a Police Station before it can construct the National Intelligence Agency.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_STRATEGY';
 
 UPDATE Language_en_US
@@ -474,7 +482,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_NATIONAL_EPIC_HELP';
 
 -- Removed +2 Happiness because already present
 UPDATE Language_en_US
-SET Text = '+10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City in which it is built. All Arenas in the Empire gain +2 [ICON_GOLD] Gold. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Provides 2 [ICON_RES_HORSE] Horses. +10% [ICON_CULTURE] Culture and [ICON_GOLD] Gold during "We Love the King Day" in the City in which it is built.[NEWLINE][NEWLINE]All Arenas in the Empire gain +2 [ICON_GOLD] Gold. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_CIRCUS_MAXIMUS_HELP';
 
 UPDATE Language_en_US
@@ -498,7 +506,7 @@ SET Text = '+1 [ICON_CULTURE] Culture for every 4 [ICON_CITIZEN] Citizens in the
 WHERE Tag = 'TXT_KEY_BUILDING_HERMITAGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] Spy Resistance by 15%, provides 1 or more [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_SPY] Spies (based on number of [ICON_CITY_STATE] City-States in game), and levels up all existing [ICON_SPY] Spies. Spy mission duration decreased by 1 turn for your Spies and increased by 2 turns for enemy Spies in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you successfully complete a [ICON_SPY] Spy Mission in a foreign City, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Improves City [ICON_SPY] Spy Resistance by 15%, provides 100 [ICON_VP_SPY_POINTS] Spy Points, and levels up all existing [ICON_SPY] Spies. Spy mission duration decreased by 1 turn for your Spies and increased by 2 turns for enemy Spies in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you successfully complete a [ICON_SPY] Spy Mission in a foreign City, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP';
 
 UPDATE Language_en_US
@@ -510,7 +518,7 @@ SET Text = 'Can only be constructed in a Coastal City. Gains 1 [COLOR_POSITIVE_T
 WHERE Tag = 'TXT_KEY_WONDER_COLOSSUS_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A Worker appears near the City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Barracks in the City in which it is built. All Units gain +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
+SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Barracks in the City in which it is built. All Military Units gain +25% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Cities[ENDCOLOR]. Workers do not suffer a reduced improvement rate when captured. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
 WHERE Tag = 'TXT_KEY_WONDER_STATUE_ZEUS_HELP';
 
 INSERT INTO Language_en_US (Tag, Text)
@@ -533,7 +541,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technology and a [COLO
 WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIBRARY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Can only be constructed in a Coastal City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Lighthouse in the City in which it is built. All Military Naval Units receive +1 [ICON_MOVES] Movement and +1 Sight.'
+SET Text = 'Can only be constructed in a Coastal City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Lighthouse in the City in which it is built. All Military Naval Units receive +1 [ICON_MOVES] Movement and +1 [ICON_VP_VISION] Sight.'
 WHERE Tag = 'TXT_KEY_WONDER_GREAT_LIGHTHOUSE_HELP';
 
 UPDATE Language_en_US
@@ -609,7 +617,7 @@ SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_WRITER] Gr
 WHERE Tag = 'TXT_KEY_WONDER_GLOBE_THEATER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works in all Cities. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = 'Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_ARTIST] Great Artist and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Gallery in the City in which it is built. +1 [ICON_CULTURE] Culture from [ICON_GREAT_WORK] Great Works in all Cities. Contains 3 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. 1 Specialist in every City no longer generates [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. +10 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_UFFIZI_HELP';
 
 -- Here is in fact the TAJ MAHAL, in the original files is wrong defined
@@ -619,7 +627,7 @@ WHERE Tag = 'TXT_KEY_WONDER_PYRAMIDS_HELP';
 
 -- Here is in fact the CHICHEN ITZA, in the original files is wrong defined
 UPDATE Language_en_US
-SET Text = 'Length of [ICON_GOLDEN_AGE] Golden Ages increased by 50%. [ICON_CITY_STATE] Empire Size Modifier is reduced by 10% in all Cities.'
+SET Text = 'Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Teocalli in the City in which it is built. Length of [ICON_GOLDEN_AGE] Golden Ages increased by 50%. [ICON_CITY_STATE] Empire Size Modifier is reduced by 10% in all Cities.'
 WHERE Tag = 'TXT_KEY_WONDER_TAJ_MAHAL_HELP';
 
 -- Here is in fact the PYRAMIDS, in the original files is wrong defined

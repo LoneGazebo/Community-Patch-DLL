@@ -26,7 +26,8 @@ UPDATE Units SET RangedCombat = '80' WHERE Type = 'UNIT_STEALTH_BOMBER';
 --- RANGED COMBAT
 -----------------
 -- Classical --
-UPDATE Units SET RangedCombat = '16' WHERE Type = 'UNIT_BYZANTINE_DROMON';
+UPDATE Units SET RangedCombat = '16' WHERE Type = 'UNIT_LIBURNA';
+UPDATE Units SET RangedCombat = '18' WHERE Type = 'UNIT_BYZANTINE_DROMON';
 
 -- Medieval --
 UPDATE Units SET RangedCombat = '24' WHERE Type = 'UNIT_GALLEASS';
@@ -58,13 +59,15 @@ UPDATE Units SET RangedCombat = '80' WHERE Type = 'UNIT_NUCLEAR_SUBMARINE';
 -- Ancient --
 -- Melee
 UPDATE Units SET Combat = '12' WHERE Type = 'UNIT_GALLEY';
-UPDATE Units SET Combat = '14' WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
+UPDATE Units SET Combat = '12' WHERE Type = 'UNIT_VP_GALLEY';
 
 -- Classical --
 -- Melee
-UPDATE Units SET Combat = '14' WHERE Type = 'UNIT_TRIREME';
+UPDATE Units SET Combat = '18' WHERE Type = 'UNIT_TRIREME';
+UPDATE Units SET Combat = '20' WHERE Type = 'UNIT_CARTHAGINIAN_QUINQUEREME';
 -- Ranged
-UPDATE Units SET Combat = '7' WHERE Type = 'UNIT_BYZANTINE_DROMON';
+UPDATE Units SET Combat = '7' WHERE Type = 'UNIT_LIBURNA';
+UPDATE Units SET Combat = '10' WHERE Type = 'UNIT_BYZANTINE_DROMON';
 
 -- Medieval --
 -- Melee

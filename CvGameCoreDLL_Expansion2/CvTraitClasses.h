@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -282,6 +282,7 @@ public:
 	int YieldFromRouteMovement(int i) const;
 	int YieldFromOwnPantheon(int i) const;
 	int YieldFromHistoricEvent(int i) const;
+	int YieldFromXMilitaryUnits(int i) const;
 	int YieldFromLevelUp(int i) const;
 #endif
 
@@ -386,6 +387,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	int GetYieldFromLevelUp(int i) const;
 	int GetYieldFromHistoricEvent(int i) const;
+	int GetYieldFromXMilitaryUnits(int i) const;
 	int GetYieldFromOwnPantheon(int i) const;
 	std::pair<int, int> GetTradeRouteEndYield(YieldTypes eYield) const;
 	int GetYieldFromRouteMovement(int i) const;
@@ -427,6 +429,7 @@ public:
 	int GetTerrainYieldChanges(TerrainTypes eIndex1, YieldTypes eIndex2) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldFromMinorDemand(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(int i) const;
 	int GetYieldChangeWorldWonder(int i) const;
 	int GetTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
@@ -737,6 +740,7 @@ protected:
 	int* m_piYieldFromLevelUp;
 	int* m_piYieldFromHistoricEvent;
 	int* m_piYieldFromOwnPantheon;
+	int* m_piYieldFromXMilitaryUnits;
 	std::map<int, std::pair<int, int>> m_tradeRouteEndYield;
 	int* m_piYieldFromRouteMovement;
 	int* m_piYieldFromExport;
@@ -783,6 +787,7 @@ protected:
 	int** m_ppiTerrainYieldChanges;
 	int* m_piYieldFromKills;
 	int* m_piYieldFromBarbarianKills;
+	int* m_piYieldFromMinorDemand;
 	int* m_piYieldChangeTradeRoute;
 	int* m_piYieldChangeWorldWonder;
 	int** m_ppiTradeRouteYieldChange;
@@ -1788,6 +1793,19 @@ public:
 	vector<ImprovementTypes> GetImprovementTypesWithYieldChange() const;
 	void UpdateYieldChangeImprovementTypes();
 	int GetYieldFromBarbarianCampClear(YieldTypes eYield, bool bEraScaling) const;
+
+	bool HasYieldFromTileCultureBomb() const
+	{
+		return m_bHasYieldFromTileCultureBomb;
+	};
+	bool HasYieldFromTileEarn() const
+	{
+		return m_bHasYieldFromTileEarn;
+	};
+	bool HasYieldFromTilePurchase() const
+	{
+		return m_bHasYieldFromTilePurchase;
+	};
 #endif
 	int GetMaintenanceModifierUnitCombat(const int unitCombatID) const;
 	int GetImprovementYieldChange(ImprovementTypes eImprovement, YieldTypes eYield) const;
@@ -1800,6 +1818,10 @@ public:
 	int GetYieldFromHistoricEvent(YieldTypes eYield) const
 	{
 		return m_iYieldFromHistoricEvent[(int)eYield];
+	};
+	int GetYieldFromXMilitaryUnits(YieldTypes eYield) const
+	{
+		return m_iYieldFromXMilitaryUnits[(int)eYield];
 	};
 	int GetYieldFromOwnPantheon(YieldTypes eYield) const
 	{
@@ -1958,6 +1980,7 @@ public:
 	int GetTerrainYieldChange(TerrainTypes eTerrain, YieldTypes eYield) const;
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
+	int GetYieldFromMinorDemand(YieldTypes eYield) const;
 	int GetYieldChangeTradeRoute(YieldTypes eYield) const
 	{
 		return m_iYieldChangeTradeRoute[(int)eYield];
@@ -2340,6 +2363,10 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiYieldChangePerImprovementBuilt;
 	vector<ImprovementTypes> m_vYieldChangeImprovementTypes; //not serialized, built on the fly
 	std::map<int, std::map<bool, int>> m_pbiYieldFromBarbarianCampClear;
+
+	bool m_bHasYieldFromTileCultureBomb;
+	bool m_bHasYieldFromTileEarn;
+	bool m_bHasYieldFromTilePurchase;
 #endif
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiImprovementYieldChange;
@@ -2347,6 +2374,7 @@ private:
 #if defined(MOD_BALANCE_CORE)
 	int m_iYieldFromLevelUp[NUM_YIELD_TYPES];
 	int m_iYieldFromHistoricEvent[NUM_YIELD_TYPES];
+	int m_iYieldFromXMilitaryUnits[NUM_YIELD_TYPES];
 	int m_iYieldFromOwnPantheon[NUM_YIELD_TYPES];
 	std::map<int, int> m_tradeRouteEndYieldDomestic;
 	std::map<int, int> m_tradeRouteEndYieldInternational;
@@ -2404,6 +2432,7 @@ private:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
 	int m_iYieldFromKills[NUM_YIELD_TYPES];
 	int m_iYieldFromBarbarianKills[NUM_YIELD_TYPES];
+	int m_iYieldFromMinorDemand[NUM_YIELD_TYPES];
 	int m_iYieldChangeTradeRoute[NUM_YIELD_TYPES];
 	int m_iYieldChangeWorldWonder[NUM_YIELD_TYPES];
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
