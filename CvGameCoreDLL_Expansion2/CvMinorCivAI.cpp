@@ -10573,8 +10573,9 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 
 BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDuration)
 {
-	// Have nowhere to build.
-	if (GET_PLAYER(ePlayer).getNumCities() <= 3 || GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoAnnexing())
+	// Have nowhere to build?
+	int iCities = GET_PLAYER(ePlayer).getNumCities() - GET_PLAYER(ePlayer).GetNumPuppetCities();
+	if (iCities <= 3)
 		return NO_BUILDING;
 
 	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
