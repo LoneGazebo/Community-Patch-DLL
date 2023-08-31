@@ -74,7 +74,7 @@
 			<Text>Unique Venetian building, only buildable in Venice's Capital. Boosts the value of Great Person Improvements and Villages for all Cities, and provides two Art/Artifact slots. Construct this building if you are pursuing a Cultural Victory. Cannot be constructed if the Arsenale di Venezia or Rialto District are present in the City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_HELP">
-			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE][ICON_GREAT_PEOPLE] Great Person Improvements and Villages worked by all Cities gain +2 [ICON_FOOD] Food and +2 [ICON_TOURISM] Tourism. Completing a [ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR], producing [ICON_TOURISM] Tourism with the targeted Civilization and one-third with every other known Civilizations. Provides 2 [ICON_GREAT_WORK] Great Work Slots for Art or Artifacts.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+			<Text>1 of 3 [COLOR_NEGATIVE_TEXT]Mutually Exclusive[ENDCOLOR] Unique Building for Venice. Requires Piazza San Marco in the City.[NEWLINE][NEWLINE][ICON_GREAT_PEOPLE] Great Person Improvements and Villages worked by all Cities gain +2 [ICON_FOOD] Food and +2 [ICON_TOURISM] Tourism. Completing a [ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR]. Provides 2 [ICON_GREAT_WORK] Great Work Slots for Art or Artifacts.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost increases based on the number of Cities you own.[NEWLINE][NEWLINE]+5 [ICON_RESEARCH] Science if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MURANO_GLASSWORKS_THEMING_BONUS_HELP">
 			<Text>To maximize your bonus, make sure both Great Works were created by the Building Owner.</Text>
@@ -270,7 +270,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_BATH">
-			<Text>Baths</Text>
+			<Text>Bath</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GROVE">
 			<Text>Council</Text>
@@ -620,7 +620,7 @@
 			<Text>Throne Room</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
-			<Text>+1 tile work radius. +10% to all City Yields.[NEWLINE][NEWLINE]Allows for a Musician Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_VP_GREATMUSIC] Great Work of Music. Can only be constructed via the [COLOR_MAGENTA]Tradition[ENDCOLOR] Finisher.</Text>
+			<Text>+1 tile work radius. +10% to all City Yields. Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_CIV5_POLICY_TRADITION_HEADING}[ENDCOLOR] Finisher.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
 			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
@@ -629,7 +629,7 @@
 			<Text>State Treasury</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
-			<Text>Allows for a Merchant specialist in your [ICON_CAPITAL] Capital. Boosts the [ICON_CULTURE] Culture output of Gardens and Monuments by +2 in all Cities. Can only be constructed via the [COLOR_MAGENTA]Majesty[ENDCOLOR] Policy.</Text>
+			<Text>All {TXT_KEY_BUILDING_MONUMENT_DESC}s, {TXT_KEY_BUILDING_BATH}s, and {TXT_KEY_BUILDING_GARDEN}s gain +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_MONARCHY}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
 			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>
@@ -638,7 +638,7 @@
 			<Text>Royal Guardhouse</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_HELP">
-			<Text>Allows for an Engineer Specialist in your [ICON_CAPITAL] Capital. [ICON_SILVER_FIST] Military Units Supplied by this City''s population increased by 20%. Can only be constructed via the [COLOR_MAGENTA]Justice[ENDCOLOR] Policy.</Text>
+			<Text>+20% [ICON_SILVER_FIST] Unit Supply from [ICON_CITIZEN] Population.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_ARISTOCRACY}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_PEDIA">
 			<Text>A Royal Guard describes any group of military bodyguards, soldiers or armed retainers responsible for the protection of a royal person, such as Emperor/Empress, King/Queen, or Prince/Princess. They often are an elite unit of the regular armed forces, or are designated as such, and may maintain special rights or privileges.</Text>
@@ -647,7 +647,7 @@
 			<Text>Palace Gardens</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_HELP">
-			<Text>Allows for a Writer Specialist in your [ICON_CAPITAL] Capital. +25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. 2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization. Has a slot for a [ICON_VP_GREATWRITING] Great Work of Writing. Can only be constructed via the [COLOR_MAGENTA]Splendor[ENDCOLOR] Policy.</Text>
+			<Text>+25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Contains 1 slot for a [ICON_VP_GREATWRITING] Great Work of Writing.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_LANDED_ELITE}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_PEDIA">
 			<Text>A garden is a planned space, usually outdoors, set aside for the display, cultivation, and enjoyment of plants and other forms of nature. The garden can incorporate both natural and man-made materials. The most common form today is known as a residential garden, but the term garden has traditionally been a more general one. Zoos, which display wild animals in simulated natural habitats, were formerly called zoological gardens.[1][2] Western gardens are almost universally based on plants, with garden often signifying a shortened form of botanical garden.</Text>
@@ -656,7 +656,7 @@
 			<Text>Court Chapel</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_COURT_CHAPEL_HELP">
-			<Text>Allows for an Artist Specialist in your [ICON_CAPITAL] Capital. Has a slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact. Can only be constructed via the [COLOR_MAGENTA]Sovereignty[ENDCOLOR] Policy.</Text>
+			<Text>Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_OLIGARCHY}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_COURT_CHAPEL_PEDIA">
 			<Text>A chapel is a religious place of fellowship, prayer and worship that is attached to a larger, often nonreligious institution or that is considered an extension of a primary religious institution. It may be part of a larger structure or complex, such as a college, hospital, palace, prison, funeral home, church, synagogue or mosque, located on board a military or commercial ship, or it may be an entirely free-standing building, sometimes with its own grounds. Many military installations have chapels for the use of military personnel, normally under the leadership of a military chaplain.</Text>
@@ -665,7 +665,7 @@
 			<Text>Royal Astrologer</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_ASTROLOGER_HELP">
-			<Text>Allows for a Scientist Specialist in your [ICON_CAPITAL] Capital. Can only be constructed via the [COLOR_MAGENTA]Devotion[ENDCOLOR] Policy.</Text>
+			<Text>All {TXT_KEY_BUILDING_GROVE}s, {TXT_KEY_BUILDING_LODGE}s, and {TXT_KEY_BUILDING_HERBALIST}s gain +1 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_LEGALISM}[ENDCOLOR] Policy.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_PALACE_ASTROLOGER_PEDIA">
 			<Text>Astrology, in its broadest sense, is the search for meaning in the sky. Early evidence for humans making conscious attempts to measure, record, and predict seasonal changes by reference to astronomical cycles, appears as markings on bones and cave walls, which show that lunar cycles were being noted as early as 25,000 years ago. This was a first step towards recording the Moon's influence upon tides and rivers, and towards organising a communal calendar. Farmers addressed agricultural needs with increasing knowledge of the constellations that appear in the different seasons—and used the rising of particular star-groups to herald annual floods or seasonal activities. By the 3rd millennium BCE, civilisations had sophisticated awareness of celestial cycles, and may have oriented temples in alignment with heliacal risings of the stars.</Text>
