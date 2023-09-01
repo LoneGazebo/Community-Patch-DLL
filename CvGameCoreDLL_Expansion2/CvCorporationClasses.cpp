@@ -1063,7 +1063,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
 					continue;
 
-				int iChance = GC.getGame().getSmallFakeRandNum(100, *pLoopCity->plot()) + GC.getGame().getSmallFakeRandNum(100, pLoopCity->getFood());
+				int iChance = GC.getGame().randRangeExclusive(0, 100, pLoopCity->plot()->GetPseudoRandomSeed()) + GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(pLoopCity->getFood()));
 
 				int iScore = 500 - iChance;
 
@@ -1092,7 +1092,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	}
 	if (pBestCity != NULL && iBestScore != 0)
 	{
-		int iSpreadChance = GC.getGame().getSmallFakeRandNum(100, *pBestCity->plot());
+		int iSpreadChance = GC.getGame().randRangeExclusive(0, 100, pBestCity->plot()->GetPseudoRandomSeed());
 		if (iSpreadChance <= iBaseChance)
 		{
 			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);

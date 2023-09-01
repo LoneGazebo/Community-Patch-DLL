@@ -505,12 +505,43 @@ public:
 	int getJonRandNumVA(int iNum, const char* pszLog, ...);
 	int getAsyncRandNum(int iNum, const char* pszLog);
 
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	//get random number from gamestate without a seed in the generator
-	int	getSmallFakeRandNum(int iNum, const CvPlot& input) const;
-	int	getSmallFakeRandNum(int iNum, int iExtraSeed) const;
-	int	getSmallFakeRandNum(int iNum, int iExtraSeed, const CvPlot& input) const;
-#endif
+	/// Generates a pseudo-random 32-bit number using the game's current state and an extra seed value.
+	///
+	/// Understand that the number returned by this function is pseudo-random, but consistent given the inputs.
+	uint randCore(uint extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an exclusive range of `0` and `limit`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `limit != 0`.
+	uint urandLimitExclusive(uint limit, uint extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an inclusive range of `0` and `limit`.
+	uint urandLimitInclusive(uint limit, uint extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min < max`.
+	uint urandRangeExclusive(uint min, uint max, uint extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min <= max`.
+	uint urandRangeInclusive(uint min, uint max, uint extraSeed) const;
+
+	/// Generates a psuedo-random signed integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min < max`.
+	int randRangeExclusive(int min, int max, uint extraSeed) const;
+
+	/// Generates a psuedo-random signed integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min <= max`.
+	int randRangeInclusive(int min, int max, uint extraSeed) const;
 
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();

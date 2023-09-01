@@ -2459,8 +2459,8 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		CvPlot* pLoopPlotSearch = NULL;
 		for (int iI = 0; iI < 3; iI++)
 		{
-			int iRandomDirection = GC.getGame().getSmallFakeRandNum(NUM_DIRECTION_TYPES, iI);
-			pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), ((DirectionTypes)iRandomDirection));
+			uint uRandomDirection = GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_DIRECTION_TYPES), static_cast<uint>(iI));
+			pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), static_cast<DirectionTypes>(uRandomDirection));
 
 			if (pLoopPlotSearch != NULL && pUnit->GetDanger(pLoopPlotSearch)<INT_MAX)
 			{
@@ -2678,7 +2678,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				}
 			}
 
-			int iRandom = GC.getGame().getSmallFakeRandNum(23,*pEvalPlot);
+			int iRandom = GC.getGame().randRangeExclusive(0, 23, pEvalPlot->GetPseudoRandomSeed());
 			int iTotalScore = iScoreBase+iScoreExtra+iScoreBonus+iRandom;
 
 			//careful with plots that are too dangerous

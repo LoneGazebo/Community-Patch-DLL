@@ -3583,7 +3583,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	if (veValidEvents.size() > 0)
 	{
 		//		veValidEvents.StableSortItems();
-		int iRandIndex = GC.getGame().getSmallFakeRandNum(2500, veValidEvents.size() + GetID());
+		uint uRandIndex = GC.getGame().urandLimitExclusive(2500, veValidEvents.size() + static_cast<uint>(GetID()));
 
 		if (GC.getLogging())
 		{
@@ -3594,7 +3594,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 			strBaseString += playerName + ", ";
-			strOutBuf.Format("Found %d Events for seeding. Random=%d", veValidEvents.size(), iRandIndex);
+			strOutBuf.Format("Found %d Events for seeding. Random=%d", veValidEvents.size(), uRandIndex);
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
 		}
@@ -3611,7 +3611,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 			iWeight = veValidEvents.GetWeight(iLoop);
 			iWeight += veValidEvents.GetWeight(iLoop); //afw
 
-			if (iRandIndex < iWeight)
+			if (static_cast<int>(uRandIndex) < iWeight)
 			{
 				eChosenEvent = eEvent;
 				break;
@@ -6772,9 +6772,9 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_INSTANT, false, NO_GREATPERSON, NO_BUILDING, iPassYield, pkEventChoiceInfo->IsEraScaling(), NO_PLAYER, NULL, true, this, false, true, true, eYield);
 				}
 			}
-			int iRandom = GC.getGame().getSmallFakeRandNum(100, getFood());
+			uint uRandom = GC.getGame().urandLimitExclusive(100, static_cast<uint>(getFood()));
 			int iLimit = pkEventChoiceInfo->getEventChance();
-			if (iLimit > 0 && iRandom > iLimit)
+			if (iLimit > 0 && static_cast<int>(uRandom) > iLimit)
 			{
 				if (!pkEventChoiceInfo->IsEspionageEffect())
 				{
@@ -6855,17 +6855,17 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				std::vector<int> GWIDs = GET_PLAYER(eSpyOwner).GetEspionage()->BuildGWList(this);
 				if (GWIDs.size() > 0)
 				{
-					int iMinLoop = min(pkEventChoiceInfo->getForgeGW(), (int)GWIDs.size());
-					while (iMinLoop > 0)
+					uint uMinLoop = min(static_cast<uint>(pkEventChoiceInfo->getForgeGW()), GWIDs.size());
+					while (uMinLoop > 0)
 					{
-						int iGrab = GC.getGame().getSmallFakeRandNum(iMinLoop - 1, GET_PLAYER(eSpyOwner).GetPseudoRandomSeed() + GWIDs[0] + GET_PLAYER(getOwner()).GetTreasury()->CalculateGrossGold());
-						if (GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[iGrab]))
+						uint uGrab = GC.getGame().urandLimitExclusive(uMinLoop - 1, GET_PLAYER(eSpyOwner).GetPseudoRandomSeed() + static_cast<uint>(GWIDs[0]) + static_cast<uint>(GET_PLAYER(getOwner()).GetTreasury()->CalculateGrossGold()));
+						if (GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[uGrab]))
 						{
 							GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]++;
 
 							GET_PLAYER(eSpyOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 						}
-						iMinLoop--;
+						uMinLoop--;
 					}
 				}
 				else
@@ -10596,8 +10596,8 @@ void CvCity::DoPickResourceDemanded()
 	}
 
 	// Now pick a Luxury we can use
-	int iVectorIndex = GC.getGame().getSmallFakeRandNum(veValidLuxuryResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
-	ResourceTypes eResource = (ResourceTypes)veValidLuxuryResources[iVectorIndex];
+	uint uVectorIndex = GC.getGame().urandLimitExclusive(veValidLuxuryResources.size(), plot()->GetPseudoRandomSeed() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+	ResourceTypes eResource = static_cast<ResourceTypes>(veValidLuxuryResources[uVectorIndex]);
 
 	//hurk! STOP.
 	if (eResource == NO_RESOURCE)
@@ -10742,13 +10742,8 @@ void CvCity::DoSeedResourceDemandedCountdown()
 		iNumTurns += /*25*/ GD_INT_GET(RESOURCE_DEMAND_COUNTDOWN_CAPITAL_ADD);
 	}
 
-	int iRand = /*10*/ GD_INT_GET(RESOURCE_DEMAND_COUNTDOWN_RAND);
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
-#else
-	iNumTurns += GC.getGame().getJonRandNum(iRand, "City Resource demanded rand.");
-#endif
-
+	uint uRand = static_cast<uint>(/*10*/ GD_INT_GET(RESOURCE_DEMAND_COUNTDOWN_RAND));
+	iNumTurns = static_cast<int>(static_cast<uint>(iNumTurns) + GC.getGame().urandLimitExclusive(uRand, plot()->GetPseudoRandomSeed() + GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
 	SetResourceDemandedCountdown(iNumTurns);
 }
 
@@ -15439,8 +15434,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 						if (vPossibleResources.size() > 0)
 						{
 							//choose one
-							int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleResources.size(), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
-							ResourceTypes eResourceToGive = vPossibleResources[iChoice];
+							uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), plot()->GetPseudoRandomSeed() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+							ResourceTypes eResourceToGive = vPossibleResources[uChoice];
 
 							int iNumResourceGiven = 0;
 							CvPlot* pLoopPlot = NULL;
@@ -21723,12 +21718,11 @@ bool CvCity::DoRazingTurn()
 					return false;
 				}
 
-				//Based on city size
-				int iNumRebels = GC.getGame().getSmallFakeRandNum(sqrti(getPopulation()), plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+				// Based on city size, but min number scaling with era.
+				const int iMinRebels = GC.getGame().getCurrentEra();
+				const int iMaxRebels = max(iMinRebels, sqrti(getPopulation()));
+				int iNumRebels = GC.getGame().randRangeInclusive(iMinRebels, iMaxRebels, plot()->GetPseudoRandomSeed() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
 
-				//But min number scaling with era
-				if (iNumRebels < GC.getGame().getCurrentEra())
-					iNumRebels = GC.getGame().getCurrentEra();
 
 				GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
 
@@ -28866,8 +28860,8 @@ CvPlot* CvCity::GetNextBuyablePlot(bool bForPurchase)
 	if (aiPlotList.empty())
 		return NULL;
 
-	int iPickedIndex = GC.getGame().getSmallFakeRandNum(aiPlotList.size(), getFoodTimes100() + GET_PLAYER(m_eOwner).GetNumPlots());
-	return GC.getMap().plotByIndex(aiPlotList[iPickedIndex]);
+	uint uPickedIndex = GC.getGame().urandLimitExclusive(aiPlotList.size(), static_cast<uint>(getFoodTimes100()) + static_cast<uint>(GET_PLAYER(m_eOwner).GetNumPlots()));
+	return GC.getMap().plotByIndex(aiPlotList[uPickedIndex]);
 }
 
 //	--------------------------------------------------------------------------------
@@ -31233,13 +31227,13 @@ CvPlot* CvCity::GetPlotForNewUnit(UnitTypes eUnitType, bool bAllowCenterPlot) co
 		{ 0, 5, 4, 2, 1, 3, 6 },
 		{ 0, 3, 6, 4, 1, 2, 5 },
 		{ 0, 1, 2, 4, 5, 6, 3 } };
-	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, plot()->GetPlotIndex() + GET_PLAYER(m_eOwner).getNumUnits());
+	uint uShuffleType = GC.getGame().urandLimitExclusive(3, plot()->GetPseudoRandomSeed() + static_cast<uint>(GET_PLAYER(m_eOwner).getNumUnits()));
 
 	//check city plot and adjacent plots
 	vector<CvPlot*> validChoices;
 	for (int i = 0; i < RING1_PLOTS; i++)
 	{
-		CvPlot* pPlot = iterateRingPlots(plot(), aiShuffle[iShuffleType][i]);
+		CvPlot* pPlot = iterateRingPlots(plot(), aiShuffle[uShuffleType][i]);
 		if (pPlot == NULL)
 			continue;
 
@@ -34013,14 +34007,14 @@ int CvCity::rangeCombatDamage(const CvUnit* pDefender, bool bIncludeRand, const 
 	int iAttackerStrength = getStrengthValue(true, false, pDefender);
 	int iDefenderStrength = rangeCombatUnitDefense(pDefender, pInPlot, bQuickAndDirty);
 	int iModifier = 0 - pDefender->GetDamageReductionCityAssault(); //watch the minus
-	int iRandomSeed = bIncludeRand ? (pDefender->plot()->GetPlotIndex() + iAttackerStrength + iDefenderStrength) : 0;
+	uint uRandomSeed = bIncludeRand ? (static_cast<uint>(pDefender->plot()->GetPlotIndex()) + static_cast<uint>(iAttackerStrength) + static_cast<uint>(iDefenderStrength)) : 0;
 
 	return CvUnitCombat::DoDamageMath(
 		iAttackerStrength,
 		iDefenderStrength,
 		/*2400*/ GD_INT_GET(RANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 		/*1200*/ GD_INT_GET(RANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
-		iRandomSeed,
+		uRandomSeed,
 		iModifier) / 100;
 }
 
@@ -34042,7 +34036,7 @@ int CvCity::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 	}
 
 	if (bIncludeRand)
-		return iBaseValue + GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
+		return iBaseValue + GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed() + GET_PLAYER(getOwner()).GetPseudoRandomSeed());
 	else
 		return iBaseValue;
 }

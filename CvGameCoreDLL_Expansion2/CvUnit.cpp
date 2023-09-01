@@ -650,14 +650,14 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	iUnitName = GC.getGame().getUnitCreatedCount(getUnitType());
 	int iNumNames = getUnitInfo().GetNumUnitNames();
 #if defined(MOD_BALANCE_CORE)
-	if (!bSkipNaming)
+	if (!bSkipNaming && iNumNames > 0)
 	{
 		std::vector<int> vfPossibleUnits;
 #endif
 	{
 		if(iNameOffset == -1)
 		{
-			iNameOffset = GC.getGame().getSmallFakeRandNum(iNumNames, *plot());
+			iNameOffset = GC.getGame().randRangeExclusive(0, iNumNames, plot()->GetPseudoRandomSeed());
 		}
 #if defined(MOD_BALANCE_CORE)
 		CvString strName = NULL;
@@ -676,10 +676,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		}
 		if(vfPossibleUnits.size() > 0)
 		{
-			int iRoll = GC.getGame().getSmallFakeRandNum(vfPossibleUnits.size(), iID);
-			strName = getUnitInfo().GetUnitNames(vfPossibleUnits[iRoll]);
+			uint uRoll = GC.getGame().urandLimitExclusive(vfPossibleUnits.size(), static_cast<uint>(iID));
+			strName = getUnitInfo().GetUnitNames(vfPossibleUnits[uRoll]);
 			setName(strName);
-			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
+			SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[uRoll]));
 			GC.getGame().addGreatPersonBornName(strName);
 
 			if (MOD_GLOBAL_NO_LOST_GREATWORKS)
@@ -705,10 +705,10 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			}
 			if(vfPossibleUnits.size() > 0)
 			{
-				int iRoll = GC.getGame().getSmallFakeRandNum(vfPossibleUnits.size(), iID);
-				strName = getUnitInfo().GetUnitNames(vfPossibleUnits[iRoll]);
+				uint uRoll = GC.getGame().urandLimitExclusive(vfPossibleUnits.size(), static_cast<uint>(iID));
+				strName = getUnitInfo().GetUnitNames(vfPossibleUnits[uRoll]);
 				setName(strName);
-				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[iRoll]));
+				SetGreatWork(getUnitInfo().GetGreatWorks(vfPossibleUnits[uRoll]));
 				GC.getGame().addGreatPersonBornName(strName);
 
 				if (MOD_GLOBAL_NO_LOST_GREATWORKS)
@@ -1133,7 +1133,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed()) + 1;
+			int randFollower = GC.getGame().randRangeInclusive(1, totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed());
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -1163,7 +1163,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 			CvCityReligions *pCityReligions = pPlotCity->GetCityReligions();
 
 			int totalFollowers = pPlotCity->getPopulation();
-			int randFollower = GC.getGame().getSmallFakeRandNum(totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed()) + 1;
+			int randFollower = GC.getGame().urandRangeInclusive(1, totalFollowers, GET_PLAYER(pPlotCity->getOwner()).GetPseudoRandomSeed());
 
 			for (int i = RELIGION_PANTHEON; i < GC.getNumReligionInfos(); i++)
 			{
@@ -5497,13 +5497,13 @@ int CvUnit::getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeR
 		iModifier += /*0*/ GD_INT_GET(ATTACKING_CITY_MELEE_DAMAGE_MOD) - 100;
 	}
 
-	int iRandomSeed = bIncludeRand ? (plot()->GetPlotIndex()+GetID()+iStrength+iOpponentStrength) : 0;
+	uint uRandomSeed = bIncludeRand ? (static_cast<uint>(plot()->GetPlotIndex()) + static_cast<uint>(GetID()) + static_cast<uint>(iStrength) + static_cast<uint>(iOpponentStrength)) : 0;
 	return CvUnitCombat::DoDamageMath(
 		iStrength,
 		iOpponentStrength,
 		/*2400*/ GD_INT_GET(ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 		/*1200*/ GD_INT_GET(ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
-		iRandomSeed,
+		uRandomSeed,
 		iModifier ) / 100;
 }
 
@@ -5790,7 +5790,7 @@ bool CvUnit::jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot)
 					if (pLoopPlot->getArea() != plot()->getArea())
 						iValue += 11;
 
-					if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().getSmallFakeRandNum(3, *pLoopPlot) < 2))
+					if (iValue < iBestValue || (iValue == iBestValue && GC.getGame().randRangeExclusive(0, 3, pLoopPlot->GetPseudoRandomSeed()) < 2))
 					{
 						iBestValue = iValue;
 						pBestPlot = pLoopPlot;
@@ -8196,7 +8196,7 @@ void CvUnit::DoAttrition()
 
 		if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
-			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getEnemyDamageChance())
+			if (GC.getGame().randRangeExclusive(0, 100, pPlot->GetPseudoRandomSeed()) < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8204,7 +8204,7 @@ void CvUnit::DoAttrition()
 		}
 		else if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
 		{
-			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) <= getEnemyDamageChance())
+			if (GC.getGame().randRangeExclusive(0, 100, pPlot->GetPseudoRandomSeed()) <= getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8212,7 +8212,7 @@ void CvUnit::DoAttrition()
 		}
 		else if (getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
-			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) < getNeutralDamageChance())
+			if (GC.getGame().randRangeExclusive(0, 100, pPlot->GetPseudoRandomSeed()) < getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -9648,7 +9648,7 @@ bool CvUnit::createFreeLuxury()
 			{
 				if(GC.getMap().getNumResources(eResource) <= 0)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
+					int iRandomFlavor = GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(iResourceLoop));
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9670,7 +9670,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
+					int iRandomFlavor = GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(iResourceLoop));
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9692,7 +9692,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().getSmallFakeRandNum(100, iResourceLoop);
+					int iRandomFlavor = GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(iResourceLoop));
 					if(iRandomFlavor > iBestFlavor)
 					{
 						eResourceToGive = eResource;
@@ -10601,12 +10601,12 @@ bool CvUnit::pillage()
 					if (iEra <= 0)
 						iEra = 1;
 
-					iPillageGold += 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + max(1, GC.getGame().getSmallFakeRandNum(50, *plot()))) / 100)));
+					iPillageGold += 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + max(1, GC.getGame().randRangeExclusive(0, 50, plot()->GetPseudoRandomSeed()))) / 100)));
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 				else
 				{
-					iPillageGold += GC.getGame().getSmallFakeRandNum(pkImprovement->GetPillageGold(), *plot());
+					iPillageGold += GC.getGame().randRangeExclusive(0, pkImprovement->GetPillageGold(), plot()->GetPseudoRandomSeed());
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
@@ -17871,13 +17871,13 @@ int CvUnit::GetRangeCombatDamage(const CvUnit* pDefender, const CvCity* pCity, b
 		iDefenderStrength = GetBaseCombatStrength()*100;
 	}
 
-	int iRandomSeed = bIncludeRand ? (plot()->GetPlotIndex()+GetID()+iAttackerStrength+iDefenderStrength) : 0;
+	uint uRandomSeed = bIncludeRand ? (static_cast<uint>(plot()->GetPlotIndex()) + static_cast<uint>(GetID()) + static_cast<uint>(iAttackerStrength) + static_cast<uint>(iDefenderStrength)) : 0;
 	int iDamage = CvUnitCombat::DoDamageMath(
 		iAttackerStrength,
 		iDefenderStrength,
 		/*2400*/ GD_INT_GET(RANGE_ATTACK_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 		/*1200*/ GD_INT_GET(RANGE_ATTACK_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
-		iRandomSeed,
+		uRandomSeed,
 		0 ) / 100;
 
 	//extra damage with special promotion
@@ -17933,7 +17933,7 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		}
 
 		if (bIncludeRand)
-			return iBaseValue + GC.getGame().getSmallFakeRandNum(iMaxRandom, *plot());
+			return iBaseValue + GC.getGame().randRangeExclusive(0, iMaxRandom, plot()->GetPseudoRandomSeed());
 		else
 			return iBaseValue;
 	}
@@ -17947,7 +17947,7 @@ int CvUnit::GetAirStrikeDefenseDamage(const CvUnit* pAttacker, bool bIncludeRand
 		}
 
 		if (bIncludeRand)
-			return iVal + GC.getGame().getSmallFakeRandNum(iVal/2, *plot());
+			return iVal + GC.getGame().randRangeExclusive(0, iVal / 2, plot()->GetPseudoRandomSeed());
 		else
 			return iVal+2;
 	}	
@@ -18005,13 +18005,13 @@ int CvUnit::GetInterceptionDamage(const CvUnit* pInterceptedAttacker, bool bIncl
 	iInterceptorStrength *= (100 + GetInterceptionCombatModifier());
 	iInterceptorStrength /= 100;
 
-	int iRandomSeed = bIncludeRand ? (pTargetPlot->GetPlotIndex()+GetID()+iInterceptorStrength+iInterceptedAttackerStrength) : 0;
+	uint uRandomSeed = bIncludeRand ? (static_cast<uint>(pTargetPlot->GetPlotIndex()) + static_cast<uint>(GetID())+ static_cast<uint>(iInterceptorStrength) + static_cast<uint>(iInterceptedAttackerStrength)) : 0;
 	return CvUnitCombat::DoDamageMath(
 		iInterceptorStrength,
 		iInterceptedAttackerStrength,
 		/*2400*/ GD_INT_GET(INTERCEPTION_SAME_STRENGTH_MIN_DAMAGE), //ignore the min part, it's misleading
 		/*1200*/ GD_INT_GET(INTERCEPTION_SAME_STRENGTH_POSSIBLE_EXTRA_DAMAGE),
-		iRandomSeed,
+		uRandomSeed,
 		pInterceptedAttacker->GetInterceptionDefenseDamageModifier() ) / 100;
 }
 
@@ -24717,7 +24717,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 		if (getTeam() != GET_TEAM(kPlayer.getTeam()).GetID())
 		{
 			CvUnit* pConvertUnit = NULL;
-			if (GC.getGame().getSmallFakeRandNum(100, *pPlot) <= iChanceToConvertReligiousUnit)
+			if (GC.getGame().randRangeExclusive(0, 100, pPlot->GetPseudoRandomSeed()) <= iChanceToConvertReligiousUnit)
 			{
 				UnitTypes eBestLandUnit = NO_UNIT;
 				int iStrengthBestLandCombat = 0;
@@ -31152,7 +31152,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
 
 		// Is the plague inflicted?
-		int iRoll = GC.getGame().getSmallFakeRandNum(100, (int)GetID() + ((int)defender.GetID() / 2) + (iCount * 493));
+		int iRoll = GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(GetID()) + (static_cast<uint>(defender.GetID()) / 2) + (static_cast<uint>(iCount) * 493));
 		iCount--;
 		if (iRoll > iPlagueChance)
 			return;
@@ -31306,7 +31306,7 @@ bool CvUnit::CheckWithdrawal(const CvUnit& attacker) const
 		return true;
 
 	//include damage so the result changes for each attack
-	int iRoll = GC.getGame().getSmallFakeRandNum(10, plot()->GetPlotIndex() + GetID() + getDamage()) * 10;
+	int iRoll = GC.getGame().randRangeExclusive(0, 10, plot()->GetPseudoRandomSeed() + static_cast<uint>(GetID()) + static_cast<uint>(getDamage())) * 10;
 	return iRoll < iWithdrawChance;
 }
 //	--------------------------------------------------------------------------------
@@ -31399,7 +31399,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 			// make a random selection from the remaining plots
 			multimap<int, CvPlot*>::iterator itChosenPlot = aNumFriendlies.begin();
 			if (aNumFriendlies.size() > 1)
-				advance(itChosenPlot, GC.getGame().getSmallFakeRandNum(aNumFriendlies.size(), plot()->GetPlotIndex() + GetID() + getDamage()));
+				advance(itChosenPlot, GC.getGame().urandLimitExclusive(aNumFriendlies.size(), plot()->GetPseudoRandomSeed() + static_cast<uint>(GetID()) + static_cast<uint>(getDamage())));
 			pDestPlot = itChosenPlot->second;
 		}
 	}
@@ -31538,7 +31538,7 @@ void CvUnit::AI_promote()
 
 			//add some randomness
 			if(iValue > 0)
-				iValue += GC.getGame().getSmallFakeRandNum(iValue, plot()->GetPlotIndex() + iI);
+				iValue += GC.getGame().randRangeExclusive(0, iValue, plot()->GetPseudoRandomSeed() + static_cast<uint>(iI));
 
 			if(iValue > iBestValue)
 			{

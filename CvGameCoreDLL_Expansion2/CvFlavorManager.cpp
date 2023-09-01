@@ -456,29 +456,29 @@ void CvFlavorManager::RandomizeWeights()
 	int iPlusMinus = max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
-	int iSeed = 0;
+	uint uSeed = 0;
 
 	for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 	{
 		// Don't modify it if it's zero-ed out in the XML
 		if (m_piPersonalityFlavor[iI] != 0)
 		{
-			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, iSeed);
+			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, uSeed);
 		}
 	}
 }
 
 /// Add a random plus/minus to an integer (but keep it in range)
-int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed)
+int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, uint& uSeed)
 {
 	// Increment the random seed (and make sure it's > 0)
-	if (iSeed < 0)
-		iSeed = 0;
+	if (uSeed < 0)
+		uSeed = 0;
 
-	iSeed += (iOriginalValue + iPlusMinus) * 200;
+	uSeed += (static_cast<uint>(iOriginalValue) + static_cast<uint>(iPlusMinus)) * 200;
 
 	// Randomize!
-	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed));
+	int iAdjust = GC.getGame().randRangeExclusive(0, (iPlusMinus * 2 + 1), (static_cast<uint>(iOriginalValue) * uSeed));
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
 
 	return range(iRtnValue, iMin, iMax);
