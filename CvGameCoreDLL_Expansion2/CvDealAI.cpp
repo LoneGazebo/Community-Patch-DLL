@@ -3319,7 +3319,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = 23 + GC.getGame().urandRangeExclusive(0, 15, GET_PLAYER(ePlayerDeclaringWar).GetPseudoRandomSeed() );
+			int iPeaceDampenerTurns = 23 + GC.getGame().randRangeExclusive(0, 15, GET_PLAYER(ePlayerDeclaringWar).GetPseudoRandomSeed() );
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 			{
 				return INT_MAX;
@@ -6030,7 +6030,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	{
 		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
 		int iDesired = min(4,max(1,iAvailable/2));
-		iDesired += GC.getGame().urandRangeExclusive(0, 3, static_cast<uint>(iCurrentNetGoldOfReceivingPlayer) + static_cast<uint>(eStratFromThem) + static_cast<uint>(eOtherPlayer));
+		iDesired += GC.getGame().randRangeExclusive(0, 3, static_cast<uint>(iCurrentNetGoldOfReceivingPlayer) + static_cast<uint>(eStratFromThem) + static_cast<uint>(eOtherPlayer));
 		//if we are in the red we want more!
 		iDesired += GetPlayer()->getResourceShortageValue(eStratFromThem);
 		iDesired = min(iAvailable, iDesired);
