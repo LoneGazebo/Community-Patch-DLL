@@ -10793,11 +10793,6 @@ uint CvGame::urandLimitExclusive(uint limit, uint extraSeed) const
 
 uint CvGame::urandLimitInclusive(uint limit, uint extraSeed) const
 {
-	if (limit == 0)
-	{
-		return 0;
-	}
-
 	const uint rand = randCore(extraSeed);
 	if (limit == UINT_MAX)
 	{
