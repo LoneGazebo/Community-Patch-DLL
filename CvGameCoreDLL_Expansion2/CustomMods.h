@@ -466,6 +466,8 @@
 #define MOD_GP_ERA_SCALING							gCustomMods.isGP_ERA_SCALING()
 // Squads control groups modmod
 #define MOD_SQUADS									gCustomMods.isSQUADS()
+// NotForSale modmod
+#define MOD_NOT_FOR_SALE							gCustomMods.isNOT_FOR_SALE()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1540,6 +1542,7 @@ public:
 	MOD_OPT_DECL(LINKED_MOVEMENT);
 	MOD_OPT_DECL(GP_ERA_SCALING);
 	MOD_OPT_DECL(SQUADS);
+	MOD_OPT_DECL(NOT_FOR_SALE);
 
 protected:
 	bool m_bInit;

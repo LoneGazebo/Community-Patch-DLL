@@ -773,6 +773,14 @@ CvPlayer::CvPlayer() :
 	, m_iMilitaryAirMight()
 	, m_iMilitaryLandMight()
 #endif
+#if defined(MOD_NOT_FOR_SALE)
+	, m_refuseOpenBordersTrade(false)
+	, m_refuseEmbassyTrade(false)
+	, m_refuseDefensivePactTrade(false)
+	, m_refuseBrokeredWarTrade(false)
+	, m_refuseBrokeredPeaceTrade(false)
+	, m_refuseResearchAgreementTrade(false)
+#endif
 {
 	m_pPlayerPolicies = FNEW(CvPlayerPolicies, c_eCiv5GameplayDLL, 0);
 	m_pEconomicAI = FNEW(CvEconomicAI, c_eCiv5GameplayDLL, 0);
@@ -39542,6 +39550,94 @@ void CvPlayer::setResourceFromCSAlliances(ResourceTypes eIndex, int iChange)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvPlayer::IsResourceNotForSale(ResourceTypes eResource)
+{
+	// If the find function returns something other than the end iterator, a match was found 
+	// and therefore the resource eResource is not for sale
+	return std::find(m_vResourcesNotForSale.begin(), m_vResourcesNotForSale.end(), eResource)
+		!= m_vResourcesNotForSale.end();
+}
+
+
+void CvPlayer::SetResourceAvailable(ResourceTypes eResource)
+{
+	std::vector<ResourceTypes>::iterator it = std::find(m_vResourcesNotForSale.begin(), m_vResourcesNotForSale.end(), eResource);
+	// If there is a match in the array, set it available by removing it via erase method
+	if (it != m_vResourcesNotForSale.end())
+	{
+		m_vResourcesNotForSale.erase(it);
+	}
+}
+
+void CvPlayer::SetResourceNotForSale(ResourceTypes eResource)
+{
+	if (!IsResourceNotForSale(eResource))
+	{
+		m_vResourcesNotForSale.push_back(eResource);
+	}
+}
+
+bool CvPlayer::IsRefuseOpenBordersTrade()
+{
+	return m_refuseOpenBordersTrade;
+}
+
+void CvPlayer::SetRefuseOpenBordersTrade(bool refuseTrade)
+{
+	m_refuseOpenBordersTrade = refuseTrade;
+}
+
+bool CvPlayer::IsRefuseEmbassyTrade()
+{
+	return m_refuseEmbassyTrade;
+}
+
+void CvPlayer::SetRefuseEmbassyTrade(bool refuseTrade)
+{
+	m_refuseEmbassyTrade = refuseTrade;
+}
+
+bool CvPlayer::IsRefuseDefensivePactTrade()
+{
+	return m_refuseDefensivePactTrade;
+}
+
+void CvPlayer::SetRefuseDefensivePactTrade(bool refuseTrade)
+{
+	m_refuseDefensivePactTrade = refuseTrade;
+}
+
+bool CvPlayer::IsRefuseBrokeredWarTrade()
+{
+	return m_refuseBrokeredWarTrade;
+}
+
+void CvPlayer::SetRefuseBrokeredWarTrade(bool refuseTrade)
+{
+	m_refuseBrokeredWarTrade = refuseTrade;
+}
+
+bool CvPlayer::IsRefuseBrokeredPeaceTrade()
+{
+	return m_refuseBrokeredPeaceTrade;
+}
+
+void CvPlayer::SetRefuseBrokeredPeaceTrade(bool refuseTrade)
+{
+	m_refuseBrokeredPeaceTrade = refuseTrade;
+}
+
+bool CvPlayer::IsRefuseResearchAgreementTrade()
+{
+	return m_refuseResearchAgreementTrade;
+}
+
+void CvPlayer::SetRefuseResearchAgreementTrade(bool refuseTrade)
+{
+	m_refuseResearchAgreementTrade = refuseTrade;
+}
+
+//	--------------------------------------------------------------------------------
 int CvPlayer::getResourceModFromReligion(ResourceTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -48223,6 +48319,14 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_pabHasStrategicMonopoly);
 
 	visitor(player.m_vCityConnectionPlots);
+
+	visitor(player.m_vResourcesNotForSale);
+	visitor(player.m_refuseOpenBordersTrade);
+	visitor(player.m_refuseEmbassyTrade);
+	visitor(player.m_refuseDefensivePactTrade);
+	visitor(player.m_refuseBrokeredWarTrade);
+	visitor(player.m_refuseBrokeredPeaceTrade);
+	visitor(player.m_refuseResearchAgreementTrade);
 }
 
 //	--------------------------------------------------------------------------------
