@@ -74,13 +74,15 @@ struct NODISCARD CvSeeder {
 		return mixRawAssign(otherSeed.value);
 	}
 
-	template<typename T> inline CvSeeder mixRaw(T otherValue) const {
+	template<typename T> inline CvSeeder mixRaw(T otherValue) const
+	{
 		CvSeeder newSeed = *this;
 		newSeed.mixRawAssign(otherValue);
 		return newSeed;
 	}
 
-	template<typename T> inline CvSeeder mix(T otherValue) const {
+	template<typename T> inline CvSeeder mix(T otherValue) const
+	{
 		CvSeeder newSeed = *this;
 		newSeed.mixAssign(otherValue);
 		return newSeed;
