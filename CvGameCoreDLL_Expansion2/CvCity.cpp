@@ -23849,14 +23849,29 @@ int CvCity::GetUnhappinessFromOccupation() const
 		return 0;
 
 	int iPopulation = getPopulation();
+	if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).isHalfSpecialistUnhappiness())
+	{
+		int iSpecialistCount = GetCityCitizens()->GetTotalSpecialistCount();
+		iSpecialistCount++; // Round up
+		iPopulation -= (iSpecialistCount / 2);
+	}
+
 	float fUnhappiness = 0.00f;
-	fUnhappiness += iPopulation * /*1.00f*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION);
+	fUnhappiness += iPopulation * /*1.34f in CP, 1.00f in VP*/ GD_FLOAT_GET(UNHAPPINESS_PER_OCCUPIED_POPULATION);
+	if (!MOD_BALANCE_VP)
+		fUnhappiness *= 100;
+
+	fUnhappiness *= 100 + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPopulationUnhappinessModifier();
+	fUnhappiness /= 100;
 
 	if (HasGarrison())
 	{
 		fUnhappiness *= 100 + GET_PLAYER(getOwner()).GetGarrisonsOccupiedUnhappinessMod();
 		fUnhappiness /= 100;
 	}
+
+	if (!MOD_BALANCE_VP)
+		return (int)fUnhappiness;
 
 	int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : iPopulation;
 	return range((int)fUnhappiness, 0, iLimit);
