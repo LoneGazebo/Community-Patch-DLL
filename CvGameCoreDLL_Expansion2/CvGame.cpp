@@ -5805,7 +5805,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
+		tempRand = randRangeExclusive(0, totbias, CvSeeder(probabilities.size()));
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -5836,7 +5836,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = getSmallFakeRandNum(totbias, probabilities.size());
+		tempRand = randRangeExclusive(0, totbias, CvSeeder(probabilities.size()));
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -8924,7 +8924,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 				continue;
 
 			// Random weighting
-			iValue = (1 + GC.getGame().getSmallFakeRandNum(10, iUnitLoop + GET_PLAYER(ePlayer).getNumUnits() )) * 100;
+			iValue = GC.getGame().randRangeInclusive(1, 10, CvSeeder(iUnitLoop).mix(GET_PLAYER(ePlayer).getNumUnits())) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)
@@ -9175,7 +9175,7 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips
 	}
 
 	// Choose from weighted unit types
-	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), kPlayer.getNumUnits() + kPlayer.GetTreasury()->GetLifetimeGrossGold());
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), CvSeeder(kPlayer.getNumUnits()).mix(kPlayer.GetTreasury()->GetLifetimeGrossGold()));
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -9215,7 +9215,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		if(pPlot->getNumUnits() > 0)
 			continue;
 
-		int iTempWeight = getSmallFakeRandNum(10, GET_PLAYER(pCity->getOwner()).GetMilitaryMight()+pPlot->GetPlotIndex());
+		int iTempWeight = randRangeExclusive(0, 10, CvSeeder(GET_PLAYER(pCity->getOwner()).GetMilitaryMight()).mix(pPlot->GetPseudoRandomSeed()));
 
 		// Add weight if there's an improvement here!
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -9357,7 +9357,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY)
 {
 	// Find the unique units that have already been assigned
-	int iRandomSeed = 0;
+	CvSeeder randomSeed;
 	std::set<UnitTypes> setUniquesAlreadyAssigned;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
@@ -9365,7 +9365,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
 		if(pMinorLoop && pMinorLoop->isEverAlive())
 		{
-			iRandomSeed += pMinorLoop->GetID(); //needed later
+			randomSeed.mixAssign(pMinorLoop->GetID()); //needed later
 			UnitTypes eUniqueUnit = pMinorLoop->GetMinorCivAI()->GetUniqueUnit();
 			if(eUniqueUnit != NO_UNIT)
 			{
@@ -9490,7 +9490,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 				continue;
 
-			int iRandom = getSmallFakeRandNum(300, iPlotX + iPlotY + iUnitLoop);
+			int iRandom = randRangeExclusive(0, 300, CvSeeder(iPlotX).mix(iPlotY).mix(iUnitLoop));
 
 			//Weight minor civ gift units higher, so they're more likely to spawn each game (Careful, +50 caused Minor Civs Gifts to take up more than 50% of Military UU slots).
 			if (pkUnitInfo->IsMinorCivGift())
@@ -9505,7 +9505,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			break;
 	}
 
-	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), iRandomSeed);
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), randomSeed);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10347,7 +10347,7 @@ void CvGame::testVictory()
 			{
 				if(isVictoryAvailable(eVictory))
 				{
-					iRand = GC.getGame().getSmallFakeRandNum(iNumCompetitionWinners, iNumCompetitionWinners + iVictoryLoop);
+					iRand = GC.getGame().randRangeExclusive(0, iNumCompetitionWinners, CvSeeder(iNumCompetitionWinners).mix(iVictoryLoop));
 					iTeamLoop = m_aiTeamCompetitionWinnersScratchPad[iRand];
 
 					DoPlaceTeamInVictoryCompetition(eVictory, (TeamTypes) iTeamLoop);
@@ -10483,9 +10483,9 @@ void CvGame::testVictory()
 	// Two things can set this to true: either someone has finished an insta-win victory, or the game-ending tech has been researched and we're now tallying VPs
 	if(bEndGame && !aaiGameWinners.empty())
 	{
-		int iWinner = getSmallFakeRandNum(aaiGameWinners.size(), aaiGameWinners.size());
-		CUSTOMLOG("Calling setWinner from testVictory: %i, %i", aaiGameWinners[iWinner][0], aaiGameWinners[iWinner][1]);
-		setWinner(((TeamTypes)aaiGameWinners[iWinner][0]), ((VictoryTypes)aaiGameWinners[iWinner][1]));
+		uint uWinner = urandLimitExclusive(aaiGameWinners.size(), CvSeeder(aaiGameWinners.size()));
+		CUSTOMLOG("Calling setWinner from testVictory: %i, %i", aaiGameWinners[uWinner][0], aaiGameWinners[uWinner][1]);
+		setWinner(((TeamTypes)aaiGameWinners[uWinner][0]), ((VictoryTypes)aaiGameWinners[uWinner][1]));
 	}
 
 	if(getVictory() == NO_VICTORY)
@@ -10554,7 +10554,7 @@ void CvGame::doVictoryRandomization()
 		if (pkVictoryInfo->isConquest())
 			continue;
 
-		int iScore = getSmallFakeRandNum(100, GC.getGame().GetGameCulture()->GetNumGreatWorks()+ iVictoryLoop);
+		int iScore = randRangeExclusive(0, 100, CvSeeder(GC.getGame().GetGameCulture()->GetNumGreatWorks()).mix(iVictoryLoop));
 		
 		if (pkVictoryInfo->isDiploVote())
 		{
@@ -10748,7 +10748,6 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 	return (int)GC.getASyncRand().get(-iNum, pszLog)*(-1);
 }
 
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
 //	--------------------------------------------------------------------------------
 // Get a fake random number which depends only on game state
 // for small numbers (e.g. direction rolls) this should be good enough
@@ -10775,123 +10774,57 @@ unsigned long hash32(unsigned long x)
 }
 */
 
-static unsigned long giLastState = 0;
-
-int CvGame::getSmallFakeRandNum(int iNum, const CvPlot& input) const
+uint CvGame::randCore(CvSeeder extraSeed) const
 {
-	//do not use turnslice here, it changes after reload!
-	//do not use the active player either, it can be different on both ends of a MP game
-	unsigned long iState = input.getX()*17 + input.getY()*23 + getGameTurn()*37;
-
-	/*
-	//safety check
-	if (iState == giLastState)
-		OutputDebugString("warning rng seed repeated\n");
-	giLastState = iState;
-	*/
-	
-	int iResult = 0;
-	if (iNum > 0)
-		iResult = hash32(iState) % iNum;
-	else if (iNum < 0)
-		iResult = -int(hash32(iState) % (-iNum));
-
-	/*
-	FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls1.csv", FILogFile::kDontTimeStamp);
-	if (pLog)
-	{
-		char szOut[1024] = { 0 };
-		sprintf_s(szOut, "turn %d, turnslice %d, max %d, res %d, seed (%d:%d)\n", getGameTurn(), getTurnSlice(), iNum, iResult, input.getX(), input.getY());
-		pLog->Msg(szOut);
-	}
-	*/
-
-	return iResult;
+	const CvSeeder mapSeed = CvSeeder::fromRaw(CvPreGame::mapRandomSeed());
+	const CvSeeder gameSeed = CvSeeder(static_cast<uint>(getGameTurn()) * 11);
+	return mapSeed.mix(gameSeed).mix(extraSeed);
 }
 
-int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed) const
+uint CvGame::urandLimitExclusive(uint limit, CvSeeder extraSeed) const
 {
-	//do not use turnslice here, it changes after reload!
-	//do not use the active player either, it can be different on both ends of a MP game
-	unsigned long iState = getGameTurn()*11 + abs(iExtraSeed);
-
-	/*
-	//safety check
-	if (iState == giLastState)
-		OutputDebugString("warning rng seed repeated\n");
-	giLastState = iState;
-	*/
-
-	int iResult = 0;
-	if (iNum > 0)
-		iResult = hash32(iState) % iNum;
-	else if (iNum < 0)
-		iResult = -int(hash32(iState) % (-iNum));
-
-	/*
-	FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
-	if (pLog)
-	{
-		char szOut[1024] = { 0 };
-		sprintf_s(
-			szOut, 
-			"turn %d, turnslice %d, activePlayer %d, max %d, res %d, seed %d\n", 
-			getGameTurn(), 
-			getTurnSlice(), 
-			getActivePlayer(),
-			iNum, 
-			iResult, 
-			iExtraSeed
-		);
-		pLog->Msg(szOut);
-	}
-	*/
-
-	return iResult;
+	ASSERT(limit != 0);
+	const uint rand = randCore(extraSeed);
+	return rand % limit;
 }
 
-int CvGame::getSmallFakeRandNum(int iNum, int iExtraSeed, const CvPlot& input) const
+uint CvGame::urandLimitInclusive(uint limit, CvSeeder extraSeed) const
 {
-	//do not use turnslice here, it changes after reload!
-	//do not use the active player either, it can be different on both ends of a MP game
-	unsigned long iState = getGameTurn()*29 + abs(iExtraSeed) + input.getX()*41 + input.getY()*13;
-
-	/*
-	//safety check
-	if (iState == giLastState)
-		OutputDebugString("warning rng seed repeated\n");
-	giLastState = iState;
-	*/
-
-	int iResult = 0;
-	if (iNum > 0)
-		iResult = hash32(iState) % iNum;
-	else if (iNum < 0)
-		iResult = -int(hash32(iState) % (-iNum));
-
-	/*
-	FILogFile* pLog = LOGFILEMGR.GetLog("FakeRandCalls2.csv", FILogFile::kDontTimeStamp);
-	if (pLog)
+	const uint rand = randCore(extraSeed);
+	if (limit == UINT_MAX)
 	{
-		char szOut[1024] = { 0 };
-		sprintf_s(
-			szOut, 
-			"turn %d, turnslice %d, activePlayer %d, max %d, res %d, seed %d\n", 
-			getGameTurn(), 
-			getTurnSlice(), 
-			getActivePlayer(),
-			iNum, 
-			iResult, 
-			iExtraSeed
-		);
-		pLog->Msg(szOut);
+		return rand;
 	}
-	*/
-
-	return iResult;
+	else
+	{
+		return rand % (limit + 1);
+	}
 }
 
-#endif
+uint CvGame::urandRangeExclusive(uint min, uint max, CvSeeder extraSeed) const
+{
+	ASSERT(min < max);
+	return urandLimitExclusive(max - min, extraSeed) + min;
+}
+
+uint CvGame::urandRangeInclusive(uint min, uint max, CvSeeder extraSeed) const
+{
+	ASSERT(min <= max);
+	return urandLimitInclusive(max - min, extraSeed) + min;
+}
+
+int CvGame::randRangeExclusive(int min, int max, CvSeeder extraSeed) const
+{
+	ASSERT(min < max);
+	return static_cast<int>(urandLimitExclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));
+}
+
+int CvGame::randRangeInclusive(int min, int max, CvSeeder extraSeed) const
+{
+	ASSERT(min <= max);
+	return static_cast<int>(urandLimitInclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));
+}
+
 
 //	--------------------------------------------------------------------------------
 int CvGame::calculateSyncChecksum()
@@ -13487,7 +13420,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 		if (iBaseWeight > 0)
 		{
 			// add a small random factor
-			iBaseWeight += 10 + GC.getGame().getSmallFakeRandNum(10, iBaseWeight);
+			iBaseWeight += 10 + GC.getGame().randRangeExclusive(0, 10, CvSeeder(iBaseWeight));
 
 			// increase the value if unowned
 			iBaseWeight *= (pPlot->getOwner() == NO_PLAYER) ? 9 : 8;
@@ -13637,9 +13570,9 @@ PlayerTypes GetRandomMajorPlayer(CvPlot* pPlot)
 	}
 
 
-	int iValue = GC.getGame().getSmallFakeRandNum(tempPlayers.size(), *pPlot);
+	uint uValue = GC.getGame().urandLimitExclusive(tempPlayers.size(), pPlot->GetPseudoRandomSeed());
 
-	PlayerTypes ePlayer = (PlayerTypes)tempPlayers[iValue];
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(tempPlayers[uValue]);
 
 	if (ePlayer == NO_PLAYER)
 		return BARBARIAN_PLAYER;
@@ -13666,9 +13599,9 @@ PlayerTypes GetRandomPlayer(CvPlot* pPlot)
 	}
 
 
-	int iValue = GC.getGame().getSmallFakeRandNum(tempPlayers.size(), *pPlot);
+	uint uValue = GC.getGame().urandLimitExclusive(tempPlayers.size(), pPlot->GetPseudoRandomSeed());
 
-	PlayerTypes ePlayer = (PlayerTypes)tempPlayers[iValue];
+	PlayerTypes ePlayer = static_cast<PlayerTypes>(tempPlayers[uValue]);
 
 	if (ePlayer == NO_PLAYER)
 		return BARBARIAN_PLAYER;
@@ -13831,7 +13764,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 					eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
 
 					// pick a type of artifact
-					GreatWorkArtifactClass eArtifact = aRandomArtifacts[getSmallFakeRandNum(aRandomArtifactsCount, *pPlot)];
+					GreatWorkArtifactClass eArtifact = aRandomArtifacts[urandLimitExclusive(aRandomArtifactsCount, pPlot->GetPseudoRandomSeed())];
 
 					PopulateDigSite(*pPlot, eEra, eArtifact);
 
@@ -13894,7 +13827,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
 
 		// Hidden site?
-		bool bHiddenSite = GC.getGame().getSmallFakeRandNum(100, *pPlot)  < /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN);
+		bool bHiddenSite = GC.getGame().randRangeExclusive(0, 100, pPlot->GetPseudoRandomSeed())  < /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN);
 		if (bHiddenSite)
 		{
 			pPlot->setResourceType(eHiddenArtifactResourceType, 1);
@@ -13914,7 +13847,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 
 			// pick a type of artifact
 			GreatWorkArtifactClass eArtifact;
-			eArtifact = aRandomArtifacts[getSmallFakeRandNum(aRandomArtifactsCount, *pPlot)];
+			eArtifact = aRandomArtifacts[urandLimitExclusive(aRandomArtifactsCount, pPlot->GetPseudoRandomSeed())];
 
 			PopulateDigSite(*pPlot, eEra, eArtifact);
 		}
@@ -13926,7 +13859,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			pPlot->SetArtifactType(CvTypes::getARTIFACT_WRITING());
 
 			// Then get a writing and set it
-			int iIndex = getSmallFakeRandNum(aWorksWriting.size(), aWorksWriting.size()+pPlot->GetPlotIndex());
+			int iIndex = urandLimitExclusive(aWorksWriting.size(), pPlot->GetPseudoRandomSeed().mix(aWorksWriting.size()));
 			GreatWorkType eWrittenGreatWork = aWorksWriting[iIndex];
 			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
 

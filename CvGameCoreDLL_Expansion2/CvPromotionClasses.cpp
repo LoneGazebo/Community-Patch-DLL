@@ -3510,11 +3510,11 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 		}
 	}
 
-	int iNumChoices = aPossiblePromotions.size();
-	if (iNumChoices > 0)
+	uint uNumChoices = aPossiblePromotions.size();
+	if (uNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->GetID() + pThisUnit->getDamage());
-		return (PromotionTypes)aPossiblePromotions[iChoice];
+		uint uChoice = GC.getGame().urandLimitExclusive(uNumChoices, CvSeeder(pThisUnit->plot()->GetPseudoRandomSeed()).mix(pThisUnit->GetID()).mix(pThisUnit->getDamage()));
+		return static_cast<PromotionTypes>(aPossiblePromotions[uChoice]);
 	}
 
 	return NO_PROMOTION;

@@ -403,7 +403,7 @@ void CvPlot::doImprovement()
 					{
 						if(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI) > 0)
 						{
-							if (GC.getGame().getSmallFakeRandNum(thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), iI) == 0)
+							if (GC.getGame().randRangeExclusive(0, thisImprovementInfo->GetImprovementResourceDiscoverRand(iI), CvSeeder(GetPseudoRandomSeed()).mix(iI)) == 0)
 							{
 								iResourceNum = GC.getMap().getRandomResourceQuantity((ResourceTypes)iI);
 								setResourceType((ResourceTypes)iI, iResourceNum);
@@ -7876,7 +7876,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if (getResourceType() == NO_RESOURCE)
 					{
 						// first roll: can we get a resource on this plot?
-						if (GC.getGame().getSmallFakeRandNum(100, GET_PLAYER(getOwner()).GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iPlotIndex) < iResourceChance)
+						if (GC.getGame().randRangeExclusive(0, 100, GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GC.getGame().getNumCities()).mix(GetPseudoRandomSeed())) < iResourceChance)
 						{
 							// get list of valid resources for the plot
 							vector<ResourceTypes> vPossibleResources;
@@ -7894,13 +7894,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 								}
 							}
 
-							// second roll: which resource do we get on this plot?
-							int iChoice = GC.getGame().getSmallFakeRandNum(vPossibleResources.size(), GET_PLAYER(getOwner()).GetPseudoRandomSeed() + GC.getGame().getNumCities() + m_iPlotIndex);
-							ResourceTypes eSelectedResource = vPossibleResources.empty() ? NO_RESOURCE : vPossibleResources[iChoice];
-
 							// now let's add a resource.
-							if (eSelectedResource != NO_RESOURCE)
+							if (!vPossibleResources.empty())
 							{
+								// second roll: which resource do we get on this plot?
+								uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GC.getGame().getNumCities()).mix(GetPseudoRandomSeed()));
+								ResourceTypes eSelectedResource = vPossibleResources[uChoice];
 								int iResourceQuantity = GC.getMap().getRandomResourceQuantity(eSelectedResource);
 								setResourceType(eSelectedResource, iResourceQuantity); // note we do not need to check resource linking, as it is done in this very function later on
 								// notification stuff
@@ -15349,4 +15348,9 @@ FDataStream& operator>>(FDataStream& loadFrom, SPlotWithTwoScoresL2& writeTo)
 	CvStreamLoadVisitor serialVisitor(loadFrom);
 	SPlotWithTwoScoresL2::Serialize(writeTo, serialVisitor);
 	return loadFrom;
+}
+
+CvSeeder CvPlot::GetPseudoRandomSeed() const
+{
+	return CvSeeder(static_cast<uint>(getX()) * 17 + static_cast<uint>(getY()) * 23);
 }

@@ -1134,13 +1134,8 @@ bool CvPlayerEspionage::DoStealTechnology(PlayerTypes eTargetPlayer)
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
-	int iGrab = GC.getGame().getSmallFakeRandNum((int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(eTargetPlayer).GetTreasury()->CalculateGrossGold());
-	if (iGrab <= 0)
-		iGrab = 0;
-	if (iGrab > (int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1)
-		iGrab = (int)m_aaPlayerStealableTechList[eTargetPlayer].size() - 1;
-
-	TechTypes eStolenTech = m_aaPlayerStealableTechList[eTargetPlayer][iGrab];
+	uint uGrab = GC.getGame().urandLimitExclusive(m_aaPlayerStealableTechList[eTargetPlayer].size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(eTargetPlayer).GetTreasury()->CalculateGrossGold()));
+	TechTypes eStolenTech = m_aaPlayerStealableTechList[eTargetPlayer][uGrab];
 
 	GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
 	GET_TEAM(eTeam).GetTeamTechs()->SetNoTradeTech(eStolenTech, true);
@@ -2123,10 +2118,7 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 
 CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice)
 {
-	int iResult = GC.getGame().getSmallFakeRandNum(100, pCity->plot()->GetPlotIndex() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-	if (iResult <= 0)
-		iResult = 1;
-
+	int iResult = GC.getGame().randRangeExclusive(1, 100, pCity->plot()->GetPseudoRandomSeed().mix(m_pPlayer->GetTreasury()->GetLifetimeGrossGold()));
 	int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, eEventChoice);
 	int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, eEventChoice);
 
@@ -2183,7 +2175,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	// randomize that list
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		uint uiTargetSlot = GC.getGame().getSmallFakeRandNum(aiMajorCivIndex.size(),pCity->plot()->GetPlotIndex()+ui);
+		uint uiTargetSlot = GC.getGame().urandLimitExclusive(aiMajorCivIndex.size(), pCity->plot()->GetPseudoRandomSeed().mix(ui));
 		int iTempValue = aiMajorCivIndex[ui];
 		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;
@@ -2402,7 +2394,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	// randomize that list
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
-		uint uiTargetSlot = GC.getGame().getSmallFakeRandNum(aiMajorCivIndex.size(),pCity->plot()->GetPlotIndex()+ui);
+		uint uiTargetSlot = GC.getGame().urandLimitExclusive(aiMajorCivIndex.size(), pCity->plot()->GetPseudoRandomSeed().mix(ui));
 		int iTempValue = aiMajorCivIndex[ui];
 		aiMajorCivIndex[ui] = aiMajorCivIndex[uiTargetSlot];
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;
@@ -2562,11 +2554,7 @@ bool pickSpyName(const CvCivilizationInfo& kCivInfo, CvEspionageSpy* pSpy)
 	int iCivSpyNames = kCivInfo.getNumSpyNames();
 	if (iCivSpyNames > 0)
 	{
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
-		int iOffset = GC.getGame().getSmallFakeRandNum(iCivSpyNames, iCivSpyNames);
-#else
-		int iOffset = GC.getGame().getJonRandNum(iCivSpyNames, "Spy name offset");
-#endif
+		int iOffset = GC.getGame().randRangeExclusive(0, iCivSpyNames, CvSeeder(iCivSpyNames));
 
 		for (int i = 0; i < iCivSpyNames; i++) {
 			const char* szSpyName = kCivInfo.getSpyNames((i + iOffset) % iCivSpyNames);
@@ -2616,7 +2604,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 
 	// Try to locate a spy name not in use by a civ not in the game
 	int iMaxCivs = GC.getNumCivilizationInfos();
-	int iCivOffset = GC.getGame().getSmallFakeRandNum(iMaxCivs, m_pPlayer->GetPseudoRandomSeed());
+	int iCivOffset = GC.getGame().randRangeExclusive(0, iMaxCivs, m_pPlayer->GetPseudoRandomSeed());
 	for (int i = 0; i < GC.getNumCivilizationInfos(); i++) {
 		const CivilizationTypes eCiv = static_cast<CivilizationTypes>((i + iCivOffset) % iMaxCivs);
 		CvCivilizationInfo* pkCivilizationInfo = GC.getCivilizationInfo(eCiv);
@@ -2633,7 +2621,7 @@ void CvPlayerEspionage::GetNextSpyName(CvEspionageSpy* pSpy)
 	}
 
 	// Try to locate a spy name not in use by a civ in the game
-	int iPlayerOffset = GC.getGame().getSmallFakeRandNum(MAX_MAJOR_CIVS, m_pPlayer->GetPseudoRandomSeed());
+	int iPlayerOffset = GC.getGame().randRangeExclusive(0, MAX_MAJOR_CIVS, m_pPlayer->GetPseudoRandomSeed());
 
 	for (int i = 0; i < MAX_MAJOR_CIVS; i++) {
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>((i + iPlayerOffset) % MAX_MAJOR_CIVS);
@@ -3916,7 +3904,7 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	}
 
 	bool bAttemptSuccess = false;
-	int iRandRoll = GC.getGame().getSmallFakeRandNum(100, *pCity->plot());
+	int iRandRoll = GC.getGame().randRangeExclusive(0, 100, pCity->plot()->GetPseudoRandomSeed());
 	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
 	{
 		// swap influence from ally to 2nd place ally
@@ -6765,7 +6753,7 @@ void CvEspionageAI::AttemptCoups()
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
 		if (iChanceOfSuccess >= 60 + 10*iSpyRank)
 		{
-			int iRoll = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + uiSpy);
+			int iRoll = GC.getGame().randRangeExclusive(0, 100, m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()).mix(uiSpy));
 			if (iRoll < iChanceOfSuccess)
 			{
 				pEspionage->AttemptCoup(uiSpy);

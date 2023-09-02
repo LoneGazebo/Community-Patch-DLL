@@ -656,7 +656,7 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 				// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
 				// made a demand, and if the deal went through. These are both sent over the network later in this function.
 
-				int iRand = GC.getGame().getSmallFakeRandNum(100, iValueWillingToGiveUp);
+				int iRand = GC.getGame().randRangeExclusive(0, 100, CvSeeder(iValueWillingToGiveUp));
 
 				// Are they going to say no matter what?
 				if (iRand > iOddsOfGivingIn || iOddsOfGivingIn <= 0)
@@ -2430,7 +2430,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
 
 	//prevent cheesy exploit: founding cities just to sell them
-	if ((GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().getSmallFakeRandNum(5, iEconomicValue)))
+	if ((GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().randRangeExclusive(0, 5, CvSeeder(iEconomicValue))))
 		return INT_MAX;
 
 	//If not as good as any of our cities, we don't want it.
@@ -3319,7 +3319,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = 23 + GC.getGame().getSmallFakeRandNum( 15, GET_PLAYER(ePlayerDeclaringWar).GetPseudoRandomSeed() );
+			int iPeaceDampenerTurns = 23 + GC.getGame().randRangeExclusive(0, 15, GET_PLAYER(ePlayerDeclaringWar).GetPseudoRandomSeed() );
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 			{
 				return INT_MAX;
@@ -6030,7 +6030,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	{
 		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
 		int iDesired = min(4,max(1,iAvailable/2));
-		iDesired += GC.getGame().getSmallFakeRandNum(3, iCurrentNetGoldOfReceivingPlayer + eStratFromThem + eOtherPlayer);
+		iDesired += GC.getGame().randRangeExclusive(0, 3, CvSeeder(iCurrentNetGoldOfReceivingPlayer).mix(eStratFromThem).mix(eOtherPlayer));
 		//if we are in the red we want more!
 		iDesired += GetPlayer()->getResourceShortageValue(eStratFromThem);
 		iDesired = min(iAvailable, iDesired);

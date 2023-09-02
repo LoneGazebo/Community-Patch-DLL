@@ -1862,7 +1862,7 @@ void CvTacticalAI::PlotEmergencyPurchases(CvTacticalDominanceZone* pZone)
 				else
 					//otherwise buy defensive land units
 					if (!MOD_AI_UNIT_PRODUCTION)
-						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().getSmallFakeRandNum(5, *pCity->plot()) < 2 ? UNITAI_COUNTER : UNITAI_DEFENSE, pCity);
+						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(GC.getGame().randRangeExclusive(0, 5, CvSeeder(pCity->plot()->GetPseudoRandomSeed())) < 2 ? UNITAI_COUNTER : UNITAI_DEFENSE, pCity);
 					else //AI Unit Production : Counter is AA only now
 						m_pPlayer->GetMilitaryAI()->BuyEmergencyUnit(UNITAI_DEFENSE, pCity);
 			}
@@ -3925,9 +3925,9 @@ void CvTacticalAI::ExecuteRepositionMoves()
 		shuffledIndex[i-RING1_PLOTS] = i;
 
 	int iNumPlots = RING4_PLOTS - RING1_PLOTS;
-	for (int i = 0; i < iNumPlots; i++)
+	for (int i = 0; i < iNumPlots - 1; i++)
 	{
-		int iSwapIndex = GC.getGame().getSmallFakeRandNum(iNumPlots - i, m_CurrentMoveUnits.size() + i);
+		int iSwapIndex = GC.getGame().randRangeExclusive(0, iNumPlots - i, CvSeeder(m_CurrentMoveUnits.size()).mix(i));
 		std::swap<int>(shuffledIndex[i], shuffledIndex[iSwapIndex]);
 	}
 

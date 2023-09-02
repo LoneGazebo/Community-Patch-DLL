@@ -39,6 +39,61 @@ class CvGameCorporations;
 class CvGameContracts;
 #endif
 
+unsigned long hash32(uint input);
+
+/// Helper type for producing seed values.
+struct NODISCARD CvSeeder {
+	uint value;
+
+	inline CvSeeder() : value(0) {}
+	template<typename T> explicit inline CvSeeder(T value) : value(hash32(static_cast<uint>(value))) {}
+	inline CvSeeder(const CvSeeder& other) : value(other.value) {}
+
+	inline static CvSeeder fromRaw(uint rawValue)
+	{
+		CvSeeder newSeed;
+		newSeed.value = rawValue;
+		return newSeed;
+	}
+
+	template<typename T> inline CvSeeder& mixRawAssign(T otherValue)
+	{
+		value ^= static_cast<uint>(otherValue) + 0x9e3779b9 + (value << 6) + (value >> 2);
+		return *this;
+	}
+
+	template<typename T> inline CvSeeder& mixAssign(T otherValue)
+	{
+		return mixRawAssign(hash32(static_cast<uint>(otherValue)));
+	}
+
+	// `mixAssign` is specialized for mixing two seeders.
+	// This is done to avoid rehashing the value within the seeder because it is presumably already hashed.
+	template<> inline CvSeeder& mixAssign<CvSeeder>(CvSeeder otherSeed)
+	{
+		return mixRawAssign(otherSeed.value);
+	}
+
+	template<typename T> inline CvSeeder mixRaw(T otherValue) const
+	{
+		CvSeeder newSeed = *this;
+		newSeed.mixRawAssign(otherValue);
+		return newSeed;
+	}
+
+	template<typename T> inline CvSeeder mix(T otherValue) const
+	{
+		CvSeeder newSeed = *this;
+		newSeed.mixAssign(otherValue);
+		return newSeed;
+	}
+
+	inline operator uint()
+	{
+		return value;
+	}
+};
+
 class CvGameInitialItemsOverrides
 {
 public:
@@ -505,12 +560,43 @@ public:
 	int getJonRandNumVA(int iNum, const char* pszLog, ...);
 	int getAsyncRandNum(int iNum, const char* pszLog);
 
-#if defined(MOD_CORE_REDUCE_RANDOMNESS)
-	//get random number from gamestate without a seed in the generator
-	int	getSmallFakeRandNum(int iNum, const CvPlot& input) const;
-	int	getSmallFakeRandNum(int iNum, int iExtraSeed) const;
-	int	getSmallFakeRandNum(int iNum, int iExtraSeed, const CvPlot& input) const;
-#endif
+	/// Generates a pseudo-random 32-bit number using the game's current state and an extra seed value.
+	///
+	/// Understand that the number returned by this function is pseudo-random, but consistent given the inputs.
+	uint randCore(CvSeeder extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an exclusive range of `0` and `limit`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `limit != 0`.
+	uint urandLimitExclusive(uint limit, CvSeeder extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an inclusive range of `0` and `limit`.
+	uint urandLimitInclusive(uint limit, CvSeeder extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min < max`.
+	uint urandRangeExclusive(uint min, uint max, CvSeeder extraSeed) const;
+
+	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min <= max`.
+	uint urandRangeInclusive(uint min, uint max, CvSeeder extraSeed) const;
+
+	/// Generates a psuedo-random signed integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min < max`.
+	int randRangeExclusive(int min, int max, CvSeeder extraSeed) const;
+
+	/// Generates a psuedo-random signed integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
+	///
+	/// The following invariants must be satisfied for the function to operate correctly:
+	/// - `min <= max`.
+	int randRangeInclusive(int min, int max, CvSeeder extraSeed) const;
 
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();

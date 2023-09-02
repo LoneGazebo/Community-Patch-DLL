@@ -1774,7 +1774,7 @@ public:
 	};
 	int GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
 	bool IsRandomGreatPersonProgressFromKills() const;
-	std::pair<GreatPersonTypes, int> GetRandomGreatPersonProgressFromKills(int iAdditionalSeed = 0) const;
+	std::pair<GreatPersonTypes, int> GetRandomGreatPersonProgressFromKills(CvSeeder additionalSeed) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;
