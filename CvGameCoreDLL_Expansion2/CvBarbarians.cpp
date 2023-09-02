@@ -966,6 +966,9 @@ void CvBarbarians::DoCamps()
 
 	if (bUpdateMapFog)
 		GC.getMap().updateDeferredFog();
+
+	// new barbarian camps can affect trade route paths cache
+	GC.getGame().GetGameTrade()->InvalidateTradePathCache();
 }
 
 //	--------------------------------------------------------------------------------

@@ -4229,6 +4229,10 @@ void CvTeam::makeHasMet(TeamTypes eIndex, bool bSuppressMessages)
 		}
 	}
 
+	// new contacts affects trade route paths cache
+	GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(GetID());
+	GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(eIndex);
+
 	// Report event
 	gDLL->GameplayMetTeam(GetID(), eIndex);
 }
@@ -4645,6 +4649,7 @@ void CvTeam::SetHasEmbassyAtTeam(TeamTypes eIndex, bool bNewValue)
 		if(bRevealPlots)
 		{
 			GC.getMap().updateDeferredFog();
+			GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(GetID());
 		}
 
 		GC.getMap().verifyUnitValidPlot();

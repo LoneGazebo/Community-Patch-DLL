@@ -213,7 +213,9 @@ public:
 	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
 	void UpdateTradePathCache(PlayerTypes iOriginPlayer);
+	void InvalidateTradePathCache();
 	void InvalidateTradePathCache(PlayerTypes iPlayer);
+	void InvalidateTradePathTeamCache(TeamTypes eTeam);
 
 protected:
 
