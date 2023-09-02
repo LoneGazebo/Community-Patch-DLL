@@ -5805,7 +5805,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = randRangeExclusive(0, totbias, probabilities.size());
+		tempRand = randRangeExclusive(0, totbias, CvSeeder(probabilities.size()));
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -5836,7 +5836,7 @@ Localization::String CvGame::GetDiploResponse(const char* szLeader, const char* 
 
     if(!probabilities.empty())
     {
-		tempRand = randRangeExclusive(0, totbias, probabilities.size());
+		tempRand = randRangeExclusive(0, totbias, CvSeeder(probabilities.size()));
         for (choice=0; choice<biasList.size(); choice++){
             if(tempRand < biasList[choice]){
                 break;
@@ -8924,7 +8924,7 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 				continue;
 
 			// Random weighting
-			iValue = GC.getGame().randRangeInclusive(1, 10, static_cast<uint>(iUnitLoop) + static_cast<uint>(GET_PLAYER(ePlayer).getNumUnits())) * 100;
+			iValue = GC.getGame().randRangeInclusive(1, 10, CvSeeder(iUnitLoop).mix(GET_PLAYER(ePlayer).getNumUnits())) * 100;
 			iValue += iBonusValue;
 
 			if(iValue > iBestValue)
@@ -9175,7 +9175,7 @@ UnitTypes CvGame::GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips
 	}
 
 	// Choose from weighted unit types
-	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), static_cast<uint>(kPlayer.getNumUnits()) + static_cast<uint>(kPlayer.GetTreasury()->GetLifetimeGrossGold()));
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), CvSeeder(kPlayer.getNumUnits()).mix(kPlayer.GetTreasury()->GetLifetimeGrossGold()));
 }
 #endif
 #if defined(MOD_BALANCE_CORE)
@@ -9215,7 +9215,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 		if(pPlot->getNumUnits() > 0)
 			continue;
 
-		int iTempWeight = randRangeExclusive(0, 10, static_cast<uint>(GET_PLAYER(pCity->getOwner()).GetMilitaryMight()) + pPlot->GetPseudoRandomSeed());
+		int iTempWeight = randRangeExclusive(0, 10, CvSeeder(GET_PLAYER(pCity->getOwner()).GetMilitaryMight()).mix(pPlot->GetPseudoRandomSeed()));
 
 		// Add weight if there's an improvement here!
 		if(pPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -9357,7 +9357,7 @@ bool CvGame::DoSpawnUnitsAroundTargetCity(PlayerTypes ePlayer, CvCity* pCity, in
 UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY)
 {
 	// Find the unique units that have already been assigned
-	uint uRandomSeed = 0;
+	CvSeeder randomSeed;
 	std::set<UnitTypes> setUniquesAlreadyAssigned;
 	for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 	{
@@ -9365,7 +9365,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 		CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
 		if(pMinorLoop && pMinorLoop->isEverAlive())
 		{
-			uRandomSeed += static_cast<uint>(pMinorLoop->GetID()); //needed later
+			randomSeed.mixAssign(pMinorLoop->GetID()); //needed later
 			UnitTypes eUniqueUnit = pMinorLoop->GetMinorCivAI()->GetUniqueUnit();
 			if(eUniqueUnit != NO_UNIT)
 			{
@@ -9490,7 +9490,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			if (setUniquesAlreadyAssigned.count(eLoopUnit) > 0)
 				continue;
 
-			int iRandom = randRangeExclusive(0, 300, static_cast<uint>(iPlotX) + static_cast<uint>(iPlotY) + static_cast<uint>(iUnitLoop));
+			int iRandom = randRangeExclusive(0, 300, CvSeeder(iPlotX).mix(iPlotY).mix(iUnitLoop));
 
 			//Weight minor civ gift units higher, so they're more likely to spawn each game (Careful, +50 caused Minor Civs Gifts to take up more than 50% of Military UU slots).
 			if (pkUnitInfo->IsMinorCivGift())
@@ -9505,7 +9505,7 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 			break;
 	}
 
-	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), uRandomSeed);
+	return PseudoRandomChoiceByWeight(veUnitRankings, NO_UNIT, /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES), randomSeed);
 }
 
 //	--------------------------------------------------------------------------------
@@ -10347,7 +10347,7 @@ void CvGame::testVictory()
 			{
 				if(isVictoryAvailable(eVictory))
 				{
-					iRand = GC.getGame().randRangeExclusive(0, iNumCompetitionWinners, static_cast<uint>(iNumCompetitionWinners) + static_cast<uint>(iVictoryLoop));
+					iRand = GC.getGame().randRangeExclusive(0, iNumCompetitionWinners, CvSeeder(iNumCompetitionWinners).mix(iVictoryLoop));
 					iTeamLoop = m_aiTeamCompetitionWinnersScratchPad[iRand];
 
 					DoPlaceTeamInVictoryCompetition(eVictory, (TeamTypes) iTeamLoop);
@@ -10483,7 +10483,7 @@ void CvGame::testVictory()
 	// Two things can set this to true: either someone has finished an insta-win victory, or the game-ending tech has been researched and we're now tallying VPs
 	if(bEndGame && !aaiGameWinners.empty())
 	{
-		uint uWinner = urandLimitExclusive(aaiGameWinners.size(), aaiGameWinners.size());
+		uint uWinner = urandLimitExclusive(aaiGameWinners.size(), CvSeeder(aaiGameWinners.size()));
 		CUSTOMLOG("Calling setWinner from testVictory: %i, %i", aaiGameWinners[uWinner][0], aaiGameWinners[uWinner][1]);
 		setWinner(((TeamTypes)aaiGameWinners[uWinner][0]), ((VictoryTypes)aaiGameWinners[uWinner][1]));
 	}
@@ -10554,7 +10554,7 @@ void CvGame::doVictoryRandomization()
 		if (pkVictoryInfo->isConquest())
 			continue;
 
-		int iScore = randRangeExclusive(0, 100, static_cast<uint>(GC.getGame().GetGameCulture()->GetNumGreatWorks()) + static_cast<uint>(iVictoryLoop));
+		int iScore = randRangeExclusive(0, 100, CvSeeder(GC.getGame().GetGameCulture()->GetNumGreatWorks()).mix(iVictoryLoop));
 		
 		if (pkVictoryInfo->isDiploVote())
 		{
@@ -10774,24 +10774,21 @@ unsigned long hash32(unsigned long x)
 }
 */
 
-uint CvGame::randCore(uint extraSeed) const
+uint CvGame::randCore(CvSeeder extraSeed) const
 {
-	// The game's current turn modified in some unusual way is used as the game state seed source.
-	const uint gameStateSeed = static_cast<uint>(getGameTurn()) * 11;
-	const uint finalSeed = gameStateSeed + extraSeed;
-
-	// The final seed value is fed into hash32 to yield a pseudo random number.
-	return hash32(finalSeed);
+	const CvSeeder mapSeed = CvSeeder::fromRaw(CvPreGame::mapRandomSeed());
+	const CvSeeder gameSeed = CvSeeder(static_cast<uint>(getGameTurn()) * 11);
+	return mapSeed.mix(gameSeed).mix(extraSeed);
 }
 
-uint CvGame::urandLimitExclusive(uint limit, uint extraSeed) const
+uint CvGame::urandLimitExclusive(uint limit, CvSeeder extraSeed) const
 {
 	ASSERT(limit != 0);
 	const uint rand = randCore(extraSeed);
 	return rand % limit;
 }
 
-uint CvGame::urandLimitInclusive(uint limit, uint extraSeed) const
+uint CvGame::urandLimitInclusive(uint limit, CvSeeder extraSeed) const
 {
 	const uint rand = randCore(extraSeed);
 	if (limit == UINT_MAX)
@@ -10804,25 +10801,25 @@ uint CvGame::urandLimitInclusive(uint limit, uint extraSeed) const
 	}
 }
 
-uint CvGame::urandRangeExclusive(uint min, uint max, uint extraSeed) const
+uint CvGame::urandRangeExclusive(uint min, uint max, CvSeeder extraSeed) const
 {
 	ASSERT(min < max);
 	return urandLimitExclusive(max - min, extraSeed) + min;
 }
 
-uint CvGame::urandRangeInclusive(uint min, uint max, uint extraSeed) const
+uint CvGame::urandRangeInclusive(uint min, uint max, CvSeeder extraSeed) const
 {
 	ASSERT(min <= max);
 	return urandLimitInclusive(max - min, extraSeed) + min;
 }
 
-int CvGame::randRangeExclusive(int min, int max, uint extraSeed) const
+int CvGame::randRangeExclusive(int min, int max, CvSeeder extraSeed) const
 {
 	ASSERT(min < max);
 	return static_cast<int>(urandLimitExclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));
 }
 
-int CvGame::randRangeInclusive(int min, int max, uint extraSeed) const
+int CvGame::randRangeInclusive(int min, int max, CvSeeder extraSeed) const
 {
 	ASSERT(min <= max);
 	return static_cast<int>(urandLimitInclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));
@@ -13423,7 +13420,7 @@ int CalculateDigSiteWeight(int iIndex, vector<CvArchaeologyData>& inputData, vec
 		if (iBaseWeight > 0)
 		{
 			// add a small random factor
-			iBaseWeight += 10 + GC.getGame().randRangeExclusive(0, 10, static_cast<uint>(iBaseWeight));
+			iBaseWeight += 10 + GC.getGame().randRangeExclusive(0, 10, CvSeeder(iBaseWeight));
 
 			// increase the value if unowned
 			iBaseWeight *= (pPlot->getOwner() == NO_PLAYER) ? 9 : 8;
@@ -13862,7 +13859,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			pPlot->SetArtifactType(CvTypes::getARTIFACT_WRITING());
 
 			// Then get a writing and set it
-			int iIndex = urandLimitExclusive(aWorksWriting.size(), aWorksWriting.size() + pPlot->GetPseudoRandomSeed());
+			int iIndex = urandLimitExclusive(aWorksWriting.size(), pPlot->GetPseudoRandomSeed().mix(aWorksWriting.size()));
 			GreatWorkType eWrittenGreatWork = aWorksWriting[iIndex];
 			pPlot->SetArtifactGreatWork((GreatWorkType)eWrittenGreatWork);
 

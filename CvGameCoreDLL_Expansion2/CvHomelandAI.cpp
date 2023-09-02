@@ -2459,7 +2459,7 @@ void CvHomelandAI::ExecuteFirstTurnSettlerMoves()
 		CvPlot* pLoopPlotSearch = NULL;
 		for (int iI = 0; iI < 3; iI++)
 		{
-			uint uRandomDirection = GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_DIRECTION_TYPES), static_cast<uint>(iI));
+			uint uRandomDirection = GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_DIRECTION_TYPES), CvSeeder(iI));
 			pLoopPlotSearch = plotDirection(pUnit->plot()->getX(), pUnit->plot()->getY(), static_cast<DirectionTypes>(uRandomDirection));
 
 			if (pLoopPlotSearch != NULL && pUnit->GetDanger(pLoopPlotSearch)<INT_MAX)

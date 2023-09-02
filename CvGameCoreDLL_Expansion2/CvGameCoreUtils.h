@@ -432,7 +432,7 @@ struct OptionWithScore
 };
 
 template<class T>
-T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, uint randomSeed)
+T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, CvSeeder randomSeed)
 {
 	if (candidates.empty())
 		return defaultChoice;

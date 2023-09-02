@@ -848,8 +848,8 @@ public:
 
 	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
 
-	/// Constructs a seed value from the plot suitable for psuedo-random number geeneration.
-	uint GetPseudoRandomSeed() const;
+	/// Constructs a seed value from the plot suitable for psuedo-random number generation.
+	CvSeeder GetPseudoRandomSeed() const;
 
 protected:
 	class PlotBoolField

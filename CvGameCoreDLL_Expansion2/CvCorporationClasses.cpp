@@ -1063,7 +1063,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
 					continue;
 
-				int iChance = GC.getGame().randRangeExclusive(0, 100, pLoopCity->plot()->GetPseudoRandomSeed()) + GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(pLoopCity->getFood()));
+				int iChance = GC.getGame().randRangeExclusive(0, 100, pLoopCity->plot()->GetPseudoRandomSeed()) + GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopCity->getFood()));
 
 				int iScore = 500 - iChance;
 

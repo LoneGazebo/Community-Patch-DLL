@@ -5425,7 +5425,7 @@ int CvPlayerCulture::ComputeWarWeariness()
 	if (iLeastPeaceTurns > 1 && iLeastPeaceTurns < INT_MAX)
 	{
 		//apparently we made peace recently ... reduce the value step by step
-		int iReduction = max(1, GC.getGame().randRangeExclusive(0, max(3, iLeastPeaceTurns/2), static_cast<uint>(iHighestWarDamage)));
+		int iReduction = max(1, GC.getGame().randRangeExclusive(0, max(3, iLeastPeaceTurns/2), CvSeeder(iHighestWarDamage)));
 		iFallingWarWeariness = max(iCurrentWarWeariness-iReduction, 0);
 	}
 

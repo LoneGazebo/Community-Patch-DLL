@@ -5811,7 +5811,7 @@ bool CvPlayerTraits::IsRandomGreatPersonProgressFromKills() const
 }
 
 /// Instant random great person progress when killing enemy units
-std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFromKills(uint uAdditionalSeed) const
+std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFromKills(CvSeeder additionalSeed) const
 {
 	// how many options we have
 	int iSize = m_aiRandomGreatPersonProgressFromKills.size();
@@ -5820,7 +5820,7 @@ std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFro
 	if (iSize > 0)
 	{
 		// get our pseudo RNG seed
-		uChoice = GC.getGame().urandLimitExclusive(m_aiRandomGreatPersonProgressFromKills.size(), m_pPlayer->GetPseudoRandomSeed() + static_cast<uint>(GC.getGame().getNumCities()) + uAdditionalSeed);
+		uChoice = GC.getGame().urandLimitExclusive(m_aiRandomGreatPersonProgressFromKills.size(), additionalSeed.mix(m_pPlayer->GetPseudoRandomSeed()).mix(GC.getGame().getNumCities()));
 
 		// access the element at the position of our RNG seed
 		for (std::map<int, int>::const_iterator it = m_aiRandomGreatPersonProgressFromKills.begin(); it != m_aiRandomGreatPersonProgressFromKills.end(); it++) // find returns the iterator to map::end if the key eIndex is not present in the map
@@ -6476,7 +6476,7 @@ bool CvPlayerTraits::AddUniqueLuxuriesAround(CvCity *pCity, int iNumResourceToGi
 		return false;
 
 	//choose one
-	uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), pCity->plot()->GetPseudoRandomSeed() + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed() + static_cast<uint>(GC.getGame().GetCultureMedian()));
+	uint uChoice = GC.getGame().urandLimitExclusive(vPossibleResources.size(), CvSeeder(pCity->plot()->GetPseudoRandomSeed()).mix(GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()).mix(GC.getGame().GetCultureMedian()));
 	ResourceTypes eResourceToGive = vPossibleResources[uChoice];
 		
 	//first round. place on owned non-city, non-resource plots without improvement
@@ -7796,7 +7796,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
 	}
 
 	// Roll die to see if it converts
-	if (GC.getGame().randRangeExclusive(0, 100, pPlot->GetPseudoRandomSeed()) < m_iLandBarbarianConversionPercent)
+	if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(pPlot->GetPseudoRandomSeed())) < m_iLandBarbarianConversionPercent)
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 
@@ -7875,7 +7875,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().randRangeExclusive(0, 100, pUnit->plot()->GetPseudoRandomSeed()) < m_iSeaBarbarianConversionPercent)
+	if(GC.getGame().randRangeExclusive(0, 100, CvSeeder(pUnit->plot()->GetPseudoRandomSeed())) < m_iSeaBarbarianConversionPercent)
 	{
 		int iNumGold = /*25*/ GD_INT_GET(GOLD_FROM_BARBARIAN_CONVERSION);
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);

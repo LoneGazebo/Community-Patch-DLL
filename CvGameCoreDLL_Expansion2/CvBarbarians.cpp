@@ -384,13 +384,13 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 		return true;
 
 	//they get x turns worth of yields
-	int iTheftTurns = std::max(1, iDefenderDamage / 30 + GC.getGame().randRangeExclusive(0, 5, static_cast<uint>(pUnit->GetID()) + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
+	int iTheftTurns = std::max(1, iDefenderDamage / 30 + GC.getGame().randRangeExclusive(0, 5, GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
 
 	//but they lose some health in exchange
-	pUnit->changeDamage(GC.getGame().randRangeExclusive(0, std::min(pUnit->GetCurrHitPoints(),30), static_cast<uint>(iDefenderDamage) + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
+	pUnit->changeDamage(GC.getGame().randRangeExclusive(0, std::min(pUnit->GetCurrHitPoints(),30), GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed().mix(iDefenderDamage)));
 
 	//which yield is affected?
-	int iYield = GC.getGame().randRangeExclusive(0, 10, static_cast<uint>(pUnit->plot()->GetPlotIndex()) + GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed());
+	int iYield = GC.getGame().randRangeExclusive(0, 10, GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed().mix(pUnit->plot()->GetPlotIndex()));
 	if (iYield <= 2)
 	{
 		int iGold = std::min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, pUnit->GetCurrHitPoints());
@@ -594,7 +594,7 @@ void CvBarbarians::DoCamps()
 		// In Community Patch only, 1/2 chance of spawning a camp each turn (after turn 0)
 		else if (GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING) > 0)
 		{
-			if (kGame.randRangeExclusive(0, /*2*/ std::max(GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING), 1), static_cast<uint>(kGame.getGameTurn()) * static_cast<uint>(kGame.getGameTurn())) == 0)
+			if (kGame.randRangeExclusive(0, /*2*/ std::max(GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING), 1), CvSeeder(kGame.getGameTurn()).mix(kGame.getGameTurn())) == 0)
 			{
 				iNumCampsToAdd = /*1*/ GD_INT_GET(BARBARIAN_CAMP_NUM_AFTER_INITIAL);
 				iNumCampsToAdd += kGame.isOption(GAMEOPTION_CHILL_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_CAMP_NUM_AFTER_INITIAL_CHILL) : 0;
@@ -743,7 +743,7 @@ void CvBarbarians::DoCamps()
 		if (vPotentialPlots.size() > 1)
 		{
 			//do one iteration of a fisher-yates shuffle
-			uint uSwap = kGame.urandLimitExclusive(vPotentialPlots.size(), static_cast<uint>(pLoopPlot->GetPlotIndex()) * vPotentialPlots.size() * (static_cast<uint>(iGameTurn) + 1));
+			uint uSwap = kGame.urandLimitExclusive(vPotentialPlots.size(), pLoopPlot->GetPseudoRandomSeed().mix(vPotentialPlots.size()).mix(iGameTurn));
 			std::swap(vPotentialPlots[uSwap],vPotentialPlots.back());
 		}
 
@@ -754,7 +754,7 @@ void CvBarbarians::DoCamps()
 			if (vPotentialCoastalPlots.size() > 1)
 			{
 				//do one iteration of a fisher-yates shuffle
-				uint uSwap = kGame.urandLimitExclusive(vPotentialCoastalPlots.size(), static_cast<uint>(pLoopPlot->GetPlotIndex()) * vPotentialCoastalPlots.size() * (static_cast<uint>(iGameTurn) + 1));
+				uint uSwap = kGame.urandLimitExclusive(vPotentialCoastalPlots.size(), pLoopPlot->GetPseudoRandomSeed().mix(vPotentialCoastalPlots.size()).mix(iGameTurn));
 				std::swap(vPotentialCoastalPlots[uSwap],vPotentialCoastalPlots.back());
 			}
 		}
@@ -905,7 +905,7 @@ void CvBarbarians::DoCamps()
 			break;
 
 		// Pick a plot
-		uint uIndex = kGame.urandLimitExclusive(vRelevantPlots.size(), vRelevantPlots.size() * static_cast<uint>(iNumCampsInExistence) + static_cast<uint>(GC.getGame().getGameTurn()));
+		uint uIndex = kGame.urandLimitExclusive(vRelevantPlots.size(), CvSeeder(vRelevantPlots.size()).mix(iNumCampsInExistence).mix(GC.getGame().getGameTurn()));
 		CvPlot* pPlot = vRelevantPlots[uIndex];
 
 		// Spawn a camp and units to defend it!
@@ -1128,7 +1128,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	if (bSpawnOnPlot)
 	{
 		UnitAITypes ePreferredType = (eReason == BARB_SPAWN_FROM_CITY || eReason == BARB_SPAWN_CITY_STATE_CAPTURE) ? UNITAI_RANGED : UNITAI_DEFENSE;
-		UnitTypes eUnit = GetRandomBarbarianUnitType(pPlot, ePreferredType, eUniqueUnitPlayer, vValidResources, pPlot->GetPseudoRandomSeed() * static_cast<uint>(iNumUnits) + static_cast<uint>(GC.getGame().getGameTurn()));
+		UnitTypes eUnit = GetRandomBarbarianUnitType(pPlot, ePreferredType, eUniqueUnitPlayer, vValidResources, pPlot->GetPseudoRandomSeed().mix(iNumUnits).mix(GC.getGame().getGameTurn()));
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if (pkUnitInfo)
 		{
@@ -1224,7 +1224,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 			UnitAITypes eUnitAI = pSpawnPlot->isWater() ? UNITAI_ATTACK_SEA : UNITAI_FAST_ATTACK;
 
 			// Pick a unit
-			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eUniqueUnitPlayer, vValidResources, vBarbSpawnPlots.size() * static_cast<uint>(iNumUnits) + static_cast<uint>(GC.getGame().getGameTurn()) + static_cast<uint>(iNumUnitsSpawned));
+			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eUniqueUnitPlayer, vValidResources, CvSeeder(vBarbSpawnPlots.size()).mix(iNumUnits).mix(GC.getGame().getGameTurn()).mix(iNumUnitsSpawned));
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 			if (pkUnitInfo)
 			{
@@ -1289,7 +1289,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 }
 
 //	--------------------------------------------------------------------------------
-UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes ePreferredUnitAI, PlayerTypes eUniqueUnitPlayer, vector<ResourceTypes>& vValidResources, uint uAdditionalSeed)
+UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes ePreferredUnitAI, PlayerTypes eUniqueUnitPlayer, vector<ResourceTypes>& vValidResources, CvSeeder additionalSeed)
 {
 	CvPlayerAI& kBarbarianPlayer = GET_PLAYER(BARBARIAN_PLAYER);
 	vector<OptionWithScore<UnitTypes>> candidates;
@@ -1445,7 +1445,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 
 	//choose from top 5
 	int iNumCandidates = /*5*/ range(GD_INT_GET(BARBARIAN_UNIT_SPAWN_NUM_CANDIDATES), 1, candidates.size());
-	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, 5, pPlot->GetPseudoRandomSeed() + uAdditionalSeed);
+	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, 5, pPlot->GetPseudoRandomSeed().mix(additionalSeed));
 
 	//custom override
 	if (MOD_EVENTS_BARBARIANS)

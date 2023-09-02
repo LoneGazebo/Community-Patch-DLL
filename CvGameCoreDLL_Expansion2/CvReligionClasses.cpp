@@ -1039,7 +1039,7 @@ ReligionTypes CvGameReligions::GetReligionToFound(PlayerTypes ePlayer)
 		
 		// Pick a random one if required
 		if (MOD_RELIGION_RANDOMISE) {
-			index = GC.getGame().urandLimitExclusive(availableReligions.size(), static_cast<uint>(ePlayer));
+			index = GC.getGame().urandLimitExclusive(availableReligions.size(), CvSeeder(ePlayer));
 		}
 		
 		// CUSTOMLOG("GetReligionToFound: Using random %i", availableReligions[index]);
@@ -3239,7 +3239,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().randRangeExclusive(0, 100, kPlayer.GetPseudoRandomSeed());
+	int iRand = GC.getGame().randRangeExclusive(0, 100, CvSeeder(kPlayer.GetPseudoRandomSeed()));
 	if(iRand >= iChance)
 	{
 		return false;
@@ -3341,7 +3341,7 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 			for(pLoopCity = kPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iLoop))
 			{
 				iTempWeight = pLoopCity->GetFaithPerTurn() * 5;
-				iTempWeight += theGame.randRangeExclusive(0, 15, kPlayer.GetPseudoRandomSeed() + static_cast<uint>(iLoop));
+				iTempWeight += theGame.randRangeExclusive(0, 15, CvSeeder(kPlayer.GetPseudoRandomSeed()).mix(iLoop));
 
 				if(iTempWeight > iBestWeight)
 				{
@@ -10411,10 +10411,10 @@ BuildingClassTypes CvReligionAI::FaithBuildingAvailable(ReligionTypes eReligion,
 				if (eBestBuilding != NO_BUILDINGCLASS)
 					return eBestBuilding;
 				else
-					return choices[GC.getGame().urandLimitExclusive(choices.size(), pCity->plot()->GetPseudoRandomSeed())];
+					return choices[GC.getGame().urandLimitExclusive(choices.size(), CvSeeder(pCity->plot()->GetPseudoRandomSeed()))];
 			}
 			else
-				return choices[GC.getGame().urandLimitExclusive(choices.size(), pCity->plot()->GetPseudoRandomSeed())];
+				return choices[GC.getGame().urandLimitExclusive(choices.size(), CvSeeder(pCity->plot()->GetPseudoRandomSeed()))];
 		}
 		else
 			return choices[0];

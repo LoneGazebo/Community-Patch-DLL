@@ -4846,7 +4846,7 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 	if (!bConquest || GetPlayerTraits()->IsKeepConqueredBuildings() || IsKeepConqueredBuildings())
 		return true;
 
-	int iConquestChance = GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(pkLoopBuildingInfo->GetID()) + GetPseudoRandomSeed() + pCity->plot()->GetPseudoRandomSeed());
+	int iConquestChance = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(pkLoopBuildingInfo->GetID()).mix(pCity->plot()->GetPseudoRandomSeed()));
 
 	return iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
 }
@@ -5715,7 +5715,7 @@ void CvPlayer::DoEvents()
 	if (veValidEvents.size() > 0)
 	{
 		//afw		veValidEvents.StableSortItems();
-		int iRandIndex = GC.getGame().randRangeExclusive(0, 2000, static_cast<uint>(GetTreasury()->GetLifetimeGrossGold())); //afw
+		int iRandIndex = GC.getGame().randRangeExclusive(0, 2000, CvSeeder(GetTreasury()->GetLifetimeGrossGold())); //afw
 		if (GC.getLogging())
 		{
 			CvString strBaseString;
@@ -10274,7 +10274,7 @@ void CvPlayer::disbandUnit(bool)
 				if(pLoopUnit->getUnitInfo().GetProductionCost() > 0)
 				{
 					{
-						iValue = (10000 + GC.getGame().randRangeExclusive(0, 1000, static_cast<uint>(pLoopUnit->GetID()) + static_cast<uint>(iLoop)));
+						iValue = (10000 + GC.getGame().randRangeExclusive(0, 1000, CvSeeder(pLoopUnit->GetID()).mix(iLoop)));
 
 						iValue += (pLoopUnit->getUnitInfo().GetProductionCost() * 5);
 						iValue += (pLoopUnit->getExperienceTimes100() / 100 * 20);
@@ -14141,7 +14141,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 #endif
 					if(bUseTech)
 					{
-						iValue = (1 + GC.getGame().randRangeExclusive(0, 10, static_cast<uint>(iI)));
+						iValue = (1 + GC.getGame().randRangeExclusive(0, 10, CvSeeder(iI)));
 
 						if(iValue > iBestValue)
 						{
@@ -19484,7 +19484,7 @@ void CvPlayer::DoYieldsFromKill(CvUnit* pAttackingUnit, CvUnit* pDefendingUnit, 
 			doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pCapitalCity);
 			if (GetPlayerTraits()->IsRandomGreatPersonProgressFromKills())
 			{
-				std::pair <GreatPersonTypes, int> aResults = GetPlayerTraits()->GetRandomGreatPersonProgressFromKills(static_cast<uint>(pAttackingUnit->GetID()) + static_cast<uint>(pAttackingUnit->getMoves()) + static_cast<uint>(pDefendingUnit->GetID()) + static_cast<uint>(pDefendingUnit->getMoves()));
+				std::pair <GreatPersonTypes, int> aResults = GetPlayerTraits()->GetRandomGreatPersonProgressFromKills(CvSeeder(pAttackingUnit->GetID()).mix(pAttackingUnit->getMoves()).mix(pDefendingUnit->GetID()).mix(pDefendingUnit->getMoves()));
 				if (aResults.first != NO_GREATPERSON && aResults.second > 0)
 				{
 					doInstantGreatPersonProgress(INSTANT_YIELD_TYPE_VICTORY, false, pCapitalCity, NO_BUILDING, aResults.second, aResults.first);
@@ -22124,7 +22124,7 @@ void CvPlayer::DoUprising()
 	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		int iTempWeight = pLoopCity->getPopulation();
-		iTempWeight += theGame.randRangeExclusive(0, 10, GetPseudoRandomSeed() + pLoopCity->plot()->GetPseudoRandomSeed());
+		iTempWeight += theGame.randRangeExclusive(0, 10, GetPseudoRandomSeed().mix(pLoopCity->plot()->GetPseudoRandomSeed()));
 
 		if (iTempWeight > iBestWeight)
 		{
@@ -29490,7 +29490,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 	int iValue = iPolicyGEorGM * iEra * GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-	int iRandom = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed() + static_cast<uint>(iPolicyGEorGM));
+	int iRandom = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(iPolicyGEorGM));
 	if (iRandom <= 33)
 	{
 		eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
@@ -30418,7 +30418,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			// No prophets
 			if(!pkUnitEntry->IsFoundReligion())
 			{
-				int iScore = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed() + static_cast<uint>(iX) + static_cast<uint>(iY));
+				int iScore = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(iX).mix(iY));
 
 				if(iScore > iBestScore)
 				{
@@ -30698,7 +30698,7 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 				if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != GetID())
 					continue;
 
-				iScore = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed() + static_cast<uint>(iMinorLoop));
+				iScore = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(iMinorLoop));
 
 				// Best ally yet?
 				if(eBestMinor == NO_PLAYER || iScore > iBestScore)
@@ -30738,7 +30738,7 @@ CvCity* CvPlayer::GetGreatPersonSpawnCity(UnitTypes eUnit)
 				continue;
 			}
 
-			int iValue = 4 * GC.getGame().randRangeExclusive(0, getNumCities(), GetPseudoRandomSeed() + static_cast<uint>(iLoop));
+			int iValue = 4 * GC.getGame().randRangeExclusive(0, getNumCities(), GetPseudoRandomSeed().mix(iLoop));
 
 			for(int i = 0; i < NUM_YIELD_TYPES; i++)
 			{
@@ -32796,7 +32796,7 @@ void CvPlayer::ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iC
 		//choose one
 		if (!vPossibleSpecialists.empty())
 		{
-			uint uChoice = GC.getGame().urandLimitExclusive(vPossibleSpecialists.size(), GetPseudoRandomSeed() + static_cast<uint>(GC.getGame().getNumCities()) + static_cast<uint>(m_iNumHistoricEvent));
+			uint uChoice = GC.getGame().urandLimitExclusive(vPossibleSpecialists.size(), GetPseudoRandomSeed().mix(GC.getGame().getNumCities()).mix(m_iNumHistoricEvent));
 			SpecialistTypes eBestSpecialist = vPossibleSpecialists[uChoice];
 			CvSpecialistInfo* pkSpecialistInfo = GC.getSpecialistInfo(eBestSpecialist);
 			if (pkSpecialistInfo)
@@ -34398,7 +34398,7 @@ void CvPlayer::setCombatExperienceTimes100(int iExperienceTimes100)
 					int iLoop = 0;
 					for(CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 					{
-						int iValue = 4 * GC.getGame().randRangeExclusive(0, getNumCities(), GetPseudoRandomSeed() + static_cast<uint>(iLoop));
+						int iValue = 4 * GC.getGame().randRangeExclusive(0, getNumCities(), GetPseudoRandomSeed().mix(iLoop));
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -34555,7 +34555,7 @@ void CvPlayer::setNavalCombatExperienceTimes100(int iExperienceTimes100)
 							continue;
 						}
 
-						int iValue = 4 * GC.getGame().randRangeExclusive(0, getNumCities(), GetPseudoRandomSeed() + static_cast<uint>(iLoop));
+						int iValue = 4 * GC.getGame().randRangeExclusive(0, getNumCities(), GetPseudoRandomSeed().mix(iLoop));
 
 						for(int i = 0; i < NUM_YIELD_TYPES; i++)
 						{
@@ -36910,7 +36910,7 @@ void CvPlayer::DoXPopulationConscription(CvCity* pCity)
 					continue;
 				}
 
-				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().randRangeExclusive(0, pkUnitEntry->GetPower(), pCity->plot()->GetPseudoRandomSeed() + static_cast<uint>(getTotalPopulation())));
+				int iCombatStrength = (pkUnitEntry->GetPower() + GC.getGame().randRangeExclusive(0, pkUnitEntry->GetPower(), pCity->plot()->GetPseudoRandomSeed().mix(getTotalPopulation())));
 				if (pkUnitEntry->GetRange() > 0)
 				{
 					iCombatStrength *= 50;
@@ -47381,10 +47381,10 @@ CvTreasury* CvPlayer::GetTreasury() const
 	return m_pTreasury;
 }
 
-uint CvPlayer::GetPseudoRandomSeed() const
+CvSeeder CvPlayer::GetPseudoRandomSeed() const
 {
 	//this should return a different number for each turn (each call would be even better ...)
-	return (static_cast<uint>(GetID()) * getNumUnits()) + static_cast<uint>(GC.getGame().getGameTurn()) + static_cast<uint>(m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : GC.getGame().GetCultureMedian());
+	return CvSeeder(GetID()).mix(getNumUnits()).mix(GC.getGame().getGameTurn()).mix(m_pTreasury ? m_pTreasury->GetLifetimeGrossGold() : GC.getGame().GetCultureMedian());
 }
 
 //	--------------------------------------------------------------------------------
@@ -52029,7 +52029,7 @@ void CvPlayer::DoVassalLevy()
 			int iTotal = GetNumVassals() * 2;
 			for (int iK = 0; iK < iTotal; iK++)
 			{
-				uint uUnit = GC.getGame().urandLimitExclusive(aExtraUnits.size(), GetPseudoRandomSeed() + static_cast<uint>(GC.getGame().GetCultureMedian()) + static_cast<uint>(iK));
+				uint uUnit = GC.getGame().urandLimitExclusive(aExtraUnits.size(), GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian()).mix(iK));
 				CvUnit* pNewUnit = initUnit(aExtraUnits[uUnit], pMasterCity->getX(), pMasterCity->getY(), aExtraUnitAITypes[uUnit]);
 				bool bJumpSuccess = pNewUnit->jumpToNearestValidPlot();
 				if (bJumpSuccess)

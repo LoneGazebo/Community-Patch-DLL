@@ -354,7 +354,7 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 		{
-			int iCaptureRoll = GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(pkDefender->GetID()) + plot.GetPseudoRandomSeed());
+			int iCaptureRoll = GC.getGame().randRangeExclusive(0, 100, CvSeeder(pkDefender->GetID()).mix(plot.GetPseudoRandomSeed()));
 
 			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
 			{
@@ -1079,7 +1079,7 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 #if defined(MOD_BALANCE_CORE)
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->GetNumFallBackPlotsAvailable(*pkAttacker) > 0)
 						{
-							int iRand = GC.getGame().randRangeExclusive(0, 100, static_cast<uint>(pkDefender->GetID()) + pkDefender->plot()->GetPseudoRandomSeed());
+							int iRand = GC.getGame().randRangeExclusive(0, 100, CvSeeder(pkDefender->GetID()).mix(pkDefender->plot()->GetPseudoRandomSeed()));
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								pkDefender->DoFallBack(*pkAttacker);
@@ -1537,10 +1537,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	{
 		// Does the attacker evade?
 		int iInterceptionDamage = 0;
-		if(kAttacker.evasionProbability()==0 || GC.getGame().randRangeExclusive(0, 100, plot.GetPseudoRandomSeed() + static_cast<uint>(pInterceptor->GetID()) + static_cast<uint>(pInterceptor->getMadeInterceptionCount())) >= kAttacker.evasionProbability())
+		if(kAttacker.evasionProbability()==0 || GC.getGame().randRangeExclusive(0, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(pInterceptor->GetID()).mix(pInterceptor->getMadeInterceptionCount())) >= kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
-			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().randRangeExclusive(0, 100, plot.GetPseudoRandomSeed() + static_cast<uint>(kAttacker.GetID()) + static_cast<uint>(kAttacker.getDamage())) <= pInterceptor->interceptionProbability())
+			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().randRangeExclusive(0, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(kAttacker.GetID()).mix(kAttacker.getDamage())) <= pInterceptor->interceptionProbability())
 			{
 				bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, bIncludeRand, &plot);
@@ -2530,7 +2530,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 			BATTLE_JOINED(plot.getPlotCity(), BATTLE_UNIT_DEFENDER, true);
 			pkCombatInfo->setCity(BATTLE_UNIT_DEFENDER, pInterceptionCity);
 
-			if (GC.getGame().randRangeExclusive(0, 100, plot.GetPseudoRandomSeed() + static_cast<uint>(kAttacker.GetID())) <= pInterceptionCity->getNukeInterceptionChance())
+			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(kAttacker.GetID())) <= pInterceptionCity->getNukeInterceptionChance())
 			{
 				bInterceptionSuccess = true;
 			}
@@ -2805,7 +2805,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 							CvFeatureInfo* pkFeatureInfo = GC.getFeatureInfo(pLoopPlot->getFeatureType());
 							if(pkFeatureInfo && !pkFeatureInfo->isNukeImmune())
 							{
-								if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, pLoopPlot->GetPseudoRandomSeed()) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB))
+								if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB))
 								{
 									if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
@@ -2817,7 +2817,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 						else
 						{
-							if(pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, pLoopPlot->GetPseudoRandomSeed()) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB))
+							if(pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB))
 							{
 								if(pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -2828,7 +2828,7 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 						}
 #if defined(MOD_GLOBAL_NUKES_MELT_ICE)
 					} else if (MOD_GLOBAL_NUKES_MELT_ICE && pLoopPlot->getFeatureType() == FEATURE_ICE) {
-						if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, pLoopPlot->GetPseudoRandomSeed()) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB)) {
+						if (pLoopPlot == pkTargetPlot || GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopPlot->GetPseudoRandomSeed())) < /*50*/ GD_INT_GET(NUKE_FALLOUT_PROB)) {
 							pLoopPlot->setFeatureType(NO_FEATURE);
 						}
 #endif
@@ -2880,14 +2880,14 @@ uint CvUnitCombat::ApplyNuclearExplosionDamage(const CvCombatMemberEntry* pkDama
 					if(iDamageLevel == 1)
 					{
 						iBaseDamage = /*30*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_BASE);
-						iRandDamage1 = GC.getGame().randRangeExclusive(0, /*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_1), static_cast<uint>(pkCity->getPopulation()) + static_cast<uint>(i));
-						iRandDamage2 = GC.getGame().randRangeExclusive(0, /*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_2), static_cast<uint>(pkCity->GetPower()) + static_cast<uint>(i));
+						iRandDamage1 = GC.getGame().randRangeExclusive(0, /*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_1), CvSeeder(pkCity->getPopulation()).mix(i));
+						iRandDamage2 = GC.getGame().randRangeExclusive(0, /*20*/ GD_INT_GET(NUKE_LEVEL1_POPULATION_DEATH_RAND_2), CvSeeder(pkCity->GetPower()).mix(i));
 					}
 					else
 					{
 						iBaseDamage = /*60*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_BASE);
-						iRandDamage1 = GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_1), static_cast<uint>(pkCity->getPopulation()) + static_cast<uint>(i));
-						iRandDamage2 = GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_2), static_cast<uint>(pkCity->GetPower()) + static_cast<uint>(i));
+						iRandDamage1 = GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_1), CvSeeder(pkCity->getPopulation()).mix(i));
+						iRandDamage2 = GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(NUKE_LEVEL2_POPULATION_DEATH_RAND_2), CvSeeder(pkCity->GetPower()).mix(i));
 					}
 
 					int iNukedPopulation = pkCity->getPopulation() * (iBaseDamage + iRandDamage1 + iRandDamage2) / 100;
@@ -3045,7 +3045,7 @@ void CvUnitCombat::GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDam
 								// How much destruction is unleashed on nearby Units?
 								if(iDamageLevel == 1 && pLoopPlot != pkTargetPlot)	// Nuke level 1, but NOT the plot that got hit directly (units there are killed)
 								{
-									iNukeDamage = (/*30*/ GD_INT_GET(NUKE_UNIT_DAMAGE_BASE) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_1), pLoopPlot->GetPseudoRandomSeed()) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_2), static_cast<uint>(pLoopUnit->GetID()) + static_cast<uint>(iDX) + static_cast<uint>(iDY)));
+									iNukeDamage = (/*30*/ GD_INT_GET(NUKE_UNIT_DAMAGE_BASE) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_1), CvSeeder(pLoopPlot->GetPseudoRandomSeed())) + /*40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(NUKE_UNIT_DAMAGE_RAND_2), CvSeeder(pLoopUnit->GetID()).mix(iDX).mix(iDY)));
 								}
 								// Wipe everything out
 								else
@@ -3238,7 +3238,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 		int iInterceptionDamage = 0;
 
 		// Is the interception successful?
-		if(GC.getGame().randRangeExclusive(0, 100, dropPlot.GetPseudoRandomSeed() + static_cast<uint>(paraUnit.GetID()) + static_cast<uint>(paraUnit.getDamage())) < pInterceptor->interceptionProbability())
+		if(GC.getGame().randRangeExclusive(0, 100, CvSeeder(dropPlot.GetPseudoRandomSeed()).mix(paraUnit.GetID()).mix(paraUnit.getDamage())) < pInterceptor->interceptionProbability())
 		{
 			iInterceptionDamage = pInterceptor->GetInterceptionDamage(&paraUnit, true, &dropPlot);
 		}
@@ -3318,15 +3318,15 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 #endif
 
 //result is times 100
-int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, uint uRandomSeed, int iModifierPercent)
+int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, bool bIncludeRand, CvSeeder randomSeed, int iModifierPercent)
 {
 	// Base damage for two units of identical strength
 	int iDamage = iDefaultDamage100;
 
 	// Don't use rand when calculating projected combat results
-	if(uRandomSeed > 0)
+	if(bIncludeRand)
 	{
-		iDamage += GC.getGame().randRangeExclusive(0, iMaxRandomDamage100, uRandomSeed);
+		iDamage += GC.getGame().randRangeExclusive(0, iMaxRandomDamage100, randomSeed);
 	}
 	else
 	{
