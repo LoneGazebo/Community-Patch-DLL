@@ -130,6 +130,9 @@ INSERT INTO Defines(Name, Value) SELECT 'RELIGION_MAXIMUM_CAP', 8; -- cap on rel
 INSERT INTO Defines (Name, Value) SELECT 'OPEN_BORDERS_MODIFIER_TRADE_GOLD', 20; -- Open Borders Trade Gold Value (halved if not mutual)
 UPDATE Defines SET Value = 5 WHERE Name = 'EACH_GOLD_PER_TURN_VALUE_PERCENT'; -- Gold Per Turn Interest Rate for Trade Valuation
 
+UPDATE Defines SET Value = 200 WHERE Name = 'DEMAND_LIMIT_MAX_VALUE'; -- maximum amount of gold that can be asked from the AI / that the AI can ask for when making demands
+UPDATE Defines SET Value = 20 WHERE Name = 'DEMAND_LIMIT_GAMEPROGRESS_SCALING'; -- scaling factor of DEMAND_LIMIT_MAX_VALUE over the course of the game (the max demand value is DEMAND_LIMIT_MAX_VALUE * (1 + GameProgress * DEMAND_LIMIT_GAMEPROGRESS_SCALING), with GameProgress the percentage of researched techs)
+
 -- City-State Stuff
 UPDATE Defines SET Value = 120 WHERE Name = 'MINOR_CIV_GOLD_PERCENT'; -- CS buff to keep up with AI
 UPDATE Defines SET Value = 40 WHERE Name = 'PERMANENT_WAR_AGGRESSOR_CHANCE';
@@ -245,6 +248,7 @@ UPDATE Defines SET Value = 12 WHERE Name = 'AI_CITIZEN_VALUE_GOLD';
 UPDATE Defines SET Value = 16 WHERE Name = 'AI_CITIZEN_VALUE_SCIENCE';
 UPDATE Defines SET Value = 16 WHERE Name = 'AI_CITIZEN_VALUE_CULTURE';
 UPDATE Defines SET Value = 12 WHERE Name = 'AI_CITIZEN_VALUE_FAITH';
+INSERT INTO Defines (Name, Value) SELECT 'AI_CITIZEN_VALUE_GPP', 4;
 
 -- AI City Strategy
 UPDATE Defines SET Value = 7 WHERE Name = 'AI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD';
@@ -796,9 +800,17 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_CS_ALLIANCE_DEFENSE_BONUS', 25
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MAX_CS_ALLY_STRENGTH', 5; -- Max number of CSs calc'd for bonus for Greek UA (VP)
 
 -- Spies
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_TO_PLAYER_RATIO', 20;
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_SPY_RESISTANCE_MAXIMUM', 1000;
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_SABOTAGE_RATE', 30;
+-- Calculation of the number of spies per era, if MOD_BALANCE_CORE_SPIES is activated:
+-- Each era, gain 100 spy points. To get a spy, you need (iThreshold) Spy Points, with iThreshold = 100 * BALANCE_SPY_TO_PLAYER_RATIO / ((Num Minor Civs ever alive) + BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER * (Num Major Civs ever alive))
+-- Excessive Spy Points are stored, so if for example iThreshold = 66, you get 3 spies every 2 eras
+-- iThreshold is bounded between BALANCE_SPY_POINT_THRESHOLD_MIN and BALANCE_SPY_POINT_THRESHOLD_MAX
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_TO_PLAYER_RATIO', 20; -- VP
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER', 2;  -- VP
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MIN', 33;  -- VP
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_POINT_THRESHOLD_MAX', 100;  -- VP
+	
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_SPY_RESPAWN_TIMER', 5;
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_GATHERING_INTEL_COST_DIVISOR', 250;
 INSERT INTO Defines (Name, Value) SELECT 'ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_BASE', 0;  -- VP

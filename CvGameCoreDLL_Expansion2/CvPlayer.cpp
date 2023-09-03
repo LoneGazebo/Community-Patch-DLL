@@ -33531,6 +33531,12 @@ void CvPlayer::SetHasLostCapital(bool bValue, PlayerTypes eConqueror)
 	{
 		// Note: For Domination Victories, City-States' allies control their capitals, and vassals' masters control their capitals.
 		PlayerTypes eCapitalOwner = OriginalCapitals[i]->GetOwnerForDominationVictory();
+		// account for the recent change of ownership
+		if (OriginalCapitals[i]->getOriginalOwner() == GetID())
+		{
+			eCapitalOwner = bValue ? eConqueror : GetID();
+		}
+
 		CvPlayer& kCapitalOwnerPlayer = GET_PLAYER(eCapitalOwner);
 
 		// If effectively owned by Barbarians or City-States, ignore.

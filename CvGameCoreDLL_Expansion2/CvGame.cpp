@@ -11400,15 +11400,22 @@ int CvGame::GetCultureMedian() const
 
 void CvGame::initSpyThreshold()
 {
-	if(MOD_BALANCE_CORE_SPIES)
-		m_iSpyThreshold = max(33, min(100, 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (2*GetNumMajorCivsEver(true) + GetNumMinorCivsEver(true))));
+	if (!MOD_BALANCE_CORE_SPIES)
+		return;
+
+	int iThreshold = 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (GetNumMinorCivsEver(true) + /* 2 */ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER) * GetNumMajorCivsEver(true));
+	m_iSpyThreshold = range(iThreshold, /* 33 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN), /* 100 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX));
 }
 
 int CvGame::GetSpyThreshold() const
 {
 	// failsafe: if initSpyThreshold has not been called yet for some reason, calculate the threshold based on the number of players ever alive
-	if(m_iSpyThreshold == 0)
-		return max(33, min(100, 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (2 * GetNumMajorCivsEver(false) + GetNumMinorCivsEver(false))));
+	if (m_iSpyThreshold == 0)
+	{
+		int iTempThreshold = 100 * /* 20 */ GD_INT_GET(BALANCE_SPY_TO_PLAYER_RATIO) / (GetNumMinorCivsEver(false) + /* 2 */ GD_INT_GET(BALANCE_SPY_POINT_MAJOR_PLAYER_MULTIPLIER) * GetNumMajorCivsEver(false));
+		iTempThreshold = range(iTempThreshold, /* 33 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MIN), /* 100 */ GD_INT_GET(BALANCE_SPY_POINT_THRESHOLD_MAX));
+		return iTempThreshold;
+	}
 
 	return m_iSpyThreshold;
 }

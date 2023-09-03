@@ -1067,8 +1067,8 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 
 	// Valuation of the GPP Points
 
-	//default valuation. todo: xml
-	int iGPPValuation = MOD_BALANCE_CORE_HAPPINESS ? 5 : 4; // higher base value in VP because the value can later be reduced by urbanization
+	//default valuation. higher value in VP because it is later reduced by unhappiness
+	int iGPPValuation = /* 5 in VP, 4 in CP*/ GD_INT_GET(AI_CITIZEN_VALUE_GPP);
 	int iMod = 0;
 	if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
 	{

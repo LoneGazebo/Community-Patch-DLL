@@ -31077,9 +31077,11 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			}
 			else
 			{
-				// Don't need to call DoOffer because we check to see if the deal works for both sides BEFORE sending
+				// Don't need to call DoOffer because we have already checked that the deal is acceptable for both sides
 				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
-				GC.getGame().GetGameDeals().FinalizeDeal(GetID(), ePlayer, true);
+				bool bFinalized = GC.getGame().GetGameDeals().FinalizeDeal(kDeal.GetFromPlayer(), kDeal.GetToPlayer(), true);
+				if (!bFinalized)
+					UNREACHABLE(); // should never happen for a renew deal
 			}
 		}
 	}
