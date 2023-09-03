@@ -349,12 +349,12 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	{
 		if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
 		{
-			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed() + m_eType) * 2;
-			iRandomContribution -= GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), pMinor->GetPseudoRandomSeed() + m_eType) * 2;
+			iRandomContribution += GC.getGame().randRangeInclusive(0, pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed().mix(m_eType)) * 2;
+			iRandomContribution -= GC.getGame().randRangeInclusive(0, pkSmallAwardInfo->GetRandom(), pMinor->GetPseudoRandomSeed().mix(m_eType)) * 2;
 		}
 		else
 		{
-			iRandomContribution += GC.getGame().getSmallFakeRandNum(pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed()+m_eType ) * 2;
+			iRandomContribution += GC.getGame().randRangeInclusive(0, pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed().mix(m_eType)) * 2;
 		}
 	}
 
@@ -2842,7 +2842,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		BuildingTypes eBuilding = pMinor->GetMinorCivAI()->GetBestBuildingForQuest(m_eAssignedPlayer, iDuration);
 
 		int iCities = pAssignedPlayer->getNumCities() - pAssignedPlayer->GetNumPuppetCities();
-		int iActionAmount = GC.getGame().getSmallFakeRandNum(4, pAssignedPlayer->GetPseudoRandomSeed());
+		int iActionAmount = GC.getGame().randRangeExclusive(0, 4, pAssignedPlayer->GetPseudoRandomSeed());
 		if (iActionAmount == 1)
 		{
 			iActionAmount = iCities;
@@ -2854,7 +2854,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		else
 		{
 			int iSomewhereInBetween = iCities - (iCities / 2) - 1;
-			iActionAmount = (iCities / 2) + GC.getGame().getSmallFakeRandNum(iSomewhereInBetween, pMinor->GetPseudoRandomSeed());
+			iActionAmount = (iCities / 2) + GC.getGame().randRangeExclusive(0, iSomewhereInBetween, pMinor->GetPseudoRandomSeed());
 		}
 
 		if (iActionAmount > iCities)
@@ -2874,7 +2874,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestSpyTarget(m_eAssignedPlayer, false);
-		int iActionAmount = GC.getGame().getSmallFakeRandNum(3, *pCity->plot());
+		int iActionAmount = GC.getGame().randRangeExclusive(0, 3, pCity->plot()->GetPseudoRandomSeed());
 		if (iActionAmount <= 0)
 			iActionAmount = 1;
 
@@ -4525,9 +4525,7 @@ void CvMinorCivAI::DoPickPersonality()
 	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
 	CvEnumMap<FlavorTypes, int>& pFlavors = pFlavorManager->GetAllPersonalityFlavors();
 
-	MinorCivPersonalityTypes eRandPersonality = (MinorCivPersonalityTypes)GC.getGame().getSmallFakeRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES-1, m_pPlayer->GetID());
-	if (eRandPersonality == NO_MINOR_CIV_PERSONALITY_TYPE)
-		eRandPersonality = MINOR_CIV_PERSONALITY_FRIENDLY;
+	MinorCivPersonalityTypes eRandPersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES), CvSeeder(m_pPlayer->GetID())));
 
 	SetPersonality(eRandPersonality);
 #if defined(MOD_BALANCE_CORE)
@@ -4535,15 +4533,15 @@ void CvMinorCivAI::DoPickPersonality()
 #endif
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
-	int iSeed = 0;
+	CvSeeder seed;
 
 	switch (eRandPersonality)
 	{
 	case MINOR_CIV_PERSONALITY_FRIENDLY:
 	case MINOR_CIV_PERSONALITY_HOSTILE:
-		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], 2, 0, 10, iSeed);
-		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], 2, 0, 10, iSeed);
-		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10, iSeed);
+		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], 2, 0, 10, seed);
+		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], 2, 0, 10, seed);
+		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10, seed);
 		pFlavorManager->ResetToBasePersonality();
 		break;
 	default:
@@ -4953,7 +4951,8 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 					if (eRealPersonality == MINOR_CIV_PERSONALITY_IRRATIONAL) 
 					{
 						// Assumes MINOR_CIV_PERSONALITY_IRRATIONAL is the last entry in the enum
-						eFakePersonality = (MinorCivPersonalityTypes)GC.getGame().getSmallFakeRandNum(NUM_MINOR_CIV_PERSONALITY_TYPES - 1, m_pPlayer->GetPseudoRandomSeed());
+						ASSERT(static_cast<uint>(MINOR_CIV_PERSONALITY_IRRATIONAL) == static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES) - 1);
+						eFakePersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(MINOR_CIV_PERSONALITY_IRRATIONAL), m_pPlayer->GetPseudoRandomSeed()));
 					}
 					
 		 			// Personality modifiers - friendly = x1.5, hostile = x0.5
@@ -5040,10 +5039,10 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 							if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC) {
 								if (iUnitGift > 0) {
-									if (GC.getGame().getSmallFakeRandNum(100, pPlayer->GetPseudoRandomSeed()) < iUnitGift) {
+									if (GC.getGame().randRangeExclusive(0, 100, pPlayer->GetPseudoRandomSeed()) < iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
-											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_PER_ERA) + GC.getGame().getSmallFakeRandNum(/*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_RANDOM), pPlayer->getTotalPopulation())));
+											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_PER_ERA) + GC.getGame().randRangeExclusive(0, /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_RANDOM), pPlayer->GetPseudoRandomSeed().mix(pPlayer->getTotalPopulation()))));
 											iGift = pUnit->getUnitType();
 										}
 									}
@@ -5532,9 +5531,9 @@ void CvMinorCivAI::DoAddStartingResources(CvPlot* pCityPlot)
 			pCityPlot->setResourceType(NO_RESOURCE, 0, true);
 			if (veUniqueLuxuries.size() > 0)
 			{
-				int iRoll = GC.getGame().getSmallFakeRandNum(veUniqueLuxuries.size(), *pCityPlot); // range = [0, size - 1]
+				uint uRoll = GC.getGame().urandLimitExclusive(veUniqueLuxuries.size(), pCityPlot->GetPseudoRandomSeed()); // range = [0, size - 1]
 				int iQuantity = /*1*/ GD_INT_GET(MINOR_CIV_MERCANTILE_RESOURCES_QUANTITY);
-				ResourceTypes eSpecialLuxury = veUniqueLuxuries[iRoll];
+				ResourceTypes eSpecialLuxury = veUniqueLuxuries[uRoll];
 
 				pCityPlot->setResourceType(eSpecialLuxury, iQuantity, true);
 			}
@@ -6070,9 +6069,9 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 		return;
 
 	// There are valid quests, so pick one at random
-	int iRandSeed = GetNumActiveGlobalQuests() + m_pPlayer->GetPseudoRandomSeed() + GC.getGame().GetCultureMedian() + GC.getGame().GetScienceMedian();
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
-	MinorCivQuestTypes eQuest = veValidQuests[iRandIndex];
+	const CvSeeder randSeed = m_pPlayer->GetPseudoRandomSeed().mix(GetNumActiveGlobalQuests()).mix(GC.getGame().GetCultureMedian()).mix(GC.getGame().GetScienceMedian());
+	const uint uRandIndex = GC.getGame().urandLimitExclusive(veValidQuests.size(), randSeed);
+	MinorCivQuestTypes eQuest = veValidQuests[uRandIndex];
 
 	// Give out the quest
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -6134,9 +6133,9 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 	if (veValidQuests.size() == 0)
 		return;
 
-	int iRandSeed = ePlayer + GetNumActiveQuestsForAllPlayers() + m_pPlayer->GetTreasury()->GetLifetimeGrossGold();
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidQuests.size(), iRandSeed);
-	MinorCivQuestTypes eQuest = veValidQuests[iRandIndex];
+	const CvSeeder randSeed = GET_PLAYER(ePlayer).GetPseudoRandomSeed().mix(GetNumActiveQuestsForAllPlayers()).mix(m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
+	const uint uRandIndex = GC.getGame().urandLimitExclusive(veValidQuests.size(), randSeed);
+	MinorCivQuestTypes eQuest = veValidQuests[uRandIndex];
 	AddQuestForPlayer(ePlayer, eQuest, GC.getGame().getGameTurn());
 
 	// Check if we need to seed the countdown timer to allow for another quest
@@ -8956,7 +8955,7 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 	// Quests are now available for the first time?
 	if (GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForGlobalQuests())
 	{
-		iNumTurns += GC.getGame().getSmallFakeRandNum(/*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed() * 2);
+		iNumTurns += GC.getGame().randRangeInclusive(0, /*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed());
 	}
 	else
 	{
@@ -8968,7 +8967,7 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 			iRand *= /*200*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER);
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed() * 5);
+		iNumTurns += GC.getGame().randRangeExclusive(0, iRand, m_pPlayer->GetPseudoRandomSeed());
 	}
 
 	// Modify for Game Speed
@@ -9016,7 +9015,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 	// Quests are now available for the first time?
 	if (GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForPersonalQuests())
 	{
-		iNumTurns += GC.getGame().getSmallFakeRandNum(/*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed());
+		iNumTurns += GC.getGame().randRangeInclusive(0, /*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed());
 	}
 	else
 	{
@@ -9028,7 +9027,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 			iRand *= /*200*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER);
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed() * 4);
+		iNumTurns += GC.getGame().randRangeExclusive(0, iRand, m_pPlayer->GetPseudoRandomSeed());
 	}
 
 	// Modify for Game Speed
@@ -9602,7 +9601,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 			iRebelBuildUp += iWar;
 		}
 
-		iRebelBuildUp += GC.getGame().getSmallFakeRandNum(GC.getGame().getCurrentEra(), m_pPlayer->GetPseudoRandomSeed());
+		iRebelBuildUp += GC.getGame().randRangeExclusive(0, GC.getGame().getCurrentEra(), m_pPlayer->GetPseudoRandomSeed());
 
 		if(iRebelBuildUp >= iRebelBoilPoint)
 		{
@@ -9644,7 +9643,7 @@ void CvMinorCivAI::DoRebellion()
 	int iNumRebels = GetPlayer()->getNumMilitaryUnits() * /*60*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_CS_UNIT); //Based on number of military units of CS.
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
 	iNumRebels += iExtraRoll * /*0*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_BASE);
-	iNumRebels += GC.getGame().getSmallFakeRandNum(iExtraRoll,m_pPlayer->GetMilitaryMight()) * /*200*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND);
+	iNumRebels += GC.getGame().randRangeExclusive(0, iExtraRoll, CvSeeder(m_pPlayer->GetMilitaryMight())) * /*200*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND);
 	iNumRebels /= 100;
 
 	if (iNumRebels < /*2*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_MIN))
@@ -9872,8 +9871,8 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 	if (veValidResources.size() == 0)
 		return NO_RESOURCE;
 	
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidResources.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veValidResources.size());
-	return veValidResources[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidResources.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidResources.size()));
+	return veValidResources[uRandIndex];
 }
 
 /// Best wonder for a Quest given to ePlayer?
@@ -10019,8 +10018,8 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 	if (veValidBuildings.size() == 0)
 		return NO_BUILDING;
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veValidBuildings.size());
-	return veValidBuildings[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidBuildings.size()));
+	return veValidBuildings[uRandIndex];
 }
 
 /// Best national wonder for a Quest given to ePlayer?
@@ -10121,8 +10120,8 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer, i
 	if (veValidBuildings.size() == 0)
 		return NO_BUILDING;
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veValidBuildings.size());
-	return veValidBuildings[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidBuildings.size()));
+	return veValidBuildings[uRandIndex];
 }
 
 /// Anyone that this City State would want ePlayer to liberate?
@@ -10216,8 +10215,8 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes ePlayer)
 	if (veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidTargets.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veValidTargets.size());
-	return veValidTargets[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidTargets.size()));
+	return veValidTargets[uRandIndex];
 }
 
 /// Find a Great Person that a Minor would want a major to spawn
@@ -10307,8 +10306,8 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 	if (veValidUnits.size() == 0)
 		return NO_UNIT;
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidUnits.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veValidUnits.size());
-	return veValidUnits[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidUnits.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidUnits.size()));
+	return veValidUnits[uRandIndex];
 }
 
 /// Anyone that this City State would want to kill / bully?
@@ -10466,8 +10465,8 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes ePlayer, bool bKill
 		}
 	}
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veTargetChoices.size(), m_pPlayer->GetPseudoRandomSeed());
-	return veTargetChoices[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veTargetChoices.size(), m_pPlayer->GetPseudoRandomSeed());
+	return veTargetChoices[uRandIndex];
 }
 
 CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
@@ -10573,8 +10572,9 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 
 BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDuration)
 {
-	// Have nowhere to build.
-	if (GET_PLAYER(ePlayer).getNumCities() <= 3 || GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoAnnexing())
+	// Have nowhere to build?
+	int iCities = GET_PLAYER(ePlayer).getNumCities() - GET_PLAYER(ePlayer).GetNumPuppetCities();
+	if (iCities <= 3)
 		return NO_BUILDING;
 
 	std::vector<int> allBuildingCount = GET_PLAYER(ePlayer).GetTotalBuildingCount();
@@ -10679,8 +10679,8 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDu
 	if (veValidBuildings.size() == 0)
 		return NO_BUILDING;
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veValidBuildings.size());
-	return veValidBuildings[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidBuildings.size()));
+	return veValidBuildings[uRandIndex];
 }
 
 UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
@@ -10823,8 +10823,8 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 		}
 	}
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veUnitChoices.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veUnitChoices.size());
-	return veUnitChoices[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veUnitChoices.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veUnitChoices.size()));
+	return veUnitChoices[uRandIndex];
 }
 
 int CvMinorCivAI::GetExperienceForUnitGiftQuest(PlayerTypes ePlayer, UnitTypes eUnitType)
@@ -11308,8 +11308,8 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 	if (veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidTargets.size(), GET_PLAYER(ePlayer).getNumUnits() + GET_PLAYER(ePlayer).GetTreasury()->GetLifetimeGrossGold());
-	return veValidTargets[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder(GET_PLAYER(ePlayer).getNumUnits()).mix(GET_PLAYER(ePlayer).GetTreasury()->GetLifetimeGrossGold()));
+	return veValidTargets[uRandIndex];
 }
 
 /// Any good cities to ask ePlayer to find?
@@ -11436,8 +11436,8 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes ePlayer)
 	if (veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	int iRandIndex = GC.getGame().getSmallFakeRandNum(veValidTargets.size(), m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed() + veValidTargets.size());
-	return veValidTargets[iRandIndex];
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidTargets.size()));
+	return veValidTargets[uRandIndex];
 }
 
 
@@ -14728,7 +14728,7 @@ void CvMinorCivAI::DoSeedUnitSpawnCounter(PlayerTypes ePlayer, bool bBias)
 
 	// Add some randomness
 	int iRand = /*3*/ GD_INT_GET(FRIENDS_RAND_TURNS_UNIT_SPAWN);
-	iNumTurns += GC.getGame().getSmallFakeRandNum(iRand, m_pPlayer->GetPseudoRandomSeed());
+	iNumTurns += GC.getGame().randRangeExclusive(0, iRand, m_pPlayer->GetPseudoRandomSeed());
 
 	// If we're biasing the result then decrease the number of turns
 	if (bBias)
@@ -15415,7 +15415,7 @@ void CvMinorCivAI::DoBuyout(PlayerTypes eMajor)
 
 	// Send out notifications to everyone
 	TeamTypes eBuyerTeam = GET_PLAYER(eMajor).getTeam();
-	int iCoinToss = GC.getGame().getSmallFakeRandNum(1, m_pPlayer->GetPseudoRandomSeed()); // Is it a boy or a girl?
+	int iCoinToss = GC.getGame().randRangeInclusive(0, 1, m_pPlayer->GetPseudoRandomSeed()); // Is it a boy or a girl?
 
 	Localization::String strMessage;
 	Localization::String strSummary;
@@ -17701,7 +17701,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		}
 		else
 		{
-			iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed());
+			iRand = GC.getGame().randRangeExclusive(0, 100, m_pPlayer->GetPseudoRandomSeed());
 
 			if (iRand < /*50 in CP, 40 in VP*/ GD_INT_GET(PERMANENT_WAR_AGGRESSOR_CHANCE))
 			{
@@ -17800,7 +17800,7 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			if(GET_TEAM(pOtherMinorCiv->getTeam()).isAtWar(eEnemyTeam))
 				iChance += /*20*/ GD_INT_GET(PERMANENT_WAR_OTHER_AT_WAR);
 
-			iRand = GC.getGame().getSmallFakeRandNum(100, m_pPlayer->GetPseudoRandomSeed() + iMinorCivLoop);
+			iRand = GC.getGame().randRangeExclusive(0, 100, m_pPlayer->GetPseudoRandomSeed().mix(static_cast<uint>(iMinorCivLoop)));
 			if(iRand < iChance)
 			{
 				if(!pOtherMinorCiv->GetMinorCivAI()->IsWaryOfTeam(eEnemyTeam))
@@ -18271,7 +18271,7 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 				}
 
 				// Random factor so that the same thing isn't always picked
-				iValue += GC.getGame().getSmallFakeRandNum(iValue / 4, m_pPlayer->GetTreasury()->GetLifetimeGrossGold() + iTechLoop);
+				iValue += GC.getGame().randRangeExclusive(0, iValue / 4, CvSeeder(m_pPlayer->GetTreasury()->GetLifetimeGrossGold()).mix(iTechLoop));
 
 				TechVector.push_back(iTechLoop, iValue);
 			}

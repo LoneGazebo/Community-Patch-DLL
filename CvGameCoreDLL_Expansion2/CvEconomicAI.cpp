@@ -3333,7 +3333,7 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 		return true;
 
 	//some rate limiting - don't need to check this every turn in the lategame
-	if (GC.getGame().getSmallFakeRandNum(3, pPlayer->GetPseudoRandomSeed()) != 0)
+	if (GC.getGame().randRangeExclusive(0, 3, pPlayer->GetPseudoRandomSeed()) != 0)
 		return false;
 
 	//do this check as late as possible, it can be expensive

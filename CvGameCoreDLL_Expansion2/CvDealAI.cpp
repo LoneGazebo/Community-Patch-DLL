@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -2138,7 +2138,7 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 	iItemValue += (max(1,iEconomicValue-1000)/3); //tricky to define the correct factor
 
 	//prevent cheesy exploit: founding cities just to sell them
-	if ((GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().getSmallFakeRandNum(5, iEconomicValue)))
+	if ((GC.getGame().getGameTurn() - pCity->getGameTurnFounded()) < (42 + GC.getGame().randRangeExclusive(0, 5, CvSeeder(iEconomicValue))))
 		return INT_MAX;
 
 	//If not as good as any of our cities, we don't want it.
@@ -3027,7 +3027,7 @@ int CvDealAI::GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, Team
 		if (iPeaceTreatyTurn > -1)
 		{
 			int iTurnsSincePeace = GC.getGame().getGameTurn() - iPeaceTreatyTurn;
-			int iPeaceDampenerTurns = 23 + GC.getGame().getSmallFakeRandNum( 15, GET_PLAYER(ePlayerDeclaringWar).GetPseudoRandomSeed() );
+			int iPeaceDampenerTurns = 23 + GC.getGame().randRangeExclusive(0, 15, GET_PLAYER(ePlayerDeclaringWar).GetPseudoRandomSeed() );
 			if (iTurnsSincePeace < iPeaceDampenerTurns)
 			{
 				return INT_MAX;
@@ -5744,7 +5744,7 @@ bool CvDealAI::IsMakeOfferForStrategicResource(PlayerTypes eOtherPlayer, CvDeal*
 	{
 		int iAvailable = GET_PLAYER(eOtherPlayer).getNumResourceAvailable(eStratFromThem, false);
 		int iDesired = min(4,max(1,iAvailable/2));
-		iDesired += GC.getGame().getSmallFakeRandNum(3, iCurrentNetGoldOfReceivingPlayer + eStratFromThem + eOtherPlayer);
+		iDesired += GC.getGame().randRangeExclusive(0, 3, CvSeeder(iCurrentNetGoldOfReceivingPlayer).mix(eStratFromThem).mix(eOtherPlayer));
 		//if we are in the red we want more!
 		iDesired += GetPlayer()->getResourceShortageValue(eStratFromThem);
 		iDesired = min(iAvailable, iDesired);

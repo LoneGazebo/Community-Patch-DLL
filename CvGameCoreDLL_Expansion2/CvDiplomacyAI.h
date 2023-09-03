@@ -112,7 +112,7 @@ public:
 	// Personality Values
 	// ************************************
 
-	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
+	int GetRandomPersonalityWeight(int iOriginalValue, CvSeeder& seed);
 	void DoInitializePersonality(bool bFirstInit);
 	void SelectDefaultVictoryPursuits();
 
