@@ -465,7 +465,7 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	CivApproachTypes eApproach = pDiploAI->GetCivApproach(eFromPlayer);
 	StrengthTypes eMilitaryStrength = pDiploAI->GetMilitaryStrengthComparedToUs(eFromPlayer);
 	AggressivePostureTypes eMilitaryPosture = pDiploAI->GetMilitaryAggressivePosture(eFromPlayer);
-	PlayerProximityTypes eProximity = GET_PLAYER(eMyPlayer).GetProximityToPlayer(eFromPlayer);
+	PlayerProximityTypes eProximity = GET_PLAYER(eFromPlayer).GetProximityToPlayer(eMyPlayer);
 	// if they're close, there's always some danger, even if we don't see any units
 	if (eProximity > PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
 		eMilitaryPosture = AGGRESSIVE_POSTURE_LOW;
