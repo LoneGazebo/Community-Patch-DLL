@@ -30738,7 +30738,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 	*/
 
 	// We're making a demand of this player
-	else if(eStatement == DIPLO_STATEMENT_DEMAND)
+	else if (eStatement == DIPLO_STATEMENT_DEMAND)
 	{
 		// Active human
 		if (bHuman)
@@ -30749,40 +30749,15 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 		// AI player
 		else
 		{
-			// Apply diplomacy penalties!
-			GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumDemandsMade(GetID(), 1);
+			// Process diplomacy consequences from the AI on the receiving end
+			DemandResponseTypes eResponse = GET_PLAYER(ePlayer).GetDealAI()->GetDemandResponse(pDeal);
+			GET_PLAYER(ePlayer).GetDiplomacyAI()->DoDemandMade(GetID(), eResponse);
 
-			// For now the AI will always give in
-			bool bValid = false;
-			if (GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()))
+			// Did they accept?
+			if (eResponse == DEMAND_RESPONSE_ACCEPT)
 			{
-				if (GC.getGame().randRangeExclusive(0, 10, m_pPlayer->GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian())) < GET_PLAYER(ePlayer).GetDiplomacyAI()->GetWarmongerHate())
-				{
-					bValid = true;
-				}
-			}
-			if (bValid && (GET_PLAYER(ePlayer).GetDiplomacyAI()->GetBoldness() > 7 || GET_PLAYER(ePlayer).GetDiplomacyAI()->GetMeanness() > 7))
-			{
-				if (m_pPlayer->GetDiplomacyAI()->DeclareWar(ePlayer))
-				{
-					pDeal->ClearItems();
-					bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
-
-					if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
-					{
-						GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 3, bCareful);
-					}
-				}
-			}
-			else
-			{
-				if (IsMaster(ePlayer))
-				{
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->SetHasPaidTributeTo(GetID(), true);
-				}
-
 #if defined(MOD_ACTIVE_DIPLOMACY)
-				if(GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
+				if (GC.getGame().isReallyNetworkMultiPlayer() && MOD_ACTIVE_DIPLOMACY)
 				{
 					GC.getGame().GetGameDeals().FinalizeMPDeal(*pDeal, true);
 				}
@@ -30795,10 +30770,104 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				}
 #else
 				CvDeal kDeal = *pDeal;
-
 				GC.getGame().GetGameDeals().AddProposedDeal(kDeal);
 				GC.getGame().GetGameDeals().FinalizeDeal(GetID(), ePlayer, true);
 #endif
+			}
+			// Demand rebuffed
+			else
+			{
+				pDeal->ClearItems();
+
+				// Does the AI declare war?
+				bool bDeclareWar = GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(ePlayer).getTeam(), GetID()) && !GetPlayer()->IsNoNewWars();
+
+				// Must be a potential war target
+				if (bDeclareWar && !IsPotentialWarTarget(ePlayer))
+					bDeclareWar = false;
+
+				// Sanity check - who else would we go to war with?
+				if (bDeclareWar && !DoUpdateOnePlayerSaneDiplomaticTarget(ePlayer, true))
+					bDeclareWar = false;
+				
+				// Sanity check - avoid going bankrupt
+				int iMinIncome = 2 + (GetPlayer()->GetCurrentEra() * 2);
+				if (bDeclareWar && IsWarWouldBankruptUs(ePlayer, iMinIncome))
+					bDeclareWar = false;
+
+				// Sanity check - who else would we go to war with?
+				if (bDeclareWar)
+				{
+					vector<PlayerTypes> vDefensiveWarAllies = GetDefensiveWarAllies(ePlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true, /*bNewWarsOnly*/ true);
+
+					for (std::vector<PlayerTypes>::iterator it = vDefensiveWarAllies.begin(); it != vDefensiveWarAllies.end(); it++)
+					{
+						// Would we be declaring war on a powerful neighbor?
+						if (GET_PLAYER(*it).GetProximityToPlayer(GetID()) >= PLAYER_PROXIMITY_CLOSE)
+						{
+							if (GET_PLAYER(*it).isMajorCiv())
+							{
+								if (GetCivApproach(*it) == CIV_APPROACH_AFRAID)
+								{
+									bDeclareWar = false;
+									break;
+								}
+								// If we're already planning a war/demand against them, then we don't care.
+								else if (GetCivApproach(*it) != CIV_APPROACH_WAR && GetDemandTargetPlayer() != GET_PLAYER(*it).GetID())
+								{
+									if (GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+									{
+										bDeclareWar = false;
+										break;
+									}
+								}
+							}
+							else
+							{
+								if (GetCivApproach(*it) > CIV_APPROACH_HOSTILE)
+								{
+									if (GetMilitaryStrengthComparedToUs(*it) > STRENGTH_AVERAGE)
+									{
+										bDeclareWar = false;
+										break;
+									}
+								}
+							}
+						}
+					}
+				}
+
+				if (bDeclareWar)
+				{
+					// If already at war or non-HOSTILE and not decisively stronger, AI has a chance to bluff
+					int iCurrentWars = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true);
+					bool bCanBluff = iCurrentWars > 0 || (GetCivApproach(ePlayer) > CIV_APPROACH_HOSTILE && GetTargetValue(ePlayer) <= TARGET_VALUE_AVERAGE);
+					if (bCanBluff)
+					{
+						if (GetCivOpinion(ePlayer) == CIV_OPINION_UNFORGIVABLE || IsCapitalCapturedBy(ePlayer, true, true) || IsHolyCityCapturedBy(ePlayer, true, true))
+						{
+							bCanBluff = false;
+						}
+					}
+					if (bCanBluff)
+					{
+						int iBluffChance = 20 + 20 * min(iCurrentWars, 3);
+						if (GetBiggestCompetitor() == ePlayer)
+							iBluffChance /= 2;
+
+						if (GC.getGame().randRangeInclusive(1, 100, GET_PLAYER(ePlayer).GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian()).mix(409229897)) > iBluffChance)
+							bCanBluff = false;
+					}
+					// Not bluffing - declare war!
+					if (!bCanBluff && DeclareWar(ePlayer))
+					{
+						bool bCareful = iCurrentWars > 0 && GetGlobalCoopWarAgainstState(ePlayer) < COOP_WAR_STATE_PREPARING;
+						if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(ePlayer))
+						{
+							GetPlayer()->GetMilitaryAI()->RequestCityAttack(ePlayer, 3, bCareful);
+						}
+					}
+				}
 			}
 		}
 	}
@@ -38865,46 +38934,20 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 	case FROM_UI_DIPLO_EVENT_DEMAND_HUMAN_REFUSAL:
 	{
 		// Does the AI declare war?
-		bool bDeclareWar = false;
+		bool bDeclareWar = GET_TEAM(GetTeam()).canDeclareWar(GET_PLAYER(eFromPlayer).getTeam(), GetID()) && !GetPlayer()->IsNoNewWars();
 
-		if (GC.getGame().randRangeExclusive(0, 10, m_pPlayer->GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian())) >= ((GetMeanness() + GetBoldness()) / 2))
-		{
-			bDeclareWar = true;
-		}
-		
-		// If we're stronger than them, declare war!
-		if (GetMilitaryStrengthComparedToUs(eFromPlayer) < STRENGTH_AVERAGE && GetEconomicStrengthComparedToUs(eFromPlayer) < STRENGTH_AVERAGE)
-		{
-			bDeclareWar = true;
-		}
-
-		if (GetPlayer()->IsVassalOfSomeone() || GET_PLAYER(eFromPlayer).IsVassalOfSomeone())
-		{
-			bDeclareWar = false;
-		}
-
-		if (bDeclareWar && GetPlayer()->IsNoNewWars())
-		{
-			bDeclareWar = false;
-		}
-
+		// Must be a potential war target
 		if (bDeclareWar && !IsPotentialWarTarget(eFromPlayer))
-		{
 			bDeclareWar = false;
-		}
 
 		// Sanity check - who else would we go to war with?
 		if (bDeclareWar && !DoUpdateOnePlayerSaneDiplomaticTarget(eFromPlayer, true))
-		{
 			bDeclareWar = false;
-		}
 		
 		// Sanity check - avoid going bankrupt
 		int iMinIncome = 2 + (GetPlayer()->GetCurrentEra() * 2);
 		if (bDeclareWar && IsWarWouldBankruptUs(eFromPlayer, iMinIncome))
-		{
 			bDeclareWar = false;
-		}
 
 		// Sanity check - who else would we go to war with?
 		if (bDeclareWar)
@@ -38947,18 +38990,39 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				}
 			}
 		}
-	
+
 		if (bDeclareWar)
 		{
-			if (DeclareWar(eFromPlayer))
+			// If already at war or non-HOSTILE and not decisively stronger, AI has a chance to bluff
+			int iCurrentWars = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true);
+			bool bCanBluff = iCurrentWars > 0 || (GetCivApproach(eFromPlayer) > CIV_APPROACH_HOSTILE && GetTargetValue(eFromPlayer) <= TARGET_VALUE_AVERAGE);
+			if (bCanBluff)
 			{
-				bool bCareful = GetPlayer()->CountNumDangerousMajorsAtWarWith(true, true) > 0 && GetGlobalCoopWarAgainstState(eFromPlayer) < COOP_WAR_STATE_PREPARING;
+				if (GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE || IsCapitalCapturedBy(eFromPlayer, true, true) || IsHolyCityCapturedBy(eFromPlayer, true, true))
+				{
+					bCanBluff = false;
+				}
+			}
+			if (bCanBluff)
+			{
+				int iBluffChance = 20 + 20 * min(iCurrentWars, 3);
+				if (GetBiggestCompetitor() == eFromPlayer)
+					iBluffChance /= 2;
 
+				if (GC.getGame().randRangeInclusive(1, 100, GET_PLAYER(eFromPlayer).GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian()).mix(409229897)) > iBluffChance)
+					bCanBluff = false;
+			}
+			// Not bluffing - declare war!
+			if (!bCanBluff && DeclareWar(eFromPlayer))
+			{
+				bool bCareful = iCurrentWars > 0 && GetGlobalCoopWarAgainstState(eFromPlayer) < COOP_WAR_STATE_PREPARING;
 				if (!GetPlayer()->HasAnyOffensiveOperationsAgainstPlayer(eFromPlayer))
 				{
 					GetPlayer()->GetMilitaryAI()->RequestCityAttack(eFromPlayer, 3, bCareful);
 				}
 			}
+			else
+				bDeclareWar = false;
 		}
 
 		if (bActivePlayer)

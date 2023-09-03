@@ -21856,17 +21856,18 @@ void CvPlayer::DoTestEmpireInBadShapeForWar()
 
 				bSetNoNewWars = true;
 			}
-			else
+			else if (eWarState == WAR_STATE_STALEMATE)
 			{
-				if (GetDiplomacyAI()->IsPhonyWar(eLoopPlayer))
+				if (GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) || GetDiplomacyAI()->IsPhonyWar(eLoopPlayer))
 					continue;
 
-				if (eWarState == WAR_STATE_STALEMATE)
+				if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(m_eID) == PLAYER_PROXIMITY_NEIGHBORS)
 				{
-					if (!GetDiplomacyAI()->IsEasyTarget(eLoopPlayer) && GetProximityToPlayer(eLoopPlayer) >= PLAYER_PROXIMITY_CLOSE)
-					{
-						bSetNoNewWars = true;
-					}
+					bSetNoNewWars = true;
+				}
+				else if (GET_PLAYER(eLoopPlayer).GetProximityToPlayer(m_eID) == PLAYER_PROXIMITY_CLOSE && GetDiplomacyAI()->GetMilitaryAggressivePosture(eLoopPlayer) > AGGRESSIVE_POSTURE_NONE)
+				{
+					bSetNoNewWars = true;
 				}
 			}
 		}
