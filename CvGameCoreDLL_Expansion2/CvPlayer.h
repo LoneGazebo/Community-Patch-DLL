@@ -2036,13 +2036,11 @@ public:
 	void ChangeBullyGlobalCSReduction(int iValue);
 	int GetBullyGlobalCSReduction() const;
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
 	void changeMaxAirUnits(int iChange);
 	int getMaxAirUnits() const;
 
 	int GetImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield) const;
 	void ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTypes eYield, int iChange);
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int GetInvestmentModifier() const;
 	void changeInvestmentModifier(int iChange);
@@ -3250,9 +3248,7 @@ protected:
 	int m_iCityCaptureHealGlobal;
 	int m_iCityCaptureHealLocal;
 #endif
-#if defined(MOD_BALANCE_CORE_SPIES)
 	int m_iMaxAirUnits;
-#endif
 #if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	int m_iInvestmentModifier;
 	int m_iMissionInfluenceModifier;

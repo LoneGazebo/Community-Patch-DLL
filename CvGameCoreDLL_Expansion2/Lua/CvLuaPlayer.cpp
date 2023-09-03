@@ -16167,7 +16167,9 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 int CvLuaPlayer::lEspionageCreateSpy(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	pkPlayer->CreateSpies(1, false);
+
+	bool bScaling = luaL_optbool(L, 2, false);
+	pkPlayer->CreateSpies(1, bScaling);
 
 	return 0;
 }

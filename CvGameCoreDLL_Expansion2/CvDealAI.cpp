@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -429,13 +429,10 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	PlayerTypes eFromPlayer = pDeal->GetOtherPlayer(GetPlayer()->GetID()); // Playing it safe, should be OK to use pDeal->GetFromPlayer() but code was using GetActivePlayer so maybe the From field wasn't always the human (although in my testing it was fine!)
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
-	int iValueWillingToGiveUp = 0;
-
 	CvDiplomacyAI* pDiploAI = GET_PLAYER(eMyPlayer).GetDiplomacyAI();
 
 	CivApproachTypes eApproach = pDiploAI->GetCivApproach(eFromPlayer);
 	StrengthTypes eMilitaryStrength = pDiploAI->GetMilitaryStrengthComparedToUs(eFromPlayer);
-	StrengthTypes eEconomicStrength = pDiploAI->GetEconomicStrengthComparedToUs(eFromPlayer);
 	AggressivePostureTypes eMilitaryPosture = pDiploAI->GetMilitaryAggressivePosture(eFromPlayer);
 	PlayerProximityTypes eProximity = GET_PLAYER(eMyPlayer).GetProximityToPlayer(eFromPlayer);
 
@@ -443,363 +440,74 @@ DemandResponseTypes CvDealAI::DoHumanDemand(CvDeal* pDeal)
 	if (pDiploAI->IsDoFAccepted(eFromPlayer))
 	{
 		eResponse = GetRequestForHelpResponse(pDeal);
+		GC.getGame().DoFromUIDiploEvent(FROM_UI_DIPLO_EVENT_HUMAN_REQUEST, eMyPlayer, /*iData1*/ eResponse, -1);
 	}
 	else
 	{
 		// Too soon for another demand?
 		if(pDiploAI->IsDemandTooSoon(eFromPlayer))
 			eResponse = DEMAND_RESPONSE_REFUSE_TOO_SOON;
-		// Not too soon for a demand
+		// Deal valued impossible / We have a Boldness value of 10?
+		else if (GET_PLAYER(eMyPlayer).GetDealAI()->GetDealValue(pDeal) == INT_MAX || pDiploAI->GetBoldness() == 10)
+			eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
+		// unforgivable opinion?
+		else if (pDiploAI->GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE)
+			eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
+		// Are there items in the deal that can't be demanded?
 		else
 		{
-			// Deal valued impossible?
-			if (GET_PLAYER(eMyPlayer).GetDealAI()->GetDealValue(pDeal) == INT_MAX)
+			TradedItemList::iterator it;
+			for (it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
 			{
-				eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-			}
-			else
-			{
-				bool bWeak = false;
-				bool bHostile = false;
-				// Initial odds of giving in to ANY demand are based on the player's boldness (which is also tied to the player's likelihood of going for world conquest)
-				int iOddsOfGivingIn = (10 - pDiploAI->GetBoldness()) * 10;
-
-				//much harder if vassalage on the table.
-				if (pDeal->IsVassalageTrade(eFromPlayer) || pDeal->IsVassalageTrade(eMyPlayer))
+				// Item from this AI
+				if (it->m_eFromPlayer == eMyPlayer)
 				{
-					if (GetPlayer()->IsAITeammateOfHuman())
+					if(it->m_eItemType == TRADE_ITEM_CITIES || it->m_eItemType == TRADE_ITEM_DEFENSIVE_PACT || it->m_eItemType == TRADE_ITEM_RESEARCH_AGREEMENT || it->m_eItemType == TRADE_ITEM_THIRD_PARTY_WAR)
 					{
-						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-					}
-					else
-					{
-						iOddsOfGivingIn -= 100;
-					}
-				}
-
-				//no third party war, that's weird.
-				if (pDeal->ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR, eFromPlayer) || pDeal->ContainsItemType(TRADE_ITEM_THIRD_PARTY_WAR, eMyPlayer))
-					iOddsOfGivingIn -= 1000;
-
-				// Unforgivable: AI will never give in
-				if (pDiploAI->GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE)
-				{
-					bHostile = true;
-					iOddsOfGivingIn -= 50;
-				}
-				// Hostile: AI will never give in
-				if (eApproach == CIV_APPROACH_HOSTILE)
-				{
-					bHostile = true;
-					iOddsOfGivingIn -= 50;
-				}
-				// They are very far away and have no units near us (from what we can tell): AI will never give in
-				if (eProximity <= PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
-				{
-					bWeak = true;
-					iOddsOfGivingIn -= 50;
-				}
-				// Our military is stronger: AI will never give in
-				if (eMilitaryStrength < STRENGTH_AVERAGE && eEconomicStrength < STRENGTH_AVERAGE)
-				{
-					bWeak = true;
-					iOddsOfGivingIn -= 50;
-				}
-
-				iValueWillingToGiveUp = 0;
-
-				//Vassals give in to demands more often, and give more away.
-				TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
-				if (eMasterTeam == GET_PLAYER(eFromPlayer).getTeam())
-				{
-					iOddsOfGivingIn += 100;
-					iValueWillingToGiveUp += 500;
-				}
-
-				switch (pDiploAI->GetWarmongerThreat(eFromPlayer))
-				{
-				case THREAT_NONE:
-				{
-					iOddsOfGivingIn -= 10;
-					break;
-				}
-				case THREAT_MINOR:
-				{
-					iOddsOfGivingIn -= 5;
-					break;
-				}
-				case THREAT_MAJOR:
-				{
-					iOddsOfGivingIn += 10;
-					break;
-				}
-				case THREAT_SEVERE:
-				{
-					iOddsOfGivingIn += 15;
-					break;
-				}
-				case THREAT_CRITICAL:
-				{
-					iOddsOfGivingIn += 25;
-					break;
-				}
-				}
-
-				switch (pDiploAI->GetMilitaryAggressivePosture(eFromPlayer))
-				{
-				case AGGRESSIVE_POSTURE_NONE:
-				{
-					iOddsOfGivingIn -= 10;
-					break;
-				}
-				case AGGRESSIVE_POSTURE_LOW:
-				{
-					iOddsOfGivingIn -= 5;
-					break;
-				}
-				case AGGRESSIVE_POSTURE_MEDIUM:
-				{
-					iOddsOfGivingIn += 10;
-					break;
-				}
-				case AGGRESSIVE_POSTURE_HIGH:
-				{
-					iOddsOfGivingIn += 25;
-					break;
-				}
-				case AGGRESSIVE_POSTURE_INCREDIBLE:
-				{
-					iOddsOfGivingIn += 50;
-					break;
-				}
-				}
-
-				// If we're afraid we're more likely to give in
-				if (eApproach == CIV_APPROACH_AFRAID)
-				{
-					iOddsOfGivingIn += 50;
-					iValueWillingToGiveUp += 200;
-				}
-				// Not afraid
-				else
-				{
-					// How strong are they compared to us?
-					switch (eMilitaryStrength)
-					{
-					case STRENGTH_PATHETIC:
-						iOddsOfGivingIn += -50;
-						iValueWillingToGiveUp += 5;
-						break;
-					case STRENGTH_WEAK:
-						iOddsOfGivingIn += -50;
-						iValueWillingToGiveUp += 10;
-						break;
-					case STRENGTH_POOR:
-						iOddsOfGivingIn += -25;
-						iValueWillingToGiveUp += 20;
-						break;
-					case STRENGTH_AVERAGE:
-						iOddsOfGivingIn += 0;
-						iValueWillingToGiveUp += 40;
-						break;
-					case STRENGTH_STRONG:
-						iOddsOfGivingIn += 15;
-						iValueWillingToGiveUp += 60;
-						break;
-					case STRENGTH_POWERFUL:
-						iOddsOfGivingIn += 25;
-						iValueWillingToGiveUp += 80;
-						break;
-					case STRENGTH_IMMENSE:
-						iOddsOfGivingIn += 50;
-						iValueWillingToGiveUp += 100;
-						break;
-					default:
-						break;
-					}
-
-					switch (eEconomicStrength)
-					{
-					case STRENGTH_PATHETIC:
-						iOddsOfGivingIn += -50;
-						iValueWillingToGiveUp += 5;
-						break;
-					case STRENGTH_WEAK:
-						iOddsOfGivingIn += -50;
-						iValueWillingToGiveUp += 10;
-						break;
-					case STRENGTH_POOR:
-						iOddsOfGivingIn += -25;
-						iValueWillingToGiveUp += 25;
-						break;
-					case STRENGTH_AVERAGE:
-						iOddsOfGivingIn += 0;
-						iValueWillingToGiveUp += 40;
-						break;
-					case STRENGTH_STRONG:
-						iOddsOfGivingIn += 15;
-						iValueWillingToGiveUp += 60;
-						break;
-					case STRENGTH_POWERFUL:
-						iOddsOfGivingIn += 25;
-						iValueWillingToGiveUp += 80;
-						break;
-					case STRENGTH_IMMENSE:
-						iOddsOfGivingIn += 50;
-						iValueWillingToGiveUp += 100;
-						break;
-					default:
-						break;
-					}
-				}
-
-				// IMPORTANT NOTE: This APPEARS to be very bad for multiplayer, but the only changes made to the game state are the fact that the human
-				// made a demand, and if the deal went through. These are both sent over the network later in this function.
-
-				int iRand = GC.getGame().randRangeExclusive(0, 100, CvSeeder(iValueWillingToGiveUp));
-
-				// Are they going to say no matter what?
-				if (iRand > iOddsOfGivingIn || iOddsOfGivingIn <= 0)
-				{
-					if (bHostile)
 						eResponse = DEMAND_RESPONSE_REFUSE_HOSTILE;
-					else if (bWeak)
-						eResponse = DEMAND_RESPONSE_REFUSE_WEAK;
-					else
-						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-				}
-			}
-		}
-	}
-
-	// Possibility exists that the AI will accept
-	if(eResponse == NO_DEMAND_RESPONSE_TYPE)
-	{
-		int iValueDemanded = 0;
-
-		int iGPT = GetPlayer()->GetTreasury()->CalculateBaseNetGold();
-		int iTempGold = 0;
-		int iModdedGoldValue = 0;
-
-		// Loop through items in this deal
-		TradedItemList::iterator it;
-		for(it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
-		{
-			// Item from this AI
-			if(it->m_eFromPlayer == eMyPlayer)
-			{
-				switch(it->m_eItemType)
-				{
-					// Gold
-				case TRADE_ITEM_GOLD:
-				{
-					iTempGold = it->m_iData1;
-					if (iGPT > 0)
-						iModdedGoldValue = iTempGold * 5 / iGPT;
-					else
-						iModdedGoldValue = 0;
-
-					iValueDemanded += max(iTempGold, iModdedGoldValue);
-					break;
-				}
-
-				// GPT
-				case TRADE_ITEM_GOLD_PER_TURN:
-				{
-					iValueDemanded += (it->m_iData1 * it->m_iDuration * 50 / 100);
-					break;
-				}
-
-				// Resources
-				case TRADE_ITEM_RESOURCES:
-				{
-					ResourceTypes eResource = (ResourceTypes) it->m_iData1;
-					ResourceUsageTypes eUsage = GC.getResourceInfo(eResource)->getResourceUsage();
-
-					if(eUsage == RESOURCEUSAGE_LUXURY)
-						iValueDemanded += 100;
-					else if(eUsage == RESOURCEUSAGE_STRATEGIC)
-						iValueDemanded += (25 * it->m_iData2);
-
-					break;
-				}
-
-				// Embassy
-				case TRADE_ITEM_ALLOW_EMBASSY:
-				{
-					if (GetPlayer()->IsAITeammateOfHuman())
-					{
-						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
 					}
-					else
-					{
-						iValueDemanded += 10;
-					}
-					break;
-				}
-
-				// Open Borders
-				case TRADE_ITEM_OPEN_BORDERS:
-				{
-					if (GetPlayer()->IsAITeammateOfHuman())
-					{
-						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-					}
-					else
-					{
-						iValueDemanded += 25;
-					}
-					break;
-				}
-
-				// Other stuff
-				case TRADE_ITEM_TECHS:
-				case TRADE_ITEM_MAPS:
-				case TRADE_ITEM_THIRD_PARTY_PEACE:
-				case TRADE_ITEM_VASSALAGE_REVOKE:
-				{
-					if (GetPlayer()->IsAITeammateOfHuman())
-					{
-						eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-					}
-					else
-					{
-						iValueDemanded += 75;
-					}
-					break;
-				}
-				
-				// AI will never agree to give these up
-				case TRADE_ITEM_CITIES:
-				case TRADE_ITEM_DEFENSIVE_PACT:
-				case TRADE_ITEM_RESEARCH_AGREEMENT:
-				case TRADE_ITEM_THIRD_PARTY_WAR:
-				default:
-					eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-					break;
 				}
 			}
 		}
 
-		if (iValueDemanded == 0)
-			eResponse = DEMAND_RESPONSE_REFUSE_TOO_SOON;
-		// No illegal items in the demand
-		else if (eResponse == NO_DEMAND_RESPONSE_TYPE)
+		if (eResponse == NO_DEMAND_RESPONSE_TYPE)
 		{
-			if(iValueDemanded <= iValueWillingToGiveUp)
-				eResponse = DEMAND_RESPONSE_ACCEPT;
+			// They are weak: We will never give in
+			if (eMilitaryStrength <= STRENGTH_WEAK)
+				eResponse = DEMAND_RESPONSE_REFUSE_WEAK;
+			// They are very far away and have no units near us (from what we can tell): We will never give in
+			else if (eProximity <= PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
+				eResponse = DEMAND_RESPONSE_REFUSE_WEAK;
 			else
-				eResponse = DEMAND_RESPONSE_REFUSE_TOO_MUCH;
-		}
-	}
+			{
+				// calculate the value we're willing to give up
+				int iValueWillingToGiveUp = /* 200 */GD_INT_GET(DEMAND_LIMIT_MAX_VALUE);
+				// scaling with game progress
+				int iGameProgressFactor = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+				iValueWillingToGiveUp *= (100 + iGameProgressFactor * /* 20 */ GD_INT_GET(DEMAND_LIMIT_GAMEPROGRESS_SCALING));
+				iValueWillingToGiveUp /= 100;
 
-	// Have to send AI response through the network  - it affects AI behavior
-	if (pDiploAI->IsDoFAccepted(eFromPlayer))
-	{
-		GC.getGame().DoFromUIDiploEvent(FROM_UI_DIPLO_EVENT_HUMAN_REQUEST, eMyPlayer, /*iData1*/ eResponse, -1);
-	}
-	else
-	{
+				// if they're close, there's always some danger, even if we don't see any units
+				if (eProximity > PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
+					eMilitaryPosture = AGGRESSIVE_POSTURE_LOW;
+
+				// a fraction of the maximum value is given based on military strength, aggressive posture and boldness
+				iValueWillingToGiveUp *= (int)eMilitaryStrength * (int)eMilitaryPosture * (10 - pDiploAI->GetBoldness() + 1);
+				iValueWillingToGiveUp /= (((int)NUM_STRENGTH_VALUES - 1) * ((int)NUM_AGGRESSIVE_POSTURE_TYPES - 1) * 10);
+
+				// If we're their vassal or afraid of them, we give away more
+				TeamTypes eMasterTeam = GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).GetMaster();
+				if (eMasterTeam == GET_PLAYER(eFromPlayer).getTeam() || eApproach == CIV_APPROACH_AFRAID)
+				{
+					iValueWillingToGiveUp *= 150;
+					iValueWillingToGiveUp /= 100;
+				}
+
+				// compare the demanded value to the value we're willing to give up
+				eResponse = ((-pDeal->m_iFromPlayerValue) <= iValueWillingToGiveUp) ? DEMAND_RESPONSE_ACCEPT : DEMAND_RESPONSE_REFUSE_TOO_MUCH;
+			}
+		}
+		// Have to send AI response through the network  - it affects AI behavior
 		GC.getGame().DoFromUIDiploEvent(FROM_UI_DIPLO_EVENT_HUMAN_DEMAND, eMyPlayer, /*iData1*/ eResponse, -1);
 	}
 
@@ -5850,10 +5558,16 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 
-	int iIdealValue = 25 * (GetPlayer()->GetDiplomacyAI()->GetMeanness() + GetPlayer()->GetCurrentEra());
-	int Value = NUM_STRENGTH_VALUES - (int)GetPlayer()->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eOtherPlayer);
-	if (Value > 0)
-		iIdealValue *= Value;
+	int iIdealValue = /* 200 */ GD_INT_GET(DEMAND_LIMIT_MAX_VALUE);
+	// scaling with game progress
+	int iGameProgressFactor = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+	iIdealValue *= (100 + iGameProgressFactor * /* 20 */ GD_INT_GET(DEMAND_LIMIT_GAMEPROGRESS_SCALING));
+	iIdealValue /= 100;
+
+	// a fraction of the maximum value is demanded based on military strength and meanness
+	iIdealValue *= (NUM_STRENGTH_VALUES - 1 - (int)GetPlayer()->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(eOtherPlayer)) * GetPlayer()->GetDiplomacyAI()->GetMeanness();
+	iIdealValue /= (((int)NUM_STRENGTH_VALUES - 1)  * 10);
+
 
 	int iTotalValue = 0;
 

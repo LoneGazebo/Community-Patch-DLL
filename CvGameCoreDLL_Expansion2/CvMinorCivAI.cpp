@@ -10833,7 +10833,7 @@ int CvMinorCivAI::GetExperienceForUnitGiftQuest(PlayerTypes ePlayer, UnitTypes e
 	int iLoop = 0;
 	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
-		if (!pLoopCity->IsPuppet() && !pLoopCity->IsRazing())
+		if (!pLoopCity->IsPuppet() && !pLoopCity->IsRazing() && pLoopCity->canTrain(eUnitType))
 		{
 			iExperience = max(iExperience, pLoopCity->getProductionExperience(eUnitType));
 		}
