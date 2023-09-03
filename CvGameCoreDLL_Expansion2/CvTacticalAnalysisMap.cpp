@@ -561,12 +561,17 @@ bool CvTacticalAnalysisMap::IsUpToDate()
 	if (m_iLastUpdate == -1)
 		return false;
 
-	//otherwise consider it up to date if it's not our turn
-	if (m_ePlayer != GC.getGame().getActivePlayer())
-		return true;
+	if (GC.getGame().isNetworkMultiPlayer()) {
+		return (m_iLastUpdate == GC.getGame().getGameTurn());
+	}
+	else {
+		//otherwise consider it up to date if it's not our turn
+		if (m_ePlayer != GC.getGame().getActivePlayer())
+			return true;
 
-	//default check for age
-	return (m_iLastUpdate == GC.getGame().getGameTurn());
+		//default check for age
+		return (m_iLastUpdate == GC.getGame().getGameTurn());
+	}
 }
 
 void CvTacticalAnalysisMap::Invalidate()
