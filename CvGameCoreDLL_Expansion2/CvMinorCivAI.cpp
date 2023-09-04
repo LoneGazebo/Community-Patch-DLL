@@ -2266,6 +2266,9 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		pPlot->setRevealed(pAssignedPlayer->getTeam(), true);
 		pPlot->setRevealedImprovementType(pAssignedPlayer->getTeam(), pPlot->getImprovementType());
 
+		// revealed barbarian camps can affect trade route paths cache
+		GC.getGame().GetGameTrade()->InvalidateTradePathCache(pAssignedPlayer->GetID());
+
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_KILL_CAMP");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_KILL_CAMP");
 		iNotificationX = pPlot->getX();
@@ -2981,6 +2984,9 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 		pPlot->setRevealed(pAssignedPlayer->getTeam(), true);
 		pPlot->setRevealedImprovementType(pAssignedPlayer->getTeam(), pPlot->getImprovementType());
+
+		// revealed barbarian camps can affect trade route paths cache
+		GC.getGame().GetGameTrade()->InvalidateTradePathCache(pAssignedPlayer->GetID());
 
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_QUEST_KILL_CAMP");
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_QUEST_KILL_CAMP");

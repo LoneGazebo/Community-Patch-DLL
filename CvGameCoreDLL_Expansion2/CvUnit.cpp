@@ -14154,6 +14154,8 @@ bool CvUnit::build(BuildTypes eBuild)
 				}
 			}
 #endif
+			// invalidate trade paths because plot was changed and it can affect trade route length
+			GC.getGame().GetGameTrade()->InvalidateTradePathCache();
 #if defined(MOD_BALANCE_CORE)
 			if (eImprovement != NO_IMPROVEMENT)
 			{

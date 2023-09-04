@@ -161,6 +161,24 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	return false;
 }
 
+void CvGameTrade::InvalidateTradePathCache()
+{
+	for (uint uiPlayer1 = 0; uiPlayer1 < MAX_PLAYERS; uiPlayer1++)
+	{
+		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
+		InvalidateTradePathCache(ePlayer1);
+	}
+}
+
+void CvGameTrade::InvalidateTradePathTeamCache(TeamTypes eTeam)
+{
+	vector<PlayerTypes> vFromTeam = GET_TEAM(eTeam).getPlayers();
+	for (size_t j = 0; j < vFromTeam.size(); j++)
+	{
+		GC.getGame().GetGameTrade()->InvalidateTradePathCache(vFromTeam[j]);
+	}
+}
+
 void CvGameTrade::InvalidateTradePathCache(PlayerTypes ePlayer)
 {
 	m_lastTradePathUpdate[ePlayer] = -1;
@@ -169,7 +187,7 @@ void CvGameTrade::InvalidateTradePathCache(PlayerTypes ePlayer)
 void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 {
 	CvPlayer& kPlayer1 = GET_PLAYER(ePlayer1);
-	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian())
+	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian() || kPlayer1.isMinorCiv())
 		return;
 
 	//check if we have anything to do
@@ -5159,6 +5177,11 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 }
 void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange)
 {
+	// don't calculate trade routes for minors
+	if (m_pPlayer->isMinorCiv()) {
+		return;
+	}
+
 	int iLongestRoute = 0;
 	
 	CvString strMsg;

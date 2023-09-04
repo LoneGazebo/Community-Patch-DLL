@@ -11034,6 +11034,9 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 			{
 				GET_TEAM(eTeam).meet(getTeam(), false);	// If there's a City here, we can assume its owner is the same as the plot owner
 			}
+
+			GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(getTeam());
+			GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(eTeam);
 		}
 
 		if (eTeam == GC.getGame().getActiveTeam())

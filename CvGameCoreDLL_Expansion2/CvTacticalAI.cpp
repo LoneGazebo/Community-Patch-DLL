@@ -10533,9 +10533,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			result.empty() ? "failed" : "success",
 			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, GET_PLAYER(ePlayer).GetDangerPlotAge(), 
 			iUsedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );*/
-		strMsg.Format("tactsim %s, target %d:%d with %d units (agglvl %d). last dangerplots update at %d. tested %d, completed %d, open %d.", 
+		strMsg.Format("tactsim %s, target %d:%d with %d units (agglvl %d). tested %d, completed %d, open %d.", 
 			result.empty() ? "failed" : "success",
-			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, GET_PLAYER(ePlayer).GetDangerPlotAge(), 
+			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, 
 			iUsedPositions, completedPositions.size(), openPositionsHeap.size());
 		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
 
