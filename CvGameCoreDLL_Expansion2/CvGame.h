@@ -88,7 +88,7 @@ struct NODISCARD CvSeeder {
 		return newSeed;
 	}
 
-	inline operator uint()
+	inline operator uint() const
 	{
 		return value;
 	}
