@@ -310,6 +310,9 @@ public:
 	bool isForcePeace(TeamTypes eIndex) const;
 	void setForcePeace(TeamTypes eIndex, bool bNewValue);
 
+	bool IsWonLatestWar(TeamTypes eIndex) const;
+	void SetWonLatestWar(TeamTypes eIndex, bool bNewValue);
+
 	int getRouteChange(RouteTypes eIndex) const;
 	void changeRouteChange(RouteTypes eIndex, int iChange);
 
@@ -577,6 +580,7 @@ protected:
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abDefensivePact;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abResearchAgreement;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abForcePeace;
+	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abWonLatestWar;
 	Firaxis::Array< int, REALLY_MAX_PLAYERS > m_aiTurnTeamMet;
 
 	typedef

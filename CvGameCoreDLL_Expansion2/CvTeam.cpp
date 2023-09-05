@@ -233,6 +233,7 @@ void CvTeam::uninit()
 		m_abDefensivePact[i] = false;
 		m_abResearchAgreement[i] = false;
 		m_abForcePeace[i] = false;
+		m_abWonLatestWar[i] = false;
 		m_aiNumTurnsSinceVassalEnded[i] = -1;
 	}
 
@@ -1280,6 +1281,9 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	//is also catches the barbarians ...
 	if (isAtWar(eTeam) || GET_TEAM(eTeam).isAtWar(GetID()))
 		return;
+
+	SetWonLatestWar(eTeam, false);
+	GET_TEAM(eTeam).SetWonLatestWar(GetID(), false);
 
 #if defined(MOD_EVENTS_WAR_AND_PEACE)
 	if (MOD_EVENTS_WAR_AND_PEACE)
@@ -4963,6 +4967,24 @@ void CvTeam::setForcePeace(TeamTypes eIndex, bool bNewValue)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	m_abForcePeace[eIndex] = bNewValue;
+}
+
+
+//	--------------------------------------------------------------------------------
+bool CvTeam::IsWonLatestWar(TeamTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_abWonLatestWar[eIndex];
+}
+
+
+//	--------------------------------------------------------------------------------
+void CvTeam::SetWonLatestWar(TeamTypes eIndex, bool bNewValue)
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
+	m_abWonLatestWar[eIndex] = bNewValue;
 }
 
 
@@ -9083,6 +9105,7 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_abDefensivePact);
 	visitor(team.m_abResearchAgreement);
 	visitor(team.m_abForcePeace);
+	visitor(team.m_abWonLatestWar);
 
 	visitor(MakeConstSpan(team.m_abCanLaunch, GC.getNumVictoryInfos()));
 	visitor(MakeConstSpan(team.m_abVictoryAchieved, GC.getNumVictoryInfos()));

@@ -40183,7 +40183,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				else if(eResponse == DEMAND_RESPONSE_REFUSE_TOO_MUCH)
 					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_MUCH);
 
-				else if(eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON)
+				else if(eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON || eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON_SINCE_PEACE)
 					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_SOON);
 
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT, strText, LEADERHEAD_ANIM_NO);

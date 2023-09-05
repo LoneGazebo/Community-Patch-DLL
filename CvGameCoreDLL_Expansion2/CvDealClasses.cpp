@@ -4689,9 +4689,13 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			if (eTargetPlayer == NO_PLAYER)
 				break;
 
-			if (!bIsPeaceDeal && !bCityState && GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eTargetPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
+			if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eTargetPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 			{
-				GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
+				if (!bIsPeaceDeal && !bCityState)
+					GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
+
+				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
+					GET_TEAM(eGivingTeam).SetWonLatestWar(eTargetTeam, true);
 			}
 
 			// Make peace!
@@ -5242,10 +5246,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				if (GET_PLAYER(eReceivingPlayer).GetDiplomacyAI()->GetWarScore(eGivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 				{
 					GET_PLAYER(eReceivingPlayer).DoWarVictoryBonuses();
+					GET_TEAM(eReceivingTeam).SetWonLatestWar(eGivingTeam, true);
 				}
 				else if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eReceivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 				{
 					GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
+					GET_TEAM(eGivingTeam).SetWonLatestWar(eReceivingTeam, true);
 				}
 
 				bDoWarVictoryBonuses = false;
@@ -5253,7 +5259,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 			GET_TEAM(eGivingTeam).makePeace(eReceivingTeam, true, false, eGivingPlayer);
 			GET_TEAM(eGivingTeam).setForcePeace(eReceivingTeam, true);
-
 			break;
 		}
 		}

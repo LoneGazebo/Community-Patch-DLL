@@ -460,6 +460,8 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 {
 	PlayerTypes eFromPlayer = pDeal->GetOtherPlayer(GetPlayer()->GetID());
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
+	TeamTypes eFromTeam = GET_PLAYER(eFromPlayer).getTeam();
+	TeamTypes eMyTeam = GetPlayer()->getTeam();
 
 	CvDiplomacyAI* pDiploAI = GetPlayer()->GetDiplomacyAI();
 	CivApproachTypes eApproach = pDiploAI->GetCivApproach(eFromPlayer);
@@ -473,9 +475,17 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	// Too soon for another demand? Never give in.
 	if (pDiploAI->IsDemandTooSoon(eFromPlayer))
 		return DEMAND_RESPONSE_REFUSE_TOO_SOON;
-	// Are they not able to declare war on us? Never give in.
-	else if (!GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), eFromPlayer))
+	// Are they not able to declare war on us? Never give in...but our response will vary based on how the latest war went.
+	else if (!GET_TEAM(eFromTeam).canDeclareWar(eMyTeam, eFromPlayer))
+	{
+		if (GET_TEAM(eFromTeam).IsVassalOfSomeone())
+			return DEMAND_RESPONSE_REFUSE_WEAK;
+
+		if (GET_TEAM(eFromTeam).isForcePeace(eMyTeam) && GET_TEAM(eFromTeam).IsWonLatestWar(eMyTeam))
+			return DEMAND_RESPONSE_REFUSE_TOO_SOON_SINCE_PEACE;
+
 		return DEMAND_RESPONSE_REFUSE_WEAK;
+	}
 	// They are weak? Never give in.
 	else if (eMilitaryStrength <= STRENGTH_WEAK)
 		return DEMAND_RESPONSE_REFUSE_WEAK;
