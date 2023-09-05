@@ -1894,7 +1894,7 @@ public:
 	int getGoldenAgeYieldMod(YieldTypes eIndex)	const;
 	void changeGoldenAgeYieldMod(YieldTypes eIndex, int iChange);
 
-	std::vector<SPlayerActiveEspionageEvent> CvPlayer::GetActiveEspionageEventsList() const;
+	std::vector<SPlayerActiveEspionageEvent> GetActiveEspionageEventsList() const;
 
 	int GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const;
 	void ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange);

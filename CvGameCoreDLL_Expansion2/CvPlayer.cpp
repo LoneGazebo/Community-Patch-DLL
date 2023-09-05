@@ -48784,7 +48784,7 @@ void CvPlayer::UpdateEspionageYields(bool bIncoming)
 {
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
-		PlayerTypes eLoopYield = (PlayerTypes)iYieldLoop;
+		YieldTypes eLoopYield = static_cast<YieldTypes>(iYieldLoop);
 		int iYields = 0;
 		for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
 		{
