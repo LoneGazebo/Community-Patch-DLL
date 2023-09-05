@@ -851,7 +851,8 @@ function MovementRButtonUp()
 			end
 
 			-- Visible enemy... bombardment?
-			if plot:IsVisibleEnemyUnit(pHeadSelectedUnit:GetOwner()) or plot:IsEnemyCity(pHeadSelectedUnit) then
+			local bIsTargetEnemyCity = plot:IsEnemyCity(pHeadSelectedUnit);
+			if plot:IsVisibleEnemyUnit(pHeadSelectedUnit:GetOwner()) or bIsTargetEnemyCity then
 
 				local bNoncombatAllowed = false;
 
@@ -863,12 +864,16 @@ function MovementRButtonUp()
 				for aircraft in getOrderedAircraft(pHeadSelectedUnit:GetPlot(), pUnitClass, highHpThenHighLevelFirst) do
 					UI.SelectUnit(aircraft);
 
-					if aircraft:CanRangeStrikeAt(plotX, plotY, true, bNoncombatAllowed) then
-						-- The state accessed by CanRangeStrikeAt() doesn't seem to update until this function returns,
-						-- so issue two missions per aircraft in case they have logistics. Even though this issues
-						-- invalid missions the game doesn't carry them out so it works as intended from testing
-						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, false);
-						Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, false, false);
+					while aircraft:CanRangeStrikeAt(plotX, plotY, true, bNoncombatAllowed) do
+						-- If not doing any more damage to a city don't let the rest of the planes on this base keep hitting it
+						if bIsTargetEnemyCity then
+							local pCity = plot:GetPlotCity();
+							if 1 + pCity:GetDamage() >= pCity:GetMaxHitPoints() then
+								break;
+							end
+						end
+
+						aircraft:PushMission(MissionTypes.MISSION_MOVE_TO, plotX, plotY, 0, 0, 0);
 					end
 
 					UI.SetInterfaceMode(InterfaceModeTypes.INTERFACEMODE_SELECTION);
@@ -1005,6 +1010,18 @@ function MovementRButtonUp()
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_ADMIRAL_PORT, plotX, plotY, 0, false, bShift);
 				elseif canChangeTradeHomeCity(pHeadSelectedUnit, plot) then
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_CHANGE_TRADE_UNIT_HOME_CITY, plotX, plotY, 0, false, bShift);
+					
+					-- Close trade popups if they are open when this trade unit moved via this shortcut
+					local chooseTradeRoute = ContextPtr:LookUpControl( "/InGame/ChooseInternationalTradeRoute" );
+					if( chooseTradeRoute ~= nil ) then
+						UIManager:DequeuePopup(chooseTradeRoute);
+					end
+
+					local chooseTradeUnitHome = ContextPtr:LookUpControl( "/InGame/ChooseTradeRouteNewHome" );
+					if( chooseTradeUnitHome ~= nil ) then
+						UIManager:DequeuePopup(chooseTradeUnitHome);
+					end
+
 				elseif isAirliftFastestTravelToPlot(pHeadSelectedUnit, plot) then
 					Game.SelectionListGameNetMessage(GameMessageTypes.GAMEMESSAGE_PUSH_MISSION, MissionTypes.MISSION_AIRLIFT, plotX, plotY, 0, false, bShift);
 				else
