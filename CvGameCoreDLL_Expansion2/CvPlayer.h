@@ -2195,6 +2195,31 @@ public:
 
 #endif
 
+#if defined(MOD_NOT_FOR_SALE)
+	const std::vector<ResourceTypes>& GetResourcesNotForSale() const { return m_vResourcesNotForSale; }
+	bool IsResourceNotForSale(ResourceTypes eResource);
+	void SetResourceAvailable(ResourceTypes eResource);
+	void SetResourceNotForSale(ResourceTypes eResource);
+
+	bool IsRefuseOpenBordersTrade();
+	void SetRefuseOpenBordersTrade(bool refuseTrade);
+
+	bool IsRefuseEmbassyTrade();
+	void SetRefuseEmbassyTrade(bool refuseTrade);
+
+	bool IsRefuseDefensivePactTrade();
+	void SetRefuseDefensivePactTrade(bool refuseTrade);
+
+	bool IsRefuseBrokeredWarTrade();
+	void SetRefuseBrokeredWarTrade(bool refuseTrade);
+
+	bool IsRefuseBrokeredPeaceTrade();
+	void SetRefuseBrokeredPeaceTrade(bool refuseTrade);
+
+	bool IsRefuseResearchAgreementTrade();
+	void SetRefuseResearchAgreementTrade(bool refuseTrade);
+#endif
+
 	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
 	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
 	CvImprovementEntry* GetResourceImprovement(ResourceTypes eResource, bool bCivSpecific = false) const;
@@ -3636,6 +3661,16 @@ protected:
 	int m_iCombatDefenseBonusFromMonopolies;
 #endif
 
+#if defined(MOD_NOT_FOR_SALE)
+	std::vector<ResourceTypes> m_vResourcesNotForSale;
+	bool m_refuseOpenBordersTrade;
+	bool m_refuseEmbassyTrade;
+	bool m_refuseDefensivePactTrade;
+	bool m_refuseBrokeredWarTrade;
+	bool m_refuseBrokeredPeaceTrade;
+	bool m_refuseResearchAgreementTrade;
+#endif
+
 	std::vector<bool> m_pabGetsScienceFromPlayer;
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistExtraYield;
@@ -4411,6 +4446,13 @@ SYNC_ARCHIVE_VAR(int, m_iNumMilitaryLandUnits)
 SYNC_ARCHIVE_VAR(int, m_iMilitarySeaMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryAirMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryLandMight)
+SYNC_ARCHIVE_VAR(std::vector<ResourceTypes>, m_vResourcesNotForSale)
+SYNC_ARCHIVE_VAR(bool, m_refuseOpenBordersTrade)
+SYNC_ARCHIVE_VAR(bool, m_refuseEmbassyTrade)
+SYNC_ARCHIVE_VAR(bool, m_refuseDefensivePactTrade)
+SYNC_ARCHIVE_VAR(bool, m_refuseBrokeredWarTrade)
+SYNC_ARCHIVE_VAR(bool, m_refuseBrokeredPeaceTrade)
+SYNC_ARCHIVE_VAR(bool, m_refuseResearchAgreementTrade)
 SYNC_ARCHIVE_END()
 
 

@@ -561,6 +561,7 @@ int CustomMods::getOption(const string& sOption, int defValue) {
 		MOD_OPT_CACHE(LINKED_MOVEMENT);
 		MOD_OPT_CACHE(GP_ERA_SCALING);
 		MOD_OPT_CACHE(SQUADS);
+		MOD_OPT_CACHE(NOT_FOR_SALE);
 
 		m_bInit = true;
 	}

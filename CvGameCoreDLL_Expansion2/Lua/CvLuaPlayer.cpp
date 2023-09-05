@@ -1473,6 +1473,30 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMilitaryAirMight);
 	Method(GetMilitaryLandMight);
 #endif
+
+#if defined(MOD_NOT_FOR_SALE)
+	Method(IsResourceNotForSale);
+	Method(SetResourceAvailable);
+	Method(SetResourceNotForSale);
+
+	Method(IsRefuseOpenBordersTrade);
+	Method(SetRefuseOpenBordersTrade);
+
+	Method(IsRefuseEmbassyTrade);
+	Method(SetRefuseEmbassyTrade);
+
+	Method(IsRefuseDefensivePactTrade);
+	Method(SetRefuseDefensivePactTrade);
+
+	Method(IsRefuseBrokeredWarTrade);
+	Method(SetRefuseBrokeredWarTrade);
+
+	Method(IsRefuseBrokeredPeaceTrade);
+	Method(SetRefuseBrokeredPeaceTrade);
+
+	Method(IsRefuseResearchAgreementTrade);
+	Method(SetRefuseResearchAgreementTrade);
+#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -18081,5 +18105,141 @@ int CvLuaPlayer::lGetMilitaryAirMight(lua_State* L)
 int CvLuaPlayer::lGetMilitaryLandMight(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::GetMilitaryLandMight);
+}
+#endif
+
+#if defined(MOD_NOT_FOR_SALE)
+
+// bool CvPlayer::IsResourceNotForSale(ResourceTypes eResource)
+int CvLuaPlayer::lIsResourceNotForSale(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->IsResourceNotForSale(eResource);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+// void SetResourceAvailable(ResourceTypes eResource)
+int CvLuaPlayer::lSetResourceAvailable(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	pkPlayer->SetResourceAvailable(eResource);
+	return 1;
+}
+
+// void CvPlayer::SetResourceNotForSale(ResourceTypes eResource)
+int CvLuaPlayer::lSetResourceNotForSale(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	pkPlayer->SetResourceNotForSale(eResource);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseOpenBordersTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseOpenBordersTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseOpenBordersTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseOpenBordersTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseEmbassyTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseEmbassyTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseEmbassyTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseEmbassyTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseDefensivePactTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseDefensivePactTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseDefensivePactTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseDefensivePactTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseBrokeredWarTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseBrokeredWarTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseBrokeredWarTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseBrokeredWarTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseBrokeredPeaceTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseBrokeredPeaceTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseBrokeredPeaceTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseBrokeredPeaceTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseResearchAgreementTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseResearchAgreementTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseResearchAgreementTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseResearchAgreementTrade(bRefuse);
+	return 1;
 }
 #endif

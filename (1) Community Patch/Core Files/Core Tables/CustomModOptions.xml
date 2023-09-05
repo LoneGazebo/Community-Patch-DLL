@@ -441,6 +441,8 @@
    <Row Class="4" Name="GP_ERA_SCALING" Value="0"/>
    <!-- Enables support for squads modmod -->
    <Row Class="5" Name="SQUADS" Value="0"/>
+   <!-- Enables support for notforsale modmod -->
+   <Row Class="5" Name="NOT_FOR_SALE" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->

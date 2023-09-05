@@ -1504,6 +1504,29 @@ protected:
 	static int lGetMilitaryAirMight(lua_State* L);
 	static int lGetMilitaryLandMight(lua_State* L);
 #endif
+#if defined(MOD_NOT_FOR_SALE)
+	LUAAPIEXTN(IsResourceNotForSale, bool, eResource);
+	LUAAPIEXTN(SetResourceAvailable, void, eResource);
+	LUAAPIEXTN(SetResourceNotForSale, void, eResource);
+
+	LUAAPIEXTN(IsRefuseOpenBordersTrade, bool);
+	LUAAPIEXTN(SetRefuseOpenBordersTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseEmbassyTrade, bool);
+	LUAAPIEXTN(SetRefuseEmbassyTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseDefensivePactTrade, bool);
+	LUAAPIEXTN(SetRefuseDefensivePactTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseBrokeredWarTrade, bool);
+	LUAAPIEXTN(SetRefuseBrokeredWarTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseBrokeredPeaceTrade, bool);
+	LUAAPIEXTN(SetRefuseBrokeredPeaceTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseResearchAgreementTrade, bool);
+	LUAAPIEXTN(SetRefuseResearchAgreementTrade, void, bRefuse);
+#endif
 };
 
 namespace CvLuaArgs
