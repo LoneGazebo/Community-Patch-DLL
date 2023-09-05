@@ -1504,7 +1504,7 @@ protected:
 	static int lGetMilitaryAirMight(lua_State* L);
 	static int lGetMilitaryLandMight(lua_State* L);
 #endif
-#if defined(MOD_NOT_FOR_SALE)
+
 	LUAAPIEXTN(IsResourceNotForSale, bool, eResource);
 	LUAAPIEXTN(SetResourceAvailable, void, eResource);
 	LUAAPIEXTN(SetResourceNotForSale, void, eResource);
@@ -1526,7 +1526,6 @@ protected:
 
 	LUAAPIEXTN(IsRefuseResearchAgreementTrade, bool);
 	LUAAPIEXTN(SetRefuseResearchAgreementTrade, void, bRefuse);
-#endif
 };
 
 namespace CvLuaArgs

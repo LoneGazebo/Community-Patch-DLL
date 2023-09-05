@@ -101,6 +101,7 @@ void CvDiplomacyAI::Init(CvPlayer* pPlayer)
 	m_bWasHumanLastTurn = false;
 	m_bEndedFriendshipThisTurn = false;
 	m_bUpdatedWarProgressThisTurn = false;
+	m_iNumReevaluations = 0;
 	m_bWaitingForDigChoice = false;
 	m_bBackstabber = false;
 	m_bCompetingForVictory = false;
@@ -438,6 +439,7 @@ void CvDiplomacyAI::Serialize(DiplomacyAI& diplomacyAI, Visitor& visitor)
 	visitor(diplomacyAI.m_bWasHumanLastTurn);
 	visitor(diplomacyAI.m_bEndedFriendshipThisTurn);
 	visitor(diplomacyAI.m_bUpdatedWarProgressThisTurn);
+	visitor(diplomacyAI.m_iNumReevaluations);
 	visitor(diplomacyAI.m_bWaitingForDigChoice);
 	visitor(diplomacyAI.m_bBackstabber);
 	visitor(diplomacyAI.m_bCompetingForVictory);
@@ -1881,17 +1883,13 @@ bool CvDiplomacyAI::IsNuclearGandhi(bool bPotentially) const
 // ************************************
 
 /// Returns a personality weight with a small random element
-int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, CvSeeder& seed)
+int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, CvSeeder seed)
 {
-	int ID = (int) GetID();
-	int iPlusMinus = min(max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0), (INT_MAX - 1) / 2);
+	int iPlusMinus = range(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0, (INT_MAX - 1) / 2);
 
 	// Diplo AI Option: Disable this randomization!
 	if (iPlusMinus == 0 || GD_INT_GET(DIPLOAI_NO_FLAVOR_RANDOMIZATION) > 0)
 		return range(iOriginalValue, 1, 10);
-
-	// Increment the random seed
-	seed.mixAssign(iOriginalValue).mixAssign(ID);
 
 	// Randomize!
 	int iAdjust = GC.getGame().randRangeExclusive(0, (iPlusMinus * 2 + 1), seed);
@@ -1916,37 +1914,35 @@ void CvDiplomacyAI::DoInitializePersonality(bool bFirstInit)
 			CvLeaderHeadInfo* pkLeaderHeadInfo = GC.getLeaderHeadInfo(leader);
 			if (pkLeaderHeadInfo)
 			{
-				CvSeeder seed(ID);
-
 				// Some flavors can be set to -12 to guarantee that the AI will pursue a specific victory condition, if it is enabled.
 				// These should be treated as a 10 for all other purposes.
-				m_iBoldness = pkLeaderHeadInfo->GetBoldness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetBoldness(), seed);
-				m_iMinorCivCompetitiveness = pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), seed);
-				m_iWonderCompetitiveness = pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWonderCompetitiveness(), seed);
-				m_iWarmongerHate = pkLeaderHeadInfo->GetWarmongerHate() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarmongerHate(), seed);
+				m_iBoldness = pkLeaderHeadInfo->GetBoldness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetBoldness(), CvSeeder::fromRaw(0x0ba129a6).mix(ID));
+				m_iMinorCivCompetitiveness = pkLeaderHeadInfo->GetMinorCivCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMinorCivCompetitiveness(), CvSeeder::fromRaw(0x4f28f23d).mix(ID));
+				m_iWonderCompetitiveness = pkLeaderHeadInfo->GetWonderCompetitiveness() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWonderCompetitiveness(), CvSeeder::fromRaw(0x69d26397).mix(ID));
+				m_iWarmongerHate = pkLeaderHeadInfo->GetWarmongerHate() == -12 ? 10 : GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarmongerHate(), CvSeeder::fromRaw(0x8e1f1b1f).mix(ID));
 
-				m_iVictoryCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetVictoryCompetitiveness(), seed);
-				m_iDiploBalance = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDiploBalance(), seed);
-				m_iDoFWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDoFWillingness(), seed);
-				m_iDenounceWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDenounceWillingness(), seed);
-				m_iLoyalty = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetLoyalty(), seed);
-				m_iForgiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetForgiveness(), seed);
-				m_iNeediness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeediness(), seed);
-				m_iMeanness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMeanness(), seed);
-				m_iChattiness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetChattiness(), seed);
+				m_iVictoryCompetitiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetVictoryCompetitiveness(), CvSeeder::fromRaw(0x5bea8e77).mix(ID));
+				m_iDiploBalance = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDiploBalance(), CvSeeder::fromRaw(0x2f543039).mix(ID));
+				m_iDoFWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDoFWillingness(), CvSeeder::fromRaw(0x2a36ee5b).mix(ID));
+				m_iDenounceWillingness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDenounceWillingness(), CvSeeder::fromRaw(0x84da8912).mix(ID));
+				m_iLoyalty = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetLoyalty(), CvSeeder::fromRaw(0x52c2cdd2).mix(ID));
+				m_iForgiveness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetForgiveness(), CvSeeder::fromRaw(0x81d9b8ec).mix(ID));
+				m_iNeediness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeediness(), CvSeeder::fromRaw(0xc0dd3363).mix(ID));
+				m_iMeanness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetMeanness(), CvSeeder::fromRaw(0x24ca13c9).mix(ID));
+				m_iChattiness = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetChattiness(), CvSeeder::fromRaw(0x5227bf3a).mix(ID));
 
-				m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(false), seed);
-				m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(false), seed);
-				m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDeceptiveBias(), seed);
-				m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetGuardedBias(), seed);
-				m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetAfraidBias(), seed);
-				m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(false), seed);
-				m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(false), seed);
+				m_aiMajorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(false), CvSeeder::fromRaw(0xe48d2e04).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(false), CvSeeder::fromRaw(0x49b046ba).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_DECEPTIVE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetDeceptiveBias(), CvSeeder::fromRaw(0xa9bc4713).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_GUARDED] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetGuardedBias(), CvSeeder::fromRaw(0xab8795d6).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_AFRAID] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetAfraidBias(), CvSeeder::fromRaw(0x9a90c196).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(false), CvSeeder::fromRaw(0xf7729147).mix(ID));
+				m_aiMajorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(false), CvSeeder::fromRaw(0x7fecee06).mix(ID));
 
-				m_aiMinorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(true), seed);
-				m_aiMinorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(true), seed);
-				m_aiMinorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(true), seed);
-				m_aiMinorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(true), seed);
+				m_aiMinorCivApproachBiases[CIV_APPROACH_WAR] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetWarBias(true), CvSeeder::fromRaw(0x0be73829).mix(ID));
+				m_aiMinorCivApproachBiases[CIV_APPROACH_HOSTILE] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetHostileBias(true), CvSeeder::fromRaw(0xc44465ee).mix(ID));
+				m_aiMinorCivApproachBiases[CIV_APPROACH_NEUTRAL] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetNeutralBias(true), CvSeeder::fromRaw(0x4087c177).mix(ID));
+				m_aiMinorCivApproachBiases[CIV_APPROACH_FRIENDLY] = GetRandomPersonalityWeight(pkLeaderHeadInfo->GetFriendlyBias(true), CvSeeder::fromRaw(0x4565d312).mix(ID));
 
 				// Minimal loyalty? We're willing to backstab.
 				if (GetLoyalty() <= 2)
@@ -2404,7 +2400,6 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	// ...and some randomness
 	const PlayerTypes ID = GetID(); // Used to randomize values between different AIs
 	const uint uRandom = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 20 : 10; // Max. random weight added to each victory condition
-	CvSeeder seed = CvSeeder(ID).mix(GetBoldness()).mix(GetMeanness()).mix(GetMajorCivApproachBias(CIV_APPROACH_WAR)); // Random seed to ensure the fake RNG doesn't return the same value repeatedly
 
 	// Base likelihood depends on the difference between this civ's major approach biases
 	VictoryScores[VICTORY_PURSUIT_DOMINATION] = max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)) - max(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY), GetMajorCivApproachBias(CIV_APPROACH_AFRAID));
@@ -2419,12 +2414,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetMeanness();
 		VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 2;
 		VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) / 2;
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += static_cast<int>(GC.getGame().urandLimitExclusive(uRandom, seed));
-		seed
-			.mixAssign(VictoryScores[VICTORY_PURSUIT_DOMINATION])
-			.mixAssign(GetDiploBalance())
-			.mixAssign(GetMinorCivCompetitiveness())
-			.mixAssign(GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE));
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x905ce137).mix(ID)));
 	}
 	else
 	{
@@ -2438,12 +2428,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetMinorCivCompetitiveness();
 		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) / 2;
 		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD")) / 2;
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += static_cast<int>(GC.getGame().urandLimitExclusive(uRandom, seed));
-		seed
-			.mixAssign(VictoryScores[VICTORY_PURSUIT_DIPLOMACY])
-			.mixAssign(GetLoyalty())
-			.mixAssign(GetWarmongerHate())
-			.mixAssign(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY));
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xea5ade8b).mix(ID)));
 	}
 	else
 	{
@@ -2457,12 +2442,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		VictoryScores[VICTORY_PURSUIT_CULTURE] += GetWonderCompetitiveness();
 		VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER")) / 2;
 		VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += static_cast<int>(GC.getGame().urandLimitExclusive(uRandom, seed));
-		seed
-			.mixAssign(VictoryScores[VICTORY_PURSUIT_CULTURE])
-			.mixAssign(GetForgiveness())
-			.mixAssign(GetChattiness())
-			.mixAssign(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL));
+		VictoryScores[VICTORY_PURSUIT_CULTURE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xbccbe5fc).mix(ID)));
 	}
 	else
 	{
@@ -2476,7 +2456,7 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 		VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetWarmongerHate();
 		VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
 		VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += static_cast<int>(GC.getGame().urandLimitExclusive(uRandom, seed));
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x26353d52).mix(ID)));
 	}
 	else
 	{
@@ -8747,6 +8727,22 @@ bool CvDiplomacyAI::UpdatedWarProgressThisTurn() const
 void CvDiplomacyAI::SetUpdatedWarProgressThisTurn(bool bValue)
 {
 	m_bUpdatedWarProgressThisTurn = bValue;
+}
+
+/// How many times have we reevaluated our approach towards any player since the last game turn? Only used for RNG.
+int CvDiplomacyAI::GetNumReevaluations() const
+{
+	return m_iNumReevaluations;
+}
+
+void CvDiplomacyAI::SetNumReevaluations(int iValue)
+{
+	m_iNumReevaluations = max(iValue, 0);
+}
+
+void CvDiplomacyAI::ChangeNumReevaluations(int iChange)
+{
+	SetNumReevaluations(m_iNumReevaluations + iChange);
 }
 
 bool CvDiplomacyAI::IsWaitingForDigChoice() const
@@ -16185,13 +16181,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// EXCHANGE DESIRES
 	////////////////////////////////////
 
-	bool bFirstPass = bStrategic && !bReevaluation;
-
 	// Deliberately ignore first pass check here to make it more likely that the AI will maintain long-term relationships...
 	if (IsWantsDoFWithPlayer(ePlayer))
 	{
 		// However don't add this weight if we were being deceptive
-		if ((bFirstPass && eOldApproach > CIV_APPROACH_DECEPTIVE) || (!bFirstPass && GetCivStrategicApproach(ePlayer) > CIV_APPROACH_DECEPTIVE))
+		if ((bStrategic && eOldApproach > CIV_APPROACH_DECEPTIVE) || (!bStrategic && GetCivStrategicApproach(ePlayer) > CIV_APPROACH_DECEPTIVE))
 		{
 			vApproachScores[CIV_APPROACH_FRIENDLY] += (GetMostValuableFriend() == ePlayer || GetMostValuableAlly() == ePlayer) ? vApproachBias[CIV_APPROACH_FRIENDLY] * 5 : vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 			vApproachScores[CIV_APPROACH_WAR] = 0;
@@ -16769,7 +16763,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 			else
 			{
-				bWantsOpportunityAttack = (IsGoingForWorldConquest() && iMyEra >= 2) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer);
+				bWantsOpportunityAttack = (IsGoingForWorldConquest() && iMyEra >= 2) || bEverCapturedKeyCity || bVictoryConcern || GetWarmongerThreat(ePlayer) >= THREAT_SEVERE || bCloseToWorldConquest || bTheyAreCloseToWorldConquest || IsMajorCompetitor(ePlayer) || GC.getGame().IsAIAggressiveMode();
 
 				// If they're nearby, more reasons are valid to want to attack them!
 				if (eOurProximity >= PLAYER_PROXIMITY_CLOSE)
@@ -16796,7 +16790,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			continue;
 
 		// Has this guy denounced the other player?
-		if (!bFirstPass && pTheirDiplo->IsDenouncedPlayer(eLoopPlayer))
+		if (!bStrategic && pTheirDiplo->IsDenouncedPlayer(eLoopPlayer))
 		{
 			// Is this loop player our biggest competitor? We should like this guy!
 			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
@@ -16819,7 +16813,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			}
 		}
 		// Is this guy at war with the other player?
-		if (!bFirstPass && GET_TEAM(eLoopTeam).isAtWar(eTeam))
+		if (!bStrategic && GET_TEAM(eLoopTeam).isAtWar(eTeam))
 		{
 			// Is this loop player our biggest competitor? We should like this guy!
 			if (GetBiggestCompetitor() == eLoopPlayer || GetPrimeLeagueCompetitor() == eLoopPlayer)
@@ -16843,7 +16837,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 	}
 
-	if (!bFirstPass) // Don't update this on the first pass - we need the updated values, which are updated after the first pass of DoUpdateMajorCivApproaches()
+	if (!bStrategic) // Don't update this on the first pass - we need the updated values, which are updated after the first pass of DoUpdateMajorCivApproaches()
 	{
 		if (GetBiggestCompetitor() == ePlayer)
 		{
@@ -19149,7 +19143,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 						vApproachScores[CIV_APPROACH_GUARDED] -= vApproachBias[CIV_APPROACH_GUARDED] * 2;
 					}
 					// On the flipside, is this guy suffering from being at war with this player?
-					else if (!bFirstPass && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer))
+					else if (!bStrategic && !IsEndgameAggressiveTo(ePlayer) && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) >= 20 && GET_PLAYER(eLoopPlayer).GetWarDamageValue(ePlayer) > GET_PLAYER(ePlayer).GetWarDamageValue(eLoopPlayer))
 					{
 						// Do we like them? Then we should defend our ally, if we can!
 						if ((IsFriendOrAlly(eLoopPlayer) || GetMostValuableFriend() == eLoopPlayer || GetMostValuableAlly() == eLoopPlayer || IsLiberator(eLoopPlayer, false, false) || IsMaster(eLoopPlayer) || (IsVassal(eLoopPlayer) && GetVassalTreatmentLevel(eLoopPlayer) <= VASSAL_TREATMENT_DISAGREE)) && !IsUntrustworthy(eLoopPlayer) && GetCivApproach(eLoopPlayer) > CIV_APPROACH_GUARDED)
@@ -20647,7 +20641,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	// Prioritize our approaches to avoid adopting the same approach towards too many players and allow more variance/strategy
 	// Only do this on the second pass of the function, as we've already recorded the most recent values for this turn
-	if (!bFirstPass && vValidPlayers.size() > 1)
+	if (!bStrategic && vValidPlayers.size() > 1)
 	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 		{
@@ -20704,10 +20698,11 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 					case CIV_APPROACH_FRIENDLY:
 						iFlavorMod = iFriendlyMod - 10;
 						break;
-					case NO_CIV_APPROACH:
 					case CIV_APPROACH_NEUTRAL:
 						iFlavorMod = iNeutralMod - 10;
 						break;
+					default:
+						UNREACHABLE();
 					}
 
 					iFlavorMod *= 10;
@@ -21109,53 +21104,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		vApproachScores[CIV_APPROACH_HOSTILE] *= 2;
 	}
 
-	////////////////////////////////////
-	// RANDOMNESS - Adjust each approach score by +/- n%
-	////////////////////////////////////
-
-	int iRandom = /*5*/ range(GD_INT_GET(APPROACH_RANDOM_PERCENT), 0, 100);
-	if (iRandom != 0)
-	{
-		if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
-			iRandom = range((iRandom*2), 0, 100);
-
-		int iNumber = (iRandom * 2) + 1;
-		CvSeeder seed = CvSeeder(iWarMod).mix(GetID()).mix(iGameTurn);
-		int iChange = GC.getGame().randRangeExclusive(0, iNumber, seed) - iRandom;
-		vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + iChange;
-		vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
-
-		seed.mixAssign(iFriendlyMod);
-		iChange = GC.getGame().randRangeExclusive(0, iNumber, seed) - iRandom;
-		vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + iChange;
-		vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
-
-		seed.mixAssign(iDeceptiveMod);
-		iChange = GC.getGame().randRangeExclusive(0, iNumber, seed) - iRandom;
-		vApproachScores[CIV_APPROACH_AFRAID] *= 100 + iChange;
-		vApproachScores[CIV_APPROACH_AFRAID] /= 100;
-
-		seed.mixAssign(iGuardedMod);
-		iChange = GC.getGame().randRangeExclusive(0, iNumber, seed) - iRandom;
-		vApproachScores[CIV_APPROACH_GUARDED] *= 100 + iChange;
-		vApproachScores[CIV_APPROACH_GUARDED] /= 100;
-
-		seed.mixAssign(iAfraidMod);
-		iChange = GC.getGame().randRangeExclusive(0, iNumber, seed) - iRandom;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + iChange;
-		vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
-
-		seed.mixAssign(iNeutralMod);
-		iChange = GC.getGame().randRangeExclusive(0, iNumber, seed) - iRandom;
-		vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + iChange;
-		vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
-
-		seed.value = ~seed.value;
-		iChange = GC.getGame().randRangeExclusive(0, iNumber, seed) - iRandom;
-		vApproachScores[CIV_APPROACH_WAR] *= 100 + iChange;
-		vApproachScores[CIV_APPROACH_WAR] /= 100;
-	}
-
 	//--------------------------------//
 	// [PART 11: MODDER WEIGHT - %]	  //
 	//--------------------------------//
@@ -21234,6 +21182,88 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 		vApproachScores[CIV_APPROACH_WAR] *= max(0, 100 + GC.getGame().getHandicapInfo().getAIWarApproachChangePercent());
 		vApproachScores[CIV_APPROACH_WAR] /= 100;
+	}
+
+	////////////////////////////////////
+	// RANDOMNESS - Adjust each approach score by +/- n%
+	// Only do this for the non-strategic update to avoid erratic changes in desired friends/enemies.
+	////////////////////////////////////
+
+	if (!bStrategic)
+	{
+		int iRandomFactor = /*5*/ range(GD_INT_GET(APPROACH_RANDOM_PERCENT), 0, 100);
+		if (iRandomFactor != 0)
+		{
+			if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
+				iRandomFactor = min(iRandomFactor*2, 100);
+
+			uint LBound = static_cast<uint>(iRandomFactor);
+			uint UBound = (LBound * 2) + 1;
+			uint MyID = static_cast<uint>(eMyPlayer);
+			uint TheirID = static_cast<uint>(ePlayer);
+
+			if (bReevaluation)
+			{
+				uint NumReevaluations = static_cast<uint>(GetNumReevaluations());
+				uint random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xb09432c8).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
+				vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x576eeb77).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
+				vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x7a7a0b0a).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
+				vApproachScores[CIV_APPROACH_AFRAID] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_AFRAID] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xbe08eb5a).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
+				vApproachScores[CIV_APPROACH_GUARDED] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_GUARDED] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x0b148c8b).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
+				vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xa6c53d5a).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
+				vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x3dceb668).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
+				vApproachScores[CIV_APPROACH_WAR] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_WAR] /= 100;
+			}
+			else
+			{
+				uint random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xdaeb36d6).mix(MyID).mix(TheirID)) - LBound;
+				vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x30271783).mix(MyID).mix(TheirID)) - LBound;
+				vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x01aace4a).mix(MyID).mix(TheirID)) - LBound;
+				vApproachScores[CIV_APPROACH_AFRAID] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_AFRAID] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xbee17684).mix(MyID).mix(TheirID)) - LBound;
+				vApproachScores[CIV_APPROACH_GUARDED] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_GUARDED] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x13c7e7c3).mix(MyID).mix(TheirID)) - LBound;
+				vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x8f2681a5).mix(MyID).mix(TheirID)) - LBound;
+				vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
+
+				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x320744a1).mix(MyID).mix(TheirID)) - LBound;
+				vApproachScores[CIV_APPROACH_WAR] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_WAR] /= 100;
+			}
+		}
 	}
 
 	// ÷100 all approaches now.
@@ -21466,7 +21496,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// If this was a strategic update, update the strategic approach values
-	if (bFirstPass)
+	if (bStrategic)
 	{
 		for (int iApproachLoop = 0; iApproachLoop < NUM_CIV_APPROACHES; iApproachLoop++)
 		{	
@@ -21485,7 +21515,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		LogApproachValueDeltas(ePlayer, &vApproachScores[0], &vApproachScoresScratch[0]);
 	}
 
-	return;
+	if (bReevaluation)
+		ChangeNumReevaluations(1);
 }
 
 /// Who are our major competitors?
@@ -30865,7 +30896,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						if (GetBiggestCompetitor() == ePlayer)
 							iBluffChance /= 2;
 
-						if (GC.getGame().randRangeInclusive(1, 100, GET_PLAYER(ePlayer).GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian()).mix(409229897)) > iBluffChance)
+						if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x40f558f0).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID())) > iBluffChance)
 							bCanBluff = false;
 					}
 					// Not bluffing - declare war!
@@ -35445,7 +35476,7 @@ void CvDiplomacyAI::DoWarmongerStatement(PlayerTypes ePlayer, DiploStatementType
 				bSendStatement = false;
 
 			// 2 in 3 chance we don't actually send the message (don't want to bombard the player from all sides)
-			if (4 < GC.getGame().randRangeExclusive(0, 10, m_pPlayer->GetPseudoRandomSeed().mix(ePlayer).mix(GC.getGame().GetCultureMedian())))
+			if (4 < GC.getGame().randRangeExclusive(0, 10, m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetID()).mix(GC.getGame().GetCultureMedian())))
 				bSendStatement = false;
 
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_WARMONGER;
@@ -39019,7 +39050,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				if (GetBiggestCompetitor() == eFromPlayer)
 					iBluffChance /= 2;
 
-				if (GC.getGame().randRangeInclusive(1, 100, GET_PLAYER(eFromPlayer).GetPseudoRandomSeed().mix(GC.getGame().GetCultureMedian()).mix(409229897)) > iBluffChance)
+				if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x240baa80).mix(GetID()).mix(GET_PLAYER(eFromPlayer).GetID())) > iBluffChance)
 					bCanBluff = false;
 			}
 			// Not bluffing - declare war!
@@ -43147,7 +43178,7 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 
 		// See how long it'll be before we might agree to another demand
 		int iNumTurns = /*20*/ GD_INT_GET(DEMAND_TURN_LIMIT_MIN);
-		iNumTurns += GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND), CvSeeder(GetID()));
+		iNumTurns += GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND), CvSeeder::fromRaw(0x0af32abc).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 		SetDemandTooSoonNumTurns(ePlayer, iNumTurns);
 
 		if (IsVassal(ePlayer))
@@ -57802,7 +57833,7 @@ void CvDiplomacyAI::DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes e
 
 		// Decide how long it'll be before we might agree to another help request
 		int iNumTurns = /*20*/ GD_INT_GET(HELP_REQUEST_TURN_LIMIT_MIN);
-		iNumTurns += GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(HELP_REQUEST_TURN_LIMIT_RAND), CvSeeder(GetID()));
+		iNumTurns += GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(HELP_REQUEST_TURN_LIMIT_RAND), CvSeeder::fromRaw(0xd1c5ae34).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 		SetHelpRequestTooSoonNumTurns(ePlayer, iNumTurns);
 	}
 }

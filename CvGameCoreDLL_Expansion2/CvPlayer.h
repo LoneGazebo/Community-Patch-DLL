@@ -2195,7 +2195,6 @@ public:
 
 #endif
 
-#if defined(MOD_NOT_FOR_SALE)
 	const std::vector<ResourceTypes>& GetResourcesNotForSale() const { return m_vResourcesNotForSale; }
 	bool IsResourceNotForSale(ResourceTypes eResource);
 	void SetResourceAvailable(ResourceTypes eResource);
@@ -2218,7 +2217,6 @@ public:
 
 	bool IsRefuseResearchAgreementTrade();
 	void SetRefuseResearchAgreementTrade(bool refuseTrade);
-#endif
 
 	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
 	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
@@ -3661,7 +3659,6 @@ protected:
 	int m_iCombatDefenseBonusFromMonopolies;
 #endif
 
-#if defined(MOD_NOT_FOR_SALE)
 	std::vector<ResourceTypes> m_vResourcesNotForSale;
 	bool m_refuseOpenBordersTrade;
 	bool m_refuseEmbassyTrade;
@@ -3669,7 +3666,6 @@ protected:
 	bool m_refuseBrokeredWarTrade;
 	bool m_refuseBrokeredPeaceTrade;
 	bool m_refuseResearchAgreementTrade;
-#endif
 
 	std::vector<bool> m_pabGetsScienceFromPlayer;
 

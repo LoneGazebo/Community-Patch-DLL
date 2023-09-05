@@ -1474,7 +1474,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMilitaryLandMight);
 #endif
 
-#if defined(MOD_NOT_FOR_SALE)
 	Method(IsResourceNotForSale);
 	Method(SetResourceAvailable);
 	Method(SetResourceNotForSale);
@@ -1496,7 +1495,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsRefuseResearchAgreementTrade);
 	Method(SetRefuseResearchAgreementTrade);
-#endif
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -18108,8 +18106,6 @@ int CvLuaPlayer::lGetMilitaryLandMight(lua_State* L)
 }
 #endif
 
-#if defined(MOD_NOT_FOR_SALE)
-
 // bool CvPlayer::IsResourceNotForSale(ResourceTypes eResource)
 int CvLuaPlayer::lIsResourceNotForSale(lua_State* L)
 {
@@ -18242,4 +18238,3 @@ int CvLuaPlayer::lSetRefuseResearchAgreementTrade(lua_State* L)
 	pkPlayer->SetRefuseResearchAgreementTrade(bRefuse);
 	return 1;
 }
-#endif

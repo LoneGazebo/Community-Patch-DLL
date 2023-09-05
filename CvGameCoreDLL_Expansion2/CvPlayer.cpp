@@ -773,14 +773,12 @@ CvPlayer::CvPlayer() :
 	, m_iMilitaryAirMight()
 	, m_iMilitaryLandMight()
 #endif
-#if defined(MOD_NOT_FOR_SALE)
 	, m_refuseOpenBordersTrade(false)
 	, m_refuseEmbassyTrade(false)
 	, m_refuseDefensivePactTrade(false)
 	, m_refuseBrokeredWarTrade(false)
 	, m_refuseBrokeredPeaceTrade(false)
 	, m_refuseResearchAgreementTrade(false)
-#endif
 {
 	m_pPlayerPolicies = FNEW(CvPlayerPolicies, c_eCiv5GameplayDLL, 0);
 	m_pEconomicAI = FNEW(CvEconomicAI, c_eCiv5GameplayDLL, 0);
@@ -13942,9 +13940,8 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			}
 		}
 
-		if (iNumPlotsRevealed > 0) {
+		if (iNumPlotsRevealed > 0)
 			GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(getTeam());
-		}
 
 		if (pUnit != NULL && pUnit->IsGainsXPFromScouting())
 		{

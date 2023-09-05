@@ -112,7 +112,7 @@ public:
 	// Personality Values
 	// ************************************
 
-	int GetRandomPersonalityWeight(int iOriginalValue, CvSeeder& seed);
+	int GetRandomPersonalityWeight(int iOriginalValue, CvSeeder seed);
 	void DoInitializePersonality(bool bFirstInit);
 	void SelectDefaultVictoryPursuits();
 
@@ -945,6 +945,10 @@ public:
 
 	bool UpdatedWarProgressThisTurn() const;
 	void SetUpdatedWarProgressThisTurn(bool bValue);
+
+	int GetNumReevaluations() const;
+	void SetNumReevaluations(int iValue);
+	void ChangeNumReevaluations(int iChange);
 
 	bool IsWaitingForDigChoice() const;
 	void SetWaitingForDigChoice(bool bValue);
@@ -1894,6 +1898,7 @@ private:
 	bool m_bWasHumanLastTurn;
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bUpdatedWarProgressThisTurn;
+	int m_iNumReevaluations; // Used for RNG
 	bool m_bWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;

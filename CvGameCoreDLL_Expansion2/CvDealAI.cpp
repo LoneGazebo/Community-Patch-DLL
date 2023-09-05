@@ -473,6 +473,9 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	// Too soon for another demand? Never give in.
 	if (pDiploAI->IsDemandTooSoon(eFromPlayer))
 		return DEMAND_RESPONSE_REFUSE_TOO_SOON;
+	// Are they not able to declare war on us? Never give in.
+	else if (!GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), eFromPlayer))
+		return DEMAND_RESPONSE_REFUSE_WEAK;
 	// They are weak? Never give in.
 	else if (eMilitaryStrength <= STRENGTH_WEAK)
 		return DEMAND_RESPONSE_REFUSE_WEAK;
@@ -487,9 +490,6 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 
 		return DEMAND_RESPONSE_REFUSE_HOSTILE;
 	}
-	// Are they not able to declare war on us? Never give in.
-	else if (!GET_TEAM(GET_PLAYER(eFromPlayer).getTeam()).canDeclareWar(GetPlayer()->getTeam(), eFromPlayer))
-		return DEMAND_RESPONSE_REFUSE_HOSTILE;
 	// 10 Boldness, or Unforgivable opinion? Never give in.
 	// Hostility check is run after the weakness check, because the AI doesn't benefit from prematurely disclosing that they wouldn't be willing to accept regardless.
 	else if (pDiploAI->GetBoldness() == 10 || pDiploAI->GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE)

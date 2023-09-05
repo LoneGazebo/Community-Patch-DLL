@@ -565,34 +565,34 @@ public:
 	/// Understand that the number returned by this function is pseudo-random, but consistent given the inputs.
 	uint randCore(CvSeeder extraSeed) const;
 
-	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an exclusive range of `0` and `limit`.
+	/// Generates a pseudo-random unsigned integer using `randCore` and bounds it within an exclusive range of `0` and `limit`.
 	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `limit != 0`.
 	uint urandLimitExclusive(uint limit, CvSeeder extraSeed) const;
 
-	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an inclusive range of `0` and `limit`.
+	/// Generates a pseudo-random unsigned integer using `randCore` and bounds it within an inclusive range of `0` and `limit`.
 	uint urandLimitInclusive(uint limit, CvSeeder extraSeed) const;
 
-	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
+	/// Generates a pseudo-random unsigned integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
 	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min < max`.
 	uint urandRangeExclusive(uint min, uint max, CvSeeder extraSeed) const;
 
-	/// Generates a psuedo-random unsigned integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
+	/// Generates a pseudo-random unsigned integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
 	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min <= max`.
 	uint urandRangeInclusive(uint min, uint max, CvSeeder extraSeed) const;
 
-	/// Generates a psuedo-random signed integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
+	/// Generates a pseudo-random signed integer using `randCore` and bounds it within an exclusive range of `min` and `max`.
 	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min < max`.
 	int randRangeExclusive(int min, int max, CvSeeder extraSeed) const;
 
-	/// Generates a psuedo-random signed integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
+	/// Generates a pseudo-random signed integer using `randCore` and bounds it within an inclusive range of `min` and `max`.
 	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min <= max`.
