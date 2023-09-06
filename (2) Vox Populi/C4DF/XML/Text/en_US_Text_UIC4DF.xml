@@ -2,9 +2,6 @@
 <!-- Created by ModBuddy on 4/25/2013 11:35:27 PM -->
 <GameData>
 	<Language_en_US>
-		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION">
-			<Text>What do you think of...</Text>
-		</Row>
 		<Row Tag="TXT_KEY_DIPLO_TRADE_MAP">
 			<Text>WORLD MAP</Text>
 		</Row>
