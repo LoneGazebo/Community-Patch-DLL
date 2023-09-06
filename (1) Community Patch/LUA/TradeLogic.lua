@@ -325,9 +325,11 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				DisplayDeal();
 
 				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-					-- Hide Defensive Pact/Research Agreement on their side
+					-- Hide unavailable items on their side
 					Controls.ThemPocketDefensivePact:SetHide(true);
 					Controls.ThemPocketResearchAgreement:SetHide(true);
+					Controls.ThemPocketCities:SetHide(true);
+					Controls.ThemPocketOtherPlayerWar:SetHide(true);
 				end
 			
 			-- Don't clear the table, leave things as they are
@@ -1216,6 +1218,8 @@ function ResetDisplay()
 	Controls.ThemPocketVote:SetHide(not bShowVotes);
 	Controls.ThemPocketOpenBorders:SetHide(not bShowOpenBorders);
 	Controls.ThemPocketDefensivePact:SetHide(not bShowDefensivePact);
+	Controls.ThemPocketCities:SetHide(false);
+	Controls.ThemPocketOtherPlayerWar:SetHide(false);
 	Controls.ThemPocketResearchAgreement:SetHide(not bShowResearchAgreement);
 	Controls.ThemPocketOtherPlayer:SetHide(not bShowOtherPlayers);
 
