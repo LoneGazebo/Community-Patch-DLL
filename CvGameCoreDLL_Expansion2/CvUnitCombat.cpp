@@ -1082,27 +1082,28 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 							int iRand = GC.getGame().getSmallFakeRandNum(100, pkDefender->GetID()+pkDefender->plot()->GetPlotIndex());
 							if(iRand <= pkAttacker->GetMoraleBreakChance())
 							{
-								pkDefender->DoFallBack(*pkAttacker);
-
-								CvNotifications* pNotifications = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
-								if(pNotifications)
+								if (pkDefender->DoFallBack(*pkAttacker))
 								{
-									Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK");
-									strMessage << pkAttacker->getUnitInfo().GetTextKey();
-									strMessage << pkDefender->getUnitInfo().GetTextKey();
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
-									strSummary << pkDefender->getUnitInfo().GetTextKey();
-									pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pkDefender->getX(), pkDefender->getY(), (int) pkDefender->getUnitType(), pkDefender->getOwner());
-								}
-								CvNotifications* pNotificationsOther = GET_PLAYER(pkAttacker->getOwner()).GetNotifications();
-								if(pNotificationsOther)
-								{
-									Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_THEM");
-									strMessage << pkAttacker->getUnitInfo().GetTextKey();
-									strMessage << pkDefender->getUnitInfo().GetTextKey();
-									Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
-									strSummary << pkDefender->getUnitInfo().GetTextKey();
-									pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pkDefender->getX(), pkDefender->getY(), (int) pkDefender->getUnitType(), pkDefender->getOwner());
+									CvNotifications* pNotifications = GET_PLAYER(pkDefender->getOwner()).GetNotifications();
+									if (pNotifications)
+									{
+										Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK");
+										strMessage << pkAttacker->getUnitInfo().GetTextKey();
+										strMessage << pkDefender->getUnitInfo().GetTextKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
+										strSummary << pkDefender->getUnitInfo().GetTextKey();
+										pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pkDefender->getX(), pkDefender->getY(), (int)pkDefender->getUnitType(), pkDefender->getOwner());
+									}
+									CvNotifications* pNotificationsOther = GET_PLAYER(pkAttacker->getOwner()).GetNotifications();
+									if (pNotificationsOther)
+									{
+										Localization::String strMessage = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_THEM");
+										strMessage << pkAttacker->getUnitInfo().GetTextKey();
+										strMessage << pkDefender->getUnitInfo().GetTextKey();
+										Localization::String strSummary = Localization::Lookup("TXT_KEY_UNIT_MORALE_FALL_BACK_S");
+										strSummary << pkDefender->getUnitInfo().GetTextKey();
+										pNotificationsOther->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pkDefender->getX(), pkDefender->getY(), (int)pkDefender->getUnitType(), pkDefender->getOwner());
+									}
 								}
 							}
 						}
@@ -3760,18 +3761,16 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 
 	CvAssertMsg(!kAttacker.isDelayedDeath() && !pDefender->isDelayedDeath(), "Trying to battle and one of the units is already dead!");
 
-	if(pDefender->CheckWithdrawal(kAttacker))
+	if (pDefender->CheckWithdrawal(kAttacker) && pDefender->DoFallBack(kAttacker, true))
 	{
-		pDefender->DoFallBack(kAttacker, true);
-
-		if(kAttacker.getOwner() == GC.getGame().getActivePlayer())
+		if (kAttacker.getOwner() == GC.getGame().getActivePlayer())
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_ENEMY_UNIT_WITHDREW", pDefender->getNameKey());
 			GC.GetEngineUserInterface()->AddMessage(0, kAttacker.getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
 			if (MOD_WH_MILITARY_LOG)
 				MILITARYLOG(kAttacker.getOwner(), strBuffer.c_str(), kAttacker.plot(), pDefender->getOwner());
 		}
-		else if(pDefender->getOwner() == GC.getGame().getActivePlayer())
+		else if (pDefender->getOwner() == GC.getGame().getActivePlayer())
 		{
 			strBuffer = GetLocalizedText("TXT_KEY_MISC_FRIENDLY_UNIT_WITHDREW", pDefender->getNameKey());
 			GC.GetEngineUserInterface()->AddMessage(0, pDefender->getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
@@ -3803,7 +3802,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::Attack(CvUnit& kAttacker, CvPlot& targ
 				kAttacker.changeMoves(-iMoveCost);
 			}
 		}
-//		kAttacker.setMadeAttack(true);   /* EFB: Doesn't work, causes tactical AI to not dequeue this attack; but we've decided you don't lose your attack anyway */
+		//		kAttacker.setMadeAttack(true);   /* EFB: Doesn't work, causes tactical AI to not dequeue this attack; but we've decided you don't lose your attack anyway */
 		eResult = ATTACK_COMPLETED;
 	}
 
