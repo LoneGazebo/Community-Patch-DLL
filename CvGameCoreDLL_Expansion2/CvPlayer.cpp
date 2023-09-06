@@ -29361,6 +29361,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				localizedText << totalyieldString;
 				break;
 			}
+			// These yields intentionally have no notification.
+			case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+			{
+				return;
+			}
 		}
 		if(pCity == NULL)
 		{
