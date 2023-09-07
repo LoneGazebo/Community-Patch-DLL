@@ -20420,11 +20420,9 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										bool bDoCapture = false;
 #if defined(MOD_BALANCE_CORE)
 										bool bDoEvade = false;
-										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->CheckWithdrawal(*this))
+										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->CheckWithdrawal(*this) && pLoopUnit->DoFallBack(*this, true))
 										{
 											bDoEvade = true;
-											pLoopUnit->DoFallBack(*this, true);
-
 											CvNotifications* pNotification = GET_PLAYER(pLoopUnit->getOwner()).GetNotifications();
 											if (pNotification)
 											{
@@ -31384,7 +31382,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 				bool bNoRetreat = false;
 				for (size_t j = 0; j < aEscortedUnits.size(); j++)
 				{
-					if (!aEscortedUnits[j]->isNativeDomain(pDirectionPlot) || !aEscortedUnits[j]->canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+					if (!aEscortedUnits[j]->canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION) || (aEscortedUnits[j]->isEmbarked() && aEscortedUnits[j]->isNativeDomain(pDirectionPlot)) || (!aEscortedUnits[j]->isEmbarked() && !aEscortedUnits[j]->canMoveInto(*pDirectionPlot, MOVEFLAG_NO_EMBARK)))
 					{
 						bNoRetreat = true;
 						break;
@@ -31447,7 +31445,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 		{
 			// Civilian and embarked units also retreat (if possible)
 			// Need to check whether the unit can enter the plot again, because it might have changed (stacking rules)
-			if (aEscortedUnits[i]->canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+			if (aEscortedUnits[i]->canMoveInto(*pDestPlot, MOVEFLAG_DESTINATION))
 			{
 				aEscortedUnits[i]->setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 				aEscortedUnits[i]->PublishQueuedVisualizationMoves(); // Display the civilians retreating before the escort does
