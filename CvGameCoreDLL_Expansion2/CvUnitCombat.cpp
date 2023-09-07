@@ -4519,26 +4519,6 @@ void CvUnitCombat::ApplyPostKillTraitEffects(CvUnit* pkWinner, CvUnit* pkLoser)
 	}
 
 	CvPlayer& kPlayer = GET_PLAYER(pkWinner->getOwner());
-	if (pkWinner->GetGoldenAgeValueFromKills() > 0)
-	{
-		int iCombatStrength = max(pkLoser->GetBaseCombatStrength(), pkLoser->GetBaseRangedCombatStrength());
-		if(iCombatStrength > 0)
-		{
-			int iValue = iCombatStrength * pkWinner->GetGoldenAgeValueFromKills() / 100;
-			kPlayer.ChangeGoldenAgeProgressMeter(iValue);
-
-			CvYieldInfo* pYieldInfo = GC.getYieldInfo(YIELD_GOLDEN_AGE_POINTS);
-			CvString yieldString;
-			yieldString.Format("%s+%%d[ENDCOLOR]%s", pYieldInfo->getColorString(), pYieldInfo->getIconString());
-
-			if(pkWinner->getOwner() == GC.getGame().getActivePlayer())
-			{
-				char text[256] = {0};
-				sprintf_s(text, yieldString, iValue);
-				SHOW_PLOT_POPUP(pkLoser->plot(), pkWinner->getOwner(), text);
-			}
-		}
-	}
 
 	// Earn bonuses for kills?
 	kPlayer.DoYieldsFromKill(pkWinner, pkLoser);
