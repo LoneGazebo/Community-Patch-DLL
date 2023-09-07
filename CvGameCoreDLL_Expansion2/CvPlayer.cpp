@@ -27902,6 +27902,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 							{
 								iKillYield += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, pAttackingUnit->getX(), pAttackingUnit->getY(), GetID());
 
+								if (eYield == YIELD_GOLDEN_AGE_POINTS)
+								{
+									iKillYield += pAttackingUnit->GetGoldenAgeValueFromKills();
+								}
+
 								UnitTypes eAttackingUnitType = pAttackingUnit->getUnitType();
 
 								CvUnitEntry* pkAttackingUnitInfo = GC.getUnitInfo(eAttackingUnitType);
