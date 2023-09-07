@@ -338,9 +338,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 
 				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
 					-- Hide unavailable items on their side
-					Controls.ThemPocketGold:SetHide(true);
-					Controls.ThemPocketTradeMap:SetHide(true);
-					Controls.ThemPocketTechnology:SetHide(true);
+					Controls.ThemPocketGold:SetHide(not g_pUs:IsDoF(g_iThem));
+					Controls.ThemPocketTradeMap:SetHide(not g_pUs:IsDoF(g_iThem));
+					Controls.ThemPocketTechnology:SetHide(not g_pUs:IsDoF(g_iThem));
 					Controls.ThemPocketRevokeVassalage:SetHide(true);
 					Controls.ThemPocketDefensivePact:SetHide(true);
 					Controls.ThemPocketResearchAgreement:SetHide(true);
