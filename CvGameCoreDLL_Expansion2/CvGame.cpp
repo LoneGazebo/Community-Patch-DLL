@@ -10777,7 +10777,7 @@ unsigned long hash32(unsigned long x)
 uint CvGame::randCore(CvSeeder extraSeed) const
 {
 	const CvSeeder mapSeed = CvSeeder::fromRaw(CvPreGame::mapRandomSeed());
-	const CvSeeder gameSeed = CvSeeder(static_cast<uint>(getGameTurn()) * 11);
+	const CvSeeder gameSeed = CvSeeder(getGameTurn());
 	return mapSeed.mix(gameSeed).mix(extraSeed);
 }
 
