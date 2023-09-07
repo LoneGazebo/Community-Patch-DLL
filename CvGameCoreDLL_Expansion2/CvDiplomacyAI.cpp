@@ -30885,7 +30885,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					bool bCanBluff = iCurrentWars > 0 || (GetCivApproach(ePlayer) > CIV_APPROACH_HOSTILE && GetTargetValue(ePlayer) <= TARGET_VALUE_AVERAGE);
 					if (bCanBluff)
 					{
-						if (GetCivOpinion(ePlayer) == CIV_OPINION_UNFORGIVABLE || IsCapitalCapturedBy(ePlayer, true, true) || IsHolyCityCapturedBy(ePlayer, true, true))
+						if (GetCivOpinion(ePlayer) == CIV_OPINION_UNFORGIVABLE || IsEndgameAggressiveTo(ePlayer) || IsCapitalCapturedBy(ePlayer, true, true) || IsHolyCityCapturedBy(ePlayer, true, true))
 						{
 							bCanBluff = false;
 						}
@@ -39039,7 +39039,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			bool bCanBluff = iCurrentWars > 0 || (GetCivApproach(eFromPlayer) > CIV_APPROACH_HOSTILE && GetTargetValue(eFromPlayer) <= TARGET_VALUE_AVERAGE);
 			if (bCanBluff)
 			{
-				if (GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE || IsCapitalCapturedBy(eFromPlayer, true, true) || IsHolyCityCapturedBy(eFromPlayer, true, true))
+				if (GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE || IsEndgameAggressiveTo(eFromPlayer) || IsCapitalCapturedBy(eFromPlayer, true, true) || IsHolyCityCapturedBy(eFromPlayer, true, true))
 				{
 					bCanBluff = false;
 				}
