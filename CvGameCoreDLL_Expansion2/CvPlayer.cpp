@@ -35286,8 +35286,13 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				GetTreasury()->DoUpdateCityConnectionGold();
 
 				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
-				if (isHuman())
+				if (isHuman() || /* if MP, invalidate for AI too */ kGame.isNetworkMultiPlayer()) {
 					GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
+				}
+
+				// update danger plots before the turn
+				// causes MP desyncs otherwise (see #10147), affects SP just a little
+				UpdateDangerPlots(false);
 
 				if(kGame.isFinalInitialized())
 				{
