@@ -468,6 +468,7 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	StrengthTypes eMilitaryStrength = pDiploAI->GetMilitaryStrengthComparedToUs(eFromPlayer);
 	AggressivePostureTypes eMilitaryPosture = pDiploAI->GetMilitaryAggressivePosture(eFromPlayer);
 	PlayerProximityTypes eProximity = GET_PLAYER(eFromPlayer).GetProximityToPlayer(eMyPlayer);
+	TeamTypes eOurMaster = GET_TEAM(eMyTeam).GetMaster();
 	// if they're close, there's always some danger, even if we don't see any units
 	if (eProximity > PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
 		eMilitaryPosture = AGGRESSIVE_POSTURE_LOW;
@@ -475,8 +476,36 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	// Too soon for another demand? Never give in.
 	if (pDiploAI->IsDemandTooSoon(eFromPlayer))
 		return DEMAND_RESPONSE_REFUSE_TOO_SOON;
+
+	// If we're a vassal, check if we can benefit from our master's protection.
+	if (eOurMaster != NO_TEAM && eOurMaster != eFromTeam)
+	{
+		vector<PlayerTypes> vMasterTeam = GET_TEAM(eOurMaster).getPlayers();
+		for (size_t i=0; i < vMasterTeam.size(); i++)
+		{
+			if (!GET_PLAYER(vMasterTeam[i]).isAlive() || !GET_PLAYER(vMasterTeam[i]).isMajorCiv() || GET_PLAYER(vMasterTeam[i]).getNumCities() == 0)
+				continue;
+
+			// This master is not strong enough to protect us.
+			if (GET_PLAYER(vMasterTeam[i]).GetDiplomacyAI()->GetRawMilitaryStrengthComparedToUs(eFromPlayer) > STRENGTH_AVERAGE)
+				continue;
+
+			// Is our master failing to protect us? Then their protection isn't worth much.
+			if (pDiploAI->GetVassalFailedProtectScore(vMasterTeam[i]) > 0 && pDiploAI->GetVassalFailedProtectScore(vMasterTeam[i]) > (pDiploAI->GetVassalProtectScore(vMasterTeam[i]) * -1))
+				continue;
+
+			// Is our master neighbors with them?
+			if (GET_PLAYER(vMasterTeam[i]).GetProximityToPlayer(eFromPlayer) == PLAYER_PROXIMITY_NEIGHBORS)
+				return DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER;
+
+			// Master is at least as close to us as they are? Refuse.
+			if (GET_PLAYER(vMasterTeam[i]).GetProximityToPlayer(eMyPlayer) >= eProximity)
+				return DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER;
+		}
+	}
+
 	// Are they not able to declare war on us? Never give in...but our response will vary based on how the latest war went.
-	else if (!GET_TEAM(eFromTeam).canDeclareWar(eMyTeam, eFromPlayer))
+	if (!GET_TEAM(eFromTeam).canDeclareWar(eMyTeam, eFromPlayer))
 	{
 		if (GET_TEAM(eFromTeam).IsVassalOfSomeone())
 			return DEMAND_RESPONSE_REFUSE_WEAK;

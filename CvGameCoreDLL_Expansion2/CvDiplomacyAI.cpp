@@ -40163,10 +40163,10 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		// THIS is the important part of the message - it seeds the demand timer on all players' machines
 		DoDemandMade(eFromPlayer, eResponse);
 
-		if(bActivePlayer)
+		if (bActivePlayer)
 		{
 			// Demand agreed to
-			if(eResponse == DEMAND_RESPONSE_ACCEPT)
+			if (eResponse == DEMAND_RESPONSE_ACCEPT)
 			{
 				strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_YES);
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT, strText, LEADERHEAD_ANIM_YES);
@@ -40174,16 +40174,17 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			// Demand rebuffed
 			else
 			{
-				if(eResponse == DEMAND_RESPONSE_REFUSE_WEAK)
+				// Todo: Separate response text for when a vassal is protected by their master.
+				if (eResponse == DEMAND_RESPONSE_REFUSE_WEAK || eResponse == DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER)
 					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_WEAK);
 
-				else if(eResponse == DEMAND_RESPONSE_REFUSE_HOSTILE)
+				else if (eResponse == DEMAND_RESPONSE_REFUSE_HOSTILE)
 					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_HOSTILE);
 
-				else if(eResponse == DEMAND_RESPONSE_REFUSE_TOO_MUCH)
+				else if (eResponse == DEMAND_RESPONSE_REFUSE_TOO_MUCH)
 					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_MUCH);
 
-				else if(eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON || eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON_SINCE_PEACE)
+				else if (eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON || eResponse == DEMAND_RESPONSE_REFUSE_TOO_SOON_SINCE_PEACE)
 					strText = GetPlayer()->GetDiplomacyAI()->GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_DEMAND_REFUSE_TOO_SOON);
 
 				gDLL->GameplayDiplomacyAILeaderMessage(eMyPlayer, DIPLO_UI_STATE_BLANK_DISCUSSION_RETURN_TO_ROOT, strText, LEADERHEAD_ANIM_NO);
@@ -43178,7 +43179,7 @@ void CvDiplomacyAI::DoDemandMade(PlayerTypes ePlayer, DemandResponseTypes eRespo
 
 		// See how long it'll be before we might agree to another demand
 		int iNumTurns = /*20*/ GD_INT_GET(DEMAND_TURN_LIMIT_MIN);
-		iNumTurns += GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND), CvSeeder::fromRaw(0x0af32abc).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID()));
+		iNumTurns += GC.getGame().randRangeInclusive(0, /*10*/ GD_INT_GET(DEMAND_TURN_LIMIT_RAND), CvSeeder::fromRaw(0x0af32abc).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 		SetDemandTooSoonNumTurns(ePlayer, iNumTurns);
 
 		if (IsVassal(ePlayer))
@@ -57833,7 +57834,7 @@ void CvDiplomacyAI::DoHelpRequestMade(PlayerTypes ePlayer, DemandResponseTypes e
 
 		// Decide how long it'll be before we might agree to another help request
 		int iNumTurns = /*20*/ GD_INT_GET(HELP_REQUEST_TURN_LIMIT_MIN);
-		iNumTurns += GC.getGame().randRangeExclusive(0, /*10*/ GD_INT_GET(HELP_REQUEST_TURN_LIMIT_RAND), CvSeeder::fromRaw(0xd1c5ae34).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID()));
+		iNumTurns += GC.getGame().randRangeInclusive(0, /*10*/ GD_INT_GET(HELP_REQUEST_TURN_LIMIT_RAND), CvSeeder::fromRaw(0xd1c5ae34).mix(GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 		SetHelpRequestTooSoonNumTurns(ePlayer, iNumTurns);
 	}
 }
