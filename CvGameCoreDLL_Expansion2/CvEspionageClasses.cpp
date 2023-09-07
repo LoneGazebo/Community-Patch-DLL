@@ -2212,7 +2212,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 			continue;
 
 		CvCity* pTargetCity = NULL;
-		iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer) + MOD_BALANCE_CORE_SPIES_ADVANCED ? m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner) : 0;
+		iSpyRank = m_aSpyList[uiSpyIndex].GetSpyRank(ePlayer) + (MOD_BALANCE_CORE_SPIES_ADVANCED ? m_pPlayer->GetCulture()->GetInfluenceMajorCivSpyRankBonus(eCityOwner) : 0);
 
 		if(iSpyRank >= SPY_RANK_AGENT)
 		{

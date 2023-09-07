@@ -29361,6 +29361,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				localizedText << totalyieldString;
 				break;
 			}
+			// These yields intentionally have no notification.
+			case INSTANT_YIELD_TYPE_COMBAT_EXPERIENCE:
+			{
+				return;
+			}
 		}
 		if(pCity == NULL)
 		{
@@ -48784,7 +48789,7 @@ void CvPlayer::UpdateEspionageYields(bool bIncoming)
 {
 	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
 	{
-		PlayerTypes eLoopYield = (PlayerTypes)iYieldLoop;
+		YieldTypes eLoopYield = static_cast<YieldTypes>(iYieldLoop);
 		int iYields = 0;
 		for (std::vector<SPlayerActiveEspionageEvent>::const_iterator it = m_vActiveEspionageEventsList.begin(); it != m_vActiveEspionageEventsList.end(); ++it)
 		{

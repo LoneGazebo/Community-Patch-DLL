@@ -127,7 +127,7 @@ const char* CvDllNetInitInfo::GetDebugString()
 	        "m_szGameName=\"%s\" "\
 	        "m_uiSyncRandSeed=%u "\
 	        "m_uiMapRandSeed=%u "\
-			"m_aiKnownPlayersTable.size()=%lu"
+			"m_aiKnownPlayersTable.size()=%u"
 	        , CvPreGame::loadFileName().c_str()
 	        , CvPreGame::mapScriptName().c_str()
 	        , CvPreGame::mapNoPlayers() ? "true" : "false"
