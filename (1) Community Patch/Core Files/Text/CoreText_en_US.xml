@@ -2,6 +2,159 @@
 <!-- edited with XMLSPY v2004 rel. 2 U (http://www.xmlspy.com) by Scott Lewis (Firaxis Games) -->
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_DIPLO_DISCUSS_MESSAGE_SHARE_OPINION">
+			<Text>What do you think of...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT_1">
+			<Text>As you wish, I shall move my troops from your border. My apologies for any trouble caused by this incident.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT_2">
+			<Text>Very well, I will redirect my armies elsewhere.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT_3">
+			<Text>Understood. I will move my troops at once.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_1">
+			<Text>Please understand, my troops are merely passing through! We mean no harm to your empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_2">
+			<Text>Don't be alarmed. We do not wish to harm you. Our troops are merely running drills.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_3">
+			<Text>I apologize for any concern my recent troop movements have caused you. Our troops are merely passing through the area and we have no intention of war.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE_1">
+			<Text>As much as your soulless existence would be worth ending, my men do not wish to attack you at the moment. Consider yourself lucky.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE_2">
+			<Text>Although it would be my pleasure to kill you, now is not the time for that.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE_3">
+			<Text>No, my men aren't going to waste their time with you, yet. Your fear amuses me, however.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST_1">
+			<Text>Maybe you're smarter than I thought. Perhaps you expected my eventual rise to world domination? Or maybe you're just stupid. Either way, time to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST_2">
+			<Text>Honestly, there's no sense lying to you. You are merely a stepping stone to my ascent to greatness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST_3">
+			<Text>Ha! That's not the way I expect you to talk to your future ruler. Now, you must suffer.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_DECEPTIVE">
+			<Text>I'll admit, at some point I thought you were a pretty good friend. However, it's time to show my true colors. My troops are aimed directly at your cities. Time to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE">
+			<Text>What's this? Are you just trying to egg me on? Well, consider yourself lucky; you've succeeded. Prepare to die.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_1">
+			<Text>Why do you continue to waste my time with this nonsense? Begone!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_2">
+			<Text>Did you not hear me the first time? Go away!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO_3">
+			<Text>I'm sorry, are you hard of hearing? The answer will always be no!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_1">
+			<Text>I will not field such requests at this time. Please stop asking.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_2">
+			<Text>We've been over this before. I will not tell you of my affairs.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO_3">
+			<Text>The answer remains no. We shall not provide diplomatic details at this time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_1">
+			<Text>We would never share our diplomatic secrets with villains like you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_2">
+			<Text>Do you honestly think I would tell a criminal like you my foreign policy?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO_3">
+			<Text>Why would you waste your time asking about my foreign affairs? They are none of your business!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_1">
+			<Text>I'm sorry, but we prefer to keep our diplomatic secrets safe. Try again some other time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_2">
+			<Text>My advisors deem it important to keep our foreign policy private. Maybe some other time?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NO_3">
+			<Text>We're not comfortable broadcasting our foreign affairs at this time. Perhaps another time?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_1">
+			<Text>{1_PlayerName:textkey} is a true friend and can be trusted. (Friendly)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_2">
+			<Text>I'm quite fond of {1_PlayerName:textkey} and look forward to our continued friendship. (Friendly)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY_3">
+			<Text>{1_PlayerName:textkey} and I have been on good terms, and I see no reason why that would change. (Friendly)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_1">
+			<Text>I really don't have an opinion of {1_PlayerName:textkey}. (Neutral)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_2">
+			<Text>{1_PlayerName:textkey} is neither an enemy of mine nor my friend. (Neutral)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL_3">
+			<Text>{1_PlayerName:textkey} doesn't bother me at all. (Neutral)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_1">
+			<Text>I'll be honest. I don't trust {1_PlayerName:textkey} one bit. (Guarded)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_2">
+			<Text>{1_PlayerName:textkey} has alarmed my advisors and we are monitoring the situation. (Guarded)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_GUARDED_3">
+			<Text>We're keeping an eye on {1_PlayerName:textkey} due to recent incidents. (Guarded)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_1">
+			<Text>{1_PlayerName:textkey}'s rule taints this earth and I would see no problem with it ending. (Hostile)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_2">
+			<Text>{1_PlayerName:textkey} is a tyrant and a villain that needs to be taken care of. (Hostile)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE_3">
+			<Text>Don't remind me that {1_PlayerName:textkey} still walks this earth... (Hostile)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_1">
+			<Text>I look up to {1_PlayerName:textkey} with great envy! (Afraid)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_2">
+			<Text>I marvel at {1_PlayerName:textkey}'s success. (Afraid)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_AFRAID_3">
+			<Text>Hopefully one day I can be as good a leader as {1_PlayerName:textkey}. (Afraid)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_1">
+			<Text>{1_PlayerName:textkey} and I are at war! ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_2">
+			<Text>{1_PlayerName:textkey} and I are locked in combat.  ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_WAR_3">
+			<Text>I am currently settling a dispute with {1_PlayerName:textkey}.  ([COLOR_NEGATIVE_TEXT]AT WAR![ENDCOLOR])</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_1">
+			<Text>I trust you enough to confess that I am planning war against {1_PlayerName:textkey}. (Planning War!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_2">
+			<Text>Don't be fooled by outward appearances. I plan to rid this earth of {1_PlayerName:textkey}. (Planning War!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR_3">
+			<Text>I'm sick of {1_PlayerName:textkey}'s presence and I plan on eliminating them soon. (Planning War!)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_1">
+			<Text>It may appear that I am friendly with {1_PlayerName:textkey} but that's all show. (Deceptive)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_2">
+			<Text>Think you can keep a secret? I plan on deceiving {1_PlayerName:textkey} at earliest convenience. (Deceptive)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE_3">
+			<Text>I tell the world that {1_PlayerName:textkey} is a friend. I tell you in strictest confidence that that is not the case. (Deceptive)</Text>
+		</Row>
 		<Row Tag="TXT_KEY_ABLTY_ENABLES_CORPORATIONS">
 			<Text>Enables Corporations to be founded.</Text>
 		</Row>
@@ -2878,6 +3031,51 @@
 		</Row>
 
 		<!-- Diplomacy Screen Buttons -->
+				<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_1">
+			<Text>Friend, please accept this offer as a gesture of gratitude for our friendship.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_2">
+			<Text>In your time of need I offer you a gift.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_3">
+			<Text>To show our support of our friendship, I offer your people this in hopes you will one day return the favor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_1">
+			<Text>I am glad to help.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_2">
+			<Text>May this gift bring prosperity to your people.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_YES_3">
+			<Text>It is my pleasure to assist those in need.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_1">
+			<Text>I'm sorry. My generosity does not extend as far as you'd like, I'm afraid.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_2">
+			<Text>You have asked for simply too much, I'm afraid. I cannot comply.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH_3">
+			<Text>Absolutely not. I am a generous person, but that is too much you are asking me to give up.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_1">
+			<Text>I'm sorry, but I've already offered as much assistance as I can at this time. Maybe some other time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_2">
+			<Text>It's been too soon since our last show of generosity. I'm afraid I must decline.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON_3">
+			<Text>I cannot service this request at the moment. I'm sorry.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_1">
+			<Text>I'm sorry, but we haven't known you long enough to divulge our diplomatic secrets. Maybe in the future?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_2">
+			<Text>We haven't known each other long enough for me to reveal my foreign policy. The answer is no.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION_3">
+			<Text>I only give away my foreign policy to those whom I trust. I cannot trust someone I've just met.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_THEM_TT">
 			<Text>They cannot negotiate peace with you for another {1_Num} turn(s) because of a deal they made with another player.</Text>
 		</Row>
