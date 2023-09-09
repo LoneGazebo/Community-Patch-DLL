@@ -305,6 +305,14 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 
+	// AI does not settle on Antiquity Sites
+	ResourceTypes ePlotResource = pPlot->getResourceType(eTeam);
+	if (ePlotResource == (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE) ||
+		ePlotResource == (ResourceTypes)GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
+	{
+		return -1;
+	}
+
 	//for debugging
 	std::vector<std::string> vQualifiersPositive;
 	std::vector<std::string> vQualifiersNegative;
