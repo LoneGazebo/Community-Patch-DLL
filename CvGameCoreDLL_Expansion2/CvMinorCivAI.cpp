@@ -12925,23 +12925,25 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 		if (ePlayer == eLiberator)
 			continue;
 
-		int iInfluence = GetBaseFriendshipWithMajor(ePlayer);
-
-		if (iInfluence > iHighestOtherMajorInfluence)
-			iHighestOtherMajorInfluence = iInfluence;
-
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
 		{
+			int iInfluence = GetBaseFriendshipWithMajor(ePlayer);
+
 			// Influence for other players - Were you the one that conquered us before?
 			if (GET_PLAYER(ePlayer).getTeam() == eConquerorTeam)
 			{
-				SetFriendshipWithMajor(ePlayer, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR));
+				iInfluence = /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR);
+				SetFriendshipWithMajor(ePlayer, iInfluence);
 			}
 			// If we were conquered by Barbarians, reset Influence
-			else if (MOD_BALANCE_VP && GET_PLAYER(BARBARIAN_PLAYER).getTeam() == eConquerorTeam)
+			else if (MOD_BALANCE_VP && eConquerorTeam == BARBARIAN_TEAM)
 			{
-				SetFriendshipWithMajor(ePlayer, 0);
+				iInfluence = 0;
+				SetFriendshipWithMajor(ePlayer, iInfluence);
 			}
+
+			if (iInfluence > iHighestOtherMajorInfluence)
+				iHighestOtherMajorInfluence = iInfluence;
 
 			// Notification for other players
 			CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
@@ -12953,32 +12955,22 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 	}
 
 	// Influence for liberator
-	int iNewInfluence = 0;
+	int iNewInfluence = max(iHighestOtherMajorInfluence + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP), GetBaseFriendshipWithMajor(eLiberator) + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP));
 
-	// If Open Doors / Sphere of Influence is in effect, raise Influence just above Friends threshold
-	if (IsNoAlly() || GetPermanentAlly() != NO_PLAYER)
+	if (MOD_BALANCE_VP)
 	{
-		iNewInfluence = GetFriendsThreshold(eLiberator) + 10;
-	}
-	// Otherwise, raise to ally status
-	else
-	{
-		iNewInfluence = max(iHighestOtherMajorInfluence + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP), GetBaseFriendshipWithMajor(eLiberator) + /*105*/ GD_INT_GET(MINOR_LIBERATION_FRIENDSHIP));
-		iNewInfluence = max(GetAlliesThreshold(eLiberator) + 10, iNewInfluence); // Must be at least enough to make us allies
+		int iEra = GET_PLAYER(eLiberator).GetCurrentEra();
+		if (iEra <= 0)
+			iEra = 1;
 
-		if (MOD_BALANCE_CORE_MINORS)
-		{
-			int iEra = GET_PLAYER(eLiberator).GetCurrentEra();
-			if (iEra <= 0)
-				iEra = 1;
+		iNewInfluence *= iEra;
 
-			iNewInfluence *= iEra;
-		}
+		// Were we liberated from Barbarians? Less influence for you!
+		if (eConquerorTeam == BARBARIAN_TEAM)
+			iNewInfluence /= 2;
 	}
 
-	// Were we liberated from a barbarian? Less influence for you!
-	if (MOD_BALANCE_VP && GET_PLAYER(BARBARIAN_PLAYER).getTeam() == eConquerorTeam)
-		iNewInfluence /= 2;
+	iNewInfluence = max(GetAlliesThreshold(eLiberator) + 10, iNewInfluence); // Must be at least enough to make us allies
 
 	SetFriendshipWithMajor(eLiberator, iNewInfluence);
 	SetTurnLiberated(GC.getGame().getGameTurn());
