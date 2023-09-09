@@ -12925,7 +12925,7 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 		if (ePlayer == eLiberator)
 			continue;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
+		if (GET_PLAYER(ePlayer).isMajorCiv() && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(GetPlayer()->getTeam()))
 		{
 			int iInfluence = GetBaseFriendshipWithMajor(ePlayer);
 
@@ -12944,6 +12944,9 @@ void CvMinorCivAI::DoLiberationByMajor(PlayerTypes eLiberator, TeamTypes eConque
 
 			if (iInfluence > iHighestOtherMajorInfluence)
 				iHighestOtherMajorInfluence = iInfluence;
+
+			if (!GET_PLAYER(ePlayer).isAlive())
+				continue;
 
 			// Notification for other players
 			CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
