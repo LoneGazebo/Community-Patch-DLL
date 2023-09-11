@@ -1222,7 +1222,8 @@ void CvHomelandAI::ExecuteUnitGift()
 		// Do we have units to spare?
 		bool bCanSendLandUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEUTRAL;
 		bool bCanSendNavalUnit = GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH || GET_PLAYER(ePlayer).GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEUTRAL;
-		bool bPrioritizeLand = false, bPrioritizeNaval = false;
+		bool bPrioritizeLand = false;
+		bool bPrioritizeNaval = false;
 
 		if (bCanSendLandUnit && bCanSendNavalUnit)
 		{
@@ -1379,7 +1380,8 @@ void CvHomelandAI::PlotPatrolMoves()
 void CvHomelandAI::ExecutePatrolMoves()
 {
 	//check what kind of units we have
-	int iUnitsSea = 0, iUnitsLand = 0;
+	int iUnitsSea = 0;
+	int iUnitsLand = 0;
 	for(CHomelandUnitArray::iterator itUnit = m_CurrentMoveUnits.begin(); itUnit != m_CurrentMoveUnits.end(); ++itUnit)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(itUnit->GetID());
@@ -5374,7 +5376,8 @@ void CvHomelandAI::LogHomelandMessage(const CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		CvString strTemp, szTemp2;
+		CvString strTemp;
+		CvString szTemp2;
 		CvString strPlayerName;
 		FILogFile* pLog = NULL;
 

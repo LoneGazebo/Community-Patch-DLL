@@ -8646,7 +8646,8 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
 {
 	VALIDATE_OBJECT
 	CvPlot* pLoopPlot = NULL;
-	int iDX = 0, iDY = 0;
+	int iDX = 0;
+	int iDY = 0;
 
 	if(!(GET_TEAM(eTeam).isAlive()))
 	{

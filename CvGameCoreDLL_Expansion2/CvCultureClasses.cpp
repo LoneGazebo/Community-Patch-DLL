@@ -5854,7 +5854,8 @@ void CvPlayerCulture::DoPublicOpinion()
 			locText = Localization::Lookup("TXT_KEY_CO_OPINION_TT_UNHAPPINESS_LINE2");
 			m_strOpinionUnhappinessTooltip += locText.toUTF8();
 
-			int iPerCityUnhappy = 0, iUnhappyPerXPop = 0;
+			int iPerCityUnhappy = 0;
+			int iUnhappyPerXPop = 0;
 			if (iDissatisfaction < 3)
 			{
 				iPerCityUnhappy = 1;
@@ -6089,7 +6090,8 @@ int CvPlayerCulture::ComputePublicOpinionUnhappiness(int iDissatisfaction)
 
 	if (!MOD_BALANCE_CORE_POLICIES)
 	{
-		int iPerCityUnhappy = 0, iUnhappyPerXPop = 0;
+		int iPerCityUnhappy = 0;
+		int iUnhappyPerXPop = 0;
 
 		if (iDissatisfaction < 3)
 		{
@@ -7690,7 +7692,9 @@ CvString CvCityCulture::GetFilledSlotsTooltip()
 CvString CvCityCulture::GetTotalSlotsTooltip()
 {
 	CvString szRtnValue = "";
-	CvString szTemp1, szTemp2, szTemp3;
+	CvString szTemp1;
+	CvString szTemp2;
+	CvString szTemp3;
 	
 	GreatWorkSlotType eLiteratureSlot = CvTypes::getGREAT_WORK_SLOT_LITERATURE();
 	int iFilledWriting = m_pCity->GetCityBuildings()->GetNumGreatWorks(eLiteratureSlot);

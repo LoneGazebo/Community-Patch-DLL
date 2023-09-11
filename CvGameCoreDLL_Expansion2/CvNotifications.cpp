@@ -1387,7 +1387,8 @@ bool CvNotifications::IsNotificationRedundant(Notification& notification)
 		if(eOurPlayer1 == -1 || eOurPlayer2 == -1)
 			return false;
 
-		PlayerTypes eCheckingPlayer1, eCheckingPlayer2;
+		PlayerTypes eCheckingPlayer1;
+		PlayerTypes eCheckingPlayer2;
 
 		int iIndex = m_iNotificationsBeginIndex;
 		while(iIndex != m_iNotificationsEndIndex)
