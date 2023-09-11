@@ -181,7 +181,16 @@ void CvGameTrade::InvalidateTradePathTeamCache(TeamTypes eTeam)
 
 void CvGameTrade::InvalidateTradePathCache(PlayerTypes ePlayer)
 {
+
 	m_lastTradePathUpdate[ePlayer] = -1;
+
+	CvPlayer& kPlayer1 = GET_PLAYER(ePlayer);
+	int iOriginCityLoop = 0;
+	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
+	{
+		m_aPotentialTradePathsLand[pOriginCity->plot()->GetPlotIndex()].clear();
+		m_aPotentialTradePathsWater[pOriginCity->plot()->GetPlotIndex()].clear();
+	}
 }
 
 void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)

@@ -931,8 +931,9 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 
 	//update cache
 	m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));
-	if (m_lastResults.size() == DANGER_MAX_CACHE_SIZE)
+	while (m_lastResults.size() >= DANGER_MAX_CACHE_SIZE) {
 		m_lastResults.erase(m_lastResults.begin());
+	}
 
 	//done
 	return iPlotDamage;

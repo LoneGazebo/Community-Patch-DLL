@@ -35,6 +35,7 @@
 #endif
 
 int gCurrentUnitToTrack = 0;
+const int TACTICAL_PREALLOC_ASSIGNMENT_SIZE = 1000; // 1000 per unit
 const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4, not smaller than 3
 const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
 const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
@@ -43,7 +44,7 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(16000);
+CAttackCache attackCache;
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
@@ -2761,6 +2762,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 
 	int iCount = 0;
 	bool bSuccess = false;
+	CvTactPosStorage gTactPosStorage(TACTICAL_PREALLOC_ASSIGNMENT_SIZE * vUnitsFinal.size());
 	do
 	{
 		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnitsFinal, pClosestEnemyPlot, AL_MEDIUM, gTactPosStorage);
@@ -3677,6 +3679,7 @@ bool CvTacticalAI::ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel 
 
 	int iCount = 0;
 	bool bSuccess = false;
+	CvTactPosStorage gTactPosStorage(TACTICAL_PREALLOC_ASSIGNMENT_SIZE * vUnits.size());
 	do
 	{
 		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnits, pTargetPlot, eAggLvl, gTactPosStorage);
@@ -3706,6 +3709,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	//first round: in case there are enemies around, do a combat simulation
 	int iCount = 0;
 	bool bSuccess = false;
+	CvTactPosStorage gTactPosStorage(TACTICAL_PREALLOC_ASSIGNMENT_SIZE * vUnits.size());
 	do
 	{
 		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnits, pCloseRangeTarget, AL_NONE, gTactPosStorage);
@@ -6212,6 +6216,7 @@ bool TacticalAIHelpers::PerformRangedOpportunityAttack(CvUnit* pUnit, bool bAllo
 			GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->LogTacticalMessage(strMsg);
 		}
 
+		CvTactPosStorage gTactPosStorage(TACTICAL_PREALLOC_ASSIGNMENT_SIZE * 1);
 		//no loop needed, there is only one unit anyway
 		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vector<CvUnit*>(1, pUnit), pUnit->plot(), AL_LOW, gTactPosStorage);
 		return TacticalAIHelpers::ExecuteUnitAssignments(pUnit->getOwner(), vAssignments);
@@ -7450,7 +7455,7 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 			{
 				//we don't care for damage here but let's reuse the scoring function
 				STacticalAssignment temp;
-				ScoreAttack(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
+				ScoreAttack(targetPlot, pUnit, testPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), attackCache, temp);
 				iBestAttackScore = max(temp.iScore, iBestAttackScore);
 			}
 
@@ -7976,7 +7981,7 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 	STacticalAssignment newAssignment(unit.iPlotIndex,enemyPlot.getPlotIndex(),unit.iUnitID,unit.iMovesLeft,unit.eMoveStrategy,-1,A_RANGEATTACK);
 
 	//received damage is zero here but still use the correct unit number ratio so as not to distort scores
-	ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), newAssignment);
+	ScoreAttack(enemyPlot, unit.pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), attackCache, newAssignment);
 	if (newAssignment.iScore < 0)
 		return newAssignment;
 
@@ -8028,7 +8033,7 @@ STacticalAssignment ScorePlotForMeleeAttack(const SUnitStats& unit, const CvTact
 		return result;
 
 	//check how much damage we could do
-	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), result);
+	ScoreAttack(enemyPlot, pUnit, assumedUnitPlot, assumedPosition.getAggressionLevel(), assumedPosition.getAggressionBias(), attackCache, result);
 	if (result.iScore < 0)
 		return result;
 
@@ -10574,6 +10579,19 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		}
 #endif
 	}
+
+	storage.reset();
+	attackCache.clear();
+	gReachablePlotsLookup.clear();
+	gRangeAttackPlotsLookup.clear();
+	gLandEnemies.clear();
+	gSeaEnemies.clear();
+	gCitadels.clear();
+	gNewlyVisiblePlots.clear();
+	gPossibleMoves.clear();
+	gOverAllChoices.clear();
+	gMovesToAdd.clear();
+	gChoicePerUnit.clear();
 
 	return result;
 }
