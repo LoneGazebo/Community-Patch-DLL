@@ -11628,10 +11628,11 @@ int CvMinorCivAI::GetFriendshipChangePerTurnTimes100(PlayerTypes ePlayer)
 				double dExtraDecay = pow(dInfluenceAboveRestingPoint, dExponent) * -100;
 				iChangeThisTurn += (int)dExtraDecay;
 			}
-			else
+			else if (iCurrentInfluence - iRestingPoint > 5000)
 			{
-				// If below 100 over resting point, but still over, then extra decay = (Influence over resting point)% of -1. So, 5 over resting point = -0.05 decay
-				int iExtraDecay = (iCurrentInfluence - iRestingPoint) / -100;
+				// If above 50 over resting point, then extra decay = -0.02 per point of Influence above 50, until 100 is reached
+				int iAmountOver50 = iCurrentInfluence - iRestingPoint - 5000;
+				int iExtraDecay = iAmountOver50 / -50;
 				iChangeThisTurn += iExtraDecay;
 			}
 		}
