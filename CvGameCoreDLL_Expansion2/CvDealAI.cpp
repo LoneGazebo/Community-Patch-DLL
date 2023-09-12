@@ -1571,7 +1571,9 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 						if (pLoopCity->IsRazing())
 							continue;
 
-						int iX = pLoopCity->getX(), iY = pLoopCity->getY(), iNumWorkablePlots = pLoopCity->GetNumWorkablePlots();
+						int iX = pLoopCity->getX();
+						int iY = pLoopCity->getY();
+						int iNumWorkablePlots = pLoopCity->GetNumWorkablePlots();
 						for (int iPlotLoop = 0; iPlotLoop < iNumWorkablePlots; iPlotLoop++)
 						{
 							CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iPlotLoop);
@@ -6780,7 +6782,11 @@ DemandResponseTypes CvDealAI::GetRequestForHelpResponse(CvDeal* pDeal)
 	// Possibility exists the AI will accept
 	if(eResponse == NO_DEMAND_RESPONSE_TYPE)
 	{
-		int iGoldRequested = 0, iGPTRequested = 0, iLuxuriesRequested = 0, iStrategicsRequested = 0, iTechsRequested = 0;
+		int iGoldRequested = 0;
+		int iGPTRequested = 0;
+		int iLuxuriesRequested = 0;
+		int iStrategicsRequested = 0;
+		int iTechsRequested = 0;
 		int iTempGold = 0;
 
 		TradedItemList::iterator it;
@@ -7064,7 +7070,8 @@ int CvDealAI::GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlay
 		iTurnsLeft = GetPlayer()->GetPlayerTechs()->GetResearchTurnsLeft(eTech, true, m_vResearchRates[GetPlayer()->GetID()].second);
 	}
 
-	int iI = 0, iTechMod = 0;
+	int iI = 0;
+	int iTechMod = 0;
 
 	for(iI = 0; iI < GC.getNumUnitInfos(); iI++)
 	{

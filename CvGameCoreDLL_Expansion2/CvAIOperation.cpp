@@ -746,7 +746,8 @@ bool CvAIOperation::Move()
 		return false;
 	}
 
-	float fOldVarX,fOldVarY;
+	float fOldVarX;
+	float fOldVarY;
 	CvPlot* pOldCOM = pThisArmy->GetCenterOfMass(false,&fOldVarX,&fOldVarY);
 
 	//todo: move the relevant code from tactical AI to operations
@@ -768,7 +769,8 @@ bool CvAIOperation::Move()
 	//exclude rapid response ops etc
 	if (pThisArmy->GetNumSlotsFilled()>3)
 	{
-		float fNewVarX, fNewVarY;
+		float fNewVarX;
+		float fNewVarY;
 		//center of mass should be moving
 		CvPlot* pNewCOM = pThisArmy->GetCenterOfMass(false, &fNewVarX, &fNewVarY);
 		if (pNewCOM == pOldCOM && fNewVarX >= max(5.f, fOldVarX) && fNewVarY >= max(5.f, fOldVarY))
@@ -1010,7 +1012,10 @@ FDataStream& operator<<(FDataStream& stream, const CvAIOperation& aiOperation)
 #if defined(MOD_BALANCE_CORE)
 const char* CvAIOperation::GetInfoString()
 {
-	CvString strTemp0, strTemp1, strTemp2, strTemp3;
+	CvString strTemp0;
+	CvString strTemp1;
+	CvString strTemp2;
+	CvString strTemp3;
 	strTemp0 = GetOperationName();
 	strTemp1.Format(" (%d) / Target at %d,%d / Muster at %d,%d / ", m_iID, m_iTargetX, m_iTargetY, m_iMusterX, m_iMusterY );
 
@@ -1117,7 +1122,9 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		CvString strTemp, szTemp2, szTemp3;
+		CvString strTemp;
+		CvString szTemp2;
+		CvString szTemp3;
 		CvString strPlayerName;
 		FILogFile* pLog = NULL;
 
@@ -1175,7 +1182,8 @@ void CvAIOperation::LogOperationStatus(bool bPreTurn) const
 			{
 				CvArmyAI* pThisArmy = GetArmy(uiI);
 				//we don't really need the center of mass but the variance
-				float varX=-1,varY=-1;
+				float varX=-1;
+				float varY=-1;
 				CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&varX,&varY);
 				szTemp2.Format("Gathering Forces for army %d; center (%d:%d); variance (%.2f:%.2f); free slots %d", 
 					pThisArmy->GetID(), pCoM->getX(), pCoM->getY(), varX, varY, pThisArmy->GetNumFormationEntries() - pThisArmy->GetNumSlotsFilled());
@@ -1541,7 +1549,8 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 
 			//if we have an initial cluster of units, everyone should go there
 			int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-			float fX = 0, fY = 0;
+			float fX = 0;
+			float fY = 0;
 			CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
 			if (pCoM && fX < iGatherTolerance && fY < iGatherTolerance && GetMusterPlot() && GetTargetPlot())
 			{
@@ -1559,7 +1568,8 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 	case ARMYAISTATE_WAITING_FOR_UNITS_TO_CATCH_UP:
 		{
 			int iGatherTolerance = GetGatherTolerance(pThisArmy, GetMusterPlot());
-			float fX = 0, fY = 0;
+			float fX = 0;
+			float fY = 0;
 			CvPlot* pCoM = pThisArmy->GetCenterOfMass(true,&fX,&fY);
 			if (fX < iGatherTolerance && fY < iGatherTolerance)
 			{
@@ -3356,7 +3366,8 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 		return result;
 
 	int iBestDistance = MAX_INT;
-	int iLoopA = 0, iLoopB = 0;
+	int iLoopA = 0;
+	int iLoopB = 0;
 	for(CvCity* pLoopCityA = GET_PLAYER(ePlayerA).firstCity(&iLoopA); pLoopCityA != NULL; pLoopCityA = GET_PLAYER(ePlayerA).nextCity(&iLoopA))
 	{
 		if(pLoopCityA->isCoastal())

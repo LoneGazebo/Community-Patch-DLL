@@ -1556,7 +1556,8 @@ bool CvMinorCivQuest::IsComplete()
 	}
 	case MINOR_CIV_QUEST_ACQUIRE_CITY:
 	{
-		int iX = m_iData1, iY = m_iData2;
+		int iX = m_iData1;
+		int iY = m_iData2;
 		CvPlot* pPlot = GC.getMap().plot(iX, iY);
 
 		// Conquered or destroyed this city? NOTE: If the player liberated the city, it should still have the "previous owner" flag set
@@ -2241,8 +2242,10 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 	CvPlayer* pAssignedPlayer = &GET_PLAYER(m_eAssignedPlayer);
 
-	Localization::String strMessage, strSummary;
-	int iNotificationX = -1, iNotificationY = -1;
+	Localization::String strMessage;
+	Localization::String strSummary;
+	int iNotificationX = -1;
+	int iNotificationY = -1;
 
 	// Calculate rewards based on quest type
 	CalculateRewards(m_eAssignedPlayer);
@@ -9317,7 +9320,8 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 	int iNumWorldPlots = theMap.numPlots();
 	int iRange = /*12*/ max(GD_INT_GET(MINOR_CIV_QUEST_KILL_CAMP_RANGE), 2);
 	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
-	int iCapitalX = GetPlayer()->getCapitalCity()->getX(), iCapitalY = GetPlayer()->getCapitalCity()->getY();
+	int iCapitalX = GetPlayer()->getCapitalCity()->getX();
+	int iCapitalY = GetPlayer()->getCapitalCity()->getY();
 
 	for (int iI = 0; iI < iNumWorldPlots; iI++)
 	{
@@ -9356,7 +9360,8 @@ CvPlot* CvMinorCivAI::GetBestNearbyDig()
 	int iNumWorldPlots = theMap.numPlots();
 	int iRange = /*12*/ max(GD_INT_GET(MINOR_CIV_QUEST_ARCHAEOLOGY_RANGE), 2);
 	ResourceTypes eAntiquitySite = (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE);
-	int iCapitalX = GetPlayer()->getCapitalCity()->getX(), iCapitalY = GetPlayer()->getCapitalCity()->getY();
+	int iCapitalX = GetPlayer()->getCapitalCity()->getX();
+	int iCapitalY = GetPlayer()->getCapitalCity()->getY();
 
 	for (int iI = 0; iI < iNumWorldPlots; iI++)
 	{
@@ -13012,7 +13017,8 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	if (!IsProtectedByMajor(eMajor))
 		return;
 
-	Localization::String strMessage, strSummary;
+	Localization::String strMessage;
+	Localization::String strSummary;
 
 	if (CanMajorProtect(eMajor, false))
 	{
@@ -13053,7 +13059,8 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	iMaxWarningTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
 	iMaxWarningTurns /= 100;
 
-	bool bBadMilitary = false, bDistance = true;
+	bool bBadMilitary = false;
+	bool bDistance = true;
 	int iMajorStrength = 1; // to avoid division by zero issues
 	std::vector<int> viMilitaryStrengths;
 
@@ -13509,7 +13516,8 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Friends
 		if(IsFriends(ePlayer))
 		{
-			int iOldFood = 0, iNewFood = 0;
+			int iOldFood = 0;
+			int iNewFood = 0;
 
 			// Capital
 			iOldFood = GetFriendsCapitalFoodBonus(ePlayer);
@@ -13535,7 +13543,8 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Allies
 		if(IsAllies(ePlayer))
 		{
-			int iOldFood = 0, iNewFood = 0;
+			int iOldFood = 0;
+			int iNewFood = 0;
 
 			// Capital
 			iOldFood = GetAlliesCapitalFoodBonus(ePlayer);
@@ -13593,7 +13602,8 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Friends
 		if(IsFriends(ePlayer))
 		{
-			int iOldHappiness = 0, iNewHappiness = 0;
+			int iOldHappiness = 0;
+			int iNewHappiness = 0;
 
 			iOldHappiness = GetHappinessFlatFriendshipBonus(ePlayer) + GetHappinessPerLuxuryFriendshipBonus(ePlayer);
 			iNewHappiness = GetHappinessFlatFriendshipBonus(ePlayer, eNewEra) + GetHappinessPerLuxuryFriendshipBonus(ePlayer, eNewEra);
@@ -13608,7 +13618,8 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Allies
 		if(IsAllies(ePlayer))
 		{
-			int iOldHappiness = 0, iNewHappiness = 0;
+			int iOldHappiness = 0;
+			int iNewHappiness = 0;
 
 			iOldHappiness = GetHappinessFlatAlliesBonus(ePlayer) + GetHappinessPerLuxuryAlliesBonus(ePlayer);
 			iNewHappiness = GetHappinessFlatAlliesBonus(ePlayer, eNewEra) + GetHappinessPerLuxuryAlliesBonus(ePlayer, eNewEra);
@@ -18246,7 +18257,8 @@ TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRo
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
 	CvWeightedVector<int> TechVector;
-	int iValue = 0, iProgress = 0;
+	int iValue = 0;
+	int iProgress = 0;
 
 
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);

@@ -357,7 +357,10 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	std::vector<SPlotWithScore> workablePlots;
 	workablePlots.reserve(49);
 
-	int nFoodPlots = 0, nHammerPlots = 0, nWaterPlots = 0, nGoodPlots = 0;
+	int nFoodPlots = 0;
+	int nHammerPlots = 0;
+	int nWaterPlots = 0;
+	int nGoodPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{

@@ -69,7 +69,8 @@ bool CvGoodyHuts::IsHasPlayerReceivedGoodyLately(PlayerTypes ePlayer, GoodyTypes
 /// Reset
 void CvGoodyHuts::Reset()
 {
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	// Allocate memory
 	if (m_aaiPlayerGoodyHutResults == NULL)
