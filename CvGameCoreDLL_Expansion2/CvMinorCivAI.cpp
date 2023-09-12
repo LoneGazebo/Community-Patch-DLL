@@ -119,23 +119,22 @@ int CvMinorCivQuest::GetStartTurn() const
 int CvMinorCivQuest::GetEndTurn() const
 {
 	CvSmallAwardInfo* pkSmallAwardInfo = GC.getSmallAwardInfo((SmallAwardTypes)m_eType);
-	if (pkSmallAwardInfo)
+	ASSERT(pkSmallAwardInfo);
+
+	int iDuration = pkSmallAwardInfo->GetDuration();
+	if (iDuration > 0) // > 0 if the quest is time-sensitive
 	{
-		int iDuration = pkSmallAwardInfo->GetDuration();
-		if (iDuration > 0) // > 0 if the quest is time-sensitive
+		// Horde/Rebellion don't scale with game speed
+		if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
 		{
-			// Horde/Rebellion don't scale with game speed
-			if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
-			{
-				return m_iStartTurn + iDuration;
-			}
-
-			// Modify for game speed
-			iDuration *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-			iDuration /= 100;
-
 			return m_iStartTurn + iDuration;
 		}
+
+		// Modify for game speed
+		iDuration *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+		iDuration /= 100;
+
+		return m_iStartTurn + iDuration;
 	}
 
 	// Other quests are not time-sensitive
@@ -323,8 +322,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 		return;
 
 	CvSmallAwardInfo* pkSmallAwardInfo = GC.getSmallAwardInfo((SmallAwardTypes)m_eType);
-	if (!pkSmallAwardInfo)
-		return;
+	ASSERT(pkSmallAwardInfo);
 
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
 	if (kPlayer.getCapitalCity() == NULL)
@@ -6582,8 +6580,14 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 	int iQuestDuration = 0;
 	CvSmallAwardInfo* pkSmallAwardInfo = GC.getSmallAwardInfo((SmallAwardTypes)eQuest);
-	if (pkSmallAwardInfo)
-		iQuestDuration = pkSmallAwardInfo->GetDuration();
+	ASSERT(pkSmallAwardInfo);
+	iQuestDuration = pkSmallAwardInfo->GetDuration();
+	if (iQuestDuration > 0 && !bSpecialGlobal) // > 0 if the quest is time-sensitive; Horde/Rebellion don't scale with game speed
+	{
+		// Modify for game speed
+		iQuestDuration *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
+		iQuestDuration /= 100;
+	}
 
 	// BUILD A ROUTE
 	switch (eQuest)
