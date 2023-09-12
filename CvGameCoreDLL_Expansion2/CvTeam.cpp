@@ -4316,91 +4316,96 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 	{
 		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
 		m_abAtWar[eIndex] = bNewValue;
-#if defined(MOD_BALANCE_CORE)
-		for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
+		if (MOD_BALANCE_CORE)
 		{
-			PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
-			CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
-			if(kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
+			for (int iAttackingPlayer = 0; iAttackingPlayer < MAX_MAJOR_CIVS; iAttackingPlayer++)
 			{
-				for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
+				PlayerTypes eAttackingPlayer = (PlayerTypes)iAttackingPlayer;
+				CvPlayerAI& kAttackingPlayer = GET_PLAYER(eAttackingPlayer);
+				if (kAttackingPlayer.isAlive() && kAttackingPlayer.getTeam() == GetID())
 				{
-					PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
-					CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
-					if(kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eIndex)
+					for (int iDefendingPlayer = 0; iDefendingPlayer < MAX_MAJOR_CIVS; iDefendingPlayer++)
 					{
-						kAttackingPlayer.recomputeGreatPeopleModifiers();
-						kDefendingPlayer.recomputeGreatPeopleModifiers();
-					}
-				}
-			}
-		}
-#endif
-	}
-
-#if defined(MOD_BALANCE_CORE)
-	//Check for bad units, and capture them!
-	vector<CvUnitCaptureDefinition> kCaptureUnitList;
-
-	vector<PlayerTypes> vOurTeam = getPlayers();
-	for(size_t i=0; i<vOurTeam.size(); i++)
-	{
-		CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
-		if(kPlayer.isAlive())
-		{
-			int iLoop = 0;
-			CvUnit* pLoopUnit = NULL; //for some stupid reason createCaptureUnit is a member of CvUnit and not CvPlayer
-			for(pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
-			{
-				if(pLoopUnit->IsCombatUnit())
-				{
-					for(int iUnitLoop = 0; iUnitLoop < pLoopUnit->plot()->getNumUnits(); iUnitLoop++)
-					{
-						CvUnit* pPotentialCaptureUnit = pLoopUnit->plot()->getUnitByIndex(iUnitLoop);
-
-						if( pPotentialCaptureUnit && 
-							pPotentialCaptureUnit->getTeam()==eIndex && //only from the right team
-							!pPotentialCaptureUnit->IsCombatUnit() && 
-							!pPotentialCaptureUnit->isEmbarked() && 
-							!pPotentialCaptureUnit->isDelayedDeath() ) //can only capture once!
+						PlayerTypes eDefendingPlayer = (PlayerTypes)iDefendingPlayer;
+						CvPlayerAI& kDefendingPlayer = GET_PLAYER(eDefendingPlayer);
+						if (kDefendingPlayer.isAlive() && kDefendingPlayer.getTeam() == eIndex)
 						{
-							if(pPotentialCaptureUnit->getCaptureUnitType(GET_PLAYER(pPotentialCaptureUnit->getOwner()).getCivilizationType()) != NO_UNIT)
-							{
-								CvUnitCaptureDefinition kCaptureDef;
-								if (pPotentialCaptureUnit->getCaptureDefinition(&kCaptureDef, kPlayer.GetID()))
-								{
-									bool bAlreadyCaptured = false;
-									for (uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
-									{
-										if (kCaptureUnitList[uiCaptureIndex].iUnitID == kCaptureDef.iUnitID)
-										{
-											bAlreadyCaptured = true;
-											break;
-										}
-									}
-									if (!bAlreadyCaptured)
-									{
-										kCaptureUnitList.push_back(kCaptureDef);
-									}
-									pPotentialCaptureUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
-								}
-							}
-
-							//be careful here, it's possible we're about to kill a civilian which is right now executing a mission causing this war state change
-							pPotentialCaptureUnit->kill(true, kPlayer.GetID());
+							kAttackingPlayer.recomputeGreatPeopleModifiers();
+							kDefendingPlayer.recomputeGreatPeopleModifiers();
 						}
 					}
 				}
 			}
+		}
+	}
 
-			// Create any units we captured, now that we own the destination
-			for(uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
+	if (MOD_BALANCE_CORE && bNewValue)
+	{
+		//Check for bad units, and capture them!
+		vector<CvUnitCaptureDefinition> kCaptureUnitList;
+
+		vector<PlayerTypes> vOurTeam = getPlayers();
+		for (size_t i = 0; i < vOurTeam.size(); i++)
+		{
+			CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
+			if (kPlayer.isAlive())
 			{
-				pLoopUnit->createCaptureUnit(kCaptureUnitList[uiCaptureIndex], true);
+				int iLoop = 0;
+				CvUnit* pLoopUnit = NULL; //for some stupid reason createCaptureUnit is a member of CvUnit and not CvPlayer
+				for (pLoopUnit = kPlayer.firstUnit(&iLoop); pLoopUnit; pLoopUnit = kPlayer.nextUnit(&iLoop))
+				{
+					if (pLoopUnit->IsCombatUnit())
+					{
+						if (pLoopUnit->plot() != NULL)
+						{
+							for (int iUnitLoop = 0; iUnitLoop < pLoopUnit->plot()->getNumUnits(); iUnitLoop++)
+							{
+								CvUnit* pPotentialCaptureUnit = pLoopUnit->plot()->getUnitByIndex(iUnitLoop);
+
+								if (pPotentialCaptureUnit &&
+									pPotentialCaptureUnit->getTeam() == eIndex && //only from the right team
+									!pPotentialCaptureUnit->IsCombatUnit() &&
+									!pPotentialCaptureUnit->isEmbarked() &&
+									!pPotentialCaptureUnit->isDelayedDeath()) //can only capture once!
+								{
+									if (pPotentialCaptureUnit->getCaptureUnitType(GET_PLAYER(pPotentialCaptureUnit->getOwner()).getCivilizationType()) != NO_UNIT)
+									{
+										CvUnitCaptureDefinition kCaptureDef;
+										if (pPotentialCaptureUnit->getCaptureDefinition(&kCaptureDef, kPlayer.GetID()))
+										{
+											bool bAlreadyCaptured = false;
+											for (uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
+											{
+												if (kCaptureUnitList[uiCaptureIndex].iUnitID == kCaptureDef.iUnitID)
+												{
+													bAlreadyCaptured = true;
+													break;
+												}
+											}
+											if (!bAlreadyCaptured)
+											{
+												kCaptureUnitList.push_back(kCaptureDef);
+											}
+											pPotentialCaptureUnit->setCapturingPlayer(NO_PLAYER);	// Make absolutely sure this is not valid so the kill does not do the capture.
+										}
+									}
+
+									//be careful here, it's possible we're about to kill a civilian which is right now executing a mission causing this war state change
+									pPotentialCaptureUnit->kill(true, kPlayer.GetID());
+								}
+							}
+						}
+					}
+				}
+
+				// Create any units we captured, now that we own the destination
+				for (uint uiCaptureIndex = 0; uiCaptureIndex < kCaptureUnitList.size(); ++uiCaptureIndex)
+				{
+					pLoopUnit->createCaptureUnit(kCaptureUnitList[uiCaptureIndex], true);
+				}
 			}
 		}
 	}
-#endif
 
 	gDLL->GameplayWarStateChanged(GetID(), eIndex, bNewValue);
 }
