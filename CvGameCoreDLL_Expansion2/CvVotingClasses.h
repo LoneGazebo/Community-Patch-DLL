@@ -796,7 +796,6 @@ public:
 
 	void FoundLeague(PlayerTypes eFounder = NO_PLAYER);
 	void DoPlayerAliveStatusChanged(PlayerTypes ePlayer);
-	void DoUnitedNationsBuilt(PlayerTypes eBuilder);
 	
 	int GetNumActiveLeagues();
 	int GetNumLeaguesEverFounded() const;

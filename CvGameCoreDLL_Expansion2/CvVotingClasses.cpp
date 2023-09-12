@@ -8965,7 +8965,7 @@ void CvLeague::DoProjectReward(PlayerTypes ePlayer, LeagueProjectTypes eLeaguePr
 void CvLeague::UpdateName()
 {
 	// Roll for a new name type
-	int iRoll = GC.getGame().randRangeExclusive(0, GC.getNumLeagueNameInfos(), CvSeeder(GC.getNumLeagueNameInfos()));
+	int iRoll = GC.getGame().randRangeExclusive(0, GC.getNumLeagueNameInfos(), CvSeeder::fromRaw(0xe4003ea2).mix(GET_PLAYER(m_eHost).GetID()));
 	CvLeagueNameEntry* pInfo = GC.getLeagueNameInfo((LeagueNameTypes)iRoll);
 	if (pInfo)
 	{
@@ -9541,10 +9541,6 @@ void CvGameLeagues::DoPlayerAliveStatusChanged(PlayerTypes ePlayer)
 	}
 
 	GC.getGame().DoUpdateDiploVictory();
-}
-
-void CvGameLeagues::DoUnitedNationsBuilt(PlayerTypes /*eBuilder*/)
-{
 }
 
 int CvGameLeagues::GetNumActiveLeagues()
@@ -13817,9 +13813,6 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 		}
 	}
 
-	// Choose by weight from the top N
-	CvAssertMsg(vConsiderations.size() > 0, "No proposals available for the AI to make. Please send Anton your save file and version.");
-
 	if (vConsiderations.size() > 0)
 	{
 		vConsiderations.StableSortItems();
@@ -13847,7 +13840,7 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 				vConsiderations.SetWeight(i, 1000);
 			}
 		}
-		RandomNumberDelegate fn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
+
 		ProposalConsideration proposal = vConsiderations.GetElement(0);
 		if (proposal.bEnact)
 		{

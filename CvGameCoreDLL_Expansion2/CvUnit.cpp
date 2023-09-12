@@ -8206,7 +8206,7 @@ void CvUnit::DoAttrition()
 
 		if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() > 0)
 		{
-			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(pPlot->GetPseudoRandomSeed())) < getEnemyDamageChance())
+			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder::fromRaw(0x1396b499).mix(pPlot->GetPseudoRandomSeed())) < getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8214,7 +8214,7 @@ void CvUnit::DoAttrition()
 		}
 		else if (isEnemy(pPlot->getTeam(), pPlot) && getEnemyDamageChance() > 0 && getEnemyDamage() < 0)
 		{
-			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(pPlot->GetPseudoRandomSeed())) <= getEnemyDamageChance())
+			if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xbd4dbf3a).mix(pPlot->GetPseudoRandomSeed())) <= getEnemyDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_ENEMY_UNITS_DEFECT");
 				changeDamage(getEnemyDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -8222,7 +8222,7 @@ void CvUnit::DoAttrition()
 		}
 		else if (getNeutralDamageChance() > 0 && getNeutralDamage() > 0)
 		{
-			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(pPlot->GetPseudoRandomSeed())) < getNeutralDamageChance())
+			if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x2b952129).mix(pPlot->GetPseudoRandomSeed())) <= getNeutralDamageChance())
 			{
 				strAppendText =  GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_ATTRITION");
 				changeDamage(getNeutralDamage(), NO_PLAYER, 0.0, &strAppendText);
@@ -9659,7 +9659,7 @@ bool CvUnit::createFreeLuxury()
 			{
 				if(GC.getMap().getNumResources(eResource) <= 0)
 				{
-					int iRandomFlavor = GC.getGame().randRangeExclusive(0, 100, CvSeeder(iResourceLoop));
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9681,7 +9681,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().randRangeExclusive(0, 100, CvSeeder(iResourceLoop));
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
 					//If we've already got this resource, divide the value by the amount.
 					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
 					{
@@ -9703,7 +9703,7 @@ bool CvUnit::createFreeLuxury()
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 				{
-					int iRandomFlavor = GC.getGame().randRangeExclusive(0, 100, CvSeeder(iResourceLoop));
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
 					if(iRandomFlavor > iBestFlavor)
 					{
 						eResourceToGive = eResource;
@@ -24747,7 +24747,7 @@ void CvUnit::DoConvertReligiousUnitsToMilitary(const CvPlot* pPlot)
 		if (getTeam() != GET_TEAM(kPlayer.getTeam()).GetID())
 		{
 			CvUnit* pConvertUnit = NULL;
-			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(pPlot->GetPseudoRandomSeed())) <= iChanceToConvertReligiousUnit)
+			if (GC.getGame().randRangeInclusive(1, 100, CvSeeder(pPlot->GetPseudoRandomSeed())) <= iChanceToConvertReligiousUnit)
 			{
 				UnitTypes eBestLandUnit = NO_UNIT;
 				int iStrengthBestLandCombat = 0;
@@ -31182,7 +31182,7 @@ void CvUnit::DoPlagueTransfer(CvUnit& defender)
 		CvPromotionEntry* pkPlaguePromotionInfo = GC.getPromotionInfo(eInflictedPlague);
 
 		// Is the plague inflicted?
-		int iRoll = GC.getGame().randRangeExclusive(0, 100, CvSeeder(GetID()).mix(defender.GetID()).mix(iCount));
+		int iRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x09527e40).mix(GetID()).mix(defender.GetID()).mix(iCount));
 		iCount--;
 		if (iRoll > iPlagueChance)
 			return;
@@ -31567,10 +31567,10 @@ void CvUnit::AI_promote()
 			}
 
 			//add some randomness
-			if(iValue > 0)
-				iValue += GC.getGame().randRangeExclusive(0, iValue, CvSeeder(plot()->GetPseudoRandomSeed()).mix(iI));
+			if (iValue > 0)
+				iValue += GC.getGame().randRangeExclusive(0, iValue, CvSeeder::fromRaw(0xe1bc5321).mix(plot()->GetPseudoRandomSeed()).mix(iI));
 
-			if(iValue > iBestValue)
+			if (iValue > iBestValue)
 			{
 				iBestValue = iValue;
 				eBestPromotion = ePromotion;

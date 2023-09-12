@@ -39,61 +39,6 @@ class CvGameCorporations;
 class CvGameContracts;
 #endif
 
-unsigned long hash32(uint input);
-
-/// Helper type for producing seed values.
-struct NODISCARD CvSeeder {
-	uint value;
-
-	inline CvSeeder() : value(0) {}
-	template<typename T> explicit inline CvSeeder(T value) : value(hash32(static_cast<uint>(value))) {}
-	inline CvSeeder(const CvSeeder& other) : value(other.value) {}
-
-	inline static CvSeeder fromRaw(uint rawValue)
-	{
-		CvSeeder newSeed;
-		newSeed.value = rawValue;
-		return newSeed;
-	}
-
-	template<typename T> inline CvSeeder& mixRawAssign(T otherValue)
-	{
-		value ^= static_cast<uint>(otherValue) + 0x9e3779b9 + (value << 6) + (value >> 2);
-		return *this;
-	}
-
-	template<typename T> inline CvSeeder& mixAssign(T otherValue)
-	{
-		return mixRawAssign(hash32(static_cast<uint>(otherValue)));
-	}
-
-	// `mixAssign` is specialized for mixing two seeders.
-	// This is done to avoid rehashing the value within the seeder because it is presumably already hashed.
-	template<> inline CvSeeder& mixAssign<CvSeeder>(CvSeeder otherSeed)
-	{
-		return mixRawAssign(otherSeed.value);
-	}
-
-	template<typename T> inline CvSeeder mixRaw(T otherValue) const
-	{
-		CvSeeder newSeed = *this;
-		newSeed.mixRawAssign(otherValue);
-		return newSeed;
-	}
-
-	template<typename T> inline CvSeeder mix(T otherValue) const
-	{
-		CvSeeder newSeed = *this;
-		newSeed.mixAssign(otherValue);
-		return newSeed;
-	}
-
-	inline operator uint() const
-	{
-		return value;
-	}
-};
-
 class CvGameInitialItemsOverrides
 {
 public:
@@ -733,6 +678,7 @@ public:
 
 	UnitTypes GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged);
 	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource = false, bool bIncludeOwnUUsOnly = false, bool bRandom = true);
+	UnitTypes GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom, CvSeeder seed);
 	UnitTypes GetCsGiftSpawnUnitType(PlayerTypes ePlayer, bool bIncludeShips);
 
 	UnitTypes GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bIncludeStartEra, bool bIncludeOldEras, bool bIncludeRanged, bool bCoastal, int iPlotX, int iPlotY);

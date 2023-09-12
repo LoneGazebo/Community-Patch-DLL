@@ -724,11 +724,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	if (!bInterruptWonders && m_pCity->IsBuildingWorldWonder())
 		return;
 
-
 	CvCityBuildable buildable;
-
-
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	// Reset vector holding items we can currently build
 	m_Buildables.clear();
@@ -1107,7 +1103,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			// otherwise, pick using weighted randomization from the top choices
 			else
 			{
-				selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city build from Top Choices");
+				selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), CvSeeder::fromRaw(0x0e36d18b).mix(m_pCity->GetID()));
 			}
 		}
 
@@ -1183,8 +1179,6 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	CvPlayerAI& kPlayer = GET_PLAYER(m_pCity->getOwner());
 	iTempWeight = 0;
-
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 
 	YieldTypes ePurchaseYield = YIELD_GOLD;
 	if (bFaithPurchase)
@@ -1417,7 +1411,7 @@ CvCityBuildable CvCityStrategyAI::ChooseHurry(bool bUnitOnly, bool bFaithPurchas
 
 	if (m_Buildables.GetTotalWeight() > 0)
 	{
-		selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), &fcn, "Choosing city hurry from Top Choices");
+		selection = m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), CvSeeder::fromRaw(0xe362f42a).mix(m_pCity->GetID()));
 		return selection;
 	}
 

@@ -463,16 +463,14 @@ void CvFlavorManager::RandomizeWeights()
 		// Don't modify it if it's zero-ed out in the XML
 		if (m_piPersonalityFlavor[iI] != 0)
 		{
-			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, seed);
+			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, CvSeeder::fromRaw(0xe655df8f).mix(m_pPlayer->GetID()).mix(iI));
 		}
 	}
 }
 
 /// Add a random plus/minus to an integer (but keep it in range)
-int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, CvSeeder& seed)
+int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, CvSeeder seed)
 {
-	seed.mixAssign(iOriginalValue).mixAssign(iPlusMinus);
-
 	// Randomize!
 	int iAdjust = GC.getGame().randRangeExclusive(0, (iPlusMinus * 2 + 1), seed);
 	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;

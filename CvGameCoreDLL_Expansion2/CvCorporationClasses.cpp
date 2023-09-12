@@ -1022,8 +1022,13 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	if (eFranchiseBuilding == NO_BUILDING)
 		return;
 
-	int iBaseChance = pkCorporation->GetRandomSpreadChance();
-	iBaseChance += GetCorporationRandomForeignFranchiseMod();
+	int iSpreadChance = pkCorporation->GetRandomSpreadChance();
+	iSpreadChance += GetCorporationRandomForeignFranchiseMod();
+
+	// Randomly roll to see if we spread anywhere this turn
+	int iSpreadRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x89d2f3fe).mix(m_pPlayer->GetID()));
+	if (iSpreadRoll > iSpreadChance)
+		return;
 
 	CvCity* pBestCity = 0;
 	int iBestScore = 0;
@@ -1063,8 +1068,7 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 				if (pLoopCity->IsHasFranchise(GetFoundedCorporation()))
 					continue;
 
-				int iChance = GC.getGame().randRangeExclusive(0, 100, pLoopCity->plot()->GetPseudoRandomSeed()) + GC.getGame().randRangeExclusive(0, 100, CvSeeder(pLoopCity->getFood()));
-
+				int iChance = GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x61e74940).mix(pLoopCity->plot()->GetPseudoRandomSeed())) + GC.getGame().randRangeExclusive(0, 101, CvSeeder::fromRaw(0x533dfdcd).mix(pLoopCity->plot()->GetPseudoRandomSeed()));
 				int iScore = 500 - iChance;
 
 				int iLoop2 = 0;
@@ -1092,72 +1096,68 @@ void CvPlayerCorporations::BuildRandomFranchiseInCity()
 	}
 	if (pBestCity != NULL && iBestScore != 0)
 	{
-		int iSpreadChance = GC.getGame().randRangeExclusive(0, 100, pBestCity->plot()->GetPseudoRandomSeed());
-		if (iSpreadChance <= iBaseChance)
+		CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);
+		if (pBuildingInfo)
 		{
-			CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eFranchiseBuilding);
-			if (pBuildingInfo)
+			pBestCity->GetCityBuildings()->SetNumRealBuilding(eFranchiseBuilding, 1, true);
+
+			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 			{
-				pBestCity->GetCityBuildings()->SetNumRealBuilding(eFranchiseBuilding, 1, true);
-
-				for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
+				pBestCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
+				CvCity* pLoopCity = NULL;
+				int iLoop = 0;
+				for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 				{
-					pBestCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
-					CvCity* pLoopCity = NULL;
-					int iLoop = 0;
-					for (pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+					if (pLoopCity != NULL)
 					{
-						if (pLoopCity != NULL)
-						{
-							pLoopCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
-						}
+						pLoopCity->UpdateYieldFromCorporationFranchises((YieldTypes)iI);
 					}
 				}
+			}
 
-				// send notification to owner player and target player
-				if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+			// send notification to owner player and target player
+			if (m_pPlayer->GetID() == GC.getGame().getActivePlayer())
+			{
+				CvNotifications* pNotifications = m_pPlayer->GetNotifications();
+				if (pNotifications)
 				{
-					CvNotifications* pNotifications = m_pPlayer->GetNotifications();
-					if (pNotifications)
-					{
-						Localization::String strSummary;
-						Localization::String strMessage;
+					Localization::String strSummary;
+					Localization::String strMessage;
 
-						strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM_SUMMARY");
-						strSummary << pBuildingInfo->GetTextKey();
-						strSummary << pBestCity->getNameKey();
-						strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM");
-						strMessage << pBestCity->getNameKey();
-						strMessage << pBuildingInfo->GetTextKey();
-						pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
-					}
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM_SUMMARY");
+					strSummary << pBuildingInfo->GetTextKey();
+					strSummary << pBestCity->getNameKey();
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FREEDOM");
+					strMessage << pBestCity->getNameKey();
+					strMessage << pBuildingInfo->GetTextKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
 				}
-				else if(pBestCity->getOwner() == GC.getGame().getActivePlayer())
+			}
+			else if (pBestCity->getOwner() == GC.getGame().getActivePlayer())
+			{
+				CvNotifications* pNotifications = GET_PLAYER(pBestCity->getOwner()).GetNotifications();
+				if (pNotifications)
 				{
-					CvNotifications* pNotifications = GET_PLAYER(pBestCity->getOwner()).GetNotifications();
-					if(pNotifications)
-					{
-						Localization::String strSummary;
-						Localization::String strMessage;
+					Localization::String strSummary;
+					Localization::String strMessage;
 
-						strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY");
-						strSummary << pBuildingInfo->GetTextKey();
-						strSummary << pBestCity->getNameKey();
-						strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM");
-						strMessage << pBestCity->getNameKey();
-						strMessage << pBuildingInfo->GetTextKey();
-						strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
-						pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
-					}
+					strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM_SUMMARY");
+					strSummary << pBuildingInfo->GetTextKey();
+					strSummary << pBestCity->getNameKey();
+					strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_TRADE_UNIT_CORPORATION_BUILDING_FOREIGN_FREEDOM");
+					strMessage << pBestCity->getNameKey();
+					strMessage << pBuildingInfo->GetTextKey();
+					strMessage << m_pPlayer->getCivilizationShortDescriptionKey();
+					pNotifications->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pBestCity->getX(), pBestCity->getY(), -1, -1);
 				}
-				RecalculateNumFranchises();
+			}
+			RecalculateNumFranchises();
 
-				if (GC.getLogging() && GC.getAILogging())
-				{
-					CvString strLogString;
-					strLogString.Format("Spread Corporate Building via Randomized Function. City: %s. Building: %s.", pBestCity->getName().c_str(), pBuildingInfo->GetText());
-					LogCorporationMessage(strLogString);
-				}
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strLogString;
+				strLogString.Format("Spread Corporate Building via Randomized Function. City: %s. Building: %s.", pBestCity->getName().c_str(), pBuildingInfo->GetText());
+				LogCorporationMessage(strLogString);
 			}
 		}
 	}

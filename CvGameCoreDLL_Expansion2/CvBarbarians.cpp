@@ -186,13 +186,13 @@ void CvBarbarians::ActivateBarbSpawner(CvPlot* pPlot)
 	// Cities spawn units 2x as often as camps
 	if (pPlot->isCity())
 	{
-		iNumTurnsToSpawn = /*6*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_CITY);
-		iNumTurnsToSpawn += kGame.randRangeExclusive(0, /*5*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_CITY_RAND), pPlot->GetPseudoRandomSeed());
+		iNumTurnsToSpawn += /*6*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_CITY);
+		iNumTurnsToSpawn += kGame.randRangeInclusive(0, /*4*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_CITY_RAND), CvSeeder::fromRaw(0xcba27d50).mix(pPlot->GetPseudoRandomSeed()));
 	}
 	else
 	{
-		iNumTurnsToSpawn = /*12*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT);
-		iNumTurnsToSpawn += kGame.randRangeExclusive(0, /*10*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_RAND), pPlot->GetPseudoRandomSeed());
+		iNumTurnsToSpawn += /*12*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT);
+		iNumTurnsToSpawn += kGame.randRangeInclusive(0, /*10*/ GD_INT_GET(BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_RAND), CvSeeder::fromRaw(0x00b6f938).mix(pPlot->GetPseudoRandomSeed()));
 	}
 
 	// Chill
@@ -244,12 +244,8 @@ void CvBarbarians::ActivateBarbSpawner(CvPlot* pPlot)
 	iNumTurnsToSpawn += kGame.getHandicapInfo().getBarbarianSpawnDelay();
 
 	// Game Speed can increase or decrease amount of time between spawns (ranges from 67 on Quick to 400 on Marathon)
-	CvGameSpeedInfo* pGameSpeedInfo = GC.getGameSpeedInfo(kGame.getGameSpeedType());
-	if (pGameSpeedInfo)
-	{
-		iNumTurnsToSpawn *= pGameSpeedInfo->getBarbPercent();
-		iNumTurnsToSpawn /= 100;
-	}
+	iNumTurnsToSpawn *= GC.getGame().getGameSpeedInfo().getBarbPercent();
+	iNumTurnsToSpawn /= 100;
 
 	SetBarbSpawnerCounter(pPlot, std::max(iNumTurnsToSpawn, /*2*/ std::max(GD_INT_GET(BARBARIAN_MIN_SPAWN_DELAY), 1)));
 }
@@ -380,22 +376,24 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 	int iDefenderDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pCity, pUnit, pUnit->plot(), iAttackerDamage);
 
 	//tried but failed
-	if (iDefenderDamage <= 0 || iAttackerDamage >= pUnit->GetCurrHitPoints())
-		return true;
+	if (iDefenderDamage <= 0 || iAttackerDamage >= pUnit->GetCurrHitPoints() || pUnit->GetCurrHitPoints() <= 1)
+		return false;
 
 	//they get x turns worth of yields
-	int iTheftTurns = std::max(1, iDefenderDamage / 30 + GC.getGame().randRangeExclusive(0, 5, GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()));
+	int iTheftTurns = iDefenderDamage / 30 + GC.getGame().randRangeInclusive(1, 4, GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed().mix(pUnit->GetID()));
 
 	//but they lose some health in exchange
-	pUnit->changeDamage(GC.getGame().randRangeExclusive(0, std::min(pUnit->GetCurrHitPoints(),30), GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed().mix(iDefenderDamage)));
+	int iDamageTaken = GC.getGame().randRangeExclusive(1, std::min(pUnit->GetCurrHitPoints(),31), pUnit->plot()->GetPseudoRandomSeed().mix(iDefenderDamage).mix(iTheftTurns));
+	int iRemainingHP = pUnit->GetCurrHitPoints() - iDamageTaken;
 
 	//which yield is affected?
-	int iYield = GC.getGame().randRangeExclusive(0, 10, GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed().mix(pUnit->plot()->GetPlotIndex()));
+	int iYield = GC.getGame().randRangeInclusive(1, 10, pCity->plot()->GetPseudoRandomSeed().mix(pUnit->plot()->GetPlotIndex()).mix(iDamageTaken).mix(iRemainingHP));
 	if (iYield <= 2)
 	{
-		int iGold = std::min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, pUnit->GetCurrHitPoints());
+		int iGold = std::min(pCity->getBaseYieldRate(YIELD_GOLD) * iTheftTurns, iRemainingHP);
 		if (iGold > 0)
 		{
+			pUnit->changeDamage(iDamageTaken);
 			GET_PLAYER(pCity->getOwner()).GetTreasury()->ChangeGold(-iGold);
 
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_GOLD_THEFT_CITY_DETAILED");
@@ -413,13 +411,15 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 			CvString strLog;
 			strLog.Format("Barbarians stole %d gold from %s", iGold, pCity->getNameKey());
 			GET_PLAYER(pCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+			return true;
 		}
 	}
 	else if (iYield <= 4)
 	{
-		int iCulture = std::min(pCity->getJONSCulturePerTurn() * iTheftTurns, pUnit->GetCurrHitPoints());
+		int iCulture = std::min(pCity->getJONSCulturePerTurn() * iTheftTurns, iRemainingHP);
 		if (iCulture > 0)
 		{
+			pUnit->changeDamage(iDamageTaken);
 			GET_PLAYER(pCity->getOwner()).changeJONSCulture(-iCulture);
 
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_CULTURE_THEFT_CITY_DETAILED");
@@ -436,6 +436,7 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 			CvString strLog;
 			strLog.Format("Barbarians stole %d culture from %s", iCulture, pCity->getNameKey());
 			GET_PLAYER(pCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+			return true;
 		}
 	}
 	else if (iYield <= 6)
@@ -444,9 +445,10 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 		int iScience = 0;
 		if (eCurrentTech != NO_TECH)
 		{
-			iScience = std::min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, pUnit->GetCurrHitPoints());
+			iScience = std::min(pCity->getBaseYieldRate(YIELD_SCIENCE) * iTheftTurns, iRemainingHP);
 			if (iScience > 0)
 			{
+				pUnit->changeDamage(iDamageTaken);
 				GET_TEAM(pCity->getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, -iScience, pCity->getOwner());
 
 				Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_SCIENCE_THEFT_CITY_DETAILED");
@@ -464,14 +466,16 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 				CvString strLog;
 				strLog.Format("Barbarians stole %d science from %s", iScience, pCity->getNameKey());
 				GET_PLAYER(pCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+				return true;
 			}
 		}
 	}
 	else if (iYield <= 8)
 	{
-		int iFood = std::min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, pUnit->GetCurrHitPoints());
+		int iFood = std::min(pCity->getBaseYieldRate(YIELD_FOOD) * iTheftTurns, iRemainingHP);
 		if (iFood > 0)
 		{
+			pUnit->changeDamage(iDamageTaken);
 			pCity->changeFood(-iFood);
 
 			Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_FOOD_THEFT_CITY_DETAILED");
@@ -489,15 +493,17 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 			CvString strLog;
 			strLog.Format("Barbarians stole %d food from %s", iFood, pCity->getNameKey());
 			GET_PLAYER(pCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+			return true;
 		}
 	}
 	else
 	{
-		if ((pCity->getProduction() > 0) && (pCity->getProductionTurnsLeft() >= 2) && (pCity->getProductionTurnsLeft() != INT_MAX))
+		if (pCity->getProduction() > 0 && pCity->getProductionTurnsLeft() >= 2 && pCity->getProductionTurnsLeft() != INT_MAX)
 		{
-			int iProduction = std::min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, pUnit->GetCurrHitPoints());
+			int iProduction = std::min(pCity->getBaseYieldRate(YIELD_PRODUCTION) * iTheftTurns, iRemainingHP);
 			if (iProduction > 0)
 			{
+				pUnit->changeDamage(iDamageTaken);
 				pCity->changeProduction(-iProduction);
 
 				Localization::String strMessage = Localization::Lookup("TXT_KEY_BARBARIAN_PRODUCTION_THEFT_CITY_DETAILED");
@@ -515,11 +521,12 @@ bool CvBarbarians::DoStealFromCity(CvUnit* pUnit, CvCity* pCity)
 				CvString strLog;
 				strLog.Format("Barbarians stole %d production from %s", iProduction, pCity->getNameKey());
 				GET_PLAYER(pCity->getOwner()).GetHomelandAI()->LogHomelandMessage(strLog);
+				return true;
 			}
 		}
 	}
 
-	return true;
+	return false;
 }
 
 bool CvBarbarians::DoTakeOverCityState(CvCity* pCity)
@@ -594,7 +601,8 @@ void CvBarbarians::DoCamps()
 		// In Community Patch only, 1/2 chance of spawning a camp each turn (after turn 0)
 		else if (GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING) > 0)
 		{
-			if (kGame.randRangeExclusive(0, /*2*/ std::max(GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING), 1), CvSeeder(kGame.getGameTurn()).mix(kGame.getGameTurn())) == 0)
+			int iRandom = kGame.randRangeInclusive(1, 100, CvSeeder::fromRaw(0xe5987a38));
+			if (iRandom <= /*50*/ GD_INT_GET(BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING))
 			{
 				iNumCampsToAdd = /*1*/ GD_INT_GET(BARBARIAN_CAMP_NUM_AFTER_INITIAL);
 				iNumCampsToAdd += kGame.isOption(GAMEOPTION_CHILL_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_CAMP_NUM_AFTER_INITIAL_CHILL) : 0;
@@ -745,7 +753,7 @@ void CvBarbarians::DoCamps()
 		if (vPotentialPlots.size() > 1)
 		{
 			//do one iteration of a fisher-yates shuffle
-			uint uSwap = kGame.urandLimitExclusive(vPotentialPlots.size(), pLoopPlot->GetPseudoRandomSeed().mix(vPotentialPlots.size()).mix(iGameTurn));
+			uint uSwap = kGame.urandLimitExclusive(vPotentialPlots.size(), CvSeeder::fromRaw(0xfee11010).mix(pLoopPlot->GetPseudoRandomSeed()));
 			std::swap(vPotentialPlots[uSwap],vPotentialPlots.back());
 		}
 
@@ -756,7 +764,7 @@ void CvBarbarians::DoCamps()
 			if (vPotentialCoastalPlots.size() > 1)
 			{
 				//do one iteration of a fisher-yates shuffle
-				uint uSwap = kGame.urandLimitExclusive(vPotentialCoastalPlots.size(), pLoopPlot->GetPseudoRandomSeed().mix(vPotentialCoastalPlots.size()).mix(iGameTurn));
+				uint uSwap = kGame.urandLimitExclusive(vPotentialCoastalPlots.size(), CvSeeder::fromRaw(0x183f902e).mix(pLoopPlot->GetPseudoRandomSeed()));
 				std::swap(vPotentialCoastalPlots[uSwap],vPotentialCoastalPlots.back());
 			}
 		}
@@ -909,7 +917,7 @@ void CvBarbarians::DoCamps()
 			break;
 
 		// Pick a plot
-		uint uIndex = kGame.urandLimitExclusive(vRelevantPlots.size(), CvSeeder(vRelevantPlots.size()).mix(iNumCampsInExistence).mix(GC.getGame().getGameTurn()));
+		uint uIndex = kGame.urandLimitExclusive(vRelevantPlots.size(), CvSeeder::fromRaw(0xe4ddfef8).mix(iNumCampsInExistence));
 		CvPlot* pPlot = vRelevantPlots[uIndex];
 
 		// Spawn a camp and units to defend it!
@@ -1142,7 +1150,7 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	if (bSpawnOnPlot)
 	{
 		UnitAITypes ePreferredType = (eReason == BARB_SPAWN_FROM_CITY || eReason == BARB_SPAWN_CITY_STATE_CAPTURE) ? UNITAI_RANGED : UNITAI_DEFENSE;
-		UnitTypes eUnit = GetRandomBarbarianUnitType(pPlot, ePreferredType, eUniqueUnitPlayer, vValidResources, pPlot->GetPseudoRandomSeed().mix(iNumUnits).mix(GC.getGame().getGameTurn()));
+		UnitTypes eUnit = GetRandomBarbarianUnitType(pPlot, ePreferredType, eUniqueUnitPlayer, vValidResources, CvSeeder::fromRaw(0x20a3b92c).mix(pPlot->GetPseudoRandomSeed()));
 		CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 		if (pkUnitInfo)
 		{
@@ -1233,12 +1241,12 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 				break;
 
 			// Choose a random plot
-			uint uIndex = GC.getGame().urandLimitExclusive(vBarbSpawnPlots.size(), pPlot->GetPseudoRandomSeed());
+			uint uIndex = GC.getGame().urandLimitExclusive(vBarbSpawnPlots.size(), CvSeeder::fromRaw(0xe7e33cc1).mix(pPlot->GetPseudoRandomSeed()).mix(iNumUnitsSpawned));
 			CvPlot* pSpawnPlot = vBarbSpawnPlots[uIndex];
 			UnitAITypes eUnitAI = pSpawnPlot->isWater() ? UNITAI_ATTACK_SEA : UNITAI_FAST_ATTACK;
 
 			// Pick a unit
-			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eUniqueUnitPlayer, vValidResources, CvSeeder(vBarbSpawnPlots.size()).mix(iNumUnits).mix(GC.getGame().getGameTurn()).mix(iNumUnitsSpawned));
+			UnitTypes eUnit = GetRandomBarbarianUnitType(pSpawnPlot, eUnitAI, eUniqueUnitPlayer, vValidResources, CvSeeder::fromRaw(0xea7311de).mix(pSpawnPlot->GetPseudoRandomSeed()));
 			CvUnitEntry* pkUnitInfo = GC.getUnitInfo(eUnit);
 			if (pkUnitInfo)
 			{
@@ -1460,7 +1468,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 
 	//choose from top 5
 	int iNumCandidates = /*5*/ range(GD_INT_GET(BARBARIAN_UNIT_SPAWN_NUM_CANDIDATES), 1, candidates.size());
-	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, 5, pPlot->GetPseudoRandomSeed().mix(additionalSeed));
+	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, 5, additionalSeed);
 
 	//custom override
 	if (MOD_EVENTS_BARBARIANS)

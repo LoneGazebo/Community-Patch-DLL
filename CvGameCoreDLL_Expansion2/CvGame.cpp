@@ -8947,6 +8947,14 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
 UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom)
 {
+	if (bIncludeRanged)
+		return GetCompetitiveSpawnUnitType(ePlayer, bIncludeUUs, true, bIncludeShips, bNoResource, bIncludeOwnUUsOnly, bRandom, CvSeeder::fromRaw(0xb5272cbd).mix(GET_PLAYER(ePlayer).GetID()));
+
+	return GetCompetitiveSpawnUnitType(ePlayer, bIncludeUUs, false, bIncludeShips, bNoResource, bIncludeOwnUUsOnly, bRandom, CvSeeder::fromRaw(0xdea52530).mix(GET_PLAYER(ePlayer).GetID()));
+}
+
+UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom, CvSeeder seed)
+{
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
@@ -9121,8 +9129,7 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 	// Choose from weighted unit types
 	veUnitRankings.StableSortItems();
 	int iNumChoices = bRandom ? /*5*/ GD_INT_GET(UNIT_SPAWN_NUM_CHOICES) : 1;
-	RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-	UnitTypes eChosenUnit = veUnitRankings.ChooseFromTopChoices(iNumChoices, &randFn, "Choosing competitive unit from top choices");
+	UnitTypes eChosenUnit = veUnitRankings.ChooseFromTopChoices(iNumChoices, seed);
 
 	return eChosenUnit;
 }
@@ -10755,31 +10762,6 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 }
 
 //	--------------------------------------------------------------------------------
-// Get a fake random number which depends only on game state
-// for small numbers (e.g. direction rolls) this should be good enough
-// most importantly, it should reduce desyncs in multiplayer
-
-//this is the pcg hash function which is supposed to be better than wang or jenkins; not that it matters much ...
-unsigned long hash32(uint input)
-{
-    unsigned long state = input * 747796405u + 2891336453u;
-    unsigned long word = ((state >> ((state >> 28u) + 4u)) ^ state) * 277803737u;
-    return (word >> 22u) ^ word;
-}
-
-/*
-//here is another one which is supposed to be good
-unsigned long hash32(unsigned long x)
-{
-    x ^= x >> 16;
-    x *= 0xa812d533;
-    x ^= x >> 15;
-    x *= 0xb278e4ad;
-    x ^= x >> 17;
-    return x;
-}
-*/
-
 uint CvGame::randCore(CvSeeder extraSeed) const
 {
 	const CvSeeder mapSeed = CvSeeder::fromRaw(CvPreGame::mapRandomSeed());
@@ -13732,9 +13714,6 @@ void CvGame::SpawnArchaeologySitesHistorically()
 	}
 	eEraWeights.StableSortItems();
 
-	RandomNumberDelegate fcn;
-	fcn = MakeDelegate(this, &CvGame::getJonRandNum);
-
 	// find out how many dig sites we have now
 	int iHowManyChosenDigSites = 0;
 
@@ -13775,7 +13754,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 				if(pPlot->GetArchaeologicalRecord().m_eArtifactType == NO_GREAT_WORK_ARTIFACT_CLASS)
 				{
 					// pick an era before this one
-					EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(&fcn, "Choosing an era by weight"));
+					EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(CvSeeder::fromRaw(0xab7cdc61).mix(pPlot->GetPseudoRandomSeed())));
 					eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
 
 					// pick a type of artifact
@@ -13842,7 +13821,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		CvPlot* pPlot = theMap.plotByIndexUnchecked(iBestSite);
 
 		// Hidden site?
-		bool bHiddenSite = GC.getGame().randRangeExclusive(0, 100, pPlot->GetPseudoRandomSeed())  < /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN);
+		bool bHiddenSite = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x5b7e949d).mix(pPlot->GetPseudoRandomSeed())) <= /*30*/ GD_INT_GET(PERCENT_SITES_HIDDEN);
 		if (bHiddenSite)
 		{
 			pPlot->setResourceType(eHiddenArtifactResourceType, 1);
@@ -13857,7 +13836,7 @@ void CvGame::SpawnArchaeologySitesHistorically()
 		{
 			// fake the historical data
 			// pick an era before this one			
-			EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(&fcn, "Choosing an era by weight"));
+			EraTypes eEra = static_cast<EraTypes>(eEraWeights.ChooseByWeight(CvSeeder::fromRaw(0x5b75b72a).mix(pPlot->GetPseudoRandomSeed())));
 			eEra = eEra > static_cast<EraTypes>(0) ? eEra : static_cast<EraTypes>(0);
 
 			// pick a type of artifact

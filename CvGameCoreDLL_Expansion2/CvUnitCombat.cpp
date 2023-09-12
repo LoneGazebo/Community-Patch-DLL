@@ -354,9 +354,9 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		}
 		else if (iAttackerTotalDamageInflicted >= iDefenderMaxHP && kAttacker.IsCaptureDefeatedEnemy() && kAttacker.getDomainType()==pkDefender->getDomainType())
 		{
-			int iCaptureRoll = GC.getGame().randRangeExclusive(0, 100, CvSeeder(pkDefender->GetID()).mix(plot.GetPseudoRandomSeed()));
+			int iCaptureRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x3b80ed93).mix(pkDefender->GetID()).mix(plot.GetPseudoRandomSeed()));
 
-			if (iCaptureRoll < kAttacker.GetCaptureChance(pkDefender))
+			if (iCaptureRoll <= kAttacker.GetCaptureChance(pkDefender))
 			{
 				bAdvance = false;
 				pkCombatInfo->setDefenderCaptured(true);
@@ -1079,8 +1079,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 #if defined(MOD_BALANCE_CORE)
 						if (pkAttacker->GetMoraleBreakChance() > 0 && !pkDefender->isDelayedDeath() && pkDefender->GetNumFallBackPlotsAvailable(*pkAttacker) > 0)
 						{
-							int iRand = GC.getGame().randRangeExclusive(0, 100, CvSeeder(pkDefender->GetID()).mix(pkDefender->plot()->GetPseudoRandomSeed()));
-							if(iRand <= pkAttacker->GetMoraleBreakChance())
+							int iRand = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xd7e83836).mix(pkDefender->GetID()).mix(pkDefender->plot()->GetPseudoRandomSeed()));
+							if (iRand <= pkAttacker->GetMoraleBreakChance())
 							{
 								if (pkDefender->DoFallBack(*pkAttacker))
 								{
@@ -1538,10 +1538,10 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 	{
 		// Does the attacker evade?
 		int iInterceptionDamage = 0;
-		if(kAttacker.evasionProbability()==0 || GC.getGame().randRangeExclusive(0, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(pInterceptor->GetID()).mix(pInterceptor->getMadeInterceptionCount())) >= kAttacker.evasionProbability())
+		if(kAttacker.evasionProbability()==0 || GC.getGame().randRangeInclusive(1, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(pInterceptor->GetID()).mix(pInterceptor->getMadeInterceptionCount())) > kAttacker.evasionProbability())
 		{
 			// Is the interception successful?
-			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().randRangeExclusive(0, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(kAttacker.GetID()).mix(kAttacker.getDamage())) <= pInterceptor->interceptionProbability())
+			if (pInterceptor->interceptionProbability()>=100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(kAttacker.GetID()).mix(kAttacker.getDamage())) <= pInterceptor->interceptionProbability())
 			{
 				bool bIncludeRand = !GC.getGame().isGameMultiPlayer();
 				iInterceptionDamage = pInterceptor->GetInterceptionDamage(&kAttacker, bIncludeRand, &plot);
@@ -2532,7 +2532,7 @@ void CvUnitCombat::GenerateNuclearCombatInfo(CvUnit& kAttacker, CvPlot& plot, Cv
 			BATTLE_JOINED(plot.getPlotCity(), BATTLE_UNIT_DEFENDER, true);
 			pkCombatInfo->setCity(BATTLE_UNIT_DEFENDER, pInterceptionCity);
 
-			if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(kAttacker.GetID())) <= pInterceptionCity->getNukeInterceptionChance())
+			if (GC.getGame().randRangeInclusive(1, 100, CvSeeder(plot.GetPseudoRandomSeed()).mix(kAttacker.GetID())) <= pInterceptionCity->getNukeInterceptionChance())
 			{
 				bInterceptionSuccess = true;
 			}

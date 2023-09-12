@@ -105,7 +105,7 @@ UnitClassTypes CvGameQueries::GetLeastAdvancedUnitClassNobodyHas(bool bUseRandom
 			// Add a random bit so that the same Unit isn't ALWAYS picked
 			if (bUseRandom)
 			{
-				iWeight += GC.getGame().randRangeInclusive(0, iWeight / 10, CvSeeder(iWeight).mix(i));
+				iWeight += GC.getGame().randRangeInclusive(0, iWeight / 10, CvSeeder::fromRaw(0x19bc549e).mix(i));
 			}
 
 			UnitClassesVector.push_back(i, iWeight);

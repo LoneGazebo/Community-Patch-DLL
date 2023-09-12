@@ -6,9 +6,10 @@
 #include <vector>
 #include <algorithm>
 #include "EventSystem/FastDelegate.h"
+#include "CvRandom.h"
 
 // Functor for random number callback routine
-typedef fastdelegate::FastDelegate2<int, const char *, int> RandomNumberDelegate;
+typedef fastdelegate::FastDelegate2<int, const char*, int> RandomNumberDelegate;
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 //  CLASS:     CvWeightedVector
@@ -67,35 +68,31 @@ public:
 	/// Accessor for element
 	const T& GetElement (unsigned int iIndex) const
 	{
-		assert(iIndex < m_items.size());
+		ASSERT(iIndex < m_items.size());
 		return m_items[iIndex].m_Element;
 	};
 
 	/// Accessor for element
 	void SetElement (unsigned int iIndex, const T& iValue)
 	{
-		assert(iIndex < m_items.size());
-		if (iIndex<m_items.size())
-			m_items[iIndex].m_Element = iValue;
+		ASSERT(iIndex < m_items.size());
+		m_items[iIndex].m_Element = iValue;
 	};
 
 	/// Accessors for weight
-	int GetWeight (unsigned int	 iIndex) const
+	int GetWeight (unsigned int iIndex) const
 	{
-		assert(iIndex < m_items.size());
+		ASSERT(iIndex < m_items.size());
 		return m_items[iIndex].m_iWeight;
-	}
-	void IncreaseWeight (unsigned int iIndex, int iWeight)
-	{
-		if (iIndex<m_items.size())
-			m_items[iIndex].m_iWeight += iWeight;
-		CvAssertMsg(m_items[iIndex].m_iWeight >= 0, "Weight should not be negative.");
 	}
 	void SetWeight (unsigned int iIndex, int iWeight)
 	{
-		if (iIndex<m_items.size())
-			m_items[iIndex].m_iWeight = iWeight;
-		CvAssertMsg(m_items[iIndex].m_iWeight >= 0, "Weight should not be negative.");
+		ASSERT(iWeight >= 0);
+		m_items[iIndex].m_iWeight = iWeight;
+	}
+	void IncreaseWeight (unsigned int iIndex, int iWeight)
+	{
+		SetWeight(iIndex, GetWeight(iIndex) + iWeight);
 	}
 
 	/// Return total of all weights stored in vector
@@ -107,6 +104,7 @@ public:
 		{
 			WeightedElement elem = m_items[i];
 			rtnValue += elem.m_iWeight;
+			ASSERT(rtnValue >= 0);
 		}
 
 		return rtnValue;
@@ -115,7 +113,8 @@ public:
 	/// Add an item to the end of the vector
 	unsigned int push_back (const T& element, int iWeight)
 	{
-		m_items.push_back( WeightedElement(element,iWeight) );
+		ASSERT(iWeight >= 0);
+		m_items.push_back(WeightedElement(element,iWeight));
 		return m_items.size();
 	};
 
@@ -143,6 +142,11 @@ public:
 		return m_items.size();
 	};
 
+	bool empty () const
+	{
+		return m_items.size() == 0;
+	}
+
 	/// Sort this stuff from highest to lowest
 	void SortItems ()
 	{
@@ -155,12 +159,8 @@ public:
 	}
 
 	/// Return a random entry by weight, but avoid unlikely candidates (by only looking at candidates with a certain percentage of the top score)
-	T ChooseAbovePercentThreshold(int iPercent, RandomNumberDelegate *rndFcn, const char *szRollName)
+	T ChooseAbovePercentThreshold(int iPercent, CvSeeder seed)
 	{
-		// the easy case
-		if (GC.getGame().isReallyNetworkMultiPlayer())
-			return m_items[0].m_Element;
-
 		iPercent = range(iPercent, 0, 100);
 
 		// First, calculate the highest weight
@@ -177,12 +177,12 @@ public:
 		// If nothing has any weight, choose at random
 		if (iHighestWeight == 0)
 		{
-			return ChooseAtRandom(rndFcn, szRollName);
+			return ChooseAtRandom(seed);
 		}
 		// 0% = consider all choices, with no cutoff.
 		else if (iPercent == 0)
 		{
-			return ChooseByWeight(rndFcn, szRollName);
+			return ChooseByWeight(seed);
 		}
 
 		// Compute cutoff for the requested percentage
@@ -200,30 +200,27 @@ public:
 		}
 
 		// Make the choice!
-		return tempVector.ChooseByWeight(rndFcn, szRollName);
+		return tempVector.ChooseByWeight(seed);
 	};
 
 	/// Return a random entry (ignoring weight)
-	T ChooseAtRandom(RandomNumberDelegate *rndFcn, const char *szRollName)
+	T ChooseAtRandom(CvSeeder seed)
 	{
-		// the easy case
-		if (GC.getGame().isReallyNetworkMultiPlayer())
-			return m_items[0].m_Element;
-
 		// Based on the number of elements we have, pick one at random
-		int iChoice = (*rndFcn)(m_items.size(), szRollName);
-		return m_items[iChoice].m_Element;
+		uint uChoice = GC.getGame().urandLimitExclusive(m_items.size(), seed);
+		return m_items[uChoice].m_Element;
 	};
 
-	/// Choose by weight (even considering unlikely candidates)
-	T ChooseByWeight(RandomNumberDelegate *rndFcn, const char *szRollName)
+	/// Choose by weight (even considering unlikely candidates, but not those with zero weight)
+	T ChooseByWeight(CvSeeder seed)
 	{
-		// the easy case
-		if (GC.getGame().isReallyNetworkMultiPlayer())
-			return m_items[0].m_Element;
+		// If nothing has any weight, choose at random
+		int iTotalWeight = GetTotalWeight();
+		if (iTotalWeight == 0)
+			return ChooseAtRandom(seed);
 
 		// Random roll up to total weight
-		int iChoice = (*rndFcn)(GetTotalWeight(), szRollName);
+		int iChoice = GC.getGame().randRangeExclusive(0, iTotalWeight, seed);
 
 		// Loop through until we find the item that is in the range for this roll
 		for (unsigned int i = 0; i < m_items.size(); i++)
@@ -239,17 +236,17 @@ public:
 	};
 
 	/// Pick an element from the top iNumChoices
-	T ChooseFromTopChoices(int iNumChoices, RandomNumberDelegate *rndFcn, const char *szRollName)
+	T ChooseFromTopChoices(int iNumChoices, CvSeeder seed)
 	{
+		ASSERT(iNumChoices > 0);
+
 		// the easy case
-		if (iNumChoices == 1 || GC.getGame().isReallyNetworkMultiPlayer())
+		if (iNumChoices == 1)
 			return m_items[0].m_Element;
 
 		// Loop through the top choices, or the total vector size, whichever is smaller
 		if (iNumChoices > (int) m_items.size())
 			iNumChoices = (int) m_items.size();
-
-		ASSERT(iNumChoices > 0);
 
 		// Get the total weight
 		int iTotalTopChoicesWeight = 0;
@@ -260,16 +257,15 @@ public:
 
 		// All of the choices have a weight of 0 so pick randomly
 		if (iTotalTopChoicesWeight == 0)
-			return ChooseAtRandom(rndFcn, szRollName);
+			return ChooseAtRandom(seed);
 
-		int iChoice = (*rndFcn)(iTotalTopChoicesWeight, szRollName);
+		int iChoice = GC.getGame().randRangeExclusive(0, iTotalTopChoicesWeight, seed);
 
 		// Find out which element was chosen
 		for (int i = 0; i < iNumChoices; i++)
 		{
 			WeightedElement elem = m_items[i];
 			iChoice -= elem.m_iWeight;
-
 			if (iChoice < 0)
 				return elem.m_Element;
 		}

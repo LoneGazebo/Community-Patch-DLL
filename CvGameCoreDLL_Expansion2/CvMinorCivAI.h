@@ -452,6 +452,7 @@ public:
 	bool PlayerHasTarget(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
 #endif
 	bool IsEnabledQuest(MinorCivQuestTypes eQuest);
+	bool IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, int iData1 = -1, int iData2 = -1);
 	bool IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest);
 	bool IsValidQuestCopyForPlayer(PlayerTypes ePlayer, CvMinorCivQuest* pQuest);
 	bool IsGlobalQuest(MinorCivQuestTypes eQuest) const;
@@ -549,10 +550,6 @@ public:
 	bool IsCoupAttempted(PlayerTypes ePlayer);
 	void SetTargetedAreaID(PlayerTypes ePlayer, int iValue);
 	int GetTargetedAreaID(PlayerTypes ePlayer);
-	void SetTargetedCityX(PlayerTypes ePlayer, int iValue);
-	void SetTargetedCityY(PlayerTypes ePlayer, int iValue);
-	int GetTargetedCityX(PlayerTypes ePlayer);
-	int GetTargetedCityY(PlayerTypes ePlayer);
 	void SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
 	int GetNumTurnsSincePtPWarning(PlayerTypes ePlayer);
 	void ChangeNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue);
@@ -857,8 +854,6 @@ public:
 
 	int GetNumResourcesMajorLacks(PlayerTypes eMajor);
 
-	TechTypes GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRoughTechValue) const;
-
 	bool IsSameReligionAsMajor(PlayerTypes eMajor);
 
 	CvString GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bool bFriends, bool bAllies);
@@ -907,8 +902,6 @@ private:
 	bool m_abSentUnitForQuest[MAX_MAJOR_CIVS];
 	int m_aiAssignedPlotAreaID[MAX_MAJOR_CIVS];
 	int m_aiTurnsSincePtPWarning[MAX_MAJOR_CIVS];
-	int m_aiTargetedCityX[MAX_MAJOR_CIVS];
-	int m_aiTargetedCityY[MAX_MAJOR_CIVS];
 #endif
 
 	PlayerTypes m_eAlly;

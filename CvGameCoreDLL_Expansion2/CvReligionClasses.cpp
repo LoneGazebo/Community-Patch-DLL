@@ -3239,11 +3239,9 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 
 	iChance += (iFaith - iCost);
 
-	int iRand = GC.getGame().randRangeExclusive(0, 100, CvSeeder(kPlayer.GetPseudoRandomSeed()));
-	if(iRand >= iChance)
-	{
+	int iRand = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x88a8fa44).mix(kPlayer.GetID()));
+	if (iRand > iChance)
 		return false;
-	}
 
 	CvCity* pSpawnCity = pReligion ? pReligion->GetHolyCity() : NULL;
 	if(pSpawnCity != NULL && pSpawnCity->getOwner() == kPlayer.GetID())
@@ -6182,8 +6180,7 @@ BeliefTypes CvReligionAI::ChoosePantheonBelief()
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0x0af7fe29).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6223,8 +6220,7 @@ BeliefTypes CvReligionAI::ChooseFounderBelief()
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0x9db23f3c).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6264,8 +6260,7 @@ BeliefTypes CvReligionAI::ChooseFollowerBelief()
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0x93c8983d).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6305,8 +6300,7 @@ BeliefTypes CvReligionAI::ChooseEnhancerBelief()
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0x3a862bb8).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6349,8 +6343,7 @@ BeliefTypes CvReligionAI::ChooseBonusBelief(int iExcludeBelief1, int iExcludeBel
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0xc0809801).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 
@@ -6390,8 +6383,7 @@ BeliefTypes CvReligionAI::ChooseReformationBelief()
 	BeliefTypes rtnValue = NO_BELIEF;
 	if (beliefChoices.size() > 0)
 	{
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), &fcn, "Choosing belief from Top Choices");
+		rtnValue = beliefChoices.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getBeliefChoiceCutoffThreshold(), CvSeeder::fromRaw(0x894eaafe).mix(GET_PLAYER(ePlayer).GetID()).mix(availableBeliefs.size()));
 		LogBeliefChoices(beliefChoices, rtnValue);
 	}
 

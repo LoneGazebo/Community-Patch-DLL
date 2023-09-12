@@ -204,7 +204,6 @@ void CvTeam::uninit()
 	m_iNumMinorCivsAttacked = 0;
 
 	m_bMapCentering = false;
-	m_bHomeOfUnitedNations = false;
 	m_bHasTechForWorldCongress = false;
 
 	m_iVassalageTradingAllowedCount = 0;
@@ -683,7 +682,7 @@ void CvTeam::shareItems(TeamTypes eTeam)
 										}
 									}
 
-									processBuilding(eBuilding, pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding), /*bFirst*/ false);
+									processBuilding(eBuilding, pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding));
 								}
 							}
 						}
@@ -751,22 +750,11 @@ void CvTeam::shareCounters(TeamTypes eTeam)
 
 
 //	--------------------------------------------------------------------------------
-void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst)
+void CvTeam::processBuilding(BuildingTypes eBuilding, int iChange)
 {
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pBuildingInfo == NULL)
 		return;
-
-	// One-shot items
-	if(bFirst && iChange > 0)
-	{
-		// Diplo victory
-		if(pBuildingInfo->IsDiplomaticVoting())
-		{
-			SetHomeOfUnitedNations(true);
-			GC.getGame().GetGameLeagues()->DoUnitedNationsBuilt(getLeaderID());
-		}
-	}
 
 	changeVictoryPoints((pBuildingInfo->GetVictoryPoints()) * iChange);
 
@@ -2472,218 +2460,6 @@ int CvTeam::getNumNukeUnits() const
 	}
 
 	return iCount;
-}
-
-//	--------------------------------------------------------------------------------
-/// Who will this team vote for!
-TeamTypes CvTeam::GetTeamVotingForInDiplo() const
-{
-	TeamTypes eVoteTeam = NO_TEAM;
-	
-	if(isBarbarian())
-	{
-		// Barbarians do not vote!
-		CvAssertMsg(false, "Barbarian team should not be voting for diplo victory. Please send Anton your save file and verison.");
-	}
-	else if(isMinorCiv())
-	{
-		// Minor civs vote for their favored nation (liberator or ally)
-		if(GetLiberatedByTeam() != NO_TEAM && GET_TEAM(GetLiberatedByTeam()).isAlive())
-		{
-			eVoteTeam = GetLiberatedByTeam();
-		}
-		else
-		{
-			PlayerTypes eAlly = GET_PLAYER(getLeaderID()).GetMinorCivAI()->GetAlly();
-			if(eAlly != NO_PLAYER && GET_PLAYER(eAlly).isAlive())
-				eVoteTeam = GET_PLAYER(eAlly).getTeam();
-		}
-	}
-	else
-	{
-		// Major civs vote for other majors based on opinion weight (our team leader towards their team leader)
-		CvWeightedVector<TeamTypes> veVoteCandidates;
-		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-		{
-			TeamTypes eTeamLoop = (TeamTypes) iTeamLoop;
-			if (GetID() != eTeamLoop && GET_TEAM(eTeamLoop).isAlive() && !GET_TEAM(eTeamLoop).isMinorCiv() && !GET_TEAM(eTeamLoop).isBarbarian() && isHasMet(eTeamLoop))
-			{
-				PlayerTypes eLeaderLoop = (PlayerTypes) GET_TEAM(eTeamLoop).getLeaderID();
-				CvAssertMsg(getLeaderID() != NO_PLAYER, "Our team leader ID should not be NO_PLAYER. Please send Anton your save file and version.");
-				CvAssertMsg(eLeaderLoop != NO_PLAYER, "Other team leader ID should not be NO_PLAYER. Please send Anton your save file and version.");
-				if (getLeaderID() != NO_PLAYER && eLeaderLoop != NO_PLAYER)
-				{
-					int kiBase = 10000;
-					
-					// What is our leader's opinion of the other team's leader? Remember, bad opinion is positive, good opinion is negative.
-					int iOpinion = GET_PLAYER(getLeaderID()).GetDiplomacyAI()->CalculateCivOpinionWeight(eLeaderLoop);
-					if (isAtWar(eTeamLoop))
-						iOpinion = kiBase; // Don't vote for someone we are at war with, if we can help it
-
-					// Weight cannot be negative. This calculation makes good opinions > 10000 and bad opinions < 10000.
-					int iWeight = kiBase - iOpinion;
-					if (iWeight < 0)
-						iWeight = 0;
-
-					veVoteCandidates.push_back(eTeamLoop, iWeight);
-				}
-			}
-		}
-
-		if (veVoteCandidates.size() > 0)
-		{
-			// Our most favored other team ends up at the top after sorting
-			veVoteCandidates.StableSortItems();
-			int iTopWeight = veVoteCandidates.GetWeight(0);
-
-			// If there is a tie at the top, choose randomly from those that tied
-			int iNumAtTop = 0;
-			for (int iIndex = 0; iIndex < veVoteCandidates.size(); iIndex++)
-			{
-				int iWeight = veVoteCandidates.GetWeight(iIndex);
-				CvAssertMsg(iWeight <= iTopWeight, "Vote opinion weight should not be higher than the top team's weight! Please send Anton your save file and version.");
-				if (iWeight >= iTopWeight)
-				{
-					iNumAtTop++;
-				}
-				else
-				{
-					break;
-				}
-			}
-			CvAssertMsg(iNumAtTop > 0, "Should have at least one vote candidate at the top of the list for consideration. Please send Anton your save file and version.");
-			CvAssertMsg(iNumAtTop <= veVoteCandidates.size(), "Should not have more top vote candidates than there are total candidates. Please send Anton your save file and version.");
-			if (iNumAtTop > 0 && iNumAtTop <= veVoteCandidates.size())
-			{
-				RandomNumberDelegate randFn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-				eVoteTeam = veVoteCandidates.ChooseFromTopChoices(iNumAtTop, &randFn, "Tie for most favored other team to vote for. Rolling to choose.");
-			}
-		}
-	}
-
-	// If all else fails, vote for ourselves
-	if (eVoteTeam == NO_TEAM)
-		eVoteTeam = GetID();
-
-	return eVoteTeam;
-}
-
-//	--------------------------------------------------------------------------------
-/// How many votes are we likely to get from City-State allies in the upcoming election?
-int CvTeam::GetProjectedVotesFromMinorAllies() const
-{
-	int iVotes = 0;
-	if (isAlive())
-	{
-		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-		{
-			TeamTypes eTeamLoop = (TeamTypes) iTeamLoop;
-			CvTeam* pTeamLoop = &GET_TEAM(eTeamLoop);
-			if (pTeamLoop->isAlive() && pTeamLoop->isMinorCiv() && !pTeamLoop->isBarbarian())
-			{
-				// Minor civ team votes are definite things, given the situation doesn't change
-				if (GET_TEAM(eTeamLoop).GetTeamVotingForInDiplo() == GetID())
-				{
-					// Liberated minors are handled elsewhere				
-					if (GetLiberatedByTeam() != GetID())
-					{
-						iVotes++;
-					}
-				}
-			}
-		}
-	}
-
-	return iVotes;
-}
-
-//	--------------------------------------------------------------------------------
-/// How many votes are we likely to get from City-States we have liberated in the upcoming election?
-int CvTeam::GetProjectedVotesFromLiberatedMinors() const
-{
-	int iVotes = 0;
-	if (isAlive())
-	{
-		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-		{
-			TeamTypes eTeamLoop = (TeamTypes) iTeamLoop;
-			CvTeam* pTeamLoop = &GET_TEAM(eTeamLoop);
-			if (pTeamLoop->isAlive() && pTeamLoop->isMinorCiv() && !pTeamLoop->isBarbarian())
-			{
-				// Minor civ team votes are definite things, given the situation doesn't change
-				if (GET_TEAM(eTeamLoop).GetTeamVotingForInDiplo() == GetID())
-				{
-					// Liberated by us?
-					if (GetLiberatedByTeam() == GetID())
-					{
-						iVotes++;
-					}
-				}
-			}
-		}
-	}
-
-	return iVotes;
-}
-
-//	--------------------------------------------------------------------------------
-/// How many votes are we likely to get from major Civilizations in the upcoming election?
-int CvTeam::GetProjectedVotesFromCivs() const
-{
-	int iVotes = 0;
-
-	if (isAlive())
-	{
-		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
-		{
-			TeamTypes eTeamLoop = (TeamTypes) iTeamLoop;
-			CvTeam* pTeamLoop = &GET_TEAM(eTeamLoop);
-			if (pTeamLoop->isAlive() && !pTeamLoop->isMinorCiv() && !pTeamLoop->isBarbarian())
-			{
-				// Did they vote for us last time?
-				if (GC.getGame().GetPreviousVoteCast(eTeamLoop) == GetID())
-					iVotes++;
-			}
-		}
-	}
-
-	return iVotes;
-}
-
-//	--------------------------------------------------------------------------------
-/// How many total votes are we likely to get in the upcoming election?
-int CvTeam::GetTotalProjectedVotes() const
-{
-	int iVotes = 0;
-
-	if (isAlive())
-	{
-		// Majors
-		iVotes += GetProjectedVotesFromCivs();
-
-		// Minor Allies
-		iVotes += GetProjectedVotesFromMinorAllies();
-
-		// Liberated Minors
-		iVotes += GetProjectedVotesFromLiberatedMinors();
-
-		// UN
-		if (IsHomeOfUnitedNations())
-		{
-			int iVotesFromUN = /*1*/ GD_INT_GET(OWN_UNITED_NATIONS_VOTE_BONUS);
-			iVotes += iVotesFromUN;
-		}
-	}
-
-	return iVotes;
-}
-
-//	--------------------------------------------------------------------------------
-/// How many votes should we get?
-/// DEPRECATED: Use GetTotalProjectedVotes() instead.  Votes are no longer perfectly known ahead of time.
-int CvTeam::GetTotalSecuredVotes() const
-{
-	return GetTotalProjectedVotes();
 }
 
 //	--------------------------------------------------------------------------------
@@ -5743,23 +5519,6 @@ void CvTeam::changeTerrainTradeCount(TerrainTypes eIndex, int iChange)
 	{
 		m_paiTerrainTradeCount[eIndex] = (m_paiTerrainTradeCount[eIndex] + iChange);
 		CvAssert(getTerrainTradeCount(eIndex) >= 0);
-	}
-}
-
-//	--------------------------------------------------------------------------------
-/// Does this team have the UN?
-bool CvTeam::IsHomeOfUnitedNations() const
-{
-	return m_bHomeOfUnitedNations;
-}
-
-//	--------------------------------------------------------------------------------
-/// Does this team have the UN?
-void CvTeam::SetHomeOfUnitedNations(bool bValue)
-{
-	if(bValue != IsHomeOfUnitedNations())
-	{
-		m_bHomeOfUnitedNations = bValue;
 	}
 }
 
@@ -9084,7 +8843,6 @@ void CvTeam::Serialize(Team& team, Visitor& visitor)
 	visitor(team.m_iNumMinorCivsAttacked);
 
 	visitor(team.m_bMapCentering);
-	visitor(team.m_bHomeOfUnitedNations);
 	visitor(team.m_bHasTechForWorldCongress);
 
 	visitor(team.m_eID);

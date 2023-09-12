@@ -39,7 +39,7 @@ public:
 	void addTeam(TeamTypes eTeam);
 	void shareItems(TeamTypes eTeam);
 	void shareCounters(TeamTypes eTeam);
-	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst);
+	void processBuilding(BuildingTypes eBuilding, int iChange);
 
 	void doTurn();
 
@@ -63,15 +63,6 @@ public:
 	int getDefensivePower() const;
 	int getEnemyPower() const;
 	int getNumNukeUnits() const;
-
-	// DEPRECATED
-	TeamTypes GetTeamVotingForInDiplo() const;
-	int GetProjectedVotesFromMinorAllies() const;
-	int GetProjectedVotesFromLiberatedMinors() const;
-	int GetProjectedVotesFromCivs() const;
-	int GetTotalProjectedVotes() const;
-	int GetTotalSecuredVotes() const;
-	// End DEPRECATED
 
 	int getAtWarCount(bool bIgnoreMinors) const;
 	int getHasMetCivCount(bool bIgnoreMinors) const;
@@ -384,11 +375,6 @@ public:
 	bool isAtWarWithHumans() const;
 	bool isSimultaneousTurns() const;
 
-	// DEPRECATED
-	bool IsHomeOfUnitedNations() const;
-	void SetHomeOfUnitedNations(bool bValue);
-	// End DEPRECATED
-
 	int getVictoryCountdown(VictoryTypes eIndex) const;
 	void setVictoryCountdown(VictoryTypes eIndex, int iTurnsLeft);
 	void changeVictoryCountdown(VictoryTypes eIndex, int iChange);
@@ -555,7 +541,6 @@ protected:
 	int m_iNumMinorCivsAttacked;
 
 	bool m_bMapCentering;
-	bool m_bHomeOfUnitedNations;
 	bool m_bHasTechForWorldCongress;
 
 	EraTypes m_eCurrentEra;

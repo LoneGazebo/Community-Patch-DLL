@@ -1134,7 +1134,7 @@ bool CvPlayerEspionage::DoStealTechnology(PlayerTypes eTargetPlayer)
 
 	TeamTypes eTeam = m_pPlayer->getTeam();
 
-	uint uGrab = GC.getGame().urandLimitExclusive(m_aaPlayerStealableTechList[eTargetPlayer].size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(eTargetPlayer).GetTreasury()->CalculateGrossGold()));
+	uint uGrab = GC.getGame().urandLimitExclusive(m_aaPlayerStealableTechList[eTargetPlayer].size(), CvSeeder::fromRaw(0x547fc7a8).mix(m_pPlayer->GetID()).mix(GET_PLAYER(eTargetPlayer).GetID()));
 	TechTypes eStolenTech = m_aaPlayerStealableTechList[eTargetPlayer][uGrab];
 
 	GET_TEAM(eTeam).setHasTech(eStolenTech, true, m_pPlayer->GetID(), true, true);
@@ -2118,20 +2118,21 @@ int CvPlayerEspionage::GetDefenseChance(CvEspionageType eEspionage, CvCity* pCit
 
 CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, CityEventChoiceTypes eEventChoice)
 {
-	int iResult = GC.getGame().randRangeExclusive(1, 100, pCity->plot()->GetPseudoRandomSeed().mix(m_pPlayer->GetTreasury()->GetLifetimeGrossGold()));
 	int iKillChance = GetDefenseChance(ESPIONAGE_TYPE_KILL, pCity, eEventChoice);
-	int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, eEventChoice);
+	int iKillRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner())));
 
 	//success! we didn't die...
-	if ((iKillChance <= 0) || (iResult > iKillChance))
+	if (iKillRoll <= iKillChance)
 	{
-		if (iResult > iIdentifyChance)
-			return SPY_RESULT_DETECTED;
-		else
+		int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, eEventChoice);
+		int iIdentifyRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner())));
+		if (iIdentifyRoll <= iIdentifyChance)
 			return SPY_RESULT_IDENTIFIED;
+
+		return SPY_RESULT_DETECTED;
 	}
-	else
-		return SPY_RESULT_KILLED;
+
+	return SPY_RESULT_KILLED;
 }
 
 /// UncoverIntrigue - Determine if the spy uncovers any secret information and pass it along to the player
@@ -3904,8 +3905,8 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 	}
 
 	bool bAttemptSuccess = false;
-	int iRandRoll = GC.getGame().randRangeExclusive(0, 100, pCity->plot()->GetPseudoRandomSeed());
-	if(iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
+	int iRandRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x12dd2b78).mix(pCity->plot()->GetPseudoRandomSeed()));
+	if (iRandRoll <= GetCoupChanceOfSuccess(uiSpyIndex))
 	{
 		// swap influence from ally to 2nd place ally
 		int iInfluenceTemp = aiNewInfluenceValueTimes100[ePreviousAlly];
@@ -6753,8 +6754,8 @@ void CvEspionageAI::AttemptCoups()
 		int iChanceOfSuccess = pEspionage->GetCoupChanceOfSuccess(uiSpy);
 		if (iChanceOfSuccess >= 60 + 10*iSpyRank)
 		{
-			int iRoll = GC.getGame().randRangeExclusive(0, 100, m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()).mix(uiSpy));
-			if (iRoll < iChanceOfSuccess)
+			int iRoll = GC.getGame().randRangeInclusive(1, 100, m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(pCity->getOwner()).GetPseudoRandomSeed()).mix(uiSpy));
+			if (iRoll <= iChanceOfSuccess)
 			{
 				pEspionage->AttemptCoup(uiSpy);
 			}

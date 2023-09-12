@@ -5420,12 +5420,12 @@ int CvPlayerCulture::ComputeWarWeariness()
 		bRecentPeace = true;
 	}
 
-	// By default weariness is falling...
+	// Otherwise, by default weariness is falling...
 	int iFallingWarWeariness = iCurrentWarWeariness;
-	if (iLeastPeaceTurns > 1 && iLeastPeaceTurns < INT_MAX)
+	if (!bRecentPeace && iLeastPeaceTurns > 1 && iLeastPeaceTurns < INT_MAX)
 	{
 		//apparently we made peace recently ... reduce the value step by step
-		int iReduction = max(1, GC.getGame().randRangeExclusive(0, max(3, iLeastPeaceTurns/2), CvSeeder(iHighestWarDamage)));
+		int iReduction = GC.getGame().randRangeInclusive(1, max(3, iLeastPeaceTurns/2), CvSeeder::fromRaw(0x91cbcd34).mix(m_pPlayer->GetID()));
 		iFallingWarWeariness = max(iCurrentWarWeariness-iReduction, 0);
 	}
 

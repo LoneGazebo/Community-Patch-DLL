@@ -7796,7 +7796,7 @@ bool CvPlayerTraits::ConvertBarbarianCamp(CvUnit* pByUnit, CvPlot* pPlot)
 	}
 
 	// Roll die to see if it converts
-	if (GC.getGame().randRangeExclusive(0, 100, CvSeeder(pPlot->GetPseudoRandomSeed())) < m_iLandBarbarianConversionPercent)
+	if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x960ab208).mix(pByUnit->GetID()).mix(pPlot->GetPseudoRandomSeed())) <= m_iLandBarbarianConversionPercent)
 	{
 		pPlot->setImprovementType(NO_IMPROVEMENT);
 
@@ -7875,7 +7875,7 @@ bool CvPlayerTraits::ConvertBarbarianNavalUnit(CvUnit* pByUnit, CvUnit* pUnit)
 	}
 
 	// Roll die to see if it converts
-	if(GC.getGame().randRangeExclusive(0, 100, CvSeeder(pUnit->plot()->GetPseudoRandomSeed())) < m_iSeaBarbarianConversionPercent)
+	if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x960ab208).mix(pByUnit->GetID()).mix(pUnit->GetID())) <= m_iSeaBarbarianConversionPercent)
 	{
 		int iNumGold = /*25*/ GD_INT_GET(GOLD_FROM_BARBARIAN_CONVERSION);
 		m_pPlayer->GetTreasury()->ChangeGold(iNumGold);

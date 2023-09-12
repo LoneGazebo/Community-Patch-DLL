@@ -30,14 +30,14 @@ public:
 	EraTypes DLLCALL GetCurrentEra() const;
 	PlayerTypes DLLCALL GetLeaderID() const;
 	int DLLCALL GetProjectCount(ProjectTypes eIndex) const;
-	int DLLCALL GetTotalSecuredVotes() const;
+	int DLLCALL GetTotalSecuredVotes() const; // DEPRECATED
 	void DLLCALL Init(TeamTypes eID);
 	bool DLLCALL IsAlive() const;
 	bool DLLCALL IsAtWar(TeamTypes eIndex) const;
 	bool DLLCALL IsBarbarian() const;
 	bool DLLCALL IsBridgeBuilding() const;
 	bool DLLCALL IsHasMet(TeamTypes eIndex) const;
-	bool DLLCALL IsHomeOfUnitedNations() const;
+	bool DLLCALL IsHomeOfUnitedNations() const; // DEPRECATED
 	void DLLCALL Uninit();
 	void DLLCALL Read(FDataStream& kStream);
 	void DLLCALL Write(FDataStream& kStream) const;
