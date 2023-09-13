@@ -33701,6 +33701,9 @@ int CvCity::getBombardRange(bool& bIndirectFireAllowed) const
 {
 	VALIDATE_OBJECT
 
+	if (MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES)
+		return 0;
+
 	if (MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS)
 	{
 		bIndirectFireAllowed = getCityIndirectFire();

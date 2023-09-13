@@ -1781,11 +1781,7 @@ void CvUnit::reset(int iID, UnitTypes eUnit, PlayerTypes eOwner, bool bConstruct
 	m_iScienceBlastStrength = 0;
 	m_iCultureBlastStrength = 0;
 	m_iGAPBlastStrength = 0;
-	m_abPromotionEverObtained.resize(GC.getNumPromotionInfos());
-	for (int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-	{
-		m_abPromotionEverObtained[iI] =  false;
-	}
+	m_abPromotionEverObtained = std::vector<bool>(GC.getNumPromotionInfos(),false);
 #endif
 
 	m_iMapLayer = DEFAULT_UNIT_MAP_LAYER;

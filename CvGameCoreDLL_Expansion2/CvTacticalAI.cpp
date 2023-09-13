@@ -41,6 +41,7 @@ const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
 const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
+const int TACTSIM_DEFAULT_PREALLOC_SIZE = 74; //default container capacity
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(16000);
@@ -9252,8 +9253,8 @@ CvTacticalPosition::CvTacticalPosition()
 	killedEnemies.clear();
 
 	//some vectors will need a bit of space, reduce reallocations
-	tactPlotLookup.reserve(23);
-	tactPlots.reserve(23);
+	tactPlotLookup.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE);
+	tactPlots.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE);
 	assignedMoves.reserve(23);
 }
 
@@ -9308,15 +9309,17 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	childPositions.clear();
 
 	//these are cached locally
-	tactPlotLookup.clear();
-	tactPlots.clear();
+	tactPlotLookup.clear(); if (tactPlotLookup.capacity() > TACTSIM_DEFAULT_PREALLOC_SIZE) { tactPlotLookup = vector<pair<int, size_t>>(); tactPlotLookup.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE); }
+	tactPlots.clear(); if (tactPlots.capacity() > TACTSIM_DEFAULT_PREALLOC_SIZE) { tactPlots = vector<CvTacticalPlot>(); tactPlots.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE);	}
 
 	//copied from parent, modified when addAssignment is called
-	availableUnits = parent.availableUnits;
-	notQuiteFinishedUnits = parent.notQuiteFinishedUnits;
-	assignedMoves = parent.assignedMoves;
-	freedPlots = parent.freedPlots;
-	killedEnemies = parent.killedEnemies;
+	if (parent.assignedMoves.capacity() > 23) assignedMoves = vector<STacticalAssignment>(parent.assignedMoves.begin(), parent.assignedMoves.end()); else assignedMoves = parent.assignedMoves;
+
+	//take care to prune allocated memory so the size doesn't grow over time
+	if (parent.availableUnits.capacity() < 9) availableUnits = parent.availableUnits; else availableUnits = vector<SUnitStats>(parent.availableUnits.begin(), parent.availableUnits.end());
+	if (parent.notQuiteFinishedUnits.capacity() < 9) notQuiteFinishedUnits = parent.notQuiteFinishedUnits; else notQuiteFinishedUnits = vector<SUnitStats>(parent.notQuiteFinishedUnits.begin(), parent.notQuiteFinishedUnits.end());
+	if (parent.freedPlots.capacity() < 9) freedPlots = parent.freedPlots; else freedPlots = PlotIndexContainer(parent.freedPlots.begin(), parent.freedPlots.end());
+	if (parent.killedEnemies.capacity() < 9) killedEnemies = parent.killedEnemies; else killedEnemies = UnitIdContainer(parent.killedEnemies.begin(), parent.killedEnemies.end());
 }
 
 bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
