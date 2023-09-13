@@ -11027,7 +11027,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 	{
 		PlayerTypes eTarget = veValidTargets[iTargetLoop];
 	
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(eTarget).firstCity(&iCityLoop, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTarget).nextCity(&iCityLoop, true))
 		{
 			if (!GET_PLAYER(ePlayer).GetEspionage()->CanEverMoveSpyTo(pLoopCity))

@@ -3919,7 +3919,7 @@ void CvTeam::changeCanEmbarkCount(int iChange)
 				// Apply the embarkation promotion to this player's units
 				if (canEmbark())
 				{
-					int iLoop;
+					int iLoop = 0;
 					PromotionTypes ePromotionEmbarkation = GET_PLAYER(ePlayer).GetEmbarkationPromotion();
 					for (CvUnit* pLoopUnit = GET_PLAYER(ePlayer).firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(ePlayer).nextUnit(&iLoop))
 					{

@@ -12451,7 +12451,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	else
 	{
 		iCost = pkUnitInfo->GetFaithCost();
-		int iMultiplier;
+		int iMultiplier = 0;
 
 		// Cost goes up in later eras
 		// Only Missionaries and Inquisitors for VP
@@ -12705,7 +12705,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 	}
 
 	int iCost = pkBuildingInfo->GetFaithCost();
-	int iMultiplier;
+	int iMultiplier = 0;
 
 	// Cost goes up in later eras (CP only)
 	if (!MOD_BALANCE_VP)
@@ -15847,7 +15847,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if (iNumResourceTotalPlots > 0 && (iChange > 0) && bFirst)
 					{
 						//const ResourceTypes eResourceToPlace = static_cast<ResourceTypes>(iResourceLoop);
-						CvPlot* pLoopPlot;
+						CvPlot* pLoopPlot = NULL;
 						for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 						{
 							pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);

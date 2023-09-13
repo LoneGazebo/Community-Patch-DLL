@@ -12137,7 +12137,7 @@ int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
 
 	int iCountCitiesInDanger = 0;
 
-	int iCityLoop;
+	int iCityLoop = 0;
 	vector<PlayerTypes> vTheirWarAllies = GetOffensiveWarAllies(ePlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true);
 	vTheirWarAllies.push_back(ePlayer);
 	for (const CvCity* pFriendlyCity = GetPlayer()->firstCity(&iCityLoop); pFriendlyCity != NULL; pFriendlyCity = GetPlayer()->nextCity(&iCityLoop))
@@ -25860,7 +25860,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26108,7 +26108,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						strLogName = "DiplomacyAI_Peace_Log.csv";
 					}
 
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 					// Get the leading info for this line
@@ -26149,7 +26149,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26189,7 +26189,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26233,7 +26233,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						strLogName = "DiplomacyAI_Peace_Log.csv";
 					}
 
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 					// Get the leading info for this line
@@ -26275,7 +26275,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26361,7 +26361,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						strLogName = "DiplomacyAI_Peace_Log.csv";
 					}
 
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 					// Get the leading info for this line
@@ -26405,7 +26405,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26477,7 +26477,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26864,7 +26864,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				strLogName = "DiplomacyAI_Peace_Log.csv";
 			}
 
-			FILogFile* pLog;
+			FILogFile* pLog = NULL;
 			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 			// Get the leading info for this line
@@ -50489,7 +50489,7 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 				strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
 			}
 
-			FILogFile* pLog;
+			FILogFile* pLog = NULL;
 			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 			// Get the leading info for this line

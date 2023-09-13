@@ -135,7 +135,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		PlayerTypes ePlayer = vTeamPlayers[i];
 
 		//cities
-		int iLoop;
+		int iLoop = 0;
 		for(CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 		{
 			int iPlotIndex = pLoopCity->plot()->GetPlotIndex();

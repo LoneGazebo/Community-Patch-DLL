@@ -129,7 +129,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	RandomNumberDelegate fcn;
 	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	int iRtnValue = (int)NO_POLICY;
-	int iPolicyLoop;
+	int iPolicyLoop = 0;
 	vector<int> aLevel3Tenets;
 
 	bool bMustChooseTenet = (pPlayer->GetNumFreeTenets() > 0);

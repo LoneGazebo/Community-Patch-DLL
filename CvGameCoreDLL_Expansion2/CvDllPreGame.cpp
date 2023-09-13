@@ -217,7 +217,7 @@ bool CvDllPreGame::GetGameOption(uint uiIndex, char* szOptionNameBuffer, uint nO
 	const std::vector<CvPreGame::CustomOption>& kOptions = CvPreGame::GetGameOptions();
 	if(uiIndex < kOptions.size())
 	{
-		size_t nSourceBufferSize;
+		size_t nSourceBufferSize = 0;
 		const char* pszSourceBuffer = kOptions[uiIndex].GetName(nSourceBufferSize);
 		if(nOptionNameBufferSize+1 > nSourceBufferSize)
 		{
@@ -239,7 +239,7 @@ bool CvDllPreGame::GetMapOption(uint uiIndex, char* szOptionNameBuffer, uint nOp
 	const std::vector<CvPreGame::CustomOption>& kOptions = CvPreGame::GetMapOptions();
 	if(uiIndex < kOptions.size())
 	{
-		size_t nSourceBufferSize;
+		size_t nSourceBufferSize = 0;
 		const char* pszSourceBuffer = kOptions[uiIndex].GetName(nSourceBufferSize);
 		if(nOptionNameBufferSize+1 > nSourceBufferSize)
 		{

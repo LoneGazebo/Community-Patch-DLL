@@ -15956,7 +15956,7 @@ void CvUnit::DoSquadMovement(CvPlot* pDestPlot)
 	for (std::vector<ScoredUnit>::iterator it = unitsToMoveByDistance.begin(); it != unitsToMoveByDistance.end(); ++it)
 	{
 		CvUnit* pLoopUnit = (*it).unit;
-		CvPlot* targetPlot;
+		CvPlot* targetPlot = NULL;
 
 		std::map<CvUnit*, CvPlot*>::iterator mit = unitToPlot.find(pLoopUnit);
 		if (mit != unitToPlot.end())
