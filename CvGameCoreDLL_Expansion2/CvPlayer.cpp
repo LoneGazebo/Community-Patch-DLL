@@ -14372,8 +14372,9 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 		return;
 
 	// Mod option: only recon units can claim ruins
-	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pUnit && pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true))
-		return;
+	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY)
+		if (pUnit && pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
+			return;
 
 	m_bEverPoppedGoody = true;
 	pPlot->removeGoody();
