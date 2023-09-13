@@ -10328,7 +10328,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	static vector<CvTacticalPosition*> completedPositions;
 
 #if defined(MOD_CORE_DEBUGGING)
-	if (0)
+	if (false)
 	{
 		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units", pTarget->getX(), pTarget->getY(), vUnits.size());
 		for (size_t i = 0; i < vUnits.size(); i++)
@@ -10549,7 +10549,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			out.close();
 		}
 
-		if (0)
+		if (false)
 		{
 			for (size_t j = 0; j < min(13u, completedPositions.size()); j++)
 			{
