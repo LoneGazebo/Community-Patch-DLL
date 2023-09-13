@@ -809,9 +809,6 @@ protected:
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
 
-	//performance optimization, unit strength calculation takes too long
-	CAttackCache attackCache;
-
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
@@ -969,7 +966,7 @@ protected:
 	int iSize; //how many do we have
 	int iCount; //how many are currently in use
 	CvTacticalPosition* aPositions; //preallocated block of N positions
-	CAttackCache attackCache; //filled on demand
+	CAttackCache attackCache; //performance optimization, unit strength calculation takes too long
 
 private:
 	//hide copy constructor and assignment operator

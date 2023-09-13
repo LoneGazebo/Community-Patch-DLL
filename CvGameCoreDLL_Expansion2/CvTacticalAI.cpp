@@ -2664,15 +2664,19 @@ void CvTacticalAI::AddCurrentTurnUnit(CvUnit * pUnit)
 		m_CurrentTurnUnits.push_back( pUnit->GetID() );
 }
 
+//make sure our units come in a defined order (important for reproducability, don't want to sort pointers!)
+struct PrSortByUnitId
+{
+	bool operator()(const CvUnit* lhs, const CvUnit* rhs) const { return lhs->GetID() < rhs->GetID(); }
+};
+
 /// Queues up attacks on enemy units on or adjacent to army's desired center
 bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 {
 	if (!pArmy)
 		return false;
 
-	//make a unique set of enemy units
-	set<CvPlot*, PrSortByPlotIndex> allEnemyPlots;
-	vector<CvUnit*> vUnitsInitial, vUnitsFinal;
+	set<CvUnit*, PrSortByUnitId> ourUnitsInitial;
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
@@ -2682,75 +2686,74 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 			continue;
 		}
 
-		//check for enemy units, also around the immediate neighbor plots to be sure
-		for (int i = 0; i < RING1_PLOTS; i++)
+		//who can attack us?
+		vector<CvUnit*> vEnemyAttackers = m_pPlayer->GetPossibleAttackers(*pUnit->plot(), m_pPlayer->getTeam());
+		if (vEnemyAttackers.empty())
 		{
-			CvPlot* pTestPlot = iterateRingPlots(pUnit->plot(), i);
-			if (!pTestPlot)
-				continue;
-			//combat units
-			vector<CvUnit*> vAttackers = m_pPlayer->GetPossibleAttackers(*pTestPlot,m_pPlayer->getTeam());
-			for (size_t i = 0; i < vAttackers.size(); i++)
-				allEnemyPlots.insert(vAttackers[i]->plot());
+			pUnit = pArmy->GetNextUnit(pUnit);
+			continue;
 		}
 
-		//if the closest city belongs to the enemy, make sure we don't ignore it
-		CvCity* pClosestCity = GC.getGame().GetClosestCityByPlots(pUnit->plot(), NO_PLAYER);
-		if (pClosestCity && m_pPlayer->IsAtWarWith(pClosestCity->getOwner()))
-			allEnemyPlots.insert(pClosestCity->plot());
+		//this unit can be attacked, remember it
+		ourUnitsInitial.insert(pUnit);
 
-		vUnitsInitial.push_back(pUnit);
+		for (size_t i = 0; i < vEnemyAttackers.size(); i++)
+		{
+			//now here's the trick, also include our non-army units which happen to be around
+			vector<CvUnit*> vOurAttackers = GET_PLAYER(vEnemyAttackers[i]->getOwner()).GetPossibleAttackers(*vEnemyAttackers[i]->plot(), vEnemyAttackers[i]->getTeam());
+			for (size_t j = 0; j < vOurAttackers.size(); j++)
+				ourUnitsInitial.insert(vOurAttackers[j]);
+		}
+
 		pUnit = pArmy->GetNextUnit(pUnit);
 	}
 
-	//find the closest pair
-	int iMinDistGlobal = INT_MAX;
-	CvPlot* pClosestEnemyPlot = NULL;
-	for (size_t i = 0; i < vUnitsInitial.size(); i++)
+	if (ourUnitsInitial.empty())
+		return false;
+
+	//now that we have a set of units find the center of mass
+	int x = 0, y = 0;
+	set<CvPlot*, PrSortByPlotIndex> allEnemyPlots;
+	for (set<CvUnit*, PrSortByUnitId>::iterator it = ourUnitsInitial.begin(); it != ourUnitsInitial.end(); ++it)
 	{
-		CvUnit* pOurUnit = vUnitsInitial[i];
-		int iMinDistForThisUnit = INT_MAX;
-		for (set<CvPlot*, PrSortByPlotIndex>::iterator it = allEnemyPlots.begin(); it != allEnemyPlots.end(); ++it)
+		x += (*it)->getX();
+		y += (*it)->getY();
+
+		vector<CvUnit*> vEnemyAttackers = m_pPlayer->GetPossibleAttackers(*(*it)->plot(), m_pPlayer->getTeam());
+		for (size_t i = 0; i < vEnemyAttackers.size(); i++)
+			allEnemyPlots.insert(vEnemyAttackers[i]->plot());
+	}
+	x = (x * 100) / ourUnitsInitial.size();
+	y = (y * 100) / ourUnitsInitial.size();
+
+	//now find the closest enemy plot to our center of mass
+	CvPlot* pCoM = GC.getMap().plot((x + 50) / 100, (y + 50) / 100);
+	CvPlot* pClosestEnemyPlot = NULL;
+	int iMinDist = INT_MAX;
+	for (set<CvPlot*, PrSortByPlotIndex>::iterator it = allEnemyPlots.begin(); it != allEnemyPlots.end(); ++it)
+	{
+		int iDist = plotDistance(*pCoM, *(*it));
+		if (iDist < iMinDist)
 		{
-			int iDistance = plotDistance(*pOurUnit->plot(), **it);
-			if (pOurUnit->getDomainType() != (*it)->getDomain())
-				iDistance++;
-
-			if (iDistance < iMinDistGlobal)
-			{
-				iMinDistGlobal = iDistance;
-				pClosestEnemyPlot = *it;
-			}
-
-			//don't include units which are far away (should really use the pathfinder ...)
-			if (iDistance < iMinDistForThisUnit)
-				iMinDistForThisUnit = iDistance;
+			pClosestEnemyPlot = *it;
+			iMinDist = iDist;
 		}
-
-		if (iMinDistForThisUnit <= 4)
-			vUnitsFinal.push_back(pOurUnit);
 	}
 
-	//don't get sidetracked
-	if (iMinDistGlobal>3 || pClosestEnemyPlot==NULL)
-		return false;
+	//ignore units which are VERY far out; combat sim will ignore the "worst" units if necessary
+	vector<CvUnit*> ourUnitsFinal;
+	for (set<CvUnit*, PrSortByUnitId>::iterator it = ourUnitsInitial.begin(); it != ourUnitsInitial.end(); ++it)
+	{
+		if (plotDistance(*pCoM, *(*it)->plot()) > 7)
+			ourUnitsFinal.push_back(*it);
+	}
 
 	if (GC.getLogging() && GC.getAILogging())
 	{
 		CvString strMsg;
-		strMsg.Format("Performing opportunity attack with army %d", pArmy->GetID());
-		for (size_t i = 0; i < pArmy->GetNumFormationEntries(); i++)
-		{
-			CvArmyFormationSlot* slot = pArmy->GetSlotStatus(i);
-			strMsg += CvString::format("; unit %d", slot->GetUnitID());
-		}
+		strMsg.Format("Performing opportunity attack with army %d and friends", pArmy->GetID());
 		LogTacticalMessage(strMsg);
 	}
-
-	//do we have additional units around?
-	if (FindUnitsWithinStrikingDistance(pClosestEnemyPlot))
-		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
-			vUnitsFinal.push_back(m_pPlayer->getUnit(m_CurrentMoveUnits[i].GetID()));
 
 	//we probably didn't see all enemy units, so doublecheck ...
 	//but take care to pick the right zone in the right domain
@@ -2763,7 +2766,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	bool bSuccess = false;
 	do
 	{
-		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(vUnitsFinal, pClosestEnemyPlot, AL_MEDIUM, gTactPosStorage);
+		vector<STacticalAssignment> vAssignments = TacticalAIHelpers::FindBestUnitAssignments(ourUnitsFinal, pClosestEnemyPlot, AL_MEDIUM, gTactPosStorage);
 		if (vAssignments.empty())
 			break;
 
@@ -8572,7 +8575,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE)/2)
 						iBonus += min(23,pUnit->getDamage());
 					if (pUnit->IsEverFortifyable())
-						iBonus += (pUnit->GetDamageAoEFortified()>0) ? 19 : 5;
+						iBonus += (pUnit->GetDamageAoEFortified()>0) ? 37 : 23;
 				}
 				//same bonus is given for moving in ...
 				if (TacticalAIHelpers::IsPlayerCitadel(testPlot.getPlot(), getPlayer()) && testPlot.getEnemyDistance() <= 3)
@@ -9237,7 +9240,21 @@ CvTacticalPosition::CvTacticalPosition()
 	iGeneration = 0;
 	iID = 1;
 	movePlotUpdateFlag = 0;
+
 	//all the rest is default-initialized
+	childPositions.clear();
+	tactPlotLookup.clear();
+	tactPlots.clear();
+	availableUnits.clear();
+	notQuiteFinishedUnits.clear();
+	assignedMoves.clear();
+	freedPlots.clear();
+	killedEnemies.clear();
+
+	//some vectors will need a bit of space, reduce reallocations
+	tactPlotLookup.reserve(23);
+	tactPlots.reserve(23);
+	assignedMoves.reserve(23);
 }
 
 void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget)
@@ -10485,7 +10502,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			int iStartingUnits = initialPosition->getAvailableUnits().size();
 
 			std::stringstream ss;
-			ss << "warning: tactsim out of memory, " <<
+			ss << "warning: tactsim at max num positions, " <<
 				iStartingUnits << " starting units, " <<
 				current->getAvailableUnits().size() << " remaining units, " <<
 				openPositionsHeap.size() << " open positions, " <<
@@ -10494,7 +10511,8 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				std::setprecision(3) << timer.GetDeltaInSeconds() << " sec";
 				CUSTOMLOG(ss.str().c_str());
 
-			//see if we can just take an unfinished position to salvage the situation
+			/*
+			//too risky ... see if we can just take an unfinished position to salvage the situation
 			if (completedPositions.empty())
 			{
 				std::stable_sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());
@@ -10508,6 +10526,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				if (completedPositions.size() < 3)
 					completedPositions.clear();
 			}
+			*/
 			break;
 		}
 	}
