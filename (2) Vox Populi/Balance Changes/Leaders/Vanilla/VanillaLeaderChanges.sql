@@ -615,7 +615,7 @@ WHERE Type = 'BUILDING_WAT';
 
 -- Boost UA
 UPDATE Traits
-SET InfluenceMeetCS = '42'
+SET InfluenceMeetCS = '40'
 WHERE Type = 'TRAIT_CITY_STATE_BONUSES';
 
 UPDATE Traits

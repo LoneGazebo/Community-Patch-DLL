@@ -603,7 +603,10 @@ void CvGame::InitPlayers()
 {
 	PlayerColorTypes aePlayerColors[REALLY_MAX_PLAYERS];
 	bool bValid = false;
-	int iI = 0, iJ = 0, iK = 0, iL = 0;
+	int iI = 0;
+	int iJ = 0;
+	int iK = 0;
+	int iL = 0;
 
 	for(iI = 0; iI < MAX_TEAMS; iI++)
 	{
@@ -1779,7 +1782,9 @@ void CvGame::updateScore(bool bForce)
 	int iBestScore = 0;
 	PlayerTypes eBestPlayer;
 	TeamTypes eBestTeam;
-	int iI = 0, iJ = 0, iK = 0;
+	int iI = 0;
+	int iJ = 0;
+	int iK = 0;
 
 	for(iI = 0; iI < MAX_CIV_PLAYERS; iI++)
 	{
@@ -9511,7 +9516,8 @@ UnitTypes CvGame::GetRandomUniqueUnitType(bool bIncludeCivsInGame, bool bInclude
 //	--------------------------------------------------------------------------------
 void CvGame::updateWar() const
 {
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	if(isOption(GAMEOPTION_ALWAYS_WAR))
 	{
@@ -10833,7 +10839,8 @@ int CvGame::calculateSyncChecksum()
 	unsigned int iMultiplier = 0;
 	unsigned long long iValue = 0;
 	int iLoop = 0;
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	iValue = 0;
 
@@ -10998,7 +11005,8 @@ void CvGame::debugSyncChecksum()
 int CvGame::calculateOptionsChecksum()
 {
 	int iValue = 0;
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	iValue = 0;
 

@@ -601,7 +601,9 @@ void CvBarbarians::DoCamps()
 	}
 
 	CvMap& theMap = GC.getMap();
-	int iNumCampsInExistence = 0, iNumCoastalCamps = 0, iNumWorldPlots = theMap.numPlots();
+	int iNumCampsInExistence = 0;
+	int iNumCoastalCamps = 0;
+	int iNumWorldPlots = theMap.numPlots();
 	int iMajorCapitalMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_CAPITAL);
 	int iBarbCampMinDistance = /*4*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP);
 	int iRecentlyClearedCampMinDistance = /*2*/ GD_INT_GET(BARBARIAN_CAMP_MINIMUM_DISTANCE_RECENTLY_CLEARED_CAMP);
@@ -788,13 +790,15 @@ void CvBarbarians::DoCamps()
 	for (unsigned int iI = 0; iI < vPotentialPlots.size(); iI++)
 	{
 		CvPlot* pLoopPlot = vPotentialPlots[iI];
-		int iX = pLoopPlot->getX(), iY = pLoopPlot->getY();
+		int iX = pLoopPlot->getX();
+		int iY = pLoopPlot->getY();
 		bool bTooClose = false;
 
 		for (std::vector<int>::iterator it = MajorCapitals.begin(); it != MajorCapitals.end(); it++)
 		{
 			CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
-			int iCapitalX = pInvalidAreaPlot->getX(), iCapitalY = pInvalidAreaPlot->getY();
+			int iCapitalX = pInvalidAreaPlot->getX();
+			int iCapitalY = pInvalidAreaPlot->getY();
 			int iDistance = plotDistance(iX, iY, iCapitalX, iCapitalY);
 			if (iDistance <= iMajorCapitalMinDistance)
 			{
@@ -938,7 +942,8 @@ void CvBarbarians::DoCamps()
 		vValidPlots.clear();
 		vValidCoastalPlots.clear();
 
-		int iNewCampX = pPlot->getX(), iNewCampY = pPlot->getY();
+		int iNewCampX = pPlot->getX();
+		int iNewCampY = pPlot->getY();
 		for (unsigned int iI = 0; iI < vPotentialPlots.size(); iI++)
 		{
 			CvPlot* pLoopPlot = vValidPlots[iI];
@@ -988,7 +993,10 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	// Boats can only be spawned from encampments or captured cities on turn 30 or later.
 	// ----------------------------------- //
 
-	int iMaxBarbarians = INT_MAX, iMaxBarbarianRange = 0, iMinSpawnRadius = 1, iMaxSpawnRadius = 1;
+	int iMaxBarbarians = INT_MAX;
+	int iMaxBarbarianRange = 0;
+	int iMinSpawnRadius = 1;
+	int iMaxSpawnRadius = 1;
 	bool bNotBasePlot = false;
 
 	switch (eReason)
@@ -1018,7 +1026,10 @@ void CvBarbarians::SpawnBarbarianUnits(CvPlot* pPlot, int iNumUnits, BarbSpawnRe
 	}
 
 	// Are there too many Barbarian units nearby?
-	int iCount = 0, iUnitLoop = 0, iX = pPlot->getX(), iY = pPlot->getY();
+	int iCount = 0;
+	int iUnitLoop = 0;
+	int iX = pPlot->getX();
+	int iY = pPlot->getY();
 	bool bSpawnOnPlot = !bNotBasePlot;
 	for (CvUnit* pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).firstUnit(&iUnitLoop); pLoopUnit != NULL; pLoopUnit = GET_PLAYER(BARBARIAN_PLAYER).nextUnit(&iUnitLoop))
 	{
@@ -1378,7 +1389,8 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 		}
 
 		// Must have prereq tech(s) and must NOT have obsolete tech
-		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech(), eObsoleteTech = (TechTypes)pkUnitInfo->GetObsoleteTech();
+		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
+		TechTypes eObsoleteTech = (TechTypes)pkUnitInfo->GetObsoleteTech();
 		if (ePrereqTech != NO_TECH && !GET_TEAM(BARBARIAN_TEAM).GetTeamTechs()->HasTech(ePrereqTech))
 			continue;
 

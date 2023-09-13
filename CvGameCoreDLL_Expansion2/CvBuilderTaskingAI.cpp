@@ -2956,7 +2956,8 @@ void CvBuilderTaskingAI::LogInfo(const CvString& strNewLogStr, CvPlayer* pPlayer
 	FILogFile* pLog = NULL;
 	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 
-	CvString strLog, strTemp;
+	CvString strLog;
+	CvString strTemp;
 
 	CvString strPlayerName;
 	strPlayerName = pPlayer->getCivilizationShortDescription();
@@ -2982,7 +2983,8 @@ void CvBuilderTaskingAI::LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pP
 	FILogFile* pLog = NULL;
 	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 
-	CvString strLog, strTemp;
+	CvString strLog;
+	CvString strTemp;
 
 	CvString strPlayerName;
 	strPlayerName = pPlayer->getCivilizationShortDescription();

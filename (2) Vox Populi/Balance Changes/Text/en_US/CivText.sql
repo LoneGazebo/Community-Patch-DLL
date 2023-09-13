@@ -1115,7 +1115,7 @@ SET Text = 'Powerful Medieval Mounted Unit, weak to Pikemen. Only the Siamese ma
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SIAMESE_WARELEPHANT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_INFLUENCE] Influence with [ICON_CITY_STATE] City-States starts at 42. +100% yields from Friendly and Allied [ICON_CITY_STATE] City-States. +25% to [ICON_STRENGTH] Combat Strength of Allied [ICON_CITY_STATE] City-State [ICON_CAPITAL] Capitals. +10 Experience to Units gifted by [ICON_CITY_STATE] City-States.'
+SET Text = '[ICON_INFLUENCE] Influence with [ICON_CITY_STATE] City-States starts at 40. +100% yields from Friendly and Allied [ICON_CITY_STATE] City-States. +25% to [ICON_STRENGTH] Combat Strength of Allied [ICON_CITY_STATE] City-State [ICON_CAPITAL] Capitals. +10 Experience to Units gifted by [ICON_CITY_STATE] City-States.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES';
 
 --------------------

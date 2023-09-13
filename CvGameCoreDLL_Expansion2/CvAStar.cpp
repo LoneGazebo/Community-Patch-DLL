@@ -519,7 +519,8 @@ CvAStarNode* CvAStar::GetBest()
 void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 {
 	int range = 6;
-	int x = 0, y = 0;
+	int x = 0;
+	int y = 0;
 	static int s_CvAStarChildHexX[6] = { 0, 1,  1,  0, -1, -1, };
 	static int s_CvAStarChildHexY[6] = { 1, 0, -1, -1,  0,  1, };
 
