@@ -335,7 +335,7 @@ void CvWorldBuilderMapLoader::SetupPlayers()
 
 		CvPreGame::setPlayerColor(ePlayer, eColorType);
 
-		if(!(eStatus == SS_TAKEN && CvPreGame::overrideScenarioHandicap()))
+		if(eStatus != SS_TAKEN || !CvPreGame::overrideScenarioHandicap())
 		{
 			HandicapTypes eHandicap = NO_HANDICAP;
 			for(int iHandicap = 0; iHandicap < GC.getNumHandicapInfos(); ++iHandicap)

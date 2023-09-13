@@ -175,26 +175,12 @@ bool CvAdvisorRecommender::IsUnitRecommended(UnitTypes eUnit, AdvisorTypes eAdvi
 
 bool  CvAdvisorRecommender::IsBuildingRecommended(BuildingTypes eBuilding, AdvisorTypes eAdvisor)
 {
-	if(m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_BUILDING && (BuildingTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eBuilding)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_BUILDING && (BuildingTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eBuilding;
 }
 
 bool  CvAdvisorRecommender::IsProjectRecommended(ProjectTypes eProject, AdvisorTypes eAdvisor)
 {
-	if(m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_PROJECT && (ProjectTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eProject)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_PROJECT && (ProjectTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eProject;
 }
 
 void CvAdvisorRecommender::ResetTechs()

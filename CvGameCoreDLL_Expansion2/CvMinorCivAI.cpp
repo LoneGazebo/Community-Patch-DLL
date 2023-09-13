@@ -1511,10 +1511,7 @@ bool CvMinorCivQuest::IsComplete()
 
 		// Has the City-State's ally changed?
 		PlayerTypes eOriginalAlly = (PlayerTypes)m_iData1;
-		if (pMinor->GetMinorCivAI()->GetAlly() != eOriginalAlly)
-			return true;
-
-		return false;
+		return pMinor->GetMinorCivAI()->GetAlly() != eOriginalAlly;
 	}
 	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
@@ -11402,10 +11399,7 @@ bool CvMinorCivAI::IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer)
 
 	// Player hasn't yet found all the NWs in his area
 	int iNumNaturalWondersInStartingArea = GC.getMap().getAreaById(pPlayer->getStartingPlot()->getArea())->GetNumNaturalWonders();
-	if (pPlayer->GetNumNaturalWondersDiscoveredInArea() < iNumNaturalWondersInStartingArea)
-		return false;
-
-	return true;
+	return pPlayer->GetNumNaturalWondersDiscoveredInArea() >= iNumNaturalWondersInStartingArea;
 }
 
 /// Any distant City States that this City State would want ePlayer to meet?
@@ -12457,12 +12451,7 @@ bool CvMinorCivAI::IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFr
 {
 	int iFriendshipThresholdAllies = GetAlliesThreshold(ePlayer);
 
-	if (iFriendship >= iFriendshipThresholdAllies)
-	{
-		return true;
-	}
-
-	return false;
+	return iFriendship >= iFriendshipThresholdAllies;
 }
 
 /// What is the allies threshold?
@@ -12891,10 +12880,7 @@ bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 bool CvMinorCivAI::IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer)
 {
 	// Special trait?
-	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0);
 }
 
 
@@ -17420,10 +17406,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
 
 	// There must be a valid improvement for the player to build
-	if (eImprovement == NO_IMPROVEMENT)
-		return false;
-
-	return true;
+	return eImprovement != NO_IMPROVEMENT;
 }
 
 // Convenience wrapper function

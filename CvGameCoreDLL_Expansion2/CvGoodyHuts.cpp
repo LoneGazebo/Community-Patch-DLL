@@ -36,12 +36,7 @@ void CvGoodyHuts::DoPlayerReceivedGoody(PlayerTypes ePlayer, GoodyTypes eGoody)
 /// Are we allowed to get this Goody right now?
 bool CvGoodyHuts::IsCanPlayerReceiveGoody(PlayerTypes ePlayer, GoodyTypes eGoody)
 {
-	if (IsHasPlayerReceivedGoodyLately(ePlayer, eGoody))
-	{
-		return false;
-	}
-
-	return true;
+	return !IsHasPlayerReceivedGoodyLately(ePlayer, eGoody);
 }
 
 //	---------------------------------------------------------------------------

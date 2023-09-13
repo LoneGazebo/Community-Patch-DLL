@@ -6547,7 +6547,7 @@ bool CvUnit::canLoad(const CvPlot& targetPlot) const
 						if (LuaSupport::CallTestAny(pkScriptSystem, "CanLoadAt", args.get(), bResult))
 						{
 							// Check the result.
-							if (bResult == true) {
+							if (bResult) {
 								return true;
 							}
 						}
@@ -6659,12 +6659,7 @@ void CvUnit::unload()
 bool CvUnit::canUnloadAll() const
 {
 	VALIDATE_OBJECT
-	if(getCargo() == 0)
-	{
-		return false;
-	}
-
-	return true;
+	return getCargo() != 0;
 }
 
 
@@ -7759,10 +7754,7 @@ bool CvUnit::canHeal(const CvPlot* pPlot, bool bCheckMovement) const
 
 	//can't heal in a blockaded city
 	CvCity* pCity = pPlot->getPlotCity();
-	if (pCity && pCity->IsBlockadedWaterAndLand())
-		return false;
-
-	return true;
+	return !(pCity && pCity->IsBlockadedWaterAndLand());
 }
 
 
@@ -8689,12 +8681,7 @@ bool CvUnit::isNukeVictim(const CvPlot* pPlot, TeamTypes eTeam) const
 bool CvUnit::canNuke() const
 {
 	VALIDATE_OBJECT
-	if(GetNukeDamageLevel() == -1)
-	{
-		return false;
-	}
-
-	return true;
+	return GetNukeDamageLevel() != -1;
 }
 
 
@@ -8788,7 +8775,7 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 				bool bResult = false;
 				if (LuaSupport::CallTestAll(pkScriptSystem, "CannotParadropFrom", args.get(), bResult))
 				{
-					if (bResult == true)
+					if (bResult)
 					{
 						return false;
 					}
@@ -8821,7 +8808,7 @@ bool CvUnit::canParadrop(const CvPlot* pPlot, bool bOnlyTestVisibility) const
 				bool bResult = false;
 				if (LuaSupport::CallTestAny(pkScriptSystem, "CanParadropFrom", args.get(), bResult))
 				{
-					if (bResult == true)
+					if (bResult)
 					{
 						return true;
 					}
@@ -9502,14 +9489,7 @@ bool CvUnit::canCreateGreatWork(const CvPlot* pPlot, bool bOnlyTestVisibility) c
 	// Is there a slot of the right type somewhere in the empire?
 	GreatWorkSlotType eGreatWorkSlot = CultureHelpers::GetGreatWorkSlot(GetGreatWork());
 	CvPlayer &kPlayer = GET_PLAYER(getOwner());
-	if (kPlayer.GetCulture()->GetNumAvailableGreatWorkSlots(eGreatWorkSlot) > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return kPlayer.GetCulture()->GetNumAvailableGreatWorkSlots(eGreatWorkSlot) > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -10065,7 +10045,7 @@ bool CvUnit::canRebaseAt(int iXDest, int iYDest, bool bForced) const
 				if (LuaSupport::CallTestAny(pkScriptSystem, "CanRebaseInCity", args.get(), bResult))
 				{
 					// Check the result.
-					if (bResult == true)
+					if (bResult)
 					{
 						bCityToRebase = true;
 					}
@@ -10152,7 +10132,7 @@ bool CvUnit::canRebaseAt(int iXDest, int iYDest, bool bForced) const
 			if (LuaSupport::CallTestAny(pkScriptSystem, "CanRebaseTo", args.get(), bResult))
 			{
 				// Check the result.
-				if (bResult == true)
+				if (bResult)
 				{
 					return true;
 				}
@@ -10346,12 +10326,7 @@ bool CvUnit::canPillage(const CvPlot* pPlot) const
 			if (pImprovementInfo->IsPermanent())
 			{
 #if defined(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
-			if(MOD_PILLAGE_PERMANENT_IMPROVEMENTS)
-			{
-				return true;
-			}
-			else
-				return false;
+			return MOD_PILLAGE_PERMANENT_IMPROVEMENTS;
 #else
 			return false;
 #endif
@@ -11063,7 +11038,7 @@ bool CvUnit::CanFoundReligion(const CvPlot* pPlot) const
 		bool bResult = false;
 		if (LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanFoundReligion", args.get(), bResult))
 		{
-			if (bResult == false) 
+			if (!bResult) 
 			{
 				return false;
 			}
@@ -13426,12 +13401,7 @@ bool CvUnit::canBlastTourism(const CvPlot* pPlot, bool bTestVisible) const
 #endif
 
 	CvPlayer &kTileOwner = GET_PLAYER(eOwner);
-	if (kTileOwner.isAlive() && !kTileOwner.isMinorCiv() && eOwner != getOwner())
-	{
-		return true;
-	}
-
-	return false;
+	return kTileOwner.isAlive() && !kTileOwner.isMinorCiv() && eOwner != getOwner();
 }
 
 //	--------------------------------------------------------------------------------
@@ -14549,12 +14519,7 @@ bool CvUnit::isReadyForUpgrade() const
 {
 	VALIDATE_OBJECT
 
-	if(m_iMoves <= 0)
-	{
-		return false;
-	}
-
-	return true;
+	return m_iMoves > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14714,7 +14679,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 			bool bResult = false;
 			if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveAnyUpgrade", args.get(), bResult)) {
-				if (bResult == false)
+				if (!bResult)
 				{
 					return false;
 				}
@@ -14742,7 +14707,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 			bool bResult = false;
 			if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveAnyUpgrade", args.get(), bResult)) {
-				if (bResult == false) {
+				if (!bResult) {
 					return false;
 				}
 			}
@@ -14839,7 +14804,7 @@ UnitTypes CvUnit::GetUpgradeUnitType() const
 					bool bResult = false;
 					if (LuaSupport::CallTestAll(pkScriptSystem, "CanHaveUpgrade", args.get(), bResult)) 
 					{
-						if (bResult == false) 
+						if (!bResult) 
 						{
 							eUpgradeUnitType = NO_UNIT;
 							continue;
@@ -15466,7 +15431,7 @@ void CvUnit::SetIsLinked(bool bValue)
 		int iMovesThisTurn = GetLinkedMaxMoves() - getMoves();
 		m_bIsLinked = bValue;
 
-		if (bValue == false)
+		if (!bValue)
 		{
 			int iUnlinkedMaxMoves = maxMoves();
 
@@ -15495,7 +15460,7 @@ void CvUnit::SetIsLinkedLeader(bool bValue)
 	{
 		m_bIsLinkedLeader = bValue;
 
-		if (bValue == false)
+		if (!bValue)
 		{
 			UnitIdContainer LinkedUnitIDs = GetLinkedUnits();
 			for (int iI = 0; iI < (int)LinkedUnitIDs.size(); iI++)
@@ -15526,7 +15491,7 @@ void CvUnit::SetIsGrouped(bool bValue)
 		int iMovesThisTurn = GetLinkedMaxMoves() - getMoves();
 		m_bIsGrouped = bValue;
 
-		if (bValue == false)
+		if (!bValue)
 		{
 			int iUnlinkedMaxMoves = maxMoves();
 
@@ -16381,10 +16346,7 @@ bool CvUnit::CanFoundColony() const
 			iNumFoundedPuppets++;
 	}
 
-	if (iNumFoundedPuppets >= m_pUnitInfo->GetNumColonyFound())
-		return false;
-
-	return true;
+	return iNumFoundedPuppets < m_pUnitInfo->GetNumColonyFound();
 }
 #endif
 
@@ -18230,7 +18192,7 @@ bool CvUnit::ignoreBuildingDefense() const
 bool CvUnit::ignoreTerrainCost() const
 {
 	VALIDATE_OBJECT
-	return getIgnoreTerrainCostCount() > 0 ? true : false;
+	return getIgnoreTerrainCostCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18254,7 +18216,7 @@ void CvUnit::changeIgnoreTerrainCostCount(int iValue)
 bool CvUnit::ignoreTerrainDamage() const
 {
 	VALIDATE_OBJECT
-	return getIgnoreTerrainDamageCount() > 0 ? true : false;
+	return getIgnoreTerrainDamageCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18279,7 +18241,7 @@ void CvUnit::changeIgnoreTerrainDamageCount(int iValue)
 bool CvUnit::ignoreFeatureDamage() const
 {
 	VALIDATE_OBJECT
-	return getIgnoreFeatureDamageCount() > 0 ? true : false;
+	return getIgnoreFeatureDamageCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18304,7 +18266,7 @@ void CvUnit::changeIgnoreFeatureDamageCount(int iValue)
 bool CvUnit::extraTerrainDamage() const
 {
 	VALIDATE_OBJECT
-	return getExtraTerrainDamageCount() > 0 ? true : false;
+	return getExtraTerrainDamageCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -18329,7 +18291,7 @@ void CvUnit::changeExtraTerrainDamageCount(int iValue)
 bool CvUnit::extraFeatureDamage() const
 {
 	VALIDATE_OBJECT
-	return getExtraFeatureDamageCount() > 0 ? true : false;
+	return getExtraFeatureDamageCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19128,7 +19090,7 @@ void CvUnit::ChangeHoveringUnitCount(int iValue)
 bool CvUnit::flatMovementCost() const
 {
 	VALIDATE_OBJECT
-	return getFlatMovementCostCount() > 0 ? true : false;
+	return getFlatMovementCostCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19152,7 +19114,7 @@ void CvUnit::changeFlatMovementCostCount(int iValue)
 bool CvUnit::canMoveImpassable() const
 {
 	VALIDATE_OBJECT
-	return getCanMoveImpassableCount() > 0 ? true : false;
+	return getCanMoveImpassableCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19227,7 +19189,7 @@ int CvUnit::getCanMoveAfterAttackingCount() const
 bool CvUnit::hasFreePillageMove() const
 {
 	VALIDATE_OBJECT
-	return getFreePillageMoveCount() > 0 ? true : false;
+	return getFreePillageMoveCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19249,7 +19211,7 @@ int CvUnit::getFreePillageMoveCount() const
 bool CvUnit::hasHealOnPillage() const
 {
 	VALIDATE_OBJECT
-	return getHealOnPillageCount() > 0 ? true : false;
+	return getHealOnPillageCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19289,7 +19251,7 @@ void CvUnit::changeHPHealedIfDefeatEnemy(int iValue)
 bool CvUnit::IsHealIfDefeatExcludeBarbarians() const
 {
 	VALIDATE_OBJECT
-	return GetHealIfDefeatExcludeBarbariansCount() > 0 ? true : false;
+	return GetHealIfDefeatExcludeBarbariansCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19380,7 +19342,7 @@ bool CvUnit::noDefensiveBonus() const
 		return true;
 	}
 
-	return getNoDefensiveBonusCount() > 0 ? true : false;
+	return getNoDefensiveBonusCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -19404,7 +19366,7 @@ void CvUnit::changeNoDefensiveBonusCount(int iValue)
 bool CvUnit::isNoCapture() const
 {
 	VALIDATE_OBJECT
-	return getNoCaptureCount() > 0 ? true : false;
+	return getNoCaptureCount() > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -21509,8 +21471,7 @@ void CvUnit::setGameTurnCreated(int iNewValue)
 int CvUnit::getDamage() const
 {
 	//for debugging - hook in here and mouse over a unit to get the current tactical zone info
-	if (false)
-		OutputDebugString( getTacticalZoneInfo().c_str() );
+	;
 
 	VALIDATE_OBJECT
 	return m_iDamage;
@@ -21789,11 +21750,7 @@ bool CvUnit::IsInForeignOwnedTerritory() const
 {
 	VALIDATE_OBJECT
 		
-	if (plot()->isOwned() && plot()->getTeam() != getTeam())
-	{
-		return true;
-	}
-	return false;
+	return plot()->isOwned() && plot()->getTeam() != getTeam();
 }
 
 //	--------------------------------------------------------------------------------
@@ -27423,7 +27380,7 @@ bool CvUnit::canAcquirePromotion(PromotionTypes ePromotion) const
 		bool bResult = false;
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CanHavePromotion", args.get(), bResult))
 		{
-			if (bResult == false) 
+			if (!bResult) 
 			{
 				return false;
 			}
@@ -29350,14 +29307,7 @@ bool CvUnit::IsFirstTimeSelected() const
 		return false;
 
 	VALIDATE_OBJECT
-	if(IsSelected() && m_iEverSelectedCount == 1)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return IsSelected() && m_iEverSelectedCount == 1;
 }
 
 //	--------------------------------------------------------------------------------

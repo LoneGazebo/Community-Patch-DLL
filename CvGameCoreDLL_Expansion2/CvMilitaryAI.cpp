@@ -2057,7 +2057,7 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 					if(LuaSupport::CallTestAll(pkScriptSystem, "MilitaryStrategyCanActivate", args.get(), bResult))
 					{
 						// Check the result.
-						if(bResult == false)
+						if(!bResult)
 						{
 							bStrategyShouldBeActive = false;
 						}
@@ -3556,56 +3556,31 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughMilitaryUnits(CvPlayer* pPlayer)
 /// "Empire Defense" Player Strategy: Adjusts military flavors if the player doesn't have the recommended number of units
 bool MilitaryAIHelpers::IsTestStrategy_EmpireDefense(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEEDED)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEEDED;
 }
 
 /// "Empire Defense" Player Strategy: If we have less than 1 unit per city (tweaked a bit by threat level), we NEED some units
 bool MilitaryAIHelpers::IsTestStrategy_EmpireDefenseCritical(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_CRITICAL)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_CRITICAL;
 }
 
 /// "Enough Naval Units" Strategy: build navies
 bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalUnits(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH;
 }
 
 /// "Need Naval Units" Strategy: build navies
 bool MilitaryAIHelpers::IsTestStrategy_NeedNavalUnits(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEEDED)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEEDED;
 }
 
 /// "Need Naval Units Critical" Strategy: build navies NOW
 bool MilitaryAIHelpers::IsTestStrategy_NeedNavalUnitsCritical(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_CRITICAL)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_CRITICAL;
 }
 
 /// "War Mobilization" Player Strategy: Does this player want to mobilize for war?  If so, adjust flavors
@@ -3695,12 +3670,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 /// "At War" Player Strategy: If the player is at war, increase OFFENSE, DEFENSE and MILITARY_TRAINING.  Then look into which operation(s) to run
 bool MilitaryAIHelpers::IsTestStrategy_AtWar(CvPlayer* pPlayer, bool bMinor)
 {
-	if (pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(bMinor) > 0)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(bMinor) > 0;
 }
 
 /// "Minor Civ GeneralDefense" Player Strategy: Prioritize CITY_DEFENSE and DEFENSE
@@ -3712,23 +3682,13 @@ bool MilitaryAIHelpers::IsTestStrategy_MinorCivGeneralDefense()
 /// "Minor Civ Threat Elevated" Player Strategy: If a Minor Civ is in danger, turn CITY_DEFENSE and DEFENSE up
 bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatElevated(CvPlayer* pPlayer)
 {
-	if (pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_ELEVATED)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_ELEVATED;
 }
 
 /// "Minor Civ Threat Critical" Player Strategy: If a Minor Civ is in danger, turn CITY_DEFENSE and DEFENSE up
 bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatCritical(CvPlayer* pPlayer)
 {
-	if (pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_CRITICAL)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_CRITICAL;
 }
 
 /// "Eradicate Barbarians" Player Strategy: If there is a large group of barbarians units or camps near our civilization, increase OFFENSE
@@ -3888,12 +3848,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iN
 bool MilitaryAIHelpers::IsTestStrategy_NeedRangedDueToEarlySneakAttack(CvPlayer* pPlayer)
 {
 	MilitaryAIStrategyTypes eStrategyWarMob = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
-	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyWarMob))
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyWarMob);
 }
 
 /// "Enough Mobile" Player Strategy: If a player has too many mobile units
@@ -4198,7 +4153,7 @@ CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckT
 			(!bCheckTeam || pAdjacentPlot->getTeam()==eTeam || pAdjacentPlot->getTeam()==NO_TEAM) && //ownership check
 			pAdjacentPlot->isShallowWater() && //coastal
 			pAdjacentPlot->getFeatureType()==NO_FEATURE && //no ice
-			pAdjacentPlot->isLake()==false && //no lake
+			!pAdjacentPlot->isLake() && //no lake
 			pAdjacentPlot->countPassableNeighbors(DOMAIN_SEA)>2) //no bays
 		{
 			return pAdjacentPlot;

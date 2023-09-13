@@ -3890,7 +3890,7 @@ void CvTeam::changeExtraMoves(DomainTypes eIndex, int iChange)
 //	--------------------------------------------------------------------------------
 bool CvTeam::canEmbark() const
 {
-	return m_iCanEmbarkCount > 0 ? true : false;
+	return m_iCanEmbarkCount > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -3940,7 +3940,7 @@ void CvTeam::changeCanEmbarkCount(int iChange)
 //	--------------------------------------------------------------------------------
 bool CvTeam::canDefensiveEmbark() const
 {
-	return m_iDefensiveEmbarkCount > 0 ? true : false;
+	return m_iDefensiveEmbarkCount > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4036,7 +4036,7 @@ void CvTeam::UpdateEmbarkGraphics()
 //	--------------------------------------------------------------------------------
 bool CvTeam::canEmbarkAllWaterPassage() const
 {
-	return m_iEmbarkedAllWaterPassageCount > 0 ? true : false;
+	return m_iEmbarkedAllWaterPassageCount > 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4281,12 +4281,7 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	if(IsHasFoundPlayersTerritory(ePlayer) != bValue)
-	{
-		m_abHasFoundPlayersTerritory[ePlayer] = bValue;
-		return true;
-	}
-	return false;
+	return IsHasFoundPlayersTerritory(ePlayer) != bValue;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4320,7 +4315,7 @@ void CvTeam::setAtWar(TeamTypes eIndex, bool bNewValue, bool bAggressorPacifier)
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 	CvAssertMsg(eIndex != GetID() || bNewValue == false, "Team is setting war with itself!");
-	if (eIndex != GetID() || bNewValue == false)
+	if (eIndex != GetID() || !bNewValue)
 	{
 		m_abAggressorPacifier[eIndex] = bAggressorPacifier;
 		m_abAtWar[eIndex] = bNewValue;
@@ -10065,10 +10060,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 //	Are we locked into a war with eOtherTeam because our Master is at war with him?
 bool CvTeam::IsVassalLockedIntoWar(TeamTypes eOtherTeam) const
 {
-	if (IsVassalOfSomeone() && GET_TEAM(GetMaster()).isAtWar(eOtherTeam))
-		return true;
-
-	return false;
+	return IsVassalOfSomeone() && GET_TEAM(GetMaster()).isAtWar(eOtherTeam);
 }
 //	--------------------------------------------------------------------------------
 int CvTeam::getNumCitiesWhenVassalMade() const
@@ -10239,13 +10231,8 @@ void CvTeam::SetNumTurnsSinceVassalTaxSet(PlayerTypes ePlayer, int iValue)
 bool CvTeam::IsTooSoonForVassal(TeamTypes eTeam) const
 {
 	// a value of -1 means we haven't made a vassal yet
-	if(GetNumTurnsSinceVassalEnded(eTeam) < GC.getGame().getGameSpeedInfo().getNumTurnsBetweenVassals() &&
-		GetNumTurnsSinceVassalEnded(eTeam) > -1)
-	{
-		return true;
-	}
-
-	return false;
+	return GetNumTurnsSinceVassalEnded(eTeam) < GC.getGame().getGameSpeedInfo().getNumTurnsBetweenVassals() &&
+		GetNumTurnsSinceVassalEnded(eTeam) > -1;
 }
 //	--------------------------------------------------------------------------------
 /// How many vassals do we have?

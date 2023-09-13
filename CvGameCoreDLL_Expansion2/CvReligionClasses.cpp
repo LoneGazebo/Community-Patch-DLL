@@ -851,7 +851,7 @@ CvGameReligions::FOUNDING_RESULT CvGameReligions::CanCreatePantheon(PlayerTypes 
 				bool bResult = false;
 				if (LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanFoundPantheon", args.get(), bResult))
 				{
-					if (bResult == false) 
+					if (!bResult) 
 					{
 						return FOUNDING_INVALID_PLAYER;
 					}
@@ -1972,10 +1972,7 @@ BeliefTypes CvGameReligions::GetBeliefInPantheon(PlayerTypes ePlayer) const
 /// Has this player created a pantheon?
 bool CvGameReligions::HasCreatedPantheon(PlayerTypes ePlayer) const
 {
-	if (GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true) != NO_RELIGION)
-		return true;
-
-	return false;
+	return static_cast<bool>(GET_PLAYER(ePlayer).GetReligions()->GetReligionCreatedByPlayer(true) != NO_RELIGION);
 }
 
 /// How many players have created a pantheon?
@@ -7527,11 +7524,7 @@ bool CvReligionAI::BuyAnyAvailableNonFaithUnit()
 			}
 		}
 	}
-	if(bPurchased == true)
-	{
-		return true;
-	}
-	return false;
+	return bPurchased == true;
 }
 #endif
 /// Any building that we can build with Faith (not Faith-generating ones)

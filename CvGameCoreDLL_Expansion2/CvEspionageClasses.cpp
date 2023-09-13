@@ -2647,14 +2647,7 @@ bool CvPlayerEspionage::IsSpyInCity(uint uiSpyIndex)
 		return false;
 	}
 
-	if(m_aSpyList[uiSpyIndex].m_iCityX != -1 && m_aSpyList[uiSpyIndex].m_iCityY != -1)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aSpyList[uiSpyIndex].m_iCityX != -1 && m_aSpyList[uiSpyIndex].m_iCityY != -1;
 }
 
 CvCity* CvPlayerEspionage::GetCityWithSpy(uint uiSpyIndex)
@@ -3568,14 +3561,7 @@ bool CvPlayerEspionage::IsSchmoozing (uint uiSpyIndex)
 		return false;
 	}
 
-	if (m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE;
 }
 
 bool CvPlayerEspionage::IsAnySchmoozing (CvCity* pCity)
@@ -5681,14 +5667,7 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 bool CvPlayerEspionage::HasRecentIntrigueAbout(PlayerTypes eTargetPlayer)
 {
 	IntrigueNotificationMessage* pMessage = GetRecentIntrigueInfo(eTargetPlayer);
-	if(pMessage && pMessage->m_eSourcePlayer != NO_PLAYER && pMessage->m_iIntrigueType != NUM_INTRIGUE_TYPES)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return pMessage && pMessage->m_eSourcePlayer != NO_PLAYER && pMessage->m_iIntrigueType != NUM_INTRIGUE_TYPES;
 }
 
 /// GetRecentIntrigueInfo - Gets the information about the target player that is most recent

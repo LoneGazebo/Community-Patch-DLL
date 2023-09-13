@@ -684,7 +684,7 @@ void CvEconomicAI::DoTurn()
 					if(LuaSupport::CallTestAll(pkScriptSystem, "EconomicStrategyCanActivate", args.get(), bResult))
 					{
 						// Check the result.
-						if(bResult == false)
+						if(!bResult)
 						{
 							bStrategyShouldBeActive = false;
 						}
@@ -3301,14 +3301,7 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 		float fRatio = iNumPlayersAheadInTech / (float)iNumOtherPlayers;
 		float fCutOff = (0.05f * pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
 
-		if (fRatio < fCutOff)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return fRatio < fCutOff;
 	}
 	else
 	{
@@ -4217,14 +4210,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedDiplomats(CvPlayer* pPlayer)
 
 	int iScore = IsTestStrategy_ScoreDiplomats(pPlayer);
 
-	if((iScore > 0) && (iScore <= 15))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (iScore > 0) && (iScore <= 15);
 }
 
 bool EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(CvPlayer* pPlayer)
@@ -4237,14 +4223,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(CvPlayer* pPlayer)
 	}
 
 	int iScore = IsTestStrategy_ScoreDiplomats(pPlayer);
-	if(iScore > 15)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return iScore > 15;
 }
 
 int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
@@ -4571,12 +4550,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedMuseums(CvPlayer* pPlayer)
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
 	int iNumGreatWorkSlots = pPlayer->GetCulture()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
 
-	if (iNumSites > iNumGreatWorkSlots)
-	{
-		return true;
-	}
-
-	return false;
+	return iNumSites > iNumGreatWorkSlots;
 }
 
 /// We have the tech for guilds but haven't built them yet

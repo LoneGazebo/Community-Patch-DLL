@@ -1338,12 +1338,7 @@ bool PreparingForWar(CvPlayerAI* pPlayer)
 	}
 
 	MilitaryAIStrategyTypes eWarMobilizationStrategy = (MilitaryAIStrategyTypes)GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
-	if(pMilitaryAI->IsUsingStrategy(eWarMobilizationStrategy))
-	{
-		return true;
-	}
-
-	return false;
+	return pMilitaryAI->IsUsingStrategy(eWarMobilizationStrategy);
 }
 
 GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveWriter(CvUnit* pGreatWriter)
@@ -1651,7 +1646,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 			if (pGreatGeneral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString(GGNegationPromotions[i].c_str(), true)))
 				bHasGeneralNegation = true;
 
-		if (bHasGeneralNegation == true)
+		if (bHasGeneralNegation)
 		{
 			if (GC.getLogging() && GC.getAILogging())
 			{
@@ -1788,7 +1783,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveAdmiral(CvUnit* pGreatAdmiral)
 			if (pGreatAdmiral->isHasPromotion((PromotionTypes)GC.getInfoTypeForString(GANegationPromotions[i].c_str(), true)))
 				bHasAdmiralNegation = true;
 
-		if (bHasAdmiralNegation == true)
+		if (bHasAdmiralNegation)
 		{
 			if (GC.getLogging() && GC.getAILogging())
 			{

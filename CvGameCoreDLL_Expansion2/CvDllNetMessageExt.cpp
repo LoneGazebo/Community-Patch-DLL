@@ -41,12 +41,7 @@ namespace NetMessageExt
 					PlayerTypes eActualPlayer = static_cast<PlayerTypes>(ePlayer);
 					PlayerTypes eMinor = static_cast<PlayerTypes>(iArg1);
 					bool booleanFromInt;
-					if (iArg2 == 1) {
-						booleanFromInt = true;
-					}
-					else {
-						booleanFromInt = false;
-					}
+					booleanFromInt = iArg2 == 1;
 					Response::DoQuestInfluenceDisabled(eActualPlayer, eMinor, booleanFromInt);
 					break;
 				}

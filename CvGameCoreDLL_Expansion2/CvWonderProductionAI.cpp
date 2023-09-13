@@ -241,13 +241,9 @@ bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding)
 {
 	const CvBuildingClassInfo& kBuildingClass = kBuilding.GetBuildingClassInfo();
 
-	if(::isWorldWonderClass(kBuildingClass) ||
+	return ::isWorldWonderClass(kBuildingClass) ||
 	        ::isTeamWonderClass(kBuildingClass) ||
-	        ::isNationalWonderClass(kBuildingClass))
-	{
-		return true;
-	}
-	return false;
+	        ::isNationalWonderClass(kBuildingClass);
 }
 
 /// Check wonders excluding national wonders you can only have one of.
@@ -257,11 +253,7 @@ bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBui
 
 	bool isNationalUnique = kBuildingClass.getMaxPlayerInstances() == 1;
 
-	if((::isWorldWonderClass(kBuildingClass) || ::isTeamWonderClass(kBuildingClass) || ::isNationalWonderClass(kBuildingClass)) && !isNationalUnique)
-	{
-		return true;
-	}
-	return false;
+	return (::isWorldWonderClass(kBuildingClass) || ::isTeamWonderClass(kBuildingClass) || ::isNationalWonderClass(kBuildingClass)) && !isNationalUnique;
 }
 
 // PRIVATE METHODS

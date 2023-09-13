@@ -387,7 +387,7 @@ void CvHomelandAI::FindHomelandTargets()
 			bool bArtifact = pLoopPlot->getResourceType(eTeam) == eArtifactResourceType;
 			bool bHiddenArtifact = pLoopPlot->getResourceType(eTeam) == eHiddenArtifactResourceType;
 			if ((bArtifact || bHiddenArtifact) &&
-				!(pLoopPlot->getOwner() == m_pPlayer->GetID() && ((bArtifact && pCivImproveArtifact) || (bHiddenArtifact && pCivImproveHiddenArtifact))) &&
+				(pLoopPlot->getOwner() != m_pPlayer->GetID() || ((!bArtifact || !pCivImproveArtifact) && (!bHiddenArtifact || !pCivImproveHiddenArtifact))) &&
 				!m_pPlayer->GetDiplomacyAI()->IsPlayerBadTheftTarget(pLoopPlot->getOwner(), THEFT_TYPE_ARTIFACT, pLoopPlot))
 			{
 				newTarget.SetTargetType(AI_HOMELAND_TARGET_ANTIQUITY_SITE);

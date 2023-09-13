@@ -477,7 +477,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				if (LuaSupport::CallTestAll(pkScriptSystem, "IsAbleToMakePeace", args.get(), bResult)) 
 				{
 					// Check the result.
-					if (bResult == false)
+					if (!bResult)
 					{
 						return false;
 					}
