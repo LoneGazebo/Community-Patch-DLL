@@ -3756,11 +3756,14 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					if (pUnitEntry)
 					{
 						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
-						if (pPlayerTraits->IsReligious())
+						if (iValue > 0)
 						{
-							iValue *= 2;
+							if (pPlayerTraits->IsReligious())
+							{
+								iValue *= 2;
+							}
+							yield[YIELD_FAITH] += min(225, iValue);
 						}
-						yield[YIELD_FAITH] += min(225, iValue);
 					}
 				}
 			}
@@ -3772,14 +3775,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
 				{
 					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
-					if (pPlayerTraits->IsWarmonger())
+					if (iValue > 0)
 					{
-						iValue *= 2;
+						if (pPlayerTraits->IsWarmonger())
+						{
+							iValue *= 2;
+						}
+						if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
+							yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
+						else
+							yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
 					}
-					if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
-						yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
-					else
-						yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
 				}
 			}
 		}

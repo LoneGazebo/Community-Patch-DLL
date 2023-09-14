@@ -73,7 +73,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		int iFlavorWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
 		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, false, false);
 
-		m_aCityBuildables.push_back(buildable, iSaneWeight);
+		if (iSaneWeight > 0)
+			m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// units
@@ -92,7 +93,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		int iFlavorWeight = pCityStrategy->GetUnitProductionAI()->GetWeight(eUnit);
 		int iSaneWeight = pCityStrategy->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iFlavorWeight, false, false);
 
-		m_aCityBuildables.push_back(buildable, iSaneWeight);
+		if (iSaneWeight > 0)
+			m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// projects
@@ -110,8 +112,9 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		
 		int iFlavorWeight = pCityStrategy->GetProjectProductionAI()->GetWeight(eProject);
 		int iSaneWeight = pCityStrategy->GetProjectProductionAI()->CheckProjectBuildSanity(eProject, iFlavorWeight);
-	
-		m_aCityBuildables.push_back(buildable, iSaneWeight);
+
+		if (iSaneWeight > 0)
+			m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// reweigh by cost
