@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.10) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.10.1) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -520,7 +520,7 @@
     <File md5="9B8FFC8B60CCC0A8A4BD60E27AC208B9" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
     <File md5="67CE33FDF5F8E24551F7892789CD84F7" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="252943A50E905AEEED590A89655BC49F" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="C862DCCC91ACBFDB2456CE2EB00704A6" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="C04A57A989845E4BB43B862348BCBF89" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="2A6BB18043C03B52481402D4A446D989" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="10226DBE916C89086E2909FB4FCCD0D7" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="CBA1F1A37EB2A2EE406A92B74F7F2C2D" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
