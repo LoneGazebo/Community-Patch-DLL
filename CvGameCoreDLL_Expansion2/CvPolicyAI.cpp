@@ -126,8 +126,6 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	if (!pPlayer->isMajorCiv())
 		return 0;
 
-	RandomNumberDelegate fcn;
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	int iRtnValue = (int)NO_POLICY;
 	int iPolicyLoop = 0;
 	vector<int> aLevel3Tenets;
@@ -235,7 +233,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// Make our policy choice from the top choices
 	if (m_AdoptablePolicies.size() > 0)
 	{
-		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getPolicyChoiceCutoffThreshold(), &fcn, "Choosing policy from Top Choices");
+		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getPolicyChoiceCutoffThreshold(), CvSeeder::fromRaw(0x5fef0474).mix(pPlayer->GetID()).mix(pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(false, false, true)));
 
 		// Log our choice
 		if (iRtnValue != (int)NO_POLICY)

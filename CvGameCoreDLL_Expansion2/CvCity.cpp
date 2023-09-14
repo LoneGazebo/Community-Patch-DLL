@@ -3386,7 +3386,7 @@ void CvCity::ChangeEventFeatureYield(FeatureTypes eFeature, YieldTypes eIndex2, 
 void CvCity::DoEvents(bool bEspionageOnly)
 {
 	//Minors? Barbs? Get out!
-	if (GET_PLAYER(getOwner()).isMinorCiv() || GET_PLAYER(getOwner()).isBarbarian())
+	if (!GET_PLAYER(getOwner()).isMajorCiv())
 		return;
 
 	//Event Choice Duration First - if we're in one, let's do the countdown now.
@@ -3493,15 +3493,14 @@ void CvCity::DoEvents(bool bEspionageOnly)
 	{
 		if (GC.getLogging())
 		{
-			CvString playerName;
+			CvString cityName = getName();
 			FILogFile* pLog = NULL;
 			CvString strBaseString;
 			CvString strOutBuf;
 			CvString strFileName = "EventCityLogging.csv";
-			playerName = getName();
 			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
+			strBaseString += cityName + ", ";
 			strOutBuf.Format("City Event: Global Cooldown Active. Cooldown: %d", GetCityEventCooldown());
 			strBaseString += strOutBuf;
 			pLog->Msg(strBaseString);
@@ -3509,154 +3508,176 @@ void CvCity::DoEvents(bool bEspionageOnly)
 		ChangeCityEventCooldown(-1);
 	}
 
+	// Random Roll: Can we have a city event at all this turn?
+	int iAnyEventChance = /*100*/ range(GD_INT_GET(CITY_EVENT_PROBABILITY_EACH_TURN), 0, 100);
+	bool bAnyEventAllowed = iAnyEventChance == 100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xba5d02ff).mix(GetID())) <= iAnyEventChance;
+
 	//Let's loop through all events.
-	CvWeightedVector<int> veValidEvents;
+	CvWeightedVector<CityEventTypes> veValidEventsThisTurn;
+	vector<CityEventTypes> vValidEvents;
 
 	for (int iLoop = 0; iLoop < GC.getNumCityEventInfos(); iLoop++)
 	{
 		CityEventTypes eEvent = (CityEventTypes)iLoop;
-		if (eEvent != NO_EVENT_CITY)
+		if (eEvent == NO_EVENT_CITY)
+			continue;
+
+		CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+		if (pkEventInfo == NULL)
+			continue;
+
+		if (pkEventInfo->getRandomChance() == -1)
+			continue;
+
+		if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
+			continue;
+
+		// Is this event on cooldown?
+		if (GetEventCooldown(eEvent) > 0)
 		{
-			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-			if (pkEventInfo == NULL)
-			{
-				continue;
-			}
-
-			if (pkEventInfo->getRandomChance() == -1)
-				continue;
-
-			if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
-				continue;
-
-			//Lua Hook
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventCanTake, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
-			{
-				continue;
-			}
-
-			//Global Cooldown Second - if we've had this event recently, let's check this.
-			if (GetEventCooldown(eEvent) > 0)
+			if (GetEventCooldown(eEvent) > 1)
 			{
 				if (GC.getLogging())
 				{
-					CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-					if (pkEventInfo != NULL)
-					{
-						CvString playerName;
-						FILogFile* pLog = NULL;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventCityLogging.csv";
-						playerName = getName();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("City Event: %s. Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
+					CvString cityName = getName();
+					FILogFile* pLog = NULL;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventCityLogging.csv";
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += cityName + ", ";
+					strOutBuf.Format("City Event: %s. Cooldown Active. Cooldown: %d.", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
 				}
-				//This is done at the player level, not the City level!
 				ChangeEventCooldown(eEvent, -1);
 				continue;
 			}
-
-			if (GetCityEventCooldown() > 0 && !pkEventInfo->IgnoresGlobalCooldown())
-			{
-				continue;
-			}
-
-			//most expensive check last
-			if (IsCityEventValid(eEvent))
-			{
-				veValidEvents.push_back(eEvent, pkEventInfo->getRandomChance() + GetEventIncrement(eEvent));
-			}
+			ChangeEventCooldown(eEvent, -1);
 		}
+
+		//Lua Hook
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventCanTake, getOwner(), GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
+			continue;
+
+		//most expensive check last
+		if (!IsCityEventValid(eEvent))
+			continue;
+
+		// Global cooldown in effect?
+		if (GetCityEventCooldown() > 0 && !pkEventInfo->IgnoresGlobalCooldown())
+		{
+			if (pkEventInfo->getRandomChanceDelta() > 0)
+			{
+				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
+
+				if (GC.getLogging())
+				{
+					CvString cityName = getName();
+					FILogFile* pLog = NULL;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventCityLogging.csv";
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += cityName + ", ";
+					strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+			}
+			continue;
+		}
+
+		vValidEvents.push_back(eEvent);
 	}
 
-	CityEventTypes eChosenEvent = NO_EVENT_CITY;
-
-	if (veValidEvents.size() > 0)
+	if (vValidEvents.size() > 0)
 	{
-		//		veValidEvents.StableSortItems();
-		uint uRandIndex = GC.getGame().urandLimitExclusive(2500, CvSeeder(veValidEvents.size()).mix(GetID()));
+		CityEventTypes eChosenEvent = NO_EVENT_CITY;
 
-		if (GC.getLogging())
+		if (bAnyEventAllowed)
 		{
-			CvString strBaseString;
-			CvString strOutBuf;
-			CvString strFileName = "EventCityLogging.csv";
-			CvString playerName = getName();
-			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
-			strOutBuf.Format("Found %d Events for seeding. Random=%d", veValidEvents.size(), uRandIndex);
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		//which one is it?
-		int iWeight = 0;
-		for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
-		{
-			CityEventTypes eEvent = (CityEventTypes)veValidEvents.GetElement(iLoop);
-			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-			if (!pkEventInfo)
-				continue;
-
-			iWeight = veValidEvents.GetWeight(iLoop);
-			iWeight += veValidEvents.GetWeight(iLoop); //afw
-
-			if (static_cast<int>(uRandIndex) < iWeight)
+			// Random Roll #2: Randomly roll each event to see if it can occur
+			// Probability = chance / 100
+			int iHighestChance = 0;
+			for (uint uLoop = 0; uLoop < vValidEvents.size(); uLoop++)
 			{
-				eChosenEvent = eEvent;
-				break;
+				CityEventTypes eEvent = (CityEventTypes)vValidEvents[uLoop];
+				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+				int iChance = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				if (iChance > iHighestChance)
+					iHighestChance = iChance;
+
+				int iRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x133e2161).mix(GetID()).mix(uLoop));
+				if (iRoll <= iChance)
+					veValidEventsThisTurn.push_back(eEvent, iChance);
 			}
-		}
 
-		if (eChosenEvent != NO_EVENT_CITY)
-		{
-			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
-			if (pkEventInfo != NULL)
+			if (GC.getLogging())
 			{
-				DoStartEvent(eChosenEvent, false);
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "EventCityLogging.csv";
+				CvString cityName = getName();
+				FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += cityName + ", ";
+				strOutBuf.Format("Found %d Events for seeding. %d of them passed the random roll. Highest Chance = %d.", vValidEvents.size(), veValidEventsThisTurn.size(), iHighestChance);
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
 
+			if (veValidEventsThisTurn.size() > 0)
+			{
+				// Random Roll #3: Do a weighted choice of the event
+				veValidEventsThisTurn.StableSortItems();
+				eChosenEvent = veValidEventsThisTurn.ChooseByWeight(CvSeeder::fromRaw(0xf875c3cb).mix(GetID()));
+				CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eChosenEvent);
+				DoStartEvent(eChosenEvent, false);
 				ChangeCityEventCooldown(/*25*/ GD_INT_GET(CITY_EVENT_MIN_DURATION_BETWEEN));
 
-				//We did it! But reset our increment.
+				// We did it! Reset added per turn chance.
 				IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
 				if (GC.getLogging())
 				{
 					CvString strBaseString;
 					CvString strOutBuf;
 					CvString strFileName = "EventCityLogging.csv";
-					CvString playerName = getName();
+					CvString cityName = getName();
 					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
-					strOutBuf.Format("Resetting event chance: %s", pkEventInfo->GetDescription());
+					strBaseString += cityName + ", ";
+					strOutBuf.Format("EVENT CHOSEN: %s. Resetting event chance.", pkEventInfo->GetDescription());
 					strBaseString += strOutBuf;
 					pLog->Msg(strBaseString);
 				}
 			}
 		}
-	}
-
-	for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
-	{
-		CityEventTypes eEvent = (CityEventTypes)veValidEvents.GetElement(iLoop);
-		if (eEvent != NO_EVENT_CITY)
+		else if (GC.getLogging())
 		{
-			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
-			if (!pkEventInfo)
-				continue;
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString strFileName = "EventCityLogging.csv";
+			CvString cityName = getName();
+			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += cityName + ", ";
+			strOutBuf.Format("Found %d Valid Events. Failed random roll to run any events this turn.", vValidEvents.size());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
 
-			//But not for the one we just did!
+		// We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
+		for (uint uLoop = 0; uLoop < vValidEvents.size(); uLoop++)
+		{
+			CityEventTypes eEvent = (CityEventTypes)vValidEvents[uLoop];
+			CvModCityEventInfo* pkEventInfo = GC.getCityEventInfo(eEvent);
+
 			if (eEvent == eChosenEvent)
 				continue;
 
-			//We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
 			if (pkEventInfo->getRandomChanceDelta() > 0)
 			{
 				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
@@ -3665,10 +3686,10 @@ void CvCity::DoEvents(bool bEspionageOnly)
 					CvString strBaseString;
 					CvString strOutBuf;
 					CvString strFileName = "EventCityLogging.csv";
-					CvString playerName = getName();
+					CvString cityName = getName();
 					FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-					strBaseString += playerName + ", ";
+					strBaseString += cityName + ", ";
 					strOutBuf.Format("Incrementing event chance: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
 					strBaseString += strOutBuf;
 					pLog->Msg(strBaseString);
@@ -3677,6 +3698,7 @@ void CvCity::DoEvents(bool bEspionageOnly)
 		}
 	}
 }
+
 void CvCity::DoStartEvent(CityEventTypes eChosenEvent, bool bSendMsg)
 {
 	if (eChosenEvent != NO_EVENT_CITY)
@@ -16398,7 +16420,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		}
 
 		// Process for our team
-		owningTeam.processBuilding(eBuilding, iChange, bFirst);
+		owningTeam.processBuilding(eBuilding, iChange);
 	}
 
 	if (!bObsolete)
@@ -33662,6 +33684,9 @@ int CvCity::getBombardRange() const
 int CvCity::getBombardRange(bool& bIndirectFireAllowed) const
 {
 	VALIDATE_OBJECT
+
+	if (MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES)
+		return 0;
 
 	if (MOD_BALANCE_CORE_BOMBARD_RANGE_BUILDINGS)
 	{

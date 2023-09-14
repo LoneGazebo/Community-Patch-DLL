@@ -103,7 +103,7 @@ int CvDllTeam::GetProjectCount(ProjectTypes eIndex) const
 //------------------------------------------------------------------------------
 int CvDllTeam::GetTotalSecuredVotes() const
 {
-	return m_pTeam->GetTotalSecuredVotes();
+	return 0; // DEPRECATED
 }
 //------------------------------------------------------------------------------
 void CvDllTeam::Init(TeamTypes eID)
@@ -138,7 +138,7 @@ bool CvDllTeam::IsHasMet(TeamTypes eIndex) const
 //------------------------------------------------------------------------------
 bool CvDllTeam::IsHomeOfUnitedNations() const
 {
-	return m_pTeam->IsHomeOfUnitedNations();
+	return false; // DEPRECATED
 }
 //------------------------------------------------------------------------------
 void CvDllTeam::Uninit()

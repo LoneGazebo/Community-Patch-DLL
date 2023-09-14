@@ -3513,7 +3513,7 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 	uint uNumChoices = aPossiblePromotions.size();
 	if (uNumChoices > 0)
 	{
-		uint uChoice = GC.getGame().urandLimitExclusive(uNumChoices, CvSeeder(pThisUnit->plot()->GetPseudoRandomSeed()).mix(pThisUnit->GetID()).mix(pThisUnit->getDamage()));
+		uint uChoice = GC.getGame().urandLimitExclusive(uNumChoices, pThisUnit->plot()->GetPseudoRandomSeed().mix(pThisUnit->GetID()).mix(pThisUnit->getDamage()));
 		return static_cast<PromotionTypes>(aPossiblePromotions[uChoice]);
 	}
 

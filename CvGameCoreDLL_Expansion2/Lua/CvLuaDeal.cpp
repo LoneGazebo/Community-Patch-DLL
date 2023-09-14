@@ -92,6 +92,17 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 	Method(AddVassalageTrade);
 	Method(AddRevokeVassalageTrade);
 	Method(RemoveTechTrade);
+
+	// DEPRECATED
+	Method(AddUnitTrade);
+	Method(AddTradeAgreement);
+	Method(AddPermamentAlliance);
+	Method(AddSurrender);
+	Method(AddTruce);
+	Method(AddThirdPartyEmbargo);
+	Method(RemoveUnitTrade);
+	Method(RemoveThirdPartyEmbargo);
+	Method(ChangeThirdPartyEmbargoDuration);
 }
 
 //------------------------------------------------------------------------------
@@ -429,4 +440,43 @@ int CvLuaDeal::lRemoveVoteCommitment(lua_State* L)
 
 	pkDeal->RemoveVoteCommitment(eFromPlayer, iResolutionID, iVoteChoice, iNumVotes, bRepeal);
 	return 0;
+}
+
+//------------------------------------------------------------------------------
+// DEPRECATED
+int CvLuaDeal::lAddUnitTrade(lua_State* L)
+{
+	luaL_error(L, "AddUnitTrade - function is deprecated");
+}
+int CvLuaDeal::lAddTradeAgreement(lua_State* L)
+{
+	luaL_error(L, "AddTradeAgreement - function is deprecated");
+}
+int CvLuaDeal::lAddPermamentAlliance(lua_State* L)
+{
+	luaL_error(L, "AddPermamentAlliance - function is deprecated");
+}
+int CvLuaDeal::lAddSurrender(lua_State* L)
+{
+	luaL_error(L, "AddSurrender - function is deprecated");
+}
+int CvLuaDeal::lAddTruce(lua_State* L)
+{
+	luaL_error(L, "AddTruce - function is deprecated");
+}
+int CvLuaDeal::lAddThirdPartyEmbargo(lua_State* L)
+{
+	luaL_error(L, "AddThirdPartyEmbargo - function is deprecated");
+}
+int CvLuaDeal::lRemoveUnitTrade(lua_State* L)
+{
+	luaL_error(L, "RemoveUnitTrade - function is deprecated");
+}
+int CvLuaDeal::lRemoveThirdPartyEmbargo(lua_State* L)
+{
+	luaL_error(L, "RemoveThirdPartyEmbargo - function is deprecated");
+}
+int CvLuaDeal::lChangeThirdPartyEmbargoDuration(lua_State* L)
+{
+	luaL_error(L, "ChangeThirdPartyEmbargoDuration - function is deprecated");
 }

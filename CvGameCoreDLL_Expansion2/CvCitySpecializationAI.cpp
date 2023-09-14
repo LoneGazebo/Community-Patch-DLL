@@ -345,7 +345,7 @@ void CvCitySpecializationAI::DoTurn()
 	if (m_bChooseNewWonder)
 	{
 		BuildingTypes eOldWonder = m_eNextWonderDesired;
-		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(true /*bAdjustForOtherPlayers*/, m_iNextWonderWeight);
+		m_eNextWonderDesired = m_pPlayer->GetWonderProductionAI()->ChooseWonder(m_iNextWonderWeight);
 
 		if (eOldWonder != m_eNextWonderDesired)
 		{

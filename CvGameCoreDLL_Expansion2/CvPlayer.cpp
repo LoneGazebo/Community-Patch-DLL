@@ -752,7 +752,6 @@ CvPlayer::CvPlayer() :
 	, m_piCityFeatures()
 	, m_piNumBuildings()
 	, m_piNumBuildingsInPuppets()
-	, m_ppiBuildingClassYieldChange()
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	, m_ppiSpecificGreatPersonRateModifierFromMonopoly()
 	, m_ppiSpecificGreatPersonRateChangeFromMonopoly()
@@ -1219,7 +1218,6 @@ void CvPlayer::uninit()
 	m_ppiCityYieldFromUnimprovedFeature.clear();
 	m_piYieldFromKills.clear();
 	m_piYieldFromBarbarianKills.clear();
-	m_ppiBuildingClassYieldChange.clear();
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
 	m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
@@ -2305,13 +2303,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_piNumBuildingsInPuppets.clear();
 		m_piNumBuildingsInPuppets.resize(GC.getNumBuildingInfos(), 0);
 
-		m_ppiBuildingClassYieldChange.clear();
-		m_ppiBuildingClassYieldChange.resize(GC.getNumBuildingClassInfos());
-		for(unsigned int i = 0; i < m_ppiBuildingClassYieldChange.size(); ++i)
-		{
-			m_ppiBuildingClassYieldChange[i] = yield;
-		}
-
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		m_ppiSpecificGreatPersonRateModifierFromMonopoly.clear();
 		m_ppiSpecificGreatPersonRateChangeFromMonopoly.clear();
@@ -2820,8 +2811,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 		return NULL;
 
 	CvPlot* pBestPlot = NULL;
-	int iX = pStartingPlot->getX();
-	int iY = pStartingPlot->getY();
 
 	// If this is a civilian or air unit, spawn it on the starting plot
 	bool bCombat = pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0 || pkUnitInfo->GetNukeDamageLevel() != -1;
@@ -2848,46 +2837,91 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 			pBestPlot = pStartingPlot;
 	}
 
+	// Otherwise, find a plot to place the unit
 	if (pBestPlot == NULL)
 	{
-		int iCount = 0;
+		int iRingsCompleted = 0;
 		do
 		{
-			DirectionTypes eDirection = (DirectionTypes)GC.getGame().getJonRandNum(NUM_DIRECTION_TYPES, "Placing Starting Units");
-			CvPlot* pLoopPlot = plotDirection(iX, iY, eDirection);
+			int iIteratorStart = iRingsCompleted > 0 ? RING_PLOTS[iRingsCompleted] : 0;
+			int iNextRing = iRingsCompleted + 1;
 
-			if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
+			// Too far away?
+			if (iNextRing > 5)
+				break;
+
+			std::vector<CvPlot*> vPotentialSpawnPlots;
+			for (int iI = iIteratorStart; iI < RING_PLOTS[iNextRing]; iI++)
 			{
-				if (pLoopPlot && pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isUnit()) 
+				CvPlot* pLoopPlot = iterateRingPlots(pStartingPlot,iI);
+				if (!pLoopPlot || pLoopPlot == pStartingPlot || pLoopPlot->isLake() || pLoopPlot->isGoody())
+					continue;
+
+				if (pkUnitInfo->GetDomainType() == DOMAIN_SEA)
 				{
-					pBestPlot = pLoopPlot;
-					break;
+					if (!pLoopPlot->isWater())
+						continue;
 				}
+				else if (pLoopPlot->isWater())
+					continue;
+				else if (pLoopPlot->getLandmass() != pStartingPlot->getLandmass())
+					continue;
+
+				if (pLoopPlot->isCity() && pLoopPlot->getOwner() != m_eID)
+					continue;
+
+				if (pLoopPlot->getNumUnits() > 0)
+					continue;
+
+				if (bGameStart)
+				{
+					// Hard check against mountains, ice and ocean if the player doesn't have the respective traits
+					// Initializing free units seems to be called before plot impassability is updated
+					if (pLoopPlot->isMountain() && !CanCrossMountain())
+						continue;
+
+					if (pLoopPlot->isIce() && !CanCrossIce())
+						continue;
+
+					if (pLoopPlot->isDeepWater() && !CanCrossOcean())
+						continue;
+				}
+
+				if (pLoopPlot->isImpassable(getTeam()))
+					continue;
+
+				vPotentialSpawnPlots.push_back(pLoopPlot);
 			}
-			else 
+
+			if (vPotentialSpawnPlots.empty())
 			{
-				if (pLoopPlot && pLoopPlot->getLandmass() == pStartingPlot->getLandmass() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->isUnit() && !pLoopPlot->isGoody())
-				{
-					pBestPlot = pLoopPlot;
-					break;
-				}
+				iRingsCompleted++;
 			}
-
-			// Emergency escape.  Should only really break on Debug Micro map or something really funky
-			iCount++;
+			else
+			{
+				// Choose a random plot
+				uint uIndex = GC.getGame().urandLimitExclusive(vPotentialSpawnPlots.size(), CvSeeder::fromRaw(0x6ca5d27a).mix(GetID()).mix(vPotentialSpawnPlots.size()).mix(iRingsCompleted));
+				pBestPlot = vPotentialSpawnPlots[uIndex];
+			}
 		}
-		while (iCount < 1000);
-
-		if (pBestPlot == NULL)
-		{
-			pBestPlot = pStartingPlot;
-		}
+		while (iRingsCompleted < 5 && pBestPlot == NULL);
 	}
 
+	// Still haven't found a plot? Abort.
+	if (pBestPlot == NULL)
+		return NULL;
+
 	CvUnit* pNewUnit = initUnit(eUnit, pBestPlot->getX(), pBestPlot->getY(), eUnitAI);
-	CvAssert(pNewUnit != NULL);
 	if (pNewUnit == NULL)
 		return NULL;
+
+	// Extra failsafe in case of any weird interactions
+	if (!pNewUnit->jumpToNearestValidPlot())
+	{
+		// Could not find a spot for the unit
+		pNewUnit->kill(false);		
+		return NULL;
+	}
 
 	if (pCapital)
 	{
@@ -2955,17 +2989,6 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 			pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
 		else
 			pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
-	}
-
-	// Don't stack any units
-	if (pBestPlot->getNumUnits() > 1)
-	{
-		if (!pNewUnit->jumpToNearestValidPlot())
-		{
-			// Could not find a spot for the unit
-			pNewUnit->kill(false);		
-			return NULL;
-		}
 	}
 
 	return pNewUnit->plot();
@@ -3389,8 +3412,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		if (isMajorCiv())
 		{
 			iCaptureGold = /*20*/ GD_INT_GET(BASE_CAPTURE_GOLD) + (iPopulation * /*10*/ GD_INT_GET(CAPTURE_GOLD_PER_POPULATION));
-			iCaptureGold += /*2 to 40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(CAPTURE_GOLD_RAND1), pCity->plot()->GetPseudoRandomSeed()) * 2;
-			iCaptureGold += /*2 to 40*/ GC.getGame().randRangeExclusive(0, GD_INT_GET(CAPTURE_GOLD_RAND2), GET_PLAYER(eOldOwner).GetPseudoRandomSeed()) * 2;
+			iCaptureGold += /*0 to 40*/ GC.getGame().randRangeInclusive(0, GD_INT_GET(CAPTURE_GOLD_RAND1), pCity->plot()->GetPseudoRandomSeed()) * 2;
+			iCaptureGold += /*0 to 40*/ GC.getGame().randRangeInclusive(0, GD_INT_GET(CAPTURE_GOLD_RAND2), GET_PLAYER(eOldOwner).GetPseudoRandomSeed()) * 2;
 
 			// Reduce reward if acquired recently by the previous owner
 			if (/*50*/ GD_INT_GET(CAPTURE_GOLD_MAX_TURNS) > 0)
@@ -4320,7 +4343,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		}
 	}
 
-	// Keep all valid buildings if city is gifted/liberated/revolting of if policy/trait IsKeepConqueredBuildings
+	// Keep all valid buildings if city is gifted/liberated/revolting or if policy/trait IsKeepConqueredBuildings
 	bool bKeepAllValidBuildings = GetPlayerTraits()->IsKeepConqueredBuildings() || IsKeepConqueredBuildings() || !bConquest || bGift;
 	int iCaptureGreatWorks = 0;
 
@@ -4855,16 +4878,14 @@ bool CvPlayer::IsValidBuildingForPlayer(CvCity* pCity, BuildingTypes eBuilding, 
 	bool bIsNationalWonder = ::isNationalWonderClass(pkClassInfo);
 	bool bProductionMaxed = isProductionMaxedBuildingClass(pkLoopBuildingInfo->GetBuildingClassType(), true);
 
-
 	if (pkLoopBuildingInfo->IsNeverCapture() || bProductionMaxed || bIsNationalWonder)
 		return false;
 
 	if (!bConquest || GetPlayerTraits()->IsKeepConqueredBuildings() || IsKeepConqueredBuildings())
 		return true;
 
-	int iConquestChance = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(pkLoopBuildingInfo->GetID()).mix(pCity->plot()->GetPseudoRandomSeed()));
-
-	return iConquestChance <= pkLoopBuildingInfo->GetConquestProbability();
+	int iConquestRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x11066cbd).mix(GetID()).mix(pkLoopBuildingInfo->GetID()).mix(pCity->plot()->GetPseudoRandomSeed()));
+	return iConquestRoll <= pkLoopBuildingInfo->GetConquestProbability();
 }
 
 //	--------------------------------------------------------------------------------
@@ -5600,7 +5621,7 @@ bool CvPlayer::IsEventFired(EventTypes eEvent) const
 void CvPlayer::DoEvents()
 {
 	//Minors? Barbs? Get out!
-	if(isMinorCiv() || isBarbarian())
+	if (!isMajorCiv())
 		return;
 
 	//Event Choice Duration First - if we're in one, let's do the countdown now.
@@ -5661,116 +5682,136 @@ void CvPlayer::DoEvents()
 		ChangePlayerEventCooldown(-1);
 	}
 
-	//Let's loop through all events.
-	CvWeightedVector<int> veValidEvents;
+	// Random Roll #1: Can we have a player event at all this turn?
+	int iAnyEventChance = /*100*/ range(GD_INT_GET(EVENT_PROBABILITY_EACH_TURN), 0, 100);
+	bool bAnyEventAllowed = iAnyEventChance == 100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x85a8d5f4).mix(GetID())) <= iAnyEventChance;
 
-	for(int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
+	//Let's loop through all events.
+	CvWeightedVector<EventTypes> veValidEventsThisTurn;
+	vector<EventTypes> vValidEvents;
+
+	for (int iLoop = 0; iLoop < GC.getNumEventInfos(); iLoop++)
 	{
 		EventTypes eEvent = (EventTypes)iLoop;
-		if (eEvent != NO_EVENT)
+		if (eEvent == NO_EVENT)
+			continue;
+
+		CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+		if (pkEventInfo == NULL)
+			continue;
+
+		if (pkEventInfo->getRandomChance() == -1)
+			continue;
+
+		if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
+			continue;
+
+		// Is this event on cooldown?
+		if (GetEventCooldown(eEvent) > 0)
 		{
-			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-			if (pkEventInfo == NULL)
-			{
-				continue;
-			}
-
-			if (pkEventInfo->getRandomChance() == -1)
-				continue;
-
-			if (pkEventInfo->isOneShot() && IsEventFired(eEvent))
-				continue;
-
-			//Lua Hook
-			if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
-			{
-				continue;
-			}
-
-			//Global Cooldown Second - if we've had this event recently, let's check this.
-			if (GetEventCooldown(eEvent) > 0)
+			if (GetEventCooldown(eEvent) > 1)
 			{
 				if (GC.getLogging())
 				{
-					CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-					if (pkEventInfo != NULL)
-					{
-						CvString playerName;
-						FILogFile* pLog = NULL;
-						CvString strBaseString;
-						CvString strOutBuf;
-						CvString strFileName = "EventLogging.csv";
-						playerName = getCivilizationShortDescription();
-						pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-						strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-						strBaseString += playerName + ", ";
-						strOutBuf.Format("Player Event: %s. Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
-						strBaseString += strOutBuf;
-						pLog->Msg(strBaseString);
-					}
+					CvString playerName;
+					FILogFile* pLog = NULL;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventLogging.csv";
+					playerName = getCivilizationShortDescription();
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Player Event: %s. Cooldown Active. Cooldown: %d", pkEventInfo->GetDescription(), GetEventCooldown(eEvent));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
 				}
 				ChangeEventCooldown(eEvent, -1);
 				continue;
 			}
-
-			if (GetPlayerEventCooldown() > 0 && !pkEventInfo->IgnoresGlobalCooldown())
-			{
-				continue;
-			}
-
-			//most expensive check last
-			if (IsEventValid(eEvent))
-			{
-				veValidEvents.push_back(eEvent, (pkEventInfo->getRandomChance() + GetEventIncrement(eEvent)));
-			}
+			ChangeEventCooldown(eEvent, -1);
 		}
+
+		//Lua Hook
+		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventCanTake, GetID(), eEvent) == GAMEEVENTRETURN_FALSE)
+			continue;
+
+		//most expensive check last
+		if (!IsEventValid(eEvent))
+			continue;
+
+		// Global cooldown in effect?
+		if (GetPlayerEventCooldown() > 0 && !pkEventInfo->IgnoresGlobalCooldown())
+		{
+			if (pkEventInfo->getRandomChanceDelta() > 0)
+			{
+				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
+
+				if (GC.getLogging())
+				{
+					CvString playerName;
+					FILogFile* pLog = NULL;
+					CvString strBaseString;
+					CvString strOutBuf;
+					CvString strFileName = "EventLogging.csv";
+					playerName = getCivilizationShortDescription();
+					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+					strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+					strBaseString += playerName + ", ";
+					strOutBuf.Format("Incrementing event chance for: %s, Increment: %d", pkEventInfo->GetDescription(), GetEventIncrement(eEvent));
+					strBaseString += strOutBuf;
+					pLog->Msg(strBaseString);
+				}
+			}
+			continue;
+		}
+
+		vValidEvents.push_back(eEvent);
 	}
 
-	EventTypes eChosenEvent = NO_EVENT;
-
-	if (veValidEvents.size() > 0)
+	if (vValidEvents.size() > 0)
 	{
-		//afw		veValidEvents.StableSortItems();
-		int iRandIndex = GC.getGame().randRangeExclusive(0, 2000, CvSeeder(GetTreasury()->GetLifetimeGrossGold())); //afw
-		if (GC.getLogging())
+		EventTypes eChosenEvent = NO_EVENT;
+
+		if (bAnyEventAllowed)
 		{
-			CvString strBaseString;
-			CvString strOutBuf;
-			CvString strFileName = "EventLogging.csv";
-			CvString playerName = getCivilizationShortDescription();
-			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
-			strBaseString += playerName + ", ";
-			strOutBuf.Format("Found %d Events for seeding. Random=%d", veValidEvents.size(), iRandIndex);
-			strBaseString += strOutBuf;
-			pLog->Msg(strBaseString);
-		}
-
-		//afw		int iRandIndex = GC.getGame().getJonRandNum(1000, "Picking random event for player.");
-
-		//which one is it?
-		int iWeight = 0;
-		for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
-		{
-			EventTypes eEvent = (EventTypes)veValidEvents.GetElement(iLoop);
-			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-			if (!pkEventInfo)
-				continue;
-
-			//afw			iWeight = veValidEvents.GetWeight(iLoop);
-			iWeight += veValidEvents.GetWeight(iLoop); //afw
-			if (iRandIndex < iWeight)
+			// Random Roll #2: Randomly roll each event to see if it can occur
+			// Probability = chance / 100
+			int iHighestChance = 0;
+			for (uint uLoop = 0; uLoop < vValidEvents.size(); uLoop++)
 			{
-				eChosenEvent = eEvent;
-				break;
+				EventTypes eEvent = (EventTypes)vValidEvents[uLoop];
+				CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
+				int iChance = pkEventInfo->getRandomChance() + GetEventIncrement(eEvent);
+				if (iChance > iHighestChance)
+					iHighestChance = iChance;
+
+				int iRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x4c0caf05).mix(GetID()).mix(uLoop));
+				if (iRoll <= iChance)
+					veValidEventsThisTurn.push_back(eEvent, iChance);
 			}
-		}
 
-		if (eChosenEvent != NO_EVENT)
-		{
-			CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
-			if (pkEventInfo != NULL)
+			if (GC.getLogging())
 			{
+				CvString strBaseString;
+				CvString strOutBuf;
+				CvString strFileName = "EventLogging.csv";
+				CvString playerName = getName();
+				FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+				strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+				strBaseString += playerName + ", ";
+				strOutBuf.Format("Found %d Events for seeding. %d of them passed the random roll. Highest Chance = %d.", vValidEvents.size(), veValidEventsThisTurn.size(), iHighestChance);
+				strBaseString += strOutBuf;
+				pLog->Msg(strBaseString);
+			}
+
+			if (veValidEventsThisTurn.size() > 0)
+			{
+				// Random Roll #3: Do a weighted choice of the event
+				veValidEventsThisTurn.StableSortItems();
+				eChosenEvent = veValidEventsThisTurn.ChooseByWeight(CvSeeder::fromRaw(0x9785c9b3).mix(GetID()));
+				CvModEventInfo* pkEventInfo = GC.getEventInfo(eChosenEvent);
+
 				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 				{
 					PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
@@ -5781,21 +5822,20 @@ void CvPlayer::DoEvents()
 							continue;
 
 						GET_PLAYER(ePlayer).DoStartEvent(eChosenEvent, false);
-
 						GET_PLAYER(ePlayer).ChangePlayerEventCooldown(/*10*/ GD_INT_GET(EVENT_MIN_DURATION_BETWEEN));
 
 						//reset probability
-						IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
+						GET_PLAYER(ePlayer).IncrementEvent(eChosenEvent, -GetEventIncrement(eChosenEvent));
 						if (GC.getLogging())
 						{
 							CvString strBaseString;
 							CvString strOutBuf;
 							CvString strFileName = "EventLogging.csv";
-							CvString playerName = getCivilizationShortDescription();
+							CvString playerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
 							FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 							strBaseString += playerName + ", ";
-							strOutBuf.Format("Resetting event chance for: %s", pkEventInfo->GetDescription());
+							strOutBuf.Format("EVENT CHOSEN: %s. Resetting event chance.", pkEventInfo->GetDescription());
 							strBaseString += strOutBuf;
 							pLog->Msg(strBaseString);
 						}
@@ -5803,22 +5843,29 @@ void CvPlayer::DoEvents()
 				}
 			}
 		}
-	}
-
-	for (int iLoop = 0; iLoop < veValidEvents.size(); iLoop++)
-	{
-		EventTypes eEvent = (EventTypes)veValidEvents.GetElement(iLoop);
-		if (eEvent != NO_EVENT)
+		else if (GC.getLogging())
 		{
+			CvString strBaseString;
+			CvString strOutBuf;
+			CvString strFileName = "EventLogging.csv";
+			CvString playerName = getName();
+			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+			strBaseString += playerName + ", ";
+			strOutBuf.Format("Found %d Valid Events. Failed random roll to run any events this turn.", vValidEvents.size());
+			strBaseString += strOutBuf;
+			pLog->Msg(strBaseString);
+		}
+
+		// We didn't do it? Bummer. BUT if there's a delta, the chance gets higher next turn...
+		for (uint uLoop = 0; uLoop < vValidEvents.size(); uLoop++)
+		{
+			EventTypes eEvent = (EventTypes)vValidEvents[uLoop];
 			CvModEventInfo* pkEventInfo = GC.getEventInfo(eEvent);
-			if (!pkEventInfo)
+
+			if (eEvent == eChosenEvent)
 				continue;
 
-			//But not for the one we just did!
-			if (eChosenEvent == eEvent)
-				continue;
-
-			//make it more likely
 			if (pkEventInfo->getRandomChanceDelta() > 0)
 			{
 				IncrementEvent(eEvent, pkEventInfo->getRandomChanceDelta());
@@ -9872,7 +9919,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 		if (MOD_BALANCE_VP)
 		{
-			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false);
+			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false, true, CvSeeder::fromRaw(0xb89fcc34).mix(GET_PLAYER(ePlayer).GetID()).mix(GetID()));
 			if (eUnit != NO_UNIT)
 				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
@@ -9981,7 +10028,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		{
 			for (int i = 0; i < iNumUnit; i++) 
 			{
-				UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, true);
+				UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, true, true, CvSeeder::fromRaw(0x47def5e9).mix(GET_PLAYER(ePlayer).GetID()).mix(GetID()).mix(i));
 				if (eUnit != NO_UNIT)
 					GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 			}
@@ -13943,7 +13990,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				{
 					if(plotDistance(pBestPlot->getX(), pBestPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= iRange)
 					{
-						if(GC.getGame().randRangeExclusive(0, 100, pLoopPlot->GetPseudoRandomSeed()) < kGoodyInfo.getMapProb())
+						if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x97a3273a).mix(pLoopPlot->GetPseudoRandomSeed())) <= kGoodyInfo.getMapProb())
 						{
 							pLoopPlot->setRevealed(getTeam(), true);
 							iNumPlotsRevealed++;
@@ -17293,7 +17340,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				if(pkBuilding && pkBuildingClassInfo)
 				{
 					iBuildingCount = pLoopCityBuildings->GetNumBuilding(eTestBuilding);
-					if(iBuildingCount > 0)
+					if(iBuildingCount > 0) // FIXME: This code will not be run when removing a building that buffs its own building class.
 					{
 						// Building Class Yield Stuff
 						for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -29529,7 +29576,7 @@ void CvPlayer::doPolicyGEorGM(int iPolicyGEorGM)
 	int iValue = iPolicyGEorGM * iEra * GC.getGame().getGameSpeedInfo().getInstantYieldPercent(); // Game speed mod (note that TrainPercent is a percentage value, will need to divide by 100)
 
 	SpecialistTypes eBestSpecialist = NO_SPECIALIST;
-	int iRandom = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(iPolicyGEorGM));
+	int iRandom = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x98a8030d).mix(GetPseudoRandomSeed()).mix(iPolicyGEorGM));
 	if (iRandom <= 33)
 	{
 		eBestSpecialist = (SpecialistTypes)GC.getInfoTypeForString("SPECIALIST_ENGINEER");
@@ -30459,7 +30506,7 @@ void CvPlayer::DoSpawnGreatPerson(PlayerTypes eMinor)
 			{
 				int iScore = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(iX).mix(iY));
 
-				if(iScore > iBestScore)
+				if (iScore > iBestScore)
 				{
 					iBestScore = iScore;
 					eBestUnit = eLoopUnit;
@@ -30721,13 +30768,12 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 		if(GetGreatPeopleSpawnCounter() == 0)
 		{
 			PlayerTypes eBestMinor = NO_PLAYER;
-			int iBestScore = -1;
+			int iBestScore = 0;
 			int iScore = 0;
 
-			PlayerTypes eMinor;
-			for(int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+			for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
 			{
-				eMinor = (PlayerTypes) iMinorLoop;
+				PlayerTypes eMinor = (PlayerTypes) iMinorLoop;
 
 				// Not alive
 				if(!GET_PLAYER(eMinor).isAlive())
@@ -30737,10 +30783,10 @@ void CvPlayer::DoGreatPeopleSpawnTurn()
 				if(GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly() != GetID())
 					continue;
 
-				iScore = GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed().mix(iMinorLoop));
+				iScore = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xd2b78eea).mix(GetPseudoRandomSeed()).mix(iMinorLoop));
 
 				// Best ally yet?
-				if(eBestMinor == NO_PLAYER || iScore > iBestScore)
+				if (eBestMinor == NO_PLAYER || iScore > iBestScore)
 				{
 					eBestMinor = eMinor;
 					iBestScore = iScore;
@@ -38749,7 +38795,7 @@ void CvPlayer::DoCivilianReturnLogic(bool bReturn, PlayerTypes eToPlayer, int iU
 				iPercent = iPercent * std::min(150, std::max(75, iSmileRatio)) / 100;
 				CUSTOMLOG("Settler defect percent: %i (Approach=%i, Opinion=%i)", iPercent, GetDiplomacyAI()->GetCivApproach(eToPlayer), GetDiplomacyAI()->GetCivOpinion(eToPlayer));
 
-				if (GC.getGame().randRangeExclusive(0, 100, GetPseudoRandomSeed()) < iPercent) {
+				if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x3710b3a4).mix(GetPseudoRandomSeed())) <= iPercent) {
 					if (GC.getGame().getActivePlayer() == GetID()) {
 						CvPopupInfo kPopupInfo(BUTTONPOPUP_TEXT);
 						strcpy_s(kPopupInfo.szText, "TXT_KEY_GRATEFUL_SETTLERS");
@@ -41922,39 +41968,6 @@ void CvPlayer::ChangeYieldFromWLTKD(YieldTypes eYield, int iChange)
 	if (iChange != 0)
 	{
 		m_piYieldFromWLTKD[eYield] += iChange;
-	}
-}
-
-//	--------------------------------------------------------------------------------
-int CvPlayer::getBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2) const
-{
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppiBuildingClassYieldChange[eIndex1][eIndex2];
-}
-
-// (Corp) Note to future modders: if you think this works as you expect, you're wrong. just ignore it. Use ::GetBuildingClassYieldChange() instead (note the capital), or fix this so it's functional.
-// grrrr....
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeBuildingClassYieldChange(BuildingClassTypes eIndex1, YieldTypes eIndex2, int iChange)
-{
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumBuildingClassInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-
-	if(iChange != 0)
-	{
-		CvAssertMsg(iChange > -50 && iChange < 50, "GAMEPLAY: Yield for a plot is either negative or a ridiculously large number. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
-		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiBuildingClassYieldChange[eIndex1];
-		yields[eIndex2] = (m_ppiBuildingClassYieldChange[eIndex1][eIndex2] + iChange);
-		m_ppiBuildingClassYieldChange[eIndex1] = yields;
-		CvAssert(getBuildingClassYieldChange(eIndex1, eIndex2) >= 0);
-
-		updateYield();
 	}
 }
 
@@ -48113,7 +48126,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_pabGetsScienceFromPlayer);
 	visitor(player.m_ppaaiSpecialistExtraYield);
 	visitor(player.m_ppiYieldFromYieldGlobal);
-	visitor(player.m_ppiBuildingClassYieldChange);
 	visitor(player.m_ppaaiImprovementYieldChange);
 	visitor(player.m_bEverPoppedGoody);
 	visitor(player.m_bEverTrainedBuilder);
@@ -48321,7 +48333,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_piYieldChangeWorldWonder);
 	visitor(player.m_piYieldFromMinorDemand);
 	visitor(player.m_piYieldFromWLTKD);
-	visitor(player.m_ppiBuildingClassYieldChange);
 	visitor(player.m_piCityFeatures);
 	visitor(player.m_piNumBuildings);
 	visitor(player.m_piNumBuildingsInPuppets);

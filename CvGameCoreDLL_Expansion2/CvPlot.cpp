@@ -7848,7 +7848,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					if (getResourceType() == NO_RESOURCE)
 					{
 						// first roll: can we get a resource on this plot?
-						if (GC.getGame().randRangeExclusive(0, 100, GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GC.getGame().getNumCities()).mix(GetPseudoRandomSeed())) < iResourceChance)
+						if (GC.getGame().randRangeInclusive(1, 100, GET_PLAYER(getOwner()).GetPseudoRandomSeed().mix(GC.getGame().getNumCities()).mix(GetPseudoRandomSeed())) <= iResourceChance)
 						{
 							// get list of valid resources for the plot
 							vector<ResourceTypes> vPossibleResources;

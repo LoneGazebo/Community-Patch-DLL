@@ -684,6 +684,7 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BARBARIAN_HEAL_RATE', 0; -- Th
 
 -- Camp Spawning
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_FIRST_TURN_PERCENT_PER_ERA', 0; -- VP Only: increase to target % of camps to spawn (for the initial spawning) per era. 10 = 1%.
+UPDATE Defines SET Value = 50 WHERE Name = 'BARBARIAN_CAMP_ODDS_OF_NEW_CAMP_SPAWNING'; -- Community Patch Only: % chance of a new encampment spawning each turn
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_MINIMUM_ISLAND_SIZE', 1; -- # of tiles required in a landmass for a camp to spawn.
 UPDATE Defines SET Value = 4 WHERE Name = 'BARBARIAN_CAMP_MINIMUM_DISTANCE_ANOTHER_CAMP'; -- Camps can't spawn within X tiles of another camp OR city.
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CAMP_MINIMUM_DISTANCE_RECENTLY_CLEARED_CAMP', 2; -- Min. distance between new camps and a recently cleared camp OR city.
@@ -703,7 +704,7 @@ INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_INITIAL_SPAWN_SPAWNER_DELAY'
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_MIN_SPAWN_DELAY', 2; -- Min. number of turns between spawns
 -- Encampments
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT', 12; -- Base spawn delay from encampment.
-INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_RAND', 10; -- Additional random spawn delay from encampment.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_RAND', 9; -- Additional random spawn delay from encampment.
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_CHILL_MULTIPLIER', 200; -- 2x spawn delay for encampments with Chill Barbarians enabled
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_ENCAMPMENT_RAGING_MULTIPLIER', 50; -- 0.5x spawn delay for encampments with Raging Barbarians enabled
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_ENCAMPMENT_SPAWN_DELAY_REDUCTION_PER_SPAWN', -1; -- Reduction to spawn timer per spawned unit (not counting any initially spawned second unit)
@@ -711,7 +712,7 @@ INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_ENCAMPMENT_MAX_SPAWN_DELAY_R
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_ENCAMPMENT_ATTACKED_DELAY_MULTIPLIER', 50; -- 0.5x current spawn time if a camp is attacked
 -- Cities
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY', 6; -- Base spawn delay from city.
-INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY_RAND', 5; -- Additional random spawn delay from city.
+INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY_RAND', 4; -- Additional random spawn delay from city.
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY_CHILL_MULTIPLIER', 150; -- 1.5x spawn delay for cities with Chill Barbarians enabled
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_SPAWN_DELAY_FROM_CITY_RAGING_MULTIPLIER', 50; -- 0.5x spawn delay for cities with Raging Barbarians enabled
 INSERT INTO Defines (Name, Value) SELECT 'BARBARIAN_CITY_SPAWN_DELAY_REDUCTION_PER_SPAWN', -1; -- Reduction to spawn timer per spawned unit

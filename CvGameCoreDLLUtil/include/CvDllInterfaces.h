@@ -1661,14 +1661,14 @@ public:
 	virtual EraTypes DLLCALL GetCurrentEra() const = 0;
 	virtual PlayerTypes DLLCALL GetLeaderID() const = 0;
 	virtual int DLLCALL GetProjectCount(ProjectTypes eIndex) const = 0;
-	virtual int DLLCALL GetTotalSecuredVotes() const = 0;
+	virtual int DLLCALL GetTotalSecuredVotes() const = 0; // DEPRECATED
 	virtual void DLLCALL Init(TeamTypes eID) = 0;
 	virtual bool DLLCALL IsAlive() const = 0;
 	virtual bool DLLCALL IsAtWar(TeamTypes eIndex) const = 0;
 	virtual bool DLLCALL IsBarbarian() const = 0;
 	virtual bool DLLCALL IsBridgeBuilding() const = 0;
 	virtual bool DLLCALL IsHasMet(TeamTypes eIndex) const = 0;
-	virtual bool DLLCALL IsHomeOfUnitedNations() const = 0;
+	virtual bool DLLCALL IsHomeOfUnitedNations() const = 0; // DEPRECATED
 	virtual void DLLCALL Uninit() = 0;
 	virtual void DLLCALL Read(FDataStream& kStream) = 0;
 	virtual void DLLCALL Write(FDataStream& kStream) const = 0;

@@ -345,15 +345,9 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	int iRandomContribution = 0;
 	if (MOD_BALANCE_CORE_MINORS)
 	{
+		iRandomContribution += GC.getGame().randRangeInclusive(0, pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed().mix(m_eType)) * 2;
 		if (ePersonality == MINOR_CIV_PERSONALITY_IRRATIONAL)
-		{
-			iRandomContribution += GC.getGame().randRangeInclusive(0, pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed().mix(m_eType)) * 2;
 			iRandomContribution -= GC.getGame().randRangeInclusive(0, pkSmallAwardInfo->GetRandom(), pMinor->GetPseudoRandomSeed().mix(m_eType)) * 2;
-		}
-		else
-		{
-			iRandomContribution += GC.getGame().randRangeInclusive(0, pkSmallAwardInfo->GetRandom(), kPlayer.GetPseudoRandomSeed().mix(m_eType)) * 2;
-		}
 	}
 
 	// Now determine the rewards!
@@ -2875,9 +2869,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
 	{
 		CvCity* pCity = pMinor->GetMinorCivAI()->GetBestSpyTarget(m_eAssignedPlayer, false);
-		int iActionAmount = GC.getGame().randRangeExclusive(0, 3, pCity->plot()->GetPseudoRandomSeed());
-		if (iActionAmount <= 0)
-			iActionAmount = 1;
+		int iActionAmount = GC.getGame().randRangeInclusive(1, 3, pCity->plot()->GetPseudoRandomSeed());
 
 		m_iData1 = pCity->getOwner();
 		m_iData2 = iActionAmount + pAssignedPlayer->GetEspionage()->GetNumSpyActionsDone(pCity->getOwner());
@@ -2911,9 +2903,6 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 		m_iData1 = pCity->plot()->getX();
 		m_iData2 = pCity->plot()->getY();
 		m_iData3 = pCity->getOwner();
-
-		pMinor->GetMinorCivAI()->SetTargetedCityX(m_eAssignedPlayer, pCity->getX());
-		pMinor->GetMinorCivAI()->SetTargetedCityY(m_eAssignedPlayer, pCity->getY());
 
 		const char* strTargetNameKey = pCity->getNameKey();
 
@@ -4282,8 +4271,6 @@ void CvMinorCivAI::Reset()
 		m_abCoupAttempted[iI] = false;
 		m_abSentUnitForQuest[iI] = false;
 		m_aiAssignedPlotAreaID[iI] = -1;
-		m_aiTargetedCityX[iI] = -1;
-		m_aiTargetedCityY[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 		m_IncomingUnitGifts[iI].reset();
 		m_aiRiggingCoupChanceIncrease[iI] = 0;
@@ -4398,8 +4385,6 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_abCoupAttempted);
 	visitor(minorCivAI.m_iTurnLiberated);
 	visitor(minorCivAI.m_aiAssignedPlotAreaID);
-	visitor(minorCivAI.m_aiTargetedCityX);
-	visitor(minorCivAI.m_aiTargetedCityY);
 	visitor(minorCivAI.m_aiTurnsSincePtPWarning);
 
 	visitor(minorCivAI.m_IncomingUnitGifts);
@@ -4441,6 +4426,9 @@ void CvMinorCivAI::DoPickInitialItems()
 
 	// Unique unit
 	DoPickUniqueUnit();
+
+	// Unit gained from Community Patch Only heavy tribute
+	SetBullyUnit();
 }
 
 /// Returns the Player object this MinorCivAI is associated with
@@ -4465,19 +4453,19 @@ MinorCivPersonalityTypes CvMinorCivAI::GetPersonality() const
 {
 	return m_ePersonality;
 }
-#if defined(MOD_BALANCE_CORE)
+
 UnitClassTypes CvMinorCivAI::GetBullyUnit() const
 {
 	return m_eBullyUnit;
 }
 void CvMinorCivAI::SetBullyUnit(UnitClassTypes eUnitClassType)
 {
-	if(eUnitClassType == NO_UNITCLASS)
+	if (eUnitClassType == NO_UNITCLASS)
 	{
 		CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
-		if(pkMinorCivInfo)
+		if (pkMinorCivInfo)
 		{
-			if((UnitClassTypes)pkMinorCivInfo->GetBullyUnit() != NO_UNITCLASS)
+			if ((UnitClassTypes)pkMinorCivInfo->GetBullyUnit() != NO_UNITCLASS)
 			{
 				m_eBullyUnit = (UnitClassTypes)pkMinorCivInfo->GetBullyUnit();
 			}
@@ -4489,10 +4477,10 @@ void CvMinorCivAI::SetBullyUnit(UnitClassTypes eUnitClassType)
 	}
 	else
 	{
-		 m_eBullyUnit = eUnitClassType;
+		m_eBullyUnit = eUnitClassType;
 	}
 }
-#endif
+
 /// Set a Personality for this minor
 void CvMinorCivAI::SetPersonality(MinorCivPersonalityTypes ePersonality)
 {
@@ -4502,55 +4490,28 @@ void CvMinorCivAI::SetPersonality(MinorCivPersonalityTypes ePersonality)
 /// Picks a random Personality for this minor
 void CvMinorCivAI::DoPickPersonality()
 {
-
 	FlavorTypes eFlavorCityDefense = NO_FLAVOR;
 	FlavorTypes eFlavorDefense = NO_FLAVOR;
 	FlavorTypes eFlavorOffense = NO_FLAVOR;
-	for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+	for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 	{
-		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CITY_DEFENSE")
+		if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CITY_DEFENSE")
 		{
 			eFlavorCityDefense = (FlavorTypes)iFlavorLoop;
 		}
-		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
+		if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
 		{
 			eFlavorDefense = (FlavorTypes)iFlavorLoop;
 		}
-		if(GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
+		if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
 		{
 			eFlavorOffense = (FlavorTypes)iFlavorLoop;
 		}
 	}
 
-	CvAssert(eFlavorCityDefense != NO_FLAVOR);
-	CvAssert(eFlavorDefense != NO_FLAVOR);
-	CvAssert(eFlavorOffense != NO_FLAVOR);
-
-	CvFlavorManager* pFlavorManager = m_pPlayer->GetFlavorManager();
-	CvEnumMap<FlavorTypes, int>& pFlavors = pFlavorManager->GetAllPersonalityFlavors();
-
-	MinorCivPersonalityTypes eRandPersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES), CvSeeder(m_pPlayer->GetID())));
-
+	MinorCivPersonalityTypes eRandPersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES), CvSeeder::fromRaw(0x9eb1d925).mix(m_pPlayer->GetID())));
 	SetPersonality(eRandPersonality);
-#if defined(MOD_BALANCE_CORE)
-	SetBullyUnit();
-#endif
-
-	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
-	CvSeeder seed;
-
-	switch (eRandPersonality)
-	{
-	case MINOR_CIV_PERSONALITY_FRIENDLY:
-	case MINOR_CIV_PERSONALITY_HOSTILE:
-		pFlavors[eFlavorCityDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorCityDefense], 2, 0, 10, seed);
-		pFlavors[eFlavorDefense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorDefense], 2, 0, 10, seed);
-		pFlavors[eFlavorOffense] = pFlavorManager->GetAdjustedValue(pFlavors[eFlavorOffense], 2, 0, 10, seed);
-		pFlavorManager->ResetToBasePersonality();
-		break;
-	default:
-		break; // TODO: Why do other personalities not have their flavors modified?
-	}
+	m_pPlayer->GetFlavorManager()->ResetToBasePersonality();
 }
 
 /// What is this civ's trait?
@@ -5043,7 +5004,7 @@ void CvMinorCivAI::DoFirstContactWithMajor(TeamTypes eTeam, bool bSuppressMessag
 							CvPlayer* pPlayer = &GET_PLAYER(ePlayer);
 							if (eTrait == MINOR_CIV_TRAIT_MILITARISTIC) {
 								if (iUnitGift > 0) {
-									if (GC.getGame().randRangeExclusive(0, 100, pPlayer->GetPseudoRandomSeed()) < iUnitGift) {
+									if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xa0978c74).mix(pPlayer->GetPseudoRandomSeed())) <= iUnitGift) {
 										CvUnit* pUnit = DoSpawnUnit(ePlayer, true, true);
 										if (pUnit != NULL) {
 											pUnit->changeExperienceTimes100(100 * (pPlayer->GetCurrentEra() * /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_PER_ERA) + GC.getGame().randRangeExclusive(0, /*5*/ GD_INT_GET(MINOR_CIV_FIRST_CONTACT_XP_RANDOM), pPlayer->GetPseudoRandomSeed().mix(pPlayer->getTotalPopulation()))));
@@ -6042,7 +6003,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 		return;
 
 	// Pick a valid quest
-	vector<MinorCivQuestTypes> veValidQuests;
+	CvWeightedVector<MinorCivQuestTypes> veValidQuests;
 	for (int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
 	{
 		MinorCivQuestTypes eQuest = (MinorCivQuestTypes) iQuestLoop;
@@ -6060,22 +6021,16 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 				continue;
 
 			// What is the bias for this minor favoring this particular quest? Queue up multiple copies (default is 10)
-			int iCount = GetNumQuestCopies(eQuest);
-			for (int iCountLoop = 0; iCountLoop < iCount; iCountLoop++)
-			{
-				veValidQuests.push_back(eQuest);
-			}
+			veValidQuests.push_back(eQuest, GetNumQuestCopies(eQuest));
 		}
 	}
 
 	// No valid quests
-	if (veValidQuests.size() == 0)
+	if (veValidQuests.empty())
 		return;
 
 	// There are valid quests, so pick one at random
-	const CvSeeder randSeed = m_pPlayer->GetPseudoRandomSeed().mix(GetNumActiveGlobalQuests()).mix(GC.getGame().GetCultureMedian()).mix(GC.getGame().GetScienceMedian());
-	const uint uRandIndex = GC.getGame().urandLimitExclusive(veValidQuests.size(), randSeed);
-	MinorCivQuestTypes eQuest = veValidQuests[uRandIndex];
+	MinorCivQuestTypes eQuest = veValidQuests.ChooseByWeight(CvSeeder::fromRaw(0x79873673).mix(m_pPlayer->GetID()));
 
 	// Give out the quest
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -6092,16 +6047,6 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 	DoTestSeedGlobalQuestCountdown();
 }
 
-//Check if the player already has the same quest from another minor
-bool IsUniqueQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest)
-{
-	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
-		if (GET_PLAYER((PlayerTypes)i).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, eQuest))
-			return false;
-
-	return true;
-}
-
 /// See if it is time to start a personal quest for this player
 void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 {
@@ -6116,30 +6061,23 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 	if (GetNumActivePersonalQuestsForPlayer(ePlayer) >= GetMaxActivePersonalQuestsForPlayer())
 		return;
 
-	vector<MinorCivQuestTypes> veValidQuests;
+	CvWeightedVector<MinorCivQuestTypes> veValidQuests;
 	for (int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
 	{
 		MinorCivQuestTypes eQuest = (MinorCivQuestTypes) iQuestLoop;
 
-		if (IsPersonalQuest(eQuest) && IsValidQuestForPlayer(ePlayer, eQuest) && (!MOD_BALANCE_VP || IsUniqueQuestForPlayer(ePlayer,eQuest)))
+		if (IsPersonalQuest(eQuest) && IsValidQuestForPlayer(ePlayer, eQuest))
 		{
 			// What is the bias for this player wanting this particular quest? Queue up multiple copies (default is 10)
-			int iCount = GetNumQuestCopies(eQuest);
-
-			for (int iCountLoop = 0; iCountLoop < iCount; iCountLoop++)
-			{
-				veValidQuests.push_back(eQuest);
-			}
+			veValidQuests.push_back(eQuest, GetNumQuestCopies(eQuest));
 		}
 	}
 
 	// No valid Quests
-	if (veValidQuests.size() == 0)
+	if (veValidQuests.empty())
 		return;
 
-	const CvSeeder randSeed = GET_PLAYER(ePlayer).GetPseudoRandomSeed().mix(GetNumActiveQuestsForAllPlayers()).mix(m_pPlayer->GetTreasury()->GetLifetimeGrossGold());
-	const uint uRandIndex = GC.getGame().urandLimitExclusive(veValidQuests.size(), randSeed);
-	MinorCivQuestTypes eQuest = veValidQuests[uRandIndex];
+	MinorCivQuestTypes eQuest = veValidQuests.ChooseByWeight(CvSeeder::fromRaw(0x09dfd5b0).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	AddQuestForPlayer(ePlayer, eQuest, GC.getGame().getGameTurn());
 
 	// Check if we need to seed the countdown timer to allow for another quest
@@ -6523,6 +6461,92 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 	}
 }
 
+bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, int iData1, int iData2)
+{
+	// Duplicates are allowed in Community Patch Only.
+	if (!MOD_BALANCE_VP)
+		return false;
+
+	bool bCompareData1 = false;
+	bool bCompareData2 = false;
+
+	switch (eQuest)
+	{
+	case MINOR_CIV_QUEST_CONNECT_RESOURCE:
+	case MINOR_CIV_QUEST_CONSTRUCT_WONDER:
+	case MINOR_CIV_QUEST_GREAT_PERSON:
+	case MINOR_CIV_QUEST_FIND_PLAYER:
+	case MINOR_CIV_QUEST_DENOUNCE_MAJOR:
+	case MINOR_CIV_QUEST_WAR:
+	case MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER:
+	case MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT:
+	case MINOR_CIV_QUEST_FIND_CITY_STATE:
+	case MINOR_CIV_QUEST_BUILD_X_BUILDINGS:
+	case MINOR_CIV_QUEST_SPY_ON_MAJOR:
+	case MINOR_CIV_QUEST_COUP:
+		bCompareData1 = true;
+		break;
+	case MINOR_CIV_QUEST_FIND_CITY:
+	case MINOR_CIV_QUEST_LIBERATION:
+	case MINOR_CIV_QUEST_ACQUIRE_CITY:
+		bCompareData1 = true;
+		bCompareData2 = true;
+		break;
+	case MINOR_CIV_QUEST_ROUTE:
+	case MINOR_CIV_QUEST_FIND_NATURAL_WONDER:
+	case MINOR_CIV_QUEST_GIVE_GOLD:
+	case MINOR_CIV_QUEST_PLEDGE_TO_PROTECT:
+	case MINOR_CIV_QUEST_SPREAD_RELIGION:
+	case MINOR_CIV_QUEST_TRADE_ROUTE:
+	case MINOR_CIV_QUEST_EXPLORE_AREA:
+		break; // Duplicates are allowed (except Find Natural Wonder and Explore Area, which have separate handling).
+	case MINOR_CIV_QUEST_KILL_CAMP:
+	case MINOR_CIV_QUEST_KILL_CITY_STATE:
+	case MINOR_CIV_QUEST_INVEST:
+	case MINOR_CIV_QUEST_INFLUENCE:
+	case MINOR_CIV_QUEST_CONTEST_TOURISM:
+	case MINOR_CIV_QUEST_ARCHAEOLOGY:
+	case MINOR_CIV_QUEST_CIRCUMNAVIGATION:
+	case MINOR_CIV_QUEST_HORDE:
+	case MINOR_CIV_QUEST_REBELLION:
+		return false; // These are not personal quests.
+	}
+
+	for (int i = MAX_MAJOR_CIVS; i < MAX_CIV_PLAYERS; i++)
+	{
+		PlayerTypes eMinor = (PlayerTypes)i;
+		if (!GET_PLAYER(eMinor).isAlive() || !GET_PLAYER(eMinor).isMinorCiv())
+			continue;
+
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, eQuest))
+		{
+			// Don't allow duplicates of "Find Natural Wonder" at all.
+			if (eQuest == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
+				return true;
+
+			// Don't allow duplicates of the same quest from the same City-State.
+			if (eMinor == GetPlayer()->GetID())
+				return true;
+
+			if (bCompareData1)
+			{
+				if (iData1 == GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, eQuest))
+				{
+					if (bCompareData2)
+					{
+						if (iData2 == GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, eQuest))
+							return true;
+					}
+					else
+						return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 /// Is eQuest valid for this minor to give to ePlayer?
 bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eQuest)
 {
@@ -6798,6 +6822,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 		if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_DENOUNCE_MAJOR, ePlayer, eMostRecentBully))
 			return false;
 
+		// Check for duplicate quests involving this player
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_DENOUNCE_MAJOR, (int)eMostRecentBully))
+			return false;
+
 		break;
 	}
 	case MINOR_CIV_QUEST_SPREAD_RELIGION:
@@ -6859,6 +6887,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 
 		// Is this a bad target? (Same team, haven't met, backstabbing?)
 		if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_WAR, ePlayer, eMostRecentBully))
+			return false;
+
+		// Check for duplicate quests involving this player
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_WAR, (int)eMostRecentBully))
 			return false;
 
 		break;
@@ -9876,6 +9908,10 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 		if (bCanCrossOcean || pLandmass->getNumResources(eResource) == 0)
 			continue;
 
+		// Check for duplicate quests involving this resource
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_CONNECT_RESOURCE, iResourceLoop))
+			continue;
+
 		veValidResources.push_back(eResource);
 	}
 
@@ -9883,7 +9919,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 	if (veValidResources.size() == 0)
 		return NO_RESOURCE;
 	
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidResources.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidResources.size()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidResources.size(), CvSeeder::fromRaw(0xc74fb6bb).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidResources[uRandIndex];
 }
 
@@ -9915,6 +9951,10 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 
 		// Must not be mutually exclusive
 		if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
+			continue;
+
+		// Check for duplicate quests involving this World Wonder
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_CONSTRUCT_WONDER, iBuildingLoop))
 			continue;
 
 		bool bBad = false;
@@ -10030,7 +10070,7 @@ BuildingTypes CvMinorCivAI::GetBestWorldWonderForQuest(PlayerTypes ePlayer, int 
 	if (veValidBuildings.size() == 0)
 		return NO_BUILDING;
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidBuildings.size()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), CvSeeder::fromRaw(0x2a8e7e4a).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidBuildings[uRandIndex];
 }
 
@@ -10065,6 +10105,10 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer, i
 
 		// Must not be mutually exclusive
 		if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
+			continue;
+
+		// Check for duplicate quests involving this National Wonder
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_CONSTRUCT_NATIONAL_WONDER, iBuildingLoop))
 			continue;
 
 		bool bBad = false;
@@ -10132,7 +10176,7 @@ BuildingTypes CvMinorCivAI::GetBestNationalWonderForQuest(PlayerTypes ePlayer, i
 	if (veValidBuildings.size() == 0)
 		return NO_BUILDING;
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidBuildings.size()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), CvSeeder::fromRaw(0xaf9ed611).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidBuildings[uRandIndex];
 }
 
@@ -10220,6 +10264,10 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes ePlayer)
 			}
 		}
 
+		// Check for duplicate quests involving this City-State
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_LIBERATION, iX, iY))
+			continue;
+
 		veValidTargets.push_back(eTarget);
 	}
 
@@ -10227,7 +10275,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateLiberate(PlayerTypes ePlayer)
 	if (veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidTargets.size()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder::fromRaw(0x6dd4e9e9).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidTargets[uRandIndex];
 }
 
@@ -10311,6 +10359,10 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 		if (bAlreadyHasUnit)
 			continue;
 
+		// Check for duplicate quests involving this Great Person
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_GREAT_PERSON, iUnitLoop))
+			continue;
+
 		veValidUnits.push_back(eUnit);
 	}
 
@@ -10318,7 +10370,7 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 	if (veValidUnits.size() == 0)
 		return NO_UNIT;
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidUnits.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidUnits.size()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidUnits.size(), CvSeeder::fromRaw(0x9d8964da).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidUnits[uRandIndex];
 }
 
@@ -10326,7 +10378,6 @@ UnitTypes CvMinorCivAI::GetBestGreatPersonForQuest(PlayerTypes ePlayer)
 PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes ePlayer, bool bKillQuest)
 {
 	CvWeightedVector<PlayerTypes> veValidTargets;
-	vector<PlayerTypes> veTargetChoices;
 	vector<PlayerTypes> vPlayerTeam = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
 
 	for (int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
@@ -10383,6 +10434,10 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes ePlayer, bool bKill
 					if (GET_PLAYER(eTarget).GetMinorCivAI()->IsProtectedByMajor(vPlayerTeam[i]))
 						continue;
 				}
+
+				// Check for duplicate quests involving this City-State
+				if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_KILL_CITY_STATE, iTargetLoop))
+					continue;
 			}
 			else
 			{
@@ -10393,6 +10448,10 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes ePlayer, bool bKill
 					continue;
 			}
 		}
+
+		// Check for duplicate quests involving this City-State
+		if (!bKillQuest && IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_BULLY_CITY_STATE, iTargetLoop))
+			continue;
 
 		int iWeight = 0;
 		switch (GET_PLAYER(eTarget).GetMinorCivAI()->GetTrait())
@@ -10463,22 +10522,13 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes ePlayer, bool bKill
 	}
 
 	// Didn't find any valid Target players
-	if (veValidTargets.size() == 0)
+	if (veValidTargets.empty())
 		return NO_PLAYER;
 
-	// Add WEIGHT copies of each target into the second vector from which the pseudorandom choice will be made
-	for (int iTargetLoop = 0; iTargetLoop < veValidTargets.size(); iTargetLoop++)
-	{
-		PlayerTypes eTarget = (PlayerTypes) veValidTargets.GetElement(iTargetLoop);
-		int iCount = veValidTargets.GetWeight(iTargetLoop);
-		for (int iCountLoop = 0; iCountLoop < iCount; iCountLoop++)
-		{
-			veTargetChoices.push_back(eTarget);
-		}
-	}
+	if (bKillQuest)
+		return veValidTargets.ChooseByWeight(CvSeeder::fromRaw(0x2a03d8cf).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veTargetChoices.size(), m_pPlayer->GetPseudoRandomSeed());
-	return veTargetChoices[uRandIndex];
+	return veValidTargets.ChooseByWeight(CvSeeder::fromRaw(0x24075f2e).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 }
 
 CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
@@ -10546,28 +10596,8 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 			if (pLoopCity->GetNumTimesOwned(ePlayer) > 0)
 				continue;
 
-			// Check for other minors that are currently targeting this city
-			bool bBad = false;
-			for (int iTargetLoop = MAX_MAJOR_CIVS; iTargetLoop < MAX_CIV_PLAYERS; iTargetLoop++)
-			{
-				PlayerTypes eMinor = (PlayerTypes) iTargetLoop;
-
-				if (!GET_PLAYER(eMinor).isAlive())
-					continue;
-
-				if (GetPlayer()->getTeam() == GET_PLAYER(eMinor).getTeam())
-					continue;
-
-				if (!GET_PLAYER(eMinor).isMinorCiv())
-					continue;
-
-				if (GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityX(ePlayer) == pLoopCity->getX() && GET_PLAYER(eMinor).GetMinorCivAI()->GetTargetedCityY(ePlayer) == pLoopCity->getY())
-				{
-					bBad = true;
-					break;
-				}
-			}
-			if (bBad)
+			// Check for duplicate quests involving this city
+			if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_ACQUIRE_CITY, pLoopCity->getX(), pLoopCity->getY()))
 				continue;
 
 			int iDistance = GET_PLAYER(ePlayer).GetCityDistancePathLength(pLoopCity->plot()) + m_pPlayer->GetCityDistancePathLength(pLoopCity->plot());
@@ -10615,6 +10645,10 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDu
 
 		// Must not be mutually exclusive
 		if (pkBuildingInfo->GetMutuallyExclusiveGroup() != -1)
+			continue;
+
+		// Check for duplicate quests involving this building
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_BUILD_X_BUILDINGS, iBuildingLoop))
 			continue;
 
 		bool bBad = false;
@@ -10691,14 +10725,13 @@ BuildingTypes CvMinorCivAI::GetBestBuildingForQuest(PlayerTypes ePlayer, int iDu
 	if (veValidBuildings.size() == 0)
 		return NO_BUILDING;
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidBuildings.size()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidBuildings.size(), CvSeeder::fromRaw(0x371c04bb).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidBuildings[uRandIndex];
 }
 
 UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 {
 	CvWeightedVector<UnitTypes> veValidUnits;
-	vector<UnitTypes> veUnitChoices;
 	bool bAllowNaval = GetPlayer()->getCapitalCity()->isCoastal(10) && GET_PLAYER(ePlayer).GetNumEffectiveCoastalCities() > 1;
 
 	// Loop through all Unit Classes
@@ -10789,6 +10822,10 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 		if (!bValid)
 			continue;
 
+		// Check for duplicate quests involving this unit
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_GIFT_SPECIFIC_UNIT, iUnitLoop))
+			continue;
+
 		int iValue = 11;
 
 		// If this is a UU, add extra value so that the unique unit is more likely to get picked
@@ -10824,19 +10861,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 	if (veValidUnits.size() == 0)
 		return NO_UNIT;
 
-	// Add WEIGHT copies of each unit into the second vector from which the pseudorandom choice will be made
-	for (int iUnitLoop = 0; iUnitLoop < veValidUnits.size(); iUnitLoop++)
-	{
-		UnitTypes eUnit = (UnitTypes) veValidUnits.GetElement(iUnitLoop);
-		int iCount = veValidUnits.GetWeight(iUnitLoop);
-		for (int iCountLoop = 0; iCountLoop < iCount; iCountLoop++)
-		{
-			veUnitChoices.push_back(eUnit);
-		}
-	}
-
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veUnitChoices.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veUnitChoices.size()));
-	return veUnitChoices[uRandIndex];
+	return veValidUnits.ChooseByWeight(CvSeeder::fromRaw(0xa1eb85bf).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 }
 
 int CvMinorCivAI::GetExperienceForUnitGiftQuest(PlayerTypes ePlayer, UnitTypes eUnitType)
@@ -10918,38 +10943,6 @@ int CvMinorCivAI::GetTargetedAreaID(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
 	return m_aiAssignedPlotAreaID[ePlayer];
 }
-void CvMinorCivAI::SetTargetedCityX(PlayerTypes ePlayer, int iValue)
-{
-	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(iValue != m_aiTargetedCityX[ePlayer])
-	{
-		m_aiTargetedCityX[ePlayer] = iValue;
-	}
-}
-int CvMinorCivAI::GetTargetedCityX(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
-	return m_aiTargetedCityX[ePlayer];
-}
-void CvMinorCivAI::SetTargetedCityY(PlayerTypes ePlayer, int iValue)
-{
-	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(iValue != m_aiTargetedCityY[ePlayer])
-	{
-		m_aiTargetedCityY[ePlayer] = iValue;
-	}
-}
-int CvMinorCivAI::GetTargetedCityY(PlayerTypes ePlayer)
-{
-	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "eForPlayer is expected to be within maximum bounds (invalid Index)");
-	if(ePlayer < 0 || ePlayer >= REALLY_MAX_PLAYERS) return -1;  // as defined in Reset()
-	return m_aiTargetedCityY[ePlayer];
-}
 void CvMinorCivAI::SetNumTurnsSincePtPWarning(PlayerTypes ePlayer, int iValue)
 {
 	CvAssertMsg(ePlayer >= 0, "eForPlayer is expected to be non-negative (invalid Index)");
@@ -11013,6 +11006,10 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 			PlayerTypes eAlly = GET_PLAYER(eTarget).GetMinorCivAI()->GetAlly();
 			if (eAlly == NO_PLAYER || !IsAcceptableQuestEnemy(MINOR_CIV_QUEST_COUP, ePlayer, eAlly))
 				continue;
+
+			// Check for duplicate quests involving this City-State
+			if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_COUP, iTargetLoop))
+				continue;
 		}
 		else
 		{
@@ -11020,6 +11017,10 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 				continue;
 
 			if (!IsAcceptableQuestEnemy(MINOR_CIV_QUEST_SPY_ON_MAJOR, ePlayer, eTarget))
+				continue;
+
+			// Check for duplicate quests involving this player
+			if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_SPY_ON_MAJOR, iTargetLoop))
 				continue;
 		}
 
@@ -11313,6 +11314,10 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 		if (pTeam->IsHasFoundPlayersTerritory(eTargetMajor))
 			continue;
 
+		// Check for duplicate quests involving this player
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_FIND_PLAYER, iTargetMajorLoop))
+			continue;
+
 		veValidTargets.push_back(eTargetMajor);
 	}
 
@@ -11320,7 +11325,7 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 	if (veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder(GET_PLAYER(ePlayer).getNumUnits()).mix(GET_PLAYER(ePlayer).GetTreasury()->GetLifetimeGrossGold()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder::fromRaw(0x31b18457).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidTargets[uRandIndex];
 }
 
@@ -11363,6 +11368,10 @@ CvCity* CvMinorCivAI::GetBestCityToFind(PlayerTypes ePlayer)
 			// Must not be revealed yet
 			CvPlot* pPlot = pLoopCity->plot();
 			if (pPlot == NULL || pPlot->isRevealed(eTeam))
+				continue;
+
+			// Check for duplicate quests involving this city
+			if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_FIND_CITY, pLoopCity->getX(), pLoopCity->getY()))
 				continue;
 
 			// We want an accessible city that's a decent distance away from this player's closest city
@@ -11408,7 +11417,11 @@ bool CvMinorCivAI::IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer)
 
 	// Player hasn't yet found all the NWs in his area
 	int iNumNaturalWondersInStartingArea = GC.getMap().getAreaById(pPlayer->getStartingPlot()->getArea())->GetNumNaturalWonders();
-	return pPlayer->GetNumNaturalWondersDiscoveredInArea() >= iNumNaturalWondersInStartingArea;
+	if (pPlayer->GetNumNaturalWondersDiscoveredInArea() < iNumNaturalWondersInStartingArea)
+		return false;
+
+  // Check for duplicate quests with this objective
+	return !IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_FIND_NATURAL_WONDER);
 }
 
 /// Any distant City States that this City State would want ePlayer to meet?
@@ -11438,6 +11451,10 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes ePlayer)
 		if (GetPlayer()->GetProximityToPlayer(eTarget) == PLAYER_PROXIMITY_NEIGHBORS)
 			continue;
 
+		// Check for duplicate quests involving this City-State
+		if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE, iTargetLoop))
+			continue;
+
 		veValidTargets.push_back(eTarget);
 	}
 
@@ -11445,7 +11462,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateMeetTarget(PlayerTypes ePlayer)
 	if (veValidTargets.size() == 0)
 		return NO_PLAYER;
 
-	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()).mix(veValidTargets.size()));
+	uint uRandIndex = GC.getGame().urandLimitExclusive(veValidTargets.size(), CvSeeder::fromRaw(0x695bf7f6).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	return veValidTargets[uRandIndex];
 }
 
@@ -14976,7 +14993,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		if (bExplore) // Free exploration unit (First contact bonus)
 			eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, bBoatsAllowed);
 		else
-			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed);
+			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed, false, false, true, CvSeeder::fromRaw(0xf00798cf).mix(GetPlayer()->GetID()).mix(GET_PLAYER(eMajor).GetID()));
 	}
 
 	if (eUnit == NO_UNIT)
@@ -16899,8 +16916,7 @@ void CvMinorCivAI::DoElection()
 	if(wvVotes.size() > 0)
 	{
 		wvVotes.StableSortItems();
-		RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(&fcn, "Choosing CS election winner by weight");
+		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(CvSeeder::fromRaw(0xfead5338).mix(GetPlayer()->GetID()));
 
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
@@ -17701,9 +17717,9 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 		}
 		else
 		{
-			iRand = GC.getGame().randRangeExclusive(0, 100, m_pPlayer->GetPseudoRandomSeed());
+			iRand = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x5b0bd7f0).mix(m_pPlayer->GetPseudoRandomSeed()).mix((int)eEnemyTeam));
 
-			if (iRand < /*50 in CP, 40 in VP*/ GD_INT_GET(PERMANENT_WAR_AGGRESSOR_CHANCE))
+			if (iRand <= /*50 in CP, 40 in VP*/ GD_INT_GET(PERMANENT_WAR_AGGRESSOR_CHANCE))
 			{
 				if (ENABLE_PERMANENT_WAR)
 					SetPermanentWar(eEnemyTeam, true);
@@ -17800,8 +17816,8 @@ void CvMinorCivAI::DoTeamDeclaredWarOnMe(TeamTypes eEnemyTeam)
 			if(GET_TEAM(pOtherMinorCiv->getTeam()).isAtWar(eEnemyTeam))
 				iChance += /*20*/ GD_INT_GET(PERMANENT_WAR_OTHER_AT_WAR);
 
-			iRand = GC.getGame().randRangeExclusive(0, 100, m_pPlayer->GetPseudoRandomSeed().mix(static_cast<uint>(iMinorCivLoop)));
-			if(iRand < iChance)
+			iRand = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x81afb53c).mix(m_pPlayer->GetPseudoRandomSeed()).mix(pEnemyTeam->GetID()));
+			if (iRand <= iChance)
 			{
 				if(!pOtherMinorCiv->GetMinorCivAI()->IsWaryOfTeam(eEnemyTeam))
 				{
@@ -18232,74 +18248,6 @@ int CvMinorCivAI::GetNumResourcesMajorLacks(PlayerTypes eMajor)
 	}
 
 	return iNumTheyLack;
-}
-
-/// Helper function which returns a "Good" Tech that a Player doesn't have but CAN currently research
-TechTypes CvMinorCivAI::GetGoodTechPlayerDoesntHave(PlayerTypes ePlayer, int iRoughTechValue) const
-{
-	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
-	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
-
-	CvWeightedVector<int> TechVector;
-	int iValue = 0;
-	int iProgress = 0;
-
-
-	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-	CvTeam& kTeam = GET_TEAM(kPlayer.getTeam());
-
-	for(int iTechLoop = 0; iTechLoop < GC.getNumTechInfos(); iTechLoop++)
-	{
-		const TechTypes eTech = static_cast<TechTypes>(iTechLoop);
-		CvTechEntry* pkTechInfo = GC.getTechInfo(eTech);
-		if(pkTechInfo == NULL)
-			continue;
-
-		// Player doesn't already have Tech
-		if(!kTeam.GetTeamTechs()->HasTech(eTech))
-		{
-			// Player can research this Tech
-			if(kPlayer.GetPlayerTechs()->CanResearch(eTech))
-			{
-				iValue = pkTechInfo->GetResearchCost();
-
-				// Reduce value of a Tech if it's already in progress
-				iProgress = kTeam.GetTeamTechs()->GetResearchProgress(eTech);
-
-				if(iProgress > 0)
-				{
-					iValue -= iProgress;
-				}
-
-				// Random factor so that the same thing isn't always picked
-				iValue += GC.getGame().randRangeExclusive(0, iValue / 4, CvSeeder(m_pPlayer->GetTreasury()->GetLifetimeGrossGold()).mix(iTechLoop));
-
-				TechVector.push_back(iTechLoop, iValue);
-			}
-		}
-	}
-
-	// If there's only one option return it... this will help prevent divide by zero stuff later
-	if(TechVector.size() == 1)
-	{
-		return (TechTypes) TechVector.GetElement(0);
-	}
-	else if(TechVector.size() == 0)
-	{
-		return NO_TECH;
-	}
-
-	TechVector.StableSortItems();
-
-	// Our rough estimate is that 20 is a good ceiling for the max Tech value
-	if(iRoughTechValue > 20)
-	{
-		iRoughTechValue = 20;
-	}
-
-	int iIndex = (TechVector.size() - 1) * iRoughTechValue / 20;
-
-	return (TechTypes) TechVector.GetElement(iIndex);
 }
 
 /// Checks to see if the majority religion of the city-state is the religion that this major has founded
