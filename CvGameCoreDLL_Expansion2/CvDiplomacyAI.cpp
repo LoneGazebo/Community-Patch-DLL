@@ -54799,27 +54799,29 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 
 	if (!bHisGainIsOurOwn)
 	{
-		// DECREASE if opponent is big and nasty.
-		switch (pDiplo->GetMilitaryStrengthComparedToUs(eNewOwner))
+		if (GET_PLAYER(eNewOwner).isAlive())
 		{
-		case NO_STRENGTH_VALUE:
-			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
-		case STRENGTH_IMMENSE:
-			iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
-			break;
-		case STRENGTH_POWERFUL:
-			iWarmongerStrengthModifier += /*-50*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL);
-			break;
-		case STRENGTH_STRONG:
-			iWarmongerStrengthModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_STRONG);
-			break;
-		case STRENGTH_AVERAGE:
-			iWarmongerStrengthModifier += /*0*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE);
-			break;
-		case STRENGTH_POOR:
-		case STRENGTH_WEAK:
-		case STRENGTH_PATHETIC:
-			break; // Not applicable.
+			switch (pDiplo->GetMilitaryStrengthComparedToUs(eNewOwner))
+			{
+			case NO_STRENGTH_VALUE:
+				UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
+			case STRENGTH_IMMENSE:
+				iWarmongerStrengthModifier += /*-75*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_IMMENSE);
+				break;
+			case STRENGTH_POWERFUL:
+				iWarmongerStrengthModifier += /*-50*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_POWERFUL);
+				break;
+			case STRENGTH_STRONG:
+				iWarmongerStrengthModifier += /*-25*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_STRONG);
+				break;
+			case STRENGTH_AVERAGE:
+				iWarmongerStrengthModifier += /*0*/ GD_INT_GET(WARMONGER_THREAT_DEFENDER_STRENGTH_AVERAGE);
+				break;
+			case STRENGTH_POOR:
+			case STRENGTH_WEAK:
+			case STRENGTH_PATHETIC:
+				break; // Not applicable.
+			}
 		}
 	}
 
