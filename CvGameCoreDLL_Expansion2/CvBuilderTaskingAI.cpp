@@ -210,7 +210,7 @@ void CvBuilderTaskingAI::Update(void)
 		}
 
 		// show crisis states
-		int iLoop;
+		int iLoop = 0;
 		for(CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 		{
 			CvString str("// ");
@@ -614,13 +614,13 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 	vector<CvPlot*> vDestPlots;
 	for(int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
 	{
-		int iCity;
+		int iCity = 0;
 		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
 		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
 			vDestPlots.push_back(pDestCity->plot());
 	}
 
-	int iOriginCityLoop;
+	int iOriginCityLoop = 0;
 	for (CvCity* pOriginCity = m_pPlayer->firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = m_pPlayer->nextCity(&iOriginCityLoop))
 	{
 		SPathFinderUserData data(m_pPlayer->GetID(), PT_TRADE_WATER);
@@ -2377,7 +2377,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvUnit* pUnit, CvPlot* pPlot, Improvement
 						}
 					}
 					//If yield bonus is granted from it being adjacent...
-					CvPlot* pAdjacentPlot;
+					CvPlot* pAdjacentPlot = NULL;
 					if(bAdjacentDesire)
 					{
 						for(int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; iDirectionLoop++)
@@ -2953,7 +2953,7 @@ void CvBuilderTaskingAI::LogInfo(const CvString& strNewLogStr, CvPlayer* pPlayer
 
 	// Open the log file
 	CvString strFileName = "BuilderTaskingLog.csv";
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 
 	CvString strLog;
@@ -2980,7 +2980,7 @@ void CvBuilderTaskingAI::LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pP
 
 	// Open the log file
 	CvString strFileName = "BuilderTaskingYieldLog.csv";
-	FILogFile* pLog;
+	FILogFile* pLog = NULL;
 	pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 
 	CvString strLog;

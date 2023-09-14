@@ -4659,10 +4659,7 @@ bool CvDiplomacyAI::IsDemandTooSoon(PlayerTypes ePlayer) const
 
 	int iTurnDifference = GC.getGame().getGameTurn() - GetDemandMadeTurn(ePlayer);
 
-	if (iTurnDifference < iDemandTooSoonNumTurns)
-		return true;
-
-	return false;
+	return iTurnDifference < iDemandTooSoonNumTurns;
 }
 
 /// Returns the value of recent trades
@@ -4952,10 +4949,7 @@ bool CvDiplomacyAI::IsCoopWarMessageTooSoon(PlayerTypes eAskingPlayer, PlayerTyp
 {
 	CoopWarStates eCoopWarState = GetCoopWarState(eAskingPlayer, eTargetPlayer);
 
-	if (eCoopWarState == COOP_WAR_STATE_REJECTED || eCoopWarState == COOP_WAR_STATE_WARNED_TARGET)
-		return true;
-
-	return false;
+	return eCoopWarState == COOP_WAR_STATE_REJECTED || eCoopWarState == COOP_WAR_STATE_WARNED_TARGET;
 }
 
 /// Returns this AI's "score" of ePlayer for accepting or denying their coop war requests against other players (a penalty is applied if a coop war agreement is broken, too)
@@ -8088,18 +8082,12 @@ void CvDiplomacyAI::SetSupportedOurProposalValue(PlayerTypes ePlayer, int iValue
 /// Helper functions so the AI can remember recent World Congress diplomacy
 bool CvDiplomacyAI::IsSupportedOurProposalAndThenFoiledUs(PlayerTypes ePlayer) const
 {
-	if (GetTheyFoiledOurProposalTurn(ePlayer) > -1 && GetSupportedOurProposalValue(ePlayer) < 0)
-		return true;
-
-	return false;
+	return GetTheyFoiledOurProposalTurn(ePlayer) > -1 && GetSupportedOurProposalValue(ePlayer) < 0;
 }
 
 bool CvDiplomacyAI::IsFoiledOurProposalAndThenSupportedUs(PlayerTypes ePlayer) const
 {
-	if (GetTheySupportedOurProposalTurn(ePlayer) > -1 && GetSupportedOurProposalValue(ePlayer) > 0)
-		return true;
-
-	return false;
+	return GetTheySupportedOurProposalTurn(ePlayer) > -1 && GetSupportedOurProposalValue(ePlayer) > 0;
 }
 
 /// How much do we like or dislike their voting history on proposals in the World Congress?
@@ -8317,10 +8305,7 @@ bool CvDiplomacyAI::IsCityRecentlyLiberatedBy(PlayerTypes ePlayer) const
 		return false;
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
-	if (iTurnDifference < 20)
-		return true;
-
-	return false;
+	return iTurnDifference < 20;
 }
 
 /// On what turn did this player most recently return a civilian to us?
@@ -9030,10 +9015,7 @@ bool CvDiplomacyAI::IsHelpRequestTooSoon(PlayerTypes ePlayer) const
 
 	int iTurnDifference = GC.getGame().getGameTurn() - iHelpRequestAcceptedTurn;
 
-	if (iTurnDifference < iHelpRequestTooSoonNumTurns)
-		return true;
-
-	return false;
+	return iTurnDifference < iHelpRequestTooSoonNumTurns;
 }
 
 /// Returns if we accepted a demand from ePlayer while we were his vassal
@@ -12171,7 +12153,7 @@ int CvDiplomacyAI::GetNumberOfThreatenedCities(PlayerTypes ePlayer)
 
 	int iCountCitiesInDanger = 0;
 
-	int iCityLoop;
+	int iCityLoop = 0;
 	vector<PlayerTypes> vTheirWarAllies = GetOffensiveWarAllies(ePlayer, /*bIncludeMinors*/ true, /*bReverseMode*/ true);
 	vTheirWarAllies.push_back(ePlayer);
 	for (const CvCity* pFriendlyCity = GetPlayer()->firstCity(&iCityLoop); pFriendlyCity != NULL; pFriendlyCity = GetPlayer()->nextCity(&iCityLoop))
@@ -14091,10 +14073,7 @@ bool CvDiplomacyAI::IsWarWouldBankruptUs(PlayerTypes ePlayer, int iMinimumIncome
 	}
 
 	int iTurnsUntilBankruptcy = GetPlayer()->getTurnsToBankruptcy(iGoldPerTurnLostFromWar);
-	if (iTurnsUntilBankruptcy <= 30)
-		return true;
-
-	return false;
+	return iTurnsUntilBankruptcy <= 30;
 }
 
 /// How much Gold Per Turn would we lose if we went to war with this player?
@@ -25924,7 +25903,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26172,7 +26151,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						strLogName = "DiplomacyAI_Peace_Log.csv";
 					}
 
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 					// Get the leading info for this line
@@ -26213,7 +26192,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26253,7 +26232,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26297,7 +26276,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						strLogName = "DiplomacyAI_Peace_Log.csv";
 					}
 
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 					// Get the leading info for this line
@@ -26339,7 +26318,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26425,7 +26404,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 						strLogName = "DiplomacyAI_Peace_Log.csv";
 					}
 
-					FILogFile* pLog;
+					FILogFile* pLog = NULL;
 					pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 					// Get the leading info for this line
@@ -26469,7 +26448,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26541,7 +26520,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 					strLogName = "DiplomacyAI_Peace_Log.csv";
 				}
 
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 				// Get the leading info for this line
@@ -26928,7 +26907,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 				strLogName = "DiplomacyAI_Peace_Log.csv";
 			}
 
-			FILogFile* pLog;
+			FILogFile* pLog = NULL;
 			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 			// Get the leading info for this line
@@ -29319,10 +29298,7 @@ bool CvDiplomacyAI::ShouldHideDisputeMods(PlayerTypes ePlayer) const
 	CivApproachTypes eSurfaceApproach = GetSurfaceApproach(ePlayer);
 
 	// Only hide if our surface approach is FRIENDLY or AFRAID
-	if (eSurfaceApproach == CIV_APPROACH_FRIENDLY || eSurfaceApproach == CIV_APPROACH_AFRAID)
-		return true;
-
-	return false;
+	return eSurfaceApproach == CIV_APPROACH_FRIENDLY || eSurfaceApproach == CIV_APPROACH_AFRAID;
 }
 
 /// Should we hide certain negative opinion modifiers towards ePlayer? (stuff like competition, warmongering etc)
@@ -39211,7 +39187,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		PlayerTypes eMinor = (PlayerTypes) iArg2;
 		CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 		CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
-		if (!(eMinor >= MAX_MAJOR_CIVS && eMinor < MAX_CIV_PLAYERS))
+		if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
@@ -39383,7 +39359,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		PlayerTypes eMinor = (PlayerTypes) iArg2;
 		CvAssertMsg(eMinor >= MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
 		CvAssertMsg(eMinor < MAX_CIV_PLAYERS, "DIPLOMACY_AI: Invalid Player Index.  Please send Anton your save file and version.");
-		if (!(eMinor >= MAX_MAJOR_CIVS && eMinor < MAX_CIV_PLAYERS))
+		if (eMinor < MAX_MAJOR_CIVS || eMinor >= MAX_CIV_PLAYERS)
 		{
 			// Fail gracefully, allow UI to continue
 			strText = GetDiploStringForMessage(DIPLO_MESSAGE_HUMAN_HOSTILE_WE_ATTACKED_MINOR_BAD);
@@ -40891,10 +40867,7 @@ bool CvDiplomacyAI::IsActHostileTowardsHuman(PlayerTypes eHuman) const
 
 	if (bAtWar)
 	{
-		if (bAtWarButWantsPeace)
-			return false;
-
-		return true;
+		return !bAtWarButWantsPeace;
 	}
 
 	CivApproachTypes eSurfaceApproach = GetSurfaceApproach(eHuman);
@@ -41800,8 +41773,7 @@ const char* CvDiplomacyAI::GetAttackedByHumanMessage()
 
 	// Betrayed	-	TBD
 	// This should be related to active deals, e.g. Open Borders, luxuries, etc.
-	if(false)
-		return GetDiploStringForMessage(DIPLO_MESSAGE_ATTACKED_BETRAYED);
+	;
 
 	// Excited
 	// A player with the Conquest Grand Strategy will be excited
@@ -43399,10 +43371,7 @@ bool CvDiplomacyAI::IsDontSettleAcceptable(PlayerTypes ePlayer)
 	iThreshold += iMilitaryMod;
 
 	//Base it on boldness.
-	if (GetBoldness() * 10 < iThreshold)
-		return true;
-
-	return false;
+	return GetBoldness() * 10 < iThreshold;
 }
 
 /////////////////////////////////////////////////////////
@@ -43744,10 +43713,7 @@ bool CvDiplomacyAI::IsEndDoFAcceptable(PlayerTypes ePlayer, bool bIgnoreCurrentD
 
 	iChance += GetCoopWarScore(ePlayer);
 
-	if (iChance <= 0)
-		return true;
-
-	return false;
+	return iChance <= 0;
 }
 
 /// AI won't agree to a DoF until they've known a player for at least a few turns
@@ -44147,10 +44113,7 @@ bool CvDiplomacyAI::IsDenounceFriendAcceptable(PlayerTypes ePlayer)
 
 	iChance += GetNumCitiesLiberatedBy(ePlayer) * 3;
 
-	if (iChance <= 0)
-		return true;
-
-	return false;
+	return iChance <= 0;
 }
 
 /// Does ePlayer have a DoF with anyone we have a DoF with?
@@ -44622,10 +44585,7 @@ bool CvDiplomacyAI::IsDenounceAcceptable(PlayerTypes ePlayer, bool bBias)
 
 	int iWeight = GetDenounceWeight(ePlayer, bBias);
 
-	if (iWeight > 25)
-		return true;
-
-	return false;
+	return iWeight > 25;
 }
 
 /// Returns the weight this AI has for denouncing ePlayer
@@ -50576,7 +50536,7 @@ void CvDiplomacyAI::CancelRenewDeal(PlayerTypes eOtherPlayer, RenewalReason eRea
 				strLogName = "DiplomacyAI_TradeAgreements_Log.csv";
 			}
 
-			FILogFile* pLog;
+			FILogFile* pLog = NULL;
 			pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 			// Get the leading info for this line
@@ -56025,10 +55985,7 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvalu
 		}
 
 		// More team members must agree than refuse
-		if (iNumTeamMembersInFavor > 0 && iNumTeamMembersInFavor > iNumTeamMembersAgainst)
-			return true;
-
-		return false;
+		return iNumTeamMembersInFavor > 0 && iNumTeamMembersInFavor > iNumTeamMembersAgainst;
 	}
 
 	// We are already ePlayer's vassal
@@ -56086,10 +56043,7 @@ bool CvDiplomacyAI::IsVassalageAcceptable(PlayerTypes ePlayer, bool bMasterEvalu
 	}
 
 	// More team members must agree than refuse
-	if (iNumTeamMembersInFavor > 0 && iNumTeamMembersInFavor > iNumTeamMembersAgainst)
-		return true;
-
-	return false;
+	return iNumTeamMembersInFavor > 0 && iNumTeamMembersInFavor > iNumTeamMembersAgainst;
 }
 
 /// Do we want to capitulate to ePlayer due to war?
@@ -56884,10 +56838,7 @@ bool CvDiplomacyAI::IsEndVassalageAcceptable(PlayerTypes ePlayer)
 			}
 		}
 
-		if (iPeaceful > 0 && iPeaceful > iForceful)
-			return true;
-
-		return false;
+		return iPeaceful > 0 && iPeaceful > iForceful;
 	}
 
 	if (!IsVassal(ePlayer))
@@ -57532,12 +57483,7 @@ bool CvDiplomacyAI::WantsMapsFromPlayer(PlayerTypes ePlayer)
 
 	// Physically see how much the deal will cost us. Only send request if it's in an acceptable range
 	int iMapValue = GetPlayer()->GetDealAI()->GetMapValue(false, ePlayer);
-	if (iMapValue > 750)
-	{
-		return true;
-	}
-
-	return false;
+	return iMapValue > 750;
 }
 
 /// Do we want to make a generous offer to ePlayer?
@@ -57992,12 +57938,7 @@ bool CvDiplomacyAI::IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePl
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
 	int iDuration = AdjustModifierDuration(/*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_PEACEFULLY_REVOKED_NUM_TURNS_UNTIL_FORGOTTEN), GetLoyalty());
 
-	if (iTurnDifference < iDuration)
-	{
-		return true;
-	}
-
-	return false;
+	return iTurnDifference < iDuration;
 }
 
 /// Returns if we've forcefully revoked vassalage
@@ -58011,12 +57952,7 @@ bool CvDiplomacyAI::IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePl
 	int iTurnDifference = GC.getGame().getGameTurn() - iTurn;
 	int iDuration = AdjustModifierDuration(/*100*/ GD_INT_GET(OPINION_WEIGHT_VASSALAGE_FORCIBLY_REVOKED_NUM_TURNS_UNTIL_FORGIVEN), GetBoldness());
 
-	if (iTurnDifference < iDuration)
-	{
-		return true;
-	}
-
-	return false;
+	return iTurnDifference < iDuration;
 }
 
 /// eMasterTeam became our master

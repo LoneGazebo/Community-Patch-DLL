@@ -1059,14 +1059,7 @@ int CvGameTrade::GetEmptyTradeRouteIndex (void)
 //	--------------------------------------------------------------------------------
 bool CvGameTrade::IsTradeRouteIndexEmpty(int iIndex)
 {
-	if (m_aTradeConnections[iIndex].m_iOriginX == -1 && m_aTradeConnections[iIndex].m_iOriginY == -1 && m_aTradeConnections[iIndex].m_iDestX == -1 && m_aTradeConnections[iIndex].m_iDestY == -1)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aTradeConnections[iIndex].m_iOriginX == -1 && m_aTradeConnections[iIndex].m_iOriginY == -1 && m_aTradeConnections[iIndex].m_iDestX == -1 && m_aTradeConnections[iIndex].m_iDestY == -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -4281,14 +4274,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, 
 		return false;
 	}
 
-	if (pTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting, bCheckPath))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return pTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting, bCheckPath);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4845,14 +4831,7 @@ bool CvPlayerTrade::ContainsOpposingPlayerTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetOpposingTradeUnitsAtPlot(pPlot, true);
-	if (aiTradeConnectionIDs.size() > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4866,14 +4845,7 @@ bool CvPlayerTrade::ContainsEnemyTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetEnemyTradeUnitsAtPlot(pPlot, true);
-	if (aiTradeConnectionIDs.size() > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4887,14 +4859,7 @@ bool CvPlayerTrade::ContainsEnemyTradePlot(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetEnemyTradePlotsAtPlot(pPlot, true);
-	if (aiTradeConnectionIDs.size() > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 
 //	--------------------------------------------------------------------------------

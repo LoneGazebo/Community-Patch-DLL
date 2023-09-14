@@ -544,10 +544,7 @@ bool CvBarbarians::DoTakeOverCityState(CvCity* pCity)
 
 	// create a barbarian unit in the city, taking it over
 	SpawnBarbarianUnits(pCity->plot(), 1, BARB_SPAWN_CITY_STATE_CAPTURE);
-	if (pCityPlot->isCity() && pCityPlot->getOwner() == BARBARIAN_PLAYER)
-		return true;
-
-	return false;
+	return pCityPlot->isCity() && pCityPlot->getOwner() == BARBARIAN_PLAYER;
 }
 
 //	--------------------------------------------------------------------------------

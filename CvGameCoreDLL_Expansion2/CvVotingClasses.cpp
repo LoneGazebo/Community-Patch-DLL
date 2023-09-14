@@ -13916,10 +13916,7 @@ bool CvLeagueAI::IsSanctionAgainstUs(ResolutionTypes eResolution, PlayerTypes eP
 		return false;
 
 	CvEnactProposal fakeProposal(/*iID*/ -1, eResolution, pLeague->GetID(), eProposer, iChoice);
-	if (IsSanctionProposal(&fakeProposal, GetPlayer()->GetID()))
-		return true;
-
-	return false;
+	return IsSanctionProposal(&fakeProposal, GetPlayer()->GetID());
 }
 
 bool CvLeagueAI::IsSanctionAgainstUs(CvActiveResolution* pResolution, PlayerTypes eProposer)
@@ -13929,10 +13926,7 @@ bool CvLeagueAI::IsSanctionAgainstUs(CvActiveResolution* pResolution, PlayerType
 		return false;
 
 	CvRepealProposal fakeProposal(pResolution, eProposer);
-	if (IsSanctionProposal(&fakeProposal, GetPlayer()->GetID()))
-		return true;
-
-	return false;
+	return IsSanctionProposal(&fakeProposal, GetPlayer()->GetID());
 }
 
 bool CvLeagueAI::IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequiredTarget)

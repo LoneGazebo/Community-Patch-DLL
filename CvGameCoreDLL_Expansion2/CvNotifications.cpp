@@ -943,14 +943,7 @@ void CvNotifications::Activate(Notification& notification)
 		kPopup.iData1 = notification.m_iX;
 		kPopup.iData2 = notification.m_iY;
 
-		if(notification.m_eNotificationType == NOTIFICATION_FOUND_RELIGION)
-		{
-			kPopup.bOption1 = true;
-		}
-		else
-		{
-			kPopup.bOption1 = false;
-		}
+		kPopup.bOption1 = notification.m_eNotificationType == NOTIFICATION_FOUND_RELIGION;
 		GC.GetEngineUserInterface()->AddPopup(kPopup);
 	}
 	break;
@@ -1852,14 +1845,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	case NOTIFICATION_SPY_STOLE_TECH:
 	{
 		CvPlayerEspionage* pEspionage = GET_PLAYER(m_ePlayer).GetEspionage();
-		if (pEspionage->m_aiNumTechsToStealList[m_aNotifications[iIndex].m_iGameDataIndex] <= 0)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return pEspionage->m_aiNumTechsToStealList[m_aNotifications[iIndex].m_iGameDataIndex] <= 0;
 	}
 	break;
 
@@ -1867,14 +1853,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		LeagueTypes eLeague = (LeagueTypes) m_aNotifications[iIndex].m_iGameDataIndex;
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-		if (!pLeague->CanPropose(m_ePlayer))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return !pLeague->CanPropose(m_ePlayer);
 	}
 	break;
 
@@ -1900,14 +1879,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 	{
 		LeagueTypes eLeague = (LeagueTypes) m_aNotifications[iIndex].m_iGameDataIndex;
 		CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetLeague(eLeague);
-		if (!pLeague->CanVote(m_ePlayer))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return !pLeague->CanVote(m_ePlayer);
 	}
 	break;
 
@@ -2163,14 +2135,7 @@ bool CvNotifications::IsArrayFull() const
 		iAdjustedEndIndex = 0;
 	}
 
-	if(iAdjustedEndIndex == m_iNotificationsBeginIndex)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return iAdjustedEndIndex == m_iNotificationsBeginIndex;
 }
 
 //	---------------------------------------------------------------------------

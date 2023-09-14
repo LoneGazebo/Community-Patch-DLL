@@ -115,7 +115,7 @@ void* CvDllDatabaseUtility::operator new(size_t bytes)
 bool CvDllDatabaseUtility::CacheGameDatabaseData()
 {
 	//Do not cache everything if we don't need to.
-	if(m_bGameDatabaseNeedsCaching == false)
+	if(!m_bGameDatabaseNeedsCaching)
 		return true;
 
 	//The following code depends on a valid initialized database.
@@ -557,7 +557,7 @@ bool CvDllDatabaseUtility::ValidateGameDatabase()
 							for(size_t i = 0; i < len; ++i)
 							{
 								char ch = szTag[i];
-								if(ch != '_' && !((ch >= 'A' && ch <= 'Z') || (ch >= '0' && ch <= '9')))
+								if(ch != '_' && (ch < 'A' || ch > 'Z') && (ch < '0' || ch > '9'))
 								{
 									if(bFirst)
 									{

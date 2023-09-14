@@ -8970,7 +8970,7 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 							break;
 						}
 					}
-					if (bHasBuildingClass == false)
+					if (!bHasBuildingClass)
 					{
 						return false;
 					}
@@ -8986,7 +8986,7 @@ bool CvCity::hasBuildingPrerequisites(BuildingTypes eBuilding) const
 							break;
 						}
 					}
-					if (bHasBuildingClass == false)
+					if (!bHasBuildingClass)
 					{
 						return false;
 					}
@@ -9194,7 +9194,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanTrain", args.get(), bResult))
 		{
 			// Check the result.
-			if (bResult == false)
+			if (!bResult)
 			{
 				return false;
 			}
@@ -9582,7 +9582,7 @@ bool CvCity::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPreE
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanConstruct", args.get(), bResult))
 		{
 			// Check the result.
-			if (bResult == false)
+			if (!bResult)
 			{
 				return false;
 			}
@@ -9623,7 +9623,7 @@ bool CvCity::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisible)
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanCreate", args.get(), bResult))
 		{
 			// Check the result.
-			if (bResult == false)
+			if (!bResult)
 			{
 				return false;
 			}
@@ -9658,7 +9658,7 @@ bool CvCity::canPrepare(SpecialistTypes eSpecialist, bool bContinue) const
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanPrepare", args.get(), bResult))
 		{
 			// Check the result.
-			if (bResult == false)
+			if (!bResult)
 			{
 				return false;
 			}
@@ -9692,7 +9692,7 @@ bool CvCity::canMaintain(ProcessTypes eProcess, bool bContinue) const
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanMaintain", args.get(), bResult))
 		{
 			// Check the result.
-			if (bResult == false)
+			if (!bResult)
 			{
 				return false;
 			}
@@ -10266,10 +10266,7 @@ bool CvCity::IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVis
 	}
 
 	// No OR resource requirements (and passed the AND test above)
-	if (iOrResources == 0)
-		return true;
-
-	return false;
+	return iOrResources == 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -10387,10 +10384,7 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 	}
 
 	// No OR resource requirements (and passed the AND test above)
-	if (iOrResources == 0)
-		return true;
-
-	return false;
+	return iOrResources == 0;
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -10449,10 +10443,7 @@ bool CvCity::IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSi
 	}
 
 	// No OR resource requirements (and passed the AND test above)
-	if (iOrFeatures == 0)
-		return true;
-
-	return false;
+	return iOrFeatures == 0;
 }
 #endif
 //	--------------------------------------------------------------------------------
@@ -11868,7 +11859,7 @@ int CvCity::getProductionNeeded(BuildingTypes eBuilding) const
 				eBuildingEra = GET_PLAYER(getOwner()).GetCurrentEra();
 			}
 
-			if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS && bWonder == false && eBuildingEra != NO_ERA)
+			if (MOD_RESOURCES_PRODUCTION_COST_MODIFIERS && !bWonder && eBuildingEra != NO_ERA)
 			{
 				for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 				{
@@ -12482,7 +12473,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 	else
 	{
 		iCost = pkUnitInfo->GetFaithCost();
-		int iMultiplier;
+		int iMultiplier = 0;
 
 		// Cost goes up in later eras
 		// Only Missionaries and Inquisitors for VP
@@ -12736,7 +12727,7 @@ int CvCity::GetFaithPurchaseCost(BuildingTypes eBuilding)
 	}
 
 	int iCost = pkBuildingInfo->GetFaithCost();
-	int iMultiplier;
+	int iMultiplier = 0;
 
 	// Cost goes up in later eras (CP only)
 	if (!MOD_BALANCE_VP)
@@ -15879,7 +15870,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					if (iNumResourceTotalPlots > 0 && (iChange > 0) && bFirst)
 					{
 						//const ResourceTypes eResourceToPlace = static_cast<ResourceTypes>(iResourceLoop);
-						CvPlot* pLoopPlot;
+						CvPlot* pLoopPlot = NULL;
 						for (int iCityPlotLoop = 0; iCityPlotLoop < GetNumWorkablePlots(); iCityPlotLoop++)
 						{
 							pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
@@ -15891,7 +15882,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (eImprovement != NO_IMPROVEMENT)
 									{
 										CvImprovementEntry* ImprovementEntry = GC.getImprovementInfo(eImprovement);
-										if (ImprovementEntry && ImprovementEntry->IsCreatedByGreatPerson() && ImprovementEntry->IsImprovementResourceMakesValid(eResource) == false)
+										if (ImprovementEntry && ImprovementEntry->IsCreatedByGreatPerson() && !ImprovementEntry->IsImprovementResourceMakesValid(eResource))
 										{
 											continue;
 										}
@@ -29028,7 +29019,7 @@ void CvCity::GetBuyablePlotList(std::vector<int>& aiPlotList, bool bForPurchase,
 						bool bResult = false;
 						if (LuaSupport::CallTestAll(pkScriptSystem, "CityCanAcquirePlot", args.get(), bResult))
 						{
-							if (bResult == false) {
+							if (!bResult) {
 								continue;
 							}
 						}
@@ -33506,7 +33497,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 				}
 			}
 
-			if (bFoundMountain == true)
+			if (bFoundMountain)
 				break;
 		}
 
@@ -33575,14 +33566,7 @@ bool CvCity::isValidBuildingLocation(BuildingTypes eBuilding) const
 #if defined(MOD_BALANCE_CORE)
 	if (pkBuildingInfo->IsAnyBodyOfWater())
 	{
-		if (plot()->isFreshWater() || isCoastal(pkBuildingInfo->GetMinAreaSize()))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return plot()->isFreshWater() || isCoastal(pkBuildingInfo->GetMinAreaSize());
 	}
 #endif
 	return true;

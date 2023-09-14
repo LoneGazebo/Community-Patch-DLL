@@ -1503,10 +1503,7 @@ bool CvMinorCivQuest::IsComplete()
 
 		// Has the City-State's ally changed?
 		PlayerTypes eOriginalAlly = (PlayerTypes)m_iData1;
-		if (pMinor->GetMinorCivAI()->GetAlly() != eOriginalAlly)
-			return true;
-
-		return false;
+		return pMinor->GetMinorCivAI()->GetAlly() != eOriginalAlly;
 	}
 	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
@@ -11040,7 +11037,7 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 	{
 		PlayerTypes eTarget = veValidTargets[iTargetLoop];
 	
-		int iCityLoop;
+		int iCityLoop = 0;
 		for (CvCity* pLoopCity = GET_PLAYER(eTarget).firstCity(&iCityLoop, true); pLoopCity != NULL; pLoopCity = GET_PLAYER(eTarget).nextCity(&iCityLoop, true))
 		{
 			if (!GET_PLAYER(ePlayer).GetEspionage()->CanEverMoveSpyTo(pLoopCity))
@@ -11423,11 +11420,8 @@ bool CvMinorCivAI::IsGoodTimeForNaturalWonderQuest(PlayerTypes ePlayer)
 	if (pPlayer->GetNumNaturalWondersDiscoveredInArea() < iNumNaturalWondersInStartingArea)
 		return false;
 
-	// Check for duplicate quests with this objective
-	if (IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_FIND_NATURAL_WONDER))
-		return false;
-
-	return true;
+  // Check for duplicate quests with this objective
+	return !IsDuplicatePersonalQuest(ePlayer, MINOR_CIV_QUEST_FIND_NATURAL_WONDER);
 }
 
 /// Any distant City States that this City State would want ePlayer to meet?
@@ -12484,12 +12478,7 @@ bool CvMinorCivAI::IsFriendshipAboveAlliesThreshold(PlayerTypes ePlayer, int iFr
 {
 	int iFriendshipThresholdAllies = GetAlliesThreshold(ePlayer);
 
-	if (iFriendship >= iFriendshipThresholdAllies)
-	{
-		return true;
-	}
-
-	return false;
+	return iFriendship >= iFriendshipThresholdAllies;
 }
 
 /// What is the allies threshold?
@@ -12918,10 +12907,7 @@ bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 bool CvMinorCivAI::IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer)
 {
 	// Special trait?
-	if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0);
 }
 
 
@@ -17452,10 +17438,7 @@ bool CvMinorCivAI::IsLackingGiftableTileImprovementAtPlot(PlayerTypes eMajor, in
 	eImprovement = pPlot->getImprovementTypeNeededToImproveResource(eMajor, /*bTestOwner*/ false, true);
 
 	// There must be a valid improvement for the player to build
-	if (eImprovement == NO_IMPROVEMENT)
-		return false;
-
-	return true;
+	return eImprovement != NO_IMPROVEMENT;
 }
 
 // Convenience wrapper function

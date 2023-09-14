@@ -3496,7 +3496,7 @@ void CvUnitCombat::ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID
 			if(MOD_EVENTS_RED_COMBAT_ABORT && LuaSupport::CallTestAll(pkScriptSystem, "MustAbortAttack", args.get(), bResult))
 			{
 				// Check the result.
-				if(bResult == true)
+				if(bResult)
 				{
 					// Abort the attack
 					// to do : this is a hack, fix that in CvTacticalAI.cpp instead.

@@ -1652,7 +1652,7 @@ void CvCityStrategyAI::DoTurn()
 					if(LuaSupport::CallTestAll(pkScriptSystem, "CityStrategyCanActivate", args.get(), bResult))
 					{
 						// Check the result.
-						if(bResult == false)
+						if(!bResult)
 						{
 							bStrategyShouldBeActive = false;
 						}
@@ -2580,12 +2580,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughTileImprovers(AICityStrateg
 	int iNumCities = kPlayer.countCitiesNeedingTerrainImprovements();
 
 	// Average Player wants no more than 1.50 Builders per City [150 Weight is Average; range is 100 to 200]
-	if((iNumBuilders * 100) >= iPerCityThreshold*iNumCities)
-	{
-		return true;
-	}
-
-	return false;
+	return (iNumBuilders * 100) >= iPerCityThreshold*iNumCities;
 }
 
 /// "Need Naval Growth" City Strategy: Looks at the Tiles this City can work, and if there are a lot of Ocean tiles prioritizes NAVAL_GROWTH: should give us a Harbor eventually
@@ -2676,12 +2671,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedNavalTileImprovement(CvCity* 
 	int iNumWaterTileImprovers = GET_PLAYER(pCity->getOwner()).GetNumUnitsWithUnitAI(UNITAI_WORKER_SEA, true);
 
 	// Are there more Water Resources we can build an Improvement on than we have Naval Tile Improvers?
-	if(iNumUnimprovedWaterResources > iNumWaterTileImprovers)
-	{
-		return true;
-	}
-
-	return false;
+	return iNumUnimprovedWaterResources > iNumWaterTileImprovers;
 }
 
 /// "Enough Naval Tile Improvement" City Strategy: If we're not running "Need Naval Tile Improvement" then there's no need to worry about it at all
@@ -2946,45 +2936,25 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_FirstCultureBuilding(CvCity* pCit
 /// "First Culture Building Emergency" City Strategy: construct a building to get some culture going in this city BECAUSE WE ARE RUNNING OUT OF ROOM!!!
 bool CityStrategyAIHelpers::IsTestCityStrategy_FirstCultureBuildingEmergency(CvCity* pCity)
 {
-	if(pCity->getPopulation() >= 5 && pCity->GetJONSCulturePerTurnFromBuildings() <= 0)
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->getPopulation() >= 5 && pCity->GetJONSCulturePerTurnFromBuildings() <= 0;
 }
 
 /// "First Science Building" City Strategy: construct a building to get some science going in this city
 bool CityStrategyAIHelpers::IsTestCityStrategy_FirstScienceBuilding(CvCity* pCity)
 {
-	if(pCity->getPopulation() >= 4 && pCity->GetYieldPerPopTimes100(YIELD_SCIENCE) == 0)
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->getPopulation() >= 4 && pCity->GetYieldPerPopTimes100(YIELD_SCIENCE) == 0;
 }
 
 /// "First Gold Building" City Strategy: construct a building to get some more gold going in this city
 bool CityStrategyAIHelpers::IsTestCityStrategy_FirstGoldBuilding(CvCity* pCity)
 {
-	if(pCity->getPopulation() >= 4 && pCity->getYieldRateModifier(YIELD_GOLD) == 0)
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->getPopulation() >= 4 && pCity->getYieldRateModifier(YIELD_GOLD) == 0;
 }
 
 /// "First Production Building" City Strategy: construct a building to get some more hammers going in this city
 bool CityStrategyAIHelpers::IsTestCityStrategy_FirstProductionBuilding(CvCity* pCity)
 {
-	if(pCity->getPopulation() >= 4 && pCity->GetBaseYieldRateFromBuildings(YIELD_PRODUCTION) == 0 && pCity->getYieldRateModifier(YIELD_PRODUCTION) == 0)
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->getPopulation() >= 4 && pCity->GetBaseYieldRateFromBuildings(YIELD_PRODUCTION) == 0 && pCity->getYieldRateModifier(YIELD_PRODUCTION) == 0;
 }
 
 /// "First Faith Building" City Strategy: construct a building to get some faith going in this city
@@ -3024,46 +2994,26 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_UnderBlockade(CvCity* pCity)
 /// "Is Puppet" City Strategy: build gold buildings and not military training buildings
 bool CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(const CvCity* pCity)
 {
-	if(pCity && pCity->IsPuppet() && !GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing())
-	{
-		return true;
-	}
-
-	return false;
+	return static_cast<bool>(pCity && pCity->IsPuppet() && !GET_PLAYER(pCity->getOwner()).GetPlayerTraits()->IsNoAnnexing());
 }
 
 /// "Medium City" City Strategy: If a City is 5 or above and we are playing at a high difficulty level
 bool CityStrategyAIHelpers::IsTestCityStrategy_MediumCityHighDifficulty(CvCity* pCity)
 {
-	if(pCity->getPopulation() >= 5 && GC.getGame().getHandicapInfo().GetID() > 4)
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->getPopulation() >= 5 && GC.getGame().getHandicapInfo().GetID() > 4;
 }
 
 /// "Original Capital" City Strategy: If a City was the original capital for any team (or is our original capital)
 bool CityStrategyAIHelpers::IsTestCityStrategy_OriginalCapital(CvCity* pCity)
 {
-	if(pCity->IsOriginalCapital())
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->IsOriginalCapital();
 }
 
 
 /// "River City" City Strategy: give a little flavor to this city
 bool CityStrategyAIHelpers::IsTestCityStrategy_RiverCity(CvCity* pCity)
 {
-	if(pCity->plot()->isRiver())
-	{
-		return true;
-	}
-
-	return false;
+	return pCity->plot()->isRiver();
 }
 
 /// "Hill City" City Strategy: give a little flavor to this city
@@ -3209,14 +3159,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_ManyTechsStolen(CvCity* pCity)
 		fRatio = pCityEspionage->m_aiNumTimesCityRobbed[ePlayer] / (float)(iTurnsOfEspionage);
 	}
 
-	if (fRatio > 0.0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return fRatio > 0.0;
 }
 
 bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
@@ -3264,14 +3207,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_KeyScienceCity(CvCity* pCity)
 		float fRatio = iNumBetterScienceCities / (float)iNumOtherCities;
 		float fCutOff = (0.05f * GET_PLAYER(ePlayer).GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
 
-		if (fRatio < fCutOff)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return fRatio < fCutOff;
 	}
 	else
 	{
@@ -3534,27 +3470,13 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NoNeedInternationalTradeRoute (Cv
 bool CityStrategyAIHelpers::IsTestCityStrategy_IsInternationalTradeDestination(CvCity* pCity)
 {
 	int iNumTimesDestination = GC.getGame().GetGameTrade()->GetNumTimesDestinationCity(pCity, true);
-	if (iNumTimesDestination >= 2)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return iNumTimesDestination >= 2;
 }
 
 bool CityStrategyAIHelpers::IsTestCityStrategy_IsInternationalTradeOrigin(CvCity* pCity)
 {
 	int iNumTimesOrigin = GC.getGame().GetGameTrade()->GetNumTimesOriginCity(pCity, true);
-	if (iNumTimesOrigin >= 2)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}	
+	return iNumTimesOrigin >= 2;	
 }
 
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedCultureBuilding(CvCity *pCity)
@@ -3582,12 +3504,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity
 	iTourismValue += pCity->getYieldRate(YIELD_CULTURE, false);
 	iTourismValue += pCity->GetBaseTourism() / 100;
 
-	if (iTourismValue > 10)
-	{
-		return true;
-	}
-
-	return false;
+	return iTourismValue > 10;
 }
 
 bool CityStrategyAIHelpers::IsTestCityStrategy_GoodAirliftCity(CvCity *pCity)
@@ -3716,59 +3633,35 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 //Tests to help AI build buildings it needs.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetBoredom(false) > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetBoredom(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetIlliteracy(false) > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetIlliteracy(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetDistress(false) > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetDistress(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetPoverty(false) > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetPoverty(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromIsolation() > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromIsolation() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromPillagedTiles() > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromPillagedTiles() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromReligiousUnrest() > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromReligiousUnrest() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity)
 {
-	if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromFamine() > 0)
-		return true;
-
-	return false;
+	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromFamine() > 0);
 }
 int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
 	YieldTypes eYield, int& iFlatYield)

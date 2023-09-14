@@ -1426,12 +1426,7 @@ void CvPlayerTechs::SetGSPriorities()
 bool CvPlayerTechs::IsResearch() const
 {
 	// Have we founded a city?
-	if(!m_pPlayer->isFoundedFirstCity())
-	{
-		return false;
-	}
-
-	return true;
+	return m_pPlayer->isFoundedFirstCity();
 }
 
 /// Accessor: Is this tech disabled?
@@ -1479,7 +1474,7 @@ bool CvPlayerTechs::CanEverResearch(TechTypes eTech) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanEverResearch", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -1576,7 +1571,7 @@ bool CvPlayerTechs::CanResearch(TechTypes eTech, bool bTrade) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanResearch", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}

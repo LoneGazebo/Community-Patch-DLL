@@ -12776,7 +12776,7 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "CanRazeOverride", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == true)
+			if(bResult)
 			{
 				return true;
 			}
@@ -12830,7 +12830,7 @@ bool CvPlayer::canRaze(CvCity* pCity, bool bIgnoreCapitals) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "CanRaze", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -14305,7 +14305,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 				if(pBestPlot != NULL)
 				{
 					bool bVis = pBestPlot->isVisibleToWatchingHuman();
-					pNewUnit->setXY(pBestPlot->getX(), pBestPlot->getY(), false, true, true && bVis, true);
+					pNewUnit->setXY(pBestPlot->getX(), pBestPlot->getY(), false, true, bVis, true);
 					pNewUnit->SetPosition(pBestPlot);	// Need this to put the unit in the right spot graphically
 					pNewUnit->finishMoves();
 				}
@@ -15314,7 +15314,7 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanTrain", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -15804,7 +15804,7 @@ bool CvPlayer::canConstruct(BuildingTypes eBuilding, const std::vector<int>& vPr
 		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanConstruct", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -15996,7 +15996,7 @@ bool CvPlayer::canCreate(ProjectTypes eProject, bool bContinue, bool bTestVisibl
 		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanCreate", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -16023,7 +16023,7 @@ bool CvPlayer::canPrepare(SpecialistTypes eSpecialist, bool) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanPrepare", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -16093,7 +16093,7 @@ bool CvPlayer::canMaintain(ProcessTypes eProcess, bool) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "PlayerCanMaintain", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -29740,7 +29740,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			{
 				case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 				{
-					if (pLoopCity->isCapital() == true)
+					if (pLoopCity->isCapital())
 					{
 						iValue += GetPlayerTraits()->GetGreatPersonProgressFromPolicyUnlock(eGreatPerson);
 					}
@@ -31780,7 +31780,7 @@ bool CvPlayer::IsNullifyInfluenceModifier() const
 #if defined(MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 int CvPlayer::GetTradeRouteProductionSiphonPercent(bool bInternationalOnly, CvPlayer* pOtherPlayer) const
 {
-	if (GetPlayerTraits()->IsTradeRouteProductionSiphon() == false || MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON == false)
+	if (!GetPlayerTraits()->IsTradeRouteProductionSiphon() || !MOD_TRAITS_TRADE_ROUTE_PRODUCTION_SIPHON)
 	{
 		return 0;
 	}
@@ -32282,11 +32282,7 @@ void CvPlayer::DoPiety()
 }
 bool CvPlayer::HasStateReligion()
 {
-	if(GetReligions()->GetStateReligion() != NO_RELIGION)
-	{
-		return true;
-	}
-	return false;
+	return GetReligions()->GetStateReligion() != NO_RELIGION;
 }
 bool CvPlayer::HasSecularized() const
 {
@@ -32299,11 +32295,7 @@ void CvPlayer::SetHasSecularized(bool bValue)
 }
 bool CvPlayer::IsPagan()
 {
-	if(GetReligions()->HasCreatedPantheon() && !HasStateReligion() && !HasSecularized())
-	{
-		return true;
-	}
-	return false;
+	return GetReligions()->HasCreatedPantheon() && !HasStateReligion() && !HasSecularized();
 }
 
 void CvPlayer::ChangeSovereignty(int iValue)
@@ -32336,11 +32328,7 @@ int CvPlayer::GetGovernment() const
 }
 bool CvPlayer::HasGovernment()
 {
-	if(GetGovernment() > -1)
-	{
-		return true;
-	}
-	return false;
+	return GetGovernment() > -1;
 }
 
 void CvPlayer::ChangeReformCooldown(int iValue)
@@ -32510,11 +32498,7 @@ int CvPlayer::GetCurrency() const
 }
 bool CvPlayer::HasCurrency()
 {
-	if(GetCurrency() > -1)
-	{
-		return true;
-	}
-	return false;
+	return GetCurrency() > -1;
 }
 
 CvString CvPlayer::GetCurrencyName() const
@@ -32668,12 +32652,7 @@ void CvPlayer::ChangeExtraCultureandScienceTradeRoutes(int iChange)
 //	--------------------------------------------------------------------------------
 bool CvPlayer::CanUpgradeCSVassalTerritory() const
 {
-	if (GetUpgradeCSVassalTerritory() > 0)
-	{
-		return true;
-	}
-
-	return false;
+	return GetUpgradeCSVassalTerritory() > 0;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetUpgradeCSVassalTerritory() const
@@ -32708,12 +32687,7 @@ void CvPlayer::ChangeNoPartisans(int iChange)
 //	--------------------------------------------------------------------------------
 bool CvPlayer::IsNoPartisans() const
 {
-	if (GetNoPartisans() > 0)
-	{
-		return true;
-	}
-
-	return false;
+	return GetNoPartisans() > 0;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetSpawnCooldown() const
@@ -35275,7 +35249,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 {
 	//experiment for debugging. in single player mode create autosaves after the human turn for easier reproduction of observed AI problems
 #if defined(VPDEBUG)
-	if(!GC.getGame().isGameMultiPlayer() && isHuman() && bNewValue==false)
+	if(!GC.getGame().isGameMultiPlayer() && isHuman() && !bNewValue)
 		gDLL->AutoSave(false, true);
 #endif
 
@@ -52514,11 +52488,7 @@ bool CvPlayer::HasSameIdeology(PlayerTypes ePlayer) const
 	CvPlayer &kPlayer = GET_PLAYER(ePlayer);
 	PolicyBranchTypes eMyIdeology = GetPlayerPolicies()->GetLateGamePolicyTree();
 	PolicyBranchTypes eTheirIdeology = kPlayer.GetPlayerPolicies()->GetLateGamePolicyTree();
-	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology)
-	{
-		return true;
-	}
-	return false;
+	return eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology == eTheirIdeology;
 }
 bool CvPlayer::HasProject(ProjectTypes iProjectType) const
 {

@@ -127,7 +127,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 		return 0;
 
 	int iRtnValue = (int)NO_POLICY;
-	int iPolicyLoop;
+	int iPolicyLoop = 0;
 	vector<int> aLevel3Tenets;
 
 	bool bMustChooseTenet = (pPlayer->GetNumFreeTenets() > 0);

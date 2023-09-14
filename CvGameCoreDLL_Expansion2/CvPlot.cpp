@@ -1096,7 +1096,7 @@ bool CvPlot::isCoastalLand(int iMinWaterSize, bool bUseCachedValue, bool bCheckC
 				//If land, must be owned city, fort or citadel
 				else if (pAdjacentPlot->getTeam()==eTeam)
 				{
-					if (!pAdjacentPlot->isCity() && !(pAdjacentPlot->IsImprovementPassable() && !pAdjacentPlot->IsImprovementPillaged()))
+					if (!pAdjacentPlot->isCity() && (!pAdjacentPlot->IsImprovementPassable() || pAdjacentPlot->IsImprovementPillaged()))
 						continue;
 
 					// Must be adjacent to water
@@ -1671,7 +1671,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 							if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{
-								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 							}
 						}
 						else if(fSecondDist - fFirstDist > 0.05)   // we are closer to the first point
@@ -1680,7 +1680,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 							if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{
-								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 							}
 						}
 						else
@@ -1699,7 +1699,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 							}
 							if(iLowestInwardLevel < iThisPlotLevel || ((iCenterLevel >= iLowestInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 							{
-								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+								pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 							}
 						}
 					}
@@ -1709,7 +1709,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
-							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING && !bSecondHalfBlocked)
@@ -1718,7 +1718,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
-							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 						}
 					}
 					else if(iFirstInwardLevel != INVALID_RING)
@@ -1727,7 +1727,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
-							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 						}
 					}
 					else if(iSecondInwardLevel != INVALID_RING)
@@ -1736,7 +1736,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 						scratchpad[ pPlotToCheck->GetPlotIndex() ] = iHighestLevel;
 						if(iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
 						{
-							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+							pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 						}
 					}
 					else // I have no idea how this can happen, but...
@@ -1746,7 +1746,7 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 				}
 				else // this is the center point
 				{
-					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, (bBasedOnUnit && thisRing < 2) ? true : false, pUnit);
+					pPlotToCheck->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), eSeeInvisible, true, bBasedOnUnit && thisRing < 2, pUnit);
 					scratchpad[ pPlotToCheck->GetPlotIndex() ] = 0;
 				}
 			}
@@ -1869,14 +1869,7 @@ bool CvPlot::shouldProcessDisplacementPlot(int dx, int dy, int, DirectionTypes e
 			spread = 90 * (double) M_PI / 180;
 		}
 
-		if((theta >= -spread / 2) && (theta <= spread / 2))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return (theta >= -spread / 2) && (theta <= spread / 2);
 	}
 }
 
@@ -3278,11 +3271,8 @@ bool CvPlot::isRevealedFortification(TeamTypes eTeam) const
 	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
 
-	if ((eFort != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eFort) ||
-		(eCitadel != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eCitadel))
-		return true;
-
-	return false;
+	return (eFort != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eFort) ||
+		(eCitadel != NO_IMPROVEMENT && getRevealedImprovementType(eTeam) == eCitadel);
 }
 
 //	--------------------------------------------------------------------------------
@@ -3855,7 +3845,7 @@ bool CvPlot::IsChokePoint() const
 	else if (iPassableNoDeadEnd==2)
 	{
 		//check they are not adjacent
-		return aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[1]) == false;
+		return !aPassableNeighborsNoDeadEnd[0]->isAdjacent(aPassableNeighborsNoDeadEnd[1]);
 	}
 	else if (iPassableNoDeadEnd==3)
 	{
@@ -5899,12 +5889,7 @@ bool CvPlot::hasCoastAtSECorner() const
 	}
 
 	pAdjacentPlot = plotDirection(getX(), getY(), DIRECTION_SOUTHEAST);
-	if(pAdjacentPlot != NULL && pAdjacentPlot->isWater())
-	{
-		return true;
-	}
-
-	return false;
+	return pAdjacentPlot != NULL && pAdjacentPlot->isWater();
 }
 
 
@@ -6840,17 +6825,10 @@ void CvPlot::setTerrainType(TerrainTypes eNewValue, bool bRecalculate, bool bReb
 
 	if(getTerrainType() != eNewValue)
 	{
-		if((getTerrainType() != NO_TERRAIN) &&
+		bUpdateSight = (getTerrainType() != NO_TERRAIN) &&
 		        (eNewValue != NO_TERRAIN) &&
 		        ((GC.getTerrainInfo(getTerrainType())->getSeeFromLevel() != GC.getTerrainInfo(eNewValue)->getSeeFromLevel()) ||
-		         (GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() != GC.getTerrainInfo(eNewValue)->getSeeThroughLevel())))
-		{
-			bUpdateSight = true;
-		}
-		else
-		{
-			bUpdateSight = false;
-		}
+		         (GC.getTerrainInfo(getTerrainType())->getSeeThroughLevel() != GC.getTerrainInfo(eNewValue)->getSeeThroughLevel()));
 
 		if(bUpdateSight)
 		{
@@ -6911,16 +6889,9 @@ void CvPlot::setFeatureType(FeatureTypes eNewValue)
 
 	if(eOldFeature != eNewValue)
 	{
-		if((eOldFeature == NO_FEATURE) ||
+		bUpdateSight = (eOldFeature == NO_FEATURE) ||
 		        (eNewValue == NO_FEATURE) ||
-		        (GC.getFeatureInfo(eOldFeature)->getSeeThroughChange() != GC.getFeatureInfo(eNewValue)->getSeeThroughChange()))
-		{
-			bUpdateSight = true;
-		}
-		else
-		{
-			bUpdateSight = false;
-		}
+		        (GC.getFeatureInfo(eOldFeature)->getSeeThroughChange() != GC.getFeatureInfo(eNewValue)->getSeeThroughChange());
 
 		if(bUpdateSight)
 		{
@@ -10960,7 +10931,7 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 
 	// We couldn't see the Plot before but we can now
 	// note: the isVisible check works even when MOD_CORE_DELAYED_VISIBILITY is active
-	if (bOldVisibility == false && isVisible(eTeam))
+	if (!bOldVisibility && isVisible(eTeam))
 	{
 		eResult = VISIBILITY_CHANGE_TO_VISIBLE;
 
@@ -12459,11 +12430,7 @@ void CvPlot::ChangeUnitPlotGAExperience(int iExperience)
 }
 bool CvPlot::IsUnitPlotExperience() const
 {
-	if (GetUnitPlotExperience() > 0 || GetUnitPlotGAExperience() > 0)
-	{
-		return true;
-	}
-	return false;
+	return GetUnitPlotExperience() > 0 || GetUnitPlotGAExperience() > 0;
 }
 int CvPlot::GetPlotMovesChange() const
 {
@@ -13014,7 +12981,7 @@ void CvPlot::write(FDataStream& kStream) const
 //	--------------------------------------------------------------------------------
 void CvPlot::setLayoutDirty(bool bDirty)
 {
-	if(bDirty == true)
+	if(bDirty)
 	{
 		GC.GetEngineUserInterface()->setDirty(PlotData_DIRTY_BIT,true);
 	}
@@ -13738,12 +13705,7 @@ int CvPlot::Validate(CvMap& kParentMap)
 /// Some reason we don't need to pay maintenance here?
 bool CvPlot::MustPayMaintenanceHere(PlayerTypes ePlayer) const
 {
-	if(isHills() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoHillsImprovementMaintenance())
-	{
-		return false;
-	}
-
-	return true;
+	return !static_cast<bool>(isHills() && GET_PLAYER(ePlayer).GetPlayerTraits()->IsNoHillsImprovementMaintenance());
 }
 
 //	---------------------------------------------------------------------------

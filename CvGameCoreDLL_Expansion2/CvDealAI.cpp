@@ -3523,7 +3523,7 @@ void CvDealAI::DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 		return;
 	}
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -3602,7 +3602,7 @@ void CvDealAI::DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 		return;
 	}
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -3691,7 +3691,7 @@ void CvDealAI::DoAddThirdPartyWarToThem(CvDeal* pDeal, PlayerTypes eThem, int& i
 	CvWeightedVector<int> viTradeValues;
 
 	
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 		PlayerTypes eLoopPlayer;
@@ -3763,7 +3763,7 @@ void CvDealAI::DoAddThirdPartyWarToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTo
 	CvAssert(eThem < MAX_MAJOR_CIVS)
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Us, but them is us. Please send Anton your save file and version.");
 	
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 		PlayerTypes eLoopPlayer;
@@ -3813,7 +3813,7 @@ void CvDealAI::DoAddThirdPartyPeaceToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 	CvWeightedVector<int> viTradeValues;
 
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 		PlayerTypes eLoopPlayer;
@@ -3880,7 +3880,7 @@ void CvDealAI::DoAddThirdPartyPeaceToUs(CvDeal* pDeal, PlayerTypes eThem, int& i
 	CvAssert(eThem < MAX_MAJOR_CIVS)
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vote Commitment to Us, but them is us. Please send Anton your save file and version.");
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 		PlayerTypes eLoopPlayer;
@@ -3926,7 +3926,7 @@ void CvDealAI::DoAddLuxuryResourceToThem(CvDeal* pDeal, PlayerTypes eThem, int& 
 	CvWeightedVector<int> viTradeValues;
 
 	int iDealDuration = pDeal->GetDuration();
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -4054,7 +4054,7 @@ void CvDealAI::DoAddLuxuryResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int& iT
 
 
 	int iDealDuration = pDeal->GetDuration();
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -4150,7 +4150,7 @@ void CvDealAI::DoAddStrategicResourceToThem(CvDeal* pDeal, PlayerTypes eThem, in
 	typedef pair<ResourceTypes, int> TradeItem;
 	vector<OptionWithScore<TradeItem>> vOptions;
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 		// Now look at Strategic Resources
@@ -4249,7 +4249,7 @@ void CvDealAI::DoAddStrategicResourceToUs(CvDeal* pDeal, PlayerTypes eThem, int&
 	typedef pair<ResourceTypes, int> TradeItem;
 	vector<OptionWithScore<TradeItem>> vOptions;
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
@@ -4342,7 +4342,7 @@ void CvDealAI::DoAddEmbassyToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 		return;
 
-	if(!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		if(!pDeal->IsAllowEmbassyTrade(eThem))
 		{
@@ -4375,7 +4375,7 @@ void CvDealAI::DoAddEmbassyToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVal
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Embassy to Us, but them is us.  Please show Jon");
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -4410,7 +4410,7 @@ void CvDealAI::DoAddOpenBordersToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTo
 
 	int iDealDuration = pDeal->GetDuration();
 	
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		if(!pDeal->IsOpenBordersTrade(eThem))
 		{
@@ -4447,7 +4447,7 @@ void CvDealAI::DoAddOpenBordersToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 
 	int iDealDuration = pDeal->GetDuration();
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		if (!pDeal->IsOpenBordersTrade(eMyPlayer))
 		{
@@ -4490,7 +4490,7 @@ void CvDealAI::DoAddCitiesToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 		return;
 
 	// We don't owe them anything
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		// Create vector of the losing players' Cities so we can see which are the closest to the winner
 		CvWeightedVector<int> viCityPriceRatio;
@@ -4575,7 +4575,7 @@ void CvDealAI::DoAddCitiesToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalVa
 	if (!pDeal->ContainsItemType(TRADE_ITEM_CITIES, GetPlayer()->GetID()))
 		return;
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		// Create vector of the losing players' Cities so we can see which are the closest to the winner
 		CvWeightedVector<int> viCityPriceRatio;
@@ -8054,7 +8054,7 @@ void CvDealAI::DoAddMapsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 
 //	if(!bDontChangeTheirExistingItems)
 	{
-		if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+		if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -8087,7 +8087,7 @@ void CvDealAI::DoAddMapsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 
 	//if(!bDontChangeMyExistingItems)
 	{
-		if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+		if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -8126,7 +8126,7 @@ void CvDealAI::DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 	CvWeightedVector<int> viTradeValues;
 	//if(!bDontChangeTheirExistingItems)
 	{
-		if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+		if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -8191,7 +8191,7 @@ void CvDealAI::DoAddTechToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue,
 
 	//if(!bDontChangeMyExistingItems)
 	{
-		if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+		if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 		{
 			PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -8232,7 +8232,7 @@ void CvDealAI::DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.  Please show Jon");
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
 
@@ -8273,7 +8273,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 			return;
 	}
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue > iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue <= iThresholdValue))
 	{
 		int iItemValue = 0;
 
@@ -8304,7 +8304,7 @@ void CvDealAI::DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int&
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 		return;
 
-	if (!(iThresholdValue == 0 && WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && !(iThresholdValue != 0 && iTotalValue < iThresholdValue))
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		int iItemValue = 0;
 

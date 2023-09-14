@@ -6999,10 +6999,7 @@ bool isSupportUnit(eUnitMovementStrategy eMoveType) { return eMoveType == MS_SUP
 //Unbelievable bad logic but taken like this from CvUnitCombat
 bool AttackEndsTurn(const CvUnit* pUnit, int iNumAttacksLeft)
 {
-	if(!pUnit->canMoveAfterAttacking() && !pUnit->isRangedSupportFire() && iNumAttacksLeft<2)
-		return true;
-
-	return false;
+	return !pUnit->canMoveAfterAttacking() && !pUnit->isRangedSupportFire() && iNumAttacksLeft<2;
 }
 
 int NumAttacksForUnit(int iMovesLeft, int iMaxAttacks)
@@ -7477,14 +7474,9 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 
 bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 {
-	if (eAssignmentType == A_MELEEKILL ||
+	return eAssignmentType == A_MELEEKILL ||
 		eAssignmentType == A_MELEEKILL_NO_ADVANCE ||
-		eAssignmentType == A_RANGEKILL )
-	{
-		return true;
-	}
-
-	return false;
+		eAssignmentType == A_RANGEKILL;
 }
 
 int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
@@ -10356,7 +10348,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	static vector<CvTacticalPosition*> completedPositions;
 
 #if defined(MOD_CORE_DEBUGGING)
-	if (0)
+	if (false)
 	{
 		CvString strMsg = CvString::format("simulating assignments around %d:%d with %d units", pTarget->getX(), pTarget->getY(), vUnits.size());
 		for (size_t i = 0; i < vUnits.size(); i++)
@@ -10476,7 +10468,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			break;
 
 		//switch our strategy?
-		if (heapSort.bDepthFirst == false && current->getGeneration() > TACTSIM_BREADTH_FIRST_GENERATIONS)
+		if (!heapSort.bDepthFirst && current->getGeneration() > TACTSIM_BREADTH_FIRST_GENERATIONS)
 		{
 			heapSort.bDepthFirst = true;
 			make_heap(openPositionsHeap.begin(), openPositionsHeap.end(), heapSort);
@@ -10579,7 +10571,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 			out.close();
 		}
 
-		if (0)
+		if (false)
 		{
 			for (size_t j = 0; j < min(13u, completedPositions.size()); j++)
 			{

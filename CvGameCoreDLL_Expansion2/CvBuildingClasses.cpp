@@ -781,7 +781,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bArtInfoRandomVariation = kResults.GetBool("ArtInfoRandomVariation");
 
 	//References
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("BuildingClass");
 	m_iBuildingClassType = GC.getInfoTypeForString(szTextVal, true);
 
@@ -4527,7 +4527,7 @@ void CvCityBuildings::Uninit()
 /// Reset status arrays to all false
 void CvCityBuildings::Reset()
 {
-	int iI;
+	int iI = 0;
 
 	// Initialize non-arrays
 	m_iNumBuildings = 0;
@@ -4829,7 +4829,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "CityBuildingsIsBuildingSellable", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -6375,10 +6375,10 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 
 bool CvCityBuildings::CheckForAllWondersBuilt()
 {
-	int iI;
+	int iI = 0;
 	int iStartStatWonder = ESTEAMSTAT_ANGKORWAT;
 	int iEndStatWonder = ESTEAMSTAT_PYRAMIDS;		//Don't include the united nations because it was removed in BNW.
-	int32 nStat;
+	int32 nStat = 0;
 
 	for(iI = iStartStatWonder; iI < iEndStatWonder; iI++)
 	{
@@ -6410,7 +6410,7 @@ bool CvCityBuildings::CheckForSevenAncientWondersBuilt()
 			ESTEAMSTAT_TEMPLEOFARTEMIS,
 			ESTEAMSTAT_MAUSOLEUMOFHALICARNASSUS
 		};
-		int32 nStat;
+		int32 nStat = 0;
 		for(int iI = 0; iI < 7; iI++)
 		{
 			if(gDLL->GetSteamStat(arrWonderStats[iI], &nStat))
@@ -6494,8 +6494,8 @@ void CvCityBuildings::NotifyNewBuildingStarted(BuildingTypes /*eIndex*/)
 /// Helper function to read in an integer array of data sized according to number of building types
 void BuildingArrayHelpers::Read(FDataStream& kStream, int* paiBuildingArray)
 {
-	int iNumEntries;
-	int iType;
+	int iNumEntries = 0;
+	int iType = 0;
 
 	kStream >> iNumEntries;
 
@@ -6515,7 +6515,7 @@ void BuildingArrayHelpers::Read(FDataStream& kStream, int* paiBuildingArray)
 				szError.Format("LOAD ERROR: Building Type not found");
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy; // Skip it.
 			}
 		}

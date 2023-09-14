@@ -2139,12 +2139,7 @@ bool CvTraitEntry::IsNoBuild(BuildTypes eBuild) const
 {
 	std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), (int)eBuild);
 
-	if (it != m_aiNoBuilds.end())
-	{
-		return true;
-	}
-
-	return false;
+	return it != m_aiNoBuilds.end();
 }
 
 /// Accessor:: Does the civ have a production modifier for domain type per worked specialist?
@@ -2214,14 +2209,7 @@ bool CvTraitEntry::IsEnabledByTech(TeamTypes eTeam)
 {
 	if(m_iPrereqTech != NO_TECH)
 	{
-		if(GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)m_iPrereqTech))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return GET_TEAM(eTeam).GetTeamTechs()->HasTech((TechTypes)m_iPrereqTech);
 	}
 	return true;
 }
@@ -6309,12 +6297,7 @@ bool CvPlayerTraits::IsNoBuild(BuildTypes eBuild) const
 
 	std::vector<int>::const_iterator it = find(m_aiNoBuilds.begin(), m_aiNoBuilds.end(), (int)eBuild);
 
-	if (it != m_aiNoBuilds.end())
-	{
-		return true;
-	}
-
-	return false;
+	return it != m_aiNoBuilds.end();
 }
 /// What is the production modifier for the domain type for each worked specialist?
 int CvPlayerTraits::GetDomainProductionModifiersPerSpecialist(DomainTypes eDomain) const
@@ -7306,12 +7289,7 @@ bool CvPlayerTraits::IsProphetValid() const
 	}
 	// Post-medieval? True.
 	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
-	if (m_pPlayer->GetCurrentEra() > eMedieval)
-	{
-		return true;
-	}
-
-	return false;
+	return m_pPlayer->GetCurrentEra() > eMedieval;
 }
 
 /// Have Maya unlocked free choice of Great People?

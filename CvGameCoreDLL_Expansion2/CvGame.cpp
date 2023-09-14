@@ -3232,7 +3232,7 @@ void CvGame::handleAction(int iAction)
 								CvPlot* pPlot = pkHeadSelectedUnit->plot();
 								if(pPlot != NULL)
 								{
-									if(pPlot->getImprovementType() != NO_IMPROVEMENT && !(pPlot->getFeatureType() == FEATURE_FALLOUT && pBuildInfo->isFeatureRemove(FEATURE_FALLOUT)))
+									if(pPlot->getImprovementType() != NO_IMPROVEMENT && (pPlot->getFeatureType() != FEATURE_FALLOUT || !pBuildInfo->isFeatureRemove(FEATURE_FALLOUT)))
 									{
 										bShowConfirmPopup = true;
 									}
@@ -5914,7 +5914,7 @@ void CvGame::setDebugMode(bool bDebugMode)
 //	--------------------------------------------------------------------------------
 void CvGame::toggleDebugMode()
 {
-	m_bDebugMode = ((m_bDebugMode) ? false : true);
+	m_bDebugMode = (!(m_bDebugMode));
 	updateDebugModeCache();
 
 	GC.getMap().updateVisibility();
