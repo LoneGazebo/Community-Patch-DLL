@@ -1947,7 +1947,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 {
 	// If they can't attempt Domination Victory because of game options, then don't bother with any of this.
 	if (!GC.getGame().CanPlayerAttemptDominationVictory(ePlayer, NO_PLAYER, GC.getGame().areNoVictoriesValid()))
-		return -100;
+		return 0;
 
 	int iConquestPriority = 0;
 
@@ -1987,7 +1987,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerConquestPriority(PlayerTypes ePlayer, 
 		iConquestPriority /= 2;
 	}
 
-	return iConquestPriority;
+	return max(iConquestPriority, 0);
 }
 
 /// Guess as to how much another Player is prioritizing Culture as his means of winning the game
@@ -1996,10 +1996,8 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_CULTURAL", true);
 
 	// If Culture Victory isn't even available then don't bother with anything
-	if(eVictory == NO_VICTORY)
-	{
-		return -100;
-	}
+	if (eVictory == NO_VICTORY)
+		return 0;
 
 	int iCulturePriority = 0;
 	int iRatio = 0;
@@ -2049,7 +2047,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerCulturePriority(PlayerTypes ePlayer, i
 		iCulturePriority /= 2;
 	}
 
-	return iCulturePriority;
+	return max(iCulturePriority, 0);
 }
 
 /// Guess as to how much another Player is prioritizing the UN as his means of winning the game
@@ -2058,10 +2056,8 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_DIPLOMATIC", true);
 
 	// If UN Victory isn't even available then don't bother with anything
-	if(eVictory == NO_VICTORY)
-	{
-		return -100;
-	}
+	if (eVictory == NO_VICTORY)
+		return 0;
 
 	int iTheirCityStateAllies = 0;
 	int iTheirCityStateFriends = 0;
@@ -2105,7 +2101,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerUnitedNationsPriority(PlayerTypes ePla
 		}
 	}
 
-	return iPriority;
+	return max(iPriority, 0);
 }
 
 /// Guess as to how much another Player is prioritizing the SS as his means of winning the game
@@ -2114,10 +2110,8 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 	VictoryTypes eVictory = (VictoryTypes) GC.getInfoTypeForString("VICTORY_SPACE_RACE", true);
 
 	// If SS Victory isn't even available then don't bother with anything
-	if(eVictory == NO_VICTORY)
-	{
-		return -100;
-	}
+	if (eVictory == NO_VICTORY)
+		return 0;
 
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
@@ -2141,7 +2135,7 @@ int CvGrandStrategyAI::GetGuessOtherPlayerSpaceshipPriority(PlayerTypes ePlayer,
 		iSSPriority /= 2;
 	}
 
-	return iSSPriority;
+	return max(iSSPriority, 0);
 }
 
 

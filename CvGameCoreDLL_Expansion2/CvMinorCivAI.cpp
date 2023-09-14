@@ -6026,6 +6026,7 @@ void CvMinorCivAI::DoTestStartGlobalQuest()
 		return;
 
 	// There are valid quests, so pick one at random
+	veValidQuests.StableSortItems();
 	MinorCivQuestTypes eQuest = veValidQuests.ChooseByWeight(CvSeeder::fromRaw(0x79873673).mix(m_pPlayer->GetID()));
 
 	// Give out the quest
@@ -6073,6 +6074,8 @@ void CvMinorCivAI::DoTestStartPersonalQuest(PlayerTypes ePlayer)
 	if (veValidQuests.empty())
 		return;
 
+	// There are valid quests, so pick one at random
+	veValidQuests.StableSortItems();
 	MinorCivQuestTypes eQuest = veValidQuests.ChooseByWeight(CvSeeder::fromRaw(0x09dfd5b0).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	AddQuestForPlayer(ePlayer, eQuest, GC.getGame().getGameTurn());
 
@@ -9130,7 +9133,7 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 	// Quests are now available for the first time?
 	if (GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForGlobalQuests())
 	{
-		iNumTurns += GC.getGame().randRangeInclusive(0, /*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed());
+		iNumTurns += GC.getGame().randRangeInclusive(0, /*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_FIRST_POSSIBLE_TURN_RAND), CvSeeder::fromRaw(0xa77fea84).mix(m_pPlayer->GetID()));
 	}
 	else
 	{
@@ -9142,7 +9145,7 @@ void CvMinorCivAI::DoTestSeedGlobalQuestCountdown(bool bForceSeed)
 			iRand *= /*200*/ GD_INT_GET(MINOR_CIV_GLOBAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER);
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().randRangeExclusive(0, iRand, m_pPlayer->GetPseudoRandomSeed());
+		iNumTurns += GC.getGame().randRangeExclusive(0, iRand, CvSeeder::fromRaw(0xa5302d02).mix(m_pPlayer->GetID()));
 	}
 
 	// Modify for Game Speed
@@ -9190,7 +9193,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 	// Quests are now available for the first time?
 	if (GC.getGame().getElapsedGameTurns() == GetFirstPossibleTurnForPersonalQuests())
 	{
-		iNumTurns += GC.getGame().randRangeInclusive(0, /*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND), m_pPlayer->GetPseudoRandomSeed());
+		iNumTurns += GC.getGame().randRangeInclusive(0, /*20 in CP, 0 in VP*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_FIRST_POSSIBLE_TURN_RAND), CvSeeder::fromRaw(0xf7ae2c64).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	}
 	else
 	{
@@ -9202,7 +9205,7 @@ void CvMinorCivAI::DoTestSeedQuestCountdownForPlayer(PlayerTypes ePlayer, bool b
 			iRand *= /*200*/ GD_INT_GET(MINOR_CIV_PERSONAL_QUEST_RAND_TURNS_BETWEEN_HOSTILE_MULTIPLIER);
 			iRand /= 100;
 		}
-		iNumTurns += GC.getGame().randRangeExclusive(0, iRand, m_pPlayer->GetPseudoRandomSeed());
+		iNumTurns += GC.getGame().randRangeExclusive(0, iRand, CvSeeder::fromRaw(0x53127060).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 	}
 
 	// Modify for Game Speed
@@ -10621,6 +10624,7 @@ PlayerTypes CvMinorCivAI::GetBestCityStateTarget(PlayerTypes ePlayer, bool bKill
 	if (veValidTargets.empty())
 		return NO_PLAYER;
 
+	veValidTargets.StableSortItems();
 	if (bKillQuest)
 		return veValidTargets.ChooseByWeight(CvSeeder::fromRaw(0x2a03d8cf).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 
@@ -10957,6 +10961,7 @@ UnitTypes CvMinorCivAI::GetBestUnitGiftFromPlayer(PlayerTypes ePlayer)
 	if (veValidUnits.size() == 0)
 		return NO_UNIT;
 
+	veValidUnits.StableSortItems();
 	return veValidUnits.ChooseByWeight(CvSeeder::fromRaw(0xa1eb85bf).mix(m_pPlayer->GetID()).mix(GET_PLAYER(ePlayer).GetID()));
 }
 
