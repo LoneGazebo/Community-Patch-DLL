@@ -204,7 +204,10 @@
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
 
-		<!-- No Peace With City-State -->
+		<!-- City-State UI -->
+		<Row Tag="TXT_KEY_NEUTRAL_CSTATE">
+			<Text>Neutral</Text>
+		</Row>
 		<Row Tag="TXT_KEY_PEACE_BLOCKED_TURNS">
 			<Text>Peace Blocked for {1_Num} turn(s)</Text>
 		</Row>

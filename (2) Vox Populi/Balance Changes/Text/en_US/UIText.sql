@@ -963,19 +963,35 @@ WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_TRADE_ROUTE';
 
 -- City-State
 UPDATE Language_en_US
-SET Text = Text 
+SET Text = 'Affable'
+WHERE Tag = 'TXT_KEY_CITY_STATE_PERSONALITY_FRIENDLY';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Affable[ENDCOLOR] City-States are more likely to request that you create a Road to them, start a Trade Route with them, and obtain Resources. They are also more likely to host diplomatic forums.' 
 	|| '[NEWLINE][NEWLINE]Quest Rewards Modifiers:'
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]+' || (SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_FRIENDLY') || '%[ENDCOLOR] rewards from all [ICON_CITY_STATE] City-State Quests.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_PERSONALITY_FRIENDLY_TT';
 
 UPDATE Language_en_US
-SET Text = Text 
+SET Text = 'Recluse'
+WHERE Tag = 'TXT_KEY_CITY_STATE_PERSONALITY_HOSTILE';
+
+UPDATE Language_en_US
+SET Text = 'Recluse Personality'
+WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_HOSTILE';
+
+UPDATE Language_en_US
+SET Text = '[ICON_INFLUENCE] Influence with [COLOR_NEGATIVE_TEXT]Recluse[ENDCOLOR] City-States drops more quickly, and they are more resilient to tribute demands. They are more likely to request that you conquer Cities, clear Encampments, and send them Units. They are also more likely to wage war against neighboring City-States.' 
 	|| '[NEWLINE][NEWLINE]Quest Rewards Modifiers:'
 	|| '[NEWLINE][ICON_BULLET][COLOR_NEGATIVE_TEXT]' || (SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_HOSTILE') || '%[ENDCOLOR] rewards from all [ICON_CITY_STATE] City-State Quests.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_PERSONALITY_HOSTILE_TT';
 
 UPDATE Language_en_US
-SET Text = Text 
+SET Text = 'Enigmatic'
+WHERE Tag = 'TXT_KEY_CITY_STATE_PERSONALITY_IRRATIONAL';
+
+UPDATE Language_en_US
+SET Text = 'Compared with other City-States, an [COLOR_POSITIVE_TEXT]Enigmatic[ENDCOLOR] City-State is more random with the requests it makes.' 
 	|| '[NEWLINE][NEWLINE]Quest Rewards Modifiers:'
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_CULTURE_IRRATIONAL')/100.0 AS NUMERIC) || 'x[ENDCOLOR] [ICON_CULTURE] Culture.'
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_TOURISM_IRRATIONAL')/100.0 AS NUMERIC) || 'x[ENDCOLOR] [ICON_TOURISM] Tourism.'
@@ -984,7 +1000,11 @@ SET Text = Text
 WHERE Tag = 'TXT_KEY_CITY_STATE_PERSONALITY_IRRATIONAL_TT';
 
 UPDATE Language_en_US
-SET Text = Text 
+SET Text = 'Pragmatic'
+WHERE Tag = 'TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Pragmatic[ENDCOLOR] City-States are more likely to request that you Pledge to Protect them, bully other nearby City-States, and conduct espionage.' 
 	|| '[NEWLINE][NEWLINE]Quest Rewards Modifiers:'
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_FOOD_NEUTRAL')/100.0 AS NUMERIC) || 'x[ENDCOLOR] [ICON_FOOD] Food.'
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_CULTURE_NEUTRAL')/100.0 AS NUMERIC) || 'x[ENDCOLOR] [ICON_CULTURE] Culture.'

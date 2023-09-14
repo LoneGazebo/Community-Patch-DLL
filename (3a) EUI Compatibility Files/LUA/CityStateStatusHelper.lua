@@ -317,7 +317,7 @@ function GetCityStateStatusText( majorPlayerID, minorPlayerID )
 			end
 
 		else		-- Neutral
-			strStatusText = "[COLOR_WHITE]" .. L("TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL")
+			strStatusText = "[COLOR_WHITE]" .. L("TXT_KEY_NEUTRAL_CSTATE")
 		end
 		strStatusText = strStatusText .. "[ENDCOLOR]"
 		if not isAtWar then
