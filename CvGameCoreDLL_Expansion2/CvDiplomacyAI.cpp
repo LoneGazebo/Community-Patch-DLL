@@ -54925,8 +54925,11 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 
 	if (!bHisGainIsOurOwn)
 	{
+		// Need to check if the opponent is alive, calling this for an unmet player can crash the game
+		StrengthTypes eOpponentStrength = GET_PLAYER(eNewOwner).isAlive() ? pDiplo->GetMilitaryStrengthComparedToUs(eNewOwner) : STRENGTH_PATHETIC;
+
 		// DECREASE if opponent is big and nasty.
-		switch (pDiplo->GetMilitaryStrengthComparedToUs(eNewOwner))
+		switch (eOpponentStrength)
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
