@@ -1892,10 +1892,7 @@ int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, CvSeeder seed)
 		return range(iOriginalValue, 1, 10);
 
 	// Randomize!
-	int iAdjust = GC.getGame().randRangeExclusive(0, (iPlusMinus * 2 + 1), seed);
-	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
-
-	return range(iRtnValue, 1, 10);
+	return range(GC.getGame().randRangeInclusive(iOriginalValue - iPlusMinus, iOriginalValue + iPlusMinus, seed), 1, 10);
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -8724,7 +8721,7 @@ void CvDiplomacyAI::SetUpdatedWarProgressThisTurn(bool bValue)
 	m_bUpdatedWarProgressThisTurn = bValue;
 }
 
-/// How many times have we reevaluated our approach towards any player since the last game turn? Only used for RNG.
+/// How many times have we reevaluated our approach towards any player? Only used for RNG.
 int CvDiplomacyAI::GetNumReevaluations() const
 {
 	return m_iNumReevaluations;
@@ -21218,70 +21215,54 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 			if (GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES))
 				iRandomFactor = min(iRandomFactor*2, 100);
 
-			uint LBound = static_cast<uint>(iRandomFactor);
-			uint UBound = (LBound * 2) + 1;
-			uint MyID = static_cast<uint>(eMyPlayer);
-			uint TheirID = static_cast<uint>(ePlayer);
+			int MyID = (int)eMyPlayer;
+			int TheirID = (int)ePlayer;
 
 			if (bReevaluation)
 			{
-				uint NumReevaluations = static_cast<uint>(GetNumReevaluations());
-				uint random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xb09432c8).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
-				vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + static_cast<int>(random);
+				int NumReevaluations = GetNumReevaluations();
+				vApproachScores[CIV_APPROACH_FRIENDLY] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xb09432c8).mix(MyID).mix(TheirID).mix(NumReevaluations));
 				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x576eeb77).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
-				vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_NEUTRAL] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x576eeb77).mix(MyID).mix(TheirID).mix(NumReevaluations));
 				vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x7a7a0b0a).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
-				vApproachScores[CIV_APPROACH_AFRAID] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_AFRAID] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x7a7a0b0a).mix(MyID).mix(TheirID).mix(NumReevaluations));
 				vApproachScores[CIV_APPROACH_AFRAID] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xbe08eb5a).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
-				vApproachScores[CIV_APPROACH_GUARDED] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_GUARDED] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xbe08eb5a).mix(MyID).mix(TheirID).mix(NumReevaluations));
 				vApproachScores[CIV_APPROACH_GUARDED] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x0b148c8b).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
-				vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_DECEPTIVE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x0b148c8b).mix(MyID).mix(TheirID).mix(NumReevaluations));
 				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xa6c53d5a).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
-				vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_HOSTILE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xa6c53d5a).mix(MyID).mix(TheirID).mix(NumReevaluations));
 				vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x3dceb668).mix(MyID).mix(TheirID).mix(NumReevaluations)) - LBound;
-				vApproachScores[CIV_APPROACH_WAR] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_WAR] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x3dceb668).mix(MyID).mix(TheirID).mix(NumReevaluations));
 				vApproachScores[CIV_APPROACH_WAR] /= 100;
 			}
 			else
 			{
-				uint random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xdaeb36d6).mix(MyID).mix(TheirID)) - LBound;
-				vApproachScores[CIV_APPROACH_FRIENDLY] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_FRIENDLY] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xdaeb36d6).mix(MyID).mix(TheirID));
 				vApproachScores[CIV_APPROACH_FRIENDLY] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x30271783).mix(MyID).mix(TheirID)) - LBound;
-				vApproachScores[CIV_APPROACH_NEUTRAL] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_NEUTRAL] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x30271783).mix(MyID).mix(TheirID));
 				vApproachScores[CIV_APPROACH_NEUTRAL] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x01aace4a).mix(MyID).mix(TheirID)) - LBound;
-				vApproachScores[CIV_APPROACH_AFRAID] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_AFRAID] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x01aace4a).mix(MyID).mix(TheirID));
 				vApproachScores[CIV_APPROACH_AFRAID] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0xbee17684).mix(MyID).mix(TheirID)) - LBound;
-				vApproachScores[CIV_APPROACH_GUARDED] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_GUARDED] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0xbee17684).mix(MyID).mix(TheirID));
 				vApproachScores[CIV_APPROACH_GUARDED] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x13c7e7c3).mix(MyID).mix(TheirID)) - LBound;
-				vApproachScores[CIV_APPROACH_DECEPTIVE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_DECEPTIVE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x13c7e7c3).mix(MyID).mix(TheirID));
 				vApproachScores[CIV_APPROACH_DECEPTIVE] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x8f2681a5).mix(MyID).mix(TheirID)) - LBound;
-				vApproachScores[CIV_APPROACH_HOSTILE] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_HOSTILE] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x8f2681a5).mix(MyID).mix(TheirID));
 				vApproachScores[CIV_APPROACH_HOSTILE] /= 100;
 
-				random = GC.getGame().urandLimitExclusive(UBound, CvSeeder::fromRaw(0x320744a1).mix(MyID).mix(TheirID)) - LBound;
-				vApproachScores[CIV_APPROACH_WAR] *= 100 + static_cast<int>(random);
+				vApproachScores[CIV_APPROACH_WAR] *= GC.getGame().randRangeInclusive(100 - iRandomFactor, 100 + iRandomFactor, CvSeeder::fromRaw(0x320744a1).mix(MyID).mix(TheirID));
 				vApproachScores[CIV_APPROACH_WAR] /= 100;
 			}
 		}

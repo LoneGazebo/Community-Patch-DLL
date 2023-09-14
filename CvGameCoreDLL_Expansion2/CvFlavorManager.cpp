@@ -472,10 +472,7 @@ void CvFlavorManager::RandomizeWeights()
 int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, CvSeeder seed)
 {
 	// Randomize!
-	int iAdjust = GC.getGame().randRangeExclusive(0, (iPlusMinus * 2 + 1), seed);
-	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
-
-	return range(iRtnValue, iMin, iMax);
+	return range(GC.getGame().randRangeInclusive(iOriginalValue - iPlusMinus, iOriginalValue + iPlusMinus, seed), iMin, iMax);
 }
 
 /// Sends current flavor settings to all recipients

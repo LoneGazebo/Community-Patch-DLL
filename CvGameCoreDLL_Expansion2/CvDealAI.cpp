@@ -521,8 +521,8 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	// They are very far away and have no units near us (from what we can tell)? Never give in.
 	else if (eProximity <= PLAYER_PROXIMITY_FAR && eMilitaryPosture == AGGRESSIVE_POSTURE_NONE)
 		return DEMAND_RESPONSE_REFUSE_WEAK;
-	// Are we planning to war this guy ourselves? Never give in...but whether we give the weak or hostile response depends on their strength.
-	else if (eApproach == CIV_APPROACH_WAR)
+	// Are we planning to war / demand from this guy ourselves? Never give in...but whether we give the weak or hostile response depends on their strength.
+	else if (eApproach == CIV_APPROACH_WAR || pDiploAI->GetDemandTargetPlayer() == eFromPlayer)
 	{
 		if (eMilitaryStrength <= STRENGTH_AVERAGE)
 			return DEMAND_RESPONSE_REFUSE_WEAK;

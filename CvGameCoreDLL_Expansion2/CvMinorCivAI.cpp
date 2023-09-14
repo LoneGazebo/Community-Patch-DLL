@@ -6462,10 +6462,6 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 
 bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTypes eQuest, int iData1, int iData2)
 {
-	// Duplicates are allowed in Community Patch Only.
-	if (!MOD_BALANCE_VP)
-		return false;
-
 	bool bCompareData1 = false;
 	bool bCompareData2 = false;
 
