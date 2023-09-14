@@ -2251,7 +2251,7 @@ Localization::String CvLeague::GetName()
 
 				sName = Localization::Lookup(pInfo->GetNameKey());
 				//antonjs: temp: Did our lookup return the same thing (ie. we don't have that text key)?
-				if (sOrdinalKey.compare(sOrdinal.toUTF8()) == 0)
+				if (sOrdinalKey == sOrdinal.toUTF8())
 				{
 					sName << "" << pCapital->getNameKey();
 				}
