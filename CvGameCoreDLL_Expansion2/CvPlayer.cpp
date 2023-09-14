@@ -46366,7 +46366,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									if (pLoopCity->GetCityBuildings()->GetNumFreeBuilding(eBuilding) > 0)
 									{
 										CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-										if (pkBuilding && pkBuilding->IsCapitalOnly())
+										if (pkBuilding && !pkBuilding->IsCapitalOnly())
 											ChangeNumCitiesFreeChosenBuilding(eBuildingClass, -1);
 									}
 									if (pLoopCity->getFirstBuildingOrder(eBuilding) == 0)
