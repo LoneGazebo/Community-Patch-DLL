@@ -710,5 +710,20 @@
 			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
 			<IconMapping>28</IconMapping>
 		</Row>
+		<Row>
+			<IconName>ICON_VP_MONOPOLY</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>29</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_VP_OFFICE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>30</IconMapping>
+		</Row>
+		<Row>
+			<IconName>ICON_VP_FRANCHISE</IconName>
+			<IconFontTexture>ICON_FONT_TEXTURE_VP</IconFontTexture>
+			<IconMapping>31</IconMapping>
+		</Row>
 	</IconFontMapping>
 </GameData>

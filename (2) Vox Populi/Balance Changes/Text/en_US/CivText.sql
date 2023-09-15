@@ -651,8 +651,9 @@ SET Text = 'In addition to the regular abilities of the Garden, the Candi provid
 WHERE Tag = 'TXT_KEY_BUILDING_CANDI_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'When you gain a City, one of 3 unique Luxuries will appear nearby. +5% to Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from Global Monopolies; +2 to Yields and [ICON_HAPPINESS_1] Happiness from Global Monopolies.'
+SET Text = 'When you gain a City, one of 3 unique Luxuries will appear nearby. +5% to Yield and [ICON_GOLDEN_AGE] Golden Age duration modifiers from [ICON_VP_MONOPOLY] Global Monopolies; +2 to Yields and [ICON_HAPPINESS_1] Happiness from [ICON_VP_MONOPOLY] Global Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_SPICE';
+
 
 UPDATE Language_en_US
 SET Text = 'Classical Era Melee Unit that has a mystical weapon whose abilities will be discovered the first time it is used in combat. May only be built by Indonesia.'
@@ -865,7 +866,7 @@ WHERE Tag = 'TXT_KEY_BUILD_KASBAH_HELP';
 -- Netherlands
 --------------------
 UPDATE Language_en_US
-SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLD] Gold for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward Monopolies.'
+SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLD] Gold for each unique Luxury Resource you import or export from/to other Civilizations and [ICON_CITY_STATE] City-States, scaling with Era. Can import duplicate Luxuries from Civilizations which count toward [ICON_VP_MONOPOLY] Monopolies.'
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
 
 UPDATE Language_en_US

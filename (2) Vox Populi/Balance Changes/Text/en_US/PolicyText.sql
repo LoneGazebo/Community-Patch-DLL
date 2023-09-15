@@ -580,7 +580,7 @@ SET Text = 'Colonialism'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from Barracks, Armories, Military Academies, Forts, and Citadels.[NEWLINE][ICON_BULLET]Each unique Global Monopoly modifier is increased by an additional 10% if it''s percentage-based, or +3 otherwise.'
+SET Text = '[COLOR_POSITIVE_TEXT]Colonialism[ENDCOLOR][NEWLINE][ICON_BULLET]+2 [ICON_RESEARCH] Science and +1 [ICON_CULTURE] Culture from Barracks, Armories, Military Academies, Forts, and Citadels.[NEWLINE][ICON_BULLET]Each unique [ICON_VP_MONOPOLY] Global Monopoly modifier is increased by an additional 10% if it''s percentage-based, or +3 otherwise.'
 WHERE Tag = 'TXT_KEY_POLICY_NAVAL_TRADITION_HELP';
 
 UPDATE Language_en_US
