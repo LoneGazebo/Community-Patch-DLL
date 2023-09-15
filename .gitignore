@@ -39,6 +39,8 @@
 !*.txt
 !*.vcxproj
 
+!docs/images/*
+
 #ignore output from Visual Studio, ModBuddy, and Inno
 .vs/
 BuildOutput/
