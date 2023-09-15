@@ -1439,14 +1439,14 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 		if (!bRequiresResources)
 		{
 			iScore *= /*150*/ GD_INT_GET(BARBARIAN_UNIT_SPAWN_NO_RESOURCE_MULTIPLIER);
-			iScore /= 2;
+			iScore /= 100;
 		}
 
 		// If unique units are permitted, they have 50% more weight as well
 		if (bIsUU)
 		{
 			iScore *= /*150*/ GD_INT_GET(BARBARIAN_UNIT_SPAWN_UU_MULTIPLIER);
-			iScore /= 2;
+			iScore /= 100;
 		}
 
 		// Preferred unit AI type?
