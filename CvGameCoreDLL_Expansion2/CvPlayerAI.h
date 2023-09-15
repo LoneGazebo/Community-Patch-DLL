@@ -49,6 +49,7 @@ public:
 
 	void AI_considerAnnex();
 	void AI_considerRaze();
+	int AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, int iCurrentUnhappy);
 
 	virtual void AI_launch(VictoryTypes eVictory);
 
