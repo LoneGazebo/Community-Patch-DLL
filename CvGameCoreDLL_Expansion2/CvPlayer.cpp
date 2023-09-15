@@ -16913,10 +16913,12 @@ void CvPlayer::removeBuildingClass(BuildingClassTypes eBuildingClass)
 
 //	--------------------------------------------------------------------------------
 // What is the effect of a building on the player?
-void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, CvArea* pArea)
+void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, CvCity* pSourceCity)
 {
 	int iI = 0;
 	int iJ = 0;
+	
+	CvArea* pArea = pSourceCity->plot()->area();
 
 	CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
 	if(pBuildingInfo == NULL)
@@ -17339,7 +17341,7 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 				if(pkBuilding && pkBuildingClassInfo)
 				{
 					iBuildingCount = pLoopCityBuildings->GetNumBuilding(eTestBuilding);
-					if(iBuildingCount > 0) // FIXME: This code will not be run when removing a building that buffs its own building class.
+					if(iBuildingCount > 0 || pLoopCity == pSourceCity)
 					{
 						// Building Class Yield Stuff
 						for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)

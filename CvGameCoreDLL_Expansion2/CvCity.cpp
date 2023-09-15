@@ -16414,7 +16414,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			{
 				if (pBuildingInfo->IsTeamShare() || (iI == getOwner()))
 				{
-					GET_PLAYER((PlayerTypes)iI).processBuilding(eBuilding, iChange, bFirst, plot()->area());
+					GET_PLAYER((PlayerTypes)iI).processBuilding(eBuilding, iChange, bFirst, this);
 				}
 			}
 		}
