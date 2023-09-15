@@ -1008,7 +1008,7 @@ int CvPlayerAI::AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, 
 	int iCurrentHappiness = 0;
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		iCurrentHappiness = iCurrentHappy * 100 / max(iCurrentUnhappy, 1) / 2;
+		iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 	}
 	else
 	{
@@ -1021,7 +1021,7 @@ int CvPlayerAI::AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, 
 	int iFutureHappiness = 0;
 	if (MOD_BALANCE_CORE_HAPPINESS)
 	{
-		iFutureHappiness = iCurrentHappy * 100 / max(iCurrentUnhappy, 1) / 2;
+		iFutureHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 	}
 	else
 	{
