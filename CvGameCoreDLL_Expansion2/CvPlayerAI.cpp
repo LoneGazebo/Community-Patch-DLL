@@ -858,8 +858,8 @@ void CvPlayerAI::AI_considerRaze()
 			continue;
 		}
 
-		// Must be occupied or puppeted
-		if (!pLoopCity->IsOccupied() && !pLoopCity->IsPuppet())
+		// Must be occupied (no puppets)
+		if (!pLoopCity->IsOccupied())
 			continue;
 
 		// Must be able to raze
