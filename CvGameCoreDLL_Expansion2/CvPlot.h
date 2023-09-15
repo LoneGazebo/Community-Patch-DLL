@@ -408,7 +408,7 @@ public:
 	{
 		return (PlotTypes)m_ePlotType;
 	}
-	bool isWater()          const
+	inline bool isWater()          const
 	{
 		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
 	};

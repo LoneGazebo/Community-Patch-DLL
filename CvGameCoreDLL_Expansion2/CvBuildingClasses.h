@@ -1117,6 +1117,9 @@ public:
 	void Read(FDataStream& kStream);
 	void Write(FDataStream& kStream) const;
 
+	void SetBuildingTypeByClassDirty(bool dirty) const;
+	void CacheBuildingTypeByClass() const;
+
 	// Accessor functions
 	CvBuildingXMLEntries* GetPossibleBuildings() const;
 
@@ -1262,6 +1265,9 @@ private:
 
 #if defined(MOD_BALANCE_CORE)
 	std::vector<BuildingTypes> m_buildingsThatExistAtLeastOnce;
+
+	mutable bool b_existBuildingsAreDirty;
+	mutable std::map<BuildingClassTypes, BuildingTypes> m_buildingTypeByClass;
 #endif
 
 	std::vector<BuildingYieldChange> m_aBuildingYieldChange;

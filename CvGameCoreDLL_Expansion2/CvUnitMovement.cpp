@@ -13,18 +13,21 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	int iRegularCost = iMoveDenominator;
 	int iRouteCost = INT_MAX; //assume no route
 
+	PlayerTypes kPlayerId = pUnit->getOwner();
+	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
+	DomainTypes domain = pUnit->getDomainType();
+
 	//some easy checks first
-	if (pUnit->isHuman() && !pToPlot->isRevealed(pUnit->getTeam()))
+	if (kPlayer.isHuman() && !pToPlot->isRevealed(pUnit->getTeam()))
 	{
 		//moving into unknown tiles ends the turn for humans (to prevent information leakage from the displayed path)
 		return INT_MAX;
 	}
-	else if (pUnit->getDomainType() == DOMAIN_AIR)
+	else if (domain == DOMAIN_AIR)
 	{
 		return iMoveDenominator;
 	}
 
-	CvPlayerAI& kPlayer = GET_PLAYER(pUnit->getOwner());
 	CvPlayerTraits* pTraits = kPlayer.GetPlayerTraits();
 
 	bool bAmphibious = pUnit ? pUnit->isRiverCrossingNoPenalty() : false;
@@ -39,6 +42,10 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	CvFeatureInfo* pToFeatureInfo = (eToFeature > NO_FEATURE) ? GC.getFeatureInfo(eToFeature) : 0;
 	TerrainTypes eToTerrain = pToPlot->getTerrainType();
 	CvTerrainInfo* pToTerrainInfo = (eToTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eToTerrain) : 0;
+	FeatureTypes eFromFeature = pToPlot->getFeatureType();
+
+	bool bToIsWater = pToPlot->isWater();
+	bool bFromIsWater = pFromPlot->isWater();
 
 	//route preparation
 	bool bRouteTo = pToPlot->isValidRoute(pUnit);
@@ -53,7 +60,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	{
 		//balance patch does not require plot ownership
 		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
-		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (pFromPlot->getFeatureType() == FEATURE_FOREST || pFromPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
+		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eUnitTeam));
 	}
 
 	//check routes
@@ -88,7 +95,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	bool bFullCostEmbarkStateChange = false;
 	bool bCheapEmbarkStateChange = false;
 	bool bFreeEmbarkStateChange = false;
-	if (pUnit->CanEverEmbark())
+	if ((bToIsWater != bFromIsWater) && pUnit->CanEverEmbark())
 	{
 		bool bFromEmbark = pFromPlot->needsEmbarkation(pUnit);
 		bool bToEmbark = pToPlot->needsEmbarkation(pUnit);
@@ -97,7 +104,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		{
 			// Is the unit from a civ that can disembark for just 1 MP?
 			// Does it have a promotion to do so?
-			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isDisembarkFlatCost())
+			if (pTraits->IsEmbarkedToLandFlatCost() || pUnit->isDisembarkFlatCost())
 				bCheapEmbarkStateChange = true;
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
@@ -118,12 +125,12 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		{
 			// Is the unit from a civ that can embark for just 1 MP?
 			// Does it have a promotion to do so?
-			if (GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() || pUnit->isEmbarkFlatCost())
+			if (pTraits->IsEmbarkedToLandFlatCost() || pUnit->isEmbarkFlatCost())
 				bCheapEmbarkStateChange = true;
 
 #if defined(MOD_BALANCE_CORE_EMBARK_CITY_NO_COST)
 			//If city, and player has embark from city at reduced cost...
-			if (pFromPlot->isCoastalCityOrPassableImprovement(pUnit->getOwner(),true,true))
+			if (pFromPlot->isCoastalCityOrPassableImprovement(kPlayerId,true,true))
 			{
 				if (kUnitTeam.isCityNoEmbarkCost())
 					bFreeEmbarkStateChange = true;
@@ -167,7 +174,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			//only applies on land
 			if (kToPlotTeam.isBorderObstacle() || kToPlotPlayer.isBorderObstacle())
 			{
-				if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND)
+				if (!bToIsWater && domain == DOMAIN_LAND)
 				{
 					return INT_MAX;
 				}
@@ -176,11 +183,11 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			CvCity* pCity = pToPlot->getOwningCity();
 			if (pCity)
 			{
-				if (!pToPlot->isWater() && pUnit->getDomainType() == DOMAIN_LAND && pCity->GetBorderObstacleLand() > 0)
+				if (!bToIsWater && domain == DOMAIN_LAND && pCity->GetBorderObstacleLand() > 0)
 				{
 					return INT_MAX;
 				}
-				if (pToPlot->isWater() && pCity->GetBorderObstacleWater() > 0 && (pUnit->getDomainType() == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
+				if (bToIsWater && pCity->GetBorderObstacleWater() > 0 && (domain == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
 				{
 					return INT_MAX;
 				}
@@ -194,20 +201,20 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 		return INT_MAX;
 	}
 	// This is a special Domain unit that can disembark and becomes a land unit. End Turn like normal disembarkation.
-	else if ((pUnit->getDomainType() == DOMAIN_SEA && pUnit->isConvertUnit() && !pToPlot->isWater() && pFromPlot->isWater()) || 
-			 (pUnit->getDomainType() == DOMAIN_LAND && pUnit->isConvertUnit() && pToPlot->isWater() && !pFromPlot->isWater()) )
+	else if ((domain == DOMAIN_SEA && pUnit->isConvertUnit() && !bToIsWater && bFromIsWater) || 
+			 (domain == DOMAIN_LAND && pUnit->isConvertUnit() && bToIsWater && !bFromIsWater) )
 	{
 		return INT_MAX;
 	}
 	//a city always counts as flat open terrain. case with route is already handled above!
-	else if (pToPlot->isCity() && !kUnitTeam.isAtWar(pToPlot->getTeam()) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
+	else if (pToPlot->isCity() && !kUnitTeam.isAtWar(eToTeam) && (!bRiverCrossing || kUnitTeam.isBridgeBuilding())) 
 	{
 		return iMoveDenominator;
 	}
 #if defined(MOD_CARGO_SHIPS)
-	else if (pUnit->isCargo() && pUnit->getDomainType() == DOMAIN_LAND &&
-		GET_PLAYER(pUnit->getOwner()).GetPlayerTraits()->IsEmbarkedToLandFlatCost() &&
-		pToPlot->isCoastalLand(1) && pFromPlot->isWater())
+	else if (pUnit->isCargo() && domain == DOMAIN_LAND &&
+		pTraits->IsEmbarkedToLandFlatCost() &&
+		pToPlot->isCoastalLand(1) && bFromIsWater)
 	{
 		iRegularCost = 0;
 	}
@@ -253,7 +260,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 				iRegularCost += /*1*/ GD_INT_GET(HILLS_EXTRA_MOVEMENT);
 			}
 
-			if (bRiverCrossing && !bAmphibious && pUnit->getDomainType()==DOMAIN_LAND)
+			if (bRiverCrossing && !bAmphibious && domain == DOMAIN_LAND)
 			{
 				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
 			}

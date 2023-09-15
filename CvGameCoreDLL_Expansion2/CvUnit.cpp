@@ -18629,12 +18629,12 @@ void CvUnit::ChangeIsConvertUnit(int iValue)
 	VALIDATE_OBJECT
 	m_iConvertUnit += iValue;
 }
-int CvUnit::getIsConvertUnit() const
+inline int CvUnit::getIsConvertUnit() const
 {
 	VALIDATE_OBJECT
 	return	m_iConvertUnit;
 }
-bool CvUnit::isConvertUnit() const
+inline bool CvUnit::isConvertUnit() const
 {
 	VALIDATE_OBJECT
 	return getIsConvertUnit() > 0;
