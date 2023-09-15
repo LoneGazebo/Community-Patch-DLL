@@ -822,7 +822,7 @@ void CvPlayerAI::AI_considerRaze()
 	int iCurrentHappy = 0;
 	int iCurrentUnhappy = 0;
 	int iThreshold = /*-20 in CP, 20 in VP*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
-	if (iThreshold <= 0)
+	if (MOD_BALANCE_VP && iThreshold <= 0)
 		return;
 
 	// Look at our Unhappiness situation to see how much Unhappiness we need to remove
