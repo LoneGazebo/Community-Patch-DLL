@@ -331,35 +331,6 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		return;
 	}
 
-	// Special handling when already super unhappy
-	// We likely won't be able to keep the city, so get rid of it immediately if possible
-	if (IsEmpireSuperUnhappy())
-	{
-		if (bCanLiberate)
-		{
-			if (GET_PLAYER(ePlayerToLiberate).isMinorCiv())
-			{
-				DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, false);
-				return;
-			}
-
-			if (GetDiplomacyAI()->DoPossibleMajorLiberation(pCity))
-				return;
-		}
-
-		if (bAllowSphereRemoval)
-		{
-			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, true);
-			return;
-		}
-
-		if (bCanRaze)
-		{
-			pCity->doTask(TASK_RAZE);
-			return;
-		}
-	}
-
 	// What is our happiness situation?
 	bool bUnhappy = false;
 
