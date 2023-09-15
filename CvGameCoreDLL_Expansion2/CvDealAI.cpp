@@ -2179,6 +2179,10 @@ int CvDealAI::GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner)
 	CvPlayer& assumedOwner = GET_PLAYER(eAssumedOwner);
 	bool bPeaceTreatyTrade = assumedOwner.IsAtWarWith(pCity->getOwner());
 
+	// Don't buy any cities that aren't ours if we're unhappy
+	if (!bPeaceTreatyTrade && pCity->getOwner() != eAssumedOwner && pCity->getOriginalOwner() != eAssumedOwner && GET_PLAYER(eAssumedOwner).IsEmpireUnhappy())
+		return INT_MAX;
+
 	//if we already own it and trade voluntarily ...
 	if (!bPeaceTreatyTrade && pCity->getOwner() == eAssumedOwner)
 	{

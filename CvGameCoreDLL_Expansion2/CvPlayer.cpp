@@ -9939,9 +9939,8 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	// Bonuses for first liberation only (remove sphere doesn't count)
 	if (!bSphereRemoval && bFirstLiberation)
 	{
-		// Reduce liberator's warmongering penalties (if any), unless this is their own team's city
-		if (getTeam() != GET_PLAYER(ePlayer).getTeam())
-			CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
+		// Reduce liberator's warmongering penalties (if any, and applicable)
+		CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
 
 		// Reduce liberator's war weariness by 25%
 		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));

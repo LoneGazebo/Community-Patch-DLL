@@ -48,6 +48,7 @@ public:
 	void AI_chooseResearch();
 
 	void AI_considerAnnex();
+	void AI_considerRaze();
 
 	virtual void AI_launch(VictoryTypes eVictory);
 

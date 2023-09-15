@@ -132,6 +132,7 @@ void CvPlayerAI::AI_doTurnPre()
 
 	AI_doResearch();
 	AI_considerAnnex();
+	AI_considerRaze();
 }
 
 
@@ -330,6 +331,35 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		return;
 	}
 
+	// Special handling when already super unhappy
+	// We likely won't be able to keep the city, so get rid of it immediately if possible
+	if (IsEmpireSuperUnhappy())
+	{
+		if (bCanLiberate)
+		{
+			if (GET_PLAYER(ePlayerToLiberate).isMinorCiv())
+			{
+				DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, false);
+				return;
+			}
+
+			if (GetDiplomacyAI()->DoPossibleMajorLiberation(pCity))
+				return;
+		}
+
+		if (bAllowSphereRemoval)
+		{
+			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, true);
+			return;
+		}
+
+		if (bCanRaze)
+		{
+			pCity->doTask(TASK_RAZE);
+			return;
+		}
+	}
+
 	// What is our happiness situation?
 	bool bUnhappy = false;
 
@@ -369,10 +399,13 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 	}
 
 	//only city on a landmass? may be strategically important
+	bool bOnlyCityOnLandmass = false;
 	CvLandmass* pLandmass = GC.getMap().getLandmassById(pCity->plot()->getLandmass());
 	if (pLandmass != NULL && pLandmass->getCitiesPerPlayer(GetID()) < 1)
 	{
-		bKeepCity = true;
+		bOnlyCityOnLandmass = true;
+		if (!IsEmpireVeryUnhappy())
+			bKeepCity = true;
 	}
 
 	// If we're going for world conquest, have to keep any capitals we get
@@ -443,6 +476,12 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 		if (bAllowSphereRemoval && GetPlayerPolicies()->GetNumericModifier(POLICYMOD_LIBERATION_BONUS) > 0)
 		{
 			DoLiberatePlayer(ePlayerToLiberate, pCity->GetID(), false, true);
+			return;
+		}
+
+		if (bOnlyCityOnLandmass && !IsEmpireSuperUnhappy())
+		{
+			pCity->DoCreatePuppet();
 			return;
 		}
 
@@ -764,6 +803,156 @@ void CvPlayerAI::AI_considerAnnex()
 			else
 				pTargetCity->DoAnnex();
 		}
+	}
+}
+
+void CvPlayerAI::AI_considerRaze()
+{
+	if (isHuman())
+		return;
+
+	AI_PERF("AI-perf.csv", "AI_ considerRaze");
+
+	// Only raze when super unhappy
+	int iNumCities = getNumCities();
+	if (!IsEmpireSuperUnhappy() || iNumCities == 1)
+		return;
+
+	int iRequiredReduction = 0;
+
+	// Look at our Unhappiness situation to see how much Unhappiness we need to remove
+	if (MOD_BALANCE_CORE_HAPPINESS)
+	{
+		int iUnhappyCitizens = GetUnhappinessFromCitizenNeeds();
+		int iHappyCitizens = GetHappinessFromCitizenNeeds();
+		int iThreshold = /*20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
+		// Protect against modder stupidity
+		if (iHappyCitizens <= 0 || iThreshold <= 0)
+			return;
+
+		// Considering the number of happy citizens, how many citizens would we need to remove to get out of super unhappiness?
+		// Find X, where Happy Citizens * 100 / X / 2 == Threshold
+		int iTarget = iHappyCitizens * 50 / iThreshold;
+		iRequiredReduction = iUnhappyCitizens - iTarget;
+	}
+	else
+	{
+		int iHappyCitizens = GetHappiness();
+		int iUnhappyCitizens = GetUnhappiness();
+		int iDiff = iHappyCitizens - iUnhappyCitizens;
+		iRequiredReduction = /*-20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD) + 1 - iDiff;
+	}
+
+	if (iRequiredReduction <= 0)
+		return;
+
+	vector<CvCity*> EndangeredCities;
+	CvWeightedVector<CvCity*> RazeCandidates;
+	vector<PlayerTypes> vPlayersAtWarWith = GetPlayersAtWarWith();
+	int iLoop = 0;
+	int iPopulationRemoved = 0;
+	for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+	{
+		// Already razing a city? How much population will be removed?
+		if (pLoopCity->IsRazing())
+		{
+			iNumCities--;
+			iPopulationRemoved += pLoopCity->getPopulation();
+			// Already enough! Don't burn more!
+			if (iPopulationRemoved >= iRequiredReduction || iNumCities == 1)
+				return;
+
+			continue;
+		}
+
+		// Must be occupied or puppeted
+		if (!pLoopCity->IsOccupied() && !pLoopCity->IsPuppet())
+			continue;
+
+		// Must be able to raze
+		if (!canRaze(pLoopCity))
+			continue;
+
+		// City is in danger of being captured? Raze with higher priority to deny our opponents the ability to capture it.
+		if (pLoopCity->IsInDangerFromPlayers(vPlayersAtWarWith))
+			EndangeredCities.push_back(pLoopCity);
+
+		// Don't raze cities that aren't unhappy
+		// Special handling for non-Venetian puppets
+		int iHappinessDelta = pLoopCity->getHappinessDelta();
+
+		if (pLoopCity->IsPuppet() && (!MOD_BALANCE_VP || !GetPlayerTraits()->IsNoAnnexing()))
+			iHappinessDelta = pLoopCity->GetUnhappinessAggregated() * -1;
+
+		if (iHappinessDelta >= 0)
+			continue;
+
+		RazeCandidates.push_back(pLoopCity, iHappinessDelta * -1);
+	}
+
+	RazeCandidates.StableSortItems();
+
+	// First priority: burn down endangered cities that we haven't built a courthouse in, and that don't have Wonders
+	for (int i = 0; i < RazeCandidates.size(); i++)
+	{
+		CvCity* pLoopCity = RazeCandidates.GetElement(i);
+		if (!pLoopCity->IsNoOccupiedUnhappiness() && !pLoopCity->HasAnyWonder() && std::find(EndangeredCities.begin(), EndangeredCities.end(), pLoopCity) != EndangeredCities.end())
+		{
+			iNumCities--;
+			iPopulationRemoved += pLoopCity->getPopulation();
+			pLoopCity->doTask(TASK_RAZE);
+			// Have we met our goal?
+			if (iPopulationRemoved >= iRequiredReduction || iNumCities == 1)
+				return;
+		}
+	}
+	// Second priority: burn down non-endangered cities that we haven't built a courthouse in, and that don't have Wonders
+	for (int i = 0; i < RazeCandidates.size(); i++)
+	{
+		CvCity* pLoopCity = RazeCandidates.GetElement(i);
+		if (pLoopCity->IsRazing())
+			continue;
+
+		if (!pLoopCity->IsNoOccupiedUnhappiness() && !pLoopCity->HasAnyWonder())
+		{
+			iNumCities--;
+			iPopulationRemoved += pLoopCity->getPopulation();
+			pLoopCity->doTask(TASK_RAZE);
+			// Have we met our goal?
+			if (iPopulationRemoved >= iRequiredReduction || iNumCities == 1)
+				return;
+		}
+	}
+	// Third priority: burn down endangered cities that we HAVE built a courthouse in, or that have Wonders
+	for (int i = 0; i < RazeCandidates.size(); i++)
+	{
+		CvCity* pLoopCity = RazeCandidates.GetElement(i);
+		if (pLoopCity->IsRazing())
+			continue;
+
+		if (std::find(EndangeredCities.begin(), EndangeredCities.end(), pLoopCity) != EndangeredCities.end())
+		{
+			iNumCities--;
+			iPopulationRemoved += pLoopCity->getPopulation();
+			pLoopCity->doTask(TASK_RAZE);
+			// Have we met our goal?
+			if (iPopulationRemoved >= iRequiredReduction || iNumCities == 1)
+				return;
+		}
+	}
+	// Fourth priority: burn down other cities
+	for (int i = 0; i < RazeCandidates.size(); i++)
+	{
+		CvCity* pLoopCity = RazeCandidates.GetElement(i);
+		if (pLoopCity->IsRazing())
+			continue;
+
+		iNumCities--;
+		iPopulationRemoved += pLoopCity->getPopulation();
+		pLoopCity->doTask(TASK_RAZE);
+		// Have we met our goal?
+		if (iPopulationRemoved >= iRequiredReduction || iNumCities == 1)
+			return;
 	}
 }
 

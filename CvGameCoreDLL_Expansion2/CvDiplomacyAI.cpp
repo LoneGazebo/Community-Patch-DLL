@@ -54709,7 +54709,7 @@ int CvDiplomacyAIHelpers::GetCityWarmongerValue(CvCity* pCity, PlayerTypes eConq
 	}
 
 	// Capped at 25% and SHARED_FATE_PERCENT
-	iWarmongerValue *= range((100 + iWarmongerPoliticalModifier), 25, max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT)));
+	iWarmongerValue *= range(100 + iWarmongerPoliticalModifier, 25, max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT)));
 	iWarmongerValue /= 100;
 
 	if (iWarmongerValue <= 0)
@@ -54772,6 +54772,10 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 
 	// Masters and vassals ignore each other's warmongering.
 	if (pDiplo->IsMaster(eLiberator) || pDiplo->IsVassal(eLiberator))
+		return 0;
+
+	// No bonuses for liberating your own team's city.
+	if (GET_PLAYER(eNewOwner).getTeam() == GET_PLAYER(eLiberator).getTeam())
 		return 0;
 
 	// Are we at war with the liberated player? No liberation bonuses!
@@ -54870,35 +54874,33 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	int iWarmongerStrengthModifier = 0;
 
 	// DECREASE if he's big and nasty, INCREASE if he's not.
+	// Flip the values used for warmongering
 	switch (pDiplo->GetMilitaryStrengthComparedToUs(eLiberator))
 	{
 	case NO_STRENGTH_VALUE:
 		UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
 	case STRENGTH_IMMENSE:
-		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
+		iWarmongerStrengthModifier = /*-50*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC);
 		break;
 	case STRENGTH_POWERFUL:
-		iWarmongerStrengthModifier = /*75*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL);
+		iWarmongerStrengthModifier = /*-25*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_WEAK);
 		break;
 	case STRENGTH_STRONG:
-		iWarmongerStrengthModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_STRONG);
+		iWarmongerStrengthModifier = /*0*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_POOR);
 		break;
 	case STRENGTH_AVERAGE:
 		iWarmongerStrengthModifier = /*33*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_AVERAGE);
 		break;
 	case STRENGTH_POOR:
-		iWarmongerStrengthModifier = /*0*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_POOR);
+		iWarmongerStrengthModifier = /*50*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_STRONG);
 		break;
 	case STRENGTH_WEAK:
-		iWarmongerStrengthModifier = /*-25*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_WEAK);
+		iWarmongerStrengthModifier = /*75*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_POWERFUL);
 		break;
 	case STRENGTH_PATHETIC:
-		iWarmongerStrengthModifier = /*-50*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_PATHETIC);
+		iWarmongerStrengthModifier = /*100*/ GD_INT_GET(WARMONGER_THREAT_ATTACKER_STRENGTH_IMMENSE);
 		break;
 	}
-
-	// Flip this for liberation. Higher strength = less bonus.
-	iWarmongerStrengthModifier *= -1;
 
 	// No strength-based reductions if it's our gain...
 	if (bHisGainIsOurOwn && iWarmongerStrengthModifier < 0)
@@ -54906,11 +54908,11 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 
 	if (!bHisGainIsOurOwn)
 	{
-		// Need to check if the opponent is alive, calling this for an unmet player can crash the game
-		StrengthTypes eOpponentStrength = GET_PLAYER(eNewOwner).isAlive() ? pDiplo->GetMilitaryStrengthComparedToUs(eNewOwner) : STRENGTH_PATHETIC;
+		// For some reason it's possible for this to be NO_STRENGTH_VALUE for a met, but dead player ... default to PATHETIC to avoid crashing the game
+		StrengthTypes eLiberatedPlayerStrength = GET_PLAYER(eNewOwner).isAlive() ? pDiplo->GetMilitaryStrengthComparedToUs(eNewOwner) : STRENGTH_PATHETIC;
 
-		// DECREASE if opponent is big and nasty.
-		switch (eOpponentStrength)
+		// DECREASE if liberated player is big and nasty.
+		switch (eLiberatedPlayerStrength)
 		{
 		case NO_STRENGTH_VALUE:
 			UNREACHABLE(); // Strengths are supposed to have been evaluated by this point.
@@ -55121,7 +55123,7 @@ int CvDiplomacyAIHelpers::GetCityLiberationValue(CvCity* pCity, PlayerTypes eLib
 	}
 
 	// Capped at 25% and SHARED_FATE_PERCENT
-	iLiberationValue *= range((100 + iWarmongerPoliticalModifier), 25, max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT)));
+	iLiberationValue *= range(100 + iWarmongerPoliticalModifier, 25, max(100, /*200*/ GD_INT_GET(WARMONGER_THREAT_SHARED_FATE_PERCENT)));
 	iLiberationValue /= 100;
 
 	if (iLiberationValue >= 0)
