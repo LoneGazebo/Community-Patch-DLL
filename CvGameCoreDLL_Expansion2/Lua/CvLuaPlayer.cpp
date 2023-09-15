@@ -11833,11 +11833,12 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
 				iValue = iValue * (100 - iDistanceDropoff) / 100;
 				iDanger = pkPlayer->GetPlotDanger(*pPlot,false);
-				if(iDanger < 1000)
+				if (iValue > 0 && iDanger < 1000)
 				{
 					iValue = ((1000 - iDanger) * iValue) / 1000;
 
-					aBestPlots.push_back(pPlot, iValue);
+					if (iValue > 0)
+						aBestPlots.push_back(pPlot, iValue);
 				}
 			}
 		}
