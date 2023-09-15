@@ -665,7 +665,7 @@
 
 	-- Golden Age Points from Kills
 	UPDATE Language_en_US
-	SET Text = 'Earn [ICON_GOLDEN_AGE] Golden Age Points for each Enemy Unit defeated.'
+	SET Text = 'Gain 100% of the [ICON_STRENGTH] Combat Strength of defeated Enemy Units as [ICON_GOLDEN_AGE] Golden Age Points.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_GOLDEN_AGE_POINTS_HELP';
 
 	-- Naval Leadership

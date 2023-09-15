@@ -114,19 +114,19 @@
 			<Text>Spaceflight Regulations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_SPACESHIP_INSPECTION_HELP">
-			<Text>Spaceflight Regulations control the proliferation of modern ballistic technology, oversee national space programs, and limit the advance of pontentially-dangerous technology. [NEWLINE][NEWLINE]As long as this resolution is active, all players will suffer a global -25% [ICON_PRODUCTION] Production penalty for [ICON_VICTORY_SPACE] Spaceship Parts, +25% [ICON_GOLD] Gold purchase costs for [ICON_VICTORY_SPACE] Spaceship Parts, and +25% [ICON_PEACE] Faith costs for Engineers.[NEWLINE][NEWLINE]Available once any Civilization discovers Atomic Theory.</Text>
+			<Text>Spaceflight Regulations control the proliferation of modern ballistic technology, oversee national space programs, and limit the advance of pontentially-dangerous technology. [NEWLINE][NEWLINE]As long as this resolution is active, all players will suffer a global -25% [ICON_PRODUCTION] Production penalty for [ICON_VICTORY_SPACE] Spaceship Parts and +25% [ICON_GOLD] Gold purchase costs for [ICON_VICTORY_SPACE] Spaceship Parts.[NEWLINE][NEWLINE]Available once any Civilization discovers Atomic Theory.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_LIMIT">
 			<Text>{1_Spaceship}% [ICON_PRODUCTION] Production when building SS Parts</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_SPACESHIP_PURCHASE">
-			<Text>+{1_Spaceship}% costs for [ICON_GOLD] Gold purchases of SS parts and [ICON_PEACE] Faith purchases of Great Engineers</Text>
+			<Text>+{1_Spaceship}% costs for [ICON_GOLD] Gold purchases of SS parts</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_WORLD_WAR">
 			<Text>Casus Belli</Text>
 		</Row>
 		<Row Tag="TXT_KEY_RESOLUTION_WORLD_WAR_HELP">
-			<Text>The world recognizes the need for justifiable war to resolve diplomatic disputes. [NEWLINE][NEWLINE]While this resolution is active, unit maintenance costs are lowered by 15% [ICON_GOLD] Gold. [ICON_VICTORY_DOMINATION] Warmonger penalties for capturing cities and declaring war are greatly reduced, and [ICON_VICTORY_DOMINATION] Warmonger scores decay much more rapidly than normal.</Text>
+			<Text>The world recognizes the need for justifiable war to resolve diplomatic disputes. [NEWLINE][NEWLINE]While this resolution is active, unit maintenance costs are lowered by 15% [ICON_GOLD] Gold. 0.5x [ICON_VICTORY_DOMINATION] Warmonger penalties for capturing cities and declaring war, and 2x [ICON_VICTORY_DOMINATION] Warmonger scores decay.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_WORLD_WAR">
 			<Text>{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties greatly decreased</Text>

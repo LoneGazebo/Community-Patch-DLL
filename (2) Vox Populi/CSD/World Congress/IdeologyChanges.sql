@@ -50,7 +50,7 @@ SET Text = 'Sanctions placed on: {1_CivsList}'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_EMBARGO_PLAYERS' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes can be established with City-States, and all Corporation Franchises are removed from City-States. Warmonger penalty greatly reduced when declaring war on City-States or conquering cities owned by them.'
+SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes can be established with City-States, and all Corporation Franchises are removed from City-States. ' || CAST((SELECT Value FROM Defines WHERE Name = 'WARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER')/100.0 AS NUMERIC) || 'x Warmonger penalty when declaring war on City-States or conquering cities owned by them.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_ALL_CITY_STATES_EMBARGO_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
@@ -58,7 +58,7 @@ SET Text = 'Sanction'
 WHERE Tag = 'TXT_KEY_RESOLUTION_PLAYER_EMBARGO' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes, Deals, or Corporation Franchises can be established with the chosen Civilization (excluding Vassals). Their Corporation Franchises are removed from foreign cities. Warmonger penalty greatly reduced when declaring war on the sanctioned Civilization or conquering cities owned by them.'
+SET Text = 'No [ICON_INTERNATIONAL_TRADE] Trade Routes, Deals, or Corporation Franchises can be established with the chosen Civilization (excluding Vassals). Their Corporation Franchises are removed from foreign cities. ' || CAST((SELECT Value FROM Defines WHERE Name = 'WARMONGER_THREAT_ATTACKED_SANCTIONED_PLAYER')/100.0 AS NUMERIC) || 'x Warmonger penalty when declaring war on the sanctioned Civilization or conquering cities owned by them.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_PLAYER_EMBARGO_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 -- World Peace
@@ -68,11 +68,11 @@ SET Text = 'Global Peace Accords'
 WHERE Tag = 'TXT_KEY_RESOLUTION_STANDING_ARMY_TAX' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = 'Unit maintenance costs are raised by 25% [ICON_GOLD] Gold.[ICON_VICTORY_DOMINATION] Warmonger penalties for capturing cities and declaring war are greatly increased, and [ICON_VICTORY_DOMINATION] Warmonger scores decay much more slowly than normal.'
+SET Text = 'Unit maintenance costs are raised by 25% [ICON_GOLD] Gold. '  || CAST((SELECT Value FROM Defines WHERE Name = 'WARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE')/100.0 AS NUMERIC) || 'x [ICON_VICTORY_DOMINATION] Warmonger penalties for capturing cities and declaring war, and '  || CAST((SELECT Value FROM Defines WHERE Name = 'WARMONGER_THREAT_PER_TURN_DECAY_DECREASED')/100.0 AS NUMERIC) || 'x [ICON_VICTORY_DOMINATION] Warmonger scores decay.'
 WHERE Tag = 'TXT_KEY_RESOLUTION_STANDING_ARMY_TAX_HELP' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 UPDATE Language_en_US
-SET Text = '+{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. [ICON_VICTORY_DOMINATION] Warmonger penalties greatly increased'
+SET Text = '+{1_UnitMaintenancePercent}% [ICON_GOLD] Gold cost for Unit Maintenance. '  || CAST((SELECT Value FROM Defines WHERE Name = 'WARMONGER_THREAT_ATTACKED_WEIGHT_WORLD_PEACE')/100.0 AS NUMERIC) || 'x [ICON_VICTORY_DOMINATION] Warmonger penalties, '  || CAST((SELECT Value FROM Defines WHERE Name = 'WARMONGER_THREAT_PER_TURN_DECAY_DECREASED')/100.0 AS NUMERIC) || 'x [ICON_VICTORY_DOMINATION] Warmonger scores decay'
 WHERE Tag = 'TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_UNIT_MAINTENANCE' AND EXISTS (SELECT * FROM CSD WHERE Type='IDEOLOGY_CSD' AND Value= 1 );
 
 -- World Religion

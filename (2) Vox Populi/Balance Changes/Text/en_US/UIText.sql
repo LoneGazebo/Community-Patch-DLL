@@ -528,11 +528,11 @@ SET Text = 'When constructed, a Landmark generates +3 Empire-Wide [ICON_HAPPINES
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_RESULT';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another civ''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for the builder and plot owner, and give you a permanent diplomatic boost with that nation.[ENDCOLOR]'
+SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in another civilization''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for the builder and plot owner, and give you a permanent diplomatic boost with that nation.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MAJOR_CIV';
 
 UPDATE Language_en_US
-SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in a city state''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for the builder and plot owner, and will give you a large, one-time influence boost with that city state.[ENDCOLOR]'
+SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in a city-state''s territory will generate +3 Empire-Wide [ICON_HAPPINESS_1] Happiness for the builder and plot owner, and will give you a large, one-time influence boost with that city state.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MINOR_CIV';
 
 
@@ -836,15 +836,13 @@ UPDATE Language_en_US
 SET Text = 'Resource Diversity Modifier: {1_Num}%[NEWLINE][ICON_BULLET]   Our Local Resources: {2_Num}[NEWLINE][ICON_BULLET]   Their Local Resources: {3_Num}[NEWLINE]Routes to Cities with unique Resources earn more [ICON_GOLD] Gold, and Monopoly Resources count double.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_DIFFERENT';
 
-
 UPDATE Language_en_US
-SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +3 [ICON_CULTURE] Culture and +4 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +' || (SELECT Value FROM Defines WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK') || ' [ICON_CULTURE] Culture and +' || (SELECT Value FROM Defines WHERE Name = 'BASE_TOURISM_PER_GREAT_WORK') || ' [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_ARTIFACT_RESULT';
 
 UPDATE Language_en_US
-SET Text = 'Ancient writing will be placed in nearest Great Work of Writing slot. Writing provides +3 [ICON_CULTURE] Culture and +4 [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+SET Text = 'Ancient writing will be placed in nearest Great Work of Writing slot. Writing provides +' || (SELECT Value FROM Defines WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK') || ' [ICON_CULTURE] Culture and +' || (SELECT Value FROM Defines WHERE Name = 'BASE_TOURISM_PER_GREAT_WORK') || ' [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_WRITTEN_ARTIFACT_RESULT';
-
 
 UPDATE Language_en_US
 SET Text = 'A Luxury resource is designated as immoral, endangered, or otherwise inappropriate for use by the general population.  As long as the ban is in place, Civilizations receive no [ICON_HAPPINESS_1] Happiness or Monopoly benefits from this Luxury resource.'
@@ -1074,7 +1072,12 @@ VALUES	('TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_T
 	('TXT_KEY_CITY_STATE_MILITARISTIC_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Militaristic[ENDCOLOR] City-State will provide you occasional gifts of advanced military units.[NEWLINE][NEWLINE]They know the secrets of the [COLOR_POSITIVE_TEXT]{@1_UniqueUnitName}[ENDCOLOR]. If you have researched [COLOR_CYAN]{@2_PrereqTech}[ENDCOLOR], they will provide that unit as their gift.'),
 	('TXT_KEY_CITY_STATE_MARITIME_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Maritime[ENDCOLOR] City-State will boost the [ICON_FOOD] Food of your [ICON_CAPITAL] Capital greatly, and all of your cities.'),
 	('TXT_KEY_CITY_STATE_MERCANTILE_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Mercantile[ENDCOLOR] City-State will provide extra [ICON_HAPPINESS_1] Happiness in your empire, and manufactures special luxury resources which cannot be acquired any other way.'),
-	('TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Religious[ENDCOLOR] City-State will increase your [ICON_PEACE] Faith, allowing you to empower your religion with new beliefs and units.');
+	('TXT_KEY_CITY_STATE_RELIGIOUS_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_TEXT]Religious[ENDCOLOR] City-State will increase your [ICON_PEACE] Faith, allowing you to empower your religion with new beliefs and units.'),
+	('TXT_KEY_VP_RESTING_INFLUENCE', 'Resting [ICON_INFLUENCE] Influence');
+	
+UPDATE Language_en_US
+SET Text = 'We''re having issues with growing our population, so we needn''t build growth buildings in our cities.'
+WHERE Tag = 'TXT_KEY_ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS';
 	
 -- Culture Overview
 INSERT INTO Language_en_US (Tag, Text)

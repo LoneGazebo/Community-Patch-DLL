@@ -947,7 +947,7 @@ WHERE Tag = 'TXT_KEY_POLICY_FREERELIGION_TEXT';
 
 -- Monastery (new Building)
 UPDATE Language_en_US
-SET Text = 'Religious building purchased with [ICON_PEACE] Faith. Increases City [ICON_FOOD] Food, [ICON_RESEARCH] Science and [ICON_PEACE] Faith output. Requires the adoption of the Fealty Policy Branch.'
+SET Text = 'Religious building purchased with [ICON_PEACE] Faith.[NEWLINE][NEWLINE]Requires the adoption of the [COLOR_MAGENTA]{TXT_KEY_POLICY_BRANCH_PIETY}[ENDCOLOR] Policy Branch.'
 WHERE Tag = 'TXT_KEY_BUILDING_MONASTERY_HELP';
 
 UPDATE Language_en_US
