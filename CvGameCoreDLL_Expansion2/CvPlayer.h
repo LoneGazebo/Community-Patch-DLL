@@ -366,7 +366,7 @@ public:
 
 	int getBuildingClassPrereqBuilding(BuildingTypes eBuilding, BuildingClassTypes ePrereqBuildingClass, int iExtra = 0) const;
 	void removeBuildingClass(BuildingClassTypes eBuildingClass);
-	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, CvArea* pArea);
+	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, CvCity* pSourceCity);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldModifier(BuildingClassTypes eBuildingClass, YieldTypes eYieldType);
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYieldType, const vector<int>& preexistingBuildingsCount);
