@@ -128,7 +128,16 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_BUSHIDO_HELP">
-			<Text>Promotion is replaced with a randomly chosen new promotion after the unit completes its first combat.</Text>
+			<Text>Promotion is replaced with a randomly chosen new promotion after the unit completes its first combat.
+			[NEWLINE][NEWLINE]All of the new promotions comes with [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]increases[ENDCOLOR] with damage taken and healing 10 HP after defeating an Enemy Unit.
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_RIGHTEOUSNESS}[ENDCOLOR]: +20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units at or below 50% HP[ENDCOLOR].
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_BENEVOLENCE}[ENDCOLOR]: Units in adjacent tiles receive +5 HP when healing.
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_RESPECT}[ENDCOLOR]: +20% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units above 50% HP[ENDCOLOR].
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_SINCERITY}[ENDCOLOR]: +50% Experience gained from combat.
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_BUSHIDO_HONOR}[ENDCOLOR]: +15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_LOYALTY}[ENDCOLOR]: +15% [ICON_STRENGTH] Combat Strength [COLOR_POSITIVE_TEXT]Inside Friendly Territory[ENDCOLOR].
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_SELF_CONTROL}[ENDCOLOR]: +15% [ICON_STRENGTH] Combat Strength when defending.
+			[NEWLINE][ICON_BULLET][COLOR_SELECTED_TEXT]{TXT_KEY_PROMOTION_COURAGE}[ENDCOLOR]: +15% [ICON_STRENGTH] Combat Strength when attacking.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_RIGHTEOUSNESS">
@@ -1017,7 +1026,7 @@
 			<Text>Medieval-Era Unit that is unique to Brazil, replacing the Explorer. Is faster and stronger than the Explorer, and is available earlier. Generates Gold, Culture, and Science from exploring unrevealed tiles. These yields are added to the nearest owned city. Also has the ability to construct Fort, Quarry, Mine, and Brazilwood Camp Improvements in owned territory, and is stronger versus Barbarians. Use these units to explore, clear any remaining Barbarian Encampments, and generate valuable yields for your frontier cities.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES_HELP">
-			<Text>Unique Brazilian Explorer. Generates [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science whenever you reveal tiles with this Unit. Can construct Forts, Quarries, Mines, and Brazilwood Camps in owned territory.</Text>
+			<Text>Unique Brazilian {TXT_KEY_UNIT_EXPLORER} that can construct {TXT_KEY_CIV5_IMPROVEMENTS_FORT}, {TXT_KEY_CIV5_IMPROVEMENTS_QUARRY}, {TXT_KEY_IMPROVEMENT_MINE}, and {TXT_KEY_IMPROVEMENT_BRAZILWOOD_CAMP}; and generate [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science when revealing tiles with this unit. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SURVIVALISM_3}[ENDCOLOR].</Text>
 		</Row>
 	<!-- Commando -->
 		<Row Tag="TXT_KEY_UNIT_COMMANDO">

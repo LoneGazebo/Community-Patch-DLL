@@ -220,11 +220,11 @@ SET Text = REPLACE(Text, 'a Public School to construct the Research Laboratory',
 WHERE Tag = 'TXT_KEY_BUILDING_LABORATORY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'City gains +1 [ICON_RESEARCH] Science for every Mountain within the workable tiles.[NEWLINE][NEWLINE]Requires [COLOR_MAGENTA]Scientific Revolution[ENDCOLOR] Policy.'
+SET Text = 'City gains +1 [ICON_RESEARCH] Science for every Mountain within the workable tiles.[NEWLINE][NEWLINE]Requires [COLOR_MAGENTA]{TXT_KEY_POLICY_SECULARISM}[ENDCOLOR] Policy.'
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially for Cities near lots of Mountains. Requires ''Scientific Revolution'' Policy to unlock.'
+SET Text = 'The Observatory increases [ICON_RESEARCH] Science output, especially for Cities near lots of Mountains. Requires [COLOR_MAGENTA]{TXT_KEY_POLICY_SECULARISM}[ENDCOLOR] Policy to unlock.'
 WHERE Tag = 'TXT_KEY_BUILDING_OBSERVATORY_STRATEGY';
 
 UPDATE Language_en_US

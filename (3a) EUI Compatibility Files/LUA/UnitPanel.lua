@@ -1814,12 +1814,15 @@ function ActionToolTipHandler( control )
 	-- Great Merchant
 	elseif bnw_mode and action.Type == "MISSION_TRADE" then
 
-		toolTip:insertLocalized( "TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP", unit:GetRestingPointChange() )
+		toolTip:insertLocalized( "TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP" )
 
 		if gameCanHandleAction then
 			toolTip:insert( "----------------" )
 			if (unit:GetTradeInfluence(plot) ~= 0) then
 				toolTip:insert( "+" .. unit:GetTradeInfluence(plot) .. "[ICON_INFLUENCE]" )
+			end
+			if (unit:GetRestingPointChange() ~= 0) then
+				toolTip:insert( "+" .. unit:GetRestingPointChange() .. " " .. L("TXT_KEY_VP_RESTING_INFLUENCE") )
 			end
 			if (unit:GetTradeGold(plot) ~= 0) then
 				local unitTypeID = unit:GetUnitType();
@@ -1834,6 +1837,12 @@ function ActionToolTipHandler( control )
 					toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD][NEWLINE]" .. "+" .. math_floor(WLTKDTurns) .. " " .. L("TXT_KEY_TURNS") .. " " .. L("TXT_KEY_PLOTROLL_EMBASSY", "") .. "[ICON_HAPPINESS_1] [COLOR_POSITIVE_TEXT]" .. L("TXT_KEY_FOOD_WELOVEKING_HEADING3_TITLE") .. "[ENDCOLOR]")
 				else
 					toolTip:insert( "+" .. unit:GetTradeGold(plot) .. "[ICON_GOLD]" )
+				end
+			end
+			for row in GameInfo.Unit_ResourceQuantityExpended() do
+				local unitInfo = unit:GetUnitType() and GameInfo_Units[unit:GetUnitType()];
+				if row.UnitType == unitInfo.Type then
+					toolTip:insert( "+" .. row.Amount .. GameInfo.Resources[row.ResourceType].IconString .. " " .. L(GameInfo.Resources[row.ResourceType].Description) )
 				end
 			end
 		end
