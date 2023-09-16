@@ -9748,7 +9748,7 @@ PlayerTypes CvMinorCivAI::SpawnRebels()
 		iRebelBuildUp += iWar;
 
 	// Random factor
-	iRebelBuildUp += GC.getGame().randRangeExclusive(0, GC.getGame().getCurrentEra(), CvSeeder::fromRaw(0x872edbb4).mix(m_pPlayer->GetPseudoRandomSeed()));
+	iRebelBuildUp += GC.getGame().randRangeInclusive(1, max((int)GC.getGame().getCurrentEra(),1), CvSeeder::fromRaw(0x872edbb4).mix(m_pPlayer->GetPseudoRandomSeed()));
 
 	if (iRebelBuildUp >= iRebelBoilPoint)
 		return pActiveMinor;
@@ -11863,11 +11863,7 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 
 	int iOldEffectiveFriendship = GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 
-	m_aiFriendshipWithMajorTimes100[ePlayer] = iNum;
-
-	int iMinimumFriendship = /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR);
-	if(GetBaseFriendshipWithMajor(ePlayer) < iMinimumFriendship)
-		m_aiFriendshipWithMajorTimes100[ePlayer] = iMinimumFriendship * 100;
+	m_aiFriendshipWithMajorTimes100[ePlayer] = max(iNum, /*-60*/ GD_INT_GET(MINOR_FRIENDSHIP_AT_WAR) * 100);
 
 	int iNewEffectiveFriendship = bFromCoup ? m_aiFriendshipWithMajorTimes100[ePlayer] : GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 

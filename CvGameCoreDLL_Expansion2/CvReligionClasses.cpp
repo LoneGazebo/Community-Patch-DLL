@@ -7735,7 +7735,7 @@ int CvReligionAI::ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus, bool bConsi
 		pLog->Msg(strOutBuf);
 	}
 
-	return iRtnValue;
+	return max(0, iRtnValue);
 }
 
 int CvReligionAI::GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes iI, bool bConsiderFutureTech) const
