@@ -3200,6 +3200,11 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 	{
 		return false;
 	}
+
+	// Don't check this in Classical (for Byzantium) or Industrial (for other civs)
+	if (kPlayer.GetCurrentEra() >= GetFaithPurchaseGreatPeopleEra(&kPlayer))
+		return false;
+
 #if defined(MOD_NO_AUTO_SPAWN_PROPHET)
 	bool prophetboughtwithfaith = false;
 #endif
