@@ -42,7 +42,7 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	CvFeatureInfo* pToFeatureInfo = (eToFeature > NO_FEATURE) ? GC.getFeatureInfo(eToFeature) : 0;
 	TerrainTypes eToTerrain = pToPlot->getTerrainType();
 	CvTerrainInfo* pToTerrainInfo = (eToTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eToTerrain) : 0;
-	FeatureTypes eFromFeature = pToPlot->getFeatureType();
+	FeatureTypes eFromFeature = pFromPlot->getFeatureType();
 
 	bool bToIsWater = pToPlot->isWater();
 	bool bFromIsWater = pFromPlot->isWater();

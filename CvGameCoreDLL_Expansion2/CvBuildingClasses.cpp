@@ -4509,14 +4509,15 @@ void CvCityBuildings::Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCi
 	Reset();
 }
 
-void CvCityBuildings::SetBuildingTypeByClassDirty(bool dirty) const {
+void CvCityBuildings::SetBuildingTypeByClassDirty(bool dirty) const
+{
 	b_existBuildingsAreDirty = dirty;
 }
 
-void CvCityBuildings::CacheBuildingTypeByClass() const {
-	if (!b_existBuildingsAreDirty) {
+void CvCityBuildings::CacheBuildingTypeByClass() const
+{
+	if (!b_existBuildingsAreDirty)
 		return;
-	}
 
 	m_buildingTypeByClass.clear();
 
@@ -4626,9 +4627,9 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	for (int i=0; i<m_pPossibleBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
-			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
-	SetBuildingTypeByClassDirty(true);
+			m_buildingsThatExistAtLeastOnce.push_back((BuildingTypes)i);
 
+	SetBuildingTypeByClassDirty(true);
 }
 
 /// Serialization write
@@ -4693,7 +4694,7 @@ int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	int iValue = 0;
-	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	for (std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
 		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
 		if(pkInfo && pkInfo->GetBuildingClassType() == eIndex)
@@ -5111,22 +5112,22 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		m_paiNumRealBuilding[eIndex] = iNewValue;
 
-#if defined(MOD_BALANCE_CORE)
 		if (iNewValue > 0)
 		{
-			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
+			if (std::find(m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex) == m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.push_back(eIndex);
+
 			SetBuildingTypeByClassDirty(true);
 		}
 		else if (GetNumFreeBuilding(eIndex)==0)
 		{
 			//we care about iteration speed, so erasing something can be cumbersome
-			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
-			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
+			std::vector<BuildingTypes>::iterator pos = std::find(m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
+			if (pos != m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.erase(pos);
+
 			SetBuildingTypeByClassDirty(true);
 		}
-#endif
 
 		if(GetNumRealBuilding(eIndex) > 0)
 		{
@@ -5367,16 +5368,18 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 	{
 		if (iNewValue>0)
 		{
-			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
+			if (std::find(m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex) == m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.push_back(eIndex);
+
 			SetBuildingTypeByClassDirty(true);
 		}
 		else if (GetNumRealBuilding(eIndex)==0)
 		{
 			//we care about iteration speed, so erasing something can be cumbersome
-			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
-			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
+			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex);
+			if (pos != m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.erase(pos);
+
 			SetBuildingTypeByClassDirty(true);
 		}
 
@@ -5389,7 +5392,7 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 		m_pCity->processBuilding(eIndex, iChangeNumFreeBuilding, true, false, false, true);
 
 		CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
-		if(buildingEntry && buildingEntry->IsCityWall())
+		if (buildingEntry && buildingEntry->IsCityWall())
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
 			gDLL->GameplayWallCreated(pDllPlot.get());
