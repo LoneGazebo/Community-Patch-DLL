@@ -3034,7 +3034,7 @@
 		</Row>
 
 		<!-- Diplomacy Screen Buttons -->
-				<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_1">
+		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_1">
 			<Text>Friend, please accept this offer as a gesture of gratitude for our friendship.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GENERIC_GENEROUS_OFFER_2">
