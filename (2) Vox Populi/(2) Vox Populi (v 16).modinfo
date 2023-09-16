@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.10.2) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.10.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -178,7 +178,7 @@
     <File md5="5015C3FA07D87E5FFB57B523251E67F3" import="1">Art/Promotions/extraPromo_045.dds</File>
     <File md5="8341BD50EAA245DBE05A15F09C0366FA" import="1">Art/Promotions/extraPromo_064.dds</File>
     <File md5="46D6C357C6E857D8E97A635918BFD7B8" import="1">Art/Promotions/extraPromo_256.dds</File>
-    <File md5="6733F95C5AB546FD2559CA894657CC2A" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
+    <File md5="85005B8DE8ADD1498B7E5A545C9C4AFF" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
     <File md5="51AC21C1B109126BB17A68BDDE77D91A" import="1">Art/Promotions/promoVP_00_016.dds</File>
     <File md5="8FEA4C187F2DE97ABCB8A16AB161BEB9" import="1">Art/Promotions/promoVP_00_032.dds</File>
     <File md5="0FB9793BE3B9931613E9EAFC190DACB8" import="1">Art/Promotions/promoVP_00_045.dds</File>
