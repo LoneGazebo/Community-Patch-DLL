@@ -511,11 +511,11 @@ public:
 	/// - The game's map seed.
 	/// - The game's current turn.
 	/// - The provided extra seed.
-	/// 
+	///
 	/// Given that the returned number is consistent for any unique set of the above parameters, the user should make an effort to
 	/// ensure that the provided extra seed is different for any number of consecutive calls that occur on a single turn.
 	/// Failure to do so will lead to the same number being returned for each consecutive call on any given turn.
-	/// 
+	///
 	/// If this function is used to generate a number that is subsequently used to change the game state in manner that all peers
 	/// of a multiplayer session must replicate to retain synchronization, then the extra seed must be guaranteed to be identical 
 	/// for all peers of that multiplayer session. If this requirement is not met, then the multiplayer session will desynchronize.
@@ -528,7 +528,7 @@ public:
 	///
 	/// The following invariants must be satisfied for function to operate correctly:
 	/// - `limit != 0`
-	/// 
+	///
 	/// All advisories documented on `randCore` apply to this function.
 	uint urandLimitExclusive(uint limit, CvSeeder extraSeed) const;
 
@@ -536,7 +536,7 @@ public:
 	/// Specifically, if `x` is the returned unsigned integer, then `x` is guaranteed to satisfy the following:
 	/// - `x >= 0`
 	/// - `x <= limit`
-	/// 
+	///
 	/// All advisories documented on `randCore` apply to this function.
 	uint urandLimitInclusive(uint limit, CvSeeder extraSeed) const;
 
@@ -544,10 +544,10 @@ public:
 	/// Specifically, if `x` is the returned unsigned integer, then `x` is guaranteed to satisfy the following:
 	/// - `x >= min`
 	/// - `x < max`
-	/// 
+	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min < max`
-	/// 
+	///
 	/// All advisories documented on `randCore` apply to this function.
 	uint urandRangeExclusive(uint min, uint max, CvSeeder extraSeed) const;
 
@@ -558,7 +558,7 @@ public:
 	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min <= max`
-	/// 
+	///
 	/// All advisories documented on `randCore` apply to this function.
 	uint urandRangeInclusive(uint min, uint max, CvSeeder extraSeed) const;
 
@@ -566,10 +566,10 @@ public:
 	/// Specifically, if `x` is the returned signed integer, then `x` is guaranteed to satisfy the following:
 	/// - `x >= min`
 	/// - `x < max`
-	/// 
+	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min < max`
-	/// 
+	///
 	/// All advisories documented on `randCore` apply to this function.
 	int randRangeExclusive(int min, int max, CvSeeder extraSeed) const;
 
@@ -577,7 +577,7 @@ public:
 	/// Specifically, if `x` is the returned signed integer, then `x` is guaranteed to satisfy the following:
 	/// - `x >= min`
 	/// - `x <= max`
-	/// 
+	///
 	/// The following invariants must be satisfied for the function to operate correctly:
 	/// - `min <= max`
 	/// 

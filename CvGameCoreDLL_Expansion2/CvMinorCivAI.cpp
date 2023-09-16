@@ -6515,26 +6515,46 @@ bool CvMinorCivAI::IsDuplicatePersonalQuest(PlayerTypes ePlayer, MinorCivQuestTy
 
 		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, eQuest))
 		{
-			// Don't allow duplicates of "Find Natural Wonder" at all.
-			if (eQuest == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
-				return true;
-
 			// Don't allow duplicates of the same quest from the same City-State.
 			if (eMinor == GetPlayer()->GetID())
 				return true;
 
-			if (bCompareData1)
+			if (MOD_BALANCE_VP)
 			{
-				if (iData1 == GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, eQuest))
+				// Don't allow duplicates of "Find Natural Wonder" at all.
+				if (eQuest == MINOR_CIV_QUEST_FIND_NATURAL_WONDER)
+					return true;
+
+				// Check if any other City-State is offering an identical quest (same type AND target)
+				if (bCompareData1)
 				{
-					if (bCompareData2)
+					if (iData1 == GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, eQuest))
 					{
-						if (iData2 == GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, eQuest))
+						if (bCompareData2)
+						{
+							if (iData2 == GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, eQuest))
+								return true;
+						}
+						else
 							return true;
 					}
-					else
-						return true;
 				}
+			}
+		}
+		if (MOD_BALANCE_VP)
+		{
+			// Find City & Find City-State can overlap - don't allow this to occur
+			if (eQuest == MINOR_CIV_QUEST_FIND_CITY && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
+			{
+				CvPlot* pCityPlot = GC.getMap().plot(iData1, iData2);
+				if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY_STATE))
+					return true;
+			}
+			if (eQuest == MINOR_CIV_QUEST_FIND_CITY_STATE && GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(ePlayer, MINOR_CIV_QUEST_FIND_CITY))
+			{
+				CvPlot* pCityPlot = GC.getMap().plot(GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData1(ePlayer, MINOR_CIV_QUEST_FIND_CITY), GET_PLAYER(eMinor).GetMinorCivAI()->GetQuestData2(ePlayer, MINOR_CIV_QUEST_FIND_CITY));
+				if (pCityPlot->isCity() && pCityPlot->getOwner() == (PlayerTypes)iData1)
+					return true;
 			}
 		}
 	}
