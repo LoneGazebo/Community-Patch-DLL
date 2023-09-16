@@ -1210,7 +1210,7 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	CvReligion kReligion(eReligion, ePlayer, pkHolyCity, false);
 
 	// Copy over belief from your pantheon
-	BeliefTypes eBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(kPlayer.GetID());
+	BeliefTypes eBelief = kPlayer.GetReligions()->HasCreatedPantheon() ? GC.getGame().GetGameReligions()->GetBeliefInPantheon(kPlayer.GetID()) : NO_BELIEF;
 	if (eBelief != NO_BELIEF)
 	{
 		CvReligionBeliefs beliefs = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, ePlayer)->m_Beliefs;
