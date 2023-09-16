@@ -13721,6 +13721,7 @@ int CvLeagueAI::ScoreVoteChoicePlayer(CvProposal* pProposal, int iChoice, bool b
 void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 {
 	ProposalConsiderationList vConsiderations;
+	ProposalConsiderationList vBadChoices;
 
 	std::vector<ResolutionTypes> vInactive = pLeague->GetInactiveResolutions();
 	ActiveResolutionList vActive = pLeague->GetActiveResolutions();
@@ -13747,7 +13748,10 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 						iScore /= 2;
 				}
 
-				vConsiderations.push_back(consideration, iScore);
+				if (iScore > 0)
+					vConsiderations.push_back(consideration, iScore);
+				else
+					vBadChoices.push_back(consideration, iScore * -1);
 			}
 		}
 	}
@@ -13780,7 +13784,10 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 								iScore /= 2;
 						}
 
-						vConsiderations.push_back(consideration, iScore);
+						if (iScore > 0)
+							vConsiderations.push_back(consideration, iScore);
+						else
+							vBadChoices.push_back(consideration, iScore * -1);
 					}
 				}
 				else
@@ -13805,7 +13812,10 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 									iScore /= 2;
 							}
 
-							vConsiderations.push_back(consideration, iScore);
+							if (iScore > 0)
+								vConsiderations.push_back(consideration, iScore);
+							else
+								vBadChoices.push_back(consideration, iScore * -1);
 						}
 					}
 				}
@@ -13813,35 +13823,45 @@ void CvLeagueAI::AllocateProposals(CvLeague* pLeague)
 		}
 	}
 
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		for (int i = 0; i < vConsiderations.size(); i++)
+		{
+			ProposalConsideration proposal = vConsiderations.GetElement(i);
+			LogProposalConsidered(&proposal, proposal.iChoice, vConsiderations.GetWeight(i));
+		}
+		for (int i = 0; i < vBadChoices.size(); i++)
+		{
+			ProposalConsideration proposal = vBadChoices.GetElement(i);
+			LogProposalConsidered(&proposal, proposal.iChoice, vBadChoices.GetWeight(i) * -1);
+		}
+	}
+
 	if (vConsiderations.size() > 0)
 	{
 		vConsiderations.StableSortItems();
 
-		for (int i = 0; i < vConsiderations.size(); i++)
-		{
-			ProposalConsideration proposal = vConsiderations.GetElement(i);
-			LogProposalConsidered(&proposal, proposal.iChoice, vConsiderations.GetWeight(i), false);
-		}
-
-		// Even if we don't like anything, make sure we have something to choose from
-		bool bNothingGood = true;
-		for (int i = 0; i < vConsiderations.size(); i++)
-		{
-			if (vConsiderations.GetWeight(i) > 0)
-			{
-				bNothingGood = false;
-				break;
-			}
-		}
-		if (bNothingGood)
-		{
-			for (int i = 0; i < vConsiderations.size(); i++)
-			{
-				vConsiderations.SetWeight(i, 1000);
-			}
-		}
-
 		ProposalConsideration proposal = vConsiderations.GetElement(0);
+		if (proposal.bEnact)
+		{
+			ResolutionTypes eResolution = vInactive[proposal.iIndex];
+			pLeague->DoProposeEnact(eResolution, GetPlayer()->GetID(), proposal.iChoice);
+		}
+		else
+		{
+			int iID = vActive[proposal.iIndex].GetID();
+			pLeague->DoProposeRepeal(iID, GetPlayer()->GetID());
+		}
+
+		return;
+	}
+
+	// If we don't like anything, propose the least bad option
+	if (vBadChoices.size() > 0)
+	{
+		vBadChoices.StableSortItems();
+
+		ProposalConsideration proposal = vBadChoices.GetElement(vBadChoices.size() - 1);
 		if (proposal.bEnact)
 		{
 			ResolutionTypes eResolution = vInactive[proposal.iIndex];
@@ -13961,19 +13981,16 @@ bool CvLeagueAI::IsSanctionProposal(CvProposal* pProposal, PlayerTypes eRequired
 	return false;
 }
 
-void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre)
+void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore)
 {
+	ASSERT(pProposal != NULL);
 	std::vector<ResolutionTypes> vInactive = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetInactiveResolutions();
 	ActiveResolutionList vActive = GC.getGame().GetGameLeagues()->GetActiveLeague()->GetActiveResolutions();
 	if (vInactive.empty())
 		return;
 
-	if (pProposal == NULL)
-		return;
-
 	ResolutionTypes eResolution = pProposal->bEnact ? vInactive[pProposal->iIndex] : vActive[pProposal->iIndex].GetType();
-	if (GC.getResolutionInfo(eResolution) == NULL)
-		return;
+	ASSERT(GC.getResolutionInfo(eResolution) != NULL);
 
 	CvString sMessage = "";
 	sMessage += ",";
@@ -13984,24 +14001,15 @@ void CvLeagueAI::LogProposalConsidered(ProposalConsideration* pProposal, int iCh
 		sMessage += ", ENACT";
 	else
 		sMessage += ", REPEAL";
-	if (!bPre)
-		sMessage += ", POST SORT";
 
 	sMessage += ",";
-	CvAssert(pProposal != NULL);
-	if (pProposal != NULL)
-	{
-		sMessage += GC.getResolutionInfo(eResolution)->GetDescription();
-	}
-
+	sMessage += GC.getResolutionInfo(eResolution)->GetDescription();
 	sMessage += ",";
-	CvAssert(iChoice != LeagueHelpers::CHOICE_NONE);
 	if (iChoice != LeagueHelpers::CHOICE_NONE)
 	{
 		sMessage += LeagueHelpers::GetTextForChoice(GC.getResolutionInfo(eResolution)->GetProposerDecision(), iChoice);
+		sMessage += ",";
 	}
-
-	sMessage += ",";
 	CvString sTemp;
 	sTemp.Format("%d", iScore);
 	sMessage += sTemp;

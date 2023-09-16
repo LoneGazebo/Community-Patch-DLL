@@ -1037,7 +1037,7 @@ private:
 	void AllocateProposals(CvLeague* pLeague);
 
 	// Logging
-	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre);
+	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceConsidered(CvEnactProposal* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceConsidered(CvRepealProposal* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceCommitted(CvEnactProposal* pProposal, int iChoice, int iVotes);
