@@ -1150,7 +1150,9 @@ void CvTacticalAI::ExecuteDestroyUnitMoves(AITacticalTargetType targetType, bool
 				// If so, execute enough moves to destroy it
 				if(GC.getLogging() && GC.getAILogging())
 				{
-					CvString strLogString, strTemp, strPlayerName;
+					CvString strLogString;
+					CvString strTemp;
+					CvString strPlayerName;
 					strPlayerName = GET_PLAYER(pDefender->getOwner()).getCivilizationShortDescription();
 					strTemp = GC.getUnitInfo(pDefender->getUnitType())->GetDescription();
 					switch(targetType)
@@ -2713,7 +2715,8 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 		return false;
 
 	//now that we have a set of units find the center of mass
-	int x = 0, y = 0;
+	int x = 0;
+	int y = 0;
 	set<CvPlot*, PrSortByPlotIndex> allEnemyPlots;
 	for (set<CvUnit*, PrSortByUnitId>::iterator it = ourUnitsInitial.begin(); it != ourUnitsInitial.end(); ++it)
 	{
@@ -4445,7 +4448,8 @@ bool CvTacticalAI::ExecuteMoveOfBlockingUnit(CvUnit* pBlockingUnit, CvPlot* pPre
 			ExecuteMoveToPlot(pBlockingUnit, pPlot);
 			if(GC.getLogging() && GC.getAILogging())
 			{
-				CvString strTemp, strLogString;
+				CvString strTemp;
+				CvString strLogString;
 				strTemp = pBlockingUnit->getUnitInfo().GetDescription();
 				strLogString.Format("Moving blocking %s out of way, Leaving X: %d, Y: %d, Now At X: %d, Y: %d", strTemp.GetCString(), pOldPlot->getX(), pOldPlot->getY(), pBlockingUnit->getX(), pBlockingUnit->getY());
 				LogTacticalMessage(strLogString);
@@ -6067,7 +6071,8 @@ bool TacticalAIHelpers::IsAttackNetPositive(CvUnit* pUnit, const CvPlot* pTarget
 	//no visibility check, when we call this we already know there is an enemy unit ...
 	CvUnit* pTargetUnit = pTargetPlot->getBestDefender( NO_PLAYER, pUnit->getOwner(), pUnit, false, true);
 
-	int iDamageDealt = 0, iDamageReceived = 1;
+	int iDamageDealt = 0;
+	int iDamageReceived = 1;
 	if (pTargetCity)
 	{
 		//+2 to make sure it's positive if city has zero hitpoints left
@@ -6754,7 +6759,8 @@ bool TacticalAIHelpers::KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemy
 		return false;
 
 	//see how the attack would go
-	int iDamageDealt = 0, iDamageReceived = 0;
+	int iDamageDealt = 0;
+	int iDamageReceived = 0;
 	iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pEnemyUnit, pOurUnit, pEnemyUnit->plot(), pOurUnit->plot(), iDamageReceived);
 
 	//is it worth it? (take into account some randomness ...)
@@ -6803,7 +6809,8 @@ bool TacticalAIHelpers::IsSuicideMeleeAttack(const CvUnit * pAttacker, CvPlot * 
 	if (!pAttacker || !pTarget || pAttacker->IsCanAttackRanged() || pAttacker->getDomainType()==DOMAIN_AIR)
 		return false;
 
-	int iDamageDealt = 0, iDamageReceived = 0;
+	int iDamageDealt = 0;
+	int iDamageReceived = 0;
 
 	//if we're not adjacent we don't know the plot the attacker will use in the end
 	CvPlot* pAttackerPlot = NULL;
@@ -6844,7 +6851,8 @@ bool TacticalAIHelpers::CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget)
 			return true;
 
 		//see how an attack would go just in case
-		int iDamageDealt = 0, iDamageReceived = 0;
+		int iDamageDealt = 0;
+		int iDamageReceived = 0;
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnCity(pTargetCity, pAttacker, pAttacker->plot(), iDamageReceived, true, 0, true);
 
 		//ranged units can't capture themselves so we check for an adjacent melee unit
@@ -6873,7 +6881,8 @@ bool TacticalAIHelpers::CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget)
 	if (pDefender)
 	{
 		//see how the attack would go
-		int iDamageDealt = 0, iDamageReceived = 0;
+		int iDamageDealt = 0;
+		int iDamageReceived = 0;
 		iDamageDealt = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pDefender, pAttacker, pDefender->plot(), pAttacker->plot(), iDamageReceived, true, 0, true);
 		//no suicide attacks ...
 		return iDamageDealt >= pDefender->GetCurrHitPoints() && (iDamageReceived == 0 || iDamageReceived < pAttacker->GetCurrHitPoints()-3);
@@ -9058,7 +9067,8 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 
 	//if we did not make an attack, see if our units moved in the right way at least
 	//note that this comparison only works because we know we did not kill an enemy, which would change enemyDistance!
-	int iPositive = 0, iNegative = 0;
+	int iPositive = 0;
+	int iNegative = 0;
 	int iAttacksNoMove = 0;
 	for (size_t i = nFirstInterestingAssignment; i < assignedMoves.size(); i++)
 	{
@@ -10671,7 +10681,8 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 			//because of randomness in previous combat results, it may happen that we cannot actually kill the enemy
 			if (bPrecondition)
 			{
-				int iDamageDealt = 0, iDamageReceived = 0;
+				int iDamageDealt = 0;
+				int iDamageReceived = 0;
 				if (pToPlot->isEnemyCity(*pUnit))
 				{
 					CvCity* pCity = pToPlot->getPlotCity();
