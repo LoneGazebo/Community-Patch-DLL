@@ -786,7 +786,7 @@ void CvPlayerAI::AI_considerRaze()
 
 	// Only raze when super unhappy
 	int iNumCities = getNumCities();
-	if (!IsEmpireSuperUnhappy() || iNumCities == 1)
+	if (!IsEmpireSuperUnhappy() || iNumCities <= 1 || GetPlayerTraits()->IsNoAnnexing())
 		return;
 
 	int iCurrentHappiness = 0;
