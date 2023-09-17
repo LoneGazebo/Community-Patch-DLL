@@ -792,8 +792,8 @@ void CvArea::GetTopAndBottomLatitudes(int& iTopLatitude, int& iBottomLatitude) c
 /// What is the largest latitude value of this Area?
 int CvArea::GetAreaMaxLatitude()
 {
-	int iTopLatitude;
-	int iBottomLatitude;
+	int iTopLatitude = 0;
+	int iBottomLatitude = 0;
 	GetTopAndBottomLatitudes(iTopLatitude, iBottomLatitude);
 
 	return max(iTopLatitude, iBottomLatitude);
@@ -803,8 +803,8 @@ int CvArea::GetAreaMaxLatitude()
 /// What is the smallest latitude value of this Area?
 int CvArea::GetAreaMinLatitude()
 {
-	int iTopLatitude;
-	int iBottomLatitude;
+	int iTopLatitude = 0;
+	int iBottomLatitude = 0;
 	GetTopAndBottomLatitudes(iTopLatitude, iBottomLatitude);
 
 	return min(iTopLatitude, iBottomLatitude);

@@ -4472,7 +4472,7 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		else
 		{
 			BuildingClassTypes eGWBuildingClass; // Passed by reference below
-			int iGWSlot; // Passed by reference below
+			int iGWSlot = 0; // Passed by reference below
 			CvCity* pClosestValidCity = GetCulture()->GetClosestAvailableGreatWorkSlot(iCityX, iCityY, eGreatWorkSlot, &eGWBuildingClass, &iGWSlot);
 			if (pClosestValidCity)
 			{
@@ -19786,9 +19786,9 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 					{
 						break;
 					}
-					int iCityLoop;
+					int iCityLoop = 0;
 					CvCity* pPlayerCity = NULL;
-					int iGreatWorkIndex;
+					int iGreatWorkIndex = 0;
 					for (pPlayerCity = GET_PLAYER(ePlayer).firstCity(&iCityLoop); pPlayerCity != NULL; pPlayerCity = GET_PLAYER(ePlayer).nextCity(&iCityLoop))
 					{
 						if (iStuffStolen >= iPlunder)
@@ -19835,7 +19835,7 @@ void CvPlayer::DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity)
 														iNotificationArtwork = iGreatWorkIndex;
 														// and create great work at home
 														BuildingClassTypes eGWBuildingClass;
-														int iGWSlot;
+														int iGWSlot = 0;
 														CvCity *pArtCity = GetCulture()->GetClosestAvailableGreatWorkSlot(pPlayerCity->getX(), pPlayerCity->getY(), pkBuilding->GetGreatWorkSlotType(), &eGWBuildingClass, &iGWSlot);
 														if (pArtCity)
 														{
@@ -50703,7 +50703,7 @@ void CvPlayer::ChangeNumGreatPeople(int iValue)
 std::vector<int> CvPlayer::GetTotalBuildingCount(bool bIncludePuppets) const
 {
 	std::vector<int> vTotalBuildingCount(GC.getNumBuildingInfos(), 0);
-	int iLoop;
+	int iLoop = 0;
 	for (const CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 	{
 		if (bIncludePuppets || !CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))

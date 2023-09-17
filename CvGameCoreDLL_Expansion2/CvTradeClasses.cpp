@@ -7545,7 +7545,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 				}
 				
 				CvString playerName;
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				CvString strBaseString;
 				CvString strOutBuf;
 				CvString strFileName = "TradeRouteChoices.csv";
