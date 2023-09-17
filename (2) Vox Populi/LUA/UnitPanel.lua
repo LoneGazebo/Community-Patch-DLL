@@ -1355,7 +1355,7 @@ function TipHandler( control )
 				end
 			end
 			for row in GameInfo.Unit_ResourceQuantityExpended() do
-				local unitInfo = unit:GetUnitType() and GameInfo_Units[unit:GetUnitType()];
+				local unitInfo = unit:GetUnitType() and GameInfo.Units[unit:GetUnitType()];
 				if row.UnitType == unitInfo.Type then
 					strToolTip = strToolTip .. "[NEWLINE]";
 					strToolTip = strToolTip .. "+" .. row.Amount .. GameInfo.Resources[row.ResourceType].IconString .. " " .. Locale.Lookup(GameInfo.Resources[row.ResourceType].Description);
