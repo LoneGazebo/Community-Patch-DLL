@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.10.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.10.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -70,7 +70,7 @@
     <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Art/Improvements/Hacienda/hacienda_pl_decal.dds</File>
     <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Art/Improvements/Hacienda/hacienda_pl_diff.dds</File>
     <File md5="5F621716337E431B5DEA8DA45E4BBCBF" import="0">Art/Icons.xml</File>
-    <File md5="CD31163B1E1C8E1F0B57735186C762EB" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
+    <File md5="5C320CE4B3A54E8A98260C603237AEB5" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
     <File md5="983DE9ADD0468E96056922418BCCFB75" import="1">Art/Icons/VP_FontIconAtlas.ggxml</File>
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Art/Icons/citizenmusician.dds</File>
     <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Art/Icons/citizenwriter.dds</File>
@@ -511,16 +511,16 @@
     <File md5="C1D4FD8FA992AB758357C80EBCF0AAB4" import="0">Balance Changes/Terrain/FeatureChanges.sql</File>
     <File md5="6C68A3DF21ED74A806401DC905C8E02E" import="0">Balance Changes/Terrain/TerrainChanges.sql</File>
     <File md5="AE14BC13A06745E698750C293ED22D20" import="0">Balance Changes/Text/en_US/BuildingText.sql</File>
-    <File md5="D071A3DA49E1119F14BEC91B22A122E8" import="0">Balance Changes/Text/en_US/CivText.sql</File>
+    <File md5="94E12E8A46EBF20DD2B46403B5EFE3D4" import="0">Balance Changes/Text/en_US/CivText.sql</File>
     <File md5="D1165FFD405DEB6CDE3BE0407F974F98" import="0">Balance Changes/Text/en_US/BuildingText.xml</File>
     <File md5="C81904A6D24DB0EEBF7F72E0E9425007" import="0">Balance Changes/Text/en_US/EspionageEventText.xml</File>
     <File md5="7B1127DA192902CDA7090927B623EDF7" import="0">Balance Changes/Text/en_US/UIShortcutsCivilopedia.xml</File>
-    <File md5="37FF529B55555E876421B6640E5B2479" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
+    <File md5="FF5EF96007E538CF4F523CB8B1251082" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="7832D493A091DF977DBB103285B3C61A" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="9B8FFC8B60CCC0A8A4BD60E27AC208B9" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
-    <File md5="CE318E64E1080A79AF9A5B250DE92E7C" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
+    <File md5="F790DCBD9C91080AC93B346A2DA3B8B0" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="BF0A9CC1CFF4A48916B804C055AABF98" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="105747DC9C3574A37EFC770DE1E066AF" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="86EDBCB1F0FFDACD68A309BFCCFAA6E1" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="2A6BB18043C03B52481402D4A446D989" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="274060D55E45CDB58CF610D46083097B" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="CBA1F1A37EB2A2EE406A92B74F7F2C2D" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
@@ -806,7 +806,7 @@
     <File md5="FD36146DAEBC1FB26D9E59C2F22A7D17" import="0">C4DF/XML/Gameplay/C4DFResolutions.xml</File>
     <File md5="9673C39ED8080005A2B11B854BAD3AB4" import="0">C4DF/XML/Text/en_US_Text_CivilopediaC4DF.xml</File>
     <File md5="A9545F700A0EDA32BB5293202113D008" import="0">C4DF/XML/Text/en_US_Text_Generic_DiplomacyC4DF.xml</File>
-    <File md5="76CA679BAA1716C5CBA26C0906B5C95B" import="0">C4DF/XML/Text/en_US_Text_UIC4DF.xml</File>
+    <File md5="2366F0117D078F7A92DB31C868584359" import="0">C4DF/XML/Text/en_US_Text_UIC4DF.xml</File>
     <File md5="9BD9C9A1F021FABE111824AF049D42DA" import="1">Art/Resources/Font Icon Atlas/fonticons_newluxuries.dds</File>
     <File md5="DA735B47F82483C7B4CACF2DF4BD1EB7" import="1">Art/Resources/Font Icon Atlas/FontIcons_NewLuxuries.ggxml</File>
     <File md5="17966C2E77DEAA3831C5EB4ED533881A" import="1">Art/Resources/Icon Atlas/VP_ResourceAtlas256.dds</File>
