@@ -2703,7 +2703,12 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 			//now here's the trick, also include our non-army units which happen to be around
 			vector<CvUnit*> vOurAttackers = GET_PLAYER(vEnemyAttackers[i]->getOwner()).GetPossibleAttackers(*vEnemyAttackers[i]->plot(), vEnemyAttackers[i]->getTeam());
 			for (size_t j = 0; j < vOurAttackers.size(); j++)
-				ourUnitsInitial.insert(vOurAttackers[j]);
+			{
+				if (vOurAttackers[j]->getOwner() == m_pPlayer->GetID())
+				{
+					ourUnitsInitial.insert(vOurAttackers[j]);
+				}
+			}
 		}
 
 		pUnit = pArmy->GetNextUnit(pUnit);
