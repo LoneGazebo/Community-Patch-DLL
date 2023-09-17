@@ -4728,8 +4728,13 @@ BuildingTypes CvCityBuildings::GetBuildingTypeFromClass(BuildingClassTypes eInde
 	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	CacheBuildingTypeByClass();
-	m_buildingTypeByClass.find(eIndex);
-	return NO_BUILDING;
+	std::map<BuildingClassTypes, BuildingTypes>::iterator it = m_buildingTypeByClass.find(eIndex);
+	if (it != m_buildingTypeByClass.end()) {
+		return it->second;
+	}
+	else {
+		return NO_BUILDING;
+	}
 }
 
 /// Accessor: Removes all real buildings which belong to the specified building class.
