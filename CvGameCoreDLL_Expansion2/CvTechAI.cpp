@@ -279,7 +279,10 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 		return;
 
 	//first apply the weight to the tech itself
-	m_TechAIWeights.IncreaseWeight(iTech, iWeight);
+	if (m_TechAIWeights.GetWeight(iTech) + iWeight < 0)
+		m_TechAIWeights.SetWeight(iTech, 0);
+	else
+		m_TechAIWeights.IncreaseWeight(iTech, iWeight);
 
 	//then see if we have prerequites to take care of
 	if (iPropagationLevel >= /*3*/ GD_INT_GET(TECH_WEIGHT_PROPAGATION_LEVELS))

@@ -1035,31 +1035,6 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		setHasPromotion(kPlayer.GetDeepWaterEmbarkationPromotion(), true);
 	}
 
-	// Strip off Water Impeding promotions with the correct trait
-	if(kPlayer.GetPlayerTraits()->IsEmbarkedAllWater())
-	{
-		for(int iI = 0; iI < GC.getNumPromotionInfos(); iI++)
-		{
-			const PromotionTypes eWaterPromotion = static_cast<PromotionTypes>(iI);
-			CvPromotionEntry* pkPromotionInfo = GC.getPromotionInfo(eWaterPromotion);
-			if(pkPromotionInfo)
-			{
-				if( pkPromotionInfo->GetTerrainImpassable(TERRAIN_OCEAN) ||
-					pkPromotionInfo->GetTerrainHalfMove  (TERRAIN_OCEAN) ||
-					pkPromotionInfo->GetTerrainExtraMove (TERRAIN_OCEAN) ||
-					pkPromotionInfo->GetTerrainImpassable(TERRAIN_COAST) ||
-					pkPromotionInfo->GetTerrainHalfMove  (TERRAIN_COAST) ||
-					pkPromotionInfo->GetTerrainExtraMove (TERRAIN_COAST) )
-				{
-					if(isHasPromotion(eWaterPromotion))
-					{
-						setHasPromotion(eWaterPromotion, false);
-					}
-				}
-			}
-		}
-	}
-
 	// Any exotic goods that can be sold? (Portuguese unique unit mission)
 	if (getUnitInfo().GetNumExoticGoods() > 0)
 	{
@@ -27557,6 +27532,20 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			if (iPlagueImmunityID > -1)
 			{
 				RemovePlague(iPlagueImmunityID, -1);
+			}
+		}
+
+		// Polynesia's units have immunity to Water Impeding promotions
+		if (bNewValue && GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
+		{
+			if (thisPromotion.GetTerrainImpassable(TERRAIN_OCEAN) ||
+				thisPromotion.GetTerrainHalfMove  (TERRAIN_OCEAN) ||
+				thisPromotion.GetTerrainExtraMove (TERRAIN_OCEAN) ||
+				thisPromotion.GetTerrainImpassable(TERRAIN_COAST) ||
+				thisPromotion.GetTerrainHalfMove  (TERRAIN_COAST) ||
+				thisPromotion.GetTerrainExtraMove (TERRAIN_COAST))
+			{
+				return;
 			}
 		}
 

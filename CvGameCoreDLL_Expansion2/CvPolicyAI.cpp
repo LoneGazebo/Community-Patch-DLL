@@ -34,7 +34,7 @@ void CvPolicyAI::Reset()
 {
 	m_PolicyAIWeights.clear();
 	m_iPolicyWeightPropagationLevels = /*2*/ GD_INT_GET(POLICY_WEIGHT_PROPAGATION_LEVELS);
-	m_iPolicyWeightPercentDropNewBranch = /*90*/ GD_INT_GET(POLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH);
+	m_iPolicyWeightPercentDropNewBranch = /*90*/ max(GD_INT_GET(POLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH), 0);
 
 	CvAssertMsg(m_pCurrentPolicies != NULL, "Policy AI init failure: player policy data is NULL");
 	if(m_pCurrentPolicies != NULL)
@@ -4911,7 +4911,8 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 			}
 		}
 	}
-	return iWeight;
+
+	return max(iWeight, 0);
 }
 
 /// Priority for opening up this branch
@@ -5001,7 +5002,7 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 		}
 	}
 
-	return iWeight;
+	return max(iWeight, 0);
 }
 
 /// Based on game options (religion off, science off, etc.), would this branch do us any good?
