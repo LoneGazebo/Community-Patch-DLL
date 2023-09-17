@@ -4822,6 +4822,17 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 	if (bFirstConquest && getNumCities() > 0)
 		DoDifficultyBonus(DIFFICULTY_BONUS_CITY_CONQUEST);
 
+	// Minor Civ quest test
+	if (isMajorCiv())
+	{
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			if (eMinor != eOldOwner && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(GetID(), /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_ACQUIRE_CITY);
+		}
+	}
+
 	// Now that everything is done, we need to update diplomacy!
 	// This prevents the AI from getting exploited in peace deals, among other things
 	vector<PlayerTypes> vNewOwnerTeam = GET_TEAM(getTeam()).getPlayers();
@@ -10050,6 +10061,17 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 	// Update Proximity between the liberated player and all others
 	GET_PLAYER(ePlayer).DoUpdateProximityToPlayers();
+
+	// Minor Civ quest test
+	if (isMajorCiv())
+	{
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			if (eMinor != ePlayer && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(GetID(), /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_LIBERATION);
+		}
+	}
 
 	// Update diplo stuff
 	if (bAlive)

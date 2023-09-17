@@ -1329,18 +1329,15 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 	// Update Unit Production Maintenance
 	kPlayer.UpdateUnitProductionMaintenanceMod();
 
-	// Minor Civ quest
-	if(!kPlayer.isMinorCiv() && !isBarbarian())
+	// Minor Civ quest test
+	if (IsGreatPerson() && kPlayer.isMajorCiv())
 	{
-		PlayerTypes eMinor;
-		for(int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
-			eMinor = (PlayerTypes) iMinorCivLoop;
-			if(GET_PLAYER(eMinor).isAlive())
-			{
-				// Does this Minor want us to spawn a Unit?
+			// Does this Minor want us to spawn a Unit?
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			if (GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
 				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(getOwner(), /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_GREAT_PERSON);
-			}
 		}
 	}
 

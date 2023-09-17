@@ -16876,17 +16876,13 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	}
 
 	// Inform other alive minors, in case they had a quest that this fulfills
-	for (int iMinorLoop = MAX_MAJOR_CIVS; iMinorLoop < MAX_CIV_PLAYERS; iMinorLoop++)
+	if (GET_PLAYER(eBully).isMajorCiv())
 	{
-		PlayerTypes eMinorLoop = (PlayerTypes) iMinorLoop;
-		if (eMinorLoop == GetPlayer()->GetID()) continue;
-
-		CvPlayer* pMinorLoop = &GET_PLAYER(eMinorLoop);
-		if (!pMinorLoop) continue;
-
-		if (pMinorLoop->isAlive() && pMinorLoop->GetMinorCivAI()->IsHasMetPlayer(eBully))
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 		{
-			pMinorLoop->GetMinorCivAI()->DoTestActiveQuestsForPlayer(eBully, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_BULLY_CITY_STATE);
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(eBully, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_BULLY_CITY_STATE);
 		}
 	}
 

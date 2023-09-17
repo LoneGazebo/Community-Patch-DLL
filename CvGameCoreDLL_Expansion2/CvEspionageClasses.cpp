@@ -4100,6 +4100,17 @@ bool CvPlayerEspionage::AttemptCoup(uint uiSpyIndex)
 
 	pMinorCivAI->SetCoupAttempted(m_pPlayer->GetID(), true);
 
+	// Inform other alive minors, in case they had a quest that this fulfills (or fails)
+	if (m_pPlayer->isMajorCiv())
+	{
+		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
+		{
+			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+			if (eMinor != eCityOwner && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(m_pPlayer->GetID(), /*bTestComplete*/ true, /*bTestObsolete*/ true, MINOR_CIV_QUEST_COUP);
+		}
+	}
+
 	// Update City banners and game info
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
