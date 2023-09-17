@@ -31879,7 +31879,6 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 	// nM: +10 Pincer (Boarding Party) 4.	
 	if(iTemp > 0)
 	{
-
 		iExtra  = (iTemp) * ( iFlavorDefense + iFlavorOffense + iFlavorMobile);
 		iExtra *= 100 + GetFlankAttackModifier();
 		iExtra /= 100;
@@ -31890,10 +31889,9 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	iTemp = pkPromotionInfo->GetExtraFlankPower();
 	// Screening: Only recon units can use it now however, so it's not that high of a value.
-	// If you had access to flanking bonuses however.. always choose this over other flanking promotion!
+	// If you have access to flanking bonuses however.. always choose this over other flanking promotions!
 	if (iTemp > 0)
 	{
-
 		iExtra = (iTemp) * (iFlavorOffense + iFlavorMobile + iFlavorRecon);
 		iExtra *= 100 + GetFlankAttackModifier();
 		iExtra /= 100;
@@ -31903,7 +31901,7 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 
 	if (pkPromotionInfo->IsRangedFlankAttack() && !IsRangedFlankAttack() && IsCanAttackRanged())
 	// Envelopment: Only available to Skirmishers (Mounted Ranged)
-	// This is really strong, but if my ranged attacks exceed 1 range. I can't use this as effectively.
+	// This is really strong, but if my ranged attacks exceed 1 range, I can't use this as effectively.
 	{
 		iExtra = (iFlavorOffense + iFlavorMobile);
 		iExtra *= 2;
