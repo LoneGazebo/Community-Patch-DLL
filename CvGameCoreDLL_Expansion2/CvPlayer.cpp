@@ -22503,7 +22503,7 @@ void CvPlayer::DoCityRevolt()
 			{
 				const CvString strCityName = pMostUnhappyCity->getName();
 				const char* charCityName = pMostUnhappyCity->getName().GetCString();
-				if (GC.getGame().CreateFreeCityPlayer(pMostUnhappyCity))
+				if (GC.getGame().CreateFreeCityPlayer(pMostUnhappyCity, false, false))
 				{
 					CvPlayer &kRecipient = GET_PLAYER(eRecipient);
 					for (int iNotifyLoop = 0; iNotifyLoop < MAX_MAJOR_CIVS; ++iNotifyLoop){
@@ -22750,7 +22750,7 @@ PlayerTypes CvPlayer::GetMostUnhappyCityRecipient(CvCity* pMostUnhappyCity)
 		//doesn't happen if we're influenced by someone
 		if (ePreferredIdeology == NO_POLICY_BRANCH_TYPE || ePreferredIdeology == GetPlayerPolicies()->GetLateGamePolicyTree())
 		{
-			if (GC.getGame().CreateFreeCityPlayer(pMostUnhappyCity, true))
+			if (GC.getGame().CreateFreeCityPlayer(pMostUnhappyCity, true, false))
 			{
 				PlayerTypes ePotentialFreeCityPlayer = GC.getGame().GetPotentialFreeCityPlayer(pMostUnhappyCity);
 				if (ePotentialFreeCityPlayer != NO_PLAYER && GC.getGame().GetPotentialFreeCityTeam(pMostUnhappyCity) != NO_TEAM)

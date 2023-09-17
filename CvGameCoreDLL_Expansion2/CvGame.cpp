@@ -14640,7 +14640,7 @@ MinorCivTypes CvGame::GetAvailableMinorCivType()
 	return NO_MINORCIV;
 }
 
-bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
+bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, bool bMajorFoundingCityState)
 {
 	if (pStartingCity == NULL)
 		return false;
@@ -14705,12 +14705,36 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking)
 	if (!pNewCity->IsNoOccupiedUnhappiness())
 		pNewCity->ChangeNoOccupiedUnhappinessCount(1);
 
+	// The Phoenicia modmod converts founded cities into City-States
+	// Also, if a City-State was replaced with a City-State, this is actually a LUA workaround at game start to replace one City-State with another (since City-States can't have revolts).
+	// In either of these cases, set the city up as if it had never been conquered
+	bool bWorkaround = false;
+	PlayerTypes ePreviousOwner = pNewCity->getPreviousOwner();
+	if (bMajorFoundingCityState || (ePreviousOwner != NO_PLAYER && GET_PLAYER(ePreviousOwner).isMinorCiv()))
+	{
+		pNewCity->setPreviousOwner(NO_PLAYER);
+		pNewCity->setOriginalOwner(eNewPlayer);
+		pNewCity->setGameTurnFounded(GC.getGame().getGameTurn());
+		pNewCity->setNeverLost(true);
+		GET_PLAYER(eNewPlayer).setOriginalCapitalXY(pNewCity);
+
+		if (!bMajorFoundingCityState)
+		{
+			GET_PLAYER(ePreviousOwner).resetOriginalCapitalXY();
+			GET_PLAYER(ePreviousOwner).setAlive(false, false);
+			bWorkaround = true;
+		}
+	}
+
 	kPlayer.GetMinorCivAI()->SetTurnLiberated(getGameTurn());
 
 	//update our techs!
 	GET_TEAM(kPlayer.getTeam()).DoMinorCivTech();
 
-	DoSpawnUnitsAroundTargetCity(eNewPlayer, pNewCity, GC.getGame().getCurrentEra() + 2, false, true, false, false);
+	if (bWorkaround)
+		GET_PLAYER(eNewPlayer).initFreeUnits();
+	else
+		DoSpawnUnitsAroundTargetCity(eNewPlayer, pNewCity, GC.getGame().getCurrentEra() + 2, false, true, false, false);
 
 	// Move Units from player that don't belong here
 	if (pPlot->getNumUnits() > 0)
