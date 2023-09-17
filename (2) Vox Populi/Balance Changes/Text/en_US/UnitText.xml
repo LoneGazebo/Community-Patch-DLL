@@ -498,7 +498,7 @@
 			<Text>Reconnaissance</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_RECON_EXPERIENCE_HELP">
-			<Text>Gains XP from revealing tiles.</Text>
+			<Text>Gains XP from revealing tiles.[NEWLINE]May claim [COLOR_POSITIVE_TEXT]{TXT_KEY_ANTIQUITY_LEGEND_GOODY_HUT}[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_KNOCKOUT_III">
