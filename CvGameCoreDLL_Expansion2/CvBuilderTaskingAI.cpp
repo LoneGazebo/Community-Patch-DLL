@@ -1854,7 +1854,7 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<Builder
 	}
 	bool isPillagedRouteWeWantToRepair = NeedRouteAtPlot(pPlot) && pPlot->IsRoutePillaged();
 	// If it's owned by us, but it's being razed, ignore it (check actual owning city instead of working city)
-	if (isOwnedByUs && pPlot->getOwningCity()->IsRazing() && !isPillagedRouteWeWantToRepair)
+	if (isOwnedByUs && pPlot->getOwningCity() && pPlot->getOwningCity()->IsRazing() && !isPillagedRouteWeWantToRepair)
 	{
 		return;
 	}
