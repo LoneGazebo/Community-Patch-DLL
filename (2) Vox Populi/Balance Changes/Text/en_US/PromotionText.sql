@@ -771,3 +771,19 @@
 	UPDATE Language_en_US 
 	SET Text = '+20% [ICON_STRENGTH] Combat Strength when attacking [COLOR:255:230:85:255]Naval Units[ENDCOLOR].' 
 	WHERE Tag = 'TXT_KEY_PROMOTION_AERIAL_TORPEDO_HELP';
+	
+	UPDATE Language_en_US 
+	SET Text = '+1 [ICON_VP_VISION] Sight.' 
+	WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_1_HELP';
+	
+	UPDATE Language_en_US 
+	SET Text = '+1 [ICON_VP_VISION] Sight.' 
+	WHERE Tag = 'TXT_KEY_PROMOTION_SCOUTING_2_HELP';
+	
+	UPDATE Language_en_US 
+	SET Text = '+1 [ICON_VP_VISION] Sight.' 
+	WHERE Tag = 'TXT_KEY_PROMOTION_SENTRY_HELP';
+	
+	UPDATE Language_en_US 
+	SET Text = '-1 [ICON_VP_VISION] Sight.' 
+	WHERE Tag = 'TXT_KEY_PROMOTION_SIGHT_PENALTY_HELP';
