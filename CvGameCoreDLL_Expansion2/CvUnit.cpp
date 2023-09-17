@@ -3198,6 +3198,12 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 			// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
 			if (MOD_BALANCE_VP)
 			{
+				// Unused code, but might be used in next Congress
+				// allows captured units to gain XP off its origin city (of its capturer which is either the nearest city or the Capital City!)
+				//CvCity* pOriginCityCaptured = pkCapturedUnit->getOriginCity();
+				//if (pOriginCityCaptured == NULL)
+				//	pOriginCityCaptured = GET_PLAYER(kCaptureDef.eCapturingPlayer).getCapitalCity();
+				//pOriginCityCaptured->addProductionExperience(pkCapturedUnit, false, true);
 				pkCapturedUnit->restoreFullMoves();
 				pkCapturedUnit->setMadeAttack(true);
 				pkCapturedUnit->SetTurnProcessed(false);
@@ -31879,6 +31885,33 @@ int CvUnit::AI_promotionValue(PromotionTypes ePromotion)
 		iExtra /= 100;
 		iExtra *= 0.5;
 		iExtra *= (2 + baseMoves(false)) / 2;    		// gives max moves, false = not embarked	
+		iValue += iExtra;
+	}
+
+	iTemp = pkPromotionInfo->GetExtraFlankPower();
+	// Screening: Only recon units can use it now however, so it's not that high of a value.
+	// If you had access to flanking bonuses however.. always choose this over other flanking promotion!
+	if (iTemp > 0)
+	{
+
+		iExtra = (iTemp) * (iFlavorOffense + iFlavorMobile + iFlavorRecon);
+		iExtra *= 100 + GetFlankAttackModifier();
+		iExtra /= 100;
+		iExtra *= (2 + baseMoves(false)) / 2;    		// gives max moves, false = not embarked	
+		iValue += iExtra;
+	}
+
+	if (pkPromotionInfo->IsRangedFlankAttack() && !IsRangedFlankAttack() && IsCanAttackRanged())
+	// Envelopment: Only available to Skirmishers (Mounted Ranged)
+	// This is really strong, but if my ranged attacks exceed 1 range. I can't use this as effectively.
+	{
+		iExtra = (iFlavorOffense + iFlavorMobile);
+		iExtra *= 2;
+		iExtra *= max(1, baseMoves(false));
+		if (canMoveAfterAttacking())
+			iExtra *= 5;
+		if (GetRange() > 1)
+			iExtra /= 10;
 		iValue += iExtra;
 	}
 

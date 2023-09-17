@@ -1106,7 +1106,7 @@ SET Text = 'The Comanche Riders replaces the Cavalry, and only the Shoshone may 
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'This unit is excellent at exploring during the early game. Be wary using it to fend off barbarians, however.'
+SET Text = '{TXT_KEY_UNITCOMBAT_RECON} such as this one are some of the only units allowed to uncover hidden secrets in [COLOR_POSITIVE_TEXT]{TXT_KEY_ANTIQUITY_LEGEND_GOODY_HUT}[ENDCOLOR]. Be wary using it to fend off barbarians, however as the Unit is meant for exploring!'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SHOSHONE_PATHFINDER';
 
 UPDATE Language_en_US
