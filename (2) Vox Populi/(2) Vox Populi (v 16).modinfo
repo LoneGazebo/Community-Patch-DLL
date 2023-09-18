@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.10.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.10.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -178,7 +178,7 @@
     <File md5="5015C3FA07D87E5FFB57B523251E67F3" import="1">Art/Promotions/extraPromo_045.dds</File>
     <File md5="8341BD50EAA245DBE05A15F09C0366FA" import="1">Art/Promotions/extraPromo_064.dds</File>
     <File md5="46D6C357C6E857D8E97A635918BFD7B8" import="1">Art/Promotions/extraPromo_256.dds</File>
-    <File md5="85005B8DE8ADD1498B7E5A545C9C4AFF" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
+    <File md5="6733F95C5AB546FD2559CA894657CC2A" import="0">Art/Promotions/Promotion Icons for VP.txt</File>
     <File md5="51AC21C1B109126BB17A68BDDE77D91A" import="1">Art/Promotions/promoVP_00_016.dds</File>
     <File md5="8FEA4C187F2DE97ABCB8A16AB161BEB9" import="1">Art/Promotions/promoVP_00_032.dds</File>
     <File md5="0FB9793BE3B9931613E9EAFC190DACB8" import="1">Art/Promotions/promoVP_00_045.dds</File>
@@ -276,6 +276,7 @@
     <File md5="A1B4D441370E5E3308EF01AEB7B9F1B1" import="1">Art/Splash/motherlandsplash.dds</File>
     <File md5="503E4C958296A2F1D9097970C1971199" import="1">Art/Splash/SlaterSplash.dds</File>
     <File md5="00D529A1E8584E63D5086EC13A59E333" import="1">Art/Splash/TheJewelSplash.dds</File>
+    <File md5="170A085A064CA2AE4E017B1BACAED45F" import="1">Art/Splash/Murica_WonderSplash.dds</File>
     <File md5="27D8F6F68F034BC5BF15DE7698735EA7" import="1">Art/Units/ArmoredCar/FordM1918.dds</File>
     <File md5="BE230C14A4443DC6A4F8AB32F49CE261" import="1">Art/Units/ArmoredCar/FordM1918.fxsxml</File>
     <File md5="DAADB92335DB6FE0FD9EBC1A9F608A3E" import="1">Art/Units/ArmoredCar/FordM1918.gr2</File>
@@ -626,7 +627,7 @@
     <File md5="932101EC9980F51B2BB27F9A8EF5568D" import="1">LUA/TradeLogic.lua</File>
     <File md5="CA6428504FBE7E5D4426FF3BA1C52EED" import="1">LUA/UnitFlagManager.lua</File>
     <File md5="79EC0F518D3BE91C47CF662381D5C9FE" import="1">LUA/UnitFlagManager.xml</File>
-    <File md5="0F8BA2B3598B104A13A15A12C9F28599" import="1">LUA/UnitPanel.lua</File>
+    <File md5="3E9DC836897C712FA6C5CCCF495E975E" import="1">LUA/UnitPanel.lua</File>
     <File md5="50FD2DE93A8A060763D279F4664D030C" import="1">Core Files/CoreLua/VictoryProgress.lua</File>
     <File md5="1789009F209A70B6EBE6CB940152CCF4" import="1">Core Files/CoreLua/VictoryProgress.xml</File>
     <File md5="2F4E8578875AA96C3D8553D2E7DE0883" import="1">Core Files/CoreLua/WhosWinningPopup.lua</File>
