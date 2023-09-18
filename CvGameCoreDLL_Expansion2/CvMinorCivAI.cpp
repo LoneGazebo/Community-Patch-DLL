@@ -16876,14 +16876,11 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	}
 
 	// Inform other alive minors, in case they had a quest that this fulfills
-	if (GET_PLAYER(eBully).isMajorCiv())
+	for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
 	{
-		for (int iMinorCivLoop = MAX_MAJOR_CIVS; iMinorCivLoop < MAX_CIV_PLAYERS; iMinorCivLoop++)
-		{
-			PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
-			if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
-				GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(eBully, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_BULLY_CITY_STATE);
-		}
+		PlayerTypes eMinor = (PlayerTypes) iMinorCivLoop;
+		if (eMinor != GetPlayer()->GetID() && GET_PLAYER(eMinor).isAlive() && GET_PLAYER(eMinor).isMinorCiv())
+			GET_PLAYER(eMinor).GetMinorCivAI()->DoTestActiveQuestsForPlayer(eBully, /*bTestComplete*/ true, /*bTestObsolete*/ false, MINOR_CIV_QUEST_BULLY_CITY_STATE);
 	}
 
 	SetTurnLastBulliedByMajor(eBully, GC.getGame().getGameTurn());
