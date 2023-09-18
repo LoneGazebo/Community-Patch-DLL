@@ -864,6 +864,8 @@ protected:
 	static int lGetMajorBullyUnitDetails(lua_State* L);
 	static int lGetMajorBullyAnnexDetails(lua_State* L);
 	static int lGetMajorBullyValue(lua_State* L);
+	static int lGetUnitSpawnCounter(lua_State* L);
+	static int lSetUnitSpawnCounter(lua_State* L);
 	static int lCanMajorBuyout(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lCanMajorMarry(lua_State* L);

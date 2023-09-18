@@ -762,6 +762,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorBullyUnitDetails);
 	Method(GetMajorBullyAnnexDetails);
 	Method(GetMajorBullyValue);
+	Method(GetUnitSpawnCounter);
+	Method(SetUnitSpawnCounter);
 	Method(CanMajorBuyout);
 	Method(CanMajorMarry);
 	Method(DoMarriage);
@@ -9193,6 +9195,26 @@ int CvLuaPlayer::lGetMajorBullyValue(lua_State* L)
 
 	lua_pushinteger(L, iValue);
 	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetUnitSpawnCounter(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetUnitSpawnCounter(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+
+	pkPlayer->GetMinorCivAI()->SetUnitSpawnCounter(eMajor, iValue);
+	return 0;
 }
 //------------------------------------------------------------------------------
 //bool CanMajorBuyout(PlayerTypes eMajor);

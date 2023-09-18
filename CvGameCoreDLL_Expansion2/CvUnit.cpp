@@ -10566,7 +10566,7 @@ bool CvUnit::pillage()
 				}
 				else
 				{
-					iPillageGold += GC.getGame().randRangeExclusive(0, pkImprovement->GetPillageGold(), CvSeeder(plot()->GetPseudoRandomSeed()));
+					iPillageGold += GC.getGame().randRangeInclusive(0, pkImprovement->GetPillageGold(), CvSeeder(plot()->GetPseudoRandomSeed()));
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
