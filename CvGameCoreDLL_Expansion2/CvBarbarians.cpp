@@ -1384,10 +1384,11 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (pkResourceInfo)
 			{
+				bool bTypeMatch = eResource == (ResourceTypes)pkUnitInfo->GetResourceType();
 				int iNumResourceRequired = pkUnitInfo->GetResourceQuantityRequirement(eResource);
 				int iNumResourceTotal = MOD_UNITS_RESOURCE_QUANTITY_TOTALS ? pkUnitInfo->GetResourceQuantityTotal(eResource) : 0;
 
-				if (iNumResourceRequired > 0 || iNumResourceTotal > 0)
+				if (bTypeMatch || iNumResourceRequired > 0 || iNumResourceTotal > 0)
 				{
 					bRequiresResources = true;
 					if (std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
