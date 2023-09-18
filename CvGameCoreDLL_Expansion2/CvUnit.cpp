@@ -27484,31 +27484,39 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 	if (eIndex == NO_PROMOTION || eIndex >= GC.getNumPromotionInfos())
 		return;
 
-	if(isHasPromotion(eIndex) != bNewValue)
+	if (isHasPromotion(eIndex) != bNewValue)
 	{
 		CvPromotionEntry& thisPromotion = *GC.getPromotionInfo(eIndex);
 
-#if defined(MOD_GLOBAL_CANNOT_EMBARK)
-		if (bNewValue && MOD_GLOBAL_CANNOT_EMBARK && getUnitInfo().CannotEmbark()) {
-			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater()) {
+		if (bNewValue && MOD_GLOBAL_CANNOT_EMBARK && getUnitInfo().CannotEmbark())
+		{
+			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater())
 				return;
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-			} else if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && thisPromotion.IsEmbarkedDeepWater()) {
+			else if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && thisPromotion.IsEmbarkedDeepWater())
 				return;
-#endif
-			}
 		}
-#endif
 
 		// Firaxis only use the CanMoveAllTerrain promotion in the Smokey Skies scenario,
 		// which doesn't have the situation where the player discovers Optics ...
-		if (bNewValue && (canMoveAllTerrain() || isConvertUnit())) {
-			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater()) {
+		if (bNewValue && (canMoveAllTerrain() || isConvertUnit()))
+		{
+			if (thisPromotion.IsAllowsEmbarkation() || thisPromotion.IsEmbarkedAllWater())
 				return;
-#if defined(MOD_PROMOTIONS_DEEP_WATER_EMBARKATION)
-			} else if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && thisPromotion.IsEmbarkedDeepWater()) {
+			else if (MOD_PROMOTIONS_DEEP_WATER_EMBARKATION && thisPromotion.IsEmbarkedDeepWater())
 				return;
-#endif
+		}
+
+		// Polynesia's units have immunity to Water Impeding promotions
+		if (bNewValue && GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
+		{
+			if (thisPromotion.GetTerrainImpassable(TERRAIN_OCEAN) ||
+				thisPromotion.GetTerrainHalfMove  (TERRAIN_OCEAN) ||
+				thisPromotion.GetTerrainExtraMove (TERRAIN_OCEAN) ||
+				thisPromotion.GetTerrainImpassable(TERRAIN_COAST) ||
+				thisPromotion.GetTerrainHalfMove  (TERRAIN_COAST) ||
+				thisPromotion.GetTerrainExtraMove (TERRAIN_COAST))
+			{
+				return;
 			}
 		}
 
@@ -27535,20 +27543,6 @@ void CvUnit::setHasPromotion(PromotionTypes eIndex, bool bNewValue)
 			if (iPlagueImmunityID > -1)
 			{
 				RemovePlague(iPlagueImmunityID, -1);
-			}
-		}
-
-		// Polynesia's units have immunity to Water Impeding promotions
-		if (bNewValue && GET_PLAYER(getOwner()).GetPlayerTraits()->IsEmbarkedAllWater())
-		{
-			if (thisPromotion.GetTerrainImpassable(TERRAIN_OCEAN) ||
-				thisPromotion.GetTerrainHalfMove  (TERRAIN_OCEAN) ||
-				thisPromotion.GetTerrainExtraMove (TERRAIN_OCEAN) ||
-				thisPromotion.GetTerrainImpassable(TERRAIN_COAST) ||
-				thisPromotion.GetTerrainHalfMove  (TERRAIN_COAST) ||
-				thisPromotion.GetTerrainExtraMove (TERRAIN_COAST))
-			{
-				return;
 			}
 		}
 
