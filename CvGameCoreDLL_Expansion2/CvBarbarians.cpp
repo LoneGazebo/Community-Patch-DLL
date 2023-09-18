@@ -1378,6 +1378,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 
 		// If the unit requires resources, that resource must be nearby and allowed to be used
 		bool bRequiresResources = false;
+		bool bBad = false;
 		for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
 		{
 			const ResourceTypes eResource = static_cast<ResourceTypes>(iResourceLoop);
@@ -1392,10 +1393,15 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 				{
 					bRequiresResources = true;
 					if (std::find(vValidResources.begin(), vValidResources.end(), eResource) == vValidResources.end())
-						continue;
+					{
+						bBad = true;
+						break;
+					}
 				}
 			}
 		}
+		if (bBad)
+			continue;
 
 		// Must have prereq tech(s) and must NOT have obsolete tech
 		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
