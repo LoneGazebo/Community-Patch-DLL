@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.10.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.10.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -519,9 +519,9 @@
     <File md5="FF5EF96007E538CF4F523CB8B1251082" import="0">Balance Changes/Text/en_US/UnitText.xml</File>
     <File md5="7832D493A091DF977DBB103285B3C61A" import="0">Balance Changes/Text/en_US/UIText.xml</File>
     <File md5="9B8FFC8B60CCC0A8A4BD60E27AC208B9" import="0">Balance Changes/Text/en_US/TerrainText.xml</File>
-    <File md5="F790DCBD9C91080AC93B346A2DA3B8B0" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
+    <File md5="01F4BFABED54604D9485A1EA9893634B" import="0">Balance Changes/Text/en_US/PromotionText.sql</File>
     <File md5="BF0A9CC1CFF4A48916B804C055AABF98" import="0">Balance Changes/Text/en_US/PolicyText.sql</File>
-    <File md5="86EDBCB1F0FFDACD68A309BFCCFAA6E1" import="0">Balance Changes/Text/en_US/UIText.sql</File>
+    <File md5="EF5CB6992BF076D3E75F666E7C60F64F" import="0">Balance Changes/Text/en_US/UIText.sql</File>
     <File md5="2A6BB18043C03B52481402D4A446D989" import="0">Balance Changes/Text/en_US/OtherText.sql</File>
     <File md5="274060D55E45CDB58CF610D46083097B" import="0">Balance Changes/Text/en_US/UnitText.sql</File>
     <File md5="CBA1F1A37EB2A2EE406A92B74F7F2C2D" import="0">Balance Changes/Text/en_US/ReligionText.sql</File>
@@ -575,7 +575,7 @@
     <File md5="84D164B3661A5A6EA831CFCC173CE723" import="1">LUA/CityView.lua</File>
     <File md5="615971860CD3A30FE4938845DCECF03E" import="1">LUA/CityView.xml</File>
     <File md5="87B455A2A51F036C76A7C77F329D4F39" import="1">LUA/CityView_small.xml</File>
-    <File md5="82FDB844799721FE45B460C7AF3BD10E" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
+    <File md5="BD61C511E1B11F95393F2CEA38108B31" import="1">Core Files/CoreLua/CivilopediaScreen.lua</File>
     <File md5="BCA09FCF702B305481F54C5879D72D47" import="1">Core Files/CoreLua/CivilopediaScreen.xml</File>
     <File md5="F6417FE8ED4E43193BAF66F824138EF6" import="1">Core Files/CoreLua/CultureOverview.lua</File>
     <File md5="FF24766DBE44C7F381A9DAAFF9E555C9" import="1">Core Files/CoreLua/CultureOverview.xml</File>
@@ -601,7 +601,7 @@
     <File md5="252CF7B30C29EDDB13DE924B209CA71F" import="1">Core Files/CoreLua/GPList.xml</File>
     <File md5="78BF57F2575D05766035394A334F8362" import="1">LUA/HappinessInfo.lua</File>
     <File md5="2F206B1CCE3C1E0723BA0FE5D9A8F22E" import="1">LUA/HappinessInfo.xml</File>
-    <File md5="352986082A0762817B206B654A159F78" import="1">LUA/InfoTooltipInclude.lua</File>
+    <File md5="A121405045605969DE7FACA7AD4DB0EF" import="1">LUA/InfoTooltipInclude.lua</File>
     <File md5="23AF508513B9408E786AD926037ED331" import="1">LUA/LeaderHeadRoot.lua</File>
     <File md5="F78BC96D218E6401821E6A8E5422E199" import="1">LUA/LeaderHeadRoot.xml</File>
     <File md5="6D5F67979B18C4C6B38CA4B305C30F4E" import="1">Core Files/CoreLua/LeagueOverview.lua</File>

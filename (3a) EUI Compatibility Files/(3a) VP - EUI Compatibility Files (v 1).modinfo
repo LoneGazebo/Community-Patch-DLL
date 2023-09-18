@@ -2,7 +2,7 @@
 <Mod id="24923240-e4fb-4bf6-8f0e-6e5b6cf4d3c2" version="1">
   <Properties>
     <Name>(3a) VP - EUI Compatibility Files</Name>
-    <Teaser>(3.10.5) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
+    <Teaser>(3.10.6) Vox Populi Compatibility and LUA (EUI Version)</Teaser>
     <Description>Contains LUA and mod compatibility files for Vox Populi if using EUI.</Description>
     <Authors>Gazebo</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -48,7 +48,7 @@
     <File md5="3AA31474D48D0E493220C9B7C0F1AA24" import="1">LUA/DiploCorner.lua</File>
     <File md5="66BFFDAC10E0E688F10948C69D752D91" import="1">LUA/DiploCorner.xml</File>
     <File md5="EFB0435042079A172C7E1B211A204144" import="1">LUA/EUI_core_library.lua</File>
-    <File md5="F8C8AF30C8277E3367980B13C38331AC" import="1">LUA/EUI_tooltip_library.lua</File>
+    <File md5="AEC5772A2E9AF3F614E82FD12A282025" import="1">LUA/EUI_tooltip_library.lua</File>
     <File md5="FC4666BDE2F58684AF9157221B0B6607" import="1">LUA/HappinessInfo.lua</File>
     <File md5="B3FA1EB3C9C21C348FD178C7CE3D8393" import="1">LUA/HappinessInfo.xml</File>
     <File md5="FA17D7B5E845BF3CC8003CC9CBCEB0A5" import="1">LUA/LeaderHeadRoot.lua</File>
