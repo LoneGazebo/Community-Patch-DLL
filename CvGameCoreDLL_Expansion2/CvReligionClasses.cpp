@@ -3201,10 +3201,6 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 		return false;
 	}
 
-	// Don't check this in Classical (for Byzantium) or Industrial (for other civs)
-	if (kPlayer.GetCurrentEra() >= GetFaithPurchaseGreatPeopleEra(&kPlayer))
-		return false;
-
 #if defined(MOD_NO_AUTO_SPAWN_PROPHET)
 	bool prophetboughtwithfaith = false;
 #endif
@@ -3217,9 +3213,13 @@ bool CvGameReligions::CheckSpawnGreatProphet(CvPlayer& kPlayer)
 #endif
 
 	ReligionTypes ePlayerReligion = GET_PLAYER(kPlayer.GetID()).GetReligions()->GetOwnedReligion();
-	if (ePlayerReligion > RELIGION_PANTHEON)
+	if (ePlayerReligion != NO_RELIGION)
 	{
 		pReligion = GetReligion(ePlayerReligion, kPlayer.GetID());
+
+		// Don't check this in Classical for Byzantium, if a religion is owned
+		if (kPlayer.GetCurrentEra() >= GetFaithPurchaseGreatPeopleEra(&kPlayer))
+			return false;
 	}
 
 	// If player hasn't founded a religion yet, drop out of this if all religions have been founded
