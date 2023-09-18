@@ -2394,10 +2394,23 @@ local function GetCultureTooltip( city )
 
 	-- Tile growth
 	tips:insert( "" )
-	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
 	local borderGrowthRate = culturePerTurn + city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL)
 	local borderGrowthRateIncrease = city:GetBorderGrowthRateIncreaseTotal()
 	borderGrowthRate = math_floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100)
+	if city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL) ~= 0 then
+		tips:insert( "[ICON_BULLET]" .. city:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL) .. " [ICON_CULTURE_LOCAL] " .. L("TXT_KEY_YIELD_CULTURE_LOCAL"))
+	end
+	if city:GetBorderGrowthRateIncreaseTotal() ~= 0 then
+		tips:insert( "[ICON_BULLET]+" .. city:GetBorderGrowthRateIncreaseTotal() .. "% [ICON_CULTURE_LOCAL] " .. L("TXT_KEY_YIELD_CULTURE_LOCAL"))
+	end
+	if borderGrowthRate > 0 and borderGrowthRate ~= culturePerTurn then
+		tips:insert( "----------------" )
+		tips:insertLocalized( "TXT_KEY_YIELD_TOTAL", borderGrowthRate, "[ICON_CULTURE_LOCAL]" )
+	end
+	
+	tips:insert( "" )
+	tips:insertLocalized( "TXT_KEY_CULTURE_INFO", "[COLOR_MAGENTA]" .. cultureStored .. "[ICON_CULTURE][ENDCOLOR]", "[COLOR_MAGENTA]" .. cultureNeeded .. "[ICON_CULTURE][ENDCOLOR]" )
+	
 
 	if borderGrowthRate > 0 then
 		local tipText = ""

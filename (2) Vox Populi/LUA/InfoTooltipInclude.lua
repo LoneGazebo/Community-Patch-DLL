@@ -1140,6 +1140,18 @@ function GetCultureTooltip(pCity)
 	local borderGrowthRateIncrease = pCity:GetBorderGrowthRateIncreaseTotal();
 	borderGrowthRate = math.floor(borderGrowthRate * (100 + borderGrowthRateIncrease) / 100);
 
+	strCultureToolTip = strCultureToolTip .. "[NEWLINE]";
+	if pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL) ~= 0 then
+		strCultureToolTip = strCultureToolTip .. "[NEWLINE][ICON_BULLET]" .. pCity:GetBaseYieldRate(YieldTypes.YIELD_CULTURE_LOCAL) .. " [ICON_CULTURE_LOCAL] " .. Locale.ConvertTextKey("TXT_KEY_YIELD_CULTURE_LOCAL")
+	end
+	if pCity:GetBorderGrowthRateIncreaseTotal() ~= 0 then
+		strCultureToolTip = strCultureToolTip .. "[NEWLINE][ICON_BULLET]+" .. pCity:GetBorderGrowthRateIncreaseTotal() .. "% [ICON_CULTURE_LOCAL] " .. Locale.ConvertTextKey("TXT_KEY_YIELD_CULTURE_LOCAL")
+	end
+	if borderGrowthRate > 0 and borderGrowthRate ~= iCulturePerTurn then
+		strCultureToolTip = strCultureToolTip .. "[NEWLINE]----------------[NEWLINE]" ..
+		Locale.ConvertTextKey( "TXT_KEY_YIELD_TOTAL", borderGrowthRate, GameInfo.Yields[YieldTypes.YIELD_CULTURE_LOCAL].IconString );
+	end
+	
 	strCultureToolTip = strCultureToolTip .. "[NEWLINE][NEWLINE]";
 	strCultureToolTip = strCultureToolTip .. Locale.ConvertTextKey("TXT_KEY_CULTURE_INFO", iCultureStored, iCultureNeeded);
 
