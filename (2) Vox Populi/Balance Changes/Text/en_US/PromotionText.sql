@@ -499,11 +499,11 @@
 
 	-- Medic I/II
 	UPDATE Language_en_US
-	SET Text = '[NEWLINE]This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal +5 HP[ENDCOLOR] per turn.'
+	SET Text = 'This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal +5 HP[ENDCOLOR] per turn.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_HELP';
 
 	UPDATE Language_en_US
-	SET Text = '[NEWLINE]This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal +5 HP[ENDCOLOR] per turn.[NEWLINE]This Unit [COLOR_POSITIVE_TEXT]Heals +5 HP[ENDCOLOR] per turn when [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
+	SET Text = 'This Unit and all Units in adjacent tiles [COLOR_POSITIVE_TEXT]Heal +5 HP[ENDCOLOR] per turn.[NEWLINE]This Unit [COLOR_POSITIVE_TEXT]Heals +5 HP[ENDCOLOR] per turn when [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MEDIC_II_HELP';
 
 	-- Heal on Kill Promotions
