@@ -23,6 +23,11 @@ UPDATE Language_en_US
 SET Text = '[ICON_FOOD]/[ICON_PRODUCTION] Penalty'
 WHERE Tag = 'TXT_KEY_SUPPLY_DEFICIT_PENALTY';
 
+-- Culture
+UPDATE Language_en_US
+SET Text = '[ICON_CULTURE] Culture is spent as [ICON_CULTURE_LOCAL] Border Growth in Cities to claim new territory, allowing them to be more productive. It is also spent on [COLOR_POSITIVE_TEXT]Social Policies[ENDCOLOR] at the empire-level.'
+WHERE Tag = 'TXT_KEY_CULTURE_HELP_INFO';
+
 -- Fortifications
 UPDATE Language_en_US
 SET Text = 'Many units have the ability to "fortify." This means that the unit "digs in" and creates defensive works in its current location. This gives the unit certain defensive bonuses, making it much tougher to kill. However, fortifications are strictly defensive: if the unit moves or attacks, the fortifications are destroyed.  While fortified, a unit will not activate. It will remain inactive until you manually activate it by clicking on the unit.[NEWLINE][NEWLINE]An improvement may also contain [COLOR_POSITIVE_TEXT]Fortifications[ENDCOLOR], which means units stationed on this improvement, like those garrisoning a city, will not move out of the tile after a victory in melee combat.'
@@ -1082,7 +1087,7 @@ VALUES	('TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED', 'A conquered [COLOR_POSITIVE_T
 	('TXT_KEY_VP_RESTING_INFLUENCE', 'Resting [ICON_INFLUENCE] Influence');
 	
 UPDATE Language_en_US
-SET Text = 'We''re having issues with growing our population, so we needn''t build growth buildings in our cities.'
+SET Text = 'We''re having issues with our growing population, so we needn''t build growth buildings in our cities.'
 WHERE Tag = 'TXT_KEY_ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS';
 	
 -- Culture Overview

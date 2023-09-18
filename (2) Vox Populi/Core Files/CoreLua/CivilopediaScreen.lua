@@ -1030,7 +1030,11 @@ CivilopediaCategory[CategoryPolicies].PopulateList = function()
  		for policy in GameInfo.Policies("PolicyBranchType = '" .. branch.Type .. "'") do
 			local article = {};
 			local name = Locale.ConvertTextKey( policy.Description )
-			article.entryName = name;
+			if policy.Level and policy.Level > 0 then
+				article.entryName = "([COLOR_POSITIVE_TEXT]".. policy.Level .. "[ENDCOLOR]) " .. name;
+			else
+				article.entryName = name;
+			end
 			article.entryID = policy.ID;
 			article.entryCategory = CategoryPolicies;
 			article.tooltipTextureOffset, article.tooltipTexture = IconLookup( policy.PortraitIndex, buttonSize, policy.IconAtlas );
@@ -1043,7 +1047,7 @@ CivilopediaCategory[CategoryPolicies].PopulateList = function()
 			tableid = tableid + 1;
 
 			-- index by various keys
-			searchableList[Locale.ToLower(name)] = article;
+			searchableList[Locale.ToLower(article.entryName)] = article;
 			searchableTextKeyList[policy.Description] = article;
 			categorizedList[(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + policy.ID] = article;
 		end
@@ -1066,7 +1070,7 @@ CivilopediaCategory[CategoryPolicies].PopulateList = function()
 			tableid = tableid + 1;
 
 			-- index by various keys
-			searchableList[Locale.ToLower(name)] = article;
+			searchableList[Locale.ToLower(article.entryName)] = article;
 			searchableTextKeyList[freePolicy.Description] = article;
 			categorizedList[(CategoryPolicies * absurdlyLargeNumTopicsInCategory) + freePolicy.ID] = article;
 		end
@@ -1495,7 +1499,7 @@ CivilopediaCategory[CategoryBeliefs].PopulateList = function()
 			table.insert(section, article);
 
 			-- index by various keys
-			searchableList[Locale.ToLower(name)] = article;
+			searchableList[Locale.ToLower(article.entryName)] = article;
 			searchableTextKeyList[belief.ShortDescription] = article;
 			categorizedList[(CategoryBeliefs * absurdlyLargeNumTopicsInCategory) + numReligions + belief.ID] = article;
 		end
@@ -4690,8 +4694,18 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("BuildAnywhere");
 		AnalyzeBuilding("FreeArtifacts", "");
 		AnalyzeBuilding("VassalLevyEra");
-		AnalyzeBuilding("EventChoiceRequiredActive");
-		AnalyzeBuilding("CityEventChoiceRequiredActive");
+		if thisBuilding.EventChoiceRequiredActive ~= nil then
+			local sDesc = ""
+			for choice in DB.Query("SELECT Description FROM EventChoices WHERE Type = ?", thisBuilding.EventChoiceRequiredActive) do sDesc = choice.Description end
+			sText = sText.."[NEWLINE][ICON_BULLET]Requires Event Choice: [COLOR_POSITIVE_TEXT]"..Locale.Lookup(sDesc).."[ENDCOLOR]"
+		end
+		--AnalyzeBuilding("EventChoiceRequiredActive");
+		--AnalyzeBuilding("CityEventChoiceRequiredActive");
+		if thisBuilding.CityEventChoiceRequiredActive ~= nil then
+			local sDesc = ""
+			for choice in DB.Query("SELECT Description FROM CityEventChoices WHERE Type = ?", thisBuilding.CityEventChoiceRequiredActive) do sDesc = choice.Description end
+			sText = sText.."[NEWLINE][ICON_BULLET]Requires City Event Choice: [COLOR_POSITIVE_TEXT]"..Locale.Lookup(sDesc).."[ENDCOLOR]"
+		end
 		AnalyzeBuilding("GPRateModifierPerXFranchises");
 		AnalyzeBuilding("TRSpeedBoost");
 		AnalyzeBuilding("TRVisionBoost");
@@ -6885,7 +6899,11 @@ CivilopediaCategory[CategoryBeliefs].SelectArticle = function(entryID, shouldAdd
 			if (thisBelief ~= nil) then
 
 				-- update the name
-				Controls.ArticleID:LocalizeAndSetText(thisBelief.ShortDescription);
+				if (thisBelief.CivilizationType ~= nil and GameInfo.Civilizations[thisBelief.CivilizationType] ~= nil) then
+					Controls.ArticleID:LocalizeAndSetText("([COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Civilizations[thisBelief.CivilizationType].Adjective) .. "[ENDCOLOR]) " .. Locale.ConvertTextKey(thisBelief.ShortDescription));
+				else
+					Controls.ArticleID:LocalizeAndSetText(thisBelief.ShortDescription);
+				end
 
 				-- update the summary
 				if (thisBelief.Description ~= nil) then
@@ -7710,7 +7728,7 @@ CivilopediaCategory[CategoryPolicies].SelectHeading = function( selectedBranchID
 				local thisListInstance = g_ListItemManager:GetInstance();
 				if thisListInstance then
 					sortOrder = sortOrder + 1;
-					thisListInstance.ListItemLabel:SetText( v.entryName );
+					thisListInstance.ListItemLabel:SetText(v.entryName);
 					thisListInstance.ListItemButton:SetVoids( v.entryID, addToList );
 					thisListInstance.ListItemButton:RegisterCallback( Mouse.eLClick, CivilopediaCategory[CategoryPolicies].SelectArticle );
 					thisListInstance.ListItemButton:SetToolTipCallback( TipHandler )
