@@ -4803,7 +4803,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isRivalTerritory() || isTrade())
 		return true;
 
-		// Minors can't intrude into one another's territory
+	// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
 		// Humans can always enter a minor's territory and bear the consequences
@@ -4819,7 +4819,7 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 			return true;
 
 		// Is this an excluded unit that doesn't cause anger?
-		if (IsAngerFreeUnit() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsAngerFreeIntrusionOfCityStates())
+		if (IsAngerFreeUnit())
 			return true;
 
 		// If we are friends etc we may go there
@@ -5433,22 +5433,15 @@ bool CvUnit::canMoveOrAttackInto(const CvPlot& plot, int iMoveFlags) const
 bool CvUnit::IsAngerFreeUnit() const
 {
 	// If it's a "rival territory" Unit (e.g. Caravel) don't worry about it
-	if(isRivalTerritory())
+	if (isRivalTerritory())
 		return true;
 
 	// Don't care about noncombat units
-	if(!IsCombatUnit())
+	if (!IsCombatUnit())
 		return true;
 
 	// We don't care about other Minors or the Barbs
-	if(GET_PLAYER(getOwner()).isMinorCiv())
-		return true;
-
-	// We don't care about other Minors or the Barbs
-	if(GET_PLAYER(getOwner()).isBarbarian())
-		return true;
-
-	return false;
+	return !GET_PLAYER(getOwner()).isMajorCiv();
 }
 
 //	---------------------------------------------------------------------------

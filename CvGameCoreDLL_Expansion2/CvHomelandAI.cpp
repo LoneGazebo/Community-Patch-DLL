@@ -2606,9 +2606,9 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 		if(!pEvalPlot)
 			continue;
 
-		//we can pass through a minor's territory but we don't want to stay there
+		//we can pass through a minor's territory but we don't want to stay there (unless we're friends)
 		//this check shouldn't be necessary because of IsValidExplorerEndTurnPlot() but sometimes it is
-		if(pEvalPlot->isOwned() && GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv())
+		if(pEvalPlot->isOwned() && GET_PLAYER(pEvalPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pEvalPlot->getOwner()).GetMinorCivAI()->IsPlayerHasOpenBorders(m_pPlayer->GetID()))
 			continue;
 
 		//don't embark to reach a close-range target
@@ -2662,10 +2662,6 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 			//resources on water are always near land
 			if(pUnit->getDomainType() == DOMAIN_SEA && pEvalPlot->isWater() && (pEvalPlot->getResourceType() != NO_RESOURCE || pEvalPlot->getFeatureType() != NO_FEATURE))
 				iScoreExtra += 25;
-
-			//We should always be moving.
-			if( pEvalPlot == pUnit->plot())
-				iScoreExtra -= 50;
 
 			if(pUnit->canSellExoticGoods(pEvalPlot))
 			{
@@ -5642,6 +5638,13 @@ bool CvHomelandAI::IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot
 	if (pUnit->isEnemy(pPlot->getTeam()))
 	{
 		return false;
+	}
+
+	//don't target goody huts if we can't claim them with this unit
+	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pPlot->isGoody())
+	{
+		if (pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
+			return false;
 	}
 
 	// see if we can capture a civilian?

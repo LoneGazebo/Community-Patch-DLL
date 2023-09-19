@@ -65,6 +65,13 @@
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Bridges and Canals</Name>
+        <Id>857405dd-7394-471e-8910-a875db36374f</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModBlockers>
     <ModActions>
       <Action>

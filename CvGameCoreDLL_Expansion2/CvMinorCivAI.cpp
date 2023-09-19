@@ -12892,22 +12892,18 @@ void CvMinorCivAI::DoIntrusion()
 				// Does this Unit belong to a Major?
 				if(pLoopUnit && pLoopUnit->getOwner() < MAX_MAJOR_CIVS)
 				{
-					// If player has been granted Open Borders or has a friendship with minors bonus, then the Minor doesn't care about intrusion
+					// If player has been granted Open Borders, then the Minor doesn't care about intrusion
 					if(!IsPlayerHasOpenBorders(pLoopUnit->getOwner()))
 					{
 						// If the player is at war with the Minor then don't bother
 						if(!IsAtWarWithPlayersTeam(pLoopUnit->getOwner()))
 						{
-							// Ignore if the player trait allows us to intrude without angering
-							if(!GET_PLAYER(pLoopUnit->getOwner()).GetPlayerTraits()->IsAngerFreeIntrusionOfCityStates())
-							{
-								ChangeFriendshipWithMajor(pLoopUnit->getOwner(), /*-6 in CP, -5 in VP*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_INTRUDING));
+							ChangeFriendshipWithMajor(pLoopUnit->getOwner(), /*-6 in CP, -5 in VP*/ GD_INT_GET(FRIENDSHIP_PER_UNIT_INTRUDING));
 
-								// only modify if the unit isn't automated nor having a pending order
-								if(!pLoopUnit->IsAutomated() && pLoopUnit->GetLengthMissionQueue() == 0)
-								{
-									vIntruders.push_back(pLoopUnit->getOwner());
-								}
+							// only modify if the unit isn't automated nor having a pending order
+							if(!pLoopUnit->IsAutomated() && pLoopUnit->GetLengthMissionQueue() == 0)
+							{
+								vIntruders.push_back(pLoopUnit->getOwner());
 							}
 						}
 					}
@@ -13020,7 +13016,7 @@ bool CvMinorCivAI::IsPlayerHasOpenBorders(PlayerTypes ePlayer)
 bool CvMinorCivAI::IsPlayerHasOpenBordersAutomatically(PlayerTypes ePlayer)
 {
 	// Special trait?
-	return static_cast<bool>(GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateFriendshipModifier() > 0);
+	return GET_PLAYER(ePlayer).GetPlayerTraits()->IsAngerFreeIntrusionOfCityStates();
 }
 
 

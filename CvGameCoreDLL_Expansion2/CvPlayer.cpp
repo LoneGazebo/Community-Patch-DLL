@@ -13210,33 +13210,37 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		int iOffset = kGoodyInfo.getMapOffset();
 		int iDX = 0;
 		int iDY = 0;
-		for(iDX = -(iOffset); iDX <= iOffset; iDX++)
+		for (iDX = -iOffset; iDX <= iOffset; iDX++)
 		{
-			for(iDY = -(iOffset); iDY <= iOffset; iDY++)
+			for (iDY = -iOffset; iDY <= iOffset; iDY++)
 			{
 				CvPlot* pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iOffset);
 
-				if(pLoopPlot != NULL)
+				if (pLoopPlot != NULL && !pLoopPlot->isRevealed(getTeam()))
 				{
-					if(!(pLoopPlot->isRevealed(getTeam())))
+					// Let's reveal cities instead.
+					if (MOD_BALANCE_VP)
 					{
-						if(pLoopPlot->isCity() && pLoopPlot->getOwner() != GetID() && pLoopPlot->getOwner() != NO_PLAYER)
+						if (pLoopPlot->isCity() && pLoopPlot->getOwner() != GetID() && pLoopPlot->getOwner() != NO_PLAYER)
 						{
 							bGood = true;
 							break;
 						}
 					}
+					else
+					{
+						bGood = true;
+						break;
+					}
 				}
 			}
 		}
-		if(!bGood)
-		{
+		if (!bGood)
 			return false;
-		}
 	}
 
 	// Reveal Nearby Barbs
-	if(kGoodyInfo.getRevealNearbyBarbariansRange() > 0)
+	if (kGoodyInfo.getRevealNearbyBarbariansRange() > 0)
 	{
 		int iDX = 0;
 		int iDY = 0;
@@ -13244,34 +13248,28 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		CvPlot* pNearbyPlot = NULL;
 
 		int iNumCampsFound = 0;
-
-		ImprovementTypes barbCampType = (ImprovementTypes) GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
+		ImprovementTypes barbCampType = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 
 		// Look at nearby Plots to make sure another camp isn't too close
-		for(iDX = -(iBarbCampDistance); iDX <= iBarbCampDistance; iDX++)
+		for (iDX = -iBarbCampDistance; iDX <= iBarbCampDistance; iDX++)
 		{
-			for(iDY = -(iBarbCampDistance); iDY <= iBarbCampDistance; iDY++)
+			for (iDY = -iBarbCampDistance; iDY <= iBarbCampDistance; iDY++)
 			{
 				pNearbyPlot = plotXY(pPlot->getX(), pPlot->getY(), iDX, iDY);
 
-				if(pNearbyPlot != NULL)
+				if (pNearbyPlot != NULL && pNearbyPlot->getImprovementType() == barbCampType)
 				{
-					if(plotDistance(pNearbyPlot->getX(), pNearbyPlot->getY(), pPlot->getX(), pPlot->getY()) <= iBarbCampDistance)
+					if (plotDistance(pNearbyPlot->getX(), pNearbyPlot->getY(), pPlot->getX(), pPlot->getY()) <= iBarbCampDistance)
 					{
-						if(pNearbyPlot->getImprovementType() == barbCampType)
-						{
-							iNumCampsFound++;
-						}
+						iNumCampsFound++;
 					}
 				}
 			}
 		}
 
 		// Needs to be at least 2 nearby Camps
-		if(iNumCampsFound < 2)
-		{
+		if (iNumCampsFound < 2)
 			return false;
-		}
 	}
 
 	// Reveal Unknown Resource
@@ -13935,87 +13933,69 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	// Map
 	iRange = kGoodyInfo.getMapRange();
 
-	if(iRange > 0)
+	if (iRange > 0)
 	{
 		iOffset = kGoodyInfo.getMapOffset();
 
-		if(iOffset > 0)
+		if (iOffset > 0)
 		{
 			iBestValue = 0;
 			pBestPlot = NULL;
 
-			int iRandLimit = 0;
-
-			for(iDX = -(iOffset); iDX <= iOffset; iDX++)
+			for (iDX = -iOffset; iDX <= iOffset; iDX++)
 			{
-				for(iDY = -(iOffset); iDY <= iOffset; iDY++)
+				for (iDY = -iOffset; iDY <= iOffset; iDY++)
 				{
+					int iRandLimit = 0;
 					pLoopPlot = plotXYWithRangeCheck(pPlot->getX(), pPlot->getY(), iDX, iDY, iOffset);
 
-					if(pLoopPlot != NULL)
+					if (pLoopPlot != NULL && !pLoopPlot->isRevealed(getTeam()))
 					{
-						if(!(pLoopPlot->isRevealed(getTeam())))
+						// Let's reveal cities instead.
+						if (MOD_BALANCE_VP)
 						{
-							// Avoid water plots!
-#if defined(MOD_BALANCE_CORE)
-							//Let's reveal cities instead.
-							if(pLoopPlot->isCity() && pLoopPlot->getOwner() != GetID() && pLoopPlot->getOwner() != NO_PLAYER)
+							if (pLoopPlot->isCity() && pLoopPlot->getOwner() != GetID() && pLoopPlot->getOwner() != NO_PLAYER)
 							{
-								iRandLimit = 0;
-								if(GET_PLAYER(pLoopPlot->getOwner()).isMajorCiv())
-								{
-									iRandLimit += 10000;
-								}
-								else if(GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv())
-								{
-									iRandLimit += 1000;
-								}
-
-#else
-							if(pPlot->isWater())
-								iRandLimit = 10;
+								iRandLimit = GET_PLAYER(pLoopPlot->getOwner()).isMinorCiv() ? 1000 : 10000;
+							}
 							else
-								iRandLimit = 10000;
-#endif
-							iValue = (1 + GC.getGame().randRangeExclusive(0, iRandLimit, pLoopPlot->GetPseudoRandomSeed()));
+								continue;
+						}
+						// Avoid water plots!
+						else if (pPlot->isWater())
+							iRandLimit = 10;
+						else
+							iRandLimit = 10000;
 
-							iValue *= plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
+						iValue = 1 + GC.getGame().randRangeExclusive(0, iRandLimit, CvSeeder::fromRaw(0x09ca5aab).mix(pLoopPlot->GetPseudoRandomSeed()));
+						iValue *= plotDistance(pPlot->getX(), pPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY());
 
-							if(iValue > iBestValue)
-							{
-								iBestValue = iValue;
-								pBestPlot = pLoopPlot;
-							}
-#if defined(MOD_BALANCE_CORE)
-							}
-#endif
+						if (iValue > iBestValue)
+						{
+							iBestValue = iValue;
+							pBestPlot = pLoopPlot;
 						}
 					}
 				}
 			}
 		}
 
-		if(pBestPlot == NULL)
-		{
+		if (pBestPlot == NULL)
 			pBestPlot = pPlot;
-		}
 
 		int iNumPlotsRevealed = 0;
-		for(iDX = -(iRange); iDX <= iRange; iDX++)
+		for (iDX = -iRange; iDX <= iRange; iDX++)
 		{
-			for(iDY = -(iRange); iDY <= iRange; iDY++)
+			for (iDY = -iRange; iDY <= iRange; iDY++)
 			{
 				pLoopPlot = plotXY(pBestPlot->getX(), pBestPlot->getY(), iDX, iDY);
 
-				if(pLoopPlot != NULL)
+				if (pLoopPlot != NULL && plotDistance(pBestPlot->getX(), pBestPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= iRange)
 				{
-					if(plotDistance(pBestPlot->getX(), pBestPlot->getY(), pLoopPlot->getX(), pLoopPlot->getY()) <= iRange)
+					if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x97a3273a).mix(pLoopPlot->GetPseudoRandomSeed())) <= kGoodyInfo.getMapProb())
 					{
-						if (GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x97a3273a).mix(pLoopPlot->GetPseudoRandomSeed())) <= kGoodyInfo.getMapProb())
-						{
-							pLoopPlot->setRevealed(getTeam(), true);
-							iNumPlotsRevealed++;
-						}
+						pLoopPlot->setRevealed(getTeam(), true);
+						iNumPlotsRevealed++;
 					}
 				}
 			}
@@ -14025,13 +14005,11 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 			GC.getGame().GetGameTrade()->InvalidateTradePathTeamCache(getTeam());
 
 		if (pUnit != NULL && pUnit->IsGainsXPFromScouting())
-		{
 			pUnit->changeExperienceTimes100(iNumPlotsRevealed * 100);
-		}
 	}
 
 	// Experience
-	if(pUnit != NULL)
+	if (pUnit != NULL)
 	{
 		int iExperience = kGoodyInfo.getExperience() * 100;
 		goodyValueModifier(iExperience, -1, true, false);
@@ -14039,7 +14017,7 @@ void CvPlayer::receiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 	}
 
 	// Unit Heal
-	if(pUnit != NULL)
+	if (pUnit != NULL)
 	{
 		pUnit->changeDamage(-(kGoodyInfo.getHealing()));
 	}
@@ -14431,18 +14409,13 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 
 	CvAssertMsg(pPlot->isGoody(), "pPlot->isGoody is expected to be true");
 
-	// Barbarians don't claim ruins
-	if (isBarbarian())
-		return;
-
-	// Minors don't claim ruins in VP
-	if (MOD_BALANCE_VP && isMinorCiv())
+	// Barbarians and Minor Civs don't claim ruins
+	if (!isMajorCiv())
 		return;
 
 	// Mod option: only recon units can claim ruins
-	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY)
-		if (pUnit && pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
-			return;
+	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
+		return;
 
 	m_bEverPoppedGoody = true;
 	pPlot->removeGoody();
@@ -14480,9 +14453,8 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 			}
 		}
 
-#if defined(MOD_GLOBAL_ANYTIME_GOODY_GOLD)
 		// Any valid Goodies?  If not, add back the gold goody hut(s)
-		if(MOD_GLOBAL_ANYTIME_GOODY_GOLD && avValidGoodies.size() == 0)
+		if (MOD_GLOBAL_ANYTIME_GOODY_GOLD && avValidGoodies.size() == 0)
 		{
 			for(int iGoodyLoop = 0; iGoodyLoop < playerHandicapInfo.getNumGoodies(); iGoodyLoop++)
 			{
@@ -14502,7 +14474,6 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 				}
 			}
 		}
-#endif
 
 		// Any valid Goodies?
 		if(avValidGoodies.size() > 0)
@@ -14524,14 +14495,13 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 			}
 			else
 			{
-				uint uRand = GC.getGame().urandLimitExclusive(avValidGoodies.size(), pPlot->GetPseudoRandomSeed());
+				uint uRand = GC.getGame().urandLimitExclusive(avValidGoodies.size(), CvSeeder::fromRaw(0x8d9dbeaa).mix(pPlot->GetPseudoRandomSeed()));
 				eGoody = avValidGoodies[uRand];
 				receiveGoody(pPlot, eGoody, pUnit);
-#if defined(MOD_EVENTS_GOODY_CHOICE)
+
+				//   GameEvents.GoodyHutReceivedBonus.Add(function(iPlayer, iUnit, eGoody, iX, iY) end)
 				if (MOD_EVENTS_GOODY_CHOICE)
-					//   GameEvents.GoodyHutReceivedBonus.Add(function(iPlayer, iUnit, eGoody, iX, iY) end)
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_GoodyHutReceivedBonus, GetID(), pUnit ? pUnit->GetID() : -1, eGoody, pPlot->getX(), pPlot->getY());
-#endif
 			}
 
 			if (MOD_API_ACHIEVEMENTS && pUnit && isHuman() && !GC.getGame().isGameMultiPlayer())
