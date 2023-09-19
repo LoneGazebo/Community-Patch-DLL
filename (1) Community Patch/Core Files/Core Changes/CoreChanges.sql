@@ -40,7 +40,7 @@ UPDATE CustomModOptions SET Value = 1 WHERE Name = 'ACTIVE_DIPLOMACY';
 -- The Community Patch unhardcodes it and assigns the ability to Greece for identical functionality
 UPDATE Traits
 SET AngerFreeIntrusionOfCityStates = 1
-WHERE Name = 'TRAIT_CITY_STATE_FRIENDSHIP';
+WHERE Type = 'TRAIT_CITY_STATE_FRIENDSHIP';
 
 -- TR fix for religion spread
 UPDATE Gamespeeds
