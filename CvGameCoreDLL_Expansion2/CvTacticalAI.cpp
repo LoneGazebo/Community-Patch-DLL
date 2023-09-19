@@ -503,7 +503,7 @@ void CvTacticalAI::FindTacticalTargets()
 				// Or citadels (for pillaging!)
 				if (atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
-					GC.getImprovementInfo(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()))->GetNearbyEnemyDamage() > 0 &&
+					GC.getImprovementInfo(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()))->GetNearbyEnemyDamage() > GD_INT_GET(ENEMY_HEAL_RATE) &&
 					!pLoopPlot->IsImprovementPillaged())
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITADEL);
@@ -1707,27 +1707,8 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway, bool bEmergencyOnly)
 	for (CvTacticalTarget* pTarget = GetFirstZoneTarget(AI_TACTICAL_TARGET_DEFENSIVE_BASTION); pTarget!=NULL; pTarget = GetNextZoneTarget())
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
-		if (bEmergencyOnly)
-		{
-			bool bHaveEnemy = false;
-			//bail if there is no enemy plot around
-			for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
-			{
-				CvPlot* pTestPlot = iterateRingPlots(pPlot, i);
-				if (pTestPlot && m_pPlayer->IsAtWarWith(pTestPlot->getOwner()) && pTestPlot->getDomain()==DOMAIN_LAND)
-				{
-					CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pTestPlot);
-					if (pZone && pZone->GetOverallDominanceFlag()==TACTICAL_DOMINANCE_FRIENDLY)
-						continue;
-
-					bHaveEnemy = true;
-					break;
-				}
-			}
-
-			if (!bHaveEnemy)
-				continue;
-		}
+		if (bEmergencyOnly && !TacticalAIHelpers::IsCloseToContestedBorder(m_pPlayer,pPlot))
+			continue;
 
 		// Grab units that make sense for this move type
 		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GUARD, pPlot, iNumTurnsAway);
@@ -2703,14 +2684,10 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 		for (size_t i = 0; i < vEnemyAttackers.size(); i++)
 		{
 			//now here's the trick, also include our non-army units which happen to be around
-			vector<CvUnit*> vOurAttackers = GET_PLAYER(vEnemyAttackers[i]->getOwner()).GetPossibleAttackers(*vEnemyAttackers[i]->plot(), vEnemyAttackers[i]->getTeam());
-			for (size_t j = 0; j < vOurAttackers.size(); j++)
-			{
-				if (vOurAttackers[j]->getOwner() == m_pPlayer->GetID())
-				{
-					ourUnitsInitial.insert(vOurAttackers[j]);
-				}
-			}
+			vector<CvUnit*> vOurAttackersAndAllies = GET_PLAYER(vEnemyAttackers[i]->getOwner()).GetPossibleAttackers(*vEnemyAttackers[i]->plot(), vEnemyAttackers[i]->getTeam());
+			for (size_t j = 0; j < vOurAttackersAndAllies.size(); j++)
+				if (vOurAttackersAndAllies[j]->getOwner()==m_pPlayer->GetID())
+					ourUnitsInitial.insert(vOurAttackersAndAllies[j]);
 		}
 
 		pUnit = pArmy->GetNextUnit(pUnit);
@@ -2753,7 +2730,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	vector<CvUnit*> ourUnitsFinal;
 	for (set<CvUnit*, PrSortByUnitId>::iterator it = ourUnitsInitial.begin(); it != ourUnitsInitial.end(); ++it)
 	{
-		if (plotDistance(*pCoM, *(*it)->plot()) > 7)
+		if (plotDistance(*pCoM, *(*it)->plot()) < 7)
 			ourUnitsFinal.push_back(*it);
 	}
 
@@ -6517,6 +6494,27 @@ bool TacticalAIHelpers::IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandida
 		return false;
 
 	return true;
+}
+
+bool TacticalAIHelpers::IsCloseToContestedBorder(CvPlayer* pPlayer, CvPlot* pPlot)
+{
+	bool bResult = false;
+
+	for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
+	{
+		CvPlot* pTestPlot = iterateRingPlots(pPlot, i);
+		if (pTestPlot && pPlayer->IsAtWarWith(pTestPlot->getOwner()) && pTestPlot->getDomain() == DOMAIN_LAND)
+		{
+			CvTacticalDominanceZone* pZone = pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(pTestPlot);
+			if (pZone && pZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY)
+				continue;
+
+			bResult = true;
+			break;
+		}
+	}
+
+	return bResult;
 }
 
 CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)

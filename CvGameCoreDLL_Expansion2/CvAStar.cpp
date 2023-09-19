@@ -3706,7 +3706,7 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iTypeParameter = -1; //typical invalid enum
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
-	iStartMoves = pUnit->getMoves();
+	iStartMoves = pUnit ? pUnit->getMoves() : 0;
 }
 
 //	---------------------------------------------------------------------------

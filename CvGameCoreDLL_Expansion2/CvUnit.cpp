@@ -7332,12 +7332,14 @@ bool CvUnit::canUseForAIOperation() const
 	if (IsCivilianUnit() && !canUseForTacticalAI())
 		return true;
 
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
 	//Is it a garrison we can spare? the border score check is a problem early on, so only do it once we have our core cities established
-	if (IsGarrisoned() && !GET_PLAYER(getOwner()).IsEarlyExpansionPhase())
+	if (IsGarrisoned() && !kPlayer.IsEarlyExpansionPhase())
 	{
 		CvCity* pCity = GetGarrisonedCity();
-		CvTacticalDominanceZone* pLandZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-		CvTacticalDominanceZone* pWaterZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
+		CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
+		CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
 		if (pLandZone && (pLandZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pLandZone->GetBorderScore(NO_DOMAIN)>5))
 			return false;
 		if (pWaterZone && (pWaterZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
@@ -7346,7 +7348,7 @@ bool CvUnit::canUseForAIOperation() const
 	else
 	{
 		//check if it's a city zone! don't care about no-mans land.
-		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
+		CvTacticalDominanceZone* pZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
 		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
 			return false;
 
@@ -7360,6 +7362,9 @@ bool CvUnit::canUseForAIOperation() const
 		}
 	}
 
+	//don't pull units out of important citadels
+	if (TacticalAIHelpers::IsPlayerCitadel(plot(), getOwner()) && TacticalAIHelpers::IsCloseToContestedBorder(&kPlayer, plot()))
+		return false;
 
 	return true;
 }
