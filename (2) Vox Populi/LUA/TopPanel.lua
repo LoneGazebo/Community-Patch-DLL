@@ -1543,7 +1543,7 @@ function UnitSupplyHandler(control)
 	local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
 	-- Bonuses from unlisted sources are added to the handicap value
-	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople + iTechReduction + iWarWearinessActualReduction);
+	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iWarWearinessActualReduction);
 	iPerHandicap = iPerHandicap + iExtra;
 
 	local strUnitSupplyToolTip = "";
