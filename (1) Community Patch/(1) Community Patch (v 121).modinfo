@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="121">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(3.10.7) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(3.10.8) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -27,6 +27,7 @@
     <Mod id="a4a8d2bb-cffd-4d8e-8893-d773f25b6fe1" minversion="0" maxversion="999" title="Artificial Unintelligence" />
     <Mod id="275db698-0c69-401e-89a8-7eab501b6bcf" minversion="0" maxversion="999" title="Civilization IV Diplomatic Features - Standalone" />
     <Mod id="781d81cf-49e1-4acb-ae5f-b9e3713f98d3" minversion="0" maxversion="999" title="(1a) Civ IV Diplomatic Features - CP" />
+    <Mod id="857405dd-7394-471e-8910-a875db36374f" minversion="0" maxversion="999" title="Bridges and Canals" />
   </Blocks>
   <Files>
     <File md5="FCB8B2A57F0BF70CEB4B8D7740E3133E" import="0">Core Files/CommunityPatchTables.xml</File>
@@ -74,7 +75,7 @@
     <File md5="12D7AE7B46F4A1CFC9C04068B91EC4EA" import="1">Core Files/Core Changes/CompressedArt/wonderconceptgreatwall.dds</File>
     <File md5="B0F68066FF301B6B10E15EC0E85CFDE6" import="1">Core Files/Core Changes/CompressedArt/wonderconceptnotredame.dds</File>
     <File md5="0429CDBB6DB69F18C354FA6B36B459E8" import="1">Core Files/Core Changes/CompressedArt/wu.dds</File>
-    <File md5="914065A0E84BF66BA8AC7D98FF227ED6" import="0">Core Files/Core Changes/CoreChanges.sql</File>
+    <File md5="A6A889D3C970AF746ECBAA41169E6F5A" import="0">Core Files/Core Changes/CoreChanges.sql</File>
     <File md5="E35E2AB9285C3871AF4C3BDBF5EEECE8" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.xml</File>
     <File md5="F11DAA7639C6319B9C7A04A281AB9B12" import="0">Core Files/Core Changes/DiploAIOptions.sql</File>
     <File md5="C2070A14115CDA6745C2F02C6C6C9C9B" import="0">Core Files/Core Changes/EraSpecificWriters.sql</File>
@@ -231,7 +232,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="7CBB2A72A469003F16B8A7E3971A742E" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="7BC1A5912807640F6AD1622FE1B15BF3" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="5EE075CC80907B66AB2A49DDDB1C2C1E" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="B1511C13FCE0FFFFAB09D0B40E28001E" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
