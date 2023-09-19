@@ -2394,73 +2394,45 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 
 	// AI player - we score victory pursuits based on flavors...
 	CvFlavorManager* pFlavorMgr = GetPlayer()->GetFlavorManager();
-	vector<int> VictoryScores(NUM_VICTORY_PURSUITS, 0);
+	vector<int> VictoryScores(NUM_VICTORY_PURSUITS, 100);
 
 	// ...and some randomness
 	const PlayerTypes ID = GetID(); // Used to randomize values between different AIs
 	const uint uRandom = GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 20 : 10; // Max. random weight added to each victory condition
 
 	// Base likelihood depends on the difference between this civ's major approach biases
-	VictoryScores[VICTORY_PURSUIT_DOMINATION] = max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)) - max(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY), GetMajorCivApproachBias(CIV_APPROACH_AFRAID));
-	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] = max(GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE));
-	VictoryScores[VICTORY_PURSUIT_CULTURE] = max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_HOSTILE), GetMajorCivApproachBias(CIV_APPROACH_GUARDED));
-	VictoryScores[VICTORY_PURSUIT_SCIENCE] = max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_GUARDED)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE));
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE)) - max(GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY), GetMajorCivApproachBias(CIV_APPROACH_AFRAID));
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += max(GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_HOSTILE));
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_FRIENDLY)) - max(GetMajorCivApproachBias(CIV_APPROACH_HOSTILE), GetMajorCivApproachBias(CIV_APPROACH_GUARDED));
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += max(GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL), GetMajorCivApproachBias(CIV_APPROACH_GUARDED)) - max(GetMajorCivApproachBias(CIV_APPROACH_WAR), GetMajorCivApproachBias(CIV_APPROACH_DECEPTIVE));
 
 	// Weight for conquest
-	if (bCanConquer)
-	{
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetBoldness();
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetMeanness();
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 2;
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) / 2;
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x905ce137).mix(ID)));
-	}
-	else
-	{
-		VictoryScores[VICTORY_PURSUIT_DOMINATION] = -100;
-	}
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetBoldness();
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += GetMeanness();
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_OFFENSE")) / 2;
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION")) / 2;
+	VictoryScores[VICTORY_PURSUIT_DOMINATION] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x905ce137).mix(ID)));
 
 	// Weight for diplomacy
-	if (bCanUseLeague)
-	{
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetDiploBalance();
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetMinorCivCompetitiveness();
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) / 2;
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD")) / 2;
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xea5ade8b).mix(ID)));
-	}
-	else
-	{
-		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] = -100;
-	}
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetDiploBalance();
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += GetMinorCivCompetitiveness();
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_DIPLOMACY")) / 2;
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GOLD")) / 2;
+	VictoryScores[VICTORY_PURSUIT_DIPLOMACY] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xea5ade8b).mix(ID)));
 
 	// Weight for culture
-	if (bCanUnlockPolicies)
-	{
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += GetDoFWillingness();
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += GetWonderCompetitiveness();
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER")) / 2;
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
-		VictoryScores[VICTORY_PURSUIT_CULTURE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xbccbe5fc).mix(ID)));
-	}
-	else
-	{
-		VictoryScores[VICTORY_PURSUIT_CULTURE] = -100;
-	}
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += GetDoFWillingness();
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += GetWonderCompetitiveness();
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_WONDER")) / 2;
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE")) / 2;
+	VictoryScores[VICTORY_PURSUIT_CULTURE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0xbccbe5fc).mix(ID)));
 
 	// Weight for science
-	if (bCanUnlockTechs)
-	{
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetLoyalty();
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetWarmongerHate();
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x26353d52).mix(ID)));
-	}
-	else
-	{
-		VictoryScores[VICTORY_PURSUIT_SCIENCE] = -100;
-	}
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetLoyalty();
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += GetWarmongerHate();
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_SCIENCE")) / 2;
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += pFlavorMgr->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_GROWTH")) / 2;
+	VictoryScores[VICTORY_PURSUIT_SCIENCE] += static_cast<int>(GC.getGame().urandRangeInclusive(1, uRandom, CvSeeder::fromRaw(0x26353d52).mix(ID)));
 
 	// Add leader bias for default primary pursuit
 	if (ePrimaryVictory == VICTORY_PURSUIT_DOMINATION)
@@ -2535,15 +2507,22 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 
 	if (!bDominationVictoryEnabled)
 		VictoryScores[VICTORY_PURSUIT_DOMINATION] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
-
 	if (!bDiploVictoryEnabled)
 		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
-
 	if (!bCultureVictoryEnabled)
 		VictoryScores[VICTORY_PURSUIT_CULTURE] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
-
 	if (!bScienceVictoryEnabled)
 		VictoryScores[VICTORY_PURSUIT_SCIENCE] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
+
+	// Zero out all invalid scores
+	if (!bCanConquer)
+		VictoryScores[VICTORY_PURSUIT_DOMINATION] = 0;
+	if (!bCanUseLeague)
+		VictoryScores[VICTORY_PURSUIT_DIPLOMACY] = 0;
+	if (!bCanUnlockPolicies)
+		VictoryScores[VICTORY_PURSUIT_CULTURE] = 0;
+	if (!bCanUnlockTechs)
+		VictoryScores[VICTORY_PURSUIT_SCIENCE] = 0;
 
 	// Sort the scores to find the highest two
 	CvWeightedVector<VictoryPursuitTypes> SortedVictoryScores;
