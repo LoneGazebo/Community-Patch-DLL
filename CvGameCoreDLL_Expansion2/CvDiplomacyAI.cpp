@@ -25505,8 +25505,6 @@ void CvDiplomacyAI::SelectBestApproachTowardsMinorCiv(PlayerTypes ePlayer, std::
 
 	SetCivApproach(ePlayer, eApproach);
 	LogMinorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach);
-
-	return;
 }
 
 //	-----------------------------------------------------------------------------------------------
@@ -58226,7 +58224,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] = GetMajorCivApproachBias(CIV_APPROACH_NEUTRAL);
 	viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_REFUSE] = GetMajorCivApproachBias(CIV_APPROACH_WAR);
 
-	if(IsGoingForWorldConquest())
+	if (IsGoingForWorldConquest())
 	{
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += -3;
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_NEUTRAL] += -3;
@@ -58240,7 +58238,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	}
 	
 	// If we hate the guy then add weight for attacking
-	switch(eOpinion)
+	switch (eOpinion)
 	{
 	case CIV_OPINION_UNFORGIVABLE:
 		viMoveTroopsWeights[MOVE_TROOPS_RESPONSE_ACCEPT] += -4;
@@ -58430,7 +58428,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	// Transfer values over to the sorting vector
 	for(int i = 0; i < NUM_MOVE_TROOPS_RESPONSES; i++)
 	{
-		vMoveTroopsWeightsForSorting.push_back(i, viMoveTroopsWeights[i]);
+		vMoveTroopsWeightsForSorting.push_back(i, max(viMoveTroopsWeights[i], 0));
 	}
 
 	vMoveTroopsWeightsForSorting.StableSortItems();
