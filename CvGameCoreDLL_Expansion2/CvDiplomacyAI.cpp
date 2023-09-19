@@ -2545,12 +2545,19 @@ void CvDiplomacyAI::SelectDefaultVictoryPursuits()
 	if (!bScienceVictoryEnabled)
 		VictoryScores[VICTORY_PURSUIT_SCIENCE] -= GC.getGame().isOption(GAMEOPTION_RANDOM_PERSONALITIES) ? 15 : 10;
 
+	int iHighestNegativeVictoryScore = 0;
+	for (int iVictoryLoop = 0; iVictoryLoop < NUM_VICTORY_PURSUITS; iVictoryLoop++)
+	{
+		VictoryPursuitTypes eVictoryPursuit = (VictoryPursuitTypes)iVictoryLoop;
+		iHighestNegativeVictoryScore = max(iHighestNegativeVictoryScore, -VictoryScores[eVictoryPursuit]);
+	}
 	// Sort the scores to find the highest two
 	CvWeightedVector<VictoryPursuitTypes> SortedVictoryScores;
 	for (int iVictoryLoop = 0; iVictoryLoop < NUM_VICTORY_PURSUITS; iVictoryLoop++)
 	{
 		VictoryPursuitTypes eVictoryPursuit = (VictoryPursuitTypes) iVictoryLoop;
-		SortedVictoryScores.push_back(eVictoryPursuit, VictoryScores[eVictoryPursuit]);
+		// Victory scores must be non-negative, otherwise the sorting doesn't work
+		SortedVictoryScores.push_back(eVictoryPursuit, VictoryScores[eVictoryPursuit] + iHighestNegativeVictoryScore);
 	}
 
 	SortedVictoryScores.StableSortItems();
