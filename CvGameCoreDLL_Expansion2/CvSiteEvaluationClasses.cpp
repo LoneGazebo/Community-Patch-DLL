@@ -472,7 +472,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 		// if this tile is a NW boost the value
 		if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
-			iPlotValue *= 3; //yields will improve in later eras!
+			iPlotValue *= 10; //(from 3) yields will improve in later eras but we're gonna like SUPER boost its value cuz humans over-value it like it's some sort of monopoly!
 
 		// lower value a lot if we or somebody else already own this tile
 		if (iPlotValue > 0 && pLoopPlot->getOwner() != NO_PLAYER)
