@@ -14413,8 +14413,8 @@ void CvPlayer::doGoody(CvPlot* pPlot, CvUnit* pUnit)
 	if (!isMajorCiv())
 		return;
 
-	// Mod option: only recon units can claim ruins
-	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
+	// Mod option: only recon units and city borders can claim ruins
+	if (MOD_BALANCE_CORE_GOODY_RECON_ONLY && pUnit && pUnit->getUnitCombatType() != (UnitCombatTypes) GC.getInfoTypeForString("UNITCOMBAT_RECON", true) && !pUnit->IsGainsXPFromScouting())
 		return;
 
 	m_bEverPoppedGoody = true;

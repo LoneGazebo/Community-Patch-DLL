@@ -4663,7 +4663,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 		if(!pUnit->canMoveInto(*pLoopPlot, CvUnit::MOVEFLAG_DESTINATION))
 			continue;
 
-		int iValue = 100; //default
+		int iValue = 1000; //default
 
 		//try to spread out
 		int iNumFriendlies = pLoopPlot->getNumUnitsOfAIType(pUnit->AI_getUnitAIType());
@@ -4676,7 +4676,7 @@ bool CvHomelandAI::MoveCivilianToGarrison(CvUnit* pUnit)
 		if (m_pPlayer->getCapitalCity())
 			iValue -= plotDistance(m_pPlayer->getCapitalCity()->getX(), m_pPlayer->getCapitalCity()->getY(), pLoopCity->getX(), pLoopCity->getY());
 
-		aBestPlotList.push_back(pLoopPlot, iValue);
+		aBestPlotList.push_back(pLoopPlot, max(iValue, 0));
 	}
 
 	CvPlot* pBestPlot = NULL;

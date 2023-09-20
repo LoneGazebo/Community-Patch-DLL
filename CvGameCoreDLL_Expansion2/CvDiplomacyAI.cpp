@@ -58216,7 +58216,7 @@ MoveTroopsResponseTypes CvDiplomacyAI::GetMoveTroopsRequestResponse(PlayerTypes 
 	CivApproachTypes eTrueApproach = GetCivApproach(ePlayer);
 	CivOpinionTypes eOpinion = GetCivOpinion(ePlayer);
 
-	vector<int> viMoveTroopsWeights(NUM_MOVE_TROOPS_RESPONSES,0);
+	vector<int> viMoveTroopsWeights(NUM_MOVE_TROOPS_RESPONSES,1000);
 
 	// Initialize our parallel arrays based on various approaches
 	// i.e. more inclined to agree to leave if they like to be friendly toward civs
