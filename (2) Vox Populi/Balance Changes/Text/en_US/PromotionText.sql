@@ -155,7 +155,7 @@
 
 -- March
 	UPDATE Language_en_US
-	SET Text = '[NEWLINE]Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.'
+	SET Text = 'Unit will [COLOR_POSITIVE_TEXT]Heal Every Turn[ENDCOLOR], even if it performs an action.'
 	WHERE Tag = 'TXT_KEY_PROMOTION_MARCH_HELP';
 
 -- Replace Drill
