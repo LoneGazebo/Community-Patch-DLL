@@ -5171,8 +5171,6 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 
 				if (iLength <= 0)
 				{
-					strMsg.Format("%s,%s,,Skipping", pOriginCity->getNameKey(), pDestCity->getNameKey());
-					LogTradeMsg(strMsg);
 					continue;
 				}
 
@@ -5206,11 +5204,6 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 					strMsg.Format("%s,%s,,Trade route is not the longest,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
 					LogTradeMsg(strMsg);
 				}
-			}
-			else
-			{
-				strMsg.Format("%s,%s,,Can't create trade route", pOriginCity->getNameKey(), pDestCity->getNameKey());
-				LogTradeMsg(strMsg);
 			}
 		}
 	}
