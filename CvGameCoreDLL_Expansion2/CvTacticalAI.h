@@ -523,8 +523,6 @@ enum CLOSED_ENUM eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_T
 enum CLOSED_ENUM eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH,
 							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE, A_FINISH_TEMP };
 
-class CvTacticalPosition;
-
 struct STacticalAssignment
 {
 	eUnitAssignmentType eAssignmentType;
@@ -883,7 +881,8 @@ public:
 	CvTacticalPosition();
 
 	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
-	void initFromParent(const CvTacticalPosition& parent); 
+	void initFromParent(const CvTacticalPosition& parent);
+	void wipe();
 
 	bool isExhausted() const;
 	bool isEarlyFinish() const;
@@ -954,7 +953,7 @@ class CvTactPosStorage
 public:
 	CvTactPosStorage(int iPreallocationSize) : iCount(0), iSize(iPreallocationSize), aPositions(new CvTacticalPosition[iPreallocationSize]) {}
 	~CvTactPosStorage() { delete[] aPositions; }
-	void reset() { iCount = 0; attackCache.clear(); }
+	void reset(bool bHard);
 	int getSizeLimit() const { return iSize; }
 	int getSize() const { return iCount; }
 	CvTacticalPosition* first() { return aPositions; }

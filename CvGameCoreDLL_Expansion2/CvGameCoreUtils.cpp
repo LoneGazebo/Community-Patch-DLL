@@ -20,6 +20,7 @@
 #include "CvInfos.h"
 #include "CvImprovementClasses.h"
 #include "CvGlobals.h"
+#include "psapi.h"
 
 #include "ICvDLLUserInterface.h"
 
@@ -1595,3 +1596,21 @@ pair<int,int> AddFractions(vector<int>& aDividendList, vector<int>& aDivisorList
 	return result;
 }
 #endif
+
+void PrintMemoryInfo(const char* hint)
+{
+	DWORD processID = GetCurrentProcessId();
+
+	// Print information about the memory usage of the process.
+	HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION |
+		PROCESS_VM_READ,
+		FALSE, processID);
+	if (NULL == hProcess)
+		return;
+
+	PROCESS_MEMORY_COUNTERS pmc;
+	if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc)))
+		CUSTOMLOG("Memory Usage kB %s:\tWorkingSetSize\t%08u\tPrivateUsage\t%08u", hint, pmc.WorkingSetSize/1024, pmc.PagefileUsage/1024);
+
+	CloseHandle(hProcess);
+}

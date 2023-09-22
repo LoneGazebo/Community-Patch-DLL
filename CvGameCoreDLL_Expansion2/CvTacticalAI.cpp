@@ -41,7 +41,6 @@ const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
 const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
 const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
-const int TACTSIM_DEFAULT_PREALLOC_SIZE = 74; //default container capacity
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(16000);
@@ -52,6 +51,7 @@ vector<STacticalAssignment> gPossibleMoves;
 vector<STacticalAssignment> gOverAllChoices;
 vector<STacticalAssignment> gMovesToAdd;
 map<int, vector<STacticalAssignment>> gChoicePerUnit;
+PlayerTypes eLastTactSimPlayer = NO_PLAYER;
 
 //just some statistics
 unsigned long gMovePlotsCacheHit = 0, gMovePlotsCacheMiss = 0;
@@ -3070,7 +3070,7 @@ void CvTacticalAI::SortTargetListAndDropUselessTargets()
 	TacticalList reducedTargetList;
 
 	//now in the sorted list we can suppress adjacent non-maximum targets
-	int iSuppressionRange = 1; //could even try 2 ...
+	int iSuppressionRange = 2;
 	for (TacticalList::iterator it = m_AllTargets.begin(); it != m_AllTargets.end(); ++it)
 	{
 		bool bBetterTargetAdjacent = false;
@@ -9240,33 +9240,7 @@ void CvTacticalPosition::refreshVolatilePlotProperties()
 //need a default constructor for stl containers ...
 CvTacticalPosition::CvTacticalPosition()
 {
-	ePlayer = NO_PLAYER;
-	pTargetPlot = NULL;
-	eAggression = AL_NONE;
-	nOurUnits = 0;
-	nEnemies = 0;
-	nFirstInterestingAssignment = 0;
-	iTotalScore = 0;
-	iScoreOverParent = 0; 
-	parentPosition = NULL;
-	iGeneration = 0;
-	iID = 1;
-	movePlotUpdateFlag = 0;
-
-	//all the rest is default-initialized
-	childPositions.clear();
-	tactPlotLookup.clear();
-	tactPlots.clear();
-	availableUnits.clear();
-	notQuiteFinishedUnits.clear();
-	assignedMoves.clear();
-	freedPlots.clear();
-	killedEnemies.clear();
-
-	//some vectors will need a bit of space, reduce reallocations
-	tactPlotLookup.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE);
-	tactPlots.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE);
-	assignedMoves.reserve(23);
+	initFromScratch(NO_PLAYER, AL_NONE, NULL);
 }
 
 void CvTacticalPosition::initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget)
@@ -9320,17 +9294,25 @@ void CvTacticalPosition::initFromParent(const CvTacticalPosition& parent)
 	childPositions.clear();
 
 	//these are cached locally
-	tactPlotLookup.clear(); if (tactPlotLookup.capacity() > TACTSIM_DEFAULT_PREALLOC_SIZE) { tactPlotLookup = vector<pair<int, size_t>>(); tactPlotLookup.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE); }
-	tactPlots.clear(); if (tactPlots.capacity() > TACTSIM_DEFAULT_PREALLOC_SIZE) { tactPlots = vector<CvTacticalPlot>(); tactPlots.reserve(TACTSIM_DEFAULT_PREALLOC_SIZE);	}
+	tactPlotLookup.clear();
+	tactPlots.clear();
 
 	//copied from parent, modified when addAssignment is called
-	if (parent.assignedMoves.capacity() > 23) assignedMoves = vector<STacticalAssignment>(parent.assignedMoves.begin(), parent.assignedMoves.end()); else assignedMoves = parent.assignedMoves;
+	assignedMoves = parent.assignedMoves;
+	availableUnits = parent.availableUnits;
+	notQuiteFinishedUnits = parent.notQuiteFinishedUnits;
+	freedPlots = parent.freedPlots;
+	killedEnemies = parent.killedEnemies;
+}
 
-	//take care to prune allocated memory so the size doesn't grow over time
-	if (parent.availableUnits.capacity() < 9) availableUnits = parent.availableUnits; else availableUnits = vector<SUnitStats>(parent.availableUnits.begin(), parent.availableUnits.end());
-	if (parent.notQuiteFinishedUnits.capacity() < 9) notQuiteFinishedUnits = parent.notQuiteFinishedUnits; else notQuiteFinishedUnits = vector<SUnitStats>(parent.notQuiteFinishedUnits.begin(), parent.notQuiteFinishedUnits.end());
-	if (parent.freedPlots.capacity() < 9) freedPlots = parent.freedPlots; else freedPlots = PlotIndexContainer(parent.freedPlots.begin(), parent.freedPlots.end());
-	if (parent.killedEnemies.capacity() < 9) killedEnemies = parent.killedEnemies; else killedEnemies = UnitIdContainer(parent.killedEnemies.begin(), parent.killedEnemies.end());
+void CvTacticalPosition::wipe()
+{
+	//make sure the capacity of these containers doesn't grow too much over time
+	vector<pair<int, size_t>>().swap(tactPlotLookup);
+	vector<CvTacticalPlot>().swap(tactPlots);
+	vector<STacticalAssignment>().swap(assignedMoves);
+	vector<SUnitStats>().swap(availableUnits);
+	vector<SUnitStats>().swap(notQuiteFinishedUnits);
 }
 
 bool CvTacticalPosition::removeChild(CvTacticalPosition* pChild)
@@ -10385,10 +10367,13 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	cvStopWatch timer("tactsim",NULL,0,true);
 	timer.StartPerfTest();
 
-	//set up the initial position
-	storage.reset();
+	//clean up from the last run
+	storage.reset(eLastTactSimPlayer!=ePlayer);
+	eLastTactSimPlayer = ePlayer;
 	gReachablePlotsLookup.clear();
 	gRangeAttackPlotsLookup.clear();
+	
+	//set up the initial position
 	CvTacticalPosition* initialPosition = storage.peekNext(); storage.consumeOne();
 	if (!initialPosition)
 		return result;
@@ -10762,6 +10747,25 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 	}
 
 	return true;
+}
+
+void CvTactPosStorage::reset(bool bHard)
+{ 
+	//this is normally enough
+	iCount = 0; attackCache.clear();
+
+	//in a hard reset we recreate all stl containers from scratch
+	//because their capacity tends to increase over time otherwise
+	if (bHard)
+	{
+		//PrintMemoryInfo("before hard reset");
+
+		for (int i = 0; i < iSize; i++)
+			aPositions[i].wipe();
+
+		//for some reason the memory usage is not affected immediately ... but the wiping works
+		//PrintMemoryInfo("after hard reset");
+	}
 }
 
 const char* tacticalMoveNames[] =

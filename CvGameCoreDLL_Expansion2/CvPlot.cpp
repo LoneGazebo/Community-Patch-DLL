@@ -3115,8 +3115,15 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
 			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
+			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(getTeam()))
+				continue;
 
+			//first a very rough distance check to avoid expensive unit lookup
+			int iDistance = plotDistance(*pInterceptorPlot, *this);
+			if (iDistance > 11)
+				continue;
+
+			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
 			if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
 				continue;
 
@@ -3124,14 +3131,9 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 			if (!pInterceptorUnit->canInterceptNow())
 				continue;
 
-			// Check input booleans
+			// Check conditions
 			if (bLandInterceptorsOnly && pInterceptorUnit->getDomainType() != DOMAIN_LAND)
 				continue;
-			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(getTeam()))
-				continue;
-
-			// Test range
-			int iDistance = plotDistance(*pInterceptorPlot, *this);
 			if (iDistance > pInterceptorUnit->GetAirInterceptRange())
 				continue;
 			

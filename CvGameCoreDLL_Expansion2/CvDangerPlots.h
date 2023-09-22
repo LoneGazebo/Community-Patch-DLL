@@ -54,11 +54,11 @@ struct CvDangerPlotContents
 		//make sure the allocated size doesn't grow too much over time
 		m_apUnits.clear(); if (m_apUnits.capacity() > 5) { m_apUnits = DangerUnitVector(); m_apUnits.reserve(5); }
 		m_apCities.clear(); //cities are fairly static so don't care to prune
-		m_apCaptureUnits.clear(); if (m_apCaptureUnits.capacity() > 5) { m_apCaptureUnits = DangerUnitVector(); m_apCaptureUnits.reserve(5); }
-		m_fogDanger.clear(); if (m_fogDanger.capacity() > 5) { m_fogDanger = vector<int>(); m_fogDanger.reserve(5); }
+		m_apCaptureUnits.clear(); if (m_apCaptureUnits.capacity() > 5) { DangerUnitVector().swap(m_apCaptureUnits); }
+		m_fogDanger.clear(); if (m_fogDanger.capacity() > 5) { vector<int>().swap(m_fogDanger); }
 
 		//reset cache
-		m_lastResults.clear(); if (m_lastResults.capacity() > 5) { m_lastResults = std::vector< std::pair<SUnitInfo, int> >(); m_lastResults.reserve(5); }
+		m_lastResults.clear(); if (m_lastResults.capacity() > 5) { std::vector< std::pair<SUnitInfo, int> >().swap(m_lastResults); }
 	};
 
 	void resetCache()
