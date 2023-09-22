@@ -372,7 +372,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 	//only city on a landmass? may be strategically important
 	bool bOnlyCityOnLandmass = false;
 	CvLandmass* pLandmass = GC.getMap().getLandmassById(pCity->plot()->getLandmass());
-	if (pLandmass != NULL && pLandmass->getCitiesPerPlayer(GetID()) < 1)
+	if (pLandmass != NULL && pLandmass->getCitiesPerPlayer(GetID()) <= 1)
 	{
 		bOnlyCityOnLandmass = true;
 		if (!IsEmpireVeryUnhappy())
@@ -648,12 +648,6 @@ void CvPlayerAI::AI_considerAnnex()
 
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
 
-	// for Venice
-	if (GetPlayerTraits()->IsNoAnnexing())
-	{
-		return;
-	}
-
 	// if our capital city is puppeted, annex it
 	// can happen if we lose our real capital
 	CvCity* pCapital = getCapitalCity();
@@ -663,11 +657,13 @@ void CvPlayerAI::AI_considerAnnex()
 		return;
 	}
 
+	// for Venice
+	if (GetPlayerTraits()->IsNoAnnexing())
+		return;
+
 	// no annexing if the empire is unhappy
 	if (IsEmpireUnhappy())
-	{
 		return;
-	}
 
 	//Find the anti-occupation building
 	BuildingClassTypes eCourthouseType = NO_BUILDINGCLASS;
