@@ -648,9 +648,12 @@ void CvPlayerAI::AI_considerAnnex()
 
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
 
-	// if our capital city is puppeted, annex it
-	// can happen if we lose our real capital
+	// if our capital city is puppeted or being razed, annex and unraze it
+	// can happen if we lose our original capital
 	CvCity* pCapital = getCapitalCity();
+	if (pCapital && pCapital->IsRazing())
+		unraze(pCapital);
+
 	if (pCapital && pCapital->IsPuppet())
 	{
 		pCapital->DoAnnex();
@@ -839,6 +842,9 @@ void CvPlayerAI::AI_considerRaze()
 
 		ValidCities.push_back(pLoopCity);
 	}
+
+	if (iNumCities <= 1)
+		return;
 
 	// Recalculate happiness to see if we still have a problem ... possible we already have enough cities burning
 	if (MOD_BALANCE_CORE_HAPPINESS)
