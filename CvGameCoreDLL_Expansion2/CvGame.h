@@ -303,6 +303,9 @@ public:
 	bool isPitboss() const;
 	bool isSimultaneousTeamTurns() const;
 
+	bool isDesynced() const;
+	void setDesynced(bool bNewValue);
+
 	bool isFinalInitialized() const;
 	void setFinalInitialized(bool bNewValue);
 
@@ -893,6 +896,7 @@ protected:
 	bool m_bEndGameTechResearched;
 	bool m_bTunerEverConnected;
 	bool m_bDynamicTurnsSimultMode;		//if playing dynamic turn mode, are we currently running simultaneous turns?
+	bool m_bIsDesynced; // whether the game was desynced or not as a result of the very last sync
 	PlayerTypes m_eWaitDiploPlayer;
 	TechTypes m_eTechAstronomy;
 

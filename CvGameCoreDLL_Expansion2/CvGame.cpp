@@ -129,6 +129,7 @@ CvGame::CvGame() :
 	, m_bSavedOnce(false)
 #endif
 	, m_bArchaeologyTriggered(false)
+	, m_bIsDesynced(false)
 	, m_lastTurnAICivsProcessed(-1)
 	, m_processPlayerAutoMoves(false)
 	, m_cityDistancePathLength(NO_DOMAIN) //for now!
@@ -1166,6 +1167,7 @@ void CvGame::uninit()
 	m_bEverRightClickMoved = false;
 	m_bCombatWarned = false;
 	m_bArchaeologyTriggered = false;
+	m_bIsDesynced = false;
 
 	m_eHandicap = NO_HANDICAP;
 	m_ePausePlayer = NO_PLAYER;
@@ -5981,6 +5983,22 @@ bool CvGame::isSimultaneousTeamTurns() const
 	return true;
 }
 
+
+bool CvGame::isDesynced() const
+{
+	if (!isNetworkMultiPlayer()) {
+		return false;
+	}
+	return m_bIsDesynced;
+}
+void CvGame::setDesynced(bool bNewValue)
+{
+	if (!isNetworkMultiPlayer()) {
+		return;
+	}
+	m_bIsDesynced = bNewValue;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvGame::isFinalInitialized() const
 {
@@ -8800,9 +8818,17 @@ void CvGame::doTurn()
 
 	LogGameState();
 
-	//autosave after doing a turn
-	if (isNetworkMultiPlayer())
+	if (isNetworkMultiPlayer()) {
+		//autosave after doing a turn
 		gDLL->AutoSave(false, false);
+
+		if (isDesynced()) {
+			setDesynced(false);
+
+			CvString output; CvString::format(output, "Session is running in desynced state, undefined behaviour may appear. Please, fill the issue on GitHub.");
+			gGlobals.getDLLIFace()->sendChat(output, CHATTARGET_ALL, NO_PLAYER);
+		}
+	}
 }
 
 //	--------------------------------------------------------------------------------
