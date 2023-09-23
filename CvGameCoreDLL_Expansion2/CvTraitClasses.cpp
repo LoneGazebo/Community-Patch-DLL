@@ -5799,7 +5799,7 @@ bool CvPlayerTraits::IsRandomGreatPersonProgressFromKills() const
 }
 
 /// Instant random great person progress when killing enemy units
-std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFromKills(CvSeeder additionalSeed) const
+std::pair<GreatPersonTypes, int> CvPlayerTraits::GetRandomGreatPersonProgressFromKills(const CvSeeder& additionalSeed) const
 {
 	// how many options we have
 	int iSize = m_aiRandomGreatPersonProgressFromKills.size();

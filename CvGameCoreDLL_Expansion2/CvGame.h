@@ -519,7 +519,7 @@ public:
 	/// If this function is used to generate a number that is subsequently used to change the game state in manner that all peers
 	/// of a multiplayer session must replicate to retain synchronization, then the extra seed must be guaranteed to be identical 
 	/// for all peers of that multiplayer session. If this requirement is not met, then the multiplayer session will desynchronize.
-	uint randCore(CvSeeder extraSeed) const;
+	uint randCore(const CvSeeder& extraSeed) const;
 
 	/// Generates a pseudo-random number using `randCore` and remaps the output into an exclusive range within `0` and `limit`.
 	/// Specifically, if `x` is the returned unsigned integer, then `x` is guaranteed to satisfy the following:
@@ -530,7 +530,7 @@ public:
 	/// - `limit != 0`
 	///
 	/// All advisories documented on `randCore` apply to this function.
-	uint urandLimitExclusive(uint limit, CvSeeder extraSeed) const;
+	uint urandLimitExclusive(uint limit, const CvSeeder& extraSeed) const;
 
 	/// Generates a pseudo-random number using `randCore` and remaps the output into an inclusive range within `0` and `limit`.
 	/// Specifically, if `x` is the returned unsigned integer, then `x` is guaranteed to satisfy the following:
@@ -538,7 +538,7 @@ public:
 	/// - `x <= limit`
 	///
 	/// All advisories documented on `randCore` apply to this function.
-	uint urandLimitInclusive(uint limit, CvSeeder extraSeed) const;
+	uint urandLimitInclusive(uint limit, const CvSeeder& extraSeed) const;
 
 	/// Generates a pseudo-random number using `randCore` and remaps the output into an exclusive range within `min` and `max`.
 	/// Specifically, if `x` is the returned unsigned integer, then `x` is guaranteed to satisfy the following:
@@ -549,7 +549,7 @@ public:
 	/// - `min < max`
 	///
 	/// All advisories documented on `randCore` apply to this function.
-	uint urandRangeExclusive(uint min, uint max, CvSeeder extraSeed) const;
+	uint urandRangeExclusive(uint min, uint max, const CvSeeder& extraSeed) const;
 
 	/// Generates a pseudo-random number using `randCore` and remaps the output into an inclusive range within `min` and `max`.
 	/// Specifically, if `x` is the returned unsigned integer, then `x` is guaranteed to satisfy the following:
@@ -560,7 +560,7 @@ public:
 	/// - `min <= max`
 	///
 	/// All advisories documented on `randCore` apply to this function.
-	uint urandRangeInclusive(uint min, uint max, CvSeeder extraSeed) const;
+	uint urandRangeInclusive(uint min, uint max, const CvSeeder& extraSeed) const;
 
 	/// Generates a pseudo-random number using `randCore` and remaps the output into an exclusive range within `min` and `max`.
 	/// Specifically, if `x` is the returned signed integer, then `x` is guaranteed to satisfy the following:
@@ -571,7 +571,7 @@ public:
 	/// - `min < max`
 	///
 	/// All advisories documented on `randCore` apply to this function.
-	int randRangeExclusive(int min, int max, CvSeeder extraSeed) const;
+	int randRangeExclusive(int min, int max, const CvSeeder& extraSeed) const;
 
 	/// Generates a pseudo-random number using `randCore` and remaps the output into an inclusive range within `min` and `max`.
 	/// Specifically, if `x` is the returned signed integer, then `x` is guaranteed to satisfy the following:
@@ -582,7 +582,7 @@ public:
 	/// - `min <= max`
 	/// 
 	/// All advisories documented on `randCore` apply to this function.
-	int randRangeInclusive(int min, int max, CvSeeder extraSeed) const;
+	int randRangeInclusive(int min, int max, const CvSeeder& extraSeed) const;
 
 	int calculateSyncChecksum();
 	int calculateOptionsChecksum();

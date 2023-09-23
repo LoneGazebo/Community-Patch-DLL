@@ -10762,21 +10762,21 @@ int CvGame::getAsyncRandNum(int iNum, const char* pszLog)
 }
 
 //	--------------------------------------------------------------------------------
-uint CvGame::randCore(CvSeeder extraSeed) const
+uint CvGame::randCore(const CvSeeder& extraSeed) const
 {
 	const CvSeeder mapSeed = CvSeeder::fromRaw(CvPreGame::mapRandomSeed());
 	const CvSeeder gameSeed = CvSeeder(getGameTurn());
 	return mapSeed.mix(gameSeed).mix(extraSeed);
 }
 
-uint CvGame::urandLimitExclusive(uint limit, CvSeeder extraSeed) const
+uint CvGame::urandLimitExclusive(uint limit, const CvSeeder& extraSeed) const
 {
 	ASSERT(limit != 0);
 	const uint rand = randCore(extraSeed);
 	return rand % limit;
 }
 
-uint CvGame::urandLimitInclusive(uint limit, CvSeeder extraSeed) const
+uint CvGame::urandLimitInclusive(uint limit, const CvSeeder& extraSeed) const
 {
 	const uint rand = randCore(extraSeed);
 	if (limit == UINT_MAX)
@@ -10789,25 +10789,25 @@ uint CvGame::urandLimitInclusive(uint limit, CvSeeder extraSeed) const
 	}
 }
 
-uint CvGame::urandRangeExclusive(uint min, uint max, CvSeeder extraSeed) const
+uint CvGame::urandRangeExclusive(uint min, uint max, const CvSeeder& extraSeed) const
 {
 	ASSERT(min < max);
 	return urandLimitExclusive(max - min, extraSeed) + min;
 }
 
-uint CvGame::urandRangeInclusive(uint min, uint max, CvSeeder extraSeed) const
+uint CvGame::urandRangeInclusive(uint min, uint max, const CvSeeder& extraSeed) const
 {
 	ASSERT(min <= max);
 	return urandLimitInclusive(max - min, extraSeed) + min;
 }
 
-int CvGame::randRangeExclusive(int min, int max, CvSeeder extraSeed) const
+int CvGame::randRangeExclusive(int min, int max, const CvSeeder& extraSeed) const
 {
 	ASSERT(min < max);
 	return static_cast<int>(urandLimitExclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));
 }
 
-int CvGame::randRangeInclusive(int min, int max, CvSeeder extraSeed) const
+int CvGame::randRangeInclusive(int min, int max, const CvSeeder& extraSeed) const
 {
 	ASSERT(min <= max);
 	return static_cast<int>(urandLimitInclusive(static_cast<uint>(max) - static_cast<uint>(min), extraSeed) + static_cast<uint>(min));

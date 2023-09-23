@@ -1883,7 +1883,7 @@ bool CvDiplomacyAI::IsNuclearGandhi(bool bPotentially) const
 // ************************************
 
 /// Returns a personality weight with a small random element
-int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, CvSeeder seed)
+int CvDiplomacyAI::GetRandomPersonalityWeight(int iOriginalValue, const CvSeeder& seed)
 {
 	int iPlusMinus = range(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0, (INT_MAX - 1) / 2);
 

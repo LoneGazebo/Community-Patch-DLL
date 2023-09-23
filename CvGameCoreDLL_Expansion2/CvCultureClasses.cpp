@@ -35,7 +35,7 @@ CvGreatWork::CvGreatWork()
 }
 
 /// Constructor
-CvGreatWork::CvGreatWork(CvString szGreatPersonName, GreatWorkType eType, GreatWorkClass eClassType, int iTurn, EraTypes eEra, PlayerTypes ePlayer)
+CvGreatWork::CvGreatWork(const CvString& szGreatPersonName, GreatWorkType eType, GreatWorkClass eClassType, int iTurn, EraTypes eEra, PlayerTypes ePlayer)
 	: m_szGreatPersonName(szGreatPersonName)
 	, m_eType(eType)
 	, m_eClassType(eClassType)
@@ -104,7 +104,7 @@ void CvGameCulture::DoTurn()
 }
 
 // Factory method to create a Great Work, returns index of the new work
-int CvGameCulture::CreateGreatWork(GreatWorkType eType, GreatWorkClass eClass, PlayerTypes ePlayer, EraTypes eEra, CvString szCreator)
+int CvGameCulture::CreateGreatWork(GreatWorkType eType, GreatWorkClass eClass, PlayerTypes ePlayer, EraTypes eEra, const CvString& szCreator)
 {
 	CvGreatWork newGreatWork;
 	newGreatWork.m_eType = eType;
@@ -4867,7 +4867,7 @@ int CvPlayerCulture::GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const
 }
 
 /// Get spy rank tooltip associated with bonus from cultural influence
-CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(CvString szName, CvString szRank, PlayerTypes ePlayer, bool bNoBasicHelp, int iSpyID)
+CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(const CvString& szName, const CvString& szRank, PlayerTypes ePlayer, bool bNoBasicHelp, int iSpyID)
 {
 	CvString szRtnValue = "";
 	if (!MOD_BALANCE_CORE_SPIES_ADVANCED) 
@@ -6227,7 +6227,7 @@ void CvPlayerCulture::LogCultureData()
 }
 
 /// Utility function - AppendToLog
-void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue)
+void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, const CvString& strValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
@@ -6235,7 +6235,7 @@ void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	strLog += ",";
 }
 
-void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue)
+void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, int iValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
@@ -6244,7 +6244,7 @@ void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, CvStrin
 	strLog += str;
 }
 
-void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue)
+void CvPlayerCulture::AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue)
 {
 	strHeader += strHeaderValue;
 	strHeader += ",";
