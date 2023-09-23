@@ -13813,12 +13813,12 @@ void CvGame::SpawnArchaeologySitesHistorically()
 			}
 		}
 
-		// sort the weight vector
-		aDigSiteWeights.StableSortItems();
-
 		// Nowhere left to place a dig site!
 		if (aDigSiteWeights.empty())
 			return;
+
+		// sort the weight vector
+		aDigSiteWeights.StableSortItems();
 
 		// add the best dig site
 		int iBestSite = aDigSiteWeights.GetElement(0);
