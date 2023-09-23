@@ -22211,22 +22211,17 @@ void CvPlayer::DoUprising()
 /// City can revolt if the empire is Very Unhappy
 void CvPlayer::DoUpdateCityRevolts()
 {
-	int iPublicUnhappiness = 0;
-	if (GetCulture()->GetPublicOpinionUnhappiness() > 0 || IsEmpireSuperUnhappy() || (MOD_BALANCE_CORE_HAPPINESS && IsEmpireVeryUnhappy()))
+	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || GetCulture()->GetPublicOpinionUnhappiness() > 0));
+	if (bCanRevolt)
 	{
-		iPublicUnhappiness = 1;
-	}
-	if (IsEmpireVeryUnhappy() && iPublicUnhappiness > 0)
-	{
-		if(GetCityRevoltCounter() > 0)
+		if (GetCityRevoltCounter() > 0)
 		{
-			ChangeCityRevoltCounter(-iPublicUnhappiness);
+			ChangeCityRevoltCounter(-1);
 
 			// Time's up!
-			if(GetCityRevoltCounter() == 0)
+			if (GetCityRevoltCounter() == 0)
 			{
 				DoCityRevolt();
-				SetCityRevoltCounter(0);
 			}
 			else
 			{

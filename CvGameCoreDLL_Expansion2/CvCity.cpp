@@ -15412,7 +15412,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			}
 			// END TERRA COTTA AWESOME
 #if defined(MOD_BALANCE_CORE)
-			if (MOD_BALANCE_CORE && pBuildingInfo->IsReformation() && (iChange > 0) )
+			if (MOD_BALANCE_CORE && pBuildingInfo->IsReformation())
 			{
 				GET_PLAYER(getOwner()).SetReformation(true);
 			}

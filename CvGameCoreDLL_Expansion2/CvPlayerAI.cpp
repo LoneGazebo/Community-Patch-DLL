@@ -450,7 +450,8 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 			return;
 		}
 
-		if (bOnlyCityOnLandmass && !IsEmpireSuperUnhappy())
+		bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || GetCulture()->GetPublicOpinionUnhappiness() > 0));
+		if (bOnlyCityOnLandmass && !bCanRevolt)
 		{
 			pCity->DoCreatePuppet();
 			return;
@@ -786,9 +787,13 @@ void CvPlayerAI::AI_considerRaze()
 
 	AI_PERF("AI-perf.csv", "AI_ considerRaze");
 
-	// Only raze when super unhappy
+	// Only raze when at risk of revolting
 	int iNumCities = getNumCities();
-	if (!IsEmpireSuperUnhappy() || iNumCities <= 1 || GetPlayerTraits()->IsNoAnnexing())
+	if (iNumCities <= 1 || GetPlayerTraits()->IsNoAnnexing())
+		return;
+
+	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || GetCulture()->GetPublicOpinionUnhappiness() > 0));
+	if (!bCanRevolt)
 		return;
 
 	int iCurrentHappiness = 0;
