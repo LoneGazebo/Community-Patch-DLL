@@ -651,13 +651,16 @@ void CvPlayerAI::AI_considerAnnex()
 	// if our capital city is puppeted or being razed, annex and unraze it
 	// can happen if we lose our original capital
 	CvCity* pCapital = getCapitalCity();
-	if (pCapital && pCapital->IsRazing())
-		unraze(pCapital);
-
-	if (pCapital && pCapital->IsPuppet())
+	if (pCapital)
 	{
-		pCapital->DoAnnex();
-		return;
+		if (pCapital->IsRazing())
+			unraze(pCapital);
+
+		if (pCapital->IsPuppet())
+		{
+			pCapital->DoAnnex();
+			return;
+		}
 	}
 
 	// for Venice
