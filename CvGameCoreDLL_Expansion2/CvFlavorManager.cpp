@@ -469,7 +469,7 @@ void CvFlavorManager::RandomizeWeights()
 }
 
 /// Add a random plus/minus to an integer (but keep it in range)
-int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, CvSeeder seed)
+int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, const CvSeeder& seed)
 {
 	// Randomize!
 	return range(GC.getGame().randRangeInclusive(iOriginalValue - iPlusMinus, iOriginalValue + iPlusMinus, seed), iMin, iMax);

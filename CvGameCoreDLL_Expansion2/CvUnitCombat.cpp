@@ -3322,7 +3322,7 @@ bool CvUnitCombat::ParadropIntercept(CvUnit& paraUnit, CvPlot& dropPlot) {
 #endif
 
 //result is times 100
-int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, bool bIncludeRand, CvSeeder randomSeed, int iModifierPercent)
+int CvUnitCombat::DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, bool bIncludeRand, const CvSeeder& randomSeed, int iModifierPercent)
 {
 	// Base damage for two units of identical strength
 	int iDamage = iDefaultDamage100;

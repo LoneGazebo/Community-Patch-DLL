@@ -43,7 +43,7 @@ public:
 #endif
 
 	//returns damage times 100
-	static int DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, bool bIncludeRand, CvSeeder randomSeed, int iModifierPercent);
+	static int DoDamageMath(int iAttackerStrength100, int iDefenderStrength100, int iDefaultDamage100, int iMaxRandomDamage100, bool bIncludeRand, const CvSeeder& randomSeed, int iModifierPercent);
 	static void ResolveCombat(const CvCombatInfo& kInfo, uint uiParentEventID = 0);
 
 	static ATTACK_RESULT Attack(CvUnit& kAttacker, CvPlot& targetPlot, ATTACK_OPTION eOption);
