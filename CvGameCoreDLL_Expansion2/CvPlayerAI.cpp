@@ -649,6 +649,21 @@ void CvPlayerAI::AI_considerAnnex()
 
 	AI_PERF("AI-perf.csv", "AI_ considerAnnex");
 
+	// Unraze and unpuppet all cities if we aren't a major civ
+	if (!isMajorCiv())
+	{
+		int iLoop = 0;
+		for (CvCity* pCity = firstCity(&iLoop); pCity != NULL; pCity = nextCity(&iLoop))
+		{
+			if (pCity->IsRazing())
+				unraze(pCity);
+
+			if (pCity->IsPuppet())
+				pCity->DoAnnex();
+		}
+		return;
+	}
+
 	// if our capital city is puppeted or being razed, annex and unraze it
 	// can happen if we lose our original capital
 	CvCity* pCapital = getCapitalCity();
@@ -782,7 +797,7 @@ void CvPlayerAI::AI_considerAnnex()
 
 void CvPlayerAI::AI_considerRaze()
 {
-	if (isHuman())
+	if (isHuman() || !isMajorCiv())
 		return;
 
 	AI_PERF("AI-perf.csv", "AI_ considerRaze");
@@ -792,16 +807,15 @@ void CvPlayerAI::AI_considerRaze()
 	if (iNumCities <= 1 || GetPlayerTraits()->IsNoAnnexing())
 		return;
 
-	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || GetCulture()->GetPublicOpinionUnhappiness() > 0));
+	bool bCanRevoltIdeology = GetCulture()->GetPublicOpinionUnhappiness() > 0;
+	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || bCanRevoltIdeology));
 	if (!bCanRevolt)
 		return;
 
 	int iCurrentHappiness = 0;
 	int iCurrentHappy = 0;
 	int iCurrentUnhappy = 0;
-	int iThreshold = /*-20 in CP, 20 in VP*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
-	if (MOD_BALANCE_VP && iThreshold <= 0)
-		return;
+	int iThreshold = (MOD_BALANCE_CORE_HAPPINESS || bCanRevoltIdeology) ? /*-10 in CP, 35 in VP*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD) : /*-20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
 
 	// Look at our Unhappiness situation to see how much Unhappiness we need to remove
 	if (MOD_BALANCE_CORE_HAPPINESS)
@@ -809,7 +823,7 @@ void CvPlayerAI::AI_considerRaze()
 		iCurrentHappy = GetHappinessFromCitizenNeeds();
 		iCurrentUnhappy = GetUnhappinessFromCitizenNeeds();
 		// Protect against modder stupidity
-		if (iCurrentHappy <= 0)
+		if (iThreshold <= 0 || iCurrentHappy <= 0)
 			return;
 
 		iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
