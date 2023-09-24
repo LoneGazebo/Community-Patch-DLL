@@ -7497,7 +7497,7 @@ bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 		eAssignmentType == A_RANGEKILL;
 }
 
-int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMovePlot& movePlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
+int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, int iMovesLeft, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode)
 {
 	int iResult = 0;
@@ -7579,7 +7579,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, const SMov
 
 	//minor bonus for staying put and healing
 	//don't add too much else it overrides the firstline/secondline order
-	if (movePlot.iMovesLeft == pUnit->maxMoves())
+	if (iMovesLeft == pUnit->maxMoves())
 	{
 		if (pUnit->IsHurt())
 			iResult++; //cannot fortify, only heal
@@ -7701,7 +7701,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	if (evalMode != EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
+		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -7804,7 +7804,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	if (evalMode!=EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
+		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -8805,11 +8805,29 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gOverAllChoices.insert( gOverAllChoices.end(), gPossibleMoves.begin(), gPossibleMoves.end() );
 	}
 
+	//it can happen that the top N moves are all invalid in the sense that no later moves would allow ending the turn
+	//in that case all descendants are invalid, but we only find out at the very end ... so the simulation fails
+	//to avoid that let's make sure that we always add at least one move which is guaranteed to be valid (but may have a worse score)
+	bool haveChildWithValidEndTurnAssignment = false;
+
 	//note that this is a stable sort, meaning in case of ties the original order is maintained
 	//since we have a fixed cutoff, the simulation result depends on the order the moves were created in, ie the order of units
 	std::stable_sort(gOverAllChoices.begin(), gOverAllChoices.end());
 	for (size_t i=0; i<gOverAllChoices.size(); i++)
 	{
+		bool isSafeAssignment = couldEndTurnAfterThisAssignment(gOverAllChoices[i]);
+
+		//don't check all possibilities, only the best ones and one safe choice
+		if (childPositions.size() >= (size_t)iMaxBranches)
+		{
+			if (haveChildWithValidEndTurnAssignment)
+				//good, we're done
+				break;
+			else if (!isSafeAssignment)
+				//try the next one until we run out
+				continue;
+		}
+
 		gMovesToAdd.clear();
 
 		//easy case first, no conflict
@@ -8894,6 +8912,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			//try to detect duplicates ...
 			if (isConsistent && pNewChild->isUnique(TACTSIM_UNIQUENESS_CHECK_GENERATIONS))
 			{
+				//important, remember this
+				if (isSafeAssignment)
+					haveChildWithValidEndTurnAssignment = true;
+
 				//do we need to keep working on this one?
 				if (pNewChild->isEarlyFinish() || pNewChild->isExhausted())
 				{
@@ -8922,10 +8944,6 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			else
 				removeChild(pNewChild);
 		}
-
-		//don't check all possibilities, only the best ones
-		if (childPositions.size() >= (size_t)iMaxBranches)
-			break;
 	}
 	
 	if (childPositions.empty())
@@ -10173,6 +10191,42 @@ float CvTacticalPosition::getAggressionBias() const
 		fUnitNumberRatio += 0.1f;
 
 	return max( 0.9f, fUnitNumberRatio ); //<1 indicates we're fewer but don't stop attacking because of that
+}
+
+bool CvTacticalPosition::couldEndTurnAfterThisAssignment(const STacticalAssignment& assignment) const
+{
+	int iEndPlotIndex = -1;
+
+	switch (assignment.eAssignmentType)
+	{
+	case A_MOVE:
+	case A_MELEEKILL:
+	case A_CAPTURE:
+		//unit moves
+		iEndPlotIndex = assignment.iToPlotIndex;
+		break;
+	case A_MELEEATTACK:
+	case A_RANGEATTACK:
+	case A_RANGEKILL:
+	case A_PILLAGE:
+	case A_BLOCKED:
+	case A_FINISH_TEMP:
+	case A_MELEEKILL_NO_ADVANCE:
+		//unit stays in place
+		iEndPlotIndex = assignment.iFromPlotIndex;
+		break;
+	default:
+		OutputDebugString("unexpected assignment type ...\n");
+		return false;
+	}
+
+	const SUnitStats* unit = getAvailableUnitStats(assignment.iUnitID);
+	const CvTacticalPlot& assumedUnitPlot = getTactPlot(iEndPlotIndex);
+	CvUnit* pUnit = GET_PLAYER(getPlayer()).getUnit(assignment.iUnitID);
+	if (!pUnit || !assumedUnitPlot.isValid())
+		return false;
+
+	return ScoreTurnEnd(pUnit, assumedUnitPlot, 0, CvTacticalPlot::TD_BOTH, unit->iSelfDamage, *this, EM_FINAL) != INT_MAX;
 }
 
 std::ostream& operator<<(ostream& os, const CvPlot& p)
