@@ -43,7 +43,7 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(16000);
+CvTactPosStorage gTactPosStorage(12000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
@@ -8817,16 +8817,10 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 	{
 		bool isSafeAssignment = couldEndTurnAfterThisAssignment(gOverAllChoices[i]);
 
-		//don't check all possibilities, only the best ones and one safe choice
-		if (childPositions.size() >= (size_t)iMaxBranches)
-		{
-			if (haveChildWithValidEndTurnAssignment)
-				//good, we're done
-				break;
-			else if (!isSafeAssignment)
-				//try the next one until we run out
-				continue;
-		}
+		//if we didn't pick a safe assignment so far, force the last one to be safe
+		if (childPositions.size() == (size_t)iMaxBranches-1 && !haveChildWithValidEndTurnAssignment && !isSafeAssignment)
+			//try the next one until we run out (if there is no safe choice, tough luck)
+			continue;
 
 		gMovesToAdd.clear();
 
@@ -8944,6 +8938,9 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			else
 				removeChild(pNewChild);
 		}
+
+		if (childPositions.size() >= (size_t)iMaxBranches)
+			break;
 	}
 	
 	if (childPositions.empty())
@@ -10553,19 +10550,19 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		}
 
 		//did we run out of resources?
+		//this typically happens if there are only invalid positions to be found ...
 		if (storage.peekNext() == NULL)
 		{
 			timer.EndPerfTest();
 			int iStartingUnits = initialPosition->getAvailableUnits().size();
 
 			std::stringstream ss;
-			ss << "warning: tactsim at max num positions, " <<
-				iStartingUnits << " starting units, " <<
-				current->getAvailableUnits().size() << " remaining units, " <<
-				openPositionsHeap.size() << " open positions, " <<
+			ss << "warning: tactsim abandoned after, " << std::setprecision(3) << timer.GetDeltaInSeconds() << " s, " <<
+				completedPositions.size() << " completed, " <<
+				openPositionsHeap.size() << " open, " <<
 				iUsedPositions << " processed, " <<
-				completedPositions.size() << " completed. took " <<
-				std::setprecision(3) << timer.GetDeltaInSeconds() << " sec";
+				iStartingUnits << " starting units, " <<
+				current->getAvailableUnits().size() << " remaining units";
 				CUSTOMLOG(ss.str().c_str());
 
 			//too risky ...
