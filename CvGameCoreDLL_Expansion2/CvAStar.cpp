@@ -876,7 +876,6 @@ struct UnitPathCacheData
 	bool m_bIsNoRevealMap;
 	bool m_bCanEverEmbark;
 	bool m_bIsEmbarked;
-	bool m_bCanAttack;
 	bool m_bDoDanger;
 
 	inline int baseMoves(bool bEmbarked) const { return bEmbarked ? m_aBaseMovesNonNative : m_aBaseMovesNative; }
@@ -887,7 +886,6 @@ struct UnitPathCacheData
 	inline bool isNoRevealMap() const { return m_bIsNoRevealMap; }
 	inline bool CanEverEmbark() const { return m_bCanEverEmbark; }
 	inline bool isEmbarked() const { return m_bIsEmbarked; }
-	inline bool IsCanAttack() const { return m_bCanAttack; }
 	inline bool doDanger() const { return m_bDoDanger; }
 };
 
@@ -910,7 +908,6 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bIsNoRevealMap = pUnit->isNoRevealMap();
 	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark();
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
-	pCacheData->m_bCanAttack = pUnit->IsCanAttack() && !pUnit->isOutOfAttacks();
 	pCacheData->m_bDoDanger = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER);
 }
 
@@ -928,7 +925,6 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	if (!node || !pUnit)
 		return;
 
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
 	if (kToNodeCacheData.iGenerationID==finder->GetCurrentGenerationID())
 		return;
@@ -997,17 +993,15 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	if (bIsDestination && (finder->GetData().iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) == 0 && (finder->GetData().iFlags & CvUnit::MOVEFLAG_APPROX_TARGET_RING2)==0)
 	{
 		//special checks for attack flag
-		if (pCacheData->IsCanAttack())
+		if (pUnit->IsCanAttack())
 		{
-			if (pUnit->IsCanAttackRanged())
+			//all combat units can capture a civilian by moving but need the attack flag to do it
+			if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
+				iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+			
+			//only attack-ready melee units can move into plots with enemy cities and units
+			if (!pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
 			{
-				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-			}
-			else
-			{
-				//melee units attack enemy cities and units 
 				if (kToNodeCacheData.bIsVisibleEnemyUnit || kToNodeCacheData.bIsEnemyCity || bPlotOccupancyOverride)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
@@ -1131,17 +1125,15 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 
 		//special checks for attack flag
-		if (pCacheData->IsCanAttack())
+		if (pUnit->IsCanAttack())
 		{
-			if (pUnit->IsCanAttackRanged())
+			//all combat units can capture a civilian by moving but need the attack flag to do it
+			if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
+				iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+
+			//only attack-ready melee units can move into plots with enemy cities and units
+			if (!pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
 			{
-				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-			}
-			else
-			{
-				//melee units can attack enemy cities and units
 				if (pToPlot->isVisibleEnemyUnit(pUnit) || pToPlot->isEnemyCity(*pUnit))
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
@@ -1204,16 +1196,16 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 /// Standard path finder - cost for ending the turn on a given plot
 int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture, bool bAbortInDanger)
 {
-	//human knows best, don't try to be smart
-	if (!pUnitDataCache->isAIControl())
-		return kToNodeCacheData.bIsNonNativeDomain && pUnitDataCache->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
-
-	int iCost = 0;
-
 	CvUnit* pUnit = pUnitDataCache->pUnit;
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
+	//human knows best, don't try to be smart, just try to keep combat units attack-ready
+	if (!pUnitDataCache->isAIControl())
+		return kToNodeCacheData.bIsNonNativeDomain && pUnit->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
+	
+	//logic for AI
+	int iCost = 0;
 	if(pUnit->IsCanDefend())
 	{
 		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
@@ -1463,7 +1455,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		iCost += (7 - iUnseenPlots) * PATH_EXPLORE_NON_REVEAL_WEIGHT;
 	}
 
-	if(pUnitDataCache->IsCanAttack() && bIsPathDest)
+	if(pUnit->IsCanAttack() && bIsPathDest)
 	{
 		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
 		if(node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && pUnitDataCache->isAIControl())
@@ -1516,7 +1508,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			if(!kFromNodeCacheData.bCanEnterTerrainPermanent || !kFromNodeCacheData.bCanEnterTerritoryPermanent)
 				return FALSE;
 
-			if(pCacheData->m_bCanAttack)
+			if(pUnit->IsCanAttack())
 			{
 				if (kFromNodeCacheData.bIsNonEnemyCity)
 					return FALSE;

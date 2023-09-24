@@ -57,8 +57,8 @@ PlayerTypes eLastTactSimPlayer = NO_PLAYER;
 unsigned long gMovePlotsCacheHit = 0, gMovePlotsCacheMiss = 0;
 unsigned long gAttackPlotsCacheHit = 0, gAttackPlotsCacheMiss = 0;
 unsigned long gAttackCacheHit = 0, gAttackCacheMiss = 0;
-unsigned long long giEquivalent = 0;
-unsigned long long giDifferent = 0;
+unsigned long giEquivalentPos = 0, giDifferentPos = 0;
+unsigned long giValidEndPos = 0, giInvalidEndPos = 0;
 #endif
 
 void CheckDebugTrigger(int iUnitID)
@@ -8902,10 +8902,14 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 						//good case, we're done
 						completedPositions.push_back(pNewChild);
 						storage.consumeOne();
+						giValidEndPos++;
 					}
 					else
+					{
 						//position is illegal, forget about it so we can re-use the memory
 						removeChild(pNewChild);
+						giInvalidEndPos++;
+					}
 				}
 				else
 				{
@@ -9907,12 +9911,12 @@ const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition*
 
 	if (mismatch)
 	{
-		giDifferent++;
+		giDifferentPos++;
 		return NULL;
 	}
 	else
 	{
-		giEquivalent++;
+		giEquivalentPos++;
 		return other;
 	}
 }
@@ -10510,8 +10514,9 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				std::setprecision(3) << timer.GetDeltaInSeconds() << " sec";
 				CUSTOMLOG(ss.str().c_str());
 
+			//too risky ...
 			/*
-			//too risky ... see if we can just take an unfinished position to salvage the situation
+			//see if we can just take an unfinished position to salvage the situation
 			if (completedPositions.empty())
 			{
 				std::stable_sort(openPositionsHeap.begin(), openPositionsHeap.end(), CvTacticalPosition::PrPositionSortArrayTotalScore());

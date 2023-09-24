@@ -5124,13 +5124,14 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCombatUnit() || pLoopUnit->getArmyID() != -1)
 				continue;
 
+			//Don't poach garrisons
+			if (pLoopUnit->IsGarrisoned())
+				continue;
+
 			bool bSuitableUnit = false;
 			switch(eMove)
 			{
 			case AI_HOMELAND_MOVE_GARRISON:
-				//Don't poach garrisons for garrisons.
-				if(pLoopUnit->IsGarrisoned())
-					continue;
 
 				//don't use explorers
 				if (pLoopUnit->AI_getUnitAIType() == UNITAI_EXPLORE)
@@ -5148,8 +5149,8 @@ bool CvHomelandAI::FindUnitsForThisMove(AIHomelandMove eMove)
 
 				case AI_HOMELAND_MOVE_SENTRY:
 					// No ranged units as sentries 
-					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsEverFortifyable() && !pLoopUnit->IsGarrisoned() && 
-					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || pLoopUnit->isUnitAI(UNITAI_COUNTER) && !MOD_AI_UNIT_PRODUCTION ) ) // AI_UNIT_PRODUCTION: No UNITAI_COUNTER as sentries
+					if (pLoopUnit->getDomainType() == DOMAIN_LAND && pLoopUnit->IsEverFortifyable() && 
+					( pLoopUnit->isUnitAI(UNITAI_DEFENSE) || pLoopUnit->isUnitAI(UNITAI_ATTACK) || (pLoopUnit->isUnitAI(UNITAI_COUNTER) && !MOD_AI_UNIT_PRODUCTION) ) ) 
 				{
 					bSuitableUnit = true;
 				}

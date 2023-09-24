@@ -1610,7 +1610,7 @@ void PrintMemoryInfo(const char* hint)
 
 	PROCESS_MEMORY_COUNTERS pmc;
 	if (GetProcessMemoryInfo(hProcess, &pmc, sizeof(pmc)))
-		CUSTOMLOG("Memory Usage kB %s:\tWorkingSetSize\t%08u\tPrivateUsage\t%08u", hint, pmc.WorkingSetSize/1024, pmc.PagefileUsage/1024);
+		CUSTOMLOG("%s:\tWorkingSetSize\t%08u kB\tPrivateUsage\t%08u kB", hint, pmc.WorkingSetSize/1024, pmc.PagefileUsage/1024);
 
 	CloseHandle(hProcess);
 }
