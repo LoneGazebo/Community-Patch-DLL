@@ -2122,7 +2122,7 @@ CvSpyResult CvPlayerEspionage::GetSpyRollResult(CvCity* pCity, CityEventChoiceTy
 	int iKillRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xe9deaa7f).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner())));
 
 	//success! we didn't die...
-	if (iKillRoll <= iKillChance)
+	if (iKillRoll > iKillChance)
 	{
 		int iIdentifyChance = GetDefenseChance(ESPIONAGE_TYPE_IDENTIFY, pCity, eEventChoice);
 		int iIdentifyRoll = GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0x80599453).mix(pCity->plot()->GetPseudoRandomSeed()).mix(m_pPlayer->GetID()).mix(GetNumSpyActionsDone(pCity->getOwner())));
