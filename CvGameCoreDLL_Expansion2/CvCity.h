@@ -591,6 +591,7 @@ public:
 	bool HasAccessToLandmass(int iLandmassID) const;
 	bool HasSharedLandmassWith(const CvCity* pOther, bool bAllowLand, bool bAllowWater) const;
 
+	bool NeedsGarrison() const;
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;

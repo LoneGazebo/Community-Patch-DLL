@@ -636,7 +636,7 @@ void CvHomelandAI::PlotGarrisonMoves()
 		{
 			//nothing to do really
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-			//do not touch units which are under human control
+			//do not touch units which are under human control (eg accidentally garrisoned explorers)
 			if (!pGarrison->TurnProcessed() && (!pGarrison->isHuman() || pGarrison->IsAutomated()))
 				UnitProcessed(pGarrison->GetID());
 		}

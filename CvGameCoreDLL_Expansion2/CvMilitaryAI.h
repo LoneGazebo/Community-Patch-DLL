@@ -190,9 +190,9 @@ public:
 	// Finding best cities to target
 	bool HavePossibleAttackTarget(PlayerTypes eEnemy) const;
 	bool HavePreferredAttackTarget(PlayerTypes eEnemy) const;
-	bool IsPossibleAttackTarget(CvCity* pCity) const;
-	bool IsPreferredAttackTarget(CvCity* pCity) const;
-	bool IsExposedToEnemy(CvCity* pCity, PlayerTypes eOtherPlayer) const;
+	bool IsPossibleAttackTarget(const CvCity* pCity) const;
+	bool IsPreferredAttackTarget(const CvCity* pCity) const;
+	bool IsExposedToEnemy(const CvCity* pCity, PlayerTypes eOtherPlayer) const;
 
 	bool IsPlayerValid(PlayerTypes eOtherPlayer) const;
 

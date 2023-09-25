@@ -654,6 +654,7 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 
 	bool bWaterPath = path.get(1)->isWater();
 	int iThirdPartyPlots = 0;
+	int iWeirdPlots = 0;
 
 	//ignore beginning and end of path!
 	for (size_t i = 3; i < path.vPlots.size() - 3; i++)
@@ -676,7 +677,7 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 			if (path.get(-1)->getOwningCityID() != pCity->GetID())
 			{
 				if (!bWaterPath || pCity->isCoastal())
-					return false;
+					iWeirdPlots++;
 			}
 		}
 		//maybe we have a better muster plot?
@@ -685,12 +686,12 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 			if (path.get(0)->getOwningCityID() != pCity->GetID())
 			{
 				if (!bWaterPath || pCity->isCoastal())
-					return false;
+					iWeirdPlots++;
 			}
 		}
 		//passing through a different warzone? not good
 		else if (GET_PLAYER(eAttacker).IsAtWarWith(pCity->getOwner()))
-			return false;
+			iWeirdPlots++;
 
 		//the trade path may lead through third-party territory
 		if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker))
@@ -699,10 +700,10 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 
 	//the trade paths often lead through third party territory which an army may not be able to pass
 	//if we need open borders and there is no easy detour, exclude this path
-	return (iThirdPartyPlots<3);
+	return (iThirdPartyPlots<3) && (iWeirdPlots<3);
 }
 
-bool CvMilitaryAI::IsPossibleAttackTarget(CvCity* pCity) const
+bool CvMilitaryAI::IsPossibleAttackTarget(const CvCity* pCity) const
 {
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
 		return false;
@@ -714,7 +715,7 @@ bool CvMilitaryAI::IsPossibleAttackTarget(CvCity* pCity) const
 	return false;
 }
 
-bool CvMilitaryAI::IsPreferredAttackTarget(CvCity* pCity) const
+bool CvMilitaryAI::IsPreferredAttackTarget(const CvCity* pCity) const
 {
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
 		return false;
@@ -726,7 +727,7 @@ bool CvMilitaryAI::IsPreferredAttackTarget(CvCity* pCity) const
 	return false;
 }
 
-bool CvMilitaryAI::IsExposedToEnemy(CvCity * pCity, PlayerTypes eOtherPlayer) const
+bool CvMilitaryAI::IsExposedToEnemy(const CvCity * pCity, PlayerTypes eOtherPlayer) const
 {
 	//minors don't really explore, so they don't know what's exposed ... just assume all their cities are
 	if (m_pPlayer->isMinorCiv())
@@ -793,35 +794,32 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 		for (map<int, SPath>::iterator it = landpaths.begin(); it != landpaths.end(); ++it)
 		{
 			PlayerTypes eOtherPlayer = it->second.get(-1)->getOwner();
-
 			if (!IsPlayerValid(eOtherPlayer))
-				continue;
-			if (!MilitaryAIHelpers::ArmyPathIsGood(it->second,m_pPlayer->GetID(),eOtherPlayer))
 				continue;
 
 			CvAttackTarget target;
 			target.SetWaypoints(it->second);
 			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
-			if (target.m_iApproachScore == 0)
-				continue;
 
-			vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+			//keep it if it seems we can move an army there
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer))
+				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
 			//and now the other way around
 			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
 			{
 				it->second.invert();
-				if (MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID()))
+
+				CvAttackTarget reverseTarget;
+				reverseTarget.SetWaypoints(it->second);
+				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+
+				//do not check the army path here, never know what the enemy might do ... better safe than sorry!
+				if (target.m_iApproachScore > 0)
 				{
-					CvAttackTarget reverseTarget;
-					reverseTarget.SetWaypoints(it->second);
-					MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
-					if (target.m_iApproachScore > 0)
-					{
-						//do not try any advanced scoring, just use a basic approach/distance score
-						int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
-						vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
-					}
+					//do not try any advanced scoring, just use a basic approach/distance score
+					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+					vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
 				}
 			}
 		}
@@ -830,35 +828,32 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 		for (map<int, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
 			PlayerTypes eOtherPlayer = it->second.get(-1)->getOwner();
-
 			if (!IsPlayerValid(eOtherPlayer))
-				continue;
-			if (!MilitaryAIHelpers::ArmyPathIsGood(it->second,m_pPlayer->GetID(),eOtherPlayer))
 				continue;
 
 			CvAttackTarget target;
 			target.SetWaypoints(it->second);
 			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
-			if (target.m_iApproachScore == 0)
-				continue;
 
-			vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+			//keep it if it seems we can move an army there
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer))
+				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
 			//and now the other way around
 			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
 			{
 				it->second.invert();
-				if (MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID()))
+
+				CvAttackTarget reverseTarget;
+				reverseTarget.SetWaypoints(it->second);
+				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+
+				//do not check the army path here, never know what the enemy might do ... better safe than sorry!
+				if (target.m_iApproachScore > 0)
 				{
-					CvAttackTarget reverseTarget;
-					reverseTarget.SetWaypoints(it->second);
-					MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
-					if (target.m_iApproachScore > 0)
-					{
-						//do not try any advanced scoring, just use a basic approach/distance score
-						int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
-						vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
-					}
+					//do not try any advanced scoring, just use a basic approach/distance score
+					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+					vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
 				}
 			}
 		}
@@ -3605,12 +3600,11 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	{
 		iCurrentWeight += 25;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(pPlayer->IsCramped())
 	{
 		iCurrentWeight += 5;
 	}
-#endif
 
 	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_ANY))
 	{

@@ -18496,6 +18496,20 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	updateNetHappiness();
 }
 
+bool CvCity::NeedsGarrison() const
+{
+	if (isUnderSiege())
+		return true;
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	//this allows the player to use the garrison for settler escorts
+	if (kPlayer.IsEarlyExpansionPhase())
+		return false;
+
+	return kPlayer.GetMilitaryAI()->IsExposedToEnemy(this, NO_PLAYER);
+}
+
 bool CvCity::HasGarrison() const
 {
 	if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
@@ -35596,8 +35610,8 @@ bool CvCity::isInDangerOfFalling(bool bExtraCareful) const
 
 bool CvCity::isUnderSiege() const
 {
-	//lots of possible conditions, many overlapping ... let's make sure we cover all angles
-	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0 || (IsBlockadedWaterAndLand() && getDamage() >= GetMaxHitPoints()/4) || isInDangerOfFalling();
+	//damage taken decays exponentially so check for >0
+	return m_iDamageTakenLastTurn > 5 || GetCityCitizens()->AnyPlotBlockaded();
 }
 
 int CvCity::getDamageTakenLastTurn() const

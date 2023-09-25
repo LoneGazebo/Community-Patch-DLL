@@ -7334,32 +7334,22 @@ bool CvUnit::canUseForAIOperation() const
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
 
-	//Is it a garrison we can spare? the border score check is a problem early on, so only do it once we have our core cities established
-	if (IsGarrisoned() && !kPlayer.IsEarlyExpansionPhase())
-	{
-		CvCity* pCity = GetGarrisonedCity();
-		CvTacticalDominanceZone* pLandZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-		CvTacticalDominanceZone* pWaterZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
-		if (pLandZone && (pLandZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pLandZone->GetBorderScore(NO_DOMAIN)>5))
-			return false;
-		if (pWaterZone && (pWaterZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
-			return false;
-	}
-	else
-	{
-		//check if it's a city zone! don't care about no-mans land.
-		CvTacticalDominanceZone* pZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
-		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
-			return false;
+	//do not poach important garrisons
+	if (IsGarrisoned() && GetGarrisonedCity()->NeedsGarrison())
+		return false;
 
-		//do not call GetPlotsWithEnemyInMovementRange, it's too expensive ...
-		//instead look at our immediate neighbor plots only
-		for (int i = 0; i < RING3_PLOTS; i++)
-		{
-			CvPlot* pTestPlot = iterateRingPlots(plot(),i);
-			if (pTestPlot && pTestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true) != NULL)
-				return false;
-		}
+	//check if it's a city zone! don't care about no-mans land.
+	CvTacticalDominanceZone* pZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
+	if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+		return false;
+
+	//do not call GetPlotsWithEnemyInMovementRange, it's too expensive ...
+	//instead look at our immediate neighbor plots only
+	for (int i = 0; i < RING3_PLOTS; i++)
+	{
+		CvPlot* pTestPlot = iterateRingPlots(plot(),i);
+		if (pTestPlot && pTestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true) != NULL)
+			return false;
 	}
 
 	//don't pull units out of important citadels
@@ -7384,6 +7374,10 @@ bool CvUnit::canUseForTacticalAI() const
 
 	//these are only used for operations
 	if (AI_getUnitAIType() == UNITAI_CARRIER_SEA || AI_getUnitAIType() == UNITAI_ICBM)
+		return false;
+
+	//do not poach important garrisons
+	if (IsGarrisoned() && GetGarrisonedCity()->NeedsGarrison())
 		return false;
 
 	//we want all barbarians ...

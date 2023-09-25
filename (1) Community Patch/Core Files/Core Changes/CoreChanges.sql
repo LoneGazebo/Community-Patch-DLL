@@ -503,7 +503,6 @@ WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP' AND F
 UPDATE AIEconomicStrategies
 SET MinimumNumTurnsExecuted = 10
 WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
-
 UPDATE AIEconomicStrategies
 SET CheckTriggerTurnCount = 7
 WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
@@ -511,10 +510,18 @@ WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
 UPDATE AIEconomicStrategies
 SET MinimumNumTurnsExecuted = 10
 WHERE Type = 'ECONOMICAISTRATEGY_FOUND_CITY';
-
 UPDATE AIEconomicStrategies
 SET CheckTriggerTurnCount = 3
 WHERE Type = 'ECONOMICAISTRATEGY_FOUND_CITY';
+
+-- check this every turn!
+UPDATE AIEconomicStrategies
+SET CheckTriggerTurnCount = 1
+WHERE Type = 'ECONOMICAISTRATEGY_EARLY_EXPANSION';
+UPDATE AIEconomicStrategies
+SET MinimumNumTurnsExecuted = 1
+WHERE Type = 'ECONOMICAISTRATEGY_EARLY_EXPANSION';
+
 
 -- Economic City Strategy Flavors
 

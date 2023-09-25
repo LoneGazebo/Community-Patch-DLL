@@ -389,7 +389,7 @@ private:
 ///------------------------------
 //	unify these?
 ///------------------------------
-	void PlotGarrisonMoves(int iTurnsToArrive);
+	void PlotGarrisonMoves(int iTurnsToArrive, bool bEmergencyOnly);
 	void PlotBastionMoves(int iTurnsToArrive, bool bEmergencyOnly);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
 //--------------------------------

@@ -766,6 +766,7 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 	PlotOperationalArmyMoves();
 
 	//try to make sure our most important fortifications have units in them
+	PlotGarrisonMoves(2, true);
 	PlotBastionMoves(2, true);
 }
 
@@ -783,8 +784,8 @@ void CvTacticalAI::AssignGlobalMidPrioMoves()
 
 	//make sure our frontline cities and fortresses have a garrison
 	//garrisons sometimes make a sortie so we have to get them back
-	PlotGarrisonMoves(2);
-	PlotBastionMoves(2,false);
+	PlotGarrisonMoves(3, false);
+	PlotBastionMoves(2, false);
 
 	//now all attacks are done, try to move any unprocessed units out of harm's way
 	PlotMovesToSafety(true);
@@ -1597,7 +1598,7 @@ void CvTacticalAI::PlotBarbarianCampDefense()
 }
 
 /// Make a defensive move to garrison a city
-void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
+void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_GARRISON);
 
@@ -1605,20 +1606,24 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 	{
 		CvPlot* pPlot = GC.getMap().plot(pTarget->GetTargetX(), pTarget->GetTargetY());
 		CvCity* pCity = pPlot->getPlotCity();
-
 		if(!pCity)
 			continue;
 
-		//first check how many enemies are around
-		int iEnemyCount = 0;
-		for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
+		if (bEmergencyOnly)
 		{
-			CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
-			if (pNeighbor && pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true))
-				iEnemyCount++;
+			if (!pCity->isUnderSiege())
+				continue;
+		}
+		else
+		{
+			// it's possible that the city did not perform a ranged attack this turn yet although enemies are present
+			// this depends on the tactical posture ... so let's try again here as a safety net
+			CvUnit* pEnemyPlot = pCity->getBestRangedStrikeTarget();
+			if (pEnemyPlot)
+				pCity->rangeStrike(pEnemyPlot->getX(), pEnemyPlot->getY());
 		}
 
-		//an explorer can be a transient garrison but we don't want to keep it here
+		//note that garrisons do not need to be "recruited" into tactical AI
 		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
 		if (pGarrison)
 		{
@@ -1633,7 +1638,16 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 			if (pGarrison->AI_getUnitAIType() == UNITAI_EXPLORE || pGarrison->isDelayedDeath() || pGarrison->TurnProcessed() || pGarrison->getArmyID()!=-1)
 				continue;
 
-			//note: ranged garrisons are also used in ExecuteAttritionAttacks if they can hit a target without moving
+			//first check how many enemies are around
+			int iEnemyCount = 0;
+			for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
+			{
+				CvPlot* pNeighbor = iterateRingPlots(pPlot, i);
+				if (pNeighbor && pNeighbor->isEnemyUnit(m_pPlayer->GetID(), true, true))
+					iEnemyCount++;
+			}
+
+			//note: ranged garrisons are also used in ExecuteDestroyUnit etc if they can hit a target without moving
 			//here we have more advanced logic and allow some movement if it's safe (and it's not our last stand)
 			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2 && m_pPlayer->getNumCities() > 1 );
 
@@ -1643,20 +1657,18 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 		}
 
 		//prefer ranged land units as garrisons ...
-		bool bWantGarrison = (m_pPlayer->getNumCities() < 2 || pCity->isCapital() || !pCity->isInDangerOfFalling());
-		bool bNeedGarrison = (pGarrison == NULL || !pGarrison->isNativeDomain(pPlot) || !pGarrison->IsCanAttackRanged());
-		if ( bWantGarrison && bNeedGarrison )
+		bool bWantGarrison = (pGarrison == NULL || !pGarrison->isNativeDomain(pPlot) || !pGarrison->IsCanAttackRanged());
+		if ( bWantGarrison && pCity->NeedsGarrison() )
 		{
+			//if we already have a garrison don't touch it while under siege
+			if (pGarrison && pCity->isUnderSiege())
+				continue;
+
 			// Grab units that make sense for this move type
 			CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GARRISON, pPlot, iNumTurnsAway);
 			if (pUnit)
 			{
-				//do not switch a low HP unit against a high HP unit while under siege ...
-				//happens relatively often if a damaged city produces a unit!
-				if (pGarrison && pUnit->GetCurrHitPoints() < pGarrison->GetCurrHitPoints() && pCity->isUnderSiege())
-					continue;
-
-				//move out old garrison
+				//move out old garrison if necessary
 				if (pGarrison && pUnit->CanSafelyReachInXTurns(pPlot, 0))
 				{
 					CvPlot* pFreePlot = pCity->GetPlotForNewUnit(pGarrison->getUnitType(), false);
@@ -1686,15 +1698,6 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway)
 				strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
 				LogTacticalMessage(strLogString);
 			}
-		}
-
-		// it's possible that the city did not perform a ranged attack this turn yet although enemies are present
-		// this depends on the tactical posture ... so let's try again here as a safety net
-		if (iEnemyCount > 0 && pCity->CanRangeStrikeNow())
-		{
-			CvUnit* pTarget = pCity->getBestRangedStrikeTarget();
-			if (pTarget)
-				pCity->rangeStrike(pTarget->getX(), pTarget->getY());
 		}
 	}
 }
@@ -3614,8 +3617,8 @@ bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
 				return true;
 		}
 
-		//special handling for ranged garrison as it is ignored by FindUnitsWithinStrikingDistance()
-		//note: melee garrison and advanced logic is handled in PlotGarrisonMoves()
+		//special handling for ranged garrisons as they are ignored by tactical AI
+		//note: melee garrisons are handled in PlotGarrisonMoves()
 		if (pCity->HasGarrison())
 		{
 			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
@@ -4852,6 +4855,7 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 					continue;
 			}
 
+			//note that garrisons are not recruited into m_CurrentTurnUnits in the first place
 			if(!pLoopUnit->canMove() || !pLoopUnit->IsCanAttack() || !pLoopUnit->canMoveInto(*pTarget,CvUnit::MOVEFLAG_DESTINATION))
 				continue;
 
@@ -4897,10 +4901,6 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			}
 			else if (eMove == AI_TACTICAL_GUARD)
 			{
-				// Do not pull out garrisons for this
-				if (pLoopUnit->IsGarrisoned())
-					continue;
-
 				// Heal first, guards might be attacked
 				if (pLoopUnit->shouldHeal(false))
 					continue;
@@ -4986,16 +4986,8 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 		if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE_AIR)
 			continue;
 
-		//don't pull out garrisons when we need them - they have separate moves
-		if (pLoopUnit->IsGarrisoned())
-		{
-			CvCity* pCity = pLoopUnit->GetGarrisonedCity();
-			if (m_pPlayer->GetMilitaryAI()->IsExposedToEnemy(pCity, NO_PLAYER) || pCity->isUnderSiege())
-				continue;
-		}
-
-		//note that units in citadels are still used for attacks, but the combat sim knows about their importance
-		//alternative would be to treat such units like garrisons ...
+		//note that garrisoned units are *not* recruited into m_CurrentTurnUnits!
+		//also note that units in citadels are recruited, but the combat sim knows about their importance
 
 		bool bCanReach = false;
 		if ( pLoopUnit->IsCanAttackRanged() )
@@ -5203,7 +5195,7 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 				continue;
 
 			//don't use garrisons if there is an enemy around. the garrison may still attack when we do garrison moves!
-			if (pLoopUnit->IsGarrisoned() && m_pPlayer->GetPlotDanger(pLoopUnit->GetGarrisonedCity())==0)
+			if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison())
 				continue;
 
 			int iFlags = bAllowEmbarkation ? 0 : CvUnit::MOVEFLAG_NO_EMBARK;
