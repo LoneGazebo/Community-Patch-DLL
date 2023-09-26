@@ -6737,7 +6737,7 @@ bool CvGameDeals::IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eO
 	return false;
 }
 
-int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration)
+int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bEmbargoEvaluation)
 {
 	DealList::iterator iter;
 	DealList::iterator end = m_CurrentDeals.end();
@@ -6753,7 +6753,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			if (iEndTurn <= GC.getGame().getGameTurn())
 				continue;
 
-			if (bConsiderDuration)
+			if (!bEmbargoEvaluation)
 			{
 				iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
 			}
@@ -6771,7 +6771,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 					continue;
 
-				if (bConsiderDuration)
+				if (!bEmbargoEvaluation)
 				{
 					iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 5 * (iter->GetEndTurn() - GC.getGame().getGameTurn());
 				}
@@ -6781,10 +6781,27 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				}
 			}
 
-			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 * iAvgDealDuration : 0;
-			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 * iAvgDealDuration : 0;
-			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 50 * iAvgDealDuration : 0;
+			if (!bEmbargoEvaluation)
+			{
+				iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 5 * iAvgDealDuration : 0;
+				iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 * iAvgDealDuration : 0;
+				iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 15 * iAvgDealDuration : 0;
+			}
+			else
+			{
+				iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 * iAvgDealDuration : 0;
+				iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 * iAvgDealDuration : 0;
+				iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 50 * iAvgDealDuration : 0;
+			}
 		}
+	}
+
+	// Modify by game speed for roughly consistent valuation across all game speeds
+	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED));
+	if (pkStdSpeedInfo)
+	{
+		iVal *= pkStdSpeedInfo->GetDealDuration();
+		iVal /= GC.getGame().GetDealDuration();
 	}
 
 	return iVal;

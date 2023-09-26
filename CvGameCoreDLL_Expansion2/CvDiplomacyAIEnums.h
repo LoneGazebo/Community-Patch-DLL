@@ -10,7 +10,7 @@
 #ifndef DIPLOMACY_AI_ENUMS_H
 #define DIPLOMACY_AI_ENUMS_H
 
-// WARNING: The order of many of these values is very important (many places in the code use > or < ENUM_VALUE to make important determinations.) Do not change unless you know what you're doing!
+// WARNING: The order of many of these values is very important (many places in the code use > or < ENUM_VALUE to make important determinations). Do not change unless you know what you're doing!
 
 enum CLOSED_ENUM CivOpinionTypes
 {
