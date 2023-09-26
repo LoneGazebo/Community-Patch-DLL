@@ -18153,7 +18153,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 
 	if (!GC.getGame().isOption(GAMEOPTION_NO_RELIGION))
 	{
-		iReligiosityScore = iFlavorReligion + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisReligion();
+		iReligiosityScore = max(iFlavorReligion, GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisReligion());
 
 		if (iFlavorReligion < 5)
 		{
@@ -18297,7 +18297,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	////////////////////////////////////
 
 	int iFlavorCulture = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_CULTURE"));
-	int iIdeologueScore = iFlavorCulture + GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisLatePolicies();
+	int iIdeologueScore = max(iFlavorCulture, GC.getEraInfo((EraTypes)iGameEra)->getDiploEmphasisLatePolicies());
 
 	if (iFlavorCulture < 5)
 	{
