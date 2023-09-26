@@ -6526,6 +6526,11 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		{
 			if (!pUnit->canHeal(pPlot, true))
 				continue;
+
+			//don't mess with (ranged) garrisons if enemies are around
+			CvCity* pCity = pPlot->getPlotCity();
+			if (pCity && pCity->HasGarrison() && pCity->isUnderSiege() && pCity->GetGarrisonedUnit()->IsCanAttackRanged())
+				continue;
 		}
 		else
 		{

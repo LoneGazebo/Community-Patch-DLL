@@ -646,7 +646,7 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 }
 
 // check if the army path makes sense
-bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy)
+bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy, int iThresholdForDiscard)
 {
 	//define short paths as safe (start and dest plot are included in count)
 	if (path.vPlots.size() < 4)
@@ -654,7 +654,7 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 
 	bool bWaterPath = path.get(1)->isWater();
 	int iThirdPartyPlots = 0;
-	int iWeirdPlots = 0;
+	int iWrongCityPlots = 0;
 
 	//ignore beginning and end of path!
 	for (size_t i = 3; i < path.vPlots.size() - 3; i++)
@@ -677,7 +677,7 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 			if (path.get(-1)->getOwningCityID() != pCity->GetID())
 			{
 				if (!bWaterPath || pCity->isCoastal())
-					iWeirdPlots++;
+					iWrongCityPlots++;
 			}
 		}
 		//maybe we have a better muster plot?
@@ -686,21 +686,20 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 			if (path.get(0)->getOwningCityID() != pCity->GetID())
 			{
 				if (!bWaterPath || pCity->isCoastal())
-					iWeirdPlots++;
+					iWrongCityPlots++;
 			}
 		}
 		//passing through a different warzone? not good
 		else if (GET_PLAYER(eAttacker).IsAtWarWith(pCity->getOwner()))
-			iWeirdPlots++;
-
+			iThirdPartyPlots++;
 		//the trade path may lead through third-party territory
-		if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker))
+		else if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker))
 			iThirdPartyPlots++;
 	}
 
 	//the trade paths often lead through third party territory which an army may not be able to pass
 	//if we need open borders and there is no easy detour, exclude this path
-	return (iThirdPartyPlots<3) && (iWeirdPlots<3);
+	return (iThirdPartyPlots < iThresholdForDiscard) && (iWrongCityPlots < iThresholdForDiscard);
 }
 
 bool CvMilitaryAI::IsPossibleAttackTarget(const CvCity* pCity) const
@@ -802,7 +801,7 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
 
 			//keep it if it seems we can move an army there
-			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer))
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer, 3))
 				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
 			//and now the other way around
@@ -814,8 +813,8 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 				reverseTarget.SetWaypoints(it->second);
 				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
 
-				//do not check the army path here, never know what the enemy might do ... better safe than sorry!
-				if (target.m_iApproachScore > 0)
+				//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
+				if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
 				{
 					//do not try any advanced scoring, just use a basic approach/distance score
 					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
@@ -836,7 +835,7 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
 
 			//keep it if it seems we can move an army there
-			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer))
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer, 3))
 				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
 			//and now the other way around
@@ -848,8 +847,8 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 				reverseTarget.SetWaypoints(it->second);
 				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
 
-				//do not check the army path here, never know what the enemy might do ... better safe than sorry!
-				if (target.m_iApproachScore > 0)
+				//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
+				if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
 				{
 					//do not try any advanced scoring, just use a basic approach/distance score
 					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());

@@ -5222,9 +5222,7 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain, &outPath);
 
 				if (iLength <= 0)
-				{
 					continue;
-				}
 
 				if (iLength > iLongestRoute)
 				{
@@ -5250,11 +5248,6 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 					iLongestRoute = iLength;
 					if (iLongestRoute >= iMaxRange * SPath::getNormalizedDistanceBase())
 						break;
-				}
-				else
-				{
-					strMsg.Format("%s,%s,,Trade route is not the longest,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
-					LogTradeMsg(strMsg);
 				}
 			}
 		}

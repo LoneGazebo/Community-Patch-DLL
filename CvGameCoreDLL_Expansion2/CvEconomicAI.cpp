@@ -3324,13 +3324,13 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	if(pPlayer->IsEmpireUnhappy())
 		return false;
 
-	//party is over
-	if (pPlayer->GetUnfriendlyMajors().size() > 0)
-		return false;
-
 	//we do not want to lose time for building our settlers even if we haven't explored yet
 	if (pPlayer->GetNumCitiesFounded() < 3)
 		return true;
+
+	//midgame depends on the diplo situation ...
+	if (pPlayer->GetUnfriendlyMajors().size() > 0)
+		return false;
 
 	//never in late game
 	if (GC.getGame().getElapsedGameTurns() > 169)

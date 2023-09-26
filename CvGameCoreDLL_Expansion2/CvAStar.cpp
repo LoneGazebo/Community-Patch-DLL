@@ -3236,39 +3236,37 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
 
-	int iCost = PATH_BASE_COST;
-
-	// no route
-	int iRouteFactor = 1;
+	// default
+	int iRouteDiscountPercent = 0;
 
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->isRoute())
-		iRouteFactor = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 4 : 3;
+		iRouteDiscountPercent = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 40 : 20;
 	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->isRoute())
-		iRouteFactor = 3; //can't get better than this even if next plot is railroad
+		iRouteDiscountPercent = 20; //can't get better than this even if next plot is railroad
 	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
-		iRouteFactor = 2;
+		iRouteDiscountPercent = 20;
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
 				(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) && 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
-		iRouteFactor = 2;
+		iRouteDiscountPercent = 20;
 
-	// apply route discount
-	iCost /= iRouteFactor;
+	// do not use extreme discounts here because we also need to use these paths for military target selection
+	int iCost = (PATH_BASE_COST*(100-iRouteDiscountPercent))/100;
 
 	//try to avoid rough plots
-	if (pToPlot->isRoughGround() && iRouteFactor==1)
-		iCost += PATH_BASE_COST/4;
+	if (pToPlot->isRoughGround() && iRouteDiscountPercent == 0)
+		iCost += PATH_BASE_COST/10;
 
 	//avoid hills when in doubt
-	if (!pToPlot->isFlatlands() && iRouteFactor==1)
-		iCost += PATH_BASE_COST/8;
+	if (!pToPlot->isFlatlands() && iRouteDiscountPercent == 0)
+		iCost += PATH_BASE_COST/10;
 
 	//bonus for oasis
-	if (eFeature == FEATURE_OASIS && iRouteFactor==1)
-		iCost -= PATH_BASE_COST/4;
+	if (eFeature == FEATURE_OASIS && iRouteDiscountPercent == 0)
+		iCost -= PATH_BASE_COST/10;
 	
 	return iCost;
 }
