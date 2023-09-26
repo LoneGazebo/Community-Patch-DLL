@@ -2701,7 +2701,7 @@
 
 		<!-- Construction -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_BUILD_X_BUILDINGS">
-			<Text>Builders from {3_Civ} are eager to study the value of the [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR]. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across your empire.</Text>
+			<Text>Builders from {3_Civ} are eager to study the value of the [COLOR_POSITIVE_TEXT]{1_Building}[ENDCOLOR]. {3_Civ} promises great reward if you construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] of these buildings across non-puppet cities in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_BUILD_X_BUILDINGS">
 			<Text>Construction project from {@1_Civ}</Text>
@@ -2762,7 +2762,7 @@
 			<Text>Explore an unrevealed area of the world ([COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]% complete).</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_BUILD_X_BUILDINGS_FORMAL">
-			<Text>Construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {@1_Building} {2_Num: plural 1?building; other?buildings;} in your empire.</Text>
+			<Text>Construct [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {@1_Building} {2_Num: plural 1?building; other?buildings;} in non-puppet cities in your empire.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_SPY_ON_MAJOR_FORMAL">
 			<Text>Conduct intelligence operations against {1_Civ} ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] remaining).</Text>

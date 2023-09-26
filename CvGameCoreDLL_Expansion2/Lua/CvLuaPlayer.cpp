@@ -700,7 +700,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(QuestSpyActionsRemaining);
 	Method(GetXQuestBuildingRemaining);
 	Method(GetExplorePercent);
-	Method(GetXQuestBuildingRemaining);
 	Method(GetRewardString);
 	Method(GetExplorePercent);
 	Method(GetTargetCityString);
@@ -8635,9 +8634,19 @@ int CvLuaPlayer::lGetXQuestBuildingRemaining(lua_State* L)
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 4);
 	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
-	int iBuilt = GET_PLAYER(ePlayer).getNumBuildings(eBuilding);
+	int iBuilt = 0;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+	{
+		// Exclude puppets
+		if (pLoopCity->IsPuppet())
+			continue;
 
-	const int iResult = (iNeeded - iBuilt);
+		if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			iBuilt++;
+	}
+
+	const int iResult = iNeeded - iBuilt;
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -8650,7 +8659,7 @@ int CvLuaPlayer::lQuestSpyActionsRemaining(lua_State* L)
 	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
 	int iDone = GET_PLAYER(ePlayer).GetEspionage()->GetNumSpyActionsDone(eTargetPlayer);
 
-	const int iResult = (iNeeded - iDone);
+	const int iResult = iNeeded - iDone;
 	lua_pushinteger(L, iResult);
 	return 1;
 }
