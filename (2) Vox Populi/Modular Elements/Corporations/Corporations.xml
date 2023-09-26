@@ -416,7 +416,7 @@
 		</Row>
 		<Row>
 			<CorporationType>CORPORATION_HEXXON_REFINERY</CorporationType>
-			<BuildingClassType>BUILDINGCLASS_COAL_PLANT</BuildingClassType>
+			<BuildingClassType>BUILDINGCLASS_HYDRO_PLANT</BuildingClassType>
 			<YieldType>YIELD_PRODUCTION</YieldType>
 			<YieldChange>3</YieldChange>
 		</Row>
