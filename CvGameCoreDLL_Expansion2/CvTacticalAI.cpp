@@ -766,8 +766,8 @@ void CvTacticalAI::AssignGlobalHighPrioMoves()
 	PlotOperationalArmyMoves();
 
 	//try to make sure our most important fortifications have units in them
-	PlotGarrisonMoves(2, true);
-	PlotBastionMoves(2, true);
+	PlotGarrisonMoves(1, true);
+	PlotBastionMoves(1, true);
 }
 
 /// Choose which tactics to run and assign units to it
@@ -1654,16 +1654,16 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
 			//do not call finishMoves() else the garrison will not heal!
 			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
 			UnitProcessed(pGarrison->GetID());
+
+			//don't try to find a better garrison while under siege
+			if (pCity->isUnderSiege())
+				continue;
 		}
 
 		//prefer ranged land units as garrisons ...
 		bool bWantGarrison = (pGarrison == NULL || !pGarrison->isNativeDomain(pPlot) || !pGarrison->IsCanAttackRanged());
 		if ( bWantGarrison && pCity->NeedsGarrison() )
 		{
-			//if we already have a garrison don't touch it while under siege
-			if (pGarrison && pCity->isUnderSiege())
-				continue;
-
 			// Grab units that make sense for this move type
 			CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GARRISON, pPlot, iNumTurnsAway);
 			if (pUnit)
@@ -1678,25 +1678,16 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
 				}
 
 				//if the old garrison did not move out this will fail (possibly also for other reasons)
-				if (ExecuteMoveToPlot(pUnit, pPlot))
+				int iTurnsLeft = ExecuteMoveToPlot(pUnit, pPlot);
+				if (iTurnsLeft > 0)
 				{
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iNumTurnsAway);
+						strLogString.Format("Garrison For, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iTurnsLeft);
 						LogTacticalMessage(strLogString);
 					}
-
-					continue;
 				}
-			}
-
-			//only get here if ExecuteMoveToPlot() failed 
-			if(GC.getLogging() && GC.getAILogging() && !pGarrison)
-			{
-				CvString strLogString;
-				strLogString.Format("No unit for garrison in %s at (%d:%d)", pCity->getNameNoSpace().c_str(), pTarget->GetTargetX(), pTarget->GetTargetY());
-				LogTacticalMessage(strLogString);
 			}
 		}
 	}
@@ -1717,7 +1708,7 @@ void CvTacticalAI::PlotBastionMoves(int iNumTurnsAway, bool bEmergencyOnly)
 		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GUARD, pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER)==0)
 		{
 			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
@@ -1747,7 +1738,7 @@ void CvTacticalAI::PlotGuardImprovementMoves(int iNumTurnsAway)
 		CvUnit* pUnit = FindUnitForThisMove(AI_TACTICAL_GUARD, pPlot, iNumTurnsAway);
 
 		//move may fail if the plot is already occupied (can happen if another unit moved there during this turn)
-		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER))
+		if (pUnit && ExecuteMoveToPlot(pUnit, pPlot, true, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER)==0)
 		{
 			if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
 			{
@@ -2359,7 +2350,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 					else
 					{
 						//move escort towards civilian
-						if (!ExecuteMoveToPlot(pEscort, pCivilian->plot()))
+						if (ExecuteMoveToPlot(pEscort, pCivilian->plot())>0)
 						{
 							//d'oh. escort cannot reach us
 							CvUnit* pNewEscort = SwitchEscort(pCivilian,pCivilian->plot(),pEscort,pThisArmy);
@@ -2498,7 +2489,7 @@ void CvTacticalAI::PlotArmyMovesEscort(CvArmyAI* pThisArmy)
 			{
 				//we have a problem, apparently civilian and escort must split up
 				//use a special flag here to make sure we're not stuck in a dead end with limited sight (can happen with embarked units)
-				if (!ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(), true, CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED))
+				if (ExecuteMoveToPlot(pCivilian, pOperation->GetTargetPlot(), true, CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED)==INT_MAX)
 				{
 					pOperation->SetToAbort(AI_ABORT_LOST_PATH);
 					strLogString.Format("%s stuck at (%d,%d), cannot find safe path to target. aborting.", 
@@ -4297,13 +4288,13 @@ void CvTacticalAI::ExecuteBarbarianRoaming()
 	}
 }
 
-/// Move unit to a specific tile (unit passed explicitly)
-bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed, int iFlags)
+/// Move unit to a specific tile, return turns remaining
+int CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed, int iFlags)
 {
-	bool bResult = false;
+	int iResult = INT_MAX; //impossible
 
 	if(!pUnit || !pTarget)
-		return false;
+		return iResult;
 
 	//for inspection in GUI
 	pUnit->SetMissionAI(MISSIONAI_TACTMOVE, pTarget, NULL);
@@ -4311,7 +4302,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 	// Unit already at target plot?
 	if(pTarget == pUnit->plot() && pUnit->canEndTurnAtPlot(pTarget))
 	{
-		bResult = true;
+		iResult = 0;
 
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 		pUnit->PushMission(CvTypes::getMISSION_SKIP());
@@ -4322,8 +4313,8 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 	}
 	else if (pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
 	{
-		int iTurns = -1;
-		if (pUnit->GeneratePath(pTarget,iFlags))
+		int iTurns = INT_MAX;
+		if (pUnit->GeneratePath(pTarget,iFlags,INT_MAX,&iTurns))
 		{
 			//pillage if it makes sense and we have movement points to spare
 			if (pUnit->shouldPillage(pUnit->plot(), true) && pUnit->GetMovementPointsAtCachedTarget()>=GD_INT_GET(MOVE_DENOMINATOR))
@@ -4339,15 +4330,17 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 			}
 
 			pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
+			iResult = iTurns - 1;
 
+			bool bAlreadyThere = false;
 			if (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2)
-				bResult = (plotDistance(*pUnit->plot(),*pTarget)<3);
+				bAlreadyThere = (plotDistance(*pUnit->plot(),*pTarget)<3);
 			else if  (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1)
-				bResult = (plotDistance(*pUnit->plot(),*pTarget)<2);
+				bAlreadyThere = (plotDistance(*pUnit->plot(),*pTarget)<2);
 			else
-				bResult = pUnit->at(pTarget->getX(), pTarget->getY());
+				bAlreadyThere = pUnit->at(pTarget->getX(), pTarget->getY());
 
-			if (!bResult && pUnit->canMove()) //typically because of MOVEFLAG_ABORT_IN_DANGER
+			if (!bAlreadyThere && pUnit->canMove()) //typically because of MOVEFLAG_ABORT_IN_DANGER and newly revealed enemies ...
 			{
 				pTarget = TacticalAIHelpers::FindSafestPlotInReach(pUnit, true);
 				if (pTarget)
@@ -4357,7 +4350,7 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 				}
 			}
 
-			if (bSetProcessed && bResult)
+			if (bSetProcessed && bAlreadyThere)
 				UnitProcessed(pUnit->GetID());
 		}
 		//maybe units are blocking our way? 
@@ -4367,8 +4360,8 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 			if (iTurns == 0)
 			{
 				CvUnit* pPushUnit = pUnit->GetPotentialUnitToPushOut(*pTarget);
-				if (pPushUnit)
-					bResult = pUnit->PushBlockingUnitOutOfPlot(*pTarget);
+				if (pPushUnit && pUnit->PushBlockingUnitOutOfPlot(*pTarget))
+					iResult = 0;
 			}
 			else
 			{
@@ -4379,16 +4372,16 @@ bool CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPr
 					pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pTarget->getX(), pTarget->getY(), iFlags, false, false, MISSIONAI_TACTMOVE, pTarget);
 					if (bSetProcessed || !pUnit->canMove())
 						UnitProcessed(pUnit->GetID());
-					bResult = true;
+					iResult = iTurns-1;
 				}
 			}
 		}
 
-		if(bResult && pUnit->canMove())
+		if(iResult==0 && pUnit->canMove())
 			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 	}
 
-	return bResult;
+	return iResult;
 }
 
 /// Find an adjacent hex to move a blocking unit to
@@ -4632,7 +4625,7 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 
 			if (pUnit->CanSafelyReachInXTurns(pTargetPlot, 12))
 				bMoveMade = pUnit->IsCivilianUnit() ?
-					ExecuteMoveToPlot(pUnit, pTargetPlot) :
+					ExecuteMoveToPlot(pUnit, pTargetPlot)!=INT_MAX :
 					MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
 		}
 

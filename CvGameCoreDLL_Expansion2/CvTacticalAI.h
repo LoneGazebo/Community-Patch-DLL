@@ -447,7 +447,7 @@ private:
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	void ExecuteHeals(bool bFirstPass);
 	void ExecuteBarbarianRoaming();
-	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
+	int ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteAirPatrolMoves();
