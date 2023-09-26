@@ -35001,8 +35001,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	// Update turns/slot status if the player is now alive
 	if (bNewValue)
 	{
-		if (isSimultaneousTurns() || (GC.getGame().getNumGameTurnActive() == 0) || (GC.getGame().isSimultaneousTeamTurns() && GET_TEAM(getTeam()).isTurnActive()))
-		{
+		if (
+			((isSimultaneousTurns() || (GC.getGame().isSimultaneousTeamTurns() && GET_TEAM(getTeam()).isTurnActive())) && isHuman())
+			|| GC.getGame().getNumGameTurnActive() == 0
+		) {
 			setTurnActive(true);
 		}
 
