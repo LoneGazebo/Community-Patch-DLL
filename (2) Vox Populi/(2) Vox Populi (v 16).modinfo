@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="16">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(3.10.13) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(3.10.14) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -70,7 +70,7 @@
     <File md5="EB6480B4DBF20D4609AB3FE3F78379B0" import="1">Art/Improvements/Hacienda/hacienda_pl_decal.dds</File>
     <File md5="147D995A7EB4AB12CFBDA892F2ED3D8C" import="1">Art/Improvements/Hacienda/hacienda_pl_diff.dds</File>
     <File md5="5F621716337E431B5DEA8DA45E4BBCBF" import="0">Art/Icons.xml</File>
-    <File md5="5C320CE4B3A54E8A98260C603237AEB5" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
+    <File md5="7610B3584156B88F492E8D39733FAE28" import="1">Art/Icons/VP_FontIconAtlas.dds</File>
     <File md5="983DE9ADD0468E96056922418BCCFB75" import="1">Art/Icons/VP_FontIconAtlas.ggxml</File>
     <File md5="5E1975386AA1F6AD2CA4D293EEDE09B8" import="1">Art/Icons/citizenmusician.dds</File>
     <File md5="82F6ACBCF25EDD8D7143484547FBBD88" import="1">Art/Icons/citizenwriter.dds</File>
@@ -687,11 +687,11 @@
     <File md5="6C03B6D2BDD714A8C8F3EC8AE1950D1C" import="1">Modular Elements/Corporations/Art/CorpAtlas80.dds</File>
     <File md5="1CC9BA29E805C7B35740C769C9185804" import="0">Modular Elements/Corporations/Art/CorporationIcons.xml</File>
     <File md5="D4DD03544957C647F33EB997BB74BDAF" import="1">Modular Elements/Corporations/Art/CorporationSplash.dds</File>
-    <File md5="0A114FE22FAED7EBB0426399F3EB98EC" import="0">Modular Elements/Corporations/Corporations.xml</File>
+    <File md5="92618CB5E0616A18450B0B39916324C3" import="0">Modular Elements/Corporations/Corporations.xml</File>
     <File md5="E683E2A0566C83B2B719C59EE3BDBA76" import="1">Modular Elements/Corporations/CorporationsOverview.lua</File>
     <File md5="56582B9EFE6B3561D73566F476E886F5" import="1">Modular Elements/Corporations/CorporationsOverview.xml</File>
     <File md5="0B9F0CBFA2325D055888381B705FB887" import="0">Modular Elements/Corporations/Text/en_US/CorporationOverviewText.xml</File>
-    <File md5="C44734347E63B3198B0E81FF212E9114" import="0">Modular Elements/Corporations/Text/en_US/CorpText.xml</File>
+    <File md5="B28D78D53F9FE466046C91AA974CBC8F" import="0">Modular Elements/Corporations/Text/en_US/CorpText.xml</File>
     <File md5="721579C155F1BE83F4D8628CC0B08BE7" import="0">Modular Elements/Corporations/Corporations.sql</File>
     <File md5="1379EAB56666648BD6A378C5C03789FA" import="0">Modular Elements/Events/CBOEvents.sql</File>
     <File md5="C083847CE6A3DE9C2B4C6ED37B3A807E" import="0">Modular Elements/Events/Text/EventText_en_US.xml</File>
