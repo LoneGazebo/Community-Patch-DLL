@@ -18380,8 +18380,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// ALLIANCES
 	////////////////////////////////////
 
-	int iReligionMod = iReligiosityScore / 2;
-	int iIdeologyMod = iIdeologueScore / 2;
+	int iReligionMod = iReligiosityScore;
+	int iIdeologyMod = iIdeologueScore;
 
 	// Let's play good guys versus bad guys!
 	// Good alliances
