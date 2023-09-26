@@ -20656,13 +20656,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// [PART 9: PRIORITIZATION]		  //
 	//--------------------------------//
 
-	int iWarMod = vApproachBias[CIV_APPROACH_WAR] + GetBoldness();
-	int iHostileMod = vApproachBias[CIV_APPROACH_HOSTILE] + GetMeanness();
-	int iDeceptiveMod = vApproachBias[CIV_APPROACH_DECEPTIVE] + GetDenounceWillingness();
-	int iGuardedMod = vApproachBias[CIV_APPROACH_GUARDED] + (11 - GetForgiveness());
-	int iAfraidMod = vApproachBias[CIV_APPROACH_AFRAID] + (11 - GetBoldness());
-	int iFriendlyMod = vApproachBias[CIV_APPROACH_FRIENDLY] + GetDoFWillingness();
-	int iNeutralMod = vApproachBias[CIV_APPROACH_NEUTRAL] + GetDiploBalance();
+	int iWarMod = vApproachBias[CIV_APPROACH_WAR]/100 + GetBoldness();
+	int iHostileMod = vApproachBias[CIV_APPROACH_HOSTILE]/100 + GetMeanness();
+	int iDeceptiveMod = vApproachBias[CIV_APPROACH_DECEPTIVE]/100 + GetDenounceWillingness();
+	int iGuardedMod = vApproachBias[CIV_APPROACH_GUARDED]/100 + (11 - GetForgiveness());
+	int iAfraidMod = vApproachBias[CIV_APPROACH_AFRAID]/100 + (11 - GetBoldness());
+	int iFriendlyMod = vApproachBias[CIV_APPROACH_FRIENDLY]/100 + GetDoFWillingness();
+	int iNeutralMod = vApproachBias[CIV_APPROACH_NEUTRAL]/100 + GetDiploBalance();
 
 	// Prioritize our approaches to avoid adopting the same approach towards too many players and allow more variance/strategy
 	// Only do this on the second pass of the function, as we've already recorded the most recent values for this turn
