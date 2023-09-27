@@ -1618,13 +1618,6 @@ if civ5_mode then
 					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_3", L("TXT_KEY_CO_VICTORY_INFLUENTIAL_OF", numInfluential, numToBeInfluential) )
 			end
 
-			--CBP
-			local iTourismPenalty = g_activePlayer:GetTourismPenalty();
-
-			tipText = tipText .. "[NEWLINE][NEWLINE]"
-					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iTourismPenalty )
-			--END
-
 			return setTextToolTip( tipText )
 		end
 		Controls.TourismString:SetHide(false)

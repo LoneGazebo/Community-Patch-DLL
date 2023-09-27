@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<GreatWorks>
+		<Row>
+			<Type>GREAT_WORK_FLOOD_TABLET</Type>
+			<GreatWorkClassType>GREAT_WORK_LITERATURE</GreatWorkClassType>
+			<Description>TXT_KEY_GREAT_WORK_FLOOD_TABLET</Description>
+			<Quote>TXT_KEY_GREAT_WORK_QUOTE_FLOOD_TABLET</Quote>
+			<Image>GreatWriter_Background.dds</Image>
+		</Row>
+		<Row>
+			<Type>GREAT_WORK_THE_CROWN_JEWELS</Type>
+			<GreatWorkClassType>GREAT_WORK_ART</GreatWorkClassType>
+			<Description>TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS</Description>
+			<Quote>TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS_QUOTE</Quote>
+			<Audio>AS2D_GREAT_ARTIST_ARTWORK</Audio>
+			<Image>TheJewelSplash.dds</Image>
+		</Row>
+	</GreatWorks>
+</GameData>

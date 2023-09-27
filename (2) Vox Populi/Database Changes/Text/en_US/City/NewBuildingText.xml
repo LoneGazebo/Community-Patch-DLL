@@ -1,0 +1,1121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION">
+			<Text>Train Station</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_STRATEGY">
+			<Text>Provides a massive boost to City Production and Gold during the Industrial Era. Requires a direct Railroad connection, with railroad tiles, to the Capital (Harbor connections do not count!) before it can be constructed, so you need to invest in your Railroad infrastructure before you can reap the benefits of this building! Cannot be built in the same City as a Seaport.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRAINSTATION_HELP">
+			<Text>Internal [ICON_INTERNATIONAL_TRADE] Trade Routes from this City generate +6 [ICON_FOOD] Food. Requires a [ICON_CONNECTED] Connection via Railroad tiles or by sea to the [ICON_CAPITAL] Capital, or to a City connected to the [ICON_CAPITAL] Capital, before it can be constructed.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_COAL] Coal. City cannot have a [COLOR_NEGATIVE_TEXT]Seaport[ENDCOLOR] in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_TRAINSTATION_TEXT">
+			<Text>A train station, railway station, railroad station, or depot (see below) is a railway facility where trains regularly stop to load or unload passengers or freight. It generally consists of at least one track-side platform and a station building (depot) providing such ancillary services as ticket sales and waiting rooms. If a station is on a single-track line, it often has a passing loop to facilitate traffic movements. The smallest stations are most often referred to as "stops" or, in some parts of the world, as "halts" (flag stops). Stations may be at ground level, underground, or elevated. Connections may be available to intersecting rail lines or other transport modes such as buses, trams or other rapid transit systems.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_BATH">
+			<Text>Bath</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_BATH_STRATEGY">
+			<Text>The Bath generates Culture, and boosts the Gold and Culture yield of Temples, Gardens, and Amphitheaters in the City. Also generates additional Culture during Golden Ages. Baths can be constructed only in cities next to fresh water.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_BATH_HELP">
+			<Text>Temples, Amphitheaters, and Gardens in City: +1 [ICON_GOLD] Gold and [ICON_CULTURE] Culture. +10% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]Can only be built in a City next to fresh water.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BATH_TEXT">
+			<Text>Throughout history, societies devised systems to enable water to be brought to population centres. Ancient Greece utilized small bathtubs, wash basins, and foot baths for personal cleanliness. The earliest findings of baths date from the mid-2nd millennium BC in the palace complex at Knossos, Crete, and the luxurious alabaster bathtubs excavated in Akrotiri, Santorini. The Greeks established public baths and showers within gymnasiums for relaxation and personal hygiene. In fact, the word gymnasium comes from the Greek word gymnos, meaning naked. Ancient Rome developed a network of aqueducts to supply water to all large towns and population centres and had indoor plumbing, with pipes that terminated in homes and at public wells and fountains. The Roman public baths were called thermae. With the fall of the Roman Empire the aqueduct network fell into disrepair and most of it ceased to be used. In the Middle Ages, bathing commonly took place in public bathhouses. However, public nudity was frowned upon by liturgical factions of the period. Public baths were also havens for prostitution, which created opposition to the public baths. Rich people bathed at home, most likely in their bedroom, as 'bath' rooms were not common. Bathing was done in large, wooden tubs with a linen cloth laid in it to protect the bather from splinters. Additionally, during the Renaissance and Protestant Reformation, the quality and condition of the clothing (as opposed to the actual cleanliness of the body itself) were thought to reflect the soul of an individual. Clean clothing also reflected one's social status; clothes made the man or woman. Additionally, from the late Middle Ages through to the end of the 18th century, etiquette and medical manuals advised people to only wash the parts of the body that were visible to the public; for example, the ears, hands, feet, and face and neck. This did away with the public baths and left the cleaning of oneself to the privacy of one's home.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GROVE">
+			<Text>Council</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GROVE_STRATEGY">
+			<Text>The Council generates Science every time a City grows, and is available very early. Build this building if you wish to have a technological advantage over your rivals, though the value of this advantage diminishes as the City becomes larger.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GROVE_HELP">
+			<Text>Gain 5 [ICON_RESEARCH] Science when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROVE_TEXT">
+			<Text>A Council is a governing body in an organised community. It is most common in subsistence cultures, with council membership being the condition or quality of being a political leader of a community. Over time, as communities grew, the importance of councils diminished in favor of larger governing institutions.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_LODGE">
+			<Text>Smokehouse</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LODGE_STRATEGY">
+			<Text>The Smokehouse boosts production from Camps and camp resources, and provides food to your City whenever it claims new tiles. Build Smokehouses throughout your empire to boost local yields from camps.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LODGE_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production from Camps. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era. +2 [ICON_CULTURE_LOCAL] Border Growth in this City.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LODGE_TEXT">
+			<Text>A smokehouse is a building where meat or fish is cured with smoke. The finished product might be stored in the building, sometimes for a year or more. Even when smoke is not used, such a building--typically a subsidiary building--is sometimes referred to as a "smokehouse". The meat is hung to keep it from the reach of vermin. Traditionally, a smokehouse is a small enclosed outbuilding often with a vent, a single entrance, no windows, and frequently has a gabled or pyramid-style roof. The use of slightly warmed, dry air from a very slow hardwood fire ensures the proper drying of meats.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GALLERY">
+			<Text>Gallery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GALLERY_STRATEGY">
+			<Text>The Gallery boosts the production of Great Artists, strengthens your Artist Guilds, and Great Works. Build Galleries in your Guild cities to boost the production of Artists and Great Works.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GALLERY_HELP">
+			<Text>[ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_ARTIST] Great Artist Rate in the City, and all Artists' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GALLERY_TEXT">
+			<Text>An Art Gallery is a space dedicated to displaying visual art like paintings or sculptures. The original galleries were long covered hallways in the private palaces and churches, which were lined with private art collections as a display of status. Today, many Art Galleries are publicly owned and display art to the public for its historic, educational, and aesthetic value. Galleries continue to serve as places for networking and promotion of local artists, art collectors, and tastemakers in the world of fine art.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HERBALIST">
+			<Text>Herbalist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HERBALIST_STRATEGY">
+			<Text>The Herbalist increases City growth, and improves the yields on nearby Jungle, Forest, and Marsh tiles as well as Plantations. Build them early to maximize the bonus, and to take advantage of regions with a large number of features.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HERBALIST_HELP">
+			<Text>+1 [ICON_FOOD] Food for every 2 Jungle or 2 Forest tiles worked by the City. +1 [ICON_PRODUCTION] Production from Marshes and Plantations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_HERBALIST_TEXT">
+			<Text>Herbalism is use of plants for medicinal purposes, and the study of such use. Plants have been the basis for medical treatments through much of human history, and such traditional medicine is still widely practiced today. Modern medicine recognizes herbalism as a form of alternative medicine, as the practice of herbalism is not strictly based on evidence gathered using the scientific method. Modern medicine, does, however, make use of many plant-derived compounds as the basis for evidence-tested pharmaceutical drugs, and phytotherapy works to apply modern standards of effectiveness testing to herbs and medicines that are derived from natural sources.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_WELL">
+			<Text>Well</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WELL_STRATEGY">
+			<Text>The Well can only be constructed in a City not on a river. The Well increases the City's Production based on the City's population, but less efficiently than the Water Mill.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WELL_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production for every 5 [ICON_CITIZEN] Citizens in the City.[NEWLINE][NEWLINE]City must not be built next to a River.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WELL_TEXT">
+			<Text>Wood-lined wells are known from the early Neolithic Linear Pottery culture, for example in Kückhoven (an outlying centre of Erkelenz), dated 5090 BC and Eythra, dated 5200 BC in Schletz (an outlying centre of Asparn an der Zaya) in Austria. Australian Aborigines relied on wells to survive the harsh Australian desert. They would dig down, scooping out sand and mud to reach clean water, then cover the source with spinifex to prevent spoilage. Non-Aborigines call these native wells, soaks or soakages. Stepwells are common in the west of India. In these wells, the water may be reached by descending a set of steps. They may be covered and are often of architectural significance. Many stepwells were also used for leisure, providing relief from the daytime heat. A qanat is an ancient water collection system made up of a series of wells and linked underground water channels that collects flowing water from a source usually a distance away, stores it, and then brings the water to the surface using gravity. Much of the population of Iran and other arid countries in Asia and North Africa historically depended upon the water from qanats; the areas of population corresponded closely to the areas where qanats are possible. In Egypt, shadoofs and sakiehs are used. When compared to each other however, the Sakkieh is much more efficient, as it can bring up water from a depth of 10 metres (versus the 3 metres of the shadoof). The Sakieh is the Egyptian version of the Noria. From the Iron Age onwards, wells are common archaeological features, both with wooden shafts and shaft linings made from wickerwork. The world's oldest known wells, located in Cyprus, date to 7500 BC. Two wells from the Neolithic period, around 6500 BC, have been discovered in Israel. One is in Atlit, on the northern coast of Israel, and the other is the Jezreel Valley.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT">
+			<Text>Wind Farm</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
+			<Text>The Wind Farm increases the Production, Culture and Science output of all workable tiles near the City and increases the efficiency of working processes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
+			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science on every workable Tile (flat, hills and water).[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIND_PLANT_TEXT">
+			<Text>Wind power is the conversion of wind energy into a useful form of energy, such as using wind turbines to produce electrical power, windmills for mechanical power, windpumps for water pumping or drainage, or sails to propel ships. Large wind farms consist of hundreds of individual wind turbines which are connected to the electric power transmission network. For new constructions, onshore wind is an inexpensive source of electricity, competitive with or in many places cheaper than fossil fuel plants. Small onshore wind farms provide electricity to isolated locations. Utility companies increasingly buy surplus electricity produced by small domestic wind turbines. Offshore wind is steadier and stronger than on land, and offshore farms have less visual impact, but construction and maintenance costs are considerably higher. Wind power, as an alternative to fossil fuels, is plentiful, renewable, widely distributed, clean, produces no greenhouse gas emissions during operation and uses little land. The effects on the environment are generally less problematic than those from other power sources. As of 2011, Denmark is generating more than a quarter of its electricity from wind and 83 countries around the world are using wind power to supply the electricity grid. In 2010 wind energy production was over 2.5% of total worldwide electricity usage, and growing rapidly at more than 25% per annum. Wind power is very consistent from year to year but has significant variation over shorter time scales. As the proportion of windpower in a region increases, a need to upgrade the grid, and a lowered ability to supplant conventional production can occur. Power management techniques such as having excess capacity storage, geographically distributed turbines, dispatchable backing sources, storage such as pumped-storage hydroelectricity, exporting and importing power to neighboring areas or reducing demand when wind production is low, can greatly mitigate these problems.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT">
+			<Text>Tidal Power Plant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT_STRATEGY">
+			<Text>The Tidal Power is an Atomic-era building which can only be constructed in a coastal City. The Tidal Plant increases the [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold output of every Ocean tile the City works and increases the efficiency of working processes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT_HELP">
+			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+2 [ICON_PRODUCTION] Production, [ICON_RESEARCH] Science, [ICON_GOLD] Gold and [ICON_FOOD] Food on every Sea Tile.[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must be built on the coast. City must not contain another energy-producing Plant.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TIDAL_PLANT_TEXT">
+			<Text>A Tidal Power Plant is renewable energy source which harnesses the energy of tides to produce usable electric energy. Tidal energy can take many forms, including stationary or tethered turbines similar to undersea wind turbines, or tidal barrages that mimic traditional hydroelectric stations. Tidal energy solutions are especially attractive in comparison to wind and solar because of their consistency and predictability.[NEWLINE][NEWLINE]Of the various renewable energy solutions available, tidal energy is the youngest and still the most problematic. Corrosion and wear are costly hurdles to wide deployment of tidal power, as well as the limited number of potential sites with high flow velocities. Today, tidal power contributes less than 1% of total global power generation, with facilities in France, the UK, South Korea, and Canada.</Text>
+		</Row>
+
+		<!-- Grocer -->
+		<Row Tag="TXT_KEY_BUILDING_GROCER_STRATEGY">
+			<Text>The Grocer is a Renaissance-era building which can only be constructed if you have already built an Aqueduct in the City. The Grocer helps your City grow more quickly, combats Poverty, and improves the tile yield of Bananas.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GROCER_HELP">
+			<Text>+1 [ICON_FOOD] Food for every 5 [ICON_CITIZEN] Citizens in the City. Carries over 15% of [ICON_FOOD] Food after City growth (effect stacks with Aqueduct).[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GROCER_TEXT">
+			<Text>Beginning as early as the 14th century, a grocer (or "purveyor") was a dealer in comestible dry goods such as spices, peppers, sugar, and (later) cocoa, tea and coffee. These items were bought in bulk, hence the term grocer from the French "grossier" meaning wholesaler, this term derived from Medieval Latin "grossarius" from which we also derive the word gross (meaning a quantity of twelve dozen, or 144). As increasing numbers of staple foodstuffs became available in cans and other less-perishable packaging, the trade expanded its province. Today, grocers deal in a wide range of staple food-stuffs including such perishables as meats, produce and dairy products. Such goods are, hence, groceries.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_STOCKYARD">
+			<Text>Agribusiness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_STRATEGY">
+			<Text>The Agribusiness is an Industrial-era building which can only be constructed if you have already built a Grocer in the City. An Agribusiness greatly improves the yields on your City's Farm and Pasture tiles, and boosts GPT significantly if your City has high Food yields. However, the use of Horses is a risky tradeoff during an era in which Cavalry is still quite powerful.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STOCKYARD_HELP">
+			<Text>+2 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold from Farms and Pastures worked by the City. 10% of [ICON_FOOD] Food created by the City counts as [ICON_GOLD] Gold Per Turn.[NEWLINE][NEWLINE]Requires 2 [ICON_RES_HORSE] Horses.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_STOCKYARD_TEXT">
+			<Text>Agribusiness is the business of agricultural production. The term was coined in 1957 by Goldberg and Davis. It includes agrichemicals, breeding, crop production (farming and contract farming), distribution, farm machinery, processing, and seed supply, as well as marketing and retail sales. All agents of the food and fiber value chain and those institutions that influence it are part of the agribusiness system. Within the agriculture industry, "agribusiness" is used simply as a portmanteau of agriculture and business, referring to the range of activities and disciplines encompassed by modern food production. There are academic degrees in and departments of agribusiness, agribusiness trade associations, agribusiness publications, and so forth, worldwide. Examples of agribusinesses include seed and agrichemical producers like Dow AgroSciences, DuPont, Monsanto, and Syngenta; AB Agri (part of Associated British Foods) animal feeds, biofuels, and micro-ingredients, ADM, grain transport and processing; John Deere, farm machinery producer; Ocean Spray, farmer's cooperative; and Purina Farms, agritourism farm.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT">
+			<Text>Refinery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_STRATEGY">
+			<Text>The Refinery is a Modern-era building which can only be constructed in 5 Cities total. The Refinery helps your Production and produces 1 Iron, Coal and Oil resource each, however it has a high maintenance cost. Only construct if you find yourself without these vital late-game strategic resources.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_COAL_PLANT_HELP">
+			<Text>Produces 1 [ICON_RES_IRON] Iron, [ICON_RES_COAL] Coal, and [ICON_RES_OIL] Oil.[NEWLINE][NEWLINE]Can be built in up to 5 Cities maximum.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COAL_PLANT_TEXT">
+			<Text>Refined coal is the product of the application of a coal upgrading technology that removes moisture and certain pollutants from lower-rank coals such as sub-bituminous and lignite (brown) coals and raising their calorific values. Coal refining or upgrading technologies are typically pre-combustion treatments and/or processes that alter the characteristics of a coal before it is burned. The goals of pre-combustion coal upgrading technologies are to increase efficiency and reduce emissions when coal is burned. Depending on the situation, pre-combustion technology can be used in place of or as a supplement to post-combustion technologies to control emissions from coal-fueled boilers. A primary benefit of refined coal is the capacity to reduce the net volume of carbon emissions that is currently emitted from power generators and would reduce the amount of emissions that is proposed to be managed via emerging carbon sequestration methodologies. Refined coal technologies have primarily been developed in the United States, several similar technologies have been researched, developed and tested in Victoria, Australia, including the Densified coal technology (Coldry Process) developed to alter the chemical bonds of brown coal to create a product that is cleaner, stable (not prone to spontaneous combustion), exportable and of sufficiently high calorific value to be a black coal equivalent.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FORTRESS">
+			<Text>Bastion Fort</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FORTRESS_STRATEGY">
+			<Text>The Bastion Fort is a Renaissance-era military building that increases Defense Strength and reduces all incoming damage by 2, making the City more difficult to capture. It allows the City to Ranged Strike indirectly, ignoring Line of Sight. Garrisoned units receive an additional 5 Health when healing in this City. Increases Military Units supplied by this City's population by 10%. Also helps with managing the Empire Size Modifier in this City. The City must possess a Castle before a Bastion Fort can be constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FORTRESS_HELP">
+			<Text>Reduces the city's damage taken from attacks by 2. [ICON_SILVER_FIST] Military Units Supplied by this City's population increased by 10%. Allows the City's [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDINGS_FORTRESS_TEXT">
+			<Text>As cannons came to dominate the battlefields, pressure was put on military engineers to design static fortifications that could withstand weapons that could tear through the outer walls of ealier stone castles. New emphasis was put on earthworks and sloped, or angled walls that would either absorb or deflect a hit from cannonballs. New styles of defenses sported polygonal shapes with numerous bastions and ravelins, triangular outcroppings that always presented an enemy with an angled surface. These forts denied the attacker a direct hit onto a flat curtain wall, where a cannon could do the most damage. Meanwhile, these bulwarks offered overlapping field of fire along the length of the nearby walls, creating 'dead zones' where attackers were exposed to multiple walls' gunfire.[NEWLINE][NEWLINE]These new Bastion Forts were made as a response to France's repeated invasions of Italy in the early 1500s. None other than Michaelangelo himself is credited with designing one of the first bastion forts to defend his home of Florence from the French, and designs spread from Italy to Europe, and to the rest of globe.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MINEFIELD">
+			<Text>Mine Field</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_STRATEGY">
+			<Text>The Minefield is a Modern-era building which can only be constructed if you have enough Iron and you have already built a Harbor in the City. With the Minefield in place, enemy ships are stopped immediately after entering the City's territory and are no longer safe to sit back on local ocean tiles outside of range from retaliation from land. Due to their resource requirement, Minefields are best limited to locations particularly vulnerable to naval sieges. Use Minefields to blunt a naval invasion, and then outmaneuver it with your own navy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MINEFIELD_HELP">
+			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water tiles owned by this City. Units ending their turn in Ocean tiles owned by this City take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].[NEWLINE][NEWLINE]Requires 1 [ICON_RES_IRON] Iron. Can only be built in a City on the coast with a Harbor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MINEFIELD_TEXT">
+			<Text>A naval mine is a self-contained explosive device placed in water to damage or destroy surface ships or submarines. Unlike depth charges, mines are deposited and left to wait until they are triggered by the approach of, or contact with, an enemy vessel. Naval mines can be used offensively—to hamper enemy shipping movements or lock vessels into a harbour; or defensively—to protect friendly vessels and create "safe" zones.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER">
+			<Text>Interpretive Center</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER_STRATEGY">
+			<Text>The Interpretive Center greatly increases the power of Landmark improvements, and converts Culture from tiles into Tourism, greatly aiding a Cultural Victory.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER_HELP">
+			<Text>50% of the [ICON_CULTURE] Culture from [ICON_WONDER] World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the City. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism from all Landmarks in Empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_INTERPRETIVE_CENTER_TEXT">
+			<Text>An interpretive center is an institution for public education about a nearby cultural, historic, or natural sites. Unlike museums, interpretive centers rarely contain artifacts or collections, but mainly exist to give visitors background information for understanding the history or relevance of something on the landscape. Because preservation and protection is not part of an interpretive center's job, they can often be more interactive and make better use of modern media than traditional museums.</Text>
+		</Row>
+
+		<!-- Hospital -->
+		<Row Tag="TXT_KEY_BUILDING_HOSPITAL_HELP">
+			<Text>+1 [ICON_FOOD] Food for every 10 [ICON_CITIZEN] Citizens in the City. 5% of the City's [ICON_FOOD] Food is converted into [ICON_RESEARCH] Science every turn. Land Units in this City heal 15 points per turn whether or not they take an action.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+		</Row>
+
+		<!-- Temple -->
+		<Row Tag="TXT_KEY_BUILDING_TEMPLE_HELP">
+			<Text>Generates +25% Religious Pressure. Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<!-- Monument -->
+		<Row Tag="TXT_KEY_BUILDING_MONUMENT_HELP">
+			<Text>+34% Faster [ICON_CULTURE_LOCAL] Border Growth in this City.</Text>
+		</Row>
+
+		<!-- Amphitheater -->
+		<Row Tag="TXT_KEY_BUILDING_AMPHITHEATER_HELP">
+			<Text>+33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+		</Row>
+
+		<!-- Opera House -->
+		<Row Tag="TXT_KEY_BUILDING_OPERA_HOUSE_HELP">
+			<Text>+5% [ICON_CULTURE] Culture in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_MUSICIAN] Great Musician Rate in the City, and all Musicians' Guilds produce +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<!-- Museum -->
+		<Row Tag="TXT_KEY_BUILDING_MUSEUM_HELP">
+			<Text>Allows [COLOR_YELLOW]Archaeologists[ENDCOLOR] to be built in this City. +1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 4 [ICON_CITIZEN] Citizens in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +4 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+		</Row>
+
+		<!-- Market -->
+		<Row Tag="TXT_KEY_BUILDING_MARKET_HELP">
+			<Text>Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Cinnamon: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<!-- Walls -->
+		<Row Tag="TXT_KEY_BUILDING_WALLS_HELP">
+			<Text>Increases the City's [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. [ICON_SILVER_FIST] Military Units Supplied by this City's population increased by 10%.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
+		</Row>
+
+		<!-- Arena -->
+		<Row Tag="TXT_KEY_BUILDING_COLOSSEUM_HELP">
+			<Text>+1 [ICON_TOURISM] Tourism for every 4 [ICON_CITIZEN] Citizens in the City. Barracks, Forge, and Armory in this City gain +2 [ICON_PRODUCTION] Production. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.[NEWLINE][NEWLINE]Nearby [ICON_RES_PERFUME] Perfume: +1 [ICON_GOLD] Gold, +1 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_OLIVE] Olives: +1 [ICON_GOLD] Gold, +1 [ICON_FOOD] Food.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY">
+			<Text>Chancery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY_STRATEGY">
+			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Allies increases the value of positive City-State relations during the mid-game.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHANCERY_HELP">
+			<Text>+10% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_SIGNET}[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +2 [ICON_PRODUCTION] Production each.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CHANCERY_TEXT">
+			<Text>During the early medieval period, chanceries emerged in Europe as a branch of many royal households. Tasked with issuing court documents, managing royal decrees, administering justice, and assessing a monarch's revenue, chanceries dabbled in every element of statecraft, including diplomacy. As kingdoms and states grew in size and scope throughout the early modern period, the power of chanceries continually expanded until, in the 17th and 18th centuries, most western countries legally separated chanceries into multiple, more specific bureaus. Thus, the chancery is the ancestor of the modern civil service.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE">
+			<Text>Wire Service</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_STRATEGY">
+			<Text>Increases Diplomatic Unit production speed and increases the amount of Influence received for Diplomatic Units built in the city. The Civil Servant specialist of this building offers a little [ICON_CULTURE] Culture, [ICON_RESEARCH] Science and [ICON_GOLD] Gold, in exchange for [ICON_FOOD] Food. The additional yields from City-State Friends and Allies increases the value of positive City-State relations during the late-game.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_WIRE_SERVICE_HELP">
+			<Text>+20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. Grants Promotion [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_EXPRESS}[ENDCOLOR] for Diplomatic Units in the city in which it is built. [NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Friend[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture each.[NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science each.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_WIRE_SERVICE_TEXT">
+			<Text>Though taken for granted today, the establishment of regional, national and eventually international news agencies (or wire services) was a major boon to the economic, political and cultural interconnectivity of the world. By standardizing the speed, quality and stability of communication on a global scale, modern news agencies are not only useful for spreading popular and intellectual knowledge, but also the acceleration of discourse between governments. Eventually, most countries would create national wire services that focused on foreign affairs and diplomacy. Many of these organizations were under the control of a nation's foreign bureau.</Text>
+		</Row>
+
+		<!-- Stonehenge -->
+		<Row Tag="TXT_KEY_BUILDING_STONEHENGE_HELP">
+			<Text>Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Council and 60 [ICON_PEACE] Faith in the City in which it is built.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE">
+			<Text>Scrivener's Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_STRATEGY">
+			<Text>This National Wonder gives a small production boost when building diplomatic units in the capital, and one [ICON_RES_PAPER] Paper resource. Build this building if you want to secure a city-state ally or two during the first few eras of the game. The additional yields from City-State Friends and Allies increases the value of early positive City-State relations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_COURT_SCRIBE_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper, and 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Emissary. +10% [ICON_PRODUCTION] Production of Diplomatic Units in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] City-State [COLOR_POSITIVE_TEXT]Friend[ENDCOLOR] Bonus: +1 [ICON_FOOD] Food each.[NEWLINE][ICON_CITY_STATE] City-State [COLOR_CYAN]Ally[ENDCOLOR] Bonus: +1 [ICON_FOOD] Food and +1 [ICON_PEACE] Faith each.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_COURT_SCRIBE_TEXT">
+			<Text>The position of royal scrivener, and the office therein, is one of the oldest and most important positions within a civil service. Though the modern state has hundreds of civil servants that write, edit and issue government documentation, in the ancient world these tasks were usually given to one individual, the scrivener. Scrivener's wielded immense power, as they had control over the wording, translations and interpretations of the laws of the land. Because of this great power, a good, loyal scrivener was an invaluable resource.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS">
+			<Text>Printing Press</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_STRATEGY">
+			<Text>This National Wonder cannot be built unless the city has a Chancery. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to allow your Diplomatic Units to ignore terrain penalties.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PRINTING_PRESS_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]Literacy[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_PRINTING_PRESS_TEXT">
+			<Text>From a single print shop in Mainz, Germany, printing had spread to no less than around 270 cities in Central, Western and Eastern Europe by the end of the 15th century. As early as 1480, it is assumed that "the printed book was in universal use in Europe". By 1500, the printing presses in operation throughout Western Europe had already produced more than twenty million copies. European printing presses of around 1600 were capable of producing 3,600 impressions per workday. By comparison, movable type printing in the Far East, which did not know presses and was solely done by manually rubbing the back of the paper to the page, did not exceed an output of forty pages per day. The rapidity of typographical text production, as well as the sharp fall in unit costs, led to the issuing of the first newspapers which opened up an entirely new field for conveying up-to-date information to the public.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE">
+			<Text>Foreign Bureau</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_STRATEGY">
+			<Text>This National Wonder cannot be built unless the city has a Wire Service. Build it to receive a production speed increase for Diplomatic Units in the city where it is built, increased movement and influence for all your Diplomatic Units and the ability to send your Diplomatic Units through rival territory without an [COLOR_POSITIVE_TEXT]Open Borders[ENDCOLOR] agreement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FOREIGN_OFFICE_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_IMMUNITY}[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FOREIGN_OFFICE_TEXT">
+			<Text>The foreign office sits at the heart of the modern empire. Teeming with vast, unending legions of civil servants, diplomats and assistants, all news both critical and mundane passes through the halls of the Foreign Bureau.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER">
+			<Text>International Finance Center</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_STRATEGY">
+			<Text>This National Wonder cannot be built unless the city has a Stock Exchange. Build this national wonder to receive additional Delegates in the World Congress based on the number of Declaration of Friendships you currently have with other players. You will also receive a large boost to the Food and Gold output of the city where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FINANCE_CENTER_HELP">
+			<Text>Requires [COLOR_MAGENTA]Freedom[ENDCOLOR]. +5% [ICON_FOOD] Food and [ICON_GOLD] Gold in the City in which it is built. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 2 [COLOR_POSITIVE_TEXT]Declarations of Friendship[ENDCOLOR] you currently have with other players.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FINANCE_CENTER_TEXT">
+			<Text>A Financial Center is a global city that is home to a large number of internationally significant banks, businesses, and stock exchanges. An International Financial Center, sometimes abbreviated to IFC, is a non-specific term usually used to describe an important participant in international financial market trading, usually having at least one major stock market. During much of the 20th century, the United States and its financial capital, New York City, were the leaders. But since the 1990s, with the rise of a multipolar world with new regional powers and global capitalism, numerous financial centres have challenged the predominance of Wall Street, particularly from Asia, which some analysts believe will be the focus of new worldwide growth.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE">
+			<Text>Palace of Culture and Science</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_STRATEGY">
+			<Text>This National Wonder cannot be built unless the city has a Public School. Build this national wonder to receive additional Delegates in the World Congress based on the number of Defensive Pacts and Vassals you currently have. You will also receive a large boost to the Culture and Science output of the city where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_SCIENCE_CULTURE_HELP">
+			<Text>Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +5% [ICON_CULTURE] Culture and [ICON_RESEARCH] Science in the City in which it is built. [COLOR_POSITIVE_TEXT]Removes[ENDCOLOR] your global limit on forming Defensive Pacts. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every [COLOR_POSITIVE_TEXT]Defensive Pact[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Vassal[ENDCOLOR] you currently have.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_PALACE_SCIENCE_CULTURE_TEXT">
+			<Text>The Palace of Culture and Science in Warsaw is the tallest building in Poland, the eighth tallest building in the European Union. The building was originally known as the Joseph Stalin Palace of Culture and Science, but in the wake of destalinization the dedication to Stalin was revoked; Stalin's name was removed from the interior lobby and one of the building's sculptures. Currently it is the 187th tallest building in the world.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE">
+			<Text>Hall of Honor</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_STRATEGY">
+			<Text>This National Wonder cannot be built unless the city has a Military Academy. Build this national wonder to receive additional Delegates in the World Congress based on the number of enemy Capitals you have conquered. You will also receive a large boost to the Tourism and Production output of the city where it is built.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EHRENHALLE_HELP">
+			<Text>Requires [COLOR_MAGENTA]Autocracy[ENDCOLOR]. +15 [ICON_TOURISM] Tourism and +10% [ICON_PRODUCTION] Production in the City in which it is built. Receive 2 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegates in the World Congress for every [COLOR_POSITIVE_TEXT]Enemy[ENDCOLOR] [ICON_CAPITAL] [COLOR_POSITIVE_TEXT]Capital[ENDCOLOR] you control.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EHRENHALLE_TEXT">
+			<Text>The "Ehrenhalle" (Hall of Honor) was built by the city of Nuremberg according to a plan of German architect Fritz Mayer. It was inaugurated in 1930, before the Hitler era during the Weimar Republic. It is an arcaded hall with an adjacent cobbled stone terrace with two rows of pedestals for fire bowls. All fourteen pylons remain virtually intact and have not been ignited since the final Nazi party rally in September, 1938. Originally, the hall was to be a memorial site for the 9,855 soldiers from Nuremberg who were fallen in World War I. During the Party Congress of 1929 the then unfinished "Hall of Honour" was used for the enactment of a cult of the dead by the National Socialists for the first time. During the Third Reich, the Nazis used the site primarily as a commemoration for the fallen soldiers of World War I and a commemoration of the 16 dead of the "Hitlerputsch" (the so-called "Martyrs of the NS Movement") (Beer Hall Putsch) on 9 November, 1923, in Munich. Hitler, accompanied by SS-leader Heinrich Himmler and SA-leader Viktor Lutze, strode through the arena over the 240 meters long granite path from the main grandstand to the terrace of the Ehrenhalle and showed the Nazi salute there. The ritual was the climax of the celebration.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CONSULATE">
+			<Text>Consulate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CONSULATE_STRATEGY">
+			<Text>The Consulate gives its owner a slight edge in the World Congress by granting an additional Delegate. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONSULATE_HELP">
+			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONSULATE_DESC">
+			<Text>The office of a Consul is termed a Consulate, and is usually subordinate to the state's main representation in that foreign country, usually an Embassy, or High Commission between Commonwealth countries, in the capital city of the host state. Like the term embassy, the word consulate may refer not only to the office of consul, but also to the building occupied by the consul and his or her staff. The consulate may share premises with the embassy itself. In the modern age, many Consulates are affiliated with the United Nations and/or other international organizations.</Text>
+		</Row>
+
+		<!-- Notre Dame -->
+		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_HELP">
+			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Cathedral in the City in which it is built. The Empire enters a [ICON_GOLDEN_AGE] Golden Age. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +3 [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_KARLSTEJN">
+			<Text>Karlstejn</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_KARLSTEJN_HELP">
+			<Text>Can only be built in a Holy City. Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Order in the City in which it is built. Enables you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR] at 5% below its normal Global [ICON_RELIGION] Follower requirement (20% on Standard).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_KARLSTEJN_TEXT">
+			<Text>Karlstejn Castle is a picturesque Bohemian fortification a short distance outside Prague in the modern Czech Republic. The castle was completed in 1365, and has housed the Imperial Regalia and Crown Jewels of Bohemia as well as numerous other relics and treasures. The castle was sieged by Hussites during the Hussite Wars, the first major Protestant movement in Europe, which began more than a century before Martin Luther and the Protestant Reformation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_KARLSTEJN_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Seek the truth, hear the truth, learn the truth, love the truth, speak the truth, hold the truth, and defend the truth unto death."[NEWLINE][TAB][TAB] - Jan Hus[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SOHO_FOUNDRY">
+			<Text>Soho Foundry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SOHO_FOUNDRY_HELP">
+			<Text>Provides a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Factory and +5 [ICON_PRODUCTION] Production in the City in which it is built. Also grants 4 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_RES_COAL] Coal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SOHO_FOUNDRY_TEXT">
+			<Text>Soho Foundry was established in 1795 by James Watt and Matthew Boulton for the production of Watt's newest invention: The steam engine. An ingenious tinkerer, James Watt created several improvements over the old Newcomen designs to create a new steam engine which produced rotary motion with less wear and using one quarter of the coal. Watt patented his new machine and partnered with Matthew Boulton, a businessman and inventor in his own right, to found a new factory in Smethwick, England. The Soho Foundry was unprecedented for its time, producing standardized and interchangeable parts using new techniques like breaking larger tasks into smaller, specialized jobs. Management at Soho was also ahead of its time, providing sick leave benefits, as well as professional development and welfare programmes to its employees. The management theory, mass production techniques and steam engines produced at Soho Foundry were crucial to the industrialization of Britain and have made a lasting, global impact.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_SOHO_FOUNDRY_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I sell here, Sir, what all the world desires to have: Power."[NEWLINE][TAB][TAB] - Matthew Boulton[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_STATUE">
+			<Text>The Motherland Calls</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_MOTHERLAND_STATUE_HELP">
+			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Police Station in the City in which it is built. [ICON_SILVER_FIST] Military Units Supplied by this City's population increased by 100%.[NEWLINE][NEWLINE]Building Maintenance reduced by 10% in all Cities. Blocks enemy units from gaining [ICON_GOLD] Gold and Health when pillaging your tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_MOTHERLAND_STATUE_TEXT">
+			<Text>The Motherland Calls, also called Mother Motherland, Mother Motherland Is Calling, simply The Motherland, or The Mamayev Monument, is a statue in Mamayev Kurgan in Volgograd, Russia, commemorating the Battle of Stalingrad. It was designed by sculptor Yevgeny Vuchetich and structural engineer Nikolai Nikitin, and declared the largest statue in the world in 1967. Compared with the later higher statues, The Motherland Calls is significantly more complex from an engineering point of view, due to its characteristic posture with a sword raised high in the right hand and the left hand extended in a calling gesture. The technology behind the statue is based on a combination of prestressed concrete with wire ropes structure, a solution which can be found also in another work of Nikitin's, the super-tall Ostankino Tower in Moscow. It is the tallest statue of a woman in the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MOTHERLAND_STATUE_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"One of the hallmarks of a great nation is its ability to rise to its feet after a fall."</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK">
+			<Text>Bletchley Park</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_BLETCHLEY_PARK_HELP">
+			<Text>Requires completion of [COLOR_MAGENTA]Rationalism[ENDCOLOR] Branch. Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Research Lab in the City in which it is built, and all [ICON_VP_SCIENTIST] Scientists gain +1 [ICON_RESEARCH] Science. Receive 200 [ICON_VP_SPY_POINTS] Spy Points, and all your existing [ICON_SPY] Spies are leveled up. Spy Resistance is improved by 15% in all Cities. Spy mission duration reduced by 2 turn for your Spies and increased by 2 turns for enemy Spies in your Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_BLETCHLEY_PARK_TEXT">
+			<Text>Bletchley Park, in Milton Keynes, Buckinghamshire, was the central site of the United Kingdom's Government Code and Cypher School, which during the Second World War regularly penetrated the secret communications of the Axis Powers, most importantly the German Enigma and Lorenz ciphers. The official historian of World War II British Intelligence has written that the "Ultra" intelligence produced at Bletchley shortened the war by two to four years, and that without it the outcome of the war would have been uncertain. The site is now an educational and historical attraction memorialising and celebrating those accomplishments.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_BLETCHLEY_PARK_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Bletchley Park: the goose that laid the golden eggs and never cackled."[NEWLINE][TAB][TAB] - Winston Churchill[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING">
+			<Text>Empire State Building</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_EMPIRE_STATE_BUILDING_HELP">
+			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_GREAT_PEOPLE] Great Person of your choice and a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Stock Exchange in the City in which it is built. Specialists in all Cities produce +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_EMPIRE_STATE_BUILDING_TEXT">
+			<Text>The Empire State Building is a 103-story skyscraper located in Midtown Manhattan, New York City, at the intersection of Fifth Avenue and West 34th Street. It has a roof height of 1,250 feet (380 m), and with its antenna spire included, it stands a total of 1,454 feet (443 m) high.[6] Its name is derived from the nickname for New York, the Empire State. It stood as the world's tallest building for nearly 40 years, from its completion in early 1931 until the topping out of the original World Trade Center's North Tower in late 1970. Following the September 11 attacks in 2001, the Empire State Building was again the tallest building in New York (although it was no longer the tallest in the US or the world), until One World Trade Center reached a greater height on April 30, 2012. The Empire State Building is currently the fourth-tallest completed skyscraper in the United States (after the One World Trade Center, the Willis Tower and Trump International Hotel and Tower, both in Chicago), and the 25th-tallest in the world (the tallest now is Burj Khalifa, located in Dubai). It is also the fifth-tallest freestanding structure in the Americas.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_EMPIRE_STATE_BUILDING_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"The importance of money flows from it being a link between the present and the future."[NEWLINE][TAB][TAB] - John Maynard Keynes[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CERN">
+			<Text>CERN</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CERN_HELP">
+			<Text>Receive 2 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Technologies and +100 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States in the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CERN_TEXT">
+			<Text>The European Organization for Nuclear Research, known as CERN, is a European research organization whose purpose is to operate the world's largest particle physics laboratory. Established in 1954, the organization is based in the northwest suburbs of Geneva on the Franco–Swiss border, and has 21 European member states. Israel is the first (and currently only) non-European country granted full membership. The term CERN is also used to refer to the laboratory, which in 2013 counted 2513 staff members, and hosted some 12,313 fellows, associates, apprentices as well as visiting scientists and engineers representing 608 universities and research facilities and 113 nationalities. CERN's main function is to provide the particle accelerators and other infrastructure needed for high-energy physics research – as a result, numerous experiments have been constructed at CERN following international collaborations. It is also the birthplace of the World Wide Web. The main site at Meyrin has a large computer centre containing powerful data processing facilities, primarily for experimental-data analysis; because of the need to make these facilities available to researchers elsewhere, it has historically been a major wide area networking hub.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CERN_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"When you look at a vacuum in a quantum theory of fields, it isn't exactly nothing."[NEWLINE][TAB][TAB] - Dr. Peter Higgs[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FORUM">
+			<Text>Roman Forum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FORUM_STRATEGY">
+			<Text>Build this world wonder to receive a permanent boost to your relations with city-states through better-trained Diplomatic Units. Provides a free Great Diplomat to send to nearby city-states.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FORUM_HELP">
+			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] [ICON_DIPLOMAT] Great Diplomat when completed. +1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_PAX}[ENDCOLOR] Promotion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_FORUM_TEXT">
+			<Text>The Roman Forum (Latin: Forum Romanum) is a rectangular forum (plaza) surrounded by the ruins of several important ancient government buildings at the center of the city of Rome. It was for centuries the center of Roman public life: the site of triumphal processions and elections, venue for public speeches, criminal trials, gladiatorial matches, and commercial affairs. The teeming heart of ancient Rome, it has been called the most celebrated meeting place in the world, and in all history.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_FORUM_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I found Rome a city of bricks and left it a city of marble."[NEWLINE][TAB][TAB] - Augustus Caesar[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE">
+			<Text>Summer Palace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_STRATEGY">
+			<Text>Build this wonder for your Diplomatic Units to be able to enter a rival's territory without an Open Borders agreement centuries before anyone else. Boosts the potency of all Chancercies in your empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SUMMER_PALACE_HELP">
+			<Text>+1 [ICON_RES_PAPER] Paper. +20% [ICON_PRODUCTION] Production of Diplomatic Units in this City. All Diplomatic Units receive the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_NOBILITY}[ENDCOLOR] Promotion. All Chanceries gain +3 [ICON_GOLD] Gold and +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_SUMMER_PALACE_TEXT">
+			<Text>Built in stages during the late-Medieval and Early Modern periods, the Summer Palace was a large, splendid edifice to the power and might of the early Qing Dynasty and a counterpart to the Emperor's main palace in Beijing. Famous for its exquisite landscaping, lush gardens and spectacular vista, the Summer Palace remains an important symbol of the power of Early Modern China and a popular tourist destination.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_SUMMER_PALACE_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"A monarchy is the most expensive of all forms of government...he who depends on his own power to rule, must strengthen that power by bribing the active and enterprising whom he cannot intimidate."[NEWLINE][TAB][TAB] - James F. Cooper[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL">
+			<Text>Grand Canal</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_STRATEGY">
+			<Text>Build this wonder to boost the strength and durability of your navy via the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_TREASURE_FLEET}[ENDCOLOR] promotion, and to receive an additional trade route. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_CANAL_HELP">
+			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_INTERNATIONAL_TRADE] Trade Route. Grants all Naval Units except Submarines and Carriers the [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_TREASURE_FLEET}[ENDCOLOR] Promotion, which grants +10% [ICON_STRENGTH] Combat Strength when attacking, +1 [ICON_VP_VISION] Sight, and the ability to heal [COLOR_POSITIVE_TEXT]Outside of Friendly Territory[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_GRAND_CANAL_TEXT">
+			<Text>The Grand Canal is the largest canal in Venice, Italy, and remains one of the most important trade and traffic corridors in the city. As a city of small islands, Venice was enhanced during the Middle Ages by the dredging of soils to raise the marshy ground above the tides, the results of which were a series of flooded channels. These channels, or canals, encouraged the flourishing of a nautical culture which proved central to the economy of the city from the Middle Ages well into the present day. Today those canals still provide the means for transport of goods and people within the city. The maze of canals threaded through the city requires the use of more than 400 bridges to permit the flow of foot traffic. In 2011, the city opened Ponte della Costituzione, the fourth bridge across the Grand Canal, connecting the Piazzale Roma bus terminal area with the Stazione Ferroviaria (train station), the others being the original Ponte di Rialto, the Ponte dell'Accademia, and the Ponte degli Scalzi.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_GRAND_CANAL_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"To build a city where it is impossible to build a city is madness in itself, but to build there one of the most elegant and grandest of cities is the madness of genius.”[NEWLINE][TAB][TAB] - Alexander Herzen[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE">
+			<Text>Menin Gate</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_STRATEGY">
+			<Text>A defensive wonder. Strengthens the yields from Forts, Citadels, and Landmarks. The Menin Gate also gives a small bonus for each unit that falls in battle. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_HELP">
+			<Text>May only be built collaboratively through the World Congress. Receive +2 [ICON_HAPPINESS_1] Happiness in the City in which it is built.[NEWLINE][NEWLINE]Receive 2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points whenever an owned unit is killed, scaling with Era. Forts, Citadels and Landmarks provide +2 [ICON_CULTURE] Culture and [ICON_GOLDEN_AGE] Golden Age Points when worked.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_TEXT">
+			<Text>The Menin Gate Memorial to the Missing is a war memorial in Ypres, Belgium, dedicated to the British and Commonwealth soldiers who were killed in the Ypres Salient of World War I. The high, barrel-vaulted passageway is inscribed with the names of 54,395 Commonwealth soldiers who died in the Salient, but whose bodies were never recovered. The memorial stands at the eastern exit of the town, marking the starting point towards the front line, where more than 450,000 men on both sides of the conflict were killed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MENIN_GATE_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"Who will remember, passing through this Gate,[NEWLINE][TAB][TAB]the unheroic dead who fed the guns?[NEWLINE][TAB][TAB]Who shall absolve the foulness of their fate,[NEWLINE][TAB][TAB]Those doomed, conscripted, unvictorious ones?"[NEWLINE][TAB][TAB] - Siegfried Sassoon[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE">
+			<Text>Olympic Village</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_STRATEGY">
+			<Text>Combining the strengths of the Hotel, Stadium and Hermitage in one, the Olympic Village is a powerhouse of late-game culture. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_OLYMPIC_VILLAGE_HELP">
+			<Text>May only be built collaboratively through the World Congress. Receive +3 [ICON_HAPPINESS_1] Happiness and +3 [ICON_CULTURE] Culture in the City in which it is built. 25% of the [ICON_CULTURE] Culture from [ICON_WONDER] World Wonders and Tiles is added to the [ICON_TOURISM] Tourism output of the City.[NEWLINE][NEWLINE]All Stadiums receive +2 [ICON_GOLD] Gold and [ICON_TOURISM] Tourism.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_OLYMPIC_VILLAGE_TEXT">
+			<Text>An Olympic Village is an accommodation center built for the Olympic Games, usually within an Olympic Park or elsewhere in a host city. Olympic Villages are built to house all participating athletes, as well as officials and athletic trainers. The idea of the Olympic Village comes from Pierre de Coubertin. Up until the 1924 Summer Olympic Games, National Olympic Committees rented locations around the host city to house participants, which was expensive. For the 1924 Summer Olympics, the organizers built cabins near the Stade Olympique de Colombes to allow the athletes to easily access the Games' venues. The Olympic Village of the 1932 Summer Olympics served as the model of today's Olympic Villages; it consisted of a group of buildings with rooms to lodge athletes, and buildings with other accommodations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_OLYMPIC_VILLAGE_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"The most important thing in the Olympic Games is not winning but taking part; the essential thing in life is not conquering but fighting well."[NEWLINE][TAB][TAB] - Pierre de Coubertin[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE">
+			<Text>Crystal Palace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_STRATEGY">
+			<Text>Like its real-world counterpart, the Crystal Palace dabbles in a wide varitey of bonuses. Players with a large number of cities, and Factories, will benefit most from the Crystal Palace, however the additional Culture and Great Work slot are useful for any Civilization. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CRYSTAL_PALACE_HELP">
+			<Text>May only be built collaboratively through the World Congress. Receive +2 [ICON_PRODUCTION] Production and +2 [ICON_RESEARCH] Science for all Factories in owned Cities. The Empire enters a [ICON_GOLDEN_AGE] Golden Age.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CRYSTAL_PALACE_TEXT">
+			<Text>The Crystal Palace was a cast-iron and plate-glass building originally erected in Hyde Park, London, England, to house the Great Exhibition of 1851. More than 14,000 exhibitors from around the world gathered in the Palace's 990,000 square feet of exhibition space to display examples of the latest technology developed in the Industrial Revolution. Designed by Sir Joseph Paxton, the Great Exhibition building was 1,851 feet long, with an interior height of 128 feet. Because of the recent invention of the cast plate glass method in 1848, which allowed for large sheets of cheap but strong glass, it was at the time the largest amount of glass ever seen in a building and astonished visitors with its clear walls and ceilings that did not require interior lights, thus a "Crystal Palace."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CRYSTAL_PALACE_QUOTE">
+			<Text>[NEWLINE][TAB][TAB]"I dreamt that the Exhibition...was, as it ought to be, a palace of very crystal, the sky looking through every bit of the roof upon all nations under it."[NEWLINE][TAB][TAB] - Douglas Jerrold[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_UN">
+			<Text>United Nations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_UN_STRATEGY">
+			<Text>When paired with a high rate of Great Person production, the United Nations grants a significant boost to diplomatic power in the World Congress for its owner. It also provides an additional Delegate, and triggers a Golden Age. [NEWLINE][NEWLINE]In addition to these immediate benefits, the construction of the United Nations triggers the start of the United Nations Special Session of the World Congress, which enables the Diplomatic Victory. May only be built collaboratively through the World Congress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UN_HELP">
+			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
+		</Row>
+
+		<!-- Corporation buildings common pedia entry -->
+		<Row Tag="TXT_KEY_CIV5_BUILDINGS_CORP_TEXT">
+			<Text>A corporation is a company or group of people authorized to act as a single entity (legally a person) and recognized as such in law. Early incorporated entities were established by charter (i.e. by an ad hoc act granted by a monarch or passed by a parliament or legislature). Most jurisdictions now allow the creation of new corporations through registration. Corporations come in many different types but are usually divided by the law of the jurisdiction where they are chartered into two kinds: by whether or not they can issue stock, or by whether or not they are for profit.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ">
+			<Text>Trader Sid's Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Trader Sid's Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HQ_HELP">
+			<Text>Founds the Trader Sid's, Inc. Corporation.[NEWLINE][NEWLINE]Receive a free Trader Sid's Office in this City, and unlocks construction of Trader Sid's Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_TRADER_SIDS">
+			<Text>[NEWLINE][TAB][TAB]"Merchandising, merchandising, where the real money from the movie is made."[NEWLINE][TAB][TAB] - Yogurt[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS">
+			<Text>Trader Sid's Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Trader Sid's Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Trader Sid's cannot be sold or destroyed by the player, and increases the [ICON_GOLD] Gold output of all Trader Sid's Offices by +4.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_HELP">
+			<Text>Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +2 [ICON_GOLD] Gold for the City, and +2 [ICON_GOLD] Gold for Trade Route owner. +4 [ICON_GOLD] Gold for every Trader Sid's Franchise in foreign Cities (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes from this City to foreign Cities with a Trader Sid's Franchise produce +25% more [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE">
+			<Text>Trader Sid's</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of Trader Sid's. To construct this building in a foreign City, send a Trade Route from an owned City with a Trader Sid's Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_HELP">
+			<Text>+1 [ICON_GOLD] Gold on all Trader Sid's Monopoly Resources near the City. Generates revenue for Trader Sid's Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ">
+			<Text>Centaurus Extractors Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Centaurus Extractor's Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HQ_HELP">
+			<Text>Founds the Centaurus Extractors Corporation.[NEWLINE][NEWLINE]Grants a free Centaurus Extractors Office in this City, and unlocks construction of Centaurus Extractors Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_LANDSEA">
+			<Text>[NEWLINE][TAB][TAB]"Lesson number one: Don't underestimate the other guy's greed."[NEWLINE][TAB][TAB] - Frank Lopez[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS">
+			<Text>Centaurus Extractors Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Centaurus Extractors Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Centaurus Extractors cannot be sold or destroyed by the player, and increases the [ICON_PRODUCTION] Production output of all Centaurus Extractors Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production on all Sea Tiles near this City. +3 [ICON_PRODUCTION] Production for every Centaurus Extractors Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Centaurus Extractors Franchise increases this City's [ICON_RESEARCH] Science rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE">
+			<Text>Centaurus Extractors</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of Centaurus Extractors. To construct this building in a foreign City, send a Trade Route from an owned City with a Centaurus Extractors Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production on all Monopoly Resources associated with Centaurus Extractors. Generates revenue for Centaurus Extractors Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ">
+			<Text>Hexxon Refineries Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Hexxon Refineries Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HQ_HELP">
+			<Text>Founds the Hexxon Refineries Corporation.[NEWLINE][NEWLINE]Receive a free Hexxon Refineries Office in this City, and unlocks construction of Hexxon Refineries Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_HEXXON">
+			<Text>[NEWLINE][TAB][TAB]"I just want to say one word to you. Just one word: Plastics."[NEWLINE][TAB][TAB] - Mr. McGuire[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY">
+			<Text>Hexxon Refineries Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Hexxon Refineries Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Hexxon Refineries cannot be sold or destroyed by the player, and grants +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every[COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_HELP">
+			<Text>+15% [ICON_PRODUCTION] Production when training Military Units in this City. +1 [ICON_RES_OIL] Oil and +1 [ICON_RES_COAL] Coal for every [COLOR_POSITIVE_TEXT]three[ENDCOLOR] Hexxon Refineries Franchises (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Hexxon Refineries Franchise increases this City's [ICON_PRODUCTION] Production rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE">
+			<Text>Hexxon Refineries</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of Hexxon Refineries. To construct this building in a foreign City, send a Trade Route from an owned City with a Hexxon Refineries Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_HELP">
+			<Text>+1 [ICON_PRODUCTION] Production on Hexxon Refineries Monopoly Resources. Generates revenue for Hexxon Refineries Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ">
+			<Text>Giorgio Armeier Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Giorgio Armeier Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HQ_HELP">
+			<Text>Founds the Giorgio Armeier Corporation.[NEWLINE][NEWLINE]Receive a free Giorgio Armeier Office in this City, and unlocks construction of Giorgio Armeier Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_GA">
+			<Text>[NEWLINE][TAB][TAB]"Fashion is about dreaming and making other people dream."[NEWLINE][TAB][TAB] - Donatella Versace[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER">
+			<Text>Giorgio Armeier Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Giorgio Armeier Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Giorgio Armeier cannot be sold or destroyed by the player, and increases the [ICON_CULTURE] Culture output of all Giorgio Armeier Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_HELP">
+			<Text>+2 [ICON_CULTURE] Culture for every Giorgio Armeier Franchise (up to your Franchise Limit). -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy and [ICON_CULTURE] Boredom[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Giorgio Armeier Franchise increases this City's [ICON_CULTURE] Culture rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE">
+			<Text>Giorgio Armeier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of Giorgio Armeier . To construct this building in a foreign City, send a Trade Route from an owned City with a Giorgio Armeier Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE_HELP">
+			<Text>+1 [ICON_CULTURE] Culture on all Monopoly Resources associated with Giorgio Armeier. Generates revenue for Giorgio Armeier Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ">
+			<Text>Firaxite Materials Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Firaxite Materials Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HQ_HELP">
+			<Text>Founds the Firaxite Materials Corporation.[NEWLINE][NEWLINE]Receive a free Firaxite Materials Office in this City, and unlocks construction of Firaxite Materials Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_FIRAXITE">
+			<Text>[NEWLINE][TAB][TAB]"Whatever good things we build end up building us."[NEWLINE][TAB][TAB] - Jim Rohn[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS">
+			<Text>Firaxite Materials Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Firaxite Materials Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Firaxite Materials cannot be sold or destroyed by the player, and increases the [ICON_RESEARCH] Science output of all Firaxite Materials Offices by +2.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_HELP">
+			<Text>+20% [ICON_PRODUCTION] Production when constructing Buildings in this City. +2 [ICON_RESEARCH] Science for every Firaxite Materials Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Trade Routes to foreign Cities with a Firaxite Materials Franchise produce 50% more [ICON_RESEARCH] Science.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE">
+			<Text>Firaxite Materials</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of Firaxite Materials. To construct this building in a foreign City, send a Trade Route from an owned City with a Firaxite Materials Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_HELP">
+			<Text>+1 [ICON_RESEARCH] Science on all Firaxite Materials Monopoly Resources near this City. Generates revenue for Firaxite Materials Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ">
+			<Text>TwoKay Foods Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the TwoKay Foods Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HQ_HELP">
+			<Text>Founds the TwoKay Foods Corporation.[NEWLINE][NEWLINE]Grants a free TwoKay Foods Office in this City, and unlocks construction of TwoKay Foods Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_TWOKAY">
+			<Text>[NEWLINE][TAB][TAB]"There is no love sincerer than the love of food."[NEWLINE][TAB][TAB] - George Bernard Shaw[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS">
+			<Text>TwoKay Foods Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a TwoKay Foods Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]TwoKay Foods cannot be sold or destroyed by the player, and increases the [ICON_FOOD] Food output of all TwoKay Foods Offices by +3.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_HELP">
+			<Text>Reduces [ICON_HAPPINESS_3] Unhappiness from all Needs by 1 and the [ICON_CITY_STATE] Empire Size Modifier by 5% in all Cities. +10% [ICON_FOOD] Food in the City. +3 [ICON_FOOD] Food for every TwoKay Foods Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a TwoKay Foods Franchise increases this City's [ICON_FOOD] Growth rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE">
+			<Text>TwoKay Foods</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of TwoKay Foods. To construct this building in a foreign City, send a Trade Route from an owned City with a TwoKay Foods Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_HELP">
+			<Text>+1 [ICON_FOOD] Food on all Monopoly Resources associated with TwoKay Foods. Generates revenue for TwoKay Foods Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ">
+			<Text>Civilized Jewelers Headquarters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_STRATEGY">
+			<Text>Construct this building in one of your cities to found the Civilized Jewelers Corporation. See the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] section of the Civilopedia for more information.[NEWLINE][NEWLINE]Remember that each Civilization may only found [COLOR_POSITIVE_TEXT]one[ENDCOLOR] Corporation, so make sure the benefits are applicable to your Victory Strategy!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HQ_HELP">
+			<Text>Founds the Civilized Jewelers Corporation.[NEWLINE][NEWLINE]Receive a free Civilized Jewelers Office in this City, and unlocks construction of Civilized Jewelers Offices in owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_CIVILIZED">
+			<Text>[NEWLINE][TAB][TAB]"Will the people in the cheaper seats clap your hands? And the rest of you, if you'll just rattle your jewelry."[NEWLINE][TAB][TAB] - John Lennon[NEWLINE][TAB]</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS">
+			<Text>Civilized Jewelers Office</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_STRATEGY">
+			<Text>When a [ICON_INTERNATIONAL_TRADE] Trade Route between a foreign City and this City completes, a Civilized Jewelers Franchise is constructed in the foreign City.[NEWLINE][NEWLINE]Civilized Jewelers cannot be sold or destroyed by the player, and increases the [ICON_GREAT_PEOPLE] Great Person rate of all Civilized Jewelers's Offices by +5%.[NEWLINE][NEWLINE]You cannot have more Franchises than your Franchise Limit (see the Corporation and Monopolies Overview for more on this).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_HELP">
+			<Text>+3% [ICON_GOLDEN_AGE] Golden Age Length Modifier. +15% [ICON_GREAT_PEOPLE] Great Person rate in City, and an additional +10% for every Civilized Jeweler's Franchise (up to your Franchise Limit).[NEWLINE][NEWLINE]Every Trade Route from this City to a foreign City with a Civilized Jewelers Franchise increases this City's [ICON_GOLD] Gold rate by +10%.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
+			<Text>Civilized Jewelers</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_STRATEGY">
+			<Text>This building can only be constructed in foreign Cities if you were the founder of Civilized Jewelers. To construct this building in a foreign City, send a Trade Route from an owned City with a Civilized Jewelers Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_HELP">
+			<Text>+1 [ICON_GOLDEN_AGE] Golden Age Points on all Civilized Jewelers Monopoly Resources near this City. Generates revenue for Civilized Jewelers Offices in the founding Civilization's Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_STUPA">
+			<Text>Stupa</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STUPA_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Stupas belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Stupa to gain Faith, Golden Age Points and Tourism in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STUPA_HELP">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STUPA_TEXT">
+			<Text>A stupa is a mound-like or hemispherical structure containing Buddhist relics, typically the ashes of Buddhist monks, used by Buddhists as a place of meditation.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CHURCH">
+			<Text>Church</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHURCH_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Churches belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Church to gain Faith and a potent boost to passive religious pressure. Also begins a "We Love the King Day" in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHURCH_HELP">
+			<Text>15 turns of "We Love the King Day" in the City when constructed. All [ICON_GREAT_WORK] Great Works in the City generate +1 [ICON_PEACE] Faith. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 40%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHURCH_TEXT">
+			<Text>A church building, often simply called a church, is a building used for religious activities, particularly worship services. The term in its architectural sense is most often used by Christians to refer to their religious buildings but can be used by other religions. In traditional Christian architecture, the church is often arranged in the shape of a Christian cross. When viewed from plan view the longest part of a cross is represented by the aisle and the junction of the cross is located at the altar area.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MANDIR">
+			<Text>Mandir</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MANDIR_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Mandirs belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Mandir to gain Faith, and Food. Provides a small amount of all yields whenever the city grows.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MANDIR_HELP">
+			<Text>Gain 5 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, [ICON_GOLD] Gold, [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, and [ICON_PEACE] Faith when a new [ICON_CITIZEN] Citizen is born in the City, scaling with Era.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 15%, and increases the City's resistance to [ICON_RELIGION] Religious conversion by 10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MANDIR_TEXT">
+			<Text>A Hindu temple is a house of god(s). It is a space and structure designed to bring human beings and gods together, infused with symbolism to express the ideas and beliefs of Hinduism.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE">
+			<Text>Synagogue</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Synagogues belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Synagogue to gain Faith, Production. The City generates more Science during "We Love the King Day."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_HELP">
+			<Text>Increases the City's resistance to [ICON_RELIGION] Religious conversion by 15%. During "We Love the King Day", City [ICON_RESEARCH] Science increases by +10%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_TEXT">
+			<Text>A synagogue, also spelled synagog, is a Jewish house of prayer. Synagogues have a large hall for prayer (the main sanctuary), and may also have smaller rooms for study and sometimes a social hall and offices. Some have a separate room for Torah study, called the beth midrash.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_ORDER">
+			<Text>Order</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ORDER_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Orders belief. Construct this building by purchasing it with [ICON_PEACE] Faith. Build the Order to gain Faith, Gold and the Morale promotion for all Military units trained in the city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ORDER_HELP">
+			<Text>When you construct a Unit in this City, gain [ICON_PEACE] Faith equal to 10% of the Unit's [ICON_PRODUCTION] Production cost. Gain 10% of the Cost of any [ICON_PEACE] Faith Purchase as [ICON_PRODUCTION] Production in this City. Land Military Units produced in the City gain the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion.[NEWLINE][NEWLINE]Increases City [ICON_STRENGTH] Combat Strength by 3 and [ICON_RANGE_STRENGTH] Bombard Strength by 10%. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ORDER_TEXT">
+			<Text>A military order is any one of a variety of Christian societies of knights that were founded from the Middle Ages onwards for the purpose of crusading – propagating or defending the faith (originally Catholic, and after the Reformation sometimes Protestant), either in the Holy Land or against Islam (as, for example, during the Reconquista) or pagans (mainly in the Baltic region) in Europe. Many orders have, since the end of the Crusades and the Ottoman incursions, become secularized, and are usually represented by Roman Catholic ceremonial, missionary and charitable organizations in modern times.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI">
+			<Text>Teocalli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Teocallis belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Teocalli offers bonuses towards military training and faith generation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_HELP">
+			<Text>+5 [ICON_PEACE] Faith when a Unit defeats an Enemy Unit in battle. Increases [ICON_SILVER_FIST] Military Unit Supply Cap by 1. +15 XP for all Military Units produced in the City. Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_PEDIA">
+			<Text>A Teocalli is a temple of the Aztec peoples. The Teocalli follow a structure that is typical for many Meso-American peoples, with a somewhat small enclosed space atop a massive stepped pyramid with a staircase on one side. The largest of these pyramids exceeded the Egyptian pyramid at Giza in total volume, though they weren't as tall. In a manner similar to Mesopotamian religions, the Aztecs considered their Teocalli as the literal residences of their gods, only permitting priests to climb them for rituals and special occasions. The most infamous of these rituals is the human sacrifices which occured monthly to appease the Aztec gods, where war captives had their beating hearts extracted from their chests and then beheaded. The skulls of the sacrifices were prepared and displayed on a nearby skull rack called a 'tzompantli', while the organs and flesh were offered to the gods.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA">
+			<Text>Gurdwara</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA_STRATEGY">
+			<Text>Can only be built in cities following a religion with the Gurdwaras belief. Construct this building by purchasing it with [ICON_PEACE] Faith. The Gurdwara offers bonuses towards Growth and Defense.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA_HELP">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%.[NEWLINE][NEWLINE]+10% [ICON_FOOD] Food and +10% [ICON_STRENGTH] Defense in the City. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA_PEDIA">
+			<Text>A Gurdwara -- which means "door to the guru" -- is the place of worship for Sikhs. All gurdwaras contain the holy Sikh scripture, the Guru Granth Sahib, placed on an elevated platform. From this platform, a Raagis recites, sings, and explains the scripture for the congregation. The other universal feature of all gurdwaras is a community kitchen called a Langar. Sikhs place great importance on serving free vegetarian meals, allowing all community members, regardless of ethnicity, caste, status or religion, to both eat and volunteer free of charge.</Text>
+		</Row>
+
+		<!-- Cathedral -->
+		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_HELP">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%. Farms, Pastures, and Quarries near this City generate +1 [ICON_GOLD] Gold. Gain +10 [ICON_GOLD] Gold in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+		</Row>
+
+		<!-- Mosque -->
+		<Row Tag="TXT_KEY_BUILDING_MOSQUE_HELP">
+			<Text>Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%. +15% [ICON_CULTURE] Culture in the City during [ICON_GOLDEN_AGE] Golden Ages.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RESEARCH] Illiteracy.</Text>
+		</Row>
+
+		<!-- Pagoda -->
+		<Row Tag="TXT_KEY_BUILDING_PAGODA_HELP">
+			<Text>+1 to all City Yields for every World Religion that has at least one Follower in this City.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom and -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MAUSOLEUM">
+			<Text>Mausoleum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MAUSOLEUM_STRATEGY">
+			<Text>Build the Mausoleum to gain [ICON_PEACE] Faith from casualties in war and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MAUSOLEUM_HELP">
+			<Text>Gain [ICON_PEACE] Faith when an owned Unit is killed in battle. Bonus scales with Era.[NEWLINE][NEWLINE]+5 [ICON_PEACE] Faith from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MAUSOLEUM_TEXT">
+			<Text>A mausoleum is an external free-standing building constructed as a monument enclosing the interment space or burial chamber of a deceased person or people. A monument without the interment is a cenotaph. A mausoleum may be considered a type of tomb, or the tomb may be considered to be within the mausoleum. A Christian mausoleum sometimes includes a chapel.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE">
+			<Text>Celestial Throne</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_STRATEGY">
+			<Text>Build the Celestial Throne for a big boost to your Holy City's base yields and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_HELP">
+			<Text>+5 [ICON_PEACE] Faith from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HEAVENLY_THRONE_TEXT">
+			<Text>A throne is the seat of state of a potentate or dignitary, especially the seat occupied by a sovereign on state occasions; or the seat occupied by a pope or bishop on ceremonial occasions. "Throne" in an abstract sense can also refer to the monarchy or the Crown itself, an instance of metonymy, and is also used in many expressions such as "the power behind the throne".</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR">
+			<Text>Great Altar</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR_STRATEGY">
+			<Text>Build the Great Altar for a boost to Military Unit production and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR_HELP">
+			<Text>+15% Military Unit [ICON_PRODUCTION] Production in this City.[NEWLINE][NEWLINE]+5 [ICON_PRODUCTION] Production from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GREAT_ALTAR_TEXT">
+			<Text>An altar is any structure upon which offerings such as sacrifices are made for religious purposes. Altars are usually found at shrines, and they can be located in temples, churches and other places of worship. Today they are used particularly in Christianity, Buddhism, Hinduism, Shinto, Taoism, as well as in Neopaganism and Ceremonial Magic. Judaism used such a structure until the destruction of the Second Temple. Many historical faiths also made use of them, including Greek and Norse religion.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY">
+			<Text>Chartarium</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_STRATEGY">
+			<Text>Build the Religious Library to gain [ICON_GOLDEN_AGE] Golden Age Points, [ICON_TOURISM] Tourism and [ICON_CULTURE] Culture from researching techs and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_HELP">
+			<Text>+5 [ICON_RESEARCH] Science from all Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE] Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegates in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.[NEWLINE][NEWLINE]Contains 3 slots for Great Works of Writing.[NEWLINE]+2 [ICON_RESEARCH] Science and +6 [ICON_PEACE] Faith when Themed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_PEDIA">
+			<Text>The Chartarium was a collection of correspondences and minutes held privately by the office of the Papacy. This collection formed the precursor to the Vatican's Secret Archives.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT">
+			<Text>Divine Court</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_STRATEGY">
+			<Text>Build the Divine Court for a boost to Gold output and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_HELP">
+			<Text>+5 [ICON_GOLD] Gold from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_DIVINE_COURT_TEXT">
+			<Text>A beth din ("house of judgment," or divine court) is a rabbinical court of Judaism. In ancient times, it was the building block of the legal system in the Biblical Land of Israel. Today, it is invested with legal powers in a number of religious matters (din Torah, "matter of litigation," plural dinei Torah) both in Israel and in Jewish communities in the Diaspora, where its judgments hold varying degrees of authority (depending upon the jurisdiction and subject matter) in matters specifically related to Jewish religious life.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN">
+			<Text>Sacred Garden</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN_STRATEGY">
+			<Text>Build the Sacred Garden for a boost to Culture output and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN_HELP">
+			<Text>+5 [ICON_FOOD] Food from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SACRED_GARDEN_TEXT">
+			<Text>Religion has been an important influence on garden design. Temple gardens were made in Mesopotamia and Ancient Egypt. Sacred groves were made in ancient India, Greece, Rome, China and Japan. Sacred trees were important in Celtic and Germanic Europe and still are important in India. Many groves or forests were sacred in ancient India and continue to be so in modern Hindu worship. Buddhism had a significant influence on garden design, with the Zen gardens of China and Japan as famous examples. In Christianity, particularly Catholicism and Anglicanism, Mary gardens are common among churches and institutions. The practise of creating sacred gardens is re-invigorated and adapted for modern times in the Ringing Cedars Series of books by Russian author Vladimir Megre.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL">
+			<Text>Holy Council</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL_STRATEGY">
+			<Text>Build the Holy Council for a boost to Food output and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL_HELP">
+			<Text>+5 [ICON_RESEARCH] Science from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_HOLY_COUNCIL_TEXT">
+			<Text>An ecumenical council (or holy council) is a conference of ecclesiastical dignitaries and theological experts convened to discuss and settle matters of Church doctrine and practice in which those entitled to vote are convoked from the whole world (oikoumene) and which secures the approbation of the whole Church.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE">
+			<Text>Apostolic Palace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_STRATEGY">
+			<Text>Build the Apostolic Palace for more rapid Golden Ages and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_HELP">
+			<Text>+4 [ICON_GOLDEN_AGE] Golden Age points.[NEWLINE][NEWLINE]+5 [ICON_TOURISM] Tourism from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this City by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_APOSTOLIC_PALACE_TEXT">
+			<Text>The Latin word basilica has three distinct applications in modern English. The word was originally used to describe an open, Roman, public court building, usually located adjacent to the forum of a Roman town. By extension it was applied to Christian buildings of the same form and continues to be used in an architectural sense to describe those buildings with a central nave and aisles. Later, the term came to refer specifically to a large and important church, the Apostolic Palace, that has been given special ceremonial rights by the Pope.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY">
+			<Text>Grand Ossuary</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_STRATEGY">
+			<Text>Build the Ossuary for lots of Faith and to improve all Holy Sites. Constructing this National Wonder will also allow you to choose a Reformation Belief. May only be constructed in a Holy City, and only if at least 15% of the global population follows your Religion (scaling with map size). Reduces [ICON_HAPPINESS_3] Religious Unrest, and allows you to select a Reformation Belief.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_HELP">
+			<Text>+5 [ICON_CULTURE] Culture from all [ICON_RELIGION] Holy Sites.[NEWLINE][NEWLINE]May only be constructed in a Holy City, and only if at least 15% of the global population follows your [ICON_RELIGION] Religion (scaling with map size). -1 [ICON_HAPPINESS_3] Unhappiness from Religious Unrest, and allows you to select a [COLOR_POSITIVE_TEXT]Reformation Belief[ENDCOLOR].[NEWLINE][NEWLINE]Boosts Pressure of [ICON_RELIGION] Religious Majority emanating from this city by 25%, and increases the City's resistance to conversion by 20%.[NEWLINE][NEWLINE]Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 10 Cities following your [ICON_RELIGION] Religion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GRAND_OSSUARY_TEXT">
+			<Text>An ossuary is a chest, box, building, well, or site made to serve as the final resting place of human skeletal remains. They are frequently used where burial space is scarce. A body is first buried in a temporary grave, then after some years the skeletal remains are removed and placed in an ossuary. The greatly reduced space taken up by an ossuary means that it is possible to store the remains of many more people in a single tomb than if the original coffins were left as is. In Persia, the Zoroastrians used a deep well for this function from the earliest times (circa 3,000 years ago) and called it astudan (literally, "the place for the bones"). There are many rituals and regulations in the Zoroastrian faith concerning the astudans. Among the pre-7th-century Sogdians in the region of central Asia, the name for an ossuary was tanbar.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_MONASTERY">
+			<Text>Monastery</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_THRONE_ROOM">
+			<Text>Throne Room</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_HELP">
+			<Text>+1 tile work radius. +10% to all City Yields. Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_CIV5_POLICY_TRADITION_HEADING}[ENDCOLOR] Finisher.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_THRONE_ROOM_PEDIA">
+			<Text>A throne room is the room, often rather a hall, in the official residence of the crown, either a palace or a fortified castle, where the throne of a senior figure (usually a monarch) is set up with elaborate pomp— usually raised, often with steps, and under a canopy, both of which are part of the original notion of the Greek word thronos.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY">
+			<Text>State Treasury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_HELP">
+			<Text>All {TXT_KEY_BUILDING_MONUMENT_DESC}s, {TXT_KEY_BUILDING_BATH}s, and {TXT_KEY_BUILDING_GARDEN}s gain +2 [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_MONARCHY}[ENDCOLOR] Policy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_TREASURY_PEDIA">
+			<Text>The term treasury was first used in Classical times to describe the votive buildings erected to house gifts to the gods, such as the Siphnian Treasury in Delphi or many similar buildings erected in Olympia, Greece by competing city-states to impress others during the ancient Olympic Games. In Ancient Greece treasuries were almost always physically incorporated within religious buildings such as temples, thus making state funds sacrosanct and adding moral constraints to the penal ones to those who would have access to these funds.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER">
+			<Text>Royal Guardhouse</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_HELP">
+			<Text>+20% [ICON_SILVER_FIST] Unit Supply from [ICON_CITIZEN] Population.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_ARISTOCRACY}[ENDCOLOR] Policy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CAPITAL_ENGINEER_PEDIA">
+			<Text>A Royal Guard describes any group of military bodyguards, soldiers or armed retainers responsible for the protection of a royal person, such as Emperor/Empress, King/Queen, or Prince/Princess. They often are an elite unit of the regular armed forces, or are designated as such, and may maintain special rights or privileges.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN">
+			<Text>Palace Gardens</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_HELP">
+			<Text>+25% [ICON_GREAT_PEOPLE] Great Person Rate in the City. Contains 1 slot for a [ICON_VP_GREATWRITING] Great Work of Writing.[NEWLINE][NEWLINE]2 Specialists in this City no longer produce [ICON_HAPPINESS_3] Unhappiness from [ICON_URBANIZATION] Urbanization.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_LANDED_ELITE}[ENDCOLOR] Policy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_GARDEN_PEDIA">
+			<Text>A garden is a planned space, usually outdoors, set aside for the display, cultivation, and enjoyment of plants and other forms of nature. The garden can incorporate both natural and man-made materials. The most common form today is known as a residential garden, but the term garden has traditionally been a more general one. Zoos, which display wild animals in simulated natural habitats, were formerly called zoological gardens.[1][2] Western gardens are almost universally based on plants, with garden often signifying a shortened form of botanical garden.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PALACE_COURT_CHAPEL">
+			<Text>Court Chapel</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_COURT_CHAPEL_HELP">
+			<Text>Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_OLIGARCHY}[ENDCOLOR] Policy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_COURT_CHAPEL_PEDIA">
+			<Text>A chapel is a religious place of fellowship, prayer and worship that is attached to a larger, often nonreligious institution or that is considered an extension of a primary religious institution. It may be part of a larger structure or complex, such as a college, hospital, palace, prison, funeral home, church, synagogue or mosque, located on board a military or commercial ship, or it may be an entirely free-standing building, sometimes with its own grounds. Many military installations have chapels for the use of military personnel, normally under the leadership of a military chaplain.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BUILDING_PALACE_ASTROLOGER">
+			<Text>Royal Astrologer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_ASTROLOGER_HELP">
+			<Text>All {TXT_KEY_BUILDING_GROVE}s, {TXT_KEY_BUILDING_LODGE}s, and {TXT_KEY_BUILDING_HERBALIST}s gain +1 [ICON_RESEARCH] Science.[NEWLINE][NEWLINE]Can only be constructed via the [COLOR_MAGENTA]{TXT_KEY_POLICY_LEGALISM}[ENDCOLOR] Policy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PALACE_ASTROLOGER_PEDIA">
+			<Text>Astrology, in its broadest sense, is the search for meaning in the sky. Early evidence for humans making conscious attempts to measure, record, and predict seasonal changes by reference to astronomical cycles, appears as markings on bones and cave walls, which show that lunar cycles were being noted as early as 25,000 years ago. This was a first step towards recording the Moon's influence upon tides and rivers, and towards organising a communal calendar. Farmers addressed agricultural needs with increasing knowledge of the constellations that appear in the different seasons—and used the rising of particular star-groups to herald annual floods or seasonal activities. By the 3rd millennium BCE, civilisations had sophisticated awareness of celestial cycles, and may have oriented temples in alignment with heliacal risings of the stars.</Text>
+		</Row>
+
+		<!-- Theming bonuses -->
+		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_NATIONAL">
+			<Text>National Epics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_AMPHITHEATER_GLOBAL">
+			<Text>Global Epics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_AMPHITHEATER_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure the Great Work Slots are all filled with Writings either from your own Civilization, or from Civilizations other than your own.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_NATIONAL">
+			<Text>KCIV 101.5FM - #1 for Classic Jams</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_CLASSICS">
+			<Text>KSID 107.7FM - Today's Hits, Yesterday's Favorites</Text>
+		</Row>
+		<Row Tag="TXT_KEY_THEMING_BONUS_BROADCAST_TOWER_ALL">
+			<Text>KGAZ 89.5FM - Eclectic Radio Mix</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BROADCAST_TOWER_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure both Great Works meet one of the following criteria: [NEWLINE]1.) Both from the same Era [NEWLINE]2.) Both from different Eras.[NEWLINE]3.) Both from consecutive Eras.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_THEMING_BONUS_RELIGIOUS_LIBRARY">
+			<Text>Repository of Secret {2_CivAdjective} Correspondences</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure all slots are filled with Writing from the Same Civilization.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_PARTHENON">
+			<Text>Hall of Antiquity</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PARTHENON_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure both Great Works were created by you.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_THEMING_BONUS_BUILDING_NOTRE_DAME">
+			<Text>Holy Sanctuary</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_THEMING_BONUS_HELP">
+			<Text>To maximize your bonus, make sure both Great Works were created by Players other than the owner.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

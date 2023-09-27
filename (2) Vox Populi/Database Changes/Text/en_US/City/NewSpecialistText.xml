@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 1/6/2014 9:56:48 PM -->
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT">
+			<Text>Civil Servant|Civil Servants</Text>
+			<Plurality>1|2</Plurality>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_STRATEGY">
+			<Text>Civil Servants produce 1 [ICON_RESEARCH] Science, 1 [ICON_CULTURE] Culture, and 2 [ICON_GOLD] Gold, and speed the creation of Great Diplomats.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_SLOTS">
+			<Text>Civil Servant Slots:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALIST_CIVIL_SERVANT_TITLE">
+			<Text>Great Diplomat Points:</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

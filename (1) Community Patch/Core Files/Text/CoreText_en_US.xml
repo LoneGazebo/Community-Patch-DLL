@@ -2784,11 +2784,6 @@
 		<Row Tag="TXT_KEY_CITY_STATE_EXPLORE_AREA_QUEST_LONG">
 			<Text>{1_Civ} wants you to explore around this tile.</Text>
 		</Row>
-
-		<!-- Update resurrection text (voluntary vassals) -->
-		<Row Tag="TXT_KEY_NOTIFICATION_CIV_RESURRECTED_VOLUNTARY_VASSAL">
-			<Text>{1_PlayerName} has conquered {2_CityName} and restored {3_CivAdj} sovereignty. The flame of the {4_CivName}, once extinguished, burns again. The {4_CivName} is now the vassal of {1_PlayerName}.</Text>
-		</Row>
 		
 		<!-- Automation -->
 		<!-- Automation Text -->
@@ -4027,6 +4022,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD">
 			<Text>They are currently [COLOR_WARNING_TEXT]resilient[ENDCOLOR], because you are {1_FactorScore}% below the tribute threshold of [COLOR_CYAN]{2_Threshold}%[ENDCOLOR]:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_NO_CAPITAL">
+			<Text>No Capital City</Text>
 		</Row>
 		
 		<!-- ADDITIONS TO EXISTING DIPLOMACY TEXTS -->
@@ -7257,6 +7255,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_PEDIA_DAMAGE_REDUCTION_LABEL">
 			<Text>Damage Reduction:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PRODUCTION_BUILDING_DAMAGE_REDUCTION">
+			<Text>Damage Reduction: +{1_Num}</Text>
 		</Row>
 
 		<!-- Great Person Progress -->

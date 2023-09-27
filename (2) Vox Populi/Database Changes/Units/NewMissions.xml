@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Missions>
+		<Row>
+			<Type>MISSION_FREE_LUXURY</Type>
+			<Description>TXT_KEY_MISSION_FREE_LUXURY</Description>
+			<Help>TXT_KEY_MISSION_FREE_LUXURY_HELP</Help>
+			<DisabledHelp>TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED</DisabledHelp>
+			<OrderPriority>199</OrderPriority>
+			<Visible>true</Visible>
+			<Time>20</Time>
+			<Target>false</Target>
+			<Build>false</Build>
+			<Sound>false</Sound>
+			<EntityEventType>ENTITY_EVENT_GREAT_EVENT</EntityEventType>
+			<IconIndex>16</IconIndex>
+			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+		</Row>
+	</Missions>
+</GameData>

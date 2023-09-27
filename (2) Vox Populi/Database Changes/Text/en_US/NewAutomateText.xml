@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT">
+			<Text>Diplomatic Mission (Automated)</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_HELP">
+			<Text>Automate all [COLOR_UNIT_TEXT]Diplomatic Unit[ENDCOLOR] actions. The unit will remain automated until you cancel its automation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_DISABLED_HELP">
+			<Text>No valid targets for diplomacy at this time.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>
