@@ -548,12 +548,16 @@ VALUES
 	('UNIT_IRONCLAD', 'FLAVOR_NAVAL_RECON', 28),
 
 	-- Destroyer
-	('UNIT_DESTROYER', 'FLAVOR_NAVAL', 26),
+	('UNIT_EARLY_DESTROYER', 'FLAVOR_NAVAL', 28),
+	('UNIT_EARLY_DESTROYER', 'FLAVOR_NAVAL_RECON', 32),
+
+	-- Fleet Destroyer
+	('UNIT_DESTROYER', 'FLAVOR_NAVAL', 34),
 	('UNIT_DESTROYER', 'FLAVOR_NAVAL_RECON', 36),
 
-	-- Missile Cruiser
-	('UNIT_MISSILE_CRUISER', 'FLAVOR_NAVAL', 40),
-	('UNIT_MISSILE_CRUISER', 'FLAVOR_NAVAL_RECON', 40),
+	-- Missile Destroyer
+	('UNIT_MISSILE_DESTROYER', 'FLAVOR_NAVAL', 40),
+	('UNIT_MISSILE_DESTROYER', 'FLAVOR_NAVAL_RECON', 40),
 
 -----------------------------------------
 -- Naval Ranged
@@ -584,9 +588,17 @@ VALUES
 	('UNIT_CRUISER', 'FLAVOR_NAVAL', 32),
 	('UNIT_CRUISER', 'FLAVOR_NAVAL_RECON', 18),
 
+	-- Dreadnought
+	('UNIT_DREADNOUGHT', 'FLAVOR_NAVAL', 36),
+	('UNIT_DREADNOUGHT', 'FLAVOR_NAVAL_RECON', 20),
+
 	-- Battleship
 	('UNIT_BATTLESHIP', 'FLAVOR_NAVAL', 42),
 	('UNIT_BATTLESHIP', 'FLAVOR_NAVAL_RECON', 22),
+
+	-- Missile Cruiser
+	('UNIT_MISSILE_CRUISER', 'FLAVOR_NAVAL', 48),
+	('UNIT_MISSILE_CRUISER', 'FLAVOR_NAVAL_RECON', 24),
 
 -----------------------------------------
 -- Submarine
@@ -595,6 +607,11 @@ VALUES
 	-- Submarine
 	('UNIT_SUBMARINE', 'FLAVOR_NAVAL', 24),
 	('UNIT_SUBMARINE', 'FLAVOR_NAVAL_RECON', 30),
+
+	-- Attack Submarine
+	('UNIT_ATTACK_SUBMARINE', 'FLAVOR_NAVAL', 30),
+	('UNIT_ATTACK_SUBMARINE', 'FLAVOR_NAVAL_RECON', 30),
+	('UNIT_ATTACK_SUBMARINE', 'FLAVOR_NUKE', 5),
 
 	-- Nuclear Submarine
 	('UNIT_NUCLEAR_SUBMARINE', 'FLAVOR_NAVAL', 36),
@@ -607,6 +624,10 @@ VALUES
 
 	-- Carrier
 	('UNIT_CARRIER', 'FLAVOR_AIR_CARRIER', 40),
+
+	-- Supercarrier
+	('UNIT_SUPERCARRIER', 'FLAVOR_AIR_CARRIER', 40),
+	('UNIT_SUPERCARRIER', 'FLAVOR_NAVAL_RECON', 40);
 
 -----------------------------------------
 -- Anti-air
@@ -671,6 +692,11 @@ VALUES
 -----------------------------------------
 -- Missile
 -----------------------------------------
+
+	-- Rocket Missile
+	('UNIT_ROCKET_MISSILE', 'FLAVOR_OFFENSE', 8),
+	('UNIT_ROCKET_MISSILE', 'FLAVOR_DEFENSE', 8),
+	('UNIT_ROCKET_MISSILE', 'FLAVOR_NAVAL', 8),
 
 	-- Guided Missile
 	('UNIT_GUIDED_MISSILE', 'FLAVOR_OFFENSE', 12),

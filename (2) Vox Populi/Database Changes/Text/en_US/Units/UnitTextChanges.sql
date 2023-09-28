@@ -52,7 +52,7 @@ UPDATE Language_en_US
 SET Text = 'Can be purchased with [ICON_PEACE] Faith in any city with a majority Religion that has been enhanced. They can remove ' || (SELECT Value FROM Defines WHERE Name = 'INQUISITION_EFFECTIVENESS') || '% of foreign religious pressure from your cities (expending the Inquisitor) or be placed inside a city to reduce foreign Missionary and Prophet spread power in that City by half.'
 WHERE Tag = 'TXT_KEY_UNIT_INQUISITOR_STRATEGY';
 
--- Archaeologist Text
+-- Archaeologist
 UPDATE Language_en_US
 SET Text = 'Maximum [COLOR_POSITIVE_TEXT]3[ENDCOLOR] active Archaeologists per player at any one time. Archaeologists are a special subtype of Worker that are used to excavate Antiquity Sites to either create Landmark improvements or to extract [ICON_VP_ARTIFACT] Artifacts to fill in [ICON_GREAT_WORK] Great Work of Art slots in Museums, Palaces, Hermitages, and selected Wonders. Archaeologists may work in territory owned by any player. They are consumed once they complete an Archaeological Dig at an Antiquity Site. Archaeologists may not be purchased with [ICON_GOLD] Gold and may only be built in a City with a [COLOR_POSITIVE_TEXT]{TXT_KEY_BUILDING_MUSEUM}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ARCHAEOLOGIST';
@@ -63,7 +63,7 @@ SET Text = 'A cheap Unit that may be used once to damage Enemy Units or Garrison
 WHERE Tag = 'TXT_KEY_UNIT_HELP_GUIDED_MISSILE';
 
 UPDATE Language_en_US
-SET Text = 'The Guided Missile is a one-shot unit which is destroyed when it attacks an enemy target. The Guided Missile may be based in a player-owned friendly city or aboard a nuclear submarine or missile cruiser. They may move from base to base or attack an enemy unit. See the rules on Missiles for more information.'
+SET Text = 'The Guided Missile is a one-shot unit which is destroyed when it attacks an enemy target. The Guided Missile may be based in a player-owned friendly city or aboard an attack/nuclear submarine, sensor combat ship or missile cruiser. They may move from base to base or attack an enemy unit. See the rules on Missiles for more information.'
 WHERE Tag = 'TXT_KEY_UNIT_GUIDED_MISSILE_STRATEGY';
 
 -- Atomic Bomb
@@ -305,22 +305,33 @@ WHERE Tag = 'TXT_KEY_UNIT_CARRIER_STRATEGY';
 
 -- Battleship
 UPDATE Language_en_US
-SET Text = 'Most powerful Ranged Naval Unit in the game. Starts with [COLOR_POSITIVE_TEXT]Indirect Fire[ENDCOLOR] Promotion.'
+SET Text = 'Very powerful Ranged Naval Unit. Starts with the [COLOR_POSITIVE_TEXT]{PROMOTION_INDIRECT_FIRE}[ENDCOLOR] Promotion.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BATTLESHIP';
+
+UPDATE Language_en_US
+SET Text = 'The Battleship is a powerful warship with a mighty Combat Strength. Its indirect fire ability allows it to bombard targets it cannot see (as long as other friendly units can see them). The Battleship is vulnerable to air and submarine attacks.'
+WHERE Tag = 'TXT_KEY_UNIT_BATTLESHIP_STRATEGY';
 
 -- Missile Cruiser
 UPDATE Language_en_US
-SET Text = 'Melee Naval Unit specialized in warding off enemy aircraft and, with promotions, hunting submarines. Can also hold 3 Missiles.'
+SET Text = 'The most powerful Naval Ranged unit with a solid shield. Starts with the [COLOR_POSITIVE_TEXT]{PROMOTION_INDIRECT_FIRE}[ENDCOLOR] Promotion and may carry up to 3 Missiles.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_MISSILE_CRUISER';
 
 UPDATE Language_en_US
-SET Text = 'The Missile Cruiser is a modern warship. It''s fast and tough, carries a mean punch and is pretty good at intercepting enemy aircraft. Most importantly, the Missile Cruiser can carry Guided Missiles and Nuclear Missiles, allowing you to carry these deadly weapons right up to the enemy''s shore. Missile Cruisers combined with carriers, submarines, and battleships make a fiendishly powerful armada as its promotion to withdraw before an enemy naval melee attack can be a nuisance to take down.'
+SET Text = 'The Missile Cruiser is a modern warship. It''s fast and tough and carries a mean punch. Most importantly, the Missile Cruiser can carry Guided Missiles and Nuclear Missiles, allowing you to carry these deadly weapons right up to the enemy''s shore. Missile Cruisers combined with carriers, submarines, and destroyers make a fiendishly powerful armada.'
 WHERE Tag = 'TXT_KEY_UNIT_MISSILE_CRUISER_STRATEGY';
 
--- Destroyer
+UPDATE Language_en_US
+SET Text = 'Fleet Destroyer'
+WHERE Tag = 'TXT_KEY_UNIT_DESTROYER';
+
 UPDATE Language_en_US
 SET Text = 'Fast late game ship making it highly effective at recon. Also used to hunt down and destroy enemy Submarines if promoted. Fights as a naval melee unit.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_DESTROYER';
+
+UPDATE Language_en_US
+SET Text = 'The Fleet Destroyer is a naval melee attack unit designed to hunt down submarines and to provide anti-aircraft support.'
+WHERE Tag = 'TXT_KEY_UNIT_DESTROYER_STRATEGY';
 
 UPDATE Language_en_US
 SET Text = 'Skirmisher'

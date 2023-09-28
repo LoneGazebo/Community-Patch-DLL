@@ -211,6 +211,8 @@ UPDATE UnitPromotions SET ExtraFlankPower = 1, FlankAttackModifier = 10 WHERE Ty
 --                      │
 --                      ├─► Air Defense I ────► Air Defense II ────► Air Defense III
 --                      │
+--                      ├─► Can See Submarines
+--                      │
 -- Boarding Party I ──┬─┴─► Boarding Party II ──┬───► Boarding Party III ─────► Pincer
 --                    │                         │                               Supply
 --                    │                         └───► Medic ────► Medic II      Blitz
@@ -218,11 +220,7 @@ UPDATE UnitPromotions SET ExtraFlankPower = 1, FlankAttackModifier = 10 WHERE Ty
 --                    │                               Encirclement
 --                    │                               Minelayer
 --                    │
---                    └───► Navigator I ──┬──► Navigator II
---                                        │
---                                        ├──► Can See Submarines
---                                        │
---                                        └──► Depth Charges I ────► Depth Charges II
+--                    └───► Navigator I ─────► Navigator II
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE RankList = 'HULL';
 UPDATE UnitPromotions SET MaxHitPointsChange = 10 WHERE Type = 'PROMOTION_COASTAL_RAIDER_1';
@@ -232,6 +230,8 @@ UPDATE UnitPromotions SET CombatPercent = 15 WHERE RankList = 'BOARDING_PARTY';
 UPDATE UnitPromotions SET PlaguePromotion = 'PROMOTION_BOARDED_1', PlagueChance = 100 WHERE Type = 'PROMOTION_BOARDING_PARTY_1';
 UPDATE UnitPromotions SET PlagueIDImmunity = 1 WHERE Type = 'PROMOTION_BOARDING_PARTY_2';
 UPDATE UnitPromotions SET PlaguePromotion = 'PROMOTION_BOARDED_2', PlagueChance = 100 WHERE Type = 'PROMOTION_BOARDING_PARTY_3';
+
+UPDATE UnitPromotions SET SeeInvisible = 'INVISIBLE_SUBMARINE' WHERE Type = 'PROMOTION_SEE_INVISIBLE_SUBMARINE';
 
 UPDATE UnitPromotions SET MovesChange = 1, VisibilityChange = 1 WHERE RankList = 'NAVIGATOR';
 
@@ -280,17 +280,6 @@ UPDATE UnitPromotions SET RangedDefenseMod = 25, ExtraWithdrawal = 100 WHERE Typ
 UPDATE UnitPromotions SET FlankAttackModifier = 10, IgnoreZOC = 1 WHERE Type = 'PROMOTION_BOARDING_PARTY_4';
 
 UPDATE UnitPromotions SET HealOutsideFriendly = 1, FriendlyHealChange = 5, NeutralHealChange = 5, EnemyHealChange = 5 WHERE Type = 'PROMOTION_SUPPLY';
-
-UPDATE UnitPromotions SET SeeInvisible = 'INVISIBLE_SUBMARINE' WHERE Type = 'PROMOTION_SEE_INVISIBLE_SUBMARINE';
-
--- Depth Charges
-INSERT INTO UnitPromotions_UnitClasses
-	(PromotionType, UnitClassType, Modifier, Attack)
-VALUES
-	('PROMOTION_ANTI_SUBMARINE_I', 'UNITCLASS_SUBMARINE', 33, 33),
-	('PROMOTION_ANTI_SUBMARINE_I', 'UNITCLASS_NUCLEAR_SUBMARINE', 33, 33),
-	('PROMOTION_ANTI_SUBMARINE_II', 'UNITCLASS_SUBMARINE', 75, 75),
-	('PROMOTION_ANTI_SUBMARINE_II', 'UNITCLASS_NUCLEAR_SUBMARINE', 75, 75);
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Naval Ranged promotion tree drawn using ASCIIFlow
@@ -698,7 +687,16 @@ INSERT INTO UnitPromotions_Domains
 VALUES
 	('PROMOTION_NAVAL_INACCURACY', 'DOMAIN_LAND', -25);
 
-UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
+-- Depth Charges
+INSERT INTO UnitPromotions_UnitClasses
+	(PromotionType, UnitClassType, Attack, Defense)
+VALUES
+	('PROMOTION_ANTI_SUBMARINE_I', 'UNITCLASS_SUBMARINE', 33, 25),
+	('PROMOTION_ANTI_SUBMARINE_I', 'UNITCLASS_ATTACK_SUBMARINE', 33, 25),
+	('PROMOTION_ANTI_SUBMARINE_I', 'UNITCLASS_NUCLEAR_SUBMARINE', 33, 25),
+	('PROMOTION_ANTI_SUBMARINE_II', 'UNITCLASS_SUBMARINE', 66, 50),
+	('PROMOTION_ANTI_SUBMARINE_II', 'UNITCLASS_ATTACK_SUBMARINE', 66, 50),
+	('PROMOTION_ANTI_SUBMARINE_II', 'UNITCLASS_NUCLEAR_SUBMARINE', 66, 50);
 
 UPDATE UnitPromotions SET CargoChange = 1 WHERE Type = 'PROMOTION_CARGO_I';
 UPDATE UnitPromotions SET CargoChange = 2 WHERE Type = 'PROMOTION_CARGO_II';
@@ -759,6 +757,9 @@ UPDATE UnitPromotions SET NukeImmune = 1 WHERE Type = 'PROMOTION_NUCLEAR_SILO';
 --------------------------------------------
 -- Unique unit free promotions
 --------------------------------------------
+
+-- Camel Archer, Comanche Riders, Nau: Withdraw Before Melee
+UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WITHDRAW_BEFORE_MELEE';
 
 -- Hoplite: Unity
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_ADJACENT_BONUS';

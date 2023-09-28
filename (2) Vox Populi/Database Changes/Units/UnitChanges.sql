@@ -400,23 +400,22 @@ WHERE Class = 'UNITCLASS_PRIVATEER';
 UPDATE Units
 SET
 	PrereqTech = 'TECH_INDUSTRIALIZATION',
-	ObsoleteTech = 'TECH_ROCKETRY'
+	ObsoleteTech = 'TECH_RADIO'
 WHERE Class = 'UNITCLASS_IRONCLAD';
 
 -- Destroyer
+
+-- Fleet Destroyer
 UPDATE Units
 SET
-	PrereqTech = 'TECH_ROCKETRY',
-	ObsoleteTech = 'TECH_ADVANCED_BALLISTICS'
+	PrereqTech = 'TECH_NUCLEAR_FISSION',
+	ObsoleteTech = 'TECH_STEALTH',
+	IconAtlas = 'ICON_ATLAS_ENW',
+	PortraitIndex = 7
 WHERE Class = 'UNITCLASS_DESTROYER';
 
--- Missile Cruiser
-UPDATE Units
-SET
-	CombatClass = 'UNITCOMBAT_NAVALMELEE',
-	PrereqTech = 'TECH_ADVANCED_BALLISTICS',
-	DefaultUnitAI = 'UNITAI_ATTACK_SEA'
-WHERE Class = 'UNITCLASS_MISSILE_CRUISER';
+-- Sensor Combat Ship
+UPDATE Units SET AirInterceptRange = 3 WHERE Class = 'UNITCLASS_MISSILE_DESTROYER';
 
 ----------------------------------------------------------------------------
 -- Naval Ranged
@@ -432,8 +431,21 @@ UPDATE Units SET ObsoleteTech = 'TECH_DYNAMITE' WHERE Class = 'UNITCLASS_FRIGATE
 
 -- Cruiser
 
+-- Dreadnought
+
 -- Battleship
-UPDATE Units SET PrereqTech = 'TECH_NUCLEAR_FISSION' WHERE Class = 'UNITCLASS_BATTLESHIP';
+UPDATE Units
+SET
+	PrereqTech = 'TECH_NUCLEAR_FISSION',
+	ObsoleteTech = 'TECH_LASERS'
+WHERE Class = 'UNITCLASS_BATTLESHIP';
+
+-- Missile Cruiser
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_NAVALRANGED',
+	PrereqTech = 'TECH_LASERS'
+WHERE Type = 'UNIT_MISSILE_CRUISER';
 
 ----------------------------------------------------------------------------
 -- Submarine
@@ -442,12 +454,14 @@ UPDATE Units SET PrereqTech = 'TECH_NUCLEAR_FISSION' WHERE Class = 'UNITCLASS_BA
 -- Submarine
 UPDATE Units
 SET
-	PrereqTech = 'TECH_NUCLEAR_FISSION',
-	ObsoleteTech = 'TECH_STEALTH'
+	PrereqTech = 'TECH_PLASTICS',
+	ObsoleteTech = 'TECH_ELECTRONICS'
 WHERE Class = 'UNITCLASS_SUBMARINE';
 
+-- Attack Submarine
+
 -- Nuclear Submarine
-UPDATE Units SET PrereqTech = 'TECH_STEALTH' WHERE Class = 'UNITCLASS_NUCLEAR_SUBMARINE';
+UPDATE Units SET PrereqTech = 'TECH_ROBOTICS' WHERE Class = 'UNITCLASS_NUCLEAR_SUBMARINE';
 
 ----------------------------------------------------------------------------
 -- Carrier
@@ -459,6 +473,11 @@ SET
 	PrereqTech = 'TECH_COMPUTERS',
 	AirInterceptRange = 4
 WHERE Class = 'UNITCLASS_CARRIER';
+
+-- Supercarrier
+UPDATE UnitClasses SET MaxPlayerInstances = 2 WHERE Type = 'UNITCLASS_SUPERCARRIER';
+
+UPDATE Units SET AirInterceptRange = 5 WHERE Class = 'UNITCLASS_SUPERCARRIER';
 
 ----------------------------------------------------------------------------
 -- Fighter
@@ -491,8 +510,10 @@ WHERE Class = 'UNITCLASS_STEALTH_BOMBER';
 -- Guided Missile
 UPDATE Units
 SET
-	PrereqTech = 'TECH_ROCKETRY',
-	NoMaintenance = 0
+	PrereqTech = 'TECH_ADVANCED_BALLISTICS',
+	NoMaintenance = 0,
+	IconAtlas = 'ICON_ATLAS_ENW',
+	PortraitIndex = 8
 WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
 
 ----------------------------------------------------------------------------

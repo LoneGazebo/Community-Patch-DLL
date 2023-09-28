@@ -767,27 +767,12 @@
 			<PediaEntry>TXT_KEY_PROMOTION_ANTI_FIGHTER</PediaEntry>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_ANTI_SUBMARINE_I</Type>
-			<Description>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I_HELP</Help>
-			<TechPrereq>TECH_NUCLEAR_FISSION</TechPrereq>
-			<PromotionPrereqOr1>PROMOTION_NAVIGATOR_1</PromotionPrereqOr1>
-			<PediaType>PEDIA_CARSUB</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I</PediaEntry>
-		</Replace>
-		<Replace>
-			<Type>PROMOTION_ANTI_SUBMARINE_II</Type>
-			<Description>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II</Description>
-			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II_HELP</Help>
-			<PromotionPrereqOr1>PROMOTION_ANTI_SUBMARINE_I</PromotionPrereqOr1>
-			<PediaType>PEDIA_CARSUB</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II</PediaEntry>
-		</Replace>
-		<Replace>
 			<Type>PROMOTION_SEE_INVISIBLE_SUBMARINE</Type>
 			<Description>TXT_KEY_PROMOTION_SEE_INVISIBLE_SUBMARINE</Description>
 			<Help>TXT_KEY_PROMOTION_SEE_INVISIBLE_SUBMARINE</Help>
-			<PromotionPrereqOr2>PROMOTION_ANTI_SUBMARINE_I</PromotionPrereqOr2>
+			<TechPrereq>TECH_RADIO</TechPrereq>
+			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr2>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_SEE_INVISIBLE_SUBMARINE</PediaEntry>
 		</Replace>
@@ -1026,11 +1011,18 @@
 			<PediaEntry>TXT_KEY_PROMOTION_OCEAN_IMPASSABLE</PediaEntry>
 		</Replace>
 		<Replace>
-			<Type>PROMOTION_WITHDRAW_BEFORE_MELEE</Type>
-			<Description>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE</Description>
-			<Help>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP</Help>
-			<PediaType>PEDIA_SHARED</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE</PediaEntry>
+			<Type>PROMOTION_ANTI_SUBMARINE_I</Type>
+			<Description>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I</Description>
+			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I_HELP</Help>
+			<PediaType>PEDIA_CARSUB</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SUBMARINE_I</PediaEntry>
+		</Replace>
+		<Replace>
+			<Type>PROMOTION_ANTI_SUBMARINE_II</Type>
+			<Description>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II</Description>
+			<Help>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II_HELP</Help>
+			<PediaType>PEDIA_CARSUB</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ANTI_SUBMARINE_II</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_CARGO_I</Type>
@@ -1145,6 +1137,13 @@
 			<PediaEntry>TXT_KEY_PROMOTION_GREAT_ADMIRAL</PediaEntry>
 		</Replace>
 		<!-- Unique unit -->
+		<Replace>
+			<Type>PROMOTION_WITHDRAW_BEFORE_MELEE</Type>
+			<Description>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE</Description>
+			<Help>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE_HELP</Help>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_WITHDRAW_BEFORE_MELEE</PediaEntry>
+		</Replace>
 		<Replace>
 			<Type>PROMOTION_ADJACENT_BONUS</Type>
 			<Description>TXT_KEY_PROMOTION_DISCIPLINE</Description>

@@ -1,6 +1,32 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_DESC_MOUNTED_BOWMAN">
+			<Text>Heavy Skirmisher</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_STRATEGY">
+			<Text>Heavy Skirmishers are Medieval-Era units capable of rapid movement and ranged attacks. Use them to harass the enemy and support your war effort, but be careful about letting them get caught alone.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_PEDIA">
+			<Text>Mounted knights armed with lances proved ineffective against formations of pikemen combined with crossbowmen whose weapons could penetrate most knights' armor. The invention of pushlever and ratchet drawing mechanisms enabled the use of crossbows on horseback, leading to the development of new cavalry tactics. Knights and mercenaries deployed in triangular formations, with the most heavily armored knights at the front. Some of these riders would carry small, powerful all-metal crossbows of their own. Crossbows were eventually replaced in warfare by more powerful gunpowder weapons, although early guns had slower rates of fire and much worse accuracy than contemporary crossbows. Later, similar competing tactics would feature harquebusiers or musketeers in formation with pikemen (pike and shot), pitted against cavalry firing pistols or carbines.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_HELP">
+			<Text>Ranged Medieval-Era mounted unit, useful for flanking, harassment, and hit-and-run tactics.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_DESC_CUIRASSIER">
+			<Text>Cuirassier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_STRATEGY">
+			<Text>Cuirassiers are Renaissance-Era units capable of rapid movement and ranged attacks. Use them to harass the enemy and support your war effort.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_PEDIA">
+			<Text>Cuirassiers, from French cuirassier, were cavalry equipped with armour and firearms, first appearing in late 15th-century Europe. This French term means "the one with a cuirass" (cuirasse), the breastplate armour which they wore. The first cuirassiers were produced as a result of armoured cavalry, such as the man-at-arms and demi-lancer, discarding their lances and adopting the use of pistols as their primary weapon. In the later 17th century, the cuirassier lost his limb armour and subsequently employed only the cuirass (breastplate and backplate), and sometimes a helmet. By this time, the sword was the primary weapon of the cuirassier, pistols being relegated to a secondary function.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_HELP">
+			<Text>Ranged Renaissance-Era mounted unit, useful for flanking, harassment, and hit-and-run tactics.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_UNIT_BANDEIRANTES">
 			<Text>Bandeirantes</Text>
 		</Row>
@@ -136,6 +162,32 @@
 			<Text>Ancient Era Naval Unit used to wrest control of the seas.</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER">
+			<Text>Destroyer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER_STRATEGY">
+			<Text>Destroyers are naval melee units that can reveal nearby submarines if promoted. Use it for attack and escorting other units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER_PEDIA">
+			<Text>A Destroyer is a fast, maneuverable long-endurance warship intended to escort larger vessels in a fleet, convoy or battle group and defend them against smaller powerful short-range attackers. They were originally developed in the late 19th century as a defence against torpedo boats, hence the original name "torpedo boat destroyer". By World War I the name was shortened to simply "destroyer" by nearly all navies.[NEWLINE][NEWLINE]A typical destroyer built in 1910s and 1920s was 100m long with displacement approx. 1200 tons. The armament consisted of 4 to 6 102 mm caliber guns and multiple 533 mm torpedo tubes. The ship was able to achieve speed of 65 km/h.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_EARLY_DESTROYER_HELP">
+			<Text>Modern-Era Naval Melee Unit capable of tracking Submarines if promoted.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER">
+			<Text>Sensor Combat Ship</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER_STRATEGY">
+			<Text>Sensor Combat Ships are a contemporary version of Destroyers that can carry 3 Missiles and has increased air interception range. It can be used as an attack or escort unit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER_PEDIA">
+			<Text>A Guided-Missile Destroyer (NATO designation "DDG") is a destroyer designed to launch guided missiles. It is usually equipped with two large missile magazines, mostly in vertical-launch cells. In addition to the missiles and guns, many are also equipped to carry out anti-submarine, anti-air, and anti-surface operations. Some contain powerful radar systems and may be adopted for use in an anti-missile or ballistic-missile defense role. This is especially true of navies that do not operate cruisers, as other vessels must be adopted to fill in the gap.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_MISSILE_DESTROYER_HELP">
+			<Text>Information-Era Naval Melee Unit that can carry up to 3 Missiles, has increased Air Interception range and chance, and additional attack strength against Submarines.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_UNIT_LIBURNA">
 			<Text>Liburna</Text>
 		</Row>
@@ -162,30 +214,56 @@
 			<Text>Industrial-Era Ranged Naval Unit designed to support naval invasions, and to wreak havoc on the wooden ships of previous Eras.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DESC_CUIRASSIER">
-			<Text>Cuirassier</Text>
+		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT">
+			<Text>Dreadnought</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_STRATEGY">
-			<Text>Cuirassiers are Renaissance-Era units capable of rapid movement and ranged attacks. Use them to harass the enemy and support your war effort.</Text>
+		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_STRATEGY">
+			<Text>Dreadnoughts are capable of firing from a distance, but requires Iron to be built.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_PEDIA">
-			<Text>Cuirassiers, from French cuirassier, were cavalry equipped with armour and firearms, first appearing in late 15th-century Europe. This French term means "the one with a cuirass" (cuirasse), the breastplate armour which they wore. The first cuirassiers were produced as a result of armoured cavalry, such as the man-at-arms and demi-lancer, discarding their lances and adopting the use of pistols as their primary weapon. In the later 17th century, the cuirassier lost his limb armour and subsequently employed only the cuirass (breastplate and backplate), and sometimes a helmet. By this time, the sword was the primary weapon of the cuirassier, pistols being relegated to a secondary function.</Text>
+		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_PEDIA">
+			<Text>The Dreadnought was the predominant type of battleship in the early 20th century. Its design had two revolutionary features: an "all-big-gun" armament scheme, with more heavy-caliber guns than previous ships, and steam turbine propulsion. The first of its kind, the Royal Navy's "Dreadnought" mounted ten 12-inch (305 mm) guns. The US Navy was the first to adopt oil-firing, deciding to do so in 1910 and ordering oil-fired boilers for the Nevada class, in 1911. Other major navies retained mixed coal-and-oil firing until the end of World War I.[NEWLINE][NEWLINE]Within five years of the commissioning of "Dreadnought", a new generation of more powerful "super-dreadnoughts" was being built. The first super-dreadnoughts are generally considered to be the British "Orion" class. What made them "super" was the introduction of the heavier 13.5-inch (343 mm) guns and the placement of all the main armament on the centerline. In 1917, the Japanese "Nagato" class was ordered, the first dreadnoughts to mount 16-inch (406 mm) guns, making them arguably the most powerful warships in the world.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_CUIRASSIER_HELP">
-			<Text>Ranged Renaissance-Era mounted unit, useful for flanking, harassment, and hit-and-run tactics.</Text>
+		<Row Tag="TXT_KEY_UNIT_DREADNOUGHT_HELP">
+			<Text>Modern-Era Ranged Naval Unit with devastating strength.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Land attacks can only be performed on Coastal Tiles.[ENDCOLOR]</Text>
 		</Row>
 
-		<Row Tag="TXT_KEY_DESC_MOUNTED_BOWMAN">
-			<Text>Heavy Skirmisher</Text>
+		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE">
+			<Text>Attack Submarine</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_STRATEGY">
-			<Text>Heavy Skirmishers are Medieval-Era units capable of rapid movement and ranged attacks. Use them to harass the enemy and support your war effort, but be careful about letting them get caught alone.</Text>
+		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE_STRATEGY">
+			<Text>Attack Submarine is a naval offensive unit, stronger and faster than the predecessor. It can also carry a missile.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_PEDIA">
-			<Text>Mounted knights armed with lances proved ineffective against formations of pikemen combined with crossbowmen whose weapons could penetrate most knights' armor. The invention of pushlever and ratchet drawing mechanisms enabled the use of crossbows on horseback, leading to the development of new cavalry tactics. Knights and mercenaries deployed in triangular formations, with the most heavily armored knights at the front. Some of these riders would carry small, powerful all-metal crossbows of their own. Crossbows were eventually replaced in warfare by more powerful gunpowder weapons, although early guns had slower rates of fire and much worse accuracy than contemporary crossbows. Later, similar competing tactics would feature harquebusiers or musketeers in formation with pikemen (pike and shot), pitted against cavalry firing pistols or carbines.</Text>
+		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE_PEDIA">
+			<Text>An attack submarine or hunter-killer submarine is a sub specifically designed for the purpose of attacking and sinking other submarines and naval vessels. Some attack subs are also armed with cruise missiles mounted in vertical launch tubes, increasing the scope of their potential missions to include land targets.[NEWLINE][NEWLINE]The basis for most non-nuclear submarine designs worldwide through the 1950s was Type XXI U-boat, an advanced German submarine from WWII, equipped with a Walter hydrogen peroxide-fueled gas turbine and a high battery capacity allowing high sustained underwater speed.[NEWLINE][NEWLINE]In 1960s, the first ballistic missile submarines were put into service by both the United States (George Washington class) and the Soviet Union (Golf class) as part of the Cold War nuclear deterrent strategy.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_CIV5_MOUNTED_BOWMAN_HELP">
-			<Text>Ranged Medieval-Era mounted unit, useful for flanking, harassment, and hit-and-run tactics.</Text>
+		<Row Tag="TXT_KEY_UNIT_ATTACK_SUBMARINE_HELP">
+			<Text>Invisible to all Units except promoted Destroyers and other Submarines, or until it attacks or is adjacent to another unit. Can carry 1 Missile.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER">
+			<Text>Supercarrier</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER_STRATEGY">
+			<Text>The Supercarrier is a specialized vessel which carries fighter airplanes, bombers, and atomic bombs. The aircrafts it carries make it the most powerful offensive weapon afloat. Defensively, the Supercarrier is much stronger than its predecessor, but should still be escorted by destroyers and submarines. You cannot have more than 2 active Supercarriers at one time.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER_PEDIA">
+			<Text>Supercarrier is an unofficial descriptive term for the largest type of aircraft carrier, typically those displacing over 70,000 tons. Supercarriers are the largest warships ever built.[NEWLINE][NEWLINE]The Nimitz-class supercarriers are a class of ten nuclear-powered aircraft carriers in service with the United States Navy. The lead ship of the class is named for World War II United States Pacific Fleet commander Fleet Admiral Chester W. Nimitz, the U.S. Navy's last fleet admiral. With an overall length of 1,092 ft (333 m) and full-load displacements of over 100,000 tons, they have been the largest warships built and in service, although they are being eclipsed by the upcoming Gerald R. Ford-class aircraft carriers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPERCARRIER_HELP">
+			<Text>Carries 5 aircrafts (up to 8 with promotions), has Air Interception range of 5 and can detect Submarines.[NEWLINE][NEWLINE]May only have [COLOR_POSITIVE_TEXT]2[ENDCOLOR] Supercarriers active at one time.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE">
+			<Text>Rocket Missile</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE_STRATEGY">
+			<Text>A Rocket Missile is a one-shot unit which is destroyed when it attacks an enemy target. It can directly damage units garrisoned in cities. See the rules on Missiles for more information.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE_PEDIA">
+			<Text>A Rocket is a self-propelled, unguided weapon system powered by a rocket motor. Historically they have been used mostly as air-to-surface and air-to-air weapons.[NEWLINE][NEWLINE]The first missiles to be used operationally were a series of missiles developed by Nazi Germany in World War II. Most famous of these are the V-1 flying bomb and V-2 rocket, both of which used a simple mechanical autopilot to keep the missile flying along a pre-chosen route.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_ROCKET_MISSILE_HELP">
+			<Text>A cheap Unit that may be used once to damage Enemy Units or Garrisoned Units in Cities. [COLOR_POSITIVE_TEXT]Does not use Military Supply.[ENDCOLOR][NEWLINE][NEWLINE]Requires 1 [ICON_RES_OIL] Oil.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_UNIT_EMISSARY">
