@@ -912,10 +912,10 @@
 
 		<!-- Depth Charges -->
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_SUBMARINE_I_HELP">
-			<Text>+33% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Submarine Units[ENDCOLOR] and an additional +33% [ICON_STRENGTH] Combat Strength when attacking them.</Text>
+			<Text>+33% [ICON_STRENGTH] Combat Strength when attacking and +25% [ICON_STRENGTH] Combat Strength when defending VS [COLOR_POSITIVE_TEXT]Submarine Units[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_ANTI_SUBMARINE_II_HELP">
-			<Text>+75% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Submarine Units[ENDCOLOR] and an additional +75% [ICON_STRENGTH] Combat Strength when attacking them.</Text>
+			<Text>+66% [ICON_STRENGTH] Combat Strength when attacking and +50% [ICON_STRENGTH] Combat Strength when defending VS [COLOR_POSITIVE_TEXT]Submarine Units[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- Air Repair -->

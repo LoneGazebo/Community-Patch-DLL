@@ -552,6 +552,10 @@ SET Text = 'Ancestral Protection'
 WHERE Tag = 'TXT_KEY_PROMOTION_EVIL_SPIRITS';
 
 UPDATE Language_en_US
+SET Text = 'Twisted Sword'
+WHERE Tag = 'TXT_KEY_PROMOTION_AMBITION';
+
+UPDATE Language_en_US
 SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking.[NEWLINE]+5% [ICON_STRENGTH] Combat Strength when defending.'
 WHERE Tag = 'TXT_KEY_PROMOTION_AMBITION_HELP';
 

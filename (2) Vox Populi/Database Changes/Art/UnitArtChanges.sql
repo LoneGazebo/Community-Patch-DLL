@@ -1,4 +1,20 @@
 -------------------------------------------
+-- Consistency
+-------------------------------------------
+
+-- These are empty strings instead of null in vanilla. Probably should follow.
+-- And no, modifying columns (and default values) isn't a thing in SQLite.
+UPDATE ArtDefine_UnitInfos SET UnitFlagAtlas = '' WHERE UnitFlagAtlas IS NULL;
+UPDATE ArtDefine_UnitInfos SET IconAtlas = '' WHERE IconAtlas IS NULL;
+UPDATE ArtDefine_UnitMemberInfos SET Domain = '' WHERE Domain IS NULL;
+UPDATE ArtDefine_UnitMemberCombatWeapons SET ID = '' WHERE ID IS NULL;
+UPDATE ArtDefine_UnitMemberCombatWeapons SET HitEffect = '' WHERE HitEffect IS NULL;
+UPDATE ArtDefine_UnitMemberCombatWeapons SET WeaponTypeSoundOverrideTag = '' WHERE WeaponTypeSoundOverrideTag IS NULL;
+
+-- Similarly, this seems to be always non-null.
+UPDATE ArtDefine_UnitMemberCombats SET HasRefaceAfterCombat = 0 WHERE HasRefaceAfterCombat IS NULL;
+
+-------------------------------------------
 -- Unit formations
 -------------------------------------------
 DELETE FROM ArtDefine_UnitInfoMemberInfos WHERE UnitInfoType IN (
@@ -41,8 +57,14 @@ VALUES
 	('ART_DEF_UNIT_COMMANDO', 'ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2', 1),
 	('ART_DEF_UNIT_VP_GALLEY', 'ART_DEF_UNIT_MEMBER_VP_GALLEY', 1),
 	('ART_DEF_UNIT_CORVETTE', 'ART_DEF_UNIT_MEMBER_CORVETTE', 1),
+	('ART_DEF_UNIT_EARLY_DESTROYER', 'ART_DEF_UNIT_MEMBER_EARLY_DESTROYER', 1),
+	('ART_DEF_UNIT_MISSILE_DESTROYER', 'ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER', 1),
 	('ART_DEF_UNIT_VP_LIBURNA', 'ART_DEF_UNIT_MEMBER_VP_LIBURNA', 1),
 	('ART_DEF_UNIT_CRUISER', 'ART_DEF_UNIT_MEMBER_CRUISER', 1),
+	('ART_DEF_UNIT_DREADNOUGHT', 'ART_DEF_UNIT_MEMBER_DREADNOUGHT', 1),
+	('ART_DEF_UNIT_ATTACK_SUBMARINE', 'ART_DEF_UNIT_MEMBER_ATTACK_SUBMARINE', 1),
+	('ART_DEF_UNIT_SUPERCARRIER', 'ART_DEF_UNIT_MEMBER_SUPERCARRIER', 1),
+	('ART_DEF_UNIT_ROCKET_MISSILE', 'ART_DEF_UNIT_MEMBER_ROCKET_MISSILE', 1),
 	('ART_DEF_UNIT_PIONEER', 'ART_DEF_UNIT_MEMBER_EUROFEMALE18', 1),
 	('ART_DEF_UNIT_PIONEER', 'ART_DEF_UNIT_MEMBER_EUROMALE20', 1),
 	('ART_DEF_UNIT_PIONEER', 'ART_DEF_UNIT_MEMBER_EUROFEMALE18', 1),
@@ -77,3 +99,19 @@ UPDATE ArtDefine_UnitInfos SET Formation = 'HonorableGunpowder' WHERE Type = 'AR
 
 UPDATE ArtDefine_StrategicView SET Asset = 'svmountedxbow.dds' WHERE StrategicViewType = 'ART_DEF_UNIT_U_MONGOLIAN_KESHIK';
 UPDATE ArtDefine_StrategicView SET Asset = 'tercio_flag2.dds' WHERE StrategicViewType = 'ART_DEF_UNIT_U_SPANISH_TERCIO';
+
+UPDATE ArtDefine_UnitMemberCombats
+SET AttackAltitude = 90.0, MoveRate = 4.8
+WHERE UnitMemberType = 'ART_DEF_UNIT_MEMBER_GUIDEDMISSILE';
+
+UPDATE ArtDefine_UnitMemberCombatWeapons
+SET WeaponTypeSoundOverrideTag = 'EXPLOSION1TON'
+WHERE UnitMemberType = 'ART_DEF_UNIT_MEMBER_GUIDEDMISSILE';
+
+UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.094 WHERE Type = 'ART_DEF_UNIT_MEMBER_IRONCLAD';
+UPDATE ArtDefine_UnitMemberInfos SET Model = 'Z_Class.fxsxml', Scale = 0.109 WHERE Type = 'ART_DEF_UNIT_MEMBER_DESTROYER';
+UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.088 WHERE Type = 'ART_DEF_UNIT_MEMBER_BATTLESHIP';
+UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.1 WHERE Type = 'ART_DEF_UNIT_MEMBER_MISSILECRUISER';
+UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.14 WHERE Type = 'ART_DEF_UNIT_MEMBER_SUBMARINE';
+UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.115 WHERE Type = 'ART_DEF_UNIT_MEMBER_NUCLEARSUBMARINE';
+UPDATE ArtDefine_UnitMemberInfos SET Scale = 0.07 WHERE Type = 'ART_DEF_UNIT_MEMBER_CARRIER';

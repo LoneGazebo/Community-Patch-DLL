@@ -321,13 +321,15 @@ VALUES
 
 	-------------------------------------------------------------
 
-	('TECH_PLASTIC', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Buildings: ResearchLab, PalaceofC&S, Wonders: CristoRedentor, Yields: Artists +1C, Plants +1G, OilWell +2P
+	('TECH_PLASTIC', 'FLAVOR_TILE_IMPROVEMENT', 10), -- Units: Submarine, Buildings: ResearchLab, PalaceofC&S, Wonders: CristoRedentor, Yields: Artists +1C, Plants +1G, OilWell +2P
 	('TECH_PLASTIC', 'FLAVOR_WONDER', 10),
 	('TECH_PLASTIC', 'FLAVOR_SCIENCE', 20),
 	('TECH_PLASTIC', 'FLAVOR_CULTURE', 5),
+	('TECH_PLASTIC', 'FLAVOR_NAVAL', 15),
 
-	('TECH_RADIO', 'FLAVOR_CULTURE', 35), -- Buildings: BroadcastTower, ForeignBureau, Wonders: Broadway, Yield: Musicians +2C
+	('TECH_RADIO', 'FLAVOR_CULTURE', 35), -- Units: Destroyer, Dreadnought, Buildings: BroadcastTower, ForeignBureau, Wonders: Broadway, Yield: Musicians +2C
 	('TECH_RADIO', 'FLAVOR_WONDER', 5),
+	('TECH_RADIO', 'FLAVOR_NAVAL', 30),
 	('TECH_RADIO', 'FLAVOR_DIPLOMACY', 10),
 
 	('TECH_FLIGHT', 'FLAVOR_AIR', 25), -- Units: Paratrooper, Triplane, Bomber, Wonders: Prora, Yields: HolySite +4T
@@ -353,8 +355,7 @@ VALUES
 	('TECH_ATOMIC_THEORY', 'FLAVOR_DIPLOMACY', 15),
 	('TECH_ATOMIC_THEORY', 'FLAVOR_TILE_IMPROVEMENT', 10),
 
-	('TECH_ROCKETRY', 'FLAVOR_NAVAL', 15), -- Units: Destroyer, Missile, Buildings: Airport, Ability: NoMovementCityEmbark, Yield: Academy +3S
-	('TECH_ROCKETRY', 'FLAVOR_AIR', 20),
+	('TECH_ROCKETRY', 'FLAVOR_AIR', 20), -- Units: Rocket Missile, Buildings: Airport, Ability: NoMovementCityEmbark, Yield: Academy +3S
 
 	('TECH_COMBINED_ARMS', 'FLAVOR_OFFENSE', 15), -- Units: Tank, Infantry, Wonders: Pentagon, Ability: FasteronRail, Yields: Manufactory +3P
 	('TECH_COMBINED_ARMS', 'FLAVOR_MOBILE', 15),
@@ -363,10 +364,11 @@ VALUES
 
 	----------------------------------------------------------
 
-	('TECH_ELECTRONICS', 'FLAVOR_HAPPINESS', 15), -- Buildings: Recycling, PoliceStation, Wonders: MotherlandCalls, Yields: Well +2P, Fort +4BG, Citadel +4P
+	('TECH_ELECTRONICS', 'FLAVOR_HAPPINESS', 15), -- Units: Attack Submarine, Buildings: Recycling, PoliceStation, Wonders: MotherlandCalls, Yields: Well +2P, Fort +4BG, Citadel +4P
 	('TECH_ELECTRONICS', 'FLAVOR_WONDER', 10),
 	('TECH_ELECTRONICS', 'FLAVOR_TILE_IMPROVEMENT', 5),
 	('TECH_ELECTRONICS', 'FLAVOR_ESPIONAGE', 10),
+	('TECH_ELECTRONICS', 'FLAVOR_NAVAL', 15),
 
 	('TECH_COMPUTERS', 'FLAVOR_AIR_CARRIER', 10), -- Units: SpecForces, Carrier, Buildings: NationalIntelligence, Wonders: Bletchley, Ability: +1 TR, Yield: Artists +1C
 	('TECH_COMPUTERS', 'FLAVOR_NAVAL', 10),
@@ -375,7 +377,7 @@ VALUES
 	('TECH_COMPUTERS', 'FLAVOR_CULTURE', 5),
 	('TECH_COMPUTERS', 'FLAVOR_WONDER', 5),
 
-	('TECH_NUCLEAR_FISSION', 'FLAVOR_NUKE', 30), -- Units: Battleship, Submarine, A-Bomb, Buildings: Str.Defense, Yields: Academy +3S
+	('TECH_NUCLEAR_FISSION', 'FLAVOR_NUKE', 30), -- Units: Fleet Destroyer, Battleship, A-Bomb, Buildings: Str.Defense, Yields: Academy +3S
 	('TECH_NUCLEAR_FISSION', 'FLAVOR_NAVAL', 30),
 	('TECH_NUCLEAR_FISSION', 'FLAVOR_CITY_DEFENSE', 5),
 
@@ -399,11 +401,12 @@ VALUES
 	('TECH_SATELLITES', 'FLAVOR_WONDER', 10),
 	('TECH_SATELLITES', 'FLAVOR_SPACESHIP', 75),
 
-	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_NAVAL', 15), -- Units: ModernArmor, RocketART, SAM, MissileCruiser
+	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_NAVAL', 15), -- Units: ModernArmor, RocketART, SAM, Guided Missile
 	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_OFFENSE', 30),
 	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_RANGED', 10),
 	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_MOBILE', 10),
 	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_ANTIAIR', 10),
+	('TECH_ADVANCED_BALLISTICS', 'FLAVOR_AIR', 10),
 
 	('TECH_MOBILE_TACTICS', 'FLAVOR_OFFENSE', 10), -- Units: Helicopter, Mech.Inf, Bazooka, Ability: FasteronRails
 	('TECH_MOBILE_TACTICS', 'FLAVOR_DEFENSE', 10),
@@ -412,21 +415,24 @@ VALUES
 
 	-------------------------------------------------------------
 
-	('TECH_ROBOTICS', 'FLAVOR_SPACESHIP', 50), -- Units: GDR, Buildings: SpaceshipFactory, Wonders: Hubble, Yields: Farm&Pasture +3F, Mine +3P
+	('TECH_ROBOTICS', 'FLAVOR_SPACESHIP', 50), -- Units: Nuclear Submarine, Supercarrier, GDR, Buildings: SpaceshipFactory, Wonders: Hubble, Yields: Farm&Pasture +3F, Mine +3P
 	('TECH_ROBOTICS', 'FLAVOR_OFFENSE', 25),
 	('TECH_ROBOTICS', 'FLAVOR_MOBILE', 20),
+	('TECH_ROBOTICS', 'FLAVOR_NAVAL', 25),
+	('TECH_ROBOTICS', 'FLAVOR_AIR', 10),
 	('TECH_ROBOTICS', 'FLAVOR_TILE_IMPROVEMENT', 10),
 	('TECH_ROBOTICS', 'FLAVOR_WONDER', 10),
 
 	('TECH_INTERNET', 'FLAVOR_CULTURE', 50), -- Wonders: Firewall, Ability: TourismBoost, Yields: Writers +2C, Merchants +3G, Servants +1C
 	('TECH_INTERNET', 'FLAVOR_GOLD', 15),
 
-	('TECH_LASERS', 'FLAVOR_OFFENSE', 10), -- Units: Nuke, JetFighter, XCOM, Yields: Eng. +3P
+	('TECH_LASERS', 'FLAVOR_OFFENSE', 10), -- Units: Missile Cruiser, Nuke, JetFighter, XCOM, Yields: Eng. +3P
 	('TECH_LASERS', 'FLAVOR_NUKE', 30),
 	('TECH_LASERS', 'FLAVOR_AIR', 15),
+	('TECH_LASERS', 'FLAVOR_NAVAL', 15),
 	('TECH_LASERS', 'FLAVOR_PRODUCTION', 15),
 
-	('TECH_STEALTH', 'FLAVOR_AIR', 15), -- Units: StealthBomber, NuclearSubmarine, Yields: Fort&Citadel +4S
+	('TECH_STEALTH', 'FLAVOR_AIR', 15), -- Units: Sensor Combat Ship, StealthBomber, Yields: Fort&Citadel +4S
 	('TECH_STEALTH', 'FLAVOR_NAVAL', 15),
 
 	---------------------------------------------------------

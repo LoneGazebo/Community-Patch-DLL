@@ -106,6 +106,18 @@
 			<Description>TXT_KEY_UNIT_ELEPHANT_RIDER</Description>
 			<DefaultUnit>UNIT_CARTHAGINIAN_FOREST_ELEPHANT</DefaultUnit>
 		</Row>
+		<!-- Destroyer -->
+		<Row>
+			<Type>UNITCLASS_EARLY_DESTROYER</Type>
+			<Description>TXT_KEY_UNIT_EARLY_DESTROYER</Description>
+			<DefaultUnit>UNIT_EARLY_DESTROYER</DefaultUnit>
+		</Row>
+		<!-- Sensor Combat Ship -->
+		<Row>
+			<Type>UNITCLASS_MISSILE_DESTROYER</Type>
+			<Description>TXT_KEY_UNIT_MISSILE_DESTROYER</Description>
+			<DefaultUnit>UNIT_MISSILE_DESTROYER</DefaultUnit>
+		</Row>
 		<!-- Liburna -->
 		<Row>
 			<Type>UNITCLASS_LIBURNA</Type>
@@ -117,6 +129,30 @@
 			<Type>UNITCLASS_CRUISER</Type>
 			<Description>TXT_KEY_DESC_CRUISER</Description>
 			<DefaultUnit>UNIT_CRUISER</DefaultUnit>
+		</Row>
+		<!-- Dreadnought -->
+		<Row>
+			<Type>UNITCLASS_DREADNOUGHT</Type>
+			<Description>TXT_KEY_UNIT_DREADNOUGHT</Description>
+			<DefaultUnit>UNIT_DREADNOUGHT</DefaultUnit>
+		</Row>
+		<!-- Attack Submarine -->
+		<Row>
+			<Type>UNITCLASS_ATTACK_SUBMARINE</Type>
+			<Description>TXT_KEY_UNIT_ATTACK_SUBMARINE</Description>
+			<DefaultUnit>UNIT_ATTACK_SUBMARINE</DefaultUnit>
+		</Row>
+		<!-- Supercarrier -->
+		<Row>
+			<Type>UNITCLASS_SUPERCARRIER</Type>
+			<Description>TXT_KEY_UNIT_SUPERCARRIER</Description>
+			<DefaultUnit>UNIT_SUPERCARRIER</DefaultUnit>
+		</Row>
+		<!-- Rocket Missile -->
+		<Row>
+			<Type>UNITCLASS_ROCKET_MISSILE</Type>
+			<Description>TXT_KEY_UNIT_ROCKET_MISSILE</Description>
+			<DefaultUnit>UNIT_ROCKET_MISSILE</DefaultUnit>
 		</Row>
 		<!-- Pioneer -->
 		<Row>
@@ -392,6 +428,47 @@
 			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
 			<PortraitIndex>14</PortraitIndex>
 		</Row>
+		<!-- Destroyer -->
+		<Row>
+			<Type>UNIT_EARLY_DESTROYER</Type>
+			<Description>TXT_KEY_UNIT_EARLY_DESTROYER</Description>
+			<Civilopedia>TXT_KEY_UNIT_EARLY_DESTROYER_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_EARLY_DESTROYER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_EARLY_DESTROYER_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_EARLY_DESTROYER</Class>
+			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_RADIO</PrereqTech>
+			<ObsoleteTech>TECH_NUCLEAR_FISSION</ObsoleteTech>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_EARLY_DESTROYER</UnitArtInfo>
+			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
+			<UnitFlagIconOffset>1</UnitFlagIconOffset>
+			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>
+		<!-- Sensor Combat Ship -->
+		<Row>
+			<Type>UNIT_MISSILE_DESTROYER</Type>
+			<Description>TXT_KEY_UNIT_MISSILE_DESTROYER</Description>
+			<Civilopedia>TXT_KEY_UNIT_MISSILE_DESTROYER_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_MISSILE_DESTROYER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_MISSILE_DESTROYER_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALMELEE</CombatClass>
+			<Class>UNITCLASS_MISSILE_DESTROYER</Class>
+			<DefaultUnitAI>UNITAI_ATTACK_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_STEALTH</PrereqTech>
+			<SpecialCargo>SPECIALUNIT_MISSILE</SpecialCargo>
+			<DomainCargo>DOMAIN_AIR</DomainCargo>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_MISSILE_DESTROYER</UnitArtInfo>
+			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
+			<UnitFlagIconOffset>6</UnitFlagIconOffset>
+			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
+			<PortraitIndex>9</PortraitIndex>
+		</Row>
 		<!-- Liburna -->
 		<Row>
 			<Type>UNIT_LIBURNA</Type>
@@ -424,13 +501,98 @@
 			<Class>UNITCLASS_CRUISER</Class>
 			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
 			<PrereqTech>TECH_DYNAMITE</PrereqTech>
-			<ObsoleteTech>TECH_NUCLEAR_FISSION</ObsoleteTech>
+			<ObsoleteTech>TECH_RADIO</ObsoleteTech>
 			<MoveRate>BOAT</MoveRate>
 			<UnitArtInfo>ART_DEF_UNIT_CRUISER</UnitArtInfo>
 			<UnitFlagAtlas>CRUISER_FLAG_ATLAS</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
-			<PortraitIndex>39</PortraitIndex>
+			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
+			<PortraitIndex>11</PortraitIndex>
+		</Row>
+		<!-- Dreadnought -->
+		<Row>
+			<Type>UNIT_DREADNOUGHT</Type>
+			<Description>TXT_KEY_UNIT_DREADNOUGHT</Description>
+			<Civilopedia>TXT_KEY_UNIT_DREADNOUGHT_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_DREADNOUGHT_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_DREADNOUGHT_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_NAVALRANGED</CombatClass>
+			<Class>UNITCLASS_DREADNOUGHT</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_RADIO</PrereqTech>
+			<ObsoleteTech>TECH_NUCLEAR_FISSION</ObsoleteTech>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_DREADNOUGHT</UnitArtInfo>
+			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
+			<UnitFlagIconOffset>2</UnitFlagIconOffset>
+			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
+			<PortraitIndex>2</PortraitIndex>
+		</Row>
+		<!-- Attack Submarine -->
+		<Row>
+			<Type>UNIT_ATTACK_SUBMARINE</Type>
+			<Description>TXT_KEY_UNIT_ATTACK_SUBMARINE</Description>
+			<Civilopedia>TXT_KEY_UNIT_ATTACK_SUBMARINE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_ATTACK_SUBMARINE_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_ATTACK_SUBMARINE_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_SUBMARINE</CombatClass>
+			<Class>UNITCLASS_ATTACK_SUBMARINE</Class>
+			<DefaultUnitAI>UNITAI_ASSAULT_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_ELECTRONICS</PrereqTech>
+			<ObsoleteTech>TECH_ROBOTICS</ObsoleteTech>
+			<RangeAttackOnlyInDomain>true</RangeAttackOnlyInDomain>
+			<SpecialCargo>SPECIALUNIT_MISSILE</SpecialCargo>
+			<DomainCargo>DOMAIN_AIR</DomainCargo>
+			<MoveRate>SUB</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_DREADNOUGHT</UnitArtInfo>
+			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
+			<UnitFlagIconOffset>0</UnitFlagIconOffset>
+			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<!-- Supercarrier -->
+		<Row>
+			<Type>UNIT_SUPERCARRIER</Type>
+			<Description>TXT_KEY_UNIT_SUPERCARRIER</Description>
+			<Civilopedia>TXT_KEY_UNIT_SUPERCARRIER_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_SUPERCARRIER_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_SUPERCARRIER_HELP</Help>
+			<Domain>DOMAIN_SEA</Domain>
+			<CombatClass>UNITCOMBAT_CARRIER</CombatClass>
+			<Class>UNITCLASS_SUPERCARRIER</Class>
+			<DefaultUnitAI>UNITAI_CARRIER_SEA</DefaultUnitAI>
+			<PrereqTech>TECH_ROBOTICS</PrereqTech>
+			<SpecialCargo>SPECIALUNIT_FIGHTER</SpecialCargo>
+			<DomainCargo>DOMAIN_AIR</DomainCargo>
+			<MoveRate>BOAT</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_SUPERCARRIER</UnitArtInfo>
+			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
+			<UnitFlagIconOffset>5</UnitFlagIconOffset>
+			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
+			<PortraitIndex>5</PortraitIndex>
+		</Row>
+		<!-- Rocket Missile -->
+		<Row>
+			<Type>UNIT_ROCKET_MISSILE</Type>
+			<Description>TXT_KEY_UNIT_ROCKET_MISSILE</Description>
+			<Civilopedia>TXT_KEY_UNIT_ROCKET_MISSILE_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_UNIT_ROCKET_MISSILE_STRATEGY</Strategy>
+			<Help>TXT_KEY_UNIT_ROCKET_MISSILE_HELP</Help>
+			<Domain>DOMAIN_AIR</Domain>
+			<Class>UNITCLASS_ROCKET_MISSILE</Class>
+			<DefaultUnitAI>UNITAI_MISSILE_AIR</DefaultUnitAI>
+			<PrereqTech>TECH_ROCKETRY</PrereqTech>
+			<Special>SPECIALUNIT_MISSILE</Special>
+			<Immobile>true</Immobile>
+			<Suicide>true</Suicide>
+			<MoveRate>AIR_REBASE</MoveRate>
+			<UnitArtInfo>ART_DEF_UNIT_ROCKET_MISSILE</UnitArtInfo>
+			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
+			<UnitFlagIconOffset>4</UnitFlagIconOffset>
+			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
+			<PortraitIndex>4</PortraitIndex>
 		</Row>
 		<!-- Pioneer -->
 		<Row>
@@ -702,6 +864,16 @@
 			<FirstSelectionSound>AS2D_BIRTH_TRIREME</FirstSelectionSound>
 		</Row>
 		<Row>
+			<UnitType>UNIT_EARLY_DESTROYER</UnitType>
+			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_MISSILE_DESTROYER</UnitType>
+			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
+		</Row>
+		<Row>
 			<UnitType>UNIT_LIBURNA</UnitType>
 			<SelectionSound>AS2D_SELECT_TRIREME</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_TRIREME</FirstSelectionSound>
@@ -710,6 +882,26 @@
 			<UnitType>UNIT_CRUISER</UnitType>
 			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
 			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_DREADNOUGHT</UnitType>
+			<SelectionSound>AS2D_SELECT_BATTLESHIP</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_BATTLESHIP</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ATTACK_SUBMARINE</UnitType>
+			<SelectionSound>AS2D_SELECT_SUBMARINE</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_SUBMARINE</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_SUPERCARRIER</UnitType>
+			<SelectionSound>AS2D_SELECT_CARRIER</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_CARRIER</FirstSelectionSound>
+		</Row>
+		<Row>
+			<UnitType>UNIT_ROCKET_MISSILE</UnitType>
+			<SelectionSound>AS2D_SELECT_NUCLEAR_MISSILE</SelectionSound>
+			<FirstSelectionSound>AS2D_BIRTH_NUCLEAR_MISSILE</FirstSelectionSound>
 		</Row>
 		<Row>
 			<UnitType>UNIT_PIONEER</UnitType>

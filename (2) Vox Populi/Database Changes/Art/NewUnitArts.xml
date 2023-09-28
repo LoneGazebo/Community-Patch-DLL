@@ -50,12 +50,36 @@
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_EARLY_DESTROYER</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MISSILE_DESTROYER</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_VP_LIBURNA</Type>
 			<DamageStates>3</DamageStates>
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_CRUISER</Type>
 			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_DREADNOUGHT</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_ATTACK_SUBMARINE</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_SUPERCARRIER</Type>
+			<DamageStates>3</DamageStates>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_ROCKET_MISSILE</Type>
+			<DamageStates>1</DamageStates>
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_PIONEER</Type>
@@ -229,6 +253,22 @@
 			<MaterialTypeSoundOverrideTag>WOODLRG</MaterialTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</Type>
+			<Scale>0.091</Scale>
+			<Domain>Sea</Domain>
+			<Model>Wickes.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</Type>
+			<Scale>0.112</Scale>
+			<Domain>Sea</Domain>
+			<Model>Railgun_Cruiser.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_VP_LIBURNA</Type>
 			<Scale>0.05</Scale>
 			<Domain>Sea</Domain>
@@ -238,9 +278,41 @@
 		</Row>
 		<Row>
 			<Type>ART_DEF_UNIT_MEMBER_CRUISER</Type>
-			<Scale>0.098</Scale>
+			<Scale>0.059</Scale>
 			<Domain>Sea</Domain>
 			<Model>cruiser.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_DREADNOUGHT</Type>
+			<Scale>0.085</Scale>
+			<Domain>Sea</Domain>
+			<Model>Dreadnought_Generic.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_ATTACK_SUBMARINE</Type>
+			<Scale>0.085</Scale>
+			<Domain>Sea</Domain>
+			<Model>akula.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_SUPERCARRIER</Type>
+			<Scale>0.095</Scale>
+			<Domain>Sea</Domain>
+			<Model>USS_Nimitz.fxsxml</Model>
+			<MaterialTypeTag>METAL</MaterialTypeTag>
+			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<Type>ART_DEF_UNIT_MEMBER_ROCKET_MISSILE</Type>
+			<Scale>0.11</Scale>
+			<Domain>Air</Domain>
+			<Model>GuidedMissile.fxsxml</Model>
 			<MaterialTypeTag>METAL</MaterialTypeTag>
 			<MaterialTypeSoundOverrideTag>METALLRG</MaterialTypeSoundOverrideTag>
 		</Row>
@@ -305,17 +377,17 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_U_GERMAN_LANDSKNECHT_2</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_U_GERMAN_LANDSKNECHT_3</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -323,9 +395,9 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_SLINGER</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
@@ -343,13 +415,13 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISH</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
-			<ShortMoveRadius>24</ShortMoveRadius>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
 			<TurnRateMin>0.5</TurnRateMin>
 			<TurnRateMax>0.75</TurnRateMax>
-			<TurnFacingRateMin>15</TurnFacingRateMin>
-			<TurnFacingRateMax>20</TurnFacingRateMax>
-			<TargetHeight>12</TargetHeight>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
 			<HasStationaryMelee>1</HasStationaryMelee>
@@ -360,13 +432,13 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_CUIRASSIER</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk</EnableActions>
-			<ShortMoveRadius>24</ShortMoveRadius>
+			<ShortMoveRadius>24.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
 			<TurnRateMin>0.5</TurnRateMin>
 			<TurnRateMax>0.75</TurnRateMax>
-			<TurnFacingRateMin>15</TurnFacingRateMin>
-			<TurnFacingRateMax>20</TurnFacingRateMax>
-			<TargetHeight>12</TargetHeight>
+			<TurnFacingRateMin>15.0</TurnFacingRateMin>
+			<TurnFacingRateMax>20.0</TurnFacingRateMax>
+			<TargetHeight>12.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
 			<HasStationaryMelee>1</HasStationaryMelee>
@@ -379,16 +451,15 @@
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasStationaryMelee>1</HasStationaryMelee>
-			<HasRefaceAfterCombat>0</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BANDEIRANTE_FLAGBEARER</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -396,9 +467,9 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BANDEIRANTE_1</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -406,9 +477,9 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BANDEIRANTE_2</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -416,9 +487,9 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BANDEIRANTE_3</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -426,9 +497,9 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BOER_COMMANDO</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -436,9 +507,9 @@
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_BOER_COMMANDO_2</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -449,7 +520,6 @@
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
-			<HasRefaceAfterCombat>0</HasRefaceAfterCombat>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
@@ -457,7 +527,20 @@
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
-			<HasRefaceAfterCombat>0</HasRefaceAfterCombat>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
@@ -466,7 +549,6 @@
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLongRangedAttack>1</HasLongRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
-			<HasRefaceAfterCombat>0</HasRefaceAfterCombat>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
 		</Row>
 		<Row>
@@ -474,48 +556,79 @@
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasLeftRightAttack>1</HasLeftRightAttack>
-			<HasRefaceAfterCombat>0</HasRefaceAfterCombat>
 			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ATTACK_SUBMARINE</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLongRangedAttack>1</HasLongRangedAttack>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SUPERCARRIER</UnitMemberType>
+			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady AttackSurfaceToAir</EnableActions>
+			<HasShortRangedAttack>1</HasShortRangedAttack>
+			<HasLeftRightAttack>1</HasLeftRightAttack>
+			<HasIndependentWeaponFacing>1</HasIndependentWeaponFacing>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ROCKET_MISSILE</UnitMemberType>
+			<EnableActions>Idle Attack Bombard Death Run</EnableActions>
+			<AttackRadius>48.0</AttackRadius>
+			<MoveRate>2.4</MoveRate>
+			<TurnRateMin>0.5</TurnRateMin>
+			<TurnRateMax>1.5</TurnRateMax>
+			<PitchRateMin>1.0</PitchRateMin>
+			<PitchRateMax>3.0</PitchRateMax>
+			<HasCollisionAttack>1</HasCollisionAttack>
+			<AttackAltitude>50.0</AttackAltitude>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_1</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_2</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_3</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_4</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MERC_GUERILLA</UnitMemberType>
 			<EnableActions>Idle Attack RunCharge AttackCity Bombard Death BombardDefend Run Fortify CombatReady Walk AttackCharge</EnableActions>
-			<ShortMoveRadius>12</ShortMoveRadius>
+			<ShortMoveRadius>12.0</ShortMoveRadius>
 			<ShortMoveRate>0.35</ShortMoveRate>
-			<TargetHeight>8</TargetHeight>
+			<TargetHeight>8.0</TargetHeight>
 			<HasShortRangedAttack>1</HasShortRangedAttack>
 			<HasRefaceAfterCombat>1</HasRefaceAfterCombat>
 			<ReformBeforeCombat>1</ReformBeforeCombat>
@@ -533,8 +646,8 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_U_GERMAN_LANDSKNECHT_2</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
 		</Row>
 		<Row>
@@ -555,17 +668,17 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_SLINGER</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FIELD_GUN</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>25</VisKillStrengthMin>
-			<VisKillStrengthMax>50</VisKillStrengthMax>
-			<ProjectileSpeed>7</ProjectileSpeed>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>7.0</ProjectileSpeed>
 			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
 			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>EXPLOSION20POUND</WeaponTypeSoundOverrideTag>
@@ -611,16 +724,16 @@
 			<SubIndex>0</SubIndex>
 			<WeaponTypeTag>ARROW</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
-			<MissTargetSlopRadius>10</MissTargetSlopRadius>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_HEAVY_SKIRMISH</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
-			<MissTargetSlopRadius>10</MissTargetSlopRadius>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_CUIRASSIER</UnitMemberType>
@@ -628,14 +741,14 @@
 			<SubIndex>0</SubIndex>
 			<WeaponTypeTag>ARROW</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
-			<MissTargetSlopRadius>10</MissTargetSlopRadius>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_CUIRASSIER</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
 			<MissTargetSlopRadius>10</MissTargetSlopRadius>
 		</Row>
@@ -643,29 +756,9 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_ARMORED_CAR</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>25</VisKillStrengthMin>
-			<VisKillStrengthMax>50</VisKillStrengthMax>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
 			<HitEffect>ART_DEF_VEFFECT_TANK_IMPACT_$(TERRAIN)</HitEffect>
-			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
-			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_LIBURNA</UnitMemberType>
-			<Index>0</Index>
-			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>0</VisKillStrengthMin>
-			<VisKillStrengthMax>0</VisKillStrengthMax>
-			<WeaponTypeTag>ARROW</WeaponTypeTag>
-			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
-			<MissTargetSlopRadius>10</MissTargetSlopRadius>
-		</Row>
-		<Row>
-			<UnitMemberType>ART_DEF_UNIT_MEMBER_CORVETTE</UnitMemberType>
-			<Index>0</Index>
-			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
-			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
 			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
 		</Row>
@@ -677,14 +770,78 @@
 			<VisKillStrengthMax>0</VisKillStrengthMax>
 			<WeaponTypeTag>ARROW</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
-			<MissTargetSlopRadius>10</MissTargetSlopRadius>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_CORVETTE</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_CANNON_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION6POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_EARLY_DESTROYER</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<ID>ART_DEF_VEFFECT_MECH_ROCKET_PROJECTILE</ID>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>5.3</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_GUIDED_MISSILE_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_MISSILE_DESTROYER</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<ID>ART_DEF_VEFFECT_MECH_ROCKET_PROJECTILE</ID>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>5.3</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_GUIDED_MISSILE_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_VP_LIBURNA</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>0</VisKillStrengthMin>
+			<VisKillStrengthMax>0</VisKillStrengthMax>
+			<WeaponTypeTag>ARROW</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>ARROW</WeaponTypeSoundOverrideTag>
+			<MissTargetSlopRadius>10.0</MissTargetSlopRadius>
 		</Row>
 		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_CRUISER</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>25</VisKillStrengthMin>
-			<VisKillStrengthMax>50</VisKillStrengthMax>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
 			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
 			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>EXPLOSION1TON</WeaponTypeSoundOverrideTag>
@@ -693,13 +850,74 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_CRUISER</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>25</VisKillStrengthMin>
-			<VisKillStrengthMax>50</VisKillStrengthMax>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
 			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
 			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
 			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
 		</Row>
 		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION1TON</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_DREADNOUGHT</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_ARTILLERY_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ATTACK_SUBMARINE</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SUPERCARRIER</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<ID>ART_DEF_VEFFECT_MECH_ROCKET_PROJECTILE</ID>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>5.3</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_GUIDED_MISSILE_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_SUPERCARRIER</UnitMemberType>
+			<Index>1</Index>
+			<SubIndex>0</SubIndex>
+			<ID>ART_DEF_VEFFECT_MECH_ROCKET_PROJECTILE</ID>
+			<VisKillStrengthMin>25.0</VisKillStrengthMin>
+			<VisKillStrengthMax>50.0</VisKillStrengthMax>
+			<ProjectileSpeed>5.3</ProjectileSpeed>
+			<HitEffect>ART_DEF_VEFFECT_GUIDED_MISSILE_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>BULLETHC</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>BULLETHC</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
+			<UnitMemberType>ART_DEF_UNIT_MEMBER_ROCKET_MISSILE</UnitMemberType>
+			<Index>0</Index>
+			<SubIndex>0</SubIndex>
+			<VisKillStrengthMin>100.0</VisKillStrengthMin>
+			<VisKillStrengthMax>100.0</VisKillStrengthMax>
+			<HitEffect>ART_DEF_VEFFECT_GUIDED_MISSILE_IMPACT_$(TERRAIN)</HitEffect>
+			<WeaponTypeTag>EXPLOSIVE</WeaponTypeTag>
+			<WeaponTypeSoundOverrideTag>EXPLOSION200POUND</WeaponTypeSoundOverrideTag>
+		</Row>
+		<Row>
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_1</UnitMemberType>
 			<Index>0</Index>
 			<SubIndex>0</SubIndex>
@@ -710,8 +928,8 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_1</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
 		</Row>
 		<Row>
@@ -725,8 +943,8 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_2</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
 		</Row>
 		<Row>
@@ -740,8 +958,8 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_3</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
 		</Row>
 		<Row>
@@ -755,8 +973,8 @@
 			<UnitMemberType>ART_DEF_UNIT_MEMBER_FCOMPANY_4</UnitMemberType>
 			<Index>1</Index>
 			<SubIndex>0</SubIndex>
-			<VisKillStrengthMin>10</VisKillStrengthMin>
-			<VisKillStrengthMax>20</VisKillStrengthMax>
+			<VisKillStrengthMin>10.0</VisKillStrengthMin>
+			<VisKillStrengthMax>20.0</VisKillStrengthMax>
 			<WeaponTypeTag>FLAMING_ARROW</WeaponTypeTag>
 		</Row>
 		<Row>
@@ -819,6 +1037,16 @@
 			<Asset>svcorvette.dds</Asset>
 		</Row>
 		<Row>
+			<StrategicViewType>ART_DEF_UNIT_EARLY_DESTROYER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_EarlyDestroyer.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_MISSILE_DESTROYER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>sv_ENW_advDestroya.dds</Asset>
+		</Row>
+		<Row>
 			<StrategicViewType>ART_DEF_UNIT_VP_LIBURNA</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>sv_galea.dds</Asset>
@@ -827,6 +1055,26 @@
 			<StrategicViewType>ART_DEF_UNIT_CRUISER</StrategicViewType>
 			<TileType>Unit</TileType>
 			<Asset>svcruiser.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_DREADNOUGHT</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_Dreadnought.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_ATTACK_SUBMARINE</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_AttackSubmarine.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_SUPERCARRIER</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_Supercarrier.dds</Asset>
+		</Row>
+		<Row>
+			<StrategicViewType>ART_DEF_UNIT_ROCKET_MISSILE</StrategicViewType>
+			<TileType>Unit</TileType>
+			<Asset>SV_RocketMissile.dds</Asset>
 		</Row>
 		<Row>
 			<StrategicViewType>ART_DEF_UNIT_PIONEER</StrategicViewType>

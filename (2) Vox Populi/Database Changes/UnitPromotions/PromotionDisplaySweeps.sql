@@ -57,7 +57,6 @@ VALUES
 	('SPLASH', 301),
 	('SCOUTING', 301),
 	('NAVIGATOR', 301),
-	('DEPTH_CHARGES', 303), -- reserve slot for Cover
 	('AIR_PENETRATION', 301),
 	-- Unit free promotions (stays on upgrade)
 	('GENERAL_MOVEMENT', 401),
@@ -74,6 +73,7 @@ VALUES
 	('FIELD_WORKS', 801),
 	('COVERING_FIRE', 801),
 	('PARADROP', 801),
+	('DEPTH_CHARGES', 801),
 	('AIR_RECON', 801),
 	('SUBMARINE_BASE', 801),
 	('DIPLO_BASE', 801),

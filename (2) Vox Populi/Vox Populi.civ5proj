@@ -1263,6 +1263,13 @@
         <MinVersion>0</MinVersion>
         <MaxVersion>999</MaxVersion>
       </Association>
+      <Association>
+        <Type>Mod</Type>
+        <Name>Enhanced Naval Warfare for Vox Populi</Name>
+        <Id>675ba5ec-dc5a-400f-9864-8170568d04e5</Id>
+        <MinVersion>0</MinVersion>
+        <MaxVersion>999</MaxVersion>
+      </Association>
     </ModBlockers>
     <SupportsHotSeat>true</SupportsHotSeat>
     <ModContent>
@@ -1503,10 +1510,13 @@
     <Folder Include="Assets\Resources\Tea\" />
     <Folder Include="Assets\Resources\Tobacco\" />
     <Folder Include="Assets\Units\ArmoredCar\" />
+    <Folder Include="Assets\Units\AttackSubmarine" />
     <Folder Include="Assets\Units\Bandeirantes\" />
     <Folder Include="Assets\Units\Commando\" />
     <Folder Include="Assets\Units\Corvette\" />
     <Folder Include="Assets\Units\Cruiser\" />
+    <Folder Include="Assets\Units\Destroyer" />
+    <Folder Include="Assets\Units\Dreadnought" />
     <Folder Include="Assets\Units\FieldGun\" />
     <Folder Include="Assets\Units\Galley\" />
     <Folder Include="Assets\Units\Guerilla\" />
@@ -1515,8 +1525,11 @@
     <Folder Include="Assets\Units\LandsknechtFreeCompany\" />
     <Folder Include="Assets\Units\Liburna\" />
     <Folder Include="Assets\Units\Merc\" />
+    <Folder Include="Assets\Units\MissileDestroyer" />
     <Folder Include="Assets\Units\MountedXbow\" />
+    <Folder Include="Assets\Units\RocketMissile" />
     <Folder Include="Assets\Units\Slinger\" />
+    <Folder Include="Assets\Units\Supercarrier" />
     <Folder Include="Assets\Units\LandsknechtFreeCompany\Free_Company\" />
     <Folder Include="Assets\Units\LandsknechtFreeCompany\Landsknecht\" />
     <Folder Include="Assets\Units\LandsknechtFreeCompany\Free_Company\free_company\" />
@@ -1573,6 +1586,194 @@
     <Folder Include="Mapscripts\EMP\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Assets\Icons\ENW_IconAtlas128.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Icons\ENW_IconAtlas256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Icons\ENW_IconAtlas45.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Icons\ENW_IconAtlas64.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Icons\ENW_IconAtlas80.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Icons\ENW_UnitFlagAtlas.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Promotions\ENW_PI_016.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Promotions\ENW_PI_032.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Promotions\ENW_PI_045.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Promotions\ENW_PI_064.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Promotions\ENW_PI_256.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\AttackSubmarine\akula.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\AttackSubmarine\Akula.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\AttackSubmarine\Akula_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\AttackSubmarine\Akula_DMG_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\AttackSubmarine\Akula_DMG_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\AttackSubmarine\Akula_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\AttackSubmarine\SV_AttackSubmarine.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\edited_fx_triggers_destroyer.ftsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\edited_fx_triggers_wickes.ftsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\SV_EarlyDestroyer.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\Wickes.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\Wickes.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\Wickes.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\WickesSREF.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\Z_Class.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\Z_Class.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\Z_Class.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Destroyer\Z_Class_gloss.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Dreadnought\Dreadnought_Generic.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Dreadnought\Dreadnought_Generic.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Dreadnought\Dreadnought_Generic.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Dreadnought\Dreadnought_Generic_gloss.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Dreadnought\edited_fx_triggers_battleship_4turret.ftsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Dreadnought\SV_Dreadnought.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\MissileDestroyer\Railgun_Cruiser.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\MissileDestroyer\Railgun_Cruiser.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\MissileDestroyer\sensordestroyer.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\MissileDestroyer\sensordestroyer_gloss.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\MissileDestroyer\sv_ENW_advDestroya.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\RocketMissile\SV_RocketMissile.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Supercarrier\edited_fx_triggers_carrier.ftsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Supercarrier\SV_Supercarrier.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Supercarrier\USS_Nimitz.fxsxml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Supercarrier\USS_Nimitz.gr2">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Supercarrier\USS_Nimitz_diff.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Assets\Units\Supercarrier\USS_Nimitz_sref.dds">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
     <Content Include="CommunityOptions.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
