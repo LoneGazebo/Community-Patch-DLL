@@ -246,11 +246,16 @@ int CvLuaDeal::lDoReevaluateDeal(lua_State* L)
 			bDealCanceled = true;
 		}
 	}
+	else if (pkDeal->IsPeaceTreatyTrade(eFromPlayer))
+	{
+		pkDeal->ClearItems();
+		bDealCanceled = !pkThisPlayer->GetDealAI()->IsOfferPeace(eOtherPlayer, pkDeal, false);
+	}
 	else
 	{
 		bool bUselessReferenceVariable = false;
 		bool bCantMatchOffer = false;
-		bool bDealCanceled = !pkThisPlayer->GetDealAI()->DoEqualizeDealWithHuman(pkDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);
+		bDealCanceled = !pkThisPlayer->GetDealAI()->DoEqualizeDealWithHuman(pkDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);
 	}
 	lua_pushboolean(L, bDealCanceled);
 	return 1;
