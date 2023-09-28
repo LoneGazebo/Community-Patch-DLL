@@ -5986,16 +5986,16 @@ bool CvGame::isSimultaneousTeamTurns() const
 
 bool CvGame::isDesynced() const
 {
-	if (!isNetworkMultiPlayer()) {
+	if (!isNetworkMultiPlayer())
 		return false;
-	}
+
 	return m_bIsDesynced;
 }
 void CvGame::setDesynced(bool bNewValue)
 {
-	if (!isNetworkMultiPlayer()) {
+	if (!isNetworkMultiPlayer())
 		return;
-	}
+
 	m_bIsDesynced = bNewValue;
 }
 
@@ -8818,15 +8818,17 @@ void CvGame::doTurn()
 
 	LogGameState();
 
-	if (isNetworkMultiPlayer()) {
+	if (isNetworkMultiPlayer())
+	{
 		//autosave after doing a turn
 		gDLL->AutoSave(false, false);
 
-		if (isDesynced()) {
+		// send desync warning, if applicable
+		if (isDesynced())
+		{
 			setDesynced(false);
-
-			CvString output; CvString::format(output, "Session is running in desynced state, undefined behaviour may appear. Please, fill the issue on GitHub.");
-			gGlobals.getDLLIFace()->sendChat(output, CHATTARGET_ALL, NO_PLAYER);
+			CvString strWarningText = GetLocalizedText("TXT_KEY_VP_MP_WARNING_DESYNC");
+			gGlobals.getDLLIFace()->sendChat(strWarningText, CHATTARGET_ALL, NO_PLAYER);
 		}
 	}
 }

@@ -204,6 +204,11 @@
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
 
+		<!-- Multiplayer Desync Warning -->
+		<Row Tag="TXT_KEY_VP_MP_WARNING_DESYNC">
+			<Text>My client has desynced, undefined behavior may occur. Please open a bug report on GitHub: https://github.com/LoneGazebo/Community-Patch-DLL/issues</Text>
+		</Row>
+
 		<!-- City-State UI -->
 		<Row Tag="TXT_KEY_NEUTRAL_CSTATE">
 			<Text>Neutral</Text>

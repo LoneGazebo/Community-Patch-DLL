@@ -2972,7 +2972,7 @@ void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
 	VALIDATE_OBJECT
 	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	GC.getGame().GetGameTrade()->GetLongestPotentialTradeRoute(GetID(), eDomain);
+	GC.getGame().GetGameTrade()->SetLongestPotentialTradeRoute(iValue, GetID(), eDomain);
 }
 
 bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
