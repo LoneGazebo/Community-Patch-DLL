@@ -13182,7 +13182,7 @@ void CvCity::changeProductionTimes100(int iChange)
 											if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 												break;
 
-											int iYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
+											int iYield = ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION)) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
 
 											pOtherPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, pOriginCity, false, true, false, (YieldTypes)iI);
 										}
@@ -19337,7 +19337,10 @@ int CvCity::getJONSCulturePerTurn(bool bStatic) const
 
 	// Process production into culture
 	if (getProductionToYieldModifier(YIELD_CULTURE) > 0)
-		iCulture += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
+	{
+		int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+		iCulture += ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
+	}
 
 	return iCulture;
 }
@@ -19731,7 +19734,10 @@ int CvCity::GetFaithPerTurn() const
 
 	// Process production into faith
 	if (getProductionToYieldModifier(YIELD_FAITH) > 0)
-		iFaith += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
+	{
+		int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+		iFaith += ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
+	}
 
 	// Faith from having trade routes
 	iFaith += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_FAITH) / 100;
@@ -25299,7 +25305,8 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bSta
 	if (getProductionToYieldModifier(eIndex) != 0)
 	{
 		// We want to process production to production and call it stockpiling!
-		iPostModifierYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 100;
+		int iTradeRouteBonus = bIgnoreTrade ? 0 : GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+		iPostModifierYield = ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(eIndex)) / 100;
 	}
 
 	if (!bIgnoreTrade)
@@ -25629,7 +25636,8 @@ int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	// Process production into specific yield
-	return (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 10000;
+	int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+	return ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(eIndex)) / 10000;
 }
 
 // Base yield rate from League
