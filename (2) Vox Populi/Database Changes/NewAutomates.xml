@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Automates>
+		<Row>
+			<Type>AUTOMATE_DIPLOMAT</Type>
+			<Description>TXT_KEY_ACTION_AUTOMATE_DIPLOMAT</Description>
+			<Help>TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_HELP</Help>
+			<DisabledHelp>TXT_KEY_ACTION_AUTOMATE_DIPLOMAT_DISABLED_HELP</DisabledHelp>>
+			<HotKey>KB_E</HotKey>
+			<OrderPriority>1</OrderPriority>
+			<Command>COMMAND_AUTOMATE</Command>
+			<Automate>AUTOMATE_DIPLOMAT</Automate>
+			<Visible>1</Visible>
+			<IconIndex>43</IconIndex>
+			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
+		</Row>
+	</Automates>
+</GameData>

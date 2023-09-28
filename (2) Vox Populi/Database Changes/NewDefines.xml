@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Defines>
+		<!-- 
+			These are the values for the first team to meet a neutral CS.
+			Multipliers for friendly and hostile city states are below.
+			Irrational city states roll to see if they are friendly, neutral or hostile towards the meeting player.
+		-->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FRIENDSHIP" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FAITH" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_GOLD" Value="25"/>
+		<!-- Below are only given to the player who meets the CS instead of the whole team -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_FOOD" Value="10"/>
+		<!-- Chance to get a unit -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_BONUS_UNIT" Value="10"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_XP_PER_ERA" Value="5"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_XP_RANDOM" Value="5"/>
+
+		<!-- Multiplier and Divisor for the player meeting the CS, we can only store ints so *2 is 2/1 -->
+		<!-- Only Influence uses these -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER" Value="2"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR" Value="1"/>
+
+		<!-- Multiplier and Divisor for the subsequent teams meeting the CS, we can only store ints so *0.5 is 1/2 -->
+		<!-- Only Influence uses the multiplier -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER" Value="1"/>
+		<!-- Only Influence, Culture and Faith use the divisor, others are set to 0 instead -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR" Value="2"/>
+
+		<!-- Multiplier and Divisor for friendly city states bonuses, we can only store ints so *1.5 is 3/2 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER" Value="3"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR" Value="2"/>
+
+		<!-- Multiplier and Divisor for friendly city states unit chance, we can only store ints so *2 is 2/1 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER" Value="2"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR" Value="1"/>
+
+		<!-- Multiplier and Divisor for hostile city states bonuses, we can only store ints so *0.5 is 1/2 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER" Value="1"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR" Value="2"/>
+
+		<!-- Multiplier and Divisor for hostile city states unit chance, we can only store ints so *0 is 0/1 -->
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER" Value="0"/>
+		<Row Name="MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR" Value="1"/>
+	</Defines>
+</GameData>

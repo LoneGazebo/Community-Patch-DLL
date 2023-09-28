@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY">
+			<Text>Voyage of Discovery</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP">
+			<Text>If the Unit is in owned territory, this order will expend the Unit, granting you two [COLOR_POSITIVE_TEXT]free[ENDCOLOR] copies of a random Luxury Resource, prioritizing those not available on this map and not currently owned.[NEWLINE][NEWLINE]These Resources will not appear on the map and do not count toward Monopolies if they did not exist on the map, but can be traded to other civilizations. Also increases your [ICON_WAR] Military Supply by 1.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISSION_FREE_LUXURY_HELP_DISABLED">
+			<Text>Unit must be in owned territory to use this ability.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

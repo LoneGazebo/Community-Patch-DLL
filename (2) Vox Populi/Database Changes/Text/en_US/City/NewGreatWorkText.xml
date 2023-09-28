@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GREAT_WORK_FLOOD_TABLET">
+			<Text>The Flood Tablet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_QUOTE_FLOOD_TABLET">
+			<Text>"The sea calmed and the whirlwind and flood stopped.[NEWLINE]Utnapishtim opened a window and felt fresh air on his face.[NEWLINE]He looked for coastlines at the horizon and saw a region of land.[NEWLINE]The boat lodged firmly on mount Nimush which held the boat for several days, allowing no swaying.[NEWLINE]He released a raven which was able to eat and scratch, and did not circle back to the boat.[NEWLINE]He then sent his livestock out in various directions."</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS">
+			<Text>The Crown Jewels</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GREAT_WORK_THE_CROWN_JEWELS_QUOTE">
+			<Text>"On the contrary. Every Bison dollar will be worth[NEWLINE] five British pounds. For that is the exchange rate[NEWLINE] that the bank of England will implement after[NEWLINE] I kidnap their queen."[NEWLINE]-M. Bison</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

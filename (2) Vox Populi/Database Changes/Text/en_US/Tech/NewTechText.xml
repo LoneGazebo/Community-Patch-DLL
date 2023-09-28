@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_TITLE">
+			<Text>Corporations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_DESC">
+			<Text>The word "corporation" derives from corpus, the Latin word for body, or a body of people. By the time of Justinian (reigned 527–565), Roman Law recognized a range of corporate entities under the names universitas, corpus or collegium. These included the state itself (the populus Romanus), municipalities, and such private associations as sponsors of a religious cult, burial clubs, political groups, and guilds of craftsmen or traders. Such bodies commonly had the right to own property and make contracts, to receive gifts and legacies, to sue and be sued, and, in general, to perform legal acts through representatives. Private associations were granted designated privileges and liberties by the emperor.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TECH_CORPORATIONS_HELP">
+			<Text>Allows you to found [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR], which are powerful late-game institutions that greatly enhance your Trade Routes and global power if you invest in their expansion.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WONDER_CORPORATION_QUOTE_SPLASH">
+			<Text>[NEWLINE][TAB][TAB]"I don't build in order to have clients. I have clients in order to build."[NEWLINE][TAB][TAB]  - Howard Roark[NEWLINE][TAB]</Text>
+		</Row>
+	</Language_en_US>
+</GameData>
