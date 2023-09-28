@@ -400,7 +400,6 @@ CvCity::CvCity() :
 	, m_aiYieldFromPillage()
 	, m_aiYieldFromPillageGlobal()
 	, m_aiNumTimesAttackedThisTurn()
-	, m_aiLongestPotentialTradeRoute()
 	, m_aiNumProjects()
 	, m_aiYieldFromKnownPantheons()
 	, m_aiGoldenAgeYieldMod()
@@ -1432,7 +1431,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseTourism = 0;
 	m_iBaseTourismBeforeModifiers = 0;
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
-	m_aiLongestPotentialTradeRoute.resize(NUM_DOMAIN_TYPES);
 	m_aiNumProjects.resize(GC.getNumProjectInfos());
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
@@ -1484,10 +1482,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
 		m_aiNumTimesAttackedThisTurn[iI] = 0;
-	}
-	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
-	{
-		m_aiLongestPotentialTradeRoute[iI] = 0;
 	}
 #endif
 	m_miInstantYieldsTotal.clear();
@@ -2970,7 +2964,7 @@ int CvCity::GetTradeRouteLandDistanceModifier() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetLongestPotentialTradeRoute(DomainTypes eDomain) const
 {
-	return m_aiLongestPotentialTradeRoute[eDomain];
+	return GC.getGame().GetGameTrade()->GetLongestPotentialTradeRoute(GetID(), eDomain);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
@@ -2978,7 +2972,7 @@ void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
 	VALIDATE_OBJECT
 	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	m_aiLongestPotentialTradeRoute[eDomain] = iValue;
+	GC.getGame().GetGameTrade()->GetLongestPotentialTradeRoute(GetID(), eDomain);
 }
 
 bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
@@ -33071,7 +33065,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCachedEmpireSizeModifier);
 	visitor(city.m_iYieldMediansCachedTurn);
 	visitor(city.m_aiNumProjects);
-	visitor(city.m_aiLongestPotentialTradeRoute);
 	visitor(city.m_aiNumTimesAttackedThisTurn);
 	visitor(city.m_aiYieldFromKnownPantheons);
 	visitor(city.m_aiYieldFromVictory);

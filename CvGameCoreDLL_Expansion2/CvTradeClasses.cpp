@@ -86,6 +86,51 @@ void CvGameTrade::DoTurn (void)
 	BuildPolicyDifference();
 }
 
+int CvGameTrade::GetLongestPotentialTradeRoute(int iCityIndex, DomainTypes eDomain) {
+	std::map<int, std::map<DomainTypes, int>>::const_iterator cityIt = m_aiLongestPotentialTradeRoute.find(iCityIndex);
+	if (cityIt == m_aiLongestPotentialTradeRoute.end()) {
+		return -1;
+	}
+
+	std::map<DomainTypes, int>::const_iterator domainIt = (cityIt->second).find(eDomain);
+	if (domainIt == (cityIt->second).end()) {
+		return -1;
+	}
+
+	return domainIt->second;
+}
+
+void CvGameTrade::SetLongestPotentialTradeRoute(int iValue, int iCityIndex, DomainTypes eDomain) {
+	m_aiLongestPotentialTradeRoute[iCityIndex].insert(std::make_pair(eDomain, iValue));
+}
+
+TradePathLookup& CvGameTrade::GetTradePathsCache(bool bWater) {
+	if (gDLL->IsGameCoreThread()) {
+		if (bWater) {
+			return m_aPotentialTradePathsWater;
+		}
+		else {
+			return m_aPotentialTradePathsLand;
+		}
+	}
+	else {
+		if (bWater) {
+			return m_aPotentialTradePathsWaterUi;
+		}
+		else {
+			return m_aPotentialTradePathsLandUi;
+		}
+	}
+}
+std::map<PlayerTypes,int>& CvGameTrade::GetTradePathsCacheUpdateCounter() {
+	if (gDLL->IsGameCoreThread()) {
+		return m_lastTradePathUpdate;
+	}
+	else {
+		return m_lastTradePathUpdateUi;
+	}
+}
+
 // helper function
 bool HaveTradePathInCache(const TradePathLookup& cache, int iCityPlotA, int iCityPlotB)
 {
@@ -129,7 +174,7 @@ const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCi
 	//make sure we're up to date
 	UpdateTradePathCache(pOriginCity->getOwner());
 
-	const TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
+	const TradePathLookup& cache = GetTradePathsCache(bWater);
 	TradePathLookup::const_iterator it = cache.find(pOriginCity->plot()->GetPlotIndex());
 	if (it != cache.end())
 		return it->second;
@@ -147,7 +192,7 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	UpdateTradePathCache(eOriginPlayer);
 
 	//can't use const here, otherwise the [] operator does not work ...
-	TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
+	TradePathLookup& cache = GetTradePathsCache(bWater);
 
 	int iCityPlotA = pOriginCity->plot()->GetPlotIndex();
 	int iCityPlotB = pDestCity->plot()->GetPlotIndex();
@@ -182,6 +227,11 @@ void CvGameTrade::InvalidateTradePathTeamCache(TeamTypes eTeam)
 void CvGameTrade::InvalidateTradePathCache(PlayerTypes ePlayer)
 {
 	m_lastTradePathUpdate[ePlayer] = -1;
+	m_lastTradePathUpdateUi[ePlayer] = -1;
+	m_aPotentialTradePathsWater.clear();
+	m_aPotentialTradePathsWaterUi.clear();
+	m_aPotentialTradePathsLand.clear();
+	m_aPotentialTradePathsLandUi.clear();
 }
 
 void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
@@ -190,9 +240,10 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian() || kPlayer1.isMinorCiv())
 		return;
 
+	std::map<PlayerTypes, int> lastTradePathUpdate = GetTradePathsCacheUpdateCounter();
 	//check if we have anything to do
-	std::map<PlayerTypes,int>::iterator lastUpdate = m_lastTradePathUpdate.find(ePlayer1);
-	if (lastUpdate!=m_lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
+	std::map<PlayerTypes,int>::iterator lastUpdate = lastTradePathUpdate.find(ePlayer1);
+	if (lastUpdate!=lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
 		return;
 
 	//do not check whether we are at war here! the trade route cache is also used for military target selection
@@ -211,9 +262,13 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 	int iOriginCityLoop = 0;
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
+		CvPlot* pCityPlot = pOriginCity->plot();
+		int iCityPlotIndex = pCityPlot->GetPlotIndex();
+		TradePathLookup& m_aLandPaths = GetTradePathsCache(false);
+		TradePathLookup& m_aWaterPaths = GetTradePathsCache(true);
 		//throw away the old data before adding the new
-		m_aPotentialTradePathsLand[pOriginCity->plot()->GetPlotIndex()].clear();
-		m_aPotentialTradePathsWater[pOriginCity->plot()->GetPlotIndex()].clear();
+		m_aLandPaths[iCityPlotIndex].clear();
+		m_aWaterPaths[iCityPlotIndex].clear();
 
 		//first see how far we can go from this city on water
 		int iMaxNormDistSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
@@ -223,16 +278,16 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		//get all paths
 		//paths from origin city to dest city
 		//map<index of dest's city plot, path to this city>
-		map<int,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		map<int,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pCityPlot, vDestPlots, data );
 		for (map<int,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
 		{
 			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == plot)
+			if (pCityPlot == plot)
 				continue;
 
 			CvCity* pDestCity = plot->getPlotCity();
-			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
+			AddTradePathToCache(m_aWaterPaths,iCityPlotIndex,pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
 		//now for land routes
@@ -241,21 +296,21 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.ePathType = PT_TRADE_LAND;
 
 		//get all paths
-		map<int,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		map<int,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pCityPlot, vDestPlots, data );
 		for (map<int,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
 		{
 			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == plot)
+			if (pCityPlot == plot)
 				continue;
 
 			CvCity* pDestCity = plot->getPlotCity();
-			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
+			AddTradePathToCache(m_aLandPaths,iCityPlotIndex,pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
 	}
 
-	m_lastTradePathUpdate[ePlayer1]=GC.getGame().getGameTurn();
+	GetTradePathsCacheUpdateCounter()[ePlayer1]=GC.getGame().getGameTurn();
 
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
