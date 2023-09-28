@@ -1651,9 +1651,10 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
 			//here we have more advanced logic and allow some movement if it's safe (and it's not our last stand)
 			TacticalAIHelpers::PerformOpportunityAttack(pGarrison, iEnemyCount < 2 && m_pPlayer->getNumCities() > 1 );
 
+			//no need to call SetProcessed() because the unit was never in currentTurnUnits
 			//do not call finishMoves() else the garrison will not heal!
 			pGarrison->PushMission(CvTypes::getMISSION_SKIP());
-			UnitProcessed(pGarrison->GetID());
+			pGarrison->SetTurnProcessed(true);
 
 			//don't try to find a better garrison while under siege
 			if (pCity->isUnderSiege())
@@ -1679,14 +1680,23 @@ void CvTacticalAI::PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly)
 
 				//if the old garrison did not move out this will fail (possibly also for other reasons)
 				int iTurnsLeft = ExecuteMoveToPlot(pUnit, pPlot);
-				if (iTurnsLeft > 0)
+
+				//if everything went according to plan ...
+				if (iTurnsLeft != INT_MAX)
 				{
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString strLogString;
-						strLogString.Format("Garrison For, X: %d, Y: %d, Priority: %d, Turns Away: %d", pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iTurnsLeft);
+						strLogString.Format("Unit %d, moving to garrison, X: %d, Y: %d, Priority: %d, Turns Away: %d", 
+							pUnit->GetID(), pTarget->GetTargetX(), pTarget->GetTargetY(), pTarget->GetAuxIntData(), iTurnsLeft);
 						LogTacticalMessage(strLogString);
 					}
+
+					//just in case we're doing this with enemy arounds and have movement left
+					TacticalAIHelpers::PerformOpportunityAttack(pUnit);
+
+					//the new garrison came from the tactical AI current turn units, so need to mark it
+					UnitProcessed(pUnit->GetID());
 				}
 			}
 		}
