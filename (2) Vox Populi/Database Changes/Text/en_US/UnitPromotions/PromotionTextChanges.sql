@@ -488,11 +488,6 @@ UPDATE Language_en_US
 SET Text = '-30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_LOGISTICS_HELP';
 
--- Restlessness
-UPDATE Language_en_US
-SET Text = 'May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR].[NEWLINE]+1 [ICON_MOVES] Movement.'
-WHERE Tag = 'TXT_KEY_PROMOTION_RESTLESSNESS_HELP';
-
 -- Blitz
 UPDATE Language_en_US
 SET Text = 'May [COLOR_POSITIVE_TEXT]Attack Twice[ENDCOLOR], and can move after attacking.'
