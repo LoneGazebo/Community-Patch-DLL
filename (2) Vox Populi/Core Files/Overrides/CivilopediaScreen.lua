@@ -3678,7 +3678,6 @@ CivilopediaCategory[CategoryPromotions].SelectArticle = function( promotionID, s
 		AnalyzePromotion("WonderProductionModifier");
 		AnalyzePromotion("LandAirDefenseBonus", "");
 		AnalyzePromotion("PlagueChance");
-		AnalyzePromotion("IsPlague");
 		AnalyzePromotion("PlaguePriority");
 		AnalyzePromotion("PlagueID");
 		AnalyzePromotion("PlaguePromotion");
