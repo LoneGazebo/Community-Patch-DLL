@@ -317,16 +317,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/PROMOTIONS/VariableRecon.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Core Files/PNM Mods DB/PROMOTIONS/VariableRecon.sql</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/PNM Mods DB/RELIGION/ConversionModifiers.sql</FileName>
       </Action>
       <Action>
@@ -402,7 +392,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Core Files/Core Changes/TextChanges.sql</FileName>
+        <FileName>Core Files/Core Changes/ConceptChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -462,21 +452,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/Text/en_US/City_en_US.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/Text/en_US/EventCore_en_US.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/Text/en_US/Player_en_US.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/New_CIV5AICityStrategies.xml</FileName>
       </Action>
       <Action>
@@ -488,11 +463,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Core Files/Core Values/New_CIV5MultiUnitFormations.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>Modules/Events/CoreEvents.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -566,6 +536,12 @@
         <Name>EspionageChoice</Name>
         <Description>EspionageChoice</Description>
         <FileName>Core Files/CoreLua/EspionageChoicePopup.lua</FileName>
+      </Content>
+      <Content>
+        <Type>InGameUIAddin</Type>
+        <Name>GlobalCityBombardRange</Name>
+        <Description>GlobalCityBombardRange</Description>
+        <FileName>Core Files/CoreLua/GlobalCityBombardRange.lua</FileName>
       </Content>
     </ModContent>
     <ReloadAudioSystem>true</ReloadAudioSystem>
@@ -928,7 +904,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
-    <Content Include="Core Files\Core Changes\TextChanges.sql">
+    <Content Include="Core Files\Core Changes\ConceptChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1204,6 +1180,10 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
+    <Content Include="Core Files\CoreLua\GlobalCityBombardRange.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
     <Content Include="Core Files\PNM Mods DB\API\Achievements.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -1361,14 +1341,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\PNM Mods DB\PROMOTIONS\UnitNaming.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\PROMOTIONS\VariableRecon.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Core Files\PNM Mods DB\PROMOTIONS\VariableRecon.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -1583,22 +1555,6 @@
     <Content Include="LUA\YieldIconManager.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\CoreEvents.sql">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\Text\en_US\City_en_US.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\Text\en_US\EventCore_en_US.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="Modules\Events\Text\en_US\Player_en_US.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Modules\MoreGP\ExtraGPs.sql">
       <SubType>Lua</SubType>

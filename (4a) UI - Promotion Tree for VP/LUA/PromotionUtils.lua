@@ -43,7 +43,7 @@ end
 local sMatchRank = "_[0-9IV]+$"  -- UndeadDevel: improved this a tad
 
 function IsRankedPromotion(sPromotion)  -- UndeadDevel: need a lot more exceptions here...ranked promos without a rank identifier
-  if (sPromotion == "PROMOTION_MEDIC" or sPromotion == "PROMOTION_CHARGE" or sPromotion == "PROMOTION_ANTI_AIR" or sPromotion == "PROMOTION_SPLASH" or sPromotion == "PROMOTION_NAVAL_SENTRY") then
+  if (sPromotion == "PROMOTION_MEDIC" or sPromotion == "PROMOTION_CHARGE" or sPromotion == "PROMOTION_ANTI_AIR" or sPromotion == "PROMOTION_SPLASH" or sPromotion == "PROMOTION_NAVIGATOR") then
     return true
   end
 

@@ -3031,7 +3031,7 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 					{
 						if(!bTestCanMove || (pLoopUnit->canMove() && !(pLoopUnit->isCargo())))
 						{
-							if((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->GetRangedCombatLimit()))
+							if((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR))
 							{
 								if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
 								{

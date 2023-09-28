@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS">
+			<Text>Public Works</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS_HELP">
+			<Text>Increases [ICON_HAPPINESS_1] Happiness in the City by 1, reduces the City's [ICON_CITY_STATE] Empire Size Modifier by 10%, and reduces [ICON_HAPPINESS_3] Unhappiness from all Needs by 1 in the City. Also improves the City's [ICON_SPY] Spy Resistance by 10%.[NEWLINE][NEWLINE]Is a repeatable project, however the [ICON_PRODUCTION] Production cost scales by +100 [ICON_PRODUCTION] Production every Era, and +100 [ICON_PRODUCTION] Production every time you construct this project in this City.[NEWLINE][NEWLINE]Increases the City's [ICON_GOLD] Gold maintenance by 2 every time it is constructed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS_PEDIA">
+			<Text>Public works are a broad category of infrastructure projects, financed and constructed by the government, for recreational, employment, and health and safety uses in the greater community. They include public buildings (municipal buildings, schools, hospitals), transport infrastructure (roads, railroads, bridges, pipelines, canals, ports, airports), public spaces (public squares, parks, beaches), public services (water supply and treatment, sewage treatment, electrical grid, dams), and other, usually long-term, physical assets and facilities. Though often interchangeable with public infrastructure and public capital, public works does not necessarily carry an economic component, thereby being a broader term.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROJECT_PUBLIC_WORKS_STRATEGY">
+			<Text>Construct this Project in cities that are suffering from chronic [ICON_HAPPINESS_3] Unhappiness caused by Needs, and you have run out options to deal with it. Watch out, however, as this project becomes more expensive to build every time you construct it in this City, and it costs Gold to upkeep. Use this as a last resort, not as a first solution, when dealing with Unhappiness from Needs.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

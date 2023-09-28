@@ -1820,6 +1820,15 @@ UPDATE Eras SET EraSplashImage = 'ERA_Modern.dds'     		WHERE Type = 'ERA_MODERN
 UPDATE Eras SET EraSplashImage = 'ERA_Atomic.dds'     		WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET EraSplashImage = 'ERA_Future.dds'     		WHERE Type = 'ERA_FUTURE';
 
+-- Add columns to UnitPromotions to handle grouping of ranked promotions
+ALTER TABLE UnitPromotions ADD RankList TEXT;
+ALTER TABLE UnitPromotions ADD RankNumber INTEGER DEFAULT 0;
+-- Column to hold visibility preference for each promotion
+ALTER TABLE UnitPromotions ADD FlagPromoOrder INTEGER DEFAULT 0;
+ALTER TABLE UnitPromotions ADD SimpleHelpText BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD ShowInUnitPanel BOOLEAN DEFAULT 1;
+ALTER TABLE UnitPromotions ADD IsVisibleAboveFlag BOOLEAN DEFAULT 1;
+
 -- Add useful properties to UnitCombatInfos for easy SQL reference
 -- Please don't use this to determine properties of individual unit classes/units
 ALTER TABLE UnitCombatInfos ADD IsMilitary BOOLEAN DEFAULT 0;

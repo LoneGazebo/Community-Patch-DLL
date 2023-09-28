@@ -39,7 +39,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>PromotionFlags/PromotionBaseData.sql</FileName>
+        <FileName>ImprovedTechTree/IconChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -50,11 +50,6 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>ImprovedTopPanel/FontIconsITP.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
-        <FileName>ImprovedTechTree/UpdateTechGrid.sql</FileName>
       </Action>
     </ModActions>
     <Homepage>
@@ -148,10 +143,6 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="PromotionFlags\IconAtlases.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="PromotionFlags\PromotionBaseData.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -311,7 +302,7 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
-    <Content Include="ImprovedTechTree/UpdateTechGrid.sql">
+    <Content Include="ImprovedTechTree\IconChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

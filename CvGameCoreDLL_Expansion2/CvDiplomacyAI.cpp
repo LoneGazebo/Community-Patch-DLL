@@ -17439,13 +17439,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Scale based on flavors and difficulty level
 	if (eDisputeLevel > DISPUTE_LEVEL_NONE)
 	{
-		iModifier = GetBoldness() * iMultiplier * DifficultyModifier * 100;
-		iModifier /= 500;
+		iModifier = GetBoldness() * iMultiplier * DifficultyModifier;
+		iModifier /= 5;
 	}
 	else if (eDisputeLevel == DISPUTE_LEVEL_NONE && bBonus)
 	{
-		iModifier = (GetBoldness() + GetNeediness()) * iMultiplier * DifficultyModifier * 100;
-		iModifier /= 1000;
+		iModifier = (GetBoldness() + GetNeediness()) * iMultiplier * DifficultyModifier;
+		iModifier /= 10;
 	}
 
 	switch (eDisputeLevel)
@@ -17551,13 +17551,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// Scale based on flavors and difficulty level
 	if (eDisputeLevel > DISPUTE_LEVEL_NONE)
 	{
-		iModifier = GetWonderCompetitiveness() * iMultiplier * DifficultyModifier * 100;
-		iModifier /= 500;
+		iModifier = GetWonderCompetitiveness() * iMultiplier * DifficultyModifier;
+		iModifier /= 5;
 	}
 	else if (eDisputeLevel == DISPUTE_LEVEL_NONE && bBonus)
 	{
-		iModifier = (GetWonderCompetitiveness() + GetNeediness()) * iMultiplier * DifficultyModifier * 100;
-		iModifier /= 1000;
+		iModifier = (GetWonderCompetitiveness() + GetNeediness()) * iMultiplier * DifficultyModifier;
+		iModifier /= 10;
 	}
 
 	switch (eDisputeLevel)
@@ -17656,13 +17656,13 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		// Scale based on flavors and difficulty level
 		if (eDisputeLevel > DISPUTE_LEVEL_NONE)
 		{
-			iModifier = GetMinorCivCompetitiveness() * iMultiplier * DifficultyModifier * 100;
-			iModifier /= 500;
+			iModifier = GetMinorCivCompetitiveness() * iMultiplier * DifficultyModifier;
+			iModifier /= 5;
 		}
 		else if (eDisputeLevel == DISPUTE_LEVEL_NONE && bBonus)
 		{
-			iModifier = (GetMinorCivCompetitiveness() + GetNeediness()) * iMultiplier * DifficultyModifier * 100;
-			iModifier /= 1000;
+			iModifier = (GetMinorCivCompetitiveness() + GetNeediness()) * iMultiplier * DifficultyModifier;
+			iModifier /= 10;
 		}
 
 		switch (eDisputeLevel)
@@ -17762,8 +17762,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 		else if (eBlockLevel == BLOCK_LEVEL_NONE && bBonus)
 		{
-			iModifier = (GetDiploBalance() + GetNeediness()) * iMultiplier * DifficultyModifier * 100;
-			iModifier /= 1000;
+			iModifier = (GetDiploBalance() + GetNeediness()) * iMultiplier * DifficultyModifier;
+			iModifier /= 10;
 		}
 
 		switch (eBlockLevel)
@@ -17868,8 +17868,8 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 		}
 		else if (eBlockLevel == BLOCK_LEVEL_NONE && bBonus)
 		{
-			iModifier = (GetDiploBalance() + GetNeediness()) * iMultiplier * DifficultyModifier * 100;
-			iModifier /= 1000;
+			iModifier = (GetDiploBalance() + GetNeediness()) * iMultiplier * DifficultyModifier;
+			iModifier /= 10;
 		}
 
 		switch (eBlockLevel)
