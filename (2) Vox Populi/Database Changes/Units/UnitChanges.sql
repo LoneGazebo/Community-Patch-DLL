@@ -409,9 +409,7 @@ WHERE Class = 'UNITCLASS_IRONCLAD';
 UPDATE Units
 SET
 	PrereqTech = 'TECH_NUCLEAR_FISSION',
-	ObsoleteTech = 'TECH_STEALTH',
-	IconAtlas = 'ICON_ATLAS_ENW',
-	PortraitIndex = 7
+	ObsoleteTech = 'TECH_STEALTH'
 WHERE Class = 'UNITCLASS_DESTROYER';
 
 -- Sensor Combat Ship
@@ -507,13 +505,13 @@ WHERE Class = 'UNITCLASS_STEALTH_BOMBER';
 -- Missile
 ----------------------------------------------------------------------------
 
+-- Rocket Missile
+
 -- Guided Missile
 UPDATE Units
 SET
 	PrereqTech = 'TECH_ADVANCED_BALLISTICS',
-	NoMaintenance = 0,
-	IconAtlas = 'ICON_ATLAS_ENW',
-	PortraitIndex = 8
+	NoMaintenance = 0
 WHERE Class = 'UNITCLASS_GUIDED_MISSILE';
 
 ----------------------------------------------------------------------------
