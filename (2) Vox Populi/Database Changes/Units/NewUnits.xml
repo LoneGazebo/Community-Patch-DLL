@@ -730,6 +730,7 @@
 			<CivilianAttackPriority>CIVILIAN_ATTACK_PRIORITY_LOW</CivilianAttackPriority>
 			<NumInfPerEra>15</NumInfPerEra>
 			<RestingPointChange>30</RestingPointChange>
+			<WorkRate>1</WorkRate>
 			<UnitArtInfo>ART_DEF_UNIT_GREAT_DIPLOMAT</UnitArtInfo>
 			<UnitArtInfoEraVariation>true</UnitArtInfoEraVariation>
 			<UnitFlagAtlas>DIPLOMAT_FLAG_ATLAS</UnitFlagAtlas>
