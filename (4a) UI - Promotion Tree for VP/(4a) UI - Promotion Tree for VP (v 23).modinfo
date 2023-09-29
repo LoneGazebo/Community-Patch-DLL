@@ -2,7 +2,7 @@
 <Mod id="1f0a153b-26ae-4496-a2c0-a106d9b43c95" version="23">
   <Properties>
     <Name>(4a) UI - Promotion Tree for VP</Name>
-    <Teaser>(3.10.14) Shows promotions as a tree</Teaser>
+    <Teaser>(4.0) Shows promotions as a tree</Teaser>
     <Description>Displays promotions in a tree format either for the current unit or by selecting one of the various combat classes (melee, naval, recon, siege, mounted, etc) from a drop-down menu
 
 Hooks into the DiploCorner drop-down.
@@ -23,8 +23,8 @@ Layout derived from http://gaming.stackexchange.com/questions/15846/122</Descrip
     <ReloadUnitSystem>0</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="121" maxversion="999" title="(1) Community Patch" />
-    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="16" maxversion="999" title="(2) Vox Populi" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="122" maxversion="999" title="(1) Community Patch" />
+    <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" minversion="17" maxversion="999" title="(2) Vox Populi" />
   </Dependencies>
   <References>
     <Mod id="21e78f1f-06f9-4147-ac61-75aa7c403d18" minversion="3" maxversion="999" title="Utils - Modular DiploCorner" />
@@ -37,7 +37,7 @@ Layout derived from http://gaming.stackexchange.com/questions/15846/122</Descrip
     <File md5="ECBE2176759205C61713615D3832DA25" import="1">LUA/ControlUtils.lua</File>
     <File md5="C9954CCB7909269AA7AE77308D5880F5" import="1">LUA/DebugPrint.lua</File>
     <File md5="BEF7B5EC3FA2810262122DC5F24B8413" import="1">LUA/PipeManager.lua</File>
-    <File md5="4E884A4B153C5BE16D00B906C52AB03B" import="1">LUA/PromotionUtils.lua</File>
+    <File md5="57B8DF3410B0BC929F0C5AECED9A0B74" import="1">LUA/PromotionUtils.lua</File>
     <File md5="D276550C4D80DF9CB054FC4B1A5884A7" import="0">SQL/UIPromotionTree.sql</File>
     <File md5="CBB983DD4762C2F168205993905EB509" import="0">UI/PromotionTree.lua</File>
     <File md5="7639ED42D493F7831BD2E453EC1F9691" import="0">UI/PromotionTree.xml</File>
