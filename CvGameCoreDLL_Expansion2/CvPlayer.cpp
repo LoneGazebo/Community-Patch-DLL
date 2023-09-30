@@ -138,6 +138,7 @@ CvPlayer::CvPlayer() :
 	, m_iStartingX()
 	, m_iStartingY()
 	, m_iTotalPopulation()
+	, m_iHighestPopulation()
 	, m_iTotalLand()
 	, m_iTotalLandScored()
 	, m_iJONSCulturePerTurnForFree()
@@ -1247,6 +1248,7 @@ void CvPlayer::uninit()
 	m_iStartingX = INVALID_PLOT_COORD;
 	m_iStartingY = INVALID_PLOT_COORD;
 	m_iTotalPopulation = 0;
+	m_iHighestPopulation = 0;
 	m_iTotalLand = 0;
 	m_iTotalLandScored = 0;
 	m_iCityConnectionHappiness = 0;
@@ -18747,6 +18749,16 @@ long CvPlayer::getRealPopulation() const
 	}
 
 	return ((long)(iTotalPopulation));
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getHighestPopulation() const
+{
+	return m_iHighestPopulation;
+}
+void CvPlayer::setHighestPopulation(int iValue)
+{
+	m_iHighestPopulation = max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -47574,6 +47586,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iStartingX);
 	visitor(player.m_iStartingY);
 	visitor(player.m_iTotalPopulation);
+	visitor(player.m_iHighestPopulation);
 	visitor(player.m_iTotalLand);
 	visitor(player.m_iTotalLandScored);
 	visitor(player.m_iJONSCulturePerTurnForFree);

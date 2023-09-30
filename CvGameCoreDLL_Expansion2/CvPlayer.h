@@ -454,6 +454,9 @@ public:
 	void changeTotalPopulation(int iChange);
 	long getRealPopulation() const;
 
+	int getHighestPopulation() const;
+	void setHighestPopulation(int iValue);
+
 	int GetNewCityExtraPopulation() const;
 	void ChangeNewCityExtraPopulation(int iChange);
 
@@ -3035,6 +3038,7 @@ protected:
 	int m_iStartingX;
 	int m_iStartingY;
 	int m_iTotalPopulation;
+	int m_iHighestPopulation;
 	int m_iTotalLand;
 	int m_iTotalLandScored;
 	int m_iJONSCulturePerTurnForFree;
@@ -3885,6 +3889,7 @@ SYNC_ARCHIVE_VAR(LeaderHeadTypes, m_ePersonalityType)
 SYNC_ARCHIVE_VAR(int, m_iStartingX)
 SYNC_ARCHIVE_VAR(int, m_iStartingY)
 SYNC_ARCHIVE_VAR(int, m_iTotalPopulation)
+SYNC_ARCHIVE_VAR(int, m_iHighestPopulation)
 SYNC_ARCHIVE_VAR(int, m_iTotalLand)
 SYNC_ARCHIVE_VAR(int, m_iTotalLandScored)
 SYNC_ARCHIVE_VAR(int, m_iJONSCulturePerTurnForFree)

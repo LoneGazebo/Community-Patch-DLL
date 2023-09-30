@@ -18748,9 +18748,14 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 		}
 #endif
 
-		GET_PLAYER(getOwner()).changeTotalPopulation(getPopulation() - iOldPopulation);
-		GET_TEAM(getTeam()).changeTotalPopulation(getPopulation() - iOldPopulation);
-		GC.getGame().changeTotalPopulation(getPopulation() - iOldPopulation);
+		int iGlobalPopChange = getPopulation() - iOldPopulation;
+		GET_PLAYER(getOwner()).changeTotalPopulation(iGlobalPopChange);
+		GET_TEAM(getTeam()).changeTotalPopulation(iGlobalPopChange);
+		GC.getGame().changeTotalPopulation(iGlobalPopChange);
+
+		int iNewTotal = GET_PLAYER(getOwner()).getTotalPopulation();
+		if (iNewTotal > GET_PLAYER(getOwner()).getHighestPopulation())
+			GET_PLAYER(getOwner()).setHighestPopulation(iNewTotal);
 
 		plot()->updateYield();
 
