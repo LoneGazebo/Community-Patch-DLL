@@ -17739,13 +17739,10 @@ int CvMinorCivAI::GetPeaceBlockedTurns(TeamTypes eTeam) const
 	if (iPeaceBlockedTurns < 1)
 		return 0;
 
-	if (MOD_BALANCE_VP)
-	{
-		iPeaceBlockedTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iPeaceBlockedTurns /= 100;
-		if (iPeaceBlockedTurns < 1)
-			iPeaceBlockedTurns = 1;
-	}
+	iPeaceBlockedTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+	iPeaceBlockedTurns /= 100;
+	if (iPeaceBlockedTurns < 1)
+		iPeaceBlockedTurns = 1;
 
 	if (iTurnsSinceAttacked >= iPeaceBlockedTurns)
 		return 0;
