@@ -1101,6 +1101,41 @@
 			<IconsPerRow>2</IconsPerRow>
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
+		<Row>
+			<Atlas>PROMOTION_ATLAS</Atlas>
+			<IconSize>16</IconSize>
+			<Filename>promotions128.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>8</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>ABILITY_ATLAS</Atlas>
+			<IconSize>16</IconSize>
+			<Filename>promotions128.dds</Filename>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>8</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>KRIS_SWORDSMAN_PROMOTION_ATLAS</Atlas>
+			<IconSize>16</IconSize>
+			<Filename>promotion_kris16_exp2.dds</Filename>
+			<IconsPerRow>3</IconsPerRow>
+			<IconsPerColumn>3</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>EXPANSION_PROMOTION_ATLAS</Atlas>
+			<IconSize>16</IconSize>
+			<Filename>expansion1-16.dds</Filename>
+			<IconsPerRow>3</IconsPerRow>
+			<IconsPerColumn>2</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>EXPANSION2_PROMOTION_ATLAS</Atlas>
+			<IconSize>16</IconSize>
+			<Filename>expansion2_promotion16.dds</Filename>
+			<IconsPerRow>7</IconsPerRow>
+			<IconsPerColumn>7</IconsPerColumn>
+		</Row>
 	</IconTextureAtlases>
 	<IconFontTextures>
 		<Row>
