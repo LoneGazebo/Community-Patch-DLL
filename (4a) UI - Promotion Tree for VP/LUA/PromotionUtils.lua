@@ -105,8 +105,8 @@ function GetBasicPromotionsSpecialCases(typeOfUnit)  -- UndeadDevel: because of 
     sQuery = "SELECT p.Type FROM UnitPromotions p, UnitPromotions_UnitCombats c WHERE c.UnitCombatType = \"UNITCOMBAT_ARCHER\" AND c.PromotionType = p.Type AND (p.PromotionPrereqOr1 IS NULL OR p.PromotionPrereqOr1 = \"PROMOTION_HOVERING_UNIT\") AND NOT p.CannotBeChosen"
   elseif (typeOfUnit == 1) then -- Mounted Archers: not the case for current base promos, but may be added in future: Mounted Archers can't use promos with the MinimumRangeRequired attribute
     sQuery = "SELECT p.Type FROM UnitPromotions p, UnitPromotions_UnitCombats c WHERE c.UnitCombatType = \"UNITCOMBAT_ARCHER\" AND c.PromotionType = p.Type AND p.PromotionPrereqOr1 IS NULL AND NOT p.CannotBeChosen AND IFNULL(p.MinimumRangeRequired, 0) = 0"
-  elseif (typeOfUnit == 2) then -- regular Archers: same as above but with the MaximumRangeRequired attribute instead
-    sQuery = "SELECT p.Type FROM UnitPromotions p, UnitPromotions_UnitCombats c WHERE c.UnitCombatType = \"UNITCOMBAT_ARCHER\" AND c.PromotionType = p.Type AND p.PromotionPrereqOr1 IS NULL AND NOT p.CannotBeChosen AND IFNULL(p.MaximumRangeRequired, 0) = 0"  
+  elseif (typeOfUnit == 2) then -- regular Archers: same as above but with the MountedOnly attribute instead
+    sQuery = "SELECT p.Type FROM UnitPromotions p, UnitPromotions_UnitCombats c WHERE c.UnitCombatType = \"UNITCOMBAT_ARCHER\" AND c.PromotionType = p.Type AND p.PromotionPrereqOr1 IS NULL AND NOT p.CannotBeChosen AND IFNULL(p.MountedOnly, 0) = 0"  
   elseif (typeOfUnit == 3) then -- Siege Weapons: normal, non-special SQL query; the special part comes after this at the bottom of this function
     sQuery = "SELECT p.Type FROM UnitPromotions p, UnitPromotions_UnitCombats c WHERE c.UnitCombatType = \"UNITCOMBAT_SIEGE\" AND c.PromotionType = p.Type AND p.PromotionPrereqOr1 IS NULL AND NOT p.CannotBeChosen"
   elseif (typeOfUnit == 4) then -- AA-Units: same as above with Siege Weapons
@@ -176,7 +176,7 @@ function GetDependentPromotions(sCombatClass, sPromotion)  -- UndeadDevel: still
 	
 	local sQuery = ""
     if (sCombatClass == "UNITCOMBAT_ARCHER") then
-    sQuery = "SELECT p2.Type FROM UnitPromotions p1, UnitPromotions p2, UnitPromotions_UnitCombats c WHERE p1.Type = ? AND (" .. sPrereqs .. ") AND p2.Type = c.PromotionType AND c.UnitCombatType = ? AND p2.Type NOT LIKE ? AND IFNULL(p2.MaximumRangeRequired, 0) = 0"
+    sQuery = "SELECT p2.Type FROM UnitPromotions p1, UnitPromotions p2, UnitPromotions_UnitCombats c WHERE p1.Type = ? AND (" .. sPrereqs .. ") AND p2.Type = c.PromotionType AND c.UnitCombatType = ? AND p2.Type NOT LIKE ? AND IFNULL(p2.MountedOnly, 0) = 0"
       for row in DB.Query(sQuery, sPromotion, sCombatClass, sBase .. "%") do
 	    table.insert(promotions, GetPromotionChain(row.Type, sCombatClass))
       end
