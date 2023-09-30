@@ -18633,9 +18633,9 @@ void CvPlayer::ChangeCapitalYieldPerPopChangeEmpire(YieldTypes eYield, int iChan
 
 	if (iChange != 0)
 	{
-        int iChangeTimes100 = 100 / iChange;
-        // (1/20 * 100 = 5)
-        m_aiCapitalYieldPerPopChangeEmpire[eYield] = m_aiCapitalYieldPerPopChangeEmpire[eYield] + iChangeTimes100;
+		int iChangeTimes100 = 100 / iChange;
+		// (1/20 * 100 = 5)
+		m_aiCapitalYieldPerPopChangeEmpire[eYield] = m_aiCapitalYieldPerPopChangeEmpire[eYield] + iChangeTimes100;
 
 		updateYield();
 	}
