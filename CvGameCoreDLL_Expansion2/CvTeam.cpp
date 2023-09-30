@@ -1875,8 +1875,7 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 			// On the attacking team
 			if (eMajorTeam == GetID())
 			{
-				vector<PlayerTypes> v = GET_PLAYER(eMajor).GetDiplomacyAI()->GetAllValidMajorCivs();
-				GET_PLAYER(eMajor).GetDiplomacyAI()->DoReevaluatePlayers(v, true);
+				GET_PLAYER(eMajor).GetDiplomacyAI()->DoReevaluateEveryone(true);
 			}
 			// Has met the attacking team
 			else if (isHasMet(eMajorTeam))
@@ -9261,12 +9260,6 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		if (!kPlayer.isMajorCiv())
 			continue;
 
-		if (kPlayer.isAlive())
-		{
-			vector<PlayerTypes> v = kPlayer.GetDiplomacyAI()->GetAllValidMajorCivs();
-			kPlayer.GetDiplomacyAI()->DoReevaluatePlayers(v, false, true, true);
-		}
-
 		// Clear resurrection mark to prevent a later backstabbing penalty
 		if (!bPeaceful)
 		{
@@ -9278,6 +9271,12 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 				kPlayer.GetDiplomacyAI()->SetResurrectedBy(vTheirTeam[j], false);
 			}
 		}
+	}
+	for (size_t i=0; i<vOurTeam.size(); i++)
+	{
+		CvPlayerAI& kPlayer = GET_PLAYER(vOurTeam[i]);
+		if (kPlayer.isAlive() && kPlayer.isMajorCiv())
+			kPlayer.GetDiplomacyAI()->DoReevaluateEveryone(true, true, true);
 	}
 
 	// Send out notifications to everyone
@@ -9733,8 +9732,7 @@ void CvTeam::DoBecomeVassal(TeamTypes eTeam, bool bVoluntary, PlayerTypes eOrigi
 		}
 
 		// AI needs to reevaluate all players (reprioritizes friendships and prevents exceeding the Defensive Pact limit)
-		vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, !bVoluntary, true);
+		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluateEveryone(!bVoluntary, true);
 	}
 
 	if(GC.getGame().isFinalInitialized())

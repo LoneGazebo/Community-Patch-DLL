@@ -4768,8 +4768,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					else
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
-						vector<PlayerTypes> v(1, eReceivingPlayer);
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayer(eReceivingPlayer, false, false);
 					}
 				}
 				// Notify all other civs
@@ -5233,8 +5232,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				{
 					if (!GET_PLAYER(*iter).isHuman())
 					{
-						vector<PlayerTypes> v(1, eReceivingPlayer);
-						GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayers(v);
+						GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayer(eReceivingPlayer);
 					}
 				}
 			}

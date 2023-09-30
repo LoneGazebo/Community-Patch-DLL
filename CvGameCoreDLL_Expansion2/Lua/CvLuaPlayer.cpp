@@ -11464,33 +11464,8 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 
 	pkPlayer->GetDiplomacyAI()->SetDoFAccepted(eOtherPlayer, true);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);
-
-	if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_ALLIES)
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_BATTLE_BROTHERS);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_BATTLE_BROTHERS);
-	}
-	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_FRIENDS || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_FRIENDS) 
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_ALLIES);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_ALLIES);
-	}
-	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_NEW || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_NEW)  
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_FRIENDS);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_FRIENDS);
-	}
-	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_UNTRUSTWORTHY || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_UNTRUSTWORTHY)  
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_NEW);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_NEW);
-	}
-
-	vector<PlayerTypes> v(1, eOtherPlayer);
-	pkPlayer->GetDiplomacyAI()->DoReevaluatePlayers(v);
-
-	vector<PlayerTypes> v2(1, pkPlayer->GetID());
-	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2);
+	pkPlayer->GetDiplomacyAI()->DoReevaluatePlayer(eOtherPlayer);
+	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoReevaluatePlayer(pkPlayer->GetID());
 
 	return 1;
 }
@@ -15304,24 +15279,23 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetDenouncedScore(ePlayer);
-		if (iValue != 0)
+		if (pDiplo->IsDenouncedPlayer(ePlayer) || pDiplo->IsDenouncedByPlayer(ePlayer))
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_iValue = pDiplo->GetDenouncedScore(ePlayer);
 			CvString str;
 
 			if (pDiplo->IsDenouncedPlayer(ePlayer) && pDiplo->IsDenouncedByPlayer(ePlayer))
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT").toUTF8();
 			}
-			else if (pDiplo->IsDenouncedPlayer(ePlayer))
+			else if (pDiplo->IsDenouncedByPlayer(ePlayer))
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
 			}
 			else
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
 			}
 
 			kOpinion.m_str = str;

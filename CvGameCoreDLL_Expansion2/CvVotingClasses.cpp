@@ -8154,8 +8154,7 @@ void CvLeague::FinishSession()
 		if (!GET_PLAYER(eLoopPlayer).isAlive() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
 			continue;
 
-		vector<PlayerTypes> v = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v);
+		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluateEveryone(false, false);
 	}
 }
 
@@ -10816,8 +10815,6 @@ CvLeagueAI::AlignmentLevels CvLeagueAI::EvaluateAlignment(PlayerTypes ePlayer, b
 	{
 		switch (pDiplo->GetDoFType(ePlayer))
 		{
-		case NO_DOF_TYPE:
-			UNREACHABLE();
 		case DOF_TYPE_UNTRUSTWORTHY:
 		case DOF_TYPE_NEW:
 			break;

@@ -246,8 +246,8 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MADE_DEMAND_OF_US_SUBSE
 --	//////////////////////////////////////
 
 -- We have denounced them/each other! / They have denounced us!
-UPDATE Defines SET Value = 35 WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME'; -- player denounced AI
-UPDATE Defines SET Value = 35 WHERE Name = 'OPINION_WEIGHT_DENOUNCED_THEM'; -- AI denounced player
+UPDATE Defines SET Value = 50 WHERE Name = 'OPINION_WEIGHT_DENOUNCED_ME'; -- player denounced AI
+UPDATE Defines SET Value = 0 WHERE Name = 'OPINION_WEIGHT_DENOUNCED_THEM'; -- AI denounced player
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_MUTUAL_DENOUNCEMENT', 50; -- both of these
 
 -- You have Denounced a leader they made a Declaration of Friendship with!

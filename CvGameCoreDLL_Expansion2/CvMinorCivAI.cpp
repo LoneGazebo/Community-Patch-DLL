@@ -17736,7 +17736,18 @@ int CvMinorCivAI::GetPeaceBlockedTurns(TeamTypes eTeam) const
 
 	int iTurnsSinceAttacked = GC.getGame().getGameTurn() - iTurnLastAttacked;
 	int iPeaceBlockedTurns = /*1*/ GD_INT_GET(WAR_MINOR_PEACE_BLOCKED_TURNS);
-	if (iPeaceBlockedTurns < 1 || iTurnsSinceAttacked >= iPeaceBlockedTurns)
+	if (iPeaceBlockedTurns < 1)
+		return 0;
+
+	if (MOD_BALANCE_VP)
+	{
+		iPeaceBlockedTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iPeaceBlockedTurns /= 100;
+		if (iPeaceBlockedTurns < 1)
+			iPeaceBlockedTurns = 1;
+	}
+
+	if (iTurnsSinceAttacked >= iPeaceBlockedTurns)
 		return 0;
 
 	if (!GET_TEAM(eTeam).isAtWar(GetPlayer()->getTeam()))

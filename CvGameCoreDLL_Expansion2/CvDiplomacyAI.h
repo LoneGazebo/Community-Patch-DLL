@@ -1173,7 +1173,9 @@ public:
 	// ------------------------------------
 
 	void DoUpdateGlobalPolitics();
-	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true, bool bFromResurrection = false);
+	void DoReevaluatePlayer(PlayerTypes ePlayer, bool bMajorEvent = false, bool bCancelExchanges = true, bool bFromResurrection = false);
+	void DoReevaluateEveryone(bool bMajorEvent = false, bool bCancelExchanges = true, bool bFromResurrection = false);
+	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bMajorEvent = false, bool bCancelExchanges = true, bool bFromResurrection = false);
 	void DoUpdateMajorCompetitors();
 	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
 

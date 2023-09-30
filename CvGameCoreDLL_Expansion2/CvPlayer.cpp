@@ -4844,9 +4844,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		if (!GET_PLAYER(eOwnerTeamMember).isAlive() || !GET_PLAYER(eOwnerTeamMember).isMajorCiv())
 			continue;
 
-		vector<PlayerTypes> v = GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->GetAllValidMajorCivs();
 		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoUpdateConquestStats();
-		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true, bMajorEliminated);
+		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluateEveryone(true);
 	}
 
 	// The rest of the world reevaluates the new owner's team in return - unless a player was eliminated, in which case everyone reevaluates everyone
@@ -4861,13 +4860,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 			if (bReevaluate)
 			{
-				if (!bMajorEliminated)
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
+				if (bMajorEliminated)
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluateEveryone(true);
 				else
-				{
-					vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vAllMajors, true, true);
-				}
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
 			}
 		}
 	}
@@ -10081,12 +10077,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 	else
 	{
-		vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-		pDiploAI->DoReevaluatePlayers(v, false, false, true);
+		pDiploAI->DoReevaluateEveryone(true, false, true);
 	}
 
 	vector<PlayerTypes> v = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
-	GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
+	GetDiplomacyAI()->DoReevaluatePlayers(v, false, !bAlive);
 
 	if (MOD_EVENTS_LIBERATION) 
 	{
