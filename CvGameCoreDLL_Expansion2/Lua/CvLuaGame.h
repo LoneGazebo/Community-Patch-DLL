@@ -500,6 +500,9 @@ protected:
 	static int lIsPitbossHost(lua_State* L);
 	static int lIsHost(lua_State* L);
 	static int lGetTimeStringForYear(lua_State* L);
+
+	static int lIsExeWantForceResyncAvailable(lua_State* L);
+	static int lSetExeWantForceResyncValue(lua_State* L);
 };
 
 #endif //CVLUAGAME_H

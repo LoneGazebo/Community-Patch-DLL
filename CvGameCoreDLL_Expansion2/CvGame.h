@@ -844,8 +844,20 @@ public:
 
 	void NewCapitalFounded(int iPlotFoundValue);
 	int GetCityQualityReference() const;
+	
+	// exe things
+	void SetExeBinType(CvBinType eBinType);
+	CvBinType GetExeBinType() const;
+
+	bool IsExeWantForceResyncAvailable();
+	void SetExeWantForceResyncValue(int value);
+	void SetExeWantForceResyncPointer(int* pointer);
 
 protected:
+
+	// exe things
+	CvBinType m_eExeBinType;
+	int* s_iExeWantForceResync;
 
 	bool m_firstActivationOfPlayersAfterLoad;
 

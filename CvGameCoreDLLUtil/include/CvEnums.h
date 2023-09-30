@@ -15,6 +15,14 @@ enum CLOSED_ENUM eCiv5GameCoreMPoolType
 	c_eCiv5GameplayDLL = c_eMPoolTypeUserStart + 0x100,		// Adding 0x100 because we don't want to collide with the app's IDs
 };
 
+enum CLOSED_ENUM CvBinType 
+{ 
+	BIN_UNKNOWN = -1,
+	BIN_TABLET,
+	BIN_DX11, 
+	BIN_DX9
+};
+
 enum CLOSED_ENUM ArmyType
 {
     ARMY_TYPE_ANY = -1,
