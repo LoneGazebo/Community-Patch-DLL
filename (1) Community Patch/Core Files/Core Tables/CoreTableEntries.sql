@@ -1825,7 +1825,7 @@ ALTER TABLE UnitPromotions ADD RankList TEXT;
 ALTER TABLE UnitPromotions ADD RankNumber INTEGER DEFAULT 0;
 -- Column to hold visibility preference for each promotion
 ALTER TABLE UnitPromotions ADD FlagPromoOrder INTEGER DEFAULT 0;
-ALTER TABLE UnitPromotions ADD SimpleHelpText BOOLEAN DEFAULT 0;
+ALTER TABLE UnitPromotions ADD SimpleHelpText BOOLEAN;
 ALTER TABLE UnitPromotions ADD ShowInUnitPanel BOOLEAN DEFAULT 1;
 ALTER TABLE UnitPromotions ADD IsVisibleAboveFlag BOOLEAN DEFAULT 1;
 

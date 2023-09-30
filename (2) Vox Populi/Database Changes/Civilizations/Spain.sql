@@ -89,7 +89,6 @@ SET
 	),
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_EXPLORER') + 6,
 	DefaultUnitAI = 'UNITAI_FAST_ATTACK',
-	Found = 1,
 	FoundMid = 1,
 	FoundAbroad = 1
 WHERE Type = 'UNIT_SPANISH_CONQUISTADOR';

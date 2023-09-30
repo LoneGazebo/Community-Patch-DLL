@@ -26,7 +26,7 @@
 			<Help>TXT_KEY_PROCESS_DEFENSE_HELP</Help>
 			<Strategy>TXT_KEY_PROCESS_DEFENSE_STRATEGY</Strategy>
 			<TechPrereq>TECH_ARCHERY</TechPrereq>
-			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>8</PortraitIndex>
 		</Row>
 		<Row>

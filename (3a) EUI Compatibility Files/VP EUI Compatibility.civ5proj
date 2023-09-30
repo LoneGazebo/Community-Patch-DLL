@@ -34,11 +34,6 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>PromotionFlags/IconAtlases.xml</FileName>
-      </Action>
-      <Action>
-        <Set>OnModActivated</Set>
-        <Type>UpdateDatabase</Type>
         <FileName>ImprovedTechTree/IconChanges.sql</FileName>
       </Action>
       <Action>
@@ -123,26 +118,6 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="EUI\NeededText.xml">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>False</ImportIntoVFS>
-    </Content>
-    <Content Include="PromotionFlags\expansion1-16.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="PromotionFlags\expansion2_promotion16.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="PromotionFlags\promotion_kris16_exp2.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="PromotionFlags\promotions128.dds">
-      <SubType>Lua</SubType>
-      <ImportIntoVFS>True</ImportIntoVFS>
-    </Content>
-    <Content Include="PromotionFlags\IconAtlases.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
@@ -320,7 +295,6 @@
     <Folder Include="ImprovedTopPanel\" />
     <Folder Include="LUA" />
     <Folder Include="EUI" />
-    <Folder Include="PromotionFlags" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath)\Firaxis\ModBuddy\Civ5Mod.targets" />
 </Project>
