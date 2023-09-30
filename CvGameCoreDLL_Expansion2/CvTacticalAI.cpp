@@ -503,7 +503,7 @@ void CvTacticalAI::FindTacticalTargets()
 				// Or citadels (for pillaging!)
 				if (atWar(m_pPlayer->getTeam(), pLoopPlot->getTeam()) &&
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
-					GC.getImprovementInfo(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()))->GetNearbyEnemyDamage() > GD_INT_GET(ENEMY_HEAL_RATE) &&
+					GC.getImprovementInfo(pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()))->GetNearbyEnemyDamage() > /*10 in CP, 5 in VP*/ GD_INT_GET(ENEMY_HEAL_RATE) &&
 					!pLoopPlot->IsImprovementPillaged())
 				{
 					newTarget.SetTargetType(AI_TACTICAL_TARGET_CITADEL);

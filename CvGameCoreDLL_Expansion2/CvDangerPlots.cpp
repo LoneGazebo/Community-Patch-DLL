@@ -331,7 +331,7 @@ void CvDangerPlots::UpdateDangerInternal(bool bKeepKnownUnits, const PlotIndexCo
 			if(eImprovement != NO_IMPROVEMENT)
 			{
 				int iDamage = GC.getImprovementInfo(eImprovement)->GetNearbyEnemyDamage();
-				if(iDamage>GD_INT_GET(ENEMY_HEAL_RATE) && !ShouldIgnoreCitadel(pPlot, false))
+				if (iDamage > /*10 in CP, 5 in VP*/ GD_INT_GET(ENEMY_HEAL_RATE) && !ShouldIgnoreCitadel(pPlot, false))
 				{
 					//citadel only affects adjacent plots, not this plot
 					for(int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
