@@ -9567,6 +9567,8 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 			if (GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
 			{
 				int iPerPopYieldEmpire = GET_PLAYER(ePlayer).getTotalPopulation() / GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield);
+				//Implied 100x, see ChangeCapitalYieldPerPopChangeEmpire.
+				iPerPopYieldEmpire /= 100;
 				iYield += iPerPopYieldEmpire;
 			}
 		}
