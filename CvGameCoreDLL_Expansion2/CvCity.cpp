@@ -6868,17 +6868,18 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				std::vector<int> GWIDs = GET_PLAYER(eSpyOwner).GetEspionage()->BuildGWList(this);
 				if (GWIDs.size() > 0)
 				{
-					uint uMinLoop = min(static_cast<uint>(pkEventChoiceInfo->getForgeGW()), GWIDs.size());
-					while (uMinLoop > 0)
+					int iNumStolen = 0;
+					int iNumToSteal = pkEventChoiceInfo->getForgeGW();
+					while (iNumStolen < iNumToSteal && GWIDs.size() > 0)
 					{
-						uint uGrab = GC.getGame().urandLimitExclusive(uMinLoop - 1, GET_PLAYER(eSpyOwner).GetPseudoRandomSeed().mix(GWIDs[0]).mix(GET_PLAYER(getOwner()).GetTreasury()->CalculateGrossGold()));
-						if (GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[uGrab]))
+						int iGrab = GC.getGame().randRangeInclusive(0, GWIDs.size(), CvSeeder::fromRaw(0xd3270c47).mix(GET_PLAYER(eSpyOwner).GetID()).mix(GetID()).mix(GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]));
+						if (GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[iGrab]))
 						{
 							GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]++;
-
 							GET_PLAYER(eSpyOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 						}
-						uMinLoop--;
+						GWIDs.erase(GWIDs.begin() + iGrab);
+						iNumStolen++;
 					}
 				}
 				else
