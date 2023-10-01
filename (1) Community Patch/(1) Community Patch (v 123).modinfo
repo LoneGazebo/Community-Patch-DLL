@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="122">
+<Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="123">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.0) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
     <Homepage>https://forums.civfanatics.com/forums/community-patch-project.497/</Homepage>
     <AffectsSavedGames>1</AffectsSavedGames>
-    <MinCompatibleSaveVersion>122</MinCompatibleSaveVersion>
+    <MinCompatibleSaveVersion>123</MinCompatibleSaveVersion>
     <SupportsSinglePlayer>1</SupportsSinglePlayer>
     <SupportsMultiplayer>1</SupportsMultiplayer>
     <SupportsHotSeat>1</SupportsHotSeat>
@@ -75,7 +75,7 @@
     <File md5="12D7AE7B46F4A1CFC9C04068B91EC4EA" import="1">Core Files/Core Changes/CompressedArt/wonderconceptgreatwall.dds</File>
     <File md5="B0F68066FF301B6B10E15EC0E85CFDE6" import="1">Core Files/Core Changes/CompressedArt/wonderconceptnotredame.dds</File>
     <File md5="0429CDBB6DB69F18C354FA6B36B459E8" import="1">Core Files/Core Changes/CompressedArt/wu.dds</File>
-    <File md5="722C568FA0A37B0801ACDA4C0E27B5A6" import="0">Core Files/Core Changes/CoreChanges.sql</File>
+    <File md5="57CC8370EE357567A6C69C74C94B5151" import="0">Core Files/Core Changes/CoreChanges.sql</File>
     <File md5="E35E2AB9285C3871AF4C3BDBF5EEECE8" import="0">Core Files/Core Changes/CommunityPatchDLLChanges.xml</File>
     <File md5="F11DAA7639C6319B9C7A04A281AB9B12" import="0">Core Files/Core Changes/DiploAIOptions.sql</File>
     <File md5="C2070A14115CDA6745C2F02C6C6C9C9B" import="0">Core Files/Core Changes/EraSpecificWriters.sql</File>
@@ -111,7 +111,7 @@
     <File md5="BABCACA4B8369ACB71B2BBA51E241F75" import="0">Core Files/Core Changes/NewText.xml</File>
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Core Files/Core Changes/ConceptChanges.sql</File>
     <File md5="E75B6D9A2177C4A29A0520B87F33908D" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
-    <File md5="4312612DB24D3F3ABB52C5B0AED57776" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
+    <File md5="C64A54B0D6D60DC86DC971F123B44E83" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
     <File md5="D18E87B2EBC2C4A1DEAA5874325F46A0" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="CBD31B71C5AD8AF0AB84EBF1CFB78B7B" import="0">Core Files/Core Tables/DifficultyTables.sql</File>
     <File md5="1EB67188985BFF1A18BE940FCDAEBF1C" import="0">Core Files/Core Tables/DifficultyTables.xml</File>
@@ -123,7 +123,7 @@
     <File md5="260E49F1463125721E6A1B96B69D47A1" import="0">Core Files/Core Values/ExtraSpyTable.xml</File>
     <File md5="D7B41E44097D8C93D5B53C024B43E326" import="0">Core Files/Core Values/CoreValues.xml</File>
     <File md5="4EABE2799438D63DF7BAFFF01A8EB7A4" import="0">Core Files/Core Values/DiploApproachWeights.sql</File>
-    <File md5="8198E901553F879C6E43F7CB9F8A315F" import="0">Core Files/Core Values/DiploOpinionWeights.sql</File>
+    <File md5="1524EBA8ECC660E2303A0A809BC40602" import="0">Core Files/Core Values/DiploOpinionWeights.sql</File>
     <File md5="4294BB607CA8995F0DC562AA8B1F8C20" import="0">Core Files/Core Values/Automates.xml</File>
     <File md5="6472E73AF0AA0E2FF97AFDE18690F35F" import="0">Core Files/Core Values/DummyTrigger.sql</File>
     <File md5="709ECD2A7C0807C8ED2E945DA5B4718E" import="0">Core Files/Core Values/FasterAircraft.sql</File>
@@ -231,7 +231,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="A26F53A71CE09C99E8249B2EA9F93160" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="EB761D1F2E1BF110B6FB19A339475895" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="D46D907E2B84A3D4B011EBCD9F1C9979" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="1784B636C3D8AF7DAC019FEA80912C3C" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
