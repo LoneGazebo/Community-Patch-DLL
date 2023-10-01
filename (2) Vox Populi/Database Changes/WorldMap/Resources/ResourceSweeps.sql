@@ -267,7 +267,7 @@ DROP TABLE BuildingClass_ResourceYieldChanges;
 -- Non-strategic resources shouldn't have a tech requirement to be sold
 UPDATE Resources
 SET TechCityTrade = NULL
-WHERE ResourceUsage = 1;
+WHERE ResourceUsage <> 1;
 
 -- No need for this anymore, using TechObsolete instead
 UPDATE Resources

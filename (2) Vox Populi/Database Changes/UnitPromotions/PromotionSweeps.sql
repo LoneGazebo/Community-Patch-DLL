@@ -344,6 +344,13 @@ VALUES
 	('PROMOTION_ICE_BREAKERS', 'UNITCOMBAT_WORKER'),
 	('PROMOTION_ICE_BREAKERS', 'UNITCOMBAT_WORKBOAT');
 
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+SELECT
+	'PROMOTION_EMBARKATION', Type
+FROM UnitCombatInfos
+WHERE IsMilitary = 1 AND IsNaval = 0 AND IsAerial = 0; -- Civilians handled in DLL
+
 INSERT INTO UnitPromotions_CivilianUnitType
 	(PromotionType, UnitType)
 SELECT
