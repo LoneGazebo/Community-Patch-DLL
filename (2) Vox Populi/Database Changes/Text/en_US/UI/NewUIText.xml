@@ -131,6 +131,18 @@
 		<Row Tag="TXT_KEY_MINOR_CIV_FIRST_CONTACT_BONUS_UNIT">
 			<Text>{1: gender *:an?An; other?A;} [COLOR_POSITIVE_TEXT]{1_UnitName}[ENDCOLOR] joins your expedition.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_CULTURE">
+			<Text>They share their knowledge of artistic merit, giving you [COLOR_POSITIVE_TEXT]{1_NumCulture} [ICON_CULTURE] Culture[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_FAITH">
+			<Text>They share their knowledge of religious rituals, giving you [COLOR_POSITIVE_TEXT]{1_NumFaith} [ICON_PEACE] Faith[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_GOLD">
+			<Text>They provide you with a gift of [COLOR_POSITIVE_TEXT]{1_NumGold} [ICON_GOLD] Gold[ENDCOLOR].</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_FOOD">
+			<Text>They provide you with a crate of [COLOR_POSITIVE_TEXT]{1_NumFood} [ICON_FOOD] Food[ENDCOLOR].</Text>
+		</Row>
 		<Row Tag="TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING">
 			<Text>Unfortunately, they have nothing to offer you.</Text>
 		</Row>
