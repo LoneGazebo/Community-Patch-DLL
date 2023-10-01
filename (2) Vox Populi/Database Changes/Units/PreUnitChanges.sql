@@ -290,10 +290,10 @@ WHERE Type = 'UNIT_AUSTRIAN_HUSSAR';
 -- Inca: Slinger
 UPDATE Units
 SET
-	PrereqTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
-	ObsoleteTech = (SELECT ObsoleteTech FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
-	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_INCAN_SLINGER'),
-	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_INCAN_SLINGER')
+	PrereqTech = (SELECT PrereqTech FROM Units WHERE Type = 'UNIT_VP_SLINGER'),
+	ObsoleteTech = (SELECT ObsoleteTech FROM Units WHERE Type = 'UNIT_VP_SLINGER'),
+	CombatClass = (SELECT CombatClass FROM Units WHERE Type = 'UNIT_VP_SLINGER'),
+	DefaultUnitAI = (SELECT DefaultUnitAI FROM Units WHERE Type = 'UNIT_VP_SLINGER')
 WHERE Type = 'UNIT_INCAN_SLINGER';
 
 -- India: Cuirassier
