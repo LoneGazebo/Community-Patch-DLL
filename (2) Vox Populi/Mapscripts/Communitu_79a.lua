@@ -1333,8 +1333,8 @@ function MapGlobals:New()
 			resources_to_place = {
 				{self.horse_ID, horse_amt, 100, 1, 2}
 			};
-			self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_HORSE, self.grass_flat_no_feature, resources_to_place);
-			self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_HORSE, self.plains_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_HORSE, self.grass_flat_no_feature, resources_to_place);
+			self:ProcessResourceList(36 * resMultiplier, ImpactLayers.LAYER_HORSE, self.plains_flat_no_feature, resources_to_place);
 			
 			resources_to_place = {
 				{self.horse_ID, horse_amt * 0.7, 100, 2, 3}
@@ -1873,7 +1873,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.6.3",
+		Name = "Communitu_79a v2.6.4",
 		Description = "Communitas mapscript for Vox Populi (version 3.1+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
