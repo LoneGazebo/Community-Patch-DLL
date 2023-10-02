@@ -3620,15 +3620,24 @@ bool CvTacticalAI::ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender)
 
 		//special handling for ranged garrisons as they are ignored by tactical AI
 		//note: melee garrisons are handled in PlotGarrisonMoves()
-		if (pCity->HasGarrison())
+		CvUnit* pGarrison = pCity->GetGarrisonedUnit();
+		if (pGarrison)
 		{
-			CvUnit* pGarrison = pCity->GetGarrisonedUnit();
-			//may have multiple attacks ...
-			while (pGarrison->canRangeStrikeAt(pDefender->getX(), pDefender->getY()))
-				pGarrison->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
+			if (pGarrison->shouldHeal(true))
+			{
+				pGarrison->PushMission(CvTypes::getMISSION_SKIP());
+				pGarrison->SetTurnProcessed(true);
+			}
+			else
+			{
+				//may have multiple attacks ...
+				while (pGarrison->canRangeStrikeAt(pDefender->getX(), pDefender->getY()))
+					pGarrison->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pDefender->getX(), pDefender->getY());
 
-			if (pGarrison->isOutOfAttacks())
-				UnitProcessed(pGarrison->GetID());
+				//if we have attacks left, we can try again in PlotGarrisonMoves() with other target
+				if (pGarrison->isOutOfAttacks())
+					pGarrison->SetTurnProcessed(true);
+			}
 		}
 
 		if (pDefender->GetCurrHitPoints() < 1)
@@ -10206,12 +10215,14 @@ bool CvTacticalPosition::couldEndTurnAfterThisAssignment(const STacticalAssignme
 	case A_RANGEATTACK:
 	case A_RANGEKILL:
 	case A_PILLAGE:
-	case A_BLOCKED:
 	case A_FINISH_TEMP:
 	case A_MELEEKILL_NO_ADVANCE:
 		//unit stays in place
 		iEndPlotIndex = assignment.iFromPlotIndex;
 		break;
+	case A_BLOCKED:
+		//not our problem ... fingers crossed
+		return true;
 	default:
 		OutputDebugString("unexpected assignment type ...\n");
 		return false;

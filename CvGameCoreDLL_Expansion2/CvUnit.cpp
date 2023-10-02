@@ -29195,7 +29195,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	{
 		//also depends on what we can do with the unit
 		int iHpLimit = GetMaxHitPoints() / 3;
-		return !IsGarrisoned() && GetCurrHitPoints() < iHpLimit && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		return GetCurrHitPoints() < iHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{
