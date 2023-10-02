@@ -53,15 +53,15 @@ WHERE Type = 'BUILD_ACADEMY';
 
 -- Remove Features
 UPDATE Builds
-SET PrereqTech = 'TECH_MINING', Time = 300
+SET PrereqTech = 'TECH_MINING'
 WHERE Type = 'BUILD_REMOVE_FOREST';
 
 UPDATE Builds
-SET PrereqTech = 'TECH_TRAPPING', Time = 400
+SET PrereqTech = 'TECH_TRAPPING'
 WHERE Type = 'BUILD_REMOVE_JUNGLE';
 
 UPDATE Builds
-SET PrereqTech = 'TECH_MASONRY', Time = 400
+SET PrereqTech = 'TECH_MASONRY'
 WHERE Type = 'BUILD_REMOVE_MARSH';
 
 UPDATE Builds
