@@ -2063,28 +2063,27 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 	if (!pMerchant || plotDistance(*pMerchant->plot(), *GetTargetPlot()) > 1 || !pMerchant->canMove())
 		return false;
 
-	// If the merchant made it, we don't care about the entire army
-	if(pMerchant->canTrade(pMerchant->plot()))
+	//venetian merchant sometimes wants to buy the whole shop
+	if (pMerchant->canBuyCityState(pMerchant->plot()) && !GET_PLAYER(m_eOwner).GreatMerchantWantsCash())
 	{
-		if (pMerchant->canBuyCityState(pMerchant->plot()) && !GET_PLAYER(m_eOwner).GreatMerchantWantsCash())
+		pMerchant->PushMission(CvTypes::getMISSION_BUY_CITY_STATE());
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			pMerchant->PushMission(CvTypes::getMISSION_BUY_CITY_STATE());
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Great Merchant buying city-state at (%d:%d)", pMerchant->plot()->getX(), pMerchant->plot()->getY());
-				LogOperationSpecialMessage(strMsg);
-			}
+			CvString strMsg;
+			strMsg.Format("Great Merchant buying city-state at (%d:%d)", pMerchant->plot()->getX(), pMerchant->plot()->getY());
+			LogOperationSpecialMessage(strMsg);
 		}
-		else
+
+		return true;
+	}
+	else if (pMerchant->canTrade(pMerchant->plot()))
+	{
+		pMerchant->PushMission(CvTypes::getMISSION_TRADE());
+		if(GC.getLogging() && GC.getAILogging())
 		{
-			pMerchant->PushMission(CvTypes::getMISSION_TRADE());
-			if(GC.getLogging() && GC.getAILogging())
-			{
-				CvString strMsg;
-				strMsg.Format("Great Merchant finishing trade mission at (%d:%d)", pMerchant->plot()->getX(), pMerchant->plot()->getY());
-				LogOperationSpecialMessage(strMsg);
-			}
+			CvString strMsg;
+			strMsg.Format("Great Merchant finishing trade mission at (%d:%d)", pMerchant->plot()->getX(), pMerchant->plot()->getY());
+			LogOperationSpecialMessage(strMsg);
 		}
 
 		return true;
@@ -2104,7 +2103,8 @@ bool CvAIOperationCivilianMerchantDelegation::PerformMission(CvUnit* pMerchant)
 	}
 
 	SetToAbort(AI_ABORT_NO_TARGET);
-	return false;}
+	return false;
+}
 
 /// Find the plot where we want to settler
 CvPlot* CvAIOperationCivilianMerchantDelegation::FindBestTargetForUnit(CvUnit* pUnit)

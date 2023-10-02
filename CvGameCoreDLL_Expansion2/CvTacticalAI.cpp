@@ -4325,10 +4325,6 @@ int CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPro
 
 		TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 		pUnit->PushMission(CvTypes::getMISSION_SKIP());
-
-		//don't call finish moves, otherwise we won't heal!
-		if (bSetProcessed)
-			UnitProcessed(pUnit->GetID());
 	}
 	else if (pUnit->canMoveInto(*pTarget, CvUnit::MOVEFLAG_DESTINATION) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) || (iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING2))
 	{
@@ -4368,9 +4364,6 @@ int CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPro
 					UnitProcessed(pUnit->GetID());
 				}
 			}
-
-			if (bSetProcessed && bAlreadyThere)
-				UnitProcessed(pUnit->GetID());
 		}
 		//maybe units are blocking our way? 
 		else if (pUnit->GeneratePath(pTarget,iFlags|CvUnit::MOVEFLAG_IGNORE_STACKING_SELF,INT_MAX,&iTurns))
@@ -4399,6 +4392,9 @@ int CvTacticalAI::ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetPro
 		if(iResult==0 && pUnit->canMove())
 			TacticalAIHelpers::PerformRangedOpportunityAttack(pUnit);
 	}
+
+	if (bSetProcessed)
+		UnitProcessed(pUnit->GetID());
 
 	return iResult;
 }
@@ -5777,6 +5773,14 @@ void CvTacticalAI::UnitProcessed(int iID)
 
 	pUnit->setTacticalMove(m_CurrentMoveUnits.getCurrentTacticalMove());
 	pUnit->SetTurnProcessed(true);
+
+	//try and upgrade units even if tactical AI is using them
+	if (pUnit->CanUpgradeRightNow(false) && !pUnit->IsHurt())
+	{
+		CvUnit* pNewUnit = pUnit->DoUpgrade();
+		if (pNewUnit)
+			pNewUnit->SetTurnProcessed(true);
+	}
 }
 
 /// Is this civilian target of the highest priority?
