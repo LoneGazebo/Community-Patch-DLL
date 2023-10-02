@@ -645,10 +645,6 @@ SET Text = '+3 [ICON_CULTURE] Culture and [ICON_GOLD] Gold for each unique Luxur
 WHERE Tag = 'TXT_KEY_TRAIT_LUXURY_RETENTION';
 
 UPDATE Language_en_US
-SET Text = 'Naval Unit that specializes in attacking coastal cities and capturing enemy ships. Available earlier than the Corvette, which it replaces. Only the Dutch can build it.'
-WHERE Tag = 'TXT_KEY_UNIT_HELP_SEA_BEGGAR';
-
-UPDATE Language_en_US
 SET Text = 'Naval Unit used to attack coastal cities and capture enemy ships. Only the Dutch may build it. Heals outside friendly territory. Starts with the Vanguard promotion allowing it to be more effective at attacking coastal cities. May capture any enemy naval units it defeats as prize ships.'
 WHERE Tag = 'TXT_KEY_UNIT_SEA_BEGGAR_STRATEGY';
 
