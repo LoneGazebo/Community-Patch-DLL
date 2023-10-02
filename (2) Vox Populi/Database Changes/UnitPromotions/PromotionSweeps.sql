@@ -347,9 +347,13 @@ VALUES
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
 SELECT
-	'PROMOTION_EMBARKATION', Type
-FROM UnitCombatInfos
-WHERE IsMilitary = 1 AND IsNaval = 0 AND IsAerial = 0; -- Civilians handled in DLL
+	a.Type, b.Type
+FROM UnitPromotions a, UnitCombatInfos b
+WHERE b.IsMilitary = 1 AND b.IsNaval = 0 AND b.IsAerial = 0 -- Civilians handled in DLL
+AND a.Type IN (
+	'PROMOTION_EMBARKATION',
+	'PROMOTION_ALLWATER_EMBARKATION'
+);
 
 INSERT INTO UnitPromotions_CivilianUnitType
 	(PromotionType, UnitType)

@@ -802,6 +802,13 @@
 		</Replace>
 		<!-- Trait -->
 		<Replace>
+			<Type>PROMOTION_ALLWATER_EMBARKATION</Type>
+			<Description>TXT_KEY_PROMOTION_ALLWATER_EMBARKATION</Description>
+			<Help>TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP</Help>
+			<PediaType>PEDIA_SHARED</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_ALLWATER_EMBARKATION</PediaEntry>
+		</Replace>
+		<Replace>
 			<Type>PROMOTION_OCEAN_MOVEMENT</Type>
 			<Description>TXT_KEY_PROMOTION_OCEAN_MOVEMENT</Description>
 			<Help>TXT_KEY_PROMOTION_OCEAN_MOVEMENT_HELP</Help>
