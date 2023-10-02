@@ -246,7 +246,7 @@ UPDATE Buildings SET FaithCost = 800, UnlockedByBelief = 1 WHERE BuildingClass =
 -- Mission
 UPDATE Buildings SET Cost = -1, FaithCost = 100 WHERE BuildingClass = 'BUILDINGCLASS_SPAIN_MISSION';
 
--- Religious Buildings
+-- Religious buildings
 UPDATE Buildings SET Cost = -1, FaithCost = 200
 WHERE BuildingClass IN (
 	'BUILDINGCLASS_MONASTERY',
@@ -261,3 +261,6 @@ WHERE BuildingClass IN (
 	'BUILDINGCLASS_TEOCALLI',
 	'BUILDINGCLASS_GURDWARA'
 );
+
+-- Reformation buildings
+UPDATE Buildings SET Cost = 125 WHERE IsReformation = 1;
