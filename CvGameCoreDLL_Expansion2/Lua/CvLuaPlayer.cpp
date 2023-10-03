@@ -78,6 +78,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsShowImports);
 #endif
 	Method(IsResourceCityTradeable);
+	Method(IsResourceImproveable);
 	Method(IsResourceRevealed);
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
@@ -1890,6 +1891,18 @@ int CvLuaPlayer::lIsResourceCityTradeable(lua_State* L)
 	const bool bCheckTeam = luaL_optbool(L, 3, true);
 
 	const bool bResult = pkPlayer->IsResourceCityTradeable(eResource, bCheckTeam);
+	lua_pushboolean(L, bResult);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsResourceImproveable(ResourceTypes eResource) const;
+int CvLuaPlayer::lIsResourceImproveable(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->IsResourceImproveable(eResource);
 	lua_pushboolean(L, bResult);
 
 	return 1;

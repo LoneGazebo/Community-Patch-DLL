@@ -1868,6 +1868,7 @@ public:
 	int getTechReveal() const;
 	int getPolicyReveal() const;
 	int getTechCityTrade() const;
+	int getImproveTech() const;
 	int getTechObsolete() const;
 	int getAIStopTradingEra() const;
 	int getStartingResourceQuantity() const;
@@ -1971,6 +1972,7 @@ protected:
 	int m_iTechReveal;
 	int m_iPolicyReveal;
 	int m_iTechCityTrade;
+	int m_iTechImproveable;
 	int m_iTechObsolete;
 	int m_iAIStopTradingEra;
 	int m_iStartingResourceQuantity;

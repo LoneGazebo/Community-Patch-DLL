@@ -5890,6 +5890,7 @@ CvResourceInfo::CvResourceInfo() :
 	m_iTechReveal(0),
 	m_iPolicyReveal(NO_POLICY),
 	m_iTechCityTrade(0),
+	m_iTechImproveable(0),
 	m_iTechObsolete(0),
 	m_iAIStopTradingEra(-1),
 	m_iStartingResourceQuantity(0),
@@ -5998,6 +5999,11 @@ int CvResourceInfo::getPolicyReveal() const
 int CvResourceInfo::getTechCityTrade() const
 {
 	return m_iTechCityTrade;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getImproveTech() const
+{
+	return m_iTechImproveable;
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getTechObsolete() const
@@ -6733,6 +6739,9 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	const char* szTechCityTrade = kResults.GetText("TechCityTrade");
 	m_iTechCityTrade = GC.getInfoTypeForString(szTechCityTrade, true);
+
+	const char* szTechImproveable = kResults.GetText("TechImproveable");
+	m_iTechImproveable = GC.getInfoTypeForString(szTechImproveable, true);
 
 	const char* szTechObsolete = kResults.GetText("TechObsolete");
 	m_iTechObsolete = GC.getInfoTypeForString(szTechObsolete, true);

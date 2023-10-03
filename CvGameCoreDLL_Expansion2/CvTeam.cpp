@@ -6106,7 +6106,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 						// Check if this tech unlocks city trade for any of a team's players, and check if the resource has already been unlocked
 						bool bUnlocksResource = false;
 						bool bResourceUnlocked = false;
-						TechTypes eDefaultTech = (TechTypes)pResourceInfo->getTechCityTrade();
+						TechTypes eTech = (TechTypes)pResourceInfo->getImproveTech();
 						for (std::vector<PlayerTypes>::const_iterator iI = m_members.begin(); iI != m_members.end(); ++iI)
 						{
 							const PlayerTypes ePlayer = (PlayerTypes)*iI;
@@ -6114,17 +6114,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 							if (pPlayer && pPlayer->isAlive())
 							{
-								TechTypes eTech = eDefaultTech;
-#if defined(MOD_BALANCE_CORE)
-								if (pPlayer->GetPlayerTraits()->IsAlternateResourceTechs())
-								{
-									TechTypes eAltTech = pPlayer->GetPlayerTraits()->GetAlternateResourceTechs(eResource).m_eTechCityTrade;
-									if (eAltTech != NO_TECH)
-									{
-										eTech = eAltTech;
-									}
-								}
-#endif
 								// Has this resource been unlocked by another tech?
 								if (eTech != eIndex && GetTeamTechs()->HasTech(eTech))
 								{

@@ -6381,7 +6381,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if(getResourceType() != NO_RESOURCE)
 				{
 					// Add Resource Quantity to total
-					if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+					if(GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()))
 						{
@@ -7999,7 +7999,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				// Add Resource Quantity to total
 				if(getResourceType() != NO_RESOURCE)
 				{
-					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if (newImprovementEntry.IsConnectsResource(getResourceType()))
 						{
@@ -8114,7 +8114,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(getResourceType() != NO_RESOURCE)
 				{
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
-						GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+						GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if (GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(getResourceType()))
 						{
@@ -8497,7 +8497,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 		{
 			if(getTeam() != NO_TEAM)
 			{
-				if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+				if(GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 				{
 					if(GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
 					{

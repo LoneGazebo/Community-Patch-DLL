@@ -1820,6 +1820,10 @@ UPDATE Eras SET EraSplashImage = 'ERA_Modern.dds'     		WHERE Type = 'ERA_MODERN
 UPDATE Eras SET EraSplashImage = 'ERA_Atomic.dds'     		WHERE Type = 'ERA_POSTMODERN';
 UPDATE Eras SET EraSplashImage = 'ERA_Future.dds'     		WHERE Type = 'ERA_FUTURE';
 
+-- New column to separate improveable from tradeable for resources
+ALTER TABLE Resources ADD TechImproveable TEXT;
+UPDATE Resources SET TechImproveable = TechCityTrade;
+
 -- Add columns to UnitPromotions to handle grouping of ranked promotions
 ALTER TABLE UnitPromotions ADD RankList TEXT;
 ALTER TABLE UnitPromotions ADD RankNumber INTEGER DEFAULT 0;
