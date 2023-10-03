@@ -903,7 +903,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Add Resource Quantity to total
 	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
 	{
-		if (GET_TEAM(getTeam()).IsResourceCityTradeable(plot()->getResourceType()))
+		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType()))
 		{
 			owningPlayer.changeNumResourceTotal(plot()->getResourceType(), plot()->getNumResourceForPlayer(getOwner()));
 		}
@@ -15986,7 +15986,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if (owningTeam.IsResourceCityTradeable(eLoopResource))
+						if (owningTeam.IsResourceImproveable(eLoopResource))
 						{
 							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
@@ -16013,7 +16013,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if (owningTeam.IsResourceCityTradeable(eLoopResource))
+						if (owningTeam.IsResourceImproveable(eLoopResource))
 						{
 							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
