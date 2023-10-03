@@ -190,6 +190,11 @@
 			<Text>A revolution against their ally is occurring!</Text>
 		</Row>
 
+		<!-- Resting Influence -->
+		<Row Tag="TXT_KEY_VP_RESTING_INFLUENCE">
+			<Text>Resting [ICON_INFLUENCE] Influence</Text>
+		</Row>
+
 		<!-- Cultural overview -->
 		<!-- Great Works summary -->
 		<Row Tag="TXT_KEY_OPTIMIZE">

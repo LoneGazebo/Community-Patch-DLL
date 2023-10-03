@@ -265,6 +265,8 @@ ORDER BY a.BuildingClass, a.Type;
 DROP TABLE BuildingClass_ResourceYieldChanges;
 
 -- Tech where the resource can be set as "owned"
+-- For Strategics, this is the reveal tech
+-- For Luxury and Bonus resources, this is the tech for the improvement required to connect it
 UPDATE Resources
 SET TechImproveable = (
 	SELECT PrereqTech FROM Builds WHERE ImprovementType = (
