@@ -3,14 +3,8 @@
 -- GPTI
 UPDATE Improvements
 SET PillageGold = 17
-WHERE Type IN (
-	'IMPROVEMENT_CUSTOMS_HOUSE',
-	'IMPROVEMENT_MANUFACTORY',
-	'IMPROVEMENT_HOLY_SITE',
-	'IMPROVEMENT_LANDMARK',
-	'IMPROVEMENT_ACADEMY',
-	'IMPROVEMENT_CITADEL'
-);
+WHERE Type = 'IMPROVEMENT_LANDMARK'
+OR CreatedByGreatPerson = 1;
 
 -- Resource-only improvements, UI with strict restrictions
 UPDATE Improvements

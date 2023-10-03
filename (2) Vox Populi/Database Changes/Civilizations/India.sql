@@ -30,12 +30,12 @@ SET
 	ObsoleteTech = (
 		SELECT ObsoleteTech FROM Units WHERE Type = (
 			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
-				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_CHARIOT_ARCHER'
+				SELECT UnitClassType FROM Unit_ClassUpgrades WHERE UnitType = 'UNIT_CUIRASSIER'
 			)
 		)
 	),
-	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CHARIOT_ARCHER') + 3,
-	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CHARIOT_ARCHER') + 8,
+	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 3,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_CUIRASSIER') + 8,
 	Moves = 3
 WHERE Type = 'UNIT_INDIAN_WARELEPHANT';
 

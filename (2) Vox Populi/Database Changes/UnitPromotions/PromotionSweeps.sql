@@ -47,6 +47,7 @@ VALUES
 	-- Siege tree
 	('SIEGE', 'UNITCOMBAT_SIEGE'),
 	('FIELD', 'UNITCOMBAT_SIEGE'),
+	('COVER', 'UNITCOMBAT_SIEGE'),
 	('SPLASH', 'UNITCOMBAT_SIEGE'),
 	-- Recon tree
 	('SURVIVALISM', 'UNITCOMBAT_RECON'),
@@ -347,9 +348,13 @@ VALUES
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
 SELECT
-	'PROMOTION_EMBARKATION', Type
-FROM UnitCombatInfos
-WHERE IsMilitary = 1 AND IsNaval = 0 AND IsAerial = 0; -- Civilians handled in DLL
+	a.Type, b.Type
+FROM UnitPromotions a, UnitCombatInfos b
+WHERE b.IsMilitary = 1 AND b.IsNaval = 0 AND b.IsAerial = 0 -- Civilians handled in DLL
+AND a.Type IN (
+	'PROMOTION_EMBARKATION',
+	'PROMOTION_ALLWATER_EMBARKATION'
+);
 
 INSERT INTO UnitPromotions_CivilianUnitType
 	(PromotionType, UnitType)
@@ -442,6 +447,7 @@ WHERE Type IN (
 	'PROMOTION_SIEGE_INACCURACY',
 	'PROMOTION_COVERING_FIRE_1',
 	'PROMOTION_COVERING_FIRE_2',
+	'PROMOTION_CAN_MOVE_AFTER_ATTACKING',
 	'PROMOTION_BARBARIAN_BONUS',
 	'PROMOTION_NAVAL_INACCURACY',
 	'PROMOTION_OCEAN_HALF_MOVES',

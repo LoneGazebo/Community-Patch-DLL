@@ -40265,6 +40265,26 @@ bool CvPlayer::IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam)
 
 //	--------------------------------------------------------------------------------
 //	--------------------------------------------------------------------------------
+/// Does this player have the tech to improve (and thus own) eResource?
+bool CvPlayer::IsResourceImproveable(ResourceTypes eResource) const
+{
+	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+
+	if (pResource)
+	{
+		TechTypes eTech = (TechTypes)pResource->getImproveTech();
+
+		if (eTech == NO_TECH || HasTech(eTech))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
+//	--------------------------------------------------------------------------------
 /// Does this player, or his/her team, have the reveal tech or policy for eResource?
 bool CvPlayer::IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam) const
 {

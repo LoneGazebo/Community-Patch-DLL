@@ -144,6 +144,7 @@ UPDATE UnitPromotions SET MovesChange = 1 WHERE RankList = 'HELI_MOBILITY';
 --                               │                            Infiltrators
 -- Siege I ─────────► Siege II ──┴──────► Siege III ────────► Range
 --
+-- Cover I ─────────► Cover II
 --                                                            Firing Doctrine
 -- Field I ─────────► Field II ──┬──────► Field III ────────► Logistics
 --                               │
@@ -493,6 +494,8 @@ INSERT INTO UnitPromotions_YieldFromPillage
 VALUES
 	('PROMOTION_VIKING', 'YIELD_GOLD', 30),
 	('PROMOTION_LONGBOAT', 'YIELD_GOLD', 60);
+
+UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 2 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
 
 UPDATE UnitPromotions SET ExtraNavalMovement = 1 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
 

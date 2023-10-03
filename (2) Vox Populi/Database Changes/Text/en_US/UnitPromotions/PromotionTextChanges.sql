@@ -648,6 +648,11 @@ UPDATE Language_en_US
 SET Text = '+100% [ICON_STRENGTH] Combat Strength when defending while Embarked.'
 WHERE Tag = 'TXT_KEY_PROMOTION_DEFENSIVE_EMBARKATION_HELP';
 
+-- Embarkation with Ocean Movement
+UPDATE Language_en_US
+SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and have +2 [ICON_VP_VISION] Sight.'
+WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
+
 -- Sapper
 UPDATE Language_en_US
 SET Text = 'When next to an enemy City, other units within 2 tiles get +40% [ICON_STRENGTH] Combat Strength when attacking the City.[NEWLINE]If 2 tiles from an enemy City, other units within 2 tiles get +20% [ICON_STRENGTH] Combat Strength when attacking the City.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Bonuses do not stack.[ENDCOLOR]'

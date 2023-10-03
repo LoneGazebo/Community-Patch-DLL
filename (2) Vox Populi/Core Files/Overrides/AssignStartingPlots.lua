@@ -11098,8 +11098,8 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	resources_to_place = {
 		{self.horse_ID, horse_amt, 100, 1, 2}
 	};
-	self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_HORSE, self.grass_flat_no_feature, resources_to_place);
-	self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_HORSE, self.plains_flat_no_feature, resources_to_place);
+	self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_HORSE, self.grass_flat_no_feature, resources_to_place);
+	self:ProcessResourceList(36 * resMultiplier, ImpactLayers.LAYER_HORSE, self.plains_flat_no_feature, resources_to_place);
 
 	resources_to_place = {
 		{self.horse_ID, horse_amt * 0.7, 100, 2, 3}

@@ -9997,7 +9997,7 @@ ResourceTypes CvMinorCivAI::GetNearbyResourceForQuest(PlayerTypes ePlayer)
 			continue;
 
 		// Player must be able to see and use this resource
-		if (!GET_TEAM(eTeam).IsResourceRevealed(eResource) || !GET_TEAM(eTeam).IsResourceCityTradeable(eResource))
+		if (!GET_TEAM(eTeam).IsResourceRevealed(eResource) || !GET_TEAM(eTeam).IsResourceImproveable(eResource))
 			continue;
 
 		// Resource must exist on the map
