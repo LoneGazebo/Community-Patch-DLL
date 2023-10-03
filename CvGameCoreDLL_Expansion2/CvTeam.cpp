@@ -8165,6 +8165,24 @@ bool CvTeam::IsResourceObsolete(ResourceTypes eResource)
 	return true;
 }
 
+/// Does this player have the tech to improve (and thus own) eResource?
+bool CvTeam::IsResourceImproveable(ResourceTypes eResource) const
+{
+	CvResourceInfo* pResource = GC.getResourceInfo(eResource);
+
+	if (pResource)
+	{
+		TechTypes eTech = (TechTypes)pResource->getImproveTech();
+
+		if (eTech == NO_TECH || GetTeamTechs()->HasTech(eTech))
+		{
+			return true;
+		}
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 /// Is this resource city tradeable for us?
 bool CvTeam::IsResourceCityTradeable(ResourceTypes eResource) const

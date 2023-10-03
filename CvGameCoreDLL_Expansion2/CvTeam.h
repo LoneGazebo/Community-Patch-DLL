@@ -401,7 +401,7 @@ public:
 	bool isForceRevealedResource(ResourceTypes eResource) const;
 
 	bool IsResourceObsolete(ResourceTypes eResource);
-
+	bool IsResourceImproveable(ResourceTypes eResource) const;
 	bool IsResourceCityTradeable(ResourceTypes eResource) const;
 	bool IsResourceRevealed(ResourceTypes eResource) const;
 

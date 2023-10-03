@@ -2222,7 +2222,6 @@ public:
 	void SetRefuseResearchAgreementTrade(bool refuseTrade);
 
 	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
-	bool IsResourceImproveable(ResourceTypes eResource) const;
 	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
 	CvImprovementEntry* GetResourceImprovement(ResourceTypes eResource, bool bCivSpecific = false) const;
 

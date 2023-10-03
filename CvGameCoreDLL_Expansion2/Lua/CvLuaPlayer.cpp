@@ -1902,7 +1902,7 @@ int CvLuaPlayer::lIsResourceImproveable(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
 
-	const bool bResult = pkPlayer->IsResourceImproveable(eResource);
+	const bool bResult = GET_TEAM(pkPlayer->getTeam()).IsResourceImproveable(eResource);
 	lua_pushboolean(L, bResult);
 
 	return 1;
