@@ -39956,12 +39956,12 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						if ((iOwnedNumResource * 100 >= iTotalNumResource * iThreshold) && (iOwnedNumResource * 100 > iTotalNumResource * GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD)))
 							bValid = true;
 					}
 					else
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) > iThreshold)
+						if (iOwnedNumResource * 100 > iTotalNumResource * iThreshold)
 							bValid = true;
 					}
 					if (bValid)
@@ -39986,7 +39986,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				{
 					//Do we have >25% of this resource under our control?
-					if(((iOwnedNumResource * 100) / iTotalNumResource) > GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD))
+					if(iOwnedNumResource * 100 > iTotalNumResource * GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD))
 					{
 						if(m_pabHasStrategicMonopoly[eResource] == false)
 						{
@@ -40010,12 +40010,12 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						if ((iOwnedNumResource * 100 >= iTotalNumResource * iThreshold) && (iOwnedNumResource * 100 > iTotalNumResource * GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD)))
 							bValid = true;
 					}
 					else
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) > iThreshold)
+						if (iOwnedNumResource * 100 > iTotalNumResource * iThreshold)
 							bValid = true;
 					}
 
