@@ -8696,8 +8696,9 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		}
 	}
 
-	//always add a 'do-nothing' move; this does not guarantee that it will get picked though
-	gPossibleMoves.insert(gPossibleMoves.begin(), STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eMoveStrategy, 0, A_BLOCKED));
+	//we don't want the blocked moves for all units to have the same score
+	//so use the number of alternatives as an indicator how urgent this is
+	int iBlockedScore = max(0, 3 - (int)gPossibleMoves.size() / 3);
 
 	//need to return in sorted order. note that we don't filter out bad (negative moves) they just are unlikely to get picked
 	std::stable_sort(gPossibleMoves.begin(),gPossibleMoves.end());
@@ -8710,6 +8711,9 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 
 		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
 	}
+
+	//always add a 'do-nothing' move; this does not guarantee that it will get picked though
+	gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, 0, unit.eMoveStrategy, iBlockedScore, A_BLOCKED));
 }
 
 //if we have many units we won't look at all of them (for performance reasons)
@@ -9108,8 +9112,8 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 
 	//if we did not make an attack, see if our units moved in the right way at least
 	//note that this comparison only works because we know we did not kill an enemy, which would change enemyDistance!
-	int iPositive = 0;
-	int iNegative = 0;
+	int iPositive = 0, iNegative = 0; //enemy distance change
+	int iBefore = 0, iAfter = 0; //target distance change
 	int iAttacksNoMove = 0;
 	for (size_t i = nFirstInterestingAssignment; i < assignedMoves.size(); i++)
 	{
@@ -9121,6 +9125,10 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 			const SUnitStats* unit = root->getAvailableUnitStats(final.iUnitID);
 			const CvTacticalPlot& initialPlot = root->getTactPlot(initial->iFromPlotIndex);
 			const CvTacticalPlot& finalPlot = getTactPlot(final.iFromPlotIndex);
+
+			//only relevant in degenerate cases without enemies
+			iBefore += plotDistance(*initialPlot.getPlot(), *root->getTarget());
+			iAfter += plotDistance(*finalPlot.getPlot(), *root->getTarget());
 
 			//which domain to use here? for simplicity assume firstline is melee and in-domain, everything else cross-domain
 			CvTacticalPlot::eTactPlotDomain eRelevantDomain = unit->eMoveStrategy == MS_FIRSTLINE ? (finalPlot.getPlot()->isWater() ? CvTacticalPlot::TD_SEA : CvTacticalPlot::TD_LAND) : CvTacticalPlot::TD_BOTH;
@@ -9175,7 +9183,7 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 	}
 	
 	//staying in place and bombarding is fine! note that retreating a damaged unit counts as positive because it should be MS_THIRDLINE
-	return (iNegative < iPositive) || (iNegative == iPositive && iAttacksNoMove>0);
+	return (iNegative < iPositive) || (iNegative == iPositive && iAttacksNoMove>0) || (eAggression==AL_NONE && iAfter<iBefore);
 }
 
 //this influences how daring we'll be
@@ -10614,20 +10622,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
-		if (timer.GetDeltaInSeconds() > 7)
-			OutputDebugString("warning, long running simulation\n"); //put a breakpoint here ...
-
-		CvString strMsg;
-		/*strMsg.Format("tactsim %s, target %d:%d with %d units (agglvl %d). last dangerplots update at %d. tested %d, completed %d, open %d (%.2f ms).",
-			result.empty() ? "failed" : "success",
-			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, GET_PLAYER(ePlayer).GetDangerPlotAge(), 
-			iUsedPositions, completedPositions.size(), openPositionsHeap.size(), timer.GetDeltaInSeconds()*1000.f );*/
-		strMsg.Format("tactsim %s, target %d:%d with %d units (agglvl %d). tested %d, completed %d, open %d.", 
-			result.empty() ? "failed" : "success",
-			pTarget->getX(), pTarget->getY(), ourUnits.size(), eAggLvl, 
-			iUsedPositions, completedPositions.size(), openPositionsHeap.size());
-		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
-
 		//debug dump
 #if defined(MOD_CORE_DEBUGGING)
 		if (gCurrentUnitToTrack == -1)
@@ -10644,22 +10638,6 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 				out << std::endl;
 			}
 			out.close();
-		}
-
-		if (false)
-		{
-			for (size_t j = 0; j < min(13u, completedPositions.size()); j++)
-			{
-				strMsg.Format("----\nscore is %d for id %llu", completedPositions[j]->getScoreTotal(), completedPositions[j]->getID());
-				GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
-				const vector<STacticalAssignment>& moves = completedPositions[j]->getAssignments();
-				for (size_t i = completedPositions[j]->getFirstInterestingAssignment(); i < moves.size(); i++)
-				{
-					strMsg.Format("unit %d, move %d, from %d, to %d, score %d, damage %d, selfdamage %d, moves %d",
-						moves[i].iUnitID, moves[i].eMoveType, moves[i].iFromPlotIndex, moves[i].iToPlotIndex, moves[i].iScore, moves[i].iDamage, moves[i].iSelfDamage, moves[i].iRemainingMoves);
-					GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
-				}
-			}
 		}
 #endif
 	}
