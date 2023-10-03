@@ -765,10 +765,10 @@
 		</Row>
 		<Row>
 			<Type>UNIT_SPAIN_INQUISITOR</Type>
-			<Description>TXT_KEY_UNIT_INQUISITOR</Description>
+			<Description>TXT_KEY_UNIT_SPAIN_INQUISITOR</Description>
 			<Civilopedia>TXT_KEY_CIV5_INQUISITOR_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_UNIT_INQUISITOR_STRATEGY</Strategy>
-			<Help>TXT_KEY_UNIT_HELP_INQUISITOR</Help>
+			<Help>TXT_KEY_UNIT_HELP_SPAIN_INQUISITOR</Help>
 			<Domain>DOMAIN_LAND</Domain>
 			<CombatClass>UNITCOMBAT_INQUISITOR</CombatClass>
 			<Class>UNITCLASS_INQUISITOR</Class>

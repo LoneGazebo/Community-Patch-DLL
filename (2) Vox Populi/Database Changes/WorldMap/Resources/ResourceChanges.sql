@@ -81,11 +81,11 @@ WHERE Type = 'RESOURCE_HIDDEN_ARTIFACTS';
 
 -- Strategics
 UPDATE Resources
-SET TechReveal = 'TECH_STEAM_POWER', TechCityTrade = 'TECH_STEAM_POWER'
+SET TechReveal = 'TECH_STEAM_POWER'
 WHERE Type = 'RESOURCE_COAL';
 
 UPDATE Resources
-SET TechReveal = 'TECH_COMBUSTION', TechCityTrade = 'TECH_COMBUSTION'
+SET TechReveal = 'TECH_COMBUSTION'
 WHERE Type = 'RESOURCE_OIL';
 
 -- Bonus and luxuries

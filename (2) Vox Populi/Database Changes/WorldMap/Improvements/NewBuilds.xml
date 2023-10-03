@@ -112,8 +112,8 @@
 			<OrderPriority>99</OrderPriority>
 			<IconIndex>36</IconIndex>
 			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
-			<ShowInPedia>false</ShowInPedia>
-			<ShowInTechTree>false</ShowInTechTree>
+			<ShowInPedia>0</ShowInPedia>
+			<ShowInTechTree>0</ShowInTechTree>
 		</Row>
 		<!-- Polynesia UA -->
 		<Row>
@@ -130,8 +130,8 @@
 			<OrderPriority>98</OrderPriority>
 			<IconIndex>35</IconIndex>
 			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
-			<ShowInPedia>false</ShowInPedia>
-			<ShowInTechTree>false</ShowInTechTree>
+			<ShowInPedia>0</ShowInPedia>
+			<ShowInTechTree>0</ShowInTechTree>
 		</Row>
 	</Builds>
 </GameData>

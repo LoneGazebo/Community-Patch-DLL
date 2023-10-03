@@ -225,6 +225,12 @@
 			<Text>Unique Roman replacement for the Arena. Build the Colosseum to boost your City's Culture, Tourism, and Production output, also improves nearby [ICON_RES_PERFUME] Perfume and [ICON_RES_OLIVE] Olive resources. It also can maximize your Empire's gain from the victories of your conquering armies. Every Colosseum slightly increases the Gold value of City Connections, thus allowing Rome to benefit from large, sprawling empires.</Text>
 		</Row>
 		<!-- Spain -->
+		<Row Tag="TXT_KEY_UNIT_SPAIN_INQUISITOR">
+			<Text>Inquisition</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_HELP_SPAIN_INQUISITOR">
+			<Text>{TXT_KEY_UNIT_HELP_INQUISITOR}[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Nobody expects the Spanish Inquisition![ENDCOLOR]</Text>
+		</Row>
 		<Row Tag="TXT_KEY_BUILDING_MISSION">
 			<Text>Mission</Text>
 		</Row>

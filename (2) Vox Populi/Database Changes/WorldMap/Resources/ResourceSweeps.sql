@@ -265,7 +265,6 @@ ORDER BY a.BuildingClass, a.Type;
 DROP TABLE BuildingClass_ResourceYieldChanges;
 
 -- Tech where the resource can be set as "owned"
--- Strategic resources always require the reveal tech
 UPDATE Resources
 SET TechImproveable = (
 	SELECT PrereqTech FROM Builds WHERE ImprovementType = (
@@ -274,7 +273,12 @@ SET TechImproveable = (
 )
 WHERE ResourceUsage <> 1;
 
--- Non-strategic resources shouldn't have a tech requirement to be sold
+-- Strategics can be sold when they are revealed
+-- Luxuries can be sold at game start
+UPDATE Resources
+SET TechCityTrade = TechReveal
+WHERE ResourceUsage = 1;
+
 UPDATE Resources
 SET TechCityTrade = NULL
 WHERE ResourceUsage <> 1;

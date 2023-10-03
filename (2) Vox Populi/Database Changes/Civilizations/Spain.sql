@@ -69,6 +69,7 @@ VALUES
 
 UPDATE Units
 SET
+	ShowInPedia = 0,
 	RequiresEnhancedReligion = 0,
 	NoMaintenance = 1
 WHERE Type = 'UNIT_SPAIN_INQUISITOR';
