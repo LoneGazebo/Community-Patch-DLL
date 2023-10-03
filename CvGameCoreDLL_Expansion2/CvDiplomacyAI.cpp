@@ -44297,9 +44297,6 @@ void CvDiplomacyAI::DoDenouncePlayer(PlayerTypes ePlayer)
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eMyPlayer, 300);
 
 		GET_PLAYER(ePlayer).GetDiplomacyAI()->SetDoFBroken(eMyPlayer, true, true);
-
-		GET_TEAM(GET_PLAYER(eMyPlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(ePlayer).getTeam(), false);
-		GET_TEAM(GET_PLAYER(ePlayer).getTeam()).SetHasDefensivePact(GET_PLAYER(eMyPlayer).getTeam(), false);
 	}
 	
 	// Update opinions and approaches

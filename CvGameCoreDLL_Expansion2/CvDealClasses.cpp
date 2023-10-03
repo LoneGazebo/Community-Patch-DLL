@@ -762,10 +762,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 				return false;
 
-			// Mutual embassies are required
-			if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
-				return false;
-
 			// Not valid if vassalage is in the trade
 			if (ContainsItemType(TRADE_ITEM_VASSALAGE))
 				return false;

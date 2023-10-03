@@ -1374,8 +1374,6 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	}
 
 	//first cancel open borders and other diplomatic agreements
-	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(m_eID, false);
-	SetAllowsOpenBordersToTeam(eTeam, false);
 	GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
 	CloseEmbassyAtTeam(eTeam);
 	GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
@@ -9202,9 +9200,9 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 		}
 	}
 
-	//Break open borders
-	SetAllowsOpenBordersToTeam(eTeam, false);
-	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(GetID(), false);
+	//Break embassy and open borders
+	CloseEmbassyAtTeam(eTeam);
+	GET_TEAM(eTeam).CloseEmbassyAtTeam(GetID());
 
 	setVassal(eTeam, false);
 
