@@ -9230,7 +9230,14 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
+		if (GET_PLAYER(eLoopPlayer).isAlive())
+		{
+			GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoUpdateConquestStats();
+
+			// Disable warmongering penalties for the upcoming DoW...declaring independence isn't warmongering
+			if (!bPeaceful)
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetIgnoreWarmonger(true);
+		}
 	}
 
 	// Not peaceful end of vassalage? Declare war!
@@ -9249,10 +9256,17 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-		// Update Happiness for all players
-		if (GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getTeam() == GetID())
+		if (GET_PLAYER(eLoopPlayer).isAlive())
 		{
-			GET_PLAYER(eLoopPlayer).CalculateNetHappiness();
+			// Turn warmongering back on
+			if (!bPeaceful)
+				GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->SetIgnoreWarmonger(false);
+
+			// Update Happiness for all players
+			if (GET_PLAYER(eLoopPlayer).getTeam() == GetID() || GET_PLAYER(eLoopPlayer).getTeam() == eTeam)
+			{
+				GET_PLAYER(eLoopPlayer).CalculateNetHappiness();
+			}
 		}
 	}
 

@@ -5602,7 +5602,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMinorsAttacked(PlayerTypes ePlayer, int 
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
-	// Flag has been set to ignore warmongering? (Set when this player has purchased third party war.)
+	// Flag has been set to ignore warmongering? (Set when this player has purchased third party war, or a declaration of independence occurs.)
 	if (IsIgnoreWarmonger())
 		return;
 
@@ -5663,7 +5663,7 @@ void CvDiplomacyAI::ChangeOtherPlayerNumMajorsAttacked(PlayerTypes ePlayer, int 
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
-	// Flag has been set to ignore warmongering? (Set when this player has purchased third party war.)
+	// Flag has been set to ignore warmongering? (Set when this player has purchased third party war, or a declaration of independence occurs.)
 	if (IsIgnoreWarmonger())
 		return;
 
