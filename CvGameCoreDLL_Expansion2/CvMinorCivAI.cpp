@@ -9580,7 +9580,7 @@ PlayerTypes CvMinorCivAI::SpawnHorde()
 		return NO_PLAYER;
 
 	PlayerTypes pActiveMinor = GetPlayer()->GetID();
-	EraTypes eCurrentEra = GET_TEAM(GET_PLAYER(pActiveMinor).getTeam()).GetCurrentEra();
+	EraTypes eCurrentEra = GC.getGame().getCurrentEra();
 	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 	EraTypes eClassical = (EraTypes) GC.getInfoTypeForString("ERA_CLASSICAL", true);
 
@@ -9807,7 +9807,7 @@ void CvMinorCivAI::DoRebellion()
 	int iNumRebels = GetPlayer()->getNumMilitaryUnits() * /*60*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_CS_UNIT); //Based on number of military units of CS.
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
 	iNumRebels += iExtraRoll * /*0*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_BASE);
-	iNumRebels += GC.getGame().randRangeExclusive(0, iExtraRoll, CvSeeder(m_pPlayer->GetMilitaryMight())) * /*200*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND);
+	iNumRebels += GC.getGame().randRangeInclusive(0, iExtraRoll, CvSeeder(m_pPlayer->GetMilitaryMight())) * /*200*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND);
 	iNumRebels /= 100;
 
 	if (iNumRebels < /*2*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_MIN))
