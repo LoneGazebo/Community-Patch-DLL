@@ -1759,7 +1759,7 @@
 			<Civilopedia>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_PEDIA</Civilopedia>
 			<ThemingBonusHelp>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_THEMING_BONUS_HELP</ThemingBonusHelp>
 			<Strategy>TXT_KEY_BUILDING_RELIGIOUS_LIBRARY_STRATEGY</Strategy>
-			<GreatWorkSlotType>GREAT_WORK_SLOT_ART_ARTIFACT</GreatWorkSlotType>
+			<GreatWorkSlotType>GREAT_WORK_SLOT_LITERATURE</GreatWorkSlotType>
 			<GreatWorkCount>3</GreatWorkCount>
 			<IsReformation>true</IsReformation>
 			<IconAtlas>COMMUNITY_3_ATLAS</IconAtlas>
