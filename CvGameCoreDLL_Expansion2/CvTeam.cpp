@@ -1377,6 +1377,8 @@ void CvTeam::DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamT
 	GC.getGame().GetGameDeals().DoCancelDealsBetweenTeams(GetID(), eTeam);
 	CloseEmbassyAtTeam(eTeam);
 	GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
+	SetAllowsOpenBordersToTeam(eTeam, false);
+	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(m_eID, false);
 	CancelResearchAgreement(eTeam);
 	GET_TEAM(eTeam).CancelResearchAgreement(m_eID);
 	EvacuateDiplomatsAtTeam(eTeam);
@@ -4348,12 +4350,7 @@ void CvTeam::CloseEmbassyAtTeam(TeamTypes eIndex)
 	CvAssertMsg(eIndex < MAX_TEAMS, "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	SetHasEmbassyAtTeam(eIndex, false);
-	SetAllowsOpenBordersToTeam(m_eID, false);
-	SetHasDefensivePact(m_eID, false);
-	GET_TEAM(eIndex).SetHasDefensivePact(m_eID, false);
-
-	//SetHasResearchAgreement(m_eID, false);
-	//GET_TEAM(eIndex).SetHasResearchAgreement(m_eID, false);
+	SetHasDefensivePact(eIndex, false);
 }
 
 //	--------------------------------------------------------------------------------
@@ -9220,7 +9217,9 @@ void CvTeam::DoEndVassal(TeamTypes eTeam, bool bPeaceful, bool bSuppressNotifica
 
 	//Break embassy and open borders
 	CloseEmbassyAtTeam(eTeam);
-	GET_TEAM(eTeam).CloseEmbassyAtTeam(GetID());
+	GET_TEAM(eTeam).CloseEmbassyAtTeam(m_eID);
+	SetAllowsOpenBordersToTeam(eTeam, false);
+	GET_TEAM(eTeam).SetAllowsOpenBordersToTeam(m_eID, false);
 
 	setVassal(eTeam, false);
 

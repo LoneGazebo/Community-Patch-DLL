@@ -35055,9 +35055,13 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				TeamTypes eTheirTeam = (TeamTypes)i;
 				if (getTeam() != eTheirTeam)
 				{
-					// close both embassies (also cancels Defensive Pacts / Open Borders)
+					// close both embassies (also cancels Defensive Pacts)
 					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTheirTeam);
 					GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(getTeam());
+
+					// cancel open borders
+					GET_TEAM(getTeam()).SetAllowsOpenBordersToTeam(eTheirTeam, false);
+					GET_TEAM(eTheirTeam).SetAllowsOpenBordersToTeam(getTeam(), false);
 
 					// cancel any research agreements
 					GET_TEAM(getTeam()).CancelResearchAgreement(eTheirTeam);
