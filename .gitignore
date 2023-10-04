@@ -16,8 +16,10 @@
 !*.Civ5Map
 !*.dds
 !*.def
+!*.dge
 !*.dll
 !*.filters
+!*.fsmxml
 !*.ftsxml
 !*.fxsxml
 !*.ggxml
