@@ -546,7 +546,7 @@
 			<SpecialCargo>SPECIALUNIT_MISSILE</SpecialCargo>
 			<DomainCargo>DOMAIN_AIR</DomainCargo>
 			<MoveRate>SUB</MoveRate>
-			<UnitArtInfo>ART_DEF_UNIT_DREADNOUGHT</UnitArtInfo>
+			<UnitArtInfo>ART_DEF_UNIT_ATTACK_SUBMARINE</UnitArtInfo>
 			<UnitFlagAtlas>FLAG_ATLAS_ENW</UnitFlagAtlas>
 			<UnitFlagIconOffset>0</UnitFlagIconOffset>
 			<IconAtlas>ICON_ATLAS_ENW</IconAtlas>
