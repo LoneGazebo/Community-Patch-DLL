@@ -159,5 +159,23 @@
 		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE_URANIUM">
 			<Text>Used to build terrifying weapons of mass destruction.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_HORSE">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_IRON">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_COAL">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_ALUMINUM">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +5 HP when Healing.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_OIL">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +2 XP after combat.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_URANIUM">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
