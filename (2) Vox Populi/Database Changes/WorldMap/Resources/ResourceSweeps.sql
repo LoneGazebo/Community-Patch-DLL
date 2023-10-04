@@ -268,6 +268,10 @@ DROP TABLE BuildingClass_ResourceYieldChanges;
 -- For Strategics, this is the reveal tech
 -- For Luxury and Bonus resources, this is the tech for the improvement required to connect it
 UPDATE Resources
+SET TechImproveable = TechReveal
+WHERE ResourceUsage = 1;
+
+UPDATE Resources
 SET TechImproveable = (
 	SELECT PrereqTech FROM Builds WHERE ImprovementType = (
 		SELECT ImprovementType FROM Improvement_ResourceTypes WHERE ResourceType = Resources.Type
