@@ -190,11 +190,6 @@
 			<Text>A revolution against their ally is occurring!</Text>
 		</Row>
 
-		<!-- Resting Influence -->
-		<Row Tag="TXT_KEY_VP_RESTING_INFLUENCE">
-			<Text>Resting [ICON_INFLUENCE] Influence</Text>
-		</Row>
-
 		<!-- Cultural overview -->
 		<!-- Great Works summary -->
 		<Row Tag="TXT_KEY_OPTIMIZE">
@@ -835,6 +830,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_UPANEL_TOURISM_TURNS_TT">
 			<Text>This indicates the length of a Concert Tour. The length is based on number of owned Great Works of Music controlled by the owning Civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VP_RESTING_INFLUENCE">
+			<Text>Resting [ICON_INFLUENCE] Influence</Text>
 		</Row>
 
 		<!-- Tech tree -->
