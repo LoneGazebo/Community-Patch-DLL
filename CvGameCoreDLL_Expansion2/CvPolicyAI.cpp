@@ -4813,10 +4813,10 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	iScienceValue /= 100;
 
 	bool bSeriousMode = pPlayer->GetDiplomacyAI()->IsSeriousAboutVictory();
-	bool bConquestFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) || (!bSeriousMode && pPlayer->GetPlayerTraits()->IsWarmonger()) || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest();
-	bool bDiploFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory()) || (!bSeriousMode && pPlayer->GetPlayerTraits()->IsDiplomat()) || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
-	bool bScienceFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory()) || (!bSeriousMode && pPlayer->GetPlayerTraits()->IsNerd()) || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
-	bool bCultureFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || (!bSeriousMode && pPlayer->GetPlayerTraits()->IsTourism()) || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
+	bool bConquestFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) || pPlayer->GetPlayerTraits()->IsWarmonger() || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest();
+	bool bDiploFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory()) || pPlayer->GetPlayerTraits()->IsDiplomat() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
+	bool bScienceFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory()) || pPlayer->GetPlayerTraits()->IsNerd() || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
+	bool bCultureFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || pPlayer->GetPlayerTraits()->IsTourism() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
 
 	// And now add them in. Halve if not our main focus.
 	iWeight += bConquestFocus ? iConquestValue : iConquestValue / 2;

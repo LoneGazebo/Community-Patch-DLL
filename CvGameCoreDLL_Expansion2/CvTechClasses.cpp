@@ -1297,10 +1297,10 @@ void CvPlayerTechs::SetGSPriorities()
 
 	// == Grand Strategy ==
 	bool bSeriousMode = m_pPlayer->GetDiplomacyAI()->IsSeriousAboutVictory();
-	bool bConquestFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) || (!bSeriousMode && m_pPlayer->GetPlayerTraits()->IsWarmonger()) || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest();
-	bool bDiploFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory()) || (!bSeriousMode && m_pPlayer->GetPlayerTraits()->IsDiplomat()) || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
-	bool bScienceFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory()) || (!bSeriousMode && m_pPlayer->GetPlayerTraits()->IsNerd()) || m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
-	bool bCultureFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || (!bSeriousMode && m_pPlayer->GetPlayerTraits()->IsTourism()) || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
+	bool bConquestFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) || m_pPlayer->GetPlayerTraits()->IsWarmonger() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest();
+	bool bDiploFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory()) || m_pPlayer->GetPlayerTraits()->IsDiplomat() || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
+	bool bScienceFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory()) || m_pPlayer->GetPlayerTraits()->IsNerd() || m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
+	bool bCultureFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || m_pPlayer->GetPlayerTraits()->IsTourism() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		TechTypes eTech = (TechTypes)iTechLoop;
