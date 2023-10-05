@@ -1082,6 +1082,7 @@ public:
 	bool IsEndgameAggressive() const;
 
 	void DoUpdateCurrentVictoryPursuit();
+	bool IsSeriousAboutVictory() const;
 	void DoUpdateRecklessExpanders();
 	void DoUpdateWonderSpammers();
 	void DoUpdateVictoryDisputeLevels();

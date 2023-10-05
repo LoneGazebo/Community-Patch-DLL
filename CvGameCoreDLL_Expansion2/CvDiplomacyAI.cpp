@@ -9805,27 +9805,14 @@ void CvDiplomacyAI::DoUpdateCurrentVictoryPursuit()
 		return;
 	}
 
+	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
 	AIGrandStrategyTypes eDomination = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 	AIGrandStrategyTypes eDiplomacy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
 	AIGrandStrategyTypes eCulture = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 	AIGrandStrategyTypes eScience = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_SPACESHIP");
 
-	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bDontCareAboutWinning = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
-	int iGameEra = GC.getGame().getCurrentEra();
-
-	// AI isn't too focused on victory in the early game
-	if (eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0)
-	{
-		bDontCareAboutWinning = true;
-	}
-	else if (iGameEra < 3)
-	{
-		bDontCareAboutWinning = true;
-	}
-
 	// If we don't care about winning, use our primary victory pursuit based on flavors
-	if (bDontCareAboutWinning)
+	if (!IsSeriousAboutVictory())
 	{
 		switch (GetPrimaryVictoryPursuit())
 		{
@@ -9869,6 +9856,26 @@ void CvDiplomacyAI::DoUpdateCurrentVictoryPursuit()
 
 	// By default we go for conquest
 	SetCurrentVictoryPursuit(VICTORY_PURSUIT_DOMINATION);
+}
+
+bool CvDiplomacyAI::IsSeriousAboutVictory() const
+{
+	AIGrandStrategyTypes eDomination = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
+	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
+	bool bDontCareAboutWinning = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
+	int iGameEra = GC.getGame().getCurrentEra();
+
+	// AI isn't too focused on victory in the early game
+	if (eMyGrandStrategy == eDomination && iGameEra < 2 && GetPlayer()->GetNumCapitalCities() <= 0)
+	{
+		bDontCareAboutWinning = true;
+	}
+	else if (iGameEra < 3)
+	{
+		bDontCareAboutWinning = true;
+	}
+
+	return !bDontCareAboutWinning;
 }
 
 /// Do we consider any players to be expanding too recklessly?
@@ -10350,11 +10357,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 	if (GC.getGame().getGameTurn() <= 150)
 		return;
 
-	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bDontCare = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
-	int iGameEra = GC.getGame().getCurrentEra();
-
-	if (bDontCare)
+	if (!IsSeriousAboutVictory())
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -10363,6 +10366,8 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 		}
 		return;
 	}
+
+	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
 
 	// Loop through all (valid) Players
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -10400,7 +10405,7 @@ void CvDiplomacyAI::DoUpdateVictoryDisputeLevels()
 			}
 
 			// Reduce competitiveness in earlier eras
-			iVictoryDisputeWeight -= (6 - iGameEra);
+			iVictoryDisputeWeight -= (6 - GC.getGame().getCurrentEra());
 
 			if (iVictoryDisputeWeight > 0)
 			{
@@ -10439,11 +10444,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 	if (GC.getGame().getGameTurn() <= 150)
 		return;
 
-	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
-	bool bDontCare = !IsCompetingForVictory() || eMyGrandStrategy == NO_AIGRANDSTRATEGY || GetPlayer()->GetGrandStrategyAI()->GetGrandStrategyPriority(eMyGrandStrategy) <= 500;
-	int iGameEra = GC.getGame().getCurrentEra();
-
-	if (bDontCare)
+	if (!IsSeriousAboutVictory())
 	{
 		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
@@ -10453,6 +10454,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 		return;
 	}
 
+	AIGrandStrategyTypes eMyGrandStrategy = GetPlayer()->GetGrandStrategyAI()->GetActiveGrandStrategy();
 	AIGrandStrategyTypes eConquestGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CONQUEST");
 	AIGrandStrategyTypes eCultureGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_CULTURE");
 	AIGrandStrategyTypes eUNGrandStrategy = (AIGrandStrategyTypes) GC.getInfoTypeForString("AIGRANDSTRATEGY_UNITED_NATIONS");
@@ -10587,7 +10589,7 @@ void CvDiplomacyAI::DoUpdateVictoryBlockLevels()
 
 				// Add weight for Player's victory competitiveness, meanness and diplobalance desires (1 - 10)
 				// Average of each is 5, and era goes up by one throughout game.
-				iVictoryBlockWeight += GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + iGameEra;
+				iVictoryBlockWeight += GetVictoryCompetitiveness() + GetMeanness() + GetDiploBalance() + GC.getGame().getCurrentEra();
 				iVictoryBlockWeight += DifficultyModifier;
 
 				// Now see what our new Block Level should be
