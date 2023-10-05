@@ -28,7 +28,6 @@ UPDATE Civilization_UnitClassOverrides SET UnitClassType = 'UNITCLASS_HORSE_ARCH
 
 UPDATE Units
 SET
-	PrereqTech = 'TECH_THE_WHEEL',
 	ObsoleteTech = (
 		SELECT ObsoleteTech FROM Units WHERE Type = (
 			SELECT DefaultUnit FROM UnitClasses WHERE Type = (
