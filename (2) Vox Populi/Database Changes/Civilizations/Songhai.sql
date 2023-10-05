@@ -24,6 +24,8 @@ SET
 	Combat = (SELECT Combat FROM Units WHERE Type = 'UNIT_KNIGHT') + 1
 WHERE Type = 'UNIT_SONGHAI_MUSLIMCAVALRY';
 
+DELETE FROM Unit_FreePromotions WHERE UnitType = 'UNIT_SONGHAI_MUSLIMCAVALRY' AND PromotionType = 'PROMOTION_CITY_PENALTY';
+
 INSERT INTO Unit_FreePromotions
 	(UnitType, PromotionType)
 VALUES
