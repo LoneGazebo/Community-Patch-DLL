@@ -115,8 +115,8 @@ SET RequiresFaithPurchaseEnabled = 1
 WHERE CombatClass IN (SELECT Type FROM UnitCombatInfos WHERE IsMilitary = 1 AND IsNaval = 0)
 AND PurchaseOnly = 0;
 
--- Siege Tower can also be faith purchased
-UPDATE Units SET RequiresFaithPurchaseEnabled = 1 WHERE Type = 'UNIT_ASSYRIAN_SIEGE_TOWER';
+-- Siege Tower and Archaeologist can also be faith purchased
+UPDATE Units SET RequiresFaithPurchaseEnabled = 1 WHERE Class IN ('UNITCLASS_ASSYRIAN_SIEGE_TOWER', 'UNITCLASS_ARCHAEOLOGIST');
 
 -----------------------------------------------------------------
 -- Minimum size of adjacent water body to train this unit

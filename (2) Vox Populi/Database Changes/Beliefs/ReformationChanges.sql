@@ -145,8 +145,10 @@ DROP TABLE Helper3;
 
 INSERT INTO Belief_SpecificFaithUnitPurchase
 	(BeliefType, UnitType)
-VALUES
-	('BELIEF_UNITY_OF_PROPHETS', 'UNIT_ARCHAEOLOGIST');
+SELECT
+	'BELIEF_UNITY_OF_PROPHETS', Type
+FROM Units
+WHERE Class = 'UNITCLASS_ARCHAEOLOGIST';
 
 INSERT INTO Belief_GreatWorkYieldChanges
 	(BeliefType, YieldType, Yield)
