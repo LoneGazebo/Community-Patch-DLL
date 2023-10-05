@@ -588,12 +588,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	for row in GameInfo.Build_TechTimeChanges(thisTechType) do
 		if bAddedForest == false and (row.BuildType == "BUILD_REMOVE_JUNGLE" or row.BuildType == "BUILD_REMOVE_FOREST") then
 			bAddedForest = true
-			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
+			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", DisplayPercentage(row.TimeChange/(GameInfo.BuildFeatures[row.BuildType].Time or 100)) ) then
 				break
 			end
 		end
 		if row.BuildType == "BUILD_REMOVE_MARSH" then
-			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
+			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(GameInfo.BuildFeatures[row.BuildType].Time or 100)) ) then
 				break
 			end
 		end
