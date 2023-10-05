@@ -195,7 +195,7 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_EMBASSY_THEM', -1;
 
 -- We have a Diplomat in their capital. (no bonus for capitulated vassals unless Content, no bonus for voluntary vassals unless Content, Disagreeing or Resurrected)
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIPLOMAT', -15;
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIPLOMAT_MOD', -10; -- bonus for Diplomat AIs
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIPLOMAT_MOD', -10; -- bonus for Scientist AIs
 
 -- You forgave them for spying.
 UPDATE Defines SET Value = -10 WHERE Name = 'OPINION_WEIGHT_FORGAVE_FOR_SPYING';

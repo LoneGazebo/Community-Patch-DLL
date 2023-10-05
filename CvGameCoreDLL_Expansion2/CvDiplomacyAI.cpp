@@ -46931,7 +46931,7 @@ int CvDiplomacyAI::GetDiplomatScore(PlayerTypes ePlayer)
 	{
 		iOpinionWeight = /*-15*/ GD_INT_GET(OPINION_WEIGHT_DIPLOMAT);
 
-		if (IsDiplomat() || IsSecondaryDiplomat() || GetPlayer()->GetPlayerTraits()->IsDiplomat())
+		if (IsScientist() || GetPlayer()->GetPlayerTraits()->IsNerd())
 		{
 			iOpinionWeight += /*-10*/ GD_INT_GET(OPINION_WEIGHT_DIPLOMAT_MOD);
 		}
