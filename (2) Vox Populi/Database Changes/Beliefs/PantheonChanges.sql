@@ -481,11 +481,11 @@ VALUES
 	('BELIEF_RHIANNON', 'YIELD_CULTURE', 2);
 
 UPDATE Beliefs
-SET RequiresResource = '1'
+SET RequiresResource = 1
 WHERE Type = 'BELIEF_RHIANNON';
 
 UPDATE Beliefs
-SET RequiresImprovement = '1'
+SET RequiresImprovement = 1
 WHERE Type = 'BELIEF_RHIANNON';
 
 CREATE TEMP TABLE Helper (

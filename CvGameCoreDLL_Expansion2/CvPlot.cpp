@@ -9615,10 +9615,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		{
 			if (getImprovementType() != NO_IMPROVEMENT)
 			{
-				if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
-				{
-					iReligionChange += iValue;
-				}
+				iReligionChange += iValue;
 			}
 		}
 		else if (bRequiresResource)
