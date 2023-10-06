@@ -618,6 +618,7 @@ void CvBarbarians::DoCamps()
 	int iEra = GC.getGame().getCurrentEra();
 	std::vector<CvPlot*> vPotentialPlots,vPotentialCoastalPlots;
 	std::vector<int> MajorCapitals,BarbCamps,RecentlyClearedBarbCamps;
+	ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 
 	// Iterate through all plots
 	for (int iI = 0; iI < iNumWorldPlots; iI++)
@@ -705,11 +706,21 @@ void CvBarbarians::DoCamps()
 		if (iNumCampsToAdd <= 0)
 			continue;
 
-		// No camps on Improvements in Community Patch only, and no camps on embassies ever
+		// No camps on Improvements in Community Patch only, and no camps on embassies, GPTI or Landmarks
 		if (eImprovement != NO_IMPROVEMENT)
 		{
-			if (!MOD_BALANCE_VP || GC.getImprovementInfo(eImprovement)->IsPermanent())
-				continue;
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if (pkImprovementInfo)
+			{
+				if (!MOD_BALANCE_VP)
+					continue;
+
+				if (eImprovement == eLandmark)
+					continue;
+
+				if (pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
+					continue;
+			}
 		}
 
 		// No camps on Ancient Ruins
