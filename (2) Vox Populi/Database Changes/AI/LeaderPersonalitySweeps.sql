@@ -993,6 +993,7 @@ VALUES
 UPDATE Leaders
 SET
 	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY',
+	SecondaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
 	Personality = 'PERSONALITY_DIPLOMAT',
 	VictoryCompetitiveness = 4,
 	WonderCompetitiveness = 8,
