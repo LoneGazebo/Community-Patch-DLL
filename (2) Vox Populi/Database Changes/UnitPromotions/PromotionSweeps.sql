@@ -286,6 +286,13 @@ WHERE IsMilitary = 1 AND IsRanged = 0;
 INSERT INTO UnitPromotions_UnitCombats
 	(PromotionType, UnitCombatType)
 SELECT
+	'PROMOTION_NAVAL_TRADITION', Type
+FROM UnitCombatInfos
+WHERE IsNaval = 1;
+
+INSERT INTO UnitPromotions_UnitCombats
+	(PromotionType, UnitCombatType)
+SELECT
 	'PROMOTION_IMPERIALISM_OPENER', Type
 FROM UnitCombatInfos
 WHERE IsMilitary = 1 AND IsRanged = 0 AND IsAerial = 0;
