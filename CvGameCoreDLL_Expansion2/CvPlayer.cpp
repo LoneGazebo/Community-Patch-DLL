@@ -10205,7 +10205,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 
 	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4 && eReason!=REASON_UPGRADE && eReason!=REASON_GIFT)
 	{
-		OutputDebugString("Creating unit over supply limit\n");
+		CUSTOMLOG("Player %d creating unit over supply limit, type is %d, reason is %d", m_eID, eUnit, eReason);
 	}
 
 	CvUnit* pUnit = addUnit();

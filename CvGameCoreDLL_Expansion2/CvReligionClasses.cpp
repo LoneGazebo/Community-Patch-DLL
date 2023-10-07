@@ -10311,12 +10311,8 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 	for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 	{
 		if (pUnit->getUnitInfo().IsRemoveHeresy())
-		{
 			if (pUnit->GetReligionData()->GetReligion() == eReligion)
-			{
 				iNumInquisitors++;
-			}
-		}
 	}
 
 	// Need one for every city in our realm that is of another religion
@@ -10327,9 +10323,10 @@ bool CvReligionAI::HaveEnoughInquisitors(ReligionTypes eReligion) const
 			iNumNeeded++;
 	}
 
-	if (iNumNeeded > 3  && iNumInquisitors > 3)
+	int iThreshold = max(3, m_pPlayer->getNumCities() / 5);
+	if (iNumNeeded > iThreshold && iNumInquisitors > iThreshold)
 	{
-		CUSTOMLOG("Warning: Player %d seems to need of inquisitors but already has a lot.", m_pPlayer->GetID());
+		CUSTOMLOG("Warning: Player %d seems to need more inquisitors but already has a lot.", m_pPlayer->GetID());
 		iNumNeeded = 3;
 	}
 

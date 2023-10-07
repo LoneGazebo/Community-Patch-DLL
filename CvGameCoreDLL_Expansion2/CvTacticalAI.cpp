@@ -2206,7 +2206,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 		for (size_t i = 0; i < m_CurrentMoveUnits.size(); i++)
 		{
 			CvUnit* pUnit = m_pPlayer->getUnit( m_CurrentMoveUnits[i].GetID() );
-			if (!pUnit->isDelayedDeath() && pUnit->canMove())
+			if (pUnit->canUseNow())
 				vUnits.push_back(pUnit);
 		}
 
@@ -2668,7 +2668,7 @@ bool CvTacticalAI::CheckForEnemiesNearArmy(CvArmyAI* pArmy)
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
-		if (pUnit->isDelayedDeath() || pUnit->GetCurrHitPoints()<pUnit->GetMaxHitPoints()/2)
+		if (!pUnit->canUseNow() || pUnit->GetCurrHitPoints()<pUnit->GetMaxHitPoints() / 2)
 		{
 			pUnit = pArmy->GetNextUnit(pUnit);
 			continue;
@@ -2778,7 +2778,7 @@ void CvTacticalAI::ExecuteGatherMoves(CvArmyAI * pArmy, CvPlot * pTurnTarget, Cv
 	CvUnit* pUnit = pArmy->GetFirstUnit();
 	while (pUnit)
 	{
-		if (!pUnit->isDelayedDeath() && pUnit->canMove() && !pUnit->TurnProcessed()) //ignore units used during CheckForEnemiesNearArmy
+		if (pUnit->canUseNow()) //ignore units used during CheckForEnemiesNearArmy
 			vUnits.push_back(pUnit);
 
 		pUnit = pArmy->GetNextUnit(pUnit);
@@ -7159,13 +7159,15 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			//if we have multiple units encircling the city, try to take into account their attacks as well
 			//easiest way is to consider damage from last turn. so ideally ranged units start attacking and melee joins in later
 			int iRemainingHP = pEnemy->GetMaxHitPoints() - pEnemy->getDamage();
-			int iRemainingTurnsOnCity = iRemainingHP / (max(iDamageDealt, pEnemy->getDamageTakenLastTurn()) + 1);
+			float fRemainingTurnsOnCity = iRemainingHP / (max(iDamageDealt*fAggBias, pEnemy->getDamageTakenLastTurn()*1.0f) + 1);
 
-			int iCounterattackDamage = pEnemy->rangeCombatDamage(pUnit, false, pUnitPlot, true) * (pEnemy->HasGarrison() ? 2 : 1);
-			int iRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + iCounterattackDamage + 1);
+			//consider that we have other units around which can soak damage
+			int iCounterattackDamage = pEnemy->canRangeStrike() ? pEnemy->rangeCombatDamage(pUnit, false, pUnitPlot, true) * (pEnemy->HasGarrison() ? 2 : 1) : 0;
+			float fScaledCounterattackDamage = iCounterattackDamage / fAggBias;
+			float fRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + fScaledCounterattackDamage + 1);
 
 			//no attack if it's too early yet
-			if (iRemainingTurnsOnAttacker < iRemainingTurnsOnCity)
+			if (fRemainingTurnsOnAttacker < fRemainingTurnsOnCity)
 			{
 				result.iScore = -INT_MAX;
 				return;
@@ -10471,7 +10473,7 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 		//units outside of their native domain are a problem because they violate 1UPT. 
 		//we accept them only if they are alone in the plot and only allow movement into the native domain.
 		//exception: since we ignore garrisoned units for tactsim, we can still use units (ships) in cities if a (land) garrison is present
-		if (pUnit && pUnit->canMove() && !pUnit->isDelayedDeath() && !pUnit->TurnProcessed())
+		if (pUnit && pUnit->canUseNow())
 			if (pUnit->isNativeDomain(pUnit->plot()) || pUnit->plot()->getNumUnits()==1 || pUnit->plot()->isCity())
 				ourUnits.push_back(vUnits[i]);
 	}
@@ -10655,7 +10657,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 		CvUnit* pUnit = GET_PLAYER(ePlayer).getUnit(vAssignments[i].iUnitID);
 		//be extra careful with the unit here, if we capture cities and liberate them strange instakills can happen
 		//so we need to guess whether the pointer is still valid
-		if (!pUnit || pUnit->isDelayedDeath() || pUnit->plot()==NULL )
+		if (!pUnit || pUnit->isDelayedDeath() || pUnit->plot()==NULL)
 			continue;
 
 		CvPlot* pFromPlot = GC.getMap().plotByIndexUnchecked(vAssignments[i].iFromPlotIndex);

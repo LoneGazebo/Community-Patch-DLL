@@ -1828,6 +1828,7 @@ public:
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
 	bool canUseForAIOperation() const;
 	bool canUseForTacticalAI() const;
+	bool canUseNow() const;
 
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;

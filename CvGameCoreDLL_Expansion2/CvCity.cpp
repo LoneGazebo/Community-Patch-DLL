@@ -33747,10 +33747,6 @@ bool CvCity::canRangeStrike() const
 	if (getDamage() == GetMaxHitPoints())
 		return false;
 
-	// Apparently it's possible for someone to fire during another player's turn
-	if (!GET_PLAYER(getOwner()).isTurnActive())
-		return false;
-
 	return true;
 }
 
@@ -33888,9 +33884,11 @@ CityTaskResult CvCity::rangeStrike(int iX, int iY)
 
 	CvPlot* pPlot = GC.getMap().plot(iX, iY);
 	if (NULL == pPlot)
-	{
 		return eResult;
-	}
+
+	// Apparently it's possible for someone to fire during another player's turn
+	if (!GET_PLAYER(getOwner()).isTurnActive())
+		return eResult;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	if (!canRangeStrikeAt(iX, iY) || rangedStrikeTarget(pPlot) == NULL || isMadeAttack())

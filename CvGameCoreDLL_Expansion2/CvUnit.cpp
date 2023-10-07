@@ -7399,6 +7399,11 @@ bool CvUnit::canUseForTacticalAI() const
 	return false;
 }
 
+bool CvUnit::canUseNow() const
+{
+	return canMove() && !isDelayedDeath() && !TurnProcessed();
+}
+
 //	--------------------------------------------------------------------------------
 /// Set a destination plot for multi-turn tactical moves
 void CvUnit::SetTacticalAIPlot(CvPlot* pPlot)
