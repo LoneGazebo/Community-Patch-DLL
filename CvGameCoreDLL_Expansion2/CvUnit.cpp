@@ -12203,21 +12203,23 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 	if (pPlot && canTrade(pPlot))
 	{
 		PlayerTypes eMinor = pPlot->getOwner();
-		CvAssertMsg(eMinor != NO_PLAYER, "Performing a trade mission and not in city state territory. This is bad. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-		if (eMinor != NO_PLAYER)
+		if (GetDiploMissionInfluence() != 0)
+			iInf = GetDiploMissionInfluence();
+		else
+			iInf = /*30 in CP, 0 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
+
+		iInf += m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra();
+
+		iInf *= 100 + GetTradeMissionInfluenceModifier();
+		iInf /= 100;
+
+		iInf *= 100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier();
+		iInf /= 100;
+
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(getOwner(), MINOR_CIV_QUEST_INFLUENCE))
 		{
-			if (GetDiploMissionInfluence() != 0)
-				iInf = GetDiploMissionInfluence();
-			else
-				iInf = /*30 in CP, 0 in CSD*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
-
-			iInf += (m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
-
-			int iInfTimes100 = iInf * (100 + GetTradeMissionInfluenceModifier());
-			iInf = iInfTimes100 / 100;
-
-			iInfTimes100 = iInf * (100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier());
-			iInf = iInfTimes100 / 100;
+			iInf *= 100 + /*20*/ GD_INT_GET(INFLUENCE_MINOR_QUEST_BOOST);
+			iInf /= 100;
 		}
 	}
 	return iInf;
@@ -12247,14 +12249,6 @@ bool CvUnit::trade()
 
 	if (MOD_BALANCE_VP) 
 	{
-		//Added Influence Quest Bonus
-		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(getOwner(), MINOR_CIV_QUEST_INFLUENCE))
-		{	
-			int iBoostPercentage = /*20*/ GD_INT_GET(INFLUENCE_MINOR_QUEST_BOOST);
-			iInfluence *= 100 + iBoostPercentage;
-			iInfluence /= 100;
-		}
-
 		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
 
 		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
