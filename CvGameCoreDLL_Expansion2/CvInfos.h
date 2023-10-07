@@ -720,6 +720,7 @@ public:
 	int getCivilizationFreeUnitsDefaultUnitAI(int i) const;
 
 	bool isLeaders(int i) const;
+	bool IsBlocksMinor(int i) const;
 	bool isCivilizationFreeBuildingClass(int i) const;
 	bool isCivilizationFreeTechs(int i) const;
 	bool isCivilizationDisableTechs(int i) const;
@@ -775,6 +776,8 @@ protected:
 
 	std::vector<bool> m_CivilizationBuildingOverridden;
 	std::vector<bool> m_CivilizationUnitOverridden;
+
+	std::vector<bool> m_BlockedMinors;
 
 private:
 	CvCivilizationInfo(const CvCivilizationInfo&);

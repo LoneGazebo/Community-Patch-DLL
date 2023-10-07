@@ -1,3 +1,11 @@
+-- Blocks a specified City-State from appearing ingame if the associated Civilization is present at game start.
+CREATE TABLE IF NOT EXISTS MajorBlocksMinor(
+	MajorCiv text NOT NULL,
+	MinorCiv text NOT NULL,
+	FOREIGN KEY (MajorCiv) REFERENCES Civilizations(Type),
+	FOREIGN KEY (MinorCiv) REFERENCES MinorCivilizations(Type)
+);
+
 -- HistoricEventTypes table: Defines the different types of historic events. The order used here matches with the enum used in the DLL. Do not change without changing the DLL as well!
 -- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus. These are prefixed with DIFFICULTY_BONUS.
 CREATE TABLE IF NOT EXISTS HistoricEventTypes(

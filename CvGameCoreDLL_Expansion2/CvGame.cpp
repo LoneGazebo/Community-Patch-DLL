@@ -602,178 +602,130 @@ void PrintPlayerInfo(int iIndex)
 //------------------------------------------------------------------------------
 void CvGame::InitPlayers()
 {
-	PlayerColorTypes aePlayerColors[REALLY_MAX_PLAYERS];
-	bool bValid = false;
-	int iI = 0;
-	int iJ = 0;
-	int iK = 0;
-	int iL = 0;
+	CivilizationTypes eBarbCiv = (CivilizationTypes)GD_INT_GET(BARBARIAN_CIVILIZATION);
+	CvCivilizationInfo* pBarbarianCivilizationInfo = GC.getCivilizationInfo(eBarbCiv);
+	PlayerColorTypes barbarianPlayerColor = (PlayerColorTypes)pBarbarianCivilizationInfo->getDefaultPlayerColor();
+	int iNumMinors = CvPreGame::numMinorCivs();
+	CivilizationTypes eMinorCiv = (CivilizationTypes)GD_INT_GET(MINOR_CIVILIZATION);
+	LeaderHeadTypes eBarbLeader = (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER);
+	HandicapTypes eAIHandicap = (HandicapTypes)GD_INT_GET(AI_HANDICAP);
+	HandicapTypes eCSHandicap = (HandicapTypes)GD_INT_GET(MINOR_CIV_HANDICAP);
 
-	for(iI = 0; iI < MAX_TEAMS; iI++)
+	// Init teams
+	for (int iI = 0; iI < MAX_TEAMS; iI++)
 	{
 		const TeamTypes eTeam(static_cast<TeamTypes>(iI));
 		CvTeam& kTeam = GET_TEAM(eTeam);
 		kTeam.init(eTeam);
 	}
 
-	for(iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
+	// Determine player colors and don't allow duplicates.
+	PlayerColorTypes aePlayerColors[MAX_MAJOR_CIVS];
+	vector<PlayerColorTypes> vColorsAlreadyUsed;
+	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
-		aePlayerColors[iI] = NO_PLAYERCOLOR;
-	}
-
-	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		const PlayerTypes eLoopPlayer(static_cast<PlayerTypes>(iI));
-		aePlayerColors[iI] = CvPreGame::playerColor(eLoopPlayer);
-
-		if(aePlayerColors[iI] == NO_PLAYERCOLOR)
+		const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+		PlayerColorTypes ePlayerColor = NO_PLAYERCOLOR;
+		SlotStatus eStatus = CvPreGame::slotStatus(eLoopPlayer);
+		if (eStatus == SS_TAKEN || eStatus == SS_COMPUTER) // Don't set colors for unoccupied slots.
 		{
-			SlotStatus eStatus = CvPreGame::slotStatus(eLoopPlayer);
-			if(eStatus == SS_TAKEN || eStatus == SS_COMPUTER || eStatus == SS_OBSERVER)
+			ePlayerColor = (PlayerColorTypes)CvPreGame::playerColor(eLoopPlayer);
+
+			// If it wasn't set in the pregame for some reason, fetch it from the database.
+			if (ePlayerColor == NO_PLAYERCOLOR)
 			{
 				CvCivilizationInfo* pCivilizationInfo = GC.getCivilizationInfo(CvPreGame::civilization(eLoopPlayer));
-				aePlayerColors[iI] = ((PlayerColorTypes)(pCivilizationInfo->getDefaultPlayerColor()));
+				ePlayerColor = (PlayerColorTypes)pCivilizationInfo->getDefaultPlayerColor();
 			}
 		}
-	}
 
-	CivilizationTypes eBarbCiv = (CivilizationTypes)GD_INT_GET(BARBARIAN_CIVILIZATION);
-	CivilizationTypes eMinorCiv = (CivilizationTypes)GD_INT_GET(MINOR_CIVILIZATION);
-
-	CvCivilizationInfo* pBarbarianCivilizationInfo = GC.getCivilizationInfo(eBarbCiv);
-	int barbarianPlayerColor = pBarbarianCivilizationInfo->getDefaultPlayerColor();
-
-	const int iNumPlayerColorInfos = GC.GetNumPlayerColorInfos();
-	for(iI = 0; iI < MAX_MAJOR_CIVS; iI++)
-	{
-		if(aePlayerColors[iI] != NO_PLAYERCOLOR)
+		if (ePlayerColor == NO_PLAYERCOLOR || ePlayerColor == barbarianPlayerColor)
 		{
-			for(iJ = 0; iJ < iI; iJ++)
-			{
-				if(aePlayerColors[iI] == aePlayerColors[iJ])
-				{
-					for(iK = 0; iK < iNumPlayerColorInfos; iK++)
-					{
-						if(iK != barbarianPlayerColor)
-						{
-							bValid = true;
+			aePlayerColors[iI] = NO_PLAYERCOLOR;
+			continue;
+		}
 
-							for(iL = 0; iL < MAX_MAJOR_CIVS; iL++)
-							{
-								if(aePlayerColors[iL] == iK)
-								{
-									bValid = false;
-									break;
-								}
-							}
-
-							if(bValid)
-							{
-								aePlayerColors[iI] = ((PlayerColorTypes)iK);
-							}
-						}
-					}
-
-					break;
-				}
-			}
+		// Check if duplicated.
+		if (std::find(vColorsAlreadyUsed.begin(), vColorsAlreadyUsed.end(), ePlayerColor) == vColorsAlreadyUsed.end())
+		{
+			aePlayerColors[iI] = ePlayerColor;
+			vColorsAlreadyUsed.push_back(ePlayerColor);
+		}
+		else
+		{
+			aePlayerColors[iI] = NO_PLAYERCOLOR;
 		}
 	}
 
-	int iNumMinors = CvPreGame::numMinorCivs();
-
-	// TODO: this is needed till we have a screen to push this data
-	if(iNumMinors < 0)
-	{
-		const CvWorldInfo& kWorldInfo = CvPreGame::worldInfo();
-		iNumMinors = kWorldInfo.getDefaultMinorCivs();
-	}
-
-	PlayerTypes eMinorPlayer;
-
-	// Players
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		// init Barbarian slot
-		if(iI == BARBARIAN_PLAYER)
+		if (iI == BARBARIAN_PLAYER)
 		{
 			CvPreGame::setTeamType(BARBARIAN_PLAYER, BARBARIAN_TEAM);
 			CvPreGame::setSlotStatus(BARBARIAN_PLAYER, SS_COMPUTER);
 			CvPreGame::setNetID(BARBARIAN_PLAYER, -1);
 			CvPreGame::setHandicap(BARBARIAN_PLAYER, (HandicapTypes)GD_INT_GET(BARBARIAN_HANDICAP));
 			CvPreGame::setCivilization(BARBARIAN_PLAYER, eBarbCiv);
-			CvPreGame::setLeaderHead(BARBARIAN_PLAYER, (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER));
-			CvPreGame::setPlayerColor(BARBARIAN_PLAYER, ((PlayerColorTypes)barbarianPlayerColor));
+			CvPreGame::setLeaderHead(BARBARIAN_PLAYER, eBarbLeader);
+			CvPreGame::setPlayerColor(BARBARIAN_PLAYER, barbarianPlayerColor);
 			CvPreGame::setMinorCiv(BARBARIAN_PLAYER, false);
 		}
-		// Major Civs
-		else if(iI < MAX_MAJOR_CIVS)
+		// Major Civs - set player color and AI Handicap
+		else if (iI < MAX_MAJOR_CIVS)
 		{
-			CvPreGame::setPlayerColor((PlayerTypes)iI, aePlayerColors[iI]);
+			const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+			CvPreGame::setPlayerColor(eLoopPlayer, aePlayerColors[iI]);
+
 			// Make sure the AI has the proper handicap.
-			if(CvPreGame::slotStatus((PlayerTypes)iI) == SS_COMPUTER)
-			{
-				CvPreGame::setHandicap((PlayerTypes)iI, (HandicapTypes)GD_INT_GET(AI_HANDICAP));
-			}
+			if (CvPreGame::slotStatus(eLoopPlayer) == SS_COMPUTER)
+				CvPreGame::setHandicap(eLoopPlayer, eAIHandicap);
 		}
 		// Minor civs
-		else if(iI < MAX_CIV_PLAYERS)
+		else if (iI < MAX_CIV_PLAYERS)
 		{
-			eMinorPlayer = (PlayerTypes) iI;
+			const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+			MinorCivTypes minorCivType = CvPreGame::minorCivType(eLoopPlayer);
+			CvMinorCivInfo* pkCityState = GC.getMinorCivInfo(minorCivType);
 
-			if(iI < MAX_MAJOR_CIVS + iNumMinors)
+			// No valid City-State specified in pregame. Close the slot.
+			if (minorCivType == NO_MINORCIV || !pkCityState)
 			{
-#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType((PlayerTypes)(eMinorPlayer + (MAX_PREGAME_MAJOR_CIVS - MAX_MAJOR_CIVS))));
-#else
-				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(CvPreGame::minorCivType(eMinorPlayer));
-#endif
-				if(pMinorCivInfo)
-				{
-					CvPreGame::setSlotStatus(eMinorPlayer, SS_COMPUTER);
-					CvPreGame::setNetID(eMinorPlayer, -1);
-					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GD_INT_GET(MINOR_CIV_HANDICAP));
-					CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
-					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER));
-					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
-					CvPreGame::setMinorCiv(eMinorPlayer, true);
-					CvPreGame::setMinorCivType(eMinorPlayer, (MinorCivTypes)pMinorCivInfo->GetID());
-				}
+				CvPreGame::setSlotStatus(eLoopPlayer, SS_CLOSED);
+				CvPreGame::setNetID(eLoopPlayer, -1);
+				CvPreGame::setHandicap(eLoopPlayer, eCSHandicap);
+				CvPreGame::setCivilization(eLoopPlayer, eMinorCiv);
+				CvPreGame::setLeaderHead(eLoopPlayer, eBarbLeader);
+				CvPreGame::setPlayerColor(eLoopPlayer, NO_PLAYERCOLOR);
+				CvPreGame::setMinorCiv(eLoopPlayer, false);
+				continue;
 			}
+
+			// If this slot is within the range specified by the players at game start, the City-State is alive.
+			// We will fill in the slot data anyway, however, as the "closed" City-States might be created as a free City-State later on.
+			if (iI < MAX_MAJOR_CIVS + iNumMinors)
+				CvPreGame::setSlotStatus(eLoopPlayer, SS_COMPUTER);
 			else
-			{
-#if defined(MOD_GLOBAL_MAX_MAJOR_CIVS)
-				int testingMinor = GetAvailableMinorCivType() + (eMinorPlayer + (MAX_PREGAME_MAJOR_CIVS - MAX_MAJOR_CIVS));
-				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo((MinorCivTypes)testingMinor);
-#else
-				MinorCivTypes eAvailableMinor = GetAvailableMinorCivType();
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_FreeCitySelector, eMinorPlayer, eAvailableMinor);
-				CvMinorCivInfo* pMinorCivInfo = GC.getMinorCivInfo(eAvailableMinor);
-#endif
-				if (pMinorCivInfo)
-				{
-					CvPreGame::setSlotStatus(eMinorPlayer, SS_CLOSED);
-					CvPreGame::setNetID(eMinorPlayer, -1);
-					CvPreGame::setHandicap(eMinorPlayer, (HandicapTypes)GD_INT_GET(MINOR_CIV_HANDICAP));
-					CvPreGame::setCivilization(eMinorPlayer, eMinorCiv);
-					CvPreGame::setLeaderHead(eMinorPlayer, (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER));
-					CvPreGame::setPlayerColor(eMinorPlayer, (PlayerColorTypes)pMinorCivInfo->getDefaultPlayerColor());
-					CvPreGame::setMinorCiv(eMinorPlayer, true);
-					CvPreGame::setMinorCivType(eMinorPlayer, (MinorCivTypes)pMinorCivInfo->GetID());
-				}
-			}
+				CvPreGame::setSlotStatus(eLoopPlayer, SS_CLOSED);
+
+			CvPreGame::setNetID(eLoopPlayer, -1);
+			CvPreGame::setHandicap(eLoopPlayer, eCSHandicap);
+			CvPreGame::setCivilization(eLoopPlayer, eMinorCiv);
+			CvPreGame::setLeaderHead(eLoopPlayer, eBarbLeader);
+			CvPreGame::setPlayerColor(eLoopPlayer, (PlayerColorTypes)pkCityState->getDefaultPlayerColor());
+			CvPreGame::setMinorCiv(eLoopPlayer, true);
 		}
 	}
 
-	for(iI = 0; iI < MAX_PLAYERS; iI++)
+	// Init players
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		const PlayerTypes ePlayer = static_cast<PlayerTypes>(iI);
 		CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
-
 		kPlayer.init(ePlayer);
 	}
 
-	for(int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
 	{
 		PrintPlayerInfo(iI);
 	}
@@ -14650,32 +14602,6 @@ TeamTypes CvGame::GetPotentialFreeCityTeam(CvCity* pCity)
 		return eTeam;
 	}
 	return NO_TEAM;
-}
-
-MinorCivTypes CvGame::GetAvailableMinorCivType()
-{
-	for (int i = 0; i < GC.getNumMinorCivInfos(); i++)
-	{
-		CvMinorCivInfo* pkCivilization = GC.getMinorCivInfo((MinorCivTypes)i);
-		if (pkCivilization == NULL)
-			continue;
-
-		bool bad = false;
-		for(int j = MAX_MAJOR_CIVS; j < MAX_CIV_PLAYERS; j++)
-		{
-			PlayerTypes eMinor = (PlayerTypes)j;
-			if (CvPreGame::minorCivType(eMinor) == (MinorCivTypes)i)
-			{
-				bad = true;
-				break;
-			}
-		}
-		if (bad)
-			continue;
-
-		return (MinorCivTypes)i;
-	}
-	return NO_MINORCIV;
 }
 
 bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, bool bMajorFoundingCityState)

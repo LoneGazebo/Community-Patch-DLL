@@ -103,6 +103,8 @@
 // Enables Achievements and the Achievements table (v45, modified to include all achievements-related code)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
 
+// Balance the number of City-States with each trait evenly.
+#define MOD_BALANCE_CITY_STATE_TRAITS				gCustomMods.isBALANCE_CITY_STATE_TRAITS()
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -1160,7 +1162,6 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityFlipped				"CityFlipped", "iii"
 #define GAMEEVENT_CityFlipChance			"CityFlipChance", "ii"
 #define GAMEEVENT_CityFlipRecipientChance	"CityFlipChance", "iii"
-#define GAMEEVENT_FreeCitySelector			"SetFreeCityType", "ii"
 #define GAMEEVENT_PlayerAnarchy				"PlayerAnarchyBegins", "iii"
 
 // Serialization wrappers
@@ -1254,6 +1255,7 @@ public:
 
 	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);
+	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);

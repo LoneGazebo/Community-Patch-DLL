@@ -833,7 +833,6 @@ public:
 	PlayerTypes GetPotentialFreeCityPlayer(CvCity* pCity = NULL);
 	TeamTypes GetPotentialFreeCityTeam(CvCity* pCity = NULL);
 	bool CreateFreeCityPlayer(CvCity* pCity, bool bJustChecking, bool bMajorFoundingCityState);
-	MinorCivTypes GetAvailableMinorCivType();
 
 	//------------------------------------------------------------
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}

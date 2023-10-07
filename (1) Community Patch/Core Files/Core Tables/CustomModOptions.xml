@@ -25,9 +25,12 @@
 	<!-- New version of the MOD_BALANCE_CORE define. Will be changed back to MOD_BALANCE_CORE once that define actually works. -->
 	<Row Class="6" Name="BALANCE_VP" Value="0"/>
 
+	<!-- Balance the number of City-States with each trait evenly. -->
+	<Row Class="6" Name="BALANCE_CITY_STATE_TRAITS" Value="0"/>
+
     <!-- Changes in Milae's Alternative Difficulty Mod -->
     <!-- Adds more Difficulty Options including extra columns in HandicapInfos -->
-   <Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>
+	<Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>
 
     <!-- Changes the stacking limits based on what the tile is (city, fort, plain, etc) (v19) -->
     <!-- See also: "Global - 2 Units Per Fort" -->

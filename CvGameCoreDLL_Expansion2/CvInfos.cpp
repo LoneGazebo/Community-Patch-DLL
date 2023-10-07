@@ -2265,6 +2265,11 @@ bool CvCivilizationInfo::isLeaders(int i) const
 	return m_pbLeaders && i>=0 ? m_pbLeaders[i] : false;
 }
 //------------------------------------------------------------------------------
+bool CvCivilizationInfo::IsBlocksMinor(int i) const
+{
+	return m_BlockedMinors[i];
+}
+//------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationFreeBuildingClass(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
@@ -2313,6 +2318,7 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const size_t maxUnitClasses = kUtility.MaxRows("UnitClasses");
 	const size_t maxBuildingClasses = kUtility.MaxRows("BuildingClasses");
+	const size_t NumMinorCivInfos = kUtility.MaxRows("MinorCivilizations");
 
 	const char* szTextVal = NULL;	//! temporary val
 
@@ -2519,6 +2525,29 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	kUtility.PopulateArrayByExistence(m_pbReligions, "Religions", "Civilization_Religions",
 	                                  "ReligionType", "CivilizationType", szType);
+
+	//Blocked Minors
+	{
+		m_BlockedMinors.clear();
+		m_BlockedMinors.resize(NumMinorCivInfos, false);
+
+		std::string strKey = "MajorBlocksMinor";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select MinorCivilizations.ID from MajorBlocksMinor inner join MinorCivilizations on MinorCiv = MinorCivilizations.Type where MajorCiv = ?");
+		}
+
+		pResults->Bind(1, szType);
+
+		while (pResults->Step())
+		{
+			const int BlockedMinor = pResults->GetInt(0);
+			m_BlockedMinors[BlockedMinor] = true;
+		}
+
+		pResults->Reset();
+	}
 
 	//Spy Names
 	{
