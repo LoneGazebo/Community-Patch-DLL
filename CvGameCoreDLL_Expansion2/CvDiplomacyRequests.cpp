@@ -362,14 +362,14 @@ foundRequest:
 				}				
 				else if (!kDeal.IsPeaceTreatyTrade(eTo))
 				{
-					// DoEqualizeDealWithHuman won't update the cached peace value so I have split out it here
+					// DoEqualizeDeal won't update the cached peace value so I have split out it here
 					// Otherwise equalizing the deal in the UI won't work. I do not understand why the cached peace value is the way it is.
 					bool bGoodToBeginWith = true;
 					bool bCantMatchOffer = false;
 					// just try modify gold to start off iwth since it could maybe be possible that the AI had something in mind at the time
-					bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
+					bAcceptable = dealAI->DoEqualizeDeal(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
 					if (!bAcceptable) // now try harder to get a deal to avoid an improptu withdrawl
-						bAcceptable = dealAI->DoEqualizeDealWithHuman(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
+						bAcceptable = dealAI->DoEqualizeDeal(&kDeal, eTo, bGoodToBeginWith, bCantMatchOffer);
 					if (!bAcceptable) // well, we tried. Gonna just clear the deal and being up a empty non-descript trade as it is slightly less wierd than the deal abruptly being withdrawn
 					{
 						//bBlankDeal = true; // blanking seems to works fine but from reading bug reports, simply cancelling might be less surprising

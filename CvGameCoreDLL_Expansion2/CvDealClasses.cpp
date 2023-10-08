@@ -3515,6 +3515,19 @@ bool CvDeal::ChangeGoldPerTurnTrade(PlayerTypes eFrom, int iNewAmount, int iDura
 	return false;
 }
 
+bool CvDeal::IsGoldOnlyTrade()
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType != TRADE_ITEM_GOLD && it->m_eItemType != TRADE_ITEM_GOLD_PER_TURN)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 bool CvDeal::IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource)
 {
 	TradedItemList::iterator it;
@@ -6061,7 +6074,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			CvString playerName = GET_PLAYER(pDeal->GetFromPlayer()).getCivilizationShortDescription();
 		}
 
-		int iTotalValue = GET_PLAYER(pDeal->GetFromPlayer()).GetDealAI()->GetDealValue(pDeal, true);
+		int iTotalValue = GET_PLAYER(pDeal->GetFromPlayer()).GetDealAI()->GetDealValue(pDeal);
 #endif
 		CvString otherPlayerName;
 

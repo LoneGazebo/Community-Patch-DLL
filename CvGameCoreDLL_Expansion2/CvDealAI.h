@@ -59,34 +59,27 @@ public:
 
 	// The following functions are used to valuate items and construct a deal this AI thinks is fair
 
-	bool DoEqualizeDealWithHuman(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer);
-	bool DoEqualizeDealWithAI(CvDeal* pDeal, PlayerTypes eOtherPlayer);
+	bool DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer);
 
-	// What is something worth? - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
+	int GetOneGPTValue(bool bPeaceDeal) const;
+	int GetDealValue(CvDeal* pDeal);
+	int GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bIsAIOffer, bool bEqualize = true);
 
-	int GetOneGPTValue() const;
-	int GetDealValue(CvDeal* pDeal, bool bLogging = false);
-	int GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes eOtherPlayer, int iData1, int iData2, int iData3, bool bFlag1, int iDuration, bool bLogging = false);
-
-	int GetResourceRatio(PlayerTypes eSeller, PlayerTypes eBuyer, ResourceTypes eResource, int iNumInTrade);
-	// Value of individual trade items - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
-
-	int GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
-	int GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
+	int GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue, PlayerTypes eOtherPlayer);
+	int GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
 	int GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
+	vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int iNumTurns, bool bFromMe, int iNumAvailable, bool bPeaceDeal);
 	int GetStrategicResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
-	int GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
-	int GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
-	int GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
-	int GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bUseEvenValue = false);
+	int GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer);
+	int GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer);
+	int GetDefensivePactValue(bool bFromMe, PlayerTypes eOtherPlayer);
+	int GetResearchAgreementValue(bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetPeaceTreatyValue(PlayerTypes eOtherPlayer);
 	int GetThirdPartyPeaceValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
 	int GetThirdPartyWarValue(bool bFromMe, PlayerTypes eOtherPlayer, TeamTypes eWithTeam, bool bLogging = false);
-	int GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal, bool bUseEvenValue = false);
+	int GetVoteCommitmentValue(bool bFromMe, PlayerTypes eOtherPlayer, int iProposalID, int iVoteChoice, int iNumVotes, bool bRepeal);
 	int GetCityValueForDeal(CvCity* pCity, PlayerTypes eAssumedOwner);
-
-	// Potential items an AI can try to add to a deal to even it out - bUseEvenValue will see what the mean is between two AI players (us and eOtherPlayer) - will NOT work with a human involved
 
 	void DoAddVoteCommitmentToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddVoteCommitmentToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
@@ -148,6 +141,11 @@ public:
 	bool IsMakeOfferForThirdPartyWar(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForThirdPartyPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 	bool IsMakeOfferForVote(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal);
+	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
 	// Called when the human opens or closes the Trade Screen
 
@@ -161,13 +159,6 @@ public:
 	int GetTechValue(TechTypes eTech, bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bool bWar = false);
-
-	// Does AI want to make offer for X?
-	bool IsMakeOfferForMaps(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForTech(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferToBecomeVassal(PlayerTypes eOtherPlayer, CvDeal* pDeal);
-	bool IsMakeOfferForRevokeVassalage(PlayerTypes eOtherPlayer, CvDeal* pDeal);
 
 	// Will adding item to deal even it out?
 	void DoAddTechToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
@@ -201,7 +192,6 @@ protected:
 		int iData3;
 		bool bFlag1;
 		int iDuration;
-		//bool bUseEvenValue;
 
 		SDealItemValueParams(TradeableItems eItem_, bool bFromMe_, PlayerTypes eOtherPlayer_, int iData1_, int iData2_, int iData3_, bool bFlag1_, int iDuration_) :
 			eItem(eItem_), bFromMe(bFromMe_), eOtherPlayer(eOtherPlayer_), iData1(iData1_), iData2(iData2_), iData3(iData3_), bFlag1(bFlag1_), iDuration(iDuration_) { }

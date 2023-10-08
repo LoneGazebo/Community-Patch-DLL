@@ -9865,7 +9865,7 @@ void CvCity::ChangeImprovementExtraYield(ImprovementTypes eImprovement, YieldTyp
 		updateYield();
 }
 
-/// Extra yield for a building this city is lacking resources for?
+/// Extra maintenance for a building this city is lacking resources for?
 int CvCity::GetExtraBuildingMaintenance() const
 {
 	VALIDATE_OBJECT

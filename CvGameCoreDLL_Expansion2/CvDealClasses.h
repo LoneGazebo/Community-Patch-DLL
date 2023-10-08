@@ -240,6 +240,7 @@ public:
 	bool IsStrategicsTrade();
 	int GetNumStrategicsOnTheirSide(PlayerTypes eFrom);
 
+	bool IsGoldOnlyTrade();
 	bool IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource);
 	int GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource);
 	bool ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);

@@ -28284,11 +28284,6 @@ bool CvDiplomacyAI::IsEmbassyExchangeAcceptable(PlayerTypes ePlayer)
 	CvAssertMsg(ePlayer >= 0, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "DIPLOMACY_AI: Invalid Player Index.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 
-	if (MOD_NOT_FOR_SALE && GET_PLAYER(ePlayer).IsRefuseEmbassyTrade())
-	{
-		return false;
-	}
-
 	CivApproachTypes eApproach = GetSurfaceApproach(ePlayer);
 
 	if(IsDenouncedPlayer(ePlayer) || GET_PLAYER(ePlayer).GetDiplomacyAI()->IsDenouncedPlayer(GetID()))
@@ -28626,11 +28621,6 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 /// Are we willing to swap Open Borders with ePlayer?
 bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 {
-	if (MOD_NOT_FOR_SALE && GET_PLAYER(ePlayer).IsRefuseOpenBordersTrade())
-	{
-		return false;
-	}
-
 	if (IsWillingToGiveOpenBordersToPlayer(ePlayer) && IsWantsOpenBordersWithPlayer(ePlayer))
 		return true;
 
@@ -34746,19 +34736,9 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					pDeal->AddOpenBorders(GetID(), iDuration);
 					pDeal->AddOpenBorders(ePlayer, iDuration);
 
-					bool bDealAcceptable = false;
-
-					// AI evaluation
-					if(!GET_PLAYER(ePlayer).isHuman())
-					{
-						bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDealWithAI(pDeal, ePlayer);	// Change the deal as necessary to make it work
-					}
-					else
-					{
-						bool bUselessReferenceVariable = false;
-						bool bCantMatchOffer = false;
-						bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDealWithHuman(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-					}
+					bool bUselessReferenceVariable = false;
+					bool bCantMatchOffer = false;
+					bool bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDeal(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 					if(bDealAcceptable)
 					{
 						eStatement = eTempStatement;
@@ -35119,13 +35099,15 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 		//Set as considered for renewal.
 		pCurrentDeal->m_iFinalTurn = -1;
 			
-		int iValue = m_pPlayer->GetDealAI()->GetDealValue(pCurrentDeal, false);
+		int iValue = m_pPlayer->GetDealAI()->GetDealValue(pCurrentDeal);
 		if (iValue != INT_MAX)
 		{
 			bool bAbleToEqualize = false;
 			if (!GET_PLAYER(ePlayer).isHuman())
 			{
-				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDealWithAI(pCurrentDeal, ePlayer);
+				bool bUselessReferenceVariable;
+				bool bCantMatchOffer;
+				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDeal(pCurrentDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);
 			}
 			else
 				bAbleToEqualize = true;

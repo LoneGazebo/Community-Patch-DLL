@@ -357,6 +357,8 @@ public:
 #endif
 	CvTeamTechs* GetTeamTechs() const;
 
+	int GetTechProgressPercent() const;
+
 	int getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	void changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
 

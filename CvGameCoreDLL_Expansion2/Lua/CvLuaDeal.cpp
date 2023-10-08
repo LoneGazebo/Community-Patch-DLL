@@ -250,7 +250,7 @@ int CvLuaDeal::lDoReevaluateDeal(lua_State* L)
 	{
 		bool bUselessReferenceVariable = false;
 		bool bCantMatchOffer = false;
-		bool bDealCanceled = !pkThisPlayer->GetDealAI()->DoEqualizeDealWithHuman(pkDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);
+		bool bDealCanceled = !pkThisPlayer->GetDealAI()->DoEqualizeDeal(pkDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);
 	}
 	lua_pushboolean(L, bDealCanceled);
 	return 1;
