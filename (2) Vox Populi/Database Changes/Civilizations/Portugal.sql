@@ -40,7 +40,9 @@ VALUES
 -- Unique Improvement: Feitoria
 ----------------------------------------------------------
 UPDATE Builds
-SET PrereqTech = 'TECH_COMPASS'
+SET
+	PrereqTech = 'TECH_COMPASS',
+	Time = 700
 WHERE Type = 'BUILD_FEITORIA';
 
 UPDATE Improvements

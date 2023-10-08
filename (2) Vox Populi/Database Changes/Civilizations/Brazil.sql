@@ -62,7 +62,9 @@ VALUES
 -- Unique Improvement: Brazilwood Camp
 ----------------------------------------------------------
 UPDATE Builds
-SET PrereqTech = 'TECH_CALENDAR'
+SET
+	PrereqTech = 'TECH_CALENDAR',
+	Time = 600
 WHERE Type = 'BUILD_BRAZILWOOD_CAMP';
 
 UPDATE Improvements

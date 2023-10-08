@@ -51,7 +51,7 @@ VALUES
 UPDATE Builds
 SET
 	PrereqTech = 'TECH_ARCHERY', -- Military Strategy
-	Time = 500
+	Time = 400
 WHERE Type = 'BUILD_EKI';
 
 INSERT INTO Build_TechTimeChanges
@@ -67,9 +67,9 @@ VALUES
 INSERT INTO BuildFeatures
 	(BuildType, FeatureType, Time, Remove)
 VALUES
-	('BUILD_EKI', 'FEATURE_FOREST', 300, 1),
-	('BUILD_EKI', 'FEATURE_JUNGLE', 400, 1),
-	('BUILD_EKI', 'FEATURE_MARSH', 400, 1);
+	('BUILD_EKI', 'FEATURE_FOREST', 400, 1),
+	('BUILD_EKI', 'FEATURE_JUNGLE', 500, 1),
+	('BUILD_EKI', 'FEATURE_MARSH', 500, 1);
 
 UPDATE Improvements
 SET
