@@ -4496,63 +4496,60 @@ void CvMinorCivAI::DoPickPersonality()
 	{
 		ePersonality = eFixedPersonality;
 	}
+	else if (!MOD_BALANCE_CITY_STATE_PERSONALITIES)
+	{
+		ePersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES), CvSeeder::fromRaw(0x9eb1d925).mix(m_pPlayer->GetID())));
+	}
 	else
 	{
-		if (!MOD_BALANCE_CITY_STATE_PERSONALITIES)
+		MinorCivTraitTypes eOurTrait = GetTrait();
+		int iOtherFriendly = 0;
+		int iOtherNeutral = 0;
+		int iOtherHostile = 0;
+		int iOtherIrrational = 0;
+		for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 		{
-			ePersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES), CvSeeder::fromRaw(0x9eb1d925).mix(m_pPlayer->GetID())));
-		}
-		else
-		{
-			MinorCivTraitTypes eOurTrait = GetTrait();
-			int iOtherFriendly = 0;
-			int iOtherNeutral = 0;
-			int iOtherHostile = 0;
-			int iOtherIrrational = 0;
-			for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-			{
-				PlayerTypes eOtherMinor = (PlayerTypes)iPlayerLoop;
-				if (eOtherMinor == m_pPlayer->GetID() || !GET_PLAYER(eOtherMinor).isEverAlive())
-					continue;
+			PlayerTypes eOtherMinor = (PlayerTypes)iPlayerLoop;
+			if (eOtherMinor == m_pPlayer->GetID() || !GET_PLAYER(eOtherMinor).isEverAlive())
+				continue;
 
-				MinorCivPersonalityTypes eOtherPersonality = GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetPersonality();
-				bool bMatches = !MOD_BALANCE_CITY_STATE_TRAITS || (eOurTrait != NO_MINOR_CIV_TRAIT_TYPE && GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTrait() == eOurTrait);
-				if (bMatches)
+			MinorCivPersonalityTypes eOtherPersonality = GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetPersonality();
+			bool bMatches = !MOD_BALANCE_CITY_STATE_TRAITS || (eOurTrait != NO_MINOR_CIV_TRAIT_TYPE && GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTrait() == eOurTrait);
+			if (bMatches)
+			{
+				switch (eOtherPersonality)
 				{
-					switch (eOtherPersonality)
-					{
-					case MINOR_CIV_PERSONALITY_FRIENDLY:
-						iOtherFriendly++;
-						break;
-					case MINOR_CIV_PERSONALITY_NEUTRAL:
-						iOtherNeutral++;
-						break;
-					case MINOR_CIV_PERSONALITY_HOSTILE:
-						iOtherHostile++;
-						break;
-					case MINOR_CIV_PERSONALITY_IRRATIONAL:
-						iOtherIrrational++;
-						break;
-					default:
-						break;
-					}
+				case MINOR_CIV_PERSONALITY_FRIENDLY:
+					iOtherFriendly++;
+					break;
+				case MINOR_CIV_PERSONALITY_NEUTRAL:
+					iOtherNeutral++;
+					break;
+				case MINOR_CIV_PERSONALITY_HOSTILE:
+					iOtherHostile++;
+					break;
+				case MINOR_CIV_PERSONALITY_IRRATIONAL:
+					iOtherIrrational++;
+					break;
+				default:
+					break;
 				}
 			}
-			vector<MinorCivPersonalityTypes> vValidPersonalities;
-			if (iOtherFriendly <= iOtherNeutral && iOtherFriendly <= iOtherHostile && iOtherFriendly <= iOtherIrrational)
-				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_FRIENDLY);
-			if (iOtherNeutral <= iOtherFriendly && iOtherNeutral <= iOtherHostile && iOtherNeutral <= iOtherIrrational)
-				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_NEUTRAL);
-			if (iOtherHostile <= iOtherFriendly && iOtherHostile <= iOtherNeutral && iOtherHostile <= iOtherIrrational)
-				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_HOSTILE);
-			if (iOtherIrrational <= iOtherFriendly && iOtherIrrational <= iOtherNeutral && iOtherIrrational <= iOtherHostile)
-				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_IRRATIONAL);
-
-			ASSERT(vValidPersonalities.size() > 0);
-
-			uint uRand = GC.getGame().urandLimitExclusive(vValidPersonalities.size(), CvSeeder::fromRaw(0xdf912135).mix(m_pPlayer->GetID()));
-			ePersonality = static_cast<MinorCivPersonalityTypes>(vValidPersonalities[uRand]);
 		}
+		vector<MinorCivPersonalityTypes> vValidPersonalities;
+		if (iOtherFriendly <= iOtherNeutral && iOtherFriendly <= iOtherHostile && iOtherFriendly <= iOtherIrrational)
+			vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_FRIENDLY);
+		if (iOtherNeutral <= iOtherFriendly && iOtherNeutral <= iOtherHostile && iOtherNeutral <= iOtherIrrational)
+			vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_NEUTRAL);
+		if (iOtherHostile <= iOtherFriendly && iOtherHostile <= iOtherNeutral && iOtherHostile <= iOtherIrrational)
+			vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_HOSTILE);
+		if (iOtherIrrational <= iOtherFriendly && iOtherIrrational <= iOtherNeutral && iOtherIrrational <= iOtherHostile)
+			vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_IRRATIONAL);
+
+		ASSERT(vValidPersonalities.size() > 0);
+
+		uint uRand = GC.getGame().urandLimitExclusive(vValidPersonalities.size(), CvSeeder::fromRaw(0xdf912135).mix(m_pPlayer->GetID()));
+		ePersonality = static_cast<MinorCivPersonalityTypes>(vValidPersonalities[uRand]);
 	}
 
 	SetPersonality(ePersonality);
