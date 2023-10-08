@@ -42,6 +42,12 @@ UPDATE Traits
 SET AngerFreeIntrusionOfCityStates = 1
 WHERE Type = 'TRAIT_CITY_STATE_FRIENDSHIP';
 
+-- Block Kabul from appearing if Persia is ingame, as Kabul is on Persia's city list
+INSERT INTO MajorBlocksMinor
+	(MajorCiv, MinorCiv)
+VALUES
+	('CIVILIZATION_PERSIA', 'MINOR_CIV_KABUL');
+
 -- TR fix for religion spread
 UPDATE Gamespeeds
 SET ReligiousPressureAdjacentCity = 25 WHERE Type = 'GAMESPEED_MARATHON';
