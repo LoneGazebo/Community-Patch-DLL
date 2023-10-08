@@ -2879,43 +2879,30 @@ int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = NULL;
 	const CvUnit* pLoopUnit = NULL;
-	int iNowBuildRate = 0;
-	int iThenBuildRate = 0;
-	int iBuildLeft = 0;
-	int iTurnsLeft = 0;
+	int iBuildRate = 0;
+	int iBuildTime = getBuildTime(eBuild, ePlayer);
 
 	pUnitNode = headUnitNode();
 
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->getBuildType() == eBuild)
-		{
-			if(pLoopUnit->canMove())
-			{
-				iNowBuildRate += pLoopUnit->workRate(false);
-			}
-			iThenBuildRate += pLoopUnit->workRate(true);
-		}
+		if (pLoopUnit && pLoopUnit->getBuildType() == eBuild)
+			iBuildRate += pLoopUnit->workRate(true);
 	}
 
-	if(iThenBuildRate == 0)
+	if (iBuildRate == 0)
 	{
 		//this means it will take forever under current circumstances
 		return INT_MAX;
 	}
 
-	iBuildLeft = getBuildTime(eBuild, ePlayer);
+	iBuildTime = std::max(1, getBuildTime(eBuild, ePlayer));
 
-	iBuildLeft = std::max(0, iBuildLeft);
-
-	iTurnsLeft = (iBuildLeft / iThenBuildRate);
-
-	iTurnsLeft--;
-
-	return std::max(1, iTurnsLeft);
+	// Rounds up
+	return (iBuildTime - 1) / iBuildRate + 1;
 }
 
 

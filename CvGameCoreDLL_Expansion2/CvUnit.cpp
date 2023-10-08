@@ -13761,16 +13761,11 @@ bool CvUnit::build(BuildTypes eBuild)
 			}
 		}
 
-#if defined(MOD_CIV6_WORKER)
-		if(!MOD_CIV6_WORKER)
-			bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
-#else
-		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
-#endif
 		NewBuild = true;
 	}
 
-	bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner(), NewBuild);
+	if(!MOD_CIV6_WORKER)
+		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner(), NewBuild);
 
 #if defined(MOD_EVENTS_PLOT)
 	if (MOD_EVENTS_PLOT) {

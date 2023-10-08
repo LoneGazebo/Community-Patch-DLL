@@ -34,7 +34,7 @@ VALUES
 UPDATE Builds
 SET
 	PrereqTech = 'TECH_MASONRY', -- Construction
-	Time = 700
+	Time = 600
 WHERE Type = 'BUILD_KUNA';
 
 INSERT INTO Unit_Builds

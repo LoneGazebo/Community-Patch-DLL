@@ -1686,11 +1686,10 @@ function TipHandler( control )
 		
 		local buildProgress = pPlot:GetBuildProgress( iBuildID )
 		local nominalWorkRate = unit:WorkRate( true )
-		-- take into account unit.cpp "wipe out all build progress also" game bug
-		local buildTime = pPlot:GetBuildTime( iBuildID, Game.GetActivePlayer() ) - nominalWorkRate
+		local buildTime = pPlot:GetBuildTime( iBuildID, Game.GetActivePlayer() )
 		local iBuildTurns
 		if buildProgress == 0 then
-			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), nominalWorkRate - unit:WorkRate() )
+			iBuildTurns = plot:GetBuildTurnsTotal( iBuildID, Game.GetActivePlayer() )
 		else
 			buildProgress = buildProgress - nominalWorkRate
 			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), -unit:WorkRate() )

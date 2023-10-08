@@ -51,7 +51,7 @@ VALUES
 UPDATE Builds
 SET
 	PrereqTech = 'TECH_CHIVALRY',
-	Time = 1000
+	Time = 900
 WHERE Type = 'BUILD_KASBAH';
 
 UPDATE Improvements
