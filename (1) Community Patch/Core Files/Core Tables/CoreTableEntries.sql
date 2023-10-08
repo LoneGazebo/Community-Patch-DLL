@@ -1,3 +1,25 @@
+-- Blocks a specified City-State from appearing ingame if the associated Civilization is present at game start.
+CREATE TABLE IF NOT EXISTS MajorBlocksMinor(
+	MajorCiv text NOT NULL,
+	MinorCiv text NOT NULL,
+	FOREIGN KEY (MajorCiv) REFERENCES Civilizations(Type),
+	FOREIGN KEY (MinorCiv) REFERENCES MinorCivilizations(Type)
+);
+
+-- Allows modders to specify a fixed personality type for a City-State. This overrides the MOD_BALANCE_CITY_STATE_PERSONALITIES CustomModOption.
+CREATE TABLE IF NOT EXISTS MinorCivPersonalityTypes(
+	ID INTEGER PRIMARY KEY AUTOINCREMENT,
+	Type text NOT NULL UNIQUE
+);
+
+INSERT INTO MinorCivPersonalityTypes(ID, Type) VALUES (0, 'MINOR_CIV_PERSONALITY_FRIENDLY');
+INSERT INTO MinorCivPersonalityTypes(Type) VALUES
+('MINOR_CIV_PERSONALITY_NEUTRAL'), -- 1
+('MINOR_CIV_PERSONALITY_HOSTILE'), -- 2
+('MINOR_CIV_PERSONALITY_IRRATIONAL'); -- 3
+
+ALTER TABLE MinorCivilizations ADD COLUMN FixedPersonality text DEFAULT NULL REFERENCES MinorCivPersonalityTypes(Type);
+
 -- HistoricEventTypes table: Defines the different types of historic events. The order used here matches with the enum used in the DLL. Do not change without changing the DLL as well!
 -- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus. These are prefixed with DIFFICULTY_BONUS.
 CREATE TABLE IF NOT EXISTS HistoricEventTypes(
@@ -5,7 +27,7 @@ CREATE TABLE IF NOT EXISTS HistoricEventTypes(
 	Type text NOT NULL UNIQUE
 );
 
-INSERT INTO HistoricEventTypes(ID, Type) VALUES ('0','HISTORIC_EVENT_ERA_CHANGE');
+INSERT INTO HistoricEventTypes(ID, Type) VALUES (0,'HISTORIC_EVENT_ERA_CHANGE');
 INSERT INTO HistoricEventTypes(Type) VALUES 
 ('HISTORIC_EVENT_WORLD_WONDER'), -- 1
 ('HISTORIC_EVENT_GREAT_PERSON'), -- 2
