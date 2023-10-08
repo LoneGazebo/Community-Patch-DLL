@@ -2882,6 +2882,8 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 	vector<MinorCivTypes> vAvailable;
 	vector<CivilizationTypes> vChosenMajors;
 	vector<MinorCivTypes> vChosenMinors;
+	bool bNoReligion = GC.getGame().isOption(GAMEOPTION_NO_RELIGION);
+	bool bNoPolicies = GC.getGame().isOption(GAMEOPTION_NO_POLICIES);
 
 	for (int p = 0; p < MAX_MAJOR_CIVS; p++)
 	{
@@ -2909,6 +2911,12 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 		if (pkCityState == NULL)
 			continue;
 
+		MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
+		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS && bNoReligion)
+			continue;
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED && bNoPolicies)
+			continue;
+
 		// City-State is already ingame?
 		if (std::find(vChosenMinors.begin(), vChosenMinors.end(), eAvailability) != vChosenMinors.end())
 			continue;
@@ -2930,7 +2938,6 @@ vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured
 		vAvailable.push_back(eAvailability);
 		if (MOD_BALANCE_CITY_STATE_TRAITS)
 		{
-			MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
 			switch (eTrait)
 			{
 			case MINOR_CIV_TRAIT_CULTURED:

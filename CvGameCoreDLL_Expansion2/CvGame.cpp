@@ -610,6 +610,8 @@ void CvGame::InitPlayers()
 	LeaderHeadTypes eBarbLeader = (LeaderHeadTypes)GD_INT_GET(BARBARIAN_LEADER);
 	HandicapTypes eAIHandicap = (HandicapTypes)GD_INT_GET(AI_HANDICAP);
 	HandicapTypes eCSHandicap = (HandicapTypes)GD_INT_GET(MINOR_CIV_HANDICAP);
+	bool bNoReligion = GC.getGame().isOption(GAMEOPTION_NO_RELIGION);
+	bool bNoPolicies = GC.getGame().isOption(GAMEOPTION_NO_POLICIES);
 
 	// Init teams
 	for (int iI = 0; iI < MAX_TEAMS; iI++)
@@ -704,10 +706,14 @@ void CvGame::InitPlayers()
 					pkCityState = GC.getMinorCivInfo(eType);
 					if (eType != NO_MINORCIV && pkCityState)
 					{
-						CvPreGame::setPlayerColor(eLoopPlayer, (PlayerColorTypes)pkCityState->getDefaultPlayerColor());
-						CvPreGame::setMinorCivType(eLoopPlayer, eType);
-						bFoundOne = true;
-						break;
+						MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
+						if ((eTrait != MINOR_CIV_TRAIT_RELIGIOUS || !bNoReligion) && (eTrait != MINOR_CIV_TRAIT_CULTURED || !bNoPolicies))
+						{
+							CvPreGame::setPlayerColor(eLoopPlayer, (PlayerColorTypes)pkCityState->getDefaultPlayerColor());
+							CvPreGame::setMinorCivType(eLoopPlayer, eType);
+							bFoundOne = true;
+							break;
+						}
 					}
 				}
 				if (!bFoundOne)
