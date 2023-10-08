@@ -27,6 +27,9 @@
 
 	<!-- Balance the number of City-States with each trait evenly. -->
 	<Row Class="6" Name="BALANCE_CITY_STATE_TRAITS" Value="0"/>
+	<!-- Balance the number of City-States with each personality evenly. -->
+	<!-- If combined with the above option, each pool of City-States with the same trait will be balanced separately. -->
+	<Row Class="6" Name="BALANCE_CITY_STATE_PERSONALITIES" Value="0"/>
 
     <!-- Changes in Milae's Alternative Difficulty Mod -->
     <!-- Adds more Difficulty Options including extra columns in HandicapInfos -->

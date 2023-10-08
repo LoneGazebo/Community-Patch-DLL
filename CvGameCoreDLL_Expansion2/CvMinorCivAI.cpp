@@ -4486,27 +4486,76 @@ void CvMinorCivAI::SetPersonality(MinorCivPersonalityTypes ePersonality)
 /// Picks a random Personality for this minor
 void CvMinorCivAI::DoPickPersonality()
 {
-	FlavorTypes eFlavorCityDefense = NO_FLAVOR;
-	FlavorTypes eFlavorDefense = NO_FLAVOR;
-	FlavorTypes eFlavorOffense = NO_FLAVOR;
-	for (int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+	MinorCivPersonalityTypes ePersonality = NO_MINOR_CIV_PERSONALITY_TYPE;
+	MinorCivPersonalityTypes eFixedPersonality = NO_MINOR_CIV_PERSONALITY_TYPE;
+	CvMinorCivInfo* pkMinorCivInfo = GC.getMinorCivInfo(GetMinorCivType());
+	if (pkMinorCivInfo)
+		eFixedPersonality = pkMinorCivInfo->GetFixedPersonality();
+
+	if (eFixedPersonality != NO_MINOR_CIV_PERSONALITY_TYPE)
 	{
-		if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_CITY_DEFENSE")
+		ePersonality = eFixedPersonality;
+	}
+	else
+	{
+		if (!MOD_BALANCE_CITY_STATE_PERSONALITIES)
 		{
-			eFlavorCityDefense = (FlavorTypes)iFlavorLoop;
+			ePersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES), CvSeeder::fromRaw(0x9eb1d925).mix(m_pPlayer->GetID())));
 		}
-		if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_DEFENSE")
+		else
 		{
-			eFlavorDefense = (FlavorTypes)iFlavorLoop;
-		}
-		if (GC.getFlavorTypes((FlavorTypes)iFlavorLoop) == "FLAVOR_OFFENSE")
-		{
-			eFlavorOffense = (FlavorTypes)iFlavorLoop;
+			MinorCivTraitTypes eOurTrait = GetTrait();
+			int iOtherFriendly = 0;
+			int iOtherNeutral = 0;
+			int iOtherHostile = 0;
+			int iOtherIrrational = 0;
+			for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+			{
+				PlayerTypes eOtherMinor = (PlayerTypes)iPlayerLoop;
+				if (eOtherMinor == m_pPlayer->GetID() || !GET_PLAYER(eOtherMinor).isEverAlive())
+					continue;
+
+				MinorCivPersonalityTypes eOtherPersonality = GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetPersonality();
+				bool bMatches = !MOD_BALANCE_CITY_STATE_TRAITS || (eOurTrait != NO_MINOR_CIV_TRAIT_TYPE && GET_PLAYER(eOtherMinor).GetMinorCivAI()->GetTrait() == eOurTrait);
+				if (bMatches)
+				{
+					switch (eOtherPersonality)
+					{
+					case MINOR_CIV_PERSONALITY_FRIENDLY:
+						iOtherFriendly++;
+						break;
+					case MINOR_CIV_PERSONALITY_NEUTRAL:
+						iOtherNeutral++;
+						break;
+					case MINOR_CIV_PERSONALITY_HOSTILE:
+						iOtherHostile++;
+						break;
+					case MINOR_CIV_PERSONALITY_IRRATIONAL:
+						iOtherIrrational++;
+						break;
+					default:
+						break;
+					}
+				}
+			}
+			vector<MinorCivPersonalityTypes> vValidPersonalities;
+			if (iOtherFriendly <= iOtherNeutral && iOtherFriendly <= iOtherHostile && iOtherFriendly <= iOtherIrrational)
+				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_FRIENDLY);
+			if (iOtherNeutral <= iOtherFriendly && iOtherNeutral <= iOtherHostile && iOtherNeutral <= iOtherIrrational)
+				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_NEUTRAL);
+			if (iOtherHostile <= iOtherFriendly && iOtherHostile <= iOtherNeutral && iOtherHostile <= iOtherIrrational)
+				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_HOSTILE);
+			if (iOtherIrrational <= iOtherFriendly && iOtherIrrational <= iOtherNeutral && iOtherIrrational <= iOtherHostile)
+				vValidPersonalities.push_back(MINOR_CIV_PERSONALITY_IRRATIONAL);
+
+			ASSERT(vValidPersonalities.size() > 0);
+
+			uint uRand = GC.getGame().urandLimitExclusive(vValidPersonalities.size(), CvSeeder::fromRaw(0xdf912135).mix(m_pPlayer->GetID()));
+			ePersonality = static_cast<MinorCivPersonalityTypes>(vValidPersonalities[uRand]);
 		}
 	}
 
-	MinorCivPersonalityTypes eRandPersonality = static_cast<MinorCivPersonalityTypes>(GC.getGame().urandLimitExclusive(static_cast<uint>(NUM_MINOR_CIV_PERSONALITY_TYPES), CvSeeder::fromRaw(0x9eb1d925).mix(m_pPlayer->GetID())));
-	SetPersonality(eRandPersonality);
+	SetPersonality(ePersonality);
 	m_pPlayer->GetFlavorManager()->ResetToBasePersonality();
 }
 
@@ -18800,6 +18849,7 @@ CvMinorCivInfo::CvMinorCivInfo() :
 	m_iDefaultPlayerColor(NO_PLAYERCOLOR),
 	m_iArtStyleType(NO_ARTSTYLE),
 	m_iMinorCivTrait(NO_MINOR_CIV_TRAIT_TYPE),
+	m_eFixedPersonality(NO_MINOR_CIV_PERSONALITY_TYPE),
 #if defined(MOD_BALANCE_CORE)
 	m_iBullyUnit(NO_UNITCLASS),
 #endif
@@ -18900,6 +18950,36 @@ int CvMinorCivInfo::GetMinorCivTrait() const
 {
 	return m_iMinorCivTrait;
 }
+//------------------------------------------------------------------------------
+MinorCivPersonalityTypes CvMinorCivInfo::GetFixedPersonality() const
+{
+	return m_eFixedPersonality;
+}
+//------------------------------------------------------------------------------
+MinorCivPersonalityTypes CvMinorCivInfo::MinorCivPersonalityFromString(const char* szStr)
+{
+	if (szStr)
+	{
+		if (0 == _stricmp(szStr, "MINOR_CIV_PERSONALITY_FRIENDLY"))
+		{
+			return MINOR_CIV_PERSONALITY_FRIENDLY;
+		}
+		else if (0 == _stricmp(szStr, "MINOR_CIV_PERSONALITY_NEUTRAL"))
+		{
+			return MINOR_CIV_PERSONALITY_NEUTRAL;
+		}
+		else if (0 == _stricmp(szStr, "MINOR_CIV_PERSONALITY_HOSTILE"))
+		{
+			return MINOR_CIV_PERSONALITY_HOSTILE;
+		}
+		else if (0 == _stricmp(szStr, "MINOR_CIV_PERSONALITY_IRRATIONAL"))
+		{
+			return MINOR_CIV_PERSONALITY_IRRATIONAL;
+		}
+	}
+	return NO_MINOR_CIV_PERSONALITY_TYPE;
+}
+//------------------------------------------------------------------------------
 #if defined(MOD_BALANCE_CORE)
 int CvMinorCivInfo::GetBullyUnit() const
 {
@@ -18961,6 +19041,9 @@ bool CvMinorCivInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	szTextVal = kResults.GetText("MinorCivTrait");
 	m_iMinorCivTrait = GC.getInfoTypeForString(szTextVal, true);
+
+	szTextVal = kResults.GetText("FixedPersonality");
+	m_eFixedPersonality = MinorCivPersonalityFromString(szTextVal);
 
 #if defined(MOD_BALANCE_CORE)
 	szTextVal = kResults.GetText("BullyUnitClass");

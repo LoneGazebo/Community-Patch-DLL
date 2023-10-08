@@ -685,19 +685,34 @@ void CvGame::InitPlayers()
 		else if (iI < MAX_CIV_PLAYERS)
 		{
 			const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+			CvPreGame::setNetID(eLoopPlayer, -1);
+			CvPreGame::setHandicap(eLoopPlayer, eCSHandicap);
+			CvPreGame::setCivilization(eLoopPlayer, eMinorCiv);
+			CvPreGame::setLeaderHead(eLoopPlayer, eBarbLeader);
+			CvPreGame::setMinorCiv(eLoopPlayer, true);
 			MinorCivTypes minorCivType = CvPreGame::minorCivType(eLoopPlayer);
 			CvMinorCivInfo* pkCityState = GC.getMinorCivInfo(minorCivType);
 
-			// No valid City-State specified in pregame. Close the slot.
+			// No valid City-State specified in pregame. Default to the first valid index and close the slot.
 			if (minorCivType == NO_MINORCIV || !pkCityState)
 			{
 				CvPreGame::setSlotStatus(eLoopPlayer, SS_CLOSED);
-				CvPreGame::setNetID(eLoopPlayer, -1);
-				CvPreGame::setHandicap(eLoopPlayer, eCSHandicap);
-				CvPreGame::setCivilization(eLoopPlayer, eMinorCiv);
-				CvPreGame::setLeaderHead(eLoopPlayer, eBarbLeader);
-				CvPreGame::setPlayerColor(eLoopPlayer, NO_PLAYERCOLOR);
-				CvPreGame::setMinorCiv(eLoopPlayer, false);
+				bool bFoundOne = false;
+				for (int i = 0; i < GC.getNumMinorCivInfos(); i++)
+				{
+					MinorCivTypes eType = static_cast<MinorCivTypes>(i);
+					pkCityState = GC.getMinorCivInfo(eType);
+					if (eType != NO_MINORCIV && pkCityState)
+					{
+						CvPreGame::setPlayerColor(eLoopPlayer, (PlayerColorTypes)pkCityState->getDefaultPlayerColor());
+						CvPreGame::setMinorCivType(eLoopPlayer, eType);
+						bFoundOne = true;
+						break;
+					}
+				}
+				if (!bFoundOne)
+					CvPreGame::setPlayerColor(eLoopPlayer, NO_PLAYERCOLOR);
+
 				continue;
 			}
 
@@ -708,12 +723,7 @@ void CvGame::InitPlayers()
 			else
 				CvPreGame::setSlotStatus(eLoopPlayer, SS_CLOSED);
 
-			CvPreGame::setNetID(eLoopPlayer, -1);
-			CvPreGame::setHandicap(eLoopPlayer, eCSHandicap);
-			CvPreGame::setCivilization(eLoopPlayer, eMinorCiv);
-			CvPreGame::setLeaderHead(eLoopPlayer, eBarbLeader);
 			CvPreGame::setPlayerColor(eLoopPlayer, (PlayerColorTypes)pkCityState->getDefaultPlayerColor());
-			CvPreGame::setMinorCiv(eLoopPlayer, true);
 		}
 	}
 

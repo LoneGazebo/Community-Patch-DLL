@@ -105,6 +105,9 @@
 
 // Balance the number of City-States with each trait evenly.
 #define MOD_BALANCE_CITY_STATE_TRAITS				gCustomMods.isBALANCE_CITY_STATE_TRAITS()
+// Balance the number of City-States with each personality evenly.
+// If combined with the above option, each pool of City-States with the same trait will be balanced separately.
+#define MOD_BALANCE_CITY_STATE_PERSONALITIES		gCustomMods.isBALANCE_CITY_STATE_PERSONALITIES()
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -1256,6 +1259,7 @@ public:
 	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
+	MOD_OPT_DECL(BALANCE_CITY_STATE_PERSONALITIES);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
