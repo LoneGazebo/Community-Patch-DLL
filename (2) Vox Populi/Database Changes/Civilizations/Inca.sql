@@ -43,9 +43,7 @@ VALUES
 -- Unique Improvement: Pata-Pata
 ----------------------------------------------------------
 UPDATE Builds
-SET
-	Help = 'TXT_KEY_BUILD_TERRACE_FARM_HELP',
-	Time = 600
+SET Help = 'TXT_KEY_BUILD_TERRACE_FARM_HELP'
 WHERE Type = 'BUILD_TERRACE_FARM';
 
 INSERT INTO Improvement_Yields

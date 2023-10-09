@@ -101,7 +101,7 @@ function MapGlobals:New()
 	mglobal.mountainWeight			= 1  --Weight of the mountain elevation map versus the coastline elevation map.
 	mglobal.belowMountainPercent	= 0.95 -- Percent of non-mountain land
 										   -- flatPercent to belowMountainPercent : hills
-	mglobal.flatPercent			    = 0.70 -- Percent of flat land
+	mglobal.flatPercent				= 0.65 -- Percent of flat land
 	mglobal.hillsBlendPercent		= 0.15 -- Chance for flat land to become hills per near mountain. Requires at least 2 near mountains.
 	mglobal.terrainBlendRange		= 2	   -- range to smooth terrain (desert surrounded by plains turns to plains, etc)
 	mglobal.terrainBlendRandom		= 0.4  -- random modifier for terrain smoothing
@@ -121,7 +121,7 @@ function MapGlobals:New()
 	mglobal.marshPercent			= 0.025-- Percent chance increase for marsh from each nearby watery tile
 										   --    junglePercent to 1 : marsh
 	mglobal.junglePercent			= 0.75 --    junglePercent to 1 : jungle
-	mglobal.zeroTreesPercent		= 0.15 -- zeroTreesPercent to 1 : forest
+	mglobal.zeroTreesPercent		= 0.30 -- zeroTreesPercent to 1 : forest
 
 										   -- 	             plainsPercent to 1 : heavy rain
 	mglobal.plainsPercent			= 0.70 -- 	 desertPercent to plainsPercent : moderate rain
@@ -131,7 +131,7 @@ function MapGlobals:New()
 
 	-- Temperature terrain
 	mglobal.desertMinTemperature	= 0.60 -- hot desert, grass:			desertMinTemperature 	to 1
-	mglobal.jungleMinTemperature	= 0.45 -- grass, desert:  				jungleMinTemperature	to desertMinTemperature
+	mglobal.jungleMinTemperature	= 0.48 -- grass, desert:  				jungleMinTemperature	to desertMinTemperature
 	mglobal.tundraTemperature		= 0.30 -- grass, plains, cold desert:   tundraTemperature 		to jungleMinTemperature
 	mglobal.snowTemperature			= 0.25 -- grass, plains, tundra:   		snowTemperature			to tundraTemperature
 										   -- snow, tundra:										0	to snowTemperature
@@ -1873,8 +1873,8 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions()
 	return {
-		Name = "Communitu_79a v2.6.4",
-		Description = "Communitas mapscript for Vox Populi (version 3.1+)",
+		Name = "Communitu_79a v2.7.0",
+		Description = "Communitas mapscript for Vox Populi (version 4.2+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
 		IconIndex = 1,
