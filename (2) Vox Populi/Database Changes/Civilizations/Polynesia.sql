@@ -53,9 +53,7 @@ VALUES
 -- Unique Improvement: Moai
 ----------------------------------------------------------
 UPDATE Builds
-SET
-	PrereqTech = 'TECH_MASONRY' -- Construction,
-	Time = 600
+SET PrereqTech = 'TECH_MASONRY' -- Construction
 WHERE Type = 'BUILD_MOAI';
 
 -- Use Improvement_YieldAdjacentSameType instead
