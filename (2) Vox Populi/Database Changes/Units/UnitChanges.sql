@@ -331,7 +331,11 @@ SET
 WHERE Class = 'UNITCLASS_MARINE';
 
 -- XCOM Squad
-UPDATE Units SET PrereqTech = 'TECH_LASERS' WHERE Class = 'UNITCLASS_XCOM_SQUAD';
+UPDATE Units
+SET
+	CombatClass = 'UNITCOMBAT_RECON',
+	PrereqTech = 'TECH_LASERS'
+WHERE Class = 'UNITCLASS_XCOM_SQUAD';
 
 ----------------------------------------------------------------------------
 -- Anti-Air
