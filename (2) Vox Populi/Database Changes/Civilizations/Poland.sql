@@ -50,11 +50,6 @@ VALUES
 	('BUILDING_DUCAL_STABLE', 'RESOURCE_SHEEP', 'YIELD_GOLD', 3),
 	('BUILDING_DUCAL_STABLE', 'RESOURCE_HORSE', 'YIELD_GOLD', 3);
 
-INSERT INTO Building_InstantYield
-	(BuildingType, YieldType, Yield)
-VALUES
-	('BUILDING_DUCAL_STABLE', 'YIELD_CULTURE', 100);
-
 INSERT INTO Building_ResourceQuantity
 	(BuildingType, ResourceType, Quantity)
 VALUES

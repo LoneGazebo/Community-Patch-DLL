@@ -4,6 +4,7 @@ DELETE FROM Building_YieldModifiers;
 DELETE FROM Building_PrereqBuildingClasses;
 DELETE FROM Building_ClassesNeededInCity;
 DELETE FROM Building_LocalResourceAnds;
+DELETE FROM Building_ResourceYieldChanges;
 DELETE FROM Building_SeaResourceYieldChanges;
 
 -- Delete National Visitor Center
