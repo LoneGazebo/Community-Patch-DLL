@@ -29686,7 +29686,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 {
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
 	const CvPlot* pDestPlot = pToPlot;
-
+	SPath newPath;
 	int x = pToPlot->getX();
 	int y = pToPlot->getY();
 
@@ -29696,68 +29696,67 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		y = m_kLastPath.back().m_iY;
 		pDestPlot = m_kLastPath.GetFinalPlot();
 	}
-	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
-
-	bool isDestWater = pToPlot->isWater();
 
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
-	if (MOD_SQUADS && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
+	if (MOD_SQUADS)
 	{
-		const CvPlot* pTargetPlot = pToPlot;
+		newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
 
-		// We want to find a new plot relative to the squads destination, not this move missions destination
-		if (HasSquadDestination())
+		if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
 		{
-			pTargetPlot = GetSquadDestination();
-		}
+			const CvPlot* pTargetPlot = pToPlot;
 
-		// We want to reroute the unit to a plot within the closest available ring to the squad movement
-		// plot, while also minimizing distance from it's current position
-		std::vector<ScoredPlot> eligiblePlots;
-		int currRingEndIdx = 1;
-		for (int i = 0; i < RING_PLOTS[currRingEndIdx]; i++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot, i);
-			if (!pLoopPlot)
-				continue;
-
-			if ((isDestWater == pLoopPlot->isWater()) && canMoveInto(*pLoopPlot, iFlags | CvUnit::MOVEFLAG_DESTINATION))
+			// We want to find a new plot relative to the squads destination, not this move missions destination
+			if (HasSquadDestination())
 			{
-				newPath = GC.GetPathFinder().GetPath(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY(), data);
-				if (!newPath)
-				{
-					// Unit can technically move into this tile but no path exists so try another one
+				pTargetPlot = GetSquadDestination();
+			}
+
+			// We want to reroute the unit to a plot within the closest available ring to the squad movement
+			// plot, while also minimizing distance from it's current position
+			std::vector<ScoredPlot> eligiblePlots;
+			int currRingEndIdx = 1;
+			for (int i = 0; i < RING_PLOTS[currRingEndIdx]; i++)
+			{
+				CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot, i);
+				if (!pLoopPlot)
 					continue;
-				}
-				// Don't want to take forever rerouting if we're already inside the ring of consideration
-				else if (plotDistance(*plot(), *pTargetPlot) <= currRingEndIdx && newPath.iTotalTurns > 2)
+
+				if ((pToPlot->isWater() == pLoopPlot->isWater()) && canMoveInto(*pLoopPlot, iFlags | CvUnit::MOVEFLAG_DESTINATION))
 				{
-					continue;
+					newPath = GC.GetPathFinder().GetPath(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY(), data);
+					if (!newPath)
+					{
+						// Unit can technically move into this tile but no path exists so try another one
+						continue;
+					}
+					// Don't want to take forever rerouting if we're already inside the ring of consideration
+					else if (plotDistance(*plot(), *pTargetPlot) <= currRingEndIdx && newPath.iTotalTurns > 2)
+					{
+						continue;
+					}
+					else
+					{
+						eligiblePlots.push_back(ScoredPlot(newPath.iTotalCost, pLoopPlot));
+					}
 				}
-				else
+
+				if (i == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.empty())
 				{
-					eligiblePlots.push_back(ScoredPlot(newPath.iTotalCost, pLoopPlot));
+					currRingEndIdx++;
 				}
 			}
 
-			if (i == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.empty())
+			std::stable_sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
+			if (!eligiblePlots.empty())
 			{
-				currRingEndIdx++;
+				pDestPlot = eligiblePlots.front().plot;
 			}
-		}
-
-		std::stable_sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
-		if (!eligiblePlots.empty())
-		{
-			pDestPlot = eligiblePlots.front().plot;
 		}
 	}
 
 	if (pDestPlot)
-	{
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), pDestPlot->getX(), pDestPlot->getY(), data);
-	}
-
 
 	//now copy the new path
 	if (bCacheResult)

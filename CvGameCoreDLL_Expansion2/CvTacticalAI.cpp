@@ -6806,7 +6806,11 @@ bool TacticalAIHelpers::KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemy
 					if (pOurUnit->TurnsToReachTarget(*it, CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, 1) == 0 && pOurUnit->canEverRangeStrikeAt(pEnemyUnit->getX(), pEnemyUnit->getY(), *it, false))
 					{
 						pOurUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), (*it)->getX(), (*it)->getY(), CvUnit::MOVEFLAG_IGNORE_DANGER);
-						pOurUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pEnemyUnit->getX(), pEnemyUnit->getY());
+						//sometimes the unit takes an unexpected path
+						if (pOurUnit->atPlot(**it))
+							pOurUnit->PushMission(CvTypes::getMISSION_RANGE_ATTACK(), pEnemyUnit->getX(), pEnemyUnit->getY());
+						else
+							OutputDebugString("pathfinding issue ...\n");
 						return true;
 					}
 				}
@@ -7655,7 +7659,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	const CvUnit* pUnit = unit.pUnit;
 
 	//can we put a combat unit here?
-	if (testPlot.isBlockedByNonSimUnit(pUnit->isNativeDomain(pTestPlot)))
+	if (testPlot.isBlockedByNonSimUnit(DomainForUnit(pUnit)))
 	{
 		//double check - the blocking flag is not 100% reliable in cities
 		if (!pTestPlot->isCoastalCityOrPassableImprovement(assumedPosition.getPlayer(),true,true) || pUnit->plot()!=pTestPlot)
@@ -7771,7 +7775,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	const CvUnit* pUnit = unit.pUnit;
 
 	//can we put a combat unit here?
-	if (testPlot.isBlockedByNonSimUnit( pUnit->isNativeDomain(pTestPlot) ))
+	if (testPlot.isBlockedByNonSimUnit(DomainForUnit(pUnit)))
 	{
 		//double check - the blocking flag is not 100% reliable in cities
 		if (!pTestPlot->isCoastalCityOrPassableImprovement(assumedPosition.getPlayer(), true, true) || pUnit->plot() != pTestPlot)
@@ -7968,7 +7972,7 @@ STacticalAssignment ScorePlotForNonFightingUnitMove(const SUnitStats& unit, cons
 		}
 
 		//can we put a combat unit here?
-		if (testPlot.isBlockedByNonSimUnit( pUnit->isNativeDomain(pTestPlot) ))
+		if (testPlot.isBlockedByNonSimUnit(DomainForUnit(pUnit)))
 		{
 			//double check - the blocking flag is not 100% reliable in cities
 			if (!pTestPlot->isCoastalCityOrPassableImprovement(assumedPosition.getPlayer(), true, true) || pUnit->plot() != pTestPlot)
@@ -8114,10 +8118,9 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	pPlot = plot;
 
 	//constant
+	bfBlockedByNonSimCombatUnit = 0;
 	bHasAirCover = pPlot->HasAirCover(ePlayer);
 	bIsVisibleToEnemy = pPlot->isVisibleToEnemy(ePlayer);
-	bBlockedByNonSimCombatUnit = false;
-	bBlockedByNonSimEmbarkedUnit = false;
 
 	//updated if necessary
 	bEdgeOfTheKnownWorldUnknown = true;
@@ -8188,10 +8191,16 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 			//check if we can use the plot for combat units
 			if (pPlotUnit->IsCanDefend())
 			{
-				if (pPlotUnit->isEmbarked())
-					bBlockedByNonSimEmbarkedUnit = true;
-				else
-					bBlockedByNonSimCombatUnit = true;
+				if (pPlotUnit->getDomainType() == DOMAIN_LAND)
+				{
+					bfBlockedByNonSimCombatUnit |= 1;
+					bfBlockedByNonSimCombatUnit |= 4;
+				}
+				else if (pPlotUnit->getDomainType() == DOMAIN_SEA)
+				{
+					bfBlockedByNonSimCombatUnit |= 2;
+					bfBlockedByNonSimCombatUnit |= 4;
+				}
 			}
 		}
 		//owned units not included in sim
@@ -8199,20 +8208,23 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 		{
 			if (pPlotUnit->IsCanDefend())
 			{
-				if (pPlotUnit->isEmbarked())
-					bBlockedByNonSimEmbarkedUnit = true;
-				else
-					bBlockedByNonSimCombatUnit = true;
+				if (pPlotUnit->getDomainType() == DOMAIN_LAND)
+				{
+					bfBlockedByNonSimCombatUnit |= 1;
+					bfBlockedByNonSimCombatUnit |= 4;
+				}
+				else if (pPlotUnit->getDomainType() == DOMAIN_SEA)
+				{
+					bfBlockedByNonSimCombatUnit |= 2;
+					bfBlockedByNonSimCombatUnit |= 4;
+				}
 
 				if (pPlotUnit->TurnProcessed())
 					bFriendlyDefenderEndTurn = true;
 
 				//rules for cities are complex so just don't try it
 				if (pPlot->isCity())
-				{
-					bBlockedByNonSimCombatUnit = true;
-					bBlockedByNonSimEmbarkedUnit = true;
-				}
+					bfBlockedByNonSimCombatUnit = 7;
 			}
 		}
 	}
@@ -8240,6 +8252,18 @@ void CvTacticalPlot::resetVolatileProperties()
 	aiEnemyCombatUnitsAdjacent[TD_BOTH] = 0;
 	aiEnemyCombatUnitsAdjacent[TD_LAND] = 0;
 	aiEnemyCombatUnitsAdjacent[TD_SEA] = 0;
+}
+
+bool CvTacticalPlot::isBlockedByNonSimUnit(eTactPlotDomain eDomain) const
+{
+	if (eDomain == TD_BOTH)
+		return bfBlockedByNonSimCombatUnit != 0;
+	else if (eDomain == TD_LAND)
+		return bfBlockedByNonSimCombatUnit & 1;
+	else if (eDomain == TD_SEA)
+		return bfBlockedByNonSimCombatUnit & 2;
+
+	return false;
 }
 
 bool CvTacticalPlot::hasFriendlyCombatUnit() const
@@ -10066,7 +10090,7 @@ bool CvTacticalPosition::addTacticalPlot(const CvPlot* pPlot, const vector<CvUni
 			CvString strMsg;
 			strMsg.Format("added sim plot (%d:%d), %s, %s",
 				pPlot->getX(), pPlot->getY(),
-				newPlot.isEnemy() ? "enemy" : (newPlot.isBlockedByNonSimUnit(true) ? "blocked" : "available"),
+				newPlot.isEnemy() ? "enemy" : (newPlot.isBlockedByNonSimUnit(CvTacticalPlot::TD_BOTH) ? "blocked" : "available"),
 				newPlot.isVisibleToEnemy() ? "enemy_can_see" : "enemy_cannot_see"
 			);
 			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(strMsg);
