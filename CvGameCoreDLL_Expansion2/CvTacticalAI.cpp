@@ -8259,9 +8259,9 @@ bool CvTacticalPlot::isBlockedByNonSimUnit(eTactPlotDomain eDomain) const
 	if (eDomain == TD_BOTH)
 		return bfBlockedByNonSimCombatUnit != 0;
 	else if (eDomain == TD_LAND)
-		return bfBlockedByNonSimCombatUnit & 1;
+		return (bfBlockedByNonSimCombatUnit & 1) != 0;
 	else if (eDomain == TD_SEA)
-		return bfBlockedByNonSimCombatUnit & 2;
+		return (bfBlockedByNonSimCombatUnit & 2) != 0;
 
 	return false;
 }
@@ -8570,6 +8570,12 @@ STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlo
 
 void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const
 {
+	//there are two strategies here, return as many moves as possible and hope that the highest scores in the end will be valid
+	//or return only "safe" move in the sense that we dare to actually do them. sometimes a move might look bad but become good in combination with others.
+	//problem eg are generals, we want to move them close to the action but there might not be cover there or the cover might move away.
+
+	//anyway experience shows if we happen to choose an attractive but invalid move at the beginning of the sim this can poison everything
+	//because so many positions can be generated from it that we never look at the alternative beginnings. so we only return safe moves here.
 	gPossibleMoves.clear();
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);
@@ -8606,7 +8612,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			STacticalAssignment newAssignment = ScorePlotForMeleeAttack(unit,assumedUnitPlot,testPlot,*it,*this);
 
 			//attacks must have a positive score
-			if (newAssignment.iScore > 0)
+			bool bCanEndTurnHere = couldEndTurnAfterThisAssignment(newAssignment);
+			if (newAssignment.iScore > 0 && bCanEndTurnHere)
 				gPossibleMoves.push_back(newAssignment);
 		}
 		else if (unit.iPlotIndex == it->iPlotIndex)
@@ -8661,8 +8668,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			}
 
 			STacticalAssignment newAssignment = ScorePlotForMove(unit, testPlot, *it, *this, EM_INTERMEDIATE);
+
 			//may be invalid
-			if (newAssignment.iScore < 0)
+			bool bCanEndTurnHere = couldEndTurnAfterThisAssignment(newAssignment);
+			if (newAssignment.iScore < 0 || !bCanEndTurnHere)
 				continue;
 
 			//important normalization step
@@ -8678,7 +8687,6 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	//ranged attacks (also if aggression level is NONE!)
 	if (pUnit->IsCanAttackRanged() && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
-		bool bIsFrontlineCitadel = TacticalAIHelpers::IsPlayerCitadel(assumedUnitPlot.getPlot(), getPlayer()) && assumedUnitPlot.getEnemyDistance() < 3;
 		const vector<int>& rangeAttackPlots = getRangeAttackPlotsForUnit(unit);
 		for (vector<int>::const_iterator it=rangeAttackPlots.begin(); it!=rangeAttackPlots.end(); ++it)
 		{
@@ -8690,23 +8698,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			{
 				STacticalAssignment newAssignment(ScorePlotForRangedAttack(unit,assumedUnitPlot,enemyPlot,*this));
 
-				//sanity check
-				bool bCanEndTurnHere = true;
-				if (newAssignment.iRemainingMoves == 0 && newAssignment.eAssignmentType != A_RANGEKILL)
-				{
-					int iNumFriendlies = assumedUnitPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), -1);
-					int iDanger = pUnit->GetDanger(assumedUnitPlot.getPlot(), getKilledEnemies(), unit.iSelfDamage);
-					if (iDanger > 2 * pUnit->GetCurrHitPoints() * (iNumFriendlies + 1))
-					{
-						//danger too high ...
-						bCanEndTurnHere = false;
-
-						//but allow attacks in citadels if damage is higher than healing
-						if (bIsFrontlineCitadel && (newAssignment.iDamage > 10 || pUnit->getDamage() < 10))
-							bCanEndTurnHere = true;
-					}
-				}
-
+				bool bCanEndTurnHere = 	couldEndTurnAfterThisAssignment(newAssignment);
 				if (newAssignment.iScore > 0 && bCanEndTurnHere)
 				{
 					//if we're not looking to pick a fight, de-emphasize attacks
@@ -8848,23 +8840,11 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		gOverAllChoices.insert( gOverAllChoices.end(), gPossibleMoves.begin(), gPossibleMoves.end() );
 	}
 
-	//it can happen that the top N moves are all invalid in the sense that no later moves would allow ending the turn
-	//in that case all descendants are invalid, but we only find out at the very end ... so the simulation fails
-	//to avoid that let's make sure that we always add at least one move which is guaranteed to be valid (but may have a worse score)
-	bool haveChildWithValidEndTurnAssignment = false;
-
 	//note that this is a stable sort, meaning in case of ties the original order is maintained
 	//since we have a fixed cutoff, the simulation result depends on the order the moves were created in, ie the order of units
 	std::stable_sort(gOverAllChoices.begin(), gOverAllChoices.end());
 	for (size_t i=0; i<gOverAllChoices.size(); i++)
 	{
-		bool isSafeAssignment = couldEndTurnAfterThisAssignment(gOverAllChoices[i]);
-
-		//if we didn't pick a safe assignment so far, force the last one to be safe
-		if (childPositions.size() == (size_t)iMaxBranches-1 && !haveChildWithValidEndTurnAssignment && !isSafeAssignment)
-			//try the next one until we run out (if there is no safe choice, tough luck)
-			continue;
-
 		gMovesToAdd.clear();
 
 		//easy case first, no conflict
@@ -8949,10 +8929,6 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 			//try to detect duplicates ...
 			if (isConsistent && pNewChild->isUnique(TACTSIM_UNIQUENESS_CHECK_GENERATIONS))
 			{
-				//important, remember this
-				if (isSafeAssignment)
-					haveChildWithValidEndTurnAssignment = true;
-
 				//do we need to keep working on this one?
 				if (pNewChild->isEarlyFinish() || pNewChild->isExhausted())
 				{
@@ -10804,7 +10780,7 @@ bool TacticalAIHelpers::ExecuteUnitAssignments(PlayerTypes ePlayer, const std::v
 
 #ifdef TACTDEBUG
 		//this is unexpected
-		if (vAssignments[i].iRemainingMoves > 0 && !pUnit->canMove())
+		if (vAssignments[i].iRemainingMoves != pUnit->getMoves())
 			OutputDebugString("ouch, inconsistent movement points\n");
 
 		//this can happen sometimes because of randomness or splash damage etc
