@@ -3235,38 +3235,42 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
+	TerrainTypes eTerrain = pToPlot->getTerrainType();
 
-	// default
-	int iRouteDiscountPercent = 0;
+	int iRouteDiscountTimes120 = 0;
 
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->isRoute())
-		iRouteDiscountPercent = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 40 : 20;
+		iRouteDiscountTimes120 = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 70 : 40;
 	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->isRoute())
-		iRouteDiscountPercent = 20; //can't get better than this even if next plot is railroad
-	// low costs for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
-		iRouteDiscountPercent = 20;
+		iRouteDiscountTimes120 = 40; //can't get better than this even if next plot is railroad
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
 				(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) && 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
-		iRouteDiscountPercent = 20;
+		iRouteDiscountTimes120 = 40;
+	// low costs for moving along rivers
+	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
+	{
+		// Songhai ability
+		if (pCacheData->IsRiverTradeRoad())
+			iRouteDiscountTimes120 = 40;
+		else
+			iRouteDiscountTimes120 = 20;
+	}
 
 	// do not use extreme discounts here because we also need to use these paths for military target selection
-	int iCost = (PATH_BASE_COST*(100-iRouteDiscountPercent))/100;
+	int iCost = PATH_BASE_COST * (120 - iRouteDiscountTimes120) / 120;
 
-	//try to avoid rough plots
-	if (pToPlot->isRoughGround() && iRouteDiscountPercent == 0)
-		iCost += PATH_BASE_COST/10;
+	// try to avoid difficult terrains/features
+	if ((eTerrain == TERRAIN_DESERT || eTerrain == TERRAIN_SNOW || eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE || eFeature == FEATURE_MARSH) &&
+			eFeature != FEATURE_FLOOD_PLAINS &&
+			iRouteDiscountTimes120 == 0)
+		iCost += PATH_BASE_COST / 4;
 
-	//avoid hills when in doubt
-	if (!pToPlot->isFlatlands() && iRouteDiscountPercent == 0)
-		iCost += PATH_BASE_COST/10;
-
-	//bonus for oasis
-	if (eFeature == FEATURE_OASIS && iRouteDiscountPercent == 0)
-		iCost -= PATH_BASE_COST/10;
+	// avoid hills also if not Inca
+	if (!pToPlot->isFlatlands() && iRouteDiscountTimes120 == 0 && !pCacheData->CanCrossMountain())
+		iCost += PATH_BASE_COST / 4;
 	
 	return iCost;
 }
