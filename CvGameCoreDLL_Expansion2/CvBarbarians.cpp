@@ -816,9 +816,7 @@ void CvBarbarians::DoCamps()
 		for (std::vector<int>::iterator it = MajorCapitals.begin(); it != MajorCapitals.end(); it++)
 		{
 			CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
-			int iCapitalX = pInvalidAreaPlot->getX();
-			int iCapitalY = pInvalidAreaPlot->getY();
-			int iDistance = plotDistance(iX, iY, iCapitalX, iCapitalY);
+			int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
 			if (iDistance <= iMajorCapitalMinDistance)
 			{
 				bTooClose = true;
@@ -830,8 +828,7 @@ void CvBarbarians::DoCamps()
 			for (std::vector<int>::iterator it = BarbCamps.begin(); it != BarbCamps.end(); it++)
 			{
 				CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
-				int iCampX = pInvalidAreaPlot->getX(), iCampY = pInvalidAreaPlot->getY();
-				int iDistance = plotDistance(iX, iY, iCampX, iCampY);
+				int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
 				if (iDistance <= iBarbCampMinDistance)
 				{
 					bTooClose = true;
@@ -844,8 +841,7 @@ void CvBarbarians::DoCamps()
 			for (std::vector<int>::iterator it = RecentlyClearedBarbCamps.begin(); it != RecentlyClearedBarbCamps.end(); it++)
 			{
 				CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
-				int iFormerCampX = pInvalidAreaPlot->getX(), iFormerCampY = pInvalidAreaPlot->getY();
-				int iDistance = plotDistance(iX, iY, iFormerCampX, iFormerCampY);
+				int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
 				if (iDistance <= iRecentlyClearedCampMinDistance)
 				{
 					bTooClose = true;
@@ -1483,7 +1479,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 
 	//choose from top 5
 	int iNumCandidates = /*5*/ range(GD_INT_GET(BARBARIAN_UNIT_SPAWN_NUM_CANDIDATES), 1, candidates.size());
-	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, 5, additionalSeed);
+	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, iNumCandidates, additionalSeed);
 
 	//custom override
 	if (MOD_EVENTS_BARBARIANS)
