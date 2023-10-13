@@ -246,7 +246,7 @@ WHERE IsNaval = 1;
 
 UPDATE UnitPromotions SET CityAttack = 75, HealOutsideFriendly = 1 WHERE Type = 'PROMOTION_NAVAL_SIEGE';
 
-UPDATE UnitPromotions SET FreePillageMoves = 75, HealOnPillage = 1 WHERE Type = 'PROMOTION_PRESS_GANGS';
+UPDATE UnitPromotions SET FreePillageMoves = 1, HealOnPillage = 1 WHERE Type = 'PROMOTION_PRESS_GANGS';
 
 UPDATE UnitPromotions SET CityAttackPlunderModifier = 100 WHERE Type = 'PROMOTION_PIRACY';
 INSERT INTO UnitPromotions_YieldFromKills
