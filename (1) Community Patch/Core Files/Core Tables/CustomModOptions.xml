@@ -31,6 +31,9 @@
 	<!-- If combined with the above option, each pool of City-States with the same trait will be balanced separately. -->
 	<Row Class="6" Name="BALANCE_CITY_STATE_PERSONALITIES" Value="0"/>
 
+	<!-- Barbarian Encampments can spawn on visible tiles. -->
+	<Row Class="5" Name="BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES" Value="0"/>
+
     <!-- Changes in Milae's Alternative Difficulty Mod -->
     <!-- Adds more Difficulty Options including extra columns in HandicapInfos -->
 	<Row Class="4" Name="ALTERNATIVE_DIFFICULTY" Value="0" DbUpdates="1"/>

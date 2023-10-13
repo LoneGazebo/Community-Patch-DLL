@@ -744,7 +744,7 @@ void CvBarbarians::DoCamps()
 			continue;
 
 		// No camps on plots in sight of a civ or City-State in Community Patch only
-		if (!MOD_BALANCE_VP && pLoopPlot->isVisibleToAnyTeam(false))
+		if (!MOD_BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES && pLoopPlot->isVisibleToAnyTeam(false))
 			continue;
 
 		// No camps on occupied plots or those adjacent to a non-Barbarian unit
