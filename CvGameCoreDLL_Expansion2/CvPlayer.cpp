@@ -30012,14 +30012,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 {
 	// Gold gained
 	int iExpendGold = GetGreatPersonExpendGold();
-	if(iExpendGold > 0)
+	if (iExpendGold > 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		iExpendGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-		iExpendGold /= 100;
-#endif
-		GetTreasury()->ChangeGold(iExpendGold);
-
 		if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
 			// Update Steam stat and check achievement

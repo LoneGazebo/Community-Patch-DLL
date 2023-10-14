@@ -16700,11 +16700,9 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 
-	//Domination Victory -- If a player owns more than one capital, your troops fight a % better as a result (% = % of global capitals owned).
+	// Anti-Warmonger Fervor
 	if (pOtherUnit != NULL)
-	{
 		iModifier += GetResistancePower(pOtherUnit);
-	}
 
 	////////////////////////
 	// KNOWN BATTLE PLOT
@@ -17402,6 +17400,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
+
+	// Anti-Warmonger Fervor
+	if (pOtherUnit != NULL)
+		iModifier += GetResistancePower(pOtherUnit);
 
 	//resource monopolies
 	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
