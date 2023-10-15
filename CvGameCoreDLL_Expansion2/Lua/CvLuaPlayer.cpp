@@ -15785,7 +15785,7 @@ int CvLuaPlayer::lIsTradeItemValuedImpossible(lua_State* L)
 
 	if (!GET_PLAYER(pkThisPlayer->GetID()).isHuman())
 	{
-		int iResult = pkThisPlayer->GetDealAI()->GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration);
+		int iResult = pkThisPlayer->GetDealAI()->GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration, false, true);
 		if (iResult == INT_MAX || iResult == (INT_MAX * -1))
 		{
 			lua_pushboolean(L, true);

@@ -7037,6 +7037,11 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 	}
 }
 
+//  --------------------------------------------------------------------------------
+int CvTeam::GetTechProgressPercent() const
+{
+	return max(1, (GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos());
+}
 //	--------------------------------------------------------------------------------
 int CvTeam::getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const
 {

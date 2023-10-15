@@ -14920,7 +14920,7 @@ pair<int,int> CvPlot::GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bS
 	return make_pair(iFriendlyPower,iEnemyPower);
 }
 
-int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking) const
+int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude, bool bConsiderFlanking, TeamTypes eSpecificTeam, bool bIncludeEmbarked) const
 {
 	int iNumEnemiesAdjacent = 0;
 
@@ -14942,12 +14942,12 @@ int CvPlot::GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, con
 				if(pLoopUnit && pLoopUnit != pUnitToExclude)
 				{
 					// Must be a combat Unit
-					if(pLoopUnit->IsCombatUnit() && !pLoopUnit->isEmbarked())
+					if(pLoopUnit->IsCombatUnit() && (!pLoopUnit->isEmbarked() || bIncludeEmbarked))
 					{
 						TeamTypes eTheirTeam = pLoopUnit->getTeam();
 
 						// This team which this unit belongs to must be at war with us
-						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam))
+						if(GET_TEAM(eTheirTeam).isAtWar(eMyTeam) || eTheirTeam == eSpecificTeam)
 						{
 							// Must be same domain
 							if (pLoopUnit->getDomainType() == eDomain || pLoopUnit->getDomainType() == DOMAIN_HOVER || eDomain == NO_DOMAIN)

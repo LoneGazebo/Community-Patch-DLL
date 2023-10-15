@@ -250,6 +250,7 @@ public:
 	void SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
+	int GetSurfaceApproachDealModifier(PlayerTypes ePlayer, bool bFromMe) const;
 	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const; // Our guess as to another player's approach towards us
 
 	bool IsWantsSneakAttack(PlayerTypes ePlayer) const; // Do we want to launch a Sneak Attack Operation against ePlayer?

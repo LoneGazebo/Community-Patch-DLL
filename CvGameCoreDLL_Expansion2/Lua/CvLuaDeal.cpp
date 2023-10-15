@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -231,6 +231,8 @@ int CvLuaDeal::lGetRenewDealMessage(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaDeal::lDoReevaluateDeal(lua_State* L)
 {
+	// can be removed
+	/*
 	CvDeal* pkDeal = GetInstance(L);
 	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
 	const PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 3);
@@ -258,6 +260,8 @@ int CvLuaDeal::lDoReevaluateDeal(lua_State* L)
 		bDealCanceled = !pkThisPlayer->GetDealAI()->DoEqualizeDealWithHuman(pkDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);
 	}
 	lua_pushboolean(L, bDealCanceled);
+	*/
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------
