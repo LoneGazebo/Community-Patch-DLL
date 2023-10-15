@@ -34,7 +34,7 @@ local g_BaseChopYield
 for row in GameInfo.BuildFeatures{BuildType = 'BUILD_REMOVE_FOREST'} do
 	g_BaseChopYield = row.Production
 end
-local g_AdjChopYield = math.floor(g_BaseChopYield / 2 * g_GameSpeedBuildPercent / 100 )
+local g_AdjChopYield = math.floor(g_BaseChopYield * g_GameSpeedBuildPercent / 100)
 -------------------------------
 -- minor lua optimizations
 -------------------------------
@@ -588,12 +588,14 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	for row in GameInfo.Build_TechTimeChanges(thisTechType) do
 		if bAddedForest == false and (row.BuildType == "BUILD_REMOVE_JUNGLE" or row.BuildType == "BUILD_REMOVE_FOREST") then
 			bAddedForest = true
-			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
+			local tempRow = GameInfo.BuildFeatures{ BuildType = row.BuildType }();
+			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", DisplayPercentage(row.TimeChange/(tempRow.Time or 100)) ) then
 				break
 			end
 		end
 		if row.BuildType == "BUILD_REMOVE_MARSH" then
-			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(GameInfo.Builds[row.BuildType].Time or 100)) ) then
+			local tempRow = GameInfo.BuildFeatures{ BuildType = row.BuildType }();
+			if not addSmallActionButton( {IconIndex = 38, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, DisplayPercentage(row.TimeChange/(tempRow.Time or 100)) ) then
 				break
 			end
 		end
@@ -658,7 +660,8 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 --CBP
 		if tech.FeatureProductionModifier > 0 then
-			addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_ABLTY_TECH_BOOST_CHOP", g_AdjChopYield )
+			local chopProduction = math.floor(g_AdjChopYield * tech.FeatureProductionModifier / 100);
+			addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "", "TXT_KEY_ABLTY_TECH_BOOST_CHOP", chopProduction )
 		end
 
 		if tech.Happiness > 0 then

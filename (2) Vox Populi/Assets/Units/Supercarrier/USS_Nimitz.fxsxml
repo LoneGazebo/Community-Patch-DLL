@@ -1,0 +1,81 @@
+<Asset>
+	<Mesh file="USS_Nimitz.gr2"/>
+	<Animation file="Carrier_Aim_Left.gr2" ec="1700"/>
+	<Animation file="Carrier_Aim_Right.gr2" ec="1705"/>
+	<Animation file="Carrier_Aim_Center.gr2" ec="1710"/>
+	<Animation file="Carrier_IdleA.gr2" ec="1000, 2000"/>
+	<Animation file="Carrier_FidgetA.gr2" ec="1040, 2040"/>
+	<Animation file="Carrier_IdleA_Trans_IdleB.gr2" ec="1020, 2020"/>
+	<Animation file="Carrier_Fortify.gr2" ec="1500"/>
+	<Animation file="Carrier_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="Carrier_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="Carrier_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="Carrier_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="Carrier_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="Carrier_Combat_Ready_Idle.gr2" ec="1620"/>
+	<Animation file="Carrier_Combat_Ready_Idle_Trans_IdleA.gr2" ec="1640"/>
+	<Animation file="Carrier_Run.gr2" ec="1400, 1120"/>
+	<Animation file="Carrier_Stop_Run.gr2" ec="1440, 1140"/>
+	<Animation file="Carrier_AttackA.gr2" ec="1100, 1160, 1180"/>
+	<Animation file="Carrier_AttackB.gr2" ec="2100, 2160, 2180"/>
+	<Animation file="Carrier_AntiAir_Attack.gr2" ec="1130"/>
+	<Animation file="Carrier_Victory.gr2" ec="1800"/>
+	<Animation file="Carrier_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="Carrier_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="Carrier_Bombard_Defense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="Carrier_DeathA.gr2" ec="1200"/>
+	<Animation file="Carrier_DeathA_Idle.gr2" ec="1220"/>
+	<Animation file="Carrier_DeathB.gr2" ec="2200"/>
+	<Animation file="Carrier_DeathB_Idle.gr2" ec="2220"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<Texture file="USS_Nimitz_DIFF.dds"/>
+	<Texture file="USS_Nimitz_SREF.dds"/>
+	<TimedTrigger file="edited_FX_Triggers_Carrier.ftsxml"/>
+	<AnimGraph file="AIM_FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="AIM_IDLE_GRAPH.dge"/>
+	<AnimGraph file="AIM_FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="AIM_ENTER_FORTIFY.dge"/>
+	<AnimGraph file="AIM_ATTACK_CITY_TO_RUN.dge"/>
+	<AnimGraph file="AIM_ATTACK_TO_RUN_GRAPH.dge"/>
+	<AnimGraph file="AIM_LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="AIM_DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="AIM_BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="AIM_RUNNING_LOOP.dge"/>
+	<AnimGraph file="AIM_ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="AIM_DEATH_GRAPH.dge"/>
+	<AnimGraph file="AIM_LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="AIM_ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="AIM_FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="AIM_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="AIM_TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="AIM_STOP_RUNNING.dge"/>
+	<AnimGraph file="AIM_START_RUNNING.dge"/>
+	<AnimGraph file="AIM_FIDGETS_GRAPH.dge"/>
+	<StateMachine file="MODERN_SHIP_AIM_STATE_01.fsmxml"/>
+	<AnimGraph file="AIM_MODERN_SHIP_ATTACKS.dge"/>
+	<BoneUsage>
+		<Bone name="World_Center"/>
+		<Bone name="Box01"/>
+		<Bone name="Box09"/>
+		<Bone name="Dummy05"/>
+		<Bone name="Box12"/>
+		<Bone name="Dummy03"/>
+		<Bone name="Box04"/>
+		<Bone name="Dummy02"/>
+		<Bone name="FX_Explosion_02"/>
+		<Bone name="Box05"/>
+		<Bone name="Dummy07"/>
+		<Bone name="Box11"/>
+		<Bone name="Box07"/>
+		<Bone name="Box02"/>
+		<Bone name="FX_Explosion_01"/>
+		<Bone name="Box03"/>
+		<Bone name="Box10"/>
+		<Bone name="Box06"/>
+		<Bone name="Box08"/>
+		<Bone name="FX_Explosion_03"/>
+	</BoneUsage>
+</Asset>
+

@@ -1,53 +1,37 @@
-/*
-_______________Community Balance Overhaul for Brave New World ________________
+----------------------------------------------------------------------------
+-- Thank you for downloading Vox Populi!
+-- You can freely change the below option values.
+-- All options below are preset to the default values of this mod.
+----------------------------------------------------------------------------
 
-Thank you for downloading the Community Balance Overhaul!
+----------------------------------------------------------------------------
+-- Resource visibility at Game Start
+-- 0 = All Resources Visible at Game Start
+-- 1 = Only Luxury Resources Visible at Game Start (Default)
+-- 2 = Only Bonus Resources Visible at Game Start
+-- 3 = No Resources Visible at Game Start
+----------------------------------------------------------------------------
 
-_______________OPTIONS FOR Community Balance Overhaul____________________
+INSERT INTO Community (Type, Value) VALUES ('COMMUNITY_CORE_BALANCE_RESOURCE_REVEAL', 1);
 
-All options below are preset to the default values of this mod.
+----------------------------------------------------------------------------
+-- Barbarian heal rate (only if they don't move)
+-- 0 = No Healing
+-- 1 = 10 HP per turn (Default)
+-- 2 = 15 HP per turn
+----------------------------------------------------------------------------
 
--- OPTIONS --
--- If you have not read the instructions above, please do so now!
--- Disabling files below will only remove the SQL changes. If you also want to remove the XML changes, you will need to delete the associated XML files.
-/*
-Changes to Civilization Traits
-0 = All Resources Visible at Game Start
-1 = Only Luxury Resources Visible at Game Start
-2 = Only Bonus Resources Visible at Game Start
-3 = No Resources Visible at Game Start
-*/
+INSERT INTO Community (Type, Value) VALUES ('BARBARIAN_HEAL', 1);
 
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_RESOURCE_REVEAL', 1);
+----------------------------------------------------------------------------
+-- World Wonders refund yields if you are beaten to them by another player
+-- Individual conversion percentages can be configured in the Defines table
+-- 0 = Disabled
+-- 1 = 100% of Production is converted into Gold
+-- 2 = 33% of Production is converted into Culture (Default)
+-- 3 = 25% of Production is converted into Golden Age Points
+-- 4 = 10% of Production is converted into Science
+-- 5 = 10% of Production is converted into Faith
+----------------------------------------------------------------------------
 
-/*
-Barbarians Heal!
-0 = No Healing
-1 = 10. (Default)
-2 = 15. (Hard)
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('BARBARIAN_HEAL', 1);
-
-/*
-Wonder Consolation Tweaks - Wonders grant different yields if you are beaten to them by another player Choose one value below.
-1 = Gold
-2 = Culture (Default)
-3 = Golden Age Points
-4 = Science
-5 = Faith
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK', 2);
-
-/*
-Wonder Consolation Tweaks Enabler - Wonders grant different yields if you are beaten to them by another player Choose one value below.
-0 = Disabled
-1 = Enabled (Default)
-*/
-
-INSERT INTO COMMUNITY (Type, Value)
-VALUES ('COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK_ENABLER', 1);
+INSERT INTO Community (Type, Value) VALUES ('COMMUNITY_CORE_BALANCE_WONDER_CONSOLATION_TWEAK', 2);

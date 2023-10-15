@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Created by ModBuddy on 4/28/2018 9:12:29 PM -->
+<GameData>
+	<Projects>
+		<Row>
+			<Type>PROJECT_UTOPIA_PROJECT</Type>
+			<Description>TXT_KEY_PROJECT_UTOPIA_PROJECT</Description>
+			<Help>TXT_KEY_PROJECT_UTOPIA_PROJECT_HELP</Help>
+			<Civilopedia>TXT_KEY_PROJECT_UTOPIA_PROJECT_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_PROJECT_UTOPIA_PROJECT_STRATEGY</Strategy>
+			<VictoryPrereq>VICTORY_CULTURAL</VictoryPrereq>
+			<NumRequiredTier3Tenets>2</NumRequiredTier3Tenets>
+			<MaxGlobalInstances>-1</MaxGlobalInstances>
+			<MaxTeamInstances>1</MaxTeamInstances>
+			<Cost>6000</Cost>
+			<IdeologyRequired>true</IdeologyRequired>
+			<InfluenceAllRequired>true</InfluenceAllRequired>
+			<IconAtlas>BW_ATLAS_2</IconAtlas>
+			<PortraitIndex>43</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROJECT_PUBLIC_WORKS</Type>
+			<Description>TXT_KEY_PROJECT_PUBLIC_WORKS</Description>
+			<Help>TXT_KEY_PROJECT_PUBLIC_WORKS_HELP</Help>
+			<Civilopedia>TXT_KEY_PROJECT_PUBLIC_WORKS_PEDIA</Civilopedia>
+			<Strategy>TXT_KEY_PROJECT_PUBLIC_WORKS_STRATEGY</Strategy>
+			<TechPrereq>TECH_MACHINERY</TechPrereq>
+			<IsRepeatable>true</IsRepeatable>
+			<Cost>300</Cost>
+			<CostScalerEra>100</CostScalerEra>
+			<CostScalerNumRepeats>100</CostScalerNumRepeats>
+			<Happiness>1</Happiness>
+			<EmpireSizeModifierReduction>-10</EmpireSizeModifierReduction>
+			<DistressFlatReduction>1</DistressFlatReduction>
+			<PovertyFlatReduction>1</PovertyFlatReduction>
+			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
+			<BoredomFlatReduction>1</BoredomFlatReduction>
+			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
+			<EspionageMod>-10</EspionageMod>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>13</PortraitIndex>
+		</Row>
+	</Projects>
+</GameData>

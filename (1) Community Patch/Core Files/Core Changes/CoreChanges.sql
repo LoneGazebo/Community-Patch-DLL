@@ -42,6 +42,12 @@ UPDATE Traits
 SET AngerFreeIntrusionOfCityStates = 1
 WHERE Type = 'TRAIT_CITY_STATE_FRIENDSHIP';
 
+-- Block Kabul from appearing if Persia is ingame, as Kabul is on Persia's city list
+INSERT INTO MajorBlocksMinor
+	(MajorCiv, MinorCiv)
+VALUES
+	('CIVILIZATION_PERSIA', 'MINOR_CIV_KABUL');
+
 -- TR fix for religion spread
 UPDATE Gamespeeds
 SET ReligiousPressureAdjacentCity = 25 WHERE Type = 'GAMESPEED_MARATHON';
@@ -116,6 +122,15 @@ WHERE Type = 'RESOURCE_IRON';
 UPDATE Resources
 SET AITradeModifier = 20
 WHERE Type = 'RESOURCE_HORSES';
+
+-- Build times (to compensate for build turn fix)
+UPDATE Builds
+SET Time = Time - 100
+WHERE Time > 0;
+
+UPDATE BuildFeatures
+SET Time = Time - 100
+WHERE Time > 0;
 
 -- Technologies
 UPDATE Technology_Flavors
@@ -503,7 +518,6 @@ WHERE AIEconomicStrategyType = 'ECONOMICAISTRATEGY_OFFSHORE_EXPANSION_MAP' AND F
 UPDATE AIEconomicStrategies
 SET MinimumNumTurnsExecuted = 10
 WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
-
 UPDATE AIEconomicStrategies
 SET CheckTriggerTurnCount = 7
 WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
@@ -511,10 +525,18 @@ WHERE Type = 'ECONOMICAISTRATEGY_TOO_MANY_UNITS';
 UPDATE AIEconomicStrategies
 SET MinimumNumTurnsExecuted = 10
 WHERE Type = 'ECONOMICAISTRATEGY_FOUND_CITY';
-
 UPDATE AIEconomicStrategies
 SET CheckTriggerTurnCount = 3
 WHERE Type = 'ECONOMICAISTRATEGY_FOUND_CITY';
+
+-- check this every turn!
+UPDATE AIEconomicStrategies
+SET CheckTriggerTurnCount = 1
+WHERE Type = 'ECONOMICAISTRATEGY_EARLY_EXPANSION';
+UPDATE AIEconomicStrategies
+SET MinimumNumTurnsExecuted = 1
+WHERE Type = 'ECONOMICAISTRATEGY_EARLY_EXPANSION';
+
 
 -- Economic City Strategy Flavors
 

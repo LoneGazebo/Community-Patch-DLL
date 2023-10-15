@@ -1373,13 +1373,7 @@ function TourismTipHandler( control )
 		local strText3 = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_3", szText);
 		
 		strText = strText .. "[NEWLINE][NEWLINE]" .. strText3;
-	end	
-
-	--CBP
-	local iTourismPenalty = pPlayer:GetTourismPenalty();
-	local strTextTourism = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iTourismPenalty);
-	strText = strText .. "[NEWLINE][NEWLINE]" .. strTextTourism;
-	--END
+	end
 
 	tipControlTable.TooltipLabel:SetText( strText );
 	tipControlTable.TopPanelMouseover:SetHide(false);

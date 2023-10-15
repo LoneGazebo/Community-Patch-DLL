@@ -681,6 +681,10 @@ UPDATE Language_en_US
 SET Text = 'Our economy is being hamstrung by the number of units that we have. We should disband any unneeded units so that our civilization can operate at full capacity.'
 WHERE Tag = 'TXT_KEY_ECONOMICAISTRATEGY_TOO_MANY_UNITS';
 
+UPDATE Language_en_US
+SET Text = 'We''re having issues with our growing population, so we needn''t build growth buildings in our cities.'
+WHERE Tag = 'TXT_KEY_ECONOMICAISTRATEGY_HALT_GROWTH_BUILDINGS';
+
 -- Reversed Tourism for Open Borders
 UPDATE Language_en_US
 SET Text = '+{1_Num}% Bonus for Open Borders from:[NEWLINE]   '

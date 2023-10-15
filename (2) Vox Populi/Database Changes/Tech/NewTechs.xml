@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Technologies>
+		<Row>
+			<Type>TECH_CORPORATIONS</Type>
+			<Description>TXT_KEY_TECH_CORPORATIONS_TITLE</Description>
+			<Civilopedia>TXT_KEY_TECH_CORPORATIONS_DESC</Civilopedia>
+			<Help>TXT_KEY_TECH_CORPORATIONS_HELP</Help>
+			<Quote>TXT_KEY_WONDER_CORPORATION_QUOTE_SPLASH</Quote>
+			<Era>ERA_MODERN</Era>
+			<PortraitIndex>0</PortraitIndex>
+			<IconAtlas>CORP_ATLAS</IconAtlas>
+		</Row>
+	</Technologies>
+</GameData>

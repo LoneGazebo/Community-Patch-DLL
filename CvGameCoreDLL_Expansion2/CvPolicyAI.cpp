@@ -4812,40 +4812,17 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	iScienceValue *= (100 + (iScienceInterest / 10));
 	iScienceValue /= 100;
 
-	//And now add them in. Halve if not our main focus.
-	if (pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
-	{
-		iWeight += iCultureValue;
-	}
-	else
-	{
-		iWeight += (iCultureValue / 2);
-	}
-	if (pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory())
-	{
-		iWeight += iDiploValue;
-	}
-	else
-	{
-		iWeight += (iDiploValue / 2);
-	}
-	if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
-	{
-		iWeight += iScienceValue;
-	}
-	else
-	{
-		iWeight += (iScienceValue / 2);
-	}
+	bool bSeriousMode = pPlayer->GetDiplomacyAI()->IsSeriousAboutVictory();
+	bool bConquestFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) || pPlayer->GetPlayerTraits()->IsWarmonger() || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest();
+	bool bDiploFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory()) || pPlayer->GetPlayerTraits()->IsDiplomat() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
+	bool bScienceFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory()) || pPlayer->GetPlayerTraits()->IsNerd() || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
+	bool bCultureFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || pPlayer->GetPlayerTraits()->IsTourism() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
 
-	if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest())
-	{
-		iWeight += iConquestValue;
-	}
-	else
-	{
-		iWeight += (iConquestValue / 2);
-	}
+	// And now add them in. Halve if not our main focus.
+	iWeight += bConquestFocus ? iConquestValue : iConquestValue / 2;
+	iWeight += bDiploFocus ? iDiploValue : iDiploValue / 2;
+	iWeight += bScienceFocus ? iScienceValue : iScienceValue / 2;
+	iWeight += bCultureFocus ? iCultureValue : iCultureValue / 2;
 
 	//If this is an ideology policy, let's snap those up.
 	if (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->GetLevel() > 0)

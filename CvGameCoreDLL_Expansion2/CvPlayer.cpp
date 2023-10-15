@@ -138,6 +138,7 @@ CvPlayer::CvPlayer() :
 	, m_iStartingX()
 	, m_iStartingY()
 	, m_iTotalPopulation()
+	, m_iHighestPopulation()
 	, m_iTotalLand()
 	, m_iTotalLandScored()
 	, m_iJONSCulturePerTurnForFree()
@@ -1247,6 +1248,7 @@ void CvPlayer::uninit()
 	m_iStartingX = INVALID_PLOT_COORD;
 	m_iStartingY = INVALID_PLOT_COORD;
 	m_iTotalPopulation = 0;
+	m_iHighestPopulation = 0;
 	m_iTotalLand = 0;
 	m_iTotalLandScored = 0;
 	m_iCityConnectionHappiness = 0;
@@ -4844,9 +4846,8 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		if (!GET_PLAYER(eOwnerTeamMember).isAlive() || !GET_PLAYER(eOwnerTeamMember).isMajorCiv())
 			continue;
 
-		vector<PlayerTypes> v = GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->GetAllValidMajorCivs();
 		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoUpdateConquestStats();
-		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluatePlayers(v, true, bMajorEliminated);
+		GET_PLAYER(eOwnerTeamMember).GetDiplomacyAI()->DoReevaluateEveryone(true);
 	}
 
 	// The rest of the world reevaluates the new owner's team in return - unless a player was eliminated, in which case everyone reevaluates everyone
@@ -4861,13 +4862,10 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 
 			if (bReevaluate)
 			{
-				if (!bMajorEliminated)
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
+				if (bMajorEliminated)
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluateEveryone(true);
 				else
-				{
-					vector<PlayerTypes> vAllMajors = GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vAllMajors, true, true);
-				}
+					GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->DoReevaluatePlayers(vNewOwnerTeam, true);
 			}
 		}
 	}
@@ -10081,12 +10079,11 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 	}
 	else
 	{
-		vector<PlayerTypes> v = GET_PLAYER(ePlayer).GetDiplomacyAI()->GetAllValidMajorCivs();
-		pDiploAI->DoReevaluatePlayers(v, false, false, true);
+		pDiploAI->DoReevaluateEveryone(true, false, true);
 	}
 
 	vector<PlayerTypes> v = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).getPlayers();
-	GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
+	GetDiplomacyAI()->DoReevaluatePlayers(v, false, !bAlive);
 
 	if (MOD_EVENTS_LIBERATION) 
 	{
@@ -18639,7 +18636,9 @@ void CvPlayer::ChangeCapitalYieldPerPopChangeEmpire(YieldTypes eYield, int iChan
 
 	if (iChange != 0)
 	{
-		m_aiCapitalYieldPerPopChangeEmpire[eYield] = m_aiCapitalYieldPerPopChangeEmpire[eYield] + iChange;
+		int iChangeTimes100 = 100 / iChange;
+		// (1/20 * 100 = 5)
+		m_aiCapitalYieldPerPopChangeEmpire[eYield] = m_aiCapitalYieldPerPopChangeEmpire[eYield] + iChangeTimes100;
 
 		updateYield();
 	}
@@ -18751,6 +18750,16 @@ long CvPlayer::getRealPopulation() const
 	}
 
 	return ((long)(iTotalPopulation));
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getHighestPopulation() const
+{
+	return m_iHighestPopulation;
+}
+void CvPlayer::setHighestPopulation(int iValue)
+{
+	m_iHighestPopulation = max(iValue, 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -30004,14 +30013,8 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 {
 	// Gold gained
 	int iExpendGold = GetGreatPersonExpendGold();
-	if(iExpendGold > 0)
+	if (iExpendGold > 0)
 	{
-#if defined(MOD_BALANCE_CORE)
-		iExpendGold *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-		iExpendGold /= 100;
-#endif
-		GetTreasury()->ChangeGold(iExpendGold);
-
 		if (MOD_API_ACHIEVEMENTS && isHuman() && !GC.getGame().isGameMultiPlayer() && GET_PLAYER(GC.getGame().getActivePlayer()).isLocalPlayer())
 		{
 			// Update Steam stat and check achievement
@@ -35047,9 +35050,13 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 				TeamTypes eTheirTeam = (TeamTypes)i;
 				if (getTeam() != eTheirTeam)
 				{
-					// close both embassies (also cancels Defensive Pacts / Open Borders)
+					// close both embassies (also cancels Defensive Pacts)
 					GET_TEAM(getTeam()).CloseEmbassyAtTeam(eTheirTeam);
 					GET_TEAM(eTheirTeam).CloseEmbassyAtTeam(getTeam());
+
+					// cancel open borders
+					GET_TEAM(getTeam()).SetAllowsOpenBordersToTeam(eTheirTeam, false);
+					GET_TEAM(eTheirTeam).SetAllowsOpenBordersToTeam(getTeam(), false);
 
 					// cancel any research agreements
 					GET_TEAM(getTeam()).CancelResearchAgreement(eTheirTeam);
@@ -39956,12 +39963,12 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						if ((iOwnedNumResource * 100 >= iTotalNumResource * iThreshold) && (iOwnedNumResource * 100 > iTotalNumResource * GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD)))
 							bValid = true;
 					}
 					else
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) > iThreshold)
+						if (iOwnedNumResource * 100 > iTotalNumResource * iThreshold)
 							bValid = true;
 					}
 					if (bValid)
@@ -39986,7 +39993,7 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 				else if(pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 				{
 					//Do we have >25% of this resource under our control?
-					if(((iOwnedNumResource * 100) / iTotalNumResource) > GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD))
+					if(iOwnedNumResource * 100 > iTotalNumResource * GD_INT_GET(STRATEGIC_RESOURCE_MONOPOLY_THRESHOLD))
 					{
 						if(m_pabHasStrategicMonopoly[eResource] == false)
 						{
@@ -40010,12 +40017,12 @@ void CvPlayer::CheckForMonopoly(ResourceTypes eResource)
 					bool bValid = false;
 					if (GC.getGame().GetGreatestPlayerResourceMonopoly(eResource) == GetID())
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) >= iThreshold && ((iOwnedNumResource * 100) / iTotalNumResource) > GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD))
+						if ((iOwnedNumResource * 100 >= iTotalNumResource * iThreshold) && (iOwnedNumResource * 100 > iTotalNumResource * GD_INT_GET(GLOBAL_RESOURCE_MONOPOLY_THRESHOLD)))
 							bValid = true;
 					}
 					else
 					{
-						if (((iOwnedNumResource * 100) / iTotalNumResource) > iThreshold)
+						if (iOwnedNumResource * 100 > iTotalNumResource * iThreshold)
 							bValid = true;
 					}
 
@@ -47577,6 +47584,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iStartingX);
 	visitor(player.m_iStartingY);
 	visitor(player.m_iTotalPopulation);
+	visitor(player.m_iHighestPopulation);
 	visitor(player.m_iTotalLand);
 	visitor(player.m_iTotalLandScored);
 	visitor(player.m_iJONSCulturePerTurnForFree);

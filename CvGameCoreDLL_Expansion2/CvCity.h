@@ -591,6 +591,7 @@ public:
 	bool HasAccessToLandmass(int iLandmassID) const;
 	bool HasSharedLandmassWith(const CvCity* pOther, bool bAllowLand, bool bAllowWater) const;
 
+	bool NeedsGarrison() const;
 	void SetGarrison(CvUnit* pUnit);
 	bool HasGarrison() const;
 	CvUnit* GetGarrisonedUnit() const;
@@ -1921,7 +1922,6 @@ protected:
 	int m_iCachedEmpireSizeModifier;
 	int m_iYieldMediansCachedTurn;
 	std::vector<int> m_aiNumProjects;
-	std::vector<int> m_aiLongestPotentialTradeRoute;
 	std::vector<int> m_aiNumTimesAttackedThisTurn;
 	std::vector<int> m_aiYieldFromKnownPantheons;
 	std::vector<int> m_aiYieldFromVictory;
@@ -2311,7 +2311,6 @@ SYNC_ARCHIVE_VAR(int, m_iCachedTechNeedModifier)
 SYNC_ARCHIVE_VAR(int, m_iCachedEmpireSizeModifier)
 SYNC_ARCHIVE_VAR(int, m_iYieldMediansCachedTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumProjects)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiLongestPotentialTradeRoute)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesAttackedThisTurn)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromKnownPantheons)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromVictory)

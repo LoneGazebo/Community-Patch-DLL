@@ -1296,10 +1296,11 @@ void CvPlayerTechs::SetGSPriorities()
 	}
 
 	// == Grand Strategy ==
-	bool bSeekingDiploVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory() || m_pPlayer->GetPlayerTraits()->IsDiplomat();
-	bool bSeekingConquestVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest() || m_pPlayer->GetPlayerTraits()->IsWarmonger();
-	bool bSeekingCultureVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory() || m_pPlayer->GetPlayerTraits()->IsTourism();
-	bool bSeekingScienceVictory = m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory() || m_pPlayer->GetPlayerTraits()->IsNerd();
+	bool bSeriousMode = m_pPlayer->GetDiplomacyAI()->IsSeriousAboutVictory();
+	bool bConquestFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) || m_pPlayer->GetPlayerTraits()->IsWarmonger() || m_pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest();
+	bool bDiploFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory()) || m_pPlayer->GetPlayerTraits()->IsDiplomat() || m_pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
+	bool bScienceFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory()) || m_pPlayer->GetPlayerTraits()->IsNerd() || m_pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
+	bool bCultureFocus = (bSeriousMode && m_pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || m_pPlayer->GetPlayerTraits()->IsTourism() || m_pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
 	for(int iTechLoop = 0; iTechLoop < GetTechs()->GetNumTechs(); iTechLoop++)
 	{
 		TechTypes eTech = (TechTypes)iTechLoop;
@@ -1318,13 +1319,13 @@ void CvPlayerTechs::SetGSPriorities()
 
 			if(pkTechInfo->GetFlavorValue(eFlavor) > 0)
 			{
-				if (bSeekingDiploVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"
+				if (bDiploFocus && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_DIPLOMACY"
 					|| GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GOLD"
 					|| GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_ESPIONAGE"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if(bSeekingConquestVictory && (
+				if(bConquestFocus && (
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_OFFENSE" || 
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MILITARY_TRAINING" ||
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_MOBILE" ||
@@ -1344,14 +1345,14 @@ void CvPlayerTechs::SetGSPriorities()
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if(bSeekingCultureVictory && (
+				if(bCultureFocus && (
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_CULTURE" || 
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_GREAT_PEOPLE" ||
 					GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_WONDER"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if(bSeekingScienceVictory && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP"))
+				if(bScienceFocus && (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SCIENCE" || GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_SPACESHIP"))
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
@@ -1397,22 +1398,22 @@ void CvPlayerTechs::SetGSPriorities()
 				{
 					m_piGSTechPriority[iTechLoop]+= max(1, 10 - m_pPlayer->getNumCities());
 				}
-				if (bSeekingConquestVictory)
+				if (bConquestFocus)
 				{
 					if (pkUnitInfo->GetCombat() > 0 || pkUnitInfo->GetRangedCombat() > 0)
 					{
 						m_piGSTechPriority[iTechLoop]++;
 					}
 				}
-				if (bSeekingScienceVictory && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+				if (bScienceFocus && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT)
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if (bSeekingDiploVictory && pkUnitInfo->IsTrade() || pkUnitInfo->GetBaseGold() > 0 || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_MESSENGER)
+				if (bDiploFocus && pkUnitInfo->IsTrade() || pkUnitInfo->GetBaseGold() > 0 || pkUnitInfo->GetDefaultUnitAIType() == UNITAI_MESSENGER)
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}
-				if (bSeekingCultureVictory && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
+				if (bCultureFocus && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_ARCHAEOLOGIST)
 				{
 					m_piGSTechPriority[iTechLoop]++;
 				}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GOODY_PRODUCTION">
+			<Text>You find a cache of supplies that boost the [ICON_PRODUCTION] Production of your nearest city!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_GOLDEN_AGE">
+			<Text>You find ancient relics that accelerate your civilization's progress towards a [ICON_GOLDEN_AGE] Golden Age!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_TILES">
+			<Text>You find a nomadic tribe that wishes to join your Civilization, granting you additional land around the nearest City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_PRODUCTION">
+			<Text>Supplies for [ICON_PRODUCTION] Production in your nearest City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_GOLDEN_AGE">
+			<Text>Relics for [ICON_GOLDEN_AGE] Golden Age Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_FREE_TILES">
+			<Text>A tribe that gives you land around your nearest City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GOODY_CHOOSE_SCIENCE">
+			<Text>Ancient artifacts for [ICON_RESEARCH] Science.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

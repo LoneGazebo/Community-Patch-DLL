@@ -618,6 +618,7 @@ void CvBarbarians::DoCamps()
 	int iEra = GC.getGame().getCurrentEra();
 	std::vector<CvPlot*> vPotentialPlots,vPotentialCoastalPlots;
 	std::vector<int> MajorCapitals,BarbCamps,RecentlyClearedBarbCamps;
+	ImprovementTypes eLandmark = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_LANDMARK");
 
 	// Iterate through all plots
 	for (int iI = 0; iI < iNumWorldPlots; iI++)
@@ -705,11 +706,21 @@ void CvBarbarians::DoCamps()
 		if (iNumCampsToAdd <= 0)
 			continue;
 
-		// No camps on Improvements in Community Patch only, and no camps on embassies ever
+		// No camps on Improvements in Community Patch only, and no camps on embassies, GPTI or Landmarks
 		if (eImprovement != NO_IMPROVEMENT)
 		{
-			if (!MOD_BALANCE_VP || GC.getImprovementInfo(eImprovement)->IsPermanent())
-				continue;
+			CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+			if (pkImprovementInfo)
+			{
+				if (!MOD_BALANCE_VP)
+					continue;
+
+				if (eImprovement == eLandmark)
+					continue;
+
+				if (pkImprovementInfo->IsPermanent() || pkImprovementInfo->IsCreatedByGreatPerson())
+					continue;
+			}
 		}
 
 		// No camps on Ancient Ruins
@@ -733,7 +744,7 @@ void CvBarbarians::DoCamps()
 			continue;
 
 		// No camps on plots in sight of a civ or City-State in Community Patch only
-		if (!MOD_BALANCE_VP && pLoopPlot->isVisibleToAnyTeam(false))
+		if (!MOD_BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES && pLoopPlot->isVisibleToAnyTeam(false))
 			continue;
 
 		// No camps on occupied plots or those adjacent to a non-Barbarian unit
@@ -805,9 +816,7 @@ void CvBarbarians::DoCamps()
 		for (std::vector<int>::iterator it = MajorCapitals.begin(); it != MajorCapitals.end(); it++)
 		{
 			CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
-			int iCapitalX = pInvalidAreaPlot->getX();
-			int iCapitalY = pInvalidAreaPlot->getY();
-			int iDistance = plotDistance(iX, iY, iCapitalX, iCapitalY);
+			int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
 			if (iDistance <= iMajorCapitalMinDistance)
 			{
 				bTooClose = true;
@@ -819,8 +828,7 @@ void CvBarbarians::DoCamps()
 			for (std::vector<int>::iterator it = BarbCamps.begin(); it != BarbCamps.end(); it++)
 			{
 				CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
-				int iCampX = pInvalidAreaPlot->getX(), iCampY = pInvalidAreaPlot->getY();
-				int iDistance = plotDistance(iX, iY, iCampX, iCampY);
+				int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
 				if (iDistance <= iBarbCampMinDistance)
 				{
 					bTooClose = true;
@@ -833,8 +841,7 @@ void CvBarbarians::DoCamps()
 			for (std::vector<int>::iterator it = RecentlyClearedBarbCamps.begin(); it != RecentlyClearedBarbCamps.end(); it++)
 			{
 				CvPlot* pInvalidAreaPlot = theMap.plotByIndex(*it);
-				int iFormerCampX = pInvalidAreaPlot->getX(), iFormerCampY = pInvalidAreaPlot->getY();
-				int iDistance = plotDistance(iX, iY, iFormerCampX, iFormerCampY);
+				int iDistance = plotDistance(iX, iY, pInvalidAreaPlot->getX(), pInvalidAreaPlot->getY());
 				if (iDistance <= iRecentlyClearedCampMinDistance)
 				{
 					bTooClose = true;
@@ -1472,7 +1479,7 @@ UnitTypes CvBarbarians::GetRandomBarbarianUnitType(CvPlot* pPlot, UnitAITypes eP
 
 	//choose from top 5
 	int iNumCandidates = /*5*/ range(GD_INT_GET(BARBARIAN_UNIT_SPAWN_NUM_CANDIDATES), 1, candidates.size());
-	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, 5, additionalSeed);
+	UnitTypes eBestUnit = PseudoRandomChoiceByWeight(candidates, NO_UNIT, iNumCandidates, additionalSeed);
 
 	//custom override
 	if (MOD_EVENTS_BARBARIANS)

@@ -762,10 +762,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 				return false;
 
-			// Mutual embassies are required
-			if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
-				return false;
-
 			// Not valid if vassalage is in the trade
 			if (ContainsItemType(TRADE_ITEM_VASSALAGE))
 				return false;
@@ -4781,8 +4777,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					else
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
-						vector<PlayerTypes> v(1, eReceivingPlayer);
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayer(eReceivingPlayer, false, false);
 					}
 				}
 				// Notify all other civs
@@ -5246,8 +5241,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				{
 					if (!GET_PLAYER(*iter).isHuman())
 					{
-						vector<PlayerTypes> v(1, eReceivingPlayer);
-						GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayers(v);
+						GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayer(eReceivingPlayer);
 					}
 				}
 			}

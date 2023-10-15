@@ -2134,7 +2134,9 @@ bool CvPlayerAI::GreatMerchantWantsCash()
 	bool bIsVenice = GetPlayerTraits()->IsNoAnnexing();
 	if (bIsVenice)
 	{
-		if (GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3)) //what would be a sane limit?
+		//what would be a sane limit?
+		//FIXME: look at the politics of potential targets ...
+		if (GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3))
 		{
 			return true;
 		}
@@ -2156,7 +2158,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 	CvPlot* pBestTargetPlot = NULL;
 
 	// Loop through each city state
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())
@@ -2164,6 +2166,11 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 
 		if (kPlayer.IsAtWarWith(GetID()))
 			continue;
+
+		//FIXME: if somebody is protecting them, look at our relations to that particular player
+		int iPoliticalReduction = 0;
+		if (kPlayer.GetMinorCivAI()->IsProtectedByAnyMajor())
+			iPoliticalReduction = 40;
 
 		int iLoop = 0;
 		for (CvCity* pCity=kPlayer.firstCity(&iLoop); pCity; pCity=kPlayer.nextCity(&iLoop))
@@ -2181,6 +2188,10 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant)
 			if (iPathTurns < INT_MAX)
 			{
 				int iScore =  (pCity->getEconomicValue(GetID())*(100+10*kPlayer.getNumMilitaryUnits())) / (1+iPathTurns*iPathTurns);
+
+				//political fudge factor
+				iScore -= (iScore*iPoliticalReduction)/100;
+
 				if (iScore > iBestScore)
 				{
 					iBestScore = iScore;
@@ -2202,7 +2213,7 @@ CvPlot* CvPlayerAI::FindBestMerchantTargetPlotForCash(CvUnit* pMerchant)
 	vector< pair<int,int> > vCandidates;
 
 	// Loop through each city state
-	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	for (int iI = MAX_MAJOR_CIVS; iI < MAX_PLAYERS; iI++)
 	{
 		CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iI);
 		if (!kPlayer.isMinorCiv() || !kPlayer.isAlive())

@@ -4518,19 +4518,6 @@ bool CvUnit::isBetterDefenderThan(const CvUnit* pDefender, const CvUnit* pAttack
 		return false;
 	}
 
-	if(pAttacker)
-	{
-		if(getDamage() >= pAttacker->GetCombatLimit() && pDefender->getDamage() < pAttacker->GetCombatLimit())
-		{
-			return false;
-		}
-
-		if(pDefender->getDamage() >= pAttacker->GetCombatLimit() && getDamage() < pAttacker->GetCombatLimit())
-		{
-			return true;
-		}
-	}
-
 	int iOurDefense = GetMaxDefenseStrength(plot(), pAttacker, pAttacker ? pAttacker->plot() : NULL, false, true);
 	if(::isWorldUnitClass(getUnitClassType()))
 	{
@@ -7345,34 +7332,29 @@ bool CvUnit::canUseForAIOperation() const
 	if (IsCivilianUnit() && !canUseForTacticalAI())
 		return true;
 
-	//Is it a garrison we can spare? the border score check is a problem early on, so only do it once we have our core cities established
-	if (IsGarrisoned() && !GET_PLAYER(getOwner()).IsEarlyExpansionPhase())
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	//do not poach important garrisons
+	if (IsGarrisoned() && GetGarrisonedCity()->NeedsGarrison())
+		return false;
+
+	//check if it's a city zone! don't care about no-mans land.
+	CvTacticalDominanceZone* pZone = kPlayer.GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
+	if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
+		return false;
+
+	//do not call GetPlotsWithEnemyInMovementRange, it's too expensive ...
+	//instead look at our immediate neighbor plots only
+	for (int i = 0; i < RING3_PLOTS; i++)
 	{
-		CvCity* pCity = GetGarrisonedCity();
-		CvTacticalDominanceZone* pLandZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, false);
-		CvTacticalDominanceZone* pWaterZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pCity, true);
-		if (pLandZone && (pLandZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pLandZone->GetBorderScore(NO_DOMAIN)>5))
-			return false;
-		if (pWaterZone && (pWaterZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY || pWaterZone->GetBorderScore(NO_DOMAIN)>3))
+		CvPlot* pTestPlot = iterateRingPlots(plot(),i);
+		if (pTestPlot && pTestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true) != NULL)
 			return false;
 	}
-	else
-	{
-		//check if it's a city zone! don't care about no-mans land.
-		CvTacticalDominanceZone* pZone = GET_PLAYER(getOwner()).GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByPlot(plot());
-		if (pZone && pZone->GetZoneCity()!=NULL && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY)
-			return false;
 
-		//do not call GetPlotsWithEnemyInMovementRange, it's too expensive ...
-		//instead look at our immediate neighbor plots only
-		for (int i = 0; i < RING3_PLOTS; i++)
-		{
-			CvPlot* pTestPlot = iterateRingPlots(plot(),i);
-			if (pTestPlot && pTestPlot->getBestDefender(NO_PLAYER, getOwner(), this, true) != NULL)
-				return false;
-		}
-	}
-
+	//don't pull units out of important citadels
+	if (TacticalAIHelpers::IsPlayerCitadel(plot(), getOwner()) && TacticalAIHelpers::IsCloseToContestedBorder(&kPlayer, plot()))
+		return false;
 
 	return true;
 }
@@ -7392,6 +7374,10 @@ bool CvUnit::canUseForTacticalAI() const
 
 	//these are only used for operations
 	if (AI_getUnitAIType() == UNITAI_CARRIER_SEA || AI_getUnitAIType() == UNITAI_ICBM)
+		return false;
+
+	//do not poach important garrisons
+	if (IsGarrisoned() && GetGarrisonedCity()->NeedsGarrison())
 		return false;
 
 	//we want all barbarians ...
@@ -12217,21 +12203,23 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 	if (pPlot && canTrade(pPlot))
 	{
 		PlayerTypes eMinor = pPlot->getOwner();
-		CvAssertMsg(eMinor != NO_PLAYER, "Performing a trade mission and not in city state territory. This is bad. Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-		if (eMinor != NO_PLAYER)
+		if (GetDiploMissionInfluence() != 0)
+			iInf = GetDiploMissionInfluence();
+		else
+			iInf = /*30 in CP, 0 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
+
+		iInf += m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra();
+
+		iInf *= 100 + GetTradeMissionInfluenceModifier();
+		iInf /= 100;
+
+		iInf *= 100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier();
+		iInf /= 100;
+
+		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(getOwner(), MINOR_CIV_QUEST_INFLUENCE))
 		{
-			if (GetDiploMissionInfluence() != 0)
-				iInf = GetDiploMissionInfluence();
-			else
-				iInf = /*30 in CP, 0 in CSD*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
-
-			iInf += (m_pUnitInfo->GetNumInfPerEra() * GET_TEAM(getTeam()).GetCurrentEra());
-
-			int iInfTimes100 = iInf * (100 + GetTradeMissionInfluenceModifier());
-			iInf = iInfTimes100 / 100;
-
-			iInfTimes100 = iInf * (100 + GET_PLAYER(getOwner()).GetMissionInfluenceModifier());
-			iInf = iInfTimes100 / 100;
+			iInf *= 100 + /*20*/ GD_INT_GET(INFLUENCE_MINOR_QUEST_BOOST);
+			iInf /= 100;
 		}
 	}
 	return iInf;
@@ -12261,14 +12249,6 @@ bool CvUnit::trade()
 
 	if (MOD_BALANCE_VP) 
 	{
-		//Added Influence Quest Bonus
-		if (GET_PLAYER(eMinor).GetMinorCivAI()->IsActiveQuestForPlayer(getOwner(), MINOR_CIV_QUEST_INFLUENCE))
-		{	
-			int iBoostPercentage = /*20*/ GD_INT_GET(INFLUENCE_MINOR_QUEST_BOOST);
-			iInfluence *= 100 + iBoostPercentage;
-			iInfluence /= 100;
-		}
-
 		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
 
 		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
@@ -13781,16 +13761,11 @@ bool CvUnit::build(BuildTypes eBuild)
 			}
 		}
 
-#if defined(MOD_CIV6_WORKER)
-		if(!MOD_CIV6_WORKER)
-			bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
-#else
-		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner());
-#endif
 		NewBuild = true;
 	}
 
-	bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner(), NewBuild);
+	if(!MOD_CIV6_WORKER)
+		bFinished = pPlot->changeBuildProgress(eBuild, iWorkRateWithMoves, getOwner(), NewBuild);
 
 #if defined(MOD_EVENTS_PLOT)
 	if (MOD_EVENTS_PLOT) {
@@ -16725,11 +16700,9 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	if(kPlayer.isGoldenAge())
 		iModifier += kPlayer.GetPlayerTraits()->GetGoldenAgeCombatModifier();
 
-	//Domination Victory -- If a player owns more than one capital, your troops fight a % better as a result (% = % of global capitals owned).
+	// Anti-Warmonger Fervor
 	if (pOtherUnit != NULL)
-	{
 		iModifier += GetResistancePower(pOtherUnit);
-	}
 
 	////////////////////////
 	// KNOWN BATTLE PLOT
@@ -17427,6 +17400,10 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Our empire fights well in Golden Ages?
 	if(kPlayer.isGoldenAge())
 		iModifier += pTraits->GetGoldenAgeCombatModifier();
+
+	// Anti-Warmonger Fervor
+	if (pOtherUnit != NULL)
+		iModifier += GetResistancePower(pOtherUnit);
 
 	//resource monopolies
 	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
@@ -29209,7 +29186,7 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	{
 		//also depends on what we can do with the unit
 		int iHpLimit = GetMaxHitPoints() / 3;
-		return !IsGarrisoned() && GetCurrHitPoints() < iHpLimit && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		return GetCurrHitPoints() < iHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{

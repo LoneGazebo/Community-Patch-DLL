@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A">
+			<Text>Iron Fist</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_A_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Iron Fist[ENDCOLOR]: Vassals can no longer be liberated by other Civilizations or the World Congress, and capitulated vassals can no longer rebel. Yields from City-States increased by 25%, Vassals tribute an additional 25% of their yields, and +50% Worker Improvement rate.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_A">
+			<Text>Ruling with an iron fist generally means to require absolute control when managing other people, often in the workplace. The saying can also refer to situations such as child-rearing or styles of government. This idiom is often used to describe the actions and practices of managers, parents, or leaders who give their subordinates little if any freedom of choice or input regarding decisions. Reasons for ruling with an iron fist can often depend on individual circumstances, such as inexperienced workers or unruly children. The effectiveness of using total control can also vary, depending on the scope of the management style and the situation.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F">
+			<Text>Universal Healthcare</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_F_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Universal Healthcare[ENDCOLOR]: Receive a free Hospital in every City. +50 [ICON_CULTURE] when a Citizen is born in any City, scaling with Era.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O">
+			<Text>Peace, Land, Bread</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_O_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Peace, Land, Bread[ENDCOLOR]: -2 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty and [ICON_FOOD] Growth increased by 20% in all Cities. Building maintenance reduced by 20%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_UNIVERSAL_HEALTHCARE_TEXT_O">
+			<Text>The phrase 'Peace, Land, Bread,' popularized by Lenin and others during the early days of the Soviet Revolution, highlighted their desire to focus on the needs of the impoverished Russian peasantry. The Bolshevik Initial Decrees of the 1910-20s were announced as soon as the Bolsheviks declared their success in the October Revolution (October 26, 1917). The decrees conformed to the popular Bolshevik slogan "Peace, Bread, and Land", taken up by the masses during the July Days (July 1917), an uprising of workers and military forces.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION">
+			<Text>Nationalization</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Nationalization[ENDCOLOR]: Each Corporate Office counts as a Franchise. Foreign Franchises no longer benefit your Corporation, you can no longer construct Franchises in foreign Cities (except Vassals), and foreign Corporations can no longer set up Franchises in your Cities (except Masters). +2 [ICON_RESEARCH] Science from all Corporation Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_NATIONALIZATION_TEXT">
+			<Text>Nationalization is the process of taking a private industry or private assets into public ownership by a national government or state. Nationalization usually refers to private assets, but may also mean assets owned by lower levels of government, such as municipalities, being transferred to be the state. The opposite of nationalization is usually privatization or de-nationalization, but may also be municipalization. Industries that are usually subject to nationalization include transport, communications, energy, banking and natural resources.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION">
+			<Text>Transnationalism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Transnationalism[ENDCOLOR]: Each turn, increases the chance that a Corporate Franchise will appear in a foreign City to 15% (normally 5%). Global Franchise maximum increased by 25%, and every Town counts as a Franchise. +2 [ICON_CULTURE] Culture from all Corporation Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_GLOBALIZATION_TEXT">
+			<Text>Transnationalism as an economic process involves the global reorganization of the production process, in which various stages of the production of any product can occur in various countries, typically with the aim of minimizing costs. Economic transnationalism, commonly known as Globalization, was spurred in the latter half of the 20th century by the development of the internet and wireless communication, as well as the reduction in global transportation costs caused by containerization. Multinational corporations could be seen as a form of transnationalism, in that they seek to minimize costs, and hence maximize profits, by organizing their operations in the most efficient means possible irrespective of political boundaries.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION">
+			<Text>Syndicalism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Syndicalism[ENDCOLOR]: Corporate Franchises count double in the Cities of Civilizations you are at least [COLOR_MAGENTA]Popular[ENDCOLOR] with, and this extra Franchise does not count against your Global Franchise maximum. Can establish 5 additional Franchises in foreign Cities. +2 [ICON_PRODUCTION] Production from all Corporation Offices.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_INFILTRATION_TEXT">
+			<Text>National syndicalism is an adaptation of syndicalism to suit the social agenda of integral nationalism. National syndicalism suggests that the people must defend themselves through the development of Syndicalist sections into massive economic worker movements. These should take immediate action to expropriate the capitalists. These should also take direct action to let the workers lead the production and to form peoples communes. National syndicalism seeks out principled reasons for direct economic action and denounces parliamentary action by representatives. The goal is not to make capitalism bearable, but the realisation of a free Nationalist and Socialist nation. National syndicalism aims to move the attention from the political terrain to the economic terrain. It wants the socialisation from the basis: a system of distribution from local units, in consultation with the National federation, on the fundament of a production and consumption statistic. As well as the organisation of the production by national industrial federations.</Text>
+		</Row>
+
+		<!-- Dummy policies -->
+		<Row Tag="TXT_KEY_POLICY_FIRST_ON_MOON">
+			<Text>First on the Moon</Text>
+		</Row>
+		<Row Tag="TXT_KEY_POLICY_MANHATTAN_PROJECT">
+			<Text>Atomic Bomb</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

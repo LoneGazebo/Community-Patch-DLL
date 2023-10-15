@@ -720,6 +720,7 @@ public:
 	int getCivilizationFreeUnitsDefaultUnitAI(int i) const;
 
 	bool isLeaders(int i) const;
+	bool IsBlocksMinor(int i) const;
 	bool isCivilizationFreeBuildingClass(int i) const;
 	bool isCivilizationFreeTechs(int i) const;
 	bool isCivilizationDisableTechs(int i) const;
@@ -775,6 +776,8 @@ protected:
 
 	std::vector<bool> m_CivilizationBuildingOverridden;
 	std::vector<bool> m_CivilizationUnitOverridden;
+
+	std::vector<bool> m_BlockedMinors;
 
 private:
 	CvCivilizationInfo(const CvCivilizationInfo&);
@@ -1868,6 +1871,7 @@ public:
 	int getTechReveal() const;
 	int getPolicyReveal() const;
 	int getTechCityTrade() const;
+	int getImproveTech() const;
 	int getTechObsolete() const;
 	int getAIStopTradingEra() const;
 	int getStartingResourceQuantity() const;
@@ -1971,6 +1975,7 @@ protected:
 	int m_iTechReveal;
 	int m_iPolicyReveal;
 	int m_iTechCityTrade;
+	int m_iTechImproveable;
 	int m_iTechObsolete;
 	int m_iAIStopTradingEra;
 	int m_iStartingResourceQuantity;

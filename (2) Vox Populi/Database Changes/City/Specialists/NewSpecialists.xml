@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Specialists>
+		<Row>
+			<Type>SPECIALIST_CIVIL_SERVANT</Type>
+			<Description>TXT_KEY_SPECIALIST_CIVIL_SERVANT</Description>
+			<Strategy>TXT_KEY_SPECIALIST_CIVIL_SERVANT_STRATEGY</Strategy>
+			<GreatPeopleTitle>TXT_KEY_SPECIALIST_CIVIL_SERVANT_TITLE</GreatPeopleTitle>
+			<Visible>true</Visible>
+			<IconAtlas>CSDSPECIALIST_ATLAS</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+			<GreatPeopleUnitClass>UNITCLASS_GREAT_DIPLOMAT</GreatPeopleUnitClass>
+			<GreatPeopleRateChange>3</GreatPeopleRateChange>
+		</Row>
+	</Specialists>
+</GameData>

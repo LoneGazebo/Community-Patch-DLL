@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_PROCESS_CULTURE">
+			<Text>Arts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_CULTURE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Arts[ENDCOLOR] converts 25% of [ICON_PRODUCTION] Production of this City into [ICON_CULTURE] Culture, and reduces [ICON_CULTURE] Boredom by 25%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_CULTURE_STRATEGY">
+			<Text>Investing production in art is a good way to boost your Civilization's cutural output, either to grab that next policy or to stave off a Tourism victory. Also reduces boredom.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROCESS_DEFENSE">
+			<Text>Defense</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_DEFENSE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Defense[ENDCOLOR] boosts City [ICON_STRENGTH] Defense and increases Hit Point recovery by 10% of the City's [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_DEFENSE_STRATEGY">
+			<Text>Investing production in defense is a last-ditch method to stave off your city's conquest by a foreign power.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROCESS_FOOD">
+			<Text>Farming</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_FOOD_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Farming[ENDCOLOR] converts 25% of [ICON_PRODUCTION] Production of this City into [ICON_FOOD] Food, and reduces [ICON_FOOD] and [ICON_PRODUCTION] Distress by 25%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_FOOD_STRATEGY">
+			<Text>Investing production in farming is a good way to boost your City's growth, which can be useful if you have more productive tiles than Citizens, or you want to work more Specialists in the long run. Also reduces distress.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROCESS_TOURISM">
+			<Text>Propaganda</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_TOURISM_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]Propaganda[ENDCOLOR] converts 15% of the [ICON_PRODUCTION] Production of this City into [ICON_TOURISM] Tourism.[NEWLINE][NEWLINE]Requires the Socialist Realism Tenet to be unlocked.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_TOURISM_STRATEGY">
+			<Text>{TXT_KEY_PROCESS_TOURISM_HELP}[NEWLINE][NEWLINE]Investing production in propaganda is a good way to boost your City's influence in the world, which can be useful if you are currently in a revolutionary wave, or if you want to force other Civilizations to experience one.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROCESS_TREASURE_FLEET">
+			<Text>Treasure Fleet</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_TREASURE_FLEET_HELP">
+			<Text>Contribute this city's [ICON_PRODUCTION] Production towards the Treasure Fleet project. Cost goes up based on the number of players in the game, and the current Era.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROCESS_WARGAMES">
+			<Text>Global Wargames</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_WARGAMES_HELP">
+			<Text>Contribute this city's [ICON_PRODUCTION] Production towards the Global Wargames project. Cost goes up based on the number of players in the game, and the current Era.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROCESS_UNITED_NATIONS">
+			<Text>United Nations</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROCESS_UNITED_NATIONS_HELP">
+			<Text>Contribute this city's [ICON_PRODUCTION] Production towards the United Nations project. Cost goes up based on the number of players in the game, and the current Era.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

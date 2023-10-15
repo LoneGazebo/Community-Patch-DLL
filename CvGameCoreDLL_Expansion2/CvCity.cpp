@@ -400,7 +400,6 @@ CvCity::CvCity() :
 	, m_aiYieldFromPillage()
 	, m_aiYieldFromPillageGlobal()
 	, m_aiNumTimesAttackedThisTurn()
-	, m_aiLongestPotentialTradeRoute()
 	, m_aiNumProjects()
 	, m_aiYieldFromKnownPantheons()
 	, m_aiGoldenAgeYieldMod()
@@ -904,7 +903,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Add Resource Quantity to total
 	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
 	{
-		if (GET_TEAM(getTeam()).IsResourceCityTradeable(plot()->getResourceType()))
+		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType()))
 		{
 			owningPlayer.changeNumResourceTotal(plot()->getResourceType(), plot()->getNumResourceForPlayer(getOwner()));
 		}
@@ -1432,7 +1431,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iBaseTourism = 0;
 	m_iBaseTourismBeforeModifiers = 0;
 	m_aiNumTimesAttackedThisTurn.resize(REALLY_MAX_PLAYERS);
-	m_aiLongestPotentialTradeRoute.resize(NUM_DOMAIN_TYPES);
 	m_aiNumProjects.resize(GC.getNumProjectInfos());
 	m_aiSpecialistRateModifier.resize(GC.getNumSpecialistInfos());
 	m_aiYieldFromVictory.resize(NUM_YIELD_TYPES);
@@ -1484,10 +1482,6 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	for (iI = 0; iI < REALLY_MAX_PLAYERS; iI++)
 	{
 		m_aiNumTimesAttackedThisTurn[iI] = 0;
-	}
-	for (iI = 0; iI < NUM_DOMAIN_TYPES; iI++)
-	{
-		m_aiLongestPotentialTradeRoute[iI] = 0;
 	}
 #endif
 	m_miInstantYieldsTotal.clear();
@@ -2970,7 +2964,7 @@ int CvCity::GetTradeRouteLandDistanceModifier() const
 //	--------------------------------------------------------------------------------
 int CvCity::GetLongestPotentialTradeRoute(DomainTypes eDomain) const
 {
-	return m_aiLongestPotentialTradeRoute[eDomain];
+	return GC.getGame().GetGameTrade()->GetLongestPotentialTradeRoute(GetID(), eDomain);
 }
 //	--------------------------------------------------------------------------------
 void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
@@ -2978,7 +2972,7 @@ void CvCity::SetLongestPotentialTradeRoute(int iValue, DomainTypes eDomain)
 	VALIDATE_OBJECT
 	CvAssertMsg(eDomain >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eDomain < NUM_DOMAIN_TYPES, "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	m_aiLongestPotentialTradeRoute[eDomain] = iValue;
+	GC.getGame().GetGameTrade()->SetLongestPotentialTradeRoute(iValue, GetID(), eDomain);
 }
 
 bool CvCity::AreOurBordersTouching(PlayerTypes ePlayer)
@@ -6874,17 +6868,18 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				std::vector<int> GWIDs = GET_PLAYER(eSpyOwner).GetEspionage()->BuildGWList(this);
 				if (GWIDs.size() > 0)
 				{
-					uint uMinLoop = min(static_cast<uint>(pkEventChoiceInfo->getForgeGW()), GWIDs.size());
-					while (uMinLoop > 0)
+					int iNumStolen = 0;
+					int iNumToSteal = pkEventChoiceInfo->getForgeGW();
+					while (iNumStolen < iNumToSteal && GWIDs.size() > 0)
 					{
-						uint uGrab = GC.getGame().urandLimitExclusive(uMinLoop - 1, GET_PLAYER(eSpyOwner).GetPseudoRandomSeed().mix(GWIDs[0]).mix(GET_PLAYER(getOwner()).GetTreasury()->CalculateGrossGold()));
-						if (GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[uGrab]))
+						int iGrab = GC.getGame().randRangeInclusive(0, GWIDs.size(), CvSeeder::fromRaw(0xd3270c47).mix(GET_PLAYER(eSpyOwner).GetID()).mix(GetID()).mix(GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]));
+						if (GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[iGrab]))
 						{
 							GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]++;
-
 							GET_PLAYER(eSpyOwner).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
 						}
-						uMinLoop--;
+						GWIDs.erase(GWIDs.begin() + iGrab);
+						iNumStolen++;
 					}
 				}
 				else
@@ -13188,7 +13183,7 @@ void CvCity::changeProductionTimes100(int iChange)
 											if ((YieldTypes)iI > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
 												break;
 
-											int iYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
+											int iYield = ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION)) / 100) * getProductionToYieldModifier((YieldTypes)iI) / 100;
 
 											pOtherPlayer->doInstantYield(INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON, false, NO_GREATPERSON, NO_BUILDING, iYield, false, NO_PLAYER, NULL, false, pOriginCity, false, true, false, (YieldTypes)iI);
 										}
@@ -15991,7 +15986,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if (owningTeam.IsResourceCityTradeable(eLoopResource))
+						if (owningTeam.IsResourceImproveable(eLoopResource))
 						{
 							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
@@ -16018,7 +16013,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if (owningTeam.IsResourceCityTradeable(eLoopResource))
+						if (owningTeam.IsResourceImproveable(eLoopResource))
 						{
 							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
 							{
@@ -18501,6 +18496,20 @@ void CvCity::SetGarrison(CvUnit* pUnit)
 	updateNetHappiness();
 }
 
+bool CvCity::NeedsGarrison() const
+{
+	if (isUnderSiege())
+		return true;
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	//this allows the player to use the garrison for settler escorts
+	if (kPlayer.IsEarlyExpansionPhase())
+		return false;
+
+	return kPlayer.GetMilitaryAI()->IsExposedToEnemy(this, NO_PLAYER);
+}
+
 bool CvCity::HasGarrison() const
 {
 	if (m_hGarrison > -1 && GetGarrisonedUnit() == NULL)
@@ -18739,9 +18748,14 @@ void CvCity::setPopulation(int iNewValue, bool bReassignPop /* = true */, bool b
 		}
 #endif
 
-		GET_PLAYER(getOwner()).changeTotalPopulation(getPopulation() - iOldPopulation);
-		GET_TEAM(getTeam()).changeTotalPopulation(getPopulation() - iOldPopulation);
-		GC.getGame().changeTotalPopulation(getPopulation() - iOldPopulation);
+		int iGlobalPopChange = getPopulation() - iOldPopulation;
+		GET_PLAYER(getOwner()).changeTotalPopulation(iGlobalPopChange);
+		GET_TEAM(getTeam()).changeTotalPopulation(iGlobalPopChange);
+		GC.getGame().changeTotalPopulation(iGlobalPopChange);
+
+		int iNewTotal = GET_PLAYER(getOwner()).getTotalPopulation();
+		if (iNewTotal > GET_PLAYER(getOwner()).getHighestPopulation())
+			GET_PLAYER(getOwner()).setHighestPopulation(iNewTotal);
 
 		plot()->updateYield();
 
@@ -19343,7 +19357,10 @@ int CvCity::getJONSCulturePerTurn(bool bStatic) const
 
 	// Process production into culture
 	if (getProductionToYieldModifier(YIELD_CULTURE) > 0)
-		iCulture += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
+	{
+		int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+		iCulture += ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(YIELD_CULTURE)) / 10000;
+	}
 
 	return iCulture;
 }
@@ -19737,7 +19754,10 @@ int CvCity::GetFaithPerTurn() const
 
 	// Process production into faith
 	if (getProductionToYieldModifier(YIELD_FAITH) > 0)
-		iFaith += (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
+	{
+		int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+		iFaith += ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(YIELD_FAITH)) / 10000;
+	}
 
 	// Faith from having trade routes
 	iFaith += GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_FAITH) / 100;
@@ -25305,7 +25325,8 @@ int CvCity::getYieldRateTimes100(YieldTypes eIndex, bool bIgnoreTrade, bool bSta
 	if (getProductionToYieldModifier(eIndex) != 0)
 	{
 		// We want to process production to production and call it stockpiling!
-		iPostModifierYield = (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 100;
+		int iTradeRouteBonus = bIgnoreTrade ? 0 : GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+		iPostModifierYield = ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(eIndex)) / 100;
 	}
 
 	if (!bIgnoreTrade)
@@ -25635,7 +25656,8 @@ int CvCity::GetBaseYieldRateFromProcess(YieldTypes eIndex) const
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
 	// Process production into specific yield
-	return (getBasicYieldRateTimes100(YIELD_PRODUCTION) * getProductionToYieldModifier(eIndex)) / 10000;
+	int iTradeRouteBonus = GET_PLAYER(m_eOwner).GetTrade()->GetTradeValuesAtCityTimes100(this, YIELD_PRODUCTION);
+	return ((getBasicYieldRateTimes100(YIELD_PRODUCTION) + iTradeRouteBonus) * getProductionToYieldModifier(eIndex)) / 10000;
 }
 
 // Base yield rate from League
@@ -33071,7 +33093,6 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCachedEmpireSizeModifier);
 	visitor(city.m_iYieldMediansCachedTurn);
 	visitor(city.m_aiNumProjects);
-	visitor(city.m_aiLongestPotentialTradeRoute);
 	visitor(city.m_aiNumTimesAttackedThisTurn);
 	visitor(city.m_aiYieldFromKnownPantheons);
 	visitor(city.m_aiYieldFromVictory);
@@ -35594,8 +35615,8 @@ bool CvCity::isInDangerOfFalling(bool bExtraCareful) const
 
 bool CvCity::isUnderSiege() const
 {
-	//lots of possible conditions, many overlapping ... let's make sure we cover all angles
-	return m_iDamageTakenLastTurn > 0 || plot()->GetNumEnemyUnitsAdjacent(getTeam(), NO_DOMAIN) > 0 || (IsBlockadedWaterAndLand() && getDamage() >= GetMaxHitPoints()/4) || isInDangerOfFalling();
+	//damage taken decays exponentially so check for >0
+	return m_iDamageTakenLastTurn > 5 || GetCityCitizens()->AnyPlotBlockaded();
 }
 
 int CvCity::getDamageTakenLastTurn() const

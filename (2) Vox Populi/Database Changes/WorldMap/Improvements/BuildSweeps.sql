@@ -1,0 +1,27 @@
+UPDATE BuildFeatures
+SET PrereqTech = 'TECH_MINING'
+WHERE FeatureType = 'FEATURE_FOREST';
+
+UPDATE BuildFeatures
+SET PrereqTech = 'TECH_TRAPPING'
+WHERE FeatureType = 'FEATURE_JUNGLE';
+
+UPDATE BuildFeatures
+SET PrereqTech = 'TECH_MASONRY'
+WHERE FeatureType = 'FEATURE_MARSH';
+
+UPDATE BuildFeatures SET Production = 40 WHERE FeatureType = 'FEATURE_FOREST' AND Remove = 1;
+UPDATE BuildFeatures SET Production = 40 WHERE FeatureType = 'FEATURE_JUNGLE' AND Remove = 1;
+UPDATE BuildFeatures SET Time = 400 WHERE FeatureType = 'FEATURE_FOREST' AND Time IS NOT NULL AND Remove = 1;
+UPDATE BuildFeatures SET Time = 500 WHERE FeatureType = 'FEATURE_JUNGLE' AND Time IS NOT NULL AND Remove = 1;
+UPDATE BuildFeatures SET Time = 500 WHERE FeatureType = 'FEATURE_MARSH' AND Time IS NOT NULL AND Remove = 1;
+
+INSERT INTO Build_TechTimeChanges
+	(BuildType, TechType, TimeChange)
+VALUES
+	('BUILD_REMOVE_FOREST', 'TECH_BRONZE_WORKING', -100),
+	('BUILD_REMOVE_FOREST', 'TECH_BIOLOGY', -100),
+	('BUILD_REMOVE_JUNGLE', 'TECH_BRONZE_WORKING', -125),
+	('BUILD_REMOVE_JUNGLE', 'TECH_BIOLOGY', -125),
+	('BUILD_REMOVE_MARSH', 'TECH_MACHINERY', -125),
+	('BUILD_REMOVE_MARSH', 'TECH_BIOLOGY', -125);

@@ -2879,43 +2879,30 @@ int CvPlot::getBuildTurnsTotal(BuildTypes eBuild, PlayerTypes ePlayer) const
 {
 	const IDInfo* pUnitNode = NULL;
 	const CvUnit* pLoopUnit = NULL;
-	int iNowBuildRate = 0;
-	int iThenBuildRate = 0;
-	int iBuildLeft = 0;
-	int iTurnsLeft = 0;
+	int iBuildRate = 0;
+	int iBuildTime = getBuildTime(eBuild, ePlayer);
 
 	pUnitNode = headUnitNode();
 
-	while(pUnitNode != NULL)
+	while (pUnitNode != NULL)
 	{
 		pLoopUnit = GetPlayerUnit(*pUnitNode);
 		pUnitNode = nextUnitNode(pUnitNode);
 
-		if(pLoopUnit && pLoopUnit->getBuildType() == eBuild)
-		{
-			if(pLoopUnit->canMove())
-			{
-				iNowBuildRate += pLoopUnit->workRate(false);
-			}
-			iThenBuildRate += pLoopUnit->workRate(true);
-		}
+		if (pLoopUnit && pLoopUnit->getBuildType() == eBuild)
+			iBuildRate += pLoopUnit->workRate(true);
 	}
 
-	if(iThenBuildRate == 0)
+	if (iBuildRate == 0)
 	{
 		//this means it will take forever under current circumstances
 		return INT_MAX;
 	}
 
-	iBuildLeft = getBuildTime(eBuild, ePlayer);
+	iBuildTime = std::max(1, getBuildTime(eBuild, ePlayer));
 
-	iBuildLeft = std::max(0, iBuildLeft);
-
-	iTurnsLeft = (iBuildLeft / iThenBuildRate);
-
-	iTurnsLeft--;
-
-	return std::max(1, iTurnsLeft);
+	// Rounds up
+	return (iBuildTime - 1) / iBuildRate + 1;
 }
 
 
@@ -3031,12 +3018,9 @@ CvUnit* CvPlot::getBestDefender(PlayerTypes eOwner, PlayerTypes eAttackingPlayer
 					{
 						if(!bTestCanMove || (pLoopUnit->canMove() && !(pLoopUnit->isCargo())))
 						{
-							if((pAttacker == NULL) || (pAttacker->getDomainType() != DOMAIN_AIR) || (pLoopUnit->getDamage() < pAttacker->GetRangedCombatLimit()))
+							if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
 							{
-								if(pLoopUnit->isBetterDefenderThan(pBestUnit, pAttacker))
-								{
-									pBestUnit = pLoopUnit;
-								}
+								pBestUnit = pLoopUnit;
 							}
 						}
 					}
@@ -3115,8 +3099,15 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 		for (std::vector<std::pair<int, int>>::const_iterator it = possibleUnits.begin(); it != possibleUnits.end(); ++it)
 		{
 			CvPlot* pInterceptorPlot = GC.getMap().plotByIndexUnchecked(it->second);
-			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
+			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(getTeam()))
+				continue;
 
+			//first a very rough distance check to avoid expensive unit lookup
+			int iDistance = plotDistance(*pInterceptorPlot, *this);
+			if (iDistance > 11)
+				continue;
+
+			CvUnit* pInterceptorUnit = kLoopPlayer.getUnit(it->first);
 			if (!pInterceptorUnit || pInterceptorUnit->isDelayedDeath())
 				continue;
 
@@ -3124,14 +3115,9 @@ CvUnit* CvPlot::GetBestInterceptor(PlayerTypes eAttackingPlayer, const CvUnit* p
 			if (!pInterceptorUnit->canInterceptNow())
 				continue;
 
-			// Check input booleans
+			// Check conditions
 			if (bLandInterceptorsOnly && pInterceptorUnit->getDomainType() != DOMAIN_LAND)
 				continue;
-			if (bVisibleInterceptorsOnly && !pInterceptorPlot->isVisible(getTeam()))
-				continue;
-
-			// Test range
-			int iDistance = plotDistance(*pInterceptorPlot, *this);
 			if (iDistance > pInterceptorUnit->GetAirInterceptRange())
 				continue;
 			
@@ -6379,7 +6365,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				if(getResourceType() != NO_RESOURCE)
 				{
 					// Add Resource Quantity to total
-					if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+					if(GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()))
 						{
@@ -7997,7 +7983,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				// Add Resource Quantity to total
 				if(getResourceType() != NO_RESOURCE)
 				{
-					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+					if(bIgnoreResourceTechPrereq || GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if (newImprovementEntry.IsConnectsResource(getResourceType()))
 						{
@@ -8112,7 +8098,7 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 				if(getResourceType() != NO_RESOURCE)
 				{
 					if(IsImprovedByGiftFromMajor() || // If old improvement was a gift, it ignored our tech limits, so be sure to remove resources properly
-						GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+						GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if (GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(getResourceType()))
 						{
@@ -8495,7 +8481,7 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 		{
 			if(getTeam() != NO_TEAM)
 			{
-				if(GET_TEAM(getTeam()).IsResourceCityTradeable(getResourceType()))
+				if(GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 				{
 					if(GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType()))
 					{
@@ -9566,7 +9552,9 @@ int CvPlot::calculateNatureYield(YieldTypes eYield, PlayerTypes ePlayer, const C
 
 			if (GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield) != 0)
 			{
-				int iPerPopYieldEmpire = GET_PLAYER(ePlayer).getTotalPopulation() / GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield);
+				int iPerPopYieldEmpire = GET_PLAYER(ePlayer).getTotalPopulation() * GET_PLAYER(ePlayer).GetCapitalYieldPerPopChangeEmpire(eYield);
+				//Implied 100x, see ChangeCapitalYieldPerPopChangeEmpire.
+				iPerPopYieldEmpire /= 100;
 				iYield += iPerPopYieldEmpire;
 			}
 		}
@@ -9614,10 +9602,7 @@ int CvPlot::calculateReligionNatureYield(YieldTypes eYield, PlayerTypes ePlayer,
 		{
 			if (getImprovementType() != NO_IMPROVEMENT)
 			{
-				if (GC.getImprovementInfo(getImprovementType())->IsConnectsResource(getResourceType(eTeam)))
-				{
-					iReligionChange += iValue;
-				}
+				iReligionChange += iValue;
 			}
 		}
 		else if (bRequiresResource)

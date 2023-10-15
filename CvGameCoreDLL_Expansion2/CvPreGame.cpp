@@ -827,17 +827,17 @@ void closeAllSlots()
 
 void closeInactiveSlots()
 {
-	s_gameStarted = true;
+	setGameStarted(true);
 
 	// Open inactive slots mean different things to different game modes and types...
 	// Let's figure out what they mean for us
 	gDLL->BeginSendBundle();
-	for(int i = 0; i < MAX_CIV_PLAYERS; i++)
+	for (int i = 0; i < MAX_CIV_PLAYERS; i++)
 	{
 		PlayerTypes eID = (PlayerTypes)i;
-		if(slotStatus(eID) == SS_OPEN)
+		if (slotStatus(eID) == SS_OPEN)
 		{
-			if(gameType() == GAME_NETWORK_MULTIPLAYER && gameMapType() == GAME_SCENARIO)
+			if (gameType() == GAME_NETWORK_MULTIPLAYER && gameMapType() == GAME_SCENARIO)
 			{
 				// Multiplayer scenario - all "open" slots should be filled with an AI player
 				setSlotStatus(eID, SS_COMPUTER);
@@ -848,7 +848,6 @@ void closeInactiveSlots()
 				setSlotStatus(eID, SS_CLOSED);
 			}
 			setSlotClaim(eID, SLOTCLAIM_UNASSIGNED);
-
 			gDLL->sendPlayerInfo(eID);
 		}
 	}
@@ -2533,7 +2532,435 @@ void setGameName(const CvString& g)
 
 void setGameStarted(bool started)
 {
+	if (!s_gameStarted && started)
+	{
+		onGameStarted();
+	}
 	s_gameStarted = started;
+}
+
+/// Hack to manually override the engine's random selection of civilizations and City-States
+/// This is necessary for the MajorBlocksMinor table and the MOD_BALANCE_CITY_STATE_TRAITS option to function
+void onGameStarted()
+{
+	vector<PlayerTypes> vPlayersChanged;
+
+	// First loop: collect all major civs already chosen and the indices of the players that still need to choose
+	vector<CivilizationTypes> vCivsChosen;
+	vector<PlayerTypes> vMajorsToChoose;
+	for (int p = 0; p < MAX_MAJOR_CIVS; p++)
+	{
+		const PlayerTypes eID = static_cast<PlayerTypes>(p);
+		SlotStatus s = slotStatus(eID);
+		if (s == SS_TAKEN || s == SS_COMPUTER)
+		{
+			const CivilizationTypes eCiv = civilization(eID);
+			if (eCiv == NO_CIVILIZATION)
+				vMajorsToChoose.push_back(eID);
+			else if (std::find(vCivsChosen.begin(), vCivsChosen.end(), eCiv) == vCivsChosen.end()) // These checks are necessary because duplicates can exist!
+				vCivsChosen.push_back(eCiv);
+		}
+	}
+
+	if (vMajorsToChoose.size() > 0)
+	{
+		// Second loop: collect all civs in the database, and see which ones aren't chosen
+		vector<CivilizationTypes> vAICivs, vHumanCivs, vAICivsNotChosen, vHumanCivsNotChosen;
+		for (int c = 0; c < GC.getNumCivilizationInfos(); c++)
+		{
+			CivilizationTypes eCiv = static_cast<CivilizationTypes>(c);
+			CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo(eCiv);
+			if (eCiv != NO_CIVILIZATION && pkCivilization)
+			{
+				bool bChosen = std::find(vCivsChosen.begin(), vCivsChosen.end(), eCiv) != vCivsChosen.end();
+
+				if (pkCivilization->isPlayable())
+				{
+					vHumanCivs.push_back(eCiv);
+					if (!bChosen && std::find(vHumanCivsNotChosen.begin(), vHumanCivsNotChosen.end(), eCiv) == vHumanCivsNotChosen.end())
+						vHumanCivsNotChosen.push_back(eCiv);
+				}
+
+				if (pkCivilization->isAIPlayable())
+				{
+					vAICivs.push_back(eCiv);
+					if (!bChosen && std::find(vAICivsNotChosen.begin(), vAICivsNotChosen.end(), eCiv) == vAICivsNotChosen.end())
+						vAICivsNotChosen.push_back(eCiv);
+				}
+			}
+		}
+
+		// Third loop: for each player that needs to choose a civ, choose one
+		int iCounter = 1;
+		for (std::vector<PlayerTypes>::iterator it = vMajorsToChoose.begin(); it != vMajorsToChoose.end(); it++)
+		{
+			// First, try to pick a random valid civ that wasn't chosen
+			// If that fails, try to pick a random valid civ that was chosen
+			CivilizationTypes eRandomCiv = NO_CIVILIZATION;
+			if (isHuman(*it))
+			{
+				if (vHumanCivsNotChosen.size() > 0)
+				{
+					uint uRand = GC.getGame().urandLimitExclusive(vHumanCivsNotChosen.size(), CvSeeder::fromRaw(0x3153de36).mix(iCounter));
+					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivsNotChosen[uRand]);
+					vHumanCivsNotChosen.erase(vHumanCivsNotChosen.begin() + uRand);
+					for (uint ui = 0; ui < vAICivsNotChosen.size(); ui++)
+					{
+						if (vAICivsNotChosen[ui] == eRandomCiv)
+						{
+							vAICivsNotChosen.erase(vAICivsNotChosen.begin() + ui);
+							break;
+						}
+					}
+				}
+				else if (vHumanCivs.size() > 0)
+				{
+					uint uRand = GC.getGame().urandLimitExclusive(vHumanCivs.size(), CvSeeder::fromRaw(0x298ac75d).mix(iCounter));
+					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivs[uRand]);
+				}
+				else
+					UNREACHABLE();
+			}
+			else
+			{
+				if (vAICivsNotChosen.size() > 0)
+				{
+					uint uRand = GC.getGame().urandLimitExclusive(vAICivsNotChosen.size(), CvSeeder::fromRaw(0x9f2b8561).mix(iCounter));
+					eRandomCiv = static_cast<CivilizationTypes>(vAICivsNotChosen[uRand]);
+					vAICivsNotChosen.erase(vAICivsNotChosen.begin() + uRand);
+					for (uint ui = 0; ui < vHumanCivsNotChosen.size(); ui++)
+					{
+						if (vHumanCivsNotChosen[ui] == eRandomCiv)
+						{
+							vHumanCivsNotChosen.erase(vHumanCivsNotChosen.begin() + ui);
+							break;
+						}
+					}
+				}
+				else if (vAICivs.size() > 0)
+				{
+					uint uRand = GC.getGame().urandLimitExclusive(vAICivs.size(), CvSeeder::fromRaw(0x52094553).mix(iCounter));
+					eRandomCiv = static_cast<CivilizationTypes>(vHumanCivs[uRand]);
+				}
+				else
+					UNREACHABLE();
+			}
+			setCivilization(*it, eRandomCiv);
+			vPlayersChanged.push_back(*it);
+			iCounter++;
+		}
+	}
+
+	// Fourth loop: Gather all the player indices for City-States that need choosing
+	vector<PlayerTypes> vMinorsToChoose;
+	int iCultured = 0;
+	int iMilitaristic = 0;
+	int iMaritime = 0;
+	int iMercantile = 0;
+	int iReligious = 0;
+	for (int p = MAX_MAJOR_CIVS; p < MAX_CIV_PLAYERS; p++)
+	{
+		const PlayerTypes eID = static_cast<PlayerTypes>(p);
+		const MinorCivTypes eMinorCiv = minorCivType(eID);
+		if (eMinorCiv == NO_MINORCIV)
+		{
+			vMinorsToChoose.push_back(eID);
+		}
+		else if (MOD_BALANCE_CITY_STATE_TRAITS)
+		{
+			CvMinorCivInfo* pkCityState = GC.getMinorCivInfo(eMinorCiv);
+			MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
+			switch (eTrait)
+			{
+			case MINOR_CIV_TRAIT_CULTURED:
+				iCultured++;
+				break;
+			case MINOR_CIV_TRAIT_MILITARISTIC:
+				iMilitaristic++;
+				break;
+			case MINOR_CIV_TRAIT_MARITIME:
+				iMaritime++;
+				break;
+			case MINOR_CIV_TRAIT_MERCANTILE:
+				iMercantile++;
+				break;
+			case MINOR_CIV_TRAIT_RELIGIOUS:
+				iReligious++;
+				break;
+			default:
+				UNREACHABLE();
+			}
+		}
+	}
+
+	if (vMinorsToChoose.size() > 0)
+	{
+		// Fifth loop: Go through all City-States in the database and exclude ones which are already chosen or blocked by MajorBlocksMinor
+		vector<MinorCivTypes> vCultured, vMilitaristic, vMaritime, vMercantile, vReligious;
+		vector<MinorCivTypes> vAvailableCityStates = GetAvailableMinorCivTypes(vCultured, vMilitaristic, vMaritime, vMercantile, vReligious);
+
+		// Sixth loop: Loop through all City-State slots and fill them with random valid City-States
+		int iCounter = 1;
+		for (std::vector<PlayerTypes>::iterator it = vMinorsToChoose.begin(); it != vMinorsToChoose.end(); it++)
+		{
+			if (!MOD_BALANCE_CITY_STATE_TRAITS)
+			{
+				// Not enough City-States in the database.
+				if (vAvailableCityStates.empty())
+					break;
+
+				uint uRand = GC.getGame().urandLimitExclusive(vAvailableCityStates.size(), CvSeeder::fromRaw(0xd73596c3).mix(iCounter));
+				MinorCivTypes eChoice = static_cast<MinorCivTypes>(vAvailableCityStates[uRand]);
+				setMinorCivType(*it, eChoice);
+				vPlayersChanged.push_back(*it);
+				vAvailableCityStates.erase(vAvailableCityStates.begin() + uRand);
+			}
+			// We're balancing the different types of City-States.
+			// Aim for a ratio of 1 Cultured / 1 Militaristic / 1 Maritime / 1 Mercantile / 1 Religious
+			else
+			{
+				// Which categories are valid choices to maintain the ratio?
+				vector<MinorCivTraitTypes> vValidCategories;
+				bool bCulturedValid = vCultured.size() > 0;
+				bool bMilitaristicValid = vMilitaristic.size() > 0;
+				bool bMaritimeValid = vMaritime.size() > 0;
+				bool bMercantileValid = vMercantile.size() > 0;
+				bool bReligiousValid = vReligious.size() > 0;
+
+				// No City-States left in any category?
+				if (!bCulturedValid && !bMilitaristicValid && !bMaritimeValid && !bMercantileValid && !bReligiousValid)
+					break;
+
+				// Which categories are valid to maintain the ratio?
+				if (bCulturedValid)
+				{
+					if (iCultured > iMilitaristic && bMilitaristicValid)
+						bCulturedValid = false;
+					else if (iCultured > iMaritime && bMaritimeValid)
+						bCulturedValid = false;
+					else if (iCultured > iMercantile && bMercantileValid)
+						bCulturedValid = false;
+					else if (iCultured > iReligious && bReligiousValid)
+						bCulturedValid = false;
+
+					if (bCulturedValid)
+						vValidCategories.push_back(MINOR_CIV_TRAIT_CULTURED);
+				}
+				if (bMilitaristicValid)
+				{
+					if (iMilitaristic > iCultured && bCulturedValid)
+						bMilitaristicValid = false;
+					else if (iMilitaristic > iMaritime && bMaritimeValid)
+						bMilitaristicValid = false;
+					else if (iMilitaristic > iMercantile && bMercantileValid)
+						bMilitaristicValid = false;
+					else if (iMilitaristic > iReligious && bReligiousValid)
+						bMilitaristicValid = false;
+
+					if (bMilitaristicValid)
+						vValidCategories.push_back(MINOR_CIV_TRAIT_MILITARISTIC);
+				}
+				if (bMaritimeValid)
+				{
+					if (iMaritime > iCultured && bCulturedValid)
+						bMaritimeValid = false;
+					else if (iMaritime > iMilitaristic && bMilitaristicValid)
+						bMaritimeValid = false;
+					else if (iMaritime > iMercantile && bMercantileValid)
+						bMaritimeValid = false;
+					else if (iMaritime > iReligious && bReligiousValid)
+						bMaritimeValid = false;
+
+					if (bMaritimeValid)
+						vValidCategories.push_back(MINOR_CIV_TRAIT_MARITIME);
+				}
+				if (bMercantileValid)
+				{
+					if (iMercantile > iCultured && bCulturedValid)
+						bMercantileValid = false;
+					else if (iMercantile > iMilitaristic && bMilitaristicValid)
+						bMercantileValid = false;
+					else if (iMercantile > iMaritime && bMaritimeValid)
+						bMercantileValid = false;
+					else if (iMercantile > iReligious && bReligiousValid)
+						bMercantileValid = false;
+
+					if (bMercantileValid)
+						vValidCategories.push_back(MINOR_CIV_TRAIT_MERCANTILE);
+				}
+				if (bReligiousValid)
+				{
+					if (iReligious > iCultured && bCulturedValid)
+						bReligiousValid = false;
+					else if (iReligious > iMilitaristic && bMilitaristicValid)
+						bReligiousValid = false;
+					else if (iReligious > iMaritime && bMaritimeValid)
+						bReligiousValid = false;
+					else if (iReligious > iMercantile && bMercantileValid)
+						bReligiousValid = false;
+
+					if (bReligiousValid)
+						vValidCategories.push_back(MINOR_CIV_TRAIT_RELIGIOUS);
+				}
+
+				// If we got here at least one category should be valid.
+				ASSERT(vValidCategories.size() > 0);
+
+				// Pick at random from the valid categories.
+				uint uRand = GC.getGame().urandLimitExclusive(vValidCategories.size(), CvSeeder::fromRaw(0x95c6b165).mix(iCounter));
+				MinorCivTraitTypes eTrait = static_cast<MinorCivTraitTypes>(vValidCategories[uRand]);
+
+				// Now pick a random City-State within this category.
+				MinorCivTypes eChoice = NO_MINORCIV;
+				switch (eTrait)
+				{
+				case MINOR_CIV_TRAIT_CULTURED:
+				{
+					uRand = GC.getGame().urandLimitExclusive(vCultured.size(), CvSeeder::fromRaw(0x5ac0d892).mix(iCounter));
+					eChoice = static_cast<MinorCivTypes>(vCultured[uRand]);
+					vCultured.erase(vCultured.begin() + uRand);
+					iCultured++;
+					break;
+				}
+				case MINOR_CIV_TRAIT_MILITARISTIC:
+				{
+					uRand = GC.getGame().urandLimitExclusive(vMilitaristic.size(), CvSeeder::fromRaw(0x7fde469e).mix(iCounter));
+					eChoice = static_cast<MinorCivTypes>(vMilitaristic[uRand]);
+					vMilitaristic.erase(vMilitaristic.begin() + uRand);
+					iMilitaristic++;
+					break;
+				}
+				case MINOR_CIV_TRAIT_MARITIME:
+				{
+					uRand = GC.getGame().urandLimitExclusive(vMaritime.size(), CvSeeder::fromRaw(0x9a763898).mix(iCounter));
+					eChoice = static_cast<MinorCivTypes>(vMaritime[uRand]);
+					vMaritime.erase(vMaritime.begin() + uRand);
+					iMaritime++;
+					break;
+				}
+				case MINOR_CIV_TRAIT_MERCANTILE:
+				{
+					uRand = GC.getGame().urandLimitExclusive(vMercantile.size(), CvSeeder::fromRaw(0xef6c2156).mix(iCounter));
+					eChoice = static_cast<MinorCivTypes>(vMercantile[uRand]);
+					vMercantile.erase(vMercantile.begin() + uRand);
+					iMercantile++;
+					break;
+				}
+				case MINOR_CIV_TRAIT_RELIGIOUS:
+				{
+					uRand = GC.getGame().urandLimitExclusive(vReligious.size(), CvSeeder::fromRaw(0x0d3e0560).mix(iCounter));
+					eChoice = static_cast<MinorCivTypes>(vReligious[uRand]);
+					vReligious.erase(vReligious.begin() + uRand);
+					iReligious++;
+					break;
+				}
+				default:
+					UNREACHABLE();
+				}
+				setMinorCivType(*it, eChoice);
+				vPlayersChanged.push_back(*it);
+			}
+			iCounter++;
+		}
+	}
+
+	// Seventh loop: if we're the host in a multiplayer game, we need to communicate our changes to the other players.
+	// It is unknown if this code actually works.
+	if (gDLL->IsHost() && vPlayersChanged.size() > 0)
+	{
+		gDLL->BeginSendBundle();
+		for (std::vector<PlayerTypes>::iterator it = vPlayersChanged.begin(); it != vPlayersChanged.end(); it++)
+		{
+			gDLL->sendPlayerInfo(*it);
+		}
+		gDLL->EndSendBundle();
+	}
+}
+
+vector<MinorCivTypes> GetAvailableMinorCivTypes(vector<MinorCivTypes>& vCultured, vector<MinorCivTypes>& vMilitaristic, vector<MinorCivTypes>& vMaritime, vector<MinorCivTypes>& vMercantile, vector<MinorCivTypes>& vReligious)
+{
+	vector<MinorCivTypes> vAvailable;
+	vector<CivilizationTypes> vChosenMajors;
+	vector<MinorCivTypes> vChosenMinors;
+	bool bNoReligion = GC.getGame().isOption(GAMEOPTION_NO_RELIGION);
+	bool bNoPolicies = GC.getGame().isOption(GAMEOPTION_NO_POLICIES);
+
+	for (int p = 0; p < MAX_MAJOR_CIVS; p++)
+	{
+		const PlayerTypes eID = static_cast<PlayerTypes>(p);
+		SlotStatus s = slotStatus(eID);
+		if (s == SS_TAKEN || s == SS_COMPUTER)
+		{
+			const CivilizationTypes eCiv = civilization(eID);
+			if (eCiv != NO_CIVILIZATION && std::find(vChosenMajors.begin(), vChosenMajors.end(), eCiv) == vChosenMajors.end())
+				vChosenMajors.push_back(eCiv);
+		}
+	}
+	for (int p = MAX_MAJOR_CIVS; p < MAX_CIV_PLAYERS; p++)
+	{
+		const PlayerTypes eID = static_cast<PlayerTypes>(p);
+		const MinorCivTypes eMinorCiv = minorCivType(eID);
+		if (eMinorCiv != NO_MINORCIV && std::find(vChosenMinors.begin(), vChosenMinors.end(), eMinorCiv) == vChosenMinors.end())
+			vChosenMinors.push_back(eMinorCiv);
+	}
+
+	for (int i = 0; i < GC.getNumMinorCivInfos(); i++)
+	{
+		MinorCivTypes eAvailability = static_cast<MinorCivTypes>(i);
+		CvMinorCivInfo* pkCityState = GC.getMinorCivInfo(eAvailability);
+		if (pkCityState == NULL)
+			continue;
+
+		MinorCivTraitTypes eTrait = (MinorCivTraitTypes)pkCityState->GetMinorCivTrait();
+		if (eTrait == MINOR_CIV_TRAIT_RELIGIOUS && bNoReligion)
+			continue;
+		if (eTrait == MINOR_CIV_TRAIT_CULTURED && bNoPolicies)
+			continue;
+
+		// City-State is already ingame?
+		if (std::find(vChosenMinors.begin(), vChosenMinors.end(), eAvailability) != vChosenMinors.end())
+			continue;
+
+		// Check to see if this City-State is blocked from appearing due to an ingame major civ.
+		bool bBlocked = false;
+		for (std::vector<CivilizationTypes>::iterator it = vChosenMajors.begin(); it != vChosenMajors.end(); it++)
+		{
+			CvCivilizationInfo* pkCivilization = GC.getCivilizationInfo(*it);
+			if (pkCivilization->IsBlocksMinor(i))
+			{
+				bBlocked = true;
+				break;
+			}
+		}
+		if (bBlocked)
+			continue;
+
+		vAvailable.push_back(eAvailability);
+		if (MOD_BALANCE_CITY_STATE_TRAITS)
+		{
+			switch (eTrait)
+			{
+			case MINOR_CIV_TRAIT_CULTURED:
+				vCultured.push_back(eAvailability);
+				break;
+			case MINOR_CIV_TRAIT_MILITARISTIC:
+				vMilitaristic.push_back(eAvailability);
+				break;
+			case MINOR_CIV_TRAIT_MARITIME:
+				vMaritime.push_back(eAvailability);
+				break;
+			case MINOR_CIV_TRAIT_MERCANTILE:
+				vMercantile.push_back(eAvailability);
+				break;
+			case MINOR_CIV_TRAIT_RELIGIOUS:
+				vReligious.push_back(eAvailability);
+				break;
+			default:
+				UNREACHABLE();
+			}
+		}
+	}
+	return vAvailable;
 }
 
 void setGameTurn(int turn)

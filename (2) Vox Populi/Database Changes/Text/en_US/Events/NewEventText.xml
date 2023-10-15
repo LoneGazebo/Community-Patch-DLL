@@ -1,0 +1,1439 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<!-- Player events -->
+		<!-- Do nothing -->
+		<Row Tag="TXT_KEY_PLAYER_EVENT_NO_CHOICE">
+			<Text>I'm not interested in this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_NO_CHOICE_HELP">
+			<Text>Ends Event with no effect.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_DESCRIPTION">
+			<Text>Comet sighted!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_HELP">
+			<Text>A comet has appeared in our night sky. Some believe it to be a miracle, others an ill omen. Your advisors are unsure, and look to you for guidance. What does this mean?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_1">
+			<Text>This is a good omen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_1_HELP">
+			<Text>{2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_2">
+			<Text>Our gods favor us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_2_HELP">
+			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3">
+			<Text>Our priests will conduct a divination to see if this is a positive sign.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_3_HELP">
+			<Text>50% chance to gain {2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_CHOICE_3_SUCCESSFUL_S">
+			<Text>Divination successful!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_COMET_CHOICE_3_SUCCESSFUL">
+			<Text>Your priests believe that the divination was successful, and your [ICON_PEACE] Faith has increased greatly as a result.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_4">
+			<Text>Our observatories are going to learn a lot from this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_COMET_CHOICE_4_HELP">
+			<Text>+500 [ICON_RESEARCH] Science.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_DESCRIPTION">
+			<Text>Shooting Stars</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_HELP">
+			<Text>Last night a series of bright flashes of light filled the sky as a meteor shower visited our planet. Large meteorites have landed across the world. Your officials have collected one such specimen and brought it to the Capital for study. What should they do with it?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1">
+			<Text>Break it up and send it to the Forge.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1_HELP">
+			<Text>50% chance to gain 2 [ICON_RES_IRON] Iron.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1_SUCCESSFUL_S">
+			<Text>[ICON_RES_IRON] Iron extracted from meteorite!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_1_SUCCESSFUL">
+			<Text>Your smiths were able to break large lumps of iron out of the meteor, and can forge fine swords and spears from the material.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2">
+			<Text>A gift from the heavens should be divided up and given to our priests.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_2_HELP">
+			<Text>+1 [ICON_PEACE] Faith in all Shrines.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3">
+			<Text>Carve into decorative objects to be placed in my throne room.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_3_HELP">
+			<Text>+2 [ICON_CULTURE] Culture from Palace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4">
+			<Text>Donate it to the Universities for study.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_4_HELP">
+			<Text>+1 [ICON_RESEARCH] Science from all Universities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_5">
+			<Text>It belongs in a Museum.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_METEOR_CHOICE_5_HELP">
+			<Text>+1 [ICON_CULTURE] Culture from all Museums.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_DESCRIPTION">
+			<Text>Eclipse!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_HELP">
+			<Text>Our people were surprised to witness an eclipse today. What does this mean for our empire?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1">
+			<Text>I'm not sure what this means.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1_HELP">
+			<Text>Gain {1_YieldCost}. 25% chance for this effect: {2_InstantYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1_SUCCESSFUL_S">
+			<Text>Bad omen!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_1_SUCCESSFUL">
+			<Text>It was a bad omen.{4_Help}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_2">
+			<Text>Quick, make a sacrifice!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_2_HELP">
+			<Text>Expend {1_YieldCost} in [ICON_CAPITAL] Capital. Gain {2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_3">
+			<Text>Science can explain this!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_3_HELP">
+			<Text>{2_InstantYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_4">
+			<Text>Quick, take a picture!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ECLIPSE_CHOICE_4_HELP">
+			<Text>{2_InstantYield}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_DESCRIPTION">
+			<Text>Heat wave!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_HELP">
+			<Text>Every summer seems hotter than the last, and our lakes and rivers are drying up. Soon, a drought may be upon us. What should we do?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_1">
+			<Text>Subsidize the farms.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_1_HELP">
+			<Text>{1_YieldCost}. You are confident that you can avoid a drought.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_2">
+			<Text>Set aside some emergency funds.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_2_HELP">
+			<Text>{1_YieldCost}. You are hopeful that you can avoid a drought.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_3">
+			<Text>Send money to local officials.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_3_HELP">
+			<Text>{1_YieldCost}. You are unsure that you can avoid a drought.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_4">
+			<Text>Grin and bear it. There's nothing we can do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_HEAT_WAVE_CHOICE_4_HELP">
+			<Text>You are worried about a potential drought.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_DESCRIPTION">
+			<Text>Ice age!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_HELP">
+			<Text>A sudden drop in average temperatures can only mean one thing: a small ice age! How should we prepare?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_1">
+			<Text>People should stay indoors, even if that means less commerce.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_1_HELP">
+			<Text>-2 [ICON_GOLD] Gold in all Cities for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_2">
+			<Text>Take fuel from our industries and distribute it to the poor and needy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_2_HELP">
+			<Text>-2 [ICON_PRODUCTION] Production in all Cities for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_3">
+			<Text>Trains and steam power make us immune to the cold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_3_HELP">
+			<Text>No negative effect.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_4">
+			<Text>Let's deal with problems as they arise.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ICE_AGE_CHOICE_4_HELP">
+			<Text>Expect the cold to cause problems in our Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_DESCRIPTION">
+			<Text>Revolution!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_HELP">
+			<Text>To arms! Dissident civilians from across our empire have risen up to contest your rule! What will you do?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_1">
+			<Text>Let them eat cake.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_1_HELP">
+			<Text>2 Barbarians spawn near all owned Cities. 5 turns of [ICON_RESISTANCE] Unrest in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_2">
+			<Text>Use our City-State connections to find common ground.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_2_HELP">
+			<Text>3 turns of [ICON_RESISTANCE] Unrest in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_3">
+			<Text>We are all brothers and sisters of progress, are we not?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_3_HELP">
+			<Text>1 Barbarian spawns near every owned City, 2 turns of [ICON_RESISTANCE] Unrest in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_4">
+			<Text>Find the leader and bribe him off.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_REVOLUTION_CHOICE_4_HELP">
+			<Text>{1_YieldCost}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_DESCRIPTION">
+			<Text>War fervor!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_HELP">
+			<Text>Your people clamor for war! Our martial spirit is high, and your military advisor wishes to know how you would like to channel this energy.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_1">
+			<Text>Rally the martial spirit of our people.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_1_HELP">
+			<Text>All valid units gain a temporary version of the [COLOR_POSITIVE_TEXT]Morale[ENDCOLOR] Promotion. +5 [ICON_HAPPINESS_1] Happiness for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_2">
+			<Text>Channel the energy into our industries.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_2_HELP">
+			<Text>+{3_CityYield} in all Cities for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_3">
+			<Text>The New World Order begins now!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_3_HELP">
+			<Text>10 turns (scaling with game speed) of [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR] in all Cities. Military Academies produce +5 [ICON_RESEARCH] Science for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_4">
+			<Text>For the Motherland!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_4_HELP">
+			<Text>Factories grant Cities +10% [ICON_PRODUCTION] Production for {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_5">
+			<Text>Buy Victory Bonds!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_FERVOR_CHOICE_5_HELP">
+			<Text>Banks grant Cities +20% [ICON_GOLD] Gold for {4_Turns}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_DESCRIPTION">
+			<Text>War weariness!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_HELP">
+			<Text>The toll of war is hard on our people. They seek solace in the face of destruction and defeat, and look to you for guidance. How will you respond?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_1">
+			<Text>Give a speech at our Palace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_1_HELP">
+			<Text>75% chance that all Cities will produce -1 [ICON_HAPPINESS_1] Happiness for the next {4_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_1_SUCCESSFUL_S">
+			<Text>Speech unsuccessful!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_1_SUCCESSFUL">
+			<Text>The speech did not move your populace, and they are unhapppier as a result. -1 [ICON_HAPPINESS_1] Happiness in all Cities.{4_Help}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_2">
+			<Text>Have our religious leader pray for the wounded and deceased.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_2_HELP">
+			<Text>{1_YieldCost}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_3">
+			<Text>Give a radio broadcast to the nation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_3_HELP">
+			<Text>25% chance that all Cities will produce -2 [ICON_HAPPINESS_1] Happiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_3_SUCCESSFUL_S">
+			<Text>Radio broadcast unsuccessful!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_3_SUCCESSFUL">
+			<Text>The radio broadcast did not move your populace, and they are unhapppier as a result. -2 [ICON_HAPPINESS_1] Happiness in all Cities.{4_Help}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4">
+			<Text>We must win. Begin conscription.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_HELP">
+			<Text>50% chance that all Cities will produce a military unit and begin 2 turns of [ICON_RESISTANCE] Resistance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_SUCCESSFUL_S">
+			<Text>Conscription!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WAR_WEARINESS_CHOICE_4_SUCCESSFUL">
+			<Text>Conscription was successful, but your people are more angry than ever before. All cities experience 2 turns of [ICON_RESISTANCE] Resistance and produce 1 military unit.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MARKET_DEVELOPMENT">
+			<Text>Crowded Markets, Foreign Tongues</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MARKET_DEVELOPMENT_HELP">
+			<Text>Crowds gather in your markets, voices from many different lands ringing out as deals are struck and bargains made. Some are angry about this, and believe that foreigners will destroy our trade. Others, however, encourage the foreign business, hoping to learn from their culture.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MARKET_DEVELOPMENT_CHOICE_1">
+			<Text>Let the foreigners continue to trade.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MARKET_DEVELOPMENT_CHOICE_1_HELP">
+			<Text>Markets in all cities: +1 [ICON_CULTURE] Culture, -1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MARKET_DEVELOPMENT_CHOICE_2">
+			<Text>Implement heavy taxes on imported goods.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MARKET_DEVELOPMENT_CHOICE_2_HELP">
+			<Text>Markets in all cities: +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT">
+			<Text>Icons of Our Past</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_HELP">
+			<Text>Monuments represent the most important symbols of your culture. Your people seek to celebrate this by dedicating your Monuments to either their ancestors, or to their gods.[NEWLINE][NEWLINE]How do you feel about this? Choose from the following options:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1">
+			<Text>Dedicate Monuments to our fertility.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_CHOICE_1_HELP">
+			<Text>Monuments in all cities: +1 [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2">
+			<Text>The gods are what is important now.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_CHOICE_2_HELP">
+			<Text>Monuments in all cities: +1 [ICON_PEACE] Faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3">
+			<Text>Neither will suffice. The Monument should generate revenue.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_MONUMENT_DEVELOPMENT_CHOICE_3_HELP">
+			<Text>Monuments in all cities: +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_DESCRIPTION">
+			<Text>Castle Doctrine</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_HELP">
+			<Text>People are assembling at the gates of your Castle keeps, demainding safety during war time. Your castles are not large enough to accommodate entire cities, so you must decide: who should be given access to the keep during war?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_1">
+			<Text>The nobility, of course.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_1_HELP">
+			<Text>All Castles produce +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_2">
+			<Text>Our finest merchants and craftsmen, according to merit.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_2_HELP">
+			<Text>All Castles produce +2 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_3">
+			<Text>The keep is not for citizens!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_3_HELP">
+			<Text>All Castles produce +2 [ICON_FOOD] Food.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_4">
+			<Text>The clergy, as willed by god.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CASTLE_DOCTRINE_CHOICE_4_HELP">
+			<Text>All Castles produce +1 [ICON_PEACE] Faith.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_DESCRIPTION">
+			<Text>University Curriculum</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_HELP">
+			<Text>Faculty and administration from your state Universities seek to create a unified curriculum for all current and future Universities in your empire. As head of state, they look to you for the final decision. Which would you prefer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_1">
+			<Text>Focus on the hard sciences.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_1_HELP">
+			<Text>All Universities gain +2 [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_2">
+			<Text>Liberal arts education is most important.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_2_HELP">
+			<Text>All Universities gain +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_3">
+			<Text>Divinity education will benefit us the most.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_3_HELP">
+			<Text>All Universities gain +1 [ICON_PEACE] Faith.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_4">
+			<Text>Military education seems most prudent.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_UNIVERSITY_POLICY_CHOICE_4_HELP">
+			<Text>All Universities gain +2 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP">
+			<Text>Factory Partnerships</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_HELP">
+			<Text>Businessmen approach your government, asking for permission to begin joint-ventures with your Factories. There are five competing partnership bids, and the your government needs guidance. Which would you prefer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_1">
+			<Text>Let's produce luxury textiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_1_HELP">
+			<Text>Factories in all cities: +2 [ICON_CULTURE] Culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_2">
+			<Text>Cheap textiles sound lucrative.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_2_HELP">
+			<Text>Factories in all cities: +3 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_3">
+			<Text>Chemicals are a valuable asset</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_3_HELP">
+			<Text>Factories in all cities: +2 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_4">
+			<Text>Pharmaceuticals will benefit our local scientists.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_4_HELP">
+			<Text>Factories in all cities: +2 [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_5">
+			<Text>Canned goods will support our growing cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_FACTORY_PARTNERSHIP_CHOICE_5_HELP">
+			<Text>Factories in all cities: +2 [ICON_FOOD] Food.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_DESCRIPTION">
+			<Text>A New Banking System</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_HELP">
+			<Text>The complexities of our banking systems are growing, and economic advisors recommend that you establish an empire-wide banking regulation. Guilds currently manage all money in our empire, but some believe this is an outdated management method. Some believe that centralization is the best option, but your advisors are torn on the issue. Of the following options, which do you prefer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_1">
+			<Text>Decentralize it. Our people are more than capable of managing their own money.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_1_HELP">
+			<Text>All Laborers and Merchants produce +1 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_2">
+			<Text>Guilds should continue to manage our money.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_2_HELP">
+			<Text>All Banks produce +5% [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_3">
+			<Text>Centralize it. Money is too important to leave to private citizens.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BANK_DECISION_CHOICE_3_HELP">
+			<Text>All Banks produce +3 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION">
+			<Text>School Boards Established</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_HELP">
+			<Text>School boards were recently established in your cities, and they seek to reform your public school system. They look to you for guidance: would you prefer free tuition for all students, or would you rather privatize the institutions?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_1">
+			<Text>Education should be free for everyone.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_1_HELP">
+			<Text>Public Schools in all cities: +10% [ICON_CULTURE] Culture in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2">
+			<Text>Education should be available to those who can afford it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PUBLIC_SCHOOL_DECISION_CHOICE_2_HELP">
+			<Text>Public Schools in all cities: +10% [ICON_GOLD] Gold in the City.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_DESCRIPTION">
+			<Text>Aging Windmills</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_HELP">
+			<Text>Once the pinnacle of industrial design, our nation's Windmills now appear quite outdated. A few industrialists approach you about this topic, hoping to garner imperial support for the modernization of our Windmills. The following proposals are offered to you by these engineers. Which do you prefer?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_1">
+			<Text>Undertake a complete rework of our Windmills, starting immediately.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_1_HELP">
+			<Text>{1_YieldCost}. All Windmills gain a +10% [ICON_PRODUCTION] Production boost.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_2">
+			<Text>Coordinate with our Manufactories and integrate them into our modern industrial processes.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_2_HELP">
+			<Text>{1_YieldCost} and 4 [ICON_RES_IRON] Iron. All Windmills gain a +15% [ICON_PRODUCTION] Production boost.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_3">
+			<Text>Retrofit them where we can, otherwise they're fine.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_WINDMILLS_MODERNIZE_CHOICE_3_HELP">
+			<Text>{1_YieldCost}. All Windmills gain a +3 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_STADIUM_WORLD_EVENT_CHOICE_1">
+			<Text>World Sporting Event!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_STADIUM_WORLD_EVENT_CHOICE_1_HELP">
+			<Text>The World Sports Organization has chosen your empire to host the WSO International! For the next {4_Turns}, Cities with a Stadium will host games, boosting the [ICON_TOURISM] Tourism output of that City!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_STADIUM_WORLD_EVENT_CHOICE_1_SUCCESSFUL_S">
+			<Text>{3_PlayerName} to host World Sports Organization Tournament!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_STADIUM_WORLD_EVENT_CHOICE_1_SUCCESSFUL">
+			<Text>The WSO chose {3_PlayerName} to host their International Tournament. Their Stadiums will produce lots of [ICON_GOLD] Gold and [ICON_TOURISM] Tourism!{4_Help}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CORRUPTION_SCIENCE_FAILURE_CHOICE_1">
+			<Text>Research Setback</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_CORRUPTION_SCIENCE_FAILURE_CHOICE_1_HELP">
+			<Text>Your researchers regret to inform you that recent research was flawed, and had to be discarded. {1_YieldCost}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BABY_BOOM_CHOICE_1">
+			<Text>Baby Boom!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BABY_BOOM_CHOICE_1_HELP">
+			<Text>Your population is growing exponentially, thanks to a large upswing in births as of late. All Cities gain +1 [ICON_CITIZEN] Population and experience 5 turns (scaling with game speed) of [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PLAGUE_CHOICE_1">
+			<Text>Plague Looming</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_PLAGUE_CHOICE_1_HELP">
+			<Text>Your advsiors tell you of a distant, virulent disease that is crippling other empires. Hopefully the disease stays far away from our cities...</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE">
+			<Text>Special Session</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_HELP">
+			<Text>A diplomatic summit has been called to assess the budget of the World Congress. All our rival nations will be there, aiming to frustrate us. We must be shrewd if we are to come away richer than we entered.[NEWLINE][NEWLINE]Given we can only work to one of many competing goals, who will you place at the head of our delegation?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_1">
+			<Text>International trade and friendship are the ultimate forces for good in this world. Appoint our Foreign Advisor to the head of the delegation. Tears down tariffs, closed borders and all other barriers to closer coorperation and understanding!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_1_HELP">
+			<Text>All Customs Houses produce +2 [ICON_TOURISM] Tourism. 10 turns (scaling with game speed) of [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR] in all Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2">
+			<Text>Only by working together will we be able to unravel the secrets of the universe! Place our Science Advisor in charge. We must come away with a leading voice in the world's greatest scientific organisations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_HELP">
+			<Text>Your Science Advisor claims that this will benefit us and additional {1_YieldCost} with a sixteen point six six chance for a Free Technology. Repeating, of course.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_SUCCESSFUL_S">
+			<Text>Research Grant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_SUCCESSFUL">
+			<Text>Your Science Advisor notes that our leverage over the international research council has successfully unlocked a new technology.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_3">
+			<Text>A summit like this gives us an unprecedented opportunity to enact cross-border monetary policy. If our Economic Advisor plays her cards right, we should be able to unlock vast amounts of capital. Now, and in the future.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_3_HELP">
+			<Text>Gain an injection of {2_InstantYield}. The Bank permanently increases the [ICON_CAPITAL] Capital's [ICON_GOLD] Gold output by 5%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_4">
+			<Text>The idea of an international peacekeeping organisation has gathered support around the world. We cannot allow such a force to exist without being at its head. Send our Military Advisor as our chief representative. Argue strongly for this army, and for our men as its leaders.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_4_HELP">
+			<Text>The nations of the world respect your resolve, earning you {2_InstantYield}. A new army appears near the [ICON_CAPITAL] Capital.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT">
+			<Text>Death of a Merchant</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_HELP">
+			<Text>A wealthy merchant in your empire has died, and he left behind an ambiguous will. His two sons, one a sailor and the other a banker, each have legal claim to the inheritance, and have petitioned the state for resolution. What will you decide?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_1">
+			<Text>I don't care, however I do intend to tax the inheritance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_1_HELP">
+			<Text>+{2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_2">
+			<Text>The banker's case is more sound, as his investments match those of his father.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_2_HELP">
+			<Text>Receive a free Caravan in your Capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_3">
+			<Text>The sailor's ideas would benefit all of our coastal cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_DEATH_MERCHANT_CHOICE_3_HELP">
+			<Text>+{3_CityYieldGlobal} in all coastal Cities.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION">
+			<Text>A Question of Hygiene</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_HELP">
+			<Text>As the popularity of bathing continues to rise, so too does demand. Citizens in your empire demand additional baths, however elites and aristocrats protest this, stating that baths are a luxury. Your advisors need your input on this. How do you feel?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_1">
+			<Text>The unwashed masses should remain unwashed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_1_HELP">
+			<Text>Receive a free Great Person of your choice.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_2">
+			<Text>Spare no expense - the people shall be clean!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_2_HELP">
+			<Text>+1 [ICON_HAPPINESS_1] Happiness in all Cities. All Baths cost an additional 3 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_3">
+			<Text>Encourage people to find more...creative means of getting clean.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLAYER_EVENT_BATHS_DECISION_CHOICE_3_HELP">
+			<Text>Aqueducts in all Cities: +1 [ICON_CULTURE] Culture.</Text>
+		</Row>
+
+		<!-- City events -->
+		<!-- Do Nothing -->
+		<Row Tag="TXT_KEY_CITY_EVENT_DO_NOTHING">
+			<Text>I'm not interested in this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_DO_NOTHING_HELP">
+			<Text>Nothing happens.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY">
+			<Text>Rich Vein</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_HELP">
+			<Text>A rich vein of blue marble was discovered at the quarry near the city. Your miners and masons have come to you to ask you what you would like to do with it.[NEWLINE][NEWLINE]Choose from the options below...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_1">
+			<Text>Boast of this, and merchants will come to buy it from us.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_1_HELP">
+			<Text>+{2_InstantYield}, and 10 turns (scaling with game speed) of [COLOR_POSITIVE_TEXT]We Love the King Day[ENDCOLOR] in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_2">
+			<Text>Donate it to the Temple.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_2_HELP">
+			<Text>{2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_3">
+			<Text>Carve relics and idols from it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_3_HELP">
+			<Text>{2_InstantYield}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4">
+			<Text>Give it to our finest artists.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STONE_WORKS_DISCOVERY_CHOICE_4_HELP">
+			<Text>+2 [ICON_CULTURE] Culture in the City for {5_Turns}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION">
+			<Text>Old Men and the Sea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_HELP">
+			<Text>A band of local fishermen have appealed to the City for funding for a seasonal fishing expedition.[NEWLINE][NEWLINE]Choose from the following options...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1">
+			<Text>Let's focus on something simple.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_1_HELP">
+			<Text>Spend {1_Scaled}. Gain {2_InstantYield} Food in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2">
+			<Text>A large investment will pay dividends.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_2_HELP">
+			<Text>Spend {1_Scaled}. Fishing Boats near the City will gain +5 [ICON_FOOD] Food for {5_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3">
+			<Text>I'd rather invest in something much more lucrative...</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_HELP">
+			<Text>Invest {1_Scaled}. 50% chance for a Harbor to be constructed in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_SUCCESSFUL_S">
+			<Text>Harbor Constructed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FISHING_EXPEDITION_CHOICE_3_SUCCESSFUL">
+			<Text>The investment in {2_City} was successful and paid for construction!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA">
+			<Text>Dramatic Masterpiece</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_HELP">
+			<Text>Writers from the City have penned a new work, and critics are calling it a 'masterpiece.' News of this has reached your ear, and your advisors await your response.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1">
+			<Text>Send news to the other civilizations of the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1_HELP">
+			<Text>{1_YieldCost}. Gain {2_InstantYield} Tourism with all known Civilizations.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1_SUCCESSFUL_S">
+			<Text>Writers from {2_CityName} create a masterpiece.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_1_SUCCESSFUL">
+			<Text>Writers from {2_City} have penned a new dramatic work, attracting visitors from around the world.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_2">
+			<Text>Let's celebrate this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_2_HELP">
+			<Text>Gain {2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_3">
+			<Text>Make sure the writers are praised for this.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_3_HELP">
+			<Text>Gain {4_GPChange} points in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_4">
+			<Text>They should have been praying instead.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AMPHITHEATER_NEW_DRAMA_CHOICE_4_HELP">
+			<Text>Gain {2_InstantYield}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS">
+			<Text>Trouble at the Temple</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_HELP">
+			<Text>Priests from the City demand that you weigh in on a religious debate. As the City grows, more and more people of different faiths are asking for use of the Temple. People of the majority faith resent this, and threaten violence if you allow nonbelievers into the Temple. Nonbelievers, however, threaten to leave if you do not let them in. What will you do?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_1">
+			<Text>Good riddance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_1_HELP">
+			<Text>-1 [ICON_CITIZEN] Population in the City, and 2 turns of [ICON_RESISTANCE] Resistance. Gain {2_InstantYield}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_2">
+			<Text>Let them in, but make them pay for it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_2_HELP">
+			<Text>Temple gains +2 [ICON_GOLD] Gold and +1 [ICON_PEACE] Faith. -1 [ICON_HAPPINESS_1] Happiness in City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_3">
+			<Text>Reject the nonbelievers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_3_HELP">
+			<Text>50% chance that the Temple is destroyed. If so, the city gains +1 [ICON_PEACE] Faith and +1 [ICON_HAPPINESS_1] Happiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_3_SUCCESSFUL_S">
+			<Text>Temple in {2_City} destroyed!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_3_SUCCESSFUL">
+			<Text>The nonbelievers in {2_City} struck out at the Temple, burning it to the ground in protest. Your people are not shaken, however. City receives +1 [ICON_HAPPINESS_1] Happiness, and: {5_Help}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_4">
+			<Text>We should think bigger.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_TEMPLE_CONCERNS_CHOICE_4_HELP">
+			<Text>{1_YieldCost}. The Temple is destroyed, and a Grand Temple is built in its place.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE">
+			<Text>Beacon of Hope</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_HELP">
+			<Text>Fishermen in the City are concerned about the fate of the City's Lighthouse. In recent years it has fallen under disrepair, and it needs to be rebuilt. How should we deal with this?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_CHOICE_1">
+			<Text>Let private citizens manage it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_CHOICE_1_HELP">
+			<Text>Lighthouse gains +2 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_CHOICE_2">
+			<Text>The city should manage it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_CHOICE_2_HELP">
+			<Text>Lose {1_YieldCost}. The Lighthouse gains +1 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_CHOICE_3">
+			<Text>Sell off the land.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_LIGHTHOUSE_CHOICE_3_HELP">
+			<Text>Gain {2_InstantYield}. The Lighthouse is destroyed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING">
+			<Text>Hospital Overcrowding</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_HELP">
+			<Text>Soldiers from the front pour into this City every day, and the wards are now filled with patients. Local doctors do not know what to do with the overflow, and have petitioned your government for support. What will you do?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_1">
+			<Text>Send emergency funding.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_1_HELP">
+			<Text>For the next {5_Turns}, the City produces -5 [ICON_GOLD] Gold, but gains +1 [ICON_HAPPINESS_1] Happiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_2">
+			<Text>Triage is the only option.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_2_HELP">
+			<Text>Implement a triage system, saving those that we can. The City loses 1 [ICON_CITIZEN] Population.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_3">
+			<Text>This is not our problem.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_3_HELP">
+			<Text>City produces -1 [ICON_HAPPINESS_1] Happiness permanently.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_4">
+			<Text>Set up a permanent stipend for the Hospital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_4_HELP">
+			<Text>City produces -5 [ICON_GOLD] Gold, but gains +2 [ICON_HAPPINESS_1] Happiness permanently.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_5">
+			<Text>Send all deceased to our Research Lab.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_5_HELP">
+			<Text>50% chance that the City will experience 3 turns of [ICON_RESISTANCE] Resistance. If so, the Hospital gains +4 [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_5_SUCCESSFUL_S">
+			<Text>Hospital science experiments discovered!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOSPITAL_OVERCROWDING_CHOICE_5_SUCCESSFUL">
+			<Text>Cadavers were delivered to our Research Lab, however the public is outraged at our callousness.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_WORLD_EVENT_CHOICE_1">
+			<Text>Stadium Sellout!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_WORLD_EVENT_CHOICE_1_HELP">
+			<Text>A game was held in your stadium as part of the WSO International! You gain 500 [ICON_TOURISM] Tourism with all known Civilizations, and 500 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT">
+			<Text>Game Day</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_HELP">
+			<Text>The City's Stadium is preparing for game day! Unfortunately, it seems the manager misplaced his schedule, and he can't remember what kind of event is happening! What's going on here, again?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_1">
+			<Text>A skiing competition, obviously.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_1_HELP">
+			<Text>Gain 100 [ICON_GOLD] Gold and 75 [ICON_CULTURE] Culture. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_2">
+			<Text>Water sports, obviously.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_2_HELP">
+			<Text>Gain 100 [ICON_GOLD] Gold and 75 [ICON_RESEARCH] Science.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_3">
+			<Text>Pretty sure it was football. No, the American kind.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_3_HELP">
+			<Text>Gain 200 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_4">
+			<Text>Pretty sure it was football. Yeah, the real kind.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_4_HELP">
+			<Text>Gain 200 [ICON_GOLD] Gold.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_5">
+			<Text>A sporting event? No, it was a ceremony.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_STADIUM_LOCAL_EVENT_CHOICE_5_HELP">
+			<Text>Gain 400 [ICON_GOLDEN_AGE] Golden Age Points.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_NUCLEAR_MELTDOWN_CHOICE_1">
+			<Text>Nuclear meltdown!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NUCLEAR_MELTDOWN_CHOICE_1_HELP">
+			<Text>The worst has happened. The City's Nuclear Plant has had a meltdown, rendering vast sections of the city uninhabitable. The building is destroyed, and all other buildings in the City are at risk. The City loses 5 [ICON_CITIZEN] Population.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_DROUGHT_CHOICE_1_DESCRIPTION">
+			<Text>Drought</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_DROUGHT_CHOICE_1_HELP">
+			<Text>Drought has struck the City, crippling its [ICON_FOOD] Food output. For the next {5_Turns}, Farms produce -1 [ICON_FOOD] Food.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_SEVERE_DROUGHT_CHOICE_1_DESCRIPTION">
+			<Text>Severe Drought</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_SEVERE_DROUGHT_CHOICE_1_HELP">
+			<Text>Severe drought has struck the City, crippling its [ICON_FOOD] Food output. For the next {5_Turns}, Farms produce -1 [ICON_FOOD] Food, and a nearby Farm is pillaged.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1_DESCRIPTION">
+			<Text>Critical Drought</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CRITICAL_DROUGHT_CHOICE_1_HELP">
+			<Text>Critical drought has struck the City, crippling its [ICON_FOOD] Food output. For the next {5_Turns}, Farms produce -2 [ICON_FOOD] Food, and 2 nearby Farms are pillaged.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_EXPOSURE_CHOICE_1_DESCRIPTION">
+			<Text>Exposure</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_EXPOSURE_CHOICE_1_HELP">
+			<Text>Sub-zero temperatures have left many people in the City at risk to exposure. -1 [ICON_CITIZEN] Population in the City.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_NO_FUEL_CHOICE_1_DESCRIPTION">
+			<Text>Fuel Shortage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_NO_FUEL_CHOICE_1_HELP">
+			<Text>Due to extreme cold, the City is currently experiencing a fuel shortage. Further supplies have been diverted from our industries to compensate. {1_YieldCost} towards the City's current task.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_FROZEN_WATER_CHOICE_1_DESCRIPTION">
+			<Text>Frozen Waters</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_FROZEN_WATER_CHOICE_1_HELP">
+			<Text>The city's river has frozen over, severely hampering commerce. -3 [ICON_GOLD] Gold in the City for {5_Turns}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_BITTER_WINDS_CHOICE_1_DESCRIPTION">
+			<Text>Bitter Winds</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_ICE_AGE_BITTER_WINDS_CHOICE_1_HELP">
+			<Text>Bitterly cold winds are severely hampering production in the lands around the City. For {5_Turns}, all Quarries, Pastures, Farms, and Lumbermills produce -1 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE">
+			<Text>Mining Accident</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_HELP">
+			<Text>A mineshaft near the City struck some kind of liquid reservoir, and has begun filling with fluid.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_1">
+			<Text>Collapse the tunnels to preserve what we can.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_1_HELP">
+			<Text>Bury the compromised branch of the Mine. It enters the Pillaged state.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_2">
+			<Text>Reassign engineers from the City to close-off the breach with minimal loss of tunnel access.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_2_HELP">
+			<Text>Delay the City's current building project by {1_YieldCost} but save the Mine.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_3">
+			<Text>The fluid appears to be rich in oil. Use our ground-penetrating radar to pinpoint the reserve and begin extraction!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MINE_COLLAPSE_CHOICE_3_HELP">
+			<Text>Spend {1_YieldCost} to receive 1 [ICON_RES_OIL] Oil.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE">
+			<Text>Bearing the Smoke</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_HELP">
+			<Text>Underbrush in a nearby Forest has set ablaze, forcing workers out of the Forest until the fires abate.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_1">
+			<Text>There's nothing we can do but wait this out. Those mens' lives are more important than our logging operation.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_1_HELP">
+			<Text>Up to two Lumbermills near the City are pillaged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_2">
+			<Text>Send in firefighters with water and axes, protect our infrastructure at all costs!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_2_HELP">
+			<Text>{1_YieldCost} worth of men succumb to the flames.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_3">
+			<Text>Call in our reserve aircraft to water-bomb the fires and spread retardent fertilizer from the air.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FOREST_FIRE_CHOICE_3_HELP">
+			<Text>Expend {1_YieldCost}. Lush growth burgeons where the fire once raged, nearby Forests yield +1 [ICON_PRODUCTION] Production.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_AVALANCHE_CHOICE_1">
+			<Text>Avalanche</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_AVALANCHE_CHOICE_1_HELP">
+			<Text>Snow melt from a nearby mountain has collapsed, causing a massive avalanche. Up to two Villages and two Farms near the City are pillaged.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION">
+			<Text>Local Corruption</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_HELP">
+			<Text>Administrators in this City are currently facing charges of corruption. The people are angry, and demand some semblance of justice. A scapegoat is needed. Who will you blame?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_1">
+			<Text>The Minister of Agriculture is to blame.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_1_HELP">
+			<Text>{3_CityYield} in the City for {5_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_2">
+			<Text>I knew the Corp of Engineers was up to no good.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_2_HELP">
+			<Text>{3_CityYield} in the City for {5_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_3">
+			<Text>Someone's been stealing money from the treasury?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_3_HELP">
+			<Text>{3_CityYield} in the City for {5_Turns}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_4">
+			<Text>I'll take the blame, I guess.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_CHOICE_4_HELP">
+			<Text>-2 [ICON_HAPPINESS_1] Happiness in the City for {5_Turns}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_FOOD_SPOILED_CHOICE_1">
+			<Text>Spoiled Food</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_FOOD_SPOILED_CHOICE_1_HELP">
+			<Text>A large portion of food in the Granary spoiled, no doubt due to mismanagement. {1_YieldCost} in the City.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_BANDITS_CHOICE_1">
+			<Text>Bandits!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_CORRUPTION_BANDITS_CHOICE_1_HELP">
+			<Text>Bandits assaulted your tax collectors, making off with the money! {1_YieldCost}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_GOOD_HARVEST_CHOICE_1">
+			<Text>Great Harvest</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_GOOD_HARVEST_CHOICE_1_HELP">
+			<Text>Farmers in the City report an excellent harvest this season. +{2_InstantYield} in the City.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DAY_CHOICE_1">
+			<Text>Market Day</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_MARKET_DAY_CHOICE_1_HELP">
+			<Text>Market Day has begun, and the City's marketplace is filled with customers. For the next {5_Turns}, the City's Market produces +2 [ICON_GOLD] Gold.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_VOLCANO_CHOICE_1">
+			<Text>Eruption!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_VOLCANO_CHOICE_1_HELP">
+			<Text>Oh no! A once-dormant mountain near the City has suddenly erupted, pouring down lava into the City and the surrounding countryside! Effects: -3 [ICON_CITIZEN] Population in the City, multiple Improvements are pillaged, and many City buildings are damaged!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_VOLCANO_SPECIAL_CHOICE_1">
+			<Text>Krakatoa Erupts!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_VOLCANO_SPECIAL_CHOICE_1_HELP">
+			<Text>Krakatoa has erupted! Massive plumes of ash, smoke, and lava have enveloped the nearby City and its countryside. Effects: -3 [ICON_CITIZEN] Population, Improvements are pillaged, and many Buildings are damaged!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_HOTEL_ESTABLISHED_CHOICE_1">
+			<Text>Resort near Natural Wonder</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HOTEL_ESTABLISHED_CHOICE_1_HELP">
+			<Text>As a result of the tourism generated by a nearby Natural Wonder, a business consortium decided to construct a Hotel in this City.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE">
+			<Text>Pestilence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_HELP">
+			<Text>Crops are found rotting in the earth. It is not clear how far the infection has spread, but a large part of the harvest has been compromised.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_1">
+			<Text>Burn the blighted fields.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_1_HELP">
+			<Text>The farming communities near the City are devastated. Up to two Farms near the City enter the Pillaged state.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_2">
+			<Text>Attempt to replant before winter.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_2_HELP">
+			<Text>Take {1_YieldCost} from the City's Granary in order to seed another set of crops and allow the region's agriculture to continue as normal.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_3">
+			<Text>Design a bespoke fungicide to eradicate the disease.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PESTILENCE_CHOICE_3_HELP">
+			<Text>Allocate {1_YieldCost} of researchers to permanently increase the yield of nearby Farms by +1 [ICON_FOOD] Food.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING">
+			<Text>Floods</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_HELP">
+			<Text>The City's river level has risen dangerously high, threatening the City and surrounding countryside.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1">
+			<Text>Endure the floods.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_1_HELP">
+			<Text>Up to 3 Farms are Pillaged, and some buildings may be destroyed as well.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_2">
+			<Text>Send labourers to construct flood defenses.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_2_HELP">
+			<Text>Reallocate {1_YieldCost} from the City's building project to save the farmlands, though some buildings may still be destroyed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_3">
+			<Text>Design a control system at the Hydro Plant to regulate the River's water level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_FLOODING_CHOICE_3_HELP">
+			<Text>Allocate {1_YieldCost} of researchers to permanently solve flooding in this region. Receive a boost of {4_GPChange}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE">
+			<Text>Hurricane approaches</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_HELP">
+			<Text>A hurricane looms on the horizon, and is headed straight for the City. It may or may not hit the city. If it does, expect major losses of life and property. The City's council is unsure of how to respond, and looks to you for guidance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_1">
+			<Text>Evacuate the City and sandbag everything.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_1_HELP">
+			<Text>Lose {1_YieldCost}. The City is well-prepared for the hurricane.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_SUCCESSFUL_S">
+			<Text>Hurricane strikes {2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_1_SUCCESSFUL">
+			<Text>A very powerful Hurricane struck {2_City}. Thankfully, the City was well-prepared, and was minimally damaged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_2">
+			<Text>Buckle down and hope for the best. There's nothing we can do.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_2_HELP">
+			<Text>No preparation. Good luck!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_2_SUCCESSFUL">
+			<Text>A very powerful Hurricane struck {2_City}. The City was not well-prepared, and was horribly damaged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_3">
+			<Text>Send in the military to protect property.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_3_HELP">
+			<Text>Lose {1_YieldCost}. If the hurricane hits, expect large losses of life.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_3_SUCCESSFUL">
+			<Text>A very powerful Hurricane struck {2_City}. The City itself was well-protected, but the population suffers.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_4">
+			<Text>Send in the military to protect the populace.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_4_HELP">
+			<Text>Lose {1_YieldCost}. If the hurricane hits, expect major property damage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_4_SUCCESSFUL">
+			<Text>A very powerful Hurricane struck {2_City}. The City's population was well-protected, but the City itself was decimated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_5">
+			<Text>Our river's levee will protect us from surge water!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_5_HELP">
+			<Text>Lose {1_YieldCost} and rely on the river's levee. If the hurricane hits, expect major property damage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_HURRICANE_CHOICE_5_SUCCESSFUL">
+			<Text>A very powerful Hurricane struck {2_City}. The City's levee did not hold, and the City was devastated.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_PLAGUE_CHOICE_1">
+			<Text>Plague!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PLAGUE_CHOICE_1_HELP">
+			<Text>Our worst fears have come true. Plague has reached the City! People lie dead in the streets, and hundreds more die every day. Effect: -15 [ICON_FOOD] Food in the City for {5_Turns}.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER">
+			<Text>Mysterious Wanderer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_HELP">
+			<Text>A cloaked figure lingers outside the City's Walls. When asked why he has come to the city, he hands the guard a tattered letter:[NEWLINE][NEWLINE]"I am a man of many talents, but I have no home. Mute since birth, I teach and train without words. I can offer you one of four talents in exchange for hospitality and a home."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_1">
+			<Text>"The gift of the artist."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_1_HELP">
+			<Text>Gain {4_GPChange} in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_2">
+			<Text>"The gift of the craftsman."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_2_HELP">
+			<Text>Gain {4_GPChange} in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_3">
+			<Text>"The gift of the soothsayer."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_3_HELP">
+			<Text>Gain {4_GPChange} in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_4">
+			<Text>"The gift of the trader."</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_WANDERER_CHOICE_4_HELP">
+			<Text>Gain {4_GPChange} in the City.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS">
+			<Text>Nomadic Incursion</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_HELP">
+			<Text>A group of nomadic peoples have appeared at your borders, and petition for the right to settle in your territory. They seem friendly, and are willing to negotiate in order to gain what they desire. How do you respond?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_1">
+			<Text>Give them land, but only if they adapt to our culture.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_1_HELP">
+			<Text>Gain {2_Instant} towards Border Growth in this City (only affects Border Growth).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2">
+			<Text>Drive them out, and steal whatever we can take.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2_HELP">
+			<Text>Receive {1_Cost}. 50% chance that two Barbarian units will spawn near the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2_SUCCESSFUL_S">
+			<Text>Nomadic retaliation against {2_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_2_SUCCESSFUL">
+			<Text>Your brazen actions angered the nomads, and they have declared war on you! Two Barbarian units spawn near {2_City}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_3">
+			<Text>Invite them to settle, but only if their finest soldiers join our army.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_3_HELP">
+			<Text>A free military Unit spawns near your City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_4">
+			<Text>Invite them to integrate into the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_NOMADS_CHOICE_4_HELP">
+			<Text>City gains 1 [ICON_CITIZEN] Citizen.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS">
+			<Text>La Resistance</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_HELP">
+			<Text>Threats against your rule continue to grow in the City, and your advisors are worried that it may spill over into violence. You need to root out this resistance before it grows too strong. Your options are limited, however:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1">
+			<Text>They'll never expect the inquisition!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_1_HELP">
+			<Text>The City loses 3 [ICON_CITIZEN] Population.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2">
+			<Text>Bait the rebels out - we'll crush them with our military power.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_2_HELP">
+			<Text>Three Rebel units spawn near the City, and the City enters [ICON_RESISTANCE] Resistance for 1 Turn.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3">
+			<Text>Quarantine the rebels. They may take part of the city, but that's unavoidable.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_OCCUPIED_REBELS_CHOICE_3_HELP">
+			<Text>10% chance that each building in the City will be destroyed.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CITY_EVENT_PLANTATION_RARE_CROP_CHOICE_1">
+			<Text>Rare Specimen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_EVENT_PLANTATION_RARE_CROP_CHOICE_1_HELP">
+			<Text>Your farmers discovered a rare plant never before seen in a Plantation near the City. Your researchers are excited about studying it! Gain +{2_InstantYield}.</Text>
+		</Row>
+
+		<!-- Espionage events -->
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS">
+			<Text>Select Spy Mission</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
+			<Text>Your newly established spy network requires a mission. What would you like them to focus on?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE">
+			<Text>Defer Mission Selection</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE_HELP">
+			<Text>Mission Selection is deferred, and the Mission Selection Screen appears again next turn. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM">
+			<Text>Sabotage local [ICON_TOURISM] Tourism</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM_HELP">
+			<Text>When the mission is completed, [ICON_TOURISM] Tourism is stolen each turn from the Player for {5_Turns}. The amount of Tourism stolen per turn is 75% of the Target City's average [ICON_TOURISM] Tourism output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE">
+			<Text>Infiltrate [ICON_RESEARCH] Science facilities</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE_HELP">
+			<Text>When the mission is completed, [ICON_RESEARCH] Science is stolen each turn from the Player for {5_Turns}. The amount of Science stolen per turn is 50% of the Target City's average [ICON_RESEARCH] Science output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD">
+			<Text>Steal [ICON_GOLD] Gold from treasury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD_HELP">
+			<Text>When the mission is completed, [ICON_GOLD] Gold is stolen each turn from the Player for {5_Turns}. The amount of Gold stolen per turn is 50% of the Target City's average [ICON_GOLD] Gold output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH">
+			<Text>Pilfer [ICON_PEACE] Religious Relics</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH_HELP">
+			<Text>When the mission is completed, [ICON_PEACE] Faith is stolen each turn from the Player for {5_Turns}. The amount of Faith stolen per turn is 75% of the Target City's average [ICON_PEACE] Faith output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
+			<Text>Radicalize the rural [ICON_CITIZEN] citizenry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP">
+			<Text>One of each primary improvement (Farm, Mine, Plantation, Trading Post) is pillaged around the Target City. Two improved [COLOR_POSITIVE_TEXT] Strategic Resource [ENDCOLOR] tiles are pillaged. -25% [ICON_FOOD] Growth for {5_Turns}.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE">
+			<Text>Foment Local [ICON_HAPPINESS_3] Unhappiness</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE_HELP">
+			<Text>+34% Unhappiness from Needs in Target City.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
+			<Text>Kidnap [ICON_GREAT_PEOPLE] Specialists in the City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP">
+			<Text>In the Target City: -1 [ICON_RESEARCH] Science from Scientists; -1 [ICON_GOLD] Gold from Merchants; -1 [ICON_PRODUCTION] Production from Engineers; -1 [ICON_CULTURE] Culture from Musicians, Artists, and Writers. {7_PlayerEventEffect}.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_BENEFIT">
+			<Text>[COLOR_POSITIVE_TEXT]Your Benefit: [ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON">
+			<Text>Target local City [ICON_STRENGTH] Defenses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP">
+			<Text>Target City takes [COLOR_NEGATIVE_TEXT]100[ENDCOLOR] Damage and Garrison (if present) takes [COLOR_NEGATIVE_TEXT]25[ENDCOLOR] Damage. City is [COLOR_NEGATIVE_TEXT]Sapped[ENDCOLOR] (cannot heal) for 5 turns.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST">
+			<Text>[ICON_RESISTANCE] Arm the local populace</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
+			<Text>City enters [ICON_RESISTANCE] Resistance for 2 Turns. 5 Rebel Units spawn around the City.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
+			<Text>Sabotage Science and Steal a [ICON_RESEARCH] Technology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
+			<Text>Steal one [ICON_RESEARCH] Technology from enemy [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE]If no Techs are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
+			<Text>Create a forgery of a [ICON_GREAT_WORK] Great Work in the City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
+			<Text>Copy one of the [ICON_GREAT_WORK] Great Works in the Target City.[NEWLINE][NEWLINE]If no Great Works are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA">
+			<Text>Broaden [ICON_SPY] Surveillance in City</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP">
+			<Text>Expand the number of tiles visible around the Target City for {5_Turns} after the mission is completed.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
+			<Text>Repatriated Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP">
+			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT">
+			<Text>Repatriated Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT_HELP">
+			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+		</Row>
+
+		<!-- Counterspy -->
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS">
+			<Text>Counterintelligence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS_HELP">
+			<Text>Your Spy has established their new counterintel operation. Give them orders:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC">
+			<Text>Establish a counter-espionage network.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE">
+			<Text>Inspect the local garrison and fine-tune our city defenses.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+10%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. City [ICON_RANGE] Ranged Attacks are 50% stronger while Spy is active in this City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL">
+			<Text>Turn your network on the local population. Bring them in line.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. +2 [ICON_HAPPINESS_1] Happiness and -25% Unhappiness from Needs in the City.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST">
+			<Text>Make sure local Specialists are giving their best.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST_HELP">
+			<Text>[COLOR_POSITIVE_TEXT]+15%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. Merchants, Engineers, Scientists, Artists, Writers, and Musicians all produce +1 of their basic Yield.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

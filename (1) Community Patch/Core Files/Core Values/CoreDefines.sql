@@ -874,6 +874,50 @@ INSERT INTO Defines (Name, Value) SELECT 'INFLUENCE_MINOR_QUEST_BOOST', 20;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_FRIENDSHIP_DROP_PER_TURN_DAMAGED_CAPITAL_MULTIPLIER', 100;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_INFLUENCE_SCALING_DECAY_EXPONENT', 1.5;
 
+-- VP First Contact Bonuses
+-- These are the values for the first team to meet a neutral CS.
+-- Multipliers for friendly and hostile city-states are below.
+-- Irrational city-states roll to see if they are friendly, neutral or hostile towards the meeting player.
+INSERT INTO Defines (Name, Value) VALUES
+
+('MINOR_CIV_FIRST_CONTACT_BONUS_FRIENDSHIP', 5),
+('MINOR_CIV_FIRST_CONTACT_BONUS_CULTURE', 5),
+('MINOR_CIV_FIRST_CONTACT_BONUS_FAITH', 5),
+('MINOR_CIV_FIRST_CONTACT_BONUS_GOLD', 25),
+-- Below are only given to the player who meets the CS instead of the whole team
+('MINOR_CIV_FIRST_CONTACT_BONUS_FOOD', 10),
+-- Chance to get a unit
+('MINOR_CIV_FIRST_CONTACT_BONUS_UNIT', 10),
+('MINOR_CIV_FIRST_CONTACT_XP_PER_ERA', 5),
+('MINOR_CIV_FIRST_CONTACT_XP_RANDOM', 5),
+
+-- Multiplier and Divisor for the player meeting the CS, we can only store ints so *2 is 2/1
+-- Only Influence uses these
+('MINOR_CIV_FIRST_CONTACT_PLAYER_MULTIPLIER', 2),
+('MINOR_CIV_FIRST_CONTACT_PLAYER_DIVISOR', 1),
+
+-- Multiplier and Divisor for the subsequent teams meeting the CS, we can only store ints so *0.5 is 1/2
+-- Only Influence uses the multiplier
+('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_MULTIPLIER', 1),
+-- Only Influence, Culture and Faith use the divisor, others are set to 0 instead
+('MINOR_CIV_FIRST_CONTACT_SUBSEQUENT_TEAM_DIVISOR', 2),
+
+-- Multiplier and Divisor for friendly city states bonuses, we can only store ints so *1.5 is 3/2
+('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_MULTIPLIER', 3),
+('MINOR_CIV_FIRST_CONTACT_FRIENDLY_BONUS_DIVISOR', 2),
+
+-- Multiplier and Divisor for friendly city states unit chance, we can only store ints so *2 is 2/1
+('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_MULTIPLIER', 2),
+('MINOR_CIV_FIRST_CONTACT_FRIENDLY_UNIT_DIVISOR', 1),
+
+-- Multiplier and Divisor for hostile city states bonuses, we can only store ints so *0.5 is 1/2
+('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_MULTIPLIER', 1),
+('MINOR_CIV_FIRST_CONTACT_HOSTILE_BONUS_DIVISOR', 2),
+
+-- Multiplier and Divisor for hostile city states unit chance, we can only store ints so *0 is 0/1
+('MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_MULTIPLIER', 0),
+('MINOR_CIV_FIRST_CONTACT_HOSTILE_UNIT_DIVISOR', 1);
+
 
 -- Number of copies of each City-State Quest for random selection
 -- Each valid quest has X base copies - trait and personality can add or subtract copies

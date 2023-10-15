@@ -583,6 +583,17 @@ void CvArmyAI::AddUnit(int iUnitID, int iSlotNum, bool bIsRequired)
 	// remove this unit from an army if it is already in one
 	thisPlayer.removeFromArmy(pThisUnit->getArmyID(), GetID());
 
+	// check for potential upgrade
+	if (pThisUnit->CanUpgradeRightNow(false))
+	{
+		CvUnit* pNewUnit = pThisUnit->DoUpgrade();
+		if (pNewUnit)
+		{
+			pThisUnit = pNewUnit;
+			iUnitID = pNewUnit->GetID();
+		}
+	}
+
 	// add it to this army
 	m_FormationEntries[iSlotNum] = CvArmyFormationSlot(iUnitID, bIsRequired); //reset
 	pThisUnit->setArmyID(GetID());

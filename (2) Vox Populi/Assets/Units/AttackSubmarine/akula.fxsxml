@@ -1,0 +1,65 @@
+<Asset>
+	<Mesh file="Akula.gr2"/>
+	<Animation file="NuclearSubmarine_IdleA.gr2" ec="1000, 2000"/>
+	<Animation file="NuclearSubmarine_FidgetA.gr2" ec="1040, 2040"/>
+	<Animation file="NuclearSubmarine_IdleA_Trans_IdleB.gr2" ec="1020, 2020"/>
+	<Animation file="NuclearSubmarine_Fortify.gr2" ec="1500"/>
+	<Animation file="NuclearSubmarine_Fortify_Idle.gr2" ec="1520"/>
+	<Animation file="NuclearSubmarine_Fortify_Idle_Fidget.gr2" ec="1540"/>
+	<Animation file="NuclearSubmarine_Fortify_Idle_Trans_Combat_Ready_Idle.gr2" ec="1560"/>
+	<Animation file="NuclearSubmarine_Fortify_Idle_Trans_IdleA.gr2" ec="1580"/>
+	<Animation file="NuclearSubmarine_Combat_Ready.gr2" ec="1600"/>
+	<Animation file="NuclearSubmarine_Combat_Ready_Idle.gr2" ec="1620"/>
+	<Animation file="NuclearSubmarine_Combat_Ready_Idle_Trans_IdleA.gr2" ec="1640"/>
+	<Animation file="NuclearSubmarine_Run.gr2" ec="1400, 1120, 1450"/>
+	<Animation file="NuclearSubmarine_Stop_Run.gr2" ec="1440, 2440"/>
+	<Animation file="NuclearSubmarine_AttackA.gr2" ec="1100, 1140, 1160, 1180, 2100"/>
+	<Animation file="NuclearSubmarine_Victory.gr2" ec="1800"/>
+	<Animation file="NuclearSubmarine_Bombard_Defense.gr2" ec="1280"/>
+	<Animation file="NuclearSubmarine_Bombard_Defense_Idle.gr2" ec="1285"/>
+	<Animation file="NuclearSubmarine_Bombard_Defense_Idle_Trans_IdleA.gr2" ec="1290"/>
+	<Animation file="NuclearSubmarine_DeathA.gr2" ec="1200"/>
+	<Animation file="NuclearSubmarine_DeathA_Idle.gr2" ec="1220"/>
+	<Animation file="NuclearSubmarine_DeathB.gr2" ec="2200"/>
+	<Animation file="NuclearSubmarine_DeathB_Idle.gr2" ec="2220"/>
+	<Texture file="Unit_Environment_Dull.dds"/>
+	<Texture file="Unit_Environment_Sharp.dds"/>
+	<Texture file="Unit_Irradiance.dds"/>
+	<Texture file="Akula_DIFF.dds"/>
+	<Texture file="Akula_DMG_DIFF.dds"/>
+	<Texture file="Akula_DMG_SREF.dds"/>
+	<Texture file="Akula_SREF.dds"/>
+	<BoneUsage>
+		<Bone name="Bone_Root"/>
+		<Bone name="World_Center"/>
+		<Bone name="FX_Projectile_01"/>
+		<Bone name="FX_Projectile_02"/>
+	</BoneUsage>
+	<AnimGraph file="SHUFFLE_STOP_GRAPH.dge"/>
+	<AnimGraph file="START_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_CITY_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="ATTACK_TO_RUN_CHARGE_SHUFFLE.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_LOOP.dge"/>
+	<StateMachine file="1_OMNI_STATE_01.fsmxml"/>
+	<AnimGraph file="MELEE_ATTACKS.dge"/>
+	<AnimGraph file="FIDGETS_GRAPH.dge"/>
+	<AnimGraph file="IDLE_GRAPH.dge"/>
+	<AnimGraph file="STOP_RUNNING.dge"/>
+	<AnimGraph file="TRANSITIONS_FOR_IDLES.dge"/>
+	<AnimGraph file="FORTIFY_GRAPH.dge"/>
+	<AnimGraph file="COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="FORTIFY_LEAVE_GRAPH.dge"/>
+	<AnimGraph file="ENTER_COMBAT_READY_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_COMBAT_READY.dge"/>
+	<AnimGraph file="DEATH_GRAPH.dge"/>
+	<AnimGraph file="ENTER_BOMBARD_DEFEND_GRAPH.dge"/>
+	<AnimGraph file="BOMBARD_DEFEND_LOOP_GRAPH.dge"/>
+	<AnimGraph file="DEATH_FINAL_GRAPH.dge"/>
+	<AnimGraph file="LEAVE_BOMBARD_DEFEND_TRANS_IDLE_A_GRAPH.dge"/>
+	<AnimGraph file="ENTER_FORTIFY.dge"/>
+	<AnimGraph file="FORTIFY_FIDGET_GRAPH.dge"/>
+	<AnimGraph file="IDLE_OFFSET_CONTINUE_TRUE_GRAPH.dge"/>
+	<AnimGraph file="RUN_CHARGE_SHUFFLE_TO_SHUFFLE_RUN_CHARGE.dge"/>
+	<TimedTrigger file="FX_Triggers_NuclearSubmarine.ftsxml"/>
+</Asset>
+
