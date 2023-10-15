@@ -395,7 +395,7 @@ bool CvUnitMovement::IsSlowedByZOC(const CvUnit* pUnit, const CvPlot* pFromPlot,
 			CvUnit* pLoopUnit = (GET_PLAYER(pAdjUnitNode->eOwner).getUnit(pAdjUnitNode->iID));
 			pAdjUnitNode = pAdjPlot->nextUnitNode(pAdjUnitNode);
 
-			if (!pLoopUnit)
+			if (!pLoopUnit || pLoopUnit->isDelayedDeath())
 				continue;
 
 			if (pLoopUnit->isInvisible(eUnitTeam, false))

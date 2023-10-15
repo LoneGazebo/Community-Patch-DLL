@@ -5373,7 +5373,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 				{
-					if (plot.isVisibleEnemyUnit(this) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
+					//check for combat units only! enemy civilians are captured en passant, there is no downside ...
+					if (plot.isEnemyUnit(getOwner(),true,true) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
 					{
 						return false;
 					}
@@ -21606,7 +21607,7 @@ void CvUnit::setMoves(int iNewValue)
 {
 	if(m_iMoves != iNewValue)
 	{
-		m_iMoves = iNewValue;
+		m_iMoves = max(0,iNewValue);
 
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ getMoves() <= 0);
