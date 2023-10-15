@@ -3798,6 +3798,50 @@ CivApproachTypes CvDiplomacyAI::GetSurfaceApproach(PlayerTypes ePlayer) const
 	return eRealApproach;
 }
 
+
+/// How is trade deal valuation modified based on our surface-lavel approach towards ePlayer?
+int CvDiplomacyAI::GetSurfaceApproachDealModifier(PlayerTypes ePlayer, bool bFromMe) const
+{
+	if (ePlayer < 0 || ePlayer >= MAX_PLAYERS) return -1;
+	if (bFromMe)
+	{
+		//How much is OUR stuff worth?
+		switch (GetSurfaceApproach(ePlayer))
+		{
+		case CIV_APPROACH_FRIENDLY:
+			return 80;
+		case CIV_APPROACH_AFRAID:
+			return 80;
+		case CIV_APPROACH_NEUTRAL:
+			return 100;
+		case CIV_APPROACH_GUARDED:
+			return 125;
+		case CIV_APPROACH_HOSTILE:
+			return 200;
+		default:
+			return 100;
+		}
+	}
+	else
+	{
+		switch (GetPlayer()->GetDiplomacyAI()->GetSurfaceApproach(ePlayer))
+		{
+		case CIV_APPROACH_FRIENDLY:
+			return 125;
+		case CIV_APPROACH_AFRAID:
+			return 125;
+		case CIV_APPROACH_NEUTRAL:
+			return 100;
+		case CIV_APPROACH_GUARDED:
+			return 80;
+		case CIV_APPROACH_HOSTILE:
+			return 50;
+		default:
+			return 100;
+		}
+	}
+}
+
 /// Returns ePlayer's visible Diplomatic Approach towards us
 CivApproachTypes CvDiplomacyAI::GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const
 {
@@ -34650,10 +34694,21 @@ void CvDiplomacyAI::DoEmbassyExchange(PlayerTypes ePlayer, DiploStatementTypes& 
 					{
 						pDeal->AddAllowEmbassy(GetID());
 						pDeal->AddAllowEmbassy(ePlayer);
+						bool bUselessReferenceVariable = false;
+						bool bCantMatchOffer = false;
+						bool bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDeal(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
 
-						eStatement = eTempStatement;
+						if (bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0)
+						{
+							eStatement = eTempStatement;
+						}
+						else
+						{
+							bSendStatement = false;
+						}
 					}
-					else
+					
+					if(!bSendStatement)
 					{
 						DoAddNewStatementToDiploLog(ePlayer, eTempStatement);
 						pDeal->ClearItems();
@@ -34772,11 +34827,11 @@ void CvDiplomacyAI::DoOpenBordersOffer(PlayerTypes ePlayer, DiploStatementTypes&
 
 	if(eStatement == NO_DIPLO_STATEMENT_TYPE)
 	{
-		if(GetPlayer()->GetDealAI()->IsMakeOfferForOpenBorders(ePlayer, /*pDeal can be modified in this function*/ pDeal))
+		DiploStatementTypes eTempStatement = DIPLO_STATEMENT_OPEN_BORDERS_OFFER;
+		int iTurnsBetweenStatements = 25;
+		if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 		{
-			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_OPEN_BORDERS_OFFER;
-			int iTurnsBetweenStatements = 25;
-			if(GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			if(GetPlayer()->GetDealAI()->IsMakeOfferForOpenBorders(ePlayer, /*pDeal can be modified in this function*/ pDeal))
 			{
 				eStatement = eTempStatement;
 			}
@@ -35843,9 +35898,23 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 		if (IsWantsPeaceWithPlayer(ePlayer))
 		{
 			DiploStatementTypes eTempStatement = DIPLO_STATEMENT_REQUEST_PEACE;
+			int iTurnsBetweenStatementsCityTrade = 2;
 			int iTurnsBetweenStatements = 5;
 
-			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+			// cities can be added to a peace deal if they are in danger of falling, so that check needs to be done more frequently
+			if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatementsCityTrade)
+			{
+				if (GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/) && pDeal->GetNumItems() > 0 && pDeal->ContainsItemType(TRADE_ITEM_CITIES, ePlayer))
+				{
+					eStatement = eTempStatement;
+				}
+				else
+				{
+					// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
+					pDeal->ClearItems();
+				}
+			}
+			else if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
 			{
 				if (GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/) && pDeal->GetNumItems() > 0)
 				{

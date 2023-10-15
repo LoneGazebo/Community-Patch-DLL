@@ -231,6 +231,8 @@ int CvLuaDeal::lGetRenewDealMessage(lua_State* L)
 //------------------------------------------------------------------------------
 int CvLuaDeal::lDoReevaluateDeal(lua_State* L)
 {
+	// can be removed
+	/*
 	CvDeal* pkDeal = GetInstance(L);
 	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
 	const PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 3);
@@ -253,6 +255,8 @@ int CvLuaDeal::lDoReevaluateDeal(lua_State* L)
 		bool bDealCanceled = !pkThisPlayer->GetDealAI()->DoEqualizeDeal(pkDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);
 	}
 	lua_pushboolean(L, bDealCanceled);
+	*/
+	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------

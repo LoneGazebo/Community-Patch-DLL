@@ -11355,85 +11355,8 @@ void CvPlayer::doTurn()
 	}
 	else
 	{
-#if defined(MOD_BALANCE_CORE)
-		UpdateCityThreatCriteria();
-#endif
 		doTurnPostDiplomacy();
 	}
-	if (isAlive() && isMajorCiv())
-	{
-		GetTrade()->DoTurn();
-	}
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_JFD)
-	{
-		DoPiety();
-		DoReformCooldown();
-		DoGovernmentCooldown();
-	}
-#endif
-#if defined(MOD_BALANCE_CORE_EVENTS)
-	if(MOD_BALANCE_CORE_EVENTS)
-	{
-		if(GC.getGame().isOption(GAMEOPTION_EVENTS))
-		{
-			DoEvents();
-		}
-	}
-	if (MOD_BALANCE_CORE_SPIES_ADVANCED && GetEspionage() != NULL)
-		GetEspionage()->ProcessSpyFocus();
-
-	updateYieldPerTurnHistory();
-#endif
-#if defined(MOD_BALANCE_CORE)
-	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
-	{
-		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
-		if(getInstantYieldText(eInstantYield) != "" && getInstantYieldText(eInstantYield) != NULL)
-		{
-			// Instant yield
-			Localization::String strInstantYield = Localization::Lookup(getInstantYieldText(eInstantYield));
-			CvNotifications* pNotifications = GetNotifications();
-			if(pNotifications)
-			{
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_EMPIRE");
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantYield.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
-			}
-			setInstantYieldText(eInstantYield, "");
-			// Instant great person progress
-			Localization::String strInstantGreatPersonProgress = Localization::Lookup(getInstantGreatPersonProgressText(eInstantYield));
-			/*if (pNotifications) // Can't get this to work correctly for some reason
-			{
-				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE");
-				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantGreatPersonProgress.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
-			}*/
-			setInstantGreatPersonProgressText(eInstantYield, "");
-		}
-	}
-#endif
-
-	//note that this isn't actually the end of the turn - AI_unitUpdate is called later
-	AI_doTurnPost();
-
-	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
-	{
-		CvLuaArgsHandle args;
-		args->Push(GetID());
-
-		bool bResult = false;
-		LuaSupport::CallHook(pkScriptSystem, "PlayerDoTurn", args.get(), bResult);
-	}
-
-	// Certain counters update now
-	DoUpdateWarPeaceTurnCounters();
-
-	if (isMajorCiv())
-	{
-		DoMilitaryRatingDecay();
-	}
-
-	m_kPlayerAchievements.StartTurn();
 }
 
 //	--------------------------------------------------------------------------------
@@ -11443,6 +11366,7 @@ void CvPlayer::doTurnPostDiplomacy()
 
 	if (isAlive())
 	{
+		UpdateCityThreatCriteria();
 		UpdatePlots();
 		UpdateAreaEffectUnits();
 		UpdateAreaEffectPlots();
@@ -11649,6 +11573,83 @@ void CvPlayer::doTurnPostDiplomacy()
 	const int iGameTurn = kGame.getGameTurn();
 
 	GatherPerTurnReplayStats(iGameTurn);
+
+
+	if (isAlive() && isMajorCiv())
+	{
+		GetTrade()->DoTurn();
+	}
+#if defined(MOD_BALANCE_CORE)
+	if (MOD_BALANCE_CORE_JFD)
+	{
+		DoPiety();
+		DoReformCooldown();
+		DoGovernmentCooldown();
+	}
+#endif
+#if defined(MOD_BALANCE_CORE_EVENTS)
+	if (MOD_BALANCE_CORE_EVENTS)
+	{
+		if (GC.getGame().isOption(GAMEOPTION_EVENTS))
+		{
+			DoEvents();
+		}
+	}
+	if (MOD_BALANCE_CORE_SPIES_ADVANCED && GetEspionage() != NULL)
+		GetEspionage()->ProcessSpyFocus();
+
+	updateYieldPerTurnHistory();
+#endif
+#if defined(MOD_BALANCE_CORE)
+	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
+	{
+		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
+		if (getInstantYieldText(eInstantYield) != "" && getInstantYieldText(eInstantYield) != NULL)
+		{
+			// Instant yield
+			Localization::String strInstantYield = Localization::Lookup(getInstantYieldText(eInstantYield));
+			CvNotifications* pNotifications = GetNotifications();
+			if (pNotifications)
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD_EMPIRE");
+				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantYield.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
+			}
+			setInstantYieldText(eInstantYield, "");
+			// Instant great person progress
+			Localization::String strInstantGreatPersonProgress = Localization::Lookup(getInstantGreatPersonProgressText(eInstantYield));
+			/*if (pNotifications) // Can't get this to work correctly for some reason
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS_EMPIRE");
+				pNotifications->Add((NotificationTypes)FString::Hash("NOTIFICATION_INSTANT_YIELD"), strInstantGreatPersonProgress.toUTF8(), strSummary.toUTF8(), -1, -1, GetID());
+			}*/
+			setInstantGreatPersonProgressText(eInstantYield, "");
+		}
+	}
+#endif
+
+	//note that this isn't actually the end of the turn - AI_unitUpdate is called later
+	AI_doTurnPost();
+
+	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+	if (pkScriptSystem)
+	{
+		CvLuaArgsHandle args;
+		args->Push(GetID());
+
+		bool bResult = false;
+		LuaSupport::CallHook(pkScriptSystem, "PlayerDoTurn", args.get(), bResult);
+	}
+
+	// Certain counters update now
+	DoUpdateWarPeaceTurnCounters();
+
+	if (isMajorCiv())
+	{
+		DoMilitaryRatingDecay();
+	}
+
+	m_kPlayerAchievements.StartTurn();
+	doTurnUnits();
 
 	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
@@ -35339,7 +35340,6 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 
 						//this is misleading - actual turn processing now happens in CvGame::updateMoves()
 						doTurn();
-						doTurnUnits();
 					}
 				}
 

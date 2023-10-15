@@ -181,7 +181,7 @@ protected:
 	//player to (turn,value)
 	std::vector<std::pair<int,int>> m_vResearchRates;
 
-	//some magic to enable memoization of calls to GetTradeItemValue
+	//some magic to enable memorization of calls to GetTradeItemValue
 	struct SDealItemValueParams
 	{
 		TradeableItems eItem;
@@ -192,13 +192,14 @@ protected:
 		int iData3;
 		bool bFlag1;
 		int iDuration;
+		bool bEqualize;
 
-		SDealItemValueParams(TradeableItems eItem_, bool bFromMe_, PlayerTypes eOtherPlayer_, int iData1_, int iData2_, int iData3_, bool bFlag1_, int iDuration_) :
-			eItem(eItem_), bFromMe(bFromMe_), eOtherPlayer(eOtherPlayer_), iData1(iData1_), iData2(iData2_), iData3(iData3_), bFlag1(bFlag1_), iDuration(iDuration_) { }
+		SDealItemValueParams(TradeableItems eItem_, bool bFromMe_, PlayerTypes eOtherPlayer_, int iData1_, int iData2_, int iData3_, bool bFlag1_, int iDuration_, bool bEqualize_) :
+			eItem(eItem_), bFromMe(bFromMe_), eOtherPlayer(eOtherPlayer_), iData1(iData1_), iData2(iData2_), iData3(iData3_), bFlag1(bFlag1_), iDuration(iDuration_), bEqualize(bEqualize_) { }
 
 		bool operator==(const SDealItemValueParams& rhs) const
 		{
-			return eItem == rhs.eItem && bFromMe == rhs.bFromMe && eOtherPlayer == rhs.eOtherPlayer && iData1 == rhs.iData1 && iData2 == rhs.iData2 && iData3 == rhs.iData3 && bFlag1 == rhs.bFlag1 && iDuration == rhs.iDuration;
+			return eItem == rhs.eItem && bFromMe == rhs.bFromMe && eOtherPlayer == rhs.eOtherPlayer && iData1 == rhs.iData1 && iData2 == rhs.iData2 && iData3 == rhs.iData3 && bFlag1 == rhs.bFlag1 && iDuration == rhs.iDuration && bEqualize == rhs.bEqualize;
 		}
 	};
 
@@ -220,9 +221,10 @@ protected:
 			std::size_t h6 = tr1::hash<int>()(key.iData3);
 			std::size_t h7 = tr1::hash<bool>()(key.bFlag1);
 			std::size_t h8 = tr1::hash<int>()(key.iDuration);
+			std::size_t h9 = tr1::hash<bool>()(key.bEqualize);
  
 			//rotate the bits so that XORing isn't quite as likely to collapse
-			return rotl32(h1,1) ^ rotl32(h2,2) ^ rotl32(h3,3) ^ rotl32(h4,4) ^ rotl32(h5,5) ^ rotl32(h6,6) ^ rotl32(h7,7) ^ rotl32(h8,8);
+			return rotl32(h1,1) ^ rotl32(h2,2) ^ rotl32(h3,3) ^ rotl32(h4,4) ^ rotl32(h5,5) ^ rotl32(h6,6) ^ rotl32(h7,7) ^ rotl32(h8,8) ^ rotl32(h9,9);
 		}
 	};
 
