@@ -873,10 +873,6 @@ int CvDealAI::GetDealValue(CvDeal* pDeal)
 	pDeal->SetFromPlayerValue(0);
 	pDeal->SetToPlayerValue(0);
 
-	PlayerTypes ePeaceWinner = NO_PLAYER;
-	if (pDeal->IsPeaceTreatyTrade(eOtherPlayer))
-		ePeaceWinner = (pDeal->GetSurrenderingPlayer() == eMyPlayer) ? eOtherPlayer : eMyPlayer;
-
 	TradedItemList::iterator it;
 	for (it = pDeal->m_TradedItems.begin(); it != pDeal->m_TradedItems.end(); ++it)
 	{
@@ -964,9 +960,9 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 
 	int iItemValue = 0;
 	// if bEqualize is false, our valuation of the deal item is calculated (only used internally and to help the AI decide which items to make offers for)
-	// The values that are calculated with bEqualize = true are the ones that are shown in the trade UI and that are use to determine deal values
+	// The values that are calculated with bEqualize = true are the ones that are shown in the trade UI and that are used to determine deal values
 	// if bEqualize is true and the deal is not a peace deal, the average of our valuation and the other player's valuation (perceived valuation if human) is taken
-	// if bEqualize is true and the deal is a peace deal (no white peace), the valution of the winning player is taken
+	// if bEqualize is true and the deal is a peace deal (no white peace), the valuation of the winning player is taken
 	
 	// bEqualize isn't applied to gold or gold per turn, as they have the same value for all players. it's also not applied to peace treaties and vassalage
 	if (!bEqualize || eItem == TRADE_ITEM_GOLD || eItem == TRADE_ITEM_GOLD_PER_TURN || eItem == TRADE_ITEM_PEACE_TREATY ||eItem == TRADE_ITEM_VASSALAGE)
