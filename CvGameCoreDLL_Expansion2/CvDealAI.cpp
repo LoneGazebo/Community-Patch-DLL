@@ -100,7 +100,7 @@ TeamTypes CvDealAI::GetTeam()
 	return m_pPlayer->getTeam();
 }
 
-/// How much are we willing to back off on what our perceived value of a deal is with an AI player to make something work?
+/// How much are we willing to back off on what our perceived value of a deal is to make something work?
 int CvDealAI::GetDealPercentLeeway(PlayerTypes eOtherPlayer, bool bInTheBlack) const
 {
 	int iPercent = 0;
@@ -1091,7 +1091,6 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			int iMinAcceptableSellPrice = 0;
 
 			bool bTwoSidedItem = (
-				eItem == TRADE_ITEM_ALLOW_EMBASSY ||
 				eItem == TRADE_ITEM_DECLARATION_OF_FRIENDSHIP ||
 				eItem == TRADE_ITEM_DEFENSIVE_PACT ||
 				eItem == TRADE_ITEM_RESEARCH_AGREEMENT
@@ -1173,7 +1172,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 				}
 			}
 
-			if (iItemValue != INT_MAX)
+			if (iItemValue != INT_MAX && iItemValue > 0)
 			{
 				// Item is worth 20% less if its owner is a vassal
 				if (bFromMe)
@@ -1196,14 +1195,14 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 				}
 
 				// Difficulty option to modify the AI's selling prices towards humans.
-				if (bFromMe && GET_PLAYER(eOtherPlayer).isHuman() && eItem == TRADE_ITEM_PEACE_TREATY && iItemValue > 0)
+				if (bFromMe && GET_PLAYER(eOtherPlayer).isHuman() && eItem != TRADE_ITEM_PEACE_TREATY && (eItem != TRADE_ITEM_THIRD_PARTY_PEACE || !GetPlayer()->IsAtWarWith(eOtherPlayer)))
 				{
 					iItemValue *= 100 + GET_PLAYER(eOtherPlayer).getHandicapInfo().getHumanTradeModifier();
 					iItemValue /= 100;
-
-					if (iItemValue <= 0)
-						iItemValue = 1;
 				}
+
+				if (iItemValue <= 0)
+					iItemValue = 1;
 			}
 		}
 	}

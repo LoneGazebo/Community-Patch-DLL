@@ -120,7 +120,6 @@ protected:
 	static int lAddDeclarationOfFriendship(lua_State* L);
 	static int lAddVoteCommitment(lua_State* L);
 
-	static int lDoReevaluateDeal(lua_State* L);
 	static int lGetRenewDealMessage(lua_State* L);
 	static int lIsCheckedForRenewal(lua_State* L)
 	{

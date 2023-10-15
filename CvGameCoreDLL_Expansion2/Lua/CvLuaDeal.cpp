@@ -59,7 +59,6 @@ void CvLuaDeal::PushMethods(lua_State* L, int t)
 
 	Method(IsCheckedForRenewal);
 	Method(GetRenewDealMessage);
-	Method(DoReevaluateDeal);
 	Method(AddGoldTrade);
 	Method(AddGoldPerTurnTrade);
 	Method(AddMapTrade);
@@ -226,42 +225,6 @@ int CvLuaDeal::lGetRenewDealMessage(lua_State* L)
 	bool bDealAcceptable = GET_PLAYER(eFromPlayer).GetDealAI()->IsDealWithHumanAcceptable(pkDeal, eOtherPlayer, iDealValueToMe, &bCantMatchOffer, false);
 	DiploMessageTypes eMessage = bDealAcceptable ? DIPLO_MESSAGE_RENEW_DEAL : DIPLO_MESSAGE_WANT_MORE_RENEW_DEAL;
 	lua_pushstring(L, GET_PLAYER(eFromPlayer).GetDiplomacyAI()->GetDiploStringForMessage(eMessage));
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaDeal::lDoReevaluateDeal(lua_State* L)
-{
-	// can be removed
-	/*
-	CvDeal* pkDeal = GetInstance(L);
-	const PlayerTypes eFromPlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const PlayerTypes eOtherPlayer = (PlayerTypes)lua_tointeger(L, 3);
-	CvPlayerAI* pkThisPlayer = &GET_PLAYER(eFromPlayer);
-
-	bool bDealCanceled = false;
-	// don't change any items in a renew deal, but cancel the deal if it's now valued impossible
-	if (pkDeal->m_bCheckedForRenewal)
-	{
-		if (pkThisPlayer->GetDealAI()->GetDealValue(pkDeal) == INT_MAX)
-		{
-			pkThisPlayer->GetDiplomacyAI()->CancelRenewDeal(eOtherPlayer, REASON_CANNOT_COMPROMISE, false, pkDeal);
-			bDealCanceled = true;
-		}
-	}
-	else if (pkDeal->IsPeaceTreatyTrade(eFromPlayer))
-	{
-		pkDeal->ClearItems();
-		bDealCanceled = !pkThisPlayer->GetDealAI()->IsOfferPeace(eOtherPlayer, pkDeal, false);
-	}
-	else
-	{
-		bool bUselessReferenceVariable = false;
-		bool bCantMatchOffer = false;
-		bDealCanceled = !pkThisPlayer->GetDealAI()->DoEqualizeDealWithHuman(pkDeal, eOtherPlayer, bUselessReferenceVariable, bCantMatchOffer);
-	}
-	lua_pushboolean(L, bDealCanceled);
-	*/
-	lua_pushboolean(L, false);
 	return 1;
 }
 //------------------------------------------------------------------------------

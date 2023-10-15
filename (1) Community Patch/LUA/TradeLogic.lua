@@ -123,11 +123,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 
 		-- if the AI offers a deal, its valuation might have changed during the AI's turn. Reevaluate the deal and change deal items if necessary
 	if(g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
-		local bDealCanceled = g_Deal:DoReevaluateDeal(g_iThem, g_iUs);
-		if(bDealCanceled) then
-			-- it was no longer possible to offer an acceptable deal and the deal has been canceled
-			g_iDiploUIState = DiploUIStateTypes.NO_DIPLO_UI_STATE;
-		end
 		if(g_Deal:IsCheckedForRenewal()) then
 			-- modify leader message if necessary
 			szLeaderMessage = g_Deal:GetRenewDealMessage(g_iThem, g_iUs);
