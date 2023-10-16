@@ -42,6 +42,9 @@ UPDATE Buildings
 SET BuildingProductionModifier = 10
 WHERE Type = 'BUILDING_MUD_PYRAMID_MOSQUE';
 
+DELETE FROM Building_LocalResourceOrs
+WHERE BuildingType = 'BUILDING_MUD_PYRAMID_MOSQUE';
+
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
