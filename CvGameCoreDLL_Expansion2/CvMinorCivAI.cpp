@@ -5973,24 +5973,9 @@ void CvMinorCivAI::DoTurnQuests()
 	// Give Personal Quests
 	// ********************
 
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	for (std::vector<PlayerTypes>::iterator it = ValidMajors.begin(); it != ValidMajors.end(); it++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-
-		if (!GET_PLAYER(ePlayer).isAlive() || !GET_PLAYER(ePlayer).isMajorCiv() || !GET_PLAYER(ePlayer).getCapitalCity())
-			continue;
-
-		if (IsAtWarWithPlayersTeam(ePlayer))
-			continue;
-
-		if (!IsHasMetPlayer(ePlayer))
-			continue;
-
-		// Increment turns since last quest
-		if (GetQuestCountdownForPlayer(ePlayer) > 0)
-		{
-			ChangeQuestCountdownForPlayer(ePlayer, -1);
-		}
+		PlayerTypes ePlayer = GET_PLAYER(*it).GetID();
 
 		// Unlock turn - seed the counter
 		if (GC.getGame().getElapsedGameTurns() == iFirstTurnForPersonalQuests)
