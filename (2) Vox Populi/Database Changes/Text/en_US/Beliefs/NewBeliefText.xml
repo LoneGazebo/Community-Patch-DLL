@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_BELIEF_MORRIGAN">
+			<Text>Earn [ICON_GOLD] Gold, [ICON_CULTURE] Culture, and [ICON_GOLDEN_AGE] Golden Age Points if you kill a Unit (200% of its [ICON_STRENGTH] Strength) or Pillage a non-road improvement (20 of each, scaling with Era). +2 [ICON_GREAT_GENERAL] Great General Points from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_MORRIGAN_SHORT">
+			<Text>Morrigan, the Harbinger</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_EPONA">
+			<Text>+3 [ICON_CULTURE_LOCAL] Border Growth in every City. Receive +10 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_FOOD] Food when your Borders expand, scaling with Era. +5 [ICON_CULTURE_LOCAL] Border Growth from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_EPONA_SHORT">
+			<Text>Epona, the Great Mare</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_NUADA">
+			<Text>+15% [ICON_GOLD] Gold and [ICON_RESEARCH] Science from "We Love the King Days". +3 [ICON_GOLD] Gold, [ICON_RESEARCH] Science, and [ICON_GOLDEN_AGE] Golden Age Points for every Unique Luxury Resource in Empire and per active [ICON_INTERNATIONAL_TRADE] Trade Route to or from the City. +5 [ICON_GOLD] Gold from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_NUADA_SHORT">
+			<Text>Nuada, the Silver-Handed</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS">
+			<Text>+1 [ICON_FOOD] Food and [ICON_GOLD] Gold from Forests, +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production from Jungles. +1 [ICON_CULTURE] Culture and [ICON_RESEARCH] Science from Camps and Plantations. +2 [ICON_CULTURE] Culture from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_CERNUNNOS_SHORT">
+			<Text>Cernunnos, the Horned Stag</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_LUGH">
+			<Text>+2 [ICON_CULTURE] Culture, [ICON_RESEARCH] Science, [ICON_FOOD] Food, and [ICON_GOLD] Gold in Cities with a Specialist. +10% [ICON_PRODUCTION] Production towards [ICON_WONDER] Wonders. +3 [ICON_PRODUCTION] Production from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_LUGH_SHORT">
+			<Text>Lugh, the Skilled One</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_RHIANNON">
+			<Text>+2 [ICON_CULTURE] Culture in every City, +1 [ICON_GOLD] Gold and [ICON_PRODUCTION] Production from every Resource connected with a normal Improvement. +5 [ICON_GOLDEN_AGE] Golden Age Points from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_RHIANNON_SHORT">
+			<Text>Rhiannon, the Sovereign</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_MANANNAN">
+			<Text>+3 [ICON_FOOD] Food, [ICON_PRODUCTION] Production, and [ICON_GOLD] Gold in Coastal Cities. +1 [ICON_PRODUCTION] Production and [ICON_GOLD] Gold for every 2 [ICON_CITIZEN] Citizens working Water tiles in your Cities. +2 [ICON_GREAT_ADMIRAL] Great Admiral Points from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_MANANNAN_SHORT">
+			<Text>Manannan, Son of the Sea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_OGMA">
+			<Text>+1 [ICON_RESEARCH] Science for every 4 [ICON_CITIZEN] Citizens and +1 [ICON_PRODUCTION] Production from [ICON_GREAT_WORK] Great Works in a City. +3 [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, and [ICON_GREAT_SCIENTIST] Great Scientist Points, and [ICON_GREAT_ARTIST] Great Artist Points in [ICON_CAPITAL] Capital. +5 [ICON_RESEARCH] Science from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_OGMA_SHORT">
+			<Text>Ogma, the Learned</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_BRAN">
+			<Text>+25% increase in City [ICON_RANGE_STRENGTH] Ranged Combat Strength and +25% [ICON_FOOD] Growth. +15 [ICON_CULTURE] Culture and [ICON_GOLD] Gold when a [ICON_CITIZEN] Citizen is born, scaling with Era. +1 [ICON_HAPPINESS_1] Happiness per following City. +5 [ICON_FOOD] Food from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_BRAN_SHORT">
+			<Text>Bran, the Sleeping Guardian</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_DAGDA">
+			<Text>+1 [ICON_CULTURE] Culture, [ICON_GOLD] Gold, [ICON_PRODUCTION] Production, and [ICON_RESEARCH] Science in the [ICON_CAPITAL] Capital, and for every 4 Followers of your Pantheon in owned Cities. +5 HP healed per turn in Friendly Territory. +2 [ICON_HAPPINESS_1] Happiness from Ceilidh Hall.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_DAGDA_SHORT">
+			<Text>Dagda, the All-Father</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BELIEF_GURDWARA">
+			<Text>Use [ICON_PEACE] Faith to purchase Gurdwaras.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_GURDWARA_SHORT">
+			<Text>Gurdwaras</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BELIEF_TEOCALLI">
+			<Text>Use [ICON_PEACE] Faith to purchase Teocallis.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_TEOCALLI_SHORT">
+			<Text>Teocallis</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM">
+			<Text>[ICON_FOOD] Food and [ICON_PRODUCTION] Production Internal Trade Routes generate +3 of their respective yields, scaling with Era. +2 [ICON_PRODUCTION] Production if City has a Specialist.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BELIEF_COMMUNALISM_SHORT">
+			<Text>Cooperation</Text>
+		</Row>
+
+		<!-- Tooltips -->
+		<Row Tag="TXT_KEY_BUILDING_CATHEDRAL_TOOLTIP">
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_GOLD]Gold[NEWLINE]1 [ICON_GREAT_WORK] Great Work of Art Slot[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_CATHEDRAL_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_CHURCH_TOOLTIP">
+			<Text>+4 [ICON_PEACE] Faith, +2 [ICON_CULTURE] Culture[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_CHURCH_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_GURDWARA_TOOLTIP">
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_FOOD] Food[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_GURDWARA_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MANDIR_TOOLTIP">
+			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_FOOD] Food[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_MANDIR_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_MOSQUE_TOOLTIP">
+			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+2 [ICON_RESEARCH]Science[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_MOSQUE_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_ORDER_TOOLTIP">
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLD] Gold[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_ORDER_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_PAGODA_TOOLTIP">
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_PAGODA_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_STUPA_TOOLTIP">
+			<Text>+3 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_GOLDEN_AGE] Golden Age Points[NEWLINE]+5 [ICON_TOURISM] Tourism[NEWLINE]+1 [ICON_HAPPINESS_1] Happiness[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_STUPA_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_SYNAGOGUE_TOOLTIP">
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE]+3 [ICON_PRODUCTION] Production[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_SYNAGOGUE_HELP}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BUILDING_TEOCALLI_TOOLTIP">
+			<Text>+2 [ICON_PEACE] Faith[NEWLINE][NEWLINE]{TXT_KEY_BUILDING_TEOCALLI_HELP}</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

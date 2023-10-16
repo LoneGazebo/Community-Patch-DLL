@@ -1618,13 +1618,6 @@ if civ5_mode then
 					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_3", L("TXT_KEY_CO_VICTORY_INFLUENTIAL_OF", numInfluential, numToBeInfluential) )
 			end
 
-			--CBP
-			local iTourismPenalty = g_activePlayer:GetTourismPenalty();
-
-			tipText = tipText .. "[NEWLINE][NEWLINE]"
-					.. L( "TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iTourismPenalty )
-			--END
-
 			return setTextToolTip( tipText )
 		end
 		Controls.TourismString:SetHide(false)
@@ -2371,7 +2364,7 @@ if civ5_mode and gk_mode then
 		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
 		-- Bonuses from unlisted sources are added to the handicap value
-		local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople + iTechReduction + iWarWearinessActualReduction);
+		local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iWarWearinessActualReduction);
 		iPerHandicap = iPerHandicap + iExtra;
 
 		local strUnitSupplyToolTip = "";

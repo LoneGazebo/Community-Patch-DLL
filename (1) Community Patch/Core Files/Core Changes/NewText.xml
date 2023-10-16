@@ -15,12 +15,108 @@
 	</Concepts>	
 	<!-- NEW DIPLOMACY TEXTS -->
 	<Diplomacy_Responses>
+	<!-- Human asks AI about their opinions-->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HOSTILE_REPEAT_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_HOSTILE_REPEAT_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_REPEAT_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_REPEAT_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HOSTILE_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_HOSTILE_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_NO</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_NO%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_FRIENDLY</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_FRIENDLY%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_NEUTRAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_GUARDED</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_GUARDED%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_HOSTILE</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_HOSTILE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_WAR%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_AFRAID</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_AFRAID%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_PLANNING_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_PLANNING_WAR%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_OPINION_DECEPTIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_SHARE_OPINION_DECEPTIVE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_TOO_SOON_FOR_SHARE_OPINION</ResponseType>
+			<Response>TXT_KEY_GENERIC_TOO_SOON_FOR_SHARE_OPINION%</Response>
+		</Row>
+		<!-- Move Troops -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_ACCEPT</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_ACCEPT%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_NEUTRAL</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_NEUTRAL_HOSTILE</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_NEUTRAL_HOSTILE%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_CONQUEST</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_CONQUEST%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_DECEPTIVE</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_DECEPTIVE</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_MOVE_TROOPS_REJECT_HOSTILE</ResponseType>
+			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE</Response>
+		</Row>
+		
+		<!-- Generous offers -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_GENEROUS_OFFER</ResponseType>
+			<Response>TXT_KEY_GENERIC_GENEROUS_OFFER%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HELP_REQUEST_REFUSE_TOO_MUCH</ResponseType>
+			<Response>TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_MUCH%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HELP_REQUEST_REFUSE_TOO_SOON</ResponseType>
+			<Response>TXT_KEY_GENERIC_HELP_REQUEST_REFUSE_TOO_SOON%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_HELP_REQUEST_YES</ResponseType>
+			<Response>TXT_KEY_GENERIC_HELP_REQUEST_YES%</Response>
+		</Row>
 		<!-- Cant match offer negative -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_TRADE_CANT_MATCH_OFFER_NEGATIVE</ResponseType>
 			<Response>TXT_KEY_GENERIC_TRADE_CANT_MATCH_NEGATIVE%</Response>
 		</Row>
-		<!-- Human over AI -->
+		<!-- Human influential over AI -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_CLASSICAL</ResponseType>
 			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_CLASSICAL%</Response>
@@ -33,7 +129,7 @@
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_AI_MODERN</ResponseType>
 			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_AI_MODERN%</Response>
 		</Row>
-		<!-- AI over Human -->
+		<!-- AI influential over Human -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_INFLUENTIAL_ON_HUMAN_CLASSICAL</ResponseType>
 			<Response>TXT_KEY_GENERIC_INFLUENTIAL_ON_HUMAN_CLASSICAL%</Response>

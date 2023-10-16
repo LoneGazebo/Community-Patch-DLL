@@ -102,7 +102,8 @@ void CvStartPositioner::ComputeFoundValues()
 	CUSTOMLOG("CvStartPositioner::ComputeFoundValues()");
 
 	// Progress through entire map
-	unsigned int iSum = 0, iValidPlots = 0;
+	unsigned int iSum = 0;
+	unsigned int iValidPlots = 0;
 	for(int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		// Store found value in player 1 slot for now
@@ -798,7 +799,8 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 int CvStartPositioner::StartingPlotRange() const
 {
 	int iRange = 0;
-	int iNumMinors = 0, iNumMajors = 0;
+	int iNumMinors = 0;
+	int iNumMajors = 0;
 	int iExpectedCities = 0;
 
 	// Start with the range as a percentage of the maximum path length across the map

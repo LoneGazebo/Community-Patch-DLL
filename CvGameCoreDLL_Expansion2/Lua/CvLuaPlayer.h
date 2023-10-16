@@ -70,6 +70,7 @@ protected:
 	static int lIsShowImports(lua_State* L);
 #endif
 	static int lIsResourceCityTradeable(lua_State* L);
+	static int lIsResourceImproveable(lua_State* L);
 	static int lIsResourceRevealed(lua_State* L);
 	static int lDisbandUnit(lua_State* L);
 	static int lAddFreeUnit(lua_State* L);
@@ -864,6 +865,8 @@ protected:
 	static int lGetMajorBullyUnitDetails(lua_State* L);
 	static int lGetMajorBullyAnnexDetails(lua_State* L);
 	static int lGetMajorBullyValue(lua_State* L);
+	static int lGetUnitSpawnCounter(lua_State* L);
+	static int lSetUnitSpawnCounter(lua_State* L);
 	static int lCanMajorBuyout(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lCanMajorMarry(lua_State* L);
@@ -1504,6 +1507,28 @@ protected:
 	static int lGetMilitaryAirMight(lua_State* L);
 	static int lGetMilitaryLandMight(lua_State* L);
 #endif
+
+	LUAAPIEXTN(IsResourceNotForSale, bool, eResource);
+	LUAAPIEXTN(SetResourceAvailable, void, eResource);
+	LUAAPIEXTN(SetResourceNotForSale, void, eResource);
+
+	LUAAPIEXTN(IsRefuseOpenBordersTrade, bool);
+	LUAAPIEXTN(SetRefuseOpenBordersTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseEmbassyTrade, bool);
+	LUAAPIEXTN(SetRefuseEmbassyTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseDefensivePactTrade, bool);
+	LUAAPIEXTN(SetRefuseDefensivePactTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseBrokeredWarTrade, bool);
+	LUAAPIEXTN(SetRefuseBrokeredWarTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseBrokeredPeaceTrade, bool);
+	LUAAPIEXTN(SetRefuseBrokeredPeaceTrade, void, bRefuse);
+
+	LUAAPIEXTN(IsRefuseResearchAgreementTrade, bool);
+	LUAAPIEXTN(SetRefuseResearchAgreementTrade, void, bRefuse);
 };
 
 namespace CvLuaArgs

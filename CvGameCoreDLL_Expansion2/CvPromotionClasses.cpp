@@ -2933,7 +2933,7 @@ std::pair<int, bool> CvPromotionEntry::GetInstantYields(int i) const
 	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (i > -1 && i < NUM_YIELD_TYPES && m_piInstantYields.empty() == false)
+	if (i > -1 && i < NUM_YIELD_TYPES && !m_piInstantYields.empty())
 	{
 		std::map<int, std::pair<int, bool>>::const_iterator it = m_piInstantYields.find(i);
 		if (it != m_piInstantYields.end()) // find returns the iterator to map::end if the key iYield is not present in the map
@@ -3510,11 +3510,11 @@ PromotionTypes CvUnitPromotions::ChangePromotionAfterCombat(PromotionTypes eInde
 		}
 	}
 
-	int iNumChoices = aPossiblePromotions.size();
-	if (iNumChoices > 0)
+	uint uNumChoices = aPossiblePromotions.size();
+	if (uNumChoices > 0)
 	{
-		int iChoice = GC.getGame().getSmallFakeRandNum(iNumChoices, pThisUnit->plot()->GetPlotIndex() + pThisUnit->GetID() + pThisUnit->getDamage());
-		return (PromotionTypes)aPossiblePromotions[iChoice];
+		uint uChoice = GC.getGame().urandLimitExclusive(uNumChoices, pThisUnit->plot()->GetPseudoRandomSeed().mix(pThisUnit->GetID()).mix(pThisUnit->getDamage()));
+		return static_cast<PromotionTypes>(aPossiblePromotions[uChoice]);
 	}
 
 	return NO_PROMOTION;

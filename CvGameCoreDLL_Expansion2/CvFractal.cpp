@@ -79,7 +79,8 @@ void CvFractal::fracInitInternal(int iNewXs, int iNewYs, int iGrain, CvRandom& r
 	int iScreen = 0;  // This screens out already marked spots in m_aaiFrac[][];
 	int iPass = 0;
 	int iSum = 0;
-	int iX = 0, iY = 0;
+	int iX = 0;
+	int iY = 0;
 	int iI = 0;
 
 	reset();
@@ -290,10 +291,10 @@ int CvFractal::getHeight(int iX, int iY)
 	int iLowY = 0;
 
 	CvAssertMsg(0 <= iX && iX < m_iXs, "iX out of range");
-	if(!(0 <= iX && iX < m_iXs)) return 0;
+	if(0 > iX || iX >= m_iXs) return 0;
 
 	CvAssertMsg(0 <= iY && iY < m_iYs, "iY out of range");
-	if(!(0 <= iY && iY < m_iYs)) return 0;
+	if(0 > iY || iY >= m_iYs) return 0;
 
 	iLowX = ((m_iXInc * iX) / FLOAT_PRECISION);
 	if(iLowX > m_iFracX - 1)
@@ -339,7 +340,8 @@ int CvFractal::getHeightFromPercent(int iPercent)
 	int iLowerBound = 0;
 	int iUpperBound = 0;
 	int iSum = 0;
-	int iX = 0, iY = 0;
+	int iX = 0;
+	int iY = 0;
 
 	iLowerBound = 0;
 	iUpperBound = 255;

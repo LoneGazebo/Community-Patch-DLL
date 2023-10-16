@@ -78,6 +78,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsShowImports);
 #endif
 	Method(IsResourceCityTradeable);
+	Method(IsResourceImproveable);
 	Method(IsResourceRevealed);
 	Method(DisbandUnit);
 	Method(AddFreeUnit);
@@ -700,7 +701,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(QuestSpyActionsRemaining);
 	Method(GetXQuestBuildingRemaining);
 	Method(GetExplorePercent);
-	Method(GetXQuestBuildingRemaining);
 	Method(GetRewardString);
 	Method(GetExplorePercent);
 	Method(GetTargetCityString);
@@ -762,6 +762,8 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMajorBullyUnitDetails);
 	Method(GetMajorBullyAnnexDetails);
 	Method(GetMajorBullyValue);
+	Method(GetUnitSpawnCounter);
+	Method(SetUnitSpawnCounter);
 	Method(CanMajorBuyout);
 	Method(CanMajorMarry);
 	Method(DoMarriage);
@@ -1473,6 +1475,28 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetMilitaryAirMight);
 	Method(GetMilitaryLandMight);
 #endif
+
+	Method(IsResourceNotForSale);
+	Method(SetResourceAvailable);
+	Method(SetResourceNotForSale);
+
+	Method(IsRefuseOpenBordersTrade);
+	Method(SetRefuseOpenBordersTrade);
+
+	Method(IsRefuseEmbassyTrade);
+	Method(SetRefuseEmbassyTrade);
+
+	Method(IsRefuseDefensivePactTrade);
+	Method(SetRefuseDefensivePactTrade);
+
+	Method(IsRefuseBrokeredWarTrade);
+	Method(SetRefuseBrokeredWarTrade);
+
+	Method(IsRefuseBrokeredPeaceTrade);
+	Method(SetRefuseBrokeredPeaceTrade);
+
+	Method(IsRefuseResearchAgreementTrade);
+	Method(SetRefuseResearchAgreementTrade);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -1867,6 +1891,18 @@ int CvLuaPlayer::lIsResourceCityTradeable(lua_State* L)
 	const bool bCheckTeam = luaL_optbool(L, 3, true);
 
 	const bool bResult = pkPlayer->IsResourceCityTradeable(eResource, bCheckTeam);
+	lua_pushboolean(L, bResult);
+
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsResourceImproveable(ResourceTypes eResource) const;
+int CvLuaPlayer::lIsResourceImproveable(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	const bool bResult = GET_TEAM(pkPlayer->getTeam()).IsResourceImproveable(eResource);
 	lua_pushboolean(L, bResult);
 
 	return 1;
@@ -8611,9 +8647,19 @@ int CvLuaPlayer::lGetXQuestBuildingRemaining(lua_State* L)
 	const MinorCivQuestTypes eType = (MinorCivQuestTypes) lua_tointeger(L, 3);
 	const BuildingTypes eBuilding = (BuildingTypes) lua_tointeger(L, 4);
 	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
-	int iBuilt = GET_PLAYER(ePlayer).getNumBuildings(eBuilding);
+	int iBuilt = 0;
+	int iLoop = 0;
+	for (CvCity* pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
+	{
+		// Exclude puppets
+		if (pLoopCity->IsPuppet())
+			continue;
 
-	const int iResult = (iNeeded - iBuilt);
+		if (pLoopCity->GetCityBuildings()->GetNumBuilding(eBuilding) > 0)
+			iBuilt++;
+	}
+
+	const int iResult = iNeeded - iBuilt;
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -8626,7 +8672,7 @@ int CvLuaPlayer::lQuestSpyActionsRemaining(lua_State* L)
 	int iNeeded = pkPlayer->GetMinorCivAI()->GetQuestData2(ePlayer, eType);
 	int iDone = GET_PLAYER(ePlayer).GetEspionage()->GetNumSpyActionsDone(eTargetPlayer);
 
-	const int iResult = (iNeeded - iDone);
+	const int iResult = iNeeded - iDone;
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -9171,6 +9217,26 @@ int CvLuaPlayer::lGetMajorBullyValue(lua_State* L)
 
 	lua_pushinteger(L, iValue);
 	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetUnitSpawnCounter(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lSetUnitSpawnCounter(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+
+	pkPlayer->GetMinorCivAI()->SetUnitSpawnCounter(eMajor, iValue);
+	return 0;
 }
 //------------------------------------------------------------------------------
 //bool CanMajorBuyout(PlayerTypes eMajor);
@@ -11411,33 +11477,8 @@ int CvLuaPlayer::lDoForceDoF(lua_State* L)
 
 	pkPlayer->GetDiplomacyAI()->SetDoFAccepted(eOtherPlayer, true);
 	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFAccepted(pkPlayer->GetID(), true);
-
-	if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_ALLIES || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_ALLIES)
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_BATTLE_BROTHERS);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_BATTLE_BROTHERS);
-	}
-	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_FRIENDS || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_FRIENDS) 
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_ALLIES);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_ALLIES);
-	}
-	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_NEW || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_NEW)  
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_FRIENDS);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_FRIENDS);
-	}
-	else if(pkPlayer->GetDiplomacyAI()->GetDoFType(eOtherPlayer) == DOF_TYPE_UNTRUSTWORTHY || GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->GetDoFType(pkPlayer->GetID()) == DOF_TYPE_UNTRUSTWORTHY)  
-	{
-		pkPlayer->GetDiplomacyAI()->SetDoFType(eOtherPlayer, DOF_TYPE_NEW);
-		GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->SetDoFType(pkPlayer->GetID(), DOF_TYPE_NEW);
-	}
-
-	vector<PlayerTypes> v(1, eOtherPlayer);
-	pkPlayer->GetDiplomacyAI()->DoReevaluatePlayers(v);
-
-	vector<PlayerTypes> v2(1, pkPlayer->GetID());
-	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoReevaluatePlayers(v2);
+	pkPlayer->GetDiplomacyAI()->DoReevaluatePlayer(eOtherPlayer);
+	GET_PLAYER(eOtherPlayer).GetDiplomacyAI()->DoReevaluatePlayer(pkPlayer->GetID());
 
 	return 1;
 }
@@ -11811,11 +11852,12 @@ int CvLuaPlayer::lGetRecommendedFoundCityPlots(lua_State* L)
 				iDistanceDropoff = (iDistanceDropoffMod * iSettlerDistance) / iEvalDistance;
 				iValue = iValue * (100 - iDistanceDropoff) / 100;
 				iDanger = pkPlayer->GetPlotDanger(*pPlot,false);
-				if(iDanger < 1000)
+				if (iValue > 0 && iDanger < 1000)
 				{
 					iValue = ((1000 - iDanger) * iValue) / 1000;
 
-					aBestPlots.push_back(pPlot, iValue);
+					if (iValue > 0)
+						aBestPlots.push_back(pPlot, iValue);
 				}
 			}
 		}
@@ -15250,24 +15292,23 @@ int CvLuaPlayer::lGetOpinionTable(lua_State* L)
 			aOpinions.push_back(kOpinion);
 		}
 
-		iValue = pDiplo->GetDenouncedScore(ePlayer);
-		if (iValue != 0)
+		if (pDiplo->IsDenouncedPlayer(ePlayer) || pDiplo->IsDenouncedByPlayer(ePlayer))
 		{
 			Opinion kOpinion;
-			kOpinion.m_iValue = iValue;
+			kOpinion.m_iValue = pDiplo->GetDenouncedScore(ePlayer);
 			CvString str;
 
 			if (pDiplo->IsDenouncedPlayer(ePlayer) && pDiplo->IsDenouncedByPlayer(ePlayer))
 			{
 				str = Localization::Lookup("TXT_KEY_DIPLO_MUTUAL_DENOUNCEMENT").toUTF8();
 			}
-			else if (pDiplo->IsDenouncedPlayer(ePlayer))
+			else if (pDiplo->IsDenouncedByPlayer(ePlayer))
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
 			}
 			else
 			{
-				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_US").toUTF8();
+				str = Localization::Lookup("TXT_KEY_DIPLO_DENOUNCED_BY_THEM").toUTF8();
 			}
 
 			kOpinion.m_str = str;
@@ -15744,7 +15785,7 @@ int CvLuaPlayer::lIsTradeItemValuedImpossible(lua_State* L)
 
 	if (!GET_PLAYER(pkThisPlayer->GetID()).isHuman())
 	{
-		int iResult = pkThisPlayer->GetDealAI()->GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration);
+		int iResult = pkThisPlayer->GetDealAI()->GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration, false, true);
 		if (iResult == INT_MAX || iResult == (INT_MAX * -1))
 		{
 			lua_pushboolean(L, true);
@@ -16167,7 +16208,9 @@ int CvLuaPlayer::lGetEspionageSpies(lua_State* L)
 int CvLuaPlayer::lEspionageCreateSpy(lua_State* L)
 {
 	CvPlayer* pkPlayer = GetInstance(L);
-	pkPlayer->CreateSpies(1, false);
+
+	bool bScaling = luaL_optbool(L, 2, false);
+	pkPlayer->CreateSpies(1, bScaling);
 
 	return 0;
 }
@@ -18081,3 +18124,136 @@ int CvLuaPlayer::lGetMilitaryLandMight(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::GetMilitaryLandMight);
 }
 #endif
+
+// bool CvPlayer::IsResourceNotForSale(ResourceTypes eResource)
+int CvLuaPlayer::lIsResourceNotForSale(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->IsResourceNotForSale(eResource);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+// void SetResourceAvailable(ResourceTypes eResource)
+int CvLuaPlayer::lSetResourceAvailable(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	pkPlayer->SetResourceAvailable(eResource);
+	return 1;
+}
+
+// void CvPlayer::SetResourceNotForSale(ResourceTypes eResource)
+int CvLuaPlayer::lSetResourceNotForSale(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+
+	pkPlayer->SetResourceNotForSale(eResource);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseOpenBordersTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseOpenBordersTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseOpenBordersTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseOpenBordersTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseEmbassyTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseEmbassyTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseEmbassyTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseEmbassyTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseDefensivePactTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseDefensivePactTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseDefensivePactTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseDefensivePactTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseBrokeredWarTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseBrokeredWarTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseBrokeredWarTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseBrokeredWarTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseBrokeredPeaceTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseBrokeredPeaceTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseBrokeredPeaceTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseBrokeredPeaceTrade(bRefuse);
+	return 1;
+}
+
+int CvLuaPlayer::lIsRefuseResearchAgreementTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+
+	lua_pushboolean(L, pkPlayer->IsRefuseResearchAgreementTrade());
+	return 1;
+}
+
+int CvLuaPlayer::lSetRefuseResearchAgreementTrade(lua_State* L)
+{
+	CvPlayer* pkPlayer = GetInstance(L);
+	const bool bRefuse = lua_toboolean(L, 2);
+
+	pkPlayer->SetRefuseResearchAgreementTrade(bRefuse);
+	return 1;
+}

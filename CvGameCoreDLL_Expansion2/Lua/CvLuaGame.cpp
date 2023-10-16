@@ -4142,8 +4142,9 @@ int CvLuaGame::lGetActiveContractUnitList(lua_State* L)
 int CvLuaGame::lDoSpawnFreeCity(lua_State* L)
 {
 	CvCity* pkCity = CvLuaCity::GetInstance(L, 1);
-	//CvString strCustomName = luaL_optstring(L, "NO_NAME", 2);
-	GC.getGame().CreateFreeCityPlayer(pkCity);
+	const bool bMajorFoundingCityState = luaL_optbool(L, 2, false);
+	//CvString strCustomName = luaL_optstring(L, "NO_NAME", 3);
+	GC.getGame().CreateFreeCityPlayer(pkCity, false, bMajorFoundingCityState);
 	return 0;
 }
 

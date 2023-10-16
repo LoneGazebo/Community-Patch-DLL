@@ -134,11 +134,6 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 
 	TechTypes rtnValue = NO_TECH;
 
-	// Use the synchronous random number generate
-	// Asynchronous one would be:
-	//	fcn = MakeDelegate (&GC.getGame(), &CvGame::getAsyncRandNum);
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-
 	// Create a new vector holding only techs we can currently research
 	m_ResearchableTechs.clear();
 
@@ -171,7 +166,7 @@ TechTypes CvTechAI::ChooseNextTech(CvPlayer *pPlayer, bool bFreeTech)
 	// Make and log our tech choice
 	if (m_ResearchableTechs.size() > 0)
 	{
-		rtnValue = (TechTypes)m_ResearchableTechs.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getTechChoiceCutoffThreshold(), &fcn, "Choosing tech from Top Choices");
+		rtnValue = (TechTypes)m_ResearchableTechs.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getTechChoiceCutoffThreshold(), CvSeeder::fromRaw(0xd0b45b02).mix(pPlayer->GetID()).mix(GET_TEAM(pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown()));
 		LogResearchChoice(rtnValue);
 	}
 
@@ -284,7 +279,10 @@ void CvTechAI::PropagateWeights(int iTech, int iWeight, int iPropagationPercent,
 		return;
 
 	//first apply the weight to the tech itself
-	m_TechAIWeights.IncreaseWeight(iTech, iWeight);
+	if (m_TechAIWeights.GetWeight(iTech) + iWeight < 0)
+		m_TechAIWeights.SetWeight(iTech, 0);
+	else
+		m_TechAIWeights.IncreaseWeight(iTech, iWeight);
 
 	//then see if we have prerequites to take care of
 	if (iPropagationLevel >= /*3*/ GD_INT_GET(TECH_WEIGHT_PROPAGATION_LEVELS))

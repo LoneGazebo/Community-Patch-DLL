@@ -115,6 +115,6 @@ void CvDllDealAI::DoAcceptedDemand(PlayerTypes eFromPlayer, ICvDeal1* pDeal)
 bool CvDllDealAI::DoEqualizeDealWithHuman(ICvDeal1* pDeal, PlayerTypes eOtherPlayer, bool bDontChangeMyExistingItems, bool bDontChangeTheirExistingItems, bool& bDealGoodToBeginWith, bool& bCantMatchOffer)
 {
 	CvDeal* pkDeal = (NULL != pDeal)? dynamic_cast<CvDllDeal*>(pDeal)->GetInstance() : NULL;
-	return m_pDealAI->DoEqualizeDealWithHuman(pkDeal, eOtherPlayer, bDealGoodToBeginWith, bCantMatchOffer);
+	return m_pDealAI->DoEqualizeDeal(pkDeal, eOtherPlayer, bDealGoodToBeginWith, bCantMatchOffer);
 }
 //------------------------------------------------------------------------------

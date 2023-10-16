@@ -42,7 +42,7 @@ public:
 	int GetWeight(BuildingTypes eBuilding);
 
 	// Recommend highest-weighted wonder
-	BuildingTypes ChooseWonder(bool bAdjustForOtherPlayers, int& iWonderWeight);
+	BuildingTypes ChooseWonder(int& iWonderWeight);
 
 	// Logging
 	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);

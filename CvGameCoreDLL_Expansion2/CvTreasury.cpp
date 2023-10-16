@@ -538,7 +538,7 @@ int CvTreasury::CalculateUnitCost()
 	int iGameProgressFactor = (GC.getGame().getElapsedGameTurns() * 100) / GC.getGame().getDefaultEstimateEndTurn();
 	// in VP: game progress is calculated based on tech progress, not on elapsed game turns
 	if (MOD_BALANCE_VP)
-		iGameProgressFactor = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
+		iGameProgressFactor = GET_TEAM(m_pPlayer->getTeam()).GetTechProgressPercent();
 
 	// Multiplicative increase - helps scale costs as game goes on - the HIGHER this number the more is paid
 	double fMultiplier = 0.0f;
@@ -987,7 +987,8 @@ int CvTreasury::GetVassalGoldMaintenance() const
 			&& !GET_PLAYER((PlayerTypes)iI).isBarbarian()
 			&& GET_PLAYER((PlayerTypes)iI).isAlive())
 		{
-			int iLoop = 0, iCityPop = 0;
+			int iLoop = 0;
+			int iCityPop = 0;
 			// This player is our vassal
 			if(GET_TEAM(GET_PLAYER((PlayerTypes)iI).getTeam()).IsVassal(m_pPlayer->getTeam()))
 			{

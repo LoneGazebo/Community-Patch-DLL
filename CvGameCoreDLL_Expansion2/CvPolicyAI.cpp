@@ -34,7 +34,7 @@ void CvPolicyAI::Reset()
 {
 	m_PolicyAIWeights.clear();
 	m_iPolicyWeightPropagationLevels = /*2*/ GD_INT_GET(POLICY_WEIGHT_PROPAGATION_LEVELS);
-	m_iPolicyWeightPercentDropNewBranch = /*90*/ GD_INT_GET(POLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH);
+	m_iPolicyWeightPercentDropNewBranch = /*90*/ max(GD_INT_GET(POLICY_WEIGHT_PERCENT_DROP_NEW_BRANCH), 0);
 
 	CvAssertMsg(m_pCurrentPolicies != NULL, "Policy AI init failure: player policy data is NULL");
 	if(m_pCurrentPolicies != NULL)
@@ -126,10 +126,8 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	if (!pPlayer->isMajorCiv())
 		return 0;
 
-	RandomNumberDelegate fcn;
-	fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
 	int iRtnValue = (int)NO_POLICY;
-	int iPolicyLoop;
+	int iPolicyLoop = 0;
 	vector<int> aLevel3Tenets;
 
 	bool bMustChooseTenet = (pPlayer->GetNumFreeTenets() > 0);
@@ -235,7 +233,7 @@ int CvPolicyAI::ChooseNextPolicy(CvPlayer* pPlayer)
 	// Make our policy choice from the top choices
 	if (m_AdoptablePolicies.size() > 0)
 	{
-		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getPolicyChoiceCutoffThreshold(), &fcn, "Choosing policy from Top Choices");
+		iRtnValue = m_AdoptablePolicies.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getPolicyChoiceCutoffThreshold(), CvSeeder::fromRaw(0x5fef0474).mix(pPlayer->GetID()).mix(pPlayer->GetPlayerPolicies()->GetNumPoliciesOwned(false, false, true)));
 
 		// Log our choice
 		if (iRtnValue != (int)NO_POLICY)
@@ -3758,11 +3756,14 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 					if (pUnitEntry)
 					{
 						int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
-						if (pPlayerTraits->IsReligious())
+						if (iValue > 0)
 						{
-							iValue *= 2;
+							if (pPlayerTraits->IsReligious())
+							{
+								iValue *= 2;
+							}
+							yield[YIELD_FAITH] += min(225, iValue);
 						}
-						yield[YIELD_FAITH] += min(225, iValue);
 					}
 				}
 			}
@@ -3774,14 +3775,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 				if (pUnitEntry && pUnitEntry->GetPolicyType() == ePolicy)
 				{
 					int iValue = pPlayer->getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, 10, true, true);
-					if (pPlayerTraits->IsWarmonger())
+					if (iValue > 0)
 					{
-						iValue *= 2;
+						if (pPlayerTraits->IsWarmonger())
+						{
+							iValue *= 2;
+						}
+						if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
+							yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
+						else
+							yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
 					}
-					if (pUnitEntry->GetDomainType() == DOMAIN_LAND || pUnitEntry->GetDomainType() == DOMAIN_AIR)
-						yield[YIELD_GREAT_GENERAL_POINTS] += min(150, iValue);
-					else
-						yield[YIELD_GREAT_ADMIRAL_POINTS] += min(150, iValue);
 				}
 			}
 		}
@@ -4808,40 +4812,17 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 	iScienceValue *= (100 + (iScienceInterest / 10));
 	iScienceValue /= 100;
 
-	//And now add them in. Halve if not our main focus.
-	if (pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory())
-	{
-		iWeight += iCultureValue;
-	}
-	else
-	{
-		iWeight += (iCultureValue / 2);
-	}
-	if (pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory())
-	{
-		iWeight += iDiploValue;
-	}
-	else
-	{
-		iWeight += (iDiploValue / 2);
-	}
-	if (pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory() || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory())
-	{
-		iWeight += iScienceValue;
-	}
-	else
-	{
-		iWeight += (iScienceValue / 2);
-	}
+	bool bSeriousMode = pPlayer->GetDiplomacyAI()->IsSeriousAboutVictory();
+	bool bConquestFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest()) || pPlayer->GetPlayerTraits()->IsWarmonger() || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest();
+	bool bDiploFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForDiploVictory()) || pPlayer->GetPlayerTraits()->IsDiplomat() || pPlayer->GetDiplomacyAI()->IsCloseToDiploVictory();
+	bool bScienceFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForSpaceshipVictory()) || pPlayer->GetPlayerTraits()->IsNerd() || pPlayer->GetDiplomacyAI()->IsCloseToSpaceshipVictory();
+	bool bCultureFocus = (bSeriousMode && pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory()) || pPlayer->GetPlayerTraits()->IsTourism() || pPlayer->GetDiplomacyAI()->IsCloseToCultureVictory();
 
-	if (pPlayer->GetDiplomacyAI()->IsGoingForWorldConquest() || pPlayer->GetDiplomacyAI()->IsCloseToWorldConquest())
-	{
-		iWeight += iConquestValue;
-	}
-	else
-	{
-		iWeight += (iConquestValue / 2);
-	}
+	// And now add them in. Halve if not our main focus.
+	iWeight += bConquestFocus ? iConquestValue : iConquestValue / 2;
+	iWeight += bDiploFocus ? iDiploValue : iDiploValue / 2;
+	iWeight += bScienceFocus ? iScienceValue : iScienceValue / 2;
+	iWeight += bCultureFocus ? iCultureValue : iCultureValue / 2;
 
 	//If this is an ideology policy, let's snap those up.
 	if (m_pCurrentPolicies->GetPolicies()->GetPolicyEntry(ePolicy)->GetLevel() > 0)
@@ -4907,7 +4888,8 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 			}
 		}
 	}
-	return iWeight;
+
+	return max(iWeight, 0);
 }
 
 /// Priority for opening up this branch
@@ -4997,7 +4979,7 @@ int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 		}
 	}
 
-	return iWeight;
+	return max(iWeight, 0);
 }
 
 /// Based on game options (religion off, science off, etc.), would this branch do us any good?

@@ -408,7 +408,7 @@ public:
 	{
 		return (PlotTypes)m_ePlotType;
 	}
-	bool isWater()          const
+	inline bool isWater()          const
 	{
 		return (PlotTypes)m_ePlotType == PLOT_OCEAN;
 	};
@@ -831,7 +831,7 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool IsEnemyCityAdjacent(TeamTypes eMyTeam, const CvCity* pSpecifyCity) const;
 	bool IsEnemyUnitAdjacent(TeamTypes eMyTeam) const;
-	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false) const;
+	int GetNumEnemyUnitsAdjacent(TeamTypes eMyTeam, DomainTypes eDomain, const CvUnit* pUnitToExclude = NULL, bool bConsiderFlanking = false, TeamTypes eSpecificTeam = NO_TEAM, bool bIncludeEmbarked = false) const;
 	vector<CvUnit*> GetAdjacentEnemyUnits(TeamTypes eMyTeam, DomainTypes eDomain) const;
 	pair<int, int> GetLocalUnitPower(PlayerTypes ePlayer, int iRange, bool bSameDomain) const;
 
@@ -847,6 +847,9 @@ public:
 #endif
 
 	bool canPlaceCombatUnit(PlayerTypes ePlayer) const;
+
+	/// Constructs a seed value from the plot suitable for pseudo-random number generation.
+	CvSeeder GetPseudoRandomSeed() const;
 
 protected:
 	class PlotBoolField

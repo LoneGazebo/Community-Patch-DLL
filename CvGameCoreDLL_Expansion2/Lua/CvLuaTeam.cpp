@@ -56,12 +56,19 @@ void CvLuaTeam::PushMethods(lua_State* L, int t)
 	Method(GetDefensivePower);
 	Method(GetNumNukeUnits);
 
+	 // DEPRECATED
 	Method(GetTeamVotingForInDiplo);
 	Method(GetProjectedVotesFromMinorAllies);
 	Method(GetProjectedVotesFromLiberatedMinors);
 	Method(GetProjectedVotesFromCivs);
 	Method(GetTotalProjectedVotes);
-	Method(GetTotalSecuredVotes); // DEPRECATED, use GetTotalProjectedVotes instead
+	Method(GetTotalSecuredVotes);
+	Method(IsHasTradeAgreement);
+	Method(IsTradeAgreementTradingAllowed);
+	Method(GetPermanentAllianceTradingCount);
+	Method(IsPermanentAllianceTrading);
+	Method(ChangePermanentAllianceTradingCount);
+	// End DEPRECATED
 
 	Method(GetAtWarCount);
 	Method(GetHasMetCivCount);
@@ -379,45 +386,49 @@ int CvLuaTeam::lGetNumNukeUnits(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//int GetTeamVotingForInDiplo();
 int CvLuaTeam::lGetTeamVotingForInDiplo(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvTeam::GetTeamVotingForInDiplo);
+	luaL_error(L, "GetTeamVotingForInDiplo - function is deprecated");
 }
-
-//------------------------------------------------------------------------------
-//int GetProjectedVotesFromMinorAllies();
 int CvLuaTeam::lGetProjectedVotesFromMinorAllies(lua_State *L)
 {
-	return BasicLuaMethod(L, &CvTeam::GetProjectedVotesFromMinorAllies);
+	luaL_error(L, "GetProjectedVotesFromMinorAllies - function is deprecated");
 }
-
-//------------------------------------------------------------------------------
-//int GetProjectedVotesFromLiberatedMinors();
 int CvLuaTeam::lGetProjectedVotesFromLiberatedMinors(lua_State *L)
 {
-	return BasicLuaMethod(L, &CvTeam::GetProjectedVotesFromLiberatedMinors);
+	luaL_error(L, "GetProjectedVotesFromLiberatedMinors - function is deprecated");
 }
-
-//------------------------------------------------------------------------------
-//int GetProjectedVotesFromCivs();
 int CvLuaTeam::lGetProjectedVotesFromCivs(lua_State *L)
 {
-	return BasicLuaMethod(L, &CvTeam::GetProjectedVotesFromCivs);
+	luaL_error(L, "GetProjectedVotesFromCivs - function is deprecated");
 }
-
-//------------------------------------------------------------------------------
-//int GetTotalProjectedVotes();
 int CvLuaTeam::lGetTotalProjectedVotes(lua_State *L)
 {
-	return BasicLuaMethod(L, &CvTeam::GetTotalProjectedVotes);
+	luaL_error(L, "GetTotalProjectedVotes - function is deprecated");
 }
-
-//------------------------------------------------------------------------------
-//int GetTotalSecuredVotes();
 int CvLuaTeam::lGetTotalSecuredVotes(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvTeam::GetTotalSecuredVotes);
+	luaL_error(L, "GetTotalSecuredVotes - function is deprecated");
+}
+int CvLuaTeam::lIsHasTradeAgreement(lua_State* L)
+{
+	luaL_error(L, "IsHasTradeAgreement - function is deprecated. You are using an incompatible UI (probably EUI)!");
+}
+int CvLuaTeam::lIsTradeAgreementTradingAllowed(lua_State* L)
+{
+	luaL_error(L, "IsTradeAgreementTradingAllowed - function is deprecated");
+}
+int CvLuaTeam::lGetPermanentAllianceTradingCount(lua_State* L)
+{
+	luaL_error(L, "GetPermanentAllianceTradingCount - function is deprecated");
+}
+int CvLuaTeam::lIsPermanentAllianceTrading(lua_State* L)
+{
+	luaL_error(L, "IsPermanentAllianceTrading - function is deprecated");
+}
+int CvLuaTeam::lChangePermanentAllianceTradingCount(lua_State* L)
+{
+	luaL_error(L, "ChangePermanentAllianceTradingCount - function is deprecated");
 }
 
 //------------------------------------------------------------------------------
@@ -1361,7 +1372,7 @@ int CvLuaTeam::lChangeImprovementYieldChange(lua_State* L)
 //int IsHomeOfUnitedNations();
 int CvLuaTeam::lIsHomeOfUnitedNations(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvTeam::IsHomeOfUnitedNations);
+	luaL_error(L, "IsHomeOfUnitedNations - function is deprecated");
 }
 
 //------------------------------------------------------------------------------

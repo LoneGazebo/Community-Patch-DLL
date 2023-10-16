@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Processes>
+		<!-- Yield conversion processes -->
+		<Row>
+			<Type>PROCESS_CULTURE</Type>
+			<Description>TXT_KEY_PROCESS_CULTURE</Description>
+			<Help>TXT_KEY_PROCESS_CULTURE_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_CULTURE_STRATEGY</Strategy>
+			<TechPrereq>TECH_DRAMA</TechPrereq>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>43</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROCESS_FOOD</Type>
+			<Description>TXT_KEY_PROCESS_FOOD</Description>
+			<Help>TXT_KEY_PROCESS_FOOD_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_FOOD_STRATEGY</Strategy>
+			<TechPrereq>TECH_POTTERY</TechPrereq>
+			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
+			<PortraitIndex>32</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROCESS_DEFENSE</Type>
+			<Description>TXT_KEY_PROCESS_DEFENSE</Description>
+			<Help>TXT_KEY_PROCESS_DEFENSE_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_DEFENSE_STRATEGY</Strategy>
+			<TechPrereq>TECH_ARCHERY</TechPrereq>
+			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
+			<PortraitIndex>8</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROCESS_TOURISM</Type>
+			<Description>TXT_KEY_PROCESS_TOURISM</Description>
+			<Help>TXT_KEY_PROCESS_TOURISM_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_TOURISM_STRATEGY</Strategy>
+			<RequiredPolicy>POLICY_CULTURAL_REVOLUTION</RequiredPolicy>
+			<IconAtlas>VP_PROCESS_ATLAS</IconAtlas>
+			<PortraitIndex>1</PortraitIndex>
+		</Row>
+		<!-- World Congress processes -->
+		<Row>
+			<Type>PROCESS_TREASURE_FLEET</Type>
+			<Description>TXT_KEY_PROCESS_TREASURE_FLEET</Description>
+			<Help>TXT_KEY_PROCESS_TREASURE_FLEET_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_TREASURE_FLEET_HELP</Strategy>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROCESS_WARGAMES</Type>
+			<Description>TXT_KEY_PROCESS_WARGAMES</Description>
+			<Help>TXT_KEY_PROCESS_WARGAMES_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_WARGAMES_HELP</Strategy>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+		<Row>
+			<Type>PROCESS_UNITED_NATIONS</Type>
+			<Description>TXT_KEY_PROCESS_UNITED_NATIONS</Description>
+			<Help>TXT_KEY_PROCESS_UNITED_NATIONS_HELP</Help>
+			<Strategy>TXT_KEY_PROCESS_UNITED_NATIONS_HELP</Strategy>
+			<IconAtlas>INTL_PROJECT_ATLAS_EXP2</IconAtlas>
+			<PortraitIndex>0</PortraitIndex>
+		</Row>
+	</Processes>
+</GameData>

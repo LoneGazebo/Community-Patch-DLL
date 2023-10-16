@@ -796,7 +796,6 @@ public:
 
 	void FoundLeague(PlayerTypes eFounder = NO_PLAYER);
 	void DoPlayerAliveStatusChanged(PlayerTypes ePlayer);
-	void DoUnitedNationsBuilt(PlayerTypes eBuilder);
 	
 	int GetNumActiveLeagues();
 	int GetNumLeaguesEverFounded() const;
@@ -1038,7 +1037,7 @@ private:
 	void AllocateProposals(CvLeague* pLeague);
 
 	// Logging
-	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore, bool bPre);
+	void LogProposalConsidered(ProposalConsideration* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceConsidered(CvEnactProposal* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceConsidered(CvRepealProposal* pProposal, int iChoice, int iScore);
 	void LogVoteChoiceCommitted(CvEnactProposal* pProposal, int iChoice, int iVotes);

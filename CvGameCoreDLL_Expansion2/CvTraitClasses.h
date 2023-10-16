@@ -55,11 +55,7 @@ struct TradeRouteProductionSiphon
 
 	bool IsHaveProductionSiphon()
 	{
-		if (m_iSiphonPercent != 0 || m_iPercentIncreaseWithOpenBorders != 0)
-		{
-			return true;
-		}
-		return false;
+		return m_iSiphonPercent != 0 || m_iPercentIncreaseWithOpenBorders != 0;
 	}
 
 	template<typename TradeRouteProductionSiphonT, typename Visitor>
@@ -81,11 +77,7 @@ struct AlternateResourceTechs
 
 	bool IsAlternateResourceTechs()
 	{
-		if (m_eTechReveal != NO_TECH || m_eTechCityTrade != NO_TECH)
-		{
-			return true;
-		}
-		return false;
+		return m_eTechReveal != NO_TECH || m_eTechCityTrade != NO_TECH;
 	}
 
 	template<typename AlternateResourceTechsT, typename Visitor>
@@ -1774,7 +1766,7 @@ public:
 	};
 	int GetGreatPersonProgressFromKills(GreatPersonTypes eIndex) const;
 	bool IsRandomGreatPersonProgressFromKills() const;
-	std::pair<GreatPersonTypes, int> GetRandomGreatPersonProgressFromKills(int iAdditionalSeed = 0) const;
+	std::pair<GreatPersonTypes, int> GetRandomGreatPersonProgressFromKills(const CvSeeder& additionalSeed) const;
 	int GetFreeUnitClassesDOW(UnitClassTypes eUnitClass) const
 	{
 		return ((uint)eUnitClass < m_aiFreeUnitClassesDOW.size()) ? m_aiFreeUnitClassesDOW[(int)eUnitClass] : 0;

@@ -646,7 +646,7 @@ bool CvMilitaryAI::BuyEmergencyBuilding(CvCity* pCity)
 }
 
 // check if the army path makes sense
-bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy)
+bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker, PlayerTypes eIntendedEnemy, int iThresholdForDiscard)
 {
 	//define short paths as safe (start and dest plot are included in count)
 	if (path.vPlots.size() < 4)
@@ -654,6 +654,7 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 
 	bool bWaterPath = path.get(1)->isWater();
 	int iThirdPartyPlots = 0;
+	int iWrongCityPlots = 0;
 
 	//ignore beginning and end of path!
 	for (size_t i = 3; i < path.vPlots.size() - 3; i++)
@@ -676,7 +677,7 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 			if (path.get(-1)->getOwningCityID() != pCity->GetID())
 			{
 				if (!bWaterPath || pCity->isCoastal())
-					return false;
+					iWrongCityPlots++;
 			}
 		}
 		//maybe we have a better muster plot?
@@ -685,24 +686,23 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 			if (path.get(0)->getOwningCityID() != pCity->GetID())
 			{
 				if (!bWaterPath || pCity->isCoastal())
-					return false;
+					iWrongCityPlots++;
 			}
 		}
 		//passing through a different warzone? not good
 		else if (GET_PLAYER(eAttacker).IsAtWarWith(pCity->getOwner()))
-			return false;
-
+			iThirdPartyPlots++;
 		//the trade path may lead through third-party territory
-		if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker))
+		else if (pPlot->isOwned() && pPlot->getOwner()!=eIntendedEnemy && !pPlot->IsFriendlyTerritory(eAttacker))
 			iThirdPartyPlots++;
 	}
 
 	//the trade paths often lead through third party territory which an army may not be able to pass
 	//if we need open borders and there is no easy detour, exclude this path
-	return (iThirdPartyPlots<3);
+	return (iThirdPartyPlots < iThresholdForDiscard) && (iWrongCityPlots < iThresholdForDiscard);
 }
 
-bool CvMilitaryAI::IsPossibleAttackTarget(CvCity* pCity) const
+bool CvMilitaryAI::IsPossibleAttackTarget(const CvCity* pCity) const
 {
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
 		return false;
@@ -714,7 +714,7 @@ bool CvMilitaryAI::IsPossibleAttackTarget(CvCity* pCity) const
 	return false;
 }
 
-bool CvMilitaryAI::IsPreferredAttackTarget(CvCity* pCity) const
+bool CvMilitaryAI::IsPreferredAttackTarget(const CvCity* pCity) const
 {
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
 		return false;
@@ -726,7 +726,7 @@ bool CvMilitaryAI::IsPreferredAttackTarget(CvCity* pCity) const
 	return false;
 }
 
-bool CvMilitaryAI::IsExposedToEnemy(CvCity * pCity, PlayerTypes eOtherPlayer) const
+bool CvMilitaryAI::IsExposedToEnemy(const CvCity * pCity, PlayerTypes eOtherPlayer) const
 {
 	//minors don't really explore, so they don't know what's exposed ... just assume all their cities are
 	if (m_pPlayer->isMinorCiv())
@@ -793,35 +793,32 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 		for (map<int, SPath>::iterator it = landpaths.begin(); it != landpaths.end(); ++it)
 		{
 			PlayerTypes eOtherPlayer = it->second.get(-1)->getOwner();
-
 			if (!IsPlayerValid(eOtherPlayer))
-				continue;
-			if (!MilitaryAIHelpers::ArmyPathIsGood(it->second,m_pPlayer->GetID(),eOtherPlayer))
 				continue;
 
 			CvAttackTarget target;
 			target.SetWaypoints(it->second);
 			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
-			if (target.m_iApproachScore == 0)
-				continue;
 
-			vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+			//keep it if it seems we can move an army there
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer, 3))
+				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
 			//and now the other way around
 			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
 			{
 				it->second.invert();
-				if (MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID()))
+
+				CvAttackTarget reverseTarget;
+				reverseTarget.SetWaypoints(it->second);
+				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+
+				//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
+				if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
 				{
-					CvAttackTarget reverseTarget;
-					reverseTarget.SetWaypoints(it->second);
-					MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
-					if (target.m_iApproachScore > 0)
-					{
-						//do not try any advanced scoring, just use a basic approach/distance score
-						int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
-						vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
-					}
+					//do not try any advanced scoring, just use a basic approach/distance score
+					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+					vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
 				}
 			}
 		}
@@ -830,35 +827,32 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 		for (map<int, SPath>::iterator it = waterpaths.begin(); it != waterpaths.end(); ++it)
 		{
 			PlayerTypes eOtherPlayer = it->second.get(-1)->getOwner();
-
 			if (!IsPlayerValid(eOtherPlayer))
-				continue;
-			if (!MilitaryAIHelpers::ArmyPathIsGood(it->second,m_pPlayer->GetID(),eOtherPlayer))
 				continue;
 
 			CvAttackTarget target;
 			target.SetWaypoints(it->second);
 			MilitaryAIHelpers::SetBestTargetApproach(target, m_pPlayer->GetID());
-			if (target.m_iApproachScore == 0)
-				continue;
 
-			vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
+			//keep it if it seems we can move an army there
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer, 3))
+				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
 			//and now the other way around
 			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
 			{
 				it->second.invert();
-				if (MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID()))
+
+				CvAttackTarget reverseTarget;
+				reverseTarget.SetWaypoints(it->second);
+				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+
+				//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
+				if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
 				{
-					CvAttackTarget reverseTarget;
-					reverseTarget.SetWaypoints(it->second);
-					MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
-					if (target.m_iApproachScore > 0)
-					{
-						//do not try any advanced scoring, just use a basic approach/distance score
-						int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
-						vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
-					}
+					//do not try any advanced scoring, just use a basic approach/distance score
+					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+					vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
 				}
 			}
 		}
@@ -1031,8 +1025,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	if(target.m_armyType==ARMY_TYPE_LAND)
 	{
 		// interpolate linearly between a low and a high distance
-		float fDistanceLow = 8, fWeightLow = 10;
-		float fDistanceHigh = 24, fWeightHigh = 1;
+		float fDistanceLow = 8;
+		float fWeightLow = 10;
+		float fDistanceHigh = 24;
+		float fWeightHigh = 1;
 
 		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
 		fDistWeightInterpolated = (target.GetPathLength()-fDistanceLow) * fSlope + fWeightLow;
@@ -1041,8 +1037,10 @@ int CvMilitaryAI::ScoreAttackTarget(const CvAttackTarget& target)
 	else
 	{
 		// interpolate linearly between a low and a high distance
-		float fDistanceLow = 8, fWeightLow = 6;
-		float fDistanceHigh = 36, fWeightHigh = 1;
+		float fDistanceLow = 8;
+		float fWeightLow = 6;
+		float fDistanceHigh = 36;
+		float fWeightHigh = 1;
 
 		float fSlope = (fWeightHigh-fWeightLow) / (fDistanceHigh-fDistanceLow);
 		fDistWeightInterpolated = (target.GetPathLength()-fDistanceLow) * fSlope + fWeightLow;
@@ -2057,7 +2055,7 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 					if(LuaSupport::CallTestAll(pkScriptSystem, "MilitaryStrategyCanActivate", args.get(), bResult))
 					{
 						// Check the result.
-						if(bResult == false)
+						if(!bResult)
 						{
 							bStrategyShouldBeActive = false;
 						}
@@ -2189,7 +2187,7 @@ void CvMilitaryAI::DoNuke(PlayerTypes ePlayer)
 				if (bRollForNuke)
 				{
 					int iFlavorNuke = m_pPlayer->GetFlavorManager()->GetPersonalityFlavorForDiplomacy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_USE_NUKE"));
-					int iRoll = GC.getGame().getSmallFakeRandNum(10, m_pPlayer->GetPseudoRandomSeed() + GET_PLAYER(ePlayer).GetPseudoRandomSeed());
+					int iRoll = GC.getGame().randRangeExclusive(0, 10, m_pPlayer->GetPseudoRandomSeed().mix(GET_PLAYER(ePlayer).GetPseudoRandomSeed()));
 					if (iRoll <= iFlavorNuke)
 					{
 						bLaunchNuke = true;
@@ -3556,56 +3554,31 @@ bool MilitaryAIHelpers::IsTestStrategy_EnoughMilitaryUnits(CvPlayer* pPlayer)
 /// "Empire Defense" Player Strategy: Adjusts military flavors if the player doesn't have the recommended number of units
 bool MilitaryAIHelpers::IsTestStrategy_EmpireDefense(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEEDED)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_NEEDED;
 }
 
 /// "Empire Defense" Player Strategy: If we have less than 1 unit per city (tweaked a bit by threat level), we NEED some units
 bool MilitaryAIHelpers::IsTestStrategy_EmpireDefenseCritical(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_CRITICAL)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetLandDefenseState() == DEFENSE_STATE_CRITICAL;
 }
 
 /// "Enough Naval Units" Strategy: build navies
 bool MilitaryAIHelpers::IsTestStrategy_EnoughNavalUnits(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_ENOUGH;
 }
 
 /// "Need Naval Units" Strategy: build navies
 bool MilitaryAIHelpers::IsTestStrategy_NeedNavalUnits(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEEDED)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_NEEDED;
 }
 
 /// "Need Naval Units Critical" Strategy: build navies NOW
 bool MilitaryAIHelpers::IsTestStrategy_NeedNavalUnitsCritical(CvPlayer* pPlayer)
 {
-	if(pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_CRITICAL)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNavalDefenseState() == DEFENSE_STATE_CRITICAL;
 }
 
 /// "War Mobilization" Player Strategy: Does this player want to mobilize for war?  If so, adjust flavors
@@ -3626,12 +3599,11 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 	{
 		iCurrentWeight += 25;
 	}
-#if defined(MOD_BALANCE_CORE)
+
 	if(pPlayer->IsCramped())
 	{
 		iCurrentWeight += 5;
 	}
-#endif
 
 	if (pPlayer->GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_ANY))
 	{
@@ -3695,12 +3667,7 @@ bool MilitaryAIHelpers::IsTestStrategy_WarMobilization(MilitaryAIStrategyTypes e
 /// "At War" Player Strategy: If the player is at war, increase OFFENSE, DEFENSE and MILITARY_TRAINING.  Then look into which operation(s) to run
 bool MilitaryAIHelpers::IsTestStrategy_AtWar(CvPlayer* pPlayer, bool bMinor)
 {
-	if (pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(bMinor) > 0)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->GetNumberCivsAtWarWith(bMinor) > 0;
 }
 
 /// "Minor Civ GeneralDefense" Player Strategy: Prioritize CITY_DEFENSE and DEFENSE
@@ -3712,23 +3679,13 @@ bool MilitaryAIHelpers::IsTestStrategy_MinorCivGeneralDefense()
 /// "Minor Civ Threat Elevated" Player Strategy: If a Minor Civ is in danger, turn CITY_DEFENSE and DEFENSE up
 bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatElevated(CvPlayer* pPlayer)
 {
-	if (pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_ELEVATED)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_ELEVATED;
 }
 
 /// "Minor Civ Threat Critical" Player Strategy: If a Minor Civ is in danger, turn CITY_DEFENSE and DEFENSE up
 bool MilitaryAIHelpers::IsTestStrategy_MinorCivThreatCritical(CvPlayer* pPlayer)
 {
-	if (pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_CRITICAL)
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMinorCivAI()->GetStatus() == MINOR_CIV_STATUS_CRITICAL;
 }
 
 /// "Eradicate Barbarians" Player Strategy: If there is a large group of barbarians units or camps near our civilization, increase OFFENSE
@@ -3888,12 +3845,7 @@ bool MilitaryAIHelpers::IsTestStrategy_NeedRangedUnits(CvPlayer* pPlayer, int iN
 bool MilitaryAIHelpers::IsTestStrategy_NeedRangedDueToEarlySneakAttack(CvPlayer* pPlayer)
 {
 	MilitaryAIStrategyTypes eStrategyWarMob = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
-	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyWarMob))
-	{
-		return true;
-	}
-
-	return false;
+	return pPlayer->GetMilitaryAI()->IsUsingStrategy(eStrategyWarMob);
 }
 
 /// "Enough Mobile" Player Strategy: If a player has too many mobile units
@@ -4189,16 +4141,16 @@ CvPlot* MilitaryAIHelpers::GetCoastalWaterNearPlot(CvPlot *pTarget, bool bCheckT
 		{ 0,5,6,3,2,4,1,14,13,17,16,15,11,8,9,18,12,7,10 },
 		{ 0,2,1,5,4,3,6,14,8,15,12,18,16,9,7,11,10,13,17 },
 		{ 0,6,3,2,5,1,4,18,15,16,14,12,17,8,7,10,9,13,11 } };
-	int iShuffleType = GC.getGame().getSmallFakeRandNum(3, *pTarget);
+	uint uShuffleType = GC.getGame().urandLimitExclusive(3, pTarget->GetPseudoRandomSeed());
 
 	for(int iI = RING0_PLOTS; iI < RING2_PLOTS; iI++)
 	{
-		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[iShuffleType][iI]);
+		CvPlot* pAdjacentPlot = iterateRingPlots(pTarget->getX(), pTarget->getY(), aiShuffle[uShuffleType][iI]);
 		if(pAdjacentPlot != NULL && 
 			(!bCheckTeam || pAdjacentPlot->getTeam()==eTeam || pAdjacentPlot->getTeam()==NO_TEAM) && //ownership check
 			pAdjacentPlot->isShallowWater() && //coastal
 			pAdjacentPlot->getFeatureType()==NO_FEATURE && //no ice
-			pAdjacentPlot->isLake()==false && //no lake
+			!pAdjacentPlot->isLake() && //no lake
 			pAdjacentPlot->countPassableNeighbors(DOMAIN_SEA)>2) //no bays
 		{
 			return pAdjacentPlot;

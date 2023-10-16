@@ -240,6 +240,7 @@ public:
 	bool IsStrategicsTrade();
 	int GetNumStrategicsOnTheirSide(PlayerTypes eFrom);
 
+	bool IsGoldOnlyTrade();
 	bool IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource);
 	int GetNumResourcesInDeal(PlayerTypes eFrom, ResourceTypes eResource);
 	bool ChangeResourceTrade(PlayerTypes eFrom, ResourceTypes eResource, int iAmount, int iDuration);
@@ -328,7 +329,7 @@ public:
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX, bool bOnlyCheckedDeals = false);
 	bool IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bMutual);
-	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration = true);
+	int GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bEmbargoEvaluation);
 	int GetTurnsBeforeRegainingLuxury(PlayerTypes ePlayer, ResourceTypes eResource);
 	int GetDealGPTLostFromWar(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 

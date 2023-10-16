@@ -389,7 +389,7 @@ private:
 ///------------------------------
 //	unify these?
 ///------------------------------
-	void PlotGarrisonMoves(int iTurnsToArrive);
+	void PlotGarrisonMoves(int iTurnsToArrive, bool bEmergencyOnly);
 	void PlotBastionMoves(int iTurnsToArrive, bool bEmergencyOnly);
 	void PlotGuardImprovementMoves(int iTurnsToArrive);
 //--------------------------------
@@ -447,7 +447,7 @@ private:
 	void ExecuteMovesToSafestPlot(CvUnit* pUnit);
 	void ExecuteHeals(bool bFirstPass);
 	void ExecuteBarbarianRoaming();
-	bool ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
+	int ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
 	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteAirPatrolMoves();
@@ -522,8 +522,6 @@ enum CLOSED_ENUM eUnitMoveEvalMode { EM_INITIAL, EM_INTERMEDIATE, EM_FINAL };
 enum CLOSED_ENUM eUnitMovementStrategy { MS_NONE,MS_FIRSTLINE,MS_SECONDLINE,MS_THIRDLINE,MS_SUPPORT,MS_EMBARKED }; //we should probably differentiate between regular ranged and siege ranged ...
 enum CLOSED_ENUM eUnitAssignmentType { A_INITIAL, A_MOVE, A_MELEEATTACK, A_MELEEKILL, A_RANGEATTACK, A_RANGEKILL, A_FINISH,
 							A_BLOCKED, A_PILLAGE, A_CAPTURE, A_MOVE_FORCED, A_RESTART, A_MELEEKILL_NO_ADVANCE, A_MOVE_SWAP, A_MOVE_SWAP_REVERSE, A_FINISH_TEMP };
-
-class CvTacticalPosition;
 
 struct STacticalAssignment
 {
@@ -809,9 +807,6 @@ protected:
 	UnitIdContainer killedEnemies; //enemy units which were killed, to be ignored for danger
 	int movePlotUpdateFlag; //zero for nothing to do, unit id for a specific unit, -1 for all units
 
-	//performance optimization, unit strength calculation takes too long
-	CAttackCache attackCache;
-
 	//set in constructor, constant afterwards
 	PlayerTypes ePlayer;
 	eAggressionLevel eAggression;
@@ -886,7 +881,8 @@ public:
 	CvTacticalPosition();
 
 	void initFromScratch(PlayerTypes player, eAggressionLevel eAggLvl, CvPlot* pTarget);
-	void initFromParent(const CvTacticalPosition& parent); 
+	void initFromParent(const CvTacticalPosition& parent);
+	void wipe();
 
 	bool isExhausted() const;
 	bool isEarlyFinish() const;
@@ -905,6 +901,7 @@ public:
 	const vector<SUnitStats>& getAvailableUnits() const { return availableUnits; }
 	int countChildren() const;
 	float getAggressionBias() const;
+	bool couldEndTurnAfterThisAssignment(const STacticalAssignment& assignment) const;
 	vector<STacticalUnit> findBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
 	bool lastAssignmentIsAfterRestart(int iUnitID) const;
@@ -957,7 +954,7 @@ class CvTactPosStorage
 public:
 	CvTactPosStorage(int iPreallocationSize) : iCount(0), iSize(iPreallocationSize), aPositions(new CvTacticalPosition[iPreallocationSize]) {}
 	~CvTactPosStorage() { delete[] aPositions; }
-	void reset() { iCount = 0; attackCache.clear(); }
+	void reset(bool bHard);
 	int getSizeLimit() const { return iSize; }
 	int getSize() const { return iCount; }
 	CvTacticalPosition* first() { return aPositions; }
@@ -969,7 +966,7 @@ protected:
 	int iSize; //how many do we have
 	int iCount; //how many are currently in use
 	CvTacticalPosition* aPositions; //preallocated block of N positions
-	CAttackCache attackCache; //filled on demand
+	CAttackCache attackCache; //performance optimization, unit strength calculation takes too long
 
 private:
 	//hide copy constructor and assignment operator
@@ -992,6 +989,7 @@ namespace TacticalAIHelpers
 	CvPlot* FindSafestPlotInReach(const CvUnit* pUnit, bool bAllowEmbark, bool bConsiderPush = false);
 	CvPlot* FindClosestSafePlotForHealing(CvUnit* pUnit);
 	bool IsGoodPlotForStaging(CvPlayer* pPlayer, CvPlot* pCandidate, DomainTypes eDomain);
+	bool IsCloseToContestedBorder(CvPlayer* pPlayer, CvPlot* pPlot);
 
 	std::vector<CvPlot*> GetPlotsForRangedAttack(const CvPlot* pTarget, const CvUnit* pUnit, int iRange, bool bCheckOccupied);
 	int GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefender, const CvUnit* pAttacker, const CvPlot* pDefenderPlot, const CvPlot* pAttackerPlot, int& iAttackerDamage, 

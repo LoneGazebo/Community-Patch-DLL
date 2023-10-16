@@ -181,13 +181,21 @@
 	-->
 
 	<Defines>
-		<!-- Minimum amount of time between any two events for Players/Cities. Scales with Gamespeed. Does not affect counters (i.e. cooldowns will still reduce),
+		<!-- Minimum amount of time between any two events for Players/Cities. Does not affect counters (i.e. cooldowns will still reduce),
 			but prevents events from firing during this time. If you set IgnoresGlobalCooldown true for an event, it will ignore this. -->
 		<Row Name="EVENT_MIN_DURATION_BETWEEN">
 			<Value>10</Value>
 		</Row>
 		<Row Name="CITY_EVENT_MIN_DURATION_BETWEEN">
 			<Value>25</Value>
+		</Row>
+		<!-- Percentage chance for any event to be allowed to occur each turn. -->
+		<!-- On top of this, each event has a chance / 100 individual roll each turn to see if it can be selected. -->
+		<Row Name="EVENT_PROBABILITY_EACH_TURN">
+			<Value>100</Value>
+		</Row>
+		<Row Name="CITY_EVENT_PROBABILITY_EACH_TURN">
+			<Value>100</Value>
 		</Row>
 	</Defines>
 	<!-- Table definitions -->

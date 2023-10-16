@@ -519,7 +519,8 @@ CvAStarNode* CvAStar::GetBest()
 void CvAStar::PrecalcNeighbors(CvAStarNode* node)
 {
 	int range = 6;
-	int x = 0, y = 0;
+	int x = 0;
+	int y = 0;
 	static int s_CvAStarChildHexX[6] = { 0, 1,  1,  0, -1, -1, };
 	static int s_CvAStarChildHexY[6] = { 1, 0, -1, -1,  0,  1, };
 
@@ -875,7 +876,6 @@ struct UnitPathCacheData
 	bool m_bIsNoRevealMap;
 	bool m_bCanEverEmbark;
 	bool m_bIsEmbarked;
-	bool m_bCanAttack;
 	bool m_bDoDanger;
 
 	inline int baseMoves(bool bEmbarked) const { return bEmbarked ? m_aBaseMovesNonNative : m_aBaseMovesNative; }
@@ -886,7 +886,6 @@ struct UnitPathCacheData
 	inline bool isNoRevealMap() const { return m_bIsNoRevealMap; }
 	inline bool CanEverEmbark() const { return m_bCanEverEmbark; }
 	inline bool isEmbarked() const { return m_bIsEmbarked; }
-	inline bool IsCanAttack() const { return m_bCanAttack; }
 	inline bool doDanger() const { return m_bDoDanger; }
 };
 
@@ -909,7 +908,6 @@ void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 	pCacheData->m_bIsNoRevealMap = pUnit->isNoRevealMap();
 	pCacheData->m_bCanEverEmbark = pUnit->CanEverEmbark();
 	pCacheData->m_bIsEmbarked = pUnit->isEmbarked();
-	pCacheData->m_bCanAttack = pUnit->IsCanAttack() && !pUnit->isOutOfAttacks();
 	pCacheData->m_bDoDanger = !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_DANGER);
 }
 
@@ -927,7 +925,6 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	if (!node || !pUnit)
 		return;
 
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
 	if (kToNodeCacheData.iGenerationID==finder->GetCurrentGenerationID())
 		return;
@@ -996,17 +993,15 @@ void UpdateNodeCacheData(CvAStarNode* node, const CvUnit* pUnit, const CvAStar* 
 	if (bIsDestination && (finder->GetData().iFlags&CvUnit::MOVEFLAG_APPROX_TARGET_RING1) == 0 && (finder->GetData().iFlags & CvUnit::MOVEFLAG_APPROX_TARGET_RING2)==0)
 	{
 		//special checks for attack flag
-		if (pCacheData->IsCanAttack())
+		if (pUnit->IsCanAttack())
 		{
-			if (pUnit->IsCanAttackRanged())
+			//all combat units can capture a civilian by moving but need the attack flag to do it
+			if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
+				iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+			
+			//only attack-ready melee units can move into plots with enemy cities and units
+			if (!pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
 			{
-				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleEnemyCombatUnit)
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-			}
-			else
-			{
-				//melee units attack enemy cities and units 
 				if (kToNodeCacheData.bIsVisibleEnemyUnit || kToNodeCacheData.bIsEnemyCity || bPlotOccupancyOverride)
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
@@ -1130,17 +1125,15 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		iMoveFlags |= CvUnit::MOVEFLAG_DESTINATION;
 
 		//special checks for attack flag
-		if (pCacheData->IsCanAttack())
+		if (pUnit->IsCanAttack())
 		{
-			if (pUnit->IsCanAttackRanged())
+			//all combat units can capture a civilian by moving but need the attack flag to do it
+			if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
+				iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
+
+			//only attack-ready melee units can move into plots with enemy cities and units
+			if (!pUnit->IsCanAttackRanged() && !pUnit->isOutOfAttacks())
 			{
-				//ranged units can capture a civilian by moving but need the attack flag to do it
-				if (pToPlot->isVisibleEnemyUnit(pUnit) && !pToPlot->isVisibleEnemyDefender(pUnit))
-					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
-			}
-			else
-			{
-				//melee units can attack enemy cities and units
 				if (pToPlot->isVisibleEnemyUnit(pUnit) || pToPlot->isEnemyCity(*pUnit))
 					iMoveFlags |= CvUnit::MOVEFLAG_ATTACK;
 			}
@@ -1203,16 +1196,16 @@ int PathHeuristic(int /*iCurrentX*/, int /*iCurrentY*/, int iNextX, int iNextY, 
 /// Standard path finder - cost for ending the turn on a given plot
 int PathEndTurnCost(CvPlot* pToPlot, const CvPathNodeCacheData& kToNodeCacheData, const UnitPathCacheData* pUnitDataCache, int iTurnsInFuture, bool bAbortInDanger)
 {
-	//human knows best, don't try to be smart
-	if (!pUnitDataCache->isAIControl())
-		return kToNodeCacheData.bIsNonNativeDomain && pUnitDataCache->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
-
-	int iCost = 0;
-
 	CvUnit* pUnit = pUnitDataCache->pUnit;
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
 	DomainTypes eUnitDomain = pUnitDataCache->getDomainType();
 
+	//human knows best, don't try to be smart, just try to keep combat units attack-ready
+	if (!pUnitDataCache->isAIControl())
+		return kToNodeCacheData.bIsNonNativeDomain && pUnit->IsCanAttack() ? PATH_STEP_WEIGHT : 0;
+	
+	//logic for AI
+	int iCost = 0;
 	if(pUnit->IsCanDefend())
 	{
 		iCost += (PATH_DEFENSE_WEIGHT * std::max(0, (PATH_ASSUMED_MAX_DEFENSE - ((pUnit->noDefensiveBonus()) ? 0 : pToPlot->defenseModifier(eUnitTeam, false, false)))));
@@ -1462,7 +1455,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 		iCost += (7 - iUnseenPlots) * PATH_EXPLORE_NON_REVEAL_WEIGHT;
 	}
 
-	if(pUnitDataCache->IsCanAttack() && bIsPathDest)
+	if(pUnit->IsCanAttack() && bIsPathDest)
 	{
 		//AI makes sure to use defensive bonuses etc. humans have to do it manually ... it's part of the fun!
 		if(node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && pUnitDataCache->isAIControl())
@@ -1515,7 +1508,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 			if(!kFromNodeCacheData.bCanEnterTerrainPermanent || !kFromNodeCacheData.bCanEnterTerritoryPermanent)
 				return FALSE;
 
-			if(pCacheData->m_bCanAttack)
+			if(pUnit->IsCanAttack())
 			{
 				if (kFromNodeCacheData.bIsNonEnemyCity)
 					return FALSE;
@@ -2243,7 +2236,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	CvPlayer* pPlayer = &GET_PLAYER(data.ePlayer);
 	CvBuilderTaskingAI* eBuilderTaskingAi = pPlayer->GetBuilderTaskingAI();
 	RouteTypes eRouteType = (RouteTypes)data.iTypeParameter;
-	int iCost;
+	int iCost = 0;
 
 	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType))
 	{
@@ -3243,39 +3236,37 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
 
-	int iCost = PATH_BASE_COST;
-
-	// no route
-	int iRouteFactor = 1;
+	// default
+	int iRouteDiscountPercent = 0;
 
 	// super duper low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->isRoute())
-		iRouteFactor = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 4 : 3;
+		iRouteDiscountPercent = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 40 : 20;
 	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->isRoute())
-		iRouteFactor = 3; //can't get better than this even if next plot is railroad
+		iRouteDiscountPercent = 20; //can't get better than this even if next plot is railroad
 	// low costs for moving along rivers
 	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
-		iRouteFactor = 2;
+		iRouteDiscountPercent = 20;
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
 				(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) && 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
-		iRouteFactor = 2;
+		iRouteDiscountPercent = 20;
 
-	// apply route discount
-	iCost /= iRouteFactor;
+	// do not use extreme discounts here because we also need to use these paths for military target selection
+	int iCost = (PATH_BASE_COST*(100-iRouteDiscountPercent))/100;
 
 	//try to avoid rough plots
-	if (pToPlot->isRoughGround() && iRouteFactor==1)
-		iCost += PATH_BASE_COST/4;
+	if (pToPlot->isRoughGround() && iRouteDiscountPercent == 0)
+		iCost += PATH_BASE_COST/10;
 
 	//avoid hills when in doubt
-	if (!pToPlot->isFlatlands() && iRouteFactor==1)
-		iCost += PATH_BASE_COST/8;
+	if (!pToPlot->isFlatlands() && iRouteDiscountPercent == 0)
+		iCost += PATH_BASE_COST/10;
 
 	//bonus for oasis
-	if (eFeature == FEATURE_OASIS && iRouteFactor==1)
-		iCost -= PATH_BASE_COST/4;
+	if (eFeature == FEATURE_OASIS && iRouteDiscountPercent == 0)
+		iCost -= PATH_BASE_COST/10;
 	
 	return iCost;
 }
@@ -3705,7 +3696,7 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iTypeParameter = -1; //typical invalid enum
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
-	iStartMoves = pUnit->getMoves();
+	iStartMoves = pUnit ? pUnit->getMoves() : 0;
 }
 
 //	---------------------------------------------------------------------------

@@ -36,12 +36,7 @@ void CvGoodyHuts::DoPlayerReceivedGoody(PlayerTypes ePlayer, GoodyTypes eGoody)
 /// Are we allowed to get this Goody right now?
 bool CvGoodyHuts::IsCanPlayerReceiveGoody(PlayerTypes ePlayer, GoodyTypes eGoody)
 {
-	if (IsHasPlayerReceivedGoodyLately(ePlayer, eGoody))
-	{
-		return false;
-	}
-
-	return true;
+	return !IsHasPlayerReceivedGoodyLately(ePlayer, eGoody);
 }
 
 //	---------------------------------------------------------------------------
@@ -69,7 +64,8 @@ bool CvGoodyHuts::IsHasPlayerReceivedGoodyLately(PlayerTypes ePlayer, GoodyTypes
 /// Reset
 void CvGoodyHuts::Reset()
 {
-	int iI = 0, iJ = 0;
+	int iI = 0;
+	int iJ = 0;
 
 	// Allocate memory
 	if (m_aaiPlayerGoodyHutResults == NULL)

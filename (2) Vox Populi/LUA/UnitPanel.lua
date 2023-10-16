@@ -1327,12 +1327,16 @@ function TipHandler( control )
 			strToolTip = strToolTip .. "[NEWLINE]";
 		end
 		
-		strToolTip = strToolTip .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP", unit:GetRestingPointChange());
+		strToolTip = strToolTip .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_MISSION_CONDUCT_TRADE_MISSION_HELP");
 		
 		if (not bDisabled) then
 			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
 			if (unit:GetTradeInfluence(unit:GetPlot()) ~= 0) then
 				strToolTip = strToolTip .. "+" .. unit:GetTradeInfluence(unit:GetPlot()) .. " [ICON_INFLUENCE]";
+			end
+			if (unit:GetRestingPointChange() ~= 0) then
+				strToolTip = strToolTip .. "[NEWLINE]";
+				strToolTip = strToolTip .. "+" .. unit:GetRestingPointChange() .. " " .. Locale.Lookup("TXT_KEY_VP_RESTING_INFLUENCE");
 			end
 			if (unit:GetTradeGold(unit:GetPlot()) ~= 0) then
 				strToolTip = strToolTip .. "[NEWLINE]";
@@ -1348,6 +1352,13 @@ function TipHandler( control )
 					end
 					strToolTip = strToolTip .. "[NEWLINE]";
 					strToolTip = strToolTip .. "+" .. math.floor(WLTKDTurns) .. " " .. Locale.Lookup("TXT_KEY_TURNS") .. " " .. Locale.Lookup("TXT_KEY_PLOTROLL_EMBASSY", "") .. "[ICON_HAPPINESS_1] [COLOR_POSITIVE_TEXT]" .. Locale.Lookup("TXT_KEY_FOOD_WELOVEKING_HEADING3_TITLE") .. "[ENDCOLOR]";
+				end
+			end
+			for row in GameInfo.Unit_ResourceQuantityExpended() do
+				local unitInfo = unit:GetUnitType() and GameInfo.Units[unit:GetUnitType()];
+				if row.UnitType == unitInfo.Type then
+					strToolTip = strToolTip .. "[NEWLINE]";
+					strToolTip = strToolTip .. "+" .. row.Amount .. GameInfo.Resources[row.ResourceType].IconString .. " " .. Locale.Lookup(GameInfo.Resources[row.ResourceType].Description);
 				end
 			end
 		end
@@ -1675,11 +1686,10 @@ function TipHandler( control )
 		
 		local buildProgress = pPlot:GetBuildProgress( iBuildID )
 		local nominalWorkRate = unit:WorkRate( true )
-		-- take into account unit.cpp "wipe out all build progress also" game bug
-		local buildTime = pPlot:GetBuildTime( iBuildID, Game.GetActivePlayer() ) - nominalWorkRate
+		local buildTime = pPlot:GetBuildTime( iBuildID, Game.GetActivePlayer() )
 		local iBuildTurns
 		if buildProgress == 0 then
-			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), nominalWorkRate - unit:WorkRate() )
+			iBuildTurns = plot:GetBuildTurnsTotal( iBuildID, Game.GetActivePlayer() )
 		else
 			buildProgress = buildProgress - nominalWorkRate
 			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), -unit:WorkRate() )

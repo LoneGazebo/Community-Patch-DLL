@@ -1316,7 +1316,7 @@ bool CvBeliefEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_eRequiredCivilization = (CivilizationTypes)GC.getInfoTypeForString(szCivilizationType, true);
 #endif
 	//References
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 	szTextVal						  = kResults.GetText("ObsoleteEra");
 	m_eObsoleteEra					  = (EraTypes)GC.getInfoTypeForString(szTextVal, true);
 	szTextVal						  = kResults.GetText("ResourceRevealed");
@@ -2909,7 +2909,7 @@ int CvReligionBeliefs::GetFaithFromKills(int iDistance, PlayerTypes ePlayer, con
 {
 	CvBeliefXMLEntries* pBeliefs = GC.GetGameBeliefs();
 	int rtnValue = 0;
-	int iRequiredDistance;
+	int iRequiredDistance = 0;
 
 	for(BeliefList::const_iterator it = m_ReligionBeliefs.begin(); it != m_ReligionBeliefs.end(); ++it)
 	{
@@ -4814,7 +4814,7 @@ FDataStream& operator>>(FDataStream& loadFrom, CvReligionBeliefs& writeTo)
 bool CvBeliefHelpers::ConvertBarbarianUnit(const CvUnit *pByUnit, CvUnit* pUnit)
 
 {
-	CvUnit* pNewUnit;
+	CvUnit* pNewUnit = NULL;
 	CvPlot *pPlot = pUnit->plot();
 
 	CvPlayer* pPlayer = &GET_PLAYER(pByUnit->getOwner());

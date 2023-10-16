@@ -23,7 +23,7 @@ class CvGreatWork
 {
 public:
 	CvGreatWork();
-	CvGreatWork(CvString szGreatPersonName, GreatWorkType eType, GreatWorkClass eClassType, int iTurn, EraTypes eEra, PlayerTypes ePlayer);
+	CvGreatWork(const CvString& szGreatPersonName, GreatWorkType eType, GreatWorkClass eClassType, int iTurn, EraTypes eEra, PlayerTypes ePlayer);
 
 	template<typename GreatWork, typename Visitor>
 	static void Serialize(GreatWork& greatWork, Visitor& visitor);
@@ -61,7 +61,7 @@ public:
 	void DoTurn();
 
 	// Great Works
-	int CreateGreatWork(GreatWorkType eType, GreatWorkClass eClassType, PlayerTypes ePlayer, EraTypes eEra, CvString szCreator);
+	int CreateGreatWork(GreatWorkType eType, GreatWorkClass eClassType, PlayerTypes ePlayer, EraTypes eEra, const CvString& szCreator);
 	int GetNumGreatWorks() const
 	{
 		return m_CurrentGreatWorks.size();
@@ -279,7 +279,7 @@ public:
 	int GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const;
 	int GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePlayer) const;
 	int GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const;
-	CvString GetInfluenceSpyRankTooltip (CvString szName, CvString iRank, PlayerTypes ePlayer, bool bNoBasicHelp = false, int iSpyID = -1);
+	CvString GetInfluenceSpyRankTooltip (const CvString& szName, const CvString& iRank, PlayerTypes ePlayer, bool bNoBasicHelp = false, int iSpyID = -1);
 	int GetTourism();
 	int GetTourismModifierWith(PlayerTypes ePlayer) const;
 	CvString GetTourismModifierWithTooltip(PlayerTypes ePlayer) const;
@@ -354,9 +354,9 @@ private:
 	void LogSwapMultipleWorks(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 	void LogSwapMultipleArtifacts(PlayerTypes eOtherPlayer, int iWorkDiscarded, int iWorkAcquired);
 #endif
-	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, CvString strValue);
-	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, int iValue);
-	void AppendToLog(CvString& strHeader, CvString& strLog, CvString strHeaderValue, float fValue);
+	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, const CvString& strValue);
+	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, int iValue);
+	void AppendToLog(CvString& strHeader, CvString& strLog, const CvString& strHeaderValue, float fValue);
 	CvString GetLogFileName(CvString& playerName) const;
 
 	CvPlayer *m_pPlayer;

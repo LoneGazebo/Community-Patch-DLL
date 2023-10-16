@@ -305,6 +305,14 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 
+	// AI does not settle on Antiquity Sites
+	ResourceTypes ePlotResource = pPlot->getResourceType(eTeam);
+	if (ePlotResource == (ResourceTypes)GD_INT_GET(ARTIFACT_RESOURCE) ||
+		ePlotResource == (ResourceTypes)GD_INT_GET(HIDDEN_ARTIFACT_RESOURCE))
+	{
+		return -1;
+	}
+
 	//for debugging
 	std::vector<std::string> vQualifiersPositive;
 	std::vector<std::string> vQualifiersNegative;
@@ -349,7 +357,10 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 	std::vector<SPlotWithScore> workablePlots;
 	workablePlots.reserve(49);
 
-	int nFoodPlots = 0, nHammerPlots = 0, nWaterPlots = 0, nGoodPlots = 0;
+	int nFoodPlots = 0;
+	int nHammerPlots = 0;
+	int nWaterPlots = 0;
+	int nGoodPlots = 0;
 	int iRange = pPlayer ? max(2,min(5,pPlayer->getWorkPlotDistance())) : 3;
 	for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 	{
@@ -461,7 +472,7 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 
 		// if this tile is a NW boost the value
 		if (pLoopPlot->IsNaturalWonder() && iPlotValue>0)
-			iPlotValue *= 3; //yields will improve in later eras!
+			iPlotValue *= 10; //(from 3) yields will improve in later eras but we're gonna like SUPER boost its value cuz humans over-value it like it's some sort of monopoly!
 
 		// lower value a lot if we or somebody else already own this tile
 		if (iPlotValue > 0 && pLoopPlot->getOwner() != NO_PLAYER)

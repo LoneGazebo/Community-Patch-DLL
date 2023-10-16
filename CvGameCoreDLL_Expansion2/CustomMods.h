@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v120 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 120)
+#define MOD_DLL_NAME "Community Patch v124 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 124)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -103,6 +103,13 @@
 // Enables Achievements and the Achievements table (v45, modified to include all achievements-related code)
 #define MOD_API_ACHIEVEMENTS                        gCustomMods.isAPI_ACHIEVEMENTS()
 
+// Balance the number of City-States with each trait evenly.
+#define MOD_BALANCE_CITY_STATE_TRAITS				gCustomMods.isBALANCE_CITY_STATE_TRAITS()
+// Balance the number of City-States with each personality evenly.
+// If combined with the above option, each pool of City-States with the same trait will be balanced separately.
+#define MOD_BALANCE_CITY_STATE_PERSONALITIES		gCustomMods.isBALANCE_CITY_STATE_PERSONALITIES()
+// Barbarian Encampments can spawn on visible tiles.
+#define MOD_BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES	gCustomMods.isBALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES()
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -466,6 +473,8 @@
 #define MOD_GP_ERA_SCALING							gCustomMods.isGP_ERA_SCALING()
 // Squads control groups modmod
 #define MOD_SQUADS									gCustomMods.isSQUADS()
+// NotForSale modmod
+#define MOD_NOT_FOR_SALE							gCustomMods.isNOT_FOR_SALE()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1158,7 +1167,6 @@ enum BattleTypeTypes
 #define GAMEEVENT_CityFlipped				"CityFlipped", "iii"
 #define GAMEEVENT_CityFlipChance			"CityFlipChance", "ii"
 #define GAMEEVENT_CityFlipRecipientChance	"CityFlipChance", "iii"
-#define GAMEEVENT_FreeCitySelector			"SetFreeCityType", "ii"
 #define GAMEEVENT_PlayerAnarchy				"PlayerAnarchyBegins", "iii"
 
 // Serialization wrappers
@@ -1252,6 +1260,9 @@ public:
 
 	MOD_OPT_DECL(BALANCE_VP);
 	MOD_OPT_DECL(CORE_DEBUGGING);
+	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
+	MOD_OPT_DECL(BALANCE_CITY_STATE_PERSONALITIES);
+	MOD_OPT_DECL(BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);
@@ -1540,6 +1551,7 @@ public:
 	MOD_OPT_DECL(LINKED_MOVEMENT);
 	MOD_OPT_DECL(GP_ERA_SCALING);
 	MOD_OPT_DECL(SQUADS);
+	MOD_OPT_DECL(NOT_FOR_SALE);
 
 protected:
 	bool m_bInit;

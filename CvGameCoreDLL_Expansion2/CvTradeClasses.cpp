@@ -86,6 +86,48 @@ void CvGameTrade::DoTurn (void)
 	BuildPolicyDifference();
 }
 
+int CvGameTrade::GetLongestPotentialTradeRoute(int iCityIndex, DomainTypes eDomain)
+{
+	std::map<int, std::map<DomainTypes, int>>::const_iterator cityIt = m_aiLongestPotentialTradeRoute.find(iCityIndex);
+	if (cityIt == m_aiLongestPotentialTradeRoute.end())
+		return -1;
+
+	std::map<DomainTypes, int>::const_iterator domainIt = (cityIt->second).find(eDomain);
+	if (domainIt == (cityIt->second).end())
+		return -1;
+
+	return domainIt->second;
+}
+
+void CvGameTrade::SetLongestPotentialTradeRoute(int iValue, int iCityIndex, DomainTypes eDomain)
+{
+	m_aiLongestPotentialTradeRoute[iCityIndex].insert(std::make_pair(eDomain, iValue));
+}
+
+TradePathLookup& CvGameTrade::GetTradePathsCache(bool bWater)
+{
+	if (gDLL->IsGameCoreThread())
+	{
+		if (bWater)
+			return m_aPotentialTradePathsWater;
+
+		return m_aPotentialTradePathsLand;
+	}
+
+	if (bWater)
+		return m_aPotentialTradePathsWaterUi;
+
+	return m_aPotentialTradePathsLandUi;
+}
+
+std::map<PlayerTypes,int>& CvGameTrade::GetTradePathsCacheUpdateCounter()
+{
+	if (gDLL->IsGameCoreThread())
+		return m_lastTradePathUpdate;
+
+	return m_lastTradePathUpdateUi;
+}
+
 // helper function
 bool HaveTradePathInCache(const TradePathLookup& cache, int iCityPlotA, int iCityPlotB)
 {
@@ -129,7 +171,7 @@ const std::map<int, SPath>& CvGameTrade::GetAllPotentialTradeRoutesFromCity(CvCi
 	//make sure we're up to date
 	UpdateTradePathCache(pOriginCity->getOwner());
 
-	const TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
+	const TradePathLookup& cache = GetTradePathsCache(bWater);
 	TradePathLookup::const_iterator it = cache.find(pOriginCity->plot()->GetPlotIndex());
 	if (it != cache.end())
 		return it->second;
@@ -147,7 +189,7 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	UpdateTradePathCache(eOriginPlayer);
 
 	//can't use const here, otherwise the [] operator does not work ...
-	TradePathLookup& cache = bWater ? m_aPotentialTradePathsWater : m_aPotentialTradePathsLand;
+	TradePathLookup& cache = GetTradePathsCache(bWater);
 
 	int iCityPlotA = pOriginCity->plot()->GetPlotIndex();
 	int iCityPlotB = pDestCity->plot()->GetPlotIndex();
@@ -161,20 +203,44 @@ bool CvGameTrade::HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCit
 	return false;
 }
 
+void CvGameTrade::InvalidateTradePathCache()
+{
+	for (uint uiPlayer1 = 0; uiPlayer1 < MAX_PLAYERS; uiPlayer1++)
+	{
+		PlayerTypes ePlayer1 = (PlayerTypes)uiPlayer1;
+		InvalidateTradePathCache(ePlayer1);
+	}
+}
+
+void CvGameTrade::InvalidateTradePathTeamCache(TeamTypes eTeam)
+{
+	vector<PlayerTypes> vFromTeam = GET_TEAM(eTeam).getPlayers();
+	for (size_t j = 0; j < vFromTeam.size(); j++)
+	{
+		GC.getGame().GetGameTrade()->InvalidateTradePathCache(vFromTeam[j]);
+	}
+}
+
 void CvGameTrade::InvalidateTradePathCache(PlayerTypes ePlayer)
 {
 	m_lastTradePathUpdate[ePlayer] = -1;
+	m_lastTradePathUpdateUi[ePlayer] = -1;
+	m_aPotentialTradePathsWater.clear();
+	m_aPotentialTradePathsWaterUi.clear();
+	m_aPotentialTradePathsLand.clear();
+	m_aPotentialTradePathsLandUi.clear();
 }
 
 void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 {
 	CvPlayer& kPlayer1 = GET_PLAYER(ePlayer1);
-	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian())
+	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian() || kPlayer1.isMinorCiv())
 		return;
 
+	std::map<PlayerTypes, int> lastTradePathUpdate = GetTradePathsCacheUpdateCounter();
 	//check if we have anything to do
-	std::map<PlayerTypes,int>::iterator lastUpdate = m_lastTradePathUpdate.find(ePlayer1);
-	if (lastUpdate!=m_lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
+	std::map<PlayerTypes,int>::iterator lastUpdate = lastTradePathUpdate.find(ePlayer1);
+	if (lastUpdate!=lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
 		return;
 
 	//do not check whether we are at war here! the trade route cache is also used for military target selection
@@ -193,9 +259,13 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 	int iOriginCityLoop = 0;
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
+		CvPlot* pCityPlot = pOriginCity->plot();
+		int iCityPlotIndex = pCityPlot->GetPlotIndex();
+		TradePathLookup& m_aLandPaths = GetTradePathsCache(false);
+		TradePathLookup& m_aWaterPaths = GetTradePathsCache(true);
 		//throw away the old data before adding the new
-		m_aPotentialTradePathsLand[pOriginCity->plot()->GetPlotIndex()].clear();
-		m_aPotentialTradePathsWater[pOriginCity->plot()->GetPlotIndex()].clear();
+		m_aLandPaths[iCityPlotIndex].clear();
+		m_aWaterPaths[iCityPlotIndex].clear();
 
 		//first see how far we can go from this city on water
 		int iMaxNormDistSea = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_SEA, pOriginCity);
@@ -205,16 +275,16 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		//get all paths
 		//paths from origin city to dest city
 		//map<index of dest's city plot, path to this city>
-		map<int,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		map<int,SPath> waterpaths = GC.GetStepFinder().GetMultiplePaths(pCityPlot, vDestPlots, data);
 		for (map<int,SPath>::iterator it=waterpaths.begin(); it!=waterpaths.end(); ++it)
 		{
 			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == plot)
+			if (pCityPlot == plot)
 				continue;
 
 			CvCity* pDestCity = plot->getPlotCity();
-			AddTradePathToCache(m_aPotentialTradePathsWater,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
+			AddTradePathToCache(m_aWaterPaths,iCityPlotIndex,pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
 		//now for land routes
@@ -223,21 +293,21 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		data.ePathType = PT_TRADE_LAND;
 
 		//get all paths
-		map<int,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths( pOriginCity->plot(), vDestPlots, data );
+		map<int,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths(pCityPlot, vDestPlots, data);
 		for (map<int,SPath>::iterator it=landpaths.begin(); it!=landpaths.end(); ++it)
 		{
 			CvPlot* plot = GC.getMap().plotByIndex(it->first);
 			// if this is the origin city, nothing to do
-			if (pOriginCity->plot() == plot)
+			if (pCityPlot == plot)
 				continue;
 
 			CvCity* pDestCity = plot->getPlotCity();
-			AddTradePathToCache(m_aPotentialTradePathsLand,pOriginCity->plot()->GetPlotIndex(),pDestCity->plot()->GetPlotIndex(),it->second);
+			AddTradePathToCache(m_aLandPaths,iCityPlotIndex,pDestCity->plot()->GetPlotIndex(),it->second);
 		}
 
 	}
 
-	m_lastTradePathUpdate[ePlayer1]=GC.getGame().getGameTurn();
+	GetTradePathsCacheUpdateCounter()[ePlayer1]=GC.getGame().getGameTurn();
 
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
@@ -1041,14 +1111,7 @@ int CvGameTrade::GetEmptyTradeRouteIndex (void)
 //	--------------------------------------------------------------------------------
 bool CvGameTrade::IsTradeRouteIndexEmpty(int iIndex)
 {
-	if (m_aTradeConnections[iIndex].m_iOriginX == -1 && m_aTradeConnections[iIndex].m_iOriginY == -1 && m_aTradeConnections[iIndex].m_iDestX == -1 && m_aTradeConnections[iIndex].m_iDestY == -1)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aTradeConnections[iIndex].m_iOriginX == -1 && m_aTradeConnections[iIndex].m_iOriginY == -1 && m_aTradeConnections[iIndex].m_iDestX == -1 && m_aTradeConnections[iIndex].m_iDestY == -1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2088,7 +2151,8 @@ CvUnit* CvGameTrade::GetTradeUnitForRoute(int iIndex)
 //	----------------------------------------------------------------------------
 void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain)
 {
-	int iOriginX = 0,iOriginY = 0;
+	int iOriginX = 0;
+	int iOriginY = 0;
 	PlayerTypes eOriginPlayer;
 
 	CvInterfacePtr<ICvUnit1> pSelectedUnit(GC.GetEngineUserInterface()->GetHeadSelectedUnit());
@@ -2117,7 +2181,8 @@ void CvGameTrade::DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeC
 			size_t n = path.vPlots.size();
 			if (n>0 && n<=MAX_PLOTS_TO_DISPLAY)
 			{
-				int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+				int plotsX[MAX_PLOTS_TO_DISPLAY];
+				int plotsY[MAX_PLOTS_TO_DISPLAY];
 				for (size_t i=0;i<n;++i)
 				{
 					plotsX[i] = path.vPlots[i].x;
@@ -2751,7 +2816,8 @@ int CvPlayerTrade::GetTradeConnectionGPTValueTimes100(const TradeConnection& kTr
 		{
 			if (eYield == YIELD_GOLD)
 			{
-				int iX = 0, iY = 0;
+				int iX = 0;
+				int iY = 0;
 				if (bOriginCity)
 				{
 					iX = kTradeConnection.m_iOriginX;
@@ -4260,14 +4326,7 @@ bool CvPlayerTrade::CanCreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, 
 		return false;
 	}
 
-	if (pTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting, bCheckPath))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return pTrade->CanCreateTradeRoute(pOriginCity, pDestCity, eDomain, eConnectionType, bIgnoreExisting, bCheckPath);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4339,7 +4398,8 @@ bool CvPlayerTrade::CanCreateTradeRoute(DomainTypes eDomain) const
 //	--------------------------------------------------------------------------------
 bool CvPlayerTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, TradeConnectionType eConnectionType) const
 {
-	int plotsX[MAX_PLOTS_TO_DISPLAY], plotsY[MAX_PLOTS_TO_DISPLAY];
+	int plotsX[MAX_PLOTS_TO_DISPLAY];
+	int plotsY[MAX_PLOTS_TO_DISPLAY];
 
 	CvGameTrade* pTrade = GC.getGame().GetGameTrade();
 	int iRouteID = -1;
@@ -4823,14 +4883,7 @@ bool CvPlayerTrade::ContainsOpposingPlayerTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetOpposingTradeUnitsAtPlot(pPlot, true);
-	if (aiTradeConnectionIDs.size() > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4844,14 +4897,7 @@ bool CvPlayerTrade::ContainsEnemyTradeUnit(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetEnemyTradeUnitsAtPlot(pPlot, true);
-	if (aiTradeConnectionIDs.size() > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4865,14 +4911,7 @@ bool CvPlayerTrade::ContainsEnemyTradePlot(const CvPlot* pPlot)
 {
 	std::vector<int> aiTradeConnectionIDs;
 	aiTradeConnectionIDs = GetEnemyTradePlotsAtPlot(pPlot, true);
-	if (aiTradeConnectionIDs.size() > 0)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return static_cast<bool>(aiTradeConnectionIDs.size() > 0);
 }
 
 //	--------------------------------------------------------------------------------
@@ -4966,7 +5005,8 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	// barbarians get a bonus unit out of the deal!
 	if (pUnit->isBarbarian())
 	{
-		int iNumExtraUnits = /*1*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN), iGameEra = GC.getGame().getCurrentEra();
+		int iNumExtraUnits = /*1*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN);
+		int iGameEra = GC.getGame().getCurrentEra();
 		iNumExtraUnits += GC.getGame().isOption(GAMEOPTION_CHILL_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_CHILL) : 0;
 		iNumExtraUnits += GC.getGame().isOption(GAMEOPTION_RAGING_BARBARIANS) ? /*0*/ GD_INT_GET(BARBARIAN_NUM_UNITS_PLUNDER_TRADE_ROUTE_SPAWN_RAGING) : 0;
 		if (iGameEra > 0)
@@ -5159,6 +5199,10 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 }
 void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity* pOriginCity, int iMaxRange)
 {
+	// don't calculate trade routes for minors
+	if (m_pPlayer->isMinorCiv())
+		return;
+
 	int iLongestRoute = 0;
 	
 	CvString strMsg;
@@ -5178,11 +5222,7 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 				int iLength = GC.getGame().GetGameTrade()->GetValidTradeRoutePathLength(pOriginCity, pDestCity, eDomain, &outPath);
 
 				if (iLength <= 0)
-				{
-					strMsg.Format("%s,%s,,Skipping", pOriginCity->getNameKey(), pDestCity->getNameKey());
-					LogTradeMsg(strMsg);
 					continue;
-				}
 
 				if (iLength > iLongestRoute)
 				{
@@ -5209,16 +5249,6 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 					if (iLongestRoute >= iMaxRange * SPath::getNormalizedDistanceBase())
 						break;
 				}
-				else
-				{
-					strMsg.Format("%s,%s,,Trade route is not the longest,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
-					LogTradeMsg(strMsg);
-				}
-			}
-			else
-			{
-				strMsg.Format("%s,%s,,Can't create trade route", pOriginCity->getNameKey(), pDestCity->getNameKey());
-				LogTradeMsg(strMsg);
 			}
 		}
 	}
@@ -7553,7 +7583,7 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 				}
 				
 				CvString playerName;
-				FILogFile* pLog;
+				FILogFile* pLog = NULL;
 				CvString strBaseString;
 				CvString strOutBuf;
 				CvString strFileName = "TradeRouteChoices.csv";

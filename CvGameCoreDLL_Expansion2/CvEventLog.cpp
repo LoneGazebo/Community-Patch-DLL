@@ -160,14 +160,7 @@ bool CvEventLog::IsLogFull() const
 		iAdjustedEndIndex = 0;
 	}
 
-	if (iAdjustedEndIndex == m_iEventsBeginIndex)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return iAdjustedEndIndex == m_iEventsBeginIndex;
 }
 
 void CvEventLog::RemoveOldestEvent()

@@ -475,7 +475,8 @@ void CvEconomicAI::LogEconomyMessage(const CvString& strMsg)
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
-		CvString strTemp, szTemp2;
+		CvString strTemp;
+		CvString szTemp2;
 		CvString strPlayerName;
 		FILogFile* pLog = NULL;
 
@@ -684,7 +685,7 @@ void CvEconomicAI::DoTurn()
 					if(LuaSupport::CallTestAll(pkScriptSystem, "EconomicStrategyCanActivate", args.get(), bResult))
 					{
 						// Check the result.
-						if(bResult == false)
+						if(!bResult)
 						{
 							bStrategyShouldBeActive = false;
 						}
@@ -1978,7 +1979,8 @@ void CvEconomicAI::DoPlotPurchases()
 		{
 			if(pLoopCity->CanBuyAnyPlot())
 			{
-				int iTempX = 0, iTempY = 0;
+				int iTempX = 0;
+				int iTempY = 0;
 				int iScore = pLoopCity->GetBuyPlotScore(iTempX, iTempY);
 				if (iScore == -1)
 					continue;
@@ -3301,14 +3303,7 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 		float fRatio = iNumPlayersAheadInTech / (float)iNumOtherPlayers;
 		float fCutOff = (0.05f * pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavorEspionage));
 
-		if (fRatio < fCutOff)
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return fRatio < fCutOff;
 	}
 	else
 	{
@@ -3317,6 +3312,7 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 }
 
 /// "Early Expansion" Player Strategy: An early Strategy simply designed to get player up to 3 Cities quickly.
+// This should be run every turn because it is used in garrison logic and we need to react quickly
 bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer, eStrategy))
@@ -3328,12 +3324,16 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	if(pPlayer->IsEmpireUnhappy())
 		return false;
 
-	//we do not want to lose time building our settlers even if we haven't explored yet
-	if (pPlayer->GetNumCitiesFounded() < 3 && GC.getGame().getElapsedGameTurns()<54)
+	//we do not want to lose time for building our settlers even if we haven't explored yet
+	if (pPlayer->GetNumCitiesFounded() < 3)
 		return true;
 
-	//some rate limiting - don't need to check this every turn in the lategame
-	if (GC.getGame().getSmallFakeRandNum(3, pPlayer->GetPseudoRandomSeed()) != 0)
+	//midgame depends on the diplo situation ...
+	if (pPlayer->GetUnfriendlyMajors().size() > 0)
+		return false;
+
+	//never in late game
+	if (GC.getGame().getElapsedGameTurns() > 169)
 		return false;
 
 	//do this check as late as possible, it can be expensive
@@ -4217,14 +4217,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedDiplomats(CvPlayer* pPlayer)
 
 	int iScore = IsTestStrategy_ScoreDiplomats(pPlayer);
 
-	if((iScore > 0) && (iScore <= 15))
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return (iScore > 0) && (iScore <= 15);
 }
 
 bool EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(CvPlayer* pPlayer)
@@ -4237,14 +4230,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedDiplomatsCritical(CvPlayer* pPlayer)
 	}
 
 	int iScore = IsTestStrategy_ScoreDiplomats(pPlayer);
-	if(iScore > 15)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return iScore > 15;
 }
 
 int EconomicAIHelpers::IsTestStrategy_ScoreDiplomats(CvPlayer* pPlayer)
@@ -4571,12 +4557,7 @@ bool EconomicAIHelpers::IsTestStrategy_NeedMuseums(CvPlayer* pPlayer)
 	GreatWorkSlotType eArtArtifactSlot = CvTypes::getGREAT_WORK_SLOT_ART_ARTIFACT();
 	int iNumGreatWorkSlots = pPlayer->GetCulture()->GetNumAvailableGreatWorkSlots(eArtArtifactSlot);
 
-	if (iNumSites > iNumGreatWorkSlots)
-	{
-		return true;
-	}
-
-	return false;
+	return iNumSites > iNumGreatWorkSlots;
 }
 
 /// We have the tech for guilds but haven't built them yet

@@ -2265,6 +2265,11 @@ bool CvCivilizationInfo::isLeaders(int i) const
 	return m_pbLeaders && i>=0 ? m_pbLeaders[i] : false;
 }
 //------------------------------------------------------------------------------
+bool CvCivilizationInfo::IsBlocksMinor(int i) const
+{
+	return m_BlockedMinors[i];
+}
+//------------------------------------------------------------------------------
 bool CvCivilizationInfo::isCivilizationFreeBuildingClass(int i) const
 {
 	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
@@ -2313,6 +2318,7 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	const size_t maxUnitClasses = kUtility.MaxRows("UnitClasses");
 	const size_t maxBuildingClasses = kUtility.MaxRows("BuildingClasses");
+	const size_t NumMinorCivInfos = kUtility.MaxRows("MinorCivilizations");
 
 	const char* szTextVal = NULL;	//! temporary val
 
@@ -2519,6 +2525,29 @@ bool CvCivilizationInfo::CacheResults(Database::Results& kResults, CvDatabaseUti
 
 	kUtility.PopulateArrayByExistence(m_pbReligions, "Religions", "Civilization_Religions",
 	                                  "ReligionType", "CivilizationType", szType);
+
+	//Blocked Minors
+	{
+		m_BlockedMinors.clear();
+		m_BlockedMinors.resize(NumMinorCivInfos, false);
+
+		std::string strKey = "MajorBlocksMinor";
+		Database::Results* pResults = kUtility.GetResults(strKey);
+		if (pResults == NULL)
+		{
+			pResults = kUtility.PrepareResults(strKey, "select MinorCivilizations.ID from MajorBlocksMinor inner join MinorCivilizations on MinorCiv = MinorCivilizations.Type where MajorCiv = ?");
+		}
+
+		pResults->Bind(1, szType);
+
+		while (pResults->Step())
+		{
+			const int BlockedMinor = pResults->GetInt(0);
+			m_BlockedMinors[BlockedMinor] = true;
+		}
+
+		pResults->Reset();
+	}
 
 	//Spy Names
 	{
@@ -5890,6 +5919,7 @@ CvResourceInfo::CvResourceInfo() :
 	m_iTechReveal(0),
 	m_iPolicyReveal(NO_POLICY),
 	m_iTechCityTrade(0),
+	m_iTechImproveable(0),
 	m_iTechObsolete(0),
 	m_iAIStopTradingEra(-1),
 	m_iStartingResourceQuantity(0),
@@ -5998,6 +6028,11 @@ int CvResourceInfo::getPolicyReveal() const
 int CvResourceInfo::getTechCityTrade() const
 {
 	return m_iTechCityTrade;
+}
+//------------------------------------------------------------------------------
+int CvResourceInfo::getImproveTech() const
+{
+	return m_iTechImproveable;
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getTechObsolete() const
@@ -6733,6 +6768,9 @@ bool CvResourceInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	const char* szTechCityTrade = kResults.GetText("TechCityTrade");
 	m_iTechCityTrade = GC.getInfoTypeForString(szTechCityTrade, true);
+
+	const char* szTechImproveable = kResults.GetText("TechImproveable");
+	m_iTechImproveable = GC.getInfoTypeForString(szTechImproveable, true);
 
 	const char* szTechObsolete = kResults.GetText("TechObsolete");
 	m_iTechObsolete = GC.getInfoTypeForString(szTechObsolete, true);

@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING">
+			<Text>No Tech Trading</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_TRADING_HELP">
+			<Text>Disables technology trade between civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS">
+			<Text>Enable Research Agreements</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_RESEARCH_AGREEMENTS_HELP">
+			<Text>If enabled, you can sign Research Agreements with other civilizations.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING">
+			<Text>No Tech Brokering</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_TECH_BROKERING_HELP">
+			<Text>If enabled, you cannot sell technology to another civilization unless you have researched that technology yourself.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE">
+			<Text>No Vassalage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_NO_VASSALAGE_HELP">
+			<Text>Disables the Vassalage System. No vassals can be created.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_HUMAN_VASSALS">
+			<Text>Allow Human Vassalage</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_HUMAN_VASSALS_HELP">
+			<Text>Allows human players to become vassals of other civilizations.[NEWLINE][NEWLINE]Note: If "Disable Vassalage" Option is enabled, this does nothing.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY">
+			<Text>Transparent Diplomacy</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_ADVANCED_DIPLOMACY_HELP">
+			<Text>Display raw numbers next to diplomatic modifiers. In addition, AI leaders will never hide negative modifiers.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION">
+			<Text>Disable AI Victory Competition</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_VICTORY_COMPETITION_HELP">
+			<Text>AI leaders will not resent other players for their progress towards Victory Conditions. This makes the game significantly easier.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION">
+			<Text>Disable AI Endgame Aggression</Text>
+		</Row>
+		<Row Tag="TXT_KEY_GAME_OPTION_DISABLE_ENDGAME_AGGRESSION_HELP">
+			<Text>AI leaders will not receive an aggression boost towards players who are getting close to winning the game. NOTE: This option does nothing if 'Disable Victory Competition' is enabled.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

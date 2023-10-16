@@ -213,14 +213,28 @@ public:
 	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
 	void UpdateTradePathCache(PlayerTypes iOriginPlayer);
+	void InvalidateTradePathCache();
 	void InvalidateTradePathCache(PlayerTypes iPlayer);
+	void InvalidateTradePathTeamCache(TeamTypes eTeam);
+
+	void SetLongestPotentialTradeRoute(int iValue, int iCityIndex, DomainTypes eDomain);
+	int GetLongestPotentialTradeRoute(int iCityIndex, DomainTypes eDomain);
+
+private:
+	TradePathLookup& GetTradePathsCache(bool bWater);
+	std::map<PlayerTypes,int>& GetTradePathsCacheUpdateCounter();
 
 protected:
-
+	
+	// std::map<city index, std::map<DomainTypes, longest length>>
+	std::map<int, std::map<DomainTypes, int>> m_aiLongestPotentialTradeRoute;
 	TradeConnectionList m_aTradeConnections;
 	TradePathLookup m_aPotentialTradePathsLand;
 	TradePathLookup m_aPotentialTradePathsWater;
+	TradePathLookup m_aPotentialTradePathsLandUi;
+	TradePathLookup m_aPotentialTradePathsWaterUi;
 	std::map<PlayerTypes,int> m_lastTradePathUpdate;
+	std::map<PlayerTypes,int> m_lastTradePathUpdateUi;
 	std::vector<vector<int>> m_routesPerPlayer;
 	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
 

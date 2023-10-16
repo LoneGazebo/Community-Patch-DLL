@@ -781,7 +781,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bArtInfoRandomVariation = kResults.GetBool("ArtInfoRandomVariation");
 
 	//References
-	const char* szTextVal;
+	const char* szTextVal = NULL;
 	szTextVal = kResults.GetText("BuildingClass");
 	m_iBuildingClassType = GC.getInfoTypeForString(szTextVal, true);
 
@@ -4401,7 +4401,7 @@ std::vector<CvBuildingEntry*>& CvBuildingXMLEntries::GetBuildingEntries()
 }
 
 /// Number of defined policies
-int CvBuildingXMLEntries::GetNumBuildings()
+inline int CvBuildingXMLEntries::GetNumBuildings()
 {
 	return m_paBuildingEntries.size();
 }
@@ -4509,6 +4509,33 @@ void CvCityBuildings::Init(CvBuildingXMLEntries* pPossibleBuildings, CvCity* pCi
 	Reset();
 }
 
+void CvCityBuildings::SetBuildingTypeByClassDirty(bool dirty) const
+{
+	b_existBuildingsAreDirty = dirty;
+}
+
+void CvCityBuildings::CacheBuildingTypeByClass() const
+{
+	if (!b_existBuildingsAreDirty)
+		return;
+
+	m_buildingTypeByClass.clear();
+
+	for (int i = 0; i < GC.getNumBuildingClassInfos(); i++)
+	{
+		for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
+		{
+			CvBuildingEntry* pkInfo = GC.getBuildingInfo(*iI);
+			if (pkInfo && pkInfo->GetBuildingClassType() == i && GetNumBuilding(*iI) > 0)
+			{
+				m_buildingTypeByClass.insert(std::make_pair((BuildingClassTypes) i, (BuildingTypes) *iI));
+			}
+		}
+	}
+
+	SetBuildingTypeByClassDirty(false);
+}
+
 /// Deallocate memory created in initialize
 void CvCityBuildings::Uninit()
 {
@@ -4527,7 +4554,7 @@ void CvCityBuildings::Uninit()
 /// Reset status arrays to all false
 void CvCityBuildings::Reset()
 {
-	int iI;
+	int iI = 0;
 
 	// Initialize non-arrays
 	m_iNumBuildings = 0;
@@ -4557,6 +4584,7 @@ void CvCityBuildings::Reset()
 
 #if defined(MOD_BALANCE_CORE)
 	m_buildingsThatExistAtLeastOnce.clear();
+	m_buildingTypeByClass.clear();
 #endif
 
 }
@@ -4599,8 +4627,9 @@ void CvCityBuildings::Read(FDataStream& kStream)
 
 	for (int i=0; i<m_pPossibleBuildings->GetNumBuildings(); i++)
 		if (m_paiNumRealBuilding[i]>0 || m_paiNumFreeBuilding[i]>0)
-			m_buildingsThatExistAtLeastOnce.push_back( (BuildingTypes)i );
+			m_buildingsThatExistAtLeastOnce.push_back((BuildingTypes)i);
 
+	SetBuildingTypeByClassDirty(true);
 }
 
 /// Serialization write
@@ -4665,7 +4694,7 @@ int CvCityBuildings::GetNumBuildingClass(BuildingClassTypes eIndex) const
 	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
 	int iValue = 0;
-	for(std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
+	for (std::vector<BuildingTypes>::const_iterator iI=m_buildingsThatExistAtLeastOnce.begin(); iI!=m_buildingsThatExistAtLeastOnce.end(); ++iI)
 	{
 		CvBuildingEntry *pkInfo = GC.getBuildingInfo(*iI);
 		if(pkInfo && pkInfo->GetBuildingClassType() == eIndex)
@@ -4698,15 +4727,14 @@ BuildingTypes CvCityBuildings::GetBuildingTypeFromClass(BuildingClassTypes eInde
 {
 	CvAssertMsg(eIndex != NO_BUILDINGCLASS, "BuildingClassTypes eIndex is expected to not be NO_BUILDINGCLASS");
 
-	for (std::vector<BuildingTypes>::const_iterator iI = m_buildingsThatExistAtLeastOnce.begin(); iI != m_buildingsThatExistAtLeastOnce.end(); ++iI)
-	{
-		CvBuildingEntry* pkInfo = GC.getBuildingInfo(*iI);
-		if (pkInfo && pkInfo->GetBuildingClassType() == eIndex && GetNumBuilding(*iI) > 0)
-		{
-			return *iI;
-		}
+	CacheBuildingTypeByClass();
+	std::map<BuildingClassTypes, BuildingTypes>::iterator it = m_buildingTypeByClass.find(eIndex);
+	if (it != m_buildingTypeByClass.end()) {
+		return it->second;
 	}
-	return NO_BUILDING;
+	else {
+		return NO_BUILDING;
+	}
 }
 
 /// Accessor: Removes all real buildings which belong to the specified building class.
@@ -4829,7 +4857,7 @@ bool CvCityBuildings::IsBuildingSellable(const CvBuildingEntry& kBuilding) const
 		if(LuaSupport::CallTestAll(pkScriptSystem, "CityBuildingsIsBuildingSellable", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
@@ -5089,20 +5117,22 @@ void CvCityBuildings::SetNumRealBuildingTimed(BuildingTypes eIndex, int iNewValu
 
 		m_paiNumRealBuilding[eIndex] = iNewValue;
 
-#if defined(MOD_BALANCE_CORE)
 		if (iNewValue > 0)
 		{
-			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
+			if (std::find(m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex) == m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.push_back(eIndex);
+
+			SetBuildingTypeByClassDirty(true);
 		}
 		else if (GetNumFreeBuilding(eIndex)==0)
 		{
 			//we care about iteration speed, so erasing something can be cumbersome
-			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
-			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
+			std::vector<BuildingTypes>::iterator pos = std::find(m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
+			if (pos != m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.erase(pos);
+
+			SetBuildingTypeByClassDirty(true);
 		}
-#endif
 
 		if(GetNumRealBuilding(eIndex) > 0)
 		{
@@ -5343,15 +5373,19 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 	{
 		if (iNewValue>0)
 		{
-			if ( std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex ) == m_buildingsThatExistAtLeastOnce.end() )
+			if (std::find(m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex) == m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.push_back(eIndex);
+
+			SetBuildingTypeByClassDirty(true);
 		}
 		else if (GetNumRealBuilding(eIndex)==0)
 		{
 			//we care about iteration speed, so erasing something can be cumbersome
-			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex );
-			if ( pos != m_buildingsThatExistAtLeastOnce.end() )
+			std::vector<BuildingTypes>::iterator pos = std::find( m_buildingsThatExistAtLeastOnce.begin(), m_buildingsThatExistAtLeastOnce.end(), eIndex);
+			if (pos != m_buildingsThatExistAtLeastOnce.end())
 				m_buildingsThatExistAtLeastOnce.erase(pos);
+
+			SetBuildingTypeByClassDirty(true);
 		}
 
 		// This condensed logic comes from SetNumRealBuilding()
@@ -5363,7 +5397,7 @@ void CvCityBuildings::SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue)
 		m_pCity->processBuilding(eIndex, iChangeNumFreeBuilding, true, false, false, true);
 
 		CvBuildingEntry* buildingEntry = GC.getBuildingInfo(eIndex);
-		if(buildingEntry && buildingEntry->IsCityWall())
+		if (buildingEntry && buildingEntry->IsCityWall())
 		{
 			CvInterfacePtr<ICvPlot1> pDllPlot(new CvDllPlot(m_pCity->plot()));
 			gDLL->GameplayWallCreated(pDllPlot.get());
@@ -6375,10 +6409,10 @@ void CvCityBuildings::IncrementWonderStats(BuildingClassTypes eIndex)
 
 bool CvCityBuildings::CheckForAllWondersBuilt()
 {
-	int iI;
+	int iI = 0;
 	int iStartStatWonder = ESTEAMSTAT_ANGKORWAT;
 	int iEndStatWonder = ESTEAMSTAT_PYRAMIDS;		//Don't include the united nations because it was removed in BNW.
-	int32 nStat;
+	int32 nStat = 0;
 
 	for(iI = iStartStatWonder; iI < iEndStatWonder; iI++)
 	{
@@ -6410,7 +6444,7 @@ bool CvCityBuildings::CheckForSevenAncientWondersBuilt()
 			ESTEAMSTAT_TEMPLEOFARTEMIS,
 			ESTEAMSTAT_MAUSOLEUMOFHALICARNASSUS
 		};
-		int32 nStat;
+		int32 nStat = 0;
 		for(int iI = 0; iI < 7; iI++)
 		{
 			if(gDLL->GetSteamStat(arrWonderStats[iI], &nStat))
@@ -6494,8 +6528,8 @@ void CvCityBuildings::NotifyNewBuildingStarted(BuildingTypes /*eIndex*/)
 /// Helper function to read in an integer array of data sized according to number of building types
 void BuildingArrayHelpers::Read(FDataStream& kStream, int* paiBuildingArray)
 {
-	int iNumEntries;
-	int iType;
+	int iNumEntries = 0;
+	int iType = 0;
 
 	kStream >> iNumEntries;
 
@@ -6515,7 +6549,7 @@ void BuildingArrayHelpers::Read(FDataStream& kStream, int* paiBuildingArray)
 				szError.Format("LOAD ERROR: Building Type not found");
 				GC.LogMessage(szError.GetCString());
 				CvAssertMsg(false, szError);
-				int iDummy;
+				int iDummy = 0;
 				kStream >> iDummy; // Skip it.
 			}
 		}

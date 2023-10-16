@@ -277,8 +277,10 @@ public:
 		const bool result = other == currentValue();
 
 		if (!result) {
-			// std::string desyncValues = std::string("Desync values, current ") + FSerialization::toString(currentValue()) + "; other " + FSerialization::toString(other) + std::string("\n");
-			// gGlobals.getDLLIFace()->netMessageDebugLog(desyncValues);
+			std::string desyncValues = std::string("Desync values, current ") + FSerialization::toString(currentValue()) + "; other " + FSerialization::toString(other) + std::string("\n");
+			gGlobals.getDLLIFace()->netMessageDebugLog(desyncValues);
+
+			gGlobals.getGame().setDesynced(true);
 		}
 
 		return result; // Place a conditional breakpoint here to help debug sync errors.

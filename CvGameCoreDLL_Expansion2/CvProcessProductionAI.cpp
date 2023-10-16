@@ -362,7 +362,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 							if(kPlayer.getCapitalCity() != NULL)
 							{
 								iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetBuildingProductionAI()->CheckBuildingBuildSanity(pRewardInfo->GetBuilding(), iValue);
-								iModifier += iValue;
+								if (iValue > 0)
+									iModifier += iValue;
 							}
 							else
 							{
@@ -450,7 +451,8 @@ int CvProcessProductionAI::CheckProcessBuildSanity(ProcessTypes eProcess, int iT
 								{
 									iValue = kPlayer.getCapitalCity()->GetCityStrategyAI()->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iValue);
 								}
-								iModifier += iValue;
+								if (iValue > 0)
+									iModifier += iValue;
 							}
 						}
 					}

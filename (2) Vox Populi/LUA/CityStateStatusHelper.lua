@@ -238,7 +238,7 @@ function GetCityStateStatusText(iMajor, iMinor)
 		end
 		
 	else		-- Neutral
-		strStatusText = Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL");
+		strStatusText = Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE");
 		strStatusText = "[COLOR_WHITE]" .. strStatusText .. "[ENDCOLOR]";
 	end
 	
@@ -332,7 +332,7 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]" .. Locale.ConvertTextKey("TXT_KEY_ANGRY_CSTATE_TT", strShortDescKey);
 		
 	else		-- Neutral
-		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_CITY_STATE_PERSONALITY_NEUTRAL"),
+		strStatusTT = Locale.ConvertTextKey("TXT_KEY_DIPLO_STATUS_TT", Locale.ConvertTextKey(strShortDescKey), Locale.ConvertTextKey("TXT_KEY_NEUTRAL_CSTATE"),
 										    iInfluence - GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"], 
 											GameDefines["FRIENDSHIP_THRESHOLD_FRIENDS"] - GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"]);
 										    

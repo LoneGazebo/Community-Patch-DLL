@@ -406,7 +406,7 @@ function UpdateDisplay()
 			Controls.DemandButton:SetText( Locale.ConvertTextKey( "TXT_KEY_DIPLO_DEMAND_BUTTON" ));
 			Controls.DemandButton:SetToolTipString(nil);
 
-			if (pActiveTeam:CanChangeWarPeace(g_iAITeam)) then
+			if (pActiveTeam:CanChangeWarPeace(g_iAITeam) and not Teams[g_iAITeam]:IsVassalLockedIntoWar(Game.GetActiveTeam())) then
 				Controls.WarButton:SetDisabled(false);
 			else
 				Controls.WarButton:SetDisabled(true);

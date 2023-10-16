@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_RESOURCE_MAIZE">
+			<Text>Maize</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_MAIZE_TEXT">
+			<Text>Maize, known in many English-speaking countries as corn, is a grain domesticated by indigenous peoples in Mesoamerica in prehistoric times. Maize is the most widely grown grain crop in the Americas, with 332 million metric tons grown annually in the United States alone. Approximately 40% of the crop — 130 million tons — is used for corn ethanol.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_RICE">
+			<Text>Rice</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_RICE_TEXT">
+			<Text>Rice is the seed of the monocot plants Oryza sativa (Asian rice) or Oryza glaberrima (African rice). As a cereal grain, it is the most widely consumed staple food for a large part of the world's human population, especially in Asia and the West Indies. It is the grain with the second-highest worldwide production, after maize (corn), according to data for 2010.[NEWLINE][NEWLINE]Since a large portion of maize crops are grown for purposes other than human consumption, rice is the most important grain with regard to human nutrition and caloric intake, providing more than one fifth of the calories consumed worldwide by the human species.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_COFFEE">
+			<Text>Coffee</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_COFFEE_TEXT">
+			<Text>Coffee is a brewed beverage prepared from the roasted seeds of several species of evergreen shrub belonging to the genus Coffea. The earliest credible evidence of either coffee drinking or knowledge of the coffee tree appears in the middle of the 15th century, in the monasteries of Arabia. It was there that coffee seeds were first roasted and brewed, in a similar way to how it is prepared today. Eventually, through trade, coffee spread to Venetian ports in Italy, and from there, it was introduced to the rest of Europe.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_TEA">
+			<Text>Tea</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_TEA_TEXT">
+			<Text>Tea is an aromatic beverage commonly prepared by pouring hot water over cured leaves of the tea plant. Tea drinking likely began in China, during the Shang Dynasty, when it was initially used for medicinal purposes and combined with other herbs. It was first introduced to Portuguese priests and merchants in China during the 16th century, and later became popular in Britain during the 17th century, which eventually led to Britain competing with China's monopoly over it.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_TOBACCO">
+			<Text>Tobacco</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_TOBACCO_TEXT">
+			<Text>Tobacco is a product processed from the dried leaves of plants in the genus Nicotiana. It is used recreationally in cigars and cigarettes, snuff, pipe tobacco, chewing tobacco and flavored shisha. Many Native American tribes have traditionally grown and used tobacco, with some cultivation sites in Mexico dating back to 1400-1000 B.C. Eastern North American tribes carried large amounts of tobacco in pouches as a readily accepted trade item, and often smoked it in peace pipes, either in defined sacred ceremonies or to seal a bargain. Following the arrival of the Europeans, tobacco became increasingly popular as a trade item and grew into its own industry.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_AMBER">
+			<Text>Amber</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_AMBER_TEXT">
+			<Text>Amber is fossilized tree resin, which has been appreciated for its color and natural beauty since Neolithic times. Much valued from antiquity to the present as a gemstone, amber is made into a variety of decorative objects. Amber is used as an ingredient in perfumes, as a healing agent in folk medicine, and as jewelry. Because it originates as a soft, sticky tree resin, amber sometimes contains animal and plant material as inclusions.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_JADE">
+			<Text>Jade</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_JADE_TEXT">
+			<Text>Jade is an ornamental stone and is the name given to two types of metamorphic rock, nephrite and jadeite. Among the earliest known jade artifacts excavated from prehistoric sites are simple ornaments with bead, button, and tubular shapes. Additionally, jade was used for adze heads, knives, and other weapons, which can be delicately shaped. As metal-working technologies became available, the beauty of jade made it valuable for ornaments and decorative objects. In Chinese history, Jade was considered the "imperial gem" and had a status-value exceeding that of gold or silver.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_OLIVE">
+			<Text>Olives</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_OLIVE_TEXT">
+			<Text>The olive is a species of small tree in the family Oleaceae, native to the coastal areas of the eastern Mediterranean Basin as well as northern Iraq, and northern Iran at the south of the Caspian Sea. Its fruit, also called the olive, is of major agricultural importance in the Mediterranean region as the source of olive oil. The olive has been the symbol of peace, wisdom, glory, fertility, power and purity. Olive oil has long been considered sacred, and even today,  it is still used in many religious ceremonies.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_PERFUME">
+			<Text>Perfume</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_PERFUME_TEXT">
+			<Text>Perfumes have been known to exist in some of the earliest human civilizations. Perfumery, or the art of making perfumes, began in ancient Mesopotamia and Egypt and was further refined by the Romans and Persians. The production technique of rose perfumes originated in Persia then spread through Arabia and India, and more recently into Eastern Europe. Rose oil is the essential oil extracted from the petals of various types of roses. Due to the labor-intensive production process and the low content of oil in the rose blooms, rose oil commands a very high price. Even so, it is still perhaps the most widely used essential oil in perfumery.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_CORAL">
+			<Text>Coral</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_CORAL_TEXT">
+			<Text>Coral is a branching skeleton-like structure built by small marine animals known as polyps. Red coral, also known as precious coral, is one of the most ancient of gems and has been harvested since antiquity for decorative use. It belongs to a small class of organic gemstones, which are not really stones at all, that include materials such as pearl, amber, ivory, and jet. Historically, precious coral was not only a highly prized form of ornamentation, but it was also a substance believed to be endowed with mysterious sacred properties. Along with being used as a charm, it also had many medicinal virtues attributed to it. Today, laws and organizations help protect coral reefs since their populations are threatened by overharvesting, overfishing, and climate change.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_LAPIS">
+			<Text>Lapis Lazuli</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_LAPIS_TEXT">
+			<Text>Lapis lazuli is a deep blue semi-precious stone that has been prized since antiquity for its intense color. It has been mined for over 6,000 years in Afghanistan and was the source of lapis for ancient Egyptian and Mesopotamian civilizations, as well as the later Greeks and Romans. In addition to the Afghan deposits, lapis lazuli can be found in other parts of the world, such as Russia, Chile, Canada, India, Italy, and the USA. Lapis lazuli takes an excellent polish and was valued for making into jewelry, carvings, vases, and other ornaments; especially in ancient Egypt. It was also ground and processed to make the most highly sought after pigment, ultramarine, which was worth more than gold. During the Renaissance, this valuable pigment was used sparingly and often reserved to color the robes of Mary and other important religious figures.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_GLASS">
+			<Text>Glass</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_GLASS_HELP">
+			<Text>Glass is only available through a Mercantile City-State.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_GLASS_TEXT">
+			<Text>Glass has been used for centuries in windows and drinking vessels. Archaeological evidence suggests the first man made glass was in Eastern Mesopotamia and Egypt around 3500 BC and the first glass vessels were made there around 1500 BC. Syrian craftsmen invented the blow pipe in the 1st century BC, which made glass production easier, faster, and cheaper. Glass production flourished in the Roman Empire and spread from Italy to all countries under its rule. Venice was famous for its ornate glass-work, known as Venetian glass, and was the glassmaking center of the western world. Toward the end of the 13th century, the center of the Venetian glass industry moved to Murano. Some of the most important brands of glass in the world today are still produced in the historical glass factories within Murano.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD">
+			<Text>Brazilwood</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_HELP">
+			<Text>Luxury resource unique to Brazil. Can only be acquired through the creation of Brazilwood Camps.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_CULTURE] Culture from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_BRAZILWOOD_TEXT">
+			<Text>Brazilwood is a dense, compact dyewood from any of various tropical trees whose extracts yield bright crimson and deep purple colours. Brazilwood is also used in cabinetwork and the creation of musical instruments. In ancient and medieval times, the brazilwood imported to Europe from the Middle East was Caesalpinia braziliensis and other species of Caesalpinia. Caesalpinia echinata (called pau-brasil in Portuguese) is indigenous to the Brazilian coast and played a role in the naming of that country.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_PAPER">
+			<Text>Paper</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_PAPER_HELP">
+			<Text>Required to produce [ICON_INFLUENCE] Diplomatic Units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CIV5_RESOURCE_PAPER_TEXT">
+			<Text>Paper is a thin material produced by pressing together moist fibers, typically cellulose pulp derived from wood, rags or grasses, and drying them into flexible sheets. Paper is a versatile material with many uses. Whilst the most common is for writing and printing upon, it is also widely used as a packaging material, in many cleaning products, in a number of industrial and construction processes, and even as a food ingredient, particularly in Asian cultures. Paper, and the pulp papermaking process, was said to be developed in China during the early 2nd century AD, possibly as early as the year 105 A.D.,[1] by the Han court eunuch Cai Lun, although the earliest archaeological fragments of paper derive from the 2nd century BC in China.[NEWLINE][NEWLINE]In Civ V, 'Paper' is used for diplomatic purposes. As such, it is a metaphor for governance, political documentation, and legal authority.</Text>
+		</Row>
+
+		<!-- Monopoly -->
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_HAPPINESS">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +6 Empire-Wide [ICON_HAPPINESS_1] Happiness.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +25% [ICON_GOLDEN_AGE] Golden Age Length, +2 [ICON_GOLDEN_AGE] Golden Age Points from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_GA_LENGTH_ONLY">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +30% [ICON_GOLDEN_AGE] Golden Age Length.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_GOLD] Gold from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_FOOD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +3 [ICON_FOOD] Food from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_CULTURE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_CULTURE] Culture from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_FAITH">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_PEACE] Faith from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_PRODUCTION">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_PRODUCTION] Production in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_GOLD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_GOLD] Gold in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_FOOD">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_FOOD] Food in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_CULTURE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_CULTURE] Culture in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_FAITH">
+			<Text>[COLOR_POSITIVE_TEXT]Monopoly Bonus:[ENDCOLOR] +20% [ICON_PEACE] Faith in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION_ALUMINUM">
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +5 HP when Healing.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_GOLD_COAL">
+			<Text>Used by powerful mid-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +3 [ICON_GOLD] Gold from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_OIL">
+			<Text>Used by powerful late-game Units and Buildings.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +2 XP after combat.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_SCIENCE_HORSE">
+			<Text>Used by powerful Units.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_RESEARCH] Science from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_YIELD_PRODUCTION_IRON">
+			<Text>Used by powerful Units throughout the game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +2 [ICON_PRODUCTION] Production from Resource tiles.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_MOD_SCIENCE_URANIUM">
+			<Text>Used to build terrifying weapons of mass destruction.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus (25%):[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Global Monopoly Bonus (50%):[ENDCOLOR] +10% [ICON_RESEARCH] Science in all owned Cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_HORSE">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_IRON">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when defending.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_COAL">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Naval Units gain +1 [ICON_MOVES] Movement.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_ALUMINUM">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +5 HP when Healing.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_OIL">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +2 XP after combat.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_RESOURCE_MONOPOLY_STRAT_URANIUM">
+			<Text>[COLOR_POSITIVE_TEXT]Strategic Monopoly Bonus:[ENDCOLOR] Units gain +10% [ICON_STRENGTH] Strength when attacking.</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

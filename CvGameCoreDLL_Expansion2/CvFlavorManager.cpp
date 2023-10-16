@@ -456,32 +456,23 @@ void CvFlavorManager::RandomizeWeights()
 	int iPlusMinus = max(/*2*/ GD_INT_GET(FLAVOR_RANDOMIZATION_RANGE), 0);
 
 	// Random seed to ensure the fake RNG doesn't return the same value repeatedly
-	int iSeed = 0;
+	CvSeeder seed;
 
 	for (int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 	{
 		// Don't modify it if it's zero-ed out in the XML
 		if (m_piPersonalityFlavor[iI] != 0)
 		{
-			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, iSeed);
+			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, CvSeeder::fromRaw(0xe655df8f).mix(m_pPlayer->GetID()).mix(iI));
 		}
 	}
 }
 
 /// Add a random plus/minus to an integer (but keep it in range)
-int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, int& iSeed)
+int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iMin, int iMax, const CvSeeder& seed)
 {
-	// Increment the random seed (and make sure it's > 0)
-	if (iSeed < 0)
-		iSeed = 0;
-
-	iSeed += (iOriginalValue + iPlusMinus) * 200;
-
 	// Randomize!
-	int iAdjust = GC.getGame().getSmallFakeRandNum((iPlusMinus * 2 + 1), (iOriginalValue * iSeed));
-	int iRtnValue = iOriginalValue + iAdjust - iPlusMinus;
-
-	return range(iRtnValue, iMin, iMax);
+	return range(GC.getGame().randRangeInclusive(iOriginalValue - iPlusMinus, iOriginalValue + iPlusMinus, seed), iMin, iMax);
 }
 
 /// Sends current flavor settings to all recipients

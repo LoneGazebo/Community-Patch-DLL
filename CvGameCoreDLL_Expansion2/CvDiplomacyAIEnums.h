@@ -10,7 +10,7 @@
 #ifndef DIPLOMACY_AI_ENUMS_H
 #define DIPLOMACY_AI_ENUMS_H
 
-// WARNING: The order of many of these values is very important (many places in the code use > or < ENUM_VALUE to make important determinations.) Do not change unless you know what you're doing!
+// WARNING: The order of many of these values is very important (many places in the code use > or < ENUM_VALUE to make important determinations). Do not change unless you know what you're doing!
 
 enum CLOSED_ENUM CivOpinionTypes
 {
@@ -131,8 +131,6 @@ enum CLOSED_ENUM BlockLevelTypes
 
 enum CLOSED_ENUM DoFLevelTypes
 {
-	NO_DOF_TYPE = -1,
-
 	DOF_TYPE_UNTRUSTWORTHY,
 	DOF_TYPE_NEW,
 	DOF_TYPE_FRIENDS,
@@ -281,6 +279,8 @@ enum CLOSED_ENUM DemandResponseTypes
 	DEMAND_RESPONSE_REFUSE_HOSTILE,
 	DEMAND_RESPONSE_REFUSE_TOO_MUCH,
 	DEMAND_RESPONSE_REFUSE_TOO_SOON,
+	DEMAND_RESPONSE_REFUSE_TOO_SOON_SINCE_PEACE,
+	DEMAND_RESPONSE_REFUSE_PROTECTED_BY_MASTER,
 	DEMAND_RESPONSE_GIFT_ACCEPT,
 	DEMAND_RESPONSE_GIFT_REFUSE_TOO_MUCH,
 	DEMAND_RESPONSE_GIFT_REFUSE_TOO_SOON,

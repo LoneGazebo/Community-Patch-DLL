@@ -1373,13 +1373,7 @@ function TourismTipHandler( control )
 		local strText3 = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_3", szText);
 		
 		strText = strText .. "[NEWLINE][NEWLINE]" .. strText3;
-	end	
-
-	--CBP
-	local iTourismPenalty = pPlayer:GetTourismPenalty();
-	local strTextTourism = Locale.ConvertTextKey("TXT_KEY_TOP_PANEL_TOURISM_TOOLTIP_CONQUEST_WARNING", iTourismPenalty);
-	strText = strText .. "[NEWLINE][NEWLINE]" .. strTextTourism;
-	--END
+	end
 
 	tipControlTable.TooltipLabel:SetText( strText );
 	tipControlTable.TopPanelMouseover:SetHide(false);
@@ -1543,7 +1537,7 @@ function UnitSupplyHandler(control)
 	local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 
 	-- Bonuses from unlisted sources are added to the handicap value
-	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople + iTechReduction + iWarWearinessActualReduction);
+	local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iWarWearinessActualReduction);
 	iPerHandicap = iPerHandicap + iExtra;
 
 	local strUnitSupplyToolTip = "";

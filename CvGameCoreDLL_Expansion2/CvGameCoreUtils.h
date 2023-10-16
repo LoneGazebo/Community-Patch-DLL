@@ -432,7 +432,7 @@ struct OptionWithScore
 };
 
 template<class T>
-T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, int randomSeed)
+T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& defaultChoice, int maxCandidatesToConsider, CvSeeder randomSeed)
 {
 	if (candidates.empty())
 		return defaultChoice;
@@ -447,7 +447,7 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 	for (size_t i = 0; i < maxCandidates; i++)
 		totalWeight += candidates[i].score;
 
-	int index = GC.getGame().getSmallFakeRandNum(10, randomSeed);
+	int index = GC.getGame().randRangeExclusive(0, 10, randomSeed);
 	int selectedWeight = (totalWeight*index) / 10;
 
 	int weight = 0;
@@ -464,5 +464,7 @@ T PseudoRandomChoiceByWeight(vector<OptionWithScore<T>>& candidates, const T& de
 void AddFractionToReference(pair<int,int>& A, const pair<int,int>& B);
 pair<int,int> AddFractions(pair<int,int>& A, pair<int,int>& B);
 pair<int,int> AddFractions(vector<int>& dividendList, vector<int>& divisorList);
+
+void PrintMemoryInfo(const char* hint);
 
 #endif

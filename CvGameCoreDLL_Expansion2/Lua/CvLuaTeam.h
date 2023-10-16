@@ -61,6 +61,11 @@ protected:
 	static int lGetProjectedVotesFromCivs(lua_State* L);
 	static int lGetTotalProjectedVotes(lua_State* L);
 	static int lGetTotalSecuredVotes(lua_State* L);
+	static int lIsHasTradeAgreement(lua_State* L);
+	static int lIsTradeAgreementTradingAllowed(lua_State* L);
+	static int lGetPermanentAllianceTradingCount(lua_State* L);
+	static int lIsPermanentAllianceTrading(lua_State* L);
+	static int lChangePermanentAllianceTradingCount(lua_State* L);
 	// End DEPRECATED
 
 	static int lGetAtWarCount(lua_State* L);

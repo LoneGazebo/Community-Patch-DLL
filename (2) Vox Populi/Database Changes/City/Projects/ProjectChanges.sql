@@ -1,0 +1,32 @@
+UPDATE Projects
+SET
+	Cost = 2000,
+	FreeBuildingClassIfFirst = 'BUILDINGCLASS_LABORATORY'
+WHERE Type = 'PROJECT_MANHATTAN_PROJECT';
+
+UPDATE Projects
+SET
+	Cost = 3000,
+	TechPrereq = 'TECH_SATELLITES'
+WHERE Type = 'PROJECT_APOLLO_PROGRAM';
+
+-- Dummy Policies to provide free units and Golden Age for first builder
+UPDATE Projects
+SET FreePolicyIfFirst = 'POLICY_MANHATTAN_PROJECT'
+WHERE Type = 'PROJECT_MANHATTAN_PROJECT';
+
+UPDATE Projects
+SET FreePolicyIfFirst = 'POLICY_FIRST_ON_MOON'
+WHERE Type = 'PROJECT_APOLLO_PROGRAM';
+
+INSERT INTO Policies
+	(Type, Description, IncludesOneShotFreeUnits, GoldenAgeTurns, IsDummy)
+VALUES
+	('POLICY_MANHATTAN_PROJECT', 'TXT_KEY_POLICY_MANHATTAN_PROJECT', 1, 0, 1),
+	('POLICY_FIRST_ON_MOON', 'TXT_KEY_POLICY_FIRST_ON_MOON', 1, 10, 1);
+
+INSERT INTO Policy_FreeUnitClasses
+	(PolicyType, UnitClassType, Count)
+VALUES
+	('POLICY_MANHATTAN_PROJECT', 'UNITCLASS_ATOMIC_BOMB', 1),
+	('POLICY_FIRST_ON_MOON', 'UNITCLASS_SCIENTIST', 1);

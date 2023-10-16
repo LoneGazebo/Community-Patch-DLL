@@ -135,11 +135,6 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 	
 	-- if the AI offers a deal, its valuation might have changed during the AI's turn. Reevaluate the deal and change deal items if necessary
 	if(g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_TRADE_AI_MAKES_OFFER) then
-		local bDealCanceled = g_Deal:DoReevaluateDeal(g_iThem, g_iUs);
-		if(bDealCanceled) then
-			-- it was no longer possible to offer an acceptable deal and the deal has been canceled
-			g_iDiploUIState = DiploUIStateTypes.NO_DIPLO_UI_STATE;
-		end
 		if(g_Deal:IsCheckedForRenewal()) then
 			-- modify leader message if necessary
 			szLeaderMessage = g_Deal:GetRenewDealMessage(g_iThem, g_iUs);
@@ -337,9 +332,15 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 				DisplayDeal();
 
 				if (g_iDiploUIState == DiploUIStateTypes.DIPLO_UI_STATE_HUMAN_DEMAND) then
-					-- Hide Defensive Pact/Research Agreement on their side
+					-- Hide unavailable items on their side
+					Controls.ThemPocketGold:SetHide(not g_pUs:IsDoF(g_iThem));
+					Controls.ThemPocketTradeMap:SetHide(not g_pUs:IsDoF(g_iThem));
+					Controls.ThemPocketTechnology:SetHide(not g_pUs:IsDoF(g_iThem));
+					Controls.ThemPocketRevokeVassalage:SetHide(true);
 					Controls.ThemPocketDefensivePact:SetHide(true);
 					Controls.ThemPocketResearchAgreement:SetHide(true);
+					Controls.ThemPocketCities:SetHide(true);
+					Controls.ThemPocketOtherPlayerWar:SetHide(true);
 				end
 				
 			-- Don't clear the table, leave things as they are
@@ -1276,6 +1277,8 @@ function ResetDisplay()
 	Controls.ThemPocketTradeMap:SetHide(not bShowMap);
 	Controls.ThemPocketOpenBorders:SetHide(not bShowOpenBorders);
 	Controls.ThemPocketDefensivePact:SetHide(not bShowDefensivePact);
+	Controls.ThemPocketCities:SetHide(false);
+	Controls.ThemPocketOtherPlayerWar:SetHide(false);
 	Controls.ThemPocketResearchAgreement:SetHide(not bShowResearchAgreement);
 	Controls.ThemPocketTechnology:SetHide(not bShowTechs);
 	Controls.ThemPocketOtherPlayer:SetHide(not bShowOtherPlayers);

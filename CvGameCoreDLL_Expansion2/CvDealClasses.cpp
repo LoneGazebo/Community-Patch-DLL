@@ -477,7 +477,7 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 				if (LuaSupport::CallTestAll(pkScriptSystem, "IsAbleToMakePeace", args.get(), bResult)) 
 				{
 					// Check the result.
-					if (bResult == false)
+					if (!bResult)
 					{
 						return false;
 					}
@@ -572,7 +572,8 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 
 				// How much of this resource do we and the other guy have? Don't call getNumResourceAvailable() for the other player for strategic resources since that's not relevant.
-				int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false), iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
+				int iNumAvailableToUs = pFromPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ false);
+				int iNumAvailableToOther = eUsage == RESOURCEUSAGE_LUXURY ? pToPlayer->getNumResourceAvailable(eResource, /*bIncludeImport*/ true) : 0;
 
 				// If a renewal deal, add/subtract the resources already included in the renewal.
 				if (pRenewDeals.size() > 0)
@@ -761,10 +762,6 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			if (pFromTeam->IsVassalOfSomeone() || pToTeam->IsVassalOfSomeone())
 				return false;
 
-			// Mutual embassies are required
-			if (!pFromTeam->HasEmbassyAtTeam(eToTeam) || !pToTeam->HasEmbassyAtTeam(eFromTeam))
-				return false;
-
 			// Not valid if vassalage is in the trade
 			if (ContainsItemType(TRADE_ITEM_VASSALAGE))
 				return false;
@@ -789,10 +786,12 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 			}
 
 			bool bAITradingWithHuman = !bHumanToHuman && pToPlayer->isHuman();
-			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bAITradingWithHuman);
+			int iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
 
 			bAITradingWithHuman = !bHumanToHuman && pFromPlayer->isHuman();
-			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bAITradingWithHuman), iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bAITradingWithHuman);
+			int iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
 
 			if (bIgnoreExistingDP)
 			{
@@ -1340,7 +1339,8 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	if (eItemType == TRADE_ITEM_THIRD_PARTY_PEACE && GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
 		return false;
 
-	bool bFromHuman = GET_PLAYER(eFromPlayer).isHuman(), bToHuman = GET_PLAYER(eToPlayer).isHuman();
+	bool bFromHuman = GET_PLAYER(eFromPlayer).isHuman();
+	bool bToHuman = GET_PLAYER(eToPlayer).isHuman();
 	bool bNoHumans = !bFromHuman && !bToHuman;
 
 	// Humans can handle their own dealmaking
@@ -1433,7 +1433,11 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 /// The Data parameters can be -1, which means we don't care about whatever data is stored there (e.g. -1 for Gold means can we trade ANY amount of Gold?)
 CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1)
 {
-	CvString strTooltip = "", strReason = "", strDivider = "[NEWLINE][NEWLINE]", strStartColor = "[COLOR_NEGATIVE_TEXT]", strEndColor = "[ENDCOLOR]";
+	CvString strTooltip = "";
+	CvString strReason = "";
+	CvString strDivider = "[NEWLINE][NEWLINE]";
+	CvString strStartColor = "[COLOR_NEGATIVE_TEXT]";
+	CvString strEndColor = "[ENDCOLOR]";
 	CvString strError = ""; // There shouldn't be a tooltip for this reason (because either the situation should not ever occur ingame, or the item is hidden by the UI)
 
 	if (eItem <= TRADE_ITEM_NONE || eItem >= NUM_TRADEABLE_ITEMS)
@@ -1762,8 +1766,10 @@ CvString CvDeal::GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToP
 				return strTooltip;
 			}
 
-			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bToHuman), iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
-			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bFromHuman), iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iMyLimit = pFromPlayer->CalculateDefensivePactLimit(bToHuman);
+			int iMyDefensePacts = pFromPlayer->GetDiplomacyAI()->GetNumDefensePacts();
+			int iTheirLimit = pToPlayer->CalculateDefensivePactLimit(bFromHuman);
+			int iTheirDefensePacts = pToPlayer->GetDiplomacyAI()->GetNumDefensePacts();
 
 			if (bIgnoreExistingDP)
 			{
@@ -3505,6 +3511,19 @@ bool CvDeal::ChangeGoldPerTurnTrade(PlayerTypes eFrom, int iNewAmount, int iDura
 	return false;
 }
 
+bool CvDeal::IsGoldOnlyTrade()
+{
+	TradedItemList::iterator it;
+	for (it = m_TradedItems.begin(); it != m_TradedItems.end(); ++it)
+	{
+		if (it->m_eItemType != TRADE_ITEM_GOLD && it->m_eItemType != TRADE_ITEM_GOLD_PER_TURN)
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
 bool CvDeal::IsResourceTrade(PlayerTypes eFrom, ResourceTypes eResource)
 {
 	TradedItemList::iterator it;
@@ -4438,7 +4457,8 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	bool bIsPeaceDeal = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
 	bool bHumanToHuman = GET_PLAYER(eFromPlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman();
 	bool bShouldSetHumanSurrender = bHumanToHuman && bIsPeaceDeal;
-	bool bFromPlayerItem = false, bToPlayerItem = false;
+	bool bFromPlayerItem = false;
+	bool bToPlayerItem = false;
 
 	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); it++)
 	{
@@ -4501,7 +4521,9 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	m_CurrentDeals.push_back(kDeal);
 
 	// Set one-time values here
-	bool bDoDefensivePactNotification = true, bDoResearchAgreementNotification = true, bDoWarVictoryBonuses = true;
+	bool bDoDefensivePactNotification = true;
+	bool bDoResearchAgreementNotification = true;
+	bool bDoWarVictoryBonuses = true;
 
 	// Process each item in the deal!
 	for (TradedItemList::iterator it = kDeal.m_TradedItems.begin(); it != kDeal.m_TradedItems.end(); it++)
@@ -4689,9 +4711,13 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 			if (eTargetPlayer == NO_PLAYER)
 				break;
 
-			if (!bIsPeaceDeal && !bCityState && GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eTargetPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
+			if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eTargetPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 			{
-				GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
+				if (!bIsPeaceDeal && !bCityState)
+					GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
+
+				if (GET_PLAYER(eTargetPlayer).isMajorCiv())
+					GET_TEAM(eGivingTeam).SetWonLatestWar(eTargetTeam, true);
 			}
 
 			// Make peace!
@@ -4751,8 +4777,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					else
 					{
 						GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
-						vector<PlayerTypes> v(1, eReceivingPlayer);
-						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayers(v, false, false);
+						GET_PLAYER(ePlayer).GetDiplomacyAI()->DoReevaluatePlayer(eReceivingPlayer, false, false);
 					}
 				}
 				// Notify all other civs
@@ -5216,8 +5241,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				{
 					if (!GET_PLAYER(*iter).isHuman())
 					{
-						vector<PlayerTypes> v(1, eReceivingPlayer);
-						GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayers(v);
+						GET_PLAYER(*iter).GetDiplomacyAI()->DoReevaluatePlayer(eReceivingPlayer);
 					}
 				}
 			}
@@ -5242,10 +5266,12 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				if (GET_PLAYER(eReceivingPlayer).GetDiplomacyAI()->GetWarScore(eGivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 				{
 					GET_PLAYER(eReceivingPlayer).DoWarVictoryBonuses();
+					GET_TEAM(eReceivingTeam).SetWonLatestWar(eGivingTeam, true);
 				}
 				else if (GET_PLAYER(eGivingPlayer).GetDiplomacyAI()->GetWarScore(eReceivingPlayer) >= WARSCORE_THRESHOLD_POSITIVE)
 				{
 					GET_PLAYER(eGivingPlayer).DoWarVictoryBonuses();
+					GET_TEAM(eGivingTeam).SetWonLatestWar(eReceivingTeam, true);
 				}
 
 				bDoWarVictoryBonuses = false;
@@ -5253,7 +5279,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 			GET_TEAM(eGivingTeam).makePeace(eReceivingTeam, true, false, eGivingPlayer);
 			GET_TEAM(eGivingTeam).setForcePeace(eReceivingTeam, true);
-
 			break;
 		}
 		}
@@ -5553,8 +5578,10 @@ void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 {
 	if(m_CurrentDeals.size() > 0)
 	{
-		PlayerTypes eFromPlayer, eToPlayer;
-		int iPlayerLoop1 = 0, iPlayerLoop2 = 0;
+		PlayerTypes eFromPlayer;
+		PlayerTypes eToPlayer;
+		int iPlayerLoop1 = 0;
+		int iPlayerLoop2 = 0;
 
 		// Loop through first set of players
 		for(iPlayerLoop1 = 0; iPlayerLoop1 < MAX_MAJOR_CIVS; iPlayerLoop1++)
@@ -6041,7 +6068,7 @@ void CvGameDeals::LogDealComplete(CvDeal* pDeal)
 			CvString playerName = GET_PLAYER(pDeal->GetFromPlayer()).getCivilizationShortDescription();
 		}
 
-		int iTotalValue = GET_PLAYER(pDeal->GetFromPlayer()).GetDealAI()->GetDealValue(pDeal, true);
+		int iTotalValue = GET_PLAYER(pDeal->GetFromPlayer()).GetDealAI()->GetDealValue(pDeal);
 #endif
 		CvString otherPlayerName;
 
@@ -6717,7 +6744,7 @@ bool CvGameDeals::IsReceivingItemsFromPlayer(PlayerTypes ePlayer, PlayerTypes eO
 	return false;
 }
 
-int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bConsiderDuration)
+int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, bool bEmbargoEvaluation)
 {
 	DealList::iterator iter;
 	DealList::iterator end = m_CurrentDeals.end();
@@ -6733,7 +6760,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 			if (iEndTurn <= GC.getGame().getGameTurn())
 				continue;
 
-			if (bConsiderDuration)
+			if (!bEmbargoEvaluation)
 			{
 				iVal += iter->GetGoldPerTurnTrade(eOtherPlayer) * (iter->GetEndTurn() - GC.getGame().getGameTurn());
 			}
@@ -6751,7 +6778,7 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				if (pkResourceInfo == NULL || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS)
 					continue;
 
-				if (bConsiderDuration)
+				if (!bEmbargoEvaluation)
 				{
 					iVal += iter->GetNumResourcesInDeal(eOtherPlayer, eResource) * 5 * (iter->GetEndTurn() - GC.getGame().getGameTurn());
 				}
@@ -6761,10 +6788,27 @@ int CvGameDeals::GetDealValueWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherP
 				}
 			}
 
-			iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 * iAvgDealDuration : 0;
-			iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 * iAvgDealDuration : 0;
-			iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 50 * iAvgDealDuration : 0;
+			if (!bEmbargoEvaluation)
+			{
+				iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 5 * iAvgDealDuration : 0;
+				iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 * iAvgDealDuration : 0;
+				iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 15 * iAvgDealDuration : 0;
+			}
+			else
+			{
+				iVal += iter->IsOpenBordersTrade(eOtherPlayer) ? 10 * iAvgDealDuration : 0;
+				iVal += iter->IsOpenBordersTrade(ePlayer) ? 5 * iAvgDealDuration : 0;
+				iVal += iter->IsDefensivePactTrade(eOtherPlayer) ? 50 * iAvgDealDuration : 0;
+			}
 		}
+	}
+
+	// Modify by game speed for roughly consistent valuation across all game speeds
+	CvGameSpeedInfo *pkStdSpeedInfo = GC.getGameSpeedInfo((GameSpeedTypes)GD_INT_GET(STANDARD_GAMESPEED));
+	if (pkStdSpeedInfo)
+	{
+		iVal *= pkStdSpeedInfo->GetDealDuration();
+		iVal /= GC.getGame().GetDealDuration();
 	}
 
 	return iVal;

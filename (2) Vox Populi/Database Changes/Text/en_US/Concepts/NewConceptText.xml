@@ -1,0 +1,396 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<Language_en_US>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_TOPIC">
+			<Text>[COLOR_GREEN]Yields Scaling with Era[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_SUMMARY">
+			<Text>Many Yields, especially those from Policies, Beliefs, and Buildings, state that they [COLOR_POSITIVE_TEXT]''Scale with Era''[ENDCOLOR]. This means that, as the game progresses, indicated Yield values increase in a linear fashion based on the current Era:[NEWLINE]1x in the Ancient and Classical Eras.[NEWLINE]2x in the Medieval Era.[NEWLINE]3x in the Renaissance Era.[NEWLINE]4x in the Industrial Era.[NEWLINE]5x in the Modern Era.[NEWLINE]6x in the Atomic Era.[NEWLINE]7x in the Information Era.[NEWLINE][NEWLINE]In special cases like Korea, they may scale with Odd Era or skipping an era before scaling and follow a format based on the Current era like:[NEWLINE]1x in the Ancient/Classical Eras.[NEWLINE]2x in the Medieval/Renaissance Eras.[NEWLINE]3x in the Industrial/Modern Eras.[NEWLINE]4x in the Atomic/Information Eras.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITIES_YIELDS_SCALING_WITH_ERA_ADVISOR_QUESTION">
+			<Text>What are Yields Scaling with Era?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_TOPIC">
+			<Text>[COLOR_GREEN]City State Embassies[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_SUMMARY">
+			<Text>City State Embassies are an additional method in Vox Populi to gain Delegates in the World Congress. To establish an Embassy in a City State, move a Great Diplomat to a land tile of the City State and select "Establish an Embassy". An Embassy grants 1 additional Delegate in the World Congress. In each City State, only one Embassy can be established by a Civilization, so be quick. When a Civilization is conquered, all of its City State Embassies are transferred to the conquering Civilization.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CITY_STATE_EMBASSIES_QUESTION">
+			<Text>What are City State Embassies?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HISTORIC_EVENT">
+			<Text>[COLOR_GREEN]Historic Events[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HISTORIC_EVENT_BODY">
+			<Text>Historic Events represent monumental achievements that may occur during a game. These events require planning or user interaction, and are thus a dynamic part of acquiring cultural influence over other civilizations. When one of the following Historic Events is completed, receive a [ICON_TOURISM] Tourism boost with all known Civs based on your recent [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output:[NEWLINE][NEWLINE][ICON_BULLET] Earn a [ICON_GREAT_PEOPLE] Great Person[NEWLINE][ICON_BULLET] Build a [ICON_WONDER] World Wonder[NEWLINE][ICON_BULLET] Win a [ICON_WAR] War (Warscore 25+)[NEWLINE][ICON_BULLET] Enter a new [ICON_RESEARCH] Era[NEWLINE][ICON_BULLET] Enter a [ICON_GOLDEN_AGE] Golden Age (Artistry)[NEWLINE][ICON_BULLET] Completing an [ICON_RES_ARTIFACTS] / [ICON_RES_HIDDEN_ARTIFACTS]  Archaeological Dig (Artistry)[NEWLINE][ICON_BULLET] [ICON_CARAVAN] Trade with a Major Civilization (Caravansary, etc)[NEWLINE][ICON_BULLET] [ICON_CARGO_SHIP] Trade with a Major Civilization (Harbor, etc)[NEWLINE][ICON_BULLET] [ICON_CARAVAN]/[ICON_CARGO_SHIP] Trade with a [ICON_CITY_STATE] City-State (Policy Only)[NEWLINE][NEWLINE]The amount of Tourism received by these events is based on your culture and tourism per turn over the past few turns. The value of this is also adjusted based on the number of cities in your empire and your tourism modifier with the target civ. Finally, the amount of tourism you receive is also modified by a few social policies and ideological tenets, as well as leader traits, buildings, and the number of cities in your empire.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HISTORIC_EVENT_QUEST">
+			<Text>What is a Historic Event?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE">
+			<Text>[COLOR_GREEN]Resistance[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE_BODY">
+			<Text>Resistance is a mechanic through which Civilizations that have conquered one or more Capitals will find it increasingly difficult to capture additional Capitals. During combat, you may see the modifier [COLOR_POSITIVE_TEXT]Resistance (Domination)[ENDCOLOR] appear for you (a bonus) or for the enemy (a penalty). This modifier only appears after either you or your opponent have captured an enemy Capital. The modifier changes based on the number of foreign (non-City-State) Capitals owned and the number of foreign Capitals in total. The more Capitals captured by one player, the higher this penalty becomes!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_RESISTANCE_QUEST">
+			<Text>What is Resistance?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_PARTISANS">
+			<Text>[COLOR_GREEN]Partisans[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_PARTISANS_BODY">
+			<Text>If you choose to raze a City, there is a chance each turn that the City will spawn Partisans loyal to the Civilization you conquered this City from. These units will only spawn if you are still at war with the Civilization. If you are no longer at war, any spawned Partisans will be considered Barbarians. Be careful with aggressively razing enemy Cities, as the sudden appearance of Partisans could turn the tide against you!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_PARTISANS_QUEST">
+			<Text>What are Partisans?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_COMBAT_WAR_WEARINESS_HEADING3_TITLE">
+			<Text>[COLOR_GREEN]War Weariness[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COMBAT_WAR_WEARINESS_HEADING3_BODY">
+			<Text>War, war never changes. Well, actually, it does. As the game progresses, the citizens of your empire will become more and more aware of the dangers of prolonged conflict, and will begin to develop [COLOR_NEGATIVE_TEXT]War Weariness[ENDCOLOR]. War Weariness is calculated based on two factors: the length of your longest current war (however long that may be), and the largest amount of damage your cities and armies have sustained in a single combat against an opponent you are currently fighting. Every City lost or unit destroyed will increase your War Weariness, leading to three major effects:[NEWLINE][ICON_BULLET] Unhappiness from War Weariness[NEWLINE][ICON_BULLET] Increased Production and Gold costs for Military Units[NEWLINE][ICON_BULLET] Reduced maximum Military Unit Supply Cap.[NEWLINE]The latter two cap at 75%. Be careful of overextending during a single conflict!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_COMBAT_WAR_WEARINESS_ADV_QUEST">
+			<Text>What is War Weariness?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MILITARY_SUPPLY_HEADING3_TITLE">
+			<Text>[COLOR_GREEN]Military Supply[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MILITARY_SUPPLY_HEADING3_BODY">
+			<Text>The maximum number of Military Units you can field at any one time is called your Military Unit Supply Cap. This number, indicated on the Top Panel next to the [ICON_WAR] Symbol, increases based on two factors: the total population of all of your cities, and the number of buildings or policies you have that increase your Military Unit Supply Cap. Some buildings, such as the Barracks, increase your Supply Cap by a fixed amount. Others, like Walls, increase your Supply cap by a percentage of the city's population.[NEWLINE][NEWLINE]Military Unit Supply Cap increases from static elements, like Barracks, and percentage bonuses from population decline over time based on your empire's technological level. You will need more and more percentage bonuses to overcome this and field large armies![NEWLINE][NEWLINE]If, for any reason, you exceed your Military Unit Supply Cap, you will be penalized 5% Production and Food in all Cities (per unit over the cap).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MILITARY_SUPPLY_ADV_QUEST">
+			<Text>What is Military Supply?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_CANALS_TITLE">
+			<Text>[COLOR_GREEN]Canals[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CANALS_BODY">
+			<Text>Owned Forts and Citadels that are built next to a water tile count as Canals and can be accessed by your military ships. You can build Canals to connect Lakes (and Cities next to them) to the Ocean. It is not possible to have two adjacent Forts or two adjacent Citadels, but one Fort and one Citadel can be built next to each other. A City next to a Lake that is connected to the Ocean by a Canal can construct military ships (but not coastal buildings), and Canals can also be used by owned and foreign cargo ships.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_CANALS_ADV_QUEST">
+			<Text>What are canals?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_SPY_POINTS_TITLE">
+			<Text>[COLOR_GREEN]Spy Points[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_SPY_POINTS_BODY">
+			<Text>You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold (minimum: 100). The threshold value is reduced based on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_SPY_POINTS_ADV_QUEST">
+			<Text>What are Spy Points?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_TITLE">
+			<Text>[COLOR_GREEN]Local Happiness in Cities[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_HEADING3_BODY">
+			<Text>The Local Happiness of a city is determined as follows: [NEWLINE][NEWLINE]Some Happiness is generated locally by the City. This can be through Buildings, Policies, World Wonders or Worked Landmarks. [NEWLINE][NEWLINE]The total amount of Happiness coming from empire-wide sources (like Luxury Resources or allied City States) is distributed deck-of-cards style among all Cities. This is done automatically, prioritizing Cities that have less Local Happiness than Population. After all cities have Local Happiness equal to their Population, any remainder is distributed deck-of-cards style in order of highest to lowest Population.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_LOCAL_HAPPINESS_ADV_QUEST">
+			<Text>How is Local City Happiness determined?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_TITLE">
+			<Text>[COLOR_GREEN]Calculation of Needs Thresholds[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_BODY">
+			<Text>The calculation of Unhappiness from Needs is done by comparing a City's yield outputs per population to certain reference values, the Needs Thresholds. These values are based on the global median of yield outputs per population (i.e. the value of yield output per population that is exceeded by exactly 50% of cities worldwide). Only Cities with a population of at least 3 are considered when calculating the median, softening Unhappiness in the very early game. The Needs Thresholds are modified by a number of Needs Modifiers in each City. A positive Need Modifier makes it harder to reach the threshold and might therefore increase local Unhappiness, while a negative one might reduce it. The following modifiers are always applied:[NEWLINE] [COLOR_NEGATIVE_TEXT]Capital Status[ENDCOLOR]: The Needs Thresholds of the Capital are increased by 25%.[NEWLINE] [COLOR_NEGATIVE_TEXT]Empire Size[ENDCOLOR]: Each City in your Empire (excluding the Capital and Puppet Cities) increases the Needs Thresholds in every City by 5%. Additionally, every eight Citizens in your Empire (excluding Citizens in Puppet Cities) increase them by 1%.[NEWLINE] [COLOR_POSITIVE_TEXT]Difficulty Level[ENDCOLOR]: On the Difficulty Levels "Settler" and "Chieftain", Needs Thresholds are reduced for human players and increased for the AI. On Difficulty Levels above Chieftain, no modifiers are applied.[NEWLINE][NEWLINE]Certain Policies and Spy Events can also modify Needs Thresholds in a City. In addition, the Processes that convert Production into some other yield provide a reduction of the respective Need Threshold equal to the conversion rate (which can be increased using Power Plants), e.g. Farming converts 25% of Production into Food and decreases the Distress Need Threshold by 25%.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_NEED_THRESHOLDS_ADV_QUEST">
+			<Text>How are Needs Thresholds calculated?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPINESS_PUPPET_CITIES_TITLE">
+			<Text>[COLOR_GREEN]Unhappiness in Puppet Cities[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_PUPPET_CITIES_BODY">
+			<Text>In Puppet Cities, special rules for Happiness and Unhappiness apply. Every 4 citizens in a Puppet City generate 1 Unhappiness. The only other possible source of Unhappiness in a Puppet City is Urbanization, which is calculated the same way as in other cities. In a Puppet City, you cannot control the assigment of specialists and therefore cannot counteract Urbanization unless you annex the city. Puppet Cities don't produce any local Happiness, and they follow their own rules for growth, independent of the Happiness system. The Unhappiness generated by Puppet Cities therefore only makes a difference at the empire level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_PUPPET_CITIES_ADV_QUEST">
+			<Text>What causes Unhappiness in Puppet Cities?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIED_CITIES_TITLE">
+			<Text>[COLOR_GREEN]Occupied and Resisting Cities[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIED_CITIES_BODY">
+			<Text>Cities that are in Resistance or being Razed don't generate any Local Happiness. Instead, they generate Unhappiness equal to the city's population. This can massively decrease the Approval Rating of your empire.[NEWLINE][NEWLINE]Occupied Cities also don't produce any Happiness. They generate Unhappiness equal to the city's population, to which the regular Unhappiness from Urbanization is added.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_OCCUPIEDCITIES_ADV_QUEST">
+			<Text>What causes Unhappiness in Occupied and Resisting Cities?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_TITLE">
+			<Text>[COLOR_GREEN]Golden Age Points[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_HEADING4_BODY">
+			<Text>The ruin contains relics that grant Golden Age Points.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_GOLDEN_AGE_ADV_QUEST">
+			<Text>Golden Age Points?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_TITLE">
+			<Text>[COLOR_GREEN]Production[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_HEADING4_BODY">
+			<Text>The ruin contains supplies that grant Production to your nearest city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_PRODUCTION_ADV_QUEST">
+			<Text>Production?</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_TITLE">
+			<Text>[COLOR_GREEN]Tiles[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_HEADING4_BODY">
+			<Text>The ruin contains settlers that grant free Tiles to your nearest city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_BARBARIAN_TILES_ADV_QUEST">
+			<Text>Tiles?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_SHORTCUT_INTRODUCTION">
+			<Text>Input Shortcuts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_INTRODUCTION_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_INTRODUCTION}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_INTRODUCTION_BODY">
+			<Text>A number of mouse and keyboard shortcuts are available in Vox Populi to streamline many tasks! See [COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW}[ENDCOLOR] for shortcuts pertaining to unit control in the main map view. See [COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_CITY_VIEW}[ENDCOLOR] for shortcuts related to building construction and city management. </Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOPIC_SHORTCUT_CITY_VIEW">
+			<Text>City View Shortcuts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_CITY_VIEW_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_CITY_VIEW}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_CITY_VIEW_BODY">
+			<Text>
+				[COLOR_POSITIVE_TEXT]Building Construction Modifiers:[ENDCOLOR] While left-clicking a building will place it at the bottom of the current cities construction queue, other actions can be accomplished with the use of modifier keys.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Insert Top[ENDCOLOR]: [COLOR_YELLOW]CTRL+LCLICK[ENDCOLOR] an item to add it to the top of the current cities construction queue.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Replace[ENDCOLOR]: [COLOR_YELLOW]SHIFT+LCLICK[ENDCOLOR] an item to replace the current cities construction queue with this item.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Repeat[ENDCOLOR]: [COLOR_YELLOW]ALT+LCLICK[ENDCOLOR] an item to repeat production of that item.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Insert Bottom All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+ALT+LCLICK[ENDCOLOR] an item to add it to the bottom of every eligible cities construction queues.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Insert Top All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+CTRL+LCLICK[ENDCOLOR] an item to add it to the top of every eligible owned cities construction queues.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Invest All[ENDCOLOR]: [COLOR_YELLOW]SHIFT+LCLICK[ENDCOLOR] a buildings invest button to invest in every copy of this building in any cities active construction queue.[NEWLINE]
+			</Text>
+		</Row>
+		<Row Tag="TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW">
+			<Text>World View Shortcuts</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_WORLD_VIEW_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_SHORTCUT_WORLD_VIEW}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SHORTCUT_WORLD_VIEW_BODY">
+			<Text>
+				[COLOR_POSITIVE_TEXT]Special Movement Actions:[ENDCOLOR] Most special movement actions such as rebasing can be executed by selecting the unit and [COLOR_YELLOW]right-clicking[ENDCOLOR] on a valid destination tile.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Airlift[ENDCOLOR]: With a land unit eligible to airlift selected, right click on an eligible airlift destination tile to airlift.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Change Home City[ENDCOLOR]: With a trade unit selected, right click on a city to change home city.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Change Port[ENDCOLOR]: With a Great Admiral in a city selected, right click on a coastal city to change port.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Rebase[ENDCOLOR]: With an air unit selected, right click on an eligible airlift destination tile to perform an airlift action.[NEWLINE]
+
+				[NEWLINE][COLOR_POSITIVE_TEXT]Move and Act Orders:[ENDCOLOR] [COLOR_YELLOW]CTRL+RCLICK[ENDCOLOR] issues a 'Move and Act' order, instructing a unit to move to the destination tile then perform their action.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Archaeologists[ENDCOLOR]: Archeological Dig.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Combat Units[ENDCOLOR]: Alert/Fortify Mode.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Diplomatic Units[ENDCOLOR]: Conduct Diplomatic Mission.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Great People[ENDCOLOR]: Construct Tile Improvement.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Inquisitors[ENDCOLOR]: Remove Heresy.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Missionaries[ENDCOLOR]: Spread Religion.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Workers/Workboats[ENDCOLOR]: Repair/Improve Resources.[NEWLINE]
+
+				[NEWLINE][COLOR_POSITIVE_TEXT]Queued Movement:[ENDCOLOR] Issue move orders with [COLOR_YELLOW]SHIFT+RCLICK[ENDCOLOR] to create waypoints.[NEWLINE]
+
+				[NEWLINE][COLOR_POSITIVE_TEXT]Aircraft Group Commands:[ENDCOLOR] With an aircraft unit selected, modifier keys can be used to issue commands to all aircraft of the same type in the same airbase.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Massed Forward Rebase[ENDCOLOR]: [COLOR_YELLOW]SHIFT+RCLICK[ENDCOLOR] on an airbase will move all aircraft to that airbase until no more slots are available or all aircraft have rebased. Higher HP aircraft are prioritized, with ties broken by unit level.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Massed Fallback Rebase[ENDCOLOR]: [COLOR_YELLOW]ALT+RCLICK[ENDCOLOR] on an airbase will move all damaged aircraft to target airbase until no more slots are available or all aircraft have rebased. Lower HP aircraft are prioritized.[NEWLINE]
+				[ICON_BULLET][COLOR_CYAN]Massed Strike Mode[ENDCOLOR]: [COLOR_YELLOW]SHIFT+RCLICK[ENDCOLOR] on an enemy will air strike the unit on the target hex until all aircraft have attacked or the target is dead. Attack order prioritizes higher HP aircraft, with ties being broken by unit level. Aircraft that can attack twice will do so before the next aircraft begins attacking. [NEWLINE]
+			</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_TOPIC">
+			<Text>[COLOR_GREEN]Great Diplomat[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_SUMMARY">
+			<Text>[COLOR_CYAN]Special Ability: Establish Embassy[ENDCOLOR][NEWLINE]You can move a Great Diplomat to a City-State and construct an Embassy on a land tile. This is only possible if no other Embassy has already been established in the City-State. Each Embassy gives 1 additional vote in the World Congress. Establishing an Embassy consumes the Great Diplomat.[NEWLINE][NEWLINE][COLOR_CYAN]Special Ability: Conduct Diplomatic Mission[ENDCOLOR][NEWLINE]You can use a Great Diplomat in the territory of a City-State to conduct a Diplomatic Mission. You will get a large amount of influence with the City-State, and the influence of all other civilizations will decrease by the same amount. In addition, you will permanently get 1 Paper. This action consumes the Great Diplomat.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_GREAT_DIPLOMAT_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_GREAT_DIPLOMAT_QUEST">
+			<Text>What are Great Diplomats?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_TITLE">
+			<Text>[COLOR_GREEN]Civil Servant[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_HEADING3_BODY">
+			<Text>Civil Servants generate a variety of yields as well as points towards Great Diplomats. These units are essential if you are trying to win a Diplomatic Victory, or would like to earn a few more City-State alliances.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPECIALISTSANDGP_CIVIL_SERVANT_ADV_QUEST">
+			<Text>What do Civil Servants do?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC">
+			<Text>[COLOR_GREEN]Map Trading[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_SUMMARY">
+			<Text>A civilization's World Map details every island, ocean, Natural Wonder and civilization that a civilization's explorers have discovered and charted. The trade of a civilization's World Map is available upon the discovery of Military Science, and it will reveal every tile that civilization has explored. World Maps do not provide contact with foreign civilizations, but it will chart their location and allow you to meet them! The value of a World Map goes up depending on how much undiscovered land that civilization can reveal to you: Natural Wonders and Resources are worth far more than vast, featureless oceans. World Maps can become expensive, so be sure to explore the world and cash in on the discovery income!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_MAP_TRADING_ADVISOR_QUESTION">
+			<Text>What is Map Trading?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC">
+			<Text>[COLOR_GREEN]Tech Trading[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_SUMMARY">
+			<Text>Once you have acquired the Replaceable Parts tech, you may sell your technological discoveries with another civ, as long as you have an Embassy in their capital.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_DIPLOMACY_TECH_TRADING_ADVISOR_QUESTION">
+			<Text>What is Tech Trading?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC">
+			<Text>[COLOR_GREEN]Vassalage[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_SUMMARY">
+			<Text>A Vassalage Agreement is an agreement between two civilizations, where one civilization swears fealty to another civilization, becoming their vassal. In exchange for protection against other civilizations, the vassal surrenders their political power, including their right to become Leader of the World Congress and United Nations and ability to declare war (they follow their masters into war).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OVERVIEW_ADV_QUEST">
+			<Text>What is Vassalage?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_TOPIC">
+			<Text>[COLOR_GREEN]Obtaining Vassals[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_SUMMARY">
+			<Text>Vassals may only be obtained after entering the Medieval Era, and after a civilization has agreed to become your vassal. This agreement takes place in the Diplomacy Trade screen. There are two types of Vassalage: voluntary vassalage and capitulation.[NEWLINE][NEWLINE]Voluntary Vassalage is bought by the master during peacetime. Civilizations that are weak are more likely to surrender themselves as vassals, provided their new master is strong enough and close enough to protect them. Voluntary Vassalage is an agreement of choice only, and the vassal may choose to leave his master's service after a period of only 10 turns.[NEWLINE][NEWLINE]Capitulation, also known as "forceful vassalage," comes after a civilization has been defeated in war. In exchange for allowing them to live, the vassal agrees to surrender to their captor. Capitulation provides a number of more benefits to the master. The surrendering civilization agrees to forgive most negative diplomatic relations with the master and is forced to remain their vassal until a number of conditions are met. You can view these conditions in the Vassal Overview.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_OBTAINING_VASSALS_ADVISOR_QUESTION">
+			<Text>How do I obtain vassals?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC">
+			<Text>[COLOR_GREEN]Ending Vassalage[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_SUMMARY">
+			<Text>Vassalage may be ended between two civilizations in a variety of ways. The master may choose to declare war on their vassal, immediately ending vassalage between them. The master may choose to liberate their vassal, immediately ending the vassalage agreement (but also providing a very large diplomatic modifier with them)![NEWLINE][NEWLINE]The vassal may also request independence from the master (after some conditions are met). The master always has the option of accepting or refusing their request for independence. In both events, the vassalage agreement is immediately ended, but if a master refuses a request for independence, war is immediately declared between the two civilizations.[NEWLINE][NEWLINE]Liberation of a vassal and requesting independence from a master are options available through the Vassal Overview. Consult this overview for eligibility requirements.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_ENDING_VASSALS_ADVISOR_QUESTION">
+			<Text>How do I end vassalage?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC">
+			<Text>[COLOR_GREEN]Benefits of Vassalage[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_SUMMARY">
+			<Text>Vassalage comes with a variety of benefits for the master. The master receives free Open Borders with the vassal, and a free [ICON_DIPLOMAT] Diplomat in the Vassal's [ICON_CAPITAL] Capital, a percentage of the vassal's [ICON_RESEARCH] Science, [ICON_CULTURE] Culture, [ICON_PEACE] Faith. The master's [ICON_RELIGION] Religion and [ICON_TOURISM] Tourism to spread faster in their vassal's territory. The vassal contributes a small levy of units on each new era, the vassal is forced to adopt the Master's ideology, and the vassal is not eligible to host the World Congress or United Nations (unless the vassal founded it, in which case they will become the host of the World Congress until a new host is chosen).</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_BENEFITS_ADVISOR_QUESTION">
+			<Text>Why should I obtain vassals?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_TOPIC">
+			<Text>[COLOR_GREEN]Taxing Vassals[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_SUMMARY">
+			<Text>Each vassal player in a team can be taxed at individual rates. This tax is applied through the Vassal Overview and is available immediately after the vassalage agreement is made. All taxes are applied at the start of a turn. Taxes are deducted from the vassal's [ICON_GOLD] Gross Gold Per Turn and are divided evenly amongst the civilizations in the master's team (if there are more than one player). Vassal taxes can be set in intervals of 5% starting from 0% and ending in 25%. Taxes may only be set after a set interval (notifications are sent out when vassal taxes are ready, and the Vassal Overview icon will show a number for the number of civilizations who have a pending tax change).[NEWLINE][NEWLINE]Heavily taxing a civilization will make them more likely to hate you and rebel against you when able to end vassalage.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_DESCRIPTION">
+			<Text>{TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_TOPIC}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CONCEPT_VASSALAGE_VASSAL_TAXES_ADVISOR_QUESTION">
+			<Text>Why should I obtain vassals?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION">
+			<Text>Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] are one of the new gameplay elements added in Vox Populi. They can have a great impact on your empire's economic development, especially in the later part of a game.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Founding Corporations[ENDCOLOR]: There are seven distinct Corporations in the game, each of which becomes available once you have researched the Corporations Technology during the Modern Age. Each Corporation has a specific set of Resource Monopolies that it relies upon - if you do not have at least one of these Resource Monopolies, you will not be able to found the Corporation. Once these two requirements are met, you need to construct the 'Headquarters' of the Corporation in one of your Cities. These buildings are World Wonders, so only one player in the world may found each Corporation! Furthermore, once you have founded a Corporation, you cannot found another one, so make sure you like the one you pick![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Building Corporate Offices[ENDCOLOR]: Once you have founded your Corporation, you can begin establishing Corporate Offices in each of your Cities. These buildings come with special bonuses similar to your Corporation's Headquarters, and are thus worthwhile to construct on their own. Most bonuses from Corporations scale with the number of Cities you own, so larger empires benefit greatly from founding a Corporation and building as many Offices as possible!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_QUESTION">
+			<Text>What is a Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_MONOPOLY">
+			<Text>Monopolies</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_MONOPOLY_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_MONOPOLY}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Monopolies[ENDCOLOR] are one of the new gameplay elements added in Vox Populi.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Luxury Global Monopolies[ENDCOLOR]: the essence of the Monopoly system is expansion: as your empire expands throughout the game (either through combat or settlement), be on the lookout for Luxury Resources that you already have copies of. As you collect more and more copies of the same Luxury Resources, the percentage of global resources you control goes up. If this value goes over 50% (i.e. you control more than 50% of the world's supply of any resource), you gain a Global Monopoly over that Resource. Each Global Monopoly has a unique bonus - some grant additional yields to your tiles, whereas others boost City yields by a set percentage (see the Resource section of the Civilopedia for details).[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Strategic Global Monopolies[ENDCOLOR]: Strategic Resources operate the same way as Luxury Resources with regards to Monopolies, with one major exception. Due to the vast abundance of these resources, a true 50% Monopoly can be quite difficult. As a result, Strategic Resources have two tiers: 'Strategic' Monopolies and 'True' Monopolies. Strategic Monopolies occur at 25%, and generate special combat bonuses (such as increased health regeneration or increase defense). True Monopolies occur at 50% and, like Luxury Monopolies, they generate bonuses to City and/or tile yields.[NEWLINE][NEWLINE]Resource Monopolies are also required to found a [COLOR_POSITIVE_TEXT]Corporation[ENDCOLOR]. Each Corporation has a specific set of Resource Monopolies that it relies upon - if you do not have at least one of these Resource Monopolies, you will not be able to found the Corporation. For each Luxury and Strategic Resource, you can check the percentage of global resources you control in the "Corporations and Monopolies" screen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MONOPOLY_QUESTION">
+			<Text>What are Resource Monopolies?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_TYPES">
+			<Text>Corporation Types</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_TYPES_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_TYPES}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_HAPPINESS_CORPORATION_TYPES_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Corporation Types[ENDCOLOR]: there are seven Corporations available in Vox Populi. Each of these can only be constructed once (and only one per player), so choose wisely! For more on this, see the [COLOR_POSITIVE_TEXT]Corporations[ENDCOLOR] Tab of the Civilopedia.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_TYPES_QUESTION">
+			<Text>How do I spread my Corporation?</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_TOPIC_CORPORATION_SPREADING">
+			<Text>Spreading Corporations</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_TITLE">
+			<Text>[COLOR_GREEN]{TXT_KEY_TOPIC_CORPORATION_SPREADING}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_BODY">
+			<Text>[COLOR_POSITIVE_TEXT]Spreading your Corporation[ENDCOLOR] to foreign cities is an essential element of reaping the most benefit from your Corporation.[NEWLINE][NEWLINE]Active Spread: Corporations actively spread their influence via owned Trade Routes, but only if the origin City (your City) has a Corporate Office in it. If your City has a Corporate Office, and you send a Trade Route from that City to a foreign City, a Corporate 'Franchise' will be built in that foreign City when the Trade Route completes. There is also a random chance (~5%) that a Franchise will be created in a nearby Foreign city each turn, if you are currently trading with that Civilization. You can only spread your Corporation to each foreign City once, and you cannot have more Franchises than the maximum number of Trade Routes you can support.[NEWLINE][NEWLINE]Passive Spread: Corporations passively spread their influence via foreign Trade Routes, but only if the destination City (your City) has a Corporate Office in it. If your City has a Corporate Office, and another player sends a Trade Route to that City from one of their Cities, a Corporate 'Franchise' will be built in the foreign City when their Trade Route completes. Your Corporation can only spread to each foreign City once.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Benefits of Spreading Your Corporation[ENDCOLOR]: As listed in the details of each Corporation, the spread of your Corporation to foreign cities has a direct impact on the productivity of your Corporate Offices. For every 'Franchise' of your Corporation in a foreign City, your Corporate Offices gain unique bonuses, be it additional City yields, free resources, or improved Trade Route yields. Furthermore, many Corporations gain additional bonuses if you send Trade Routes to foreign Cities that already have your Corporation in them. Make sure to study the details of your Corporation once you have founded it so that you can maximize your benefit![NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Managing your Corporation[ENDCOLOR]: As your Corporation grows, it can be hard to keep up with where you have Franchises, and where you have Offices. Never fear! In the Economic Overview panel, you can find detailed information on your Corporation in the bottom-left corner. There, you can see the total number of Offices and Corporations you currently control, as well as drop-down lists of the locations of all Corporate Offices and Franchises, as well as the size of foreign Corporations. In addition to these elements, you can also find information about your Corporation while choosing a destination for your Trade Routes. Each City with a Franchise in it is clearly indicated.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_SPREADING_QUESTION">
+			<Text>How do I spread my Corporation?</Text>
+		</Row>
+	</Language_en_US>
+</GameData>

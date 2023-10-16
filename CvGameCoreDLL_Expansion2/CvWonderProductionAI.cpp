@@ -133,10 +133,8 @@ int CvWonderProductionAI::GetWeight(BuildingTypes eBldg)
 }
 
 /// Recommend highest-weighted wonder, also return total weight of all buildable wonders
-BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers */, int& iWonderWeight)
+BuildingTypes CvWonderProductionAI::ChooseWonder(int& iWonderWeight)
 {
-	RandomNumberDelegate fcn = MakeDelegate(&GC.getGame(), &CvGame::getJonRandNum);
-
 	// Reset list of all the possible wonders
 	m_Buildables.clear();
 
@@ -184,7 +182,7 @@ BuildingTypes CvWonderProductionAI::ChooseWonder(bool /* bAdjustForOtherPlayers 
 		if (m_Buildables.GetTotalWeight() > 0)
 		{
 			iWonderWeight = m_Buildables.GetTotalWeight();
-			BuildingTypes eSelection = (BuildingTypes)m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), &fcn, "Choosing wonder from Top Choices");
+			BuildingTypes eSelection = (BuildingTypes)m_Buildables.ChooseAbovePercentThreshold(GC.getGame().getHandicapInfo().getCityProductionChoiceCutoffThreshold(), CvSeeder::fromRaw(0x97d85ba6).mix(m_pPlayer->GetID()).mix(m_pPlayer->GetNumWonders()));
 			return eSelection;
 		}
 		// Nothing with any weight
@@ -241,13 +239,9 @@ bool CvWonderProductionAI::IsWonder(const CvBuildingEntry& kBuilding)
 {
 	const CvBuildingClassInfo& kBuildingClass = kBuilding.GetBuildingClassInfo();
 
-	if(::isWorldWonderClass(kBuildingClass) ||
+	return ::isWorldWonderClass(kBuildingClass) ||
 	        ::isTeamWonderClass(kBuildingClass) ||
-	        ::isNationalWonderClass(kBuildingClass))
-	{
-		return true;
-	}
-	return false;
+	        ::isNationalWonderClass(kBuildingClass);
 }
 
 /// Check wonders excluding national wonders you can only have one of.
@@ -257,11 +251,7 @@ bool CvWonderProductionAI::IsWonderNotNationalUnique(const CvBuildingEntry& kBui
 
 	bool isNationalUnique = kBuildingClass.getMaxPlayerInstances() == 1;
 
-	if((::isWorldWonderClass(kBuildingClass) || ::isTeamWonderClass(kBuildingClass) || ::isNationalWonderClass(kBuildingClass)) && !isNationalUnique)
-	{
-		return true;
-	}
-	return false;
+	return (::isWorldWonderClass(kBuildingClass) || ::isTeamWonderClass(kBuildingClass) || ::isNationalWonderClass(kBuildingClass)) && !isNationalUnique;
 }
 
 // PRIVATE METHODS

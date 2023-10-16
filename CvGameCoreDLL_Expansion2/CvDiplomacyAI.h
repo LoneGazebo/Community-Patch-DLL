@@ -112,7 +112,7 @@ public:
 	// Personality Values
 	// ************************************
 
-	int GetRandomPersonalityWeight(int iOriginalValue, int& iSeed);
+	int GetRandomPersonalityWeight(int iOriginalValue, const CvSeeder& seed);
 	void DoInitializePersonality(bool bFirstInit);
 	void SelectDefaultVictoryPursuits();
 
@@ -250,6 +250,7 @@ public:
 	void SetCachedSurfaceApproach(PlayerTypes ePlayer, CivApproachTypes eApproach);
 
 	CivApproachTypes GetSurfaceApproach(PlayerTypes ePlayer) const;
+	int GetSurfaceApproachDealModifier(PlayerTypes ePlayer, bool bFromMe) const;
 	CivApproachTypes GetVisibleApproachTowardsUs(PlayerTypes ePlayer) const; // Our guess as to another player's approach towards us
 
 	bool IsWantsSneakAttack(PlayerTypes ePlayer) const; // Do we want to launch a Sneak Attack Operation against ePlayer?
@@ -946,6 +947,10 @@ public:
 	bool UpdatedWarProgressThisTurn() const;
 	void SetUpdatedWarProgressThisTurn(bool bValue);
 
+	int GetNumReevaluations() const;
+	void SetNumReevaluations(int iValue);
+	void ChangeNumReevaluations(int iChange);
+
 	bool IsWaitingForDigChoice() const;
 	void SetWaitingForDigChoice(bool bValue);
 
@@ -1078,6 +1083,7 @@ public:
 	bool IsEndgameAggressive() const;
 
 	void DoUpdateCurrentVictoryPursuit();
+	bool IsSeriousAboutVictory() const;
 	void DoUpdateRecklessExpanders();
 	void DoUpdateWonderSpammers();
 	void DoUpdateVictoryDisputeLevels();
@@ -1169,7 +1175,9 @@ public:
 	// ------------------------------------
 
 	void DoUpdateGlobalPolitics();
-	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bFromWar = false, bool bCancelExchanges = true, bool bFromResurrection = false);
+	void DoReevaluatePlayer(PlayerTypes ePlayer, bool bMajorEvent = false, bool bCancelExchanges = true, bool bFromResurrection = false);
+	void DoReevaluateEveryone(bool bMajorEvent = false, bool bCancelExchanges = true, bool bFromResurrection = false);
+	void DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, bool bMajorEvent = false, bool bCancelExchanges = true, bool bFromResurrection = false);
 	void DoUpdateMajorCompetitors();
 	void DoUpdateMajorCivApproaches(vector<PlayerTypes>& vPlayersToReevaluate, bool bStrategic);
 
@@ -1894,6 +1902,7 @@ private:
 	bool m_bWasHumanLastTurn;
 	bool m_bEndedFriendshipThisTurn;
 	bool m_bUpdatedWarProgressThisTurn;
+	int m_iNumReevaluations; // Used for RNG
 	bool m_bWaitingForDigChoice;
 	bool m_bBackstabber;
 	bool m_bCompetingForVictory;

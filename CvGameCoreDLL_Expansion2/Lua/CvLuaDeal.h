@@ -120,7 +120,6 @@ protected:
 	static int lAddDeclarationOfFriendship(lua_State* L);
 	static int lAddVoteCommitment(lua_State* L);
 
-	static int lDoReevaluateDeal(lua_State* L);
 	static int lGetRenewDealMessage(lua_State* L);
 	static int lIsCheckedForRenewal(lua_State* L)
 	{
@@ -175,6 +174,17 @@ protected:
 	{
 		return BasicLuaMethod(L, &CvDeal::RemoveTechTrade);
 	};
+
+	// DEPRECATED
+	static int lAddUnitTrade(lua_State* L);
+	static int lAddTradeAgreement(lua_State* L);
+	static int lAddPermamentAlliance(lua_State* L);
+	static int lAddSurrender(lua_State* L);
+	static int lAddTruce(lua_State* L);
+	static int lAddThirdPartyEmbargo(lua_State* L);
+	static int lRemoveUnitTrade(lua_State* L);
+	static int lRemoveThirdPartyEmbargo(lua_State* L);
+	static int lChangeThirdPartyEmbargoDuration(lua_State* L);
 };
 
 namespace CvLuaArgs

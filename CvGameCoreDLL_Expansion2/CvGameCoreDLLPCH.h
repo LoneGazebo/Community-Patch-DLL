@@ -37,6 +37,7 @@
 #define FLAG_ENUM __attribute__((flag_enum))
 #define BUILTIN_UNREACHABLE() __builtin_unreachable()
 #define BUILTIN_TRAP() __builtin_trap()
+#define BUILTIN_ASSUME(expr) __builtin_assume(expr)
 #elif defined(_MSC_VER)
 #include <intrin.h>
 #define CLOSED_ENUM
@@ -44,6 +45,7 @@
 #define FLAG_ENUM
 #define BUILTIN_UNREACHABLE() __assume(0)
 #define BUILTIN_TRAP() do { __ud2(); __assume(0); } while(0)
+#define BUILTIN_ASSUME(expr) __assume(expr)
 #else
 #error Unrecognized compiler
 #endif // defined(__clang__)
@@ -53,6 +55,12 @@
 #else
 #define ENUM_META_VALUE
 #endif // __cplusplus >= 201103L
+
+#if __cplusplus >= 201703L
+#define NODISCARD [[nodiscard]]
+#else
+#define NODISCARD
+#endif // __cplusplus >= 201703L
 
 /// Asserts that the given expression is true.
 ///

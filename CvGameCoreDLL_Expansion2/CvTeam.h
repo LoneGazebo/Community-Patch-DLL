@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -39,7 +39,7 @@ public:
 	void addTeam(TeamTypes eTeam);
 	void shareItems(TeamTypes eTeam);
 	void shareCounters(TeamTypes eTeam);
-	void processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst);
+	void processBuilding(BuildingTypes eBuilding, int iChange);
 
 	void doTurn();
 
@@ -63,15 +63,6 @@ public:
 	int getDefensivePower() const;
 	int getEnemyPower() const;
 	int getNumNukeUnits() const;
-
-	// DEPRECATED
-	TeamTypes GetTeamVotingForInDiplo() const;
-	int GetProjectedVotesFromMinorAllies() const;
-	int GetProjectedVotesFromLiberatedMinors() const;
-	int GetProjectedVotesFromCivs() const;
-	int GetTotalProjectedVotes() const;
-	int GetTotalSecuredVotes() const;
-	// End DEPRECATED
 
 	int getAtWarCount(bool bIgnoreMinors) const;
 	int getHasMetCivCount(bool bIgnoreMinors) const;
@@ -310,6 +301,9 @@ public:
 	bool isForcePeace(TeamTypes eIndex) const;
 	void setForcePeace(TeamTypes eIndex, bool bNewValue);
 
+	bool IsWonLatestWar(TeamTypes eIndex) const;
+	void SetWonLatestWar(TeamTypes eIndex, bool bNewValue);
+
 	int getRouteChange(RouteTypes eIndex) const;
 	void changeRouteChange(RouteTypes eIndex, int iChange);
 
@@ -363,6 +357,8 @@ public:
 #endif
 	CvTeamTechs* GetTeamTechs() const;
 
+	int GetTechProgressPercent() const;
+
 	int getFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	void changeFeatureYieldChange(FeatureTypes eIndex1, YieldTypes eIndex2, int iChange);
 
@@ -380,11 +376,6 @@ public:
 
 	bool isAtWarWithHumans() const;
 	bool isSimultaneousTurns() const;
-
-	// DEPRECATED
-	bool IsHomeOfUnitedNations() const;
-	void SetHomeOfUnitedNations(bool bValue);
-	// End DEPRECATED
 
 	int getVictoryCountdown(VictoryTypes eIndex) const;
 	void setVictoryCountdown(VictoryTypes eIndex, int iTurnsLeft);
@@ -412,7 +403,7 @@ public:
 	bool isForceRevealedResource(ResourceTypes eResource) const;
 
 	bool IsResourceObsolete(ResourceTypes eResource);
-
+	bool IsResourceImproveable(ResourceTypes eResource) const;
 	bool IsResourceCityTradeable(ResourceTypes eResource) const;
 	bool IsResourceRevealed(ResourceTypes eResource) const;
 
@@ -552,7 +543,6 @@ protected:
 	int m_iNumMinorCivsAttacked;
 
 	bool m_bMapCentering;
-	bool m_bHomeOfUnitedNations;
 	bool m_bHasTechForWorldCongress;
 
 	EraTypes m_eCurrentEra;
@@ -577,6 +567,7 @@ protected:
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abDefensivePact;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abResearchAgreement;
 	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abForcePeace;
+	Firaxis::Array< bool, REALLY_MAX_TEAMS > m_abWonLatestWar;
 	Firaxis::Array< int, REALLY_MAX_PLAYERS > m_aiTurnTeamMet;
 
 	typedef

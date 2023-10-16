@@ -73,7 +73,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		int iFlavorWeight = pCityStrategy->GetBuildingProductionAI()->GetWeight(eBuilding);
 		int iSaneWeight = pCityStrategy->GetBuildingProductionAI()->CheckBuildingBuildSanity(eBuilding, iFlavorWeight, false, false);
 
-		m_aCityBuildables.push_back(buildable, iSaneWeight);
+		if (iSaneWeight > 0)
+			m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// units
@@ -92,7 +93,8 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		int iFlavorWeight = pCityStrategy->GetUnitProductionAI()->GetWeight(eUnit);
 		int iSaneWeight = pCityStrategy->GetUnitProductionAI()->CheckUnitBuildSanity(eUnit, false, iFlavorWeight, false, false);
 
-		m_aCityBuildables.push_back(buildable, iSaneWeight);
+		if (iSaneWeight > 0)
+			m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// projects
@@ -110,8 +112,9 @@ void CvAdvisorRecommender::UpdateCityRecommendations(CvCity* pCity)
 		
 		int iFlavorWeight = pCityStrategy->GetProjectProductionAI()->GetWeight(eProject);
 		int iSaneWeight = pCityStrategy->GetProjectProductionAI()->CheckProjectBuildSanity(eProject, iFlavorWeight);
-	
-		m_aCityBuildables.push_back(buildable, iSaneWeight);
+
+		if (iSaneWeight > 0)
+			m_aCityBuildables.push_back(buildable, iSaneWeight);
 	}
 
 	// reweigh by cost
@@ -175,26 +178,12 @@ bool CvAdvisorRecommender::IsUnitRecommended(UnitTypes eUnit, AdvisorTypes eAdvi
 
 bool  CvAdvisorRecommender::IsBuildingRecommended(BuildingTypes eBuilding, AdvisorTypes eAdvisor)
 {
-	if(m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_BUILDING && (BuildingTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eBuilding)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_BUILDING && (BuildingTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eBuilding;
 }
 
 bool  CvAdvisorRecommender::IsProjectRecommended(ProjectTypes eProject, AdvisorTypes eAdvisor)
 {
-	if(m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_PROJECT && (ProjectTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eProject)
-	{
-		return true;
-	}
-	else
-	{
-		return false;
-	}
+	return m_aRecommendedBuilds[eAdvisor].m_eBuildableType == CITY_BUILDABLE_PROJECT && (ProjectTypes)m_aRecommendedBuilds[eAdvisor].m_iIndex == eProject;
 }
 
 void CvAdvisorRecommender::ResetTechs()

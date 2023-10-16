@@ -558,7 +558,7 @@ void CvUnitMission::ContinueMission(CvUnit* hUnit, int iSteps)
 					else if (iResult == CvUnit::MOVE_RESULT_NO_TARGET)
 					{
 						//nothing to attack, continue movement
-						int iResult;
+						int iResult = 0;
 						if (MOD_SQUADS && (kMissionData.iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT)) {
 							// If moving as a squad, continue previous re-routed path instead of original destination again
 							iResult = hUnit->UnitPathTo(hUnit->m_kLastPath.back().m_iX, hUnit->m_kLastPath.back().m_iY, kMissionData.iFlags);
@@ -1015,7 +1015,7 @@ bool CvUnitMission::CanStartMission(CvUnit* hUnit, int iMission, int iData1, int
 		if (LuaSupport::CallTestAll(pkScriptSystem, "CanStartMission", args.get(), bResult))
 		{
 			// Check the result.
-			if(bResult == false)
+			if(!bResult)
 			{
 				return false;
 			}
