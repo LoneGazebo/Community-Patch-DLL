@@ -3192,40 +3192,26 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 			pkCapturedUnit->setDamage(iCapturedHealth);
 
 			// (5-82): Captured Units can still move/pillage (but not attack)
-			// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
 			if (MOD_BALANCE_VP)
 			{
 				// Unused code, but might be used in next Congress
 				// allows captured units to gain XP off its origin city (of its capturer which is either the nearest city or the Capital City!)
-				//CvCity* pOriginCityCaptured = pkCapturedUnit->getOriginCity();
-				//if (pOriginCityCaptured == NULL)
-				//	pOriginCityCaptured = GET_PLAYER(kCaptureDef.eCapturingPlayer).getCapitalCity();
-				//pOriginCityCaptured->addProductionExperience(pkCapturedUnit, false, true);
+				/*
+				CvCity* pOriginCityCaptured = pkCapturedUnit->getOriginCity();
+				if (pOriginCityCaptured == NULL)
+					pOriginCityCaptured = GET_PLAYER(kCaptureDef.eCapturingPlayer).getCapitalCity();
+				pOriginCityCaptured->addProductionExperience(pkCapturedUnit, false, true);
+				*/
 				pkCapturedUnit->restoreFullMoves();
-				pkCapturedUnit->setMadeAttack(true);
+				while (pkCapturedUnit->getNumAttacksMadeThisTurn()<pkCapturedUnit->getNumAttacks())
+					pkCapturedUnit->setMadeAttack(true);
 				pkCapturedUnit->SetTurnProcessed(false);
-				if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
-				{
-					if (pkCapturedUnit->shouldPillage(pkPlot, true))
-					{
-						pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					}
-					CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pkCapturedUnit, true, true);
-					if (pBestPlot != NULL)
-					{
-						//check if we need to bump somebody else
-						CvUnit* pBumpUnit = pkCapturedUnit->GetPotentialUnitToPushOut(*pBestPlot);
-						if (pBumpUnit)
-						{
-							pkCapturedUnit->PushBlockingUnitOutOfPlot(*pBestPlot);
-						}
-						pkCapturedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
-					}
-					else
-					{
-						pkCapturedUnit->PushMission(CvTypes::getMISSION_SKIP());
-					}
-				}
+
+				//let tactical AI handle the unit
+				//DO NOT PUSH MISSIONS DIRECTLY WHILE ANOTHER UNIT IS EXECUTING ITS MISSION
+				CvPlayer& kOwner = GET_PLAYER(pkCapturedUnit->getOwner());
+				if (!kOwner.isHuman())
+					kOwner.GetTacticalAI()->AddCurrentTurnUnit(pkCapturedUnit);
 			}
 		}
 	}
@@ -30571,7 +30557,16 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	if ( getDomainType()==DOMAIN_AIR && eMission==CvTypes::getMISSION_RANGE_ATTACK() )
 		eMission = CvTypes::getMISSION_MOVE_TO();
 
+	static bool bMissionActive = false;
+	if (bMissionActive)
+		OutputDebugString("warning, unit mission being pushed while a mission is being executed\n");
+	else
+		bMissionActive = true;
+
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
+
+	//done
+	bMissionActive = false;
 }
 
 //	--------------------------------------------------------------------------------
