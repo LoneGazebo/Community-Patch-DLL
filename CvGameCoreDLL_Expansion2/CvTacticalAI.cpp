@@ -43,7 +43,7 @@ const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
 const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
 
 //global memory for tactical simulation
-CvTactPosStorage gTactPosStorage(12000);
+CvTactPosStorage gTactPosStorage(8000);
 TCachedMovePlots gReachablePlotsLookup;
 TCachedRangeAttackPlots gRangeAttackPlotsLookup;
 vector<int> gLandEnemies, gSeaEnemies, gCitadels, gNewlyVisiblePlots;
@@ -9822,9 +9822,10 @@ bool CvTacticalPosition::addAssignment(const STacticalAssignment& newAssignment)
 	//todo: should we stop the simulation? how to include this in position scoring?
 	//don't do restarts if we have a lot of units, the simulation can take very long then
 	//also don't do a restart if this was the last unit
-	//any new enemies in sight?
-	bool bRestartRequired = (visibilityResult.second > 0);
-	if (bRestartRequired && availableUnits.size()<8 && availableUnits.size()>0)
+	//any new enemies in sight or borders changed?
+	bool bCityCapture = (newAssignment.eAssignmentType == A_MELEEKILL && GC.getMap().plotByIndexUnchecked(newAssignment.iToPlotIndex)->isCity());
+	bool bRestartRequired = (visibilityResult.second > 0) || bCityCapture;
+	if (bRestartRequired && availableUnits.size()>0)
 		assignedMoves.push_back(STacticalAssignment( -1, -1, newAssignment.iUnitID, 0, newAssignment.eMoveType, 0, A_RESTART));
 
 	return true;
