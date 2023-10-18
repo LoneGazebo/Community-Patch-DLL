@@ -28,6 +28,16 @@
 		</Expand>
 	</Type>
 
+	<Type Name="CvCity">
+		<DisplayString>(id {m_iID}, P{m_eOwner}, at {m_iX}:{m_iY})</DisplayString>
+		<Expand>
+			<Item Name="m_iID">m_iID</Item>
+			<Item Name="m_eOwner">m_eOwner</Item>
+			<Item Name="m_iX">m_iX</Item>
+			<Item Name="m_iY">m_iY</Item>
+		</Expand>
+	</Type>
+
 	<Type Name="CvPlot">
 		<DisplayString>({m_iX}:{m_iY}, index {m_iPlotIndex}, owner {m_eOwner})</DisplayString>
 		<Expand>
@@ -38,6 +48,10 @@
 		</Expand>
 	</Type>
 
+	<Type Name="CvPlayer">
+		<DisplayString>id {m_eID}</DisplayString>
+	</Type>
+	
 	<!-- stl types -->
 	
 	<Type Name="std::pair&lt;*&gt;">

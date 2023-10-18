@@ -3412,9 +3412,6 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 	if (pToPlot->isRoute())
 		//prefer to stay close to routes ... even if we cannot really use them
 		iScale = 54;
-	else if (pToPlot->isMountain() || pToPlot->isIce())
-		//normally impassable
-		iScale = 531;
 	else if (pToPlot->isRoughGround())
 		//try to avoid rough plots
 		iScale = 157;
@@ -3426,12 +3423,15 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 		iScale = 67; 
 	
 	//try to stay away from enemy cities
-	if (pToPlot->isOwned() && GC.getGame().GetClosestCityDistanceInPlots(pToPlot) < 3)
+	if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES) && pToPlot->isOwned() && GC.getGame().GetClosestCityDistanceInPlots(pToPlot) < 3)
 	{
 		PlayerTypes eClosestCityOwner = GC.getGame().GetClosestCityOwnerByPlots(pToPlot);
 		if (GET_PLAYER(finder->GetData().ePlayer).IsAtWarWith(eClosestCityOwner))
 			iScale *= 2;
 	}
+
+	//todo: extra cost if this is a chokepoint
+	//see StepValidWide for the logic (cannot use CvPlot::IsChokePoint for performance and also we need to support water chokepoints)
 
 	//we're using uneven numbers here to avoid ties
 	return (PATH_BASE_COST*iScale)/100;
@@ -3450,6 +3450,10 @@ int ArmyCheckTerritory(CvPlot* pToPlot, const CvPlayer& kPlayer, PlayerTypes eTa
 
 	if (finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
 		return TRUE;
+
+	//do not go through other people's cities
+	if (finder->HasValidDestination() && pToPlot->isCity())
+		return pToPlot->getTeam() == kPlayer.getTeam() || finder->IsPathDest(pToPlot->getX(),pToPlot->getY());
 
 	CvTeam& plotTeam = GET_TEAM(pToPlot->getTeam());
 	if (plotTeam.isAtWar(kPlayer.getTeam()))
@@ -3489,15 +3493,6 @@ int ArmyStepValidLand(const CvAStarNode* parent, const CvAStarNode* node, const 
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
 
-	//cities
-	if (pToPlot->isCity())
-	{
-		if (pToPlot->getTeam() == kPlayer.getTeam())
-			return TRUE;
-		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-	}
-
 	//check terrain
 	if (pToPlot->isWater())
 		return FALSE;
@@ -3524,17 +3519,8 @@ int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
 
-	//cities
-	if (pToPlot->isCity())
-	{
-		if (pToPlot->getTeam() == kPlayer.getTeam())
-			return TRUE;
-		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-	}
-
-	//check terrain
-	if (!pToPlot->isWater())
+	//check terrain (we'll check city ownership in ArmyCheckTerritory)
+	if (!pToPlot->isWater() && !pToPlot->isCoastalCityOrPassableImprovement(data.ePlayer,false,true))
 		return FALSE;
 	//we could check the trait directly but theoretically we could have an old army of non-oceangoing ships ...
 	if (pToPlot->isDeepWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN))
@@ -3562,15 +3548,6 @@ int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
-
-	//cities
-	if (pToPlot->isCity())
-	{
-		if (pToPlot->getTeam() == kPlayer.getTeam())
-			return TRUE;
-		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-	}
 
 	//check terrain
 	if (pToPlot->isWater())

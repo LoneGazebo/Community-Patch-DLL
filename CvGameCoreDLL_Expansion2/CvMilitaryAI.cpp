@@ -786,8 +786,8 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 	int iCityLoop = 0;
 	for (CvCity* pMusterCity = m_pPlayer->firstCity(&iCityLoop); pMusterCity != NULL; pMusterCity = m_pPlayer->nextCity(&iCityLoop))
 	{
-		map<int, SPath> landpaths = GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(pMusterCity, false);
-		map<int, SPath> waterpaths = GC.getGame().GetGameTrade()->GetAllPotentialTradeRoutesFromCity(pMusterCity, true);
+		map<int, SPath> landpaths = GetArmyPathsFromCity(pMusterCity, false);
+		map<int, SPath> waterpaths = GetArmyPathsFromCity(pMusterCity, true);
 
 		//first filter land targets
 		for (map<int, SPath>::iterator it = landpaths.begin(); it != landpaths.end(); ++it)
@@ -804,22 +804,19 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer, 3))
 				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
-			//and now the other way around
-			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
+			//and now the other way around - this is not 100% accurate because we used the wrong terrain ownership to generate the path!
+			it->second.invert();
+
+			CvAttackTarget reverseTarget;
+			reverseTarget.SetWaypoints(it->second);
+			MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+
+			//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
 			{
-				it->second.invert();
-
-				CvAttackTarget reverseTarget;
-				reverseTarget.SetWaypoints(it->second);
-				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
-
-				//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
-				if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
-				{
-					//do not try any advanced scoring, just use a basic approach/distance score
-					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
-					vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
-				}
+				//do not try any advanced scoring, just use a basic approach/distance score
+				int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+				vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
 			}
 		}
 
@@ -838,22 +835,19 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, m_pPlayer->GetID(), eOtherPlayer, 3))
 				vAttackOptions.push_back(OptionWithScore<CvAttackTarget>(target, ScoreAttackTarget(target)));
 
-			//and now the other way around
-			if (GET_PLAYER(eOtherPlayer).isMajorCiv())
+			//and now the other way around - this is not 100% accurate because we used the wrong terrain ownership to generate the path!
+			it->second.invert();
+
+			CvAttackTarget reverseTarget;
+			reverseTarget.SetWaypoints(it->second);
+			MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
+
+			//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
+			if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
 			{
-				it->second.invert();
-
-				CvAttackTarget reverseTarget;
-				reverseTarget.SetWaypoints(it->second);
-				MilitaryAIHelpers::SetBestTargetApproach(reverseTarget, eOtherPlayer);
-
-				//use a more liberal check here, never know what the enemy might do ... better safe than sorry!
-				if (target.m_iApproachScore > 0 && MilitaryAIHelpers::ArmyPathIsGood(it->second, eOtherPlayer, m_pPlayer->GetID(), 6))
-				{
-					//do not try any advanced scoring, just use a basic approach/distance score
-					int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
-					vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
-				}
+				//do not try any advanced scoring, just use a basic approach/distance score
+				int iScore = (reverseTarget.m_iApproachScore * 10) / sqrti(it->second.length());
+				vDefenseOptions.push_back(OptionWithScore<CvAttackTarget>(reverseTarget, iScore));
 			}
 		}
 	}
@@ -931,6 +925,37 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 	}
 
 	return m_potentialAttackTargets.size();
+}
+
+map<int, SPath> CvMilitaryAI::GetArmyPathsFromCity(CvCity* pMusterCity, bool bWater)
+{
+	vector<CvPlot*> vPotentialTargets;
+	for (int iPlayer = 0; iPlayer < MAX_PLAYERS; ++iPlayer)
+	{
+		CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
+
+		//skip teammates and allied city states
+		if (kLoopPlayer.getTeam() == m_pPlayer->getTeam())
+			continue;
+		if (kLoopPlayer.GetMinorCivAI()->GetAlly() == m_pPlayer->GetID())
+			continue;
+
+		//don't need to filter for coastal cities, pathfinder will sort it out
+		int iCity = 0;
+		for (CvCity* pDestCity = kLoopPlayer.firstCity(&iCity); pDestCity != NULL; pDestCity = kLoopPlayer.nextCity(&iCity))
+			if (pDestCity->plot()->isCity() && pDestCity->plot()->isAdjacentRevealed(m_pPlayer->getTeam())) //idiot proofing
+				vPotentialTargets.push_back(pDestCity->plot());
+	}
+
+	//re-use trade route distance to get an era-appropriate max distance
+	int iMaxNormDist = m_pPlayer->GetTrade()->GetTradeRouteRange(bWater?DOMAIN_SEA:DOMAIN_LAND, pMusterCity);
+	SPathFinderUserData data(m_pPlayer->GetID(), bWater?PT_ARMY_WATER:PT_ARMY_LAND);
+	data.iMaxNormalizedDistance = iMaxNormDist;
+	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
+	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_ENEMIES;
+
+	//get all paths, ie map<index of dest's city plot, path to that city>
+	return GC.GetStepFinder().GetMultiplePaths(pMusterCity->plot(), vPotentialTargets, data);
 }
 
 bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsWillingToBuild, bool bCareful)

@@ -197,6 +197,7 @@ public:
 	bool IsPlayerValid(PlayerTypes eOtherPlayer) const;
 
 	size_t UpdateAttackTargets();
+	map<int, SPath> GetArmyPathsFromCity(CvCity* pMusterCity, bool bWater);
 	int ScoreAttackTarget(const CvAttackTarget& target);
 
 	// Accessors to provide military data to other AI subsystems
