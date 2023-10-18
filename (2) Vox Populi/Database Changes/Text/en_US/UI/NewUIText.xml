@@ -840,10 +840,10 @@
 			<Text>{1_SpecialistName:textkey}s: +{3_Num} {4_IconString} {2_YieldType:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_COST_REDUCTION">
-			<Text>{2_Turns}% Turn(s) to {1_Build}.</Text>
+			<Text>{2_Turns}% Turns to {1_Build}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION">
-			<Text>{1_Turns}% Turn(s) to removing Forests/Jungles.</Text>
+			<Text>{1_Turns}% Turns to remove Forests/Jungles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
 			<Text>Allows Map Trading</Text>

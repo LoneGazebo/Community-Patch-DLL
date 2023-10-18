@@ -165,6 +165,7 @@ DROP TABLE UnitClass_Costs;
 
 -- No Prereq
 UPDATE Units SET Cost = 40, FaithCost = 100 WHERE Class = 'UNITCLASS_WARRIOR';
+UPDATE Units SET Cost = 40, FaithCost = 100 WHERE Class = 'UNITCLASS_VP_SLINGER';
 UPDATE Units SET Cost = 40, FaithCost = 100 WHERE Class = 'UNITCLASS_PATHFINDER';
 
 -- Outliers

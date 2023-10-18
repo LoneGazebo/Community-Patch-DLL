@@ -2,7 +2,7 @@
 <GameData>
 	<Language_en_US>
 		<Row Tag="TXT_KEY_TP_FAITH_NEXT_PROPHET_PARAM">
-			<Text>{1_Num} [ICON_PEACE] Faith is minimum required for your next chance at a {2_UNITCLASS_PROPHET}.</Text>
+			<Text>{1_Num} [ICON_PEACE] Faith is the minimum required for your next chance at a {2_UNITCLASS_PROPHET}.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_RO_FAITH_TOOLTIP_PARAM">

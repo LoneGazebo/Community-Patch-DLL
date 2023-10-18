@@ -434,6 +434,14 @@ SET Text = 'Head of {1_ReligionName}'
 WHERE Tag = 'TXT_KEY_RO_STATUS_FOUNDER';
 
 UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_PEACE] Faith is the minimum required to found the next religious Pantheon. If you wish to found a Pantheon, you must do it before there is an Enhanced Religion in the game (though you may always form one if there have not been as many Pantheons as the maximum number of Religions).'
+WHERE Tag = 'TXT_KEY_TP_FAITH_NEXT_PANTHEON';
+
+UPDATE Language_en_US
+SET Text = '{1_Num} [ICON_PEACE] Faith is the minimum required for your next chance at a Great Prophet.'
+WHERE Tag = 'TXT_KEY_TP_FAITH_NEXT_PROPHET';
+
+UPDATE Language_en_US
 SET Text = 'Can be purchased with [ICON_PEACE] Faith in any city with a majority Religion that has been enhanced. They can remove other religions from your cities (expending the Inquisitor) or be placed inside or adjacent to a city to protect it from Missionaries and Prophets trying to spread other religions into that city.'
 WHERE Tag = 'TXT_KEY_UNIT_INQUISITOR_STRATEGY';
 
