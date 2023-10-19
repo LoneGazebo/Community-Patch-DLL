@@ -972,7 +972,6 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		{
 			if ((eItem == TRADE_ITEM_RESOURCES && GetPlayer()->IsResourceNotForSale((ResourceTypes)iData1)) ||
 				(eItem == TRADE_ITEM_ALLOW_EMBASSY && GetPlayer()->IsRefuseEmbassyTrade()) ||
-				(eItem == TRADE_ITEM_ALLOW_EMBASSY && GetPlayer()->IsRefuseEmbassyTrade()) ||
 				(eItem == TRADE_ITEM_RESEARCH_AGREEMENT && GetPlayer()->IsRefuseResearchAgreementTrade()) ||
 				(eItem == TRADE_ITEM_DEFENSIVE_PACT && GetPlayer()->IsRefuseDefensivePactTrade()) ||
 				(eItem == TRADE_ITEM_THIRD_PARTY_PEACE && GetPlayer()->IsRefuseBrokeredPeaceTrade()) ||
@@ -1106,29 +1105,39 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 				}
 				else
 				{
-					iSellModifier = iApproachModifier;
 					// modify acceptable selling price based on opinion
+					iSellModifier = iApproachModifier;
 					iMinAcceptableSellPrice = iSellPrice * iSellModifier / 100;
-
 					iBuyPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
-					iBuyModifier = iOtherPlayerApproachModifier;
-					// modify acceptable buying price based on opinion
-					iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
-
-					// take the average of buy and sell price, modified by opinion
-					iItemValue = (iBuyPrice + iSellPrice) / 2;
-					iItemValue *= iSellModifier;
-					iItemValue /= 100;
-					iItemValue *= iBuyModifier;
-					iItemValue /= 100;
-
-					// for items that are not two-sided: check if item value is acceptable for both players
-					if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+					if (iBuyPrice == INT_MAX)
 					{
-						// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+						// The other player doesn't want to buy this item (perceived buy value if human).
 						// Don't offer the item in AI-AI deals or in AI offers to humans.
 						// If a human has asked for this item, return the sell price we'd be willing to accept.
 						iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMinAcceptableSellPrice;
+
+					}
+					else
+					{
+						// modify acceptable buying price based on opinion
+						iBuyModifier = iOtherPlayerApproachModifier;
+						iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
+
+						// take the average of buy and sell price, modified by opinion
+						iItemValue = (iBuyPrice + iSellPrice) / 2;
+						iItemValue *= iSellModifier;
+						iItemValue /= 100;
+						iItemValue *= iBuyModifier;
+						iItemValue /= 100;
+
+						// for items that are not two-sided: check if item value is acceptable for both players
+						if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+						{
+							// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+							// Don't offer the item in AI-AI deals or in AI offers to humans.
+							// If a human has asked for this item, return the sell price we'd be willing to accept.
+							iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMinAcceptableSellPrice;
+						}
 					}
 				}
 			}
@@ -1136,38 +1145,44 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			{
 				// we are buying
 				iBuyPrice = GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
-				iBuyModifier = iApproachModifier;
-				// modify acceptable buying price based on opinion
-				iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
-
-				iSellPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, GetPlayer()->GetID(), iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
-				iSellModifier = iOtherPlayerApproachModifier;
-				if (iSellPrice == INT_MAX)
+				if (iBuyPrice == INT_MAX)
 				{
-					// The other player doesn't want to sell this item (perceived sell value if human). 
-					// Don't offer the item in AI-AI deals or in AI offers to humans.
-					// If a human is offering this item, return the buy price we'd be willing to accept.
-					iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMaxAcceptableBuyPrice;
+					iItemValue = INT_MAX;
 				}
 				else
 				{
-					// modify acceptable selling price based on opinion
-					iMinAcceptableSellPrice = iSellPrice * iSellModifier / 100;
-
-					// take the average of buy and sell price, modified by opinion
-					iItemValue = (iBuyPrice + iSellPrice) / 2;
-					iItemValue *= iSellModifier;
-					iItemValue /= 100;
-					iItemValue *= iBuyModifier;
-					iItemValue /= 100;
-
-					// for items that are not two-sided: check if item value is acceptable for both players
-					if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+					// modify acceptable buying price based on opinion
+					iBuyModifier = iApproachModifier;
+					iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
+					iSellPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, GetPlayer()->GetID(), iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
+					if (iSellPrice == INT_MAX)
 					{
-						// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+						// The other player doesn't want to sell this item (perceived sell value if human). 
 						// Don't offer the item in AI-AI deals or in AI offers to humans.
 						// If a human is offering this item, return the buy price we'd be willing to accept.
 						iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMaxAcceptableBuyPrice;
+					}
+					else
+					{
+						// modify acceptable selling price based on opinion
+						iSellModifier = iOtherPlayerApproachModifier;
+						iMinAcceptableSellPrice = iSellPrice * iSellModifier / 100;
+
+						// take the average of buy and sell price, modified by opinion
+						iItemValue = (iBuyPrice + iSellPrice) / 2;
+						iItemValue *= iSellModifier;
+						iItemValue /= 100;
+						iItemValue *= iBuyModifier;
+						iItemValue /= 100;
+
+						// for items that are not two-sided: check if item value is acceptable for both players
+						if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+						{
+							// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+							// Don't offer the item in AI-AI deals or in AI offers to humans.
+							// If a human is offering this item, return the buy price we'd be willing to accept.
+							iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMaxAcceptableBuyPrice;
+						}
 					}
 				}
 			}
