@@ -34796,7 +34796,7 @@ void CvDiplomacyAI::DoOpenBordersExchange(PlayerTypes ePlayer, DiploStatementTyp
 					bool bUselessReferenceVariable = false;
 					bool bCantMatchOffer = false;
 					bool bDealAcceptable = GetPlayer()->GetDealAI()->DoEqualizeDeal(pDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);	// Change the deal as necessary to make it work
-					if(bDealAcceptable)
+					if (bDealAcceptable && !bCantMatchOffer && pDeal->GetNumItems() > 0)
 					{
 						eStatement = eTempStatement;
 					}
