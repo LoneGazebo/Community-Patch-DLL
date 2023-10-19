@@ -1689,7 +1689,7 @@ function TipHandler( control )
 		local buildTime = pPlot:GetBuildTime( iBuildID, Game.GetActivePlayer() )
 		local iBuildTurns
 		if buildProgress == 0 then
-			iBuildTurns = plot:GetBuildTurnsTotal( iBuildID, Game.GetActivePlayer() )
+			iBuildTurns = pPlot:GetBuildTurnsTotal( iBuildID, Game.GetActivePlayer() )
 		else
 			buildProgress = buildProgress - nominalWorkRate
 			iBuildTurns = pPlot:GetBuildTurnsLeft( iBuildID, Game.GetActivePlayer(), -unit:WorkRate() )

@@ -375,7 +375,7 @@ UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_SCIENCE' AND Lea
 UPDATE Leader_Flavors SET Flavor = 9 WHERE FlavorType = 'FLAVOR_CULTURE' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 8, primary: culture
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_ARCHAEOLOGY' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 7, primary: culture
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_HAPPINESS' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 5, primary: culture
-UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_LAND_TRADE_ROUTE' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 7, UB
+UPDATE Leader_Flavors SET Flavor = 10 WHERE FlavorType = 'FLAVOR_I_LAND_TRADE_ROUTE' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 7, UB
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_I_TRADE_ORIGIN' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 6, UA
 UPDATE Leader_Flavors SET Flavor = 8 WHERE FlavorType = 'FLAVOR_I_TRADE_DESTINATION' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 6, UA
 UPDATE Leader_Flavors SET Flavor = 7 WHERE FlavorType = 'FLAVOR_WONDER' AND LeaderType = 'LEADER_HARUN_AL_RASHID'; -- 5, primary: culture
