@@ -972,6 +972,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		{
 			if ((eItem == TRADE_ITEM_RESOURCES && GetPlayer()->IsResourceNotForSale((ResourceTypes)iData1)) ||
 				(eItem == TRADE_ITEM_ALLOW_EMBASSY && GetPlayer()->IsRefuseEmbassyTrade()) ||
+				(eItem == TRADE_ITEM_OPEN_BORDERS && GetPlayer()->IsRefuseOpenBordersTrade()) ||
 				(eItem == TRADE_ITEM_RESEARCH_AGREEMENT && GetPlayer()->IsRefuseResearchAgreementTrade()) ||
 				(eItem == TRADE_ITEM_DEFENSIVE_PACT && GetPlayer()->IsRefuseDefensivePactTrade()) ||
 				(eItem == TRADE_ITEM_THIRD_PARTY_PEACE && GetPlayer()->IsRefuseBrokeredPeaceTrade()) ||
@@ -985,9 +986,9 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			//actual computation
 
 			if (eItem == TRADE_ITEM_GOLD)
-				iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false, eOtherPlayer);
+				iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false);
 			else if (eItem == TRADE_ITEM_GOLD_PER_TURN)
-				iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer);
+				iItemValue = GetGPTForForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer);
 			else if (eItem == TRADE_ITEM_RESOURCES)
 			{
 				// precalculate, it's expensive
@@ -1228,10 +1229,8 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 }
 
 /// How much Gold should be provided if we're trying to make it worth iValue?
-int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue, PlayerTypes eOtherPlayer)
+int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of Gold with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	int iMultiplier = 0;
 	int iDivisor = 0;
 
@@ -1239,10 +1238,7 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	if (bNumGoldFromValue)
 	{
 		iMultiplier = 100;
-		iDivisor = /*100*/ GD_INT_GET(EACH_GOLD_VALUE_PERCENT);
-		// Protect against a modder setting this to 0
-		if(iDivisor == 0)
-			iDivisor = 1;
+		iDivisor = /*100*/ max(GD_INT_GET(EACH_GOLD_VALUE_PERCENT), 1);
 	}
 	// We passed in an amount of Gold, we want to know how much it's worth
 	else
@@ -1252,14 +1248,11 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	}
 
 	// Convert based on the rules above
-	int iReturnValue = iGoldOrValue * iMultiplier;
-	iReturnValue /= iDivisor;
-
-	return iReturnValue;
+	return iGoldOrValue * iMultiplier / iDivisor;
 }
 
 /// How much GPT should be provided if we're trying to make it worth iValue?
-int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer)
+int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of GPT with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	if (iGPTorValue <= 0)
@@ -4520,7 +4513,7 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 		// Can't already be Gold from the other player in the Deal
 		if(pDeal->GetGoldTrade(eMyPlayer) == 0)
 		{
-			int iNumGold = GetGoldForForValueExchange(iValueNeeded, /*bNumGoldFromValue*/ true, eThem);
+			int iNumGold = GetGoldForForValueExchange(iValueNeeded, /*bNumGoldFromValue*/ true);
 
 			if(iNumGold <= 0)
 			{
@@ -4567,7 +4560,7 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 		// Can't already be Gold from the other player in the Deal
 		if(pDeal->GetGoldTrade(eThem) == 0)
 		{
-			int iNumGold = GetGoldForForValueExchange(iTotalValue, /*bNumGoldFromValue*/ true, eThem);
+			int iNumGold = GetGoldForForValueExchange(iTotalValue, /*bNumGoldFromValue*/ true);
 
 			if(iNumGold < 0)
 			{
@@ -4622,7 +4615,7 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 			// Can't already be GPT from the other player in the Deal
 			if(pDeal->GetGoldPerTurnTrade(eMyPlayer) == 0)
 			{
-				int iNumGPT = GetGPTforForValueExchange(iValueNeeded, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ false, eThem);
+				int iNumGPT = GetGPTForForValueExchange(iValueNeeded, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ false, eThem);
 
 				if (iNumGPT < 0)
 					return;
@@ -4674,7 +4667,7 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 			// Can't already be GPT from the other player in the Deal
 			if(pDeal->GetGoldPerTurnTrade(eThem) == 0)
 			{
-				int iNumGPT = GetGPTforForValueExchange(iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ true, eThem);
+				int iNumGPT = GetGPTForForValueExchange(iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ true, eThem);
 
 				if (iNumGPT < 0)
 					return;
