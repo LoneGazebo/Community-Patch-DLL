@@ -35914,18 +35914,18 @@ void CvDiplomacyAI::DoPeaceOffer(PlayerTypes ePlayer, DiploStatementTypes& eStat
 				{
 					// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
 					pDeal->ClearItems();
-				}
-			}
-			else if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
-			{
-				if (GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/) && pDeal->GetNumItems() > 0)
-				{
-					eStatement = eTempStatement;
-				}
-				else
-				{
-					// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
-					pDeal->ClearItems();
+					if (GetNumTurnsSinceStatementSent(ePlayer, eTempStatement) >= iTurnsBetweenStatements)
+					{
+						if (GetPlayer()->GetDealAI()->IsOfferPeace(ePlayer, /*pDeal can be modified in this function*/ pDeal, false /*bEqualizingDeals*/) && pDeal->GetNumItems() > 0)
+						{
+							eStatement = eTempStatement;
+						}
+						else
+						{
+							// Clear out the deal if we don't want to offer it so that it's not tainted for the next trade possibility we look at
+							pDeal->ClearItems();
+						}
+					}
 				}
 			}
 		}
