@@ -1519,6 +1519,12 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					iYieldBonuses += iYieldValue * pLoopCity->getBaseYieldRate(eYield) * (iPlayerModifier + iCityModifier) / 100;
 				}
 			}
+			int iWLTKDLength = (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2);
+			iWLTKDLength *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKDLength /= 100;
+
+			iYieldBonuses *= iWLTKDLength;
+			iYieldBonuses /= iNumTurns;
 			iItemValue += (iYieldBonuses * OneGPT) / 3;
 
 			// Netherlands buys resources for more if they aren't already importing it
