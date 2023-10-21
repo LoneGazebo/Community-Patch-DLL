@@ -174,7 +174,7 @@
 			<Text>{1_Num} [ICON_GOLDEN_AGE] Golden Age Points</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TOP_PANEL_TURNS_UNTIL_GOLDEN_AGE">
-			<Text>Next Golden Age: {1_Num} Turn(s)</Text>
+			<Text>Next Golden Age: {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLDEN_AGE_POINTS_FROM_TRADE_ROUTES">
 			<Text>{1_perTurn:number "#.##"} [ICON_GOLDEN_AGE] from Trade Routes established with this city</Text>
@@ -214,10 +214,10 @@
 			<Text>Neutral</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEACE_BLOCKED_TURNS">
-			<Text>Peace Blocked for {1_Num} turn(s)</Text>
+			<Text>Peace Blocked for {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PEACE_BLOCKED_CSTATE_TURNS_TT">
-			<Text>You aggressively attacked this City-State and cannot make peace for {1_Num} turns!</Text>
+			<Text>You aggressively attacked this City-State and cannot make peace for {1_Num} {1_Num: plural 1?turn; other?turns;}!</Text>
 		</Row>
 
 		<!-- Text for Preview Combat Miscellaneous Bonuses -->
@@ -255,10 +255,10 @@
 
 		<!-- Tourism Bonus Turns for Tooltip -->
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS">
-			<Text>+100% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+			<Text>+100% Bonus from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_TOUR_BONUS_HALF">
-			<Text>+50% Bonus from Concert Tour ({1_NumTurns} Turns)[NEWLINE]</Text>
+			<Text>+50% Bonus from Concert Tour ({1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;})[NEWLINE]</Text>
 		</Row>
 
 		<!-- Add Defensive Pact Notification -->
@@ -2758,7 +2758,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE_ATTACKED">
-			<Text>{1_CivName:textkey} was attacked by {3_TargetName:textkey}, and needs help. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns, so act fast if you intend to intervene!</Text>
+			<Text>{1_CivName:textkey} was attacked by {3_TargetName:textkey}, and needs help. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?turn; other?turns;}, so act fast if you intend to intervene!</Text>
 		</Row>
 
 
@@ -2975,24 +2975,24 @@
 		</Row>
 		<!-- CS TEXT CBP -->
 		<Row Tag="TXT_KEY_CSTATE_JERK_STATUS">
-			<Text>[COLOR_NEGATIVE_TEXT]You aggressively attacked this City-State![ENDCOLOR][NEWLINE]For the next [COLOR_NEGATIVE_TEXT]{1_JerkRate}[ENDCOLOR] turns, the City-State will not give you any Quests, and your [ICON_INFLUENCE] Influence anchor will be reduced.[NEWLINE]If you [COLOR_POSITIVE_TEXT]become Friends[ENDCOLOR] with this City-State during this time, these penalties will be removed early.[NEWLINE][NEWLINE]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]You aggressively attacked this City-State![ENDCOLOR][NEWLINE]For the next [COLOR_NEGATIVE_TEXT]{1_JerkRate}[ENDCOLOR] {1_JerkRate: plural 1?Turn; other?Turns;}, the City-State will not give you any Quests, and your [ICON_INFLUENCE] Influence anchor will be reduced.[NEWLINE]If you [COLOR_POSITIVE_TEXT]become Friends[ENDCOLOR] with this City-State during this time, these penalties will be removed early.[NEWLINE][NEWLINE]</Text>
 		</Row>
 
 		<!-- Promises LUA -->
 		<Row Tag="TXT_KEY_DIPLO_MILITARY_PROMISE_TURNS">
-			<Text>You promised not to declare war on them for {1_Num} more turn(s).</Text>
+			<Text>You promised not to declare war on them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_EXPANSION_PROMISE_TURNS">
-			<Text>You promised not to settle near them for {1_Num} more turn(s).</Text>
+			<Text>You promised not to settle near them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BORDER_PROMISE_TURNS">
-			<Text>You promised not to buy land near them for {1_Num} more turn(s).</Text>
+			<Text>You promised not to buy land near them for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_MILITARY_PROMISE_TURNS">
-			<Text>They promised not to declare war on you for {1_Num} more turn(s).</Text>
+			<Text>They promised not to declare war on you for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_AI_EXPANSION_PROMISE_TURNS">
-			<Text>They promised not to settle near you for {1_Num} more turn(s).</Text>
+			<Text>They promised not to settle near you for {1_Num} more {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<!-- Tourism Lua -->
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_GENERAL">
@@ -3080,7 +3080,7 @@
 			<Text>I only give away my foreign policy to those whom I trust. I cannot trust someone I've just met.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_THEM_TT">
-			<Text>They cannot negotiate peace with you for another {1_Num} turn(s) because of a deal they made with another player.</Text>
+			<Text>They cannot negotiate peace with you for another {1_Num} {1_Num: plural 1?turn; other?turns;} because of a deal they made with another player.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_MOD_TT">
 			<Text>You are always at war with this player!</Text>
@@ -3232,10 +3232,10 @@
 			<Text>They are already a vassal of {1_CivName}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_TOO_SOON">
-			<Text>You cannot become their vassal for {1_Num} turn(s) because it has been too soon since your vassalage ended.</Text>
+			<Text>You cannot become their vassal for {1_Num} {1_Num: plural 1?turn; other?turns;} because it has been too soon since your vassalage ended.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_THEM_TOO_SOON">
-			<Text>They cannot become your vassal for {1_Num} turn(s) because it has been too soon since their vassalage ended.</Text>
+			<Text>They cannot become your vassal for {1_Num} {1_Num: plural 1?turn; other?turns;} because it has been too soon since their vassalage ended.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_YOU_NO_POPULATION">
 			<Text>You cannot become their vassal because you have no cities or population!</Text>
@@ -3259,10 +3259,10 @@
 			<Text>They cannot ask their master to liberate vassals!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_US_TOO_SOON">
-			<Text>We recently vassalized someone and cannot perform this action for another {1_Num} turn(s).</Text>
+			<Text>We recently vassalized someone and cannot perform this action for another {1_Num} {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VASSAL_REVOKE_THEM_TOO_SOON">
-			<Text>They recently vassalized someone and cannot perform this action for another {1_Num} turn(s).</Text>
+			<Text>They recently vassalized someone and cannot perform this action for another {1_Num} {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_WAR_NO_PEACE_THIRD_PARTY_TT">
 			<Text>Can only include allied City-States in a Peace Deal.</Text>
@@ -3377,7 +3377,7 @@
 
 		<!-- Opinion Indicator If Coop War Agreed To Against Them -->
 		<Row Tag="TXT_KEY_DIPLO_COOP_WAR_AGAINST_TURNS">
-			<Text>We declare war on them in {1_Num} more turn(s).</Text>
+			<Text>We will declare war on them in {1_Num} {1_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		
 		<!-- Base Opinion Mod -->
@@ -3830,13 +3830,13 @@
 			<Text>This action cancels your current Declaration of Friendship, breaks your Defensive Pact (if you have one) and breaks any promises to go to war with others (unless already at war). This action will assuredly anger your friend, and may have severe global diplomatic repercussions.[NEWLINE][NEWLINE]If you denounce or declare war on this player within [COLOR_NEGATIVE_TEXT]10[ENDCOLOR] turns of cancelling your Declaration of Friendship, you will receive a diplomatic penalty for backstabbing them.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_TURNS">
-			<Text>If you denounce them or declare war on them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
+			<Text>If you denounce them or declare war on them within the next {1_Num} {1_Num: plural 1?turn; other?turns;}, other civilizations might view you as a backstabber.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_WAR_ONLY_TURNS">
-			<Text>If you declare war on them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
+			<Text>If you declare war on them within the next {1_Num} {1_Num: plural 1?turn; other?turns;}, other civilizations might view you as a backstabber.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_BACKSTAB_WARNING_DENOUNCE_ONLY_TURNS">
-			<Text>If you denounce them within the next {1_Num} turn(s), other civilizations might view you as a backstabber.</Text>
+			<Text>If you denounce them within the next {1_Num} {1_Num: plural 1?turn; other?turns;}, other civilizations might view you as a backstabber.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_DOF_BROKEN">
 			<Text>{1_CivName:textkey} and {2_CivName:textkey} have [COLOR_NEGATIVE_TEXT]broken[ENDCOLOR] their public Declaration of Friendship, citing diplomatic tension as the cause.</Text>
@@ -3857,10 +3857,10 @@
 			<Text>Because {1_CivName} is no longer a valid war target, your cooperative war agreement with {2_CivName} has ended.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_AGGRESSION">
-			<Text>Because your friendship with {1_CivName} was prematurely terminated, your cooperative war agreement(s) with them have ended.</Text>
+			<Text>Because your friendship with {1_CivName} was prematurely terminated, your cooperative war agreements with them have ended.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COOP_WAR_BROKEN_ELIMINATED">
-			<Text>Because {1_CivName} is no longer able to assist you in war, your cooperative war agreement(s) with them have ended.</Text>
+			<Text>Because {1_CivName} is no longer able to assist you in war, your cooperative war agreements with them have ended.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLO_VICTORY_DISPUTE_CBP_WEAK">
 			<Text>They fear you are competing with them.</Text>
@@ -5870,24 +5870,24 @@
 		<!-- New Building Pop Requirements -->
 	
 		<Row Tag="TXT_KEY_NO_ACTION_TENETS_COUNT_NEEDED">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more Tier 3 Tenet(s) to be constructed..</Text>
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more Tier 3 {1_Num: plural 1?Tenet; other?Tenets;}.</Text>
 		</Row>
 
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_NATIONAL_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more national citizens to be constructed.</Text>
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more {1_Num: plural 1?citizen; other?citizens;} in your empire.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_LOCAL_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more local citizens to be constructed.</Text>
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more {1_Num: plural 1?citizen; other?citizens;} in this city.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num} more national followers of your [ICON_RELIGION] Religion to be constructed.</Text>
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more national {1_Num: plural 1?follower; other?followers;} of your [ICON_RELIGION] Religion.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires {1_Num}% more global followers of your [ICON_RELIGION] Religion to be constructed.</Text>
+			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more global {1_Num: plural 1?follower; other?followers;} of your [ICON_RELIGION] Religion.</Text>
 		</Row>
 
 		<!-- New Spy Action Texts -->
@@ -5946,13 +5946,13 @@
 
 		<!-- tooltip for purchase cooldown -->
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING">
-			<Text>[NEWLINE]You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
+			<Text>[NEWLINE]You recently made a [ICON_GOLD] Gold purchase in this city, and must wait for {1_Num} more {1_Num: plural 1?turn; other?turns;} to do so again.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH">
-			<Text>[NEWLINE]You recently purchased a [ICON_GREAT_PEOPLE] Great Person with [ICON_PEACE] Faith, and must wait for {1_Num} more turn(s) to do so again.</Text>
+			<Text>[NEWLINE]You recently purchased a [ICON_GREAT_PEOPLE] Great Person with [ICON_PEACE] Faith, and must wait for {1_Num} more {1_Num: plural 1?turn; other?turns;} to do so again.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_COOLDOWN_X_TURNS_REMAINING_FAITH_LOCAL">
-			<Text>[NEWLINE]You recently made a [ICON_PEACE] Faith purchase in this city, and must wait for {1_Num} more turn(s) to do so again.</Text>
+			<Text>[NEWLINE]You recently made a [ICON_PEACE] Faith purchase in this city, and must wait for {1_Num} more {1_Num: plural 1?turn; other?turns;} to do so again.</Text>
 		</Row>
 
 		<!-- Tooltips for CBP Austria Ability -->
@@ -5972,7 +5972,7 @@
 			<Text>You may spend {2_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns and have {2_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_MARRIAGE_DISABLED_ALLY_TT">
-			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} turns so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
+			<Text>You may spend {3_BuyoutCost} [ICON_GOLD] Gold to arrange a Diplomatic Marriage with this City-State. Doing so grants an increase of resting [ICON_INFLUENCE] Influence with the City-State of 75, scaling with Era, and +15% [ICON_GREAT_PEOPLE] Great Person rate in your [ICON_CAPITAL] Capital. [NEWLINE][NEWLINE] This can be only be done once per City-State, and the [ICON_GOLD] Gold cost increases with each Diplomatic Marriage.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]You must be allied for {1_NumTurns} turns ({2_TurnsAllied} {2_TurnsAllied: plural 1?turn; other?turns;} so far) and have {3_BuyoutCost} [ICON_GOLD] Gold to perform this action.[ENDCOLOR]</Text>
 		</Row>
 		
 		<!-- Venice Tooltip -->
@@ -6037,7 +6037,7 @@
 		
 		<!--Revolutions-->
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP">
-			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] turns. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will restore the sovereignty of {3_CivName}. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
+			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will restore the sovereignty of {3_CivName}. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_SUMMARY">
 			<Text>Revolutionary Unrest Brewing</Text>
@@ -6050,7 +6050,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_POSSIBLE_CITY_REVOLUTION_CP_FREE_CITY">
-			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] turns. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will become an independent City-State. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
+			<Text>Because the Empire has at least 34% [ICON_HAPPINESS_4] Unhappiness, a City will revolt in [COLOR_NEGATIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}. Based on current Unhappiness levels, the City most likely to revolt is {2_CityName}. If this City revolts, it will become an independent City-State. Try to get your Empire's Happiness level out of this range as soon as possible!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_CITY_REVOLT_FREE_CITY">
 			<Text>The {1_CivAdjective} city of {2_CityName} has revolted and declared itself the free City-State of {3_CivName}!</Text>
@@ -6826,7 +6826,7 @@
 			<Text>Anarchy!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ANARCHY_BEGINS">
-			<Text>Your empire has entered a state of anarchy! This will last for {1_num} turns.</Text>
+			<Text>Your empire has entered a state of anarchy! This will last for {1_num} {1_num: plural 1?Turn; other?Turns;}.</Text>
 		</Row>
 
 		<!-- Tooltips for Growth Modifiers -->
@@ -6900,13 +6900,13 @@
 
 		<!-- LUA for Espionage -->
 		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT">
-			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} because of a recent attempt in this City. Cooldown ends in {4_Num} Turn(s).</Text>
+			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} because of a recent attempt in this City. Cooldown ends in {4_Num} {4_Num: plural 1?Turn; other?Turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT_EXTRA">
-			<Text>[COLOR_NEGATIVE_TEXT]Spies may not attempt a coup here because of a recent attempt in this City. Cooldown ends in {1_Num} Turn(s).[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Spies may not attempt a coup here because of a recent attempt in this City. Cooldown ends in {1_Num} {1_Num: plural 1?Turn; other?Turns;}.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT">
-			<Text>A Coup was recently attempted in this City, and cannot be attempted again for another {1_Num} turn(s).</Text>
+			<Text>A Coup was recently attempted in this City, and cannot be attempted again for another {1_Num} {1_Num: plural 1?Turn; other?Turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
 			<Text>Allied with the {1_Player}.</Text>
@@ -6973,7 +6973,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Because you broke a previous promise, you must wait {1_Turns} more turn(s) to pledge.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Because you broke a previous promise, you must wait {1_Turns} more {1_Turns: plural 1?turn; other?turns;} to pledge.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least the median Military Power. Your military needs to be {1_Num}% stronger to pledge.[ENDCOLOR]</Text>
@@ -7027,10 +7027,10 @@
 			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances and your weakening Military Power render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_MILITARY_AND_DISTANCE">
-			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled, both due to distance and your weakening Military Power. Ally {1_CSName} or make sure you are within Trade Route range AND increase your Military Power by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled, both due to distance and your weakening Military Power. Ally {1_CSName} or make sure you are within Trade Route range AND increase your Military Power by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;} to maintain this promise!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY_AND_DISTANCE">
-			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range AND increase your Military Power by {3_Num}% before {2_Num} turns pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range AND increase your Military Power by {3_Num}% before {2_Num} {2_Num: plural 1?Turn; other?Turns;} pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_MILITARY">
@@ -7040,17 +7040,17 @@
 			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to your weakening Military Power. Increase your Military Power by {3_Num}% within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_MILITARY">
-			<Text>If you do not improve your Military Power by {3_Num}% within {2_Num} turns, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+			<Text>If you do not improve your Military Power by {3_Num}% within {2_Num} {2_Num: plural 1?Turn; other?Turns;}, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_DISTANCE">
 			<Text>After due consideration and plenty of warnings, {1_CSName} believes that long distances render you incapable of fulfilling the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you promised. As a result, your Pledge of Protection to {1_CSName} was [COLOR_NEGATIVE_TEXT]annulled[ENDCOLOR].</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_DISTANCE">
-			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to distance. Ally {1_CSName} or make sure you are within Trade Route range within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] turns to maintain this promise!</Text>
+			<Text>Your Military Advisor warns that the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} is in danger of being annulled due to distance. Ally {1_CSName} or make sure you are within Trade Route range within [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;} to maintain this promise!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_DISTANCE">
-			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range before {2_Num} turns pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
+			<Text>If you do not ally {1_CSName} or make sure your cities are within Trade Route range before {2_Num} {2_Num: plural 1?Turn; other?Turns;} pass, the [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] you made to {1_CSName} will be annulled!</Text>
 		</Row>
 
 
@@ -7195,7 +7195,7 @@
 			<Text>[NEWLINE][COLOR_CYAN]Yield Changes:[ENDCOLOR][NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TECH_HELP_BUILD_REDUCTION">
-			<Text>{1_Build}: {2_Turns} Turn(s) Required</Text>
+			<Text>{1_Build}: {2_Turns} {2_Turns: plural 1?Turn; other?Turns;} Required</Text>
 		</Row>
 
 
@@ -7323,7 +7323,7 @@
 			<Text>Researching a [ICON_RESEARCH] Technology:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_CONSTRUCTION">
-			<Text>Constructing {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {2_BuildingType}}:[NEWLINE]{1_YieldString}</Text>
+			<Text>Constructing a Building:[NEWLINE]{1_YieldString}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_BORDERS">
 			<Text>Expanding [ICON_CULTURE] Borders:[NEWLINE]{1_YieldString}</Text>
@@ -7558,7 +7558,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_YIELD_PER_TURN_HEADER">
-			<Text>[COLOR_POSITIVE_TEXT]Instant Yields gained this turn, and the prior {1_Num} Turn(s)[ENDCOLOR]</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Instant Yields gained this turn, and the prior {1_Num} {1_Num: plural 1?Turn; other?Turns;}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_INSTANT_YIELD_THIS_TURN">
 			<Text>[NEWLINE]        [ICON_BULLET] This Turn: +{1_Num}</Text>
@@ -7829,7 +7829,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_ESPIONAGE_MISSION_BASE_DURATION">
-			<Text>Base Mission Duration: {1_Num} Turns</Text>
+			<Text>Base Mission Duration: {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RELIGOUS_PRESSURE">

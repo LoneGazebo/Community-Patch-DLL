@@ -48,7 +48,7 @@
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Yield} stolen per Turn[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_MISSION_DURATION">
-			<Text>[COLOR_POSITIVE_TEXT]Estimated Mission Duration:[ENDCOLOR] {1_Num} Turns</Text>
+			<Text>[COLOR_POSITIVE_TEXT]Estimated Mission Duration:[ENDCOLOR] {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_DURATION_LEVEL_MODIFIER">
 			<Text>[NEWLINE]  [ICON_BULLET] Spy Rank Modifier: {1_Num}%</Text>
@@ -337,10 +337,10 @@
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Vassals.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Espionage.</Text>
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] [ICON_RESEARCH] from [ICON_SPY] Espionage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] [ICON_RESEARCH] from Espionage.</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] [ICON_RESEARCH] stolen by enemy [ICON_SPY] Spies.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MINOR_SCIENCE_FROM_LEAGUE_ALLIES">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT]-{1_Num}%[ENDCOLOR] [ICON_RESEARCH] cost for technologies known to other civilizations.</Text>
@@ -359,10 +359,10 @@
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Vassals.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_POSITIVE">
-			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Espionage.</Text>
+			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from [ICON_SPY] Espionage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_CULTURE_FROM_ESPIONAGE_NEGATIVE">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Espionage.</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] stolen by enemy [ICON_SPY] Spies.</Text>
 		</Row>
 		<!-- Gold -->
 		<Row Tag="TXT_KEY_TP_GOLD_FROM_MINORS">
@@ -387,7 +387,7 @@
 			<Text>{1_Num} from [ICON_SPY] Espionage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_FROM_ESPIONAGE_OUTGOING">
-			<Text>{1_Num} from [ICON_SPY] Espionage.</Text>
+			<Text>{1_Num} stolen by enemy [ICON_SPY] Spies.</Text>
 		</Row>
 		<!-- Faith -->
 		<Row Tag="TXT_KEY_TP_FAITH_FROM_ANNEXED_MINORS">
@@ -400,7 +400,7 @@
 			<Text>[ICON_BULLET][COLOR_POSITIVE_TEXT]+{1_Num}[ENDCOLOR] from Espionage.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_FAITH_FROM_ESPIONAGE_NEGATIVE">
-			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] from Espionage.</Text>
+			<Text>[ICON_BULLET][COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR] stolen by enemy [ICON_SPY] Spies.</Text>
 		</Row>
 		<!-- Golden Age Point -->
 		<Row Tag="TXT_KEY_TP_GOLDEN_AGE_ADDITION_RELIGION">
@@ -545,10 +545,10 @@
 			<Text>YOUR CULTURE GAIN</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_EXPLAINED">
-			<Text>{1_CivName} has unlocked {2_Num} more Policies than you.</Text>
+			<Text>{1_CivName} has unlocked {2_Num} more {2_Num: plural 1?Policy; other?Policies;} than you.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_CULTURE_EXPLAINED">
-			<Text>You have unlocked {1_Num} more Policies than {2_CivName}.</Text>
+			<Text>You have unlocked {1_Num} more {1_Num: plural 1?Policy; other?Policies;} than {2_CivName}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_CULTURE_TOTAL">
 			<Text>Total: {1_Num} [ICON_CULTURE] Culture</Text>
@@ -840,10 +840,10 @@
 			<Text>{1_SpecialistName:textkey}s: +{3_Num} {4_IconString} {2_YieldType:textkey}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILD_COST_REDUCTION">
-			<Text>{2_Turns}% Turn(s) to {1_Build}.</Text>
+			<Text>{2_Turns}% Turns to {1_Build}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION">
-			<Text>{1_Turns}% Turn(s) to removing Forests/Jungles.</Text>
+			<Text>{1_Turns}% Turns to removing Forests/Jungles.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ABLTY_MAP_TRADING_STRING">
 			<Text>Allows Map Trading</Text>
@@ -908,7 +908,7 @@
 			<Text>[NEWLINE][ICON_BULLET]Modifier from Esprit de Corps {2_Num}: {1_Num}%</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PRODMOD_TRAIT_BONUS_CONQUEST_TURNS">
-			<Text>({1_Num} Turn(s) remaining)</Text>
+			<Text>({1_Num} {1_Num: plural 1?Turn; other?Turns;} remaining)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_GOLDMOD_YIELD_BLOCKADE">
 			<Text>[NEWLINE][ICON_BULLET]City Modifier from Water Blockade (Enemy Naval Units adjacent to City): {1_Num}%</Text>
@@ -1019,7 +1019,7 @@
 			<Text>Corporations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_FREESPECIALIST_TEXT">
-			<Text>{1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_URBANIZATION_GREEN] Urbanization</Text>
+			<Text>more {1_NumSpecialists: plural 1?Specialist; other?Specialists;}: No [ICON_URBANIZATION_GREEN] Urbanization</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_NOFREESPECIALIST_TEXT">
 			<Text>[ICON_URBANIZATION] Urbanization per new Specialist</Text>
@@ -1043,7 +1043,7 @@
 			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_SAPPED">
-			<Text>City is [ICON_VP_SAPPED] Sapped for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] Turns. This has the same effects as a [ICON_BLOCKADED] Blockade, but does not require an enemy unit nearby to take effect!</Text>
+			<Text>City is [ICON_VP_SAPPED] Sapped for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}. This has the same effects as a [ICON_BLOCKADED] Blockade, but does not require an enemy unit nearby to take effect!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_MINED">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City. Units ending their turn in Ocean tiles owned by this City take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].</Text>
@@ -1840,10 +1840,10 @@
 			<Text>Your {@1_UnitName} encountered no resistance, and attacked enemy air and anti-air units on the ground!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_IMPROVEMENT_DESTROYED_EVENT">
-			<Text>{2_Num} {1_Improvement}(s) pillaged near {3_City} due to Event Choice!</Text>
+			<Text>{2_Num} {1_Improvement}{2_Num: plural 1?; other?s;} pillaged near {3_City} due to Event Choice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_STRATEGIC_RESOURCE_PILLAGED_EVENT">
-			<Text>{2_Num} source(s) of {1_Resource} pillaged near {3_City} due to Event Choice!</Text>
+			<Text>{2_Num} {1_Num: plural 1?source; other?sources;} of {1_Resource} pillaged near {3_City} due to Event Choice!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_MISC_BUILDING_DESTROYED_EVENT">
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Building}[ENDCOLOR] destroyed in {2_City} due to Event Choice!</Text>
@@ -2331,7 +2331,7 @@
 			<Text>VASSAL DETAILS</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TURNS">
-			<Text>Vassal For {1_NumTurns} Turns (Turn {2_TurnStarted})</Text>
+			<Text>Vassal For {1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;} (Turn {2_TurnStarted})</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE">
 			<Text>Can Declare Independence:</Text>
@@ -2343,7 +2343,7 @@
 			<Text>If you can declare independence, you may revoke your status of being their vassal at any time. Be careful, as if they refuse your request, they will declare war on you. They are more likely to respect your declaration of independence if you have a strong military presence.[NEWLINE][NEWLINE]You may declare independence after the following conditions are satisfied:</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_TURNS_TT">
-			<Text>1. Vassal for {1_NumTurns} Turns</Text>
+			<Text>1. Vassal for {1_NumTurns} {1_NumTurns: plural 1?Turn; other?Turns;}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_INDEPENDENCE_POSSIBLE_OR_HEADER_TT">
 			<Text>2. One of the following conditions:</Text>
@@ -2394,7 +2394,7 @@
 			<Text>Liberate this vassal, freeing them from your control. This is a peaceful action, will not result in a war, and result in a very large diplomatic boost with your former vassal.[NEWLINE][NEWLINE][COLOR_WARNING_TEXT]After performing this action, {1_TeamName} will no longer be your vassal. You cannot undo this action.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_LIBERATE_VASSAL_TOO_SOON">
-			<Text>You may only perform this action after you have a vassal for at least {1_Num} turns. You may liberate this vassal in {2_Num} turn(s).</Text>
+			<Text>You may only perform this action after you have a vassal for at least {1_Num} turns. You may liberate this vassal in {2_Num} {2_Num: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_RATE">
 			<Text>Tax Rate: {1_Num}%</Text>
@@ -2457,13 +2457,13 @@
 			<Text>You are receiving {1_Num} [ICON_GOLD] Gold Per Turn from this vassal, based on {2_TaxRate}% of their {3_Num} [ICON_GOLD] Gross Gold Per Turn.[NEWLINE][NEWLINE]Taxes are divided evenly among members in your team.[NEWLINE][NEWLINE]Vassal tax rate is calculated at the start of the turn.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_TOO_SOON">
-			<Text>You may only apply changes to a vassal's tax rate after {1_NumTurns} turns have passed since your last adjustment.[NEWLINE][NEWLINE]You may make another adjustment in {2_NumTurnsLeft} turn(s).</Text>
+			<Text>You may only apply changes to a vassal's tax rate after {1_NumTurns} turns have passed since your last adjustment.[NEWLINE][NEWLINE]You may make another adjustment in {2_NumTurnsLeft} {2_NumTurnsLeft: plural 1?turn; other?turns;}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_TURN_SET">
 			<Text>Taxes were set on Turn {1_Turn}.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_TURN_NOT_SET_EVER">
-			<Text>[COLOR_NEGATIVE_TEXT]Taxes were never set for this vassal.[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Taxes have never been set for this vassal.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_TAX_TURN_AVAILABLE">
 			<Text>Taxes may be changed on Turn {1_Turn}.</Text>
@@ -2658,7 +2658,7 @@
 			<Text>Request independence from your Master. After performing this action, your vassalage ends with {1_TeamName}.[NEWLINE][NEWLINE]Your Master will have the choice of accepting or refusing your request for independence. If your request is rejected, you will go to war with the other player! The chance of peaceful independence increases the stronger your are in comparison to your Master.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_TOO_SOON">
-			<Text>[COLOR_NEGATIVE_TEXT]You cannot request independence until you have been a vassal for {1_MinimumTurns} turns. You can perform this action in {2_iNumTurns} turn(s).[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]You cannot request independence until you have been a vassal for {1_MinimumTurns} turns. You can perform this action in {2_iNumTurns} {2_iNumTurns: plural 1?turn; other?turns;}.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_VO_REQUEST_INDEPENDENCE_CONDITION_NOT_MET">
 			<Text>[COLOR_NEGATIVE_TEXT]You cannot request independence until you have met all of the required conditions for independence. Hover over the "Can Declare Independence" to view the necessary requirements for independence.[ENDCOLOR]</Text>
@@ -3056,7 +3056,7 @@
 			<Text>City Choices</Text>
 		</Row>
 		<Row Tag="TXT_KEY_TP_TURNS_REMAINING">
-			<Text>Turn(s) Remaining: {1_Num}</Text>
+			<Text>{1_Num} {1_Num: plural 1?Turn; other?Turns;} Remaining</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_YIELD_SCALED">
 			<Text>{3_Value} {2_Icon} {1_Yield}</Text>
