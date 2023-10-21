@@ -568,7 +568,7 @@
 			<Text>Only by working together will we be able to unravel the secrets of the universe! Place our Science Advisor in charge. We must come away with a leading voice in the world's greatest scientific organisations.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_HELP">
-			<Text>Your Science Advisor claims that this will benefit us and additional {1_YieldCost} with a sixteen point six six chance for a Free Technology. Repeating, of course.</Text>
+			<Text>Gain {1_YieldCost}. 16.66% chance for a Free Technology.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PLAYER_EVENT_ADVISOR_DEBATE_CHOICE_2_SUCCESSFUL_S">
 			<Text>Research Grant</Text>
