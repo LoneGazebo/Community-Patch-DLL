@@ -1900,3 +1900,11 @@ WHERE Tag = 'TXT_KEY_BUILD_NUM_TURNS';
 UPDATE Language_en_US
 SET Text = 'Influential in {1_Num} {1_Num: plural 1?Turn; other?Turns;} (assuming Tourism output remains unchanged)'
 WHERE Tag = 'TXT_KEY_CO_INFLUENTIAL_TURNS_TT';
+
+UPDATE Language_en_US
+SET Text = 'You have {1_TradeRoutesUsedNum} {1_TradeRoutesUsedNum: plural 1?Trade Unit; other?Trade Units;}.[NEWLINE]You have {2_TradeRoutesAvailableNum} {2_TradeRoutesAvailableNum: plural 1?Trade Route; other?Trade Routes;} available.'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES_TT';
+
+UPDATE Language_en_US
+SET Text = 'You have {1_Num} unassigned {2_UnitName}{1_Num: plural 1?; other?s;}.[NEWLINE]'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES_TT_UNASSIGNED';

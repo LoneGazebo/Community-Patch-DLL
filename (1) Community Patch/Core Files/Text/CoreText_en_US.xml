@@ -5870,24 +5870,24 @@
 		<!-- New Building Pop Requirements -->
 	
 		<Row Tag="TXT_KEY_NO_ACTION_TENETS_COUNT_NEEDED">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more Tier 3 {1_Num: plural 1?Tenet; other?Tenets;}.</Text>
+			<Text>[NEWLINE]You need to have {1_Num} more Tier 3 {1_Num: plural 1?Tenet; other?Tenets;} unlock to build this.</Text>
 		</Row>
 
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_NATIONAL_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more {1_Num: plural 1?citizen; other?citizens;} in your empire.</Text>
+			<Text>[NEWLINE]You need to have {1_Num} more {1_Num: plural 1?Citizen; other?Citizens;} in your Empire to build this.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_LOCAL_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more {1_Num: plural 1?citizen; other?citizens;} in this city.</Text>
+			<Text>[NEWLINE]You need to have {1_Num} more {1_Num: plural 1?Citizen; other?Citizens;} in this City to build this.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_FOLLOWER_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more national {1_Num: plural 1?follower; other?followers;} of your [ICON_RELIGION] Religion.</Text>
+			<Text>[NEWLINE]You need to have {1_Num} more {1_Num: plural 1?Follower; other?Followers;} of your [ICON_RELIGION] Religion in your Empire to build this.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NO_ACTION_BUILDING_NEED_GLOBAL_FOLLOWER_POP">
-			<Text>[NEWLINE]{2_BuildingName:textkey} requires you to have {1_Num} more global {1_Num: plural 1?follower; other?followers;} of your [ICON_RELIGION] Religion.</Text>
+			<Text>[NEWLINE]You need to have {1_Num} more Global {1_Num: plural 1?Follower; other?Followers;} of your [ICON_RELIGION] Religion to build this.</Text>
 		</Row>
 
 		<!-- New Spy Action Texts -->
