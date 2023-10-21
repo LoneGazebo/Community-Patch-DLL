@@ -5870,7 +5870,7 @@
 		<!-- New Building Pop Requirements -->
 	
 		<Row Tag="TXT_KEY_NO_ACTION_TENETS_COUNT_NEEDED">
-			<Text>[NEWLINE]You need to have {1_Num} more Tier 3 {1_Num: plural 1?Tenet; other?Tenets;} unlock to build this.</Text>
+			<Text>[NEWLINE]You need to have {1_Num} more Tier 3 {1_Num: plural 1?Tenet; other?Tenets;} unlocked to build this.</Text>
 		</Row>
 
 
