@@ -7710,7 +7710,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 			{
 				//workers are not so important ...
 				iPlotScore += (pCivilian->AI_getUnitAIType() == UNITAI_WORKER) ? 5 : 20;
-				result.eAssignmentType = A_CAPTURE; //important so that the next assigment can be a move again
+				result.eAssignmentType = A_CAPTURE; //important so that the next assignment can be a move again
 			}
 		}
 	}
