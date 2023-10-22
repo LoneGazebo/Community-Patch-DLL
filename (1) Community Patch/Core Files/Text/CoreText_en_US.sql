@@ -561,11 +561,11 @@ SET Text = 'You must be at war with the trade route owner.'
 WHERE Tag = 'TXT_KEY_MISSION_PLUNDER_TRADE_ROUTE_DISABLED_HELP';
 
 UPDATE Language_en_US
-SET Text = 'You have discovered {1_Num} technologies that {2_CivName} does not know.[NEWLINE]They are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to their Cultural Influence over you.'
+SET Text = 'You have discovered {1_Num} {1_Num: plural 1?Technology; other?Technologies;} that {2_CivName} {2_CivName: plural 1?does; other?do;} not know.[NEWLINE]They are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to their Cultural Influence over you.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED';
 
 UPDATE Language_en_US
-SET Text = '{1_CivName} has discovered {2_Num} technologies that you do not know.[NEWLINE]You are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to your Cultural Influence over them.'
+SET Text = '{1_CivName} {1_CivName: plural 1?has; other?have;} discovered {2_Num} {2_Num: plural 1?Technology; other?Technologies;} that you do not know.[NEWLINE]You are receiving +{3_Num} [ICON_RESEARCH] Science on this route due to your Cultural Influence over them.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED';
 
 -- Lua for Cities
@@ -1878,3 +1878,41 @@ WHERE Tag = 'TXT_KEY_CIV5_RUSSIA_TEXT_4';
 UPDATE Language_en_US
 SET Text = 'The first Mongol incursion into Kyivan territory occurred in 1223, when a Mongol reconnaissance unit met the combined warriors of several Rus states under the command of the wonderfully-named "Mstislav the Bold" and "Mstislav Romanovich the Old" at the Battle of the Kalka River. The Rus forces enjoyed early success, but they became disorganized in the pursuit of the retreating foe. The Mongol horsemen rallied and defeated the pursuers in detail before they could reorganize. A large portion of the Rus forces surrendered to the Mongols on the condition that they would be spared; the Mongols accepted the conditions then slaughtered them anyway. The Mongols then left Rus for several years before returning in much greater force.[NEWLINE][NEWLINE]In 1237 a vast Mongol army of some 30,000 or more horse archers once again crossed the Volga River. In a few short years the Mongols captured, looted and destroyed dozens of Russian cities and towns, including Ryazan, Kolomna, Moscow, Rostov, Kashin, Dmitrov, Kozelsk, Halych and Kyiv. They soundly thrashed every force raised to oppose them. By 1240 most of Rus was a smoking ruin, firmly under the control of the Mongols, who then turned their sight further west, towards Hungary and Poland.[NEWLINE]'
 WHERE Tag = 'TXT_KEY_CIV5_RUSSIA_TEXT_5';
+
+-- singular/plural forms
+
+UPDATE Language_en_US
+SET Text = 'Next Policy: {1_Num: number #} {1_Num: plural 1?Turn; other?Turns;}'
+WHERE Tag = 'TXT_KEY_NEXT_POLICY_TURN_LABEL';
+
+UPDATE Language_en_US
+SET Text = '[COLOR_NEGATIVE_TEXT]The empire is in Anarchy due to a change in Ideology for {1_Turns} more {1_Num: plural 1?turn; other?turns;}. During Anarchy, the empire will not gain any [ICON_RESEARCH] Science, [ICON_GOLD] Gold, [ICON_CULTURE] Culture, or [ICON_PEACE] Faith, and cities have no [ICON_PRODUCTION] Production to build anything[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_TP_ANARCHY';
+
+UPDATE Language_en_US
+SET Text = 'Your empire has entered a state of anarchy! This will last for {1_num} {1_Num: plural 1?turn; other?turns;}.'
+WHERE Tag = 'TXT_KEY_ANARCHY_BEGINS';
+
+UPDATE Language_en_US
+SET Text = 'Your Unit may move {1_Num} more {1_Num: plural 1?tile; other?tiles;} this turn.'
+WHERE Tag = 'TXT_KEY_UPANEL_UNIT_MAY_MOVE';
+
+UPDATE Language_en_US
+SET Text = 'Your Unit may strike within {1_Num} {1_Num: plural 1?tile; other?tiles;} or rebase within {2_Num} tiles.'
+WHERE Tag = 'TXT_KEY_UPANEL_UNIT_MAY_STRIKE_REBASE';
+
+UPDATE Language_en_US
+SET Text = '{1_Num} {1_Num: plural 1?Turn; other?Turns;}'
+WHERE Tag = 'TXT_KEY_BUILD_NUM_TURNS';
+
+UPDATE Language_en_US
+SET Text = 'Influential in {1_Num} {1_Num: plural 1?Turn; other?Turns;} (assuming Tourism output remains unchanged)'
+WHERE Tag = 'TXT_KEY_CO_INFLUENTIAL_TURNS_TT';
+
+UPDATE Language_en_US
+SET Text = 'You have {1_TradeRoutesUsedNum} {1_TradeRoutesUsedNum: plural 1?Trade Unit; other?Trade Units;}.[NEWLINE]You have {2_TradeRoutesAvailableNum} {2_TradeRoutesAvailableNum: plural 1?Trade Route; other?Trade Routes;} available.'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES_TT';
+
+UPDATE Language_en_US
+SET Text = 'You have {1_Num} unassigned {2_UnitName}{1_Num: plural 1?; other?s;}.[NEWLINE]'
+WHERE Tag = 'TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES_TT_UNASSIGNED';
