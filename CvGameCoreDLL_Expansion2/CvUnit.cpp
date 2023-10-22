@@ -2125,11 +2125,15 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
 	// Don't kill the unit if upgrading from a unit with more base hit points!!!
-	setDamage(min(pUnit->getDamage(), GetMaxHitPoints() - 1));
+	setDamage(min(pUnit->getDamage(), GetMaxHitPoints() - 1), NO_PLAYER, 0.0F, NULL, true);
 	setMoves(pUnit->getMoves());
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
+	if (pUnit->hasMoved())
+	{
+		finishMoves();
+	}
 
 	// Instant Yields/Bonuses on Expend
 	{
@@ -2185,7 +2189,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	{
 		setLevel(pUnit->getLevel());
 	}
-	setExperienceTimes100(CalcExperienceTimes100ForConvert(pUnit->getOwner(), getOwner(), pUnit->getExperienceTimes100()));
+	setExperienceTimes100(CalcExperienceTimes100ForConvert(pUnit->getOwner(), getOwner(), pUnit->getExperienceTimes100()), -1, true);
 	grantExperienceFromLostPromotions(iLostPromotions);
 
 	setName(pUnit->getNameNoDesc());
@@ -21426,7 +21430,7 @@ int CvUnit::getDamage() const
 
 	@return	The difference in the damage.
  */
-int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
+int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText, bool bDontShow)
 {
 	VALIDATE_OBJECT
 	int iOldValue = getDamage();
@@ -21468,7 +21472,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 
 
 		// send the popup text if the player can see this plot
-		if(plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+		if(plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF && !bDontShow)
 		{
 			if(!IsDead())
 			{
@@ -21699,7 +21703,7 @@ int CvUnit::getExperienceTimes100() const
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax)
+void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontShow)
 {
 	VALIDATE_OBJECT
 
@@ -21714,7 +21718,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax)
 		m_iExperienceTimes100 = std::min(iMaxTimes100, iNewValueTimes100);
 		CvAssert(getExperienceTimes100() >= 0);
 
-		if(getOwner() == GC.getGame().getActivePlayer())
+		if(getOwner() == GC.getGame().getActivePlayer() && !bDontShow)
 		{
 			// Don't show XP for unit that's about to bite the dust
 			if(!IsDead())
