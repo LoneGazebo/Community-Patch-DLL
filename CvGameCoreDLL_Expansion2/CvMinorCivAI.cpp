@@ -16758,47 +16758,11 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				}
 				DoObsoleteQuestsForPlayer(eBully, NO_MINOR_CIV_QUEST_TYPE, false, true);
 
-				DoBulliedByMajorReaction(eBully, /*-6000*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
+				DoBulliedByMajorReaction(eBully, /*-6000*/ min(GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS),  (GetRestingPointChange(eBully) * 100) - GetEffectiveFriendshipWithMajorTimes100(eBully)));
 
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1, YIELD_SCIENCE);
 				}
-
-			}
-			else
-			{
-				if(eUnitType == NO_UNIT)
-				{
-					CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
-					return;
-				}
-				// Minor must have Capital
-				CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-				if(pMinorCapital == NULL)
-				{
-					CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-					return;
-				}
-				int iX = pMinorCapital->getX();
-				int iY = pMinorCapital->getY();
-
-				CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
-				if (pNewUnit->jumpToNearestValidPlot())
-				{
-					pNewUnit->finishMoves(); // The given unit cannot move this turn
-
-					if(GetPlayer()->getCapitalCity())
-						GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
-
-					DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
-					if (MOD_EVENTS_MINORS_INTERACTION) {
-						GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
-					}
-#endif
-				}
-				else
-					pNewUnit->kill(false);	// Could not find a spot for the unit!
 			}
 		}
 		else
@@ -16829,11 +16793,9 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 			DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
 			
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
 			if (MOD_EVENTS_MINORS_INTERACTION) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
 			}
-#endif
 		}
 		else
 			pNewUnit->kill(false);	// Could not find a spot for the unit!
