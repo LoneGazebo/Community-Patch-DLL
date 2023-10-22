@@ -3105,6 +3105,10 @@ function ChangeGoldAmount( string, control )
 			iGold = iAmountAvailable;
 			Controls.UsGoldAmount:SetText(iGold);
 		end
+		if (iGold == 0) then
+			iGold = 1;
+			Controls.UsGoldAmount:SetText(iGold);
+		end
 
 		g_Deal:ChangeGoldTrade( g_iUs, iGold );
 
@@ -3118,6 +3122,10 @@ function ChangeGoldAmount( string, control )
 		iAmountAvailable = g_Deal:GetGoldAvailable(g_iThem, TradeableItems.TRADE_ITEM_GOLD);
 		if (iGold > iAmountAvailable) then
 			iGold = iAmountAvailable;
+			Controls.ThemGoldAmount:SetText(iGold);
+		end
+		if (iGold == 0) then
+			iGold = 1;
 			Controls.ThemGoldAmount:SetText(iGold);
 		end
 
@@ -3214,6 +3222,10 @@ function ChangeGoldPerTurnAmount( string, control )
 			iGoldPerTurn = g_pUs:CalculateGoldRate();
 			Controls.UsGoldPerTurnAmount:SetText(iGoldPerTurn);
 		end
+		if (iGoldPerTurn == 0) then
+			iGoldPerTurn = 1;
+			Controls.UsGoldPerTurnAmount:SetText(iGoldPerTurn);
+		end
 
 		g_Deal:ChangeGoldPerTurnTrade( g_iUs, iGoldPerTurn, g_iDealDuration );
 
@@ -3225,6 +3237,10 @@ function ChangeGoldPerTurnAmount( string, control )
 
 		if (iGoldPerTurn > g_pThem:CalculateGoldRate()) then
 			iGoldPerTurn = g_pThem:CalculateGoldRate();
+			Controls.ThemGoldPerTurnAmount:SetText(iGoldPerTurn);
+		end
+		if (iGoldPerTurn == 0) then
+			iGoldPerTurn = 1;
 			Controls.ThemGoldPerTurnAmount:SetText(iGoldPerTurn);
 		end
 
@@ -3537,6 +3553,7 @@ function ChangeResourceAmount( string, control )
 
 	-- Can't offer more than someone has
 	iNumResource = math.min(pPlayer:GetNumResourceAvailable(iResourceID, false),iNumResource);
+	iNumResource = math.max(iNumResource, 1);
 
 	control:SetText(iNumResource);
 
