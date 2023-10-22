@@ -21567,7 +21567,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// Finally, update our approach
-	if (!bStrategic || bReevaluation)
+	if (!bStrategic)
 	{
 		SetCivApproach(ePlayer, eApproach);
 		LogMajorCivApproachUpdate(ePlayer, &vApproachScores[0], eApproach, eOldApproach, GetSurfaceApproach(ePlayer));
