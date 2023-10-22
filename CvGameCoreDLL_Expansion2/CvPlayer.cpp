@@ -27775,7 +27775,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					// Base Game Yield Generation, doesn't scale with era except with VP
 					int iChange = 0;
-					if (eYield == YIELD_GOLD)
+					if (pLoopCity->isCapital() && eYield == YIELD_GOLD)
 					{
 						iChange += GetGreatPersonExpendGold();
 					}
