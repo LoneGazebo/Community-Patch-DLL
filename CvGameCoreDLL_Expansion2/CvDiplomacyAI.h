@@ -623,7 +623,7 @@ public:
 	int GetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer) const;
 	void SetPlayerMilitaryPromiseTurn(PlayerTypes ePlayer, int iTurn);
 	bool IsPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const;
-	int GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const;
+	int GetNumTurnsMilitaryPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerIgnoredMilitaryPromise(PlayerTypes ePlayer) const;
 	bool IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const;
 
@@ -636,7 +636,7 @@ public:
 	vector<PlayerTypes> GetPlayersWithNoSettlePolicy() const;
 	int GetPlayerExpansionPromiseTurn(PlayerTypes ePlayer) const;
 	void SetPlayerExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn);
-	int GetPlayerMadeExpansionPromise(PlayerTypes ePlayer) const;
+	int GetNumTurnsExpansionPromise(PlayerTypes ePlayer) const;
 	bool IsDontSettleMessageTooSoon(PlayerTypes ePlayer) const;
 	bool IsAngryAboutExpansion(PlayerTypes ePlayer) const;
 	void SetAngryAboutExpansion(PlayerTypes ePlayer, bool bValue);
@@ -651,7 +651,7 @@ public:
 	bool IsPlayerBrokenBorderPromise(PlayerTypes ePlayer) const;
 	int GetPlayerBorderPromiseTurn(PlayerTypes ePlayer) const;
 	void SetPlayerBorderPromiseTurn(PlayerTypes ePlayer, int iTurn);
-	int GetPlayerMadeBorderPromise(PlayerTypes ePlayer) const;
+	int GetNumTurnsBorderPromise(PlayerTypes ePlayer) const;
 	AggressivePostureTypes GetPlayerBorderPromisePosture(PlayerTypes ePlayer) const;
 	void SetPlayerBorderPromisePosture(PlayerTypes ePlayer, AggressivePostureTypes ePosture);
 	bool EverMadeBorderPromise(PlayerTypes ePlayer) const;

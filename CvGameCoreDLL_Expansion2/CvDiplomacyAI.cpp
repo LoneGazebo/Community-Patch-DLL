@@ -6215,7 +6215,7 @@ bool CvDiplomacyAI::IsPlayerBrokenMilitaryPromise(PlayerTypes ePlayer) const
 }
 
 /// Return the number of turns since ePlayer has made a military promise to us
-int CvDiplomacyAI::GetPlayerMadeMilitaryPromise(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetNumTurnsMilitaryPromise(PlayerTypes ePlayer) const
 {
 	// Did they make a military promise?
 	if (!IsPlayerMadeMilitaryPromise(ePlayer))
@@ -6314,7 +6314,7 @@ void CvDiplomacyAI::SetPlayerExpansionPromiseTurn(PlayerTypes ePlayer, int iTurn
 }
 
 /// Return the number of turns since ePlayer has made an expansion promise to us
-int CvDiplomacyAI::GetPlayerMadeExpansionPromise(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetNumTurnsExpansionPromise(PlayerTypes ePlayer) const
 {
 	if (!IsPlayerMadeExpansionPromise(ePlayer))
 		return -1;
@@ -6454,7 +6454,7 @@ void CvDiplomacyAI::SetPlayerBorderPromiseTurn(PlayerTypes ePlayer, int iTurn)
 }
 
 /// Return the number of turns since ePlayer has made a border promise to us
-int CvDiplomacyAI::GetPlayerMadeBorderPromise(PlayerTypes ePlayer) const
+int CvDiplomacyAI::GetNumTurnsBorderPromise(PlayerTypes ePlayer) const
 {
 	if (!IsPlayerMadeBorderPromise(ePlayer))
 		return -1;
@@ -12792,7 +12792,7 @@ void CvDiplomacyAI::DoExpansionBickering()
 		// AI is pissed!
 		if (bFoundOne)
 		{
-			if (GetPlayerMadeExpansionPromise(ePlayer) > 0) // Call this function, because expansion bickering occurs before DoTestPromises()
+			if (GetNumTurnsExpansionPromise(ePlayer) > 0) // Call this function, because expansion bickering occurs before DoTestPromises()
 			{
 				SetPlayerExpansionPromiseState(ePlayer, PROMISE_STATE_BROKEN); // You broke the promise you made!
 
@@ -13394,7 +13394,7 @@ void CvDiplomacyAI::DoTestPromises()
 			if (IsPlayerMadeExpansionPromise(eLoopPlayer))
 			{
 				// If the expansion promise has expired, announce it
-				if (GetPlayerMadeExpansionPromise(eLoopPlayer) <= 0)
+				if (GetNumTurnsExpansionPromise(eLoopPlayer) <= 0)
 				{
 					SetPlayerExpansionPromiseState(eLoopPlayer, NO_PROMISE_STATE);
 
@@ -13441,7 +13441,7 @@ void CvDiplomacyAI::DoTestPromises()
 					SetPlayerBorderPromiseState(eLoopPlayer, PROMISE_STATE_BROKEN);
 				}
 				// If the border promise has expired, announce it
-				else if (GetPlayerMadeBorderPromise(eLoopPlayer) <= 0)
+				else if (GetNumTurnsBorderPromise(eLoopPlayer) <= 0)
 				{
 					SetPlayerBorderPromiseState(eLoopPlayer, NO_PROMISE_STATE);
 
