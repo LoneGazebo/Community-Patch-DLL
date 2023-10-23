@@ -312,14 +312,6 @@ UPDATE Language_en_US
 SET Text = 'If this City-State is more [COLOR_POSITIVE_TEXT]afraid[ENDCOLOR] of you than they are [COLOR_WARNING_TEXT]resilient[ENDCOLOR], you can demand one {@3_Unit} as tribute of at the cost of [ICON_INFLUENCE] Influence.  {1_FearLevel}{2_FactorDetails}'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_UNIT_TT';
 
-UPDATE Language_en_US
-SET Text = 'Someone demanded tribute recently'
-WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_RECENTLY';
-
-UPDATE Language_en_US
-SET Text = 'Someone demanded tribute very recently'
-WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
-
 INSERT INTO Language_en_US
 		(Tag,										Text)
 SELECT	'TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR',	'You annexed a City-State recently';

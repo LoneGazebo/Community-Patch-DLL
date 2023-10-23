@@ -511,10 +511,6 @@ SET Text = 'Has Pledges of Protection'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT';
 
 UPDATE Language_en_US
-SET Text = 'Already bullied this turn'
-WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
-
-UPDATE Language_en_US
 SET Text = 'Reclusive Personality'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_HOSTILE';
 
