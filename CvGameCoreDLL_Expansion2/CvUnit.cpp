@@ -10536,7 +10536,7 @@ bool CvUnit::pillage()
 					if (iEra <= 0)
 						iEra = 1;
 
-					iPillageGold += 3 + (pkImprovement->GetPillageGold() * iEra * (((75 + max(1, GC.getGame().randRangeExclusive(0, 50, CvSeeder(plot()->GetPseudoRandomSeed())))) / 100)));
+					iPillageGold += pkImprovement->GetPillageGold() * iEra * GC.getGame().randRangeInclusive(85, 100, CvSeeder(plot()->GetPseudoRandomSeed())) / 100;
 					iPillageGold += (getPillageChange() * iPillageGold) / 100;
 				}
 				else
