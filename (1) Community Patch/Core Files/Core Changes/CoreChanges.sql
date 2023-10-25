@@ -77,7 +77,7 @@ SET Scale = 0.8
 WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
 
 -- Bad goodies are never triggered even in BNW, so we can remove this ability to reduce clutter
-UPDATE Units SET NoBadGoodies = '0';
+UPDATE Units SET NoBadGoodies = 0;
 
 -- Set Forbidden Palace to 2 votes for CP (we'll reset in CBP)
 UPDATE Buildings
@@ -739,13 +739,13 @@ WHEN (Loyalty <= 3 OR WonderCompetitiveness <= 3) THEN 'PERSONALITY_EXPANSIONIST
 ELSE Personality END
 WHERE Type = NEW.Type;
 
-UPDATE Leaders SET Chattiness = '4' WHERE Type = NEW.Type;
+UPDATE Leaders SET Chattiness = 4 WHERE Type = NEW.Type;
 
 END;
 -- End override section
 
 -- Set Chattiness to 4 across the board
-UPDATE Leaders SET Chattiness = '4';
+UPDATE Leaders SET Chattiness = 4;
 
 -- Sets default victory pursuits for all the default Civ V leaders.
 UPDATE Leaders SET PrimaryVictoryPursuit = 'VICTORY_PURSUIT_DIPLOMACY' WHERE Type = 'LEADER_AHMAD_ALMANSUR'; -- Morocco

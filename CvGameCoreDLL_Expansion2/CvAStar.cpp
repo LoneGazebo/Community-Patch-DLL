@@ -1359,7 +1359,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	//calculate move cost
 	int iMovementCost = 0;
 	if( (node->m_kCostCacheData.bIsVisibleEnemyCombatUnit && !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES)) || node->m_kCostCacheData.bIsEnemyCity)
-		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy
+		//if the unit would end its turn, we spend all movement points. even if we can move after attacking, we can't assume we will kill the enemy!
 		iMovementCost = iStartMoves;
 	else
 	{
@@ -3235,38 +3235,47 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 
 	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
+	TerrainTypes eTerrain = pToPlot->getTerrainType();
 
-	// default
-	int iRouteDiscountPercent = 0;
+	int iRouteDiscountTimes120 = 0;
+	bool bIgnoreTerrain = false;
 
-	// super duper low costs for moving along routes - don't check for pillaging
+	// low costs for moving along routes - don't check for pillaging
 	if (pFromPlot->getRouteType() == ROUTE_RAILROAD && pToPlot->isRoute())
-		iRouteDiscountPercent = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 40 : 20;
+		iRouteDiscountTimes120 = (pToPlot->getRouteType() == ROUTE_RAILROAD) ? 70 : 54;
+	// make sure discount is big enough to force caravans onto roads
 	else if (pFromPlot->getRouteType() == ROUTE_ROAD && pToPlot->isRoute())
-		iRouteDiscountPercent = 20; //can't get better than this even if next plot is railroad
-	// low costs for moving along rivers
-	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
-		iRouteDiscountPercent = 20;
+		iRouteDiscountTimes120 = 54; //can't get better than this even if next plot is railroad
 	// Iroquois ability
 	else if (((eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE) && pCacheData->IsWoodlandMovementBonus()) && 
 				(MOD_BALANCE_VP || pToPlot->getTeam() == GET_PLAYER(finder->GetData().ePlayer).getTeam()) && 
 				!(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot))))
-		iRouteDiscountPercent = 20;
+		iRouteDiscountTimes120 = 40;
+	// ignore terrain cost for moving along rivers
+	else if (pFromPlot->isRiver() && pToPlot->isRiver() && (pFromPlot->isCity() || pToPlot->isCity() || !(pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot)))))
+	{
+		// Songhai ability
+		if (pCacheData->IsRiverTradeRoad())
+			iRouteDiscountTimes120 = 40;
+		else
+			bIgnoreTerrain = true;
+	}
+
+	if (iRouteDiscountTimes120 > 0)
+		bIgnoreTerrain = true;
 
 	// do not use extreme discounts here because we also need to use these paths for military target selection
-	int iCost = (PATH_BASE_COST*(100-iRouteDiscountPercent))/100;
+	int iCost = PATH_BASE_COST * (120 - iRouteDiscountTimes120) / 120;
 
-	//try to avoid rough plots
-	if (pToPlot->isRoughGround() && iRouteDiscountPercent == 0)
-		iCost += PATH_BASE_COST/10;
+	// try to avoid difficult terrains/features
+	if ((eTerrain == TERRAIN_DESERT || eTerrain == TERRAIN_SNOW || eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE || eFeature == FEATURE_MARSH) &&
+			eFeature != FEATURE_FLOOD_PLAINS &&
+			bIgnoreTerrain)
+		iCost += PATH_BASE_COST / 4;
 
-	//avoid hills when in doubt
-	if (!pToPlot->isFlatlands() && iRouteDiscountPercent == 0)
-		iCost += PATH_BASE_COST/10;
-
-	//bonus for oasis
-	if (eFeature == FEATURE_OASIS && iRouteDiscountPercent == 0)
-		iCost -= PATH_BASE_COST/10;
+	// avoid hills also if not Inca
+	if (!pToPlot->isFlatlands() && bIgnoreTerrain && !pCacheData->CanCrossMountain())
+		iCost += PATH_BASE_COST / 4;
 	
 	return iCost;
 }
@@ -3412,9 +3421,6 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 	if (pToPlot->isRoute())
 		//prefer to stay close to routes ... even if we cannot really use them
 		iScale = 54;
-	else if (pToPlot->isMountain() || pToPlot->isIce())
-		//normally impassable
-		iScale = 531;
 	else if (pToPlot->isRoughGround())
 		//try to avoid rough plots
 		iScale = 157;
@@ -3426,12 +3432,15 @@ int ArmyStepCost(const CvAStarNode* parent, const CvAStarNode* node, const SPath
 		iScale = 67; 
 	
 	//try to stay away from enemy cities
-	if (pToPlot->isOwned() && GC.getGame().GetClosestCityDistanceInPlots(pToPlot) < 3)
+	if (!finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ENEMIES) && pToPlot->isOwned() && GC.getGame().GetClosestCityDistanceInPlots(pToPlot) < 3)
 	{
 		PlayerTypes eClosestCityOwner = GC.getGame().GetClosestCityOwnerByPlots(pToPlot);
 		if (GET_PLAYER(finder->GetData().ePlayer).IsAtWarWith(eClosestCityOwner))
 			iScale *= 2;
 	}
+
+	//todo: extra cost if this is a chokepoint
+	//see StepValidWide for the logic (cannot use CvPlot::IsChokePoint for performance and also we need to support water chokepoints)
 
 	//we're using uneven numbers here to avoid ties
 	return (PATH_BASE_COST*iScale)/100;
@@ -3450,6 +3459,10 @@ int ArmyCheckTerritory(CvPlot* pToPlot, const CvPlayer& kPlayer, PlayerTypes eTa
 
 	if (finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE))
 		return TRUE;
+
+	//do not go through other people's cities
+	if (finder->HasValidDestination() && pToPlot->isCity())
+		return pToPlot->getTeam() == kPlayer.getTeam() || finder->IsPathDest(pToPlot->getX(),pToPlot->getY());
 
 	CvTeam& plotTeam = GET_TEAM(pToPlot->getTeam());
 	if (plotTeam.isAtWar(kPlayer.getTeam()))
@@ -3489,15 +3502,6 @@ int ArmyStepValidLand(const CvAStarNode* parent, const CvAStarNode* node, const 
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
 
-	//cities
-	if (pToPlot->isCity())
-	{
-		if (pToPlot->getTeam() == kPlayer.getTeam())
-			return TRUE;
-		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-	}
-
 	//check terrain
 	if (pToPlot->isWater())
 		return FALSE;
@@ -3524,17 +3528,8 @@ int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
 
-	//cities
-	if (pToPlot->isCity())
-	{
-		if (pToPlot->getTeam() == kPlayer.getTeam())
-			return TRUE;
-		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-	}
-
-	//check terrain
-	if (!pToPlot->isWater())
+	//check terrain (we'll check city ownership in ArmyCheckTerritory)
+	if (!pToPlot->isWater() && !pToPlot->isCoastalCityOrPassableImprovement(data.ePlayer,false,true))
 		return FALSE;
 	//we could check the trait directly but theoretically we could have an old army of non-oceangoing ships ...
 	if (pToPlot->isDeepWater() && finder->HaveFlag(CvUnit::MOVEFLAG_NO_OCEAN))
@@ -3562,15 +3557,6 @@ int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const
 	CvPlayer& kPlayer = GET_PLAYER(data.ePlayer);
 	if (!pToPlot->isRevealed(kPlayer.getTeam()))
 		return FALSE;
-
-	//cities
-	if (pToPlot->isCity())
-	{
-		if (pToPlot->getTeam() == kPlayer.getTeam())
-			return TRUE;
-		else if (finder->HasValidDestination()) //do not go through non-targeted cities
-			return finder->IsPathDest(node->m_iX, node->m_iY);
-	}
 
 	//check terrain
 	if (pToPlot->isWater())

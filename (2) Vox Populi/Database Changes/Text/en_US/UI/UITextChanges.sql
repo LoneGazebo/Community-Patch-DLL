@@ -175,11 +175,11 @@ SET Text = '[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} eaten by [ICO
 WHERE Tag = 'TXT_KEY_YIELD_EATEN_BY_POP';
 
 UPDATE Language_en_US
-SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} turn(s)! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
+SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} {1_Num: plural 1?turn; other?turns;}! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
 WHERE Tag = 'TXT_KEY_CITY_BURNING';
 
 UPDATE Language_en_US
-SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} turn(s)! While in Resistance, a City cannot do anything useful, Units within its borders will heal slower, and 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
+SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} {1_Num: plural 1?turn; other?turns;}! While in Resistance, a City cannot do anything useful, Units within its borders will heal slower, and 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
 WHERE Tag = 'TXT_KEY_CITY_RESISTANCE';
 
 UPDATE Language_en_US
@@ -511,10 +511,6 @@ SET Text = 'Has Pledges of Protection'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_PLEDGES_TO_PROTECT';
 
 UPDATE Language_en_US
-SET Text = 'Already bullied this turn'
-WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_BULLIED_VERY_RECENTLY';
-
-UPDATE Language_en_US
 SET Text = 'Reclusive Personality'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_HOSTILE';
 
@@ -727,11 +723,11 @@ SET Text = 'Resource Diversity Modifier: {1_Num}%[NEWLINE][ICON_BULLET] Our Loca
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RESOURCE_DIFFERENT';
 
 UPDATE Language_en_US
-SET Text = '{1_CivName} has discovered {2_Num} technologies that you do not know, granting you +{4_Num} [ICON_RESEARCH] Science.[NEWLINE]+{3_Num} [ICON_RESEARCH] Science on this route due to your Cultural Influence over them.'
+SET Text = '{1_CivName} {1_CivName: plural 1?has; other?have;} discovered {2_Num} {2_Num: plural 1?Technology; other?Technologies;} that you do not know, granting you +{4_Num} [ICON_RESEARCH] Science.[NEWLINE]+{3_Num} [ICON_RESEARCH] Science on this route due to your Cultural Influence over them.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_YOUR_SCIENCE_EXPLAINED';
 
 UPDATE Language_en_US
-SET Text = 'You have discovered {1_Num} technologies that {2_CivName} does not know, granting them +{4_Num} [ICON_RESEARCH] Science.[NEWLINE]+{3_Num} [ICON_RESEARCH] Science on this route due to their Cultural Influence over you.'
+SET Text = 'You have discovered {1_Num} {1_Num: plural 1?Technology; other?Technologies;} that {2_CivName} {2_CivName: plural 1?does; other?do;} not know, granting them +{4_Num} [ICON_RESEARCH] Science.[NEWLINE]+{3_Num} [ICON_RESEARCH] Science on this route due to their Cultural Influence over you.'
 WHERE Tag = 'TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_THEIR_SCIENCE_EXPLAINED';
 
 ------------------------------------------------

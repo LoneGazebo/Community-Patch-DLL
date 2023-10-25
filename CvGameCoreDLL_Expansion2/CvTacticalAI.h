@@ -698,7 +698,7 @@ public:
 	void setNextToEnemyCitadel(bool bValue) { bAdjacentToEnemyCitadel = bValue; }
 	bool hasAirCover() const { return bHasAirCover; }
 	bool isVisibleToEnemy() const { return bIsVisibleToEnemy; }
-	bool isBlockedByNonSimUnit(bool bCombat) const { return bCombat ? bBlockedByNonSimCombatUnit : bBlockedByNonSimEmbarkedUnit; }
+	bool isBlockedByNonSimUnit(eTactPlotDomain eDomain = TD_BOTH) const;
 
 	bool hasFriendlyCombatUnit() const;
 	bool hasFriendlyEmbarkedUnit() const;
@@ -735,10 +735,9 @@ protected:
 	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
 
 	//set once and not changed afterwards
+	unsigned char bfBlockedByNonSimCombatUnit; //bitfield per domain
 	bool bIsVisibleToEnemy:1;
 	bool bHasAirCover:1;
-	bool bBlockedByNonSimCombatUnit:1;
-	bool bBlockedByNonSimEmbarkedUnit:1;
 
 	//this is updated if the civilian is captured
 	bool bEnemyCivilianPresent:1;

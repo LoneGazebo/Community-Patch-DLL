@@ -972,7 +972,7 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 		{
 			if ((eItem == TRADE_ITEM_RESOURCES && GetPlayer()->IsResourceNotForSale((ResourceTypes)iData1)) ||
 				(eItem == TRADE_ITEM_ALLOW_EMBASSY && GetPlayer()->IsRefuseEmbassyTrade()) ||
-				(eItem == TRADE_ITEM_ALLOW_EMBASSY && GetPlayer()->IsRefuseEmbassyTrade()) ||
+				(eItem == TRADE_ITEM_OPEN_BORDERS && GetPlayer()->IsRefuseOpenBordersTrade()) ||
 				(eItem == TRADE_ITEM_RESEARCH_AGREEMENT && GetPlayer()->IsRefuseResearchAgreementTrade()) ||
 				(eItem == TRADE_ITEM_DEFENSIVE_PACT && GetPlayer()->IsRefuseDefensivePactTrade()) ||
 				(eItem == TRADE_ITEM_THIRD_PARTY_PEACE && GetPlayer()->IsRefuseBrokeredPeaceTrade()) ||
@@ -986,9 +986,9 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			//actual computation
 
 			if (eItem == TRADE_ITEM_GOLD)
-				iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false, eOtherPlayer);
+				iItemValue = GetGoldForForValueExchange(/*Gold Amount*/ iData1, /*bNumGoldFromValue*/ false);
 			else if (eItem == TRADE_ITEM_GOLD_PER_TURN)
-				iItemValue = GetGPTforForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer);
+				iItemValue = GetGPTForForValueExchange(/*Gold Per Turn Amount*/ iData1, /*bNumGPTFromValue*/ false, iDuration, bFromMe, eOtherPlayer);
 			else if (eItem == TRADE_ITEM_RESOURCES)
 			{
 				// precalculate, it's expensive
@@ -1106,29 +1106,39 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 				}
 				else
 				{
-					iSellModifier = iApproachModifier;
 					// modify acceptable selling price based on opinion
+					iSellModifier = iApproachModifier;
 					iMinAcceptableSellPrice = iSellPrice * iSellModifier / 100;
-
 					iBuyPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, eMyPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
-					iBuyModifier = iOtherPlayerApproachModifier;
-					// modify acceptable buying price based on opinion
-					iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
-
-					// take the average of buy and sell price, modified by opinion
-					iItemValue = (iBuyPrice + iSellPrice) / 2;
-					iItemValue *= iSellModifier;
-					iItemValue /= 100;
-					iItemValue *= iBuyModifier;
-					iItemValue /= 100;
-
-					// for items that are not two-sided: check if item value is acceptable for both players
-					if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+					if (iBuyPrice == INT_MAX)
 					{
-						// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+						// The other player doesn't want to buy this item (perceived buy value if human).
 						// Don't offer the item in AI-AI deals or in AI offers to humans.
 						// If a human has asked for this item, return the sell price we'd be willing to accept.
 						iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMinAcceptableSellPrice;
+
+					}
+					else
+					{
+						// modify acceptable buying price based on opinion
+						iBuyModifier = iOtherPlayerApproachModifier;
+						iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
+
+						// take the average of buy and sell price, modified by opinion
+						iItemValue = (iBuyPrice + iSellPrice) / 2;
+						iItemValue *= iSellModifier;
+						iItemValue /= 100;
+						iItemValue *= iBuyModifier;
+						iItemValue /= 100;
+
+						// for items that are not two-sided: check if item value is acceptable for both players
+						if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+						{
+							// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+							// Don't offer the item in AI-AI deals or in AI offers to humans.
+							// If a human has asked for this item, return the sell price we'd be willing to accept.
+							iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMinAcceptableSellPrice;
+						}
 					}
 				}
 			}
@@ -1136,38 +1146,44 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 			{
 				// we are buying
 				iBuyPrice = GetTradeItemValue(eItem, bFromMe, eOtherPlayer, iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
-				iBuyModifier = iApproachModifier;
-				// modify acceptable buying price based on opinion
-				iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
-
-				iSellPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, GetPlayer()->GetID(), iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
-				iSellModifier = iOtherPlayerApproachModifier;
-				if (iSellPrice == INT_MAX)
+				if (iBuyPrice == INT_MAX)
 				{
-					// The other player doesn't want to sell this item (perceived sell value if human). 
-					// Don't offer the item in AI-AI deals or in AI offers to humans.
-					// If a human is offering this item, return the buy price we'd be willing to accept.
-					iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMaxAcceptableBuyPrice;
+					iItemValue = INT_MAX;
 				}
 				else
 				{
-					// modify acceptable selling price based on opinion
-					iMinAcceptableSellPrice = iSellPrice * iSellModifier / 100;
-
-					// take the average of buy and sell price, modified by opinion
-					iItemValue = (iBuyPrice + iSellPrice) / 2;
-					iItemValue *= iSellModifier;
-					iItemValue /= 100;
-					iItemValue *= iBuyModifier;
-					iItemValue /= 100;
-
-					// for items that are not two-sided: check if item value is acceptable for both players
-					if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+					// modify acceptable buying price based on opinion
+					iBuyModifier = iApproachModifier;
+					iMaxAcceptableBuyPrice = iBuyPrice * iBuyModifier / 100;
+					iSellPrice = GET_PLAYER(eOtherPlayer).GetDealAI()->GetTradeItemValue(eItem, !bFromMe, GetPlayer()->GetID(), iData1, iData2, iData3, bFlag1, iDuration, bIsAIOffer, false);
+					if (iSellPrice == INT_MAX)
 					{
-						// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+						// The other player doesn't want to sell this item (perceived sell value if human). 
 						// Don't offer the item in AI-AI deals or in AI offers to humans.
 						// If a human is offering this item, return the buy price we'd be willing to accept.
 						iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMaxAcceptableBuyPrice;
+					}
+					else
+					{
+						// modify acceptable selling price based on opinion
+						iSellModifier = iOtherPlayerApproachModifier;
+						iMinAcceptableSellPrice = iSellPrice * iSellModifier / 100;
+
+						// take the average of buy and sell price, modified by opinion
+						iItemValue = (iBuyPrice + iSellPrice) / 2;
+						iItemValue *= iSellModifier;
+						iItemValue /= 100;
+						iItemValue *= iBuyModifier;
+						iItemValue /= 100;
+
+						// for items that are not two-sided: check if item value is acceptable for both players
+						if (!bTwoSidedItem && (iItemValue > iMaxAcceptableBuyPrice || iItemValue < iMinAcceptableSellPrice))
+						{
+							// The deal is unacceptable for us or for the buyer (perceived buy value if human).
+							// Don't offer the item in AI-AI deals or in AI offers to humans.
+							// If a human is offering this item, return the buy price we'd be willing to accept.
+							iItemValue = (!bHumanInvolved || bIsAIOffer) ? INT_MAX : iMaxAcceptableBuyPrice;
+						}
 					}
 				}
 			}
@@ -1213,10 +1229,8 @@ int CvDealAI::GetTradeItemValue(TradeableItems eItem, bool bFromMe, PlayerTypes 
 }
 
 /// How much Gold should be provided if we're trying to make it worth iValue?
-int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue, PlayerTypes eOtherPlayer)
+int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValue)
 {
-	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of Gold with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
-
 	int iMultiplier = 0;
 	int iDivisor = 0;
 
@@ -1224,10 +1238,7 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	if (bNumGoldFromValue)
 	{
 		iMultiplier = 100;
-		iDivisor = /*100*/ GD_INT_GET(EACH_GOLD_VALUE_PERCENT);
-		// Protect against a modder setting this to 0
-		if(iDivisor == 0)
-			iDivisor = 1;
+		iDivisor = /*100*/ max(GD_INT_GET(EACH_GOLD_VALUE_PERCENT), 1);
 	}
 	// We passed in an amount of Gold, we want to know how much it's worth
 	else
@@ -1237,14 +1248,11 @@ int CvDealAI::GetGoldForForValueExchange(int iGoldOrValue, bool bNumGoldFromValu
 	}
 
 	// Convert based on the rules above
-	int iReturnValue = iGoldOrValue * iMultiplier;
-	iReturnValue /= iDivisor;
-
-	return iReturnValue;
+	return iGoldOrValue * iMultiplier / iDivisor;
 }
 
 /// How much GPT should be provided if we're trying to make it worth iValue?
-int CvDealAI::GetGPTforForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer)
+int CvDealAI::GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer)
 {
 	CvAssertMsg(GetPlayer()->GetID() != eOtherPlayer, "DEAL_AI: Trying to check value of GPT with oneself.  Please send Jon this with your last 5 autosaves and what changelist # you're playing.");
 	if (iGPTorValue <= 0)
@@ -1519,6 +1527,12 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 					iYieldBonuses += iYieldValue * pLoopCity->getBaseYieldRate(eYield) * (iPlayerModifier + iCityModifier) / 100;
 				}
 			}
+			int iWLTKDLength = (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2);
+			iWLTKDLength *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iWLTKDLength /= 100;
+
+			iYieldBonuses *= iWLTKDLength;
+			iYieldBonuses /= iNumTurns;
 			iItemValue += (iYieldBonuses * OneGPT) / 3;
 
 			// Netherlands buys resources for more if they aren't already importing it
@@ -4505,7 +4519,7 @@ void CvDealAI::DoAddGoldToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValu
 		// Can't already be Gold from the other player in the Deal
 		if(pDeal->GetGoldTrade(eMyPlayer) == 0)
 		{
-			int iNumGold = GetGoldForForValueExchange(iValueNeeded, /*bNumGoldFromValue*/ true, eThem);
+			int iNumGold = GetGoldForForValueExchange(iValueNeeded, /*bNumGoldFromValue*/ true);
 
 			if(iNumGold <= 0)
 			{
@@ -4552,7 +4566,7 @@ void CvDealAI::DoAddGoldToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 		// Can't already be Gold from the other player in the Deal
 		if(pDeal->GetGoldTrade(eThem) == 0)
 		{
-			int iNumGold = GetGoldForForValueExchange(iTotalValue, /*bNumGoldFromValue*/ true, eThem);
+			int iNumGold = GetGoldForForValueExchange(iTotalValue, /*bNumGoldFromValue*/ true);
 
 			if(iNumGold < 0)
 			{
@@ -4607,7 +4621,7 @@ void CvDealAI::DoAddGPTToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue
 			// Can't already be GPT from the other player in the Deal
 			if(pDeal->GetGoldPerTurnTrade(eMyPlayer) == 0)
 			{
-				int iNumGPT = GetGPTforForValueExchange(iValueNeeded, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ false, eThem);
+				int iNumGPT = GetGPTForForValueExchange(iValueNeeded, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ false, eThem);
 
 				if (iNumGPT < 0)
 					return;
@@ -4659,7 +4673,7 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 			// Can't already be GPT from the other player in the Deal
 			if(pDeal->GetGoldPerTurnTrade(eThem) == 0)
 			{
-				int iNumGPT = GetGPTforForValueExchange(iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ true, eThem);
+				int iNumGPT = GetGPTForForValueExchange(iTotalValue, /*bNumGPTFromValue*/ true, iDealDuration, /*bFromMe*/ true, eThem);
 
 				if (iNumGPT < 0)
 					return;

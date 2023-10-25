@@ -168,17 +168,17 @@
 				<Stack Anchor="L,T" Offset="0,0" Size="128,128" StackGrowth="Bottom" Padding="0" ID="UsTableStack">
 					<Button Style="TradeItemButton" Anchor="L,C" ID="UsTablePeaceTreaty"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD" ID="UsTableGold">
-						<Box Anchor="R,C" Offset="2,0" Size="40,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
-							<Box Anchor="C,C" Offset="0,0" Size="38,16" Color="0,0,0,255">
-								<EditBox EditMode="1" Size="36,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="6" ID="UsGoldAmount"/>
+						<Box Anchor="R,C" Offset="2,0" Size="60,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
+							<Box Anchor="C,C" Offset="0,0" Size="58,16" Color="0,0,0,255">
+								<EditBox EditMode="1" Size="56,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="6" ID="UsGoldAmount"/>
 							</Box>
 						</Box>
 					</Button>
 					<Container Anchor="L,C" Size="195,40" ID="UsTableGoldPerTurn">
 						<Button Style="TradeItemButton" Anchor="L,T" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="UsTableGoldPerTurnButton"/>
-						<Box Anchor="R,T" Offset="2,3" Size="40,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
-							<Box Anchor="C,C" Offset="0,0" Size="38,16" Color="0,0,0,255">
-								<EditBox EditMode="1" Size="36,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="6" ID="UsGoldPerTurnAmount"/>
+						<Box Anchor="R,T" Offset="2,3" Size="60,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
+							<Box Anchor="C,C" Offset="0,0" Size="58,16" Color="0,0,0,255">
+								<EditBox EditMode="1" Size="56,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="6" ID="UsGoldPerTurnAmount"/>
 							</Box>
 						</Box>
 						<Label String="" Offset="10,5" Anchor="L,B" ID="UsGoldPerTurnTurns"/>
@@ -222,17 +222,17 @@
 				<Stack Anchor="R,T" Offset="0,0" Size="128,128" StackGrowth="Bottom" Padding="0" ID="ThemTableStack">
 					<Button Style="TradeItemButton" Anchor="L,C" ID="ThemTablePeaceTreaty"/>
 					<Button Style="TradeItemButton" Anchor="L,C" String="TXT_KEY_DIPLO_GOLD" ID="ThemTableGold">
-						<Box Anchor="R,C" Offset="2,0" Size="40,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
-							<Box Anchor="C,C" Offset="0,0" Size="38,16" Color="0,0,0,255">
-								<EditBox EditMode="1" Size="36,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="6" ID="ThemGoldAmount"/>
+						<Box Anchor="R,C" Offset="2,0" Size="60,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
+							<Box Anchor="C,C" Offset="0,0" Size="58,16" Color="0,0,0,255">
+								<EditBox EditMode="1" Size="56,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="5" ID="ThemGoldAmount"/>
 							</Box>
 						</Box>
 					</Button>
 					<Container Anchor="L,C" Size="195,40" ID="ThemTableGoldPerTurn">
 						<Button Style="TradeItemButton" Anchor="L,T" String="TXT_KEY_DIPLO_GOLD_PER_TURN" ID="ThemTableGoldPerTurnButton"/>
-						<Box Anchor="R,T" Offset="2,3" Size="40,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
-							<Box Anchor="C,C" Offset="0,0" Size="38,16" Color="0,0,0,255">
-								<EditBox EditMode="1" Size="36,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="6" ID="ThemGoldPerTurnAmount"/>
+						<Box Anchor="R,T" Offset="2,3" Size="60,18" Color="255,255,200,255" ConsumeMouseButton="1" ConsumeMouseOver="1">
+							<Box Anchor="C,C" Offset="0,0" Size="58,16" Color="0,0,0,255">
+								<EditBox EditMode="1" Size="56,16" Anchor="C,C" Font="TwCenMT14" NumberInput="1" MaxLength="5" ID="ThemGoldPerTurnAmount"/>
 							</Box>
 						</Box>
 						<Label String="" Offset="10,5" Anchor="L,B" ID="ThemGoldPerTurnTurns"/>

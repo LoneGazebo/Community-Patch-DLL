@@ -1113,7 +1113,7 @@ public:
 	void setGameTurnCreated(int iNewValue);
 
 	int getDamage() const;
-	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
+	int setDamage(int iNewValue, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL, bool bDontShow = false);
 	int changeDamage(int iChange, PlayerTypes ePlayer = NO_PLAYER, float fAdditionalTextDelay = 0.0f, const CvString* pAppendText = NULL);
 
 #if defined(MOD_CORE_PER_TURN_DAMAGE)
@@ -1133,7 +1133,7 @@ public:
 	bool IsInForeignOwnedTerritory() const;
 
 	int getExperienceTimes100() const;
-	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1);
+	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1, bool bDontShow = false);
 	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
 
 	int getLevel() const;
@@ -1828,6 +1828,7 @@ public:
 	AITacticalMove getTacticalMove(int* pTurnSet=NULL) const;
 	bool canUseForAIOperation() const;
 	bool canUseForTacticalAI() const;
+	bool canUseNow() const;
 
 	void SetTacticalAIPlot(CvPlot* pPlot);
 	CvPlot* GetTacticalAIPlot() const;

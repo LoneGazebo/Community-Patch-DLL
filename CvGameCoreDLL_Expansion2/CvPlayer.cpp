@@ -10205,7 +10205,7 @@ CvUnit* CvPlayer::initUnit(UnitTypes eUnit, int iX, int iY, UnitAITypes eUnitAI,
 
 	if (isMajorCiv() && pkUnitDef->IsMilitarySupport() && GetNumUnitsOutOfSupply() > 4 && eReason!=REASON_UPGRADE && eReason!=REASON_GIFT)
 	{
-		OutputDebugString("Creating unit over supply limit\n");
+		CUSTOMLOG("Player %d creating unit over supply limit, type is %d, reason is %d", m_eID, eUnit, eReason);
 	}
 
 	CvUnit* pUnit = addUnit();
@@ -27775,7 +27775,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 					// Base Game Yield Generation, doesn't scale with era except with VP
 					int iChange = 0;
-					if (eYield == YIELD_GOLD)
+					if (pLoopCity->isCapital() && eYield == YIELD_GOLD)
 					{
 						iChange += GetGreatPersonExpendGold();
 					}
@@ -29030,24 +29030,19 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			{
 				if (ePassBuilding != NO_BUILDING)
 				{
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(ePassBuilding);
-					if(pkBuildingInfo)
+					if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
 					{
-						if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
-						{
-							localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
-							localizedText << totalyieldString;
-							localizedText << pkBuildingInfo->GetDescriptionKey();
-							//We do this at the player level once per turn.
-							addInstantYieldText(iType, localizedText.toUTF8());
-						}
-						else
-						{
-							localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
-							localizedText << totalyieldString << pkBuildingInfo->GetDescriptionKey();
-							//We do this at the player level once per turn.
-							addInstantYieldText(iType, localizedText.toUTF8());
-						}
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
+						localizedText << totalyieldString;
+						//We do this at the player level once per turn.
+						addInstantYieldText(iType, localizedText.toUTF8());
+					}
+					else
+					{
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+						localizedText << totalyieldString;
+						//We do this at the player level once per turn.
+						addInstantYieldText(iType, localizedText.toUTF8());
 					}
 				}
 				return;
@@ -29867,23 +29862,19 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			{
 				if (eBuilding != NO_BUILDING)
 				{
-					CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
-					if (pkBuildingInfo)
+					if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
 					{
-						if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
-						{
-							localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
-							localizedText << totalgpString << pkBuildingInfo->GetDescriptionKey();
-							//We do this at the player level once per turn.
-							addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
-						}
-						else
-						{
-							localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
-							localizedText << totalgpString << pkBuildingInfo->GetDescriptionKey();
-							//We do this at the player level once per turn.
-							addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
-						}
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
+						localizedText << totalgpString;
+						//We do this at the player level once per turn.
+						addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
+					}
+					else
+					{
+						localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
+						localizedText << totalgpString;
+						//We do this at the player level once per turn.
+						addInstantGreatPersonProgressText(iType, localizedText.toUTF8());
 					}
 				}
 				break;

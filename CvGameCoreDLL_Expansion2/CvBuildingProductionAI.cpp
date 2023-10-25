@@ -165,10 +165,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	if (kPlayer.isBarbarian())
 		return SR_IMPOSSIBLE;
 
-	//save the effort for minors
-	if(kPlayer.isMinorCiv())
-		return iValue;
-
 	//do not build any buildings at all when about to be captured
 	if (m_pCity->isInDangerOfFalling())
 		return SR_STRATEGY;

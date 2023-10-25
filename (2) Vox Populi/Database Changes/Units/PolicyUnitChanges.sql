@@ -56,7 +56,7 @@ UPDATE Units
 SET
 	Class = 'UNITCLASS_B17',
 	PolicyType = 'POLICY_THEIR_FINEST_HOUR',
-	RangedCombat = (SELECT Combat FROM Units WHERE Type = 'UNIT_BOMBER') + 5,
+	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_BOMBER') + 5,
 	"Range" = (SELECT "Range" FROM Units WHERE Type = 'UNIT_BOMBER') + 5,
 	DefaultUnitAI = 'UNITAI_ATTACK'
 WHERE Type = 'UNIT_AMERICAN_B17';

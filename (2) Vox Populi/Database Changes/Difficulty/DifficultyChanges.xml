@@ -181,7 +181,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>20</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>32</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -410,7 +410,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>40</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>64</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -639,7 +639,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>80</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>128</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -868,9 +868,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>160</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>3</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>3</TacticalSimMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>256</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>80</LandDisputePercent>
 			<WonderDisputePercent>80</WonderDisputePercent>
@@ -1097,7 +1097,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>320</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>384</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -1326,7 +1326,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>640</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>512</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
@@ -1555,9 +1555,9 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>1280</TacticalSimMaxCompletedPositions>
-			<TacticalSimMaxBranches>4</TacticalSimMaxBranches>
-			<TacticalSimMaxChoicesPerUnit>4</TacticalSimMaxChoicesPerUnit>
+			<TacticalSimMaxCompletedPositions>768</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
+			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->
 			<LandDisputePercent>115</LandDisputePercent>
 			<WonderDisputePercent>115</WonderDisputePercent>
@@ -1784,7 +1784,7 @@
 			<PolicyChoiceCutoffThreshold>90</PolicyChoiceCutoffThreshold>
 			<BeliefChoiceCutoffThreshold>90</BeliefChoiceCutoffThreshold>
 			<!-- Tactical AI -->
-			<TacticalSimMaxCompletedPositions>2560</TacticalSimMaxCompletedPositions>
+			<TacticalSimMaxCompletedPositions>1024</TacticalSimMaxCompletedPositions>
 			<TacticalSimMaxBranches>5</TacticalSimMaxBranches>
 			<TacticalSimMaxChoicesPerUnit>5</TacticalSimMaxChoicesPerUnit>
 			<!-- Diplomacy AI -->

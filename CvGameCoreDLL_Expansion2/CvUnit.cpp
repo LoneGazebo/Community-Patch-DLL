@@ -2125,11 +2125,15 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	setGameTurnCreated(pUnit->getGameTurnCreated());
 	setLastMoveTurn(pUnit->getLastMoveTurn());
 	// Don't kill the unit if upgrading from a unit with more base hit points!!!
-	setDamage(min(pUnit->getDamage(), GetMaxHitPoints() - 1));
+	setDamage(min(pUnit->getDamage(), GetMaxHitPoints() - 1), NO_PLAYER, 0.0F, NULL, true);
 	setMoves(pUnit->getMoves());
 	setEmbarked(pUnit->isEmbarked());
 	setFacingDirection(pUnit->getFacingDirection(false));
 	SetBeenPromotedFromGoody(pUnit->IsHasBeenPromotedFromGoody());
+	if (pUnit->hasMoved())
+	{
+		finishMoves();
+	}
 
 	// Instant Yields/Bonuses on Expend
 	{
@@ -2185,7 +2189,7 @@ void CvUnit::convert(CvUnit* pUnit, bool bIsUpgrade)
 	{
 		setLevel(pUnit->getLevel());
 	}
-	setExperienceTimes100(CalcExperienceTimes100ForConvert(pUnit->getOwner(), getOwner(), pUnit->getExperienceTimes100()));
+	setExperienceTimes100(CalcExperienceTimes100ForConvert(pUnit->getOwner(), getOwner(), pUnit->getExperienceTimes100()), -1, true);
 	grantExperienceFromLostPromotions(iLostPromotions);
 
 	setName(pUnit->getNameNoDesc());
@@ -3192,40 +3196,26 @@ bool CvUnit::getCaptureDefinition(CvUnitCaptureDefinition* pkCaptureDef, PlayerT
 			pkCapturedUnit->setDamage(iCapturedHealth);
 
 			// (5-82): Captured Units can still move/pillage (but not attack)
-			// (5-82): Testing behavior, they will pillage to regenerate some lost HP or try to retreat if needed.
 			if (MOD_BALANCE_VP)
 			{
 				// Unused code, but might be used in next Congress
 				// allows captured units to gain XP off its origin city (of its capturer which is either the nearest city or the Capital City!)
-				//CvCity* pOriginCityCaptured = pkCapturedUnit->getOriginCity();
-				//if (pOriginCityCaptured == NULL)
-				//	pOriginCityCaptured = GET_PLAYER(kCaptureDef.eCapturingPlayer).getCapitalCity();
-				//pOriginCityCaptured->addProductionExperience(pkCapturedUnit, false, true);
+				/*
+				CvCity* pOriginCityCaptured = pkCapturedUnit->getOriginCity();
+				if (pOriginCityCaptured == NULL)
+					pOriginCityCaptured = GET_PLAYER(kCaptureDef.eCapturingPlayer).getCapitalCity();
+				pOriginCityCaptured->addProductionExperience(pkCapturedUnit, false, true);
+				*/
 				pkCapturedUnit->restoreFullMoves();
-				pkCapturedUnit->setMadeAttack(true);
+				while (pkCapturedUnit->getNumAttacksMadeThisTurn()<pkCapturedUnit->getNumAttacks())
+					pkCapturedUnit->setMadeAttack(true);
 				pkCapturedUnit->SetTurnProcessed(false);
-				if (!GET_PLAYER(kCaptureDef.eCapturingPlayer).isHuman())
-				{
-					if (pkCapturedUnit->shouldPillage(pkPlot, true))
-					{
-						pkCapturedUnit->PushMission(CvTypes::getMISSION_PILLAGE());
-					}
-					CvPlot* pBestPlot = TacticalAIHelpers::FindSafestPlotInReach(pkCapturedUnit, true, true);
-					if (pBestPlot != NULL)
-					{
-						//check if we need to bump somebody else
-						CvUnit* pBumpUnit = pkCapturedUnit->GetPotentialUnitToPushOut(*pBestPlot);
-						if (pBumpUnit)
-						{
-							pkCapturedUnit->PushBlockingUnitOutOfPlot(*pBestPlot);
-						}
-						pkCapturedUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pBestPlot->getX(), pBestPlot->getY(), 0, false, false, MISSIONAI_TACTMOVE);
-					}
-					else
-					{
-						pkCapturedUnit->PushMission(CvTypes::getMISSION_SKIP());
-					}
-				}
+
+				//let tactical AI handle the unit
+				//DO NOT PUSH MISSIONS DIRECTLY WHILE ANOTHER UNIT IS EXECUTING ITS MISSION
+				CvPlayer& kOwner = GET_PLAYER(pkCapturedUnit->getOwner());
+				if (!kOwner.isHuman())
+					kOwner.GetTacticalAI()->AddCurrentTurnUnit(pkCapturedUnit);
 			}
 		}
 	}
@@ -5373,7 +5363,8 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 				{
-					if (plot.isVisibleEnemyUnit(this) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
+					//check for combat units only! enemy civilians are captured en passant, there is no downside ...
+					if (plot.isEnemyUnit(getOwner(),true,true) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
 					{
 						return false;
 					}
@@ -7397,6 +7388,11 @@ bool CvUnit::canUseForTacticalAI() const
 	}
 
 	return false;
+}
+
+bool CvUnit::canUseNow() const
+{
+	return canMove() && !isDelayedDeath() && !TurnProcessed();
 }
 
 //	--------------------------------------------------------------------------------
@@ -21434,7 +21430,7 @@ int CvUnit::getDamage() const
 
 	@return	The difference in the damage.
  */
-int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText)
+int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextDelay, const CvString* pAppendText, bool bDontShow)
 {
 	VALIDATE_OBJECT
 	int iOldValue = getDamage();
@@ -21476,7 +21472,7 @@ int CvUnit::setDamage(int iNewValue, PlayerTypes ePlayer, float fAdditionalTextD
 
 
 		// send the popup text if the player can see this plot
-		if(plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF)
+		if(plot()->GetActiveFogOfWarMode() == FOGOFWARMODE_OFF && !bDontShow)
 		{
 			if(!IsDead())
 			{
@@ -21601,7 +21597,7 @@ void CvUnit::setMoves(int iNewValue)
 {
 	if(m_iMoves != iNewValue)
 	{
-		m_iMoves = iNewValue;
+		m_iMoves = max(0,iNewValue);
 
 		CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
 		gDLL->GameplayUnitShouldDimFlag(pDllUnit.get(), /*bDim*/ getMoves() <= 0);
@@ -21707,7 +21703,7 @@ int CvUnit::getExperienceTimes100() const
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax)
+void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontShow)
 {
 	VALIDATE_OBJECT
 
@@ -21722,7 +21718,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax)
 		m_iExperienceTimes100 = std::min(iMaxTimes100, iNewValueTimes100);
 		CvAssert(getExperienceTimes100() >= 0);
 
-		if(getOwner() == GC.getGame().getActivePlayer())
+		if(getOwner() == GC.getGame().getActivePlayer() && !bDontShow)
 		{
 			// Don't show XP for unit that's about to bite the dust
 			if(!IsDead())
@@ -29681,7 +29677,7 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 {
 	SPathFinderUserData data(this,iFlags,iMaxTurns);
 	const CvPlot* pDestPlot = pToPlot;
-
+	SPath newPath;
 	int x = pToPlot->getX();
 	int y = pToPlot->getY();
 
@@ -29691,68 +29687,67 @@ int CvUnit::ComputePath(const CvPlot* pToPlot, int iFlags, int iMaxTurns, bool b
 		y = m_kLastPath.back().m_iY;
 		pDestPlot = m_kLastPath.GetFinalPlot();
 	}
-	SPath newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
-
-	bool isDestWater = pToPlot->isWater();
 
 	// If no path exists but continue to closest plot flag is set try to move to an adjacent plot
-	if (MOD_SQUADS && (iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
+	if (MOD_SQUADS)
 	{
-		const CvPlot* pTargetPlot = pToPlot;
+		newPath = GC.GetPathFinder().GetPath(getX(), getY(), x, y, data);
 
-		// We want to find a new plot relative to the squads destination, not this move missions destination
-		if (HasSquadDestination())
+		if ((iFlags & CvUnit::MOVEFLAG_CONTINUE_TO_CLOSEST_PLOT) && (!newPath || !CanStackUnitAtPlot(pToPlot)))
 		{
-			pTargetPlot = GetSquadDestination();
-		}
+			const CvPlot* pTargetPlot = pToPlot;
 
-		// We want to reroute the unit to a plot within the closest available ring to the squad movement
-		// plot, while also minimizing distance from it's current position
-		std::vector<ScoredPlot> eligiblePlots;
-		int currRingEndIdx = 1;
-		for (int i = 0; i < RING_PLOTS[currRingEndIdx]; i++)
-		{
-			CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot, i);
-			if (!pLoopPlot)
-				continue;
-
-			if ((isDestWater == pLoopPlot->isWater()) && canMoveInto(*pLoopPlot, iFlags | CvUnit::MOVEFLAG_DESTINATION))
+			// We want to find a new plot relative to the squads destination, not this move missions destination
+			if (HasSquadDestination())
 			{
-				newPath = GC.GetPathFinder().GetPath(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY(), data);
-				if (!newPath)
-				{
-					// Unit can technically move into this tile but no path exists so try another one
+				pTargetPlot = GetSquadDestination();
+			}
+
+			// We want to reroute the unit to a plot within the closest available ring to the squad movement
+			// plot, while also minimizing distance from it's current position
+			std::vector<ScoredPlot> eligiblePlots;
+			int currRingEndIdx = 1;
+			for (int i = 0; i < RING_PLOTS[currRingEndIdx]; i++)
+			{
+				CvPlot* pLoopPlot = iterateRingPlots(pTargetPlot, i);
+				if (!pLoopPlot)
 					continue;
-				}
-				// Don't want to take forever rerouting if we're already inside the ring of consideration
-				else if (plotDistance(*plot(), *pTargetPlot) <= currRingEndIdx && newPath.iTotalTurns > 2)
+
+				if ((pToPlot->isWater() == pLoopPlot->isWater()) && canMoveInto(*pLoopPlot, iFlags | CvUnit::MOVEFLAG_DESTINATION))
 				{
-					continue;
+					newPath = GC.GetPathFinder().GetPath(getX(), getY(), pLoopPlot->getX(), pLoopPlot->getY(), data);
+					if (!newPath)
+					{
+						// Unit can technically move into this tile but no path exists so try another one
+						continue;
+					}
+					// Don't want to take forever rerouting if we're already inside the ring of consideration
+					else if (plotDistance(*plot(), *pTargetPlot) <= currRingEndIdx && newPath.iTotalTurns > 2)
+					{
+						continue;
+					}
+					else
+					{
+						eligiblePlots.push_back(ScoredPlot(newPath.iTotalCost, pLoopPlot));
+					}
 				}
-				else
+
+				if (i == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.empty())
 				{
-					eligiblePlots.push_back(ScoredPlot(newPath.iTotalCost, pLoopPlot));
+					currRingEndIdx++;
 				}
 			}
 
-			if (i == (RING_PLOTS[currRingEndIdx] - 1) && eligiblePlots.empty())
+			std::stable_sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
+			if (!eligiblePlots.empty())
 			{
-				currRingEndIdx++;
+				pDestPlot = eligiblePlots.front().plot;
 			}
-		}
-
-		std::stable_sort(eligiblePlots.begin(), eligiblePlots.end(), less<ScoredPlot>());
-		if (!eligiblePlots.empty())
-		{
-			pDestPlot = eligiblePlots.front().plot;
 		}
 	}
 
 	if (pDestPlot)
-	{
 		newPath = GC.GetPathFinder().GetPath(getX(), getY(), pDestPlot->getX(), pDestPlot->getY(), data);
-	}
-
 
 	//now copy the new path
 	if (bCacheResult)
@@ -30566,7 +30561,16 @@ void CvUnit::PushMission(MissionTypes eMission, int iData1, int iData2, int iFla
 	if ( getDomainType()==DOMAIN_AIR && eMission==CvTypes::getMISSION_RANGE_ATTACK() )
 		eMission = CvTypes::getMISSION_MOVE_TO();
 
+	static bool bMissionActive = false;
+	if (bMissionActive)
+		OutputDebugString("warning, unit mission being pushed while a mission is being executed\n");
+	else
+		bMissionActive = true;
+
 	CvUnitMission::PushMission(this, eMission, iData1, iData2, iFlags, bAppend, bManual, eMissionAI, pMissionAIPlot, pMissionAIUnit);
+
+	//done
+	bMissionActive = false;
 }
 
 //	--------------------------------------------------------------------------------

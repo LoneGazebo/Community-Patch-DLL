@@ -75,6 +75,11 @@ WHERE Type = 'IMPROVEMENT_POLDER_WATER';
 DELETE FROM Improvement_ValidFeatures
 WHERE ImprovementType = 'IMPROVEMENT_POLDER' AND FeatureType = 'FEATURE_FLOOD_PLAINS';
 
+INSERT INTO Improvement_ValidTerrains
+	(ImprovementType, TerrainType)
+VALUES
+	('IMPROVEMENT_POLDER_WATER', 'TERRAIN_COAST');
+
 DELETE FROM Improvement_Yields WHERE ImprovementType = 'IMPROVEMENT_POLDER';
 
 INSERT INTO Improvement_Yields

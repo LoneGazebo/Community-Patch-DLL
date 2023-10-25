@@ -300,7 +300,6 @@
 			<CombatClass>UNITCOMBAT_ARCHER</CombatClass>
 			<Class>UNITCLASS_VP_SLINGER</Class>
 			<DefaultUnitAI>UNITAI_RANGED</DefaultUnitAI>
-			<PrereqTech>TECH_AGRICULTURE</PrereqTech>
 			<ObsoleteTech>TECH_CALENDAR</ObsoleteTech>
 			<UnitArtInfo>ART_DEF_UNIT_VP_SLINGER</UnitArtInfo>
 			<UnitFlagAtlas>SLINGER_FLAG_ATLAS</UnitFlagAtlas>

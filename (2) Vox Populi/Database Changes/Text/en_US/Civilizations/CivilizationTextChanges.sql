@@ -463,7 +463,7 @@ SET Text = 'Waraq''Ak'
 WHERE Tag = 'TXT_KEY_UNIT_INCAN_SLINGER';
 
 UPDATE Language_en_US
-SET Text = 'Unique Incan {TXT_KEY_UNIT_VP_SLINGER} that has increased [ICON_RANGE_STRENGTH] Attack Range, ignore enemy [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR], and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.'
+SET Text = 'Unique Incan {TXT_KEY_UNIT_VP_SLINGER} that has increased [ICON_RANGE_STRENGTH] Attack Range, ignores enemy [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR], and can daze enemy units, lowering their [ICON_STRENGTH] Combat Strength.'
 WHERE Tag = 'TXT_KEY_CIV5_INCA_SLINGER_HELP';
 
 UPDATE Language_en_US

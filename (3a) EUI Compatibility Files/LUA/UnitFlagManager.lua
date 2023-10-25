@@ -794,7 +794,7 @@ local function UpdatePromotions(playerID, unitID)
 
 	for promo in GameInfo.UnitPromotions() do
 		local promoID = promo.ID
-		if unit:IsHasPromotion(promoID) and promo.IsVisibleAboveFlag then
+		if unit:IsHasPromotion(promoID) and promo.IsVisibleAboveFlag > 0 then
 			local showPromo = true
 			
 			--don't show promos from leader traits
