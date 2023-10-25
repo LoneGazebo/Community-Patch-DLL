@@ -4199,6 +4199,9 @@ void CvTacticalAI::ExecuteHeals(bool bFirstPass)
 				else //plot should be free
 					ExecuteMoveToPlot(pUnit, pBetterPlot);
 			}
+			else
+				//this is required to flush the previous mission!
+				pUnit->PushMission(CvTypes::getMISSION_SKIP());
 
 			UnitProcessed(pUnit->GetID());
 		}

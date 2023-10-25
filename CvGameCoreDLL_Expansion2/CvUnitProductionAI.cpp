@@ -1055,8 +1055,15 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	
 		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 
-		//maybe a bit expensive to check? let's see. also only add if positive?
+		//maybe a bit expensive to check? let's see. also only add if positive? range is -50 to +50
 		iFlavorExpansion += kPlayer.GetSettlePlotQualityMeasure(kPlayer.GetBestSettlePlot(NULL))/2;
+
+		//strategies affect unit flavors ... but unfortunately we largely ignore "pre" score from the flavor system
+		EconomicAIStrategyTypes eExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
+		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpand))
+		{
+			iFlavorExpansion += 25;
+		}
 
 		if (kPlayer.CanCrossOcean())
 		{
@@ -1077,7 +1084,10 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			if (kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
 			{
-				iFlavorExpansion -= 25;
+				if (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness()))
+				{
+					iFlavorExpansion -= 25;
+				}
 			}
 			else if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
 			{
@@ -1095,19 +1105,13 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		{
 			iFlavorExpansion += kPlayer.getSettlerProductionModifier();
 		}
-		if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
-		{
-			iFlavorExpansion += 50;
-		}
 		if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
 		{
 			iFlavorExpansion += kPlayer.getCapitalSettlerProductionModifier();
 		}
-
-		//don't settle while at war
-		if (kPlayer.IsAtWarAnyMajor())
+		if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
 		{
-			iFlavorExpansion -= 100;
+			iFlavorExpansion += 25;
 		}
 
 		if (kPlayer.IsEmpireUnhappy())
@@ -1123,11 +1127,6 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			}
 		}
 
-		if(kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory() && (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness())))
-		{
-			iFlavorExpansion -= 25;
-		}
-
 		// scale based on flavor and world size
 		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
 		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
@@ -1135,12 +1134,12 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			iFlavorExpansion -= 50;
 		}
 
-		if (iFlavorExpansion <= 0)
-			return SR_STRATEGY;
-
 		//if already we have more than 2 cities, let's try to get non-capital cities to be our settler-makers.
 		if (m_pCity->isCapital() && kPlayer.getNumCities() > 2)
 			iFlavorExpansion -= 25;
+
+		if (iFlavorExpansion <= 0)
+			return SR_STRATEGY;
 
 		//if we got this far we want to expand, so let's bump the number of times we've skipped this.
 		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver() * 100;
