@@ -15133,7 +15133,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 		if (bExplore) // Free exploration unit (First contact bonus)
 			eUnit = GC.getGame().GetCsGiftSpawnUnitType(eMajor, bBoatsAllowed);
 		else
-			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed, false, false, true, CvSeeder::fromRaw(0xf00798cf).mix(GetPlayer()->GetID()).mix(GET_PLAYER(eMajor).GetID()));
+			eUnit = GC.getGame().GetCompetitiveSpawnUnitType(eMajor, /*bIncludeUUs*/ false, /*bIncludeRanged*/ true, bBoatsAllowed, false, false, true, true, CvSeeder::fromRaw(0xf00798cf).mix(GetPlayer()->GetID()).mix(GET_PLAYER(eMajor).GetID()));
 	}
 
 	if (eUnit == NO_UNIT)
