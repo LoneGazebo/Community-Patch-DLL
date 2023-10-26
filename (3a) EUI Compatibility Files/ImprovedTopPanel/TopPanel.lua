@@ -2549,7 +2549,7 @@ local function ResourcesToolTip( control )
 					tips:insert( "[ICON_BULLET]" .. Colorize(numResourceCSAlly) .. resource.IconString .. " " .. L"TXT_KEY_EO_CS_ALLY_RESOURCES" )
 				end
 				if stratResMod > 0 and Game.GetResourceUsageType(resource.ID) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
-					local change = math_floor(((totalBeforeMod * stratResMod) / 100) - totalBeforeMod)
+					local change = math_floor(((totalBeforeMod * (100 + stratResMod)) / 100) - totalBeforeMod)
 					totalBeforeMod = totalBeforeMod + change
 					tips:insert( "[ICON_BULLET]" .. ColorizeSigned(stratResMod, "%") .. " (" .. Colorize(change) .. ") " .. resource.IconString .. " " .. L"TXT_KEY_EO_STRAT_MOD_RESOURCES" )
 				end

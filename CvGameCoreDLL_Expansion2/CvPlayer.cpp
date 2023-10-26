@@ -39397,7 +39397,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 #endif
 		if (GetStrategicResourceMod() != 0)
 		{
-			iTotalNumResource *= GetStrategicResourceMod();
+			iTotalNumResource *= 100 + GetStrategicResourceMod();
 			iTotalNumResource /= 100;
 		}
 	}
