@@ -10537,12 +10537,12 @@ bool CvUnit::pillage()
 						iEra = 1;
 
 					iPillageGold += pkImprovement->GetPillageGold() * iEra * GC.getGame().randRangeInclusive(85, 100, CvSeeder(plot()->GetPseudoRandomSeed())) / 100;
-					iPillageGold += (getPillageChange() * iPillageGold) / 100;
+					iPillageGold += getPillageChange() * iPillageGold / 100;
 				}
 				else
 				{
 					iPillageGold += GC.getGame().randRangeInclusive(0, pkImprovement->GetPillageGold(), CvSeeder(plot()->GetPseudoRandomSeed()));
-					iPillageGold += (getPillageChange() * iPillageGold) / 100;
+					iPillageGold += getPillageChange() * iPillageGold / 100;
 				}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 				if (pPlot->getOwner() != NO_PLAYER)
