@@ -3269,12 +3269,12 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 
 	// try to avoid difficult terrains/features
 	if ((eTerrain == TERRAIN_DESERT || eTerrain == TERRAIN_SNOW || eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE || eFeature == FEATURE_MARSH) &&
-			eFeature != FEATURE_FLOOD_PLAINS &&
-			bIgnoreTerrain)
+			eFeature != FEATURE_FLOOD_PLAINS && eFeature != FEATURE_OASIS &&
+			!bIgnoreTerrain)
 		iCost += PATH_BASE_COST / 4;
 
 	// avoid hills also if not Inca
-	if (!pToPlot->isFlatlands() && bIgnoreTerrain && !pCacheData->CanCrossMountain())
+	if (!pToPlot->isFlatlands() && !bIgnoreTerrain && !pCacheData->CanCrossMountain())
 		iCost += PATH_BASE_COST / 4;
 	
 	return iCost;
