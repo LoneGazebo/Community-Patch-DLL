@@ -5356,13 +5356,13 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 			if(!isHuman() || plot.isVisible(getTeam()) || bEmbarkedAndAdjacent)
 			{
-				if(plot.isEnemyCity(*this))
-				{
-					return false;
-				}
-
 				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 				{
+					if (plot.isEnemyCity(*this))
+					{
+						return false;
+					}
+
 					//check for combat units only! enemy civilians are captured en passant, there is no downside ...
 					if (plot.isEnemyUnit(getOwner(),true,true) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
 					{
@@ -19523,7 +19523,7 @@ bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 bool CvUnit::IsCoveringFriendlyCivilian() const
 {
 	CvPlot* myPlot = plot();
-	if (!myPlot)
+	if (!myPlot || myPlot->isCity())
 		return false;
 
 	IDInfo* pUnitNode = myPlot->headUnitNode();
@@ -19534,7 +19534,7 @@ bool CvUnit::IsCoveringFriendlyCivilian() const
 
 		if(pLoopUnit && pLoopUnit->getTeam() == getTeam())
 			if(!pLoopUnit->IsCanDefend() && pLoopUnit->TurnProcessed())
-				return true;
+				return !GET_PLAYER(getOwner()).GetPossibleAttackers(*myPlot, getTeam()).empty();
 	}
 
 	return false;

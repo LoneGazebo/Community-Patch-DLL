@@ -823,6 +823,9 @@ void CvTacticalAI::AssignGlobalLowPrioMoves()
 /// Choose which tactics to run and assign units to it (barbarian version)
 void CvTacticalAI::AssignBarbarianMoves()
 {
+	//even barbarians like their camps
+	PlotBarbarianCampDefense();
+
 	//barbarians don't have tactical zones, they just attack everything that moves
 	PlotBarbarianAttacks();
 	PlotCivilianAttackMoves();
@@ -833,8 +836,7 @@ void CvTacticalAI::AssignBarbarianMoves()
 	PlotPlunderTradeUnitMoves(DOMAIN_LAND);
 	PlotPlunderTradeUnitMoves(DOMAIN_SEA);
 
-	//normal roaming unless in camp
-	PlotBarbarianCampDefense();
+	//normal roaming to find targets
 	PlotBarbarianRoaming();
 
 	//safety comes last for the barbarians ...
@@ -2166,6 +2168,14 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 				//it's enough if we recruit them for armies or combat sim
 				if (pUnit->IsGreatGeneral() || pUnit->IsGreatAdmiral())
 					continue;
+				//conversely, don't leave generals out in the cold
+				if (pUnit->IsCoveringFriendlyCivilian())
+				{
+					//a bit weird to just push a mission and not make an explicit plot/execute pair for this but should be ok
+					pUnit->PushMission(CvTypes::getMISSION_SKIP());
+					UnitProcessed(pUnit->GetID());
+					continue;
+				}
 
 				// Proper domain of unit?
 				// Note that coastal cities have two zones, so we will call this method twice
@@ -3700,10 +3710,8 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 	//try to improve visibility. however, if the target is too far away this may fail ... in that case we chance it
 	ExecuteSpotterMove(vUnits, pCloseRangeTarget);
 
-#if defined(MOD_CORE_DEBUGGING)
 	if (MOD_CORE_DEBUGGING)
 		LogTacticalMessage(CvString::format("seeking defensive positioning around %d:%d", pCloseRangeTarget->getX(), pCloseRangeTarget->getY()));
-#endif
 
 	//first round: in case there are enemies around, do a combat simulation
 	int iCount = 0;
@@ -3755,6 +3763,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		//lots of flags ...
 		CvUnit* pUnit = *it;
 		int	iFlags = CvUnit::MOVEFLAG_NO_STOPNODES | CvUnit::MOVEFLAG_APPROX_TARGET_RING2 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
+
 		if (pUnit->IsCivilianUnit())
 			iFlags |= (CvUnit::MOVEFLAG_DONT_STACK_WITH_NEUTRAL | CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
 		if (!bHaveNavalEscort && pUnit->getDomainType()==DOMAIN_LAND)
@@ -3776,6 +3785,7 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !pUnit->isEmbarked())
 			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
+		//todo: generals should move to the closest combat unit for cover ...
 		ExecuteMoveToPlot(pUnit, pLongRangeTarget, true, iFlags);
 	}
 
@@ -4873,6 +4883,9 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 			if(pLoopUnit->AI_getUnitAIType()==UNITAI_EXPLORE || pLoopUnit->getArmyID() != -1)
 				continue;
 
+			if (pLoopUnit->IsCoveringFriendlyCivilian())
+				continue;
+
 			//performance optimization ... careful because zero is a valid turn value
 			if(iNumTurnsAway>1 && plotDistance(*pLoopUnit->plot(),*pTarget)>5*iNumTurnsAway)
 				continue;
@@ -4995,6 +5008,9 @@ bool CvTacticalAI::FindUnitsWithinStrikingDistance(CvPlot* pTarget)
 
 		//if it's a fighter plane, don't use it here, we need it for interceptions / sweeps
 		if (pLoopUnit->getUnitInfo().GetDefaultUnitAIType() == UNITAI_DEFENSE_AIR)
+			continue;
+
+		if (pLoopUnit->IsCoveringFriendlyCivilian())
 			continue;
 
 		//note that garrisoned units are *not* recruited into m_CurrentTurnUnits!
@@ -5188,6 +5204,9 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 				continue;
 
 			if (!pLoopUnit->canUseForTacticalAI())
+				continue;
+
+			if (pLoopUnit->IsCoveringFriendlyCivilian())
 				continue;
 
 			if (pLoopUnit->isBarbarian() && pLoopUnit->plot()->getImprovementType() == GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT))
@@ -6295,6 +6314,10 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 
 	//for current plot
 	int iCurrentHealRate = pUnit->healRate(pCurrentPlot);
+
+	//don't run if we are needed
+	if (pUnit->IsCoveringFriendlyCivilian() && pUnit->GetDanger(pCurrentPlot)<pUnit->GetCurrHitPoints()*2)
+		return pCurrentPlot;
 
 	//embarkation allowed for now, we sort it out below
 	ReachablePlots eligiblePlots = pUnit->GetAllPlotsInReachThisTurn(); 
@@ -7444,7 +7467,7 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 	const CvPlot* pTestPlot = testPlot.getPlot();
 	const CvUnit* pUnit = unit.pUnit;
 
-	if (pUnit->shouldPillage(pTestPlot, true) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE))
+	if (pUnit->shouldPillage(pTestPlot, true) && !assumedPosition.unitHasAssignmentOfType(unit.iUnitID, A_PILLAGE) && !assumedPosition.plotHasAssignmentOfType(movePlot.iPlotIndex,A_PILLAGE))
 	{
 		result.eAssignmentType = A_PILLAGE;
 
