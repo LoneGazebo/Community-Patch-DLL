@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="124">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.2.4) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.2.5) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -114,7 +114,7 @@
     <File md5="B65BB2136FE45178F24E529980BF92DB" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
     <File md5="17994ED926AF843227E129CA73E1507C" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="3461DCF1883FDD5F17E5A61948522284" import="0">Core Files/Core Tables/DifficultyTables.sql</File>
-    <File md5="1745625FA99A72829614DAE947E249DD" import="0">Core Files/Core Tables/DifficultyTables.xml</File>
+    <File md5="9A0BF78B3641B59E6AE17D25315BF111" import="0">Core Files/Core Tables/DifficultyTables.xml</File>
     <File md5="B30D8A1A7F42B7F9711F05EA64771F59" import="0">Core Files/Core Tables/JFDContracts.xml</File>
     <File md5="429BD12E6BC5CFFFE5CCAD5B994E2948" import="0">Core Files/Core Tables/SampleEvents.xml</File>
     <File md5="9B3F1FBA42DD9DE8A72B5DE9301DE1FF" import="0">Core Files/Core Tables/GameEventsTable.xml</File>
@@ -230,8 +230,8 @@
     <File md5="B3CCB02EC2837C3E5F0ABBE81E8D8CEB" import="0">Core Files/PNM Mods DB/TRAITS/TradeRouteBonuses.sql</File>
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="C87CBD297829E71973BA4C207030789B" import="0">Core Files/Text/CoreText_en_US.xml</File>
-    <File md5="A1DCF2CABD87552C40147233593610C6" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="FA2D53A0BCE58CAE520B0907D385195F" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="709AD149162279A8D9B9FA92B4547FE6" import="0">Core Files/Text/CoreText_en_US.sql</File>
+    <File md5="D61B2F3282C71928E2AD9597DAFED3E5" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
