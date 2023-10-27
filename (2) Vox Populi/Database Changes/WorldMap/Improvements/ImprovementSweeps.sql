@@ -2,13 +2,13 @@
 
 -- GPTI
 UPDATE Improvements
-SET PillageGold = 17
+SET PillageGold = 20
 WHERE Type = 'IMPROVEMENT_LANDMARK'
 OR CreatedByGreatPerson = 1;
 
 -- Resource-only improvements, UI with strict restrictions
 UPDATE Improvements
-SET PillageGold = 14
+SET PillageGold = 17
 WHERE Type IN (
 	'IMPROVEMENT_FISHING_BOATS',
 	'IMPROVEMENT_CAMP',
@@ -26,7 +26,7 @@ WHERE Type IN (
 
 -- UI with fewer restrictions
 UPDATE Improvements
-SET PillageGold = 11
+SET PillageGold = 14
 WHERE Type IN (
 	'IMPROVEMENT_KASBAH',
 	'IMPROVEMENT_POLDER',
@@ -38,7 +38,7 @@ WHERE Type IN (
 
 -- No adjacency improvements, spammable UI
 UPDATE Improvements
-SET PillageGold = 8
+SET PillageGold = 11
 WHERE Type IN (
 	'IMPROVEMENT_TRADING_POST',
 	'IMPROVEMENT_FORT',
@@ -48,7 +48,7 @@ WHERE Type IN (
 
 -- Spammable normal improvements
 UPDATE Improvements
-SET PillageGold = 5
+SET PillageGold = 8
 WHERE Type IN (
 	'IMPROVEMENT_FARM',
 	'IMPROVEMENT_LUMBERMILL',

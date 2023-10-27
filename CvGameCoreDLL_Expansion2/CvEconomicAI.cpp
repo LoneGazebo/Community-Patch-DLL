@@ -3312,7 +3312,7 @@ bool EconomicAIHelpers::IsTestStrategy_TechLeader(CvPlayer* pPlayer)
 }
 
 /// "Early Expansion" Player Strategy: An early Strategy simply designed to get player up to 3 Cities quickly.
-// This should be run every turn because it is used in garrison logic and we need to react quickly
+/// This should be run every turn because it is used in garrison logic and we need to react quickly
 bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eStrategy, CvPlayer* pPlayer)
 {
 	if (CannotMinorCiv(pPlayer, eStrategy))
@@ -3328,8 +3328,8 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	if (pPlayer->GetNumCitiesFounded() < 3)
 		return true;
 
-	//midgame depends on the diplo situation ...
-	if (pPlayer->GetUnfriendlyMajors().size() > 0)
+	//midgame depends on the diplo situation ... don't expand if losing in war
+	if (pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
 		return false;
 
 	//never in late game
