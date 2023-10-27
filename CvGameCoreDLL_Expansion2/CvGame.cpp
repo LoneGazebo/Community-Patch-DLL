@@ -8947,15 +8947,15 @@ UnitTypes CvGame::GetRandomSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, 
 
 //	--------------------------------------------------------------------------------
 /// Pick a random a Unit type that is ranked by unit power and restricted to units available to ePlayer's technology
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom)
+UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom, bool bMinorCivGift)
 {
 	if (bIncludeRanged)
-		return GetCompetitiveSpawnUnitType(ePlayer, bIncludeUUs, true, bIncludeShips, bNoResource, bIncludeOwnUUsOnly, bRandom, CvSeeder::fromRaw(0xb5272cbd).mix(GET_PLAYER(ePlayer).GetID()));
+		return GetCompetitiveSpawnUnitType(ePlayer, bIncludeUUs, true, bIncludeShips, bNoResource, bIncludeOwnUUsOnly, bRandom, bMinorCivGift, CvSeeder::fromRaw(0xb5272cbd).mix(GET_PLAYER(ePlayer).GetID()));
 
-	return GetCompetitiveSpawnUnitType(ePlayer, bIncludeUUs, false, bIncludeShips, bNoResource, bIncludeOwnUUsOnly, bRandom, CvSeeder::fromRaw(0xdea52530).mix(GET_PLAYER(ePlayer).GetID()));
+	return GetCompetitiveSpawnUnitType(ePlayer, bIncludeUUs, false, bIncludeShips, bNoResource, bIncludeOwnUUsOnly, bRandom, bMinorCivGift, CvSeeder::fromRaw(0xdea52530).mix(GET_PLAYER(ePlayer).GetID()));
 }
 
-UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom, CvSeeder seed)
+UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bIncludeUUs, bool bIncludeRanged, bool bIncludeShips, bool bNoResource, bool bIncludeOwnUUsOnly, bool bRandom, bool bMinorCivGift, CvSeeder seed)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_CIV_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -8975,7 +8975,9 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 		if (pkUnitInfo->GetCombat() <= 0)
 			continue;
 
-#if defined(MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
+		if (bMinorCivGift && pkUnitInfo->IsInvalidMinorCivGift())
+			continue;
+
 		if (MOD_POLICIES_UNIT_CLASS_REPLACEMENTS)
 		{
 			// Is the unit's class replaced by another?
@@ -8995,7 +8997,6 @@ UnitTypes CvGame::GetCompetitiveSpawnUnitType(PlayerTypes ePlayer, bool bInclude
 				}
 			}
 		}
-#endif
 
 		bool bValid = true;
 

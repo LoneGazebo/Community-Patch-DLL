@@ -9928,7 +9928,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 
 		if (MOD_BALANCE_VP)
 		{
-			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false, true, CvSeeder::fromRaw(0xb89fcc34).mix(GET_PLAYER(ePlayer).GetID()).mix(GetID()));
+			UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, false, true, false, CvSeeder::fromRaw(0xb89fcc34).mix(GET_PLAYER(ePlayer).GetID()).mix(GetID()));
 			if (eUnit != NO_UNIT)
 				GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 		}
@@ -10036,7 +10036,7 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		{
 			for (int i = 0; i < iNumUnit; i++) 
 			{
-				UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, true, true, CvSeeder::fromRaw(0x47def5e9).mix(GET_PLAYER(ePlayer).GetID()).mix(GetID()).mix(i));
+				UnitTypes eUnit = GC.getGame().GetCompetitiveSpawnUnitType(ePlayer, false, false, false, true, true, true, false, CvSeeder::fromRaw(0x47def5e9).mix(GET_PLAYER(ePlayer).GetID()).mix(GetID()).mix(i));
 				if (eUnit != NO_UNIT)
 					GET_PLAYER(ePlayer).initUnit(eUnit, pNewCity->getX(), pNewCity->getY());
 			}
@@ -39397,7 +39397,7 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 #endif
 		if (GetStrategicResourceMod() != 0)
 		{
-			iTotalNumResource *= GetStrategicResourceMod();
+			iTotalNumResource *= 100 + GetStrategicResourceMod();
 			iTotalNumResource /= 100;
 		}
 	}

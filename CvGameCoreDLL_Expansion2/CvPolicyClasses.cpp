@@ -1529,7 +1529,7 @@ int CvPolicyEntry::GetMedianTechPercentChange() const
 	return m_iMedianTechPercentChange;
 }
 
-/// Mod to owned Strategic Resources (200 = 200% of normal output)
+/// Mod to owned Strategic Resources
 int CvPolicyEntry::GetStrategicResourceMod() const
 {
 	return m_iStrategicResourceMod;

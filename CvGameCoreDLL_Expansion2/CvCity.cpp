@@ -17562,7 +17562,7 @@ int CvCity::foodDifferenceTimes100(bool bJustCheckingStarve, CvString* toolTipSi
 	}
 
 	//can starve if at size 1 and nothing stored
-	if (getPopulation() == 1 && getFood() == 0)
+	if (getPopulation() == 1 && getFoodTimes100() == 0)
 	{
 		iDifference = std::max(0, iDifference);
 	}
@@ -32418,7 +32418,7 @@ void CvCity::doGrowth()
 		}
 	}
 	//starving
-	else if (getFood() == 0 && iFoodPerTurn100 < 0 && getPopulation()>1)
+	else if (getFoodTimes100() == 0 && iFoodPerTurn100 < 0 && getPopulation()>1)
 	{
 		changePopulation(-1);
 	}

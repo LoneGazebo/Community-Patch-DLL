@@ -4060,7 +4060,12 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	return IsHasFoundPlayersTerritory(ePlayer) != bValue;
+	if (IsHasFoundPlayersTerritory(ePlayer) != bValue)
+	{
+		m_abHasFoundPlayersTerritory[ePlayer] = bValue;
+		return true;
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
