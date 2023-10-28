@@ -1932,7 +1932,7 @@ void CvTacticalAI::PlotNavalEscortMoves()
 	for(list<int>::iterator it = m_CurrentTurnUnits.begin(); it != m_CurrentTurnUnits.end(); it++)
 	{
 		CvUnit* pUnit = m_pPlayer->getUnit(*it);
-		if (pUnit && pUnit->canUseForTacticalAI())
+		if (pUnit && pUnit->canUseForTacticalAI() && !pUnit->shouldHeal(false))
 		{
 			// Am I a naval combat unit?
 			if(pUnit->getDomainType() == DOMAIN_SEA && pUnit->IsCanAttack())
@@ -8653,7 +8653,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			STacticalAssignment newAssignment = ScorePlotForMeleeAttack(unit,assumedUnitPlot,testPlot,*it,*this);
 
 			//attacks must have a positive score
-			bool bCanEndTurnHere = couldEndTurnAfterThisAssignment(newAssignment);
+			bool bCanEndTurnHere = (newAssignment.iRemainingMoves > 0) || couldEndTurnAfterThisAssignment(newAssignment);
 			if (newAssignment.iScore > 0 && bCanEndTurnHere)
 				gPossibleMoves.push_back(newAssignment);
 		}
@@ -8670,8 +8670,12 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 				//redundant with ScoreTurnEnd but we have to make sure we consider these moves in the first place
 				if (it->iMovesLeft == pUnit->maxMoves())
 				{
-					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE)/2)
-						iBonus += min(23,pUnit->getDamage());
+					if (pUnit->getDamage() > /*10 in CP, 7 in VP*/ GD_INT_GET(FRIENDLY_HEAL_RATE) / 2)
+					{
+						//calling canHeal is too expensive, so fake it
+						if (pUnit->getDomainType() != DOMAIN_SEA || testPlot.getPlot()->IsFriendlyTerritory(pUnit->getOwner()) || pUnit->isHealOutsideFriendly())
+							iBonus += min(23, pUnit->getDamage());
+					}
 					if (pUnit->IsEverFortifyable())
 						iBonus += (pUnit->GetDamageAoEFortified()>0) ? 37 : 23;
 				}
@@ -8683,11 +8687,14 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	 					iBonus += TACTICAL_COMBAT_CITADEL_BONUS;
 				}
 
-				//if the current plot is good, assume we can stay here but recheck later.
-				//subtract a little for wasted movement points to balance out what we added in the ref assignment
-				gPossibleMoves.push_back(
-					STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, 
-						iBonus - unit.iMovesLeft / GD_INT_GET(MOVE_DENOMINATOR), A_FINISH_TEMP));
+				bool bCanEndTurnHere = couldEndTurnAfterThisAssignment(refAssignment);
+				if (bCanEndTurnHere)
+				{
+					//subtract a little for wasted movement points to balance out what we added in the ref assignment
+					gPossibleMoves.push_back(
+						STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy,
+							iBonus - unit.iMovesLeft / GD_INT_GET(MOVE_DENOMINATOR), A_FINISH_TEMP));
+				}
 			}
 		}
 		else
@@ -8708,8 +8715,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			STacticalAssignment newAssignment = ScorePlotForMove(unit, testPlot, *it, *this, EM_INTERMEDIATE);
 
 			//may be invalid
-			bool bCanEndTurnHere = couldEndTurnAfterThisAssignment(newAssignment);
-			if (newAssignment.iScore < 0 || !bCanEndTurnHere)
+			bool bCanEndTurnHereOrFlee = (newAssignment.iRemainingMoves>0) || couldEndTurnAfterThisAssignment(newAssignment);
+			if (!bCanEndTurnHereOrFlee)
 				continue;
 
 			//important normalization step
@@ -8736,8 +8743,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			{
 				STacticalAssignment newAssignment(ScorePlotForRangedAttack(unit,assumedUnitPlot,enemyPlot,*this));
 
-				bool bCanEndTurnHere = 	couldEndTurnAfterThisAssignment(newAssignment);
-				if (newAssignment.iScore > 0 && bCanEndTurnHere)
+				bool bCanEndTurnHereOrFlee = (newAssignment.iRemainingMoves > 0) || couldEndTurnAfterThisAssignment(newAssignment);
+				if (newAssignment.iScore > 0 && bCanEndTurnHereOrFlee)
 				{
 					//if we're not looking to pick a fight, de-emphasize attacks
 					if (eAggression == AL_NONE)
@@ -8768,7 +8775,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 		gPossibleMoves.erase(gPossibleMoves.begin() + nMaxCount, gPossibleMoves.end());
 	}
 
-	//always add a 'do-nothing' move; this does not guarantee that it will get picked though
+	//always add a 'do-nothing' move; this does not guarantee that it will get picked but it allows move-attack-flee for damaged units
 	gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, iBlockedScore, A_BLOCKED));
 }
 
@@ -8776,11 +8783,11 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 //obviously needs plot types to be defined
 void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 {
-	//nothing to do?
-	if (availableUnits.size() <= (size_t)iMaxUnitsToKeep)
-		return;
+	//if we have weak units without a clear purpose we drop them
+	if (iMaxUnitsToKeep > (int)availableUnits.size())
+		iMaxUnitsToKeep = (int)availableUnits.size();
 
-	//very important, lazy update
+	//very important before calling getPreferredAssignmentsForUnit()
 	updateMovePlotsIfRequired();
 
 	//get the best move for each unit
@@ -8788,15 +8795,18 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	bool bHaveSupport = false;
 	for (size_t i = 0; i < availableUnits.size(); i++)
 	{
+		//this always returns at least one move
 		getPreferredAssignmentsForUnit(availableUnits[i], 1);
-		int iScore = gPossibleMoves.empty() ? 0 : gPossibleMoves.front().iScore;
+
+		int iScore = gPossibleMoves.front().iScore;
 
 		//make sure to include a general if we have one
 		if (availableUnits[i].eMoveStrategy == MS_SUPPORT)
 		{
 			if (bHaveSupport)
 			{
-				iScore = 0;
+				iScore = TACTICAL_COMBAT_IMPOSSIBLE_SCORE;
+				iMaxUnitsToKeep--;
 			}
 			else
 			{
@@ -8804,6 +8814,7 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 				bHaveSupport = true;
 			}
 		}
+
 		//this will be our sorting criterion
 		availableUnits[i].iImportanceScore = iScore;
 	}
@@ -8815,12 +8826,10 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	vector<SUnitStats> unitsToDrop( availableUnits.begin()+iMaxUnitsToKeep, availableUnits.end() );
 	for (vector<SUnitStats>::iterator itUnit = unitsToDrop.begin(); itUnit != unitsToDrop.end(); ++itUnit)
 	{
-		STacticalAssignment fakeBlock(itUnit->iPlotIndex,itUnit->iPlotIndex,itUnit->iUnitID,itUnit->iMovesLeft,itUnit->eMoveStrategy,0,A_BLOCKED);
-		addAssignment(fakeBlock);
+		vector<SUnitStats>::iterator toDrop = find_if(availableUnits.begin(), availableUnits.end(), PrMatchingUnit(itUnit->iUnitID));
+		availableUnits.erase(toDrop);
+		assignedMoves.push_back( STacticalAssignment(itUnit->iPlotIndex, itUnit->iPlotIndex, itUnit->iUnitID, itUnit->iMovesLeft, itUnit->eMoveStrategy, 0, A_BLOCKED) );
 	}
-
-	//we do not take responsibility for the units we ignored
-	notQuiteFinishedUnits.clear();
 }
 
 void CvTacticalPosition::addInitialAssignments()
@@ -9087,8 +9096,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 		if (!pInitial)
 			return false; //something wrong
 
-		//if the unit is blocked but we never moved it, that is ok
-		if (unit.eLastAssignment == A_BLOCKED && pInitial->iFromPlotIndex == unit.iPlotIndex)
+		//if the unit is blocked but has movement left and can flee, let's assume that is ok
+		if (unit.eLastAssignment == A_BLOCKED && unit.iMovesLeft>GC.getMOVE_DENOMINATOR())
 			continue;
 
 		//if we have a restart pending, that can also be ok if we're not planning to stay

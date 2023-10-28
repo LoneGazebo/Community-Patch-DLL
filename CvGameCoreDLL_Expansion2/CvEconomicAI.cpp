@@ -3328,8 +3328,18 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 	if (pPlayer->GetNumCitiesFounded() < 3)
 		return true;
 
-	//midgame depends on the diplo situation ... don't expand if losing in war
-	if (pPlayer->GetDiplomacyAI()->GetStateAllWars() == STATE_ALL_WARS_LOSING)
+	//midgame depends on the map sitation ...
+	PlayerProximityTypes closestNeighborProximity = NO_PLAYER_PROXIMITY;
+	for (int i = 0; i < MAX_MAJOR_CIVS; i++)
+	{
+		CvPlayer& other = GET_PLAYER((PlayerTypes)i);
+		if (pPlayer->getTeam() == other.getTeam())
+			continue;
+		PlayerProximityTypes p = pPlayer->GetProximityToPlayer(other.GetID());
+		if (p > closestNeighborProximity)
+			closestNeighborProximity = p;
+	}
+	if (closestNeighborProximity >= PLAYER_PROXIMITY_NEIGHBORS)
 		return false;
 
 	//never in late game

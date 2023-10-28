@@ -27987,7 +27987,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == getDomainType())
 		{
 			//is it idle right now?
-			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0)
+			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0 && !pLoopUnit->shouldHeal(false))
 			{
 				//make sure we're not getting the pushed unit killed
 				int iDangerLimit = pLoopUnit->IsCanAttackRanged() ? pLoopUnit->GetCurrHitPoints() / 2 : pLoopUnit->GetCurrHitPoints();
@@ -29161,9 +29161,14 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	//sometimes we should heal but we have to fight instead
 	if (bBeforeAttacks)
 	{
+		//sometimes there is no other option
+		int iHardHpLimit = 13;
+		if (GetCurrHitPoints() < iHardHpLimit)
+			return true;
+
 		//also depends on what we can do with the unit
-		int iHpLimit = GetMaxHitPoints() / 3;
-		return GetCurrHitPoints() < iHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		int iSoftHpLimit = GetMaxHitPoints() / 3;
+		return GetCurrHitPoints() < iSoftHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{
