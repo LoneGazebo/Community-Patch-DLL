@@ -11573,7 +11573,7 @@ function AssignStartingPlots:IsEvenMoreResourcesActive()
 	end
 
 	if isUsingCommunityPatch == false then -- fallback method for modpack mode
-		for row in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_BEER'") do
+		for row in DB.Query("SELECT * FROM Resources WHERE Type = 'RESOURCE_POPPY'") do
 			isUsingEvenMoreResources = true
 		end
 	end
