@@ -4929,20 +4929,26 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				if (pLoopUnit->shouldHeal(false))
 					continue;
 
-				// No siege units or units without defensive bonuses as plot defenders
-				if (pLoopUnit->AI_getUnitAIType()==UNITAI_CITY_BOMBARD || pLoopUnit->noDefensiveBonus() || !pLoopUnit->canFortify(pTarget))
+				// No siege units as plot defenders
+				if (pLoopUnit->AI_getUnitAIType()==UNITAI_CITY_BOMBARD)
 					continue;
 
 				// Ranged units are ok only in citadels
-				if (!TacticalAIHelpers::IsPlayerCitadel(pTarget, m_pPlayer->GetID()) && pLoopUnit->IsCanAttackRanged())
-					continue;
+				if (!TacticalAIHelpers::IsPlayerCitadel(pTarget, m_pPlayer->GetID()))
+				{
+					if (pLoopUnit->IsCanAttackRanged())
+						continue;
+					if (pLoopUnit->getExtraVisibilityRange() > 0)
+						iExtraScore += 23;
+				}
+
+				//these can do in a pinch
+				if (pLoopUnit->noDefensiveBonus() || !pLoopUnit->canFortify(pTarget))
+					iExtraScore -= 21;
 
 				// Units with defensive promotions are especially valuable
 				if(pLoopUnit->getDefenseModifier() > 0 || pLoopUnit->getExtraRangedDefenseModifier() > 0)
 					iExtraScore += 31;
-
-				if (pLoopUnit->getExtraVisibilityRange() > 0)
-					iExtraScore += 23;
 			}
 			else if(eMove == AI_TACTICAL_GOODY)
 			{
@@ -4950,10 +4956,6 @@ CvUnit* CvTacticalAI::FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTarget,
 				if (pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_FAST_ATTACK) || pLoopUnit->getUnitInfo().GetUnitAIType(UNITAI_SKIRMISHER))
 					iExtraScore += 31;
 			}
-
-			//if we have a suitable unit in place already then use it
-			if (pLoopUnit->atPlot(*pTarget))
-				return pLoopUnit;
 
 			//otherwise collect and sort
 			int iTurns = pLoopUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, (iNumTurnsAway == -1 ? MAX_INT : iNumTurnsAway));
