@@ -1439,6 +1439,9 @@ ALTER TABLE Buildings ADD COLUMN 'CityEventChoiceRequiredActive' TEXT DEFAULT NU
 -- Resources
 ALTER TABLE Resources ADD COLUMN 'StrategicHelp' TEXT DEFAULT NULL;
 
+-- Used by TopPanel.lua to order Strategic Resources
+ALTER TABLE Resources ADD COLUMN 'StrategicPriority' INTEGER DEFAULT 0;
+
 ALTER TABLE Policies ADD COLUMN 'TRSpeedBoost' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TRVisionBoost' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'HappinessPerXPolicies' INTEGER DEFAULT 0;
