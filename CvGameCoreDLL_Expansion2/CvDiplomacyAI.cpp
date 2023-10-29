@@ -49478,10 +49478,10 @@ bool CvDiplomacyAI::IsTryingToLiberate(CvCity* pCity)
 		}
 	}
 
-	//policy boosts liberation? Will try to go after cities to liberate, if friendly/diplomatic
+	//policy boosts liberation? Will try to go after cities to liberate, if friendly/diplomatic, or if it'd be a resurrection
 	if (GetPlayer()->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_LIBERATION_BONUS) > 0)
 	{
-		if ((bIsDiplo &&  eOpinion > CIV_OPINION_NEUTRAL) || eOpinion >= CIV_OPINION_FRIEND)
+		if ((bIsDiplo && eOpinion > CIV_OPINION_NEUTRAL) || eOpinion >= CIV_OPINION_FRIEND || !GET_PLAYER(ePlayerToLiberate).isAlive())
 		{
 			return true;
 		}
@@ -49521,8 +49521,11 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 	}
 
 	// Hate them? Don't consider liberating!
-	if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
-		return false;
+	if (GET_PLAYER(ePlayerToLiberate).isAlive())
+	{
+		if (eOpinion <= CIV_OPINION_ENEMY || eApproach <= CIV_APPROACH_GUARDED || IsUntrustworthy(ePlayerToLiberate))
+			return false;
+	}
 
 	// Empire unhappy?
 	if (GetPlayer()->IsEmpireUnhappy())
@@ -50736,21 +50739,21 @@ int CvDiplomacyAI::GetEstimatePlayerWarmongerHate(PlayerTypes ePlayer) const
 		}
 
 		// Lower if too high
-		if (iActualValue <= 8 && iRtnValue > 8)
+		if (iActualValue <= 2 && iRtnValue > 2)
 		{
-			iRtnValue = 8;
-		}
-		else if (iActualValue <= 6 && iRtnValue > 6)
-		{
-			iRtnValue = 6;
+			iRtnValue = 2;
 		}
 		else if (iActualValue <= 4 && iRtnValue > 4)
 		{
 			iRtnValue = 4;
 		}
-		else if (iActualValue <= 2 && iRtnValue > 2)
+		else if (iActualValue <= 6 && iRtnValue > 6)
 		{
-			iRtnValue = 2;
+			iRtnValue = 6;
+		}
+		else if (iActualValue <= 8 && iRtnValue > 8)
+		{
+			iRtnValue = 8;
 		}
 	}
 
