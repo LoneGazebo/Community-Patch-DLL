@@ -9155,7 +9155,7 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	if (GC.getGame().IsAIPassiveTowardsHumans() && GET_TEAM(eTeam).isHuman())
 		return false;
 
-	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the 50% rules
+	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the % rules
 	if (IsVoluntaryVassal(eTeam))
 	{
 		return true;
