@@ -672,3 +672,12 @@ WHERE Type IN (
 UPDATE Resources
 SET CivilizationType = 'CIVILIZATION_BRAZIL'
 WHERE Type = 'RESOURCE_BRAZILWOOD';
+
+-- Sets the order of Strategic Resources in TopPanel.lua
+UPDATE Resources SET StrategicPriority = 1 WHERE Type = 'RESOURCE_HORSE';
+UPDATE Resources SET StrategicPriority = 2 WHERE Type = 'RESOURCE_IRON';
+UPDATE Resources SET StrategicPriority = 3 WHERE Type = 'RESOURCE_COAL';
+UPDATE Resources SET StrategicPriority = 4 WHERE Type = 'RESOURCE_OIL';
+UPDATE Resources SET StrategicPriority = 5 WHERE Type = 'RESOURCE_ALUMINUM';
+UPDATE Resources SET StrategicPriority = 6 WHERE Type = 'RESOURCE_URANIUM';
+UPDATE Resources SET StrategicPriority = 7 WHERE Type = 'RESOURCE_PAPER';
