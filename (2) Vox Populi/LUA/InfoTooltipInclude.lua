@@ -5,7 +5,7 @@ print("This is the modded InfoTooltipInclude from CBP- CSD")
 
 
 -- UNIT
-function GetHelpTextForUnit(iUnitID, bIncludeRequirementsInfo)
+function GetHelpTextForUnit(iUnitID, bIncludeRequirementsInfo, pCity)
 	local pUnitInfo = GameInfo.Units[iUnitID];
 	
 	local pActivePlayer = Players[Game.GetActivePlayer()];
@@ -15,14 +15,25 @@ function GetHelpTextForUnit(iUnitID, bIncludeRequirementsInfo)
 	
 	-- Name
 	strHelpText = strHelpText .. Locale.ToUpper(Locale.ConvertTextKey( pUnitInfo.Description ));
-	
+	if (pCity ~= nil) then
+		if(pCity:GetUnitInvestment(iUnitID) > 0) then
+		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_INVESTED");
+		end
+	end
+			
 	-- Cost
 	strHelpText = strHelpText .. "[NEWLINE]----------------[NEWLINE]";
 	
 	-- Skip cost if it's 0
 	if(pUnitInfo.Cost > 0) then
-		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_COST", pActivePlayer:GetUnitProductionNeeded(iUnitID));
-	end
+		local iCost = pActivePlayer:GetUnitProductionNeeded(iUnitID);
+		if (pCity ~= nil) then
+			if(pCity:GetUnitInvestment(iUnitID) > 0) then
+				iCost = pCity:GetUnitInvestment(iUnitID);
+			end
+		end
+		strHelpText = strHelpText .. Locale.ConvertTextKey("TXT_KEY_PRODUCTION_COST", iCost);
+	end			
 	
 	-- Moves
 	if pUnitInfo.Domain ~= "DOMAIN_AIR" then

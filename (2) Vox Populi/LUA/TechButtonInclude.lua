@@ -778,7 +778,7 @@ function AdjustArtOnGrantedUnitButton( thisButton, thisUnitInfo, textureSize )
 		
 		-- Tooltip
 		local bIncludeRequirementsInfo = true;
-		thisButton:SetToolTipString( GetHelpTextForUnit(thisUnitInfo.ID, bIncludeRequirementsInfo) );
+		thisButton:SetToolTipString( GetHelpTextForUnit(thisUnitInfo.ID, bIncludeRequirementsInfo, nil) );
 		local portraitOffset, portraitAtlas = UI.GetUnitPortraitIcon(thisUnitInfo.ID);
 		local textureOffset, textureSheet = IconLookup( portraitOffset, textureSize, portraitAtlas );				
 		if textureOffset == nil then

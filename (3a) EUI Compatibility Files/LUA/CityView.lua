@@ -1098,6 +1098,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 			if orderID == OrderTypes.ORDER_TRAIN then
 				if cityIsCanPurchase( city, true, true, itemID, -1, -1, yieldID ) then
 					Game.CityPurchaseUnit( city, itemID, yieldID )
+					Network.SendUpdateCityCitizens( cityID )
 					isPurchase = true
 				end
 			elseif orderID == OrderTypes.ORDER_CONSTRUCT then
@@ -1124,6 +1125,7 @@ local function SelectionPurchase( orderID, itemID, yieldID, soundKey )
 			elseif orderID == OrderTypes.ORDER_CREATE then
 				if cityIsCanPurchase( city, true, true, -1, -1, itemID, yieldID ) then
 					Game.CityPurchaseProject( city, itemID, yieldID )
+					Network.SendUpdateCityCitizens( cityID )
 					isPurchase = true
 				end
 			end
