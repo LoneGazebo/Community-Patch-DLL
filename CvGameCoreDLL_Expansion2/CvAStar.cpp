@@ -1475,6 +1475,16 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	return iCost;
 }
 
+//simplified check for plots which are know to be free of enemy units
+bool canEnterTerritoryAndTerrain(const CvUnit* pUnit, const CvPlot* pPlot, int iMoveFlags)
+{
+	bool bCanEnterTerritory = (iMoveFlags & CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE) || pUnit->canEnterTerritory(pPlot->getTeam(), (iMoveFlags & CvUnit::MOVEFLAG_DESTINATION) != 0);
+	if (!bCanEnterTerritory)
+		return false;
+
+	return pUnit->canEnterTerrain(*pPlot, iMoveFlags);
+}
+
 //	---------------------------------------------------------------------------
 /// Standard path finder - check validity of a coordinate
 int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData&, const CvAStar* finder)
@@ -1534,12 +1544,23 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		//some quick checks first (redundant with canMoveInto but faster)
 		if(!kToNodeCacheData.bCanEnterTerrainIntermediate || !kToNodeCacheData.bCanEnterTerritoryIntermediate)
 			return FALSE;
+
 		//make sure we could stack
 		if(kToNodeCacheData.bIsVisibleEnemyUnit && kToNodeCacheData.bIsVisibleNeutralCombatUnit)
 			return FALSE;
-		//we check stacking once we know whether we end the turn here (in PathCost)
-		if(!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
-			return FALSE;
+
+		//if there are no enemies here or they have been killed in tactsim (hypothetically)
+		if (!kToNodeCacheData.bIsVisibleEnemyCombatUnit && !kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleNeutralCombatUnit)
+		{
+			if (!canEnterTerritoryAndTerrain(pUnit, pToPlot, kToNodeCacheData.iMoveFlags))
+				return FALSE;
+		}
+		else
+		{
+			//we check stacking once we know whether we end the turn here (in PathCost)
+			if (!pUnit->canMoveInto(*pToPlot, kToNodeCacheData.iMoveFlags))
+				return FALSE;
+		}
 	}
 
 	//some checks about terrain etc. needs to be revealed, otherwise we leak information in the UI

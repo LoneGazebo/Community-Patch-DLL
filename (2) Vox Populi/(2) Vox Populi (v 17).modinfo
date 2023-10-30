@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.2.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.2.7) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -890,9 +890,9 @@
     <File md5="91C6AE94E302CE6E27CB39A28B97638E" import="0">Database Changes/Beliefs/TooltipSweeps.sql</File>
     <File md5="76724D9C836537A938A8F882DEDC167F" import="0">Database Changes/City/NewGreatWorks.xml</File>
     <File md5="931947299A7556601CCFF2CCEE877E10" import="0">Database Changes/City/Buildings/BuildingChanges.sql</File>
-    <File md5="9261DCB487A86F4900612B294A9134DF" import="0">Database Changes/City/Buildings/BuildingChanges2.sql</File>
+    <File md5="FE45425622FC7135D7EDA1A3A8E581A2" import="0">Database Changes/City/Buildings/BuildingChanges2.sql</File>
     <File md5="344ECDD915EEB251E0EB1CD8E023A684" import="0">Database Changes/City/Buildings/BuildingCostSweeps.sql</File>
-    <File md5="9508AE1D67E71C482986A1107C6C66EB" import="0">Database Changes/City/Buildings/BuildingSweeps.sql</File>
+    <File md5="CC31B8A443B8CD8A34B474AE6BB70CB3" import="0">Database Changes/City/Buildings/BuildingSweeps.sql</File>
     <File md5="6E847C43FE9AFE308DFAB575747FE112" import="0">Database Changes/City/Buildings/NewBuildings.xml</File>
     <File md5="5653A9A11F62F97660E534A479545B39" import="0">Database Changes/City/Buildings/PreBuildingChanges.sql</File>
     <File md5="00035FEC9B7E4D33798736A39EF20AC9" import="0">Database Changes/City/Processes/NewProcesses.xml</File>

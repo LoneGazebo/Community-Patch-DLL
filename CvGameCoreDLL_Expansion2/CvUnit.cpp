@@ -5356,13 +5356,13 @@ bool CvUnit::canMoveInto(const CvPlot& plot, int iMoveFlags) const
 
 			if(!isHuman() || plot.isVisible(getTeam()) || bEmbarkedAndAdjacent)
 			{
-				if(plot.isEnemyCity(*this))
-				{
-					return false;
-				}
-
 				if (!(iMoveFlags & CvUnit::MOVEFLAG_IGNORE_ENEMIES))
 				{
+					if (plot.isEnemyCity(*this))
+					{
+						return false;
+					}
+
 					//check for combat units only! enemy civilians are captured en passant, there is no downside ...
 					if (plot.isEnemyUnit(getOwner(),true,true) || (bEmbarkedAndAdjacent && bEnemyUnitPresent))
 					{
@@ -19523,7 +19523,7 @@ bool CvUnit::IsFriendlyUnitAdjacent(bool bCombatUnit) const
 bool CvUnit::IsCoveringFriendlyCivilian() const
 {
 	CvPlot* myPlot = plot();
-	if (!myPlot)
+	if (!myPlot || myPlot->isCity())
 		return false;
 
 	IDInfo* pUnitNode = myPlot->headUnitNode();
@@ -19534,7 +19534,7 @@ bool CvUnit::IsCoveringFriendlyCivilian() const
 
 		if(pLoopUnit && pLoopUnit->getTeam() == getTeam())
 			if(!pLoopUnit->IsCanDefend() && pLoopUnit->TurnProcessed())
-				return true;
+				return !GET_PLAYER(getOwner()).GetPossibleAttackers(*myPlot, getTeam()).empty();
 	}
 
 	return false;
@@ -20321,7 +20321,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 									if (!bDisplaced)
 									{
 										bool bDoCapture = false;
-#if defined(MOD_BALANCE_CORE)
 										bool bDoEvade = false;
 										if (pLoopUnit->IsCivilianUnit() && pLoopUnit->CheckWithdrawal(*this) && pLoopUnit->DoFallBack(*this, true))
 										{
@@ -20337,10 +20336,8 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 												pNotification->Add(NOTIFICATION_GENERIC, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int)pLoopUnit->getUnitType(), pLoopUnit->getOwner());
 											}
 										}
-#endif
+
 										// Some units can't capture civilians. Embarked units are also not captured, they're simply killed. And some aren't a type that gets captured.
-										// slewis - removed the capture clause so that helicopter gunships could capture workers. The promotion says that No Capture only effects cities.
-										//if(!isNoCapture() && (!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT)
 										if( (!pLoopUnit->isEmbarked() || pLoopUnit->getUnitInfo().IsCaptureWhileEmbarked()) && 
 											pLoopUnit->getCaptureUnitType(GET_PLAYER(pLoopUnit->getOwner()).getCivilizationType()) != NO_UNIT && 
 											!bDoEvade )
@@ -20369,9 +20366,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 										}
 										if (!bDoEvade)
 										{
-											if(pLoopUnit->isEmbarked())
-												changeExperienceTimes100(1 * 100);
-
 											CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_YOU_UNIT_DESTROYED_ENEMY", getNameKey(), 0, pLoopUnit->getNameKey());
 											DLLUI->AddUnitMessage(0, GetIDInfo(), getOwner(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer/*, GC.getEraInfo(GC.getGame().getCurrentEra())->getAudioUnitVictoryScript(), MESSAGE_TYPE_INFO, NULL, (ColorTypes)GC.getInfoTypeForString("COLOR_GREEN"), pkTargetPlot->getX(), pkTargetPlot->getY()*/);
 											if (MOD_WH_MILITARY_LOG)
@@ -20386,9 +20380,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 												Localization::String strSummary = strMessage;
 												pNotification->Add(NOTIFICATION_UNIT_DIED, strMessage.toUTF8(), strSummary.toUTF8(), pLoopUnit->getX(), pLoopUnit->getY(), (int)pLoopUnit->getUnitType(), pLoopUnit->getOwner());
 											}
-
-											if(pLoopUnit->isEmbarked())
-												setMadeAttack(true);
 
 											// If we're capturing the unit, we want to delay the capture, else as the unit is converted to our side, it will be the first unit on our
 											// side in the plot and can end up taking over a city, rather than the advancing unit
@@ -20488,11 +20479,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 
 		if (canChangeVisibility())
 		{
-#if defined(MOD_BALANCE_CORE)
 			pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true), this); // needs to be here so that the square is considered visible when we move into it...
-#else
-			pNewPlot->changeAdjacentSight(eOurTeam, visibilityRange(), true, getSeeInvisibleType(), getFacingDirection(true)); // needs to be here so that the square is considered visible when we move into it...
-#endif
 		}
 
 		if (m_iMapLayer == DEFAULT_UNIT_MAP_LAYER)
@@ -20554,7 +20541,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		if(IsCombatUnit())
 		{
 			pUnitNode = pNewPlot->headUnitNode();
@@ -20588,7 +20575,6 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		if(getAoEDamageOnMove() != 0)
 			DoAdjacentPlotDamage(pNewPlot, getAoEDamageOnMove(), "TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_AOE_STRIKE_ON_MOVE");
 
-#endif
 		// Moving into a City (friend or foe)
 		if(pNewCity != NULL)
 		{
@@ -20713,7 +20699,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 #endif
-#if defined(MOD_BALANCE_CORE)
+
 		bool bZero = false;
 		if(IsGainsXPFromScouting())
 		{
@@ -20750,7 +20736,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		{
 			SetNumTilesRevealedThisTurn(0);
 		}
-#endif
+
 		// Can someone can see the plot we moved our Unit into?
 		for(int iI = 0; iI < MAX_CIV_TEAMS; iI++)
 		{
@@ -20824,7 +20810,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				{
 					kOurTeam.meet(pAdjacentPlot->getTeam(), false);
 				}
-#if defined(MOD_BALANCE_CORE)
+
 				if(pAdjacentPlot->isCity())
 				{
 					CvCity* pAdjCity = pAdjacentPlot->getPlotCity();
@@ -20835,7 +20821,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 						}
 					}
 				}
-#endif
+
 				// Have a naval unit here?
 				if(isBarbarian() && getDomainType() == DOMAIN_SEA && pAdjacentPlot->isWater())
 				{
@@ -20902,13 +20888,12 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
+
 		if (pOldPlot != NULL)
 		{
 			DoLocationPromotions(false, pOldPlot, pNewPlot);
 			/*DoConvertEnemyUnitToBarbarian(pNewPlot);*/
 		}
-#endif
 
 		if(pOldPlot != NULL && getDomainType() == DOMAIN_SEA)
 		{
@@ -21172,9 +21157,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 		pkPrevGarrisonedCity->SetGarrison( pkPrevGarrisonedCity->plot()->getBestGarrison( pkPrevGarrisonedCity->getOwner() ) );
 		CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pkPrevGarrisonedCity));
 		DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
-#if defined(MOD_BALANCE_CORE)
 		pkPrevGarrisonedCity->updateYield();
-#endif
 	}
 	else if(pNewPlot)
 	{
@@ -21188,9 +21171,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 				pkNewGarrisonedCity->SetGarrison(this);
 				CvInterfacePtr<ICvCity1> pkDllCity(new CvDllCity(pkNewGarrisonedCity));
 				DLLUI->SetSpecificCityInfoDirty(pkDllCity.get(), CITY_UPDATE_TYPE_GARRISON);
-#if defined(MOD_BALANCE_CORE)
 				pkNewGarrisonedCity->updateYield();
-#endif
 			}
 		}
 		else //no city
@@ -28006,7 +27987,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 		if (pLoopUnit->IsCombatUnit() && pLoopUnit->getDomainType() == getDomainType())
 		{
 			//is it idle right now?
-			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0)
+			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0 && !pLoopUnit->shouldHeal(false))
 			{
 				//make sure we're not getting the pushed unit killed
 				int iDangerLimit = pLoopUnit->IsCanAttackRanged() ? pLoopUnit->GetCurrHitPoints() / 2 : pLoopUnit->GetCurrHitPoints();
@@ -29180,9 +29161,14 @@ bool CvUnit::shouldHeal(bool bBeforeAttacks) const
 	//sometimes we should heal but we have to fight instead
 	if (bBeforeAttacks)
 	{
+		//sometimes there is no other option
+		int iHardHpLimit = 13;
+		if (GetCurrHitPoints() < iHardHpLimit)
+			return true;
+
 		//also depends on what we can do with the unit
-		int iHpLimit = GetMaxHitPoints() / 3;
-		return GetCurrHitPoints() < iHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
+		int iSoftHpLimit = GetMaxHitPoints() / 3;
+		return GetCurrHitPoints() < iSoftHpLimit && canHeal(plot(),false) && TacticalAIHelpers::GetTargetsInRange(this, true, false).empty();
 	}
 	else 
 	{
