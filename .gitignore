@@ -43,6 +43,9 @@
 
 !docs/images/*
 
+#the following files should never be changed
+(2) Vox Populi/Mapscripts/EMP
+
 #ignore output from Visual Studio, ModBuddy, and Inno
 .vs/
 BuildOutput/

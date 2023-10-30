@@ -686,7 +686,6 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	}
 	
 
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 	if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS && !bIgnoreSituational)
 	{
 		//Virtually force this.
@@ -696,7 +695,7 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 			iBonus += 1000;
 		}
 	}
-#endif
+
 	//Courthouse? Let's get it ASAP.
 	bool bCourthouse = false;
 	if(pkBuildingInfo->IsNoOccupiedUnhappiness())

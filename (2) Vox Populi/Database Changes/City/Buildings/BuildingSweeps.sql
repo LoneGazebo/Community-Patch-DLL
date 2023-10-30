@@ -344,3 +344,61 @@ VALUES
 	('BUILDING_BROADCAST_TOWER', 'YIELD_GOLD', 10),
 	('BUILDING_BROADWAY', 'YIELD_GOLD', 20),
 	('BUILDING_SYDNEY_OPERA_HOUSE', 'YIELD_CULTURE', 15);
+
+----------------------------------------------------------------------------
+-- Mutual Exclusive Groups
+----------------------------------------------------------------------------
+UPDATE Buildings
+SET MutuallyExclusiveGroup = 1
+WHERE Type IN (
+	'BUILDING_HYDRO_PLANT',
+	'BUILDING_SOLAR_PLANT',
+	'BUILDING_NUCLEAR_PLANT',
+	'BUILDING_WIND_PLANT',
+	'BUILDING_TIDAL_PLANT'
+);
+
+UPDATE Buildings
+SET MutuallyExclusiveGroup = 3
+WHERE Type IN (
+	'BUILDING_WELL',
+	'BUILDING_WATERMILL'
+);
+
+UPDATE Buildings
+SET MutuallyExclusiveGroup = 7
+WHERE Type IN (
+	'BUILDING_MAUSOLEUM',
+	'BUILDING_HEAVENLY_THRONE',
+	'BUILDING_GREAT_ALTAR',
+	'BUILDING_RELIGIOUS_LIBRARY',
+	'BUILDING_DIVINE_COURT',
+	'BUILDING_SACRED_GARDEN',
+	'BUILDING_HOLY_COUNCIL',
+	'BUILDING_GRAND_OSSUARY',
+	'BUILDING_APOSTOLIC_PALACE'
+);
+
+UPDATE Buildings
+SET MutuallyExclusiveGroup = 10
+WHERE Type IN (
+	'BUILDING_SEAPORT',
+	'BUILDING_TRAINSTATION'
+);
+
+-- Likely unnecessary with Building_ClassNeededNowhere, just for clarity on tooltip
+UPDATE Buildings
+SET MutuallyExclusiveGroup = 15
+WHERE Type IN (
+	'BUILDING_AMERICA_SMITHSONIAN',
+	'BUILDING_AMERICA_WESTPOINT',
+	'BUILDING_AMERICA_SLATERMILL'
+);
+
+UPDATE Buildings
+SET MutuallyExclusiveGroup = 50
+WHERE Type IN (
+	'BUILDING_RIALTO_DISTRICT',
+	'BUILDING_VENETIAN_ARSENALE',
+	'BUILDING_MURANO_GLASSWORKS'
+);

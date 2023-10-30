@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.2.5) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.2.6) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -790,7 +790,7 @@
     <File md5="ABEFCE642BD1E247075B30866340A90E" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
     <File md5="65F9F720C39A22E8F1D033DAAF06FF47" import="1">Core Files/Overrides/ActionInfoPanel.lua</File>
-    <File md5="885CA1DA085319056B79434D9DC8B7CA" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
+    <File md5="BDC27CC9D199957E167A9ED3F79E5496" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
     <File md5="39C6A39E21DF6E10B666FA57FA502643" import="1">Core Files/Overrides/Bombardment.lua</File>
     <File md5="74BC578CAB9C0BF69981921D5D1655C8" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.lua</File>
     <File md5="2DB0554E1E472DCB81904C7B0050BD7A" import="1">Core Files/Overrides/ChooseInternationalTradeRoutePopup.xml</File>
@@ -851,16 +851,16 @@
     <File md5="C47A29379F3F62B8E9FDAF2C6CB26505" import="0">Database Changes/GameSpeedChanges.sql</File>
     <File md5="00F0AAB0571A35F0B70075A4FDE884D1" import="0">Database Changes/NewAutomates.xml</File>
     <File md5="4E80B31EE8E1712179392AF04797DBBC" import="0">Database Changes/NewGameOptions.xml</File>
-    <File md5="1E0938D05CF7867809A1939818C33C65" import="0">Database Changes/Remapper.sql</File>
-    <File md5="5B5A6C03F2E318403F6F586412877C57" import="0">Database Changes/Triggers.sql</File>
+    <File md5="830EC95FC9BCFE467846F3CE963049CC" import="0">Database Changes/Remapper.sql</File>
+    <File md5="5AB2DDE014A582AA84D1C8DF3939CD7F" import="0">Database Changes/Triggers.sql</File>
     <File md5="EEB893120B94B25E34D94F0150AEC76E" import="0">Database Changes/WorldChanges.sql</File>
     <File md5="00278F8AB6B304EAE8F65424B548994A" import="0">Database Changes/AI/BuildingFlavorSweeps.sql</File>
     <File md5="2BF6C094CF3E2CEDA2314BA5CD159B06" import="0">Database Changes/AI/CityEventFlavorChanges.sql</File>
     <File md5="8C797BDF856AFB05A51F5F5E4D40F728" import="0">Database Changes/AI/CitySpecializationFlavorChanges.sql</File>
     <File md5="B3E6974B39AFB32CBB710C4EB7FEDE38" import="0">Database Changes/AI/EraDiploEmphasisSweeps.sql</File>
     <File md5="1B12171C9B235394F4C9BE67878F4855" import="0">Database Changes/AI/EventFlavorChanges.sql</File>
-    <File md5="9859A5E0DC0446BECDA776D9724C69A6" import="0">Database Changes/AI/LeaderFlavorSweeps.sql</File>
-    <File md5="463B464B9CEA17EDD1E4F582F1485D51" import="0">Database Changes/AI/LeaderPersonalitySweeps.sql</File>
+    <File md5="4EEA24BAECCD16E661EB63CC27D04900" import="0">Database Changes/AI/LeaderFlavorSweeps.sql</File>
+    <File md5="6754D58B8AC22A6279A2B0543D1B6B2B" import="0">Database Changes/AI/LeaderPersonalitySweeps.sql</File>
     <File md5="F518703853097348D6D1BAC35E05328C" import="0">Database Changes/AI/NewDiplomacyResponses.xml</File>
     <File md5="278B464E552A31D16D3ADF683B087C9E" import="0">Database Changes/AI/NewStrategies.xml</File>
     <File md5="54E97F2EB553FB9FE5A8BF8345C13415" import="0">Database Changes/AI/PolicyFlavorSweeps.sql</File>
@@ -1044,7 +1044,7 @@
     <File md5="6D073C93CFB156C15667ABFB5E9E1CD8" import="0">Database Changes/Units/NewMissions.xml</File>
     <File md5="E2AC7542A81BBA63C9EBC56A696F65CB" import="0">Database Changes/Units/NewUnitFormations.xml</File>
     <File md5="51FACC693A40A66A53FFF92F38237F14" import="0">Database Changes/Units/NewUnits.xml</File>
-    <File md5="509C8BA2194E9D78FDE0E9E8E6733670" import="0">Database Changes/Units/PolicyUnitChanges.sql</File>
+    <File md5="D01C63B0B4628CE41A9A1E583C0D1A54" import="0">Database Changes/Units/PolicyUnitChanges.sql</File>
     <File md5="37A962DB53CBB2EC16C216BBB012D1F0" import="0">Database Changes/Units/PreUnitChanges.sql</File>
     <File md5="8070821D556FE375F6A6CF8DF73D18D6" import="0">Database Changes/Units/UnitAIChanges.sql</File>
     <File md5="E0325D78D8D23650D72B8E771AC1192A" import="0">Database Changes/Units/UnitChanges.sql</File>
@@ -1068,7 +1068,7 @@
     <File md5="6171A4C09E4B9C5C667AEFCF6E01485E" import="0">Database Changes/WorldMap/Improvements/ImprovementChanges.sql</File>
     <File md5="2DE53703EB194CEB84F49F98149B9C19" import="0">Database Changes/WorldMap/Improvements/ImprovementSweeps.sql</File>
     <File md5="26C5543FC787C7B677C6A701A240EE7E" import="0">Database Changes/WorldMap/Improvements/NewBuilds.xml</File>
-    <File md5="023575D7209EF19FE4A00FBDC5354406" import="0">Database Changes/WorldMap/Improvements/NewImprovements.xml</File>
+    <File md5="39F0EC076DCD6717BB4395105040522B" import="0">Database Changes/WorldMap/Improvements/NewImprovements.xml</File>
     <File md5="ADF51156568DD3E3E7AECE88126D30AE" import="0">Database Changes/WorldMap/Improvements/RouteChanges.sql</File>
     <File md5="3E9EC43B40181239A64537FFF7C815A8" import="0">Database Changes/WorldMap/Resources/NewResources.xml</File>
     <File md5="12A5A690EB77EEB9122E6BABE95CBCC0" import="0">Database Changes/WorldMap/Resources/ResourceChanges.sql</File>
