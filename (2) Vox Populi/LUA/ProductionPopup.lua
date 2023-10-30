@@ -143,13 +143,13 @@ function ProductionSelected( ePurchaseEnum, iData)
 		elseif (eOrder == OrderTypes.ORDER_CONSTRUCT) then
 			if (city:IsCanPurchase(true, true, -1, iData, -1, eYield)) then
 				Game.CityPurchaseBuilding(city, iData, eYield);
+				Network.SendUpdateCityCitizens(cityID);
 			end
 		elseif (eOrder == OrderTypes.ORDER_CREATE) then
 			if (city:IsCanPurchase(true, true, -1, -1, iData, eYield)) then
 				Game.CityPurchaseProject(city, iData, eYield);
 			end
 		end
-		Network.SendUpdateCityCitizens(cityID);
 		
 		if (eOrder == OrderTypes.ORDER_TRAIN or eOrder == OrderTypes.ORDER_CONSTRUCT or eOrder == OrderTypes.ORDER_CREATE) then
 			if (eYield == YieldTypes.YIELD_GOLD) then
@@ -824,7 +824,7 @@ function UpdateWindow( city )
 			Controls.ProductionPortrait:SetHide( false );
 			
 			-- Info for this thing
-			strToolTip = Locale.ConvertTextKey(GetHelpTextForUnit(unitProduction, true, city)) .. "[NEWLINE][NEWLINE]" .. strToolTip;
+			strToolTip = Locale.ConvertTextKey(GetHelpTextForUnit(unitProduction, true)) .. "[NEWLINE][NEWLINE]" .. strToolTip;
 			
 		else
 			Controls.ProductionPortrait:SetHide( true );
@@ -1237,7 +1237,7 @@ function AddProductionButton( id, description, orderType, turnsLeft, column, isD
 		
 		-- Tooltip
 		local bIncludeRequirementsInfo = false;
-		local strToolTip = Locale.ConvertTextKey(GetHelpTextForUnit(id, bIncludeRequirementsInfo, pCity));
+		local strToolTip = Locale.ConvertTextKey(GetHelpTextForUnit(id, bIncludeRequirementsInfo));
 		
 		-- Disabled help text
 		if (isDisabled) then

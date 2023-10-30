@@ -1239,7 +1239,8 @@ int CvLuaCity::lGetPurchaseUnitTooltip(lua_State* L)
 		const UnitClassTypes eUnitClass = (UnitClassTypes)thisUnitInfo->GetUnitClassType();
 		if (pkCity->IsUnitInvestment(eUnitClass))
 		{
-			int iValue = 100 * pkCity->GetUnitCostInvestmentReduction(eUnitClass) / pkCity->getProductionNeeded(eUnit, true);
+			int iValue = (/*-50*/ GD_INT_GET(BALANCE_UNIT_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			iValue *= -1;
 
 			Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED_UNIT");
 			localizedText << iValue;
@@ -1415,7 +1416,13 @@ int CvLuaCity::lGetPurchaseBuildingTooltip(lua_State* L)
 			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 			if (pkCity->IsBuildingInvestment(eBuildingClass))
 			{
-				int iValue = 100 * pkCity->GetBuildingCostInvestmentReduction(eBuildingClass) / pkCity->getProductionNeeded(eBuilding, true);
+				int iValue = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+				iValue *= -1;
+				const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+				if (::isWorldWonderClass(kBuildingClassInfo))
+				{
+					iValue /= 2;
+				}
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_ALREADY_INVESTED");
 				localizedText << iValue;
 
@@ -1728,11 +1735,7 @@ int CvLuaCity::lGetProductionTimes100(lua_State* L)
 //int getProductionNeeded();
 int CvLuaCity::lGetProductionNeeded(lua_State* L)
 {
-	CvCity* pkCity = GetInstance(L);
-	const int iResult = pkCity->getProductionNeeded();
-
-	lua_pushinteger(L, iResult);
-	return 1;
+	return BasicLuaMethod(L, &CvCity::getProductionNeeded);
 }
 //------------------------------------------------------------------------------
 //int GetUnitProductionNeeded();
@@ -1773,7 +1776,15 @@ int CvLuaCity::lGetBuildingInvestment(lua_State* L)
 		const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
 		if (pkCity->IsBuildingInvestment(eBuildingClass))
 		{
-			iResult = pkCity->getProductionNeeded(eBuildingType, true) - pkCity->GetBuildingCostInvestmentReduction(eBuildingClass);
+			iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eBuildingType);
+			iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+			const CvBuildingClassInfo& kBuildingClassInfo = pGameBuilding->GetBuildingClassInfo();
+			if (::isWorldWonderClass(kBuildingClassInfo))
+			{
+				iTotalDiscount /= 2;
+			}
+			iResult *= (iTotalDiscount + 100);
+			iResult /= 100;
 		}
 	}
 
@@ -1948,7 +1959,10 @@ int CvLuaCity::lGetUnitInvestment(lua_State* L)
 	const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
 	if(pkCity->IsUnitInvestment(eUnitClass))
 	{
-		iResult = pkCity->getProductionNeeded(eUnitType, true) - pkCity->GetUnitCostInvestmentReduction(eUnitClass);
+		iResult = GET_PLAYER(pkCity->getOwner()).getProductionNeeded(eUnitType, false);
+		iTotalDiscount = (/*-50*/ GD_INT_GET(BALANCE_BUILDING_INVESTMENT_BASELINE) + GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetInvestmentModifier() + GET_PLAYER(pkCity->getOwner()).GetInvestmentModifier());
+		iResult *= (iTotalDiscount + 100);
+		iResult /= 100;
 	}
 
 	lua_pushinteger(L, iResult);
