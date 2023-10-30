@@ -58,7 +58,7 @@ SET
 	PolicyType = 'POLICY_THEIR_FINEST_HOUR',
 	RangedCombat = (SELECT RangedCombat FROM Units WHERE Type = 'UNIT_BOMBER') + 5,
 	"Range" = (SELECT "Range" FROM Units WHERE Type = 'UNIT_BOMBER') + 5,
-	DefaultUnitAI = 'UNITAI_ATTACK'
+	DefaultUnitAI = 'UNITAI_ATTACK_AIR'
 WHERE Type = 'UNIT_AMERICAN_B17';
 
 INSERT INTO Unit_FreePromotions

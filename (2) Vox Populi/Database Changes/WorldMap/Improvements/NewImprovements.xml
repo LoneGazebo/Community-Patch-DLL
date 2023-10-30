@@ -20,7 +20,7 @@
 			<Type>IMPROVEMENT_JFD_MACHU_PICCHU</Type>
 			<Description>TXT_KEY_IMPROVEMENT_JFD_MACHU_PICCHU</Description>
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_JFD_MACHU</ArtDefineTag>
-			<GraphicalOnly>1</GraphicalOnly>
+			<GraphicalOnly>true</GraphicalOnly>
 		</Row>
 		<!--
 			Unique Improvements
@@ -67,7 +67,7 @@
 			<ArtDefineTag>ART_DEF_IMPROVEMENT_POLDER</ArtDefineTag>
 			<PortraitIndex>0</PortraitIndex>
 			<IconAtlas>EXPANSION_TERRAIN_ATLAS</IconAtlas>
-			<GraphicalOnly>1</GraphicalOnly>
+			<GraphicalOnly>true</GraphicalOnly>
 		</Row>
 		<Row>
 			<Type>IMPROVEMENT_MONGOLIA_ORDO</Type>

@@ -1,11 +1,11 @@
 -- This code is necessary to avoid a UI glitch, do not remove it
 CREATE TABLE IDRemapper (id INTEGER PRIMARY KEY AUTOINCREMENT, Type TEXT);
 INSERT INTO IDRemapper (Type) SELECT Type FROM HandicapInfos ORDER BY ID;
-UPDATE HandicapInfos SET ID = (SELECT IDRemapper.id-1 FROM IDRemapper WHERE HandicapInfos.Type = IDRemapper.Type);
+UPDATE HandicapInfos SET ID = (SELECT IDRemapper.id - 1 FROM IDRemapper WHERE HandicapInfos.Type = IDRemapper.Type);
 DROP TABLE IDRemapper;
 
 UPDATE sqlite_sequence
-SET seq = (SELECT COUNT(ID) FROM HandicapInfos)-1
+SET seq = (SELECT COUNT(ID) FROM HandicapInfos) - 1
 WHERE name = 'HandicapInfos';
 -- End UI glitch fix
 
