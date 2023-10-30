@@ -3108,5 +3108,10 @@
 		<Row Tag="TXT_KEY_ANTIQUITY_LEGEND_HIDDEN_SITE">
 			<Text>Hidden Antiquity Site</Text>
 		</Row>
+		
+		<!-- EUI_tooltip_library -->
+		<Row Tag="TXT_KEY_PEDIA_EXC_BLDG_LABEL">
+			<Text>Exclusive Buildings:</Text>
+		</Row>
 	</Language_en_US>
 </GameData>
