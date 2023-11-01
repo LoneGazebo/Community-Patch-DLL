@@ -2061,6 +2061,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 	// how many resources do we have available? when selling, don't count imported resources
 	int iNumberAvailableToUs = GetPlayer()->getNumResourceAvailable(eResource, !bFromMe);
+	// when buying, we treat unimproved resources in our empire as improved
+	if (!bFromMe)
+		iNumberAvailableToUs += GetPlayer()->getNumResourceUnimproved(eResource);
+
 	// include resources from renew deals
 	std::vector<CvDeal*> pRenewDeals = m_pPlayer->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
 

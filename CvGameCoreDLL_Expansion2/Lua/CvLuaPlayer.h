@@ -936,7 +936,9 @@ protected:
 	static int lIsPlayable(lua_State* L);
 	static int lSetPlayable(lua_State* L);
 
+	static int lGetNumResourceUnimproved(lua_State* L);
 	static int lGetNumResourceUsed(lua_State* L);
+	static int lGetNumResourceFromBuildings(lua_State* L);
 	static int lGetNumResourceTotal(lua_State* L);
 	static int lChangeNumResourceTotal(lua_State* L);
 	static int lGetNumResourceAvailable(lua_State* L);

@@ -400,8 +400,10 @@ CvPlayer::CvPlayer() :
 	, m_aOptions()
 	, m_strReligionKey()
 	, m_strScriptData()
+	, m_paiNumResourceUnimproved()
 	, m_paiNumResourceUsed()
-	, m_paiNumResourceTotal()
+	, m_paiNumResourceFromTiles()
+	, m_paiNumResourceFromBuildings()
 	, m_paiResourceGiftedToMinors()
 	, m_paiResourceExport()
 , m_paiResourceImportFromMajor()
@@ -1105,8 +1107,10 @@ void CvPlayer::uninit()
 	m_units.RemoveAll();
 	m_cities.RemoveAll();
 
+	m_paiNumResourceUnimproved.clear();
 	m_paiNumResourceUsed.clear();
-	m_paiNumResourceTotal.clear();
+	m_paiNumResourceFromTiles.clear();
+	m_paiNumResourceFromBuildings.clear();
 	m_paiResourceGiftedToMinors.clear();
 	m_paiResourceExport.clear();
 	m_paiResourceImportFromMajor.clear();
@@ -1996,11 +2000,18 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		m_AIOperations.clear();
 
 		CvAssertMsg(0 < GC.getNumResourceInfos(), "GC.getNumResourceInfos() is not greater than zero but it is used to allocate memory in CvPlayer::reset");
+
+		m_paiNumResourceUnimproved.clear();
+		m_paiNumResourceUnimproved.resize(GC.getNumResourceInfos(), 0);
+
 		m_paiNumResourceUsed.clear();
 		m_paiNumResourceUsed.resize(GC.getNumResourceInfos(), 0);
 
-		m_paiNumResourceTotal.clear();
-		m_paiNumResourceTotal.resize(GC.getNumResourceInfos(), 0);
+		m_paiNumResourceFromTiles.clear();
+		m_paiNumResourceFromTiles.resize(GC.getNumResourceInfos(), 0);
+
+		m_paiNumResourceFromBuildings.clear();
+		m_paiNumResourceFromBuildings.resize(GC.getNumResourceInfos(), 0);
 
 		m_paiResourceGiftedToMinors.clear();
 		m_paiResourceGiftedToMinors.resize(GC.getNumResourceInfos(), 0);
@@ -39300,6 +39311,46 @@ void CvPlayer::setPlayable(bool bNewValue)
 }
 
 //	--------------------------------------------------------------------------------
+void CvPlayer::connectResourcesOnPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources)
+{
+	int iMultiplier = bAdd ? 1 : -1;
+	if (!bOnlyExtraResources)
+	{
+		changeNumResourceTotal(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), false), false);
+	}
+	changeNumResourceTotal(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), true), true);
+}
+//	--------------------------------------------------------------------------------
+int CvPlayer::getNumResourceUnimproved(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+	return m_paiNumResourceUnimproved[eIndex];
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeNumResourceUnimproved(ResourceTypes eIndex, int iChange)
+{
+	CvAssert(eIndex >= 0);
+	CvAssert(eIndex < GC.getNumResourceInfos());
+
+	if (iChange != 0)
+	{
+		m_paiNumResourceUnimproved[eIndex] = m_paiNumResourceUnimproved[eIndex] + iChange;
+	}
+
+	CvAssert(m_paiNumResourceUnimproved[eIndex] >= 0);
+}
+//	--------------------------------------------------------------------------------
+void CvPlayer::changeNumResourceUnimprovedPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources)
+{
+	int iMultiplier = bAdd ? 1 : -1;
+	if (!bOnlyExtraResources)
+	{
+		changeNumResourceUnimproved(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), false));
+	}
+	changeNumResourceUnimproved(pPlot->getResourceType(), iMultiplier * pPlot->getNumResourceForPlayer(GetID(), true));
+}
+//	--------------------------------------------------------------------------------
 int CvPlayer::getNumResourceUsed(ResourceTypes eIndex) const
 {
 	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
@@ -39334,7 +39385,8 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 	// exists?
 	if (pkResource == NULL) { return 0;}
 
-	int iTotalNumResource = m_paiNumResourceTotal[eIndex];
+	int iTotalNumResource = m_paiNumResourceFromTiles[eIndex];
+	iTotalNumResource += m_paiNumResourceFromBuildings[eIndex];
 
 #if defined(MOD_BALANCE_CORE)
 	// Additional resources from Corporation
@@ -39402,15 +39454,26 @@ int CvPlayer::getNumResourcesFromOther(ResourceTypes eIndex) const
 		}
 	}
 
-#if defined(MOD_BALANCE_CORE)
-	iTotalNumResource *= 100 + getResourceModFromReligion(eIndex);
-	iTotalNumResource /= 100;
-#endif
+	if (MOD_BALANCE_CORE)
+	{
+		iTotalNumResource *= 100 + getResourceModFromReligion(eIndex);
+		iTotalNumResource /= 100;
+	}
 
 	//And remove the starter. Added in beginning to factor in multiplicative modifiers.
-	iTotalNumResource -= m_paiNumResourceTotal[eIndex];
+	iTotalNumResource -= m_paiNumResourceFromTiles[eIndex];
+	iTotalNumResource -= m_paiNumResourceFromBuildings[eIndex];
 
 	return iTotalNumResource;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::getNumResourceFromBuildings(ResourceTypes eIndex) const
+{
+	CvAssertMsg(eIndex >= 0, "eIndex is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
+
+	return m_paiNumResourceFromBuildings[eIndex];
 }
 
 //	--------------------------------------------------------------------------------
@@ -39424,7 +39487,8 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 	// exists?
 	if (pkResource == NULL) { return 0;}
 
-	int iTotalNumResource = m_paiNumResourceTotal[eIndex];
+	int iTotalNumResource = m_paiNumResourceFromTiles[eIndex];
+	iTotalNumResource += m_paiNumResourceFromBuildings[eIndex];
 
 	//add resources from other sources, ex Corporations, Policies, Religion
 	iTotalNumResource += getNumResourcesFromOther(eIndex);
@@ -39441,21 +39505,28 @@ int CvPlayer::getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport) con
 	return iTotalNumResource;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*bIgnoreResourceWarning*/)
+void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding, bool /*bIgnoreResourceWarning*/)
 {
 	CvAssert(eIndex >= 0);
 	CvAssert(eIndex < GC.getNumResourceInfos());
 
 	if(iChange != 0)
 	{
-		m_paiNumResourceTotal[eIndex] = m_paiNumResourceTotal[eIndex] + iChange;
+		if (!bFromBuilding)
+		{
+			m_paiNumResourceFromTiles[eIndex] = m_paiNumResourceFromTiles[eIndex] + iChange;
+			CvAssert(m_paiNumResourceFromTiles[eIndex] >= 0);
+		}
+		else
+		{
+			m_paiNumResourceFromBuildings[eIndex] = m_paiNumResourceFromBuildings[eIndex] + iChange;
+			CvAssert(m_paiNumResourceFromBuildings[eIndex] >= 0);
+		}
 
-#if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
 			CheckForMonopoly(eIndex);
 		}
-#endif
 
 		// Minors with an Ally give their Resources to their friend (awww)
 		if(isMinorCiv())
@@ -39527,8 +39598,6 @@ void CvPlayer::changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool /*
 	}
 
 	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-
-	CvAssert(m_paiNumResourceTotal[eIndex] >= 0);
 }
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
@@ -48079,8 +48148,10 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aOptions);
 	visitor(player.m_strReligionKey);
 	visitor(player.m_strScriptData);
+	visitor(player.m_paiNumResourceUnimproved);
 	visitor(player.m_paiNumResourceUsed);
-	visitor(player.m_paiNumResourceTotal);
+	visitor(player.m_paiNumResourceFromTiles);
+	visitor(player.m_paiNumResourceFromBuildings);
 	visitor(player.m_paiResourceGiftedToMinors);
 	visitor(player.m_paiResourceExport);
 	visitor(player.m_paiResourceImportFromMajor);

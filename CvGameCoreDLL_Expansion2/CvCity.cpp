@@ -907,7 +907,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	{
 		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType()))
 		{
-			owningPlayer.changeNumResourceTotal(plot()->getResourceType(), plot()->getNumResourceForPlayer(getOwner()));
+			owningPlayer.connectResourcesOnPlot(plot(), true);
 		}
 	}
 
@@ -15916,7 +15916,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			int iNumResource = pBuildingInfo->GetResourceQuantity(iResourceLoop) * iChange;
 			if (iNumResource != 0)
 			{
-				owningPlayer.changeNumResourceTotal(eResource, iNumResource);
+				owningPlayer.changeNumResourceTotal(eResource, iNumResource, true);
 			}
 
 #if defined(MOD_BALANCE_CORE)
@@ -16041,34 +16041,9 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		{
 			CvPlot* pLoopPlot = NULL;
 
-			// Subtract off old luxury counts
-
-			for (int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
-			{
-				pLoopPlot = iterateRingPlots(getX(), getY(), iJ);
-
-				if (pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
-				{
-					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
-					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-					{
-						if (owningTeam.IsResourceImproveable(eLoopResource))
-						{
-							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
-							{
-								if (!pLoopPlot->IsImprovementPillaged())
-								{
-									owningPlayer.changeNumResourceTotal(pLoopPlot->getResourceType(), -pLoopPlot->getNumResourceForPlayer(getOwner()), /*bIgnoreResourceWarning*/ true);
-								}
-							}
-						}
-					}
-				}
-			}
-
 			ChangeExtraLuxuryResources(iChange);
 
-			// Add in new luxury counts
+			// Add extra luxury counts
 
 			for (int iJ = 0; iJ < GetNumWorkablePlots(); iJ++)
 			{
@@ -16081,12 +16056,13 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 					{
 						if (owningTeam.IsResourceImproveable(eLoopResource))
 						{
-							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource)))
+							if (pLoopPlot == plot() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eLoopResource) && !pLoopPlot->IsImprovementPillaged()))
 							{
-								if (!pLoopPlot->IsImprovementPillaged())
-								{
-									owningPlayer.changeNumResourceTotal(pLoopPlot->getResourceType(), pLoopPlot->getNumResourceForPlayer(getOwner()));
-								}
+								owningPlayer.connectResourcesOnPlot(pLoopPlot, iChange > 0, true);
+							}
+							else
+							{
+								owningPlayer.changeNumResourceUnimprovedPlot(pLoopPlot, iChange > 0, true);
 							}
 						}
 					}

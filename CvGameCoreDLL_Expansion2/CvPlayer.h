@@ -2161,12 +2161,17 @@ public:
 	bool isPlayable() const;
 	void setPlayable(bool bNewValue);
 
+	void connectResourcesOnPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources = false);
+	int getNumResourceUnimproved(ResourceTypes eIndex) const;
+	void changeNumResourceUnimproved(ResourceTypes eIndex, int iChange);
+	void changeNumResourceUnimprovedPlot(CvPlot* pPlot, bool bAdd, bool bOnlyExtraResources = false);
 	int getNumResourceUsed(ResourceTypes eIndex) const;
 	void changeNumResourceUsed(ResourceTypes eIndex, int iChange);
+	int getNumResourceFromBuildings(ResourceTypes eIndex) const;
 	int getNumResourceTotal(ResourceTypes eIndex, bool bIncludeImport = true) const;
 	int getNumResourcesFromOther(ResourceTypes eIndex) const;
 
-	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bIgnoreResourceWarning = false);
+	void changeNumResourceTotal(ResourceTypes eIndex, int iChange, bool bFromBuilding = false, bool bIgnoreResourceWarning = false);
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 	bool HasGlobalMonopoly(ResourceTypes eResource) const;
 	void SetHasGlobalMonopoly(ResourceTypes eResource, bool bNewValue);
@@ -3607,8 +3612,10 @@ protected:
 
 	CvString m_strEmbarkedGraphicOverride;
 
+	std::vector<int> m_paiNumResourceUnimproved;
 	std::vector<int> m_paiNumResourceUsed;
-	std::vector<int> m_paiNumResourceTotal;
+	std::vector<int> m_paiNumResourceFromTiles;
+	std::vector<int> m_paiNumResourceFromBuildings;
 	std::vector<int> m_paiResourceGiftedToMinors;
 	std::vector<int> m_paiResourceExport; //always to majors
 	std::vector<int> m_paiResourceImportFromMajor;
@@ -4389,8 +4396,10 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTourismBonusTurnsPlayer)
 SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< std::pair<uint, int> >), m_aOptions)
 SYNC_ARCHIVE_VAR(CvString, m_strReligionKey)
 SYNC_ARCHIVE_VAR(CvString, m_strScriptData)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUnimproved)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceUsed)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceTotal)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromTiles)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_paiNumResourceFromBuildings)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceGiftedToMinors)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceExport)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiResourceImportFromMajor)
