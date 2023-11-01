@@ -1285,6 +1285,12 @@ ALTER TABLE Resources ADD COLUMN 'MonopolyHealBonus' INTEGER DEFAULT 0;
 ALTER TABLE Resources ADD COLUMN 'MonopolyXPBonus' INTEGER DEFAULT 0;
 ALTER TABLE Resources ADD COLUMN 'IsMonopoly' BOOLEAN DEFAULT 0;
 
+-- Support column for SQL querries (they do nothing in the DLL, used mostly by modmods)
+ALTER TABLE Resources ADD COLUMN 'SeaResource' BOOLEAN DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'AnimalResource' BOOLEAN DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'PlantResource' BOOLEAN DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'RockResource' BOOLEAN DEFAULT 0;
+
 -- Cooldowns for Units/Buildings
 ALTER TABLE Units ADD COLUMN 'PurchaseCooldown' INTEGER DEFAULT 0;
 -- Affects only the city the unit is purchased from (works like PurchaseCooldown for faith purchases)
