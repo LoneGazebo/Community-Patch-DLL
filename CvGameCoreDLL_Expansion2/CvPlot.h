@@ -474,7 +474,7 @@ public:
 	int getNumResource() const;
 	void setNumResource(int iNum);
 	void changeNumResource(int iChange);
-	int getNumResourceForPlayer(PlayerTypes ePlayer) const;
+	int getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources) const;
 	void removeMinorResources();
 
 	void setIsCity(bool bValue, int iCityID, int iWorkRange);
