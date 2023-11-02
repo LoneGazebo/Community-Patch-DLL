@@ -11165,7 +11165,8 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 
 	-- Check for low or missing Strategic resources
 	uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetSmallStrategicResourceQuantityValues();
-	while self.amounts_of_resources_placed[self.iron_ID + 1] < 4 * self.iNumCivs do
+	iLoop = 0;
+	while self.amounts_of_resources_placed[self.iron_ID + 1] < 4 * self.iNumCivs and iLoop < 999 do
 		print("Map has very low iron, adding another.");
 		local resources_to_place = { {self.iron_ID, iron_amt, 20, 1, 2} };
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_IRON, self.desert_flat_no_feature, resources_to_place); -- 99999 means one per that many tiles: a single instance.
@@ -11173,40 +11174,51 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_IRON, self.hills_open_list, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_IRON, self.forest_flat_that_are_not_tundra, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_IRON, self.tundra_flat_forest, resources_to_place);
+		iLoop = iLoop + 1;
 	end
-	while self.amounts_of_resources_placed[self.horse_ID + 1] < 4 * self.iNumCivs do
+	iLoop = 0;
+	while self.amounts_of_resources_placed[self.horse_ID + 1] < 4 * self.iNumCivs and iLoop < 999 do
 		print("Map has very low horse, adding another.");
 		local resources_to_place = { {self.horse_ID, horse_amt, 25, 1, 2} };
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_HORSE, self.grass_flat_no_feature, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_HORSE, self.plains_flat_no_feature, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_HORSE, self.desert_wheat_list, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_HORSE, self.tundra_flat_no_feature, resources_to_place);
+		iLoop = iLoop + 1;
 	end
-	while self.amounts_of_resources_placed[self.coal_ID + 1] < 4 * self.iNumCivs do
+	iLoop = 0;
+	while self.amounts_of_resources_placed[self.coal_ID + 1] < 4 * self.iNumCivs and iLoop < 999 do
 		print("Map has very low coal, adding another.");
 		local resources_to_place = { {self.coal_ID, coal_amt, 33, 1, 2} };
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, self.hills_open_no_tundra_no_desert, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, self.grass_flat_no_feature, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, self.plains_flat_no_feature, resources_to_place);
+		iLoop = iLoop + 1;
 	end
-	while self.amounts_of_resources_placed[self.oil_ID + 1] < 4 * self.iNumCivs do
+	iLoop = 0;
+	while self.amounts_of_resources_placed[self.oil_ID + 1] < 4 * self.iNumCivs and iLoop < 999 do
 		print("Map has very low oil, adding another.");
 		local resources_to_place = { {self.oil_ID, oil_amt, 33, 1, 2} };
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_OIL, self.desert_flat_no_feature, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_OIL, self.tundra_flat_no_feature, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_OIL, self.jungle_flat_list, resources_to_place);
+		iLoop = iLoop + 1;
 	end
-	while self.amounts_of_resources_placed[self.aluminum_ID + 1] < 5 * self.iNumCivs do
+	iLoop = 0;
+	while self.amounts_of_resources_placed[self.aluminum_ID + 1] < 5 * self.iNumCivs and iLoop < 999 do
 		print("Map has very low aluminum, adding another.");
 		local resources_to_place = { {self.aluminum_ID, alum_amt, 33, 1, 2} };
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_ALUMINUM, self.hills_open_no_grass, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_ALUMINUM, self.flat_open_no_grass_no_plains, resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_ALUMINUM, self.plains_flat_no_feature, resources_to_place);
+		iLoop = iLoop + 1;
 	end
-	while self.amounts_of_resources_placed[self.uranium_ID + 1] < 2 * self.iNumCivs do
+	iLoop = 0;
+	while self.amounts_of_resources_placed[self.uranium_ID + 1] < 2 * self.iNumCivs and iLoop < 999 do
 		print("Map has very low uranium, adding another.");
 		local resources_to_place = { {self.uranium_ID, uran_amt, 100, 2, 4} };
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_URANIUM, self.land_hills_list, resources_to_place);
+		iLoop = iLoop + 1;
 	end
 	
 	self:PlaceBonusResources();
