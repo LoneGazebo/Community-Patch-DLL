@@ -179,6 +179,7 @@
 		<Slider ID="QueueSlider" ConsumeMouseWheel="0" Anchor="L,B" Offset="56,43" Vertical="1" Texture="Blank.dds" Length="200" Size="230,1" >
 			<Shuttle Vertical="1" Texture="Blank.dds" Size="230,38" />
 		</Slider>
+		<GridButton Offset="0,7" Anchor="R,T" ID="UnhideBuildingsButton" Size="70,25" Style="BaseButton" String="Unhide" Font="TwCenMT14" ToolTip="TXT_KEY_CITYVIEW_UNHIDE_BUILDINGS" Hidden="1" />
 	</Grid>
 
 	<!-- City Name Panel -->

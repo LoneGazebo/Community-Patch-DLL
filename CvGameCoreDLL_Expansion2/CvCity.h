@@ -348,6 +348,15 @@ public:
 
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
 	bool IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
+
+	void GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTypes eBuilding);
+	int GetNumHiddenBuildings() const;
+	bool IsBuildingHidden(BuildingTypes eBuilding) const;
+
+	void SetBuildingHidden(BuildingTypes eBuilding);
+	void ClearHiddenBuildings();
+
+
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
 #endif
@@ -2142,6 +2151,9 @@ protected:
 	CvCityEspionage* m_pCityEspionage;
 	CvCityCulture* m_pCityCulture;
 
+	int m_inumHiddenBuildings;
+	std::vector<bool> m_abIsBuildingHidden;
+
 	// CACHE: cache frequently used values
 	int m_iPopulationRank;
 	bool m_bPopulationRankValid;
@@ -2486,6 +2498,8 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromCrime)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromDevelopment)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiTempCaptureData)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abTempCaptureData)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abIsBuildingHidden)
+SYNC_ARCHIVE_VAR(int, m_inumHiddenBuildings)
 SYNC_ARCHIVE_VAR(bool, m_bIsPendingCapture)
 SYNC_ARCHIVE_VAR(int, m_iPopulationRank)
 SYNC_ARCHIVE_VAR(bool, m_bPopulationRankValid)

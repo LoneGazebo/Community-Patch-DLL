@@ -1196,6 +1196,9 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 
 	owningPlayer.CalculateNetHappiness();
 
+	// Initialize all buildings to not be hidden
+	ClearHiddenBuildings();
+
 	//If this is a conquered city, the city value is not updated - it is copied over from the previous city (see in CvPlayer::acquireCity())
 	//This is so that the AI sees the actual value of the city, not the value of the city in resistance, which will be much lower
 	//However updateEconomicValue() is also called in doTurn() so it will only have the old value for 1 turn
@@ -10386,6 +10389,193 @@ bool CvCity::IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* 
 
 	// No OR resource requirements (and passed the AND test above)
 	return iOrResources == 0;
+}
+
+void CvCity::GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTypes eBuilding)
+{
+	VALIDATE_OBJECT
+		CvBuildingEntry* pkBuildingInfo = GC.getBuildingInfo(eBuilding);
+	if (pkBuildingInfo == NULL)
+	{
+		return;
+	}
+	aiPlotList.clear();
+
+	// Loop through resources, find ones that would be increased by this building
+	std::set<int> iResourceTypesBoosted;
+	for (int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+	{
+		int* yieldsArr = pkBuildingInfo->GetResourceYieldChangeArray(iResourceLoop);
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			// We only care about it being boosted so one yield type is sufficient, 
+			// add it to the list of resources we care about and move on
+			if (yieldsArr[iYieldLoop] > 0)
+			{
+				iResourceTypesBoosted.insert(iResourceLoop);
+				break;
+			}
+		}
+	}
+
+	// Loop through terrain, find terrain types that would be increased by this building
+	std::set<int> iTerrainTypesBoosted;
+	for (int iTerrainLoop = 0; iTerrainLoop < GC.getNumTerrainInfos(); iTerrainLoop++)
+	{
+		int* yieldsArr = pkBuildingInfo->GetTerrainYieldChangeArray(iTerrainLoop);
+		int* xYieldsArr = pkBuildingInfo->GetYieldPerXTerrainArray(iTerrainLoop);
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			// We only care about it being boosted so one yield type is sufficient, 
+			// add it to the list of terrain types we care about and move on
+			if (yieldsArr[iYieldLoop] > 0 || xYieldsArr[iYieldLoop] > 0)
+			{
+				iTerrainTypesBoosted.insert(iTerrainLoop);
+				break;
+			}
+		}
+	}
+
+	// Check if water tiles or resources are boosted
+	bool bSeaPlotsBoosted = false;
+	bool bSeaResourcesBoosted = false;
+	bool bLakePlotsBoosted = false;
+	bool bRiverPlotsBoosted = false;
+
+	int* yieldsArr = pkBuildingInfo->GetSeaPlotYieldChangeArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bSeaPlotsBoosted = true;
+			break;
+		}
+	}
+	yieldsArr = pkBuildingInfo->GetSeaResourceYieldChangeArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bSeaResourcesBoosted = true;
+			break;
+		}
+	}
+	yieldsArr = pkBuildingInfo->GetLakePlotYieldChangeArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bLakePlotsBoosted = true;
+			break;
+		}
+	}
+	yieldsArr = pkBuildingInfo->GetRiverPlotYieldChangeArray();
+	for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+	{
+		if (yieldsArr[iYieldLoop] > 0)
+		{
+			bRiverPlotsBoosted = true;
+			break;
+		}
+	}
+
+	// Loop through improvements, find improvements that would be increased by this building
+	std::set<int> iImprovementTypesBoosted;
+	for (int iImprovementLoop = 0; iImprovementLoop < GC.getNumImprovementInfos(); iImprovementLoop++)
+	{
+		int* yieldsArr = pkBuildingInfo->GetImprovementYieldChangeArray(iImprovementLoop);
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			if (yieldsArr[iYieldLoop] > 0)
+			{
+				iImprovementTypesBoosted.insert(iImprovementLoop);
+				break;
+			}
+		}
+	}
+
+	// Loop through features, find features that would be increased by this building
+	std::set<int> iFeatureTypesBoosted;
+	for (int iFeatureLoop = 0; iFeatureLoop < GC.getNumFeatureInfos(); iFeatureLoop++)
+	{
+		int* yieldsArr = pkBuildingInfo->GetFeatureYieldChangeArray(iFeatureLoop);
+		int* xYieldsArr = pkBuildingInfo->GetYieldPerXFeatureArray(iFeatureLoop);
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			if (yieldsArr[iYieldLoop] > 0 || xYieldsArr[iYieldLoop] > 0)
+			{
+				iFeatureTypesBoosted.insert(iFeatureLoop);
+				break;
+			}
+		}
+	}
+
+	// Loop through tiles that can potentially be worked this city. If the tile contains 
+	// a tile that's boosted, append it to the passed in vector reference
+	for (int targetPlotIdx = 0; targetPlotIdx < RING_PLOTS[getWorkPlotDistance()]; targetPlotIdx++)
+	{
+		CvPlot* pLoopPlot = iterateRingPlots(plot(), targetPlotIdx);
+		// If it's owned and not by this city continue
+		if (!pLoopPlot || (pLoopPlot->isOwned() && (pLoopPlot->getOwner() != getOwner())))
+			continue;
+
+		
+		if (iResourceTypesBoosted.count(pLoopPlot->getResourceType(getTeam())))
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+		else if (iTerrainTypesBoosted.count(pLoopPlot->getTerrainType()))
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+		else if (bSeaPlotsBoosted && pLoopPlot->isWater() && !pLoopPlot->isLake())
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+		else if (bSeaResourcesBoosted && pLoopPlot->isWater() && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+		else if (bRiverPlotsBoosted && pLoopPlot->IsFeatureRiver())
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+		else if (iImprovementTypesBoosted.count(pLoopPlot->getImprovementType()))
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+		else if (iFeatureTypesBoosted.count(pLoopPlot->getFeatureType()))
+		{
+			aiPlotList.push_back(pLoopPlot->GetPlotIndex());
+		}
+	}
+}
+
+int CvCity::GetNumHiddenBuildings() const
+{
+	return m_inumHiddenBuildings;
+}
+
+void CvCity::SetBuildingHidden(BuildingTypes eBuilding)
+{
+	if (!IsBuildingHidden(eBuilding))
+	{
+		m_inumHiddenBuildings++;
+	}
+	m_abIsBuildingHidden[eBuilding] = true;
+}
+
+void CvCity::ClearHiddenBuildings()
+{
+	m_abIsBuildingHidden.clear();
+	m_abIsBuildingHidden.resize(GC.getNumBuildingInfos(), false);
+	std::fill(m_abIsBuildingHidden.begin(), m_abIsBuildingHidden.end(), false);
+	m_inumHiddenBuildings = 0;
+}
+
+bool CvCity::IsBuildingHidden(BuildingTypes eBuilding) const
+{
+	return m_abIsBuildingHidden[eBuilding];
 }
 
 #if defined(MOD_BALANCE_CORE)
@@ -33361,6 +33551,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_abUnitInvestment);
 	visitor(city.m_aiUnitCostInvestmentReduction);
 	visitor(city.m_abBuildingConstructed);
+	visitor(city.m_abIsBuildingHidden);
 	visitor(city.m_aiBonusSightEspionage);
 
 	visitor(*city.m_pCityBuildings);
