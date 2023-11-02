@@ -65,6 +65,7 @@ protected:
 	static int lGetResourcesFromCorporation(lua_State* L);
 	static int lGetResourceFromCSAlliances(lua_State* L);
 	static int lGetResourcesFromFranchises(lua_State* L);
+	static int lGetResourceQuantityModifierFromTraits(lua_State* L);
 	static int lGetStrategicResourceMod(lua_State* L);
 	static int lGetResourceModFromReligion(lua_State* L);
 	static int lIsShowImports(lua_State* L);
