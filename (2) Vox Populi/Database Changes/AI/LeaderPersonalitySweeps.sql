@@ -1579,10 +1579,10 @@ VALUES
 	('LEADER_THEODORA', 'MINOR_CIV_APPROACH_BULLY', 8),
 	('LEADER_THEODORA', 'MINOR_CIV_APPROACH_CONQUEST', 3);
 
--- Washington (America)
+-- Washington (America); generalist civ with no victory pursuit bias
 UPDATE Leaders
 SET
-	PrimaryVictoryPursuit = 'VICTORY_PURSUIT_CULTURE',
+	PrimaryVictoryPursuit = NULL,
 	Personality = 'PERSONALITY_COALITION',
 	VictoryCompetitiveness = 8,
 	WonderCompetitiveness = 4,

@@ -74,6 +74,72 @@ UPDATE Resources
 SET PolicyReveal = 'POLICY_AESTHETICS_FINISHER'
 WHERE Type = 'RESOURCE_HIDDEN_ARTIFACTS';
 
+-- Setting resource types in support columns
+-- Sea resources:
+UPDATE Resources SET SeaResource = 1 WHERE Type = 'RESOURCE_CORAL';
+UPDATE Resources SET SeaResource = 1 WHERE Type = 'RESOURCE_CRAB';
+UPDATE Resources SET SeaResource = 1 WHERE Type = 'RESOURCE_FISH';
+UPDATE Resources SET SeaResource = 1 WHERE Type = 'RESOURCE_PEARLS';
+UPDATE Resources SET SeaResource = 1 WHERE Type = 'RESOURCE_WHALE';
+
+-- Animal resources:
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_CORAL';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_BISON';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_COW';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_CRAB';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_DEER';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_FISH';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_HORSE';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_PEARLS';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_FUR';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_IVORY';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_SHEEP';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_SILK';
+UPDATE Resources SET AnimalResource = 1 WHERE Type = 'RESOURCE_WHALE';
+
+-- Plant resources:
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_BANANA';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_CITRUS';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_CLOVES';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_COCOA';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_NUTMEG';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_COTTON';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_PEPPER';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_SPICES';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_SUGAR';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_TRUFFLES';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_WHEAT';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_WINE';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_AMBER';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_BRAZILWOOD';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_COFFEE';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_MAIZE';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_OLIVE';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_RICE';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_TEA';
+UPDATE Resources SET PlantResource = 1 WHERE Type = 'RESOURCE_TOBACCO';
+
+-- Rock resources:
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_COAL';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_ALUMINUM';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_COPPER';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_GEMS';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_GOLD';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_IRON';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_MARBLE';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_SALT';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_SILVER';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_STONE';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_URANIUM';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_JADE';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_LAPIS';
+UPDATE Resources SET RockResource = 1 WHERE Type = 'RESOURCE_AMBER';
+
+-- Unassigned:
+-- RESOURCE_OIL
+-- RESOURCE_DYE, RESOURCE_INCENSE, RESOURCE_PERFUME
+-- RESOURCE_JEWELRY, RESOURCE_PORCELAIN, RESOURCE_GLASS
+
 --------------------------------------------------------------------------------------------
 -- Resource building boosts (putting it here since it makes more sense tied to resources)
 -- Using BuildingClass, uniques may update it again later
