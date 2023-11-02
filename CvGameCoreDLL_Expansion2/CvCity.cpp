@@ -17834,12 +17834,6 @@ int CvCity::getGrowthMods() const
 		iTotalMod += iCityGrowthMod;
 	}
 
-	int iCorpMod = GetTradeRouteCityMod(YIELD_FOOD);
-	if (iCorpMod > 0)
-	{
-		iTotalMod += iCorpMod;
-	}
-
 	if (GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) != 0))
 	{
 		int iBuildingMod = GetGoldenAgeYieldMod(YIELD_FOOD);
@@ -17865,6 +17859,9 @@ int CvCity::getGrowthMods() const
 
 	if (MOD_BALANCE_CORE)
 	{
+		int iGrowthEvents = GetGrowthFromEvent();
+		iTotalMod += iGrowthEvents;
+
 		int iGrowthTourism = GetGrowthFromTourism();
 		iTotalMod += iGrowthTourism;
 	}
@@ -17919,18 +17916,6 @@ int CvCity::getGrowthMods() const
 					iTotalMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityGrowthModifier();
 				}
 			}
-		}
-	}
-
-	if (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	{
-		// Do we get increased yields from a resource monopoly?
-		int iTempMod = GET_PLAYER(getOwner()).getCityYieldModFromMonopoly(YIELD_FOOD);
-		if (iTempMod != 0)
-		{
-			iTempMod += GET_PLAYER(getOwner()).GetMonopolyModPercent();
-			// this one is applied to the base yield, so showing a tooltip here is very confusing!
-			//GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_MONOPOLY_RESOURCE", iTempMod);
 		}
 	}
 

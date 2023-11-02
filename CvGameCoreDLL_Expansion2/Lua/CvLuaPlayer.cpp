@@ -73,6 +73,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetResourcesFromCorporation);
 	Method(GetResourceFromCSAlliances);
 	Method(GetResourcesFromFranchises);
+	Method(GetResourceQuantityModifierFromTraits);
 	Method(GetStrategicResourceMod);
 	Method(GetResourceModFromReligion);
 	Method(IsShowImports);
@@ -1860,6 +1861,15 @@ int CvLuaPlayer::lGetResourcesFromFranchises(lua_State* L)
 	}
 
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetStrategicResourceMod()
+int CvLuaPlayer::lGetResourceQuantityModifierFromTraits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetPlayerTraits()->GetResourceQuantityModifier(eResource));
 	return 1;
 }
 // -----------------------------------------------------------------------------
