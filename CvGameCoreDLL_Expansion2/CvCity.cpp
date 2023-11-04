@@ -33552,6 +33552,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_aiUnitCostInvestmentReduction);
 	visitor(city.m_abBuildingConstructed);
 	visitor(city.m_abIsBuildingHidden);
+	visitor(city.m_inumHiddenBuildings);
 	visitor(city.m_aiBonusSightEspionage);
 
 	visitor(*city.m_pCityBuildings);
