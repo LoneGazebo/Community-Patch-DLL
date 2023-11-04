@@ -3293,7 +3293,7 @@ void CvTacticalAI::ExecuteBarbarianCampMove(CvPlot* pTargetPlot)
 			//try to get into position
 			//some of the camps the player has revealed may since have been cleared ... but we need to check
 			//if the camp has been cleared there might be a neutral unit in the plot and our pathfinding could fail without the approximate flag!
-			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1);
+			ExecuteMoveToPlot(pUnit, pTargetPlot, false, CvUnit::MOVEFLAG_APPROX_TARGET_RING1|CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER);
 
 			if (pUnit->canMove())
 			{
@@ -5230,7 +5230,10 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 			if (pLoopUnit->IsGarrisoned() && pLoopUnit->GetGarrisonedCity()->NeedsGarrison())
 				continue;
 
-			int iFlags = bAllowEmbarkation ? 0 : CvUnit::MOVEFLAG_NO_EMBARK;
+			//this should be a low-risk thing so don't get our units killed
+			int iFlags = CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER;
+			if (bAllowEmbarkation)
+				iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 			if (pTarget->isEnemyUnit(m_pPlayer->GetID(), true, true) && !pLoopUnit->IsCanAttackWithMove())
 				iFlags |= CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_APPROX_TARGET_NATIVE_DOMAIN;
 			if (bMustHaveMovesLeft)
@@ -6595,6 +6598,7 @@ CvPlot* TacticalAIHelpers::FindClosestSafePlotForHealing(CvUnit* pUnit)
 		{
 			if (pUnit->canMoveInto(*pPlot, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
 			{
+				//todo: we should maybe choose the target plot based on whether we can make a good swap?
 				if (!pUnit->CanPushOutUnitHere(*pPlot))
 					continue;
 			}
@@ -7192,6 +7196,9 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			//easiest way is to consider damage from last turn. so ideally ranged units start attacking and melee joins in later
 			int iRemainingHP = pEnemy->GetMaxHitPoints() - pEnemy->getDamage();
 			float fRemainingTurnsOnCity = iRemainingHP / (max(iDamageDealt*fAggBias, pEnemy->getDamageTakenLastTurn()*1.0f) + 1);
+			//if the city cannot heal, be even more aggressive
+			if (pEnemy->IsBlockaded(NO_DOMAIN))
+				fRemainingTurnsOnCity = max(0.f, fRemainingTurnsOnCity - 1);
 
 			//consider that we have other units around which can soak damage
 			int iCounterattackDamage = pEnemy->canRangeStrike() ? pEnemy->rangeCombatDamage(pUnit, false, pUnitPlot, true) * (pEnemy->HasGarrison() ? 2 : 1) : 0;
@@ -7199,7 +7206,8 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			float fRemainingTurnsOnAttacker = pUnit->GetCurrHitPoints() / (iDamageReceived + fScaledCounterattackDamage + 1);
 
 			//no attack if it's too early yet
-			if (fRemainingTurnsOnAttacker < fRemainingTurnsOnCity)
+			bool bGoodFirstAttack = !pUnit->IsHurt() && iDamageDealt > iDamageReceived && iDamageReceived < 23;
+			if (fRemainingTurnsOnAttacker < fRemainingTurnsOnCity && !bGoodFirstAttack)
 			{
 				result.iScore = -INT_MAX;
 				return;
@@ -7598,9 +7606,6 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, int iMoves
 			//if there is nothing we would cover or we are low on health, don't do it
 			int iLowHealthThreshold = 23*iOverkill;
 			if (iRemainingHP*(iNumAdjFriendlies+1) < iLowHealthThreshold)
-				return INT_MAX;
-
-			if (iNumAdjFriendlies==0)
 				return INT_MAX;
 		}
 
@@ -8613,12 +8618,15 @@ STacticalAssignment ScorePlotForMove(const SUnitStats& unit, const CvTacticalPlo
 
 void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, int nMaxCount) const
 {
-	//there are two strategies here, return as many moves as possible and hope that the highest scores in the end will be valid
-	//or return only "safe" move in the sense that we dare to actually do them. sometimes a move might look bad but become good in combination with others.
+	//the challenge is that often a move can be good or bad depending on what our *other* units end up doing. so there are two strategies:
+	//a) return as many moves as possible and check validity at the end.
+	//b) return only "safe" moves in the sense that we dare to actually do them.
 	//problem eg are generals, we want to move them close to the action but there might not be cover there or the cover might move away.
-
-	//anyway experience shows if we happen to choose an attractive but invalid move at the beginning of the sim this can poison everything
-	//because so many positions can be generated from it that we never look at the alternative beginnings. so we only return safe moves here.
+	//anyway experience shows if we choose an attractive but invalid move at the beginning of the sim this can poison everything
+	//because so many positions can be generated from that we never get to examine at alternative beginnings in depth.
+	//so we go with option B, even if it means we need to skip some daring moves.
+	//on the other hand, the daring moves may still be possible later in the sim when they are not so daring anymore.
+	//todo: try "fixup moves", meaning if a possible move is invalid, see if it can be made valid by moving another unit.
 	gPossibleMoves.clear();
 
 	const CvTacticalPlot& assumedUnitPlot = getTactPlot(unit.iPlotIndex);

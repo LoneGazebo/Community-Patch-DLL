@@ -27972,7 +27972,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0 && !pLoopUnit->shouldHeal(false))
 			{
 				//make sure we're not getting the pushed unit killed
-				int iDangerLimit = pLoopUnit->IsCanAttackRanged() ? pLoopUnit->GetCurrHitPoints() / 2 : pLoopUnit->GetCurrHitPoints();
+				int iDangerLimit = pLoopUnit->GetCurrHitPoints();
 				int iLeastDanger = INT_MAX;
 
 				//does it have a free plot
@@ -27983,20 +27983,29 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 					if (!pNeighbor)
 						continue;
 
-					bool bMayUse = false;
-
-					//empty plot
+					//valid plot
 					if (pLoopUnit->isNativeDomain(pNeighbor) && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
-						bMayUse = true;
-
-					//swap needed
-					if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
-						bMayUse = true;
-
-					if (bMayUse)
 					{
-						//go to the lowest danger plot ... todo: should we try to use the other unit as cover?
 						int iUnitDanger = pLoopUnit->GetDanger(pNeighbor);
+
+						//swap needed / possible
+						if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
+						{
+							//often the incoming unit is retreating from the frontline, so ideally we want to swap the neighboring unit right in
+							if (iUnitDanger < iDangerLimit)
+							{
+								//todo: check the distance to the next enemy
+								//todo: also might want to do a ranged opportunity attack before moving pLoopUnit ...
+								if (!pLoopUnit->IsCanAttackRanged() || TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit, pNeighbor, true, false).size() > 0)
+								{
+									if (ppToPlot)
+										*ppToPlot = pNeighbor;
+									return pLoopUnit;
+								}
+							}
+						}
+
+						//else go to the lowest danger plot ... todo: should we try to use the other unit as cover?
 						if (iUnitDanger < iDangerLimit && iUnitDanger < iLeastDanger)
 						{
 							iLeastDanger = iUnitDanger;

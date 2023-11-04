@@ -2252,7 +2252,7 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		case SR_UNITSUPPLY:
 			reason = "nosupply";
 			break;
-		case SR_MAINTENCANCE:
+		case SR_MAINTENANCE:
 			reason = "tooexpensive";
 			break;
 		case SR_STRATEGY:
@@ -2752,27 +2752,22 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
+	//probably redundant with canTrain()
 	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
-	if (!EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
-	{
-		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-		//Too many settlers? Stop building them!
-		if(iSettlersOnMapOrBuild >= 2)
-		{
-			return true;
-		}
-		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-		// scale based on flavor and world size
-		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
-		{
-			if(iSettlersOnMapOrBuild > 0)
-			{
-				return true;
-			}
-		}
-	}
+	if (EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
+		return true;
+
+	int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+	if (iNumSettlers > 1)
+		return true;
+
+	//settler is idle?
+	if (iNumSettlers > 0 && kPlayer.getFirstAIOperationOfType(AI_OPERATION_FOUND_CITY) == NULL)
+		return true;
+
 	return false;
 }
+
 // We a new city on a bigger continent? Let's spread our legs!
 bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity)
 {

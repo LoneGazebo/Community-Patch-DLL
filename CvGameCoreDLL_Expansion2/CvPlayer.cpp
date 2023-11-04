@@ -15039,14 +15039,14 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 	{
 		// No Settlers for non-majors
 		if (!isMajorCiv())
-		{
 			return false;
-		}
+
+		if (GetPlayerTraits()->IsNoAnnexing())
+			return false;
+
 		// One City Challenge
 		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
-		{
 			return false;
-		}
 	}
 	
 	//Policy Requirement
@@ -38506,27 +38506,19 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 		{
 			// Open the log file
 			CvString strFileName = "PlayerProximityLog.csv";
-			FILogFile* pLog = NULL;
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			CvString strLog;
-			CvString strTemp;
 
-			CvString strPlayerName;
-			strPlayerName = getCivilizationShortDescription();
-			strLog += strPlayerName;
+			strLog.Format("%d,", GC.getGame().getGameTurn()); // turn
+			strLog += getCivilizationShortDescription();
 			strLog += ",";
-
-			strTemp.Format("%d,", GC.getGame().getGameTurn()); // turn
-			strLog += strTemp;
-			CvString strOtherPlayerName;
-			strOtherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strLog += strOtherPlayerName;
-			strLog += ",";
+			strLog += GET_PLAYER(ePlayer).getCivilizationShortDescription();
+			strLog += ",old,";
 
 			switch(m_aiProximityToPlayer[ePlayer])
 			{
 			case NO_PLAYER_PROXIMITY:
-				strLog += "No player proximity,";
+				strLog += "Undefined,";
 				break;
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				strLog += "Neighbors,";
@@ -38542,12 +38534,12 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 				break;
 			}
 
-			strLog += "-->,";
+			strLog += "new,";
 
 			switch(eProximity)
 			{
 			case NO_PLAYER_PROXIMITY:
-				strLog += "No player proximity,";
+				strLog += "Undefined,";
 				break;
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				strLog += "Neighbors,";
@@ -38562,6 +38554,10 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 				strLog += "Distant,";
 				break;
 			}
+
+			//add major/minor marker for easy filtering
+			strLog += isMajorCiv() ? "x" : "o";
+			strLog += GET_PLAYER(ePlayer).isMajorCiv() ? "x" : "o";
 
 			pLog->Msg(strLog);
 		}

@@ -114,7 +114,7 @@ enum ProductionSkipReason
 	SR_UNKNOWN = 0,
 	SR_IMPOSSIBLE = -1,
 	SR_UNITSUPPLY = -2,		//have too many overall
-	SR_MAINTENCANCE = -3,	//cannot afford
+	SR_MAINTENANCE = -3,	//cannot afford
 	SR_STRATEGY = -4,		//under siege, ...
 	SR_USELESS = -5,		//no enemies around, etc
 	SR_BALANCE = -6,		//have too many of the given type

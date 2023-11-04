@@ -211,7 +211,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iTurnsLeft = kPlayer.getTurnsToBankruptcy(iAverageGoldPerUnit);
 
 			if (iTurnsLeft < 7)
-				return SR_MAINTENCANCE;
+				return SR_MAINTENANCE;
 			else if (iTurnsLeft < 13)
 				iBonus -= iAverageGoldPerUnit*25;
 		}
@@ -1019,138 +1019,60 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 	//Settlers? Let's see...
 	if (pkUnitEntry->GetDefaultUnitAIType() == UNITAI_SETTLE)
 	{
-		EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
-		if (EconomicAIHelpers::CannotMinorCiv( m_pCity->GetPlayer(), eCanSettle))
-		{
-			return SR_USELESS;
-		}
-
-		if (kPlayer.isBarbarian() || kPlayer.GetPlayerTraits()->IsNoAnnexing() || (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && kPlayer.isHuman()))
-		{
-			return SR_IMPOSSIBLE;
-		}
-
 		//Don't build a settler if we're about to grow.
 		if (m_pCity->getFoodTurnsLeft() <= 1)
-		{
 			return SR_STRATEGY;
-		}
 
+		//this checks war state, grand strategy and more!
 		EconomicAIStrategyTypes eNoMoreExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
 		if (GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eNoMoreExpand))
-		{
 			return SR_STRATEGY;
-		}
 
-		//Already have an idle settler out? Ignore.
-		int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-		if (iNumSettlers > 1)
-		{
+		AICityStrategyTypes eEnoughSettlers = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_ENOUGH_SETTLERS");
+		if (m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eEnoughSettlers))
 			return SR_BALANCE;
-		}
-		if (iNumSettlers>0 && kPlayer.getFirstAIOperationOfType(AI_OPERATION_FOUND_CITY)==NULL)
-		{
-			return SR_BALANCE;
-		}
-	
+
 		int iFlavorExpansion = kPlayer.GetGrandStrategyAI()->GetPersonalityAndGrandStrategy((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
 
-		//maybe a bit expensive to check? let's see. also only add if positive? range is -50 to +50
-		iFlavorExpansion += kPlayer.GetSettlePlotQualityMeasure(kPlayer.GetBestSettlePlot(NULL))/2;
-
-		//strategies affect unit flavors ... but unfortunately we largely ignore "pre" score from the flavor system
-		EconomicAIStrategyTypes eExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_ENOUGH_EXPANSION");
-		if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpand))
-		{
-			iFlavorExpansion += 25;
-		}
-
-		if (kPlayer.CanCrossOcean())
-		{
-			// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"
-			EconomicAIStrategyTypes eExpandOther = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS");
-			if (kPlayer.GetEconomicAI()->IsUsingStrategy(eExpandOther))
-			{
-				iFlavorExpansion += 25;
-			}
-		}
+		//we already checked ECONOMICAISTRATEGY_ENOUGH_EXPANSION, so we know we have a good settle plot
+		//but let's bump the prio based on the quality of the plot
+		int iQuality = kPlayer.GetSettlePlotQualityMeasure(kPlayer.GetBestSettlePlot(NULL));
+		if (iQuality>0)
+			iFlavorExpansion += iQuality;
 
 		// If we are running "ECONOMICAISTRATEGY_EARLY_EXPANSION"
 		if (kPlayer.IsEarlyExpansionPhase())
-		{
-			iFlavorExpansion += 120;
-		}
-		else
-		{
-			if (kPlayer.GetDiplomacyAI()->IsGoingForCultureVictory())
-			{
-				if (kPlayer.GetNumCitiesFounded() > (kPlayer.GetDiplomacyAI()->GetBoldness()))
-				{
-					iFlavorExpansion -= 25;
-				}
-			}
-			else if (kPlayer.GetDiplomacyAI()->IsGoingForSpaceshipVictory())
-			{
-				iFlavorExpansion -= 25;
-			}
-		}
+			//strategies affect unit flavors but unfortunately we largely ignore "pre" score from the flavor system
+			iFlavorExpansion += 100;
 
 		AICityStrategyTypes eFeeder = (AICityStrategyTypes)GC.getInfoTypeForString("AICITYSTRATEGY_NEW_CONTINENT_FEEDER");
 		if (m_pCity->GetCityStrategyAI()->IsUsingCityStrategy(eFeeder))
-		{
 			iFlavorExpansion += 50;
-		}
 
-		if(kPlayer.getSettlerProductionModifier() > 0)
+		if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
+			iFlavorExpansion += 10;
+
+		//if we're even more unhappy then ECONOMICAISTRATEGY_ENOUGH_EXPANSION will kick in
+		if (kPlayer.IsEmpireUnhappy())
+			iFlavorExpansion -= 10;
+
+		//if already we have more than 2 cities, let's try to get non-capital cities to be our settler-makers
+		if (m_pCity->isCapital() && kPlayer.getNumCities() > 2)
 		{
-			iFlavorExpansion += kPlayer.getSettlerProductionModifier();
-		}
-		if(m_pCity->isCapital() && kPlayer.getCapitalSettlerProductionModifier() > 0)
-		{
+			iFlavorExpansion -= 25;
+			//but this bonus may counteract
 			iFlavorExpansion += kPlayer.getCapitalSettlerProductionModifier();
 		}
-		if (kPlayer.GetPlayerTraits()->IsExpansionWLTKD())
-		{
-			iFlavorExpansion += 25;
-		}
 
-		if (kPlayer.IsEmpireUnhappy())
-		{
-			iFlavorExpansion -= 25;
-
-			if (kPlayer.IsEmpireVeryUnhappy())
-			{
-				iFlavorExpansion -= 50;
-				
-				if (kPlayer.IsEmpireSuperUnhappy())
-					iFlavorExpansion -= 50;
-			}
-		}
-
-		// scale based on flavor and world size
-		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
-		{
-			iFlavorExpansion -= 50;
-		}
-
-		//if already we have more than 2 cities, let's try to get non-capital cities to be our settler-makers.
-		if (m_pCity->isCapital() && kPlayer.getNumCities() > 2)
-			iFlavorExpansion -= 25;
-
+		//sometimes it's just not right
 		if (iFlavorExpansion <= 0)
 			return SR_STRATEGY;
 
 		//if we got this far we want to expand, so let's bump the number of times we've skipped this.
-		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver() * 100;
-		
-		//Higher-level AI should expand more quickly.
-		if (GC.getGame().getHandicapInfo().getAggressionIncrease() > 0)
-		{
-			iFlavorExpansion += GC.getGame().getHandicapInfo().getAggressionIncrease() * 10;
-		}
+		iFlavorExpansion += kPlayer.GetMilitaryAI()->GetNumberOfTimesSettlerBuildSkippedOver() * 10;
 
-		iBonus += iFlavorExpansion * (kPlayer.IsEarlyExpansionPhase() ? 4 : 1);
+		//bring it into a sensible range
+		iBonus += iFlavorExpansion*23;
 	}
 
 	if(!kPlayer.isMinorCiv())
