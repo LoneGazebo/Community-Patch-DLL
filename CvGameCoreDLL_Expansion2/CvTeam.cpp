@@ -4060,7 +4060,12 @@ bool CvTeam::SetHasFoundPlayersTerritory(PlayerTypes ePlayer, bool bValue)
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_PLAYERS, "ePlayer is expected to be within maximum bounds (invalid Index)");
 
-	return IsHasFoundPlayersTerritory(ePlayer) != bValue;
+	if (IsHasFoundPlayersTerritory(ePlayer) != bValue)
+	{
+		m_abHasFoundPlayersTerritory[ePlayer] = bValue;
+		return true;
+	}
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -6125,39 +6130,58 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 
 						if(!bResourceUnlocked && bUnlocksResource)
 						{
+							bool bResourceImproved = false;
 							// Appropriate Improvement on this Plot?
 							if (pLoopPlot->isCity() || (pLoopPlot->getImprovementType() != NO_IMPROVEMENT && GC.getImprovementInfo(pLoopPlot->getImprovementType())->IsConnectsResource(eResource)))
 							{
-								for (int iI = 0; iI < MAX_PLAYERS; iI++)
+								if (!pLoopPlot->IsImprovementPillaged())
 								{
-									const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
-									CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-									if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+									bResourceImproved = true;
+								}
+							}
+							for (int iI = 0; iI < MAX_PLAYERS; iI++)
+							{
+								const PlayerTypes eLoopPlayer = static_cast<PlayerTypes>(iI);
+								CvPlayerAI& kLoopPlayer = GET_PLAYER(eLoopPlayer);
+								if (kLoopPlayer.isAlive() && kLoopPlayer.getTeam() == GetID() && pLoopPlot->getOwner() == eLoopPlayer)
+								{
+									// We now have a new Tech
+									if (bNewValue)
 									{
-										// We now have a new Tech
-										if (bNewValue)
+										// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
+										if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
 										{
-											// slewis - added in so resources wouldn't be double counted when the minor civ researches the technology
-											if (!(kLoopPlayer.isMinorCiv() && pLoopPlot->IsImprovedByGiftFromMajor()))
+											if (bResourceImproved)
 											{
-												kLoopPlayer.changeNumResourceTotal(eResource, pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
+												kLoopPlayer.connectResourcesOnPlot(pLoopPlot, true);
 											}
-
-											// Reconnect resource link
-											if (pLoopPlot->getEffectiveOwningCity() != NULL)
+											else
 											{
-												pLoopPlot->SetResourceLinkedCityActive(true);
+												kLoopPlayer.changeNumResourceUnimprovedPlot(pLoopPlot, true);
 											}
 										}
-										// Removing Tech
+
+										// Reconnect resource link
+										if (pLoopPlot->getEffectiveOwningCity() != NULL)
+										{
+											pLoopPlot->SetResourceLinkedCityActive(true);
+										}
+									}
+									// Removing Tech
+									else
+									{
+										if (bResourceImproved)
+										{
+											kLoopPlayer.connectResourcesOnPlot(pLoopPlot, false);
+										}
 										else
 										{
-											kLoopPlayer.changeNumResourceTotal(eResource, -pLoopPlot->getNumResourceForPlayer(eLoopPlayer));
-
-											// Disconnect resource link
-											if (pLoopPlot->getEffectiveOwningCity() != NULL)
-												pLoopPlot->SetResourceLinkedCityActive(false);
+											kLoopPlayer.changeNumResourceUnimprovedPlot(pLoopPlot, false);
 										}
+
+										// Disconnect resource link
+										if (pLoopPlot->getEffectiveOwningCity() != NULL)
+											pLoopPlot->SetResourceLinkedCityActive(false);
 									}
 								}
 							}
@@ -9150,7 +9174,7 @@ bool CvTeam::canEndVassal(TeamTypes eTeam) const
 	if (GC.getGame().IsAIPassiveTowardsHumans() && GET_TEAM(eTeam).isHuman())
 		return false;
 
-	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the 50% rules
+	// We're the voluntary vassal of eTeam and it's not too early to end vassalage - we're not bound by the % rules
 	if (IsVoluntaryVassal(eTeam))
 	{
 		return true;

@@ -65,6 +65,7 @@ protected:
 	static int lGetResourcesFromCorporation(lua_State* L);
 	static int lGetResourceFromCSAlliances(lua_State* L);
 	static int lGetResourcesFromFranchises(lua_State* L);
+	static int lGetResourceQuantityModifierFromTraits(lua_State* L);
 	static int lGetStrategicResourceMod(lua_State* L);
 	static int lGetResourceModFromReligion(lua_State* L);
 	static int lIsShowImports(lua_State* L);
@@ -936,7 +937,9 @@ protected:
 	static int lIsPlayable(lua_State* L);
 	static int lSetPlayable(lua_State* L);
 
+	static int lGetNumResourceUnimproved(lua_State* L);
 	static int lGetNumResourceUsed(lua_State* L);
+	static int lGetNumResourceFromBuildings(lua_State* L);
 	static int lGetNumResourceTotal(lua_State* L);
 	static int lChangeNumResourceTotal(lua_State* L);
 	static int lGetNumResourceAvailable(lua_State* L);

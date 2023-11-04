@@ -4093,7 +4093,7 @@ void CvHomelandAI::ExecuteGeneralMoves()
 				if (ll != vPlotsToAvoid.end())
 					continue;
 
-				ExecuteMoveToTarget(pUnit, pTarget, 0, true);
+				ExecuteMoveToTarget(pUnit, pTarget, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, true);
 				vPlotsToAvoid.push_back(pTarget);
 				break;
 			}

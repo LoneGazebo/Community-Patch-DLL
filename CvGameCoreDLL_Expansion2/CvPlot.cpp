@@ -6115,29 +6115,31 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				{
 					if (GET_TEAM(getTeam()).IsResourceRevealed(getResourceType()))
 					{
+						if (isCity())
+						{
+							GET_PLAYER(eOldOwner).connectResourcesOnPlot(this, false);
+						}
+						else
+						{
 #if defined(MOD_BALANCE_CORE)
-						if (eImprovement != NO_IMPROVEMENT)
-						{
-							if (GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()))
+							if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()) && !IsImprovementPillaged())
 							{
-								if (!IsImprovementPillaged())
-								{
-									GET_PLAYER(eOldOwner).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(eOldOwner));
-								}
+								GET_PLAYER(eOldOwner).connectResourcesOnPlot(this, false);
 							}
-						}
+							else
+							{
+								GET_PLAYER(eOldOwner).changeNumResourceUnimprovedPlot(this, false);
+							}
 #else
-						if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsImprovementResourceTrade(getResourceType()))
-						{
-							if (!IsImprovementPillaged())
+							if (eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsImprovementResourceTrade(getResourceType()) && !IsImprovementPillaged())
 							{
-								GET_PLAYER(eOldOwner).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(eOldOwner));
+								GET_PLAYER(eOldOwner).connectResourcesOnPlot(this, false);
 							}
-						}
+							else
+							{
+								GET_PLAYER(eOldOwner).changeNumResourceUnimprovedPlot(this, false);
+							}
 #endif
-						else if (isCity())
-						{
-							GET_PLAYER(eOldOwner).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(eOldOwner));
 						}
 					}
 				}
@@ -6367,12 +6369,13 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 					// Add Resource Quantity to total
 					if(GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
-						if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()))
+						if(eImprovement != NO_IMPROVEMENT && GC.getImprovementInfo(eImprovement)->IsConnectsResource(getResourceType()) && !IsImprovementPillaged())
 						{
-							if(!IsImprovementPillaged())
-							{
-								GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
-							}
+							GET_PLAYER(getOwner()).connectResourcesOnPlot(this, true);
+						}
+						else
+						{
+							GET_PLAYER(getOwner()).changeNumResourceUnimprovedPlot(this, true);
 						}
 					}
 				}
@@ -7193,10 +7196,8 @@ void CvPlot::changeNumResource(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
+int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer, bool bExtraResources) const
 {
-	int iRtnValue = m_iResourceNum;
-
 	ResourceTypes eResource = getResourceType(getTeam());
 	if(eResource != NO_RESOURCE)
 	{
@@ -7205,36 +7206,44 @@ int CvPlot::getNumResourceForPlayer(PlayerTypes ePlayer) const
 		{
 			if (GET_PLAYER(ePlayer).IsResourceRevealed(eResource))
 			{
-				if(pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+				if (bExtraResources)
 				{
-					int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
-					iRtnValue *= 100 + iQuantityMod;
-					iRtnValue /= 100;
-				}
-
-				else if(pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
-				{
-					CvCity* pCity = getEffectiveOwningCity();
-					if(pCity)
+					if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
-						if(pCity->IsExtraLuxuryResources())
+						CvCity* pCity = getEffectiveOwningCity();
+						if (pCity)
 						{
-							iRtnValue++;
+							if (pCity->IsExtraLuxuryResources())
+							{
+								return 1;
+							}
 						}
 					}
+					return 0;
 				}
-
-				if(GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
+				else
 				{
-					int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
-					iRtnValue *= 100 + iQuantityMod;
-					iRtnValue /= 100;
+					int iRtnValue = m_iResourceNum;
+					if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+					{
+						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetStrategicResourceQuantityModifier(getTerrainType());
+						iRtnValue *= 100 + iQuantityMod;
+						iRtnValue /= 100;
+					}
+
+					if (GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource) > 0)
+					{
+						int iQuantityMod = GET_PLAYER(ePlayer).GetPlayerTraits()->GetResourceQuantityModifier(eResource);
+						iRtnValue *= 100 + iQuantityMod;
+						iRtnValue /= 100;
+					}
+
+					return iRtnValue;
 				}
 			}
 		}
 	}
-
-	return iRtnValue;
+	return 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -7987,7 +7996,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if (newImprovementEntry.IsConnectsResource(getResourceType()))
 						{
-							owningPlayer.changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(owningPlayerID));
+							owningPlayer.connectResourcesOnPlot(this, true);
+							owningPlayer.changeNumResourceUnimprovedPlot(this, false);
 
 							// Activate Resource city link?
 							if(getEffectiveOwningCity() != NULL)
@@ -8102,7 +8112,8 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 					{
 						if (GC.getImprovementInfo(eOldImprovement)->IsConnectsResource(getResourceType()))
 						{
-							owningPlayer.changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(owningPlayerID));
+							owningPlayer.connectResourcesOnPlot(this, false);
+							owningPlayer.changeNumResourceUnimprovedPlot(this, true);
 
 							// Disconnect resource link
 							if(getEffectiveOwningCity() != NULL)
@@ -8487,7 +8498,8 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 					{
 						if(bPillaged)
 						{
-							GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), -getNumResourceForPlayer(getOwner()));
+							GET_PLAYER(getOwner()).connectResourcesOnPlot(this, false);
+							GET_PLAYER(getOwner()).changeNumResourceUnimprovedPlot(this, true);
 
 							// Disconnect resource link
 							if(getEffectiveOwningCity() != NULL)
@@ -8495,7 +8507,8 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 						}
 						else
 						{
-							GET_PLAYER(getOwner()).changeNumResourceTotal(getResourceType(), getNumResourceForPlayer(getOwner()));
+							GET_PLAYER(getOwner()).connectResourcesOnPlot(this, true);
+							GET_PLAYER(getOwner()).changeNumResourceUnimprovedPlot(this, false);
 
 							// Reconnect resource link
 							if(getEffectiveOwningCity() != NULL)
@@ -8519,11 +8532,11 @@ void CvPlot::SetImprovementPillaged(bool bPillaged)
 
 			if(bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 			{
-				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), true);
+				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, (-1 * iQuantity), false, true);
 			}
 			else if(!bPillaged && (eResourceFromImprovement != NO_RESOURCE) && (getResourceType() != NO_RESOURCE && getResourceType() != eResourceFromImprovement))
 			{
-				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iQuantity, true);
+				GET_PLAYER(getOwner()).changeNumResourceTotal(eResourceFromImprovement, iQuantity, false, true);
 			}
 			int iMoves = GC.getImprovementInfo(getImprovementType())->GetMovesChange();
 			if (bPillaged && GetPlotMovesChange() > 0)

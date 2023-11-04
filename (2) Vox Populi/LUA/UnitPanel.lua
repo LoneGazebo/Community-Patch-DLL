@@ -1765,7 +1765,7 @@ function TipHandler( control )
 		if (pImprovement) then 
 			local iResourceID = pPlot:GetResourceType(iActiveTeam);
 			if (iResourceID ~= -1) then
-				if (pPlot:IsResourceConnectedByImprovement(iImprovement)) then
+				if (pPlot:IsResourceConnectedByImprovement(iImprovement) and pPlot:GetOwner() == unit:GetOwner()) then
 					if (Game.GetResourceUsageType(iResourceID) ~= ResourceUsageTypes.RESOURCEUSAGE_BONUS) then
 						local pResource = GameInfo.Resources[pPlot:GetResourceType(iActiveTeam)];
 						local strResourceString = pResource.Description;

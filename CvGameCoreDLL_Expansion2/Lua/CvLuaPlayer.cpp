@@ -73,6 +73,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetResourcesFromCorporation);
 	Method(GetResourceFromCSAlliances);
 	Method(GetResourcesFromFranchises);
+	Method(GetResourceQuantityModifierFromTraits);
 	Method(GetStrategicResourceMod);
 	Method(GetResourceModFromReligion);
 	Method(IsShowImports);
@@ -853,8 +854,10 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsPlayable);
 	Method(SetPlayable);
 
+	Method(GetNumResourceUnimproved);
 	Method(GetNumResourceUsed);
 	Method(GetNumResourceTotal);
+	Method(GetNumResourceFromBuildings);
 	Method(ChangeNumResourceTotal);
 	Method(GetNumResourceAvailable);
 
@@ -1858,6 +1861,15 @@ int CvLuaPlayer::lGetResourcesFromFranchises(lua_State* L)
 	}
 
 	lua_pushinteger(L, iResult);
+	return 1;
+}
+// -----------------------------------------------------------------------------
+// int CvPlayer::GetStrategicResourceMod()
+int CvLuaPlayer::lGetResourceQuantityModifierFromTraits(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	lua_pushinteger(L, pkPlayer->GetPlayerTraits()->GetResourceQuantityModifier(eResource));
 	return 1;
 }
 // -----------------------------------------------------------------------------
@@ -9856,10 +9868,22 @@ int CvLuaPlayer::lSetPlayable(lua_State* L)
 	return BasicLuaMethod(L, &CvPlayerAI::setPlayable);
 }
 //------------------------------------------------------------------------------
+//int getNumResourceUnimproved(ResourceTypes  iIndex);
+int CvLuaPlayer::lGetNumResourceUnimproved(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getNumResourceUnimproved);
+}
+//------------------------------------------------------------------------------
 //int getNumResourceUsed(ResourceTypes  iIndex);
 int CvLuaPlayer::lGetNumResourceUsed(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlayerAI::getNumResourceUsed);
+}
+//------------------------------------------------------------------------------
+//int getNumResourceFromBuildings(ResourceTypes  iIndex);
+int CvLuaPlayer::lGetNumResourceFromBuildings(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlayerAI::getNumResourceFromBuildings);
 }
 //------------------------------------------------------------------------------
 //int getNumResourceTotal(ResourceTypes  iIndex, bool bIncludeImport);
@@ -9871,7 +9895,12 @@ int CvLuaPlayer::lGetNumResourceTotal(lua_State* L)
 //void changeNumResourceTotal(ResourceTypes  iIndex, int iChange);
 int CvLuaPlayer::lChangeNumResourceTotal(lua_State* L)
 {
-	return BasicLuaMethod(L, &CvPlayerAI::changeNumResourceTotal);
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const ResourceTypes eResource = (ResourceTypes)lua_tointeger(L, 2);
+	const int iChange = lua_tointeger(L, 3);
+	const bool bFromBuilding = luaL_optbool(L, 4, false);
+	pkPlayer->changeNumResourceTotal(eResource, iChange, bFromBuilding);
+	return 1;
 }
 //------------------------------------------------------------------------------
 //int getNumResourceAvailable(ResourceTypes  iIndex, bool bIncludeImport);

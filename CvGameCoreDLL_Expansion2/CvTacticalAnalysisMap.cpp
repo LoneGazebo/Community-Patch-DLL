@@ -380,7 +380,7 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 		GetEnemyMeleeStrength() > 2 * GetFriendlyMeleeStrength() && GetFriendlyRangedStrength() > 2 * GetFriendlyMeleeStrength();
 
 	//don't get into big fights over nothing
-	if (GetZoneCity() == NULL)
+	if (GetOwner() == NO_PLAYER)
 	{
 		m_ePosture = TACTICAL_POSTURE_EXPLOIT_FLANKS;
 		return m_ePosture;
@@ -460,6 +460,10 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 //overwrite the posture based on specific conditions in neighbor zones
 eTacticalPosture CvTacticalDominanceZone::SelectPostureMultiZone(vector<CvTacticalDominanceZone*> vNeighbors)
 {
+	//do nothing for no-mans land, these zones are typically large with many neighbors
+	if (GetOwner()==NO_PLAYER)
+		return m_ePosture;
+
 	for (size_t i = 0; i < vNeighbors.size(); i++)
 	{
 		//play it safe ...

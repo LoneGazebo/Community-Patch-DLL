@@ -430,9 +430,6 @@ ALTER TABLE Improvements ADD COLUMN 'MovesChange' INTEGER DEFAULT 0;
 -- Improvement requires fresh water, coast, or river adjacency to make valid.
 ALTER TABLE Improvements ADD COLUMN 'WaterAdjacencyMakesValid' BOOLEAN DEFAULT 0;
 
--- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
-ALTER TABLE Improvements ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
-
 -- Table for Civilopedia Game Concepts to add more in boxes...
 ALTER TABLE Concepts ADD COLUMN 'Extended' TEXT DEFAULT NULL;
 ALTER TABLE Concepts ADD COLUMN 'DesignNotes' TEXT DEFAULT NULL;
@@ -1471,8 +1468,8 @@ ALTER TABLE Policies ADD COLUMN 'AdditionalNumFranchises' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'NoForeignCorpsInCities' BOOLEAN DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'NoFranchisesInForeignCities' BOOLEAN DEFAULT 0;
 
-
 -- 20 = 20% additional, NOT 1/5 of existing value. this stacks, so 120%, 140%, 160%, etc...
+UPDATE Policies SET StrategicResourceMod = 100 WHERE StrategicResourceMod == 200;
 
 -- Minor Civs
 ALTER TABLE MinorCivilizations ADD COLUMN 'BullyUnitClass' TEXT DEFAULT NULL;
@@ -1887,3 +1884,115 @@ WHERE Type IN (
 	'UNITCOMBAT_FIGHTER',
 	'UNITCOMBAT_BOMBER'
 );
+
+-- Support column for SQL queries (they do nothing in the DLL, used mostly by modmods)
+ALTER TABLE Resources ADD COLUMN 'LandResource' BOOLEAN DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'SeaResource' BOOLEAN DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'AnimalResource' BOOLEAN DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'PlantResource' BOOLEAN DEFAULT 0;
+ALTER TABLE Resources ADD COLUMN 'RockResource' BOOLEAN DEFAULT 0;
+
+-- Land resources:
+UPDATE Resources SET LandResource = 1
+WHERE Type IN (
+	'RESOURCE_ALUMINUM',
+	'RESOURCE_BANANA',
+	'RESOURCE_BISON',
+	'RESOURCE_CITRUS',
+	'RESOURCE_CLOVES',
+	'RESOURCE_COAL',
+	'RESOURCE_COCOA',
+	'RESOURCE_COPPER',
+	'RESOURCE_COTTON',
+	'RESOURCE_COW',
+	'RESOURCE_DEER',
+	'RESOURCE_DYE',
+	'RESOURCE_FUR',
+	'RESOURCE_GEMS',
+	'RESOURCE_GOLD',
+	'RESOURCE_HORSE',
+	'RESOURCE_INCENSE',
+	'RESOURCE_IRON',
+	'RESOURCE_IVORY',
+	'RESOURCE_MARBLE',
+	'RESOURCE_NUTMEG',
+	'RESOURCE_OIL', -- both land and sea
+	'RESOURCE_PEPPER',
+	'RESOURCE_SALT',
+	'RESOURCE_SHEEP',
+	'RESOURCE_SILK',
+	'RESOURCE_SILVER',
+	'RESOURCE_SPICES',
+	'RESOURCE_STONE',
+	'RESOURCE_SUGAR',
+	'RESOURCE_TRUFFLES',
+	'RESOURCE_URANIUM',
+	'RESOURCE_WHEAT',
+	'RESOURCE_WINE'
+);
+
+-- Sea resources:
+UPDATE Resources SET SeaResource = 1
+WHERE Type IN (
+	'RESOURCE_CRAB',
+	'RESOURCE_FISH',
+	'RESOURCE_OIL', -- both sea and land
+	'RESOURCE_PEARLS',
+	'RESOURCE_WHALE'
+);
+
+-- Animal resources:
+UPDATE Resources SET AnimalResource = 1
+WHERE Type IN (
+	'RESOURCE_BISON',
+	'RESOURCE_COW',
+	'RESOURCE_CRAB',
+	'RESOURCE_DEER',
+	'RESOURCE_FISH',
+	'RESOURCE_FUR',
+	'RESOURCE_HORSE',
+	'RESOURCE_IVORY',
+	'RESOURCE_PEARLS',
+	'RESOURCE_SHEEP',
+	'RESOURCE_SILK',
+	'RESOURCE_WHALE'
+);
+
+-- Plant resources:
+UPDATE Resources SET PlantResource = 1
+WHERE Type IN (
+	'RESOURCE_BANANA',
+	'RESOURCE_CITRUS',
+	'RESOURCE_CLOVES',
+	'RESOURCE_COCOA',
+	'RESOURCE_COTTON',
+	'RESOURCE_DYE',
+	'RESOURCE_INCENSE',
+	'RESOURCE_NUTMEG',
+	'RESOURCE_PEPPER',
+	'RESOURCE_SPICES',
+	'RESOURCE_SUGAR',
+	'RESOURCE_TRUFFLES',
+	'RESOURCE_WHEAT',
+	'RESOURCE_WINE'
+);
+
+-- Rock resources:
+UPDATE Resources SET RockResource = 1
+WHERE Type IN (
+	'RESOURCE_ALUMINUM',
+	'RESOURCE_COAL',
+	'RESOURCE_COPPER',
+	'RESOURCE_GEMS',
+	'RESOURCE_GOLD',
+	'RESOURCE_IRON',
+	'RESOURCE_MARBLE',
+	'RESOURCE_SALT',
+	'RESOURCE_SILVER',
+	'RESOURCE_STONE',
+	'RESOURCE_URANIUM'
+);
+
+-- Unassigned:
+-- RESOURCE_JEWELRY, RESOURCE_PORCELAIN
+-- In VP, RESOURCE_GLASS and RESOURCE_PAPER are also unassigned

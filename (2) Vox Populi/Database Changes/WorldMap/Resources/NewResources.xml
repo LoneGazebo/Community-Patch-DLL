@@ -10,7 +10,9 @@
 			<IconString>[ICON_RES_COFFEE]</IconString>
 			<PortraitIndex>1</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
+			<Flatlands>true</Flatlands>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_TEA</Type>
@@ -21,7 +23,9 @@
 			<IconString>[ICON_RES_TEA]</IconString>
 			<PortraitIndex>2</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
+			<Flatlands>true</Flatlands>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_TOBACCO</Type>
@@ -32,7 +36,9 @@
 			<IconString>[ICON_RES_TOBACCO]</IconString>
 			<PortraitIndex>3</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
+			<Flatlands>true</Flatlands>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_AMBER</Type>
@@ -43,7 +49,10 @@
 			<IconString>[ICON_RES_AMBER]</IconString>
 			<PortraitIndex>4</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Hills>1</Hills>
+			<Hills>true</Hills>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
+			<RockResource>true</RockResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_JADE</Type>
@@ -54,7 +63,9 @@
 			<IconString>[ICON_RES_JADE]</IconString>
 			<PortraitIndex>5</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Hills>1</Hills>
+			<Hills>true</Hills>
+			<LandResource>true</LandResource>
+			<RockResource>true</RockResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_OLIVE</Type>
@@ -65,7 +76,9 @@
 			<IconString>[ICON_RES_OLIVE]</IconString>
 			<PortraitIndex>6</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
+			<Flatlands>true</Flatlands>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_PERFUME</Type>
@@ -76,7 +89,9 @@
 			<IconString>[ICON_RES_PERFUME]</IconString>
 			<PortraitIndex>7</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
+			<Flatlands>true</Flatlands>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_CORAL</Type>
@@ -87,6 +102,8 @@
 			<IconString>[ICON_RES_CORAL]</IconString>
 			<PortraitIndex>8</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
+			<SeaResource>true</SeaResource>
+			<AnimalResource>true</AnimalResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_LAPIS</Type>
@@ -97,7 +114,9 @@
 			<IconString>[ICON_RES_LAPIS]</IconString>
 			<PortraitIndex>9</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Hills>1</Hills>
+			<Hills>true</Hills>
+			<LandResource>true</LandResource>
+			<RockResource>true</RockResource>
 		</Row>
 		<!-- City-State -->
 		<Row>
@@ -122,8 +141,10 @@
 			<IconString>[ICON_RES_BRAZILWOOD]</IconString>
 			<PortraitIndex>11</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
-			<Hills>1</Hills>
+			<Flatlands>true</Flatlands>
+			<Hills>true</Hills>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<!-- New bonus resources -->
 		<Row>
@@ -135,8 +156,10 @@
 			<IconString>[ICON_RES_MAIZE]</IconString>
 			<PortraitIndex>12</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
-			<Normalize>1</Normalize>
+			<Flatlands>true</Flatlands>
+			<Normalize>true</Normalize>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<Row>
 			<Type>RESOURCE_RICE</Type>
@@ -147,8 +170,10 @@
 			<IconString>[ICON_RES_RICE]</IconString>
 			<PortraitIndex>13</PortraitIndex>
 			<IconAtlas>VP_RESOURCE_ATLAS</IconAtlas>
-			<Flatlands>1</Flatlands>
-			<Normalize>1</Normalize>
+			<Flatlands>true</Flatlands>
+			<Normalize>true</Normalize>
+			<LandResource>true</LandResource>
+			<PlantResource>true</PlantResource>
 		</Row>
 		<!-- New strategic resources -->
 		<Row>

@@ -1347,9 +1347,9 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 	//how much happiness from one additional luxury?
 	int iBaseHappiness = 0;
 	if (bFromMe)
-		iBaseHappiness += GetPlayer()->GetHappinessFromLuxury(eResource);
+		iBaseHappiness += GetPlayer()->GetHappinessFromLuxury(eResource) + GetPlayer()->GetExtraHappinessPerLuxury();
 	else
-		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource);
+		iBaseHappiness += GET_PLAYER(eOtherPlayer).GetHappinessFromLuxury(eResource) + GET_PLAYER(eOtherPlayer).GetExtraHappinessPerLuxury();
 
 	// How much of this luxury resource do we already have?
 	int iNumAvailableToUs = GetPlayer()->getNumResourceTotal(eResource, true);
@@ -1428,7 +1428,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 				}
 
 				iItemValue -= (iYieldBonusFromExport * OneGPTScaled) / 3;
-				if (iItemValue <= 0)
+				if (iItemValue <= OneGPT)
 					return OneGPT;
 			}
 		}
@@ -2061,6 +2061,10 @@ int CvDealAI::GetStrategicResourceValue(ResourceTypes eResource, int iResourceQu
 
 	// how many resources do we have available? when selling, don't count imported resources
 	int iNumberAvailableToUs = GetPlayer()->getNumResourceAvailable(eResource, !bFromMe);
+	// when buying, we treat unimproved resources in our empire as improved
+	if (!bFromMe)
+		iNumberAvailableToUs += GetPlayer()->getNumResourceUnimproved(eResource);
+
 	// include resources from renew deals
 	std::vector<CvDeal*> pRenewDeals = m_pPlayer->GetDiplomacyAI()->GetDealsToRenew(eOtherPlayer);
 

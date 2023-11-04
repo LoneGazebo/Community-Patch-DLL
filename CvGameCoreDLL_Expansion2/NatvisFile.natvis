@@ -13,6 +13,10 @@
 		</Expand>
 	</Type>
 
+	<Type Name="STacticalAssignment">
+		<DisplayString>(u{iUnitID} {eAssignmentType} to p{iToPlotIndex} score: {iScore})</DisplayString>
+	</Type>
+
 	<Type Name="CvUnit">
 		<DisplayString>(id {m_iID}, C{m_iBaseCombat}R{m_iBaseRangedCombat}, M{m_iMoves}, P{m_eOwner}, at {m_iX}:{m_iY})</DisplayString>
 		<Expand>
