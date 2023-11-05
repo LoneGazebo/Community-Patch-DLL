@@ -11207,6 +11207,7 @@ void CvPlayer::doTurn()
 	{
 		DoWarValueLostDecay();
 		DoUpdateWarDamageAndWeariness(false);
+		cacheAvgGoldRate();
 
 		//Reset for reevaluation of citystrategy AI
 		countCitiesNeedingTerrainImprovements(true);
@@ -18348,9 +18349,9 @@ int CvPlayer::getTurnsToBankruptcy(int iAssumedExtraExpense) const
 	int iAvgGPT = getAvgGoldRate() - iAssumedExtraExpense;
 
 	if (iAvgGPT > 0)
-		return INT_MAX;
-
-	return -iGold/max(1,iAvgGPT);
+		return INT_MAX; //not going broke
+	else
+		return iGold/max(1,-iAvgGPT);
 }
 
 /// What is the average production produced by our cities?

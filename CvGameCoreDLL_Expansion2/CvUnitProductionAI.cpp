@@ -202,7 +202,7 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 		return SR_STRATEGY;
 	}
 
-	if (!kPlayer.isMinorCiv() && !bDesperate && !bFree)
+	if (!bDesperate && !bFree)
 	{
 		if (bCombat && !pkUnitEntry->IsNoMaintenance() && !pkUnitEntry->IsTrade())
 		{
@@ -210,9 +210,9 @@ int CvUnitProductionAI::CheckUnitBuildSanity(UnitTypes eUnit, bool bForOperation
 			int iAverageGoldPerUnit = iGoldSpentOnUnits / (max(1, kPlayer.getNumUnits()));
 			int iTurnsLeft = kPlayer.getTurnsToBankruptcy(iAverageGoldPerUnit);
 
-			if (iTurnsLeft < 7)
+			if (iTurnsLeft < 9)
 				return SR_MAINTENANCE;
-			else if (iTurnsLeft < 13)
+			else if (iTurnsLeft < 17)
 				iBonus -= iAverageGoldPerUnit*25;
 		}
 	}

@@ -9315,7 +9315,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 
 	// Military Stuff
 	DoUpdateWarStates();
-	GetPlayer()->cacheAvgGoldRate();
 	GetPlayer()->DoTestEmpireInBadShapeForWar();
 	DoUpdatePlayerStrengthEstimates();
 	DoUpdateWarProgressScores();
@@ -15024,7 +15023,6 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 		DoResetPotentialWarTargets();
 		GetPlayer()->DoUpdateWarDamageAndWeariness(/*bDamageOnly*/ true);
 		DoUpdateWarStates();
-		GetPlayer()->cacheAvgGoldRate();
 		GetPlayer()->DoTestEmpireInBadShapeForWar();
 		DoUpdatePlayerStrengthEstimates();
 		DoUpdateWarmongerThreats();
