@@ -1271,7 +1271,12 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 
 	CvMap& kMap = GC.getMap();
 	sg_kSave.Resize(kMap.getGridWidth(), kMap.getGridHeight());
-	sg_kSave.ClearScenarioData();
+
+	// The tool used to load the map file expects a file in proper scenario binary format
+	if (!MOD_LOG_MAP_STATE)
+	{
+		sg_kSave.ClearScenarioData();
+	}
 
 	// Set map name
 	if(szMapName == NULL)
@@ -1392,7 +1397,7 @@ bool CvWorldBuilderMapLoader::Save(const wchar_t* wszFilename, const char* szMap
 		kPlotData.SetContinentType(pkPlot->GetContinentType());
 	}
 
-	return sg_kSave.Save(wszFilename, sg_kMapTypeDesc, false);
+	return sg_kSave.Save(wszFilename, sg_kMapTypeDesc, MOD_LOG_MAP_STATE);
 }
 
 int CvWorldBuilderMapLoader::LoadModData(lua_State* L)

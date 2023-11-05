@@ -452,6 +452,9 @@
    <Row Class="5" Name="SQUADS" Value="0"/>
    <!-- Enables support for notforsale modmod -->
    <Row Class="5" Name="NOT_FOR_SALE" Value="0"/>
+
+   <!-- When enabled, full map state will be dumped to disk every turn. May cause performance degradation. -->
+   <Row Class="0" Name="LOG_MAP_STATE" Value="0"/>
 	  
     <!-- Events sent when terraforming occurs (v33) -->
     <!--   GameEvents.TerraformingMap.Add(function(iEvent, iLoad) end) -->
