@@ -665,7 +665,12 @@ local function UpdateTopPanelNow()
 					turnsRemaining = math_ceil((faithNeeded - faithProgress) / faithPerTurn )
 				end
 				Controls.FaithBox:SetHide(false)
-				Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
+				
+				if not (g_activePlayer:HasCreatedPantheon() and g_activePlayer:HasCreatedReligion()) then
+					Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
+				else
+					Controls.FaithString:SetText( S("+%i[ICON_PEACE]%i", faithPerTurn, faithProgress ) )
+				end
 			else
 				Controls.FaithBox:SetHide(true)
 				if PerTurnOnLeft then
