@@ -386,15 +386,6 @@ WHERE Type IN (
 	'BUILDING_TRAINSTATION'
 );
 
--- Likely unnecessary with Building_ClassNeededNowhere, just for clarity on tooltip
-UPDATE Buildings
-SET MutuallyExclusiveGroup = 15
-WHERE Type IN (
-	'BUILDING_AMERICA_SMITHSONIAN',
-	'BUILDING_AMERICA_WESTPOINT',
-	'BUILDING_AMERICA_SLATERMILL'
-);
-
 UPDATE Buildings
 SET MutuallyExclusiveGroup = 50
 WHERE Type IN (

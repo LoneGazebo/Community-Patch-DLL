@@ -1481,6 +1481,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 	-- Required Buildings:
 	local buildings = table()
+	-- local
 	for row in GameInfo.Building_PrereqBuildingClasses( thisBuildingType ) do
 		local item = GetCivBuilding( activeCivilizationType, row.BuildingClassType )
 		if item then
@@ -1492,17 +1493,37 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		local item = GetCivBuilding( activeCivilizationType, row.BuildingClassType )
 		buildings:insertIf( item and not buildings[ item ] and BuildingColor( L(item.Description) ) )
 	end
+	-- global
+	items = {}
+	for classNeededAnywhere in DB.Query("SELECT Building_ClassNeededAnywhere.BuildingClassType FROM Building_ClassNeededAnywhere WHERE BuildingType = ?", building.Type) do
+		SetKey( items, classNeededAnywhere.BuildingClassType )
+	end
+	for buildingClassType in pairs( items ) do
+		local item = GetCivBuilding( activeCivilizationType, buildingClassType )
+		buildings:insertIf( item and TextColor( "[COLOR_YIELD_FOOD]", L(item.Description) ) )
+	end
+	-- printing...
+	tips:insertIf( #buildings > 0 and L"TXT_KEY_PEDIA_REQ_BLDG_LABEL" .. " " .. buildings:concat(", ") )
+	
+	-- Exclusive Buildings:
+	local buildings = table()
+	-- local
 	items = {}
 	if (building.MutuallyExclusiveGroup or -1) >= 0 then
 		for row in GameInfo.Buildings{ MutuallyExclusiveGroup = building.MutuallyExclusiveGroup } do
 			SetKey( items, row.BuildingClass ~= buildingClassType and row.BuildingClass )
 		end
 	end
+	-- global
+	for classNeededNowhere in DB.Query("SELECT Building_ClassNeededNowhere.BuildingClassType FROM Building_ClassNeededNowhere WHERE BuildingType = ?", building.Type) do
+		SetKey( items, classNeededNowhere.BuildingClassType )
+	end
 	for buildingClassType in pairs( items ) do
 		local item = GetCivBuilding( activeCivilizationType, buildingClassType )
 		buildings:insertIf( item and TextColor( "[COLOR_RED]", L(item.Description) ) )
 	end
-	tips:insertIf( #buildings > 0 and L"TXT_KEY_PEDIA_REQ_BLDG_LABEL" .. " " .. buildings:concat(", ") )
+	-- printing...
+	tips:insertIf( #buildings > 0 and L"TXT_KEY_PEDIA_EXC_BLDG_LABEL" .. " " .. buildings:concat(", ") )
 
 	-- Local Resources Required:
 	local resources = table()
