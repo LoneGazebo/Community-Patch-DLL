@@ -475,6 +475,8 @@
 #define MOD_SQUADS									gCustomMods.isSQUADS()
 // NotForSale modmod
 #define MOD_NOT_FOR_SALE							gCustomMods.isNOT_FOR_SALE()
+// Full map state logging
+#define MOD_LOG_MAP_STATE							gCustomMods.isLOG_MAP_STATE()
 
 //
 //	 GameEvents.TradeRouteCompleted.Add(function( iOriginOwner, iOriginCity, iDestOwner, iDestCity, eDomain, eConnectionTradeType) end)
@@ -1552,6 +1554,7 @@ public:
 	MOD_OPT_DECL(GP_ERA_SCALING);
 	MOD_OPT_DECL(SQUADS);
 	MOD_OPT_DECL(NOT_FOR_SALE);
+	MOD_OPT_DECL(LOG_MAP_STATE);
 
 protected:
 	bool m_bInit;

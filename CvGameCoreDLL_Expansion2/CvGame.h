@@ -754,6 +754,7 @@ public:
 	int GetTurnsBetweenMinorCivElections();
 	int GetTurnsUntilMinorCivElection();
 
+	void LogMapState() const;
 	void LogGameState(bool bLogHeaders = false) const;
 	void unitIsMoving() const;
 
