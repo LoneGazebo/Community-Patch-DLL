@@ -348,6 +348,15 @@ public:
 
 	bool IsBuildingLocalResourceValid(BuildingTypes eBuilding, bool bTestVisible, CvString* toolTipSink = NULL) const;
 	bool IsBuildingResourceMonopolyValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
+
+	void GetPlotsBoostedByBuilding(std::vector<int>& aiPlotList, BuildingTypes eBuilding);
+	int GetNumHiddenBuildings() const;
+	bool IsBuildingHidden(BuildingTypes eBuilding) const;
+
+	void SetBuildingHidden(BuildingTypes eBuilding);
+	void ClearHiddenBuildings();
+
+
 #if defined(MOD_BALANCE_CORE)
 	bool IsBuildingFeatureValid(BuildingTypes eBuilding, CvString* toolTipSink = NULL) const;
 #endif
@@ -2141,6 +2150,9 @@ protected:
 	CvCityEmphases* m_pEmphases;
 	CvCityEspionage* m_pCityEspionage;
 	CvCityCulture* m_pCityCulture;
+
+	int m_inumHiddenBuildings;
+	std::vector<bool> m_abIsBuildingHidden;
 
 	// CACHE: cache frequently used values
 	int m_iPopulationRank;

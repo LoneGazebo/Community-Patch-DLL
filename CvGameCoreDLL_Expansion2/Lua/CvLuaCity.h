@@ -70,6 +70,13 @@ protected:
 	static int lCanJoin(lua_State* L);
 	static int lIsBuildingLocalResourceValid(lua_State* L);
 
+	static int lGetPlotsBoostedByBuilding(lua_State* L);
+
+	static int lSetBuildingHidden(lua_State* L);
+	static int lClearHiddenBuildings(lua_State* L);
+	static int lIsBuildingHidden(lua_State* L);
+	static int lGetNumHiddenBuildings(lua_State* L);
+
 	static int lGetResourceDemanded(lua_State* L);
 	static int lSetResourceDemanded(lua_State* L);
 	static int lDoPickResourceDemanded(lua_State* L);
