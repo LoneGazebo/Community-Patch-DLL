@@ -4616,50 +4616,47 @@ void CvTacticalAI::ExecuteWithdrawMoves()
 		if(!pUnit)
 			continue;
 		
-		bool bMoveMade = false;
-		CvPlot* pTargetPlot = NULL;
-
 		// Allow withdraw to neighboring tactical zone which seems safe
 		CvTacticalDominanceZone* pZone = GetTacticalAnalysisMap()->GetZoneByPlot(pUnit->plot());
 		if (!pZone)
 			continue;
 
 		//todo: if we withdraw one unit, make sure we withdraw any neighboring units as well .. don't want to leave anyone behind!
-
+		int iBestScore = 0;
+		CvPlot* pTargetPlot = NULL;
 		for (std::vector<int>::const_iterator it = pZone->GetNeighboringZones().begin(); it != pZone->GetNeighboringZones().end(); ++it)
 		{
 			CvTacticalDominanceZone* pNextZone = GetTacticalAnalysisMap()->GetZoneByID(*it);
-			if (pNextZone && pNextZone->GetZoneCity() && pNextZone->IsWater()==(pUnit->getDomainType()==DOMAIN_SEA) &&
-				(pNextZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_FRIENDLY || pNextZone->GetOverallDominanceFlag() == TACTICAL_DOMINANCE_EVEN))
+			if (pNextZone && pNextZone->GetZoneCity() && pNextZone->IsWater() == (pUnit->getDomainType() == DOMAIN_SEA))
 			{
-				pTargetPlot = GC.getMap().plot(pNextZone->GetCenterX(), pNextZone->GetCenterY());
-				if (pUnit->CanSafelyReachInXTurns(pTargetPlot,12))
+				int iScore = pNextZone->getHospitalityScore();
+				int iTurns = pUnit->TurnsToReachTarget(pTargetPlot, CvUnit::MOVEFLAG_AI_ABORT_IN_DANGER, 12);
+				if (iTurns == INT_MAX)
+					continue;
+
+				iScore = (iScore * 100) / (iTurns + 1);
+
+				if (iScore > iBestScore && pUnit->CanSafelyReachInXTurns(pTargetPlot, 12))
 				{
-					bMoveMade = MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
-					break;
+					pTargetPlot = GC.getMap().plot(pNextZone->GetCenterX(), pNextZone->GetCenterY());
+					iBestScore = iScore;
 				}
 			}
 		}
 
-		if (!bMoveMade)
+		if (!pTargetPlot)
 		{
 			// Compute moves to nearest city and use as sort criteria
-			CvCity* pNearestCity = m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
-			if (m_pPlayer->isMinorCiv())
-				pNearestCity = m_pPlayer->getCapitalCity();
-
+			CvCity* pNearestCity = m_pPlayer->isMinorCiv() ? m_pPlayer->getCapitalCity() : m_pPlayer->GetClosestCityByPathLength(pUnit->plot());
 			if (pNearestCity)
 				pTargetPlot = pNearestCity->plot();
-
-			if (pUnit->CanSafelyReachInXTurns(pTargetPlot, 12))
-				bMoveMade = pUnit->IsCivilianUnit() ?
-					ExecuteMoveToPlot(pUnit, pTargetPlot)!=INT_MAX :
-					MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
 		}
 
-		if (bMoveMade)
+		if (pTargetPlot)
 		{
+			MoveToEmptySpaceNearTarget(pUnit, pTargetPlot, pUnit->getDomainType(), 12, true);
 			UnitProcessed(m_CurrentMoveUnits[iI].GetID());
+
 			if(GC.getLogging() && GC.getAILogging())
 			{
 				CvString strLogString;
@@ -7552,7 +7549,7 @@ bool isKillAssignment(eUnitAssignmentType eAssignmentType)
 		eAssignmentType == A_RANGEKILL;
 }
 
-int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, int iMovesLeft, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
+int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const CvTacticalPlot& testPlot, int iMovesLeft, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iSelfDamage, 
 							const CvTacticalPosition& assumedPosition, eUnitMoveEvalMode evalMode)
 {
 	int iResult = 0;
@@ -7599,12 +7596,18 @@ int ScoreTurnEnd(const CvUnit* pUnit, const CvTacticalPlot& testPlot, int iMoves
 	if (iDanger > 0)
 	{
 		//avoid extreme danger, except in citadels
-		int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
-		int iOverkill = iDanger / max(1,iRemainingHP); //truncated to int but good enough ...
-		if (iOverkill >= 2 && !bIsFrontlineCitadelOrCity && assumedPosition.getAggressionLevel() != AL_BRAVEHEART)
+		if (!bIsFrontlineCitadelOrCity && assumedPosition.getAggressionLevel() != AL_BRAVEHEART)
 		{
-			//if there is nothing we would cover or we are low on health, don't do it
-			int iLowHealthThreshold = 23*iOverkill;
+			int iRemainingHP = pUnit->GetCurrHitPoints() - iSelfDamage;
+
+			//the minimum amount of hitpoint we want a standalone unit to have for the expected counterattacks
+			int iMagicNumber = (eLastAssignment == A_MELEEKILL || eLastAssignment == A_MELEEKILL_NO_ADVANCE || eLastAssignment == A_RANGEKILL) ? 23 : 37;
+
+			//this is a bit cryptic to avoid integer truncation. consider danger/hp is the overkill factor.
+			//if the overkill factor is high, we need more hitpoints
+			int iLowHealthThreshold = (iMagicNumber * iDanger) / max(1, iRemainingHP);
+
+			//if there is nothing we would cover or that covers us or we are low on health, don't do it
 			if (iRemainingHP*(iNumAdjFriendlies+1) < iLowHealthThreshold)
 				return INT_MAX;
 		}
@@ -7753,7 +7756,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	if (evalMode != EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
+		iDangerScore = ScoreTurnEnd(pUnit, unit.eLastAssignment, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -7857,7 +7860,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 	if (evalMode!=EM_INTERMEDIATE)
 	{
 		result.eAssignmentType = A_FINISH;
-		iDangerScore = ScoreTurnEnd(pUnit, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
+		iDangerScore = ScoreTurnEnd(pUnit, unit.eLastAssignment, testPlot, movePlot.iMovesLeft, eRelevantDomain, unit.iSelfDamage, assumedPosition, evalMode);
 
 		if (iDangerScore == INT_MAX)
 			return result; //don't do it
@@ -10306,7 +10309,7 @@ bool CvTacticalPosition::couldEndTurnAfterThisAssignment(const STacticalAssignme
 	if (!pUnit || !assumedUnitPlot.isValid())
 		return false;
 
-	return ScoreTurnEnd(pUnit, assumedUnitPlot, 0, CvTacticalPlot::TD_BOTH, unit->iSelfDamage, *this, EM_FINAL) != INT_MAX;
+	return ScoreTurnEnd(pUnit, unit->eLastAssignment, assumedUnitPlot, 0, CvTacticalPlot::TD_BOTH, unit->iSelfDamage, *this, EM_FINAL) != INT_MAX;
 }
 
 std::ostream& operator<<(ostream& os, const CvPlot& p)
