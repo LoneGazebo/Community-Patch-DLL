@@ -3,7 +3,8 @@ UPDATE Beliefs
 SET
 	CombatModifierEnemyCities = 0,
 	CityStateMinimumInfluence = 35,
-	CityStateInfluenceModifier = 25
+	CityStateInfluenceModifier = 25,
+	FriendlyCityStateSpreadModifier = 100
 WHERE Type = 'BELIEF_JUST_WAR';
 
 INSERT INTO Belief_YieldChangePerXCityStateFollowers
@@ -43,9 +44,8 @@ VALUES
 UPDATE Beliefs
 SET
 	MissionaryCostModifier = 0,
-	SpreadDistanceModifier = 25,
-	PressureChangeTradeRoute = 200,
-	FriendlyCityStateSpreadModifier = 100
+	SpreadDistanceModifier = 40,
+	PressureChangeTradeRoute = 200
 WHERE Type = 'BELIEF_HOLY_ORDER';
 
 -- Messiah (now Prophecy)
