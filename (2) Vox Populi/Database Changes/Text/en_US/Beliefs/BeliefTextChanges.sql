@@ -364,7 +364,7 @@ SET Text = 'Abode of Peace'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 2 followers of this [ICON_RELIGION] Religion in City-States. Your resting point for [ICON_INFLUENCE] Influence with City-States following your Religion is increased by [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 25%.'
+SET Text = '+100% Pressure to friendly [ICON_CITY_STATE] City-States. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 2 followers of this [ICON_RELIGION] Religion in City-States. Your resting point for [ICON_INFLUENCE] Influence with City-States following your Religion is increased by [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 25%.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR';
 
 UPDATE Language_en_US
@@ -388,7 +388,7 @@ SET Text = 'Orthodoxy'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_RELIGION] Religion spreads to Cities 25% further away. Pressure doubled to friendly [ICON_CITY_STATE] City-States, and tripled to foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[ICON_RELIGION] Religion spreads to Cities 40% further away. +200% Pressure to foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER';
 
 UPDATE Language_en_US
