@@ -30,7 +30,7 @@ SET Text = 'God of Craftsmen'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Quarries and Stone Works. +1 [ICON_CULTURE] Culture, +1 [ICON_RESEARCH] Science, and +2 [ICON_PEACE] Faith from the Palace.'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Quarries. +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science from the Palace. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Stone Works.'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES';
 
 UPDATE Language_en_US
