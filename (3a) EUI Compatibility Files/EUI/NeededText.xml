@@ -54,7 +54,10 @@
 			<Text>Corporations</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITYVIEW_UNHIDE_BUILDINGS">
-			<Text>Restore hidden buildings in this cities production options.</Text>
+			<Text>Unhide</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITYVIEW_UNHIDE_BUILDINGS_TT">
+			<Text>Make hidden buildings visible again in this city's production options.</Text>
 		</Row>
 		<!-- Condensed Help Texts -->
 		<Row>

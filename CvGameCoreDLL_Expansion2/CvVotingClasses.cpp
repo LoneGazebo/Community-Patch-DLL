@@ -13533,7 +13533,7 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-				if (pLeague->CanEverVote(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID()&& GET_PLAYER(eLoopPlayer).isAlive())
+				if (pLeague->CanEverVote(eLoopPlayer) && GET_PLAYER(eLoopPlayer).GetID() != GetPlayer()->GetID() && GET_PLAYER(eLoopPlayer).isAlive() && GET_PLAYER(eLoopPlayer).getNumCities() > 0)
 				{
 					iDiploScore = 0;
 					if (GetPlayer()->GetDiplomacyAI()->GetCivOpinion(eLoopPlayer) != NO_CIV_OPINION)
@@ -13564,7 +13564,6 @@ int CvLeagueAI::ScoreVoteChoiceYesNo(CvProposal* pProposal, int iChoice, bool bE
 					AlignmentLevels eAlignment = EvaluateAlignment(eLoopPlayer, false);
 					switch (eAlignment)
 					{
-					case ALIGNMENT_SELF:
 					case ALIGNMENT_TEAMMATE:
 					case ALIGNMENT_LIBERATOR:
 					case ALIGNMENT_LEADER:

@@ -28,7 +28,7 @@ VALUES	('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS',		'Barbarian GG/GA Points'),
 		('TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS_HELP',	'Allows all players to accumulate Great General and Great Admiral points from fighting Barbarians.');
 
 UPDATE Language_en_US
-SET Text = 'Each time the game is loaded, the random number seed is regenerated. This means that if you reload the game, some randomized results and AI decisions might be different from the first time you played.'
+SET Text = 'This option is unused and should not be enabled.'
 WHERE Tag = 'TXT_KEY_GAME_OPTION_NEW_RANDOM_SEED_HELP';
 
 -- Advisors
@@ -54,7 +54,7 @@ WHERE Tag = 'TXT_KEY_POPUP_CITY_CAPTURE_INFO_RAZE';
 
 -- Production Queue
 UPDATE Language_en_US
-SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]ALT + LEFT CLICK adds the chosen item to the end of the production queue on repeat.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.[NEWLINE]H hides the chosen item from this cities production options.'
+SET Text = 'LEFT CLICK adds an additional item to the end of the production queue.[NEWLINE]CTRL + LEFT CLICK adds an additional item in front of the production queue.[NEWLINE]ALT + LEFT CLICK adds the chosen item to the end of the production queue on repeat.[NEWLINE]SHIFT + LEFT CLICK replaces everything in the production queue with the chosen item.[NEWLINE]H hides the chosen building from this city''s production options.'
 WHERE Tag = 'TXT_KEY_CITYVIEW_QUEUE_PROD_TT';
 
 -- Avoid Growth
