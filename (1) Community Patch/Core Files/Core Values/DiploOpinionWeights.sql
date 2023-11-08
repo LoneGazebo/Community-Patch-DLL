@@ -193,8 +193,8 @@ INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_EMBASSY_MUTUAL', -3;
 UPDATE Defines SET Value = -2 WHERE Name = 'OPINION_WEIGHT_EMBASSY';
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_EMBASSY_THEM', -1;
 
--- We have a Diplomat in their capital. (no bonus for capitulated vassals unless Content, no bonus for voluntary vassals unless Content, Disagreeing or Resurrected)
-INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIPLOMAT', -15;
+-- We have a Diplomat in their capital. (no bonus for capitulated vassals unless Content, no bonus for voluntary vassals unless Content, Disagreeing or Resurrected, no bonus if there are recent spying penalties)
+INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIPLOMAT', -20;
 INSERT INTO Defines (Name, Value) SELECT 'OPINION_WEIGHT_DIPLOMAT_MOD', -10; -- bonus for Scientist AIs
 
 -- You forgave them for spying.
