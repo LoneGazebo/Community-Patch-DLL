@@ -39,7 +39,7 @@ public:
 protected:
 
 	virtual void FlavorUpdate() = 0;
-	virtual void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR) = 0;
+	virtual void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR) {}
 
 	bool m_bIsCity;
 

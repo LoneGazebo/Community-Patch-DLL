@@ -428,7 +428,7 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 
 	ChangeFlavors(m_aiTempFlavors, true);
 
-	LogFlavors();
+	LogFlavors(NO_FLAVOR, "FOUNDED", true);
 }
 
 /// Set special production emphasis for this city
@@ -497,7 +497,7 @@ void CvCityStrategyAI::SpecializationFlavorChange(bool bTurnOn, CitySpecializati
 
 			ChangeFlavors(m_aiTempFlavors, true);
 
-			LogFlavors();
+			LogFlavors(NO_FLAVOR, pSpecialization->GetType(), bTurnOn);
 		}
 	}
 }
@@ -1715,7 +1715,7 @@ void CvCityStrategyAI::DoTurn()
 								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMaxValue;
 							}
 
-							LogFlavors((FlavorTypes) iFlavorLoop);
+							LogFlavors((FlavorTypes)iFlavorLoop, pCityStrategy->GetType(), true);
 						}
 					}
 
@@ -1745,7 +1745,7 @@ void CvCityStrategyAI::DoTurn()
 								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMaxValue;
 							}
 
-							LogFlavors((FlavorTypes) iFlavorLoop);
+							LogFlavors((FlavorTypes) iFlavorLoop, pCityStrategy->GetType(), false);
 						}
 					}
 
@@ -1811,7 +1811,7 @@ void CvCityStrategyAI::ReweightByDuration(CvWeightedVector<CvCityBuildable>& opt
 }
 
 /// Log new flavor settings
-void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor)
+void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor, const CvString& reason, bool risingEdge)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
@@ -1842,7 +1842,7 @@ void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor)
 				// Only dump if non-zero
 				//		if (m_piLatestFlavorValues[iI] > 0)
 				{
-					strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piLatestFlavorValues[iI]);
+					strTemp.Format("Flavor, %s, %d, %s, %s", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piLatestFlavorValues[iI], reason.c_str(), risingEdge ? "adopted" : "ended");
 					strOutBuf = strBaseString + strTemp;
 					pLog->Msg(strOutBuf);
 				}
@@ -1850,7 +1850,7 @@ void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor)
 		}
 		else
 		{
-			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor]);
+			strTemp.Format("Flavor, %s, %d, %s, %s", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor], reason.c_str(), risingEdge ? "adopted" : "ended");
 			strOutBuf = strBaseString + strTemp;
 			pLog->Msg(strOutBuf);
 		}
@@ -2827,64 +2827,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_HaveTrainingFacility(CvCity* pCit
 }
 
 /// "Capital Need Settler" City Strategy: have capital build a settler ASAP
-bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategyTypes eStrategy, CvCity* pCity)
+bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategyTypes /*eStrategy*/, CvCity* /*pCity*/)
 {
-	if(pCity->isCapital())
-	{
-		CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-
-		if (!(kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs()))
-		{
-			int iNumCities = kPlayer.getNumCities();
-			int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-			int iCitiesPlusSettlers = iNumCities + iSettlersOnMapOrBuild;
-
-			bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
-			//City #2 is essential.
-			if(!bIsVenice && (iCitiesPlusSettlers <= 1))
-			{
-				return true;
-			}
-
-			if((iCitiesPlusSettlers > 0) && (iCitiesPlusSettlers < 6))
-			{
-
-				AICityStrategyTypes eUnderThreat = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
-				if(eUnderThreat != NO_AICITYSTRATEGY)
-				{
-					if(GC.getGame().getGameTurn() > 50 && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eUnderThreat))
-					{
-						return false;
-					}
-				}
-
-				MilitaryAIStrategyTypes eMilStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
-				if(eMilStrategy != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eMilStrategy))
-				{
-					// this is very risky, if this war fails, the civ lost the entire game as they have no backup plan
-					return false;
-				}
-
-				CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
-				int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pCity);	// -10 per EXPANSION, +2 per DEFENSE
-				int iWeightThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 130
-
-				int iGameTurn = GC.getGame().getGameTurn();
-				if((iCitiesPlusSettlers == 1 && (iGameTurn * 4) > iWeightThreshold) ||
-					(iCitiesPlusSettlers == 2 && (iGameTurn * 2) > iWeightThreshold) || 
-					(iCitiesPlusSettlers == 3 && iGameTurn > iWeightThreshold) 
-#if defined(MOD_BALANCE_CORE)
-					|| (iCitiesPlusSettlers == 4 && (iGameTurn / 2) > iWeightThreshold) 
-					|| (iCitiesPlusSettlers == 5 && (iGameTurn / 4) > iWeightThreshold) 
-#endif
-					)
-				{
-					return true;
-				}
-			}
-		}
-	}
-
+	//checked in unitbuildsanity
 	return false;
 }
 

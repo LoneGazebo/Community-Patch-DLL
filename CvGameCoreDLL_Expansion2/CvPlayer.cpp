@@ -53417,7 +53417,7 @@ void CvPlayer::updatePlotFoundValues()
 			continue;
 
 		//this does not check CvPlayer::CanFound() because it would be recursion, therefore we do basic checks before
-		m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots) - m_iReferenceFoundValue;
+		m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots);
 	}
 
 	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();

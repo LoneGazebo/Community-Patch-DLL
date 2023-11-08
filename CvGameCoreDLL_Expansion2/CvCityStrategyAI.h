@@ -224,7 +224,7 @@ private:
 	void ReweightByDuration(CvWeightedVector<CvCityBuildable>& options);
 
 	// Logging functions
-	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
+	void LogFlavors(FlavorTypes eFlavor, const CvString& reason, bool risingedge);
 	void LogStrategy(AICityStrategyTypes eStrategy, bool bValue);
 	void LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
 	void LogPossibleHurries(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
