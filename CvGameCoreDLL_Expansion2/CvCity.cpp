@@ -1641,7 +1641,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 #endif
 
-	m_strName = "";
+	m_strName = "unknown";
 	m_strScriptData = "";
 
 	m_bPopulationRankValid = false;

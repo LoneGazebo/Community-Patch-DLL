@@ -4156,7 +4156,6 @@ void CvPlayerPolicies::Serialize(PlayerPolicies& playerPolicies, Visitor& visito
 	visitor(playerPolicies.m_eBranchPicked2);
 	visitor(playerPolicies.m_eBranchPicked3);
 
-	CvAssertMsg(playerPolicies.m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
 	visitor(playerPolicies.m_piLatestFlavorValues);
 
 	// Now for AI
@@ -6586,7 +6585,7 @@ void CvPlayerPolicies::AddFlavorAsStrategies(int iPropagatePercent)
 	}
 }
 
-void CvPlayerPolicies::LogFlavors(FlavorTypes)
+void CvPlayerPolicies::LogFlavorChange(FlavorTypes, int, const char*, bool)
 {
 	return; // Now using personality flavors, so this is unnecessary (or is it?)
 }

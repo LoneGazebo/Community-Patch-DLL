@@ -28,12 +28,14 @@ CvFlavorRecipient::~CvFlavorRecipient()
 /// Initialize data
 void CvFlavorRecipient::Init()
 {
+//	m_piLatestFlavorValues = vector<int>(GC.getNumFlavorTypes(), 0);
 	m_piLatestFlavorValues.init(0);
 }
 
 /// Deallocate memory created in initialize
 void CvFlavorRecipient::Uninit()
 {
+//	m_piLatestFlavorValues.clear();
 	m_piLatestFlavorValues.uninit();
 }
 
@@ -44,62 +46,37 @@ bool CvFlavorRecipient::IsCity() const
 }
 
 /// Public function that other classes can call to set/reset this recipient's flavors
-void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues)
+void CvFlavorRecipient::SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues, const char* reason)
 {
 	CvAssertMsg(piUpdatedFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
 	if(!piUpdatedFlavorValues.valid()) return;
 
 	int iNumFlavors = GC.getNumFlavorTypes();
-	for(int iI = 0; iI < iNumFlavors; iI++)
+	for (int iI = 0; iI < iNumFlavors; iI++)
 	{
-		bool bLogFlavor = false;
-
-		if(m_piLatestFlavorValues[iI] != piUpdatedFlavorValues[iI])
-		{
-			bLogFlavor = true;
-		}
-
+		LogFlavorChange((FlavorTypes)iI, piUpdatedFlavorValues[iI]-m_piLatestFlavorValues[iI], reason, true);
 		m_piLatestFlavorValues[iI] = piUpdatedFlavorValues[iI];
-
-//		LogFlavors((FlavorTypes) iI);
 	}
 
 	FlavorUpdate();
 }
 
 /// Public function that other classes can call to change this recipient's flavors
-void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontLog)
+void CvFlavorRecipient::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart)
 {
-
 	CvAssertMsg(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor recipient");
 
 	if(!piDeltaFlavorValues.valid()) return;
-
-	int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
-	int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
 
 	int iNumFlavors = GC.getNumFlavorTypes();
 	for(int iI = 0; iI < iNumFlavors; iI++)
 	{
 		if(piDeltaFlavorValues[iI] != 0)
 		{
+			LogFlavorChange((FlavorTypes)iI, piDeltaFlavorValues[iI], reason, effectstart);
+			//don't enforce a certain range here, this will permanently skew the flavor if a temporary effect is cancelled!
 			m_piLatestFlavorValues[iI] += piDeltaFlavorValues[iI];
-
-			// Make sure within range
-			if(m_piLatestFlavorValues[iI] < iFlavorMinValue)
-			{
-				m_piLatestFlavorValues[iI] = iFlavorMinValue;
-			}
-			else if(m_piLatestFlavorValues[iI] > iFlavorMaxValue)
-			{
-				m_piLatestFlavorValues[iI] = iFlavorMaxValue;
-			}
-
-			if(!bDontLog)
-			{
-				LogFlavors((FlavorTypes) iI);
-			}
 		}
 	}
 
@@ -205,12 +182,8 @@ void CvFlavorManager::Init(CvPlayer* pPlayer)
 			// Send out updated values to all recipients
 			BroadcastBaseFlavors();
 
+			//make the personality active and broadcast again
 			ResetToBasePersonality();
-
-			if (GC.getLogging() && GC.getAILogging())
-			{
-				LogFlavors();
-			}
 		}
 	}
 }
@@ -271,7 +244,7 @@ void CvFlavorManager::AddFlavorRecipient(CvFlavorRecipient* pTargetObject, bool 
 	// If we've already been initialized, then go ahead and send out current values
 	if(m_piPersonalityFlavor.valid() && bPropegateFlavorValues)
 	{
-		pTargetObject->SetFlavors(m_piPersonalityFlavor);
+		pTargetObject->SetFlavors(m_piPersonalityFlavor, "ADDED_RECIPIENT");
 	}
 }
 
@@ -307,54 +280,55 @@ void CvFlavorManager::ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes e
 			aiTempFlavors[iI] = pkNewLeaderHeadInfo->getFlavorValue(iI) - pkOldLeaderHeadInfo->getFlavorValue(iI);
 		}
 		
-		ChangeFlavors(aiTempFlavors, true);
+		ChangeActivePersonalityFlavors(aiTempFlavors, "NEW_LEADER", true);
 
 		aiTempFlavors.uninit();
 	}
 }
 
 /// Update to a new set of flavors
-void CvFlavorManager::ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool	bPlayerLevelUpdate)
+void CvFlavorManager::ChangeActivePersonalityFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart)
 {
 	CvAssertMsg(piDeltaFlavorValues.valid(), "Invalid map of flavor deltas passed to flavor manager");
 
 	if(!piDeltaFlavorValues.valid()) return;
 
-	if (bPlayerLevelUpdate)
+	int iNumFlavors = GC.getNumFlavorTypes();
+	for(int iI = 0; iI < iNumFlavors; iI++)
 	{
-		int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
-		int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
-
-		int iNumFlavors = GC.getNumFlavorTypes();
-		for(int iI = 0; iI < iNumFlavors; iI++)
+		//don't enforce a certain range here, this will permanently skew the flavor if a temporary effect is cancelled!
+		if(piDeltaFlavorValues[iI] != 0)
 		{
-			if(piDeltaFlavorValues[iI] != 0)
-			{
-				m_piActiveFlavor[iI] += piDeltaFlavorValues[iI];
-
-				// Make sure within range
-				if(m_piActiveFlavor[iI] < iFlavorMinValue)
-				{
-					m_piActiveFlavor[iI] =iFlavorMinValue;
-				}
-				else if(m_piActiveFlavor[iI] > iFlavorMaxValue)
-				{
-					m_piActiveFlavor[iI] = iFlavorMaxValue;
-				}
-
-				LogFlavors((FlavorTypes) iI);
-			}
+			LogActivePersonalityChange((FlavorTypes)iI, piDeltaFlavorValues[iI], reason, effectstart);
+			m_piActiveFlavor[iI] += piDeltaFlavorValues[iI];
 		}
 	}
 
-	BroadcastFlavors(piDeltaFlavorValues, bPlayerLevelUpdate);
+	for (Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
+	{
+		if ((*it)->IsCity())
+			continue;
+
+		(*it)->ChangeFlavors(piDeltaFlavorValues, reason, effectstart);
+	}
 }
+
+void CvFlavorManager::ChangeCityFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart)
+{
+	for (Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
+	{
+		if ((*it)->IsCity())
+			(*it)->ChangeFlavors(piDeltaFlavorValues, reason, effectstart);
+	}
+}
+
 
 /// Resets active settings to player's base personality
 void CvFlavorManager::ResetToBasePersonality()
 {
 	for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 	{
+		LogActivePersonalityChange((FlavorTypes)iI, m_piPersonalityFlavor[iI] - m_piActiveFlavor[iI], "Reset_To_Base", true);
 		m_piActiveFlavor[iI] = m_piPersonalityFlavor[iI];
 	}
 
@@ -438,9 +412,7 @@ int CvFlavorManager::GetPersonalityFlavorForDiplomacy(FlavorTypes eType)
 
 	// If the flavor is zeroed out or deleted, we have to account for that - use the default value
 	if (iValue <= 0)
-	{
 		return 5;
-	}
 
 	// Must be within upper and lower bounds
 	return range(iValue, 1, 10);
@@ -462,9 +434,7 @@ void CvFlavorManager::RandomizeWeights()
 	{
 		// Don't modify it if it's zero-ed out in the XML
 		if (m_piPersonalityFlavor[iI] != 0)
-		{
 			m_piPersonalityFlavor[iI] = GetAdjustedValue(m_piPersonalityFlavor[iI], iPlusMinus, iMin, iMax, CvSeeder::fromRaw(0xe655df8f).mix(m_pPlayer->GetID()).mix(iI));
-		}
 	}
 }
 
@@ -475,32 +445,16 @@ int CvFlavorManager::GetAdjustedValue(int iOriginalValue, int iPlusMinus, int iM
 	return range(GC.getGame().randRangeInclusive(iOriginalValue - iPlusMinus, iOriginalValue + iPlusMinus, seed), iMin, iMax);
 }
 
-/// Sends current flavor settings to all recipients
-void CvFlavorManager::BroadcastFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bPlayerLevelUpdate)
-{
-	for(Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
-	{
-		if(bPlayerLevelUpdate && !(*it)->IsCity())
-		{
-			(*it)->ChangeFlavors(piDeltaFlavorValues);
-		}
-		else if (!bPlayerLevelUpdate && (*it)->IsCity())
-		{
-			(*it)->ChangeFlavors(piDeltaFlavorValues);
-		}
-	}
-}
-
 /// Sends base personality flavor settings to all recipients
 void CvFlavorManager::BroadcastBaseFlavors()
 {
 	for(Flavor_List::iterator it = m_FlavorTargetList.begin(); it != m_FlavorTargetList.end(); it++)
 	{
-		(*it)->SetFlavors(m_piPersonalityFlavor);
+		(*it)->SetFlavors(m_piPersonalityFlavor, "BASEFLAVOR");
 	}
 }
 
-void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
+void CvFlavorManager::LogActivePersonalityChange(FlavorTypes eFlavor, int change, const char* reason, bool start)
 {
 	CvString strOutBuf;
 	CvString strBaseString;
@@ -524,8 +478,7 @@ void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
 			strLogName = "FlavorAILog.csv";
 		}
 
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -536,18 +489,14 @@ void CvFlavorManager::LogFlavors(FlavorTypes eFlavor)
 		{
 			for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 			{
-				// Only dump if non-zero
-				//		if (m_piLatestFlavorValues[iI] > 0)
-				{
-					strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piActiveFlavor[iI]);
-					strOutBuf = strBaseString + strTemp;
-					pLog->Msg(strOutBuf);
-				}
+				strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piActiveFlavor[iI], change, reason ? reason : "unknown", start ? "start" : "end");
+				strOutBuf = strBaseString + strTemp;
+				pLog->Msg(strOutBuf);
 			}
 		}
 		else
 		{
-			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), m_piActiveFlavor[eFlavor]);
+			strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes((FlavorTypes)eFlavor).GetCString(), m_piActiveFlavor[eFlavor], change, reason ? reason : "unknown", start ? "start" : "end");
 			strOutBuf = strBaseString + strTemp;
 			pLog->Msg(strOutBuf);
 		}

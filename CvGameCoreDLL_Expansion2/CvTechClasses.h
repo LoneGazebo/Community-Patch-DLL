@@ -294,7 +294,7 @@ private:
 
 	// Logging functions
 	CvString GetLogFileName(CvString& playerName) const;
-	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
+	void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start);
 
 	bool* m_pabResearchingTech;
 	int* m_piCivTechPriority;

@@ -2123,14 +2123,14 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 						m_aiTempFlavors[iFlavorLoop] = pStrategy->GetPlayerFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, true);
+					GetPlayer()->GetFlavorManager()->ChangeActivePersonalityFlavors(m_aiTempFlavors, pStrategy->GetType(), true);
 
 					for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						m_aiTempFlavors[iFlavorLoop] = pStrategy->GetCityFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, false);
+					GetPlayer()->GetFlavorManager()->ChangeCityFlavors(m_aiTempFlavors, pStrategy->GetType(), true);
 
 					if(pStrategy->RequiresCitySpecializationUpdate())
 						GetPlayer()->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_STRATEGY_NOW_ON);
@@ -2145,14 +2145,14 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 						m_aiTempFlavors[iFlavorLoop] = -pStrategy->GetPlayerFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, true);
+					GetPlayer()->GetFlavorManager()->ChangeActivePersonalityFlavors(m_aiTempFlavors, pStrategy->GetType(), false);
 
 					for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						m_aiTempFlavors[iFlavorLoop] = -pStrategy->GetCityFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, false);
+					GetPlayer()->GetFlavorManager()->ChangeCityFlavors(m_aiTempFlavors, pStrategy->GetType(), false);
 
 					if(pStrategy->RequiresCitySpecializationUpdate())
 						GetPlayer()->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_STRATEGY_NOW_OFF);

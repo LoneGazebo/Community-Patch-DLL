@@ -230,7 +230,7 @@ void CvWonderProductionAI::LogPossibleWonders()
 }
 
 /// Stub - Probably don't need to log flavors to city specialization log -- is in enough places already
-void CvWonderProductionAI::LogFlavors(FlavorTypes)
+void CvWonderProductionAI::LogFlavorChange(FlavorTypes, int, const char*, bool)
 {
 }
 

@@ -224,7 +224,7 @@ private:
 	void ReweightByDuration(CvWeightedVector<CvCityBuildable>& options);
 
 	// Logging functions
-	void LogFlavors(FlavorTypes eFlavor, const CvString& reason, bool risingedge);
+	void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start);
 	void LogStrategy(AICityStrategyTypes eStrategy, bool bValue);
 	void LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
 	void LogPossibleHurries(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
@@ -238,7 +238,6 @@ private:
 
 	CvEnumMap<AICityStrategyTypes, bool> m_pabUsingCityStrategy;
 	CvEnumMap<AICityStrategyTypes, int> m_paiTurnCityStrategyAdopted;
-	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
 
 	// AI sub objects
 	CvBuildingProductionAI* m_pBuildingProductionAI;

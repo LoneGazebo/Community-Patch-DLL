@@ -268,7 +268,6 @@ void CvCityStrategyAI::Init(CvAICityStrategies* pAICityStrategies, CvCity* pCity
 	// Initialize arrays
 	m_pabUsingCityStrategy.init();
 	m_paiTurnCityStrategyAdopted.init();
-	m_aiTempFlavors.init();
 
 	// Create AI subobjects
 	m_pBuildingProductionAI = FNEW(CvBuildingProductionAI(pCity, pCity->GetCityBuildings()), c_eCiv5GameplayDLL, 0);
@@ -289,7 +288,7 @@ void CvCityStrategyAI::Uninit()
 	// Deallocate member variables
 	m_pabUsingCityStrategy.uninit();
 	m_paiTurnCityStrategyAdopted.uninit();
-	m_aiTempFlavors.uninit();
+
 	SAFE_DELETE(m_pBuildingProductionAI);
 	SAFE_DELETE(m_pUnitProductionAI);
 	SAFE_DELETE(m_pProjectProductionAI);
@@ -382,14 +381,6 @@ FDataStream& operator<<(FDataStream& stream, const CvCityStrategyAI& cityStrateg
 /// Runs through all active player strategies and propagates Flavors down to this City
 void CvCityStrategyAI::UpdateFlavorsForNewCity()
 {
-	int iFlavorLoop = 0;
-
-	// Clear out Temp array
-	for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-	{
-		m_aiTempFlavors[iFlavorLoop] = 0;
-	}
-
 	// Go through all Player strategies and for the active ones apply the Flavors
 	for(int iStrategyLoop = 0; iStrategyLoop < GC.getNumEconomicAIStrategyInfos(); iStrategyLoop++)
 	{
@@ -401,9 +392,13 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 			// Active?
 			if(GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategy))
 			{
-				for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					m_aiTempFlavors[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					if (pStrategy->GetCityFlavorValue(iFlavorLoop) != 0)
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
+						m_piLatestFlavorValues[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					}
 				}
 			}
 		}
@@ -418,17 +413,17 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 			// Active?
 			if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eStrategy))
 			{
-				for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					m_aiTempFlavors[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					if (pStrategy->GetCityFlavorValue(iFlavorLoop) != 0)
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
+						m_piLatestFlavorValues[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					}
 				}
 			}
 		}
 	}
-
-	ChangeFlavors(m_aiTempFlavors, true);
-
-	LogFlavors(NO_FLAVOR, "FOUNDED", true);
 }
 
 /// Set special production emphasis for this city
@@ -439,12 +434,13 @@ bool CvCityStrategyAI::SetSpecialization(CitySpecializationTypes eSpecialization
 		LogSpecializationChange(eSpecialization);
 
 		// Turn off old specialization
-		SpecializationFlavorChange(false /*Don't turn on */, m_eSpecialization);
+		SpecializationFlavorChange(false, m_eSpecialization);
+
+		// Switch
+		m_eSpecialization = eSpecialization;
 
 		// Turn on new specialization
-		SpecializationFlavorChange(true /* Do turn on */, eSpecialization);
-
-		m_eSpecialization = eSpecialization;
+		SpecializationFlavorChange(true, m_eSpecialization);
 
 		// May want to reconsider production
 		m_pCity->AI_setChooseProductionDirty(true);
@@ -475,29 +471,22 @@ void CvCityStrategyAI::SpecializationFlavorChange(bool bTurnOn, CitySpecializati
 		CvCitySpecializationXMLEntry* pSpecialization = GC.getCitySpecializationInfo(eSpecialization);
 		if(pSpecialization)
 		{
-			int iFlavorLoop = 0;
-
-			// Clear out Temp array
-			for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+			for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 			{
-				m_aiTempFlavors[iFlavorLoop] = 0;
-			}
-
-			for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-			{
-				if(bTurnOn)
+				if (pSpecialization->GetFlavorValue(iFlavorLoop) != 0)
 				{
-					m_aiTempFlavors[iFlavorLoop] += pSpecialization->GetFlavorValue(iFlavorLoop);
-				}
-				else
-				{
-					m_aiTempFlavors[iFlavorLoop] -= pSpecialization->GetFlavorValue(iFlavorLoop);
+					if (bTurnOn)
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), true);
+						m_piLatestFlavorValues[iFlavorLoop] += pSpecialization->GetFlavorValue(iFlavorLoop);
+					}
+					else
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, -pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), false);
+						m_piLatestFlavorValues[iFlavorLoop] -= pSpecialization->GetFlavorValue(iFlavorLoop);
+					}
 				}
 			}
-
-			ChangeFlavors(m_aiTempFlavors, true);
-
-			LogFlavors(NO_FLAVOR, pSpecialization->GetType(), bTurnOn);
 		}
 	}
 }
@@ -1689,36 +1678,21 @@ void CvCityStrategyAI::DoTurn()
 			// Flavor propagation
 			if(bAdoptOrEndStrategy)
 			{
-				int iFlavorLoop = 0;
-
 				// We should adopt this CityStrategy
 				if(bTestCityStrategyStart)
 				{
 					SetUsingCityStrategy(eCityStrategy, true);
 
-					const int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
-					const int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
-
-					const int iNumFlavors = GC.getNumFlavorTypes();
-					for(iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						if(pCityStrategy->GetFlavorValue(iFlavorLoop) != 0)
 						{
+							LogFlavorChange((FlavorTypes)iFlavorLoop, pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), true);
 							m_piLatestFlavorValues[iFlavorLoop] += pCityStrategy->GetFlavorValue(iFlavorLoop);
-
-							if(m_piLatestFlavorValues[iFlavorLoop] < iFlavorMinValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMinValue;
-							}
-							else if(m_piLatestFlavorValues[iFlavorLoop] > iFlavorMaxValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMaxValue;
-							}
-
-							LogFlavors((FlavorTypes)iFlavorLoop, pCityStrategy->GetType(), true);
 						}
 					}
 
+					//update clients
 					FlavorUpdate();
 				}
 				// End the CityStrategy
@@ -1726,29 +1700,16 @@ void CvCityStrategyAI::DoTurn()
 				{
 					SetUsingCityStrategy(eCityStrategy, false);
 
-					const int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
-					const int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
-
-					const int iNumFlavors = GC.getNumFlavorTypes();
-					for(iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						if(pCityStrategy->GetFlavorValue(iFlavorLoop) != 0)
 						{
+							LogFlavorChange((FlavorTypes)iFlavorLoop, -pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), false);
 							m_piLatestFlavorValues[iFlavorLoop] -= pCityStrategy->GetFlavorValue(iFlavorLoop);
-
-							if(m_piLatestFlavorValues[iFlavorLoop] < iFlavorMinValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMinValue;
-							}
-							else if(m_piLatestFlavorValues[iFlavorLoop] > iFlavorMaxValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMaxValue;
-							}
-
-							LogFlavors((FlavorTypes) iFlavorLoop, pCityStrategy->GetType(), false);
 						}
 					}
 
+					//update clients
 					FlavorUpdate();
 				}
 			}
@@ -1811,49 +1772,28 @@ void CvCityStrategyAI::ReweightByDuration(CvWeightedVector<CvCityBuildable>& opt
 }
 
 /// Log new flavor settings
-void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor, const CvString& reason, bool risingEdge)
+void CvCityStrategyAI::LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
-		CvString cityName;
-		CvString strDesc;
 
 		// Find the name of this civ and city
-		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-		cityName = m_pCity->getName();
+		CvString playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		CvString cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", " + cityName + ", ";
 
-		// Dump out the setting for each flavor
-		if(eFlavor == NO_FLAVOR)
-		{
-			for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
-			{
-				// Only dump if non-zero
-				//		if (m_piLatestFlavorValues[iI] > 0)
-				{
-					strTemp.Format("Flavor, %s, %d, %s, %s", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piLatestFlavorValues[iI], reason.c_str(), risingEdge ? "adopted" : "ended");
-					strOutBuf = strBaseString + strTemp;
-					pLog->Msg(strOutBuf);
-				}
-			}
-		}
-		else
-		{
-			strTemp.Format("Flavor, %s, %d, %s, %s", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor], reason.c_str(), risingEdge ? "adopted" : "ended");
-			strOutBuf = strBaseString + strTemp;
-			pLog->Msg(strOutBuf);
-		}
+		strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor], change, reason?reason:"unknown", start?"start":"end");
+		strOutBuf = strBaseString + strTemp;
+		pLog->Msg(strOutBuf);
 	}
 }
 
@@ -2794,10 +2734,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategy
 // Is this an isolated city with no land routes out? Maybe open border with neighbors could help
 bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 {
-	if(!pCity)
-		return false;
-
-	if(pCity->isCapital())
+	if(!pCity || pCity->isCapital())
 		return false;
 
 	CvCity* pCapitalCity = GET_PLAYER(pCity->getOwner()).getCapitalCity();
