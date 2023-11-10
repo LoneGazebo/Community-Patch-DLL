@@ -61,12 +61,17 @@
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_POCKET_CITY</AICityStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-200</Flavor>
+			<Flavor>-100</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_POCKET_CITY</AICityStrategyType>
+			<FlavorType>FLAVOR_DEFENSE</FlavorType>
+			<Flavor>100</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-200</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_SETTLERS</AICityStrategyType>

@@ -2334,7 +2334,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 
 	//can we build it?
 	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
-	if (eRoute > thisPlayer.getBestRoute())
+	if (eRoute != ROUTE_ANY && eRoute > thisPlayer.getBestRoute())
 		return FALSE;
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);

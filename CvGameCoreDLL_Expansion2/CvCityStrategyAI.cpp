@@ -21,6 +21,8 @@
 #if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
 #include "CvWonderProductionAI.h"
+#include "CvTacticalAI.h"
+#include "CvTacticalAnalysisMap.h"
 #endif
 // must be included after all other headers
 #include "LintFree.h"
@@ -2744,6 +2746,20 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	//do we already have a connection to the capital?
 	if (pCity->IsRouteToCapitalConnected())
 		return false;
+
+	//check if we are on a different continent ... a colony isn't a pocket city
+	if (pCity->plot()->getLandmass() != pCapitalCity->plot()->getLandmass())
+		return false;
+
+	//check the tactical map whether we are neighbors with one of our other cities
+	CvTacticalAnalysisMap* tactmap = GET_PLAYER(pCity->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap();
+	const CvTacticalDominanceZone* zone = tactmap->GetZoneByCity(pCity, false);
+	for (std::vector<int>::const_iterator it = zone->GetNeighboringZones().begin(); it != zone->GetNeighboringZones().end(); ++it)
+	{
+		CvTacticalDominanceZone* neighbor = tactmap->GetZoneByID(*it);
+		if (neighbor->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
+			return false;
+	}
 
 	//could we build a route?
 	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, ROUTE_ANY);
