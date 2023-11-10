@@ -522,7 +522,6 @@ public:
 protected:
 	virtual CvUnit* FindBestCivilian();
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
-	virtual void	LogSettleTarget(const char* hint, CvPlot* pTarget) const;
 };
 
 //++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++

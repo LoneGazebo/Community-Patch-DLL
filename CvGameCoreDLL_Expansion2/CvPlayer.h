@@ -2916,7 +2916,6 @@ public:
 	virtual bool AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity) = 0;
 #endif
 
-	virtual void computeFoundValueThreshold();
 	virtual void updatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
@@ -3089,7 +3088,6 @@ protected:
 	int m_iGreatWorksTourismModifierGlobal;
 	int m_iCenterOfMassX;
 	int m_iCenterOfMassY;
-	int m_iReferenceFoundValue;
 	int m_iReformationFollowerReduction;
 	bool m_bIsReformation;
 	std::vector<int> m_viInstantYieldsTotal;
@@ -3747,9 +3745,8 @@ protected:
 
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
-
+	// to track whether somebody stole our plot
 	int m_iPreviousBestSettlePlot;
-	int m_iFoundValueOfCapital;
 
 	// not serialized
 	std::vector<int> m_viPlotFoundValues;
@@ -3945,7 +3942,6 @@ SYNC_ARCHIVE_VAR(int, m_iLandmarksTourismPercentGlobal)
 SYNC_ARCHIVE_VAR(int, m_iGreatWorksTourismModifierGlobal)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassX)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassY)
-SYNC_ARCHIVE_VAR(int, m_iReferenceFoundValue)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_viInstantYieldsTotal)
@@ -4452,7 +4448,6 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< Firaxis::Array<int, NUM_YIEL
 SYNC_ARCHIVE_VAR(bool, m_bEverPoppedGoody)
 SYNC_ARCHIVE_VAR(bool, m_bEverTrainedBuilder)
 SYNC_ARCHIVE_VAR(int, m_iPreviousBestSettlePlot)
-SYNC_ARCHIVE_VAR(int, m_iFoundValueOfCapital)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeGreatPeople)
 SYNC_ARCHIVE_VAR(int, m_iNumMayaBoosts)
 SYNC_ARCHIVE_VAR(int, m_iNumFaithGreatPeople)

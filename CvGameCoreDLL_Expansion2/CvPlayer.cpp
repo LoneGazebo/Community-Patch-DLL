@@ -491,7 +491,6 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE)
 , m_iCenterOfMassX()
 , m_iCenterOfMassY()
-, m_iReferenceFoundValue()
 , m_iReformationFollowerReduction()
 , m_bIsReformation()
 , m_iSupplyFreeUnits()
@@ -764,7 +763,6 @@ CvPlayer::CvPlayer() :
 	, m_bVassalLevy()
 	, m_iVassalGoldMaintenanceMod()
 	, m_iPreviousBestSettlePlot()
-	, m_iFoundValueOfCapital()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	, m_iFractionOriginalCapitalsUnderControl()
 	, m_iAvgUnitExp100()
@@ -1292,7 +1290,6 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_iCenterOfMassX = 0;
 	m_iCenterOfMassY = 0;
-	m_iReferenceFoundValue = 10000;
 	m_iReformationFollowerReduction = 0;
 	m_bIsReformation = false;
 #endif
@@ -2352,7 +2349,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_iPlotFoundValuesUpdateTurn = -1;
 	m_iPreviousBestSettlePlot = -1;
-	m_iFoundValueOfCapital = 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -14747,19 +14743,19 @@ void CvPlayer::foundCity(int iX, int iY)
 
 	SetTurnsSinceSettledLastCity(0);
 
-	//if this is our first city, remember how good it is as a reference
-	if (GetNumCitiesFounded() == 0)
-		m_iFoundValueOfCapital = getPlotFoundValue(iX, iY);
+	//if this is the player's first city, remember how good it is as a reference. 
+	//capital founding does not depend on this score so it's fair to all players independend of order
+	if (GetNumCitiesFounded() == 0 && isMajorCiv())
+		GC.getGame().NewCapitalFounded(getPlotFoundValue(iX, iY));
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
 #elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
-#elif defined(MOD_BALANCE_CORE)
-	CvCity* pCity = initCity(iX, iY, pkSettlerUnitEntry);
 #else
-	CvCity* pCity = initCity(iX, iY);
+	CvCity* pCity = initCity(iX, iY, pkSettlerUnitEntry);
 #endif
+
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
 	if(pCity == NULL)
 		return;
@@ -47877,7 +47873,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iGreatWorksTourismModifierGlobal);
 	visitor(player.m_iCenterOfMassX);
 	visitor(player.m_iCenterOfMassY);
-	visitor(player.m_iReferenceFoundValue);
 	visitor(player.m_iReformationFollowerReduction);
 	visitor(player.m_bIsReformation);
 	visitor(player.m_viInstantYieldsTotal);
@@ -48389,7 +48384,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bEverPoppedGoody);
 	visitor(player.m_bEverTrainedBuilder);
 	visitor(player.m_iPreviousBestSettlePlot);
-	visitor(player.m_iFoundValueOfCapital);
 	visitor(player.m_iNumFreeGreatPeople);
 	visitor(player.m_iNumMayaBoosts);
 	visitor(player.m_iNumFaithGreatPeople);
@@ -50510,15 +50504,20 @@ bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
 	updatePlotFoundValues();
 
+	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	//clamp it to a sensible range
+	iFlavorExpansion = range(iFlavorExpansion, 0, 12);
+
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iCurrentValue = m_viPlotFoundValues[iI];
-		if (iCurrentValue > 0)
-		{
-			if (iAreaID == -1 || pPlot->getArea() == iAreaID)
-				return true;
-		}
+		if (iAreaID != -1 && pPlot->getArea() != iAreaID)
+			continue;
+
+		//range from -50 to +50
+		int q = GetSettlePlotQualityMeasure(pPlot);
+		if (q > -3*iFlavorExpansion)
+			return true;
 	}
 
 	return false;
@@ -50826,15 +50825,16 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 // range is -50 to +50
 int CvPlayer::GetSettlePlotQualityMeasure(CvPlot * pPlot)
 {
-	int iReference = (67 * m_iFoundValueOfCapital) / 100;
+	if (!pPlot)
+		return -50;
 
-	if (pPlot && iReference > 0)
-	{
-		int iRawPercent = (100 * getPlotFoundValue(pPlot->getX(), pPlot->getY())) / iReference;
-		return range(iRawPercent, 50, 150) - 100;
-	}
+	//depends on map, value is averaged over all players
+	int iReference = GC.getGame().GetCityQualityReference();
+	if (iReference < 1)
+		return 50;
 
-	return 0;
+	int iRawPercent = (100 * getPlotFoundValue(pPlot->getX(), pPlot->getY())) / iReference;
+	return range(iRawPercent, 50, 150) - 100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -53290,41 +53290,6 @@ void CvPlayer::invalidatePlotFoundValues()
 {
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
-
-void CvPlayer::computeFoundValueThreshold()
-{
-	m_iReferenceFoundValue = 0;
-
-	//minors are not so discriminating ...
-	//should they ever have a settler, just take the best available spot
-	if (!isMajorCiv())
-		return;
-
-	// important preparation
-	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-	vector<int> vValues = GC.getGame().GetSettlerSiteEvaluator()->GetAllCitySiteValues(this);
-	if (vValues.empty())
-		return;
-
-	std::stable_sort(vValues.begin(), vValues.end());
-
-	//set our threshold halfway between the worst plot and the median
-	m_iReferenceFoundValue = (vValues[0] + vValues[vValues.size()/2])/2;
-
-	//some flavor adjustment
-	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range
-	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
-	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
-
-	if (GC.getLogging() && GC.getAILogging())
-	{
-		CvString strMsg;
-		strMsg.Format("Median city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID, vValues[vValues.size()/2], m_iReferenceFoundValue);
-		GetHomelandAI()->LogHomelandMessage(strMsg);
-	}
-}
-
 
 void CvPlayer::updatePlotFoundValues()
 {

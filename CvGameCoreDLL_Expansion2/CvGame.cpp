@@ -829,9 +829,6 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 			// Set Policy Costs before game starts, or else it'll be 0 on the first turn and Players can get something with any amount!
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
-
-			// To have an orientation of which plots are relatively good or bad
-			GET_PLAYER(ePlayer).computeFoundValueThreshold();
 		}
 	}
 
@@ -1108,6 +1105,8 @@ void CvGame::uninit()
 	m_iNumVictoryVotesExpected = 0;
 	m_iVotesNeededForDiploVictory = 0;
 	m_iMapScoreMod = 0;
+	m_iCityFoundValueReference = 0;
+	m_iNumReferenceCities = 0;
 	m_iNumMajorCivsAliveAtGameStart = 0;
 	m_iNumMinorCivsAliveAtGameStart = 0;
 
@@ -1828,6 +1827,19 @@ void CvGame::updateScore(bool bForce)
 		setTeamScore(eBestTeam, iBestScore);
 	}
 }
+
+int CvGame::GetCityQualityReference() const
+{
+	//the capitals tend to be quite good so put the threshold somewhat lower
+	return (54*m_iCityFoundValueReference) / (max(1,m_iNumReferenceCities)*100);
+}
+
+void CvGame::NewCapitalFounded(int iFoundValue)
+{
+	m_iCityFoundValueReference += iFoundValue;
+	m_iNumReferenceCities++;
+}
+
 
 //	--------------------------------------------------------------------------------
 /// How does the size of the map affect how some of the score components are weighted?
@@ -11535,6 +11547,8 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iNumVictoryVotesExpected);
 	visitor(game.m_iVotesNeededForDiploVictory);
 	visitor(game.m_iMapScoreMod);
+	visitor(game.m_iCityFoundValueReference);
+	visitor(game.m_iNumReferenceCities);
 	visitor(game.m_iNumMajorCivsAliveAtGameStart);
 	visitor(game.m_iNumMinorCivsAliveAtGameStart);
 

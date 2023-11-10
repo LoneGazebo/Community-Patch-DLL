@@ -181,6 +181,8 @@ int CvTacticalDominanceZone::getHospitalityScore() const
 	case TACTICAL_TERRITORY_NEUTRAL:
 		iScore += 3;
 		break;
+	default:
+		break; //nothing to do
 	}
 
 	switch (m_eOverallDominanceFlag)
@@ -191,6 +193,8 @@ int CvTacticalDominanceZone::getHospitalityScore() const
 	case TACTICAL_DOMINANCE_EVEN:
 		iScore += 3;
 		break;
+	default:
+		break; //nothing to do
 	}
 
 	return iScore;

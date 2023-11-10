@@ -842,6 +842,9 @@ public:
 
 	bool isFirstActivationOfPlayersAfterLoad() const;
 
+	void NewCapitalFounded(int iPlotFoundValue);
+	int GetCityQualityReference() const;
+
 protected:
 
 	bool m_firstActivationOfPlayersAfterLoad;
@@ -879,6 +882,8 @@ protected:
 	int m_iNumVictoryVotesExpected;
 	int m_iVotesNeededForDiploVictory;
 	int m_iMapScoreMod;
+	int m_iCityFoundValueReference;
+	int m_iNumReferenceCities;
 	int m_iNumMajorCivsAliveAtGameStart;
 	int m_iNumMinorCivsAliveAtGameStart;
 
