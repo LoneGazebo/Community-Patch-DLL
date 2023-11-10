@@ -2012,6 +2012,12 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 		// switch if we have a better target
 		if (pBetterTarget != GetTargetPlot())
 		{
+			int iNewScore = GET_PLAYER(m_eOwner).getPlotFoundValue(pBetterTarget->getX(),pBetterTarget->getY());
+			int iOldScore = GET_PLAYER(m_eOwner).getPlotFoundValue(m_iTargetX, m_iTargetY);
+			int iNewQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pBetterTarget);
+			int iOldQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(GetTargetPlot());
+			LogOperationSpecialMessage(CvString::format("changing target for settler, old score %d (q%d), new score %d (q%d)",iOldScore,iOldQ,iNewScore,iNewQ).c_str());
+
 			SetTargetPlot(pBetterTarget);
 			pArmy->SetGoalPlot(pBetterTarget);
 

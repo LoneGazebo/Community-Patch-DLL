@@ -50764,54 +50764,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
-	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
-
-	CvPlot* pTestPlot = vSettlePlots[0].pPlot;
-	//look at the best two and see if maybe the second one is much closer ...
-	if (pUnit && vSettlePlots.size() > 1)
-	{
-		//find the top non-adjacent candidate pair
-		size_t indexB = 1;
-		while (indexB < vSettlePlots.size())
-		{
-			if (plotDistance(*vSettlePlots[indexB].pPlot, *vSettlePlots[0].pPlot) < 2)
-				indexB++;
-			else
-				break;
-		}
-
-		if (indexB < vSettlePlots.size())
-		{
-			//see where our settler can go: worst case in jungle one turn equals one plot ...
-			//problem is: iMaxSettleDistance is plots relative to our cities, here we need a turn limit for performance!
-			SPathFinderUserData data(pUnit, 0, iMaxSettleDistance);
-			ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
-
-			CvPlot* pTestPlotA = vSettlePlots[0].pPlot;
-			CvPlot* pTestPlotB = vSettlePlots[indexB].pPlot;
-			int iScoreA = vSettlePlots[0].score;
-			int iScoreB = vSettlePlots[indexB].score;
-			ReachablePlots::iterator itA = reachablePlots.find(pTestPlotA->GetPlotIndex());
-			ReachablePlots::iterator itB = reachablePlots.find(pTestPlotB->GetPlotIndex());
-
-			//some candidates may be so far away that we don't have a path (for performance reasons)
-			//so make up some high numbers in that case
-			int iPathLengthA = (itA == reachablePlots.end()) ? iMaxSettleDistance*5 : itA->iPathLength;
-			int iPathLengthB = (itB == reachablePlots.end()) ? iMaxSettleDistance*5 : itB->iPathLength;
-			int iNormDistA = (itA == reachablePlots.end()) ? (iMaxSettleDistance*5*SPath::getNormalizedDistanceBase()) : itA->iNormalizedDistanceRaw;
-			int iNormDistB = (itB == reachablePlots.end()) ? (iMaxSettleDistance*5*SPath::getNormalizedDistanceBase()) : itB->iNormalizedDistanceRaw;
-
-			//if both paths are very short, this becomes unstable
-			if (iPathLengthA > 4 || iPathLengthB > 4)
-			{
-				//if B is at least 80% as good but less than 80% of the distance
-				if (iScoreB * 10 > iScoreA * 8 && iNormDistB * 10 < iNormDistA * 8)
-					pTestPlot = pTestPlotB;
-			}
-		}
-	}
-
-	return pTestPlot;
+	return vSettlePlots.back().pPlot;
 }
 
 PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
