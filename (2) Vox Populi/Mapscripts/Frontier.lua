@@ -1714,86 +1714,64 @@ function AssignStartingPlots:GetWorldLuxuryTargetNumbers()
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:PlaceLuxuries()
+	-- This function is dependent upon AssignLuxuryRoles() and PlaceCityStates() having been executed first.
+
 	-- Customized for Frontier.
-	local iW, iH = Map.GetGridSize();
-	table.fill(self.region_low_fert_compensation, 0, self.iNumCivs + self.iNumFrontiers); --
+	table.fill(self.region_low_fert_compensation, 0, self.iNumCivs + self.iNumFrontiers);
+
 	-- Place Luxuries at civ start locations.
-	for loop, reg_data in ipairs(self.regions_sorted_by_type) do
+	for _, reg_data in ipairs(self.regions_sorted_by_type) do
 		local region_number = reg_data[1];
 		local this_region_luxury = reg_data[2];
 		local x = self.startingPlots[region_number][1];
 		local y = self.startingPlots[region_number][2];
 		--print("-"); print("Attempting to place Luxury#", this_region_luxury, "at start plot", x, y, "in Region#", region_number);
 		-- Determine number to place at the start location
-		local iNumToPlace = 2;	-- MOD.Barathor: Updated -- original = 1 -- Most times, 2 of the initial type are placed at the start anyway, because of the old fertility checks below.  This will make it consistent.
+		local iNumLeftToPlace = 2;	-- MOD.Barathor: Updated -- original = 1 -- Most times, 2 of the initial type are placed at the start anyway, because of the old fertility checks below.  This will make it consistent.
 		if self.legStart then -- Legendary Start
-			iNumToPlace = 3;	-- MOD.Barathor: Updated -- original = 2
+			iNumLeftToPlace = 3;	-- MOD.Barathor: Updated -- original = 2
 		end
+
+		-- Frontier code
 		if self.regionData[region_number][8] < 2.5 then -- Low fertility per region rectangle plot, add a lux.
 			--print("-"); print("Region#", region_number, "has low rectangle fertility, giving it an extra Luxury at start plot.");
-			iNumToPlace = iNumToPlace + 1;
+			iNumLeftToPlace = iNumLeftToPlace + 1;
 			self.luxury_low_fert_compensation[this_region_luxury] = self.luxury_low_fert_compensation[this_region_luxury] + 1;
 			self.region_low_fert_compensation[region_number] = self.region_low_fert_compensation[region_number] + 1;
 		end
 		if self.regionData[region_number][6] / self.regionTerrainCounts[region_number][2] < 4 then -- Low fertility per land plot.
 			--print("-"); print("Region#", region_number, "has low per-plot fertility, giving it an extra Luxury at start plot.");
-			iNumToPlace = iNumToPlace + 1;
+			iNumLeftToPlace = iNumLeftToPlace + 1;
 			self.luxury_low_fert_compensation[this_region_luxury] = self.luxury_low_fert_compensation[this_region_luxury] + 1;
 			self.region_low_fert_compensation[region_number] = self.region_low_fert_compensation[region_number] + 1;
 		end
+
 		-- Obtain plot lists appropriate to this luxury type.
-		local primary, secondary, tertiary, quaternary, quinary, senary, luxury_plot_lists, shuf_list;					-- MOD.Barathor: New -- added a quinary and senary list
-		primary, secondary, tertiary, quaternary, quinary, senary = self:GetIndicesForLuxuryType(this_region_luxury);	-- MOD.Barathor: New -- added a quinary and senary list
+		local tList = self:GetIndicesForLuxuryType(this_region_luxury);
 
 		-- First pass, checking only first two rings with a 50% ratio.
-		luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false)
-		shuf_list = luxury_plot_lists[primary];
-		local iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-		if iNumLeftToPlace > 0 and secondary > 0 then
-			shuf_list = luxury_plot_lists[secondary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-		end
-		if iNumLeftToPlace > 0 and tertiary > 0 then
-			shuf_list = luxury_plot_lists[tertiary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-		end
-		if iNumLeftToPlace > 0 and quaternary > 0 then
-			shuf_list = luxury_plot_lists[quaternary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-		end
-		if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
-			shuf_list = luxury_plot_lists[quinary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-		end
-		if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
-			shuf_list = luxury_plot_lists[senary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+		local luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false);
+		for _, index in ipairs(tList) do
+			local shuf_list = luxury_plot_lists[index];
+			if iNumLeftToPlace > 0 and index > 0 then
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+			end
+			if iNumLeftToPlace <= 0 then
+				break;
+			end
 		end
 
 		if iNumLeftToPlace > 0 then
 			-- Second pass, checking three rings with a 100% ratio.
-			luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 3, false)
-			shuf_list = luxury_plot_lists[primary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			if iNumLeftToPlace > 0 and secondary > 0 then
-				shuf_list = luxury_plot_lists[secondary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and tertiary > 0 then
-				shuf_list = luxury_plot_lists[tertiary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and quaternary > 0 then
-				shuf_list = luxury_plot_lists[quaternary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
-				shuf_list = luxury_plot_lists[quinary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
-				shuf_list = luxury_plot_lists[senary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+			luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 3, false);
+			for _, index in ipairs(tList) do
+				local shuf_list = luxury_plot_lists[index];
+				if iNumLeftToPlace > 0 and index > 0 then
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+				end
+				if iNumLeftToPlace <= 0 then
+					break;
+				end
 			end
 		end
 
@@ -1807,36 +1785,25 @@ function AssignStartingPlots:PlaceLuxuries()
 		if iNumLeftToPlace > 0 and self.iNumTypesRandom > 0 then
 			-- We'll attempt to place one source of a Luxury type assigned to random distribution.
 			local randoms_to_place = 1;
-			for loop, random_res in ipairs(self.resourceIDs_assigned_to_random) do
-				primary, secondary, tertiary, quaternary, quinary, senary = self:GetIndicesForLuxuryType(random_res);	-- MOD.Barathor: New -- added a quinary and senary list
-				if randoms_to_place > 0 then
-					shuf_list = luxury_plot_lists[primary];
-					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+			local tShuffledRandom = GetShuffledCopyOfTable(self.resourceIDs_assigned_to_random);
+			for _, random_res in ipairs(tShuffledRandom) do
+				tList = self:GetIndicesForLuxuryType(random_res);
+				for _, index in ipairs(tList) do
+					local shuf_list = luxury_plot_lists[index];
+					if randoms_to_place > 0 and index > 0 then
+						randoms_to_place = self:PlaceSpecificNumberOfResources(this_region_luxury, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+					end
+					if randoms_to_place <= 0 then
+						break;
+					end
 				end
-				if randoms_to_place > 0 and secondary > 0 then
-					shuf_list = luxury_plot_lists[secondary];
-					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if randoms_to_place > 0 and tertiary > 0 then
-					shuf_list = luxury_plot_lists[tertiary];
-					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if randoms_to_place > 0 and quaternary > 0 then
-					shuf_list = luxury_plot_lists[quaternary];
-					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if randoms_to_place > 0 and quinary > 0 then	-- MOD.Barathor: New -- added a quinary list
-					shuf_list = luxury_plot_lists[quinary];
-					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if randoms_to_place > 0 and senary > 0 then	-- MOD.Barathor: New -- added a senary list
-					shuf_list = luxury_plot_lists[senary];
-					randoms_to_place = self:PlaceSpecificNumberOfResources(random_res, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+				if randoms_to_place <= 0 then
+					break;
 				end
 			end
 		end
 	end
-	
+
 	-- Place Luxuries at City States.
 	-- Candidates include luxuries exclusive to CS, the lux assigned to this CS's region (if in a region), and the randoms.
 	for city_state = 1, self.iNumCityStates do
@@ -1853,14 +1820,14 @@ function AssignStartingPlots:PlaceLuxuries()
 			-- Identify Allowable Luxuries assigned to City States.
 			-- If any CS-Only types are eligible, then all combined will have a weighting of 75%
 			local cs_only_types = {};
-			for loop, res_ID in ipairs(self.resourceIDs_assigned_to_cs) do
+			for _, res_ID in ipairs(self.resourceIDs_assigned_to_cs) do
 				if allowed_luxuries[res_ID] == true then
 					table.insert(cs_only_types, res_ID);
 				end
 			end
 			local iNumCSAllowed = table.maxn(cs_only_types);
 			if iNumCSAllowed > 0 then
-				for loop, res_ID in ipairs(cs_only_types) do
+				for _, res_ID in ipairs(cs_only_types) do
 					lux_possible_for_cs[res_ID] = 75 / iNumCSAllowed;
 				end
 			end
@@ -1868,7 +1835,8 @@ function AssignStartingPlots:PlaceLuxuries()
 			-- If any random types are eligible (plus the regional type if in a region) these combined carry a 25% weighting.
 			if self.iNumTypesRandom > 0 or region_number > 0 then
 				local random_types_allowed = {};
-				for loop, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
+				local tShuffledRandom = GetShuffledCopyOfTable(self.resourceIDs_assigned_to_random);
+				for _, res_ID in ipairs(tShuffledRandom) do
 					if allowed_luxuries[res_ID] == true then
 						table.insert(random_types_allowed, res_ID);
 					end
@@ -1883,7 +1851,7 @@ function AssignStartingPlots:PlaceLuxuries()
 					end
 				end
 				if iNumRandAllowed > 0 then
-					for loop, res_ID in ipairs(random_types_allowed) do
+					for _, res_ID in ipairs(random_types_allowed) do
 						lux_possible_for_cs[res_ID] = 25 / iNumAllowed;
 					end
 				end
@@ -1897,7 +1865,7 @@ function AssignStartingPlots:PlaceLuxuries()
 				-- Calculate probability thresholds for each allowable luxury type.
 				local res_threshold = {};
 				local totalWeight, accumulatedWeight = 0, 0;
-				for res_ID, this_weight in pairs(lux_possible_for_cs) do
+				for _, this_weight in pairs(lux_possible_for_cs) do
 					totalWeight = totalWeight + this_weight;
 				end
 				for res_ID, this_weight in pairs(lux_possible_for_cs) do
@@ -1916,133 +1884,88 @@ function AssignStartingPlots:PlaceLuxuries()
 				end
 				--print("-"); print("-"); print("-Assigned Luxury Type", use_this_ID, "to City State#", city_state);
 				-- Place luxury.
-				local primary, secondary, tertiary, quaternary, quinary, senary, luxury_plot_lists, shuf_list;			-- MOD.Barathor: New -- added a quinary and senary list
-				primary, secondary, tertiary, quaternary, quinary, senary = self:GetIndicesForLuxuryType(use_this_ID);	-- MOD.Barathor: New -- added a quinary and senary list
-				luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false)
-				shuf_list = luxury_plot_lists[primary];
-				local iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				if iNumLeftToPlace > 0 and secondary > 0 then
-					shuf_list = luxury_plot_lists[secondary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and tertiary > 0 then
-					shuf_list = luxury_plot_lists[tertiary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and quaternary > 0 then
-					shuf_list = luxury_plot_lists[quaternary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
-					shuf_list = luxury_plot_lists[quinary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
-					shuf_list = luxury_plot_lists[senary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace == 0 then
-					--print("-"); print("Placed Luxury ID#", use_this_ID, "at City State#", city_state, "in Region#", region_number, "located at Plot", x, y);
+				local tList = self:GetIndicesForLuxuryType(use_this_ID);
+				local luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false);
+				local iNumLeftToPlace = 1;
+				for _, index in ipairs(tList) do
+					local shuf_list = luxury_plot_lists[index];
+					if iNumLeftToPlace > 0 and index > 0 then
+						iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+					end
+					if iNumLeftToPlace <= 0 then
+						--print("-"); print("Placed Luxury ID#", use_this_ID, "at City State#", city_state, "in Region#", region_number, "located at Plot", x, y);
+						break;
+					end
 				end
 			end
 		end
 	end
-		
+
+	-- Calibrate number of luxuries per region to world size and number of civs present.
+	-- The amount of lux per region should be at its highest when the number of civs in the game is closest to "default" for that map size.
+	local target_list = self:GetRegionLuxuryTargetNumbers();
+	local targetNum = target_list[self.iNumCivs];
+	-- Adjust target number according to Resource Setting.
+	if self.luxuryDensity == 1 then
+		targetNum = targetNum - 2;
+	elseif self.luxuryDensity == 3 then
+		targetNum = targetNum + 2;
+	elseif self.luxuryDensity == 4 then
+		targetNum = targetNum - 2 + Map.Rand(5, "Luxury Resource Density");
+	end
+
+	-- Handle Special Case Luxuries here before regional and random ones
+	self:PlaceIvory();
+	self:PlaceMarble();
+
 	-- Place Regional Luxuries
 	for region_number, res_ID in ipairs(self.region_luxury_assignment) do
 		--print("-"); print("- - -"); print("Attempting to place regional luxury #", res_ID, "in Region#", region_number);
-		local iNumAlreadyPlaced = self.amounts_of_resources_placed[res_ID + 1];
+		local tList = self:GetIndicesForLuxuryType(res_ID);
+		local luxury_plot_lists = self:GenerateLuxuryPlotListsInRegion(region_number);
 		local assignment_split = self.luxury_assignment_count[res_ID];
-		local primary, secondary, tertiary, quaternary, quinary, senary, luxury_plot_lists, shuf_list, iNumLeftToPlace;		-- MOD.Barathor: New -- added a quinary and senary list
-		primary, secondary, tertiary, quaternary, quinary, senary = self:GetIndicesForLuxuryType(res_ID);					-- MOD.Barathor: New -- added a quinary and senary list
-		luxury_plot_lists = self:GenerateLuxuryPlotListsInRegion(region_number)
 
-		-- Calibrate number of luxuries per region to world size and number of civs
-		-- present. The amount of lux per region should be at its highest when the 
-		-- number of civs in the game is closest to "default" for that map size.
-		local target_list = self:GetRegionLuxuryTargetNumbers()
-		local targetNum = math.floor((target_list[self.iNumCivs] + (0.5 * self.luxury_low_fert_compensation[res_ID])) / assignment_split);
-		targetNum = targetNum - self.region_low_fert_compensation[region_number];
-		-- Adjust target number according to Resource Setting.
-		if self.luxuryDensity == 1 then
-			targetNum = targetNum - 2;
-		elseif self.luxuryDensity == 3 then
-			targetNum = targetNum + 2;
-		elseif self.luxuryDensity == 4 then
-			targetNum = targetNum - 2 + Map.Rand(5, "Luxury Resource Density");
-		end
-		local iNumThisLuxToPlace = math.max(1, targetNum); -- Always place at least one.
+		local iTarget = targetNum + math.floor((0.5 * self.luxury_low_fert_compensation[res_ID]) / assignment_split);
+		iTarget = iTarget - self.region_low_fert_compensation[region_number];
 
-		--print("-"); print("Target number for Luxury#", res_ID, "with assignment split of", assignment_split, "is", targetNum);
-		
-		-- Place luxuries.
-		shuf_list = luxury_plot_lists[primary];
-		iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumThisLuxToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);	-- MOD.Barathor: Updated -- Existing ratio = 0.3, min radius = 0, max radius = 3
-		if iNumLeftToPlace > 0 and secondary > 0 then
-			shuf_list = luxury_plot_lists[secondary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);	-- MOD.Barathor: Updated -- Existing ratio = 0.3, min radius = 0, max radius = 3
+		local iNumLeftToPlace = math.max(1, iTarget); -- Always place at least one.
+
+		--print("-"); print("Target number for Luxury#", res_ID, "with assignment split of", self.luxury_assignment_count[res_ID], "is", targetNum);
+
+		for _, index in ipairs(tList) do
+			local shuf_list = luxury_plot_lists[index];
+			if iNumLeftToPlace > 0 and index > 0 then
+				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);
+			end
+			if iNumLeftToPlace <= 0 then
+				break;
+			end
 		end
-		if iNumLeftToPlace > 0 and tertiary > 0 then
-			shuf_list = luxury_plot_lists[tertiary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);	-- MOD.Barathor: Updated -- Existing ratio = 0.4, min radius = 0, max radius = 2
-		end
-		if iNumLeftToPlace > 0 and quaternary > 0 then
-			shuf_list = luxury_plot_lists[quaternary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);	-- MOD.Barathor: Updated -- Existing ratio = 0.5, min radius = 0, max radius = 2 
-		end
-		if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
-			shuf_list = luxury_plot_lists[quinary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);	-- MOD.Barathor: Updated -- Existing ratio = 0.5, min radius = 0, max radius = 2 
-		end
-		if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
-			shuf_list = luxury_plot_lists[senary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 1, 3, shuf_list);	-- MOD.Barathor: Updated -- Existing ratio = 0.5, min radius = 0, max radius = 2 
-		end
+
 		--print("-"); print("-"); print("Number of LuxuryID", res_ID, "left to place in Region#", region_number, "is", iNumLeftToPlace);
-		
-		-- MOD.Barathor: New -- New Fallback loop since some luxuries frequently miss the target total during regionl placement (like silk, dyes, spices, etc.)
-					-- This is because some luxuries have only a few indices and don't utilize all four, plus they have strict requirements, like foliage only and on flat land only
-					-- When a luxury only uses two or three selective indices, it gets harder to place them all since the first default ratios above are only 0.3 (3 placements for every 10 eligible plots, rounded up)
-		if iNumLeftToPlace > 0 then	
-			-- Second pass, checking all with a 100% ratio to make sure the target total is reached for this region!
-			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
-			if iNumLeftToPlace > 0 and secondary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and tertiary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and quaternary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quinary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[senary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
+
+		if iNumLeftToPlace > 0 then
+			for _, index in ipairs(tList) do
+				local shuf_list = luxury_plot_lists[index];
+				if iNumLeftToPlace > 0 and index > 0 then
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 1, ImpactLayers.LAYER_LUXURY, 1, 2, shuf_list);
+				end
+				if iNumLeftToPlace <= 0 then
+					break;
+				end
 			end
 			print("-"); print("Number of LuxuryID", res_ID, "not placed in Region#", region_number, "is", iNumLeftToPlace);
-		end	
+		end
 	end
 
 	-- Place Random Luxuries
 	if self.iNumTypesRandom > 0 then
 		--print("* *"); print("* iNumTypesRandom = ", self.iNumTypesRandom); print("* *");
-		-- This table governs targets for total number of luxuries placed in the world, not
-		-- including the "extra types" of Luxuries placed at start locations. These targets
-		-- are approximate. An additional random factor is added in based on number of civs.
-		-- Any difference between regional and city state luxuries placed, and the target, is
-		-- made up for with the number of randomly placed luxuries that get distributed.
-		local world_size_data = self:GetWorldLuxuryTargetNumbers()
-		-- This modifies self.luxuryDensity if random, to a value between 1 and 3
-		-- Which is okay, since regional luxuries have been placed
-		
+		-- This table governs targets for total number of luxuries placed in the world, not including the "extra types" of Luxuries placed at start locations.
+		-- These targets are approximate. An additional random factor is added in based on number of civs.
+		-- Any difference between regional and city state luxuries placed, and the target, is made up for with the number of randomly placed luxuries that get distributed.
+		local world_size_data = self:GetWorldLuxuryTargetNumbers();
+
 		local targetLuxForThisWorldSize = world_size_data[1];
 		local loopTarget = world_size_data[2];
 		local extraLux = Map.Rand(self.iNumCivs, "Luxury Resource Variance - Place Resources LUA");
@@ -2054,18 +1977,19 @@ function AssignStartingPlots:PlaceLuxuries()
 		local iNumRandomLuxPlaced, iNumThisLuxToPlace = 0, 0;
 		-- This table weights the amount of random luxuries to place, with first-selected getting heavier weighting.
 		local random_lux_ratios_table = {
-		{1},
-		{0.55, 0.45},
-		{0.40, 0.33, 0.27},
-		{0.35, 0.25, 0.25, 0.15},
-		{0.25, 0.25, 0.20, 0.15, 0.15},
-		{0.20, 0.20, 0.20, 0.15, 0.15, 0.10},
-		{0.20, 0.20, 0.15, 0.15, 0.10, 0.10, 0.10},
-		{0.20, 0.15, 0.15, 0.10, 0.10, 0.10, 0.10, 0.10} };
+			{1},
+			{0.55, 0.45},
+			{0.40, 0.33, 0.27},
+			{0.35, 0.25, 0.25, 0.15},
+			{0.25, 0.25, 0.20, 0.15, 0.15},
+			{0.20, 0.20, 0.20, 0.15, 0.15, 0.10},
+			{0.20, 0.20, 0.15, 0.15, 0.10, 0.10, 0.10},
+			{0.20, 0.15, 0.15, 0.10, 0.10, 0.10, 0.10, 0.10},
+		};
 
-		for loop, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
-			local primary, secondary, tertiary, quaternary, quinary, senary, luxury_plot_lists, current_list, iNumLeftToPlace;	-- MOD.Barathor: New -- added a quinary and senary list
-			primary, secondary, tertiary, quaternary, quinary, senary = self:GetIndicesForLuxuryType(res_ID);					-- MOD.Barathor: New -- added a quinary and senary list
+		local tShuffledRandom = GetShuffledCopyOfTable(self.resourceIDs_assigned_to_random);
+		for loop, res_ID in ipairs(tShuffledRandom) do
+			local tList = self:GetIndicesForLuxuryType(res_ID);
 			if self.iNumTypesRandom > 8 then
 				iNumThisLuxToPlace = math.max(3, math.ceil(iNumRandomLuxTarget / 10));
 			else
@@ -2073,31 +1997,20 @@ function AssignStartingPlots:PlaceLuxuries()
 				local lux_share_of_remaining = math.ceil(iNumRandomLuxTarget * random_lux_ratios_table[self.iNumTypesRandom][loop]);
 				iNumThisLuxToPlace = math.max(lux_minimum, lux_share_of_remaining);
 			end
+			local iNumLeftToPlace = iNumThisLuxToPlace;
+
 			-- Place this luxury type.
-			current_list = self.global_luxury_plot_lists[primary];
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumThisLuxToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 4, 6, current_list);
-			if iNumLeftToPlace > 0 and secondary > 0 then
-				current_list = self.global_luxury_plot_lists[secondary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 4, 6, current_list);
-			end
-			if iNumLeftToPlace > 0 and tertiary > 0 then
-				current_list = self.global_luxury_plot_lists[tertiary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 4, 6, current_list);
-			end
-			if iNumLeftToPlace > 0 and quaternary > 0 then
-				current_list = self.global_luxury_plot_lists[quaternary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 4, 6, current_list);
-			end
-			if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
-				current_list = self.global_luxury_plot_lists[quinary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 4, 6, current_list);
-			end
-			if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
-				current_list = self.global_luxury_plot_lists[senary];
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 4, 6, current_list);
+			for _, index in ipairs(tList) do
+				local current_list = self.global_resource_plot_lists[index];
+				if iNumLeftToPlace > 0 and index > 0 then
+					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, 1, iNumLeftToPlace, 0.25, ImpactLayers.LAYER_LUXURY, 4, 6, current_list);
+				end
+				if iNumLeftToPlace <= 0 then
+					break;
+				end
 			end
 			iNumRandomLuxPlaced = iNumRandomLuxPlaced + iNumThisLuxToPlace - iNumLeftToPlace;
-			--print("-"); 
+			--print("-");
 			--print("Random Luxury ID#:", res_ID);	-- MOD.Barathor: Test
 			--print("-"); print("Random Luxury Target Number:", iNumThisLuxToPlace);
 			--print("Random Luxury Target Placed:", iNumThisLuxToPlace - iNumLeftToPlace); print("-");
@@ -2121,7 +2034,7 @@ function AssignStartingPlots:PlaceLuxuries()
 			local allowed_luxuries = self:GetListOfAllowableLuxuriesAtCitySite(x, y, 2)
 			--print("-"); print("--- Eligible Types List for Second Luxury in Region#", region_number, "---");
 			-- See if any Random types are eligible.
-			for loop, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
+			for _, res_ID in ipairs(self.resourceIDs_assigned_to_random) do
 				if allowed_luxuries[res_ID] == true then
 					--print("- Found eligible luxury type:", res_ID);
 					iNumTypesAllowed = iNumTypesAllowed + 1;
@@ -2129,20 +2042,20 @@ function AssignStartingPlots:PlaceLuxuries()
 				end
 			end
 			-- Check to see if any Special Case luxuries are eligible.
-			for loop, res_ID in ipairs(self.resourceIDs_assigned_to_special_case) do
+			for _, res_ID in ipairs(self.resourceIDs_assigned_to_special_case) do
 				if allowed_luxuries[res_ID] == true then
 					--print("- Found eligible luxury type:", res_ID);
 					iNumTypesAllowed = iNumTypesAllowed + 1;
 					table.insert(candidate_types, res_ID);
 				end
 			end
-		
+
 			if iNumTypesAllowed > 0 then
 				local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
 				use_this_ID = candidate_types[diceroll];
 			else
 				-- See if any City State types are eligible.
-				for loop, res_ID in ipairs(self.resourceIDs_assigned_to_cs) do
+				for _, res_ID in ipairs(self.resourceIDs_assigned_to_cs) do
 					if allowed_luxuries[res_ID] == true then
 						--print("- Found eligible luxury type:", res_ID);
 						iNumTypesAllowed = iNumTypesAllowed + 1;
@@ -2155,7 +2068,7 @@ function AssignStartingPlots:PlaceLuxuries()
 				else
 					-- See if anybody else's regional type is eligible.
 					local region_lux_ID = self.region_luxury_assignment[region_number];
-					for loop, res_ID in ipairs(self.resourceIDs_assigned_to_regions) do
+					for _, res_ID in ipairs(self.resourceIDs_assigned_to_regions) do
 						if res_ID ~= region_lux_ID then
 							if allowed_luxuries[res_ID] == true then
 								--print("- Found eligible luxury type:", res_ID);
@@ -2174,45 +2087,24 @@ function AssignStartingPlots:PlaceLuxuries()
 			end
 			--print("--- End of Eligible Types list for Second Luxury in Region#", region_number, "---");
 			if use_this_ID ~= nil then -- Place this luxury type at this start.
-				local primary, secondary, tertiary, quaternary, quinary, senary, luxury_plot_lists, shuf_list;			-- MOD.Barathor: New -- added a quinary and senary list
-				primary, secondary, tertiary, quaternary, quinary, senary = self:GetIndicesForLuxuryType(use_this_ID);	-- MOD.Barathor: New -- added a quinary and senary list
-				luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false)
-				shuf_list = luxury_plot_lists[primary];
-				local iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				if iNumLeftToPlace > 0 and secondary > 0 then
-					shuf_list = luxury_plot_lists[secondary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and tertiary > 0 then
-					shuf_list = luxury_plot_lists[tertiary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and quaternary > 0 then
-					shuf_list = luxury_plot_lists[quaternary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and quinary > 0 then		-- MOD.Barathor: New -- added a quinary list
-					shuf_list = luxury_plot_lists[quinary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace > 0 and senary > 0 then		-- MOD.Barathor: New -- added a senary list
-					shuf_list = luxury_plot_lists[senary];
-					iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-				end
-				if iNumLeftToPlace == 0 then
-					--print("-"); print("Placed Second Luxury type of ID#", use_this_ID, "for start located at Plot", x, y, " in Region#", region_number);
+				local tList = self:GetIndicesForLuxuryType(use_this_ID);
+				local luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false);
+				local iNumLeftToPlace = 1;
+				for _, index in ipairs(tList) do
+					local shuf_list = luxury_plot_lists[index];
+					if iNumLeftToPlace > 0 and index > 0 then
+						iNumLeftToPlace = self:PlaceSpecificNumberOfResources(use_this_ID, 1, 1, 1, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+					end
+					if iNumLeftToPlace <= 0 then
+						--print("-"); print("Placed Second Luxury type of ID#", use_this_ID, "for start located at Plot", x, y, " in Region#", region_number);
+						break;
+					end
 				end
 			end
 		end
 	end
 
-	-- Handle Special Case Luxuries
-	if self.iNumTypesSpecialCase > 0 then
-		-- Add a special case function for each luxury to be handled as a special case.
-		self:PlaceMarble()
-	end
-
-	self.realtotalLuxPlacedSoFar = self.totalLuxPlacedSoFar		-- MOD.Barathor: New -- save the real total of luxuries before it gets corrupted with non-luxury additions which use the luxury placement method
+	self.realtotalLuxPlacedSoFar = self.totalLuxPlacedSoFar; -- MOD.Barathor: New -- save the real total of luxuries before it gets corrupted with non-luxury additions which use the luxury placement method
 end
 ------------------------------------------------------------------------------
 function StartPlotSystem()

@@ -297,9 +297,15 @@ function AssignStartingPlots:GenerateRegions(args)
 	print("Map Generation - Dividing the map in to Regions");
 	-- This is a customized version for West vs East.
 	-- This version is tailored for handling two-teams play.
-	local args = args or {};
+	args = args or {};
 	local iW, iH = Map.GetGridSize();
 	self.method = RegionDivision.RECTANGULAR; -- Flag the map as using a Rectangular division method.
+	self.resDensity = args.resources; -- Strategic Resource Density setting
+	self.resSize = args.resources; -- Strategic Resource Deposit Size setting
+	self.bonusDensity = args.resources; -- Bonus Resource Density setting
+	self.luxuryDensity = args.resources; -- Luxury Resource Density setting
+	self.legStart = args.resources == 4; -- Legendary Start setting
+	self.resBalance = args.resources == 5; -- Strategic Balance setting
 
 	-- Determine number of civilizations and city states present in this game.
 	self.iNumCivs, self.iNumCityStates, self.player_ID_list, self.bTeamGame, self.teams_with_major_civs, self.number_civs_per_team = GetPlayerAndTeamInfo()
@@ -316,7 +322,7 @@ function AssignStartingPlots:GenerateRegions(args)
 	-- If two teams are present, use team-oriented handling of start points, one team west, one east.
 	if iNumTeams == 2 and team_setting == 1 then
 		print("-"); print("Number of Teams present is two! Using custom team start placement for West vs East."); print("-");
-		
+
 		-- ToDo: Correctly identify team IDs and how many Civs are on each team.
 		-- Also need to shuffle the teams so its random who starts on which half.
 		local shuffled_team_list = GetShuffledCopyOfTable(self.teams_with_major_civs)
@@ -360,8 +366,6 @@ function AssignStartingPlots:GenerateRegions(args)
 	else
 		print("-"); print("Dividing the map at random."); print("-");
 		self.method = RegionDivision.CONTINENTAL;
-		local best_areas = {};
-		local globalFertilityOfLands = {};
 
 		-- Obtain info on all landmasses for comparision purposes.
 		local iGlobalFertilityOfLands = 0;
@@ -380,7 +384,7 @@ function AssignStartingPlots:GenerateRegions(args)
 					local iArea = plot:GetArea();
 					local plotFertility = self:MeasureStartPlacementFertilityOfPlot(x, y, true); -- Check for coastal land is enabled.
 					iGlobalFertilityOfLands = iGlobalFertilityOfLands + plotFertility;
-					--
+
 					if TestMembership(land_area_IDs, iArea) == false then -- This plot is the first detected in its AreaID.
 						iNumLandAreas = iNumLandAreas + 1;
 						table.insert(land_area_IDs, iArea);
@@ -393,13 +397,13 @@ function AssignStartingPlots:GenerateRegions(args)
 				end
 			end
 		end
-		
+
 		-- Sort areas, achieving a list of AreaIDs with best areas first.
 		--
 		-- Fertility data in land_area_fert is stored with areaID index keys.
 		-- Need to generate a version of this table with indices of 1 to n, where n is number of land areas.
 		local interim_table = {};
-		for loop_index, data_entry in pairs(land_area_fert) do
+		for _, data_entry in pairs(land_area_fert) do
 			table.insert(interim_table, data_entry);
 		end
 		-- Sort the fertility values stored in the interim table. Sort order in Lua is lowest to highest.
@@ -417,7 +421,7 @@ function AssignStartingPlots:GenerateRegions(args)
 			for loop_index, AreaID in ipairs(land_area_IDs) do
 				if interim_table[areaTestLoop] == land_area_fert[land_area_IDs[loop_index]] then
 					table.insert(best_areas, AreaID);
-					table.remove(land_area_IDs, landLoop);
+					table.remove(land_area_IDs, loop_index);
 					break
 				end
 			end
@@ -426,7 +430,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- Assign continents to receive start plots. Record number of civs assigned to each landmass.
 		local inhabitedAreaIDs = {};
 		local numberOfCivsPerArea = table.fill(0, iNumRelevantLandAreas); -- Indexed in synch with best_areas. Use same index to match values from each table.
-		for civToAssign = 1, self.iNumCivs do
+		for _ = 1, self.iNumCivs do
 			local bestRemainingArea;
 			local bestRemainingFertility = 0;
 			local bestAreaTableIndex;
@@ -450,7 +454,6 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- Loop through the list of inhabited landmasses, dividing each landmass in to regions.
 		-- Note that it is OK to divide a continent with one civ on it: this will assign the whole
 		-- of the landmass to a single region, and is the easiest method of recording such a region.
-		local iNumInhabitedLandmasses = table.maxn(inhabitedAreaIDs);
 		for loop, currentLandmassID in ipairs(inhabitedAreaIDs) do
 			-- Obtain the boundaries of and data for this landmass.
 			local landmass_data = ObtainLandmassBoundaries(currentLandmassID);
@@ -470,7 +473,7 @@ function AssignStartingPlots:GenerateRegions(args)
 			-- Assemble the rectangle data for this landmass.
 			local rect_table = {iWestX, iSouthY, iWidth, iHeight, currentLandmassID, fertCount, plotCount};
 			-- Divide this landmass in to number of regions equal to civs assigned here.
-			iNumCivsOnThisLandmass = numberOfCivsPerArea[loop];
+			local iNumCivsOnThisLandmass = numberOfCivsPerArea[loop];
 			if iNumCivsOnThisLandmass > 0 and iNumCivsOnThisLandmass <= 22 then -- valid number of civs.
 				self:DivideIntoRegions(iNumCivsOnThisLandmass, fert_table, rect_table)
 			else
@@ -511,7 +514,7 @@ function AssignStartingPlots:BalanceAndAssign()
 				print("* ERROR * - Player #", player_ID, "belongs to Team #", team_ID, "which is neither West nor East!");
 			end
 		end
-		
+
 		-- Debug
 		if table.maxn(westList) ~= iNumCivsInWest then
 			print("-"); print("*** ERROR! *** . . . Mismatch between number of Civs on West team and number of civs assigned to west locations.");
@@ -519,7 +522,7 @@ function AssignStartingPlots:BalanceAndAssign()
 		if table.maxn(eastList) ~= iNumCivsInEast then
 			print("-"); print("*** ERROR! *** . . . Mismatch between number of Civs on East team and number of civs assigned to east locations.");
 		end
-		
+
 		local westListShuffled = GetShuffledCopyOfTable(westList)
 		local eastListShuffled = GetShuffledCopyOfTable(eastList)
 		for region_number, player_ID in ipairs(westListShuffled) do
@@ -565,30 +568,30 @@ end
 ------------------------------------------------------------------------------
 function StartPlotSystem()
 	-- Get Resources setting input by user.
-	local res = Map.GetCustomOption(4)
+	local res = Map.GetCustomOption(4);
 	if res == 6 then
 		res = 1 + Map.Rand(3, "Random Resources Option - Lua");
 	end
 
 	print("Creating start plot database.");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
 	print("Dividing the map in to Regions.");
 	local args = {
 		resources = res,
-		};
-	start_plot_database:GenerateRegions()
+	};
+	start_plot_database:GenerateRegions(args);
 
 	print("Choosing start locations for civilizations.");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players.");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders.");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States.");
-	start_plot_database:PlaceResourcesAndCityStates()
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------

@@ -877,202 +877,20 @@ function AssignStartingPlots:CanBeMesa(x, y)
 	table.insert(self.mesa_list, plotIndex);
 end
 ------------------------------------------------------------------------------
-
-------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited(args)
-	-- Customizing City State assignment for Terra, to get more CS in the new world.
-	--
-	-- Placement methods include:
-	-- 1. Assign n Per Region
-	-- 2. Assign to uninhabited landmasses
-	-- 3. Assign to regions with shared luxury IDs
-	-- 4. Assign to low fertility regions
-
-	-- Determine number to assign Per Region
-	local iW, iH = Map.GetGridSize()
+function AssignStartingPlots:GetNumCityStatesPerRegion()
 	local ratio = self.iNumCityStates / self.iNumCivs;
 	if ratio >= 3.5 then
-		self.iNumCityStatesPerRegion = 2;
+		return 2;
 	elseif ratio >= 2 then
-		self.iNumCityStatesPerRegion = 1;
+		return 1;
 	else
-		self.iNumCityStatesPerRegion = 0;
+		return 0;
 	end
-	-- Assign the "Per Region" City States to their regions.
-	--print("- - - - - - - - - - - - - - - - -"); print("Assigning City States to Regions");
-	local current_cs_index = 1;
-	if self.iNumCityStatesPerRegion > 0 then
-		for current_region = 1, self.iNumCivs do
-			for cs_to_assign_to_this_region = 1, self.iNumCityStatesPerRegion do
-				self.city_state_region_assignments[current_cs_index] = current_region;
-				--print("-"); print("City State", current_cs_index, "assigned to Region#", current_region);
-				current_cs_index = current_cs_index + 1;
-				self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
-			end
-		end
-	end
-
-	-- Determine how many City States to place on uninhabited landmasses.
-	-- Also generate lists of candidate plots from uninhabited areas.
-	local iNumLandAreas = 0;
-	local iNumCivLandmassPlots = 0;
-	local iNumUninhabitedLandmassPlots = 0;
-	local land_area_IDs = {};
-	local land_area_plot_count = {};
-	local land_area_plot_tables = {};
-	local areas_inhabited_by_civs = {};
-	local areas_too_small = {};
-	local areas_uninhabited = {};
-	--
-	-- Generate list of inhabited area IDs.
-	for index, region_data in ipairs(self.regionData) do
-		local region_areaID = region_data[5];
-		if TestMembership(areas_inhabited_by_civs, region_areaID) == false then
-			table.insert(areas_inhabited_by_civs, region_areaID);
-		end
-	end
-	-- Iterate through plots and, for each land area, generate a list of all its member plots
-	for x = 0, iW - 1 do
-		for y = 0, iH - 1 do
-			local plotIndex = y * iW + x + 1;
-			local plot = Map.GetPlot(x, y);
-			local plotType = plot:GetPlotType()
-			local terrainType = plot:GetTerrainType()
-			if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and terrainType ~= TerrainTypes.TERRAIN_SNOW then -- Habitable land plot, process it.
-				local iArea = plot:GetArea();
-				if TestMembership(land_area_IDs, iArea) == false then -- This plot is the first detected in its AreaID.
-					iNumLandAreas = iNumLandAreas + 1;
-					table.insert(land_area_IDs, iArea);
-					land_area_plot_count[iArea] = 1;
-					land_area_plot_tables[iArea] = {plotIndex};
-				else -- This AreaID already known.
-					land_area_plot_count[iArea] = land_area_plot_count[iArea] + 1;
-					table.insert(land_area_plot_tables[iArea], plotIndex);
-				end
-			end
-		end
-	end
-	-- Obtain counts of inhabited and uninhabited plots. Identify areas too small to use for City States.
-	for areaID, plot_count in pairs(land_area_plot_count) do
-		if TestMembership(areas_inhabited_by_civs, areaID) == true then 
-			iNumCivLandmassPlots = iNumCivLandmassPlots + plot_count;
-		else
-			iNumUninhabitedLandmassPlots = iNumUninhabitedLandmassPlots + plot_count;
-			if plot_count < 4 then
-				table.insert(areas_too_small, areaID);
-			else
-				table.insert(areas_uninhabited, areaID);
-			end
-		end
-	end
-	-- Now loop through all Uninhabited Areas that are large enough to use and append their plots to the candidates tables.
-	for areaID, area_plot_list in pairs(land_area_plot_tables) do
-		if TestMembership(areas_uninhabited, areaID) == true then 
-			for loop, plotIndex in ipairs(area_plot_list) do
-				local x = (plotIndex - 1) % iW;
-				local y = (plotIndex - x - 1) / iW;
-				local plot = Map.GetPlot(x, y);
-				local terrainType = plot:GetTerrainType();
-				if terrainType ~= TerrainTypes.TERRAIN_SNOW then
-					if self.plotDataIsCoastal[plotIndex] == true then
-						table.insert(self.uninhabited_areas_coastal_plots, plotIndex);
-					else
-						table.insert(self.uninhabited_areas_inland_plots, plotIndex);
-					end
-				end
-			end
-		end
-	end
-	-- Determine the number of City States to assign to uninhabited areas.
+end
+------------------------------------------------------------------------------
+function AssignStartingPlots:GetNumCityStatesInUninhabitedRegion()
 	local max_by_method = math.ceil(self.iNumCityStates * 0.67);
-	self.iNumCityStatesUninhabited = math.min(self.iNumCityStatesUnassigned, max_by_method);
-	self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - self.iNumCityStatesUninhabited;
-
-	--print("-"); print("City States assigned to Uninhabited Areas: ", self.iNumCityStatesUninhabited);
-	-- Update the city state number.
-	current_cs_index = current_cs_index + self.iNumCityStatesUninhabited;
-	
-	if self.iNumCityStatesUnassigned > 0 then
-		-- Determine how many to place in support of regions that share their luxury type with two other regions.
-		local iNumRegionsSharedLux = 0;
-		local shared_lux_IDs = {};
-		for resource_ID, amount_assigned_to_regions in ipairs(self.luxury_assignment_count) do
-			if amount_assigned_to_regions == 3 then
-				iNumRegionsSharedLux = iNumRegionsSharedLux + 3;
-				table.insert(shared_lux_IDs, resource_ID);
-			end
-		end
-		if iNumRegionsSharedLux > 0 and iNumRegionsSharedLux <= self.iNumCityStatesUnassigned then
-			self.iNumCityStatesSharedLux = iNumRegionsSharedLux;
-			self.iNumCityStatesLowFertility = self.iNumCityStatesUnassigned - self.iNumCityStatesSharedLux;
-		else
-			self.iNumCityStatesLowFertility = self.iNumCityStatesUnassigned;
-		end
-		--print("CS Shared Lux: ", self.iNumCityStatesSharedLux, " CS Low Fert: ", self.iNumCityStatesLowFertility);
-		-- Assign remaining types to their respective regions.
-		if self.iNumCityStatesSharedLux > 0 then
-			for loop, res_ID in ipairs(shared_lux_IDs) do
-				for loop, region_lux_data in ipairs(self.regions_sorted_by_type) do
-					local this_region_res = region_lux_data[2];
-					if this_region_res == res_ID then
-						self.city_state_region_assignments[current_cs_index] = region_lux_data[1];
-						--print("-"); print("City State", current_cs_index, "assigned to Region#", region_lux_data[1], " to compensate for Shared Luxury ID#", res_ID);
-						current_cs_index = current_cs_index + 1;
-						self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
-					end
-				end
-			end
-		end
-		if self.iNumCityStatesLowFertility > 0 then
-			-- If more to assign than number of regions, assign per region.
-			while self.iNumCityStatesUnassigned >= self.iNumCivs do
-				for current_region = 1, self.iNumCivs do
-					self.city_state_region_assignments[current_cs_index] = current_region;
-					--print("-"); print("City State", current_cs_index, "assigned to Region#", current_region, " to compensate for Low Fertility");
-					current_cs_index = current_cs_index + 1;
-					self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
-				end
-			end
-			if self.iNumCityStatesUnassigned > 0 then
-				local fert_unsorted, fert_sorted, region_list = {}, {}, {};
-				for region_num = 1, self.iNumCivs do
-					local area_plots = self.regionTerrainCounts[region_num][2];
-					local region_fertility = self.regionData[region_num][6];
-					local fertility_per_land_plot = region_fertility / area_plots;
-					--print("-"); print("Region#", region_num, "AreaPlots:", area_plots, "Region Fertility:", region_fertility, "Per Plot:", fertility_per_land_plot);
-					
-					table.insert(fert_unsorted, {region_num, fertility_per_land_plot});
-					table.insert(fert_sorted, fertility_per_land_plot);
-				end
-				table.sort(fert_sorted);
-				for current_lowest_fertility, fert_value in ipairs(fert_sorted) do
-					for loop, data_pair in ipairs(fert_unsorted) do
-						local this_region_fert = data_pair[2];
-						if this_region_fert == fert_value then
-							local regionNum = data_pair[1];
-							table.insert(region_list, regionNum);
-							table.remove(fert_unsorted, loop);
-							break
-						end
-					end
-				end
-				for loop = 1, self.iNumCityStatesUnassigned do
-					self.city_state_region_assignments[current_cs_index] = region_list[loop];
-					--print("-"); print("City State", current_cs_index, "assigned to Region#", region_list[loop], " to compensate for Low Fertility");
-					current_cs_index = current_cs_index + 1;
-					self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
-				end
-			end
-		end
-	end
-	
-	--[[ Debug check
-	if self.iNumCityStatesUnassigned ~= 0 then
-		print("-"); print("Wrong number of City States assigned at end of assignment process. This number unassigned: ", self.iNumCityStatesUnassigned);
-	else
-		print("-"); print("All city states assigned.");
-	end
-	]]--
+	return math.min(self.iNumCityStatesUnassigned, max_by_method);
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:GetRandomLuxuriesTargetNumber()
@@ -1090,24 +908,6 @@ function AssignStartingPlots:GetRandomLuxuriesTargetNumber()
 	local maxRandoms = worldsizes[Map.GetWorldSize()]
 	return maxRandoms
 end
-------------------------------------------------------------------------------
--- MOD.Barathor: This function is no longer needed since random luxury eligibility is determined differently.
---[[
-function AssignStartingPlots:GetDisabledLuxuriesTargetNumber()
-	-- Because Terra has extra land over normal worlds, reducing the Disabled 
-	-- target by one per world size, where possible.
-	local worldsizes = {
-		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 5,
-		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 3,
-		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 1,
-		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 0,
-		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 0,
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 0
-		}
-	local maxToDisable = worldsizes[Map.GetWorldSize()];
-	return maxToDisable
-end
---]]
 ------------------------------------------------------------------------------
 --[[ MOD.Barathor: Note: when I fix the system which determines random luxury totals,
 	 I'll come back to this and add Abundant and Sparse values too, since they're
