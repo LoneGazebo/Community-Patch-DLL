@@ -13129,9 +13129,7 @@ void CvGame::LogMapState() const
 			continue;
 		}
 
-		PlayerTypes eLoopPlayer = (PlayerTypes)iL;
 		const CvCivilizationInfo& thisCivilization = GET_PLAYER((PlayerTypes)iL).getCivilizationInfo();
-
 		strTemp.Format("{\"Index\":%d,\"CivType\":\"%s\",\"TeamColor\":\"%d\"}",
 			iL,
 			thisCivilization.GetType(),
@@ -13162,11 +13160,6 @@ void CvGame::LogMapState() const
 			continue;
 		}
 		CityOwnerIndexMap[iL] = pc;
-
-		PlayerTypes eLoopPlayer = (PlayerTypes)iL;
-		const CvCivilizationInfo& thisCivilization = GET_PLAYER((PlayerTypes)iL).getCivilizationInfo();
-
-		CvPlayerColorInfo* eLoopPlayerColorInfo = GC.GetPlayerColorInfo(pc);
 
 		// This still requires post-processing but getting this text is a pain
 		strTemp.Format("{\"CivKey\":\"%d\",\"OuterColor\":{\"Model\":\"constant\",\"ColorConstant\":\"\"},\"InnerColor\":{\"Model\":\"constant\",\"ColorConstant\":\"\"}}",
