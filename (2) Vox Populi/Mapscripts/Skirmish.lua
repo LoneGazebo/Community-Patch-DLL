@@ -773,13 +773,16 @@ function FeatureGenerator:AddJunglesAtPlot(plot, iX, iY, lat)
 end
 ------------------------------------------------------------------------------
 function FeatureGenerator:AdjustTerrainTypes()
-	local width = self.iGridW - 1;
-	local height = self.iGridH - 1;
-	for y = 0, height do
-		for x = 0, width do
+	-- Edited in VP: only convert half of jungle tiles into plains
+	local iW, iH = Map.GetGridSize();
+	for y = 0, iH - 1 do
+		for x = 0, iW - 1 do
 			local plot = Map.GetPlot(x, y);
-			if (plot:GetFeatureType() == self.featureJungle) then
-				plot:SetTerrainType(self.terrainPlains, false, true)  -- These flags are for recalc of areas and rebuild of graphics. No need to recalc from any of these changes.		
+			local featureType = plot:GetFeatureType();
+			if featureType == self.featureJungle then
+				if Map.Rand(2, "Convert Jungle into Plains - LUA") == 1 then
+					plot:SetTerrainType(self.terrainPlains, false, true);
+				end
 			end
 		end
 	end
@@ -1156,43 +1159,60 @@ end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:CustomOverride(resource_ID)
 	-- CUSTOM OPERATION for Skirmish!
-	--
-	-- This function will identify up to four of the fifteen "Luxury Plot Lists"
-	-- that match terrain best suitable for this type of strategic resource.
+	-- This function will identify the "Luxury Plot Lists" that match terrain best suitable for this type of strategic resource.
+
 	print("-"); print("Obtaining indices for Strategic#", resource_ID);
-	local primary, secondary, tertiary, quaternary = -1, -1, -1, -1;
+
+	local tList = {};
+
 	if resource_ID == self.iron_ID then
-		primary, secondary, tertiary, quaternary = 4, 5, 10, 14;
+		tList = {
+			PlotListTypes.HILLS,
+			PlotListTypes.FLAT_FOREST,
+			PlotListTypes.FLAT_DESERT_NO_FEATURE,
+			PlotListTypes.SNOW,
+		};
 	elseif resource_ID == self.horse_ID then
-		primary, secondary, tertiary, quaternary = 12, 11, 47, 13;
+		tList = {
+			PlotListTypes.FLAT_TUNDRA_PLAINS_GRASS_NO_FEATURE,
+			PlotListTypes.FLAT_DESERT_WET,
+		};
 	elseif resource_ID == self.coal_ID then
-		primary, secondary, tertiary, quaternary = 24, 18, 12, 13;
+		tList = {
+			PlotListTypes.HILLS_PLAINS_GRASS_NO_FEATURE,
+			PlotListTypes.FLAT_PLAINS_GRASS_NO_FEATURE,
+			PlotListTypes.PLAINS_GRASS_FOREST,
+		};
 	elseif resource_ID == self.oil_ID then
-		primary, secondary, tertiary, quaternary = 10, 2, 8, 17;
+		tList = {
+			PlotListTypes.FLAT_DESERT_TUNDRA_NO_FEATURE,
+			PlotListTypes.FLAT_JUNGLE,
+			PlotListTypes.COAST_NEXT_TO_LAND,
+			PlotListTypes.MARSH,
+			PlotListTypes.SNOW,
+		};
 	elseif resource_ID == self.aluminum_ID then
-		primary, secondary, tertiary, quaternary = 25, 36, 18, 19;
+		tList = {
+			PlotListTypes.HILLS_DESERT_TUNDRA_PLAINS_NO_FEATURE,
+			PlotListTypes.FLAT_DESERT_TUNDRA_NO_FEATURE,
+			PlotListTypes.FLAT_PLAINS_NO_FEATURE,
+		};
 	elseif resource_ID == self.uranium_ID then
-		primary, secondary, tertiary, quaternary = 8, 2, 14, 10;
+		tList = {
+			PlotListTypes.LAND,
+		};
 	end
-	print("Found indices of", primary, secondary, tertiary, quaternary);
-	return primary, secondary, tertiary, quaternary;
+	print("Found indices of", tList);
+	return tList;
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:PlaceStrategicAndBonusResources()
-	-- KEY: {Resource ID, Quantity (0 = unquantified), weighting, minimum radius, maximum radius}
-	-- KEY: (frequency (1 per n plots in the list), impact list number, plot list, resource data)
-	--
-	-- The radius creates a zone around the plot that other resources of that
-	-- type will avoid if possible. See ProcessResourceList for impact numbers.
-	--
-	-- Order of placement matters, so changing the order may affect a later dependency.
-	
-	-- Adjust amounts, if applicable, based on Resource Setting.
-	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetMajorStrategicResourceQuantityValues()
-	local uran_sm, horse_sm, oil_sm, iron_sm, coal_sm, alum_sm = self:GetSmallStrategicResourceQuantityValues()
-	local bonus_multiplier = 1;
-
 	-- Distribute Strategic Resources to Regions -- CUSTOM for Skirmish.
+
+	-- Adjust amounts, if applicable, based on Resource Setting.
+	local uran_amt, horse_amt, oil_amt, iron_amt, coal_amt, alum_amt = self:GetMajorStrategicResourceQuantityValues();
+	local uran_sm, horse_sm, oil_sm, iron_sm, coal_sm, alum_sm = self:GetSmallStrategicResourceQuantityValues();
+
 	local dist_list = {
 		{self.iron_ID, iron_amt, iron_sm},
 		{self.horse_ID, horse_amt, horse_sm},
@@ -1201,315 +1221,53 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 		{self.aluminum_ID, alum_amt, alum_sm},
 		{self.uranium_ID, uran_amt, uran_sm},
 	};
-	for loop, reg_data in ipairs(self.regions_sorted_by_type) do
+	for _, reg_data in ipairs(self.regions_sorted_by_type) do
 		local region_number = reg_data[1];
-		for strategic_loop, res_data_table in ipairs(dist_list) do
+		for _, res_data_table in ipairs(dist_list) do
 			local res_ID = res_data_table[1];
 			local res_amt = res_data_table[2];
 			local res_sm = res_data_table[3];
+
 			print("-"); print("- - -"); print("Attempting to place strategic resource #", res_ID, "in Region#", region_number);
-			local iNumAlreadyPlaced = 0;
-			local primary, secondary, tertiary, quaternary, luxury_plot_lists, shuf_list, iNumLeftToPlace;
-			primary, secondary, tertiary, quaternary = self:CustomOverride(res_ID);
-			luxury_plot_lists = self:GenerateLuxuryPlotListsInRegion(region_number)
+
+			local tList = self:CustomOverride(res_ID);
+			local luxury_plot_lists = self:GenerateLuxuryPlotListsInRegion(region_number);
+
 			-- Place one large source of each resource type in each region.
-			local iNumThisLuxToPlace = 1;
-			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_amt, iNumThisLuxToPlace, 0.3, ImpactLayers.LAYER_NONE, 1, 1, shuf_list);
-			if iNumLeftToPlace > 0 and secondary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_amt, iNumLeftToPlace, 0.3, ImpactLayers.LAYER_NONE, 1, 1, shuf_list);
+			local iNumLeftToPlace = 1;
+			local iAttempt = 0;
+			while iNumLeftToPlace > 0 and iAttempt < 100 do
+				for _, index in ipairs(tList) do
+					local shuf_list = luxury_plot_lists[index];
+					if index > 0 then
+						iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_amt, 1, 0.25, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+					end
+					if iNumLeftToPlace <= 0 then
+						break;
+					end
+				end
+				iAttempt = iAttempt + 1;
 			end
-			if iNumLeftToPlace > 0 and tertiary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_amt, iNumLeftToPlace, 0.4, ImpactLayers.LAYER_NONE, 1, 1, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and quaternary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_amt, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 1, 1, shuf_list);
-			end
+
 			-- Place one small source of each resource type in each region.
-			local iNumThisLuxToPlace = 1;
-			shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[primary])
-			iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_sm, iNumThisLuxToPlace, 0.3, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			if iNumLeftToPlace > 0 and secondary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[secondary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_sm, iNumLeftToPlace, 0.3, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and tertiary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[tertiary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_sm, iNumLeftToPlace, 0.4, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
-			end
-			if iNumLeftToPlace > 0 and quaternary > 0 then
-				shuf_list = GetShuffledCopyOfTable(luxury_plot_lists[quaternary])
-				iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_sm, iNumLeftToPlace, 0.5, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+			iNumLeftToPlace = 1;
+			iAttempt = 0;
+			while iNumLeftToPlace > 0 and iAttempt < 100 do
+				for _, index in ipairs(tList) do
+					local shuf_list = luxury_plot_lists[index];
+					if index > 0 then
+						iNumLeftToPlace = self:PlaceSpecificNumberOfResources(res_ID, res_sm, 1, 0.25, ImpactLayers.LAYER_NONE, 0, 0, shuf_list);
+					end
+					if iNumLeftToPlace <= 0 then
+						break;
+					end
+				end
+				iAttempt = iAttempt + 1;
 			end
 		end
 	end
 
-
-	-- Place Bonus Resources
-	print("Map Generation - Placing Bonuses");
-	self:PlaceFish(10 * bonus_multiplier, self.coast_list);
-	self:PlaceSexyBonusAtCivStarts()
-	self:AddExtraBonusesToHillsRegions()
-	
-	local resources_to_place = {}
-
-	if self:IsEvenMoreResourcesActive() == true then
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(12 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.extra_deer_list, resources_to_place)
-		-- 8
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(16 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 12
-		
-		resources_to_place = {
-		{self.wheat_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(20 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.desert_wheat_list, resources_to_place)
-		-- 10
-		resources_to_place = {
-		{self.wheat_ID, 1, 100, 2, 3} };
-		self:ProcessResourceList(44 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
-		-- 27
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(30 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-		-- 14
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(40 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tropical_marsh_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.cow_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(30 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.grass_flat_no_feature, resources_to_place)
-		-- 18
-		
-	-- CBP
-		resources_to_place = {
-		{self.bison_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
-	-- END
-
-		resources_to_place = {
-		{self.sheep_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(44 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- 13
-
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(40 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
-		-- 20
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(40 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.dry_plains_flat_no_feature, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(30 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 15
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(16 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-		-- 19
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(36 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(10 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 3, 4} };
-		self:ProcessResourceList(50 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
-		self:ProcessResourceList(50 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
-		-- 25
-
-	-- Even More Resources for VP start
-		resources_to_place = {
-		{self.rice_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.fresh_water_grass_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.maize_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(32 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.coconut_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(12 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.coconut_list, resources_to_place)
-
-		resources_to_place = {
-		{self.hardwood_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(37 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_covered_list, resources_to_place)
-
-		resources_to_place = {
-		{self.hardwood_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(37 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.flat_covered, resources_to_place)
-
-		resources_to_place = {
-		{self.hardwood_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(29 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_forest, resources_to_place)
-
-		resources_to_place = {
-		{self.lead_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(40 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.lead_ID, 1, 100, 2, 3} };
-		self:ProcessResourceList(35 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-
-		resources_to_place = {
-		{self.lead_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(35 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.pineapple_ID, 1, 100, 0, 3} };
-		self:ProcessResourceList(29 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-
-		resources_to_place = {
-		{self.potato_ID, 1, 100, 2, 3} };
-		self:ProcessResourceList(40 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
-
-		resources_to_place = {
-		{self.potato_ID, 1, 100, 0, 3} };
-		self:ProcessResourceList(29 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_no_tundra_no_desert, resources_to_place)
-
-		resources_to_place = {
-		{self.rubber_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(43 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(29 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(37 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_covered_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(21 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(43 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.flat_open, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100,0, 2} };
-		self:ProcessResourceList(56 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.flat_open, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(51 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(48 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(40 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_including_forests, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(24 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-	-- Even More Resources for VP end
-	else
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(6 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.extra_deer_list, resources_to_place)
-		-- 8
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(8 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 12
-		
-		resources_to_place = {
-		{self.wheat_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(20 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.wheat_list, resources_to_place)
-		
-		resources_to_place = {
-		{self.rice_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(12 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.rice_list, resources_to_place)
-		
-		resources_to_place = {
-		{self.maize_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.maize_list, resources_to_place)
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(15 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-		-- 14
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(20 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tropical_marsh_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.cow_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(15 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.grass_flat_no_feature, resources_to_place)
-		-- 18
-		
-	-- CBP
-		resources_to_place = {
-		{self.bison_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(26 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
-	-- END
-
-		resources_to_place = {
-		{self.sheep_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(18 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- 13
-
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(30 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
-		-- 20
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(60 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.dry_plains_flat_no_feature, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(60 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 15
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(13 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-		-- 19
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(60 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(8 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 3, 4} };
-		self:ProcessResourceList(25 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
-		self:ProcessResourceList(25 * bonus_multiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
-		-- 25
-	end
+	self:PlaceBonusResources();
 end
 ------------------------------------------------------------------------------
 function StartPlotSystem()

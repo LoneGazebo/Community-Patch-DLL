@@ -475,9 +475,15 @@ function AssignStartingPlots:GenerateRegions(args)
 	print("Map Generation - Dividing the map in to Regions");
 	-- This is a customized version for North vs South.
 	-- This version is tailored for handling two-teams play.
-	local args = args or {};
+	args = args or {};
 	local iW, iH = Map.GetGridSize();
 	self.method = RegionDivision.RECTANGULAR; -- Flag the map as using a Rectangular division method.
+	self.resDensity = args.resources; -- Strategic Resource Density setting
+	self.resSize = args.resources; -- Strategic Resource Deposit Size setting
+	self.bonusDensity = args.resources; -- Bonus Resource Density setting
+	self.luxuryDensity = args.resources; -- Luxury Resource Density setting
+	self.legStart = args.resources == 4; -- Legendary Start setting
+	self.resBalance = args.resources == 5; -- Strategic Balance setting
 
 	-- Determine number of civilizations and city states present in this game.
 	self.iNumCivs, self.iNumCityStates, self.player_ID_list, self.bTeamGame, self.teams_with_major_civs, self.number_civs_per_team = GetPlayerAndTeamInfo()
@@ -494,7 +500,7 @@ function AssignStartingPlots:GenerateRegions(args)
 	-- If two teams are present, use team-oriented handling of start points, one team north, one south.
 	if iNumTeams == 2 and team_setting == 1 then
 		print("-"); print("Number of Teams present is two! Using custom team start placement for North vs South."); print("-");
-		
+
 		-- ToDo: Correctly identify team IDs and how many Civs are on each team.
 		-- Also need to shuffle the teams so its random who starts on which half.
 		local shuffled_team_list = GetShuffledCopyOfTable(self.teams_with_major_civs)
@@ -535,11 +541,11 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- The regions have been defined.
 
 	-- If number of teams is any number other than two, use standard One Landmass division.
-	else	
+	else
 		print("-"); print("Dividing the map at random."); print("-");
 		self.method = RegionDivision.BIGGEST_LANDMASS;
 		-- Identify the biggest landmass.
-		local biggest_area = Map.FindBiggestArea(False);
+		local biggest_area = Map.FindBiggestArea(false);
 		local iAreaID = biggest_area:GetID();
 		-- We'll need all eight data fields returned in the results table from the boundary finder:
 		local landmass_data = ObtainLandmassBoundaries(iAreaID);
@@ -551,7 +557,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		local iHeight = landmass_data[6];
 		local wrapsX = landmass_data[7];
 		local wrapsY = landmass_data[8];
-		
+
 		-- Obtain "Start Placement Fertility" of the landmass.
 		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(iAreaID, 
 		                                         iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
@@ -561,7 +567,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		self:DivideIntoRegions(self.iNumCivs, fert_table, rect_table)
 		-- The regions have been defined.
 	end
-	--
+
 	--[[ Printout is for debugging only. Deactivate otherwise.
 	local tempRegionData = self.regionData;
 	for i, data in ipairs(tempRegionData) do
@@ -671,26 +677,24 @@ function StartPlotSystem()
 	end
 
 	print("Creating start plot database.");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
 	print("Dividing the map in to Regions.");
-	-- Regional Division Method 1: Biggest Landmass
 	local args = {
-		method = 1,
 		resources = res,
-		};
-	start_plot_database:GenerateRegions()
+	};
+	start_plot_database:GenerateRegions(args);
 
 	print("Choosing start locations for civilizations.");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players.");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders.");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States.");
-	start_plot_database:PlaceResourcesAndCityStates()
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------

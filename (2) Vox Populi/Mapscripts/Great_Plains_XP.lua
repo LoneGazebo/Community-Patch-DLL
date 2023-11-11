@@ -1452,37 +1452,40 @@ function AssignStartingPlots:AttemptToPlaceNaturalWonder(iNaturalWonderNumber)
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:PlaceNaturalWonders()
-	local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists()
-	local iNumNWCandidates = table.maxn(NW_eligibility_order);
-	if iNumNWCandidates == 0 then
-		--print("No Natural Wonders placed, no eligible sites found for any of them.");
-		return
-	end
-	
 	-- Determine how many NWs to attempt to place. Target is regulated per map size.
 	-- The final number cannot exceed the number the map has locations to support.
-	--
-	local worldsizes = {
-		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 1,
-		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 2,
-		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 3,
-		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 3,
-		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 3,
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 3
-		}
-	local target_number = worldsizes[Map.GetWorldSize()];
+	local target_number = self:GetNumNaturalWondersToPlace(Map.GetWorldSize());
+
+	local NW_eligibility_order = self:GenerateNaturalWondersCandidatePlotLists(target_number);
+	local iNumNWCandidates = table.maxn(NW_eligibility_order);
+	if iNumNWCandidates == 0 then
+		print("No Natural Wonders placed, no eligible sites found for any of them.");
+		return;
+	end
+
+	-- Debug printout
+	--[[
+	print("-"); print("--- Readout of NW Assignment Priority ---");
+	for print_loop, order in ipairs(NW_eligibility_order) do
+		print("NW Assignment Priority#", print_loop, "goes to NW#", order);
+	end
+	print("-"); print("-");
+	--]]
+
 	local iNumNWtoPlace = math.min(target_number, iNumNWCandidates);
 	local selected_NWs, fallback_NWs = {}, {};
 	local iNumSelectedSoFar = 0;
+
 	-- If Geyser is eligible, always choose it. (This is because its eligibility requirements are so much steeper.)
 	if NW_eligibility_order[1] == 1 then
 		table.insert(selected_NWs, NW_eligibility_order[1]);
 		table.remove(NW_eligibility_order, 1);
 		iNumSelectedSoFar = iNumSelectedSoFar + 1;
 	end
+
 	-- Choose a random selection from the others, to reach the quota to place. If any left over, set as fallbacks.
 	local NW_shuffled_order = GetShuffledCopyOfTable(NW_eligibility_order);
-	for loop, NW in ipairs(NW_eligibility_order) do
+	for _, NW in ipairs(NW_eligibility_order) do
 		for test_loop, shuffled_NW in ipairs(NW_shuffled_order) do
 			if shuffled_NW == NW then
 				if test_loop <= iNumNWtoPlace - iNumSelectedSoFar then
@@ -1493,45 +1496,74 @@ function AssignStartingPlots:PlaceNaturalWonders()
 			end
 		end
 	end
+
+	-- print("-");
+	for _, NW in ipairs(selected_NWs) do
+		print("Natural Wonder #", NW, "has been selected for placement.");
+	end
+	print("-");
+	for _, NW in ipairs(fallback_NWs) do
+		print("Natural Wonder #", NW, "has been selected as fallback.");
+	end
+	print("-");
+
+	print("--- Placing Natural Wonders! ---");
 	-- Place the NWs
 	local iNumPlaced = 0;
-	for loop, NW in ipairs(selected_NWs) do
-		local bSuccess = self:AttemptToPlaceNaturalWonder(NW)
+	for _, nw_number in ipairs(selected_NWs) do
+		local nw_type = self.wonder_list[nw_number];
+		-- Obtain the correct Row number from the xml Placement table.
+		local row_number;
+		for row in GameInfo.Natural_Wonder_Placement() do
+			if row.NaturalWonderType == nw_type then
+				row_number = row.ID;
+			end
+		end
+		-- Place the wonder, using the correct row data from XML.
+		local bSuccess = self:AttemptToPlaceNaturalWonder(nw_number, row_number)
 		if bSuccess then
 			iNumPlaced = iNumPlaced + 1;
 		end
 	end
 	if iNumPlaced < iNumNWtoPlace then
-		for loop, NW in ipairs(fallback_NWs) do
+		for _, nw_number in ipairs(fallback_NWs) do
 			if iNumPlaced >= iNumNWtoPlace then
-				break
+				break;
 			end
-			local bSuccess = self:AttemptToPlaceNaturalWonder(NW)
+			local nw_type = self.wonder_list[nw_number];
+			-- Obtain the correct Row number from the xml Placement table.
+			local row_number;
+			for row in GameInfo.Natural_Wonder_Placement() do
+				if row.NaturalWonderType == nw_type then
+					row_number = row.ID;
+				end
+			end
+			-- Place the wonder, using the correct row data from XML.
+			local bSuccess = self:AttemptToPlaceNaturalWonder(nw_number, row_number)
 			if bSuccess then
 				iNumPlaced = iNumPlaced + 1;
 			end
 		end
 	end
+
+	if iNumPlaced >= iNumNWtoPlace then
+		print("-- Placed all Natural Wonders --"); print("-"); print("-");
+	else
+		print("-- Not all Natural Wonders targeted got placed --"); print("-"); print("-");
+	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:PlaceBonusResources()
-	local iW, iH = Map.GetGridSize();
-	local resMultiplier = 1;
-
-	-- Place Bonus Resources
-	print("Map Generation - Placing Bonuses");
-	self:PlaceFish(10 * resMultiplier, self.coast_list);
-	self:PlaceSexyBonusAtCivStarts()
-	self:AddExtraBonusesToHillsRegions()
-
+function PlaceBuffalo(ASP)
 	-- Great Plains, Buffalo Herds
-	print("Placing Buffalo Herds (Cows - Lua Great Plains) ...")
-	local herds = Fractal.Create(iW, iH, 7, {}, -1, -1)
-	local iHerdsClumps = herds:GetHeight(3)
-	local iHerdsBottom1 = herds:GetHeight(24)
-	local iHerdsTop1 = herds:GetHeight(27)
-	local iHerdsBottom2 = herds:GetHeight(73)
-	local iHerdsTop2 = herds:GetHeight(76)
+	print("Placing Buffalo Herds (Cows - Lua Great Plains) ...");
+
+	local iW, iH = Map.GetGridSize();
+	local herds = Fractal.Create(iW, iH, 7, {}, -1, -1);
+	local iHerdsClumps = herds:GetHeight(3);
+	local iHerdsBottom1 = herds:GetHeight(24);
+	local iHerdsTop1 = herds:GetHeight(27);
+	local iHerdsBottom2 = herds:GetHeight(73);
+	local iHerdsTop2 = herds:GetHeight(76);
 	-- More herds in the northern 5/8ths of the map.
 	local herdNorth = iH - 1;
 	local herdSouth = math.floor(iH * 0.37);
@@ -1539,18 +1571,18 @@ function AssignStartingPlots:PlaceBonusResources()
 	local herdEast = math.floor((2 * iW) / 3);
 	local herdSlideRange = math.floor((herdEast - herdWest) / 6);
 	for y = herdSouth, herdNorth do
-		local herdLeft = herdWest + Map.Rand(herdSlideRange, "Herds, West Boundary - Great Plains Lua")
-		local herdRight = herdEast - Map.Rand(herdSlideRange, "Herds, East Boundary - Great Plains Lua")
+		local herdLeft = herdWest + Map.Rand(herdSlideRange, "Herds, West Boundary - Great Plains Lua");
+		local herdRight = herdEast - Map.Rand(herdSlideRange, "Herds, East Boundary - Great Plains Lua");
 		for x = herdLeft, herdRight do
 			-- Fractalized placement of herds
-			local plot = Map.GetPlot(x, y)
+			local plot = Map.GetPlot(x, y);
 			if plot:IsWater() or plot:IsMountain() or plot:GetFeatureType() == FeatureTypes.FEATURE_OASIS then
 				-- No buffalo at the water hole, sorry!
 			elseif plot:GetResourceType(-1) == -1 then
-				local herdVal = herds:GetHeight(x, y)
+				local herdVal = herds:GetHeight(x, y);
 				if ((herdVal <= iHerdsClumps) or (herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)) then
-					plot:SetResourceType(self.cow_ID, 1);
-					self.amounts_of_resources_placed[self.cow_ID + 1] = self.amounts_of_resources_placed[self.cow_ID + 1] + 1;
+					plot:SetResourceType(ASP.cow_ID, 1);
+					ASP.amounts_of_resources_placed[ASP.cow_ID + 1] = ASP.amounts_of_resources_placed[ASP.cow_ID + 1] + 1;
 				end
 			end
 		end
@@ -1562,304 +1594,53 @@ function AssignStartingPlots:PlaceBonusResources()
 	herdEast = math.floor(iW * 0.59);
 	herdSlideRange = math.floor((herdEast - herdWest) / 5);
 	for y = herdSouth, herdNorth do
-		local herdLeft = herdWest + Map.Rand(herdSlideRange, "Herds, West Boundary - Great Plains Lua")
-		local herdRight = herdEast - Map.Rand(herdSlideRange, "Herds, East Boundary - Great Plains Lua")
+		local herdLeft = herdWest + Map.Rand(herdSlideRange, "Herds, West Boundary - Great Plains Lua");
+		local herdRight = herdEast - Map.Rand(herdSlideRange, "Herds, East Boundary - Great Plains Lua");
 		for x = herdLeft, herdRight do
 			-- Fractalized placement of herds
-			local plot = Map.GetPlot(x, y)
+			local plot = Map.GetPlot(x, y);
 			if plot:IsWater() or plot:IsMountain() or plot:GetFeatureType() == FeatureTypes.FEATURE_OASIS then
 				-- No buffalo at the water hole, sorry!
 			elseif plot:GetResourceType(-1) == -1 then
-				local herdVal = herds:GetHeight(x, y)
+				local herdVal = herds:GetHeight(x, y);
 				if ((herdVal >= iHerdsBottom1 and herdVal <= iHerdsTop1) or (herdVal >= iHerdsBottom2 and herdVal <= iHerdsTop2)) then
-					plot:SetResourceType(self.cow_ID, 1);
+					plot:SetResourceType(ASP.cow_ID, 1);
 				end
 			end
 		end
-	end
-	-- Extra Cows are all done now. Mooooooooo!
-	-- Can you say "Holy Cow"? =)
-
-	local resources_to_place = {}
-
-	if self:IsEvenMoreResourcesActive() == true then
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.extra_deer_list, resources_to_place)
-		-- 8
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(16 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 12
-		
-		resources_to_place = {
-		{self.wheat_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_wheat_list, resources_to_place)
-		-- 10
-		resources_to_place = {
-		{self.wheat_ID, 1, 100, 2, 3} };
-		self:ProcessResourceList(44 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
-		-- 27
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-		-- 14
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tropical_marsh_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.cow_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.grass_flat_no_feature, resources_to_place)
-		-- 18
-		
-	-- CBP
-		resources_to_place = {
-		{self.bison_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
-	-- END
-
-		resources_to_place = {
-		{self.sheep_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(44 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- 13
-
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
-		-- 20
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_plains_flat_no_feature, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 15
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(16 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-		-- 19
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(36 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(10 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 3, 4} };
-		self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
-		self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
-		-- 25
-
-	-- Even More Resources for VP start
-		resources_to_place = {
-		{self.rice_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.fresh_water_grass_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.maize_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(32 * resMultiplier, ImpactLayers.LAYER_BONUS, self.plains_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.coconut_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.coconut_list, resources_to_place)
-
-		resources_to_place = {
-		{self.hardwood_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(37 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_covered_list, resources_to_place)
-
-		resources_to_place = {
-		{self.hardwood_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(37 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_covered, resources_to_place)
-
-		resources_to_place = {
-		{self.hardwood_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_forest, resources_to_place)
-
-		resources_to_place = {
-		{self.lead_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.lead_ID, 1, 100, 2, 3} };
-		self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-
-		resources_to_place = {
-		{self.lead_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.pineapple_ID, 1, 100, 0, 3} };
-		self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-
-		resources_to_place = {
-		{self.potato_ID, 1, 100, 2, 3} };
-		self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
-
-		resources_to_place = {
-		{self.potato_ID, 1, 100, 0, 3} };
-		self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_no_tundra_no_desert, resources_to_place)
-
-		resources_to_place = {
-		{self.rubber_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(43 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(29 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(37 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_covered_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(21 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-
-		resources_to_place = {
-		{self.sulfur_ID, 1, 100, 1, 3} };
-		self:ProcessResourceList(43 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100,0, 2} };
-		self:ProcessResourceList(56 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(51 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(48 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_including_forests, resources_to_place)
-
-		resources_to_place = {
-		{self.titanium_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-	-- Even More Resources for VP end
-	else
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(6 * resMultiplier, ImpactLayers.LAYER_BONUS, self.extra_deer_list, resources_to_place)
-		-- 8
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(8 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 12
-		
-		resources_to_place = {
-		{self.wheat_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_BONUS, self.wheat_list, resources_to_place)
-		
-		resources_to_place = {
-		{self.rice_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(12 * resMultiplier, ImpactLayers.LAYER_BONUS, self.rice_list, resources_to_place)
-		
-		resources_to_place = {
-		{self.maize_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(24 * resMultiplier, ImpactLayers.LAYER_BONUS, self.maize_list, resources_to_place)
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(15 * resMultiplier, ImpactLayers.LAYER_BONUS, self.banana_list, resources_to_place)
-		-- 14
-		
-		resources_to_place = {
-		{self.banana_ID, 1, 100, 0, 1} };
-		self:ProcessResourceList(20 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tropical_marsh_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.cow_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(15 * resMultiplier, ImpactLayers.LAYER_BONUS, self.grass_flat_no_feature, resources_to_place)
-		-- 18
-		
-	-- CBP
-		resources_to_place = {
-		{self.bison_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(26 * resMultiplier, ImpactLayers.LAYER_BONUS, self.flat_open_no_tundra_no_desert, resources_to_place)
-	-- END
-
-		resources_to_place = {
-		{self.sheep_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(18 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- 13
-
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(30 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_grass_flat_no_feature, resources_to_place)
-		-- 20
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 1} };
-		self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_BONUS, self.dry_plains_flat_no_feature, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_BONUS, self.tundra_flat_no_feature, resources_to_place)
-		-- 15
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(13 * resMultiplier, ImpactLayers.LAYER_BONUS, self.desert_flat_no_feature, resources_to_place)
-		-- 19
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 1, 2} };
-		self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_open_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.stone_ID, 1, 100, 0, 2} };
-		self:ProcessResourceList(8 * resMultiplier, ImpactLayers.LAYER_BONUS, self.snow_flat_list, resources_to_place)
-		-- none
-		
-		resources_to_place = {
-		{self.deer_ID, 1, 100, 3, 4} };
-		self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.forest_flat_that_are_not_tundra, resources_to_place)
-		self:ProcessResourceList(25 * resMultiplier, ImpactLayers.LAYER_BONUS, self.hills_forest_list, resources_to_place)
-		-- 25
 	end
 end
 ------------------------------------------------------------------------------
 function StartPlotSystem()
 	print("Creating start plot database (MapGenerator.Lua)");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
+	start_plot_database.PlaceBuffalo = PlaceBuffalo;
+	start_plot_database.oldPlaceBonusResources = start_plot_database.PlaceBonusResources;
+	local newPlaceBonusResources = function (ASP)
+		ASP:PlaceBuffalo();
+		ASP:oldPlaceBonusResources();
+	end
+	start_plot_database.PlaceBonusResources = newPlaceBonusResources;
+
 	print("Dividing the map in to Regions (Lua Inland Sea)");
 	-- Regional Division Method 1: Biggest Landmass
 	local args = {
 		method = 1,
-		};
-	start_plot_database:GenerateRegions(args)
+	};
+	start_plot_database:GenerateRegions(args);
 
 	print("Choosing start locations for civilizations (MapGenerator.Lua)");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players (MapGenerator.Lua)");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders (MapGenerator.Lua)");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States (MapGenerator.Lua)");
-	start_plot_database:PlaceResourcesAndCityStates()
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------
 
