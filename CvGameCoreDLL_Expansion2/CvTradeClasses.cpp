@@ -69,6 +69,8 @@ void CvGameTrade::Uninit (void)
 void CvGameTrade::Reset (void)
 {
 	m_aTradeConnections.clear();
+	m_lastTradePathUpdate = vector<int>(MAX_PLAYERS, -1);
+	m_lastTradePathUpdateUi = vector<int>(MAX_PLAYERS, -1);
 	m_routesPerPlayer = vector<vector<int>>(MAX_PLAYERS);
 	m_iNextID = 0;
 	m_CurrentTemporaryPopupRoute.iPlotX = 0;
@@ -120,12 +122,19 @@ TradePathLookup& CvGameTrade::GetTradePathsCache(bool bWater)
 	return m_aPotentialTradePathsLandUi;
 }
 
-std::map<PlayerTypes,int>& CvGameTrade::GetTradePathsCacheUpdateCounter()
+int CvGameTrade::GetTradePathsCacheUpdateCounter(PlayerTypes ePlayer)
 {
-	if (gDLL->IsGameCoreThread())
-		return m_lastTradePathUpdate;
+	//we have two sets of caches ...
+	return gDLL->IsGameCoreThread() ? m_lastTradePathUpdate[ePlayer] : m_lastTradePathUpdateUi[ePlayer];
+}
 
-	return m_lastTradePathUpdateUi;
+void CvGameTrade::SetTradePathsCacheUpdateCounter(PlayerTypes ePlayer, int iValue)
+{
+	//we have two sets of caches ...
+	if (gDLL->IsGameCoreThread())
+		m_lastTradePathUpdate[ePlayer] = iValue;
+	else
+		m_lastTradePathUpdateUi[ePlayer] = iValue;
 }
 
 // helper function
@@ -237,10 +246,9 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 	if (!kPlayer1.isAlive() || kPlayer1.isBarbarian() || kPlayer1.isMinorCiv())
 		return;
 
-	std::map<PlayerTypes, int> lastTradePathUpdate = GetTradePathsCacheUpdateCounter();
 	//check if we have anything to do
-	std::map<PlayerTypes,int>::iterator lastUpdate = lastTradePathUpdate.find(ePlayer1);
-	if (lastUpdate!=lastTradePathUpdate.end() && lastUpdate->second==GC.getGame().getGameTurn())
+	int lastUpdate = GetTradePathsCacheUpdateCounter(ePlayer1);
+	if (lastUpdate==GC.getGame().getGameTurn())
 		return;
 
 	//do not check whether we are at war here! the trade route cache is also used for military target selection
@@ -307,7 +315,7 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 
 	}
 
-	GetTradePathsCacheUpdateCounter()[ePlayer1]=GC.getGame().getGameTurn();
+	SetTradePathsCacheUpdateCounter(ePlayer1, GC.getGame().getGameTurn());
 
 	for (CvCity* pOriginCity = kPlayer1.firstCity(&iOriginCityLoop); pOriginCity != NULL; pOriginCity = kPlayer1.nextCity(&iOriginCityLoop))
 	{
@@ -5195,10 +5203,15 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 		return;
 
 	int iLongestRoute = 0;
-	
 	CvString strMsg;
-	strMsg.Format("%s,,%d,Finding the longest trade route", pOriginCity->getNameKey(), iMaxRange * SPath::getNormalizedDistanceBase());
-	LogTradeMsg(strMsg);
+
+	/*
+	if (GC.getLogging() && GC.getAILogging())
+	{
+		strMsg.Format("%s,,%d,Finding the longest trade route", pOriginCity->getNameKey(), iMaxRange * SPath::getNormalizedDistanceBase());
+		LogTradeMsg(strMsg);
+	}
+	*/
 
 	// Check the route, but not the path
 	for (int iPlayer = 0; iPlayer < MAX_CIV_PLAYERS; ++iPlayer)
@@ -5217,24 +5230,29 @@ void CvPlayerTrade::UpdateFurthestPossibleTradeRoute(DomainTypes eDomain, CvCity
 
 				if (iLength > iLongestRoute)
 				{
-					strMsg.Format("%s,%s,,New longest trade route,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
-					LogTradeMsg(strMsg);
-
-					/*strMsg.Format("%s,%s,,Logging the whole path", pOriginCity->getNameKey(), pDestCity->getNameKey());
-					LogTradeMsg(strMsg);
-					for (std::vector<SPathNode>::iterator it = outPath.vPlots.begin(); it != outPath.vPlots.end(); ++it)
+					if (GC.getLogging() && GC.getAILogging())
 					{
-						strMsg.Format(
-							"%s,%s,,X:%d / Y:%d / Moves:%d / Turns:%d", 
-							pOriginCity->getNameKey(),
-							pDestCity->getNameKey(),
-							it->x,
-							it->y,
-							it->moves,
-							it->turns
-						);
+						strMsg.Format("%s,%s,,New longest trade route,%d", pOriginCity->getNameKey(), pDestCity->getNameKey(), iLength);
 						LogTradeMsg(strMsg);
-					}*/
+
+						/*
+						strMsg.Format("%s,%s,,Logging the whole path", pOriginCity->getNameKey(), pDestCity->getNameKey());
+						LogTradeMsg(strMsg);
+						for (std::vector<SPathNode>::iterator it = outPath.vPlots.begin(); it != outPath.vPlots.end(); ++it)
+						{
+							strMsg.Format(
+								"%s,%s,,X:%d / Y:%d / Moves:%d / Turns:%d",
+								pOriginCity->getNameKey(),
+								pDestCity->getNameKey(),
+								it->x,
+								it->y,
+								it->moves,
+								it->turns
+							);
+							LogTradeMsg(strMsg);
+						}
+						*/
+					}
 
 					iLongestRoute = iLength;
 					if (iLongestRoute >= iMaxRange * SPath::getNormalizedDistanceBase())
