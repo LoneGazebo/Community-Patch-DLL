@@ -219,6 +219,8 @@ local g_slackerTexture = civBE_mode and "UnemployedIndicator.dds" or g_slotTextu
 --local g_colorRed = {x=1, y=0, z=0, w=1}
 local g_colorCulture = EUI.Color( 1, 0, 1, 1 )
 
+local g_HoverBuildingID = -1
+
 local g_gameInfo = {
 [OrderTypes.ORDER_TRAIN] = GameInfo.Units,
 [OrderTypes.ORDER_CONSTRUCT] = GameInfo.Buildings,
@@ -392,6 +394,19 @@ local function ExitCityScreen()
 	return Events.SerialEventExitCityScreen()
 end
 
+local function DoHideHoveredBuilding()
+	local city = GetSelectedModifiableCity()
+	if city then
+		local cityOwnerID = city:GetOwner()
+		if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
+
+			city:SetBuildingHidden(g_HoverBuildingID)
+			UpdateCityView()
+
+		end
+	end
+end
+
 ----------------------------------------------------------------
 -- Input handling
 ----------------------------------------------------------------
@@ -410,6 +425,9 @@ function( uiMsg, wParam )--, lParam )
 			return true
 		elseif wParam == Keys.VK_RIGHT then
 			GotoNextCity()
+			return true
+		elseif wParam == Keys.H and g_HoverBuildingID > 0 then
+			DoHideHoveredBuilding()
 			return true
 		end
 	end
@@ -1171,7 +1189,7 @@ local function AddSelectionItem( city, item,
 					and cityGetFaithCost( city, itemID, true )
 		end
 	end
-	if turnsLeft or goldCost or faithCost or (g_isDebugMode and not city:IsHasBuilding(buildingID)) then
+	if (turnsLeft or goldCost or faithCost or (g_isDebugMode and not city:IsHasBuilding(buildingID))) and not (orderID == OrderTypes.ORDER_CONSTRUCT and city:IsBuildingHidden(buildingID)) then
 		turnsLeft = turnsLeft and ( cityGetProductionTurnsLeft and cityGetProductionTurnsLeft( city, itemID ) or -1 )
 		return selectionList:insert{ item, orderID, L(name), turnsLeft, canProduce, goldCost, canBuyWithGold, faithCost, canBuyWithFaith }
 	end
@@ -1229,6 +1247,42 @@ local function handleBuildOrder( city, orderID, itemID )
 	end
 end
 
+local function ChangeHoverBuildingDisplay(city, itemID)
+	Events.ClearHexHighlightStyle("BoostedResourcePlot")
+	g_HoverBuildingID = itemID
+
+	-- Show plots with resources that will be boosted by building moused over
+	local boostedPlots = {city:GetPlotsBoostedByBuilding(itemID)}
+	for i = 1, #boostedPlots do
+		local plot = boostedPlots[i]
+		Events_SerialEventHexHighlight( ToHexFromGrid{ x=plot:GetX(), y=plot:GetY() }, true, g_colorCulture, "BoostedResourcePlot" )
+	end
+end
+
+local function OnSelectionMouseEnter( orderID, itemID )
+	-- Only care about buildings 
+	if orderID ~= OrderTypes.ORDER_CONSTRUCT then return end
+
+	local city = GetSelectedModifiableCity()
+	if city then
+		local cityOwnerID = city:GetOwner()
+		if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
+			ChangeHoverBuildingDisplay(city, itemID)
+		end
+	end
+end
+
+local function OnSelectionMouseExit( orderID, itemID )
+	-- Only care about buildings 
+	if orderID ~= OrderTypes.ORDER_CONSTRUCT then return end
+	print('No longer hovering over itemID', itemID)
+	
+	if g_HoverBuildingID == itemID then 
+		Events.ClearHexHighlightStyle("BoostedResourcePlot")
+		g_HoverBuildingID = -1
+	end
+end
+
 local g_SelectionListCallBacks = {
 	Button = {
 		[Mouse.eLClick] = function( orderID, itemID )
@@ -1255,6 +1309,8 @@ local g_SelectionListCallBacks = {
 			end
 		end,
 		[Mouse.eRClick] = SelectionPedia,
+		[Mouse.eMouseEnter] = OnSelectionMouseEnter,
+		[Mouse.eMouseExit] = OnSelectionMouseExit
 	},
 	GoldButton = {
 		[Mouse.eLClick] = function( orderID, itemID )
@@ -1290,6 +1346,26 @@ local function SetupSelectionList( itemList, selectionIM, cityOwnerID, getUnitPo
 			avisorRecommended, goldCost, canBuyWithGold, faithCost, canBuyWithFaith = nil
 		end
 		local instance, isNewInstance = selectionIM.GetInstance()
+
+		-- MouseEntered event doesn't work when the new element pops up where the mouse exists so handle
+		-- the case where element enters the part of the screen with the mouse here
+		if orderID == OrderTypes.ORDER_CONSTRUCT then
+			if instance.Button:HasMouseOver() then 
+				g_HoverBuildingID = itemID
+
+				if g_HoverBuildingID >= 0 then
+					local city = GetSelectedModifiableCity()
+					if city then
+						local cityOwnerID = city:GetOwner()
+						if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
+							ChangeHoverBuildingDisplay(city, itemID)
+						end
+					end
+				end
+			end
+		end
+		
+
 		if isNewInstance then
 			SetupCallbacks( instance, g_SelectionListTooltips, "EUI_CityViewLeftTooltip", g_SelectionListCallBacks )
 		end
@@ -2044,6 +2120,9 @@ local function UpdateCityViewNow()
 		-- Automated City Production
 		Controls.AutomateProduction:SetCheck( city:IsProductionAutomated() )
 		Controls.AutomateProduction:SetDisabled( g_isViewingMode )
+
+		-- Hidden build items: don't show unhide button when nothing hidden
+		Controls.UnhideBuildingsButton:SetHide( city:GetNumHiddenBuildings() == 0 );
 
 		-------------------------------------------
 		-- City Banner
@@ -2842,6 +2921,19 @@ local g_callBacks = {
 	CityNameTitleBarLabel = {
 		[Mouse.eRClick] = RenameCity,
 	},
+	UnhideBuildingsButton = {
+		[Mouse.eLClick] = function()
+			local city = GetSelectedModifiableCity()
+			if city then
+				local cityOwnerID = city:GetOwner()
+				if cityOwnerID == g_activePlayerID and not city:IsPuppet() then
+
+					city:ClearHiddenBuildings()
+					UpdateCityView()
+				end
+			end
+		end,
+	}
 }
 g_callBacks.NoAutoSpecialistCheckbox2 = g_callBacks.NoAutoSpecialistCheckbox
 

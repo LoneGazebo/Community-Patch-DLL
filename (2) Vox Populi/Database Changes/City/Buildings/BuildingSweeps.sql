@@ -89,6 +89,19 @@ WHERE BuildingClass IN (
 	WHERE MaxPlayerInstances = 1
 );
 
+-- Remove from unbuildable National Wonders
+UPDATE Buildings SET NumCityCostMod = 0
+WHERE BuildingClass IN (
+	'BUILDINGCLASS_PALACE',
+	'BUILDINGCLASS_PALACE_THRONE_ROOM',
+	'BUILDINGCLASS_PALACE_TREASURY',
+	'BUILDINGCLASS_CAPITAL_ENGINEER',
+	'BUILDINGCLASS_PALACE_GARDEN',
+	'BUILDINGCLASS_PALACE_COURT_CHAPEL',
+	'BUILDINGCLASS_PALACE_ASTROLOGER',
+	'BUILDINGCLASS_CONSULATE'
+);
+
 -- Exception for Unique National Wonders
 UPDATE Buildings SET NumCityCostMod = 10
 WHERE Type IN (
@@ -384,15 +397,6 @@ SET MutuallyExclusiveGroup = 10
 WHERE Type IN (
 	'BUILDING_SEAPORT',
 	'BUILDING_TRAINSTATION'
-);
-
--- Likely unnecessary with Building_ClassNeededNowhere, just for clarity on tooltip
-UPDATE Buildings
-SET MutuallyExclusiveGroup = 15
-WHERE Type IN (
-	'BUILDING_AMERICA_SMITHSONIAN',
-	'BUILDING_AMERICA_WESTPOINT',
-	'BUILDING_AMERICA_SLATERMILL'
 );
 
 UPDATE Buildings

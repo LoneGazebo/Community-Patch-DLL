@@ -147,6 +147,7 @@
 			<Type>UNITCLASS_SUPERCARRIER</Type>
 			<Description>TXT_KEY_UNIT_SUPERCARRIER</Description>
 			<DefaultUnit>UNIT_SUPERCARRIER</DefaultUnit>
+			<MaxPlayerInstances>2</MaxPlayerInstances>
 		</Row>
 		<!-- Rocket Missile -->
 		<Row>

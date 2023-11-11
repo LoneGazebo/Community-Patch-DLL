@@ -14496,7 +14496,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		if (pkProjectInfo && GET_TEAM(getTeam()).getProjectCount(ePrereqProject) == 0)
 			return false;
 	}
-		
+
 	CvPlot* pPlot = plot();
 
 	// Show the upgrade, but don't actually allow it
@@ -14518,6 +14518,22 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 		{
 			return false;
 		}
+
+		// Check max instances of unit class
+		// Don't count units already in production; upgrading is prioritized
+		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes) UpgradeUnitInfo->GetUnitClassType();
+
+		// Maxed out unit class for Game
+		if(GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
+			return false;
+
+		// Maxed out unit class for Team
+		if(GET_TEAM(getTeam()).isUnitClassMaxedOut(eUpgradeUnitClassType))
+			return false;
+
+		// Maxed out unit class for Player
+		if(GET_PLAYER(getOwner()).isUnitClassMaxedOut(eUpgradeUnitClassType))
+			return false;
 
 		if (GC.getUnitInfo(eUpgradeUnitType)->GetSpecialUnitType() != -1)
 		{

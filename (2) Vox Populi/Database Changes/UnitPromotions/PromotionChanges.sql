@@ -740,7 +740,7 @@ UPDATE UnitPromotions_Terrains SET PassableTech = 'TECH_COMPASS' WHERE Promotion
 
 UPDATE UnitPromotions SET RivalTerritory = 1 WHERE Type = 'PROMOTION_RIVAL_TERRITORY';
 
-UPDATE UnitPromotions SET ReligiousStrengthLossRivalTerritory = 25 WHERE Type = 'PROMOTION_UNWELCOME_EVANGELIST';
+UPDATE UnitPromotions SET RivalTerritory = 1, ReligiousStrengthLossRivalTerritory = 25 WHERE Type = 'PROMOTION_UNWELCOME_EVANGELIST';
 
 UPDATE UnitPromotions SET DiploMissionInfluence = 40 WHERE Type = 'PROMOTION_EMISSARY';
 UPDATE UnitPromotions SET DiploMissionInfluence = 50 WHERE Type = 'PROMOTION_ENVOY';

@@ -665,7 +665,12 @@ local function UpdateTopPanelNow()
 					turnsRemaining = math_ceil((faithNeeded - faithProgress) / faithPerTurn )
 				end
 				Controls.FaithBox:SetHide(false)
-				Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
+				
+				if not (g_activePlayer:HasCreatedPantheon() and g_activePlayer:HasCreatedReligion()) then
+					Controls.FaithString:SetText( S("+%i[ICON_PEACE]", faithPerTurn ) )
+				else
+					Controls.FaithString:SetText( S("+%i[ICON_PEACE]%i", faithPerTurn, faithProgress ) )
+				end
 			else
 				Controls.FaithBox:SetHide(true)
 				if PerTurnOnLeft then
@@ -2940,22 +2945,35 @@ local function OnResourceRClick( resourceID )
 	return GamePedia( GameInfo.Resources[ resourceID ].Description )
 end
 
+local tStrategicResources = {}
+
 for resource in GameInfo.Resources() do
 	local resourceID = resource.ID
+	
 	if Game.GetResourceUsageType( resourceID ) == ResourceUsageTypes.RESOURCEUSAGE_STRATEGIC then
-		local instance = {}
-		ContextPtr:BuildInstanceForControlAtIndex( "ResourceInstance", instance, Controls.TopPanelDiploStack, 8 )
-		g_resourceString[ resourceID ] = instance
-		IconHookup( resource.PortraitIndex, 45, resource.IconAtlas, instance.Image )
-		instance.Image:SetTextureSizeVal( 45, 45 ) --lower numbers look bigger
-		instance.Image:NormalizeTexture()
-
-		instance.Count:SetVoid1( resourceID )
-		instance.Count:SetToolTipCallback( ResourcesTipHandler )
-		instance.Count:RegisterCallback( Mouse.eLClick, OnResourceLClick )
-		instance.Count:RegisterCallback( Mouse.eRClick, OnResourceRClick )
+		table.insert(tStrategicResources, resource.StrategicPriority, resource)
 	end
+end
 
+for i, resource in ipairs(tStrategicResources) do
+	local resourceID = resource.ID
+	
+	local instance = {}
+	ContextPtr:BuildInstanceForControlAtIndex( "ResourceInstance", instance, Controls.TopPanelDiploStack, 8 )
+	g_resourceString[ resourceID ] = instance
+	IconHookup( resource.PortraitIndex, 45, resource.IconAtlas, instance.Image )
+	instance.Image:SetTextureSizeVal( 45, 45 ) --lower numbers look bigger
+	instance.Image:NormalizeTexture()
+
+	instance.Count:SetVoid1( resourceID )
+	instance.Count:SetToolTipCallback( ResourcesTipHandler )
+	instance.Count:RegisterCallback( Mouse.eLClick, OnResourceLClick )
+	instance.Count:RegisterCallback( Mouse.eRClick, OnResourceRClick )
+end
+
+for resource in GameInfo.Resources() do
+	local resourceID = resource.ID
+	
 	if resourceID == NavalSupplyID then
 		Controls.NavalSupplyString:SetVoid1( NavalSupplyID )
 		Controls.NavalSupplyIcon:SetVoid1( NavalSupplyID )

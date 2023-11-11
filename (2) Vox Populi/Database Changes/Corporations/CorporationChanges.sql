@@ -2,7 +2,7 @@
 UPDATE Corporations
 SET
 	BaseFranchises = 3,
-	NumFreeTradeRoutes = 2,
+	NumFreeTradeRoutes = 1,
 	RandomSpreadChance = 5,
 	TourismModNumFranchises = 2;
 

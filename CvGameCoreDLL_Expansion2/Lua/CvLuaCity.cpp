@@ -75,6 +75,13 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(CanJoin);
 	Method(IsBuildingLocalResourceValid);
 
+	Method(GetPlotsBoostedByBuilding);
+
+	Method(SetBuildingHidden);
+	Method(ClearHiddenBuildings);
+	Method(IsBuildingHidden);
+	Method(GetNumHiddenBuildings);
+
 	Method(GetResourceDemanded);
 	Method(SetResourceDemanded);
 	Method(DoPickResourceDemanded);
@@ -1494,6 +1501,49 @@ int CvLuaCity::lIsBuildingLocalResourceValid(lua_State* L)
 
 	lua_pushboolean(L, pkCity->IsBuildingLocalResourceValid(static_cast<BuildingTypes>(lua_tointeger(L, 2)), lua_toboolean(L, 3)));
 	return 1;
+}
+
+int CvLuaCity::lGetPlotsBoostedByBuilding(lua_State* L)
+{
+	CvCity* pkCity = GetInstance(L);
+	const BuildingTypes eBuildingType = (BuildingTypes)lua_tointeger(L, 2);
+
+	std::vector<int> aiPlotList;
+	pkCity->GetPlotsBoostedByBuilding(aiPlotList, eBuildingType);
+
+	int iReturnValues = 0;
+
+	for (uint ui = 0; ui < aiPlotList.size(); ui++)
+	{
+		if (aiPlotList[ui] >= 0)
+		{
+			CvPlot* pkPlot = GC.getMap().plotByIndex(aiPlotList[ui]);
+			CvLuaPlot::Push(L, pkPlot);
+			iReturnValues++;
+		}
+		else
+		{
+			break;
+		}
+	}
+
+	return iReturnValues;
+}
+int CvLuaCity::lSetBuildingHidden(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::SetBuildingHidden);
+}
+int CvLuaCity::lClearHiddenBuildings(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::ClearHiddenBuildings);
+}
+int CvLuaCity::lIsBuildingHidden(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::IsBuildingHidden);
+}
+int CvLuaCity::lGetNumHiddenBuildings(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::GetNumHiddenBuildings);
 }
 //------------------------------------------------------------------------------
 //bool GetResourceDemanded();

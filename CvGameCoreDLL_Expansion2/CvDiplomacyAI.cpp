@@ -46962,6 +46962,8 @@ int CvDiplomacyAI::GetEmbassyScore(PlayerTypes ePlayer)
 
 int CvDiplomacyAI::GetDiplomatScore(PlayerTypes ePlayer)
 {
+	// Masters gets a free Diplomat in their vassals' capitals
+	// Therefore this bonus doesn't apply for a vassal unless the vassal is being treated kindly
 	if (IsVassal(ePlayer) && !WasResurrectedBy(ePlayer))
 	{
 		if (IsVoluntaryVassalage(ePlayer))
@@ -46976,12 +46978,16 @@ int CvDiplomacyAI::GetDiplomatScore(PlayerTypes ePlayer)
 		}
 	}
 
+	// No bonus if the player has recent spying penalties
+	if (GetNumTimesRobbedBy(ePlayer) > 0 || IsPlayerBrokenSpyPromise(ePlayer) || IsPlayerIgnoredSpyPromise(ePlayer))
+		return 0;
+
 	int iOpinionWeight = 0;
 
 	// They have a Spy as a Diplomat in our Capital
 	if (GetPlayer()->GetEspionage()->IsOtherDiplomatVisitingMe(ePlayer))
 	{
-		iOpinionWeight = /*-15*/ GD_INT_GET(OPINION_WEIGHT_DIPLOMAT);
+		iOpinionWeight = /*-20*/ GD_INT_GET(OPINION_WEIGHT_DIPLOMAT);
 
 		if (IsScientist() || GetPlayer()->GetPlayerTraits()->IsNerd())
 		{

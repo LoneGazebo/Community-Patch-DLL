@@ -19,8 +19,8 @@ VALUES
 UPDATE Eras
 SET
 	TradeRouteFoodBonusTimes100 = (SELECT Food FROM EraSweep WHERE Era = Type),
-	TradeRouteProductionBonusTimes100 = (SELECT Food FROM EraSweep WHERE Era = Type),
-	UnitSupplyBase = (SELECT Food FROM EraSweep WHERE Era = Type)
+	TradeRouteProductionBonusTimes100 = (SELECT Production FROM EraSweep WHERE Era = Type),
+	UnitSupplyBase = (SELECT Supply FROM EraSweep WHERE Era = Type)
 WHERE EXISTS (SELECT 1 FROM EraSweep WHERE Era = Type);
 
 DROP TABLE EraSweep;
