@@ -178,6 +178,7 @@ PlotListTypes = {
 	HILLS_DESERT_PLAINS_GRASS_NO_FEATURE = 1310,
 	HILLS_TUNDRA_PLAINS_GRASS_NO_FEATURE = 1320,
 	TUNDRA_FOREST = 1400,
+	PLAINS_GRASS_FOREST = 1410,
 };
 
 NUM_REGION_TYPES = 11;
@@ -7621,10 +7622,12 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 					table.insert(tResourceList[PlotListTypes.HILLS_TUNDRA_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.HILLS_TUNDRA_PLAINS_COVERED], plotIndex);
 				elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+					table.insert(tResourceList[PlotListTypes.PLAINS_GRASS_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.HILLS_PLAINS_COVERED], plotIndex);
 					table.insert(tResourceList[PlotListTypes.HILLS_PLAINS_GRASS_COVERED], plotIndex);
 					table.insert(tResourceList[PlotListTypes.HILLS_TUNDRA_PLAINS_COVERED], plotIndex);
 				elseif terrainType == TerrainTypes.TERRAIN_GRASS then
+					table.insert(tResourceList[PlotListTypes.PLAINS_GRASS_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.HILLS_PLAINS_GRASS_COVERED], plotIndex);
 				end
 			else
@@ -7680,11 +7683,13 @@ function AssignStartingPlots:GenerateResourcePlotListsFromSpecificPlots(plotList
 					table.insert(tResourceList[PlotListTypes.FLAT_TUNDRA_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.FLAT_TUNDRA_PLAINS_COVERED], plotIndex);
 				elseif terrainType == TerrainTypes.TERRAIN_PLAINS then
+					table.insert(tResourceList[PlotListTypes.PLAINS_GRASS_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.FLAT_PLAINS_COVERED], plotIndex);
 					table.insert(tResourceList[PlotListTypes.FLAT_PLAINS_GRASS_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.FLAT_PLAINS_GRASS_COVERED], plotIndex);
 					table.insert(tResourceList[PlotListTypes.FLAT_TUNDRA_PLAINS_COVERED], plotIndex);
 				elseif terrainType == TerrainTypes.TERRAIN_GRASS then
+					table.insert(tResourceList[PlotListTypes.PLAINS_GRASS_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.FLAT_PLAINS_GRASS_FOREST], plotIndex);
 					table.insert(tResourceList[PlotListTypes.FLAT_PLAINS_GRASS_COVERED], plotIndex);
 				end
@@ -7960,6 +7965,7 @@ function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number,
 			res_range[index] = -1;
 		end
 	end
+	print("res_ID", res_ID[1], "iNumResourcesToPlace", iNumResourcesToPlace);
 	for index = 1, iNumResourcesTypes do
 		-- We'll roll a die and check each resource in turn to see if it is the one to get placed in that particular case.
 		-- The weightings are used to decide how much percentage of the total each represents.
@@ -9707,13 +9713,27 @@ function AssignStartingPlots:PlaceSmallQuantitiesOfStrategics(frequency, plot_li
 								selected_quantity = oil_amt;
 							end
 						elseif featureType == FeatureTypes.FEATURE_FOREST then
-							local diceroll = Map.Rand(5, "Resource selection - Place Small Quantities LUA");
-							if diceroll < 1 then
-								selected_ID = self.uranium_ID;
-								selected_quantity = uran_amt;
+							if terrainType == TerrainTypes.TERRAIN_GRASS or terrainType == TerrainTypes.TERRAIN_PLAINS then
+								local diceroll = Map.Rand(10, "Resource selection - Place Small Quantities LUA");
+								if diceroll < 2 then
+									selected_ID = self.uranium_ID;
+									selected_quantity = uran_amt;
+								elseif diceroll < 5 then
+									selected_ID = self.coal_ID;
+									selected_quantity = coal_amt;
+								else
+									selected_ID = self.iron_ID;
+									selected_quantity = iron_amt;
+								end
 							else
-								selected_ID = self.iron_ID;
-								selected_quantity = iron_amt;
+								local diceroll = Map.Rand(10, "Resource selection - Place Small Quantities LUA");
+								if diceroll < 2 then
+									selected_ID = self.uranium_ID;
+									selected_quantity = uran_amt;
+								else
+									selected_ID = self.iron_ID;
+									selected_quantity = iron_amt;
+								end
 							end
 						elseif featureType == FeatureTypes.NO_FEATURE then
 							if plotType == PlotTypes.PLOT_HILLS then
@@ -10328,7 +10348,7 @@ function AssignStartingPlots:AttemptToPlaceTreesAtResourcePlot(plot)
 	-- Sub-function of AdjustTiles()
 	-- Place forest or jungle on a resource plot depending on latitude and resource type
 	local iResourceType = plot:GetResourceType(-1);
-	if self:IsTropical(plot:getY()) then
+	if self:IsTropical(plot:GetY()) then
 		if iResourceType ~= self.fur_ID then
 			plot:SetFeatureType(FeatureTypes.FEATURE_JUNGLE, -1);
 		else
@@ -10685,21 +10705,22 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	resources_to_place = {
 		{self.iron_ID, iron_amt, 100, 1, 3}
 	};
-	self:ProcessResourceList(80 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.HILLS_NO_FEATURE], resources_to_place);
-	self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.HILLS_FOREST], resources_to_place);
-	self:ProcessResourceList(55 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_DESERT_NO_FEATURE], resources_to_place);
-	self:ProcessResourceList(100 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_PLAINS_GRASS_NO_FEATURE], resources_to_place);
-	self:ProcessResourceList(55 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_PLAINS_GRASS_FOREST], resources_to_place);
-	self:ProcessResourceList(90 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_TUNDRA_NO_FEATURE], resources_to_place);
-	self:ProcessResourceList(65 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_TUNDRA_FOREST], resources_to_place);
+	self:ProcessResourceList(75 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.HILLS_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(45 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.HILLS_FOREST], resources_to_place);
+	self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_DESERT_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(80 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_PLAINS_GRASS_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_PLAINS_GRASS_FOREST], resources_to_place);
+	self:ProcessResourceList(80 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_TUNDRA_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(55 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_TUNDRA_FOREST], resources_to_place);
 	self:ProcessResourceList(17 * resMultiplier, ImpactLayers.LAYER_IRON, tPlotList[PlotListTypes.FLAT_SNOW], resources_to_place);
 
 	resources_to_place = {
 		{self.coal_ID, coal_amt, 100, 1, 2}
 	};
-	self:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.HILLS_PLAINS_GRASS_NO_FEATURE], resources_to_place);
-	self:ProcessResourceList(70 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_GRASS_NO_FEATURE], resources_to_place);
-	self:ProcessResourceList(55 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_PLAINS_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.HILLS_PLAINS_GRASS_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(100 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_GRASS_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(80 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_PLAINS_NO_FEATURE], resources_to_place);
+	self:ProcessResourceList(70 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.PLAINS_GRASS_FOREST], resources_to_place);
 
 	resources_to_place = {
 		{self.oil_ID, oil_amt, 100, 1, 3}
@@ -10734,7 +10755,7 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 
 	self:AddModernMinorStrategicsToCityStates();
 
-	self:PlaceSmallQuantitiesOfStrategics(28 * resMultiplier, tPlotList[PlotListTypes.LAND]);
+	self:PlaceSmallQuantitiesOfStrategics(30 * resMultiplier, tPlotList[PlotListTypes.LAND]);
 
 	self:PlaceOilInTheSea();
 
@@ -10760,9 +10781,10 @@ function AssignStartingPlots:PlaceStrategicAndBonusResources()
 	iLoop = 0;
 	while self.amounts_of_resources_placed[self.coal_ID + 1] < 4 * self.iNumCivs and iLoop < 999 do
 		print("Map has very low coal, adding another.");
-		resources_to_place = { {self.coal_ID, coal_amt, 50, 1, 2} };
+		resources_to_place = { {self.coal_ID, coal_amt, 33, 1, 2} };
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.HILLS_PLAINS_GRASS_NO_FEATURE], resources_to_place);
 		self:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_PLAINS_GRASS_NO_FEATURE], resources_to_place);
+		self:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.PLAINS_GRASS_FOREST], resources_to_place);
 		iLoop = iLoop + 1;
 	end
 	iLoop = 0;
