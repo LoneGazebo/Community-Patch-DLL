@@ -802,9 +802,10 @@ function MapGlobals:New()
 			resources_to_place = {
 				{ASP.coal_ID, coal_amt, 100, 1, 2}
 			};
-			ASP:ProcessResourceList(40 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.HILLS_PLAINS_GRASS_NO_FEATURE], resources_to_place);
-			ASP:ProcessResourceList(70 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_GRASS_NO_FEATURE], resources_to_place);
-			ASP:ProcessResourceList(55 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_PLAINS_NO_FEATURE], resources_to_place);
+			ASP:ProcessResourceList(100 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.HILLS_PLAINS_GRASS_NO_FEATURE], resources_to_place);
+			ASP:ProcessResourceList(90 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_GRASS_NO_FEATURE], resources_to_place);
+			ASP:ProcessResourceList(90 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_PLAINS_NO_FEATURE], resources_to_place);
+			ASP:ProcessResourceList(100 * resMultiplier, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.PLAINS_GRASS_FOREST], resources_to_place);
 
 			resources_to_place = {
 				{ASP.oil_ID, oil_amt, 100, 1, 3}
@@ -818,9 +819,9 @@ function MapGlobals:New()
 			resources_to_place = {
 				{ASP.aluminum_ID, alum_amt, 100, 1, 3}
 			};
-			ASP:ProcessResourceList(42 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, tPlotList[PlotListTypes.HILLS_DESERT_TUNDRA_PLAINS_NO_FEATURE], resources_to_place);
-			ASP:ProcessResourceList(35 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, tPlotList[PlotListTypes.FLAT_DESERT_TUNDRA_NO_FEATURE], resources_to_place);
-			ASP:ProcessResourceList(100 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, tPlotList[PlotListTypes.FLAT_PLAINS_NO_FEATURE], resources_to_place);
+			ASP:ProcessResourceList(75 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, tPlotList[PlotListTypes.HILLS_DESERT_TUNDRA_PLAINS_NO_FEATURE], resources_to_place);
+			ASP:ProcessResourceList(50 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, tPlotList[PlotListTypes.FLAT_DESERT_TUNDRA_NO_FEATURE], resources_to_place);
+			ASP:ProcessResourceList(60 * resMultiplier, ImpactLayers.LAYER_ALUMINUM, tPlotList[PlotListTypes.FLAT_PLAINS_NO_FEATURE], resources_to_place);
 
 			resources_to_place = {
 				{ASP.uranium_ID, uran_amt, 100, 2, 4}
@@ -839,7 +840,7 @@ function MapGlobals:New()
 
 			ASP:AddModernMinorStrategicsToCityStates();
 
-			ASP:PlaceSmallQuantitiesOfStrategics(36 * resMultiplier, tPlotList[PlotListTypes.LAND]);
+			ASP:PlaceSmallQuantitiesOfStrategics(42 * resMultiplier, tPlotList[PlotListTypes.LAND]);
 
 			ASP:PlaceOilInTheSea();
 
@@ -865,9 +866,10 @@ function MapGlobals:New()
 			iLoop = 0;
 			while ASP.amounts_of_resources_placed[ASP.coal_ID + 1] < 4 * ASP.iNumCivs and iLoop < 999 do
 				print("Map has very low coal, adding another.");
-				resources_to_place = { {ASP.coal_ID, coal_amt, 50, 1, 2} };
+				resources_to_place = { {ASP.coal_ID, coal_amt, 33, 1, 2} };
 				ASP:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.HILLS_PLAINS_GRASS_NO_FEATURE], resources_to_place);
 				ASP:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.FLAT_PLAINS_GRASS_NO_FEATURE], resources_to_place);
+				ASP:ProcessResourceList(99999, ImpactLayers.LAYER_COAL, tPlotList[PlotListTypes.PLAINS_GRASS_FOREST], resources_to_place);
 				iLoop = iLoop + 1;
 			end
 			iLoop = 0;
