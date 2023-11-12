@@ -2754,11 +2754,14 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	//check the tactical map whether we are neighbors with one of our other cities
 	CvTacticalAnalysisMap* tactmap = GET_PLAYER(pCity->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap();
 	const CvTacticalDominanceZone* zone = tactmap->GetZoneByCity(pCity, false);
-	for (std::vector<int>::const_iterator it = zone->GetNeighboringZones().begin(); it != zone->GetNeighboringZones().end(); ++it)
+	if (zone) //for new cities the zone may not exist
 	{
-		CvTacticalDominanceZone* neighbor = tactmap->GetZoneByID(*it);
-		if (neighbor->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
-			return false;
+		for (std::vector<int>::const_iterator it = zone->GetNeighboringZones().begin(); it != zone->GetNeighboringZones().end(); ++it)
+		{
+			CvTacticalDominanceZone* neighbor = tactmap->GetZoneByID(*it);
+			if (neighbor->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
+				return false;
+		}
 	}
 
 	//could we build a route?
