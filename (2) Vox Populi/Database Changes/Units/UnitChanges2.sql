@@ -194,13 +194,12 @@ SELECT
 FROM Units
 WHERE CombatClass = 'UNITCOMBAT_RECON';
 
--- Submarines have bonus attack (except against cities), are invisible, can detect other submarines and can pass through ice
+-- Submarines have bonus attack against units, attack penalty against cities, are invisible, and can pass through ice
 INSERT INTO Helper
 VALUES
 	('PROMOTION_SILENT_HUNTER'),
 	('PROMOTION_BIG_CITY_PENALTY'),
 	('PROMOTION_INVISIBLE_SUBMARINE'),
-	('PROMOTION_SEE_INVISIBLE_SUBMARINE'),
 	('PROMOTION_CAN_MOVE_IMPASSABLE');
 
 INSERT INTO Unit_FreePromotions

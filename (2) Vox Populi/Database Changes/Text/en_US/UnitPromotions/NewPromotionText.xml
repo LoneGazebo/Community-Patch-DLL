@@ -716,7 +716,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS">
-			<Text>Press Gangs</Text>
+			<Text>Commerce Raider</Text>
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_PRESS_GANGS_HELP">
 			<Text>Pillaging costs no [ICON_MOVES] Movement and [COLOR_POSITIVE_TEXT]fully heals[ENDCOLOR] this Unit.</Text>
@@ -802,6 +802,39 @@
 		</Row>
 		<Row Tag="TXT_KEY_PROMOTION_NAVIGATOR_2_HELP">
 			<Text>+1 [ICON_MOVES] Movement and [ICON_VP_VISION] Sight.</Text>
+		</Row>
+
+		<!-- Silent Hunter -->
+		<Row Tag="TXT_KEY_PROMOTION_SILENT_HUNTER_HELP">
+			<Text>+50% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_HUNTER_KILLER">
+			<Text>Hunter Killer</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_HUNTER_KILLER_HELP">
+			<Text>+50% [ICON_STRENGTH] Combat Strength VS [COLOR_POSITIVE_TEXT]Submarines[ENDCOLOR].[NEWLINE]Can see Submarines.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_TRUE_WOLFPACK">
+			<Text>Wolfpack</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_TRUE_WOLFPACK_HELP">
+			<Text>+30% [ICON_STRENGTH] Combat Strength per [COLOR_POSITIVE_TEXT]Adjacent Friendly Submarine[ENDCOLOR] when attacking.</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_PREDATOR">
+			<Text>Predator</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PREDATOR_HELP">
+			<Text>Heal 15 HP after [COLOR_POSITIVE_TEXT]defeating an Enemy Unit[ENDCOLOR].[NEWLINE]Ignore [COLOR_POSITIVE_TEXT]Zone of Control[ENDCOLOR].</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_PROMOTION_PERISCOPE_DEPTH">
+			<Text>Periscope Depth</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_PERISCOPE_DEPTH_HELP">
+			<Text>+40% [ICON_STRENGTH] Combat Strength when defending against all [COLOR_POSITIVE_TEXT]Ranged Attacks[ENDCOLOR].[NEWLINE]Unit withdraws from the first Melee attack each turn if possible.</Text>
 		</Row>
 
 		<!-- Air Supremacy -->
