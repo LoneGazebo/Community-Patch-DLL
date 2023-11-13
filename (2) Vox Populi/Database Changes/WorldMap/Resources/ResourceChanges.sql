@@ -181,7 +181,7 @@ DROP TABLE BuildingClass_ResourceYieldChanges;
 
 -- Strategics
 UPDATE Resources
-SET TechReveal = 'TECH_STEAM_POWER'
+SET TechReveal = 'TECH_CHEMISTRY'
 WHERE Type = 'RESOURCE_COAL';
 
 UPDATE Resources
