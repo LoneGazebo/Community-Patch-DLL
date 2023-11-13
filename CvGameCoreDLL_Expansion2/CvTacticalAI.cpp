@@ -6367,14 +6367,6 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
 			if (pDefender && pDefender != pUnit)
 			{
-				//taking cover only works if the defender will not move away!
-				//since we move civilians only after the combat units have moved it should be safe to pin the defender here
-				if (!pDefender->TurnProcessed())
-				{
-					pDefender->PushMission(CvTypes::getMISSION_SKIP());
-					pDefender->SetTurnProcessed(true);
-				}
-
 				bIsInCover = true;
 				//otherwise we will get only INT_MAX for civilians
 				iDanger = pDefender->GetDanger(pPlot);
@@ -6462,8 +6454,23 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 	// Now that we've gathered up our lists of destinations, pick the most promising one
 	if (aCityList.size()>0)
 		return aCityList.back().option;
-	else if (aCoverList.size()>0)
-		return aCoverList.back().option;
+	else if (aCoverList.size() > 0)
+	{
+		CvPlot* pPlot = aCoverList.back().option;
+		CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
+		if (pDefender && pDefender != pUnit)
+		{
+			//taking cover only works if the defender will not move away!
+			//since we move civilians only after the combat units have moved it should be safe to pin the defender here
+			if (!pDefender->TurnProcessed())
+			{
+				TacticalAIHelpers::PerformRangedOpportunityAttack(pDefender, false);
+				pDefender->PushMission(CvTypes::getMISSION_SKIP());
+				pDefender->SetTurnProcessed(true);
+			}
+		}
+		return pPlot;
+	}
 	else if (aZeroDangerList.size()>0)
 		return aZeroDangerList.back().option;
 	else if (aDangerList.size()>0)
@@ -7786,6 +7793,13 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	 			iDangerScore += TACTICAL_COMBAT_CITADEL_BONUS;
 			else
 				iDangerScore += TACTICAL_COMBAT_CITADEL_BONUS/2;
+		}
+		else if (TacticalAIHelpers::IsOtherPlayerCitadel(testPlot.getPlot(), assumedPosition.getPlayer(), true))
+		{
+			if (movePlot.iMovesLeft>0) //can pillage this turn
+				iDangerScore += TACTICAL_COMBAT_CITADEL_BONUS*2;
+			else
+				iDangerScore += TACTICAL_COMBAT_CITADEL_BONUS;
 		}
 	}
 

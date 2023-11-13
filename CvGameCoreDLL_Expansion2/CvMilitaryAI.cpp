@@ -991,7 +991,7 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 
 		//don't duplicate operations
 		CvAIOperation* pCurrentOp = m_pPlayer->getFirstAIOperationOfType(opType, eTargetPlayer, pTargetPlot);
-		if (bCareful && pCurrentOp != NULL && pCurrentOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS)
+		if (bCareful && pCurrentOp != NULL && pCurrentOp->PercentFromMusterPointToTarget() < 42)
 			continue;
 
 		//if we're being careless, just use whatever units we have and do not wait for new ones
