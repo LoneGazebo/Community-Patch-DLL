@@ -866,7 +866,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_MILITARY_BASE';
 -- Forge
 UPDATE Buildings
 SET
-	PrereqTech = 'TECH_IRON_WORKING',
+	PrereqTech = 'TECH_BRONZE_WORKING',
 	SpecialistType = 'SPECIALIST_ENGINEER',
 	SpecialistCount = 1
 WHERE BuildingClass = 'BUILDINGCLASS_FORGE';
@@ -884,17 +884,10 @@ WHERE BuildingType IN (
 	WHERE BuildingClass = 'BUILDINGCLASS_FORGE'
 );
 
-INSERT INTO Building_SpecialistYieldChangesLocal
-	(BuildingType, SpecialistType, YieldType, Yield)
-SELECT
-	Type, 'SPECIALIST_ENGINEER', 'YIELD_PRODUCTION', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_FORGE';
-
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
 SELECT
-	Type, 'IMPROVEMENT_MINE', 'YIELD_PRODUCTION', 2
+	Type, 'IMPROVEMENT_MINE', 'YIELD_PRODUCTION', 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_FORGE';
 
