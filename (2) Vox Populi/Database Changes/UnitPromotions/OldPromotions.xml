@@ -141,9 +141,8 @@
 			<PromotionPrereqOr2>PROMOTION_DRILL_1</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_TARGETING_1</PromotionPrereqOr3>
 			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_2</PromotionPrereqOr4>
-			<PromotionPrereqOr5>PROMOTION_WOLFPACK_2</PromotionPrereqOr5>
-			<PromotionPrereqOr6>PROMOTION_FLIGHT_DECK_1</PromotionPrereqOr6>
-			<PromotionPrereqOr7>PROMOTION_ARMOR_PLATING_2</PromotionPrereqOr7>
+			<PromotionPrereqOr5>PROMOTION_FLIGHT_DECK_1</PromotionPrereqOr5>
+			<PromotionPrereqOr6>PROMOTION_ARMOR_PLATING_2</PromotionPrereqOr6>
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SENTRY</PediaEntry>
 		</Replace>
@@ -263,7 +262,7 @@
 			<Help>TXT_KEY_PROMOTION_SUPPLY_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_TARGETING_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BOMBARDMENT_3</PromotionPrereqOr2>
-			<PromotionPrereqOr3>PROMOTION_WOLFPACK_3</PromotionPrereqOr3>
+			<PromotionPrereqOr3>PROMOTION_WOLFPACK_1</PromotionPrereqOr3>
 			<PromotionPrereqOr4>PROMOTION_FLIGHT_DECK_3</PromotionPrereqOr4>
 			<PromotionPrereqOr5>PROMOTION_ARMOR_PLATING_3</PromotionPrereqOr5>
 			<PromotionPrereqOr6>PROMOTION_BOARDING_PARTY_3</PromotionPrereqOr6>
@@ -327,10 +326,9 @@
 			<PromotionPrereqOr2>PROMOTION_DRILL_3</PromotionPrereqOr2>
 			<PromotionPrereqOr3>PROMOTION_TARGETING_2</PromotionPrereqOr3>
 			<PromotionPrereqOr4>PROMOTION_BOMBARDMENT_2</PromotionPrereqOr4>
-			<PromotionPrereqOr5>PROMOTION_WOLFPACK_2</PromotionPrereqOr5>
-			<PromotionPrereqOr6>PROMOTION_FLIGHT_DECK_2</PromotionPrereqOr6>
-			<PromotionPrereqOr7>PROMOTION_ARMOR_PLATING_2</PromotionPrereqOr7>
-			<PromotionPrereqOr8>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr8>
+			<PromotionPrereqOr5>PROMOTION_FLIGHT_DECK_2</PromotionPrereqOr5>
+			<PromotionPrereqOr6>PROMOTION_ARMOR_PLATING_2</PromotionPrereqOr6>
+			<PromotionPrereqOr7>PROMOTION_BUFFALO_LOINS</PromotionPrereqOr7>
 			<PediaType>PEDIA_SHARED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_MOBILITY</PediaEntry>
 		</Replace>
@@ -1062,7 +1060,7 @@
 		<Replace>
 			<Type>PROMOTION_SILENT_HUNTER</Type>
 			<Description>TXT_KEY_PROMOTION_SILENT_HUNTER</Description>
-			<Help>TXT_KEY_PROMOTION_SILENT_HUNTER</Help>
+			<Help>TXT_KEY_PROMOTION_SILENT_HUNTER_HELP</Help>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_SILENT_HUNTER</PediaEntry>
 		</Replace>

@@ -338,17 +338,32 @@ UPDATE Language_en_US
 SET Text = 'Before attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR], performs a [COLOR_POSITIVE_TEXT]Ranged Attack[ENDCOLOR] at 50% [ICON_STRENGTH] Combat Strength. [NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_RANGED_SUPPORT_FIRE_HELP';
 
--- Wolfpack
 UPDATE Language_en_US
-SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 [ICON_VP_VISION] Sight.'
+SET Text = 'Silent Hunter'
+WHERE Tag = 'TXT_KEY_PROMOTION_SILENT_HUNTER';
+
+UPDATE Language_en_US
+SET Text = 'Torpedo I'
+WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1';
+
+UPDATE Language_en_US
+SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1_HELP';
 
 UPDATE Language_en_US
-SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 [ICON_MOVES] Movement.'
+SET Text = 'Torpedo II'
+WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2';
+
+UPDATE Language_en_US
+SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2_HELP';
 
 UPDATE Language_en_US
-SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]Unit withdraws from the first Melee attack each turn if possible.'
+SET Text = 'Torpedo III'
+WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3';
+
+UPDATE Language_en_US
+SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3_HELP';
 
 UPDATE Language_en_US

@@ -93,6 +93,7 @@
 			<Description>TXT_KEY_PROMOTION_NAVIGATOR_1</Description>
 			<Help>TXT_KEY_PROMOTION_NAVIGATOR_1_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOLFPACK_1</PromotionPrereqOr2>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_NAVIGATOR_1</PediaEntry>
 		</Row>
@@ -187,6 +188,7 @@
 			<Help>TXT_KEY_PROMOTION_ACCURACY_4_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_ACCURACY_3</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_SIEGE_3</PromotionPrereqOr2>
+			<PromotionPrereqOr3>PROMOTION_WOLFPACK_3</PromotionPrereqOr3>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ACCURACY_4</PediaEntry>
 		</Row>
@@ -236,6 +238,7 @@
 			<Description>TXT_KEY_PROMOTION_PRESS_GANGS</Description>
 			<Help>TXT_KEY_PROMOTION_PRESS_GANGS_HELP</Help>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_2</PromotionPrereqOr1>
+			<PromotionPrereqOr2>PROMOTION_WOLFPACK_2</PromotionPrereqOr2>
 			<PediaType>PEDIA_NAVAL</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_PRESS_GANGS</PediaEntry>
 		</Row>
@@ -371,6 +374,38 @@
 			<PromotionPrereqOr2>PROMOTION_ACCURACY_2</PromotionPrereqOr2>
 			<PediaType>PEDIA_RANGED</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_ENVELOPMENT</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_HUNTER_KILLER</Type>
+			<Description>TXT_KEY_PROMOTION_HUNTER_KILLER</Description>
+			<Help>TXT_KEY_PROMOTION_HUNTER_KILLER_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
+			<PediaType>PEDIA_CARSUB</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_HUNTER_KILLER</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_TRUE_WOLFPACK</Type>
+			<Description>TXT_KEY_PROMOTION_TRUE_WOLFPACK</Description>
+			<Help>TXT_KEY_PROMOTION_TRUE_WOLFPACK_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_WOLFPACK_2</PromotionPrereqOr1>
+			<PediaType>PEDIA_CARSUB</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_TRUE_WOLFPACK</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_PREDATOR</Type>
+			<Description>TXT_KEY_PROMOTION_PREDATOR</Description>
+			<Help>TXT_KEY_PROMOTION_PREDATOR_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_WOLFPACK_3</PromotionPrereqOr1>
+			<PediaType>PEDIA_CARSUB</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_PREDATOR</PediaEntry>
+		</Row>
+		<Row>
+			<Type>PROMOTION_PERISCOPE_DEPTH</Type>
+			<Description>TXT_KEY_PROMOTION_PERISCOPE_DEPTH</Description>
+			<Help>TXT_KEY_PROMOTION_PERISCOPE_DEPTH_HELP</Help>
+			<PromotionPrereqOr1>PROMOTION_WOLFPACK_3</PromotionPrereqOr1>
+			<PediaType>PEDIA_CARSUB</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_PERISCOPE_DEPTH</PediaEntry>
 		</Row>
 		<!-- Trait -->
 		<Row>
