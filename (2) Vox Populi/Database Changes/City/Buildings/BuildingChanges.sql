@@ -100,13 +100,6 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
 
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_WRITERS_GUILD', 'YIELD_GOLD', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
-
 INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
@@ -145,13 +138,6 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_OPERA_HOUSE';
 
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_MUSICIANS_GUILD', 'YIELD_GOLD', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_OPERA_HOUSE';
-
 INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
@@ -171,13 +157,6 @@ INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
 	Type, 'SPECIALIST_ARTIST', 33
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_GALLERY';
-
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_ARTISTS_GUILD', 'YIELD_GOLD', 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_GALLERY';
 
