@@ -69,7 +69,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
 UPDATE Language_en_US
-SET Text = 'Gain [ICON_PEACE] Faith from killing military units equal to 175% of its [ICON_STRENGTH] Strength. +2 [ICON_PEACE] Faith and +2 [ICON_PRODUCTION] Production from Barracks.'
+SET Text = 'Gain [ICON_PEACE] Faith from killing military units equal to 175% of its [ICON_STRENGTH] Strength. +2 [ICON_PEACE] Faith and +1 [ICON_PRODUCTION] Production from Barracks.'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR';
 
 -- God-King
