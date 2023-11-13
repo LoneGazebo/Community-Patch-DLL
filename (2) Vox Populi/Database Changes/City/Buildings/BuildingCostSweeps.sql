@@ -157,11 +157,12 @@ WHERE BuildingClass IN (
 
 -- Outliers
 
--- Council and Gold buildings
+-- Council, Agribusiness, and Gold buildings
 UPDATE Buildings
 SET GoldMaintenance = 0
 WHERE BuildingClass IN (
 	'BUILDINGCLASS_GROVE',
+	'BUILDINGCLASS_STOCKYARD',
 	'BUILDINGCLASS_MARKET',
 	'BUILDINGCLASS_CARAVANSARY',
 	'BUILDINGCLASS_MINT',
