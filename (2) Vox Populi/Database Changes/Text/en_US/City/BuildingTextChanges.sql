@@ -90,11 +90,11 @@ WHERE Tag = 'TXT_KEY_BUILDING_STABLE_HELP';
 
 -- Forge
 UPDATE Language_en_US
-SET Text = 'Mines worked by this City and [ICON_VP_ENGINEER] Engineers gain +2 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.'
+SET Text = 'Mines worked by this City gain +1 [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]Nearby [ICON_RES_IRON] Iron: +1 [ICON_PRODUCTION] Production, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COPPER] Copper: +2 [ICON_GOLD] Gold.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper nearby, and boosts the [ICON_PRODUCTION] Production of Mines and Engineers.'
+SET Text = 'The Forge improves sources of [ICON_RES_IRON] Iron and [ICON_RES_COPPER] Copper nearby, and boosts the [ICON_PRODUCTION] Production of Mines.'
 WHERE Tag = 'TXT_KEY_BUILDING_FORGE_STRATEGY';
 
 -- Workshop

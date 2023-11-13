@@ -601,8 +601,6 @@ VALUES
 	('BUILDING_GREAT_WALL', 'UNIT_GREAT_GENERAL', 1);
 
 -- Colossus
-UPDATE Buildings SET PrereqTech = 'TECH_METAL_CASTING' WHERE Type = 'BUILDING_COLOSSUS';
-
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES

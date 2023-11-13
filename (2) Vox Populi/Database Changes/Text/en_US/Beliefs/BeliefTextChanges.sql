@@ -1,12 +1,18 @@
 ----------------------------------------------
 -- Pantheons
 ----------------------------------------------
+
+-- Ancestor Worship
 UPDATE Language_en_US
 SET Text = '+1 [ICON_PEACE] Faith for every 4 [ICON_CITIZEN] Citizens in a City. +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith from Councils.'
 WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_CULTURE] Culture from Mines on improved Resources. +1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Monuments.'
+SET Text = 'God of Fire'
+WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER_SHORT';
+
+UPDATE Language_en_US
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Mines on improved Resources. +2 [ICON_PEACE] Faith from Forges.'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER';
 
 UPDATE Language_en_US
