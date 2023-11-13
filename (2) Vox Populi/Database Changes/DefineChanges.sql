@@ -164,10 +164,10 @@ UPDATE Defines SET Value = 45 WHERE Name = 'BARBARIAN_MAX_XP_VALUE';
 UPDATE Defines SET Value = 70 WHERE Name = 'MINOR_MAX_XP_VALUE';
 
 -- More maintenance if this value is increased
-UPDATE Defines SET Value = 7 WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER';
+UPDATE Defines SET Value = 8 WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER';
 
 -- More maintenance if this value is lowered
-UPDATE Defines SET Value = 6 WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR';
+UPDATE Defines SET Value = 5 WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR';
 
 -- Combat penalty if out of strategic resource
 UPDATE Defines SET Value = 0 WHERE Name = 'STRATEGIC_RESOURCE_EXHAUSTED_PENALTY';
