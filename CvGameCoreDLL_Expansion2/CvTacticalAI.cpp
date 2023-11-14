@@ -3775,8 +3775,8 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 
 		//we are not here to fight or flee, let other moves take over
 		int iDanger = pUnit->GetDanger(pUnit->GetPathEndFirstTurnPlot());
-		int iDangerLimit = pUnit->IsCombatUnit() ? pUnit->GetCurrHitPoints() / 2 : 0;
-		//generals should not even be in fog danger
+		int iDangerLimit = pUnit->IsCanAttackWithMove() ? pUnit->GetCurrHitPoints() / 2 : 0;
+		//generals and siege should not even be in fog danger
 		if (iDanger > iDangerLimit)
 			continue;
 
@@ -3785,7 +3785,6 @@ bool CvTacticalAI::PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPl
 		if (pZone && pZone->GetOverallDominanceFlag() != TACTICAL_DOMINANCE_FRIENDLY && !pUnit->isEmbarked())
 			iFlags |= CvUnit::MOVEFLAG_NO_EMBARK;
 
-		//todo: generals should move to the closest combat unit for cover ...
 		ExecuteMoveToPlot(pUnit, pLongRangeTarget, true, iFlags);
 	}
 
@@ -6365,7 +6364,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 		if (pUnit->IsCivilianUnit() || !pUnit->isNativeDomain(pPlot))
 		{
 			CvUnit* pDefender = pPlot->getBestDefender(pUnit->getOwner());
-			if (pDefender && pDefender != pUnit)
+			if (pDefender && pDefender != pUnit && !pDefender->isProjectedToDieNextTurn() && pDefender->GetDanger()<pDefender->GetCurrHitPoints())
 			{
 				bIsInCover = true;
 				//otherwise we will get only INT_MAX for civilians

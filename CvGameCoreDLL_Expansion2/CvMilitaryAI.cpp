@@ -991,8 +991,12 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 
 		//don't duplicate operations
 		CvAIOperation* pCurrentOp = m_pPlayer->getFirstAIOperationOfType(opType, eTargetPlayer, pTargetPlot);
-		if (bCareful && pCurrentOp != NULL && pCurrentOp->PercentFromMusterPointToTarget() < 42)
-			continue;
+		if (bCareful && pCurrentOp != NULL && pCurrentOp->GetArmy(0))
+		{
+			//wait until the previous army has at least left our territory, don't commit all our units to one target
+			if (pCurrentOp->GetArmy(0)->GetCenterOfMass()->getOwner() == m_pPlayer->GetID())
+				continue;
+		}
 
 		//if we're being careless, just use whatever units we have and do not wait for new ones
 		if (m_pPlayer->addAIOperation(opType, bCareful ? iNumUnitsWillingToBuild : 0, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity()) != NULL)
