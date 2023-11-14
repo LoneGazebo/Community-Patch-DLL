@@ -99,7 +99,7 @@ VALUES
 UPDATE Buildings
 SET
 	PlotBuyCostModifier = -25,
-	BorderGrowthRateIncrease = 50
+	BorderGrowthRateIncrease = 40
 WHERE Type = 'BUILDING_YURT';
 
 INSERT INTO Building_YieldChanges

@@ -78,10 +78,6 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
 
-UPDATE Buildings
-SET BorderGrowthRateIncrease = 34
-WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
-
 -- Amphitheater
 UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_AMPHITHEATER_HELP'

@@ -62,7 +62,7 @@ VALUES
 UPDATE Beliefs
 SET
 	PlotCultureCostModifier = 0,
-	BorderGrowthRateIncreaseGlobal = 34
+	BorderGrowthRateIncreaseGlobal = 25
 WHERE Type = 'BELIEF_RELIGIOUS_SETTLEMENTS';
 
 INSERT INTO Belief_YieldPerBorderGrowth
