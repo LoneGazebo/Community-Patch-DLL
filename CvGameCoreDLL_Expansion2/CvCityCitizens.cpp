@@ -926,9 +926,14 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 				if (pReligion)
 				{
 					iYield100 += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, m_pCity->getOwner(), m_pCity) * 100;
-					int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner(), m_pCity);
-					if (GetTotalSpecialistCount() <= 0 && iYield1Specialist > 0)
-						iYield100 += iYield1Specialist * 100;
+
+					// Laborers don't get any non-specific specialist boosts
+					if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
+					{
+						int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner(), m_pCity);
+						if (GetTotalSpecialistCount() <= 0 && iYield1Specialist > 0)
+							iYield100 += iYield1Specialist * 100;
+					}
 				}
 			}
 		}

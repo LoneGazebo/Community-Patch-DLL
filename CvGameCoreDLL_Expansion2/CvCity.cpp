@@ -27734,15 +27734,21 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	CvAssertMsg(eSpecialist >= 0, "eSpecialist expected to be >= 0");
 	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "GC.getNumSpecialistInfos expected to be >= 0");
 
-	int iYieldMultiplier = GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex) +
-		GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex) +
-		GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
+	int iYieldMultiplier = 0;
+
+	// Laborers don't get any non-specific specialist boosts
+	if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
+		iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex);
+
+	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex);
+
+	iYieldMultiplier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	iYieldMultiplier += GetEventSpecialistYield(eSpecialist, eIndex);
 #endif
 
 	iYieldMultiplier += getSpecialistExtraYield(eSpecialist, eIndex);
-	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistYieldChange(eSpecialist, eIndex);
 
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;
