@@ -573,7 +573,7 @@ UPDATE Buildings
 SET
 	PrereqTech = 'TECH_CURRENCY',
 	GlobalPlotCultureCostModifier = 0,
-	BorderGrowthRateIncreaseGlobal = 50,
+	BorderGrowthRateIncreaseGlobal = 40,
 	FreeBuildingThisCity = 'BUILDINGCLASS_MANDIR'
 WHERE Type = 'BUILDING_ANGKOR_WAT';
 

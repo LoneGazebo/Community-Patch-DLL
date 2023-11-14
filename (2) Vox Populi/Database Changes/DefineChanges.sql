@@ -98,7 +98,7 @@ UPDATE Defines SET Value = 12.0 WHERE Name = 'CITY_GROWTH_MULTIPLIER';
 
 -- Border growth cost
 UPDATE Defines SET Value = 20 WHERE Name = 'CULTURE_COST_FIRST_PLOT';
-UPDATE Defines SET Value = 15 WHERE Name = 'CULTURE_COST_LATER_PLOT_MULTIPLIER';
+UPDATE Defines SET Value = 12 WHERE Name = 'CULTURE_COST_LATER_PLOT_MULTIPLIER';
 UPDATE Defines SET Value = 1.35 WHERE Name = 'CULTURE_COST_LATER_PLOT_EXPONENT';
 
 -- Border growth tile selection
