@@ -2359,17 +2359,19 @@ if civ5_mode and gk_mode then
 		local iUnitsSupplied = pPlayer:GetNumUnitsSupplied();
 		local iUnitsTotal = pPlayer:GetNumUnitsToSupply();
 		local iUnitsTotalMilitary = pPlayer:GetNumMilitaryUnits();
+		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
 		local iPercentPerPop = pPlayer:GetNumUnitsSuppliedByPopulation();
 		local iPerCity = pPlayer:GetNumUnitsSuppliedByCities();
 		local iPerHandicap = pPlayer:GetNumUnitsSuppliedByHandicap();
-		local iWarWearinessReduction = pPlayer:GetWarWeariness();
 		local iUnitsOver = pPlayer:GetNumUnitsOutOfSupply();
-		local iWarWearinessActualReduction = pPlayer:GetWarWearinessSupplyReduction();
 		local iTechReduction = pPlayer:GetTechSupplyReduction();
-		local iSupplyFromGreatPeople = pPlayer:GetUnitSupplyFromExpendedGreatPeople();
+		local iWarWearinessPercentReduction = pPlayer:GetSupplyReductionPercentFromWarWeariness();
+		local iWarWearinessReduction = pPlayer:GetSupplyReductionFromWarWeariness();
+		local iWarWearinessCostIncrease = pPlayer:GetUnitCostIncreaseFromWarWeariness();
+		local iHighestWarWearyPlayer = pPlayer:GetHighestWarWearinessPlayer();
 
 		-- Bonuses from unlisted sources are added to the handicap value
-		local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iWarWearinessActualReduction);
+		local iExtra = iUnitsSupplied - (iPerHandicap + iPerCity + iPercentPerPop + iSupplyFromGreatPeople - iTechReduction - iWarWearinessReduction);
 		iPerHandicap = iPerHandicap + iExtra;
 
 		local strUnitSupplyToolTip = "";
@@ -2379,7 +2381,13 @@ if civ5_mode and gk_mode then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[ENDCOLOR]";
 		end
 
-		local strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, (iWarWearinessReduction / 2), iWarWearinessActualReduction, iTechReduction, iWarWearinessReduction, iSupplyFromGreatPeople, iUnitsTotalMilitary);
+		local strUnitSupplyToolUnderTip = "";
+		if (iHighestWarWearyPlayer == -1) then
+			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary);
+		else
+			local iWarWearyTargetPercent = pPlayer:GetWarWearinessPercent(iHighestWarWearyPlayer);
+			strUnitSupplyToolUnderTip = Locale.ConvertTextKey("TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP", iUnitsSupplied, iUnitsTotal, iPercentPerPop, iPerCity, iPerHandicap, iWarWearinessPercentReduction, iWarWearinessReduction, iTechReduction, iWarWearinessCostIncrease, iSupplyFromGreatPeople, iUnitsTotalMilitary, Players[iHighestWarWearyPlayer]:GetCivilizationShortDescription(), iWarWearyTargetPercent);
+		end
 		if (strUnitSupplyToolTip ~= "") then
 			strUnitSupplyToolTip = strUnitSupplyToolTip .. "[NEWLINE][NEWLINE]" .. strUnitSupplyToolUnderTip;
 		else

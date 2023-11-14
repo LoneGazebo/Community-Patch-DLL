@@ -43,8 +43,7 @@ INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_BASE_TECH_REDUCTION_PER_ER
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER', 0;
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_DIVISOR', 1;
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER', 0; -- 100 = 1
-INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION', 50;
-INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_WAR_WEARINESS_REDUCTION_MAX', 75;
+INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION', 34;
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_POPULATION_PUPPET_PERCENT', 100;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED', 0;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC', 0;
@@ -56,6 +55,8 @@ INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_NEUTRAL
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_HOSTILE', 0;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_IRRATIONAL', 0;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MULTIPLIER_PER_EXTRA_CITY', 0;
+
+INSERT INTO Defines (Name, Value) SELECT 'UNIT_COST_WAR_WEARINESS_PERCENT_INCREASE', 75;
 
 
 -- Great People Stuff
@@ -634,7 +635,7 @@ INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_PILLAGED_TILE', 0.5; -
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_ISOLATED_POP', 0.34; -- Unhappiness point per pop if unconnected or blockaded. (rounded down)
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_SPECIALIST', 100; -- 100 = 1 unhappiness per specialist.
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_X_PUPPET_CITIZENS', 4; -- Puppets produce flat unhappiness based on # of citizens in the city. This is the divisor.
-INSERT INTO Defines (Name, Value) SELECT 'WAR_WEARINESS_POPULATION_PERCENT_CAP', 34; -- This is the % of empire population that war weariness is capped at.
+INSERT INTO Defines (Name, Value) SELECT 'WAR_WEARINESS_POPULATION_PERCENT_CAP', 34; -- x% of the War Weariness % (which ranges from 0 to 100) is multiplied by total population and divided by 100 to calculate Unhappiness from War Weariness.
 
 
 -- Tourism

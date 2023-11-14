@@ -391,6 +391,7 @@ CvPlayer::CvPlayer() :
 	, m_aiPlayerNumTurnsSinceCityCapture()
 	, m_aiWarValueLost()
 	, m_aiWarDamageValue()
+	, m_aiWarWeariness()
 	, m_aiNumUnitsBuilt()
 	, m_aiProximityToPlayer()
 	, m_aiResearchAgreementCounter()
@@ -445,6 +446,7 @@ CvPlayer::CvPlayer() :
 , m_iNumFreePolicies()
 , m_iNumFreePoliciesEver()
 , m_iNumFreeTenets()
+, m_iCachedCurrentWarValue()
 , m_iLastSliceMoved() // not serialized
 , m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 , m_iEndTurnBlockingNotificationIndex(0)
@@ -1698,6 +1700,7 @@ void CvPlayer::uninit()
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
 	m_iNumArchaeologyChoices = 0;
+	m_iCachedCurrentWarValue = 0;
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
 	m_iLastSliceMoved = 0;
@@ -1965,6 +1968,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiWarDamageValue.clear();
 	m_aiWarDamageValue.resize(MAX_PLAYERS, 0);
+
+	m_aiWarWeariness.clear();
+	m_aiWarWeariness.resize(MAX_MAJOR_CIVS, 0);
 
 	m_aiNumUnitsBuilt.clear();
 	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
@@ -3310,13 +3316,14 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			int iNumTimesOwned = pCity->GetNumTimesOwned(GetID());
 			if (iNumTimesOwned > 1)
 			{
-				iCityValue /= (iNumTimesOwned * 3);
+				iCityValue /= iNumTimesOwned * 3;
 			}
+
+			ApplyWarDamage(eOldOwner, iCityValue);
 
 			// Update military rating for both players
 			if (isMajorCiv())
 			{
-				ChangeMilitaryRating(iCityValue); // rating up for winner (us)
 				GetDiplomacyAI()->ChangeWarProgressScore(eOldOwner, iWinnerProgressValue);
 
 				// If the conqueror has any vassals, see if any nearby vassals are grateful for the protection
@@ -3334,7 +3341,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			}
 			if (GET_PLAYER(eOldOwner).isMajorCiv())
 			{
-				GET_PLAYER(eOldOwner).ChangeMilitaryRating(-iCityValue); // rating down for loser (them)
 				GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeWarProgressScore(GetID(), iLoserProgressValue);
 
 				// If the city belonged to a vassal, penalize the masters
@@ -3351,11 +3357,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 
-			// Do we have a bonus to war score accumulation?
-			iCityValue *= (100 + GetWarScoreModifier());
-			iCityValue /= 100;
-
-			GET_PLAYER(eOldOwner).ChangeWarValueLost(GetID(), iCityValue);
 			SetPlayerNumTurnsSinceCityCapture(eOldOwner, 0);
 		}
 
@@ -9962,8 +9963,16 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		// Reduce liberator's warmongering penalties (if any, and applicable)
 		CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
 
-		// Reduce liberator's war weariness by 25%
-		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
+		// Reduce liberator's war weariness by 25% with all players
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+			if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam))
+				continue;
+
+			ChangeWarWeariness(eLoopPlayer, GetWarWeariness(eLoopPlayer) / -4);
+		}
 
 		// If liberating a City-State, increase Influence resting point
 		if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -11197,7 +11206,7 @@ void CvPlayer::doTurn()
 	if (!isBarbarian())
 	{
 		DoWarValueLostDecay();
-		DoUpdateWarDamage();
+		DoUpdateWarDamageAndWeariness(false);
 
 		//Reset for reevaluation of citystrategy AI
 		countCitiesNeedingTerrainImprovements(true);
@@ -18001,9 +18010,8 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		int iNumUnitsSuppliedWarWeariness = m_iNumUnitsSuppliedCached;
 		if (MOD_BALANCE_VP && isMajorCiv())
 		{
-			int iWarWeariness = GetCulture()->GetWarWeariness() * /*50*/ GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION) / 100;
-			int iReducedToPercent = 100 - min(iWarWeariness, /*75*/ GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_REDUCTION_MAX));
-			iNumUnitsSuppliedWarWeariness *= iReducedToPercent;
+			int iReductionPercent = GetSupplyReductionFromWarWeariness();
+			iNumUnitsSuppliedWarWeariness *= 100 - iReductionPercent;
 			iNumUnitsSuppliedWarWeariness /= 100;
 		}
 
@@ -23235,12 +23243,6 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetUnhappinessFromWarWeariness() const
-{
-	return GetCulture()->GetWarWeariness();
-}
-
-//	--------------------------------------------------------------------------------
 /// How much happiness credit for having this resource as a luxury?
 int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport) const
 {
@@ -23328,7 +23330,7 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 
 	iUnhappiness += GetCulture()->GetPublicOpinionUnhappiness();
 
-	if (MOD_BALANCE_CORE_JFD && !isMinorCiv() && !isBarbarian())
+	if (MOD_BALANCE_CORE_JFD)
 	{
 		iUnhappiness += GetUnhappinessFromCityJFDSpecial();
 	}
@@ -35014,6 +35016,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			SetWarDamageValue(eLoopPlayer, 0);
 			GET_PLAYER(eLoopPlayer).SetWarValueLost(GetID(), 0);
 			GET_PLAYER(eLoopPlayer).SetWarDamageValue(GetID(), 0);
+
+			if (isMajorCiv())
+				SetWarWeariness(eLoopPlayer, 0); // this is intentionally not reset for the other player (for a gradual decay)
+
 			// Cancel active Espionage Events
 			GET_PLAYER(eLoopPlayer).RemoveEspionageEventsForPlayer(GetID());
 		}
@@ -35068,10 +35074,6 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			// Military rating drops to 0
 			SetMilitaryRating(0);
 
-			// Reset war weariness
-			if (MOD_BALANCE_CORE_HAPPINESS)
-				GetCulture()->SetWarWeariness(0);
-
 			// Reset relationships with minor civs
 			for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
@@ -35088,7 +35090,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 							if (it->GetEffects()->bSphereOfInfluence && it->GetProposerDecision()->GetProposer() == GetID())
 							{
 								PlayerTypes eMinor = (PlayerTypes)it->GetProposerDecision()->GetDecision();
-								if(eMinor != NO_PLAYER)
+								if (eMinor != NO_PLAYER)
 									it->RemoveEffects(eMinor);
 							}
 						}
@@ -38018,6 +38020,27 @@ void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
 
 //	--------------------------------------------------------------------------------
 
+/// Apply the effects of war damage between players
+void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange)
+{
+	if (isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
+	{
+		// Apply Military Rating
+		if (!bNoRatingChange)
+		{
+			ChangeMilitaryRating(iAmount); // rating up for winner (us)
+			GET_PLAYER(ePlayer).ChangeMilitaryRating(-iAmount); // rating down for loser (them)
+		}
+
+		// Apply War Weariness
+		ChangeWarWeariness(ePlayer, iAmount / 2);
+		GET_PLAYER(ePlayer).ChangeWarWeariness(m_eID, iAmount * (100 + GetPlayerTraits()->GetEnemyWarWearinessModifier()) / 100);
+	}
+
+	// Apply War Damage
+	GET_PLAYER(ePlayer).ChangeWarValueLost(m_eID, iAmount * (100 + GET_PLAYER(ePlayer).GetWarScoreModifier()) / 100);
+}
+
 /// What is the value of stuff (Units & Cities) lost in a war against a particular player?
 int CvPlayer::GetWarValueLost(PlayerTypes ePlayer) const
 {
@@ -38070,11 +38093,8 @@ void CvPlayer::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 					case STRENGTH_WEAK:
 						iChange *= 50;
 						break;
-					case STRENGTH_PATHETIC:
-						iChange *= 25;
-						break;
 					default:
-						iChange *= 100;
+						iChange *= 25;
 						break;
 					}
 
@@ -38118,8 +38138,54 @@ void CvPlayer::DoWarValueLostDecay()
 	}
 }
 
-/// Updates how much damage we have taken in wars against all players
-void CvPlayer::DoUpdateWarDamage()
+/// How much damage have we taken in a war against a particular player?
+int CvPlayer::GetWarDamageValue(PlayerTypes ePlayer) const
+{
+	if (isBarbarian()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	return m_aiWarDamageValue[ePlayer];
+}
+
+void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
+{
+	if (isBarbarian()) return;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
+}
+
+/// How weary are we of war with ePlayer?
+int CvPlayer::GetWarWeariness(PlayerTypes ePlayer) const
+{
+	if (!isMajorCiv()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	return m_aiWarWeariness[ePlayer];
+}
+
+void CvPlayer::SetWarWeariness(PlayerTypes ePlayer, int iValue)
+{
+	if (!isMajorCiv()) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (GET_PLAYER(ePlayer).getTeam() == getTeam()) return;
+	m_aiWarWeariness[ePlayer] = max(iValue, 0);
+}
+
+void CvPlayer::ChangeWarWeariness(PlayerTypes ePlayer, int iChange)
+{
+	SetWarWeariness(ePlayer, GetWarWeariness(ePlayer) + iChange);
+}
+
+int CvPlayer::GetCachedCurrentWarValue() const
+{
+	return m_iCachedCurrentWarValue;
+}
+
+void CvPlayer::CacheCurrentWarValue(int iValue)
+{
+	m_iCachedCurrentWarValue = max(iValue, 0);
+}
+
+/// Updates how much damage we have taken in wars against all players, how weary we are of our wars, and our cached current war value
+void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 {
 	// Calculate the value of what we have currently - this is invariant so we will just do it once
 	int iCurrentValue = 0;
@@ -38132,8 +38198,8 @@ void CvPlayer::DoUpdateWarDamage()
 	for (CvCity* pLoopCity = firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = nextCity(&iValueLoop))
 	{
 		int iCityValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
-		iCityValue += (pLoopCity->getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER));
-		iCityValue += (pLoopCity->getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER));
+		iCityValue += pLoopCity->getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER);
+		iCityValue += pLoopCity->getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER);
 
 		// Multipliers
 		// Our original capital!
@@ -38217,11 +38283,17 @@ void CvPlayer::DoUpdateWarDamage()
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-		if (!GET_PLAYER(eLoopPlayer).isAlive())
-			continue;
-
 		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam))
 			continue;
+
+		// Player is dead - halve current war weariness value. Skip updating war damage value as that was reset when the player died.
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+		{
+			if (isMajorCiv() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+				SetWarWeariness(eLoopPlayer, GetWarWeariness(eLoopPlayer) / 2);
+
+			continue;
+		}
 
 		int iWarValueLost = GetWarValueLost(eLoopPlayer);
 		int iValueLostRatio = 0;
@@ -38239,24 +38311,172 @@ void CvPlayer::DoUpdateWarDamage()
 		}
 
 		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
+
+		// Only update war weariness between major civs (and only on the once-per-turn update)
+		if (bDamageOnly || !isMajorCiv() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+			continue;
+
+		// Not currently at war? Halve current war weariness value.
+		if (!IsAtWarWith(eLoopPlayer))
+		{
+			SetWarWeariness(eLoopPlayer, GetWarWeariness(eLoopPlayer) / 2);
+			continue;
+		}
+
+		// Do not increase war weariness if minimum war length hasn't been reached yet, or not able to make peace.
+		if (GetPlayerNumTurnsAtWar(eLoopPlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+			continue;
+
+		if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
+			continue;
+
+		// At war and able to make peace - increase war weariness by 1% of current city + unit value (minimum 1).
+		int iWarWearinessReceived = max(iCurrentValue / 100, 1);
+		iWarWearinessReceived *= 100 + GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetEnemyWarWearinessModifier();
+		iWarWearinessReceived /= 100;
+		ChangeWarWeariness(eLoopPlayer, iWarWearinessReceived);
 	}
+
+	if (!bDamageOnly)
+		CacheCurrentWarValue(iCurrentValue);
 }
 
-//	--------------------------------------------------------------------------------
-
-/// How much damage have we taken in a war against a particular player?
-int CvPlayer::GetWarDamageValue(PlayerTypes ePlayer) const
+/// Returns the war weariness % for a given player (even if it doesn't currently apply)
+int CvPlayer::GetWarWearinessPercent(PlayerTypes ePlayer) const
 {
-	if (isBarbarian()) return 0;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiWarDamageValue[ePlayer];
+	if (!MOD_BALANCE_VP || !isMajorCiv())
+		return 0;
+
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	if (eTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eTeam) || !GET_PLAYER(ePlayer).isMajorCiv())
+		return 0;
+
+	int iWarWeariness = GetWarWeariness(ePlayer);
+	if (iWarWeariness == 0)
+		return 0;
+
+	// Divide war weariness by current war value (what we own).
+	int iModifiedWarWeariness = iWarWeariness / max(GetCachedCurrentWarValue(), 1);
+
+	// Apply any modifiers to war weariness.
+	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
+	iModifiedWarWeariness *= 100 - iWarWearinessModifier;
+	iModifiedWarWeariness /= 100;
+
+	// Cap at 100%.
+	return min(iModifiedWarWeariness, 100);
 }
 
-void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
+/// Returns the highest war weariness % from any player (only counting players who do apply)
+int CvPlayer::GetHighestWarWearinessPercent() const
 {
-	if (isBarbarian()) return;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
+	if (!MOD_BALANCE_VP || !isMajorCiv())
+		return 0;
+
+	// Find highest war weariness
+	int iHighestWarWeariness = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+			continue;
+
+		int iWarWeariness = GetWarWeariness(eLoopPlayer);
+
+		// We're more weary of another war, or war weariness is 0. Ignore.
+		if (iWarWeariness <= iHighestWarWeariness)
+			continue;
+
+		// Did we just capture a city from this player? Ignore, due to a temporary boost in support amongst our population (in hopes of a favorable end-of-war settlement).
+		// This is meant to equalize human/AI, human/human, and AI/AI wars, since the AI will always refuse to make peace for a little bit after their city is captured.
+		if (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
+			continue;
+
+		if (IsAtWarWith(eLoopPlayer))
+		{
+			// At war and unable to make peace? Ignore.
+			if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
+				continue;
+
+			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
+			if (isHuman() && !GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
+				continue;
+		}
+
+		iHighestWarWeariness = iWarWeariness;
+	}
+
+	// Divide highest war weariness by current war value (what we own).
+	int iModifiedWarWeariness = iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
+
+	// Apply any modifiers to war weariness.
+	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
+	iModifiedWarWeariness *= 100 - iWarWearinessModifier;
+	iModifiedWarWeariness /= 100;
+
+	// Cap at 100%.
+	return min(iModifiedWarWeariness, 100);
+}
+
+/// Returns the player with the highest war weariness to make peace with, including players whose cities were recently captured, but excluding the other two exceptions
+PlayerTypes CvPlayer::GetHighestWarWearinessPlayer() const
+{
+	if (!MOD_BALANCE_VP || !isMajorCiv())
+		return NO_PLAYER;
+
+	// Find highest war weariness
+	PlayerTypes eHighestWarWearinessPlayer = NO_PLAYER;
+	int iHighestWarWeariness = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+			continue;
+
+		int iWarWeariness = GetWarWeariness(eLoopPlayer);
+
+		// We're more weary of another war, or war weariness is 0. Ignore.
+		if (iWarWeariness <= iHighestWarWeariness)
+			continue;
+
+		if (IsAtWarWith(eLoopPlayer))
+		{
+			// At war and unable to make peace? Ignore.
+			if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
+				continue;
+
+			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
+			if (isHuman() && !GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
+				continue;
+		}
+
+		iHighestWarWeariness = iWarWeariness;
+		eHighestWarWearinessPlayer = eLoopPlayer;
+	}
+
+	return eHighestWarWearinessPlayer;
+}
+
+int CvPlayer::GetSupplyReductionFromWarWeariness() const
+{
+	return GetHighestWarWearinessPercent() * /*34*/ range(GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION), 0, 100) / 100;
+}
+
+int CvPlayer::GetUnitCostIncreaseFromWarWeariness() const
+{
+	return GetHighestWarWearinessPercent() * /*75*/ max(GD_INT_GET(UNIT_COST_WAR_WEARINESS_PERCENT_INCREASE), 0) / 100;
+}
+
+int CvPlayer::GetUnhappinessFromWarWeariness() const
+{
+	int iUnhappiness = GetHighestWarWearinessPercent() * /*34*/ max(GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP), 0) / 100;
+	iUnhappiness *= getTotalPopulation();
+	iUnhappiness /= 100;
+	return iUnhappiness;
 }
 
 //	--------------------------------------------------------------------------------
@@ -48039,6 +48259,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumFreePolicies);
 	visitor(player.m_iNumFreePoliciesEver);
 	visitor(player.m_iNumFreeTenets);
+	visitor(player.m_iCachedCurrentWarValue);
 	visitor(player.m_uiStartTime);
 	visitor(player.m_bHasUUPeriod);
 	visitor(player.m_bNoNewWars);
@@ -48119,6 +48340,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiPlayerNumTurnsSinceCityCapture);
 	visitor(player.m_aiWarValueLost);
 	visitor(player.m_aiWarDamageValue);
+	visitor(player.m_aiWarWeariness);
 	visitor(player.m_aiNumUnitsBuilt);
 	visitor(player.m_aiProximityToPlayer);
 	visitor(player.m_aiResearchAgreementCounter);

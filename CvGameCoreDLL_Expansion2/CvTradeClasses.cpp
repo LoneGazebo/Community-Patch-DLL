@@ -5017,15 +5017,8 @@ bool CvPlayerTrade::PlunderTradeRoute(int iTradeConnectionID, CvUnit* pUnit)
 	{
 		if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(eOwningTeam))
 		{
-			int iValue = iPlunderGoldValue;
-			if (iValue > 0)
-			{
-				// Do we have a bonus to war score accumulation?
-				iValue *= (100 + m_pPlayer->GetWarScoreModifier());
-				iValue /= 100;
-
-				GET_PLAYER(eOwningPlayer).ChangeWarValueLost(m_pPlayer->GetID(), iValue);
-			}
+			if (iPlunderGoldValue > 0)
+				m_pPlayer->ApplyWarDamage(eOwningPlayer, iPlunderGoldValue);
 
 			m_pPlayer->GetDiplomacyAI()->ChangeWarProgressScore(eOwningPlayer, /*10*/ GD_INT_GET(WAR_PROGRESS_PLUNDERED_TRADE_ROUTE));
 			GET_PLAYER(eOwningPlayer).GetDiplomacyAI()->ChangeWarProgressScore(m_pPlayer->GetID(), /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_TRADE_ROUTE));

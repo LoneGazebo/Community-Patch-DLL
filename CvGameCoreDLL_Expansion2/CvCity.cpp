@@ -12486,7 +12486,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 
 		if (bCombat)
 		{
-			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
+			int iWarWeariness = GET_PLAYER(getOwner()).GetUnitCostIncreaseFromWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -12860,7 +12860,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 
 		if (bCombat)
 		{
-			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
+			int iWarWeariness = GET_PLAYER(getOwner()).GetUnitCostIncreaseFromWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -21919,28 +21919,23 @@ bool CvCity::DoRazingTurn()
 		if (bAllowRazingEvents)
 		{
 			int iRazeValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
-			iRazeValue += (getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER));
-			iRazeValue += (getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER));
-			iRazeValue /= max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
+			iRazeValue += getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER);
+			iRazeValue += getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER);
+			iRazeValue /= max(1, GetRazingTurns() / 2); // Divide by half the number of turns left until the city is destroyed
 
-			// Does the owner have a bonus to war score accumulation?
-			iRazeValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-			iRazeValue /= 100;
-
-			GET_PLAYER(eFormerOwner).ChangeWarValueLost(getOwner(), iRazeValue);
+			GET_PLAYER(getOwner()).ApplyWarDamage(eFormerOwner, iRazeValue, true);
 
 			// Diplomacy penalty for razing cities
 			if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(eFormerOwner).isMajorCiv())
 			{
 				int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
 				if (iEra <= 0)
-				{
 					iEra = 1;
-				}
 
-				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), (500 * iEra));
+				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), 500 * iEra);
 			}
 
+			// Partisans?
 			if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
 			{
 				if (GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
@@ -21961,8 +21956,6 @@ bool CvCity::DoRazingTurn()
 				const int iMinRebels = GC.getGame().getCurrentEra();
 				const int iMaxRebels = max(iMinRebels, sqrti(getPopulation()));
 				int iNumRebels = GC.getGame().randRangeInclusive(iMinRebels, iMaxRebels, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
-
-
 				GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
 
 				if (GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
@@ -29615,17 +29608,16 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			}
 		}
 
-		iTileValue *= (100 + iValueMultiplier);
+		iTileValue *= 100 + iValueMultiplier;
 		iTileValue /= 100;
 
 		// If the players are at war, this counts for war value!
 		if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
 		{
-			// Update military rating for both players
+			GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue);
+
 			if (GET_PLAYER(getOwner()).isMajorCiv())
 			{
-				GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
-
 				int iWarProgress = /*20*/ GD_INT_GET(WAR_PROGRESS_STOLE_TILE);
 				if (bStoleHighValueTile)
 				{
@@ -29639,8 +29631,6 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			}
 			if (GET_PLAYER(ePlotOwner).isMajorCiv())
 			{
-				GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
-
 				int iWarProgress = /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_TILE);
 				if (bStoleHighValueTile)
 				{
@@ -29652,32 +29642,20 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 
 				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgress);
 			}
-
-			// Does the city owner have a bonus to war score accumulation?
-			iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-			iTileValue /= 100;
-
-			GET_PLAYER(ePlotOwner).ChangeWarValueLost(getOwner(), iTileValue);
 		}
-
-		// Diplomacy penalty for stealing territory!
-		if (GET_PLAYER(getOwner()).isMajorCiv())
+		// Diplomacy penalty for stealing territory during peacetime (for majors), always (for City-States)
+		else if (GET_PLAYER(ePlotOwner).isMinorCiv())
 		{
-			if (GET_PLAYER(ePlotOwner).isMajorCiv())
-			{
-				int iPenalty = bStoleHighValueTile ? 3 : 1;
-				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
-			}
-			else if (GET_PLAYER(ePlotOwner).isMinorCiv())
-			{
-				int iEra = GC.getGame().getCurrentEra();
-				if (iEra <= 0)
-				{
-					iEra = 1;
-				}
+			int iEra = GC.getGame().getCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
 
-				GET_PLAYER(ePlotOwner).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), (iEra * -20));
-			}
+			GET_PLAYER(ePlotOwner).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iEra * -20);
+		}
+		else if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(ePlotOwner).isMajorCiv())
+		{
+			int iPenalty = bStoleHighValueTile ? 3 : 1;
+			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 		}
 	}
 #endif

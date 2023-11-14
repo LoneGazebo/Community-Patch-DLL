@@ -517,7 +517,10 @@
 			<Text>Tech Reduction</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
-			<Text>Number of Military Units: {11_Num} ({2_Num} Military Supply Used)[NEWLINE]Total Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level[NEWLINE]  [ICON_BULLET]+{10_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]</Text>
+			<Text>Number of Military Units: {11_Num} ({2_Num} Military Supply Used)[NEWLINE]Total Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level[NEWLINE]  [ICON_BULLET]+{10_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]Highest War Weariness: {12_CivName} (13_Num)%</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP_NOT_WEARY">
+			<Text>Number of Military Units: {11_Num} ({2_Num} Military Supply Used)[NEWLINE]Total Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level[NEWLINE]  [ICON_BULLET]+{10_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.</Text>
 		</Row>
 		<!-- Spy Points -->
 		<Row Tag="TXT_KEY_SPY_POINTS_TT">
@@ -1640,6 +1643,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED">
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] Weariness:[ENDCOLOR] They are utterly exhausted.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_WAR_WEARINESS_US_PERCENT">
+			<Text>[COLOR_NEGATIVE_TEXT]Our War Weariness: {1_Num}%[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Discussion/Dialogue options -->

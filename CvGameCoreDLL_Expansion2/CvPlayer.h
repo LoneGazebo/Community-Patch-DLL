@@ -733,8 +733,6 @@ public:
 	int GetBonusHappinessFromLuxuriesFlat() const;
 	int GetBonusHappinessFromLuxuriesFlatForUI() const;
 
-	int GetUnhappinessFromWarWeariness() const;
-
 	int GetUnhappinessFromCityForUI(CvCity* pCity) const;
 	int GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
@@ -2119,14 +2117,27 @@ public:
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
 
+	void ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange = false);
+
 	int GetWarValueLost(PlayerTypes ePlayer) const;
 	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
 	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange);
 	void DoWarValueLostDecay();
-	void DoUpdateWarDamage();
 
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
+	int GetWarWeariness(PlayerTypes ePlayer) const;
+	void SetWarWeariness(PlayerTypes ePlayer, int iValue);
+	void ChangeWarWeariness(PlayerTypes ePlayer, int iChange);
+	int GetCachedCurrentWarValue() const;
+	void CacheCurrentWarValue(int iValue);
+	void DoUpdateWarDamageAndWeariness(bool bDamageOnly);
+	int GetWarWearinessPercent(PlayerTypes ePlayer) const;
+	int GetHighestWarWearinessPercent() const;
+	PlayerTypes GetHighestWarWearinessPlayer() const;
+	int GetSupplyReductionFromWarWeariness() const;
+	int GetUnitCostIncreaseFromWarWeariness() const;
+	int GetUnhappinessFromWarWeariness() const;
 
 	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
 	int getUnitsBuiltCount(UnitTypes eUnitType) const;
@@ -3503,6 +3514,8 @@ protected:
 	int m_iNumFreePoliciesEver; 
 	int m_iNumFreeTenets;
 
+	int m_iCachedCurrentWarValue;
+
 	int m_iLastSliceMoved; // not serialized
 
 
@@ -3595,6 +3608,7 @@ protected:
 	std::vector<int> m_aiPlayerNumTurnsSinceCityCapture;
 	std::vector<int> m_aiWarValueLost;
 	std::vector<int> m_aiWarDamageValue;
+	std::vector<int> m_aiWarWeariness;
 	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiProximityToPlayer;
 	std::vector<int> m_aiResearchAgreementCounter;
@@ -4311,6 +4325,7 @@ SYNC_ARCHIVE_VAR(int, m_iMedianTechPercentage)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePolicies)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePoliciesEver)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeTenets)
+SYNC_ARCHIVE_VAR(int, m_iCachedCurrentWarValue)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
@@ -4386,6 +4401,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtWar)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsSinceCityCapture)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarValueLost)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarWeariness)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)

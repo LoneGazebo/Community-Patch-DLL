@@ -391,10 +391,16 @@ protected:
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
 	static int lGetUnhappinessFromPuppetCitySpecialists(lua_State* L);
 
-	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetWarWeariness, int);
-	LUAAPIEXTN(SetWarWeariness, int);
-	LUAAPIEXTN(GetWarWearinessSupplyReduction, int);
+	LUAAPIEXTN(SetWarWeariness, void);
+	LUAAPIEXTN(ChangeWarWeariness, void);
+	LUAAPIEXTN(GetWarWearinessPercent, int);
+	LUAAPIEXTN(GetHighestWarWearinessPercent, int);
+	LUAAPIEXTN(GetHighestWarWearinessPlayer, int);
+	LUAAPIEXTN(GetSupplyReductionPercentFromWarWeariness, int);
+	LUAAPIEXTN(GetSupplyReductionFromWarWeariness, int);
+	LUAAPIEXTN(GetUnitCostIncreaseFromWarWeariness, int);
+	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetTechSupplyReduction, int);
 
 	static int lGetUnitSupplyFromExpendedGreatPeople(lua_State* L);

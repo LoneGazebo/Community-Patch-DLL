@@ -2588,23 +2588,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 			if (iCivValue == 0)
 			{
-				// Update military rating for both players
+				GET_PLAYER(ePlayer).ApplyWarDamage(eUnitOwner, iUnitValue);
+
 				if (GET_PLAYER(ePlayer).isMajorCiv())
-				{
-					GET_PLAYER(ePlayer).ChangeMilitaryRating(iUnitValue); // rating up for winner (them)
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
-				}
+
 				if (GET_PLAYER(eUnitOwner).isMajorCiv())
-				{
-					GET_PLAYER(eUnitOwner).ChangeMilitaryRating(-iUnitValue); // rating down for loser (us)
 					GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
-				}
-
-				// Does the killer have a bonus to war score accumulation?
-				iUnitValue *= (100 + GET_PLAYER(ePlayer).GetWarScoreModifier());
-				iUnitValue /= 100;
-
-				GET_PLAYER(eUnitOwner).ChangeWarValueLost(ePlayer, iUnitValue);
 			}
 		}
 
@@ -10485,11 +10475,10 @@ bool CvUnit::pillage()
 						}
 					}
 
-					// Update military rating for both players
+					GET_PLAYER(getOwner()).ApplyWarDamage(pPlot->getOwner(), iTileValue);
+
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for winner (us)
-
 						int iWarProgressValue = /*10*/ GD_INT_GET(WAR_PROGRESS_PILLAGED_IMPROVEMENT);
 						if (bPillagedHighValueTile)
 						{
@@ -10500,8 +10489,6 @@ bool CvUnit::pillage()
 					}
 					if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(pPlot->getOwner()).ChangeMilitaryRating(-iTileValue); // rating down for loser (them)
-
 						int iWarProgressValue = /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_IMPROVEMENT);
 						if (bPillagedHighValueTile)
 						{
@@ -10510,12 +10497,6 @@ bool CvUnit::pillage()
 						}
 						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgressValue);
 					}
-
-					// Do we have a bonus to war score accumulation?
-					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-					iTileValue /= 100;
-
-					GET_PLAYER(pPlot->getOwner()).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 #endif
 				int iPillageGold = 0;
@@ -12875,17 +12856,16 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					}
 				}
 
-				iTileValue *= (100 + iValueMultiplier);
+				iTileValue *= 100 + iValueMultiplier;
 				iTileValue /= 100;
 
 				// If the players are at war, this counts for war value!
 				if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
 				{
-					// Update military rating for both players
+					GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue);
+
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
-
 						int iWarProgress = /*20*/ GD_INT_GET(WAR_PROGRESS_STOLE_TILE);
 						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
 						{
@@ -12896,8 +12876,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					}
 					if (GET_PLAYER(ePlotOwner).isMajorCiv())
 					{
-						GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
-
 						int iWarProgress = /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_TILE);
 						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
 						{
@@ -12906,12 +12884,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 						}
 						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlotOwner, iWarProgress);
 					}
-
-					// Does the city owner have a bonus to war score accumulation?
-					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-					iTileValue /= 100;
-
-					GET_PLAYER(ePlotOwner).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 			}
 #if defined(MOD_BALANCE_CORE)

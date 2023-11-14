@@ -177,7 +177,7 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 			end
 		end
 
-		local iTheirWarWeariness = Players[g_iAIPlayer]:GetWarWeariness();
+		local iTheirWarWeariness = Players[g_iAIPlayer]:GetHighestWarWearinessPercent();
 		if(iTheirWarWeariness <= 0)then
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_NONE" );
 		elseif( iTheirWarWeariness <= 25 ) then
@@ -189,6 +189,9 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		elseif( iTheirWarWeariness > 75 ) then
 			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED" );
 		end
+
+		local iOurWarWeariness = pActivePlayer:GetWarWearinessPercent(g_iAIPlayer);
+		strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey("TXT_KEY_WAR_WEARINESS_US_PERCENT", iOurWarWeariness);
 
 		Controls.WarScore:SetToolTipString(strWarInfo);
 	else
