@@ -1618,24 +1618,22 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(GetCity()); 
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS_CRITICAL")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(GetCity());
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(GetCity()); 
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(GetCity()); 
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(GetCity());
-#endif
 
 				// Check Lua hook
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -3633,35 +3631,35 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 //Tests to help AI build buildings it needs.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetBoredom(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetBoredom(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetIlliteracy(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetIlliteracy(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetDistress(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetDistress(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetPoverty(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetPoverty(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromIsolation() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromIsolation() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromPillagedTiles() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromPillagedTiles() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromReligiousUnrest() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromReligiousUnrest() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromFamine() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromFamine() > 0);
 }
 int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
 	YieldTypes eYield, int& iFlatYield)

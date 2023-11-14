@@ -782,7 +782,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 	Method(GetNumDenouncements);
 	Method(GetNumDenouncementsOfPlayer);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetUnhappinessFromBoredom);
 	Method(GetUnhappinessFromIlliteracy);
 	Method(GetUnhappinessFromDistress);
@@ -791,13 +791,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPillagedTiles);
 	Method(GetUnhappinessFromFamine);
 	Method(GetUnhappinessFromReligiousUnrest);
-#endif
+
 	Method(GetUnhappinessFromJFDSpecial);
 	Method(GetScalingNationalPopulationRequired);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	Method(GetCapitalNeedModifier);
-#endif
 
 	Method(IsAlive);
 	Method(IsEverAlive);
@@ -9423,7 +9421,7 @@ int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromBoredom();
 int CvLuaPlayer::lGetUnhappinessFromBoredom(lua_State* L)
@@ -9513,7 +9511,6 @@ int CvLuaPlayer::lGetUnhappinessFromJFDSpecial(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 
 //------------------------------------------------------------------------------
 //int GetScalingNationalPopulationRequired();
@@ -9527,7 +9524,6 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequired(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //------------------------------------------------------------------------------
 //int GetCapitalNeedModifier();
 int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
@@ -9536,7 +9532,7 @@ int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 //bool isAlive();
 int CvLuaPlayer::lIsAlive(lua_State* L)

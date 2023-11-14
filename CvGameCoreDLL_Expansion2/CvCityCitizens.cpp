@@ -353,7 +353,7 @@ void CvCityCitizens::DoTurn()
 			{
 				//default value for vanilla happiness
 				int iLockThreshold = -20;
-				if (MOD_BALANCE_CORE_HAPPINESS)
+				if (MOD_BALANCE_VP)
 				{
 					if (thisPlayer.IsEarlyExpansionPhase())
 						//if we fall below this threshold the early expansion strategy will be disabled and we leave good city sites to our enemies
@@ -1179,7 +1179,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	//Penalties
 	//////////
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iCityHappiness = 0;
 		int iGlobalHappiness = 0;

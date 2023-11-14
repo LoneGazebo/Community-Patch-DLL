@@ -314,7 +314,6 @@ bool IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity);
 bool IsTestCityStrategy_GoodAirliftCity(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomats(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 bool IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessScience(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity);
@@ -333,7 +332,6 @@ int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding, int iValue);
 int GetBuildingReligionValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
-#endif
 }
 
 #endif // CIV5_CITY_STRATEGY_AI_H

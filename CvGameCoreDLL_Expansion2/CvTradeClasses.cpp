@@ -706,13 +706,11 @@ bool CvGameTrade::CreateTradeRoute(CvCity* pOriginCity, CvCity* pDestCity, Domai
 			}
 		}
 	}
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		GET_PLAYER(eOriginPlayer).CalculateNetHappiness();
-		if(eOriginPlayer != eDestPlayer)
-		{
+		if (eOriginPlayer != eDestPlayer)
 			GET_PLAYER(eDestPlayer).CalculateNetHappiness();
-		}
 	}
 	GET_PLAYER(eOriginPlayer).UpdateReligion();
 	if (eOriginPlayer != eDestPlayer)
@@ -7231,12 +7229,8 @@ void CvTradeAI::GetPrioritizedTradeRoutes(TradeConnectionList& aTradeConnectionL
 #endif
 
 	// FOOD FOOD FOOD FOOD
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	std::vector<CvCity*> apFoodTargetCities;
 	if (m_pPlayer->GetHappiness() >= 0 || m_pPlayer->GetUnhappinessFromFamine() >= 0)
-#else
-	if (m_pPlayer->GetHappiness() >= 0)
-#endif
 	{
 		// - Find avg city size
 		int iAvgFood = 0;

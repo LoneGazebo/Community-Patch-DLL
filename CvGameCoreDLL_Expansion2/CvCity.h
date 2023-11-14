@@ -881,7 +881,7 @@ public:
 	int GetHappinessFromBuildingClasses() const;
 
 	int GetLocalHappiness(int iPopMod = 0, bool bExcludeEmpireContributions = false) const;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	int updateNetHappiness();
 	int getHappinessDelta() const;
 	int GetAllNeedsModifier(bool bForceRecalc) const;
@@ -936,7 +936,7 @@ public:
 	void SetGrowthFromTourism(int iValue);
 	void ChangeGrowthFromTourism(int iValue);
 	void UpdateGrowthFromTourism();
-#endif
+
 	int GetHappinessFromBuildings() const;
 	int GetBaseHappinessFromBuildings() const;
 	void ChangeBaseHappinessFromBuildings(int iChange);

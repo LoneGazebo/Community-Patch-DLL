@@ -752,7 +752,7 @@ public:
 
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	int GetHappinessFromCitizenNeeds() const;
 	int GetUnhappinessFromCitizenNeeds() const;
 	int GetUnhappinessFromBoredom() const;
@@ -764,7 +764,6 @@ public:
 	int GetUnhappinessFromFamine() const;
 	int GetUnhappinessFromReligiousUnrest() const;
 	int GetUnhappinessFromCityJFDSpecial() const;
-#endif
 
 	int GetCityCountUnhappinessMod() const;
 	void ChangeCityCountUnhappinessMod(int iChange);

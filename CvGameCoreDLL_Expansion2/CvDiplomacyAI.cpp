@@ -26363,7 +26363,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			int iWarProgress = GetWarProgressScore(*it);
 
 			// Adjust for unhappiness/war weariness
-			if (MOD_BALANCE_CORE_HAPPINESS)
+			if (MOD_BALANCE_VP)
 			{
 				iWarProgress -= GetPlayer()->GetCulture()->GetWarWeariness();
 
@@ -26503,7 +26503,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		bool bWarWeary = false;
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			int iPercentOfPop = GetPlayer()->GetCulture()->GetWarWeariness() * 100 / max(1, GetPlayer()->getTotalPopulation());
 			if (iPercentOfPop >= 20)
@@ -26619,7 +26619,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// War weariness
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			int iWarWeariness = GetPlayer()->GetCulture()->GetWarWeariness();
 			iPeaceScore += iWarWeariness / 4;
@@ -26970,7 +26970,7 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// War Weary? We're more willing to make peace.
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			if (iWarScore <= 0)
 			{

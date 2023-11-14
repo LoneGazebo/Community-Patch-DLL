@@ -10686,7 +10686,7 @@ void CvCity::DoPickResourceDemanded()
 	SetResourceDemanded(NO_RESOURCE);
 	SetResourceDemandedCounter(0);
 
-	if (MOD_BALANCE_CORE_HAPPINESS && GetWeLoveTheKingDayCounter() > 0)
+	if (MOD_BALANCE_VP && GetWeLoveTheKingDayCounter() > 0)
 		return;
 
 	// Create the list of invalid Luxury Resources
@@ -18211,9 +18211,9 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 			iPopulation++; // Round up
 			iPopulation /= 2;
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+
 		//Less unhappiness from specialists....
-		if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+		if (MOD_BALANCE_VP)
 		{
 			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 			int iNoHappinessSpecialists = GetNumFreeSpecialists();
@@ -18227,41 +18227,34 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 				iPopulation -= iNoHappinessSpecialists;
 			}
 		}
-#endif
 
 		iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			iUnhappiness += iUnhappinessFromThisCity;
 		}
-		if (!MOD_BALANCE_CORE_HAPPINESS)
+		else
 		{
 			//Took these away as they were making specialists do weird things.
-#endif
 			if (isCapital() && GET_PLAYER(getOwner()).GetCapitalUnhappinessMod() != 0)
 			{
 				iUnhappinessFromThisCity *= (100 + GET_PLAYER(getOwner()).GetCapitalUnhappinessMod());
 				iUnhappinessFromThisCity /= 100;
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			if (GetLocalUnhappinessMod() != 0)
 			{
 				iUnhappinessFromThisCity *= (100 + GetLocalUnhappinessMod());
 				iUnhappinessFromThisCity /= 100;
 			}
-#endif
 
 			iUnhappiness += iUnhappinessFromThisCity;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 		}
-#endif
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if (!MOD_BALANCE_CORE_HAPPINESS)
+
+	if (!MOD_BALANCE_VP)
 	{
-#endif
 		iUnhappiness *= (100 + GET_PLAYER(getOwner()).GetUnhappinessMod());
 		iUnhappiness /= 100;
 
@@ -18271,10 +18264,8 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		// Handicap mod
 		iUnhappiness *= GET_PLAYER(getOwner()).isHuman() ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 		iUnhappiness /= 100;
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	}
-#endif
+
 	return (int)iUnhappiness;
 }
 #endif
@@ -19698,7 +19689,7 @@ int CvCity::GetJONSCulturePerTurnFromPolicies() const
 		iBonusTimes100 /= 100;
 		iValue += iBonusTimes100;
 	}
-	if (MOD_BALANCE_CORE_HAPPINESS && GET_PLAYER(m_eOwner).getHappinessToCulture() != 0)
+	if (MOD_BALANCE_VP && GET_PLAYER(m_eOwner).getHappinessToCulture() != 0)
 	{
 		int iFreeCulture = GetLocalHappiness() * GET_PLAYER(m_eOwner).getHappinessToCulture();
 		iFreeCulture /= 100;
@@ -19805,7 +19796,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 		}
 	}
 
-	if (eYield == YIELD_SCIENCE && MOD_BALANCE_CORE_HAPPINESS)
+	if (eYield == YIELD_SCIENCE && MOD_BALANCE_VP)
 	{
 		if (GET_PLAYER(m_eOwner).getHappinessToScience() != 0)
 		{
@@ -22229,7 +22220,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 
 	int iTotalPop = getPopulation() + iPopMod;
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
 
@@ -22246,7 +22237,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 	{
 		iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS);
 
-		if (!MOD_BALANCE_CORE_HAPPINESS)
+		if (!MOD_BALANCE_VP)
 		{
 			int iHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
 

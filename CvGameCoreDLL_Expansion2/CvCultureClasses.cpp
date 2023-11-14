@@ -913,13 +913,11 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	m_iLastTurnLifetimeCulture = 0;
 	m_iLastTurnCPT = 0;
 	m_iOpinionUnhappiness = 0;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	m_iRawWarWeariness = 0;
 	m_iLastUpdate = 0;
 	m_iLastThemUpdate = 0;
 	m_iBoredomCache = 0;
 	m_iBoredomCacheTurn = 0;
-#endif
 
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
@@ -5047,7 +5045,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
 		int iDelta = iBoredom - GetBoredomCache();
@@ -6800,7 +6798,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 			iMultiplier += /*25 in CP, 10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT);
 		}
 	}
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
 		int iDelta = iBoredom - kCityPlayer.GetCulture()->GetBoredomCache();

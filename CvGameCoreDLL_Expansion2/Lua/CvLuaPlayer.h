@@ -768,7 +768,7 @@ protected:
 	LUAAPIEXTN(GetNumDenouncements, int);
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	LUAAPIEXTN(GetUnhappinessFromBoredom, int);
 	LUAAPIEXTN(GetUnhappinessFromIlliteracy, int);
 	LUAAPIEXTN(GetUnhappinessFromDistress, int);
@@ -777,14 +777,13 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
 	LUAAPIEXTN(GetUnhappinessFromFamine, int);
 	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
-#endif
+
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 
 	LUAAPIEXTN(GetScalingNationalPopulationRequired, int);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	LUAAPIEXTN(GetCapitalNeedModifier, int);
-#endif
+
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetRestingPointChange(lua_State* L);
 	static int lChangeRestingPointChange(lua_State* L);

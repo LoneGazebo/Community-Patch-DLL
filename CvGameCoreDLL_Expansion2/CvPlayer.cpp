@@ -11261,8 +11261,7 @@ void CvPlayer::doTurn()
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -11282,7 +11281,7 @@ void CvPlayer::doTurn()
 				pLog->Msg(strBaseString);
 			}
 		}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		//Reset every turn for CS events.
 		for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
@@ -18933,11 +18932,7 @@ int CvPlayer::GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const
 /// Special bonus which adds excess Happiness to Culture?
 int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
-	{
-		return 0;
-	}
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 		return 0;
 
 	if(getHappinessToCulture() != 0)
@@ -21653,7 +21648,7 @@ void CvPlayer::CalculateNetHappiness()
 	DoUpdateTotalHappiness();
 	DoUpdateTotalUnhappiness();
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iUnhappyCitizens = GetUnhappinessFromCitizenNeeds();
 		if (iUnhappyCitizens == 0)
@@ -22007,7 +22002,7 @@ void CvPlayer::SetTurnLastAttackedMinorCiv(int iTurn)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetHappinessForGAP() const
 {
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iTotalGAP = 0;
 		int iLoop = 0;
@@ -22027,9 +22022,9 @@ int CvPlayer::GetHappinessForGAP() const
 /// How much over our Happiness limit are we?
 int CvPlayer::GetExcessHappiness() const
 {
-	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0) || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+	if (isMinorCiv() || isBarbarian() || getNumCities() == 0 || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 	{
-		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+		if (MOD_BALANCE_VP)
 			return /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD);
 		else
 			return 0;
@@ -22232,7 +22227,7 @@ void CvPlayer::DoUprising()
 /// City can revolt if the empire is Very Unhappy
 void CvPlayer::DoUpdateCityRevolts()
 {
-	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || GetCulture()->GetPublicOpinionUnhappiness() > 0));
+	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_VP || GetCulture()->GetPublicOpinionUnhappiness() > 0));
 	if (bCanRevolt)
 	{
 		if (GetCityRevoltCounter() > 0)
@@ -22360,7 +22355,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 		iTurns /= 100;
 	}
 
-	if (MOD_BALANCE_CORE_HAPPINESS && IsEmpireSuperUnhappy())
+	if (MOD_BALANCE_VP && IsEmpireSuperUnhappy())
 	{
 		iTurns *= 75;
 		iTurns /= 100;
@@ -23311,7 +23306,7 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 
 	int iUnhappiness = 0;
 
-	if (!MOD_BALANCE_CORE_HAPPINESS)
+	if (!MOD_BALANCE_VP)
 	{
 		// City Count Unhappiness
 		iUnhappiness += GetUnhappinessFromCityCount(pAssumeCityAnnexed, pAssumeCityPuppeted);
@@ -23338,7 +23333,7 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 		iUnhappiness += GetUnhappinessFromCityJFDSpecial();
 	}
 
-	if (MOD_BALANCE_CORE_HAPPINESS && !isMinorCiv() && !isBarbarian())
+	if (MOD_BALANCE_VP)
 	{
 		iUnhappiness += GetUnhappinessFromWarWeariness();
 	}
@@ -23455,16 +23450,16 @@ int CvPlayer::GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed, CvCity* pA
 		// Normal city
 		else if(!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness())
 			bCityValid = true;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+
+		if (MOD_BALANCE_VP)
 		{
-			//Tradition policy bonus - Capital grants no founding unhappiness.
-			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
+			// Tradition policy bonus - Capital grants no founding unhappiness.
+			if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{
 				bCityValid = false;
 			}
 		}
-#endif
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		if(MOD_BALANCE_CORE_POLICIES)
 		{
@@ -23728,9 +23723,8 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 		{
 			iPopulation = pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 			//Less unhappiness from specialists....
-			if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS || MOD_BALANCE_CORE_JFD)
+			if (MOD_BALANCE_VP || MOD_BALANCE_CORE_JFD)
 			{
 				iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 				int iNoHappinessSpecialists = 0;
@@ -23756,7 +23750,6 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 					iPopulation -= iNoHappinessSpecialists;
 				}
 			}
-#endif
 
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
 			if(isHalfSpecialistUnhappiness())
@@ -23767,51 +23760,43 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS || MOD_BALANCE_CORE_JFD)
+			if (MOD_BALANCE_VP || MOD_BALANCE_CORE_JFD)
 			{
 				iUnhappiness += iUnhappinessFromThisCity;
 			}
-			if(!MOD_BALANCE_CORE_HAPPINESS)
+			if (!MOD_BALANCE_VP)
 			{
-//Took these away as they were making specialists do weird things.
-#endif
-			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-#if defined(MOD_BALANCE_CORE)
-			if(pLoopCity->GetLocalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + pLoopCity->GetLocalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-#endif
+				//Took these away as they were making specialists do weird things.
+				if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
+				{
+					iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
+					iUnhappinessFromThisCity /= 100;
+				}
 
-			iUnhappiness += iUnhappinessFromThisCity;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				if (pLoopCity->GetLocalUnhappinessMod() != 0)
+				{
+					iUnhappinessFromThisCity *= (100 + pLoopCity->GetLocalUnhappinessMod());
+					iUnhappinessFromThisCity /= 100;
+				}
+
+				iUnhappiness += iUnhappinessFromThisCity;
 			}
-#endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(!MOD_BALANCE_CORE_HAPPINESS)
+
+	if (!MOD_BALANCE_VP)
 	{
-#endif
-	iUnhappiness *= (100 + GetUnhappinessMod());
-	iUnhappiness /= 100;
+		iUnhappiness *= (100 + GetUnhappinessMod());
+		iUnhappiness /= 100;
 
-	iUnhappiness *= 100 + GetPlayerTraits()->GetPopulationUnhappinessModifier();
-	iUnhappiness /= 100;
+		iUnhappiness *= 100 + GetPlayerTraits()->GetPopulationUnhappinessModifier();
+		iUnhappiness /= 100;
 
-	// Handicap mod
-	iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
-	iUnhappiness /= 100;
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		// Handicap mod
+		iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+		iUnhappiness /= 100;
 	}
-#endif
+
 	return (int)iUnhappiness;
 }
 
@@ -26230,7 +26215,7 @@ void CvPlayer::DoProcessGoldenAge()
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL || getGoldenAgeTurns() <= 0)
+		if (MOD_BALANCE_VP || getGoldenAgeTurns() <= 0)
 #else
 		// Not in GA
 		else
@@ -26247,8 +26232,7 @@ void CvPlayer::DoProcessGoldenAge()
 			if(GetGoldenAgeProgressMeter() >= GetGoldenAgeProgressThreshold())
 			{
 				int iOverflow = GetGoldenAgeProgressMeter() - GetGoldenAgeProgressThreshold();
-#if defined(MOD_BALANCE_CORE)
-#endif
+
 				SetGoldenAgeProgressMeter(iOverflow);
 				
 				changeGoldenAgeTurns(getGoldenAgeLength());
@@ -37738,11 +37722,7 @@ int CvPlayer::GetScienceFromOtherPlayersTimes100() const
 /// Where is our Science coming from?
 int CvPlayer::GetScienceFromHappinessTimes100() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
-	{
-		return 0;
-	}
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 		return 0;
 
 	int iScience = 0;
@@ -52033,7 +52013,7 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 {
 	int iAmount = 0;
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		iAmount = (GET_PLAYER(ePlayer).GetExcessHappiness() - /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD)) * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
 		iAmount /= 200;
