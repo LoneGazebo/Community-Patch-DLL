@@ -13164,15 +13164,14 @@ bool CvPlayer::canReceiveGoody(CvPlot* pPlot, GoodyTypes eGoody, CvUnit* pUnit)
 		if (getNumCities() == 0)
 			return false;
 
-		// Check whether player has traits that benefit from buying or naturally gaining tiles only
+		// Check whether player has traits that benefit from buying tiles
 		CvPlayerTraits* pTraits = GetPlayerTraits();
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
 			YieldTypes eYield = (YieldTypes)iYield;
-			if (pTraits->GetYieldFromTilePurchase(eYield) != 0 || pTraits->GetYieldFromTileEarn(eYield) != 0)
+			if (pTraits->GetYieldFromTilePurchase(eYield) != 0)
 			{
-				if (!pTraits->HasYieldFromTileCultureBomb())
-					return false;
+				return false;
 			}
 		}
 
