@@ -7197,8 +7197,7 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 		{
 			//if we have multiple units encircling the city, try to take into account their attacks as well
 			//easiest way is to consider damage from last turn. so ideally ranged units start attacking and melee joins in later
-			int iRemainingHP = pEnemy->GetMaxHitPoints() - pEnemy->getDamage();
-			float fRemainingTurnsOnCity = iRemainingHP / (max(iDamageDealt*fAggBias, pEnemy->getDamageTakenLastTurn()*1.0f) + 1);
+			float fRemainingTurnsOnCity = iPrevHitPoints / (max(iDamageDealt*fAggBias, pEnemy->getDamageTakenLastTurn()*1.0f) + 1);
 			//if the city cannot heal, be even more aggressive
 			if (pEnemy->IsBlockaded(NO_DOMAIN))
 				fRemainingTurnsOnCity = max(0.f, fRemainingTurnsOnCity - 1);
@@ -8813,6 +8812,9 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 	if (iMaxUnitsToKeep > (int)availableUnits.size())
 		iMaxUnitsToKeep = (int)availableUnits.size();
 
+	//temporarily raise aggression level to make sure we consider all possible melee attacks (even those which only make sense after other attacks)
+	eAggressionLevel actualLevel = getAggressionLevel();
+
 	//very important before calling getPreferredAssignmentsForUnit()
 	updateMovePlotsIfRequired();
 
@@ -8844,6 +8846,9 @@ void CvTacticalPosition::dropSuperfluousUnits(int iMaxUnitsToKeep)
 		//this will be our sorting criterion
 		availableUnits[i].iImportanceScore = iScore;
 	}
+
+	//reset aggression to the original value
+	eAggression = actualLevel;
 
 	std::stable_sort(availableUnits.begin(), availableUnits.end());
 
