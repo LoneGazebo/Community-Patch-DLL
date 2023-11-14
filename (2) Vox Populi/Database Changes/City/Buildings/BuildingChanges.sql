@@ -1531,7 +1531,6 @@ SET
 	GreatPeopleRateModifier = 25
 WHERE BuildingClass = 'BUILDINGCLASS_NUCLEAR_PLANT';
 
--- Nuclear Plant -- now buffs specialists
 INSERT INTO Helper
 	(YieldType)
 VALUES
@@ -1545,7 +1544,8 @@ INSERT INTO Building_SpecialistYieldChangesLocal
 SELECT
 	a.Type, c.Type, b.YieldType, 1
 FROM Buildings a, Helper b, Specialists c
-WHERE a.BuildingClass = 'BUILDINGCLASS_NUCLEAR_PLANT';
+WHERE a.BuildingClass = 'BUILDINGCLASS_NUCLEAR_PLANT'
+AND c.GreatPeopleUnitClass IS NOT NULL;
 
 DELETE FROM Helper;
 

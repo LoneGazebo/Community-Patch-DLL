@@ -1018,10 +1018,14 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_STATUE_OF_LIBERTY', 'YIELD_CULTURE', 1);
 
+DELETE FROM Building_SpecialistYieldChanges WHERE BuildingType = 'BUILDING_STATUE_OF_LIBERTY';
+
 INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
-VALUES
-	('BUILDING_STATUE_OF_LIBERTY', 'SPECIALIST_CIVIL_SERVANT', 'YIELD_PRODUCTION', 1);
+SELECT
+	'BUILDING_STATUE_OF_LIBERTY', Type, 'YIELD_PRODUCTION', 1
+FROM Specialists
+WHERE GreatPeopleUnitClass IS NOT NULL;
 
 -- Empire State Building
 INSERT INTO Building_YieldChanges
@@ -1033,7 +1037,8 @@ INSERT INTO Building_SpecialistYieldChanges
 	(BuildingType, SpecialistType, YieldType, Yield)
 SELECT
 	'BUILDING_EMPIRE_STATE_BUILDING', Type, 'YIELD_GOLD', 1
-FROM Specialists;
+FROM Specialists
+WHERE GreatPeopleUnitClass IS NOT NULL;
 
 -- Kremlin
 UPDATE Buildings

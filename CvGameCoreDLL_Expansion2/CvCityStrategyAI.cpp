@@ -3812,10 +3812,14 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 					iSpecialistYield += kPlayer.GetSpecialistCultureChange();
 				}
 
-				iSpecialistYield += kPlayer.getSpecialistExtraYield(eSpecialist, eYield) + kPlayer.getSpecialistExtraYield(eYield) + kPlayer.GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eYield);
+				// Laborers don't get any non-specific specialist boosts
+				if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
+					iSpecialistYield += kPlayer.getSpecialistExtraYield(eYield);
+
+				iSpecialistYield += kPlayer.getSpecialistExtraYield(eSpecialist, eYield);
+				iSpecialistYield += kPlayer.GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eYield);
 				iSpecialistYield += pCity->GetEventSpecialistYield(eSpecialist, eYield);
 				iSpecialistYield += pCity->getSpecialistExtraYield(eSpecialist, eYield);
-				iSpecialistYield += kPlayer.getSpecialistYieldChange(eSpecialist, eYield);
 
 				ReligionTypes eMajority = pCity->GetCityReligions()->GetReligiousMajority();
 				if (eMajority >= RELIGION_PANTHEON)

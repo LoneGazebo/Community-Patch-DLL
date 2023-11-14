@@ -1216,7 +1216,6 @@ void CvPlayer::uninit()
 	m_ppiResourceYieldChange.clear();
 	m_ppiTerrainYieldChange.clear();
 	m_ppiTradeRouteYieldChange.clear();
-	m_ppiSpecialistYieldChange.clear();
 	m_ppiGreatPersonExpendedYield.clear();
 	m_piGoldenAgeGreatPersonRateModifier.clear();
 	m_ppiUnimprovedFeatureYieldChange.clear();
@@ -2253,13 +2252,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 		for(unsigned int i = 0; i < m_ppiTradeRouteYieldChange.size(); ++i)
 		{
 			m_ppiTradeRouteYieldChange[i] = yield;
-		}
-		
-		m_ppiSpecialistYieldChange.clear();
-		m_ppiSpecialistYieldChange.resize(GC.getNumSpecialistInfos());
-		for(unsigned int i = 0; i < m_ppiSpecialistYieldChange.size(); ++i)
-		{
-			m_ppiSpecialistYieldChange[i] = yield;
 		}
 		
 		m_ppiGreatPersonExpendedYield.clear();
@@ -18529,7 +18521,6 @@ int CvPlayer::specialistYield(SpecialistTypes eSpecialist, YieldTypes eYield) co
 	}
 
 	int iRtnValue = pkSpecialistInfo->getYieldChange(eYield) + getSpecialistExtraYield(eSpecialist, eYield) + GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eYield);
-	iRtnValue += getSpecialistYieldChange(eSpecialist, eYield);
 
 	if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
 	{
@@ -41970,35 +41961,6 @@ void CvPlayer::changeTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eInde
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::getSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2) const
-{
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-	return m_ppiSpecialistYieldChange[eIndex1][eIndex2];
-}
-
-//	--------------------------------------------------------------------------------
-void CvPlayer::changeSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange)
-{
-	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex1 < GC.getNumSpecialistInfos(), "eIndex1 is expected to be within maximum bounds (invalid Index)");
-	CvAssertMsg(eIndex2 >= 0, "eIndex2 is expected to be non-negative (invalid Index)");
-	CvAssertMsg(eIndex2 < NUM_YIELD_TYPES, "eIndex2 is expected to be within maximum bounds (invalid Index)");
-
-	if(iChange != 0)
-	{
-		Firaxis::Array<int, NUM_YIELD_TYPES> yields = m_ppiSpecialistYieldChange[eIndex1];
-		yields[eIndex2] = (m_ppiSpecialistYieldChange[eIndex1][eIndex2] + iChange);
-		m_ppiSpecialistYieldChange[eIndex1] = yields;
-		CvAssert(getSpecialistYieldChange(eIndex1, eIndex2) >= 0);
-
-		updateYield();
-	}
-}
-
-//	--------------------------------------------------------------------------------
 int CvPlayer::getGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const
 {
 	CvAssertMsg(eIndex1 >= 0, "eIndex1 is expected to be non-negative (invalid Index)");
@@ -46222,7 +46184,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 
 		for(iI = 0; iI < GC.getNumSpecialistInfos(); iI++)
 		{
-			changeSpecialistYieldChange(((SpecialistTypes)iI), ((YieldTypes)iJ), (pPolicy->GetSpecialistYieldChanges(iI, iJ) * iChange));
+			changeSpecialistExtraYield(((SpecialistTypes)iI), ((YieldTypes)iJ), (pPolicy->GetSpecialistYieldChanges(iI, iJ) * iChange));
 		}
 
 		for(iI = 0; iI < GC.getNumGreatPersonInfos(); iI++)
@@ -47462,7 +47424,7 @@ void CvPlayer::processCorporations(CorporationTypes eCorporation, int iChange)
 	{
 		for (jJ = 0; jJ < GC.getNumSpecialistInfos(); jJ++)
 		{
-			changeSpecialistYieldChange((SpecialistTypes)jJ, (YieldTypes)iI, pkCorporationEntry->GetSpecialistYieldChange(jJ, iI) * iChange);
+			changeSpecialistExtraYield((SpecialistTypes)jJ, (YieldTypes)iI, pkCorporationEntry->GetSpecialistYieldChange(jJ, iI) * iChange);
 		}
 	}
 	// Loop through Cities
@@ -48559,7 +48521,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_ppiResourceYieldChange);
 	visitor(player.m_ppiTerrainYieldChange);
 	visitor(player.m_ppiTradeRouteYieldChange);
-	visitor(player.m_ppiSpecialistYieldChange);
 	visitor(player.m_ppiGreatPersonExpendedYield);
 	visitor(player.m_piGoldenAgeGreatPersonRateModifier);
 	visitor(player.m_ppiUnimprovedFeatureYieldChange);
