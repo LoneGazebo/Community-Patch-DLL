@@ -10709,40 +10709,26 @@ void CvCity::DoPickResourceDemanded()
 		}
 	}
 
-	// VP: Only resources discovered by this player (or a player met by this player) are valid prior to researching Astronomy
-	bool bOnlyAllowDiscoveredResources = MOD_BALANCE_VP && !GET_TEAM(getTeam()).canEmbarkAllWaterPassage();
+	// VP: Only resources on plots revealed by this player are valid
 	set<ResourceTypes> DiscoveredLuxuryResources;
-	if (bOnlyAllowDiscoveredResources)
+	if (MOD_BALANCE_VP)
 	{
-		// First compile a list of the major civ teams this player has met
-		vector<TeamTypes> vTeamsMet;
-		vTeamsMet.push_back(getTeam());
-		CvDiplomacyAI* pDiplo = GET_PLAYER(getOwner()).GetDiplomacyAI();
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (pDiplo->IsPlayerValid(eLoopPlayer) && std::find(vTeamsMet.begin(), vTeamsMet.end(), GET_PLAYER(eLoopPlayer).getTeam()) == vTeamsMet.end())
-				vTeamsMet.push_back(GET_PLAYER(eLoopPlayer).getTeam());
-		}
-
-		// Now go through the map and see which resources have been discovered by civs this player has met
+		// Go through the map and see which resources have been discovered by this player
 		CvMap& theMap = GC.getMap();
 		int iNumPlots = theMap.numPlots();
+		TeamTypes eTeam = getTeam();
 		for (int iI = 0; iI < iNumPlots; iI++)
 		{
 			CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
-			ResourceTypes eResource = pLoopPlot->getResourceType(getTeam()); // This check will ignore resources that haven't been discovered by this player (tech)
+			ResourceTypes eResource = pLoopPlot->getResourceType(eTeam); // This check will ignore resources that haven't been discovered by this player (tech)
 			if (eResource != NO_RESOURCE)
 			{
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && localLuxuryResources.find(eResource) == localLuxuryResources.end()
 					&& DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
 				{
-					for (std::vector<TeamTypes>::iterator it = vTeamsMet.begin(); it != vTeamsMet.end(); it++)
-					{
-						if (pLoopPlot->isRevealed(*it, false))
-							DiscoveredLuxuryResources.insert(eResource);
-					}
+					if (pLoopPlot->isRevealed(eTeam, false))
+						DiscoveredLuxuryResources.insert(eResource);
 				}
 			}
 		}
@@ -10780,7 +10766,7 @@ void CvCity::DoPickResourceDemanded()
 			if (localLuxuryResources.find(eResource) != localLuxuryResources.end())
 				continue;
 
-			if (bOnlyAllowDiscoveredResources && DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
+			if (MOD_BALANCE_VP && DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
 				continue;
 
 			if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
