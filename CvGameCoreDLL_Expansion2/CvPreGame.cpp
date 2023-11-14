@@ -2703,7 +2703,7 @@ void onGameStarted()
 		int iCounter = 1;
 		for (std::vector<PlayerTypes>::iterator it = vMinorsToChoose.begin(); it != vMinorsToChoose.end(); it++)
 		{
-			if (!MOD_BALANCE_CITY_STATE_TRAITS)
+			if (!MOD_BALANCE_CITY_STATE_TRAITS && !MOD_BALANCE_VP)
 			{
 				// Not enough City-States in the database.
 				if (vAvailableCityStates.empty())
@@ -2715,8 +2715,6 @@ void onGameStarted()
 				vPlayersChanged.push_back(*it);
 				vAvailableCityStates.erase(vAvailableCityStates.begin() + uRand);
 			}
-			// We're balancing the different types of City-States.
-			// Aim for a ratio of 1 Cultured / 1 Militaristic / 1 Maritime / 1 Mercantile / 1 Religious
 			else
 			{
 				// Which categories are valid choices to maintain the ratio?
@@ -2731,80 +2729,100 @@ void onGameStarted()
 				if (!bCulturedValid && !bMilitaristicValid && !bMaritimeValid && !bMercantileValid && !bReligiousValid)
 					break;
 
-				// Which categories are valid to maintain the ratio?
-				if (bCulturedValid)
+				// We're balancing the different types of City-States.
+				// Aim for a ratio of 1 Cultured / 1 Militaristic / 1 Maritime / 1 Mercantile / 1 Religious
+				if (MOD_BALANCE_CITY_STATE_TRAITS)
 				{
-					if (iCultured > iMilitaristic && bMilitaristicValid)
-						bCulturedValid = false;
-					else if (iCultured > iMaritime && bMaritimeValid)
-						bCulturedValid = false;
-					else if (iCultured > iMercantile && bMercantileValid)
-						bCulturedValid = false;
-					else if (iCultured > iReligious && bReligiousValid)
-						bCulturedValid = false;
+					// Which categories are valid to maintain the ratio?
+					if (bCulturedValid)
+					{
+						if (iCultured > iMilitaristic && bMilitaristicValid)
+							bCulturedValid = false;
+						else if (iCultured > iMaritime && bMaritimeValid)
+							bCulturedValid = false;
+						else if (iCultured > iMercantile && bMercantileValid)
+							bCulturedValid = false;
+						else if (iCultured > iReligious && bReligiousValid)
+							bCulturedValid = false;
 
+						if (bCulturedValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_CULTURED);
+					}
+					if (bMilitaristicValid)
+					{
+						if (iMilitaristic > iCultured && bCulturedValid)
+							bMilitaristicValid = false;
+						else if (iMilitaristic > iMaritime && bMaritimeValid)
+							bMilitaristicValid = false;
+						else if (iMilitaristic > iMercantile && bMercantileValid)
+							bMilitaristicValid = false;
+						else if (iMilitaristic > iReligious && bReligiousValid)
+							bMilitaristicValid = false;
+
+						if (bMilitaristicValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_MILITARISTIC);
+					}
+					if (bMaritimeValid)
+					{
+						if (iMaritime > iCultured && bCulturedValid)
+							bMaritimeValid = false;
+						else if (iMaritime > iMilitaristic && bMilitaristicValid)
+							bMaritimeValid = false;
+						else if (iMaritime > iMercantile && bMercantileValid)
+							bMaritimeValid = false;
+						else if (iMaritime > iReligious && bReligiousValid)
+							bMaritimeValid = false;
+
+						if (bMaritimeValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_MARITIME);
+					}
+					if (bMercantileValid)
+					{
+						if (iMercantile > iCultured && bCulturedValid)
+							bMercantileValid = false;
+						else if (iMercantile > iMilitaristic && bMilitaristicValid)
+							bMercantileValid = false;
+						else if (iMercantile > iMaritime && bMaritimeValid)
+							bMercantileValid = false;
+						else if (iMercantile > iReligious && bReligiousValid)
+							bMercantileValid = false;
+
+						if (bMercantileValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_MERCANTILE);
+					}
+					if (bReligiousValid)
+					{
+						if (iReligious > iCultured && bCulturedValid)
+							bReligiousValid = false;
+						else if (iReligious > iMilitaristic && bMilitaristicValid)
+							bReligiousValid = false;
+						else if (iReligious > iMaritime && bMaritimeValid)
+							bReligiousValid = false;
+						else if (iReligious > iMercantile && bMercantileValid)
+							bReligiousValid = false;
+
+						if (bReligiousValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_RELIGIOUS);
+					}
+				}
+				// We're merely equalizing the probability of each type of City-State showing up (regardless of how many are in the pool).
+				else
+				{
 					if (bCulturedValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_CULTURED);
-				}
-				if (bMilitaristicValid)
-				{
-					if (iMilitaristic > iCultured && bCulturedValid)
-						bMilitaristicValid = false;
-					else if (iMilitaristic > iMaritime && bMaritimeValid)
-						bMilitaristicValid = false;
-					else if (iMilitaristic > iMercantile && bMercantileValid)
-						bMilitaristicValid = false;
-					else if (iMilitaristic > iReligious && bReligiousValid)
-						bMilitaristicValid = false;
 
 					if (bMilitaristicValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_MILITARISTIC);
-				}
-				if (bMaritimeValid)
-				{
-					if (iMaritime > iCultured && bCulturedValid)
-						bMaritimeValid = false;
-					else if (iMaritime > iMilitaristic && bMilitaristicValid)
-						bMaritimeValid = false;
-					else if (iMaritime > iMercantile && bMercantileValid)
-						bMaritimeValid = false;
-					else if (iMaritime > iReligious && bReligiousValid)
-						bMaritimeValid = false;
 
 					if (bMaritimeValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_MARITIME);
-				}
-				if (bMercantileValid)
-				{
-					if (iMercantile > iCultured && bCulturedValid)
-						bMercantileValid = false;
-					else if (iMercantile > iMilitaristic && bMilitaristicValid)
-						bMercantileValid = false;
-					else if (iMercantile > iMaritime && bMaritimeValid)
-						bMercantileValid = false;
-					else if (iMercantile > iReligious && bReligiousValid)
-						bMercantileValid = false;
 
 					if (bMercantileValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_MERCANTILE);
-				}
-				if (bReligiousValid)
-				{
-					if (iReligious > iCultured && bCulturedValid)
-						bReligiousValid = false;
-					else if (iReligious > iMilitaristic && bMilitaristicValid)
-						bReligiousValid = false;
-					else if (iReligious > iMaritime && bMaritimeValid)
-						bReligiousValid = false;
-					else if (iReligious > iMercantile && bMercantileValid)
-						bReligiousValid = false;
 
 					if (bReligiousValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_RELIGIOUS);
 				}
-
-				// If we got here at least one category should be valid.
-				ASSERT(vValidCategories.size() > 0);
 
 				// Pick at random from the valid categories.
 				uint uRand = GC.getGame().urandLimitExclusive(vValidCategories.size(), CvSeeder::fromRaw(0x95c6b165).mix(iCounter));
