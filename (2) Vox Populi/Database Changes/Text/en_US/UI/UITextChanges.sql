@@ -499,7 +499,7 @@ SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold (-{2_Influence} [ICON_INFLUENCE]
 WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_GOLD_AMOUNT';
 
 UPDATE Language_en_US
-SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold and Partial Quest Rewards (-{2_Influence} [ICON_INFLUENCE])'
+SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold and all Personal Quest Rewards (-{2_Influence} [ICON_INFLUENCE])'
 WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
 
 UPDATE Language_en_US

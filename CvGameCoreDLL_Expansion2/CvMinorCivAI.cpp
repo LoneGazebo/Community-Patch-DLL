@@ -865,7 +865,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer, bool bHeavyTribute)
 	if (kPlayer.getCapitalCity() == NULL)
 		return;
 
-	if (IsPartialQuest() || bHeavyTribute)
+	if (IsPartialQuest())
 	{
 		SetInfluence(GetInfluence() / 2);
 		SetGold(GetGold() / 2);
@@ -6273,7 +6273,7 @@ void CvMinorCivAI::DoObsoleteQuests()
 
 // Process obsolete quests that are active, and seed countdowns if needed.
 // If no quest type is specified, will check all quest types.
-void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar, bool bHeavyTribute) 
+void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
@@ -6288,8 +6288,8 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	{
 		if (bCheckAllQuests || itr_quest->GetType() == eSpecifyQuestType)
 		{
-			// If a specific quest type was given, cancel it. Otherwise, check if the quest is now obsolete. Declaring war or demanding heavy tribute makes all quests obsolete except for the barbarian horde quest
-			if (!bCheckAllQuests || itr_quest->IsObsolete(bWar || bHeavyTribute))
+			// If a specific quest type was given, cancel it. Otherwise, check if the quest is now obsolete. Declaring war makes all quests obsolete except for the barbarian horde quest
+			if (!bCheckAllQuests || itr_quest->IsObsolete(bWar))
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				bool bCancelled = itr_quest->DoCancelQuest();
@@ -6297,14 +6297,9 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 				
 				if (bCancelled)
 				{
-					if (itr_quest->IsRevoked(bWar || bHeavyTribute))
+					if (itr_quest->IsRevoked(bWar))
 					{
 						bQuestRevoked = true;
-						// special rule for heavy tribute: if the quest to conquer another CS or to ally both was given, cancel the quest also for the other CS
-						if (itr_quest->GetType() == MINOR_CIV_QUEST_KILL_CITY_STATE)
-						{
-							GET_PLAYER((PlayerTypes)itr_quest->GetPrimaryData()).GetMinorCivAI()->DoObsoleteQuestsForPlayer(ePlayer, MINOR_CIV_QUEST_KILL_CITY_STATE, false, false);
-						}
 					}
 
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestCancelled(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
@@ -16536,12 +16531,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 	if(bSuccess)
 	{
-#if defined(MOD_BALANCE_CORE)
 		int iEra = GET_PLAYER(eBully).GetCurrentEra();
 		if(iEra <= 0)
 		{
 			iEra = 1;
 		}
+
 		if (!MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
 			CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
@@ -16550,8 +16545,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCapital);
 			}
 		}
-#endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+
 		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() > 0)
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -16623,8 +16617,6 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			}
 		}
 
-#endif
-#if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		// Minor must have Capital
 		if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
@@ -16677,16 +16669,16 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 
-				// half of the rewards of all quests from the city-state are given to the player, and the quests are canceled
+				// the non-influence rewards of all personal quests from the city-state are given to the player, and the quests are canceled
 				QuestListForPlayer::iterator itr_quest;
 				for (itr_quest = m_QuestsGiven[eBully].begin(); itr_quest != m_QuestsGiven[eBully].end(); itr_quest++)
 				{
-					if (itr_quest->IsObsolete(true)) // is this quest canceled by demanding heavy tribute?
+					if (itr_quest->IsObsolete()) // is this quest canceled by demanding heavy tribute?
 					{
 						itr_quest->DoRewards(eBully, true);
 					}
 				}
-				DoObsoleteQuestsForPlayer(eBully, NO_MINOR_CIV_QUEST_TYPE, false, true);
+				DoObsoleteQuestsForPlayer(eBully, NO_MINOR_CIV_QUEST_TYPE);
 
 				int iCurrentInfluence = GetEffectiveFriendshipWithMajorTimes100(eBully);
 				int iRestingInfluence = GetRestingPointChange(eBully) * 100;
@@ -16705,41 +16697,40 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		}
 		else
 		{
-#endif
-		if(eUnitType == NO_UNIT)
-		{
-			CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
-			return;
-		}
-		// Minor must have Capital
-		CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-		if(pMinorCapital == NULL)
-		{
-			CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-			return;
-		}
-		int iX = pMinorCapital->getX();
-		int iY = pMinorCapital->getY();
+			if(eUnitType == NO_UNIT)
+			{
+				CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
+				return;
+			}
+			// Minor must have Capital
+			CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+			if(pMinorCapital == NULL)
+			{
+				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
+				return;
+			}
+			int iX = pMinorCapital->getX();
+			int iY = pMinorCapital->getY();
 
-		CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
-		if (pNewUnit->jumpToNearestValidPlot())
-		{
-			pNewUnit->finishMoves(); // The given unit cannot move this turn
+			CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
+			if (pNewUnit->jumpToNearestValidPlot())
+			{
+				pNewUnit->finishMoves(); // The given unit cannot move this turn
 
-			if(GetPlayer()->getCapitalCity())
-				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
+				if(GetPlayer()->getCapitalCity())
+					GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-			DoBulliedByMajorReaction(eBully, /*-5000 in CP, -6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
-			
-			if (MOD_EVENTS_MINORS_INTERACTION) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
+				DoBulliedByMajorReaction(eBully, /*-5000 in CP, -6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
+
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
+				}
+			}
+			else
+			{
+				pNewUnit->kill(false); // Could not find a spot for the unit!
 			}
 		}
-		else
-			pNewUnit->kill(false);	// Could not find a spot for the unit!
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 
 	// Logging
