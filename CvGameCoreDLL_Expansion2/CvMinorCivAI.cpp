@@ -15641,7 +15641,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling, bool bForUnit)
 {
 	int iGold = /*50*/ GD_INT_GET(MINOR_BULLY_GOLD);
-	int iGoldGrowthFactor = 400;
+	int iGoldGrowthFactor = /*400 in CP, 1000 in VP*/ GD_INT_GET(MINOR_BULLY_GOLD_GROWTH_FACTOR);
 
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());
@@ -15654,13 +15654,12 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 	// VP changes to BullyGoldAmount
 	if (MOD_BALANCE_VP)
 	{
-		iGold *= 3;
 		int iEra = GET_PLAYER(eBullyPlayer).GetCurrentEra();
 		if (iEra <= 0)
 		{
 			iEra = 1;
 		}
-		iGold *= iEra;
+		iGold = iGold * iEra + iGold / (iEra + 2);
 	}
 
 	// Game Speed Mod

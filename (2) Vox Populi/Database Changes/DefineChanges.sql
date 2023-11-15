@@ -192,6 +192,9 @@ UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_POLICY_RESOURCE_HAPPINESS_MUL
 UPDATE Defines SET Value = 60 WHERE Name = 'MINOR_CIV_TECH_PERCENT';
 UPDATE Defines SET Value = 115 WHERE Name = 'MINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER';
 
+-- Gold tribute amount increasing with game progress
+UPDATE Defines SET Value = 1000 WHERE Name = 'MINOR_BULLY_GOLD_GROWTH_FACTOR';
+
 -- Bully score threshold for demanding Heavy Tribute
 UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD';
 
