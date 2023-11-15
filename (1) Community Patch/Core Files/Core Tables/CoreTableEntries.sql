@@ -1682,6 +1682,9 @@ ALTER TABLE Buildings ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
 -- Gives a boost of pressure in the city when built (based on what the religion is in your capital)
 ALTER TABLE Buildings ADD 'InstantReligiousPressure' INTEGER DEFAULT 0;
 
+-- All owned cities following the state religion emanates X% more pressure
+ALTER TABLE Buildings ADD 'BasePressureModifierGlobal' INTEGER DEFAULT 0;
+
 -- Promotion grants additional religious pressure when this unit is garrisoned in the city (if the player has a religion).
 ALTER TABLE UnitPromotions ADD COLUMN 'ReligiousPressureModifier' INTEGER DEFAULT 0;
 
