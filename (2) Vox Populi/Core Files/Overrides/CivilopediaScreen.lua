@@ -4591,6 +4591,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("VictoryPoints");
 		AnalyzeBuilding("ExtraMissionarySpreads", "[ICON_MISSIONARY]");
 		AnalyzeBuilding("ReligiousPressureModifier");
+		AnalyzeBuilding("BasePressureModifierGlobal");
 		AnalyzeBuilding("EspionageModifier");
 		AnalyzeBuilding("GlobalEspionageModifier");
 		AnalyzeBuilding("ExtraSpies", "[ICON_SPY]");

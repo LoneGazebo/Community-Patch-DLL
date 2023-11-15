@@ -732,7 +732,7 @@ SET
 	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
 	GreatWorkCount = 2,
 	FreeBuildingThisCity = 'BUILDINGCLASS_CATHEDRAL',
-	GoldenAge = 1
+	BasePressureModifierGlobal = 30
 WHERE Type = 'BUILDING_NOTRE_DAME';
 
 INSERT INTO Building_YieldChanges

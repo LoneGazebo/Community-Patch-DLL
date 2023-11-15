@@ -1261,6 +1261,9 @@ public:
 	int getSpaceProductionModifier() const;
 	void changeSpaceProductionModifier(int iChange);
 
+	int GetBasePressureModifier() const;
+	void ChangeBasePressureModifier(int iChange);
+
 	int getCityDefenseModifier() const;
 	void changeCityDefenseModifier(int iChange);
 
@@ -3310,6 +3313,7 @@ protected:
 	int m_iSpecialistProductionModifier;
 	int m_iMilitaryProductionModifier;
 	int m_iSpaceProductionModifier;
+	int m_iBasePressureModifier;
 	int m_iCityDefenseModifier;
 	int m_iUnitFortificationModifier;
 	int m_iUnitBaseHealModifier;
@@ -4137,6 +4141,7 @@ SYNC_ARCHIVE_VAR(int, m_iImprovementUpgradeRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpaceProductionModifier)
+SYNC_ARCHIVE_VAR(int, m_iBasePressureModifier)
 SYNC_ARCHIVE_VAR(int, m_iCityDefenseModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitFortificationModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitBaseHealModifier)

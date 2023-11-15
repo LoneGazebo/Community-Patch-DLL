@@ -242,6 +242,7 @@ CvPlayer::CvPlayer() :
 	, m_iSpecialistProductionModifier()
 	, m_iMilitaryProductionModifier()
 	, m_iSpaceProductionModifier()
+	, m_iBasePressureModifier()
 	, m_iCityDefenseModifier()
 	, m_iUnitFortificationModifier()
 	, m_iUnitBaseHealModifier()
@@ -1459,6 +1460,7 @@ void CvPlayer::uninit()
 	m_iSpecialistProductionModifier = 0;
 	m_iMilitaryProductionModifier = 0;
 	m_iSpaceProductionModifier = 0;
+	m_iBasePressureModifier = 0;
 	m_iCityDefenseModifier = 0;
 	m_iUnitFortificationModifier = 0;
 	m_iUnitBaseHealModifier = 0;
@@ -17205,6 +17207,9 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 #endif
 	changeSpaceProductionModifier(pBuildingInfo->GetGlobalSpaceProductionModifier() * iChange);
 
+	// Global base pressure mod
+	ChangeBasePressureModifier(pBuildingInfo->GetBasePressureModGlobal() * iChange);
+
 	for(iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		if (pArea)
@@ -30969,6 +30974,17 @@ void CvPlayer::changeSpaceProductionModifier(int iChange)
 	m_iSpaceProductionModifier = (m_iSpaceProductionModifier + iChange);
 }
 
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetBasePressureModifier() const
+{
+	return m_iBasePressureModifier;
+}
+
+//	--------------------------------------------------------------------------------
+void CvPlayer::ChangeBasePressureModifier(int iChange)
+{
+	m_iBasePressureModifier = (m_iBasePressureModifier + iChange);
+}
 
 //	--------------------------------------------------------------------------------
 int CvPlayer::getCityDefenseModifier() const
@@ -48018,6 +48034,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iSpecialistProductionModifier);
 	visitor(player.m_iMilitaryProductionModifier);
 	visitor(player.m_iSpaceProductionModifier);
+	visitor(player.m_iBasePressureModifier);
 	visitor(player.m_iCityDefenseModifier);
 	visitor(player.m_iUnitFortificationModifier);
 	visitor(player.m_iUnitBaseHealModifier);

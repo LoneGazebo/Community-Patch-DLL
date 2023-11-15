@@ -2900,7 +2900,15 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		return 0;
 	}
 
+	// Does this city have a majority religion?
+	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
+	if (eMajorityReligion != eReligion)
+	{
+		return 0;
+	}
+
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
+	int iBasePressureMod = 0;
 	int iPressureMod = 0;
 
 	// India: +10% base pressure per follower
@@ -2909,17 +2917,24 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
 		{
 			int iPopExtraPressure = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
-			int iBasePressureMod = min(35, iPopExtraPressure) * 10;
-			iBasePressure *= 100 + iBasePressureMod;
-			iBasePressure /= 100;
+			iBasePressureMod += min(35, iPopExtraPressure) * 10;
 		}
 	}
 
-	// Does this city have a majority religion?
-	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
-	if (eMajorityReligion != eReligion)
+	// Global base pressure modifier from buildings
+	int iPlayerBasePressureMod = GET_PLAYER(pFromCity->getOwner()).GetBasePressureModifier();
+	if (iPlayerBasePressureMod != 0)
 	{
-		return 0;
+		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
+		{
+			iBasePressureMod += iPlayerBasePressureMod;
+		}
+	}
+	
+	if (iBasePressureMod != 0)
+	{
+		iBasePressure *= 100 + iBasePressureMod;
+		iBasePressure /= 100;
 	}
 
 	//do we have a trade route or pretend to have one

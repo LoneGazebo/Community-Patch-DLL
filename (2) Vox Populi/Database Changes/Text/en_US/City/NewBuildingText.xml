@@ -363,7 +363,7 @@
 
 		<!-- Notre Dame -->
 		<Row Tag="TXT_KEY_BUILDING_NOTRE_DAME_HELP">
-			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Cathedral in the City in which it is built. The Empire enters a [ICON_GOLDEN_AGE] Golden Age. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +3 [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+			<Text>Receive a [COLOR_POSITIVE_TEXT]Free[ENDCOLOR] Cathedral in the City in which it is built. +30% base Religious Pressure in all Cities following your [COLOR_POSITIVE_TEXT]Primary Religion[ENDCOLOR]. Contains 2 slots for [ICON_GREAT_WORK] Great Works of Art or Artifacts. +3 [ICON_PEACE] Faith and [ICON_GOLDEN_AGE] Golden Age Points if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_KARLSTEJN">
