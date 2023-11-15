@@ -195,7 +195,8 @@ UPDATE Defines SET Value = 115 WHERE Name = 'MINOR_CIV_PLOT_CULTURE_COST_MULTIPL
 -- Gold tribute amount increasing with game progress
 UPDATE Defines SET Value = 1000 WHERE Name = 'MINOR_BULLY_GOLD_GROWTH_FACTOR';
 
--- Bully score threshold for demanding Heavy Tribute
+-- Bully score threshold for demanding tribute
+UPDATE Defines SET Value = 20 WHERE Name = 'MINOR_CIV_GOLD_TRIBUTE_THRESHOLD';
 UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD';
 
 -- Influence loss x100 if pledged CS is damaged

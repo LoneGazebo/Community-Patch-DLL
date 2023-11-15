@@ -16095,20 +16095,17 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	if(!GetPlayer()->isAlive())
 		return false;
 
-#if defined(MOD_BALANCE_CORE)
 	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
-#endif
 
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBullyGold, ePlayer, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}
-#endif				
+
 	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-		return (iSpecifiedBullyMetric > 0);
+		return (iSpecifiedBullyMetric > 0) && (iSpecifiedBullyMetric >= /*0 in CP, 20 in VP*/ GD_INT_GET(MINOR_CIV_GOLD_TRIBUTE_THRESHOLD));
 	else
 		return (iSpecifiedBullyMetric >= 0);
 }
@@ -16123,19 +16120,23 @@ CvString CvMinorCivAI::GetMajorBullyGoldDetails(PlayerTypes ePlayer)
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ false, &sFactors);
 	bool bCanBully = CanMajorBullyGold(ePlayer, iScore);
 
+	int iBullyThreshold = /*0 in CP, 20 in VP*/ GD_INT_GET(MINOR_CIV_GOLD_TRIBUTE_THRESHOLD);
+
 	Localization::String sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_AFRAID");
 	if (!bCanBully)
 	{
-		sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
+		sFear = (iBullyThreshold > 0) ? Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD") : Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
+		iScore = iScore - iBullyThreshold;
 	}
+
 	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
 		if (iScore < 0)
 			iScore *= -1;
-		sFear << iScore;
 	}
-	else
-		sFear << iScore;
+	sFear << iScore;
+	if (iBullyThreshold > 0)
+		sFear << iBullyThreshold;
 
 	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_GOLD_TT");
 	sResult << sFear.toUTF8() << sFactors;
