@@ -16353,8 +16353,16 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 				SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 			}
 		}
-		
-		DoBulliedByMajorReaction(eBully, /*-1500 in CP, -3000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS));
+
+		int iCurrentInfluence = GetEffectiveFriendshipWithMajorTimes100(eBully);
+		int iRestingInfluence = GetRestingPointChange(eBully) * 100;
+		int iInfluenceChange = /*-1500 in CP, -3000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS);
+		if (MOD_BALANCE_VP && iCurrentInfluence >= iRestingInfluence)
+		{
+			iInfluenceChange -= iCurrentInfluence - iRestingInfluence;
+		}
+
+		DoBulliedByMajorReaction(eBully, iInfluenceChange);
 
 		if (MOD_EVENTS_MINORS_INTERACTION) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1, YIELD_GOLD);
@@ -16681,7 +16689,15 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				}
 				DoObsoleteQuestsForPlayer(eBully, NO_MINOR_CIV_QUEST_TYPE, false, true);
 
-				DoBulliedByMajorReaction(eBully, /*-6000*/ min(GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS),  (GetRestingPointChange(eBully) * 100) - GetEffectiveFriendshipWithMajorTimes100(eBully)));
+				int iCurrentInfluence = GetEffectiveFriendshipWithMajorTimes100(eBully);
+				int iRestingInfluence = GetRestingPointChange(eBully) * 100;
+				int iInfluenceChange = /*-5000 in CP, -6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS);
+				if (iCurrentInfluence >= iRestingInfluence)
+				{
+					iInfluenceChange -= iCurrentInfluence - iRestingInfluence;
+				}
+
+				DoBulliedByMajorReaction(eBully, iInfluenceChange);
 
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1, YIELD_SCIENCE);
@@ -16714,7 +16730,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			if(GetPlayer()->getCapitalCity())
 				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-			DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
+			DoBulliedByMajorReaction(eBully, /*-5000 in CP, -6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
 			
 			if (MOD_EVENTS_MINORS_INTERACTION) {
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
