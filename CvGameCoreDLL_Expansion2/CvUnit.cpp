@@ -13413,8 +13413,16 @@ bool CvUnit::blastTourism()
 
 		// VP: Give Happiness to Musician owner
 		int iCap = /*0 in CP, 2 in VP*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
-		if (kUnitOwner.getCapitalCity() != NULL)
-			kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
+		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+		{
+			int iCap = /*Originally 2 in the Capital, now 1 in every City!*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
+			int iLoop = 0;
+
+			for (CvCity* pLoopCity = kUnitOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kUnitOwner.nextCity(&iLoop))
+			{
+				pLoopCity->ChangeUnmoddedHappinessFromBuildings(iCap);
+			}
+		}
 
 		// Send notifications
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
