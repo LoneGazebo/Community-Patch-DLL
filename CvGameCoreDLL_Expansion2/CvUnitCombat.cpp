@@ -560,6 +560,9 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 			{
 				pkDefender->setCapturingPlayer(pkAttacker->getOwner());
 				pkDefender->SetCapturedAsIs(true);
+
+				// Units escorted by the captured unit withdraws if possible
+				pkDefender->DoFallBack(*pkAttacker, false, true);
 				if (pkAttacker->GetCapturedUnitsConscriptedCount() > 0)
 				{
 					pkDefender->SetCapturedAsConscript(true);

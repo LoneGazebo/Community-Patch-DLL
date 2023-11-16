@@ -6769,37 +6769,56 @@ void CvUnit::ChangeCaptureDefeatedEnemyCount(int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 {
-	int iRtnValue = 0;
+	// This unit can't capture enemies
+	if (!IsCaptureDefeatedEnemy())
+		return 0;
 
-	if ((m_iCaptureDefeatedEnemyCount > 0 || m_iCaptureDefeatedEnemyChance > 0) && getDomainType()==pEnemy->getDomainType())
+	// Can't capture units belonging to different domain
+	if (getDomainType() != pEnemy->getDomainType())
+		return 0;
+	
+	// This enemy cannot be captured
+	if(pEnemy->GetCannotBeCaptured())
+		return 0;
+
+	// This unit has a fixed capture chance? Use it!
+	int iFixedCaptureChance = GetCaptureDefeatedEnemyChance();
+	if (iFixedCaptureChance > 0)
+		return iFixedCaptureChance;
+
+	if (MOD_BALANCE_VP)
+	{
+		// Count adjacent enterable plots
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pEnemy->plot());
+		int iEnterablePlotCount = 0;
+		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
+		{
+			CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+			if (pEnemy->canEnterTerrain(*pLoopPlot, MOVEFLAG_NO_EMBARK | MOVEFLAG_DESTINATION))
+				iEnterablePlotCount++;
+		}
+
+		// Count adjacent enemies (doesn't have to be YOUR units!)
+		int iAdjEnemyCount = pEnemy->plot()->GetNumEnemyUnitsAdjacent(pEnemy->getTeam(), pEnemy->getDomainType());
+
+		// Enemy is captured if and only if more than half of the surrounding enterable plots are occupied by its enemies
+		if (iAdjEnemyCount * 2 >= iEnterablePlotCount)
+			return 100;
+	}
+	else
 	{
 		// Look at ratio of intrinsic combat strengths
 		CvUnitEntry *pkEnemyInfo = GC.getUnitInfo(pEnemy->getUnitType());
-		if (pkEnemyInfo)
+		int iTheirCombat = pkEnemyInfo->GetCombat();
+		if (iTheirCombat > 0)
 		{
-			int iTheirCombat = pkEnemyInfo->GetCombat();
-#if defined(MOD_BALANCE_CORE)
-			if(pEnemy->GetCannotBeCaptured())
-			{
-				return 0;
-			}
-
-			if (m_iCaptureDefeatedEnemyChance > 0)
-			{
-				return m_iCaptureDefeatedEnemyChance;
-			}
-#endif
-
-			if (iTheirCombat > 0)
-			{
-				int iMyCombat = m_pUnitInfo->GetCombat();
-				int iComputedChance = /*10*/ GD_INT_GET(COMBAT_CAPTURE_MIN_CHANCE) + (int)(((float)iMyCombat / (float)iTheirCombat) * /*40*/ GD_INT_GET(COMBAT_CAPTURE_RATIO_MULTIPLIER));
-				iRtnValue = min(/*80*/ GD_INT_GET(COMBAT_CAPTURE_MAX_CHANCE), iComputedChance);
-			}
+			int iMyCombat = m_pUnitInfo->GetCombat();
+			int iComputedChance = /*10*/ GD_INT_GET(COMBAT_CAPTURE_MIN_CHANCE) + iMyCombat * /*40*/ GD_INT_GET(COMBAT_CAPTURE_RATIO_MULTIPLIER) / iTheirCombat;
+			return min(/*80*/ GD_INT_GET(COMBAT_CAPTURE_MAX_CHANCE), iComputedChance);
 		}
 	}
 
-	return iRtnValue;
+	return 0;
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -31242,7 +31261,7 @@ bool CvUnit::CheckWithdrawal(const CvUnit& attacker) const
 	return iRoll < iWithdrawChance;
 }
 //	--------------------------------------------------------------------------------
-bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
+bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 {
 	VALIDATE_OBJECT
 
@@ -31277,7 +31296,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
 		CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-		if (pDirectionPlot && isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+		if (pDirectionPlot && (bCaptured || (isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))))
 		{
 			// Do not withdraw if we're escorting a unit who can't move here!
 			if (aEscortedUnits.size() > 0)
@@ -31339,8 +31358,9 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	if (!pDestPlot)
 		return false;
 
-	// Actually do the withdrawal
-	setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+	// Actually do the withdrawal if this unit isn't captured
+	if (!bCaptured)
+		setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 
 	if (aEscortedUnits.size() > 0)
 	{

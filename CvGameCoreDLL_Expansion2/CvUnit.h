@@ -2475,7 +2475,7 @@ protected:
 	int  GetNumFallBackPlotsAvailable(const CvUnit& pAttacker) const;
 	int  GetWithdrawChance(const CvUnit& pAttacker) const;
 	bool CheckWithdrawal(const CvUnit& pAttacker) const;
-	bool DoFallBack(const CvUnit& pAttacker, bool bWithdraw = false);
+	bool DoFallBack(const CvUnit& pAttacker, bool bWithdraw = false, bool bCaptured = false);
 
 private:
 
