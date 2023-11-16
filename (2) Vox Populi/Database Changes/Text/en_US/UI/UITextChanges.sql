@@ -624,6 +624,10 @@ SET Text = Text
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS') / 100.0 AS NUMERIC) || 'x[ENDCOLOR] Experience.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_RELIGIOUS_TT';
 
+UPDATE Language_en_US
+SET Text = 'You will receive a [COLOR_POSITIVE_TEXT]new military unit[ENDCOLOR] from them approximately every {1_Num} turns. A new military unit will arrive in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns.'
+WHERE Tag = 'TXT_KEY_CSTATE_MILITARY_BONUS';
+
 -- Quests
 UPDATE Language_en_US
 SET Text = 'They will reward the player(s) with the largest number of new Followers.'
