@@ -396,10 +396,9 @@ function GetCityStateStatusToolTip(iMajor, iMinor, bFullInfo)
 		end
 		
 		local iCurrentSpawnEstimate = pMinor:GetCurrentSpawnEstimate(iMajor);
-		local iCurrentSpawnExact = pMinor:GetUnitSpawnCounter(iMajor)
-		if (iCurrentSpawnEstimate ~= 0 and not pMinor:IsMinorCivUnitSpawningDisabled(iMajor)) then
+		if (iCurrentSpawnEstimate ~= 0) then
 			strStatusTT = strStatusTT .. "[NEWLINE][NEWLINE]";
-			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_MILITARY_BONUS", iCurrentSpawnEstimate, iCurrentSpawnExact);
+			strStatusTT = strStatusTT .. Locale.ConvertTextKey("TXT_KEY_CSTATE_MILITARY_BONUS", iCurrentSpawnEstimate);
 		end
 		
 		local iScienceBonus = pMinor:GetCurrentScienceFriendshipBonusTimes100(iMajor);

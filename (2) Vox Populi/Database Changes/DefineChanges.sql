@@ -481,7 +481,7 @@ UPDATE Defines SET Value = 0 WHERE Name = 'UNHAPPINESS_PER_CITY';
 UPDATE Defines SET Value = 0 WHERE Name = 'UNHAPPINESS_PER_CAPTURED_CITY';
 
 -- Great Musician Happiness
-UPDATE Defines SET Value = 1 WHERE Name = 'GREAT_MUSICIAN_BLAST_HAPPINESS';
+UPDATE Defines SET Value = 2 WHERE Name = 'GREAT_MUSICIAN_BLAST_HAPPINESS';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Great People

@@ -47,11 +47,6 @@ VALUES
 	('UNIT_GUERILLA', 'PROMOTION_DEFENSIVE_EMBARKATION'),
 	('UNIT_GUERILLA', 'PROMOTION_FLANK_ATTACK_BONUS');
 
---These units didn't have a requirement before VP 4 nor an agreement made on this.
-DELETE FROM Unit_BuildingClassPurchaseRequireds WHERE UnitType = 'UNIT_FCOMPANY';
-DELETE FROM Unit_BuildingClassPurchaseRequireds WHERE UnitType = 'UNIT_FRENCH_FOREIGNLEGION';
-DELETE FROM Unit_BuildingClassPurchaseRequireds WHERE UnitType = 'UNIT_GUERILLA';
-
 --------------------------------------
 -- Freedom
 --------------------------------------
