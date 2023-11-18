@@ -2069,6 +2069,10 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
 		return 0;
 
+	// if the city is being razed
+	if(pFirstCity->IsRazing())
+		return 0;
+
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
 	for (CvCityConnections::SingleCityConnectionStore::const_iterator it=cityConnections.begin(); it!=cityConnections.end(); ++it)
 	{
@@ -2076,7 +2080,7 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
-			if (pSecondCity)
+			if (pSecondCity && !pSecondCity->IsRazing())
 				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}
