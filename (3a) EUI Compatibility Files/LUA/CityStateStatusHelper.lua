@@ -363,9 +363,8 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 		end
 
 		local unitSpawnEstimate = minorPlayer:GetCurrentSpawnEstimate(majorPlayerID)
-		local unitSpawnExact = minorPlayer:GetUnitSpawnCounter(majorPlayerID)
-		if unitSpawnEstimate ~= 0 and not minorPlayer:IsMinorCivUnitSpawningDisabled(majorPlayerID) then
-			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate, unitSpawnExact) )
+		if unitSpawnEstimate ~= 0 then
+			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate) )
 		end
 
 		local scienceBonusTimes100 = minorPlayer:GetCurrentScienceFriendshipBonusTimes100(majorPlayerID)
