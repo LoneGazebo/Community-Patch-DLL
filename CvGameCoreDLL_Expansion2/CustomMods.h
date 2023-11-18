@@ -41,6 +41,9 @@
 //END MULTIPLAYER INSTRUCTIONS
 ////////////////////////////////////////
 
+// Activates functions which depend on working with closed .exe code
+#define MOD_EXE_HACKING					 gCustomMods.isEXE_HACKING()
+
 // Enables not showing, during pregame, the details of the civs that have not been met by the local player, i.e. as it doesn't during the game
 #define MOD_KEEP_CIVS_UNKNOWN_PREGAME	(true)
 
@@ -1531,6 +1534,7 @@ public:
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_RESULT);
 	MOD_OPT_DECL(EVENTS_RED_COMBAT_ENDED);
 	MOD_OPT_DECL(ACTIVE_DIPLOMACY);
+	MOD_OPT_DECL(EXE_HACKING);
 	MOD_OPT_DECL(API_ACHIEVEMENTS);
 
 	MOD_OPT_DECL(ISKA_HERITAGE);

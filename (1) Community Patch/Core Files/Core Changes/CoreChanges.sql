@@ -36,6 +36,9 @@ UPDATE CustomModOptions SET Value = 0 WHERE Name = 'ALTERNATE_ASSYRIA_TRAIT';
 -- Activates Active Diplomacy in DLL for Multiplayer trade deals between Human and AI
 UPDATE CustomModOptions SET Value = 1 WHERE Name = 'ACTIVE_DIPLOMACY';
 
+-- Activates functions which depend on working with closed .exe code
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'EXE_HACKING';
+
 -- For some reason the Firaxis DLL hardcoded "City-State Territory = Friendly Territory" to Greece's CityStateFriendshipModifier bonus, despite having a separate, functional trait column for this ability
 -- The Community Patch unhardcodes it and assigns the ability to Greece for identical functionality
 UPDATE Traits

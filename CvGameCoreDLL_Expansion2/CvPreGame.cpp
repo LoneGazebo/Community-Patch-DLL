@@ -848,8 +848,8 @@ void closeInactiveSlots()
 				setSlotStatus(eID, SS_CLOSED);
 			}
 			setSlotClaim(eID, SLOTCLAIM_UNASSIGNED);
-			gDLL->sendPlayerInfo(eID);
 		}
+		gDLL->sendPlayerInfo(eID);
 	}
 	gDLL->EndSendBundle();
 }
@@ -2880,18 +2880,6 @@ void onGameStarted()
 			}
 			iCounter++;
 		}
-	}
-
-	// Seventh loop: if we're the host in a multiplayer game, we need to communicate our changes to the other players.
-	// It is unknown if this code actually works.
-	if (gDLL->IsHost() && vPlayersChanged.size() > 0)
-	{
-		gDLL->BeginSendBundle();
-		for (std::vector<PlayerTypes>::iterator it = vPlayersChanged.begin(); it != vPlayersChanged.end(); it++)
-		{
-			gDLL->sendPlayerInfo(*it);
-		}
-		gDLL->EndSendBundle();
 	}
 }
 
