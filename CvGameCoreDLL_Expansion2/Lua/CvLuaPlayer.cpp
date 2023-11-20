@@ -9272,8 +9272,8 @@ int CvLuaPlayer::lGetUnitSpawnCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
-	lua_pushboolean(L, bResult);
+	const int iResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
