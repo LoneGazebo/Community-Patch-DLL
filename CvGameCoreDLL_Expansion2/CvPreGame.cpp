@@ -2540,7 +2540,7 @@ void setGameStarted(bool started)
 }
 
 /// Hack to manually override the engine's random selection of civilizations and City-States
-/// This is necessary for the MajorBlocksMinor table and the MOD_BALANCE_CITY_STATE_TRAITS option to function
+/// This is necessary for custom City-State selection logic to function
 void onGameStarted()
 {
 	// First loop: collect all major civs already chosen and the indices of the players that still need to choose
