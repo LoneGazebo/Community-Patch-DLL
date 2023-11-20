@@ -13412,9 +13412,19 @@ bool CvUnit::blastTourism()
 		kUnitOwner.changeTourismBonusTurnsPlayer(eOwner, GetTourismBlastLength());
 
 		// VP: Give Happiness to Musician owner
-		int iCap = /*0 in CP, 2 in VP*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
-		if (kUnitOwner.getCapitalCity() != NULL)
+		int iCap = /*0*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL);
+		if (iCap > 0 && kUnitOwner.getCapitalCity() != NULL)
 			kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
+
+		iCap = /*0 in CP, 1 in VP*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_GLOBAL);
+		if (iCap > 0)
+		{
+			int iLoop = 0;
+			for (CvCity* pLoopCity = kUnitOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kUnitOwner.nextCity(&iLoop))
+			{
+				pLoopCity->ChangeUnmoddedHappinessFromBuildings(iCap);
+			}
+		}
 
 		// Send notifications
 		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -13454,7 +13464,7 @@ bool CvUnit::blastTourism()
 			PlayerTypes eOwner = pPlot->getOwner();
 
 			// Give happiness to Musician owner
-			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
+			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL);
 
 			if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 			{

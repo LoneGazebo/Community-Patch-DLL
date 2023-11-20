@@ -599,7 +599,8 @@ INSERT INTO Defines (Name, Value) SELECT 'GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY', -75; -- Maximum penalty to any kind of unit production from happiness
 
 -- Great Musician Happiness
-INSERT INTO Defines (Name, Value) SELECT 'GREAT_MUSICIAN_BLAST_HAPPINESS', 0;
+INSERT INTO Defines (Name, Value) SELECT 'GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL', 0;
+INSERT INTO Defines (Name, Value) SELECT 'GREAT_MUSICIAN_BLAST_HAPPINESS_GLOBAL', 0;
 
 -- Unhappiness from Needs
 INSERT INTO Defines (Name, Value) SELECT 'YIELD_MEDIAN_PERCENTILE', 50; -- 50 = true median. Values below 50 will try to pick a city below the true median, values above 50 will try to pick a city above it. Capped between 1 and 100.
