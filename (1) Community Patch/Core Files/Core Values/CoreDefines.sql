@@ -27,8 +27,12 @@ UPDATE Defines SET Value = 5 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FR
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', 10;
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', 1;
 
--- Minimum war duration for aggressively attacked City-States
-INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 1;
+-- Minimum war duration for aggressively attacked City-States (scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 2;
+
+-- Number of turns a pledge of protection is blocked for after breaking it (scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'PLEDGE_BROKEN_MINIMUM_TURNS', 20;
+INSERT INTO Defines (Name, Value) SELECT 'PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING', 0; -- After bullying (VP)
 
 
 -- Defensive Pact limits (note that these values are updated in (2) Vox Populi)

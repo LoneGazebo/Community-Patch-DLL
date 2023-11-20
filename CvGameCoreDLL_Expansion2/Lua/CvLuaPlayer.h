@@ -865,6 +865,7 @@ protected:
 	static int lGetBullyUnit(lua_State* L);
 	static int lGetPledgeProtectionInvalidReason(lua_State* L);
 #endif
+	static int lIsCanBullyFriendlyCS(lua_State* L);
 	static int lCanMajorBullyGold(lua_State* L);
 	static int lGetMajorBullyGoldDetails(lua_State* L);
 	static int lCanMajorBullyUnit(lua_State* L);

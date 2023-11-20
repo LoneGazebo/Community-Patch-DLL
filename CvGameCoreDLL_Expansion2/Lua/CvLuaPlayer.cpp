@@ -763,6 +763,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetBullyUnit);
 	Method(GetBullyUnit);
 	Method(GetPledgeProtectionInvalidReason);
+	Method(IsCanBullyFriendlyCS);
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
@@ -9173,6 +9174,14 @@ int CvLuaPlayer::lGetPledgeProtectionInvalidReason(lua_State* L)
 	return 1;
 }
 
+// bool IsCanBullyFriendlyCS()
+int CvLuaPlayer::lIsCanBullyFriendlyCS(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->IsCanBullyFriendlyCS();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 //bool CanMajorBullyGold(PlayerTypes eMajor);

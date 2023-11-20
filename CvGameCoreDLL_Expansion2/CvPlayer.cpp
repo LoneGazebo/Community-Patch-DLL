@@ -34957,6 +34957,12 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	if (isMinorCiv())
 	{
 		GetMinorCivAI()->DoChangeAliveStatus(bNewValue);
+
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			GetMinorCivAI()->DoChangeProtectionFromMajor(eLoopPlayer, false, false);
+		}
 	}
 
 	// Update turns/slot status if the player is now alive
@@ -35048,6 +35054,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			{
 				PlayerTypes eLoopMinor = (PlayerTypes) iPlayerLoop;
 				GET_PLAYER(eLoopMinor).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
+				GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoChangeProtectionFromMajor(GetID(), false, false);
 				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(GetID()))
 				{
 					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();

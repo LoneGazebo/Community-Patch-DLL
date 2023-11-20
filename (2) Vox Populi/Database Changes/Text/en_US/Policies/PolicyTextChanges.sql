@@ -956,7 +956,7 @@ SET Text = 'Tyranny'
 WHERE Tag = 'TXT_KEY_POLICY_GUNBOAT_DIPLOMACY';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Tyranny[ENDCOLOR]: No penalty for bullying friendly City-States. Doing so decreases the [ICON_INFLUENCE] Influence of all other Civs with that City-State by 10%, and increases your [ICON_INFLUENCE] Influence by 10%.'
+SET Text = '[COLOR_POSITIVE_TEXT]Tyranny[ENDCOLOR]: Bullying [ICON_CITY_STATE] City-States no longer reduces [ICON_INFLUENCE] Influence, revokes Quests, or cancels Pledges of Protection. Doing so decreases the [ICON_INFLUENCE] Influence of all other Civs with the bullied City-State by 10%, and increases your [ICON_INFLUENCE] Influence by 10%.'
 WHERE Tag = 'TXT_KEY_POLICY_GUNBOAT_DIPLOMACY_HELP';
 
 UPDATE Language_en_US

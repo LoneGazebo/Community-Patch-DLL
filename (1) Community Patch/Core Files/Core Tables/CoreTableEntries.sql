@@ -688,7 +688,7 @@ ALTER TABLE Policies ADD COLUMN 'BullyGlobalCSInfluenceShift' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'VassalYieldBonusModifier' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'CSYieldBonusModifier' INTEGER DEFAULT 0;
 
--- Can bully friendly CSs (no penalty)
+-- Removes penalties for bullying City-States (no Influence loss or PTP/quest revocation)
 ALTER TABLE Policies ADD COLUMN 'CanBullyFriendlyCS' BOOLEAN DEFAULT 0;
 
 -- Allied CS influence does not decline at war

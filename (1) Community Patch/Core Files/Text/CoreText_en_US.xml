@@ -6982,6 +6982,9 @@
 			<Text>Recently liberated</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_NO_CAPITAL">
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Both you and the City-State must have at least one City.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT">
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Because you broke a previous promise, you must wait {1_Turns} more {1_Turns: plural 1?turn; other?turns;} to pledge.[ENDCOLOR]</Text>
 		</Row>
@@ -7027,6 +7030,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
 			<Text>Pledge of Protection in jeopardy!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_NO_CAPITAL">
+			<Text>Because one or both of you have no cities, {1_CSName} has annulled your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE">

@@ -1572,7 +1572,7 @@ bool CvMinorCivQuest::IsRevoked(bool bWar)
 		return false;
 
 	// Bullied us recently? No personal quests for you!
-	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
+	if (!GET_PLAYER(m_eAssignedPlayer).IsCanBullyFriendlyCS() && GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
 		return true;
 
 	return false;
@@ -13155,9 +13155,6 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if (!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
-		return;
-
 	if (!IsProtectedByMajor(eMajor))
 		return;
 
@@ -13169,6 +13166,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		if (GetNumTurnsSincePtPWarning(eMajor) > 0)
 		{
 			SetNumTurnsSincePtPWarning(eMajor, 0);
+
 			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
 			strMessage << GetPlayer()->getNameKey();
 			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
@@ -13178,24 +13176,35 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		return;
 	}
 
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
+	{
+		DoChangeProtectionFromMajor(eMajor, false, false);
+		SetNumTurnsSincePtPWarning(eMajor, 0);
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_NO_CAPITAL");
+		strMessage << GetPlayer()->getNameKey();
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
+		strSummary << GetPlayer()->getNameKey();
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		return;
+	}
+
+	if (!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
+		return;
+
 	// If they've fallen below 0 Influence, end protection immediately.
 	if (GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT))
 	{
 		DoChangeProtectionFromMajor(eMajor, false, true);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
 
-		CvCity* pCity = m_pPlayer->getCapitalCity();
-		if (pCity != NULL)
-		{
-			pCity->updateStrengthValue();
-		}
-
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE");
 		strMessage << GetPlayer()->getNameKey();
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
 		strSummary << GetPlayer()->getNameKey();
 		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-
 		return;
 	}
 
@@ -13212,7 +13221,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 			viMilitaryStrengths.push_back(iStrength);
@@ -13222,10 +13231,10 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		}
 	}
 
-	// This should not happen.
 	if (viMilitaryStrengths.empty())
 		return;
 
+	std::stable_sort(viMilitaryStrengths.begin(), viMilitaryStrengths.end());
 	size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
 	std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
 	if (iMajorStrength < viMilitaryStrengths[MedianElement])
@@ -13238,12 +13247,6 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	{
 		DoChangeProtectionFromMajor(eMajor, false, true);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
-
-		CvCity* pCity = m_pPlayer->getCapitalCity();
-		if (pCity != NULL)
-		{
-			pCity->updateStrengthValue();
-		}
 
 		if (bBadMilitary)
 		{
@@ -13306,9 +13309,6 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 		ChangeNumTurnsSincePtPWarning(eMajor, 1);
 	}
-
-	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
 CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
@@ -13317,6 +13317,15 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 
 	Localization::String sMandatory = Localization::Lookup("TXT_KEY_POP_CSTATE_PTP_ALL_CORRECT");
 	sFactors += sMandatory.toUTF8();
+
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
+	{
+		Localization::String sCapital = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_NO_CAPITAL");
+		sFactors += sCapital.toUTF8();
+		return sFactors;
+	}
 
 	// If at war, may not protect
 	if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
@@ -13336,25 +13345,54 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
-	const int iGracePeriod = 20; //antonjs: todo: xml
+	int iLastBulliedTurn = GetTurnLastBulliedByMajor(eMajor);
+	int iBrokenTurns = /*20*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS);
+	int iBullyingTurns = /*0*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
+	int iLongestCooldown = -1;
 
-	if (iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod > iCurrentTurn)
+	if (iBrokenTurns > 0 && iLastPledgeBrokenTurn > -1)
+	{
+		iBrokenTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBrokenTurns /= 100;
+		if (iBrokenTurns <= 0)
+			iBrokenTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastPledgeBrokenTurn;
+		if (iTurnDifference < iBrokenTurns)
+			iLongestCooldown = iBrokenTurns - iTurnDifference;
+	}
+
+	if (iBullyingTurns > 0 && iLastBulliedTurn > -1 && !GET_PLAYER(eMajor).IsCanBullyFriendlyCS())
+	{
+		iBullyingTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBullyingTurns /= 100;
+		if (iBullyingTurns <= 0)
+			iBullyingTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastBulliedTurn;
+		if (iTurnDifference < iBullyingTurns)
+		{
+			int iCooldown = iBullyingTurns - iTurnDifference;
+			if (iCooldown > iLongestCooldown)
+				iLongestCooldown = iCooldown;
+		}
+	}
+
+	if (iLongestCooldown != -1)
 	{
 		Localization::String sPledgeBroken = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT");
-		int iTurn = ((iLastPledgeBrokenTurn + iGracePeriod) - iCurrentTurn);
-		sPledgeBroken << iTurn;
-
+		sPledgeBroken << iLongestCooldown;
 		sFactors += sPledgeBroken.toUTF8();
 	}
 
-	int iMajorStrength = 1; // to avoid division by zero issues
 	std::vector<int> viMilitaryStrengths;
+	int iMajorStrength = 1; // to avoid division by zero issues
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 			viMilitaryStrengths.push_back(iStrength);
@@ -13364,8 +13402,9 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		}
 	}
 
-	if (!viMilitaryStrengths.empty()) // This should not happen.
+	if (!viMilitaryStrengths.empty())
 	{
+		std::stable_sort(viMilitaryStrengths.begin(), viMilitaryStrengths.end());
 		size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
 		std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
 		if (iMajorStrength < viMilitaryStrengths[MedianElement])
@@ -13415,7 +13454,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 {
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if(bProtect == IsProtectedByMajor(eMajor)) return;
+	if (bProtect == IsProtectedByMajor(eMajor)) return;
 
 	if (bProtect)
 	{
@@ -13467,6 +13506,11 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
+		return false;
+
 	// If at war, may not protect
 	if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
 		return false;
@@ -13478,35 +13522,57 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
-	const int iGracePeriod = 20; //antonjs: todo: xml
+	int iLastBulliedTurn = GetTurnLastBulliedByMajor(eMajor);
+	int iBrokenTurns = /*20*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS);
+	int iBullyingTurns = /*0*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
+	int iLongestCooldown = -1;
 
-	if (iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod <= iCurrentTurn)
+	if (iBrokenTurns > 0 && iLastPledgeBrokenTurn > -1)
 	{
-		if ((iLastPledgeBrokenTurn + iGracePeriod) <= iCurrentTurn)
-			SetTurnLastPledgeBrokenByMajor(eMajor, -1);
-		else
-			return false;
+		iBrokenTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBrokenTurns /= 100;
+		if (iBrokenTurns <= 0)
+			iBrokenTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastPledgeBrokenTurn;
+		if (iTurnDifference < iBrokenTurns)
+			iLongestCooldown = iBrokenTurns - iTurnDifference;
 	}
 
-	if (MOD_EVENTS_MINORS_INTERACTION) 
+	if (iBullyingTurns > 0 && iLastBulliedTurn > -1 && !GET_PLAYER(eMajor).IsCanBullyFriendlyCS())
 	{
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
-			return false;
+		iBullyingTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBullyingTurns /= 100;
+		if (iBullyingTurns <= 0)
+			iBullyingTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastBulliedTurn;
+		if (iTurnDifference < iBullyingTurns)
+		{
+			int iCooldown = iBullyingTurns - iTurnDifference;
+			if (iCooldown > iLongestCooldown)
+				iLongestCooldown = iCooldown;
 		}
 	}
+
+	if (iLongestCooldown != -1)
+		return false;
+
+	if (MOD_EVENTS_MINORS_INTERACTION && GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE)
+		return false;
 
 	if (MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
 		if (!bIgnoreMilitaryRequirement)
 		{
-			int iMajorStrength = 1;
-			std::vector<int> viMilitaryStrengths;
+			int iMajorStrength = 1; // to avoid division by zero issues
+			vector<int> viMilitaryStrengths;
 
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-				if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+				if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 				{
 					int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
 					viMilitaryStrengths.push_back(iStrength);
@@ -13516,14 +13582,14 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 				}
 			}
 
-			// This should not happen.
-			if (viMilitaryStrengths.empty())
-				return false;
-
-			size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
-			std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
-			if (iMajorStrength < viMilitaryStrengths[MedianElement])
-				return false;
+			if (!viMilitaryStrengths.empty())
+			{
+				std::stable_sort(viMilitaryStrengths.begin(), viMilitaryStrengths.end());
+				size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
+				std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
+				if (iMajorStrength < viMilitaryStrengths[MedianElement])
+					return false;
+			}
 		}
 
 		// Do they meet one of the three conditions?
@@ -15335,6 +15401,13 @@ void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
 			DisableQuestInfluence(ePlayer);
 		else
 			EnableQuestInfluence(ePlayer);
+
+		// Update City banners and game info if this is the active player
+		if (ePlayer == GC.getGame().getActivePlayer())
+		{
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
 	}
 }
 
@@ -16822,22 +16895,18 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	CvAssertMsg(pBully, "pBully not expected to be NULL. Please send Anton your save file and version.");
 	if (!pBully) return;
 
-	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	if (!GET_PLAYER(eBully).IsCanBullyFriendlyCS())
 	{
-		ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
-	}
+		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+			ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
 
-	// In case we have quests that bullying makes obsolete, check now
-	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
-	{
+		// In case we have quests that bullying makes obsolete, check now
 		DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+
+		// VP: Revoke Pledge of Protection
+		if (/*0 in CP, 30 in VP*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING) > 0)
+			DoChangeProtectionFromMajor(eBully, false, false);
 	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
-	{
-		DoChangeProtectionFromMajor(eBully, false, true);
-	}
-#endif
 
 	// Inform alive majors who have met the bully
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -17652,11 +17721,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			// Revoke PtP is there was one
 			if (IsProtectedByMajor(ePlayer))
 			{
-#if defined(MOD_BALANCE_CORE)
 				DoChangeProtectionFromMajor(ePlayer, false, true);
-#else
-				DoChangeProtectionFromMajor(ePlayer, false);
-#endif
 			}
 
 			// Revoke quests if there were any
@@ -17664,13 +17729,6 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			{
 				EndAllActiveQuestsForPlayer(ePlayer, true);
 			}
-
-			// Nullify Quests - Deprecated?
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->SetPeaceQuestCompletedByMajor((PlayerTypes) iMajorCivLoop, true);
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->SetWarQuestCompletedByMajor((PlayerTypes) iMajorCivLoop, true);
-
-			//// Is this player declaring war also already a Bully?  If so, he's gonna regret it
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->DoBullyDeclareWar((PlayerTypes) iMajorCivLoop);
 		}
 		else if (!IsAtWarWithPlayersTeam(ePlayer) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(eTeam))
 		{
@@ -17728,7 +17786,7 @@ int CvMinorCivAI::GetPeaceBlockedTurns(TeamTypes eTeam) const
 		return 0;
 
 	int iTurnsSinceAttacked = GC.getGame().getGameTurn() - iTurnLastAttacked;
-	int iPeaceBlockedTurns = /*1*/ GD_INT_GET(WAR_MINOR_PEACE_BLOCKED_TURNS);
+	int iPeaceBlockedTurns = /*2*/ GD_INT_GET(WAR_MINOR_PEACE_BLOCKED_TURNS);
 	if (iPeaceBlockedTurns < 1)
 		return 0;
 
