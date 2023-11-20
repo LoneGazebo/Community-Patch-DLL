@@ -61,13 +61,9 @@ WHERE ImprovementType = 'ART_DEF_IMPROVEMENT_CITADEL';
 -- Bad goodies are never triggered even in BNW, so we can remove this ability to reduce clutter
 UPDATE Units SET NoBadGoodies = 0;
 
--- Set Forbidden Palace to 2 votes for CP (we'll reset in CBP)
+-- Set Forbidden Palace to 2 votes for CP (we'll reset in VP)
 UPDATE Buildings
-SET SingleLeagueVotes = 2
-WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
-
-UPDATE Buildings
-SET ExtraLeagueVotes = 0
+SET SingleLeagueVotes = 2, ExtraLeagueVotes = 0
 WHERE Type = 'BUILDING_FORBIDDEN_PALACE';
 
 -- Unit Promotions

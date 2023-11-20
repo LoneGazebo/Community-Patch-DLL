@@ -352,10 +352,10 @@
 			<Text>Consulate</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CONSULATE_STRATEGY">
-			<Text>The Consulate gives its owner a slight edge in the World Congress by granting an additional Delegate. May only be built collaboratively through the World Congress.</Text>
+			<Text>The Consulate gives its owner a slight edge in the World Congress by granting an additional Delegate for every 8 City-States originally in the World. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONSULATE_HELP">
-			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game.</Text>
+			<Text>Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States originally in the World.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CONSULATE_DESC">
 			<Text>The office of a Consul is termed a Consulate, and is usually subordinate to the state's main representation in that foreign country, usually an Embassy, or High Commission between Commonwealth countries, in the capital city of the host state. Like the term embassy, the word consulate may refer not only to the office of consul, but also to the building occupied by the consul and his or her staff. The consulate may share premises with the embassy itself. In the modern age, many Consulates are affiliated with the United Nations and/or other international organizations.</Text>
@@ -547,7 +547,7 @@
 			<Text>When paired with a high rate of Great Person production, the United Nations grants a significant boost to diplomatic power in the World Congress for its owner. It also provides an additional Delegate, and triggers a Golden Age. [NEWLINE][NEWLINE]In addition to these immediate benefits, the construction of the United Nations triggers the start of the United Nations Special Session of the World Congress, which enables the Diplomatic Victory. May only be built collaboratively through the World Congress.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_UN_HELP">
-			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States in the game. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
+			<Text>May only be built collaboratively through the World Congress. Receive 1 [COLOR_POSITIVE_TEXT]Additional[ENDCOLOR] [ICON_DIPLOMAT] Delegate in the World Congress for every 8 [ICON_CITY_STATE] City-States originally in the World. Also, when you expend a [ICON_GREAT_PEOPLE] Great Person, earn 25 [ICON_INFLUENCE] Influence with all [ICON_CITY_STATE] City-States you have met. Triggers a [ICON_GOLDEN_AGE] Golden Age, as well as the [COLOR_POSITIVE_TEXT]United Nations[ENDCOLOR] Special Session of the World Congress.</Text>
 		</Row>
 
 		<!-- Corporation buildings common pedia entry -->

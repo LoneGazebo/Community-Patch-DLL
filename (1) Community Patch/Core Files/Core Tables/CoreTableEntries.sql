@@ -820,7 +820,7 @@ ALTER TABLE Policies ADD COLUMN 'TradeReligionModifier' INTEGER DEFAULT 0;
 -- Increased Quest Influence
 ALTER TABLE Policies ADD COLUMN 'IncreasedQuestRewards' INTEGER DEFAULT 0;
 
--- Free Votes in WC
+-- Extra vote in WC for every X City-States originally in the world
 ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' INTEGER DEFAULT 0;
 
 -- GP Expend Influence Boost

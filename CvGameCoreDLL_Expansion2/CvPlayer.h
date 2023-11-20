@@ -1592,9 +1592,9 @@ public:
 
 	int GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity* pCity = NULL);
 
-	void ChangeSingleVotes(int iValue);
-	int GetSingleVotes() const;
-	void SetSingleVotes(int iValue);
+	void ChangeSingleLeagueVotes(int iValue);
+	int GetSingleLeagueVotes() const;
+	void SetSingleLeagueVotes(int iValue);
 
 	void ChangeMonopolyModFlat(int iValue);
 	int GetMonopolyModFlat() const;
@@ -3410,7 +3410,7 @@ protected:
 	std::vector<int> m_aiGlobalTourismAlreadyReceived;
 	int m_iEventTourismCS;
 	int m_iNumHistoricEvent;
-	int m_iSingleVotes;
+	int m_iSingleLeagueVotes;
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
 	int m_iCachedValueOfPeaceWithHuman;
@@ -4231,7 +4231,7 @@ SYNC_ARCHIVE_VAR(int, m_iEventTourism)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGlobalTourismAlreadyReceived)
 SYNC_ARCHIVE_VAR(int, m_iEventTourismCS)
 SYNC_ARCHIVE_VAR(int, m_iNumHistoricEvent)
-SYNC_ARCHIVE_VAR(int, m_iSingleVotes)
+SYNC_ARCHIVE_VAR(int, m_iSingleLeagueVotes)
 SYNC_ARCHIVE_VAR(int, m_iMonopolyModFlat)
 SYNC_ARCHIVE_VAR(int, m_iMonopolyModPercent)
 SYNC_ARCHIVE_VAR(int, m_iCachedValueOfPeaceWithHuman)

@@ -4531,13 +4531,13 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iDiploValue += 100;
 	}
-	if(pkBuildingInfo->GetSingleVotes() > 0)
+	if (pkBuildingInfo->GetSingleLeagueVotes() > 0)
 	{
-		iDiploValue += (pkBuildingInfo->GetSingleVotes() * 25);
+		iDiploValue += pkBuildingInfo->GetSingleLeagueVotes() * 25;
 	}
-	if(pkBuildingInfo->GetExtraLeagueVotes() > 0)
+	if (pkBuildingInfo->GetExtraLeagueVotes() > 0)
 	{
-		iDiploValue += (pkBuildingInfo->GetExtraLeagueVotes() * 25);
+		iDiploValue += (200 / pkBuildingInfo->GetExtraLeagueVotes());
 	}
 	if(pkBuildingInfo->GetMinorFriendshipChange() > 0)
 	{

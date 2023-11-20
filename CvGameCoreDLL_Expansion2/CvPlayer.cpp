@@ -615,7 +615,7 @@ CvPlayer::CvPlayer() :
 	, m_iEventTourism()
 	, m_iEventTourismCS()
 	, m_iNumHistoricEvent()
-	, m_iSingleVotes()
+	, m_iSingleLeagueVotes()
 	, m_iMonopolyModFlat()
 	, m_iMonopolyModPercent()
 	, m_iCachedValueOfPeaceWithHuman()
@@ -1553,7 +1553,7 @@ void CvPlayer::uninit()
 	m_iEventTourism = 0;
 	m_iEventTourismCS = 0;
 	m_iNumHistoricEvent = 0;
-	m_iSingleVotes = 0;
+	m_iSingleLeagueVotes = 0;
 	m_iMonopolyModFlat = 0;
 	m_iMonopolyModPercent = 0;
 	m_iCachedValueOfPeaceWithHuman = 0;
@@ -17097,10 +17097,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		ChangeEventTourism(pBuildingInfo->GetEventTourism() * iChange);
 	}
-	if(pBuildingInfo->GetSingleVotes() > 0)
-	{
-		ChangeSingleVotes(pBuildingInfo->GetSingleVotes() * iChange);
-	}
+
+	ChangeSingleLeagueVotes(pBuildingInfo->GetSingleLeagueVotes() * iChange);
 
 	if (pBuildingInfo->GetExtraMissionaryStrength() != 0)
 	{
@@ -24809,6 +24807,15 @@ int CvPlayer::GetExtraLeagueVotes() const
 }
 
 //	--------------------------------------------------------------------------------
+/// Extra league votes
+void CvPlayer::ChangeExtraLeagueVotes(int iChange)
+{
+	// 1 vote per X City-States
+	if (iChange != 0)
+		m_iExtraLeagueVotes += GC.getGame().GetNumMinorCivsEver(true) / iChange;
+}
+
+//	--------------------------------------------------------------------------------
 /// Extra league votes from faith
 int CvPlayer::GetFaithToVotes() const
 {
@@ -25457,18 +25464,6 @@ void CvPlayer::SetScienceRateFromLeagueAid(int iValue)
 {
 	if(GetScienceRateFromLeagueAid() != iValue)
 		m_iScienceRateFromLeagueAid = iValue;
-}
-
-//	--------------------------------------------------------------------------------
-/// Extra league votes
-void CvPlayer::ChangeExtraLeagueVotes(int iChange)
-{
-	m_iExtraLeagueVotes += iChange;
-	CvAssert(m_iExtraLeagueVotes >= 0);
-	if (m_iExtraLeagueVotes < 0)
-	{
-		m_iExtraLeagueVotes = 0;
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -33049,19 +33044,19 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	return iTotalBonus;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeSingleVotes(int iChange)
+void CvPlayer::ChangeSingleLeagueVotes(int iChange)
 {
-	m_iSingleVotes += iChange;
+	m_iSingleLeagueVotes += iChange;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::SetSingleVotes(int iChange)
+void CvPlayer::SetSingleLeagueVotes(int iChange)
 {
-	m_iSingleVotes = iChange;
+	m_iSingleLeagueVotes = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetSingleVotes() const
+int CvPlayer::GetSingleLeagueVotes() const
 {
-	return m_iSingleVotes;
+	return m_iSingleLeagueVotes;
 }
 
 //	--------------------------------------------------------------------------------
@@ -37202,7 +37197,9 @@ int CvPlayer::GetFreeWCVotes() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeFreeWCVotes(int iChange)
 {
-	m_iFreeWCVotes += iChange;
+	// 1 vote per X City-States
+	if (iChange != 0)
+		m_iFreeWCVotes += GC.getGame().GetNumMinorCivsEver(true) / iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetInfluenceGPExpend() const
@@ -48138,7 +48135,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiGlobalTourismAlreadyReceived);
 	visitor(player.m_iEventTourismCS);
 	visitor(player.m_iNumHistoricEvent);
-	visitor(player.m_iSingleVotes);
+	visitor(player.m_iSingleLeagueVotes);
 	visitor(player.m_iMonopolyModFlat);
 	visitor(player.m_iMonopolyModPercent);
 	visitor(player.m_iCachedValueOfPeaceWithHuman);
