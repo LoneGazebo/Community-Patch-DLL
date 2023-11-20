@@ -1013,11 +1013,7 @@ public:
 	int getVisionBonus() const;
 	// VP Difficulty Bonus
 	int getDifficultyBonusTurnInterval() const;
-	int getDifficultyBonusBase() const;
-	int getDifficultyBonusEarly() const;
-	int getDifficultyBonusMid() const;
-	int getDifficultyBonusLate() const;
-	int getYieldMultiplierForDifficultyBonus(int i, int j) const;
+	int getYieldAmountForDifficultyBonus(int iEra, int iHistoricEvent, int iYield) const;
 
 	// AI Bonuses
 	int getAIStartingGold() const;
@@ -1078,11 +1074,7 @@ public:
 	int getAIVisionBonus() const;
 	// VP Difficulty Bonus
 	int getAIDifficultyBonusTurnInterval() const;
-	int getAIDifficultyBonusBase() const;
-	int getAIDifficultyBonusEarly() const;
-	int getAIDifficultyBonusMid() const;
-	int getAIDifficultyBonusLate() const;
-	int getYieldMultiplierForAIDifficultyBonus(int i, int j) const;
+	int getYieldAmountForAIDifficultyBonus(int iEra, int iHistoricEvent, int iYield) const;
 
 	// City-States
 	int getStartingCityStateWorkerUnits() const;
@@ -1144,9 +1136,9 @@ public:
 	int getPolicyBlockPercent() const;
 	int getPolicyBlockMod() const;
 	int getPeaceTreatyDampenerTurns() const;
+	int getAggressionIncrease() const;
 	int getHumanStrengthPerceptionMod() const;
 	int getHumanTradeModifier() const;
-	int getAggressionIncrease() const;
 	int getHumanOpinionChange() const;
 	int getHumanWarApproachChangeFlat() const;
 	int getHumanWarApproachChangePercent() const;
@@ -1247,10 +1239,6 @@ protected:
 	int m_iVisionBonus;
 	// VP Difficulty Bonus
 	int m_iDifficultyBonusTurnInterval;
-	int m_iDifficultyBonusBase;
-	int m_iDifficultyBonusEarly;
-	int m_iDifficultyBonusMid;
-	int m_iDifficultyBonusLate;
 
 	// AI Bonuses
 	int m_iAIStartingGold;
@@ -1311,10 +1299,6 @@ protected:
 	int m_iAIVisionBonus;
 	// VP Difficulty Bonus
 	int m_iAIDifficultyBonusTurnInterval;
-	int m_iAIDifficultyBonusBase;
-	int m_iAIDifficultyBonusEarly;
-	int m_iAIDifficultyBonusMid;
-	int m_iAIDifficultyBonusLate;
 
 	// City-States
 	int m_iStartingCityStateWorkerUnits;
@@ -1376,9 +1360,9 @@ protected:
 	int m_iPolicyBlockPercent;
 	int m_iPolicyBlockMod;
 	int m_iPeaceTreatyDampenerTurns;
+	int m_iAggressionIncrease;
 	int m_iHumanStrengthPerceptionMod;
 	int m_iHumanTradeModifier;
-	int m_iAggressionIncrease;
 	int m_iHumanOpinionChange;
 	int m_iHumanWarApproachChangeFlat;
 	int m_iHumanWarApproachChangePercent;
@@ -1415,8 +1399,8 @@ protected:
 	int* m_piGoodies;
 	bool* m_pbFreeTechs;
 	bool* m_pbAIFreeTechs;
-	int** m_ppiDifficultyBonus;
-	int** m_ppiAIDifficultyBonus;
+	int* m_pppiDifficultyBonus;
+	int* m_pppiAIDifficultyBonus;
 
 private:
 	CvHandicapInfo(const CvHandicapInfo&);
@@ -1440,6 +1424,7 @@ public:
 	int getGrowthPercent() const;
 	int getTrainPercent() const;
 	int getInstantYieldPercent() const;
+	int getDifficultyBonusPercent() const;
 	int getConstructPercent() const;
 	int getCreatePercent() const;
 	int getResearchPercent() const;
@@ -1497,6 +1482,7 @@ protected:
 	int m_iGrowthPercent;
 	int m_iTrainPercent;
 	int m_iInstantYieldPercent;
+	int m_iDifficultyBonusPercent;
 	int m_iConstructPercent;
 	int m_iCreatePercent;
 	int m_iResearchPercent;

@@ -527,7 +527,7 @@ UPDATE Defines SET Value = 33 WHERE Name = 'WARMONGER_THREAT_CRITICAL_PERCENT_TH
 
 
 -- War Progress Defines
--- Used as an AI sanity check to determine to prevent wars of excessive attrition in the opponent's favor.
+-- Used as an AI sanity check to prevent wars of excessive attrition in the opponent's favor.
 INSERT INTO Defines (Name, Value) SELECT 'WAR_PROGRESS_INITIAL_VALUE', 100;
 INSERT INTO Defines (Name, Value) SELECT 'WAR_PROGRESS_DECAY_VS_STRONGER', -5;
 INSERT INTO Defines (Name, Value) SELECT 'WAR_PROGRESS_DECAY_VS_EQUAL', -4;
