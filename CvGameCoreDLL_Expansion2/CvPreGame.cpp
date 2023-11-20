@@ -2543,8 +2543,6 @@ void setGameStarted(bool started)
 /// This is necessary for the MajorBlocksMinor table and the MOD_BALANCE_CITY_STATE_TRAITS option to function
 void onGameStarted()
 {
-	vector<PlayerTypes> vPlayersChanged;
-
 	// First loop: collect all major civs already chosen and the indices of the players that still need to choose
 	vector<CivilizationTypes> vCivsChosen;
 	vector<PlayerTypes> vMajorsToChoose;
@@ -2646,7 +2644,6 @@ void onGameStarted()
 					UNREACHABLE();
 			}
 			setCivilization(*it, eRandomCiv);
-			vPlayersChanged.push_back(*it);
 			iCounter++;
 		}
 	}
@@ -2712,7 +2709,6 @@ void onGameStarted()
 				uint uRand = GC.getGame().urandLimitExclusive(vAvailableCityStates.size(), CvSeeder::fromRaw(0xd73596c3).mix(iCounter));
 				MinorCivTypes eChoice = static_cast<MinorCivTypes>(vAvailableCityStates[uRand]);
 				setMinorCivType(*it, eChoice);
-				vPlayersChanged.push_back(*it);
 				vAvailableCityStates.erase(vAvailableCityStates.begin() + uRand);
 			}
 			else
@@ -2876,7 +2872,6 @@ void onGameStarted()
 					UNREACHABLE();
 				}
 				setMinorCivType(*it, eChoice);
-				vPlayersChanged.push_back(*it);
 			}
 			iCounter++;
 		}

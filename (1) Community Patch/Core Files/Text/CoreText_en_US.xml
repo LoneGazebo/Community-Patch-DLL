@@ -206,12 +206,12 @@
 
 		<!-- Tooltip for Force Resync button -->
 		<Row Tag="TXT_KEY_MP_FORCE_RESYNC_TITLE">
-			<Text>Schedule a force resync</Text>
+			<Text>Schedule a forced resync</Text>
 		</Row>
 
 		<!-- Host sends this chat message when scheduled force resync -->
 		<Row Tag="TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED">
-			<Text>I scheduled a force resync. Next turn the session will be reloaded.</Text>
+			<Text>I scheduled a forced resync. Next turn, the session will be reloaded.</Text>
 		</Row>
 
 		<!-- Multiplayer Desync Warning -->

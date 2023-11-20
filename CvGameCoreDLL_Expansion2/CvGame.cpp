@@ -14932,9 +14932,11 @@ bool CvGame::IsExeWantForceResyncAvailable()
 }
 void CvGame::SetExeWantForceResyncValue(int value) 
 {
-	if (IsExeWantForceResyncAvailable()) {
+	if (IsExeWantForceResyncAvailable())
+	{
 		*(int*)(s_iExeWantForceResync) = value;
-		if (value == 1) {
+		if (value == 1)
+		{
 			CvString strWarningText = GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED");
 			GC.getDLLIFace()->sendChat(strWarningText, CHATTARGET_ALL, NO_PLAYER);
 		}

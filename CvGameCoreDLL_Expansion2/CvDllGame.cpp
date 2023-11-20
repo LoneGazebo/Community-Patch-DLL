@@ -144,9 +144,8 @@ void CvDllGame::DoGameStarted()
 {
 	m_pGame->DoGameStarted();
 
-	if (MOD_EXE_HACKING) {
+	if (MOD_EXE_HACKING)
 		InitExeStuff();
-	}
 }
 //------------------------------------------------------------------------------
 void CvDllGame::EndTurnTimerReset()
@@ -587,11 +586,13 @@ void CvDllGame::SetLastTurnAICivsProcessed()
 	m_pGame->SetLastTurnAICivsProcessed();
 }
 //------------------------------------------------------------------------------
-bool endsWith(const char* str, const char* ending) {
+bool endsWith(const char* str, const char* ending)
+{
 	size_t str_len = strlen(str), ending_len = strlen(ending);
 	return str_len >= ending_len && !strcmp(str + str_len - ending_len, ending);
 }
-void CvDllGame::InitExeStuff() {
+void CvDllGame::InitExeStuff()
+{
 	// Here we are going to do some hacking on .exe code
 	// 
 	// civ5 exes are CEG-protected (some kind of steam out-of-box protection).
@@ -614,32 +615,32 @@ void CvDllGame::InitExeStuff() {
 	CvBinType binType;
 
 	char moduleName[1024];
-	if (!GetModuleFileName(NULL, moduleName, sizeof(moduleName))) {
+	if (!GetModuleFileName(NULL, moduleName, sizeof(moduleName)))
+	{
 		// todo: log error (GetLastError)
 		binType = BIN_UNKNOWN;
 	}
-	else {
-		if (endsWith(moduleName, "CivilizationV.exe"))
-			binType = BIN_DX9;
-		else if (endsWith(moduleName, "CivilizationV_DX11.exe"))
-			binType = BIN_DX11;
-		else if (endsWith(moduleName, "CivilizationV_Tablet.exe"))
-			binType = BIN_TABLET;
-		else {
-			// todo: log moduleName
-			binType = BIN_UNKNOWN;
-		}
+	else if (endsWith(moduleName, "CivilizationV.exe"))
+		binType = BIN_DX9;
+	else if (endsWith(moduleName, "CivilizationV_DX11.exe"))
+		binType = BIN_DX11;
+	else if (endsWith(moduleName, "CivilizationV_Tablet.exe"))
+		binType = BIN_TABLET;
+	else
+	{
+		// todo: log moduleName
+		binType = BIN_UNKNOWN;
 	}
 
 	m_pGame->SetExeBinType(binType);
 
-	if (binType == BIN_DX11) {
+	if (binType == BIN_DX11)
+	{
 		DWORD baseAddr = (DWORD) GetModuleHandleA(0);
 		DWORD headersOffset = 0x400000;
 		DWORD totalOffset = baseAddr - headersOffset;
 
 		int* s_wantForceResync = reinterpret_cast<int*>(0x02dd2f68 + totalOffset);
-
 		m_pGame->SetExeWantForceResyncPointer(s_wantForceResync);
 	}
 
@@ -648,7 +649,8 @@ void CvDllGame::InitExeStuff() {
 		DWORD old_protect;
 		DWORD hookLocation = 0x51e031;
 		DWORD hookResultAddress = hookLocation + totalOffset;
-		if (VirtualProtect((void*)(hookResultAddress), 16, PAGE_EXECUTE_READWRITE, &old_protect)) {
+		if (VirtualProtect((void*)(hookResultAddress), 16, PAGE_EXECUTE_READWRITE, &old_protect))
+		{
 			*(unsigned char*)(hookResultAddress) = 0x90;
 			*(unsigned char*)(hookResultAddress + 1) = 0x90;
 			*(unsigned char*)(hookResultAddress + 2) = 0x90;

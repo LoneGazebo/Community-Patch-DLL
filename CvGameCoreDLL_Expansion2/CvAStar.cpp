@@ -2060,17 +2060,17 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	CvPlayerAI& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
 	TeamTypes eTeam = kPlayer.getTeam();
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-	if(!pPlot)
+	if (!pPlot)
 		return 0;
 
 	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
-	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
+	if (!pFirstCity || pFirstCity->getTeam() != eTeam)
 		return 0;
 
 	// if the city is being razed
-	if(pFirstCity->IsRazing())
+	if (pFirstCity->IsRazing())
 		return 0;
 
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);

@@ -18,27 +18,6 @@ VALUES		('GAMEOPTION_BARB_GG_GA_POINTS',	'TXT_KEY_GAME_OPTION_BARB_GG_GA_POINTS'
 -- End GameOptions
 ------------------------------
 
--- No pillage and repairing in foreign lands
-UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_REPAIR_FOREIGN_LANDS';
-
--- No yield from Ice Features
-UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_YIELD_ICE';
-
--- No major civ gifting exploit fix
-UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_MAJORCIV_GIFTING';
-
--- No healing on mountains if not city plot
-UPDATE CustomModOptions SET Value = 1 WHERE Name = 'NO_HEALING_ON_MOUNTAINS';
-
--- If player is using Alternate Assyria Trait...choose a free tech
-UPDATE CustomModOptions SET Value = 0 WHERE Name = 'ALTERNATE_ASSYRIA_TRAIT';
-
--- Activates Active Diplomacy in DLL for Multiplayer trade deals between Human and AI
-UPDATE CustomModOptions SET Value = 1 WHERE Name = 'ACTIVE_DIPLOMACY';
-
--- Activates functions which depend on working with closed .exe code
-UPDATE CustomModOptions SET Value = 1 WHERE Name = 'EXE_HACKING';
-
 -- For some reason the Firaxis DLL hardcoded "City-State Territory = Friendly Territory" to Greece's CityStateFriendshipModifier bonus, despite having a separate, functional trait column for this ability
 -- The Community Patch unhardcodes it and assigns the ability to Greece for identical functionality
 UPDATE Traits

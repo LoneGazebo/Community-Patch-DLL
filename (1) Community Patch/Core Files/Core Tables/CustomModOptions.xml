@@ -231,19 +231,19 @@
 	<!-- Alters Assyria's conquest trait. Now player can chooses a free tech upon city conquest -->
 	<Row Class="5" Name="ALTERNATE_ASSYRIA_TRAIT" Value="0"/>
 	<!-- No exploit to pillage and repair in foreign lands during war -->
-	<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="0"/>
+	<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="1"/>
 	<!-- Ice Features are prevented from having a yield -->
-	<Row Class="5" Name="NO_YIELD_ICE" Value="0"/>
+	<Row Class="5" Name="NO_YIELD_ICE" Value="1"/>
 	<!-- Fixes an exploit of gifting to Major Civs -->
-	<Row Class="5" Name="NO_MAJORCIV_GIFTING" Value="0"/>
+	<Row Class="5" Name="NO_MAJORCIV_GIFTING" Value="1"/>
 	<!-- No healing on mountains if not a city plot -->
-	<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="0"/>
+	<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="1"/>
 	<!-- Players can pillage permanent improvements if at war -->
 	<Row Class="4" Name="PILLAGE_PERMANENT_IMPROVEMENTS" Value="0"/>
 	<!-- This adds the ability for AI players to contact human players in multiplayer with trade deals -->
-	<Row Class="5" Name="ACTIVE_DIPLOMACY" Value="0"/>
-    <!-- Activates functions which depend on working with closed .exe code -->
-	<Row Class="5" Name="EXE_HACKING" Value="0"/>
+	<Row Class="5" Name="ACTIVE_DIPLOMACY" Value="1"/>
+	<!-- Activates functions which depend on working with closed .exe code -->
+	<Row Class="5" Name="EXE_HACKING" Value="1"/>
 	<!-- Grants Celts maximum up to 3 unimproved adjacent forests for faith -->
 	<Row Class="4" Name="ALTERNATE_CELTS" Value="0"/>
 	<!-- Restricts a Team from passing into the next era before they have found all techs of their current era -->
