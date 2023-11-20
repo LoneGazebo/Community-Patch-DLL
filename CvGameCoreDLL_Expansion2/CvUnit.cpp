@@ -15203,7 +15203,7 @@ int CvUnit::visibilityRange() const
 
 	if (isEmbarked())
 	{
-		iVisionRange += max(1,/*0*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
+		iVisionRange += max(1, /*1*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
 	}
 	else if (isTrade())
 	{
