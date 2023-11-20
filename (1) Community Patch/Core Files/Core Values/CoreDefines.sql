@@ -14,7 +14,7 @@ INSERT INTO Defines (Name, Value) SELECT 'VICTORY_DOMINATION_CONTROL_PERCENT', 1
 INSERT INTO Defines (Name, Value) SELECT 'CITY_STARTING_RINGS', 1;
 INSERT INTO Defines (Name, Value) SELECT 'MAXIMUM_WORK_PLOT_DISTANCE', 3;
 
--- Minimum of 1 vision when embarked
+-- Base vision when embarked
 UPDATE Defines SET Value = 1 WHERE Name = 'EMBARKED_VISIBILITY_RANGE';
 
 -- Player Proximity Values
