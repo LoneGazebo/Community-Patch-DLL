@@ -13214,6 +13214,9 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 	bool bBadMilitary = false;
 	bool bDistance = true;
+	int iMinorCapitalX = pMinorCapital->getX();
+	int iMinorCapitalY = pMinorCapital->getY();
+	CvPlot* pCapitalPlot = pMinorCapital->plot();
 	int iMajorStrength = 1; // to avoid division by zero issues
 	std::vector<int> viMilitaryStrengths;
 
@@ -13223,7 +13226,10 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
+			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+			int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+			iStrength /= iDistance;
 			viMilitaryStrengths.push_back(iStrength);
 
 			if (ePlayer == eMajor && iStrength > 0)
@@ -13347,7 +13353,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
 	int iLastBulliedTurn = GetTurnLastBulliedByMajor(eMajor);
 	int iBrokenTurns = /*20*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS);
-	int iBullyingTurns = /*0*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
+	int iBullyingTurns = /*0 in CP, 30 in VP*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
 	int iLongestCooldown = -1;
 
 	if (iBrokenTurns > 0 && iLastPledgeBrokenTurn > -1)
@@ -13387,6 +13393,9 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 
 	std::vector<int> viMilitaryStrengths;
 	int iMajorStrength = 1; // to avoid division by zero issues
+	int iMinorCapitalX = pMinorCapital->getX();
+	int iMinorCapitalY = pMinorCapital->getY();
+	CvPlot* pCapitalPlot = pMinorCapital->plot();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
@@ -13394,7 +13403,10 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 
 		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
+			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+			int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+			iStrength /= iDistance;
 			viMilitaryStrengths.push_back(iStrength);
 
 			if (ePlayer == eMajor && iStrength > 0)
@@ -13524,7 +13536,7 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
 	int iLastBulliedTurn = GetTurnLastBulliedByMajor(eMajor);
 	int iBrokenTurns = /*20*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS);
-	int iBullyingTurns = /*0*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
+	int iBullyingTurns = /*0 in CP, 30 in VP*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
 	int iLongestCooldown = -1;
 
 	if (iBrokenTurns > 0 && iLastPledgeBrokenTurn > -1)
@@ -13565,8 +13577,11 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 	{
 		if (!bIgnoreMilitaryRequirement)
 		{
-			int iMajorStrength = 1; // to avoid division by zero issues
 			vector<int> viMilitaryStrengths;
+			int iMajorStrength = 1; // to avoid division by zero issues
+			int iMinorCapitalX = pMinorCapital->getX();
+			int iMinorCapitalY = pMinorCapital->getY();
+			CvPlot* pCapitalPlot = pMinorCapital->plot();
 
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
@@ -13574,7 +13589,10 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 
 				if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 				{
+					CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+					int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 					int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+					iStrength /= iDistance;
 					viMilitaryStrengths.push_back(iStrength);
 
 					if (ePlayer == eMajor && iStrength > 0)

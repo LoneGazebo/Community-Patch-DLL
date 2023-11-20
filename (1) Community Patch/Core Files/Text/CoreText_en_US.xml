@@ -6989,7 +6989,7 @@
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Because you broke a previous promise, you must wait {1_Turns} more {1_Turns: plural 1?turn; other?turns;} to pledge.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least the median Military Power. Your military needs to be {1_Num}% stronger to pledge.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least the median Military Power (adjusted by proximity to them). Your military needs to be {1_Num}% stronger to pledge.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">
