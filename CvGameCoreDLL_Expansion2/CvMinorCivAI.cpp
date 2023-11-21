@@ -13237,16 +13237,16 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		}
 	}
 
-	if (viMilitaryStrengths.empty())
-		return;
-
-	std::stable_sort(viMilitaryStrengths.begin(), viMilitaryStrengths.end());
-	size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
-	std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
-	if (iMajorStrength < viMilitaryStrengths[MedianElement])
+	if (!viMilitaryStrengths.empty())
 	{
-		bBadMilitary = true;
-		bDistance = CanMajorProtect(eMajor, true);
+		std::stable_sort(viMilitaryStrengths.begin(), viMilitaryStrengths.end());
+		size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
+		std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
+		if (iMajorStrength < viMilitaryStrengths[MedianElement])
+		{
+			bBadMilitary = true;
+			bDistance = CanMajorProtect(eMajor, true);
+		}
 	}
 
 	if (GetNumTurnsSincePtPWarning(eMajor) > iMaxWarningTurns)

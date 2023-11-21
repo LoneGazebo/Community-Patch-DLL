@@ -34958,10 +34958,13 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	{
 		GetMinorCivAI()->DoChangeAliveStatus(bNewValue);
 
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		if (!bNewValue)
 		{
-			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
-			GetMinorCivAI()->DoChangeProtectionFromMajor(eLoopPlayer, false, false);
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				GetMinorCivAI()->DoChangeProtectionFromMajor(eLoopPlayer, false, false);
+			}
 		}
 	}
 
