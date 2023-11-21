@@ -391,6 +391,7 @@ CvPlayer::CvPlayer() :
 	, m_aiPlayerNumTurnsSinceCityCapture()
 	, m_aiWarValueLost()
 	, m_aiWarDamageValue()
+	, m_aiWarWeariness()
 	, m_aiNumUnitsBuilt()
 	, m_aiProximityToPlayer()
 	, m_aiResearchAgreementCounter()
@@ -445,6 +446,7 @@ CvPlayer::CvPlayer() :
 , m_iNumFreePolicies()
 , m_iNumFreePoliciesEver()
 , m_iNumFreeTenets()
+, m_iCachedCurrentWarValue()
 , m_iLastSliceMoved() // not serialized
 , m_eEndTurnBlockingType(NO_ENDTURN_BLOCKING_TYPE)
 , m_iEndTurnBlockingNotificationIndex(0)
@@ -489,7 +491,6 @@ CvPlayer::CvPlayer() :
 #if defined(MOD_BALANCE_CORE)
 , m_iCenterOfMassX()
 , m_iCenterOfMassY()
-, m_iReferenceFoundValue()
 , m_iReformationFollowerReduction()
 , m_bIsReformation()
 , m_iSupplyFreeUnits()
@@ -614,7 +615,7 @@ CvPlayer::CvPlayer() :
 	, m_iEventTourism()
 	, m_iEventTourismCS()
 	, m_iNumHistoricEvent()
-	, m_iSingleVotes()
+	, m_iSingleLeagueVotes()
 	, m_iMonopolyModFlat()
 	, m_iMonopolyModPercent()
 	, m_iCachedValueOfPeaceWithHuman()
@@ -762,7 +763,6 @@ CvPlayer::CvPlayer() :
 	, m_bVassalLevy()
 	, m_iVassalGoldMaintenanceMod()
 	, m_iPreviousBestSettlePlot()
-	, m_iFoundValueOfCapital()
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	, m_iFractionOriginalCapitalsUnderControl()
 	, m_iAvgUnitExp100()
@@ -1290,7 +1290,6 @@ void CvPlayer::uninit()
 #if defined(MOD_BALANCE_CORE)
 	m_iCenterOfMassX = 0;
 	m_iCenterOfMassY = 0;
-	m_iReferenceFoundValue = 10000;
 	m_iReformationFollowerReduction = 0;
 	m_bIsReformation = false;
 #endif
@@ -1554,7 +1553,7 @@ void CvPlayer::uninit()
 	m_iEventTourism = 0;
 	m_iEventTourismCS = 0;
 	m_iNumHistoricEvent = 0;
-	m_iSingleVotes = 0;
+	m_iSingleLeagueVotes = 0;
 	m_iMonopolyModFlat = 0;
 	m_iMonopolyModPercent = 0;
 	m_iCachedValueOfPeaceWithHuman = 0;
@@ -1698,6 +1697,7 @@ void CvPlayer::uninit()
 	m_iNumMayaBoosts = 0;
 	m_iNumFaithGreatPeople = 0;
 	m_iNumArchaeologyChoices = 0;
+	m_iCachedCurrentWarValue = 0;
 	m_eFaithPurchaseType = NO_AUTOMATIC_FAITH_PURCHASE;
 	m_iFaithPurchaseIndex = 0;
 	m_iLastSliceMoved = 0;
@@ -1965,6 +1965,9 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_aiWarDamageValue.clear();
 	m_aiWarDamageValue.resize(MAX_PLAYERS, 0);
+
+	m_aiWarWeariness.clear();
+	m_aiWarWeariness.resize(MAX_MAJOR_CIVS, 0);
 
 	m_aiNumUnitsBuilt.clear();
 	m_aiNumUnitsBuilt.resize(GC.getNumUnitInfos());
@@ -2346,7 +2349,6 @@ void CvPlayer::reset(PlayerTypes eID, bool bConstructorCall)
 
 	m_iPlotFoundValuesUpdateTurn = -1;
 	m_iPreviousBestSettlePlot = -1;
-	m_iFoundValueOfCapital = 0;
 }
 
 //	--------------------------------------------------------------------------------
@@ -3310,13 +3312,14 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			int iNumTimesOwned = pCity->GetNumTimesOwned(GetID());
 			if (iNumTimesOwned > 1)
 			{
-				iCityValue /= (iNumTimesOwned * 3);
+				iCityValue /= iNumTimesOwned * 3;
 			}
+
+			ApplyWarDamage(eOldOwner, iCityValue);
 
 			// Update military rating for both players
 			if (isMajorCiv())
 			{
-				ChangeMilitaryRating(iCityValue); // rating up for winner (us)
 				GetDiplomacyAI()->ChangeWarProgressScore(eOldOwner, iWinnerProgressValue);
 
 				// If the conqueror has any vassals, see if any nearby vassals are grateful for the protection
@@ -3334,7 +3337,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			}
 			if (GET_PLAYER(eOldOwner).isMajorCiv())
 			{
-				GET_PLAYER(eOldOwner).ChangeMilitaryRating(-iCityValue); // rating down for loser (them)
 				GET_PLAYER(eOldOwner).GetDiplomacyAI()->ChangeWarProgressScore(GetID(), iLoserProgressValue);
 
 				// If the city belonged to a vassal, penalize the masters
@@ -3351,11 +3353,6 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 				}
 			}
 
-			// Do we have a bonus to war score accumulation?
-			iCityValue *= (100 + GetWarScoreModifier());
-			iCityValue /= 100;
-
-			GET_PLAYER(eOldOwner).ChangeWarValueLost(GetID(), iCityValue);
 			SetPlayerNumTurnsSinceCityCapture(eOldOwner, 0);
 		}
 
@@ -9962,8 +9959,16 @@ void CvPlayer::DoLiberatePlayer(PlayerTypes ePlayer, int iOldCityID, bool bForce
 		// Reduce liberator's warmongering penalties (if any, and applicable)
 		CvDiplomacyAIHelpers::ApplyLiberationBonuses(pNewCity, GetID(), ePlayer);
 
-		// Reduce liberator's war weariness by 25%
-		GetCulture()->SetWarWeariness(GetCulture()->GetWarWeariness() - (GetCulture()->GetWarWeariness() / 4));
+		// Reduce liberator's war weariness by 25% with all players
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+			if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam))
+				continue;
+
+			ChangeWarWeariness(eLoopPlayer, GetWarWeariness(eLoopPlayer) / -4);
+		}
 
 		// If liberating a City-State, increase Influence resting point
 		if (GET_PLAYER(ePlayer).isMinorCiv())
@@ -11197,7 +11202,8 @@ void CvPlayer::doTurn()
 	if (!isBarbarian())
 	{
 		DoWarValueLostDecay();
-		DoUpdateWarDamage();
+		DoUpdateWarDamageAndWeariness(false);
+		cacheAvgGoldRate();
 
 		//Reset for reevaluation of citystrategy AI
 		countCitiesNeedingTerrainImprovements(true);
@@ -11261,8 +11267,7 @@ void CvPlayer::doTurn()
 			}
 		}
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			if(GC.getLogging() && GC.getAILogging())
 			{
@@ -11282,7 +11287,7 @@ void CvPlayer::doTurn()
 				pLog->Msg(strBaseString);
 			}
 		}
-#endif
+
 #if defined(MOD_BALANCE_CORE)
 		//Reset every turn for CS events.
 		for(int iQuestLoop = 0; iQuestLoop < NUM_MINOR_CIV_QUEST_TYPES; iQuestLoop++)
@@ -14738,19 +14743,19 @@ void CvPlayer::foundCity(int iX, int iY)
 
 	SetTurnsSinceSettledLastCity(0);
 
-	//if this is our first city, remember how good it is as a reference
-	if (GetNumCitiesFounded() == 0)
-		m_iFoundValueOfCapital = getPlotFoundValue(iX, iY);
+	//if this is the player's first city, remember how good it is as a reference. 
+	//capital founding does not depend on this score so it's fair to all players independend of order
+	if (GetNumCitiesFounded() == 0 && isMajorCiv())
+		GC.getGame().NewCapitalFounded(getPlotFoundValue(iX, iY));
 
 #if defined(MOD_GLOBAL_RELIGIOUS_SETTLERS) && defined(MOD_BALANCE_CORE)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion, NULL, pkSettlerUnitEntry);
 #elif defined(MOD_GLOBAL_RELIGIOUS_SETTLERS)
 	CvCity* pCity = initCity(iX, iY, true, true, eReligion);
-#elif defined(MOD_BALANCE_CORE)
-	CvCity* pCity = initCity(iX, iY, pkSettlerUnitEntry);
 #else
-	CvCity* pCity = initCity(iX, iY);
+	CvCity* pCity = initCity(iX, iY, pkSettlerUnitEntry);
 #endif
+
 	CvAssertMsg(pCity != NULL, "City is not assigned a valid value");
 	if(pCity == NULL)
 		return;
@@ -15031,14 +15036,14 @@ bool CvPlayer::canTrainUnit(UnitTypes eUnit, bool bContinue, bool bTestVisible, 
 	{
 		// No Settlers for non-majors
 		if (!isMajorCiv())
-		{
 			return false;
-		}
+
+		if (GetPlayerTraits()->IsNoAnnexing())
+			return false;
+
 		// One City Challenge
 		if (GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE) && isHuman())
-		{
 			return false;
-		}
 	}
 	
 	//Policy Requirement
@@ -17092,10 +17097,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 	{
 		ChangeEventTourism(pBuildingInfo->GetEventTourism() * iChange);
 	}
-	if(pBuildingInfo->GetSingleVotes() > 0)
-	{
-		ChangeSingleVotes(pBuildingInfo->GetSingleVotes() * iChange);
-	}
+
+	ChangeSingleLeagueVotes(pBuildingInfo->GetSingleLeagueVotes() * iChange);
 
 	if (pBuildingInfo->GetExtraMissionaryStrength() != 0)
 	{
@@ -18002,9 +18005,8 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 		int iNumUnitsSuppliedWarWeariness = m_iNumUnitsSuppliedCached;
 		if (MOD_BALANCE_VP && isMajorCiv())
 		{
-			int iWarWeariness = GetCulture()->GetWarWeariness() * /*50*/ GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION) / 100;
-			int iReducedToPercent = 100 - min(iWarWeariness, /*75*/ GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_REDUCTION_MAX));
-			iNumUnitsSuppliedWarWeariness *= iReducedToPercent;
+			int iReductionPercent = GetSupplyReductionFromWarWeariness();
+			iNumUnitsSuppliedWarWeariness *= 100 - iReductionPercent;
 			iNumUnitsSuppliedWarWeariness /= 100;
 		}
 
@@ -18337,13 +18339,17 @@ void CvPlayer::cacheAvgGoldRate()
 
 int CvPlayer::getTurnsToBankruptcy(int iAssumedExtraExpense) const
 {
+	// City-States and Barbarians don't need to worry about Gold
+	if (!isMajorCiv())
+		return INT_MAX;
+
 	int iGold = GetTreasury()->GetGold();
 	int iAvgGPT = getAvgGoldRate() - iAssumedExtraExpense;
 
 	if (iAvgGPT > 0)
-		return INT_MAX;
-
-	return -iGold/max(1,iAvgGPT);
+		return INT_MAX; //not going broke
+	else
+		return iGold/max(1,-iAvgGPT);
 }
 
 /// What is the average production produced by our cities?
@@ -18933,11 +18939,7 @@ int CvPlayer::GetJONSCultureFromCitiesTimes100(bool bIgnoreTrade) const
 /// Special bonus which adds excess Happiness to Culture?
 int CvPlayer::GetJONSCulturePerTurnFromExcessHappiness() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
-	{
-		return 0;
-	}
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 		return 0;
 
 	if(getHappinessToCulture() != 0)
@@ -19933,619 +19935,605 @@ void CvPlayer::DoWarVictoryBonuses()
 		}
 	}
 }
+
 void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 {
 	if (!isAlive() || !isMajorCiv())
 		return;
 
+	int iDifficultyBonusPercent = GC.getGame().getGameSpeedInfo().getDifficultyBonusPercent();
 	int iEra = GC.getGame().getCurrentEra();
-	if (iEra <= 0)
-		iEra = 1;
 
 	// First do the human difficulty bonus
 	CvHandicapInfo* pHandicapInfo = GC.getHandicapInfo(getHandicapType());
 	if (pHandicapInfo)
 	{
-		int iHandicapBase = pHandicapInfo->getDifficultyBonusBase();
-		int iHandicapA = pHandicapInfo->getDifficultyBonusEarly();
-		int iHandicapB = pHandicapInfo->getDifficultyBonusMid();
-		int iHandicapC = pHandicapInfo->getDifficultyBonusLate();
-		int iYieldHandicap = iHandicapBase * ((iHandicapC * iEra * iEra) + (iHandicapB * iEra) + iHandicapA) / 100;
-		int iUnscaledYieldHandicap = iYieldHandicap;
-		iYieldHandicap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-		iYieldHandicap /= 100;
-
-		if (iYieldHandicap > 0)
+		CvString strLogString;
+		CvString strTemp;
+		strLogString.Format("VP ");
+		if (isHuman())
 		{
-			CvString strLogString;
-			CvString strTemp;
-			strLogString.Format("VP ");
-			if (isHuman())
+			strTemp.Format("HUMAN DIFFICULTY BONUS FROM ");
+		}
+		else
+		{
+			strTemp.Format("HANDICAP_AI_DEFAULT DIFFICULTY BONUS FROM ");
+		}
+		strLogString += strTemp;
+
+		switch (eHistoricEvent)
+		{
+		case HISTORIC_EVENT_ERA_CHANGE:
+			strTemp.Format("HISTORIC EVENT: ERA - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_WORLD_WONDER:
+			strTemp.Format("HISTORIC EVENT: WORLD WONDER - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_GREAT_PERSON:
+			strTemp.Format("HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_WON_WAR:
+			strTemp.Format("HISTORIC EVENT: WAR - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_GOLDEN_AGE:
+			strTemp.Format("HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_DIG:
+			strTemp.Format("HISTORIC EVENT: DIG - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_TRADE_LAND:
+			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (LAND) - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_TRADE_SEA:
+			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (SEA) - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_TRADE_CS:
+			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
+			strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_CITY_FOUND:
+			strTemp.Format("CITY FOUNDING - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_CITY_CONQUEST:
+			strTemp.Format("CITY CONQUEST - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_RESEARCHED_TECH:
+			strTemp.Format("RESEARCHING TECH - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_ADOPTED_POLICY:
+			strTemp.Format("ADOPTING POLICY - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:
+			strTemp.Format("COMPLETING POLICY TREE - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:
+			strTemp.Format("KILLING MAJOR CIV UNIT - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT:
+			strTemp.Format("KILLING CITY-STATE UNIT - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:
+			strTemp.Format("KILLING BARBARIAN UNIT - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:
+			strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
+			break;
+		case DIFFICULTY_BONUS_AI_TURNS_PASSED:
+			strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
+			break;
+		default:
+			return;
+		}
+		strLogString += strTemp;
+
+		bool bSeparateYieldTypes = false;
+		int iCommonAmount = -1;
+		vector<YieldTypes> vYields;
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			YieldTypes eYield = (YieldTypes)iYieldLoop;
+			int iAmount = pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, eYield);
+			if (iAmount <= 0)
+				continue;
+			else if (eYield == YIELD_POPULATION && iDifficultyBonusPercent != 100) // Pop boosts don't scale with game speed, so show individual yield gains if not playing on Standard speed
 			{
-				strTemp.Format("HUMAN DIFFICULTY BONUS FROM ");
+				bSeparateYieldTypes = true;
+			}
+			else if (!bSeparateYieldTypes && iAmount != iCommonAmount)
+			{
+				if (iCommonAmount == -1)
+					iCommonAmount = iAmount;
+				else
+					bSeparateYieldTypes = true;
+			}
+
+			// Is this a supported yield type?
+			switch (eYield)
+			{
+			case YIELD_FOOD:
+			case YIELD_PRODUCTION:
+			case YIELD_GOLD:
+			case YIELD_CULTURE:
+			case YIELD_SCIENCE:
+			case YIELD_FAITH:
+			case YIELD_GOLDEN_AGE_POINTS:
+			case YIELD_TOURISM:
+			case YIELD_GREAT_GENERAL_POINTS:
+			case YIELD_GREAT_ADMIRAL_POINTS:
+			case YIELD_POPULATION:
+			case YIELD_CULTURE_LOCAL:
+				vYields.push_back(eYield);
+				break;
+			default:
+				break;
+			}
+		}
+
+		if (!vYields.empty())
+		{
+			bool bFirstYield = true;
+			if (bSeparateYieldTypes)
+			{
+				strTemp.Format(": ");
 			}
 			else
 			{
-				strTemp.Format("HANDICAP_AI_DEFAULT DIFFICULTY BONUS FROM ");
+				strTemp.Format(" (%d in Yields): ", max(1, iCommonAmount * iDifficultyBonusPercent / 100));
 			}
 			strLogString += strTemp;
 
-			switch (eHistoricEvent)
+			// Food
+			if (std::find(vYields.begin(), vYields.end(), YIELD_FOOD) != vYields.end())
 			{
-			case HISTORIC_EVENT_ERA_CHANGE:
-				strTemp.Format("HISTORIC EVENT: ERA - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_WORLD_WONDER:
-				strTemp.Format("HISTORIC EVENT: WORLD WONDER - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_GREAT_PERSON:
-				strTemp.Format("HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_WON_WAR:
-				strTemp.Format("HISTORIC EVENT: WAR - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_GOLDEN_AGE:
-				strTemp.Format("HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_DIG:
-				strTemp.Format("HISTORIC EVENT: DIG - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_TRADE_LAND:
-				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (LAND) - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_TRADE_SEA:
-				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (SEA) - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_TRADE_CS:
-				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
-				strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_CITY_FOUND:
-				strTemp.Format("CITY FOUNDING - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_CITY_CONQUEST:
-				strTemp.Format("CITY CONQUEST - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_RESEARCHED_TECH:
-				strTemp.Format("RESEARCHING TECH - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_ADOPTED_POLICY:
-				strTemp.Format("ADOPTING POLICY - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:
-				strTemp.Format("COMPLETING POLICY TREE - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:
-				strTemp.Format("KILLING MAJOR CIV UNIT - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT:
-				strTemp.Format("KILLING CITY-STATE UNIT - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:
-				strTemp.Format("KILLING BARBARIAN UNIT - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:
-				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
-				break;
-			case DIFFICULTY_BONUS_AI_TURNS_PASSED:
-				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
-				break;
-			default:
-				return;
-			}
-			strLogString += strTemp;
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_FOOD) : iCommonAmount;
+				int iFood = max(1, iAmount * iDifficultyBonusPercent / 100);
 
-			bool bSeparateYieldTypes = false;
-			int iCommonMultiplier = -1;
-			vector<YieldTypes> vYields;
-			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
-			{
-				YieldTypes eYield = (YieldTypes)iYieldLoop;
-				int iMultiplier = pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, eYield);
-				if (iMultiplier <= 0)
-					continue;
-				else if (eYield == YIELD_POPULATION) // Pop boosts use a different formula than other yields, so always show individual yield gains
+				// How many valid cities can we divide this yield amongst?
+				vector<int> vValidCities;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-					bSeparateYieldTypes = true;
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Skip resistance or razing cities.
+					if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+						continue;
+
+					// Ignore cities that can't be kept.
+					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+						continue;
+
+					vValidCities.push_back(pLoopCity->GetID());
 				}
-				else if (!bSeparateYieldTypes && iMultiplier != iCommonMultiplier)
+				if (vValidCities.size() > 0)
 				{
-					if (iCommonMultiplier == -1)
-						iCommonMultiplier = iMultiplier;
+					int iFoodPerCity = iFood / vValidCities.size();
+					int iFoodRemainder = iFood % vValidCities.size();
+					if (iFoodPerCity <= 0)
+						iFoodPerCity = 1;
+
+					for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
+					{
+						CvCity* pCity = getCity(*it);
+						if (pCity->isCapital())
+							pCity->changeFood(iFoodPerCity + iFoodRemainder);
+						else
+							pCity->changeFood(iFoodPerCity);
+					}
+
+					if (bSeparateYieldTypes)
+					{
+						strTemp.Format("FOOD (%d; %d cities, %d per city)", iFood, vValidCities.size(), iFoodPerCity);
+					}
 					else
-						bSeparateYieldTypes = true;
-				}
-
-				// Is this a supported yield type?
-				switch (eYield)
-				{
-				case YIELD_FOOD:
-				case YIELD_PRODUCTION:
-				case YIELD_GOLD:
-				case YIELD_CULTURE:
-				case YIELD_SCIENCE:
-				case YIELD_FAITH:
-				case YIELD_GOLDEN_AGE_POINTS:
-				case YIELD_TOURISM:
-				case YIELD_GREAT_GENERAL_POINTS:
-				case YIELD_GREAT_ADMIRAL_POINTS:
-				case YIELD_POPULATION:
-				case YIELD_CULTURE_LOCAL:
-					vYields.push_back(eYield);
-					break;
-				default:
-					break;
+					{
+						strTemp.Format("FOOD (%d cities, %d per city)", vValidCities.size(), iFoodPerCity);
+					}
+					strLogString += strTemp;
+					bFirstYield = false;
 				}
 			}
 
-			if (!vYields.empty())
+			// Production
+			if (std::find(vYields.begin(), vYields.end(), YIELD_PRODUCTION) != vYields.end())
 			{
-				bool bFirstYield = true;
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_PRODUCTION) : iCommonAmount;
+				int iProduction = max(1, iAmount * iDifficultyBonusPercent / 100);
+
+				// How many valid cities can we divide this yield amongst?
+				vector<int> vValidCities;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Skip resistance or razing cities.
+					if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+						continue;
+
+					// Ignore cities that can't be kept.
+					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+						continue;
+
+					vValidCities.push_back(pLoopCity->GetID());
+				}
+				if (vValidCities.size() > 0)
+				{
+					int iProductionPerCity = iProduction / vValidCities.size();
+					int iProductionRemainder = iProduction % vValidCities.size();
+					if (iProductionPerCity <= 0)
+						iProductionPerCity = 1;
+
+					for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
+					{
+						CvCity* pCity = getCity(*it);
+						if (pCity->isCapital())
+							pCity->changeProduction(iProductionPerCity + iProductionRemainder);
+						else
+							pCity->changeProduction(iProductionPerCity);
+					}
+
+					if (!bFirstYield)
+					{
+						strTemp.Format(", ");
+						strLogString += strTemp;
+					}
+					if (bSeparateYieldTypes)
+					{
+						strTemp.Format("PRODUCTION (%d; %d cities, %d per city)", iProduction, vValidCities.size(), iProductionPerCity);
+					}
+					else
+					{
+						strTemp.Format("PRODUCTION (%d cities, %d per city)", vValidCities.size(), iProductionPerCity);
+					}
+					strLogString += strTemp;
+					bFirstYield = false;
+				}
+			}
+
+			// Gold
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GOLD) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_GOLD) : iCommonAmount;
+				int iGold = max(1, iAmount * iDifficultyBonusPercent / 100);
+				GetTreasury()->ChangeGold(iGold);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
 				if (bSeparateYieldTypes)
 				{
-					strTemp.Format(": ");
+					strTemp.Format("GOLD (%d)", iGold);
 				}
 				else
 				{
-					strTemp.Format(" (%d in Yields): ", max(1, iYieldHandicap * iCommonMultiplier / 100));
+					strTemp.Format("GOLD");
 				}
 				strLogString += strTemp;
+				bFirstYield = false;
+			}
 
-				// Food
-				int iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_FOOD) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_FOOD) != vYields.end())
+			// Golden Age Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GOLDEN_AGE_POINTS) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_GOLDEN_AGE_POINTS) : iCommonAmount;
+				int iGAP = max(1, iAmount * iDifficultyBonusPercent / 100);
+				ChangeGoldenAgeProgressMeter(iGAP);
+
+				if (!bFirstYield)
 				{
-					int iFood = max(1, iYieldHandicap * iMultiplier / 100);
-
-					// How many valid cities can we divide this yield amongst?
-					vector<int> vValidCities;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Skip resistance or razing cities.
-						if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-							continue;
-
-						// Ignore cities that can't be kept.
-						if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-							continue;
-
-						vValidCities.push_back(pLoopCity->GetID());
-					}
-					if (vValidCities.size() > 0)
-					{
-						int iFoodPerCity = iFood / vValidCities.size();
-						int iFoodRemainder = iFood % vValidCities.size();
-						if (iFoodPerCity <= 0)
-							iFoodPerCity = 1;
-
-						for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
-						{
-							CvCity* pCity = getCity(*it);
-							if (pCity->isCapital())
-								pCity->changeFood(iFoodPerCity + iFoodRemainder);
-							else
-								pCity->changeFood(iFoodPerCity);
-						}
-
-						if (bSeparateYieldTypes)
-						{
-							strTemp.Format("FOOD (%d; %d cities, %d per city)", iFood, vValidCities.size(), iFoodPerCity);
-						}
-						else
-						{
-							strTemp.Format("FOOD (%d cities, %d per city)", vValidCities.size(), iFoodPerCity);
-						}
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				// Production
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_PRODUCTION) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_PRODUCTION) != vYields.end())
-				{
-					int iProduction = max(1, iYieldHandicap * iMultiplier / 100);
-
-					// How many valid cities can we divide this yield amongst?
-					vector<int> vValidCities;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Skip resistance or razing cities.
-						if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-							continue;
-
-						// Ignore cities that can't be kept.
-						if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-							continue;
-
-						vValidCities.push_back(pLoopCity->GetID());
-					}
-					if (vValidCities.size() > 0)
-					{
-						int iProductionPerCity = iProduction / vValidCities.size();
-						int iProductionRemainder = iProduction % vValidCities.size();
-						if (iProductionPerCity <= 0)
-							iProductionPerCity = 1;
-
-						for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
-						{
-							CvCity* pCity = getCity(*it);
-							if (pCity->isCapital())
-								pCity->changeProduction(iProductionPerCity + iProductionRemainder);
-							else
-								pCity->changeProduction(iProductionPerCity);
-						}
-
-						if (!bFirstYield)
-						{
-							strTemp.Format(", ");
-							strLogString += strTemp;
-						}
-						if (bSeparateYieldTypes)
-						{
-							strTemp.Format("PRODUCTION (%d; %d cities, %d per city)", iProduction, vValidCities.size(), iProductionPerCity);
-						}
-						else
-						{
-							strTemp.Format("PRODUCTION (%d cities, %d per city)", vValidCities.size(), iProductionPerCity);
-						}
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				// Gold
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_GOLD) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GOLD) != vYields.end())
-				{
-					int iGold = max(1, iYieldHandicap * iMultiplier / 100);
-					GetTreasury()->ChangeGold(iGold);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("GOLD (%d)", iGold);
-					}
-					else
-					{
-						strTemp.Format("GOLD");
-					}
+					strTemp.Format(", ");
 					strLogString += strTemp;
-					bFirstYield = false;
 				}
-
-				// Golden Age Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_GOLDEN_AGE_POINTS) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GOLDEN_AGE_POINTS) != vYields.end())
+				if (bSeparateYieldTypes)
 				{
-					int iGAP = max(1, iYieldHandicap * iMultiplier / 100);
-					ChangeGoldenAgeProgressMeter(iGAP);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("GAP (%d)", iGAP);
-					}
-					else
-					{
-						strTemp.Format("GAP");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
+					strTemp.Format("GAP (%d)", iGAP);
 				}
-
-				// Culture
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_CULTURE) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE) != vYields.end())
+				else
 				{
-					int iCulture = max(1, iYieldHandicap * iMultiplier / 100);
-					changeJONSCulture(iCulture);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("CULTURE (%d)", iCulture);
-					}
-					else
-					{
-						strTemp.Format("CULTURE");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
+					strTemp.Format("GAP");
 				}
-
-				// Science
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_SCIENCE) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_SCIENCE) != vYields.end())
-				{
-					int iScience = max(1, iYieldHandicap * iMultiplier / 100);
-					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-					if (eCurrentTech == NO_TECH)
-					{
-						changeOverflowResearch(iScience);
-					}
-					else
-					{
-						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
-					}
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("SCIENCE (%d)", iScience);
-					}
-					else
-					{
-						strTemp.Format("SCIENCE");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Faith
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_FAITH) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_FAITH) != vYields.end())
-				{
-					int iFaith = max(1, iYieldHandicap * iMultiplier / 100);
-					ChangeFaith(iFaith);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("FAITH (%d)", iFaith);
-					}
-					else
-					{
-						strTemp.Format("FAITH");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Tourism
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_TOURISM) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_TOURISM) != vYields.end())
-				{
-					int iTourism = max(1, iYieldHandicap * iMultiplier / 100);
-					GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("TOURISM TO MET CIVS (%d; modifiers apply)", iTourism);
-					}
-					else
-					{
-						strTemp.Format("TOURISM TO MET CIVS (modifiers apply)");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Great General Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_GREAT_GENERAL_POINTS) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_GENERAL_POINTS) != vYields.end())
-				{
-					int iGGPoints = max(1, iYieldHandicap * iMultiplier / 100);
-					changeCombatExperienceTimes100(iGGPoints * 100);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("G GENERAL POINTS (%d)", iGGPoints);
-					}
-					else
-					{
-						strTemp.Format("G GENERAL POINTS");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Great Admiral Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_GREAT_ADMIRAL_POINTS) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_ADMIRAL_POINTS) != vYields.end())
-				{
-					int iGAPoints = max(1, iYieldHandicap * iMultiplier / 100);
-					changeNavalCombatExperienceTimes100(iGAPoints * 100);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("G ADMIRAL POINTS (%d)", iGAPoints);
-					}
-					else
-					{
-						strTemp.Format("G ADMIRAL POINTS");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Population (does not scale with game speed!)
-				// This one is divided by 100 for sanity. Each 100 points = +1 citizen. The minimum gain is +1 citizen.
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_POPULATION) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_POPULATION) != vYields.end())
-				{
-					int iPopulationBoost = max(1, iUnscaledYieldHandicap * iMultiplier / 10000);
-
-					// Distribute Population deck-of-cards style to cities in order of Local Happiness.
-					CvWeightedVector<CvCity*> CitiesSortedByLocalHappiness;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Do not distribute Population to razing or resistance cities
-						if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
-							continue;
-
-						// Ignore cities that can't be kept.
-						if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-							continue;
-
-						int iLocalHappiness = pLoopCity->GetLocalHappiness(0, /*bExcludeEmpireContributions*/ false);
-						CitiesSortedByLocalHappiness.push_back(pLoopCity, iLocalHappiness);
-					}
-					if (CitiesSortedByLocalHappiness.size() > 0)
-					{
-						CitiesSortedByLocalHappiness.StableSortItems();
-						int iPopToGive = iPopulationBoost;
-						while (iPopToGive > 0)
-						{
-							for (int i = 0; i < CitiesSortedByLocalHappiness.size(); i++)
-							{
-								CvCity* pCity = CitiesSortedByLocalHappiness.GetElement(i);
-								pCity->changePopulation(1, true, true);
-								iPopToGive--;
-
-								if (iPopToGive == 0)
-									break;
-							}
-						}
-
-						if (!bFirstYield)
-						{
-							strTemp.Format(", ");
-							strLogString += strTemp;
-						}
-
-						strTemp.Format("EMPIRE POPULATION (%d)", iPopulationBoost);
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				// Border Growth Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForDifficultyBonus(eHistoricEvent, YIELD_CULTURE_LOCAL) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE_LOCAL) != vYields.end())
-				{
-					int iBorderGrowthPoints = max(1, iYieldHandicap * iMultiplier / 100);
-
-					// How many valid cities can we divide this yield amongst?
-					vector<int> vValidCities;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Skip resistance or razing cities.
-						if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-							continue;
-
-						// Ignore cities that can't be kept.
-						if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
-							continue;
-
-						vValidCities.push_back(pLoopCity->GetID());
-					}
-					if (vValidCities.size() > 0)
-					{
-						int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
-						int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
-						if (iBGPPerCity <= 0)
-							iBGPPerCity = 1;
-
-						for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
-						{
-							CvCity* pCity = getCity(*it);
-							if (pCity->isCapital())
-								pCity->ChangeJONSCultureStored(iBGPPerCity + iBGPRemainder);
-							else
-								pCity->ChangeJONSCultureStored(iBGPPerCity);
-						}
-
-						if (!bFirstYield)
-						{
-							strTemp.Format(", ");
-							strLogString += strTemp;
-						}
-						if (bSeparateYieldTypes)
-						{
-							strTemp.Format("BORDER GROWTH POINTS (%d; %d cities, %d per city)", iBorderGrowthPoints, vValidCities.size(), iBGPPerCity);
-						}
-						else
-						{
-							strTemp.Format("BORDER GROWTH POINTS (%d cities, %d per city)", vValidCities.size(), iBGPPerCity);
-						}
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				strTemp.Format(".");
 				strLogString += strTemp;
+				bFirstYield = false;
+			}
 
-				if (GC.getLogging() && GC.getAILogging())
+			// Culture
+			if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_CULTURE) : iCommonAmount;
+				int iCulture = max(1, iAmount * iDifficultyBonusPercent / 100);
+				changeJONSCulture(iCulture);
+
+				if (!bFirstYield)
 				{
-					CvString strBaseString;
-
-					CvString strFileName = "DifficultyHandicapLog.csv";
-					FILogFile* pLog = NULL;
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-					CvString strPlayerName;
-					strPlayerName = getCivilizationShortDescription();
-					strBaseString += strPlayerName;
-					strBaseString += ", ";
-
-					CvString strTurn;
-
-					strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
-					strBaseString += strTurn;
-
-					strBaseString += strLogString;
-
-					pLog->Msg(strBaseString);
+					strTemp.Format(", ");
+					strLogString += strTemp;
 				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("CULTURE (%d)", iCulture);
+				}
+				else
+				{
+					strTemp.Format("CULTURE");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Science
+			if (std::find(vYields.begin(), vYields.end(), YIELD_SCIENCE) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_SCIENCE) : iCommonAmount;
+				int iScience = max(1, iAmount * iDifficultyBonusPercent / 100);
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech == NO_TECH)
+				{
+					changeOverflowResearch(iScience);
+				}
+				else
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
+				}
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("SCIENCE (%d)", iScience);
+				}
+				else
+				{
+					strTemp.Format("SCIENCE");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Faith
+			if (std::find(vYields.begin(), vYields.end(), YIELD_FAITH) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_FAITH) : iCommonAmount;
+				int iFaith = max(1, iAmount * iDifficultyBonusPercent / 100);
+				ChangeFaith(iFaith);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("FAITH (%d)", iFaith);
+				}
+				else
+				{
+					strTemp.Format("FAITH");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Tourism
+			if (std::find(vYields.begin(), vYields.end(), YIELD_TOURISM) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_TOURISM) : iCommonAmount;
+				int iTourism = max(1, iAmount * iDifficultyBonusPercent / 100);
+				GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("TOURISM TO MET CIVS (%d; modifiers apply)", iTourism);
+				}
+				else
+				{
+					strTemp.Format("TOURISM TO MET CIVS (modifiers apply)");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Great General Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_GENERAL_POINTS) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_GREAT_GENERAL_POINTS) : iCommonAmount;
+				int iGGPoints = max(1, iAmount * iDifficultyBonusPercent / 100);
+				changeCombatExperienceTimes100(iGGPoints * 100);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("G GENERAL POINTS (%d)", iGGPoints);
+				}
+				else
+				{
+					strTemp.Format("G GENERAL POINTS");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Great Admiral Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_ADMIRAL_POINTS) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_GREAT_ADMIRAL_POINTS) : iCommonAmount;
+				int iGAPoints = max(1, iAmount * iDifficultyBonusPercent / 100);
+				changeNavalCombatExperienceTimes100(iGAPoints * 100);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("G ADMIRAL POINTS (%d)", iGAPoints);
+				}
+				else
+				{
+					strTemp.Format("G ADMIRAL POINTS");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Population (does not scale with game speed!)
+			if (std::find(vYields.begin(), vYields.end(), YIELD_POPULATION) != vYields.end())
+			{
+				int iPopulationBoost = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_POPULATION) : iCommonAmount;
+
+				// Distribute Population deck-of-cards style to cities in order of Local Happiness.
+				CvWeightedVector<CvCity*> CitiesSortedByLocalHappiness;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Do not distribute Population to razing or resistance cities
+					if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
+						continue;
+
+					// Ignore cities that can't be kept.
+					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+						continue;
+
+					int iLocalHappiness = pLoopCity->GetLocalHappiness(0, /*bExcludeEmpireContributions*/ false);
+					CitiesSortedByLocalHappiness.push_back(pLoopCity, iLocalHappiness);
+				}
+				if (CitiesSortedByLocalHappiness.size() > 0)
+				{
+					CitiesSortedByLocalHappiness.StableSortItems();
+					int iPopToGive = iPopulationBoost;
+					while (iPopToGive > 0)
+					{
+						for (int i = 0; i < CitiesSortedByLocalHappiness.size(); i++)
+						{
+							CvCity* pCity = CitiesSortedByLocalHappiness.GetElement(i);
+							pCity->changePopulation(1, true, true);
+							iPopToGive--;
+
+							if (iPopToGive == 0)
+								break;
+						}
+					}
+
+					if (!bFirstYield)
+					{
+						strTemp.Format(", ");
+						strLogString += strTemp;
+					}
+
+					strTemp.Format("EMPIRE POPULATION (%d)", iPopulationBoost);
+					strLogString += strTemp;
+					bFirstYield = false;
+				}
+			}
+
+			// Border Growth Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE_LOCAL) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForDifficultyBonus(iEra, eHistoricEvent, YIELD_CULTURE_LOCAL) : iCommonAmount;
+				int iBorderGrowthPoints = max(1, iAmount * iDifficultyBonusPercent / 100);
+
+				// How many valid cities can we divide this yield amongst?
+				vector<int> vValidCities;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Skip resistance or razing cities.
+					if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+						continue;
+
+					// Ignore cities that can't be kept.
+					if (isHuman() && !pLoopCity->isCapital() && GC.getGame().isOption(GAMEOPTION_ONE_CITY_CHALLENGE))
+						continue;
+
+					vValidCities.push_back(pLoopCity->GetID());
+				}
+				if (vValidCities.size() > 0)
+				{
+					int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
+					int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
+					if (iBGPPerCity <= 0)
+						iBGPPerCity = 1;
+
+					for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
+					{
+						CvCity* pCity = getCity(*it);
+						if (pCity->isCapital())
+							pCity->ChangeJONSCultureStored(iBGPPerCity + iBGPRemainder);
+						else
+							pCity->ChangeJONSCultureStored(iBGPPerCity);
+					}
+
+					if (!bFirstYield)
+					{
+						strTemp.Format(", ");
+						strLogString += strTemp;
+					}
+					if (bSeparateYieldTypes)
+					{
+						strTemp.Format("BORDER GROWTH POINTS (%d; %d cities, %d per city)", iBorderGrowthPoints, vValidCities.size(), iBGPPerCity);
+					}
+					else
+					{
+						strTemp.Format("BORDER GROWTH POINTS (%d cities, %d per city)", vValidCities.size(), iBGPPerCity);
+					}
+					strLogString += strTemp;
+					bFirstYield = false;
+				}
+			}
+
+			strTemp.Format(".");
+			strLogString += strTemp;
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strBaseString;
+
+				CvString strFileName = "DifficultyHandicapLog.csv";
+				FILogFile* pLog = NULL;
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+				CvString strPlayerName;
+				strPlayerName = getCivilizationShortDescription();
+				strBaseString += strPlayerName;
+				strBaseString += ", ";
+
+				CvString strTurn;
+
+				strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+				strBaseString += strTurn;
+
+				strBaseString += strLogString;
+
+				pLog->Msg(strBaseString);
 			}
 		}
 	}
@@ -20557,585 +20545,572 @@ void CvPlayer::DoDifficultyBonus(HistoricEventTypes eHistoricEvent)
 	pHandicapInfo = GC.getHandicapInfo(GC.getGame().getHandicapType());
 	if (pHandicapInfo)
 	{
-		int iHandicapBase = pHandicapInfo->getAIDifficultyBonusBase();
-		int iHandicapA = pHandicapInfo->getAIDifficultyBonusEarly();
-		int iHandicapB = pHandicapInfo->getAIDifficultyBonusMid();
-		int iHandicapC = pHandicapInfo->getAIDifficultyBonusLate();
-		int iYieldHandicap = iHandicapBase * ((iHandicapC * iEra * iEra) + (iHandicapB * iEra) + iHandicapA) / 100;
-		int iUnscaledYieldHandicap = iYieldHandicap;
-		iYieldHandicap *= GC.getGame().getGameSpeedInfo().getInstantYieldPercent();
-		iYieldHandicap /= 100;
+		CvString strLogString;
+		CvString strTemp;
+		strLogString.Format("VP AI DIFFICULTY BONUS FROM ");
 
-		if (iYieldHandicap > 0)
+		switch (eHistoricEvent)
 		{
-			CvString strLogString;
-			CvString strTemp;
-			strLogString.Format("VP AI DIFFICULTY BONUS FROM ");
+		case HISTORIC_EVENT_ERA_CHANGE:
+			strTemp.Format("HISTORIC EVENT: ERA - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_WORLD_WONDER:
+			strTemp.Format("HISTORIC EVENT: WORLD WONDER - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_GREAT_PERSON:
+			strTemp.Format("HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_WON_WAR:
+			strTemp.Format("HISTORIC EVENT: WAR - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_GOLDEN_AGE:
+			strTemp.Format("HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_DIG:
+			strTemp.Format("HISTORIC EVENT: DIG - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_TRADE_LAND:
+			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (LAND) - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_TRADE_SEA:
+			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (SEA) - Received Handicap Bonus");
+			break;
+		case HISTORIC_EVENT_TRADE_CS:
+			strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
+			strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_CITY_FOUND:
+			strTemp.Format("CITY FOUNDING - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_CITY_CONQUEST:
+			strTemp.Format("CITY CONQUEST - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_RESEARCHED_TECH:
+			strTemp.Format("RESEARCHING TECH - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_ADOPTED_POLICY:
+			strTemp.Format("ADOPTING POLICY - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:
+			strTemp.Format("COMPLETING POLICY TREE - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:
+			strTemp.Format("KILLING MAJOR CIV UNIT - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT:
+			strTemp.Format("KILLING CITY-STATE UNIT - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:
+			strTemp.Format("KILLING BARBARIAN UNIT - Received Handicap Bonus");
+			break;
+		case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:
+			strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
+			break;
+		case DIFFICULTY_BONUS_AI_TURNS_PASSED:
+			strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
+			break;
+		default:
+			return;
+		}
+		strLogString += strTemp;
 
-			switch (eHistoricEvent)
+		bool bSeparateYieldTypes = false;
+		int iCommonAmount = -1;
+		vector<YieldTypes> vYields;
+		for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+		{
+			YieldTypes eYield = (YieldTypes)iYieldLoop;
+			int iAmount = pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, eYield);
+			if (iAmount <= 0)
+				continue;
+			else if (eYield == YIELD_POPULATION && iDifficultyBonusPercent != 100) // Pop boosts don't scale with game speed, so show individual yield gains if not playing on Standard speed
 			{
-			case HISTORIC_EVENT_ERA_CHANGE:
-				strTemp.Format("HISTORIC EVENT: ERA - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_WORLD_WONDER:
-				strTemp.Format("HISTORIC EVENT: WORLD WONDER - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_GREAT_PERSON:
-				strTemp.Format("HISTORIC EVENT: GREAT PERSON - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_WON_WAR:
-				strTemp.Format("HISTORIC EVENT: WAR - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_GOLDEN_AGE:
-				strTemp.Format("HISTORIC EVENT: GOLDEN AGE - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_DIG:
-				strTemp.Format("HISTORIC EVENT: DIG - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_TRADE_LAND:
-				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (LAND) - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_TRADE_SEA:
-				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (SEA) - Received Handicap Bonus");
-				break;
-			case HISTORIC_EVENT_TRADE_CS:
-				strTemp.Format("HISTORIC EVENT: TRADE ROUTE (CITY-STATE) - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_CITY_FOUND_CAPITAL:
-				strTemp.Format("CAPITAL FOUNDING - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_CITY_FOUND:
-				strTemp.Format("CITY FOUNDING - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_CITY_CONQUEST:
-				strTemp.Format("CITY CONQUEST - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_RESEARCHED_TECH:
-				strTemp.Format("RESEARCHING TECH - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_ADOPTED_POLICY:
-				strTemp.Format("ADOPTING POLICY - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_COMPLETED_POLICY_TREE:
-				strTemp.Format("COMPLETING POLICY TREE - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_KILLED_MAJOR_UNIT:
-				strTemp.Format("KILLING MAJOR CIV UNIT - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_KILLED_CITY_STATE_UNIT:
-				strTemp.Format("KILLING CITY-STATE UNIT - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_KILLED_BARBARIAN_UNIT:
-				strTemp.Format("KILLING BARBARIAN UNIT - Received Handicap Bonus");
-				break;
-			case DIFFICULTY_BONUS_PLAYER_TURNS_PASSED:
-				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getDifficultyBonusTurnInterval());
-				break;
-			case DIFFICULTY_BONUS_AI_TURNS_PASSED:
-				strTemp.Format("%d TURNS PASSED - Received Handicap Bonus", pHandicapInfo->getAIDifficultyBonusTurnInterval());
+				bSeparateYieldTypes = true;
+			}
+			else if (!bSeparateYieldTypes && iAmount != iCommonAmount)
+			{
+				if (iCommonAmount == -1)
+					iCommonAmount = iAmount;
+				else
+					bSeparateYieldTypes = true;
+			}
+
+			// Is this a supported yield type?
+			switch (eYield)
+			{
+			case YIELD_FOOD:
+			case YIELD_PRODUCTION:
+			case YIELD_GOLD:
+			case YIELD_CULTURE:
+			case YIELD_SCIENCE:
+			case YIELD_FAITH:
+			case YIELD_GOLDEN_AGE_POINTS:
+			case YIELD_TOURISM:
+			case YIELD_GREAT_GENERAL_POINTS:
+			case YIELD_GREAT_ADMIRAL_POINTS:
+			case YIELD_POPULATION:
+			case YIELD_CULTURE_LOCAL:
+				vYields.push_back(eYield);
 				break;
 			default:
-				return;
+				break;
+			}
+		}
+
+		if (!vYields.empty())
+		{
+			bool bFirstYield = true;
+			if (bSeparateYieldTypes)
+			{
+				strTemp.Format(": ");
+			}
+			else
+			{
+				strTemp.Format(" (%d in Yields): ", max(1, iCommonAmount * iDifficultyBonusPercent / 100));
 			}
 			strLogString += strTemp;
 
-			bool bSeparateYieldTypes = false;
-			int iCommonMultiplier = -1;
-			vector<YieldTypes> vYields;
-			for (int iYieldLoop = 0; iYieldLoop < NUM_YIELD_TYPES; iYieldLoop++)
+			// Food
+			if (std::find(vYields.begin(), vYields.end(), YIELD_FOOD) != vYields.end())
 			{
-				YieldTypes eYield = (YieldTypes)iYieldLoop;
-				int iMultiplier = pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, eYield);
-				if (iMultiplier <= 0)
-					continue;
-				else if (eYield == YIELD_POPULATION) // Pop boosts use a different formula than other yields, so always show individual yield gains
-				{
-					bSeparateYieldTypes = true;
-				}
-				else if (!bSeparateYieldTypes && iMultiplier != iCommonMultiplier)
-				{
-					if (iCommonMultiplier == -1)
-						iCommonMultiplier = iMultiplier;
-					else
-						bSeparateYieldTypes = true;
-				}
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_FOOD) : iCommonAmount;
+				int iFood = max(1, iAmount * iDifficultyBonusPercent / 100);
 
-				// Is this a supported yield type?
-				switch (eYield)
+				// How many valid cities can we divide this yield amongst?
+				vector<int> vValidCities;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
 				{
-				case YIELD_FOOD:
-				case YIELD_PRODUCTION:
-				case YIELD_GOLD:
-				case YIELD_CULTURE:
-				case YIELD_SCIENCE:
-				case YIELD_FAITH:
-				case YIELD_GOLDEN_AGE_POINTS:
-				case YIELD_TOURISM:
-				case YIELD_GREAT_GENERAL_POINTS:
-				case YIELD_GREAT_ADMIRAL_POINTS:
-				case YIELD_POPULATION:
-				case YIELD_CULTURE_LOCAL:
-					vYields.push_back(eYield);
-					break;
-				default:
-					break;
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Skip resistance or razing cities.
+					if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+						continue;
+
+					vValidCities.push_back(pLoopCity->GetID());
+				}
+				if (vValidCities.size() > 0)
+				{
+					int iFoodPerCity = iFood / vValidCities.size();
+					int iFoodRemainder = iFood % vValidCities.size();
+					if (iFoodPerCity <= 0)
+						iFoodPerCity = 1;
+
+					for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
+					{
+						CvCity* pCity = getCity(*it);
+						if (pCity->isCapital())
+							pCity->changeFood(iFoodPerCity + iFoodRemainder);
+						else
+							pCity->changeFood(iFoodPerCity);
+					}
+
+					if (bSeparateYieldTypes)
+					{
+						strTemp.Format("FOOD (%d; %d cities, %d per city)", iFood, vValidCities.size(), iFoodPerCity);
+					}
+					else
+					{
+						strTemp.Format("FOOD (%d cities, %d per city)", vValidCities.size(), iFoodPerCity);
+					}
+					strLogString += strTemp;
+					bFirstYield = false;
 				}
 			}
 
-			if (!vYields.empty())
+			// Production
+			if (std::find(vYields.begin(), vYields.end(), YIELD_PRODUCTION) != vYields.end())
 			{
-				bool bFirstYield = true;
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_PRODUCTION) : iCommonAmount;
+				int iProduction = max(1, iAmount * iDifficultyBonusPercent / 100);
+
+				// How many valid cities can we divide this yield amongst?
+				vector<int> vValidCities;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Skip resistance or razing cities.
+					if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+						continue;
+
+					vValidCities.push_back(pLoopCity->GetID());
+				}
+				if (vValidCities.size() > 0)
+				{
+					int iProductionPerCity = iProduction / vValidCities.size();
+					int iProductionRemainder = iProduction % vValidCities.size();
+					if (iProductionPerCity <= 0)
+						iProductionPerCity = 1;
+
+					for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
+					{
+						CvCity* pCity = getCity(*it);
+						if (pCity->isCapital())
+							pCity->changeProduction(iProductionPerCity + iProductionRemainder);
+						else
+							pCity->changeProduction(iProductionPerCity);
+					}
+
+					if (!bFirstYield)
+					{
+						strTemp.Format(", ");
+						strLogString += strTemp;
+					}
+					if (bSeparateYieldTypes)
+					{
+						strTemp.Format("PRODUCTION (%d; %d cities, %d per city)", iProduction, vValidCities.size(), iProductionPerCity);
+					}
+					else
+					{
+						strTemp.Format("PRODUCTION (%d cities, %d per city)", vValidCities.size(), iProductionPerCity);
+					}
+					strLogString += strTemp;
+					bFirstYield = false;
+				}
+			}
+
+			// Gold
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GOLD) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_GOLD) : iCommonAmount;
+				int iGold = max(1, iAmount * iDifficultyBonusPercent / 100);
+				GetTreasury()->ChangeGold(iGold);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
 				if (bSeparateYieldTypes)
 				{
-					strTemp.Format(": ");
+					strTemp.Format("GOLD (%d)", iGold);
 				}
 				else
 				{
-					strTemp.Format(" (%d in Yields): ", max(1, iYieldHandicap * iCommonMultiplier / 100));
+					strTemp.Format("GOLD");
 				}
 				strLogString += strTemp;
+				bFirstYield = false;
+			}
 
-				// Food
-				int iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_FOOD) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_FOOD) != vYields.end())
+			// Golden Age Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GOLDEN_AGE_POINTS) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_GOLDEN_AGE_POINTS) : iCommonAmount;
+				int iGAP = max(1, iAmount * iDifficultyBonusPercent / 100);
+				ChangeGoldenAgeProgressMeter(iGAP);
+
+				if (!bFirstYield)
 				{
-					int iFood = max(1, iYieldHandicap * iMultiplier / 100);
-
-					// How many valid cities can we divide this yield amongst?
-					vector<int> vValidCities;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Skip resistance or razing cities.
-						if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-							continue;
-
-						vValidCities.push_back(pLoopCity->GetID());
-					}
-					if (vValidCities.size() > 0)
-					{
-						int iFoodPerCity = iFood / vValidCities.size();
-						int iFoodRemainder = iFood % vValidCities.size();
-						if (iFoodPerCity <= 0)
-							iFoodPerCity = 1;
-
-						for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
-						{
-							CvCity* pCity = getCity(*it);
-							if (pCity->isCapital())
-								pCity->changeFood(iFoodPerCity + iFoodRemainder);
-							else
-								pCity->changeFood(iFoodPerCity);
-						}
-
-						if (bSeparateYieldTypes)
-						{
-							strTemp.Format("FOOD (%d; %d cities, %d per city)", iFood, vValidCities.size(), iFoodPerCity);
-						}
-						else
-						{
-							strTemp.Format("FOOD (%d cities, %d per city)", vValidCities.size(), iFoodPerCity);
-						}
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				// Production
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_PRODUCTION) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_PRODUCTION) != vYields.end())
-				{
-					int iProduction = max(1, iYieldHandicap * iMultiplier / 100);
-
-					// How many valid cities can we divide this yield amongst?
-					vector<int> vValidCities;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Skip resistance or razing cities.
-						if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-							continue;
-
-						vValidCities.push_back(pLoopCity->GetID());
-					}
-					if (vValidCities.size() > 0)
-					{
-						int iProductionPerCity = iProduction / vValidCities.size();
-						int iProductionRemainder = iProduction % vValidCities.size();
-						if (iProductionPerCity <= 0)
-							iProductionPerCity = 1;
-
-						for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
-						{
-							CvCity* pCity = getCity(*it);
-							if (pCity->isCapital())
-								pCity->changeProduction(iProductionPerCity + iProductionRemainder);
-							else
-								pCity->changeProduction(iProductionPerCity);
-						}
-
-						if (!bFirstYield)
-						{
-							strTemp.Format(", ");
-							strLogString += strTemp;
-						}
-						if (bSeparateYieldTypes)
-						{
-							strTemp.Format("PRODUCTION (%d; %d cities, %d per city)", iProduction, vValidCities.size(), iProductionPerCity);
-						}
-						else
-						{
-							strTemp.Format("PRODUCTION (%d cities, %d per city)", vValidCities.size(), iProductionPerCity);
-						}
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				// Gold
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_GOLD) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GOLD) != vYields.end())
-				{
-					int iGold = max(1, iYieldHandicap * iMultiplier / 100);
-					GetTreasury()->ChangeGold(iGold);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("GOLD (%d)", iGold);
-					}
-					else
-					{
-						strTemp.Format("GOLD");
-					}
+					strTemp.Format(", ");
 					strLogString += strTemp;
-					bFirstYield = false;
 				}
-
-				// Golden Age Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_GOLDEN_AGE_POINTS) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GOLDEN_AGE_POINTS) != vYields.end())
+				if (bSeparateYieldTypes)
 				{
-					int iGAP = max(1, iYieldHandicap * iMultiplier / 100);
-					ChangeGoldenAgeProgressMeter(iGAP);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("GAP (%d)", iGAP);
-					}
-					else
-					{
-						strTemp.Format("GAP");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
+					strTemp.Format("GAP (%d)", iGAP);
 				}
-
-				// Culture
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_CULTURE) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE) != vYields.end())
+				else
 				{
-					int iCulture = max(1, iYieldHandicap * iMultiplier / 100);
-					changeJONSCulture(iCulture);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("CULTURE (%d)", iCulture);
-					}
-					else
-					{
-						strTemp.Format("CULTURE");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
+					strTemp.Format("GAP");
 				}
-
-				// Science
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_SCIENCE) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_SCIENCE) != vYields.end())
-				{
-					int iScience = max(1, iYieldHandicap * iMultiplier / 100);
-					TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
-					if (eCurrentTech == NO_TECH)
-					{
-						changeOverflowResearch(iScience);
-					}
-					else
-					{
-						GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
-					}
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("SCIENCE (%d)", iScience);
-					}
-					else
-					{
-						strTemp.Format("SCIENCE");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Faith
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_FAITH) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_FAITH) != vYields.end())
-				{
-					int iFaith = max(1, iYieldHandicap * iMultiplier / 100);
-					ChangeFaith(iFaith);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("FAITH (%d)", iFaith);
-					}
-					else
-					{
-						strTemp.Format("FAITH");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Tourism
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_TOURISM) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_TOURISM) != vYields.end())
-				{
-					int iTourism = max(1, iYieldHandicap * iMultiplier / 100);
-					GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("TOURISM TO MET CIVS (%d; modifiers apply)", iTourism);
-					}
-					else
-					{
-						strTemp.Format("TOURISM TO MET CIVS (modifiers apply)");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Great General Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_GREAT_GENERAL_POINTS) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_GENERAL_POINTS) != vYields.end())
-				{
-					int iGGPoints = max(1, iYieldHandicap * iMultiplier / 100);
-					changeCombatExperienceTimes100(iGGPoints * 100);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("G GENERAL POINTS (%d)", iGGPoints);
-					}
-					else
-					{
-						strTemp.Format("G GENERAL POINTS");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Great Admiral Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_GREAT_ADMIRAL_POINTS) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_ADMIRAL_POINTS) != vYields.end())
-				{
-					int iGAPoints = max(1, iYieldHandicap * iMultiplier / 100);
-					changeNavalCombatExperienceTimes100(iGAPoints * 100);
-
-					if (!bFirstYield)
-					{
-						strTemp.Format(", ");
-						strLogString += strTemp;
-					}
-					if (bSeparateYieldTypes)
-					{
-						strTemp.Format("G ADMIRAL POINTS (%d)", iGAPoints);
-					}
-					else
-					{
-						strTemp.Format("G ADMIRAL POINTS");
-					}
-					strLogString += strTemp;
-					bFirstYield = false;
-				}
-
-				// Population (does not scale with game speed!)
-				// This one is divided by 100 for sanity. Each 100 points = +1 citizen. The minimum gain is +1 citizen.
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_POPULATION) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_POPULATION) != vYields.end())
-				{
-					int iPopulationBoost = max(1, iUnscaledYieldHandicap * iMultiplier / 10000);
-
-					// Distribute Population deck-of-cards style to cities in order of Local Happiness.
-					CvWeightedVector<CvCity*> CitiesSortedByLocalHappiness;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Do not distribute Population to razing or resistance cities
-						if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
-							continue;
-
-						int iLocalHappiness = pLoopCity->GetLocalHappiness(0, /*bExcludeEmpireContributions*/ false);
-						CitiesSortedByLocalHappiness.push_back(pLoopCity, iLocalHappiness);
-					}
-					if (CitiesSortedByLocalHappiness.size() > 0)
-					{
-						CitiesSortedByLocalHappiness.StableSortItems();
-						int iPopToGive = iPopulationBoost;
-						while (iPopToGive > 0)
-						{
-							for (int i = 0; i < CitiesSortedByLocalHappiness.size(); i++)
-							{
-								CvCity* pCity = CitiesSortedByLocalHappiness.GetElement(i);
-								pCity->changePopulation(1, true, true);
-								iPopToGive--;
-
-								if (iPopToGive == 0)
-									break;
-							}
-						}
-
-						if (!bFirstYield)
-						{
-							strTemp.Format(", ");
-							strLogString += strTemp;
-						}
-
-						strTemp.Format("EMPIRE POPULATION (%d)", iPopulationBoost);
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				// Border Growth Points
-				iMultiplier = bSeparateYieldTypes ? pHandicapInfo->getYieldMultiplierForAIDifficultyBonus(eHistoricEvent, YIELD_CULTURE_LOCAL) : iCommonMultiplier;
-				if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE_LOCAL) != vYields.end())
-				{
-					int iBorderGrowthPoints = max(1, iYieldHandicap * iMultiplier / 100);
-
-					// How many valid cities can we divide this yield amongst?
-					vector<int> vValidCities;
-					int iLoop = 0;
-					for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
-					{
-						// Skip puppets, unless Venice.
-						if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
-							continue;
-
-						// Skip resistance or razing cities.
-						if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
-							continue;
-
-						vValidCities.push_back(pLoopCity->GetID());
-					}
-					if (vValidCities.size() > 0)
-					{
-						int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
-						int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
-						if (iBGPPerCity <= 0)
-							iBGPPerCity = 1;
-
-						for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
-						{
-							CvCity* pCity = getCity(*it);
-							if (pCity->isCapital())
-								pCity->ChangeJONSCultureStored(iBGPPerCity + iBGPRemainder);
-							else
-								pCity->ChangeJONSCultureStored(iBGPPerCity);
-						}
-
-						if (!bFirstYield)
-						{
-							strTemp.Format(", ");
-							strLogString += strTemp;
-						}
-						if (bSeparateYieldTypes)
-						{
-							strTemp.Format("BORDER GROWTH POINTS (%d; %d cities, %d per city)", iBorderGrowthPoints, vValidCities.size(), iBGPPerCity);
-						}
-						else
-						{
-							strTemp.Format("BORDER GROWTH POINTS (%d cities, %d per city)", vValidCities.size(), iBGPPerCity);
-						}
-						strLogString += strTemp;
-						bFirstYield = false;
-					}
-				}
-
-				strTemp.Format(".");
 				strLogString += strTemp;
+				bFirstYield = false;
+			}
 
-				if (GC.getLogging() && GC.getAILogging())
+			// Culture
+			if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_CULTURE) : iCommonAmount;
+				int iCulture = max(1, iAmount * iDifficultyBonusPercent / 100);
+				changeJONSCulture(iCulture);
+
+				if (!bFirstYield)
 				{
-					CvString strBaseString;
-
-					CvString strFileName = "DifficultyHandicapLog.csv";
-					FILogFile* pLog = NULL;
-					pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-					CvString strPlayerName;
-					strPlayerName = getCivilizationShortDescription();
-					strBaseString += strPlayerName;
-					strBaseString += ", ";
-
-					CvString strTurn;
-
-					strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
-					strBaseString += strTurn;
-
-					strBaseString += strLogString;
-
-					pLog->Msg(strBaseString);
+					strTemp.Format(", ");
+					strLogString += strTemp;
 				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("CULTURE (%d)", iCulture);
+				}
+				else
+				{
+					strTemp.Format("CULTURE");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Science
+			if (std::find(vYields.begin(), vYields.end(), YIELD_SCIENCE) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_SCIENCE) : iCommonAmount;
+				int iScience = max(1, iAmount * iDifficultyBonusPercent / 100);
+				TechTypes eCurrentTech = GetPlayerTechs()->GetCurrentResearch();
+				if (eCurrentTech == NO_TECH)
+				{
+					changeOverflowResearch(iScience);
+				}
+				else
+				{
+					GET_TEAM(getTeam()).GetTeamTechs()->ChangeResearchProgress(eCurrentTech, iScience, GetID());
+				}
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("SCIENCE (%d)", iScience);
+				}
+				else
+				{
+					strTemp.Format("SCIENCE");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Faith
+			if (std::find(vYields.begin(), vYields.end(), YIELD_FAITH) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_FAITH) : iCommonAmount;
+				int iFaith = max(1, iAmount * iDifficultyBonusPercent / 100);
+				ChangeFaith(iFaith);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("FAITH (%d)", iFaith);
+				}
+				else
+				{
+					strTemp.Format("FAITH");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Tourism
+			if (std::find(vYields.begin(), vYields.end(), YIELD_TOURISM) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_TOURISM) : iCommonAmount;
+				int iTourism = max(1, iAmount * iDifficultyBonusPercent / 100);
+				GetCulture()->AddTourismAllKnownCivsWithModifiers(iTourism);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("TOURISM TO MET CIVS (%d; modifiers apply)", iTourism);
+				}
+				else
+				{
+					strTemp.Format("TOURISM TO MET CIVS (modifiers apply)");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Great General Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_GENERAL_POINTS) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_GREAT_GENERAL_POINTS) : iCommonAmount;
+				int iGGPoints = max(1, iAmount * iDifficultyBonusPercent / 100);
+				changeCombatExperienceTimes100(iGGPoints * 100);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("G GENERAL POINTS (%d)", iGGPoints);
+				}
+				else
+				{
+					strTemp.Format("G GENERAL POINTS");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Great Admiral Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_GREAT_ADMIRAL_POINTS) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_GREAT_ADMIRAL_POINTS) : iCommonAmount;
+				int iGAPoints = max(1, iAmount * iDifficultyBonusPercent / 100);
+				changeNavalCombatExperienceTimes100(iGAPoints * 100);
+
+				if (!bFirstYield)
+				{
+					strTemp.Format(", ");
+					strLogString += strTemp;
+				}
+				if (bSeparateYieldTypes)
+				{
+					strTemp.Format("G ADMIRAL POINTS (%d)", iGAPoints);
+				}
+				else
+				{
+					strTemp.Format("G ADMIRAL POINTS");
+				}
+				strLogString += strTemp;
+				bFirstYield = false;
+			}
+
+			// Population (does not scale with game speed!)
+			if (std::find(vYields.begin(), vYields.end(), YIELD_POPULATION) != vYields.end())
+			{
+				int iPopulationBoost = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_POPULATION) : iCommonAmount;
+
+				// Distribute Population deck-of-cards style to cities in order of Local Happiness.
+				CvWeightedVector<CvCity*> CitiesSortedByLocalHappiness;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Do not distribute Population to razing or resistance cities
+					if (pLoopCity->IsRazing() || pLoopCity->IsResistance())
+						continue;
+
+					int iLocalHappiness = pLoopCity->GetLocalHappiness(0, /*bExcludeEmpireContributions*/ false);
+					CitiesSortedByLocalHappiness.push_back(pLoopCity, iLocalHappiness);
+				}
+				if (CitiesSortedByLocalHappiness.size() > 0)
+				{
+					CitiesSortedByLocalHappiness.StableSortItems();
+					int iPopToGive = iPopulationBoost;
+					while (iPopToGive > 0)
+					{
+						for (int i = 0; i < CitiesSortedByLocalHappiness.size(); i++)
+						{
+							CvCity* pCity = CitiesSortedByLocalHappiness.GetElement(i);
+							pCity->changePopulation(1, true, true);
+							iPopToGive--;
+
+							if (iPopToGive == 0)
+								break;
+						}
+					}
+
+					if (!bFirstYield)
+					{
+						strTemp.Format(", ");
+						strLogString += strTemp;
+					}
+
+					strTemp.Format("EMPIRE POPULATION (%d)", iPopulationBoost);
+					strLogString += strTemp;
+					bFirstYield = false;
+				}
+			}
+
+			// Border Growth Points
+			if (std::find(vYields.begin(), vYields.end(), YIELD_CULTURE_LOCAL) != vYields.end())
+			{
+				int iAmount = bSeparateYieldTypes ? pHandicapInfo->getYieldAmountForAIDifficultyBonus(iEra, eHistoricEvent, YIELD_CULTURE_LOCAL) : iCommonAmount;
+				int iBorderGrowthPoints = max(1, iAmount * iDifficultyBonusPercent / 100);
+
+				// How many valid cities can we divide this yield amongst?
+				vector<int> vValidCities;
+				int iLoop = 0;
+				for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				{
+					// Skip puppets, unless Venice.
+					if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(pLoopCity))
+						continue;
+
+					// Skip resistance or razing cities.
+					if (pLoopCity->IsResistance() || pLoopCity->IsRazing())
+						continue;
+
+					vValidCities.push_back(pLoopCity->GetID());
+				}
+				if (vValidCities.size() > 0)
+				{
+					int iBGPPerCity = iBorderGrowthPoints / vValidCities.size();
+					int iBGPRemainder = iBorderGrowthPoints % vValidCities.size();
+					if (iBGPPerCity <= 0)
+						iBGPPerCity = 1;
+
+					for (std::vector<int>::iterator it = vValidCities.begin(); it != vValidCities.end(); it++)
+					{
+						CvCity* pCity = getCity(*it);
+						if (pCity->isCapital())
+							pCity->ChangeJONSCultureStored(iBGPPerCity + iBGPRemainder);
+						else
+							pCity->ChangeJONSCultureStored(iBGPPerCity);
+					}
+
+					if (!bFirstYield)
+					{
+						strTemp.Format(", ");
+						strLogString += strTemp;
+					}
+					if (bSeparateYieldTypes)
+					{
+						strTemp.Format("BORDER GROWTH POINTS (%d; %d cities, %d per city)", iBorderGrowthPoints, vValidCities.size(), iBGPPerCity);
+					}
+					else
+					{
+						strTemp.Format("BORDER GROWTH POINTS (%d cities, %d per city)", vValidCities.size(), iBGPPerCity);
+					}
+					strLogString += strTemp;
+					bFirstYield = false;
+				}
+			}
+
+			strTemp.Format(".");
+			strLogString += strTemp;
+
+			if (GC.getLogging() && GC.getAILogging())
+			{
+				CvString strBaseString;
+
+				CvString strFileName = "DifficultyHandicapLog.csv";
+				FILogFile* pLog = NULL;
+				pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+
+				CvString strPlayerName;
+				strPlayerName = getCivilizationShortDescription();
+				strBaseString += strPlayerName;
+				strBaseString += ", ";
+
+				CvString strTurn;
+
+				strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
+				strBaseString += strTurn;
+
+				strBaseString += strLogString;
+
+				pLog->Msg(strBaseString);
 			}
 		}
 	}
 }
+
 void CvPlayer::DoHealGlobal(int iHealPercent)
 {
 	int iLoop = 0;
@@ -21653,7 +21628,7 @@ void CvPlayer::CalculateNetHappiness()
 	DoUpdateTotalHappiness();
 	DoUpdateTotalUnhappiness();
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iUnhappyCitizens = GetUnhappinessFromCitizenNeeds();
 		if (iUnhappyCitizens == 0)
@@ -22007,7 +21982,7 @@ void CvPlayer::SetTurnLastAttackedMinorCiv(int iTurn)
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetHappinessForGAP() const
 {
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iTotalGAP = 0;
 		int iLoop = 0;
@@ -22027,9 +22002,9 @@ int CvPlayer::GetHappinessForGAP() const
 /// How much over our Happiness limit are we?
 int CvPlayer::GetExcessHappiness() const
 {
-	if(isMinorCiv() || isBarbarian() || (getNumCities() == 0) || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
+	if (isMinorCiv() || isBarbarian() || getNumCities() == 0 || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 	{
-		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
+		if (MOD_BALANCE_VP)
 			return /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD);
 		else
 			return 0;
@@ -22232,7 +22207,7 @@ void CvPlayer::DoUprising()
 /// City can revolt if the empire is Very Unhappy
 void CvPlayer::DoUpdateCityRevolts()
 {
-	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || GetCulture()->GetPublicOpinionUnhappiness() > 0));
+	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_VP || GetCulture()->GetPublicOpinionUnhappiness() > 0));
 	if (bCanRevolt)
 	{
 		if (GetCityRevoltCounter() > 0)
@@ -22360,7 +22335,7 @@ void CvPlayer::DoResetCityRevoltCounter()
 		iTurns /= 100;
 	}
 
-	if (MOD_BALANCE_CORE_HAPPINESS && IsEmpireSuperUnhappy())
+	if (MOD_BALANCE_VP && IsEmpireSuperUnhappy())
 	{
 		iTurns *= 75;
 		iTurns /= 100;
@@ -23240,12 +23215,6 @@ int CvPlayer::GetBonusHappinessFromLuxuriesFlatForUI() const
 }
 
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetUnhappinessFromWarWeariness() const
-{
-	return GetCulture()->GetWarWeariness();
-}
-
-//	--------------------------------------------------------------------------------
 /// How much happiness credit for having this resource as a luxury?
 int CvPlayer::GetHappinessFromLuxury(ResourceTypes eResource, bool bIncludeImport) const
 {
@@ -23311,7 +23280,7 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 
 	int iUnhappiness = 0;
 
-	if (!MOD_BALANCE_CORE_HAPPINESS)
+	if (!MOD_BALANCE_VP)
 	{
 		// City Count Unhappiness
 		iUnhappiness += GetUnhappinessFromCityCount(pAssumeCityAnnexed, pAssumeCityPuppeted);
@@ -23333,12 +23302,12 @@ int CvPlayer::DoUpdateTotalUnhappiness(CvCity* pAssumeCityAnnexed, CvCity* pAssu
 
 	iUnhappiness += GetCulture()->GetPublicOpinionUnhappiness();
 
-	if (MOD_BALANCE_CORE_JFD && !isMinorCiv() && !isBarbarian())
+	if (MOD_BALANCE_CORE_JFD)
 	{
 		iUnhappiness += GetUnhappinessFromCityJFDSpecial();
 	}
 
-	if (MOD_BALANCE_CORE_HAPPINESS && !isMinorCiv() && !isBarbarian())
+	if (MOD_BALANCE_VP)
 	{
 		iUnhappiness += GetUnhappinessFromWarWeariness();
 	}
@@ -23455,16 +23424,16 @@ int CvPlayer::GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed, CvCity* pA
 		// Normal city
 		else if(!pLoopCity->IsOccupied() || pLoopCity->IsNoOccupiedUnhappiness())
 			bCityValid = true;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if(MOD_BALANCE_CORE_HAPPINESS)
+
+		if (MOD_BALANCE_VP)
 		{
-			//Tradition policy bonus - Capital grants no founding unhappiness.
-			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
+			// Tradition policy bonus - Capital grants no founding unhappiness.
+			if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
 			{
 				bCityValid = false;
 			}
 		}
-#endif
+
 #if defined(MOD_BALANCE_CORE_POLICIES)
 		if(MOD_BALANCE_CORE_POLICIES)
 		{
@@ -23728,9 +23697,8 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 		{
 			iPopulation = pLoopCity->GetCityCitizens()->GetTotalSpecialistCount();
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 			//Less unhappiness from specialists....
-			if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS || MOD_BALANCE_CORE_JFD)
+			if (MOD_BALANCE_VP || MOD_BALANCE_CORE_JFD)
 			{
 				iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 				int iNoHappinessSpecialists = 0;
@@ -23756,7 +23724,6 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 					iPopulation -= iNoHappinessSpecialists;
 				}
 			}
-#endif
 
 			// No Unhappiness from Specialist Pop? (Policies, etc.)
 			if(isHalfSpecialistUnhappiness())
@@ -23767,51 +23734,43 @@ int CvPlayer::GetUnhappinessFromCitySpecialists(CvCity* pAssumeCityAnnexed, CvCi
 
 			iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-			if(MOD_BALANCE_CORE_HAPPINESS || MOD_BALANCE_CORE_JFD)
+			if (MOD_BALANCE_VP || MOD_BALANCE_CORE_JFD)
 			{
 				iUnhappiness += iUnhappinessFromThisCity;
 			}
-			if(!MOD_BALANCE_CORE_HAPPINESS)
+			if (!MOD_BALANCE_VP)
 			{
-//Took these away as they were making specialists do weird things.
-#endif
-			if(pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-#if defined(MOD_BALANCE_CORE)
-			if(pLoopCity->GetLocalUnhappinessMod() != 0)
-			{
-				iUnhappinessFromThisCity *= (100 + pLoopCity->GetLocalUnhappinessMod());
-				iUnhappinessFromThisCity /= 100;
-			}
-#endif
+				//Took these away as they were making specialists do weird things.
+				if (pLoopCity->isCapital() && GetCapitalUnhappinessMod() != 0)
+				{
+					iUnhappinessFromThisCity *= (100 + GetCapitalUnhappinessMod());
+					iUnhappinessFromThisCity /= 100;
+				}
 
-			iUnhappiness += iUnhappinessFromThisCity;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+				if (pLoopCity->GetLocalUnhappinessMod() != 0)
+				{
+					iUnhappinessFromThisCity *= (100 + pLoopCity->GetLocalUnhappinessMod());
+					iUnhappinessFromThisCity /= 100;
+				}
+
+				iUnhappiness += iUnhappinessFromThisCity;
 			}
-#endif
 		}
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if(!MOD_BALANCE_CORE_HAPPINESS)
+
+	if (!MOD_BALANCE_VP)
 	{
-#endif
-	iUnhappiness *= (100 + GetUnhappinessMod());
-	iUnhappiness /= 100;
+		iUnhappiness *= (100 + GetUnhappinessMod());
+		iUnhappiness /= 100;
 
-	iUnhappiness *= 100 + GetPlayerTraits()->GetPopulationUnhappinessModifier();
-	iUnhappiness /= 100;
+		iUnhappiness *= 100 + GetPlayerTraits()->GetPopulationUnhappinessModifier();
+		iUnhappiness /= 100;
 
-	// Handicap mod
-	iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
-	iUnhappiness /= 100;
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+		// Handicap mod
+		iUnhappiness *= isHuman() ? 100 + getHandicapInfo().getPopulationUnhappinessMod() : 100 + getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
+		iUnhappiness /= 100;
 	}
-#endif
+
 	return (int)iUnhappiness;
 }
 
@@ -24848,6 +24807,15 @@ int CvPlayer::GetExtraLeagueVotes() const
 }
 
 //	--------------------------------------------------------------------------------
+/// Extra league votes
+void CvPlayer::ChangeExtraLeagueVotes(int iChange)
+{
+	// 1 vote per X City-States
+	if (iChange != 0)
+		m_iExtraLeagueVotes += GC.getGame().GetNumMinorCivsEver(true) / iChange;
+}
+
+//	--------------------------------------------------------------------------------
 /// Extra league votes from faith
 int CvPlayer::GetFaithToVotes() const
 {
@@ -25496,18 +25464,6 @@ void CvPlayer::SetScienceRateFromLeagueAid(int iValue)
 {
 	if(GetScienceRateFromLeagueAid() != iValue)
 		m_iScienceRateFromLeagueAid = iValue;
-}
-
-//	--------------------------------------------------------------------------------
-/// Extra league votes
-void CvPlayer::ChangeExtraLeagueVotes(int iChange)
-{
-	m_iExtraLeagueVotes += iChange;
-	CvAssert(m_iExtraLeagueVotes >= 0);
-	if (m_iExtraLeagueVotes < 0)
-	{
-		m_iExtraLeagueVotes = 0;
-	}
 }
 
 //	--------------------------------------------------------------------------------
@@ -26230,7 +26186,7 @@ void CvPlayer::DoProcessGoldenAge()
 			}
 		}
 #if defined(MOD_BALANCE_CORE)
-		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL || getGoldenAgeTurns() <= 0)
+		if (MOD_BALANCE_VP || getGoldenAgeTurns() <= 0)
 #else
 		// Not in GA
 		else
@@ -26247,8 +26203,7 @@ void CvPlayer::DoProcessGoldenAge()
 			if(GetGoldenAgeProgressMeter() >= GetGoldenAgeProgressThreshold())
 			{
 				int iOverflow = GetGoldenAgeProgressMeter() - GetGoldenAgeProgressThreshold();
-#if defined(MOD_BALANCE_CORE)
-#endif
+
 				SetGoldenAgeProgressMeter(iOverflow);
 				
 				changeGoldenAgeTurns(getGoldenAgeLength());
@@ -26364,7 +26319,7 @@ int CvPlayer::GetGoldenAgeProgressThreshold() const
 
 	if (GetGoldenAgeMeterMod() != 0)
 	{
-		iThreshold *= (100 + GetGoldenAgeMeterMod());
+		iThreshold *= 100 + GetGoldenAgeMeterMod();
 		iThreshold /= 100;
 	}
 
@@ -33089,19 +33044,19 @@ int CvPlayer::GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity*
 	return iTotalBonus;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::ChangeSingleVotes(int iChange)
+void CvPlayer::ChangeSingleLeagueVotes(int iChange)
 {
-	m_iSingleVotes += iChange;
+	m_iSingleLeagueVotes += iChange;
 }
 //	--------------------------------------------------------------------------------
-void CvPlayer::SetSingleVotes(int iChange)
+void CvPlayer::SetSingleLeagueVotes(int iChange)
 {
-	m_iSingleVotes = iChange;
+	m_iSingleLeagueVotes = iChange;
 }
 //	--------------------------------------------------------------------------------
-int CvPlayer::GetSingleVotes() const
+int CvPlayer::GetSingleLeagueVotes() const
 {
-	return m_iSingleVotes;
+	return m_iSingleLeagueVotes;
 }
 
 //	--------------------------------------------------------------------------------
@@ -35002,6 +34957,15 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 	if (isMinorCiv())
 	{
 		GetMinorCivAI()->DoChangeAliveStatus(bNewValue);
+
+		if (!bNewValue)
+		{
+			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+			{
+				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+				GetMinorCivAI()->DoChangeProtectionFromMajor(eLoopPlayer, false, false);
+			}
+		}
 	}
 
 	// Update turns/slot status if the player is now alive
@@ -35030,6 +34994,10 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			SetWarDamageValue(eLoopPlayer, 0);
 			GET_PLAYER(eLoopPlayer).SetWarValueLost(GetID(), 0);
 			GET_PLAYER(eLoopPlayer).SetWarDamageValue(GetID(), 0);
+
+			if (isMajorCiv())
+				SetWarWeariness(eLoopPlayer, 0); // this is intentionally not reset for the other player (for a gradual decay)
+
 			// Cancel active Espionage Events
 			GET_PLAYER(eLoopPlayer).RemoveEspionageEventsForPlayer(GetID());
 		}
@@ -35084,15 +35052,12 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 			// Military rating drops to 0
 			SetMilitaryRating(0);
 
-			// Reset war weariness
-			if (MOD_BALANCE_CORE_HAPPINESS)
-				GetCulture()->SetWarWeariness(0);
-
 			// Reset relationships with minor civs
 			for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopMinor = (PlayerTypes) iPlayerLoop;
 				GET_PLAYER(eLoopMinor).GetMinorCivAI()->ResetFriendshipWithMajor(GetID());
+				GET_PLAYER(eLoopMinor).GetMinorCivAI()->DoChangeProtectionFromMajor(GetID(), false, false);
 				if (GET_PLAYER(eLoopMinor).GetMinorCivAI()->IsAllies(GetID()))
 				{
 					CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -35104,7 +35069,7 @@ void CvPlayer::setAlive(bool bNewValue, bool bNotify)
 							if (it->GetEffects()->bSphereOfInfluence && it->GetProposerDecision()->GetProposer() == GetID())
 							{
 								PlayerTypes eMinor = (PlayerTypes)it->GetProposerDecision()->GetDecision();
-								if(eMinor != NO_PLAYER)
+								if (eMinor != NO_PLAYER)
 									it->RemoveEffects(eMinor);
 							}
 						}
@@ -37242,7 +37207,9 @@ int CvPlayer::GetFreeWCVotes() const
 //	--------------------------------------------------------------------------------
 void CvPlayer::changeFreeWCVotes(int iChange)
 {
-	m_iFreeWCVotes += iChange;
+	// 1 vote per X City-States
+	if (iChange != 0)
+		m_iFreeWCVotes += GC.getGame().GetNumMinorCivsEver(true) / iChange;
 }
 //	--------------------------------------------------------------------------------
 int CvPlayer::GetInfluenceGPExpend() const
@@ -37738,11 +37705,7 @@ int CvPlayer::GetScienceFromOtherPlayersTimes100() const
 /// Where is our Science coming from?
 int CvPlayer::GetScienceFromHappinessTimes100() const
 {
-	if(GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
-	{
-		return 0;
-	}
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP || GC.getGame().isOption(GAMEOPTION_NO_HAPPINESS))
 		return 0;
 
 	int iScience = 0;
@@ -38038,6 +38001,27 @@ void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
 
 //	--------------------------------------------------------------------------------
 
+/// Apply the effects of war damage between players
+void CvPlayer::ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange)
+{
+	if (isMajorCiv() && GET_PLAYER(ePlayer).isMajorCiv())
+	{
+		// Apply Military Rating
+		if (!bNoRatingChange)
+		{
+			ChangeMilitaryRating(iAmount); // rating up for winner (us)
+			GET_PLAYER(ePlayer).ChangeMilitaryRating(-iAmount); // rating down for loser (them)
+		}
+
+		// Apply War Weariness
+		ChangeWarWeariness(ePlayer, iAmount / 2);
+		GET_PLAYER(ePlayer).ChangeWarWeariness(m_eID, iAmount * (100 + GetPlayerTraits()->GetEnemyWarWearinessModifier()) / 100);
+	}
+
+	// Apply War Damage
+	GET_PLAYER(ePlayer).ChangeWarValueLost(m_eID, iAmount * (100 + GET_PLAYER(ePlayer).GetWarScoreModifier()) / 100);
+}
+
 /// What is the value of stuff (Units & Cities) lost in a war against a particular player?
 int CvPlayer::GetWarValueLost(PlayerTypes ePlayer) const
 {
@@ -38090,11 +38074,8 @@ void CvPlayer::ChangeWarValueLost(PlayerTypes ePlayer, int iChange)
 					case STRENGTH_WEAK:
 						iChange *= 50;
 						break;
-					case STRENGTH_PATHETIC:
-						iChange *= 25;
-						break;
 					default:
-						iChange *= 100;
+						iChange *= 25;
 						break;
 					}
 
@@ -38138,8 +38119,54 @@ void CvPlayer::DoWarValueLostDecay()
 	}
 }
 
-/// Updates how much damage we have taken in wars against all players
-void CvPlayer::DoUpdateWarDamage()
+/// How much damage have we taken in a war against a particular player?
+int CvPlayer::GetWarDamageValue(PlayerTypes ePlayer) const
+{
+	if (isBarbarian()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
+	return m_aiWarDamageValue[ePlayer];
+}
+
+void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
+{
+	if (isBarbarian()) return;
+	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
+	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
+}
+
+/// How weary are we of war with ePlayer?
+int CvPlayer::GetWarWeariness(PlayerTypes ePlayer) const
+{
+	if (!isMajorCiv()) return 0;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return 0;
+	return m_aiWarWeariness[ePlayer];
+}
+
+void CvPlayer::SetWarWeariness(PlayerTypes ePlayer, int iValue)
+{
+	if (!isMajorCiv()) return;
+	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
+	if (GET_PLAYER(ePlayer).getTeam() == getTeam()) return;
+	m_aiWarWeariness[ePlayer] = max(iValue, 0);
+}
+
+void CvPlayer::ChangeWarWeariness(PlayerTypes ePlayer, int iChange)
+{
+	SetWarWeariness(ePlayer, GetWarWeariness(ePlayer) + iChange);
+}
+
+int CvPlayer::GetCachedCurrentWarValue() const
+{
+	return m_iCachedCurrentWarValue;
+}
+
+void CvPlayer::CacheCurrentWarValue(int iValue)
+{
+	m_iCachedCurrentWarValue = max(iValue, 0);
+}
+
+/// Updates how much damage we have taken in wars against all players, how weary we are of our wars, and our cached current war value
+void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 {
 	// Calculate the value of what we have currently - this is invariant so we will just do it once
 	int iCurrentValue = 0;
@@ -38152,8 +38179,8 @@ void CvPlayer::DoUpdateWarDamage()
 	for (CvCity* pLoopCity = firstCity(&iValueLoop); pLoopCity != NULL; pLoopCity = nextCity(&iValueLoop))
 	{
 		int iCityValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
-		iCityValue += (pLoopCity->getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER));
-		iCityValue += (pLoopCity->getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER));
+		iCityValue += pLoopCity->getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER);
+		iCityValue += pLoopCity->getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER);
 
 		// Multipliers
 		// Our original capital!
@@ -38237,11 +38264,17 @@ void CvPlayer::DoUpdateWarDamage()
 		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
 		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
 
-		if (!GET_PLAYER(eLoopPlayer).isAlive())
-			continue;
-
 		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam))
 			continue;
+
+		// Player is dead - halve current war weariness value. Skip updating war damage value as that was reset when the player died.
+		if (!GET_PLAYER(eLoopPlayer).isAlive())
+		{
+			if (isMajorCiv() && GET_PLAYER(eLoopPlayer).isMajorCiv())
+				SetWarWeariness(eLoopPlayer, GetWarWeariness(eLoopPlayer) / 2);
+
+			continue;
+		}
 
 		int iWarValueLost = GetWarValueLost(eLoopPlayer);
 		int iValueLostRatio = 0;
@@ -38259,24 +38292,172 @@ void CvPlayer::DoUpdateWarDamage()
 		}
 
 		SetWarDamageValue(eLoopPlayer, iValueLostRatio);
+
+		// Only update war weariness between major civs (and only on the once-per-turn update)
+		if (bDamageOnly || !isMajorCiv() || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+			continue;
+
+		// Not currently at war? Halve current war weariness value.
+		if (!IsAtWarWith(eLoopPlayer))
+		{
+			SetWarWeariness(eLoopPlayer, GetWarWeariness(eLoopPlayer) / 2);
+			continue;
+		}
+
+		// Do not increase war weariness if minimum war length hasn't been reached yet, or not able to make peace.
+		if (GetPlayerNumTurnsAtWar(eLoopPlayer) < /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS))
+			continue;
+
+		if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
+			continue;
+
+		// At war and able to make peace - increase war weariness by 1% of current city + unit value (minimum 1).
+		int iWarWearinessReceived = max(iCurrentValue / 100, 1);
+		iWarWearinessReceived *= 100 + GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetEnemyWarWearinessModifier();
+		iWarWearinessReceived /= 100;
+		ChangeWarWeariness(eLoopPlayer, iWarWearinessReceived);
 	}
+
+	if (!bDamageOnly)
+		CacheCurrentWarValue(iCurrentValue);
 }
 
-//	--------------------------------------------------------------------------------
-
-/// How much damage have we taken in a war against a particular player?
-int CvPlayer::GetWarDamageValue(PlayerTypes ePlayer) const
+/// Returns the war weariness % for a given player (even if it doesn't currently apply)
+int CvPlayer::GetWarWearinessPercent(PlayerTypes ePlayer) const
 {
-	if (isBarbarian()) return 0;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return 0;
-	return m_aiWarDamageValue[ePlayer];
+	if (!MOD_BALANCE_VP || !isMajorCiv())
+		return 0;
+
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	if (eTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eTeam) || !GET_PLAYER(ePlayer).isMajorCiv())
+		return 0;
+
+	int iWarWeariness = GetWarWeariness(ePlayer);
+	if (iWarWeariness == 0)
+		return 0;
+
+	// Divide war weariness by current war value (what we own).
+	int iModifiedWarWeariness = iWarWeariness / max(GetCachedCurrentWarValue(), 1);
+
+	// Apply any modifiers to war weariness.
+	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
+	iModifiedWarWeariness *= 100 - iWarWearinessModifier;
+	iModifiedWarWeariness /= 100;
+
+	// Cap at 100%.
+	return min(iModifiedWarWeariness, 100);
 }
 
-void CvPlayer::SetWarDamageValue(PlayerTypes ePlayer, int iValue)
+/// Returns the highest war weariness % from any player (only counting players who do apply)
+int CvPlayer::GetHighestWarWearinessPercent() const
 {
-	if (isBarbarian()) return;
-	if (ePlayer < 0 || ePlayer >= MAX_CIV_PLAYERS) return;
-	m_aiWarDamageValue[ePlayer] = max(iValue, 0);
+	if (!MOD_BALANCE_VP || !isMajorCiv())
+		return 0;
+
+	// Find highest war weariness
+	int iHighestWarWeariness = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+			continue;
+
+		int iWarWeariness = GetWarWeariness(eLoopPlayer);
+
+		// We're more weary of another war, or war weariness is 0. Ignore.
+		if (iWarWeariness <= iHighestWarWeariness)
+			continue;
+
+		// Did we just capture a city from this player? Ignore, due to a temporary boost in support amongst our population (in hopes of a favorable end-of-war settlement).
+		// This is meant to equalize human/AI, human/human, and AI/AI wars, since the AI will always refuse to make peace for a little bit after their city is captured.
+		if (GetPlayerNumTurnsSinceCityCapture(eLoopPlayer) <= 1)
+			continue;
+
+		if (IsAtWarWith(eLoopPlayer))
+		{
+			// At war and unable to make peace? Ignore.
+			if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
+				continue;
+
+			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
+			if (isHuman() && !GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
+				continue;
+		}
+
+		iHighestWarWeariness = iWarWeariness;
+	}
+
+	// Divide highest war weariness by current war value (what we own).
+	int iModifiedWarWeariness = iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
+
+	// Apply any modifiers to war weariness.
+	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
+	iModifiedWarWeariness *= 100 - iWarWearinessModifier;
+	iModifiedWarWeariness /= 100;
+
+	// Cap at 100%.
+	return min(iModifiedWarWeariness, 100);
+}
+
+/// Returns the player with the highest war weariness to make peace with, including players whose cities were recently captured, but excluding the other two exceptions
+PlayerTypes CvPlayer::GetHighestWarWearinessPlayer() const
+{
+	if (!MOD_BALANCE_VP || !isMajorCiv())
+		return NO_PLAYER;
+
+	// Find highest war weariness
+	PlayerTypes eHighestWarWearinessPlayer = NO_PLAYER;
+	int iHighestWarWeariness = 0;
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+		TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
+
+		if (eLoopTeam == getTeam() || !GET_TEAM(getTeam()).isHasMet(eLoopTeam) || !GET_PLAYER(eLoopPlayer).isMajorCiv())
+			continue;
+
+		int iWarWeariness = GetWarWeariness(eLoopPlayer);
+
+		// We're more weary of another war, or war weariness is 0. Ignore.
+		if (iWarWeariness <= iHighestWarWeariness)
+			continue;
+
+		if (IsAtWarWith(eLoopPlayer))
+		{
+			// At war and unable to make peace? Ignore.
+			if (!GET_TEAM(getTeam()).canChangeWarPeace(eLoopTeam))
+				continue;
+
+			// Exception between human and AI players: if the AI is unwilling to make peace, ignore war weariness from them.
+			if (isHuman() && !GET_PLAYER(eLoopPlayer).isHuman() && !GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsWantsPeaceWithPlayer(GetID()))
+				continue;
+		}
+
+		iHighestWarWeariness = iWarWeariness;
+		eHighestWarWearinessPlayer = eLoopPlayer;
+	}
+
+	return eHighestWarWearinessPlayer;
+}
+
+int CvPlayer::GetSupplyReductionFromWarWeariness() const
+{
+	return GetHighestWarWearinessPercent() * /*34*/ range(GD_INT_GET(UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION), 0, 100) / 100;
+}
+
+int CvPlayer::GetUnitCostIncreaseFromWarWeariness() const
+{
+	return GetHighestWarWearinessPercent() * /*75*/ max(GD_INT_GET(UNIT_COST_WAR_WEARINESS_PERCENT_INCREASE), 0) / 100;
+}
+
+int CvPlayer::GetUnhappinessFromWarWeariness() const
+{
+	int iUnhappiness = GetHighestWarWearinessPercent() * /*34*/ max(GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP), 0) / 100;
+	iUnhappiness *= getTotalPopulation();
+	iUnhappiness /= 100;
+	return iUnhappiness;
 }
 
 //	--------------------------------------------------------------------------------
@@ -38306,27 +38487,19 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 		{
 			// Open the log file
 			CvString strFileName = "PlayerProximityLog.csv";
-			FILogFile* pLog = NULL;
-			pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
+			FILogFile* pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
 			CvString strLog;
-			CvString strTemp;
 
-			CvString strPlayerName;
-			strPlayerName = getCivilizationShortDescription();
-			strLog += strPlayerName;
+			strLog.Format("%d,", GC.getGame().getGameTurn()); // turn
+			strLog += getCivilizationShortDescription();
 			strLog += ",";
-
-			strTemp.Format("%d,", GC.getGame().getGameTurn()); // turn
-			strLog += strTemp;
-			CvString strOtherPlayerName;
-			strOtherPlayerName = GET_PLAYER(ePlayer).getCivilizationShortDescription();
-			strLog += strOtherPlayerName;
-			strLog += ",";
+			strLog += GET_PLAYER(ePlayer).getCivilizationShortDescription();
+			strLog += ",old,";
 
 			switch(m_aiProximityToPlayer[ePlayer])
 			{
 			case NO_PLAYER_PROXIMITY:
-				strLog += "No player proximity,";
+				strLog += "Undefined,";
 				break;
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				strLog += "Neighbors,";
@@ -38342,12 +38515,12 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 				break;
 			}
 
-			strLog += "-->,";
+			strLog += "new,";
 
 			switch(eProximity)
 			{
 			case NO_PLAYER_PROXIMITY:
-				strLog += "No player proximity,";
+				strLog += "Undefined,";
 				break;
 			case PLAYER_PROXIMITY_NEIGHBORS:
 				strLog += "Neighbors,";
@@ -38362,6 +38535,10 @@ void CvPlayer::SetProximityToPlayer(PlayerTypes ePlayer, PlayerProximityTypes eP
 				strLog += "Distant,";
 				break;
 			}
+
+			//add major/minor marker for easy filtering
+			strLog += isMajorCiv() ? "x" : "o";
+			strLog += GET_PLAYER(ePlayer).isMajorCiv() ? "x" : "o";
 
 			pLog->Msg(strLog);
 		}
@@ -47680,7 +47857,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iGreatWorksTourismModifierGlobal);
 	visitor(player.m_iCenterOfMassX);
 	visitor(player.m_iCenterOfMassY);
-	visitor(player.m_iReferenceFoundValue);
 	visitor(player.m_iReformationFollowerReduction);
 	visitor(player.m_bIsReformation);
 	visitor(player.m_viInstantYieldsTotal);
@@ -47969,7 +48145,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiGlobalTourismAlreadyReceived);
 	visitor(player.m_iEventTourismCS);
 	visitor(player.m_iNumHistoricEvent);
-	visitor(player.m_iSingleVotes);
+	visitor(player.m_iSingleLeagueVotes);
 	visitor(player.m_iMonopolyModFlat);
 	visitor(player.m_iMonopolyModPercent);
 	visitor(player.m_iCachedValueOfPeaceWithHuman);
@@ -48059,6 +48235,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iNumFreePolicies);
 	visitor(player.m_iNumFreePoliciesEver);
 	visitor(player.m_iNumFreeTenets);
+	visitor(player.m_iCachedCurrentWarValue);
 	visitor(player.m_uiStartTime);
 	visitor(player.m_bHasUUPeriod);
 	visitor(player.m_bNoNewWars);
@@ -48139,6 +48316,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_aiPlayerNumTurnsSinceCityCapture);
 	visitor(player.m_aiWarValueLost);
 	visitor(player.m_aiWarDamageValue);
+	visitor(player.m_aiWarWeariness);
 	visitor(player.m_aiNumUnitsBuilt);
 	visitor(player.m_aiProximityToPlayer);
 	visitor(player.m_aiResearchAgreementCounter);
@@ -48190,7 +48368,6 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_bEverPoppedGoody);
 	visitor(player.m_bEverTrainedBuilder);
 	visitor(player.m_iPreviousBestSettlePlot);
-	visitor(player.m_iFoundValueOfCapital);
 	visitor(player.m_iNumFreeGreatPeople);
 	visitor(player.m_iNumMayaBoosts);
 	visitor(player.m_iNumFaithGreatPeople);
@@ -50311,15 +50488,20 @@ bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
 	updatePlotFoundValues();
 
+	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	//clamp it to a sensible range
+	iFlavorExpansion = range(iFlavorExpansion, 0, 12);
+
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iCurrentValue = m_viPlotFoundValues[iI];
-		if (iCurrentValue > 0)
-		{
-			if (iAreaID == -1 || pPlot->getArea() == iAreaID)
-				return true;
-		}
+		if (iAreaID != -1 && pPlot->getArea() != iAreaID)
+			continue;
+
+		//range from -50 to +50
+		int q = GetSettlePlotQualityMeasure(pPlot);
+		if (q > -3*iFlavorExpansion)
+			return true;
 	}
 
 	return false;
@@ -50565,54 +50747,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 
 	//order by increasing score
 	std::stable_sort( vSettlePlots.begin(), vSettlePlots.end() );
-	std::reverse( vSettlePlots.begin(), vSettlePlots.end() );
-
-	CvPlot* pTestPlot = vSettlePlots[0].pPlot;
-	//look at the best two and see if maybe the second one is much closer ...
-	if (pUnit && vSettlePlots.size() > 1)
-	{
-		//find the top non-adjacent candidate pair
-		size_t indexB = 1;
-		while (indexB < vSettlePlots.size())
-		{
-			if (plotDistance(*vSettlePlots[indexB].pPlot, *vSettlePlots[0].pPlot) < 2)
-				indexB++;
-			else
-				break;
-		}
-
-		if (indexB < vSettlePlots.size())
-		{
-			//see where our settler can go: worst case in jungle one turn equals one plot ...
-			//problem is: iMaxSettleDistance is plots relative to our cities, here we need a turn limit for performance!
-			SPathFinderUserData data(pUnit, 0, iMaxSettleDistance);
-			ReachablePlots reachablePlots = GC.GetPathFinder().GetPlotsInReach(pUnit->plot(), data);
-
-			CvPlot* pTestPlotA = vSettlePlots[0].pPlot;
-			CvPlot* pTestPlotB = vSettlePlots[indexB].pPlot;
-			int iScoreA = vSettlePlots[0].score;
-			int iScoreB = vSettlePlots[indexB].score;
-			ReachablePlots::iterator itA = reachablePlots.find(pTestPlotA->GetPlotIndex());
-			ReachablePlots::iterator itB = reachablePlots.find(pTestPlotB->GetPlotIndex());
-
-			//some candidates may be so far away that we don't have a path (for performance reasons)
-			//so make up some high numbers in that case
-			int iPathLengthA = (itA == reachablePlots.end()) ? iMaxSettleDistance*5 : itA->iPathLength;
-			int iPathLengthB = (itB == reachablePlots.end()) ? iMaxSettleDistance*5 : itB->iPathLength;
-			int iNormDistA = (itA == reachablePlots.end()) ? (iMaxSettleDistance*5*SPath::getNormalizedDistanceBase()) : itA->iNormalizedDistanceRaw;
-			int iNormDistB = (itB == reachablePlots.end()) ? (iMaxSettleDistance*5*SPath::getNormalizedDistanceBase()) : itB->iNormalizedDistanceRaw;
-
-			//if both paths are very short, this becomes unstable
-			if (iPathLengthA > 4 || iPathLengthB > 4)
-			{
-				//if B is at least 80% as good but less than 80% of the distance
-				if (iScoreB * 10 > iScoreA * 8 && iNormDistB * 10 < iNormDistA * 8)
-					pTestPlot = pTestPlotB;
-			}
-		}
-	}
-
-	return pTestPlot;
+	return vSettlePlots.back().pPlot;
 }
 
 PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
@@ -50674,15 +50809,16 @@ PlayerTypes CvPlayer::GetPlayerWhoStoleMyFavoriteCitySite()
 // range is -50 to +50
 int CvPlayer::GetSettlePlotQualityMeasure(CvPlot * pPlot)
 {
-	int iReference = (67 * m_iFoundValueOfCapital) / 100;
+	if (!pPlot)
+		return -50;
 
-	if (pPlot && iReference > 0)
-	{
-		int iRawPercent = (100 * getPlotFoundValue(pPlot->getX(), pPlot->getY())) / iReference;
-		return range(iRawPercent, 50, 150) - 100;
-	}
+	//depends on map, value is averaged over all players
+	int iReference = GC.getGame().GetCityQualityReference();
+	if (iReference < 1)
+		return 50;
 
-	return 0;
+	int iRawPercent = (100 * getPlotFoundValue(pPlot->getX(), pPlot->getY())) / iReference;
+	return range(iRawPercent, 50, 150) - 100;
 }
 
 //	--------------------------------------------------------------------------------
@@ -52033,7 +52169,7 @@ int CvPlayer::GetHappinessFromVassal(PlayerTypes ePlayer) const
 {
 	int iAmount = 0;
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		iAmount = (GET_PLAYER(ePlayer).GetExcessHappiness() - /*50*/ GD_INT_GET(UNHAPPY_THRESHOLD)) * (/*20*/ GD_INT_GET(VASSAL_HAPPINESS_PERCENT) + GetVassalYieldBonusModifier());
 		iAmount /= 200;
@@ -53139,41 +53275,6 @@ void CvPlayer::invalidatePlotFoundValues()
 	m_iPlotFoundValuesUpdateTurn = -1;
 }
 
-void CvPlayer::computeFoundValueThreshold()
-{
-	m_iReferenceFoundValue = 0;
-
-	//minors are not so discriminating ...
-	//should they ever have a settler, just take the best available spot
-	if (!isMajorCiv())
-		return;
-
-	// important preparation
-	GC.getGame().GetSettlerSiteEvaluator()->ComputeFlavorMultipliers(this);
-	vector<int> vValues = GC.getGame().GetSettlerSiteEvaluator()->GetAllCitySiteValues(this);
-	if (vValues.empty())
-		return;
-
-	std::stable_sort(vValues.begin(), vValues.end());
-
-	//set our threshold halfway between the worst plot and the median
-	m_iReferenceFoundValue = (vValues[0] + vValues[vValues.size()/2])/2;
-
-	//some flavor adjustment
-	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range
-	iFlavorExpansion = min(max(0, iFlavorExpansion), 12);
-	m_iReferenceFoundValue = (m_iReferenceFoundValue * (100 - 2 * iFlavorExpansion)) / 100;
-
-	if (GC.getLogging() && GC.getAILogging())
-	{
-		CvString strMsg;
-		strMsg.Format("Median city site value for player %d is %d, flavor adjusted limit is %d\n", m_eID, vValues[vValues.size()/2], m_iReferenceFoundValue);
-		GetHomelandAI()->LogHomelandMessage(strMsg);
-	}
-}
-
-
 void CvPlayer::updatePlotFoundValues()
 {
 	if (m_iPlotFoundValuesUpdateTurn==GC.getGame().getGameTurn())
@@ -53218,7 +53319,7 @@ void CvPlayer::updatePlotFoundValues()
 			continue;
 
 		//this does not check CvPlayer::CanFound() because it would be recursion, therefore we do basic checks before
-		m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots) - m_iReferenceFoundValue;
+		m_viPlotFoundValues[iI] = pCalc->PlotFoundValue(pPlot, this, ignoreYieldPlots);
 	}
 
 	m_iPlotFoundValuesUpdateTurn = GC.getGame().getGameTurn();

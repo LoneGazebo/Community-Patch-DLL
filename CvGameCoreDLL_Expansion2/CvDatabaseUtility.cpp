@@ -135,10 +135,10 @@ void CvDatabaseUtility::Initialize2DArray(int**& ppArray, const size_t iCount1, 
 	}
 }
 //------------------------------------------------------------------------------
-void CvDatabaseUtility::SafeDelete2DArray(int**& ppArray)
+void CvDatabaseUtility::SafeDelete2DArray(int**& pArray)
 {
-	delete[] ppArray;
-	ppArray = NULL;
+	delete[] pArray;
+	pArray = NULL;
 }
 
 //------------------------------------------------------------------------------

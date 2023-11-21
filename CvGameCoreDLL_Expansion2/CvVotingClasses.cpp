@@ -4178,16 +4178,7 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	iVotes += iDiplomatVotes;
 
 	// Wonders
-	int iWonderVotes = GET_PLAYER(ePlayer).GetExtraLeagueVotes();
-	if (iWonderVotes > 0)
-	{
-		int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
-		if (iNumMinor > 0)
-		{
-			iWonderVotes = (iWonderVotes * iNumMinor);
-		}
-	}
-	iWonderVotes += GET_PLAYER(ePlayer).GetSingleVotes();
+	int iWonderVotes = max(GET_PLAYER(ePlayer).GetSingleLeagueVotes() + GET_PLAYER(ePlayer).GetExtraLeagueVotes(), 0);
 	iVotes += iWonderVotes;
 
 	// Improvements
@@ -4222,17 +4213,8 @@ int CvLeague::CalculateStartingVotesForMember(PlayerTypes ePlayer, bool bFakeUN,
 	}
 
 	int iPolicyVotes = 0;
-	iPolicyVotes = GET_PLAYER(ePlayer).GetFreeWCVotes();
-	if (iPolicyVotes > 0)
-	{
-		//1 vote per 8 CS in game.
-		int iNumMinor = (GC.getGame().GetNumMinorCivsEver(true) / 8);
-		if (iNumMinor > 0)
-		{
-			iPolicyVotes = (iPolicyVotes * iNumMinor);
-		}
-		iVotes += iPolicyVotes;
-	}
+	iPolicyVotes = max(GET_PLAYER(ePlayer).GetFreeWCVotes(), 0);
+	iVotes += iPolicyVotes;
 
 	int iTraitVotes = 0;
 	int iTraitPotential = 0;

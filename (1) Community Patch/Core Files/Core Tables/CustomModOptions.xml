@@ -231,17 +231,19 @@
 	<!-- Alters Assyria's conquest trait. Now player can chooses a free tech upon city conquest -->
 	<Row Class="5" Name="ALTERNATE_ASSYRIA_TRAIT" Value="0"/>
 	<!-- No exploit to pillage and repair in foreign lands during war -->
-	<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="0"/>
+	<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="1"/>
 	<!-- Ice Features are prevented from having a yield -->
-	<Row Class="5" Name="NO_YIELD_ICE" Value="0"/>
+	<Row Class="5" Name="NO_YIELD_ICE" Value="1"/>
 	<!-- Fixes an exploit of gifting to Major Civs -->
-	<Row Class="5" Name="NO_MAJORCIV_GIFTING" Value="0"/>
+	<Row Class="5" Name="NO_MAJORCIV_GIFTING" Value="1"/>
 	<!-- No healing on mountains if not a city plot -->
-	<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="0"/>
+	<Row Class="5" Name="NO_HEALING_ON_MOUNTAINS" Value="1"/>
 	<!-- Players can pillage permanent improvements if at war -->
 	<Row Class="4" Name="PILLAGE_PERMANENT_IMPROVEMENTS" Value="0"/>
 	<!-- This adds the ability for AI players to contact human players in multiplayer with trade deals -->
-	<Row Class="5" Name="ACTIVE_DIPLOMACY" Value="0"/>
+	<Row Class="5" Name="ACTIVE_DIPLOMACY" Value="1"/>
+	<!-- Activates functions which depend on working with closed .exe code -->
+	<Row Class="5" Name="EXE_HACKING" Value="1"/>
 	<!-- Grants Celts maximum up to 3 unimproved adjacent forests for faith -->
 	<Row Class="4" Name="ALTERNATE_CELTS" Value="0"/>
 	<!-- Restricts a Team from passing into the next era before they have found all techs of their current era -->
@@ -808,18 +810,12 @@
 	<Row Class="6" Name="BALANCE_CORE_MILITARY" Value="0"/>
 	<!-- The minors sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_MINORS" Value="0"/>
-	<!-- The city happiness sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_HAPPINESS" Value="0"/>
-	<!-- The national happiness sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_HAPPINESS_NATIONAL" Value="0"/>
 	<!-- VP: Unhappiness is NOT capped by city population -->
 	<Row Class="6" Name="BALANCE_CORE_UNCAPPED_UNHAPPINESS" Value="0"/>
 	<!-- The national wonder sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_POP_REQ_BUILDINGS" Value="0"/>
 	<!-- The settler reset city growth sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_SETTLER_RESET_FOOD" Value="0"/>
-	<!-- The happiness mods sub-feature of COMMUNITY_PATCH -->
-	<Row Class="6" Name="BALANCE_CORE_HAPPINESS_MODIFIERS" Value="0"/>
 	<!-- The wonder variable consolation prize sub-feature of COMMUNITY_PATCH -->
 	<Row Class="6" Name="BALANCE_CORE_WONDERS_VARIABLE_REWARD" Value="0"/>
 	<!-- The pantheon requires resource or improvement aspect of COMMUNITY_PATCH -->

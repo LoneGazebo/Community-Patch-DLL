@@ -1955,8 +1955,8 @@ bool CvAIOperationCivilianFoundCity::PerformMission(CvUnit* pSettler)
 			if (pCity != NULL)
 			{
 				CvString strMsg;
-				strMsg.Format("City founded (%s) at (%d:%d), plot value %d", pCity->getName().c_str(), 
-					pCityPlot->getX(), pCityPlot->getY(), pCityPlot->getFoundValue(m_eOwner));
+				strMsg.Format("City founded (%s) at (%d:%d), plot value %d, q%d", pCity->getName().c_str(), 
+					pCityPlot->getX(), pCityPlot->getY(), pCityPlot->getFoundValue(m_eOwner), GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pCityPlot));
 				LogOperationSpecialMessage(strMsg);
 			}
 		}
@@ -2000,7 +2000,7 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 	else
 	{
 		// let's see if the target still makes sense
-		CvPlot* pBetterTarget = GET_PLAYER(m_eOwner).GetBestSettlePlot(pSettler, this);
+		CvPlot* pBetterTarget = FindBestTargetForUnit(pSettler);
 
 		// No targets at all!
 		if(pBetterTarget == NULL)
@@ -2031,24 +2031,26 @@ AIOperationAbortReason CvAIOperationCivilianFoundCity::VerifyOrAdjustTarget(CvAr
 //need to have this, it's pure virtual in civilian operation
 CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit)
 {
-	CvPlot* pResult = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit);
-	return pResult;
-}
+	CvPlot* pNewTarget = GET_PLAYER(m_eOwner).GetBestSettlePlot(pUnit, this);
+	if (!pNewTarget)
+		return NULL;
 
-void CvAIOperationCivilianFoundCity::LogSettleTarget(const char* hint, CvPlot* pTarget) const
-{
-	if (GC.getLogging() && GC.getAILogging())
+	if (!GetTargetPlot())
 	{
-		FILogFile* pLog = LOGFILEMGR.GetLog("SettleLog.csv", FILogFile::kDontTimeStamp);
-		CvString strMsg;
-		if (pTarget)
-			strMsg.Format("%03d, %s, op %d, %s, target %d:%d, score %d, ", GC.getGame().getElapsedGameTurns(), GET_PLAYER(m_eOwner).getName(),
-				m_iID, hint, pTarget->getX(), pTarget->getY(), GET_PLAYER(m_eOwner).getPlotFoundValue(pTarget->getX(), pTarget->getY()));
-		else
-			strMsg.Format("%03d, %s, op %d, %s, no target, ", GC.getGame().getElapsedGameTurns(), GET_PLAYER(m_eOwner).getName(), m_iID, hint);
-
-		pLog->Msg(strMsg.c_str());
+		int iNewScore = GET_PLAYER(m_eOwner).getPlotFoundValue(pNewTarget->getX(), pNewTarget->getY());
+		int iNewQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pNewTarget);
+		LogOperationSpecialMessage(CvString::format("found target for settler, score %d (q%d)", iNewScore, iNewQ).c_str());
 	}
+	else if (pNewTarget != GetTargetPlot())
+	{
+		int iNewScore = GET_PLAYER(m_eOwner).getPlotFoundValue(pNewTarget->getX(), pNewTarget->getY());
+		int iOldScore = GET_PLAYER(m_eOwner).getPlotFoundValue(m_iTargetX, m_iTargetY);
+		int iNewQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pNewTarget);
+		int iOldQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(GetTargetPlot());
+		LogOperationSpecialMessage(CvString::format("found better target for settler, old score %d (q%d), new score %d (q%d)", iOldScore, iOldQ, iNewScore, iNewQ).c_str());
+	}
+
+	return pNewTarget;
 }
 
 ////////////////////////////////////////////////////////////////////////////////

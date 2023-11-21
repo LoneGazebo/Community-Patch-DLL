@@ -1000,7 +1000,6 @@ void CvPlayerTechs::Serialize(PlayerTechs& playerTechs, Visitor& visitor)
 
 	visitor(*playerTechs.m_pTechAI);
 
-	CvAssertMsg(playerTechs.m_piLatestFlavorValues.valid() && GC.getNumFlavorTypes() > 0, "Number of flavor values to serialize is expected to greater than 0");
 	visitor(playerTechs.m_piLatestFlavorValues);
 
 	visitor(playerTechs.m_bHasUUTech);
@@ -2162,19 +2161,18 @@ CvString CvPlayerTechs::GetLogFileName(CvString& playerName) const
 	return strLogName;
 }
 
-void CvPlayerTechs::LogFlavors(FlavorTypes eFlavor)
+void CvPlayerTechs::LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
 		CvString strDesc;
 		CvString strLogName;
 
 		// Find the name of this civ
-		playerName = m_pPlayer->getCivilizationShortDescription();
+		CvString playerName = m_pPlayer->getCivilizationShortDescription();
 
 		// Open the log file
 		if(GC.getPlayerAndCityAILogSplit())
@@ -2186,8 +2184,7 @@ void CvPlayerTechs::LogFlavors(FlavorTypes eFlavor)
 			strLogName = "TechAILog.csv";
 		}
 
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
@@ -2198,14 +2195,14 @@ void CvPlayerTechs::LogFlavors(FlavorTypes eFlavor)
 		{
 			for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
 			{
-				strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piLatestFlavorValues[iI]);
+				strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piLatestFlavorValues[iI], change, reason?reason:"unknown", start?"start":"end");
 				strOutBuf = strBaseString + strTemp;
 				pLog->Msg(strOutBuf);
 			}
 		}
 		else
 		{
-			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor]);
+			strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor], change, reason?reason:"unknown", start?"start":"end");
 			strOutBuf = strBaseString + strTemp;
 			pLog->Msg(strOutBuf);
 		}

@@ -114,7 +114,6 @@ public:
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
-	void LogFlavors(FlavorTypes eFlavor);
 	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit);
 	void LogDirective(BuilderDirective directive, CvUnit* pUnit, int iWeight, bool bChosen = false);
 

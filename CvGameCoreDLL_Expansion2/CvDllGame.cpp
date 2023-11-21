@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	Â© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -143,6 +143,9 @@ void CvDllGame::CycleUnits(bool bClear, bool bForward, bool bWorkers)
 void CvDllGame::DoGameStarted()
 {
 	m_pGame->DoGameStarted();
+
+	if (MOD_EXE_HACKING)
+		InitExeStuff();
 }
 //------------------------------------------------------------------------------
 void CvDllGame::EndTurnTimerReset()
@@ -581,4 +584,90 @@ bool CvDllGame::GetGreatWorkAudio(int GreatWorkIndex, char* strSound, int length
 void CvDllGame::SetLastTurnAICivsProcessed()
 {
 	m_pGame->SetLastTurnAICivsProcessed();
+}
+//------------------------------------------------------------------------------
+bool endsWith(const char* str, const char* ending)
+{
+	size_t str_len = strlen(str), ending_len = strlen(ending);
+	return str_len >= ending_len && !strcmp(str + str_len - ending_len, ending);
+}
+void CvDllGame::InitExeStuff()
+{
+	// Here we are going to do some hacking on .exe code
+	// 
+	// civ5 exes are CEG-protected (some kind of steam out-of-box protection).
+	// It disallows you to patch .exe directly, but still we are able to patch it in runtime
+	// and do everything we want (I'm not sure, but it looks like so).
+	// 
+	// Reversing .exe is pretty simple because .exe files are not obfuscated in any way,
+	// so you can just load them into ghidra/ida/etc, find the addresses you need and then 
+	// patch them here.
+	// (!) Moreover, civ5 linux executable is compiled with all the namings preserved, 
+	// so things become even more easier because everything what you need is:
+	// - Find address in linux executable.
+	// - Map it somehow to .exe address (orient by string constants, 
+	//   similar code instructions and so on).
+	// - Patch it here.
+	//
+	// todo: support dx9, tablet (?) binaries
+	// todo: some modern way of patching
+	// todo: code caves
+	CvBinType binType;
+
+	char moduleName[1024];
+	if (!GetModuleFileName(NULL, moduleName, sizeof(moduleName)))
+	{
+		// todo: log error (GetLastError)
+		binType = BIN_UNKNOWN;
+	}
+	else if (endsWith(moduleName, "CivilizationV.exe"))
+		binType = BIN_DX9;
+	else if (endsWith(moduleName, "CivilizationV_DX11.exe"))
+		binType = BIN_DX11;
+	else if (endsWith(moduleName, "CivilizationV_Tablet.exe"))
+		binType = BIN_TABLET;
+	else
+	{
+		// todo: log moduleName
+		binType = BIN_UNKNOWN;
+	}
+
+	m_pGame->SetExeBinType(binType);
+
+	if (binType == BIN_DX11)
+	{
+		DWORD baseAddr = (DWORD) GetModuleHandleA(0);
+		DWORD headersOffset = 0x400000;
+		DWORD totalOffset = baseAddr - headersOffset;
+
+		int* s_wantForceResync = reinterpret_cast<int*>(0x02dd2f68 + totalOffset);
+		m_pGame->SetExeWantForceResyncPointer(s_wantForceResync);
+	}
+
+	/*{
+	    // the very basic example of how to fill something with NOPs
+		DWORD old_protect;
+		DWORD hookLocation = 0x51e031;
+		DWORD hookResultAddress = hookLocation + totalOffset;
+		if (VirtualProtect((void*)(hookResultAddress), 16, PAGE_EXECUTE_READWRITE, &old_protect))
+		{
+			*(unsigned char*)(hookResultAddress) = 0x90;
+			*(unsigned char*)(hookResultAddress + 1) = 0x90;
+			*(unsigned char*)(hookResultAddress + 2) = 0x90;
+			*(unsigned char*)(hookResultAddress + 3) = 0x90;
+			*(unsigned char*)(hookResultAddress + 4) = 0x90;
+			*(unsigned char*)(hookResultAddress + 5) = 0x90;
+			*(unsigned char*)(hookResultAddress + 6) = 0x90;
+			*(unsigned char*)(hookResultAddress + 7) = 0x90;
+			*(unsigned char*)(hookResultAddress + 8) = 0x90;
+			*(unsigned char*)(hookResultAddress + 9) = 0x90;
+			*(unsigned char*)(hookResultAddress + 10) = 0x90;
+			*(unsigned char*)(hookResultAddress + 11) = 0x90;
+			*(unsigned char*)(hookResultAddress + 12) = 0x90;
+			*(unsigned char*)(hookResultAddress + 13) = 0x90;
+			*(unsigned char*)(hookResultAddress + 14) = 0x90;
+			*(unsigned char*)(hookResultAddress + 15) = 0x90;
+			VirtualProtect((void*)(hookResultAddress), 16, old_protect, &old_protect);
+		}
+	}*/
 }

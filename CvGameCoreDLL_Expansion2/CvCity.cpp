@@ -1641,7 +1641,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	}
 #endif
 
-	m_strName = "";
+	m_strName = "unknown";
 	m_strScriptData = "";
 
 	m_bPopulationRankValid = false;
@@ -10686,7 +10686,7 @@ void CvCity::DoPickResourceDemanded()
 	SetResourceDemanded(NO_RESOURCE);
 	SetResourceDemandedCounter(0);
 
-	if (MOD_BALANCE_CORE_HAPPINESS && GetWeLoveTheKingDayCounter() > 0)
+	if (MOD_BALANCE_VP && GetWeLoveTheKingDayCounter() > 0)
 		return;
 
 	// Create the list of invalid Luxury Resources
@@ -10709,40 +10709,26 @@ void CvCity::DoPickResourceDemanded()
 		}
 	}
 
-	// VP: Only resources discovered by this player (or a player met by this player) are valid prior to researching Astronomy
-	bool bOnlyAllowDiscoveredResources = MOD_BALANCE_VP && !GET_TEAM(getTeam()).canEmbarkAllWaterPassage();
+	// VP: Only resources on plots revealed by this player are valid
 	set<ResourceTypes> DiscoveredLuxuryResources;
-	if (bOnlyAllowDiscoveredResources)
+	if (MOD_BALANCE_VP)
 	{
-		// First compile a list of the major civ teams this player has met
-		vector<TeamTypes> vTeamsMet;
-		vTeamsMet.push_back(getTeam());
-		CvDiplomacyAI* pDiplo = GET_PLAYER(getOwner()).GetDiplomacyAI();
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (pDiplo->IsPlayerValid(eLoopPlayer) && std::find(vTeamsMet.begin(), vTeamsMet.end(), GET_PLAYER(eLoopPlayer).getTeam()) == vTeamsMet.end())
-				vTeamsMet.push_back(GET_PLAYER(eLoopPlayer).getTeam());
-		}
-
-		// Now go through the map and see which resources have been discovered by civs this player has met
+		// Go through the map and see which resources have been discovered by this player
 		CvMap& theMap = GC.getMap();
 		int iNumPlots = theMap.numPlots();
+		TeamTypes eTeam = getTeam();
 		for (int iI = 0; iI < iNumPlots; iI++)
 		{
 			CvPlot* pLoopPlot = theMap.plotByIndexUnchecked(iI);
-			ResourceTypes eResource = pLoopPlot->getResourceType(getTeam()); // This check will ignore resources that haven't been discovered by this player (tech)
+			ResourceTypes eResource = pLoopPlot->getResourceType(eTeam); // This check will ignore resources that haven't been discovered by this player (tech)
 			if (eResource != NO_RESOURCE)
 			{
 				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 				if (pkResource && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY && localLuxuryResources.find(eResource) == localLuxuryResources.end()
 					&& DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
 				{
-					for (std::vector<TeamTypes>::iterator it = vTeamsMet.begin(); it != vTeamsMet.end(); it++)
-					{
-						if (pLoopPlot->isRevealed(*it, false))
-							DiscoveredLuxuryResources.insert(eResource);
-					}
+					if (pLoopPlot->isRevealed(eTeam, false))
+						DiscoveredLuxuryResources.insert(eResource);
 				}
 			}
 		}
@@ -10780,7 +10766,7 @@ void CvCity::DoPickResourceDemanded()
 			if (localLuxuryResources.find(eResource) != localLuxuryResources.end())
 				continue;
 
-			if (bOnlyAllowDiscoveredResources && DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
+			if (MOD_BALANCE_VP && DiscoveredLuxuryResources.find(eResource) == DiscoveredLuxuryResources.end())
 				continue;
 
 			if (!MOD_BALANCE_VP && GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
@@ -12486,7 +12472,7 @@ int CvCity::GetPurchaseCost(UnitTypes eUnit)
 
 		if (bCombat)
 		{
-			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
+			int iWarWeariness = GET_PLAYER(getOwner()).GetUnitCostIncreaseFromWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -12860,7 +12846,7 @@ int CvCity::GetFaithPurchaseCost(UnitTypes eUnit, bool bIncludeBeliefDiscounts)
 
 		if (bCombat)
 		{
-			int iWarWeariness = GET_PLAYER(getOwner()).GetCulture()->GetWarWeariness();
+			int iWarWeariness = GET_PLAYER(getOwner()).GetUnitCostIncreaseFromWarWeariness();
 			if (iWarWeariness > 0)
 			{
 				//Let's do the yield mods.			
@@ -18211,9 +18197,9 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 			iPopulation++; // Round up
 			iPopulation /= 2;
 		}
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+
 		//Less unhappiness from specialists....
-		if (MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
+		if (MOD_BALANCE_VP)
 		{
 			iUnhappinessPerPop = (float)/*100*/ GD_INT_GET(UNHAPPINESS_PER_SPECIALIST);
 			int iNoHappinessSpecialists = GetNumFreeSpecialists();
@@ -18227,41 +18213,34 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 				iPopulation -= iNoHappinessSpecialists;
 			}
 		}
-#endif
 
 		iUnhappinessFromThisCity = iPopulation * iUnhappinessPerPop;
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			iUnhappiness += iUnhappinessFromThisCity;
 		}
-		if (!MOD_BALANCE_CORE_HAPPINESS)
+		else
 		{
 			//Took these away as they were making specialists do weird things.
-#endif
 			if (isCapital() && GET_PLAYER(getOwner()).GetCapitalUnhappinessMod() != 0)
 			{
 				iUnhappinessFromThisCity *= (100 + GET_PLAYER(getOwner()).GetCapitalUnhappinessMod());
 				iUnhappinessFromThisCity /= 100;
 			}
-#if defined(MOD_BALANCE_CORE)
+
 			if (GetLocalUnhappinessMod() != 0)
 			{
 				iUnhappinessFromThisCity *= (100 + GetLocalUnhappinessMod());
 				iUnhappinessFromThisCity /= 100;
 			}
-#endif
 
 			iUnhappiness += iUnhappinessFromThisCity;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 		}
-#endif
 	}
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	if (!MOD_BALANCE_CORE_HAPPINESS)
+
+	if (!MOD_BALANCE_VP)
 	{
-#endif
 		iUnhappiness *= (100 + GET_PLAYER(getOwner()).GetUnhappinessMod());
 		iUnhappiness /= 100;
 
@@ -18271,10 +18250,8 @@ int CvCity::GetUnhappinessFromCitySpecialists()
 		// Handicap mod
 		iUnhappiness *= GET_PLAYER(getOwner()).isHuman() ? 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() : 100 + GET_PLAYER(getOwner()).getHandicapInfo().getPopulationUnhappinessMod() + GC.getGame().getHandicapInfo().getAIPopulationUnhappinessMod();
 		iUnhappiness /= 100;
-
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 	}
-#endif
+
 	return (int)iUnhappiness;
 }
 #endif
@@ -19698,7 +19675,7 @@ int CvCity::GetJONSCulturePerTurnFromPolicies() const
 		iBonusTimes100 /= 100;
 		iValue += iBonusTimes100;
 	}
-	if (MOD_BALANCE_CORE_HAPPINESS && GET_PLAYER(m_eOwner).getHappinessToCulture() != 0)
+	if (MOD_BALANCE_VP && GET_PLAYER(m_eOwner).getHappinessToCulture() != 0)
 	{
 		int iFreeCulture = GetLocalHappiness() * GET_PLAYER(m_eOwner).getHappinessToCulture();
 		iFreeCulture /= 100;
@@ -19805,7 +19782,7 @@ int CvCity::GetYieldPerTurnFromTraits(YieldTypes eYield) const
 		}
 	}
 
-	if (eYield == YIELD_SCIENCE && MOD_BALANCE_CORE_HAPPINESS)
+	if (eYield == YIELD_SCIENCE && MOD_BALANCE_VP)
 	{
 		if (GET_PLAYER(m_eOwner).getHappinessToScience() != 0)
 		{
@@ -21928,28 +21905,23 @@ bool CvCity::DoRazingTurn()
 		if (bAllowRazingEvents)
 		{
 			int iRazeValue = /*175*/ GD_INT_GET(WAR_DAMAGE_LEVEL_CITY_WEIGHT);
-			iRazeValue += (getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER));
-			iRazeValue += (getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER));
-			iRazeValue /= max(1, (GetRazingTurns() / 2)); // Divide by half the number of turns left until the city is destroyed
+			iRazeValue += getPopulation() * /*150*/ GD_INT_GET(WAR_DAMAGE_LEVEL_INVOLVED_CITY_POP_MULTIPLIER);
+			iRazeValue += getNumWorldWonders() * /*200*/ GD_INT_GET(WAR_DAMAGE_LEVEL_WORLD_WONDER_MULTIPLIER);
+			iRazeValue /= max(1, GetRazingTurns() / 2); // Divide by half the number of turns left until the city is destroyed
 
-			// Does the owner have a bonus to war score accumulation?
-			iRazeValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-			iRazeValue /= 100;
-
-			GET_PLAYER(eFormerOwner).ChangeWarValueLost(getOwner(), iRazeValue);
+			GET_PLAYER(getOwner()).ApplyWarDamage(eFormerOwner, iRazeValue, true);
 
 			// Diplomacy penalty for razing cities
 			if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(eFormerOwner).isMajorCiv())
 			{
 				int iEra = GET_PLAYER(eFormerOwner).GetCurrentEra();
 				if (iEra <= 0)
-				{
 					iEra = 1;
-				}
 
-				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), (500 * iEra));
+				GET_PLAYER(eFormerOwner).GetDiplomacyAI()->ChangeCivilianKillerValue(getOwner(), 500 * iEra);
 			}
 
+			// Partisans?
 			if (MOD_BALANCE_CORE_MILITARY_PROMOTION_ADVANCED && !GET_PLAYER(getOwner()).IsNoPartisans())
 			{
 				if (GET_PLAYER(getOwner()).GetSpawnCooldown() < 0)
@@ -21970,8 +21942,6 @@ bool CvCity::DoRazingTurn()
 				const int iMinRebels = GC.getGame().getCurrentEra();
 				const int iMaxRebels = max(iMinRebels, sqrti(getPopulation()));
 				int iNumRebels = GC.getGame().randRangeInclusive(iMinRebels, iMaxRebels, plot()->GetPseudoRandomSeed().mix(GET_PLAYER(getOwner()).GetPseudoRandomSeed()));
-
-
 				GET_PLAYER(getOwner()).SetSpawnCooldown(iNumRebels * 2);
 
 				if (GET_TEAM(GET_PLAYER(eFormerOwner).getTeam()).isAtWar(getTeam()))
@@ -22229,7 +22199,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 
 	int iTotalPop = getPopulation() + iPopMod;
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
 
@@ -22246,7 +22216,7 @@ int CvCity::GetHappinessFromPolicies(int iPopMod) const
 	{
 		iTotalHappiness += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_EXTRA_HAPPINESS);
 
-		if (!MOD_BALANCE_CORE_HAPPINESS)
+		if (!MOD_BALANCE_VP)
 		{
 			int iHappinessPerXPopulationGlobal = kPlayer.GetHappinessPerXPopulationGlobal();
 
@@ -29624,17 +29594,16 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			}
 		}
 
-		iTileValue *= (100 + iValueMultiplier);
+		iTileValue *= 100 + iValueMultiplier;
 		iTileValue /= 100;
 
 		// If the players are at war, this counts for war value!
 		if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
 		{
-			// Update military rating for both players
+			GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue);
+
 			if (GET_PLAYER(getOwner()).isMajorCiv())
 			{
-				GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
-
 				int iWarProgress = /*20*/ GD_INT_GET(WAR_PROGRESS_STOLE_TILE);
 				if (bStoleHighValueTile)
 				{
@@ -29648,8 +29617,6 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 			}
 			if (GET_PLAYER(ePlotOwner).isMajorCiv())
 			{
-				GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
-
 				int iWarProgress = /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_TILE);
 				if (bStoleHighValueTile)
 				{
@@ -29661,32 +29628,20 @@ void CvCity::BuyPlot(int iPlotX, int iPlotY)
 
 				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgress);
 			}
-
-			// Does the city owner have a bonus to war score accumulation?
-			iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-			iTileValue /= 100;
-
-			GET_PLAYER(ePlotOwner).ChangeWarValueLost(getOwner(), iTileValue);
 		}
-
-		// Diplomacy penalty for stealing territory!
-		if (GET_PLAYER(getOwner()).isMajorCiv())
+		// Diplomacy penalty for stealing territory during peacetime (for majors), always (for City-States)
+		else if (GET_PLAYER(ePlotOwner).isMinorCiv())
 		{
-			if (GET_PLAYER(ePlotOwner).isMajorCiv())
-			{
-				int iPenalty = bStoleHighValueTile ? 3 : 1;
-				GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
-			}
-			else if (GET_PLAYER(ePlotOwner).isMinorCiv())
-			{
-				int iEra = GC.getGame().getCurrentEra();
-				if (iEra <= 0)
-				{
-					iEra = 1;
-				}
+			int iEra = GC.getGame().getCurrentEra();
+			if (iEra <= 0)
+				iEra = 1;
 
-				GET_PLAYER(ePlotOwner).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), (iEra * -20));
-			}
+			GET_PLAYER(ePlotOwner).GetMinorCivAI()->ChangeFriendshipWithMajor(getOwner(), iEra * -20);
+		}
+		else if (GET_PLAYER(getOwner()).isMajorCiv() && GET_PLAYER(ePlotOwner).isMajorCiv())
+		{
+			int iPenalty = bStoleHighValueTile ? 3 : 1;
+			GET_PLAYER(ePlotOwner).GetDiplomacyAI()->ChangeNumTimesCultureBombed(getOwner(), iPenalty);
 		}
 	}
 #endif

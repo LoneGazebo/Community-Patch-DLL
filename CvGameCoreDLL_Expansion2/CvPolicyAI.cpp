@@ -3354,11 +3354,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsDiplomat())
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeWCVotes() * 250;
+			yield[YIELD_GOLD] += 2000 / PolicyInfo->GetFreeWCVotes();
 		}
 		else
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeWCVotes() * 50;
+			yield[YIELD_GOLD] += 400 / PolicyInfo->GetFreeWCVotes();
 		}
 	}
 	if (PolicyInfo->GetInfluenceGPExpend() != 0)

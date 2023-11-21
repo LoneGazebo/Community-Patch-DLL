@@ -2588,23 +2588,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 			if (iCivValue == 0)
 			{
-				// Update military rating for both players
+				GET_PLAYER(ePlayer).ApplyWarDamage(eUnitOwner, iUnitValue);
+
 				if (GET_PLAYER(ePlayer).isMajorCiv())
-				{
-					GET_PLAYER(ePlayer).ChangeMilitaryRating(iUnitValue); // rating up for winner (them)
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
-				}
+
 				if (GET_PLAYER(eUnitOwner).isMajorCiv())
-				{
-					GET_PLAYER(eUnitOwner).ChangeMilitaryRating(-iUnitValue); // rating down for loser (us)
 					GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
-				}
-
-				// Does the killer have a bonus to war score accumulation?
-				iUnitValue *= (100 + GET_PLAYER(ePlayer).GetWarScoreModifier());
-				iUnitValue /= 100;
-
-				GET_PLAYER(eUnitOwner).ChangeWarValueLost(ePlayer, iUnitValue);
 			}
 		}
 
@@ -10485,11 +10475,10 @@ bool CvUnit::pillage()
 						}
 					}
 
-					// Update military rating for both players
+					GET_PLAYER(getOwner()).ApplyWarDamage(pPlot->getOwner(), iTileValue);
+
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for winner (us)
-
 						int iWarProgressValue = /*10*/ GD_INT_GET(WAR_PROGRESS_PILLAGED_IMPROVEMENT);
 						if (bPillagedHighValueTile)
 						{
@@ -10500,8 +10489,6 @@ bool CvUnit::pillage()
 					}
 					if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(pPlot->getOwner()).ChangeMilitaryRating(-iTileValue); // rating down for loser (them)
-
 						int iWarProgressValue = /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_IMPROVEMENT);
 						if (bPillagedHighValueTile)
 						{
@@ -10510,12 +10497,6 @@ bool CvUnit::pillage()
 						}
 						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgressValue);
 					}
-
-					// Do we have a bonus to war score accumulation?
-					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-					iTileValue /= 100;
-
-					GET_PLAYER(pPlot->getOwner()).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 #endif
 				int iPillageGold = 0;
@@ -12875,17 +12856,16 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					}
 				}
 
-				iTileValue *= (100 + iValueMultiplier);
+				iTileValue *= 100 + iValueMultiplier;
 				iTileValue /= 100;
 
 				// If the players are at war, this counts for war value!
 				if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
 				{
-					// Update military rating for both players
+					GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue);
+
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
-
 						int iWarProgress = /*20*/ GD_INT_GET(WAR_PROGRESS_STOLE_TILE);
 						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
 						{
@@ -12896,8 +12876,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					}
 					if (GET_PLAYER(ePlotOwner).isMajorCiv())
 					{
-						GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
-
 						int iWarProgress = /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_TILE);
 						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
 						{
@@ -12906,12 +12884,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 						}
 						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlotOwner, iWarProgress);
 					}
-
-					// Does the city owner have a bonus to war score accumulation?
-					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-					iTileValue /= 100;
-
-					GET_PLAYER(ePlotOwner).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 			}
 #if defined(MOD_BALANCE_CORE)
@@ -13439,14 +13411,18 @@ bool CvUnit::blastTourism()
 		PlayerTypes eOwner = pPlot->getOwner();
 		kUnitOwner.changeTourismBonusTurnsPlayer(eOwner, GetTourismBlastLength());
 
-		// Give happiness to Musician owner
-		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-		{
-			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
+		// VP: Give Happiness to Musician owner
+		int iCap = /*0*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL);
+		if (iCap > 0 && kUnitOwner.getCapitalCity() != NULL)
+			kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
 
-			if (kUnitOwner.getCapitalCity() != NULL)
+		iCap = /*0 in CP, 1 in VP*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_GLOBAL);
+		if (iCap > 0)
+		{
+			int iLoop = 0;
+			for (CvCity* pLoopCity = kUnitOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kUnitOwner.nextCity(&iLoop))
 			{
-				kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
+				pLoopCity->ChangeUnmoddedHappinessFromBuildings(iCap);
 			}
 		}
 
@@ -13488,7 +13464,7 @@ bool CvUnit::blastTourism()
 			PlayerTypes eOwner = pPlot->getOwner();
 
 			// Give happiness to Musician owner
-			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
+			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL);
 
 			if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 			{
@@ -14521,7 +14497,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 		// Check max instances of unit class
 		// Don't count units already in production; upgrading is prioritized
-		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes) UpgradeUnitInfo->GetUnitClassType();
+		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes)pUpgradeUnitInfo->GetUnitClassType();
 
 		// Maxed out unit class for Game
 		if(GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
@@ -15227,7 +15203,7 @@ int CvUnit::visibilityRange() const
 
 	if (isEmbarked())
 	{
-		iVisionRange += max(1,/*0*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
+		iVisionRange += max(1, /*1*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
 	}
 	else if (isTrade())
 	{
@@ -28006,7 +27982,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0 && !pLoopUnit->shouldHeal(false))
 			{
 				//make sure we're not getting the pushed unit killed
-				int iDangerLimit = pLoopUnit->IsCanAttackRanged() ? pLoopUnit->GetCurrHitPoints() / 2 : pLoopUnit->GetCurrHitPoints();
+				int iDangerLimit = pLoopUnit->GetCurrHitPoints();
 				int iLeastDanger = INT_MAX;
 
 				//does it have a free plot
@@ -28017,20 +27993,29 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 					if (!pNeighbor)
 						continue;
 
-					bool bMayUse = false;
-
-					//empty plot
+					//valid plot
 					if (pLoopUnit->isNativeDomain(pNeighbor) && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
-						bMayUse = true;
-
-					//swap needed
-					if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
-						bMayUse = true;
-
-					if (bMayUse)
 					{
-						//go to the lowest danger plot ... todo: should we try to use the other unit as cover?
 						int iUnitDanger = pLoopUnit->GetDanger(pNeighbor);
+
+						//swap needed / possible
+						if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
+						{
+							//often the incoming unit is retreating from the frontline, so ideally we want to swap the neighboring unit right in
+							if (iUnitDanger < iDangerLimit)
+							{
+								//todo: check the distance to the next enemy
+								//todo: also might want to do a ranged opportunity attack before moving pLoopUnit ...
+								if (!pLoopUnit->IsCanAttackRanged() || TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit, pNeighbor, true, false).size() > 0)
+								{
+									if (ppToPlot)
+										*ppToPlot = pNeighbor;
+									return pLoopUnit;
+								}
+							}
+						}
+
+						//else go to the lowest danger plot ... todo: should we try to use the other unit as cover?
 						if (iUnitDanger < iDangerLimit && iUnitDanger < iLeastDanger)
 						{
 							iLeastDanger = iUnitDanger;

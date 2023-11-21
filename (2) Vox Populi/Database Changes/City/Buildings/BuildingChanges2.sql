@@ -963,7 +963,7 @@ UPDATE Buildings
 SET
 	PolicyBranchType = NULL,
 	PolicyType = 'POLICY_PATRONAGE_FINISHER',
-	ExtraLeagueVotes = 2,
+	ExtraLeagueVotes = 4,
 	PovertyFlatReduction = 1
 WHERE Type = 'BUILDING_BIG_BEN';
 

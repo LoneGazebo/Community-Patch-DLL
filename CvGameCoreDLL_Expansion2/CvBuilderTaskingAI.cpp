@@ -2997,36 +2997,6 @@ void CvBuilderTaskingAI::LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pP
 	pLog->Msg(strLog);
 }
 
-/// Log flavor information out
-void CvBuilderTaskingAI::LogFlavors(FlavorTypes eFlavor)
-{
-	if(!m_bLogging)
-		return;
-
-	// Open the log file
-	CvString strLog;
-	CvString strTemp;
-
-	// Dump out the setting for each flavor
-	if(eFlavor == NO_FLAVOR)
-	{
-		for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
-		{
-			strLog.clear();
-			strTemp.Format("Flavor, %s, %d,", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)iI));
-			strLog += strTemp;
-			LogInfo(strLog, m_pPlayer);
-		}
-	}
-	else
-	{
-		strLog.clear();
-		strTemp.Format("Flavor, %s, %d,", GC.getFlavorTypes(eFlavor).GetCString(), m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor));
-		strLog += strTemp;
-		LogInfo(strLog, m_pPlayer);
-	}
-}
-
 /// Logs all the directives for the unit
 void CvBuilderTaskingAI::LogDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit)
 {

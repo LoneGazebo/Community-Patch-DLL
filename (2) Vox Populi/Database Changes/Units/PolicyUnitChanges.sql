@@ -47,6 +47,9 @@ VALUES
 	('UNIT_GUERILLA', 'PROMOTION_DEFENSIVE_EMBARKATION'),
 	('UNIT_GUERILLA', 'PROMOTION_FLANK_ATTACK_BONUS');
 
+-- Remove building requirement in city
+DELETE FROM Unit_BuildingClassPurchaseRequireds WHERE UnitType IN ('UNIT_GUERILLA', 'UNIT_FRENCH_FOREIGNLEGION', 'UNIT_FCOMPANY');
+
 --------------------------------------
 -- Freedom
 --------------------------------------

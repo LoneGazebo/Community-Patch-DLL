@@ -245,6 +245,7 @@ public:
 	{
 		return m_iZoneID < 0;
 	}
+	int getHospitalityScore() const;
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 	void Extend(CvPlot* pPlot);

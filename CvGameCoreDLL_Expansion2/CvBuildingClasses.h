@@ -312,7 +312,7 @@ public:
 	int GetCityStateTradeRouteProductionModifier() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetExtraLeagueVotes() const;
-	int GetSingleVotes() const;
+	int GetSingleLeagueVotes() const;
 	int GetFaithToVotes() const;
 	int GetCapitalsToVotes() const;
 	int GetDoFToVotes() const;

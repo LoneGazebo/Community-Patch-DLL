@@ -405,10 +405,16 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPuppetCitySpecialists);
 	Method(GetUnhappinessFromPublicOpinion);
 
-	Method(GetUnhappinessFromWarWeariness);
 	Method(GetWarWeariness);
 	Method(SetWarWeariness);
-	Method(GetWarWearinessSupplyReduction);
+	Method(ChangeWarWeariness);
+	Method(GetWarWearinessPercent);
+	Method(GetHighestWarWearinessPercent);
+	Method(GetHighestWarWearinessPlayer);
+	Method(GetSupplyReductionPercentFromWarWeariness);
+	Method(GetSupplyReductionFromWarWeariness);
+	Method(GetUnitCostIncreaseFromWarWeariness);
+	Method(GetUnhappinessFromWarWeariness);
 	Method(GetTechSupplyReduction);
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
@@ -757,6 +763,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetBullyUnit);
 	Method(GetBullyUnit);
 	Method(GetPledgeProtectionInvalidReason);
+	Method(IsCanBullyFriendlyCS);
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
@@ -782,7 +789,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 	Method(GetNumDenouncements);
 	Method(GetNumDenouncementsOfPlayer);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetUnhappinessFromBoredom);
 	Method(GetUnhappinessFromIlliteracy);
 	Method(GetUnhappinessFromDistress);
@@ -791,13 +798,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPillagedTiles);
 	Method(GetUnhappinessFromFamine);
 	Method(GetUnhappinessFromReligiousUnrest);
-#endif
+
 	Method(GetUnhappinessFromJFDSpecial);
 	Method(GetScalingNationalPopulationRequired);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	Method(GetCapitalNeedModifier);
-#endif
 
 	Method(IsAlive);
 	Method(IsEverAlive);
@@ -4386,46 +4391,78 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//int GetUnhappinessFromWarWeariness() const;
+int CvLuaPlayer::lGetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetWarWeariness(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+	pkPlayer->SetWarWeariness(ePlayer, iValue);
+	return 0;
+}
+int CvLuaPlayer::lChangeWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iChange = lua_tointeger(L, 3);
+	pkPlayer->ChangeWarWeariness(ePlayer, iChange);
+	return 0;
+}
+int CvLuaPlayer::lGetWarWearinessPercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetWarWearinessPercent(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetHighestWarWearinessPercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetHighestWarWearinessPercent();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetHighestWarWearinessPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = (int)pkPlayer->GetHighestWarWearinessPlayer();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetSupplyReductionPercentFromWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetSupplyReductionFromWarWeariness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetSupplyReductionFromWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSupplied(false) - pkPlayer->GetNumUnitsSupplied(true);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetUnitCostIncreaseFromWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetUnitCostIncreaseFromWarWeariness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iResult = pkPlayer->GetUnhappinessFromWarWeariness();
 	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetUnhappinessFromWarWeariness() const;
-int CvLuaPlayer::lGetWarWeariness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
-	lua_pushinteger(L, min(75, iResult));
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetUnhappinessFromWarWeariness() const;
-int CvLuaPlayer::lSetWarWeariness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = lua_tointeger(L, 2);
-	pkPlayer->GetCulture()->SetWarWeariness(iResult);
-	return 0;
-}
-int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iSupply = pkPlayer->GetNumUnitsSuppliedByHandicap();
-	iSupply += pkPlayer->GetNumUnitsSuppliedByCities();
-	iSupply += pkPlayer->GetNumUnitsSuppliedByPopulation();
-
-	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness() / 2;
-	int iMod = (100 - min(75, iWarWeariness));
-	int iSupplyReduction = iSupply;
-	iSupplyReduction *= iMod;
-	iSupplyReduction /= 100;
-
-	lua_pushinteger(L, iSupply - iSupplyReduction);
 	return 1;
 }
 
@@ -9137,6 +9174,14 @@ int CvLuaPlayer::lGetPledgeProtectionInvalidReason(lua_State* L)
 	return 1;
 }
 
+// bool IsCanBullyFriendlyCS()
+int CvLuaPlayer::lIsCanBullyFriendlyCS(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->IsCanBullyFriendlyCS();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 //bool CanMajorBullyGold(PlayerTypes eMajor);
@@ -9236,8 +9281,8 @@ int CvLuaPlayer::lGetUnitSpawnCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
-	lua_pushboolean(L, bResult);
+	const int iResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9423,7 +9468,7 @@ int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromBoredom();
 int CvLuaPlayer::lGetUnhappinessFromBoredom(lua_State* L)
@@ -9513,7 +9558,6 @@ int CvLuaPlayer::lGetUnhappinessFromJFDSpecial(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 
 //------------------------------------------------------------------------------
 //int GetScalingNationalPopulationRequired();
@@ -9527,7 +9571,6 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequired(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //------------------------------------------------------------------------------
 //int GetCapitalNeedModifier();
 int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
@@ -9536,7 +9579,7 @@ int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 //bool isAlive();
 int CvLuaPlayer::lIsAlive(lua_State* L)

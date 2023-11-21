@@ -204,6 +204,16 @@
 			<Text>{1_Num} extra {2_IconString} from [ICON_CITIZEN] Population in Empire</Text>
 		</Row>
 
+		<!-- Tooltip for Force Resync button -->
+		<Row Tag="TXT_KEY_MP_FORCE_RESYNC_TITLE">
+			<Text>Schedule a forced resync</Text>
+		</Row>
+
+		<!-- Host sends this chat message when scheduled force resync -->
+		<Row Tag="TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED">
+			<Text>I scheduled a forced resync. Next turn, the session will be reloaded.</Text>
+		</Row>
+
 		<!-- Multiplayer Desync Warning -->
 		<Row Tag="TXT_KEY_VP_MP_WARNING_DESYNC">
 			<Text>My client has desynced, undefined behavior may occur. Please open a bug report on GitHub: https://github.com/LoneGazebo/Community-Patch-DLL/issues</Text>
@@ -6972,11 +6982,14 @@
 			<Text>Recently liberated</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_NO_CAPITAL">
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Both you and the City-State must have at least one City.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT">
 			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Because you broke a previous promise, you must wait {1_Turns} more {1_Turns: plural 1?turn; other?turns;} to pledge.[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_MORE_MILITARY_TT">
-			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least the median Military Power. Your military needs to be {1_Num}% stronger to pledge.[ENDCOLOR]</Text>
+			<Text>[NEWLINE][COLOR_WARNING_TEXT][ICON_BULLET] Must have at least the median Military Power (adjusted by proximity to them). Your military needs to be {1_Num}% stronger to pledge.[ENDCOLOR]</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_POP_CSTATE_PLEDGE_NEED_ALLIES_TT">
@@ -7017,6 +7030,10 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_SHORT">
 			<Text>Pledge of Protection in jeopardy!</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_NO_CAPITAL">
+			<Text>Because one or both of you have no cities, {1_CSName} has annulled your [COLOR_POSITIVE_TEXT]Pledge of Protection[ENDCOLOR] to them.</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE">

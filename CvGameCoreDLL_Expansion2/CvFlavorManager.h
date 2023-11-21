@@ -31,18 +31,18 @@ public:
 
 	bool IsCity() const;
 
-	void SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues);
-	void ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontLog = false);
+	void SetFlavors(const CvEnumMap<FlavorTypes, int>& piUpdatedFlavorValues, const char* reason);
+	void ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart);
 
 	int GetLatestFlavorValue(FlavorTypes eFlavor, bool bAllowNegative = false);
 
 protected:
 
 	virtual void FlavorUpdate() = 0;
-	virtual void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR) = 0;
+	virtual void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start) = 0;
 
 	bool m_bIsCity;
-
+	//a simple vector<int> does the job as well and is easier to debug. but the change would break savegames.
 	CvEnumMap<FlavorTypes, int> m_piLatestFlavorValues;
 };
 
@@ -79,7 +79,8 @@ public:
 	void ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes eNewLeader);
 
 	// External routines used to set flavors - each call broadcasts a flavor update to all recipients
-	void ChangeFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontUpdateCityFlavors);
+	void ChangeActivePersonalityFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart);
+	void ChangeCityFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart);
 	void ResetToBasePersonality();
 	void AdjustWeightsForMap();
 
@@ -93,10 +94,11 @@ public:
 private:
 
 	void RandomizeWeights();
-	void BroadcastFlavors(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, bool bDontUpdateCityFlavors);
+	void BroadcastFlavorsToCities(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart);
+	void BroadcastFlavorsToNonCities(const CvEnumMap<FlavorTypes, int>& piDeltaFlavorValues, const char* reason, bool effectstart);
 	void BroadcastBaseFlavors();
 
-	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
+	void LogActivePersonalityChange(FlavorTypes eFlavor, int change, const char* reason, bool start);
 
 	CvEnumMap<FlavorTypes, int> m_piPersonalityFlavor;
 	CvEnumMap<FlavorTypes, int> m_piActiveFlavor;

@@ -291,8 +291,6 @@ public:
 	PolicyBranchTypes GetPublicOpinionPreferredIdeology() const;
 	CvString GetPublicOpinionTooltip() const;
 	int GetPublicOpinionUnhappiness() const;
-	int GetWarWeariness() const;
-	void SetWarWeariness(int iValue);
 	int GetTourismModifierVassal() const;
 	CvString GetPublicOpinionUnhappinessTooltip() const;
 	PlayerTypes GetPublicOpinionBiggestInfluence() const;
@@ -328,13 +326,10 @@ public:
 	int m_iTurnIdeologyAdopted;
 	PolicyBranchTypes m_ePreferredIdeology;
 	int m_iOpinionUnhappiness;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	int m_iRawWarWeariness; //without modifier
 	int m_iLastUpdate;
 	int m_iLastThemUpdate;
 	int m_iBoredomCache;
 	int m_iBoredomCacheTurn;
-#endif
 	CvString m_strOpinionTooltip;
 	CvString m_strOpinionUnhappinessTooltip;
 
@@ -345,7 +340,6 @@ public:
 
 private:
 	int ComputePublicOpinionUnhappiness(int iDissatisfaction);
-	int ComputeWarWeariness();
 	// Logging functions
 	void LogCultureData();
 	void LogThemedBuilding(int iCityID, BuildingTypes eBuilding, int iBonus);

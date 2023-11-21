@@ -222,7 +222,8 @@ public:
 
 private:
 	TradePathLookup& GetTradePathsCache(bool bWater);
-	std::map<PlayerTypes,int>& GetTradePathsCacheUpdateCounter();
+	int GetTradePathsCacheUpdateCounter(PlayerTypes ePlayer);
+	void SetTradePathsCacheUpdateCounter(PlayerTypes ePlayer, int iValue);
 
 protected:
 	
@@ -233,8 +234,8 @@ protected:
 	TradePathLookup m_aPotentialTradePathsWater;
 	TradePathLookup m_aPotentialTradePathsLandUi;
 	TradePathLookup m_aPotentialTradePathsWaterUi;
-	std::map<PlayerTypes,int> m_lastTradePathUpdate;
-	std::map<PlayerTypes,int> m_lastTradePathUpdateUi;
+	vector<int> m_lastTradePathUpdate;
+	vector<int> m_lastTradePathUpdateUi;
 	std::vector<vector<int>> m_routesPerPlayer;
 	std::map<int, SPath> m_dummyTradePaths; //always empty, just for us to return a reference
 

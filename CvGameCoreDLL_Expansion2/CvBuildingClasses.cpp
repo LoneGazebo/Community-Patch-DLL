@@ -2493,7 +2493,7 @@ int CvBuildingEntry::GetExtraLeagueVotes() const
 	return m_iExtraLeagueVotes;
 }
 
-int CvBuildingEntry::GetSingleVotes() const
+int CvBuildingEntry::GetSingleLeagueVotes() const
 {
 	return m_iSingleLeagueVotes;
 }

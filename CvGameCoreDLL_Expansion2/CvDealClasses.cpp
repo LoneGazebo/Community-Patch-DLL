@@ -649,12 +649,16 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 					return false;
 
 				// Can't trade a city if sapped, blockaded, or took damage last turn (except in a peace deal)
+				// Also can't trade a city that the seller originally founded (except between humans or in a peace deal)
 				if (!bPeaceDeal)
 				{
 					if (pCity->GetSappedTurns() > 0)
 						return false;
 
 					if (pCity->getDamageTakenLastTurn() > 0)
+						return false;
+
+					if (!bHumanToHuman && pCity->getOriginalOwner() == ePlayer)
 						return false;
 
 					if (pCity->GetCityCitizens()->AnyPlotBlockaded())

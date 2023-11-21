@@ -495,18 +495,16 @@ void CvHomelandAI::AssignHomelandMoves()
 	//CS Quest Gift
 	ExecuteUnitGift();
 
+	//civilian and military
+	PlotHealMoves();
+	PlotMovesToSafety();
+
 	//military only
 	PlotAircraftRebase();
 	PlotUpgradeMoves();
 	PlotGarrisonMoves();
 	PlotSentryMoves();
 	PlotSentryNavalMoves();
-
-	//civilian and military
-	PlotHealMoves();
-	PlotMovesToSafety();
-
-	//military again
 	PlotPatrolMoves();
 
 	//civilians again
@@ -727,6 +725,10 @@ void CvHomelandAI::PlotMovesToSafety()
 		}
 		else
 		{
+			//military units flee only in mortal danger (if we even get here)
+			if (iDangerLevel < pUnit->GetCurrHitPoints())
+				continue;
+
 			//land barbarians don't flee
 			if (pUnit->isBarbarian() && pUnit->getDomainType() == DOMAIN_LAND)
 				continue;

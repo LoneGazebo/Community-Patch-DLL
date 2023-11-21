@@ -169,6 +169,36 @@ eTacticalDominanceFlags CvTacticalDominanceZone::GetNavalUnitCountDominanceFlag(
 	return TACTICAL_DOMINANCE_EVEN;
 }
 
+int CvTacticalDominanceZone::getHospitalityScore() const
+{
+	int iScore = 0;
+
+	switch (m_eTerritoryType)
+	{
+	case TACTICAL_TERRITORY_FRIENDLY:
+		iScore += 7;
+		break;
+	case TACTICAL_TERRITORY_NEUTRAL:
+		iScore += 3;
+		break;
+	default:
+		break; //nothing to do
+	}
+
+	switch (m_eOverallDominanceFlag)
+	{
+	case TACTICAL_DOMINANCE_FRIENDLY:
+		iScore += 7;
+		break;
+	case TACTICAL_DOMINANCE_EVEN:
+		iScore += 3;
+		break;
+	default:
+		break; //nothing to do
+	}
+
+	return iScore;
+}
 
 #if defined(MOD_BALANCE_CORE_MILITARY)
 void CvTacticalDominanceZone::Extend(CvPlot* pPlot)

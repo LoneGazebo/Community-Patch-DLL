@@ -3051,10 +3051,6 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iVisionBonus(0),
 	// VP Difficulty Bonus
 	m_iDifficultyBonusTurnInterval(0),
-	m_iDifficultyBonusBase(0),
-	m_iDifficultyBonusEarly(0),
-	m_iDifficultyBonusMid(0),
-	m_iDifficultyBonusLate(0),
 
 	// AI Bonuses
 	m_iAIStartingGold(0),
@@ -3115,10 +3111,6 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIVisionBonus(0),
 	// VP Difficulty Bonus
 	m_iAIDifficultyBonusTurnInterval(0),
-	m_iAIDifficultyBonusBase(0),
-	m_iAIDifficultyBonusEarly(0),
-	m_iAIDifficultyBonusMid(0),
-	m_iAIDifficultyBonusLate(0),
 
 	// City-States
 	m_iStartingCityStateWorkerUnits(0),
@@ -3180,9 +3172,9 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iPolicyBlockPercent(0),
 	m_iPolicyBlockMod(0),
 	m_iPeaceTreatyDampenerTurns(0),
+	m_iAggressionIncrease(0),
 	m_iHumanStrengthPerceptionMod(0),
 	m_iHumanTradeModifier(0),
-	m_iAggressionIncrease(0),
 	m_iHumanOpinionChange(0),
 	m_iHumanWarApproachChangeFlat(0),
 	m_iHumanWarApproachChangePercent(0),
@@ -3218,8 +3210,8 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_piGoodies(NULL),
 	m_pbFreeTechs(NULL),
 	m_pbAIFreeTechs(NULL),
-	m_ppiDifficultyBonus(NULL),
-	m_ppiAIDifficultyBonus(NULL)
+	m_pppiDifficultyBonus(NULL),
+	m_pppiAIDifficultyBonus(NULL)
 {
 }
 
@@ -3229,14 +3221,8 @@ CvHandicapInfo::~CvHandicapInfo()
 	SAFE_DELETE_ARRAY(m_piGoodies);
 	SAFE_DELETE_ARRAY(m_pbFreeTechs);
 	SAFE_DELETE_ARRAY(m_pbAIFreeTechs);
-	if (m_ppiDifficultyBonus != NULL)
-	{
-		CvDatabaseUtility::SafeDelete2DArray(m_ppiDifficultyBonus);
-	}
-	if (m_ppiAIDifficultyBonus != NULL)
-	{
-		CvDatabaseUtility::SafeDelete2DArray(m_ppiAIDifficultyBonus);
-	}
+	SAFE_DELETE_ARRAY(m_pppiDifficultyBonus);
+	SAFE_DELETE_ARRAY(m_pppiAIDifficultyBonus);
 }
 
 /// PLAYER BONUSES
@@ -3532,32 +3518,16 @@ int CvHandicapInfo::getDifficultyBonusTurnInterval() const
 	return m_iDifficultyBonusTurnInterval;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getDifficultyBonusBase() const
+int CvHandicapInfo::getYieldAmountForDifficultyBonus(int iEra, int iHistoricEvent, int iYield) const
 {
-	return m_iDifficultyBonusBase;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getDifficultyBonusEarly() const
-{
-	return m_iDifficultyBonusEarly;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getDifficultyBonusMid() const
-{
-	return m_iDifficultyBonusMid;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getDifficultyBonusLate() const
-{
-	return m_iDifficultyBonusLate;
-}
-int CvHandicapInfo::getYieldMultiplierForDifficultyBonus(int i, int j) const
-{
-	CvAssertMsg(i < NUM_HISTORIC_EVENT_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppiDifficultyBonus[i][j];
+	const int x = GC.getNumEraInfos();
+	const int y = NUM_HISTORIC_EVENT_TYPES;
+	const int z = NUM_YIELD_TYPES;
+	ASSERT(iEra >= 0 && iEra < x);
+	ASSERT(iHistoricEvent >= 0 && iHistoricEvent < y);
+	ASSERT(iYield >= 0 && iYield < z);
+	const int index = iEra * y * z + iHistoricEvent * z + iYield;
+	return m_pppiDifficultyBonus[index];
 }
 
 /// AI BONUSES
@@ -3848,32 +3818,16 @@ int CvHandicapInfo::getAIDifficultyBonusTurnInterval() const
 	return m_iAIDifficultyBonusTurnInterval;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getAIDifficultyBonusBase() const
+int CvHandicapInfo::getYieldAmountForAIDifficultyBonus(int iEra, int iHistoricEvent, int iYield) const
 {
-	return m_iAIDifficultyBonusBase;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIDifficultyBonusEarly() const
-{
-	return m_iAIDifficultyBonusEarly;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIDifficultyBonusMid() const
-{
-	return m_iAIDifficultyBonusMid;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAIDifficultyBonusLate() const
-{
-	return m_iAIDifficultyBonusLate;
-}
-int CvHandicapInfo::getYieldMultiplierForAIDifficultyBonus(int i, int j) const
-{
-	CvAssertMsg(i < NUM_HISTORIC_EVENT_TYPES, "Index out of bounds");
-	CvAssertMsg(i > -1, "Index out of bounds");
-	CvAssertMsg(j < NUM_YIELD_TYPES, "Index out of bounds");
-	CvAssertMsg(j > -1, "Index out of bounds");
-	return m_ppiAIDifficultyBonus[i][j];
+	const int x = GC.getNumEraInfos();
+	const int y = NUM_HISTORIC_EVENT_TYPES;
+	const int z = NUM_YIELD_TYPES;
+	ASSERT(iEra >= 0 && iEra < x);
+	ASSERT(iHistoricEvent >= 0 && iHistoricEvent < y);
+	ASSERT(iYield >= 0 && iYield < z);
+	const int index = iEra * y * z + iHistoricEvent * z + iYield;
+	return m_pppiAIDifficultyBonus[index];
 }
 
 /// CITY-STATES
@@ -4147,6 +4101,11 @@ int CvHandicapInfo::getPeaceTreatyDampenerTurns() const
 	return m_iPeaceTreatyDampenerTurns;
 }
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getAggressionIncrease() const
+{
+	return m_iAggressionIncrease;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getHumanStrengthPerceptionMod() const
 {
 	return m_iHumanStrengthPerceptionMod;
@@ -4155,11 +4114,6 @@ int CvHandicapInfo::getHumanStrengthPerceptionMod() const
 int CvHandicapInfo::getHumanTradeModifier() const
 {
 	return m_iHumanTradeModifier;
-}
-//------------------------------------------------------------------------------
-int CvHandicapInfo::getAggressionIncrease() const
-{
-	return m_iAggressionIncrease;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getHumanOpinionChange() const
@@ -4406,10 +4360,6 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
 	// VP Difficulty Bonus
 	m_iDifficultyBonusTurnInterval = kResults.GetInt("DifficultyBonusTurnInterval");
-	m_iDifficultyBonusBase = kResults.GetInt("DifficultyBonusBase");
-	m_iDifficultyBonusEarly = kResults.GetInt("DifficultyBonusA");
-	m_iDifficultyBonusMid = kResults.GetInt("DifficultyBonusB");
-	m_iDifficultyBonusLate = kResults.GetInt("DifficultyBonusC");
 
 	// AI Bonuses
 	m_iAIStartingGold = kResults.GetInt("AIStartingGold");
@@ -4470,10 +4420,6 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIVisionBonus = kResults.GetInt("AIVisionBonus");
 	// VP Difficulty Bonus
 	m_iAIDifficultyBonusTurnInterval = kResults.GetInt("AIDifficultyBonusTurnInterval");
-	m_iAIDifficultyBonusBase = kResults.GetInt("AIDifficultyBonusBase");
-	m_iAIDifficultyBonusEarly = kResults.GetInt("AIDifficultyBonusA");
-	m_iAIDifficultyBonusMid = kResults.GetInt("AIDifficultyBonusB");
-	m_iAIDifficultyBonusLate = kResults.GetInt("AIDifficultyBonusC");
 
 	// City-States
 	m_iStartingCityStateWorkerUnits = kResults.GetInt("StartingCityStateWorkerUnits");
@@ -4535,9 +4481,9 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iPolicyBlockPercent = kResults.GetInt("PolicyBlockPercent");
 	m_iPolicyBlockMod = kResults.GetInt("PolicyBlockMod");
 	m_iPeaceTreatyDampenerTurns = kResults.GetInt("PeaceTreatyDampenerTurns");
+	m_iAggressionIncrease = kResults.GetInt("AggressionIncrease");
 	m_iHumanStrengthPerceptionMod = kResults.GetInt("HumanStrengthPerceptionMod");
 	m_iHumanTradeModifier = kResults.GetInt("HumanTradeModifier");
-	m_iAggressionIncrease = kResults.GetInt("AggressionIncrease");
 	m_iHumanOpinionChange = kResults.GetInt("HumanOpinionChange");
 	m_iHumanWarApproachChangeFlat = kResults.GetInt("HumanWarApproachChangeFlat");
 	m_iHumanWarApproachChangePercent = kResults.GetInt("HumanWarApproachChangePercent");
@@ -4599,18 +4545,20 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	kUtility.PopulateArrayByExistence(m_pbFreeTechs, "Technologies", "HandicapInfo_FreeTechs", "TechType", "HandicapType", szHandicapType);
 	kUtility.PopulateArrayByExistence(m_pbAIFreeTechs, "Technologies", "HandicapInfo_AIFreeTechs", "TechType", "HandicapType", szHandicapType);
 
+	const int iNumEras = kUtility.MaxRows("Eras");
 	const int iNumHistoricEvents = kUtility.MaxRows("HistoricEventTypes");
 	const int iNumYields = kUtility.MaxRows("Yields");
+	const int iDifficultyBonusArrSize = iNumEras * iNumHistoricEvents * iNumYields;
 
 	//Difficulty Bonus Yield Multipliers
 	{
-		kUtility.Initialize2DArray(m_ppiDifficultyBonus, iNumHistoricEvents, iNumYields);
+		m_pppiDifficultyBonus = FNEW(int[iDifficultyBonusArrSize], c_eCiv5GameplayDLL, 0);
 
 		std::string strKey = "HandicapInfos - DifficultyBonus";
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Multiplier from HandicapInfo_DifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type where HandicapType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Eras.ID as EraID, Amount from HandicapInfo_DifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type inner join Eras on EraType = Eras.Type where HandicapType = ?");
 		}
 
 		pResults->Bind(1, szHandicapType, strlen(szHandicapType), false);
@@ -4623,20 +4571,25 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			const int historicevent_idx = pResults->GetInt(1);
 			CvAssert(historicevent_idx > -1);
 
-			const int multiplier = pResults->GetInt(2);
+			const int era_idx = pResults->GetInt(2);
+			CvAssert(era_idx > -1);
 
-			m_ppiDifficultyBonus[historicevent_idx][yield_idx] = multiplier;
+			const int amount = pResults->GetInt(3);
+
+			// Manually index the array
+			const int index = era_idx * iNumHistoricEvents * iNumYields + historicevent_idx * iNumYields + yield_idx;
+			m_pppiDifficultyBonus[index] = amount;
 		}
 	}
 	//AI Difficulty Bonus Yield Multipliers
 	{
-		kUtility.Initialize2DArray(m_ppiAIDifficultyBonus, iNumHistoricEvents, iNumYields);
+		m_pppiAIDifficultyBonus = FNEW(int[iDifficultyBonusArrSize], c_eCiv5GameplayDLL, 0);
 
 		std::string strKey = "HandicapInfos - AIDifficultyBonus";
 		Database::Results* pResults = kUtility.GetResults(strKey);
 		if (pResults == NULL)
 		{
-			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Multiplier from HandicapInfo_AIDifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type where HandicapType = ?");
+			pResults = kUtility.PrepareResults(strKey, "select Yields.ID as YieldID, HistoricEventTypes.ID as HistoricEventID, Eras.ID as EraID, Amount from HandicapInfo_AIDifficultyBonus inner join Yields on YieldType = Yields.Type inner join HistoricEventTypes on HistoricEventType = HistoricEventTypes.Type inner join Eras on EraType = Eras.Type where HandicapType = ?");
 		}
 
 		pResults->Bind(1, szHandicapType, strlen(szHandicapType), false);
@@ -4649,9 +4602,14 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			const int historicevent_idx = pResults->GetInt(1);
 			CvAssert(historicevent_idx > -1);
 
-			const int multiplier = pResults->GetInt(2);
+			const int era_idx = pResults->GetInt(2);
+			CvAssert(era_idx > -1);
 
-			m_ppiAIDifficultyBonus[historicevent_idx][yield_idx] = multiplier;
+			const int amount = pResults->GetInt(3);
+
+			// Manually index the array
+			const int index = era_idx * iNumHistoricEvents * iNumYields + historicevent_idx * iNumYields + yield_idx;
+			m_pppiAIDifficultyBonus[index] = amount;
 		}
 	}
 
@@ -4669,6 +4627,7 @@ CvGameSpeedInfo::CvGameSpeedInfo() :
 	m_iGrowthPercent(0),
 	m_iTrainPercent(0),
 	m_iInstantYieldPercent(0),
+	m_iDifficultyBonusPercent(0),
 	m_iConstructPercent(0),
 	m_iCreatePercent(0),
 	m_iResearchPercent(0),
@@ -4736,9 +4695,15 @@ int CvGameSpeedInfo::getTrainPercent() const
 {
 	return m_iTrainPercent;
 }
+//------------------------------------------------------------------------------
 int CvGameSpeedInfo::getInstantYieldPercent() const
 {
 	return m_iInstantYieldPercent;
+}
+//------------------------------------------------------------------------------
+int CvGameSpeedInfo::getDifficultyBonusPercent() const
+{
+	return m_iDifficultyBonusPercent;
 }
 //------------------------------------------------------------------------------
 int CvGameSpeedInfo::getConstructPercent() const
@@ -4927,6 +4892,7 @@ bool CvGameSpeedInfo::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iGrowthPercent				= kResults.GetInt("GrowthPercent");
 	m_iTrainPercent					= kResults.GetInt("TrainPercent");
 	m_iInstantYieldPercent			= kResults.GetInt("InstantYieldPercent");
+	m_iDifficultyBonusPercent		= kResults.GetInt("DifficultyBonusPercent");
 	m_iConstructPercent				= kResults.GetInt("ConstructPercent");
 	m_iCreatePercent				= kResults.GetInt("CreatePercent");
 	m_iResearchPercent				= kResults.GetInt("ResearchPercent");

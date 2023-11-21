@@ -11,8 +11,32 @@ SET seq = (SELECT COUNT(ID) FROM HandicapInfos)-1
 WHERE name = 'HandicapInfos';
 -- End UI glitch fix
 
+CREATE TABLE HandicapInfo_AIDifficultyBonus (
+	HandicapType text NOT NULL,
+	EraType text NOT NULL,
+	HistoricEventType text NOT NULL,
+	YieldType text NOT NULL,
+	Amount INTEGER DEFAULT 0,
+	FOREIGN KEY (HandicapType) REFERENCES HandicapInfos(Type),
+	FOREIGN KEY (EraType) REFERENCES Eras(Type),
+	FOREIGN KEY (HistoricEventType) REFERENCES HistoricEventTypes(Type),
+	FOREIGN KEY (YieldType) REFERENCES Yields(Type)
+);
+
+CREATE TABLE HandicapInfo_DifficultyBonus (
+	HandicapType text NOT NULL,
+	EraType text NOT NULL,
+	HistoricEventType text NOT NULL,
+	YieldType text NOT NULL,
+	Amount INTEGER DEFAULT 0,
+	FOREIGN KEY (HandicapType) REFERENCES HandicapInfos(Type),
+	FOREIGN KEY (EraType) REFERENCES Eras(Type),
+	FOREIGN KEY (HistoricEventType) REFERENCES HistoricEventTypes(Type),
+	FOREIGN KEY (YieldType) REFERENCES Yields(Type)
+);
+
 -- Player Bonuses
-ALTER TABLE HandicapInfos ADD COLUMN 'MapPlacementPriority' INTEGER DEFAULT 1;
+ALTER TABLE HandicapInfos ADD COLUMN 'MapPlacementPriority' INTEGER DEFAULT 3;
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingGold' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'EmpireSizeUnhappinessMod' INTEGER DEFAULT 0;
@@ -56,10 +80,6 @@ ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0;
 -- VP Difficulty Bonus
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusTurnInterval' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusBase' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusA' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusB' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusC' INTEGER DEFAULT 0;
 
 -- AI Bonuses
 ALTER TABLE HandicapInfos ADD COLUMN 'AIStartingGold' INTEGER DEFAULT 0;
@@ -102,10 +122,6 @@ ALTER TABLE HandicapInfos ADD COLUMN 'AIResistanceCap' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIVisionBonus' INTEGER DEFAULT 0;
 -- VP Difficulty Bonus
 ALTER TABLE HandicapInfos ADD COLUMN 'AIDifficultyBonusTurnInterval' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'AIDifficultyBonusBase' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'AIDifficultyBonusA' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'AIDifficultyBonusB' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'AIDifficultyBonusC' INTEGER DEFAULT 0;
 
 -- City-States
 ALTER TABLE HandicapInfos ADD COLUMN 'StartingCityStateWorkerUnits' INTEGER DEFAULT 0;
@@ -145,6 +161,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'CityProductionChoiceCutoffThreshold' INTEG
 ALTER TABLE HandicapInfos ADD COLUMN 'TechChoiceCutoffThreshold' INTEGER DEFAULT 90;
 ALTER TABLE HandicapInfos ADD COLUMN 'PolicyChoiceCutoffThreshold' INTEGER DEFAULT 90;
 ALTER TABLE HandicapInfos ADD COLUMN 'BeliefChoiceCutoffThreshold' INTEGER DEFAULT 90;
+-- Tactical AI
 ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxCompletedPositions' INTEGER DEFAULT 512;
 ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxBranches' INTEGER DEFAULT 4;
 ALTER TABLE HandicapInfos ADD COLUMN 'TacticalSimMaxChoicesPerUnit' INTEGER DEFAULT 4;
@@ -163,9 +180,9 @@ ALTER TABLE HandicapInfos ADD COLUMN 'TechBlockMod' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'PolicyBlockPercent' INTEGER DEFAULT 100;
 ALTER TABLE HandicapInfos ADD COLUMN 'PolicyBlockMod' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'PeaceTreatyDampenerTurns' INTEGER DEFAULT 20;
+ALTER TABLE HandicapInfos ADD COLUMN 'AggressionIncrease' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HumanStrengthPerceptionMod' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HumanTradeModifier' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'AggressionIncrease' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HumanOpinionChange' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HumanWarApproachChangeFlat' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HumanWarApproachChangePercent' INTEGER DEFAULT 0;

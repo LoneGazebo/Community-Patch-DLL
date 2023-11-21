@@ -45,7 +45,7 @@ public:
 	BuildingTypes ChooseWonder(int& iWonderWeight);
 
 	// Logging
-	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
+	void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start);
 	void LogPossibleWonders();
 
 	static bool IsWonder(const CvBuildingEntry& kBuilding) ;

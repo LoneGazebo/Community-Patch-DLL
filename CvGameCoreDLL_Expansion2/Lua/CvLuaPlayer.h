@@ -391,10 +391,16 @@ protected:
 	static int lGetUnhappinessFromPublicOpinion(lua_State* L);
 	static int lGetUnhappinessFromPuppetCitySpecialists(lua_State* L);
 
-	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetWarWeariness, int);
-	LUAAPIEXTN(SetWarWeariness, int);
-	LUAAPIEXTN(GetWarWearinessSupplyReduction, int);
+	LUAAPIEXTN(SetWarWeariness, void);
+	LUAAPIEXTN(ChangeWarWeariness, void);
+	LUAAPIEXTN(GetWarWearinessPercent, int);
+	LUAAPIEXTN(GetHighestWarWearinessPercent, int);
+	LUAAPIEXTN(GetHighestWarWearinessPlayer, int);
+	LUAAPIEXTN(GetSupplyReductionPercentFromWarWeariness, int);
+	LUAAPIEXTN(GetSupplyReductionFromWarWeariness, int);
+	LUAAPIEXTN(GetUnitCostIncreaseFromWarWeariness, int);
+	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetTechSupplyReduction, int);
 
 	static int lGetUnitSupplyFromExpendedGreatPeople(lua_State* L);
@@ -768,7 +774,7 @@ protected:
 	LUAAPIEXTN(GetNumDenouncements, int);
 	LUAAPIEXTN(GetNumDenouncementsOfPlayer, int);
 #endif
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	LUAAPIEXTN(GetUnhappinessFromBoredom, int);
 	LUAAPIEXTN(GetUnhappinessFromIlliteracy, int);
 	LUAAPIEXTN(GetUnhappinessFromDistress, int);
@@ -777,14 +783,13 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromPillagedTiles, int);
 	LUAAPIEXTN(GetUnhappinessFromFamine, int);
 	LUAAPIEXTN(GetUnhappinessFromReligiousUnrest, int);
-#endif
+
 	LUAAPIEXTN(GetUnhappinessFromJFDSpecial, int);
 
 	LUAAPIEXTN(GetScalingNationalPopulationRequired, int);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	LUAAPIEXTN(GetCapitalNeedModifier, int);
-#endif
+
 	static int lGetMinorCivFriendshipLevelWithMajor(lua_State* L);
 	static int lGetRestingPointChange(lua_State* L);
 	static int lChangeRestingPointChange(lua_State* L);
@@ -860,6 +865,7 @@ protected:
 	static int lGetBullyUnit(lua_State* L);
 	static int lGetPledgeProtectionInvalidReason(lua_State* L);
 #endif
+	static int lIsCanBullyFriendlyCS(lua_State* L);
 	static int lCanMajorBullyGold(lua_State* L);
 	static int lGetMajorBullyGoldDetails(lua_State* L);
 	static int lCanMajorBullyUnit(lua_State* L);

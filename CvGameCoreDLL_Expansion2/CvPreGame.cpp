@@ -848,8 +848,8 @@ void closeInactiveSlots()
 				setSlotStatus(eID, SS_CLOSED);
 			}
 			setSlotClaim(eID, SLOTCLAIM_UNASSIGNED);
-			gDLL->sendPlayerInfo(eID);
 		}
+		gDLL->sendPlayerInfo(eID);
 	}
 	gDLL->EndSendBundle();
 }
@@ -2540,11 +2540,9 @@ void setGameStarted(bool started)
 }
 
 /// Hack to manually override the engine's random selection of civilizations and City-States
-/// This is necessary for the MajorBlocksMinor table and the MOD_BALANCE_CITY_STATE_TRAITS option to function
+/// This is necessary for custom City-State selection logic to function
 void onGameStarted()
 {
-	vector<PlayerTypes> vPlayersChanged;
-
 	// First loop: collect all major civs already chosen and the indices of the players that still need to choose
 	vector<CivilizationTypes> vCivsChosen;
 	vector<PlayerTypes> vMajorsToChoose;
@@ -2646,7 +2644,6 @@ void onGameStarted()
 					UNREACHABLE();
 			}
 			setCivilization(*it, eRandomCiv);
-			vPlayersChanged.push_back(*it);
 			iCounter++;
 		}
 	}
@@ -2703,7 +2700,7 @@ void onGameStarted()
 		int iCounter = 1;
 		for (std::vector<PlayerTypes>::iterator it = vMinorsToChoose.begin(); it != vMinorsToChoose.end(); it++)
 		{
-			if (!MOD_BALANCE_CITY_STATE_TRAITS)
+			if (!MOD_BALANCE_CITY_STATE_TRAITS && !MOD_BALANCE_VP)
 			{
 				// Not enough City-States in the database.
 				if (vAvailableCityStates.empty())
@@ -2712,11 +2709,8 @@ void onGameStarted()
 				uint uRand = GC.getGame().urandLimitExclusive(vAvailableCityStates.size(), CvSeeder::fromRaw(0xd73596c3).mix(iCounter));
 				MinorCivTypes eChoice = static_cast<MinorCivTypes>(vAvailableCityStates[uRand]);
 				setMinorCivType(*it, eChoice);
-				vPlayersChanged.push_back(*it);
 				vAvailableCityStates.erase(vAvailableCityStates.begin() + uRand);
 			}
-			// We're balancing the different types of City-States.
-			// Aim for a ratio of 1 Cultured / 1 Militaristic / 1 Maritime / 1 Mercantile / 1 Religious
 			else
 			{
 				// Which categories are valid choices to maintain the ratio?
@@ -2731,80 +2725,100 @@ void onGameStarted()
 				if (!bCulturedValid && !bMilitaristicValid && !bMaritimeValid && !bMercantileValid && !bReligiousValid)
 					break;
 
-				// Which categories are valid to maintain the ratio?
-				if (bCulturedValid)
+				// We're balancing the different types of City-States.
+				// Aim for a ratio of 1 Cultured / 1 Militaristic / 1 Maritime / 1 Mercantile / 1 Religious
+				if (MOD_BALANCE_CITY_STATE_TRAITS)
 				{
-					if (iCultured > iMilitaristic && bMilitaristicValid)
-						bCulturedValid = false;
-					else if (iCultured > iMaritime && bMaritimeValid)
-						bCulturedValid = false;
-					else if (iCultured > iMercantile && bMercantileValid)
-						bCulturedValid = false;
-					else if (iCultured > iReligious && bReligiousValid)
-						bCulturedValid = false;
+					// Which categories are valid to maintain the ratio?
+					if (bCulturedValid)
+					{
+						if (iCultured > iMilitaristic && bMilitaristicValid)
+							bCulturedValid = false;
+						else if (iCultured > iMaritime && bMaritimeValid)
+							bCulturedValid = false;
+						else if (iCultured > iMercantile && bMercantileValid)
+							bCulturedValid = false;
+						else if (iCultured > iReligious && bReligiousValid)
+							bCulturedValid = false;
 
+						if (bCulturedValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_CULTURED);
+					}
+					if (bMilitaristicValid)
+					{
+						if (iMilitaristic > iCultured && bCulturedValid)
+							bMilitaristicValid = false;
+						else if (iMilitaristic > iMaritime && bMaritimeValid)
+							bMilitaristicValid = false;
+						else if (iMilitaristic > iMercantile && bMercantileValid)
+							bMilitaristicValid = false;
+						else if (iMilitaristic > iReligious && bReligiousValid)
+							bMilitaristicValid = false;
+
+						if (bMilitaristicValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_MILITARISTIC);
+					}
+					if (bMaritimeValid)
+					{
+						if (iMaritime > iCultured && bCulturedValid)
+							bMaritimeValid = false;
+						else if (iMaritime > iMilitaristic && bMilitaristicValid)
+							bMaritimeValid = false;
+						else if (iMaritime > iMercantile && bMercantileValid)
+							bMaritimeValid = false;
+						else if (iMaritime > iReligious && bReligiousValid)
+							bMaritimeValid = false;
+
+						if (bMaritimeValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_MARITIME);
+					}
+					if (bMercantileValid)
+					{
+						if (iMercantile > iCultured && bCulturedValid)
+							bMercantileValid = false;
+						else if (iMercantile > iMilitaristic && bMilitaristicValid)
+							bMercantileValid = false;
+						else if (iMercantile > iMaritime && bMaritimeValid)
+							bMercantileValid = false;
+						else if (iMercantile > iReligious && bReligiousValid)
+							bMercantileValid = false;
+
+						if (bMercantileValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_MERCANTILE);
+					}
+					if (bReligiousValid)
+					{
+						if (iReligious > iCultured && bCulturedValid)
+							bReligiousValid = false;
+						else if (iReligious > iMilitaristic && bMilitaristicValid)
+							bReligiousValid = false;
+						else if (iReligious > iMaritime && bMaritimeValid)
+							bReligiousValid = false;
+						else if (iReligious > iMercantile && bMercantileValid)
+							bReligiousValid = false;
+
+						if (bReligiousValid)
+							vValidCategories.push_back(MINOR_CIV_TRAIT_RELIGIOUS);
+					}
+				}
+				// We're merely equalizing the probability of each type of City-State showing up (regardless of how many are in the pool).
+				else
+				{
 					if (bCulturedValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_CULTURED);
-				}
-				if (bMilitaristicValid)
-				{
-					if (iMilitaristic > iCultured && bCulturedValid)
-						bMilitaristicValid = false;
-					else if (iMilitaristic > iMaritime && bMaritimeValid)
-						bMilitaristicValid = false;
-					else if (iMilitaristic > iMercantile && bMercantileValid)
-						bMilitaristicValid = false;
-					else if (iMilitaristic > iReligious && bReligiousValid)
-						bMilitaristicValid = false;
 
 					if (bMilitaristicValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_MILITARISTIC);
-				}
-				if (bMaritimeValid)
-				{
-					if (iMaritime > iCultured && bCulturedValid)
-						bMaritimeValid = false;
-					else if (iMaritime > iMilitaristic && bMilitaristicValid)
-						bMaritimeValid = false;
-					else if (iMaritime > iMercantile && bMercantileValid)
-						bMaritimeValid = false;
-					else if (iMaritime > iReligious && bReligiousValid)
-						bMaritimeValid = false;
 
 					if (bMaritimeValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_MARITIME);
-				}
-				if (bMercantileValid)
-				{
-					if (iMercantile > iCultured && bCulturedValid)
-						bMercantileValid = false;
-					else if (iMercantile > iMilitaristic && bMilitaristicValid)
-						bMercantileValid = false;
-					else if (iMercantile > iMaritime && bMaritimeValid)
-						bMercantileValid = false;
-					else if (iMercantile > iReligious && bReligiousValid)
-						bMercantileValid = false;
 
 					if (bMercantileValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_MERCANTILE);
-				}
-				if (bReligiousValid)
-				{
-					if (iReligious > iCultured && bCulturedValid)
-						bReligiousValid = false;
-					else if (iReligious > iMilitaristic && bMilitaristicValid)
-						bReligiousValid = false;
-					else if (iReligious > iMaritime && bMaritimeValid)
-						bReligiousValid = false;
-					else if (iReligious > iMercantile && bMercantileValid)
-						bReligiousValid = false;
 
 					if (bReligiousValid)
 						vValidCategories.push_back(MINOR_CIV_TRAIT_RELIGIOUS);
 				}
-
-				// If we got here at least one category should be valid.
-				ASSERT(vValidCategories.size() > 0);
 
 				// Pick at random from the valid categories.
 				uint uRand = GC.getGame().urandLimitExclusive(vValidCategories.size(), CvSeeder::fromRaw(0x95c6b165).mix(iCounter));
@@ -2858,22 +2872,9 @@ void onGameStarted()
 					UNREACHABLE();
 				}
 				setMinorCivType(*it, eChoice);
-				vPlayersChanged.push_back(*it);
 			}
 			iCounter++;
 		}
-	}
-
-	// Seventh loop: if we're the host in a multiplayer game, we need to communicate our changes to the other players.
-	// It is unknown if this code actually works.
-	if (gDLL->IsHost() && vPlayersChanged.size() > 0)
-	{
-		gDLL->BeginSendBundle();
-		for (std::vector<PlayerTypes>::iterator it = vPlayersChanged.begin(); it != vPlayersChanged.end(); it++)
-		{
-			gDLL->sendPlayerInfo(*it);
-		}
-		gDLL->EndSendBundle();
 	}
 }
 

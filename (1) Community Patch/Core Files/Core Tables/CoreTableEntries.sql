@@ -1,5 +1,5 @@
 -- Blocks a specified City-State from appearing ingame if the associated Civilization is present at game start.
-CREATE TABLE IF NOT EXISTS MajorBlocksMinor(
+CREATE TABLE MajorBlocksMinor (
 	MajorCiv text NOT NULL,
 	MinorCiv text NOT NULL,
 	FOREIGN KEY (MajorCiv) REFERENCES Civilizations(Type),
@@ -7,7 +7,7 @@ CREATE TABLE IF NOT EXISTS MajorBlocksMinor(
 );
 
 -- Allows modders to specify a fixed personality type for a City-State. This overrides the MOD_BALANCE_CITY_STATE_PERSONALITIES CustomModOption.
-CREATE TABLE IF NOT EXISTS MinorCivPersonalityTypes(
+CREATE TABLE MinorCivPersonalityTypes (
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE
 );
@@ -22,7 +22,7 @@ ALTER TABLE MinorCivilizations ADD COLUMN FixedPersonality text DEFAULT NULL REF
 
 -- HistoricEventTypes table: Defines the different types of historic events. The order used here matches with the enum used in the DLL. Do not change without changing the DLL as well!
 -- Not all of these historic events actually generate a bonus in the VP mod - some are only used for the Difficulty Bonus. These are prefixed with DIFFICULTY_BONUS.
-CREATE TABLE IF NOT EXISTS HistoricEventTypes(
+CREATE TABLE HistoricEventTypes (
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE
 );
@@ -51,17 +51,17 @@ INSERT INTO HistoricEventTypes(Type) VALUES
 
 
 -- VictoryPursuitTypes table: Used by the Leaders Table. Allows modders to give a hint to the AI about which victory conditions a civ's UA is best suited for.
-CREATE TABLE IF NOT EXISTS VictoryPursuitTypes(
+CREATE TABLE VictoryPursuitTypes (
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE
 );
 
-INSERT INTO VictoryPursuitTypes(ID, Type) VALUES ('0','VICTORY_PURSUIT_DOMINATION');
+INSERT INTO VictoryPursuitTypes(ID, Type) VALUES (0,'VICTORY_PURSUIT_DOMINATION');
 INSERT INTO VictoryPursuitTypes(Type) VALUES ('VICTORY_PURSUIT_DIPLOMACY'), ('VICTORY_PURSUIT_CULTURE'), ('VICTORY_PURSUIT_SCIENCE');
 
 -- Recreate Leader Tables
 -- Default diplomacy flavors now 5, adds three columns: Personality, PrimaryVictoryPursuit, SecondaryVictoryPursuit
-CREATE TABLE IF NOT EXISTS Leaders_NEW(
+CREATE TABLE Leaders_NEW (
 	ID INTEGER PRIMARY KEY AUTOINCREMENT,
 	Type text NOT NULL UNIQUE,
 	Description text,
@@ -102,7 +102,7 @@ FROM Leaders;
 DROP TABLE Leaders;
 ALTER TABLE Leaders_NEW RENAME TO Leaders;
 
-CREATE TABLE IF NOT EXISTS Leader_MajorCivApproachBiases_NEW(
+CREATE TABLE Leader_MajorCivApproachBiases_NEW (
 	LeaderType text REFERENCES Leaders(Type),
 	MajorCivApproachType text REFERENCES MajorCivApproachTypes(Type),
 	Bias INTEGER DEFAULT 5
@@ -114,7 +114,7 @@ ALTER TABLE Leader_MajorCivApproachBiases_NEW RENAME TO Leader_MajorCivApproachB
 
 -- A default of -1 (which will always return 1) is intentionally used here because the Firaxis Friendly/Protective approaches are merged into a single approach in the modded DLL, using the highest value of the two
 -- This prevents situations where one approach is set below 5 and the other is not set, but the default of 5 overrides the modder's flavor because it's greater in value
-CREATE TABLE IF NOT EXISTS Leader_MinorCivApproachBiases_NEW(
+CREATE TABLE Leader_MinorCivApproachBiases_NEW (
 	LeaderType text REFERENCES Leaders(Type),
 	MinorCivApproachType text REFERENCES MinorCivApproachTypes(Type),
 	Bias INTEGER DEFAULT -1
@@ -278,6 +278,13 @@ ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;
 
 -- Value by which all instant yields are modified for different game speeds
 ALTER TABLE GameSpeeds ADD COLUMN 'InstantYieldPercent' INTEGER DEFAULT 100;
+
+-- Value by which difficulty bonuses are modified for different game speeds
+ALTER TABLE GameSpeeds ADD COLUMN 'DifficultyBonusPercent' INTEGER DEFAULT 100;
+UPDATE GameSpeeds SET DifficultyBonusPercent = 67 WHERE Type = 'GAMESPEED_QUICK';
+UPDATE GameSpeeds SET DifficultyBonusPercent = 100 WHERE Type = 'GAMESPEED_STANDARD';
+UPDATE GameSpeeds SET DifficultyBonusPercent = 160 WHERE Type = 'GAMESPEED_EPIC';
+UPDATE GameSpeeds SET DifficultyBonusPercent = 300 WHERE Type = 'GAMESPEED_MARATHON';
 
 -- Percentage by which military rating decays each turn for different game speeds (affects AI strength perception behavior)
 -- (10 = 1%)
@@ -681,7 +688,7 @@ ALTER TABLE Policies ADD COLUMN 'BullyGlobalCSInfluenceShift' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'VassalYieldBonusModifier' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'CSYieldBonusModifier' INTEGER DEFAULT 0;
 
--- Can bully friendly CSs (no penalty)
+-- Removes penalties for bullying City-States (no Influence loss or PTP/quest revocation)
 ALTER TABLE Policies ADD COLUMN 'CanBullyFriendlyCS' BOOLEAN DEFAULT 0;
 
 -- Allied CS influence does not decline at war
@@ -813,7 +820,7 @@ ALTER TABLE Policies ADD COLUMN 'TradeReligionModifier' INTEGER DEFAULT 0;
 -- Increased Quest Influence
 ALTER TABLE Policies ADD COLUMN 'IncreasedQuestRewards' INTEGER DEFAULT 0;
 
--- Free Votes in WC
+-- Extra vote in WC for every X City-States originally in the world
 ALTER TABLE Policies ADD COLUMN 'FreeWCVotes' INTEGER DEFAULT 0;
 
 -- GP Expend Influence Boost

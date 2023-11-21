@@ -9315,7 +9315,6 @@ void CvDiplomacyAI::DoTurn(DiplomacyMode eDiploMode, PlayerTypes ePlayer)
 
 	// Military Stuff
 	DoUpdateWarStates();
-	GetPlayer()->cacheAvgGoldRate();
 	GetPlayer()->DoTestEmpireInBadShapeForWar();
 	DoUpdatePlayerStrengthEstimates();
 	DoUpdateWarProgressScores();
@@ -10834,7 +10833,7 @@ void CvDiplomacyAI::DoUpdateWarStates()
 			int WarScore = GetWarScore(eLoopPlayer);
 			bool bWeAreLosing = WarScore <= -75;
 			bool bTheyAreLosing = WarScore >= 75;
-			if (m_pPlayer->GetCulture()->GetWarWeariness() > 0 && m_pPlayer->IsEmpireVeryUnhappy())
+			if (m_pPlayer->GetUnhappinessFromWarWeariness() && m_pPlayer->IsEmpireVeryUnhappy())
 			{
 				if (WarScore < 0)
 				{
@@ -15022,9 +15021,8 @@ void CvDiplomacyAI::DoReevaluatePlayers(vector<PlayerTypes>& vTargetPlayers, boo
 	if (bMajorEvent)
 	{
 		DoResetPotentialWarTargets();
-		GetPlayer()->DoUpdateWarDamage();
+		GetPlayer()->DoUpdateWarDamageAndWeariness(/*bDamageOnly*/ true);
 		DoUpdateWarStates();
-		GetPlayer()->cacheAvgGoldRate();
 		GetPlayer()->DoTestEmpireInBadShapeForWar();
 		DoUpdatePlayerStrengthEstimates();
 		DoUpdateWarmongerThreats();
@@ -18981,7 +18979,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 				WarStateTypes eLoopWarState = GetWarState(eLoopPlayer);
 
 				// Not significantly war weary? We should ignore certain players for the war state check.
-				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetCulture()->GetWarWeariness() < 10 && eLoopWarState > WAR_STATE_TROUBLED)
+				if (!GetPlayer()->IsNoNewWars() && GetPlayer()->GetUnhappinessFromWarWeariness() < 10 && eLoopWarState > WAR_STATE_TROUBLED)
 				{
 					// Ignore players who aren't a serious threat.
 					if (IsEasyTarget(eLoopPlayer) || GET_PLAYER(eLoopPlayer).IsInTerribleShapeForWar())
@@ -20039,7 +20037,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	// WAR WEARINESS
 	////////////////////////////////////
 
-	int iWarWeariness = GetPlayer()->GetCulture()->GetWarWeariness();
+	int iWarWeariness = GetPlayer()->GetUnhappinessFromWarWeariness();
 
 	if (iWarWeariness > 0)
 	{
@@ -26363,9 +26361,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 			int iWarProgress = GetWarProgressScore(*it);
 
 			// Adjust for unhappiness/war weariness
-			if (MOD_BALANCE_CORE_HAPPINESS)
+			if (MOD_BALANCE_VP)
 			{
-				iWarProgress -= GetPlayer()->GetCulture()->GetWarWeariness();
+				iWarProgress -= GetPlayer()->GetUnhappinessFromWarWeariness();
 
 				int iHappiness = GetPlayer()->GetExcessHappiness();
 				if (iHappiness < 50)
@@ -26503,9 +26501,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		bool bWarWeary = false;
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
-			int iPercentOfPop = GetPlayer()->GetCulture()->GetWarWeariness() * 100 / max(1, GetPlayer()->getTotalPopulation());
+			int iPercentOfPop = GetPlayer()->GetUnhappinessFromWarWeariness() * 100 / max(1, GetPlayer()->getTotalPopulation());
 			if (iPercentOfPop >= 20)
 				bWarWeary = true;
 		}
@@ -26619,9 +26617,9 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// War weariness
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
-			int iWarWeariness = GetPlayer()->GetCulture()->GetWarWeariness();
+			int iWarWeariness = GetPlayer()->GetUnhappinessFromWarWeariness();
 			iPeaceScore += iWarWeariness / 4;
 
 			if (iWarWeariness > 0 && (bWarWeary || GetPlayer()->IsEmpireUnhappy()))
@@ -26970,15 +26968,15 @@ void CvDiplomacyAI::DoUpdatePeaceTreatyWillingness(bool bMyTurn)
 		}
 
 		// War Weary? We're more willing to make peace.
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			if (iWarScore <= 0)
 			{
-				iWillingToOfferScore += GetPlayer()->GetCulture()->GetWarWeariness();
+				iWillingToOfferScore += GetPlayer()->GetUnhappinessFromWarWeariness();
 			}
 			else
 			{
-				iWillingToAcceptScore -= GetPlayer()->GetCulture()->GetWarWeariness();
+				iWillingToAcceptScore -= GetPlayer()->GetUnhappinessFromWarWeariness();
 			}
 		}
 
@@ -29408,6 +29406,9 @@ void CvDiplomacyAI::DoWeMadePeaceWithSomeone(TeamTypes eOtherTeam)
 			if (GET_PLAYER(ePeacePlayer).isMajorCiv())
 			{
 				CancelCoopWarsAgainstPlayer(ePeacePlayer, false);
+
+				// Halve war weariness
+				GetPlayer()->SetWarWeariness(ePeacePlayer, GetPlayer()->GetWarWeariness(ePeacePlayer) / 2);
 
 				// Clear penalties for stealing territory and refusing to go on coop wars now that we made peace
 				if (!GetPlayer()->isHuman())
@@ -40938,7 +40939,7 @@ const char* CvDiplomacyAI::GetGreetHumanMessage(LeaderheadAnimationTypes& eAnima
 	TeamTypes eHumanTeam = pHuman->getTeam();
 	CvTeam* pHumanTeam = &GET_TEAM(eHumanTeam);
 
-	GetPlayer()->DoUpdateWarDamage();
+	GetPlayer()->DoUpdateWarDamageAndWeariness(/*bDamageOnly*/ true);
 
 	CivApproachTypes eVisibleApproach = GetSurfaceApproach(eHuman);
 	WarStateTypes eWarState = GetWarState(eHuman);
@@ -41640,43 +41641,40 @@ const char* CvDiplomacyAI::GetInsultHumanMessage()
 	PlayerTypes ePlayer = GC.getGame().getActivePlayer();
 	CvPlayerAI& kPlayer = GET_PLAYER(ePlayer);
 
-	StrengthTypes eMilitaryStrengthComparedToUs = GetMilitaryStrengthComparedToUs(ePlayer);
-
 	vector<DiploMessageTypes> veValidInsults;
 
 	// They're weak militarily
-	if(eMilitaryStrengthComparedToUs <= STRENGTH_WEAK)
+	if (GetTargetValue(ePlayer) >= TARGET_VALUE_SOFT)
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_MILITARY);
 
 	// We have nukes and they don't
-	if(kPlayer.getNumNukeUnits() == 0 && m_pPlayer->getNumNukeUnits() > 0)
+	if (kPlayer.getNumNukeUnits() == 0 && m_pPlayer->getNumNukeUnits() > 0)
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_NUKE);
 
 	// They've attacked a lot of minor civs
-	else if(GetOtherPlayerNumMinorsAttacked(ePlayer) > 2)
+	if (GetOtherPlayerNumMinorsAttacked(ePlayer) > 2)
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_BULLY);
 
 	// Their empire is unhappy
-	else if(kPlayer.IsEmpireVeryUnhappy())
+	if (kPlayer.IsEmpireVeryUnhappy())
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_UNHAPPINESS);
 
 	// They have fewer Cities than us
-	else if((kPlayer.getNumCities() * 2) < m_pPlayer->getNumCities() && m_pPlayer->getNumCities() > 4)
+	if (kPlayer.getNumCities() * 2 < m_pPlayer->getNumCities() && m_pPlayer->getNumCities() > 4)
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_CITIES);
 
 	// They have a low population
-	else if((kPlayer.getTotalPopulation() * 2) <= m_pPlayer->getTotalPopulation())
+	if (kPlayer.getTotalPopulation() * 2 <= m_pPlayer->getTotalPopulation())
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_POPULATION);
 
-	// They have less Culture us
-	else if((kPlayer.GetJONSCultureEverGenerated() * 2) <= m_pPlayer->GetJONSCultureEverGenerated())
+	// They have less Culture than us
+	if (kPlayer.GetJONSCultureEverGenerated() * 2 <= m_pPlayer->GetJONSCultureEverGenerated())
 		veValidInsults.push_back(DIPLO_MESSAGE_INSULT_CULTURE);
 
 	// Pick a random insult from the valid ones
-	if(veValidInsults.size() > 0)
+	if (veValidInsults.size() > 0)
 	{
 		int iIndex = GC.getGame().getAsyncRandNum(veValidInsults.size(), "Picking random insult for AI to give to human.");
-
 		return GetDiploStringForMessage(veValidInsults[iIndex]);
 	}
 
@@ -49543,7 +49541,7 @@ bool CvDiplomacyAI::DoPossibleMajorLiberation(CvCity* pCity)
 		else if (eOpinion >= CIV_OPINION_NEUTRAL)
 		{
 			// Very unhappy and war weary? Liberating a city will help.
-			if (GetPlayer()->IsEmpireVeryUnhappy() && GetPlayer()->GetCulture()->GetWarWeariness() > 0)
+			if (GetPlayer()->IsEmpireVeryUnhappy() && GetPlayer()->GetUnhappinessFromWarWeariness() > 0)
 			{
 				bLiberate = true;
 			}
@@ -52585,7 +52583,7 @@ void CvDiplomacyAI::LogWarStatus()
 						strOutBuf += ", " + strTemp;
 					}
 
-					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetCulture()->GetWarWeariness(), m_pPlayer->GetNumUnitsSupplied());
+					strTemp.Format(" ---  War Weariness: %d, Supply: %d", m_pPlayer->GetWarWearinessPercent(eLoopPlayer), m_pPlayer->GetNumUnitsSupplied());
 					strOutBuf += ", " + strTemp;
 #endif
 					pLog->Msg(strOutBuf);

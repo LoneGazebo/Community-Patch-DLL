@@ -1193,7 +1193,7 @@ private:
 #endif
 
 	// Logging functions
-	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
+	void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start);
 
 	bool* m_pabFreePolicy;
 	bool* m_pabHasPolicy;

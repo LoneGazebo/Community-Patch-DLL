@@ -21,6 +21,8 @@
 #if defined(MOD_BALANCE_CORE)
 #include "CvTypes.h"
 #include "CvWonderProductionAI.h"
+#include "CvTacticalAI.h"
+#include "CvTacticalAnalysisMap.h"
 #endif
 // must be included after all other headers
 #include "LintFree.h"
@@ -268,7 +270,6 @@ void CvCityStrategyAI::Init(CvAICityStrategies* pAICityStrategies, CvCity* pCity
 	// Initialize arrays
 	m_pabUsingCityStrategy.init();
 	m_paiTurnCityStrategyAdopted.init();
-	m_aiTempFlavors.init();
 
 	// Create AI subobjects
 	m_pBuildingProductionAI = FNEW(CvBuildingProductionAI(pCity, pCity->GetCityBuildings()), c_eCiv5GameplayDLL, 0);
@@ -289,7 +290,7 @@ void CvCityStrategyAI::Uninit()
 	// Deallocate member variables
 	m_pabUsingCityStrategy.uninit();
 	m_paiTurnCityStrategyAdopted.uninit();
-	m_aiTempFlavors.uninit();
+
 	SAFE_DELETE(m_pBuildingProductionAI);
 	SAFE_DELETE(m_pUnitProductionAI);
 	SAFE_DELETE(m_pProjectProductionAI);
@@ -382,14 +383,6 @@ FDataStream& operator<<(FDataStream& stream, const CvCityStrategyAI& cityStrateg
 /// Runs through all active player strategies and propagates Flavors down to this City
 void CvCityStrategyAI::UpdateFlavorsForNewCity()
 {
-	int iFlavorLoop = 0;
-
-	// Clear out Temp array
-	for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-	{
-		m_aiTempFlavors[iFlavorLoop] = 0;
-	}
-
 	// Go through all Player strategies and for the active ones apply the Flavors
 	for(int iStrategyLoop = 0; iStrategyLoop < GC.getNumEconomicAIStrategyInfos(); iStrategyLoop++)
 	{
@@ -401,9 +394,13 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 			// Active?
 			if(GET_PLAYER(m_pCity->getOwner()).GetEconomicAI()->IsUsingStrategy(eStrategy))
 			{
-				for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					m_aiTempFlavors[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					if (pStrategy->GetCityFlavorValue(iFlavorLoop) != 0)
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
+						m_piLatestFlavorValues[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					}
 				}
 			}
 		}
@@ -418,17 +415,17 @@ void CvCityStrategyAI::UpdateFlavorsForNewCity()
 			// Active?
 			if(GET_PLAYER(m_pCity->getOwner()).GetMilitaryAI()->IsUsingStrategy(eStrategy))
 			{
-				for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+				for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 				{
-					m_aiTempFlavors[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					if (pStrategy->GetCityFlavorValue(iFlavorLoop) != 0)
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, pStrategy->GetCityFlavorValue(iFlavorLoop), pStrategy->GetType(), true);
+						m_piLatestFlavorValues[iFlavorLoop] += pStrategy->GetCityFlavorValue(iFlavorLoop);
+					}
 				}
 			}
 		}
 	}
-
-	ChangeFlavors(m_aiTempFlavors, true);
-
-	LogFlavors();
 }
 
 /// Set special production emphasis for this city
@@ -439,12 +436,13 @@ bool CvCityStrategyAI::SetSpecialization(CitySpecializationTypes eSpecialization
 		LogSpecializationChange(eSpecialization);
 
 		// Turn off old specialization
-		SpecializationFlavorChange(false /*Don't turn on */, m_eSpecialization);
+		SpecializationFlavorChange(false, m_eSpecialization);
+
+		// Switch
+		m_eSpecialization = eSpecialization;
 
 		// Turn on new specialization
-		SpecializationFlavorChange(true /* Do turn on */, eSpecialization);
-
-		m_eSpecialization = eSpecialization;
+		SpecializationFlavorChange(true, m_eSpecialization);
 
 		// May want to reconsider production
 		m_pCity->AI_setChooseProductionDirty(true);
@@ -475,29 +473,22 @@ void CvCityStrategyAI::SpecializationFlavorChange(bool bTurnOn, CitySpecializati
 		CvCitySpecializationXMLEntry* pSpecialization = GC.getCitySpecializationInfo(eSpecialization);
 		if(pSpecialization)
 		{
-			int iFlavorLoop = 0;
-
-			// Clear out Temp array
-			for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
+			for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 			{
-				m_aiTempFlavors[iFlavorLoop] = 0;
-			}
-
-			for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
-			{
-				if(bTurnOn)
+				if (pSpecialization->GetFlavorValue(iFlavorLoop) != 0)
 				{
-					m_aiTempFlavors[iFlavorLoop] += pSpecialization->GetFlavorValue(iFlavorLoop);
-				}
-				else
-				{
-					m_aiTempFlavors[iFlavorLoop] -= pSpecialization->GetFlavorValue(iFlavorLoop);
+					if (bTurnOn)
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), true);
+						m_piLatestFlavorValues[iFlavorLoop] += pSpecialization->GetFlavorValue(iFlavorLoop);
+					}
+					else
+					{
+						LogFlavorChange((FlavorTypes)iFlavorLoop, -pSpecialization->GetFlavorValue(iFlavorLoop), pSpecialization->GetType(), false);
+						m_piLatestFlavorValues[iFlavorLoop] -= pSpecialization->GetFlavorValue(iFlavorLoop);
+					}
 				}
 			}
-
-			ChangeFlavors(m_aiTempFlavors, true);
-
-			LogFlavors();
 		}
 	}
 }
@@ -1618,24 +1609,22 @@ void CvCityStrategyAI::DoTurn()
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomats(GetCity()); 
 				else if(strStrategyName == "AICITYSTRATEGY_NEED_DIPLOMATS_CRITICAL")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(GetCity());
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CULTURE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_SCIENCE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(GetCity()); 
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_DEFENSE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(GetCity()); 
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_GOLD")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_CONNECTION")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_PILLAGE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_RELIGION")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(GetCity());
-				else if(MOD_BALANCE_CORE_HAPPINESS && strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
+				else if(strStrategyName == "AICITYSTRATEGY_NEED_HAPPINESS_STARVE")
 					bStrategyShouldBeActive = CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(GetCity());
-#endif
 
 				// Check Lua hook
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
@@ -1691,36 +1680,21 @@ void CvCityStrategyAI::DoTurn()
 			// Flavor propagation
 			if(bAdoptOrEndStrategy)
 			{
-				int iFlavorLoop = 0;
-
 				// We should adopt this CityStrategy
 				if(bTestCityStrategyStart)
 				{
 					SetUsingCityStrategy(eCityStrategy, true);
 
-					const int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
-					const int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
-
-					const int iNumFlavors = GC.getNumFlavorTypes();
-					for(iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						if(pCityStrategy->GetFlavorValue(iFlavorLoop) != 0)
 						{
+							LogFlavorChange((FlavorTypes)iFlavorLoop, pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), true);
 							m_piLatestFlavorValues[iFlavorLoop] += pCityStrategy->GetFlavorValue(iFlavorLoop);
-
-							if(m_piLatestFlavorValues[iFlavorLoop] < iFlavorMinValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMinValue;
-							}
-							else if(m_piLatestFlavorValues[iFlavorLoop] > iFlavorMaxValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMaxValue;
-							}
-
-							LogFlavors((FlavorTypes) iFlavorLoop);
 						}
 					}
 
+					//update clients
 					FlavorUpdate();
 				}
 				// End the CityStrategy
@@ -1728,29 +1702,16 @@ void CvCityStrategyAI::DoTurn()
 				{
 					SetUsingCityStrategy(eCityStrategy, false);
 
-					const int iFlavorMinValue = /*-1000*/ GD_INT_GET(FLAVOR_MIN_VALUE);
-					const int iFlavorMaxValue = /*1000*/ GD_INT_GET(FLAVOR_MAX_VALUE);
-
-					const int iNumFlavors = GC.getNumFlavorTypes();
-					for(iFlavorLoop = 0; iFlavorLoop < iNumFlavors; iFlavorLoop++)
+					for(int iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						if(pCityStrategy->GetFlavorValue(iFlavorLoop) != 0)
 						{
+							LogFlavorChange((FlavorTypes)iFlavorLoop, -pCityStrategy->GetFlavorValue(iFlavorLoop), pCityStrategy->GetType(), false);
 							m_piLatestFlavorValues[iFlavorLoop] -= pCityStrategy->GetFlavorValue(iFlavorLoop);
-
-							if(m_piLatestFlavorValues[iFlavorLoop] < iFlavorMinValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMinValue;
-							}
-							else if(m_piLatestFlavorValues[iFlavorLoop] > iFlavorMaxValue)
-							{
-								m_piLatestFlavorValues[iFlavorLoop] = iFlavorMaxValue;
-							}
-
-							LogFlavors((FlavorTypes) iFlavorLoop);
 						}
 					}
 
+					//update clients
 					FlavorUpdate();
 				}
 			}
@@ -1813,49 +1774,28 @@ void CvCityStrategyAI::ReweightByDuration(CvWeightedVector<CvCityBuildable>& opt
 }
 
 /// Log new flavor settings
-void CvCityStrategyAI::LogFlavors(FlavorTypes eFlavor)
+void CvCityStrategyAI::LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start)
 {
 	if(GC.getLogging() && GC.getAILogging())
 	{
 		CvString strOutBuf;
 		CvString strBaseString;
 		CvString strTemp;
-		CvString playerName;
-		CvString cityName;
-		CvString strDesc;
 
 		// Find the name of this civ and city
-		playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
-		cityName = m_pCity->getName();
+		CvString playerName = GET_PLAYER(m_pCity->getOwner()).getCivilizationShortDescription();
+		CvString cityName = m_pCity->getName();
 
 		// Open the log file
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
+		FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName, cityName), FILogFile::kDontTimeStamp);
 
 		// Get the leading info for this line
 		strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
 		strBaseString += playerName + ", " + cityName + ", ";
 
-		// Dump out the setting for each flavor
-		if(eFlavor == NO_FLAVOR)
-		{
-			for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
-			{
-				// Only dump if non-zero
-				//		if (m_piLatestFlavorValues[iI] > 0)
-				{
-					strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_piLatestFlavorValues[iI]);
-					strOutBuf = strBaseString + strTemp;
-					pLog->Msg(strOutBuf);
-				}
-			}
-		}
-		else
-		{
-			strTemp.Format("Flavor, %s, %d", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor]);
-			strOutBuf = strBaseString + strTemp;
-			pLog->Msg(strOutBuf);
-		}
+		strTemp.Format("%s, %d, %d, %s, %s", GC.getFlavorTypes(eFlavor).GetCString(), m_piLatestFlavorValues[eFlavor], change, reason?reason:"unknown", start?"start":"end");
+		strOutBuf = strBaseString + strTemp;
+		pLog->Msg(strOutBuf);
 	}
 }
 
@@ -2192,8 +2132,8 @@ void CvCityStrategyAI::LogCityProduction(CvCityBuildable buildable, bool bRush)
 		if (pEntry != NULL)
 			strDesc = pEntry->GetDescription();
 
-		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, %s, ERA: %d, TURNS: %d", GC.getGame().getJonRand().getSeed(), 
-			strType.c_str(), strDesc.c_str(), bRush?"Rush":"NoRush", iEra, buildable.m_iTurnsToConstruct);
+		strTemp.Format("SEED: %I64u, CHOSEN: %s, %s, %s, ERA: %d, TURNS: %d, GPT: %d", GC.getGame().getJonRand().getSeed(), 
+			strType.c_str(), strDesc.c_str(), bRush?"Rush":"NoRush", iEra, buildable.m_iTurnsToConstruct, GET_PLAYER(m_pCity->getOwner()).getAvgGoldRate());
 
 		strOutBuf = strBaseString + strTemp;
 		pLog->Msg(strOutBuf);
@@ -2254,7 +2194,7 @@ void CvCityStrategyAI::LogInvalidItem(CvCityBuildable buildable, int iVal)
 		case SR_UNITSUPPLY:
 			reason = "nosupply";
 			break;
-		case SR_MAINTENCANCE:
+		case SR_MAINTENANCE:
 			reason = "tooexpensive";
 			break;
 		case SR_STRATEGY:
@@ -2754,27 +2694,22 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_EnoughSettlers(CvCity* pCity)
 {
 	CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
 
+	//probably redundant with canTrain()
 	EconomicAIStrategyTypes eCanSettle = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_FOUND_CITY");
-	if (!EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
-	{
-		int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-		//Too many settlers? Stop building them!
-		if(iSettlersOnMapOrBuild >= 2)
-		{
-			return true;
-		}
-		MilitaryAIStrategyTypes eBuildCriticalDefenses = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_LOSING_WARS");
-		// scale based on flavor and world size
-		if(eBuildCriticalDefenses != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
-		{
-			if(iSettlersOnMapOrBuild > 0)
-			{
-				return true;
-			}
-		}
-	}
+	if (EconomicAIHelpers::CannotMinorCiv(&kPlayer, eCanSettle))
+		return true;
+
+	int iNumSettlers = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
+	if (iNumSettlers > 1)
+		return true;
+
+	//settler is idle?
+	if (iNumSettlers > 0 && kPlayer.getFirstAIOperationOfType(AI_OPERATION_FOUND_CITY) == NULL)
+		return true;
+
 	return false;
 }
+
 // We a new city on a bigger continent? Let's spread our legs!
 bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategyTypes eStrategy, CvCity* pCity)
 {
@@ -2801,10 +2736,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NewContinentFeeder(AICityStrategy
 // Is this an isolated city with no land routes out? Maybe open border with neighbors could help
 bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 {
-	if(!pCity)
-		return false;
-
-	if(pCity->isCapital())
+	if(!pCity || pCity->isCapital())
 		return false;
 
 	CvCity* pCapitalCity = GET_PLAYER(pCity->getOwner()).getCapitalCity();
@@ -2814,6 +2746,23 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	//do we already have a connection to the capital?
 	if (pCity->IsRouteToCapitalConnected())
 		return false;
+
+	//check if we are on a different continent ... a colony isn't a pocket city
+	if (pCity->plot()->getLandmass() != pCapitalCity->plot()->getLandmass())
+		return false;
+
+	//check the tactical map whether we are neighbors with one of our other cities
+	CvTacticalAnalysisMap* tactmap = GET_PLAYER(pCity->getOwner()).GetTacticalAI()->GetTacticalAnalysisMap();
+	const CvTacticalDominanceZone* zone = tactmap->GetZoneByCity(pCity, false);
+	if (zone) //for new cities the zone may not exist
+	{
+		for (std::vector<int>::const_iterator it = zone->GetNeighboringZones().begin(); it != zone->GetNeighboringZones().end(); ++it)
+		{
+			CvTacticalDominanceZone* neighbor = tactmap->GetZoneByID(*it);
+			if (neighbor->GetTerritoryType() == TACTICAL_TERRITORY_FRIENDLY)
+				return false;
+		}
+	}
 
 	//could we build a route?
 	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, ROUTE_ANY);
@@ -2834,64 +2783,9 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_HaveTrainingFacility(CvCity* pCit
 }
 
 /// "Capital Need Settler" City Strategy: have capital build a settler ASAP
-bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategyTypes eStrategy, CvCity* pCity)
+bool CityStrategyAIHelpers::IsTestCityStrategy_CapitalNeedSettler(AICityStrategyTypes /*eStrategy*/, CvCity* /*pCity*/)
 {
-	if(pCity->isCapital())
-	{
-		CvPlayer& kPlayer = GET_PLAYER(pCity->getOwner());
-
-		if (!(kPlayer.isMinorCiv() && pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy)->IsNoMinorCivs()))
-		{
-			int iNumCities = kPlayer.getNumCities();
-			int iSettlersOnMapOrBuild = kPlayer.GetNumUnitsWithUnitAI(UNITAI_SETTLE, true);
-			int iCitiesPlusSettlers = iNumCities + iSettlersOnMapOrBuild;
-
-			bool bIsVenice = kPlayer.GetPlayerTraits()->IsNoAnnexing();
-			//City #2 is essential.
-			if(!bIsVenice && (iCitiesPlusSettlers <= 1))
-			{
-				return true;
-			}
-
-			if((iCitiesPlusSettlers > 0) && (iCitiesPlusSettlers < 6))
-			{
-
-				AICityStrategyTypes eUnderThreat = (AICityStrategyTypes) GC.getInfoTypeForString("AICITYSTRATEGY_CAPITAL_UNDER_THREAT");
-				if(eUnderThreat != NO_AICITYSTRATEGY)
-				{
-					if(GC.getGame().getGameTurn() > 50 && pCity->GetCityStrategyAI()->IsUsingCityStrategy(eUnderThreat))
-					{
-						return false;
-					}
-				}
-
-				MilitaryAIStrategyTypes eMilStrategy = (MilitaryAIStrategyTypes) GC.getInfoTypeForString("MILITARYAISTRATEGY_WAR_MOBILIZATION");
-				if(eMilStrategy != NO_MILITARYAISTRATEGY && kPlayer.GetMilitaryAI()->IsUsingStrategy(eMilStrategy))
-				{
-					// this is very risky, if this war fails, the civ lost the entire game as they have no backup plan
-					return false;
-				}
-
-				CvAICityStrategyEntry* pCityStrategy = pCity->GetCityStrategyAI()->GetAICityStrategies()->GetEntry(eStrategy);
-				int iWeightThresholdModifier = GetWeightThresholdModifier(eStrategy, pCity);	// -10 per EXPANSION, +2 per DEFENSE
-				int iWeightThreshold = pCityStrategy->GetWeightThreshold() + iWeightThresholdModifier;	// 130
-
-				int iGameTurn = GC.getGame().getGameTurn();
-				if((iCitiesPlusSettlers == 1 && (iGameTurn * 4) > iWeightThreshold) ||
-					(iCitiesPlusSettlers == 2 && (iGameTurn * 2) > iWeightThreshold) || 
-					(iCitiesPlusSettlers == 3 && iGameTurn > iWeightThreshold) 
-#if defined(MOD_BALANCE_CORE)
-					|| (iCitiesPlusSettlers == 4 && (iGameTurn / 2) > iWeightThreshold) 
-					|| (iCitiesPlusSettlers == 5 && (iGameTurn / 4) > iWeightThreshold) 
-#endif
-					)
-				{
-					return true;
-				}
-			}
-		}
-	}
-
+	//checked in unitbuildsanity
 	return false;
 }
 
@@ -3633,35 +3527,35 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCi
 //Tests to help AI build buildings it needs.
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetBoredom(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetBoredom(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessScience(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetIlliteracy(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetIlliteracy(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetDistress(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetDistress(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessGold(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetPoverty(false) > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetPoverty(false) > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessConnection(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromIsolation() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromIsolation() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessPillage(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromPillagedTiles() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromPillagedTiles() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessReligion(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromReligiousUnrest() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromReligiousUnrest() > 0);
 }
 bool CityStrategyAIHelpers::IsTestCityStrategy_NeedHappinessStarve(CvCity *pCity)
 {
-	return static_cast<bool>(!GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromFamine() > 0);
+	return static_cast<bool>(MOD_BALANCE_VP && !GET_PLAYER(pCity->getOwner()).isMinorCiv() && pCity->GetUnhappinessFromFamine() > 0);
 }
 int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eBuilding, const SPlotStats& plotStats, const vector<int>& allExistingBuildings,
 	YieldTypes eYield, int& iFlatYield)
@@ -4637,13 +4531,13 @@ int CityStrategyAIHelpers::GetBuildingGrandStrategyValue(CvCity *pCity, Building
 	{
 		iDiploValue += 100;
 	}
-	if(pkBuildingInfo->GetSingleVotes() > 0)
+	if (pkBuildingInfo->GetSingleLeagueVotes() > 0)
 	{
-		iDiploValue += (pkBuildingInfo->GetSingleVotes() * 25);
+		iDiploValue += pkBuildingInfo->GetSingleLeagueVotes() * 25;
 	}
-	if(pkBuildingInfo->GetExtraLeagueVotes() > 0)
+	if (pkBuildingInfo->GetExtraLeagueVotes() > 0)
 	{
-		iDiploValue += (pkBuildingInfo->GetExtraLeagueVotes() * 25);
+		iDiploValue += (200 / pkBuildingInfo->GetExtraLeagueVotes());
 	}
 	if(pkBuildingInfo->GetMinorFriendshipChange() > 0)
 	{

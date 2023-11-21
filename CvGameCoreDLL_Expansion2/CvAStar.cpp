@@ -2060,13 +2060,17 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	CvPlayerAI& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
 	TeamTypes eTeam = kPlayer.getTeam();
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-	if(!pPlot)
+	if (!pPlot)
 		return 0;
 
 	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
-	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
+	if (!pFirstCity || pFirstCity->getTeam() != eTeam)
+		return 0;
+
+	// if the city is being razed
+	if (pFirstCity->IsRazing())
 		return 0;
 
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
@@ -2076,7 +2080,7 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
-			if (pSecondCity)
+			if (pSecondCity && !pSecondCity->IsRazing())
 				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}
@@ -2334,7 +2338,7 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 
 	//can we build it?
 	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
-	if (eRoute > thisPlayer.getBestRoute())
+	if (eRoute != ROUTE_ANY && eRoute > thisPlayer.getBestRoute())
 		return FALSE;
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
