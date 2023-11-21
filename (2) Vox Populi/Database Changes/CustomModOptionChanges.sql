@@ -1,5 +1,7 @@
 UPDATE CustomModOptions SET Value = 1 WHERE Name = 'BALANCE_VP';
 
+UPDATE CustomModOptions SET Value = 1 WHERE Name = 'ALTERNATE_SIAM_TRAIT';
+
 UPDATE CustomModOptions
 SET Value = 1
 WHERE Name = 'BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES';

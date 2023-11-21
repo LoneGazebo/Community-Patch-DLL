@@ -842,11 +842,11 @@ WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 -- Siam
 --------------------
 UPDATE Language_en_US
-SET Text = '+2 [ICON_RESEARCH] Science from Temples and Shrines in this City, and +1 [ICON_CULTURE] Culture from Jungle and Forest tiles worked by this City.[NEWLINE][NEWLINE]Improves City [ICON_SPY] Security Level by 50%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
+SET Text = '+3 [ICON_RESEARCH] Science from Temples and Shrines in this City. +10 [ICON_INFLUENCE] Influence from Diplomatic Missions by Units produced by this City.[NEWLINE][NEWLINE]Improves City [ICON_SPY] Security Level by 50%.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Wat is the Siamese unique building, replacing the Constabulary. It is available much earlier than the building it replaces. The Wat increases the [ICON_CULTURE] Culture and [ICON_RESEARCH] Science of a City, increases the [ICON_RESEARCH] Science output of Temples and Shrines, and reduces spy stealing rates much more than the Constabulary. It also receives an additional Scientist Specialist, thus allowing it to produce Great Scientists more rapidly than other Civilizations.'
+SET Text = 'The Wat is the Siamese unique building, replacing the Constabulary. It is available much earlier than the building it replaces. The Wat increases the [ICON_RESEARCH] Science of a City, increases the [ICON_RESEARCH] Science output of Temples and Shrines, and reduces spy stealing rates much more than the Constabulary. It also receives an additional Scientist Specialist, thus allowing it to produce Great Scientists more rapidly than other Civilizations. Finally, it increases the [ICON_INFLUENCE] Influence gained from Diplomatic Missions if the diplomat originates in this City.'
 WHERE Tag = 'TXT_KEY_BUILDING_WAT_STRATEGY';
 
 UPDATE Language_en_US
@@ -854,7 +854,7 @@ SET Text = 'Unique Siamese {TXT_KEY_UNIT_KNIGHT} that excels at defeating {TXT_K
 WHERE Tag = 'TXT_KEY_UNIT_HELP_SIAMESE_WARELEPHANT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_INFLUENCE] Influence with [ICON_CITY_STATE] City-States starts at 40. +100% yields from Friendly and Allied [ICON_CITY_STATE] City-States. +25% to [ICON_STRENGTH] Combat Strength of Allied [ICON_CITY_STATE] City-State [ICON_CAPITAL] Capitals. +10 Experience to Units gifted by [ICON_CITY_STATE] City-States.'
+SET Text = 'Yields, Resources, [ICON_HAPPINESS_1] Happiness and Unit Gift frequency from Friendly and Allied [ICON_CITY_STATE] City-States are doubled.'
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_BONUSES';
 
 --------------------

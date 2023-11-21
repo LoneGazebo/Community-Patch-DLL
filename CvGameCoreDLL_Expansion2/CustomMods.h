@@ -193,6 +193,8 @@
 #define MOD_NO_AUTO_SPAWN_PROPHET					gCustomMods.isNO_AUTO_SPAWN_PROPHET()
 // Change Assyria's trait to choosing a free tech upon city conquest
 #define MOD_ALTERNATE_ASSYRIA_TRAIT					gCustomMods.isALTERNATE_ASSYRIA_TRAIT()
+// Alters Siam's trait. Now affects all Yields, Resources, Happiness and Unit Gift frequency from City-States, and does not give bonus XP.
+#define MOD_ALTERNATE_SIAM_TRAIT					gCustomMods.isALTERNATE_SIAM_TRAIT()
 // No repairing tiles in foreign lands -- prevents an exploit where a human player can pillage and repair
 #define MOD_NO_REPAIR_FOREIGN_LANDS					gCustomMods.isNO_REPAIR_FOREIGN_LANDS()
 // No yield from Ice Features
@@ -1307,6 +1309,7 @@ public:
 	MOD_OPT_DECL(PLOTS_EXTENSIONS);
 	MOD_OPT_DECL(NO_AUTO_SPAWN_PROPHET);
 	MOD_OPT_DECL(ALTERNATE_ASSYRIA_TRAIT);
+	MOD_OPT_DECL(ALTERNATE_SIAM_TRAIT);
 	MOD_OPT_DECL(NO_REPAIR_FOREIGN_LANDS);
 	MOD_OPT_DECL(NO_YIELD_ICE);
 	MOD_OPT_DECL(NO_MAJORCIV_GIFTING);

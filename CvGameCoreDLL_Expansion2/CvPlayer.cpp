@@ -40815,15 +40815,17 @@ int CvPlayer::getResourceFromMinors(ResourceTypes eIndex) const
 	CvAssertMsg(eIndex < GC.getNumResourceInfos(), "eIndex is expected to be within maximum bounds (invalid Index)");
 
 	int iNumResourceFromMinors = m_paiResourceFromMinors[eIndex];
+	int iModifier = 0;
+
+	// Modify the bonus if called for by our trait
+	if (MOD_ALTERNATE_SIAM_TRAIT)
+		iModifier += GetPlayerTraits()->GetCityStateBonusModifier();
 
 	// Resource bonus doubles quantity of Resources from Minors (Policies, etc.)
 	if (IsMinorResourceBonus())
-	{
-		iNumResourceFromMinors *= /*200*/ GD_INT_GET(MINOR_POLICY_RESOURCE_MULTIPLIER);
-		iNumResourceFromMinors /= 100;
-	}
+		iModifier += /*100*/ GD_INT_GET(MINOR_POLICY_RESOURCE_MULTIPLIER) - 100;
 
-	return iNumResourceFromMinors;
+	return iNumResourceFromMinors * (100 + iModifier) / 100;
 }
 
 //	--------------------------------------------------------------------------------

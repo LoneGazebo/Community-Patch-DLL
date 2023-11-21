@@ -230,6 +230,8 @@
 	<Row Class="4" Name="NO_AUTO_SPAWN_PROPHET" Value="0"/>
 	<!-- Alters Assyria's conquest trait. Now player can chooses a free tech upon city conquest -->
 	<Row Class="5" Name="ALTERNATE_ASSYRIA_TRAIT" Value="0"/>
+	<!-- Alters Siam's trait. Now affects all Yields, Resources, Happiness and Unit Gift frequency from City-States, and does not give bonus XP. -->
+	<Row Class="5" Name="ALTERNATE_SIAM_TRAIT" Value="0"/>
 	<!-- No exploit to pillage and repair in foreign lands during war -->
 	<Row Class="5" Name="NO_REPAIR_FOREIGN_LANDS" Value="1"/>
 	<!-- Ice Features are prevented from having a yield -->

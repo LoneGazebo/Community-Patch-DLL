@@ -204,6 +204,9 @@ ALTER TABLE Buildings ADD BorderGrowthRateIncrease INTEGER DEFAULT 0; -- For the
 ALTER TABLE Buildings ADD BorderGrowthRateIncreaseGlobal INTEGER DEFAULT 0; -- For the empire
 ALTER TABLE Beliefs ADD BorderGrowthRateIncreaseGlobal INTEGER DEFAULT 0;
 
+-- +X Influence from Diplomatic Missions for units that originate from this city
+ALTER TABLE Buildings ADD COLUMN 'DiplomatInfluenceBoost' INTEGER DEFAULT 0;
+
 -- Belief requires an improvement on a terrain type to grant its yield.
 
 ALTER TABLE Beliefs ADD COLUMN 'RequiresImprovement' BOOLEAN DEFAULT 0;
