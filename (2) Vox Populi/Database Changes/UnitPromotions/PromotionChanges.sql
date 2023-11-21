@@ -495,7 +495,7 @@ VALUES
 	('PROMOTION_VIKING', 'YIELD_GOLD', 30),
 	('PROMOTION_LONGBOAT', 'YIELD_GOLD', 60);
 
-UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 2 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
+UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
 
 UPDATE UnitPromotions SET ExtraNavalMovement = 1 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
 
@@ -665,7 +665,7 @@ UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_RECON_
 
 UPDATE UnitPromotions SET CanCrossOceans = 1 WHERE Type = 'PROMOTION_OCEAN_CROSSING';
 
-UPDATE UnitPromotions SET EmbarkExtraVisibility = 2 WHERE Type = 'PROMOTION_EMBARKED_SIGHT';
+UPDATE UnitPromotions SET EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_EMBARKED_SIGHT';
 
 UPDATE UnitPromotions SET EmbarkDefenseModifier = 100 WHERE Type = 'PROMOTION_DEFENSIVE_EMBARKATION';
 

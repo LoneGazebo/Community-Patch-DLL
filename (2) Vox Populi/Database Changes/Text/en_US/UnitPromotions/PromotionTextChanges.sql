@@ -650,7 +650,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_DEFENSIVE_EMBARKATION_HELP';
 
 -- Embarkation with Ocean Movement
 UPDATE Language_en_US
-SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and have +2 [ICON_VP_VISION] Sight.'
+SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and have +1 [ICON_VP_VISION] Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
 -- Sapper
