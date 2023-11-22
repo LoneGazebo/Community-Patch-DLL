@@ -563,6 +563,33 @@ local g_cityToolTips = {
 	CityHasAirport = function()
 		return L"TXT_KEY_CITY_HAS_AIRPORT"
 	end,
+	CityHasOffice = function( city )
+		if Players[city:GetOwner()]:GetCorporation() ~= -1  then
+			if (city == Game.GetCorporationHeadquarters(Players[city:GetOwner()]:GetCorporation())) then
+				return L("TXT_KEY_CORPORATION_OFFICEHQ_TT", GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].Description) .. "[NEWLINE][ICON_BULLET]" .. L(GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].Help) .. "[NEWLINE][ICON_BULLET]" .. L("TXT_KEY_CORPORATION_OFFICEHQ_TT2", city:GetName()) .."[NEWLINE][ICON_BULLET]" .. L("TXT_KEY_CORPORATION_OFFICE_TT2", city:GetName())
+			else
+				return L("TXT_KEY_CORPORATION_OFFICE_TT", GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].Description) .. "[NEWLINE][ICON_BULLET]" .. L(GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].OfficeBonusHelp) .. "[NEWLINE][ICON_BULLET]" .. L("TXT_KEY_CORPORATION_OFFICE_TT2", city:GetName())
+			end
+		else
+			return ""
+		end
+	end,
+	CityHasFranchise = function( city )
+		if Game.GetNumCorporationsFounded() < 1 then
+			return ""
+		else
+			local FranchiseTT = "";
+			for corporation in GameInfo.Corporations() do
+				if Game.GetCorporationFounder(corporation.ID) ~= -1 and city:IsFranchised(Game.GetCorporationFounder(corporation.ID)) then
+					if (FranchiseTT ~= "") then
+						FranchiseTT = FranchiseTT .. "[NEWLINE]"
+					end
+					FranchiseTT = FranchiseTT .. "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. L(GameInfo.Buildings[Players[Game.GetCorporationFounder(corporation.ID)]:GetSpecificBuildingType(corporation.FranchiseBuildingClass)].Description) .. "[ENDCOLOR]: " .. L(GameInfo.Buildings[Players[Game.GetCorporationFounder(corporation.ID)]:GetSpecificBuildingType(corporation.FranchiseBuildingClass)].Help)
+				end
+			end
+			return FranchiseTT
+		end
+	end,
 	CityIsAutomated = function()
 		return L"TXT_KEY_CITY_PRODUCTION_AUTOMATED"
 	end,
@@ -1062,6 +1089,22 @@ local function RefreshCityBannersNow()
 
 			-- Has airport ?
 			instance.CityHasAirport:SetHide( not city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"]) )
+			
+			-- Has office ?
+			instance.CityHasOffice:SetHide( not city:HasOffice() )
+			
+			-- Has franchise ?
+			if Game.GetNumCorporationsFounded() > 0 then
+				instance.CityHasFranchise:SetHide( true )
+				for corporation in GameInfo.Corporations() do
+					if Game.GetCorporationFounder(corporation.ID) ~= -1 and city:IsFranchised(Game.GetCorporationFounder(corporation.ID)) then
+						instance.CityHasFranchise:SetHide( false )
+						break
+					end
+				end
+			else
+				instance.CityHasFranchise:SetHide( true )
+			end
 
 			-- Blockaded ? / Sapped ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )
