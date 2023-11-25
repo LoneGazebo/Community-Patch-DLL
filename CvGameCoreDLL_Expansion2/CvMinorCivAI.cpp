@@ -1557,7 +1557,7 @@ bool CvMinorCivQuest::IsComplete()
 }
 
 /// Is this quest now revoked (because the player bullied or attacked us)?
-bool CvMinorCivQuest::IsRevoked(bool bWar)
+bool CvMinorCivQuest::IsRevoked(bool bWar, bool bHeavyTribute)
 {
 	// Horde/Rebellion are never revoked
 	if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -1570,6 +1570,9 @@ bool CvMinorCivQuest::IsRevoked(bool bWar)
 	// Global quests are not revoked by bullying
 	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsGlobalQuest(m_eType))
 		return false;
+
+	if (bHeavyTribute)
+		return true;
 
 	// Bullied us recently? No personal quests for you!
 	if (!GET_PLAYER(m_eAssignedPlayer).IsCanBullyFriendlyCS() && GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
@@ -2202,9 +2205,9 @@ bool CvMinorCivQuest::IsExpired()
 	return false;
 }
 
-bool CvMinorCivQuest::IsObsolete(bool bWar)
+bool CvMinorCivQuest::IsObsolete(bool bWar, bool bHeavyTribute)
 {
-	return (IsRevoked(bWar) || IsExpired());
+	return (IsRevoked(bWar, bHeavyTribute) || IsExpired());
 }
 
 // The end of this quest has been handled, no effects should happen, and it is marked to be deleted
@@ -16674,7 +16677,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				QuestListForPlayer::iterator itr_quest;
 				for (itr_quest = m_QuestsGiven[eBully].begin(); itr_quest != m_QuestsGiven[eBully].end(); itr_quest++)
 				{
-					if (itr_quest->IsObsolete()) // is this quest canceled by demanding heavy tribute?
+					if (itr_quest->IsObsolete(false, true)) // is this quest canceled by demanding heavy tribute?
 					{
 						itr_quest->DoRewards(eBully, true);
 					}
