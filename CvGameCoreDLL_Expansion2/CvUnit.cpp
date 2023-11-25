@@ -12181,7 +12181,16 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 	{
 		PlayerTypes eMinor = pPlot->getOwner();
 		if (GetDiploMissionInfluence() != 0)
+		{
 			iInf = GetDiploMissionInfluence();
+
+			CvCity* pOriginCity = getOriginCity();
+			if (!pOriginCity)
+				pOriginCity = GET_PLAYER(getOwner()).getCapitalCity();
+
+			if (pOriginCity)
+				iInf += pOriginCity->GetDiplomatInfluenceBoost();
+		}
 		else
 			iInf = /*30 in CP, 0 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
 

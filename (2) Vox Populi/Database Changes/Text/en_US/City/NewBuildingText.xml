@@ -579,7 +579,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE">
-			<Text>Trader Sid's</Text>
+			<Text>Trader Sid's Franchise</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TRADER_SIDS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in foreign Cities if you were the founder of Trader Sid's. To construct this building in a foreign City, send a Trade Route from an owned City with a Trader Sid's Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
@@ -612,7 +612,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE">
-			<Text>Centaurus Extractors</Text>
+			<Text>Centaurus Extractors Franchise</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LANDSEA_EXTRACTORS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in foreign Cities if you were the founder of Centaurus Extractors. To construct this building in a foreign City, send a Trade Route from an owned City with a Centaurus Extractors Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
@@ -645,7 +645,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE">
-			<Text>Hexxon Refineries</Text>
+			<Text>Hexxon Refineries Franchise</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_HEXXON_REFINERY_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in foreign Cities if you were the founder of Hexxon Refineries. To construct this building in a foreign City, send a Trade Route from an owned City with a Hexxon Refineries Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
@@ -678,7 +678,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE">
-			<Text>Giorgio Armeier</Text>
+			<Text>Giorgio Armeier Franchise</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GIORGIO_ARMEIER_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in foreign Cities if you were the founder of Giorgio Armeier . To construct this building in a foreign City, send a Trade Route from an owned City with a Giorgio Armeier Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
@@ -711,7 +711,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE">
-			<Text>Firaxite Materials</Text>
+			<Text>Firaxite Materials Franchise</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FIRAXITE_MATERIALS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in foreign Cities if you were the founder of Firaxite Materials. To construct this building in a foreign City, send a Trade Route from an owned City with a Firaxite Materials Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
@@ -744,7 +744,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE">
-			<Text>TwoKay Foods</Text>
+			<Text>TwoKay Foods Franchise</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_TWOKAY_FOODS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in foreign Cities if you were the founder of TwoKay Foods. To construct this building in a foreign City, send a Trade Route from an owned City with a TwoKay Foods Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>
@@ -777,7 +777,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE">
-			<Text>Civilized Jewelers</Text>
+			<Text>Civilized Jewelers Franchise</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_CIVILIZED_JEWELERS_FRANCHISE_STRATEGY">
 			<Text>This building can only be constructed in foreign Cities if you were the founder of Civilized Jewelers. To construct this building in a foreign City, send a Trade Route from an owned City with a Civilized Jewelers Office in it to a foreign City. When the Trade Route is complete, the building will automatically be constructed. There is also a 5% chance each turn that a franchise will appear on its own in a random foreign City.</Text>

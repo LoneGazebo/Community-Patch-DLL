@@ -198,6 +198,7 @@ CvCity::CvCity() :
 	, m_iNumNationalWonders()
 	, m_iWonderProductionModifier()
 	, m_iCapturePlunderModifier()
+	, m_iDiplomatInfluenceBoost()
 	, m_iBorderGrowthRateIncrease()
 	, m_iPlotCultureCostModifier()
 	, m_iPlotBuyCostModifier()
@@ -1296,6 +1297,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iNumNationalWonders = 0;
 	m_iWonderProductionModifier = 0;
 	m_iCapturePlunderModifier = 0;
+	m_iDiplomatInfluenceBoost = 0;
 	m_iBorderGrowthRateIncrease = 0;
 	m_iPlotCultureCostModifier = 0;
 	m_iPlotBuyCostModifier = 0;
@@ -15834,6 +15836,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeBaseYieldRateFromBuildings(YIELD_CULTURE, iBuildingCulture * iChange);
 		changeCultureRateModifier(pBuildingInfo->GetCultureRateModifier() * iChange);
+		ChangeDiplomatInfluenceBoost(pBuildingInfo->GetDiplomatInfluenceBoost() * iChange);
 		ChangeBorderGrowthRateIncrease(pBuildingInfo->GetBorderGrowthRateIncrease() * iChange);
 		changePlotCultureCostModifier(pBuildingInfo->GetPlotCultureCostModifier() * iChange);
 		changePlotBuyCostModifier(pBuildingInfo->GetPlotBuyCostModifier() * iChange);
@@ -21100,6 +21103,20 @@ void CvCity::changeCapturePlunderModifier(int iChange)
 	CvAssert(m_iCapturePlunderModifier >= 0);
 }
 
+//	--------------------------------------------------------------------------------
+int CvCity::GetDiplomatInfluenceBoost() const
+{
+	VALIDATE_OBJECT
+	return m_iDiplomatInfluenceBoost;
+}
+
+void CvCity::ChangeDiplomatInfluenceBoost(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iDiplomatInfluenceBoost += iChange;
+}
+
+//	--------------------------------------------------------------------------------
 /// Total % rate increase to border growth in this city
 int CvCity::GetBorderGrowthRateIncreaseTotal()
 {
@@ -21163,7 +21180,7 @@ int CvCity::GetBorderGrowthRateIncrease() const
 void CvCity::ChangeBorderGrowthRateIncrease(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iBorderGrowthRateIncrease = (m_iBorderGrowthRateIncrease + iChange);
+	m_iBorderGrowthRateIncrease += iChange;
 }
 
 
@@ -33198,6 +33215,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iNumNationalWonders);
 	visitor(city.m_iWonderProductionModifier);
 	visitor(city.m_iCapturePlunderModifier);
+	visitor(city.m_iDiplomatInfluenceBoost);
 	visitor(city.m_iBorderGrowthRateIncrease);
 	visitor(city.m_iPlotCultureCostModifier);
 	visitor(city.m_iPlotBuyCostModifier);

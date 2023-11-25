@@ -1,12 +1,7 @@
 ----------------------------------------------------------
 -- Unique Ability: Father Governs Children
 ----------------------------------------------------------
-UPDATE Traits
-SET
-	InfluenceMeetCS = 40,
-	CityStateBonusModifier = 100,
-	AllianceCSDefense = 25
-WHERE Type = 'TRAIT_CITY_STATE_BONUSES';
+UPDATE Traits SET CityStateBonusModifier = 100 WHERE Type = 'TRAIT_CITY_STATE_BONUSES';
 
 ----------------------------------------------------------
 -- Unique Unit: Naresuan's Elephant (Knight)
@@ -44,6 +39,7 @@ UPDATE Buildings
 SET
 	SpecialistType = 'SPECIALIST_SCIENTIST',
 	SpecialistCount = 1,
+	DiplomatInfluenceBoost = 10,
 	PrereqTech = 'TECH_THEOLOGY'
 WHERE Type = 'BUILDING_WAT';
 
@@ -57,11 +53,5 @@ VALUES
 INSERT INTO Building_BuildingClassLocalYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BUILDING_WAT', 'BUILDINGCLASS_SHRINE', 'YIELD_SCIENCE', 2),
-	('BUILDING_WAT', 'BUILDINGCLASS_TEMPLE', 'YIELD_SCIENCE', 2);
-
-INSERT INTO Building_FeatureYieldChanges
-	(BuildingType, FeatureType, YieldType, Yield)
-VALUES
-	('BUILDING_WAT', 'FEATURE_FOREST', 'YIELD_CULTURE', 1),
-	('BUILDING_WAT', 'FEATURE_JUNGLE', 'YIELD_CULTURE', 1);
+	('BUILDING_WAT', 'BUILDINGCLASS_SHRINE', 'YIELD_SCIENCE', 3),
+	('BUILDING_WAT', 'BUILDINGCLASS_TEMPLE', 'YIELD_SCIENCE', 3);

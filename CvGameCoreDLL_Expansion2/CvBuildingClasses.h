@@ -203,6 +203,7 @@ public:
 	int GetCityConnectionTradeRouteModifier() const;
 	int GetCapturePlunderModifier() const;
 	int GetPolicyCostModifier() const;
+	int GetDiplomatInfluenceBoost() const;
 	int GetBorderGrowthRateIncrease() const;
 	int GetBorderGrowthRateIncreaseGlobal() const;
 	int GetGlobalPlotCultureCostModifier() const;
@@ -724,6 +725,7 @@ private:
 	int m_iCityConnectionTradeRouteModifier;
 	int m_iCapturePlunderModifier;
 	int m_iPolicyCostModifier;
+	int m_iDiplomatInfluenceBoost;
 	int m_iBorderGrowthRateIncrease;
 	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iGlobalPlotCultureCostModifier;

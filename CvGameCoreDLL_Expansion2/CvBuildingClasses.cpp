@@ -693,6 +693,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iCityConnectionTradeRouteModifier = kResults.GetInt("CityConnectionTradeRouteModifier");
 	m_iCapturePlunderModifier = kResults.GetInt("CapturePlunderModifier");
 	m_iPolicyCostModifier = kResults.GetInt("PolicyCostModifier");
+	m_iDiplomatInfluenceBoost = kResults.GetInt("DiplomatInfluenceBoost");
 	m_iBorderGrowthRateIncrease = kResults.GetInt("BorderGrowthRateIncrease");
 	m_iBorderGrowthRateIncreaseGlobal = kResults.GetInt("BorderGrowthRateIncreaseGlobal");
 	m_iPlotCultureCostModifier = kResults.GetInt("PlotCultureCostModifier");
@@ -2070,6 +2071,12 @@ int CvBuildingEntry::GetCapturePlunderModifier() const
 int CvBuildingEntry::GetPolicyCostModifier() const
 {
 	return m_iPolicyCostModifier;
+}
+
+/// +X Influence from Diplomatic Missions for units that originate from this city
+int CvBuildingEntry::GetDiplomatInfluenceBoost() const
+{
+	return m_iDiplomatInfluenceBoost;
 }
 
 /// Increase to rate of border growth in city
