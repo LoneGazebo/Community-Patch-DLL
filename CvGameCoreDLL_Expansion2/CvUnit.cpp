@@ -31290,6 +31290,10 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 		}
 	}
 
+	// Performance improvement if the unit is captured and can't or doesn't escort anything
+	if (bCaptured && aEscortedUnits.empty())
+		return true;
+
 	// possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
 	for (int i = 0; i < 3; i++)
 	{
@@ -31376,9 +31380,12 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 		}
 	}
 
-	PublishQueuedVisualizationMoves();
-	if (bWithdraw)
-		m_bHasWithdrawnThisTurn = true;
+	if (!bCaptured)
+	{
+		PublishQueuedVisualizationMoves();
+		if (bWithdraw)
+			m_bHasWithdrawnThisTurn = true;
+	}
 
 	return true;
 }
