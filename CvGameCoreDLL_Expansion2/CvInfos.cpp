@@ -4527,7 +4527,8 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 			m_iNumGoodies = kCount.GetInt(0);
 		}
 
-		m_piGoodies = FNEW(int[m_iNumGoodies], c_eCiv5GameplayDLL, 0);
+		kUtility.InitializeArray(m_piGoodies, m_iNumGoodies, 0);
+
 		Database::Results kArrayResults;
 		char szSQL[512];
 		sprintf_s(szSQL, "select GoodyHuts.ID from HandicapInfo_Goodies inner join GoodyHuts on GoodyType = GoodyHuts.Type where HandicapType = '%s';", szHandicapType);
@@ -4552,7 +4553,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 
 	//Difficulty Bonus Yield Multipliers
 	{
-		m_pppiDifficultyBonus = FNEW(int[iDifficultyBonusArrSize], c_eCiv5GameplayDLL, 0);
+		kUtility.InitializeArray(m_pppiDifficultyBonus, iDifficultyBonusArrSize, 0);
 
 		std::string strKey = "HandicapInfos - DifficultyBonus";
 		Database::Results* pResults = kUtility.GetResults(strKey);
@@ -4583,7 +4584,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	}
 	//AI Difficulty Bonus Yield Multipliers
 	{
-		m_pppiAIDifficultyBonus = FNEW(int[iDifficultyBonusArrSize], c_eCiv5GameplayDLL, 0);
+		kUtility.InitializeArray(m_pppiAIDifficultyBonus, iDifficultyBonusArrSize, 0);
 
 		std::string strKey = "HandicapInfos - AIDifficultyBonus";
 		Database::Results* pResults = kUtility.GetResults(strKey);

@@ -173,18 +173,18 @@
 	BarbarianSeaTargetRange: Pathfinder range for sea Barbarian units (they will roam towards a target up to BarbarianSeaTargetRange turns away). Default 0.
 
 	[AI Behavior Modifiers]
-	-- Weighted Randomized Choices --
+	- Weighted Randomized Choices -
 	CityProductionChoiceCutoffThreshold: The % of the top scoring choice that a City Production choice must have to be included in the weighted randomization. Default 90.
 	TechChoiceCutoffThreshold: The % of the top scoring choice that a Technology choice must have to be included in the weighted randomization. Default 90.
 	PolicyChoiceCutoffThreshold: The % of the top scoring choice that a Policy choice must have to be included in the weighted randomization. Default 90.
 	BeliefChoiceCutoffThreshold: The % of the top scoring choice that a Belief choice must have to be included in the weighted randomization. Default 90.
 
-	-- Tactical AI --
+	- Tactical AI -
 	TacticalSimMaxCompletedPositions: Controls the Tactical AI simulator's search depth. Default 512.
 	TacticalSimMaxBranches: Controls the Tactical AI simulator's search depth. Default 4.
 	TacticalSimMaxChoicesPerUnit: Controls the Tactical AI simulator's search depth. Default 4.
 
-	-- Diplomacy AI --
+	- Diplomacy AI -
 	LandDisputePercent: Controls how aggressive the AI is about territorial disputes and reckless expansion (100 = normal aggression). Default 100.
 	WonderDisputePercent: Controls how aggressive the AI is about World Wonder competition (100 = normal aggression). Default 100.
 	MinorCivDisputePercent: Controls how aggressive the AI is about City-State Influence competition (100 = normal aggression). Default 100.
