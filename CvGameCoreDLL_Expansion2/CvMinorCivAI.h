@@ -182,9 +182,9 @@ public:
 	// Quest status for assigned player
 	bool IsContestLeader(PlayerTypes ePlayer = NO_PLAYER);
 	bool IsComplete();
-	bool IsRevoked(bool bWar = false);
+	bool IsRevoked(bool bWar = false, bool bHeavyTribute = false);
 	bool IsExpired();
-	bool IsObsolete(bool bWar = false);
+	bool IsObsolete(bool bWar = false, bool bHeavyTribute = false);
 	bool IsHandled() const;
 	void SetHandled(bool bValue);
 
