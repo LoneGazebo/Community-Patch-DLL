@@ -18339,8 +18339,8 @@ int CvLuaPlayer::lIsGlobalQuest(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const MinorCivQuestTypes eQuest = (MinorCivQuestTypes)lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->GetMinorCivAI()->IsGlobalQuest(eQuest);
-	lua_pushboolean(L, iResult);
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsGlobalQuest(eQuest);
+	lua_pushboolean(L, bResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -18350,7 +18350,7 @@ int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const MinorCivQuestTypes eQuest = (MinorCivQuestTypes)lua_tointeger(L, 2);
 
-	const int iResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
-	lua_pushboolean(L, iResult);
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
+	lua_pushboolean(L, bResult);
 	return 1;
 }

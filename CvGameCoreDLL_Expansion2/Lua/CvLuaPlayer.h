@@ -1539,8 +1539,8 @@ protected:
 	LUAAPIEXTN(IsRefuseResearchAgreementTrade, bool);
 	LUAAPIEXTN(SetRefuseResearchAgreementTrade, void, bRefuse);
 
-	LUAAPIEXTN(IsGlobalQuest);
-	LUAAPIEXTN(IsPersonalQuest);
+	LUAAPIEXTN(IsGlobalQuest, bool, eQuest);
+	LUAAPIEXTN(IsPersonalQuest, bool, eQuest);
 };
 
 namespace CvLuaArgs
