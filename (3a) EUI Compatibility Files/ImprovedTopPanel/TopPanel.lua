@@ -31,6 +31,7 @@ local HideCivilopediaButton = false -- set true to hide
 ------------------------------
 
 local NavalSupplyID = GameInfoTypes.RESOURCE_SAILORS -- Support for Separate Naval Supply mod
+local LuxuryResourcesMem = 0 -- This condenses down the list to 1 of 4 pages.
 
 local IsDX11 = not UI.IsDX9()
 if IsDX11 then
@@ -2128,7 +2129,9 @@ if civ5_mode and gk_mode then
 					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
 			end
-			tips:insert( L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
+			if (LuxuryResourcesMem == 0 or LuxuryResourcesMem == 4) then
+				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_EO_LOCAL_RESOURCES_CBP" .. "[ENDCOLOR]" .. (#tip > 0 and tip or (" : "..L"TXT_KEY_TP_NO_RESOURCES_DISCOVERED")) )
+			end
 
 			-- Resources from city terrain
 			for city in g_activePlayer:Cities() do
@@ -2157,7 +2160,7 @@ if civ5_mode and gk_mode then
 						tip = tip .. " " .. ColorizeAbs( -numUnconnectedResource[resourceID] ) .. resource.IconString
 					end
 				end
-				if #tip > 0 then
+				if #tip > 0 and (LuxuryResourcesMem == 0 or LuxuryResourcesMem == 4) then
 					tips:insert( "[ICON_BULLET]" .. city:GetName() .. tip )
 				end
 			end
@@ -2172,8 +2175,8 @@ if civ5_mode and gk_mode then
 					GPtip = GPtip .. "[NEWLINE][ICON_BULLET]" .. ColorizeAbs( numResourceGP ) .. resource.IconString
 				end
 			end
-			if #GPtip > 0 then
-				tips:insert( "[NEWLINE]" .. L"TXT_KEY_EO_GP_RESOURCES" .. GPtip)
+			if #GPtip > 0 and (LuxuryResourcesMem == 0 or LuxuryResourcesMem == 4) then
+				tips:insert( "[NEWLINE][COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_EO_GP_RESOURCES" .. "[ENDCOLOR]".. GPtip)
 			end
 
 			----------------------------
@@ -2229,9 +2232,9 @@ if civ5_mode and gk_mode then
 					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
 			end
-			if #tip > 0 then
-				tips:insert( "" )
-				tips:insert( L"TXT_KEY_RESOURCES_IMPORTED" .. tip )
+			if #tip > 0 and (LuxuryResourcesMem == 1 or LuxuryResourcesMem == 4) then
+				--tips:insert( "" )
+				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_RESOURCES_IMPORTED" .. "[ENDCOLOR]" .. tip )
 				for playerID, array in pairs( Imports ) do
 					local tip = ""
 					for resourceID, row in pairs( array ) do
@@ -2273,9 +2276,9 @@ if civ5_mode and gk_mode then
 					tip = tip .. " " .. ColorizeAbs( quantity ) .. resource.IconString
 				end
 			end
-			if #tip > 0 then
-				tips:insert( "" )
-				tips:insert( L"TXT_KEY_RESOURCES_EXPORTED" .. tip )
+			if #tip > 0 and (LuxuryResourcesMem == 2 or LuxuryResourcesMem == 4) then
+				--tips:insert( "" )
+				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_RESOURCES_EXPORTED" .. "[ENDCOLOR]" .. tip )
 				for playerID, array in pairs( Exports ) do
 					local tip = ""
 					for resourceID, row in pairs( array ) do
@@ -2319,24 +2322,26 @@ if civ5_mode and gk_mode then
 							or ( g_deal:IsPossibleToTradeItem(playerID, g_activePlayerID, TradeableItems.TRADE_ITEM_RESOURCES, resourceID, 1) and player:GetNumResourceAvailable(resourceID, false) )
 							or 0
 						if numResource > 0 then
-							resources:insert( player:GetCivilizationShortDescription() .. " " .. numResource .. resource.IconString )
+							resources:insert( player:GetCivilizationShortDescription() .. " (" .. numResource ..")" )
 						end
 					end
 				end
 				if #resources > 0 then
-					availableTip = availableTip .. "[NEWLINE][ICON_BULLET]" .. L(resource.Description) .. ": " .. resources:concat(", ")
+					availableTip = availableTip .. "[NEWLINE][ICON_BULLET] " .. resource.IconString .. L(resource.Description) .. ": " .. resources:concat(", ")
 				end
 			end
 
-			if #availableTip > 0 then
-				tips:insert( "" )
-				tips:insert( L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. availableTip)
+			if #availableTip > 0 and LuxuryResourcesMem >= 3 then
+				--tips:insert( "" )
+				tips:insert( "[COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_EO_RESOURCES_AVAILBLE" .. "[ENDCOLOR]" .. availableTip)
 			end
+			
+			tips:insert( "" )
+			tips:insert("([COLOR_POSITIVE_TEXT]" .. L"TXT_KEY_LEGAL_CONTINUE" .. "[ENDCOLOR])") --(Click to Continue)
 
 	return setTextToolTip( tips:concat( "[NEWLINE]" ) )
 
 	end
-
 --[[
 	if ReplaceIcons then
 		g_toolTipHandler.LuxuryImage = g_toolTipHandler.LuxuryResources
