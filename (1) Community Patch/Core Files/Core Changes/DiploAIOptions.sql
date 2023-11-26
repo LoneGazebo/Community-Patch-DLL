@@ -1,23 +1,21 @@
 -- Advanced Diplomacy AI Options
--- All of these options (except Limit Victory Pursuit Randomization and Disable Flavor Randomization) are savegame compatible.
+-- All of these options (except Limit Victory Pursuit Randomization, where only option 3 works, and Disable Flavor Randomization, which doesn't work at all) are savegame compatible.
 -- This means that enabling/disabling them and then loading a saved game will activate/deactivate them with no issues.
-
--- [LIMIT VICTORY PURSUIT RANDOMIZATION]
--- If set to 1, the AI will always select the Primary Victory Pursuit that it receives a hint for in XML. If Random Personalities is enabled, it will use the hint of the leader it's acting as.
--- If there isn't a Primary Victory Pursuit hint defined in XML, or if the Primary Victory Pursuit hint is for a disabled victory condition, one will be selected randomly.
--- If set to 2, the AI will ALSO avoid selecting a Secondary Victory Pursuit unless one has been defined in XML.
--- If set to 3, all AI players will also *ALWAYS* choose their Primary Victory Pursuit hint as their Current Victory Pursuit. If the victory condition is disabled but the secondary pursuit is valid, it will use that one instead.
--- NOTE 1: Options 1 and 2 only increase the likelihood that the AI will go for that pursuit (and modify diplo AI behavior in favor of that). Option 3 guarantees it, but forbids the AI from adapting to circumstances.
--- NOTE 2: Option 3 also ignores the Random Personalities game option.
--- NOTE 3: For Option 3, Domination Victory will be attempted if it is possible for the AI to eliminate all other major civs, ignoring whether or not Domination Victory is enabled in game options.
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION', '0';
 
 -- [ENABLE NUCLEAR GANDHI]
 -- If set to 1, Gandhi (if he has nukes, and Random Personalities isn't enabled) will do what he's best known for in the Civilization series. ;)
 -- If set to 2, he'll do it even if Random Personalities is enabled.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_ENABLE_NUCLEAR_GANDHI', '1';
+
+-- [ENABLE TEMPORARY FOR PERMANENT TRADING]
+-- If set to 0, humans cannot trade temporary items (gold per turn, resources, etcetera) for permanent items (lump sum gold, cities, etcetera) with AI players.
+-- If set to 1 (default), AI players can trade their temporary items for the human's permanent items, but not vice versa.
+-- If set to 2, there are no restrictions on trading temporary items for permanent items.
+-- Option 2 is exploitable, so enabling this option reduces the difficulty if you take advantage of it!
+-- Human-to-human trades, trades with "Permanent Peace" or "Permanent War or Peace" enabled, and trades between teammates are always unrestricted.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING', '1';
 
 -- [DISABLE WAR BRIBES]
 -- If set to 1, AI civilizations are unable to bribe other AI civilizations into declaring war, but they can still bribe (and be bribed) by humans.
@@ -38,6 +36,17 @@ SELECT 'DIPLOAI_DISABLE_CITY_TRADING', '0';
 -- NOTE: Does nothing if vassalage is not enabled.
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_DISABLE_VOLUNTARY_VASSALAGE', '0';
+
+-- [LIMIT VICTORY PURSUIT RANDOMIZATION]
+-- If set to 1, the AI will always select the Primary Victory Pursuit that it receives a hint for in XML. If Random Personalities is enabled, it will use the hint of the leader it's acting as.
+-- If there isn't a Primary Victory Pursuit hint defined in XML, or if the Primary Victory Pursuit hint is for a disabled victory condition, one will be selected randomly.
+-- If set to 2, the AI will ALSO avoid selecting a Secondary Victory Pursuit unless one has been defined in XML.
+-- If set to 3, all AI players will also *ALWAYS* choose their Primary Victory Pursuit hint as their Current Victory Pursuit. If the victory condition is disabled but the secondary pursuit is valid, it will use that one instead.
+-- NOTE 1: Options 1 and 2 only increase the likelihood that the AI will go for that pursuit (and modify diplo AI behavior in favor of that). Option 3 guarantees it, but forbids the AI from adapting to circumstances.
+-- NOTE 2: Option 3 also ignores the Random Personalities game option.
+-- NOTE 3: For Option 3, Domination Victory will be attempted if it is possible for the AI to eliminate all other major civs, ignoring whether or not Domination Victory is enabled in game options.
+INSERT INTO Defines (Name, Value)
+SELECT 'DIPLOAI_LIMIT_VICTORY_PURSUIT_RANDOMIZATION', '0';
 
 -- [DISABLE VOTING FOR OTHER PLAYERS AS WORLD CONGRESS HOST]
 -- If set to 1, the AI will never vote for others (EXCEPT teammates) as host of the World Congress.
@@ -104,15 +113,6 @@ SELECT 'DIPLOAI_HIDE_OPINION_TABLE', '0';
 -- NOTE: This only affects AI flavors related to diplomacy, not other flavors. Also, changing this setting will have no effect if you load a saved game; you must start a new game!
 INSERT INTO Defines (Name, Value)
 SELECT 'DIPLOAI_NO_FLAVOR_RANDOMIZATION', '0';
-
--- [ENABLE TEMPORARY FOR PERMANENT TRADING]
--- If set to 0, humans cannot trade temporary items (gold per turn, resources, etcetera) for permanent items (lump sum gold, cities, etcetera) with AI players.
--- If set to 1 (default), AI players can trade their temporary items for the human's permanent items, but not vice versa.
--- If set to 2, there are no restrictions on trading temporary items for permanent items.
--- Option 2 is exploitable, so enabling this option reduces the difficulty if you take advantage of it!
--- Human-to-human trades, trades with "Permanent Peace" or "Permanent War or Peace" enabled, and trades between teammates are always unrestricted.
-INSERT INTO Defines (Name, Value)
-SELECT 'DIPLOAI_TEMPORARY_FOR_PERMANENT_TRADING_SETTING', '0';
 
 -- [CUSTOMIZE WARSCORE THRESHOLD FOR THIRD PARTY PEACE]
 -- The minimum warscore required before someone can make a third party peace offer to the winner of a war.

@@ -195,6 +195,8 @@ public:
 #endif
 
 	bool IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1 = -1, int iData2 = -1, int iData3 = -1, bool bFlag1 = false, bool bFinalizing = false);
+	bool ContainsPermanentItems(PlayerTypes eFromPlayer);
+	bool ContainsTemporaryItems(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	bool BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	CvString GetReasonsItemUntradeable(PlayerTypes ePlayer, PlayerTypes eToPlayer, TradeableItems eItem, int iData1, int iData2, int iData3, bool bFlag1);
 

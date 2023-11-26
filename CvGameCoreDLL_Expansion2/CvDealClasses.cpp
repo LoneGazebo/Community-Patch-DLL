@@ -1331,6 +1331,37 @@ bool CvDeal::IsPossibleToTradeItem(PlayerTypes ePlayer, PlayerTypes eToPlayer, T
 	return true;
 }
 
+bool CvDeal::ContainsTemporaryItems(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
+{
+	vector<TradeableItems> vTemporaryItems;
+	vTemporaryItems.push_back(TRADE_ITEM_GOLD_PER_TURN);
+	vTemporaryItems.push_back(TRADE_ITEM_RESOURCES);
+	vTemporaryItems.push_back(TRADE_ITEM_OPEN_BORDERS);
+	vTemporaryItems.push_back(TRADE_ITEM_DEFENSIVE_PACT);
+	vTemporaryItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
+	vTemporaryItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
+	vTemporaryItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
+	vTemporaryItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
+
+	if (!GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
+		vTemporaryItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
+
+	return ContainsItemTypes(vTemporaryItems, eFromPlayer);
+}
+
+bool CvDeal::ContainsPermanentItems(PlayerTypes eFromPlayer)
+{
+	vector<TradeableItems> vPermanentItems;
+	vPermanentItems.push_back(TRADE_ITEM_GOLD);
+	vPermanentItems.push_back(TRADE_ITEM_CITIES);
+	vPermanentItems.push_back(TRADE_ITEM_TECHS);
+	vPermanentItems.push_back(TRADE_ITEM_MAPS);
+	vPermanentItems.push_back(TRADE_ITEM_VASSALAGE);
+	vPermanentItems.push_back(TRADE_ITEM_VASSALAGE_REVOKE);
+
+	return ContainsItemTypes(vPermanentItems, eFromPlayer);
+}
+
 bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
 	// No backstabbing is possible if war can't be declared!
@@ -1355,7 +1386,7 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	if (GET_PLAYER(eFromPlayer).getTeam() == GET_PLAYER(eToPlayer).getTeam())
 		return false;
 
-	// Restriction for human-to-AI trading removed via advanced options?
+	// Restrictions on trading removed via advanced options?
 	if (!bNoHumans && GC.getGame().IsPermanentForTemporaryTradingAllowed())
 		return false;
 

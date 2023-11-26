@@ -59,7 +59,7 @@ public:
 
 	// The following functions are used to valuate items and construct a deal this AI thinks is fair
 
-	bool DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer);
+	bool DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer, bool bHumanRequestedEqualization = false);
 
 	int GetOneGPTValue(bool bPeaceDeal) const;
 	int GetDealValue(CvDeal* pDeal);
@@ -117,8 +117,8 @@ public:
 	void DoRemoveGoldFromThem(CvDeal* pDeal, PlayerTypes eThem, int& iNumGoldAlreadyInTrade);
 	void DoRemoveGoldFromUs(CvDeal* pDeal, int& iNumGoldAlreadyInTrade);
 
-	void DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue = 0, bool bGoldOnly = false);
-	void DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue = 0, bool bGoldOnly = false);
+	void DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue, bool bGoldOnly, bool bHumanRequestedEqualization);
+	void DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue, bool bGoldOnly, bool bHumanRequestedEqualization);
 
 	// Possible deals the AI can offer
 	bool IsOfferPeace(PlayerTypes eOtherPlayer, CvDeal* pDeal, bool bEqualizingDeals);
@@ -169,6 +169,7 @@ public:
 	void DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
+	void DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 	void DoAddRevokeVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue);
 
 protected:
