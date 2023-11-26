@@ -713,6 +713,13 @@ UPDATE Units SET NumFreeLux = 2 WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
 -- Great Prophet
 UPDATE Units SET Capture = NULL WHERE Class = 'UNITCLASS_PROPHET';
 
+-- Khan
+UPDATE Units
+SET
+	UnitFlagAtlas = 'UNIT_KHAN_FLAG_ATLAS',
+	UnitFlagIconOffset = 0
+WHERE Type = 'UNIT_MONGOLIAN_KHAN';
+
 ----------------------------------------------------------------------------
 -- Other units
 ----------------------------------------------------------------------------

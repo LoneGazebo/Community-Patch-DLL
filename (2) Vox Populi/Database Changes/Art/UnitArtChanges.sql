@@ -99,6 +99,7 @@ UPDATE ArtDefine_UnitInfos SET Formation = 'HonorableGunpowder' WHERE Type = 'AR
 
 UPDATE ArtDefine_StrategicView SET Asset = 'svmountedxbow.dds' WHERE StrategicViewType = 'ART_DEF_UNIT_U_MONGOLIAN_KESHIK';
 UPDATE ArtDefine_StrategicView SET Asset = 'tercio_flag2.dds' WHERE StrategicViewType = 'ART_DEF_UNIT_U_SPANISH_TERCIO';
+UPDATE ArtDefine_StrategicView SET Asset = 'sv_khan.dds' WHERE StrategicViewType = 'ART_DEF_UNIT_GENERAL_KHAN';
 
 UPDATE ArtDefine_UnitMemberCombats
 SET AttackAltitude = 90.0, MoveRate = 4.8
