@@ -189,6 +189,16 @@
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL">
 			<Text>A revolution against their ally is occurring!</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GLOBAL_HEADER">
+			<Text>Global Quests:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_LOCAL_HEADER">
+			<Text>Personal Quests:</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CITY_STATE_QUEST_OTHER_HEADER">
+			<Text>Other Information:</Text>
+		</Row>
 
 		<!-- Cultural overview -->
 		<!-- Great Works summary -->
