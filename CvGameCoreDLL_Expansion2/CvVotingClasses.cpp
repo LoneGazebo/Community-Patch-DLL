@@ -10454,7 +10454,7 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 		CvAssertMsg(pLeague->GetRemainingVotesForMember(GetPlayer()->GetID()) >= it->iNumVotes, "Trying to honor vote commitments but not enough votes. Please send Anton your save file and version.");
 		bool bProcessed = false;
 
-		int iSetVotes = pLeague->CalculateStartingVotesForMember(GetPlayer()->GetID());
+		int iSetVotes = pLeague->GetRemainingVotesForMember(GetPlayer()->GetID());
 		if(it->iNumVotes > iSetVotes)
 		{
 			if (pLeague->CanVote(GetPlayer()->GetID()))
@@ -10481,6 +10481,8 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 				else
 				{
 					bProcessed = true;
+					if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+						pLeague->DoVoteAbstain(GetPlayer()->GetID(), iSetVotes);
 				}
 			}
 		}
@@ -10508,6 +10510,8 @@ void CvLeagueAI::DoVoteCommitments(CvLeague* pLeague)
 			else
 			{
 				bProcessed = true;
+				if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+					pLeague->DoVoteAbstain(GetPlayer()->GetID(), it->iNumVotes);
 			}
 		}
 

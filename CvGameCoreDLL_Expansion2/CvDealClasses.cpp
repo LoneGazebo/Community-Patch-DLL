@@ -1341,7 +1341,9 @@ bool CvDeal::ContainsTemporaryItems(PlayerTypes eFromPlayer, PlayerTypes eToPlay
 	vTemporaryItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
 	vTemporaryItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
 	vTemporaryItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
-	vTemporaryItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
+
+	if (!MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+		vTemporaryItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
 
 	if (!GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
 		vTemporaryItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
@@ -1358,6 +1360,9 @@ bool CvDeal::ContainsPermanentItems(PlayerTypes eFromPlayer)
 	vPermanentItems.push_back(TRADE_ITEM_MAPS);
 	vPermanentItems.push_back(TRADE_ITEM_VASSALAGE);
 	vPermanentItems.push_back(TRADE_ITEM_VASSALAGE_REVOKE);
+
+	if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+		vPermanentItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
 
 	return ContainsItemTypes(vPermanentItems, eFromPlayer);
 }
@@ -1408,7 +1413,6 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	case TRADE_ITEM_THIRD_PARTY_WAR:
 	case TRADE_ITEM_THIRD_PARTY_PEACE:
 	case TRADE_ITEM_ALLOW_EMBASSY:
-	case TRADE_ITEM_VOTE_COMMITMENT:
 		bTemporary = true;
 		break;
 	case TRADE_ITEM_GOLD:
@@ -1418,6 +1422,9 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 	case TRADE_ITEM_VASSALAGE:
 	case TRADE_ITEM_VASSALAGE_REVOKE:
 		bTemporary = false;
+		break;
+	case TRADE_ITEM_VOTE_COMMITMENT:
+		bTemporary = !MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS;
 		break;
 	}
 
@@ -1433,6 +1440,9 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 			vProhibitedItems.push_back(TRADE_ITEM_MAPS);
 			vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE);
 			vProhibitedItems.push_back(TRADE_ITEM_VASSALAGE_REVOKE);
+
+			if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+				vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
 
 			if (ContainsItemTypes(vProhibitedItems, eToPlayer))
 				return true;
@@ -1451,7 +1461,9 @@ bool CvDeal::BlockTemporaryForPermanentTrade(TradeableItems eItemType, PlayerTyp
 			vProhibitedItems.push_back(TRADE_ITEM_RESEARCH_AGREEMENT);
 			vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_WAR);
 			vProhibitedItems.push_back(TRADE_ITEM_ALLOW_EMBASSY);
-			vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
+
+			if (!MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+				vProhibitedItems.push_back(TRADE_ITEM_VOTE_COMMITMENT);
 
 			if (!GET_PLAYER(eFromPlayer).IsAtWarWith(eToPlayer))
 				vProhibitedItems.push_back(TRADE_ITEM_THIRD_PARTY_PEACE);
@@ -6012,7 +6024,7 @@ void CvGameDeals::DoEndTradedItem(CvTradedItem* pItem, PlayerTypes eToPlayer, bo
 		}
 	}
 	// Vote Commitment
-	else if(pItem->m_eItemType == TRADE_ITEM_VOTE_COMMITMENT)
+	else if(!MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS && pItem->m_eItemType == TRADE_ITEM_VOTE_COMMITMENT)
 	{
 		fromPlayer.GetLeagueAI()->CancelVoteCommitmentsToPlayer(eToPlayer);
 		toPlayer.GetLeagueAI()->CancelVoteCommitmentsToPlayer(eFromPlayer);

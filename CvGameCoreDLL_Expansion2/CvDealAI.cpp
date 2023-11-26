@@ -4736,11 +4736,16 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 				DoAddRevokeVassalageToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 				DoAddCitiesToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 				DoAddTechToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+				if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+					DoAddVoteCommitmentToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
 				DoAddMapsToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 			}
 		}
 
-		DoAddVoteCommitmentToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		if (!MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+			DoAddVoteCommitmentToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
 		DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 		DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 
@@ -4812,6 +4817,9 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 		if (bPrioritizePermanentItems)
 		{
 			DoAddMapsToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+				DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
 			DoAddTechToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 			DoAddCitiesToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 			DoAddRevokeVassalageToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
@@ -4834,11 +4842,15 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 
 		DoAddThirdPartyPeaceToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 		DoAddThirdPartyWarToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		if (!MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+			DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 
 		if (!bBlockPermanentItems && !bPrioritizePermanentItems)
 		{
 			DoAddMapsToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+				DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
 			DoAddTechToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 			DoAddCitiesToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 			DoAddRevokeVassalageToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
