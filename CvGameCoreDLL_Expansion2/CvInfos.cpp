@@ -3046,6 +3046,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iProcessPerEraModifier(0),
 	m_iFreeXP(0),
 	m_iFreeXPPercent(0),
+	m_iFreeXPPercentVSHuman(0),
 	m_iCombatBonus(0),
 	m_iResistanceCap(0),
 	m_iVisionBonus(0),
@@ -3106,6 +3107,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAIProcessPerEraModifier(0),
 	m_iAIFreeXP(0),
 	m_iAIFreeXPPercent(0),
+	m_iAIFreeXPPercentVSHuman(0),
 	m_iAICombatBonus(0),
 	m_iAIResistanceCap(0),
 	m_iAIVisionBonus(0),
@@ -3497,6 +3499,11 @@ int CvHandicapInfo::getFreeXPPercent() const
 	return m_iFreeXPPercent;
 }
 //------------------------------------------------------------------------------
+int CvHandicapInfo::getFreeXPPercentVSHuman() const
+{
+	return m_iFreeXPPercentVSHuman;
+}
+//------------------------------------------------------------------------------
 int CvHandicapInfo::getCombatBonus() const
 {
 	return m_iCombatBonus;
@@ -3795,6 +3802,11 @@ int CvHandicapInfo::getAIFreeXP() const
 int CvHandicapInfo::getAIFreeXPPercent() const
 {
 	return m_iAIFreeXPPercent;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAIFreeXPPercentVSHuman() const
+{
+	return m_iAIFreeXPPercentVSHuman;
 }
 //------------------------------------------------------------------------------
 int CvHandicapInfo::getAICombatBonus() const
@@ -4355,6 +4367,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iProcessPerEraModifier = kResults.GetInt("ProcessPerEraModifier");
 	m_iFreeXP = kResults.GetInt("FreeXP");
 	m_iFreeXPPercent = kResults.GetInt("FreeXPPercent");
+	m_iFreeXPPercent = kResults.GetInt("FreeXPPercentVSHuman");
 	m_iCombatBonus = kResults.GetInt("CombatBonus");
 	m_iResistanceCap = kResults.GetInt("ResistanceCap");
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
@@ -4415,6 +4428,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAIProcessPerEraModifier = kResults.GetInt("AIProcessPerEraModifier");
 	m_iAIFreeXP = kResults.GetInt("AIFreeXP");
 	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercent");
+	m_iAIFreeXPPercent = kResults.GetInt("AIFreeXPPercentVSHuman");
 	m_iAICombatBonus = kResults.GetInt("AICombatBonus");
 	m_iAIResistanceCap = kResults.GetInt("AIResistanceCap");
 	m_iAIVisionBonus = kResults.GetInt("AIVisionBonus");

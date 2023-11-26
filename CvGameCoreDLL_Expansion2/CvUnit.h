@@ -1134,7 +1134,7 @@ public:
 
 	int getExperienceTimes100() const;
 	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1, bool bDontShow = false);
-	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false, bool bFromHuman = false);
 
 	int getLevel() const;
 	void setLevel(int iNewValue);

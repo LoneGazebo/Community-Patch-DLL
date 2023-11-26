@@ -21761,7 +21761,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
+void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal, bool bFromHuman)
 {
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
@@ -21913,9 +21913,16 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 			}
 		}
 
-		if (getExperiencePercent() != 0)
+		int iExperiencePercent = getExperiencePercent();
+		if (bFromHuman && GET_PLAYER(getOwner()).isMajorCiv())
 		{
-			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
+			iExperiencePercent += GET_PLAYER(getOwner()).getHandicapInfo().getFreeXPPercentVSHuman();
+			iExperiencePercent += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIFreeXPPercentVSHuman();
+		}
+
+		if (iExperiencePercent != 0)
+		{
+			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * iExperiencePercent) / 100;
 			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
 		}
 

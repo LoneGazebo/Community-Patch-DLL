@@ -458,7 +458,9 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 		    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 		    true,
 		    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
-		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+		    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+			pkAttacker->isHuman());
+
 		// only gain XP for the first attack made per turn.
 		if(!MOD_BALANCE_CORE_XP_ON_FIRST_ATTACK || pkAttacker->getNumAttacksMadeThisTurn() <= 1)
 		{
@@ -466,7 +468,8 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 				true,
 				kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+				pkDefender->isHuman());
 		}
 
 		// Anyone eat it?
@@ -1001,6 +1004,7 @@ void CvUnitCombat::GenerateRangedCombatInfo(CvCity& kAttacker, CvUnit* pkDefende
 void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID)
 {
 	bool bTargetDied = false;
+	bool bTargetIsHuman = false;
 	int iDamage = kCombatInfo.getDamageInflicted(BATTLE_UNIT_ATTACKER);
 //	int iExperience = kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER);
 //	int iMaxXP = kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER);
@@ -1025,6 +1029,9 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
+					if (pkDefender->isHuman())
+						bTargetIsHuman = true;
+
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 					pkDefender->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 
@@ -1136,7 +1143,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
 					    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
-					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+						pkAttacker->isHuman());
 				}
 
 				pkDefender->setCombatUnit(NULL);
@@ -1155,6 +1163,9 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 			{
 				if(pkAttacker)
 				{
+					if (pCity->isHuman())
+						bTargetIsHuman = true;
+
 					pkAttacker->DoAdjacentPlotDamage(pkTargetPlot,min(iDamage,pkAttacker->getSplashDamage()),"TXT_KEY_MISC_YOU_UNIT_WAS_DAMAGED_SPLASH");
 
 #if defined(MOD_BALANCE_CORE)
@@ -1213,7 +1224,8 @@ void CvUnitCombat::ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, ui
 					kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 					true,
 					kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+					bTargetIsHuman);
 				
 				pkAttacker->testPromotionReady();
 			}
@@ -1315,7 +1327,8 @@ void CvUnitCombat::ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo
 					    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					    true,
 					    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
-					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+					    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+						pkAttacker->isHuman());
 				}
 
 				pkDefender->setCombatUnit(NULL);
@@ -1377,7 +1390,8 @@ void CvUnitCombat::ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint 
 				kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 				true,
 				false,
-				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+				kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+				pkDefender->isHuman());
 		}
 	}
 
@@ -1818,6 +1832,7 @@ void CvUnitCombat::GenerateAirCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender, 
 void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID)
 {
 	bool bTargetDied = false;
+	bool bTargetIsHuman = false;
 	int iAttackerDamageInflicted = kCombatInfo.getDamageInflicted(BATTLE_UNIT_ATTACKER);
 	int iDefenderDamageInflicted = kCombatInfo.getDamageInflicted(BATTLE_UNIT_DEFENDER);
 
@@ -1846,7 +1861,8 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 			kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_INTERCEPTOR),
 			true,
 			kCombatInfo.getInBorders(BATTLE_UNIT_INTERCEPTOR),
-			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_INTERCEPTOR));
+			kCombatInfo.getUpdateGlobal(BATTLE_UNIT_INTERCEPTOR),
+			pkAttacker->isHuman());
 	}
 
 	CvPlot* pkTargetPlot = kCombatInfo.getPlot();
@@ -1866,6 +1882,9 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			if(pkDefender)
 			{
+				if (pkDefender->isHuman())
+					bTargetIsHuman = true;
+
 				//One Hit
 				if (MOD_API_ACHIEVEMENTS && iAttackerDamageInflicted > pkDefender->GetCurrHitPoints() && !pkDefender->IsHurt() && pkAttacker->isHuman() && !GC.getGame().isGameMultiPlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_ONEHITKILL);
@@ -1886,7 +1905,8 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 					kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 					true,
 					kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
-					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+					kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+					pkAttacker->isHuman());
 
 				// Attacker died
 				if(pkAttacker->IsDead())
@@ -2055,6 +2075,9 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 
 			if(pCity)
 			{
+				if (pCity->isHuman())
+					bTargetIsHuman = true;
+
 				pCity->clearCombat();
 				pCity->ChangeNumTimesAttackedThisTurn(pkAttacker->getOwner(), 1);
 				pCity->changeDamage(iAttackerDamageInflicted);
@@ -2150,13 +2173,12 @@ void CvUnitCombat::ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint 
 						kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 						true,
 						kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-						kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+						kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+						bTargetIsHuman);
 					
 					// Promotion time?
 					pkAttacker->testPromotionReady();
 				}
-
-
 			}
 
 			// Clean up some stuff
@@ -2348,14 +2370,16 @@ void CvUnitCombat::ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParen
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_DEFENDER),
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_DEFENDER),
-			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER));
+			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_DEFENDER),
+				pkAttacker->isHuman());
 
 			pkAttacker->changeExperienceTimes100(100 * 
 			    kCombatInfo.getExperience(BATTLE_UNIT_ATTACKER),
 			    kCombatInfo.getMaxExperienceAllowed(BATTLE_UNIT_ATTACKER),
 			    true,
 			    kCombatInfo.getInBorders(BATTLE_UNIT_ATTACKER),
-			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER));
+			    kCombatInfo.getUpdateGlobal(BATTLE_UNIT_ATTACKER),
+				pkDefender->isHuman());
 
 			// Anyone eat it?
 			bAttackerDead = (pkAttacker->getDamage() >= pkAttacker->GetMaxHitPoints());
@@ -4254,7 +4278,9 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 		if (bFallbackAttack)
 		{
 			int iExperience = /*5*/ GD_INT_GET(EXPERIENCE_ATTACKING_AIR_SWEEP);
-			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, targetPlot.getOwner() == kAttacker.getOwner(), true);
+			PlayerTypes eUnitOwner = kAttacker.getOwner();
+			PlayerTypes ePlotOwner = targetPlot.getOwner();
+			kAttacker.changeExperienceTimes100(100 * iExperience, -1, true, eUnitOwner == ePlotOwner, true, eUnitOwner != ePlotOwner && GET_PLAYER(ePlotOwner).isHuman());
 			kAttacker.testPromotionReady();
 
 			// attempted to do a sweep in a plot that had no interceptors
@@ -4264,7 +4290,7 @@ CvUnitCombat::ATTACK_RESULT CvUnitCombat::AttackAirSweep(CvUnit& kAttacker, CvPl
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_AIR_PATROL_BOMBED_GROUND_TARGETS");
 				localizedText << kAttacker.getUnitInfo().GetTextKey();
 				GC.GetEngineUserInterface()->AddMessage(0, kAttacker.getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), localizedText.toUTF8());
-		}
+			}
 		}
 		else
 		{

@@ -2937,7 +2937,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 		pCapital->addProductionExperience(pNewUnit);
 	}
 	// Remove XP bonuses from starting scouts
-	else if (bGameStart && MOD_BALANCE_VP && pkUnitInfo->GetDefaultUnitAIType() == UNITAI_EXPLORE)
+	else if (bGameStart && MOD_BALANCE_VP && pNewUnit->IsGainsXPFromScouting())
 	{
 		pNewUnit->setExperienceTimes100(0);
 		pNewUnit->changeExperiencePercent(-pNewUnit->getExperiencePercent());
