@@ -564,7 +564,7 @@ void CvUnitCombat::ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiPa
 				pkDefender->setCapturingPlayer(pkAttacker->getOwner());
 				pkDefender->SetCapturedAsIs(true);
 
-				// Units escorted by the captured unit withdraws if possible
+				// Other military units escorted by the captured unit withdraw if possible
 				pkDefender->DoFallBack(*pkAttacker, false, true);
 				if (pkAttacker->GetCapturedUnitsConscriptedCount() > 0)
 				{
