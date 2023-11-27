@@ -537,13 +537,16 @@ function FeatureGenerator:AddJunglesAtPlot(plot, iX, iY, lat)
 end
 ------------------------------------------------------------------------------
 function FeatureGenerator:AdjustTerrainTypes()
-	local width = self.iGridW - 1;
-	local height = self.iGridH - 1;
-	for y = 0, height do
-		for x = 0, width do
+	-- Edited in VP: only convert half of jungle tiles into plains
+	local iW, iH = Map.GetGridSize();
+	for y = 0, iH - 1 do
+		for x = 0, iW - 1 do
 			local plot = Map.GetPlot(x, y);
-			if (plot:GetFeatureType() == self.featureJungle) then
-				plot:SetTerrainType(self.terrainPlains, false, true)  -- These flags are for recalc of areas and rebuild of graphics. No need to recalc from any of these changes.		
+			local featureType = plot:GetFeatureType();
+			if featureType == self.featureJungle then
+				if Map.Rand(2, "Convert Jungle into Plains - LUA") == 1 then
+					plot:SetTerrainType(self.terrainPlains, false, true);
+				end
 			end
 		end
 	end
@@ -616,8 +619,7 @@ end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited(args)
 	-- Assign to uninhabited landmasses
-	local iW, iH = Map.GetGridSize()
-	self.iNumCityStatesPerRegion = 0;
+	local iW, _ = Map.GetGridSize();
 	self.iNumCityStatesUninhabited = self.iNumCityStates;
 
 	for x = centWestX, centEastX do
@@ -627,76 +629,49 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited(args)
 			local plotType = plot:GetPlotType()
 			local terrainType = plot:GetTerrainType()
 			if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and terrainType ~= TerrainTypes.TERRAIN_SNOW then -- Habitable land plot, process it.
-				if self.plotDataIsCoastal[i] == true then
-					table.insert(self.uninhabited_areas_coastal_plots, i);
+				if self.plotDataIsCoastal[plotIndex] == true then
+					table.insert(self.uninhabited_areas_coastal_plots, plotIndex);
 				else
-					table.insert(self.uninhabited_areas_inland_plots, i);
+					table.insert(self.uninhabited_areas_inland_plots, plotIndex);
 				end
 			end
 		end
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions)
-	local iW, iH = Map.GetGridSize();
-	local plot = Map.GetPlot(x, y)
-	local area = plot:GetArea()
-	
-	-- Adding this check for Ring, to force all City States to the polar region in the center.
+function ExtraRingCheck(x, y)
+	-- Adding this check for Ring in AssignStartingPlots:CanPlaceCityStateAt, to force all City States to the polar region in the center.
 	if (x > centWestX and x < centEastX and y > centSouthY and y < centNorthY) == false then
-		return false
+		return false;
 	end
-	--
-	
-	if plot:IsWater() or plot:IsMountain() then
-		return false
-	end
-
-	-- Avoid natural wonders
-	for nearPlot in self:Plot_GetPlotsInCircle(plot, 1, 4) do
-		local featureInfo = GameInfo.Features[nearPlot:GetFeatureType()]
-		if featureInfo and featureInfo.NaturalWonder then
-			--print("CanPlaceCityStateAt: avoided natural wonder: ", featureInfo.Type)
-			return false
-		end
-	end
-	
-	-- Reserve the best city sites for major civs
-	local fertility = self:Plot_GetFertilityInRange(plot, 2)
-	if fertility > 28 then
-		--print("CanPlaceCityStateAt: avoided fertility: ", fertility)
-		return false
-	end
-
-	local plotIndex = y * iW + x + 1;
-	if self.impactData[ImpactLayers.LAYER_CITY_STATE][plotIndex] > 0 and force_it == false then
-		return false
-	end
-	local plotIndex = y * iW + x + 1;
-	if self.playerCollisionData[plotIndex] == true and ignore_collisions == false then
-		print("-"); print("City State candidate plot rejected: collided with already-placed civ or City State at", x, y);
-		return false
-	end
-	return true
 end
 ------------------------------------------------------------------------------
 function StartPlotSystem()
 	print("Creating start plot database (MapGenerator.Lua)");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
+	start_plot_database.oldCanPlaceCityStateAt = start_plot_database.CanPlaceCityStateAt;
+	local newCanPlaceCityStateAt = function (ASP, x, y, area_ID, force_it, ignore_collisions)
+		if not ExtraRingCheck(x, y) then
+			return false;
+		end
+		return ASP:oldCanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions);
+	end
+	start_plot_database.CanPlaceCityStateAt = newCanPlaceCityStateAt;
+
 	print("Dividing the map in to Regions (Lua Ring)"); -- Custom for Ring
-	start_plot_database:GenerateRegions()
+	start_plot_database:GenerateRegions();
 
 	print("Choosing start locations for civilizations (MapGenerator.Lua)");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players (MapGenerator.Lua)");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders (MapGenerator.Lua)");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States (MapGenerator.Lua)");
-	start_plot_database:PlaceResourcesAndCityStates()
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------

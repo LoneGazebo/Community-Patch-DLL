@@ -113,6 +113,8 @@
 #define MOD_BALANCE_CITY_STATE_PERSONALITIES		gCustomMods.isBALANCE_CITY_STATE_PERSONALITIES()
 // Barbarian Encampments can spawn on visible tiles.
 #define MOD_BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES	gCustomMods.isBALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES()
+// Vote Commitments cannot be cancelled by war. If the resolution becomes invalid, the votes are abstained instead of given back.
+#define MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS	gCustomMods.isBALANCE_PERMANENT_VOTE_COMMITMENTS()
 // Changes difficulty settings and adds more difficulty options
 #define MOD_ALTERNATIVE_DIFFICULTY                  gCustomMods.isALTERNATIVE_DIFFICULTY()
 // Changes the stacking limits based on what the tile is (city, fort, plain, etc) - AFFECTS SAVE GAME DATA FORMAT
@@ -1267,6 +1269,7 @@ public:
 	MOD_OPT_DECL(BALANCE_CITY_STATE_TRAITS);
 	MOD_OPT_DECL(BALANCE_CITY_STATE_PERSONALITIES);
 	MOD_OPT_DECL(BALANCE_ENCAMPMENTS_SPAWN_ON_VISIBLE_TILES);
+	MOD_OPT_DECL(BALANCE_PERMANENT_VOTE_COMMITMENTS);
 	MOD_OPT_DECL(ALTERNATIVE_DIFFICULTY);
 	MOD_OPT_DECL(GLOBAL_STACKING_RULES);
 	MOD_OPT_DECL(GLOBAL_LOCAL_GENERALS);

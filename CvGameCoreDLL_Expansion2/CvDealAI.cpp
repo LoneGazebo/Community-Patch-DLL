@@ -707,7 +707,7 @@ bool CvDealAI::IsDealWithHumanAcceptable(CvDeal* pDeal, PlayerTypes eOtherPlayer
 }
 
 /// Try to even out the value on both sides.
-bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer)
+bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDealGoodToBeginWith, bool& bCantMatchOffer, bool bHumanRequestedEqualization)
 {
 	bool bMakeOffer = false;
 	PlayerTypes eMyPlayer = GetPlayer()->GetID();
@@ -760,21 +760,21 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 				// first try to equalize the deal by adding gold
 				if (!pDeal->IsGoldOnlyTrade())
 				{
-					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue, 0, /* bGoldOnly */ true);
+					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue, 0, /*bGoldOnly*/ true, bHumanRequestedEqualization);
 					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 					// adding gold didn't work? reset the deal to starting terms and try to add items
 					if (!bMakeOffer)
 					{
 						pDeal->RemoveAllPossibleItems();
 						iTotalValue = GetDealValue(pDeal);
-						DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue);
+						DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue, 0, false, bHumanRequestedEqualization);
 						bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 					}
 				}
 				else
 				{
 					// try to add items
-					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue);
+					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue, 0, false, bHumanRequestedEqualization);
 					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 				}
 			}
@@ -783,21 +783,21 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 				// first try to equalize the deal by adding gold
 				if (!pDeal->IsGoldOnlyTrade())
 				{
-					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, 0, /* bGoldOnly */ true);
+					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, 0, /*bGoldOnly*/ true, bHumanRequestedEqualization);
 					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 					// adding gold didn't work? reset the deal to starting terms and try to add items
 					if (!bMakeOffer)
 					{
 						pDeal->RemoveAllPossibleItems();
 						iTotalValue = GetDealValue(pDeal);
-						DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue);
+						DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, 0, false, bHumanRequestedEqualization);
 						bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 					}
 				}
 				else
 				{
 					// try to add items
-					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue);
+					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, 0, false, bHumanRequestedEqualization);
 					bMakeOffer = WithinAcceptableRange(eOtherPlayer, pDeal->GetMaxValue(), iTotalValue);
 				}
 			}
@@ -818,11 +818,11 @@ bool CvDealAI::DoEqualizeDeal(CvDeal* pDeal, PlayerTypes eOtherPlayer, bool& bDe
 
 				if (iTotalValue > 0)
 				{
-					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue, -iTotalValue/2);
+					DoAddItemsToUs(pDeal, eOtherPlayer, iTotalValue, -iTotalValue/2, false, bHumanRequestedEqualization);
 				}
 				else if (iTotalValue < 0)
 				{
-					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, -iTotalValue / 2);
+					DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, -iTotalValue / 2, false, bHumanRequestedEqualization);
 				}
 
 				//bail if we're stuck
@@ -4696,22 +4696,60 @@ void CvDealAI::DoAddGPTToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue)
 	}
 }
 
-void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue, int iThresholdValue, bool bGoldOnly)
+void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue, int iThresholdValue, bool bGoldOnly, bool bHumanRequestedEqualization)
 {
+	// Don't make "our temporary for their permanent" offers to human players even if the setting is enabled, that's annoying
+	// Such offers are permitted if the human requests that the AI equalize the offer, but they should still be avoided if a temporary alternative is possible
+	bool bBlockPermanentItems = false;
+	bool bAvoidPermanentItems = false;
+	bool bWeAreOfferingPermanentItems = pDeal->ContainsPermanentItems(GetPlayer()->GetID());
+	bool bWeAreOfferingTemporaryItems = pDeal->ContainsTemporaryItems(GetPlayer()->GetID(), eOtherPlayer);
+	if (bWeAreOfferingTemporaryItems)
+	{
+		if (GET_PLAYER(eOtherPlayer).isHuman())
+		{
+			if (!GC.getGame().IsHumanPermanentForAITemporaryTradingAllowed())
+				bBlockPermanentItems = true;
+			else if (!bWeAreOfferingPermanentItems)
+			{
+				if (bHumanRequestedEqualization)
+					bAvoidPermanentItems = true;
+				else
+					bBlockPermanentItems = true;
+			}
+		}
+		else
+			bBlockPermanentItems = !GC.getGame().IsPermanentForTemporaryTradingAllowed();
+	}
+
 	// Add items to the deal while the deal value is below the threshold value. Each item added increases the deal value. iThresholdValue should be 0 if we want to equalize the deal.
 	// We use a positive value for iThresholdValue if a previous attempt to equalize the deal using iThresholdValue=0 has failed and we're now trying to add items on both sides. 
-
 	if (!bGoldOnly)
 	{
-		DoAddVassalageToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddCitiesToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddTechToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddRevokeVassalageToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddMapsToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		// Try to get the best items first :)
+		if (!bBlockPermanentItems)
+		{
+			DoAddVassalageToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
+			if (!bAvoidPermanentItems)
+			{
+				DoAddRevokeVassalageToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+				DoAddCitiesToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+				DoAddTechToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+				if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+					DoAddVoteCommitmentToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
+				DoAddMapsToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			}
+		}
+
+		if (!MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+			DoAddVoteCommitmentToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
 		DoAddThirdPartyWarToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 		DoAddThirdPartyPeaceToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddVoteCommitmentToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		//if a strategics trade, try strategics first.
+
+		// if a strategics trade, try strategics first.
 		if (pDeal->IsStrategicsTrade())
 		{
 			DoAddStrategicResourceToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
@@ -4722,32 +4760,75 @@ void CvDealAI::DoAddItemsToThem(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iT
 			DoAddLuxuryResourceToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 			DoAddStrategicResourceToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 		}
-		DoAddEmbassyToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
 		DoAddOpenBordersToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		DoAddEmbassyToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
+		// If we couldn't succeed with temporary items, let's try permanent items
+		if (bAvoidPermanentItems)
+		{
+			DoAddMapsToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			DoAddTechToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			DoAddCitiesToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			DoAddRevokeVassalageToThem(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		}
 	}
 
 	// in the last step, when adding gold, we always want to bring the deal closer to 0, so we don't use iThresholdValue here. Exception: Demands
 	int iDemandValue = (pDeal->GetDemandingPlayer() != NO_PLAYER) ? iThresholdValue : 0;
-	DoAddGoldToThem(pDeal, eOtherPlayer, iTotalValue, iDemandValue);
+
+	if (!bBlockPermanentItems && !bAvoidPermanentItems)
+		DoAddGoldToThem(pDeal, eOtherPlayer, iTotalValue, iDemandValue);
+
 	DoAddGPTToThem(pDeal, eOtherPlayer, iTotalValue, iDemandValue);
+
+	if (bAvoidPermanentItems)
+		DoAddGoldToThem(pDeal, eOtherPlayer, iTotalValue, iDemandValue);
 }
 
-void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue, int iThresholdValue, bool bGoldOnly)
+void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTotalValue, int iThresholdValue, bool bGoldOnly, bool bHumanRequestedEqualization)
 {
+	// Even if the trading restrictions on our permanent items for their temporary items are removed, let's not make offers for it unless we're teammates or war can't be declared
+	bool bBlockPermanentItems = false;
+	bool bPrioritizePermanentItems = false;
+	bool bTheyAreOfferingPermanentItems = pDeal->ContainsPermanentItems(eOtherPlayer);
+	bool bTheyAreOfferingTemporaryItems = pDeal->ContainsTemporaryItems(eOtherPlayer, GetPlayer()->GetID());
+	if (GetPlayer()->getTeam() != GET_PLAYER(eOtherPlayer).getTeam() && !GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE))
+	{
+		if (bTheyAreOfferingTemporaryItems)
+			bBlockPermanentItems = !bHumanRequestedEqualization || !GC.getGame().IsPermanentForTemporaryTradingAllowed();
+	}
+	// As a convenience to humans and teammates, let's prioritize giving permanent items (when requesting them) in a no-betrayal scenario
+	if (bTheyAreOfferingPermanentItems && !bTheyAreOfferingTemporaryItems)
+	{
+		if (GetPlayer()->getTeam() == GET_PLAYER(eOtherPlayer).getTeam() || GET_PLAYER(eOtherPlayer).isHuman())
+			bPrioritizePermanentItems = true;
+	}
+
 	// Add items to the deal while the deal value is above the threshold value. Each item added decreases the deal value. iThresholdValue should be 0 if we want to equalize the deal.
 	// We use a negative value for iThresholdValue if a previous attempt to equalize the deal using iThresholdValue=0 has failed and we're now trying to add items on both sides. 
 	if (!bGoldOnly)
 	{
+		// In most circumstances, we give up the least valuable item first
+		// Exception for vassalage: if we want to voluntarily capitulate for protection, let's offer it first
+		if (!bBlockPermanentItems)
+			DoAddVassalageToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 
-		DoAddVassalageToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddCitiesToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddTechToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddMapsToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddThirdPartyWarToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddThirdPartyPeaceToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		if (bPrioritizePermanentItems)
+		{
+			DoAddMapsToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+				DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 
-		//if a strategics trade, try strategics first.
+			DoAddTechToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			DoAddCitiesToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			DoAddRevokeVassalageToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		}
+
+		DoAddEmbassyToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		DoAddOpenBordersToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
+		// if a strategics trade, try strategics first.
 		if (pDeal->IsStrategicsTrade())
 		{
 			DoAddStrategicResourceToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
@@ -4758,13 +4839,32 @@ void CvDealAI::DoAddItemsToUs(CvDeal* pDeal, PlayerTypes eOtherPlayer, int& iTot
 			DoAddLuxuryResourceToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 			DoAddStrategicResourceToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
 		}
-		DoAddEmbassyToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
-		DoAddOpenBordersToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
+		DoAddThirdPartyPeaceToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		DoAddThirdPartyWarToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		if (!MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+			DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
+		if (!bBlockPermanentItems && !bPrioritizePermanentItems)
+		{
+			DoAddMapsToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			if (MOD_BALANCE_PERMANENT_VOTE_COMMITMENTS)
+				DoAddVoteCommitmentToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+
+			DoAddTechToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			DoAddCitiesToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+			DoAddRevokeVassalageToUs(pDeal, eOtherPlayer, iTotalValue, iThresholdValue);
+		}
 	}
 
 	// in the last step, when adding gold, we always want to bring the deal closer to 0, so we don't use iThresholdValue here
+	if (bPrioritizePermanentItems)
+		DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
+
 	DoAddGPTToUs(pDeal, eOtherPlayer, iTotalValue);
-	DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
+
+	if (!bBlockPermanentItems && !bPrioritizePermanentItems)
+		DoAddGoldToUs(pDeal, eOtherPlayer, iTotalValue);
 }
 
 /// See if removing Gold Per Turn from their side of the deal helps even out pDeal
@@ -5425,7 +5525,7 @@ int CvDealAI::GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal, i
 	// Set that this CvDeal is a demand
 	pDeal->SetDemandingPlayer(GetPlayer()->GetID());
 	int iTotalValue = GetDealValue(pDeal);
-	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue);
+	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue, false, false);
 	
 	if (pDeal->m_TradedItems.size() <= 0)
 	{
@@ -5460,7 +5560,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	iIdealValue /= (((int)NUM_STRENGTH_VALUES - 1)  * 10);
 
 	int iTotalValue = 0;
-	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue);
+	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue, false, false);
 
 	return (pDeal->m_TradedItems.size() > 0 && iTotalValue > 0);
 }
@@ -6943,7 +7043,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 
 		if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 		{
-			return (iItemValue / 2);
+			return iItemValue / 2;
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
@@ -7046,7 +7146,7 @@ int CvDealAI::GetVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer)
 
 		if (m_pPlayer->IsAtWarWith(eOtherPlayer))
 		{
-			return (iItemValue / 2);
+			return iItemValue / 2;
 		}
 
 		// Add deal value based on number of wars player is currently fighting (including with minors)
@@ -7159,45 +7259,49 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 			}
 		}
 
+		if (GetPlayer()->GetDiplomacyAI()->GetCivApproach(eOtherPlayer) == CIV_APPROACH_WAR)
+			return INT_MAX;
+
+		if (GetPlayer()->GetDiplomacyAI()->IsCloseToWorldConquest())
+			return INT_MAX;
+
+		if (GetPlayer()->GetDiplomacyAI()->IsCloseToDiploVictory())
+			return INT_MAX;
+
+		if (GetPlayer()->GetDiplomacyAI()->IsUntrustworthy(eOtherPlayer))
+			return INT_MAX;
+
 		// Increase deal value based on number of vassals we have
-		for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
+		int iCapitalsControlled = 0;
+		int iVassalsControlled = 0;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 		{
-			TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
-
-			// Ignore minors.
-			if(eLoopTeam != NO_TEAM && !GET_TEAM(eLoopTeam).isMinorCiv())
+			PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
+			if (GET_PLAYER(eLoopPlayer).isAlive() && GetPlayer()->GetDiplomacyAI()->IsMaster(eLoopPlayer))
 			{
-				// Is eLoopTeam our vassal?
-				if(GET_TEAM(eLoopTeam).IsVassal(GetPlayer()->getTeam()))
+				iItemValue += GET_PLAYER(eLoopPlayer).GetMilitaryMight() + GET_PLAYER(eLoopPlayer).GetEconomicMight();
+				iVassalsControlled++;
+
+				int iCityLoop = 0;
+				for (CvCity* pCity = GET_PLAYER(eLoopPlayer).firstCity(&iCityLoop); pCity != NULL; pCity = GET_PLAYER(eLoopPlayer).nextCity(&iCityLoop))
 				{
-					if(GET_TEAM(eLoopTeam).isAlive())
-					{
-						for (int iPlayerLoop = 0; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
-						{
-							PlayerTypes eVassalPlayer = (PlayerTypes)iPlayerLoop;
-
-							if(eVassalPlayer != NO_PLAYER && GET_PLAYER(eVassalPlayer).getTeam() != eLoopTeam && eLoopTeam != GetPlayer()->getTeam())
-								continue;
-
-							iItemValue += (GET_PLAYER(eVassalPlayer).GetMilitaryMight() + GET_PLAYER(eVassalPlayer).GetEconomicMight());
-						}
-					}
+					if (pCity->IsOriginalMajorCapital())
+						iCapitalsControlled++;
 				}
 			}
 		}
 
-		//Diplo and Conquest victories
-		if(GetPlayer()->GetFractionOriginalCapitalsUnderControl() >= 50)
+		if (iCapitalsControlled > 0 && GetPlayer()->GetDiplomacyAI()->IsGoingForWorldConquest())
 		{
-			return INT_MAX;
+			if (!GetPlayer()->IsInTerribleShapeForWar())
+				return INT_MAX;
+
+			iItemValue *= iCapitalsControlled + 1;
 		}
-		if(GetPlayer()->GetDiplomacyAI()->IsGoingForWorldConquest())
+
+		if (GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
 		{
-			iItemValue *= 2;
-		}
-		if(GetPlayer()->GetDiplomacyAI()->IsGoingForDiploVictory())
-		{
-			iItemValue *= 2;
+			iItemValue *= iVassalsControlled + 1;
 		}
 
 		// What's the power of the asking party? They need to be real strong to push us out of this.
@@ -7289,7 +7393,7 @@ int CvDealAI::GetRevokeVassalageValue(bool bFromMe, PlayerTypes eOtherPlayer, bo
 	{
 		bool bWorthIt = false;
 		iItemValue = 1000;
-		// Increase deal value based on number of vassals we have
+		// Increase deal value based on number of vassals they have
 		for(int iTeamLoop= 0; iTeamLoop < MAX_TEAMS; iTeamLoop++)
 		{
 			TeamTypes eLoopTeam = (TeamTypes) iTeamLoop;
@@ -7826,6 +7930,9 @@ void CvDealAI::DoAddVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalV
 	CvAssert(eThem < MAX_MAJOR_CIVS);
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.  Please show Jon");
 
+	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_VASSALAGE))
+		return;
+
 	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
 	{
 		PlayerTypes eMyPlayer = GetPlayer()->GetID();
@@ -7870,9 +7977,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Vassalage to Them, but them is us.  Please show Jon");
 
 	if (!pDeal->IsPossibleToTradeItem(eThem, GetPlayer()->GetID(), TRADE_ITEM_VASSALAGE))
-	{
 		return;
-	}
 
 	if (pDeal->GetDemandingPlayer() != NO_PLAYER)
 	{
@@ -7885,7 +7990,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 	}
 	else
 	{
-		if (GET_PLAYER(eThem).isHuman())
+		if (!GetPlayer()->IsAtWarWith(eThem) && GET_PLAYER(eThem).isHuman())
 		{
 			return;
 		}
@@ -7898,7 +8003,7 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 	}
 
 	// they don't want to do it?
-	if (!GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
+	if (!GET_PLAYER(eThem).isHuman() && !GET_PLAYER(eThem).GetDiplomacyAI()->IsVassalageAcceptable(GetPlayer()->GetID(), false))
 	{
 		return;
 	}
@@ -7916,6 +8021,33 @@ void CvDealAI::DoAddVassalageToThem(CvDeal* pDeal, PlayerTypes eThem, int& iTota
 		if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
 		{
 			pDeal->AddVassalageTrade(eThem);
+			iTotalValue = GetDealValue(pDeal);
+		}
+	}
+}
+
+void CvDealAI::DoAddRevokeVassalageToUs(CvDeal* pDeal, PlayerTypes eThem, int& iTotalValue, int iThresholdValue)
+{
+	CvAssert(eThem >= 0);
+	CvAssert(eThem < MAX_MAJOR_CIVS);
+	CvAssertMsg(eThem != GetPlayer()->GetID(), "DEAL_AI: Trying to add Technology to Them, but them is us.  Please show Jon");
+
+	if (!pDeal->IsPossibleToTradeItem(GetPlayer()->GetID(), eThem, TRADE_ITEM_VASSALAGE_REVOKE))
+		return;
+
+	if ((iThresholdValue != 0 || !WithinAcceptableRange(eThem, pDeal->GetMaxValue(), iTotalValue)) && (iThresholdValue == 0 || iTotalValue >= iThresholdValue))
+	{
+		int iItemValue = 0;
+
+		iItemValue = GetTradeItemValue(TRADE_ITEM_VASSALAGE_REVOKE, /*bFromMe*/ true, eThem, -1, -1, -1, false, -1, true);
+
+		if (iItemValue == INT_MAX)
+		{
+			return;
+		}
+		if (!TooMuchAdded(eThem, pDeal->GetMaxValue(), iTotalValue-iThresholdValue, iItemValue, true))
+		{
+			pDeal->AddRevokeVassalageTrade(eThem);
 			iTotalValue = GetDealValue(pDeal);
 		}
 	}

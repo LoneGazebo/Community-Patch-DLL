@@ -73,6 +73,7 @@
 	ProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with ProcessBonus and other modifiers to Process yields. Default 0.
 	FreeXP: Free XP given to all new combat units. Scales with game speed. FreeXP is removed from free units at game start that have the Reconnaissance promotion. Default 0.
 	FreeXPPercent: % modifier to XP gained from combat. FreeXPPercent is removed from free units at game start that have the Reconnaissance promotion. Default 0.
+	FreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Does not have FreeXPPercent's restriction. Additive with FreeXPPercent. Default 0.
 	CombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
 	ResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against this player when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
 	VisionBonus: Extra Sight (in tiles) given to this player's non-trade units. This bonus is not applied to units with the Reconnaissance promotion. Default 0.
@@ -132,6 +133,7 @@
 	AIProcessPerEraModifier: % modifier to yields gained from Processes (positive = good) for each era reached after the Ancient Era. Additive with AIProcessBonus and other modifiers to Process yields. Default 0.
 	AIFreeXP: Free XP given to all new combat units. Scales with game speed. FreeXP is removed from free units at game start that have the Reconnaissance promotion. Default 0.
 	AIFreeXPPercent: % modifier to XP gained from combat. FreeXPPercent is removed from free units at game start that have the Reconnaissance promotion. Default 0.
+	AIFreeXPPercentVSHuman: % modifier to XP gained from combat when fighting human players. Does not have AIFreeXPPercent's restriction. Additive with AIFreeXPPercent. Default 0.
 	AICombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
 	AIResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against the AI when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
 	AIVisionBonus: Extra Sight (in tiles) given to this player's non-trade units. This bonus is not applied to units with the Reconnaissance promotion. Default 0.
@@ -173,18 +175,18 @@
 	BarbarianSeaTargetRange: Pathfinder range for sea Barbarian units (they will roam towards a target up to BarbarianSeaTargetRange turns away). Default 0.
 
 	[AI Behavior Modifiers]
-	-- Weighted Randomized Choices --
+	- Weighted Randomized Choices -
 	CityProductionChoiceCutoffThreshold: The % of the top scoring choice that a City Production choice must have to be included in the weighted randomization. Default 90.
 	TechChoiceCutoffThreshold: The % of the top scoring choice that a Technology choice must have to be included in the weighted randomization. Default 90.
 	PolicyChoiceCutoffThreshold: The % of the top scoring choice that a Policy choice must have to be included in the weighted randomization. Default 90.
 	BeliefChoiceCutoffThreshold: The % of the top scoring choice that a Belief choice must have to be included in the weighted randomization. Default 90.
 
-	-- Tactical AI --
+	- Tactical AI -
 	TacticalSimMaxCompletedPositions: Controls the Tactical AI simulator's search depth. Default 512.
 	TacticalSimMaxBranches: Controls the Tactical AI simulator's search depth. Default 4.
 	TacticalSimMaxChoicesPerUnit: Controls the Tactical AI simulator's search depth. Default 4.
 
-	-- Diplomacy AI --
+	- Diplomacy AI -
 	LandDisputePercent: Controls how aggressive the AI is about territorial disputes and reckless expansion (100 = normal aggression). Default 100.
 	WonderDisputePercent: Controls how aggressive the AI is about World Wonder competition (100 = normal aggression). Default 100.
 	MinorCivDisputePercent: Controls how aggressive the AI is about City-State Influence competition (100 = normal aggression). Default 100.
@@ -512,7 +514,7 @@
 			<AICreatePerEraModifier>-4</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIFreeXP>10</AIFreeXP>
-			<AIFreeXPPercent>20</AIFreeXPPercent>
+			<AIFreeXPPercentVSHuman>20</AIFreeXPPercentVSHuman>
 			<AIResistanceCap>40</AIResistanceCap>
 
 			<!-- City-States -->
@@ -603,7 +605,7 @@
 			<AICreatePerEraModifier>-6</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIFreeXP>15</AIFreeXP>
-			<AIFreeXPPercent>40</AIFreeXPPercent>
+			<AIFreeXPPercentVSHuman>40</AIFreeXPPercentVSHuman>
 			<AIResistanceCap>50</AIResistanceCap>
 
 			<!-- City-States -->
@@ -694,7 +696,7 @@
 			<AICreatePerEraModifier>-8</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIFreeXP>20</AIFreeXP>
-			<AIFreeXPPercent>60</AIFreeXPPercent>
+			<AIFreeXPPercentVSHuman>60</AIFreeXPPercentVSHuman>
 			<AIResistanceCap>50</AIResistanceCap>
 
 			<!-- City-States -->
@@ -785,7 +787,7 @@
 			<AICreatePerEraModifier>-9</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIFreeXP>25</AIFreeXP>
-			<AIFreeXPPercent>80</AIFreeXPPercent>
+			<AIFreeXPPercentVSHuman>80</AIFreeXPPercentVSHuman>
 			<AIResistanceCap>50</AIResistanceCap>
 			<AIVisionBonus>1</AIVisionBonus>
 
@@ -878,7 +880,7 @@
 			<AICreatePerEraModifier>-10</AICreatePerEraModifier>
 			<AIWorldCreatePercent>100</AIWorldCreatePercent>
 			<AIFreeXP>30</AIFreeXP>
-			<AIFreeXPPercent>100</AIFreeXPPercent>
+			<AIFreeXPPercentVSHuman>100</AIFreeXPPercentVSHuman>
 			<AIResistanceCap>50</AIResistanceCap>
 			<AIVisionBonus>2</AIVisionBonus>
 

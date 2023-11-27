@@ -1261,6 +1261,9 @@ public:
 	int getSpaceProductionModifier() const;
 	void changeSpaceProductionModifier(int iChange);
 
+	int GetBasePressureModifier() const;
+	void ChangeBasePressureModifier(int iChange);
+
 	int getCityDefenseModifier() const;
 	void changeCityDefenseModifier(int iChange);
 
@@ -2360,9 +2363,6 @@ public:
 	int getTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
 	void changeTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-	int getSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
-	void changeSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
-
 	int getGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	void changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2, int iChange);
 
@@ -3313,6 +3313,7 @@ protected:
 	int m_iSpecialistProductionModifier;
 	int m_iMilitaryProductionModifier;
 	int m_iSpaceProductionModifier;
+	int m_iBasePressureModifier;
 	int m_iCityDefenseModifier;
 	int m_iUnitFortificationModifier;
 	int m_iUnitBaseHealModifier;
@@ -3696,7 +3697,6 @@ protected:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiSpecialistYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
 	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiUnimprovedFeatureYieldChange;
@@ -4141,6 +4141,7 @@ SYNC_ARCHIVE_VAR(int, m_iImprovementUpgradeRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpaceProductionModifier)
+SYNC_ARCHIVE_VAR(int, m_iBasePressureModifier)
 SYNC_ARCHIVE_VAR(int, m_iCityDefenseModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitFortificationModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitBaseHealModifier)

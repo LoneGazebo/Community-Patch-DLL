@@ -1233,315 +1233,75 @@ function AssignStartingPlots:PlaceNaturalWonders()
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited(args)
-	-- Placement methods include:
-	-- 1. Assign n Per Region
-	-- 2. Assign to uninhabited landmasses
-	-- 3. Assign to regions with shared luxury IDs
-	-- 4. Assign to low fertility regions
-
-	-- Determine number to assign Per Region
-	local iW, iH = Map.GetGridSize()
-	local ratio = self.iNumCityStates / self.iNumCivs;
-	if ratio > 14 then -- This is a ridiculous number of city states for a game with two civs, but we'll account for it anyway.
-		self.iNumCityStatesPerRegion = 10;
-	elseif ratio > 11 then -- This is a ridiculous number of cs for two or three civs.
-		self.iNumCityStatesPerRegion = 8;
-	elseif ratio > 8 then
-		self.iNumCityStatesPerRegion = 6;
-	elseif ratio > 5.7 then
-		self.iNumCityStatesPerRegion = 4;
-	elseif ratio > 4.35 then
-		self.iNumCityStatesPerRegion = 3;
-	elseif ratio > 2.7 then
-		self.iNumCityStatesPerRegion = 2;
-	elseif ratio > 1.35 then
-		self.iNumCityStatesPerRegion = 1;
-	else
-		self.iNumCityStatesPerRegion = 0;
-	end
-	-- Assign the "Per Region" City States to their regions.
-	--print("- - - - - - - - - - - - - - - - -"); print("Assigning City States to Regions");
-	--
-	-- Custom for Europe: No CS assigned to Britian if a civ is assigned there.
+function ExtraEuropeCheck1(ASP)
+	-- Adding this check for Europe in AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited, so no CS is assigned to Britian if a civ is assigned there.
+	local iNumCityStatesPerRegion = ASP:GetNumCityStatesPerRegion();
 	local starting_region_number = 1;
-	if self.iNumCivs >= 8 then -- Civ in Britain
+	if ASP.iNumCivs >= 8 then -- Civ in Britain
 		starting_region_number = 2;
 	end
 	local current_cs_index = 1;
-	if self.iNumCityStatesPerRegion > 0 then
-		for current_region = starting_region_number, self.iNumCivs do
-			for cs_to_assign_to_this_region = 1, self.iNumCityStatesPerRegion do
-				self.city_state_region_assignments[current_cs_index] = current_region;
+	if iNumCityStatesPerRegion > 0 then
+		for current_region = starting_region_number, ASP.iNumCivs do
+			for _ = 1, iNumCityStatesPerRegion do
+				ASP.city_state_region_assignments[current_cs_index] = current_region;
 				--print("-"); print("City State", current_cs_index, "assigned to Region#", current_region);
 				current_cs_index = current_cs_index + 1;
-				self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
+				ASP.iNumCityStatesUnassigned = ASP.iNumCityStatesUnassigned - 1;
 			end
 		end
-	end
-
-	-- Determine how many City States to place on uninhabited landmasses.
-	-- Also generate lists of candidate plots from uninhabited areas.
-	local iNumLandAreas = 0;
-	local iNumCivLandmassPlots = 0;
-	local iNumUninhabitedLandmassPlots = 0;
-	local land_area_IDs = {};
-	local land_area_plot_count = {};
-	local land_area_plot_tables = {};
-	local areas_inhabited_by_civs = {};
-	local areas_too_small = {};
-	local areas_uninhabited = {};
-	--
-	if self.method == RegionDivision.RECTANGULAR then -- Rectangular regional division spanning the entire globe, ALL plots belong to inhabited regions.
-		self.iNumCityStatesUninhabited = 0;
-		--print("Rectangular regional division spanning the whole world: all city states must belong to a region!");
-	else -- Possibility of plots that do not belong to any civ's Region. Evaluate these plots and assign an appropriate number of City States to them.
-		-- Generate list of inhabited area IDs.
-		if self.method == RegionDivision.BIGGEST_LANDMASS or self.method == RegionDivision.CONTINENTAL then
-			for index, region_data in ipairs(self.regionData) do
-				local region_areaID = region_data[5];
-				if TestMembership(areas_inhabited_by_civs, region_areaID) == false then
-					table.insert(areas_inhabited_by_civs, region_areaID);
-				end
-			end
-		end
-		-- Iterate through plots and, for each land area, generate a list of all its member plots
-		for x = 0, iW - 1 do
-			for y = 0, iH - 1 do
-				if self.iNumCivs >= 8 and x <= math.floor(iW * 0.055) + math.ceil(iW * 0.19) + 1 and y >= math.floor(iH * 0.61) - 1 then
-					-- plot is in Britain, while a Civ is placed there, so ignore it.
-				else
-					local plotIndex = y * iW + x + 1;
-					local plot = Map.GetPlot(x, y);
-					local plotType = plot:GetPlotType()
-					local terrainType = plot:GetTerrainType()
-					if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and terrainType ~= TerrainTypes.TERRAIN_SNOW then -- Habitable land plot, process it.
-						local iArea = plot:GetArea();
-						if self.method == RegionDivision.RECTANGULAR_SELF_DEFINED then -- Determine if plot is inside or outside the regional rectangle
-							if (x >= self.inhabited_WestX and x <= self.inhabited_WestX + self.inhabited_Width - 1) and
-							   (y >= self.inhabited_SouthY and y <= self.inhabited_SouthY + self.inhabited_Height - 1) then -- Civ-inhabited rectangle
-								iNumCivLandmassPlots = iNumCivLandmassPlots + 1;
-							else
-								iNumUninhabitedLandmassPlots = iNumUninhabitedLandmassPlots + 1;
-								if self.plotDataIsCoastal[i] == true then
-									table.insert(self.uninhabited_areas_coastal_plots, i);
-								else
-									table.insert(self.uninhabited_areas_inland_plots, i);
-								end
-							end
-						else -- AreaID-based method must be applied, which cannot all be done in this loop
-							if TestMembership(land_area_IDs, iArea) == false then -- This plot is the first detected in its AreaID.
-								iNumLandAreas = iNumLandAreas + 1;
-								table.insert(land_area_IDs, iArea);
-								land_area_plot_count[iArea] = 1;
-								land_area_plot_tables[iArea] = {plotIndex};
-							else -- This AreaID already known.
-								land_area_plot_count[iArea] = land_area_plot_count[iArea] + 1;
-								table.insert(land_area_plot_tables[iArea], plotIndex);
-							end
-						end
-					end
-				end
-			end
-		end
-		-- Complete the AreaID-based method. 
-		if self.method == RegionDivision.BIGGEST_LANDMASS or self.method == RegionDivision.CONTINENTAL then
-			-- Obtain counts of inhabited and uninhabited plots. Identify areas too small to use for City States.
-			for areaID, plot_count in pairs(land_area_plot_count) do
-				if TestMembership(areas_inhabited_by_civs, areaID) == true then 
-					iNumCivLandmassPlots = iNumCivLandmassPlots + plot_count;
-				else
-					iNumUninhabitedLandmassPlots = iNumUninhabitedLandmassPlots + plot_count;
-					if plot_count < 4 then
-						table.insert(areas_too_small, areaID);
-					else
-						table.insert(areas_uninhabited, areaID);
-					end
-				end
-			end
-			-- Now loop through all Uninhabited Areas that are large enough to use and append their plots to the candidates tables.
-			for areaID, area_plot_list in pairs(land_area_plot_tables) do
-				if TestMembership(areas_uninhabited, areaID) == true then 
-					for loop, plotIndex in ipairs(area_plot_list) do
-						local x = (plotIndex - 1) % iW;
-						local y = (plotIndex - x - 1) / iW;
-						local plot = Map.GetPlot(x, y);
-						local terrainType = plot:GetTerrainType();
-						if terrainType ~= TerrainTypes.TERRAIN_SNOW then
-							if self.plotDataIsCoastal[plotIndex] == true then
-								table.insert(self.uninhabited_areas_coastal_plots, plotIndex);
-							else
-								table.insert(self.uninhabited_areas_inland_plots, plotIndex);
-							end
-						end
-					end
-				end
-			end
-		end
-		-- Determine the number of City States to assign to uninhabited areas.
-		local uninhabited_ratio = iNumUninhabitedLandmassPlots / (iNumCivLandmassPlots + iNumUninhabitedLandmassPlots);
-		local max_by_ratio = math.floor(3 * uninhabited_ratio * self.iNumCityStates);
-		local max_by_method;
-		if self.method == RegionDivision.BIGGEST_LANDMASS then
-			max_by_method = math.ceil(self.iNumCityStates / 4);
-		else
-			max_by_method = math.ceil(self.iNumCityStates / 2);
-		end
-		self.iNumCityStatesUninhabited = math.min(self.iNumCityStatesUnassigned, max_by_ratio, max_by_method);
-		self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - self.iNumCityStatesUninhabited;
-	end
-	--print("-"); print("City States assigned to Uninhabited Areas: ", self.iNumCityStatesUninhabited);
-	-- Update the city state number.
-	current_cs_index = current_cs_index + self.iNumCityStatesUninhabited;
-	
-	if self.iNumCityStatesUnassigned > 0 then
-		-- Determine how many to place in support of regions that share their luxury type with two other regions.
-		local iNumRegionsSharedLux = 0;
-		local shared_lux_IDs = {};
-		for resource_ID, amount_assigned_to_regions in ipairs(self.luxury_assignment_count) do
-			if amount_assigned_to_regions == 3 then
-				iNumRegionsSharedLux = iNumRegionsSharedLux + 3;
-				table.insert(shared_lux_IDs, resource_ID);
-			end
-		end
-		if iNumRegionsSharedLux > 0 and iNumRegionsSharedLux <= self.iNumCityStatesUnassigned then
-			self.iNumCityStatesSharedLux = iNumRegionsSharedLux;
-			self.iNumCityStatesLowFertility = self.iNumCityStatesUnassigned - self.iNumCityStatesSharedLux;
-		else
-			self.iNumCityStatesLowFertility = self.iNumCityStatesUnassigned;
-		end
-		--print("CS Shared Lux: ", self.iNumCityStatesSharedLux, " CS Low Fert: ", self.iNumCityStatesLowFertility);
-		-- Assign remaining types to their respective regions.
-		if self.iNumCityStatesSharedLux > 0 then
-			for loop, res_ID in ipairs(shared_lux_IDs) do
-				for loop, region_lux_data in ipairs(self.regions_sorted_by_type) do
-					local this_region_res = region_lux_data[2];
-					if this_region_res == res_ID then
-						self.city_state_region_assignments[current_cs_index] = region_lux_data[1];
-						--print("-"); print("City State", current_cs_index, "assigned to Region#", region_lux_data[1], " to compensate for Shared Luxury ID#", res_ID);
-						current_cs_index = current_cs_index + 1;
-						self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
-					end
-				end
-			end
-		end
-		if self.iNumCityStatesLowFertility > 0 then
-			-- If more to assign than number of regions, assign per region.
-			while self.iNumCityStatesUnassigned >= self.iNumCivs do
-				for current_region = 1, self.iNumCivs do
-					self.city_state_region_assignments[current_cs_index] = current_region;
-					--print("-"); print("City State", current_cs_index, "assigned to Region#", current_region, " to compensate for Low Fertility");
-					current_cs_index = current_cs_index + 1;
-					self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
-				end
-			end
-			if self.iNumCityStatesUnassigned > 0 then
-				local fert_unsorted, fert_sorted, region_list = {}, {}, {};
-				for region_num = 1, self.iNumCivs do
-					local area_plots = self.regionTerrainCounts[region_num][2];
-					local region_fertility = self.regionData[region_num][6];
-					local fertility_per_land_plot = region_fertility / area_plots;
-					--print("-"); print("Region#", region_num, "AreaPlots:", area_plots, "Region Fertility:", region_fertility, "Per Plot:", fertility_per_land_plot);
-					
-					table.insert(fert_unsorted, {region_num, fertility_per_land_plot});
-					table.insert(fert_sorted, fertility_per_land_plot);
-				end
-				table.sort(fert_sorted);
-				for current_lowest_fertility, fert_value in ipairs(fert_sorted) do
-					for loop, data_pair in ipairs(fert_unsorted) do
-						local this_region_fert = data_pair[2];
-						if this_region_fert == fert_value then
-							local regionNum = data_pair[1];
-							table.insert(region_list, regionNum);
-							table.remove(fert_unsorted, loop);
-							break
-						end
-					end
-				end
-				for loop = 1, self.iNumCityStatesUnassigned do
-					self.city_state_region_assignments[current_cs_index] = region_list[loop];
-					--print("-"); print("City State", current_cs_index, "assigned to Region#", region_list[loop], " to compensate for Low Fertility");
-					current_cs_index = current_cs_index + 1;
-					self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
-				end
-			end
-		end
-	end
-	
-	-- Debug check
-	if self.iNumCityStatesUnassigned ~= 0 then
-		print("Wrong number of City States assigned at end of assignment process. This number unassigned: ", self.iNumCityStatesUnassigned);
-	else
-		print("All city states assigned.");
 	end
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions)
+function ExtraEuropeCheck2(ASP, x, y)
+	-- Adding this check for Europe in AssignStartingPlots:CanPlaceCityStateAt, to keep CS out of British Isles when a Civ is there.
 	local iW, iH = Map.GetGridSize();
-	local plot = Map.GetPlot(x, y)
-	local area = plot:GetArea()
-	if area ~= area_ID and area_ID ~= -1 then
-		return false
-	end
-
-	if plot:IsWater() or plot:IsMountain() then
-		return false
-	end
-
-	-- Avoid natural wonders
-	for nearPlot in self:Plot_GetPlotsInCircle(plot, 1, 4) do
-		local featureInfo = GameInfo.Features[nearPlot:GetFeatureType()]
-		if featureInfo and featureInfo.NaturalWonder then
-			--print("CanPlaceCityStateAt: avoided natural wonder: ", featureInfo.Type)
-			return false
-		end
-	end
-	
-	-- Reserve the best city sites for major civs
-	local fertility = self:Plot_GetFertilityInRange(plot, 2)
-	if fertility > 28 then
-		--print("CanPlaceCityStateAt: avoided fertility: ", fertility)
-		return false
-	end
-
-	local plotIndex = y * iW + x + 1;
-	if self.impactData[ImpactLayers.LAYER_CITY_STATE][plotIndex] > 0 and force_it == false then
-		return false
-	end
-	local plotIndex = y * iW + x + 1;
-	if self.playerCollisionData[plotIndex] == true and ignore_collisions == false then
-		print("-"); print("City State candidate plot rejected: collided with already-placed civ or City State at", x, y);
-		return false
-	end
-
-	-- Custom addition for Europe: Keep CS out of British Isles when a Civ is there.
-	if self.iNumCivs >= 8 then
+	if ASP.iNumCivs >= 8 then
 		if x <= math.floor(iW * 0.055) + math.ceil(iW * 0.19) + 1 and y >= math.floor(iH * 0.61) - 1 then
-			print("Rejected British plot: ", x, y);
 			-- Plot is in Britain, reject it.
-			return false
+			-- print("Rejected British plot: ", x, y);
+			return false;
 		end
 	end
-	return true
+	return true;
 end
 ------------------------------------------------------------------------------
 function StartPlotSystem()
 	print("Creating start plot database.");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
+	start_plot_database.ExtraEuropeCheck1 = ExtraEuropeCheck1;
+	start_plot_database.ExtraEuropeCheck2 = ExtraEuropeCheck2;
+
+	start_plot_database.oldAssignCityStatesToRegionsOrToUninhabited = start_plot_database.AssignCityStatesToRegionsOrToUninhabited;
+	local newAssignCityStatesToRegionsOrToUninhabited = function (ASP)
+		ASP:ExtraEuropeCheck1();
+		ASP:oldAssignCityStatesToRegionsOrToUninhabited();
+	end
+	start_plot_database.AssignCityStatesToRegionsOrToUninhabited = newAssignCityStatesToRegionsOrToUninhabited;
+
+	start_plot_database.oldCanPlaceCityStateAt = start_plot_database.CanPlaceCityStateAt;
+	local newCanPlaceCityStateAt = function (ASP, x, y, area_ID, force_it, ignore_collisions)
+		if not ASP:ExtraEuropeCheck2(x, y) then
+			return false;
+		end
+		return ASP:oldCanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions);
+	end
+	start_plot_database.CanPlaceCityStateAt = newCanPlaceCityStateAt;
+
 	print("Dividing the map in to Regions.");
-	start_plot_database:GenerateRegions()
+	start_plot_database:GenerateRegions();
 
 	print("Choosing start locations for civilizations.");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players.");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders.");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States.");
-	start_plot_database:PlaceResourcesAndCityStates()
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------

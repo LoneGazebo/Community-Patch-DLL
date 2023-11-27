@@ -1008,6 +1008,7 @@ public:
 	int getProcessPerEraModifier() const;
 	int getFreeXP() const;
 	int getFreeXPPercent() const;
+	int getFreeXPPercentVSHuman() const;
 	int getCombatBonus() const;
 	int getResistanceCap() const;
 	int getVisionBonus() const;
@@ -1069,6 +1070,7 @@ public:
 	int getAIProcessPerEraModifier() const;
 	int getAIFreeXP() const;
 	int getAIFreeXPPercent() const;
+	int getAIFreeXPPercentVSHuman() const;
 	int getAICombatBonus() const;
 	int getAIResistanceCap() const;
 	int getAIVisionBonus() const;
@@ -1234,6 +1236,7 @@ protected:
 	int m_iProcessPerEraModifier;
 	int m_iFreeXP;
 	int m_iFreeXPPercent;
+	int m_iFreeXPPercentVSHuman;
 	int m_iCombatBonus;
 	int m_iResistanceCap;
 	int m_iVisionBonus;
@@ -1294,6 +1297,7 @@ protected:
 	int m_iAIProcessPerEraModifier;
 	int m_iAIFreeXP;
 	int m_iAIFreeXPPercent;
+	int m_iAIFreeXPPercentVSHuman;
 	int m_iAICombatBonus;
 	int m_iAIResistanceCap;
 	int m_iAIVisionBonus;

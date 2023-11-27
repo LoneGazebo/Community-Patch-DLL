@@ -60,7 +60,7 @@ UPDATE SmallAwards SET Influence = 80, GlobalExperience = 15, RandomMod = 5, Que
 UPDATE SmallAwards SET Influence = 40, Happiness = 1, RandomMod = 10, QuestDuration = 50 WHERE Type = 'MINOR_CIV_QUEST_LIBERATION';
 
 -- Coup specific CS
-UPDATE SmallAwards SET Influence = 40, CapitalGPPoints = 150, RandomMod = 10 WHERE Type = 'MINOR_CIV_QUEST_COUP';
+UPDATE SmallAwards SET Influence = 40, Science = 100, RandomMod = 5 WHERE Type = 'MINOR_CIV_QUEST_COUP';
 
 -- Declare War on specific Player
 UPDATE SmallAwards SET Influence = 75, Happiness = 1, RandomMod = 10, QuestDuration = 50 WHERE Type = 'MINOR_CIV_QUEST_WAR';

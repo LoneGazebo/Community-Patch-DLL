@@ -315,9 +315,13 @@ VALUES
 	('promoVP_atlas_04', 5, 'PROMOTION_SCREENING'),
 	-- ('promoVP_atlas_04', 6, ''),
 	('promoVP_atlas_04', 7, 'PROMOTION_FOCUS_FIRE'),
+	-- ('promoVP_atlas_04', 8, ''),
+	('promoVP_atlas_04', 9, 'PROMOTION_HUNTER_KILLER'),
+	('promoVP_atlas_04', 10, 'PROMOTION_PERISCOPE_DEPTH'),
+	('promoVP_atlas_04', 11, 'PROMOTION_PREDATOR'),
+	('promoVP_atlas_04', 12, 'PROMOTION_TRUE_WOLFPACK'),
 
 	-- extraPromo_atlas
-	('extraPromo_Atlas', 18, 'PROMOTION_GOD_WAR'),
 	('extraPromo_Atlas', 21, 'PROMOTION_SKIRMISHER_DOCTRINE'),
 	('extraPromo_Atlas', 22, 'PROMOTION_SCOUT_CAVALRY'),
 	('extraPromo_Atlas', 23, 'PROMOTION_ENVELOPMENT'),

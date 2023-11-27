@@ -638,6 +638,7 @@ public:
 	const vector<UnitTypes>& GetUnitsUnlocked() const { return m_vUnitTypesUnlocked; }
 	void UpdateUnitTypesUnlocked();
 	bool IsFaithPurchaseOnly() const;
+	int GetBasePressureModGlobal() const;
 
 private:
 	int m_iBuildingClassType;
@@ -933,6 +934,9 @@ private:
 	bool m_bArtInfoEraVariation;
 	bool m_bArtInfoRandomVariation;
 
+	int m_iInstantReligionPressure;
+	int m_iBasePressureModGlobal;
+
 	CvString m_strArtDefineTag;
 	CvString m_strWonderSplashAudio;
 	CvString m_strThemingBonusHelp;
@@ -1059,7 +1063,6 @@ private:
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int* m_piInstantYield;
-	int m_iInstantReligionPressure;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	std::multimap<int, std::pair<int, int>> m_piiGreatPersonProgressFromConstruction;

@@ -4815,8 +4815,9 @@ int CvLuaUnit::lChangeExperience(lua_State* L)
 	const bool bFromCombat = luaL_optint(L, 4, 0);
 	const bool bInBorders = luaL_optint(L, 5, 0);
 	const bool bUpdateGlobal = luaL_optint(L, 6, 0);
+	const bool bFromHuman = luaL_optint(L, 7, 0);
 
-	pkUnit->changeExperienceTimes100(iChange * 100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
+	pkUnit->changeExperienceTimes100(iChange * 100, iMax, bFromCombat, bInBorders, bUpdateGlobal, bFromHuman);
 	return 0;
 }
 //------------------------------------------------------------------------------
@@ -4850,8 +4851,9 @@ int CvLuaUnit::lChangeExperienceTimes100(lua_State* L)
 	const bool bFromCombat = luaL_optint(L, 4, 0);
 	const bool bInBorders = luaL_optint(L, 5, 0);
 	const bool bUpdateGlobal = luaL_optint(L, 6, 0);
+	const bool bFromHuman = luaL_optint(L, 7, 0);
 
-	pkUnit->changeExperienceTimes100(iChangeTimes100, iMax, bFromCombat, bInBorders, bUpdateGlobal);
+	pkUnit->changeExperienceTimes100(iChangeTimes100, iMax, bFromCombat, bInBorders, bUpdateGlobal, bFromHuman);
 	return 0;
 }
 //------------------------------------------------------------------------------

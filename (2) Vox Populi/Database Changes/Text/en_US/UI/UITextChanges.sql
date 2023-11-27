@@ -495,10 +495,14 @@ SET Text = 'City-States can be bullied into giving up large amounts of Yields, b
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_TT';
 
 UPDATE Language_en_US
-SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold and Partial Quest Rewards (-{2_Influence} [ICON_INFLUENCE])'
-WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
-UPDATE Language_en_US
+SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold (-{2_Influence} [ICON_INFLUENCE])'
+WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_GOLD_AMOUNT';
 
+UPDATE Language_en_US
+SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold and all Personal Quest Rewards (-{2_Influence} [ICON_INFLUENCE])'
+WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
+
+UPDATE Language_en_US
 SET Text = '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT](+{1_FactorScore}%) {@2_FactorDescription}[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE';
 

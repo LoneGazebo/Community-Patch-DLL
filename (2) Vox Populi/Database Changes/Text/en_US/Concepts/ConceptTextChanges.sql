@@ -12,7 +12,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Specialists[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CITIES_SPECIALISTS_HEADING2_TITLE';
 UPDATE Language_en_US
-SET Text = 'Specialists are citizens who have been assigned to work in a building constructed in their city. There are [COLOR_YELLOW]five[ENDCOLOR] kinds of specialists in Civilization V: Scientists, Merchants, Artists, Engineers, [COLOR_YELLOW]and Civil Servants[ENDCOLOR]. A museum, for example, allows one or two citizens to be assigned to work in the building as Artist specialists. Not all buildings allow specialists to be assigned to them. See the individual building entries for details.'
+SET Text = 'Specialists are citizens who have been assigned to work in a building constructed in their city. There are [COLOR_YELLOW]seven[ENDCOLOR] kinds of specialists in Civilization V: Writers, Artists, Musicians, Scientists, Merchants, Engineers, [COLOR_YELLOW]and Civil Servants[ENDCOLOR]. An Artists'' Guild, for example, allows one or two citizens to be assigned to work in the building as Artist specialists. Not all buildings allow specialists to be assigned to them. See the individual building entries for details.'
 WHERE Tag = 'TXT_KEY_CITIES_SPECIALISTS_HEADING2_BODY';
 
 UPDATE Language_en_US
@@ -26,7 +26,7 @@ UPDATE Language_en_US
 SET Text = '[COLOR_YELLOW]Benefits of Specialists[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CITIES_BENEFITSSPECIALISTS_HEADING3_TITLE';
 UPDATE Language_en_US
-SET Text = 'Specialists provide the following benefits:[NEWLINE][NEWLINE]Artists increase a city''s cultural output and speed the creation of Great Artists.[NEWLINE][NEWLINE]Merchants increase a city''s gold output and speed the creation of Great Merchants.[NEWLINE][NEWLINE]Scientists increase a city''s science output and speed the creation of Great Scientists.[NEWLINE][NEWLINE]Engineers increase a city''s production output and speed the creation of Great Engineers.[NEWLINE][NEWLINE][COLOR_YELLOW]Civil Servants provide a small amount of many yields and speed the creation of Great Diplomats.[ENDCOLOR]'
+SET Text = 'Specialists provide the following benefits:[NEWLINE][NEWLINE]Writers increase a city''s cultural output and speed the creation of Great Writers.[NEWLINE][NEWLINE]Artists increase a city''s cultural output and speed the creation of Great Artists.[NEWLINE][NEWLINE]Musicians increase a city''s cultural output and speed the creation of Great Musicians.[NEWLINE][NEWLINE]Merchants increase a city''s gold output and speed the creation of Great Merchants.[NEWLINE][NEWLINE]Scientists increase a city''s science output and speed the creation of Great Scientists.[NEWLINE][NEWLINE]Engineers increase a city''s production output and speed the creation of Great Engineers.[NEWLINE][NEWLINE][COLOR_YELLOW]Civil Servants provide a small amount of many yields and speed the creation of Great Diplomats.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CITIES_BENEFITSSPECIALISTS_HEADING3_BODY';
 
 UPDATE Language_en_US

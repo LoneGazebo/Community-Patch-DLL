@@ -11249,7 +11249,7 @@ void CvDiplomacyAI::DoUpdatePlayerStrengthEstimates()
 			else if (GET_PLAYER(ePlayer).isMinorCiv())
 			{
 				vTheirDefensiveAllies.push_back(eEvaluate);
-				std::remove(vTheirDefensiveAllies.begin(), vTheirDefensiveAllies.end(), ePlayer);
+				vTheirDefensiveAllies.erase(std::remove(vTheirDefensiveAllies.begin(), vTheirDefensiveAllies.end(), ePlayer), vTheirDefensiveAllies.end());
 			}
 		}
 

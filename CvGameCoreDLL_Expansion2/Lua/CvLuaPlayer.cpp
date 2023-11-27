@@ -1505,6 +1505,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsRefuseResearchAgreementTrade);
 	Method(SetRefuseResearchAgreementTrade);
+
+	Method(IsGlobalQuest);
+	Method(IsPersonalQuest);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -18327,5 +18330,27 @@ int CvLuaPlayer::lSetRefuseResearchAgreementTrade(lua_State* L)
 	const bool bRefuse = lua_toboolean(L, 2);
 
 	pkPlayer->SetRefuseResearchAgreementTrade(bRefuse);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsGlobalQuest(MinorCivQuestTypes eQuest);
+int CvLuaPlayer::lIsGlobalQuest(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const MinorCivQuestTypes eQuest = (MinorCivQuestTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsGlobalQuest(eQuest);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsPersonalQuest(MinorCivQuestTypes eQuest);
+int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const MinorCivQuestTypes eQuest = (MinorCivQuestTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
+	lua_pushboolean(L, bResult);
 	return 1;
 }

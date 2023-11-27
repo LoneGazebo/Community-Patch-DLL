@@ -855,8 +855,15 @@ INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', 0.0
 -- Disable Gold Gifts
 INSERT INTO Defines (Name, Value) SELECT 'CSD_GOLD_GIFT_DISABLED', 0;
 
--- Threshold for demanding heavy tribute
-INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD', 0;
+-- Threshold for demanding tribute
+INSERT INTO Defines
+	(Name, Value)
+VALUES
+	('MINOR_CIV_GOLD_TRIBUTE_THRESHOLD', 0),
+	('MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD', 0);
+
+-- Gold tribute amount increasing with game progress
+INSERT INTO Defines (Name, Value) VALUES ('MINOR_BULLY_GOLD_GROWTH_FACTOR', 400);
 
 -- Quest stuff
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_FIND_CITY', 1;

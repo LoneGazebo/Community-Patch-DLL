@@ -68,9 +68,9 @@ VALUES
 	('TECH_ARCHERY', 'FLAVOR_MOBILE', 10),
 	('TECH_ARCHERY', 'FLAVOR_CITY_DEFENSE', 5),
 
-	('TECH_BRONZE_WORKING', 'FLAVOR_DEFENSE', 10), -- Units: Spearman, Wonders: Zeus, Reveals: Iron, Ability: 50% prod from chopping
+	('TECH_BRONZE_WORKING', 'FLAVOR_DEFENSE', 10), -- Units: Spearman, Buildings: Forge, Wonders: Zeus, Reveals: Iron, Ability: prod from chopping
 	('TECH_BRONZE_WORKING', 'FLAVOR_TILE_IMPROVEMENT', 10),
-	('TECH_BRONZE_WORKING', 'FLAVOR_PRODUCTION', 5),
+	('TECH_BRONZE_WORKING', 'FLAVOR_PRODUCTION', 10),
 	('TECH_BRONZE_WORKING', 'FLAVOR_WONDER', 10),
 	('TECH_BRONZE_WORKING', 'FLAVOR_OFFENSE', 5),
 
@@ -98,10 +98,9 @@ VALUES
 	('TECH_CONSTRUCTION', 'FLAVOR_RANGED', 10),
 	('TECH_CONSTRUCTION', 'FLAVOR_OFFENSE', 10),
 
-	('TECH_IRON_WORKING', 'FLAVOR_OFFENSE', 15), -- Units: Swordsman, Buildings: Forge, HeroicEpic, Ability: 50% prod from chop
-	('TECH_IRON_WORKING', 'FLAVOR_PRODUCTION', 10),
+	('TECH_IRON_WORKING', 'FLAVOR_OFFENSE', 15), -- Units: Swordsman, Buildings: HeroicEpic, Wonders: Colossus
 	('TECH_IRON_WORKING', 'FLAVOR_MILITARY_TRAINING', 10),
-	('TECH_IRON_WORKING', 'FLAVOR_SCIENCE', 5),
+	('TECH_IRON_WORKING', 'FLAVOR_WONDER', 10),
 
 	-------------------------------------------------------------------
 
@@ -125,10 +124,9 @@ VALUES
 	('TECH_ENGINEERING', 'FLAVOR_INFRASTRUCTURE', 10),
 	('TECH_ENGINEERING', 'FLAVOR_WONDER', 10),
 
-	('TECH_METAL_CASTING', 'FLAVOR_PRODUCTION', 15), -- Buildings: Baths, CircusMaximus, Wonders: Colossus, Improvement: LumberMill, Yields: Manufactory +3 Prod
+	('TECH_METAL_CASTING', 'FLAVOR_PRODUCTION', 15), -- Buildings: Baths, CircusMaximus, Improvement: LumberMill, Yields: Manufactory +3 Prod
 	('TECH_METAL_CASTING', 'FLAVOR_GOLD', 15),
 	('TECH_METAL_CASTING', 'FLAVOR_CULTURE', 10),
-	('TECH_METAL_CASTING', 'FLAVOR_WONDER', 10),
 	('TECH_METAL_CASTING', 'FLAVOR_TILE_IMPROVEMENT', 15),
 
 	---------------------------------------------------------

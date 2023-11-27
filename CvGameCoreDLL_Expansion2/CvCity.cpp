@@ -19287,29 +19287,20 @@ void CvCity::ChangeJONSCultureLevel(int iChange)
 void CvCity::DoJONSCultureLevelIncrease()
 {
 	VALIDATE_OBJECT
-
 	int iOverflow = GetJONSCultureStored() - GetJONSCultureThreshold();
-#if defined(MOD_UI_CITY_EXPANSION)
 	bool bIsHumanControlled = (GET_PLAYER(getOwner()).isHuman() && !IsPuppet());
 	bool bSendEvent = true;
 	if (!(MOD_UI_CITY_EXPANSION && bIsHumanControlled)) {
 		// We need to defer this for humans picking their own tiles
-#endif
 		SetJONSCultureStored(iOverflow);
 		ChangeJONSCultureLevel(1);
-#if defined(MOD_UI_CITY_EXPANSION)
 	}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 	CvPlot* pPlotToAcquire = GetNextBuyablePlot(false);
-#else
-	CvPlot* pPlotToAcquire = GetNextBuyablePlot();
-#endif
 
 	// maybe the player owns ALL of the plots or there are none avaialable?
 	if (pPlotToAcquire)
 	{
-#if defined(MOD_UI_CITY_EXPANSION)
 		// For human players, let them decide which plot to acquire
 		if (MOD_UI_CITY_EXPANSION && bIsHumanControlled)
 		{
@@ -19356,7 +19347,6 @@ void CvCity::DoJONSCultureLevelIncrease()
 		else
 		{
 			// AI or dis-interested human, just acquire the plot normally
-#endif
 			if (GC.getLogging() && GC.getAILogging())
 			{
 				CvPlayerAI& kOwner = GET_PLAYER(getOwner());
@@ -19371,23 +19361,17 @@ void CvCity::DoJONSCultureLevelIncrease()
 				kOwner.GetCitySpecializationAI()->LogMsg(strBaseString);
 			}
 			DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
-#if defined(MOD_UI_CITY_EXPANSION)
 		}
-#endif
 
-#if defined(MOD_UI_CITY_EXPANSION)
 		// If the human is picking their own tile, the event will be sent when the tile is "bought"
 		if (bSendEvent)
 		{
-#endif
-#if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY)
 			{
 				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityBoughtPlot, getOwner(), GetID(), pPlotToAcquire->getX(), pPlotToAcquire->getY(), false, true);
 			}
 			else
 			{
-#endif
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 				if (pkScriptSystem)
 				{
@@ -19402,16 +19386,11 @@ void CvCity::DoJONSCultureLevelIncrease()
 					bool bResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "CityBoughtPlot", args.get(), bResult);
 				}
-#if defined(MOD_EVENTS_CITY)
 			}
-#endif
-#if defined(MOD_UI_CITY_EXPANSION)
 		}
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this, false, true, false, NO_YIELD, NULL, pPlotToAcquire->getTerrainType());
-#endif
-#if defined(MOD_BALANCE_CORE)
+
 		if (pPlotToAcquire->getTerrainType() != NO_TERRAIN && GET_PLAYER(getOwner()).GetPlayerTraits()->TerrainClaimBoost(pPlotToAcquire->getTerrainType()))
 		{
 			for (int iDirectionLoop = 0; iDirectionLoop < NUM_DIRECTION_TYPES; ++iDirectionLoop)
@@ -19426,15 +19405,18 @@ void CvCity::DoJONSCultureLevelIncrease()
 				}
 			}
 		}
-#endif
-#if defined(MOD_UI_CITY_EXPANSION)
 	}
-	else if (MOD_UI_CITY_EXPANSION && bIsHumanControlled)
+	else
 	{
-		// Do the stuff we deferred as we though we'd do it when the human bought a tile but can't as there are no tiles to buy!
-		SetJONSCultureStored(iOverflow);
-		ChangeJONSCultureLevel(1);
-#endif
+		if (MOD_UI_CITY_EXPANSION && bIsHumanControlled)
+		{
+			// Do the stuff we deferred as we though we'd do it when the human bought a tile but can't as there are no tiles to buy!
+			SetJONSCultureStored(iOverflow);
+			ChangeJONSCultureLevel(1);
+		}
+
+		// Still give instant yields even if no tile is acquired
+		GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_BORDERS, true, NO_GREATPERSON, NO_BUILDING, 0, true, NO_PLAYER, NULL, false, this);
 	}
 }
 
@@ -27734,15 +27716,21 @@ int CvCity::getExtraSpecialistYield(YieldTypes eIndex, SpecialistTypes eSpeciali
 	CvAssertMsg(eSpecialist >= 0, "eSpecialist expected to be >= 0");
 	CvAssertMsg(eSpecialist < GC.getNumSpecialistInfos(), "GC.getNumSpecialistInfos expected to be >= 0");
 
-	int iYieldMultiplier = GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex) +
-		GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex) +
-		GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
+	int iYieldMultiplier = 0;
+
+	// Laborers don't get any non-specific specialist boosts
+	if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
+		iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistExtraYield(eIndex);
+
+	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistExtraYield(eSpecialist, eIndex);
+
+	iYieldMultiplier += GET_PLAYER(getOwner()).GetPlayerTraits()->GetSpecialistYieldChange(eSpecialist, eIndex);
+
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	iYieldMultiplier += GetEventSpecialistYield(eSpecialist, eIndex);
 #endif
 
 	iYieldMultiplier += getSpecialistExtraYield(eSpecialist, eIndex);
-	iYieldMultiplier += GET_PLAYER(getOwner()).getSpecialistYieldChange(eSpecialist, eIndex);
 
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
 	BeliefTypes eSecondaryPantheon = NO_BELIEF;

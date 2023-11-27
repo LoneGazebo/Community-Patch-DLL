@@ -78,10 +78,6 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
 
-UPDATE Buildings
-SET BorderGrowthRateIncrease = 34
-WHERE BuildingClass = 'BUILDINGCLASS_MONUMENT';
-
 -- Amphitheater
 UPDATE Buildings
 SET Help = 'TXT_KEY_BUILDING_AMPHITHEATER_HELP'
@@ -97,13 +93,6 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
 	Type, 'YIELD_CULTURE', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
-
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_WRITERS_GUILD', 'YIELD_GOLD', 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_AMPHITHEATER';
 
@@ -145,13 +134,6 @@ SELECT
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_OPERA_HOUSE';
 
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_MUSICIANS_GUILD', 'YIELD_GOLD', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_OPERA_HOUSE';
-
 INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
@@ -171,13 +153,6 @@ INSERT INTO Building_SpecificGreatPersonRateModifier
 	(BuildingType, SpecialistType, Modifier)
 SELECT
 	Type, 'SPECIALIST_ARTIST', 33
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_GALLERY';
-
-INSERT INTO Building_BuildingClassYieldChanges
-	(BuildingType, BuildingClassType, YieldType, YieldChange)
-SELECT
-	Type, 'BUILDINGCLASS_ARTISTS_GUILD', 'YIELD_GOLD', 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_GALLERY';
 
@@ -887,7 +862,7 @@ WHERE BuildingClass = 'BUILDINGCLASS_MILITARY_BASE';
 -- Forge
 UPDATE Buildings
 SET
-	PrereqTech = 'TECH_IRON_WORKING',
+	PrereqTech = 'TECH_BRONZE_WORKING',
 	SpecialistType = 'SPECIALIST_ENGINEER',
 	SpecialistCount = 1
 WHERE BuildingClass = 'BUILDINGCLASS_FORGE';
@@ -905,17 +880,10 @@ WHERE BuildingType IN (
 	WHERE BuildingClass = 'BUILDINGCLASS_FORGE'
 );
 
-INSERT INTO Building_SpecialistYieldChangesLocal
-	(BuildingType, SpecialistType, YieldType, Yield)
-SELECT
-	Type, 'SPECIALIST_ENGINEER', 'YIELD_PRODUCTION', 2
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_FORGE';
-
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)
 SELECT
-	Type, 'IMPROVEMENT_MINE', 'YIELD_PRODUCTION', 2
+	Type, 'IMPROVEMENT_MINE', 'YIELD_PRODUCTION', 1
 FROM Buildings
 WHERE BuildingClass = 'BUILDINGCLASS_FORGE';
 
@@ -1559,7 +1527,6 @@ SET
 	GreatPeopleRateModifier = 25
 WHERE BuildingClass = 'BUILDINGCLASS_NUCLEAR_PLANT';
 
--- Nuclear Plant -- now buffs specialists
 INSERT INTO Helper
 	(YieldType)
 VALUES
@@ -1573,7 +1540,8 @@ INSERT INTO Building_SpecialistYieldChangesLocal
 SELECT
 	a.Type, c.Type, b.YieldType, 1
 FROM Buildings a, Helper b, Specialists c
-WHERE a.BuildingClass = 'BUILDINGCLASS_NUCLEAR_PLANT';
+WHERE a.BuildingClass = 'BUILDINGCLASS_NUCLEAR_PLANT'
+AND c.GreatPeopleUnitClass IS NOT NULL;
 
 DELETE FROM Helper;
 

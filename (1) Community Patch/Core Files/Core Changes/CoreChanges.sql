@@ -75,6 +75,10 @@ UPDATE UnitPromotions
 SET FlankAttackModifier = 3
 WHERE FlankAttackModifier = 25;
 
+UPDATE UnitPromotions
+SET EmbarkExtraVisibility = EmbarkExtraVisibility - 1
+WHERE EmbarkExtraVisibility > 1;
+
 -- Resource Priority Changes
 
 UPDATE Resources
