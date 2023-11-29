@@ -31279,7 +31279,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 	std::vector<CvPlot*> aValidPlotList;
 
 	// Store escorted units for later
-	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY)
+	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY || bCaptured)
 	{
 		CvPlot* pUnitPlot = plot();
 		IDInfoVector currentUnits;
@@ -31291,7 +31291,9 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 
 				if (pLoopUnit && pLoopUnit != this && !pLoopUnit->isDelayedDeath())
 				{
-					aEscortedUnits.push_back(pLoopUnit);
+					// If this unit was captured, only stacked military units should withdraw - civilians should be captured as well
+					if (!bCaptured || !pLoopUnit->IsCivilianUnit())
+						aEscortedUnits.push_back(pLoopUnit);
 				}
 			}
 		}

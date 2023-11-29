@@ -451,6 +451,13 @@
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>
 		<Row>
+			<Atlas>UNIT_KHAN_FLAG_ATLAS</Atlas>
+			<IconSize>32</IconSize>
+			<Filename>khanflag.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
 			<Atlas>FCOMPANY_ATLAS</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>FCOMPANY_ATLAS_256.dds</Filename>

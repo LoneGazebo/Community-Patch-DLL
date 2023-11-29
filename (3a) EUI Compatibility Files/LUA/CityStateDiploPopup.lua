@@ -1198,7 +1198,7 @@ function PopulateTakeChoices()
 	buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", iGoldTribute, iFinalBullyUnitInfluenceLost);
 -- END
 	ttText = minorPlayer:GetMajorBullyUnitDetails(activePlayerID);
-	if not minorPlayer:CanMajorBullyUnit(activePlayerID) then
+	if not minorPlayer:CanMajorBullyUnit(activePlayerID) or not HasActivePersonalQuestText(activePlayerID, g_minorCivID) then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.UnitTributeAnim:SetHide(true)
 	else
@@ -1301,7 +1301,7 @@ function OnUnitTributeButtonClicked()
 	local minorPlayer = Players[g_minorCivID]
 	local activePlayerID = Game.GetActivePlayer()
 
-	if minorPlayer:CanMajorBullyUnit(activePlayerID) then
+	if minorPlayer:CanMajorBullyUnit(activePlayerID) and HasActivePersonalQuestText(activePlayerID, g_minorCivID) then
 		BullyAction( kiBulliedUnit )
 		OnCloseTake()
 	end
