@@ -1,4 +1,4 @@
-/*	-------------------------------------------------------------------------------------------------------
+﻿/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -43603,9 +43603,9 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 	int iYield = 0;
 	int iLoop = 0;
 
-	// Average over X turns unles iNumTurns is larger
+	// Average over X turns
 	int iNumHistory = /*10*/ GD_INT_GET(HISTORY_NUM_TURNS_TO_AVERAGE);
-	if (!MOD_BALANCE_VP || iNumTurns > iNumHistory)
+	if (!MOD_BALANCE_VP)
 		iNumHistory = iNumTurns;
 
 	std::vector<int>& viYieldHistory = m_aiYieldHistory[eYield];
@@ -43643,7 +43643,7 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 void CvPlayer::updateYieldPerTurnHistory()
 {
 	m_aiYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
-	m_aiYieldHistory[YIELD_GOLD].push_back(calculateGoldRate());
+	m_aiYieldHistory[YIELD_GOLD].push_back(GetTreasury()->CalculateGrossGold());
 	m_aiYieldHistory[YIELD_SCIENCE].push_back(GetScience());
 	m_aiYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurn());
 	m_aiYieldHistory[YIELD_TOURISM].push_back(GetCulture()->GetTourism() / 100);
