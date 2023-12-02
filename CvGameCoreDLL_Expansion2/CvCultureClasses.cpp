@@ -5073,22 +5073,6 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		}
 	}
 
-	//city difference - do we have more than them?
-	int iNumCities = m_pPlayer->GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
-	if (iNumCities > 0)
-	{
-		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
-
-		iMod *= iNumCities;
-
-		iMod = min(90, iMod);
-
-		if (iMod != 0)
-			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod) + "[ENDCOLOR]";
-	}
-
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
 	if(pLeague != NULL)
 	{
@@ -5131,6 +5115,22 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 
 	// NEGATIVE MODIFIERS
+	//city difference - do we have more than them?
+	int iNumCities = m_pPlayer->GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	if (iNumCities > 0)
+	{
+		// Mod for City Count
+		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
+
+		iMod *= iNumCities;
+
+		iMod = min(90, iMod);
+
+		if (iMod != 0)
+			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod, iNumCities) + "[ENDCOLOR]";
+	}
+
 	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 	{
 		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_DIFFERENT_IDEOLOGIES", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
@@ -5142,11 +5142,6 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		{
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
 		}
-	}
-
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
-	{
-		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_VASSAL", GetTourismModifierVassal()) + "[ENDCOLOR]";
 	}
 #endif
 
@@ -5255,7 +5250,11 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			ChangeInfluenceOn(eLoopPlayer, iTourism);
+			if (MOD_BALANCE_CORE) {
+                ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
+            } else {
+                ChangeInfluenceOn(eLoopPlayer, iTourism);
+            }
 		}
 	}
 }
