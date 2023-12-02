@@ -1517,6 +1517,10 @@ protected:
 	static int lGetMilitaryLandMight(lua_State* L);
 #endif
 
+	static int lGetMainRouteTiles(lua_State* L);
+	static int lGetShortcutRouteTiles(lua_State* L);
+	static int lGetStrategicRouteTiles(lua_State* L);
+
 	LUAAPIEXTN(IsResourceNotForSale, bool, eResource);
 	LUAAPIEXTN(SetResourceAvailable, void, eResource);
 	LUAAPIEXTN(SetResourceNotForSale, void, eResource);
