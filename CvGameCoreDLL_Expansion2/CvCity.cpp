@@ -12267,14 +12267,7 @@ void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewV
 		// calculate reduction of building production cost
 		BuildingTypes eBuilding = NO_BUILDING;
 
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-		{
-			eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType())->getCivilizationBuildings(eBuildingClass);
-		}
+		eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType())->getCivilizationBuildings(eBuildingClass);
 
 		int iNumProductionNeeded = getProductionNeeded(eBuilding);
 		int AmountNeededAfterInvestment = max(1, iNumProductionNeeded);
