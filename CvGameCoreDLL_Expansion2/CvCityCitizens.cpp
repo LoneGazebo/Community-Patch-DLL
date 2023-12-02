@@ -432,13 +432,13 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 			int iTempBonus = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
 			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
 			if (iTempBonus != iTempBonusPlusOne)
-				iBonus += iTempBonusPlusOne;
+				iBonus += iTempBonusPlusOne - iTempBonus;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
 		int iTempBonusPlusOne = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
 		if (iTempBonus != iTempBonusPlusOne)
-			iBonus += iTempBonusPlusOne;
+			iBonus += iTempBonusPlusOne - iTempBonus;
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
@@ -461,13 +461,13 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 			int iTempBonus = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
 			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
 			if (iTempBonus != iTempBonusPlusOne)
-				iBonus += iTempBonusPlusOne;
+				iBonus += iTempBonusPlusOne - iTempBonus;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
 		int iTempBonusPlusOne = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
 		if (iTempBonus != iTempBonusPlusOne)
-			iBonus += iTempBonusPlusOne;
+			iBonus += iTempBonusPlusOne - iTempBonus;
 	}
 
 	return iBonus;
