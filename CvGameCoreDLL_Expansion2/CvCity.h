@@ -558,7 +558,7 @@ public:
 	int foodDifferenceTimes100(bool bJustCheckingStarve = false, CvString* toolTipSink = NULL) const;
 	int growthThreshold() const;
 
-	int getGrowthMods() const;
+	int getGrowthMods(CvString* toolTipSink = NULL) const;
 #if defined(MOD_BALANCE_CORE)
 	int GetNumFreeSpecialists();
 	int GetUnhappinessFromCitySpecialists();
