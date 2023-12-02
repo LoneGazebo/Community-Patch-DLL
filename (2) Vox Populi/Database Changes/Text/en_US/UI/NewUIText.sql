@@ -71,3 +71,44 @@ SELECT 'TXT_KEY_CORPORATION_OFFICEHQ_TT', '[ICON_CAPITAL] Headquarters of [COLOR
 SELECT 'TXT_KEY_CORPORATION_OFFICEHQ_TT2', 'Capturing [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] will always result in the destruction of the Headquarters, closing all active Offices and Franchises but permits others to rebuild its Headquarters once more.' UNION ALL
 SELECT 'TXT_KEY_CORPORATION_OFFICE_TT', 'Office of [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]' UNION ALL
 SELECT 'TXT_KEY_CORPORATION_OFFICE_TT2', 'A completed [ICON_INTERNATIONAL_TRADE] Trade Route from or to [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] will attempt to establish a [ICON_VP_FRANCHISE] [COLOR_POSITIVE_TEXT]Franchise[ENDCOLOR] in foreign cities.';
+
+--INFLUENTIAL DOMINANT NOTIFICATION
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}. We will no longer get any bonuses from them.'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_1_BAD';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Exotic[ENDCOLOR] to {1_Num}! See Culture Overview for the bonuses!'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_1';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}. Our bonuses have weakened from them.'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_2_BAD';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Familiar[ENDCOLOR] to {1_Num}!  See Culture Overview for the increased bonuses!'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_2';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}. Our bonuses have weakened from them.'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_3_BAD';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Popular[ENDCOLOR] to {1_Num}! See Culture Overview for the increased bonuses!'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_3';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}. Our bonuses have weakened from them.'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_4_BAD';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Influential[ENDCOLOR] to {1_Num}! See Culture Overview for the increased bonuses!'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_4';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is [COLOR_NEGATIVE_TEXT]no longer[ENDCOLOR] [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}. Our bonuses have weakened from them.'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_5_BAD';
+
+UPDATE Language_en_US
+SET Text = 'Our [ICON_CULTURE] Culture is now [COLOR_MAGENTA]Dominant[ENDCOLOR] to {1_Num}! See Culture Overview for the increased bonuses!'
+WHERE Tag = 'TXT_KEY_INFLUENCE_US_5';
