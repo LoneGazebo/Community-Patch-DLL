@@ -126,7 +126,7 @@ INSERT INTO Policy_BuildingClassYieldChanges
 VALUES
 	('POLICY_ACADEMY_SCIENCES', 'BUILDINGCLASS_LABORATORY', 'YIELD_SCIENCE', 2);
 
--- Party Leadership
+-- Party Leadership (now Dictatorship of the Proletariat)
 DELETE FROM Policy_CityYieldChanges
 WHERE PolicyType = 'POLICY_PARTY_LEADERSHIP' AND YieldType = 'YIELD_PRODUCTION';
 

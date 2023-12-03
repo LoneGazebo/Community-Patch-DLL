@@ -189,7 +189,7 @@
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_REBELLION_FORMAL">
 			<Text>A revolution against their ally is occurring!</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_CITY_STATE_QUEST_GLOBAL_HEADER">
 			<Text>Global Quests:</Text>
 		</Row>
@@ -1067,6 +1067,18 @@
 		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
 			<Text>Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. Increased Air Unit Capacity of the City. +10 [ICON_STRENGTH] Damage to Enemy Air Units during Air Strikes on the City.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICEHQ_TT">
+			<Text>[ICON_CAPITAL] Headquarters of [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICEHQ_TT2">
+			<Text>Capturing [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] will always result in the destruction of the Headquarters, closing all active Offices and Franchises but permits others to rebuild its Headquarters once more.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_TT">
+			<Text>Office of [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CORPORATION_OFFICE_TT2">
+			<Text>A completed [ICON_INTERNATIONAL_TRADE] Trade Route from or to [COLOR_POSITIVE_TEXT]{1_Name}[ENDCOLOR] will attempt to establish a [ICON_VP_FRANCHISE] [COLOR_POSITIVE_TEXT]Franchise[ENDCOLOR] in foreign cities.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_CULTURED_TT_ANNEXED">
 			<Text>A conquered [COLOR_POSITIVE_TEXT]Cultured[ENDCOLOR] City-State will provide you gifts of [ICON_CULTURE] Culture, allowing you to obtain Social Policies more quickly.</Text>
 		</Row>
@@ -1557,6 +1569,9 @@
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_EVENT_MODIFIER">
 			<Text>{1_Num}% {2_Icon} {3_Name} from Active Events</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PEDIA_EXC_BLDG_LABEL">
+			<Text>Exclusive Buildings:</Text>
 		</Row>
 
 		<!-- Victory overview -->
@@ -3126,11 +3141,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_ANTIQUITY_LEGEND_HIDDEN_SITE">
 			<Text>Hidden Antiquity Site</Text>
-		</Row>
-		
-		<!-- EUI_tooltip_library -->
-		<Row Tag="TXT_KEY_PEDIA_EXC_BLDG_LABEL">
-			<Text>Exclusive Buildings:</Text>
 		</Row>
 	</Language_en_US>
 </GameData>
