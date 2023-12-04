@@ -728,11 +728,11 @@ SET Text = 'Unique Longswordsman that only Polynesia may build. The Maori Warrio
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] for every Moai and City adjacent to this Moai. Can only be built adjacent to water.[NEWLINE][NEWLINE]+20% [ICON_STRENGTH] Combat Strength to any nearby Polynesian Units within a 3-tile radius.'
+SET Text = '+1 [ICON_CULTURE] for every Moai and City adjacent to this Moai. Can only be built adjacent to water.'
 WHERE Tag = 'TXT_KEY_BUILD_MOAI_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Moai can only be built on the coast. If built next to another Moai or City, it provides additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.'
+SET Text = 'Moai can only be built on the coast. If built next to another Moai or City, it provides additional [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_HELP';
 
 UPDATE Language_en_US

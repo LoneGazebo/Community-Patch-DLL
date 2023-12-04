@@ -95,11 +95,6 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] Science when pillaging tiles.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MOON_STRIKER_HELP';
 
--- Pride of the Ancestors
-UPDATE Language_en_US
-SET Text = '+20% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_BOOGALOO_HELP';
-
 -- Near Capital Bonus
 UPDATE Language_en_US
 SET Text = '+30% [ICON_STRENGTH] Combat Strength while fighting in the capital; bonus falls off as the Unit gets further away.'
