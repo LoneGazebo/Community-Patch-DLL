@@ -611,18 +611,11 @@ VALUES
 INSERT INTO Building_YieldPerXTerrainTimes100
 	(BuildingType, TerrainType, YieldType, Yield)
 SELECT
-	a.Type, b.TerrainType, b.YieldType, 34
+	a.Type, b.TerrainType, b.YieldType, 50
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_CARAVANSARY';
 
 DELETE FROM Helper;
-
-INSERT INTO Building_SpecialistYieldChangesLocal
-	(BuildingType, SpecialistType, YieldType, Yield)
-SELECT
-	Type, 'SPECIALIST_MERCHANT', 'YIELD_GOLD', 1
-FROM Buildings
-WHERE BuildingClass = 'BUILDINGCLASS_CARAVANSARY';
 
 -- Customs House
 DELETE FROM Building_LocalResourceOrs
