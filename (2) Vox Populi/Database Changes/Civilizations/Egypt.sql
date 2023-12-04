@@ -61,5 +61,5 @@ VALUES
 	('BUILDING_BURIAL_TOMB', 'YIELD_FAITH', 1);
 
 UPDATE Building_YieldPerXTerrainTimes100
-SET Yield = 50
+SET Yield = 67
 WHERE BuildingType = 'BUILDING_BURIAL_TOMB';
