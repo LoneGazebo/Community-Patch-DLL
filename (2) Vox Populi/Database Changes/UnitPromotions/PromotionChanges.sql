@@ -527,8 +527,6 @@ UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1
 
 UPDATE UnitPromotions SET ExtraAttacks = 1 WHERE Type = 'PROMOTION_MONGOL_TERROR';
 
-UPDATE UnitPromotions SET FriendlyLandsModifier = 20 WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN_BOOGALOO';
-
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
 --------------------------------------------
