@@ -12,28 +12,26 @@ include("TerrainGenerator");
 include("FeatureGenerator");
 
 ------------------------------------------------------------------------------
---[[ Terra is still one of my favorite scripts. The main change to this map
-type in Civ5 is the presence of the City States. No longer is the New World a
-rats nest of Barbarian Cities, but instead now a home to numerous City States.
+-- Terra is still one of my favorite scripts. The main change to this map type in Civ5 is the presence of the City States.
+-- No longer is the New World a rats nest of Barbarian Cities, but instead now a home to numerous City States.
 
-Civilizations start in the Old World. - Bob Thomas, April 2010  ]]--
+-- Civilizations start in the Old World. - Bob Thomas, April 2010
 ------------------------------------------------------------------------------
 function GetMapScriptInfo()
-	local world_age, temperature, rainfall, sea_level, resources = GetCoreMapOptions()
+	local world_age, temperature, rainfall, _, resources = GetCoreMapOptions();
 	return {
-		Name = "TXT_KEY_MAP_TERRA",
+		Name = "TXT_KEY_MAP_TERRA_VP",
 		Description = "TXT_KEY_MAP_TERRA_HELP",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
 		IconIndex = 3,
 		CustomOptions = {world_age, temperature, rainfall, resources},
-	}
+	};
 end
 ------------------------------------------------------------------------------
 function GetMapInitData(worldSize)
 	-- This function can reset map grid sizes or world wrap settings.
-	--
-	-- Lakes is a world without oceans, so use grid sizes two levels below normal.
+
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {52, 32},
 		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {64, 40},
@@ -41,17 +39,16 @@ function GetMapInitData(worldSize)
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {104, 64},
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {128, 80},
 		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {152, 96}
-		}
+	};
 	local grid_size = worldsizes[worldSize];
-	--
-	local world = GameInfo.Worlds[worldSize];
-	if(world ~= nil) then
-	return {
-		Width = grid_size[1],
-		Height = grid_size[2],
-		WrapX = true,
-	};      
-     end
+
+	if GameInfo.Worlds[worldSize] then
+		return {
+			Width = grid_size[1],
+			Height = grid_size[2],
+			WrapX = true,
+		};
+	end
 end
 ------------------------------------------------------------------------------
 
@@ -61,7 +58,7 @@ end
 function MultilayeredFractal:GeneratePlotsByRegion()
 	-- Sirian's MultilayeredFractal controlling function.
 	-- You -MUST- customize this function for each script using MultilayeredFractal.
-	--
+
 	-- The following regions are specific to Terra.
 	local newworldWestLon = 0.05;
 	local newworldEastLon = 0.35;
@@ -99,7 +96,7 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		eurasiaWestLon = eurasiaWestLon - 0.4;
 		eurasiaEastLon = eurasiaEastLon - 0.4;
 	end
-	
+
 	-- Set up variables that depend on world size.
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 3,
@@ -107,18 +104,17 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 4,
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 4,
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 4,
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 5
-		}
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 5,
+	};
 	local archGrain = worldsizes[Map.GetWorldSize()];
-	
+
 	-- These values were set up to handle Sea Level implementation.
-	-- Then I decided not to include Sea Level for Terra this time, because 
+	-- Then I decided not to include Sea Level for Terra this time, because
 	-- the high sea level results are sometimes wonky, and because Terra
 	-- was having issues with running up against the memory cap for DX9 version.
 	local continent_change = 0;
 	local subcontinent_change = 0;
 	-- The change levels I had set were 5% for continents, 3% for subcontinents -- in case anyone wants to mess with it after all.
-
 
 	-- Simulate the Old World - a large continent akin to Earth's Eurasia.
 	print("Generating the Old World (Lua Terra) ...");
@@ -129,9 +125,9 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	local eurasiaSouthY = math.floor(self.iH * eurasiaSouthLat);
 	local eurasiaWidth = eurasiaEastX - eurasiaWestX + 1;
 	local eurasiaHeight = eurasiaNorthY - eurasiaSouthY + 1;
-	
+
 	local water = 55 + continent_change;
-		
+
 	-- Region's parameters. Any lines commented out are running defaults.
 	local args = {};
 	args.iWaterPercent = water;
@@ -139,23 +135,21 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionHeight = eurasiaHeight;
 	args.iRegionWestX = eurasiaWestX;
 	args.iRegionSouthY = eurasiaSouthY;
-	--args.iRegionGrain
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iHorzFlags;
 	args.iRegionFracXExp = 7;
 	args.iRegionFracYExp = 6;
 	args.iRiftGrain = 2;
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
+
 	-- Eurasia, second layer (to increase pangaea-like cohesion).
-	local twHeight = math.floor(eurasiaHeight/2);
-	local twWestX = eurasiaWestX + math.floor(eurasiaWidth/10);
-	local twEastX = eurasiaEastX - math.floor(eurasiaWidth/10);
+	local twHeight = math.floor(eurasiaHeight / 2);
+	local twWestX = eurasiaWestX + math.floor(eurasiaWidth / 10);
+	local twEastX = eurasiaEastX - math.floor(eurasiaWidth / 10);
 	local twWidth = twEastX - twWestX + 1;
-	local twNorthY = eurasiaNorthY - math.floor(eurasiaHeight/4);
-	local twSouthY = eurasiaSouthY + math.floor(eurasiaHeight/4);
+	local twNorthY = eurasiaNorthY - math.floor(eurasiaHeight / 4);
+	local twSouthY = eurasiaSouthY + math.floor(eurasiaHeight / 4);
 
 	local water = 60 + continent_change;
 
@@ -165,16 +159,13 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionHeight = twHeight;
 	args.iRegionWestX = twWestX;
 	args.iRegionSouthY = twSouthY;
-	--args.iRegionGrain
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iHorzFlags;
 	args.iRegionFracXExp = 7;
 	args.iRegionFracYExp = 6;
 	args.iRiftGrain = 2;
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
 
 	-- Simulate the New World - land masses akin to Earth's American continents.
 	-- First simulate North America
@@ -194,16 +185,12 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionHeight = nwHeight;
 	args.iRegionWestX = nwWestX;
 	args.iRegionSouthY = nwSouthY;
-	--args.iRegionGrain
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iVertFlags;
-	--args.iRegionFracXExp
 	args.iRegionFracYExp = 6;
-	--args.iRiftGrain
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
+
 	-- Now simulate South America
 	local nwsRoll = Map.Rand(2, "New World South E/W - Terra Lua");
 	local nwsVar = 0.0;
@@ -225,16 +212,11 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionHeight = nwsHeight;
 	args.iRegionWestX = nwsWestX;
 	args.iRegionSouthY = nwsSouthY;
-	--args.iRegionGrain
 	args.iRegionHillsGrain = archGrain;
-	--args.iRegionPlotFlags
-	--args.iRegionFracXExp
 	args.iRegionFracYExp = 6;
-	--args.iRiftGrain
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
+
 	local nwpWestX = nwWestX + math.floor(self.iW * (0.1 - nwsVar)); -- Not as wide as the north
 	local nwpEastX = nwEastX - math.floor(self.iW * (0.07 + nwsVar));
 	local nwpNorthY = math.floor(self.iH * 0.3);
@@ -250,16 +232,11 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionHeight = nwpHeight;
 	args.iRegionWestX = nwpWestX;
 	args.iRegionSouthY = nwpSouthY;
-	--args.iRegionGrain
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iVertFlags;
-	--args.iRegionFracXExp
-	--args.iRegionFracYExp 
-	--args.iRiftGrain
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
+
 	-- Now the Yukon
 	twWidth = math.floor(self.iW * 0.15);
 	twWestX = nwWestX;
@@ -283,17 +260,13 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionGrain = 2;
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iVertFlags;
-	--args.iRegionFracXExp
-	--args.iRegionFracYExp 
-	--args.iRiftGrain
-	--args.bShift
 
-	self:GenerateFractalLayerWithoutHills(args)
-	
+	self:GenerateFractalLayerWithoutHills(args);
+
 	-- Now add a random region of arctic islands
 	twWidth = math.floor(thirdworldDimension * self.iW);
 	twHeight = math.floor(thirdworldDimension * self.iH);
-	if boreal == 0 then 
+	if boreal == 0 then
 		twEastX = nwEastX;
 		twWestX = twEastX - twWidth;
 	else
@@ -314,22 +287,16 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionGrain = archGrain;
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iHorzFlags;
-	--args.iRegionFracXExp
-	--args.iRegionFracYExp 
-	--args.iRiftGrain
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
+
 	-- Now simulate Central America
 	local nwcVar = 0.0;
 	if nwsRoll == 1 then
 		nwcVar = 0.04;
 	end
 	local nwcWidth = math.floor(self.iW * 0.06);
-	local nwcRoll = Map.Rand(2, "Central America and Carribean Placement - Terra Lua");
 	local nwcWestX = nwWestX + math.floor(self.iW * (0.1 + nwcVar));
-	local nwcEastX = nwcWestX + nwcWidth;
 	local nwcNorthY = math.floor(self.iH * 0.6);
 	local nwcSouthY = math.floor(self.iH * 0.42);
 	local nwcHeight = nwcNorthY - nwcSouthY + 1;
@@ -342,27 +309,22 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionHeight = nwcHeight;
 	args.iRegionWestX = nwcWestX;
 	args.iRegionSouthY = nwcSouthY;
-	--args.iRegionGrain 
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iVertFlags;
-	--args.iRegionFracXExp
-	--args.iRegionFracYExp 
-	--args.iRiftGrain
-	--args.bShift
 
-	self:GenerateFractalLayerWithoutHills(args)
-	
+	self:GenerateFractalLayerWithoutHills(args);
+
 	-- Now the Carribean islands
 	local carVar = 0.0;
 	if nwsRoll == 1 then
 		carVar = 0.15;
 	end
-	local twWidth = math.floor(0.15 * self.iW);
-	local twEastX = nwEastX - math.floor(carVar * self.iW);
-	local twWestX = twEastX - twWidth;
-	local twNorthY = math.floor(self.iH * 0.55);
-	local twSouthY = math.floor(self.iH * 0.47);
-	local twHeight = twNorthY - twSouthY + 1;
+	twWidth = math.floor(0.15 * self.iW);
+	twEastX = nwEastX - math.floor(carVar * self.iW);
+	twWestX = twEastX - twWidth;
+	twNorthY = math.floor(self.iH * 0.55);
+	twSouthY = math.floor(self.iH * 0.47);
+	twHeight = twNorthY - twSouthY + 1;
 
 	water = 75 + subcontinent_change;
 
@@ -375,13 +337,8 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionGrain = archGrain + 1;
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iNoFlags;
-	--args.iRegionFracXExp
-	--args.iRegionFracYExp 
-	--args.iRiftGrain
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
 
 	-- Add subcontinents to the Old World, one large, one small.
 	-- Subcontinents can be akin to pangaea, continents, or archipelago.
@@ -392,8 +349,6 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	local scLargeHeight = math.floor(subcontinentLargeVert * self.iH);
 	local scRoll = Map.Rand((eurasiaWidth - scLargeWidth), "Large Subcontinent Placement - Terra Lua");
 	local scWestX = eurasiaWestX + scRoll;
-	local scEastX = scWestX + scLargeWidth;
-	local scNorthY = math.floor(self.iH * subcontinentLargeNorthLat);
 	local scSouthY = math.floor(self.iH * subcontinentLargeSouthLat);
 
 	local scShape = Map.Rand(3, "Large Subcontinent Shape - Terra Lua");
@@ -417,14 +372,11 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionSouthY = scSouthY;
 	args.iRegionGrain = scGrain;
 	args.iRegionHillsGrain = archGrain;
-	--args.iRegionPlotFlags
-	--args.iRegionFracXExp
 	args.iRegionFracYExp = 6;
 	args.iRiftGrain = scRift;
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
+
 	local scsWestX = 0;
 	local scSmallWidth = math.floor(subcontinentSmallDimension * self.iW);
 	local scSmallHeight = math.floor(subcontinentSmallDimension * self.iH);
@@ -432,14 +384,12 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	while endless == 1 do -- Prevent excessive overlap of the two subcontinents.
 		local scsRoll = Map.Rand((eurasiaWidth - scSmallWidth), "Small Subcontinent Placement - Terra Lua");
 		scsWestX = eurasiaWestX + scsRoll;
-		if math.abs((scsWestX + self.iW/12) - scWestX) > self.iW/8 then
-			break
+		if math.abs((scsWestX + self.iW / 12) - scWestX) > self.iW / 8 then
+			break;
 		end
 	end
-	local scsEastX = scsWestX + scSmallWidth;
-	local scsNorthY = math.floor(self.iH * subcontinentSmallNorthLat);
 	local scsSouthY = math.floor(self.iH * subcontinentSmallSouthLat);
-	--
+
 	local scsShape = Map.Rand(4, "Small Subcontinent Shape - Terra Lua");
 	local scsWater = 75;
 	local scsGrain = archGrain;
@@ -466,31 +416,25 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionGrain = scsGrain;
 	args.iRegionHillsGrain = archGrain;
 	args.iRegionPlotFlags = self.iHorzFlags;
-	--args.iRegionFracXExp
-	--args.iRegionFracYExp
 	args.iRiftGrain = scsRift;
-	--args.bShift
-	
-	self:GenerateFractalLayerWithoutHills(args)
-	
+
+	self:GenerateFractalLayerWithoutHills(args);
 
 	-- Now simulate random lands akin to Australia and Antarctica
 	local extras = 2 + Map.Rand(3, "Number of Minor Regions - Terra Lua");
-	for loop = 0, extras do
+	for _ = 0, extras do
 		-- Two to four of these regions.
-		local twWidth = math.floor(thirdworldDimension * self.iW);
-		local twHeight = math.floor(thirdworldDimension * self.iH);
+		twWidth = math.floor(thirdworldDimension * self.iW);
+		twHeight = math.floor(thirdworldDimension * self.iH);
 		local twVertRange = math.floor(0.3 * self.iH) - twHeight;
 		local twRoll = Map.Rand((eurasiaWidth - twWidth), "Minor Region Placement - Terra Lua");
-		local twWestX = eurasiaWestX + twRoll;
-		local twEastX = scWestX + scLargeWidth;
+		twWestX = eurasiaWestX + twRoll;
 		local twVertRoll = Map.Rand(twVertRange, "Minor Region Placement - Terra Lua");
-		local twNorthY = math.floor(self.iH * thirdworldNorthLat) + twVertRoll;
-		local twSouthY = math.floor(self.iH * thirdworldSouthLat) + twVertRoll;
+		twSouthY = math.floor(self.iH * thirdworldSouthLat) + twVertRoll;
 
 		local twShape = Map.Rand(3, "Minor Region Shape - Terra Lua");
-		twWater = 70;
-		twGrain = archGrain;
+		local twWater = 70;
+		local twGrain = archGrain;
 		local twRift = -1;
 		if twShape == 2 then -- Massive subcontinent!
 			twWater = 60;
@@ -514,32 +458,29 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		args.iRegionGrain = twGrain;
 		args.iRegionHillsGrain = archGrain;
 		args.iRegionPlotFlags = self.iHorzFlags;
-		--args.iRegionFracXExp
-		--args.iRegionFracYExp
 		args.iRiftGrain = twRift;
-		--args.bShift
-	
-		self:GenerateFractalLayerWithoutHills(args)
+
+		self:GenerateFractalLayerWithoutHills(args);
 	end
 
 	-- All regions have been processed. Now apply hills and mountains.
-	local world_age = Map.GetCustomOption(1)
+	local world_age = Map.GetCustomOption(1);
 	if world_age == 4 then
 		world_age = 1 + Map.Rand(3, "Random World Age - Lua");
 	end
-	local args = {
+	args = {
 		world_age = world_age,
 		adjust_plates = 1.35,
 		tectonic_islands = true,
 	};
-	self:ApplyTectonics(args)
+	self:ApplyTectonics(args);
 
 	-- Plot Type generation completed. Return global plot array.
-	return self.wholeworldPlotTypes
+	return self.wholeworldPlotTypes;
 end
 ------------------------------------------------------------------------------
 
---[[ ----------------------------------------------
+--[[
 Regional Variables Key:
 
 iWaterPercent,				DEFAULT: 55
@@ -554,7 +495,7 @@ iRegionFracXExp,			DEFAULT: 6
 iRegionFracYExp,			DEFAULT: 5
 iRiftGrain,					DEFAULT: -1 (no rifts)
 bShift,						DEFAULT: true
----------------------------------------------- ]]--
+--]]
 
 ------------------------------------------------------------------------------
 function GeneratePlotTypes()
@@ -562,320 +503,43 @@ function GeneratePlotTypes()
 
 	local layered_world = MultilayeredFractal.Create();
 	local plotsTerra = layered_world:GeneratePlotsByRegion();
-	
+
 	SetPlotTypes(plotsTerra);
-	GenerateCoasts()
+	GenerateCoasts();
 end
 ------------------------------------------------------------------------------
 function GenerateTerrain()
 	print("Generating Terrain (Lua Terra) ...");
-	
+
 	-- Get Temperature setting input by user.
-	local temp = Map.GetCustomOption(2)
+	local temp = Map.GetCustomOption(2);
 	if temp == 4 then
 		temp = 1 + Map.Rand(3, "Random Temperature - Lua");
 	end
 
-	local args = {temperature = temp};
-	local terraingen = TerrainGenerator.Create(args);
+	local terraingen = TerrainGenerator.Create{temperature = temp};
 
-	local terrainTypes = terraingen:GenerateTerrain()
-		
+	local terrainTypes = terraingen:GenerateTerrain();
+
 	SetTerrainTypes(terrainTypes);
 end
 ------------------------------------------------------------------------------
 function AddFeatures()
 	print("Adding Features (Lua Terra) ...");
-	
+
 	-- Get Rainfall setting input by user.
-	local rain = Map.GetCustomOption(3)
+	local rain = Map.GetCustomOption(3);
 	if rain == 4 then
 		rain = 1 + Map.Rand(3, "Random Rainfall - Lua");
 	end
-	
-	local args = {rainfall = rain}
-	local featuregen = FeatureGenerator.Create(args);
+
+	local featuregen = FeatureGenerator.Create{rainfall = rain};
 
 	-- False parameter removes mountains from coastlines.
 	featuregen:AddFeatures(false);
 end
 ------------------------------------------------------------------------------
 
--- Customizing natural wonder eligibility for Terra
-------------------------------------------------------------------------------
-function AssignStartingPlots:CanBeGeyser(x, y)
-	-- Checks a candidate plot for eligibility to be the Geyser.
-	local plot = Map.GetPlot(x, y);
-	-- Checking center plot, which must be at least two plots away from any salt water, and not be in the desert or tundra.
-	if plot:IsWater() then
-		return
-	end
-	local iW, iH = Map.GetGridSize();
-	local plotIndex = y * iW + x + 1;
-	if self.plotDataIsCoastal[plotIndex] == true or self.plotDataIsNextToCoast[plotIndex] == true then
-		return
-	end
-	local terrainType = plot:GetTerrainType()
-	if terrainType == TerrainTypes.TERRAIN_DESERT or terrainType == TerrainTypes.TERRAIN_TUNDRA then
-		return
-	end
-	local iNumMountains, iNumHills, iNumDeserts, iNumTundra, bBiggestLandmass = 0, 0, 0, 0, false;
-	local plotType = plot:GetPlotType();
-	if plotType == PlotTypes.PLOT_MOUNTAIN then
-		iNumMountains = iNumMountains + 1;
-	elseif plotType == PlotTypes.PLOT_HILLS then
-		iNumHills = iNumHills + 1;
-	end
-	local iAreaID = plot:GetArea();
-	if iAreaID == self.iBiggestLandmassID then
-		bBiggestLandmass = true;
-	end
-	-- Now process the surrounding plots.
-	for loop, direction in ipairs(self.direction_types) do
-		local adjPlot = Map.PlotDirection(x, y, direction)
-		if adjPlot:IsLake() then
-			return
-		end
-		terrainType = adjPlot:GetTerrainType()
-		if terrainType == TerrainTypes.TERRAIN_TUNDRA then
-			iNumTundra = iNumTundra + 1;
-		elseif terrainType == TerrainTypes.TERRAIN_DESERT then
-			iNumDeserts = iNumDeserts + 1;
-		end
-		plotType = adjPlot:GetPlotType();
-		if plotType == PlotTypes.PLOT_MOUNTAIN then
-			iNumMountains = iNumMountains + 1;
-		elseif plotType == PlotTypes.PLOT_HILLS then
-			iNumHills = iNumHills + 1;
-		end
-		local adjAreaID = adjPlot:GetArea();
-		if adjAreaID == self.iBiggestLandmassID then
-			bBiggestLandmass = true;
-		end
-	end
-	if bBiggestLandmass == false then
-		return
-	end
-	-- If too many deserts, tundra or mountains, reject this site.
-	if iNumDeserts > 2 or iNumTundra > 2 or iNumMountains > 5 then
-		return
-	end
-	-- If not enough hills or mountains, reject this site.
-	if iNumMountains < 1 and iNumHills < 4 then
-		return
-	end
-	-- This site is inland, has hills or mountains, not too many deserts, and not too many mountains, so it's good.
-	table.insert(self.geyser_list, plotIndex);
-end
-------------------------------------------------------------------------------
-function AssignStartingPlots:CanBeCrater(x, y)
-	-- Checks a candidate plot for eligibility to be the Crater.
-	local plot = Map.GetPlot(x, y);
-	-- Checking center plot, which must be at least one plot away from any salt water, and it wants to be in the desert or the tundra.
-	if plot:IsWater() then
-		return
-	end
-	local iAreaID = plot:GetArea();
-	if iAreaID == self.iBiggestLandmassID then
-		return
-	end
-	local iW, iH = Map.GetGridSize();
-	local plotIndex = y * iW + x + 1;
-	if self.plotDataIsCoastal[plotIndex] == true then
-		return
-	end
-	local terrainType = plot:GetTerrainType()
-	if not (terrainType == TerrainTypes.TERRAIN_DESERT or terrainType == TerrainTypes.TERRAIN_TUNDRA) then
-		return
-	end
-	local iNumMountains, iNumHills = 0, 0;
-	local plotType = plot:GetPlotType();
-	if plotType == PlotTypes.PLOT_MOUNTAIN then
-		iNumMountains = iNumMountains + 1;
-	elseif plotType == PlotTypes.PLOT_HILLS then
-		iNumHills = iNumHills + 1;
-	end
-	-- Now process the surrounding plots.
-	for loop, direction in ipairs(self.direction_types) do
-		local adjPlot = Map.PlotDirection(x, y, direction)
-		if adjPlot:IsLake() then
-			return
-		end
-		local adjAreaID = adjPlot:GetArea();
-		if adjAreaID == self.iBiggestLandmassID then
-			return
-		end
-		terrainType = adjPlot:GetTerrainType()
-		if terrainType == TerrainTypes.TERRAIN_GRASS then -- Grass is unacceptable.
-			return
-		end
-		plotType = adjPlot:GetPlotType();
-		if plotType == PlotTypes.PLOT_MOUNTAIN then
-			iNumMountains = iNumMountains + 1;
-		elseif plotType == PlotTypes.PLOT_HILLS then
-			iNumHills = iNumHills + 1;
-		end
-	end
-	-- If too many hills or mountains, reject this site.
-	if iNumMountains > 1 or iNumHills + iNumMountains > 3 then
-		return
-	end
-	-- This site is inland, in desert or tundra with no grass around, and does not have too many hills and mountains, so it's good.
-	table.insert(self.crater_list, plotIndex);
-end
-------------------------------------------------------------------------------
-function AssignStartingPlots:CanBeGibraltar(x, y)
-	-- Checks a candidate plot for eligibility to be Rock of Gibraltar.
-	local plot = Map.GetPlot(x, y);
-	-- Checking center plot, which must be in the water or on the coast.
-	local iW, iH = Map.GetGridSize();
-	local plotIndex = y * iW + x + 1;
-	if self.plotDataIsCoastal[plotIndex] == false and plot:IsWater() == false then
-		return
-	end
-	-- Now process the surrounding plots. Desert is not tolerable. We don't want too many mountains or plains.
-	-- We are looking for a site that does not have unwanted traits but does have jungles or hills.
-	local iNumLand, iNumCoast = 0, 0;
-	for loop, direction in ipairs(self.direction_types) do
-		local adjPlot = Map.PlotDirection(x, y, direction)
-		local plotType = adjPlot:GetPlotType();
-		local terrainType = adjPlot:GetTerrainType()
-		local featureType = adjPlot:GetFeatureType()
-		if terrainType == TerrainTypes.TERRAIN_COAST and plot:IsLake() == false then
-			if featureType == FeatureTypes.NO_FEATURE then
-				iNumCoast = iNumCoast + 1;
-			end
-		end
-		if plotType ~= PlotTypes.PLOT_OCEAN then
-			local iAreaID = adjPlot:GetArea();
-			if iAreaID == self.iBiggestLandmassID then
-				iNumLand = iNumLand + 1;
-			end
-		end
-	end
-	-- If too much land, reject this site.
-	if iNumLand ~= 1 then
-		return
-	end
-	-- If not enough coast, reject this site.
-	if iNumCoast < 4 then
-		return
-	end
-	-- This site is good.
-	table.insert(self.gibraltar_list, plotIndex);
-end
-------------------------------------------------------------------------------
-function AssignStartingPlots:CanBeFuji(x, y)
-	-- Checks a candidate plot for eligibility to be Mount Fuji.
-	local iW, iH = Map.GetGridSize();
-	local plot = Map.GetPlot(x, y);
-	local plotType = plot:GetPlotType();
-	-- Checking center plot, which must not be on the biggest landmess (unless there are no oceans) or on too small of an island.
-	-- Nor do we want it near other mountains and hills, and it must not be in desert or tundra.
-	if plotType ~= PlotTypes.PLOT_LAND then
-		return
-	end
-	local iAreaID = plot:GetArea();
-	if iAreaID ~= self.iBiggestLandmassID then
-		return
-	end
-	local plotIndex = y * iW + x + 1;
-	if self.plotDataIsCoastal[plotIndex] == true then
-		return
-	end
-	local terrainType = plot:GetTerrainType()
-	if terrainType == TerrainTypes.TERRAIN_DESERT or terrainType == TerrainTypes.TERRAIN_TUNDRA then
-		return
-	end
-	local iNumHills = 0;
-	-- Now process the surrounding plots.
-	for loop, direction in ipairs(self.direction_types) do
-		local adjPlot = Map.PlotDirection(x, y, direction)
-		if adjPlot:IsLake() then
-			return
-		end
-		terrainType = adjPlot:GetTerrainType()
-		if terrainType == TerrainTypes.TERRAIN_DESERT or terrainType == TerrainTypes.TERRAIN_TUNDRA then
-			return
-		end
-		local featureType = adjPlot:GetFeatureType()
-		if featureType == FeatureTypes.FEATURE_MARSH then
-			return
-		end
-		plotType = adjPlot:GetPlotType();
-		if plotType == PlotTypes.PLOT_MOUNTAIN then
-			return
-		elseif plotType == PlotTypes.PLOT_HILLS then
-			iNumHills = iNumHills + 1;
-		end
-	end
-	-- If too many hills, reject this site.
-	if iNumHills > 1 then
-		return
-	end
-	-- This site is on an eligible landmass, in grassland or plains, with no more than one Hills nearby, so it's good.
-	table.insert(self.fuji_list, plotIndex);
-end
-------------------------------------------------------------------------------
-function AssignStartingPlots:CanBeMesa(x, y)
-	-- Checks a candidate plot for eligibility to be the Mesa.
-	local plot = Map.GetPlot(x, y);
-	-- Checking center plot, which must be at least one plot away from any salt water.
-	if plot:IsWater() then
-		return
-	end
-	local iAreaID = plot:GetArea();
-	if iAreaID == self.iBiggestLandmassID then
-		return
-	end
-	local iW, iH = Map.GetGridSize();
-	local plotIndex = y * iW + x + 1;
-	if self.plotDataIsCoastal[plotIndex] == true then
-		return
-	end
-	local terrainType = plot:GetTerrainType()
-	if terrainType == TerrainTypes.TERRAIN_GRASS or terrainType == TerrainTypes.TERRAIN_TUNDRA then -- Rejecting grass or tundra.
-		return
-	end
-	local iNumMountains, iNumHills = 0, 0;
-	local plotType = plot:GetPlotType();
-	if plotType == PlotTypes.PLOT_MOUNTAIN then
-		iNumMountains = iNumMountains + 1;
-	elseif plotType == PlotTypes.PLOT_HILLS then
-		iNumHills = iNumHills + 1;
-	end
-	-- Now process the surrounding plots.
-	for loop, direction in ipairs(self.direction_types) do
-		local adjPlot = Map.PlotDirection(x, y, direction)
-		if adjPlot:IsLake() then
-			return
-		end
-		local adjAreaID = adjPlot:GetArea();
-		if adjAreaID == self.iBiggestLandmassID then
-			return
-		end
-		terrainType = adjPlot:GetTerrainType()
-		if terrainType == TerrainTypes.TERRAIN_GRASS or terrainType == TerrainTypes.TERRAIN_TUNDRA then
-			return
-		end
-		plotType = adjPlot:GetPlotType();
-		if plotType == PlotTypes.PLOT_MOUNTAIN then
-			iNumMountains = iNumMountains + 1;
-		elseif plotType == PlotTypes.PLOT_HILLS then
-			iNumHills = iNumHills + 1;
-		end
-	end
-	-- If too many mountains, reject this site.
-	if iNumMountains > 3 then
-		return
-	end
-	-- If not enough hills, reject this site.
-	if iNumHills < 2 then
-		return
-	end
-	-- This site is inland, in desert or plains with no grass or tundra around, and has a moderate amount of hills and mountains.
-	table.insert(self.mesa_list, plotIndex);
-end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:GetNumCityStatesPerRegion()
 	local ratio = self.iNumCityStates / self.iNumCivs;
@@ -894,31 +558,27 @@ function AssignStartingPlots:GetNumCityStatesInUninhabitedRegion()
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:GetRandomLuxuriesTargetNumber()
-	--[[ MOD.Barathor:
-		 Terra uses much larger map sizes.  Standard maps are the size of Large, Large the size of Huge, etc. but player
-		 totals remain the same.  So, random luxury totals are increased.  ]]
-	local worldsizes = {							
+	-- MOD.Barathor:
+	-- Terra uses much larger map sizes. Standard maps are the size of Large, Large the size of Huge, etc. but player totals remain the same.
+	-- So, random luxury totals are increased.
+	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = 5,
 		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = 5,
 		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = 5,
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = 7,
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = 9,
 		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = 10,
-		}
-	local maxRandoms = worldsizes[Map.GetWorldSize()]
-	return maxRandoms
+	};
+	local maxRandoms = worldsizes[Map.GetWorldSize()];
+	return maxRandoms;
 end
 ------------------------------------------------------------------------------
---[[ MOD.Barathor: Note: when I fix the system which determines random luxury totals,
-	 I'll come back to this and add Abundant and Sparse values too, since they're
-	 missing from this overriding function. (Currently, they all use this single set of values.) ]]
+-- MOD.Barathor: Note: when I fix the system which determines random luxury totals,
+-- I'll come back to this and add Abundant and Sparse values too, since they're missing from this overriding function.
+-- (Currently, they all use this single set of values.)
 function AssignStartingPlots:GetWorldLuxuryTargetNumbers()
-	-- Because Terra has extra land over normal worlds, increasing the world target
-	-- to provide more random resources and populate the New World with more resources.
-	--
-	-- The first number is the target for total luxuries in the world, NOT
-	-- counting the one-per-civ "second type" added at start locations.
-	--
+	-- Because Terra has extra land over normal worlds, increasing the world target to provide more random resources and populate the New World with more resources.
+	-- The first number is the target for total luxuries in the world, NOT counting the one-per-civ "second type" added at start locations.
 	-- The second number affects minimum number of random luxuries placed.
 	-- I say "affects" because it is only one part of the formula.
 	local worldsizes = {
@@ -927,44 +587,42 @@ function AssignStartingPlots:GetWorldLuxuryTargetNumbers()
 		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {52, 4},
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {70, 5},
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {90, 5},
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {110, 6}
-		}
-	local world_size_data = worldsizes[Map.GetWorldSize()];
-	return world_size_data
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {110, 6},
+	};
+	return worldsizes[Map.GetWorldSize()];
 end
 ------------------------------------------------------------------------------
 function StartPlotSystem()
 	-- Get Resources setting input by user.
-	local res = Map.GetCustomOption(4)
+	local res = Map.GetCustomOption(4);
 	if res == 6 then
 		res = 1 + Map.Rand(3, "Random Resources Option - Lua");
 	end
 
 	print("Creating start plot database.");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
 	print("Dividing the map in to Regions.");
 	-- Regional Division Method 1: Biggest Landmass
 	local args = {
 		method = 1,
 		resources = res,
-		};
-	start_plot_database:GenerateRegions(args)
+	};
+	start_plot_database:GenerateRegions(args);
 
 	print("Choosing start locations for civilizations.");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players.");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders.");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States.");
-	start_plot_database:PlaceResourcesAndCityStates()
-	
+	start_plot_database:PlaceResourcesAndCityStates();
+
 	-- tell the AI that we should treat this as a offshore expansion map
 	Map.ChangeAIMapHint(4);
-
 end
 ------------------------------------------------------------------------------
