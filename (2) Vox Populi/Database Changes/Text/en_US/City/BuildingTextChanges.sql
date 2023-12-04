@@ -65,7 +65,7 @@ SET Text = '+1 [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism for every 2 [IC
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_HELP';
 
 UPDATE Language_en_US
-SET Text = 'A Broadcast Tower is a late-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output of the City, and reduces Boredom. Requires a Museum in the City before it can be constructed.'
+SET Text = 'A Broadcast Tower is a late-game building which increases [ICON_CULTURE] Culture and [ICON_TOURISM] Tourism output of the City, and reduces Boredom. Requires an Opera House in the City before it can be constructed.'
 WHERE Tag = 'TXT_KEY_BUILDING_BROADCAST_TOWER_STRATEGY';
 
 -- Barracks
