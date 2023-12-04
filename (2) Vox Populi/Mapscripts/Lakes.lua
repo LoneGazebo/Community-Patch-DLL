@@ -13,14 +13,18 @@ include("TerrainGenerator");
 
 ------------------------------------------------------------------------------
 function GetMapScriptInfo()
-	local world_age, temperature, rainfall, sea_level, resources = GetCoreMapOptions()
+	local world_age, temperature, rainfall, _, resources = GetCoreMapOptions();
 	return {
-		Name = "TXT_KEY_MAP_LAKES",
+		Name = "TXT_KEY_MAP_LAKES_VP",
 		Description = "TXT_KEY_MAP_LAKES_HELP",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
 		IconIndex = 13,
-		CustomOptions = {world_age, temperature, rainfall, resources,
+		CustomOptions = {
+			world_age,
+			temperature,
+			rainfall,
+			resources,
 			{
 				Name = "TXT_KEY_MAP_OPTION_BODIES_OF_WATER",
 				Values = {
@@ -33,14 +37,14 @@ function GetMapScriptInfo()
 				SortPriority = 1,
 			},
 		},
-	}
+	};
 end
 ------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 function GetMapInitData(worldSize)
 	-- This function can reset map grid sizes or world wrap settings.
-	--
+
 	-- Lakes is a world without oceans, so use grid sizes two levels below normal.
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {24, 16},
@@ -48,18 +52,17 @@ function GetMapInitData(worldSize)
 		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {40, 24},
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {52, 32},
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {64, 40},
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {84, 52}
-		}
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {84, 52},
+	};
 	local grid_size = worldsizes[worldSize];
-	--
-	local world = GameInfo.Worlds[worldSize];
-	if(world ~= nil) then
-	return {
-		Width = grid_size[1],
-		Height = grid_size[2],
-		WrapX = true,
-	};      
-     end
+
+	if GameInfo.Worlds[worldSize] then
+		return {
+			Width = grid_size[1],
+			Height = grid_size[2],
+			WrapX = true,
+		};
+	end
 end
 -------------------------------------------------------------------------------
 
@@ -67,13 +70,14 @@ end
 function MultilayeredFractal:GeneratePlotsByRegion()
 	-- Sirian's MultilayeredFractal controlling function.
 	-- You -MUST- customize this function for each script using MultilayeredFractal.
-	--
+
 	-- This implementation is specific to Lakes.
 	local iW, iH = Map.GetGridSize();
 	local fracFlags = {FRAC_WRAP_X = true, FRAC_POLAR = true};
 
 	-- Fill all but the top two rows with land plots.
 	self.wholeworldPlotTypes = table.fill(PlotTypes.PLOT_LAND, iW * (iH - 2));
+
 	-- Ensure top two and bottom two rows are ocean (to give rivers a place to end and to create polar ice).
 	for x = 0, iW - 1 do
 		self.wholeworldPlotTypes[x + 1] = PlotTypes.PLOT_OCEAN;
@@ -83,11 +87,11 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	end
 
 	-- Get user inputs.
-	local world_age = Map.GetCustomOption(1)
+	local world_age = Map.GetCustomOption(1);
 	if world_age == 4 then
 		world_age = 1 + Map.Rand(3, "Random World Age - Lua");
 	end
-	local userInputLakes = Map.GetCustomOption(5)
+	local userInputLakes = Map.GetCustomOption(5);
 	if userInputLakes == 4 then -- Random
 		userInputLakes = 1 + Map.Rand(3, "Highlands Random Lake Size - Lua");
 	end
@@ -116,10 +120,10 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		adjust_plates = 1.2,
 		world_age = world_age,
 	};
-	self:ApplyTectonics(args)
+	self:ApplyTectonics(args);
 
 	-- Plot Type generation completed. Return global plot array.
-	return self.wholeworldPlotTypes
+	return self.wholeworldPlotTypes;
 end
 ------------------------------------------------------------------------------
 
@@ -129,7 +133,7 @@ function GeneratePlotTypes()
 
 	local layered_world = MultilayeredFractal.Create();
 	local plotsLakes = layered_world:GeneratePlotsByRegion();
-	
+
 	SetPlotTypes(plotsLakes);
 
 	GenerateCoasts();
@@ -137,34 +141,31 @@ end
 ------------------------------------------------------------------------------
 function GenerateTerrain()
 	print("Generating Terrain (Lua Lakes) ...");
-	
+
 	-- Get Temperature setting input by user.
-	local temp = Map.GetCustomOption(2)
+	local temp = Map.GetCustomOption(2);
 	if temp == 4 then
 		temp = 1 + Map.Rand(3, "Random Temperature - Lua");
 	end
 
-	local args = {temperature = temp};
-	local terraingen = TerrainGenerator.Create(args);
+	local terraingen = TerrainGenerator.Create{temperature = temp};
 
-	terrainTypes = terraingen:GenerateTerrain();
-	
+	local terrainTypes = terraingen:GenerateTerrain();
+
 	SetTerrainTypes(terrainTypes);
 end
 ------------------------------------------------------------------------------
-function FeatureGenerator:AddIceAtPlot(plot, iX, iY, lat)
+function FeatureGenerator:AddIceAtPlot(plot, _, iY, lat)
 	-- Overriding default feature ice to ensure that the ice fully covers two rows, at top and bottom
-	if(plot:CanHaveFeature(self.featureIce)) then
+	if plot:CanHaveFeature(self.featureIce) then
 		if iY < 2 or iY >= self.iGridH - 2 then
-			plot:SetFeatureType(self.featureIce, -1)
-			
+			plot:SetFeatureType(self.featureIce);
 		else
-			local rand = Map.Rand(100, "Add Ice Lua")/100.0;
-			
-			if(rand < 8 * (lat - 0.875)) then
-				plot:SetFeatureType(self.featureIce, -1);
-			elseif(rand < 4 * (lat - 0.75)) then
-				plot:SetFeatureType(self.featureIce, -1);
+			local rand = Map.Rand(100, "Add Ice Lua") / 100.0;
+			if rand < 8 * (lat - 0.875) then
+				plot:SetFeatureType(self.featureIce);
+			elseif rand < 4 * (lat - 0.75) then
+				plot:SetFeatureType(self.featureIce);
 			end
 		end
 	end
@@ -174,13 +175,12 @@ function AddFeatures()
 	print("Adding Features (Lua Lakes) ...");
 
 	-- Get Rainfall setting input by user.
-	local rain = Map.GetCustomOption(3)
+	local rain = Map.GetCustomOption(3);
 	if rain == 4 then
 		rain = 1 + Map.Rand(3, "Random Rainfall - Lua");
 	end
-	
-	local args = {rainfall = rain}
-	local featuregen = FeatureGenerator.Create(args);
+
+	local featuregen = FeatureGenerator.Create{rainfall = rain};
 
 	-- False parameter removes mountains from coastlines.
 	featuregen:AddFeatures(false);
@@ -194,32 +194,32 @@ end
 ------------------------------------------------------------------------------
 function StartPlotSystem()
 	-- Get Resources setting input by user.
-	local res = Map.GetCustomOption(5)
+	local res = Map.GetCustomOption(5);
 	if res == 6 then
 		res = 1 + Map.Rand(3, "Random Resources Option - Lua");
 	end
 
 	print("Creating start plot database.");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
 	print("Dividing the map in to Regions.");
 	-- Regional Division Method 1: Biggest Landmass
 	local args = {
 		method = 1,
 		resources = res,
-		};
-	start_plot_database:GenerateRegions(args)
+	};
+	start_plot_database:GenerateRegions(args);
 
 	print("Choosing start locations for civilizations.");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players.");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders.");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States.");
-	start_plot_database:PlaceResourcesAndCityStates()
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------

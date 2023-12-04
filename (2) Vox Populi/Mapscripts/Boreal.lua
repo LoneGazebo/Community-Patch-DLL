@@ -11,40 +11,37 @@ include("FeatureGenerator");
 
 ------------------------------------------------------------------------------
 function GetMapScriptInfo()
-	local world_age, temperature, rainfall, sea_level, resources = GetCoreMapOptions()
+	local world_age, _, rainfall, _, resources = GetCoreMapOptions();
 	return {
-		Name = "TXT_KEY_MAP_BOREAL",
+		Name = "TXT_KEY_MAP_BOREAL_VP",
 		Description = "TXT_KEY_MAP_BOREAL_HELP",
 		IsAdvancedMap = false,
 		IconIndex = 0,
-		CustomOptions = {world_age, rainfall, resources}
-	}
+		CustomOptions = {world_age, rainfall, resources},
+	};
 end
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
 function GetMapInitData(worldSize)
 	-- This function can reset map grid sizes or world wrap settings.
-	--
-	-- Highlands is a regional script, nearly all land but much of it lost to the peaks, so use grid sizes one level below normal.
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {32, 20},
 		[GameInfo.Worlds.WORLDSIZE_TINY.ID] = {40, 24},
 		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {52, 32},
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {64, 40},
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {84, 52},
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {104, 64}
-		}
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {104, 64},
+	};
 	local grid_size = worldsizes[worldSize];
-	--
-	local world = GameInfo.Worlds[worldSize];
-	if(world ~= nil) then
-	return {
-		Width = grid_size[1],
-		Height = grid_size[2],
-		WrapX = false,
-	};      
-     end
+
+	if GameInfo.Worlds[worldSize] then
+		return {
+			Width = grid_size[1],
+			Height = grid_size[2],
+			WrapX = false,
+		};
+	end
 end
 ------------------------------------------------------------------------------
 
@@ -69,7 +66,7 @@ function GeneratePlotTypes()
 	end
 
 	-- Set values for hills and mountains according to World Age chosen by user. - Bob
-	local world_age = Map.GetCustomOption(1)
+	local world_age = Map.GetCustomOption(1);
 	if world_age == 4 then
 		world_age = 1 + Map.Rand(3, "Random World Age - Lua");
 	end
@@ -85,12 +82,12 @@ function GeneratePlotTypes()
 		adjust_plates = adjust_plates * 1.5;
 	else -- 4 Billion Years
 	end
+
 	-- Apply adjustment to hills and peaks settings.
 	local hillsBottom1 = 28 - adjustment;
 	local hillsTop1 = 28 + adjustment;
 	local hillsBottom2 = 72 - adjustment;
 	local hillsTop2 = 72 + adjustment;
-	local hillsClumps = 1 + adjustment;
 	local hillsNearMountains = 88 - (adjustment * 2);
 	local mountains = 95 - adjustment;
 
@@ -102,22 +99,23 @@ function GeneratePlotTypes()
 	local sizekey = Map.GetWorldSize();
 	-- Fractal Grains
 	local sizevalues = {
-		[WorldSizeTypes.WORLDSIZE_DUEL]     = 3,
-		[WorldSizeTypes.WORLDSIZE_TINY]     = 3,
-		[WorldSizeTypes.WORLDSIZE_SMALL]    = 4,
+		[WorldSizeTypes.WORLDSIZE_DUEL] = 3,
+		[WorldSizeTypes.WORLDSIZE_TINY] = 3,
+		[WorldSizeTypes.WORLDSIZE_SMALL] = 4,
 		[WorldSizeTypes.WORLDSIZE_STANDARD] = 4,
-		[WorldSizeTypes.WORLDSIZE_LARGE]    = 5,
-		[WorldSizeTypes.WORLDSIZE_HUGE]		= 5
+		[WorldSizeTypes.WORLDSIZE_LARGE] = 5,
+		[WorldSizeTypes.WORLDSIZE_HUGE] = 5,
 	};
 	local grain = sizevalues[sizekey] or 3;
+
 	-- Tectonics Plate Counts
 	local platevalues = {
-		[WorldSizeTypes.WORLDSIZE_DUEL]		= 6,
-		[WorldSizeTypes.WORLDSIZE_TINY]     = 9,
-		[WorldSizeTypes.WORLDSIZE_SMALL]    = 12,
+		[WorldSizeTypes.WORLDSIZE_DUEL] = 6,
+		[WorldSizeTypes.WORLDSIZE_TINY] = 9,
+		[WorldSizeTypes.WORLDSIZE_SMALL] = 12,
 		[WorldSizeTypes.WORLDSIZE_STANDARD] = 18,
-		[WorldSizeTypes.WORLDSIZE_LARGE]    = 24,
-		[WorldSizeTypes.WORLDSIZE_HUGE]     = 30
+		[WorldSizeTypes.WORLDSIZE_LARGE] = 24,
+		[WorldSizeTypes.WORLDSIZE_HUGE] = 30,
 	};
 	local numPlates = platevalues[sizekey] or 15;
 	-- Add in any plate count modifications passed in from the map script.
@@ -135,11 +133,10 @@ function GeneratePlotTypes()
 	local iHillsTop1 = hillsFrac:GetHeight(hillsTop1);
 	local iHillsBottom2 = hillsFrac:GetHeight(hillsBottom2);
 	local iHillsTop2 = hillsFrac:GetHeight(hillsTop2);
-	local iHillsClumps = mountainsFrac:GetHeight(hillsClumps);
 	local iHillsNearMountains = mountainsFrac:GetHeight(hillsNearMountains);
 	local iMountainThreshold = mountainsFrac:GetHeight(mountains);
 	local iPassThreshold = hillsFrac:GetHeight(85);
-	
+
 	-- Set Hills and Mountains
 	-- Now the main loop, which will assign the plot types.
 	for x = 0, iW - 1 do
@@ -152,16 +149,16 @@ function GeneratePlotTypes()
 				else
 					local mountainVal = mountainsFrac:GetHeight(x, y);
 					local hillVal = hillsFrac:GetHeight(x, y);
-	
-					if (mountainVal >= iMountainThreshold) then
-						if (hillVal >= iPassThreshold) then -- Mountain Pass though the ridgeline
+
+					if mountainVal >= iMountainThreshold then
+						if hillVal >= iPassThreshold then -- Mountain Pass though the ridgeline
 							plotTypes[i] = PlotTypes.PLOT_HILLS;
 						else -- Mountain
 							plotTypes[i] = PlotTypes.PLOT_MOUNTAIN;
 						end
-					elseif (mountainVal >= iHillsNearMountains) then
+					elseif mountainVal >= iHillsNearMountains then
 						plotTypes[i] = PlotTypes.PLOT_HILLS;
-					elseif ((hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2)) then
+					elseif (hillVal >= iHillsBottom1 and hillVal <= iHillsTop1) or (hillVal >= iHillsBottom2 and hillVal <= iHillsTop2) then
 						plotTypes[i] = PlotTypes.PLOT_HILLS;
 					end
 				end
@@ -170,7 +167,7 @@ function GeneratePlotTypes()
 	end
 
 	SetPlotTypes(plotTypes);
-	GenerateCoasts()
+	GenerateCoasts();
 end
 ------------------------------------------------------------------------------
 
@@ -189,11 +186,11 @@ function GenerateTerrain()
 	-- Now the main loop, which will assign the terrain types.
 	for x = 0, iW - 1 do
 		for y = 0, iH - 1 do
-			local plot = Map.GetPlot(x, y)
-			local plot_type = plot:GetPlotType()
+			local plot = Map.GetPlot(x, y);
+			local plot_type = plot:GetPlotType();
 			if plot_type ~= PlotTypes.PLOT_OCEAN then
-				local snowVal = snowFrac:GetHeight(x,y);
-				local plainsVal = plainsFrac:GetHeight(x,y);
+				local snowVal = snowFrac:GetHeight(x, y);
+				local plainsVal = plainsFrac:GetHeight(x, y);
 				if snowVal >= iSnowThreshold or plot_type == PlotTypes.PLOT_MOUNTAIN then
 					plot:SetTerrainType(TerrainTypes.TERRAIN_SNOW, false, false);
 				elseif plainsVal < iPlainsThreshold or plot_type == PlotTypes.PLOT_HILLS then
@@ -207,8 +204,8 @@ function GenerateTerrain()
 	-- Second pass for extra frostiness in the north.
 	for x = 0, iW - 1 do
 		for y = iH - math.floor(iH * 0.4), iH - 1 do
-			local plot = Map.GetPlot(x, y)
-			local plot_type = plot:GetPlotType()
+			local plot = Map.GetPlot(x, y);
+			local plot_type = plot:GetPlotType();
 			if plot_type ~= PlotTypes.PLOT_OCEAN then
 				local snowVal = snowFrac2:GetHeight(x, y - math.floor(iH * 0.6));
 				if snowVal >= iSnowThreshold2 then
@@ -223,19 +220,19 @@ end
 ------------------------------------------------------------------------------
 function GetRiverValueAtPlot(plot)
 	-- Custom method to force rivers to flow toward the north.
-	local iW, iH = Map.GetGridSize()
-	local x = plot:GetX()
-	local y = plot:GetY()
+	local _, iH = Map.GetGridSize();
+	local x = plot:GetX();
+	local y = plot:GetY();
 	local random_factor = Map.Rand(3, "River direction random factor - Boreal LUA");
-	local direction_influence_value = (math.abs(x - x_target) + (iH - y - 1)) * random_factor;
+	local direction_influence_value = (math.abs(x - X_target) + (iH - y - 1)) * random_factor;
 
 	local numPlots = PlotTypes.NUM_PLOT_TYPES;
-	local sum = ((numPlots - plot:GetPlotType()) * 20) + direction_influence_value;
+	local sum = (numPlots - plot:GetPlotType()) * 20 + direction_influence_value;
 
 	local numDirections = DirectionTypes.NUM_DIRECTION_TYPES;
 	for direction = 0, numDirections - 1 do
 		local adjacentPlot = Map.PlotDirection(plot:GetX(), plot:GetY(), direction);
-		if (adjacentPlot ~= nil) then
+		if adjacentPlot then
 			sum = sum + (numPlots - adjacentPlot:GetPlotType());
 		else
 			sum = sum + (numPlots * 10);
@@ -249,184 +246,155 @@ end
 function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 	-- Customizing to handle problems in top row of the map. Only this aspect has been altered.
 
-	local iW, iH = Map.GetGridSize()
 	thisFlowDirection = thisFlowDirection or FlowDirectionTypes.NO_FLOWDIRECTION;
 	originalFlowDirection = originalFlowDirection or FlowDirectionTypes.NO_FLOWDIRECTION;
 
 	-- pStartPlot = the plot at whose SE corner the river is starting
-	if (riverID == nil) then
+	if not riverID then
 		riverID = nextRiverID;
 		nextRiverID = nextRiverID + 1;
 	end
 
-	local otherRiverID = _rivers[startPlot]
-	if (otherRiverID ~= nil and otherRiverID ~= riverID and originalFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION) then
+	local otherRiverID = _rivers[startPlot];
+	if otherRiverID and otherRiverID ~= riverID and originalFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION then
 		return; -- Another river already exists here; can't branch off of an existing river!
 	end
 
 	local riverPlot;
-	
+
 	local bestFlowDirection = FlowDirectionTypes.NO_FLOWDIRECTION;
-	if (thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTH) then
-	
+	if thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTH then
 		riverPlot = startPlot;
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_EAST);
-		if ( adjacentPlot == nil or riverPlot:IsWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() ) then
+		if not adjacentPlot or riverPlot:IsWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() then
 			return;
 		end
-
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetWOfRiver(true, thisFlowDirection);
 		riverPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_NORTHEAST);
-		
-	elseif (thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHEAST) then
-	
+	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHEAST then
 		riverPlot = startPlot;
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_SOUTHEAST);
-		if ( adjacentPlot == nil or riverPlot:IsNWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() ) then
+		if not adjacentPlot or riverPlot:IsNWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() then
 			return;
 		end
-
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetNWOfRiver(true, thisFlowDirection);
 		-- riverPlot does not change
-	
-	elseif (thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHEAST) then
-	
+	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHEAST then
 		riverPlot = Map.PlotDirection(startPlot:GetX(), startPlot:GetY(), DirectionTypes.DIRECTION_EAST);
-		if (riverPlot == nil) then
+		if not riverPlot then
 			return;
 		end
-		
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_SOUTHWEST);
-		if (adjacentPlot == nil or riverPlot:IsNEOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater()) then
+		if not adjacentPlot or riverPlot:IsNEOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() then
 			return;
 		end
-
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetNEOfRiver(true, thisFlowDirection);
 		-- riverPlot does not change
-	
-	elseif (thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTH) then
-	
+	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTH then
 		riverPlot = Map.PlotDirection(startPlot:GetX(), startPlot:GetY(), DirectionTypes.DIRECTION_SOUTHWEST);
-		if (riverPlot == nil) then
+		if not riverPlot then
 			return;
 		end
-		
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_EAST);
-		if (adjacentPlot == nil or riverPlot:IsWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater()) then
+		if not adjacentPlot or riverPlot:IsWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() then
 			return;
 		end
-		
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetWOfRiver(true, thisFlowDirection);
 		-- riverPlot does not change
-	
-	elseif (thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST) then
-
+	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST then
 		riverPlot = startPlot;
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_SOUTHEAST);
-		if (adjacentPlot == nil or riverPlot:IsNWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater()) then
+		if not adjacentPlot or riverPlot:IsNWOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() then
 			return;
 		end
-		
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetNWOfRiver(true, thisFlowDirection);
 		-- riverPlot does not change
-
-	elseif (thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST) then
-		
+	elseif thisFlowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST then
 		riverPlot = startPlot;
 		local adjacentPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_SOUTHWEST);
-		
-		if ( adjacentPlot == nil or riverPlot:IsNEOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater()) then
+		if not adjacentPlot or riverPlot:IsNEOfRiver() or riverPlot:IsWater() or adjacentPlot:IsWater() then
 			return;
 		end
-
 		_rivers[riverPlot] = riverID;
 		riverPlot:SetNEOfRiver(true, thisFlowDirection);
 		riverPlot = Map.PlotDirection(riverPlot:GetX(), riverPlot:GetY(), DirectionTypes.DIRECTION_WEST);
-
 	else
 		-- River is starting here, set the direction in the next step
-		riverPlot = startPlot;		
+		riverPlot = startPlot;
 	end
 
-	if (riverPlot == nil or riverPlot:IsWater()) then
+	if not riverPlot or riverPlot:IsWater() then
 		-- The river has flowed off the edge of the map or into the ocean. All is well.
-		return; 
+		return;
 	end
 
 	-- Storing X,Y positions as locals to prevent redundant function calls.
 	local riverPlotX = riverPlot:GetX();
 	local riverPlotY = riverPlot:GetY();
-	
+
 	-- Table of methods used to determine the adjacent plot.
 	local adjacentPlotFunctions = {
-		[FlowDirectionTypes.FLOWDIRECTION_NORTH] = function() 
-			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_NORTHWEST); 
+		[FlowDirectionTypes.FLOWDIRECTION_NORTH] = function ()
+			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_NORTHWEST);
 		end,
-		
-		[FlowDirectionTypes.FLOWDIRECTION_NORTHEAST] = function() 
+
+		[FlowDirectionTypes.FLOWDIRECTION_NORTHEAST] = function ()
 			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_NORTHEAST);
 		end,
-		
-		[FlowDirectionTypes.FLOWDIRECTION_SOUTHEAST] = function() 
+
+		[FlowDirectionTypes.FLOWDIRECTION_SOUTHEAST] = function ()
 			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_EAST);
 		end,
-		
-		[FlowDirectionTypes.FLOWDIRECTION_SOUTH] = function() 
+
+		[FlowDirectionTypes.FLOWDIRECTION_SOUTH] = function ()
 			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_SOUTHWEST);
 		end,
-		
-		[FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST] = function() 
+
+		[FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST] = function ()
 			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_WEST);
 		end,
-		
-		[FlowDirectionTypes.FLOWDIRECTION_NORTHWEST] = function() 
-			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_NORTHWEST);
-		end	
-	}
-	
-	if(bestFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION) then
 
+		[FlowDirectionTypes.FLOWDIRECTION_NORTHWEST] = function ()
+			return Map.PlotDirection(riverPlotX, riverPlotY, DirectionTypes.DIRECTION_NORTHWEST);
+		end,
+	};
+
+	if bestFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION then
 		-- Attempt to calculate the best flow direction.
 		local bestValue = math.huge;
 		for flowDirection, getAdjacentPlot in pairs(adjacentPlotFunctions) do
-			
-			if (GetOppositeFlowDirection(flowDirection) ~= originalFlowDirection) then
-				
-				if (thisFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION or
-					flowDirection == TurnRightFlowDirections[thisFlowDirection] or 
-					flowDirection == TurnLeftFlowDirections[thisFlowDirection]) then
-				
+			if GetOppositeFlowDirection(flowDirection) ~= originalFlowDirection then
+				if thisFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION or
+					flowDirection == TurnRightFlowDirections[thisFlowDirection] or
+					flowDirection == TurnLeftFlowDirections[thisFlowDirection] then
+
 					local adjacentPlot = getAdjacentPlot();
-					
-					if (adjacentPlot ~= nil) then
-					
+					if adjacentPlot then
 						local value = GetRiverValueAtPlot(adjacentPlot);
-						if (flowDirection == originalFlowDirection) then
+						if flowDirection == originalFlowDirection then
 							value = (value * 3) / 4;
 						end
-						
-						if (value < bestValue) then
+						if value < bestValue then
 							bestValue = value;
 							bestFlowDirection = flowDirection;
 						end
-
-					-- Custom addition for Highlands, to fix river problems in left column of the map. Any other all-land map may need similar special casing.
-					elseif adjacentPlot == nil and riverPlotX == 0 then -- Left column of map, needs special handling
+					elseif not adjacentPlot and riverPlotX == 0 then
+						-- Left column of map, needs special handling
 						if flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTH or
-						   flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTH or
-						   flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST or
-						   flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST then
-							
+							flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTH or
+							flowDirection == FlowDirectionTypes.FLOWDIRECTION_NORTHWEST or
+							flowDirection == FlowDirectionTypes.FLOWDIRECTION_SOUTHWEST then
+
 							local value = Map.Rand(5, "River Rand");
-							if (flowDirection == originalFlowDirection) then
+							if flowDirection == originalFlowDirection then
 								value = (value * 3) / 4;
 							end
-							if (value < bestValue) then
+							if value < bestValue then
 								bestValue = value;
 								bestFlowDirection = flowDirection;
 							end
@@ -435,38 +403,33 @@ function DoRiver(startPlot, thisFlowDirection, originalFlowDirection, riverID)
 				end
 			end
 		end
-		
+
 		-- Try a second pass allowing the river to "flow backwards".
-		if(bestFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION) then
-		
-			local bestValue = math.huge;
+		if bestFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION then
+			bestValue = math.huge;
 			for flowDirection, getAdjacentPlot in pairs(adjacentPlotFunctions) do
-			
-				if (thisFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION or
-					flowDirection == TurnRightFlowDirections[thisFlowDirection] or 
-					flowDirection == TurnLeftFlowDirections[thisFlowDirection]) then
-				
+				if thisFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION or
+					flowDirection == TurnRightFlowDirections[thisFlowDirection] or
+					flowDirection == TurnLeftFlowDirections[thisFlowDirection] then
+
 					local adjacentPlot = getAdjacentPlot();
-					
-					if (adjacentPlot ~= nil) then
-						
+					if adjacentPlot then
 						local value = GetRiverValueAtPlot(adjacentPlot);
-						if (value < bestValue) then
+						if value < bestValue then
 							bestValue = value;
 							bestFlowDirection = flowDirection;
 						end
-					end	
+					end
 				end
 			end
 		end
 	end
-	
+
 	-- Recursively generate river.
-	if (bestFlowDirection ~= FlowDirectionTypes.NO_FLOWDIRECTION) then
-		if  (originalFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION) then
+	if bestFlowDirection ~= FlowDirectionTypes.NO_FLOWDIRECTION then
+		if originalFlowDirection == FlowDirectionTypes.NO_FLOWDIRECTION then
 			originalFlowDirection = bestFlowDirection;
 		end
-		
 		DoRiver(riverPlot, bestFlowDirection, originalFlowDirection, riverID);
 	end
 end
@@ -476,49 +439,47 @@ function AddRivers()
 	local iW, iH = Map.GetGridSize()
 	print("Inland Sea - Adding Rivers");
 	local passConditions = {
-		function(plot)
+		function (plot)
 			return plot:IsHills() or plot:IsMountain();
 		end,
-		
-		function(plot)
+
+		function (plot)
 			return (not plot:IsCoastalLand()) and (Map.Rand(8, "MapGenerator AddRivers") == 0);
 		end,
-		
-		function(plot)
+
+		function (plot)
 			local area = plot:Area();
-			local plotsPerRiverEdge = GameDefines["PLOTS_PER_RIVER_EDGE"];
-			return (plot:IsHills() or plot:IsMountain()) and (area:GetNumRiverEdges() <	((area:GetNumTiles() / plotsPerRiverEdge) + 1));
+			local plotsPerRiverEdge = GameDefines.PLOTS_PER_RIVER_EDGE;
+			return (plot:IsHills() or plot:IsMountain()) and (area:GetNumRiverEdges() < ((area:GetNumTiles() / plotsPerRiverEdge) + 1));
 		end,
-		
-		function(plot)
+
+		function (plot)
 			local area = plot:Area();
-			local plotsPerRiverEdge = GameDefines["PLOTS_PER_RIVER_EDGE"];
+			local plotsPerRiverEdge = GameDefines.PLOTS_PER_RIVER_EDGE;
 			return (area:GetNumRiverEdges() < (area:GetNumTiles() / plotsPerRiverEdge) + 1);
-		end
-	}
+		end,
+	};
 	for iPass, passCondition in ipairs(passConditions) do
 		local riverSourceRange;
 		local seaWaterRange;
-		if (iPass <= 2) then
-			riverSourceRange = GameDefines["RIVER_SOURCE_MIN_RIVER_RANGE"];
-			seaWaterRange = GameDefines["RIVER_SOURCE_MIN_SEAWATER_RANGE"];
+		if iPass <= 2 then
+			riverSourceRange = GameDefines.RIVER_SOURCE_MIN_RIVER_RANGE;
+			seaWaterRange = GameDefines.RIVER_SOURCE_MIN_SEAWATER_RANGE;
 		else
-			riverSourceRange = (GameDefines["RIVER_SOURCE_MIN_RIVER_RANGE"] / 2);
-			seaWaterRange = (GameDefines["RIVER_SOURCE_MIN_SEAWATER_RANGE"] / 2);
+			riverSourceRange = GameDefines.RIVER_SOURCE_MIN_RIVER_RANGE / 2;
+			seaWaterRange = GameDefines.RIVER_SOURCE_MIN_SEAWATER_RANGE / 2;
 		end
-		for i, plot in Plots() do
-			local current_x = plot:GetX()
-			local current_y = plot:GetY()
+		for _, plot in Plots() do
+			local current_x = plot:GetX();
+			local current_y = plot:GetY();
 			if current_x < 1 or current_x >= iW - 2 or current_y < 2 or current_y >= iH - 1 then
 				-- Plot too close to edge, ignore it.
-			elseif(not plot:IsWater()) then
-				if(passCondition(plot)) then
-					if (not Map.FindWater(plot, riverSourceRange, true)) then
-						if (not Map.FindWater(plot, seaWaterRange, false)) then
+			elseif not plot:IsWater() then
+				if passCondition(plot) then
+					if not Map.FindWater(plot, riverSourceRange, true) then
+						if not Map.FindWater(plot, seaWaterRange, false) then
 							local inlandCorner = plot:GetInlandCorner();
-							if(inlandCorner) then
-								local start_x = inlandCorner:GetX()
-								local start_y = inlandCorner:GetY()
+							if inlandCorner then
 								local orig_direction;
 								local diceroll = Map.Rand(7, "River Original Direction - Lua");
 								if diceroll < 2 then
@@ -528,18 +489,18 @@ function AddRivers()
 								else
 									orig_direction = FlowDirectionTypes.FLOWDIRECTION_NORTH;
 								end
-								--
+
 								-- Add X target, for Boreal. This is a global variable.
-								x_target = math.floor(iW / 5 + Map.Rand((iW * 0.6), "River Target - Lua"));
-								--
+								X_target = math.floor(iW / 5 + Map.Rand((iW * 0.6), "River Target - Lua"));
+
 								DoRiver(inlandCorner, nil, orig_direction, nil);
 							end
 						end
 					end
-				end			
+				end
 			end
 		end
-	end		
+	end
 end
 ------------------------------------------------------------------------------
 
@@ -548,26 +509,26 @@ function FeatureGenerator:AddFeatures()
 	self:AdjustTerrainTypes(); -- Sets terrain under jungles and softens arctic rivers
 
 	-- Main loop, adds features to all plots as appropriate
-	for y = 0, self.iGridH - 1, 1 do
-		for x = 0, self.iGridW - 1, 1 do
+	for y = 0, self.iGridH - 1 do
+		for x = 0, self.iGridW - 1 do
 			self:AddFeaturesAtPlot(x, y);
 		end
 	end
 end
 ------------------------------------------------------------------------------
-function FeatureGenerator:AddMarshAtPlot(plot, iX, iY, lat)
+function FeatureGenerator:AddMarshAtPlot()
 end
 ------------------------------------------------------------------------------
-function FeatureGenerator:AddJunglesAtPlot(plot, iX, iY, lat)
+function FeatureGenerator:AddJunglesAtPlot()
 end
 ------------------------------------------------------------------------------
-function FeatureGenerator:AddIceAtPlot(plot, iX, iY, lat)
+function FeatureGenerator:AddIceAtPlot(plot, _, iY)
 	-- Custom for Boreal
-	local iW, iH = Map.GetGridSize()
+	local _, iH = Map.GetGridSize();
 	if iY == iH - 1 then
-		plot:SetFeatureType(self.featureIce, -1)
+		plot:SetFeatureType(self.featureIce);
 	elseif iY >= iH - 5 and plot:IsWater() then
-		local terrain_type = plot:GetTerrainType()
+		local terrain_type = plot:GetTerrainType();
 		if terrain_type == TerrainTypes.TERRAIN_OCEAN then
 			local dice_target = 0;
 			if iY == iH - 2 then
@@ -581,7 +542,7 @@ function FeatureGenerator:AddIceAtPlot(plot, iX, iY, lat)
 			end
 			local diceroll = Map.Rand(100, "Ice Formation - Boreal LUA");
 			if diceroll < dice_target then
-				plot:SetFeatureType(self.featureIce, -1)
+				plot:SetFeatureType(self.featureIce);
 			end
 		end
 	end
@@ -591,13 +552,12 @@ function AddFeatures()
 	print("Adding Features (Lua Boreal) ...");
 
 	-- Get Rainfall setting input by user.
-	local rain = Map.GetCustomOption(2)
+	local rain = Map.GetCustomOption(2);
 	if rain == 4 then
 		rain = 1 + Map.Rand(3, "Random Rainfall - Lua");
 	end
-	
-	local args = {rainfall = rain}
-	local featuregen = FeatureGenerator.Create(args);
+
+	local featuregen = FeatureGenerator.Create{rainfall = rain};
 
 	featuregen:AddFeatures();
 end
@@ -610,32 +570,32 @@ end
 ------------------------------------------------------------------------------
 function StartPlotSystem()
 	-- Get Resources setting input by user.
-	local res = Map.GetCustomOption(3)
+	local res = Map.GetCustomOption(3);
 	if res == 6 then
 		res = 1 + Map.Rand(3, "Random Resources Option - Lua");
 	end
 
 	print("Creating start plot database (MapGenerator.Lua)");
-	local start_plot_database = AssignStartingPlots.Create()
-	
+	local start_plot_database = AssignStartingPlots.Create();
+
 	print("Dividing the map in to Regions (Lua Boreal)");
 	-- Regional Division Method 1: Biggest Landmass
 	local args = {
 		method = 1,
 		resources = res,
-		};
-	start_plot_database:GenerateRegions(args)
+	};
+	start_plot_database:GenerateRegions(args);
 
 	print("Choosing start locations for civilizations (MapGenerator.Lua)");
-	start_plot_database:ChooseLocations()
-	
+	start_plot_database:ChooseLocations();
+
 	print("Normalizing start locations and assigning them to Players (MapGenerator.Lua)");
-	start_plot_database:BalanceAndAssign()
+	start_plot_database:BalanceAndAssign();
 
 	print("Placing Natural Wonders (MapGenerator.Lua)");
-	start_plot_database:PlaceNaturalWonders()
+	start_plot_database:PlaceNaturalWonders();
 
 	print("Placing Resources and City States (MapGenerator.Lua)");
-	start_plot_database:PlaceResourcesAndCityStates()
+	start_plot_database:PlaceResourcesAndCityStates();
 end
 ------------------------------------------------------------------------------

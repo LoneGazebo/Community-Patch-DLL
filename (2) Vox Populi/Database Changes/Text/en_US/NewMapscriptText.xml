@@ -1,6 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
+		<!-- Mapscripts for VP -->
+		<Row Tag="TXT_KEY_MAP_AMAZON_XP_VP">
+			<Text>Amazon Plus for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_ARBOREA_VP">
+			<Text>Arborea for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_BOREAL_VP">
+			<Text>Boreal for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_EUROPE_VP">
+			<Text>Europe for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_FOUR_CORNERS_VP">
+			<Text>Four Corners for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_FRONTIER_VP">
+			<Text>Frontier for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_GREAT_PLAINS_XP_VP">
+			<Text>Great Plains Plus for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_HIGHLANDS_VP">
+			<Text>Highlands for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_INLAND_SEA_VP">
+			<Text>Inland Sea for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_LAKES_VP">
+			<Text>Lakes for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_LARGE_ISLANDS_VP">
+			<Text>Large Islands for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_NORTH_VS_SOUTH_VP">
+			<Text>North vs South for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_RAINFOREST_VP">
+			<Text>Rainforest for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_RING_VP">
+			<Text>Ring for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CW_MAP_PACK_CHINA_VP">
+			<Text>China for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_SKIRMISH_VP">
+			<Text>Skirmish for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_TERRA_VP">
+			<Text>Terra for VP</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MAP_WEST_VS_EAST_VP">
+			<Text>West vs East for VP</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_MAP_PLAYERS_START_IN">
 			<Text>Players Start In</Text>
 		</Row>
