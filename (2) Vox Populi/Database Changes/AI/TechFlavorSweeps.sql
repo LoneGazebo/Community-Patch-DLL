@@ -345,7 +345,8 @@ VALUES
 	('TECH_PENICILIN', 'FLAVOR_SCIENCE', 5),
 	('TECH_PENICILIN', 'FLAVOR_OFFENSE', 5),
 
-	('TECH_REFRIGERATION', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 20), -- Buildings: Stadium, Improvement: Offshore, Ability: ExtendedSeaTR, Yield: Boats +2F, Town +3G
+	('TECH_REFRIGERATION', 'FLAVOR_NAVAL_TILE_IMPROVEMENT', 20), -- Buildings: Stadium, Improvement: Offshore, Ability: ExtendedSeaTR, Yield: Boats +2F, Camp +2G, Town +3G
+	('TECH_REFRIGERATION', 'FLAVOR_TILE_IMPROVEMENT', 5),
 	('TECH_REFRIGERATION', 'FLAVOR_CULTURE', 20),
 	('TECH_REFRIGERATION', 'FLAVOR_DIPLOMACY', 10),
 
