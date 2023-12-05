@@ -2656,6 +2656,9 @@ public:
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
 
+	int GetExtraSupplyFlat() const;
+	void ChangeExtraSupplyFlat(int iValue);
+
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
 
@@ -3435,6 +3438,7 @@ protected:
 	std::vector<FeatureTypes> m_ownedNaturalWonders;
 	std::vector<int> m_paiUnitClassProductionModifiers;
 	int m_iExtraSupplyPerPopulation;
+	int m_iExtraSupplyFlat;
 	int m_iCitySupplyFlatGlobal;
 	int m_iUnitSupplyFromExpendedGP;
 	int m_iMissionaryExtraStrength;
@@ -4253,6 +4257,7 @@ SYNC_ARCHIVE_VAR(int, m_iPlayerEventCooldown)
 SYNC_ARCHIVE_VAR(std::vector<FeatureTypes>, m_ownedNaturalWonders)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassProductionModifiers)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
+SYNC_ARCHIVE_VAR(int, m_iExtraSupplyFlat)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)
 SYNC_ARCHIVE_VAR(int, m_iUnitSupplyFromExpendedGP)
 SYNC_ARCHIVE_VAR(int, m_iMissionaryExtraStrength)

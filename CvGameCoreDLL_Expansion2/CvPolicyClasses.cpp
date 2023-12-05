@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -333,6 +333,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iMaxCorporations(0),
 	m_iRazingSpeedBonus(0),
 	m_iExtraSupplyPerPopulation(0),
+	m_iExtraSupplyFlat(0),
 	m_bNoPartisans(false),
 	m_piConquerorYield(NULL),
 	m_piFounderYield(NULL),
@@ -752,6 +753,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iMaxCorporations = kResults.GetInt("MaxCorporations");
 	m_iRazingSpeedBonus = kResults.GetInt("RazingSpeedBonus");
 	m_iExtraSupplyPerPopulation = kResults.GetInt("ExtraSupplyPerPopulation");
+	m_iExtraSupplyFlat = kResults.GetInt("ExtraSupplyFlat");
 	m_bNoPartisans = kResults.GetBool("NoPartisans");
 	m_bNoUnhappinessExpansion = kResults.GetBool("NoUnhappinessExpansion");
 	m_bNoUnhappyIsolation = kResults.GetBool("NoUnhappyIsolation");
@@ -3206,10 +3208,15 @@ int CvPolicyEntry::GetRazingSpeedBonus() const
 {
 	return m_iRazingSpeedBonus;
 }
-/// Does this Policy grant more military units?
+/// Does this Policy grant more military units from population?
 int CvPolicyEntry::GetExtraSupplyPerPopulation() const
 {
 	return m_iExtraSupplyPerPopulation;
+}
+/// Does this Policy grant more military units?
+int CvPolicyEntry::GetExtraSupplyFlat() const
+{
+	return m_iExtraSupplyFlat;
 }
 /// Does this Policy grant faster razing?
 bool CvPolicyEntry::IsNoPartisans() const
