@@ -6614,7 +6614,9 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 		for (pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER((PlayerTypes)iPlayerLoop).nextCity(&iCityLoop))
 		{
 			//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
-			if (!m_pPlayer->GetPlayerTraits()->IsUniqueBeliefsOnly() && m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pLoopCity->getOwner() != m_pPlayer->GetID())
+			// Unless only we can benefit from it
+			if (!MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && m_pPlayer->GetPlayerTraits()->IsUniqueBeliefsOnly() &&
+				m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pLoopCity->getOwner() != m_pPlayer->GetID())
 			{
 				CvGameReligions* pReligions = GC.getGame().GetGameReligions();
 				const CvReligion* pMyReligion = pReligions->GetReligion(eReligion, m_pPlayer->GetID());
@@ -7322,7 +7324,7 @@ bool CvReligionAI::DoFaithPurchases()
 	// FOURTH PRIO: FOREIGN CITIES
 	if (pMyReligion && !bTooManyMissionaries && bAllConvertedCore && eReligionToSpread == eReligionWeFounded)
 	{
-		if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread())
+		if (!MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread())
 		{
 			if (pMyReligion->m_Beliefs.GetUniqueCiv(m_pPlayer->GetID()) == m_pPlayer->getCivilizationType())
 			{
@@ -9965,7 +9967,8 @@ int CvReligionAI::ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionT
 	}
 
 	//We don't want to spread our faith to unowned cities if it doesn't spread naturally and we have a unique belief (as its probably super good).
-	if (m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pCity->getOwner() != m_pPlayer->GetID())
+	// Unless only we can benefit from it
+	if (!MOD_BALANCE_CORE_UNIQUE_BELIEFS_ONLY_FOR_CIV && m_pPlayer->GetPlayerTraits()->IsNoNaturalReligionSpread() && pCity->getOwner() != m_pPlayer->GetID())
 	{
 		if (pSpreadReligion->m_Beliefs.GetUniqueCiv() == m_pPlayer->getCivilizationType())
 		{
