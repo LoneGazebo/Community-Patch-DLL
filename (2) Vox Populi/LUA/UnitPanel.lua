@@ -1073,9 +1073,52 @@ function TipHandler( control )
         strToolTip = strToolTip .. strActionHelp;
         
 		if bDisabled then
-			
-			local pActivePlayer = Players[Game.GetActivePlayer()];
-			
+
+			local eUnitClass = GameInfoTypes[GameInfo.Units[iUnitType].Class];
+			local iMaxPlayerInstances = GameInfo.UnitClasses[eUnitClass].MaxPlayerInstances;
+			local iMaxTeamInstances = GameInfo.UnitClasses[eUnitClass].MaxTeamInstances;
+			local iMaxGlobalInstances = GameInfo.UnitClasses[eUnitClass].MaxGlobalInstances;
+
+			-- Can't upgrade because the world has too many of the upgraded units
+			if Game:IsUnitClassMaxedOut(eUnitClass, 0) then
+
+				-- Add spacing for all entries after the first
+				if bFirstEntry then
+					bFirstEntry = false;
+				else
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_GLOBAL_UNITCLASS_LIMIT", iMaxGlobalInstances);
+			end
+
+			-- Can't upgrade because our team has too many of the upgraded units
+			if pActiveTeam:IsUnitClassMaxedOut(eUnitClass, 0) then
+
+				-- Add spacing for all entries after the first
+				if bFirstEntry then
+					bFirstEntry = false;
+				else
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_TEAM_UNITCLASS_LIMIT", iMaxTeamInstances);
+			end
+
+			-- Can't upgrade because we have too many of the upgraded units
+			-- (can't use IsUnitClassMaxedOut here as it also checks the city limit)
+			if pActivePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
+
+				-- Add spacing for all entries after the first
+				if bFirstEntry then
+					bFirstEntry = false;
+				else
+					strDisabledString = strDisabledString .. "[NEWLINE][NEWLINE]";
+				end
+
+				strDisabledString = strDisabledString .. Locale.ConvertTextKey("TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT", iMaxPlayerInstances);
+			end
+
 			-- Can't upgrade because we're outside our territory
 			if (pPlot:GetOwner() ~= unit:GetOwner()) then
 				
@@ -1117,6 +1160,8 @@ function TipHandler( control )
 			
 			-- Can't upgrade because we lack the Resources
 			local strResourcesNeeded = "";
+			local strResourcesTotalNeeded = "";
+			local strResourcesNetPositiveNeeded = "";
 			
 			local iNumResourceNeededToUpgrade;
 			local iResourceLoop;

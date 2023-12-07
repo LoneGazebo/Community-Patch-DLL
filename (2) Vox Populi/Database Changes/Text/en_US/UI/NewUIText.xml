@@ -850,6 +850,15 @@
 		<Row Tag="TXT_KEY_VP_RESTING_INFLUENCE">
 			<Text>Resting [ICON_INFLUENCE] Influence</Text>
 		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT">
+			<Text>Only {1_Num} allowed per player.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_TEAM_UNITCLASS_LIMIT">
+			<Text>Only {1_Num} allowed per team.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_GLOBAL_UNITCLASS_LIMIT">
+			<Text>Only {1_Num} allowed in the world.</Text>
+		</Row>
 
 		<!-- Tech tree -->
 		<Row Tag="TXT_KEY_SPECIALIST_YIELD_CHANGE">
