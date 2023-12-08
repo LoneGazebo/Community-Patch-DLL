@@ -1088,8 +1088,8 @@ ALTER TABLE GoodyHuts ADD COLUMN 'Food' INTEGER DEFAULT 0;
 ALTER TABLE GoodyHuts ADD COLUMN 'BorderGrowth' INTEGER DEFAULT 0;
 
 -- Tech Additions
-ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' BOOLEAN;
-ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' BOOLEAN;
+ALTER TABLE Technologies ADD COLUMN 'CityLessEmbarkCost' boolean;
+ALTER TABLE Technologies ADD COLUMN 'CityNoEmbarkCost' boolean;
 
 -- Tech adds raw happiness to capital
 ALTER TABLE Technologies ADD COLUMN 'Happiness' INTEGER DEFAULT 0;
@@ -1462,7 +1462,7 @@ ALTER TABLE Policies ADD COLUMN 'NonSpecialistFoodChange' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'ExtraCultureandScienceTradeRoutes' INTEGER DEFAULT 0;
 
 -- CORPORATIONS
-ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' BOOLEAN;
+ALTER TABLE Technologies ADD COLUMN 'CorporationsEnabled' boolean;
 
 ALTER TABLE Buildings ADD COLUMN 'IsCorporation' BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD COLUMN 'GPRateModifierPerXFranchises' INTEGER DEFAULT 0;
@@ -1677,7 +1677,7 @@ ALTER TABLE Buildings ADD 'GlobalGreatWorksTourismModifier' INTEGER DEFAULT 0;
 ALTER TABLE Buildings ADD 'NukeInterceptionChance' INTEGER DEFAULT 0;
 
 -- Table for Lua elements that we don't want shown in Civ selection screen or in Civilopedia
-ALTER TABLE Buildings ADD 'ShowInPedia' BOOLEAN DEFAULT 1;
+ALTER TABLE Buildings ADD 'ShowInPedia' boolean DEFAULT 1;
 
 -- Gives a boost of pressure in the city when built (based on what the religion is in your capital)
 ALTER TABLE Buildings ADD 'InstantReligiousPressure' INTEGER DEFAULT 0;
