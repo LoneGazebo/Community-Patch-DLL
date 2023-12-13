@@ -553,7 +553,7 @@ CvPlot* CvAIOperation::GetPlotXInStepPath(CvPlot* pCurrentPosition, CvPlot* pTar
 
 	//once the army has gathered both pure and mixed naval ops can only use water plots
 	//we assume we can enter the enemy player's territory even in peacetime, don't need to pass any flags
-	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy);
+	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy, INT_MAX);
 	if (GetArmy(0) && !GetArmy(0)->IsAllOceanGoing())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -588,7 +588,7 @@ int CvAIOperation::GetStepDistanceBetweenPlots(CvPlot* pCurrentPosition, CvPlot*
 
 	//use the step path finder to compute distance (pass type param 1 to ignore barbarian camps)
 	//once the army has gathered both pure and mixed naval ops can only use water plots
-	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy);
+	SPathFinderUserData data(m_eOwner, IsNavalOperation() ? PT_ARMY_WATER : PT_ARMY_LAND, m_eEnemy, INT_MAX);
 	if (GetArmy(0) && !GetArmy(0)->IsAllOceanGoing())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -2275,7 +2275,7 @@ CvPlot* CvAIOperationNavalSuperiority::FindBestTarget(CvPlot** ppMuster) const
 	int iClostestDistance = INT_MAX;
 
 	//once the army has gathered both pure and mixed naval ops can only use water plots
-	SPathFinderUserData data(m_eOwner, PT_ARMY_WATER, m_eEnemy);
+	SPathFinderUserData data(m_eOwner, PT_ARMY_WATER, m_eEnemy, INT_MAX);
 	if (!GET_PLAYER(m_eOwner).CanCrossOcean())
 		data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 
@@ -3383,7 +3383,7 @@ pair<CvCity*,CvCity*> OperationalAIHelpers::GetClosestCoastalCityPair(PlayerType
 					if(pLoopCityA->HasSharedAreaWith(pLoopCityB,false,true))
 					{
 						//pathfinding for player A, not entirely symmetric ...
-						SPathFinderUserData data(ePlayerA, PT_ARMY_WATER, ePlayerB);
+						SPathFinderUserData data(ePlayerA, PT_ARMY_WATER, ePlayerB, INT_MAX);
 						if (!GET_PLAYER(ePlayerA).CanCrossOcean())
 							data.iFlags |= CvUnit::MOVEFLAG_NO_OCEAN;
 

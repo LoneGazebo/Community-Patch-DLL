@@ -1404,7 +1404,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, iUnitsSea);
 
 	int iUnitMoveRange = m_pPlayer->isMinorCiv() ? 5 : 9; //determines how far a unit can move for a patrol
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_ARMY_MIXED,-1,iUnitMoveRange);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_ARMY_MIXED,NO_PLAYER,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
 		mapReachablePlots.insert(std::make_pair(vLandTargets[i].pTarget, GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].pTarget,data)));

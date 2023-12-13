@@ -15613,7 +15613,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
 		if (pCapital)
 		{
-			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
+			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, NO_PLAYER, MINOR_POWER_COMPARISON_RADIUS);
 			data.iFlags = CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
