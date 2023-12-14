@@ -479,7 +479,7 @@ eTacticalPosture CvTacticalDominanceZone::SelectPostureSingleZone(int iDominance
 	}
 	case TACTICAL_TERRITORY_FRIENDLY:
 	{
-		m_ePosture = (eOverallDominance == TACTICAL_DOMINANCE_ENEMY) ? TACTICAL_POSTURE_HEDGEHOG : TACTICAL_POSTURE_COUNTERATTACK;
+		m_ePosture = TACTICAL_POSTURE_COUNTERATTACK;
 		break;
 	}
 	}

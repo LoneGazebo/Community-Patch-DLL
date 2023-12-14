@@ -7317,14 +7317,14 @@ void ScoreAttack(const CvTacticalPlot& tactPlot, const CvUnit* pUnit, const CvTa
 			}
 			else
 			{
-				iExtraScore += 300; //capturing a city is important
+				iExtraScore += 600; //capturing a city is important
 				result.eAssignmentType = A_MELEEKILL;
 			}
 		}
 		else //enemy unit killed
 		{
 			//tbd: same bonus for melee kill and range kill? do we have a preference? what about move-after-attack?
-			iExtraScore += 30;
+			iExtraScore += 200;
 
 			if (pTestPlot->getNumUnits() > 1 && !pTestPlot->isNeutralUnit(pUnit->getOwner(), false, false))
 				iExtraScore += 20; //even more points for a double kill
@@ -9127,8 +9127,8 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 		if (!pInitial)
 			return false; //something wrong
 
-		//if the unit is blocked but has movement left and can flee, let's assume that is ok. also if we never moved it.
-		if (unit.eLastAssignment == A_BLOCKED && (unit.iMovesLeft>GC.getMOVE_DENOMINATOR() || unit.iPlotIndex==pInitial->iToPlotIndex))
+		//if the unit is blocked but has movement left and can flee, let's assume that is ok
+		if (unit.eLastAssignment == A_BLOCKED && unit.iMovesLeft>GC.getMOVE_DENOMINATOR())
 			continue;
 
 		//if we have a restart pending, that can also be ok if we're not planning to stay
@@ -9155,6 +9155,15 @@ bool CvTacticalPosition::addFinishMovesIfAcceptable(bool bEarlyFinish)
 		}
 		else
 			return false;
+	}
+
+	//try to enforce some sort of sparsity, we should use only the minimum amount of units. 
+	//so give a bonus for unmoved units. especially important in earlyFinish situations with many units.
+	for (size_t i = 0; i < availableUnits.size(); i++)
+	{
+		const SUnitStats& unit = availableUnits[i];
+		if (unit.eLastAssignment == A_INITIAL)
+			iTotalScore += 30;
 	}
 
 	//scores look good and target was killed, we're done

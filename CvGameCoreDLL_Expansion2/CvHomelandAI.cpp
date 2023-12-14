@@ -1281,7 +1281,6 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 	if (eBestGiftTarget != NO_PLAYER)
 	{
 		vector<int> vUnitIDs;
-		bool bFoundOne = false;
 		int iLoop = 0;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
@@ -1313,11 +1312,10 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 					}
 
 					vUnitIDs.push_back(pUnit->GetID());
-					bFoundOne = true;
 				}
 			}
 		}
-		if (bFoundOne)
+		if (!vUnitIDs.empty())
 		{
 			CvUnit* pGiftedUnit = NULL;
 			int GiftedUnitID = -1;

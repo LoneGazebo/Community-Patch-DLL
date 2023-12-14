@@ -1552,7 +1552,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		//if there are no enemies here or they have been killed in tactsim (hypothetically)
 		if (!kToNodeCacheData.bIsVisibleEnemyCombatUnit && !kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleNeutralCombatUnit)
 		{
-			if (!canEnterTerritoryAndTerrain(pUnit, pToPlot, kToNodeCacheData.iMoveFlags))
+			if (!canEnterTerritoryAndTerrain(pUnit, pToPlot, kToNodeCacheData.iMoveFlags) || (kToNodeCacheData.bIsNonEnemyCity && !pUnit->IsCivilianUnit()))
 				return FALSE;
 		}
 		else
