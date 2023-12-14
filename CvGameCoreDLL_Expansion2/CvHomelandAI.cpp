@@ -3266,7 +3266,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 		switch(eDirective)
 		{
 		case GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST:
-			break;
+			break; //we have an (escorted) AI operation for this
 
 		case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
 			{
@@ -5342,8 +5342,8 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 				}
 			}
 
-			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns);
-			if (iTurns < iBestTurns)
+			int iTurns = INT_MAX;
+			if (pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns, &iTurns) && pUnit->CachedPathIsSafeForCivilian())
 			{
 				pBestTarget = pTarget;
 				iBestTurns = iTurns;

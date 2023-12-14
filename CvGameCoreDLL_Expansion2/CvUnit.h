@@ -1911,6 +1911,7 @@ public:
 	int GetMovementPointsAtCachedTarget() const;
 	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
 	const CvPathNodeArray& GetLastPath() const;
+	bool CachedPathIsSafeForCivilian() const;
 
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);

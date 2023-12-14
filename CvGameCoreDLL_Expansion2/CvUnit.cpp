@@ -31050,6 +31050,13 @@ const CvPathNodeArray& CvUnit::GetLastPath() const
 	return m_kLastPath;
 }
 
+bool CvUnit::CachedPathIsSafeForCivilian() const
+{
+	//check if the unit can be captured this turn
+	CvPlot* pCheck = GetPathEndFirstTurnPlot();
+	return !pCheck || GET_PLAYER(m_eOwner).GetPlotDanger(*pCheck,false) < GetCurrHitPoints();
+}
+
 // PRIVATE METHODS
 
 //	--------------------------------------------------------------------------------

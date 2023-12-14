@@ -6710,18 +6710,17 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	std::reverse(vCandidates.begin(),vCandidates.end());
 
 	//look at the top two and take the one that is closest
+	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 	if (pUnit && vCandidates.size()>1)
 	{
-		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-
 		int iTurnsToTargetA = INT_MAX;
 		int iTurnsToTargetB = INT_MAX;
 		int iScoreA = 0;
 		int iScoreB = 0;
 
-		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX, &iTurnsToTargetA))
+		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX, &iTurnsToTargetA) && pUnit->CachedPathIsSafeForCivilian())
 			iScoreA = vCandidates[0].score / (iTurnsToTargetA + 3); //add some bias for close targets
-		if (pUnit->GeneratePath(vCandidates[1].pPlot, iFlags, INT_MAX, &iTurnsToTargetB))
+		if (pUnit->GeneratePath(vCandidates[1].pPlot, iFlags, INT_MAX, &iTurnsToTargetB) && pUnit->CachedPathIsSafeForCivilian())
 			iScoreB = vCandidates[1].score / (iTurnsToTargetB + 3); //add some bias for close targets
 
 		if (iScoreA > 0 && iScoreA > iScoreB)
@@ -6738,7 +6737,10 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 		}
 	}
 	else if (!vCandidates.empty())
-		return vCandidates.front().pPlot->getPlotCity();
+	{
+		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX) && pUnit->CachedPathIsSafeForCivilian())
+			return vCandidates.front().pPlot->getPlotCity();
+	}
 
 	return NULL;
 }
