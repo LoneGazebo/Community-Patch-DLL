@@ -46350,7 +46350,7 @@ int CvDiplomacyAI::GetVictoryDisputeLevelScore(PlayerTypes ePlayer) const
 		iOpinionWeight += GET_PLAYER(ePlayer).GetCurrentEra() * /*4*/ GD_INT_GET(OPINION_WEIGHT_VICTORY_PER_ERA);
 		iOpinionWeight *= GetVictoryCompetitiveness();
 		iOpinionWeight *= GET_PLAYER(ePlayer).isHuman() ? GET_PLAYER(ePlayer).getHandicapInfo().getVictoryDisputePercent() : GC.getGame().getHandicapInfo().getVictoryDisputePercent();
-		iOpinionWeight /= 250;
+		iOpinionWeight /= 500;
 	}
 
 	return iOpinionWeight;
