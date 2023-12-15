@@ -136,12 +136,12 @@ public:
 //-------------------------------------------------------------------------------------------------
 struct SPathFinderUserData
 {
-	SPathFinderUserData() : ePathType(PT_GENERIC_SAME_AREA), iFlags(0), ePlayer(NO_PLAYER), eEnemy(NO_PLAYER), iUnitID(0), eBuildType(NO_BUILD), eRouteType(NO_ROUTE), bIsForCapital(false), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
+	SPathFinderUserData() : ePathType(PT_GENERIC_SAME_AREA), iFlags(0), ePlayer(NO_PLAYER), eEnemy(NO_PLAYER), iUnitID(0), eBuildType(NO_BUILD), eRouteType(NO_ROUTE), bBenefitsVillages(false), iMaxTurns(INT_MAX), iMaxNormalizedDistance(INT_MAX), iMinMovesLeft(0), iStartMoves(60) {}
 	SPathFinderUserData(const CvUnit* pUnit, int iFlags=0, int iMaxTurns=INT_MAX); // PT_AIR_REBASE (special case, set after construction)
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType); // PT_TRADE_WATER, PT_TRADE_LAND, PT_LANDMASS_CONNECTION, PT_CITY_CONNECTION_WATER
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, int iMaxTurns); // PT_AREA_CONNECTION (iMaxTurns is simple vs complex check (0/1)), PT_CITY_INFLUENCE
 	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, PlayerTypes eEnemy, int iMaxTurns); // PT_GENERIC_SAME_AREA, PT_GENERIC_SAME_AREA_WIDE, PT_ARMY_LAND, PT_ARMY_WATER, PT_ARMY_MIXED
-	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, BuildTypes eBuildType, RouteTypes eRouteType, bool bIsForCapital); // PT_BUILD_ROUTE, PT_BUILD_ROUTE_MIXED, PT_CITY_CONNECTION_LAND, PT_CITY_CONNECTION_MIXED
+	SPathFinderUserData(PlayerTypes ePlayer, PathType ePathType, BuildTypes eBuildType, RouteTypes eRouteType, bool bBenefitsVillages); // PT_BUILD_ROUTE, PT_BUILD_ROUTE_MIXED, PT_CITY_CONNECTION_LAND, PT_CITY_CONNECTION_MIXED
 
 	//do not compare max turns and max cost ...
 	bool operator==(const SPathFinderUserData& rhs) const 
@@ -151,7 +151,7 @@ struct SPathFinderUserData
 	PathType	ePathType;
 	RouteTypes  eRouteType;
 	BuildTypes  eBuildType;         //BuildType related to the RouteType
-	bool        bIsForCapital;
+	bool        bBenefitsVillages;
 	int			iFlags;				//see CvUnit::MOVEFLAG*
 	PlayerTypes ePlayer;			//optional
 	PlayerTypes eEnemy;

@@ -287,6 +287,7 @@ void CvPlayerAI::AI_unitUpdate()
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
 		GetTacticalAI()->Update();
 		GetHomelandAI()->Update();
+		GetTacticalAI()->CleanUp();
 	}
 }
 

@@ -106,7 +106,7 @@ public:
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
 	BuildTypes GetRemoveRoute(void);
-	BuildTypes GetBuildRoute(void);
+	BuildTypes GetBuildRoute(RouteTypes eRoute);
 
 	static void LogInfo(const CvString& str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
@@ -121,8 +121,8 @@ protected:
 	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit);
 	void LogDirective(BuilderDirective directive, CvUnit* pUnit, int iWeight, bool bChosen = false);
 
-	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
-	void ConnectCitiesForShortcuts(CvCity* pFirstCity, CvCity* pSecondCity, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
+	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute);
+	void ConnectCitiesForShortcuts(CvCity* pFirstCity, CvCity* pSecondCity, BuildTypes eBuild, RouteTypes eRoute);
 	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, BuildTypes eBuild, RouteTypes eRoute);
 	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
 
@@ -154,7 +154,6 @@ protected:
 	FeatureTypes m_eFalloutFeature;
 	BuildTypes m_eFalloutRemove;
 	BuildTypes m_eRemoveRouteBuild;
-	BuildTypes m_eRouteBuild;
 
 	//some player dependent flags for unique improvements
 	bool m_bKeepMarshes;
