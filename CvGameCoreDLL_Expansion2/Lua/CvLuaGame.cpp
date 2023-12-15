@@ -3462,7 +3462,7 @@ int CvLuaGame::lGetLongestCityConnectionPlots(lua_State* L)
 		int iLoop1;
 		int iLoop2;
 
-		SPathFinderUserData data(ePlayer, PT_CITY_CONNECTION_LAND, ROUTE_RAILROAD);
+		SPathFinderUserData data(ePlayer, PT_CITY_CONNECTION_LAND, NO_BUILD, ROUTE_RAILROAD, false);
 
 		for (pFirstCity = GET_PLAYER(ePlayer).firstCity(&iLoop1); pFirstCity != NULL; pFirstCity = GET_PLAYER(ePlayer).nextCity(&iLoop1))
 		{

@@ -944,7 +944,7 @@ map<int, SPath> CvMilitaryAI::GetArmyPathsFromCity(CvCity* pMusterCity, bool bWa
 
 	//re-use trade route distance to get an era-appropriate max distance
 	int iMaxNormDist = m_pPlayer->GetTrade()->GetTradeRouteRange(bWater?DOMAIN_SEA:DOMAIN_LAND, pMusterCity);
-	SPathFinderUserData data(m_pPlayer->GetID(), bWater?PT_ARMY_WATER:PT_ARMY_LAND);
+	SPathFinderUserData data(m_pPlayer->GetID(), bWater?PT_ARMY_WATER:PT_ARMY_LAND, NO_PLAYER, INT_MAX);
 	data.iMaxNormalizedDistance = iMaxNormDist;
 	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_ENEMIES;

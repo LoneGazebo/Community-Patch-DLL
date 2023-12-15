@@ -2132,7 +2132,7 @@ void CvTacticalAI::PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone)
 
 	// we want units which are somewhat close (so we don't deplete other combat zones) 
 	// do not set a player - that way we can traverse unrevealed plots and foreign territory
-	SPathFinderUserData data(NO_PLAYER, PT_ARMY_MIXED, -1, GetRecruitRange());
+	SPathFinderUserData data(NO_PLAYER, PT_ARMY_MIXED, NO_PLAYER, GetRecruitRange());
 	CvPlot* pTargetPlot = pTargetZone->GetZoneCity()->plot();
 
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTargetPlot, data);
@@ -5193,7 +5193,7 @@ bool CvTacticalAI::FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int
 {
 	m_CurrentMoveUnits.clear();
 	//need to convert turns to max path length here, zero turns away is also valid!
-	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, -1, (iNumTurnsAway+1)*3);
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_ARMY_MIXED, NO_PLAYER, (iNumTurnsAway+1)*3);
 	ReachablePlots relevantPlots = GC.GetStepFinder().GetPlotsInReach(pTarget, data);
 
 	for (ReachablePlots::iterator it = relevantPlots.begin(); it != relevantPlots.end(); ++it)

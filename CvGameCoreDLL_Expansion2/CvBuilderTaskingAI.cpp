@@ -260,7 +260,7 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 	return pPlot->calculateNatureYield(eYield, NO_PLAYER, NULL);
 }
 
-void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100)
+void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100)
 {
 	if(pTargetCity->IsRazing())
 	{
@@ -274,7 +274,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	// build a path between the two cities
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute,INT_MAX,true);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,true);
 	SPath path = GC.GetStepFinder().GetPath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
 
 	// if no path, try again with harbors allowed
@@ -392,7 +392,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 }
 
-void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity2, RouteTypes eRoute, int iNetGoldTimes100)
+void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100)
 {
 	// don't connect cities from different owners
 	if(pCity1->getOwner() != pCity2->getOwner())
@@ -413,7 +413,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	}
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,false);
 	SPath newPath = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	// cities are not on the same landmass? then give up
@@ -682,7 +682,7 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 }
 
 
-void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, RouteTypes eRoute)
+void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute)
 {
 	// don't connect cities from different owners
 	if(pCity1->getOwner() != pCity2->getOwner())
@@ -693,7 +693,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		return;
 
 	// build a path between the two cities
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,false);
 	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//  if no path, then bail!
@@ -715,7 +715,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 	}
 }
 
-void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, RouteTypes eRoute, int iNetGoldTimes100)
+void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100)
 {
 	// don't connect cities from different owners
 	if (pOriginCity->getOwner() != pTargetPlot->getOwner())
@@ -730,7 +730,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		return;
 
 	// build a path between the two cities
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,false);
 	SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
 
 	//  if no path, then bail!
@@ -837,13 +837,13 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 				if (pFirstCity && !pSecondCity)
 				{
-					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eRoute, iNetGoldTimes100);
+					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eBuild, eRoute, iNetGoldTimes100);
 					continue;
 				}
 
 				if (!pFirstCity && pSecondCity)
 				{
-					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eRoute, iNetGoldTimes100);
+					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eBuild, eRoute, iNetGoldTimes100);
 					continue;
 				}
 
@@ -859,7 +859,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 					{
 						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
 						//thus improving unit movement and gold bonus from villages
-						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eRoute, iNetGoldTimes100);
+						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eBuild, eRoute, iNetGoldTimes100);
 					}
 					else
 					{
@@ -874,12 +874,12 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 							pTargetCity = pFirstCity;
 						}
 
-						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute, iNetGoldTimes100);
+						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eBuild, eRoute, iNetGoldTimes100);
 					}
 				}
 				else
 				{
-					ConnectCitiesForScenario(pFirstCity, pSecondCity, eBestRoute);
+					ConnectCitiesForScenario(pFirstCity, pSecondCity, eBuild, eBestRoute);
 				}
 			}
 		}
