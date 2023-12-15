@@ -333,12 +333,19 @@ public:
 
 	// Public turn update routines
 	void Update();
+	void CleanUp();
 
 	// temporary focus of attention
 	void AddFocusArea(CvPlot* pPlot, int iRadius, int iDuration);
 	void DeleteFocusArea(CvPlot* pPlot);
 	void DropOldFocusAreas();
 	bool IsInFocusArea(const CvPlot* pPlot) const;
+
+	// Knowledge of other civs' vision
+	void UpdateVisibility();
+	void NewVisiblePlot(CvPlot* pPlot, bool bRevealed);
+	bool IsVisibleToPlayer(const CvPlot* pPlot, TeamTypes eOther);
+	bool IsVisibleToEnemy(const CvPlot* pPlot);
 
 	// For air units
 	bool ShouldRebase(CvUnit* pUnit) const;
@@ -466,6 +473,7 @@ private:
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
+	void UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed);
 
 	int GetRecruitRange() const;
 
@@ -511,6 +519,9 @@ private:
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;
+
+	// Visibility info
+	std::map<TeamTypes, std::set<int>> m_plotsVisibleToOtherPlayer;
 
 	std::vector<CvFocusArea> m_focusAreas;
 };
