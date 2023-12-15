@@ -2035,10 +2035,10 @@ void CvTacticalAI::PlotHedgehogMoves(CvTacticalDominanceZone* pZone)
 {
 	ClearCurrentMoveUnits(AI_TACTICAL_HEDGEHOG);
 
-	// Attack priority unit targets
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, true);
-	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, true);
+	// Be careful with our units, we don't have so many
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_HIGH_PRIORITY_UNIT, false, AL_LOW);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_MEDIUM_PRIORITY_UNIT, false, AL_LOW);
+	ExecuteDestroyUnitMoves(AI_TACTICAL_TARGET_LOW_PRIORITY_UNIT, false, AL_LOW);
 
 	// exception : early reinforcement before attacks in other zones are considered
 	PlotReinforcementMoves(pZone);
