@@ -204,6 +204,7 @@ void CvPlot::reset()
 	m_eResourceType = NO_RESOURCE;
 	m_eImprovementType = NO_IMPROVEMENT;
 	m_ePlayerBuiltImprovement = NO_PLAYER;
+	m_ePlayerBuiltRoute = NO_PLAYER;
 	m_ePlayerResponsibleForImprovement = NO_PLAYER;
 	m_ePlayerResponsibleForRoute = NO_PLAYER;
 	m_ePlayerThatClearedBarbCampHere = NO_PLAYER;
@@ -3521,6 +3522,28 @@ bool CvPlot::IsAdjacentOwnedByEnemy(TeamTypes eTeam) const
 }
 
 //	--------------------------------------------------------------------------------
+bool CvPlot::isAdjacentOwnedByVassal(TeamTypes eTeam, bool bLandOnly) const
+{
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
+	for (int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+		if(pAdjacentPlot != NULL)
+		{
+			if(pAdjacentPlot->getTeam() != NO_TEAM && GET_TEAM(pAdjacentPlot->getTeam()).IsVassal(eTeam))
+			{
+				if(!bLandOnly || !(pAdjacentPlot->isWater()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+//	--------------------------------------------------------------------------------
 bool CvPlot::isAdjacentTeam(TeamTypes eTeam, bool bLandOnly) const
 {
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
@@ -4061,26 +4084,6 @@ bool CvPlot::isVisibleToAnyTeam(bool bNoMinor) const
 		if(GET_TEAM((TeamTypes)iI).isAlive())
 		{
 			if(isVisible(((TeamTypes)iI)))
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
-}
-
-//	--------------------------------------------------------------------------------
-bool CvPlot::isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const
-{
-	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(eFriendlyPlayer).GetPlayersAtWarWith();
-
-	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
-	{
-		CvPlayer& kEnemy = GET_PLAYER(*it);
-		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(eFriendlyPlayer))
-		{
-			if (isVisible(kEnemy.getTeam()))
 			{
 				return true;
 			}
@@ -7361,6 +7364,7 @@ void CvPlot::setIsCity(bool bValue, int iCityID, int iWorkRange)
 		{
 			// Maintenance change!
 			SetPlayerResponsibleForRoute(getOwner());
+			SetPlayerThatBuiltRoute(getOwner());
 		}
 
 		// plot ownership will be changed in CvCity::preKill
@@ -8710,6 +8714,9 @@ void CvPlot::setRouteType(RouteTypes eNewValue, PlayerTypes eBuilder)
 			SetPlayerResponsibleForRoute(NO_PLAYER);
 		}
 
+		if(eOldRoute != eNewValue)
+			SetPlayerThatBuiltRoute(eBuilder);
+
 		// Route switch here!
 		m_eRouteType = eNewValue;
 
@@ -8832,6 +8839,20 @@ PlayerTypes CvPlot::GetPlayerThatBuiltImprovement() const
 void CvPlot::SetPlayerThatBuiltImprovement(PlayerTypes eBuilder)
 {
 	m_ePlayerBuiltImprovement = eBuilder;
+}
+
+//	--------------------------------------------------------------------------------
+/// Who built this Road?  Could be NO_PLAYER
+PlayerTypes CvPlot::GetPlayerThatBuiltRoute() const
+{
+	return (PlayerTypes) m_ePlayerBuiltRoute;
+}
+
+//	--------------------------------------------------------------------------------
+/// Who built this Road?  Could be NO_PLAYER
+void CvPlot::SetPlayerThatBuiltRoute(PlayerTypes eBuilder)
+{
+	m_ePlayerBuiltRoute = eBuilder;
 }
 
 //	--------------------------------------------------------------------------------
@@ -11302,6 +11323,17 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 
 	bool bVisbilityUpdated = false;
 	bool bRevealed = isRevealed(eTeam) != bNewValue;
+
+	// Update tactical AI, let it know that the tile was made visible
+	const CivsList pPlayers = GET_TEAM(eTeam).getPlayers();
+	for (size_t iJ = 0; iJ < pPlayers.size(); iJ++)
+	{
+		if (pPlayers[iJ] == GC.getGame().getActivePlayer())
+		{
+			GET_PLAYER(pPlayers[iJ]).GetTacticalAI()->NewVisiblePlot(this, bRevealed);
+		}
+	}
+
 	if(bRevealed)
 	{
 		bVisbilityUpdated = true;
@@ -12861,6 +12893,7 @@ void CvPlot::Serialize(Plot& plot, Visitor& visitor)
 
 	visitor(plot.m_ePlayerBuiltImprovement);
 	visitor(plot.m_ePlayerResponsibleForImprovement);
+	visitor(plot.m_ePlayerBuiltRoute);
 	visitor(plot.m_ePlayerResponsibleForRoute);
 	visitor(plot.m_ePlayerThatClearedBarbCampHere);
 	visitor(plot.m_ePlayerThatClearedDigHere);

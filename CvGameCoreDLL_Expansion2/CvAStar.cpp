@@ -2301,26 +2301,38 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	return iCost;
 }
 
-bool IsSafeForRoute(CvPlot* pPlot, CvPlayer* ePlayer)
+static bool IsSafeForRoute(CvPlot* pPlot, CvPlayer* pPlayer)
 {
+	TeamTypes ePlotTeam = pPlot->getTeam();
+	TeamTypes ePlayerTeam = pPlayer->getTeam();
+	PlayerTypes ePlotOwner = pPlot->getOwner();
+
 	// Our plots and surrounding plots are safe
-	if (pPlot->getTeam() == ePlayer->getTeam() || pPlot->isAdjacentTeam(ePlayer->getTeam(), false))
+	if (ePlotTeam == ePlayerTeam || pPlot->isAdjacentTeam(pPlayer->getTeam(), false))
+	{
+		return true;
+	}
+
+	// Our vassal's plots and surrounding plots are safe
+	if (GET_TEAM(ePlotTeam).IsVassal(ePlayerTeam) || pPlot->isAdjacentOwnedByVassal(ePlayerTeam, false))
 	{
 		return true;
 	}
 
 	// City state plots and surrounding plots are safe
-	if (pPlot->isOwned() && GET_PLAYER(pPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer->GetID()))
+	if (ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).isMinorCiv() && !GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(pPlayer->GetID()))
 	{
 		return true;
 	}
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	PlayerTypes eAdjacentOwner;
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
 		if (pAdjacentPlot != NULL)
 		{
-			if (pAdjacentPlot->isOwned() && GET_PLAYER(pAdjacentPlot->getOwner()).isMinorCiv() && !GET_PLAYER(pAdjacentPlot->getOwner()).GetMinorCivAI()->IsAtWarWithPlayersTeam(ePlayer->GetID()))
+			eAdjacentOwner = pAdjacentPlot->getOwner();
+			if (eAdjacentOwner != NO_PLAYER && GET_PLAYER(eAdjacentOwner).isMinorCiv() && !GET_PLAYER(eAdjacentOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(pPlayer->GetID()))
 			{
 				return true;
 			}

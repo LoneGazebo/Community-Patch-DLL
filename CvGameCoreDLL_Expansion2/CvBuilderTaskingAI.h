@@ -106,7 +106,7 @@ public:
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
 	BuildTypes GetRemoveRoute(void);
-	BuildTypes GetBuildRoute(void);
+	BuildTypes GetBuildRoute(RouteTypes eRoute);
 
 	static void LogInfo(const CvString& str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
@@ -154,7 +154,6 @@ protected:
 	FeatureTypes m_eFalloutFeature;
 	BuildTypes m_eFalloutRemove;
 	BuildTypes m_eRemoveRouteBuild;
-	BuildTypes m_eRouteBuild;
 
 	//some player dependent flags for unique improvements
 	bool m_bKeepMarshes;

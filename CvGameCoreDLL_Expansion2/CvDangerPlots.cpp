@@ -812,7 +812,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			{
 				int iDummy = 0;
 				int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, pAttacker->plot(), iDummy, false, 0, true);
-				if (!m_pPlot->isVisible(pAttacker->getTeam()))
+				if (!GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->IsVisibleToPlayer(m_pPlot, pAttacker->getTeam()))
 					iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
 				iPlotDamage += iDamage;
 			}
@@ -895,7 +895,7 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 			//if the attacker is not out of range, assume they need to move for the attack, so we don't know their plot
 			int iDamage = TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(pUnit, pAttacker, m_pPlot, bOutOfRange ? pAttacker->plot() : NULL, iAttackerDamage, false, iExtraDamage, true);
 
-			if (!m_pPlot->isVisible(pAttacker->getTeam()))
+			if (!GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->IsVisibleToPlayer(m_pPlot, pAttacker->getTeam()))
 				iDamage = (iDamage * 80) / 100; //there's a chance they won't spot us
 
 			if (iAttackerDamage >= pAttacker->GetCurrHitPoints() && !pAttacker->isSuicide())
