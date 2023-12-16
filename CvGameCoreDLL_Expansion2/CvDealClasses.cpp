@@ -4305,7 +4305,7 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 	if (!bAccepted)
 		return;
 
-	if (kDeal.m_TradedItems.size() <= 0)
+	if (kDeal.m_TradedItems.empty())
 		return;
 
 	ActivateDeal(eFromPlayer, eToPlayer, kDeal, veNowAtPeacePairs);
@@ -5351,7 +5351,7 @@ void CvGameDeals::DoTurn()
 {
 	DealList::iterator it;
 
-	if(m_CurrentDeals.size() > 0)
+	if(!m_CurrentDeals.empty())
 	{
 		PlayerTypes eFromPlayer = NO_PLAYER;
 		PlayerTypes eToPlayer = NO_PLAYER;
@@ -5523,7 +5523,7 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 	}
 	else
 	{
-		if(m_ProposedDeals.size() > 0)
+		if(!m_ProposedDeals.empty())
 		{
 			DealList::iterator iter;
 			for(iter = m_ProposedDeals.begin(); iter != m_ProposedDeals.end(); ++iter)
@@ -5545,7 +5545,7 @@ PlayerTypes CvGameDeals::HasMadeProposal(PlayerTypes ePlayer)
 
 bool CvGameDeals::ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-	if(m_ProposedDeals.size() > 0)
+	if(!m_ProposedDeals.empty())
 	{
 		DealList::iterator iter;
 		for(iter = m_ProposedDeals.begin(); iter != m_ProposedDeals.end(); ++iter)
@@ -5577,7 +5577,7 @@ CvDeal* CvGameDeals::GetProposedMPDeal(PlayerTypes eFromPlayer, PlayerTypes eToP
 #endif
 CvDeal* CvGameDeals::GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer)
 {
-	if(m_ProposedDeals.size() > 0)
+	if(!m_ProposedDeals.empty())
 	{
 		DealList::iterator iter;
 		for(iter = m_ProposedDeals.begin(); iter != m_ProposedDeals.end(); ++iter)
@@ -5623,7 +5623,7 @@ void CvGameDeals::DoUpdateCurrentDealsList()
 /// Deals between these two teams were interrupted (war or something)
 void CvGameDeals::DoCancelDealsBetweenTeams(TeamTypes eTeam1, TeamTypes eTeam2)
 {
-	if(m_CurrentDeals.size() > 0)
+	if(!m_CurrentDeals.empty())
 	{
 		PlayerTypes eFromPlayer;
 		PlayerTypes eToPlayer;
@@ -5670,7 +5670,7 @@ void CvGameDeals::DoCancelDealsBetweenPlayers(PlayerTypes eFromPlayer, PlayerTyp
 	DealList::iterator it;
 	DealList tempDeals;
 
-	if(m_CurrentDeals.size() > 0)
+	if(!m_CurrentDeals.empty())
 	{
 		bool bSomethingChanged = false;
 

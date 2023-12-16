@@ -7502,7 +7502,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			if(iPreValue != 0)
 			{
 				iPreValue *= -1;
-				if(yieldCostTip != "")
+				if(!yieldCostTip.empty())
 				{
 					yieldCostTip += ", ";
 				}
@@ -7534,7 +7534,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			iYieldValue /= 100;
 			if(iYieldValue != 0)
 			{
-				if(yieldInstantTip != "")
+				if(!yieldInstantTip.empty())
 				{
 					yieldInstantTip += ", ";
 				}
@@ -7564,7 +7564,7 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 			}
 			if(iCityValue != 0)
 			{
-				if(yieldCityTip != "")
+				if(!yieldCityTip.empty())
 				{
 					yieldCityTip += ", ";
 				}
@@ -7644,7 +7644,7 @@ CvString CvPlayer::GetDisabledTooltip(EventChoiceTypes eChosenEventChoice)
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_EventChoiceCanTake, GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE)
 	{
 		CvString strOverrideText = GetLocalizedText(pkEventInfo->getDisabledTooltip());
-		if (strOverrideText != "")
+		if (!strOverrideText.empty())
 		{
 			DisabledTT += strOverrideText;
 		}
@@ -9509,7 +9509,7 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 			for(int iI = 0; iI < pkEventChoiceInfo->GetNumNotifications(); iI++)
 			{
 				CvString strNotificationString = pkEventChoiceInfo->GetNotificationInfo(iI)->GetNotificationString();		
-				if(strNotificationString != NULL && strNotificationString != "")
+				if(strNotificationString != NULL && !strNotificationString.empty())
 				{
 					NotificationTypes eNotificationType = (NotificationTypes)FString::Hash(strNotificationString);
 					
@@ -11613,7 +11613,7 @@ void CvPlayer::doTurnPostDiplomacy()
 	for (int iInstantYield = 0; iInstantYield < NUM_INSTANT_YIELD_TYPES; iInstantYield++)
 	{
 		InstantYieldType eInstantYield = (InstantYieldType)iInstantYield;
-		if (getInstantYieldText(eInstantYield) != "" && getInstantYieldText(eInstantYield) != NULL)
+		if (!getInstantYieldText(eInstantYield).empty() && getInstantYieldText(eInstantYield) != NULL)
 		{
 			// Instant yield
 			Localization::String strInstantYield = Localization::Lookup(getInstantYieldText(eInstantYield));
@@ -28626,11 +28626,11 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 					sprintf_s(text, yieldString, iValue);
 					SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(), text);
 
-					if(citynameString == "")
+					if(citynameString.empty())
 					{
 						citynameString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_CITY", pLoopCity->getNameKey());
 					}
-					if(cityyieldString != "")
+					if(!cityyieldString.empty())
 					{
 						cityyieldString += ", ";
 					}
@@ -28679,18 +28679,18 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				LogInstantYield(eYield, iValue, iType, pLoopCity);
 			}
 		}
-		if(citynameString != "" && cityyieldString != "")
+		if(!citynameString.empty() && !cityyieldString.empty())
 		{
 			citynameString += cityyieldString;
 		}
-		if(totalyieldString != "" && citynameString != "")
+		if(!totalyieldString.empty() && !citynameString.empty())
 		{
 			totalyieldString += "[NEWLINE]";
 		}
 		totalyieldString += citynameString;
 	}
 	CvNotifications* pNotifications = GetNotifications();
-	if(!bSuppress && GetID() == GC.getGame().getActivePlayer() && pNotifications && totalyieldString != "")
+	if(!bSuppress && GetID() == GC.getGame().getActivePlayer() && pNotifications && !totalyieldString.empty())
 	{
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_INSTANT_YIELD");
 		if(pCity != NULL)
@@ -28703,7 +28703,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 		{
 			case INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					CvString MoreData = "";
 					if (pQuestData != NULL)
@@ -28846,7 +28846,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			case INSTANT_YIELD_TYPE_BIRTH:
 			case INSTANT_YIELD_TYPE_BIRTH_HOLY_CITY:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BIRTH");
 					localizedText << totalyieldString;
@@ -28864,7 +28864,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_BIRTH_RETROACTIVE:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BIRTH_RETROACTIVE");
 					localizedText << totalyieldString;
@@ -28879,7 +28879,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 			case INSTANT_YIELD_TYPE_TECH_RETROACTIVE:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TECH_RETROACTIVE");
 					localizedText << totalyieldString;
@@ -28894,7 +28894,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 			case INSTANT_YIELD_TYPE_REFUND:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REFUND");
 					localizedText << totalyieldString;
@@ -28913,7 +28913,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 
 			case INSTANT_YIELD_TYPE_FAITH_REFUND:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_FAITH_REFUND");
 					localizedText << totalyieldString;
@@ -28932,7 +28932,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			
 			case INSTANT_YIELD_TYPE_ERA_UNLOCK:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_ERA");
 					localizedText << totalyieldString;
@@ -28950,7 +28950,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
 					localizedText << totalyieldString;
@@ -28974,7 +28974,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_TECH:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TECH");
 					localizedText << totalyieldString;
@@ -28995,7 +28995,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			{
 				if (ePassBuilding != NO_BUILDING)
 				{
-					if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+					if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 					{
 						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
 						localizedText << totalyieldString;
@@ -29014,7 +29014,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_BORDERS:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_BORDERS");
 					localizedText << totalyieldString;
@@ -29032,7 +29032,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_PROPOSAL:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_PROPOSAL");
 					localizedText << totalyieldString;
@@ -29056,7 +29056,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_GP_BORN:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_GP_BORN");
 					localizedText << totalyieldString;
@@ -29095,7 +29095,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_U_PROD:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_UNIT_PRODUCTION");
 					localizedText << totalyieldString;
@@ -29131,7 +29131,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_TR_END:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TRADE_ROUTE");
 					localizedText << totalyieldString;
@@ -29156,7 +29156,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_DEATH:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_DEATH");
 					localizedText << totalyieldString;
@@ -29208,7 +29208,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			
 			case INSTANT_YIELD_TYPE_TR_MOVEMENT:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_MOVEMENT");
 					localizedText << totalyieldString;
@@ -29226,7 +29226,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_SCOUTING:
 			{
-				if(getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if(getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_SCOUTING");
 					localizedText << totalyieldString;
@@ -29258,7 +29258,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}	
 			case INSTANT_YIELD_TYPE_CULTURE_BOMB:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CULTURE_BOMB");
 					localizedText << totalyieldString;
@@ -29276,7 +29276,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_REMOVE_HERESY:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REMOVE_HERESY");
 					localizedText << totalyieldString;
@@ -29294,7 +29294,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE");
 					localizedText << totalyieldString;
@@ -29324,7 +29324,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_TR_PRODUCTION_SIPHON:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_PRODUCTION_SIPHON");
 					localizedText << totalyieldString;
@@ -29342,7 +29342,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_TR_MOVEMENT_IN_FOREIGN:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_TR_MOVEMENT_IN_FOREIGN");
 					localizedText << totalyieldString;
@@ -29360,7 +29360,7 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 			}
 			case INSTANT_YIELD_TYPE_IMPROVEMENT_BUILD:
 			{
-				if (getInstantYieldText(iType) == "" || getInstantYieldText(iType) == NULL)
+				if (getInstantYieldText(iType).empty() || getInstantYieldText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_IMPROVEMENT_BUILD");
 					localizedText << totalyieldString;
@@ -29770,11 +29770,11 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 						sprintf_s(text, gpString, iGPThresholdString);
 						SHOW_PLOT_POPUP(pLoopCity->plot(), GetID(),  text);
 					}
-					if (citynameString == "")
+					if (citynameString.empty())
 					{
 						citynameString += GetLocalizedText("TXT_KEY_INSTANT_YIELD_CITY", pLoopCity->getNameKey());
 					}
-					if (citygpString != "")
+					if (!citygpString.empty())
 					{
 						citygpString += ", ";
 					}
@@ -29782,18 +29782,18 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 				}
 			}
 		}
-		if (citynameString != "" && citygpString != "")
+		if (!citynameString.empty() && !citygpString.empty())
 		{
 			citynameString += citygpString;
 		}
-		if (totalgpString != "" && citynameString != "")
+		if (!totalgpString.empty() && !citynameString.empty())
 		{
 			totalgpString += "[NEWLINE]";
 		}
 		totalgpString += citynameString;
 	}
 	CvNotifications* pNotifications = GetNotifications();
-	if (!bSuppress && GetID() == GC.getGame().getActivePlayer() && pNotifications && totalgpString != "")
+	if (!bSuppress && GetID() == GC.getGame().getActivePlayer() && pNotifications && !totalgpString.empty())
 	{
 		Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_GREAT_PERSON_PROGRESS");
 		if (pCity != NULL)
@@ -29807,7 +29807,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 		{
 			case INSTANT_YIELD_TYPE_POLICY_UNLOCK:
 			{
-				if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
+				if (getInstantGreatPersonProgressText(iType).empty() || getInstantGreatPersonProgressText(iType) == NULL)
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
 					localizedText << totalgpString;
@@ -29827,7 +29827,7 @@ void CvPlayer::doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppre
 			{
 				if (eBuilding != NO_BUILDING)
 				{
-					if (getInstantGreatPersonProgressText(iType) == "" || getInstantGreatPersonProgressText(iType) == NULL)
+					if (getInstantGreatPersonProgressText(iType).empty() || getInstantGreatPersonProgressText(iType) == NULL)
 					{
 						localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CONSTRUCTION");
 						localizedText << totalgpString;
@@ -43765,7 +43765,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 
 		if (iSum > 0)
 		{
-			if (yieldtooltip != "")
+			if (!yieldtooltip.empty())
 			{
 				yieldtooltip += "[NEWLINE]";
 			}
@@ -43807,7 +43807,7 @@ CvString CvPlayer::getInstantYieldHistoryTooltip(int iGameTurn, int iNumPrevious
 
 	CvString tooltip = GetLocalizedText("TXT_KEY_YIELD_PER_TURN_HEADER", min(iNumPreviousTurnsToCount, MaxTurnsBack)) + "[NEWLINE]";
 
-	if (yieldtooltip != "")
+	if (!yieldtooltip.empty())
 	{
 		tooltip += yieldtooltip;
 	}

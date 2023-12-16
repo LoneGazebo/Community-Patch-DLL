@@ -30361,7 +30361,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 	case INTERFACEMODE_ATTACK:
 		if(IsCanAttackWithMove() && !isOutOfAttacks())
 		{
-			if(GetPlotsWithEnemyInMovementRange(false, IsCityAttackSupport()).size()>0 || bTestVisibility)
+			if(!GetPlotsWithEnemyInMovementRange(false, IsCityAttackSupport()).empty() || bTestVisibility)
 			{
 				return true;
 			}
