@@ -9201,8 +9201,10 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 
 	//if we did not make an attack, see if our units moved in the right way at least
 	//note that this comparison only works because we know we did not kill an enemy, which would change enemyDistance!
-	int iPositive = 0, iNegative = 0; //enemy distance change
-	int iBefore = 0, iAfter = 0; //target distance change
+	int iPositive = 0; //enemy distance change
+	int iNegative = 0; //enemy distance change
+	int iBefore = 0; //target distance change
+	int iAfter = 0; //target distance change
 	int iAttacksNoMove = 0;
 	for (size_t i = nFirstInterestingAssignment; i < assignedMoves.size(); i++)
 	{
