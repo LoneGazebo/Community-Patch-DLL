@@ -12267,14 +12267,7 @@ void CvCity::SetBuildingInvestment(BuildingClassTypes eBuildingClass, bool bNewV
 		// calculate reduction of building production cost
 		BuildingTypes eBuilding = NO_BUILDING;
 
-		if (MOD_BUILDINGS_THOROUGH_PREREQUISITES)
-		{
-			eBuilding = GetCityBuildings()->GetBuildingTypeFromClass(eBuildingClass);
-		}
-		else
-		{
-			eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType())->getCivilizationBuildings(eBuildingClass);
-		}
+		eBuilding = (BuildingTypes)GC.getCivilizationInfo(getCivilizationType())->getCivilizationBuildings(eBuildingClass);
 
 		int iNumProductionNeeded = getProductionNeeded(eBuilding);
 		int AmountNeededAfterInvestment = max(1, iNumProductionNeeded);
@@ -17794,205 +17787,14 @@ int CvCity::foodDifferenceTimes100(bool bJustCheckingStarve, CvString* toolTipSi
 	// Growth Mods - Only apply if the City is growing (and not starving, otherwise it would actually have the OPPOSITE of the intended effect!)
 	if (iDifference > 0)
 	{
-		int iTotalMod = 100;
-
-		// Capital Mod for player. Used for Policies and such
-		if (isCapital())
-		{
-			int iCapitalGrowthMod = GET_PLAYER(getOwner()).GetCapitalGrowthMod();
-			if (iCapitalGrowthMod != 0)
-			{
-				iTotalMod += iCapitalGrowthMod;
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_CAPITAL", iCapitalGrowthMod);
-			}
-		}
-
-		// City Mod for player. Used for Policies and such
-		int iCityGrowthMod = GET_PLAYER(getOwner()).GetCityGrowthMod();
-		if (iCityGrowthMod != 0)
-		{
-			iTotalMod += iCityGrowthMod;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PLAYER", iCityGrowthMod);
-		}
-
-#if defined(MOD_BALANCE_CORE)
-		if (GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) != 0))
-		{
-			int iBuildingMod = GetGoldenAgeYieldMod(YIELD_FOOD);
-			iTotalMod += iBuildingMod;
-			if (toolTipSink)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iBuildingMod);
-		}
-		if (GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD) != 0)
-		{
-			int iPolicyMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD);
-			iTotalMod += iPolicyMod;
-			if (toolTipSink)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES", iPolicyMod);
-		}
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD) != 0)
-		{
-			int iTraitMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD);
-			iTotalMod += iTraitMod;
-			if (toolTipSink)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_TRAITS", iTraitMod);
-		}
-
-		int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
-		if (MOD_BALANCE_VP && iSupply > 0)
-		{
-			int iSupplyMod = GET_PLAYER(getOwner()).GetUnitGrowthMaintenanceMod();
-			iTotalMod += iSupplyMod;
-			if (toolTipSink)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY", iSupplyMod);
-		}
-#endif
-		if (MOD_BALANCE_CORE)
-		{
-			int iGetGrowthModEvent = GetGrowthFromEvent();
-			iTotalMod += iGetGrowthModEvent;
-			if (iGetGrowthModEvent != 0)
-			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_EVENT", iGetGrowthModEvent);
-			}
-
-			int iGrowthTourism = GetGrowthFromTourism();
-			iTotalMod += iGrowthTourism;
-			if (iGrowthTourism != 0)
-			{
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
-			}
-		}
-
-		if (IsPuppet())
-		{
-			int iTempMod = GET_PLAYER(getOwner()).GetPuppetYieldPenaltyMod() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetPuppetPenaltyReduction() + /*0*/ GD_INT_GET(PUPPET_GROWTH_MODIFIER);
-			if (iTempMod > 0)
-				iTempMod = 0;
-			iTotalMod += iTempMod;
-			if (iTempMod != 0)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PUPPET", iTempMod);
-		}
-		// Religion growth mod
-		int iReligionGrowthMod = 0;
-		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-		if (eMajority != NO_RELIGION)
-		{
-			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-			if (pReligion)
-			{
-				bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
-				iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-				BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-
-				if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
-				{
-					int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-					iReligionGrowthMod += (iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_GROWTH_BONUS));
-				}
-
-				if (eSecondaryPantheon != NO_BELIEF)
-				{
-					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityGrowthModifier();
-				}
-			}
-		}
-
-		// Mod for civs keeping their pantheon belief forever
-		if (MOD_RELIGION_PERMANENT_PANTHEON)
-		{
-			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-			{
-				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GetCityReligions()->GetSecondaryReligionPantheonBelief())
-				{
-					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-					{
-						iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityGrowthModifier();
-					}
-				}
-			}
-		}
-
-		iTotalMod += iReligionGrowthMod;
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
-
-		if (MOD_BALANCE_VP)
-		{
-			int iHappiness = getHappinessDelta();
-
-			if (iHappiness > 0)
-				iHappiness *= /*2*/ GD_INT_GET(LOCAL_HAPPINESS_FOOD_MODIFIER);
-			else
-				iHappiness *= /*10*/ GD_INT_GET(LOCAL_UNHAPPINESS_FOOD_MODIFIER);
-
-			if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
-			{
-				if (iHappiness > 0)
-					iHappiness = 0;
-
-				iHappiness += GET_PLAYER(getOwner()).GetUnhappinessGrowthPenalty();
-			}
-
-			iHappiness = range(iHappiness, -100, 100);
-
-			iTotalMod += iHappiness;
-
-			if (iHappiness > 0)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_HAPPY", iHappiness);
-			else if (iHappiness < 0)
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iHappiness);
-		}
-		else
-		{
-			// Cities stop growing when empire is very unhappy
-			if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
-			{
-				int iMod = /*-100*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
-				iTotalMod += iMod;
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
-			}
-			// Cities grow slower if the player is over his Happiness Limit
-			else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
-			{
-				int iMod = /*-75*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
-				iTotalMod += iMod;
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
-			}
-		}
-
-		// WLTKD Growth Bonus
-		if (GetWeLoveTheKingDayCounter() > 0)
-		{
-			int iMod = /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
-			iTotalMod += iMod;
-			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD_UA", iMod);
-			else
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
-		}
-
-		//Resolution League Bonus	
-		if (MOD_BALANCE_VP && GetBaseYieldRateFromLeague(YIELD_FOOD) > 0)
-		{
-			int iMod = GetBaseYieldRateFromLeague(YIELD_FOOD);
-			iTotalMod += iMod;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_LEAGUE", iMod);
-		}
-
-		if (iTotalMod <= 0)
-			return 0;
-
-		iDifference *= iTotalMod;
+		iDifference *= (100 + getGrowthMods(toolTipSink));
 		iDifference /= 100;
 	}
 
 	return iDifference;
 }
 
-int CvCity::getGrowthMods() const
+int CvCity::getGrowthMods(CvString* toolTipSink) const
 {
 	int iTotalMod = 0;
 
@@ -18003,6 +17805,7 @@ int CvCity::getGrowthMods() const
 		if (iCapitalGrowthMod != 0)
 		{
 			iTotalMod += iCapitalGrowthMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_CAPITAL", iCapitalGrowthMod);
 		}
 	}
 
@@ -18011,22 +17814,29 @@ int CvCity::getGrowthMods() const
 	if (iCityGrowthMod != 0)
 	{
 		iTotalMod += iCityGrowthMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PLAYER", iCityGrowthMod);
 	}
 
 	if (GET_PLAYER(getOwner()).isGoldenAge() && (GetGoldenAgeYieldMod(YIELD_FOOD) != 0))
 	{
 		int iBuildingMod = GetGoldenAgeYieldMod(YIELD_FOOD);
 		iTotalMod += iBuildingMod;
+		if (toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_BUILDINGS", iBuildingMod);
 	}
 	if (GET_PLAYER(getOwner()).isGoldenAge() && GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD) != 0)
 	{
 		int iPolicyMod = GET_PLAYER(getOwner()).getGoldenAgeYieldMod(YIELD_FOOD);
 		iTotalMod += iPolicyMod;
+		if (toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_POLICIES", iPolicyMod);
 	}
 	if (GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD) != 0)
 	{
 		int iTraitMod = GET_PLAYER(getOwner()).GetPlayerTraits()->GetGoldenAgeYieldModifier(YIELD_FOOD);
 		iTotalMod += iTraitMod;
+		if (toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_GOLDEN_AGE_TRAITS", iTraitMod);
 	}
 
 	int iSupply = GET_PLAYER(getOwner()).GetNumUnitsOutOfSupply();
@@ -18034,15 +17844,22 @@ int CvCity::getGrowthMods() const
 	{
 		int iSupplyMod = GET_PLAYER(getOwner()).GetUnitGrowthMaintenanceMod();
 		iTotalMod += iSupplyMod;
+		if (toolTipSink)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_YIELD_OVER_SUPPLY", iSupplyMod);
 	}
 
-	if (MOD_BALANCE_CORE)
+	int iGrowthEvent = GetGrowthFromEvent();
+	iTotalMod += iGrowthEvent;
+	if (iGrowthEvent != 0)
 	{
-		int iGrowthEvents = GetGrowthFromEvent();
-		iTotalMod += iGrowthEvents;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_EVENT", iGrowthEvent);
+	}
 
-		int iGrowthTourism = GetGrowthFromTourism();
-		iTotalMod += iGrowthTourism;
+	int iGrowthTourism = GetGrowthFromTourism();
+	iTotalMod += iGrowthTourism;
+	if (iGrowthTourism != 0)
+	{
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_TOURISM", iGrowthTourism);
 	}
 
 	if (IsPuppet())
@@ -18051,12 +17868,12 @@ int CvCity::getGrowthMods() const
 		if (iTempMod > 0)
 			iTempMod = 0;
 		iTotalMod += iTempMod;
-
+		if (iTempMod != 0)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_PUPPET", iTempMod);
 	}
 	// Religion growth mod
 	int iReligionGrowthMod = 0;
 	ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-	BeliefTypes eSecondaryPantheon = NO_BELIEF;
 	if (eMajority != NO_RELIGION)
 	{
 		const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
@@ -18064,7 +17881,7 @@ int CvCity::getGrowthMods() const
 		{
 			bool bAtPeace = GET_TEAM(getTeam()).getAtWarCount(false) == 0;
 			iReligionGrowthMod = pReligion->m_Beliefs.GetCityGrowthModifier(bAtPeace, getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-			eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+			BeliefTypes eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
 
 			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 			{
@@ -18076,7 +17893,6 @@ int CvCity::getGrowthMods() const
 			{
 				iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityGrowthModifier();
 			}
-			iTotalMod += iReligionGrowthMod;
 		}
 	}
 
@@ -18087,16 +17903,19 @@ int CvCity::getGrowthMods() const
 		{
 			const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
 			BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+			if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != GetCityReligions()->GetSecondaryReligionPantheonBelief())
 			{
 				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
+				if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, pReligion->m_eReligion, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 				{
-					iTotalMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityGrowthModifier();
+					iReligionGrowthMod += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityGrowthModifier();
 				}
 			}
 		}
 	}
+
+	iTotalMod += iReligionGrowthMod;
+	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_RELIGION", iReligionGrowthMod);
 
 	if (MOD_BALANCE_VP)
 	{
@@ -18115,27 +17934,42 @@ int CvCity::getGrowthMods() const
 			iHappiness += GET_PLAYER(getOwner()).GetUnhappinessGrowthPenalty();
 		}
 
-		iTotalMod += std::max(iHappiness, -100);
+		iHappiness = range(iHappiness, -100, 100);
+
+		iTotalMod += iHappiness;
+
+		if (iHappiness > 0)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_HAPPY", iHappiness);
+		else if (iHappiness < 0)
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iHappiness);
 	}
 	else
 	{
 		// Cities stop growing when empire is very unhappy
 		if (GET_PLAYER(getOwner()).IsEmpireVeryUnhappy())
 		{
-			iTotalMod += std::max(/*-100*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY), -100);
+			int iMod = /*-100*/ GD_INT_GET(VERY_UNHAPPY_GROWTH_PENALTY);
+			iTotalMod += iMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 		}
-		// Cities grow much slower if the player is over his Happiness Limit
+		// Cities grow slower if the player is over his Happiness Limit
 		else if (GET_PLAYER(getOwner()).IsEmpireUnhappy())
 		{
-			iTotalMod += std::max(/*-75*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY), -100);
+			int iMod = /*-75*/ GD_INT_GET(UNHAPPY_GROWTH_PENALTY);
+			iTotalMod += iMod;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_UNHAPPY", iMod);
 		}
 	}
 
 	// WLTKD Growth Bonus
 	if (GetWeLoveTheKingDayCounter() > 0)
 	{
-		int iMod = /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
+		int iMod = /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER) + GET_PLAYER(getOwner()).GetPlayerTraits()->GetGrowthBoon();
 		iTotalMod += iMod;
+		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD_UA", iMod);
+		else
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_WLTKD", iMod);
 	}
 
 	//Resolution League Bonus	
@@ -18143,12 +17977,10 @@ int CvCity::getGrowthMods() const
 	{
 		int iMod = GetBaseYieldRateFromLeague(YIELD_FOOD);
 		iTotalMod += iMod;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_FOODMOD_LEAGUE", iMod);
 	}
 
-	if (iTotalMod <= -100)
-		return 0;
-
-	return iTotalMod;
+	return max(-100, iTotalMod);
 }
 
 //	--------------------------------------------------------------------------------

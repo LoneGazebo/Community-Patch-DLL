@@ -4780,7 +4780,7 @@ bool CvPlot::isNeutralUnit(PlayerTypes ePlayer, bool bCombat, bool bCheckVisibil
 			if(pLoopUnit && !pLoopUnit->isInvisible(eTeam, false) && !pLoopUnit->IsDead())
 			{
 				//airplanes not included
-				if (bCombat && (!pLoopUnit->IsCanDefend() || !pLoopUnit->isNativeDomain(this)))
+				if (bCombat && !pLoopUnit->IsCanDefend())
 					continue;
 
 				if (bIgnoreMinors && GET_PLAYER(pLoopUnit->getOwner()).isMinorCiv())
@@ -13631,18 +13631,18 @@ int CvPlot::Validate(CvMap& kParentMap)
 	// force mountain terrain on mountain plots for correct impassability & yields - map scripts are sloppy here
 	if (m_eTerrainType == TERRAIN_MOUNTAIN && m_ePlotType != PLOT_MOUNTAIN)
 	{
-		if (getFeatureType()<FEATURE_NATURAL_WONDER)
+		if (!IsNaturalWonder())
 			setFeatureType(NO_FEATURE);
 		setPlotType(PLOT_MOUNTAIN);
-		setResourceType(NO_RESOURCE,0);
+		setResourceType(NO_RESOURCE, 0);
 	}
 
 	if (m_ePlotType == PLOT_MOUNTAIN && m_eTerrainType != TERRAIN_MOUNTAIN)
 	{
-		if (getFeatureType()<FEATURE_NATURAL_WONDER)
+		if (!IsNaturalWonder())
 			setFeatureType(NO_FEATURE);
 		setTerrainType(TERRAIN_MOUNTAIN);
-		setResourceType(NO_RESOURCE,0);
+		setResourceType(NO_RESOURCE, 0);
 	}
 
 	// force correct terrain for ocean plots - just a failsafe

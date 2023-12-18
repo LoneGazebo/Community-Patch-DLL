@@ -180,8 +180,8 @@ function FeatureGenerator:AddFeatures(allow_mountains_on_coast)
 	self:AddAtolls(); -- Adds Atolls to oceanic maps.
 
 	-- Main loop, adds features to all plots as appropriate
-	for y = 0, self.iGridH - 1, 1 do
-		for x = 0, self.iGridW - 1, 1 do
+	for y = 0, self.iGridH - 1 do
+		for x = 0, self.iGridW - 1 do
 			self:AddFeaturesAtPlot(x, y);
 		end
 	end
@@ -205,7 +205,7 @@ function FeatureGenerator:AddFeaturesAtPlot(iX, iY)
 
 	if plot:CanHaveFeature(self.featureFloodPlains) then
 		-- All desert plots along river are set to flood plains.
-		plot:SetFeatureType(self.featureFloodPlains, -1);
+		plot:SetFeatureType(self.featureFloodPlains);
 	end
 
 	if plot:GetFeatureType() == FeatureTypes.NO_FEATURE then
@@ -233,7 +233,7 @@ end
 function FeatureGenerator:AddOasisAtPlot(plot)
 	if plot:CanHaveFeature(self.featureOasis) then
 		if Map.Rand(100, "Add Oasis Lua") <= self.iOasisPercent then
-			plot:SetFeatureType(self.featureOasis, -1);
+			plot:SetFeatureType(self.featureOasis);
 		end
 	end
 end
@@ -242,13 +242,13 @@ end
 function FeatureGenerator:AddIceAtPlot(plot, _, iY, lat)
 	if plot:CanHaveFeature(self.featureIce) then
 		if Map.IsWrapX() and (iY == 0 or iY == self.iGridH - 1) then
-			plot:SetFeatureType(self.featureIce, -1);
+			plot:SetFeatureType(self.featureIce);
 		else
 			local rand = Map.Rand(100, "Add Ice Lua") / 100.0;
 			if rand < 8 * (lat - 0.875) then
-				plot:SetFeatureType(self.featureIce, -1);
+				plot:SetFeatureType(self.featureIce);
 			elseif rand < 4 * (lat - 0.75) then
-				plot:SetFeatureType(self.featureIce, -1);
+				plot:SetFeatureType(self.featureIce);
 			end
 		end
 	end
@@ -259,7 +259,7 @@ function FeatureGenerator:AddMarshAtPlot(plot, iX, iY)
 	local marsh_height = self.marsh:GetHeight(iX, iY);
 	if marsh_height >= self.iMarshLevel then
 		if plot:CanHaveFeature(self.featureMarsh) then
-			plot:SetFeatureType(self.featureMarsh, -1);
+			plot:SetFeatureType(self.featureMarsh);
 		end
 	end
 end
@@ -269,7 +269,7 @@ function FeatureGenerator:AddJunglesAtPlot(plot, iX, iY, lat)
 	local jungle_height = self.jungles:GetHeight(iX, iY);
 	if jungle_height <= self.iJungleTop and jungle_height >= self.iJungleBottom + self.iJungleRange * lat then
 		if plot:CanHaveFeature(self.featureJungle) then
-			plot:SetFeatureType(self.featureJungle, -1);
+			plot:SetFeatureType(self.featureJungle);
 		end
 	end
 end
@@ -278,7 +278,7 @@ end
 function FeatureGenerator:AddForestsAtPlot(plot, iX, iY)
 	if self.forests:GetHeight(iX, iY) >= self.iForestLevel or self.forestclumps:GetHeight(iX, iY) >= self.iClumpLevel then
 		if plot:CanHaveFeature(self.featureForest) then
-			plot:SetFeatureType(self.featureForest, -1);
+			plot:SetFeatureType(self.featureForest);
 		end
 	end
 end
@@ -525,7 +525,7 @@ function FeatureGenerator:AddAtolls()
 			local x = (plotIndex - 1) % iW;
 			local y = (plotIndex - x - 1) / iW;
 			local plot = Map.GetPlot(x, y);
-			plot:SetFeatureType(self.featureAtoll, -1);
+			plot:SetFeatureType(self.featureAtoll);
 			iNumAtollsPlaced = iNumAtollsPlaced + 1;
 		else
 			-- print("** ERROR ** Atoll unable to be placed and/or chosen Plot Index was nil.");

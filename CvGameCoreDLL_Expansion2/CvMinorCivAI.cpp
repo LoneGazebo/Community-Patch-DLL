@@ -15613,7 +15613,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
 		if (pCapital)
 		{
-			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
+			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, NO_PLAYER, MINOR_POWER_COMPARISON_RADIUS);
 			data.iFlags = CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
@@ -18101,6 +18101,37 @@ void CvMinorCivAI::doIncomingUnitGifts()
 					if (pNewUnit)
 					{
 						unitGift.applyToUnit(eLoopPlayer, *pNewUnit);
+
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogName;
+							CvString playerName = GetPlayer()->getCivilizationShortDescription();
+
+							// Open the log file
+							if (GC.getPlayerAndCityAILogSplit())
+								strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
+							else
+								strLogName = "DiplomacyAI_MinorCiv_Log.csv";
+
+							FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+							// Turn number
+							CvString strBaseString;
+							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+
+							// Our Name
+							strBaseString += playerName;
+
+							// Their Name
+							CvString otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
+							strBaseString += ", " + otherPlayerName;
+							CvString strOutBuf = strBaseString;
+
+							// Info
+							strOutBuf += ", RECEIVED_UNIT_GIFT, " + pNewUnit->getName();
+							pLog->Msg(strOutBuf);
+						}
+
 
 						// Gift from a major to a city-state
 						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())

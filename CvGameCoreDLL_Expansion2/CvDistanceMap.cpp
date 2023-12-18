@@ -203,7 +203,7 @@ void CvDistanceMapByPathLength::Update()
 		for(CvCity* pLoopCity = thisPlayer.firstCity(&iCityIndex); pLoopCity != NULL; pLoopCity = thisPlayer.nextCity(&iCityIndex))
 		{
 			//do not set a player - that way we can traverse unrevealed plots and foreign territory
-			SPathFinderUserData data(NO_PLAYER, ePathType, -1, iMaxTurns);
+			SPathFinderUserData data(NO_PLAYER, ePathType, NO_PLAYER, iMaxTurns);
 			ReachablePlots turnsFromCity = GC.GetStepFinder().GetPlotsInReach(pLoopCity->plot(), data);
 
 			for (ReachablePlots::iterator it = turnsFromCity.begin(); it != turnsFromCity.end(); ++it)

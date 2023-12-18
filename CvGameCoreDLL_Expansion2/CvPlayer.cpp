@@ -1,4 +1,4 @@
-/*	-------------------------------------------------------------------------------------------------------
+﻿/*	-------------------------------------------------------------------------------------------------------
 	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
@@ -637,6 +637,7 @@ CvPlayer::CvPlayer() :
 	, m_ownedNaturalWonders()
 	, m_paiUnitClassProductionModifiers()
 	, m_iExtraSupplyPerPopulation()
+	, m_iExtraSupplyFlat()
 	, m_iCitySupplyFlatGlobal()
 	, m_iUnitSupplyFromExpendedGP()
 	, m_iMissionaryExtraStrength()
@@ -1573,6 +1574,7 @@ void CvPlayer::uninit()
 	m_iWarScoreModifier = 0;
 	m_iPlayerEventCooldown = 0;
 	m_iExtraSupplyPerPopulation = 0;
+	m_iExtraSupplyFlat = 0;
 	m_iCitySupplyFlatGlobal = 0;
 	m_iUnitSupplyFromExpendedGP = 0;
 	m_iMissionaryExtraStrength = 0;
@@ -18049,6 +18051,8 @@ int CvPlayer::GetNumUnitsSuppliedByCities(bool bIgnoreReduction) const
 	int iSupply = 0;
 	if (isMajorCiv())
 	{
+		iSupply += GetExtraSupplyFlat();
+
 		int iStartingSupplyPerCity = m_pTraits->GetExtraSupplyPerCity() + getCitySupplyFlatGlobal();
 		iStartingSupplyPerCity += getHandicapInfo().getUnitSupplyPerCity();
 		iStartingSupplyPerCity += isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIUnitSupplyPerCity();
@@ -43603,9 +43607,9 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 	int iYield = 0;
 	int iLoop = 0;
 
-	// Average over X turns unles iNumTurns is larger
+	// Average over X turns
 	int iNumHistory = /*10*/ GD_INT_GET(HISTORY_NUM_TURNS_TO_AVERAGE);
-	if (!MOD_BALANCE_VP || iNumTurns > iNumHistory)
+	if (!MOD_BALANCE_VP)
 		iNumHistory = iNumTurns;
 
 	std::vector<int>& viYieldHistory = m_aiYieldHistory[eYield];
@@ -43643,7 +43647,7 @@ int CvPlayer::getYieldPerTurnHistory(YieldTypes eYield, int iNumTurns, bool bIgn
 void CvPlayer::updateYieldPerTurnHistory()
 {
 	m_aiYieldHistory[YIELD_PRODUCTION].push_back(GetAverageProduction());
-	m_aiYieldHistory[YIELD_GOLD].push_back(calculateGoldRate());
+	m_aiYieldHistory[YIELD_GOLD].push_back(GetTreasury()->CalculateGrossGold());
 	m_aiYieldHistory[YIELD_SCIENCE].push_back(GetScience());
 	m_aiYieldHistory[YIELD_CULTURE].push_back(GetTotalJONSCulturePerTurn());
 	m_aiYieldHistory[YIELD_TOURISM].push_back(GetCulture()->GetTourism() / 100);
@@ -45605,6 +45609,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 #if defined(MOD_BALANCE_CORE_POLICIES)
 	ChangeGreatGeneralCombatBonus(pPolicy->GetGreatGeneralExtraBonus() * iChange);
 	ChangeExtraSupplyPerPopulation(pPolicy->GetExtraSupplyPerPopulation() * iChange);
+	ChangeExtraSupplyFlat(pPolicy->GetExtraSupplyFlat() * iChange);
 	ChangeCSAlliesLowersPolicyNeedWonders(pPolicy->GetXCSAlliesLowersPolicyNeedWonders() * iChange);
 	ChangeHappinessPerXPopulationGlobal(pPolicy->GetHappinessPerXPopulationGlobal() * iChange);
 	ChangeIdeologyPoint(pPolicy->GetIdeologyPoint() * iChange);
@@ -48146,6 +48151,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_ownedNaturalWonders);
 	visitor(player.m_paiUnitClassProductionModifiers);
 	visitor(player.m_iExtraSupplyPerPopulation);
+	visitor(player.m_iExtraSupplyFlat);
 	visitor(player.m_iCitySupplyFlatGlobal);
 	visitor(player.m_iUnitSupplyFromExpendedGP);
 	visitor(player.m_iMissionaryExtraStrength);
@@ -50400,6 +50406,17 @@ int CvPlayer::GetExtraSupplyPerPopulation() const
 void CvPlayer::ChangeExtraSupplyPerPopulation(int iChange)
 {
 	m_iExtraSupplyPerPopulation += iChange;
+}
+
+//	--------------------------------------------------------------------------------
+int CvPlayer::GetExtraSupplyFlat() const
+{
+	return m_iExtraSupplyFlat;
+}
+
+void CvPlayer::ChangeExtraSupplyFlat(int iChange)
+{
+	m_iExtraSupplyFlat += iChange;
 }
 
 //	--------------------------------------------------------------------------------

@@ -1394,6 +1394,12 @@
       </Content>
       <Content>
         <Type>MapScript</Type>
+        <Name>Lakes</Name>
+        <Description>Large Islands mapscript compatible with VP</Description>
+        <FileName>Mapscripts/Large_Islands.lua</FileName>
+      </Content>
+      <Content>
+        <Type>MapScript</Type>
         <Name>North vs South</Name>
         <Description>North vs South mapscript compatible with VP</Description>
         <FileName>Mapscripts/North_vs_South.lua</FileName>
@@ -5933,6 +5939,10 @@
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>
     <Content Include="Mapscripts\Lakes.lua">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>True</ImportIntoVFS>
+    </Content>
+    <Content Include="Mapscripts\Large_Islands.lua">
       <SubType>Lua</SubType>
       <ImportIntoVFS>True</ImportIntoVFS>
     </Content>

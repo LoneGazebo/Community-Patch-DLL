@@ -234,8 +234,11 @@
 			<Text>[COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<!-- CV progress screen -->
+		<Row Tag="TXT_KEY_CO_TAB_PLAYER_INFLUENCE2">
+			<Text>Influence on Player</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY">
-			<Text>-{1_NumTurns}% from Empire Size difference[NEWLINE]</Text>
+			<Text>-{1_NumTurns}% from Empire Size ({2_NumCity} City Difference)[NEWLINE]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CO_PLAYER_TOURISM_WARSCORE">
 			<Text>+{1_Num}% Bonus from Highest Warscore[NEWLINE]</Text>

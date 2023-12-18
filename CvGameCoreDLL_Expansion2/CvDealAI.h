@@ -69,7 +69,7 @@ public:
 	int GetGPTForForValueExchange(int iGPTorValue, bool bNumGPTFromValue, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
 	int GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
-	vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int iNumTurns, bool bFromMe, int iNumAvailable, bool bPeaceDeal);
+	vector<int> GetStrategicResourceItemList(ResourceTypes eResource, int iNumTurns, bool bFromMe, int iNumAvailable, bool bPeaceDeal);
 	int GetStrategicResourceValue(ResourceTypes eResource, int iResourceQuantity, int iNumTurns, bool bFromMe, PlayerTypes eOtherPlayer, int iCurrentNetGoldOfReceivingPlayer);
 	int GetEmbassyValue(bool bFromMe, PlayerTypes eOtherPlayer);
 	int GetOpenBordersValue(bool bFromMe, PlayerTypes eOtherPlayer);

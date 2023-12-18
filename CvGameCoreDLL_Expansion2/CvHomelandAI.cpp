@@ -1281,7 +1281,6 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 	if (eBestGiftTarget != NO_PLAYER)
 	{
 		vector<int> vUnitIDs;
-		bool bFoundOne = false;
 		int iLoop = 0;
 		for (CvUnit* pUnit = m_pPlayer->firstUnit(&iLoop); pUnit != NULL; pUnit = m_pPlayer->nextUnit(&iLoop))
 		{
@@ -1313,11 +1312,10 @@ bool CvHomelandAI::SendUnitGift(DomainTypes eDomain)
 					}
 
 					vUnitIDs.push_back(pUnit->GetID());
-					bFoundOne = true;
 				}
 			}
 		}
-		if (bFoundOne)
+		if (!vUnitIDs.empty())
 		{
 			CvUnit* pGiftedUnit = NULL;
 			int GiftedUnitID = -1;
@@ -1404,7 +1402,7 @@ void CvHomelandAI::ExecutePatrolMoves()
 		vWaterTargets = HomelandAIHelpers::GetPatrolTargets(m_pPlayer->GetID(), true, iUnitsSea);
 
 	int iUnitMoveRange = m_pPlayer->isMinorCiv() ? 5 : 9; //determines how far a unit can move for a patrol
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_ARMY_MIXED,-1,iUnitMoveRange);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_ARMY_MIXED,NO_PLAYER,iUnitMoveRange);
 	std::map<CvPlot*,ReachablePlots> mapReachablePlots;
 	for (size_t i=0; i<vLandTargets.size(); i++)
 		mapReachablePlots.insert(std::make_pair(vLandTargets[i].pTarget, GC.GetStepFinder().GetPlotsInReach(vLandTargets[i].pTarget,data)));
@@ -3268,7 +3266,7 @@ void CvHomelandAI::ExecuteMusicianMoves()
 		switch(eDirective)
 		{
 		case GREAT_PEOPLE_DIRECTIVE_TOURISM_BLAST:
-			break;
+			break; //we have an (escorted) AI operation for this
 
 		case GREAT_PEOPLE_DIRECTIVE_USE_POWER:
 			{
@@ -5344,8 +5342,8 @@ CvPlot* CvHomelandAI::FindArchaeologistTarget(CvUnit *pUnit)
 				}
 			}
 
-			int iTurns = pUnit->TurnsToReachTarget(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns);
-			if (iTurns < iBestTurns)
+			int iTurns = INT_MAX;
+			if (pUnit->GeneratePath(pTarget, CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_TURN_END_IS_NEXT_TURN, iBestTurns, &iTurns) && pUnit->CachedPathIsSafeForCivilian())
 			{
 				pBestTarget = pTarget;
 				iBestTurns = iTurns;

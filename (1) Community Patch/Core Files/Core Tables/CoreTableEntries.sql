@@ -1536,6 +1536,9 @@ ALTER TABLE Policies ADD COLUMN 'BestNumberSeaRangedUnitClass' INTEGER DEFAULT 0
 -- Extra Military Supply from Population
 ALTER TABLE Policies ADD COLUMN 'ExtraSupplyPerPopulation' INTEGER DEFAULT 0;
 
+-- Extra flat supply
+ALTER TABLE Policies ADD COLUMN 'ExtraSupplyFlat' integer DEFAULT 0;
+
 ALTER TABLE Units ADD COLUMN 'NoSupply' INTEGER DEFAULT 0;
   
 ALTER TABLE UnitPromotions ADD COLUMN 'NoSupply' INTEGER DEFAULT 0;

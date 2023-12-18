@@ -11,6 +11,9 @@ include("MultilayeredFractal");
 include("FeatureGenerator");
 include("TerrainGenerator");
 include("MapmakerUtilities");
+local dominant_terrain;
+local centWestX, centEastX, centNorthY, centSouthY;
+local region_coords_data;
 
 ------------------------------------------------------------------------------
 --[[
@@ -34,13 +37,13 @@ Ring now comes with four options for dominant terrain, though, instead of
 just Grassland like before. Start plots have a wider range to choose from
 than previously, so tend to find the best spot available much more often. In
 some cases, a civ can even start along the coast now. (Either coast!)
-]]--
+--]]
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
 function GetMapScriptInfo()
 	return {
-		Name = "TXT_KEY_MAP_RING",
+		Name = "TXT_KEY_MAP_RING_VP",
 		Description = "TXT_KEY_MAP_RING_HELP",
 		IconAtlas = "WORLDTYPE_ATLAS_2",
 		IconIndex = 2,
@@ -91,14 +94,14 @@ function GetMapScriptInfo()
 				SortPriority = 4,
 			},
 		},
-	}
+	};
 end
 ------------------------------------------------------------------------------
 
 -------------------------------------------------------------------------------
 function GetMapInitData(worldSize)
 	-- This function can reset map grid sizes or world wrap settings.
-	--
+
 	-- Ring is a world with extra land vs water, so use grid sizes one level below normal.
 	local worldsizes = {
 		[GameInfo.Worlds.WORLDSIZE_DUEL.ID] = {32, 20},
@@ -106,18 +109,17 @@ function GetMapInitData(worldSize)
 		[GameInfo.Worlds.WORLDSIZE_SMALL.ID] = {52, 32},
 		[GameInfo.Worlds.WORLDSIZE_STANDARD.ID] = {64, 40},
 		[GameInfo.Worlds.WORLDSIZE_LARGE.ID] = {84, 52},
-		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {104, 64}
-		}
+		[GameInfo.Worlds.WORLDSIZE_HUGE.ID] = {104, 64},
+	}
 	local grid_size = worldsizes[worldSize];
-	--
-	local world = GameInfo.Worlds[worldSize];
-	if(world ~= nil) then
-	return {
-		Width = grid_size[1],
-		Height = grid_size[2],
-		WrapX = false,
-	};      
-     end
+
+	if GameInfo.Worlds[worldSize] then
+		return {
+			Width = grid_size[1],
+			Height = grid_size[2],
+			WrapX = false,
+		};
+	end
 end
 -------------------------------------------------------------------------------
 
@@ -126,9 +128,9 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	-- Sirian's MultilayeredFractal controlling function.
 	-- You -MUST- customize this function for each script using MultilayeredFractal.
 	-- The following regions are specific to Ring.
-	--
+
 	-- Get user inputs.
-	dominant_terrain = Map.GetCustomOption(1) -- GLOBAL variable.
+	dominant_terrain = Map.GetCustomOption(1); -- GLOBAL variable.
 	if dominant_terrain == 5 then -- Random
 		dominant_terrain = 1 + Map.Rand(4, "Random Type of Dominant Terrain - Ring LUA");
 	end
@@ -136,7 +138,7 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	if landmass_type == 4 then
 		landmass_type = 1 + Map.Rand(3, "Landmass Type - Lua");
 	end
-	local bridge_width = Map.GetCustomOption(3)
+	local bridge_width = Map.GetCustomOption(3);
 	if bridge_width == 4 then -- Random
 		bridge_width = 2 + Map.Rand(3, "Random Bridge Width - Ring LUA");
 	else
@@ -159,15 +161,14 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		{{0.1, 0.167}, {0.1, 0.833}, {0.9, 0.833}, {0.9, 0.167}, {0.1, 0.167}},
 	};
 	local iNumCivs = 0;
-	for i = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+	for i = 0, MAX_MAJOR_CIVS - 1 do
 		local player = Players[i];
 		if player:IsEverAlive() then
 			iNumCivs = iNumCivs + 1;
 		end
 	end
 	local ring_coords = ring_corners[iNumCivs];
-	local iW, iH = Map.GetGridSize()
-	local iWH = iW * iH;
+	local iW, iH = Map.GetGridSize();
 	local offsetstart = 0 - math.floor(bridge_width / 2);
 	for ring_loop = 1, 4 do
 		local start_coords, end_coords = ring_coords[ring_loop], ring_coords[ring_loop + 1];
@@ -175,7 +176,7 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		local starty = math.floor(start_coords[2] * iH);
 		local endx = math.floor(end_coords[1] * iW);
 		local endy = math.floor(end_coords[2] * iH);
-		if math.abs(endy-starty) < math.abs(endx-startx) then
+		if math.abs(endy - starty) < math.abs(endx - startx) then
 			-- line is horizontal
 			if startx > endx then
 				startx, starty, endx, endy = endx, endy, startx, starty; -- swap start and end
@@ -183,8 +184,8 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 			local y = starty;
 			for x = startx, endx do
 				for offset = offsetstart, offsetstart + bridge_width - 1 do
-					local plot = Map.GetPlot(x, y + offset)
-					if plot ~= nil then
+					local plot = Map.GetPlot(x, y + offset);
+					if plot then
 						local i = (y + offset) * iW + x + 1;
 						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_LAND;
 					end
@@ -198,8 +199,8 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 			local x = startx;
 			for y = starty, endy do
 				for offset = offsetstart, offsetstart + bridge_width - 1 do
-					local plot = Map.GetPlot(x + offset, y)
-					if plot ~= nil then
+					local plot = Map.GetPlot(x + offset, y);
+					if plot then
 						local i = y * iW + (x + offset) + 1;
 						self.wholeworldPlotTypes[i] = PlotTypes.PLOT_LAND;
 					end
@@ -207,7 +208,7 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 			end
 		end
 	end
-			
+
 	-- Add center island
 	local center_isle_data = {
 		{},
@@ -232,7 +233,7 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	centNorthY = math.floor(iH * center_isle[4]) - 1;
 	local centHeight = centNorthY - centSouthY + 1;
 
-	args = {};
+	local args = {};
 	args.iWaterPercent = 65;
 	args.iRegionWidth = centWidth;
 	args.iRegionHeight = centHeight;
@@ -241,15 +242,11 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 	args.iRegionGrain = 4 - landmass_type;
 	args.iRegionHillsGrain = 3;
 	args.iRegionPlotFlags = self.iHorzFlags;
-	--args.iRegionFracXExp
-	--args.iRegionFracYExp 
-	--args.iRiftGrain
-	--args.bShift
-	
-	self:GenerateFractalLayer(args)
+
+	self:GenerateFractalLayer(args);
 
 	-- Templates are nested by keys: {NumRegions: {Region#: {WestLon, EastLon, SouthLat, NorthLat}}}
-	templates = {
+	local templates = {
 		{},
 		-- 2 Civs
 		{
@@ -378,7 +375,7 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		local iWidth = iEastX - iWestX + 1;
 		local iHeight = iNorthY - iSouthY + 1;
 
-		local args = {};
+		args = {};
 		args.iWaterPercent = 55;
 		args.iRegionWidth = iWidth;
 		args.iRegionHeight = iHeight;
@@ -387,22 +384,11 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		args.iRegionGrain = 4 - landmass_type;
 		args.iRegionHillsGrain = 3;
 		args.iRegionPlotFlags = self.iNoFlags;
-		--args.iRegionFracXExp
-		--args.iRegionFracYExp 
-		--args.iRiftGrain
-		--args.bShift
 
-		self:GenerateFractalLayer(args)
+		self:GenerateFractalLayer(args);
 
 		-- Core fractal to increase cohesion
-		local coreWestX = iWestX + math.floor(iWidth * 0.25);
-		local coreEastX = iEastX - math.floor(iWidth * 0.25);
-		local coreSouthY = iSouthY + math.floor(iHeight * 0.25);
-		local coreNorthY = iNorthY - math.floor(iHeight * 0.25);
-		local coreWidth = coreEastX - coreWestX + 1;
-		local coreHeight = coreNorthY - coreSouthY + 1;
-
-		local args = {};
+		args = {};
 		args.iWaterPercent = 55;
 		args.iRegionWidth = iWidth;
 		args.iRegionHeight = iHeight;
@@ -413,14 +399,12 @@ function MultilayeredFractal:GeneratePlotsByRegion()
 		args.iRegionPlotFlags = self.iHorzFlags;
 		args.iRegionFracXExp = 5;
 		args.iRegionFracYExp = 5;
-		--args.iRiftGrain
-		--args.bShift
-	
-		self:GenerateFractalLayer(args)
+
+		self:GenerateFractalLayer(args);
 	end
 
 	-- Plot Type generation completed. Return global plot array.
-	return self.wholeworldPlotTypes
+	return self.wholeworldPlotTypes;
 end
 ------------------------------------------------------------------------------
 function GeneratePlotTypes()
@@ -428,27 +412,26 @@ function GeneratePlotTypes()
 
 	local layered_world = MultilayeredFractal.Create();
 	local plotsRing = layered_world:GeneratePlotsByRegion();
-	
+
 	SetPlotTypes(plotsRing);
-	GenerateCoasts()
+	GenerateCoasts();
 end
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
 function TerrainGenerator:GenerateTerrainAtPlot(iX, iY)
-	local lat = self:GetLatitudeAtPlot(iX, iY);
 	local terrainVal = self.terrainGrass;
 
 	local plot = Map.GetPlot(iX, iY);
-	if (plot:IsWater()) then
+	if plot:IsWater() then
 		local val = plot:GetTerrainType();
 		if val == TerrainTypes.NO_TERRAIN then -- Error handling.
 			val = self.terrainGrass;
 			plot:SetPlotType(PlotTypes.PLOT_LAND, false, false);
 		end
-		return val;	 
+		return val;
 	end
-	
+
 	-- Check to see if plot is in center region, which is Polar.
 	if iX >= centWestX and iX <= centEastX and iY >= centSouthY and iY <= centNorthY then
 		-- Mostly Tundra, but a smattering of snow or plains.
@@ -479,17 +462,17 @@ function TerrainGenerator:GenerateTerrainAtPlot(iX, iY)
 			terrainVal = self.terrainPlains;
 		end
 	end
-	
+
 	return terrainVal;
 end
 ------------------------------------------------------------------------------
 function GenerateTerrain()
 	print("Generating Terrain (Lua Ring) ...");
-	
+
 	local terraingen = TerrainGenerator.Create();
 
 	local terrainTypes = terraingen:GenerateTerrain();
-	
+
 	SetTerrainTypes(terrainTypes);
 end
 ------------------------------------------------------------------------------
@@ -498,38 +481,38 @@ end
 function FeatureGenerator:__initFractals()
 	local width = self.iGridW;
 	local height = self.iGridH;
-	
+
 	-- Create fractals
-	self.jungles		= Fractal.Create(width, height, self.jungle_grain, self.fractalFlags, self.fracXExp, self.fracYExp);
-	self.forests		= Fractal.Create(width, height, self.forest_grain, self.fractalFlags, self.fracXExp, self.fracYExp);
-	self.forestclumps	= Fractal.Create(width, height, self.clump_grain, self.fractalFlags, self.fracXExp, self.fracYExp);
-	self.marsh			= Fractal.Create(width, height, 4, self.fractalFlags, self.fracXExp, self.fracYExp);
-	
+	self.jungles = Fractal.Create(width, height, self.jungle_grain, self.fractalFlags, self.fracXExp, self.fracYExp);
+	self.forests = Fractal.Create(width, height, self.forest_grain, self.fractalFlags, self.fracXExp, self.fracYExp);
+	self.forestclumps = Fractal.Create(width, height, self.clump_grain, self.fractalFlags, self.fracXExp, self.fracYExp);
+	self.marsh = Fractal.Create(width, height, 4, self.fractalFlags, self.fracXExp, self.fracYExp);
+
 	-- Get heights
-	self.iJungleBottom	= self.jungles:GetHeight((100 - self.iJunglePercent)/2)
-	self.iJungleTop		= self.jungles:GetHeight((100 + self.iJunglePercent)/2)
-	self.iJungleRange	= (self.iJungleTop - self.iJungleBottom) * self.iJungleFactor;
-	self.iForestLevel	= self.forests:GetHeight(80) -- 20% forest coverage
-	self.iClumpLevel	= self.forestclumps:GetHeight(94) -- 6% forest clumps
-	self.iMarshLevel	= self.marsh:GetHeight(100 - self.fMarshPercent)
-	
+	self.iJungleBottom = self.jungles:GetHeight((100 - self.iJunglePercent) / 2);
+	self.iJungleTop = self.jungles:GetHeight((100 + self.iJunglePercent) / 2);
+	self.iJungleRange = (self.iJungleTop - self.iJungleBottom) * self.iJungleFactor;
+	self.iForestLevel = self.forests:GetHeight(80); -- 20% forest coverage
+	self.iClumpLevel = self.forestclumps:GetHeight(94); -- 6% forest clumps
+	self.iMarshLevel = self.marsh:GetHeight(100 - self.fMarshPercent);
+
 	if dominant_terrain == 3 then -- Forest
-		self.iClumpLevel	= self.forestclumps:GetHeight(65) -- 35% forest clumps
-		self.iForestLevel	= self.forests:GetHeight(55) -- 45% forest coverage of what isn't covered by clumps.
+		self.iClumpLevel = self.forestclumps:GetHeight(65); -- 35% forest clumps
+		self.iForestLevel = self.forests:GetHeight(55); -- 45% forest coverage of what isn't covered by clumps.
 	end
 end
 ------------------------------------------------------------------------------
-function FeatureGenerator:AddIceAtPlot(plot, iX, iY, lat)
+function FeatureGenerator:AddIceAtPlot()
 	-- No ice.
 end
 ------------------------------------------------------------------------------
-function FeatureGenerator:AddJunglesAtPlot(plot, iX, iY, lat)
+function FeatureGenerator:AddJunglesAtPlot(plot, iX, iY)
 	if dominant_terrain == 4 then -- Jungle
-		if (iX < centWestX or iX > centEastX or iY < centSouthY or iY > centNorthY) then
+		if iX < centWestX or iX > centEastX or iY < centSouthY or iY > centNorthY then
 			local jungle_height = self.jungles:GetHeight(iX, iY);
 			if jungle_height <= self.jungles:GetHeight(90) and jungle_height >= self.jungles:GetHeight(15) then
 				if plot:IsFlatlands() or plot:IsHills() then
-					plot:SetFeatureType(self.featureJungle, -1);
+					plot:SetFeatureType(self.featureJungle);
 				end
 			end
 		end
@@ -562,25 +545,25 @@ end
 ------------------------------------------------------------------------------
 
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateRegions(args)
+function AssignStartingPlots:GenerateRegions()
 	print("Map Generation - Dividing the map in to Regions - Lua Ring");
 	self.resBalance = true;
 	self.method = RegionDivision.BIGGEST_LANDMASS;
 
-	self.iNumCivs, self.iNumCityStates, self.player_ID_list, self.bTeamGame, self.teams_with_major_civs, self.number_civs_per_team = GetPlayerAndTeamInfo()
+	self.iNumCivs, self.iNumCityStates, self.player_ID_list, self.bTeamGame, self.teams_with_major_civs, self.number_civs_per_team = GetPlayerAndTeamInfo();
 	if self.iNumCityStates > 5 then
 		self.iNumCityStates = 5;
 	end
 	self.iNumCityStatesUnassigned = self.iNumCityStates;
-	
+
 	local iNumCivs = 0;
-	for i = 0, GameDefines.MAX_MAJOR_CIVS - 1 do
+	for i = 0, MAX_MAJOR_CIVS - 1 do
 		local player = Players[i];
 		if player:IsEverAlive() then
 			iNumCivs = iNumCivs + 1;
 		end
 	end
-	
+
 	-- Set up region data for Ring.
 	-- (Regions are pre-defined, rather than the usual method of recursive division used in most scripts).
 	for region_number = 1, iNumCivs do
@@ -592,44 +575,41 @@ function AssignStartingPlots:GenerateRegions(args)
 		local iWidth = iEastX - iWestX + 1;
 		local iHeight = iNorthY - iSouthY + 1;
 
-		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityInRectangle(iWestX, iSouthY, iWidth, iHeight)
+		local _, fertCount, plotCount = self:MeasureStartPlacementFertilityInRectangle(iWestX, iSouthY, iWidth, iHeight);
 		local fAverageFertility = fertCount / plotCount;
 		local rect_table = {iWestX, iSouthY, iWidth, iHeight, -1, fertCount, plotCount, fAverageFertility};
 		table.insert(self.regionData, rect_table);
 	end
-	
+
 	--[[ Printout is for debugging only. Deactivate otherwise.
 	local tempRegionData = self.regionData;
 	for i, data in ipairs(tempRegionData) do
 		print("-");
 		print("Data for Start Region #", i);
-		print("WestX:  ", data[1]);
-		print("SouthY: ", data[2]);
-		print("Width:  ", data[3]);
-		print("Height: ", data[4]);
-		print("AreaID: ", data[5]);
+		print("WestX:", data[1]);
+		print("SouthY:", data[2]);
+		print("Width:", data[3]);
+		print("Height:", data[4]);
+		print("AreaID:", data[5]);
 		print("Fertility:", data[6]);
-		print("Plots:  ", data[7]);
+		print("Plots:", data[7]);
 		print("Fert/Plot:", data[8]);
 		print("-");
 	end
-	]]--
-
+	--]]
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited(args)
+function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 	-- Assign to uninhabited landmasses
 	local iW, _ = Map.GetGridSize();
-	self.iNumCityStatesUninhabited = self.iNumCityStates;
 
 	for x = centWestX, centEastX do
 		for y = centSouthY, centNorthY do
 			local plotIndex = y * iW + x + 1;
 			local plot = Map.GetPlot(x, y);
-			local plotType = plot:GetPlotType()
-			local terrainType = plot:GetTerrainType()
-			if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and terrainType ~= TerrainTypes.TERRAIN_SNOW then -- Habitable land plot, process it.
-				if self.plotDataIsCoastal[plotIndex] == true then
+			local plotType = plot:GetPlotType();
+			if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and self:CanPlaceCityStateAt(x, y, plot:GetArea(), false, false) then -- Habitable land plot, process it.
+				if self.plotDataIsCoastal[plotIndex] then
 					table.insert(self.uninhabited_areas_coastal_plots, plotIndex);
 				else
 					table.insert(self.uninhabited_areas_inland_plots, plotIndex);
@@ -641,9 +621,7 @@ end
 ------------------------------------------------------------------------------
 function ExtraRingCheck(x, y)
 	-- Adding this check for Ring in AssignStartingPlots:CanPlaceCityStateAt, to force all City States to the polar region in the center.
-	if (x > centWestX and x < centEastX and y > centSouthY and y < centNorthY) == false then
-		return false;
-	end
+	return x > centWestX and x < centEastX and y > centSouthY and y < centNorthY;
 end
 ------------------------------------------------------------------------------
 function StartPlotSystem()

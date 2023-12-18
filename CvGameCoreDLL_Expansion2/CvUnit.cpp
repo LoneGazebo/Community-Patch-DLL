@@ -30211,7 +30211,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 
 	//ok apparently we both can move and need to move
 	//do not use the path cache here, the step finder tells us where to put the route
-	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,eBestRoute);
+	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,NO_BUILD,eBestRoute,false);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 
 	//index zero is the current plot!
@@ -31048,6 +31048,13 @@ CvPlot * CvUnit::GetLastValidDestinationPlotInCachedPath() const
 const CvPathNodeArray& CvUnit::GetLastPath() const
 {
 	return m_kLastPath;
+}
+
+bool CvUnit::CachedPathIsSafeForCivilian() const
+{
+	//check if the unit can be captured this turn
+	CvPlot* pCheck = GetPathEndFirstTurnPlot();
+	return !pCheck || GET_PLAYER(m_eOwner).GetPlotDanger(*pCheck,false) < GetCurrHitPoints();
 }
 
 // PRIVATE METHODS

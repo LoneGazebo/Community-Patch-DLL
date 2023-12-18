@@ -246,11 +246,11 @@ WHERE Tag = 'TXT_KEY_CIV5_DENMARK_BERSERKER_STRATEGY';
 -- Egypt
 --------------------
 UPDATE Language_en_US
-SET Text = 'Receive a free unique Egyptian [ICON_VP_ARTIFACT] Artifact when constructed.[NEWLINE][NEWLINE]Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_FOOD] Food for every 2 Desert or Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold, [ICON_VP_MERCHANT] Merchants in this City gain +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
+SET Text = 'Receive a free unique Egyptian [ICON_VP_ARTIFACT] Artifact when constructed.[NEWLINE][NEWLINE]Completing a [ICON_CARAVAN] Land Trade Route originating here and targeting another Civilization, triggers a (or strengthens an existing) [COLOR_POSITIVE_TEXT]Historic Event[ENDCOLOR].[NEWLINE][NEWLINE]+1 [ICON_GOLD] Gold and [ICON_FOOD] Food for every 1.5 Desert or 1.5 Tundra tiles worked by the City. [ICON_CARAVAN] Land Trade Routes gain +50% Range and +3 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_TRUFFLES] Truffles: +2 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_COTTON] Cotton: +1 [ICON_PRODUCTION] Production, +1 [ICON_CULTURE] Culture.[NEWLINE]Neabry [ICON_RES_FUR] Furs: +1 [ICON_GOLD] Gold, +1 [ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_HELP';
 
 UPDATE Language_en_US
-SET Text = 'The Burial Tomb is a Classical-era building which increases your output of [ICON_PEACE] Faith, [ICON_TOURISM] Tourism, and [ICON_CULTURE] Culture, and comes with a free Artifact. It also greatly boosts the value of Trade Routes that target the City. It replaces the Caravansary.'
+SET Text = 'Unique Egyptian {TXT_KEY_BUILDING_CARAVANSARY} that produces [ICON_PEACE] Faith, comes with a free Artifact and an Art/Artifact slot, and generates even more [ICON_FOOD] Food and [ICON_GOLD] Gold from worked Desert and Tundra tiles.'
 WHERE Tag = 'TXT_KEY_BUILDING_BURIAL_TOMB_STRATEGY';
 
 UPDATE Language_en_US
@@ -728,11 +728,11 @@ SET Text = 'Unique Longswordsman that only Polynesia may build. The Maori Warrio
 WHERE Tag = 'TXT_KEY_CIV5_POLYNESIAN_MAORI_WARRIOR_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_CULTURE] for every Moai and City adjacent to this Moai. Can only be built adjacent to water.[NEWLINE][NEWLINE]+20% [ICON_STRENGTH] Combat Strength to any nearby Polynesian Units within a 3-tile radius.'
+SET Text = '+1 [ICON_CULTURE] for every Moai and City adjacent to this Moai. Can only be built adjacent to water.'
 WHERE Tag = 'TXT_KEY_BUILD_MOAI_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Moai can only be built on the coast. If built next to another Moai or City, it provides additional [ICON_CULTURE] Culture.[NEWLINE][NEWLINE]If within 3 tiles of a Moai, all Polynesian units gain +20% [ICON_STRENGTH] Combat Strength.'
+SET Text = 'Moai can only be built on the coast. If built next to another Moai or City, it provides additional [ICON_CULTURE] Culture.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_MOAI_HELP';
 
 UPDATE Language_en_US

@@ -2765,7 +2765,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_PocketCity(CvCity* pCity)
 	}
 
 	//could we build a route?
-	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, ROUTE_ANY);
+	SPathFinderUserData data(pCity->getOwner(), PT_BUILD_ROUTE, NO_BUILD, ROUTE_ANY, false);
 	return !GC.GetStepFinder().DoesPathExist(pCapitalCity->getX(), pCapitalCity->getY(), pCity->getX(), pCity->getY(), data);
 }
 #endif

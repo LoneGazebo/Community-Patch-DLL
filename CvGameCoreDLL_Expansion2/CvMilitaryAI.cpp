@@ -471,15 +471,10 @@ void CvMilitaryAI::DoTurn()
 		DisbandObsoleteUnits();
 	}
 
-	if(!m_pPlayer->isMinorCiv())
-	{
-		LogMilitaryStatus();
+	LogMilitaryStatus();
 
-		if(IsBuildingArmy(ARMY_TYPE_ANY))
-		{
-			LogAvailableForces();
-		}
-	}
+	if(IsBuildingArmy(ARMY_TYPE_ANY))
+		LogAvailableForces();
 }
 
 /// Ask to send a nuke at an enemy
@@ -949,7 +944,7 @@ map<int, SPath> CvMilitaryAI::GetArmyPathsFromCity(CvCity* pMusterCity, bool bWa
 
 	//re-use trade route distance to get an era-appropriate max distance
 	int iMaxNormDist = m_pPlayer->GetTrade()->GetTradeRouteRange(bWater?DOMAIN_SEA:DOMAIN_LAND, pMusterCity);
-	SPathFinderUserData data(m_pPlayer->GetID(), bWater?PT_ARMY_WATER:PT_ARMY_LAND);
+	SPathFinderUserData data(m_pPlayer->GetID(), bWater?PT_ARMY_WATER:PT_ARMY_LAND, NO_PLAYER, INT_MAX);
 	data.iMaxNormalizedDistance = iMaxNormDist;
 	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_ENEMIES;
@@ -994,7 +989,8 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 		if (bCareful && pCurrentOp != NULL && pCurrentOp->GetArmy(0))
 		{
 			//wait until the previous army has at least left our territory, don't commit all our units to one target
-			if (pCurrentOp->GetArmy(0)->GetCenterOfMass()->getOwner() == m_pPlayer->GetID())
+			CvPlot* pCOM = pCurrentOp->GetArmy(0)->GetCenterOfMass();
+			if (!pCOM || pCOM->getOwner() == m_pPlayer->GetID())
 				continue;
 		}
 
