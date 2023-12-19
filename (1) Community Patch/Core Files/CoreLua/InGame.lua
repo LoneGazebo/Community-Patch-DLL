@@ -954,7 +954,7 @@ function OnUpdateSelection( isSelected )
 		aWorkerSuggestHighlightPlots = player:GetRecommendedWorkerPlots();
 
 		-- Player can disable tile recommendations
-		if (aFounderSuggestHighlightPlots ~= nil and not OptionsManager.IsNoTileRecommendations()) then
+		if (aWorkerSuggestHighlightPlots ~= nil and not OptionsManager.IsNoTileRecommendations()) then
 			for i, v in ipairs(aWorkerSuggestHighlightPlots) do
 				if (v.plot ~= nil) then
 					local hexID = ToHexFromGrid( Vector2( v.plot:GetX(), v.plot:GetY() ) );

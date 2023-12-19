@@ -1615,7 +1615,7 @@ bool CvAIOperationMilitary::CheckTransitionToNextStage()
 					int nVisible = 0;
 					for (CvUnit* pUnit = pThisArmy->GetFirstUnit(); pUnit; pUnit = pThisArmy->GetNextUnit(pUnit))
 					{
-						if (GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->IsVisibleToPlayer(pUnit->plot(), GET_PLAYER(m_eEnemy).getTeam()))
+						if (GET_PLAYER(m_eOwner).GetTacticalAI()->IsVisibleToPlayer(pUnit->plot(), GET_PLAYER(m_eEnemy).getTeam()))
 							nVisible++;
 					}
 
