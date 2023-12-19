@@ -451,12 +451,7 @@ function OnDisplay()
 			  if (m_PopupInfo.Data3 == 0) then
 			    strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
 			  else
-				-- UndeadDevel: because of CBP's change to Siam's UA the Friendship boost doesn't actually work for them so the text would be incorrect and misleading, which this fixes.
-				if (GameInfo.Civilizations[activePlayer:GetCivilizationType()].Type == "CIVILIZATION_SIAM") then
-				  strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_NOTHING")
-				else
-				  strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
-				end
+				strGiftString = L("TXT_KEY_MINOR_CIV_CONTACT_BONUS_FRIENDSHIP", m_PopupInfo.Data3, personalityInfo.title)
 			  end
 			else
 			  if (m_PopupInfo.Text == "UNIT") then
@@ -1166,6 +1161,8 @@ Controls.ExitGiveButton:RegisterCallback( Mouse.eLClick, OnCloseGive )
 -- TAKE MENU
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
+local iBullyGoldInfluenceLost = (GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS / 100) * -1; -- Since XML value is times 100 for fidelity, and negative
+local iBullyUnitInfluenceLost = (GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS / 100) * -1; -- Since XML value is times 100 for fidelity, and negative
 
 function PopulateTakeChoices()
 	local minorPlayer = Players[g_minorCivID]
@@ -1173,14 +1170,18 @@ function PopulateTakeChoices()
 	local buttonText = ""
 	local ttText = ""
 
-	buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_GOLD_AMOUNT",
-			minorPlayer:GetMinorCivBullyGoldAmount(activePlayerID),
-			gk_mode and (-GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS / 100) or 0 )
-	if minorPlayer.GetMajorBullyGoldDetails then
-		ttText = minorPlayer:GetMajorBullyGoldDetails(activePlayerID)
-	else
-		ttText = Locale.Lookup("TXT_KEY_POP_CSTATE_BULLY_GOLD_TT")
+	local iRestingInfluence = minorPlayer:GetRestingPointChange(activePlayerID);
+	local iCurrentInfluence = minorPlayer:GetMinorCivFriendshipWithMajor(activePlayerID);
+	local iFinalBullyGoldInfluenceLost = iBullyGoldInfluenceLost;
+	local iFinalBullyUnitInfluenceLost = iBullyUnitInfluenceLost;
+	if (iCurrentInfluence >= iRestingInfluence) then
+		iFinalBullyGoldInfluenceLost = iFinalBullyGoldInfluenceLost + iCurrentInfluence - iRestingInfluence;
+		iFinalBullyUnitInfluenceLost = iFinalBullyUnitInfluenceLost + iCurrentInfluence - iRestingInfluence;
 	end
+
+	local iBullyGold = minorPlayer:GetMinorCivBullyGoldAmount(activePlayerID);
+	buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_GOLD_AMOUNT", iBullyGold, iFinalBullyGoldInfluenceLost);
+	ttText = minorPlayer:GetMajorBullyGoldDetails(activePlayerID);
 	if not minorPlayer:CanMajorBullyGold(activePlayerID) then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.GoldTributeAnim:SetHide(true)
@@ -1193,16 +1194,11 @@ function PopulateTakeChoices()
 
 -- CBP
 	local iGoldTribute = minorPlayer:GetMinorCivBullyGoldAmount(activePlayerID, true);
-	local iBullyUnitInfluenceLost = (-GameDefines.MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS / 100);
 	local pMajor = Players[activePlayerID];
-	buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", iGoldTribute, iBullyUnitInfluenceLost);
+	buttonText = Locale.Lookup("TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT", iGoldTribute, iFinalBullyUnitInfluenceLost);
 -- END
-	if minorPlayer.GetMajorBullyUnitDetails then
-		ttText = minorPlayer:GetMajorBullyUnitDetails(activePlayerID)
-	else
-		ttText = Locale.Lookup("TXT_KEY_POP_CSTATE_BULLY_UNIT_TT", sBullyUnit, 4 )
-	end
-	if not minorPlayer:CanMajorBullyUnit(activePlayerID) then
+	ttText = minorPlayer:GetMajorBullyUnitDetails(activePlayerID);
+	if not minorPlayer:CanMajorBullyUnit(activePlayerID) or not HasActivePersonalQuestText(activePlayerID, g_minorCivID) then
 		buttonText = "[COLOR_WARNING_TEXT]" .. buttonText .. "[ENDCOLOR]"
 		Controls.UnitTributeAnim:SetHide(true)
 	else
@@ -1230,7 +1226,7 @@ function PopulateTakeChoices()
 		Controls.BullyAnnexButton:SetHide(true);
 	end
 -- END
-	
+
 	UpdateButtonStack()
 end
 
@@ -1305,7 +1301,7 @@ function OnUnitTributeButtonClicked()
 	local minorPlayer = Players[g_minorCivID]
 	local activePlayerID = Game.GetActivePlayer()
 
-	if minorPlayer:CanMajorBullyUnit(activePlayerID) then
+	if minorPlayer:CanMajorBullyUnit(activePlayerID) and HasActivePersonalQuestText(activePlayerID, g_minorCivID) then
 		BullyAction( kiBulliedUnit )
 		OnCloseTake()
 	end

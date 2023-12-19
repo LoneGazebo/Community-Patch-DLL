@@ -10,21 +10,6 @@ VALUES
 	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_GROVE', 'YIELD_CULTURE', 1),
 	('BELIEF_ANCESTOR_WORSHIP', 'BUILDINGCLASS_GROVE', 'YIELD_FAITH', 2);
 
--- Earth Mother
-UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_EARTH_MOTHER';
-
-INSERT INTO Belief_ImprovementYieldChanges
-	(BeliefType, ImprovementType, YieldType, Yield)
-VALUES
-	('BELIEF_EARTH_MOTHER', 'IMPROVEMENT_MINE', 'YIELD_CULTURE', 1),
-	('BELIEF_EARTH_MOTHER', 'IMPROVEMENT_MINE', 'YIELD_FAITH', 1);
-
-INSERT INTO Belief_BuildingClassYieldChanges
-	(BeliefType, BuildingClassType, YieldType, YieldChange)
-VALUES
-	('BELIEF_EARTH_MOTHER', 'BUILDINGCLASS_MONUMENT', 'YIELD_PRODUCTION', 1),
-	('BELIEF_EARTH_MOTHER', 'BUILDINGCLASS_MONUMENT', 'YIELD_FAITH', 1);
-
 -- Tears of the Gods (Now God of All Creation)
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
@@ -68,17 +53,16 @@ VALUES
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_PALACE', 'YIELD_SCIENCE', 1),
-	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_PALACE', 'YIELD_CULTURE', 1),
+	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_PALACE', 'YIELD_SCIENCE', 2),
 	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_PALACE', 'YIELD_FAITH', 2),
-	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_STONE_WORKS', 'YIELD_PRODUCTION', 1),
-	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_STONE_WORKS', 'YIELD_FAITH', 1);
+	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_STONE_WORKS', 'YIELD_CULTURE', 1),
+	('BELIEF_STONE_CIRCLES', 'BUILDINGCLASS_STONE_WORKS', 'YIELD_FAITH', 2);
 
 -- Religious Settlements (now God of the Expanse)
 UPDATE Beliefs
 SET
 	PlotCultureCostModifier = 0,
-	BorderGrowthRateIncreaseGlobal = 34
+	BorderGrowthRateIncreaseGlobal = 25
 WHERE Type = 'BELIEF_RELIGIOUS_SETTLEMENTS';
 
 INSERT INTO Belief_YieldPerBorderGrowth
@@ -86,6 +70,21 @@ INSERT INTO Belief_YieldPerBorderGrowth
 VALUES
 	('BELIEF_RELIGIOUS_SETTLEMENTS', 'YIELD_PRODUCTION', 15),
 	('BELIEF_RELIGIOUS_SETTLEMENTS', 'YIELD_FAITH', 25);
+
+-- God of Fire
+UPDATE Beliefs SET RequiresResource = 1 WHERE Type = 'BELIEF_EARTH_MOTHER';
+
+INSERT INTO Belief_ImprovementYieldChanges
+	(BeliefType, ImprovementType, YieldType, Yield)
+VALUES
+	('BELIEF_EARTH_MOTHER', 'IMPROVEMENT_MINE', 'YIELD_PRODUCTION', 1),
+	('BELIEF_EARTH_MOTHER', 'IMPROVEMENT_MINE', 'YIELD_CULTURE', 1),
+	('BELIEF_EARTH_MOTHER', 'IMPROVEMENT_MINE', 'YIELD_FAITH', 1);
+
+INSERT INTO Belief_BuildingClassYieldChanges
+	(BeliefType, BuildingClassType, YieldType, YieldChange)
+VALUES
+	('BELIEF_EARTH_MOTHER', 'BUILDINGCLASS_FORGE', 'YIELD_FAITH', 2);
 
 -- God of the Open Sky
 UPDATE Beliefs SET RequiresNoImprovementFeature = 1 WHERE Type = 'BELIEF_OPEN_SKY';
@@ -162,7 +161,7 @@ WHERE Type = 'BELIEF_GOD_WAR';
 INSERT INTO Belief_BuildingClassYieldChanges
 	(BeliefType, BuildingClassType, YieldType, YieldChange)
 VALUES
-	('BELIEF_GOD_WAR', 'BUILDINGCLASS_BARRACKS', 'YIELD_PRODUCTION', 2),
+	('BELIEF_GOD_WAR', 'BUILDINGCLASS_BARRACKS', 'YIELD_PRODUCTION', 1),
 	('BELIEF_GOD_WAR', 'BUILDINGCLASS_BARRACKS', 'YIELD_FAITH', 2);
 
 -- God-King

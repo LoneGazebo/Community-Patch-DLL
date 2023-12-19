@@ -14,6 +14,9 @@ INSERT INTO Defines (Name, Value) SELECT 'VICTORY_DOMINATION_CONTROL_PERCENT', 1
 INSERT INTO Defines (Name, Value) SELECT 'CITY_STARTING_RINGS', 1;
 INSERT INTO Defines (Name, Value) SELECT 'MAXIMUM_WORK_PLOT_DISTANCE', 3;
 
+-- Base vision when embarked
+UPDATE Defines SET Value = 1 WHERE Name = 'EMBARKED_VISIBILITY_RANGE';
+
 -- Player Proximity Values
 UPDATE Defines SET Value = 8 WHERE Name = 'PROXIMITY_NEIGHBORS_CLOSEST_CITY_REQUIREMENT';
 UPDATE Defines SET Value = 16 WHERE Name = 'PROXIMITY_CLOSE_CLOSEST_CITY_POSSIBILITY';
@@ -24,8 +27,12 @@ UPDATE Defines SET Value = 5 WHERE Name = 'AI_DIPLO_PLOT_RANGE_FROM_CITY_HOME_FR
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MAJOR_MINIMUM_TURNS', 10;
 INSERT INTO Defines(Name, Value) SELECT 'WAR_MINOR_MINIMUM_TURNS', 1;
 
--- Minimum war duration for aggressively attacked City-States
-INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 1;
+-- Minimum war duration for aggressively attacked City-States (scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'WAR_MINOR_PEACE_BLOCKED_TURNS', 2;
+
+-- Number of turns a pledge of protection is blocked for after breaking it (scales with game speed)
+INSERT INTO Defines (Name, Value) SELECT 'PLEDGE_BROKEN_MINIMUM_TURNS', 20;
+INSERT INTO Defines (Name, Value) SELECT 'PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING', 0; -- After bullying (VP)
 
 
 -- Defensive Pact limits (note that these values are updated in (2) Vox Populi)
@@ -43,8 +50,7 @@ INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_BASE_TECH_REDUCTION_PER_ER
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_MULTIPLIER', 0;
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_CITIES_TECH_REDUCTION_DIVISOR', 1;
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_POPULATION_TECH_REDUCTION_MULTIPLIER', 0; -- 100 = 1
-INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION', 50;
-INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_WAR_WEARINESS_REDUCTION_MAX', 75;
+INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_WAR_WEARINESS_PERCENT_REDUCTION', 34;
 INSERT INTO Defines (Name, Value) SELECT 'UNIT_SUPPLY_POPULATION_PUPPET_PERCENT', 100;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_CULTURED', 0;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_MILITARISTIC', 0;
@@ -56,6 +62,8 @@ INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_NEUTRAL
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_HOSTILE', 0;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MODIFIER_IRRATIONAL', 0;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_UNIT_SUPPLY_MULTIPLIER_PER_EXTRA_CITY', 0;
+
+INSERT INTO Defines (Name, Value) SELECT 'UNIT_COST_WAR_WEARINESS_PERCENT_INCREASE', 75;
 
 
 -- Great People Stuff
@@ -526,7 +534,7 @@ UPDATE Defines SET Value = 33 WHERE Name = 'WARMONGER_THREAT_CRITICAL_PERCENT_TH
 
 
 -- War Progress Defines
--- Used as an AI sanity check to determine to prevent wars of excessive attrition in the opponent's favor.
+-- Used as an AI sanity check to prevent wars of excessive attrition in the opponent's favor.
 INSERT INTO Defines (Name, Value) SELECT 'WAR_PROGRESS_INITIAL_VALUE', 100;
 INSERT INTO Defines (Name, Value) SELECT 'WAR_PROGRESS_DECAY_VS_STRONGER', -5;
 INSERT INTO Defines (Name, Value) SELECT 'WAR_PROGRESS_DECAY_VS_EQUAL', -4;
@@ -598,7 +606,8 @@ INSERT INTO Defines (Name, Value) SELECT 'GLOBAL_SETTLER_PRODUCTION_PENALTY_PER_
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPY_MAX_UNIT_PRODUCTION_PENALTY', -75; -- Maximum penalty to any kind of unit production from happiness
 
 -- Great Musician Happiness
-INSERT INTO Defines (Name, Value) SELECT 'GREAT_MUSICIAN_BLAST_HAPPINESS', 2;
+INSERT INTO Defines (Name, Value) SELECT 'GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL', 0;
+INSERT INTO Defines (Name, Value) SELECT 'GREAT_MUSICIAN_BLAST_HAPPINESS_GLOBAL', 0;
 
 -- Unhappiness from Needs
 INSERT INTO Defines (Name, Value) SELECT 'YIELD_MEDIAN_PERCENTILE', 50; -- 50 = true median. Values below 50 will try to pick a city below the true median, values above 50 will try to pick a city above it. Capped between 1 and 100.
@@ -634,7 +643,7 @@ INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_PILLAGED_TILE', 0.5; -
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_ISOLATED_POP', 0.34; -- Unhappiness point per pop if unconnected or blockaded. (rounded down)
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_SPECIALIST', 100; -- 100 = 1 unhappiness per specialist.
 INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_X_PUPPET_CITIZENS', 4; -- Puppets produce flat unhappiness based on # of citizens in the city. This is the divisor.
-INSERT INTO Defines (Name, Value) SELECT 'WAR_WEARINESS_POPULATION_PERCENT_CAP', 34; -- This is the % of empire population that war weariness is capped at.
+INSERT INTO Defines (Name, Value) SELECT 'WAR_WEARINESS_POPULATION_PERCENT_CAP', 34; -- x% of the War Weariness % (which ranges from 0 to 100) is multiplied by total population and divided by 100 to calculate Unhappiness from War Weariness.
 
 
 -- Tourism
@@ -871,8 +880,15 @@ INSERT INTO Defines (Name, Value) SELECT 'UNHAPPINESS_PER_POPULATION_FLOAT', 0.0
 -- Disable Gold Gifts
 INSERT INTO Defines (Name, Value) SELECT 'CSD_GOLD_GIFT_DISABLED', 0;
 
--- Threshold for demanding heavy tribute
-INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD', 0;
+-- Threshold for demanding tribute
+INSERT INTO Defines
+	(Name, Value)
+VALUES
+	('MINOR_CIV_GOLD_TRIBUTE_THRESHOLD', 0),
+	('MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD', 0);
+
+-- Gold tribute amount increasing with game progress
+INSERT INTO Defines (Name, Value) VALUES ('MINOR_BULLY_GOLD_GROWTH_FACTOR', 400);
 
 -- Quest stuff
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_FIND_CITY', 1;

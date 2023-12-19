@@ -913,13 +913,10 @@ void CvPlayerCulture::Init(CvPlayer* pPlayer)
 	m_iLastTurnLifetimeCulture = 0;
 	m_iLastTurnCPT = 0;
 	m_iOpinionUnhappiness = 0;
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
-	m_iRawWarWeariness = 0;
 	m_iLastUpdate = 0;
 	m_iLastThemUpdate = 0;
 	m_iBoredomCache = 0;
 	m_iBoredomCacheTurn = 0;
-#endif
 
 	for (int iI = 0; iI < MAX_MAJOR_CIVS; iI++)
 	{
@@ -3698,11 +3695,6 @@ void CvPlayerCulture::DoTurn()
 	
 	DoPublicOpinion();
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
-	{
-		ComputeWarWeariness();
-	}
-
 	CvString strSummary;
 	CvString strInfo;
 
@@ -5037,7 +5029,7 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		}
 	}
 #if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
 		int iDelta = iBoredom - GetBoredomCache();
@@ -5069,22 +5061,6 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		{
 			szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_WARSCORE", iWarScore) + "[ENDCOLOR]";
 		}
-	}
-
-	//city difference - do we have more than them?
-	int iNumCities = m_pPlayer->GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
-	if (iNumCities > 0)
-	{
-		// Mod for City Count
-		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
-		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
-
-		iMod *= iNumCities;
-
-		iMod = min(90, iMod);
-
-		if (iMod != 0)
-			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod) + "[ENDCOLOR]";
 	}
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
@@ -5129,6 +5105,22 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 	}
 
 	// NEGATIVE MODIFIERS
+	//city difference - do we have more than them?
+	int iNumCities = m_pPlayer->GetNumEffectiveCities() - kPlayer.GetNumEffectiveCities();
+	if (iNumCities > 0)
+	{
+		// Mod for City Count
+		int iMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod();	// Default is 5, gets smaller on larger maps
+		iMod -= m_pPlayer->GetTourismCostXCitiesMod();
+
+		iMod *= iNumCities;
+
+		iMod = min(90, iMod);
+
+		if (iMod != 0)
+			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_CITY_TOURISM_CAPITAL_PENALTY", iMod, iNumCities) + "[ENDCOLOR]";
+	}
+
 	if (eMyIdeology != NO_POLICY_BRANCH_TYPE && eTheirIdeology != NO_POLICY_BRANCH_TYPE && eMyIdeology != eTheirIdeology)
 	{
 		szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_DIFFERENT_IDEOLOGIES", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
@@ -5140,11 +5132,6 @@ CvString CvPlayerCulture::GetTourismModifierWithTooltip(PlayerTypes ePlayer) con
 		{
 			szRtnValue += "[COLOR_NEGATIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_JAPAN_UA", /*-34 in CP, -10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIFFERENT_IDEOLOGIES)) + "[ENDCOLOR]";
 		}
-	}
-
-	if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetMaster() == m_pPlayer->getTeam())
-	{
-		szRtnValue += "[COLOR_POSITIVE_TEXT]" + GetLocalizedText("TXT_KEY_CO_PLAYER_TOURISM_VASSAL", GetTourismModifierVassal()) + "[ENDCOLOR]";
 	}
 #endif
 
@@ -5205,12 +5192,6 @@ int CvPlayerCulture::GetPublicOpinionUnhappiness() const
 	return m_iOpinionUnhappiness;
 }
 
-/// Unhappiness generated from public opinion
-int CvPlayerCulture::GetWarWeariness() const
-{
-	return m_iRawWarWeariness;
-}
-
 /// Tooltip breaking down public opinion unhappiness
 CvString CvPlayerCulture::GetPublicOpinionUnhappinessTooltip() const
 {
@@ -5259,7 +5240,11 @@ void CvPlayerCulture::AddTourismAllKnownCivs(int iTourism)
 
 		if (eLoopPlayer != m_pPlayer->GetID() && m_pPlayer->GetDiplomacyAI()->IsPlayerValid(eLoopPlayer))
 		{
-			ChangeInfluenceOn(eLoopPlayer, iTourism);
+			if (MOD_BALANCE_CORE) {
+                ChangeInfluenceOn(eLoopPlayer, iTourism, true, true);
+            } else {
+                ChangeInfluenceOn(eLoopPlayer, iTourism);
+            }
 		}
 	}
 }
@@ -5311,186 +5296,6 @@ void CvPlayerCulture::AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eO
 }
 
 // PRIVATE METHODS
-/// What is our war weariness value?
-int CvPlayerCulture::ComputeWarWeariness()
-{
-	if (!MOD_BALANCE_CORE_HAPPINESS)
-		return 0;
-
-	if (!m_pPlayer->isMajorCiv() || !m_pPlayer->isAlive())
-		return 0;
-
-	if (m_iRawWarWeariness == 0 && !m_pPlayer->IsAtWarAnyMajor())
-		return 0;
-
-	int iHighestWarDamage = 0;
-	int iLongestWarTurns = 0;
-	int iLeastPeaceTurns = INT_MAX;
-	int iTechProgress = (GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->GetNumTechsKnown() * 100) / GC.getNumTechInfos();
-	int iNumOtherCivs = 0;
-
-	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
-		CvPlayer &kPlayer = GET_PLAYER(ePlayer);
-
-		if (!kPlayer.isAlive())
-			continue;
-		if (!kPlayer.isMajorCiv())
-			continue;
-		if (kPlayer.getNumCities() <= 0)
-			continue;
-		if (m_pPlayer->getTeam() == kPlayer.getTeam())
-			continue;
-
-		iNumOtherCivs++;
-
-		if (!kPlayer.IsAtWarWith(m_pPlayer->GetID()))
-		{
-			int iPeaceLength = m_pPlayer->GetPlayerNumTurnsAtPeace(ePlayer);
-			if (iPeaceLength < iLeastPeaceTurns)
-				iLeastPeaceTurns = iPeaceLength;
-
-			continue;
-		}
-
-		if (!GET_TEAM(m_pPlayer->getTeam()).canChangeWarPeace(kPlayer.getTeam()))
-			continue;
-
-		int iWarLength = m_pPlayer->GetPlayerNumTurnsAtWar(ePlayer) - /*10*/ GD_INT_GET(WAR_MAJOR_MINIMUM_TURNS);
-		if (iWarLength <= 0)
-			continue;
-		if (iWarLength > iLongestWarTurns)
-			iLongestWarTurns = iWarLength;
-
-		// 100% of our war value lost applies.
-		int iWarDamage = m_pPlayer->GetWarValueLost(ePlayer);
-
-		// If AI unwilling to make peace, don't penalize. Otherwise, apply 50% of their losses.
-		if (!m_pPlayer->isHuman() || kPlayer.isHuman() || kPlayer.GetDiplomacyAI()->IsWantsPeaceWithPlayer(m_pPlayer->GetID()))
-		{
-			iWarDamage += (kPlayer.GetWarValueLost(m_pPlayer->GetID()) / 2);
-		}
-
-		// Does enemy UA increase our war weariness? (Huns)
-		if (kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier() != 0)
-		{
-			iWarDamage *= (100 + kPlayer.GetPlayerTraits()->GetEnemyWarWearinessModifier());
-			iWarDamage /= 100;
-		}
-
-		// Cultural Influence has an effect here.
-		int iInfluenceModifier = max(5, ((kPlayer.GetCulture()->GetInfluenceLevel(m_pPlayer->GetID()) - GetInfluenceLevel(ePlayer)) * 5));
-		iWarDamage *= iInfluenceModifier;
-		iWarDamage /= 100;
-
-		// So does Tech progress...
-		iWarDamage *= (100 + iTechProgress*2);
-		iWarDamage /= 100;
-
-		if (iWarDamage > iHighestWarDamage)
-			iHighestWarDamage = iWarDamage;
-	}
-
-	// Corner case fix: if we've killed everyone, no war weariness!
-	if (iNumOtherCivs == 0)
-	{
-		SetWarWeariness(0);
-		return 0;
-	}
-
-	int iCurrentWarWeariness = m_iRawWarWeariness;
-	bool bRecentPeace = false;
-
-	// Signed peace last turn? Halve value for immediate relief.
-	// If we eliminate another player, this won't apply!
-	if (iLeastPeaceTurns <= 1)
-	{
-		iCurrentWarWeariness /= 2;
-		bRecentPeace = true;
-	}
-
-	// Otherwise, by default weariness is falling...
-	int iFallingWarWeariness = iCurrentWarWeariness;
-	if (!bRecentPeace && iLeastPeaceTurns > 1 && iLeastPeaceTurns < INT_MAX)
-	{
-		//apparently we made peace recently ... reduce the value step by step
-		int iReduction = GC.getGame().randRangeInclusive(1, max(3, iLeastPeaceTurns/2), CvSeeder::fromRaw(0x91cbcd34).mix(m_pPlayer->GetID()));
-		iFallingWarWeariness = max(iCurrentWarWeariness-iReduction, 0);
-	}
-
-	// If we have a war going, it will generate rising unhappiness
-	int iRisingWarWeariness = 0;
-	if (iLongestWarTurns > 0)
-	{
-		iRisingWarWeariness = (iLongestWarTurns * iHighestWarDamage) / 100;
-	}
-
-	// Target war weariness = whichever is higher
-	int iTargetWarWeariness = max(iRisingWarWeariness, iFallingWarWeariness);
-
-	// UA and policies can reduce this amount...
-	int iMod = m_pPlayer->GetWarWearinessModifier() + m_pPlayer->GetPlayerTraits()->GetWarWearinessModifier();
-	if (iMod > 100)
-		iMod = 100;
-
-	iTargetWarWeariness *= (100 - iMod);
-	iTargetWarWeariness /= 100;
-
-	// also never more than x% of population...
-	int iPopLimit = m_pPlayer->getTotalPopulation() * /*34*/ GD_INT_GET(WAR_WEARINESS_POPULATION_PERCENT_CAP) / 100;
-	if (iTargetWarWeariness > iPopLimit)
-		iTargetWarWeariness = iPopLimit;
-
-	// Simple exponential smoothing to prevent sudden jumps
-	float fAlpha = 0.3f;
-	int iNewWarWeariness = int(0.5f + (iTargetWarWeariness * fAlpha) + (iCurrentWarWeariness * (1 - fAlpha)));
-
-	// Go up or down by at least one per turn!
-	if (iNewWarWeariness == iCurrentWarWeariness && iTargetWarWeariness != iCurrentWarWeariness && !bRecentPeace)
-		iNewWarWeariness += (iTargetWarWeariness > iCurrentWarWeariness) ? 1 : -1;
-
-	// Double check that we're not above the pop limit
-	if (iNewWarWeariness >= iPopLimit)
-		iNewWarWeariness = iPopLimit;
-
-	// Finally set and log the value
-	SetWarWeariness(iNewWarWeariness);
-
-	if (GC.getLogging() && iNewWarWeariness > 0)
-	{
-		CvString strTemp;
-
-		CvString strFileName = "WarWearinessLog.csv";
-		FILogFile* pLog = NULL;
-		pLog = LOGFILEMGR.GetLog(strFileName, FILogFile::kDontTimeStamp);
-
-		CvString strPlayerName;
-		strPlayerName = m_pPlayer->getCivilizationShortDescription();
-		strTemp += strPlayerName;
-		strTemp += ", ";
-
-		CvString strTurn;
-
-		strTurn.Format("%d, ", GC.getGame().getGameTurn()); // turn
-		strTemp += strTurn;
-
-		CvString strData;
-		strData.Format(" --- War Weariness: %d. Longest War: %d. Shortest peace: %d. Rising: %d. Falling: %d. Target: %d. Reduction percent: %d. Current Supply Cap: %d", 
-			iNewWarWeariness, iLongestWarTurns, iLeastPeaceTurns, iRisingWarWeariness, iFallingWarWeariness, iTargetWarWeariness, iMod, m_pPlayer->GetNumUnitsSupplied());
-		strTemp += strData;
-
-		pLog->Msg(strTemp);
-	}
-
-	return m_iRawWarWeariness;
-}
-
-void CvPlayerCulture::SetWarWeariness(int iValue)
-{
-	m_iRawWarWeariness = iValue;
-}
-
 /// Once per turn calculation of public opinion data
 void CvPlayerCulture::DoPublicOpinion()
 {
@@ -6368,7 +6173,6 @@ void CvPlayerCulture::Serialize(PlayerCulture& playerCulture, Visitor& visitor)
 	visitor(playerCulture.m_eOpinion);
 	visitor(playerCulture.m_ePreferredIdeology);
 	visitor(playerCulture.m_iOpinionUnhappiness);
-	visitor(playerCulture.m_iRawWarWeariness);
 	visitor(playerCulture.m_iLastUpdate);
 	visitor(playerCulture.m_iLastThemUpdate);
 	visitor(playerCulture.m_strOpinionTooltip);
@@ -6790,7 +6594,7 @@ int CvCityCulture::GetTourismMultiplier(PlayerTypes ePlayer, bool bIgnoreReligio
 			iMultiplier += /*25 in CP, 10 in VP*/ GD_INT_GET(TOURISM_MODIFIER_DIPLOMAT);
 		}
 	}
-	if(MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iBoredom = kPlayer.GetCulture()->GetBoredomCache();
 		int iDelta = iBoredom - kCityPlayer.GetCulture()->GetBoredomCache();

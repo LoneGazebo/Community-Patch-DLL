@@ -164,6 +164,9 @@ void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& 
 	visitor(builderTaskingAI.m_routeNeededPlots);
 	visitor(builderTaskingAI.m_routeWantedPlots);
 	visitor(builderTaskingAI.m_canalWantedPlots);
+	visitor(builderTaskingAI.m_mainRoutePlots);
+	visitor(builderTaskingAI.m_shortcutRoutePlots);
+	visitor(builderTaskingAI.m_strategicRoutePlots);
 }
 
 /// Serialization read
@@ -257,7 +260,7 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 	return pPlot->calculateNatureYield(eYield, NO_PLAYER, NULL);
 }
 
-void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100)
+void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100)
 {
 	if(pTargetCity->IsRazing())
 	{
@@ -271,7 +274,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	// build a path between the two cities
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute,INT_MAX,true);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,true);
 	SPath path = GC.GetStepFinder().GetPath(pPlayerCapital->getX(), pPlayerCapital->getY(), pTargetCity->getX(), pTargetCity->getY(), data);
 
 	// if no path, try again with harbors allowed
@@ -384,11 +387,12 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			continue;
 
 		//remember it
-		AddRoutePlot(pPlot, eRoute, iValue);
+		if (AddRoutePlot(pPlot, eRoute, iValue))
+			m_mainRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 
-void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity2, RouteTypes eRoute, int iNetGoldTimes100)
+void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100)
 {
 	// don't connect cities from different owners
 	if(pCity1->getOwner() != pCity2->getOwner())
@@ -409,7 +413,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	}
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,false);
 	SPath newPath = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	// cities are not on the same landmass? then give up
@@ -468,7 +472,8 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			continue;
 
 		//remember it
-		AddRoutePlot(pPlot, eRoute, iProfit);
+		if (AddRoutePlot(pPlot, eRoute, iProfit))
+			m_shortcutRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 
@@ -521,13 +526,13 @@ bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
 	return (it != m_canalWantedPlots.end());
 }
 
-void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
+bool CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue)
 {
 	if (!pPlot)
-		return;
+		return false;
 
 	if (iValue <= 0 || eRoute == NO_ROUTE)
-		return;
+		return false;
 
 	RouteTypes eOldRoute = NO_ROUTE;
 	int iOldValue = 0;
@@ -550,7 +555,7 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 
 	// if we already want a better route, ignore this
 	if (eOldRoute > eRoute)
-		return;
+		return false;
 
 	// if we wanted a lower tech route, ignore the old value
 	if (eOldRoute < eRoute)
@@ -562,6 +567,7 @@ void CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	else
 		//if no matching route, add to wanted plots
 		m_routeWantedPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue + iOldValue);
+	return true;
 }
 
 int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
@@ -582,6 +588,21 @@ int CvBuilderTaskingAI::GetRouteValue(CvPlot* pPlot)
 		iCreateValue = it->second.second;
 
 	return max(iKeepValue,iCreateValue);
+}
+
+set<int> CvBuilderTaskingAI::GetMainRoutePlots() const
+{
+	return m_mainRoutePlots;
+}
+
+set<int> CvBuilderTaskingAI::GetShortcutRoutePlots() const
+{
+	return m_shortcutRoutePlots;
+}
+
+set<int> CvBuilderTaskingAI::GetStrategicRoutePlots() const
+{
+	return m_strategicRoutePlots;
 }
 
 bool CvBuilderTaskingAI::GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const
@@ -661,7 +682,7 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 }
 
 
-void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, RouteTypes eRoute)
+void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute)
 {
 	// don't connect cities from different owners
 	if(pCity1->getOwner() != pCity2->getOwner())
@@ -672,7 +693,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		return;
 
 	// build a path between the two cities
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,false);
 	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	//  if no path, then bail!
@@ -694,7 +715,7 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 	}
 }
 
-void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, RouteTypes eRoute, int iNetGoldTimes100)
+void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100)
 {
 	// don't connect cities from different owners
 	if (pOriginCity->getOwner() != pTargetPlot->getOwner())
@@ -709,7 +730,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		return;
 
 	// build a path between the two cities
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eRoute);
+	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,false);
 	SPath path = GC.GetStepFinder().GetPath(pOriginCity->getX(), pOriginCity->getY(), pTargetPlot->getX(), pTargetPlot->getY(), data);
 
 	//  if no path, then bail!
@@ -735,7 +756,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 			break;
 
 		// remember the plot
-		AddRoutePlot(pPlot, eRoute, 54);
+		if (AddRoutePlot(pPlot, eRoute, 54))
+			m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 /// Looks at city connections and marks plots that can be added as routes by EvaluateBuilder
@@ -759,6 +781,9 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 	m_routeNeededPlots.clear();
 	m_routeWantedPlots.clear();
+	m_mainRoutePlots.clear();
+	m_shortcutRoutePlots.clear();
+	m_strategicRoutePlots.clear();
 
 	for(int i = GC.getNumBuildInfos() - 1; i >= 0; i--)
 	{
@@ -812,13 +837,13 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 
 				if (pFirstCity && !pSecondCity)
 				{
-					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eRoute, iNetGoldTimes100);
+					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eBuild, eRoute, iNetGoldTimes100);
 					continue;
 				}
 
 				if (!pFirstCity && pSecondCity)
 				{
-					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eRoute, iNetGoldTimes100);
+					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eBuild, eRoute, iNetGoldTimes100);
 					continue;
 				}
 
@@ -834,7 +859,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 					{
 						//if we already have a connection to the capital, it may be possible to have a much shorter route for a direct connection
 						//thus improving unit movement and gold bonus from villages
-						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eRoute, iNetGoldTimes100);
+						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eBuild, eRoute, iNetGoldTimes100);
 					}
 					else
 					{
@@ -849,12 +874,12 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 							pTargetCity = pFirstCity;
 						}
 
-						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eRoute, iNetGoldTimes100);
+						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eBuild, eRoute, iNetGoldTimes100);
 					}
 				}
 				else
 				{
-					ConnectCitiesForScenario(pFirstCity, pSecondCity, eBestRoute);
+					ConnectCitiesForScenario(pFirstCity, pSecondCity, eBuild, eBestRoute);
 				}
 			}
 		}
@@ -2995,36 +3020,6 @@ void CvBuilderTaskingAI::LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pP
 	strLog += strTemp;
 	strLog += strNewLogStr;
 	pLog->Msg(strLog);
-}
-
-/// Log flavor information out
-void CvBuilderTaskingAI::LogFlavors(FlavorTypes eFlavor)
-{
-	if(!m_bLogging)
-		return;
-
-	// Open the log file
-	CvString strLog;
-	CvString strTemp;
-
-	// Dump out the setting for each flavor
-	if(eFlavor == NO_FLAVOR)
-	{
-		for(int iI = 0; iI < GC.getNumFlavorTypes(); iI++)
-		{
-			strLog.clear();
-			strTemp.Format("Flavor, %s, %d,", GC.getFlavorTypes((FlavorTypes)iI).GetCString(), m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)iI));
-			strLog += strTemp;
-			LogInfo(strLog, m_pPlayer);
-		}
-	}
-	else
-	{
-		strLog.clear();
-		strTemp.Format("Flavor, %s, %d,", GC.getFlavorTypes(eFlavor).GetCString(), m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor(eFlavor));
-		strLog += strTemp;
-		LogInfo(strLog, m_pPlayer);
-	}
 }
 
 /// Logs all the directives for the unit

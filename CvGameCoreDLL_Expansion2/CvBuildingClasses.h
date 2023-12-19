@@ -203,6 +203,7 @@ public:
 	int GetCityConnectionTradeRouteModifier() const;
 	int GetCapturePlunderModifier() const;
 	int GetPolicyCostModifier() const;
+	int GetDiplomatInfluenceBoost() const;
 	int GetBorderGrowthRateIncrease() const;
 	int GetBorderGrowthRateIncreaseGlobal() const;
 	int GetGlobalPlotCultureCostModifier() const;
@@ -310,7 +311,7 @@ public:
 	int GetCityStateTradeRouteProductionModifier() const;
 	int GetGreatScientistBeakerModifier() const;
 	int GetExtraLeagueVotes() const;
-	int GetSingleVotes() const;
+	int GetSingleLeagueVotes() const;
 	int GetFaithToVotes() const;
 	int GetCapitalsToVotes() const;
 	int GetDoFToVotes() const;
@@ -644,6 +645,7 @@ public:
 	const vector<UnitTypes>& GetUnitsUnlocked() const { return m_vUnitTypesUnlocked; }
 	void UpdateUnitTypesUnlocked();
 	bool IsFaithPurchaseOnly() const;
+	int GetBasePressureModGlobal() const;
 
 private:
 	int m_iBuildingClassType;
@@ -731,6 +733,7 @@ private:
 	int m_iCityConnectionTradeRouteModifier;
 	int m_iCapturePlunderModifier;
 	int m_iPolicyCostModifier;
+	int m_iDiplomatInfluenceBoost;
 	int m_iBorderGrowthRateIncrease;
 	int m_iBorderGrowthRateIncreaseGlobal;
 	int m_iGlobalPlotCultureCostModifier;
@@ -936,6 +939,9 @@ private:
 	bool m_bArtInfoEraVariation;
 	bool m_bArtInfoRandomVariation;
 
+	int m_iInstantReligionPressure;
+	int m_iBasePressureModGlobal;
+
 	CvString m_strArtDefineTag;
 	CvString m_strWonderSplashAudio;
 	CvString m_strThemingBonusHelp;
@@ -1065,7 +1071,6 @@ private:
 	int* m_paiBuildingClassHappiness;
 #if defined(MOD_BALANCE_CORE_BUILDING_INSTANT_YIELD)
 	int* m_piInstantYield;
-	int m_iInstantReligionPressure;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	std::multimap<int, std::pair<int, int>> m_piiGreatPersonProgressFromConstruction;

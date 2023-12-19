@@ -475,10 +475,14 @@ SET Text = 'City-States can be bullied into giving up large amounts of Yields, b
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_TT';
 
 UPDATE Language_en_US
-SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold and Partial Quest Rewards (-{2_Influence} [ICON_INFLUENCE])'
-WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
-UPDATE Language_en_US
+SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold (-{2_Influence} [ICON_INFLUENCE])'
+WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_GOLD_AMOUNT';
 
+UPDATE Language_en_US
+SET Text = 'Take {1_GoldValue} [ICON_GOLD] Gold and all Personal Quest Rewards (-{2_Influence} [ICON_INFLUENCE])'
+WHERE Tag = 'TXT_KEY_POPUP_MINOR_BULLY_UNIT_AMOUNT';
+
+UPDATE Language_en_US
 SET Text = '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT](+{1_FactorScore}%) {@2_FactorDescription}[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_POP_CSTATE_BULLY_FACTOR_POSITIVE';
 
@@ -603,6 +607,11 @@ SET Text = Text
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_GPP_GLOBAL_RELIGIOUS') / 100.0 AS NUMERIC) || 'x[ENDCOLOR] [ICON_GREAT_PEOPLE] Great People Points in all Cities.'
 	|| '[NEWLINE][ICON_BULLET][COLOR_POSITIVE_TEXT]' || CAST((SELECT Value FROM Defines WHERE Name = 'MINOR_CIV_QUEST_REWARD_EXPERIENCE_RELIGIOUS') / 100.0 AS NUMERIC) || 'x[ENDCOLOR] Experience.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_RELIGIOUS_TT';
+
+-- Unit Spawn Counter
+UPDATE Language_en_US
+SET Text = 'You will receive a [COLOR_POSITIVE_TEXT]new military unit[ENDCOLOR] from them approximately every {1_Num} turns. A new military unit will arrive in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns.'
+WHERE Tag = 'TXT_KEY_CSTATE_MILITARY_BONUS';
 
 -- Quests
 UPDATE Language_en_US

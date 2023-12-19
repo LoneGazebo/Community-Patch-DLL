@@ -3774,7 +3774,6 @@ int CvLuaCity::lChangeCityAutomatonWorkersChange(lua_State* L)
 }
 #endif
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 int CvLuaCity::lGetRemainingFreeSpecialists(lua_State* L)
 {
 	CvCity* pkCity = GetInstance(L);
@@ -4037,7 +4036,6 @@ int CvLuaCity::lgetUnhappinessFromSpecialists(lua_State* L)
 	lua_pushinteger(L, pkCity->getUnhappinessFromSpecialists(pkCity->GetCityCitizens()->GetTotalSpecialistCount()));
 	return 1;
 }
-#endif
 
 //------------------------------------------------------------------------------
 //void changeHealRate(int iChange);

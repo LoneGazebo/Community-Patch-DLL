@@ -780,8 +780,8 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 
 	CvCity* pFriendlyCity = m_pPlot->isFriendlyCity(*pUnit) ? m_pPlot->getPlotCity() : NULL;
 
-	// Civilians can be captured - unless they would need to be embarked on this plot
-	if (!pUnit->IsCombatUnit() && pUnit->isNativeDomain(m_pPlot))
+	// Civilians can be captured
+	if (pUnit->IsCivilianUnit())
 	{
 		// If plot contains an enemy unit, mark it as max danger
 		if (m_pPlot->isEnemyUnit(pUnit->getOwner(),true,true))

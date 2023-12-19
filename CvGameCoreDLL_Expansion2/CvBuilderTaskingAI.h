@@ -111,21 +111,24 @@ public:
 	static void LogInfo(const CvString& str, CvPlayer* pPlayer, bool bWriteToOutput = false);
 	static void LogYieldInfo(const CvString& strNewLogStr, CvPlayer* pPlayer); //Log yield related info to BuilderTaskingYieldLog.csv.
 
+	set<int> GetMainRoutePlots() const;
+	set<int> GetShortcutRoutePlots() const;
+	set<int> GetStrategicRoutePlots() const;
+
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
-	void LogFlavors(FlavorTypes eFlavor);
 	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives, CvUnit* pUnit);
 	void LogDirective(BuilderDirective directive, CvUnit* pUnit, int iWeight, bool bChosen = false);
 
-	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, RouteTypes eRoute, int iNetGoldTimes100);
-	void ConnectCitiesForShortcuts(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute, int iNetGoldTimes100);
-	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, RouteTypes eRoute);
-	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, RouteTypes eRoute, int iNetGoldTimes100);
+	void ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
+	void ConnectCitiesForShortcuts(CvCity* pFirstCity, CvCity* pSecondCity, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
+	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, BuildTypes eBuild, RouteTypes eRoute);
+	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
 
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild);
-	void AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	bool AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	int GetRouteValue(CvPlot* pPlot);
 
 	void UpdateCanalPlots();
@@ -134,10 +137,14 @@ protected:
 	bool m_bLogging;
 
 	//plotindex,type,value
-	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer;
+	typedef std::tr1::unordered_map<int, pair<RouteTypes, int>> RoutePlotContainer; 
 	RoutePlotContainer m_routeWantedPlots; //create route here. serialized
 	RoutePlotContainer m_routeNeededPlots; //do not remove route here. serialized
 	set<int> m_canalWantedPlots; //serialized
+
+	set<int> m_mainRoutePlots; //route here between city and capital. serialized
+	set<int> m_shortcutRoutePlots; //route here between two non-capital cities. serialized
+	set<int> m_strategicRoutePlots; //route here for strategic reasons. serialized
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];

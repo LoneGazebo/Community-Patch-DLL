@@ -28,8 +28,10 @@
 #include "CvGameCoreUtils.h"
 #include "CvEnumMap.h"
 
-// a simplified version of CvArea for use primarily with the continent generation system
-// one huge difference is that impassible terrain doesn't split a landmass like it would a CvArea
+//////////////////////////////////////////////////////////////////////////
+// CvLandmass is a contiguous set of land (or water) plots
+// CvLandmass can have multiple CvAreas which are separated by isthmuses or mountain ranges
+//////////////////////////////////////////////////////////////////////////
 class CvLandmass
 {
 public:

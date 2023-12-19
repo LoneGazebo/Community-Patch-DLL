@@ -1119,7 +1119,7 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 				end
 			end
 
-			local iTheirWarWeariness = player:GetWarWeariness();
+			local iTheirWarWeariness = player:GetHighestWarWearinessPercent();
 			if(iTheirWarWeariness <= 0)then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_NONE" );
 			elseif( iTheirWarWeariness <= 25 ) then
@@ -1131,7 +1131,10 @@ local g_civListInstanceToolTips = { -- the tooltip function names need to match 
 			elseif( iTheirWarWeariness > 75 ) then
 				strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey( "TXT_KEY_WAR_WEARINESS_THEM_CRIPPLED" );
 			end
-				
+
+			local iOurWarWeariness = g_activePlayer:GetWarWearinessPercent(playerID);
+			strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey("TXT_KEY_WAR_WEARINESS_US_PERCENT", iOurWarWeariness);
+
 			tips:insert(strWarInfo);
 		end
 -- UndeadDevel end

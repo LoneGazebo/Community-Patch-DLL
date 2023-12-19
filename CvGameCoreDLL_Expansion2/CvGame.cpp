@@ -778,13 +778,10 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 		else if (iPlusMinus == 0)
 			m_iEarliestBarbarianReleaseTurn = iBarbReleaseTurn;
 		else
-		{
-			int iRand = GC.getGame().getJonRandNum((iPlusMinus*2)+1, "barb release");
-			m_iEarliestBarbarianReleaseTurn = std::max(0, iBarbReleaseTurn + iRand - iPlusMinus);
-		}
+			m_iEarliestBarbarianReleaseTurn = max(0, GC.getGame().randRangeInclusive(iBarbReleaseTurn - iPlusMinus, iBarbReleaseTurn + iPlusMinus, CvSeeder::fromRaw(0x07f63322)));
 	}
 	else
-		m_iEarliestBarbarianReleaseTurn = std::max(0, getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().getJonRandNum(/*15*/ GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION), "barb release"));
+		m_iEarliestBarbarianReleaseTurn = max(0, getHandicapInfo().getEarliestBarbarianReleaseTurn() + GC.getGame().randRangeExclusive(0, /*15*/ max(1, GD_INT_GET(AI_TACTICAL_BARBARIAN_RELEASE_VARIATION)), CvSeeder::fromRaw(0x4602dd5b)));
 
 	UpdateGameEra();
 	// What route type forms an industrial connection
@@ -826,9 +823,6 @@ void CvGame::setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides)
 
 			// Set Policy Costs before game starts, or else it'll be 0 on the first turn and Players can get something with any amount!
 			GET_PLAYER(ePlayer).DoUpdateNextPolicyCost();
-
-			// To have an orientation of which plots are relatively good or bad
-			GET_PLAYER(ePlayer).computeFoundValueThreshold();
 		}
 	}
 
@@ -1105,6 +1099,8 @@ void CvGame::uninit()
 	m_iNumVictoryVotesExpected = 0;
 	m_iVotesNeededForDiploVictory = 0;
 	m_iMapScoreMod = 0;
+	m_iCityFoundValueReference = 0;
+	m_iNumReferenceCities = 0;
 	m_iNumMajorCivsAliveAtGameStart = 0;
 	m_iNumMinorCivsAliveAtGameStart = 0;
 
@@ -1825,6 +1821,19 @@ void CvGame::updateScore(bool bForce)
 		setTeamScore(eBestTeam, iBestScore);
 	}
 }
+
+int CvGame::GetCityQualityReference() const
+{
+	//the capitals tend to be quite good so put the threshold somewhat lower
+	return (54*m_iCityFoundValueReference) / (max(1,m_iNumReferenceCities)*100);
+}
+
+void CvGame::NewCapitalFounded(int iFoundValue)
+{
+	m_iCityFoundValueReference += iFoundValue;
+	m_iNumReferenceCities++;
+}
+
 
 //	--------------------------------------------------------------------------------
 /// How does the size of the map affect how some of the score components are weighted?
@@ -11447,6 +11456,8 @@ void CvGame::Serialize(Game& game, Visitor& visitor)
 	visitor(game.m_iNumVictoryVotesExpected);
 	visitor(game.m_iVotesNeededForDiploVictory);
 	visitor(game.m_iMapScoreMod);
+	visitor(game.m_iCityFoundValueReference);
+	visitor(game.m_iNumReferenceCities);
 	visitor(game.m_iNumMajorCivsAliveAtGameStart);
 	visitor(game.m_iNumMinorCivsAliveAtGameStart);
 
@@ -13027,9 +13038,7 @@ void CvGame::LogMapState() const
 			continue;
 		}
 
-		PlayerTypes eLoopPlayer = (PlayerTypes)iL;
 		const CvCivilizationInfo& thisCivilization = GET_PLAYER((PlayerTypes)iL).getCivilizationInfo();
-
 		strTemp.Format("{\"Index\":%d,\"CivType\":\"%s\",\"TeamColor\":\"%d\"}",
 			iL,
 			thisCivilization.GetType(),
@@ -13060,11 +13069,6 @@ void CvGame::LogMapState() const
 			continue;
 		}
 		CityOwnerIndexMap[iL] = pc;
-
-		PlayerTypes eLoopPlayer = (PlayerTypes)iL;
-		const CvCivilizationInfo& thisCivilization = GET_PLAYER((PlayerTypes)iL).getCivilizationInfo();
-
-		CvPlayerColorInfo* eLoopPlayerColorInfo = GC.GetPlayerColorInfo(pc);
 
 		// This still requires post-processing but getting this text is a pain
 		strTemp.Format("{\"CivKey\":\"%d\",\"OuterColor\":{\"Model\":\"constant\",\"ColorConstant\":\"\"},\"InnerColor\":{\"Model\":\"constant\",\"ColorConstant\":\"\"}}",
@@ -14818,4 +14822,36 @@ bool CvGame::CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, boo
 bool CvGame::isFirstActivationOfPlayersAfterLoad() const
 {
 	return m_firstActivationOfPlayersAfterLoad;
+}
+
+//	--------------------------------------------------------------------------------
+// exe things
+
+void CvGame::SetExeBinType(CvBinType eBinType)
+{
+	m_eExeBinType = eBinType;
+}
+CvBinType CvGame::GetExeBinType() const
+{
+	return m_eExeBinType;
+}
+bool CvGame::IsExeWantForceResyncAvailable() 
+{
+	return MOD_EXE_HACKING && m_eExeBinType == BIN_DX11 && isNetworkMultiPlayer() && gDLL->IsHost();
+}
+void CvGame::SetExeWantForceResyncValue(int value) 
+{
+	if (IsExeWantForceResyncAvailable())
+	{
+		*(int*)(s_iExeWantForceResync) = value;
+		if (value == 1)
+		{
+			CvString strWarningText = GetLocalizedText("TXT_KEY_VP_MP_WARNING_RESYNC_SCHEDULED");
+			GC.getDLLIFace()->sendChat(strWarningText, CHATTARGET_ALL, NO_PLAYER);
+		}
+	}
+}
+void CvGame::SetExeWantForceResyncPointer(int* pointer)
+{
+	s_iExeWantForceResync = pointer;
 }

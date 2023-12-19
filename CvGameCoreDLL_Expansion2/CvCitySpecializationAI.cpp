@@ -709,7 +709,7 @@ void CvCitySpecializationAI::AssignSpecializations()
 		for(int iI = 0; iI < YIELD_TOURISM; iI++)
 		{
 			cityData[iI] = AdjustValueBasedOnBuildings(pLoopCity, (YieldTypes)iI, cityData[iI]);
-			if(MOD_BALANCE_CORE_HAPPINESS)
+			if (MOD_BALANCE_VP)
 				cityData[iI] = AdjustValueBasedOnHappiness(pLoopCity, (YieldTypes)iI, cityData[iI]);
 
 			if(cityData[iI] < 0)

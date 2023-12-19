@@ -405,10 +405,16 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPuppetCitySpecialists);
 	Method(GetUnhappinessFromPublicOpinion);
 
-	Method(GetUnhappinessFromWarWeariness);
 	Method(GetWarWeariness);
 	Method(SetWarWeariness);
-	Method(GetWarWearinessSupplyReduction);
+	Method(ChangeWarWeariness);
+	Method(GetWarWearinessPercent);
+	Method(GetHighestWarWearinessPercent);
+	Method(GetHighestWarWearinessPlayer);
+	Method(GetSupplyReductionPercentFromWarWeariness);
+	Method(GetSupplyReductionFromWarWeariness);
+	Method(GetUnitCostIncreaseFromWarWeariness);
+	Method(GetUnhappinessFromWarWeariness);
 	Method(GetTechSupplyReduction);
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
@@ -757,6 +763,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(SetBullyUnit);
 	Method(GetBullyUnit);
 	Method(GetPledgeProtectionInvalidReason);
+	Method(IsCanBullyFriendlyCS);
 	Method(CanMajorBullyGold);
 	Method(GetMajorBullyGoldDetails);
 	Method(CanMajorBullyUnit);
@@ -781,7 +788,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 #endif
 	Method(GetNumDenouncements);
 	Method(GetNumDenouncementsOfPlayer);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	Method(GetUnhappinessFromBoredom);
 	Method(GetUnhappinessFromIlliteracy);
 	Method(GetUnhappinessFromDistress);
@@ -790,13 +797,11 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnhappinessFromPillagedTiles);
 	Method(GetUnhappinessFromFamine);
 	Method(GetUnhappinessFromReligiousUnrest);
-#endif
+
 	Method(GetUnhappinessFromJFDSpecial);
 	Method(GetScalingNationalPopulationRequired);
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 	Method(GetCapitalNeedModifier);
-#endif
 
 	Method(IsAlive);
 	Method(IsEverAlive);
@@ -1496,6 +1501,14 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsRefuseResearchAgreementTrade);
 	Method(SetRefuseResearchAgreementTrade);
+
+	Method(IsGlobalQuest);
+	Method(IsPersonalQuest);
+
+	// Debug methods for routes
+	Method(GetMainRouteTiles);
+	Method(GetShortcutRouteTiles);
+	Method(GetStrategicRouteTiles);
 }
 //------------------------------------------------------------------------------
 void CvLuaPlayer::HandleMissingInstance(lua_State* L)
@@ -4381,46 +4394,78 @@ int CvLuaPlayer::lGetUnhappinessFromPublicOpinion(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//int GetUnhappinessFromWarWeariness() const;
+int CvLuaPlayer::lGetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetWarWeariness(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lSetWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iValue = lua_tointeger(L, 3);
+	pkPlayer->SetWarWeariness(ePlayer, iValue);
+	return 0;
+}
+int CvLuaPlayer::lChangeWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iChange = lua_tointeger(L, 3);
+	pkPlayer->ChangeWarWeariness(ePlayer, iChange);
+	return 0;
+}
+int CvLuaPlayer::lGetWarWearinessPercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes) lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetWarWearinessPercent(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetHighestWarWearinessPercent(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetHighestWarWearinessPercent();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetHighestWarWearinessPlayer(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = (int)pkPlayer->GetHighestWarWearinessPlayer();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetSupplyReductionPercentFromWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetSupplyReductionFromWarWeariness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetSupplyReductionFromWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetNumUnitsSupplied(false) - pkPlayer->GetNumUnitsSupplied(true);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+int CvLuaPlayer::lGetUnitCostIncreaseFromWarWeariness(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const int iResult = pkPlayer->GetUnitCostIncreaseFromWarWeariness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
 int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iResult = pkPlayer->GetUnhappinessFromWarWeariness();
 	lua_pushinteger(L, iResult);
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetUnhappinessFromWarWeariness() const;
-int CvLuaPlayer::lGetWarWeariness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetCulture()->GetWarWeariness();
-	lua_pushinteger(L, min(75, iResult));
-	return 1;
-}
-//------------------------------------------------------------------------------
-//int GetUnhappinessFromWarWeariness() const;
-int CvLuaPlayer::lSetWarWeariness(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = lua_tointeger(L, 2);
-	pkPlayer->GetCulture()->SetWarWeariness(iResult);
-	return 0;
-}
-int CvLuaPlayer::lGetWarWearinessSupplyReduction(lua_State* L)
-{
-	CvPlayerAI* pkPlayer = GetInstance(L);
-	int iSupply = pkPlayer->GetNumUnitsSuppliedByHandicap();
-	iSupply += pkPlayer->GetNumUnitsSuppliedByCities();
-	iSupply += pkPlayer->GetNumUnitsSuppliedByPopulation();
-
-	int iWarWeariness = pkPlayer->GetCulture()->GetWarWeariness() / 2;
-	int iMod = (100 - min(75, iWarWeariness));
-	int iSupplyReduction = iSupply;
-	iSupplyReduction *= iMod;
-	iSupplyReduction /= 100;
-
-	lua_pushinteger(L, iSupply - iSupplyReduction);
 	return 1;
 }
 
@@ -9132,6 +9177,14 @@ int CvLuaPlayer::lGetPledgeProtectionInvalidReason(lua_State* L)
 	return 1;
 }
 
+// bool IsCanBullyFriendlyCS()
+int CvLuaPlayer::lIsCanBullyFriendlyCS(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const bool bResult = pkPlayer->IsCanBullyFriendlyCS();
+	lua_pushboolean(L, bResult);
+	return 1;
+}
 #endif
 //------------------------------------------------------------------------------
 //bool CanMajorBullyGold(PlayerTypes eMajor);
@@ -9231,8 +9284,8 @@ int CvLuaPlayer::lGetUnitSpawnCounter(lua_State* L)
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	PlayerTypes eMajor = (PlayerTypes) lua_tointeger(L, 2);
 
-	const bool bResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
-	lua_pushboolean(L, bResult);
+	const int iResult = pkPlayer->GetMinorCivAI()->GetUnitSpawnCounter(eMajor);
+	lua_pushinteger(L, iResult);
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -9408,7 +9461,7 @@ int CvLuaPlayer::lGetNumDenouncementsOfPlayer(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 //------------------------------------------------------------------------------
 //int GetUnhappinessFromBoredom();
 int CvLuaPlayer::lGetUnhappinessFromBoredom(lua_State* L)
@@ -9498,7 +9551,6 @@ int CvLuaPlayer::lGetUnhappinessFromJFDSpecial(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
 
 //------------------------------------------------------------------------------
 //int GetScalingNationalPopulationRequired();
@@ -9512,7 +9564,6 @@ int CvLuaPlayer::lGetScalingNationalPopulationRequired(lua_State* L)
 	return 1;
 }
 
-#if defined(MOD_BALANCE_CORE_HAPPINESS_MODIFIERS)
 //------------------------------------------------------------------------------
 //int GetCapitalNeedModifier();
 int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
@@ -9521,7 +9572,7 @@ int CvLuaPlayer::lGetCapitalNeedModifier(lua_State* L)
 	lua_pushinteger(L, iResult);
 	return 1;
 }
-#endif
+
 //------------------------------------------------------------------------------
 //bool isAlive();
 int CvLuaPlayer::lIsAlive(lua_State* L)
@@ -18241,5 +18292,104 @@ int CvLuaPlayer::lSetRefuseResearchAgreementTrade(lua_State* L)
 	const bool bRefuse = lua_toboolean(L, 2);
 
 	pkPlayer->SetRefuseResearchAgreementTrade(bRefuse);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsGlobalQuest(MinorCivQuestTypes eQuest);
+int CvLuaPlayer::lIsGlobalQuest(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const MinorCivQuestTypes eQuest = (MinorCivQuestTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsGlobalQuest(eQuest);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//bool IsPersonalQuest(MinorCivQuestTypes eQuest);
+int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const MinorCivQuestTypes eQuest = (MinorCivQuestTypes)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetMainRouteTiles(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	set<int> mainRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetMainRoutePlots();
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	for (set<int>::iterator it = mainRoutePlots.begin(); it != mainRoutePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (pPlot)
+		{
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, pPlot->getX());
+			lua_setfield(L, t, "x");
+			lua_pushinteger(L, pPlot->getY());
+			lua_setfield(L, t, "y");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+	return 1;
+}
+
+int CvLuaPlayer::lGetShortcutRouteTiles(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	set<int> shortcutRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetShortcutRoutePlots();
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	for (set<int>::iterator it = shortcutRoutePlots.begin(); it != shortcutRoutePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (pPlot)
+		{
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, pPlot->getX());
+			lua_setfield(L, t, "x");
+			lua_pushinteger(L, pPlot->getY());
+			lua_setfield(L, t, "y");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+
+	return 1;
+}
+
+int CvLuaPlayer::lGetStrategicRouteTiles(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	set<int> strategicRoutePlots = pkPlayer->GetBuilderTaskingAI()->GetStrategicRoutePlots();
+
+	lua_createtable(L, 0, 0);
+	int iCount = 1;
+
+	for (set<int>::iterator it = strategicRoutePlots.begin(); it != strategicRoutePlots.end(); ++it)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndex(*it);
+		if (pPlot)
+		{
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			lua_pushinteger(L, pPlot->getX());
+			lua_setfield(L, t, "x");
+			lua_pushinteger(L, pPlot->getY());
+			lua_setfield(L, t, "y");
+			lua_rawseti(L, -2, iCount++);
+		}
+	}
+
 	return 1;
 }

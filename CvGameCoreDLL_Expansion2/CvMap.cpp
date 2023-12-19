@@ -1727,7 +1727,7 @@ void CvMap::calculateAreas()
 	}
 
 	//log the result
-#if defined(VPDEBUG)
+#if defined(XXX)
 	if (GC.getLogging())
 	{
 		static int iCallCount = 0; //apparently this is called multiple times

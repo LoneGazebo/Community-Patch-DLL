@@ -366,6 +366,36 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		else
 			controls.CityIsMined:SetHide(true);
 		end
+		
+		-- CityHasOffice Status
+		controls.CityHasOffice:SetHide( not city:HasOffice() )
+		if Players[city:GetOwner()]:GetCorporation() ~= -1 then
+			if (city == Game.GetCorporationHeadquarters(Players[city:GetOwner()]:GetCorporation())) then
+				controls.CityHasOffice:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CORPORATION_OFFICEHQ_TT", GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].Description) .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey(GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].Help) .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CORPORATION_OFFICEHQ_TT2", city:GetName()) .."[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CORPORATION_OFFICE_TT2", city:GetName())); 
+			elseif (city:HasOffice()) then
+				controls.CityHasOffice:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CORPORATION_OFFICE_TT", GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].Description) .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey(GameInfo.Corporations[Players[city:GetOwner()]:GetCorporation()].OfficeBonusHelp) .. "[NEWLINE][ICON_BULLET]" .. Locale.ConvertTextKey("TXT_KEY_CORPORATION_OFFICE_TT2", city:GetName()));
+			else
+				controls.CityHasOffice:SetToolTipString("");
+			end
+		end
+		
+		-- CityHasFranchise Status
+		if Game.GetNumCorporationsFounded() > 1 then
+			controls.CityHasFranchise:SetHide(true);
+			local FranchiseTT = "";
+			for corporation in GameInfo.Corporations() do
+				if Game.GetCorporationFounder(corporation.ID) ~= -1 and city:IsFranchised(Game.GetCorporationFounder(corporation.ID)) then
+					controls.CityHasFranchise:SetHide( false )
+					if (FranchiseTT ~= "") then
+						FranchiseTT = FranchiseTT .. "[NEWLINE]"
+					end
+					FranchiseTT = FranchiseTT .. "[ICON_BULLET][COLOR_POSITIVE_TEXT]" .. Locale.ConvertTextKey(GameInfo.Buildings[Players[Game.GetCorporationFounder(corporation.ID)]:GetSpecificBuildingType(corporation.FranchiseBuildingClass)].Description) .. "[ENDCOLOR]: " .. Locale.ConvertTextKey(GameInfo.Buildings[Players[Game.GetCorporationFounder(corporation.ID)]:GetSpecificBuildingType(corporation.FranchiseBuildingClass)].Help)
+				end
+			end
+			controls.CityHasFranchise:SetToolTipString(FranchiseTT);
+		else
+			controls.CityHasFranchise:SetHide(true);
+		end
 
 		-- CityHasAirport Status
 		if (city:IsHasBuilding(GameInfoTypes["BUILDING_AIRPORT"])) then

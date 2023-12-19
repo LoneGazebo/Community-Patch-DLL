@@ -1134,7 +1134,7 @@ public:
 
 	int getExperienceTimes100() const;
 	void setExperienceTimes100(int iNewValueTimes100, int iMax = -1, bool bDontShow = false);
-	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false);
+	void changeExperienceTimes100(int iChangeTimes100, int iMax = -1, bool bFromCombat = false, bool bInBorders = false, bool bUpdateGlobal = false, bool bFromHuman = false);
 
 	int getLevel() const;
 	void setLevel(int iNewValue);
@@ -1911,6 +1911,7 @@ public:
 	int GetMovementPointsAtCachedTarget() const;
 	CvPlot* GetLastValidDestinationPlotInCachedPath() const;
 	const CvPathNodeArray& GetLastPath() const;
+	bool CachedPathIsSafeForCivilian() const;
 
 	bool IsEmbarkAllWater() const;
 	void ChangeEmbarkAllWaterCount(int iValue);
@@ -2475,7 +2476,7 @@ protected:
 	int  GetNumFallBackPlotsAvailable(const CvUnit& pAttacker) const;
 	int  GetWithdrawChance(const CvUnit& pAttacker) const;
 	bool CheckWithdrawal(const CvUnit& pAttacker) const;
-	bool DoFallBack(const CvUnit& pAttacker, bool bWithdraw = false);
+	bool DoFallBack(const CvUnit& pAttacker, bool bWithdraw = false, bool bCaptured = false);
 
 private:
 

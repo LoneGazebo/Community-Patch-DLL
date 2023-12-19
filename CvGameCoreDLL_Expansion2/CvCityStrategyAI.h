@@ -114,7 +114,7 @@ enum ProductionSkipReason
 	SR_UNKNOWN = 0,
 	SR_IMPOSSIBLE = -1,
 	SR_UNITSUPPLY = -2,		//have too many overall
-	SR_MAINTENCANCE = -3,	//cannot afford
+	SR_MAINTENANCE = -3,	//cannot afford
 	SR_STRATEGY = -4,		//under siege, ...
 	SR_USELESS = -5,		//no enemies around, etc
 	SR_BALANCE = -6,		//have too many of the given type
@@ -224,7 +224,7 @@ private:
 	void ReweightByDuration(CvWeightedVector<CvCityBuildable>& options);
 
 	// Logging functions
-	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
+	void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start);
 	void LogStrategy(AICityStrategyTypes eStrategy, bool bValue);
 	void LogPossibleBuilds(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
 	void LogPossibleHurries(const CvWeightedVector<CvCityBuildable>& builds, const char* prefix);
@@ -238,7 +238,6 @@ private:
 
 	CvEnumMap<AICityStrategyTypes, bool> m_pabUsingCityStrategy;
 	CvEnumMap<AICityStrategyTypes, int> m_paiTurnCityStrategyAdopted;
-	CvEnumMap<FlavorTypes, int> m_aiTempFlavors;
 
 	// AI sub objects
 	CvBuildingProductionAI* m_pBuildingProductionAI;
@@ -314,7 +313,6 @@ bool IsTestCityStrategy_NeedTourismBuilding(CvCity *pCity);
 bool IsTestCityStrategy_GoodAirliftCity(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomats(CvCity *pCity);
 bool IsTestCityStrategy_NeedDiplomatsCritical(CvCity *pCity);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
 bool IsTestCityStrategy_NeedHappinessCulture(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessScience(CvCity *pCity);
 bool IsTestCityStrategy_NeedHappinessDefense(CvCity *pCity);
@@ -333,7 +331,6 @@ int GetBuildingPolicyValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding);
 int GetBuildingTraitValue(CvCity *pCity, YieldTypes eYield, BuildingTypes eBuilding, int iValue);
 int GetBuildingReligionValue(CvCity *pCity, BuildingTypes eBuilding, PlayerTypes ePlayer);
-#endif
 }
 
 #endif // CIV5_CITY_STRATEGY_AI_H

@@ -1,12 +1,18 @@
 ----------------------------------------------
 -- Pantheons
 ----------------------------------------------
+
+-- Ancestor Worship
 UPDATE Language_en_US
 SET Text = '+1 [ICON_PEACE] Faith for every 4 [ICON_CITIZEN] Citizens in a City. +1 [ICON_CULTURE] Culture and +2 [ICON_PEACE] Faith from Councils.'
 WHERE Tag = 'TXT_KEY_BELIEF_ANCESTOR_WORSHIP';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_CULTURE] Culture from Mines on improved Resources. +1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Monuments.'
+SET Text = 'God of Fire'
+WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER_SHORT';
+
+UPDATE Language_en_US
+SET Text = '+1 [ICON_PEACE] Faith, [ICON_PRODUCTION] Production, and [ICON_CULTURE] Culture from Mines on improved Resources. +2 [ICON_PEACE] Faith from Forges.'
 WHERE Tag = 'TXT_KEY_BELIEF_EARTH_MOTHER';
 
 UPDATE Language_en_US
@@ -30,7 +36,7 @@ SET Text = 'God of Craftsmen'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Quarries and Stone Works. +1 [ICON_CULTURE] Culture, +1 [ICON_RESEARCH] Science, and +2 [ICON_PEACE] Faith from the Palace.'
+SET Text = '+1 [ICON_PEACE] Faith and [ICON_PRODUCTION] Production from Quarries. +2 [ICON_PEACE] Faith and [ICON_RESEARCH] Science from the Palace. +2 [ICON_PEACE] Faith and +1 [ICON_CULTURE] Culture from Stone Works.'
 WHERE Tag = 'TXT_KEY_BELIEF_STONE_CIRCLES';
 
 UPDATE Language_en_US
@@ -69,7 +75,7 @@ WHERE Tag = 'TXT_KEY_BELIEF_SUN_GOD';
 
 -- God of War
 UPDATE Language_en_US
-SET Text = 'Gain [ICON_PEACE] Faith from killing military units equal to 175% of its [ICON_STRENGTH] Strength. +2 [ICON_PEACE] Faith and +2 [ICON_PRODUCTION] Production from Barracks.'
+SET Text = 'Gain [ICON_PEACE] Faith from killing military units equal to 175% of its [ICON_STRENGTH] Strength. +2 [ICON_PEACE] Faith and +1 [ICON_PRODUCTION] Production from Barracks.'
 WHERE Tag = 'TXT_KEY_BELIEF_GOD_WAR';
 
 -- God-King
@@ -364,7 +370,7 @@ SET Text = 'Abode of Peace'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR_SHORT';
 
 UPDATE Language_en_US
-SET Text = '+1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 2 followers of this [ICON_RELIGION] Religion in City-States. Your resting point for [ICON_INFLUENCE] Influence with City-States following your Religion is increased by [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 25%.'
+SET Text = '+100% Pressure to friendly [ICON_CITY_STATE] City-States. +1 [ICON_GOLD] Gold and [ICON_PEACE] Faith in Holy City for every 2 followers of this [ICON_RELIGION] Religion in City-States. Your resting point for [ICON_INFLUENCE] Influence with City-States following your Religion is increased by [COLOR_POSITIVE_TEXT]35[ENDCOLOR], and their Quest rewards are increased by 25%.'
 WHERE Tag = 'TXT_KEY_BELIEF_JUST_WAR';
 
 UPDATE Language_en_US
@@ -388,7 +394,7 @@ SET Text = 'Orthodoxy'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER_SHORT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_RELIGION] Religion spreads to Cities 25% further away. Pressure doubled to friendly [ICON_CITY_STATE] City-States, and tripled to foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
+SET Text = '[ICON_RELIGION] Religion spreads to Cities 40% further away. +200% Pressure to foreign Cities connected via [ICON_INTERNATIONAL_TRADE] Trade Routes.'
 WHERE Tag = 'TXT_KEY_BELIEF_HOLY_ORDER';
 
 UPDATE Language_en_US

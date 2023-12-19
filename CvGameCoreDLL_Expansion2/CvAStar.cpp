@@ -1552,7 +1552,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		//if there are no enemies here or they have been killed in tactsim (hypothetically)
 		if (!kToNodeCacheData.bIsVisibleEnemyCombatUnit && !kToNodeCacheData.bIsVisibleEnemyUnit && !kToNodeCacheData.bIsVisibleNeutralCombatUnit)
 		{
-			if (!canEnterTerritoryAndTerrain(pUnit, pToPlot, kToNodeCacheData.iMoveFlags))
+			if (!canEnterTerritoryAndTerrain(pUnit, pToPlot, kToNodeCacheData.iMoveFlags) || (kToNodeCacheData.bIsNonEnemyCity && !pUnit->IsCivilianUnit()))
 				return FALSE;
 		}
 		else
@@ -1796,7 +1796,7 @@ int StepValidGeneric(const CvAStarNode* parent, const CvAStarNode* node, const S
 		return TRUE;
 
 	PlayerTypes ePlayer = data.ePlayer;
-	PlayerTypes eEnemy = (PlayerTypes)data.iTypeParameter; //we pretend we can enter this player's plots even if we're not at war
+	PlayerTypes eEnemy = data.eEnemy; //we pretend we can enter this player's plots even if we're not at war
 	TeamTypes eMyTeam = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).getTeam() : NO_TEAM;
 
 	CvMap& kMap = GC.getMap();
@@ -1945,7 +1945,7 @@ int InfluenceDestValid(int iToX, int iToY, const SPathFinderUserData& data, cons
 	if (!pFromPlot || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(*pFromPlot,*pToPlot) > data.iTypeParameter)
+	if(plotDistance(*pFromPlot,*pToPlot) > data.iMaxTurns)
 		return FALSE;
 
 	//can only claim ocean tiles after we can cross oceans
@@ -2038,7 +2038,7 @@ int InfluenceValid(const CvAStarNode* parent, const CvAStarNode* node, const SPa
 	if (!pOrigin || !pToPlot)
 		return FALSE;
 
-	if(plotDistance(*pOrigin,*pToPlot) > data.iTypeParameter)
+	if(plotDistance(*pOrigin,*pToPlot) > data.iMaxTurns)
 		return FALSE;
 
 	//can only claim ocean tiles after we can cross oceans
@@ -2060,13 +2060,17 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 	CvPlayerAI& kPlayer = GET_PLAYER(finder->GetData().ePlayer);
 	TeamTypes eTeam = kPlayer.getTeam();
 	CvPlot* pPlot = GC.getMap().plotCheckInvalid(node->m_iX, node->m_iY);
-	if(!pPlot)
+	if (!pPlot)
 		return 0;
 
 	CvCity* pFirstCity = pPlot->getPlotCity();
 
 	// if there isn't a city there or the city isn't on our team
-	if(!pFirstCity || pFirstCity->getTeam() != eTeam)
+	if (!pFirstCity || pFirstCity->getTeam() != eTeam)
+		return 0;
+
+	// if the city is being razed
+	if (pFirstCity->IsRazing())
 		return 0;
 
 	const CvCityConnections::SingleCityConnectionStore& cityConnections = kPlayer.GetCityConnections()->GetDirectConnectionsFromCity(pFirstCity);
@@ -2076,7 +2080,7 @@ int CityConnectionGetExtraChildren(const CvAStarNode* node, const CvAStar* finde
 		if (it->second & CvCityConnections::CONNECTION_HARBOR)
 		{
 			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
-			if (pSecondCity)
+			if (pSecondCity && !pSecondCity->IsRazing())
 				out.push_back(make_pair(pSecondCity->getX(), pSecondCity->getY()));
 		}
 	}
@@ -2092,7 +2096,7 @@ int CityConnectionLandValid(const CvAStarNode* parent, const CvAStarNode* node, 
 		return TRUE;
 
 	PlayerTypes ePlayer = data.ePlayer;
-	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
+	RouteTypes eRoute = data.eRouteType;
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
@@ -2256,7 +2260,8 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	CvPlot* pPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 	CvPlayer* pPlayer = &GET_PLAYER(data.ePlayer);
 	CvBuilderTaskingAI* eBuilderTaskingAi = pPlayer->GetBuilderTaskingAI();
-	RouteTypes eRouteType = (RouteTypes)data.iTypeParameter;
+	RouteTypes eRouteType = data.eRouteType;
+	BuildTypes eBuildType = data.eBuildType;
 	int iCost = 0;
 
 	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType))
@@ -2271,7 +2276,11 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	}
 	else if (pPlot->getRouteType() >= ROUTE_ROAD)
 	{
-		// if there is already a road here, provide a smaller discount
+		// if there is already any kind of road here, provide a smaller discount
+		iCost = PATH_BASE_COST - 1;
+	}
+	else if (pPlot->getBuildProgress(eBuildType) > 0) {
+		// if we are currently building a road here, provide a smaller discount
 		iCost = PATH_BASE_COST - 1;
 	}
 	else
@@ -2333,8 +2342,8 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 	bool bThisPlayerIsMinor = thisPlayer.isMinorCiv();
 
 	//can we build it?
-	RouteTypes eRoute = (RouteTypes)data.iTypeParameter;
-	if (eRoute > thisPlayer.getBestRoute())
+	RouteTypes eRoute = data.eRouteType;
+	if (eRoute != ROUTE_ANY && eRoute > thisPlayer.getBestRoute())
 		return FALSE;
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
@@ -2410,7 +2419,7 @@ int AreaValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 		return FALSE;
 
 	//small misuse ...
-	if (data.iTypeParameter == 0)
+	if (data.iMaxTurns == 0)
 		//simple connectivity check only
 		return BothHaveSamePassabilityAndDomain(pToPlot, pFromPlot);
 	else
@@ -3019,7 +3028,7 @@ map<int,SPath> CvPathFinder::GetMultiplePaths(const CvPlot* pStartPlot, vector<C
 CvPlot* PathHelpers::GetXPlotsFromEnd(const SPath& path, int iPlotsFromEnd, bool bLeaveEnemyTerritory)
 {
 	CvPlot* currentPlot = NULL;
-	PlayerTypes eEnemy = (PlayerTypes)path.sConfig.iTypeParameter;
+	PlayerTypes eEnemy = path.sConfig.eEnemy;
 
 	int iPathLen = path.vPlots.size();
 	int iIndex = iPathLen-iPlotsFromEnd;
@@ -3530,7 +3539,7 @@ int ArmyStepValidLand(const CvAStarNode* parent, const CvAStarNode* node, const 
 		return FALSE;
 
 	//check territory
-	return ArmyCheckTerritory(pToPlot, kPlayer, (PlayerTypes)data.iTypeParameter, finder);
+	return ArmyCheckTerritory(pToPlot, kPlayer, data.eEnemy, finder);
 }
 
 int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const SPathFinderUserData& data, const CvAStar* finder)
@@ -3559,7 +3568,7 @@ int ArmyStepValidWater(const CvAStarNode* parent, const CvAStarNode* node, const
 		return FALSE;
 
 	//check territory
-	return ArmyCheckTerritory(pToPlot, kPlayer, (PlayerTypes)data.iTypeParameter, finder);
+	return ArmyCheckTerritory(pToPlot, kPlayer, data.eEnemy, finder);
 
 }
 
@@ -3602,7 +3611,7 @@ int ArmyStepValidMixed(const CvAStarNode* parent, const CvAStarNode* node, const
 	}
 
 	//check territory
-	return ArmyCheckTerritory(pToPlot, kPlayer, (PlayerTypes)data.iTypeParameter, finder);
+	return ArmyCheckTerritory(pToPlot, kPlayer, data.eEnemy, finder);
 }
 
 //	---------------------------------------------------------------------------
@@ -3680,7 +3689,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 
-	SPathFinderUserData data(ePlayer, bAllowHarbors ? PT_CITY_CONNECTION_MIXED : PT_CITY_CONNECTION_LAND, eRestrictRoute);
+	SPathFinderUserData data(ePlayer, bAllowHarbors ? PT_CITY_CONNECTION_MIXED : PT_CITY_CONNECTION_LAND, NO_BUILD, eRestrictRoute, false);
 	data.iFlags = bAssumeOpenBorders ? CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE : 0; //slight misuse but who cares
 
 	SPath result;
@@ -3699,23 +3708,82 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iFlags = _iFlags;
 	iMaxTurns = _iMaxTurns;
 	ePlayer = pUnit ? pUnit->getOwner() : NO_PLAYER;
+	eEnemy = NO_PLAYER;
 	iUnitID = pUnit ? pUnit->GetID() : 0;
-	iTypeParameter = -1; //typical invalid enum
+	eBuildType = NO_BUILD;
+	eRouteType = NO_ROUTE;
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
 	iStartMoves = pUnit ? pUnit->getMoves() : 0;
+	bIsForCapital = false;
 }
 
 //	---------------------------------------------------------------------------
 //convenience constructor
-SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, int _iTypeParameter, int _iMaxTurns, bool _bIsForCapital)
+SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType)
 {
 	ePathType = _ePathType;
 	iFlags = 0;
+	iMaxTurns = INT_MAX;
 	ePlayer = _ePlayer;
+	eEnemy = NO_PLAYER;
 	iUnitID = 0;
-	iTypeParameter = _iTypeParameter;
+	eBuildType = NO_BUILD;
+	eRouteType = NO_ROUTE;
+	iMaxNormalizedDistance = INT_MAX;
+	iMinMovesLeft = 0;
+	iStartMoves = 0;
+	bIsForCapital = false;
+}
+
+//	---------------------------------------------------------------------------
+//convenience constructor
+SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, int _iMaxTurns)
+{
+	ePathType = _ePathType;
+	iFlags = 0;
 	iMaxTurns = _iMaxTurns;
+	ePlayer = _ePlayer;
+	eEnemy = NO_PLAYER;
+	iUnitID = 0;
+	eBuildType = NO_BUILD;
+	eRouteType = NO_ROUTE;
+	iMaxNormalizedDistance = INT_MAX;
+	iMinMovesLeft = 0;
+	iStartMoves = 0;
+	bIsForCapital = false;
+}
+
+//	---------------------------------------------------------------------------
+//convenience constructor
+SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, PlayerTypes _eEnemy, int _iMaxTurns)
+{
+	ePathType = _ePathType;
+	iFlags = 0;
+	iMaxTurns = _iMaxTurns;
+	ePlayer = _ePlayer;
+	eEnemy = _eEnemy;
+	iUnitID = 0;
+	eBuildType = NO_BUILD;
+	eRouteType = NO_ROUTE;
+	iMaxNormalizedDistance = INT_MAX;
+	iMinMovesLeft = 0;
+	iStartMoves = 0;
+	bIsForCapital = false;
+}
+
+//	---------------------------------------------------------------------------
+//convenience constructor
+SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, BuildTypes _eBuildType, RouteTypes _eRouteType, bool _bIsForCapital)
+{
+	ePathType = _ePathType;
+	iFlags = 0;
+	iMaxTurns = INT_MAX;
+	ePlayer = _ePlayer;
+	eEnemy = NO_PLAYER;
+	iUnitID = 0;
+	eBuildType = _eBuildType;
+	eRouteType = _eRouteType;
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
 	iStartMoves = 0;

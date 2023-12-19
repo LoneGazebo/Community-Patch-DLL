@@ -2900,7 +2900,15 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		return 0;
 	}
 
+	// Does this city have a majority religion?
+	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
+	if (eMajorityReligion != eReligion)
+	{
+		return 0;
+	}
+
 	int iBasePressure = GC.getGame().getGameSpeedInfo().getReligiousPressureAdjacentCity();
+	int iBasePressureMod = 0;
 	int iPressureMod = 0;
 
 	// India: +10% base pressure per follower
@@ -2909,17 +2917,24 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
 		{
 			int iPopExtraPressure = pFromCity->GetCityReligions()->GetNumFollowers(eReligion);
-			int iBasePressureMod = min(35, iPopExtraPressure) * 10;
-			iBasePressure *= 100 + iBasePressureMod;
-			iBasePressure /= 100;
+			iBasePressureMod += min(35, iPopExtraPressure) * 10;
 		}
 	}
 
-	// Does this city have a majority religion?
-	ReligionTypes eMajorityReligion = pFromCity->GetCityReligions()->GetReligiousMajority();
-	if (eMajorityReligion != eReligion)
+	// Global base pressure modifier from buildings
+	int iPlayerBasePressureMod = GET_PLAYER(pFromCity->getOwner()).GetBasePressureModifier();
+	if (iPlayerBasePressureMod != 0)
 	{
-		return 0;
+		if (eReligion == GET_PLAYER(pFromCity->getOwner()).GetReligions()->GetStateReligion(true))
+		{
+			iBasePressureMod += iPlayerBasePressureMod;
+		}
+	}
+	
+	if (iBasePressureMod != 0)
+	{
+		iBasePressure *= 100 + iBasePressureMod;
+		iBasePressure /= 100;
 	}
 
 	//do we have a trade route or pretend to have one
@@ -6695,18 +6710,17 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	std::reverse(vCandidates.begin(),vCandidates.end());
 
 	//look at the top two and take the one that is closest
+	int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
 	if (pUnit && vCandidates.size()>1)
 	{
-		int iFlags = CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY | CvUnit::MOVEFLAG_APPROX_TARGET_RING1 | CvUnit::MOVEFLAG_ABORT_IF_NEW_ENEMY_REVEALED;
-
 		int iTurnsToTargetA = INT_MAX;
 		int iTurnsToTargetB = INT_MAX;
 		int iScoreA = 0;
 		int iScoreB = 0;
 
-		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX, &iTurnsToTargetA))
+		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX, &iTurnsToTargetA) && pUnit->CachedPathIsSafeForCivilian())
 			iScoreA = vCandidates[0].score / (iTurnsToTargetA + 3); //add some bias for close targets
-		if (pUnit->GeneratePath(vCandidates[1].pPlot, iFlags, INT_MAX, &iTurnsToTargetB))
+		if (pUnit->GeneratePath(vCandidates[1].pPlot, iFlags, INT_MAX, &iTurnsToTargetB) && pUnit->CachedPathIsSafeForCivilian())
 			iScoreB = vCandidates[1].score / (iTurnsToTargetB + 3); //add some bias for close targets
 
 		if (iScoreA > 0 && iScoreA > iScoreB)
@@ -6723,7 +6737,10 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 		}
 	}
 	else if (!vCandidates.empty())
-		return vCandidates.front().pPlot->getPlotCity();
+	{
+		if (pUnit->GeneratePath(vCandidates[0].pPlot, iFlags, INT_MAX) && pUnit->CachedPathIsSafeForCivilian())
+			return vCandidates.front().pPlot->getPlotCity();
+	}
 
 	return NULL;
 }

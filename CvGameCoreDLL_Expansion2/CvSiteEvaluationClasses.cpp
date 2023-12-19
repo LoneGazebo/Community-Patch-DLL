@@ -738,8 +738,8 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 		if (pDebug) vQualifiersPositive.push_back("(S) landbridge");
 	}
 
-	// AI only (and not for initial city)
-	if (pPlayer && !pPlayer->isHuman() && pPlayer->getNumCities()>0)
+	// for later cities consider placement relative to other players
+	if (pPlayer && pPlayer->getNumCities()>0)
 	{
 		//check if this location can be defended (from majors)
 		int iOwnCityDistance = pPlayer->GetCityDistancePathLength(pPlot);

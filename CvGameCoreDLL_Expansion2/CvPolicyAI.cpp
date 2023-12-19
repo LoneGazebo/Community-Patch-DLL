@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -3264,6 +3264,17 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetExtraSupplyPerPopulation();
 		}
 	}
+	if (PolicyInfo->GetExtraSupplyFlat() != 0)
+	{
+		if (pPlayerTraits->IsWarmonger())
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetExtraSupplyFlat() * 5;
+		}
+		else
+		{
+			yield[YIELD_GREAT_GENERAL_POINTS] += PolicyInfo->GetExtraSupplyFlat();
+		}
+	}
 	if (PolicyInfo->GetInvestmentModifier() != 0)
 	{
 		if (pPlayerTraits->IsExpansionist())
@@ -3379,11 +3390,11 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 	{
 		if (pPlayerTraits->IsDiplomat())
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeWCVotes() * 250;
+			yield[YIELD_GOLD] += 2000 / PolicyInfo->GetFreeWCVotes();
 		}
 		else
 		{
-			yield[YIELD_GOLD] += PolicyInfo->GetFreeWCVotes() * 50;
+			yield[YIELD_GOLD] += 400 / PolicyInfo->GetFreeWCVotes();
 		}
 	}
 	if (PolicyInfo->GetInfluenceGPExpend() != 0)

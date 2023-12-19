@@ -671,14 +671,14 @@ UPDATE Units
 SET
 	BaseGold = 0,
 	NumGoldPerEra = 0,
-	BaseGoldTurnsToCount = 5,
+	BaseGoldTurnsToCount = 2,
 	BaseWLTKDTurns = 5
 WHERE Class = 'UNITCLASS_MERCHANT';
 
 INSERT INTO Unit_ScalingFromOwnedImprovements
 	(UnitType, ImprovementType, Amount)
 SELECT
-	Type, 'IMPROVEMENT_CUSTOMS_HOUSE', 25
+	Type, 'IMPROVEMENT_CUSTOMS_HOUSE', 20
 FROM Units
 WHERE Class = 'UNITCLASS_MERCHANT';
 
@@ -712,6 +712,13 @@ UPDATE Units SET NumFreeLux = 2 WHERE Class = 'UNITCLASS_GREAT_ADMIRAL';
 
 -- Great Prophet
 UPDATE Units SET Capture = NULL WHERE Class = 'UNITCLASS_PROPHET';
+
+-- Khan
+UPDATE Units
+SET
+	UnitFlagAtlas = 'UNIT_KHAN_FLAG_ATLAS',
+	UnitFlagIconOffset = 0
+WHERE Type = 'UNIT_MONGOLIAN_KHAN';
 
 ----------------------------------------------------------------------------
 -- Other units

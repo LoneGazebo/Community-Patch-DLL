@@ -2285,7 +2285,9 @@ local function UpdateCityViewNow()
 					local gpChange = (specialist.GreatPeopleRateChange + city:GetEventGPPFromSpecialists()) * city:GetSpecialistCount( specialist.ID )
 					for building in GameInfo.Buildings{SpecialistType = specialist.Type} do
 						if city:IsHasBuilding(building.ID) then
-							gpChange = gpChange + building.GreatPeopleRateChange
+							local iBuildingCopies = city:GetNumRealBuilding(building.ID)
+							
+							gpChange = gpChange + (building.GreatPeopleRateChange * iBuildingCopies)
 						end
 					end
 

@@ -95,11 +95,6 @@ UPDATE Language_en_US
 SET Text = '+1 [ICON_MOVES] Movement.[NEWLINE]Gain 200 [ICON_RESEARCH] Science when pillaging tiles.'
 WHERE Tag = 'TXT_KEY_PROMOTION_MOON_STRIKER_HELP';
 
--- Pride of the Ancestors
-UPDATE Language_en_US
-SET Text = '+20% [ICON_STRENGTH] Combat Strength when fighting in [COLOR_POSITIVE_TEXT]Friendly Territory[ENDCOLOR].'
-WHERE Tag = 'TXT_KEY_PROMOTION_HOMELAND_GUARDIAN_BOOGALOO_HELP';
-
 -- Near Capital Bonus
 UPDATE Language_en_US
 SET Text = '+30% [ICON_STRENGTH] Combat Strength while fighting in the capital; bonus falls off as the Unit gets further away.'
@@ -338,17 +333,32 @@ UPDATE Language_en_US
 SET Text = 'Before attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR], performs a [COLOR_POSITIVE_TEXT]Ranged Attack[ENDCOLOR] at 50% [ICON_STRENGTH] Combat Strength. [NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on Upgrade.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_PROMOTION_RANGED_SUPPORT_FIRE_HELP';
 
--- Wolfpack
 UPDATE Language_en_US
-SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 [ICON_VP_VISION] Sight.'
+SET Text = 'Silent Hunter'
+WHERE Tag = 'TXT_KEY_PROMOTION_SILENT_HUNTER';
+
+UPDATE Language_en_US
+SET Text = 'Torpedo I'
+WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1';
+
+UPDATE Language_en_US
+SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_1_HELP';
 
 UPDATE Language_en_US
-SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]+1 [ICON_MOVES] Movement.'
+SET Text = 'Torpedo II'
+WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2';
+
+UPDATE Language_en_US
+SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_2_HELP';
 
 UPDATE Language_en_US
-SET Text = '+30% [ICON_RANGE_STRENGTH] Ranged Combat Strength when attacking.[NEWLINE]Unit withdraws from the first Melee attack each turn if possible.'
+SET Text = 'Torpedo III'
+WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3';
+
+UPDATE Language_en_US
+SET Text = '+30% [ICON_STRENGTH] Combat Strength when attacking [COLOR_POSITIVE_TEXT]Units[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_PROMOTION_WOLFPACK_3_HELP';
 
 UPDATE Language_en_US
@@ -650,7 +660,7 @@ WHERE Tag = 'TXT_KEY_PROMOTION_DEFENSIVE_EMBARKATION_HELP';
 
 -- Embarkation with Ocean Movement
 UPDATE Language_en_US
-SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and have +2 [ICON_VP_VISION] Sight.'
+SET Text = 'Can embark onto [COLOR_POSITIVE_TEXT]Water[ENDCOLOR] Tiles.[NEWLINE]Embarked Units can enter [COLOR_POSITIVE_TEXT]Ocean[ENDCOLOR] Tiles and have +1 [ICON_VP_VISION] Sight.'
 WHERE Tag = 'TXT_KEY_PROMOTION_ALLWATER_EMBARKATION_HELP';
 
 -- Sapper

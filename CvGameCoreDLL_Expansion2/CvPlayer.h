@@ -732,8 +732,6 @@ public:
 	int GetBonusHappinessFromLuxuriesFlat() const;
 	int GetBonusHappinessFromLuxuriesFlatForUI() const;
 
-	int GetUnhappinessFromWarWeariness() const;
-
 	int GetUnhappinessFromCityForUI(CvCity* pCity) const;
 	int GetUnhappinessFromCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
 	int GetUnhappinessFromCapturedCityCount(CvCity* pAssumeCityAnnexed = NULL, CvCity* pAssumeCityPuppeted = NULL) const;
@@ -751,7 +749,7 @@ public:
 
 	int GetUnhappinessMod() const;
 	void ChangeUnhappinessMod(int iChange);
-#if defined(MOD_BALANCE_CORE_HAPPINESS)
+
 	int GetHappinessFromCitizenNeeds() const;
 	int GetUnhappinessFromCitizenNeeds() const;
 	int GetUnhappinessFromBoredom() const;
@@ -763,7 +761,6 @@ public:
 	int GetUnhappinessFromFamine() const;
 	int GetUnhappinessFromReligiousUnrest() const;
 	int GetUnhappinessFromCityJFDSpecial() const;
-#endif
 
 	int GetCityCountUnhappinessMod() const;
 	void ChangeCityCountUnhappinessMod(int iChange);
@@ -1263,6 +1260,9 @@ public:
 	int getSpaceProductionModifier() const;
 	void changeSpaceProductionModifier(int iChange);
 
+	int GetBasePressureModifier() const;
+	void ChangeBasePressureModifier(int iChange);
+
 	int getCityDefenseModifier() const;
 	void changeCityDefenseModifier(int iChange);
 
@@ -1594,9 +1594,9 @@ public:
 
 	int GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity* pCity = NULL);
 
-	void ChangeSingleVotes(int iValue);
-	int GetSingleVotes() const;
-	void SetSingleVotes(int iValue);
+	void ChangeSingleLeagueVotes(int iValue);
+	int GetSingleLeagueVotes() const;
+	void SetSingleLeagueVotes(int iValue);
 
 	void ChangeMonopolyModFlat(int iValue);
 	int GetMonopolyModFlat() const;
@@ -2124,14 +2124,27 @@ public:
 	void SetPlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iValue);
 	void ChangePlayerNumTurnsSinceCityCapture(PlayerTypes ePlayer, int iChange);
 
+	void ApplyWarDamage(PlayerTypes ePlayer, int iAmount, bool bNoRatingChange = false);
+
 	int GetWarValueLost(PlayerTypes ePlayer) const;
 	void SetWarValueLost(PlayerTypes ePlayer, int iValue);
 	void ChangeWarValueLost(PlayerTypes ePlayer, int iChange);
 	void DoWarValueLostDecay();
-	void DoUpdateWarDamage();
 
 	int GetWarDamageValue(PlayerTypes ePlayer) const;
 	void SetWarDamageValue(PlayerTypes ePlayer, int iValue);
+	int GetWarWeariness(PlayerTypes ePlayer) const;
+	void SetWarWeariness(PlayerTypes ePlayer, int iValue);
+	void ChangeWarWeariness(PlayerTypes ePlayer, int iChange);
+	int GetCachedCurrentWarValue() const;
+	void CacheCurrentWarValue(int iValue);
+	void DoUpdateWarDamageAndWeariness(bool bDamageOnly);
+	int GetWarWearinessPercent(PlayerTypes ePlayer) const;
+	int GetHighestWarWearinessPercent() const;
+	PlayerTypes GetHighestWarWearinessPlayer() const;
+	int GetSupplyReductionFromWarWeariness() const;
+	int GetUnitCostIncreaseFromWarWeariness() const;
+	int GetUnhappinessFromWarWeariness() const;
 
 	void changeUnitsBuiltCount(UnitTypes eUnitType, int iValue);
 	int getUnitsBuiltCount(UnitTypes eUnitType) const;
@@ -2353,9 +2366,6 @@ public:
 
 	int getTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2) const;
 	void changeTradeRouteYieldChange(DomainTypes eIndex1, YieldTypes eIndex2, int iChange);
-
-	int getSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
-	void changeSpecialistYieldChange(SpecialistTypes eIndex1, YieldTypes eIndex2, int iChange);
 
 	int getGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	void changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2, int iChange);
@@ -2650,6 +2660,9 @@ public:
 	int GetExtraSupplyPerPopulation() const;
 	void ChangeExtraSupplyPerPopulation(int iValue);
 
+	int GetExtraSupplyFlat() const;
+	void ChangeExtraSupplyFlat(int iValue);
+
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
 
@@ -2909,7 +2922,6 @@ public:
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
 #endif
 
-	virtual void computeFoundValueThreshold();
 	virtual void updatePlotFoundValues();
 	virtual void invalidatePlotFoundValues();
 	virtual int getPlotFoundValue(int iX, int iY);
@@ -3082,7 +3094,6 @@ protected:
 	int m_iGreatWorksTourismModifierGlobal;
 	int m_iCenterOfMassX;
 	int m_iCenterOfMassY;
-	int m_iReferenceFoundValue;
 	int m_iReformationFollowerReduction;
 	bool m_bIsReformation;
 	std::vector<int> m_viInstantYieldsTotal;
@@ -3308,6 +3319,7 @@ protected:
 	int m_iSpecialistProductionModifier;
 	int m_iMilitaryProductionModifier;
 	int m_iSpaceProductionModifier;
+	int m_iBasePressureModifier;
 	int m_iCityDefenseModifier;
 	int m_iUnitFortificationModifier;
 	int m_iUnitBaseHealModifier;
@@ -3405,7 +3417,7 @@ protected:
 	std::vector<int> m_aiGlobalTourismAlreadyReceived;
 	int m_iEventTourismCS;
 	int m_iNumHistoricEvent;
-	int m_iSingleVotes;
+	int m_iSingleLeagueVotes;
 	int m_iMonopolyModFlat;
 	int m_iMonopolyModPercent;
 	int m_iCachedValueOfPeaceWithHuman;
@@ -3429,6 +3441,7 @@ protected:
 	std::vector<FeatureTypes> m_ownedNaturalWonders;
 	std::vector<int> m_paiUnitClassProductionModifiers;
 	int m_iExtraSupplyPerPopulation;
+	int m_iExtraSupplyFlat;
 	int m_iCitySupplyFlatGlobal;
 	int m_iUnitSupplyFromExpendedGP;
 	int m_iMissionaryExtraStrength;
@@ -3506,6 +3519,8 @@ protected:
 	int m_iNumFreePolicies;
 	int m_iNumFreePoliciesEver; 
 	int m_iNumFreeTenets;
+
+	int m_iCachedCurrentWarValue;
 
 	int m_iLastSliceMoved; // not serialized
 
@@ -3600,6 +3615,7 @@ protected:
 	std::vector<int> m_aiPlayerNumTurnsSinceCityCapture;
 	std::vector<int> m_aiWarValueLost;
 	std::vector<int> m_aiWarDamageValue;
+	std::vector<int> m_aiWarWeariness;
 	std::vector<int> m_aiNumUnitsBuilt;
 	std::vector<int> m_aiProximityToPlayer;
 	std::vector<int> m_aiResearchAgreementCounter;
@@ -3689,7 +3705,6 @@ protected:
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiResourceYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTerrainYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiTradeRouteYieldChange;
-	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiSpecialistYieldChange;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiGreatPersonExpendedYield;
 	std::vector<int> m_piGoldenAgeGreatPersonRateModifier;
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppiUnimprovedFeatureYieldChange;
@@ -3738,9 +3753,8 @@ protected:
 
 	// Danger plots!
 	CvDangerPlots* m_pDangerPlots;
-
+	// to track whether somebody stole our plot
 	int m_iPreviousBestSettlePlot;
-	int m_iFoundValueOfCapital;
 
 	// not serialized
 	std::vector<int> m_viPlotFoundValues;
@@ -3936,7 +3950,6 @@ SYNC_ARCHIVE_VAR(int, m_iLandmarksTourismPercentGlobal)
 SYNC_ARCHIVE_VAR(int, m_iGreatWorksTourismModifierGlobal)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassX)
 SYNC_ARCHIVE_VAR(int, m_iCenterOfMassY)
-SYNC_ARCHIVE_VAR(int, m_iReferenceFoundValue)
 SYNC_ARCHIVE_VAR(int, m_iReformationFollowerReduction)
 SYNC_ARCHIVE_VAR(bool, m_bIsReformation)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_viInstantYieldsTotal)
@@ -4136,6 +4149,7 @@ SYNC_ARCHIVE_VAR(int, m_iImprovementUpgradeRateModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpecialistProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryProductionModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpaceProductionModifier)
+SYNC_ARCHIVE_VAR(int, m_iBasePressureModifier)
 SYNC_ARCHIVE_VAR(int, m_iCityDefenseModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitFortificationModifier)
 SYNC_ARCHIVE_VAR(int, m_iUnitBaseHealModifier)
@@ -4226,7 +4240,7 @@ SYNC_ARCHIVE_VAR(int, m_iEventTourism)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiGlobalTourismAlreadyReceived)
 SYNC_ARCHIVE_VAR(int, m_iEventTourismCS)
 SYNC_ARCHIVE_VAR(int, m_iNumHistoricEvent)
-SYNC_ARCHIVE_VAR(int, m_iSingleVotes)
+SYNC_ARCHIVE_VAR(int, m_iSingleLeagueVotes)
 SYNC_ARCHIVE_VAR(int, m_iMonopolyModFlat)
 SYNC_ARCHIVE_VAR(int, m_iMonopolyModPercent)
 SYNC_ARCHIVE_VAR(int, m_iCachedValueOfPeaceWithHuman)
@@ -4247,6 +4261,7 @@ SYNC_ARCHIVE_VAR(int, m_iPlayerEventCooldown)
 SYNC_ARCHIVE_VAR(std::vector<FeatureTypes>, m_ownedNaturalWonders)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_paiUnitClassProductionModifiers)
 SYNC_ARCHIVE_VAR(int, m_iExtraSupplyPerPopulation)
+SYNC_ARCHIVE_VAR(int, m_iExtraSupplyFlat)
 SYNC_ARCHIVE_VAR(int, m_iCitySupplyFlatGlobal)
 SYNC_ARCHIVE_VAR(int, m_iUnitSupplyFromExpendedGP)
 SYNC_ARCHIVE_VAR(int, m_iMissionaryExtraStrength)
@@ -4316,6 +4331,7 @@ SYNC_ARCHIVE_VAR(int, m_iMedianTechPercentage)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePolicies)
 SYNC_ARCHIVE_VAR(int, m_iNumFreePoliciesEver)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeTenets)
+SYNC_ARCHIVE_VAR(int, m_iCachedCurrentWarValue)
 SYNC_ARCHIVE_VAR(uint, m_uiStartTime)
 SYNC_ARCHIVE_VAR(bool, m_bHasUUPeriod)
 SYNC_ARCHIVE_VAR(bool, m_bNoNewWars)
@@ -4391,6 +4407,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsAtWar)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiPlayerNumTurnsSinceCityCapture)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarValueLost)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarDamageValue)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiWarWeariness)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumUnitsBuilt)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiProximityToPlayer)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiResearchAgreementCounter)
@@ -4441,7 +4458,6 @@ SYNC_ARCHIVE_VAR(SYNC_ARCHIVE_VAR_TYPE(std::vector< Firaxis::Array<int, NUM_YIEL
 SYNC_ARCHIVE_VAR(bool, m_bEverPoppedGoody)
 SYNC_ARCHIVE_VAR(bool, m_bEverTrainedBuilder)
 SYNC_ARCHIVE_VAR(int, m_iPreviousBestSettlePlot)
-SYNC_ARCHIVE_VAR(int, m_iFoundValueOfCapital)
 SYNC_ARCHIVE_VAR(int, m_iNumFreeGreatPeople)
 SYNC_ARCHIVE_VAR(int, m_iNumMayaBoosts)
 SYNC_ARCHIVE_VAR(int, m_iNumFaithGreatPeople)

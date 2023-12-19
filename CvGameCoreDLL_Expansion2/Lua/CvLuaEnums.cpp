@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -273,6 +273,24 @@ int CvLuaEnums::pRegister(lua_State* L)
 	RegisterEnum(FEATURE_FLOOD_PLAINS);
 	RegisterEnum(FEATURE_FOREST);
 	RegisterEnum(FEATURE_FALLOUT);
+	RegisterEnum(FEATURE_CRATER);
+	RegisterEnum(FEATURE_FUJI);
+	RegisterEnum(FEATURE_MESA);
+	RegisterEnum(FEATURE_REEF);
+	RegisterEnum(FEATURE_VOLCANO);
+	RegisterEnum(FEATURE_GIBRALTAR);
+	RegisterEnum(FEATURE_GEYSER);
+	RegisterEnum(FEATURE_FOUNTAIN_YOUTH);
+	RegisterEnum(FEATURE_POTOSI);
+	RegisterEnum(FEATURE_EL_DORADO);
+	RegisterEnum(FEATURE_ATOLL);
+	RegisterEnum(FEATURE_SRI_PADA);
+	RegisterEnum(FEATURE_MT_SINAI);
+	RegisterEnum(FEATURE_MT_KAILASH);
+	RegisterEnum(FEATURE_ULURU);
+	RegisterEnum(FEATURE_LAKE_VICTORIA);
+	RegisterEnum(FEATURE_KILIMANJARO);
+	RegisterEnum(FEATURE_SOLOMONS_MINES);
 	RegisterEnum(NUM_FEATURE_TYPES);
 	EnumEnd(L);
 

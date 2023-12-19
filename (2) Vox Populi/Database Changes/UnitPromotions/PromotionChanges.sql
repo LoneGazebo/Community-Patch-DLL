@@ -206,7 +206,7 @@ UPDATE UnitPromotions SET ExtraFlankPower = 1, FlankAttackModifier = 10 WHERE Ty
 --
 --                    ┌───► Cover I ────► Cover II    Breacher
 --                    │                               Naval Siege
---                    │                         ┌───► Press Gangs               Vanguard
+--                    │                         ┌───► Commerce Raider           Vanguard
 --                    │                         │                               Dauntless
 -- Hull I ────────────┴─┬─► Hull II ────────────┴───► Hull III ───────────────► Blockade
 --                      │
@@ -246,6 +246,7 @@ WHERE IsNaval = 1;
 
 UPDATE UnitPromotions SET CityAttack = 75, HealOutsideFriendly = 1 WHERE Type = 'PROMOTION_NAVAL_SIEGE';
 
+-- Commerce Raider
 UPDATE UnitPromotions SET FreePillageMoves = 1, HealOnPillage = 1 WHERE Type = 'PROMOTION_PRESS_GANGS';
 
 UPDATE UnitPromotions SET CityAttackPlunderModifier = 100 WHERE Type = 'PROMOTION_PIRACY';
@@ -302,7 +303,6 @@ UPDATE UnitPromotions SET HealOutsideFriendly = 1, FriendlyHealChange = 5, Neutr
 -- Bombardment I ──┴─► Bombardment II ─┴─┴─► Bombardment III ─┴─► Broadside ───────────────────────────┘
 --                                                                Shrapnel Rounds
 ----------------------------------------------------------------------------------------------------------------------------
-
 UPDATE UnitPromotions
 SET AttackBelowEqual50HealthMod = 10
 WHERE RankList = 'TARGETING';
@@ -342,23 +342,47 @@ VALUES
 ----------------------------------------------------------------------------------------------------------------------------
 -- Submarine promotion tree drawn using ASCIIFlow
 --
--- Hull I ─────────► Hull II ─────────────► Hull III ──────► Blockade
---
--- Wolfpack I ─────► Wolfpack II ─┬─────┬─► Wolfpack III ───┐
---                                │     │                   │
---                                │     └────┐              │
---                                │          │              │
---               ┌────────────────┴─► Sentry ├─► Mobility   ├──► Indomitable ───► Logistics
---               │                           │              │    Supply
---               │                     ┌─────┘              │
---               │                     │                    │
--- Targeting I ──┴─► Targeting II ─────┴──► Targeting III ──┘
+--                              ┌───► Commerce Raider
+--                              │
+--                              ├───► Hunter Killer
+--                              │
+--                              ├───► Wolfpack      ┌───► Indomitable
+--                              │                   │
+-- Torpedo I ──┬──► Torpedo II ─┴───► Torpedo III ──┼───► Predator
+--             │                                    │
+--             ├──► Supply                          ├───► Infiltrators
+--             │                                    │
+--             └──► Navigator I ───► Navigator II   └───► Periscope Depth
 ----------------------------------------------------------------------------------------------------------------------------
+INSERT INTO UnitPromotions_Domains
+	(PromotionType, DomainType, Attack)
+SELECT
+	Type, 'DOMAIN_LAND', 30
+FROM UnitPromotions
+WHERE RankList = 'TORPEDO';
 
-UPDATE UnitPromotions SET AttackMod = 30 WHERE RankList = 'WOLFPACK';
-UPDATE UnitPromotions SET VisibilityChange = 1 WHERE Type = 'PROMOTION_WOLFPACK_1';
-UPDATE UnitPromotions SET MovesChange = 1 WHERE Type = 'PROMOTION_WOLFPACK_2';
-UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_WOLFPACK_3';
+INSERT INTO UnitPromotions_Domains
+	(PromotionType, DomainType, Attack)
+SELECT
+	Type, 'DOMAIN_SEA', 30
+FROM UnitPromotions
+WHERE RankList = 'TORPEDO';
+
+UPDATE UnitPromotions SET SeeInvisible = 'INVISIBLE_SUBMARINE' WHERE Type = 'PROMOTION_HUNTER_KILLER';
+INSERT INTO UnitPromotions_UnitCombatMods
+	(PromotionType, UnitCombatType, Modifier)
+VALUES
+	('PROMOTION_HUNTER_KILLER', 'UNITCOMBAT_SUBMARINE', 50);
+
+-- Wolfpack
+INSERT INTO UnitPromotions_CombatModPerAdjacentUnitCombat
+	(PromotionType, UnitCombatType, Attack)
+VALUES
+	('PROMOTION_TRUE_WOLFPACK', 'UNITCOMBAT_SUBMARINE', 30);
+
+UPDATE UnitPromotions SET HPHealedIfDestroyEnemy = 15, IgnoreZOC = 1 WHERE Type = 'PROMOTION_PREDATOR';
+
+UPDATE UnitPromotions SET RangedDefenseMod = 40, ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_PERISCOPE_DEPTH';
 
 ----------------------------------------------------------------------------------------------------------------------------
 -- Carrier promotion tree drawn using ASCIIFlow
@@ -495,15 +519,13 @@ VALUES
 	('PROMOTION_VIKING', 'YIELD_GOLD', 30),
 	('PROMOTION_LONGBOAT', 'YIELD_GOLD', 60);
 
-UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 2 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
+UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
 
 UPDATE UnitPromotions SET ExtraNavalMovement = 1 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
 
 UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1 WHERE Type = 'PROMOTION_COERCION';
 
 UPDATE UnitPromotions SET ExtraAttacks = 1 WHERE Type = 'PROMOTION_MONGOL_TERROR';
-
-UPDATE UnitPromotions SET FriendlyLandsModifier = 20 WHERE Type = 'PROMOTION_HOMELAND_GUARDIAN_BOOGALOO';
 
 UPDATE UnitPromotions SET AttackMod = 20 WHERE Type = 'PROMOTION_ATTACK_BONUS_SWEDEN';
 
@@ -665,7 +687,7 @@ UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_RECON_
 
 UPDATE UnitPromotions SET CanCrossOceans = 1 WHERE Type = 'PROMOTION_OCEAN_CROSSING';
 
-UPDATE UnitPromotions SET EmbarkExtraVisibility = 2 WHERE Type = 'PROMOTION_EMBARKED_SIGHT';
+UPDATE UnitPromotions SET EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_EMBARKED_SIGHT';
 
 UPDATE UnitPromotions SET EmbarkDefenseModifier = 100 WHERE Type = 'PROMOTION_DEFENSIVE_EMBARKATION';
 
@@ -706,7 +728,12 @@ UPDATE UnitPromotions SET CargoChange = 2 WHERE Type = 'PROMOTION_CARGO_II';
 UPDATE UnitPromotions SET CargoChange = 3 WHERE Type = 'PROMOTION_CARGO_III';
 UPDATE UnitPromotions SET CargoChange = 4 WHERE Type = 'PROMOTION_CARGO_IV';
 
-UPDATE UnitPromotions SET AttackMod = 75 WHERE Type = 'PROMOTION_SILENT_HUNTER';
+UPDATE UnitPromotions SET AttackMod = 0 WHERE Type = 'PROMOTION_SILENT_HUNTER';
+INSERT INTO UnitPromotions_Domains
+	(PromotionType, DomainType, Attack)
+VALUES
+	('PROMOTION_SILENT_HUNTER', 'DOMAIN_LAND', 50),
+	('PROMOTION_SILENT_HUNTER', 'DOMAIN_SEA', 50);
 
 UPDATE UnitPromotions SET CityAttack = -75 WHERE Type = 'PROMOTION_BIG_CITY_PENALTY';
 
@@ -740,7 +767,7 @@ UPDATE UnitPromotions_Terrains SET PassableTech = 'TECH_COMPASS' WHERE Promotion
 
 UPDATE UnitPromotions SET RivalTerritory = 1 WHERE Type = 'PROMOTION_RIVAL_TERRITORY';
 
-UPDATE UnitPromotions SET ReligiousStrengthLossRivalTerritory = 25 WHERE Type = 'PROMOTION_UNWELCOME_EVANGELIST';
+UPDATE UnitPromotions SET RivalTerritory = 1, ReligiousStrengthLossRivalTerritory = 25 WHERE Type = 'PROMOTION_UNWELCOME_EVANGELIST';
 
 UPDATE UnitPromotions SET DiploMissionInfluence = 40 WHERE Type = 'PROMOTION_EMISSARY';
 UPDATE UnitPromotions SET DiploMissionInfluence = 50 WHERE Type = 'PROMOTION_ENVOY';

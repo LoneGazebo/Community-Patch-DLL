@@ -98,7 +98,7 @@ UPDATE Defines SET Value = 12.0 WHERE Name = 'CITY_GROWTH_MULTIPLIER';
 
 -- Border growth cost
 UPDATE Defines SET Value = 20 WHERE Name = 'CULTURE_COST_FIRST_PLOT';
-UPDATE Defines SET Value = 15 WHERE Name = 'CULTURE_COST_LATER_PLOT_MULTIPLIER';
+UPDATE Defines SET Value = 12 WHERE Name = 'CULTURE_COST_LATER_PLOT_MULTIPLIER';
 UPDATE Defines SET Value = 1.35 WHERE Name = 'CULTURE_COST_LATER_PLOT_EXPONENT';
 
 -- Border growth tile selection
@@ -164,10 +164,10 @@ UPDATE Defines SET Value = 45 WHERE Name = 'BARBARIAN_MAX_XP_VALUE';
 UPDATE Defines SET Value = 70 WHERE Name = 'MINOR_MAX_XP_VALUE';
 
 -- More maintenance if this value is increased
-UPDATE Defines SET Value = 7 WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER';
+UPDATE Defines SET Value = 8 WHERE Name = 'UNIT_MAINTENANCE_GAME_MULTIPLIER';
 
 -- More maintenance if this value is lowered
-UPDATE Defines SET Value = 6 WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR';
+UPDATE Defines SET Value = 5 WHERE Name = 'UNIT_MAINTENANCE_GAME_EXPONENT_DIVISOR';
 
 -- Combat penalty if out of strategic resource
 UPDATE Defines SET Value = 0 WHERE Name = 'STRATEGIC_RESOURCE_EXHAUSTED_PENALTY';
@@ -192,7 +192,11 @@ UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_POLICY_RESOURCE_HAPPINESS_MUL
 UPDATE Defines SET Value = 60 WHERE Name = 'MINOR_CIV_TECH_PERCENT';
 UPDATE Defines SET Value = 115 WHERE Name = 'MINOR_CIV_PLOT_CULTURE_COST_MULTIPLIER';
 
--- Bully score threshold for demanding Heavy Tribute
+-- Gold tribute amount increasing with game progress
+UPDATE Defines SET Value = 1000 WHERE Name = 'MINOR_BULLY_GOLD_GROWTH_FACTOR';
+
+-- Bully score threshold for demanding tribute
+UPDATE Defines SET Value = 20 WHERE Name = 'MINOR_CIV_GOLD_TRIBUTE_THRESHOLD';
 UPDATE Defines SET Value = 100 WHERE Name = 'MINOR_CIV_HEAVY_TRIBUTE_THRESHOLD';
 
 -- Influence loss x100 if pledged CS is damaged
@@ -480,6 +484,9 @@ UPDATE Defines SET Value = 0 WHERE Name = 'UNHAPPINESS_PER_CITY';
 
 -- Flat unhappiness per captured city.
 UPDATE Defines SET Value = 0 WHERE Name = 'UNHAPPINESS_PER_CAPTURED_CITY';
+
+-- Great Musician Happiness
+UPDATE Defines SET Value = 1 WHERE Name = 'GREAT_MUSICIAN_BLAST_HAPPINESS_GLOBAL';
 
 -------------------------------------------------------------------------------------------------------------------
 -- Great People

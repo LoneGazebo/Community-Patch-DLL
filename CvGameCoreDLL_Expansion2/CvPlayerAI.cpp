@@ -334,7 +334,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 	// What is our happiness situation?
 	bool bUnhappy = false;
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 		bUnhappy = GetExcessHappiness() < /*40*/ GD_INT_GET(AI_MOSTLY_HAPPY_THRESHOLD); // as a buffer; if a little unhappy it's fine to take a city
 	else
 		bUnhappy = IsEmpireUnhappy();
@@ -450,7 +450,7 @@ void CvPlayerAI::AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemo
 			return;
 		}
 
-		bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || GetCulture()->GetPublicOpinionUnhappiness() > 0));
+		bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_VP || GetCulture()->GetPublicOpinionUnhappiness() > 0));
 		if (bOnlyCityOnLandmass && !bCanRevolt)
 		{
 			pCity->DoCreatePuppet();
@@ -808,17 +808,17 @@ void CvPlayerAI::AI_considerRaze()
 		return;
 
 	bool bCanRevoltIdeology = GetCulture()->GetPublicOpinionUnhappiness() > 0;
-	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_CORE_HAPPINESS || bCanRevoltIdeology));
+	bool bCanRevolt = IsEmpireSuperUnhappy() || (IsEmpireVeryUnhappy() && (MOD_BALANCE_VP || bCanRevoltIdeology));
 	if (!bCanRevolt)
 		return;
 
 	int iCurrentHappiness = 0;
 	int iCurrentHappy = 0;
 	int iCurrentUnhappy = 0;
-	int iThreshold = (MOD_BALANCE_CORE_HAPPINESS || bCanRevoltIdeology) ? /*-10 in CP, 35 in VP*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD) : /*-20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
+	int iThreshold = (MOD_BALANCE_VP || bCanRevoltIdeology) ? /*-10 in CP, 35 in VP*/ GD_INT_GET(VERY_UNHAPPY_THRESHOLD) : /*-20*/ GD_INT_GET(SUPER_UNHAPPY_THRESHOLD);
 
 	// Look at our Unhappiness situation to see how much Unhappiness we need to remove
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		iCurrentHappy = GetHappinessFromCitizenNeeds();
 		iCurrentUnhappy = GetUnhappinessFromCitizenNeeds();
@@ -869,7 +869,7 @@ void CvPlayerAI::AI_considerRaze()
 		return;
 
 	// Recalculate happiness to see if we still have a problem ... possible we already have enough cities burning
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 		if (iCurrentHappiness >= iThreshold)
@@ -910,7 +910,7 @@ void CvPlayerAI::AI_considerRaze()
 			iCurrentUnhappy -= pLoopCity->GetUnhappinessAggregated();
 
 			// Recalculate Happiness and test if we've met our goal
-			if (MOD_BALANCE_CORE_HAPPINESS)
+			if (MOD_BALANCE_VP)
 			{
 				iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 				if (iCurrentHappiness >= iThreshold)
@@ -943,7 +943,7 @@ void CvPlayerAI::AI_considerRaze()
 			iCurrentUnhappy -= pLoopCity->GetUnhappinessAggregated();
 
 			// Recalculate Happiness and test if we've met our goal
-			if (MOD_BALANCE_CORE_HAPPINESS)
+			if (MOD_BALANCE_VP)
 			{
 				iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 				if (iCurrentHappiness >= iThreshold)
@@ -976,7 +976,7 @@ void CvPlayerAI::AI_considerRaze()
 			iCurrentUnhappy -= pLoopCity->GetUnhappinessAggregated();
 
 			// Recalculate Happiness and test if we've met our goal
-			if (MOD_BALANCE_CORE_HAPPINESS)
+			if (MOD_BALANCE_VP)
 			{
 				iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 				if (iCurrentHappiness >= iThreshold)
@@ -1007,7 +1007,7 @@ void CvPlayerAI::AI_considerRaze()
 		iCurrentUnhappy -= pLoopCity->GetUnhappinessAggregated();
 
 		// Recalculate Happiness and test if we've met our goal
-		if (MOD_BALANCE_CORE_HAPPINESS)
+		if (MOD_BALANCE_VP)
 		{
 			iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 			if (iCurrentHappiness >= iThreshold)
@@ -1030,7 +1030,7 @@ void CvPlayerAI::AI_considerRaze()
 int CvPlayerAI::AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, int iCurrentUnhappy)
 {
 	int iCurrentHappiness = 0;
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		iCurrentHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 	}
@@ -1043,7 +1043,7 @@ int CvPlayerAI::AI_computeHappinessFromRazing(CvCity* pCity, int iCurrentHappy, 
 	iCurrentUnhappy -= pCity->GetUnhappinessAggregated();
 
 	int iFutureHappiness = 0;
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		iFutureHappiness = min(200, (iCurrentHappy * 100) / max(1, iCurrentUnhappy)) / 2;
 	}

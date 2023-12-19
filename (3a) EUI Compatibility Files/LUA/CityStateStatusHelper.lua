@@ -363,8 +363,9 @@ function GetCityStateBonuses( majorPlayerID, minorPlayerID )
 		end
 
 		local unitSpawnEstimate = minorPlayer:GetCurrentSpawnEstimate(majorPlayerID)
-		if unitSpawnEstimate ~= 0 then
-			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate) )
+		local unitSpawnExact = minorPlayer:GetUnitSpawnCounter(majorPlayerID)
+		if (unitSpawnEstimate ~= 0 and not minorPlayer:IsMinorCivUnitSpawningDisabled(majorPlayerID)) then
+			table_insert( tips, L("TXT_KEY_CSTATE_MILITARY_BONUS", unitSpawnEstimate, unitSpawnExact) )
 		end
 
 		local scienceBonusTimes100 = minorPlayer:GetCurrentScienceFriendshipBonusTimes100(majorPlayerID)
@@ -633,44 +634,112 @@ if gk_mode then
 	else
 		isMinorCivQuestForPlayer = Players[1].IsMinorCivActiveQuestForPlayer
 	end
+	
+	function HasActivePersonalQuestText(majorPlayerID, minorPlayerID)
+		local minorPlayer = Players[minorPlayerID]
+		
+		if minorPlayer then
+			for _, questID in pairs(ktQuestsDisplayOrder) do
+				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
+					if minorPlayer:IsPersonalQuest(questID) then
+						return true
+					end
+				end
+			end
+		end
+		
+		return false
+	end
+	
 	function GetActiveQuestText(majorPlayerID, minorPlayerID)
-
 		local minorPlayer = Players[minorPlayerID]
 		local sIconText = ""
+		
+		local sIconTextQuestGlobal = ""
+		local sIconTextQuestPersonal = ""
+		local sIconTextOther = ""
 
 		if minorPlayer then
-			-- CBP
-			--Married
-			if bnw_mode and minorPlayer:IsMarried(majorPlayerID) then
-				sIconText = sIconText .. "[ICON_RES_MARRIAGE] "
-			end
-			--Denied Quest Influence
-			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
-				sIconText = sIconText .. "[ICON_VP_NOINFLUENCE]"
-			end
-			-- END
-
 			for _, questID in pairs(ktQuestsDisplayOrder) do
-
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
-					sIconText = sIconText .. ktQuestsIcon[questID]( minorPlayer:GetQuestData1(majorPlayerID, questID) )
+					if minorPlayer:IsGlobalQuest(questID) then
+						sIconTextQuestGlobal = sIconTextQuestGlobal .. ktQuestsIcon[questID]( minorPlayer:GetQuestData1(majorPlayerID, questID) )
+					end
+					
+					if minorPlayer:IsPersonalQuest(questID) then
+						sIconTextQuestPersonal = sIconTextQuestPersonal .. ktQuestsIcon[questID]( minorPlayer:GetQuestData1(majorPlayerID, questID) )
+					end
 				end
 			end
 
 			-- Threatening Barbarians event
 			if minorPlayer:IsThreateningBarbariansEventActiveForPlayer(majorPlayerID) then
-				sIconText = sIconText .. "[ICON_RAZING]"
+				sIconTextOther = sIconTextOther .. "[ICON_RAZING]"
 			end
 
 			-- Proxy War event
 			if bnw_mode and minorPlayer:IsProxyWarActiveForMajor(majorPlayerID) then
-				sIconText = sIconText .. "[ICON_RESISTANCE]"
+				sIconTextOther = sIconTextOther .. "[ICON_RESISTANCE]"
 			end
-
+		
+			-- CBP
+			-- Denied Quest Influence
+			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
+				sIconTextOther = sIconTextOther .. "[ICON_VP_NOINFLUENCE]"
+			end
+			
+			-- Married
+			if bnw_mode and minorPlayer:IsMarried(majorPlayerID) then
+				sIconTextOther = sIconTextOther .. "[ICON_RES_MARRIAGE]"
+			end
+			-- END
 		else
 			print("Lua error - invalid player index")
 		end
-
+		
+		-- text
+		local bHasGlobalQuests = sIconTextQuestGlobal ~= ""
+		local bHasPersonalQuests = sIconTextQuestPersonal ~= ""
+		local bHasOther = sIconTextOther ~= ""
+		
+		if bHasGlobalQuests then
+			sIconText = sIconText .. sIconTextQuestGlobal
+		end
+		
+		if bHasPersonalQuests then
+			if sIconText ~= "" then
+				sIconText = sIconText .. "  "
+			end
+			
+			sIconText = sIconText .. sIconTextQuestPersonal
+		end
+		
+		if bHasOther then
+			if sIconText ~= "" then
+				sIconText = sIconText .. "  "
+			end
+			
+			sIconText = sIconText .. sIconTextOther
+		end
+		
+		-- additional functions (allies, spies)
+		local bMinorHasAlly = minorPlayer:GetAlly() ~= -1	
+		local bMinorHasSpy = false
+		local majorPlayer = Players[majorPlayerID]
+		
+		for _, s in ipairs( majorPlayer:GetEspionageSpies() ) do
+			local plot = Map.GetPlot( s.CityX, s.CityY )
+			local city = plot and plot:GetPlotCity()
+			if city and city:GetOwner() == minorPlayerID then
+				bMinorHasSpy = true
+				break
+			end
+		end
+		
+		if (bMinorHasSpy or bMinorHasAlly) and not bHasOther then
+			sIconText = sIconText .. " "
+		end
+		
 		return sIconText
 	end
 else
@@ -802,53 +871,95 @@ if gk_mode then
 	function GetActiveQuestToolTip(majorPlayerID, minorPlayerID)
 		local minorPlayer = Players[minorPlayerID]
 		local tips = {}
+		
+		local tTooltipQuestGlobal = {}
+		local tTooltipQuestPersonal = {}
+		local tTooltipOther = {}
+		
 		if minorPlayer then
-			-- CBP
-			--Married
-			if minorPlayer:IsMarried(majorPlayerID) then
-				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT") )
-			end
-			--Denied Quest Influence
-			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
-				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()) )
-			end
-			-- END
 			for _, questID in pairs(ktQuestsDisplayOrder) do
-
 				if isMinorCivQuestForPlayer( minorPlayer, majorPlayerID, questID ) then
 					local questData1 = minorPlayer:GetQuestData1(majorPlayerID, questID)
 					local questData2 = minorPlayer:GetQuestData2(majorPlayerID, questID)
 					local questString = QuestString(majorPlayerID, minorPlayer, questID, questData1, questData2)
 					local turnsRemaining = minorPlayer:GetQuestTurnsRemaining(majorPlayerID, questID, Game_GetGameTurn() - 1)	-- add 1 since began on CS's turn (1 before), and avoids "0 turns remaining"
+					
 					if turnsRemaining >= 0 then
 						questString = questString .. " " .. L( "TXT_KEY_CITY_STATE_QUEST_TURNS_REMAINING_FORMAL", turnsRemaining )
 					end
+					
 					--CBP
 					local questreward = minorPlayer:GetRewardString(majorPlayerID, questID);
+					
 					if(questreward ~= "")then
 						questString = questString .. "[NEWLINE]" .. questreward
 					end
 					--END
-					table_insert( tips, ktQuestsIcon[questID]( questData1 ) .. " " .. questString )
+					
+					if minorPlayer:IsGlobalQuest(questID) then
+						table_insert( tTooltipQuestGlobal, ktQuestsIcon[questID]( questData1 ) .. " " .. questString )
+					end
+					
+					if minorPlayer:IsPersonalQuest(questID) then
+						table_insert( tTooltipQuestPersonal, ktQuestsIcon[questID]( questData1 ) .. " " .. questString )
+					end
 				end
 			end
-
+			
 			-- Threatening Barbarians event
 			if minorPlayer:IsThreateningBarbariansEventActiveForPlayer(majorPlayerID) then
-				table_insert( tips,"[ICON_RAZING]" .. L("TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL") )
+				table_insert(tTooltipOther,"[ICON_RAZING] " .. L("TXT_KEY_CITY_STATE_QUEST_INVADING_BARBS_FORMAL"))
 			end
 
 			-- Proxy War event
 			if bnw_mode and minorPlayer:IsProxyWarActiveForMajor(majorPlayerID) then
-				table_insert( tips,"[ICON_RESISTANCE]" .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL") )
+				table_insert(tTooltipOther,"[ICON_RESISTANCE] " .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL"))
 			end
 
+			-- CBP
+			-- Denied Quest Influence
+			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
+				table_insert(tTooltipOther,"[ICON_VP_NOINFLUENCE] " .. L("TXT_KEY_CITY_STATE_DISABLED_QUEST_INFLUENCE_YES_TT", minorPlayer:GetName()))
+			end
+
+			-- Married
+			if minorPlayer:IsMarried(majorPlayerID) then
+				table_insert(tTooltipOther,"[ICON_RES_MARRIAGE] " .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT"))
+			end
+			-- END
 		else
 			print("Lua error - invalid player index")
 		end -- minorPlayer
-
-		if #tips > 0 then
-			return table_concat( tips, newLine )
+		
+		local sGatheredTooltipsForQuests = ""
+		
+		local bHasGlobalQuests = #tTooltipQuestGlobal > 0
+		local bHasPersonalQuests = #tTooltipQuestPersonal > 0
+		local bHasOther = #tTooltipOther > 0
+		
+		if bHasGlobalQuests then
+		
+			sGatheredTooltipsForQuests = sGatheredTooltipsForQuests .. L("TXT_KEY_CITY_STATE_QUEST_GLOBAL_HEADER") .. newLine.. table_concat( tTooltipQuestGlobal, newLine )
+		end
+		
+		if bHasPersonalQuests then
+			if sGatheredTooltipsForQuests ~= "" then
+				sGatheredTooltipsForQuests = sGatheredTooltipsForQuests .. newLine .. newLine
+			end
+			
+			sGatheredTooltipsForQuests = sGatheredTooltipsForQuests .. L("TXT_KEY_CITY_STATE_QUEST_LOCAL_HEADER") .. newLine .. table_concat( tTooltipQuestPersonal, newLine )
+		end
+		
+		if bHasOther then
+			if sGatheredTooltipsForQuests ~= "" then
+				sGatheredTooltipsForQuests = sGatheredTooltipsForQuests .. newLine .. newLine
+			end
+			
+			sGatheredTooltipsForQuests = sGatheredTooltipsForQuests .. L("TXT_KEY_CITY_STATE_QUEST_OTHER_HEADER") .. newLine .. table_concat( tTooltipOther, newLine )
+		end
+		
+		if sGatheredTooltipsForQuests ~= "" then
+			return sGatheredTooltipsForQuests
 		else
 			return L("TXT_KEY_CITY_STATE_QUEST_NONE_FORMAL")
 		end

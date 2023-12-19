@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -357,6 +357,7 @@ public:
 	int GetRazingSpeedBonus() const;
 	bool IsNoPartisans() const;
 	int GetExtraSupplyPerPopulation() const;
+	int GetExtraSupplyFlat() const;
 	int GetYieldForSpyID(int i) const;
 	int GetYieldForLiberation(int i) const;
 	int GetInfluenceForLiberation() const;
@@ -802,6 +803,7 @@ private:
 	int m_iMaxCorporations;
 	int m_iRazingSpeedBonus;
 	int m_iExtraSupplyPerPopulation;
+	int m_iExtraSupplyFlat;
 	bool m_bNoPartisans;
 	bool m_bNoForeignCorpsInCities;
 	bool m_bNoFranchisesInForeignCities;
@@ -1198,7 +1200,7 @@ private:
 #endif
 
 	// Logging functions
-	void LogFlavors(FlavorTypes eFlavor = NO_FLAVOR);
+	void LogFlavorChange(FlavorTypes eFlavor, int change, const char* reason, bool start);
 
 	bool* m_pabFreePolicy;
 	bool* m_pabHasPolicy;

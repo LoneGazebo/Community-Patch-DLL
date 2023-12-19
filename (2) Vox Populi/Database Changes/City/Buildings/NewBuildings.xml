@@ -1492,7 +1492,7 @@
 			<UnlockedByLeague>true</UnlockedByLeague>
 			<SpecialistType>SPECIALIST_CIVIL_SERVANT</SpecialistType>
 			<GreatPeopleRateChange>1</GreatPeopleRateChange>
-			<ExtraLeagueVotes>1</ExtraLeagueVotes>
+			<ExtraLeagueVotes>8</ExtraLeagueVotes>
 			<GoldenAge>true</GoldenAge>
 			<GPExpendInfluence>25</GPExpendInfluence>
 			<ArtDefineTag>UNITED NATIONS</ArtDefineTag>
@@ -1511,7 +1511,7 @@
 			<Help>TXT_KEY_CONSULATE_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_CONSULATE_STRATEGY</Strategy>
 			<UnlockedByLeague>true</UnlockedByLeague>
-			<ExtraLeagueVotes>1</ExtraLeagueVotes>
+			<ExtraLeagueVotes>8</ExtraLeagueVotes>
 			<IconAtlas>EXPANSION2_BUILDING_ATLAS</IconAtlas>
 			<PortraitIndex>10</PortraitIndex>
 		</Row>

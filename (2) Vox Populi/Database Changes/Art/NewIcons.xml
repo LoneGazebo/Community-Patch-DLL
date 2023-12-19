@@ -258,36 +258,36 @@
 			<Atlas>promoVP_atlas_04</Atlas>
 			<IconSize>256</IconSize>
 			<Filename>promoVP_04_256.dds</Filename>
-			<IconsPerRow>7</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>2</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>promoVP_atlas_04</Atlas>
 			<IconSize>64</IconSize>
 			<Filename>promoVP_04_064.dds</Filename>
-			<IconsPerRow>7</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>2</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>promoVP_atlas_04</Atlas>
 			<IconSize>45</IconSize>
 			<Filename>promoVP_04_045.dds</Filename>
-			<IconsPerRow>7</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>2</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>promoVP_atlas_04</Atlas>
 			<IconSize>32</IconSize>
 			<Filename>promoVP_04_032.dds</Filename>
-			<IconsPerRow>7</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>2</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>promoVP_atlas_04</Atlas>
 			<IconSize>16</IconSize>
 			<Filename>promoVP_04_016.dds</Filename>
-			<IconsPerRow>7</IconsPerRow>
-			<IconsPerColumn>1</IconsPerColumn>
+			<IconsPerRow>8</IconsPerRow>
+			<IconsPerColumn>2</IconsPerColumn>
 		</Row>
 		<Row>
 			<Atlas>extraPromo_Atlas</Atlas>
@@ -447,6 +447,13 @@
 			<Atlas>LEMBOS_FLAG_ATLAS</Atlas>
 			<IconSize>32</IconSize>
 			<Filename>GaleaFlag.dds</Filename>
+			<IconsPerRow>1</IconsPerRow>
+			<IconsPerColumn>1</IconsPerColumn>
+		</Row>
+		<Row>
+			<Atlas>UNIT_KHAN_FLAG_ATLAS</Atlas>
+			<IconSize>32</IconSize>
+			<Filename>khanflag.dds</Filename>
 			<IconsPerRow>1</IconsPerRow>
 			<IconsPerColumn>1</IconsPerColumn>
 		</Row>

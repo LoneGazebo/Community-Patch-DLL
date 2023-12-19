@@ -353,7 +353,7 @@ void CvCityCitizens::DoTurn()
 			{
 				//default value for vanilla happiness
 				int iLockThreshold = -20;
-				if (MOD_BALANCE_CORE_HAPPINESS)
+				if (MOD_BALANCE_VP)
 				{
 					if (thisPlayer.IsEarlyExpansionPhase())
 						//if we fall below this threshold the early expansion strategy will be disabled and we leave good city sites to our enemies
@@ -432,13 +432,13 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 			int iTempBonus = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
 			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
 			if (iTempBonus != iTempBonusPlusOne)
-				iBonus += iTempBonusPlusOne;
+				iBonus += iTempBonusPlusOne - iTempBonus;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature))) / 100;
 		int iTempBonusPlusOne = (m_pCity->GetYieldPerXFeatureFromBuildingsTimes100(eFeature, eYield) * (m_pCity->GetNumFeatureWorked(eFeature) + 1)) / 100;
 		if (iTempBonus != iTempBonusPlusOne)
-			iBonus += iTempBonusPlusOne;
+			iBonus += iTempBonusPlusOne - iTempBonus;
 	}
 	if (eTerrain != NO_TERRAIN)
 	{
@@ -461,13 +461,13 @@ int CvCityCitizens::GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomp
 			int iTempBonus = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
 			int iTempBonusPlusOne = (iEffect * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
 			if (iTempBonus != iTempBonusPlusOne)
-				iBonus += iTempBonusPlusOne;
+				iBonus += iTempBonusPlusOne - iTempBonus;
 		}
 
 		int iTempBonus = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain))) / 100;
 		int iTempBonusPlusOne = (m_pCity->GetYieldPerXTerrainFromBuildingsTimes100(eTerrain, eYield) * (m_pCity->GetNumTerrainWorked(eTerrain) + 1)) / 100;
 		if (iTempBonus != iTempBonusPlusOne)
-			iBonus += iTempBonusPlusOne;
+			iBonus += iTempBonusPlusOne - iTempBonus;
 	}
 
 	return iBonus;
@@ -926,9 +926,14 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 				if (pReligion)
 				{
 					iYield100 += pReligion->m_Beliefs.GetSpecialistYieldChange(eSpecialist, eYield, m_pCity->getOwner(), m_pCity) * 100;
-					int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner(), m_pCity);
-					if (GetTotalSpecialistCount() <= 0 && iYield1Specialist > 0)
-						iYield100 += iYield1Specialist * 100;
+
+					// Laborers don't get any non-specific specialist boosts
+					if (eSpecialist != GD_INT_GET(DEFAULT_SPECIALIST))
+					{
+						int iYield1Specialist = pReligion->m_Beliefs.GetYieldChangeAnySpecialist(eYield, m_pCity->getOwner(), m_pCity);
+						if (GetTotalSpecialistCount() <= 0 && iYield1Specialist > 0)
+							iYield100 += iYield1Specialist * 100;
+					}
 				}
 			}
 		}
@@ -1179,7 +1184,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	//Penalties
 	//////////
 
-	if (MOD_BALANCE_CORE_HAPPINESS)
+	if (MOD_BALANCE_VP)
 	{
 		int iCityHappiness = 0;
 		int iGlobalHappiness = 0;
@@ -1261,10 +1266,6 @@ bool CvCityCitizens::DoAddBestCitizenFromUnassigned(CvCity::eUpdateMode updateMo
 	iAdditionalFoodFromBestTile /= 100;
 	int iNetFoodIfBestTileWorked = iNetFood100 + iAdditionalFoodFromBestTile;
 
-	iNetFoodIfSpecialistWorked *= (100 + m_pCity->getGrowthMods()); // Growth mod
-	iNetFoodIfSpecialistWorked /= 100;
-	iNetFoodIfBestTileWorked *= (100 + m_pCity->getGrowthMods());
-	iNetFoodIfBestTileWorked /= 100;
 	// we can afford working a specialist if it wouldn't bring us below the minimum excess food threshold or if working a specialist would consume less food than working the best unworked plot
 	bool bCanAffordSpecialist = iNetFoodIfSpecialistWorked >= min(GetExcessFoodThreshold100(), iNetFoodIfBestTileWorked);
 	bool bSpecialistForbidden = GET_PLAYER(GetOwner()).isHuman() && ( IsNoAutoAssignSpecialists() || NoSpecialists );
@@ -1534,16 +1535,13 @@ int CvCityCitizens::GetExcessFoodThreshold100() const
 	}
 	else
 	{
-		int iPop = m_pCity->getPopulation();
-		int iFoodNeededForGrowth = GET_PLAYER(m_pCity->getOwner()).getGrowthThreshold(m_pCity->getPopulation());
 		CityAIFocusTypes eFocus = GetFocusType();
 		if (eFocus == NO_CITY_AI_FOCUS_TYPE)
-			// we want to get a new citizen at least every 10 turns, slower growth rate if we have a higher population
-			return max(200, 100 * iFoodNeededForGrowth / (max(10, iPop)+2*max(0,iPop-25)));
+			return max(200, m_pCity->getPopulation() * max(25, 50 - m_pCity->getPopulation() / 2));
 		else if (eFocus == CITY_AI_FOCUS_TYPE_PROD_GROWTH || eFocus == CITY_AI_FOCUS_TYPE_GOLD_GROWTH)
-			return max(200, 100 * iFoodNeededForGrowth / 10);
+			return max(200, m_pCity->getPopulation() * 50);
 		else if (eFocus == CITY_AI_FOCUS_TYPE_FOOD)
-			return max(200, 100 * iFoodNeededForGrowth / 5);
+			return m_pCity->getPopulation() * 150;
 
 		//default (other specializations)
 		return 200;
@@ -1631,10 +1629,6 @@ void CvCityCitizens::OptimizeWorkedPlots(bool bLogging)
 		iAdditionalFoodFromBestTile /= 100;
 		int iNetFoodIfBestTileWorked = iNetFood100 + iAdditionalFoodFromBestTile;
 
-		iNetFoodIfSpecialistWorked *= (100 + m_pCity->getGrowthMods()); // Growth mod
-		iNetFoodIfSpecialistWorked /= 100;
-		iNetFoodIfBestTileWorked *= (100 + m_pCity->getGrowthMods());
-		iNetFoodIfBestTileWorked /= 100;
 		// we can afford working a specialist if it wouldn't bring us below the minimum excess food threshold or if working a specialist would consume less food than working the best unworked plot
 		bool bCanAffordSpecialist = iNetFoodIfSpecialistWorked >= min(GetExcessFoodThreshold100(), iNetFoodIfBestTileWorked);
 

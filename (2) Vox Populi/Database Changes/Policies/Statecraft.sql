@@ -94,7 +94,7 @@ VALUES
 UPDATE Policies
 SET
 	MinorFriendshipMinimum = 0,
-	FreeWCVotes = 1,
+	FreeWCVotes = 8,
 	EventTourismCS = 4
 WHERE Type = 'POLICY_CONSULATES';
 

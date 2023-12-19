@@ -413,7 +413,7 @@ private:
 
 	// Operational AI support functions
 	bool CheckForEnemiesNearArmy(CvArmyAI* pArmy);
-	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget, CvPlot* pFarTarget);
+	void ExecuteGatherMoves(CvArmyAI* pArmy, CvPlot* pTurnTarget);
 
 	// Routines to process and sort targets
 	void IdentifyPriorityTargets();
@@ -440,7 +440,7 @@ private:
 	bool ExecuteSpotterMove(const vector<CvUnit*>& vUnits, CvPlot* pTargetPlot);
 	bool ExecuteAttackWithUnits(CvPlot* pTargetPlot, eAggressionLevel eAggLvl);
 	bool ExecuteAttackWithCitiesAndGarrisons(CvUnit* pDefender);
-	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pCloseRangeTarget, CvPlot* pLongRangeTarget);
+	bool PositionUnitsAroundTarget(const vector<CvUnit*>& vUnits, CvPlot* pTarget);
 	void ExecuteAirSweep(CvPlot* pTargetPlot);
 	void ExecuteAirAttack(CvPlot* pTargetPlot);
 	void ExecuteRepositionMoves();

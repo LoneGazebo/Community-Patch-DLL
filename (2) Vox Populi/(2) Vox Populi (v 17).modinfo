@@ -654,6 +654,7 @@
     <File md5="FCB0E1E7CCCCCA610BEFC1A641E52289" import="1">Assets/Units/Icons/fieldgunflag.dds</File>
     <File md5="C7E80225CE93AA4DF41B993DEFAB2717" import="1">Assets/Units/Icons/GaleaFlag.dds</File>
     <File md5="160AD576F9BC6A24C161937B804A8A52" import="1">Assets/Units/Icons/kommandoflag.dds</File>
+	<File md5="98E654337EA7D79A9B97ABE23CD334C3" import="1">Assets/Units/Icons/khanflag.dds</File>
     <File md5="7BBC851A821B5B701D7BF787A2A9F160" import="1">Assets/Units/Icons/mercflag.dds</File>
     <File md5="3FB307CE0882613579AC34C7A027F0AA" import="1">Assets/Units/Icons/mountedxbowflag.dds</File>
     <File md5="A9A2D2943937BB599B96076A8A6A5365" import="1">Assets/Units/Icons/sovietflag.dds</File>
@@ -668,6 +669,7 @@
     <File md5="ECF0330A1A7E07D92DF38EF02692773B" import="1">Assets/Units/Icons/svmountedxbow.dds</File>
     <File md5="23D9ECF4F5234F22D08EE3F04C699FE2" import="1">Assets/Units/Icons/svsoviet.dds</File>
     <File md5="6434EC8EB89A8F24BDF2CB792467982A" import="1">Assets/Units/Icons/sv_galea.dds</File>
+	<File md5="566AD88DD89F999E9877EABBC66AAABB" import="1">Assets/Units/Icons/sv_khan.dds</File>
     <File md5="3C6B488E75283AC8ED922337FC08C933" import="1">Assets/Units/Icons/sv_kommando.dds</File>
     <File md5="D2AC8A9ED3C8177823BA24ED262A60F8" import="1">Assets/Units/Icons/tercio_flag2.dds</File>
     <File md5="A5DE4C137543B0FCA47C8B85927900DF" import="1">Assets/Units/Icons/tercio_flag_white.dds</File>

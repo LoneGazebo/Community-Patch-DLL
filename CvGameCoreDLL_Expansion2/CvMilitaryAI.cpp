@@ -471,15 +471,10 @@ void CvMilitaryAI::DoTurn()
 		DisbandObsoleteUnits();
 	}
 
-	if(!m_pPlayer->isMinorCiv())
-	{
-		LogMilitaryStatus();
+	LogMilitaryStatus();
 
-		if(IsBuildingArmy(ARMY_TYPE_ANY))
-		{
-			LogAvailableForces();
-		}
-	}
+	if(IsBuildingArmy(ARMY_TYPE_ANY))
+		LogAvailableForces();
 }
 
 /// Ask to send a nuke at an enemy
@@ -949,7 +944,7 @@ map<int, SPath> CvMilitaryAI::GetArmyPathsFromCity(CvCity* pMusterCity, bool bWa
 
 	//re-use trade route distance to get an era-appropriate max distance
 	int iMaxNormDist = m_pPlayer->GetTrade()->GetTradeRouteRange(bWater?DOMAIN_SEA:DOMAIN_LAND, pMusterCity);
-	SPathFinderUserData data(m_pPlayer->GetID(), bWater?PT_ARMY_WATER:PT_ARMY_LAND);
+	SPathFinderUserData data(m_pPlayer->GetID(), bWater?PT_ARMY_WATER:PT_ARMY_LAND, NO_PLAYER, INT_MAX);
 	data.iMaxNormalizedDistance = iMaxNormDist;
 	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 	data.iFlags |= CvUnit::MOVEFLAG_IGNORE_ENEMIES;
@@ -991,8 +986,13 @@ bool CvMilitaryAI::RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsW
 
 		//don't duplicate operations
 		CvAIOperation* pCurrentOp = m_pPlayer->getFirstAIOperationOfType(opType, eTargetPlayer, pTargetPlot);
-		if (bCareful && pCurrentOp != NULL && pCurrentOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS)
-			continue;
+		if (bCareful && pCurrentOp != NULL && pCurrentOp->GetArmy(0))
+		{
+			//wait until the previous army has at least left our territory, don't commit all our units to one target
+			CvPlot* pCOM = pCurrentOp->GetArmy(0)->GetCenterOfMass();
+			if (!pCOM || pCOM->getOwner() == m_pPlayer->GetID())
+				continue;
+		}
 
 		//if we're being careless, just use whatever units we have and do not wait for new ones
 		if (m_pPlayer->addAIOperation(opType, bCareful ? iNumUnitsWillingToBuild : 0, eTargetPlayer, pTargetPlot->getPlotCity(), pMusterPlot->getPlotCity()) != NULL)
@@ -2123,14 +2123,14 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 						m_aiTempFlavors[iFlavorLoop] = pStrategy->GetPlayerFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, true);
+					GetPlayer()->GetFlavorManager()->ChangeActivePersonalityFlavors(m_aiTempFlavors, pStrategy->GetType(), true);
 
 					for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						m_aiTempFlavors[iFlavorLoop] = pStrategy->GetCityFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, false);
+					GetPlayer()->GetFlavorManager()->ChangeCityFlavors(m_aiTempFlavors, pStrategy->GetType(), true);
 
 					if(pStrategy->RequiresCitySpecializationUpdate())
 						GetPlayer()->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_STRATEGY_NOW_ON);
@@ -2145,14 +2145,14 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 						m_aiTempFlavors[iFlavorLoop] = -pStrategy->GetPlayerFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, true);
+					GetPlayer()->GetFlavorManager()->ChangeActivePersonalityFlavors(m_aiTempFlavors, pStrategy->GetType(), false);
 
 					for(iFlavorLoop = 0; iFlavorLoop < GC.getNumFlavorTypes(); iFlavorLoop++)
 					{
 						m_aiTempFlavors[iFlavorLoop] = -pStrategy->GetCityFlavorValue(iFlavorLoop);
 					}
 
-					GetPlayer()->GetFlavorManager()->ChangeFlavors(m_aiTempFlavors, false);
+					GetPlayer()->GetFlavorManager()->ChangeCityFlavors(m_aiTempFlavors, pStrategy->GetType(), false);
 
 					if(pStrategy->RequiresCitySpecializationUpdate())
 						GetPlayer()->GetCitySpecializationAI()->SetSpecializationsDirty(SPECIALIZATION_UPDATE_STRATEGY_NOW_OFF);

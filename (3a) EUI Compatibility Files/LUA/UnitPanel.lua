@@ -2031,7 +2031,7 @@ function ActionToolTipHandler( control )
 		end
 
 		-- Resource connection
-		if (improvement and plot:GetOwner() == unit:GetOwner) then
+		if (improvement and plot:GetOwner() == unit:GetOwner()) then
 			local resourceID = plot:GetResourceType(g_activeTeamID)
 			if resourceID ~= -1
 				and plot:IsResourceConnectedByImprovement(improvementID)

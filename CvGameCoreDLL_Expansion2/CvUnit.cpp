@@ -2588,23 +2588,13 @@ void CvUnit::kill(bool bDelay, PlayerTypes ePlayer /*= NO_PLAYER*/)
 
 			if (iCivValue == 0)
 			{
-				// Update military rating for both players
+				GET_PLAYER(ePlayer).ApplyWarDamage(eUnitOwner, iUnitValue);
+
 				if (GET_PLAYER(ePlayer).isMajorCiv())
-				{
-					GET_PLAYER(ePlayer).ChangeMilitaryRating(iUnitValue); // rating up for winner (them)
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeWarProgressScore(eUnitOwner, /*20*/ GD_INT_GET(WAR_PROGRESS_KILLED_UNIT));
-				}
+
 				if (GET_PLAYER(eUnitOwner).isMajorCiv())
-				{
-					GET_PLAYER(eUnitOwner).ChangeMilitaryRating(-iUnitValue); // rating down for loser (us)
 					GET_PLAYER(eUnitOwner).GetDiplomacyAI()->ChangeWarProgressScore(ePlayer, /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_UNIT));
-				}
-
-				// Does the killer have a bonus to war score accumulation?
-				iUnitValue *= (100 + GET_PLAYER(ePlayer).GetWarScoreModifier());
-				iUnitValue /= 100;
-
-				GET_PLAYER(eUnitOwner).ChangeWarValueLost(ePlayer, iUnitValue);
 			}
 		}
 
@@ -6779,37 +6769,56 @@ void CvUnit::ChangeCaptureDefeatedEnemyCount(int iChange)
 //	--------------------------------------------------------------------------------
 int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 {
-	int iRtnValue = 0;
+	// This unit can't capture enemies
+	if (!IsCaptureDefeatedEnemy())
+		return 0;
 
-	if ((m_iCaptureDefeatedEnemyCount > 0 || m_iCaptureDefeatedEnemyChance > 0) && getDomainType()==pEnemy->getDomainType())
+	// Can't capture units belonging to different domain
+	if (getDomainType() != pEnemy->getDomainType())
+		return 0;
+	
+	// This enemy cannot be captured
+	if(pEnemy->GetCannotBeCaptured())
+		return 0;
+
+	// This unit has a fixed capture chance? Use it!
+	int iFixedCaptureChance = GetCaptureDefeatedEnemyChance();
+	if (iFixedCaptureChance > 0)
+		return iFixedCaptureChance;
+
+	if (MOD_BALANCE_VP)
+	{
+		// Count adjacent enterable plots
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pEnemy->plot());
+		int iEnterablePlotCount = 0;
+		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
+		{
+			CvPlot* pLoopPlot = aPlotsToCheck[iCount];
+			if (pEnemy->canEnterTerrain(*pLoopPlot, MOVEFLAG_NO_EMBARK | MOVEFLAG_DESTINATION))
+				iEnterablePlotCount++;
+		}
+
+		// Count adjacent enemies (doesn't have to be YOUR units!)
+		int iAdjEnemyCount = pEnemy->plot()->GetNumEnemyUnitsAdjacent(pEnemy->getTeam(), pEnemy->getDomainType());
+
+		// Enemy is captured if and only if more than half of the surrounding enterable plots are occupied by its enemies
+		if (iAdjEnemyCount * 2 >= iEnterablePlotCount)
+			return 100;
+	}
+	else
 	{
 		// Look at ratio of intrinsic combat strengths
 		CvUnitEntry *pkEnemyInfo = GC.getUnitInfo(pEnemy->getUnitType());
-		if (pkEnemyInfo)
+		int iTheirCombat = pkEnemyInfo->GetCombat();
+		if (iTheirCombat > 0)
 		{
-			int iTheirCombat = pkEnemyInfo->GetCombat();
-#if defined(MOD_BALANCE_CORE)
-			if(pEnemy->GetCannotBeCaptured())
-			{
-				return 0;
-			}
-
-			if (m_iCaptureDefeatedEnemyChance > 0)
-			{
-				return m_iCaptureDefeatedEnemyChance;
-			}
-#endif
-
-			if (iTheirCombat > 0)
-			{
-				int iMyCombat = m_pUnitInfo->GetCombat();
-				int iComputedChance = /*10*/ GD_INT_GET(COMBAT_CAPTURE_MIN_CHANCE) + (int)(((float)iMyCombat / (float)iTheirCombat) * /*40*/ GD_INT_GET(COMBAT_CAPTURE_RATIO_MULTIPLIER));
-				iRtnValue = min(/*80*/ GD_INT_GET(COMBAT_CAPTURE_MAX_CHANCE), iComputedChance);
-			}
+			int iMyCombat = m_pUnitInfo->GetCombat();
+			int iComputedChance = /*10*/ GD_INT_GET(COMBAT_CAPTURE_MIN_CHANCE) + iMyCombat * /*40*/ GD_INT_GET(COMBAT_CAPTURE_RATIO_MULTIPLIER) / iTheirCombat;
+			return min(/*80*/ GD_INT_GET(COMBAT_CAPTURE_MAX_CHANCE), iComputedChance);
 		}
 	}
 
-	return iRtnValue;
+	return 0;
 }
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
@@ -10485,11 +10494,10 @@ bool CvUnit::pillage()
 						}
 					}
 
-					// Update military rating for both players
+					GET_PLAYER(getOwner()).ApplyWarDamage(pPlot->getOwner(), iTileValue);
+
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for winner (us)
-
 						int iWarProgressValue = /*10*/ GD_INT_GET(WAR_PROGRESS_PILLAGED_IMPROVEMENT);
 						if (bPillagedHighValueTile)
 						{
@@ -10500,8 +10508,6 @@ bool CvUnit::pillage()
 					}
 					if (GET_PLAYER(pPlot->getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(pPlot->getOwner()).ChangeMilitaryRating(-iTileValue); // rating down for loser (them)
-
 						int iWarProgressValue = /*-5*/ GD_INT_GET(WAR_PROGRESS_LOST_IMPROVEMENT);
 						if (bPillagedHighValueTile)
 						{
@@ -10510,12 +10516,6 @@ bool CvUnit::pillage()
 						}
 						GET_PLAYER(pPlot->getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(getOwner(), iWarProgressValue);
 					}
-
-					// Do we have a bonus to war score accumulation?
-					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-					iTileValue /= 100;
-
-					GET_PLAYER(pPlot->getOwner()).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 #endif
 				int iPillageGold = 0;
@@ -12200,7 +12200,16 @@ int CvUnit::getTradeInfluence(const CvPlot* pPlot) const
 	{
 		PlayerTypes eMinor = pPlot->getOwner();
 		if (GetDiploMissionInfluence() != 0)
+		{
 			iInf = GetDiploMissionInfluence();
+
+			CvCity* pOriginCity = getOriginCity();
+			if (!pOriginCity)
+				pOriginCity = GET_PLAYER(getOwner()).getCapitalCity();
+
+			if (pOriginCity)
+				iInf += pOriginCity->GetDiplomatInfluenceBoost();
+		}
 		else
 			iInf = /*30 in CP, 0 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_FROM_TRADE_MISSION);
 
@@ -12875,17 +12884,16 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					}
 				}
 
-				iTileValue *= (100 + iValueMultiplier);
+				iTileValue *= 100 + iValueMultiplier;
 				iTileValue /= 100;
 
 				// If the players are at war, this counts for war value!
 				if (GET_PLAYER(getOwner()).IsAtWarWith(ePlotOwner))
 				{
-					// Update military rating for both players
+					GET_PLAYER(getOwner()).ApplyWarDamage(ePlotOwner, iTileValue);
+
 					if (GET_PLAYER(getOwner()).isMajorCiv())
 					{
-						GET_PLAYER(getOwner()).ChangeMilitaryRating(iTileValue); // rating up for thief (us)
-
 						int iWarProgress = /*20*/ GD_INT_GET(WAR_PROGRESS_STOLE_TILE);
 						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
 						{
@@ -12896,8 +12904,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 					}
 					if (GET_PLAYER(ePlotOwner).isMajorCiv())
 					{
-						GET_PLAYER(ePlotOwner).ChangeMilitaryRating(-iTileValue); // rating down for victim (them)
-
 						int iWarProgress = /*-10*/ GD_INT_GET(WAR_PROGRESS_LOST_TILE);
 						if (vePlayersStoleHighValueTileFrom[ePlotOwner])
 						{
@@ -12906,12 +12912,6 @@ void CvUnit::PerformCultureBomb(int iRadius)
 						}
 						GET_PLAYER(getOwner()).GetDiplomacyAI()->ChangeWarProgressScore(ePlotOwner, iWarProgress);
 					}
-
-					// Does the city owner have a bonus to war score accumulation?
-					iTileValue *= (100 + GET_PLAYER(getOwner()).GetWarScoreModifier());
-					iTileValue /= 100;
-
-					GET_PLAYER(ePlotOwner).ChangeWarValueLost(getOwner(), iTileValue);
 				}
 			}
 #if defined(MOD_BALANCE_CORE)
@@ -13439,14 +13439,18 @@ bool CvUnit::blastTourism()
 		PlayerTypes eOwner = pPlot->getOwner();
 		kUnitOwner.changeTourismBonusTurnsPlayer(eOwner, GetTourismBlastLength());
 
-		// Give happiness to Musician owner
-		if (MOD_BALANCE_CORE_HAPPINESS_NATIONAL)
-		{
-			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
+		// VP: Give Happiness to Musician owner
+		int iCap = /*0*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL);
+		if (iCap > 0 && kUnitOwner.getCapitalCity() != NULL)
+			kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
 
-			if (kUnitOwner.getCapitalCity() != NULL)
+		iCap = /*0 in CP, 1 in VP*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_GLOBAL);
+		if (iCap > 0)
+		{
+			int iLoop = 0;
+			for (CvCity* pLoopCity = kUnitOwner.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kUnitOwner.nextCity(&iLoop))
 			{
-				kUnitOwner.getCapitalCity()->ChangeUnmoddedHappinessFromBuildings(iCap);
+				pLoopCity->ChangeUnmoddedHappinessFromBuildings(iCap);
 			}
 		}
 
@@ -13488,7 +13492,7 @@ bool CvUnit::blastTourism()
 			PlayerTypes eOwner = pPlot->getOwner();
 
 			// Give happiness to Musician owner
-			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS);
+			int iCap = /*2*/ GD_INT_GET(GREAT_MUSICIAN_BLAST_HAPPINESS_CAPITAL);
 
 			if (GET_PLAYER(getOwner()).getCapitalCity() != NULL)
 			{
@@ -14521,7 +14525,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 		// Check max instances of unit class
 		// Don't count units already in production; upgrading is prioritized
-		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes) pUpgradeUnitInfo->GetUnitClassType();
+		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes)pUpgradeUnitInfo->GetUnitClassType();
 
 		// Maxed out unit class for Game
 		if(GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))
@@ -15227,7 +15231,7 @@ int CvUnit::visibilityRange() const
 
 	if (isEmbarked())
 	{
-		iVisionRange += max(1,/*0*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
+		iVisionRange += max(1, /*1*/ GD_INT_GET(EMBARKED_VISIBILITY_RANGE) + m_iEmbarkExtraVisibility);
 	}
 	else if (isTrade())
 	{
@@ -21757,7 +21761,7 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 
 
 //	--------------------------------------------------------------------------------
-void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal)
+void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromCombat, bool bInBorders, bool bUpdateGlobal, bool bFromHuman)
 {
 	VALIDATE_OBJECT
 	// Barbs don't get XP or Promotions
@@ -21909,9 +21913,16 @@ void CvUnit::changeExperienceTimes100(int iChangeTimes100, int iMax, bool bFromC
 			}
 		}
 
-		if (getExperiencePercent() != 0)
+		int iExperiencePercent = getExperiencePercent();
+		if (bFromHuman && GET_PLAYER(getOwner()).isMajorCiv())
 		{
-			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * getExperiencePercent()) / 100;
+			iExperiencePercent += GET_PLAYER(getOwner()).getHandicapInfo().getFreeXPPercentVSHuman();
+			iExperiencePercent += GET_PLAYER(getOwner()).isHuman() ? 0 : GC.getGame().getHandicapInfo().getAIFreeXPPercentVSHuman();
+		}
+
+		if (iExperiencePercent != 0)
+		{
+			int iUnitBonusXpTimes100 = (iUnitExperienceTimes100 * iExperiencePercent) / 100;
 			iUnitExperienceTimes100 += iUnitBonusXpTimes100;
 		}
 
@@ -28006,7 +28017,7 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 			if (pLoopUnit->canMove() && pLoopUnit->GetNumEnemyUnitsAdjacent()==0 && !pLoopUnit->shouldHeal(false))
 			{
 				//make sure we're not getting the pushed unit killed
-				int iDangerLimit = pLoopUnit->IsCanAttackRanged() ? pLoopUnit->GetCurrHitPoints() / 2 : pLoopUnit->GetCurrHitPoints();
+				int iDangerLimit = pLoopUnit->GetCurrHitPoints();
 				int iLeastDanger = INT_MAX;
 
 				//does it have a free plot
@@ -28017,20 +28028,29 @@ CvUnit* CvUnit::GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToP
 					if (!pNeighbor)
 						continue;
 
-					bool bMayUse = false;
-
-					//empty plot
+					//valid plot
 					if (pLoopUnit->isNativeDomain(pNeighbor) && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION))
-						bMayUse = true;
-
-					//swap needed
-					if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
-						bMayUse = true;
-
-					if (bMayUse)
 					{
-						//go to the lowest danger plot ... todo: should we try to use the other unit as cover?
 						int iUnitDanger = pLoopUnit->GetDanger(pNeighbor);
+
+						//swap needed / possible
+						if (at(pNeighbor->getX(), pNeighbor->getY()) && pNeighbor->GetNumCombatUnits() == 1 && pLoopUnit->canMoveInto(*pNeighbor, CvUnit::MOVEFLAG_DESTINATION | CvUnit::MOVEFLAG_IGNORE_STACKING_SELF))
+						{
+							//often the incoming unit is retreating from the frontline, so ideally we want to swap the neighboring unit right in
+							if (iUnitDanger < iDangerLimit)
+							{
+								//todo: check the distance to the next enemy
+								//todo: also might want to do a ranged opportunity attack before moving pLoopUnit ...
+								if (!pLoopUnit->IsCanAttackRanged() || TacticalAIHelpers::GetPlotsUnderRangedAttackFrom(pLoopUnit, pNeighbor, true, false).size() > 0)
+								{
+									if (ppToPlot)
+										*ppToPlot = pNeighbor;
+									return pLoopUnit;
+								}
+							}
+						}
+
+						//else go to the lowest danger plot ... todo: should we try to use the other unit as cover?
 						if (iUnitDanger < iDangerLimit && iUnitDanger < iLeastDanger)
 						{
 							iLeastDanger = iUnitDanger;
@@ -30191,7 +30211,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 
 	//ok apparently we both can move and need to move
 	//do not use the path cache here, the step finder tells us where to put the route
-	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,eBestRoute);
+	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,NO_BUILD,eBestRoute,false);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 
 	//index zero is the current plot!
@@ -31030,6 +31050,13 @@ const CvPathNodeArray& CvUnit::GetLastPath() const
 	return m_kLastPath;
 }
 
+bool CvUnit::CachedPathIsSafeForCivilian() const
+{
+	//check if the unit can be captured this turn
+	CvPlot* pCheck = GetPathEndFirstTurnPlot();
+	return !pCheck || GET_PLAYER(m_eOwner).GetPlotDanger(*pCheck,false) < GetCurrHitPoints();
+}
+
 // PRIVATE METHODS
 
 //	--------------------------------------------------------------------------------
@@ -31248,7 +31275,7 @@ bool CvUnit::CheckWithdrawal(const CvUnit& attacker) const
 	return iRoll < iWithdrawChance;
 }
 //	--------------------------------------------------------------------------------
-bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
+bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw, bool bCaptured)
 {
 	VALIDATE_OBJECT
 
@@ -31259,7 +31286,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	std::vector<CvPlot*> aValidPlotList;
 
 	// Store escorted units for later
-	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY)
+	if (MOD_CIVILIANS_RETREAT_WITH_MILITARY || bCaptured)
 	{
 		CvPlot* pUnitPlot = plot();
 		IDInfoVector currentUnits;
@@ -31271,11 +31298,17 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 
 				if (pLoopUnit && pLoopUnit != this && !pLoopUnit->isDelayedDeath())
 				{
-					aEscortedUnits.push_back(pLoopUnit);
+					// If this unit was captured, only stacked military units should withdraw - civilians should be captured as well
+					if (!bCaptured || !pLoopUnit->IsCivilianUnit())
+						aEscortedUnits.push_back(pLoopUnit);
 				}
 			}
 		}
 	}
+
+	// Performance improvement if the unit is captured and can't or doesn't escort anything
+	if (bCaptured && aEscortedUnits.empty())
+		return true;
 
 	// possible plots to withdraw to are the plot opposite to the attacker and the two plots next to that plot
 	for (int i = 0; i < 3; i++)
@@ -31283,7 +31316,7 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 		int iMovementDirection = (NUM_DIRECTION_TYPES + eAttackDirection + i - 1) % NUM_DIRECTION_TYPES; 
 		CvPlot* pDirectionPlot = plotDirection(getX(), getY(), (DirectionTypes)iMovementDirection);
 
-		if (pDirectionPlot && isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))
+		if (pDirectionPlot && (bCaptured || (isNativeDomain(pDirectionPlot) && canMoveInto(*pDirectionPlot, MOVEFLAG_DESTINATION | MOVEFLAG_NO_EMBARK))))
 		{
 			// Do not withdraw if we're escorting a unit who can't move here!
 			if (aEscortedUnits.size() > 0)
@@ -31345,8 +31378,9 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 	if (!pDestPlot)
 		return false;
 
-	// Actually do the withdrawal
-	setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
+	// Actually do the withdrawal if this unit isn't captured
+	if (!bCaptured)
+		setXY(pDestPlot->getX(), pDestPlot->getY(), true, true, true, true);
 
 	if (aEscortedUnits.size() > 0)
 	{
@@ -31362,9 +31396,12 @@ bool CvUnit::DoFallBack(const CvUnit& attacker, bool bWithdraw)
 		}
 	}
 
-	PublishQueuedVisualizationMoves();
-	if (bWithdraw)
-		m_bHasWithdrawnThisTurn = true;
+	if (!bCaptured)
+	{
+		PublishQueuedVisualizationMoves();
+		if (bWithdraw)
+			m_bHasWithdrawnThisTurn = true;
+	}
 
 	return true;
 }

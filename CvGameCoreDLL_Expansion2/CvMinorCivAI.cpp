@@ -865,7 +865,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer, bool bHeavyTribute)
 	if (kPlayer.getCapitalCity() == NULL)
 		return;
 
-	if (IsPartialQuest() || bHeavyTribute)
+	if (IsPartialQuest())
 	{
 		SetInfluence(GetInfluence() / 2);
 		SetGold(GetGold() / 2);
@@ -1557,7 +1557,7 @@ bool CvMinorCivQuest::IsComplete()
 }
 
 /// Is this quest now revoked (because the player bullied or attacked us)?
-bool CvMinorCivQuest::IsRevoked(bool bWar)
+bool CvMinorCivQuest::IsRevoked(bool bWar, bool bHeavyTribute)
 {
 	// Horde/Rebellion are never revoked
 	if (m_eType == MINOR_CIV_QUEST_HORDE || m_eType == MINOR_CIV_QUEST_REBELLION)
@@ -1571,8 +1571,11 @@ bool CvMinorCivQuest::IsRevoked(bool bWar)
 	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsGlobalQuest(m_eType))
 		return false;
 
+	if (bHeavyTribute)
+		return true;
+
 	// Bullied us recently? No personal quests for you!
-	if (GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
+	if (!GET_PLAYER(m_eAssignedPlayer).IsCanBullyFriendlyCS() && GET_PLAYER(m_eMinor).GetMinorCivAI()->IsRecentlyBulliedByMajor(m_eAssignedPlayer))
 		return true;
 
 	return false;
@@ -2202,9 +2205,9 @@ bool CvMinorCivQuest::IsExpired()
 	return false;
 }
 
-bool CvMinorCivQuest::IsObsolete(bool bWar)
+bool CvMinorCivQuest::IsObsolete(bool bWar, bool bHeavyTribute)
 {
-	return (IsRevoked(bWar) || IsExpired());
+	return (IsRevoked(bWar, bHeavyTribute) || IsExpired());
 }
 
 // The end of this quest has been handled, no effects should happen, and it is marked to be deleted
@@ -6237,7 +6240,7 @@ void CvMinorCivAI::DoObsoleteQuests()
 
 // Process obsolete quests that are active, and seed countdowns if needed.
 // If no quest type is specified, will check all quest types.
-void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar, bool bHeavyTribute) 
+void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType, bool bWar)
 {
 	if (ePlayer < 0 || ePlayer >= MAX_MAJOR_CIVS) return;
 
@@ -6252,8 +6255,8 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 	{
 		if (bCheckAllQuests || itr_quest->GetType() == eSpecifyQuestType)
 		{
-			// If a specific quest type was given, cancel it. Otherwise, check if the quest is now obsolete. Declaring war or demanding heavy tribute makes all quests obsolete except for the barbarian horde quest
-			if (!bCheckAllQuests || itr_quest->IsObsolete(bWar || bHeavyTribute))
+			// If a specific quest type was given, cancel it. Otherwise, check if the quest is now obsolete. Declaring war makes all quests obsolete except for the barbarian horde quest
+			if (!bCheckAllQuests || itr_quest->IsObsolete(bWar))
 			{
 				int iOldFriendshipTimes100 = GetEffectiveFriendshipWithMajorTimes100(ePlayer);
 				bool bCancelled = itr_quest->DoCancelQuest();
@@ -6261,14 +6264,9 @@ void CvMinorCivAI::DoObsoleteQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestT
 				
 				if (bCancelled)
 				{
-					if (itr_quest->IsRevoked(bWar || bHeavyTribute))
+					if (itr_quest->IsRevoked(bWar))
 					{
 						bQuestRevoked = true;
-						// special rule for heavy tribute: if the quest to conquer another CS or to ally both was given, cancel the quest also for the other CS
-						if (itr_quest->GetType() == MINOR_CIV_QUEST_KILL_CITY_STATE)
-						{
-							GET_PLAYER((PlayerTypes)itr_quest->GetPrimaryData()).GetMinorCivAI()->DoObsoleteQuestsForPlayer(ePlayer, MINOR_CIV_QUEST_KILL_CITY_STATE, false, false);
-						}
 					}
 
 					GET_PLAYER(ePlayer).GetDiplomacyAI()->LogMinorCivQuestCancelled(GetPlayer()->GetID(), iOldFriendshipTimes100, iNewFriendshipTimes100, itr_quest->GetType());
@@ -12651,8 +12649,8 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		}
 		if(bAllies)		// Allies bonus
 		{
-			iCapitalFoodTimes100 += GetAlliesCapitalFoodBonus(ePlayer);
-			iOtherCitiesFoodTimes100 += GetAlliesOtherCityFoodBonus(ePlayer);
+			iCapitalFoodTimes100 += GetAlliesCapitalFoodBonus();
+			iOtherCitiesFoodTimes100 += GetAlliesOtherCityFoodBonus();
 		}
 
 		if(!bAdd)		// Flip amount of we're taking bonuses away
@@ -13118,9 +13116,6 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if (!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
-		return;
-
 	if (!IsProtectedByMajor(eMajor))
 		return;
 
@@ -13132,6 +13127,7 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		if (GetNumTurnsSincePtPWarning(eMajor) > 0)
 		{
 			SetNumTurnsSincePtPWarning(eMajor, 0);
+
 			strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED");
 			strMessage << GetPlayer()->getNameKey();
 			strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_WARNING_TIMER_STOPPED_SHORT");
@@ -13141,24 +13137,35 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		return;
 	}
 
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
+	{
+		DoChangeProtectionFromMajor(eMajor, false, false);
+		SetNumTurnsSincePtPWarning(eMajor, 0);
+
+		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_NO_CAPITAL");
+		strMessage << GetPlayer()->getNameKey();
+		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
+		strSummary << GetPlayer()->getNameKey();
+		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
+		return;
+	}
+
+	if (!MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
+		return;
+
 	// If they've fallen below 0 Influence, end protection immediately.
 	if (GetEffectiveFriendshipWithMajor(eMajor) < /*0*/ GD_INT_GET(FRIENDSHIP_THRESHOLD_CAN_PLEDGE_TO_PROTECT))
 	{
 		DoChangeProtectionFromMajor(eMajor, false, true);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
 
-		CvCity* pCity = m_pPlayer->getCapitalCity();
-		if (pCity != NULL)
-		{
-			pCity->updateStrengthValue();
-		}
-
 		strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_INFLUENCE");
 		strMessage << GetPlayer()->getNameKey();
 		strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_STATE_PTP_CANCELLED_SHORT");
 		strSummary << GetPlayer()->getNameKey();
 		AddNotification(strMessage.toUTF8(), strSummary.toUTF8(), eMajor);
-
 		return;
 	}
 
@@ -13168,6 +13175,9 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 	bool bBadMilitary = false;
 	bool bDistance = true;
+	int iMinorCapitalX = pMinorCapital->getX();
+	int iMinorCapitalY = pMinorCapital->getY();
+	CvPlot* pCapitalPlot = pMinorCapital->plot();
 	int iMajorStrength = 1; // to avoid division by zero issues
 	std::vector<int> viMilitaryStrengths;
 
@@ -13175,9 +13185,12 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
+			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+			int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+			iStrength /= iDistance;
 			viMilitaryStrengths.push_back(iStrength);
 
 			if (ePlayer == eMajor && iStrength > 0)
@@ -13185,28 +13198,22 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 		}
 	}
 
-	// This should not happen.
-	if (viMilitaryStrengths.empty())
-		return;
-
-	size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
-	std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
-	if (iMajorStrength < viMilitaryStrengths[MedianElement])
+	size_t MedianElement = 0;
+	if (!viMilitaryStrengths.empty())
 	{
-		bBadMilitary = true;
-		bDistance = CanMajorProtect(eMajor, true);
+		MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
+		std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
+		if (iMajorStrength < viMilitaryStrengths[MedianElement])
+		{
+			bBadMilitary = true;
+			bDistance = CanMajorProtect(eMajor, true);
+		}
 	}
 
 	if (GetNumTurnsSincePtPWarning(eMajor) > iMaxWarningTurns)
 	{
 		DoChangeProtectionFromMajor(eMajor, false, true);
 		SetNumTurnsSincePtPWarning(eMajor, 0);
-
-		CvCity* pCity = m_pPlayer->getCapitalCity();
-		if (pCity != NULL)
-		{
-			pCity->updateStrengthValue();
-		}
 
 		if (bBadMilitary)
 		{
@@ -13269,9 +13276,6 @@ void CvMinorCivAI::TestChangeProtectionFromMajor(PlayerTypes eMajor)
 
 		ChangeNumTurnsSincePtPWarning(eMajor, 1);
 	}
-
-	GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-	GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
 }
 
 CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
@@ -13280,6 +13284,15 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 
 	Localization::String sMandatory = Localization::Lookup("TXT_KEY_POP_CSTATE_PTP_ALL_CORRECT");
 	sFactors += sMandatory.toUTF8();
+
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
+	{
+		Localization::String sCapital = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_NO_CAPITAL");
+		sFactors += sCapital.toUTF8();
+		return sFactors;
+	}
 
 	// If at war, may not protect
 	if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
@@ -13299,27 +13312,62 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
-	const int iGracePeriod = 20; //antonjs: todo: xml
+	int iLastBulliedTurn = GetTurnLastBulliedByMajor(eMajor);
+	int iBrokenTurns = /*20*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS);
+	int iBullyingTurns = /*0 in CP, 30 in VP*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
+	int iLongestCooldown = -1;
 
-	if (iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod > iCurrentTurn)
+	if (iBrokenTurns > 0 && iLastPledgeBrokenTurn > -1)
+	{
+		iBrokenTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBrokenTurns /= 100;
+		if (iBrokenTurns <= 0)
+			iBrokenTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastPledgeBrokenTurn;
+		if (iTurnDifference < iBrokenTurns)
+			iLongestCooldown = iBrokenTurns - iTurnDifference;
+	}
+
+	if (iBullyingTurns > 0 && iLastBulliedTurn > -1 && !GET_PLAYER(eMajor).IsCanBullyFriendlyCS())
+	{
+		iBullyingTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBullyingTurns /= 100;
+		if (iBullyingTurns <= 0)
+			iBullyingTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastBulliedTurn;
+		if (iTurnDifference < iBullyingTurns)
+		{
+			int iCooldown = iBullyingTurns - iTurnDifference;
+			if (iCooldown > iLongestCooldown)
+				iLongestCooldown = iCooldown;
+		}
+	}
+
+	if (iLongestCooldown != -1)
 	{
 		Localization::String sPledgeBroken = Localization::Lookup("TXT_KEY_POP_CSTATE_PLEDGE_DISABLED_RECENT_BROKEN_TT");
-		int iTurn = ((iLastPledgeBrokenTurn + iGracePeriod) - iCurrentTurn);
-		sPledgeBroken << iTurn;
-
+		sPledgeBroken << iLongestCooldown;
 		sFactors += sPledgeBroken.toUTF8();
 	}
 
-	int iMajorStrength = 1; // to avoid division by zero issues
 	std::vector<int> viMilitaryStrengths;
+	int iMajorStrength = 1; // to avoid division by zero issues
+	int iMinorCapitalX = pMinorCapital->getX();
+	int iMinorCapitalY = pMinorCapital->getY();
+	CvPlot* pCapitalPlot = pMinorCapital->plot();
 
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
 		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 		{
+			CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+			int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 			int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+			iStrength /= iDistance;
 			viMilitaryStrengths.push_back(iStrength);
 
 			if (ePlayer == eMajor && iStrength > 0)
@@ -13327,7 +13375,7 @@ CvString CvMinorCivAI::GetPledgeProtectionInvalidReason(PlayerTypes eMajor)
 		}
 	}
 
-	if (!viMilitaryStrengths.empty()) // This should not happen.
+	if (!viMilitaryStrengths.empty())
 	{
 		size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
 		std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
@@ -13378,7 +13426,7 @@ void CvMinorCivAI::DoChangeProtectionFromMajor(PlayerTypes eMajor, bool bProtect
 {
 	if(eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return;
 
-	if(bProtect == IsProtectedByMajor(eMajor)) return;
+	if (bProtect == IsProtectedByMajor(eMajor)) return;
 
 	if (bProtect)
 	{
@@ -13430,6 +13478,11 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return false;
 
+	CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+	CvCity* pMajorCapital = GET_PLAYER(eMajor).getCapitalCity();
+	if (!pMinorCapital || !pMinorCapital->plot() || !pMajorCapital || !pMajorCapital->plot())
+		return false;
+
 	// If at war, may not protect
 	if (GET_TEAM(GET_PLAYER(eMajor).getTeam()).isAtWar(GetPlayer()->getTeam()))
 		return false;
@@ -13441,37 +13494,65 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 	// Must not be too soon after a previous pledge was broken
 	int iCurrentTurn = GC.getGame().getGameTurn();
 	int iLastPledgeBrokenTurn = GetTurnLastPledgeBrokenByMajor(eMajor);
-	const int iGracePeriod = 20; //antonjs: todo: xml
+	int iLastBulliedTurn = GetTurnLastBulliedByMajor(eMajor);
+	int iBrokenTurns = /*20*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS);
+	int iBullyingTurns = /*0 in CP, 30 in VP*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING);
+	int iLongestCooldown = -1;
 
-	if (iLastPledgeBrokenTurn >= 0 && iLastPledgeBrokenTurn + iGracePeriod <= iCurrentTurn)
+	if (iBrokenTurns > 0 && iLastPledgeBrokenTurn > -1)
 	{
-		if ((iLastPledgeBrokenTurn + iGracePeriod) <= iCurrentTurn)
-			SetTurnLastPledgeBrokenByMajor(eMajor, -1);
-		else
-			return false;
+		iBrokenTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBrokenTurns /= 100;
+		if (iBrokenTurns <= 0)
+			iBrokenTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastPledgeBrokenTurn;
+		if (iTurnDifference < iBrokenTurns)
+			iLongestCooldown = iBrokenTurns - iTurnDifference;
 	}
 
-	if (MOD_EVENTS_MINORS_INTERACTION) 
+	if (iBullyingTurns > 0 && iLastBulliedTurn > -1 && !GET_PLAYER(eMajor).IsCanBullyFriendlyCS())
 	{
-		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
-			return false;
+		iBullyingTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iBullyingTurns /= 100;
+		if (iBullyingTurns <= 0)
+			iBullyingTurns = 1;
+
+		int iTurnDifference = iCurrentTurn - iLastBulliedTurn;
+		if (iTurnDifference < iBullyingTurns)
+		{
+			int iCooldown = iBullyingTurns - iTurnDifference;
+			if (iCooldown > iLongestCooldown)
+				iLongestCooldown = iCooldown;
 		}
 	}
+
+	if (iLongestCooldown != -1)
+		return false;
+
+	if (MOD_EVENTS_MINORS_INTERACTION && GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanProtect, eMajor, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE)
+		return false;
 
 	if (MOD_BALANCE_CORE_MINOR_PTP_MINIMUM_VALUE)
 	{
 		if (!bIgnoreMilitaryRequirement)
 		{
-			int iMajorStrength = 1;
-			std::vector<int> viMilitaryStrengths;
+			vector<int> viMilitaryStrengths;
+			int iMajorStrength = 1; // to avoid division by zero issues
+			int iMinorCapitalX = pMinorCapital->getX();
+			int iMinorCapitalY = pMinorCapital->getY();
+			CvPlot* pCapitalPlot = pMinorCapital->plot();
 
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
 
-				if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv())
+				if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).isMajorCiv() && GET_PLAYER(ePlayer).getNumCities() > 0)
 				{
+					CvCity* pClosestCity = GET_PLAYER(ePlayer).GetClosestCityByPlots(pCapitalPlot);
+					int iDistance = plotDistance(pClosestCity->getX(), pClosestCity->getY(), iMinorCapitalX, iMinorCapitalY);
 					int iStrength = GET_PLAYER(ePlayer).GetMilitaryMight();
+					iStrength /= iDistance;
 					viMilitaryStrengths.push_back(iStrength);
 
 					if (ePlayer == eMajor && iStrength > 0)
@@ -13479,14 +13560,13 @@ bool CvMinorCivAI::CanMajorProtect(PlayerTypes eMajor, bool bIgnoreMilitaryRequi
 				}
 			}
 
-			// This should not happen.
-			if (viMilitaryStrengths.empty())
-				return false;
-
-			size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
-			std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
-			if (iMajorStrength < viMilitaryStrengths[MedianElement])
-				return false;
+			if (!viMilitaryStrengths.empty())
+			{
+				size_t MedianElement = viMilitaryStrengths.size() / 2; // this returns the median, except if the median is an average of two values, in which case it returns the lowest of the two
+				std::nth_element(viMilitaryStrengths.begin(), viMilitaryStrengths.begin() + MedianElement, viMilitaryStrengths.end());
+				if (iMajorStrength < viMilitaryStrengths[MedianElement])
+					return false;
+			}
 		}
 
 		// Do they meet one of the three conditions?
@@ -13639,33 +13719,6 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 			// Other Cities
 			iOldFood = GetFriendsOtherCityFoodBonus(ePlayer);
 			iNewFood = GetFriendsOtherCityFoodBonus(ePlayer, eNewEra);
-
-			if(iOldFood != iNewFood)
-			{
-				bSomethingChanged = true;
-				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
-			}
-		}
-
-		// Allies
-		if(IsAllies(ePlayer))
-		{
-			int iOldFood = 0;
-			int iNewFood = 0;
-
-			// Capital
-			iOldFood = GetAlliesCapitalFoodBonus(ePlayer);
-			iNewFood = GetAlliesCapitalFoodBonus(ePlayer);
-
-			if(iOldFood != iNewFood)
-			{
-				bSomethingChanged = true;
-				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
-			}
-
-			// Other Cities
-			iOldFood = GetAlliesOtherCityFoodBonus(ePlayer);
-			iNewFood = GetAlliesOtherCityFoodBonus(ePlayer);
 
 			if(iOldFood != iNewFood)
 			{
@@ -13872,40 +13925,29 @@ int CvMinorCivAI::GetCurrentCultureFlatBonus(PlayerTypes ePlayer)
 	if(ePlayer < 0 || ePlayer >= MAX_PLAYERS) return 0;
 
 	// Don't give a bonus to a minor civ player
-	if(ePlayer >= MAX_MAJOR_CIVS)
+	if (ePlayer >= MAX_MAJOR_CIVS)
 		return 0;
 
 	// Only give a bonus if we are Cultural trait
-	if(GetTrait() != MINOR_CIV_TRAIT_CULTURED)
+	if (GetTrait() != MINOR_CIV_TRAIT_CULTURED)
 		return 0;
 
 	int iAmount = 0;
 
-	if(IsAllies(ePlayer))
+	if (IsAllies(ePlayer))
 		iAmount += GetCultureFlatAlliesBonus(ePlayer);
 
-	if(IsFriends(ePlayer))
+	if (IsFriends(ePlayer))
 		iAmount += GetCultureFlatFriendshipBonus(ePlayer);
 
-	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
+	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
+	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
+	if (iModifier > 0)
 	{
-		iAmount *= (iModifier + 100);
+		iAmount *= 100 + iModifier;
 		iAmount /= 100;
 	}
-
-#if defined(MOD_BALANCE_CORE)
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iAmount *= (iModifier + 100);
-			iAmount /= 100;
-		}
-	}
-#endif
 
 	if (MOD_CITY_STATE_SCALE)
 	{
@@ -13955,7 +13997,7 @@ int CvMinorCivAI::GetCurrentCulturePerBuildingBonus(PlayerTypes ePlayer)
 
 	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
+	if (iModifier > 0)
 	{
 		iAmount *= (iModifier + 100);
 		iAmount /= 100;
@@ -13985,46 +14027,44 @@ int CvMinorCivAI::GetCurrentCultureBonus(PlayerTypes ePlayer)
 int CvMinorCivAI::GetHappinessFlatFriendshipBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {
 	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
+	if (eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 
 	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
 	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
 
 	// Industrial era or Later
-	if(eCurrentEra >= eIndustrial)
+	if (eCurrentEra >= eIndustrial)
 		return /*3*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 
 	// Medieval era or later
-	else if(eCurrentEra >= eMedieval)
+	else if (eCurrentEra >= eMedieval)
 		return /*3*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL);
 
 	// Pre-Medieval
-	else
-		return /*2*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
+	return /*2*/ GD_INT_GET(FRIENDS_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
 }
 
 /// Flat happiness bonus from being allies with a minor
 int CvMinorCivAI::GetHappinessFlatAlliesBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {
 	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
+	if (eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 
 	EraTypes eIndustrial = (EraTypes) GC.getInfoTypeForString("ERA_INDUSTRIAL", true);
 	EraTypes eMedieval = (EraTypes) GC.getInfoTypeForString("ERA_MEDIEVAL", true);
 
 	// Industrial era or Later
-	if(eCurrentEra >= eIndustrial)
+	if (eCurrentEra >= eIndustrial)
 		return /*0*/ GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_INDUSTRIAL);
 
 	// Medieval era or later
-	else if(eCurrentEra >= eMedieval)
+	else if (eCurrentEra >= eMedieval)
 		return /*0*/ GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_MEDIEVAL);
 
 	// Pre-Medieval
-	else
-		return /*0*/ GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
+	return /*0*/ GD_INT_GET(ALLIES_HAPPINESS_FLAT_BONUS_AMOUNT_ANCIENT);
 }
 
 /// Flat happiness bonus currently in effect
@@ -14048,14 +14088,18 @@ int CvMinorCivAI::GetCurrentHappinessFlatBonus(PlayerTypes ePlayer)
 	if(IsFriends(ePlayer))
 		iAmount += GetHappinessFlatFriendshipBonus(ePlayer);
 
+	int iModifier = MOD_ALTERNATE_SIAM_TRAIT ? GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier() : 0;
+	if (iModifier > 0)
+	{
+		iAmount *= 100 + iModifier;
+		iAmount /= 100;
+	}
+
 	if (MOD_CITY_STATE_SCALE)
 	{
 		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
-
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iAmount /= 100;
 
 	return iAmount;
 }
@@ -14286,22 +14330,13 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 	if(IsFriends(ePlayer))
 		iAmount += GetFaithFlatFriendshipBonus(ePlayer);
 
-	// Modify the bonus if called for by our trait
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
+	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
+	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
+	if (iModifier > 0)
 	{
-		iAmount *= (iModifier + 100);
+		iAmount *= 100 + iModifier;
 		iAmount /= 100;
-	}
-
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iAmount *= (iModifier + 100);
-			iAmount /= 100;
-		}
 	}
 
 	if (MOD_CITY_STATE_SCALE)
@@ -14309,9 +14344,6 @@ int CvMinorCivAI::GetCurrentFaithFlatBonus(PlayerTypes ePlayer)
 		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
-
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iAmount /= 100;
 
 	return iAmount;
 }
@@ -14439,22 +14471,13 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 	if(IsFriends(ePlayer))
 		iAmount += GetGoldFlatFriendshipBonus(ePlayer);
 
-	// Modify the bonus if called for by our trait
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
+	int iModifier = MOD_ALTERNATE_SIAM_TRAIT ? GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier() : 0;
+	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
+	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
+	if (iModifier > 0)
 	{
-		iAmount *= (iModifier + 100);
+		iAmount *= 100 + iModifier;
 		iAmount /= 100;
-	}
-
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iAmount *= (iModifier + 100);
-			iAmount /= 100;
-		}
 	}
 
 	if (MOD_CITY_STATE_SCALE)
@@ -14462,9 +14485,6 @@ int CvMinorCivAI::GetCurrentGoldFlatBonus(PlayerTypes ePlayer)
 		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
-
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iAmount /= 100;
 
 	return iAmount;
 }
@@ -14591,22 +14611,13 @@ int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
 	if(IsFriends(ePlayer))
 		iAmount += GetScienceFlatFriendshipBonus(ePlayer);
 
-	// Modify the bonus if called for by our trait
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
+	int iModifier = MOD_ALTERNATE_SIAM_TRAIT ? GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier() : 0;
+	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
+	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
+	if (iModifier > 0)
 	{
-		iAmount *= (iModifier + 100);
+		iAmount *= 100 + iModifier;
 		iAmount /= 100;
-	}
-
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iAmount *= (iModifier + 100);
-			iAmount /= 100;
-		}
 	}
 
 	if (MOD_CITY_STATE_SCALE)
@@ -14614,9 +14625,6 @@ int CvMinorCivAI::GetCurrentScienceFlatBonus(PlayerTypes ePlayer)
 		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
-
-	iAmount *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iAmount /= 100;
 
 	return iAmount;
 }
@@ -14631,51 +14639,24 @@ int CvMinorCivAI::GetCurrentScienceBonus(PlayerTypes ePlayer)
 	return iValue;
 }
 #endif
+
 // Food bonus when Friends with a minor - additive with general city bonus
 int CvMinorCivAI::GetFriendsCapitalFoodBonus(PlayerTypes ePlayer, EraTypes eAssumeEra)
 {
 	int iBonus = 0;
 
+	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
+	if (eCurrentEra == NO_ERA)
 		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
 
-	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
-
 	// Medieval era or sooner
-	if(eCurrentEra < eRenaissance)
+	if (eCurrentEra < eRenaissance)
 		iBonus = /*200 in CP, 300 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 
 	// Renaissance era or later
 	else
 		iBonus = /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
-
-	// Modify the bonus if called for by our trait
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
-	{
-		iBonus *= (iModifier + 100);
-		iBonus /= 100;
-	}
-
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iBonus *= (iModifier + 100);
-			iBonus /= 100;
-		}
-	}
-
-	if (MOD_CITY_STATE_SCALE)
-	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iBonus /= 100;
-	}
-
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iBonus /= 100;
 
 	return iBonus;
 }
@@ -14685,139 +14666,68 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 {
 	int iBonus = 0;
 
-	EraTypes eCurrentEra = eAssumeEra;
-	if(eCurrentEra == NO_ERA)
-		eCurrentEra = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).GetCurrentEra();
-
 	EraTypes eRenaissance = (EraTypes) GC.getInfoTypeForString("ERA_RENAISSANCE", true);
+	EraTypes eCurrentEra = eAssumeEra;
+	if (eCurrentEra == NO_ERA)
+		eCurrentEra = GET_PLAYER(ePlayer).GetCurrentEra();
 
 	// Medieval era or sooner
-	if(eCurrentEra < eRenaissance)
+	if (eCurrentEra < eRenaissance)
 		iBonus = /*0 in CP, 50 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 
 	// Renaissance era or later
 	else
 		iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 
-	// Modify the bonus if called for by our trait
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
-	{
-		iBonus *= (iModifier + 100);
-		iBonus /= 100;
-	}
-
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iBonus *= (iModifier + 100);
-			iBonus /= 100;
-		}
-	}
-
-	if (MOD_CITY_STATE_SCALE)
-	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iBonus /= 100;
-	}
-
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iBonus /= 100;
-
 	return iBonus;
 }
 
 // Food bonus when Allies with a minor - additive with general city bonus
-int CvMinorCivAI::GetAlliesCapitalFoodBonus(PlayerTypes ePlayer)
+int CvMinorCivAI::GetAlliesCapitalFoodBonus()
 {
-	int iBonus = /*0 in CP, 200 in VP*/ GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
-
-	// Modify the bonus if called for by our trait
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
-	{
-		iBonus *= (iModifier + 100);
-		iBonus /= 100;
-	}
-
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iBonus *= (iModifier + 100);
-			iBonus /= 100;
-		}
-	}
-
-	if (MOD_CITY_STATE_SCALE)
-	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iBonus /= 100;
-	}
-
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iBonus /= 100;
-
-	return iBonus;
+	return /*0 in CP, 200 in VP*/ GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
 }
 
 // Food bonus when Allies with a minor
-int CvMinorCivAI::GetAlliesOtherCityFoodBonus(PlayerTypes ePlayer)
+int CvMinorCivAI::GetAlliesOtherCityFoodBonus()
 {
-	int iBonus = /*100 in CP, 200 in VP*/ GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
-
-	// Modify the bonus if called for by our trait
-	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
-	if(iModifier > 0)
-	{
-		iBonus *= (iModifier + 100);
-		iBonus /= 100;
-	}
-
-	if (IsSameReligionAsMajor(ePlayer))
-	{
-		iModifier = GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer);
-		if (iModifier > 0)
-		{
-			iBonus *= (iModifier + 100);
-			iBonus /= 100;
-		}
-	}
-
-	if (MOD_CITY_STATE_SCALE)
-	{
-		iBonus *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
-		iBonus /= 100;
-	}
-
-	iBonus *= (100 + GET_PLAYER(ePlayer).GetCSYieldBonusModifier());
-	iBonus /= 100;
-
-	return iBonus;
+	return /*100 in CP, 200 in VP*/ GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
 }
 
 /// How much are we getting RIGHT NOW (usually 0)
 int CvMinorCivAI::GetCurrentCapitalFoodBonus(PlayerTypes ePlayer)
 {
 	// This guy isn't Maritime
-	if(GetTrait() != MINOR_CIV_TRAIT_MARITIME)
+	if (GetTrait() != MINOR_CIV_TRAIT_MARITIME)
 		return 0;
 
 	int iAmount = 0;
 
-	if(IsAllies(ePlayer))
+	if (IsAllies(ePlayer))
 	{
-		iAmount += GetAlliesCapitalFoodBonus(ePlayer);
-		iAmount += GetAlliesOtherCityFoodBonus(ePlayer);
+		iAmount += GetAlliesCapitalFoodBonus();
+		iAmount += GetAlliesOtherCityFoodBonus();
 	}
 
-	if(IsFriends(ePlayer))
+	if (IsFriends(ePlayer))
 	{
 		iAmount += GetFriendsCapitalFoodBonus(ePlayer);
 		iAmount += GetFriendsOtherCityFoodBonus(ePlayer);
+	}
+
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
+	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
+	if (iModifier > 0)
+	{
+		iAmount *= 100 + iModifier;
+		iAmount /= 100;
+	}
+
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount /= 100;
 	}
 
 	return iAmount;
@@ -14827,16 +14737,31 @@ int CvMinorCivAI::GetCurrentCapitalFoodBonus(PlayerTypes ePlayer)
 int CvMinorCivAI::GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer)
 {
 	// This guy isn't Maritime
-	if(GetTrait() != MINOR_CIV_TRAIT_MARITIME)
+	if (GetTrait() != MINOR_CIV_TRAIT_MARITIME)
 		return 0;
 
 	int iAmount = 0;
 
-	if(IsAllies(ePlayer))
-		iAmount += GetAlliesOtherCityFoodBonus(ePlayer);
+	if (IsAllies(ePlayer))
+		iAmount += GetAlliesOtherCityFoodBonus();
 
-	if(IsFriends(ePlayer))
+	if (IsFriends(ePlayer))
 		iAmount += GetFriendsOtherCityFoodBonus(ePlayer);
+
+	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
+	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
+	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
+	if (iModifier > 0)
+	{
+		iAmount *= 100 + iModifier;
+		iAmount /= 100;
+	}
+
+	if (MOD_CITY_STATE_SCALE)
+	{
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount /= 100;
+	}
 
 	return iAmount;
 }
@@ -15141,8 +15066,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	if (pNewUnit->canMoveInto(*pNewUnit->plot(),CvUnit::MOVEFLAG_DESTINATION) || pNewUnit->jumpToNearestValidPlotWithinRange(3))
 	{
-		// Bonus experience for CS Units (Siam UA)
-		if (GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
+		// Bonus experience for CS Units (vanilla Siam UA)
+		if (!MOD_ALTERNATE_SIAM_TRAIT && GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
 			pNewUnit->changeExperienceTimes100(1000);
 
 		if (MOD_BALANCE_VP)
@@ -15222,41 +15147,27 @@ int CvMinorCivAI::GetSpawnBaseTurns(PlayerTypes ePlayer, bool bCityStateAnnexed)
 	if (GetTrait() != MINOR_CIV_TRAIT_MILITARISTIC)
 		return 0;
 
-	// Rome Exception: Annexed Militaristic City-States continue to give units at an allied level
-	if (bCityStateAnnexed)
-	{
-		int iNumTurns = 100 * (/*19*/ GD_INT_GET(FRIENDS_BASE_TURNS_UNIT_SPAWN) + /*-3*/ GD_INT_GET(ALLIES_EXTRA_TURNS_UNIT_SPAWN));
-		// Modify for Game Speed
-		iNumTurns *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
-		iNumTurns /= 100;
-		return iNumTurns / 100;
-	}
-
 	// Not friends
-	if (!IsFriends(ePlayer))
+	// Rome Exception: Annexed Militaristic City-States continue to give units at an allied level
+	if (!bCityStateAnnexed && !IsFriends(ePlayer))
 		return 0;
 
 	int iNumTurns = 100 * /*19*/ GD_INT_GET(FRIENDS_BASE_TURNS_UNIT_SPAWN);
 
 	// If relations are at allied level then reduce spawn counter
-	if (IsAllies(ePlayer))
+	if (bCityStateAnnexed || IsAllies(ePlayer))
 		iNumTurns += 100 * /*-3*/ GD_INT_GET(ALLIES_EXTRA_TURNS_UNIT_SPAWN);
 
 	// Modify for Game Speed
 	iNumTurns *= GC.getGame().getGameSpeedInfo().getGreatPeoplePercent();
 	iNumTurns /= 100;
 
-	// Modify for policies
+	// Modify for policies and traits
 	CvPlayer& kPlayer = GET_PLAYER(ePlayer);
-	int iPolicyMod = kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER);
-	if (iPolicyMod > 0)
-	{
-		if (GET_TEAM(kPlayer.getTeam()).HasCommonEnemy(m_pPlayer->getTeam()))
-		{
-			iNumTurns *= 100;
-			iNumTurns /= (100 + iPolicyMod);
-		}
-	}
+	int iModifier = MOD_ALTERNATE_SIAM_TRAIT ? kPlayer.GetPlayerTraits()->GetCityStateBonusModifier() : 0;
+	iModifier += GET_TEAM(kPlayer.getTeam()).HasCommonEnemy(m_pPlayer->getTeam()) ? kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_UNIT_FREQUENCY_MODIFIER) : 0;
+	iNumTurns *= 100;
+	iNumTurns /= 100 + iModifier;
 
 	return iNumTurns / 100;
 }
@@ -15298,6 +15209,13 @@ void CvMinorCivAI::SetQuestInfluenceDisabled(PlayerTypes ePlayer, bool bValue)
 			DisableQuestInfluence(ePlayer);
 		else
 			EnableQuestInfluence(ePlayer);
+
+		// Update City banners and game info if this is the active player
+		if (ePlayer == GC.getGame().getActivePlayer())
+		{
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
 	}
 }
 
@@ -15658,7 +15576,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 		CvCity* pCapital = GetPlayer()->getCapitalCity();
 		if (pCapital)
 		{
-			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, -1, MINOR_POWER_COMPARISON_RADIUS);
+			SPathFinderUserData data(GetPlayer()->GetID(), PT_ARMY_MIXED, NO_PLAYER, MINOR_POWER_COMPARISON_RADIUS);
 			data.iFlags = CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE;
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
@@ -15681,7 +15599,7 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScaling, bool bForUnit)
 {
 	int iGold = /*50*/ GD_INT_GET(MINOR_BULLY_GOLD);
-	int iGoldGrowthFactor = 400;
+	int iGoldGrowthFactor = /*400 in CP, 1000 in VP*/ GD_INT_GET(MINOR_BULLY_GOLD_GROWTH_FACTOR);
 
 	// Add gold, more if later in game
 	float fGameProgressFactor = ((float) GC.getGame().getElapsedGameTurns() / (float) GC.getGame().getEstimateEndTurn());
@@ -15694,13 +15612,12 @@ int CvMinorCivAI::GetBullyGoldAmount(PlayerTypes eBullyPlayer, bool bIgnoreScali
 	// VP changes to BullyGoldAmount
 	if (MOD_BALANCE_VP)
 	{
-		iGold *= 3;
 		int iEra = GET_PLAYER(eBullyPlayer).GetCurrentEra();
 		if (iEra <= 0)
 		{
 			iEra = 1;
 		}
-		iGold *= iEra;
+		iGold = iGold * iEra + iGold / (iEra + 2);
 	}
 
 	// Game Speed Mod
@@ -16141,20 +16058,17 @@ bool CvMinorCivAI::CanMajorBullyGold(PlayerTypes ePlayer, int iSpecifiedBullyMet
 	if(!GetPlayer()->isAlive())
 		return false;
 
-#if defined(MOD_BALANCE_CORE)
 	if(IsAtWarWithPlayersTeam(ePlayer))
 		return false;
-#endif
 
-#if defined(MOD_EVENTS_MINORS_INTERACTION)
 	if (MOD_EVENTS_MINORS_INTERACTION) {
 		if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_PlayerCanBullyGold, ePlayer, GetPlayer()->GetID()) == GAMEEVENTRETURN_FALSE) {
 			return false;
 		}
 	}
-#endif				
+
 	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
-		return (iSpecifiedBullyMetric > 0);
+		return (iSpecifiedBullyMetric > 0) && (iSpecifiedBullyMetric >= /*0 in CP, 20 in VP*/ GD_INT_GET(MINOR_CIV_GOLD_TRIBUTE_THRESHOLD));
 	else
 		return (iSpecifiedBullyMetric >= 0);
 }
@@ -16169,19 +16083,23 @@ CvString CvMinorCivAI::GetMajorBullyGoldDetails(PlayerTypes ePlayer)
 	int iScore = CalculateBullyScore(ePlayer, /*bForUnit*/ false, &sFactors);
 	bool bCanBully = CanMajorBullyGold(ePlayer, iScore);
 
+	int iBullyThreshold = /*0 in CP, 20 in VP*/ GD_INT_GET(MINOR_CIV_GOLD_TRIBUTE_THRESHOLD);
+
 	Localization::String sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_AFRAID");
 	if (!bCanBully)
 	{
-		sFear = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
+		sFear = (iBullyThreshold > 0) ? Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT_VARIABLE_THRESHOLD") : Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_RESILIENT");
+		iScore = iScore - iBullyThreshold;
 	}
+
 	if (MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 	{
 		if (iScore < 0)
 			iScore *= -1;
-		sFear << iScore;
 	}
-	else
-		sFear << iScore;
+	sFear << iScore;
+	if (iBullyThreshold > 0)
+		sFear << iBullyThreshold;
 
 	Localization::String sResult = Localization::Lookup("TXT_KEY_POP_CSTATE_BULLY_GOLD_TT");
 	sResult << sFear.toUTF8() << sFactors;
@@ -16393,8 +16311,16 @@ void CvMinorCivAI::DoMajorBullyGold(PlayerTypes eBully, int iGold)
 				SHOW_PLOT_POPUP(pMinorCapital->plot(), GC.getGame().getActivePlayer(), text);
 			}
 		}
-		
-		DoBulliedByMajorReaction(eBully, /*-1500 in CP, -3000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS));
+
+		int iCurrentInfluence = GetEffectiveFriendshipWithMajorTimes100(eBully);
+		int iRestingInfluence = GetRestingPointChange(eBully) * 100;
+		int iInfluenceChange = /*-1500 in CP, -3000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_GOLD_SUCCESS);
+		if (MOD_BALANCE_VP && iCurrentInfluence >= iRestingInfluence)
+		{
+			iInfluenceChange -= iCurrentInfluence - iRestingInfluence;
+		}
+
+		DoBulliedByMajorReaction(eBully, iInfluenceChange);
 
 		if (MOD_EVENTS_MINORS_INTERACTION) {
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1, YIELD_GOLD);
@@ -16569,12 +16495,12 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 
 	if(bSuccess)
 	{
-#if defined(MOD_BALANCE_CORE)
 		int iEra = GET_PLAYER(eBully).GetCurrentEra();
 		if(iEra <= 0)
 		{
 			iEra = 1;
 		}
+
 		if (!MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
 			CvCity* pCapital = GET_PLAYER(eBully).getCapitalCity();
@@ -16583,8 +16509,7 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 				GET_PLAYER(eBully).doInstantYield(INSTANT_YIELD_TYPE_BULLY, true, NO_GREATPERSON, NO_BUILDING, 0, false, NO_PLAYER, NULL, false, pCapital);
 			}
 		}
-#endif
-#if defined(MOD_BALANCE_CORE_AFRAID_ANNEX)
+
 		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() > 0)
 		{
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
@@ -16656,8 +16581,6 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 			}
 		}
 
-#endif
-#if defined(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		// Minor must have Capital
 		if(MOD_BALANCE_CORE_MINOR_VARIABLE_BULLYING)
 		{
@@ -16710,18 +16633,26 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 					GET_PLAYER(eBully).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
 
-				// half of the rewards of all quests from the city-state are given to the player, and the quests are canceled
+				// the non-influence rewards of all personal quests from the city-state are given to the player, and the quests are canceled
 				QuestListForPlayer::iterator itr_quest;
 				for (itr_quest = m_QuestsGiven[eBully].begin(); itr_quest != m_QuestsGiven[eBully].end(); itr_quest++)
 				{
-					if (itr_quest->IsObsolete(true)) // is this quest canceled by demanding heavy tribute?
+					if (itr_quest->IsObsolete(false, true)) // is this quest canceled by demanding heavy tribute?
 					{
 						itr_quest->DoRewards(eBully, true);
 					}
 				}
-				DoObsoleteQuestsForPlayer(eBully, NO_MINOR_CIV_QUEST_TYPE, false, true);
+				DoObsoleteQuestsForPlayer(eBully, NO_MINOR_CIV_QUEST_TYPE);
 
-				DoBulliedByMajorReaction(eBully, /*-6000*/ min(GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS),  (GetRestingPointChange(eBully) * 100) - GetEffectiveFriendshipWithMajorTimes100(eBully)));
+				int iCurrentInfluence = GetEffectiveFriendshipWithMajorTimes100(eBully);
+				int iRestingInfluence = GetRestingPointChange(eBully) * 100;
+				int iInfluenceChange = /*-5000 in CP, -6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS);
+				if (iCurrentInfluence >= iRestingInfluence)
+				{
+					iInfluenceChange -= iCurrentInfluence - iRestingInfluence;
+				}
+
+				DoBulliedByMajorReaction(eBully, iInfluenceChange);
 
 				if (MOD_EVENTS_MINORS_INTERACTION) {
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), iGold, -1, -1, -1, YIELD_SCIENCE);
@@ -16730,41 +16661,40 @@ void CvMinorCivAI::DoMajorBullyUnit(PlayerTypes eBully, UnitTypes eUnitType)
 		}
 		else
 		{
-#endif
-		if(eUnitType == NO_UNIT)
-		{
-			CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
-			return;
-		}
-		// Minor must have Capital
-		CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
-		if(pMinorCapital == NULL)
-		{
-			CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
-			return;
-		}
-		int iX = pMinorCapital->getX();
-		int iY = pMinorCapital->getY();
+			if(eUnitType == NO_UNIT)
+			{
+				CvAssertMsg(false, "eUnitType is not expected to be NO_UNIT. Please send Anton your save file and version.");
+				return;
+			}
+			// Minor must have Capital
+			CvCity* pMinorCapital = GetPlayer()->getCapitalCity();
+			if(pMinorCapital == NULL)
+			{
+				CvAssertMsg(false, "Trying to spawn a Unit for a major civ but the minor has no capital. Please send Anton your save file and version.");
+				return;
+			}
+			int iX = pMinorCapital->getX();
+			int iY = pMinorCapital->getY();
 
-		CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
-		if (pNewUnit->jumpToNearestValidPlot())
-		{
-			pNewUnit->finishMoves(); // The given unit cannot move this turn
+			CvUnit* pNewUnit = GET_PLAYER(eBully).initUnit(eUnitType, iX, iY);
+			if (pNewUnit->jumpToNearestValidPlot())
+			{
+				pNewUnit->finishMoves(); // The given unit cannot move this turn
 
-			if(GetPlayer()->getCapitalCity())
-				GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
+				if(GetPlayer()->getCapitalCity())
+					GetPlayer()->getCapitalCity()->addProductionExperience(pNewUnit);
 
-			DoBulliedByMajorReaction(eBully, /*-5000 in CP, 6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
-			
-			if (MOD_EVENTS_MINORS_INTERACTION) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
+				DoBulliedByMajorReaction(eBully, /*-5000 in CP, -6000 in VP*/ GD_INT_GET(MINOR_FRIENDSHIP_DROP_BULLY_WORKER_SUCCESS));
+
+				if (MOD_EVENTS_MINORS_INTERACTION) {
+					GAMEEVENTINVOKE_HOOK(GAMEEVENT_PlayerBullied, eBully, GetPlayer()->GetID(), -1, eUnitType, pNewUnit->getX(), pNewUnit->getY(), -1);
+				}
+			}
+			else
+			{
+				pNewUnit->kill(false); // Could not find a spot for the unit!
 			}
 		}
-		else
-			pNewUnit->kill(false);	// Could not find a spot for the unit!
-#if defined(MOD_BALANCE_CORE)
-		}
-#endif
 	}
 
 	// Logging
@@ -16785,22 +16715,18 @@ void CvMinorCivAI::DoBulliedByMajorReaction(PlayerTypes eBully, int iInfluenceCh
 	CvAssertMsg(pBully, "pBully not expected to be NULL. Please send Anton your save file and version.");
 	if (!pBully) return;
 
-	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+	if (!GET_PLAYER(eBully).IsCanBullyFriendlyCS())
 	{
-		ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
-	}
+		if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
+			ChangeFriendshipWithMajorTimes100(eBully, iInfluenceChangeTimes100);
 
-	// In case we have quests that bullying makes obsolete, check now
-	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
-	{
+		// In case we have quests that bullying makes obsolete, check now
 		DoTestActiveQuests(/*bTestComplete*/ false, /*bTestObsolete*/ true);
+
+		// VP: Revoke Pledge of Protection
+		if (/*0 in CP, 30 in VP*/ GD_INT_GET(PLEDGE_BROKEN_MINIMUM_TURNS_BULLYING) > 0)
+			DoChangeProtectionFromMajor(eBully, false, false);
 	}
-#if defined(MOD_BALANCE_CORE_MINORS)
-	if (GET_PLAYER(eBully).GetBullyGlobalCSReduction() == 0)
-	{
-		DoChangeProtectionFromMajor(eBully, false, true);
-	}
-#endif
 
 	// Inform alive majors who have met the bully
 	for (int iMajorLoop = 0; iMajorLoop < MAX_MAJOR_CIVS; iMajorLoop++)
@@ -17638,11 +17564,7 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			// Revoke PtP is there was one
 			if (IsProtectedByMajor(ePlayer))
 			{
-#if defined(MOD_BALANCE_CORE)
 				DoChangeProtectionFromMajor(ePlayer, false, true);
-#else
-				DoChangeProtectionFromMajor(ePlayer, false);
-#endif
 			}
 
 			// Revoke quests if there were any
@@ -17650,13 +17572,6 @@ void CvMinorCivAI::DoNowAtWarWithTeam(TeamTypes eTeam)
 			{
 				EndAllActiveQuestsForPlayer(ePlayer, true);
 			}
-
-			// Nullify Quests - Deprecated?
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->SetPeaceQuestCompletedByMajor((PlayerTypes) iMajorCivLoop, true);
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->SetWarQuestCompletedByMajor((PlayerTypes) iMajorCivLoop, true);
-
-			//// Is this player declaring war also already a Bully?  If so, he's gonna regret it
-			//GET_PLAYER((PlayerTypes) iMinorCivLoop).GetMinorCivAI()->DoBullyDeclareWar((PlayerTypes) iMajorCivLoop);
 		}
 		else if (!IsAtWarWithPlayersTeam(ePlayer) && GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(eTeam))
 		{
@@ -17714,7 +17629,7 @@ int CvMinorCivAI::GetPeaceBlockedTurns(TeamTypes eTeam) const
 		return 0;
 
 	int iTurnsSinceAttacked = GC.getGame().getGameTurn() - iTurnLastAttacked;
-	int iPeaceBlockedTurns = /*1*/ GD_INT_GET(WAR_MINOR_PEACE_BLOCKED_TURNS);
+	int iPeaceBlockedTurns = /*2*/ GD_INT_GET(WAR_MINOR_PEACE_BLOCKED_TURNS);
 	if (iPeaceBlockedTurns < 1)
 		return 0;
 
@@ -18158,6 +18073,37 @@ void CvMinorCivAI::doIncomingUnitGifts()
 					{
 						unitGift.applyToUnit(eLoopPlayer, *pNewUnit);
 
+						if (GC.getLogging() && GC.getAILogging())
+						{
+							CvString strLogName;
+							CvString playerName = GetPlayer()->getCivilizationShortDescription();
+
+							// Open the log file
+							if (GC.getPlayerAndCityAILogSplit())
+								strLogName = "DiplomacyAI_MinorCiv_Log_" + playerName + ".csv";
+							else
+								strLogName = "DiplomacyAI_MinorCiv_Log.csv";
+
+							FILogFile* pLog = LOGFILEMGR.GetLog(strLogName, FILogFile::kDontTimeStamp);
+
+							// Turn number
+							CvString strBaseString;
+							strBaseString.Format("%03d, ", GC.getGame().getElapsedGameTurns());
+
+							// Our Name
+							strBaseString += playerName;
+
+							// Their Name
+							CvString otherPlayerName = GET_PLAYER(eLoopPlayer).getCivilizationShortDescription();
+							strBaseString += ", " + otherPlayerName;
+							CvString strOutBuf = strBaseString;
+
+							// Info
+							strOutBuf += ", RECEIVED_UNIT_GIFT, " + pNewUnit->getName();
+							pLog->Msg(strOutBuf);
+						}
+
+
 						// Gift from a major to a city-state
 						if (!GET_PLAYER(eLoopPlayer).isMinorCiv())
 						{
@@ -18440,8 +18386,8 @@ CvString CvMinorCivAI::GetStatusChangeDetails(PlayerTypes ePlayer, bool bAdd, bo
 		}
 		if(bAllies)		// Allies bonus
 		{
-			iCapitalFoodTimes100 += GetAlliesCapitalFoodBonus(ePlayer);
-			iOtherCitiesFoodTimes100 += GetAlliesOtherCityFoodBonus(ePlayer);
+			iCapitalFoodTimes100 += GetAlliesCapitalFoodBonus();
+			iOtherCitiesFoodTimes100 += GetAlliesOtherCityFoodBonus();
 		}
 
 		if(!bAdd)		// Flip amount of we're taking bonuses away

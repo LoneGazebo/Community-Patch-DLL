@@ -49,7 +49,7 @@ INSERT INTO Belief_SpecialistYieldChanges
 SELECT
 	'BELIEF_RELIGIOUS_ART', Type, 'YIELD_GOLDEN_AGE_POINTS', 1
 FROM Specialists
-WHERE Type <> 'SPECIALIST_CITIZEN';
+WHERE GreatPeopleUnitClass IS NOT NULL;
 
 -- Asceticism
 UPDATE Beliefs SET MinFollowers = 0 WHERE Type = 'BELIEF_ASCETISM';

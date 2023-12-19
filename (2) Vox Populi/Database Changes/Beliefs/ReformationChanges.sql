@@ -139,7 +139,7 @@ INSERT INTO Belief_ImprovementYieldChanges
 SELECT
 	'BELIEF_UNITY_OF_PROPHETS', a.Type, b.YieldType, 2
 FROM Improvements a, Helper3 b
-WHERE a.CreatedByGreatPerson = 1;
+WHERE a.CreatedByGreatPerson = 1 OR a.Type = 'IMPROVEMENT_LANDMARK';
 
 DROP TABLE Helper3;
 

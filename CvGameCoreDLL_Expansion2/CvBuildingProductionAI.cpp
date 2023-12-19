@@ -1027,12 +1027,12 @@ int CvBuildingProductionAI::CheckBuildingBuildSanity(BuildingTypes eBuilding, in
 	//////////////
 	///Maintenance
 	/////////////////////
-	if (pkBuildingInfo->GetGoldMaintenance() > 0 && !bCourthouse && !bGoodforGPT)
+	if (pkBuildingInfo->GetGoldMaintenance() > 0 && !bCourthouse && !bGoodforGPT && pkBuildingInfo->GetExtraCityHitPoints() == 0)
 	{
 		//careful if it would bankrupt us
 		if (kPlayer.getTurnsToBankruptcy(pkBuildingInfo->GetGoldMaintenance()) < 9)
 		{
-			return SR_MAINTENCANCE;
+			return SR_MAINTENANCE;
 		}
 
 		// it would be useful to have a check whether a building is worth building at all (eg skip hotel in a city without culture)

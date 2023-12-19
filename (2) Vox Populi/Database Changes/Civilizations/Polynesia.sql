@@ -3,8 +3,9 @@
 ----------------------------------------------------------
 UPDATE Traits
 SET
-	NearbyImprovementBonusRange = 3,
-	NearbyImprovementCombatBonus = 20,
+	CombatBonusImprovement = NULL,
+	NearbyImprovementBonusRange = 0,
+	NearbyImprovementCombatBonus = 0,
 	NoConnectionUnhappiness = 1
 WHERE Type = 'TRAIT_WAYFINDING';
 
