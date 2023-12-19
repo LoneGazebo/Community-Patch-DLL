@@ -103,8 +103,8 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSeaDistanceModifier(0),
 	m_iEspionageModifier(0),
-	m_iEspionageTurnsModifierFriendly(0),
-	m_iEspionageTurnsModifierEnemy(0),
+	m_iEspionageNetworkPoints(0),
+	m_iRigElectionInfluenceModifier(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
 	m_iTRSpeedBoost(0),
 	m_iTRVisionBoost(0),
@@ -277,6 +277,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_paiUnitCombatProductionModifiers(NULL),
 	m_paiUnitCombatFreeExperiences(NULL),
 	m_paiBuildingClassCultureChanges(NULL),
+	m_paiBuildingClassSecurityChanges(NULL),
 	m_paiBuildingClassProductionModifiers(NULL),
 	m_paiUnitClassProductionModifiers(NULL),
 	m_paiBuildingClassTourismModifiers(NULL),
@@ -338,6 +339,7 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_piFounderYield(NULL),
 	m_piReligionYieldMod(NULL),
 	m_ppiReligionBuildingYieldMod(NULL),
+	m_piYieldForSpyID(NULL),
 	m_piYieldForLiberation(NULL),
 	m_iInfluenceForLiberation(0),
 	m_iExperienceForLiberation(0),
@@ -418,6 +420,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_paiUnitCombatProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitCombatFreeExperiences);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassCultureChanges);
+	SAFE_DELETE_ARRAY(m_paiBuildingClassSecurityChanges);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiUnitClassProductionModifiers);
 	SAFE_DELETE_ARRAY(m_paiBuildingClassTourismModifiers);
@@ -448,6 +451,7 @@ CvPolicyEntry::~CvPolicyEntry(void)
 	SAFE_DELETE_ARRAY(m_piReligionYieldMod);
 	SAFE_DELETE_ARRAY(m_piGoldenAgeYieldMod);
 	CvDatabaseUtility::SafeDelete2DArray(m_ppiReligionBuildingYieldMod);
+	SAFE_DELETE_ARRAY(m_piYieldForSpyID);
 	SAFE_DELETE_ARRAY(m_piYieldForLiberation);
 	SAFE_DELETE_ARRAY(m_piBuildingClassInLiberatedCities);
 	SAFE_DELETE_ARRAY(m_piFranchisesPerImprovement);
@@ -581,8 +585,8 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
-	m_iEspionageTurnsModifierFriendly = kResults.GetInt("EspionageTurnsModifierFriendly");
-	m_iEspionageTurnsModifierEnemy = kResults.GetInt("EspionageTurnsModifierEnemy");
+	m_iEspionageNetworkPoints = kResults.GetInt("EspionageNetworkPoints");
+	m_iRigElectionInfluenceModifier = kResults.GetInt("RigElectionInfluenceModifier");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
 	m_iTRVisionBoost = kResults.GetInt("TRVisionBoost");
 	m_iTRSpeedBoost = kResults.GetInt("TRSpeedBoost");
@@ -867,6 +871,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 #endif
 
 	kUtility.PopulateArrayByValue(m_paiBuildingClassCultureChanges, "BuildingClasses", "Policy_BuildingClassCultureChanges", "BuildingClassType", "PolicyType", szPolicyType, "CultureChange");
+	kUtility.PopulateArrayByValue(m_paiBuildingClassSecurityChanges, "BuildingClasses", "Policy_BuildingClassSecurityChanges", "BuildingClassType", "PolicyType", szPolicyType, "SecurityChange");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassProductionModifiers, "BuildingClasses", "Policy_BuildingClassProductionModifiers", "BuildingClassType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiUnitClassProductionModifiers, "UnitClasses", "Policy_UnitClassProductionModifiers", "UnitClassType", "PolicyType", szPolicyType, "ProductionModifier");
 	kUtility.PopulateArrayByValue(m_paiBuildingClassTourismModifiers, "BuildingClasses", "Policy_BuildingClassTourismModifiers", "BuildingClassType", "PolicyType", szPolicyType, "TourismModifier");
@@ -1235,6 +1240,7 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	kUtility.PopulateArrayByValue(m_piImprovementCultureChange, "Improvements", "Policy_ImprovementCultureChanges", "ImprovementType", "PolicyType", szPolicyType, "CultureChange");
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
+	kUtility.SetYields(m_piYieldForSpyID, "Policy_YieldForSpyID", "PolicyType", szPolicyType);
 	kUtility.SetYields(m_piYieldForLiberation, "Policy_YieldForLiberation", "PolicyType", szPolicyType);
 	m_iInfluenceForLiberation = kResults.GetInt("InfluenceAllCSFromLiberation");
 	m_iExperienceForLiberation = kResults.GetInt("ExperienceAllUnitsFromLiberation");
@@ -1840,13 +1846,13 @@ int CvPolicyEntry::GetEspionageModifier() const
 {
 	return m_iEspionageModifier;
 }
-int CvPolicyEntry::GetEspionageTurnsModifierFriendly() const
+int CvPolicyEntry::GetEspionageNetworkPoints() const
 {
-	return m_iEspionageTurnsModifierFriendly;
+	return m_iEspionageNetworkPoints;
 }
-int CvPolicyEntry::GetEspionageTurnsModifierEnemy() const
+int CvPolicyEntry::GetRigElectionInfluenceModifier() const
 {
-	return m_iEspionageTurnsModifierEnemy;
+	return m_iRigElectionInfluenceModifier;
 }
 int CvPolicyEntry::GetXCSAlliesLowersPolicyNeedWonders() const
 {
@@ -2915,6 +2921,13 @@ int CvPolicyEntry::GetBuildingClassCultureChange(int i) const
 	CvAssertMsg(i > -1, "Index out of bounds");
 	return m_paiBuildingClassCultureChanges ? m_paiBuildingClassCultureChanges[i] : -1;
 }
+/// Amount of extra Security per turn a BuildingClass provides
+int CvPolicyEntry::GetBuildingClassSecurityChange(int i) const
+{
+	CvAssertMsg(i < GC.getNumBuildingClassInfos(), "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_paiBuildingClassSecurityChanges ? m_paiBuildingClassSecurityChanges[i] : -1;
+}
 
 /// Amount of extra Culture per turn a BuildingClass provides
 int CvPolicyEntry::GetBuildingClassHappiness(int i) const
@@ -3660,6 +3673,14 @@ int CvPolicyEntry::GetImprovementCultureChanges(int i) const
 }
 
 #if defined(MOD_BALANCE_CORE_POLICIES)
+/// Yields whenever you identify a foreign spy
+int CvPolicyEntry::GetYieldForSpyID(int i) const
+{
+	CvAssertMsg(i < NUM_YIELD_TYPES, "Index out of bounds");
+	CvAssertMsg(i > -1, "Index out of bounds");
+	return m_piYieldForSpyID[i];
+}
+
 /// Yields whenever you liberate a city
 int CvPolicyEntry::GetYieldForLiberation(int i) const
 {
@@ -4652,6 +4673,9 @@ int CvPlayerPolicies::GetNumericModifier(PolicyModifierType eType)
 				break;
 			case POLICYMOD_RIGGING_ELECTION_MODIFIER:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetRiggingElectionModifier();
+				break;
+			case POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER:
+				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetRigElectionInfluenceModifier();
 				break;
 			case POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE:
 				rtnValue += m_pPolicies->GetPolicyEntry(i)->GetMilitaryUnitGiftExtraInfluence();

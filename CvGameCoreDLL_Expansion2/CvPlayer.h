@@ -77,7 +77,6 @@ struct SPlayerActiveEspionageEvent
 {
 	PlayerTypes eOtherPlayer;
 	bool bIncoming;
-	bool bIdentified;
 	int iStartTurn;
 	int iEndTurn;
 	YieldTypes eYield;
@@ -809,10 +808,10 @@ public:
 	// Espionage
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
-	int GetEspionageTurnsModifierFriendly() const;
-	void ChangeEspionageTurnsModifierFriendly(int iChange);
-	int GetEspionageTurnsModifierEnemy() const;
-	void ChangeEspionageTurnsModifierEnemy(int iChange);
+	int GetEspionageNetworkPoints() const;
+	void ChangeEspionageNetworkPoints(int iChange);
+	int GetRigElectionInfluenceModifier() const;
+	void ChangeRigElectionInfluenceModifier(int iChange);
 	int GetStartingSpyRank() const;
 	void ChangeStartingSpyRank(int iChange);
 	int GetSpyPoints(bool bTotal) const;
@@ -1899,6 +1898,8 @@ public:
 
 	std::vector<SPlayerActiveEspionageEvent> GetActiveEspionageEventsList() const;
 
+	int GetSciencePerTurnFromPassiveSpyBonusesTimes100() const;
+
 	int GetNumAnnexedCityStates(MinorCivTraitTypes eIndex)	const;
 	void ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange);
 
@@ -1916,6 +1917,9 @@ public:
 
 	int getYieldForLiberation(YieldTypes eIndex)	const;
 	void changeYieldForLiberation(YieldTypes eIndex, int iChange);
+
+	int getYieldForSpyID(YieldTypes eIndex) const;
+	void changeYieldForSpyID(YieldTypes eIndex, int iChange);
 
 	int getInfluenceForLiberation()	const;
 	void changeInfluenceForLiberation(int iChange);
@@ -2524,7 +2528,7 @@ public:
 	void updateTimerAnnexedMilitaryCityStates();
 
 	void UpdateEspionageYields(bool bIncoming);
-	void AddEspionageEvent(PlayerTypes eOtherPlayer, bool bIncoming, bool bIdentified, int iStartTurn, int iEndTurn, YieldTypes eYield, int iAmount);
+	void AddEspionageEvent(PlayerTypes eOtherPlayer, bool bIncoming, int iStartTurn, int iEndTurn, YieldTypes eYield, int iAmount);
 	void RemoveEspionageEventsForPlayer(PlayerTypes ePlayer);
 	void ProcessEspionageEvents();
 
@@ -2903,7 +2907,6 @@ public:
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	virtual void AI_DoEventChoice(EventTypes eEvent) = 0;
-	virtual bool AI_DoEspionageEventChoice(CityEventTypes eEvent, int uiSpyIndex, CvCity* pCity) = 0;
 #endif
 
 	virtual void computeFoundValueThreshold();
@@ -3123,8 +3126,8 @@ protected:
 	int m_iExtraHappinessPerXPoliciesFromPolicies;
 	int m_iHappinessPerXGreatWorks;
 	int m_iEspionageModifier;
-	int m_iEspionageTurnsModifierFriendly;
-	int m_iEspionageTurnsModifierEnemy;
+	int m_iEspionageNetworkPoints;
+	int m_iRigElectionInfluenceModifier;
 	int m_iSpyPoints;
 	int m_iSpyPointsTotal;
 	int m_iSpyStartingRank;
@@ -3574,6 +3577,7 @@ protected:
 	std::vector<int> m_aiYieldModifierFromGreatWorks;
 	std::vector<int> m_aiYieldModifierFromActiveSpies;
 	std::vector<int> m_aiYieldFromDelegateCount;
+	std::vector<int> m_aiYieldForSpyID;
 	std::vector<int> m_aiYieldForLiberation;
 	std::vector<int> m_aiBuildingClassInLiberatedCities;
 	std::vector<int> m_paiBuildingClassCulture;
@@ -3974,8 +3978,8 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPolicies)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerXPoliciesFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
-SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierFriendly)
-SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierEnemy)
+SYNC_ARCHIVE_VAR(int, m_iEspionageNetworkPoints)
+SYNC_ARCHIVE_VAR(int, m_iRigElectionInfluenceModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpyPoints)
 SYNC_ARCHIVE_VAR(int, m_iSpyPointsTotal)
 SYNC_ARCHIVE_VAR(int, m_iSpyStartingRank)

@@ -44,7 +44,8 @@ UPDATE Buildings
 SET
 	SpecialistType = 'SPECIALIST_SCIENTIST',
 	SpecialistCount = 1,
-	PrereqTech = 'TECH_THEOLOGY'
+	PrereqTech = 'TECH_THEOLOGY',
+	EspionageModifier = 20
 WHERE Type = 'BUILDING_WAT';
 
 INSERT INTO Building_YieldChanges

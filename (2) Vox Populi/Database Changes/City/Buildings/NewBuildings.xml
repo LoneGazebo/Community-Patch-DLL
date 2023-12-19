@@ -1373,13 +1373,11 @@
 			<PrereqTech>TECH_COMPUTERS</PrereqTech>
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
-			<GlobalEspionageModifier>-15</GlobalEspionageModifier>
+			<GlobalEspionageModifier>10</GlobalEspionageModifier>
 			<ExtraSpies>2</ExtraSpies>
 			<Espionage>true</Espionage>
 			<SpyRankChange>1</SpyRankChange>
 			<InstantSpyRankChange>1</InstantSpyRankChange>
-			<EspionageTurnsModifierFriendly>-2</EspionageTurnsModifierFriendly>
-			<EspionageTurnsModifierEnemyGlobal>2</EspionageTurnsModifierEnemyGlobal>
 			<WonderSplashImage>bletchleysplash.dds</WonderSplashImage>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>44</PortraitIndex>

@@ -951,6 +951,8 @@
     <File md5="4E2C899778F093B9F18667EFB45971AC" import="0">Database Changes/Corporations/NewCorporations.xml</File>
     <File md5="13562FC3ED5B7806AA4D546F6F0E25B3" import="0">Database Changes/Difficulty/DifficultyChanges.xml</File>
     <File md5="06C7BCDE2F6591FD8371AD4330E804E5" import="0">Database Changes/Difficulty/PreDifficultyChanges.sql</File>
+	<File md5="7A86935721B999222A5D7379980B5E62" import="0">Database Changes/Espionage/SpyPassiveBonuses.xml</File>
+	<File md5="7A86935721B999222A5D7379980B5E62" import="0">Database Changes/Espionage/SpyPassiveBonusesDiplomat.xml</File>
     <File md5="7A86935721B999222A5D7379980B5E62" import="0">Database Changes/Events/CityEventChanges.sql</File>
     <File md5="9535356D2557FE1289CBAB000D334F9F" import="0">Database Changes/Events/EventChanges.sql</File>
     <File md5="26C93226C5186B4B66A3121D57396F5B" import="0">Database Changes/Events/NewCityEvents.xml</File>
@@ -1001,6 +1003,7 @@
     <File md5="56EBFFB63A0E204B08C0570844C6C17F" import="0">Database Changes/Text/en_US/Concepts/NewConceptText.xml</File>
     <File md5="3E4D1D73D7ADDCD8B800E1D075DAD976" import="0">Database Changes/Text/en_US/Corporations/NewCorporationText.xml</File>
     <File md5="D0A442F7DEB463CDCCA45E6503687C87" import="0">Database Changes/Text/en_US/Difficulty/DifficultyTextChanges.sql</File>
+	<File md5="9B1D50C7040F8DDF37DB9C2B58E121F0" import="0">Database Changes/Text/en_US/Espionage/NewEspionageText.xml</File>
     <File md5="9B1D50C7040F8DDF37DB9C2B58E121F0" import="0">Database Changes/Text/en_US/Events/NewEventText.xml</File>
     <File md5="3B4A074D96BD91830ECA603A1293A45A" import="0">Database Changes/Text/en_US/Notifications/NewNotificationText.xml</File>
     <File md5="C46857B6471D7FCDC4D05852CE60D923" import="0">Database Changes/Text/en_US/Notifications/NotificationTextChanges.sql</File>
@@ -1163,7 +1166,9 @@
       <UpdateDatabase>Database Changes/Units/NewUnits.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Units/NewMissions.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Units/NewUnitFormations.xml</UpdateDatabase>
-      <UpdateDatabase>Database Changes/Events/NewEvents.xml</UpdateDatabase>
+      <UpdateDatabase>Database Changes/Espionage/SpyPassiveBonuses.xml</UpdateDatabase>
+	  <UpdateDatabase>Database Changes/Espionage/SpyPassiveBonusesDiplomat.xml</UpdateDatabase>
+	  <UpdateDatabase>Database Changes/Events/NewEvents.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Events/NewCityEvents.xml</UpdateDatabase>
       <UpdateDatabase>Mapscripts/EMP/EMP_Maps.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/CustomModOptionChanges.sql</UpdateDatabase>
@@ -1322,6 +1327,7 @@
       <UpdateDatabase>Database Changes/Text/en_US/Civilizations/NewCivilizationText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/Concepts/NewConceptText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/Corporations/NewCorporationText.xml</UpdateDatabase>
+	  <UpdateDatabase>Database Changes/Text/en_US/Espionage/NewEspionageText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/Events/NewEventText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/Notifications/NewNotificationText.xml</UpdateDatabase>
       <UpdateDatabase>Database Changes/Text/en_US/Policies/NewPolicyText.xml</UpdateDatabase>

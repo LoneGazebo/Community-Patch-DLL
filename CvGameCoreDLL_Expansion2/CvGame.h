@@ -630,9 +630,6 @@ public:
 
 	void initSpyThreshold();
 	int GetSpyThreshold() const;
-#if defined(MOD_BALANCE_CORE_SPIES)
-	void SetHighestSpyPotential();
-#endif
 	void DoBarbCountdown();
 
 	void SetLastTurnCSAnnexed(int iValue);
@@ -758,7 +755,7 @@ public:
 	void LogGameState(bool bLogHeaders = false) const;
 	void unitIsMoving() const;
 
-	void BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey, int iMod, const char* strExtraKey = "") const;
+	void BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey, int iMod, const char* strExtraKey = "", bool bShowIfZero = false) const;
 	void BuildCannotPerformActionHelpText(CvString* toolTipSink, const char* strTextKey, const char* strExtraKey1 = "", const char* strExtraKey2 = "", int iValue = -666) const;
 
 	bool allUnitAIProcessed() const;

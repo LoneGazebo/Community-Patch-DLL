@@ -14521,7 +14521,7 @@ bool CvUnit::CanUpgradeTo(UnitTypes eUpgradeUnitType, bool bOnlyTestVisible) con
 
 		// Check max instances of unit class
 		// Don't count units already in production; upgrading is prioritized
-		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes) UpgradeUnitInfo->GetUnitClassType();
+		UnitClassTypes eUpgradeUnitClassType = (UnitClassTypes) pUpgradeUnitInfo->GetUnitClassType();
 
 		// Maxed out unit class for Game
 		if(GC.getGame().isUnitClassMaxedOut(eUpgradeUnitClassType))

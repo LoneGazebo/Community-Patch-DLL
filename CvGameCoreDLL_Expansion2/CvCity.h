@@ -151,11 +151,11 @@ public:
 	void DoEvents(bool bEspionageOnly = false);
 	bool IsCityEventValid(CityEventTypes eEvent);
 	bool IsCityEventChoiceValid(CityEventChoiceTypes eEventChoice, CityEventTypes eParentEvent, bool bIgnoreActive = false, bool bIgnorePlayer = false);
-	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner, bool bStartMission = true);
-	bool IsCityEventChoiceValidEspionageTest(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int iAssumedLevel, PlayerTypes eSpyOwner);
+	bool IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, CityEventTypes eEvent, int uiSpyIndex, PlayerTypes eSpyOwner, bool bIgnoreActive = false, bool bIgnoreNetworkPoints = false);
 	void DoCancelEventChoice(CityEventChoiceTypes eEventChoice);
+	CvString GetScaledSpyEffectText(CityEventChoiceTypes eEventChoice, bool bSpyMissionEnd, TechTypes eTech = NO_TECH, int iGWID = -1, int iAmountStolen = -1);
 	void DoStartEvent(CityEventTypes eEvent, bool bSendMsg);
-	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iEspionageValue = -1, PlayerTypes eSpyOwner = NO_PLAYER);
+	void DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent = NO_EVENT_CITY, bool bSendMsg = true, int iSpyID = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 	CvString GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYieldsOnly, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER, bool bSpyMissionEnd = false);
 	CvString GetDisabledTooltip(CityEventChoiceTypes eEventChoice, int iSpyIndex = -1, PlayerTypes eSpyOwner = NO_PLAYER);
 
@@ -761,15 +761,14 @@ public:
 	int GetCityAutomatonWorkersChange() const;
 	void changeCityAutomatonWorkersChange(int iChange);
 #endif
-	bool IsVassalLevyEra() const;
 	int getHealRate() const;
 	void changeHealRate(int iChange);
 
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
 
-	int GetEspionageTurnsModifierEnemy() const;
-	void ChangeEspionageTurnsModifierEnemy(int iChange);
+	int GetEspionageModifierPerPop() const;
+	void ChangeEspionageModifierPerPop(int iChange);
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
@@ -932,6 +931,9 @@ public:
 	int GetGrowthFromEvent() const;
 	void ChangeGrowthFromEvent(int iValue);
 
+	int GetEventGPPFromSpecialists() const;
+	void ChangeEventGPPFromSpecialists(int iValue);
+
 	int GetGrowthFromTourism() const;
 	void SetGrowthFromTourism(int iValue);
 	void ChangeGrowthFromTourism(int iValue);
@@ -1074,20 +1076,6 @@ public:
 
 	int GetContestedPlotScore(PlayerTypes eOtherPlayer) const;
 
-#if defined(MOD_BALANCE_CORE_SPIES_ADVANCED)
-	int GetEspionageRanking() const;
-	CvString GetSpyMissionOutcome(CityEventChoiceTypes eEventChoice, uint iSpyIndex, PlayerTypes ePlayer, bool bOwnSpy = 1, bool bShowPopup = 1);
-	int GetSpyTurnsToCompleteMission(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress = 0) const;
-	CvString GetMissionDurationText(PlayerTypes ePlayer, CityEventChoiceTypes eEventChoice, uint iSpyIndex, int iProgress = 0) const;
-	void ChangeEspionageRanking(int iRank, bool bNotify);
-	void ResetEspionageRanking();
-	void InitEspionageRanking();
-	void SetEspionageRanking(int iValue);
-
-	void SetTurnsSinceLastRankMessage(int iTurns);
-	void ChangeTurnsSinceLastRankMessage(int iTurns);
-	int GetTurnsSinceLastRankMessage() const;
-#endif
 	// Base Yield
 	int getBaseYieldRate(YieldTypes eIndex) const;
 #if defined(MOD_BALANCE_CORE)
@@ -1161,6 +1149,15 @@ public:
 
 	int GetYieldFromSpyDefense(YieldTypes eIndex) const;
 	void ChangeYieldFromSpyDefense(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromSpyIdentify(YieldTypes eIndex) const;
+	void ChangeYieldFromSpyIdentify(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromSpyDefenseOrID(YieldTypes eIndex) const;
+	void ChangeYieldFromSpyDefenseOrID(YieldTypes eIndex, int iChange);
+
+	int GetYieldFromSpyRigElection(YieldTypes eIndex) const;
+	void ChangeYieldFromSpyRigElection(YieldTypes eIndex, int iChange);
 
 	int GetYieldFromConstruction(YieldTypes eIndex) const;
 	void ChangeYieldFromConstruction(YieldTypes eIndex, int iChange);
@@ -1310,6 +1307,11 @@ public:
 
 	int GetSeaTourismFromEvent();
 	int GetLandTourismFromEvent();
+
+	void ChangeNumPreviousSpyMissions(int iChange);
+	int GetNumPreviousSpyMissions() const;
+
+	int CalculateCitySecurity(CvString* toolTipString = NULL) const;
 
 	int GetAlwaysHeal() const;
 	void ChangeAlwaysHeal(int iChange);
@@ -1748,6 +1750,10 @@ public:
 	void SetSappedTurns(int iValue);
 	void ChangeSappedTurns(int iValue);
 
+	int GetNoTourismTurns() const;
+	void SetNoTourismTurns(int iValue);
+	void ChangeNoTourismTurns(int iValue);
+
 	int GetPlagueType() const;
 	void SetPlagueType(int iValue);
 	bool HasPlague();
@@ -1762,10 +1768,6 @@ public:
 
 	int GetLoyaltyState() const;
 	void SetLoyaltyState(int iLoyalty);
-
-	int GetBonusEspionageSightTurns(PlayerTypes ePlayer) const;
-	void UpdateBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue);
-	void SetBonusEspionageSightTurns(PlayerTypes ePlayer, int iValue);
 
 	void SetYieldModifierFromHappiness(YieldTypes eYield, int iValue);
 	int GetYieldModifierFromHappiness(YieldTypes eYield) const;
@@ -1888,7 +1890,8 @@ protected:
 	int m_iCountExtraLuxuries;
 	int m_iCheapestPlotInfluenceDistance;
 	int m_iEspionageModifier;
-	int m_iEspionageTurnsModifierEnemy;
+	int m_iEspionageModifierPerPop;
+	int m_iNumPreviousSpyMissions;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
 #endif
@@ -1962,6 +1965,9 @@ protected:
 	std::vector<int> m_aiThemingYieldBonus;
 	std::vector<int> m_aiYieldFromSpyAttack;
 	std::vector<int> m_aiYieldFromSpyDefense;
+	std::vector<int> m_aiYieldFromSpyIdentify;
+	std::vector<int> m_aiYieldFromSpyDefenseOrID;
+	std::vector<int> m_aiYieldFromSpyRigElection;
 	std::vector<int> m_aiNumTimesOwned;
 	std::vector<int> m_aiStaticCityYield;
 	int m_iTradePriorityLand;
@@ -1984,8 +1990,6 @@ protected:
 	int m_iNumNearbyMountains;
 	int m_iLocalUnhappinessMod;
 	bool m_bNoWarmonger;
-	int m_iCitySpyRank;
-	int m_iTurnsSinceRankAnnouncement;
 	int m_iEmpireSizeModifierReduction;
 	int m_iDistressFlatReduction;
 	int m_iPovertyFlatReduction;
@@ -2078,6 +2082,7 @@ protected:
 	int m_iHappinessDelta;
 	int m_iPillagedPlots;
 	int m_iGrowthEvent;
+	int m_iEventGPPFromSpecialists;
 	int m_iGrowthFromTourism;
 	int m_iBuildingClassHappiness;
 	int m_iReligionHappiness;
@@ -2127,6 +2132,7 @@ protected:
 	int m_iPlagueTurns;
 	int m_iPlagueType;
 	int m_iSappedTurns;
+	int m_iNoTourismTurns;
 	int m_iLoyaltyCounter;
 	int m_iDisloyaltyCounter;
 	int m_iLoyaltyStateType;
@@ -2168,7 +2174,6 @@ protected:
 	std::vector<bool> m_abUnitInvestment;
 	std::vector<int> m_aiUnitCostInvestmentReduction;
 	std::vector<bool> m_abBuildingConstructed;
-	std::vector<int> m_aiBonusSightEspionage;
 #endif
 
 	//cache for great work yields, they are need often during citizen re-assignment but they don't change
@@ -2290,7 +2295,8 @@ SYNC_ARCHIVE_VAR(int, m_iLowestRazingPop)
 SYNC_ARCHIVE_VAR(int, m_iCountExtraLuxuries)
 SYNC_ARCHIVE_VAR(int, m_iCheapestPlotInfluenceDistance)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
-SYNC_ARCHIVE_VAR(int, m_iEspionageTurnsModifierEnemy)
+SYNC_ARCHIVE_VAR(int, m_iEspionageModifierPerPop)
+SYNC_ARCHIVE_VAR(int, m_iNumPreviousSpyMissions)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(bool, m_bNeverLost)
 SYNC_ARCHIVE_VAR(bool, m_bDrafted)
@@ -2356,6 +2362,9 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiSpecialistRateModifier)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiThemingYieldBonus)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyAttack)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefense)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyIdentify)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyDefenseOrID)
+SYNC_ARCHIVE_VAR(std::vector<int>, m_aiYieldFromSpyRigElection)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiNumTimesOwned)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiStaticCityYield)
 SYNC_ARCHIVE_VAR(int, m_iTradePriorityLand)
@@ -2378,8 +2387,6 @@ SYNC_ARCHIVE_VAR(int, m_iDeepWaterTileDamage)
 SYNC_ARCHIVE_VAR(int, m_iNumNearbyMountains)
 SYNC_ARCHIVE_VAR(int, m_iLocalUnhappinessMod)
 SYNC_ARCHIVE_VAR(bool, m_bNoWarmonger)
-SYNC_ARCHIVE_VAR(int, m_iCitySpyRank)
-SYNC_ARCHIVE_VAR(int, m_iTurnsSinceRankAnnouncement)
 SYNC_ARCHIVE_VAR(int, m_iEmpireSizeModifierReduction)
 SYNC_ARCHIVE_VAR(int, m_iDistressFlatReduction)
 SYNC_ARCHIVE_VAR(int, m_iPovertyFlatReduction)
@@ -2455,6 +2462,7 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_paiHurryModifier)
 SYNC_ARCHIVE_VAR(int, m_iHappinessDelta)
 SYNC_ARCHIVE_VAR(int, m_iPillagedPlots)
 SYNC_ARCHIVE_VAR(int, m_iGrowthEvent)
+SYNC_ARCHIVE_VAR(int, m_iEventGPPFromSpecialists)
 SYNC_ARCHIVE_VAR(int, m_iGrowthFromTourism)
 SYNC_ARCHIVE_VAR(int, m_iBuildingClassHappiness)
 SYNC_ARCHIVE_VAR(int, m_iReligionHappiness)
@@ -2511,7 +2519,6 @@ SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBuildingCostInvestmentReduction)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abUnitInvestment)
 SYNC_ARCHIVE_VAR(std::vector<int>, m_aiUnitCostInvestmentReduction)
 SYNC_ARCHIVE_VAR(std::vector<bool>, m_abBuildingConstructed)
-SYNC_ARCHIVE_VAR(std::vector<int>, m_aiBonusSightEspionage)
 SYNC_ARCHIVE_END()
 
 //just a guard class so we never forget to unset the garrison override

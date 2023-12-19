@@ -667,12 +667,6 @@ if gk_mode then
 				sIconText = sIconText .. "[ICON_RESISTANCE]"
 			end
 
-			-- CBP
-			if (bnw_mode and minorPlayer:GetCoupCooldown() > 0) then
-				sIconText = sIconText .. "[ICON_TEAM_2]"
-			end
-			-- END
-
 		else
 			print("Lua error - invalid player index")
 		end
@@ -849,11 +843,6 @@ if gk_mode then
 				table_insert( tips,"[ICON_RESISTANCE]" .. L("TXT_KEY_CITY_STATE_QUEST_GIFT_UNIT_FORMAL") )
 			end
 
-			-- CBP
-			if (bnw_mode and minorPlayer:GetCoupCooldown() > 0) then
-				table_insert( tips,"[ICON_BULLET]" .. L("TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT", minorPlayer:GetCoupCooldown()) )
-			end
-			-- END
 		else
 			print("Lua error - invalid player index")
 		end -- minorPlayer

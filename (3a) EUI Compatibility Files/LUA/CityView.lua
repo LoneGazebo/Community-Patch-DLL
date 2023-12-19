@@ -501,7 +501,7 @@ local function GetSpecialistYields( city, specialist )
 			--yieldTips:insertIf( specialistYield ~= 0 and specialistYield .. tostring(YieldIcons[yieldID]) )
 		end
 		yieldTips:insertIf( cultureFromSpecialist ~= 0 and cultureFromSpecialist .. "[ICON_CULTURE]" )
-		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange .. GreatPeopleIcon( specialist.Type ) )
+		yieldTips:insertIf( civ5_mode and (specialist.GreatPeopleRateChange or 0) ~= 0 and specialist.GreatPeopleRateChange + city:GetEventGPPFromSpecialists() .. GreatPeopleIcon( specialist.Type ) )
 		-- Vox Populi food info
 		local foodPerSpec = city:FoodConsumptionSpecialistTimes100() / 100;
 		if specialist.Type == "SPECIALIST_CITIZEN" then foodPerSpec = GameDefines.FOOD_CONSUMPTION_PER_POPULATION end
@@ -2282,7 +2282,7 @@ local function UpdateCityViewNow()
 				if unitClass then
 					local gpThreshold = city:GetSpecialistUpgradeThreshold(unitClass.ID)
 					local gpProgress = city:GetSpecialistGreatPersonProgressTimes100(specialist.ID) / 100
-					local gpChange = specialist.GreatPeopleRateChange * city:GetSpecialistCount( specialist.ID )
+					local gpChange = (specialist.GreatPeopleRateChange + city:GetEventGPPFromSpecialists()) * city:GetSpecialistCount( specialist.ID )
 					for building in GameInfo.Buildings{SpecialistType = specialist.Type} do
 						if city:IsHasBuilding(building.ID) then
 							gpChange = gpChange + building.GreatPeopleRateChange

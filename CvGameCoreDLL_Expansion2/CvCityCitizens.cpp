@@ -952,7 +952,7 @@ int CvCityCitizens::GetSpecialistValue(SpecialistTypes eSpecialist, const SPreco
 	// How many GPP does the specialist generate?
 
 	UnitClassTypes eUnitClass = (UnitClassTypes)pSpecialistInfo->getGreatPeopleUnitClass();
-	int iGPPRate = pSpecialistInfo->getGreatPeopleRateChange() * 100;
+	int iGPPRate = (pSpecialistInfo->getGreatPeopleRateChange() + m_pCity->GetEventGPPFromSpecialists()) * 100;
 	int iGPPRateMod = 0;
 	iGPPRateMod += m_pCity->getGreatPeopleRateModifier() + GetPlayer()->getGreatPeopleRateModifier() + m_pCity->GetSpecialistRateModifier(eSpecialist);
 
@@ -2406,7 +2406,7 @@ int CvCityCitizens::GetSpecialistRate(SpecialistTypes eSpecialist)
 			int iCount = GetSpecialistCount(eSpecialist);
 
 			// GPP from Specialists
-			iGPPChange = pkSpecialistInfo->getGreatPeopleRateChange() * iCount * 100;
+			iGPPChange = (pkSpecialistInfo->getGreatPeopleRateChange() + m_pCity->GetEventGPPFromSpecialists()) * iCount * 100;
 
 			// GPP from Buildings
 			iGPPChange += GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;

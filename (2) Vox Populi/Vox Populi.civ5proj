@@ -175,6 +175,16 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Espionage/SpyPassiveBonuses.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Espionage/SpyPassiveBonusesDiplomat.xml</FileName>
+      </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Events/NewEvents.xml</FileName>
       </Action>
       <Action>
@@ -730,7 +740,7 @@
       <Action>
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
-        <FileName>Database Changes/Events/EventChanges.sql</FileName>
+        <FileName>Database Changes/Events/CityEventChanges.sql</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -966,6 +976,11 @@
         <Set>OnModActivated</Set>
         <Type>UpdateDatabase</Type>
         <FileName>Database Changes/Text/en_US/Corporations/NewCorporationText.xml</FileName>
+      </Action>
+	  <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Database Changes/Text/en_US/Espionage/NewEspionageText.xml</FileName>
       </Action>
       <Action>
         <Set>OnModActivated</Set>
@@ -1551,6 +1566,7 @@
     <Folder Include="Database Changes\Concepts\" />
     <Folder Include="Database Changes\Corporations\" />
     <Folder Include="Database Changes\Difficulty\" />
+    <Folder Include="Database Changes\Espionage\" />
     <Folder Include="Database Changes\Events\" />
     <Folder Include="Database Changes\Minors\" />
     <Folder Include="Database Changes\Policies\" />
@@ -1572,6 +1588,7 @@
     <Folder Include="Database Changes\Text\en_US\Concepts\" />
     <Folder Include="Database Changes\Text\en_US\Corporations\" />
     <Folder Include="Database Changes\Text\en_US\Difficulty\" />
+	<Folder Include="Database Changes\Text\en_US\Espionage\" />
     <Folder Include="Database Changes\Text\en_US\Events\" />
     <Folder Include="Database Changes\Text\en_US\Notifications\" />
     <Folder Include="Database Changes\Text\en_US\Policies\" />
@@ -5247,6 +5264,14 @@
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
+    <Content Include="Database Changes\Espionage\SpyPassiveBonuses.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Database Changes\Espionage\SpyPassiveBonusesDiplomat.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>	
     <Content Include="Database Changes\Events\CityEventChanges.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
@@ -5444,6 +5469,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Database Changes\Text\en_US\Difficulty\DifficultyTextChanges.sql">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+	 <Content Include="Database Changes\Text\en_US\Espionage\NewEspionageText.xml">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

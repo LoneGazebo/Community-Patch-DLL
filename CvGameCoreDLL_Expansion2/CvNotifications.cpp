@@ -1953,7 +1953,7 @@ bool CvNotifications::IsNotificationExpired(int iIndex)
 			if (!pCity)
 				return true;
 			
-			if (pCity->GetCityEspionage()->HasPendingEvents(m_ePlayer))
+			if (pCity->GetCityEspionage()->GetPendingEvents(m_ePlayer) > 0)
 				return false;
 		}
 		return true;

@@ -1301,107 +1301,112 @@
 			<Text>Your farmers discovered a rare plant never before seen in a Plantation near the City. Your researchers are excited about studying it! Gain +{2_InstantYield}.</Text>
 		</Row>
 
-		<!-- Espionage events -->
+		<!-- Espionage events -->	
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS">
-			<Text>Select Spy Mission</Text>
+			<Text></Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
-			<Text>Your newly established spy network requires a mission. What would you like them to focus on?</Text>
+			<Text></Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE">
-			<Text>Defer Mission Selection</Text>
+		
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
+			<Text>[ICON_GREAT_WORK] Steal a Great Work</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ESTABLISH_SURVEILLANCE_HELP">
-			<Text>Mission Selection is deferred, and the Mission Selection Screen appears again next turn. </Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
+			<Text>Steal a randomly selected [ICON_GREAT_WORK] Great Work from the Target City.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM">
-			<Text>Sabotage local [ICON_TOURISM] Tourism</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_EFFECT">
+			<Text>The [ICON_GREAT_WORK] Great Work "{2_GWName}" has been stolen.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_TOURISM_HELP">
-			<Text>When the mission is completed, [ICON_TOURISM] Tourism is stolen each turn from the Player for {5_Turns}. The amount of Tourism stolen per turn is 75% of the Target City's average [ICON_TOURISM] Tourism output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION">
+			<Text>[ICON_PRODUCTION] Sabotage City Producion</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE">
-			<Text>Infiltrate [ICON_RESEARCH] Science facilities</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_HELP">
+			<Text>Remove {8_Num} Turns of [ICON_PRODUCTION] Production from the City's current production progress.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_SCIENCE_HELP">
-			<Text>When the mission is completed, [ICON_RESEARCH] Science is stolen each turn from the Player for {5_Turns}. The amount of Science stolen per turn is 50% of the Target City's average [ICON_RESEARCH] Science output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SABOTAGE_PRODUCTION_EFFECT">
+			<Text>{8_Num} Turns of the current [ICON_PRODUCTION] Production progress have been lost.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD">
-			<Text>Steal [ICON_GOLD] Gold from treasury</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH">
+			<Text>[ICON_PEACE] Pilfer Religious Relics</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_GOLD_HELP">
-			<Text>When the mission is completed, [ICON_GOLD] Gold is stolen each turn from the Player for {5_Turns}. The amount of Gold stolen per turn is 50% of the Target City's average [ICON_GOLD] Gold output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_HELP">
+			<Text>Steal 50% [ICON_PEACE] Faith per turn from the Target City. -50% Religious Pressure emitted by the Target City. Lasts for {5_Duration}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH">
-			<Text>Pilfer [ICON_PEACE] Religious Relics</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_EFFECT">
+			<Text>Each turn, 50% of the City's [ICON_PEACE] Faith Output are stolen. The city emits -50% Religious Pressure. {5_DurationText}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SIPHON_FAITH_HELP">
-			<Text>When the mission is completed, [ICON_PEACE] Faith is stolen each turn from the Player for {5_Turns}. The amount of Faith stolen per turn is 75% of the Target City's average [ICON_PEACE] Faith output per turn while the spy was conducting the mission.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
-			<Text>Radicalize the rural [ICON_CITIZEN] citizenry</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP">
-			<Text>One of each primary improvement (Farm, Mine, Plantation, Trading Post) is pillaged around the Target City. Two improved [COLOR_POSITIVE_TEXT] Strategic Resource [ENDCOLOR] tiles are pillaged. -25% [ICON_FOOD] Growth for {5_Turns}.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE">
-			<Text>Foment Local [ICON_HAPPINESS_3] Unhappiness</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STOKE_HELP">
-			<Text>+34% Unhappiness from Needs in Target City.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
-		</Row>
+		
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
-			<Text>Kidnap [ICON_GREAT_PEOPLE] Specialists in the City</Text>
+			<Text>[ICON_GREAT_PEOPLE] Kidnap Specialists in the City</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_HELP">
-			<Text>In the Target City: -1 [ICON_RESEARCH] Science from Scientists; -1 [ICON_GOLD] Gold from Merchants; -1 [ICON_PRODUCTION] Production from Engineers; -1 [ICON_CULTURE] Culture from Musicians, Artists, and Writers. {7_PlayerEventEffect}.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+			<Text>Specialists produce -1 [ICON_GREAT_PEOPLE] GPP per turn in the Target City. {6_PlayerEventEffect}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_BENEFIT">
-			<Text>[COLOR_POSITIVE_TEXT]Your Benefit: [ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE_EFFECT">
+			<Text>Specialists produce -1 [ICON_GREAT_PEOPLE] GPP per turn. {5_Duration}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON">
-			<Text>Target local City [ICON_STRENGTH] Defenses</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS">
+			<Text>Repatriated Specialists</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_MILITARY_GARRISON_HELP">
-			<Text>Target City takes [COLOR_NEGATIVE_TEXT]100[ENDCOLOR] Damage and Garrison (if present) takes [COLOR_NEGATIVE_TEXT]25[ENDCOLOR] Damage. City is [COLOR_NEGATIVE_TEXT]Sapped[ENDCOLOR] (cannot heal) for 5 turns.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_HELP">
+			<Text>Specialists in your Capital produce +1 [ICON_GREAT_PEOPLE] GPP per turn. Lasts for {4_Duration}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_PARENT">
+			<Text>Repatriated Specialists</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_PARENT_HELP">
+			<Text>Specialists in your Capital produce +1 [ICON_GREAT_PEOPLE] GPP per turn.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY">
+			<Text>[ICON_GOLD] Steal from National Treasury</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_HELP">
+			<Text>Steal {8_Num}% of [ICON_GOLD] Gold from the Treasury of the Target Empire. {7_AmountToSteal}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY_EFFECT">
+			<Text>{3_Num} [ICON_GOLD] Gold has been stolen from your Treasury.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_STEAL_TREASURY_AMOUNT">
+			<Text>[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Amount to steal:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
+			<Text>[ICON_RESEARCH] Steal a Technology</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
+			<Text>Steal a randomly selected Technology.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_EFFECT">
+			<Text>The Technology "{1_TechName}" has been stolen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES">
+			<Text>[ICON_CITIZEN] Radicalize the rural citizenry</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_HELP">
+			<Text>All improved Resource Tiles owned by the City are pillaged. Each Road or Railroad has a 50% chance to be pillaged.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_ECONOMIC_TILES_EFFECT">
+			<Text>All improved Resourced Tiles and some Roads/Railroads around the City have been pillaged.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST">
 			<Text>[ICON_RESISTANCE] Arm the local populace</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_HELP">
-			<Text>City enters [ICON_RESISTANCE] Resistance for 2 Turns. 5 Rebel Units spawn around the City.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+			<Text>The City enters [ICON_RESISTANCE] Resistance for 2 Turns and Rebel Units appear in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
-			<Text>Sabotage Science and Steal a [ICON_RESEARCH] Technology</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_URBAN_UNREST_EFFECT">
+			<Text>The City has entered [ICON_RESISTANCE] Resistance for 2 Turns and Rebel Units have appeared in the area. The City does not generate any [ICON_TOURISM] Tourism for {8_Num} turns.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH_HELP">
-			<Text>Steal one [ICON_RESEARCH] Technology from enemy [ICON_CAPITAL] Capital.[NEWLINE][NEWLINE]If no Techs are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES">
+			<Text>[ICON_STRENGTH] Target City Defenses</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
-			<Text>Create a forgery of a [ICON_GREAT_WORK] Great Work in the City</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_HELP">
+			<Text>All Fortifications owned by this City are pillaged. The City is blockaded and cannot perform ranged strikes for {8_Num} Turns.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW_HELP">
-			<Text>Copy one of the [ICON_GREAT_WORK] Great Works in the Target City.[NEWLINE][NEWLINE]If no Great Works are available to steal at completion, a [ICON_GOLDEN_AGE] Golden Age Begins.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA">
-			<Text>Broaden [ICON_SPY] Surveillance in City</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_REVEAL_AREA_HELP">
-			<Text>Expand the number of tiles visible around the Target City for {5_Turns} after the mission is completed.{8_MissionLength}{6_Spy}{3_YieldCityTip}</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC">
-			<Text>Repatriated Specialists</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP">
-			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT">
-			<Text>Repatriated Specialists</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT_HELP">
-			<Text>+2 [ICON_RESEARCH] Science from Scientists; +2 [ICON_GOLD] Gold from Merchants; +2 [ICON_PRODUCTION] Production from Engineers; +2 [ICON_CULTURE] Culture from Musicians, Artists, and Writers in [ICON_CAPITAL] Capital. Duration: {4_Turns}</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_CITY_DEFENSES_EFFECT">
+			<Text>Fortifications around the City have been pillaged. The City is blockaded and cannot perform ranged strikes for {8_Num} Turns.</Text>
 		</Row>
 
 		<!-- Counterspy -->
@@ -1409,31 +1414,44 @@
 			<Text>Counterintelligence</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS_HELP">
-			<Text>Your Spy has established their new counterintel operation. Give them orders:</Text>
+			<Text>Your Spy has established their new counterintelligence operation. What would you like them to focus on?</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC">
-			<Text>Establish a counter-espionage network.</Text>
+		
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK">
+			<Text>[ICON_SPY] Establish a counter-espionage network.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_BASIC_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+50%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_HELP">
+			<Text>Foreign [ICON_SPY] Spies generate -10 Network Points per turn, scaling with Counterspy Level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_EFFECT">
+			<Text>Foreign [ICON_SPY] Spies generate [ICON_NEGATIVE_TEXT]-10 Network Points[ENDCOLOR] per turn, scaling with Counterspy Level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK_MISSION">
+			<Text>Establish Network</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE">
-			<Text>Inspect the local garrison and fine-tune our city defenses.</Text>
+			<Text>[ICON_STRENGTH] Strengthen City Defenses.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+10%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. City [ICON_RANGE] Ranged Attacks are 50% stronger while Spy is active in this City.</Text>
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are 20% stronger, and an additional 10% for every Counterspy Level. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL">
-			<Text>Turn your network on the local population. Bring them in line.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_EFFECTS">
+			<Text>City [ICON_RANGE_STRENGTH] Ranged Attacks are stronger. Foreign Spies are unable to perform the "Target City Defenses" Mission.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_QUELL_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+25%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. +2 [ICON_HAPPINESS_1] Happiness and -25% Unhappiness from Needs in the City.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_DEFENSE_MISSION">
+			<Text>Strenghen Defense</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST">
-			<Text>Make sure local Specialists are giving their best.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE">
+			<Text>[ICON_PIRATE] Chase down foreign Spies.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_SPECIALIST_HELP">
-			<Text>[COLOR_POSITIVE_TEXT]+15%[ENDCOLOR] chance to Identify and/or Kill foreign [ICON_SPY] Spies. Merchants, Engineers, Scientists, Artists, Writers, and Musicians all produce +1 of their basic Yield.</Text>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_HELP">
+			<Text>Foreign [ICON_SPY] Spies are always identified when completing their missions. All captured Spies are killed. Gain 50 [ICON_RESEARCH] Science when you kill a foreign Spy, scaling with Era and Counterspy Level.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_EFFECT">
+			<Text>Foreign [ICON_SPY] Spies are always identified when completing their missions. All captured Spies are killed.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_CHASE_MISSION">
+			<Text>Chase Spies</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

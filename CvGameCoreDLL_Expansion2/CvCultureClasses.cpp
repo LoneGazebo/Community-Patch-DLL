@@ -4844,8 +4844,10 @@ int CvPlayerCulture::GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePla
 /// Get extra spy rank in major civ cities based on current influence level
 int CvPlayerCulture::GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const
 {
-	int iRtnValue = 0;
+	if (!MOD_BALANCE_VP)
+		return 0;
 
+	int iRtnValue = 0;
 	InfluenceLevelTypes eLevel = GetInfluenceLevel(ePlayer);
 	switch (eLevel)
 	{
@@ -4867,25 +4869,13 @@ int CvPlayerCulture::GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const
 }
 
 /// Get spy rank tooltip associated with bonus from cultural influence
-CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(const CvString& szName, const CvString& szRank, PlayerTypes ePlayer, bool bNoBasicHelp, int iSpyID)
+CvString CvPlayerCulture::GetInfluenceSpyRankTooltip(const CvString& szName, const CvString& szRank, PlayerTypes ePlayer)
 {
-	CvString szRtnValue = "";
-	if (!MOD_BALANCE_CORE_SPIES_ADVANCED) 
-	{
-		szRtnValue = GetLocalizedText("TXT_KEY_EO_SPY_RANK_TT", szName, szRank);
-		return szRtnValue;
-	}
-
-	CvPlayerEspionage* pkPlayerEspionage = m_pPlayer->GetEspionage();
-	if (pkPlayerEspionage)
-	{
-		CvCity* pCity = pkPlayerEspionage->GetCityWithSpy(iSpyID);
-		szRtnValue += pkPlayerEspionage->GetSpyInfo(iSpyID, bNoBasicHelp, pCity);
-	}
-
+	CvString szRtnValue = GetLocalizedText("TXT_KEY_EO_SPY_RANK_TT", szName, szRank);
+	
 	if (ePlayer != NO_PLAYER)
 	{
-		CvPlayer &kOtherPlayer = GET_PLAYER(ePlayer);
+		CvPlayer& kOtherPlayer = GET_PLAYER(ePlayer);
 
 		int iRankBonus = 0;
 		if (kOtherPlayer.isMinorCiv())
@@ -6540,7 +6530,7 @@ GreatWorkSlotType CvCityCulture::GetSlotTypeFirstAvailableCultureBuilding() cons
 void CvCityCulture::CalculateBaseTourismBeforeModifiers()
 {
 	// If we're in Resistance, then no Tourism!
-	if(m_pCity->IsResistance() || m_pCity->IsRazing())
+	if(m_pCity->IsResistance() || m_pCity->IsRazing() || m_pCity->GetNoTourismTurns() > 0)
 	{
 		m_pCity->SetBaseTourismBeforeModifiers(0);
 		return;

@@ -35,26 +35,19 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, plotID, spy
 		end
 	end
 
-
-	print("Spy ID", spyID)
-
 	SelectedItems = {};
 	stackControl:DestroyAllChildren();
 	----------------------------------------------------------------        
 	-- build the buttons
 	----------------------------------------------------------------
-	print("Getting choice list for city event")
+	--print("Getting choice list for city event")
 
 	local iEventType = m_PopupInfo.Data2;
 	if(iEventType ~= -1) then
 		local pEventInfo = GameInfo.CityEvents[iEventType]
 
 		if(pEventInfo) then
-			print("Found our city event " .. iEventType)
-			-- Top Art
-			local pEventArt = pEventInfo.CityEventArt or "cityeventdefaultbackground.dds"
-			Controls.EventArt:SetTexture(pEventArt);
-			Controls.EventArt:SetSizeVal(350,100);
+			--print("Found our city event " .. iEventType)
 		
 			-- Event Audio
 			local pEventAudio = pEventInfo.CityEventAudio
@@ -92,7 +85,7 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, plotID, spy
 			for row in GameInfo.CityEvent_ParentEvents("CityEventType = '" .. pEventInfo.Type .. "'") do
 			--print("Cycling through city event choices")
 				local info = GameInfo.CityEventChoices[row.CityEventChoiceType]
-				print("Found an espionage event choice")
+				--print("Found an espionage event choice")
 
 				local controlTable = {};
 				ContextPtr:BuildInstanceForControl( "ItemInstance", controlTable, stackControl );
@@ -178,7 +171,7 @@ PopulateItems["CityEventChoices"] = function(stackControl, playerID, plotID, spy
 				
 				end);
 
-				print("city event choice added")
+				--print("city event choice added")
 			
 				count = count + 1;
 			end
@@ -195,15 +188,11 @@ CommitItems["CityEventChoices"] = function(selection, playerID, plotID, spyID)
 	if(city ~= nil) then
 		for i,v in ipairs(selection) do
 			local eventChoiceType = v[1];
-			print("Making Choice " .. eventChoiceType);
+			--print("Making Choice " .. eventChoiceType);
 			local eventChoice = GameInfo.CityEventChoices[eventChoiceType];
 			if(eventChoice ~= nil) then
-				city:DoCityEventChoice(eventChoice.ID, spyID, playerID);
-				-- Event Choice Audio
-				local eventChoiceAudio = eventChoice.EventChoiceAudio
-				if eventChoiceAudio then
-					Events.AudioPlay2DSound(eventChoiceAudio)
-				end
+				local pPlayer = Players[playerID];
+				pPlayer:ChangeCounterspyMission(spyID, eventChoice.ID);
 			end
 		end
 	end
@@ -214,16 +203,12 @@ function DisplayPopup(playerID, plotID, spyID, classType, numberOfChoices)
 	if(numberOfChoices ~= 1) then
 		error("This UI currently only supports 1 choice for the time being.");
 	end
-
-	print("Spy ID", spyID)
 	
 	local count = PopulateItems[classType](Controls.ItemStack, playerID, plotID, spyID);
 	
 	Controls.ItemStack:CalculateSize();
 	Controls.ItemStack:ReprocessAnchoring();
 	Controls.ItemScrollPanel:CalculateInternalSize();
-	-- Align the Event Art
-	Controls.EventArtFrame:ReprocessAnchoring();
 
 	if (g_pCity) then
 		local plot = g_pCity:Plot();
@@ -256,7 +241,6 @@ function OnPopup( popupInfo )
 			m_PopupInfo = popupInfo;
 			print("Displaying City Event Selection Popup");
 			DisplayPopup(m_PopupInfo.Data1, m_PopupInfo.Data3, m_PopupInfo.Data4, "CityEventChoices", 1);
-			print("Spy ID", m_PopupInfo.Data4)
 		end
     end
 end

@@ -112,8 +112,8 @@ public:
 	int GetTradeRouteLandDistanceModifier() const;
 	int GetTradeRouteSeaDistanceModifier() const;
 	int GetEspionageModifier() const;
-	int GetEspionageTurnsModifierFriendly() const;
-	int GetEspionageTurnsModifierEnemy() const;
+	int GetEspionageNetworkPoints() const;
+	int GetRigElectionInfluenceModifier() const;
 	int GetXCSAlliesLowersPolicyNeedWonders() const;
 	int GetTRSpeedBoost() const;
 	int GetTRVisionBoost() const;
@@ -292,6 +292,7 @@ public:
 	int GetUnitCombatProductionModifiers(int i) const;
 	int GetUnitCombatFreeExperiences(int i) const;
 	int GetBuildingClassCultureChange(int i) const;
+	int GetBuildingClassSecurityChange(int i) const;
 	int GetBuildingClassHappiness(int i) const;
 	int GetBuildingClassProductionModifier(int i) const;
 	int GetUnitClassProductionModifiers(int i) const;
@@ -356,6 +357,7 @@ public:
 	int GetRazingSpeedBonus() const;
 	bool IsNoPartisans() const;
 	int GetExtraSupplyPerPopulation() const;
+	int GetYieldForSpyID(int i) const;
 	int GetYieldForLiberation(int i) const;
 	int GetInfluenceForLiberation() const;
 	int GetExperienceForLiberation() const;
@@ -745,6 +747,7 @@ private:
 	int* m_paiUnitCombatFreeExperiences;
 	int* m_paiHurryModifier;
 	int* m_paiBuildingClassCultureChanges;
+	int* m_paiBuildingClassSecurityChanges;
 	int* m_paiBuildingClassProductionModifiers;
 	int* m_paiUnitClassProductionModifiers;
 	int* m_paiBuildingClassTourismModifiers;
@@ -815,8 +818,8 @@ private:
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSeaDistanceModifier;
 	int m_iEspionageModifier;
-	int m_iEspionageTurnsModifierFriendly;
-	int m_iEspionageTurnsModifierEnemy;
+	int m_iEspionageNetworkPoints;
+	int m_iRigElectionInfluenceModifier;
 	int* m_piConquerorYield;
 	int* m_piFounderYield;
 	int* m_piReligionYieldMod;
@@ -829,6 +832,7 @@ private:
 	int m_iHappinessPerXGreatWorks;
 	int m_iExtraMissionaryStrength;
 	int m_iExtraMissionarySpreads;
+	int* m_piYieldForSpyID;
 	int* m_piYieldForLiberation;
 	int m_iInfluenceForLiberation;
 	int m_iExperienceForLiberation;
@@ -1031,6 +1035,7 @@ enum CLOSED_ENUM PolicyModifierType
 	POLICYMOD_SEA_TRADE_GOLD_CHANGE,
 	POLICYMOD_SHARED_IDEOLOGY_TRADE_CHANGE,
 	POLICYMOD_RIGGING_ELECTION_MODIFIER,
+	POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER,
 	POLICYMOD_MILITARY_UNIT_GIFT_INFLUENCE,
 	POLICYMOD_PROTECTED_MINOR_INFLUENCE,
 	POLICYMOD_AFRAID_INFLUENCE,

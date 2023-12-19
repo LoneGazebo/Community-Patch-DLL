@@ -5,7 +5,8 @@ print("This is the modded EspionageOverview from CBP")
 include( "IconSupport" );
 include( "InstanceManager" );
 include( "CityStateStatusHelper" );
-
+include("FLuaVector.lua")
+include("InfoTooltipInclude");
 
 local g_AgentManager = GenerationalInstanceManager:new( "AgentInstance", "Base", Controls.AgentStack);
 local g_MyCityManager = GenerationalInstanceManager:new( "MyCityInstance", "Base", Controls.MyCityStack);
@@ -13,8 +14,12 @@ local g_MyCityButtonManager = GenerationalInstanceManager:new("MyCityButtonInsta
 local g_TheirCityManager = GenerationalInstanceManager:new( "TheirCityInstance", "Base", Controls.TheirCityStack);
 local g_TheirCityButtonManager = GenerationalInstanceManager:new( "TheirCityButtonInstance", "Base", Controls.TheirCityStack);
 local g_IntrigueManager = GenerationalInstanceManager:new( "IntrigueMessageInstance", "Base", Controls.IntrigueMessageStack);
-local g_ActiveMissionsManager = GenerationalInstanceManager:new( "ActiveMissionsMessageInstance", "Base", Controls.ActiveMissionsMessageStack);
+local g_MissionSelectionManager = GenerationalInstanceManager:new( "MissionSelectionInstance", "Base", Controls.MissionSelectionStack);
+local g_PassiveBonusesManager = GenerationalInstanceManager:new( "PassiveBonusesInstance", "Base", Controls.PassiveBonusesStack);
+local g_CounterspyFocusManager = GenerationalInstanceManager:new( "CounterspyFocusInstance", "Base", Controls.CounterspyFocusStack);
 
+-- Mission Selection
+SelectedItems = {};
 
 local g_PreviousLocationBoxColor = "231,213,0,255";
 
@@ -37,42 +42,31 @@ local g_ProgressBarStates = {
 		IconOffset = {x = 45,y = 45},
 		ProgressBarTexture = "MeterBarGreatEspionageGreen.dds",
 	},
-	TXT_KEY_SPY_STATE_SURVEILLANCE = {
-		IconOffset = {x = 45,y = 0},
-		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
-	},
 	TXT_KEY_SPY_STATE_GATHERING_INTEL = {
 		IconOffset = {x = 45, y = 0},
-		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
+		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
 	TXT_KEY_SPY_STATE_COUNTER_INTEL = {
 		IconOffset = {x = 45,y = 0},
-		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
+		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
-	TXT_KEY_SPY_STATE_BUILDING_NETWORK = {
+	TXT_KEY_SPY_STATE_SCHMOOZING = {
 		IconOffset = {x = 45,y = 0},
-		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
+		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
 	TXT_KEY_SPY_STATE_RIGGING_ELECTION = {
 		IconOffset = {x = 45, y = 90},
 		ProgressBarTexture = "MeterBarGreatPersonGold.dds",
-	},
-	TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS = {
-		IconOffset = {x = 45,y = 0},
-		ProgressBarTexture = "MeterBarGreatEspionageBlue.dds",
 	},
 }
 
 -- Agent text color based on agent activity.
 local g_TextColors = {
 	TXT_KEY_SPY_STATE_TRAVELLING           = {x =  94/255, y = 237/255, z = 105/255, w = 255/255},
-	TXT_KEY_SPY_STATE_SURVEILLANCE         = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
-	TXT_KEY_SPY_STATE_GATHERING_INTEL      = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
-	TXT_KEY_SPY_STATE_COUNTER_INTEL		   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
-	TXT_KEY_SPY_STATE_BUILDING_NETWORK	   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
+	TXT_KEY_SPY_STATE_GATHERING_INTEL      = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
+	TXT_KEY_SPY_STATE_COUNTER_INTEL		   = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
+	TXT_KEY_SPY_STATE_SCHMOOZING		   = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
 	TXT_KEY_SPY_STATE_RIGGING_ELECTION	   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
-	TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS = {x = 128/255, y = 150/255, z = 228/255, w = 255/255},
-	TXT_KEY_SPY_STATE_SCHMOOZING		   = {x = 255/255, y = 222/255, z =   9/255, w = 255/255},
 }
 
 g_Tabs = {
@@ -84,11 +78,6 @@ g_Tabs = {
 	["Intrigue"] = {
 		Panel = Controls.IntriguePanel,
 		SelectHighlight = Controls.IntrigueSelectHighlight,
-	},
-	
-	["Active Missions"] = {
-		Panel = Controls.ActiveMissionsPanel,
-		SelectHighlight = Controls.ActiveMissionsSelectHighlight,
 	},
 }
 
@@ -206,52 +195,10 @@ g_IntrigueSortOptions = {
 		CurrentDirection = nil,
 	},
 };
-
-g_ActiveMissionsSortOptions = {
-	{
-		Button = Controls.ActiveMissionsSortByStartTurn,
-		ImageControl = Controls.ActiveMissionsSortByStartTurnImg,
-		Column = "StartTurn",
-		DefaultDirection = "desc",
-		CurrentDirection = "desc",
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ActiveMissionsSortByEndTurn,
-		ImageControl = Controls.ActiveMissionsSortByEndTurnImg,
-		Column = "EndTurn",
-		DefaultDirection = "desc",
-		CurrentDirection = nil,
-		SortType = "numeric",
-	},
-	{
-		Button = Controls.ActiveMissionsSortBySpyOwner,
-		ImageControl = Controls.ActiveMissionsSortBySpyOwnerImg,
-		Column = "SpyOwner",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-	{
-		Button = Controls.ActiveMissionsSortByTarget,
-		ImageControl = Controls.ActiveMissionsSortByTargetImg,
-		Column = "Target",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-	{
-		Button = Controls.ActiveMissionsSortByEffect,
-		ImageControl = Controls.ActiveMissionsSortByEffectImg,
-		Column = "Effect",
-		DefaultDirection = "asc",
-		CurrentDirection = nil,
-	},
-};
-
-g_AgentsSortFunction = nil;
+_AgentsSortFunction = nil;
 g_YourCitiesSortFunction = nil;
 g_TheirCitiesSortFunction = nil;
 g_IntrigueSortFunction = nil;
-g_ActiveMissionsSortFunction = nil;
 
 g_CurrentTab = nil;		-- The currently selected Tab.
 
@@ -306,10 +253,16 @@ function InputHandler( uiMsg, wParam, lParam )
     ----------------------------------------------------------------
     if uiMsg == KeyEvents.KeyDown then
         if (wParam == Keys.VK_ESCAPE) then
-			if(Controls.ChooseConfirm:IsHidden())then
-	            OnClose();
-	        else
+			if(not Controls.ChooseConfirm:IsHidden()) then
 				Controls.ChooseConfirm:SetHide(true);
+			elseif (not Controls.MissionSelectionPopup:IsHidden()) then
+				Controls.MissionSelectionPopup:SetHide(true);
+			elseif (not Controls.CounterspyFocusPopup:IsHidden()) then
+				Controls.CounterspyFocusPopup:SetHide(true);
+			elseif (not Controls.NotificationPopup:IsHidden()) then
+				Controls.NotificationPopup:SetHide(true);
+			else
+				OnClose();
            	end
 			return true;
         end
@@ -368,7 +321,6 @@ function TabSelect(tab)
 end
 Controls.TabButtonOverview:RegisterCallback( Mouse.eLClick, function() TabSelect("Overview"); end);
 Controls.TabButtonIntrigue:RegisterCallback( Mouse.eLClick, function() TabSelect("Intrigue"); end );
-Controls.TabButtonActiveMissions:RegisterCallback( Mouse.eLClick, function() TabSelect("Active Missions"); end );
 
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
@@ -433,7 +385,7 @@ function RelocateAgent(agentID, city)
 	Controls.AgentName:LocalizeAndSetText(agent.Name);
 	Controls.AgentName:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NAMEPLATE_TT", agent.Rank, agent.Name);
 
-	local szSpyRankTooltip = activePlayer:GetInfluenceSpyRankTooltip (agent.Name, agent.Rank, -1, OptionsManager.IsNoBasicHelp(), agent.AgentID);
+	local szSpyRankTooltip = activePlayer:GetInfluenceSpyRankTooltip(agent.Name, agent.Rank, -1);
 	Controls.AgentRank:SetToolTipString(szSpyRankTooltip);
 	Controls.AgentIcon:SetToolTipString(szSpyRankTooltip);
 	Controls.AgentLocationActionsPanel:SetHide(false);
@@ -465,7 +417,7 @@ function RelocateAgent(agentID, city)
 			Controls.AgentLocationIcon:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", agent.Rank, agent.Name, city:GetName());
 			Controls.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", agent.Rank, agent.Name, city:GetName());
 
-			szSpyRankTooltip = activePlayer:GetInfluenceSpyRankTooltip (agent.Name, agent.Rank, plot:GetOwner(), OptionsManager.IsNoBasicHelp(), agent.AgentID);
+			szSpyRankTooltip = activePlayer:GetInfluenceSpyRankTooltip(agent.Name, agent.Rank, plot:GetOwner());
 			Controls.AgentRank:SetToolTipString(szSpyRankTooltip);
 			Controls.AgentIcon:SetToolTipString(szSpyRankTooltip);
 		end
@@ -480,7 +432,7 @@ function RelocateAgent(agentID, city)
 	if(plot ~= nil) then
 		city = plot:GetPlotCity();
 		if(city ~= nil) then
-			strActivityTT = activePlayer:GetSpyChanceAtCity(city, agent.AgentID, OptionsManager.IsNoBasicHelp());
+			strActivityTT = activePlayer:GetSpyMissionTooltip(city, agent.AgentID);
 		end
 	end
 
@@ -509,22 +461,26 @@ function RelocateAgent(agentID, city)
 			end
 			Controls.AgentActivityProgress:SetTexture(progressBarState.ProgressBarTexture);
 			local progresspct = progress/100;
-			local nextprogresspct = progresspct + (1 - progresspct)/agent.TurnsLeft;
+			local nextprogresspct = 1;
+			if (agent.TurnsLeft > 0) then
+				nextprogresspct = progresspct + (1 - progresspct)/agent.TurnsLeft;
+			end
 			Controls.AgentActivityProgress:SetPercents( progresspct, nextprogresspct );
 		else
 			Controls.AgentActivityProgress:SetHide(true);
 			Controls.AgentActivityProgressFrame:SetHide(true);
 			Controls.AgentActivityProgressBack:SetHide(true);
 		end
-
+	
 		if (agent.TurnsLeft >= 0) then
 			Controls.AgentProgress:LocalizeAndSetText("TXT_KEY_STR_TURNS", agent.TurnsLeft);
+		elseif (agent.SpyFocus >= 0) then
+			local pMissionInfo = GameInfo.CityEventChoices[agent.SpyFocus];
+			Controls.AgentProgress:LocalizeAndSetText(pMissionInfo.MissionTooltip);
+		elseif (agent.NetworkPointsStored >= 0) then
+			Controls.AgentProgress:LocalizeAndSetText("TXT_KEY_NETWORK_POINTS", agent.NetworkPointsStored, agent.NetworkPointsPerTurn);
 		else
-			if (agent.State == "TXT_KEY_SPY_STATE_SURVEILLANCE") then
-				Controls.AgentProgress:LocalizeAndSetText("TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR");
-			else
-				Controls.AgentProgress:SetText("");
-			end
+			Controls.AgentProgress:SetText("");
 		end
 	else
 		Controls.AgentProgress:SetText("");
@@ -581,7 +537,7 @@ function RefreshAgents()
 		agentEntry.AgentRank:SetTextureOffset(rankOffsets[v.Rank]);
 		agentEntry.AgentName:LocalizeAndSetText(v.Name);
 		agentEntry.AgentName:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NAMEPLATE_TT", v.Rank, v.Name);
-		local szSpyRankTooltip = pActivePlayer:GetInfluenceSpyRankTooltip (v.Name, v.Rank, -1, OptionsManager.IsNoBasicHelp(), v.AgentID);
+		local szSpyRankTooltip = pActivePlayer:GetInfluenceSpyRankTooltip(v.Name, v.Rank, -1);
 		agentEntry.AgentRank:SetToolTipString(szSpyRankTooltip);
 
 		if (v.IsDiplomat) then
@@ -599,14 +555,26 @@ function RefreshAgents()
 			agentEntry.AgentLocationActionsPanel:SetHide(true);
 			agentEntry.AgentActivityPanel:SetHide(true);
 			agentEntry.AgentKIAPanel:SetHide(false);
+			agentEntry.AgentPrisonPanel:SetHide(true);
 
 			agentEntry.Base:SetColorVal(0,0,0,0);
 			bTickTock = not bTickTock;
 
+			agentEntry.RelocateButton:setHide(true);
+		elseif(v.State == "TXT_KEY_SPY_STATE_IMPRISONED") then
+			agentEntry.AgentLocationActionsPanel:SetHide(true);
+			agentEntry.AgentActivityPanel:SetHide(true);
+			agentEntry.AgentKIAPanel:SetHide(true);
+			agentEntry.AgentPrisonPanel:SetHide(false);
+			agentEntry.AgentPrisonText:LocalizeAndSetText("TXT_KEY_EO_IMPRISONED", v.NumTurnsImprisoned);
+
+			agentEntry.Base:SetColorVal(0,0,0,0);
+			bTickTock = not bTickTock;
 		else
 			agentEntry.AgentLocationActionsPanel:SetHide(false);
 			agentEntry.AgentActivityPanel:SetHide(false);
 			agentEntry.AgentKIAPanel:SetHide(true);
+			agentEntry.AgentPrisonPanel:SetHide(true);
 
 			agentEntry.AgentLocation:SetText(v.AgentLocation);
 			agentEntry.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_NEEDS_ASSIGNMENT_TT");
@@ -636,7 +604,7 @@ function RefreshAgents()
 					agentEntry.AgentLocationIcon:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", v.Rank, v.Name, city:GetName());
 					agentEntry.AgentLocation:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_LOCATION_TT", v.Rank, v.Name, city:GetName());
 
-					szSpyRankTooltip = pActivePlayer:GetInfluenceSpyRankTooltip (v.Name, v.Rank, plot:GetOwner(), OptionsManager.IsNoBasicHelp(), v.AgentID);
+					szSpyRankTooltip = pActivePlayer:GetInfluenceSpyRankTooltip(v.Name, v.Rank, plot:GetOwner());
 					agentEntry.AgentRank:SetToolTipString(szSpyRankTooltip);
 					agentEntry.AgentIcon:SetToolTipString(szSpyRankTooltip);
 				end
@@ -651,7 +619,7 @@ function RefreshAgents()
 			if(plot ~= nil) then
 				city = plot:GetPlotCity();
 				if(city ~= nil) then
-					strActivityTT = pActivePlayer:GetSpyChanceAtCity(city, v.AgentID, OptionsManager.IsNoBasicHelp());
+					strActivityTT = pActivePlayer:GetSpyMissionTooltip(city, v.AgentID);
 				end
 			end
 
@@ -679,7 +647,10 @@ function RefreshAgents()
 					end
 					agentEntry.AgentActivityProgress:SetTexture(progressBarState.ProgressBarTexture);
 					local progresspct = progress/100;
-					local nextprogresspct = progresspct + (1 - progresspct)/v.TurnsLeft;
+					local nextprogresspct = 1;
+					if(v.TurnsLeft > 0) then
+						 nextprogresspct = progresspct + (1 - progresspct)/v.TurnsLeft;
+					end
 					agentEntry.AgentActivityProgress:SetPercents( progresspct, nextprogresspct );
 				else
 					agentEntry.AgentActivityProgress:SetHide(true);
@@ -690,123 +661,121 @@ function RefreshAgents()
 
 				if (v.TurnsLeft >= 0) then
 					agentEntry.AgentProgress:LocalizeAndSetText("TXT_KEY_STR_TURNS", v.TurnsLeft);
+				elseif (v.SpyFocus >= 0) then
+					local pMissionInfo = GameInfo.CityEventChoices[v.SpyFocus];
+					agentEntry.AgentProgress:LocalizeAndSetText(pMissionInfo.MissionTooltip);
+				elseif (v.NetworkPointsStored >= 0) then
+					agentEntry.AgentProgress:LocalizeAndSetText("TXT_KEY_NETWORK_POINTS", v.NetworkPointsStored, v.NetworkPointsPerTurn);
 				else
-					if (v.State == "TXT_KEY_SPY_STATE_SURVEILLANCE") then
-						agentEntry.AgentProgress:LocalizeAndSetText("TXT_KEY_SPY_STATE_ESTABLISHED_SURVEILLANCE_PROGRESS_BAR");
-					else
-						agentEntry.AgentProgress:SetText("");
-					end
+					agentEntry.AgentProgress:SetText("");
 				end
 			else
 				agentEntry.AgentProgress:SetText("");
 			end
 
-			agentEntry.RelocateButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_MOVE_TT", v.Rank, v.Name);
-			agentEntry.RelocateButton:SetDisabled(v.State == "TXT_KEY_SPY_STATE_DEAD");
-			agentEntry.RelocateButton:RegisterCallback(Mouse.eLClick, function()
-				RelocateAgent(v.AgentID, city);
-			end);
-
-
-			-- CITY SCREEN CLOSED - Don't look, Marc
-			local CityScreenClosed = function()
-				UIManager:DequeuePopup(Controls.EmptyPopup);
-				--print("This CityScreenClosed was called!");
-				Events.SerialEventExitCityScreen.Remove(CityScreenClosed);
-				UI.SetCityScreenViewingMode(false);
+			if (v.NumTurnsMovementBlocked > 0) then
+				agentEntry.RelocateButton:LocalizeAndSetToolTip("TXT_KEY_EO_COUNTERSPY_CANNOT_MOVE_TT", v.Rank, v.Name,v.NumTurnsMovementBlocked);
+				agentEntry.RelocateButton:SetDisabled(true);
+			else
+				agentEntry.RelocateButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_MOVE_TT", v.Rank, v.Name);
+				agentEntry.RelocateButton:SetDisabled(false);
+				agentEntry.RelocateButton:RegisterCallback(Mouse.eLClick, function()
+					RelocateAgent(v.AgentID, city);
+				end);
 			end
-
-			-- Initialize 'View City' button.
-			local OnViewCityClicked = function()
+			
+			local OnSpyMissionSelectionClicked = function()
 
 				if (city ~= nil) then
-					print("Attempting to show city screen");
-					-- Queue up an empty popup at a higher priority so that it prevents other cities from appearing while we're looking at this one!
-					UIManager:QueuePopup(Controls.EmptyPopup, PopupPriority.GenericPopup+1);
-					Events.SerialEventExitCityScreen.Add(CityScreenClosed);
-					UI.SetCityScreenViewingMode(true);
-					UI.DoSelectCityAtPlot( city:Plot() );
+					if(city:GetOwner() ~= Game.GetActivePlayer()) then
+					  -- spy in enemy city
+						local countpassive = PopulatePassiveBonusList(Controls.PassiveBonusesStack, Game.GetActivePlayer(), city, v);
+						
+						local count = PopulateSelectionList(Controls.MissionSelectionStack, Game.GetActivePlayer(), city, v);
+							
+						if(countpassive > 0 and count > 0) then					
+							Controls.ConfirmMissionSelectionButton:SetDisabled(true);
+							Controls.ConfirmMissionSelectionButton:RegisterCallback(Mouse.eLClick, function()
+								CommitMissionSelection(SelectedItems, Game.GetActivePlayer(), city, v.AgentID);
+								Controls.MissionSelectionPopup:SetHide(true);
+								RefreshAgents();
+							end);
+							
+							Controls.MissionSelectionPopup:SetHide(false);
+						end
+					end
+				else
+					print("city == null");
+				end
+			end
+			
+			-- Initialize 'Change Counterspy Focus' button.
+			local OnChangeCounterspyFocusClicked = function()
+
+				if (city ~= nil) then
+					if(city:GetOwner() == Game.GetActivePlayer()) then
+					  -- counterspy
+						local count = PopulateSelectionList(Controls.CounterspyFocusStack, Game.GetActivePlayer(), city, v);
+							
+						if(count > 0) then					
+							Controls.ConfirmCounterspyFocusButton:SetDisabled(true);
+							Controls.ConfirmCounterspyFocusButton:RegisterCallback(Mouse.eLClick, function()
+								CommitCounterspyFocus(SelectedItems, Game.GetActivePlayer(), city, v.AgentID);
+								Controls.CounterspyFocusPopup:SetHide(true);
+								RefreshAgents();
+							end);
+							Controls.CounterspyFocusContent:CalculateSize();
+							local width, height = Controls.CounterspyFocusContent:GetSizeVal();
+							Controls.CounterspyFocusFrame:SetSizeVal(width, height);
+							Controls.CounterspyFocusPopup:SetHide(false);
+						end
+					end
 				else
 					print("city == null");
 				end
 			end
 
-
-			local OnCoupClicked =  function()
-				g_ConfirmAction = function()
-					Network.SendStageCoup(Game.GetActivePlayer(), v.AgentID);
+			agentEntry.SpyMissionButton:SetHide(true);
+			agentEntry.CounterspyButton:SetHide(true);
+			agentEntry.DiplomatButton:SetHide(true);
+			
+			if (city and city:GetOwner() == Game.GetActivePlayer()) then
+				-- Counterspy
+				agentEntry.CounterspyButton:SetHide(false);
+				if(v.State == "TXT_KEY_SPY_STATE_TRAVELLING") then
+					agentEntry.CounterspyButton:SetDisabled(true);
+					agentEntry.CounterspyButton:LocalizeAndSetToolTip("TXT_KEY_EO_COUNTERSPY_TRAVELING_TOOLTIP", v.Rank, v.Name, city:GetName());
+				elseif (v.NumTurnsMovementBlocked > 0) then
+					agentEntry.CounterspyButton:SetDisabled(true);
+					agentEntry.CounterspyButton:LocalizeAndSetToolTip("TXT_KEY_EO_COUNTERSPY_CANNOT_CHANGE_FOCUS_TT", v.Rank, v.Name, v.NumTurnsMovementBlocked);
+				else
+					agentEntry.CounterspyButton:LocalizeAndSetToolTip("TXT_KEY_EO_COUNTERSPY_TOOLTIP", v.Rank, v.Name, GameDefines["ESPIONAGE_COUNTERSPY_CHANGE_FOCUS_COOLDOWN"]);
+					agentEntry.CounterspyButton:SetDisabled(false);
+					agentEntry.CounterspyButton:RegisterCallback(Mouse.eLClick, OnChangeCounterspyFocusClicked);
 				end
-				g_DenyAction = nil;
-
-				if (city ~= nil) then
-					local iCityAlly = Players[city:GetOwner()]:GetAlly();
-					Controls.ConfirmText:LocalizeAndSetText("TXT_KEY_EO_STAGE_COUP_QUESTION", v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationAdjectiveKey(), Players[Game.GetActivePlayer()]:GetCoupChanceOfSuccess(city, true), city:GetNameKey(), Players[iCityAlly]:GetCivilizationDescriptionKey(), city:GetNameKey(), v.Rank, v.Name, city:GetNameKey());
-					Controls.ConfirmContent:CalculateSize();
-					local width, height = Controls.ConfirmContent:GetSizeVal();
-					Controls.ConfirmFrame:SetSizeVal(width + 60, height + 120);
-					Controls.ChooseConfirm:SetHide(false);
-					Controls.YesString:LocalizeAndSetText("TXT_KEY_YES_BUTTON");
-					Controls.NoString:LocalizeAndSetText("TXT_KEY_NO_BUTTON");
-				end
-			end;
-
-			if (city and Players[city:GetOwner()]:IsMinorCiv()) then
-				local bCoupDisabled = not pActivePlayer:CanSpyStageCoup(v.AgentID) or v.State == "TXT_KEY_SPY_STATE_DEAD";
-				agentEntry.StageCoupButton:SetDisabled(bCoupDisabled);
-				agentEntry.StageCoupButton:RegisterCallback(Mouse.eLClick, OnCoupClicked);
-				local iCityAlly = Players[city:GetOwner()]:GetAlly();
--- CP
-				local iCooldown = Players[city:GetOwner()]:GetCoupCooldown();
---END
-				if (v.State == "TXT_KEY_SPY_STATE_DEAD") then
-					agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", v.Rank, v.Name);
-				elseif (bCoupDisabled) then
-					if (not pActivePlayer:HasSpyEstablishedSurveillance(v.AgentID)) then
-						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_WAIT_TT", v.Rank, v.Name, city:GetNameKey());
-					elseif (iCityAlly == -1) then
-						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_NO_ALLY_TT", v.Rank, v.Name, city:GetNameKey(), city:GetNameKey());
--- CBP
-					elseif(iCooldown > 0) then
-						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT", v.Rank, v.Name, city:GetNameKey(), iCooldown);
-
-					elseif(Players[city:GetOwner()]:GetPermanentAlly() ~= -1 and Players[city:GetOwner()]:GetPermanentAlly() ~= Game.GetActivePlayer()) then
-						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_PERMA_TT", v.Rank, v.Name, city:GetNameKey());
--- END
+			elseif (city and not Players[city:GetOwner()]:IsMinorCiv()) then
+				if (pActivePlayer:IsSpyDiplomat(v.AgentID)) then
+					agentEntry.DiplomatButton:SetHide(false);
+					if(v.State == "TXT_KEY_SPY_STATE_TRAVELLING") then
+						agentEntry.DiplomatButton:SetDisabled(true);
+						agentEntry.DiplomatButton:LocalizeAndSetToolTip("TXT_KEY_EO_DIPLOMAT_TRAVELING_TOOLTIP", v.Rank, v.Name, city:GetName());
 					else
-						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_YOU_ALLY_TT", v.Rank, v.Name, city:GetNameKey());
+						agentEntry.DiplomatButton:LocalizeAndSetToolTip("TXT_KEY_EO_DIPLOMAT_TOOLTIP", v.Rank, v.Name);
+						agentEntry.DiplomatButton:SetDisabled(true);
+						--agentEntry.DiplomatButton:SetDisabled(false);
+						--agentEntry.DiplomatButton:RegisterCallback(Mouse.eLClick, OnChangeCounterspyFocusClicked);
 					end
 				else
-					agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_ENABLED_TT", v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationAdjectiveKey(), Players[Game.GetActivePlayer()]:GetCoupChanceOfSuccess(city, true), v.Rank, v.Name, city:GetNameKey(), Players[iCityAlly]:GetCivilizationShortDescriptionKey(), v.Rank, v.Name, city:GetNameKey());
-				end
-
-				agentEntry.ViewCityButton:SetHide(true);
-				agentEntry.StageCoupButton:SetHide(false);
-			else
-				local bIsDiplomat = pActivePlayer:IsSpyDiplomat(v.AgentID);
-				local bIsSchmoozing = pActivePlayer:IsSpySchmoozing(v.AgentID);
-				local bViewDisabled = not pActivePlayer:HasSpyEstablishedSurveillance(v.AgentID) or v.State == "TXT_KEY_SPY_STATE_DEAD"
-				agentEntry.ViewCityButton:SetDisabled(bViewDisabled and not bIsSchmoozing);
-				agentEntry.ViewCityButton:RegisterCallback(Mouse.eLClick, OnViewCityClicked);
-				if (v.State == "TXT_KEY_SPY_STATE_DEAD") then
-					agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", v.Rank, v.Name);
-				elseif (city) then
-					if (bIsDiplomat and not bIsSchmoozing) then
-						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_DIPLOMAT_WAIT_TT", city:GetNameKey());
-					elseif (city:GetOwner() == Game.GetActivePlayer()) then
-						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_YOUR_CITY_TT", city:GetNameKey());
-					elseif (bViewDisabled and not bIsSchmoozing) then
-						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_WAIT_TT", city:GetNameKey());
-					elseif (bIsSchmoozing) then
-						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_ENABLED_DIPOLOMAT_TT", city:GetNameKey());
+					agentEntry.SpyMissionButton:SetHide(false);
+					if(v.State == "TXT_KEY_SPY_STATE_TRAVELLING") then
+						agentEntry.SpyMissionButton:SetDisabled(true);
+						agentEntry.SpyMissionButton:LocalizeAndSetToolTip("TXT_KEY_EO_MISSIONS_TRAVELING_TOOLTIP", v.Rank, v.Name, city:GetName());
 					else
-						agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_ENABLED_TT", city:GetNameKey());
+						agentEntry.SpyMissionButton:LocalizeAndSetToolTip("TXT_KEY_EO_MISSIONS_TOOLTIP", v.Rank, v.Name, city:GetName());
+						agentEntry.SpyMissionButton:SetDisabled(false);
+						agentEntry.SpyMissionButton:RegisterCallback(Mouse.eLClick, OnSpyMissionSelectionClicked);
 					end
-				else
-					agentEntry.ViewCityButton:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_NO_CITY_TT");
 				end
-
-				agentEntry.ViewCityButton:SetHide(false);
-				agentEntry.StageCoupButton:SetHide(true);
 			end
 
 			agentEntry.AgentActivitiesStack:CalculateSize();
@@ -923,18 +892,15 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 		entry.PotentialMeterFront:SetHide(true);
 
 		local width, height = entry.PotentialMeterBack:GetSizeVal();
+		
+		local iPercentReduction = math.floor(cityInfo.Potential * GameDefines["ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT"] / 100);
+		strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", cityInfo.Name, cityInfo.Potential, iPercentReduction, pActivePlayer:GetCitySecurityTooltip(pCity));
 
-		local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
+		local potentialMeter = entry.PotentialMeterFront;
+		potentialMeter:SetHide(false);
 
-		if(cityInfo.BasePotential > 0) then
-			strPotentialToolTip = pActivePlayer:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
-
-			local potentialMeter = entry.PotentialMeterFront;
-			potentialMeter:SetHide(false);
-
-			local pct = cityInfo.BasePotential/cityInfo.LargestBasePotential;
-			potentialMeter:SetPercents(pct,pct);
-		end
+		local pct = cityInfo.Potential/GameDefines["ESPIONAGE_MAX_NUM_SECURITY_POINTS"];
+		potentialMeter:SetPercents(pct,pct);
 
 		entry.PotentialMeterBack:SetToolTipString(strPotentialToolTip);
 		entry.PotentialMeterFront:SetToolTipString(strPotentialToolTip);
@@ -947,7 +913,6 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 		entry.CityPopulation:SetAlpha(1.0);
 		entry.CityPopulation:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_POPULATION_TT", cityInfo.Name, cityInfo.Population);
 
-		entry.ViewCityIcon:SetHide(true);
 		if(agent ~= nil) then
 			local textColor = textColors[agent.State];
 			entry.CivilizationName:SetColor(textColor, 0);
@@ -955,10 +920,6 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 			entry.CityPopulation:SetColor(textColor, 0);
 			entry.SpyInCityIcon:LocalizeAndSetToolTip("TXT_KEY_SPY_OCCUPYING_CITY", agent.Name);
 			entry.SpyInCityIcon:SetHide(false);
--- CBP EDIT
-			entry.CapitalCityIcon:SetHide(true);
-			entry.CapitalCityIcon:SetToolTipString(nil);
--- END
 		else
 			entry.SpyInCityIcon:SetToolTipString(nil);
 			entry.SpyInCityIcon:SetHide(true);
@@ -1106,35 +1067,34 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 							entry.SphereOfInfluenceIcon:SetText("");
 							entry.SphereOfInfluenceIcon:LocalizeAndSetToolTip(nil);
 							entry.SphereOfInfluenceIcon:SetHide(true);
-						end
-						--END
-						local iCityAlly = Players[pCity:GetOwner()]:GetAlly();
-						if(iCityAlly ~= -1) then
-							entry.AllyName:SetHide(false);
-							entry.AllyIcon:SetHide(false);
-							entry.AllyIconBG:SetHide(false);
-							entry.AllyIconShadow:SetHide(false);
-							entry.AllyIconHighlight:SetHide(false);
-							--ENGINSEER AND AXATIN EDIT
-							if iCityAlly ~= Game.GetActivePlayer() then
-								local bHasMet = Teams[Game.GetActiveTeam()]:IsHasMet(Players[iCityAlly]:GetTeam());
-								if (bHasMet == true) then
-									strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_TT", Players[iCityAlly]:GetCivilizationShortDescription(), pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
-									CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+							local iCityAlly = Players[pCity:GetOwner()]:GetAlly();
+							if(iCityAlly ~= -1) then
+								entry.AllyName:SetHide(false);
+								entry.AllyIcon:SetHide(false);
+								entry.AllyIconBG:SetHide(false);
+								entry.AllyIconShadow:SetHide(false);
+								entry.AllyIconHighlight:SetHide(false);
+								--ENGINSEER AND AXATIN EDIT
+								if iCityAlly ~= Game.GetActivePlayer() then
+									local bHasMet = Teams[Game.GetActiveTeam()]:IsHasMet(Players[iCityAlly]:GetTeam());
+									if (bHasMet == true) then
+										strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_TT", Players[iCityAlly]:GetCivilizationShortDescription(), pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
+										CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+									else
+										strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_UNKNOWN_TT", pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
+										CivIconHookup(-1, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+									end
 								else
-									strAllyToolTip = Locale.Lookup("TXT_KEY_CITY_STATE_ALLY_UNKNOWN_TT", pPlayer:GetMinorCivFriendshipWithMajor(iCityAlly) - pPlayer:GetMinorCivFriendshipWithMajor(Game.GetActivePlayer()) + 1);
-									CivIconHookup(-1, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+									strAllyToolTip = Locale.Lookup("TXT_KEY_ALLY_CBP_SPY", Players[iCityAlly]:GetCivilizationDescriptionKey());
+									CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
 								end
-							else
-								strAllyToolTip = Locale.Lookup("TXT_KEY_ALLY_CBP_SPY", Players[iCityAlly]:GetCivilizationDescriptionKey());
-								CivIconHookup(iCityAlly, 32, entry.AllyIcon, entry.AllyIconBG, entry.AllyIconShadow, false, true, entry.AllyIconHighlight);
+								--END
+								entry.AllyName:SetToolTipString(strAllyToolTip);
+								entry.AllyIconHighlight:SetToolTipString(strAllyToolTip);
+								entry.AllyIconShadow:SetToolTipString(strAllyToolTip);
+								entry.AllyIconBG:SetToolTipString(strAllyToolTip);
+								entry.AllyIcon:SetToolTipString(strAllyToolTip);
 							end
-							--END
-							entry.AllyName:SetToolTipString(strAllyToolTip);
-							entry.AllyIconHighlight:SetToolTipString(strAllyToolTip);
-							entry.AllyIconShadow:SetToolTipString(strAllyToolTip);
-							entry.AllyIconBG:SetToolTipString(strAllyToolTip);
-							entry.AllyIcon:SetToolTipString(strAllyToolTip);
 						end
 					end
 				end
@@ -1169,10 +1129,10 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			end
 		else
 			--local width, height = entry.PotentialMeterBack:GetSizeVal();
-			if(cityInfo.BasePotential > 0) then
+			if(cityInfo.Potential >= 0) then
 				entry.PotentialMeterBack:SetHide(false);
 				local potentialMeter;
-				if (agent ~= nil and cityInfo.Potential > 0) then
+				if (agent ~= nil) then
 					potentialMeter = entry.PotentialMeterFront;
 				else
 					potentialMeter = entry.PotentialMeterGhost;
@@ -1180,7 +1140,7 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 
 				potentialMeter:SetHide(false);
 
-				local pct = cityInfo.BasePotential/cityInfo.LargestBasePotential;
+				local pct = cityInfo.Potential/GameDefines["ESPIONAGE_MAX_NUM_SECURITY_POINTS"];
 				potentialMeter:SetPercents(pct,pct);
 			else
 				entry.UnknownProgress:SetHide(false);
@@ -1217,22 +1177,6 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			local strCityStateTT = Locale.Lookup("TXT_KEY_EO_CITY_STATE_POTENTIAL_TT");
 			strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
 			strCityStateTT = strCityStateTT .. Locale.Lookup("TXT_KEY_EO_CITY_STATE_ELECTION", Game.GetTurnsBetweenMinorCivElections(), Game.GetTurnsUntilMinorCivElection());
-			--CBP
-			if(cityInfo ~= nil) then
-				local pPlayerCS = Players[cityInfo.PlayerID];
-				if (pPlayerCS ~= -1 and pPlayerCS:IsMinorCiv()) then
-					local iCooldown = pPlayerCS:GetCoupCooldown();
-					if(iCooldown > 0) then
-						strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
-						strCityStateTT = strCityStateTT .. Locale.Lookup("TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT_EXTRA", iCooldown);
-						entry.RigElectionEnabled:SetHide(true);
-						entry.RigElectionDisabled:SetHide(true);
-						entry.RigElectionCooldown:SetHide(false);
-						entry.RigElectionCooldown:SetToolTipString(strCityStateTT);
-					end
-				end
-			end
-			--END
 			entry.RigElectionDisabled:SetToolTipString(strCityStateTT);
 			entry.RigElectionEnabled:SetToolTipString(strCityStateTT);
 			if (getProtectingPlayers(cityInfo.PlayerID) ~= "") then
@@ -1240,17 +1184,11 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 				entry.PledgeToProtect:SetToolTipString(Locale.Lookup("TXT_KEY_POP_CSTATE_PROTECTED_BY_TT") .. "[NEWLINE][NEWLINE]" .. Locale.Lookup("TXT_KEY_POP_CSTATE_PROTECTED_BY") .. " " .. getProtectingPlayers(cityInfo.PlayerID));
 			end
 		else
-			local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
-			if(cityInfo.BasePotential > 0) then
-				local pPlayer = Players[cityInfo.PlayerID];
-				local pCity = pPlayer:GetCityByID(cityInfo.CityID);
-				strPotentialToolTip = Players[Game.GetActivePlayer()]:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
-				entry.PotentialMeterBack:SetToolTipString(strPotentialToolTip);
-				entry.PotentialMeterGhost:SetToolTipString(strPotentialToolTip);
-				entry.PotentialMeterFront:SetToolTipString(strPotentialToolTip);
-			else
-				entry.UnknownProgress:SetToolTipString(strPotentialToolTip);
-			end
+			local iPercentReduction = math.floor(cityInfo.Potential * GameDefines["ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT"] / 100);
+			strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_CITY_POTENTIAL_TT",cityInfo.Name, cityInfo.Potential, iPercentReduction);
+			entry.PotentialMeterBack:SetToolTipString(strPotentialToolTip);
+			entry.PotentialMeterGhost:SetToolTipString(strPotentialToolTip);
+			entry.PotentialMeterFront:SetToolTipString(strPotentialToolTip);
 		end
 
 		entry.CivIcon:SetToolTipString(strCityCivToolTip);
@@ -1262,8 +1200,6 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 
 		if(agent ~= nil) then
 			local textColor = textColors[agent.State];
-			print(textColor);
-			print(agent.State);
 			entry.CivilizationName:SetColor(textColor, 0);
 			entry.CityName:SetColor(textColor, 0);
 			entry.CityPopulation:SetColor(textColor, 0);
@@ -1274,92 +1210,9 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			if (agent.IsDiplomat) then
 				entry.DiplomatInCityIcon:LocalizeAndSetToolTip("TXT_KEY_SPY_OCCUPYING_CITY", agent.Name);
 				entry.DiplomatInCityIcon:SetHide(false);
--- CBP EDIT
-				entry.CapitalCityIcon:SetHide(true);
-				entry.CapitalCityIcon:SetToolTipString(nil);
-				entry.AllyIcon:SetHide(true);
-				entry.AllyIconBG:SetHide(true);
-				entry.AllyIconShadow:SetHide(true);
-				entry.AllyIconHighlight:SetHide(true);
-				entry.AllyName:SetHide(true);
-				--ENGINSEER EDIT
-				entry.SphereOfInfluenceIcon:SetHide(true);
-				entry.SphereOfInfluenceMiniIcon:SetHide(true);
-				--END
-
--- END
 			else
 				entry.SpyInCityIcon:LocalizeAndSetToolTip("TXT_KEY_SPY_OCCUPYING_CITY", agent.Name);
 				entry.SpyInCityIcon:SetHide(false);
--- CBP EDIT
-				entry.CapitalCityIcon:SetHide(true);
-				entry.CapitalCityIcon:SetToolTipString(nil);
-				entry.AllyIcon:SetHide(true);
-				entry.AllyIconBG:SetHide(true);
-				entry.AllyIconShadow:SetHide(true);
-				entry.AllyIconHighlight:SetHide(true);
-				entry.AllyName:SetHide(true);
-				--ENGINSEER EDIT
-				entry.SphereOfInfluenceIcon:SetHide(true);
-				if (Players[cityInfo.PlayerID]:IsMinorCiv()) then
-						if (Players[cityInfo.PlayerID]:GetPermanentAlly() > -1) then
-							entry.SphereOfInfluenceMiniIcon:SetHide(false);
-							entry.SphereOfInfluenceMiniIcon:SetText("[ICON_PUPPET]")
-							entry.SphereOfInfluenceMiniIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT", Players[Players[cityInfo.PlayerID]:GetPermanentAlly()]:GetCivilizationShortDescriptionKey());
-						elseif (Players[cityInfo.PlayerID]:IsNoAlly()) then
-							entry.SphereOfInfluenceMiniIcon:SetHide(false);
-							entry.SphereOfInfluenceMiniIcon:SetText("[ICON_FLOWER]")
-							entry.SphereOfInfluenceMiniIcon:LocalizeAndSetToolTip("TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA");
-						else
-							entry.SphereOfInfluenceMiniIcon:SetText("")
-							entry.SphereOfInfluenceMiniIcon:LocalizeAndSetToolTip(nil);
-							entry.SphereOfInfluenceMiniIcon:SetHide(true);
-						end
-				end
-				--END
--- END
-			end
-
-			if (cityInfo.PlayerID == Game.GetActivePlayer()) then
-				entry.DisabledViewCityIcon:SetHide(false);
-				entry.ViewCityIcon:SetHide(true);
-				entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_YOUR_CITY_TT", cityInfo.Name);
-			elseif (agent.EstablishedSurveillance) then
-				entry.DisabledViewCityIcon:SetHide(true);
-				entry.ViewCityIcon:SetHide(false);
-				entry.ViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_ENABLED_TT", cityInfo.Name);
-
-				local plot = Map.GetPlot(cityInfo.CityX, cityInfo.CityY);
-				local city = plot:GetPlotCity();
-
-				-- Initialize 'View City' button.
-				-- CITY SCREEN CLOSED - Don't look, Marc
-				local CityScreenClosed = function()
-					UIManager:DequeuePopup(Controls.EmptyPopup);
-					--print("This CityScreenClosed was called!");
-					Events.SerialEventExitCityScreen.Remove(CityScreenClosed);
-					UI.SetCityScreenViewingMode(false);
-				end
-
-				local OnViewCityClicked = function()
-
-					if (city ~= nil) then
-						--print("Attempting to show city screen");
-						-- Queue up an empty popup at a higher priority so that it prevents other cities from appearing while we're looking at this one!
-						UIManager:QueuePopup(Controls.EmptyPopup, PopupPriority.GenericPopup+1);
-						Events.SerialEventExitCityScreen.Add(CityScreenClosed);
-						UI.SetCityScreenViewingMode(true);
-						UI.DoSelectCityAtPlot( city:Plot() );
-					else
-						print("city == null");
-					end
-				end
-
-				entry.ViewCityIcon:RegisterCallback(Mouse.eLClick, OnViewCityClicked);
-			else
-				entry.DisabledViewCityIcon:SetHide(false);
-				entry.ViewCityIcon:SetHide(true);
-				entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_WAIT_TT", cityInfo.Name);
 			end
 
 		else
@@ -1372,16 +1225,8 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			entry.CivilizationName:SetColorByName(colorSet);
 			entry.CityName:SetColorByName(colorSet);
 			entry.CityPopulation:SetColorByName(colorSet);
-
-			entry.DisabledViewCityIcon:LocalizeAndSetToolTip("TXT_KEY_EO_CITY_VIEW_DISABLED_TT", cityInfo.Name);
-			entry.DisabledViewCityIcon:SetHide(false);
-			entry.ViewCityIcon:SetHide(true);
 		end
 
-		if(bIsCityState == true) then
-			entry.DisabledViewCityIcon:SetHide(true);
-			entry.ViewCityIcon:SetHide(true);
-		end
 	end
 
 	local cityStatus = pActivePlayer:GetEspionageCityStatus();
@@ -1512,7 +1357,6 @@ function Refresh()
 		RefreshMyCities();
 		RefreshTheirCities();
 		RefreshIntrigue();
-		RefreshActiveMissions();
 	end
 end
 Events.SerialEventEspionageScreenDirty.Add(Refresh);
@@ -1534,7 +1378,284 @@ function OnNo( )
 end
 Controls.No:RegisterCallback( Mouse.eLClick, OnNo );
 
+PopulateSelectionList = function(stackControl, playerID, city, spy)
+	-- used for choosing a spy mission or a counterspy focus
+	
+	local count = 0;
+	local player = Players[playerID];
 
+	SelectedItems = {};
+	stackControl:DestroyAllChildren();
+	
+	local cityName = city:GetNameKey();
+	local localizedCityName = Locale.ConvertTextKey(cityName);
+
+	local iEventType;
+	local iEventID;
+	local instance;
+	if (playerID == city:GetOwner()) then
+		-- counterspy
+		Controls.CounterspyFocusDescription:LocalizeAndSetText("TXT_KEY_EO_COUNTERSPY_TOOLTIP", spy.Rank, spy.Name, GameDefines["ESPIONAGE_COUNTERSPY_CHANGE_FOCUS_COOLDOWN"]);
+		for row in GameInfo.CityEvents("IsCounterSpy") do
+			iEventType = row.Type;
+			iEventID = row.ID;
+		end
+	else
+		-- spy in enemy city
+		Controls.MissionSelectionDescription:LocalizeAndSetText("TXT_KEY_EO_MISSIONS_HELP");
+		for row in GameInfo.CityEvents("EspionageSetup") do
+			iEventType = row.Type;
+			iEventID = row.ID;
+		end
+	end
+	
+	----------------------------------------------------------------        
+	-- build the buttons
+	----------------------------------------------------------------
+	
+	if(iEventType ~= nil) then
+		local buttonSizeY = 53
+		for row in GameInfo.CityEvent_ParentEvents("CityEventType = '" .. iEventType .. "'") do
+			local info = GameInfo.CityEventChoices[row.CityEventChoiceType]
+
+			local eventChoiceType = info.Type;
+			local instance;
+			if (playerID == city:GetOwner()) then
+				instance = g_CounterspyFocusManager:GetInstance();
+			else
+				instance = g_MissionSelectionManager:GetInstance();
+			end
+
+			local szDescString;
+			local szHelpString;
+			szDescString = Locale.Lookup(info.Description);
+			szHelpString = Locale.ConvertTextKey(city:GetScaledEventChoiceValue(info.ID, false, spyID, playerID), localizedCityName);
+			
+			if (playerID ~= city:GetOwner()) then
+				szHelpString = szHelpString .. "[NEWLINE][NEWLINE]";
+				szHelpString = szHelpString .. Locale.Lookup("TXT_KEY_EO_ID_CAPTURE_CHANCE", info.SpyIDChance, info.SpyCaptureChance);
+			end
+	
+			if(info.NetworkPointsNeeded > 0) then
+				local iNPScaled = math.floor(info.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+				instance.Name:LocalizeAndSetText("TXT_KEY_EO_MISSION_COST", iNPScaled, szDescString);
+			else
+				instance.Name:SetText(szDescString);
+			end
+			instance.Button:SetToolTipString(szHelpString);
+			
+			-- Readjust the offset
+			local sizeYDiff = math.max((instance.Name:GetSizeY()-buttonSizeY),1)
+			if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
+			instance.Base:SetSizeY(buttonSizeY + sizeYDiff)
+			instance.Button:SetSizeY(buttonSizeY + sizeYDiff)
+			instance.MOSelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+			instance.MOSelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+			instance.SelectionAnim:SetSizeY(buttonSizeY + sizeYDiff)
+			instance.SelectionAnimHL:SetSizeY(buttonSizeY + sizeYDiff)
+			
+			-- Disable invalid choices
+			if(not city:IsCityEventChoiceValidEspionage(info.ID, iEventID, spy.AgentID, playerID)) then
+				local szDisabledString = "";
+				if (playerID == city:GetOwner()) then
+					szDisabledString = Locale.Lookup("TXT_KEY_EO_COUNTERSPY_CANNOT_CHANGE_ACTIVE_FOCUS_TT");
+				else
+					szDisabledString = city:GetDisabledTooltip(info.ID, spy.AgentID, playerID );
+				end
+				if(szDisabledString == "") then
+					szDisabledString = "TXT_KEY_CANNOT_TAKE_TT";
+				end
+				szHelpString = szHelpString .. "[NEWLINE][NEWLINE]" .. szDisabledString;
+				instance.Button:SetDisabled(true)
+				instance.Name:SetAlpha(0.2)
+				instance.Button:SetToolTipString(szHelpString);
+			else
+				instance.Name:SetAlpha(1)
+				instance.Button:SetDisabled(false)
+			end
+			
+			local selectionAnim = instance.SelectionAnim;
+
+			instance.Button:RegisterCallback(Mouse.eLClick, function()  
+				local foundIndex = nil;
+				for i,v in ipairs(SelectedItems) do
+					if(v[1] == eventChoiceType) then
+						foundIndex = i;
+						break;
+					end
+				end
+			
+				if(foundIndex == nil) then
+					if(#SelectedItems > 0) then
+						for i,v in ipairs(SelectedItems) do
+							v[2].SelectionAnim:SetHide(true);	
+						end
+						SelectedItems = {};
+					end
+				
+					selectionAnim:SetHide(false);
+					table.insert(SelectedItems, {eventChoiceType, instance});
+				end
+			
+				if (playerID == city:GetOwner()) then
+					Controls.ConfirmCounterspyFocusButton:SetDisabled(#SelectedItems ~= 1);
+				else
+					Controls.ConfirmMissionSelectionButton:SetDisabled(#SelectedItems ~= 1);
+				end
+			
+			end);
+		
+			count = count + 1;
+		end
+	end
+	return count;
+end
+
+
+PopulatePassiveBonusList = function(stackControl, playerID, city, spy)
+	-- passive bonuses for offensive spies
+	
+	local count = 0;
+	local player = Players[playerID];
+
+	SelectedItems = {};
+	stackControl:DestroyAllChildren();
+	
+	local cityName = city:GetNameKey();
+	local localizedCityName = Locale.ConvertTextKey(cityName);
+
+	local instance;
+	
+	local strUnlockedPassiveBonusText = "";
+	local iNetworkPointsOfBestUnlockedBonus = 0;
+	for row in GameInfo.SpyPassiveBonuses() do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		if (iNPScaled <= spy.MaxNetworkPointsStored and iNPScaled > iNetworkPointsOfBestUnlockedBonus) then
+			iNetworkPointsOfBestUnlockedBonus = iNPScaled;
+			strUnlockedPassiveBonusText = Locale.Lookup(row.Help);
+		end
+	end
+	
+		
+	if (strUnlockedPassiveBonusText ~= "") then
+		if(spy.MaxNetworkPointsStored == spy.NetworkPointsStored) then
+			Controls.PassiveBonusesDescription:LocalizeAndSetText("TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED", spy.MaxNetworkPointsStored, strUnlockedPassiveBonusText);
+		else
+			Controls.PassiveBonusesDescription:LocalizeAndSetText("TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_FROM_EARLIER", spy.MaxNetworkPointsStored, strUnlockedPassiveBonusText);
+		end
+	else
+		Controls.PassiveBonusesDescription:LocalizeAndSetText("TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_NOTHING_YET", spy.NetworkPointsStored);
+	end
+	
+	-- check if we can view the city screen
+	local iNetworkPointsNeededToViewCityScreen = 999999;
+	for row in GameInfo.SpyPassiveBonuses("RevealCityScreen") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewCityScreen = math.min(iNetworkPointsNeededToViewCityScreen, iNPScaled);
+	end;
+	
+	
+	-- City Screen Closed
+	local CityScreenClosed = function()
+		UIManager:DequeuePopup(Controls.EmptyPopup);
+		--print("This CityScreenClosed was called!");
+		Events.SerialEventExitCityScreen.Remove(CityScreenClosed);
+		UI.SetCityScreenViewingMode(false);
+	end
+			
+	-- Initialize 'View City' button.
+	local OnViewCityClicked = function()
+
+		if (city ~= nil) then
+			print("Attempting to show city screen");
+			-- Queue up an empty popup at a higher priority so that it prevents other cities from appearing while we're looking at this one!
+			UIManager:QueuePopup(Controls.EmptyPopup, PopupPriority.GenericPopup+1);
+			Events.SerialEventExitCityScreen.Add(CityScreenClosed);
+			UI.SetCityScreenViewingMode(true);
+			UI.DoSelectCityAtPlot( city:Plot() );
+		else
+			print("city == null");
+		end
+	end
+	
+	if(iNetworkPointsNeededToViewCityScreen == 999999) then
+		-- no passive bonus unlocks the city screen, hide the button
+		Controls.ViewCityButton:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewCityScreen) then
+		Controls.ViewCityButton:SetDisabled(false);
+		Controls.ViewCityButton:SetToolTipString("");
+		Controls.ViewCityButton:RegisterCallback(Mouse.eLClick, OnViewCityClicked);
+	else
+		Controls.ViewCityButton:SetDisabled(true);
+		Controls.ViewCityButton:SetToolTipString(Locale.Lookup("TXT_KEY_EO_CITY_SCREEN_NOT_ENOUGH_NP", iNetworkPointsNeededToViewCityScreen));
+	end
+	
+	----------------------------------------------------------------        
+	-- build the passive bonuses list
+	----------------------------------------------------------------
+	
+	local buttonSizeY = 53
+	for row in GameInfo.SpyPassiveBonuses() do
+
+		local instance = g_PassiveBonusesManager:GetInstance();
+
+		local szDescString;
+		local szHelpString;
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		szDescString = Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_NP_REQUIRED", iNPScaled, Locale.Lookup(row.Description));
+		szHelpString = Locale.Lookup(row.Help);
+
+		instance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_THRESHOLD_TT", szHelpString));
+		
+		-- Readjust the offset
+		local sizeYDiff = math.max((instance.Name:GetSizeY()-buttonSizeY),1)
+		if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
+		instance.Base:SetSizeY(buttonSizeY + sizeYDiff)
+		instance.Button:SetSizeY(buttonSizeY + sizeYDiff)
+		instance.Button:SetDisabled(true);
+		
+		if(iNPScaled > spy.MaxNetworkPointsStored) then
+			instance.Name:SetText(szDescString);
+			instance.Name:SetAlpha(0.2)
+		else
+			instance.Name:SetText("[COLOR_CYAN]" .. szDescString .. "[ENDCOLOR]");
+			instance.Name:SetAlpha(1)
+		end
+	
+		count = count + 1;
+	end
+	return count;
+end
+
+CommitCounterspyFocus = function(selection, playerID, city, spyID)
+	if(city ~= nil) then
+		for i,v in ipairs(selection) do
+			local eventChoiceType = v[1];
+			local eventChoice = GameInfo.CityEventChoices[eventChoiceType];
+			if(eventChoice ~= nil) then
+				local pPlayer = Players[playerID];
+				pPlayer:ChangeCounterspyMission(spyID, eventChoice.ID);
+				break;
+			end
+		end
+	end
+end
+
+CommitMissionSelection = function(selection, playerID, pCity, spyID)
+	if(pCity ~= nil) then
+		for i,v in ipairs(selection) do
+			local eventChoiceType = v[1];
+			local eventChoice = GameInfo.CityEventChoices[eventChoiceType];
+			if(eventChoice ~= nil) then
+				local pPlayer = Players[playerID];
+				pCity:DoCityEventChoice(eventChoice.ID, spyID, playerID);
+				Controls.MissionSelectionPopup:SetHide(true);
+				RefreshAgents();
+				break;
+			end
+		end
+	end
+end
 ----------------------------------------------------------------
 function RefreshIntrigue()
 	local pActivePlayer = Players[Game.GetActivePlayer()];
@@ -1615,108 +1736,6 @@ function RefreshIntrigue()
 	Controls.IntrigueMessageStack:ReprocessAnchoring();
 	Controls.IntrigueMessageScrollPanel:CalculateInternalSize();
 end
-
-function RefreshActiveMissions()
-	local iActivePlayer = Game.GetActivePlayer()
-	local pActivePlayer = Players[iActivePlayer];
-	local activeMissionsMessages = pActivePlayer:GetActiveEspionageEvents();
-
-	g_ActiveMissionsManager:ResetInstances();
-
-	if(#activeMissionsMessages == 0) then
-		Controls.ActiveMissionsMessageHeaders:SetHide(true);
-		Controls.ActiveMissionsMessageScrollPanel:SetHide(true);
-		Controls.NoActiveMissionsAvailable:SetHide(false);
-	else
-
-		local sortedMessages = {};
-
-		for i,v in ipairs(activeMissionsMessages) do
-			
-			local iSpyOwner = iActivePlayer;
-			local iTargetedPlayer = iActivePlayer;
-			if (v.bIncoming == true) then
-				iTargetedPlayer = v.OtherPlayer;
-			else
-				iSpyOwner = v.OtherPlayer;
-			end
-
-			local pSpyOwner = Players[iSpyOwner];
-			local pTargetedPlayer = Players[iTargetedPlayer];
-			
-			local strLeaderNameSpyOwner = "";
-			if(v.bIncoming == false and v.bIdentified == false) then -- we do not know which player stole from use
-				strLeaderNameSpyOwner = Locale.Lookup("TXT_KEY_RO_WR_UNKNOWN_CIV");
-				iSpyOwner = -1;
-			else
-				if(pSpyOwner:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
-					strLeaderNameSpyOwner = pSpyOwner:GetNickName();
-				else
-					strLeaderNameSpyOwner = pSpyOwner:GetName();
-				end
-			end
-			
-			local strLeaderNameTarget = "";
-			if(pTargetedPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
-				strLeaderNameTarget = pTargetedPlayer:GetNickName();
-			else
-				strLeaderNameTarget = pTargetedPlayer:GetName();
-			end
-
-			local pYield = GameInfo.Yields[v.Yield];
-			local tempstr = Locale.Lookup("TXT_KEY_EVENT_YIELD_SCALED",pYield.Description,pYield.IconString,v.Amount);
-			local strEffect = "";
-			if(v.bIncoming == true) then
-				strEffect = Locale.Lookup("TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE",tempstr);
-			else
-				strEffect = Locale.Lookup("TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE_ENEMY",tempstr);
-			end	
-			
-			sortedMessages[i] = {
-				StartTurn = v.StartTurn,
-				EndTurn = v.EndTurn,
-				strSpyOwner = strLeaderNameSpyOwner,
-				iSpyOwner = iSpyOwner,
-				strTarget = strLeaderNameTarget,
-				iTarget = iTargetedPlayer,
-				Effect = strEffect
-			}
-		end
-
-		table.sort(sortedMessages, g_ActiveMissionsSortFunction);
-
-		Controls.ActiveMissionsMessageHeaders:SetHide(false);
-		Controls.ActiveMissionsMessageScrollPanel:SetHide(false);
-		Controls.NoActiveMissionsAvailable:SetHide(true);
-
-		local bTickTock = true;
-		for i,v in ipairs(sortedMessages) do
-
-			local instance = g_ActiveMissionsManager:GetInstance();
-			instance.Base:SetColorVal(unpack(bTickTock and g_PianoKeys[0] or g_PianoKeys[1]));
-			instance.StartTurnNum:SetText(v.StartTurn);
-			instance.EndTurnNum:SetText(v.EndTurn);
-			instance.Effect:SetString(v.Effect);
-
-			local width, height = instance.Effect:GetSizeVal();
-			local baseWidth, baseHeight = instance.Base:GetSizeVal();
-			instance.Base:SetSizeVal(baseWidth, height + 22);
-			CivIconHookup(v.iSpyOwner, 32, instance.CivIconSpyOwner, instance.CivIconSpyOwnerBG, instance.CivIconSpyOwnerShadow, false, true);
-			instance.CivilizationNameSpyOwner:SetText(v.strSpyOwner);
-			
-			CivIconHookup(v.iTarget, 32, instance.CivIconTarget, instance.CivIconTargetBG, instance.CivIconTargetShadow, false, true);
-			instance.CivilizationNameTarget:SetText(v.strTarget);
-
-			bTickTock = not bTickTock;
-		end
-	end
-
-	Controls.ActiveMissionsMessageStack:CalculateSize();
-	Controls.ActiveMissionsMessageStack:ReprocessAnchoring();
-	Controls.ActiveMissionsMessageScrollPanel:CalculateInternalSize();
-end
-
-
 -------------------------------------------------------------------------------
 -- Sorting Support
 -------------------------------------------------------------------------------
@@ -1777,23 +1796,15 @@ function RegisterSortOptions()
 		end
 	end
 	
-	for i,v in ipairs(g_ActiveMissionsSortOptions) do
-		if(v.Button ~= nil) then
-			v.Button:RegisterCallback(Mouse.eLClick, function() ActiveMissionsSortOptionSelected(v); end);
-		end
-	end
-
 	UpdateSortOptionsDisplay(g_AgentsSortOptions);
 	UpdateSortOptionsDisplay(g_YourCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_TheirCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_IntrigueSortOptions);
-	UpdateSortOptionsDisplay(g_ActiveMissionsSortOptions);
 
 	g_AgentsSortFunction = GetSortFunction(g_AgentsSortOptions);
 	g_YourCitiesSortFunction = GetSortFunction(g_YourCitiesSortOptions);
 	g_TheirCitiesSortFunction = GetSortFunction(g_TheirCitiesSortOptions);
 	g_IntrigueSortFunction = GetSortFunction(g_IntrigueSortOptions);
-	g_ActiveMissionsSortFunction = GetSortFunction(g_ActiveMissionsSortOptions);
 
 end
 
@@ -1895,15 +1906,6 @@ function IntrigueSortOptionSelected(option)
 	RefreshIntrigue();
 end
 
-function ActiveMissionsSortOptionSelected(option)
-	local sortOptions = g_ActiveMissionsSortOptions;
-	UpdateSortOptionState(sortOptions, option);
-	UpdateSortOptionsDisplay(sortOptions);
-	g_ActiveMissionsSortFunction = GetSortFunction(sortOptions);
-
-	RefreshActiveMissions();
-end
-
 ----------------------------------------------------------------
 -- Copied from CityState LUA
 ----------------------------------------------------------------
@@ -1955,7 +1957,7 @@ end);
 function HandleNotificationAdded(notificationId, notificationType, toolTip, summary, gameValue, extraGameData)
 	--If this UI is displayed and the notification is related to staging a coup, popup the status.
 	if(ContextPtr:IsHidden() == false) then
-		if(notificationType == NotificationTypes.NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE) then
+		if(notificationType == NotificationTypes.NOTIFICATION_SPY_YOU_STAGE_COUP_FAILURE or notificationType == NotificationTypes.NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS) then
 
 			local text = summary .. "[NEWLINE][NEWLINE]" .. toolTip;
 			Controls.NotificationText:SetText(text);
@@ -1963,15 +1965,6 @@ function HandleNotificationAdded(notificationId, notificationType, toolTip, summ
 			local width, height = Controls.NotificationContent:GetSizeVal();
 			Controls.NotificationFrame:SetSizeVal(width + 60, height + 140);
 			Controls.NotificationPopup:SetHide(false);
-
-		elseif(notificationType == NotificationTypes.NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS) then
-			local text = summary .. "[NEWLINE][NEWLINE]" .. toolTip;
-			Controls.NotificationText:SetText(text);
-			Controls.NotificationContent:CalculateSize();
-			local width, height = Controls.NotificationContent:GetSizeVal();
-			Controls.NotificationFrame:SetSizeVal(width + 60, height + 140);
-			Controls.NotificationPopup:SetHide(false);
-
 		end
 	end
 end
@@ -1983,7 +1976,17 @@ function OnOK()
 end
 Controls.OK:RegisterCallback(Mouse.eLClick, OnOK);
 
+function OnCloseCounterspyFocusButton()
+	Controls.CounterspyFocusPopup:SetHide(true);
+	TabSelect(g_CurrentTab);
+end
+Controls.CloseCounterspyFocusButton:RegisterCallback(Mouse.eLClick, OnCloseCounterspyFocusButton);
 
+function OnCloseMissionSelectionButton()
+	Controls.MissionSelectionPopup:SetHide(true);
+	TabSelect(g_CurrentTab);
+end
+Controls.CloseMissionSelectionButton:RegisterCallback(Mouse.eLClick, OnCloseMissionSelectionButton);
 
 
 -- Just in case :)

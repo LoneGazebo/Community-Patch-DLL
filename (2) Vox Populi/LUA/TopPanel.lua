@@ -623,7 +623,7 @@ function ScienceTipHandler( control )
 		end
 		
 		-- Science from Espionage
-		local iScienceFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false);
+		local iScienceFromEspionage = pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - pPlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false) + (pPlayer:GetSciencePerTurnFromPassiveSpyBonusesTimes100() / 100);
 		if (iScienceFromEspionage > 0) then
 		
 			-- Add separator for non-initial entries

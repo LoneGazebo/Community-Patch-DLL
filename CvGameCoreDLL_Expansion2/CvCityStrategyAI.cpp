@@ -3234,7 +3234,7 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_GoodGPCity(CvCity* pCity)
 				int iCount = pCity->GetCityCitizens()->GetSpecialistCount(eSpecialist);
 
 				// GPP from Specialists
-				int iGPPChange = pkSpecialistInfo->getGreatPeopleRateChange() * iCount * 100;
+				int iGPPChange = (pkSpecialistInfo->getGreatPeopleRateChange() + pCity->GetEventGPPFromSpecialists()) * iCount * 100;
 
 				// GPP from Buildings
 				iGPPChange += pCity->GetCityCitizens()->GetBuildingGreatPeopleRateChanges(eSpecialist) * 100;
@@ -4082,7 +4082,19 @@ int CityStrategyAIHelpers::GetBuildingYieldValue(CvCity *pCity, BuildingTypes eB
 	}
 	if (pkBuildingInfo->GetYieldFromSpyDefense(eYield) > 0)
 	{
-		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyDefense(eYield) / 15;
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyDefense(eYield) / 40;
+	}
+	if (pkBuildingInfo->GetYieldFromSpyIdentify(eYield) > 0)
+	{
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyIdentify(eYield) / 20;
+	}
+	if (pkBuildingInfo->GetYieldFromSpyDefenseOrID(eYield) > 0)
+	{
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyDefenseOrID(eYield) / 15;
+	}
+	if (pkBuildingInfo->GetYieldFromSpyRigElection(eYield) > 0)
+	{
+		iInstant += max(1, kPlayer.GetEspionage()->GetNumSpies()) * pkBuildingInfo->GetYieldFromSpyRigElection(eYield) / 15;
 	}
 	if (pkBuildingInfo->GetYieldFromPurchase(eYield) > 0)
 	{
@@ -5130,19 +5142,12 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		iValue += 5 * kPlayer.getNumCities();
 	}
 
-	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetEspionageModifier() < 0 || pkBuildingInfo->GetGlobalEspionageModifier() < 0 || pkBuildingInfo->GetEspionageTurnsModifierFriendly() != 0 || pkBuildingInfo->GetEspionageTurnsModifierEnemyCity() != 0 || pkBuildingInfo->GetEspionageTurnsModifierEnemyGlobal() != 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
+	/* Spy Buildings */
+	if(pkBuildingInfo->GetExtraSpies() > 0 || pkBuildingInfo->GetGlobalEspionageModifier() != 0 || pkBuildingInfo->GetSpyRankChange() > 0 || pkBuildingInfo->GetInstantSpyRankChange() > 0)
 	{
-		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetEspionageModifier() * -5) + (pkBuildingInfo->GetGlobalEspionageModifier() * -20) + (pkBuildingInfo->GetEspionageTurnsModifierFriendly() * -5) + (pkBuildingInfo->GetEspionageTurnsModifierEnemyCity() * 5) + (pkBuildingInfo->GetEspionageTurnsModifierEnemyGlobal() * 20) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
+		iValue += ((kPlayer.GetEspionage()->GetNumSpies() + kPlayer.GetPlayerTraits()->GetExtraSpies() * 10) + (pkBuildingInfo->GetGlobalEspionageModifier() * MOD_BALANCE_VP ? 30 : -20) + (pkBuildingInfo->GetSpyRankChange() + pkBuildingInfo->GetInstantSpyRankChange() * 100));
 
-		iValue += /*1000*/ GD_INT_GET(ESPIONAGE_SPY_RESISTANCE_MAXIMUM) - pCity->GetEspionageRanking();
-		if(kPlayer.GetEspionageModifier() != 0)
-		{
-			iValue += kPlayer.GetEspionageModifier();
-		}
-		if (kPlayer.GetEspionageModifier() == 0)
-		{
-			iValue += 50;
-		}
+		iValue += 1000;
 		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER) != 0)
 		{
 			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
@@ -5150,6 +5155,10 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER) != 0)
 		{
 			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER);
+		}
+		if(kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER) != 0)
+		{
+			iValue += kPlayer.GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
 		}
 		ReligionTypes eReligion = kPlayer.GetReligions()->GetStateReligion();
 		if (eReligion != NO_RELIGION)
@@ -5176,6 +5185,7 @@ int CityStrategyAIHelpers::GetBuildingPolicyValue(CvCity *pCity, BuildingTypes e
 			}
 		}
 	}
+	
 	return iValue * (kPlayer.GetCurrentEra()+1);
 }
 int CityStrategyAIHelpers::GetBuildingBasicValue(CvCity *pCity, BuildingTypes eBuilding)

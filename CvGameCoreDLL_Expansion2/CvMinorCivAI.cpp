@@ -4242,7 +4242,6 @@ void CvMinorCivAI::Reset()
 	m_iCooldownSpawn = 0;
 	m_ePermanentAlly = NO_PLAYER;
 	m_bNoAlly = false;
-	m_iCoup = 0;
 	m_iTakeoverTurn = 0;
 	m_iTurnLiberated = 0;
 
@@ -4269,7 +4268,7 @@ void CvMinorCivAI::Reset()
 		m_aiAssignedPlotAreaID[iI] = -1;
 		m_aiTurnsSincePtPWarning[iI] = -1;
 		m_IncomingUnitGifts[iI].reset();
-		m_aiRiggingCoupChanceIncrease[iI] = 0;
+		m_aiNumConsecutiveSuccessfulRiggings[iI] = 0;
 		m_aiRestingPointChange[iI] = 0;
 	}
 
@@ -4363,7 +4362,7 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_abPermanentWar);
 
 	visitor(minorCivAI.m_abWaryOfTeam);
-	visitor(minorCivAI.m_aiRiggingCoupChanceIncrease);
+	visitor(minorCivAI.m_aiNumConsecutiveSuccessfulRiggings);
 	visitor(minorCivAI.m_aiRestingPointChange);
 
 	visitor(minorCivAI.m_bIsRebellion);
@@ -4376,7 +4375,6 @@ void CvMinorCivAI::Serialize(MinorCivAI& minorCivAI, Visitor& visitor)
 	visitor(minorCivAI.m_abIsMarried);
 	visitor(minorCivAI.m_ePermanentAlly);
 	visitor(minorCivAI.m_bNoAlly);
-	visitor(minorCivAI.m_iCoup);
 	visitor(minorCivAI.m_abSiphoned);
 	visitor(minorCivAI.m_abCoupAttempted);
 	visitor(minorCivAI.m_iTurnLiberated);
@@ -4705,40 +4703,6 @@ void CvMinorCivAI::DoTurn()
 			SetAlly(NO_PLAYER);
 		}
 
-		if(GetCoupCooldown() > 0)
-		{
-			ChangeCoupCooldown(-1);
-			if(GetCoupCooldown() == 0)
-			{
-				if(GetPlayer()->getCapitalCity() != NULL)
-				{
-					PlayerTypes ePlayer;
-					for(int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-					{
-						ePlayer = (PlayerTypes) iPlayerLoop;
-
-						if(GET_PLAYER(ePlayer).isAlive())
-						{
-							if(!IsHasMetPlayer(ePlayer))
-							{
-								continue;
-							}
-							CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-							if(pNotifications)
-							{
-								Localization::String strSummary;
-								Localization::String strNotification;
-								strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE_S");
-								strSummary << GetPlayer()->getCapitalCity()->getNameKey();
-								strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE");
-								strNotification << GetPlayer()->getCapitalCity()->getNameKey();
-								pNotifications->Add(NOTIFICATION_SPY_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), GetPlayer()->getCapitalCity()->getX(), GetPlayer()->getCapitalCity()->getY(), -1);
-							}
-						}
-					}
-				}
-			}
-		}
 		//Let's see if we can make peace
 		DoTestEndSkirmishes(NO_PLAYER);
 
@@ -4781,7 +4745,7 @@ void CvMinorCivAI::DoChangeAliveStatus(bool bAlive)
 
 			// Cancel quests and PtPs
 			DoChangeProtectionFromMajor(e, false);
-			ResetRiggingCoupChanceIncrease(e);
+			ResetNumConsecutiveSuccessfulRiggings(e);
 
 			// Return all incoming unit gifts.
 			returnIncomingUnitGift(e);
@@ -11200,7 +11164,6 @@ CvCity* CvMinorCivAI::GetBestSpyTarget(PlayerTypes ePlayer, bool bMinor)
 			int iValue = pLoopCity->getPopulation();
 			iValue += pLoopCity->getBaseYieldRate(YIELD_GOLD);
 			iValue += pLoopCity->getBaseYieldRate(YIELD_SCIENCE);
-			iValue *= max(1, pLoopCity->GetEspionageRanking() / 100);
 
 			if (iValue > iBestValue)
 			{
@@ -16991,7 +16954,7 @@ void CvMinorCivAI::DoElection()
 
 			apSpy[ui] = &(pPlayerEspionage->m_aSpyList[iSpyID]);
 
-			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + (-1 * GET_PLAYER(eEspionagePlayer).GetPlayerTraits()->GetEspionageModifier()) + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
+			iVotes += (pCityEspionage->m_aiAmount[eEspionagePlayer] * (100 + GET_PLAYER(eEspionagePlayer).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIGGING_ELECTION_MODIFIER))) / 100;
 
 			// now that votes are counted, remove the progress from the spy
 			pCityEspionage->ResetProgress(eEspionagePlayer);
@@ -17012,6 +16975,7 @@ void CvMinorCivAI::DoElection()
 	{
 		wvVotes.StableSortItems();
 		PlayerTypes eElectionWinner = wvVotes.ChooseByWeight(CvSeeder::fromRaw(0xfead5338).mix(GetPlayer()->GetID()));
+		int iInfluenceModifier = GET_PLAYER(eElectionWinner).GetPlayerPolicies()->GetNumericModifier(POLICYMOD_RIG_ELECTION_INFLUENCE_MODIFIER);
 
 		for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 		{
@@ -17019,8 +16983,24 @@ void CvMinorCivAI::DoElection()
 
 			if(ePlayer == eElectionWinner)
 			{
+				int iValue = /*20 in CP, 30 in VP*/ GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION);
+				iValue *= 100 + iInfluenceModifier;
+				iValue /= 100;
+
+				if (MOD_BALANCE_VP)
+				{
+					int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
+					if (iEra <= 0)
+					{
+						iEra = 1;
+					}
+					iValue *= iEra;
+					iValue *= (1 + GetNumConsecutiveSuccessfulRiggings(ePlayer));
+				}
+				ChangeFriendshipWithMajor(ePlayer, iValue, false);
+
 				CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-				if(pNotifications)
+				if (pNotifications)
 				{
 					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_SUCCESS_S");
 					strSummary << pCapital->getNameKey();
@@ -17028,21 +17008,9 @@ void CvMinorCivAI::DoElection()
 					strNotification << GET_PLAYER(ePlayer).GetEspionage()->GetSpyRankName(apSpy[ui]->m_eRank);
 					strNotification << apSpy[ui]->GetSpyName(&GET_PLAYER(ePlayer));
 					strNotification << pCapital->getNameKey();
+					strNotification << iValue;
 					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
 				}
-
-				int iValue = /*20 in CP, 15 in VP*/ GD_INT_GET(ESPIONAGE_INFLUENCE_GAINED_FOR_RIGGED_ELECTION);
-
-				int iEra = GET_PLAYER(ePlayer).GetCurrentEra();
-				if (iEra <= 0)
-				{
-					iEra = 1;
-				}
-				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-				{
-					iValue *= (iEra + iEra);
-				}
-				ChangeFriendshipWithMajor(ePlayer, iValue, false);
 
 				// find the spy who has rigged the election
 				int iLoop = 0;
@@ -17056,13 +17024,24 @@ void CvMinorCivAI::DoElection()
 						break;
 					}
 				}
-				CvAssertMsg(iSpyID==-1, "Couldn't find a spy in any of the cities of the Minor Civ")
+				CvAssertMsg(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ");
 
-				if (GET_PLAYER(ePlayer).GetEspionage()->CanStageCoup(iSpyID, true))
+				// if all players have at least one spy, this election is counted toward the number of successfully rigged elections in a row
+				bool bAllPlayersHaveSpies = true;
+				for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
 				{
-					ChangeRiggingCoupChanceIncrease(ePlayer, GD_INT_GET(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_BASE) + apSpy[ui]->GetSpyRank(ePlayer) * GD_INT_GET(ESPIONAGE_COUP_CHANCE_INCREASE_FOR_RIGGED_ELECTION_PER_SPY_LEVEL));
+					PlayerTypes ePlayer2 = (PlayerTypes)ui2;
+					if (GET_PLAYER(ePlayer2).isAlive() && GET_PLAYER(ePlayer2).GetEspionage()->GetNumSpies() == 0)
+					{
+						bAllPlayersHaveSpies = false;
+						break;
+					}
 				}
-
+				if (bAllPlayersHaveSpies)
+				{
+					ChangeNumConsecutiveSuccessfulRiggings(ePlayer, 1);
+				}
+				
 				//Achievements!
 				if (MOD_API_ACHIEVEMENTS && ePlayer == GC.getGame().getActivePlayer())
 					gDLL->UnlockAchievement(ACHIEVEMENT_XP1_14);
@@ -17072,21 +17051,40 @@ void CvMinorCivAI::DoElection()
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultSuccess, (int)ePlayer, iSpyID, iValue, pCapital->getX(), pCapital->getY());
 				}
 
-				GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_ATTACK, false, NO_GREATPERSON, NO_BUILDING, 1);
-				GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, /*20 in CP, 15 in VP*/ GD_INT_GET(ESPIONAGE_DIPLOMAT_SPY_EXPERIENCE));
+				if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+				{
+					GET_PLAYER(ePlayer).doInstantYield(INSTANT_YIELD_TYPE_SPY_RIG_ELECTION);
+					GET_PLAYER(ePlayer).GetEspionage()->LevelUpSpy(iSpyID, /*20*/ GD_INT_GET(ESPIONAGE_XP_RIGGING_SUCCESS));
+				}
 			}
 			else
 			{
+				ResetNumConsecutiveSuccessfulRiggings(ePlayer);
+
 				int iFriendship = GetEffectiveFriendshipWithMajor(ePlayer);
 				int iRelationshipAnchor = GetFriendshipAnchorWithMajor(ePlayer);
 				bool bFriends = IsFriends(ePlayer);
 				bool bMet = GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(m_pPlayer->getTeam());
 
+				int iDiminishAmount = 0;
+				if (GetEffectiveFriendshipWithMajorTimes100(ePlayer) > 0)
+				{
+					iDiminishAmount = /*500*/ GD_INT_GET(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION) * 100;
+					iDiminishAmount *= 100 + iInfluenceModifier;
+					iDiminishAmount /= 100;
+					if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+					{
+						iDiminishAmount *= GC.getGame().getCurrentEra();
+					}
+					iDiminishAmount = min(iDiminishAmount, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
+					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
+				}
+
 				// if they have a spy in the city
-				if(apSpy[ui] != NULL)
+				if (apSpy[ui] != NULL)
 				{
 					CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-					if(pNotifications)
+					if (pNotifications)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_FAILURE_S");
 						strSummary << pCapital->getNameKey();
@@ -17095,54 +17093,42 @@ void CvMinorCivAI::DoElection()
 						strNotification << apSpy[ui]->GetSpyName(&GET_PLAYER(ePlayer));
 						strNotification << pCapital->getNameKey();
 						strNotification << GET_PLAYER(eElectionWinner).getCivilizationShortDescriptionKey();
+						strNotification << (iDiminishAmount / 100);
 						pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_FAILURE, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
 					}
+					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
 				}
 				else if (bMet && (bFriends || iFriendship > iRelationshipAnchor))
 				{
 					// no spy in the city, so just give them an alert that scenanigans are going on
 					CvNotifications* pNotifications = GET_PLAYER(ePlayer).GetNotifications();
-					if(pNotifications)
+					if (pNotifications)
 					{
 						Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_ALERT_S");
 						strSummary << pCapital->getNameKey();
 						Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_ALERT");
 						strNotification << pCapital->getNameKey();
+						strNotification << (iDiminishAmount / 100);
 						pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_ALERT, strNotification.toUTF8(), strSummary.toUTF8(), pCapital->getX(), pCapital->getY(), -1);
 					}
 				}
 
-				int iDiminishAmount = 0;
-				if (GetEffectiveFriendshipWithMajorTimes100(ePlayer) > 0)
+				if (MOD_EVENTS_ESPIONAGE)
 				{
-					iDiminishAmount = min(/*500*/ GD_INT_GET(ESPIONAGE_INFLUENCE_LOST_FOR_RIGGED_ELECTION) * 100, GetEffectiveFriendshipWithMajorTimes100(ePlayer));
-					if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+					int iLoop = 0;
+					int iSpyID = -1;
+					for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
 					{
-						iDiminishAmount *= GC.getGame().getCurrentEra();
+						CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+						iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
+						if (iSpyID != -1)
+						{
+							break;
+						}
 					}
-					ChangeFriendshipWithMajorTimes100(ePlayer, -iDiminishAmount, false);
-					
-					GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyLoweredOurInfluence(eElectionWinner, 1);
-					//GET_PLAYER(ePlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eElectionWinner, 1);
-				}
-#if defined(MOD_EVENTS_ESPIONAGE)
-				int iLoop = 0;
-				int iSpyID = -1;
-				for (CvCity* pCity = m_pPlayer->firstCity(&iLoop); pCity != NULL; pCity = m_pPlayer->nextCity(&iLoop))
-				{
-					CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-					iSpyID = pCityEspionage->m_aiSpyAssignment[ePlayer];
-					if (iSpyID != -1)
-					{
-						break;
-					}
-				}
-				CvAssertMsg(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ")
-
-				if (MOD_EVENTS_ESPIONAGE) {
+					CvAssertMsg(iSpyID == -1, "Couldn't find a spy in any of the cities of the Minor Civ");
 					GAMEEVENTINVOKE_HOOK(GAMEEVENT_ElectionResultFailure, (int)ePlayer, iSpyID, iDiminishAmount, pCapital->getX(), pCapital->getY());
 				}
-#endif
 			}
 		}
 	}
@@ -18076,21 +18062,6 @@ void CvMinorCivAI::SetNoAlly(bool bValue)
 {
 	m_bNoAlly = bValue;
 }
-void CvMinorCivAI::ChangeCoupCooldown(int iChange)
-{
-	SetCoupCooldown(GetCoupCooldown() + iChange);
-}
-int CvMinorCivAI::GetCoupCooldown() const
-{
-	return m_iCoup;
-}
-void CvMinorCivAI::SetCoupCooldown(int iValue)
-{
-	if(GetCoupCooldown() != iValue)
-	{
-		m_iCoup = iValue;
-	}
-}
 bool CvMinorCivAI::IsSiphoned(PlayerTypes ePlayer) const
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
@@ -18112,25 +18083,25 @@ void CvMinorCivAI::SetSiphoned(PlayerTypes ePlayer, bool bValue)
 }
 #endif
 
-int CvMinorCivAI::GetRiggingCoupChanceIncrease(PlayerTypes ePlayer) const
+int CvMinorCivAI::GetNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer) const
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	return m_aiRiggingCoupChanceIncrease[ePlayer];
+	return m_aiNumConsecutiveSuccessfulRiggings[ePlayer];
 }
 
-void CvMinorCivAI::ChangeRiggingCoupChanceIncrease(PlayerTypes ePlayer, int iChange)
+void CvMinorCivAI::ChangeNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer, int iChange)
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	m_aiRiggingCoupChanceIncrease[ePlayer] += iChange;
+	m_aiNumConsecutiveSuccessfulRiggings[ePlayer] += iChange;
 }
 
-void CvMinorCivAI::ResetRiggingCoupChanceIncrease(PlayerTypes ePlayer)
+void CvMinorCivAI::ResetNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer)
 {
 	CvAssert(ePlayer >= 0);
 	CvAssert(ePlayer < MAX_MAJOR_CIVS);
-	m_aiRiggingCoupChanceIncrease[ePlayer] = 0;
+	m_aiNumConsecutiveSuccessfulRiggings[ePlayer] = 0;
 }
 
 

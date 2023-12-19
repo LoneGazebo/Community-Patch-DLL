@@ -32,6 +32,7 @@
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
+			<SpySecurityModifier>20</SpySecurityModifier>
 			<WorkRateModifier>0</WorkRateModifier>
 			<ImprovementCostPercent>60</ImprovementCostPercent>
 			<BuildingCostPercent>75</BuildingCostPercent>
@@ -261,6 +262,7 @@
 			<StartingWorkerUnits>0</StartingWorkerUnits>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
 			<StartingExploreUnits>0</StartingExploreUnits>
+			<SpySecurityModifier>10</SpySecurityModifier>
 			<WorkRateModifier>0</WorkRateModifier>
 			<ImprovementCostPercent>80</ImprovementCostPercent>
 			<BuildingCostPercent>90</BuildingCostPercent>

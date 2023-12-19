@@ -314,36 +314,28 @@ SET Text = 'Security Level'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL';
 
 UPDATE Language_en_US
-SET Text = 'Security Level reflects the difficulty of Espionage in a City. The higher the value, the more time it will take to complete Spy Missions. The base value (from 5 to 50) is based on the overall economic value of the City (relative to all other cities). Security is also affected by Espionage modifiers and buildings in the city, such as the Constabulary and the Police Station. Security also increases when a City has a powerful Counterspy.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
+SET Text = 'Security Level reflects the difficulty of espionage in a city. The higher the value, the more time it will take for foreign spies to complete spy missions. To increase Security in a city, you can build espionage buildings, such as the Constabulary and the Police Station.[NEWLINE][NEWLINE]Click to sort cities by their Security level.'
 WHERE Tag = 'TXT_KEY_EO_POTENTIAL_SORT_TT';
 
 UPDATE Language_en_US
-SET Text = 'If your cities have low Security, you should consider protecting them. There are two ways to do this. You may move your own spies to your cities to act as counterspies that have a chance to catch and kill enemy spies before they steal something. You may also slow down how quickly enemy spies can steal things by constructing buildings like the Constabulary, Police Station, and the Great Firewall.'
-WHERE Tag = 'TXT_KEY_EO_OWN_CITY_POTENTIAL_TT';
-
-UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} is stealing from {3_CityName}.[NEWLINE]The current Security Level of {3_CityName} is {4_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value (from 1 to 50) is based on the overall prosperity and happiness of the city (relative to all other cities). Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
+SET Text = 'The current Security Level of {1_CityName} is [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR]. This reduces the number of Network Points foreign spies generate per turn by [COLOR_NEGATIVE_TEXT]{3_PercentReduction}%[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} cannot steal technologies from {3_CityName}.[NEWLINE][NEWLINE]The Security Level of {4_CityName} is {5_Num}.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value (from 5 to 50) is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station..'
-WHERE Tag = 'TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT';
+SET Text = 'The Security Level of {1_CityName} is [COLOR_POSITIVE_TEXT]{2_Security}[ENDCOLOR]. This reduces the number of Network Points foreign spies generate per turn by [COLOR_POSITIVE_TEXT]{3_PercentReduction}%[ENDCOLOR].[NEWLINE]{4_SecurityDetails}'
+WHERE Tag = 'TXT_KEY_EO_OWN_CITY_POTENTIAL_TT';
 
 UPDATE Language_en_US
-SET Text = 'The Security Level of {1_CityName} is believed to be {2_Num}. Send a [ICON_SPY] Spy to this City to learn more about it.[NEWLINE][NEWLINE]Security reflects the vulnerability of a city to Espionage. The higher the value, the more protected the city. The base value (from 5 to 50) is based on the overall prosperity and happiness of the city. Security may be decreased by Policies and Espionage buildings in the city, such as the Constabulary and the Police Station.'
-WHERE Tag = 'TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT';
+SET Text = 'Spy Missions may not be conducted in City-States, so they do not have a Security Level.[NEWLINE][NEWLINE]Sending a spy into a City-State will increase your influence there by rigging elections. If there is more than one spy in the city, the highest ranked spy who has been in the City-State the longest has the greatest chance of rigging the election.'
+WHERE Tag = 'TXT_KEY_EO_CITY_STATE_POTENTIAL_TT';
 
 UPDATE Language_en_US
-SET Text = '[ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City''s Security Level will [COLOR_NEGATIVE_TEXT]fall[ENDCOLOR] towards 5 and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 50 and enemy Spies will operate more slowly. [NEWLINE][NEWLINE]If an enemy Spy completes a Mission in the City, the Security Level is reset to 50.'
-WHERE Tag = 'TXT_KEY_POTENTIAL_CALCULATION';
+SET Text = 'The population of the city.[NEWLINE][NEWLINE]Click to sort cities by their population.'
+WHERE Tag = 'TXT_KEY_EO_POPULATION_SORT_TT';
 
 UPDATE Language_en_US
-SET Text = 'Conducting Spy Mission'
-WHERE Tag = 'TXT_KEY_SPY_STATE_GATHERING_INTEL';
-
-UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there. If a coup is possible in the city (ignoring cooldown time), each successfully rigged election increases its success chance. The success chance of a coup is increased by a higher amount for higher ranking spies.'
-WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_SHORT_TT';
+SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there.[NEWLINE][NEWLINE]Only one civilization may successfuly rig an election. If more than one spy is in a City-State, the highest ranked spy that has been in that City-State the longest has the greatest chance of successfully rigging the election in its favor. Streaks of consecutive successfully rigged elections provide more influence.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]If you successfully rig the next election, your influence will increase by {4_Influence}.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT';
 
 UPDATE Language_en_US
 SET Text = '{1_RankName} {2_SpyName} is conducting a Spy Mission in {3_CityName}. If the city''s owner has a spy in the city, your spy has a chance of being discovered and killed when they try to complete their mission!'
@@ -358,7 +350,7 @@ SET Text = '{1_RankName} {2_SpyName} is trying to make all the right connections
 WHERE Tag = 'TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is conducting counter-intelligence operations in {3_CityName}.[NEWLINE][NEWLINE]If an enemy spy tries to finish a Spy Mission in the city you have the spy in, your spy will ensure that the theft is detected. It has a chance of determining who stole the information as well as killing the enemy spy outright. The higher rank your spy, the more likely you are to kill the enemy spy.'
+SET Text = '{1_RankName} {2_SpyName} is conducting counter-intelligence operations in {3_CityName}.'
 WHERE Tag = 'TXT_KEY_EO_SPY_COUNTER_INTEL_TT';
 
 UPDATE Language_en_US
@@ -370,31 +362,19 @@ SET Text = '{1_SpyRank} {2_SpyName} is in {3_CityName}. While {4_SpyRank} {5_Spy
 WHERE Tag = 'TXT_KEY_CITY_SPY_OTHER_CIV_TT';
 
 UPDATE Language_en_US
-SET Text = 'Options for {1_SpyRank} {2_SpyName}:[NEWLINE][NEWLINE][ICON_BULLET] Move to a City-State and attempt to [COLOR_POSITIVE_TEXT]Rig an Election[ENDCOLOR] or [COLOR_POSITIVE_TEXT]Stage a Coup[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a non-Capital City owned by a Major Civilization and attempt to conduct a [COLOR_POSITIVE_TEXT]Spy Mission[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a Capital City owned by a Major Civilization and attempt to conduct a [COLOR_POSITIVE_TEXT]Spy Mission[ENDCOLOR], [COLOR_POSITIVE_TEXT]Uncover Intrigue[ENDCOLOR], or [COLOR_POSITIVE_TEXT]Schmooze[ENDCOLOR] as a Diplomat.'
+SET Text = 'Options for {1_SpyRank} {2_SpyName}:[NEWLINE][NEWLINE][ICON_BULLET] Move to a City-State and attempt to [COLOR_POSITIVE_TEXT]Rig an Election[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a City owned by a Major Civilization and Gather Intelligence to conduct a [COLOR_POSITIVE_TEXT]Spy Mission[ENDCOLOR].[NEWLINE][ICON_BULLET] Move to a Capital City owned by a Major Civilization and [COLOR_POSITIVE_TEXT]Schmooze[ENDCOLOR] as a Diplomat.'
 WHERE Tag = 'TXT_KEY_EO_SPY_MOVE_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_SpyName} has achieved the rank of {2_RankName}.[NEWLINE][NEWLINE]There are three spy ranks: Recruit, Agent, and Special Agent. Each subsequent level makes the spy more effective. A higher ranking spy will operate faster and kill enemy spies that are trying to work against you more frequently, rig elections in City-States more effectively, and have a greater chance of pulling off a coup in a City-State allied with another civilization.[NEWLINE][NEWLINE]Spies level up when they successfully complete Spy Missions, kill an enemy spy, schmooze as as a diplomat, or if they uncover intrigue.'
+SET Text = '{1_SpyName} has achieved the rank of {2_RankName}.[NEWLINE][NEWLINE]There are three spy ranks: Recruit, Agent, and Special Agent. Each subsequent level makes the spy more effective. A higher ranking spy will operate more effectively.[NEWLINE][NEWLINE]Spies level up when they successfully complete Spy Missions or if they uncover intrigue. They also get a small amount of Experience every turn while gathering intelligence, schmoozing as a Diplomat or conducting counterintelligence.'
 WHERE Tag = 'TXT_KEY_EO_SPY_RANK_TT';
 
 UPDATE Language_en_US
-SET Text = 'Click to have {1_SpyRank} {2_SpyName} attempt a coup in {3_CityName} to overthrow the {4_CivAdjective} sympathizers there.[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]They have a {5_Num}% chance of success (assuming no enemy counterspy is present).[ENDCOLOR] If {6_SpyRank} {7_SpyName} succeeds, you will become allies with {8_CityName} and {9_CivShortDesc} will be lowered to your current influence amount. Then all other players influence will drop. If {10_SpyRank} {11_SpyName} fails, they will be killed and your influence with {12_CityName} will greatly diminish.[NEWLINE][NEWLINE]To increase your chance of success, you may increase your influence over the City-State, rig elections, use a higher ranking spy, or wait for the current ally''s influence to decay.'
-WHERE Tag = 'TXT_KEY_EO_SPY_COUP_ENABLED_TT';
-
-UPDATE Language_en_US
-SET Text = '{1_SpyRank} {2_SpyName} may attempt to stage a coup in {3_CityName}, bringing into power a group that will be our ally. The leading faction of {4_CivShortDesc} supporters will be ousted and their influence diminished.[NEWLINE][NEWLINE][COLOR_HIGHLIGHT_TEXT]This operation has a {5_PERCENT}% chance of success (assuming no enemy counterspy is present).[ENDCOLOR] If successful, you will become allies with {6_CityName} and the {7_CivShortDesc} will have their influence dropped. If you fail, your spy will be killed in the attempt and your influence over {8_CityName} will decrease.[NEWLINE][NEWLINE]Do you want {9_SpyRank} {10_SpyName} to attempt a coup in {11_CityName}?'
-WHERE Tag = 'TXT_KEY_EO_STAGE_COUP_QUESTION';
-
-UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there.[NEWLINE][NEWLINE]Only one civilization may successfuly rig an election. If more than one spy is in a City-State, the highest ranked spy that has been in that City-State the longest has the greatest chance of successfully rigging the election in its favor. Successfully rigging elections also increases the success chance of a coup in the City-State.'
-WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT';
-
-UPDATE Language_en_US
-SET Text = '[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Spy is operating {1_SpyBonus} {1_SpyBonus: plural 1?Rank; other?Ranks;} higher than normal when rigging elections since this city state is allied to a civ over which you have strong cultural influence. The success chance of coups is also increased.[ENDCOLOR]'
+SET Text = '[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Spy is operating {1_SpyBonus} {1_SpyBonus: plural 1?Rank; other?Ranks;} higher than normal when rigging elections since this city state is allied to a civ over which you have strong cultural influence.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_SPY_BONUS_CITY_STATE';
 
 UPDATE Language_en_US
-SET Text = 'Do you want this spy to be a diplomat? A spy can be a diplomat if they are placed in the capital of another civilization you are not at war with. (If war is declared, your spy will escape the city.) A diplomat will not attempt to steal technology from the other player but will still provide intrigue. Once the World Congress convenes, you will be able to determine their opinion on proposals and trade for their support if needed. Diplomats automatically provide a boost to [ICON_TOURISM] Tourism output to the target civilization.'
+SET Text = 'Do you want this spy to be a diplomat? A spy can be a diplomat if they are placed in the capital of another civilization you are not at war with. (If war is declared, your spy will escape the city.) A diplomat provides access to information about the targeted civilization and may uncover intrigues. Once the World Congress convenes, you will be able to determine their opinion on proposals and trade for their support if needed. Diplomats automatically provide a boost to [ICON_TOURISM] Tourism output to the target civilization.'
 WHERE Tag = 'TXT_KEY_SPY_BE_DIPLOMAT';
 
 -- Button tooltip

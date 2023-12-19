@@ -1,62 +1,223 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
-		<!-- Espionage overview -->
-		<Row Tag="TXT_KEY_EO_SPY_COUP_DISABLED_PERMA_TT">
-			<Text>{1_SpyRank} {2_SpyName} may not attempt a coup in {3_CityName} because their current Ally has a Sphere of Influence here.</Text>
+		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
+			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked.[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_SPY_RIGGING_COUP_CHANCE_INCREASE">
-			<Text>[COLOR_CYAN]Each successfully rigged election increases the success chance of a coup by {1_CoupChanceIncrease}%.[ENDCOLOR]</Text>
+
+		<!-- Espionage -->
+		
+		<Row Tag="TXT_KEY_SPY_POINTS_TT">
+			<Text>Your Current [ICON_VP_SPY_POINTS] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_VP_SPY_POINTS] Spy Points ever accumulated: {3_NumTotal}
+			</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_SPY_RIGGING_NO_COUP_POSSIBLE">
-			<Text>[COLOR_NEGATIVE_TEXT]Rigging elections does not increase the success chance of a coup because no coup is possible in this city-state.[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
+			<Text>[NEWLINE] [ICON_BULLET] No Technologies to steal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS">
-			<Text>Active Spy Effects</Text>
+		<Row Tag="TXT_KEY_EVENT_NO_GW_FORGE">
+			<Text>[NEWLINE] [ICON_BULLET] No Great Works in City to steal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_START_TURN">
-			<Text>Start Turn</Text>
+		<Row Tag="TXT_KEY_EVENT_SPY_RANK">
+			<Text>[NEWLINE] [ICON_BULLET] Spy is not high enough Rank for this choice.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_END_TURN">
-			<Text>End Turn</Text>
+		<Row Tag="TXT_KEY_EVENT_MIN_SIPHON_FAITH_NOT_MET">
+			<Text>[NEWLINE] [ICON_BULLET] City is not producing enough Faith to steal.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_TARGET">
-			<Text>Targeted Player</Text>
+		<Row Tag="TXT_KEY_EVENT_MIN_SIPHON_OTHER_NOT_MET">
+			<Text>[NEWLINE] [ICON_BULLET] City not producing enough of this yield to siphon.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_SPY_OWNER">
-			<Text>Spy Owner</Text>
+		<Row Tag="TXT_KEY_EVENT_NOT_ENOUGH_NP">
+			<Text>[NEWLINE] [ICON_BULLET] Not enough Network Points collected.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_EFFECT">
-			<Text>Effect</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_NO_SPY_MISSIONS_ACTIVE">
-			<Text>No Active Spy Effects</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_MISSION_TURN_MODIFIER_FRIENDLY">
-			<Text>Our Buildings and Policies: -{1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_MISSION_TURN_MODIFIER_ENEMY">
-			<Text>Enemy Buildings and Policies: +{1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
-		</Row>
+		
 		<Row Tag="TXT_KEY_EO_SPY_EXPERIENCE">
 			<Text>Experience: {1_Num} / {2_Denom}</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE">
-			<Text>[COLOR_POSITIVE_TEXT]{1_Yield} stolen per Turn[ENDCOLOR]</Text>
+		
+		<!-- Offensive Spies -->
+		<Row Tag="TXT_KEY_EO_MISSIONS_TRAVELING_TOOLTIP">
+			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, they will start collecting Network Points. Network Points unlock passive bonuses while the spy is in the city, or can be spend to perform Spy Missions.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ACTIVE_ENEMY">
-			<Text>[COLOR_NEGATIVE_TEXT]{1_Yield} stolen per Turn[ENDCOLOR]</Text>
+		<Row Tag="TXT_KEY_EO_MISSIONS">
+			<Text>Missions</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_MISSION_DURATION">
-			<Text>[COLOR_POSITIVE_TEXT]Estimated Mission Duration:[ENDCOLOR] {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
+		<Row Tag="TXT_KEY_EO_MISSIONS_TOOLTIP_SHORT">
+			<Text>Spy Mission Selection</Text>
 		</Row>
-		<Row Tag="TXT_KEY_SPY_DURATION_LEVEL_MODIFIER">
-			<Text>[NEWLINE]  [ICON_BULLET] Spy Rank Modifier: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_EO_MISSIONS_DISABLED_REASONS_HEADER">
+			<Text>[COLOR_NEGATIVE_TEXT]Mission unavailable for the following reason(s):[ENDCOLOR]</Text>
 		</Row>
-		<Row Tag="TXT_KEY_SPY_DURATION_TRAIT_MODIFIER">
-			<Text>[NEWLINE]  [ICON_BULLET] Player Traits Modifier: {1_Num}%</Text>
+		<Row Tag="TXT_KEY_EO_MISSION_COST">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_Num} NP:[ENDCOLOR] {2_Text}</Text>
 		</Row>
-
+		<Row Tag="TXT_KEY_EO_MISSIONS_TOOLTIP">
+			<Text>View the passive bonuses {1_Rank} {2_Spy} has unlocked while gathering intelligence in {3_City}, or choose to spend Network Points to perform a Spy Mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CONDUCT_MISSION">
+			<Text>Conduct Mission</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUS_THRESHOLDS">
+			<Text>Passive Bonus Thresholds</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUS_THRESHOLD_TT">
+			<Text>Bonuses from exceeding this threshold:[NEWLINE]{1_Text}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES">
+			<Text>Passive Bonuses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUS_NP_REQUIRED">
+			<Text>{1_Num} NP: {2_Text}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED">
+			<Text>Your spy has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR]. This has [COLOR_CYAN]unlocked[ENDCOLOR] the following passive bonuses:[NEWLINE][NEWLINE][COLOR_CYAN]{2_PassiveBonuses}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_FROM_EARLIER">
+			<Text>The highest number of Network Points once collected by your spy during their stay in this city is [COLOR_CYAN]{1_Num}[ENDCOLOR]. This has [COLOR_CYAN]unlocked[ENDCOLOR] the following passive bonuses:[NEWLINE][NEWLINE][COLOR_CYAN]{2_PassiveBonuses}[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_NOTHING_YET">
+			<Text>Your spy has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR] so far. Keep the spy in the city to collect more Network Points and unlock passive bonuses.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_CITY_SCREEN_NOT_ENOUGH_NP">
+			<Text>You need to have collected at least {1_Num} Network Points to view the city screen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_MISSIONS_HELP">
+			<Text>You can have your spy conduct a Spy Mission if the mission requirements are met. Conducting a mission [COLOR_NEGATIVE_TEXT]costs Network Points[ENDCOLOR], and there is a chance that your spy is [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR], resulting in worsened diplomatic relations. The spy can also be [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR], in which case the mission is still carried out, but the spy is then imprisoned for some time before returning to the hideout.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_SPY_IMPRISONED_TT">
+			<Text>{1_RankName} {2_SpyName} is currently imprisoned.[NEWLINE][NEWLINE]When they are released, they will return to the hideout and can be send on missions again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_SPY_STATE_IMPRISONED">
+			<Text>Imprisoned</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_IMPRISONED">
+			<Text>Imprisoned for {1_Turns} {1_Turns: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_ID_CAPTURE_CHANCE">
+			<Text>Chance to be [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR]: {1_IDChance}%
+			[NEWLINE]Chance to be [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR]: {2_CaptureChance}%</Text>
+		</Row>
+		
+		<!-- Counterspies -->
+		<Row Tag="TXT_KEY_EO_COUNTERSPY">
+			<Text>Change Focus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_COUNTERSPY_TOOLTIP_SHORT">
+			<Text>Change Counterspy Focus</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_COUNTERSPY_TOOLTIP">
+			<Text>Select a new focus for {1_Rank} {2_Spy}. After doing so, you cannot move the spy or change focus again for {3_NumTurns} {3_NumTurns: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_COUNTERSPY_TRAVELING_TOOLTIP">
+			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, you can select a counterspy focus.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_COUNTERSPY_CANNOT_MOVE_TT">
+			<Text>Because you recently selected a new counterspy focus, {1_Rank} {2_Spy} cannot move for {3_NumTurns} more {3_NumTurns: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_COUNTERSPY_CANNOT_CHANGE_FOCUS_TT">
+			<Text>Because you recently selected a new counterspy focus, {1_Rank} {2_Spy} cannot change focus again for {3_NumTurns} more {3_NumTurns: plural 1?turn; other?turns;}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_COUNTERSPY_ACTIVE_FOCUS_TT">
+			<Text>Active Focus: {1_StrMission}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_COUNTERSPY_CANNOT_CHANGE_ACTIVE_FOCUS_TT">
+			<Text>This is the currently active Focus.</Text>
+		</Row>
+		<!-- Diplomats -->
+		<Row Tag="TXT_KEY_EO_DIPLOMAT">
+			<Text>Intelligence</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_DIPLOMAT_TOOLTIP_SHORT">
+			<Text>Diplomat Bonuses</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_DIPLOMAT_TOOLTIP">
+			<Text>View unlocked passive bonuses and access intelligence information gathered by {1_Rank} {2_Spy} [COLOR_NEGATIVE_TEXT](not implemented yet)[ENDCOLOR]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_DIPLOMAT_TRAVELING_TOOLTIP">
+			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, they will start collecting Network Points. Network Points unlock passive bonuses and grant access to intelligence information about the other civilization while {1_Rank} {2_Spy} is schmoozing as a Diplomat in the city.</Text>
+		</Row>
+		
+		<!-- City Security -->
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_BASE_TT">
+			<Text>[NEWLINE][ICON_BULLET]Base Security: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_DIFFICULTY_TT">
+			<Text>[NEWLINE][ICON_BULLET]Difficulty Level: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_NOT_ALL_HAVE_SPIES_TT">
+			<Text>[NEWLINE][ICON_BULLET]Not all Players have Spies: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_BUILDINGS_TT">
+			<Text>[NEWLINE][ICON_BULLET]City Buildings: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_POLICIES_WONDERS_TT">
+			<Text>[NEWLINE][ICON_BULLET]Policies and Wonders: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_PREVIOUS_SPY_MISSIONS_TT">
+			<Text>[NEWLINE][ICON_BULLET]Previous Spy Mission in City: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_POPULATION_TT">
+			<Text>[NEWLINE][ICON_BULLET]City Population: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_TRADE_ROUTES_TT">
+			<Text>[NEWLINE][ICON_BULLET]Trade Routes to/from City: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_CITY_SECURITY_UNHAPPINESS_TT">
+			<Text>[NEWLINE][ICON_BULLET]Excess Unhappiness: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<!-- Network Points -->
+		<Row Tag="TXT_KEY_NETWORK_POINTS">
+			<Text>{1_NumStored} NP (+{2_NumPerTurn})</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_BASE_TT">
+			<Text>[NEWLINE][ICON_BULLET]Base Network Points per Turn: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_SPY_RANK_TT">
+			<Text>[NEWLINE][ICON_BULLET]Spy Rank: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_CULTURAL_INFLUENCE_TT">
+			<Text>[NEWLINE][ICON_BULLET]Cultural Influence over Target: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_TECH_DIFFERENCE_TT">
+			<Text>[NEWLINE][ICON_BULLET]Technologically advanced Target: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_POLICIES_TT">
+			<Text>[NEWLINE][ICON_BULLET]Policies: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_COUNTERSPY_NETWORK_TT">
+			<Text>[NEWLINE][ICON_BULLET]Enemy Counterspy Network: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT">
+			<Text>[NEWLINE][ICON_BULLET]Policy Modifier: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_BEFORE_SECURITY_TT">
+			<Text>[NEWLINE]Total NP per Turn before Modifiers: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_SECURITY_MOD_TT">
+			<Text>[NEWLINE][ICON_BULLET]Reduction City Security: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_FINAL_TT">
+			<Text>[NEWLINE][COLOR_POSITIVE_TEXT]Total Network Points gained per Turn: {1_Num}[ENDCOLOR]</Text>
+		</Row>
+		
 		<!-- City-State screen/tooltip -->
 		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
 			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR]</Text>
@@ -98,7 +259,7 @@
 			<Text>Are you sure you want to forcefully annex {1_MinorCivName:textkey}?</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_PERMANENT_ALLY_TT">
-			<Text>{1_CivName:textkey} is their current Ally. Until their [COLOR_POSITIVE_TEXT]Sphere of Influence[ENDCOLOR] is removed, you cannot remove them from this position.</Text>
+			<Text>{1_CivName:textkey} {1_CivName: plural 1?is; other?are;} their current Ally. Until their [COLOR_POSITIVE_TEXT]Sphere of Influence[ENDCOLOR] is removed, you cannot remove them from this position.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_ALLY_NOBODY_PERMA">
 			<Text>Because there is an active [COLOR_POSITIVE_TEXT]Open Door Policy[ENDCOLOR] in effect here, no one can become this City-State's Ally.</Text>
@@ -518,11 +679,6 @@
 		</Row>
 		<Row Tag="TXT_KEY_UNIT_SUPPLY_REMAINING_TOOLTIP">
 			<Text>Number of Military Units: {11_Num} ({2_Num} Military Supply Used)[NEWLINE]Total Military Supply: {1_Num}[NEWLINE][COLOR_NEGATIVE_TEXT]War Weariness Supply Cap Reduction: {6_Num}%[ENDCOLOR][NEWLINE][NEWLINE]Military Supply Base Values:[NEWLINE]  [ICON_BULLET]+{4_Num} from owned [ICON_CITY_STATE] Cities[NEWLINE]  [ICON_BULLET]+{3_Num} from total [ICON_CITIZEN] Population[NEWLINE]  [ICON_BULLET]+{5_Num} from [ICON_CHECKBOX] Difficulty Level[NEWLINE]  [ICON_BULLET]+{10_Num} from [ICON_GREAT_GENERAL]/[ICON_GREAT_ADMIRAL] Great People[NEWLINE][NEWLINE][NEWLINE]Military Supply Reductions:[NEWLINE]  [ICON_BULLET] -{8_Num} from [ICON_RESEARCH] Tech Level[NEWLINE]  [ICON_BULLET] -{7_Num} from [ICON_WAR] War Weariness[NEWLINE][NEWLINE]Military Unit [ICON_GOLD]/[ICON_PEACE] Costs increased by {9_Num}% due to [ICON_WAR] War Weariness.[NEWLINE]</Text>
-		</Row>
-		<!-- Spy Points -->
-		<Row Tag="TXT_KEY_SPY_POINTS_TT">
-			<Text>Your Current [ICON_VP_SPY_POINTS] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_VP_SPY_POINTS] Spy Points ever accumulated: {3_NumTotal}
-			</Text>
 		</Row>
 
 		<!-- Trade Route picker -->
@@ -1043,8 +1199,9 @@
 			<Text>Connecting this Resource to your trade network will cause this City to celebrate Carnival, which increases [ICON_FOOD] Growth and reduces [ICON_HAPPINESS_3] Unhappiness!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_SAPPED">
-			<Text>City is [ICON_VP_SAPPED] Sapped for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}. This has the same effects as a [ICON_BLOCKADED] Blockade, but does not require an enemy unit nearby to take effect!</Text>
+			<Text>Because of an enemy Spy Mission, the city is blockaded and cannot perform ranged strikes for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}.</Text>
 		</Row>
+		 {8_Num} turns
 		<Row Tag="TXT_KEY_CITY_MINED">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City. Units ending their turn in Ocean tiles owned by this City take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].</Text>
 		</Row>
@@ -2806,16 +2963,16 @@
 			<Text>[NEWLINE] [ICON_BULLET] Must have at least one {1_Desc} Unit</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_SUPER_UNHAPPY">
-			<Text>[NEWLINE] [ICON_BULLET] Empire must be Very Unhappy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Empire must be very unhappy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_UNHAPPY">
-			<Text>[NEWLINE] [ICON_BULLET] Empire must be Unhappy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Empire must be unhappy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_ENEMY_SUPER_UNHAPPY">
-			<Text>[NEWLINE] [ICON_BULLET] Targeted Civilization must be Very Unhappy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Targeted Civilization must be very unhappy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_ENEMY_UNHAPPY">
-			<Text>[NEWLINE] [ICON_BULLET] Targeted Civilization must be Unhappy</Text>
+			<Text>[NEWLINE] [ICON_BULLET] Targeted Civilization must be unhappy</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_TRADE_SLOT">
 			<Text>[NEWLINE] [ICON_BULLET] Requires an available slot for a Trade Unit</Text>
@@ -2853,6 +3010,9 @@
 		<Row Tag="TXT_KEY_NEED_ANY_IDEOLOGY">
 			<Text>[NEWLINE] [ICON_BULLET] Requires an Ideology</Text>
 		</Row>
+		<Row Tag="TXT_KEY_NOT_ENOUGH_GOLD">
+			<Text>[NEWLINE] [ICON_BULLET] Not enough Gold in Treasury</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NEED_SPECIFIC_RELIGION">
 			<Text>[NEWLINE] [ICON_BULLET] Requires adoption of {1_Desc} Religion</Text>
 		</Row>
@@ -2864,6 +3024,15 @@
 		</Row>
 		<Row Tag="TXT_KEY_NEED_HOLY_CITY_SPECIFIC_LOCAL">
 			<Text>[NEWLINE] [ICON_BULLET] Must be the Holy City for {1_Desc}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NEED_PRODUCTION_NO_PROCESS">
+			<Text>[NEWLINE] [ICON_BULLET] City must not be working a Process</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NEED_PRODUCE_SOMETHING">
+			<Text>[NEWLINE] [ICON_BULLET] City must be producing something</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NEED_RESOURCE_IMPROVEMENT">
+			<Text>[NEWLINE] [ICON_BULLET] City must have an improved resource tile</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_NO_PLAYER_MAJORITY_RELIGION">
 			<Text>[NEWLINE] [ICON_BULLET] City must not follow your majority Religion</Text>
@@ -2955,14 +3124,29 @@
 		<Row Tag="TXT_KEY_EVENT_ONESHOT">
 			<Text>[NEWLINE] [ICON_BULLET] Event choice can only be chosen once per game</Text>
 		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_BLOCKED_BY_COUNTERSPY">
+			<Text>[NEWLINE] [ICON_BULLET] Blocked by enemy counterspy</Text>
+		</Row>
 		<Row Tag="TXT_KEY_EVENT_ACTIVE">
 			<Text>[NEWLINE] [ICON_BULLET] Event choice already active</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ACTIVE">
+			<Text>[NEWLINE] [ICON_BULLET] Mission recently conducted here</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_ACTIVE_RELATED">
+			<Text>[NEWLINE] [ICON_BULLET] Related event choice already active</Text>
+		</Row>
+		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_ACTIVE_RELATED">
+			<Text>[NEWLINE] [ICON_BULLET] Related mission recently conducted here</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_ACTIVE_CITY_EVENT">
 			<Text>[NEWLINE] [ICON_BULLET] Requires City Event that is not currently active</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_ACTIVE_CITY_EVENT_CHOICE">
 			<Text>[NEWLINE] [ICON_BULLET] Requires City Event Choice that is not currently active</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EVENT_RECENT_SPY_MISSION">
+			<Text>[NEWLINE] [ICON_BULLET] Spy has recently conducted a mission</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NEED_NO_ACTIVE_CITY_EVENT">
 			<Text>[NEWLINE] [ICON_BULLET] Invalid Active City Event</Text>
