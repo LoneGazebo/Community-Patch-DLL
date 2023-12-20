@@ -556,7 +556,7 @@ function AddBuildingButton( pCity, building )
 				end
 			end
 			if pSpecialistInfo.GreatPeopleRateChange > 0 then
-				ToolTipString = ToolTipString .. " +" .. pSpecialistInfo.GreatPeopleRateChange .. "[ICON_GREAT_PEOPLE]";					
+				ToolTipString = ToolTipString .. " +" .. (pSpecialistInfo.GreatPeopleRateChange + pCity:GetEventGPPFromSpecialists()) .. "[ICON_GREAT_PEOPLE]";					
 			end
 			controlTable.BuildingFilledSpecialistSlot1:SetToolTipString(ToolTipString);
 			controlTable.BuildingFilledSpecialistSlot2:SetToolTipString(ToolTipString);
@@ -1290,7 +1290,7 @@ function OnCityViewUpdate()
 					local strToolTipText = Locale.ConvertTextKey("TXT_KEY_PROGRESS_TOWARDS",labelText);
 					strToolTipText = strToolTipText .. ": " .. tostring(iProgress) .. "/" .. tostring(threshold);					
 					local iCount = pCity:GetSpecialistCount( pSpecialistInfo.ID );
-					local iGPPChange = pSpecialistInfo.GreatPeopleRateChange * iCount * 100;
+					local iGPPChange = (pSpecialistInfo.GreatPeopleRateChange + pCity:GetEventGPPFromSpecialists()) * iCount * 100;
 					for building in GameInfo.Buildings{SpecialistType = pSpecialistInfo.Type} do
 				        local buildingID = building.ID;
 						if (pCity:IsHasBuilding(buildingID)) then
@@ -1504,7 +1504,7 @@ function OnCityViewUpdate()
 					end
 				end
 				if pSpecialistInfo.GreatPeopleRateChange > 0 then
-					ToolTipString = ToolTipString .. " +" .. pSpecialistInfo.GreatPeopleRateChange .. "[ICON_GREAT_PEOPLE]";					
+					ToolTipString = ToolTipString .. " +" .. (pSpecialistInfo.GreatPeopleRateChange + pCity:GetEventGPPFromSpecialists()) .. "[ICON_GREAT_PEOPLE]";					
 				end
 
 				-- bunch-o-slackers

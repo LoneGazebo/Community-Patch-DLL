@@ -33,8 +33,6 @@ UPDATE Buildings
 SET
 	EventTourism = 7,
 	NoUnhappfromXSpecialists = 1,
-	EnablesTechSteal = 1,
-	EnablesGWSteal = 1,
 	VassalLevyEra = 1
 WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 
@@ -835,7 +833,6 @@ SET
 	RangedStrikeModifier = 10,
 	CitySupplyModifier = 20,
 	HealRateChange = 20,
-	EspionageModifier = -50,
 	DistressFlatReduction = 1,
 	EmpireSizeModifierReduction = -5,
 	CityAirStrikeDefense = 15
@@ -1195,17 +1192,31 @@ WHERE BuildingClass = 'BUILDINGCLASS_STADIUM';
 -- Constabulary
 UPDATE Buildings
 SET
-	EspionageModifier = -50,
-	EspionageTurnsModifierEnemyCity = 1,
+	EspionageModifier = 15,
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
+
+INSERT INTO Helper
+	(YieldType)
+VALUES
+	('YIELD_SCIENCE'),
+	('YIELD_CULTURE');
+
+INSERT INTO Building_YieldFromSpyIdentify
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 25
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_CONSTABLE';
+
+DELETE FROM Helper;
 
 -- Police Station
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_ELECTRONICS',
-	EspionageModifier = -50,
-    EspionageTurnsModifierEnemyCity = 1,
+	EspionageModifier = 10,
+	EspionageModifierPerPop = 1,
 	DistressFlatReduction = 1,
 	PovertyFlatReduction = 1,
 	IlliteracyFlatReduction = 1,
@@ -1215,13 +1226,13 @@ WHERE BuildingClass = 'BUILDINGCLASS_POLICE_STATION';
 INSERT INTO Helper
 	(YieldType)
 VALUES
-	('YIELD_GOLD'),
+	('YIELD_SCIENCE'),
 	('YIELD_CULTURE');
 
 INSERT INTO Building_YieldFromSpyDefense
 	(BuildingType, YieldType, Yield)
 SELECT
-	a.Type, b.YieldType, 25
+	a.Type, b.YieldType, 100
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_POLICE_STATION';
 
@@ -2221,10 +2232,7 @@ UPDATE Buildings
 SET
 	PrereqTech = 'TECH_COMPUTERS',
 	GlobalEspionageModifier = 0,
-	EspionageModifier = -15,
-	EspionageTurnsModifierFriendly = -1,
-	EspionageTurnsModifierEnemyCity = 2,
-	DistressFlatReductionGlobal = 1
+	EspionageModifier = 10
 WHERE BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 
 INSERT INTO Helper
@@ -2237,6 +2245,20 @@ INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 SELECT
 	a.Type, b.YieldType, 100
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
+
+INSERT INTO Building_YieldFromSpyDefenseOrID
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 100
+FROM Buildings a, Helper b
+WHERE a.BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
+
+INSERT INTO Building_YieldFromSpyRigElection
+	(BuildingType, YieldType, Yield)
+SELECT
+	a.Type, b.YieldType, 50
 FROM Buildings a, Helper b
 WHERE a.BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 

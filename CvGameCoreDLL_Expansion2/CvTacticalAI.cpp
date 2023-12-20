@@ -314,6 +314,7 @@ void CvTacticalAI::RecruitUnits()
 /// Update the AI for units
 void CvTacticalAI::Update()
 {
+	UpdateVisibility();
 	DropOldFocusAreas();
 	FindTacticalTargets();
 
@@ -322,6 +323,14 @@ void CvTacticalAI::Update()
 
 	// Loop through each dominance zone assigning moves
 	ProcessDominanceZones();
+}
+
+/// Clear up memory usage
+void CvTacticalAI::CleanUp()
+{
+	m_plotsVisibleToOtherPlayer.clear();
+	m_AllTargets.clear();
+	m_ZoneTargets.clear();
 }
 
 /// Add a temporary focus of attention around a short-term target
@@ -373,16 +382,142 @@ bool CvTacticalAI::IsInFocusArea(const CvPlot* pPlot) const
 	return false;
 }
 
+/// Setup knowledge of other players' seen plots
+void CvTacticalAI::UpdateVisibility()
+{
+	TeamTypes eTeam = m_pPlayer->getTeam();
+
+	CvPlot* pLoopPlot;
+
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+
+		if (!pLoopPlot->isRevealed(eTeam))
+			continue;
+
+		UpdateVisibilityFromBorders(pLoopPlot, false);
+
+		if (!pLoopPlot->isVisible(eTeam))
+			continue;
+
+		NewVisiblePlot(pLoopPlot, false);
+	}
+}
+
+/// Check if there are any units owned by other players in this tile and what they can see
+void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
+{
+	if (!pPlot)
+		return;
+
+	TeamTypes eTeam = m_pPlayer->getTeam();
+
+	// If we just revealed the tile, check if it or a nearby plot is owned by another player
+	if (bRevealed)
+	{
+		UpdateVisibilityFromBorders(pPlot, bRevealed);
+	}
+
+	if (pPlot->getNumUnits() > 0)
+	{
+		TeamTypes eOtherTeam;
+		CvUnit* pLoopUnit;
+
+		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
+		{
+			pLoopUnit = pPlot->getUnitByIndex(iI);
+			eOtherTeam = pLoopUnit->getTeam();
+			if (eOtherTeam != eTeam && !pLoopUnit->isInvisible(eTeam, false))
+			{
+				for (int iRange = 2; iRange <= pLoopUnit->visibilityRange(); iRange++)
+				{
+					const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
+
+					for (size_t iJ = 0; iJ < vPlots.size(); iJ++)
+					{
+						if ((vPlots[iJ]) == NULL)
+							continue;
+
+						m_plotsVisibleToOtherPlayer[eOtherTeam].insert(vPlots[iJ]->GetPlotIndex());
+					}
+				}
+			}
+		}
+	}
+}
+
+/// Do we know that the other civ can see this tile?
+bool CvTacticalAI::IsVisibleToPlayer(const CvPlot* pPlot, TeamTypes eOther)
+{
+	return m_plotsVisibleToOtherPlayer.count(eOther) > 0 && m_plotsVisibleToOtherPlayer[eOther].count(pPlot->GetPlotIndex()) > 0;
+}
+
+/// Do we know that an enemy civ can see this tile?
+bool CvTacticalAI::IsVisibleToEnemy(const CvPlot* pPlot)
+{
+	const std::vector<PlayerTypes>& vEnemies = m_pPlayer->GetPlayersAtWarWith();
+
+	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+	{
+		CvPlayer& kEnemy = GET_PLAYER(*it);
+		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(m_pPlayer->GetID()))
+		{
+			if (IsVisibleToPlayer(pPlot, kEnemy.getTeam()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
 // PRIVATE METHODS
+
+void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed)
+{
+	TeamTypes eTeam = m_pPlayer->getTeam();
+	TeamTypes eOtherTeam = pPlot->getTeam();
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	CvPlot* pAdjacentPlot;
+
+	if (eOtherTeam != NO_TEAM && eOtherTeam != eTeam)
+	{
+		// Plot is owned by another player
+		m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pPlot->GetPlotIndex());
+
+		if (bRevealed)
+		{
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+			{
+				pAdjacentPlot = aPlotsToCheck[iI];
+
+				if (pAdjacentPlot != NULL && pAdjacentPlot->isVisible(eTeam))
+					// We knew about this plot before but we may not previously have known that this player was neighboring it
+					m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pAdjacentPlot->GetPlotIndex());
+			}
+		}
+	}
+
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		pAdjacentPlot = aPlotsToCheck[iI];
+
+		if (pAdjacentPlot != NULL && pAdjacentPlot->isVisible(eTeam)) {
+			eOtherTeam = pAdjacentPlot->getTeam();
+
+			if (eOtherTeam != eTeam && pAdjacentPlot->getTeam() != NO_TEAM)
+				// Neighbors a plot owned by another player
+				m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pAdjacentPlot->GetPlotIndex());
+		}
+	}
+}
 
 /// Make lists of everything we might want to target with the tactical AI this turn
 void CvTacticalAI::FindTacticalTargets()
 {
 	CvPlayerTrade* pPlayerTrade = m_pPlayer->GetTrade();
-
-	// Clear out target list since we rebuild it each turn
-	m_AllTargets.clear();
-	m_ZoneTargets.clear();
 
 	bool bNoBarbsAllowedYet = GC.getGame().getGameTurn() < GC.getGame().GetBarbarianReleaseTurn();
 	vector<PlayerTypes> vUnfriendlyMajors = m_pPlayer->GetUnfriendlyMajors();
@@ -1205,7 +1340,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 		{
 			// try to flee or hide
 			int iDangerLevel = pUnit->GetDanger();
-			if(iDangerLevel > 0 || pUnit->plot()->isVisibleToEnemy(pUnit->getOwner()))
+			if(iDangerLevel > 0 || IsVisibleToEnemy(pUnit->plot()))
 			{
 				bool bAddUnit = false;
 				if(bCombatUnits)
@@ -6396,8 +6531,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iScore += 12;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
-		//this is cheating a bit, really we need to check if the plot is visible for the enemy units visible to us
-		if (!pPlot->isVisibleToEnemy(pUnit->getOwner()))
+		if (!GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->IsVisibleToEnemy(pPlot))
 			iScore -= iScore / 4;
 
 		//try to go avoid borders
@@ -7668,7 +7802,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 	if (testPlot.hasAirCover())
 		iResult+=3;
 	//when in doubt, hide from the enemy
-	if (!testPlot.isVisibleToEnemy())
+	if (!GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->IsVisibleToEnemy(testPlot.getPlot()))
 		iResult++;
 
 	//try to occupy enemy citadels!
@@ -8194,7 +8328,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	//constant
 	bfBlockedByNonSimCombatUnit = 0;
 	bHasAirCover = pPlot->HasAirCover(ePlayer);
-	bIsVisibleToEnemy = pPlot->isVisibleToEnemy(ePlayer);
+	bIsVisibleToEnemy = kPlayer.GetTacticalAI()->IsVisibleToEnemy(pPlot);
 
 	//updated if necessary
 	bEdgeOfTheKnownWorldUnknown = true;

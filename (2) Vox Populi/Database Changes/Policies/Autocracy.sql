@@ -125,14 +125,15 @@ VALUES
 	('POLICY_LIGHTNING_WARFARE', 'PROMOTION_LIGHTNING_WARFARE_ARMOR');
 
 -- Police State
-INSERT INTO Policy_BuildingClassHappiness
-	(PolicyType, BuildingClassType, Happiness)
+INSERT INTO Policy_BuildingClassProductionModifiers
+	(PolicyType, BuildingClassType, ProductionModifier)
 VALUES
-	('POLICY_POLICE_STATE', 'BUILDINGCLASS_POLICE_STATION', 1);
-
-UPDATE Policies
-SET EspionageTurnsModifierEnemy = 2
-WHERE Type = 'POLICY_POLICE_STATE';
+	('POLICY_POLICE_STATE', 'BUILDINGCLASS_POLICE_STATION', 100);
+	
+INSERT INTO Policy_BuildingClassSecurityChanges
+	(PolicyType, BuildingClassType, SecurityChange)
+VALUES
+	('POLICY_POLICE_STATE', 'BUILDINGCLASS_POLICE_STATION', 10);
 
 -- Nationalism (now Commerce Raiders)
 UPDATE Policies

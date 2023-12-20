@@ -287,10 +287,8 @@ public:
 	int GetExtraMissionarySpreadsGlobal() const;
 	int GetReligiousPressureModifier() const;
 	int GetEspionageModifier() const;
+	int GetEspionageModifierPerPop() const;
 	int GetGlobalEspionageModifier() const;
-	int GetEspionageTurnsModifierFriendly() const;
-	int GetEspionageTurnsModifierEnemyCity() const;
-	int GetEspionageTurnsModifierEnemyGlobal() const;
 	int GetExtraSpies() const;
 	int GetSpyRankChange() const;
 	int GetTradeRouteRecipientBonus() const;
@@ -502,6 +500,15 @@ public:
 
 	int GetYieldFromSpyDefense(int i) const;
 	int* GetYieldFromSpyDefenseArray() const;
+
+	int GetYieldFromSpyIdentify(int i) const;
+	int* GetYieldFromSpyIdentifyArray() const;
+
+	int GetYieldFromSpyDefenseOrID(int i) const;
+	int* GetYieldFromSpyDefenseOrIDArray() const;
+
+	int GetYieldFromSpyRigElection(int i) const;
+	int* GetYieldFromSpyRigElectionArray() const;
 
 #endif
 	int GetYieldChange(int i) const;
@@ -785,10 +792,8 @@ private:
 	int m_iExtraMissionarySpreadsGlobal;
 	int m_iReligiousPressureModifier;
 	int m_iEspionageModifier;
+	int m_iEspionageModifierPerPop;
 	int m_iGlobalEspionageModifier;
-	int m_iEspionageTurnsModifierFriendly;
-	int m_iEspionageTurnsModifierEnemyCity;
-	int m_iEspionageTurnsModifierEnemyGlobal;
 	int m_iExtraSpies;
 	int m_iSpyRankChange;
 	int m_iInstantSpyRankChange;
@@ -973,6 +978,9 @@ private:
 	int* m_piThemingYieldBonus;
 	int* m_piYieldFromSpyAttack;
 	int* m_piYieldFromSpyDefense;
+	int* m_piYieldFromSpyIdentify;
+	int* m_piYieldFromSpyDefenseOrID;
+	int* m_piYieldFromSpyRigElection;
 	int* m_piYieldFromTech;
 	int* m_piYieldFromConstruction;
 	int* m_piYieldFromBirth;

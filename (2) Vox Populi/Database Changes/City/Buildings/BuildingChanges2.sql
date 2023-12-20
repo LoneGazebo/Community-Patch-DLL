@@ -1198,7 +1198,7 @@ UPDATE Building_FreeUnits SET NumUnits = 1 WHERE BuildingType = 'BUILDING_HUBBLE
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_INTERNET',
-	EspionageModifier = -75
+	EspionageModifier = 50
 WHERE Type = 'BUILDING_GREAT_FIREWALL';
 
 INSERT INTO Building_YieldChanges

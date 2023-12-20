@@ -154,6 +154,7 @@ public:
 	int seeThroughLevel(bool bIncludeShubbery=true) const;
 	void changeSeeFromSight(TeamTypes eTeam, DirectionTypes eDirection, int iFromLevel, bool bIncrement, InvisibleTypes eSeeInvisible, CvUnit* pUnit=NULL);
 	void changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, InvisibleTypes eSeeInvisible, DirectionTypes eFacingDirection, CvUnit* pUnit=NULL);
+	void changeEspionageSight(TeamTypes eTeam, CvCity* pCity, int iRange, bool bIncrement);
 	bool canSeePlot(const CvPlot* plot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const;
 	bool shouldProcessDisplacementPlot(int dx, int dy, int range, DirectionTypes eFacingDirection) const;
 	void updateSight(bool bIncrement);
@@ -207,9 +208,10 @@ public:
 
 	bool isAdjacentOwned() const;
 	bool isAdjacentPlayer(PlayerTypes ePlayer, bool bLandOnly = false) const;
-	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam=false, bool bIgnoreImpassable=false) const;
+	bool IsAdjacentOwnedByTeamOtherThan(TeamTypes eTeam, bool bAllowNoTeam=false, bool bIgnoreImpassable=false, bool bIgnoreMinor=false, bool bIgnoreVassal=false) const;
 	bool IsAdjacentOwnedByUnfriendly(PlayerTypes ePlayer, vector<PlayerTypes>& vUnfriendlyMajors) const;
 	bool IsAdjacentOwnedByEnemy(TeamTypes eTeam) const;
+	bool isAdjacentOwnedByVassal(TeamTypes eTeam, bool bLandOnly = false) const;
 	bool isAdjacentTeam(TeamTypes eTeam, bool bLandOnly = false) const;
 	bool IsAdjacentCity(TeamTypes eTeam = NO_TEAM) const;
 	CvCity* GetAdjacentFriendlyCity(TeamTypes eTeam, bool bLandOnly = false) const;
@@ -242,7 +244,6 @@ public:
 	bool isActiveVisible() const;
 	bool isVisibleToAnyTeam(bool bNoMinor = false) const;
 
-	bool isVisibleToEnemy(PlayerTypes eFriendlyPlayer) const;
 	bool isVisibleToWatchingHuman() const;
 	bool isAdjacentVisible(TeamTypes eTeam, bool bDebug=false) const;
 	bool isAdjacentNonvisible(TeamTypes eTeam) const;
@@ -501,6 +502,9 @@ public:
 	// Who built the improvement in this plot?
 	PlayerTypes GetPlayerThatBuiltImprovement() const;
 	void SetPlayerThatBuiltImprovement(PlayerTypes eBuilder);
+
+	PlayerTypes GetPlayerThatBuiltRoute() const;
+	void SetPlayerThatBuiltRoute(PlayerTypes eBuilder);
 	
 	// Someone footing the bill for an improvement/route in an unowned plot?
 	PlayerTypes GetPlayerResponsibleForImprovement() const;
@@ -969,6 +973,7 @@ protected:
 	char /*ResourceTypes*/ m_eResourceType;
 	char /*ImprovementTypes*/ m_eImprovementType;
 	char /*PlayerTypes*/ m_ePlayerBuiltImprovement;
+	char /*PlayerTypes*/ m_ePlayerBuiltRoute;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForImprovement;
 	char /*PlayerTypes*/ m_ePlayerResponsibleForRoute;
 	char /*PlayerTypes*/ m_ePlayerThatClearedBarbCampHere;

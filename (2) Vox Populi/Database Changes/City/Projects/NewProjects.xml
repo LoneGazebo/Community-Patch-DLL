@@ -36,7 +36,7 @@
 			<IlliteracyFlatReduction>1</IlliteracyFlatReduction>
 			<BoredomFlatReduction>1</BoredomFlatReduction>
 			<ReligiousUnrestFlatReduction>1</ReligiousUnrestFlatReduction>
-			<EspionageMod>-10</EspionageMod>
+			<EspionageMod>5</EspionageMod>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>
 			<PortraitIndex>13</PortraitIndex>
 		</Row>

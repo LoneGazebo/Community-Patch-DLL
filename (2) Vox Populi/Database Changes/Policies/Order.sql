@@ -53,10 +53,13 @@ VALUES
 -- Double Agents
 UPDATE Policies
 SET
-	FreeSpy = 3,
-	EspionageTurnsModifierFriendly = -1,
-	EspionageTurnsModifierEnemy = 1
+	FreeSpy = 2
 WHERE Type = 'POLICY_DOUBLE_AGENTS';
+
+INSERT INTO Policy_YieldForSpyID
+	(PolicyType, YieldType, Yield)
+VALUES
+	('POLICY_DOUBLE_AGENTS', 'YIELD_SCIENCE', 125);
 
 -- Worker's Faculties
 UPDATE Policies

@@ -248,7 +248,7 @@ local function ScanGP( player )
 			if unitClass then
 				local gpThreshold = city:GetSpecialistUpgradeThreshold(unitClass.ID)
 				local gpProgress = city:GetSpecialistGreatPersonProgressTimes100(specialist.ID) / 100
-				local gpChange = specialist.GreatPeopleRateChange * city:GetSpecialistCount( specialist.ID )
+				local gpChange = (specialist.GreatPeopleRateChange + city:GetEventGPPFromSpecialists()) * city:GetSpecialistCount( specialist.ID )
 				for building in GameInfo.Buildings{ SpecialistType = specialist.Type } do
 					if city:IsHasBuilding(building.ID) then
 						gpChange = gpChange + building.GreatPeopleRateChange
@@ -1065,7 +1065,7 @@ g_toolTipHandler.SciencePerTurn = function()-- control )
 		tips:insertLocalizedIfNonZero( "TXT_KEY_TP_SCIENCE_FROM_MINORS", g_activePlayer:GetScienceFromOtherPlayersTimes100() / 100 )
 
 		-- Science from Espionage
-		local iScienceFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false);
+		local iScienceFromEspionage = g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, true) - g_activePlayer:GetYieldPerTurnFromEspionageEvents(YieldTypes.YIELD_SCIENCE, false) + (g_activePlayer:GetSciencePerTurnFromPassiveSpyBonusesTimes100() / 100);
 
 		tips:insertLocalizedIf( iScienceFromEspionage > 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_POSITIVE", iScienceFromEspionage )
 		tips:insertLocalizedIf( iScienceFromEspionage < 0 and "TXT_KEY_TP_SCIENCE_FROM_ESPIONAGE_NEGATIVE", iScienceFromEspionage )

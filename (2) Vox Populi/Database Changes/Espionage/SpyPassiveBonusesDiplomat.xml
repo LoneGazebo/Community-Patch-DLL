@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<SpyPassiveBonusesDiplomat>
+		<Row>
+			<!-- only for UI purposes -->
+			<ID>0</ID>
+			<Type>DIPLOMAT_PASSIVE_1</Type>
+			<Description>TXT_KEY_DIPLOMAT_PASSIVE_1</Description>
+			<Help>TXT_KEY_DIPLOMAT_PASSIVE_1_HELP</Help>
+			<NetworkPointsNeeded>0</NetworkPointsNeeded>
+		</Row>
+		<Row>
+			<Type>DIPLOMAT_PASSIVE_2</Type>
+			<Description>TXT_KEY_DIPLOMAT_PASSIVE_2</Description>
+			<Help>TXT_KEY_DIPLOMAT_PASSIVE_2_HELP</Help>
+			<NetworkPointsNeeded>200</NetworkPointsNeeded>
+			<ReceiveIntrigues>true</ReceiveIntrigues>
+			<RevealTechTree>true</RevealTechTree>
+			<RevealPolicyTree>true</RevealPolicyTree>
+		</Row>
+		<Row>
+			<Type>DIPLOMAT_PASSIVE_3</Type>
+			<Description>TXT_KEY_DIPLOMAT_PASSIVE_3</Description>
+			<Help>TXT_KEY_DIPLOMAT_PASSIVE_3_HELP</Help>
+			<NetworkPointsNeeded>500</NetworkPointsNeeded>
+			<RevealMilitaryUnitCount>true</RevealMilitaryUnitCount>
+			<TradeRouteGoldBonus>20</TradeRouteGoldBonus>
+		</Row>
+		<Row>
+			<Type>DIPLOMAT_PASSIVE_4</Type>
+			<Description>TXT_KEY_DIPLOMAT_PASSIVE_4</Description>
+			<Help>TXT_KEY_DIPLOMAT_PASSIVE_4_HELP</Help>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<RevealTradeDeals>true</RevealTradeDeals>
+			<RevealTrueApproaches>true</RevealTrueApproaches>
+		</Row>
+	</SpyPassiveBonusesDiplomat>
+</GameData>

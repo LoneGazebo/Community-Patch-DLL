@@ -23,12 +23,10 @@
 						<Label ID="AgentLocation" Anchor="L,T" Offset="0,5" TruncateWidth="120" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 					</Stack>
 					<Stack Size="116,20" Offset="0,20" Anchor="C,T" StackGrowth="Bottom" ID="AgentActivitiesStack">
-						<GridButton Size="96,26" Style="SmallButton" ID="ViewCityButton" ToolTip="TXT_KEY_EO_VIEW_TOOLTIP">
-							<Image Size="20,20" Texture="Esp_ViewCity20.dds" Offset="5,5" Anchor="L,T"/>
-							<Label ID="ViewCityButtonLabel" String="TXT_KEY_EO_VIEW" Offset="0,0" Anchor="C,C"/>
-						</GridButton>
-						<GridButton Size="96,26" Style="SmallButton" ID="StageCoupButton" String="TXT_KEY_EO_COUP" ToolTip="TXT_KEY_EO_COUP_TT" Hidden="1"/>
-						<GridButton Size="96,26" Style="SmallButton" ID="RelocateButton" String="TXT_KEY_EO_RELOCATE" ToolTip="TXT_KEY_EO_RELOCATE_TOOLTIP"/>
+						<GridButton Size="110,26" Style="SmallButton" ID="RelocateButton" String="TXT_KEY_EO_RELOCATE" ToolTip="TXT_KEY_EO_RELOCATE_TOOLTIP"/>
+						<GridButton Size="110,26" Style="SmallButton" ID="SpyMissionButton" String="TXT_KEY_EO_MISSIONS" ToolTip="TXT_KEY_EO_MISSIONS_TOOLTIP_SHORT"/> <!-- VP -->
+						<GridButton Size="110,26" Style="SmallButton" ID="CounterspyButton" String="TXT_KEY_EO_COUNTERSPY" ToolTip="TXT_KEY_EO_COUNTERSPY_TOOLTIP_SHORT"/> <!-- VP -->
+						<GridButton Size="110,26" Style="SmallButton" ID="DiplomatButton" String="TXT_KEY_EO_DIPLOMAT" ToolTip="TXT_KEY_EO_DIPLOMAT_TOOLTIP_SHORT"/> <!-- VP -->
 					</Stack>
 				</Box>
 				<Box Size="218,40" Color="0,0,0,0" ID="AgentActivityPanel">
@@ -47,7 +45,10 @@
 				</Box>
 			</Stack>
 			<Box Size="451,80" Color="0,0,0,200" ID="AgentKIAPanel" Hidden="1">
-				<Label Anchor="C,C" ColorSet="Red_Black" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_EO_KIA"/>
+				<Label Anchor="C,C" ID="AgentKIAText" ColorSet="Red_Black" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_EO_KIA"/>
+			</Box>
+			<Box Size="451,80" Color="0,0,0,200" ID="AgentPrisonPanel" Hidden="1">
+				<Label Anchor="C,C" ID="AgentPrisonText" ColorSet="Red_Black" Font="TwCenMT22" FontStyle="Shadow" String="TXT_KEY_EO_IMPRISONED"/>
 			</Box>
 			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="451,3"/>
 		</Box>
@@ -66,9 +67,8 @@
 				</Box>
 				<Box Size="161,25" Color="0,0,0,0">
 					<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
-					<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
 					<!-- CBP Entry -->
-					<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+					<Label Anchor="L,C" Offset="18,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
 					<!-- END -->
 					<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 				</Box>
@@ -103,9 +103,8 @@
 					</Box>
 					<Box Size="161,25" Color="0,0,0,0">
 						<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
-						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
 						<!-- CBP Entry -->
-						<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+						<Label Anchor="L,C" Offset="18,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
 						<!-- END -->
 						<Label ID="CityName" Anchor="L,C" Offset="42,0" TruncateWidth="115" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 					</Box>
@@ -136,14 +135,12 @@
 				<Box Size="161,25" Color="0,0,0,0">
 					<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
           <Label Anchor="L,C" Offset="0,0" String="[ICON_DIPLOMAT]" ID="DiplomatInCityIcon"/>
-					<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,40" ID="DisabledViewCityIcon"/>
-					<Button Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" NoStateChange="1" ID="ViewCityIcon"/>
 					<!-- Enginseer Entry -->
 					<Label Anchor="L,C" Offset="20,0" Size="20,20" String="[ICON_PUPPET]" ID="SphereOfInfluenceMiniIcon" Hidden="1"/>
 					<!-- END Entry -->
 <!-- CBP Entry -->
-					<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
-					<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+					<Label Anchor="L,C" Offset="18,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+					<Box Size="32,32" Anchor="L,T" Offset="13,-3" Color="0,0,0,0">
 						<Image ID="AllyIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 						<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 						<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
@@ -198,14 +195,12 @@
 					<Box Size="161,25" Color="0,0,0,0">
 						<Image Anchor="L,C" Texture="Esp_Spy_InCity22.dds" Offset="0,2" Size="22,22" TextureOffset="0,22" ID="SpyInCityIcon"/>
             <Label Anchor="L,C" Offset="0,0" String="[ICON_DIPLOMAT]" ID="DiplomatInCityIcon"/>
-						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,40" ID="DisabledViewCityIcon"/>
-						<Image Anchor="L,C" Texture="Esp_ViewCity20.dds" Offset="22,2" Size="20,20" TextureOffset="0,20" ID="ViewCityIcon"/>
 						<!-- Enginseer Entry -->
 						<Label Anchor="L,C" Offset="20,0" Size="20,20" String="[ICON_PUPPET]" ID="SphereOfInfluenceMiniIcon" Hidden="1"/>
 						<!-- END Entry -->
 <!-- CBP Entry -->
-						<Label Anchor="L,C" Offset="0,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
-						<Box Size="32,32" Anchor="L,T" Offset="0,-3" Color="0,0,0,0">
+						<Label Anchor="L,C" Offset="18,0" String="[ICON_CAPITAL]" ID="CapitalCityIcon"/>
+						<Box Size="32,32" Anchor="L,T" Offset="13,-3" Color="0,0,0,0">
 							<Image ID="AllyIconBG" Size="32.32" Anchor="C,C" Offset="0,0" TextureOffset="32,0" Texture="CivIconBGSizes.dds"/>
 							<Image ID="AllyIconShadow" Size="24.24" Anchor="C,C" Offset="1,1" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
 							<Image ID="AllyIcon" Size="24.24" Offset="0,0" Anchor="C,C" Texture="CivSymbolsColor256.dds"/>
@@ -259,37 +254,46 @@
 			<Image Anchor="R,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
 		</Box>
 	</Instance>
-	<!-- axatin -->
-	<Instance Name="ActiveMissionsMessageInstance">
-		<Box Size="936,60" Color="0,0,0,0" ID="Base">
-			<Stack Size="936,28" StackGrowth="Right">
-				<Box Size="100,28" Color="0,0,0,0">
-					<Label ID="StartTurnNum" Anchor="L,T" Offset="32,10" TruncateWidth="50" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-				</Box>
-				<Box Size="100,28" Color="0,0,0,0">
-					<Label ID="EndTurnNum" Anchor="L,T" Offset="32,10" TruncateWidth="50" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-				</Box>
-				<Box Size="200,28" Color="0,0,0,0">
-					<Image ID="CivIconSpyOwnerBG" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivIconBGSizes.dds" />
-                    <Image ID="CivIconSpyOwnerShadow" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
-					<Image ID="CivIconSpyOwner" Texture="CivSymbolsColor256.dds" Anchor="L,T" Size="32,32" Offset="0,0"/>
-					<Label ID="CivilizationNameSpyOwner" Anchor="L,T" Offset="32,10" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-				</Box>
-				<Box Size="200,28" Color="0,0,0,0">
-					<Image ID="CivIconTargetBG" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivIconBGSizes.dds" />
-                    <Image ID="CivIconTargetShadow" Size="32.32" Anchor="L,T" Offset="0,0" Texture="CivSymbolAtlas16.dds" Color="Black.128"/>
-					<Image ID="CivIconTarget" Texture="CivSymbolsColor256.dds" Size="32,32" Anchor="L,T" Offset="0,0"/>
-					<Label ID="CivilizationNameTarget" Anchor="L,T" Offset="32,10" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
-				</Box>
-				<Box Size="336,28" Color="0,0,0,0">
-					<Label ID="Effect" Anchor="L,T" Offset="0,10" WrapWidth="586" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-				</Box>
-			</Stack>
-			<Image Anchor="L,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
-			<Image Anchor="R,B" Offset="0,0" Texture="BlueBar500x3.dds" Size="500,3"/>
+	<Instance Name="PassiveBonusesInstance">
+		<Box ID="Base" Anchor="L,C" Offset="0,0" Size="350,53" Color="255,255,255,0">
+			<Button Anchor="L,C" Size="350,53" Color="255,255,255,255" Offset="0,0" StateOffsetIncrement="0,0" ID="Button">
+				<Label Anchor="L,C" Offset="23,0" WrapWidth="350" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Name"/>
+				<Image Anchor="C,B" Offset="0,0" Texture="bar340x2.dds" Size="340.1"/>
+			</Button>
 		</Box>
 	</Instance>
-	<!-- END axatin -->
+	<Instance Name="MissionSelectionInstance">
+		<Box ID="Base" Anchor="L,C" Offset="0,0" Size="540,53" Color="255,255,255,0">
+			<Button Anchor="L,C" Size="540,53" Color="255,255,255,255" Offset="0,0" StateOffsetIncrement="0,0" ID="Button">
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,C" Size="540,56" Pause="0" ID="MOSelectionAnim" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Size="540,56" Offset="0,0" ID="MOSelectionAnimHL" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				</ShowOnMouseOver>
+				<AlphaAnim Anchor="L,C" Size="540,56" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1" ID="SelectionAnim" Hidden="1">
+					<Grid Size="540,56" Offset="0,0" Padding="0,0" ID="SelectionAnimHL" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+				<Label Anchor="L,C" Offset="23,0" WrapWidth="540" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Name"/>
+				<Image Anchor="C,B" Offset="0,0" Texture="bar500x2.dds" Size="500.1"/>
+			</Button>
+		</Box>
+	</Instance>
+	<Instance Name="CounterspyFocusInstance">
+		<Box ID="Base" Anchor="L,C" Offset="0,0" Size="560,53" Color="255,255,255,0">
+			<Button Anchor="L,C" Size="560,53" Color="255,255,255,255" Offset="0,0" StateOffsetIncrement="0,0" ID="Button">
+				<ShowOnMouseOver>
+					<AlphaAnim Anchor="L,C" Size="560,56" Pause="0" ID="MOSelectionAnim" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
+						<Grid Size="560,56" Offset="0,0" ID="MOSelectionAnimHL" Padding="0,0" Style="Grid9FrameTurnsHL"/>
+					</AlphaAnim>
+				</ShowOnMouseOver>
+				<AlphaAnim Anchor="L,C" Size="560,56" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1" ID="SelectionAnim" Hidden="1">
+					<Grid Size="560,56" Offset="0,0" Padding="0,0" ID="SelectionAnimHL" Style="Grid9FrameTurnsHL"/>
+				</AlphaAnim>
+				<Label Anchor="L,C" Offset="10,0" WrapWidth="490" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow" ID="Name"/>
+				<Image Anchor="C,B" Offset="0,0" Texture="bar340x2.dds" Size="340.1"/>
+			</Button>
+		</Box>
+	</Instance>
 	<Box Style="BGBlock_ClearTopBar"/>
 	<Grid Size="990,653" Anchor="C,C" Offset="0,6" Padding="0,0" Style="Grid9DetailFive140">
 		<!-- Decoration -->
@@ -328,17 +332,6 @@
 						<!-- Selected State  -->
 						<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="IntrigueSelectHighlight"/>
 					</Button>
-					<!-- axatin -->
-					<Button Anchor="L,T" Size="300,24" Offset="0,0" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS" ID="TabButtonActiveMissions">
-						<ShowOnMouseOver>
-							<AlphaAnim Anchor="L,C" Size="300,27" Pause="0" Cycle="Bounce" Speed="1" AlphaStart="2" AlphaEnd="1">
-								<Grid Size="300,27" Offset="0,2" Padding="0,0" Style="Grid9FrameTurnsHL"/>
-							</AlphaAnim>
-						</ShowOnMouseOver>
-						<!-- Selected State  -->
-						<Grid Anchor="C,C" Offset="0,1" Size="300,26" Style="Grid9FrameTurns" Hidden="1" ID="ActiveMissionsSelectHighlight"/>
-					</Button>
-					<!-- END axatin -->
 				</Stack>
 				<Image Anchor="C,B" Offset="0,0" Texture="HorizontalTrim.dds" Size="971.5"/>
 			</Box>
@@ -539,47 +532,7 @@
 					<Stack StackGrowth="Bottom" ID="IntrigueMessageStack"/>
 				</ScrollPanel>
 				<Label Anchor="C,C" Offset="0,10" WrapWidth="440" ID="NoIntrigueAvailable" Hidden="1" String="TXT_KEY_EO_NO_INTRIGUE_AVAILABLE" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-			</Box>
-			<!-- axatin -->
-			<Box Size="954,463" Offset="0,31" Color="0,0,0,0" ID="ActiveMissionsPanel" Hidden="1">
-				<Stack Size="954,20" StackGrowth="Right" ID="ActiveMissionsMessageHeaders">
-					<Box Size="100,18" Color="0,0,0,0">
-						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_START_TURN" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByStartTurn">
-							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByStartTurnImg"/>
-						</TextButton>
-					</Box>
-					<Box Size="100,18" Color="0,0,0,0">
-						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_END_TURN" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByEndTurn">
-							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByEndTurnImg"/>
-						</TextButton>
-					</Box>
-					<Box Size="200,18" Color="0,0,0,0">
-						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_SPY_OWNER" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortBySpyOwner">
-							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortBySpyOwnerImg"/>
-						</TextButton>
-					</Box>
-					<Box Size="200,18" Color="0,0,0,0">
-						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_TARGET" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByTarget">
-							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByTargetImg"/>
-						</TextButton>
-					</Box>
-					<Box Size="336,18" Color="0,0,0,0">
-						<TextButton Offset="0,0" Anchor="C,B" Font="TwCenMT20" ColorSet="Beige_Black_Alpha" String="TXT_KEY_EO_ACTIVE_SPY_MISSIONS_EFFECT" FontStyle="Shadow" MouseOverStyle="SoftShadow" ConsumeMouse="1" ID="ActiveMissionsSortByEffect">
-							<Image Anchor="L,C" AnchorSide="O.I" Offset="2,0" Texture="assets/UI/Art/Controls/9 Grids/SelectedUp.dds" Size="18,18" ID="ActiveMissionsSortByEffectImg"/>
-						</TextButton>
-					</Box>
-				</Stack>
-				<ScrollPanel Vertical="1" Size="936,443" Offset="0,24" AutoScrollBar="0" ID="ActiveMissionsMessageScrollPanel">
-					<!-- Scroll Controls -->
-					<ScrollBar Style="VertSlider" Length="427" Anchor="R,C" AnchorSide="O,I"/>
-					<UpButton Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
-					<DownButton Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
-					<Stack StackGrowth="Bottom" ID="ActiveMissionsMessageStack"/>
-				</ScrollPanel>
-				<Label Anchor="C,C" Offset="0,10" WrapWidth="440" ID="NoActiveMissionsAvailable" Hidden="1" String="TXT_KEY_EO_NO_SPY_MISSIONS_ACTIVE" Font="TwCenMT22" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
-			</Box>
-			<!-- END axatin -->
-			
+			</Box>			
 		</Box>
 		<Box Anchor="C,B" AnchorSide="I.I" Offset="0,54" Size="927,56" Color="255,255,255,0">
 			<!-- Close Button  -->
@@ -617,9 +570,9 @@
 	<!-- Notification Popup -->
 	<Box Color="Black.200" Size="Full.Full" ID="NotificationPopup" Hidden="1" ConsumeMouseOver="1">
 		<Grid Size="500,340" Anchor="C,C" Offset="0,0" Padding="0,20" Style="Grid9DetailFive140" Hidden="0" ID="NotificationFrame">
-      <!-- Side treatments -->
-      <Box Style="MenuLeftSideTreatment"/>
-      <Box Style="MenuRightSideTreatment"/>
+			<!-- Side treatments -->
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
 			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
 				<Image Anchor="C,C" Offset="0,-1" Size="64,64" Texture="EspionageSpyIcons64_Expansion.dds"/>
 			</Image>
@@ -628,6 +581,83 @@
 				<!-- OK Button  -->
 				<GridButton Style="BaseButton" ID="OK" Size="400,42" Anchor="C,T" Offset="0,0" Hidden="0">
 					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_OK_BUTTON" ColorSet="Beige_Black" Font="TwCenMT24" FontStyle="Shadow"/>
+				</GridButton>
+			</Stack>
+		</Grid>
+	</Box>
+	<!-- Mission Selection Popup -->
+	<Box Color="Black.200" Size="Full.Full" ID="MissionSelectionPopup" Hidden="1" ConsumeMouseOver="1">
+		<Grid Size="910,852" ID="MissionSelectionFrame" Anchor="C,C" Offset="0,0" Padding="0,0" Hidden="0" Style="Grid9DetailFive140">
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="0,-1" Size="64,64" Texture="EspionageSpyIcons64_Expansion.dds"/>
+			</Image>
+			
+			<Box Size="910,764" Offset="19,44" Color="0,0,0,0">
+				<Box Size="350,734" Anchor="L,T" Offset="0,0" Padding="0,0" Color="White.0">
+					<Label Anchor="C,T" String="TXT_KEY_EO_PASSIVE_BONUSES" Offset="0,20" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
+					<Label Anchor="L,T" Offset="23,60" WrapWidth="300" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="PassiveBonusesDescription"/>
+					<Label Anchor="C,T" String="TXT_KEY_EO_PASSIVE_BONUS_THRESHOLDS" WrapWidth="300" Offset="0,375" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
+					<Stack Anchor="L,T" Offset="0,306" Padding="0" Size="350,350" StackGrowth="Bottom" ID="PassiveBonusesContent">
+						<ScrollPanel Anchor="L,T" Offset="0,100" Size="350,350" AutoScrollBar="1" Vertical="1" ID="PassiveBonusesScrollPanel">
+							<Stack Anchor="L,T" Offset="0,0" Size="350,350" Padding="10" StackGrowth="Bottom">
+								<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" Size="350,350" ID="PassiveBonusesStack"/>
+							</Stack>
+						</ScrollPanel>
+					</Stack>
+				</Box>
+				<Image Anchor="L,T" Offset="350,-764" AnchorSide="I.O" Texture="VerticalTrim.dds" Size="5,764"/> <!-- 694 -->
+				<Box Size="560,734" Anchor="R,T" Padding="0,0" Color="White.0">
+					<Label Anchor="C,T" String="TXT_KEY_EO_MISSIONS" Offset="0,20" ColorSet="Beige_Black_Alpha" Font="TwCenMT22" FontStyle="Shadow"/>
+					<Label Anchor="L,T" Offset="35,60" WrapWidth="450" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="MissionSelectionDescription"/>
+					<Stack Anchor="L,T" Offset="0,90" Padding="0" StackGrowth="Bottom" ID="MissionSelectionContent">
+						<ScrollPanel Anchor="L,T" Offset="0,100" Size="560,580" AutoScrollBar="1" Vertical="1" ID="MissionSelectionScrollPanel">
+							<Stack Anchor="L,T" Offset="0,0" Size="560,350" Padding="10" StackGrowth="Bottom">
+								<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="MissionSelectionStack"/>
+							</Stack>
+						</ScrollPanel>
+					</Stack>
+				</Box>
+			</Box>
+			<Box Anchor="C,B" AnchorSide="I.I" Offset="0,54" Size="887,56" Color="255,255,255,0">			
+				<GridButton Anchor="L,T" Style="SmallButton" Size="120,32" Offset="30,21" StateOffsetIncrement="0,0" ID="CloseMissionSelectionButton">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				</GridButton>
+				<GridButton Anchor="L,T" Style="SmallButton" Size="150,32" Offset="180,21" StateOffsetIncrement="0,0" ID="ViewCityButton">
+					<Image Size="20,20" Texture="Esp_ViewCity20.dds" Offset="12,8" Anchor="L,T"/>
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_POPUP_VIEW_CITY" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				</GridButton>
+				<GridButton Anchor="L,T" Style="BaseButton" Size="300,50" Offset="474,2" StateOffsetIncrement="0,0" ID="ConfirmMissionSelectionButton">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_EO_CONDUCT_MISSION" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				</GridButton>
+			</Box>
+			<!--Image Anchor="C,B" Offset="0,110" Texture="HorizontalTrim.dds" Size="891.5"/-->
+		</Grid>
+	</Box>
+	<!-- Counterspy Focus Popup -->
+	<Box Color="Black.200" Size="Full.Full" ID="CounterspyFocusPopup" Hidden="1" ConsumeMouseOver="1">
+		<Grid Size="560,520" ID="CounterspyFocusFrame" Anchor="C,C" Offset="0,0" Padding="0,0" Hidden="0" Style="Grid9DetailFive140">
+			<Box Style="MenuLeftSideTreatment"/>
+			<Box Style="MenuRightSideTreatment"/>
+			<Image Anchor="C,T" AnchorSide="I.O" Offset="0,-14" Size="256,64" Texture="Top512IconTrim.dds">
+				<Image Anchor="C,C" Offset="0,-1" Size="64,64" Texture="EspionageSpyIcons64_Expansion.dds"/>
+			</Image>
+			<Label Anchor="L,T" Offset="35,80" WrapWidth="450" LeadingOffset="-4" Font="TwCenMT18" FontStyle="Shadow" ColorSet="Beige_Black_Alpha" ID="CounterspyFocusDescription"/>
+			<Stack Anchor="C,T" Offset="0,80" Padding="24" StackGrowth="Bottom" ID="CounterspyFocusContent">
+				<ScrollPanel Anchor="L,T" Offset="15,100" Size="500,300" AutoScrollBar="1" Vertical="1" ID="ItemScrollPanel">
+					<ScrollBar ID="ScrollBar" Style="VertSlider" Length="167" Offset="5.195" Anchor="R,T" AnchorSide="O,I"/>
+					<UpButton ID="ScrollBarU" Offset="5.177" Style="ScrollBarUp" Anchor="R,T" AnchorSide="O,I"/>
+					<DownButton ID="ScrollBarD" Offset="5.0" Style="ScrollBarDown" Anchor="R,B" AnchorSide="O,I"/>
+					<Stack Anchor="L,T" Offset="0,0" Size="560,350" Padding="10" StackGrowth="Bottom">
+						<Stack Anchor="L,T" Offset="0,0" StackGrowth="Bottom" Padding="0" ID="CounterspyFocusStack"/>
+					</Stack>
+				</ScrollPanel>
+				<GridButton Anchor="L,B" Style="SmallButton" Size="120,32" Offset="30,-32" StateOffsetIncrement="0,0" ID="CloseCounterspyFocusButton">
+					<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_CLOSE" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
+				</GridButton>
+				<GridButton Anchor="R,B" Style="SmallButton" Size="150,32" Offset="40,-64" StateOffsetIncrement="0,0" ID="ConfirmCounterspyFocusButton">
+						<Label Anchor="C,C" Offset="0,0" String="TXT_KEY_EO_COUNTERSPY" Font="TwCenMT18" ColorSet="Beige_Black_Alpha" FontStyle="Shadow"/>
 				</GridButton>
 			</Stack>
 		</Grid>

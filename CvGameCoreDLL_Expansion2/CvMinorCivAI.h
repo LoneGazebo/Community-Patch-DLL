@@ -825,16 +825,12 @@ public:
 	bool IsNoAlly() const;
 	void SetNoAlly(bool bValue);
 
-	int GetCoupCooldown() const;
-	void SetCoupCooldown(int iValue);
-	void ChangeCoupCooldown(int iValue);
-
 	bool IsSiphoned(PlayerTypes ePlayer) const;
 	void SetSiphoned(PlayerTypes ePlayer, bool bValue);
 #endif
-	int GetRiggingCoupChanceIncrease(PlayerTypes ePlayer) const;
-	void ChangeRiggingCoupChanceIncrease(PlayerTypes ePlayer, int iChange);
-	void ResetRiggingCoupChanceIncrease(PlayerTypes ePlayer);
+	int GetNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer) const;
+	void ChangeNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer, int iChange);
+	void ResetNumConsecutiveSuccessfulRiggings(PlayerTypes ePlayer);
 
 	int GetRestingPointChange(PlayerTypes ePlayer) const;
 	void ChangeRestingPointChange(PlayerTypes ePlayer, int iChange);
@@ -896,7 +892,6 @@ private:
 	bool m_abIsMarried[MAX_MAJOR_CIVS];
 	PlayerTypes m_ePermanentAlly;
 	bool m_bNoAlly;
-	int m_iCoup;
 	bool m_abSiphoned[MAX_MAJOR_CIVS];
 	bool m_abCoupAttempted[MAX_MAJOR_CIVS];
 	bool m_abSentUnitForQuest[MAX_MAJOR_CIVS];
@@ -925,7 +920,7 @@ private:
 	bool m_abPledgeToProtect[MAX_MAJOR_CIVS];
 	bool m_abPermanentWar[MAX_CIV_TEAMS];
 	bool m_abWaryOfTeam[MAX_CIV_TEAMS];
-	int m_aiRiggingCoupChanceIncrease[MAX_MAJOR_CIVS];
+	int m_aiNumConsecutiveSuccessfulRiggings[MAX_MAJOR_CIVS];
 	int m_aiRestingPointChange[MAX_MAJOR_CIVS];
 
 	bool m_bDisableNotifications;
