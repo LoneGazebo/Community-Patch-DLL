@@ -316,6 +316,27 @@ INSERT INTO Language_en_US
 		(Tag,										Text)
 SELECT	'TXT_KEY_POP_CSTATE_BULLY_FACTOR_MONGOL_TERROR',	'You annexed a City-State recently';
 
+-- Show influence change for rigged elections
+UPDATE Language_en_US
+SET Text = '[COLOR_POSITIVE_TEXT]Chance to kill enemy spies: {1_Num}%[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_EO_SPY_COUNTER_INTEL_SUM_TT';
+
+UPDATE Language_en_US
+SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there.[NEWLINE][NEWLINE]Only one civilization may successfuly rig an election. If more than one spy is in a City-State, the highest ranked spy that has been in that City-State the longest has the greatest chance of successfully rigging the election in its favor. Successfully rigging elections also increases the success chance of a coup in the City-State.[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]If you successfully rig the next election, your influence will increase by {4_Influence}.[ENDCOLOR]'
+WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT';
+
+UPDATE Language_en_US
+SET Text = '{1_SpyRank} {2_SpyName} successfully rigged the local elections in {3_CityName}. Your influence was increased by {4_Num}. The influence of other civilizations was reduced.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_SUCCESS';
+
+UPDATE Language_en_US
+SET Text = 'After recent elections, your influence in {1_CityName} was surprisingly reduced by {2_Num}. This probably reflects the involvement of enemy spies rigging the local elections.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_ALERT';
+
+UPDATE Language_en_US
+SET Text = '{1_SpyRank} {2_SpyName} failed to rig the local elections in {3_CityName}. {4_CivShortDesc} succeeded in rigging them and have gained influence there. Your influence was reduced by {5_Num}.'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_RIG_ELECTION_FAILURE';
+
 -- Fixed quest text - transitioned to new 'quest rewards' panel
 UPDATE Language_en_US
 SET Text = 'You have successfully destroyed the Barbarian Encampment as requested by {1_MinorCivName:textkey}!'
@@ -1908,3 +1929,7 @@ WHERE Tag = 'TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES_TT';
 UPDATE Language_en_US
 SET Text = 'You have {1_Num} unassigned {2_UnitName}{1_Num: plural 1?; other?s;}.[NEWLINE]'
 WHERE Tag = 'TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES_TT_UNASSIGNED';
+
+UPDATE Language_en_US
+SET Text = '{1_CivName:textkey} {1_CivName: plural 1?is; other?are;} their current Ally.  You need another {2_NumInfluence} [ICON_INFLUENCE] Influence to surpass {1CivName:textkey} and become their Ally.[NEWLINE][NEWLINE]If a player becomes the Ally of a City-State, they receive extra bonuses relating to that City-State''s trait, and they will also receive any luxury and strategic Resources the City-State has connected.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_ALLY_TT';

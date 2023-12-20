@@ -47,7 +47,6 @@ UPDATE Policies
 SET
 	MinorGoldFriendshipMod = 0,
 	FreeSpy = 1,
-	EspionageTurnsModifierFriendly = -1,
 	GreatDiplomatRateModifier = 50,
 	IncreasedQuestRewards = 50,
 	PortraitIndex = 39
@@ -72,7 +71,6 @@ WHERE Type = 'POLICY_MERCHANT_CONFEDERACY';
 UPDATE Policies
 SET
 	-- MinorScienceAllies = 1,
-	EspionageTurnsModifierFriendly = -1,
 	PortraitIndex = 37
 WHERE Type = 'POLICY_SCHOLASTICISM';
 

@@ -681,7 +681,7 @@ if gk_mode then
 			if bnw_mode and minorPlayer:IsProxyWarActiveForMajor(majorPlayerID) then
 				sIconTextOther = sIconTextOther .. "[ICON_RESISTANCE]"
 			end
-			
+		
 			-- CBP
 			-- Denied Quest Influence
 			if minorPlayer:IsQuestInfluenceDisabled(majorPlayerID) then
@@ -691,11 +691,6 @@ if gk_mode then
 			-- Married
 			if bnw_mode and minorPlayer:IsMarried(majorPlayerID) then
 				sIconTextOther = sIconTextOther .. "[ICON_RES_MARRIAGE]"
-			end
-			
-			-- Coup
-			if (bnw_mode and minorPlayer:GetCoupCooldown() > 0) then
-				sIconTextOther = sIconTextOther .. "[ICON_TEAM_2]"
 			end
 			-- END
 		else
@@ -930,11 +925,6 @@ if gk_mode then
 			-- Married
 			if minorPlayer:IsMarried(majorPlayerID) then
 				table_insert(tTooltipOther,"[ICON_RES_MARRIAGE] " .. L("TXT_KEY_DIPLO_MAJOR_CIV_DIPLO_STATE_MARRIED_TT"))
-			end
-
-			-- Coup
-			if (bnw_mode and minorPlayer:GetCoupCooldown() > 0) then
-				table_insert(tTooltipOther,"[ICON_TEAM_2] " .. L("TXT_KEY_CITY_STATE_QUEST_COUP_COOLDOWN_TT", minorPlayer:GetCoupCooldown()))
 			end
 			-- END
 		else

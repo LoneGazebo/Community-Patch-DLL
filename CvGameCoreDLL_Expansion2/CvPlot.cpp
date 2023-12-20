@@ -1788,6 +1788,33 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 
 }
 
+void CvPlot::changeEspionageSight(TeamTypes eTeam, CvCity* pCity, int iRange, bool bIncrement)
+{
+	//do nothing if range is negative, this is invalid
+	if (iRange < 0)
+		return;
+
+	if (iRange == 0)
+	{
+		//change the visibility of this plot only
+		changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), NO_INVISIBLE, true, false);
+		return;
+	}
+
+	for (int iI = RING0_PLOTS; iI < RING_PLOTS[iRange]; iI++)
+	{
+		CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iI);
+		if (!pLoopPlot)
+			continue;
+
+		//if it belongs to the city
+		if (pCity->GetID() == pLoopPlot->getOwningCityID())
+		{
+			changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), NO_INVISIBLE, true, false);
+		}	
+	}
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlot::canSeePlot(const CvPlot* pPlot, TeamTypes eTeam, int iRange, DirectionTypes eFacingDirection) const
 {
@@ -1890,18 +1917,6 @@ void CvPlot::updateSight(bool bIncrement)
 		changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), bIncrement, NO_INVISIBLE, NO_DIRECTION);
 
 		// if this tile is owned by a minor share the visibility with my ally
-		if(pCity)
-		{
-			for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-			{
-				PlayerTypes ePlayer = (PlayerTypes)ui;
-				if(GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pCity))
-				{
-					changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), bIncrement, NO_INVISIBLE, NO_DIRECTION);
-				}
-			}
-		}
-
 		PlayerTypes ownerID = getOwner();
 		if(ownerID >= MAX_MAJOR_CIVS && ownerID != BARBARIAN_PLAYER)
 		{
@@ -6004,18 +6019,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
 
 				// if this tile is owned by a minor share the visibility with my ally
-				if (pOldCity)
-				{
-					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-					{
-						PlayerTypes ePlayer = (PlayerTypes)ui;
-						if (GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
-						{
-							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), false, NO_INVISIBLE, NO_DIRECTION);
-						}
-					}
-				}
-
 				if (eOldOwner >= MAX_MAJOR_CIVS && eOldOwner != BARBARIAN_PLAYER)
 				{
 					CvPlayer& thisPlayer = GET_PLAYER(eOldOwner);
@@ -6249,18 +6252,6 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				changeAdjacentSight(getTeam(), /*1*/ GD_INT_GET(PLOT_VISIBILITY_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
 
 				// if this tile is owned by a minor share the visibility with my ally
-				if (pOldCity)
-				{
-					for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
-					{
-						PlayerTypes ePlayer = (PlayerTypes)ui;
-						if (GET_PLAYER(ePlayer).GetEspionage()->HasEstablishedSurveillanceInCity(pOldCity))
-						{
-							changeAdjacentSight(GET_PLAYER(ePlayer).getTeam(), /*1*/ GD_INT_GET(ESPIONAGE_SURVEILLANCE_SIGHT_RANGE), true, NO_INVISIBLE, NO_DIRECTION);
-						}
-					}
-				}
-
 				if (eNewValue >= MAX_MAJOR_CIVS && eNewValue != BARBARIAN_PLAYER)
 				{
 					CvPlayer& thisPlayer = GET_PLAYER(eNewValue);

@@ -40,6 +40,7 @@
 	StartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
 	StartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
 	StartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
+  SpySecurityModifier: Amount of extra Security in every owned city. Default 0.
 	WorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
 	ImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 0; the normal value must be specified.
 	BuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
@@ -255,6 +256,9 @@
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>35</UnitSupplyPopulationPercent>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
+			<StartingExploreUnits>0</StartingExploreUnits>
+			<SpySecurityModifier>20</SpySecurityModifier>
+			<WorkRateModifier>0</WorkRateModifier>
 			<ImprovementCostPercent>60</ImprovementCostPercent>
 			<BuildingCostPercent>75</BuildingCostPercent>
 			<UnitCostPercent>75</UnitCostPercent>
@@ -333,6 +337,9 @@
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>30</UnitSupplyPopulationPercent>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
+			<StartingExploreUnits>0</StartingExploreUnits>
+			<SpySecurityModifier>10</SpySecurityModifier>
+			<WorkRateModifier>0</WorkRateModifier>
 			<ImprovementCostPercent>80</ImprovementCostPercent>
 			<BuildingCostPercent>90</BuildingCostPercent>
 			<UnitCostPercent>90</UnitCostPercent>

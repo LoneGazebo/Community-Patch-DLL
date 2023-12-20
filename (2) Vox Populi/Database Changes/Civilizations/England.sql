@@ -7,7 +7,7 @@ SET
 	ExtraEmbarkMoves = 1,
 	StartingSpies = 1,
 	NavalUnitMaintenanceModifier = -25,
-	EspionageRateModifier = -10,
+	EspionageRateModifier = 15,
 	SpyMoveRateModifier = 3,
 	SpyExtraRankBonus = 1
 WHERE Type = 'TRAIT_OCEAN_MOVEMENT';
@@ -57,13 +57,19 @@ INSERT INTO Building_YieldFromConstruction
 VALUES
 	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 25);
 
+INSERT INTO Building_YieldFromSpyDefenseOrID
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 40),
+	('BUILDING_WHITE_TOWER', 'YIELD_SCIENCE', 40);
+	
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 25),
-	('BUILDING_WHITE_TOWER', 'YIELD_SCIENCE', 25);
+	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 40),
+	('BUILDING_WHITE_TOWER', 'YIELD_SCIENCE', 40);
 
-INSERT INTO Building_YieldFromSpyDefense
+INSERT INTO Building_YieldFromSpyRigElection
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 25),

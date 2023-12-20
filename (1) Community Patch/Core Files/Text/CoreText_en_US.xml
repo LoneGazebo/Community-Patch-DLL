@@ -2704,7 +2704,7 @@
 
 		<!-- Steal -->
 		<Row Tag="TXT_KEY_NOTIFICATION_QUEST_SPY_ON_MAJOR">
-			<Text>Rogue agents in {@3_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Espionage actions against {@1_Civ} (Spy Events or Technology Theft), you will be greatly rewarded.</Text>
+			<Text>Rogue agents in {@3_Civ} indicate that {@1_Civ} is currently quite vulnerable to espionage. If you complete [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Spy Missions against {@1_Civ}, you will be greatly rewarded.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_QUEST_SPY_ON_MAJOR">
 			<Text>Intelligence update from {@1_Civ}</Text>
@@ -5903,45 +5903,10 @@
 			<Text>[NEWLINE]You need to have {1_Num} more Global {1_Num: plural 1?Follower; other?Followers;} of your [ICON_RELIGION] Religion to build this.</Text>
 		</Row>
 
-		<!-- New Spy Action Texts -->
-		<!-- Spy Killed -->
-
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_S_ADVANCED">
-			<Text>{1_SpyName} killed in {2_CityName}!</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_ADVANCED">
-			<Text>Your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} counterspy after completing their mission in {4_CityName}![NEWLINE][NEWLINE]Mission Details: {5_Mission}</Text>
-		</Row>
-
-		<!-- Killed a Spy -->
-		<Row Tag="TXT_KEY_NOTIFICATION_KILLED_A_SPY_ADVANCED">
-			<Text>Your spy {1_SpyRank} {2_SpyName} killed {TXT_KEY_GRAMMAR_A_AN &lt;&lt; {3_CivAdj}} spy operating out of {4_CityName}!</Text>
-		</Row>
-
-		<!-- City Rank Increasing -->
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING">
-			<Text>{1_CityName} is [COLOR_NEGATIVE_TEXT]increasingly vulnerable[ENDCOLOR] to foreign [ICON_SPY] Spies.[NEWLINE]The City currently has a Security Level of [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR] (out of 50), with lower ranks making it easier for foreign Spies to operate in the city.[NEWLINE]Move a Spy to this city, build Espionage buildings here, and resolve [ICON_HAPPINESS_3] Unhappiness issues to [COLOR_POSITIVE_TEXT]improve[ENDCOLOR] the City's Security Level.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RANK_INCREASING_SUMMARY">
-			<Text>Security Level update for {1_CityName}.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_SPY_STATE_BUILDING_NETWORK">
-			<Text>Building Network</Text>
-		</Row>
-
+		<!-- Unassigned Spy -->
 		<Row Tag="TXT_KEY_SPY_STATE_UNASSIGNED_TT">
 			<Text>{1_RankName} {2_SpyName} is unassigned.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_STATE_BUILDING_NETWORK_TT">
-			<Text>{1_RankName} {2_SpyName} is building a Spy Network in {3_CityName}. Soon you will be able to assign this spy to a mission.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_SPY_STATE_TERMINATED_TT">
-			<Text>{1_RankName} {2_SpyName} was terminated!</Text>
-		</Row>
-
-		
+		</Row>		
 
 		<!-- Trade Route for Land Modifiers -->
 		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_DOMAIN_LAND_MODIFIER">
@@ -6924,12 +6889,6 @@
 		<Row Tag="TXT_KEY_ALLY_CBP_SPY">
 			<Text>Allied with the {1_Player}.</Text>
 		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE_S">
-			<Text>Border security in {1_City} returns to normal.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_NOW_POSSIBLE">
-			<Text>Security concerns over the recent coup attempt have faded, and security in {1_City} is returning to normal. [COLOR_POSITIVE_TEXT]Coups[ENDCOLOR] are once again possible against this City-State.</Text>
-		</Row>
 		
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_STAGE_COUP_UNKNOWN_SUCCESS_S">
 			<Text>Foreign Coup in {1_CityName}</Text>
@@ -7759,110 +7718,8 @@
 		<Row Tag="TXT_KEY_ARTIFACT_SARCOPHAGUS_17">
 			<Text>Sarcophagus of Ptolemy I</Text>
 		</Row>
-		
-		
 
-		<!--Policies-->
-		<Row Tag="TXT_KEY_POLICY_BRANCH_CANNOT_UNLOCK_NEED_MORE">
-			<Text>[COLOR_WARNING_TEXT]You must unlock {1_Num} Policies from other Branches before this Branch becomes unlocked.[ENDCOLOR]</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_EO_SPY_RANK_TT_SHORT">
-			<Text>{1_SpyName} has achieved the rank of {2_RankName}.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_EO_NO_ACTIONS_POSSIBLE">
-			<Text>There are no available Offensive Spy Actions to complete in this City.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_SPY_RANK">
-			<Text>[NEWLINE] [ICON_BULLET] Spy is not high enough Rank for this choice.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_SPY_ALREADY_HERE">
-			<Text>[NEWLINE] [ICON_BULLET] Foreign Spies are already performing this action here! Shh!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
-			<Text>[NEWLINE] [ICON_BULLET] No Technologies to Steal.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_NO_GW_FORGE">
-			<Text>[NEWLINE] [ICON_BULLET] No Great Works in City to copy.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_MIN_SIPHON_NOT_MET">
-			<Text>[NEWLINE] [ICON_BULLET] City not producing enough of this yield to Siphon.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_NO_COUNTERSPY">
-			<Text>[NEWLINE] [ICON_BULLET] Requires a Counterspy in the city.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_EVENT_SPY_KILL_CHANCE">
-			<Text>[NEWLINE]Chance to be [ICON_VIEW_CITY] Identified: [COLOR_NEGATIVE_TEXT]{1_ID}%[ENDCOLOR][NEWLINE]Chance to be [ICON_PIRATE] Killed (Counterspy): [COLOR_NEGATIVE_TEXT]{2_Death}%[ENDCOLOR]</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_EO_SPY_RIGGING_ELECTIONS_SHORT_TT">
-			<Text>{1_RankName} {2_SpyName} is attempting to rig the election in {3_CityName} to increase our influence there.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_EO_OWN_CITY_POTENTIAL_SHORT_TT">
-			<Text>The Security Level of {1_CityName} is [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_ENEMY_CITY_POTENTIAL_SHORT_TT">
-			<Text>The Security Level of {1_CityName} is [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_CITY_ONCE_KNOWN_POTENTIAL_TT_SHORT">
-			<Text>The Security Level of {1_CityName} is believed to be [COLOR_NEGATIVE_TEXT]{2_Num}[ENDCOLOR]. Send a [ICON_SPY] Spy to learn more.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_POTENTIAL_CALCULATION">
-			<Text>[ICON_CAPITAL] Security Level: [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR][NEWLINE][ICON_SPY] Spy Resistance: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR][NEWLINE][NEWLINE]If [ICON_SPY] Spy Resistance is negative, the City's Security Level will [COLOR_NEGATIVE_TEXT]fall[ENDCOLOR] towards 1 and enemy Spies will operate more quickly. If positive, it will [COLOR_POSITIVE_TEXT]rise[ENDCOLOR] towards 10 and enemy Spies will operate more slowly.</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_NEGATIVE">
-			<Text>[COLOR_NEGATIVE_TEXT]Negative Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_INTERNATIONAL_TRADE] Trade Routes (-{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Population (-{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_HAPPINESS_3] Unhappiness (-{3_Num}%)</Text>
-		</Row>
-		<Row Tag="TXT_KEY_POTENTIAL_BREAKDOWN_POSITIVE">
-			<Text>[COLOR_POSITIVE_TEXT]Positive Modifiers[ENDCOLOR][NEWLINE]  [ICON_BULLET] [ICON_CULTURE] Policies and Wonders (+{1_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_CITIZEN] Local Buildings (+{2_Num}%)[NEWLINE]  [ICON_BULLET] [ICON_SPY] Counter-Espionage (+{3_Num}%)</Text>
-		</Row>
-		
-		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY">
-			<Text>[COLOR_POSITIVE_TEXT][NEWLINE]Chance of catching enemy spies increased by {1_Num}% because of Policies.[ENDCOLOR]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_AGAINST">
-			<Text>[COLOR_NEGATIVE_TEXT][NEWLINE]Chance of catching our spies increased by {1_Num}% because of Policies.[ENDCOLOR]</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_SPY_INTRIGUE_DISCOVERED">
-			<Text>[COLOR_POSITIVE_TEXT]Intrigue Discovered:[ENDCOLOR][NEWLINE]</Text>
-		</Row>
-
-
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_KILL">
-			<Text>[ICON_BULLET] Chance to kill [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_DEFENSIVE_SPY_BONUSES_CATCH">
-			<Text>[ICON_BULLET] Chance to identify [ICON_SPY] Spies: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_ESPIONAGE_CURRENT_MISSION">
-			<Text>[COLOR_POSITIVE_TEXT]Current Mission:[ENDCOLOR] {1_Mission}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_TURNS_COMPLETED">
-			<Text>({1_Turns} completed)</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_ESPIONAGE_MISSION_BASE_DURATION">
-			<Text>Base Mission Duration: {1_Num} {1_Num: plural 1?Turn; other?Turns;}</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_OFFENSIVE_SPY_RELIGOUS_PRESSURE">
-			<Text>[NEWLINE]  [ICON_BULLET] Religious Pressure from [ICON_SPY] Spy: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-
-		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE">
-			<Text>Probability of successful Coup: [COLOR_POSITIVE_TEXT]{1_Num}%[ENDCOLOR].</Text>
-		</Row>
-		<Row Tag="TXT_KEY_OFFENSIVE_COUP_CHANCE_ALLIES">
-			<Text>[NEWLINE][ICON_BULLET]   Reason: already Allies!</Text>
-		</Row>
-		
+				
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_DIPLOMATIC_REQUEST">
 			<Text>PENDING DIPLOMACY</Text>
 		</Row>

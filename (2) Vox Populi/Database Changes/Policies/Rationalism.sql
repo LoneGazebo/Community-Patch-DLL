@@ -106,8 +106,6 @@ UPDATE Policies
 SET
 	OneShot = 0,
 	NumFreeTechs = 0,
-	EspionageModifier = -34,
-	EspionageTurnsModifierEnemy = 2,
 	DistressFlatReductionGlobal = 1,
 	PovertyFlatReductionGlobal = 1,
 	IlliteracyFlatReductionGlobal = 1,

@@ -768,7 +768,6 @@ protected:
 	static int lGetFriendshipNeededForNextLevel(lua_State* L);
 #if defined(MOD_BALANCE_CORE_MINORS)
 	LUAAPIEXTN(GetJerkTurnsRemaining, int);
-	LUAAPIEXTN(GetCoupCooldown, int);
 #endif
 #if defined(MOD_BALANCE_CORE)
 	LUAAPIEXTN(GetNumDenouncements, int);
@@ -1223,6 +1222,7 @@ protected:
 	static int lGetFaithPerTurnFromAnnexedMinors(lua_State* L);
 	static int lGetSciencePerTurnFromAnnexedMinors(lua_State* L);
 	static int lGetHappinessFromAnnexedMinors(lua_State* L);
+	static int lGetSciencePerTurnFromPassiveSpyBonusesTimes100(lua_State* L);
 	static int lIsUsingMayaCalendar(lua_State* L);
 	static int lGetMayaCalendarString(lua_State* L);
 	static int lGetMayaCalendarLongString(lua_State* L);
@@ -1278,11 +1278,8 @@ protected:
 	static int lIsTradeItemValuedImpossible(lua_State* L);
 	static int lGetTotalValueToMeNormal(lua_State* L);
 	static int lGetSpyPoints(lua_State* L);
-	static int lGetSpyChanceAtCity(lua_State* L);
-	static int lGetCityPotentialInfo(lua_State* L);
-	static int lDoSpyEvent(lua_State* L);
-	static int lStartSpyFocus(lua_State* L);
-	static int lGetSpySiphonAmount(lua_State* L);
+	static int lGetSpyMissionTooltip(lua_State* L);
+	static int lGetCitySecurityTooltip(lua_State* L);
 	static int lGetCityWithSpy(lua_State* L);
 #endif
 	static int lGetNumSpies(lua_State* L);
@@ -1291,16 +1288,13 @@ protected:
 	LUAAPIEXTN(EspionageCreateSpy, void);
 	LUAAPIEXTN(EspionagePromoteSpy, void, iSpyIndex);
 	LUAAPIEXTN(EspionageSetPassive, void, iSpyIndex, bPassive);
-	LUAAPIEXTN(EspionageSetOutcome, void, iSpyIndex, iSpyResult, bAffectsDiplomacy);
 	static int lHasSpyEstablishedSurveillance(lua_State* L);
 	static int lIsSpyDiplomat(lua_State* L);
 	static int lIsSpySchmoozing(lua_State* L);
 	static int lCanSpyStageCoup(lua_State* L);
-#if defined(MOD_BALANCE_CORE)
-	static int lValidHeistLocation(lua_State* L);
-#endif
 	static int lGetAvailableSpyRelocationCities(lua_State* L);
 	static int lCanMoveSpyTo(lua_State* L);
+	static int lChangeCounterspyMission(lua_State* L);
 	static int lGetNumTechsToSteal(lua_State* L);
 	static int lGetIntrigueMessages(lua_State* L);
 	static int lHasRecentIntrigueAbout(lua_State* L);
@@ -1491,7 +1485,6 @@ protected:
 	static int lGetScaledEventChoiceValue (lua_State* L);
 	static int lGetEspionageValues(lua_State* L);
 	static int lGetYieldPerTurnFromEspionageEvents(lua_State* L);
-	static int lGetActiveEspionageEvents(lua_State* L);
 	static int lIsEventChoiceActive (lua_State* L);
 	static int lDoEventChoice (lua_State* L);
 	static int lDoStartEvent (lua_State* L);

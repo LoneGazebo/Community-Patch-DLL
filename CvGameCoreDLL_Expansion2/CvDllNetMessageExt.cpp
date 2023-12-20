@@ -86,7 +86,7 @@ namespace NetMessageExt
 			kActualPlayer.DoEventChoice(eEventChoice, eEvent, false);
 		}
 
-		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iEspionageValue, PlayerTypes eSpyOwner)
+		void DoCityEventChoice(PlayerTypes ePlayer, int iCityID, CityEventChoiceTypes eEventChoice, CityEventTypes eCityEvent, int iSpyID, PlayerTypes eSpyOwner)
 		{
 			CvPlayer& kActualPlayer = GET_PLAYER(ePlayer);
 			int iLoop = 0;
@@ -95,7 +95,7 @@ namespace NetMessageExt
 			{
 				if (pLoopCity->GetID() == iCityID)
 				{
-					pLoopCity->DoEventChoice(eEventChoice, eCityEvent, false, iEspionageValue, eSpyOwner);
+					pLoopCity->DoEventChoice(eEventChoice, eCityEvent, false, iSpyID, eSpyOwner);
 					break;
 				}
 

@@ -73,9 +73,9 @@
 			{3_CityYield}
 			{4_GPChange}
 			{5_Turns}
-			USE NEXT 3 ONLY IF AN ESPIONAGE EVENT!
-			{6_SpyEventDuration} 
-			{7_PlayerEventEffect}
+			USE NEXT 2 ONLY IF AN ESPIONAGE EVENT!
+			{6_PlayerEventEffect}
+			{7_AmountToSteal}
 	
 		EventChoiceNotifications (see two tables below) also have access to this:
 			Player Choices:
@@ -215,6 +215,7 @@
 		<Column name="EventClass" type="text" reference="EventClassTypes(Type)" default="NULL"/>
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<Column name="Effect" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="EventArt" type="text"/>
 		<Column name="EventAudio" type="text"/>
 		<!-- 0 = always fires, -1 = diabled, 1-100 = % chance of success. -->
@@ -382,6 +383,8 @@
 		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
 		<!-- Spawns X number of owned units near EVERY City. Unit type scales with player tech. -->
 		<Column name="FreeUnitsTechAppropriate" type="integer" default="0"/>
+		<!-- Change to number of GPP produced by specialists. Can be negative. -->
+		<Column name="SpecialistsGreatPersonPointsPerTurn" type="integer" default="0"/>
 
 		<!-- Filters 
 		
@@ -755,9 +758,13 @@
 		<!-- Note - if NOT a multiple-choice event, only make one of these! -->
 		<Column name="ID" type="integer" primarykey="true" autoincrement="true"/>
 		<Column name="Type" type="text" notnull="true" unique="true"/>
-		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<!-- Help is used for Tooltips, Description for button text -->
+		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
+		<!-- Espionage only: the text of the notification when a spy mission has been conducted against the player -->
+		<Column name="SpyMissionEffect" type="text" reference="Language_en_US(Tag)"/>
+		<!-- Text shown in the Espionage Overview for the active Counterspy Missions --> 
+		<Column name="MissionTooltip" type="text" reference="Language_en_US(Tag)" default="NULL"/>
 		<!-- DisabledTooltip is used for Tooltips for choices that are not active but appear in choice list. 
 		The DLL automatically explains to players WHY an event choice is unavailable, however you can use it you want to override the DLL. -->
 		<Column name="DisabledTooltip" type="text" reference="Language_en_US(Tag)"/>
@@ -780,7 +787,7 @@
 		
 		-->
 		
-		<!-- Appplies chosen player event - useful for espionage. Note: due to coding, if you use this AND IsSpyBenefit, the player-level event will apply to spy owner but not the city event. This lets you give the spy owner a bonus and penalize the city owner in the same event-->
+		<!-- Appplies chosen player event - useful for espionage. The player-level event will apply to spy owner but not the city event. This lets you give the spy owner a bonus and penalize the city owner in the same event-->
 		<Column name="TriggerPlayerEventChoice" type="text" reference="EventChoices(Type)" default="NULL"/>
 
 		<!-- Only affects local city. Destroys or adds a building type. -->
@@ -796,12 +803,26 @@
 		<Column name="ResistanceTurns" type="integer" default="0"/>
 		<!-- Local Happiness Boost. Can be set to expire. -->
 		<Column name="CityHappiness" type="integer" default="0"/>
+		<!-- Change to number of GPP produced by specialists. Can be negative. -->
+		<Column name="SpecialistsGreatPersonPointsPerTurn" type="integer" default="0"/>
 		<!-- Pillage x number of SR around city. Resource chosen is random, but will be strategic. -->
 		<Column name="PillageCityStrategicNum" type="integer" default="0"/>
 
-		<!-- Chance of destruction for all buildings in city - use as a baseline for horrible disasters, etc. -->
+		<!-- Pillages each Improved Resource with a given % chance --> 
+		<Column name="PillageResourceTilesChance" type="integer" default="0"/>
+		<!-- Pillages each Road/Railroad with a given % chance --> 
+		<Column name="PillageRoadsChance" type="integer" default="0"/>
+		<!-- Pillages each Fortification (Fort, Citadel) with a given % chance --> 
+		<Column name="PillageFortificationsChance" type="integer" default="0"/>
+		<!-- Remove x turns of the current production progress --> 
+		<Column name="RemoveTurnsOfProductionProgress" type="integer" default="0"/>
+		<!-- Modifier to religious pressure emitted by the city --> 
+		<Column name="ReligiousPressureModifier" type="integer" default="0"/>
+		
 		<!-- Spawns X number of barbs near the City. Unit type scales with player tech. -->
 		<Column name="RandomBarbarianSpawn" type="integer" default="0"/>
+		<!-- Spawns X number of barbs per Era near the City. Unit type scales with player tech. -->
+		<Column name="RandomBarbarianSpawnPerEra" type="integer" default="0"/>
 		<!-- Spawns X number of owned units near the City. Unit type scales with player tech. -->
 		<Column name="FreeUnitsTechAppropriate" type="integer" default="0"/>
 		<!-- Grants all units created by this city while this is active a promotion. Only affects valid units. -->
@@ -810,53 +831,52 @@
 		<Column name="ConvertToPlayerReligionPercent" type="integer" default="0"/>
 		<!-- Converts City to Player Majority Religion by x% (can be official religion, but not necessarily so).-->
 		<Column name="ConvertToPlayerMajorityReligionPercent" type="integer" default="0"/>
+		
 
-		<!-- Associates a Choice with an espionage outcome. Only used with Espionage actions. False means spy stuff won't trigger in post-event figuring. -->
-		<Column name="IsEspionageEffect" type="boolean" default="false"/>
-		<!-- Set to true for any mission that's part of the 'setup' phase for a Spy -->
-		<Column name="MissionSetup" type="boolean" default="false"/>
-		<!-- If true, Spy will go into the State "Surveillance established" and mission selection will be possible again next turn -->
-		<Column name="IsSurveillance" type="boolean" default="false"/>
-		<!-- Effect applies to spy owner capital instead!-->
-		<Column name="IsSpyBenefit" type="boolean" default="false"/>
-		<!-- Modifier to chance to be identified on a spy mission-->
-		<Column name="IDModifier" type="integer" default="0"/>
-		<!-- Modifier to chance to be killed on a spy mission-->
-		<Column name="DeathModifier" type="integer" default="0"/>
+		<!-- Used for all choices that are missions of offensive spies -->
+		<Column name="IsEspionageMission" type="boolean" default="false"/>
+		<!-- Used for all choices that are counter spy missions -->
+		<Column name="IsCounterSpyMission" type="boolean" default="false"/>
+		<!-- Network Points Needed to start the mission -->
+		<Column name="NetworkPointsNeeded" type="integer" default="0"/>
+		<!-- Chance to be identified on a spy mission-->
+		<Column name="SpyIDChance" type="integer" default="0"/>
+		<!-- Chance to be captured on a spy mission-->
+		<Column name="SpyCaptureChance" type="integer" default="0"/>
 		<!-- Minimum Spy Level -->
 		<Column name="SpyLevelRequired" type="integer" default="0"/>
-		<Column name="RequiresCounterSpy" type="boolean" default="false"/>
-		<Column name="ExpiresOnCounterSpyExit" type="boolean" default="false"/>
-		<!-- Sets duration of mission -->
-		<Column name="EspionageMissionDuration" type="integer" default="0"/>
-		<!-- Experience Modifier for Missions -->
-		<Column name="ExperienceGainedModifier" type="integer" default="0"/>
-		<!-- Damages city -->
-		<Column name="DamageCity" type="integer" default="0"/>
-		<!-- Damages garrison unit -->
-		<Column name="DamageGarrison" type="integer" default="0"/>
 		<!-- Prevents city healing for x turns -->
 		<Column name="SapCityTurns" type="integer" default="0"/>
-		<!-- Speeds up an espionage action if the city has a wonder under construction! -->
-		<Column name="WonderConstructionSpeedMod" type="integer" default="0"/>
-		<!-- Counterspy can affect city ranged strength %-->
+		<!-- Prevents tourism generation for x turns -->
+		<Column name="NoTourismTurns" type="integer" default="0"/>
+		<!-- Steal percentage of gold from enemy treasury -->
+		<Column name="StealFromTreasuryPercent" type="integer" default="0"/>
+		<!-- If counterspy is active, foreign spies generate less XP (scaling with counterspy level) -->
+		<Column name="CounterspyNPRateReduction" type="integer" default="0"/>
+		<!-- Counterspy blocks missions with SapCityTurns > 0 -->
+		<Column name="CounterspyBlockSapCity" type="boolean" default="false"/>
+		<!-- Counterspy affects city ranged strength, base value whenever counterspy present-->
+		<Column name="CityDefenseModifierBase" type="integer" default="0"/>
+		<!-- Counterspy affects city ranged strength, scaling with counterspy level-->
 		<Column name="CityDefenseModifier" type="integer" default="0"/>
-		<!-- Increases spy city vision -->
-		<Column name="SpyVisionRange" type="integer" default="0"/>
-		<!-- Sets spy city vision duration -->
-		<Column name="SpyVisionDuration" type="integer" default="0"/>
-		<!-- Spies won't level up from this mission. -->
-		<Column name="NoLevelUp" type="boolean" default="false"/>
-		<!-- Mission ignores other local spies. -->
-		<Column name="IgnoreLocalForeignSpies" type="boolean" default="false"/>
+		<!-- All enemy spies are identified -->
+		<Column name="IsAlwaysIDSpies" type="boolean" default="false"/>
+		<!-- Caught spies are killed -->
+		<Column name="IsKillCaughtSpies" type="boolean" default="false"/>
+		<!-- Start of counterspy mission is not announced to players who have a spy in the city -->
+		<Column name="IsSecretMission" type="boolean" default="false"/>
 		<!-- Checks if empire of the targeted civ is unhappy -->
 		<Column name="IsEnemyUnhappy" type="boolean" default="false"/>
 		<Column name="IsEnemySuperUnhappy" type="boolean" default="false"/>
 
-		<!-- Spy copies num techs; if it fails at end, it converts amount to GA turns -->
+		<!-- Spy steals num techs -->
 		<Column name="StealNumTechs" type="integer" default="0"/>
-		<!-- Spy copies num GWs; if it fails at end, it converts amount to GA turns-->
-		<Column name="ForgeNumGW" type="integer" default="0"/>
+		<!-- Spy steals num GWs-->
+		<Column name="StealNumGW" type="integer" default="0"/>
+		
+		
+		<!-- If Mutually Exclusive Group is larger than 0, any active event choice of the group blocks all others -->
+		<Column name="MutuallyExclusiveGroup" type="integer" default="0"/>
 		<!-- FILTERS: 
 		
 		Values below determine whether or not a City Event Choice appears in the City list 
@@ -964,6 +984,13 @@
 
 	<!-- Spies only! Spies siphon x% of a city's yields per turn, removing the yields from the target when ended. -->
 	<Table name="CityEventChoice_YieldSiphon">
+		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
+		<Column name="YieldType" type="text" reference="Yields(Type)"/>
+		<Column name="Yield" type="integer"/>
+	</Table>
+	
+	<!-- Counterspy missions only! When mission active, gain instant yields when catching a spy -->
+	<Table name="CityEventChoice_YieldOnSpyCaught">
 		<Column name="CityEventChoiceType" type="text" reference="CityEventChoices(Type)"/>
 		<Column name="YieldType" type="text" reference="Yields(Type)"/>
 		<Column name="Yield" type="integer"/>
@@ -1176,11 +1203,3 @@
 		</Row>
 	</Audio_2DSounds>
 </GameData>
-
-<!-- ESPIONAGE TEXT FORMAT FOR DESCRIPTIONS
-These values allow you to have spy names, city names, risk of death, etc. as values in your description for the event. Purely flavor.
-	{1_SpyRank}
-	{2_SpyName}
-	{3_CityName}
-	{4_ChanceToDie}
-	{5_ChanceToBeIdentified} -->
