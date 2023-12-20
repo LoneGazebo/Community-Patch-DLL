@@ -290,6 +290,16 @@ namespace CvEnumsUtil
 		enum { IsFixed = false };
 		static inline std::size_t Count() { return GC.getBeliefInfo().size(); }
 	};
+	template<> struct Traits<SpyPassiveBonusTypes>
+	{
+		enum { IsFixed = false };
+		static inline std::size_t Count() { return GC.getSpyPassiveBonusInfo().size(); }
+	};
+	template<> struct Traits<SpyPassiveBonusDiplomatTypes>
+	{
+		enum { IsFixed = false };
+		static inline std::size_t Count() { return GC.getSpyPassiveBonusDiplomatInfo().size(); }
+	};
 	template<> struct Traits<LeagueSpecialSessionTypes>
 	{
 		enum { IsFixed = false };

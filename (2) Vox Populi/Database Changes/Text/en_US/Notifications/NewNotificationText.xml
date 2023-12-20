@@ -572,7 +572,7 @@
 			<Text>{@1_BldgName} was forcefully closed by {3_Civ} in {2_City}, due to a Tenet or Resolution!</Text>
 		</Row>
 
-		<!-- Events -->
+		<!-- Events and Espionage -->
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_T">
 			<Text>An Event has ended.</Text>
 		</Row>
@@ -584,6 +584,12 @@
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_HAS_ENDED_CITY">
 			<Text>The effects of an Event in {2_City} have worn off:[NEWLINE]{1_Event}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_ESPIONAGE_EVENT_HAS_ENDED_CITY_T">
+			<Text>An Espionage Effect in {1_City} has ended.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_ESPIONAGE_EVENT_HAS_ENDED_CITY">
+			<Text>The effects of a Spy Missions in {2_City} have ended:[NEWLINE]{1_Event}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_T">
 			<Text>'{1_Event}' did not occur.</Text>
@@ -615,42 +621,6 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SIPHON_EVENT_ENDED_ENEMY">
 			<Text>The effects of a foreign Espionage Mission against you have ended: Steal {1_MissionResult} per Turn</Text>
 		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_YIELD_SIPHON_ESTIMATED">
-			<Text>[COLOR_POSITIVE_TEXT]Estimated Amount to Steal:[ENDCOLOR] {1_Yield} per Turn for {2_Turns}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T_ESPIONAGE">
-			<Text>{2_CivAdj} Operatives Thwarted in {1_City}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_ESPIONAGE">
-			<Text>{3_CivAdj} spies [COLOR_POSITIVE_TEXT]failed[ENDCOLOR] a Spy Mission in {2_City}: {1_EventChoice}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_T_ESPIONAGE_UNKNOWN">
-			<Text>Unknown Foreign Operatives Thwarted in {1_City}!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_FAILED_CITY_ESPIONAGE_UNKNOWN">
-			<Text>Unknown foreign operatives [COLOR_POSITIVE_TEXT]failed[ENDCOLOR] a Spy Mission in {2_City}: {1_EventChoice}</Text>
-		</Row>
-		<Row Tag="TXT_KEY_AA_EVENT_INVALID">
-			<Text>{1_Rank} {2_Spy}: New Mission Needed!</Text>
-		</Row>
-		<Row Tag="TXT_KEY_AA_EVENT_INVALID_TT">
-			<Text>{1_Rank} {2_Spy} in {3_City} needs a new objective. Please choose a new mission for your Spy.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_SPY_DETECTED">
-			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS![NEWLINE][NEWLINE]Message: "Detected, but they don't know who we work for. We will continue working here until you reassign us elsewhere."[NEWLINE][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_SPY_IDENTIFIED">
-			<Text>[COLOR_POSITIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] SUCCESS, BUT IDENTIFIED![NEWLINE][NEWLINE]Message: "Our cover is blown, we're returning to HQ for reassignment."[NEWLINE][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_EVENT_SPY_KILLED">
-			<Text>[COLOR_NEGATIVE_TEXT]MISSION OUTCOME:[ENDCOLOR] FAILURE[NEWLINE][NEWLINE]Communications have gone dark. Your operative is KIA.[NEWLINE][NEWLINE]</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EXTRA_SIGHT_EVENT_HAS_ENDED_CITY_T">
-			<Text>Espionage visibility bonus in {1_City} has ended.</Text>
-		</Row>
-		<Row Tag="TXT_KEY_NOTIFICATION_EXTRA_SIGHT_EVENT_HAS_ENDED_CITY">
-			<Text>Your Spy Network's visibility bonus in {1_City} has ended. You will need to have a Spy restart the mission.</Text>
-		</Row>
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SUCCESS_S">
 			<Text>{1_SpyRank} {2_SpyName} succeeded in {3_CityName}!</Text>
 		</Row>
@@ -658,17 +628,89 @@
 			<Text>{1_SpyRank} {2_SpyName} in {3_CityName} completed their mission: {4_MissionResult}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE">
-			<Text>{2_CivAdj} Operatives Succeeded in {1_City}!</Text>
+			<Text>{2_CivAdj} Spies Succeeded in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE">
-			<Text>{2_CivAdj} spies [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Mission in {1_City}: {3_MissionResult}</Text>
+			<Text>{2_CivAdj} spies conducted a [COLOR_NEGATIVE_TEXT]Spy Mission[ENDCOLOR] in {1_City}. {3_MissionResult}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN">
-			<Text>Unknown Foreign Operatives Succeeded in {1_City}!</Text>
+			<Text>Unknown Foreign Spies Succeeded in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN">
-			<Text>Unknown foreign operatives [COLOR_NEGATIVE_TEXT]completed[ENDCOLOR] a Spy Mission in {1_City}: {2_MissionResult}</Text>
+			<Text>Unknown foreign spies conducted a [COLOR_NEGATIVE_TEXT]Spy Mission[ENDCOLOR] in {1_City}: {2_MissionResult}</Text>
 		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_CAUGHT_S">
+			<Text>{1_SpyRank} {2_SpyName} caught and identified!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_CAUGHT">
+			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]caught and identified[ENDCOLOR] while conducting their mission! Diplomatic Relations with {3_CivName} have worsened and {1_SpyRank} {2_SpyName} has been imprisoned. It will take some time until they are released and can be sent on a mission again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_S">
+			<Text>{1_SpyRank} {2_SpyName} identified!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED">
+			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR] while conducting their mission! Diplomatic Relations with {3_CivName} have worsened. {1_SpyRank} {2_SpyName} may stay in the city and gather intelligence for another mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT_S">
+			<Text>{1_SpyRank} {2_SpyName} caught and identified!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT">
+			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR] while conducting their mission! It will take some time until they are released and can be sent on a mission again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_NOT_DETECTED_S">
+			<Text>{1_SpyRank} {2_SpyName} not detected!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_NOT_DETECTED">
+			<Text>{1_SpyRank} {2_SpyName} has completed their mission and was [COLOR_POSITIVE_TEXT]not detected[ENDCOLOR]. They may stay in the city and gather intelligence for another mission.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_RELEASED_PRISON_S">
+			<Text>{1_SpyRank} {2_SpyName} released!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_SPY_RELEASED_PRISON">
+			<Text>{1_SpyRank} {2_SpyName} has been released from prison. You may now send the spy on a mission again.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED_S">
+			<Text>{1_City} generates Tourism again</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED">
+			<Text>The rebellion in {1_City} caused by foreign Spies has ended. The city now generates Tourism again.</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_DETECTED_S">
+			<Text>Counterspy in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_DETECTED">
+			<Text>Upon arriving in {1_City}, {2_SpyRank} {3_SpyName} has detected the presence of an enemy [ICON_SPY] Counterspy! The followings effects are active:[NEWLINE][NEWLINE]{4_MissionEffect}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED_S">
+			<Text>Counterspy in {1_City}!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED">
+			<Text>A [ICON_SPY] Counterspy has started an operation in {1_City}. The followings effects are now active:[NEWLINE][NEWLINE]{2_MissionEffect}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_ENDED_S">
+			<Text>Counterspy mission in {1_City} ended!</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_ENDED">
+			<Text>Because the [ICON_SPY] Counterspy in {1_City} has left the city or has changed focus, the following effects are no longer active:[NEWLINE][NEWLINE]{2_MissionEffect}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_NEW_MISSIONS_AVAILABLE_S">
+			<Text>New Spy Missions available</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_NEW_MISSIONS_AVAILABLE">
+			<Text>{1_SpyRank} {2_SpyName} has collected enough Network Points in {3_City} to conduct the following {4_Num: plural 1?Spy Mission; other?Spy Missions;}, if the other mission conditions are fulfilled:[NEWLINE]{5_Missions}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_S">
+			<Text>New Passive Spy Bonus unlocked</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS">
+			<Text>{1_SpyRank} {2_SpyName} has collected enough Network Points in {3_City} to unlock the following passive bonuses:[NEWLINE][NEWLINE] {4_Missions}</Text>
+		</Row>
+		
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
 			<Text>MAKE EVENT CHOICE</Text>
 		</Row>

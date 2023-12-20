@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<GameData>
+	<SpyPassiveBonuses>
+		<Row>
+			<ID>0</ID>
+			<Type>SPY_PASSIVE_1</Type>
+			<Description>TXT_KEY_SPY_PASSIVE_1</Description>
+			<Help>TXT_KEY_SPY_PASSIVE_1_HELP</Help>
+			<NetworkPointsNeeded>500</NetworkPointsNeeded>
+			<SciencePercentAdded>3</SciencePercentAdded>
+			<RevealCityScreen>true</RevealCityScreen>
+			<WonderConstructionNotification>true</WonderConstructionNotification>
+		</Row>
+		<Row>
+			<Type>SPY_PASSIVE_2</Type>
+			<Description>TXT_KEY_SPY_PASSIVE_2</Description>
+			<Help>TXT_KEY_SPY_PASSIVE_2_HELP</Help>
+			<NetworkPointsNeeded>800</NetworkPointsNeeded>
+			<SciencePercentAdded>2</SciencePercentAdded>
+			<TilesRevealed>1</TilesRevealed>
+		</Row>
+		<Row>
+			<Type>SPY_PASSIVE_3</Type>
+			<Description>TXT_KEY_SPY_PASSIVE_3</Description>
+			<Help>TXT_KEY_SPY_PASSIVE_3_HELP</Help>
+			<NetworkPointsNeeded>1200</NetworkPointsNeeded>
+			<SciencePercentAdded>2</SciencePercentAdded>
+			<TilesRevealed>1</TilesRevealed>
+		</Row>
+		<Row>
+			<Type>SPY_PASSIVE_4</Type>
+			<Description>TXT_KEY_SPY_PASSIVE_4</Description>
+			<Help>TXT_KEY_SPY_PASSIVE_4_HELP</Help>
+			<NetworkPointsNeeded>1700</NetworkPointsNeeded>
+			<SciencePercentAdded>3</SciencePercentAdded>
+			<TilesRevealed>1</TilesRevealed>
+		</Row>
+		<Row>
+			<Type>SPY_PASSIVE_5</Type>
+			<Description>TXT_KEY_SPY_PASSIVE_5</Description>
+			<Help>TXT_KEY_SPY_PASSIVE_5_HELP</Help>
+			<NetworkPointsNeeded>2000</NetworkPointsNeeded>
+			<TilesRevealed>3</TilesRevealed>
+		</Row>
+	</SpyPassiveBonuses>
+</GameData>

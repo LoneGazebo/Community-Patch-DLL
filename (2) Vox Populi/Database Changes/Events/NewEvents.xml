@@ -347,9 +347,9 @@
 		</Row>
 		<!-- Kidnap specialists espionage event -->
 		<Row>
-			<Type>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_PARENT_HELP</Help>
+			<Type>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_PARENT</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_PARENT</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_PARENT_HELP</Help>
 		</Row>
 	</Events>
 	<EventChoices>
@@ -878,10 +878,11 @@
 			<EventDuration>0</EventDuration>
 		</Row>
 		<Row>
-			<Type>ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_PLAYER_YIELD_BASIC_HELP</Help>
-			<EventDuration>20</EventDuration>
+			<Type>ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</Type>
+			<Description>TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS</Description>
+			<Help>TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_HELP</Help>
+			<SpecialistsGreatPersonPointsPerTurn>1</SpecialistsGreatPersonPointsPerTurn>
+			<EventDuration>15</EventDuration>
 			<Expires>true</Expires>
 			<CapitalEffectOnly>true</CapitalEffectOnly>
 		</Row>

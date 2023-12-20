@@ -157,9 +157,6 @@
 					<Label ID="UnknownProgress" Anchor="C,C" String="TXT_KEY_EO_UNKNOWN_POTENTIAL" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 					<Image ID="RigElectionDisabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
 					<Image ID="RigElectionEnabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" Hidden="1" Size="22,22"/>
-					<!-- CBP -->
-					<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
-					<!-- END -->
 				</Box>
 				<Box Size="80,25" Color="0,0,0,0">
 					<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
@@ -210,9 +207,6 @@
 						<Label ID="UnknownProgress" Anchor="C,C" String="TXT_KEY_EO_UNKNOWN_POTENTIAL" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>
 						<Image ID="RigElectionDisabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" ToolTip="TXT_KEY_EO_CITY_STATE_POTENTIAL_TT" Hidden="1" TextureOffset="0,44" Size="22,22"/>
 						<Image ID="RigElectionEnabled" Anchor="C,C" Texture="Esp_Spy_RigginElection22.dds" ToolTip="TXT_KEY_EO_CITY_STATE_POTENTIAL_TT" Hidden="1" Size="22,22"/>
-						<!-- CBP -->
-						<Image ID="RigElectionCooldown" Anchor="C,C" Texture="Esp_Spy_RigginElectionCooldown22.dds" Hidden="1" TextureOffset="0,44" Size="22,22"/>
-						<!-- END -->
 					</Box>
 					<Box Size="80,25" Color="0,0,0,0">
 						<Label ID="CityPopulation" Anchor="C,C" TruncateWidth="155" ColorSet="Beige_Black_Alpha" Font="TwCenMT18" FontStyle="Shadow"/>

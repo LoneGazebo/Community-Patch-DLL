@@ -41,6 +41,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'StartingGold' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'EmpireSizeUnhappinessMod' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'MaintenanceFreeUnits' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyBase' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPerCity' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPopulationPercent' INTEGER DEFAULT 0;

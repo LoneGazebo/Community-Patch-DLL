@@ -384,6 +384,8 @@ bool CvDllDatabaseUtility::PrefetchGameData()
 	PrefetchCollection(GC.getTraitInfo(), "Traits");
 	PrefetchCollection(GC.getReligionInfo(), "Religions");
 	PrefetchCollection(GC.getBeliefInfo(), "Beliefs");
+	PrefetchCollection(GC.getSpyPassiveBonusInfo(), "SpyPassiveBonuses");
+	PrefetchCollection(GC.getSpyPassiveBonusDiplomatInfo(), "SpyPassiveBonusesDiplomat");
 	PrefetchCollection(GC.getLeagueSpecialSessionInfo(), "LeagueSpecialSessions");
 	PrefetchCollection(GC.getLeagueNameInfo(), "LeagueNames");
 	PrefetchCollection(GC.getLeagueProjectInfo(), "LeagueProjects");

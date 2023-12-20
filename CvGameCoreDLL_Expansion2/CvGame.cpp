@@ -393,9 +393,6 @@ void CvGame::init(HandicapTypes eHandicap)
 
 	updateGlobalMedians();
 
-#if defined(MOD_BALANCE_CORE_SPIES)
-	SetHighestSpyPotential();
-#endif
 	DoBarbCountdown();
 }
 
@@ -4911,9 +4908,16 @@ bool CvGame::CanOpenCityScreen(PlayerTypes eOpener, CvCity* pCity)
 	{
 		return true;
 	}
-	else if (!GET_PLAYER(pCity->getOwner()).isMinorCiv() && (GET_PLAYER(eOpener).GetEspionage()->HasEstablishedSurveillanceInCity(pCity) || GET_PLAYER(eOpener).GetEspionage()->IsAnySchmoozing(pCity)))
+	else if (!GET_PLAYER(pCity->getOwner()).isMinorCiv())
 	{
-		return true;
+		if (!MOD_BALANCE_VP && (GET_PLAYER(eOpener).GetEspionage()->HasEstablishedSurveillanceInCity(pCity) || GET_PLAYER(eOpener).GetEspionage()->IsAnySchmoozing(pCity)))
+		{
+			return true;
+		}
+		else if (MOD_BALANCE_VP && pCity->GetCityEspionage()->GetRevealCityScreen(eOpener))
+		{
+			return true;
+		}
 	}
 
 	return false;
@@ -8652,10 +8656,6 @@ void CvGame::doTurn()
 
 	updateGlobalMedians();
 	updateEconomicTotal();
-
-#if defined(MOD_BALANCE_CORE_SPIES)
-	SetHighestSpyPotential();
-#endif
 	DoBarbCountdown();
 	GC.GetEngineUserInterface()->setCanEndTurn(false);
 	GC.GetEngineUserInterface()->setHasMovedUnit(false);
@@ -11355,94 +11355,6 @@ int CvGame::GetSpyThreshold() const
 	return m_iSpyThreshold;
 }
 //	--------------------------------------------------------------------------------
-
-#if defined(MOD_BALANCE_CORE_SPIES)
-void CvGame::SetHighestSpyPotential()
-{	
-	if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-	{
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
-			{
-				CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-
-				if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
-				{
-					continue;
-				}
-
-				int iNumSpies = kLoopPlayer.GetEspionage()->GetNumSpies();
-				//no espionage system = no risk!
-				if (iNumSpies <= 0)
-					continue;
-
-				int iLoop = 0;
-				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-				{
-					int iFinalModifier = kLoopPlayer.GetEspionage()->GetSpyResistanceModifier(pLoopCity);
-					//is our resistance better than average? Increase spy rank! Otherwise, reduce it.
-					if (iFinalModifier != 0)
-					{
-						pLoopCity->ChangeEspionageRanking(iFinalModifier/5, false);
-					}
-				}
-			}
-		}
-	}
-	else
-	{
-		//no divide by zero ...
-		int iHighestEspionagePotential = 1;
-
-		// first pass to get the largest base potential available
-		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-		{
-			PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-			if (eLoopPlayer != NO_PLAYER && GET_PLAYER(eLoopPlayer).isAlive())
-			{
-				CvPlayer& kLoopPlayer = GET_PLAYER(eLoopPlayer);
-
-				if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
-				{
-					continue;
-				}
-
-				int iLoop = 0;
-				for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-				{
-					int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
-
-					iHighestEspionagePotential = max(iPotential, iHighestEspionagePotential);
-				}
-			}
-		}
-
-		for (int iPlayer = 0; iPlayer < MAX_MAJOR_CIVS; ++iPlayer)
-		{
-			CvPlayer& kLoopPlayer = GET_PLAYER((PlayerTypes)iPlayer);
-
-			if (!kLoopPlayer.isAlive() || kLoopPlayer.isBarbarian() || kLoopPlayer.isMinorCiv())
-			{
-				continue;
-			}
-
-			int iLoop = 0;
-			for (CvCity* pLoopCity = kLoopPlayer.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kLoopPlayer.nextCity(&iLoop))
-			{
-				int iPotential = kLoopPlayer.GetEspionage()->CalcPerTurn(SPY_STATE_GATHERING_INTEL, pLoopCity, -1);
-
-				//We want a value between 1 and 10
-				int iRank = max(1, (iPotential * 10) / iHighestEspionagePotential);
-
-				pLoopCity->SetEspionageRanking(iRank);
-			}
-		}
-	}
-}
-#endif
-
 void CvGame::DoBarbCountdown()
 {
 	// Update the number of threatening Barbarians for each City-State
@@ -12977,9 +12889,9 @@ void CvGame::SetCombatWarned(bool bValue)
 
 //	--------------------------------------------------------------------------------
 /// Shortcut for generating production mod tool tip help
-void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey, int iMod, const char* strExtraKey) const
+void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey, int iMod, const char* strExtraKey, bool bShowIfZero) const
 {
-	if(iMod != 0 && toolTipSink != NULL)
+	if((iMod != 0 || bShowIfZero) && toolTipSink != NULL)
 	{
 		Localization::String localizedText = Localization::Lookup(strTextKey);
 		localizedText << iMod;
@@ -12998,7 +12910,7 @@ void CvGame::BuildProdModHelpText(CvString* toolTipSink, const char* strTextKey,
 }
 
 //	--------------------------------------------------------------------------------
-/// Shortcut for generating production mod tool tip help
+/// Shortcut for generating build action tool tip help
 void CvGame::BuildCannotPerformActionHelpText(CvString* toolTipSink, const char* strTextKey, const char* strExtraKey1, const char* strExtraKey2, int iValue) const
 {
 	if(toolTipSink != NULL)

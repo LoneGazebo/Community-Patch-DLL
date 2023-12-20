@@ -427,7 +427,7 @@ function RelocateAgent(agentID, city)
 	if(plot ~= nil) then
 		city = plot:GetPlotCity();
 		if(city ~= nil) then
-			strActivityTT = pActivePlayer:GetSpyChanceAtCity(city, agent.AgentID, OptionsManager.IsNoBasicHelp());
+			strActivityTT = activePlayer:GetSpyMissionTooltip(city, agent.AgentID);
 		end
 	end
 	
@@ -598,7 +598,7 @@ function RefreshAgents()
 			if(plot ~= nil) then
 				city = plot:GetPlotCity();
 				if(city ~= nil) then
-					strActivityTT = pActivePlayer:GetSpyChanceAtCity(city, v.AgentID, OptionsManager.IsNoBasicHelp());
+					strActivityTT = pActivePlayer:GetSpyMissionTooltip(city, v.AgentID);
 				end
 			end
 			
@@ -702,9 +702,6 @@ function RefreshAgents()
 				agentEntry.StageCoupButton:SetDisabled(bCoupDisabled);
 				agentEntry.StageCoupButton:RegisterCallback(Mouse.eLClick, OnCoupClicked);
 				local iCityAlly = Players[city:GetOwner()]:GetAlly();
--- CP
-				local iCooldown = Players[city:GetOwner()]:GetCoupCooldown();
---END
 				if (v.State == "TXT_KEY_SPY_STATE_DEAD") then
 					agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", v.Rank, v.Name);
 				elseif (bCoupDisabled) then
@@ -712,10 +709,6 @@ function RefreshAgents()
 						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_WAIT_TT", v.Rank, v.Name, city:GetNameKey());
 					elseif (iCityAlly == -1) then
 						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_NO_ALLY_TT", v.Rank, v.Name, city:GetNameKey(), city:GetNameKey());
--- CBP
-					elseif(iCooldown > 0) then
-						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT", v.Rank, v.Name, city:GetNameKey(), iCooldown);
--- END
 					else
 						agentEntry.StageCoupButton:LocalizeAndSetToolTip("TXT_KEY_EO_SPY_COUP_DISABLED_YOU_ALLY_TT", v.Rank, v.Name, city:GetNameKey());
 					end
@@ -766,6 +759,118 @@ end
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
 
+function BuildPotentialModifierTT (cityInfo)
+	local strTTResult = "";
+	local strBuildingTT = "";
+	local strWonderTT = "";
+	local strPolicyTT = "";
+
+	local pPlayer = Players[cityInfo.PlayerID];
+	local pCity = pPlayer:GetCityByID(cityInfo.CityID);	
+	
+	-- Constructing strBuildingTT and strWonderTT
+	for building in GameInfo.Buildings() do
+		local thisBuildingClass = GameInfo.BuildingClasses[building.BuildingClass];
+		local buildingID = building.ID;
+		local iEspionageMod = pCity:GetBuildingEspionageModifier(buildingID);
+		local iGlobalEspionageMod = pCity:GetBuildingGlobalEspionageModifier(buildingID);
+
+		if (pCity:IsHasBuilding(buildingID)) then
+			if (iEspionageMod and iEspionageMod ~= 0) then
+				strBuildingTT = strBuildingTT .. "[NEWLINE]";
+				strBuildingTT = strBuildingTT .. Locale.Lookup("TXT_KEY_EO_POTENTIAL_BUILDING_MOD_ENTRY", building.Description, iEspionageMod);
+			end
+		elseif (pPlayer:GetBuildingClassCount(thisBuildingClass.ID) > 0) then
+			if (iGlobalEspionageMod and iGlobalEspionageMod ~= 0) then
+				strWonderTT = strWonderTT .. "[NEWLINE]";
+				strWonderTT = strWonderTT .. Locale.Lookup("TXT_KEY_EO_POTENTIAL_WONDER_MOD_ENTRY", building.Description, iGlobalEspionageMod);
+			end
+		end
+	end
+
+	-- Constructing strPolicyTT
+	local i = 0;
+	local policyInfo = GameInfo.Policies[i];
+	while policyInfo ~= nil do
+		if (pPlayer:HasPolicy(i) and (not pPlayer:IsPolicyBlocked(i))) then
+			local iEspionageMod = pPlayer:GetPolicyEspionageModifier(i);
+			if (iEspionageMod ~= 0) then
+				strPolicyTT = strPolicyTT .. "[NEWLINE]";
+				strPolicyTT = strPolicyTT .. Locale.Lookup("TXT_KEY_EO_POTENTIAL_POLICY_MOD_ENTRY", policyInfo.Description, iEspionageMod);
+			end	
+		end
+			
+		i = i + 1;
+		policyInfo = GameInfo.Policies[i];
+	end
+
+	-- Constructing final string	
+	local strTempResult = "";
+	if (strBuildingTT ~= "") then
+		strTempResult = strTempResult .. "[NEWLINE]";
+		strTempResult = strTempResult .. Locale.Lookup("TXT_KEY_EO_POTENTIAL_BUILDING_MOD_TITLE");
+		strTempResult = strTempResult .. strBuildingTT;
+	end
+
+	if (strWonderTT ~= "") then
+		strTempResult = strTempResult .. "[NEWLINE]";
+		strTempResult = strTempResult .. Locale.Lookup("TXT_KEY_EO_POTENTIAL_WONDER_MOD_TITLE");
+		strTempResult = strTempResult .. strWonderTT;
+	end
+
+	if (strPolicyTT ~= "") then
+		strTempResult = strTempResult .. "[NEWLINE]";
+		strTempResult = strTempResult .. Locale.Lookup("TXT_KEY_EO_POTENTIAL_POLICY_MOD_TITLE");
+		strTempResult = strTempResult .. strPolicyTT;
+	end
+	
+	if (strTempResult ~= "") then
+		strTTResult = "[NEWLINE]";
+		strTTResult = strTTResult .. strTempResult;
+	end
+	
+	return strTTResult;
+end
+
+function BuildExtraCatchSpiesModifierTT (iPlayerID)
+	local strTTResult = "";
+	local strPolicyTT = "";
+
+	local pPlayer = Players[iPlayerID];
+
+	-- Constructing strPolicyTT
+	local i = 0;
+	local policyInfo = GameInfo.Policies[i];
+	while policyInfo ~= nil do
+		if (pPlayer:HasPolicy(i) and (not pPlayer:IsPolicyBlocked(i))) then
+			local iEspionageMod = pPlayer:GetPolicyEspionageCatchSpiesModifier(i);
+			if (iEspionageMod ~= 0) then
+				strPolicyTT = strPolicyTT .. "[NEWLINE]";
+				if (Game.GetActivePlayer() == iPlayerID) then
+					strPolicyTT = strPolicyTT .. Locale.Lookup("TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_YOU", policyInfo.Description, iEspionageMod);
+				else
+					local strLeaderName;
+					if(pPlayer:GetNickName() ~= "" and Game:IsNetworkMultiPlayer()) then
+						strLeaderName = pPlayer:GetNickName();
+					else
+						strLeaderName = pPlayer:GetName();
+					end
+					strPolicyTT = strPolicyTT .. Locale.Lookup("TXT_KEY_EO_INCREASED_CHANCE_TO_CATCH_SPY_THEM", strLeaderName, policyInfo.Description, iEspionageMod);
+				end
+			end	
+		end
+			
+		i = i + 1;
+		policyInfo = GameInfo.Policies[i];
+	end
+	
+	if (strPolicyTT ~= "") then
+		strTTResult = "[NEWLINE]";
+		strTTResult = strTTResult .. strPolicyTT;
+	end
+	
+	return strTTResult;
+end
 function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, selectedAgentCurrentCityID, citiesAvailableForRelocate)
 
 	print("Refreshing My Cities");
@@ -884,8 +989,9 @@ function RefreshMyCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID, s
 		local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
 		
 		if(cityInfo.BasePotential > 0) then
-			strPotentialToolTip = pActivePlayer:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
-		
+			strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_OWN_CITY_POTENTIAL_TT", cityInfo.Name, cityInfo.BasePotential);
+			strPotentialToolTip = strPotentialToolTip .. BuildPotentialModifierTT(cityInfo);
+			strPotentialToolTip = strPotentialToolTip .. BuildExtraCatchSpiesModifierTT(cityInfo.PlayerID);
 			local potentialMeter = entry.PotentialMeterFront;
 			potentialMeter:SetHide(false);
 			
@@ -1075,9 +1181,6 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 		entry.PotentialMeterFront:SetHide(true); 
 		entry.RigElectionDisabled:SetHide(true);
 		entry.RigElectionEnabled:SetHide(true);
-		--CBP
-		entry.RigElectionCooldown:SetHide(true);
-		--END
 		entry.UnknownProgress:SetHide(true);	
 				
 		local bIsCityState = false;
@@ -1125,34 +1228,16 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 			local strCityStateTT = Locale.Lookup("TXT_KEY_EO_CITY_STATE_POTENTIAL_TT");
 			strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
 			strCityStateTT = strCityStateTT .. Locale.Lookup("TXT_KEY_EO_CITY_STATE_ELECTION", Game.GetTurnsBetweenMinorCivElections(), Game.GetTurnsUntilMinorCivElection());
-			--CBP
-			if(cityInfo ~= nil) then
-				local pPlayerCS = Players[cityInfo.PlayerID];
-				if (pPlayerCS ~= -1 and pPlayerCS:IsMinorCiv()) then
-					local iCooldown = pPlayerCS:GetCoupCooldown();
-					if(iCooldown > 0) then
-						strCityStateTT = strCityStateTT .. "[NEWLINE][NEWLINE]";
-						strCityStateTT = strCityStateTT .. Locale.Lookup("TXT_KEY_EO_SPY_COUP_DISABLED_COOLDOWN_TT_EXTRA", iCooldown);
-						entry.RigElectionEnabled:SetHide(true);
-						entry.RigElectionDisabled:SetHide(true);
-						entry.RigElectionCooldown:SetHide(false);
-					end
-				end
-			end
-			--END
 			entry.RigElectionDisabled:SetToolTipString(strCityStateTT);
 			entry.RigElectionEnabled:SetToolTipString(strCityStateTT);
-			--CBP
-			entry.RigElectionCooldown:SetToolTipString(strCityStateTT);
-			--END
 		else
 			local strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_UNKNOWN_POTENTIAL_TT");
 			if(cityInfo.BasePotential > 0) then
 				if (agent ~= nil and agent.EstablishedSurveillance) then
 					if (cityInfo.Potential > 0) then
-						local pPlayer = Players[cityInfo.PlayerID];
-						local pCity = pPlayer:GetCityByID(cityInfo.CityID);	
-						strPotentialToolTip = Players[Game.GetActivePlayer()]:GetCityPotentialInfo(pCity, OptionsManager.IsNoBasicHelp());
+						strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_CITY_POTENTIAL_TT", agent.Rank, agent.Name, cityInfo.Potential, cityInfo.Name, cityInfo.Name, cityInfo.BasePotential);
+						strPotentialToolTip = strPotentialToolTip .. BuildPotentialModifierTT(cityInfo);
+						strPotentialToolTip = strPotentialToolTip .. BuildExtraCatchSpiesModifierTT(cityInfo.PlayerID);
 					else
 						strPotentialToolTip = Locale.Lookup("TXT_KEY_EO_CITY_POTENTIAL_CANNOT_STEAL_TT", agent.Rank, agent.Name, cityInfo.Name, cityInfo.Name, cityInfo.BasePotential);
 					end

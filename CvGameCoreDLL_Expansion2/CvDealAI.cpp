@@ -5184,7 +5184,7 @@ void CvDealAI::DoAddItemsToDealForPeaceTreaty(PlayerTypes eOtherPlayer, CvDeal* 
 			if (iCurrentCityValue == INT_MAX)
 				continue;
 
-			if (pLoopCity->plot()->GetNumEnemyUnitsAdjacent(pLoopCity->getTeam(), NO_DOMAIN, NULL, false, GET_PLAYER(eWinningPlayer).getTeam()) >= 2, true)
+			if (pLoopCity->plot()->GetNumEnemyUnitsAdjacent(pLoopCity->getTeam(), NO_DOMAIN, NULL, false, GET_PLAYER(eWinningPlayer).getTeam()) >= 2)
 			{
 				int iHPPercent = 100 * (pLoopCity->GetMaxHitPoints() - pLoopCity->getDamage()) / pLoopCity->GetMaxHitPoints();
 				if (iHPPercent < 10 + iWarScore / 10)

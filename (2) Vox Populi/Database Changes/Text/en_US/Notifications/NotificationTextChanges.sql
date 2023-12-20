@@ -1,4 +1,16 @@
 UPDATE Language_en_US
+SET Text = 'Your counterspy {1_SpyRank} {2_SpyName} killed {TXT_KEY_GRAMMAR_A_AN << {3_CivAdj}} spy in {4_CityName} after they completed a Spy Mission. {5_MissionText}'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_KILLED_A_SPY';
+
+UPDATE Language_en_US
+SET Text = 'While conducting their mission, your spy {1_SpyRank} {2_SpyName} was killed by {TXT_KEY_GRAMMAR_A_AN << {3_CivAdj}} counterspy!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_WAS_KILLED';
+
+UPDATE Language_en_US
+SET Text = '{1_SpyRank} {2_SpyName} killed!'
+WHERE Tag = 'TXT_KEY_NOTIFICATION_SPY_WAS_KILLED_S';
+
+UPDATE Language_en_US
 SET Text = 'The people of {3_MinorCivName:textkey} look to worldly affairs for religious guidance. Whichever global religion can garner the most [ICON_PEACE] Followers in a period of {2_TurnsDuration} turns will gain [ICON_INFLUENCE] Influence with them. [COLOR_POSITIVE_TEXT]{1_TurnsRemaining} turns remaining.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_CONTEST_FAITH';
 
