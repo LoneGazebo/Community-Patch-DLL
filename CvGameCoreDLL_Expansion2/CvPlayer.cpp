@@ -35400,6 +35400,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
 				if (isHuman() || /* if MP, invalidate for AI too */ kGame.isNetworkMultiPlayer()) {
 					GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
+					GetHomelandAI()->Invalidate();
 				}
 
 				// update danger plots before the turn

@@ -2186,8 +2186,8 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 /// Prefer building routes that can have villages.
 static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
 {
-	// If we're not the owner of this plot, bail out
-	if (!pPlot->isOwned() || pPlot->getOwner() != pPlayer->GetID())
+	// If someone else owns this plot, bail out
+	if (pPlot->isOwned() && pPlot->getOwner() != pPlayer->GetID())
 		return 0;
 
 	// Building a village here removes the route in this case
@@ -2198,8 +2198,11 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 	if (pPlot->getResourceType() != NO_RESOURCE)
 		return 0;
 
-	int iBonus = 0;
+	// No villages for China near cities, no villages for Brazil on jungle/forest, no villages for Netherlands on marshes.
+	if (!eBuilderTaskingAi->MayWantVillageOnPlot(pPlot))
+		return 0;
 
+	// If we have a town or village here, give a big bonus
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
 	{
@@ -2210,50 +2213,14 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 			{
 				YieldTypes eYield = (YieldTypes)iI;
 
-				// Heavily prioritize building routes over existing villages/towns
-				iBonus += pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
+				if (pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) > 0)
+					return 30;
 			}
 		}
-
-		if (iBonus)
-			return iBonus * 3;
 	}
 
-	int iBestBonus = 0;
-	
-	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
-	{
-		BuildTypes eBuild = (BuildTypes)iI;
-		CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
-		if (!pkBuild)
-			continue;
-
-		// Set bTestEra to true as a hack to ensure that we consider villages even if we can not build the improvement yet
-		if (!pPlayer->canBuild(pPlot, eBuild, true))
-			continue;
-
-		eImprovement = (ImprovementTypes)pkBuild->getImprovement();
-		if (eImprovement == NO_IMPROVEMENT)
-			continue;
-
-		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
-		if (pkImprovementInfo == NULL)
-			continue;
-
-		int iPotentialVillageBonus = 0;
-
-		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
-		{
-			YieldTypes eYield = (YieldTypes)iYield;
-
-			iPotentialVillageBonus += pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
-		}
-
-		if (iPotentialVillageBonus > iBestBonus)
-			iBestBonus = iPotentialVillageBonus;
-	}
-
-	return iBonus + iBestBonus;
+	// Villages and towns can be built pretty much anywhere
+	return 5;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2266,13 +2233,21 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	RouteTypes eRouteType = data.eRouteType;
 	BuildTypes eBuildType = data.eBuildType;
 	int iCost = 0;
+	bool bGetSameRouteBenefitFromTrait = eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType);
 
-	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType))
+	if (pPlot->isCity())
+		return 0;
+
+	if (bGetSameRouteBenefitFromTrait)
+	{
+		iCost = PATH_BASE_COST / 3;
+	}
+	else if(eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= eRouteType)
 	{
 		// if we are planning to or have already built a road here, or get a free road here from our trait, provide a discount (cities always have a road)
 		iCost = PATH_BASE_COST * 7 / 12;
 	}
-	else if ((eBuilderTaskingAi->WantRouteAtPlot(pPlot) || eBuilderTaskingAi->NeedRouteAtPlot(pPlot)) && !eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
+	else if (eBuilderTaskingAi->NeedRouteAtPlot(pPlot) && !bGetSameRouteBenefitFromTrait)
 	{
 		// if we are planning to build a lower tier route here, provide a smaller discount
 		iCost = PATH_BASE_COST * 3 / 4;
@@ -2292,7 +2267,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	}
 
 	//too dangerous, might be severed any time
-	if (pPlot->getOwner() == NO_PLAYER && pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam(), false, false, true, true))
+	if (pPlot->getOwner() == NO_PLAYER && !bGetSameRouteBenefitFromTrait && pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam(), false, false, true, true))
 		iCost *= 3;
 
 	if (data.bBenefitsVillages)

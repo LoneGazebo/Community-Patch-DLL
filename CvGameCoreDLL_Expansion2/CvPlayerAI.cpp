@@ -257,7 +257,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 }
 
 //	---------------------------------------------------------------------------
-void CvPlayerAI::AI_unitUpdate()
+void CvPlayerAI::AI_unitUpdate(bool bUpdateHomelandAI)
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -279,7 +279,7 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		CvUnit::dispatchingNetMessage(true);
 		GetTacticalAI()->UpdateVisibility();
-		GetHomelandAI()->Update();
+		GetHomelandAI()->Update(bUpdateHomelandAI);
 		GetTacticalAI()->CleanUp();
 		CvUnit::dispatchingNetMessage(false);
 	}
@@ -288,7 +288,7 @@ void CvPlayerAI::AI_unitUpdate()
 		// Now let the tactical AI run.  Putting it after the operations update allows units who have
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
 		GetTacticalAI()->Update();
-		GetHomelandAI()->Update();
+		GetHomelandAI()->Update(true);
 		GetTacticalAI()->CleanUp();
 	}
 }
