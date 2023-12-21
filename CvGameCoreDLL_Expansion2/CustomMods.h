@@ -453,6 +453,8 @@
 
 // if true, only cities cannot do ranged strikes
 #define MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES		gCustomMods.isCORE_NO_RANGED_ATTACK_FROM_CITIES()
+// if true, units can pass through anyone's territory but still need open borders to stay there
+#define MOD_CORE_RELAXED_BORDER_CHECK			gCustomMods.isCORE_RELAXED_BORDER_CHECK()
 
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
@@ -1468,6 +1470,7 @@ public:
 	MOD_OPT_DECL(RELIGION_PERMANENT_PANTHEON);
 
 	MOD_OPT_DECL(CORE_NO_RANGED_ATTACK_FROM_CITIES);
+	MOD_OPT_DECL(CORE_RELAXED_BORDER_CHECK);
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 
 	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);

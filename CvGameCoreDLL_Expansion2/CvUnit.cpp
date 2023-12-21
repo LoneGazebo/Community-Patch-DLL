@@ -4770,6 +4770,10 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 	if(isRivalTerritory() || isTrade())
 		return true;
 
+	//if this option is active, we need open borders only if we want to end the turn in foreign territory
+	if (MOD_CORE_RELAXED_BORDER_CHECK && !bEndTurn)
+		return true;
+
 	// Minors can't intrude into one another's territory
 	if(kTheirTeam.isMinorCiv() && kMyTeam.isMajorCiv())
 	{
