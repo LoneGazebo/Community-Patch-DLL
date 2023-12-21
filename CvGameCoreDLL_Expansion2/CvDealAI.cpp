@@ -5527,7 +5527,7 @@ int CvDealAI::GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal, i
 	int iTotalValue = GetDealValue(pDeal);
 	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue, false, false);
 	
-	if (pDeal->m_TradedItems.size() <= 0)
+	if (pDeal->m_TradedItems.empty())
 	{
 		return 0;
 	}
@@ -5562,7 +5562,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	int iTotalValue = 0;
 	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue, false, false);
 
-	return (pDeal->m_TradedItems.size() > 0 && iTotalValue > 0);
+	return (!pDeal->m_TradedItems.empty() && iTotalValue > 0);
 }
 
 /// A good time to make an offer for someone's extra Luxury?

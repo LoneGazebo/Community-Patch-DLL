@@ -35164,8 +35164,8 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 			bool bAbleToEqualize = false;
 			if (!GET_PLAYER(ePlayer).isHuman())
 			{
-				bool bUselessReferenceVariable;
-				bool bCantMatchOffer;
+				bool bUselessReferenceVariable = false;
+				bool bCantMatchOffer = false;
 				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDeal(pCurrentDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);
 			}
 			else

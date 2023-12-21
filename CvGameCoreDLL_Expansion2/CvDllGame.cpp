@@ -588,7 +588,8 @@ void CvDllGame::SetLastTurnAICivsProcessed()
 //------------------------------------------------------------------------------
 bool endsWith(const char* str, const char* ending)
 {
-	size_t str_len = strlen(str), ending_len = strlen(ending);
+	size_t str_len = strlen(str);
+	size_t ending_len = strlen(ending);
 	return str_len >= ending_len && !strcmp(str + str_len - ending_len, ending);
 }
 void CvDllGame::InitExeStuff()
