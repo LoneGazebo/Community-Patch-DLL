@@ -658,12 +658,28 @@ SET Text = 'Allows Research Agreements (if enabled)'
 WHERE Tag = 'TXT_KEY_ABLTY_R_PACT_STRING';
 
 UPDATE Language_en_US
-SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production'
+SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_ABLTY_TECH_BOOST_CHOP';
+
+UPDATE Language_en_US
+SET Text = 'Embarking/disembarking in Forifications expends only 1 Movement.'
+WHERE Tag = 'TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING';
+
+UPDATE Language_en_US
+SET Text = 'Embarking/disembarking in Forifications expends only 0.1 Movement.'
+WHERE Tag = 'TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING';
+
+UPDATE Language_en_US
+SET Text = '[ICON_INTERNATIONAL_TRADE] Allows establishing an additional trade route.'
+WHERE Tag = 'TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE';
 
 UPDATE Language_en_US
 SET Text = '+50% empire-wide [ICON_TOURISM] Tourism output.'
 WHERE Tag = 'TXT_KEY_DOUBLE_TOURISM';
+
+UPDATE Language_en_US
+SET Text = '{1_Build}: {2_Turns}% {2_Turns: plural 1?Turn; other?Turns;} Required'
+WHERE Tag = 'TXT_KEY_TECH_HELP_BUILD_REDUCTION';
 
 ------------------------------------------------
 -- Policy tree

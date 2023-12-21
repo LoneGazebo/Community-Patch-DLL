@@ -11185,6 +11185,7 @@ void CvPlayer::doTurn()
 
 	//cache reset
 	m_iNumUnitsSuppliedCached = -1;
+	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 	m_bUnlockedGrowthAnywhereThisTurn = false;
 
 	AI_doTurnPre();
@@ -17937,7 +17938,7 @@ int CvPlayer::GetNumUnitsSupplied(bool bCheckWarWeariness) const
 	if (!isAlive())
 		return 0;
 
-	if (m_iNumUnitsSuppliedCached == -1)
+	if (m_iNumUnitsSuppliedCached == -1 || (bCheckWarWeariness && m_iNumUnitsSuppliedCachedWarWeariness == -1))
 	{
 		// update m_iNumUnitsSuppliedCached and m_iNumUnitsSuppliedCachedWarWeariness
 		int iUnitSupply = GetNumUnitsSuppliedByHandicap();
@@ -21639,6 +21640,7 @@ void CvPlayer::CalculateNetHappiness()
 
 	//reset this as well, when a building is constructed or a policy adopted
 	m_iNumUnitsSuppliedCached = -1;
+	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 
 	DoUpdateTotalHappiness();
 	DoUpdateTotalUnhappiness();
@@ -30082,7 +30084,10 @@ void CvPlayer::DoGreatPersonExpended(UnitTypes eGreatPersonUnit)
 		if (iSupply > 0)
 		{
 			ChangeUnitSupplyFromExpendedGreatPeople(iSupply);
-			m_iNumUnitsSuppliedCached = -1; //force recalculation
+
+			// force recalculation
+			m_iNumUnitsSuppliedCached = -1;
+			m_iNumUnitsSuppliedCachedWarWeariness = -1;
 
 			if (GetID() == GC.getGame().getActivePlayer())
 			{
@@ -42955,6 +42960,7 @@ CvCity* CvPlayer::getCity(int iID) const
 CvCity* CvPlayer::addCity()
 {
 	m_iNumUnitsSuppliedCached = -1;
+	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 	return(m_cities.Add());
 }
 
@@ -42963,6 +42969,7 @@ void CvPlayer::deleteCity(int iID)
 {
 	m_cities.Remove(iID);
 	m_iNumUnitsSuppliedCached = -1;
+	m_iNumUnitsSuppliedCachedWarWeariness = -1;
 
 	GC.getGame().SetClosestCityMapDirty();
 
