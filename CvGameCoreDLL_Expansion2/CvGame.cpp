@@ -9668,15 +9668,16 @@ void CvGame::updateMoves()
 
 		if(player.isAlive())
 		{
-			bool needsAIUpdate = player.hasUnitsThatNeedAIUpdate();
-			if(player.isTurnActive() || needsAIUpdate)
+			bool bAutomatedUnitNeedsUpdate = player.hasUnitsThatNeedAIUpdate();
+			bool bHomelandAINeedsUpdate = player.GetHomelandAI()->NeedsUpdate();
+			if(player.isTurnActive() || bAutomatedUnitNeedsUpdate || bHomelandAINeedsUpdate)
 			{
-				if(!(player.isAutoMoves()) || needsAIUpdate)
+				if(!(player.isAutoMoves()) || bAutomatedUnitNeedsUpdate || bHomelandAINeedsUpdate)
 				{
-					if(needsAIUpdate || !player.isHuman())
+					if(bAutomatedUnitNeedsUpdate || bHomelandAINeedsUpdate || !player.isHuman())
 					{
-						// ------- this is where the important stuff happens! --------------
-						player.AI_unitUpdate();
+					// ------- this is where the important stuff happens! --------------
+						player.AI_unitUpdate(bHomelandAINeedsUpdate);
 						NET_MESSAGE_DEBUG_OSTR_ALWAYS("UpdateMoves() : player.AI_unitUpdate() called for player " << player.GetID() << " " << player.getName()); 
 					}
 

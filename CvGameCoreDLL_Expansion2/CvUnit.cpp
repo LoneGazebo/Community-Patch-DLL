@@ -3425,16 +3425,26 @@ bool CvUnit::isActionRecommended(int iAction)
 		CvAssert(eBuild != NO_BUILD);
 		CvAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
 
-		//fake this, we're really only interested in one plot
-		ReachablePlots plots;
-		plots.insertWithIndex(SMovePlot(plot()->GetPlotIndex()));
-		map<int, ReachablePlots> allplots;
-		allplots[this->GetID()] = plots;
+		vector<BuilderDirective> directives = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->GetDirectives();
 
-		BuilderDirective aDirective = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this,allplots);
-		if(aDirective.m_eDirective != BuilderDirective::NUM_DIRECTIVES && aDirective.m_eBuild == eBuild)
+		if (directives.empty())
+			return false;
+
+		for (vector<BuilderDirective>::iterator it = directives.begin(); it != directives.end(); ++it)
 		{
-			return true;
+			BuilderDirective eDirective = *it;
+			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
+			if (pPlot != pDirectivePlot)
+				continue;
+
+			bool bCanBuild = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this, eDirective);
+
+			if (!bCanBuild)
+				continue;
+
+			// If this is not the best improvement we can build on this tile, return false
+			return eDirective.m_eBuild == eBuild;
 		}
 	}
 

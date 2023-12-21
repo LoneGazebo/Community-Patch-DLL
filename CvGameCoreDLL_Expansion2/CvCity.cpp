@@ -29722,7 +29722,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	iRtnValue += iYieldValue;
 
-	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
+	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->NeedRouteAtPlot(pPlot))
 	{
 		iRtnValue += /*80*/ GD_INT_GET(AI_PLOT_VALUE_STRATEGIC_RESOURCE);
 	}

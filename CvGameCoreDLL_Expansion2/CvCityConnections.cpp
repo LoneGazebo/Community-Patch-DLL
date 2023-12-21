@@ -126,9 +126,6 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 {
 	m_plotIdsToConnect.clear();
 
-	bool bIsIndustrial = GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute() == GC.getGame().GetIndustrialRoute();
-	bool bHaveGoldToSpare = m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100() > 1000;
-
 	vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
 	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
@@ -146,6 +143,8 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
 		vector<PlayerTypes> vUnfriendlyMajors = GET_PLAYER(ePlayer).GetUnfriendlyMajors();
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
+		TeamTypes eTeam = m_pPlayer->getTeam();
+
 		for (size_t j=0; j<vPlots.size(); j++)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
@@ -159,29 +158,42 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			if (pLoopPlot->getOwningCity() && pLoopPlot->getOwningCity()->IsRazing())
 				continue;
 
-			if (pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+			if (!pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 				continue;
 
 			//ignore plots which are not exposed
-			if (vUnfriendlyMajors.empty() || !pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyMajors))
+			bool bCloseOtherCiv = false;
+			for (int i = RING0_PLOTS; i < RING2_PLOTS; i++)
+			{
+				CvPlot* pAdjacentPlot = iterateRingPlots(pLoopPlot, i);
+				if (pAdjacentPlot == NULL)
+					continue;
+
+				TeamTypes eAdjacentTeam = pAdjacentPlot->getTeam();
+
+				if (!pAdjacentPlot->isValidMovePlot(pAdjacentPlot->getOwner(), false))
+					continue;
+
+				if (GET_TEAM(eAdjacentTeam).IsVassal(eTeam))
+					continue;
+
+				if (eAdjacentTeam != eTeam && eAdjacentTeam != NO_TEAM)
+				{
+					bCloseOtherCiv = true;
+					break;
+				}
+			}
+
+			if (!bCloseOtherCiv)
 				continue;
 
-			//natural defenses
-			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 25 || pLoopPlot->IsChokePoint())
-			{
-				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
-			}
-			else if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 			{
 				//citadels and forts
 				CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 				if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 20)
 					m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}
-
-			//in industrial era, AI becomes much more generous with routes ...
-			if (bIsIndustrial && bHaveGoldToSpare && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), false, true))
-				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 		}
 	}
 
