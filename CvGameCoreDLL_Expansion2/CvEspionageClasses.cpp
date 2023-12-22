@@ -6065,7 +6065,7 @@ void CvCityEspionage::ResetPassiveBonuses(PlayerTypes ePlayer)
 {
 	SetSciencePassivePerTurn(ePlayer, 0);
 	SetDiplomatTradeBonus(ePlayer, 0);
-	SetRevealCityScreen(ePlayer, 0);
+	SetRevealCityScreen(ePlayer, false);
 	SetVisionBonus(ePlayer, 0);
 }
 
