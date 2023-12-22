@@ -423,13 +423,20 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 	{
 		TeamTypes eOtherTeam;
 		CvUnit* pLoopUnit;
+		PlayerTypes eOtherPlayer;
+		PlayerTypes eMinorCivAlly = NO_PLAYER;
 
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
 			pLoopUnit = pPlot->getUnitByIndex(iI);
 			eOtherTeam = pLoopUnit->getTeam();
+			eOtherPlayer = pLoopUnit->getOwner();
 			if (eOtherTeam != eTeam && !pLoopUnit->isInvisible(eTeam, false))
 			{
+				if (GET_TEAM(eOtherTeam).isMinorCiv())
+				{
+					eMinorCivAlly = GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetAlly();
+				}
 				for (int iRange = 2; iRange <= pLoopUnit->visibilityRange(); iRange++)
 				{
 					const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
@@ -440,6 +447,8 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 							continue;
 
 						m_plotsVisibleToOtherPlayer[eOtherTeam].insert(vPlots[iJ]->GetPlotIndex());
+						if (eMinorCivAlly != NO_PLAYER)
+							m_plotsVisibleToOtherPlayer[GET_PLAYER(eMinorCivAlly).getTeam()].insert(vPlots[iJ]->GetPlotIndex());
 					}
 				}
 			}
@@ -479,6 +488,8 @@ void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed)
 {
 	TeamTypes eTeam = m_pPlayer->getTeam();
 	TeamTypes eOtherTeam = pPlot->getTeam();
+	PlayerTypes eOtherPlayer = pPlot->getOwner();
+	PlayerTypes eMinorCivAlly = NO_PLAYER;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 	CvPlot* pAdjacentPlot;
 
@@ -486,6 +497,12 @@ void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed)
 	{
 		// Plot is owned by another player
 		m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pPlot->GetPlotIndex());
+		if (GET_TEAM(eOtherTeam).isMinorCiv())
+		{
+			eMinorCivAlly = GET_PLAYER(eOtherPlayer).GetMinorCivAI()->GetAlly();
+			if (eMinorCivAlly != NO_PLAYER)
+				m_plotsVisibleToOtherPlayer[GET_PLAYER(eMinorCivAlly).getTeam()].insert(pPlot->GetPlotIndex());
+		}
 
 		if (bRevealed)
 		{
@@ -494,8 +511,12 @@ void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed)
 				pAdjacentPlot = aPlotsToCheck[iI];
 
 				if (pAdjacentPlot != NULL && pAdjacentPlot->isVisible(eTeam))
+				{
 					// We knew about this plot before but we may not previously have known that this player was neighboring it
 					m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pAdjacentPlot->GetPlotIndex());
+					if (eMinorCivAlly != NO_PLAYER)
+						m_plotsVisibleToOtherPlayer[GET_PLAYER(eMinorCivAlly).getTeam()].insert(pAdjacentPlot->GetPlotIndex());
+				}
 			}
 		}
 	}

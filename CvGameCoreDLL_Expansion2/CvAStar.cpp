@@ -2298,11 +2298,15 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	return iCost;
 }
 
-static bool IsSafeForRoute(CvPlot* pPlot, CvPlayer* pPlayer)
+static bool IsSafeForRoute(CvPlot* pPlot, CvPlayer* pPlayer, RouteTypes eRoute)
 {
 	TeamTypes ePlotTeam = pPlot->getTeam();
 	TeamTypes ePlayerTeam = pPlayer->getTeam();
 	PlayerTypes ePlotOwner = pPlot->getOwner();
+
+	//Free routes from traits are always safe
+	if (pPlayer->GetBuilderTaskingAI()->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+		return TRUE;
 
 	// Our plots and surrounding plots are safe
 	if (ePlotTeam == ePlayerTeam || pPlot->isAdjacentTeam(pPlayer->getTeam(), false))
@@ -2387,15 +2391,11 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		}
 	}
 
-	//Free routes from traits are always safe
-	if (thisPlayer.GetBuilderTaskingAI()->GetSameRouteBenefitFromTrait(pNewPlot, eRoute))
-		return TRUE;
-
 	//if the plot and its parent are both too far from our borders, don't build here
-	if (!IsSafeForRoute(pNewPlot, &thisPlayer))
+	if (!IsSafeForRoute(pNewPlot, &thisPlayer, eRoute))
 	{
 		CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
-		if (!IsSafeForRoute(pFromPlot, &thisPlayer))
+		if (!IsSafeForRoute(pFromPlot, &thisPlayer, eRoute))
 			return FALSE;
 	}
 
