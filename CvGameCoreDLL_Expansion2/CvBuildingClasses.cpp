@@ -150,8 +150,10 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iExtraMissionarySpreadsGlobal(0),
 	m_iReligiousPressureModifier(0),
 	m_iEspionageModifier(0),
-	m_iEspionageModifierPerPop(0),
 	m_iGlobalEspionageModifier(0),
+	m_iSpySecurityModifier(0),
+	m_iSpySecurityModifierPerPop(0),
+	m_iGlobalSpySecurityModifier(0),
 	m_iExtraSpies(0),
 	m_iSpyRankChange(0),
 	m_iTradeRouteRecipientBonus(0),
@@ -733,8 +735,10 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_iExtraMissionarySpreadsGlobal = kResults.GetInt("ExtraMissionarySpreadsGlobal");
 	m_iReligiousPressureModifier = kResults.GetInt("ReligiousPressureModifier");
 	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
-	m_iEspionageModifierPerPop = kResults.GetInt("EspionageModifierPerPop");
 	m_iGlobalEspionageModifier = kResults.GetInt("GlobalEspionageModifier");
+	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
+	m_iSpySecurityModifierPerPop = kResults.GetInt("SpySecurityModifierPerPop");
+	m_iGlobalSpySecurityModifier = kResults.GetInt("GlobalSpySecurityModifier");
 	m_iExtraSpies = kResults.GetInt("ExtraSpies");
 	m_iSpyRankChange = kResults.GetInt("SpyRankChange");
 	m_iTradeRouteRecipientBonus = kResults.GetInt("TradeRouteRecipientBonus");
@@ -2386,15 +2390,27 @@ int CvBuildingEntry::GetEspionageModifier() const
 }
 
 /// Modifier to chance of espionage against all cities
-int CvBuildingEntry::GetEspionageModifierPerPop() const
-{
-	return m_iEspionageModifierPerPop;
-}
-
-/// Modifier to chance of espionage against all cities
 int CvBuildingEntry::GetGlobalEspionageModifier() const
 {
 	return m_iGlobalEspionageModifier;
+}
+
+/// Modifier to chance of security against espionage in this city
+int CvBuildingEntry::GetSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
+}
+
+/// Modifier to chance of security against espionage per population
+int CvBuildingEntry::GetSpySecurityModifierPerPop() const
+{
+	return m_iSpySecurityModifierPerPop;
+}
+
+/// Modifier to chance of espionage against all cities
+int CvBuildingEntry::GetGlobalSpySecurityModifier() const
+{
+	return m_iGlobalSpySecurityModifier;
 }
 
 /// Extra spies after this is built

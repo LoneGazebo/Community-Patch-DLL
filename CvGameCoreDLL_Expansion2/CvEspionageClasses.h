@@ -27,14 +27,12 @@ public:
 	int GetSciencePercentAdded() const;
 	int GetTilesRevealed() const;
 	bool IsRevealCityScreen() const;
-	bool IsWonderConstructionNotification() const;
 
 protected:
 	int m_iNetworkPointsNeeded;
 	int m_iSciencePercentAdded;
 	int m_iTilesRevealed;
 	bool m_bRevealCityScreen;
-	bool m_bWonderConstructionNotification;
 
 
 private:

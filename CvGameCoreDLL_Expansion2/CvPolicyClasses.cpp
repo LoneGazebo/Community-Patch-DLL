@@ -102,7 +102,6 @@ CvPolicyEntry::CvPolicyEntry(void):
 	m_iExtraCultureandScienceTradeRoutes(0),
 	m_iTradeRouteLandDistanceModifier(0),
 	m_iTradeRouteSeaDistanceModifier(0),
-	m_iEspionageModifier(0),
 	m_iEspionageNetworkPoints(0),
 	m_iRigElectionInfluenceModifier(0),
 	m_iXCSAlliesLowersPolicyNeedWonders(0),
@@ -585,7 +584,6 @@ bool CvPolicyEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility&
 	m_iExtraCultureandScienceTradeRoutes = kResults.GetInt("ExtraCultureandScienceTradeRoutes");
 	m_iTradeRouteLandDistanceModifier = kResults.GetInt("TradeRouteLandDistanceModifier");
 	m_iTradeRouteSeaDistanceModifier = kResults.GetInt("TradeRouteSeaDistanceModifier");
-	m_iEspionageModifier = kResults.GetInt("EspionageModifier");
 	m_iEspionageNetworkPoints = kResults.GetInt("EspionageNetworkPoints");
 	m_iRigElectionInfluenceModifier = kResults.GetInt("RigElectionInfluenceModifier");
 	m_iXCSAlliesLowersPolicyNeedWonders = kResults.GetInt("XCSAlliesLowersPolicyNeedWonders");
@@ -1843,10 +1841,6 @@ int CvPolicyEntry::GetTradeRouteLandDistanceModifier() const
 int CvPolicyEntry::GetTradeRouteSeaDistanceModifier() const
 {
 	return m_iTradeRouteSeaDistanceModifier;
-}
-int CvPolicyEntry::GetEspionageModifier() const
-{
-	return m_iEspionageModifier;
 }
 int CvPolicyEntry::GetEspionageNetworkPoints() const
 {

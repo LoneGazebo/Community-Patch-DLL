@@ -202,7 +202,7 @@ public:
 	int GetStartingSpies() const;
 	int GetStartingSpyRank() const;
 	int GetSpyMoveRateBonus() const;
-	int	GetEspionageModifier() const;
+	int GetSpySecurityModifier() const;
 	int GetSpyExtraRankBonus() const;
 	int GetQuestYieldModifier() const;
 	int GetWonderProductionModifierToBuilding() const;
@@ -639,7 +639,7 @@ protected:
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iSpyMoveRateBonus;
-	int m_iEspionageModifier;
+	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
 	int m_iQuestYieldModifier;
 #endif
@@ -1281,9 +1281,9 @@ public:
 	{
 		return m_iSpyMoveRateBonus;
 	};
-	int GetEspionageModifier() const
+	int GetSpySecurityModifier() const
 	{
-		return m_iEspionageModifier;
+		return m_iSpySecurityModifier;
 	};
 	int GetSpyExtraRankBonus() const
 	{
@@ -2195,7 +2195,7 @@ private:
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iSpyMoveRateBonus;
-	int m_iEspionageModifier;
+	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
 	int m_iQuestYieldModifier;
 	int m_iWonderProductionModifierToBuilding;

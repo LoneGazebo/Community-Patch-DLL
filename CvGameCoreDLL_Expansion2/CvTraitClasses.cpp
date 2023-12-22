@@ -126,7 +126,7 @@ CvTraitEntry::CvTraitEntry() :
 	m_iStartingSpies(0),
 	m_iStartingSpyRank(0),
 	m_iSpyMoveRateBonus(0),
-	m_iEspionageModifier(0),
+	m_iSpySecurityModifier(0),
 	m_iSpyExtraRankBonus(0),
 	m_iQuestYieldModifier(0),
 	m_iWonderProductionModifierToBuilding(0),
@@ -840,9 +840,9 @@ int CvTraitEntry::GetStartingSpyRank() const
 {
 	return m_iStartingSpyRank;
 }
-int CvTraitEntry::GetEspionageModifier() const
+int CvTraitEntry::GetSpySecurityModifier() const
 {
-	return m_iEspionageModifier;
+	return m_iSpySecurityModifier;
 }
 
 int CvTraitEntry::GetSpyExtraRankBonus() const
@@ -2398,7 +2398,7 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iStartingSpies						= kResults.GetInt("StartingSpies");
 	m_iStartingSpyRank						= kResults.GetInt("StartingSpyRank");
 	m_iSpyMoveRateBonus						= kResults.GetInt("SpyMoveRateModifier");
-	m_iEspionageModifier					= kResults.GetInt("EspionageRateModifier");
+	m_iSpySecurityModifier					= kResults.GetInt("SpySecurityModifier");
 	m_iSpyExtraRankBonus					= kResults.GetInt("SpyExtraRankBonus");
 	m_iQuestYieldModifier					= kResults.GetInt("MinorQuestYieldModifier");
 	m_iWonderProductionModifierToBuilding	= kResults.GetInt("WonderProductionModifierToBuilding");
@@ -4500,7 +4500,7 @@ void CvPlayerTraits::InitPlayerTraits()
 			m_iStartingSpies += trait->GetStartingSpies();
 			m_iStartingSpyRank += trait->GetStartingSpyRank();
 			m_iSpyMoveRateBonus += trait->GetSpyMoveRateBonus();
-			m_iEspionageModifier += trait->GetEspionageModifier();
+			m_iSpySecurityModifier += trait->GetSpySecurityModifier();
 			m_iSpyExtraRankBonus += trait->GetSpyExtraRankBonus();
 			m_iQuestYieldModifier += trait->GetQuestYieldModifier();
 			m_iWonderProductionModifierToBuilding += trait->GetWonderProductionModifierToBuilding();
@@ -5288,7 +5288,7 @@ void CvPlayerTraits::Reset()
 	m_iStartingSpies = 0;
 	m_iStartingSpyRank = 0;
 	m_iSpyMoveRateBonus = 0;
-	m_iEspionageModifier = 0;
+	m_iSpySecurityModifier = 0;
 	m_iSpyExtraRankBonus = 0;
 	m_iQuestYieldModifier = 0;
 	m_bGPWLTKD = false;
@@ -7517,7 +7517,7 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iStartingSpies);
 	visitor(playerTraits.m_iStartingSpyRank);
 	visitor(playerTraits.m_iSpyMoveRateBonus);
-	visitor(playerTraits.m_iEspionageModifier);
+	visitor(playerTraits.m_iSpySecurityModifier);
 	visitor(playerTraits.m_iSpyExtraRankBonus);
 	visitor(playerTraits.m_iQuestYieldModifier);
 	visitor(playerTraits.m_iWonderProductionModifierToBuilding);

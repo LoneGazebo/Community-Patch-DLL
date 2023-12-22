@@ -188,8 +188,7 @@ SET
 	UnlockedByBelief = 0,
 	SpecialistType = NULL,
 	SpecialistCount = 0,
-	Espionage = 1,
-	EspionageModifier = -25
+	Espionage = 1
 WHERE Type = 'BUILDING_WAT';
 
 DELETE FROM Building_FeatureYieldChanges WHERE BuildingType = 'BUILDING_WAT';

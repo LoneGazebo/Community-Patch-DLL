@@ -287,8 +287,10 @@ public:
 	int GetExtraMissionarySpreadsGlobal() const;
 	int GetReligiousPressureModifier() const;
 	int GetEspionageModifier() const;
-	int GetEspionageModifierPerPop() const;
 	int GetGlobalEspionageModifier() const;
+	int GetSpySecurityModifier() const;
+	int GetSpySecurityModifierPerPop() const;
+	int GetGlobalSpySecurityModifier() const;
 	int GetExtraSpies() const;
 	int GetSpyRankChange() const;
 	int GetTradeRouteRecipientBonus() const;
@@ -792,8 +794,10 @@ private:
 	int m_iExtraMissionarySpreadsGlobal;
 	int m_iReligiousPressureModifier;
 	int m_iEspionageModifier;
-	int m_iEspionageModifierPerPop;
 	int m_iGlobalEspionageModifier;
+	int m_iSpySecurityModifier;
+	int m_iSpySecurityModifierPerPop;
+	int m_iGlobalSpySecurityModifier;
 	int m_iExtraSpies;
 	int m_iSpyRankChange;
 	int m_iInstantSpyRankChange;

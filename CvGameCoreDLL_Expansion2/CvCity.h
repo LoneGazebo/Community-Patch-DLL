@@ -770,8 +770,11 @@ public:
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
 
-	int GetEspionageModifierPerPop() const;
-	void ChangeEspionageModifierPerPop(int iChange);
+	int GetSpySecurityModifier() const;
+	void ChangeSpySecurityModifier(int iChange);
+
+	int GetSpySecurityModifierPerPop() const;
+	void ChangeSpySecurityModifierPerPop(int iChange);
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int GetConversionModifier() const;
@@ -1894,7 +1897,8 @@ protected:
 	int m_iCountExtraLuxuries;
 	int m_iCheapestPlotInfluenceDistance;
 	int m_iEspionageModifier;
-	int m_iEspionageModifierPerPop;
+	int m_iSpySecurityModifier;
+	int m_iSpySecurityModifierPerPop;
 	int m_iNumPreviousSpyMissions;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	int m_iConversionModifier;
@@ -2300,7 +2304,8 @@ SYNC_ARCHIVE_VAR(int, m_iLowestRazingPop)
 SYNC_ARCHIVE_VAR(int, m_iCountExtraLuxuries)
 SYNC_ARCHIVE_VAR(int, m_iCheapestPlotInfluenceDistance)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
-SYNC_ARCHIVE_VAR(int, m_iEspionageModifierPerPop)
+SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
+SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifierPerPop)
 SYNC_ARCHIVE_VAR(int, m_iNumPreviousSpyMissions)
 SYNC_ARCHIVE_VAR(int, m_iConversionModifier)
 SYNC_ARCHIVE_VAR(bool, m_bNeverLost)

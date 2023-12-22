@@ -1768,31 +1768,6 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			yield[YIELD_GOLD] += PolicyInfo->GetTradeRouteSeaDistanceModifier() * 2;
 		}
 	}
-	if (PolicyInfo->GetEspionageModifier() != 0)
-	{
-		if (MOD_BALANCE_VP)
-		{
-			if (pPlayerTraits->IsDiplomat())
-			{
-				yield[YIELD_GOLD] += PolicyInfo->GetEspionageModifier() * 4;
-			}
-			else
-			{
-				yield[YIELD_GOLD] += PolicyInfo->GetEspionageModifier() * 3;
-			}
-		}
-		else
-		{
-			if (pPlayerTraits->IsDiplomat())
-			{
-				yield[YIELD_GOLD] += PolicyInfo->GetEspionageModifier() * -3;
-			}
-			else
-			{
-				yield[YIELD_GOLD] += PolicyInfo->GetEspionageModifier() * -2;
-			}
-		}
-	}
 	if (PolicyInfo->GetXCSAlliesLowersPolicyNeedWonders() != 0)
 	{
 		if (pPlayerTraits->IsDiplomat())

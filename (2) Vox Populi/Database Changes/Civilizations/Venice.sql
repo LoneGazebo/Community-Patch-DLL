@@ -72,8 +72,7 @@ SET
 	GreatPeopleRateModifier = 33,
 	CitySupplyFlat = 5,
 	PurchaseCooldownReduction = 1,
-	PurchaseCooldownReductionCivilian = 3,
-	EspionageModifier = 10
+	PurchaseCooldownReductionCivilian = 3
 WHERE Type = 'BUILDING_PIAZZA_SAN_MARCO';
 
 INSERT INTO Building_YieldChanges

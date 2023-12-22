@@ -1353,8 +1353,8 @@ ALTER TABLE Traits ADD COLUMN 'CultureBonusModifierConquest' INTEGER DEFAULT 0;
 -- % production bonus in all cities from conquering cities
 ALTER TABLE Traits ADD COLUMN 'ProductionBonusModifierConquest' INTEGER DEFAULT 0;
 
--- Global Espionage Modifier
-ALTER TABLE Traits ADD COLUMN 'EspionageRateModifier' INTEGER DEFAULT 0;
+-- Global City Security Modifier
+ALTER TABLE Traits ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
 
 -- Increase Spy Rank power without changing rank enum value
 ALTER TABLE Traits ADD COLUMN 'SpyExtraRankBonus' INTEGER DEFAULT 0;
@@ -1387,11 +1387,13 @@ ALTER TABLE Policies ADD COLUMN 'CityStateCombatModifier' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TradeRouteLandDistanceModifier' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'TradeRouteSeaDistanceModifier' INTEGER DEFAULT 0;
 
---Espionage Modifier for Policies - should be negative for player benefit in Community Patch (reduced effectiveness of foreign spies), but positive in Vox Populi (increased city security)!
-ALTER TABLE Policies ADD COLUMN 'EspionageModifier' INTEGER DEFAULT 0;
 
---Espionage Modifier per Population
-ALTER TABLE Buildings ADD COLUMN 'EspionageModifierPerPop' INTEGER DEFAULT 0;
+-- City Security against Spies
+ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
+-- City Security against Spies per Population
+ALTER TABLE Buildings ADD COLUMN 'SpySecurityModifierPerPop' INTEGER DEFAULT 0;
+-- City Security against Spies in all Cities
+ALTER TABLE Buildings ADD COLUMN 'GlobalSpySecurityModifier' INTEGER DEFAULT 0;
 
 -- C4DF Function
 

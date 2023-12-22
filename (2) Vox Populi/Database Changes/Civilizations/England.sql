@@ -7,7 +7,7 @@ SET
 	ExtraEmbarkMoves = 1,
 	StartingSpies = 1,
 	NavalUnitMaintenanceModifier = -25,
-	EspionageRateModifier = 15,
+	SpySecurityModifier = 15,
 	SpyMoveRateModifier = 3,
 	SpyExtraRankBonus = 1
 WHERE Type = 'TRAIT_OCEAN_MOVEMENT';

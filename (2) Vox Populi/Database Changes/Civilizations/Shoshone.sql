@@ -4,7 +4,7 @@
 UPDATE Traits
 SET
 --	ExtraFoundedCityTerritoryClaimRange = 8,
-	ExtraConqueredCityTerritoryClaimRange = 4
+	ExtraConqueredCityTerritoryClaimRange = 4,
 	CombatBonusImprovement = 'IMPROVEMENT_ENCAMPMENT_SHOSHONE',
 	NearbyImprovementBonusRange = 3,
 	NearbyImprovementCombatBonus = 20

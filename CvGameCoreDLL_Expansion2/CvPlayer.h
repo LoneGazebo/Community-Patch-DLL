@@ -805,6 +805,8 @@ public:
 	// Espionage
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
+	int GetSpySecurityModifier() const;
+	void ChangeSpySecurityModifier(int iChange);
 	int GetEspionageNetworkPoints() const;
 	void ChangeEspionageNetworkPoints(int iChange);
 	int GetRigElectionInfluenceModifier() const;
@@ -3137,6 +3139,7 @@ protected:
 	int m_iExtraHappinessPerXPoliciesFromPolicies;
 	int m_iHappinessPerXGreatWorks;
 	int m_iEspionageModifier;
+	int m_iSpySecurityModifier;
 	int m_iEspionageNetworkPoints;
 	int m_iRigElectionInfluenceModifier;
 	int m_iSpyPoints;
@@ -3991,6 +3994,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPolicies)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerXPoliciesFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
+SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
 SYNC_ARCHIVE_VAR(int, m_iEspionageNetworkPoints)
 SYNC_ARCHIVE_VAR(int, m_iRigElectionInfluenceModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpyPoints)
