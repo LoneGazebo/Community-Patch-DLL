@@ -1598,7 +1598,7 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 	if (!pSpy)
 		return "";
 
-	if (MOD_BALANCE_VP && !(pSpy->GetSpyState() == SPY_STATE_TERMINATED || pSpy->GetSpyState() == SPY_STATE_DEAD) && pSpy->m_eRank < (NUM_SPY_RANKS - 1))
+	if (MOD_BALANCE_VP && pSpy->GetSpyState() != SPY_STATE_TERMINATED && pSpy->GetSpyState() != SPY_STATE_DEAD && pSpy->m_eRank < (NUM_SPY_RANKS - 1))
 	{
 		int iExperienceDenominator = /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR);
 		iExperienceDenominator *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -1612,7 +1612,7 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 	{
 		if (eSpyState == SPY_STATE_UNASSIGNED)
 		{
-			if (strSpyAtCity != "")
+			if (!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
@@ -1623,7 +1623,7 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 		}
 		else if (eSpyState == SPY_STATE_TERMINATED || pSpy->GetSpyState() == SPY_STATE_DEAD)
 		{
-			if (strSpyAtCity != "")
+			if (!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
@@ -3060,7 +3060,7 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	if (!pCity)
 		return 0;
 
-	if (!(eSpyState == SPY_STATE_GATHERING_INTEL || eSpyState == SPY_STATE_SCHMOOZE))
+	if (eSpyState != SPY_STATE_GATHERING_INTEL && eSpyState != SPY_STATE_SCHMOOZE)
 		return 0;
 
 	int iNP = 0;
@@ -6065,7 +6065,7 @@ void CvCityEspionage::ResetPassiveBonuses(PlayerTypes ePlayer)
 {
 	SetSciencePassivePerTurn(ePlayer, 0);
 	SetDiplomatTradeBonus(ePlayer, 0);
-	SetRevealCityScreen(ePlayer, 0);
+	SetRevealCityScreen(ePlayer, false);
 	SetVisionBonus(ePlayer, 0);
 }
 
@@ -6334,11 +6334,7 @@ bool CvCityEspionage::HasCounterSpy() const
 		return false;
 
 	CvEspionageSpy* pSpy = GET_PLAYER(m_pCity->getOwner()).GetEspionage()->GetSpyByID(iSpyID);
-	if (pSpy && pSpy->GetSpyState() == SPY_STATE_COUNTER_INTEL)
-	{
-		return true;
-	}
-	return false;
+	return pSpy && pSpy->GetSpyState() == SPY_STATE_COUNTER_INTEL;
 }
 int CvCityEspionage::GetCounterSpyID() const
 {

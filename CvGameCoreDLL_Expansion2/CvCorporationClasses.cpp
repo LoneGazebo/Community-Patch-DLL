@@ -1751,7 +1751,7 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 		return false;
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	return !(pLeague != NULL && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), pTargetCity->getOwner()));
+	return pLeague == NULL || !pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), pTargetCity->getOwner());
 }
 
 int CvPlayerCorporations::GetAdditionalNumFranchises() const

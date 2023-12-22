@@ -5398,7 +5398,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			if (iPreValue != 0)
 			{
 				iPreValue *= -1;
-				if (yieldCostTip != "")
+				if (!yieldCostTip.empty())
 				{
 					yieldCostTip += ", ";
 				}
@@ -5433,7 +5433,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				iYieldValue /= 100;
 				if (iYieldValue != 0)
 				{
-					if (yieldInstantTip != "")
+					if (!yieldInstantTip.empty())
 					{
 						yieldInstantTip += ", ";
 					}
@@ -5461,7 +5461,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			int iCityValue = pkEventChoiceInfo->getCityYield(eIndex);
 			if (iCityValue != 0)
 			{
-				if (yieldCityTip != "")
+				if (!yieldCityTip.empty())
 				{
 					yieldCityTip += ", ";
 				}
@@ -5502,7 +5502,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			}
 			if (iValue != 0)
 			{
-				if (yieldSpecialistTip != "")
+				if (!yieldSpecialistTip.empty())
 				{
 					yieldSpecialistTip += ", ";
 				}
@@ -5643,7 +5643,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventChoiceCanTake, getOwner(), GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE)
 	{
 		CvString strOverrideText = GetLocalizedText(pkEventInfo->getDisabledTooltip());
-		if (strOverrideText != "")
+		if (!strOverrideText.empty())
 		{
 			DisabledTT += strOverrideText;
 		}
@@ -7537,7 +7537,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					continue;
 
 				CvString strNotificationString = pkEventChoiceInfo->GetNotificationInfo(iI)->GetNotificationString();
-				if (strNotificationString != NULL && strNotificationString != "")
+				if (strNotificationString != NULL && !strNotificationString.empty())
 				{
 					NotificationTypes eNotificationType = (NotificationTypes)FString::Hash(strNotificationString);
 
@@ -9861,7 +9861,7 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 					}
 
 					// Combine the list we just made with the header text
-					if (strList != "")
+					if (!strList.empty())
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD");
 						strText << getNameKey() << pkResource->GetTextKey() << strList;
@@ -22852,7 +22852,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 				{
 					strIcon = GC.getReligionInfo(eMajority)->GetIconString();
 				}
-				if (strIcon != "")
+				if (!strIcon.empty())
 				{
 					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_RELIGION", iUnhappyCitizens, strIcon);
 				}
@@ -23029,7 +23029,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		{
 			strIcon = GC.getReligionInfo(eMajority)->GetIconString();
 		}
-		if (iReligiousUnrest != 0 && strIcon != "")
+		if (iReligiousUnrest != 0 && !strIcon.empty())
 		{
 			int iReduction = GetReligiousUnrestFlatReduction() + kPlayer.GetReligiousUnrestFlatReductionGlobal();
 			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_RELIGIOUS_UNREST_UNHAPPINESS", iReligiousUnrest, strIcon, iReduction);
@@ -23108,7 +23108,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 
 		// Religious Unrest (only shows % modifier, and only shows up if city has a majority religion)
 		int iTotalReligiousUnrestModifier = bReligionOff ? 0 : GetTotalNeedModifierForYield(YIELD_FAITH, false);
-		if (strIcon != "")
+		if (!strIcon.empty())
 		{
 			float fUnhappyPerMinorityPop = 0.00f;
 			fUnhappyPerMinorityPop += /*0.5f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP);
@@ -23245,7 +23245,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 			if (iArtsModifier != 0)
 				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_ARTS_UNHAPPINESS_MOD", iArtsModifier);
 
-			if (iPrayerModifier != 0 && strIcon != "")
+			if (iPrayerModifier != 0 && !strIcon.empty())
 				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PRAYER_UNHAPPINESS_MOD", strIcon, iPrayerModifier);
 
 			// OTHER MODIFIERS
@@ -23289,7 +23289,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 					else
 						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD", iExtraBoredomMod);
 				}
-				if (iExtraReligiousUnrestMod != 0 && strIcon != "")
+				if (iExtraReligiousUnrestMod != 0 && !strIcon.empty())
 				{
 					if (iExtraReligiousUnrestMod > 0)
 						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS", strIcon, iExtraReligiousUnrestMod);

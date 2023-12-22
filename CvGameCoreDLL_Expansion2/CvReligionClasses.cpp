@@ -7540,7 +7540,7 @@ bool CvReligionAI::BuyAnyAvailableNonFaithUnit()
 			}
 		}
 	}
-	return bPurchased == true;
+	return bPurchased;
 }
 #endif
 /// Any building that we can build with Faith (not Faith-generating ones)
