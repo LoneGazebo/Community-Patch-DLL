@@ -36,7 +36,6 @@ CvSpyPassiveBonusEntry::CvSpyPassiveBonusEntry(void)
 	m_iSciencePercentAdded = 0;
 	m_iTilesRevealed = 0;
 	m_bRevealCityScreen = false;
-	m_bWonderConstructionNotification = false;
 }
 
 CvSpyPassiveBonusEntry::~CvSpyPassiveBonusEntry(void)
@@ -54,7 +53,6 @@ bool CvSpyPassiveBonusEntry::CacheResults(Database::Results& kResults, CvDatabas
 	m_iSciencePercentAdded = kResults.GetInt("SciencePercentAdded");
 	m_iTilesRevealed = kResults.GetInt("TilesRevealed");
 	m_bRevealCityScreen = kResults.GetBool("RevealCityScreen");
-	m_bWonderConstructionNotification = kResults.GetBool("WonderConstructionNotification");
 
 	return true;
 }
@@ -77,10 +75,6 @@ int CvSpyPassiveBonusEntry::GetTilesRevealed() const
 bool CvSpyPassiveBonusEntry::IsRevealCityScreen() const
 {
 	return m_bRevealCityScreen;
-}
-bool CvSpyPassiveBonusEntry::IsWonderConstructionNotification() const
-{
-	return m_bWonderConstructionNotification;
 }
 
 // ================================================================================
@@ -7370,7 +7364,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		}
 		if (pkMissionInfo->getRandomBarbs() > 0)
 		{
-			if (pDiplomacyAI->GetCivApproach(eTargetPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
+			if (pDiplomacyAI->GetCivApproach(eTargetPlayer) <= CIV_APPROACH_HOSTILE)
 			{
 				iScore += 10;
 			}
@@ -8012,6 +8006,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 				continue;
 			}
 
+			if (pMinorCivAI->IsNoAlly())
+				continue;
+
 			if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
 				continue;
 
@@ -8435,6 +8432,35 @@ void CvEspionageAI::EvaluateMinorCivSpies(void)
 		CvCity* pCity = pEspionage->GetCityWithSpy(ui);
 		if (pCity && GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
+			CvMinorCivAI* pMinorCivAI = GET_PLAYER(pCity->getOwner()).GetMinorCivAI();
+			// open doors?
+			if (pMinorCivAI->IsNoAlly())
+			{
+				CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
+				pSpy->m_bEvaluateReassignment = true;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: open doors for minor civ, %d,", ui);
+					strMsg += GetLocalizedText(pCity->getNameKey());
+					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
+
+			// sphere of influence
+			if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+			{
+				CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
+				pSpy->m_bEvaluateReassignment = true;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: minor civ has sphere of influence, %d,", ui);
+					strMsg += GetLocalizedText(pCity->getNameKey());
+					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
+
 			// if at war, reevaluate
 			if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam()))
 			{

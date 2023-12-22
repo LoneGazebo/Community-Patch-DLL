@@ -1373,7 +1373,7 @@
 			<PrereqTech>TECH_COMPUTERS</PrereqTech>
 			<PolicyType>POLICY_RATIONALISM_FINISHER</PolicyType>
 			<FreeBuildingThisCity>BUILDINGCLASS_LABORATORY</FreeBuildingThisCity>
-			<GlobalEspionageModifier>10</GlobalEspionageModifier>
+			<GlobalSpySecurityModifier>10</GlobalSpySecurityModifier>
 			<ExtraSpies>2</ExtraSpies>
 			<Espionage>true</Espionage>
 			<SpyRankChange>1</SpyRankChange>

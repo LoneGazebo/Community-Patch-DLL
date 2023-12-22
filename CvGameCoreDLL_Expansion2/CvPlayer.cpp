@@ -166,6 +166,7 @@ CvPlayer::CvPlayer() :
 	, m_iHappinessPerXPopulation()
 	, m_iHappinessFromLeagues()
 	, m_iEspionageModifier()
+	, m_iSpySecurityModifier()
 	, m_iEspionageNetworkPoints()
 	, m_iRigElectionInfluenceModifier()
 	, m_iSpyPoints()
@@ -1015,9 +1016,9 @@ void CvPlayer::init(PlayerTypes eID)
 			updateExtraYieldThreshold((YieldTypes)iI);
 		}
 #if defined(MOD_BALANCE_CORE)
-		if (GetPlayerTraits()->GetEspionageModifier() != 0)
+		if (GetPlayerTraits()->GetSpySecurityModifier() != 0)
 		{
-			ChangeEspionageModifier(GetPlayerTraits()->GetEspionageModifier());
+			ChangeSpySecurityModifier(GetPlayerTraits()->GetSpySecurityModifier());
 		}
 		if(GetPlayerTraits()->GetEventTourismBoost() > 0)
 		{
@@ -1325,6 +1326,7 @@ void CvPlayer::uninit()
 	m_iCSYieldBonusModifier = 0;
 	m_iHappinessFromLeagues = 0;
 	m_iEspionageModifier = 0;
+	m_iSpySecurityModifier = 0;
 	m_iEspionageNetworkPoints = 0;
 	m_iRigElectionInfluenceModifier = 0;
 	m_iSpyPoints = 0;
@@ -17304,6 +17306,8 @@ void CvPlayer::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst
 		}
 	}
 
+	ChangeSpySecurityModifier(pBuildingInfo->GetGlobalSpySecurityModifier() * iChange);
+
 	ChangeExtraLeagueVotes(pBuildingInfo->GetExtraLeagueVotes() * iChange);
 	changeMaxAirUnits(pBuildingInfo->GetAirModifierGlobal() * iChange);
 	for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -24375,17 +24379,31 @@ void CvPlayer::ChangeHappinessFromLeagues(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-/// Get the global modifier on the espionage progress rate
+/// Get the global modifier on the espionage progress rate (CP only)
 int CvPlayer::GetEspionageModifier() const
 {
 	return m_iEspionageModifier;
 }
 
 //	--------------------------------------------------------------------------------
-/// Change the global modifier on the espionage progress rate
+/// Change the global modifier on the espionage progress rate (CP only)
 void CvPlayer::ChangeEspionageModifier(int iChange)
 {
 	m_iEspionageModifier = (m_iEspionageModifier + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+/// Get the global modifier to city security (VP only)
+int CvPlayer::GetSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
+}
+
+//	--------------------------------------------------------------------------------
+/// Change the global modifier to city security (VP only)
+void CvPlayer::ChangeSpySecurityModifier(int iChange)
+{
+	m_iSpySecurityModifier = (m_iSpySecurityModifier + iChange);
 }
 
 //	--------------------------------------------------------------------------------
@@ -45842,10 +45860,6 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 	{
 		changeTradeRouteSeaDistanceModifier(pPolicy->GetTradeRouteSeaDistanceModifier() * iChange);
 	}
-	if(pPolicy->GetEspionageModifier() != 0)
-	{
-		ChangeEspionageModifier(pPolicy->GetEspionageModifier() * iChange);
-	}
 	if (pPolicy->GetEspionageNetworkPoints() != 0)
 	{
 		ChangeEspionageNetworkPoints(pPolicy->GetEspionageNetworkPoints() * iChange);
@@ -46555,7 +46569,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 						}
 
 						if (pPolicy->GetBuildingClassSecurityChange(eBuildingClass))
-							pLoopCity->ChangeEspionageModifier(pPolicy->GetBuildingClassSecurityChange(eBuildingClass) * iChange);
+							pLoopCity->ChangeSpySecurityModifier(pPolicy->GetBuildingClassSecurityChange(eBuildingClass) * iChange);
 
 						// Building Class Yield Stuff
 						for(iJ = 0; iJ < NUM_YIELD_TYPES; iJ++)
@@ -48002,6 +48016,7 @@ void CvPlayer::Serialize(Player& player, Visitor& visitor)
 	visitor(player.m_iExtraHappinessPerXPoliciesFromPolicies);
 	visitor(player.m_iHappinessPerXGreatWorks);
 	visitor(player.m_iEspionageModifier);
+	visitor(player.m_iSpySecurityModifier);
 	visitor(player.m_iEspionageNetworkPoints);
 	visitor(player.m_iRigElectionInfluenceModifier);
 	visitor(player.m_iSpyPoints);

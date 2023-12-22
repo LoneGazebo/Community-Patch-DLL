@@ -9,7 +9,6 @@
 			<NetworkPointsNeeded>500</NetworkPointsNeeded>
 			<SciencePercentAdded>3</SciencePercentAdded>
 			<RevealCityScreen>true</RevealCityScreen>
-			<WonderConstructionNotification>true</WonderConstructionNotification>
 		</Row>
 		<Row>
 			<Type>SPY_PASSIVE_2</Type>

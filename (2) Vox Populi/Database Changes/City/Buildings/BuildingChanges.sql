@@ -1192,7 +1192,8 @@ WHERE BuildingClass = 'BUILDINGCLASS_STADIUM';
 -- Constabulary
 UPDATE Buildings
 SET
-	EspionageModifier = 15,
+	EspionageModifier = 0,
+	SpySecurityModifier = 15,
 	DistressFlatReduction = 1
 WHERE BuildingClass = 'BUILDINGCLASS_CONSTABLE';
 
@@ -1215,8 +1216,9 @@ DELETE FROM Helper;
 UPDATE Buildings
 SET
 	PrereqTech = 'TECH_ELECTRONICS',
-	EspionageModifier = 10,
-	EspionageModifierPerPop = 1,
+	EspionageModifier = 0,
+	SpySecurityModifier = 10,
+	SpySecurityModifierPerPop = 1,
 	DistressFlatReduction = 1,
 	PovertyFlatReduction = 1,
 	IlliteracyFlatReduction = 1,
@@ -2232,7 +2234,7 @@ UPDATE Buildings
 SET
 	PrereqTech = 'TECH_COMPUTERS',
 	GlobalEspionageModifier = 0,
-	EspionageModifier = 10
+	SpySecurityModifier = 10
 WHERE BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 
 INSERT INTO Helper
