@@ -7353,10 +7353,7 @@ bool CvUnit::canUseForAIOperation() const
 	}
 
 	//don't pull units out of important citadels
-	if (TacticalAIHelpers::IsPlayerCitadel(plot(), getOwner()) && TacticalAIHelpers::IsCloseToContestedBorder(&kPlayer, plot()))
-		return false;
-
-	return true;
+	return !(TacticalAIHelpers::IsPlayerCitadel(plot(), getOwner()) && TacticalAIHelpers::IsCloseToContestedBorder(&kPlayer, plot()));
 }
 
 //	--------------------------------------------------------------------------------

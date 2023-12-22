@@ -1946,14 +1946,7 @@ bool CvPlayerAI::GreatMerchantWantsCash()
 	{
 		//what would be a sane limit?
 		//FIXME: look at the politics of potential targets ...
-		if (GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return static_cast<bool>(GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3));
 	}
 
 	return true;

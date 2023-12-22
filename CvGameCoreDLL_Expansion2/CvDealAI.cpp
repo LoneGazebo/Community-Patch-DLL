@@ -1778,7 +1778,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		// don't have prereq tech?
 		// if we're selling, consider also buildings we'll soon be able to build
 		TechTypes ePrereqTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
-		if (ePrereqTech != NO_TECH && !(GetPlayer()->HasTech(ePrereqTech) || (bFromMe && GetPlayer()->findPathLength(ePrereqTech, false) < 3)))
+		if (ePrereqTech != NO_TECH && !GetPlayer()->HasTech(ePrereqTech) && (!bFromMe || GetPlayer()->findPathLength(ePrereqTech, false) >= 3))
 			continue;
 
 		// is the building obsolete?
@@ -1945,7 +1945,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		// don't have prereq tech?
 		// if we're selling, consider also units we'll soon be able to build
 		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
-		if (ePrereqTech != NO_TECH && !(ePlayer->HasTech(ePrereqTech) || (bFromMe && ePlayer->findPathLength(ePrereqTech, false) < 3)))
+		if (ePrereqTech != NO_TECH && !ePlayer->HasTech(ePrereqTech) && (!bFromMe || ePlayer->findPathLength(ePrereqTech, false) >= 3))
 			continue;
 
 		// is the unit obsolete?
