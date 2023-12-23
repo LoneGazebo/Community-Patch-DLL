@@ -53,6 +53,7 @@ VALUES
 -- Double Agents
 UPDATE Policies
 SET
+	CatchSpiesModifier = 0,
 	FreeSpy = 2
 WHERE Type = 'POLICY_DOUBLE_AGENTS';
 

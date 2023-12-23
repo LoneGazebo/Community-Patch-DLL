@@ -639,7 +639,6 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_UNKNOWN">
 			<Text>Unknown foreign spies conducted a [COLOR_NEGATIVE_TEXT]Spy Mission[ENDCOLOR] in {1_City}: {2_MissionResult}</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_IDENTIFIED_AND_CAUGHT_S">
 			<Text>{1_SpyRank} {2_SpyName} caught and identified!</Text>
 		</Row>
@@ -670,28 +669,24 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_RELEASED_PRISON">
 			<Text>{1_SpyRank} {2_SpyName} has been released from prison. You may now send the spy on a mission again.</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED_S">
 			<Text>{1_City} generates Tourism again</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_NO_TOURISM_EVENT_ENDED">
 			<Text>The rebellion in {1_City} caused by foreign Spies has ended. The city now generates Tourism again.</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_DETECTED_S">
 			<Text>Counterspy in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_DETECTED">
 			<Text>Upon arriving in {1_City}, {2_SpyRank} {3_SpyName} has detected the presence of an enemy [ICON_SPY] Counterspy! The followings effects are active:[NEWLINE][NEWLINE]{4_MissionEffect}</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED_S">
 			<Text>Counterspy in {1_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED">
 			<Text>A [ICON_SPY] Counterspy has started an operation in {1_City}. The followings effects are now active:[NEWLINE][NEWLINE]{2_MissionEffect}</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_NOTIFICATION_COUNTERSPY_ENDED_S">
 			<Text>Counterspy mission in {1_City} ended!</Text>
 		</Row>
@@ -710,7 +705,6 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS">
 			<Text>{1_SpyRank} {2_SpyName} has collected enough Network Points in {3_City} to unlock the following passive bonuses:[NEWLINE][NEWLINE] {4_Missions}</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_CHOOSE_EVENT">
 			<Text>MAKE EVENT CHOICE</Text>
 		</Row>

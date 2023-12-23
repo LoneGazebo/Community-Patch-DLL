@@ -1301,14 +1301,7 @@
 			<Text>Your farmers discovered a rare plant never before seen in a Plantation near the City. Your researchers are excited about studying it! Gain +{2_InstantYield}.</Text>
 		</Row>
 
-		<!-- Espionage events -->	
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS">
-			<Text></Text>
-		</Row>
-		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP">
-			<Text></Text>
-		</Row>
-		
+		<!-- Espionage events -->
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_GW">
 			<Text>[ICON_GREAT_WORK] Steal a Great Work</Text>
 		</Row>
@@ -1336,7 +1329,6 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FAITH_EFFECT">
 			<Text>Each turn, 50% of the City's [ICON_PEACE] Faith Output are stolen. The city emits -50% Religious Pressure. {5_DurationText}</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_SCIENTIFIC_GREATPEOPLE">
 			<Text>[ICON_GREAT_PEOPLE] Kidnap Specialists in the City</Text>
 		</Row>
@@ -1358,7 +1350,6 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_PARENT_HELP">
 			<Text>Specialists in your Capital produce +1 [ICON_GREAT_PEOPLE] GPP per turn.</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_FROM_TREASURY">
 			<Text>[ICON_GOLD] Steal from National Treasury</Text>
 		</Row>
@@ -1371,7 +1362,6 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_STEAL_TREASURY_AMOUNT">
 			<Text>[NEWLINE][NEWLINE][COLOR_POSITIVE_TEXT]Amount to steal:[ENDCOLOR] {1_Num} [ICON_GOLD] Gold</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_STEAL_TECH">
 			<Text>[ICON_RESEARCH] Steal a Technology</Text>
 		</Row>
@@ -1416,7 +1406,6 @@
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_FOCUS_HELP">
 			<Text>Your Spy has established their new counterintelligence operation. What would you like them to focus on?</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_ESPIONAGE_EVENT_CHOICE_COUNTERSPY_NETWORK">
 			<Text>[ICON_SPY] Establish a counter-espionage network.</Text>
 		</Row>
