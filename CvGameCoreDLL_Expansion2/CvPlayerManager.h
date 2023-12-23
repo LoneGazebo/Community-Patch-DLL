@@ -18,6 +18,6 @@ class CvPlayerManager
 public:
 
 	//	Refresh all danger plots for players that have dirty danger plot structures.
-	static	void	Refresh(bool bWarDeclaration);
+	static	void	Refresh(bool bWarStateChanged);
 };
 #endif

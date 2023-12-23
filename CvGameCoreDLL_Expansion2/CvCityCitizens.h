@@ -117,10 +117,10 @@ public:
 
 	void OptimizeWorkedPlots(bool bLogging);
 	bool NeedReworkCitizens();
-	CvPlot* GetBestCityPlotWithValue(int& iValue, ePlotSelectionMode eMode, bool Logging = false);
+	CvPlot* GetBestCityPlotWithValue(int& iChosenValue, ePlotSelectionMode eMode, bool Logging = false);
 
 	// Worked Plots
-	bool IsWorkingPlot(int iRelativeIndex) const;
+	bool IsWorkingPlot(int iIndex) const;
 	bool IsWorkingPlot(const CvPlot* pPlot) const;
 	void SetWorkingPlot(CvPlot* pPlot, bool bNewValue, CvCity::eUpdateMode updateMode);
 	void DoAlterWorkingPlot(int iIndex);

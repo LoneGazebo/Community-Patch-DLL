@@ -212,7 +212,7 @@ public:
 
 	// Public exploration routines
 	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck, int iMaxTurns) const;
-	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pPlot);
+	bool ExecuteSpecialExploreMove(CvUnit* pUnit, CvPlot* pTargetPlot);
 	bool FindTestArchaeologistPlotPrimer(CvUnit* pUnit);
 
 	// Public logging
@@ -360,8 +360,8 @@ namespace HomelandAIHelpers
 bool CvHomelandUnitAuxIntSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);
 bool CvHomelandUnitAuxIntReverseSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);
 
-int ScoreAirBase(CvPlot* pAirBasePlot, PlayerTypes ePlayer, bool bDesperate, int iRange);
-bool IsGoodUnitMix(CvPlot* pAirBasePlot, CvUnit* pUnit);
+int ScoreAirBase(CvPlot* pBasePlot, PlayerTypes ePlayer, bool bDesperate, int iRange);
+bool IsGoodUnitMix(CvPlot* pBasePlot, CvUnit* pUnit);
 vector<SPatrolTarget> GetPatrolTargets(PlayerTypes ePlayer, bool bWater, int nMaxTargets = 5);
 
 CvPlot* GetPlotForEmbassy(CvUnit* pUnit, CvCity* pCity);

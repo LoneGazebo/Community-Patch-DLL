@@ -235,7 +235,7 @@ public:
 	CvInterfaceModeInfo* getInterfaceModeInfo(InterfaceModeTypes e);
 
 	bool getLogging() const;
-	void setLogging(bool bEnable);
+	void setLogging(bool bLoggingEnabled);
 
 	int getRandLogging() const;
 	void setRandLogging(int iRandLoggingFlags);
@@ -2976,7 +2976,7 @@ public:
 
 	bool getDatabaseValue(const char* szName, int& iValue, bool bReportErrors = true);
 	bool getDatabaseValue(const char* szName, float& fValue, bool bReportErrors = true);
-	bool getDatabaseValue(const char* szName, CvString& szValue, bool bReportErrors = true);
+	bool getDatabaseValue(const char* szName, CvString& strValue, bool bReportErrors = true);
 
 	inline const GameDataHash& getGameDataHash() const { return m_gameDataHash; }
 	inline uint32 getSaveVersion() const { return m_saveVersion; }

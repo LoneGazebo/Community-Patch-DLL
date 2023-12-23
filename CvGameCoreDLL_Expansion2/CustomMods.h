@@ -1260,8 +1260,8 @@ public:
 	void prefetchCache();
 	void preloadCache();
 	void reloadCache();
-	int getOption(const char* szName, int defValue = 0);
-	int getOption(const std::string& sName, int defValue = 0);
+	int getOption(const char* szOption, int defValue = 0);
+	int getOption(const std::string& sOption, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
 	MOD_OPT_DECL(BALANCE_VP);

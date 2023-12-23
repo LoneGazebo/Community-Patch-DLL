@@ -97,15 +97,15 @@ public:
 	CvRandom(const std::string& name);
 	virtual ~CvRandom();
 
-	void init(unsigned long long ulSeed);
+	void init(unsigned long long ullSeed);
 	void uninit();
-	void reset(unsigned long long ulSeed = 0);
+	void reset(unsigned long long ullSeed = 0);
 
-	unsigned long get(unsigned long usNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
+	unsigned long get(unsigned long ulNum, const char* pszLog = NULL);  //  Returns value from 0 to num-1 inclusive.
 
 	float getFloat();
 
-	void reseed(unsigned long long ulNewValue);
+	void reseed(unsigned long long ullNewValue);
 	unsigned long long getSeed() const;
 	unsigned long getCallCount() const;
 	unsigned long getResetCount() const;
@@ -116,8 +116,8 @@ public:
 	void read(FDataStream& Stream);
 	void write(FDataStream& Stream) const;
 
-	bool operator==(const CvRandom& rhs) const;
-	bool operator!=(const CvRandom& rhs) const;
+	bool operator==(const CvRandom& source) const;
+	bool operator!=(const CvRandom& source) const;
 
 	void CopyFrom(const CvRandom& rhs);
 

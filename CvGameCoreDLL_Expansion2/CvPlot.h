@@ -542,7 +542,7 @@ public:
 	bool IsResourceLinkedCityActive() const;
 	void SetResourceLinkedCityActive(bool bValue);
 
-	void setOwningCity(PlayerTypes eOwner, int iCityID);
+	void setOwningCity(PlayerTypes ePlayer, int iCityID);
 	int getOwningCityID() const;
 
 	CvCity* getPlotCity() const;
@@ -591,7 +591,7 @@ public:
 
 	void updateYield();
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
+	void updateYieldFast(CvCity* pWorkingCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon, const CvReligion* pPlayerPantheon = NULL);
 #else
 	void updateYieldFast(CvCity* pOwningCity, const CvReligion* pMajorityReligion, const CvBeliefEntry* pSecondaryPantheon);
 #endif

@@ -39,7 +39,7 @@ public:
 
 	// Establish/retrieve weights for one flavor
 	void AddFlavorWeights(FlavorTypes eFlavor, int iWeight);
-	int GetWeight(BuildingTypes eBuilding);
+	int GetWeight(BuildingTypes eBldg);
 
 	// Recommend highest-weighted wonder
 	BuildingTypes ChooseWonder(int& iWonderWeight);

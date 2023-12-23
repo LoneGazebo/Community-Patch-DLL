@@ -13,7 +13,7 @@ typedef std::list<GUID> PackageIDList;
 class CvDllDlcPackageInfo : public ICvDlcPackageInfo1
 {
 public:
-	CvDllDlcPackageInfo(const GUID& kPackageID);
+	CvDllDlcPackageInfo(const GUID& kGuid);
 	virtual ~CvDllDlcPackageInfo();
 
 	void* DLLCALL QueryInterface(GUID guidInterface);

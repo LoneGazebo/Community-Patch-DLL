@@ -310,7 +310,7 @@ public:
 	void setAttackerIsStronger(bool bStronger);
 
 	bool getDefenderRetaliates() const;
-	void setDefenderRetaliates(bool bRetaliate);
+	void setDefenderRetaliates(bool bDefenderRetaliates);
 
 	bool getAttackIsRanged() const;
 	void setAttackIsRanged(bool bRanged);

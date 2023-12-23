@@ -314,8 +314,8 @@ public:
 	CvPlot* GetFirstPlot() const;
 	CvPlot* GetPlotByIndex(int iIndex) const;
 
-	friend FDataStream& operator<<(FDataStream& saveTo, const CvPathNodeArray& readFrom);
-	friend FDataStream& operator>>(FDataStream& loadFrom, CvPathNodeArray& writeTo);
+	friend FDataStream& operator<<(FDataStream& kStream, const CvPathNodeArray& readFrom);
+	friend FDataStream& operator>>(FDataStream& kStream, CvPathNodeArray& writeTo);
 };
 
 struct PrNodeIsBetter

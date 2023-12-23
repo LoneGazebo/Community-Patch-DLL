@@ -54,8 +54,8 @@ public:
 	void declareWar(TeamTypes eTeam, bool bDefensivePact = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 	void makePeace(TeamTypes eTeam, bool bBumpUnits = true, bool bSuppressNotification = false, PlayerTypes eOriginatingPlayer = NO_PLAYER);
 
-	int GetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam) const;
-	void SetTurnMadePeaceTreatyWithTeam(TeamTypes eTeam, int iNewValue);
+	int GetTurnMadePeaceTreatyWithTeam(TeamTypes eIndex) const;
+	void SetTurnMadePeaceTreatyWithTeam(TeamTypes eIndex, int iNewValue);
 
 	void meet(TeamTypes eTeam, bool bSuppressMessages);
 
@@ -414,7 +414,7 @@ public:
 	void SetCurrentEra(EraTypes eNewValue);
 
 	int countNumHumanGameTurnActive() const;
-	void setTurnActive(bool bNewValue, bool bTurn = true);
+	void setTurnActive(bool bNewValue, bool bDoTurn = true);
 	bool isTurnActive() const;
 
 	void PushIgnoreWarning (TeamTypes eTeam);
@@ -468,7 +468,7 @@ public:
 	bool IsTradeTech(TechTypes eTech) const;
 	void SetTradeTech(TechTypes eTech, bool bValue);
 
-	void AcquireMap(TeamTypes eIndex, bool bTerritoryOnly = false);
+	void AcquireMap(TeamTypes eTeam, bool bTerritoryOnly = false);
 
 	void DoApplyVassalTax(PlayerTypes ePlayer, int iPercent);
 	bool CanSetVassalTax(PlayerTypes ePlayer) const;

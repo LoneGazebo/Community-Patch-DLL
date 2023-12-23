@@ -40,7 +40,7 @@ public:
 	int GetWeight(ProcessTypes eProject);
 
 #if defined(MOD_BALANCE_CORE)
-	int CheckProcessBuildSanity(ProcessTypes eProject, int iTempWeight);
+	int CheckProcessBuildSanity(ProcessTypes eProcess, int iTempWeight);
 #endif
 
 	// Logging

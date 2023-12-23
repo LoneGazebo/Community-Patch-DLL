@@ -58,12 +58,12 @@ public:
 	static uint			ApplyNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* pkAttacker = NULL);
 
 protected:
-	static void ResolveRangedUnitVsCombat(const CvCombatInfo& kInfo, uint uiParentEventID);
+	static void ResolveRangedUnitVsCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID);
 	static void ResolveRangedCityVsUnitCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID);
-	static void ResolveMeleeCombat(const CvCombatInfo& kInfo, uint uiParentEventID);
+	static void ResolveMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID);
 	static void ResolveCityMeleeCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID);
-	static void ResolveAirUnitVsCombat(const CvCombatInfo& kInfo, uint uiParentEventID);
-	static void ResolveAirSweep(const CvCombatInfo& kInfo, uint uiParentEventID);
+	static void ResolveAirUnitVsCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID);
+	static void ResolveAirSweep(const CvCombatInfo& kCombatInfo, uint uiParentEventID);
 	static void ResolveNuclearCombat(const CvCombatInfo& kCombatInfo, uint uiParentEventID);
 
 	static void GenerateNuclearExplosionDamage(CvPlot* pkTargetPlot, int iDamageLevel, CvUnit* pkAttacker, CvCombatMemberEntry* pkDamageArray, int* piDamageMembers, int iMaxDamageMembers);

@@ -61,13 +61,13 @@ public:
 	GreatPeopleDirectiveTypes GetDirectiveMerchant(CvUnit* pGreatMerchant);
 	GreatPeopleDirectiveTypes GetDirectiveScientist(CvUnit* pGreatScientist);
 	GreatPeopleDirectiveTypes GetDirectiveGeneral(CvUnit* pGreatGeneral);
-	GreatPeopleDirectiveTypes GetDirectiveProphet(CvUnit* pGreatProphet);
+	GreatPeopleDirectiveTypes GetDirectiveProphet(CvUnit* pUnit);
 	GreatPeopleDirectiveTypes GetDirectiveAdmiral(CvUnit* pGreatAdmiral);
 	GreatPeopleDirectiveTypes GetDirectiveDiplomat(CvUnit* pGreatDiplomat);
 
 	bool GreatMerchantWantsCash();
-	CvPlot* FindBestMerchantTargetPlotForCash(CvUnit* pGreatMerchant);
-	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pGreatMerchant);
+	CvPlot* FindBestMerchantTargetPlotForCash(CvUnit* pMerchant);
+	CvPlot* FindBestMerchantTargetPlotForPuppet(CvUnit* pMerchant);
 
 	//For Great Diplomats
 	CvPlot* FindBestDiplomatTargetPlot(CvUnit* pUnit);
@@ -77,7 +77,7 @@ public:
 	CvPlot* ChooseMessengerTargetPlot(CvUnit* pUnit, vector<int>* pvIgnoreCities = NULL);
 
 	CvPlot* FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, const std::vector<CvPlot*>& vPlotsToAvoid, bool bMustBeWorkable);
-	CvPlot* FindBestMusicianTargetPlot(CvUnit* pGreatMerchant);
+	CvPlot* FindBestMusicianTargetPlot(CvUnit* pMusician);
 
 	// this are used by a city AI to signal that it is committing to build a unit for one of my operations
 	virtual OperationSlot PeekAtNextUnitToBuildForOperationSlot(CvCity* pCity, bool& bCitySameAsMuster);
@@ -87,7 +87,7 @@ public:
 	virtual int GetNumUnitsNeededToBeBuilt();
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
-	void AI_DoEventChoice(EventTypes eEvent);
+	void AI_DoEventChoice(EventTypes eChosenEvent);
 #endif
 
 	// for serialization

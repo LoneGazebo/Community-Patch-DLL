@@ -45,7 +45,7 @@ public:
 	VictoryTypes getVictoryType() const;
 	GameTypes getGameType() const;
 
-	void addReplayMessage(const CvReplayMessage& kMessage);
+	void addReplayMessage(const CvReplayMessage& pMessage);
 	void clearReplayMessageMap();
 	uint getNumReplayMessages() const;
 	const CvReplayMessage* getReplayMessage(uint i) const;

@@ -396,9 +396,9 @@ private:
 ///------------------------------
 //	unify these?
 ///------------------------------
-	void PlotGarrisonMoves(int iTurnsToArrive, bool bEmergencyOnly);
-	void PlotBastionMoves(int iTurnsToArrive, bool bEmergencyOnly);
-	void PlotGuardImprovementMoves(int iTurnsToArrive);
+	void PlotGarrisonMoves(int iNumTurnsAway, bool bEmergencyOnly);
+	void PlotBastionMoves(int iNumTurnsAway, bool bEmergencyOnly);
+	void PlotGuardImprovementMoves(int iNumTurnsAway);
 //--------------------------------
 
 	void PlotAirPatrolMoves();
@@ -410,7 +410,7 @@ private:
 	void PlotHedgehogMoves(CvTacticalDominanceZone* pZone);
 	void PlotCounterattackMoves(CvTacticalDominanceZone* pZone);
 	void PlotWithdrawMoves(CvTacticalDominanceZone* pZone);
-	void PlotReinforcementMoves(CvTacticalDominanceZone* pZone);
+	void PlotReinforcementMoves(CvTacticalDominanceZone* pTargetZone);
 
 	void PlotEmergencyPurchases(CvTacticalDominanceZone* pZone);
 	void PlotDefensiveAirlifts(CvTacticalDominanceZone* pZone);
@@ -455,7 +455,7 @@ private:
 	void ExecuteHeals(bool bFirstPass);
 	void ExecuteBarbarianRoaming();
 	int ExecuteMoveToPlot(CvUnit* pUnit, CvPlot* pTarget, bool bSetProcessed = true, int iFlags = 0);
-	bool ExecuteMoveOfBlockingUnit(CvUnit* pUnit, CvPlot* pPreferredDirection=NULL);
+	bool ExecuteMoveOfBlockingUnit(CvUnit* pBlockingUnit, CvPlot* pPreferredDirection=NULL);
 	void ExecuteNavalBlockadeMove(CvPlot* pTarget);
 	void ExecuteAirPatrolMoves();
 	void ExecuteAirSweepMoves();
@@ -465,14 +465,14 @@ private:
 	void ExecuteEscortEmbarkedMoves(std::vector<CvUnit*> vTargets);
 
 	// Internal low-level utility routines
-	CvPlot* GetBestRepositionPlot(CvUnit* unitH, CvPlot* plotTarget, int iAcceptableDanger);
+	CvPlot* GetBestRepositionPlot(CvUnit* pUnit, CvPlot* plotTarget, int iAcceptableDanger);
 	CvUnit* FindUnitForThisMove(AITacticalMove eMove, CvPlot* pTargetPlot, int iNumTurnsAway=0);
 	bool FindUnitsWithinStrikingDistance(CvPlot *pTargetPlot);
 	bool FindUnitsForHarassing(CvPlot* pTarget, int iNumTurnsAway, int iMinHitpoints, int iMaxHitpoints, DomainTypes eDomain, bool bMustHaveMovesLeft, bool bAllowEmbarkation);
 	bool FindParatroopersWithinStrikingDistance(CvPlot *pTargetPlot, bool bCheckDanger);
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
-	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pTargetPlot);
+	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximateTargetPlot);
 	void UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed);
 
 	int GetRecruitRange() const;
@@ -730,7 +730,7 @@ public:
 	bool isValid() const { return pPlot != NULL; }
 	bool isEnemyCombatUnit() const { return bHasEnemyCombatUnit; }
 	bool isCombatEndTurn() const { return bFriendlyDefenderEndTurn; }
-	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& assignment, int iChange) const;
+	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const;
 	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
 
 protected:
@@ -952,8 +952,8 @@ public:
 
 	//debugging
 	unsigned long long getID() const { return iID; }
-	void dumpPlotStatus(const char* filename) const;
-	void exportToDotFile(const char* filename) const;
+	void dumpPlotStatus(const char* fname) const;
+	void exportToDotFile(const char* fname) const;
 	void dumpChildren(ofstream& out) const;
 
 	friend const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition* ref, const CvTacticalPosition* other);
@@ -1006,13 +1006,13 @@ namespace TacticalAIHelpers
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
 	int GetSimulatedDamageFromAttackOnCity(const CvCity* pCity, const CvUnit* pAttacker, const CvPlot* pAttackerPlot, int& iAttackerDamage, 
 									bool bIgnoreUnitAdjacencyBoni=false, int iExtraDefenderDamage=0, bool bQuickAndDirty = false);
-	bool KillLoneEnemyIfPossible(CvUnit* pAttacker, CvUnit* pDefender);
+	bool KillLoneEnemyIfPossible(CvUnit* pOurUnit, CvUnit* pEnemyUnit);
 	bool IsSuicideMeleeAttack(const CvUnit* pAttacker, CvPlot* pTarget);
 	bool CanKillTarget(const CvUnit* pAttacker, CvPlot* pTarget);
 	vector<pair<CvPlot*,bool>> GetTargetsInRange(const CvUnit* pUnit, bool bMustBeAbleToKill=false, bool bIncludeCivilians=true);
 	pair<int, int> EstimateLocalUnitPower(const ReachablePlots& plotsToCheck, TeamTypes eTeamA, TeamTypes eTeamB, bool bMustBeVisibleToBoth);
 	int CountAdditionallyVisiblePlots(CvUnit* pUnit, CvPlot* pTestPlot);
-	bool IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes eOwner);
+	bool IsPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer);
 	bool IsOtherPlayerCitadel(const CvPlot* pPlot, PlayerTypes ePlayer, bool bCheckWar);
 	int SentryScore(const CvPlot* pPlot, PlayerTypes ePlayer);
 

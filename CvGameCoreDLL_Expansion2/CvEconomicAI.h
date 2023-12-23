@@ -236,7 +236,7 @@ public:
 	};
 #endif
 	void UpdateExplorePlotsFromScratch();
-	void UpdateExplorePlotsLocally(CvPlot* pRefPlot);
+	void UpdateExplorePlotsLocally(CvPlot* pPlot);
 
 	void LogEconomyMessage(const CvString& strMsg);
 

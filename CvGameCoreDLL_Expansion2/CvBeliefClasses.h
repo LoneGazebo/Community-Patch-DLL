@@ -127,7 +127,7 @@ public:
 	int GetMaxYieldPerFollowerPercent(int i) const;
 	int GetIgnorePolicyRequirementsAmount() const;
 	int GetCSYieldBonus() const;
-	int GetImprovementVoteChange(ImprovementTypes eImprovement) const;
+	int GetImprovementVoteChange(ImprovementTypes eIndex1) const;
 #endif
 #if defined(MOD_BALANCE_CORE)
 	CivilizationTypes GetRequiredCivilization() const;
@@ -177,7 +177,7 @@ public:
 	int GetYieldFromKills(YieldTypes eYield) const;
 	int GetYieldFromRemoveHeresy(YieldTypes eYield) const;
 	int GetYieldFromBarbarianKills(YieldTypes eYield) const;
-	int GetGreatPersonPoints(GreatPersonTypes eGreatPerson) const;
+	int GetGreatPersonPoints(GreatPersonTypes i) const;
 	int GetPlotYieldChange(int i, int j) const;
 #if defined(MOD_RELIGION_EXTENSIONS)
 	std::vector<int> GetFreePromotions() const;
