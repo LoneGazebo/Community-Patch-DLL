@@ -501,7 +501,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- buildings and wonders unlocked by this tech
 	for row in GameInfo.Buildings( thisPrereqTech ) do
-		if row.ShowInPedia == 1 and validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
+		if row.ShowInPedia and validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
 			break
 		end
 	end

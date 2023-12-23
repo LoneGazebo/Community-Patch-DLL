@@ -685,13 +685,6 @@
 							<Label Anchor="L,T" Offset="15,15" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="quote goes here" ID="QuoteLabel"/>
 						</Grid>
 					</Grid>
-					<!-- Special Abilities -->
-					<Grid Anchor="R,T" Offset="0,24" Size="436,60" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="AbilitiesFrame">
-						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_ABILITIES_LABEL"/>
-						<Grid Anchor="C,C" Offset="0,0" Size="440,64" Padding="0,0" Style="Grid9Frame" Hidden="0" ID="AbilitiesInnerFrame">
-							<Label Anchor="L,T" Offset="12,12" WrapWidth="415" LeadingOffset="-5" Font="TwCenMT18" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" ID="AbilitiesLabel"/>
-						</Grid>
-					</Grid>
 					<!-- Silent Quote -->
 					<Grid Anchor="R,T" Offset="0,24" Size="436,200" Padding="0,0" Style="GridBlackIndent8" Hidden="0" ID="SilentQuoteFrame">
 						<Label Anchor="L,T" Offset="4,-18" Anchorside="I.O" WrapWidth="600" LeadingOffset="0" Font="TwCenMT20" FontStyle="Shadow" Color0="Beige" Color1="0.0.0.160" String="TXT_KEY_PEDIA_QUOTE_LABEL"/>
