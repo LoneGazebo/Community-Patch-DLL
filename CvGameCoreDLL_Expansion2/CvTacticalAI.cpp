@@ -7759,7 +7759,13 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 
 	//unseen enemies might be hiding behind the edge, so assume danger there
 	if (testPlot.isEdgePlot())
-		iDanger = max( pUnit->GetMaxHitPoints()/2, iDanger);
+	{
+		iDanger = max(pUnit->GetMaxHitPoints() / 2, iDanger);
+
+		//siege units (with limited visibility) should not move there unless covered (the -1 is important)
+		if (pUnit->visibilityRange()<2 && testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), -1) < 2)
+			return INT_MAX;
+	}
 
 	if (iDanger > 0)
 	{
@@ -7873,13 +7879,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	//cannot deal with enemies here, only friendly/empty plots
 	if (testPlot.isEnemy())
 		return result;
-
-	//careful when moving into edge plots, they may hold surprises
-	//so siege units should not move there unless adjacent already
-	//instead move to an intermediate plot and maybe restart the sim if new enemies are revealed
-	if (pUnit->AI_getUnitAIType()== UNITAI_CITY_BOMBARD && testPlot.isEdgePlot())
-		if (testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit),-1)==0)
-			return result;
 
 	//different contributions
 	int iDamageScore = 0;

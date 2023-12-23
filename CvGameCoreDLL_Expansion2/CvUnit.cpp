@@ -20280,7 +20280,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 
-		if(IsCombatUnit())
+		if(IsCombatUnit() && !isDelayedDeath())
 		{
 			oldUnitList.clear();
 
