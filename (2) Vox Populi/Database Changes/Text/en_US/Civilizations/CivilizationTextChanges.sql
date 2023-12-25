@@ -489,8 +489,12 @@ WHERE Tag = 'TXT_KEY_BUILD_TERRACE_FARM';
 -- India
 --------------------
 UPDATE Language_en_US
-SET Text = 'Starts with a [ICON_RELIGION_PANTHEON] Pantheon. [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. Founding a [ICON_RELIGION] Religion converts all owned Cities. +10% base Religious Pressure and +1% [ICON_FOOD] Food for each Follower of your primary [ICON_RELIGION] Religion in a City. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
+SET Text = 'Starts with a [ICON_RELIGION_PANTHEON] Pantheon. [ICON_PROPHET] Great Prophets require 35% less [ICON_PEACE] Faith. You may spend a Prophet''s first spread action to Found or Enhance a [ICON_RELIGION] Religion, or build a Holy Site, without consuming the Prophet. [COLOR_NEGATIVE_TEXT]Cannot build [ICON_MISSIONARY] Missionaries.[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH';
+
+UPDATE Language_en_US
+SET Text = 'Mahatma'
+WHERE Tag = 'TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT';
 
 UPDATE Language_en_US
 SET Text = 'Naga-Malla'

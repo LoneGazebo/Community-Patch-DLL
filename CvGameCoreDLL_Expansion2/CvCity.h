@@ -785,6 +785,9 @@ public:
 	int GetNoOccupiedUnhappinessCount() const;
 	void ChangeNoOccupiedUnhappinessCount(int iChange);
 
+	int GetFoodBonusPerCityMajorityFollower() const;
+	void ChangeFoodBonusPerCityMajorityFollower(int iChange);
+
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool IsLocalGainlessPillage() const;
 	void ChangeLocalGainlessPillageCount(int iChange);
@@ -1860,6 +1863,7 @@ protected:
 	int m_iMaintenance;
 	int m_iHealRate;
 	int m_iNoOccupiedUnhappinessCount;
+	int m_iFoodBonusPerCityMajorityFollower;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	int m_iLocalGainlessPillageCount;
 #endif
@@ -2270,6 +2274,7 @@ SYNC_ARCHIVE_VAR(int, m_iCityAutomatonWorkersChange)
 SYNC_ARCHIVE_VAR(int, m_iMaintenance)
 SYNC_ARCHIVE_VAR(int, m_iHealRate)
 SYNC_ARCHIVE_VAR(int, m_iNoOccupiedUnhappinessCount)
+SYNC_ARCHIVE_VAR(int, m_iFoodBonusPerCityMajorityFollower)
 SYNC_ARCHIVE_VAR(int, m_iLocalGainlessPillageCount)
 SYNC_ARCHIVE_VAR(int, m_iFood)
 SYNC_ARCHIVE_VAR(int, m_iMaxFoodKeptPercent)

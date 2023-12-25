@@ -205,6 +205,7 @@ CvCity::CvCity() :
 	, m_iMaintenance()
 	, m_iHealRate()
 	, m_iNoOccupiedUnhappinessCount()
+	, m_iFoodBonusPerCityMajorityFollower()
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	, m_iLocalGainlessPillageCount()
 #endif
@@ -1324,6 +1325,7 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iConversionModifier = 0;
 #endif
 	m_iNoOccupiedUnhappinessCount = 0;
+	m_iFoodBonusPerCityMajorityFollower = 0;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_iLocalGainlessPillageCount = 0;
 #endif
@@ -15506,6 +15508,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeNoOccupiedUnhappinessCount(pBuildingInfo->IsNoOccupiedUnhappiness() * iChange);
 
+		ChangeFoodBonusPerCityMajorityFollower(pBuildingInfo->GetFoodBonusPerCityMajorityFollower() * iChange);
+
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 		ChangeLocalGainlessPillageCount(pBuildingInfo->IsCityGainlessPillage() * iChange); //bool promotion
 #endif
@@ -20890,6 +20894,19 @@ void CvCity::ChangeNoOccupiedUnhappinessCount(int iChange)
 		m_iNoOccupiedUnhappinessCount += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+/// +x% Food for each follower of the city's majority religion
+bool CvCity::GetFoodBonusPerCityMajorityFollower() const
+{
+	VALIDATE_OBJECT
+	return m_iFoodBonusPerCityMajorityFollower;
+}
+
+void CvCity::ChangeFoodBonusPerCityMajorityFollower(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iFoodBonusPerCityMajorityFollower += iChange;
+}
 
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 //	--------------------------------------------------------------------------------
@@ -24845,13 +24862,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	// Trait Yield Rate Modifier per Follower
 	if (eIndex == YIELD_FOOD && eMajority != NO_RELIGION)
 	{
+		iTempMod = 0;
+		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 		{
-			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-			iTempMod = iFollowers * /*1*/ GD_INT_GET(BALANCE_FOLLOWER_FOOD_BONUS);
+			iTempMod += iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_FOOD_BONUS);
 			iModifier += iTempMod;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_TRAIT", iTempMod);
 		}
+		if (GetFoodBonusPerCityMajorityFollower() > 0)
+		{
+			iTempMod += iFollowers * GetFoodBonusPerCityMajorityFollower();
+			iModifier += iTempMod;
+		}
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_FOLLOWERS", iTempMod);
 	}
 
 	// Puppet
@@ -32953,6 +32976,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iMaintenance);
 	visitor(city.m_iHealRate);
 	visitor(city.m_iNoOccupiedUnhappinessCount);
+	visitor(city.m_iFoodBonusPerCityMajorityFollower);
 	visitor(city.m_iLocalGainlessPillageCount);
 	visitor(city.m_iFood);
 	visitor(city.m_iMaxFoodKeptPercent);

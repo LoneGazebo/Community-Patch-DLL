@@ -5412,6 +5412,10 @@ int  CityStrategyAIHelpers::GetBuildingTraitValue(CvCity *pCity, YieldTypes eYie
 			{
 				iBonus += 50;
 			}
+			if(kPlayer.GetPlayerTraits()->StartsWithPantheon() || kPlayer.GetPlayerTraits()->IsProphetFervor())
+			{
+				iBonus += 50;
+			}
 			if(kPlayer.GetPlayerTraits()->GetFaithFromKills() > 0)
 			{
 				iBonus += 50;

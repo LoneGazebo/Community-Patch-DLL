@@ -20587,7 +20587,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// India - More likely to be friendly than any other civ, everything else equal, plus an extra bonus for players with no warmongering penalty
-	else if (pTraits->IsPopulationBoostReligion())
+	else if (pTraits->IsProphetFervor())
 	{
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 	

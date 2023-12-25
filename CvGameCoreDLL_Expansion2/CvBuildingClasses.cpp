@@ -269,6 +269,7 @@ CvBuildingEntry::CvBuildingEntry(void):
 	m_iNukeInterceptionChance(0),
 	m_bIsCorp(false),
 #endif
+	m_iFoodBonusPerCityMajorityFollower(0),
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_bPlayerBorderGainlessPillage(false),
 	m_bCityGainlessPillage(false),
@@ -621,6 +622,7 @@ bool CvBuildingEntry::CacheResults(Database::Results& kResults, CvDatabaseUtilit
 	m_bIsCorp = kResults.GetBool("IsCorporation");
 	m_iNukeInterceptionChance = kResults.GetInt("NukeInterceptionChance");
 #endif
+	m_iFoodBonusPerCityMajorityFollower = kResults.GetInt("FoodBonusPerCityMajorityFollower");
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_bPlayerBorderGainlessPillage = kResults.GetBool("PlayerBorderGainlessPillage");
 	m_bCityGainlessPillage = kResults.GetBool("CityGainlessPillage");
@@ -2787,6 +2789,11 @@ int CvBuildingEntry::GetNukeInterceptionChance() const
 	return m_iNukeInterceptionChance;
 }
 #endif
+/// +x% Food for each follower of the city's majority religion
+int CvBuildingEntry::GetFoodBonusPerCityMajorityFollower() const
+{
+	return m_iFoodBonusPerCityMajorityFollower;
+}
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 /// Is a border-wide nullification of the heal and gold benefits from pillaging
 bool CvBuildingEntry::IsPlayerBorderGainlessPillage() const

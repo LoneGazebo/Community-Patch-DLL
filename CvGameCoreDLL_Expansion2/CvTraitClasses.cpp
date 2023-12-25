@@ -270,6 +270,8 @@ CvTraitEntry::CvTraitEntry() :
 	m_iFaithCostModifier(0),
 	m_bFreeGreatWorkOnConquest(false),
 	m_bPopulationBoostReligion(false),
+	m_bStartsWithPantheon(false),
+	m_bProphetFervor(false),
 	m_bCombatBoostNearNaturalWonder(false),
 	m_piNumPledgesDomainProdMod(NULL),
 	m_piFreeUnitClassesDOW(NULL),
@@ -1146,6 +1148,14 @@ bool CvTraitEntry::IsFreeGreatWorkOnConquest() const
 bool CvTraitEntry::IsPopulationBoostReligion() const
 {
 	return m_bPopulationBoostReligion;
+}
+bool CvTraitEntry::StartsWithPantheon() const
+{
+	return m_bStartsWithPantheon;
+}
+bool CvTraitEntry::IsProphetFervor() const
+{
+	return m_bProphetFervor;
 }
 bool CvTraitEntry::IsCombatBoostNearNaturalWonder() const
 {
@@ -3314,6 +3324,8 @@ bool CvTraitEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility& 
 	m_iFaithCostModifier = kResults.GetInt("FaithCostModifier");
 	m_bFreeGreatWorkOnConquest = kResults.GetBool("FreeGreatWorkOnConquest");
 	m_bPopulationBoostReligion = kResults.GetBool("PopulationBoostReligion");
+	m_bStartsWithPantheon = kResults.GetBool("StartsWithPantheon");
+	m_bProphetFervor = kResults.GetBool("ProphetFervor");
 	m_bCombatBoostNearNaturalWonder = kResults.GetBool("CombatBoostNearNaturalWonder");
 #endif
 
@@ -4137,6 +4149,7 @@ void CvPlayerTraits::SetIsSmaller()
 	if (IsImportsCountTowardsMonopolies() ||
 		IsAdoptionFreeTech() ||
 		IsPopulationBoostReligion() ||
+		IsProphetFervor() ||
 		IsNoAnnexing() ||
 		IsTechBoostFromCapitalScienceBuildings() ||
 		IsRandomGreatPersonProgressFromKills())
@@ -4231,7 +4244,9 @@ void CvPlayerTraits::SetIsReligious()
 		IsAlwaysReligion() ||
 		IsAnyBelief() ||
 		IsBonusReligiousBelief() ||
-		IsPopulationBoostReligion())
+		IsPopulationBoostReligion() ||
+		StartsWithPantheon() ||
+		IsProphetFervor())
 	{
 		m_bIsReligious = true;
 		return;
@@ -4909,6 +4924,14 @@ void CvPlayerTraits::InitPlayerTraits()
 				{
 					m_bPopulationBoostReligion = true;
 				}
+				if(trait->StartsWithPantheon())
+				{
+					m_bStartsWithPantheon = true;
+				}
+				if(trait->IsProphetFervor())
+				{
+					m_bProphetFervor = true;
+				}
 				if(trait->IsCombatBoostNearNaturalWonder())
 				{
 					m_bCombatBoostNearNaturalWonder= true;
@@ -5527,6 +5550,8 @@ void CvPlayerTraits::Reset()
 		m_iFaithCostModifier = 0;
 		m_bFreeGreatWorkOnConquest = false;
 		m_bPopulationBoostReligion = false;
+		m_bStartsWithPantheon = false;
+		m_bProphetFervor = false;
 		m_bCombatBoostNearNaturalWonder = false;
 #endif
 		for(int iBuildingClass = 0; iBuildingClass < GC.getNumBuildingClassInfos(); iBuildingClass++)
@@ -7685,6 +7710,8 @@ void CvPlayerTraits::Serialize(PlayerTraits& playerTraits, Visitor& visitor)
 	visitor(playerTraits.m_iMountainRangeYield);
 	visitor(playerTraits.m_bFreeGreatWorkOnConquest);
 	visitor(playerTraits.m_bPopulationBoostReligion);
+	visitor(playerTraits.m_bStartsWithPantheon);
+	visitor(playerTraits.m_bProphetFervor);
 	visitor(playerTraits.m_bCombatBoostNearNaturalWonder);
 	visitor(playerTraits.m_iVotePerXCSAlliance);
 	visitor(playerTraits.m_iGoldenAgeFromVictory);

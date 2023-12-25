@@ -781,8 +781,8 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_RESTING_POINT_INCREAS
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_COST_BASE', 200; -- Austria new UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_COST_INCREASE_PER_PREVIOUS_MARRIAGE', 200; -- Austria new UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', 0; -- India Growth (VP)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_FOOD_BONUS', 1; -- India Food (VP)
-INSERT INTO Defines (Name, Value) SELECT 'RELIGION_FOUND_AUTO_SPREAD_PRESSURE', 1000; -- India Pressure on Found (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_FOOD_BONUS', 0; -- India Food (VP)
+INSERT INTO Defines (Name, Value) SELECT 'RELIGION_FOUND_AUTO_SPREAD_PRESSURE', 0; -- India Pressure on Found (VP)
 INSERT INTO Defines (Name, Value) SELECT 'GWAM_THRESHOLD_DECREASE', 0; -- Great People Rate Mod (Note, this is a subtraction, so positive = negative)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BUILDING_INVESTMENT_BASELINE', -50; -- Building Investments Base Rate
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNIT_INVESTMENT_BASELINE', -50; -- Unit Investments Base Rate

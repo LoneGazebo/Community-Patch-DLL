@@ -14810,42 +14810,37 @@ void CvPlayer::foundCity(int iX, int iY)
 			pCity->DoAcquirePlot(pPlotToAcquire->getX(), pPlotToAcquire->getY());
 		}
 	}
-#if defined(MOD_BALANCE_CORE)
-	if(MOD_BALANCE_CORE && !isMinorCiv() && (GetNumCitiesFounded() <= 1))
+
+	if (isMajorCiv() && GetNumCitiesFounded() <= 1 && GetPlayerTraits()->StartsWithPantheon())
 	{
-		if(GetPlayerTraits()->IsPopulationBoostReligion())
+		int iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon();
+		SetFaith(iFaith);
+		if (GC.getGame().GetGameReligions()->CanCreatePantheon(GetID(), true) == 0)
 		{
-			int iFaith = GC.getGame().GetGameReligions()->GetMinimumFaithNextPantheon();
-			SetFaith(iFaith);
-			if(GC.getGame().GetGameReligions()->CanCreatePantheon(GetID(), true) == 0)
+			// Create the pantheon
+			if (isHuman())
 			{
-				// Create the pantheon
-				if(isHuman())
+				//If the player is human then a net message will be received which will pick the pantheon.
+				CvNotifications* pNotifications = GetNotifications();
+				if (pNotifications)
 				{
-					//If the player is human then a net message will be received which will pick the pantheon.
-					CvNotifications* pNotifications = GetNotifications();
-					if(pNotifications)
-					{
-						CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_FAITH_FOR_PANTHEON");
-
-						CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_PANTHEON");
-						pNotifications->Add(NOTIFICATION_FOUND_PANTHEON, strBuffer, strSummary, -1, -1, -1);
-					}
+					CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_ENOUGH_FAITH_FOR_PANTHEON");
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENOUGH_FAITH_FOR_PANTHEON");
+					pNotifications->Add(NOTIFICATION_FOUND_PANTHEON, strBuffer, strSummary, -1, -1, -1);
 				}
-				else
-				{
-	#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
-					const BeliefTypes eBelief = GetReligionAI()->ChoosePantheonBelief(GetID());
-	#else
-					const BeliefTypes eBelief = owningPlayer.GetReligionAI()->ChoosePantheonBelief();
-	#endif
-
-					GC.getGame().GetGameReligions()->FoundPantheon(GetID(), eBelief);
-				}
+			}
+			else
+			{
+#if defined(MOD_EVENTS_ACQUIRE_BELIEFS)
+				const BeliefTypes eBelief = GetReligionAI()->ChoosePantheonBelief(GetID());
+#else
+				const BeliefTypes eBelief = owningPlayer.GetReligionAI()->ChoosePantheonBelief();
+#endif
+				GC.getGame().GetGameReligions()->FoundPantheon(GetID(), eBelief);
 			}
 		}
 	}
-#endif
+
 	std::vector<int> allBuildingCount = GetTotalBuildingCount();
 	for(int iI = 0; iI < GC.getNumBuildingClassInfos(); iI++)
 	{

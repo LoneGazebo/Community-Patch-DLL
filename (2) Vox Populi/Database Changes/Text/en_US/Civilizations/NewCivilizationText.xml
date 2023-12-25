@@ -144,9 +144,6 @@
 			<Text>Unique Greek replacement for the Amphitheater. Build Acropoli to boost your City's Defense, Culture, and Tourism, especially while at war for the latter two. Also boosts the City's Great Writer rate and the value of Writers' Guilds. Produces +3 [ICON_TOURISM] Tourism.</Text>
 		</Row>
 		<!-- India -->
-		<Row Tag="TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT_CBP">
-			<Text>Font of Dharma</Text>
-		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL">
 			<Text>Harappan Reservoir</Text>
 		</Row>
@@ -154,7 +151,7 @@
 			<Text>The ancient Harappan and Indus Valley Civilizations of Northwest South Asia, including Pakistan and parts of India, were prominent in hydraulic engineering, and had many water supply and sanitation devices that were the first of their kind. Among other things, they contained the world's earliest known system of flush toilets. These existed in many homes, and were connected to a common sewerage pipe. Most houses also had private wells. City walls functioned as a barrier against floods, and massive reservoirs were often constructed along these walls to collect this floodwater to save for droughts.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_HELP">
-			<Text>Unique Indian replacement for the Aqueduct. Carries over 20% of [ICON_FOOD] Food after City growth, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production. Grants +1 [ICON_PRODUCTION] Production from Flood Plains, and +2 [ICON_FOOD] Food from Lakes and Oases. Farms worked by this City gain +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
+			<Text>Unique Indian replacement for the Aqueduct. Requires a Granary in the City.[NEWLINE][NEWLINE]+1% [ICON_FOOD] Food for each Follower of this City's Majority [ICON_RELIGION] Religion. Carries over 20% of [ICON_FOOD] Food after City growth, and +25% of the [ICON_PRODUCTION] Production of the City is added to the City's current [ICON_PRODUCTION] Production. Grants +2 [ICON_FOOD] Food from Lakes and Oases. Farms worked by this City gain +1 [ICON_FOOD] Food and [ICON_PRODUCTION] Production.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_GOLD] Poverty.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_INDUS_CANAL_STRATEGY">
 			<Text>Build these unique Aqueducts to rapidly increase your City's population size and productivity, especially if the City is settled on or near Flood Plains.</Text>

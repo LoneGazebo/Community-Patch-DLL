@@ -1829,9 +1829,9 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET,false);
 
-		//Let's use our prophets for improvments instead of wasting them on conversion.
+		//Let's use our prophets for improvements instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);
-		if(iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(pUnit)==NULL)
+		if (iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(pUnit) == NULL || GetPlayerTraits()->IsProphetFervor())
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}

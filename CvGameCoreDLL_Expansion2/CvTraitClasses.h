@@ -397,6 +397,8 @@ public:
 	int GetGoldenAgeFromVictory() const;
 	bool IsFreeGreatWorkOnConquest() const;
 	bool IsPopulationBoostReligion() const;
+	bool StartsWithPantheon() const;
+	bool IsProphetFervor() const;
 	bool IsCombatBoostNearNaturalWonder() const;
 	int GetFreePolicyPerXTechs() const;
 	EraTypes GetGPFaithPurchaseEra() const;
@@ -752,6 +754,8 @@ protected:
 	int m_iFaithCostModifier;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
+	bool m_bStartsWithPantheon;
+	bool m_bProphetFervor;
 	bool m_bCombatBoostNearNaturalWonder;
 	int* m_piNumPledgesDomainProdMod;
 	int* m_piDomainFreeExperienceModifier;
@@ -1909,6 +1913,14 @@ public:
 	{
 		return m_bPopulationBoostReligion;
 	};
+	bool StartsWithPantheon() const
+	{
+		return m_bStartsWithPantheon;
+	};
+	bool IsProphetFervor() const
+	{
+		return m_bProphetFervor;
+	};
 	bool IsCombatBoostNearNaturalWonder() const
 	{
 		return m_bCombatBoostNearNaturalWonder;
@@ -2393,6 +2405,8 @@ private:
 	int m_iFaithCostModifier;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
+	bool m_bStartsWithPantheon;
+	bool m_bProphetFervor;
 	bool m_bCombatBoostNearNaturalWonder;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;

@@ -186,10 +186,13 @@ ALTER TABLE Buildings ADD COLUMN 'CapitalOnly' BOOLEAN DEFAULT 0;
 -- Requirement that allows you to bypass prereq techs to get something.
 ALTER TABLE Buildings ADD COLUMN 'NumPoliciesNeeded' INTEGER DEFAULT 0;
 
--- Reduce specialist unhappiness from urbanization (CBO)
+-- Reduce specialist unhappiness from urbanization (VP)
 ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialists' INTEGER DEFAULT 0;
--- Reduce specialist unhappiness from urbanization (CBO)
+-- Reduce specialist unhappiness from urbanization (VP)
 ALTER TABLE Buildings ADD COLUMN 'NoUnhappfromXSpecialistsGlobal' INTEGER DEFAULT 0;
+
+-- +x% Food for each follower of the city's majority religion
+ALTER TABLE Buildings ADD COLUMN 'FoodBonusPerCityMajorityFollower' INTEGER DEFAULT 0;
 
 -- BUILDING: PlayerBorderGainlessPillage & CityGainlessPillage
 -- If such a building's effect applies, other teams get neither gold nor heal from pillaging the appropriate tiles.
@@ -719,8 +722,13 @@ ALTER TABLE Beliefs ADD COLUMN 'CivilizationType' TEXT DEFAULT NULL;
 ALTER TABLE Traits ADD COLUMN 'FreeGreatWorkOnConquest' BOOLEAN DEFAULT 0;
 
 -- New Traits - Religious Pressure modified based on population
-
 ALTER TABLE Traits ADD COLUMN 'PopulationBoostReligion' BOOLEAN DEFAULT 0;
+
+-- New Traits - Starts with a Pantheon
+ALTER TABLE Traits ADD COLUMN 'StartsWithPantheon' BOOLEAN DEFAULT 0;
+
+-- New Traits - May spend first Great Prophet spread action (Found/Enhance/Build Holy Site) without consuming it
+ALTER TABLE Traits ADD COLUMN 'ProphetFervor' BOOLEAN DEFAULT 0;
 
 -- New Traits - % of capital culture converted to tourism during a GA
 ALTER TABLE Traits ADD COLUMN 'TourismGABonus' INTEGER DEFAULT 0;

@@ -367,6 +367,7 @@ public:
 	bool IsCorp() const;
 	int GetNukeInterceptionChance() const;
 #endif
+	int GetFoodBonusPerCityMajorityFollower() const;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool IsPlayerBorderGainlessPillage() const;
 	bool IsCityGainlessPillage() const;
@@ -914,6 +915,7 @@ private:
 	bool m_bIsCorp;
 	int m_iNukeInterceptionChance;
 #endif
+	int m_iFoodBonusPerCityMajorityFollower;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool m_bPlayerBorderGainlessPillage;
 	bool m_bCityGainlessPillage;
