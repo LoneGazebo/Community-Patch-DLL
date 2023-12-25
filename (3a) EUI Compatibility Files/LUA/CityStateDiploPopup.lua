@@ -319,6 +319,7 @@ function OnDisplay()
 	
 	-- Vox Populi - Contender info
 	Controls.ContenderInfo:SetText( GetContenderInfo(activePlayerID, minorPlayerID) )
+	Controls.ContenderInfo:SetToolTipString( GetContenderInfoTT(activePlayerID, minorPlayerID) )
 
 	-- Protected by anyone?
 	local sProtectingPlayers = getProtectingPlayers(minorPlayerID);
