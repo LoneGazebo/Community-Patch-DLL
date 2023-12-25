@@ -880,6 +880,7 @@ public:
 	int GetTourism() const;
 	int GetGeneralPoints() const;
 	int GetAdmiralPoints() const;
+	int GetJuggernauts() const;
 	int GetRandom() const;
 #endif
 
@@ -910,6 +911,7 @@ protected:
 	int m_iHappiness;
 	int m_iGeneralPoints;
 	int m_iAdmiralPoints;
+	int m_iJuggernauts;
 	int m_iTourism;
 	int m_iRand;
 #endif

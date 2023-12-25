@@ -162,6 +162,7 @@ ALTER TABLE SmallAwards ADD 'Happiness' INTEGER DEFAULT 0;
 ALTER TABLE SmallAwards ADD 'Tourism' INTEGER DEFAULT 0;
 ALTER TABLE SmallAwards ADD 'GeneralPoints' INTEGER DEFAULT 0;
 ALTER TABLE SmallAwards ADD 'AdmiralPoints' INTEGER DEFAULT 0;
+ALTER TABLE SmallAwards ADD 'Juggernauts' INTEGER DEFAULT 0;
 ALTER TABLE SmallAwards ADD 'RandomMod' INTEGER DEFAULT 0;
 
 -- Bombard Ranges for cities increase/decrease over default

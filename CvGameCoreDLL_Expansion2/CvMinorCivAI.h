@@ -145,6 +145,7 @@ public:
 	int GetGeneralPoints() const;
 	int GetAdmiralPoints() const;
 	int GetExperience() const;
+	int GetJuggernauts() const;
 
 	void SetInfluence(int iValue);
 	void SetDisabledInfluence(int iValue);
@@ -162,12 +163,14 @@ public:
 	void SetGeneralPoints(int iValue);
 	void SetAdmiralPoints(int iValue);
 	void SetExperience(int iValue);
+	void SetJuggernauts(int iValue);
 
 	bool IsPartialQuest() const;
 	void SetPartialQuest(bool bValue);
 
 	// Handle rewards
 	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
+	int CalculateJuggernautBonusXP(PlayerTypes ePlayer);
 	void DoRewards(PlayerTypes ePlayer, bool bHeavyTribute = false);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish) const;
 
@@ -218,6 +221,7 @@ public:
 	int m_iGeneralPoints;
 	int m_iAdmiralPoints;
 	int m_iExperience;
+	int m_iJuggernauts;
 	bool m_bPartialQuest;
 	bool m_bHandled;
 };
@@ -706,7 +710,7 @@ public:
 	bool IsUnitSpawningAllowed(PlayerTypes ePlayer);
 	bool IsUnitSpawningDisabled(PlayerTypes ePlayer) const;
 	void SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue);
-	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false, bool bCityStateAnnexed = false);
+	CvUnit* DoSpawnUnit(PlayerTypes eMajor, bool bLocal = false, bool bExplore = false, bool bCityStateAnnexed = false, bool bJuggernaut = false);
 	void DoUnitSpawnTurn();
 	int GetSpawnBaseTurns(PlayerTypes ePlayer, bool bCityStateAnnexed = false);
 	int GetCurrentSpawnEstimate(PlayerTypes ePlayer);

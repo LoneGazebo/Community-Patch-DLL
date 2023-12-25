@@ -26,6 +26,14 @@
 			<Key>ERA_INDUSTRIAL</Key>
 			<Table>Eras</Table>
 		</Row>
+		<Row Name="MARCH_PROMOTION">
+			<Key>PROMOTION_MARCH</Key>
+			<Table>UnitPromotions</Table>
+		</Row>
+		<Row Name="MORALE_PROMOTION">
+			<Key>PROMOTION_MORALE</Key>
+			<Table>UnitPromotions</Table>
+		</Row>
 	</PostDefines>
 	<Natural_Wonder_Placement>
 		<Update>

@@ -2777,6 +2777,7 @@ CvSmallAwardInfo::CvSmallAwardInfo() :
 	m_iHappiness(0),
 	m_iGeneralPoints(0),
 	m_iAdmiralPoints(0),
+	m_iJuggernauts(0),
 	m_iRand(0)
 #endif
 {
@@ -2891,6 +2892,11 @@ int CvSmallAwardInfo::GetAdmiralPoints() const
 	return m_iAdmiralPoints;
 }
 //------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetJuggernauts() const
+{
+	return m_iJuggernauts;
+}
+//------------------------------------------------------------------------------
 int CvSmallAwardInfo::GetRandom() const
 {
 	return m_iRand;
@@ -2926,6 +2932,7 @@ bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iGeneralPoints = kResults.GetInt("GeneralPoints");
 	m_iAdmiralPoints = kResults.GetInt("AdmiralPoints");
+	m_iJuggernauts = kResults.GetInt("Juggernauts");
 	m_iTourism = kResults.GetInt("Tourism");
 	m_iRand = kResults.GetInt("RandomMod");
 #endif

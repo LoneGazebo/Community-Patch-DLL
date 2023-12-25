@@ -54,7 +54,7 @@ UPDATE SmallAwards SET Influence = 30, GoldenAgePoints = 150, RandomMod = 10 WHE
 UPDATE SmallAwards SET Influence = 20, Gold = 60, RandomMod = 5, QuestDuration = 0 WHERE Type = 'MINOR_CIV_QUEST_BULLY_CITY_STATE';
 
 -- Acquire specific City
-UPDATE SmallAwards SET Influence = 80, GlobalExperience = 15, RandomMod = 5, QuestDuration = 50 WHERE Type = 'MINOR_CIV_QUEST_ACQUIRE_CITY';
+UPDATE SmallAwards SET Influence = 80, Juggernauts = 1, QuestDuration = 50 WHERE Type = 'MINOR_CIV_QUEST_ACQUIRE_CITY';
 
 -- Liberate specific CS
 UPDATE SmallAwards SET Influence = 40, Happiness = 1, RandomMod = 10, QuestDuration = 50 WHERE Type = 'MINOR_CIV_QUEST_LIBERATION';

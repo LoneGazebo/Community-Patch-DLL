@@ -213,6 +213,13 @@
 			<Text>Conscripted Unit, consuming no [ICON_WAR] Unit Supply.[NEWLINE][NEWLINE][COLOR_NEGATIVE_TEXT]Lost on upgrade.[ENDCOLOR]</Text>
 		</Row>
 
+		<Row Tag="TXT_KEY_PROMOTION_JUGGERNAUT">
+			<Text>Juggernaut</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PROMOTION_JUGGERNAUT_HELP">
+			<Text>+25 Hit Points.[NEWLINE]Obtains [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MARCH}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MORALE}[ENDCOLOR] on creation.</Text>
+		</Row>
+
 		<Row Tag="TXT_KEY_PROMOTION_NAVAL_DEFENSE_BOOST">
 			<Text>Banzai!</Text>
 		</Row>

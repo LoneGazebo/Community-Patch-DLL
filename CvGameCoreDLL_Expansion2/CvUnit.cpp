@@ -3344,6 +3344,7 @@ void CvUnit::doTurn()
 			if (iTurnsElapsed > getPromotionDuration(ePromotion))
 			{
 				setHasPromotion(ePromotion, false);
+				restoreFullMoves();
 				continue;
 			}
 		}

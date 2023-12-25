@@ -33420,6 +33420,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 									iValue += itr_quest->GetGeneralPoints() / 2 * iOffenseFlavor / 10;
 									iValue += itr_quest->GetAdmiralPoints() / 2 * iOffenseFlavor / 10;
 									iValue += itr_quest->GetExperience() / 2 * iNumUnits * iOffenseFlavor / 10;
+									iValue += itr_quest->GetJuggernauts() * iOffenseFlavor / 10;
 								}
 							}
 						}
