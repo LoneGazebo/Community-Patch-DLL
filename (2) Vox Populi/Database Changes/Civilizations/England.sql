@@ -62,7 +62,7 @@ INSERT INTO Building_YieldFromSpyDefenseOrID
 VALUES
 	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 40),
 	('BUILDING_WHITE_TOWER', 'YIELD_SCIENCE', 40);
-	
+
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 VALUES

@@ -2234,6 +2234,8 @@ UPDATE Buildings
 SET
 	PrereqTech = 'TECH_COMPUTERS',
 	GlobalEspionageModifier = 0,
+	SpyRankChange = 0,
+	InstantSpyRankChange = 0,
 	SpySecurityModifier = 10
 WHERE BuildingClass = 'BUILDINGCLASS_INTELLIGENCE_AGENCY';
 

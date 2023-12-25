@@ -6,10 +6,8 @@
 		</Row>
 
 		<!-- Espionage -->
-		
 		<Row Tag="TXT_KEY_SPY_POINTS_TT">
-			<Text>Your Current [ICON_VP_SPY_POINTS] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_VP_SPY_POINTS] Spy Points ever accumulated: {3_NumTotal}
-			</Text>
+			<Text>Your Current [ICON_VP_SPY_POINTS] Spy Points: {1_Num}/{2_Threshold}[NEWLINE][NEWLINE]You gain a new Spy whenever the number of [ICON_VP_SPY_POINTS] Spy Points exceeds the threshold of {2_Threshold}. The threshold value scales on the number of Civilizations and City-States existing at the start of the game. When the first Civilization reaches Renaissance, or when you reach any later Era, you gain 100 [ICON_VP_SPY_POINTS] Spy Points. Some Buildings and Policies also provide [ICON_VP_SPY_POINTS] Spy Points.[NEWLINE][NEWLINE]Total Number of [ICON_VP_SPY_POINTS] Spy Points ever accumulated: {3_NumTotal}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EVENT_NO_TECH_STEAL">
 			<Text>[NEWLINE] [ICON_BULLET] No Technologies to steal.</Text>
@@ -29,11 +27,9 @@
 		<Row Tag="TXT_KEY_EVENT_NOT_ENOUGH_NP">
 			<Text>[NEWLINE] [ICON_BULLET] Not enough Network Points collected.</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_SPY_EXPERIENCE">
 			<Text>Experience: {1_Num} / {2_Denom}</Text>
 		</Row>
-		
 		<!-- Offensive Spies -->
 		<Row Tag="TXT_KEY_EO_MISSIONS_TRAVELING_TOOLTIP">
 			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, they will start collecting Network Points. Network Points unlock passive bonuses while the spy is in the city, or can be spend to perform Spy Missions.</Text>
@@ -96,7 +92,6 @@
 			<Text>Chance to be [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR]: {1_IDChance}%
 			[NEWLINE]Chance to be [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR]: {2_CaptureChance}%</Text>
 		</Row>
-		
 		<!-- Counterspies -->
 		<Row Tag="TXT_KEY_EO_COUNTERSPY">
 			<Text>Change Focus</Text>
@@ -135,89 +130,69 @@
 		<Row Tag="TXT_KEY_EO_DIPLOMAT_TRAVELING_TOOLTIP">
 			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, they will start collecting Network Points. Network Points unlock passive bonuses and grant access to intelligence information about the other civilization while {1_Rank} {2_Spy} is schmoozing as a Diplomat in the city.</Text>
 		</Row>
-		
 		<!-- City Security -->
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_BASE_TT">
 			<Text>[NEWLINE][ICON_BULLET]Base Security: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_DIFFICULTY_TT">
 			<Text>[NEWLINE][ICON_BULLET]Difficulty Level: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_NOT_ALL_HAVE_SPIES_TT">
 			<Text>[NEWLINE][ICON_BULLET]Not all Players have Spies: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_BUILDINGS_TT">
 			<Text>[NEWLINE][ICON_BULLET]City Buildings: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_POLICIES_WONDERS_TT">
 			<Text>[NEWLINE][ICON_BULLET]Policies and Wonders: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_PREVIOUS_SPY_MISSIONS_TT">
 			<Text>[NEWLINE][ICON_BULLET]Previous Spy Mission in City: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_POPULATION_TT">
 			<Text>[NEWLINE][ICON_BULLET]City Population: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_TRADE_ROUTES_TT">
 			<Text>[NEWLINE][ICON_BULLET]Trade Routes to/from City: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_UNHAPPINESS_TT">
 			<Text>[NEWLINE][ICON_BULLET]Excess Unhappiness: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<!-- Network Points -->
 		<Row Tag="TXT_KEY_NETWORK_POINTS">
 			<Text>{1_NumStored} NP (+{2_NumPerTurn})</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_BASE_TT">
 			<Text>[NEWLINE][ICON_BULLET]Base Network Points per Turn: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_SPY_RANK_TT">
 			<Text>[NEWLINE][ICON_BULLET]Spy Rank: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_CULTURAL_INFLUENCE_TT">
 			<Text>[NEWLINE][ICON_BULLET]Cultural Influence over Target: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_TECH_DIFFERENCE_TT">
 			<Text>[NEWLINE][ICON_BULLET]Technologically advanced Target: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_POLICIES_TT">
 			<Text>[NEWLINE][ICON_BULLET]Policies: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_COUNTERSPY_NETWORK_TT">
 			<Text>[NEWLINE][ICON_BULLET]Enemy Counterspy Network: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT">
 			<Text>[NEWLINE][ICON_BULLET]Policy Modifier: [COLOR_POSITIVE_TEXT]+{1_Num}%[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_BEFORE_SECURITY_TT">
 			<Text>[NEWLINE]Total NP per Turn before Modifiers: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_SECURITY_MOD_TT">
 			<Text>[NEWLINE][ICON_BULLET]Reduction City Security: [COLOR_NEGATIVE_TEXT]{1_Num}%[ENDCOLOR]</Text>
 		</Row>
-		
 		<Row Tag="TXT_KEY_EO_NETWORK_POINTS_FINAL_TT">
 			<Text>[NEWLINE][COLOR_POSITIVE_TEXT]Total Network Points gained per Turn: {1_Num}[ENDCOLOR]</Text>
 		</Row>
-		
+
 		<!-- City-State screen/tooltip -->
 		<Row Tag="TXT_KEY_CSTATE_CAN_PROTECT">
 			<Text>[COLOR_POSITIVE_TEXT]Pledge of Protection Available![ENDCOLOR]</Text>
@@ -550,7 +525,7 @@
 		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_VASSALS">
 			<Text>{1_Num} from Vassals.</Text>
-		</Row>		
+		</Row>
 		<Row Tag="TXT_KEY_TP_GOLD_VASSAL_MAINT">
 			<Text>{1_Num} spent on Vassal Maintenance.</Text>
 		</Row>
@@ -1226,7 +1201,6 @@
 		<Row Tag="TXT_KEY_CITY_SAPPED">
 			<Text>Because of an enemy Spy Mission, the city is blockaded and cannot perform ranged strikes for [COLOR_POSITIVE_TEXT]{1_Turns}[ENDCOLOR] {1_Turns: plural 1?Turn; other?Turns;}.</Text>
 		</Row>
-		 {8_Num} turns
 		<Row Tag="TXT_KEY_CITY_MINED">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City. Units ending their turn in Ocean tiles owned by this City take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].</Text>
 		</Row>

@@ -501,7 +501,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_OXFORD_UNIVERSITY_STRATEGY';
 
 -- National Intelligence Agency
 UPDATE Language_en_US
-SET Text = 'Improves City [ICON_SPY] City Security by 10 and provides 100 [ICON_VP_SPY_POINTS] Spy Points. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you capture or identify a foreign [ICON_SPY] Spy, or when you complete a [ICON_SPY] Spy Mission in a foreign City, scaling with Era. +25 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you successfully rig an election in a [ICON_CITY_STATE] City-State, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
+SET Text = 'Improves City [ICON_SPY] City Security by 10 and provides 100 [ICON_VP_SPY_POINTS] Spy Points. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in all Cities.[NEWLINE][NEWLINE]+100 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you identify, capture, or kill a foreign [ICON_SPY] Spy, or when you complete a [ICON_SPY] Spy Mission in a foreign City, scaling with Era. +25 [ICON_RESEARCH] Science and [ICON_GOLD] Gold when you successfully rig an election in a [ICON_CITY_STATE] City-State, scaling with Era.[NEWLINE][NEWLINE]The [ICON_PRODUCTION] Production Cost and [ICON_CITIZEN] Population Requirements increase based on the number of Cities you own.'
 WHERE Tag = 'TXT_KEY_BUILDING_INTELLIGENCE_AGENCY_HELP';
 
 UPDATE Language_en_US
