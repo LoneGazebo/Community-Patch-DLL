@@ -530,7 +530,7 @@ CivilopediaCategory[CategoryUnits].PopulateList = function()
 		local faithUnits = {};
 		sortedList[CategoryUnits][0] = {};
 		local tableid = 1;
-		for unit in DB.Query("SELECT Units.ID, Units.Description, Units.PortraitIndex, Units.IconAtlas From Units where Units.FaithCost > 0 and Units.Cost == -1 and not RequiresFaithPurchaseEnabled and ShowInPedia == 1") do
+		for unit in DB.Query("SELECT ID, Description, PortraitIndex, IconAtlas From Units where FaithCost > 0 and Cost = -1 and RequiresFaithPurchaseEnabled = 0 and ShowInPedia = 1") do
 			AddArticle(0, tableid, unit);
 			tableid = tableid + 1;
 		end
@@ -814,7 +814,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 		--Add Faith Buildings first
 		local tableid = 1;
 		sortedList[CategoryBuildings][sectionID] = {};
-		for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.FaithCost > 0 and Buildings.ShowInPedia == 1 and Buildings.Cost == -1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
+		for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.FaithCost > 0 and Buildings.ShowInPedia = 1 and Buildings.Cost = -1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
 			AddArticle(sectionID, tableid, building); -- FIXED Infixo changed 0 to sectionID
 			tableid = tableid + 1;
 		end
@@ -825,7 +825,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 	--Add Corporation Buildings Second
 	local tableid = 1;
 	sortedList[CategoryBuildings][sectionID] = {};
-	for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.IsCorporation > 0 and Buildings.ShowInPedia == 1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
+	for building in DB.Query("SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas from Buildings inner join  BuildingClasses on Buildings.BuildingClass = BuildingClasses.Type where Buildings.IsCorporation > 0 and Buildings.ShowInPedia = 1 and BuildingClasses.MaxGlobalInstances < 0 and (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) and BuildingClasses.MaxTeamInstances < 0;") do
 		AddArticle(sectionID, tableid, building); -- FIXED Infixo changed 1 to sectionID
 		tableid = tableid + 1;
 	end
@@ -836,7 +836,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 		FROM Buildings
 		INNER JOIN BuildingClasses ON Buildings.BuildingClass = BuildingClasses.Type
 		INNER JOIN Technologies ON Buildings.PrereqTech = Technologies.Type
-		WHERE (FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.IsCorporation == 0 AND Buildings.ShowInPedia == 1 AND BuildingClasses.MaxGlobalInstances < 0 AND BuildingClasses.MaxPlayerInstances <> 1 AND BuildingClasses.MaxTeamInstances < 0 AND Technologies.Era = ?;]];
+		WHERE (FaithCost = 0 or Buildings.Cost >= 0) AND Buildings.IsCorporation = 0 AND Buildings.ShowInPedia = 1 AND BuildingClasses.MaxGlobalInstances < 0 AND BuildingClasses.MaxPlayerInstances <> 1 AND BuildingClasses.MaxTeamInstances < 0 AND Technologies.Era = ?;]];
 
 	local BuildingsByEra = DB.CreateQuery(sql);
 
@@ -863,7 +863,7 @@ CivilopediaCategory[CategoryBuildings].PopulateList = function()
 				SELECT Buildings.ID, Buildings.Description, Buildings.PortraitIndex, Buildings.IconAtlas
 				FROM Buildings
 				INNER JOIN BuildingClasses ON Buildings.BuildingClass = BuildingClasses.Type
-				WHERE Buildings.PrereqTech IS NULL AND (Buildings.FaithCost == 0 or Buildings.Cost >= 0) AND Buildings.ShowInPedia == 1 AND Buildings.IsCorporation == 0 AND BuildingClasses.MaxGlobalInstances < 0 AND (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) AND BuildingClasses.MaxTeamInstances < 0;]];
+				WHERE Buildings.PrereqTech IS NULL AND (Buildings.FaithCost = 0 or Buildings.Cost >= 0) AND Buildings.ShowInPedia = 1 AND Buildings.IsCorporation = 0 AND BuildingClasses.MaxGlobalInstances < 0 AND (BuildingClasses.MaxPlayerInstances <> 1 or Buildings.SpecialistCount > 0) AND BuildingClasses.MaxTeamInstances < 0;]];
 
 			for building in DB.Query(sql) do
 				AddArticle(eraID, tableid, building);
@@ -1898,7 +1898,7 @@ CivilopediaCategory[CategoryCivilizations].DisplayHomePage = function()
 	local portraitIndex = 7;
 	local portraitAtlas = "LEADER_ATLAS";
 
-	for row in DB.Query("SELECT PortraitIndex, IconAtlas from Leaders where Type <> \"LEADER_BARBARIAN\" ORDER By Random() LIMIT 1") do
+	for row in DB.Query("SELECT PortraitIndex, IconAtlas from Leaders where Type <> 'LEADER_BARBARIAN' ORDER By Random() LIMIT 1") do
 		portraitIndex = row.PortraitIndex;
 		portraitAtlas = row.IconAtlas;
 	end
@@ -2517,7 +2517,7 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 		g_UnlockedBuildingsManager:ResetInstances();
 		buttonAdded = 0;
 		for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
-			if thisBuildingInfo.ShowInPedia == 1 then
+			if thisBuildingInfo.ShowInPedia then
 				local thisBuildingInstance = g_UnlockedBuildingsManager:GetInstance();
 				if thisBuildingInstance then
 
@@ -2669,214 +2669,6 @@ CivilopediaCategory[CategoryTech].SelectArticle = function( techID, shouldAddToL
 		--frameSize.y = contentSize.y + textPaddingFromInnerFrame - offsetsBetweenFrames + quoteButtonOffset;
 		--Controls.QuoteFrame:SetSize( frameSize );
 		--Controls.QuoteFrame:SetHide( false );
-
-		-- update the special abilites
-		local abilitiesString = "";
-		local numAbilities = 0;
-		for row in GameInfo.Route_TechMovementChanges( condition ) do
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_MOVEMENT", GameInfo.Routes[row.RouteType].Description);
-			numAbilities = numAbilities + 1;
-		end
-
-		for row in GameInfo.Build_TechTimeChanges( condition ) do
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_BUILD_COST_REDUCTION", GameInfo.Builds[row.BuildType].Description, row.TimeChange/100);
-			numAbilities = numAbilities + 1;
-		end
-
-		for row in GameInfo.Improvement_TechYieldChanges( condition ) do
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_YIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-			numAbilities = numAbilities + 1;
-		end
-
-		for row in GameInfo.Improvement_TechNoFreshWaterYieldChanges( condition ) do
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_NOFRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-			numAbilities = numAbilities + 1;
-		end
-
-		for row in GameInfo.Improvement_TechFreshWaterYieldChanges( condition ) do
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_CIVILOPEDIA_SPECIALABILITIES_FRESHWATERYIELDCHANGES", GameInfo.Improvements[row.ImprovementType].Description, GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.EmbarkedMoveChange > 0 then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_FAST_EMBARK_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.AllowsEmbarking then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ALLOWS_EMBARKING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.AllowsDefensiveEmbarking then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_DEFENSIVE_EMBARK_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.EmbarkedAllWaterPassage then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_OCEAN_EMBARK_STRING" );
-			numAbilities = numAbilities + 1;
-		end
---CBP
-		if thisTech.Happiness > 0 then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_HAPPINESS_BUMP", thisTech.Happiness );
-			numAbilities = numAbilities + 1
-		end
-		if thisTech.BombardRange > 0 then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_RANGE_INCREASE" );
-			numAbilities = numAbilities + 1
-		end
-		if thisTech.BombardIndirect > 0 then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_INDIRECT_INCREASE" );
-			numAbilities = numAbilities + 1;
-		end
-		if thisTech.CityLessEmbarkCost then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-		if thisTech.CityNoEmbarkCost then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-		if thisTech.CorporationsEnabled then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString ..  Locale.ConvertTextKey( "TXT_KEY_ABLTY_ENABLES_CORPORATIONS" );
-			numAbilities = numAbilities + 1;
-		end
-		for row in GameInfo.Tech_SpecialistYieldChanges( condition ) do
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey("TXT_KEY_SPECIALIST_YIELD_CHANGE", GameInfo.Specialists[row.SpecialistType].Description , GameInfo.Yields[row.YieldType].Description, row.Yield, Locale.ConvertTextKey(GameInfo.Yields[row.YieldType].IconString));
-			numAbilities = numAbilities + 1;
-		end
--- END
--- Putmalk: If this tech grants Research Agreements, and Research Agreements are enabled, then display it on the tech info page
-		if (thisTech.ResearchAgreementTradingAllowed and g_bResearchAgreementTrading) then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_R_PACT_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		-- Putmalk: If this tech grants Map Trading then display it on the tech info page
-		if thisTech.MapTrading then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_MAP_TRADING_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		-- Putmalk: If this tech grants Tech Trading, and Tech trading is active, then display it on the tech info page
-		if (thisTech.TechTrading and g_bTechTrading) then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_TECH_TRADING_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		-- Putmalk: If this tech grants vassalage, and vassalage isn't disabled, then display it on the tech info page
-		if (thisTech.VassalageTradingAllowed and not g_bNoVassalage) then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_VASSALAGE_STRING" );
-			numAbilities = numAbilities + 1;
-		end
--- END
-		if thisTech.AllowEmbassyTradingAllowed then
-			if numAbilities > 0 then
-				abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_ALLOW_EMBASSY_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.OpenBordersTradingAllowed then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_OPEN_BORDER_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.DefensivePactTradingAllowed then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_D_PACT_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.ResearchAgreementTradingAllowed then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_R_PACT_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if thisTech.BridgeBuilding then
-			if numAbilities > 0 then
-				 abilitiesString = abilitiesString .. "[NEWLINE]";
-			end
-			abilitiesString = abilitiesString .. Locale.ConvertTextKey( "TXT_KEY_ABLTY_BRIDGE_STRING" );
-			numAbilities = numAbilities + 1;
-		end
-
-		if numAbilities > 0 then
-			UpdateTextBlock( Locale.ConvertTextKey( abilitiesString ), Controls.AbilitiesLabel, Controls.AbilitiesInnerFrame, Controls.AbilitiesFrame );
-		else
-			Controls.AbilitiesFrame:SetHide( true );
-		end
 
 		-- update the historical info
 		if (thisTech.Civilopedia) then
@@ -3833,7 +3625,7 @@ function AddRequiredBuildingFrame( thisBuilding )
 	function AddRequiredBuildingButton( buildingType )
 		local thisBuildingInfo = GameInfo.Buildings[buildingType];
 		if (thisBuildingInfo) then
-			if thisBuildingInfo.ShowInPedia == 1 then
+			if thisBuildingInfo.ShowInPedia then
 				local thisBuildingInstance = g_RequiredBuildingsManager:GetInstance();
 				if thisBuildingInstance then
 
@@ -3915,7 +3707,7 @@ function AddLeadsToBuildingFrame( thisBuilding )
 	function AddLeadsToBuildingButton( buildingType )
 		local thisBuildingInfo = GameInfo.Buildings[buildingType];
 		if(thisBuildingInfo) then
-			if thisBuildingInfo.ShowInPedia == 1 then
+			if thisBuildingInfo.ShowInPedia then
 				local thisBuildingInstance = g_LeadsToBuildingsManager:GetInstance();
 				if thisBuildingInstance then
 					if not IconHookup( thisBuildingInfo.PortraitIndex, buttonSize, thisBuildingInfo.IconAtlas, thisBuildingInstance.LeadsToBuildingImage ) then
@@ -9224,7 +9016,6 @@ function ClearArticle()
 	Controls.GameInfoFrame:SetHide( true );
 	Controls.QuoteFrame:SetHide( true );
 	Controls.SilentQuoteFrame:SetHide( true );
-	Controls.AbilitiesFrame:SetHide( true );
 	Controls.HistoryFrame:SetHide( true );
 	Controls.StrategyFrame:SetHide( true );
 	Controls.RelatedImagesFrame:SetHide( true );
