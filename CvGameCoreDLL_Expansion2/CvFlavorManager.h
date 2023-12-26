@@ -73,7 +73,7 @@ public:
 	void Write(FDataStream& kStream) const;
 
 	// Routines to add/remove a target object to receive flavor updates
-	void AddFlavorRecipient(CvFlavorRecipient* pTargetObject, bool bPropogateFlavorValues = true);
+	void AddFlavorRecipient(CvFlavorRecipient* pTargetObject, bool bPropegateFlavorValues = true);
 	void RemoveFlavorRecipient(CvFlavorRecipient* pTargetObject);
 
 	void ChangeLeader(LeaderHeadTypes eOldLeader, LeaderHeadTypes eNewLeader);

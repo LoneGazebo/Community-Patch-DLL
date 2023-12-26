@@ -194,9 +194,9 @@ public:
 	CvCity *GetClosestAvailableGreatWorkSlot(int iX, int iY, GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	int GetNumGreatWorks() const;
 	int GetNumGreatWorkSlots() const;
-	int GetNumGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot) const;
+	int GetNumGreatWorkSlots(GreatWorkSlotType eSlotType) const;
 	bool ControlsGreatWork (int iIndex);
-	bool GetGreatWorkLocation(int iGreatWorkIndex, int &iCityID, BuildingTypes &eBuilding, int &iSlot);
+	bool GetGreatWorkLocation(int iSearchIndex, int &iReturnCityID, BuildingTypes &eReturnBuilding, int &iReturnSlot);
 #if defined(MOD_BALANCE_CORE)
 	void DoSwapGreatWorksHuman(bool bSwap);
 #endif
@@ -269,7 +269,7 @@ public:
 	int GetNumCivsToBeInfluentialOn() const;
 	PlayerTypes GetCivLowestInfluence(bool bCheckOpenBorders) const;
 #if defined(MOD_BALANCE_CORE)
-	int GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes ePlayer);
+	int GetOtherPlayerCulturePerTurnIncludingInstant(PlayerTypes eOtherPlayer);
 	int GetTourismPerTurnIncludingInstant(PlayerTypes ePlayer, bool bJustInstant = false);
 	int GetInfluenceTradeRouteGoldBonus(PlayerTypes ePlayer) const;
 	int GetInfluenceTradeRouteGrowthBonus(PlayerTypes ePlayer) const;
@@ -279,7 +279,7 @@ public:
 	int GetInfluenceSurveillanceTime(PlayerTypes ePlayer) const;
 	int GetInfluenceCityStateSpyRankBonus(PlayerTypes eCityStatePlayer) const;
 	int GetInfluenceMajorCivSpyRankBonus(PlayerTypes ePlayer) const;
-	CvString GetInfluenceSpyRankTooltip (const CvString& szName, const CvString& iRank, PlayerTypes ePlayer);
+	CvString GetInfluenceSpyRankTooltip (const CvString& szName, const CvString& szRank, PlayerTypes ePlayer);
 	int GetTourism();
 	int GetTourismModifierWith(PlayerTypes ePlayer) const;
 	CvString GetTourismModifierWithTooltip(PlayerTypes ePlayer) const;
@@ -295,15 +295,15 @@ public:
 	CvString GetPublicOpinionUnhappinessTooltip() const;
 	PlayerTypes GetPublicOpinionBiggestInfluence() const;
 	int GetTurnIdeologySwitch() const;
-	void SetTurnIdeologySwitch(int iTurn);
+	void SetTurnIdeologySwitch(int iValue);
 	int GetTurnIdeologyAdopted() const;
-	void SetTurnIdeologyAdopted(int iTurn);
+	void SetTurnIdeologyAdopted(int iValue);
 	void AddTourismAllKnownCivs(int iTourism);
 	void AddTourismAllKnownCivsWithModifiers(int iTourism);
 	void AddTourismAllKnownCivsOtherCivWithModifiers(PlayerTypes eOtherPlayer, int iTourism);
 	void DoPublicOpinion();
 	int ComputeHypotheticalPublicOpinionUnhappiness(PolicyBranchTypes eBranch);
-	bool WantsDiplomatDoingPropaganda(PlayerTypes ePlayer) const;
+	bool WantsDiplomatDoingPropaganda(PlayerTypes eTargetPlayer) const;
 	int GetMaxPropagandaDiplomatsWanted() const;
 	int GetNumCivsFollowingIdeology(PolicyBranchTypes ePolicyBranch);
 	int GetNumCivsFollowingAnyIdeology();

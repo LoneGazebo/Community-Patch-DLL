@@ -156,7 +156,7 @@ public:
 
 	// Unit handling
 	void AddUnit(int iUnitId, int iSlotNum, bool bIsRequired);
-	int RemoveUnit(int iUnitId, bool bTemporary);
+	int RemoveUnit(int iUnitToRemoveID, bool bTempOnly);
 	CvUnit* GetFirstUnit();
 	CvUnit* GetNextUnit(CvUnit* pCurUnit);
 

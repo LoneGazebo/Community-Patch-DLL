@@ -13,7 +13,7 @@
 // include this after all other headers!
 #include "LintFree.h"
 
-bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iReqSeparation);
+bool PlotTooCloseToAnotherCiv(CvPlot* pPlot, int iRequiredSeparation);
 bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequirement);
 
 //=====================================

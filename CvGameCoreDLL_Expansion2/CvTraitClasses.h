@@ -430,11 +430,11 @@ public:
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
-	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
-	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
-	int GetGreatPersonCostReduction(GreatPersonTypes eIndex1) const;
-	int GetGreatPersonGWAM(GreatPersonTypes eIndex1) const;
-	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eIndex1) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const;
+	int GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const;
+	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
@@ -1935,7 +1935,7 @@ public:
 	};
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eYield, bool bTradePartner) const;
+	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
 #endif
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const

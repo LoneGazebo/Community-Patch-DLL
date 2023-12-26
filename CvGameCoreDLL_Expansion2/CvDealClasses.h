@@ -265,7 +265,7 @@ public:
 	void RemoveAllPossibleItems();
 
 	//return true if the item was removed
-	void RemoveByType(TradeableItems eType, PlayerTypes eFrom = NO_PLAYER);
+	void RemoveByType(TradeableItems eItemType, PlayerTypes eFrom = NO_PLAYER);
 	void RemoveResourceTrade(ResourceTypes eResource);
 	void RemoveCityTrade(PlayerTypes eFrom, int iCityID);
 	void RemoveThirdPartyPeace(PlayerTypes eFrom, TeamTypes eThirdPartyTeam);
@@ -317,16 +317,16 @@ public:
 	CvDeal* GetTempDeal();
 	void SetTempDeal(CvDeal* pDeal);
 
-	PlayerTypes HasMadeProposal(PlayerTypes eFromPlayer);
+	PlayerTypes HasMadeProposal(PlayerTypes ePlayer);
 	bool ProposedDealExists(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	CvDeal* GetProposedDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer);
 	CvDeal* GetCurrentDeal(PlayerTypes ePlayer, uint index);
-	CvDeal* GetHistoricDeal(PlayerTypes ePlayer, uint indx);
+	CvDeal* GetHistoricDeal(PlayerTypes ePlayer, uint index);
 	uint GetNumCurrentDeals(PlayerTypes ePlayer);
 	uint GetNumHistoricDeals(PlayerTypes ePlayer, uint iMaxCount=UINT_MAX);
 
 	CvDeal* GetCurrentDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint index);
-	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint indx);
+	CvDeal* GetHistoricDealWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint index);
 	uint GetNumCurrentDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer);
 	uint GetNumHistoricDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX);
 	std::vector<CvDeal*> GetRenewableDealsWithPlayer(PlayerTypes ePlayer, PlayerTypes eOtherPlayer, uint iMaxCount = UINT_MAX, bool bOnlyCheckedDeals = false);

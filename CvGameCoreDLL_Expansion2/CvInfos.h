@@ -220,7 +220,7 @@ public:
 
 	std::string getHotKeyDescription() const;
 	const char* getHotKeyString() const;
-	void setHotKeyDescription(const char* swzHotKeyDescKey, const char* szHotKeyAltDescKey, const char* szHotKeyString);
+	void setHotKeyDescription(const char* szHotKeyDescKey, const char* szHotKeyAltDescKey, const char* szHotKeyString);
 
 	static CvString CreateHotKeyFromDescription(const char* pszHotKey, bool bShift, bool bAlt, bool bCtrl);
 	static CvString CreateKeyStringFromKBCode(const char* pszHotKey);
@@ -1562,7 +1562,7 @@ public:
 
 	template<typename TurnTimerInfo, typename Visitor>
 	static void Serialize(TurnTimerInfo& turnTimerInfo, Visitor& visitor);
-	virtual void readFrom(FDataStream& readFrom);
+	virtual void readFrom(FDataStream& loadFrom);
 	virtual void writeTo(FDataStream& saveTo) const;
 
 protected:
@@ -1592,7 +1592,7 @@ public:
 
 	template<typename DiploModifierInfo, typename Visitor>
 	static void Serialize(DiploModifierInfo& diploModifierInfo, Visitor& visitor);
-	virtual void readFrom(FDataStream& readFrom);
+	virtual void readFrom(FDataStream& loadFrom);
 	virtual void writeTo(FDataStream& saveTo) const;
 
 protected:
@@ -2936,7 +2936,7 @@ public:
 	int GetColorTypeSecondary() const;
 	int GetColorTypeText() const;
 
-	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtilty);
+	virtual bool CacheResults(Database::Results& kResults, CvDatabaseUtility& kUtility);
 
 private:
 	int m_iColorTypePrimary;

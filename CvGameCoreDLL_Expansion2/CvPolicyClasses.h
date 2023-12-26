@@ -1143,7 +1143,7 @@ public:
 	bool HasAdoptedIdeology(PolicyBranchTypes eIdeology) const;
 
 	// Ideology change
-	void DoSwitchIdeologies(PolicyBranchTypes eBranchType);
+	void DoSwitchIdeologies(PolicyBranchTypes eNewBranchType);
 	void ClearPolicyBranch(PolicyBranchTypes eBranchType);
 
 	// Finished branches

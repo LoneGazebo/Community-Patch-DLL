@@ -187,7 +187,7 @@ public:
 
 	CvSpyState GetSpyState() const;
 	void SetSpyState(PlayerTypes eSpyOwner, int iSpyIndex, CvSpyState eSpyState);
-	void SetSpyFocus(CityEventChoiceTypes m_eSpyFocus);
+	void SetSpyFocus(CityEventChoiceTypes eEventChoice);
 	CityEventChoiceTypes GetSpyFocus() const;
 
 	void SetTurnCounterspyMissionChanged(int iTurn);
@@ -299,8 +299,8 @@ public:
 	void CreateSpy(void);
 	void ProcessSpy(uint uiSpyIndex);
 	bool TriggerSpyFocusSetup(CvCity* pCity, int uiSpyIndex);
-	bool DoStealTechnology(CvCity* pCity, PlayerTypes eTargetPlayer);
-	bool DoStealGW(CvCity* pCity, int iGWID);
+	bool DoStealTechnology(CvCity* pPlayerCity, PlayerTypes eTargetPlayer);
+	bool DoStealGW(CvCity* pPlayerCity, int iGWID);
 
 	void ProcessSpyMissionResult(PlayerTypes eSpyOwner, CvCity* pCity, int uiSpyIndex, CityEventChoiceTypes eMission);
 	CvString GetEventHelpText(CityEventTypes eEvent, int uiSpyIndex);
@@ -373,7 +373,7 @@ public:
 	bool IsMyDiplomatVisitingThem(PlayerTypes ePlayer, bool bIncludeTravelling = false);
 	bool IsOtherDiplomatVisitingMe(PlayerTypes ePlayer);
 
-	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes ePlayer, int iSpyResult, CityEventChoiceTypes eMission = NO_EVENT_CHOICE_CITY, TechTypes eStolenTech = NO_TECH, int iAmountStolen = -1, int iGWID = -1);
+	void AddSpyMessage(int iCityX, int iCityY, PlayerTypes eAttackingPlayer, int iSpyResult, CityEventChoiceTypes eMission = NO_EVENT_CHOICE_CITY, TechTypes eStolenTech = NO_TECH, int iAmountStolen = -1, int iGWID = -1);
 	void UpdateSpyMessage(int iCityX, int iCityY, PlayerTypes eAttackingPlayer, TechTypes eStolenTech = NO_TECH, int iAmountStolen = -1, int iGWID = -1);
 	void ProcessSpyMessages(void);
 
@@ -472,9 +472,9 @@ public:
 	void SetVisionBonus(PlayerTypes ePlayer, int iValue);
 	void ChangeVisionBonus(PlayerTypes ePlayer, int iValue);
 	int GetVisionBonus(PlayerTypes ePlayer);
-	void AddNetworkPoints(PlayerTypes ePlayer, CvEspionageSpy* pSpy, int iNetworkPointsAdded);
+	void AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pSpy, int iNetworkPointsAdded);
 	void DoMission(PlayerTypes eSpyOwner, CityEventChoiceTypes eMission);
-	int GetSpyResult(PlayerTypes ePlayer);
+	int GetSpyResult(PlayerTypes eSpyOwner);
 
 	void SetPendingEvents(PlayerTypes ePlayer, int iValue);
 	void ChangePendingEvents(PlayerTypes ePlayer, int iChange);
@@ -550,7 +550,7 @@ public:
 	std::vector<ScoreCityEntry> BuildDefenseCityList();
 	std::vector<ScoreCityEntry> BuildMinorCityList();
 
-	int GetCityStatePlan(PlayerTypes* peThreatPlayer = NULL);
+	int GetCityStatePlan(PlayerTypes* peDiploThreat = NULL);
 
 	void EvaluateSpiesAssignedToTargetPlayer(PlayerTypes ePlayer);
 	void EvaluateUnassignedSpies(void);

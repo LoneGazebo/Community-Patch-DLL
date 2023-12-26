@@ -442,7 +442,7 @@ public:
 	void DoTestQuestsOnFirstContact(PlayerTypes eMajor);
 
 	void DoTestActiveQuests(bool bTestComplete, bool bTestObsolete);
-	void DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
+	void DoTestActiveQuestsForPlayer(PlayerTypes ePlayer, bool bTestComplete, bool bTestObsolete, MinorCivQuestTypes eQuest = NO_MINOR_CIV_QUEST_TYPE);
 	void DoCompletedQuests();
 	WeightedCivsList CalculateFriendshipFromQuests();
 	void DoCompletedQuestsForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes eSpecifyQuestType = NO_MINOR_CIV_QUEST_TYPE);
@@ -582,7 +582,7 @@ public:
 	void SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromWar = false);
 	void ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
 
-	int GetFriendshipAnchorWithMajor(PlayerTypes ePlayer);
+	int GetFriendshipAnchorWithMajor(PlayerTypes eMajor);
 	
 	void ResetFriendshipWithMajor(PlayerTypes ePlayer);
 
