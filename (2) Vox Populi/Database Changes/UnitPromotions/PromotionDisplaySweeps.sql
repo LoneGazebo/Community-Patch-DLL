@@ -95,6 +95,8 @@ VALUES
 	-- Plagues
 	('PROMOTION_DAZED', 2),
 	('PROMOTION_PRISONER_WAR', 3),
+	-- Really important promotions
+	('PROMOTION_JUGGERNAUT', 10),
 	-- Unique unit free promotions (stays on upgrade)
 	('PROMOTION_ADJACENT_BONUS', 113),
 	('PROMOTION_SPAWN_GENERALS_I', 115),
