@@ -170,7 +170,7 @@ public:
 
 	// Handle rewards
 	void CalculateRewards(PlayerTypes ePlayer, bool bRecalc = false);
-	int CalculateJuggernautBonusXP(PlayerTypes ePlayer);
+	int CalculateJuggernautBonusXP(PlayerTypes ePlayer) const;
 	void DoRewards(PlayerTypes ePlayer, bool bHeavyTribute = false);
 	CvString GetRewardString(PlayerTypes ePlayer, bool bFinish) const;
 

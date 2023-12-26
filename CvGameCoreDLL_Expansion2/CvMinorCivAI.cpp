@@ -879,7 +879,7 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 }
 
 /// Calculates how much bonus XP is given to juggernaut units given as awards
-int CvMinorCivQuest::CalculateJuggernautBonusXP(PlayerTypes ePlayer)
+int CvMinorCivQuest::CalculateJuggernautBonusXP(PlayerTypes ePlayer) const
 {
 	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
 	int iBaseModifier = pMinor->GetMinorCivAI()->GetQuestRewardModifier(ePlayer);
@@ -1217,7 +1217,8 @@ CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) con
 		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
-		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_JUGGERNAUTS", GetJuggernauts(), CalculateJuggernautBonusXP(ePlayer));
+		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_JUGGERNAUTS", GetJuggernauts());
+		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_JUGGERNAUTS_XP", CalculateJuggernautBonusXP(ePlayer));
 	}
 
 	if (!szTooltip.empty())
@@ -15060,7 +15061,7 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	UnitTypes eUnit = NO_UNIT;
 
 	// If they're our ally, should we give our unique unit?
-	// The Juggernaut quest also grants a UU if available.
+	// The Juggernaut quest reward also grants a UU if available.
 	if (GetAlly() == eMajor || bCityStateAnnexed || bJuggernaut)
 	{
 		UnitTypes eUniqueUnit = GetUniqueUnit();

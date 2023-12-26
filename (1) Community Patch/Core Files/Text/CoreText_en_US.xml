@@ -2593,7 +2593,10 @@
 			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] Experience for all Military Units</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CS_QUEST_JUGGERNAUTS">
-			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] Juggernaut {1_Num: plural 1?Unit; other?Units;} ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Bonus XP)</Text>
+			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] Juggernaut {1_Num: plural 1?Unit; other?Units;}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CS_QUEST_JUGGERNAUTS_XP">
+			<Text> ([COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] Bonus XP)</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CS_QUEST_FAITH">
 			<Text>[COLOR_POSITIVE_TEXT]      [ICON_BULLET] {1_Num}[ENDCOLOR] [ICON_PEACE] Faith</Text>

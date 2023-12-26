@@ -20896,7 +20896,7 @@ void CvCity::ChangeNoOccupiedUnhappinessCount(int iChange)
 
 //	--------------------------------------------------------------------------------
 /// +x% Food for each follower of the city's majority religion
-bool CvCity::GetFoodBonusPerCityMajorityFollower() const
+int CvCity::GetFoodBonusPerCityMajorityFollower() const
 {
 	VALIDATE_OBJECT
 	return m_iFoodBonusPerCityMajorityFollower;
@@ -27096,7 +27096,7 @@ int CvCity::GetNumPreviousSpyMissions() const
 int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	if (GET_PLAYER(getOwner()).isMinorCiv())
+	if (!GET_PLAYER(getOwner()).isMajorCiv())
 		return -1;
 
 	int iCitySecurity = 0;
@@ -27107,14 +27107,13 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_BASE_TT", iTempMod);
 	iCitySecurity += iTempMod;
 
-	if (GET_PLAYER(getOwner()).isHuman())
-	{
-		// Difficulty Bonus
-		const CvHandicapInfo& playerHandicap = GET_PLAYER(getOwner()).getHandicapInfo();
-		iTempMod = playerHandicap.getSpySecurityModifier();
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_DIFFICULTY_TT", iTempMod);
-		iCitySecurity += iTempMod;
-	}
+	// Difficulty Bonus
+	const CvHandicapInfo& playerHandicap = GET_PLAYER(getOwner()).getHandicapInfo();
+	const CvHandicapInfo& gameHandicap = GC.getGame().getHandicapInfo();
+	iTempMod = playerHandicap.getSpySecurityModifier();
+	iTempMod += !GET_PLAYER(getOwner()).isHuman() ? gameHandicap.getSpySecurityModifier() : 0;
+	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_DIFFICULTY_TT", iTempMod);
+	iCitySecurity += iTempMod;
 
 	// Not all players have spies
 	bool bAllPlayersHaveSpies = true;

@@ -982,7 +982,6 @@ public:
 	int getBuildingCostPercent() const;
 	int getUnitCostPercent() const;
 	int getInflationPercent() const;
-	int getSpySecurityModifier() const;
 	int getUnitUpgradePercent() const;
 	int getUnitUpgradePerEraModifier() const;
 	int getGrowthPercent() const;
@@ -1015,6 +1014,7 @@ public:
 	int getCombatBonus() const;
 	int getResistanceCap() const;
 	int getVisionBonus() const;
+	int getSpySecurityModifier() const;
 	// VP Difficulty Bonus
 	int getDifficultyBonusTurnInterval() const;
 	int getYieldAmountForDifficultyBonus(int iEra, int iHistoricEvent, int iYield) const;
@@ -1077,6 +1077,7 @@ public:
 	int getAICombatBonus() const;
 	int getAIResistanceCap() const;
 	int getAIVisionBonus() const;
+	int getAISpySecurityModifier() const;
 	// VP Difficulty Bonus
 	int getAIDifficultyBonusTurnInterval() const;
 	int getYieldAmountForAIDifficultyBonus(int iEra, int iHistoricEvent, int iYield) const;
@@ -1206,7 +1207,6 @@ protected:
 	int m_iStartingWorkerUnits;
 	int m_iStartingDefenseUnits;
 	int m_iStartingExploreUnits;
-	int m_iSpySecurityModifier;
 	int m_iWorkRateModifier;
 	int m_iImprovementCostPercent;
 	int m_iBuildingCostPercent;
@@ -1244,6 +1244,7 @@ protected:
 	int m_iCombatBonus;
 	int m_iResistanceCap;
 	int m_iVisionBonus;
+	int m_iSpySecurityModifier;
 	// VP Difficulty Bonus
 	int m_iDifficultyBonusTurnInterval;
 
@@ -1305,6 +1306,7 @@ protected:
 	int m_iAICombatBonus;
 	int m_iAIResistanceCap;
 	int m_iAIVisionBonus;
+	int m_iAISpySecurityModifier;
 	// VP Difficulty Bonus
 	int m_iAIDifficultyBonusTurnInterval;
 

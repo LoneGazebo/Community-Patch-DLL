@@ -144,10 +144,10 @@
 			<Text>[NEWLINE][ICON_BULLET]City Buildings: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_POLICIES_WONDERS_TT">
-			<Text>[NEWLINE][ICON_BULLET]Policies and Wonders: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_BULLET]Traits, Policies and Wonders: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_PREVIOUS_SPY_MISSIONS_TT">
-			<Text>[NEWLINE][ICON_BULLET]Previous Spy Mission in City: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
+			<Text>[NEWLINE][ICON_BULLET]Previous Spy Missions in City: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_POPULATION_TT">
 			<Text>[NEWLINE][ICON_BULLET]City Population: [COLOR_NEGATIVE_TEXT]{1_Num}[ENDCOLOR]</Text>

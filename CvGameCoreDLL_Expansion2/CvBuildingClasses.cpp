@@ -2397,19 +2397,19 @@ int CvBuildingEntry::GetGlobalEspionageModifier() const
 	return m_iGlobalEspionageModifier;
 }
 
-/// Modifier to chance of security against espionage in this city
+/// Modifier to Security against espionage in this city
 int CvBuildingEntry::GetSpySecurityModifier() const
 {
 	return m_iSpySecurityModifier;
 }
 
-/// Modifier to chance of security against espionage per population
+/// Modifier to Security against espionage per population
 int CvBuildingEntry::GetSpySecurityModifierPerPop() const
 {
 	return m_iSpySecurityModifierPerPop;
 }
 
-/// Modifier to chance of espionage against all cities
+/// Modifier to Security against espionage in all cities
 int CvBuildingEntry::GetGlobalSpySecurityModifier() const
 {
 	return m_iGlobalSpySecurityModifier;

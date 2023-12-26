@@ -3025,7 +3025,6 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iBuildingCostPercent(0),
 	m_iUnitCostPercent(0),
 	m_iInflationPercent(0),
-	m_iSpySecurityModifier(0),
 	m_iUnitUpgradePercent(0),
 	m_iUnitUpgradePerEraModifier(0),
 	m_iGrowthPercent(0),
@@ -3058,6 +3057,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iCombatBonus(0),
 	m_iResistanceCap(0),
 	m_iVisionBonus(0),
+	m_iSpySecurityModifier(0),
 	// VP Difficulty Bonus
 	m_iDifficultyBonusTurnInterval(0),
 
@@ -3119,6 +3119,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAICombatBonus(0),
 	m_iAIResistanceCap(0),
 	m_iAIVisionBonus(0),
+	m_iAISpySecurityModifier(0),
 	// VP Difficulty Bonus
 	m_iAIDifficultyBonusTurnInterval(0),
 
@@ -3342,11 +3343,6 @@ int CvHandicapInfo::getStartingExploreUnits() const
 	return m_iStartingExploreUnits;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getSpySecurityModifier() const
-{
-	return m_iSpySecurityModifier;
-}
-//------------------------------------------------------------------------------
 int CvHandicapInfo::getWorkRateModifier() const
 {
 	return m_iWorkRateModifier;
@@ -3530,6 +3526,11 @@ int CvHandicapInfo::getResistanceCap() const
 int CvHandicapInfo::getVisionBonus() const
 {
 	return m_iVisionBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
 }
 /// VP DIFFICULTY BONUS
 //------------------------------------------------------------------------------
@@ -3835,6 +3836,11 @@ int CvHandicapInfo::getAIResistanceCap() const
 int CvHandicapInfo::getAIVisionBonus() const
 {
 	return m_iAIVisionBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAISpySecurityModifier() const
+{
+	return m_iAISpySecurityModifier;
 }
 /// VP DIFFICULTY BONUS
 //------------------------------------------------------------------------------
@@ -4347,7 +4353,6 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iStartingWorkerUnits = kResults.GetInt("StartingWorkerUnits");
 	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
 	m_iStartingExploreUnits = kResults.GetInt("StartingExploreUnits");
-	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 	m_iWorkRateModifier = kResults.GetInt("WorkRateModifier");
 	m_iImprovementCostPercent = kResults.GetInt("ImprovementCostPercent");
 	m_iBuildingCostPercent = kResults.GetInt("BuildingCostPercent");
@@ -4385,6 +4390,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iCombatBonus = kResults.GetInt("CombatBonus");
 	m_iResistanceCap = kResults.GetInt("ResistanceCap");
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
+	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 	// VP Difficulty Bonus
 	m_iDifficultyBonusTurnInterval = kResults.GetInt("DifficultyBonusTurnInterval");
 
@@ -4446,6 +4452,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAICombatBonus = kResults.GetInt("AICombatBonus");
 	m_iAIResistanceCap = kResults.GetInt("AIResistanceCap");
 	m_iAIVisionBonus = kResults.GetInt("AIVisionBonus");
+	m_iAISpySecurityModifier = kResults.GetInt("AISpySecurityModifier");
 	// VP Difficulty Bonus
 	m_iAIDifficultyBonusTurnInterval = kResults.GetInt("AIDifficultyBonusTurnInterval");
 

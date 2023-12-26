@@ -477,6 +477,10 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	if (pDiploAI->IsDemandTooSoon(eFromPlayer))
 		return DEMAND_RESPONSE_REFUSE_TOO_SOON;
 
+	// Untrustworthy? Never give in.
+	if (pDiploAI->IsUntrustworthy(eFromPlayer))
+		return DEMAND_RESPONSE_REFUSE_HOSTILE;
+
 	// If we're a vassal, check if we can benefit from our master's protection.
 	if (eOurMaster != NO_TEAM && eOurMaster != eFromTeam)
 	{
@@ -529,9 +533,9 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 
 		return DEMAND_RESPONSE_REFUSE_HOSTILE;
 	}
-	// 10 Boldness, or Unforgivable opinion? Never give in.
+	// 10 Boldness? Never give in.
 	// Hostility check is run after the weakness check, because the AI doesn't benefit from prematurely disclosing that they wouldn't be willing to accept regardless.
-	else if (pDiploAI->GetBoldness() == 10 || pDiploAI->GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE)
+	else if (pDiploAI->GetBoldness() == 10)
 		return DEMAND_RESPONSE_REFUSE_HOSTILE;
 	// Deal valued as impossible? Never give in. This also catches any untradeable items.
 	else if (GetDealValue(pDeal) == INT_MAX)

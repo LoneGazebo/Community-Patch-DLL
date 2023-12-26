@@ -6786,6 +6786,10 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 	if(pEnemy->GetCannotBeCaptured())
 		return 0;
 
+	// Can't capture units in cities
+	if (pEnemy->plot()->isCity())
+		return 0;
+
 	// This unit has a fixed capture chance? Use it!
 	int iFixedCaptureChance = GetCaptureDefeatedEnemyChance();
 	if (iFixedCaptureChance > 0)
