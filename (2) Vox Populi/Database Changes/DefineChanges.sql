@@ -89,7 +89,7 @@ UPDATE Defines SET Value = 40 WHERE Name = 'SAPPED_CITY_ATTACK_MODIFIER';
 UPDATE Defines SET Value = 2 WHERE Name = 'HEAVY_RESOURCE_THRESHOLD';
 
 -- Vassalage
-UPDATE Defines SET Value = 10 WHERE Name = 'VASSAL_HAPPINESS_PERCENT'; -- (NOTE: Halved in CBO) comment in CoreDefines.sql of (1), updated because DLL hid that it was halving it.
+UPDATE Defines SET Value = 10 WHERE Name = 'VASSAL_HAPPINESS_PERCENT'; -- (NOTE: Halved in VP) comment in CoreDefines.sql of (1), updated because DLL hid that it was halving it.
 
 -------------------------------------------------------------------------------------------------------------------
 -- City stuff
