@@ -1287,7 +1287,6 @@
       <UpdateDatabase>Database Changes/Minors/MinorQuestChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Minors/MinorYieldChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/Events/CityEventChanges.sql</UpdateDatabase>
-      <UpdateDatabase>Database Changes/Events/CityEventChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/AI/StrategyChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/AI/CitySpecializationFlavorChanges.sql</UpdateDatabase>
       <UpdateDatabase>Database Changes/AI/SpecialistFlavorChanges.sql</UpdateDatabase>
