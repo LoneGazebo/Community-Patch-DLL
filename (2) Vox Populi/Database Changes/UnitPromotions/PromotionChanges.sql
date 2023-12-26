@@ -1000,6 +1000,11 @@ UPDATE UnitPromotions SET PlagueID = 3, PromotionDuration = 50, WorkRateMod = -5
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE_EVENT';
 
 --------------------------------------------
+-- Quest promotions
+--------------------------------------------
+UPDATE UnitPromotions SET MaxHitPointsChange = 25 WHERE Type = 'PROMOTION_JUGGERNAUT';
+
+--------------------------------------------
 -- Barbarian promotions
 --------------------------------------------
 UPDATE UnitPromotions

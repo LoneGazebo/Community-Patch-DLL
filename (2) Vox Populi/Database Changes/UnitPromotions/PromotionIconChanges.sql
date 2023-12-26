@@ -315,7 +315,7 @@ VALUES
 	('promoVP_atlas_04', 5, 'PROMOTION_SCREENING'),
 	-- ('promoVP_atlas_04', 6, ''),
 	('promoVP_atlas_04', 7, 'PROMOTION_FOCUS_FIRE'),
-	-- ('promoVP_atlas_04', 8, ''),
+	('promoVP_atlas_04', 8, 'PROMOTION_JUGGERNAUT'),
 	('promoVP_atlas_04', 9, 'PROMOTION_HUNTER_KILLER'),
 	('promoVP_atlas_04', 10, 'PROMOTION_PERISCOPE_DEPTH'),
 	('promoVP_atlas_04', 11, 'PROMOTION_PREDATOR'),
