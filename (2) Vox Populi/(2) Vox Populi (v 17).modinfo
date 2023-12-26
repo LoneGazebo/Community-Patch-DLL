@@ -2,7 +2,7 @@
 <Mod id="8411a7a8-dad3-4622-a18e-fcc18324c799" version="17">
   <Properties>
     <Name>(2) Vox Populi</Name>
-    <Teaser>(4.3) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
+    <Teaser>(4.4) Unofficial Expansion and Rebalancing Project for Civilization V: Brave New World</Teaser>
     <Description>Contains balance changes, gameplay improvements, and entirely new game systems to make Civ V a more enjoyable and exciting game.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -19,7 +19,7 @@
     <ReloadUnitSystem>1</ReloadUnitSystem>
   </Properties>
   <Dependencies>
-    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="125" maxversion="999" title="(1) Community Patch" />
+    <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" minversion="126" maxversion="999" title="(1) Community Patch" />
   </Dependencies>
   <References />
   <Blocks>
@@ -789,7 +789,7 @@
     <File md5="DFCE5C53AF9183F80447B755EE496B37" import="0">Core Files/New UI/OverlayAntiquities_MiniMapOverlayHook.lua</File>
     <File md5="96C27AF77D72860B6BCB0D22257A3F82" import="0">Core Files/New UI/RandomVCPopup.lua</File>
     <File md5="4AD80411668EC1D39FD4A69DF1118CE7" import="0">Core Files/New UI/RandomVCPopup.xml</File>
-    <File md5="ABEFCE642BD1E247075B30866340A90E" import="0">Core Files/New UI/VassalageOverview.lua</File>
+    <File md5="EA09376DF1013DEF411F07FFA593CA12" import="0">Core Files/New UI/VassalageOverview.lua</File>
     <File md5="6AEDA70A3D08A83C280329B2BCB289BE" import="0">Core Files/New UI/VassalageOverview.xml</File>
     <File md5="65F9F720C39A22E8F1D033DAAF06FF47" import="1">Core Files/Overrides/ActionInfoPanel.lua</File>
     <File md5="369CD07E1A38DEE1DF2BFDAC5118EDFD" import="1">Core Files/Overrides/AssignStartingPlots.lua</File>
@@ -850,7 +850,7 @@
     <File md5="A149623233865A30C77EE55F8C4CEEF9" import="1">Core Files/Overrides/WonderPopup.xml</File>
     <File md5="093B326BCB1FDEC8CAA497B798C66E6B" import="1">Core Files/Overrides/WorldView.lua</File>
     <File md5="E373E88E8F199548798CCD3A27DFF368" import="0">Database Changes/CustomModOptionChanges.sql</File>
-    <File md5="0F00AACBB324837FAB79C40E65BD9A9B" import="0">Database Changes/DefineChanges.sql</File>
+    <File md5="ADA081FBCDF0D7C8A951B8C7E412848E" import="0">Database Changes/DefineChanges.sql</File>
     <File md5="E34B04FF2155A50BB5378B738E712D84" import="0">Database Changes/GameOptionChanges.sql</File>
     <File md5="C47A29379F3F62B8E9FDAF2C6CB26505" import="0">Database Changes/GameSpeedChanges.sql</File>
     <File md5="00F0AAB0571A35F0B70075A4FDE884D1" import="0">Database Changes/NewAutomates.xml</File>
@@ -1012,13 +1012,13 @@
     <File md5="F274E0258A6B248CF8FE13FFFFFB7B54" import="0">Database Changes/Text/en_US/Events/NewEventText.xml</File>
     <File md5="617DDDCF0186B8E8774214D1BDA4C698" import="0">Database Changes/Text/en_US/Notifications/NewNotificationText.xml</File>
     <File md5="BF34F84E3F24C87EDA01CD41F1C7B613" import="0">Database Changes/Text/en_US/Notifications/NotificationTextChanges.sql</File>
-    <File md5="EB4E2873E1EA423B904B71C81A54A5A0" import="0">Database Changes/Text/en_US/Policies/NewPolicyText.xml</File>
+    <File md5="EC1C8571D32ED5A94C99FE61A8DBA9A1" import="0">Database Changes/Text/en_US/Policies/NewPolicyText.xml</File>
     <File md5="B8579C9D905DA3BFD8D393927B1BA809" import="0">Database Changes/Text/en_US/Policies/PolicyTextChanges.sql</File>
     <File md5="C99519EE682DC9FFA6E78E419928258A" import="0">Database Changes/Text/en_US/Tech/NewTechText.xml</File>
     <File md5="702E06E13BC40F1A2BE5F36CF863B1F0" import="0">Database Changes/Text/en_US/Tech/TechTextChanges.sql</File>
     <File md5="E5CB0AB92FAA1B2128EE557C30451B66" import="0">Database Changes/Text/en_US/UI/InterfaceModeTextChanges.sql</File>
     <File md5="B5C60FD5DF02295B68C1FEE0052EFD88" import="0">Database Changes/Text/en_US/UI/NewUIText.sql</File>
-    <File md5="8B023DAD459E352D2BFF68E599D606EF" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
+    <File md5="09526BF33D29E6736A3056845FFA157D" import="0">Database Changes/Text/en_US/UI/NewUIText.xml</File>
     <File md5="617E0CDE06FF57F873C7122979A45E33" import="0">Database Changes/Text/en_US/UI/UITextChanges.sql</File>
     <File md5="F4CD56707AFE9FF0FD52021B689CF794" import="0">Database Changes/Text/en_US/UnitPromotions/NewPromotionText.xml</File>
     <File md5="87337E3CB987C0DD9DA8DC1D40E0F367" import="0">Database Changes/Text/en_US/UnitPromotions/PromotionTextChanges.sql</File>
@@ -1042,9 +1042,9 @@
     <File md5="97A74A8F0F8D592787B741EB0572B22C" import="0">Database Changes/UnitPromotions/NewPromotions.xml</File>
     <File md5="1BE6F7D901928A87BD3A9876610954A2" import="0">Database Changes/UnitPromotions/OldPromotions.xml</File>
     <File md5="8CCAF9BB5421C20DCA6DD91EDFA824DC" import="0">Database Changes/UnitPromotions/PrePromotionChanges.sql</File>
-    <File md5="9314173E68C86C25700DD94CB7C32660" import="0">Database Changes/UnitPromotions/PromotionChanges.sql</File>
-    <File md5="9C893AC5293D744958D2ACD3B6AF36A3" import="0">Database Changes/UnitPromotions/PromotionDisplaySweeps.sql</File>
-    <File md5="4997B98F52E8FA9088806D0882AE568B" import="0">Database Changes/UnitPromotions/PromotionIconChanges.sql</File>
+    <File md5="A7E06DB8EE0906B0844E5D86B5CD70C0" import="0">Database Changes/UnitPromotions/PromotionChanges.sql</File>
+    <File md5="127D57C1B6DFBF3AB8CAE40395CE55AD" import="0">Database Changes/UnitPromotions/PromotionDisplaySweeps.sql</File>
+    <File md5="ACE95040C575F5C4E69935556201AEC1" import="0">Database Changes/UnitPromotions/PromotionIconChanges.sql</File>
     <File md5="0FA8B94A3995620B80BE4A002133306F" import="0">Database Changes/UnitPromotions/PromotionSweeps.sql</File>
     <File md5="EAB356810C3600651F286F9FEE7B2FCA" import="0">Database Changes/Units/BarbarianUnitChanges.sql</File>
     <File md5="B7BBEDCE3CE177DFC1092376C42571DB" import="0">Database Changes/Units/CityStateUnitChanges.sql</File>
