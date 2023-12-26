@@ -2867,6 +2867,15 @@
 		<Row Tag="TXT_KEY_VO_BENEFITS_YIELD_PERCENTAGE">
 			<Text>[ICON_BULLET] +20% Vassal's [ICON_RESEARCH], [ICON_CULTURE], [ICON_PEACE]</Text>
 		</Row>
+		<Row Tag="TXT_KEY_VO_BENEFITS_HAPPINESS_PERCENTAGE">
+			<Text>[ICON_BULLET] +10% Vassal's Excess [ICON_HAPPINESS_1]</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_UNIT_MAINTENANCE">
+			<Text>Master pays 10% of Vassal's Unit Maintenance as [ICON_GOLD] Vassal Maintenance.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VO_POPULATION_MAINTENANCE">
+			<Text>Master pays to the power of 0.8 of the Vassal's [ICON_CITIZEN] Population[ENDCOLOR] as [ICON_GOLD] Vassal Maintenance.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_VO_BENEFITS_IDEOLOGY">
 			<Text>[ICON_BULLET] Vassals adopt Master's Ideology</Text>
 		</Row>

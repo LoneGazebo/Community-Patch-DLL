@@ -1455,6 +1455,7 @@ INSERT INTO Defines (Name, Value) SELECT 'TECH_COST_ERA_EXPONENT', 0.7; -- Addit
 
 -- Vassalage
 INSERT INTO Defines (Name, Value) SELECT 'VASSAL_HAPPINESS_PERCENT', 20; -- What % of the vassal's Happiness does the master get? (NOTE: Halved in CBO)
+INSERT INTO Defines (Name, Value) SELECT 'VASSAL_PRESSURE_PERCENT', 100; -- What % of the master's majority pressure is applied to Vassal's cities?
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT', 20; -- What % of the vassal's Science/Culture/Faith does the master get?
 INSERT INTO Defines (Name, Value) SELECT 'VASSAL_TOURISM_MODIFIER', 33; -- What % bonus does the master get to Tourism against the vassal?
 INSERT INTO Defines (Name, Value) SELECT 'VASSAL_SCORE_PERCENT', 50; -- What % of the vassal's Land/Population score does the master get?

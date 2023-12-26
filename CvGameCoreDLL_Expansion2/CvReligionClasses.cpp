@@ -3014,7 +3014,7 @@ int CvGameReligions::GetAdjacentCityReligiousPressure(ReligionTypes eReligion, C
 	// Double pressure to vassals
 	if (GET_TEAM(GET_PLAYER(pToCity->getOwner()).getTeam()).IsVassal(GET_PLAYER(pFromCity->getOwner()).getTeam()))
 	{
-		iPressureMod += 100;
+		iPressureMod += /*100*/ GD_INT_GET(VASSAL_PRESSURE_PERCENT);
 	}
 
 	if (MOD_RELIGION_CONVERSION_MODIFIERS) 
