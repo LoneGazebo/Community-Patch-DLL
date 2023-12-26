@@ -2211,7 +2211,7 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 				YieldTypes eYield = (YieldTypes)iI;
 
 				// Heavily prioritize building routes over existing villages/towns
-				iBonus += pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) * 10;
+				iBonus += pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
 			}
 		}
 
@@ -2220,6 +2220,8 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 			return iBonus;
 	}
 
+	int iBestBonus = 0;
+	int iPotentialVillageBonus;
 	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
 		BuildTypes eBuild = (BuildTypes)iI;
@@ -2239,15 +2241,20 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 		if (pkImprovementInfo == NULL)
 			continue;
 
+		iPotentialVillageBonus = 0;
+
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{
 			YieldTypes eYield = (YieldTypes)iYield;
 
-				iBonus += pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
+			iPotentialVillageBonus += pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
 		}
+
+		if (iPotentialVillageBonus > iBestBonus)
+			iBestBonus = iPotentialVillageBonus;
 	}
 
-	return iBonus;
+	return iBonus + iBestBonus;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2264,12 +2271,12 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	if(pPlot->isCity() || eBuilderTaskingAi->GetRouteTypeWantedAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetRouteTypeNeededAtPlot(pPlot) >= eRouteType || eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType))
 	{
 		// if we are planning to or have already built a road here, or get a free road here from our trait, provide a discount (cities always have a road)
-		iCost = PATH_BASE_COST / 3;
+		iCost = PATH_BASE_COST * 7 / 12;
 	}
 	else if ((eBuilderTaskingAi->WantRouteAtPlot(pPlot) || eBuilderTaskingAi->NeedRouteAtPlot(pPlot)) && !eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
 	{
 		// if we are planning to build a lower tier route here, provide a smaller discount
-		iCost = PATH_BASE_COST / 2;
+		iCost = PATH_BASE_COST * 3 / 4;
 	}
 	else if (pPlot->getRouteType() >= ROUTE_ROAD)
 	{
