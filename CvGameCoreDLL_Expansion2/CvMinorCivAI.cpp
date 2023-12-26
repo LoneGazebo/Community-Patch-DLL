@@ -52,6 +52,7 @@ CvMinorCivQuest::CvMinorCivQuest()
 	m_iGPGlobal = 0;
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
+	m_iJuggernauts = 0;
 	m_iExperience = 0;
 	m_bPartialQuest = false;
 	m_bHandled = false;
@@ -82,6 +83,7 @@ CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer
 	m_iGPGlobal = 0;
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
+	m_iJuggernauts = 0;
 	m_iExperience = 0;
 	m_bPartialQuest = false;
 	m_bHandled = false;
