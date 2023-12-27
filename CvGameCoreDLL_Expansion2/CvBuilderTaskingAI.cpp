@@ -259,6 +259,9 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute)
 {
+	if (pPlayerCapital->getOwner() != m_pPlayer->GetID())
+		return;
+
 	if(pTargetCity->IsRazing())
 	{
 		return;
