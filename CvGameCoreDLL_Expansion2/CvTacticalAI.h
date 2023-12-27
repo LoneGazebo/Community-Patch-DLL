@@ -344,8 +344,6 @@ public:
 	// Knowledge of other civs' vision
 	void UpdateVisibility();
 	void NewVisiblePlot(CvPlot* pPlot, bool bRevealed);
-	bool IsVisibleToPlayer(const CvPlot* pPlot, TeamTypes eOther);
-	bool IsVisibleToEnemy(const CvPlot* pPlot);
 
 	// For air units
 	bool ShouldRebase(CvUnit* pUnit) const;

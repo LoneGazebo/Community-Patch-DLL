@@ -390,7 +390,7 @@ bool CvTacticalAI::IsInFocusArea(const CvPlot* pPlot) const
 /// Setup knowledge of other players' seen plots
 void CvTacticalAI::UpdateVisibility()
 {
-	TeamTypes eTeam = m_pPlayer->getTeam();
+	const TeamTypes eTeam = m_pPlayer->getTeam();
 
 	CvPlot* pLoopPlot;
 
@@ -416,11 +416,11 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 	if (!pPlot)
 		return;
 
-	TeamTypes ePlayerTeam = m_pPlayer->getTeam();
+	const TeamTypes ePlayerTeam = m_pPlayer->getTeam();
 
-	// If we just revealed the tile, check if it or a nearby plot is owned by another player
 	if (bRevealed)
 	{
+		// If we just revealed the tile, check if it is owned by another player
 		UpdateVisibilityFromBorders(pPlot);
 	}
 
@@ -428,64 +428,24 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 	{
 		CvUnit* pLoopUnit;
 		TeamTypes eLoopUnitTeam;
-		PlayerTypes eLoopUnitOwner;
-		PlayerTypes eMinorCivAlly;
 
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
 			pLoopUnit = pPlot->getUnitByIndex(iI);
 			eLoopUnitTeam = pLoopUnit->getTeam();
-			eLoopUnitOwner = pLoopUnit->getOwner();
+
+			const PlayerTypes eMinorCivAlly = GET_TEAM(eLoopUnitTeam).isMinorCiv() ? GET_PLAYER(pLoopUnit->getOwner()).GetMinorCivAI()->GetAlly() : NO_PLAYER;
+			TeamTypes eMinorCivAllyTeam = eMinorCivAlly != NO_PLAYER ? GET_PLAYER(eMinorCivAlly).getTeam() : NO_TEAM;
+
+			if (eMinorCivAllyTeam == ePlayerTeam)
+				eMinorCivAllyTeam = NO_TEAM;
 
 			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))
 			{
-				eMinorCivAlly = GET_TEAM(eLoopUnitTeam).isMinorCiv() ? GET_PLAYER(eLoopUnitOwner).GetMinorCivAI()->GetAlly() : NO_PLAYER;
-				bool bHasMetMinorCivAlly = eMinorCivAlly != NO_PLAYER && eMinorCivAlly != ePlayerTeam && GET_TEAM(ePlayerTeam).isHasMet(GET_PLAYER(eMinorCivAlly).getTeam());
-
-				for (int iRange = 2; iRange <= pLoopUnit->visibilityRange(); iRange++)
-				{
-					const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
-
-					for (size_t iJ = 0; iJ < vPlots.size(); iJ++)
-					{
-						if ((vPlots[iJ]) == NULL)
-							continue;
-
-						vPlots[iJ]->IncreaseKnownVisibilityCount(eLoopUnitTeam, 1);
-
-						if (bHasMetMinorCivAlly)
-							vPlots[iJ]->IncreaseKnownVisibilityCount(GET_PLAYER(eMinorCivAlly).getTeam(), 1);
-					}
-				}
+				pPlot->ChangeKnownAdjacentSight(eLoopUnitTeam, eMinorCivAllyTeam, pLoopUnit->visibilityRange(), pLoopUnit->getFacingDirection(true));
 			}
 		}
 	}
-}
-
-/// Do we know that the other civ can see this tile?
-bool CvTacticalAI::IsVisibleToPlayer(const CvPlot* pPlot, TeamTypes eOther)
-{
-	return pPlot->GetKnownVisibilityCount(eOther) > 0;
-}
-
-/// Do we know that an enemy civ can see this tile?
-bool CvTacticalAI::IsVisibleToEnemy(const CvPlot* pPlot)
-{
-	const std::vector<PlayerTypes>& vEnemies = m_pPlayer->GetPlayersAtWarWith();
-
-	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
-	{
-		CvPlayer& kEnemy = GET_PLAYER(*it);
-		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(m_pPlayer->GetID()))
-		{
-			if (IsVisibleToPlayer(pPlot, kEnemy.getTeam()))
-			{
-				return true;
-			}
-		}
-	}
-
-	return false;
 }
 
 // PRIVATE METHODS
@@ -494,34 +454,15 @@ void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot)
 {
 	const TeamTypes ePlayerTeam = m_pPlayer->getTeam();
 	const TeamTypes ePlotTeam = pPlot->getTeam();
-	const PlayerTypes ePlotOwner = pPlot->getOwner();
-	PlayerTypes eMinorCivAlly = NO_PLAYER;
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
-	CvPlot* pAdjacentPlot;
+	const PlayerTypes eMinorCivAlly = GET_TEAM(ePlotTeam).isMinorCiv() ? GET_PLAYER(pPlot->getOwner()).GetMinorCivAI()->GetAlly() : NO_PLAYER;
+	TeamTypes eMinorCivAllyTeam = eMinorCivAlly != NO_PLAYER ? GET_PLAYER(eMinorCivAlly).getTeam() : NO_TEAM;
+
+	if (eMinorCivAllyTeam == ePlayerTeam)
+		eMinorCivAllyTeam = NO_TEAM;
 
 	if (ePlotTeam != NO_TEAM && ePlotTeam != ePlayerTeam && GET_TEAM(ePlayerTeam).isHasMet(ePlotTeam))
 	{
-		// Plot is owned by another player, which means that they can see this and all neighboring tiles.
-		// Doesn't matter if we've seen the neighboring tiles, we know they can see it no matter what.
-		pPlot->IncreaseKnownVisibilityCount(ePlotTeam, 1);
-
-		eMinorCivAlly = GET_TEAM(ePlotTeam).isMinorCiv() ? GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() : NO_PLAYER;
-		bool bHasMetMinorCivAlly = eMinorCivAlly != NO_PLAYER && eMinorCivAlly != ePlayerTeam && GET_TEAM(ePlayerTeam).isHasMet(GET_PLAYER(eMinorCivAlly).getTeam());
-
-		if (bHasMetMinorCivAlly)
-			pPlot->IncreaseKnownVisibilityCount(GET_PLAYER(eMinorCivAlly).getTeam(), 1);
-
-		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-		{
-			pAdjacentPlot = aPlotsToCheck[iI];
-
-			if (pAdjacentPlot != NULL) {
-				pAdjacentPlot->IncreaseKnownVisibilityCount(ePlotTeam, 1);
-
-				if (bHasMetMinorCivAlly)
-					pAdjacentPlot->IncreaseKnownVisibilityCount(GET_PLAYER(eMinorCivAlly).getTeam(), 1);
-			}
-		}
+		pPlot->ChangeKnownAdjacentSight(ePlotTeam, eMinorCivAllyTeam, GD_INT_GET(PLOT_VISIBILITY_RANGE), NO_DIRECTION);
 	}
 }
 
@@ -1351,7 +1292,7 @@ void CvTacticalAI::PlotMovesToSafety(bool bCombatUnits)
 		{
 			// try to flee or hide
 			int iDangerLevel = pUnit->GetDanger();
-			if(iDangerLevel > 0 || IsVisibleToEnemy(pUnit->plot()))
+			if(iDangerLevel > 0 || pUnit->plot()->IsKnownVisibleToEnemy(m_pPlayer->GetID()))
 			{
 				bool bAddUnit = false;
 				if(bCombatUnits)
@@ -6542,7 +6483,7 @@ CvPlot* TacticalAIHelpers::FindSafestPlotInReach(const CvUnit* pUnit, bool bAllo
 			iScore += 12;
 
 		//try to hide - if there are few enemy units, this might be a tiebreaker
-		if (!GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->IsVisibleToEnemy(pPlot))
+		if (!pPlot->IsKnownVisibleToEnemy(pUnit->getOwner()))
 			iScore -= iScore / 4;
 
 		//try to go avoid borders
@@ -7819,7 +7760,7 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 	if (testPlot.hasAirCover())
 		iResult+=3;
 	//when in doubt, hide from the enemy
-	if (!GET_PLAYER(pUnit->getOwner()).GetTacticalAI()->IsVisibleToEnemy(testPlot.getPlot()))
+	if (!testPlot.getPlot()->IsKnownVisibleToEnemy(pUnit->getOwner()))
 		iResult++;
 
 	//try to occupy enemy citadels!
@@ -8338,7 +8279,7 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	//constant
 	bfBlockedByNonSimCombatUnit = 0;
 	bHasAirCover = pPlot->HasAirCover(ePlayer);
-	bIsVisibleToEnemy = kPlayer.GetTacticalAI()->IsVisibleToEnemy(pPlot);
+	bIsVisibleToEnemy = pPlot->IsKnownVisibleToEnemy(kPlayer.GetID());
 
 	//updated if necessary
 	bEdgeOfTheKnownWorldUnknown = true;

@@ -259,6 +259,9 @@ int GetPlotYield(CvPlot* pPlot, YieldTypes eYield)
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute)
 {
+	if (pPlayerCapital->getOwner() != m_pPlayer->GetID())
+		return;
+
 	if(pTargetCity->IsRazing())
 	{
 		return;
@@ -1513,10 +1516,6 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(vector<OptionWithScore<Builder
 	if (m_pPlayer->isMinorCiv())
 		return;
 
-	//humans don't get a route cache, so ignore them.
-	if (m_pPlayer->isHuman())
-		return;
-
 	//can we even remove routes?
 	CvUnitEntry& kUnitInfo = pUnit->getUnitInfo();
 	if (m_eRemoveRouteBuild==NO_BUILD || !kUnitInfo.GetBuilds(m_eRemoveRouteBuild))
@@ -2053,7 +2052,7 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	}
 
 	//danger check is not enough - we don't want to be adjacent to enemy territory for example
-	if (m_pPlayer->GetTacticalAI()->IsVisibleToEnemy(pPlot))
+	if (pPlot->IsKnownVisibleToEnemy(m_pPlayer->GetID()))
 		return false;
 
 	if (!pUnit->canEndTurnAtPlot(pPlot))
