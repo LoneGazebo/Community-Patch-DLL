@@ -6775,7 +6775,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					int iNumToSteal = pkEventChoiceInfo->getStealGW();
 					while (iNumStolen < iNumToSteal && GWIDs.size() > 0)
 					{
-						int iGrab = GC.getGame().randRangeInclusive(0, GWIDs.size(), CvSeeder::fromRaw(0xd3270c47).mix(GET_PLAYER(eSpyOwner).GetID()).mix(GetID()).mix(GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]));
+						int iGrab = GC.getGame().randRangeInclusive(0, GWIDs.size() - 1, CvSeeder::fromRaw(0xd3270c47).mix(GET_PLAYER(eSpyOwner).GetID()).mix(GetID()).mix(GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]));
 						GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[iGrab]);
 						GWIDs.erase(GWIDs.begin() + iGrab);
 						iNumStolen++;

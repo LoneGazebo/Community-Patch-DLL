@@ -290,11 +290,11 @@ function OnDisplay()
 	Controls.AllyText:SetHide(bHideText);
 	
 	-- Vox Populi - Contender info
-	Controls.ContenderInfo:SetText( GetContenderInfo(activePlayerID, g_iMinorCivID) )
-	Controls.ContenderInfo:SetToolTipString( GetContenderInfoTT(activePlayerID, g_iMinorCivID) )
+	Controls.ContenderInfo:SetText( GetContenderInfo(iActivePlayer, iPlayer) )
+	Controls.ContenderInfo:SetToolTipString( GetContenderInfoTT(iActivePlayer, iPlayer) )
 	
 	-- Protected by anyone?
-	local sProtectingPlayers = getProtectingPlayers(g_iMinorCivID);
+	local sProtectingPlayers = getProtectingPlayers(iPlayer);
 
 	if (sProtectingPlayers ~= "") then
 		Controls.ProtectInfo:SetText("[COLOR_POSITIVE_TEXT]" .. sProtectingPlayers .. "[ENDCOLOR]");

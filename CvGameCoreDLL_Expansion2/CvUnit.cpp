@@ -6803,7 +6803,7 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 		{
 			CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-			if (pEnemy->canEnterTerrain(*pLoopPlot, MOVEFLAG_NO_EMBARK | MOVEFLAG_DESTINATION))
+			if (pLoopPlot && pEnemy->canEnterTerrain(*pLoopPlot, MOVEFLAG_NO_EMBARK | MOVEFLAG_DESTINATION))
 				iEnterablePlotCount++;
 		}
 
