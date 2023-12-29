@@ -1444,6 +1444,25 @@ function TipHandler( control )
 			end
 		end
 		
+	-- Great Admiral
+	elseif (action.Type == "MISSION_FREE_LUXURY") then
+		-- Add spacing for all entries after the first
+		if (bFirstEntry) then
+			bFirstEntry = false;
+		elseif (not bFirstEntry) then
+			strToolTip = strToolTip .. "[NEWLINE]";
+		end
+		
+		strToolTip = strToolTip .. "[NEWLINE]" .. Locale.Lookup("TXT_KEY_MISSION_FREE_LUXURY_HELP");
+		
+		if (not bDisabled) then
+			strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
+			if(unit:CreateFreeLuxuryCheckCopy() > 0) then
+				local resource = GameInfo.Resources[unit:CreateFreeLuxuryCheck()]
+				strToolTip = strToolTip .. "[COLOR_POSITIVE_TEXT]+" .. unit:CreateFreeLuxuryCheckCopy() .. resource.IconString .. " " .. Locale.ConvertTextKey(resource.Description)  .. "[ENDCOLOR]";
+			end
+		end
+		
     -- Help text
     elseif (action.Help and action.Help ~= "") then
 		

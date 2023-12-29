@@ -1895,6 +1895,17 @@ function ActionToolTipHandler( control )
 				toolTip:insert( "+" .. unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]" )
 			end
 		end
+	
+	-- Great Admiral
+	elseif action.Type == "MISSION_FREE_LUXURY" then
+
+		toolTip:insertLocalized( "TXT_KEY_MISSION_FREE_LUXURY_HELP" )
+
+		if gameCanHandleAction then
+			toolTip:insert( "----------------" )
+			local resource = GameInfo.Resources[unit:CreateFreeLuxuryCheck()]
+			toolTip:insert( "[COLOR_POSITIVE_TEXT]+" .. unit:CreateFreeLuxuryCheckCopy() .. resource.IconString .. " " .. Locale.ConvertTextKey(resource.Description)  .. "[ENDCOLOR]" )
+		end
 
 	-- Help text
 	elseif action.Help and action.Help ~= "" then
