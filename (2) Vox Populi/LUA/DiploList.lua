@@ -647,7 +647,6 @@ function InitMinorCivList()
     				not pOtherPlayer:IsThreateningBarbariansEventActiveForPlayer(g_iPlayer) and
     				not pOtherPlayer:IsProxyWarActiveForMajor(g_iPlayer) and
 -- CBP
-					not (pOtherPlayer:GetCoupCooldown() > 0) and
 					not pOtherPlayer:IsMarried(g_iPlayer))
 -- END
     			or g_pTeam:IsAtWar(iOtherTeam)) then

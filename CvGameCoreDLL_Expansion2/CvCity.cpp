@@ -2329,8 +2329,6 @@ void CvCity::kill()
 	if (GetCityReligions()->IsHolyCityAnyReligion())
 		GC.getGame().GetGameReligions()->SetHolyCity(GetCityReligions()->GetReligionForHolyCity(), NULL);
 
-	PreKill();
-
 	// get spies out of city
 	CvCityEspionage* pCityEspionage = GetCityEspionage();
 	if (pCityEspionage)
@@ -2345,6 +2343,8 @@ void CvCity::kill()
 			}
 		}
 	}
+
+	PreKill();
 
 	// Delete the city's information here!!!
 	CvGameTrade* pkGameTrade = GC.getGame().GetGameTrade();
