@@ -65,10 +65,6 @@ WHERE BuildingClass = 'BUILDINGCLASS_PALACE';
 ----------------------------------------------------------------------------
 
 -- Monument
-UPDATE Buildings
-SET Help = 'TXT_KEY_BUILDING_MONUMENT_HELP'
-WHERE Type = 'BUILDING_MONUMENT';
-
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 SELECT
