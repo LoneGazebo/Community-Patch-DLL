@@ -42,11 +42,13 @@ PopulateItems["GreatPeople"] = function(stackControl, playerID)
 			local iEarlierBaktun = player:GetUnitBaktun(info.ID);
 -- CBP
 			if(info.ID == GameInfo.Units["UNIT_PROPHET"].ID and not player:IsProphetValid()) then
+				controlTable.Name:LocalizeAndSetText("[COLOR_NEGATIVE_TEXT]" .. Locale.ConvertTextKey(info.Description) .. "[ENDCOLOR]")
 				controlTable.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_INVALID_NO_RELIGION", iEarlierBaktun));
 				controlTable.Button:SetDisabled(true);
 -- CBP
 -- END (edited elseif below as well)
 			elseif (iEarlierBaktun > 0 and not player:IsFreeMayaGreatPersonChoice()) then
+				controlTable.Name:LocalizeAndSetText("[COLOR_NEGATIVE_TEXT]" ..  Locale.ConvertTextKey(info.Description) .. "[ENDCOLOR]")
 				controlTable.Button:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_SELECTED_EARLIER_BAKTUN", iEarlierBaktun));
 				controlTable.Button:SetDisabled(true);
 			else

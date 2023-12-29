@@ -455,6 +455,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool canGetFreeLuxury() const;
 	bool createFreeLuxury();
+	int CreateFreeLuxuryCheckCopy();
+	int CreateFreeLuxuryCheck();
 #endif
 
 	int getNumExoticGoods() const;

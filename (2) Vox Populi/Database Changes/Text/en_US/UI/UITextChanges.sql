@@ -55,6 +55,9 @@ WHERE Tag = 'TXT_KEY_EUPANEL_IMPROVEMENT_NEAR';
 ------------------------------------------------
 -- Top panel
 ------------------------------------------------
+UPDATE Language_en_US
+SET Text = 'Your scientists and theologians have introduced the wonders of the Maya calendar. When the current b''ak''tun ends, you will receive your choice of Great Person as part of the celebration.[NEWLINE][NEWLINE]The current Maya Long Count date is:[NEWLINE]{1_LongMayaCalendarString}[NEWLINE][NEWLINE]A b''ak''tun begins at Turn 33 and restarts at Turn 42/52/62/72/86/101/117/133/152/183/234/432 at Standard game speed.[NEWLINE][NEWLINE]({2_TraditionalDateString} in the rest of the world).'
+WHERE Tag = 'TXT_KEY_MAYA_DATE_TOOLTIP';
 
 -- Science
 UPDATE Language_en_US
@@ -649,6 +652,14 @@ WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_COMPLETE_KILL_CITY_STATE';
 UPDATE Language_en_US
 SET Text = 'The war between {2_CivName:textkey} and {1_TargetName:textkey} has ended, with {2_CivName:textkey} emerging as the clear victor. Your advisors worry that this outcome may lead to future conflict.'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_KILL_CITY_STATE';
+
+
+------------------------------------------------
+-- Advisor Counsel (suppresses them because we build XP buildings in every city)
+------------------------------------------------
+UPDATE AICityStrategies
+SET Advisor = NULL
+WHERE AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_NEED_NAVAL_GROWTH' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_HAVE_TRAINING_FACILITY' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_NEED_TILE_IMPROVERS' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_WANT_TILE_IMPROVERS';
 
 ------------------------------------------------
 -- Tech tree

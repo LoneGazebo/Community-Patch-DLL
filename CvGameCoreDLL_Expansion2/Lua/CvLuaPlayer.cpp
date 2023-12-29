@@ -7867,8 +7867,9 @@ int CvLuaPlayer::lGetNumUnitsSupplied(lua_State* L)
 int CvLuaPlayer::lGetNumUnitsSuppliedByHandicap(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetNumUnitsSuppliedByHandicap(true);
-	lua_pushinteger(L, iResult);
+	bool bIgnoreReduction = lua_toboolean(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetNumUnitsSuppliedByHandicap(bIgnoreReduction));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -7876,8 +7877,9 @@ int CvLuaPlayer::lGetNumUnitsSuppliedByHandicap(lua_State* L)
 int CvLuaPlayer::lGetNumUnitsSuppliedByCities(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetNumUnitsSuppliedByCities(true);
-	lua_pushinteger(L, iResult);
+	bool bIgnoreReduction = lua_toboolean(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetNumUnitsSuppliedByCities(bIgnoreReduction));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -7885,8 +7887,9 @@ int CvLuaPlayer::lGetNumUnitsSuppliedByCities(lua_State* L)
 int CvLuaPlayer::lGetNumUnitsSuppliedByPopulation(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetNumUnitsSuppliedByPopulation(true);
-	lua_pushinteger(L, iResult);
+	bool bIgnoreReduction = lua_toboolean(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetNumUnitsSuppliedByPopulation(bIgnoreReduction));
 	return 1;
 }
 //------------------------------------------------------------------------------

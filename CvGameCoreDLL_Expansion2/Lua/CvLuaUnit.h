@@ -127,6 +127,8 @@ protected:
 	static int lCanJoin(lua_State* L);
 	static int lCanConstruct(lua_State* L);
 
+	static int lCreateFreeLuxuryCheckCopy(lua_State* L);
+	static int lCreateFreeLuxuryCheck(lua_State* L);
 	static int lCanDiscover(lua_State* L);
 	static int lGetDiscoverAmount(lua_State* L);
 	static int lGetHurryProduction(lua_State* L);
