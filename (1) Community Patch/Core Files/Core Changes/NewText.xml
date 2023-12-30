@@ -94,6 +94,16 @@
 			<Response>TXT_KEY_GENERIC_MOVE_TROOPS_REJECT_HOSTILE</Response>
 		</Row>
 		
+		<!-- New Intrigues -->
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_INTRIGUE_BRIBE_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_BRIBE_WAR%</Response>
+		</Row>
+		<Row LeaderType="GENERIC">
+			<ResponseType>RESPONSE_SHARE_INTRIGUE_COOP_WAR</ResponseType>
+			<Response>TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_COOP_WAR%</Response>
+		</Row>
+		
 		<!-- Generous offers -->
 		<Row LeaderType="GENERIC">
 			<ResponseType>RESPONSE_GENEROUS_OFFER</ResponseType>

@@ -4687,6 +4687,43 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 		case TRADE_ITEM_VOTE_COMMITMENT:
 		{
 			GET_PLAYER(eGivingPlayer).GetLeagueAI()->AddVoteCommitment(eReceivingPlayer, it->m_iData1, it->m_iData2, it->m_iData3, it->m_bFlag1);
+
+			// intrigue
+			if (MOD_BALANCE_VP)
+			{
+				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+				{
+					PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+					if (!GET_PLAYER(ePlayer).isAlive())
+						continue;
+
+					if (GET_PLAYER(ePlayer).getTeam() == eGivingTeam || GET_PLAYER(ePlayer).getTeam() == eReceivingTeam)
+						continue;
+
+					// Must have met both teams
+					if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eGivingTeam) || !GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isHasMet(eReceivingTeam))
+						continue;
+
+					if (!GET_PLAYER(ePlayer).GetEspionage())
+						continue;
+
+					CvPlayerEspionage* pPlayerEspionage = GET_PLAYER(ePlayer).GetEspionage();
+
+					// player has bought votes
+					if (GET_PLAYER(ePlayer).GetEspionage()->GetSpyReceivingIntrigues(eReceivingPlayer) != -1)
+					{
+						// add intrigue
+						uint uiSpyIndex = GET_PLAYER(ePlayer).GetEspionage()->GetSpyReceivingIntrigues(eReceivingPlayer);
+						pPlayerEspionage->AddIntrigueMessage(ePlayer, eReceivingPlayer, NO_PLAYER, eGivingPlayer, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_BOUGHT_VOTES, uiSpyIndex, pPlayerEspionage->GetCityWithSpy(uiSpyIndex), true);
+					}
+					else if (GET_PLAYER(ePlayer).GetEspionage()->GetSpyReceivingIntrigues(eGivingPlayer) != -1)
+					{
+						// add intrigue
+						uint uiSpyIndex = GET_PLAYER(ePlayer).GetEspionage()->GetSpyReceivingIntrigues(eGivingPlayer);
+						pPlayerEspionage->AddIntrigueMessage(ePlayer, eGivingPlayer, NO_PLAYER, eReceivingPlayer, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_SOLD_VOTES, uiSpyIndex, pPlayerEspionage->GetCityWithSpy(uiSpyIndex), true);
+					}
+				}
+			}
 			break;
 		}
 
@@ -4929,6 +4966,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 			// First loop, check to see who established surveillance
 			vector<PlayerTypes> vPlayersWithSurveillance;
+			vector<PlayerTypes> vNotifiedPlayers;
 			vector<PlayerTypes> vDebugModePlayers;
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_PLAYERS; iPlayerLoop++)
 			{
@@ -4941,7 +4979,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 					CvNotifications* pNotify = GET_PLAYER(ePlayer).GetNotifications();
 					if (pNotify)
 					{
-						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_NOT_INFORMED");
+						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OBSERVER");
 						strText << GET_PLAYER(eReceivingPlayer).getNameKey();
 						strText << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
 						strText << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();
@@ -4958,7 +4996,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 
 				if (GET_PLAYER(ePlayer).getTeam() == eGivingTeam || GET_PLAYER(ePlayer).getTeam() == eReceivingTeam)
 				{
-					vPlayersWithSurveillance.push_back(ePlayer);
+					vNotifiedPlayers.push_back(ePlayer);
 					continue;
 				}
 
@@ -4974,48 +5012,22 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				if (!GET_PLAYER(ePlayer).GetEspionage())
 					continue;
 
-				if (GET_PLAYER(ePlayer).GetEspionage()->IsAnySurveillanceEstablished(eGivingPlayer) || GET_PLAYER(ePlayer).GetEspionage()->IsAnySurveillanceEstablished(eReceivingPlayer))
+				if (GET_PLAYER(ePlayer).GetEspionage()->GetSpyReceivingIntrigues(eReceivingPlayer) != -1)
+				{
 					vPlayersWithSurveillance.push_back(ePlayer);
+					// add intrigue
+					CvPlayerEspionage* pPlayerEspionage = GET_PLAYER(ePlayer).GetEspionage();
+					uint uiSpyIndex = GET_PLAYER(ePlayer).GetEspionage()->GetSpyReceivingIntrigues(eReceivingPlayer);
+					pPlayerEspionage->AddIntrigueMessage(ePlayer, eReceivingPlayer, GET_TEAM(eTargetTeam).getLeaderID(), eGivingPlayer, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_BRIBE_WAR, uiSpyIndex, pPlayerEspionage->GetCityWithSpy(uiSpyIndex), true);
+					vNotifiedPlayers.push_back(ePlayer);
+				}
 			}
 
-			// Now process global reactions (anyone who establishes surveillance informs their friends and allies of what they learned!)
-			vector<PlayerTypes> vNotifiedPlayers;
-
-			// First, players notify themselves
+			// If AI, adjust opinion of the broker and the warrior, if appropriate.
 			for (std::vector<PlayerTypes>::iterator iter = vPlayersWithSurveillance.begin(); iter != vPlayersWithSurveillance.end(); iter++)
 			{
 				TeamTypes eTeam = GET_PLAYER(*iter).getTeam();
-
-				// If human, notify the human.
-				if (GET_PLAYER(*iter).isHuman())
-				{
-					CvNotifications* pNotify = GET_PLAYER(*iter).GetNotifications();
-					if (pNotify)
-					{
-						if (eTeam == eTargetTeam)
-						{
-							Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR");
-							strText << GET_PLAYER(eReceivingPlayer).getNameKey();
-							strText << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_S");
-							strSummary << GET_PLAYER(eReceivingPlayer).getCivilizationShortDescriptionKey();
-							pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-						}
-						else
-						{
-							Localization::String strText = (eTeam == eGivingTeam || eTeam == eReceivingTeam) ? Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_NOT_INFORMED") : Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER");
-							strText << GET_PLAYER(eReceivingPlayer).getNameKey();
-							strText << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
-							strText << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();
-							Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_S");
-							strSummary << GET_PLAYER(eReceivingPlayer).getCivilizationShortDescriptionKey();
-							strSummary << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();
-							pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-						}
-					}
-				}
-				// If AI, adjust opinion of the broker and the warrior, if appropriate.
-				else
+				if (!GET_PLAYER(*iter).isHuman())
 				{
 					if (!bCityState)
 					{
@@ -5084,148 +5096,6 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 						}
 					}
 				}
-
-				vNotifiedPlayers.push_back(*iter);
-			}
-			// Next, anyone with surveillance notifies their allies
-			for (std::vector<PlayerTypes>::iterator iter = vPlayersWithSurveillance.begin(); iter != vPlayersWithSurveillance.end(); iter++)
-			{
-				TeamTypes eTeam = GET_PLAYER(*iter).getTeam();
-
-				// If on the broker or warrior's team, we don't tell anyone else.
-				if (eTeam == eGivingTeam || eTeam == eReceivingTeam)
-					continue;
-
-				for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
-				{
-					PlayerTypes eLoopPlayer = (PlayerTypes)iPlayerLoop;
-					TeamTypes eLoopTeam = GET_PLAYER(eLoopPlayer).getTeam();
-
-					// Don't notify the broker or warrior's team.
-					if (eLoopTeam == eGivingTeam || eLoopTeam == eReceivingTeam)
-						continue;
-
-					// Must have met both teams
-					if (!GET_TEAM(eLoopTeam).isHasMet(eGivingTeam) || !GET_TEAM(eLoopTeam).isHasMet(eReceivingTeam))
-						continue;
-
-					if (eTeam == eLoopTeam || GET_TEAM(eTeam).IsHasDefensivePact(eLoopTeam) || GET_TEAM(eTeam).IsVassal(eLoopTeam) || GET_TEAM(eLoopTeam).IsVassal(eTeam) || GET_PLAYER(*iter).GetDiplomacyAI()->IsDoFAccepted(eLoopPlayer))
-					{
-						// If human, notify the human.
-						if (GET_PLAYER(eLoopPlayer).isHuman())
-						{
-							// But not more than once!
-							if (std::find(vNotifiedPlayers.begin(), vNotifiedPlayers.end(), eLoopPlayer) != vNotifiedPlayers.end())
-								continue;
-
-							CvNotifications* pNotify = GET_PLAYER(eLoopPlayer).GetNotifications();
-							vNotifiedPlayers.push_back(eLoopPlayer);
-
-							// If they're on the target team, the message is different.
-							if (eLoopTeam == eTargetTeam)
-							{
-								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_INFORMED");
-								strText << GET_PLAYER(*iter).getCivilizationShortDescriptionKey();
-								strText << GET_PLAYER(eReceivingPlayer).getNameKey();
-								strText << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_S");
-								strSummary << GET_PLAYER(eReceivingPlayer).getCivilizationShortDescriptionKey();
-								pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-							}
-							else
-							{
-								Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_INFORMED");
-								strText << GET_PLAYER(*iter).getCivilizationShortDescriptionKey();
-								strText << GET_PLAYER(eReceivingPlayer).getNameKey();
-								strText << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
-								strText << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();
-								Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_S");
-								strSummary << GET_PLAYER(eReceivingPlayer).getCivilizationShortDescriptionKey();
-								strSummary << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();
-								pNotify->Add(NOTIFICATION_DIPLOMACY_DECLARATION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
-							}
-						}
-						// If AI, adjust opinion of the broker and the warrior, if appropriate.
-						else
-						{
-							// Diplo bonus for sharing intrigue!
-							GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesIntrigueSharedBy(*iter, 1);
-
-							// Don't apply penalties more than once.
-							if (std::find(vNotifiedPlayers.begin(), vNotifiedPlayers.end(), eLoopPlayer) != vNotifiedPlayers.end())
-								continue;
-
-							vNotifiedPlayers.push_back(eLoopPlayer);
-
-							if (!bCityState)
-							{
-								// People at war with the target - bonus to opinion!
-								if (GET_TEAM(eLoopTeam).isAtWar(eTargetTeam))
-								{
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, -300);
-								}
-								// The target and their allies & friends - penalty to opinion!
-								else if (eLoopTeam == eTargetTeam || GET_TEAM(eLoopTeam).IsHasDefensivePact(eTargetTeam) || GET_TEAM(eLoopTeam).IsVassal(eTargetTeam) || GET_TEAM(eTargetTeam).IsVassal(eLoopTeam))
-								{
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eGivingPlayer, 1);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eReceivingPlayer, 1);
-									GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
-								}
-								else
-								{
-									for (size_t i=0; i<vTargetTeam.size(); i++)
-									{
-										if (!GET_PLAYER(vTargetTeam[i]).isAlive() || !GET_PLAYER(vTargetTeam[i]).isMajorCiv())
-											continue;
-
-										if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDoFAccepted(vTargetTeam[i]))
-										{
-											GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-											GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
-											break;
-										}
-									}
-								}
-							}
-							// Allies, PTPs and friends of the City-State - penalty to opinion!
-							else
-							{
-								PlayerTypes eMinor = GET_TEAM(eTargetTeam).getLeaderID();
-
-								if (GET_PLAYER(eMinor).isMinorCiv() && GET_PLAYER(eMinor).getNumCities() > 0)
-								{
-									PlayerTypes eAlly = GET_PLAYER(eMinor).GetMinorCivAI()->GetAlly();
-
-									if (eAlly != NO_PLAYER && GET_PLAYER(eAlly).getTeam() == eLoopTeam)
-									{
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
-									}
-									else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsProtectedByMajor(eLoopPlayer))
-									{
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-										GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
-									}
-									else if (GET_PLAYER(eMinor).GetMinorCivAI()->IsFriends(eLoopPlayer))
-									{
-										if (GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsDiplomat() || GET_PLAYER(eLoopPlayer).GetPlayerTraits()->IsDiplomat()
-											|| GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsGoingForDiploVictory() || GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->IsCloseToDiploVictory())
-										{
-											GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 300);
-											GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 300);
-										}
-										else
-										{
-											GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eGivingPlayer, 150);
-											GET_PLAYER(eLoopPlayer).GetDiplomacyAI()->ChangeRecentAssistValue(eReceivingPlayer, 150);
-										}
-									}
-								}
-							}
-						}
-					}
-				}
 			}
 			// Notify any humans who have debug mode enabled
 			for (std::vector<PlayerTypes>::iterator iter = vDebugModePlayers.begin(); iter != vDebugModePlayers.end(); iter++)
@@ -5236,7 +5106,7 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 				CvNotifications* pNotify = GET_PLAYER(*iter).GetNotifications();
 				if (pNotify)
 				{
-					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_NOT_INFORMED");
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OBSERVER");
 					strText << GET_PLAYER(eReceivingPlayer).getNameKey();
 					strText << GET_PLAYER(eGivingPlayer).getCivilizationShortDescriptionKey();
 					strText << GET_PLAYER(GET_TEAM(eTargetTeam).getLeaderID()).getCivilizationShortDescriptionKey();

@@ -1759,7 +1759,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		aiMajorCivIndex[uiTargetSlot] = iTempValue;
 	}
 
-	// go through to determine any intrigue
+	// sneak attack
 	int iSpyRank = 0;
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
@@ -1812,13 +1812,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		}
 
 		CvIntrigueType eType = pSneakAttackOperation->GetOperationType()==AI_OPERATION_CITY_ATTACK_LAND ? INTRIGUE_TYPE_ARMY_SNEAK_ATTACK : INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK;
-		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, eType, uiSpyIndex, pTargetCity, true);
-
-
-		if(MOD_BALANCE_VP && (iSpyRank <= SPY_RANK_AGENT))
-		{
-			LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
-		}
+		AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eRevealedTargetPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, eType, uiSpyIndex, pTargetCity, true);
 
 		// If a sneak attack is reported, bust out of the loop
 		break;
@@ -1829,25 +1823,81 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	{
 		if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
 		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
-
-			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
-			{
-				LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
-			}
+			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
 		}
 		else if (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || (GET_PLAYER(eCityOwner).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED)))
 		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
+			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
+		}
+	}
 
-			if(MOD_BALANCE_CORE_SPIES_ADVANCED)
+	// military might has risen, only against humans
+	if (GET_PLAYER(eCityOwner).isHuman())
+	{
+		if (GC.getGame().getGameTurn() >= 10)
+		{
+			int iMilitaryMight10TurnsBefore = GET_PLAYER(eCityOwner).getReplayDataValue("REPLAYDATASET_MILITARYMIGHT", GC.getGame().getGameTurn() - 10);
+			int iAverageMilitaryMight = GC.getGame().GetWorldMilitaryStrengthAverage(eCityOwner, true, false);
+			if (iMilitaryMight10TurnsBefore > 0 && iAverageMilitaryMight > 0)
 			{
-				LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
+				// has the player's military might risen by more than 20% of the global average over the last 10 turns?
+				if (GET_PLAYER(eCityOwner).GetMilitaryMight() - iMilitaryMight10TurnsBefore > iAverageMilitaryMight / 5)
+				{
+					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_MILITARY_MIGHT_RISEN, uiSpyIndex, pCity, true);
+				}
 			}
 		}
 	}
 
-	// deception!
+
+	// constructing a world wonder or a project in any of their cities
+	if (MOD_BALANCE_VP)
+	{
+		bool bNotifyAboutConstruction = false;
+		int iLoop = 0;
+		CvCity* pLoopCity = NULL;
+		for (pLoopCity = GET_PLAYER(eCityOwner).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(eCityOwner).nextCity(&iLoop))
+		{
+			ProjectTypes eProject = pLoopCity->getProductionProject();
+			BuildingTypes eBuilding = pLoopCity->getProductionBuilding();
+			UnitTypes eUnit = pLoopCity->getProductionUnit();
+			if (eProject != NO_PROJECT)
+			{
+				CvProjectEntry* pkProjectInfo = GC.getProjectInfo(eProject);
+				CvProjectEntry& pProjectInfo = *pkProjectInfo;
+				if (!pProjectInfo.IsRepeatable())
+				{
+					bNotifyAboutConstruction = true;
+				}
+			}
+			else if (eBuilding != NO_BUILDING)
+			{
+				CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(eBuilding);
+				CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
+				if (pBuildingInfo)
+				{
+					if (::isWorldWonderClass(pBuildingInfo->GetBuildingClassInfo()))
+					{
+						bNotifyAboutConstruction = true;
+					}
+				}
+			}
+			else if (eUnit != NO_UNIT)
+			{
+				CvUnitEntry* pUnitInfo = GC.getUnitInfo(eUnit);
+				if (pUnitInfo && pUnitInfo->GetSpaceshipProject() != NO_PROJECT)
+				{
+					bNotifyAboutConstruction = true;
+				}
+			}
+			if (bNotifyAboutConstruction)
+			{
+				AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_PLAYER, eBuilding, eProject, eUnit, INTRIGUE_TYPE_CONSTRUCTING_WONDER_ANY_CITY, uiSpyIndex, pLoopCity, true);
+				break;
+			}
+		}
+	}
+
 	CvDiplomacyAI* pTargetDiploAI = GET_PLAYER(eCityOwner).GetDiplomacyAI();
 	CvAssertMsg(pTargetDiploAI, "pTargetDiploAI is null");
 	if(!pTargetDiploAI)
@@ -1855,6 +1905,57 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 		return;
 	}
 
+	// agreed to coop war, only against humans
+	if (GET_PLAYER(eCityOwner).isHuman())
+	{
+		for (uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
+		{
+			PlayerTypes eOtherOtherPlayer = (PlayerTypes)aiMajorCivIndex[ui];
+			if (eOtherOtherPlayer == eCityOwner)
+			{
+				continue;
+			}
+
+			// Ignore vassals
+			if (GET_TEAM(GET_PLAYER(eOtherOtherPlayer).getTeam()).IsVassal(GET_PLAYER(eCityOwner).getTeam()))
+				continue;
+
+			// Ignore vassals
+			if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).IsVassal(GET_PLAYER(eOtherOtherPlayer).getTeam()))
+				continue;
+
+			if (GET_TEAM(GET_PLAYER(eCityOwner).getTeam()).isAtWar(GET_PLAYER(eOtherOtherPlayer).getTeam()))
+			{
+				// If the teams are already at war, this isn't notable
+				continue;
+			}
+
+			if (!GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
+				continue;
+
+			// find player with which a coop war has been agreed to
+			for (uint ui2 = 0; ui2 < aiMajorCivIndex.size(); ui2++)
+			{
+				PlayerTypes eThirdPlayer = (PlayerTypes)aiMajorCivIndex[ui2];
+
+				if (GET_PLAYER(eOtherOtherPlayer).getTeam() == GET_PLAYER(eThirdPlayer).getTeam())
+					continue;
+
+				if (eThirdPlayer == eCityOwner)
+					continue;
+
+				if (pTargetDiploAI->GetCoopWarState(eThirdPlayer, eOtherOtherPlayer) >= COOP_WAR_STATE_PREPARING)
+				{
+					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eOtherOtherPlayer, eThirdPlayer, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_COOP_WAR, uiSpyIndex, pCity, true);
+					break;
+				}
+			}
+			// If a coop war is reported, bust out of the loop
+			break;
+		}
+	}
+
+	// deception!
 	for(uint ui = 0; ui < aiMajorCivIndex.size(); ui++)
 	{
 		PlayerTypes eOtherOtherPlayer = (PlayerTypes)aiMajorCivIndex[ui];
@@ -1895,21 +1996,11 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 
 				if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
-					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
-
-					if(MOD_BALANCE_CORE_SPIES_ADVANCED)
-					{
-						LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
-					}
+					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, eOtherOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
 				}
 				else
 				{
-					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
-
-					if(MOD_BALANCE_CORE_SPIES_ADVANCED)
-					{
-						LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
-					}
+					AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
 				}
 				break; // we reported intrigue, now bail out
 			}
@@ -1917,7 +2008,7 @@ void CvPlayerEspionage::UncoverIntrigue(uint uiSpyIndex)
 	}
 }
 
-/// UncoverIntrigue - Determine if the spy uncovers any secret information and pass it along to the player
+/// UncoverCityBuildingWonder - Determine if the spy uncovers that a project or wonder is being built in the city the spy is in and pass it along to the player
 void CvPlayerEspionage::UncoverCityBuildingWonder(uint uiSpyIndex)
 {
 	CvEspionageSpy* pSpy = GetSpyByID(uiSpyIndex);
@@ -1974,7 +2065,7 @@ void CvPlayerEspionage::UncoverCityBuildingWonder(uint uiSpyIndex)
 
 		if (bNotifyAboutConstruction)
 		{
-			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
+			AddIntrigueMessage(m_pPlayer->GetID(), eCityOwner, NO_PLAYER, NO_PLAYER, eBuilding, eProject, NO_UNIT, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
 		}
 	}
 }
@@ -2038,7 +2129,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 		}
 
 		CvIntrigueType eType = pSneakAttackOperation->GetOperationType() == AI_OPERATION_CITY_ATTACK_LAND ? INTRIGUE_TYPE_ARMY_SNEAK_ATTACK : INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK;
-		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_BUILDING, NO_PROJECT, eType, uiSpyIndex, pTargetCity, true);
+		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eRevealedTargetPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, eType, uiSpyIndex, pTargetCity, true);
 		// If a sneak attack is reported, bust out of the loop
 		break;
 	}
@@ -2047,9 +2138,9 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 	if(!GET_PLAYER(eOtherPlayer).isHuman())
 	{
 		if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_LAND))
-			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_BUILDING_ARMY, uiSpyIndex, pCity, true);
 		else if (GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_NAVAL) || GET_PLAYER(eOtherPlayer).GetMilitaryAI()->IsBuildingArmy(ARMY_TYPE_COMBINED))
-			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
+			AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, uiSpyIndex, pCity, true);
 	}
 
 	// deception!
@@ -2092,11 +2183,11 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 
 				if(GET_TEAM(m_pPlayer->getTeam()).isHasMet(GET_PLAYER(eOtherOtherPlayer).getTeam()))
 				{
-					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eOtherOtherPlayer, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
+					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, eOtherOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
 				}
 				else
 				{
-					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_BUILDING, NO_PROJECT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
+					AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_PLAYER, NO_BUILDING, NO_PROJECT, NO_UNIT, INTRIGUE_TYPE_DECEPTION, uiSpyIndex, pCity, true);
 				}
 				break; // we reported intrigue, now bail out
 			}
@@ -2125,7 +2216,7 @@ void CvPlayerEspionage::GetRandomIntrigue(CvCity* pCity, uint uiSpyIndex)
 
 	if (bNotifyAboutConstruction)
 	{
-		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, eBuilding, eProject, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
+		AddIntrigueMessage(m_pPlayer->GetID(), eOtherPlayer, NO_PLAYER, NO_PLAYER, eBuilding, eProject, NO_UNIT, INTRIGUE_TYPE_CONSTRUCTING_WONDER, uiSpyIndex, pCity, true);
 	}
 }
 #endif
@@ -3230,13 +3321,13 @@ bool CvPlayerEspionage::IsAnySurveillanceEstablished(PlayerTypes eTargetPlayer)
 		CvAssertMsg(pPlot, "Spy coordinates did not point to plot");
 		if(!pPlot)
 		{
-			return false;
+			continue;
 		}
 		CvCity* pCity = pPlot->getPlotCity();
 		CvAssertMsg(pCity, "There is not a city at the specified plot");
 		if(!pCity)
 		{
-			return false;
+			continue;
 		}
 		if(HasEstablishedSurveillance(uiSpy) && pCity->getOwner() == eTargetPlayer)
 		{
@@ -3245,6 +3336,52 @@ bool CvPlayerEspionage::IsAnySurveillanceEstablished(PlayerTypes eTargetPlayer)
 	}
 
 	return false;
+}
+
+// GetSpyReceivingIntrigues - returns the ID of the spy that may uncover intrigues from eTargetPlayer. returns -1 if there is no such spy
+int CvPlayerEspionage::GetSpyReceivingIntrigues(PlayerTypes eTargetPlayer)
+{
+	if (!MOD_BALANCE_VP)
+	{
+		for (uint uiSpy = 0; uiSpy < m_aSpyList.size(); uiSpy++)
+		{
+			// can't have established surveillance when not in a city
+			if (!IsSpyInCity(uiSpy))
+			{
+				continue;
+			}
+
+			CvPlot* pPlot = GC.getMap().plot(m_aSpyList[uiSpy].m_iCityX, m_aSpyList[uiSpy].m_iCityY);
+			CvAssertMsg(pPlot, "Spy coordinates did not point to plot");
+			if (!pPlot)
+			{
+				continue;
+			}
+			CvCity* pCity = pPlot->getPlotCity();
+			CvAssertMsg(pCity, "There is not a city at the specified plot");
+			if (!pCity)
+			{
+				continue;
+			}
+			if (HasEstablishedSurveillance(uiSpy) && pCity->getOwner() == eTargetPlayer)
+			{
+				return uiSpy;
+			}
+		}
+		return -1;
+	}
+
+	// in VP, only diplomats can find out intrigues, and only if they have collected enough NP
+	CvCity* pTargetCapital = GET_PLAYER(eTargetPlayer).getCapitalCity();
+	if (!pTargetCapital)
+		return -1;
+
+	if (IsAnySchmoozing(pTargetCapital) /* && axatin: todo: enough network points */)
+	{
+		return GetSpyIndexInCity(pTargetCapital);
+	}
+
+	return -1;
 }
 
 bool CvPlayerEspionage::IsDiplomat (uint uiSpyIndex)
@@ -4546,7 +4683,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 }
 /// AddIntrigueMessage - This is called when a piece of intrigue is found out by a spy. The reason it is kept in a list is to prevent repeat messages warning about the
 ///                      same event by the same spy
-void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, BuildingTypes eBuilding, ProjectTypes eProject, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification)
+void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, PlayerTypes eDiplomacyPlayer, BuildingTypes eBuilding, ProjectTypes eProject, UnitTypes eUnit, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification)
 {
 	CvAssertMsg(GetNumSpies() > 0, "How can you add an intrigue message when there are no spies?");
 
@@ -4567,7 +4704,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 		{
 			bool bDuplicateTimer = GC.getGame().getGameTurn() - m_aIntrigueNotificationMessages[ui].m_iTurnNum < 30;
 
-			if (eIntrigueType == INTRIGUE_TYPE_DECEPTION || eIntrigueType == INTRIGUE_TYPE_BUILDING_ARMY || eIntrigueType == INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY)
+			if (eIntrigueType == INTRIGUE_TYPE_DECEPTION || eIntrigueType == INTRIGUE_TYPE_BUILDING_ARMY || eIntrigueType == INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY || eIntrigueType == INTRIGUE_TYPE_MILITARY_MIGHT_RISEN)
 			{
 				if(bDuplicateTimer)
 				{
@@ -4577,6 +4714,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 			}
 			else if (m_aIntrigueNotificationMessages[ui].m_eBuilding == eBuilding &&
 					 m_aIntrigueNotificationMessages[ui].m_eProject == eProject &&
+					 m_aIntrigueNotificationMessages[ui].m_eUnit == eUnit &&
 					 m_aIntrigueNotificationMessages[ui].m_iCityX == iCityX &&
 					 m_aIntrigueNotificationMessages[ui].m_iCityY == iCityY)
 			{
@@ -4589,13 +4727,30 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 		}
 	}
 
+	// this is a new intrigue
+	// experience for the spy who uncovered the intrigue
+	if (MOD_BALANCE_VP)
+	{
+		if (eIntrigueType != INTRIGUE_TYPE_CONSTRUCTING_WONDER)
+		{
+			LevelUpSpy(uiSpyIndex, /*15*/ GD_INT_GET(ESPIONAGE_XP_UNCOVER_INTRIGUE));
+		}
+	}
+	if (eTargetPlayer == m_pPlayer->GetID())
+	{
+		m_pPlayer->GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(eSourcePlayer, 1);
+
+	}
+
 	// no matching message found so adding it to the list
 	IntrigueNotificationMessage kMessage;
 	kMessage.m_eDiscoveringPlayer = eDiscoveringPlayer;
 	kMessage.m_eSourcePlayer = eSourcePlayer;
 	kMessage.m_eTargetPlayer = eTargetPlayer;
+	kMessage.m_eDiplomacyPlayer = eDiplomacyPlayer;
 	kMessage.m_eBuilding = eBuilding;
 	kMessage.m_eProject = eProject;
+	kMessage.m_eUnit = eUnit;
 	kMessage.m_iIntrigueType = eIntrigueType;
 	kMessage.m_iCityX = iCityX;
 	kMessage.m_iCityY = iCityY;
@@ -4793,6 +4948,37 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				}
 
 				pNotifications->Add(NOTIFICATION_INTRIGUE_BUILDING_SNEAK_ATTACK_AMPHIBIOUS, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+			}
+			break;
+			
+		case INTRIGUE_TYPE_MILITARY_MIGHT_RISEN:
+			{
+				Localization::String strSummary;
+				Localization::String strNotification;
+
+				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_MILITARY_MIGHT_RISEN_S");
+				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
+				{
+					strSummary << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strSummary << GET_PLAYER(kMessage.m_eSourcePlayer).getNameKey();
+				}
+
+				strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_MILITARY_MIGHT_RISEN");
+				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
+				{
+					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNameKey();
+				}
+
+				pNotifications->Add(NOTIFICATION_INTRIGUE_BUILDING_SNEAK_ATTACK_ARMY, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 			break;
 
@@ -5065,6 +5251,274 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				pNotifications->Add(eNotification, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, kMessage.m_eTargetPlayer);
 			}
 			break;
+		case INTRIGUE_TYPE_BRIBE_WAR:
+			{
+				if (GET_PLAYER(kMessage.m_eTargetPlayer).getTeam() == m_pPlayer->GetID())
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR");
+					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eDiplomacyPlayer).isHuman())
+					{
+						strText << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNameKey();
+					}
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_S");
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					pNotifications->Add(NOTIFICATION_INTRIGUE_DECEPTION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+				else
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER");
+					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eDiplomacyPlayer).isHuman())
+					{
+						strText << GET_PLAYER(eDiplomacyPlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eDiplomacyPlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eTargetPlayer).isHuman())
+					{
+						strText << GET_PLAYER(eTargetPlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eTargetPlayer).getNameKey();
+					}
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_S");
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eTargetPlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(eTargetPlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(eTargetPlayer).getNameKey();
+					}
+					pNotifications->Add(NOTIFICATION_INTRIGUE_DECEPTION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+			}
+			break;
+		case INTRIGUE_TYPE_COOP_WAR:
+			{
+				if (GET_PLAYER(kMessage.m_eTargetPlayer).getTeam() == m_pPlayer->GetID())
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR");
+					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eDiplomacyPlayer).isHuman())
+					{
+						strText << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNameKey();
+					}
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR_S");
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eDiplomacyPlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNameKey();
+					}
+					pNotifications->Add(NOTIFICATION_INTRIGUE_DECEPTION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+				else
+				{
+					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR_OTHER");
+					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+					strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eDiplomacyPlayer).isHuman())
+					{
+						strText << GET_PLAYER(eDiplomacyPlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eDiplomacyPlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eTargetPlayer).isHuman())
+					{
+						strText << GET_PLAYER(eTargetPlayer).getNickName();
+					}
+					else
+					{
+						strText << GET_PLAYER(eTargetPlayer).getNameKey();
+					}
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR_OTHER_S");
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(eSourcePlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eDiplomacyPlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(kMessage.m_eDiplomacyPlayer).getNameKey();
+					}
+					if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eTargetPlayer).isHuman())
+					{
+						strSummary << GET_PLAYER(eTargetPlayer).getNickName();
+					}
+					else
+					{
+						strSummary << GET_PLAYER(eTargetPlayer).getNameKey();
+					}
+					pNotifications->Add(NOTIFICATION_INTRIGUE_DECEPTION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+				}
+			}
+			break;
+		case INTRIGUE_TYPE_BOUGHT_VOTES:
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES");
+				strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+				strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+				{
+					strText << GET_PLAYER(eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strText << GET_PLAYER(eSourcePlayer).getNameKey();
+				}
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eDiplomacyPlayer).isHuman())
+				{
+					strText << GET_PLAYER(eDiplomacyPlayer).getNickName();
+				}
+				else
+				{
+					strText << GET_PLAYER(eDiplomacyPlayer).getNameKey();
+				}
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES_S");
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+				{
+					strSummary << GET_PLAYER(eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strSummary << GET_PLAYER(eSourcePlayer).getNameKey();
+				}
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eDiplomacyPlayer).isHuman())
+				{
+					strSummary << GET_PLAYER(eDiplomacyPlayer).getNickName();
+				}
+				else
+				{
+					strSummary << GET_PLAYER(eDiplomacyPlayer).getNameKey();
+				}
+
+				pNotifications->Add(NOTIFICATION_INTRIGUE_DECEPTION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+			}
+			break;
+		case INTRIGUE_TYPE_SOLD_VOTES:
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES");
+				strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+				strText << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+				{
+					strText << GET_PLAYER(eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strText << GET_PLAYER(eSourcePlayer).getNameKey();
+				}
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eDiplomacyPlayer).isHuman())
+				{
+					strText << GET_PLAYER(eDiplomacyPlayer).getNickName();
+				}
+				else
+				{
+					strText << GET_PLAYER(eDiplomacyPlayer).getNameKey();
+				}
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES_S");
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eSourcePlayer).isHuman())
+				{
+					strSummary << GET_PLAYER(eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strSummary << GET_PLAYER(eSourcePlayer).getNameKey();
+				}
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(eDiplomacyPlayer).isHuman())
+				{
+					strSummary << GET_PLAYER(eDiplomacyPlayer).getNickName();
+				}
+				else
+				{
+					strSummary << GET_PLAYER(eDiplomacyPlayer).getNameKey();
+				}
+
+				pNotifications->Add(NOTIFICATION_INTRIGUE_DECEPTION, strText.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+			}
+			break;
 		case INTRIGUE_TYPE_CONSTRUCTING_WONDER:
 			{
 				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCT_WONDER_S");
@@ -5135,6 +5589,80 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 				pNotifications->Add(NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER, strNotification.toUTF8(), strSummary.toUTF8(), kMessage.m_iCityX, kMessage.m_iCityY, -1);
 			}
 			break;
+		case INTRIGUE_TYPE_CONSTRUCTING_WONDER_ANY_CITY:
+			{
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY_S");
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
+				{
+					strSummary << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strSummary << GET_PLAYER(kMessage.m_eSourcePlayer).getNameKey();
+				}
+
+				if (kMessage.m_eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(kMessage.m_eBuilding);
+					CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
+					if (pBuildingInfo)
+					{
+						strSummary << pBuildingInfo->GetTextKey();
+					}
+				}
+				else if (kMessage.m_eProject != NO_PROJECT)
+				{
+					CvProjectEntry* pProjectInfo = GC.getProjectInfo(kMessage.m_eProject);
+					CvAssertMsg(pProjectInfo, "pProjectInfo is null");
+					if (pProjectInfo)
+					{
+						strSummary << pProjectInfo->GetTextKey();
+					}
+				}
+				else if (kMessage.m_eUnit != NO_UNIT)
+				{
+					CvUnitEntry* pUnitInfo = GC.getUnitInfo(kMessage.m_eUnit);
+					CvAssertMsg(pUnitInfo, "pUnitInfo is null");
+					if (pUnitInfo)
+					{
+						strSummary << pUnitInfo->GetTextKey();
+					}
+				}
+
+				Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY");
+				strNotification << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
+				strNotification << m_aSpyList[uiSpyIndex].GetSpyName(m_pPlayer);
+				if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(kMessage.m_eSourcePlayer).isHuman())
+				{
+					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNickName();
+				}
+				else
+				{
+					strNotification << GET_PLAYER(kMessage.m_eSourcePlayer).getNameKey();
+				}
+
+				if (kMessage.m_eBuilding != NO_BUILDING)
+				{
+					CvBuildingEntry* pBuildingInfo = GC.getBuildingInfo(kMessage.m_eBuilding);
+					CvAssertMsg(pBuildingInfo, "pBuildingInfo is null");
+					if (pBuildingInfo)
+					{
+						strNotification << pBuildingInfo->GetTextKey();
+					}
+				}
+				else if (kMessage.m_eProject != NO_PROJECT)
+				{
+					CvProjectEntry* pProjectInfo = GC.getProjectInfo(kMessage.m_eProject);
+					CvAssertMsg(pProjectInfo, "pProjectInfo is null");
+					if (pProjectInfo)
+					{
+						strNotification << pProjectInfo->GetTextKey();
+					}
+				}
+				// don't show in which city the wonder is being built
+				pNotifications->Add(NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
+			}
+			break;
 		}
 	}
 }
@@ -5175,9 +5703,6 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			{
 				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
 			}
-#if defined(MOD_BALANCE_CORE)
-			m_pPlayer->GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer, 1);
-#endif
 		}
 		else if(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer == NO_PLAYER)  // if we don't know who the intrigue information is about
 		{
@@ -5224,6 +5749,55 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
 		}
 		break;
+	case INTRIGUE_TYPE_MILITARY_MIGHT_RISEN:
+		strResult = Localization::Lookup("TXT_KEY_INTRIGUE_MILITARY_MIGHT_RISEN");
+		if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNickName();
+		}
+		else
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
+		}
+		break;
+	case INTRIGUE_TYPE_BOUGHT_VOTES:
+		strResult = Localization::Lookup("TXT_KEY_INTRIGUE_BOUGHT_VOTES");
+		if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNickName();
+		}
+		else
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
+		}
+		if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).isHuman())
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNickName();
+		}
+		else
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNameKey();
+		}
+		break;
+	case INTRIGUE_TYPE_SOLD_VOTES:
+		strResult = Localization::Lookup("TXT_KEY_INTRIGUE_SOLD_VOTES");
+		if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNickName();
+		}
+		else
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
+		}
+		if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).isHuman())
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNickName();
+		}
+		else
+		{
+			strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNameKey();
+		}
+		break;
 	case INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY:
 		strResult = Localization::Lookup("TXT_KEY_INTRIGUE_BUILDING_AMPHIBIOUS_ARMY");
 		if(GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
@@ -5264,9 +5838,6 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 					strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			m_pPlayer->GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer, 1);
-#endif
 		}
 		// other player is target
 		else if(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != NO_PLAYER && m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != MAX_MAJOR_CIVS)
@@ -5357,9 +5928,6 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 					strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
 				}
 			}
-#if defined(MOD_BALANCE_CORE)
-			m_pPlayer->GetDiplomacyAI()->ChangeNumTimesTheyPlottedAgainstUs(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer, 1);
-#endif
 		}
 		// other player is target
 		else if(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != NO_PLAYER && m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer != MAX_MAJOR_CIVS)
@@ -5422,8 +5990,111 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			}
 		}
 		break;
+	case INTRIGUE_TYPE_BRIBE_WAR:
+		// player is target
+		if (m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer == m_pPlayer->GetID())
+		{
+			strResult = Localization::Lookup("TXT_KEY_INTRIGUE_BRIBE_WAR_US");
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNameKey();
+			}
+		}
+		else
+		{
+			strResult = Localization::Lookup("TXT_KEY_INTRIGUE_BRIBE_WAR_OTHER");
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer).getNameKey();
+			}
+		}
+		break;
+	case INTRIGUE_TYPE_COOP_WAR:
+		// player is target
+		if (m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer == m_pPlayer->GetID())
+		{
+			strResult = Localization::Lookup("TXT_KEY_INTRIGUE_COOP_WAR_US");
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNameKey();
+			}
+		}
+		else
+		{
+			strResult = Localization::Lookup("TXT_KEY_INTRIGUE_COOP_WAR_OTHER");
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eSourcePlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eDiplomacyPlayer).getNameKey();
+			}
+			if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer).isHuman())
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer).getNickName();
+			}
+			else
+			{
+				strResult << GET_PLAYER(m_aIntrigueNotificationMessages[uiIndex].m_eTargetPlayer).getNameKey();
+			}
+		}
+		break;
 	case INTRIGUE_TYPE_CONSTRUCTING_WONDER:
-		if (pCity)
+	case INTRIGUE_TYPE_CONSTRUCTING_WONDER_ANY_CITY:
+		if (pCity && m_aIntrigueNotificationMessages[uiIndex].m_iIntrigueType == INTRIGUE_TYPE_CONSTRUCTING_WONDER)
 		{
 			strResult = Localization::Lookup("TXT_KEY_INTRIGUE_CONSTRUCT_WONDER");
 		}
@@ -5458,7 +6129,7 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			}
 		}
 
-		if (pCity)
+		if (pCity && m_aIntrigueNotificationMessages[uiIndex].m_iIntrigueType == INTRIGUE_TYPE_CONSTRUCTING_WONDER)
 		{
 			strResult << pCity->getNameKey();
 		}
@@ -5478,7 +6149,6 @@ bool CvPlayerEspionage::HasRecentIntrigueAbout(PlayerTypes eTargetPlayer)
 /// GetRecentIntrigueInfo - Gets the information about the target player that is most recent
 IntrigueNotificationMessage* CvPlayerEspionage::GetRecentIntrigueInfo(PlayerTypes eTargetPlayer)
 {
-	/// GetRecentIntriguePlotter: returns the player id of whoever is currently plotting against this player
 	for(uint ui = 0; ui < m_aIntrigueNotificationMessages.size(); ui++)
 	{
 		// if we've already shared this information, don't count it
@@ -5506,7 +6176,7 @@ IntrigueNotificationMessage* CvPlayerEspionage::GetRecentIntrigueInfo(PlayerType
 }
 
 /// HasSharedIntrigue - Has this player shared information in the last few turns about this point of intrigue?
-bool CvPlayerEspionage::HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, CvIntrigueType eIntrigueType)
+bool CvPlayerEspionage::HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, PlayerTypes eDiplomacyPlayer, CvIntrigueType eIntrigueType)
 {
 	for(uint ui = 0; ui < m_aIntrigueNotificationMessages.size(); ui++)
 	{
@@ -5530,6 +6200,11 @@ bool CvPlayerEspionage::HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes
 		}
 
 		if(pMessage->m_eSourcePlayer != eSourcePlayer)
+		{
+			continue;
+		}
+
+		if(pMessage->m_eDiplomacyPlayer != eDiplomacyPlayer)
 		{
 			continue;
 		}
@@ -5588,7 +6263,7 @@ bool CvPlayerEspionage::HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes
 
 
 /// MarkRecentIntrigueAsShared - Set the m_bShared value on messages that have been shared. Returns the number of messages that were modified
-int CvPlayerEspionage::MarkRecentIntrigueAsShared(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, CvIntrigueType eIntrigueType)
+int CvPlayerEspionage::MarkRecentIntrigueAsShared(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, PlayerTypes eDiplomacyPlayer, CvIntrigueType eIntrigueType)
 {
 	int iNumShared = 0;
 	for(uint ui = 0; ui < m_aIntrigueNotificationMessages.size(); ui++)
@@ -5611,6 +6286,11 @@ int CvPlayerEspionage::MarkRecentIntrigueAsShared(PlayerTypes eTargetPlayer, Pla
 		}
 
 		if(pMessage->m_eSourcePlayer != eSourcePlayer)
+		{
+			continue;
+		}
+
+		if(eDiplomacyPlayer != NO_PLAYER && pMessage->m_eDiplomacyPlayer != eDiplomacyPlayer)
 		{
 			continue;
 		}
@@ -5837,10 +6517,14 @@ FDataStream& operator>>(FDataStream& loadFrom, CvPlayerEspionage& writeTo)
 		loadFrom >> kMessage.m_eDiscoveringPlayer;
 		loadFrom >> kMessage.m_eSourcePlayer;
 		loadFrom >> kMessage.m_eTargetPlayer;
+		loadFrom >> kMessage.m_eDiplomacyPlayer;
 		loadFrom >> kMessage.m_eBuilding;
 		int iProjectType = 0;
 		loadFrom >> iProjectType;
 		kMessage.m_eProject = (ProjectTypes)iProjectType;
+		int iUnitType = 0;
+		loadFrom >> iUnitType;
+		kMessage.m_eUnit = (UnitTypes)iUnitType;
 		loadFrom >> kMessage.m_iIntrigueType;
 		loadFrom >> kMessage.m_iTurnNum;
 		loadFrom >> kMessage.m_iCityX;
@@ -5919,8 +6603,10 @@ FDataStream& operator<<(FDataStream& saveTo, const CvPlayerEspionage& readFrom)
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eDiscoveringPlayer;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eSourcePlayer;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eTargetPlayer;
+		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eDiplomacyPlayer;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_eBuilding;
 		saveTo << (int)(readFrom.m_aIntrigueNotificationMessages[ui].m_eProject);
+		saveTo << (int)(readFrom.m_aIntrigueNotificationMessages[ui].m_eUnit);
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_iIntrigueType;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_iTurnNum;
 		saveTo << readFrom.m_aIntrigueNotificationMessages[ui].m_iCityX;
