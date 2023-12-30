@@ -47,7 +47,7 @@
 			<Text>The Smokehouse boosts production from Camps and camp resources, and provides food to your City whenever it claims new tiles. Build Smokehouses throughout your empire to boost local yields from camps.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_HELP">
-			<Text>+1 [ICON_PRODUCTION] Production from Camps. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era. +2 [ICON_CULTURE_LOCAL] Border Growth in this City.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
+			<Text>+1 [ICON_PRODUCTION] Production from Camps. Gain 5 [ICON_FOOD] Food in the City when its borders expand, scaling with Era.[NEWLINE][NEWLINE]Nearby [ICON_RES_DEER] Deer: +1 [ICON_FOOD] Food.[NEWLINE]Nearby [ICON_RES_BISON] Bison: +1 [ICON_FOOD] Food.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_LODGE_TEXT">
 			<Text>A smokehouse is a building where meat or fish is cured with smoke. The finished product might be stored in the building, sometimes for a year or more. Even when smoke is not used, such a building--typically a subsidiary building--is sometimes referred to as a "smokehouse". The meat is hung to keep it from the reach of vermin. Traditionally, a smokehouse is a small enclosed outbuilding often with a vent, a single entrance, no windows, and frequently has a gabled or pyramid-style roof. The use of slightly warmed, dry air from a very slow hardwood fire ensures the proper drying of meats.</Text>
@@ -202,11 +202,6 @@
 		<!-- Temple -->
 		<Row Tag="TXT_KEY_BUILDING_TEMPLE_HELP">
 			<Text>Generates +25% Religious Pressure. Contains 1 slot for a [ICON_VP_GREATMUSIC] Great Work of Music.[NEWLINE][NEWLINE]-1 [ICON_HAPPINESS_3] Unhappiness from [ICON_RELIGION] Religious Unrest.[NEWLINE][NEWLINE]Nearby [ICON_RES_INCENSE] Incense: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_WINE] Wine: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_AMBER] Amber: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.</Text>
-		</Row>
-
-		<!-- Monument -->
-		<Row Tag="TXT_KEY_BUILDING_MONUMENT_HELP">
-			<Text>+34% Faster [ICON_CULTURE_LOCAL] Border Growth in this City.</Text>
 		</Row>
 
 		<!-- Amphitheater -->
