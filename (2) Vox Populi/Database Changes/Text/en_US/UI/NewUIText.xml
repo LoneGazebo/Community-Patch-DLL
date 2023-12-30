@@ -130,6 +130,9 @@
 		<Row Tag="TXT_KEY_EO_DIPLOMAT_TRAVELING_TOOLTIP">
 			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, they will start collecting Network Points. Network Points unlock passive bonuses and grant access to intelligence information about the other civilization while {1_Rank} {2_Spy} is schmoozing as a Diplomat in the city.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DIPLOMAT_MODIFIER">
+			<Text>Diplomat present: +{1_Num}%</Text>
+		</Row>
 		<!-- City Security -->
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_BASE_TT">
 			<Text>[NEWLINE][ICON_BULLET]Base Security: [COLOR_POSITIVE_TEXT]{1_Num}[ENDCOLOR]</Text>
