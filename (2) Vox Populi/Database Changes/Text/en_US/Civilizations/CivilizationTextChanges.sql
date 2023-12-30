@@ -839,7 +839,7 @@ SET Text = 'The Comanche Riders replaces the Cavalry, and only the Shoshone may 
 WHERE Tag = 'TXT_KEY_UNIT_SHOSHONE_COMANCHE_RIDERS_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Cities claim up to 8 tiles on Founding and 4 tiles on Conquest. Land Units receive a +20% [ICON_STRENGTH] Combat Strength bonus when fighting in friendly territory. All Recon Units can choose rewards from Ancient Ruins.'
+SET Text = 'Cities claim up to 8 tiles on Founding and 4 tiles on Conquest. All Recon Units can choose rewards from Ancient Ruins.'
 WHERE Tag = 'TXT_KEY_TRAIT_GREAT_EXPANSE';
 
 --------------------
