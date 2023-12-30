@@ -3110,9 +3110,9 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	int iMyPoliciesEspionageModifier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 	if (iMyPoliciesEspionageModifier > 0)
 	{
-		iTemp *= 100 + iMyPoliciesEspionageModifier;
-		iTemp /= 100;
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT", iTemp);
+		iNP *= 100 + iMyPoliciesEspionageModifier;
+		iNP /= 100;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT", iMyPoliciesEspionageModifier);
 	}
 
 	iNP = max(iNP, 0);
