@@ -338,16 +338,12 @@ SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_Cit
 WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is conducting a Spy Mission in {3_CityName}. If the city''s owner has a spy in the city, your spy has a chance of being discovered and killed when they try to complete their mission!'
+SET Text = '{1_RankName} {2_SpyName} is gathering intelligence in {3_CityName}. Each turn, they collect Network Points, and the accumulated Network Points unlock passive bonuses or can be spent to perform spy missions.'
 WHERE Tag = 'TXT_KEY_EO_SPY_GATHERING_INTEL_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is schmoozing in {3_CityName} as a diplomat.[NEWLINE][NEWLINE]A spy can be a diplomat if they are placed in the capital of another civilization you are not at war with. (If war is declared, your spy will escape the city.) A diplomat will not attempt to conduct Spy Missions but will still provide intrigue. Once the World Congress convenes and the diplomat has begun schmoozing, you will be able to determine their opinion on proposals and trade for their support if needed. Diplomats also conduct propaganda that provides a boost to [ICON_TOURISM] Tourism output to the target civilization.'
+SET Text = '{1_RankName} {2_SpyName} is schmoozing in {3_CityName} as a diplomat, providing a boost to the [ICON_TOURISM] Tourism output to the target civilization.[NEWLINE][NEWLINE]Once the World Congress convenes, you will be able to determine their opinion on proposals and trade for their support if needed. {1_RankName} {2_SpyName} is also collecting Network Points each turn, the accumulated Network Points allow you to gain additional information about the target civilization.'
 WHERE Tag = 'TXT_KEY_SPY_STATE_SCHMOOZING_TT';
-
-UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is trying to make all the right connections in {3_CityName} as a diplomat. After they have made their introductions, they will be able to schmooze.[NEWLINE][NEWLINE]A spy can be a diplomat if they are placed in the capital of another civilization. A diplomat will not attempt to conduct Spy Missions but will still provide intrigue. Once the World Congress convenes and the diplomat has begun schmoozing, you will be able to determine their opinion on proposals and trade for their support if needed.'
-WHERE Tag = 'TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS_TT';
 
 UPDATE Language_en_US
 SET Text = '{1_RankName} {2_SpyName} is conducting counter-intelligence operations in {3_CityName}.'

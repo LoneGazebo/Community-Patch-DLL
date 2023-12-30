@@ -78,6 +78,12 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	if (iRiverModifier ~= 0) then
 		strRiverModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RIVER_MODIFIER", iRiverModifier);
 	end
+
+	local strDiplomatModifier = "";
+	local iDiplomatModifier = pPlayer:GetTradeConnectionDiplomatModifierTimes100(pOriginCity, pTargetCity, eDomain);
+	if (iDiplomatModifier ~= 0) then
+		strDiplomatModifier = Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DIPLOMAT_MODIFIER", iDiplomatModifier);
+	end
 -- CBP
 	local strCorporateModifier = "";
 	local iCorporateModifier = pPlayer:GetInternationalTradeRouteCorporationModifier(pOriginCity, pTargetCity, true);
@@ -147,6 +153,12 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 		local iRiverModifier = pPlayer:GetInternationalTradeRouteRiverModifier(pOriginCity, pTargetCity, eDomain, false);
 		if (iRiverModifier ~= 0) then
 			strOtherTotal = strOtherTotal .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_RIVER_MODIFIER", iRiverModifier);
+			strOtherTotal = strOtherTotal .. "[NEWLINE]";
+		end
+		
+		local iDiplomatModifier = pPlayer:GetTradeConnectionDiplomatModifierTimes100(pOriginCity, pTargetCity, eDomain);
+		if (iDiplomatModifier ~= 0) then
+			strOtherTotal = strOtherTotal .. Locale.ConvertTextKey("TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DIPLOMAT_MODIFIER", iDiplomatModifier);
 			strOtherTotal = strOtherTotal .. "[NEWLINE]";
 		end
 		
@@ -235,6 +247,11 @@ function BuildTradeRouteGoldToolTipString (pOriginCity, pTargetCity, eDomain)
 	
 	if (strRiverModifier ~= "") then
 		strResult = strResult .. strRiverModifier;
+		strResult = strResult .. "[NEWLINE]";
+	end
+	
+	if (strDiplomatModifier ~= "") then
+		strResult = strResult .. strDiplomatModifier;
 		strResult = strResult .. "[NEWLINE]";
 	end
 

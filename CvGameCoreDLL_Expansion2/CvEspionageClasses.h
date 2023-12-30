@@ -80,11 +80,13 @@ public:
 
 	int GetNetworkPointsNeededScaled() const;
 	bool IsReceiveIntrigue() const;
+	bool IsRevealTrueApproaches() const;
 	int GetTradeRouteGoldBonus() const;
 
 protected:
 	int m_iNetworkPointsNeeded;
 	bool m_bReceiveIntrigue;
+	bool m_bRevealTrueApproaches;
 	int m_iTradeRouteGoldBonus;
 
 
@@ -476,6 +478,10 @@ public:
 	void SetDiplomatTradeBonus(PlayerTypes ePlayer, int iValue);
 	void ChangeDiplomatTradeBonus(PlayerTypes ePlayer, int iValue);
 	int GetDiplomatTradeBonus(PlayerTypes ePlayer);
+	void SetDiplomatReceiveIntrigues(PlayerTypes ePlayer, bool bValue);
+	bool IsDiplomatReceiveIntrigues(PlayerTypes ePlayer);
+	void SetDiplomatRevealTrueApproaches(PlayerTypes ePlayer, bool bValue);
+	bool IsDiplomatRevealTrueApproaches(PlayerTypes ePlayer);
 	void SetSciencePassivePerTurn(PlayerTypes ePlayer, int iValue);
 	void ChangeSciencePassivePerTurn(PlayerTypes ePlayer, int iValue);
 	int GetSciencePassivePerTurn(PlayerTypes ePlayer);
@@ -483,6 +489,7 @@ public:
 	void ChangeVisionBonus(PlayerTypes ePlayer, int iValue);
 	int GetVisionBonus(PlayerTypes ePlayer);
 	void AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pSpy, int iNetworkPointsAdded);
+	void AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionageSpy* pSpy, int iNetworkPointsAdded);
 	void DoMission(PlayerTypes eSpyOwner, CityEventChoiceTypes eMission);
 	int GetSpyResult(PlayerTypes eSpyOwner);
 
@@ -509,7 +516,9 @@ public:
 	NumTimesCityRobbedList m_aiNumTimesCityRobbed; // how many times has this city had a tech stolen from it?
 	CityPendingEventsList m_aiPendingEventsForPlayer;
 	PassiveBonusBoolList m_abRevealCityScreen;
-	PassiveBonusList m_aiDiplomatTradeBonus; // bonus diplomat trading
+	PassiveBonusList m_aiDiplomatTradeBonus; // gold bonus to trade routes between the diplomat owner and the other civ
+	PassiveBonusList m_abDiplomatReceiveIntrigues; // the diplomat in this city can receives intrigues
+	PassiveBonusList m_abDiplomatRevealTrueApproaches; // the diplomat in this city causes the other player to give honest answers when asked about a third player
 	PassiveBonusList m_aiSciencePassivePerTurn; // percentage of city's science given to the spy owner
 	PassiveBonusList m_aiVisionBonus; // number of tiles visible around city
 };

@@ -126,6 +126,7 @@ CvSpyPassiveBonusDiplomatEntry::CvSpyPassiveBonusDiplomatEntry(void)
 {
 	m_iNetworkPointsNeeded = 0;
 	m_bReceiveIntrigue = false;
+	m_bRevealTrueApproaches = false;
 	m_iTradeRouteGoldBonus = 0;
 }
 
@@ -142,6 +143,7 @@ bool CvSpyPassiveBonusDiplomatEntry::CacheResults(Database::Results& kResults, C
 
 	m_iNetworkPointsNeeded = kResults.GetInt("NetworkPointsNeeded");
 	m_bReceiveIntrigue = kResults.GetBool("ReceiveIntrigue");
+	m_bRevealTrueApproaches = kResults.GetBool("RevealTrueApproaches");
 	m_iTradeRouteGoldBonus = kResults.GetInt("TradeRouteGoldBonus");
 
 	return true;
@@ -157,6 +159,10 @@ int CvSpyPassiveBonusDiplomatEntry::GetNetworkPointsNeededScaled() const
 bool CvSpyPassiveBonusDiplomatEntry::IsReceiveIntrigue() const
 {
 	return m_bReceiveIntrigue;
+}
+bool CvSpyPassiveBonusDiplomatEntry::IsRevealTrueApproaches() const
+{
+	return m_bRevealTrueApproaches;
 }
 int CvSpyPassiveBonusDiplomatEntry::GetTradeRouteGoldBonus() const
 {
@@ -1061,11 +1067,14 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 	case SPY_STATE_SCHMOOZE:
 		if (MOD_BALANCE_VP && GD_INT_GET(ESPIONAGE_XP_PER_TURN_DIPLOMAT) != 0)
 		{
-			//int iNetworkPointsAdded = CalcPerTurn(pSpy->GetSpyState(), pCity, uiSpyIndex);
-			//pCityEspionage->AddNetworkPoints(m_pPlayer->GetID(), pSpy, iNetworkPointsAdded);
+			int iNetworkPointsAdded = CalcPerTurn(pSpy->GetSpyState(), pCity, uiSpyIndex);
+			pCityEspionage->AddNetworkPointsDiplomat(m_pPlayer->GetID(), pSpy, iNetworkPointsAdded);
 			LevelUpSpy(uiSpyIndex, GD_INT_GET(ESPIONAGE_XP_PER_TURN_DIPLOMAT));
 		}
-		UncoverIntrigue(uiSpyIndex);
+		if (!MOD_BALANCE_VP || pCityEspionage->IsDiplomatReceiveIntrigues(m_pPlayer->GetID()))
+		{
+			UncoverIntrigue(uiSpyIndex);
+		}
 		if (!MOD_BALANCE_VP)
 		{
 			UncoverCityBuildingWonder(uiSpyIndex);
@@ -1704,7 +1713,17 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 		else if (eSpyState == SPY_STATE_MAKING_INTRODUCTIONS)
 			strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());
 		else if (eSpyState == SPY_STATE_SCHMOOZE)
+		{
 			strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_STATE_SCHMOOZING_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer), pCity->getNameKey());
+			if (MOD_BALANCE_VP)
+			{
+				CvString strNetworkPoints = "";
+				CalcNetworkPointsPerTurn(eSpyState, pCity, uiSpyIndex, &strNetworkPoints);
+				strSpyAtCity += "[NEWLINE]";
+				strSpyAtCity += strNetworkPoints;
+			}
+
+		}
 		else if (eSpyState == SPY_STATE_UNASSIGNED)
 			strSpyAtCity += GetLocalizedText("TXT_KEY_SPY_STATE_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
 	}
@@ -2940,7 +2959,7 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 	{
 		if(pCity)
 		{
-			if (MOD_BALANCE_CORE_SPIES_ADVANCED)
+			if (MOD_BALANCE_VP)
 			{
 				/* Network Points */
 				return CalcNetworkPointsPerTurn((CvSpyState)iSpyState, pCity, iSpyIndex);
@@ -2997,7 +3016,15 @@ int CvPlayerEspionage::CalcPerTurn(int iSpyState, CvCity* pCity, int iSpyIndex, 
 	break;
 	case SPY_STATE_SCHMOOZE:
 	{
-		return 0;
+		if (MOD_BALANCE_VP)
+		{
+			/* Network Points */
+			return CalcNetworkPointsPerTurn((CvSpyState)iSpyState, pCity, iSpyIndex);
+		}
+		else
+		{
+			return 0;
+		}
 	}
 	break;
 	}
@@ -3182,18 +3209,21 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	iNP += iTemp;
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICIES_TT", iTemp);
 
-	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-	if (pCityEspionage && pCityEspionage->HasCounterSpy())
+	if (eSpyState == SPY_STATE_GATHERING_INTEL)
 	{
-		CityEventChoiceTypes eCounterspyFocus = pCityEspionage->GetCounterSpyFocus();
-		if (eCounterspyFocus != NO_EVENT_CHOICE_CITY)
+		CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+		if (pCityEspionage && pCityEspionage->HasCounterSpy())
 		{
-			CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eCounterspyFocus);
-			if (pkEventChoiceInfo && pkEventChoiceInfo->getCounterspyNPRateReduction() > 0 )
+			CityEventChoiceTypes eCounterspyFocus = pCityEspionage->GetCounterSpyFocus();
+			if (eCounterspyFocus != NO_EVENT_CHOICE_CITY)
 			{
-				iTemp = -pkEventChoiceInfo->getCounterspyNPRateReduction() * (pCityEspionage->GetCounterSpyRank() + 1);
-				iNP += iTemp;
-				GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_COUNTERSPY_NETWORK_TT", iTemp);
+				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eCounterspyFocus);
+				if (pkEventChoiceInfo && pkEventChoiceInfo->getCounterspyNPRateReduction() > 0)
+				{
+					iTemp = -pkEventChoiceInfo->getCounterspyNPRateReduction() * (pCityEspionage->GetCounterSpyRank() + 1);
+					iNP += iTemp;
+					GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_COUNTERSPY_NETWORK_TT", iTemp);
+				}
 			}
 		}
 	}
@@ -3208,25 +3238,27 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 
 	iNP = max(iNP, 0);
 
-	int iSecurity = pCity->CalculateCitySecurity();
-	if (iNP > 0 && iSecurity > 0)
+	if (eSpyState == SPY_STATE_GATHERING_INTEL)
 	{
-		// NP before Security:
-		if(toolTipSink)
-			(*toolTipSink) += "[NEWLINE]---------------------------";
+		int iSecurity = pCity->CalculateCitySecurity();
+		if (iNP > 0 && iSecurity > 0)
+		{
+			// NP before Security:
+			if (toolTipSink)
+				(*toolTipSink) += "[NEWLINE]---------------------------";
 
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_BEFORE_SECURITY_TT", iNP);
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_BEFORE_SECURITY_TT", iNP);
 
-		int iSecurityPercentReduction = iSecurity * /*160*/ GD_INT_GET(ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT) / 100;
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_SECURITY_MOD_TT", -iSecurityPercentReduction);
-		iNP *= (100 - iSecurityPercentReduction);
-		iNP /= 100;
+			int iSecurityPercentReduction = iSecurity * /*160*/ GD_INT_GET(ESPIONAGE_NP_REDUCTION_PER_SECURITY_POINT) / 100;
+			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_SECURITY_MOD_TT", -iSecurityPercentReduction);
+			iNP *= (100 - iSecurityPercentReduction);
+			iNP /= 100;
 
-		if (toolTipSink)
-			(*toolTipSink) += "[NEWLINE]---------------------------";
+			if (toolTipSink)
+				(*toolTipSink) += "[NEWLINE]---------------------------";
 
+		}
 	}
-	
 
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_FINAL_TT", iNP, "", true);
 	return iNP;
@@ -3370,18 +3402,23 @@ int CvPlayerEspionage::GetSpyReceivingIntrigues(PlayerTypes eTargetPlayer)
 		}
 		return -1;
 	}
-
-	// in VP, only diplomats can find out intrigues, and only if they have collected enough NP
-	CvCity* pTargetCapital = GET_PLAYER(eTargetPlayer).getCapitalCity();
-	if (!pTargetCapital)
-		return -1;
-
-	if (IsAnySchmoozing(pTargetCapital) /* && axatin: todo: enough network points */)
+	else
 	{
-		return GetSpyIndexInCity(pTargetCapital);
-	}
+		// in VP, only diplomats can find out intrigues, and only if they have collected enough NP
+		CvCity* pTargetCapital = GET_PLAYER(eTargetPlayer).getCapitalCity();
+		if (!pTargetCapital)
+			return -1;
 
-	return -1;
+		if (IsAnySchmoozing(pTargetCapital))
+		{
+			if (pTargetCapital->GetCityEspionage()->IsDiplomatReceiveIntrigues(m_pPlayer->GetID()))
+			{
+				return GetSpyIndexInCity(pTargetCapital);
+			}
+		}
+
+		return -1;
+	}
 }
 
 bool CvPlayerEspionage::IsDiplomat (uint uiSpyIndex)
@@ -3987,7 +4024,7 @@ int CvPlayerEspionage::GetNetworkPointsStored(uint uiSpyIndex)
 	CvCity* pCity = NULL;
 	CvCityEspionage* pCityEspionage = NULL;
 
-	if (MOD_BALANCE_VP && (/*m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE ||*/ m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL))
+	if (MOD_BALANCE_VP && (m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL))
 	{
 		pCity = GetCityWithSpy(uiSpyIndex);
 		if (pCity)
@@ -4013,7 +4050,7 @@ int CvPlayerEspionage::GetMaxNetworkPointsStored(uint uiSpyIndex)
 	CvCity* pCity = NULL;
 	CvCityEspionage* pCityEspionage = NULL;
 
-	if (MOD_BALANCE_VP && (/*m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE ||*/ m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL))
+	if (MOD_BALANCE_VP && (m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL))
 	{
 		pCity = GetCityWithSpy(uiSpyIndex);
 		if (pCity)
@@ -4040,7 +4077,7 @@ int CvPlayerEspionage::GetNetworkPointsPerTurn(uint uiSpyIndex)
 	CvCity* pCity = NULL;
 	CvCityEspionage* pCityEspionage = NULL;
 
-	if (MOD_BALANCE_VP && (/*m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE ||*/ m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL))
+	if (MOD_BALANCE_VP && (m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_SCHMOOZE || m_aSpyList[uiSpyIndex].m_eSpyState == SPY_STATE_GATHERING_INTEL))
 	{
 		pCity = GetCityWithSpy(uiSpyIndex);
 		if (pCity)
@@ -6664,7 +6701,9 @@ void CvCityEspionage::Reset(void)
 		m_aiNumTimesCityRobbed[ui] = 0;
 		m_aiPendingEventsForPlayer[ui] = 0;
 		m_abRevealCityScreen[ui] = false;
-		m_aiDiplomatTradeBonus[ui] = false;
+		m_aiDiplomatTradeBonus[ui] = 0;
+		m_abDiplomatReceiveIntrigues[ui] = false;
+		m_abDiplomatRevealTrueApproaches[ui] = false;
 		m_aiSciencePassivePerTurn[ui] = 0;
 		m_aiVisionBonus[ui] = 0;
 	}
@@ -6745,6 +6784,8 @@ void CvCityEspionage::ResetPassiveBonuses(PlayerTypes ePlayer)
 {
 	SetSciencePassivePerTurn(ePlayer, 0);
 	SetDiplomatTradeBonus(ePlayer, 0);
+	SetDiplomatReceiveIntrigues(ePlayer, false);
+	SetDiplomatRevealTrueApproaches(ePlayer, false);
 	SetRevealCityScreen(ePlayer, false);
 	SetVisionBonus(ePlayer, 0);
 }
@@ -6810,6 +6851,23 @@ int CvCityEspionage::GetDiplomatTradeBonus(PlayerTypes ePlayer)
 	return m_aiDiplomatTradeBonus[ePlayer];
 }
 
+void CvCityEspionage::SetDiplomatReceiveIntrigues(PlayerTypes ePlayer, bool bValue)
+{
+	m_abDiplomatReceiveIntrigues[ePlayer] = bValue;
+}
+bool CvCityEspionage::IsDiplomatReceiveIntrigues(PlayerTypes ePlayer)
+{
+	return m_abDiplomatReceiveIntrigues[ePlayer];
+}
+
+void CvCityEspionage::SetDiplomatRevealTrueApproaches(PlayerTypes ePlayer, bool bValue)
+{
+	m_abDiplomatRevealTrueApproaches[ePlayer] = bValue;
+}
+bool CvCityEspionage::IsDiplomatRevealTrueApproaches(PlayerTypes ePlayer)
+{
+	return m_abDiplomatRevealTrueApproaches[ePlayer];
+}
 
 void CvCityEspionage::SetSciencePassivePerTurn(PlayerTypes ePlayer, int iValue)
 {
@@ -6908,7 +6966,7 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 			}
 			else if (iNPNeeded > iPassiveBonusThresholdBefore)
 			{
-				// these bonus is now unlocked!
+				// this bonus is now unlocked!
 				if (pPassiveBonusInfo->IsRevealCityScreen())
 				{
 					SetRevealCityScreen(eSpyOwner, true);
@@ -6967,6 +7025,89 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_MISSIONS_AVAILABLE_S");
 			pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary, m_pCity->getX(), m_pCity->getY(), 0);
 		}
+	}
+}
+
+void CvCityEspionage::AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionageSpy* pSpy, int iNetworkPointsAdded)
+{
+	if (iNetworkPointsAdded == 0)
+		return;
+
+	if (pSpy->GetSpyState() != SPY_STATE_SCHMOOZE)
+		return;
+
+	CvPlayer* pPlayer = &GET_PLAYER(eSpyOwner);
+
+	int iPassiveBonusThresholdBefore = GetAmount(eSpyOwner);
+	int iBonusThresholdBefore = GetAmount(eSpyOwner);
+	// how much NP do we need to get the next passive bonus?
+	int iNextPassiveBonus = GetNextPassiveBonus(eSpyOwner);
+	if (iNextPassiveBonus == -1)
+	{
+		// initialize iNextPassiveBonus
+		iNextPassiveBonus = INT_MAX;
+		for (int i = 0; i < GC.getNumSpyPassiveBonusDiplomatInfos(); i++)
+		{
+			CvSpyPassiveBonusDiplomatEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusDiplomatInfo((SpyPassiveBonusDiplomatTypes)i);
+			int iNPNeeded = pPassiveBonusInfo->GetNetworkPointsNeededScaled();
+			if (iNPNeeded > iPassiveBonusThresholdBefore)
+			{
+				iNextPassiveBonus = min(iNextPassiveBonus, iNPNeeded);
+			}
+		}
+		SetNextPassiveBonus(eSpyOwner, iNextPassiveBonus);
+	}
+	// add network points gained this turn to total
+	SetRate(eSpyOwner, iNetworkPointsAdded);
+	SetLastProgress(eSpyOwner, iNetworkPointsAdded);
+	Process(eSpyOwner);
+	int iPassiveBonusThresholdAfter = GetMaxAmount(eSpyOwner);
+
+	// check for passive bonuses that have been unlocked
+	if (iPassiveBonusThresholdAfter >= iNextPassiveBonus)
+	{
+		// activate passive bonuses
+		// calculate next threshold
+		iNextPassiveBonus = INT_MAX;
+		for (int i = 0; i < GC.getNumSpyPassiveBonusDiplomatInfos(); i++)
+		{
+			CvSpyPassiveBonusDiplomatEntry* pPassiveBonusInfo = GC.getSpyPassiveBonusDiplomatInfo((SpyPassiveBonusDiplomatTypes)i);
+			int iNPNeeded = pPassiveBonusInfo->GetNetworkPointsNeededScaled();
+			if (iNPNeeded > iPassiveBonusThresholdAfter)
+			{
+				// passive bonus not unlocked yet
+				iNextPassiveBonus = min(iNextPassiveBonus, iNPNeeded);
+			}
+			else if (iNPNeeded > iPassiveBonusThresholdBefore)
+			{
+				// this bonus is now unlocked!
+				if (pPassiveBonusInfo->GetTradeRouteGoldBonus() != 0)
+				{
+					ChangeDiplomatTradeBonus(eSpyOwner, pPassiveBonusInfo->GetTradeRouteGoldBonus());
+				}
+				if (pPassiveBonusInfo->IsReceiveIntrigue())
+				{
+					SetDiplomatReceiveIntrigues(eSpyOwner, true);
+				}
+				if (pPassiveBonusInfo->IsRevealTrueApproaches())
+				{
+					SetDiplomatRevealTrueApproaches(eSpyOwner, true);
+				}
+				// Notification
+				CvNotifications* pNotifications = GET_PLAYER(eSpyOwner).GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strNotification = Localization::Lookup("TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS");
+					strNotification << pPlayer->GetEspionage()->GetSpyRankName(pSpy->m_eRank);
+					strNotification << pSpy->GetSpyName(pPlayer);
+					strNotification << m_pCity->getNameKey();
+					strNotification << pPassiveBonusInfo->GetHelp();
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_S");
+					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary, m_pCity->getX(), m_pCity->getY(), 0);
+				}
+			}
+		}
+		SetNextPassiveBonus(eSpyOwner, iNextPassiveBonus);
 	}
 }
 
@@ -7152,6 +7293,20 @@ FDataStream& operator>>(FDataStream& loadFrom, CvCityEspionage& writeTo)
 		loadFrom >> writeTo.m_aiDiplomatTradeBonus[i];
 	}
 
+	int iDiplomatIntrigues = 0;
+	loadFrom >> iDiplomatIntrigues;
+	for (int i = 0; i < iDiplomatIntrigues; i++)
+	{
+		loadFrom >> writeTo.m_abDiplomatReceiveIntrigues[i];
+	}
+
+	int iDiplomatTrueApproaches = 0;
+	loadFrom >> iDiplomatTrueApproaches;
+	for (int i = 0; i < iDiplomatTrueApproaches; i++)
+	{
+		loadFrom >> writeTo.m_abDiplomatRevealTrueApproaches[i];
+	}
+
 	int iNumSciencePassive = 0;
 	loadFrom >> iNumSciencePassive;
 	for (int i = 0; i < iNumSciencePassive; i++)
@@ -7269,6 +7424,18 @@ FDataStream& operator<<(FDataStream& saveTo, const CvCityEspionage& readFrom)
 	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
 		saveTo << readFrom.m_aiDiplomatTradeBonus[ui];
+	}
+
+	saveTo << MAX_MAJOR_CIVS;
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		saveTo << readFrom.m_abDiplomatReceiveIntrigues[ui];
+	}
+
+	saveTo << MAX_MAJOR_CIVS;
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
+	{
+		saveTo << readFrom.m_abDiplomatRevealTrueApproaches[ui];
 	}
 
 	saveTo << MAX_MAJOR_CIVS;
