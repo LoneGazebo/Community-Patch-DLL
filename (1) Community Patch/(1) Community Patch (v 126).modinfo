@@ -2,7 +2,7 @@
 <Mod id="d1b6328c-ff44-4b0d-aad7-c657f83610cd" version="126">
   <Properties>
     <Name>(1) Community Patch</Name>
-    <Teaser>(4.4.1) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
+    <Teaser>(4.4.2) Bugfixes, AI Improvements, Game Optimizations and API Extensions for Civ V</Teaser>
     <Description>Contains core AI improvements and bugfixes for the Civ 5 BNW DLL. Also contains support for the Vox Populi unofficial expansion and its associated mods.</Description>
     <Authors>CivFanatics Community Patch Project Team</Authors>
     <HideSetupGame>0</HideSetupGame>
@@ -111,7 +111,7 @@
     <File md5="BABCACA4B8369ACB71B2BBA51E241F75" import="0">Core Files/Core Changes/NewText.xml</File>
     <File md5="C36218BB11511D4B8BBCBE71242994E7" import="0">Core Files/Core Changes/ConceptChanges.sql</File>
     <File md5="44A31CF76F4CC58371CFC2B1A5917EEB" import="0">Core Files/Core Tables/CoreTableAdditions.xml</File>
-    <File md5="E7AC75ABD3EC3A959CE2A421E3561D9E" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
+    <File md5="22877A35F1FA98FA6FE6A9A064BD55CD" import="0">Core Files/Core Tables/CoreTableEntries.sql</File>
     <File md5="67082C7B98E71D8BB9B46BEF5F0DA20C" import="0">Core Files/Core Tables/CustomModOptions.xml</File>
     <File md5="003722693A2ADD006F6DC245112BE897" import="0">Core Files/Core Tables/DifficultyTables.sql</File>
     <File md5="8066F0A58D198ED1ABBBC78F29D13691" import="0">Core Files/Core Tables/DifficultyTables.xml</File>
@@ -231,7 +231,7 @@
     <File md5="F07A00D6875A33DF7C81C895030416CE" import="0">Core Files/PNM Mods DB/UI/CityExpansion.sql</File>
     <File md5="5F40882017AAB018E1C1097266BADC1E" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="55955DE00629131B93262776FD73A268" import="0">Core Files/Text/CoreText_en_US.sql</File>
-    <File md5="4992835EFDF1D34AC2E3F24327ACB835" import="1">CvGameCore_Expansion2.dll</File>
+    <File md5="E3710F8014CEA116B9B2B2B6D1F7A572" import="1">CvGameCore_Expansion2.dll</File>
     <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
