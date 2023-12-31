@@ -2550,7 +2550,7 @@ public:
 	~CvCityGarrisonOverride()
 	{
 		if (m_pCity)
-			m_pCity->OverrideGarrison(0);
+			m_pCity->OverrideGarrison(NULL);
 	}
 protected:
 	const CvCity* m_pCity;

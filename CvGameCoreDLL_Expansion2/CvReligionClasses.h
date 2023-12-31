@@ -473,7 +473,7 @@ public:
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	int GetTotalAccumulatedPressure(bool bIncludePantheon) const;
 	int GetPressureAccumulated(ReligionTypes eReligion) const;
-	int GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities = 0);
+	int GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities = NULL);
 	int GetNumTradeRouteConnections (ReligionTypes eReligion);
 	bool WouldExertTradeRoutePressureToward (CvCity* pTargetCity, ReligionTypes& eReligion, int& iAmount);
 

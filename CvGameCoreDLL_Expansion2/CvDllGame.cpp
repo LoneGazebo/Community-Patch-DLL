@@ -637,7 +637,7 @@ void CvDllGame::InitExeStuff()
 
 	if (binType == BIN_DX11)
 	{
-		DWORD baseAddr = (DWORD) GetModuleHandleA(0);
+		DWORD baseAddr = (DWORD) GetModuleHandleA(NULL);
 		DWORD headersOffset = 0x400000;
 		DWORD totalOffset = baseAddr - headersOffset;
 
