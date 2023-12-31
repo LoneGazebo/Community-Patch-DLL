@@ -39,9 +39,9 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 	//try to avoid calling directionXY too often
 	bool bRiverCrossing = pFromPlot->getRiverCrossingCount()>0 && pToPlot->getRiverCrossingCount()>0 && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot));
 	FeatureTypes eToFeature = pToPlot->getFeatureType();
-	CvFeatureInfo* pToFeatureInfo = (eToFeature > NO_FEATURE) ? GC.getFeatureInfo(eToFeature) : 0;
+	CvFeatureInfo* pToFeatureInfo = (eToFeature > NO_FEATURE) ? GC.getFeatureInfo(eToFeature) : NULL;
 	TerrainTypes eToTerrain = pToPlot->getTerrainType();
-	CvTerrainInfo* pToTerrainInfo = (eToTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eToTerrain) : 0;
+	CvTerrainInfo* pToTerrainInfo = (eToTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eToTerrain) : NULL;
 	FeatureTypes eFromFeature = pFromPlot->getFeatureType();
 
 	bool bToIsWater = pToPlot->isWater();
