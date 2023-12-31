@@ -1287,12 +1287,33 @@ void CvGameReligions::FoundReligion(PlayerTypes ePlayer, ReligionTypes eReligion
 	kPlayer.UpdateReligion();
 	kPlayer.GetReligions()->SetFoundingReligion(false);
 
-	// In case we have another prophet sitting around, make sure he's set to this religion
+	// In case we have another prophet sitting around, make sure he's set to this religion and is at full strength
 	int iLoopUnit = 0;
 	for(CvUnit* pLoopUnit = kPlayer.firstUnit(&iLoopUnit); pLoopUnit != NULL; pLoopUnit = kPlayer.nextUnit(&iLoopUnit))
 	{
 		if (pLoopUnit->getUnitInfo().IsFoundReligion())
-			pLoopUnit->GetReligionDataMutable()->SetReligion(eReligion);
+		{
+			bool bSubtractOne = false;
+			// If player is India, subtract one charge from the prophet who founded
+			if (kPlayer.GetPlayerTraits()->IsProphetFervor() && pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsUsed() > 0)
+				bSubtractOne = true;
+
+			pLoopUnit->GetReligionDataMutable()->SetFullStrength(kPlayer.GetID(), pLoopUnit->getUnitInfo(), eReligion);
+
+			if (bSubtractOne)
+			{
+				pLoopUnit->GetReligionDataMutable()->IncrementSpreadsUsed();
+				if (pLoopUnit->GetReligionData() != NULL && pLoopUnit->GetReligionData()->GetSpreadsLeft(pLoopUnit) <= 0)
+				{
+#if defined(MOD_EVENTS_GREAT_PEOPLE)
+					kPlayer.DoGreatPersonExpended(pLoopUnit->getUnitType(), pLoopUnit);
+#else
+					kPlayer.DoGreatPersonExpended(pLoopUnit->getUnitType());
+#endif
+					pLoopUnit->kill(true);
+				}
+			}
+		}
 	}
 
 #if defined(MOD_EVENTS_FOUND_RELIGION)
@@ -6008,7 +6029,7 @@ int CvUnitReligion::GetMaxSpreads(const CvUnit* pUnit) const
 	return iReligionSpreads;
 }
 
-void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity * /*pOriginCity*/)
+void CvUnitReligion::SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion)
 {
 	if (eOwner == NO_PLAYER || eReligion <= RELIGION_PANTHEON)
 		return;

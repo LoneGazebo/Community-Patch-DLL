@@ -2999,13 +2999,7 @@ CvPlot* CvPlayer::addFreeUnit(UnitTypes eUnit, bool bGameStart, UnitAITypes eUni
 	if (pNewUnit->getUnitInfo().IsSpreadReligion())
 	{
 		ReligionTypes eReligion = GetReligions()->GetStateReligion();
-
-		if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-			pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
-		else if (getCapitalCity())
-			pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
-		else
-			pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
+		pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion);
 	}
 
 	return pNewUnit->plot();
@@ -46944,13 +46938,7 @@ void CvPlayer::processPolicies(PolicyTypes ePolicy, int iChange)
 									else if(pNewUnit->getUnitInfo().IsFoundReligion())
 									{
 										ReligionTypes eReligion = GetReligions()->GetStateReligion();
-
-										if (GetHolyCity() && GetHolyCity()->getOwner() == GetID())
-											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,GetHolyCity());
-										else if (getCapitalCity())
-											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,getCapitalCity());
-										else
-											pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion,NULL);
+										pNewUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pNewUnit->getUnitInfo(),eReligion);
 									}
 									else if (pNewUnit->getUnitInfo().GetUnitClassType() == GC.getInfoTypeForString("UNITCLASS_WRITER"))
 									{
@@ -48833,8 +48821,7 @@ void CvPlayer::createGreatGeneral(UnitTypes eGreatPersonUnit, int iX, int iY)
 	if(pGreatPeopleUnit->getUnitInfo().IsFoundReligion())
 	{
 		ReligionTypes eReligion = GetReligions()->GetOwnedReligion();
-		CvCity* pCity = pGreatPeopleUnit->plot()->getOwningCity();
-		pGreatPeopleUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion,pCity);
+		pGreatPeopleUnit->GetReligionDataMutable()->SetFullStrength(GetID(),pGreatPeopleUnit->getUnitInfo(),eReligion);
 	}
 	if(pGreatPeopleUnit->isGoldenAgeOnBirth())
 	{

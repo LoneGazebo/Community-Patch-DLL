@@ -133,7 +133,7 @@ public:
 	{
 		m_iStrength = iValue;
 	};
-	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity* pOriginCity);
+	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion);
 	bool IsFullStrength() const;
 
 private:

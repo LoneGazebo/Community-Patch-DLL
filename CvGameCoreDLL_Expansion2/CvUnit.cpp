@@ -1095,7 +1095,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (pCity)
 		{
 			ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
-			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion,pCity);
+			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion);
 		}
 	}
 	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate() || getUnitInfo().GetNumColonyFound() > 0))
@@ -11117,9 +11117,7 @@ bool CvUnit::DoFoundReligion()
 			if (kOwner.GetPlayerTraits()->IsProphetFervor())
 			{
 				GetReligionDataMutable()->IncrementSpreadsUsed();
-				if (GetReligionData()->GetSpreadsLeft(this) > 0)
-					bIndiaException = true;
-
+				bIndiaException = true;
 				finishMoves();
 			}
 
@@ -14138,6 +14136,13 @@ bool CvUnit::build(BuildTypes eBuild)
 					GetReligionDataMutable()->IncrementSpreadsUsed();
 					if (GetReligionData()->GetSpreadsLeft(this) > 0)
 						bIndiaException = true;
+
+					if (bIndiaException && pPlot->isActiveVisible())
+					{
+						// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+						gDLL->GameplayUnitResetAnimationState(pDllUnit.get());
+					}
 				}
 
 				if (!bIndiaException)

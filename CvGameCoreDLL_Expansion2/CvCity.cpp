@@ -32122,7 +32122,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				eReligion = GetCityReligions()->GetReligiousMajority();
 			}
 
-			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
+			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion);
 
 			kPlayer.ChangeFaith(-iFaithCost);
 

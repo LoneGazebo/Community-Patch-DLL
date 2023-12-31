@@ -286,7 +286,7 @@ ALTER TABLE GameSpeeds ADD COLUMN 'StartingHappiness' INTEGER DEFAULT 0;
 -- Value by which all instant yields are modified for different game speeds
 ALTER TABLE GameSpeeds ADD COLUMN 'InstantYieldPercent' INTEGER DEFAULT 100;
 
--- Value by which difficulty bonuses are modified for different game speeds
+-- Value by which instant yields from difficulty bonuses are modified for different game speeds
 ALTER TABLE GameSpeeds ADD COLUMN 'DifficultyBonusPercent' INTEGER DEFAULT 100;
 UPDATE GameSpeeds SET DifficultyBonusPercent = 67 WHERE Type = 'GAMESPEED_QUICK';
 UPDATE GameSpeeds SET DifficultyBonusPercent = 100 WHERE Type = 'GAMESPEED_STANDARD';
