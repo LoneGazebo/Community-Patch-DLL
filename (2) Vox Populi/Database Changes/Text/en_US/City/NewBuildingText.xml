@@ -60,7 +60,7 @@
 			<Text>The Gallery boosts the production of Great Artists, strengthens your Artist Guilds, and Great Works. Build Galleries in your Guild cities to boost the production of Artists and Great Works.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GALLERY_HELP">
-			<Text>[ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_ARTIST] Great Artist Rate in the City, and all Artists' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.</Text>
+			<Text>[ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_ARTIST] Great Artist Rate in the City.[NEWLINE][NEWLINE]Contains 1 slot for a [ICON_GREAT_WORK] Great Work of Art or Artifact.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_GALLERY_TEXT">
 			<Text>An Art Gallery is a space dedicated to displaying visual art like paintings or sculptures. The original galleries were long covered hallways in the private palaces and churches, which were lined with private art collections as a display of status. Today, many Art Galleries are publicly owned and display art to the public for its historic, educational, and aesthetic value. Galleries continue to serve as places for networking and promotion of local artists, art collectors, and tastemakers in the world of fine art.</Text>
@@ -93,10 +93,10 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT">
-			<Text>Wind Farm</Text>
+			<Text>Wind Power Plant</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_STRATEGY">
-			<Text>The Wind Farm increases the Production, Culture and Science output of all workable tiles near the City and increases the efficiency of working processes.</Text>
+			<Text>The Wind Power Plant increases the Production, Culture and Science output of all workable tiles near the City and increases the efficiency of working processes.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_WIND_PLANT_HELP">
 			<Text>All City Processes are 10% more efficient at converting [ICON_PRODUCTION] Production into Yields.[NEWLINE][NEWLINE]+1 [ICON_PRODUCTION] Production, [ICON_CULTURE] Culture, and [ICON_RESEARCH] Science on every workable Tile (flat, hills and water).[NEWLINE][NEWLINE]Requires 1 [ICON_RES_ALUMINUM] Aluminum to be constructed. City must not contain another energy-producing Plant.</Text>
@@ -162,7 +162,7 @@
 			<Text>The Bastion Fort is a Renaissance-era military building that increases Defense Strength and reduces all incoming damage by 2, making the City more difficult to capture. It allows the City to Ranged Strike indirectly, ignoring Line of Sight. Garrisoned units receive an additional 5 Health when healing in this City. Increases Military Units supplied by this City's population by 10%. Also helps with managing the Empire Size Modifier in this City. The City must possess a Castle before a Bastion Fort can be constructed.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDING_FORTRESS_HELP">
-			<Text>Reduces the city's damage taken from attacks by 2. [ICON_SILVER_FIST] Military Units Supplied by this City's population increased by 10%. Allows the City's [ICON_RANGE_STRENGTH] Ranged Strike to ignore Line of Sight.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
+			<Text>City damage taken from all sources reduced by 2. +10% [ICON_SILVER_FIST] Military Supply from Population. Allows City to [ICON_RANGE_STRENGTH] Strike over obstacles.[NEWLINE][NEWLINE]Garrisoned Units receive an additional 5 Health when healing in this City.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_BUILDINGS_FORTRESS_TEXT">
 			<Text>As cannons came to dominate the battlefields, pressure was put on military engineers to design static fortifications that could withstand weapons that could tear through the outer walls of ealier stone castles. New emphasis was put on earthworks and sloped, or angled walls that would either absorb or deflect a hit from cannonballs. New styles of defenses sported polygonal shapes with numerous bastions and ravelins, triangular outcroppings that always presented an enemy with an angled surface. These forts denied the attacker a direct hit onto a flat curtain wall, where a cannon could do the most damage. Meanwhile, these bulwarks offered overlapping field of fire along the length of the nearby walls, creating 'dead zones' where attackers were exposed to multiple walls' gunfire.[NEWLINE][NEWLINE]These new Bastion Forts were made as a response to France's repeated invasions of Italy in the early 1500s. None other than Michaelangelo himself is credited with designing one of the first bastion forts to defend his home of Florence from the French, and designs spread from Italy to Europe, and to the rest of globe.</Text>
@@ -206,12 +206,12 @@
 
 		<!-- Amphitheater -->
 		<Row Tag="TXT_KEY_BUILDING_AMPHITHEATER_HELP">
-			<Text>+33% [ICON_GREAT_WRITER] Great Writer Rate in the City, and all Writers' Guilds produce +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
+			<Text>+33% [ICON_GREAT_WRITER] Great Writer Rate in the City.[NEWLINE][NEWLINE]Nearby [ICON_RES_DYE] Dye: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_SILK] Silk: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE]Nearby [ICON_RES_LAPIS] Lapis Lazuli: +2 [ICON_CULTURE] Culture.[NEWLINE]Nearby [ICON_RES_BRAZILWOOD] Brazilwood: +1 [ICON_CULTURE] Culture, +1 [ICON_GOLD] Gold.[NEWLINE][NEWLINE]+2 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].</Text>
 		</Row>
 
 		<!-- Opera House -->
 		<Row Tag="TXT_KEY_BUILDING_OPERA_HOUSE_HELP">
-			<Text>+5% [ICON_CULTURE] Culture in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_MUSICIAN] Great Musician Rate in the City, and all Musicians' Guilds produce +1 [ICON_GOLD] Gold.</Text>
+			<Text>+5% [ICON_CULTURE] Culture in the City. [ICON_GREAT_WORK] Great Works in the City produce +1 [ICON_TOURISM] Tourism. +33% [ICON_GREAT_MUSICIAN] Great Musician Rate in the City.</Text>
 		</Row>
 
 		<!-- Museum -->
@@ -221,12 +221,12 @@
 
 		<!-- Market -->
 		<Row Tag="TXT_KEY_BUILDING_MARKET_HELP">
-			<Text>Incoming [ICON_INTERNATIONAL_TRADE] Trade Routes generate +1 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for [ICON_INTERNATIONAL_TRADE] Trade Route owner.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Cinnamon: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.</Text>
+			<Text>Incoming [ICON_ARROW_LEFT] Trade Routes generate +1 [ICON_GOLD] Gold for the City, and +1 [ICON_GOLD] Gold for [ICON_ARROW_RIGHT] Trade Route owner.[NEWLINE][NEWLINE]Nearby [ICON_RES_SPICES] Cinnamon: +1 [ICON_FOOD] Food, +1 [ICON_PRODUCTION] Production.[NEWLINE]Nearby [ICON_RES_SUGAR] Sugar: +1 [ICON_FOOD] Food, +1 [ICON_GOLD] Gold.</Text>
 		</Row>
 
 		<!-- Walls -->
 		<Row Tag="TXT_KEY_BUILDING_WALLS_HELP">
-			<Text>Increases the City's [ICON_RANGE_STRENGTH] Ranged Strike Range by 1. [ICON_SILVER_FIST] Military Units Supplied by this City's population increased by 10%.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
+			<Text>+1 City's [ICON_RANGE_STRENGTH] Ranged Strike Range. +10% [ICON_SILVER_FIST] Military Supply from Population.[NEWLINE][NEWLINE][ICON_CITY_STATE] Empire Size Modifier is reduced by 5% in this City.</Text>
 		</Row>
 
 		<!-- Arena -->

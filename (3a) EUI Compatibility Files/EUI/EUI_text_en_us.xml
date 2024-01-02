@@ -296,7 +296,7 @@
 			<Text>Global Experience {1}</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_FOODKEPT">
-			<Text>+{1}%[ICON_FOOD] {TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT}</Text>
+			<Text>+{1}%[ICON_FOOD] Food Kept after [ICON_CITIZEN] Citizen Birth</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_AIRMODIFIER">
 			<Text>Air Modifier {1}%</Text>
@@ -341,7 +341,7 @@
 			<Text>Wonder Production Modifier {1}%</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_CITYCONNECTIONTRADEROUTEMODIFIER">
-			<Text>City Connection Trade Route Modifier {1}%</Text>
+			<Text>[ICON_CONNECTED] City Connection Modifier {1}%</Text>
 		</Replace>
 		<Replace Tag="TXT_KEY_EUI_BUILDING_CAPTUREPLUNDERMODIFIER">
 			<Text>Capture Plunder Modifier {1}%</Text>
