@@ -1226,7 +1226,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions();
 	return {
-		Name = "Communitu_79a v3.0.1",
+		Name = "Communitu_79a v3.0.2",
 		Description = "Communitas mapscript for Vox Populi (version 4.3+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -1652,7 +1652,9 @@ end
 -- Generate Plots
 --------------------------
 function StartPlotSystem()
-	AssignStartingPlots.__CustomInit = __CustomInit;
+	if __CustomInit then
+		AssignStartingPlots.__CustomInit = __CustomInit;
+	end
 
 	-- Get Resources setting input by user.
 	local resDensity = Map.GetCustomOption(14) or 2;
