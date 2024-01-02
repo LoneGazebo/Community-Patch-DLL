@@ -61,7 +61,7 @@ SET
 	ArtDefineTag = 'ART_DEF_BUILDING_NATIONAL_COLLEGE'
 WHERE Type = 'BUILDING_ROYAL_LIBRARY';
 
-DELETE FROM Building_YieldChangesPerPop WHERE BuildingType = 'BUILDING_ROYAL_LIBRARY';
+--DELETE FROM Building_YieldChangesPerPop WHERE BuildingType = 'BUILDING_ROYAL_LIBRARY'; except this is part of their bonuses right now!
 DELETE FROM Building_DomainFreeExperiencePerGreatWork WHERE BuildingType = 'BUILDING_ROYAL_LIBRARY';
 
 -- Aztec: Water Mill
@@ -175,7 +175,7 @@ WHERE Type = 'BUILDING_SATRAPS_COURT';
 DELETE FROM Building_ClassesNeededInCity WHERE BuildingType = 'BUILDING_SATRAPS_COURT';
 
 -- Poland: Stable
-DELETE FROM Building_UnitCombatFreeExperiences WHERE BuildingType = 'BUILDING_DUCAL_STABLE';
+--DELETE FROM Building_UnitCombatFreeExperiences WHERE BuildingType = 'BUILDING_DUCAL_STABLE'; except this is part of their bonuses right now!
 
 -- Rome: Arena
 
