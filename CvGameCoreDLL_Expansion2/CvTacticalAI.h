@@ -473,7 +473,7 @@ private:
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximateTargetPlot);
-	void UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed);
+	void UpdateVisibilityFromBorders(CvPlot* pPlot);
 
 	int GetRecruitRange() const;
 
@@ -519,9 +519,6 @@ private:
 	int m_eCurrentTargetType;
 	int m_iCurrentTargetIndex;
 	int m_iCurrentUnitTargetIndex;
-
-	// Visibility info
-	std::map<TeamTypes, std::set<int>> m_plotsVisibleToOtherPlayer;
 
 	std::vector<CvFocusArea> m_focusAreas;
 };

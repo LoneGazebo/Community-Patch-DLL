@@ -381,6 +381,7 @@ protected:
 	uint8* m_pPlayerCityRadiusCount;
 	uint8* m_pVisibilityCount;				//actual vis count
 	uint8* m_pVisibilityCountThisTurnMax;	//maximum vis count this turn
+	uint8* m_pKnownVisibilityCount;         //current player's known vis count
 	char*  m_pRevealedOwner;
 #if defined(MOD_BALANCE_CORE)
 	bool*  m_pIsImpassable;
