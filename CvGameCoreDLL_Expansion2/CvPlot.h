@@ -664,6 +664,9 @@ public:
 	int getNumAdjacentNonrevealed(TeamTypes eTeam) const;
 	bool IsResourceForceReveal(TeamTypes eTeam) const;
 	void SetResourceForceReveal(TeamTypes eTeam, bool bValue);
+	int GetKnownVisibilityCount(TeamTypes eTeam) const;
+	void IncreaseKnownVisibilityCount(TeamTypes eTeam, int iAmount);
+	void ResetKnownVisibility();
 #if defined(MOD_BALANCE_CORE)
 	bool IsTeamImpassable(TeamTypes eTeam) const;
 	void SetTeamImpassable(TeamTypes eTeam, bool bValue);
@@ -932,6 +935,7 @@ protected:
 	uint8* m_aiPlayerCityRadiusCount;
 	uint8* m_aiVisibilityCount;
 	uint8* m_aiVisibilityCountThisTurnMax;
+	uint8* m_aiKnownVisibilityCount;
 	char* m_aiRevealedOwner;
 	char *m_aeRevealedImprovementType;
 	char *m_aeRevealedRouteType;

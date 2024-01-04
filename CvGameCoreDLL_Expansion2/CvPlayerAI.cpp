@@ -278,7 +278,9 @@ void CvPlayerAI::AI_unitUpdate()
 	if(isHuman())
 	{
 		CvUnit::dispatchingNetMessage(true);
+		GetTacticalAI()->UpdateVisibility();
 		GetHomelandAI()->Update();
+		GetTacticalAI()->CleanUp();
 		CvUnit::dispatchingNetMessage(false);
 	}
 	else

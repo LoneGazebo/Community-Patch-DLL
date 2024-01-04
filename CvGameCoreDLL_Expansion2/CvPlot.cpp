@@ -243,6 +243,7 @@ void CvPlot::reset()
 	{
 		m_aiPlayerCityRadiusCount[iI] = 0;
 		m_aiVisibilityCount[iI] = 0;
+		m_aiKnownVisibilityCount[iI] = 0;
 		m_aiRevealedOwner[iI] = -1;
 		m_abResourceForceReveal[iI] = false;
 		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
@@ -11292,6 +11293,31 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abResourceForceReveal[eTeam] = bValue;
 }
+
+//	--------------------------------------------------------------------------------
+/// Current player's knowledge of other players' visibility count
+int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	return m_aiKnownVisibilityCount[eTeam];
+}
+
+void CvPlot::IncreaseKnownVisibilityCount(TeamTypes eTeam, int iAmount)
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	m_aiKnownVisibilityCount[eTeam] += iAmount;
+}
+
+void CvPlot::ResetKnownVisibility()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		m_aiKnownVisibilityCount[iI] = 0;
+	}
+}
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const
