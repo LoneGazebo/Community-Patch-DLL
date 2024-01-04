@@ -1001,7 +1001,7 @@ CvString CvVoterDecision::GetVotesAsText(CvLeague* pLeague)
 	}
 
 	std::stable_sort(vVoteText.begin(), vVoteText.end(), LeagueHelpers::VoteTextSorter());
-	int iNumToShow = MIN(16, (int)vVoteText.size());
+	int iNumToShow = MIN(43, (int)vVoteText.size()); //Used to be 16, now 43 because there are 43 major possible... no support for small screen really! If it goes out that long then it goes out that long.
 	for (int i = 0; i < iNumToShow; i++)
 	{
 		s += vVoteText[i].sText;
