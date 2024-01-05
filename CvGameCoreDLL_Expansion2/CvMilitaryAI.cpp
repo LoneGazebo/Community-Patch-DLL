@@ -1983,7 +1983,7 @@ void CvMilitaryAI::UpdateMilitaryStrategies()
 				else if(strStrategyName == "MILITARYAISTRATEGY_WAR_MOBILIZATION")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_WarMobilization(eStrategy, m_pPlayer);
 				else if(strStrategyName == "MILITARYAISTRATEGY_AT_WAR")
-					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer);
+					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_AtWar(m_pPlayer,false);
 				else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_GENERAL_DEFENSE")
 					bStrategyShouldBeActive = MilitaryAIHelpers::IsTestStrategy_MinorCivGeneralDefense();
 				else if(strStrategyName == "MILITARYAISTRATEGY_MINOR_CIV_THREAT_ELEVATED")

@@ -2321,12 +2321,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_SmallCity(CvCity* pCity)
 /// "Medium City" City Strategy: Sizes 7 to 14
 bool CityStrategyAIHelpers::IsTestCityStrategy_MediumCity(CvCity* pCity)
 {
-	// Never consider the capital to be a medium city (so with late game starts at least one city retains high flavors for SPACESHIP, etc.)
-	if (pCity->isCapital())
-	{
-		return false;
-	}
-
 	if (pCity->getPopulation() >= /*7*/ GD_INT_GET(AI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD) &&
 		pCity->getPopulation() < /*15*/ GD_INT_GET(AI_CITYSTRATEGY_LARGE_CITY_POP_THRESHOLD))
 	{

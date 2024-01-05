@@ -116,7 +116,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-40</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -246,7 +246,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-10</Flavor>
+			<Flavor>0</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -371,12 +371,12 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_WONDER</FlavorType>
-			<Flavor>-150</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-150</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
@@ -508,7 +508,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-30</Flavor>
+			<Flavor>-10</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_AT_WAR</AIMilitaryStrategyType>
@@ -638,7 +638,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-10</Flavor>
+			<Flavor>0</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_WINNING_WARS</AIMilitaryStrategyType>
@@ -768,7 +768,7 @@
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
-			<Flavor>-60</Flavor>
+			<Flavor>-100</Flavor>
 		</Row>
 		<Row>
 			<AIMilitaryStrategyType>MILITARYAISTRATEGY_LOSING_WARS</AIMilitaryStrategyType>
@@ -935,9 +935,19 @@
 	</AIEconomicStrategy_City_Flavors>
 	<AICityStrategy_Flavors>
 		<Row>
-			<AICityStrategyType>AICITYSTRATEGY_LARGE_CITY</AICityStrategyType>
+			<AICityStrategyType>AICITYSTRATEGY_SMALL_CITY</AICityStrategyType>
 			<FlavorType>FLAVOR_EXPANSION</FlavorType>
 			<Flavor>30</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_MEDIUM_CITY</AICityStrategyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>20</Flavor>
+		</Row>
+		<Row>
+			<AICityStrategyType>AICITYSTRATEGY_LARGE_CITY</AICityStrategyType>
+			<FlavorType>FLAVOR_EXPANSION</FlavorType>
+			<Flavor>10</Flavor>
 		</Row>
 		<Row>
 			<AICityStrategyType>AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS</AICityStrategyType>
