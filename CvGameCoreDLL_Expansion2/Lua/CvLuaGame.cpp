@@ -411,6 +411,8 @@ void CvLuaGame::RegisterMembers(lua_State* L)
 	Method(DoRepealResolution);
 	Method(IsBeliefValid);
 	Method(ScoreBelief);
+	Method(ScorePolicy);
+	Method(ScorePolicyBranch);
 
 	Method(IsAchievementUnlocked);
 	Method(GetSteamStat);
@@ -3267,6 +3269,24 @@ int CvLuaGame::lScoreBelief(lua_State* L)
 			iScore = GET_PLAYER(ePlayer).GetReligionAI()->ScoreBelief(pBelief);
 	}
 
+	lua_pushinteger(L, iScore);
+	return 1;
+}
+
+int CvLuaGame::lScorePolicy(lua_State* L)
+{
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
+	const PolicyTypes ePolicyType = static_cast<PolicyTypes>(luaL_checkint(L, 2));
+	int iScore = (ePlayer != NO_PLAYER) ? GET_PLAYER(ePlayer).GetPlayerPolicies()->ScorePolicy(ePolicyType) : 0;
+	lua_pushinteger(L, iScore);
+	return 1;
+}
+
+int CvLuaGame::lScorePolicyBranch(lua_State* L)
+{
+	const PlayerTypes ePlayer = static_cast<PlayerTypes>(luaL_checkint(L, 1));
+	const PolicyBranchTypes ePolicyBranchType = static_cast<PolicyBranchTypes>(luaL_checkint(L, 2));
+	int iScore = (ePlayer!=NO_PLAYER) ? GET_PLAYER(ePlayer).GetPlayerPolicies()->ScorePolicyBranch(ePolicyBranchType) : 0;
 	lua_pushinteger(L, iScore);
 	return 1;
 }

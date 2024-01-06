@@ -4593,7 +4593,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 
 int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 {
-	if (ePolicy == NO_POLICY)
+	if (ePolicy == NO_POLICY || pPlayer == NULL)
 		return 0;
 
 	int iWeight = m_PolicyAIWeights.GetWeight(ePolicy);
@@ -4917,6 +4917,9 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 /// Priority for opening up this branch
 int CvPolicyAI::WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch)
 {
+	if (eBranch == NO_POLICY_BRANCH_TYPE || pPlayer == NULL)
+		return 0;
+
 	int iWeight = 0;
 
 	CvPolicyBranchEntry* pkPolicyBranchInfo = GC.getPolicyBranchInfo(eBranch);
