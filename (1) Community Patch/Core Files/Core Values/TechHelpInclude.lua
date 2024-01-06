@@ -100,7 +100,7 @@ function GetHelpTextForTech( iTechID )
 	-- update the buildings unlocked
 	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
 		if thisBuildingInfo then
-			if thisBuildingInfo.ShowInPedia == 1 then
+			if thisBuildingInfo.ShowInPedia then
 				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
 				if thisBuildingClass.MaxGlobalInstances <= 0  then
 					if numBuildings > 0 then
@@ -540,7 +540,7 @@ function GetShortHelpTextForTech( iTechID )
 	-- update the buildings unlocked
 	for thisBuildingInfo in GameInfo.Buildings( prereqCondition ) do
 		if thisBuildingInfo then
-			if thisBuildingInfo.ShowInPedia == 1 then
+			if thisBuildingInfo.ShowInPedia then
 				local thisBuildingClass = GameInfo.BuildingClasses[thisBuildingInfo.BuildingClass];
 				if thisBuildingClass.MaxGlobalInstances <= 0  then
 					if numBuildings > 0 then

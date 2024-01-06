@@ -243,6 +243,7 @@ void CvPlot::reset()
 	{
 		m_aiPlayerCityRadiusCount[iI] = 0;
 		m_aiVisibilityCount[iI] = 0;
+		m_aiKnownVisibilityCount[iI] = 0;
 		m_aiRevealedOwner[iI] = -1;
 		m_abResourceForceReveal[iI] = false;
 		m_aeRevealedImprovementType[iI] = NO_IMPROVEMENT;
@@ -7570,7 +7571,12 @@ void CvPlot::setImprovementType(ImprovementTypes eNewValue, PlayerTypes eBuilder
 			SetImprovementPassable(false);
 			//displace units which cannot stay here any longer (question: what if we replace one passable improvement with another? that let's ignore that case)
 			for (int i = 0; i < getNumUnits(); i++)
-				getUnitByIndex(i)->jumpToNearestValidPlotWithinRange(1);
+			{
+				CvUnit* pPotentiallyDisplaced = getUnitByIndex(i);
+				//do not push around zombie units
+				if (!pPotentiallyDisplaced->isDelayedDeath())
+					pPotentiallyDisplaced->jumpToNearestValidPlotWithinRange(1);
+			}
 
 			// If this improvement can add culture to nearby improvements, update them as well
 			if(area())
@@ -11287,6 +11293,31 @@ void CvPlot::SetResourceForceReveal(TeamTypes eTeam, bool bValue)
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
 	m_abResourceForceReveal[eTeam] = bValue;
 }
+
+//	--------------------------------------------------------------------------------
+/// Current player's knowledge of other players' visibility count
+int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	return m_aiKnownVisibilityCount[eTeam];
+}
+
+void CvPlot::IncreaseKnownVisibilityCount(TeamTypes eTeam, int iAmount)
+{
+	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
+	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
+	m_aiKnownVisibilityCount[eTeam] += iAmount;
+}
+
+void CvPlot::ResetKnownVisibility()
+{
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		m_aiKnownVisibilityCount[iI] = 0;
+	}
+}
+
 #if defined(MOD_BALANCE_CORE)
 //	--------------------------------------------------------------------------------
 bool CvPlot::IsTeamImpassable(TeamTypes eTeam) const

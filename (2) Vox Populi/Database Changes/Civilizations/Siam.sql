@@ -39,7 +39,7 @@ UPDATE Buildings
 SET
 	SpecialistType = 'SPECIALIST_SCIENTIST',
 	SpecialistCount = 1,
-	EspionageModifier = 20,
+	SpySecurityModifier = 20, -- 15
 	DiplomatInfluenceBoost = 10,
 	PrereqTech = 'TECH_THEOLOGY'
 WHERE Type = 'BUILDING_WAT';

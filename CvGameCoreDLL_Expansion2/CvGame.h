@@ -214,13 +214,13 @@ public:
 	void changeTotalPopulation(int iChange);
 
 	int getTotalEconomicValue() const;
-	void setTotalEconomicValue(int iValue);
+	void setTotalEconomicValue(int iChange);
 
 	int getHighestEconomicValue() const;
-	void setHighestEconomicValue(int iValue);
+	void setHighestEconomicValue(int iChange);
 
 	int getMedianEconomicValue() const;
-	void setMedianEconomicValue(int iValue);
+	void setMedianEconomicValue(int iChange);
 
 	int getNoNukesCount() const;
 	bool isNoNukes() const;
@@ -237,7 +237,7 @@ public:
 	void initScoreCalculation();
 
 	int getAIAutoPlay() const;
-	void setAIAutoPlay(int iNewValue, PlayerTypes eReturnPlayer);
+	void setAIAutoPlay(int iNewValue, PlayerTypes eReturnAsPlayer);
 	void changeAIAutoPlay(int iChange);
 
 	unsigned int getInitialTime() const;
@@ -596,7 +596,7 @@ public:
 	PlayerTypes GetCorporationFounder( CorporationTypes eCorporation ) const;
 	int GetNumCorporationsFounded() const;
 #if defined (MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	void UpdateGreatestPlayerResourceMonopoly(ResourceTypes eResource = NO_RESOURCE);
+	void UpdateGreatestPlayerResourceMonopoly(ResourceTypes eTestResource = NO_RESOURCE);
 	int GetGreatestPlayerResourceMonopoly(ResourceTypes eResource) const;
 	int GetGreatestPlayerResourceMonopolyValue(ResourceTypes eResource) const;
 #endif
@@ -657,7 +657,7 @@ public:
 #endif
 
 	int getPlotExtraYield(int iX, int iY, YieldTypes eYield) const;
-	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iCost);
+	void setPlotExtraYield(int iX, int iY, YieldTypes eYield, int iExtraYield);
 	void removePlotExtraYield(int iX, int iY);
 
 	int getPlotExtraCost(int iX, int iY) const;
@@ -816,13 +816,13 @@ public:
 
 	void SetClosestCityMapDirty();
 	//assuming a typical unit
-	int GetClosestCityDistancePathLength(  const CvPlot* pPlot, bool bMajorsOnly=false );
-	CvCity* GetClosestCityByPathLength(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	int GetClosestCityDistancePathLength(  const CvPlot* pPlot, bool bMajorOnly=false );
+	CvCity* GetClosestCityByPathLength(  const CvPlot* pPlot, bool bMajorOnly=false );
 	int GetClosestCityDistancePathLength(  const CvPlot* pPlot, PlayerTypes ePlayer );
 	CvCity* GetClosestCityByPathLength(  const CvPlot* pPlot, PlayerTypes ePlayer );
 
-	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
-	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, bool bMajorsOnly=false );
+	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, bool bMajorOnly=false );
+	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, bool bMajorOnly=false );
 	int GetClosestCityDistanceInPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
 	CvCity* GetClosestCityByPlots(  const CvPlot* pPlot, PlayerTypes ePlayer );
 
@@ -830,7 +830,7 @@ public:
 
 	PlayerTypes GetPotentialFreeCityPlayer(CvCity* pCity = NULL);
 	TeamTypes GetPotentialFreeCityTeam(CvCity* pCity = NULL);
-	bool CreateFreeCityPlayer(CvCity* pCity, bool bJustChecking, bool bMajorFoundingCityState);
+	bool CreateFreeCityPlayer(CvCity* pStartingCity, bool bJustChecking, bool bMajorFoundingCityState);
 
 	//------------------------------------------------------------
 	PlayerTypes GetAutoPlayReturnPlayer() const { return m_eAIAutoPlayReturnPlayer;	}
@@ -839,7 +839,7 @@ public:
 
 	bool isFirstActivationOfPlayersAfterLoad() const;
 
-	void NewCapitalFounded(int iPlotFoundValue);
+	void NewCapitalFounded(int iFoundValue);
 	int GetCityQualityReference() const;
 	
 	// exe things
@@ -1049,7 +1049,7 @@ protected:
 
 	void assignStartingPlots();
 
-	void setInitialItems(CvGameInitialItemsOverrides& kOverrides);
+	void setInitialItems(CvGameInitialItemsOverrides& kInitialItemOverrides);
 	void CheckGenerateArchaeology();
 	void regenerateMap();
 

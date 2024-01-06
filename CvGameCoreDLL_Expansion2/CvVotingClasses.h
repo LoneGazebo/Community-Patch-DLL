@@ -210,7 +210,7 @@ class CvProposerDecision : public CvResolutionDecision
 {
 public:
 	CvProposerDecision(void);
-	CvProposerDecision(ResolutionDecisionTypes eType, PlayerTypes eProposer, int iChoice);
+	CvProposerDecision(ResolutionDecisionTypes eType, PlayerTypes eProposalPlayer, int iChoice);
 	virtual ~CvProposerDecision(void);
 
 	template<typename ProposerDecision, typename Visitor>
@@ -571,7 +571,7 @@ public:
 	void DoProposeRepeal(int iResolutionID, PlayerTypes eProposer);
 	bool CanProposeEnactAnyChoice(ResolutionTypes eResolution, PlayerTypes eProposer);
 	bool CanProposeEnact(ResolutionTypes eResolution, PlayerTypes eProposer, int iChoice, CvString* sTooltipSink = NULL);
-	bool CanProposeRepeal(int iTargetResolutionID, PlayerTypes eProposer, CvString* sTooltipSink = NULL);
+	bool CanProposeRepeal(int iResolutionID, PlayerTypes eProposer, CvString* sTooltipSink = NULL);
 	bool IsResolutionEffectsValid(ResolutionTypes eResolution, int iProposerChoice, CvString* sTooltipSink = NULL);
 	bool IsAnythingProposed();
 	bool IsActiveResolution(ResolutionTypes eResolution, int iProposerChoice);
@@ -641,7 +641,7 @@ public:
 	// Resolution Effect Queries
 	bool IsTradeEmbargoed(PlayerTypes eTrader, PlayerTypes eRecipient);
 	bool IsPlayerEmbargoed(PlayerTypes ePlayer);
-	bool IsLuxuryHappinessBanned(ResourceTypes eLuxury);
+	bool IsLuxuryHappinessBanned(ResourceTypes eResource);
 	int GetResearchMod(TechTypes eTech);
 	int GetFeatureYieldChange(FeatureTypes eFeature, YieldTypes eYield);
 	int GetWorldWonderYieldChange(YieldTypes eYield);
@@ -800,7 +800,7 @@ public:
 	int GetNumActiveLeagues();
 	int GetNumLeaguesEverFounded() const;
 	EraTypes GetLastEraTrigger() const;
-	void SetLastEraTrigger(EraTypes eLastEraTrigger);
+	void SetLastEraTrigger(EraTypes eEraTrigger);
 	CvLeague* GetLeague(LeagueTypes eLeague);
 	CvLeague* GetActiveLeague();
 
@@ -976,7 +976,7 @@ public:
 	// Deals for votes
 	VoteCommitmentList GetDesiredVoteCommitments(PlayerTypes eFromPlayer);
 	bool HasVoteCommitment() const;
-	int GetVoteCommitment(PlayerTypes eToPlayer, int iResolutionID, int iVoteChoice, bool bRepeal);
+	int GetVoteCommitment(PlayerTypes eToPlayer, int iResolutionID, int iVoteChoice, bool bEnact);
 	bool CanCommitVote(PlayerTypes eToPlayer, CvString* sTooltipSink = NULL);
 	void AddVoteCommitment(PlayerTypes eToPlayer, int iResolutionID, int iVoteChoice, int iNumVotes, bool bRepeal);
 	void CancelVoteCommitmentsToPlayer(PlayerTypes eToPlayer);
@@ -1007,7 +1007,7 @@ public:
 
 	CvPlayer* m_pPlayer;
 
-	DesireLevels EvaluateDesire(int iRawEvaluationScore);
+	DesireLevels EvaluateDesire(int iRawScore);
 	DesireLevels EvaluateDesireForVoteOutcome(CvProposal* pProposal, int iChoice, bool bEnact);
 
 	VoteCommitmentList m_vVoteCommitmentList;

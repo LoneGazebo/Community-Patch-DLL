@@ -36,7 +36,6 @@ CvSpyPassiveBonusEntry::CvSpyPassiveBonusEntry(void)
 	m_iSciencePercentAdded = 0;
 	m_iTilesRevealed = 0;
 	m_bRevealCityScreen = false;
-	m_bWonderConstructionNotification = false;
 }
 
 CvSpyPassiveBonusEntry::~CvSpyPassiveBonusEntry(void)
@@ -54,7 +53,6 @@ bool CvSpyPassiveBonusEntry::CacheResults(Database::Results& kResults, CvDatabas
 	m_iSciencePercentAdded = kResults.GetInt("SciencePercentAdded");
 	m_iTilesRevealed = kResults.GetInt("TilesRevealed");
 	m_bRevealCityScreen = kResults.GetBool("RevealCityScreen");
-	m_bWonderConstructionNotification = kResults.GetBool("WonderConstructionNotification");
 
 	return true;
 }
@@ -77,10 +75,6 @@ int CvSpyPassiveBonusEntry::GetTilesRevealed() const
 bool CvSpyPassiveBonusEntry::IsRevealCityScreen() const
 {
 	return m_bRevealCityScreen;
-}
-bool CvSpyPassiveBonusEntry::IsWonderConstructionNotification() const
-{
-	return m_bWonderConstructionNotification;
 }
 
 // ================================================================================
@@ -1598,7 +1592,7 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 	if (!pSpy)
 		return "";
 
-	if (MOD_BALANCE_VP && !(pSpy->GetSpyState() == SPY_STATE_TERMINATED || pSpy->GetSpyState() == SPY_STATE_DEAD) && pSpy->m_eRank < (NUM_SPY_RANKS - 1))
+	if (MOD_BALANCE_VP && pSpy->GetSpyState() != SPY_STATE_TERMINATED && pSpy->GetSpyState() != SPY_STATE_DEAD && pSpy->m_eRank < (NUM_SPY_RANKS - 1))
 	{
 		int iExperienceDenominator = /*100*/ GD_INT_GET(ESPIONAGE_SPY_EXPERIENCE_DENOMINATOR);
 		iExperienceDenominator *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -1612,7 +1606,7 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 	{
 		if (eSpyState == SPY_STATE_UNASSIGNED)
 		{
-			if (strSpyAtCity != "")
+			if (!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_UNASSIGNED_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
@@ -1623,7 +1617,7 @@ CvString CvPlayerEspionage::GetSpyMissionTooltip(CvCity* pCity, uint uiSpyIndex)
 		}
 		else if (eSpyState == SPY_STATE_TERMINATED || pSpy->GetSpyState() == SPY_STATE_DEAD)
 		{
-			if (strSpyAtCity != "")
+			if (!strSpyAtCity.empty())
 				strSpyAtCity += "[NEWLINE][NEWLINE]";
 
 			strSpyAtCity += GetLocalizedText("TXT_KEY_EO_SPY_BUTTON_DISABLED_SPY_DEAD_TT", GetSpyRankName(pSpy->m_eRank), pSpy->GetSpyName(m_pPlayer));
@@ -2722,12 +2716,15 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	pSpy->m_iCityX = -1;
 	pSpy->m_iCityY = -1;
 	pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_UNASSIGNED);
+	pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
 
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 	pCityEspionage->m_aiSpyAssignment[ePlayer] = -1;
 	pCityEspionage->ResetProgress(ePlayer);
 	pCityEspionage->ResetPassiveBonuses(ePlayer);
+
+	pSpy->SetTurnCounterspyMissionChanged(0);
 
 	if (bHadSurveillance)
 	{
@@ -3060,7 +3057,7 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	if (!pCity)
 		return 0;
 
-	if (!(eSpyState == SPY_STATE_GATHERING_INTEL || eSpyState == SPY_STATE_SCHMOOZE))
+	if (eSpyState != SPY_STATE_GATHERING_INTEL && eSpyState != SPY_STATE_SCHMOOZE)
 		return 0;
 
 	int iNP = 0;
@@ -3116,9 +3113,9 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	int iMyPoliciesEspionageModifier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 	if (iMyPoliciesEspionageModifier > 0)
 	{
-		iTemp *= 100 + iMyPoliciesEspionageModifier;
-		iTemp /= 100;
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT", iTemp);
+		iNP *= 100 + iMyPoliciesEspionageModifier;
+		iNP /= 100;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT", iMyPoliciesEspionageModifier);
 	}
 
 	iNP = max(iNP, 0);
@@ -6065,7 +6062,7 @@ void CvCityEspionage::ResetPassiveBonuses(PlayerTypes ePlayer)
 {
 	SetSciencePassivePerTurn(ePlayer, 0);
 	SetDiplomatTradeBonus(ePlayer, 0);
-	SetRevealCityScreen(ePlayer, 0);
+	SetRevealCityScreen(ePlayer, false);
 	SetVisionBonus(ePlayer, 0);
 }
 
@@ -6334,11 +6331,7 @@ bool CvCityEspionage::HasCounterSpy() const
 		return false;
 
 	CvEspionageSpy* pSpy = GET_PLAYER(m_pCity->getOwner()).GetEspionage()->GetSpyByID(iSpyID);
-	if (pSpy && pSpy->GetSpyState() == SPY_STATE_COUNTER_INTEL)
-	{
-		return true;
-	}
-	return false;
+	return pSpy && pSpy->GetSpyState() == SPY_STATE_COUNTER_INTEL;
 }
 int CvCityEspionage::GetCounterSpyID() const
 {
@@ -6989,8 +6982,20 @@ void CvEspionageAI::PerformSpyMissions()
 			continue;
 
 		CvCity* pCity = pEspionage->GetCityWithSpy(uiSpy);
+
+		if (!pCity)
+		{
+			// spies that are gathering intelligence should always be in a city
+			//UNREACHABLE();
+			//for version 4.4 only: In 4.4.0 and 4.4.1 there's a bug that spies are not reset when the city they're in is razed, so it can happen that spies are gathering intelligence without being in a city. To allow players to continue their started games, we reset those spies here. In the next version, the UNREACHABLE should be activated again
+			pSpy->m_iCityX = -1;
+			pSpy->m_iCityY = -1;
+			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpy, SPY_STATE_UNASSIGNED);
+			pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
+			continue;
+		}
+
 		CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-		//todo: regular logging of all spies and their status every 5 turns
 
 		// if no mission selected, select one now
 		if (pSpy->GetSpyFocus() == NO_EVENT_CHOICE_CITY)
@@ -7119,7 +7124,7 @@ void CvEspionageAI::PerformSpyMissions()
 					strMsg += GC.getCityEventChoiceInfo(eOpportunityMission)->GetDescription();
 					pEspionage->LogEspionageMsg(strMsg);
 				}
-				pCity->DoEventChoice(eMission, NO_EVENT_CITY, false, uiSpy, ePlayer);
+				pCity->DoEventChoice(eOpportunityMission, NO_EVENT_CITY, false, uiSpy, ePlayer);
 				break;
 			}
 			
@@ -7370,7 +7375,7 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		}
 		if (pkMissionInfo->getRandomBarbs() > 0)
 		{
-			if (pDiplomacyAI->GetCivApproach(eTargetPlayer) <= MAJOR_CIV_APPROACH_HOSTILE)
+			if (pDiplomacyAI->GetCivApproach(eTargetPlayer) <= CIV_APPROACH_HOSTILE)
 			{
 				iScore += 10;
 			}
@@ -7752,6 +7757,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			if (!pCityPlot || !pLoopCity->isRevealed(m_pPlayer->getTeam(),false,true))
 				continue;
 
+			if (pLoopCity->IsRazing())
+				continue;
+
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 			kEntry.m_bDiplomat = false;
@@ -7854,6 +7862,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	int iLoop = 0;
 	for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
+		if (pLoopCity->IsRazing())
+			continue;
+
 		if (!MOD_BALANCE_VP)
 		{
 			ScoreCityEntry kEntry;
@@ -8012,7 +8023,13 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 				continue;
 			}
 
+			if (pMinorCivAI->IsNoAlly())
+				continue;
+
 			if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+				continue;
+
+			if (pLoopCity->IsRazing())
 				continue;
 
 			if (pMinorCivAI->IsAllies(m_pPlayer->GetID()))
@@ -8435,6 +8452,35 @@ void CvEspionageAI::EvaluateMinorCivSpies(void)
 		CvCity* pCity = pEspionage->GetCityWithSpy(ui);
 		if (pCity && GET_PLAYER(pCity->getOwner()).isMinorCiv())
 		{
+			CvMinorCivAI* pMinorCivAI = GET_PLAYER(pCity->getOwner()).GetMinorCivAI();
+			// open doors?
+			if (pMinorCivAI->IsNoAlly())
+			{
+				CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
+				pSpy->m_bEvaluateReassignment = true;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: open doors for minor civ, %d,", ui);
+					strMsg += GetLocalizedText(pCity->getNameKey());
+					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
+
+			// sphere of influence
+			if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+			{
+				CvEspionageSpy* pSpy = &(pEspionage->m_aSpyList[ui]);
+				pSpy->m_bEvaluateReassignment = true;
+				if (GC.getLogging())
+				{
+					CvString strMsg;
+					strMsg.Format("Re-eval: minor civ has sphere of influence, %d,", ui);
+					strMsg += GetLocalizedText(pCity->getNameKey());
+					pEspionage->LogEspionageMsg(strMsg);
+				}
+			}
+
 			// if at war, reevaluate
 			if (GET_TEAM(m_pPlayer->getTeam()).isAtWar(GET_PLAYER(pCity->getOwner()).getTeam()))
 			{

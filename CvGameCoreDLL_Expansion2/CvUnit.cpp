@@ -1095,7 +1095,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (pCity)
 		{
 			ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
-			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion,pCity);
+			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion);
 		}
 	}
 	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate() || getUnitInfo().GetNumColonyFound() > 0))
@@ -3344,6 +3344,7 @@ void CvUnit::doTurn()
 			if (iTurnsElapsed > getPromotionDuration(ePromotion))
 			{
 				setHasPromotion(ePromotion, false);
+				restoreFullMoves();
 				continue;
 			}
 		}
@@ -4768,6 +4769,10 @@ bool CvUnit::canEnterTerritory(TeamTypes eTeam, bool bEndTurn) const
 		return true;
 
 	if(isRivalTerritory() || isTrade())
+		return true;
+
+	//if this option is active, we need open borders only if we want to end the turn in foreign territory
+	if (MOD_CORE_RELAXED_BORDER_CHECK && !bEndTurn)
 		return true;
 
 	// Minors can't intrude into one another's territory
@@ -6781,6 +6786,10 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 	if(pEnemy->GetCannotBeCaptured())
 		return 0;
 
+	// Can't capture units in cities
+	if (pEnemy->plot()->isCity())
+		return 0;
+
 	// This unit has a fixed capture chance? Use it!
 	int iFixedCaptureChance = GetCaptureDefeatedEnemyChance();
 	if (iFixedCaptureChance > 0)
@@ -6794,7 +6803,7 @@ int CvUnit::GetCaptureChance(CvUnit *pEnemy)
 		for (int iCount = 0; iCount < NUM_DIRECTION_TYPES; iCount++)
 		{
 			CvPlot* pLoopPlot = aPlotsToCheck[iCount];
-			if (pEnemy->canEnterTerrain(*pLoopPlot, MOVEFLAG_NO_EMBARK | MOVEFLAG_DESTINATION))
+			if (pLoopPlot && pEnemy->canEnterTerrain(*pLoopPlot, MOVEFLAG_NO_EMBARK | MOVEFLAG_DESTINATION))
 				iEnterablePlotCount++;
 		}
 
@@ -7353,10 +7362,7 @@ bool CvUnit::canUseForAIOperation() const
 	}
 
 	//don't pull units out of important citadels
-	if (TacticalAIHelpers::IsPlayerCitadel(plot(), getOwner()) && TacticalAIHelpers::IsCloseToContestedBorder(&kPlayer, plot()))
-		return false;
-
-	return true;
+	return !(TacticalAIHelpers::IsPlayerCitadel(plot(), getOwner()) && TacticalAIHelpers::IsCloseToContestedBorder(&kPlayer, plot()));
 }
 
 //	--------------------------------------------------------------------------------
@@ -9682,6 +9688,90 @@ bool CvUnit::createFreeLuxury()
 
 	return bResult;
 }
+
+int CvUnit::CreateFreeLuxuryCheckCopy()
+{
+	int iNumLuxuries = m_pUnitInfo->GetNumFreeLux() + GET_PLAYER(getOwner()).GetAdmiralLuxuryBonus();
+	return iNumLuxuries;
+}
+
+int CvUnit::CreateFreeLuxuryCheck()
+{
+	int iNumLuxuries = m_pUnitInfo->GetNumFreeLux() + GET_PLAYER(getOwner()).GetAdmiralLuxuryBonus();
+	if(iNumLuxuries > 0)
+	{
+		// Loop through all resources and see if we can find this many unique ones
+		ResourceTypes eResourceToGive = NO_RESOURCE;
+		int iBestFlavor = 0;
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				if(GC.getMap().getNumResources(eResource) <= 0)
+				{
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+					//If we've already got this resource, divide the value by the amount.
+					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
+					{
+						iRandomFlavor = 0;
+					}
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive == NO_RESOURCE)
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+					//If we've already got this resource, divide the value by the amount.
+					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
+					{
+						iRandomFlavor = 0;
+					}
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive == NO_RESOURCE)
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive != NO_RESOURCE)
+		{
+			return eResourceToGive;
+		}
+	}
+
+	return NO_RESOURCE;
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getNumExoticGoods() const
@@ -11023,6 +11113,14 @@ bool CvUnit::DoFoundReligion()
 		if(CanFoundReligion(pkPlot))
 		{
 			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			bool bIndiaException = false;
+			if (kOwner.GetPlayerTraits()->IsProphetFervor())
+			{
+				GetReligionDataMutable()->IncrementSpreadsUsed();
+				bIndiaException = true;
+				finishMoves();
+			}
+
 			if(kOwner.isHuman())
 			{
 				CvAssertMsg(pkCity != NULL, "No City??");
@@ -11035,12 +11133,16 @@ bool CvUnit::DoFoundReligion()
 					pNotifications->Add(NOTIFICATION_FOUND_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
 				kOwner.GetReligions()->SetFoundingReligion(true);
+
+				if (!bIndiaException)
+				{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
-				kOwner.DoGreatPersonExpended(getUnitType(), this);
+					kOwner.DoGreatPersonExpended(getUnitType(), this);
 #else
-				kOwner.DoGreatPersonExpended(getUnitType());
+					kOwner.DoGreatPersonExpended(getUnitType());
 #endif
-				kill(true);
+					kill(true);
+				}
 			}
 			else
 			{
@@ -11099,12 +11201,16 @@ bool CvUnit::DoFoundReligion()
 #endif
 
 					pReligions->FoundReligion(getOwner(), eReligion, NULL, eBeliefs[0], eBeliefs[1], eBeliefs[2], eBeliefs[3], pkCity);
+
+					if (!bIndiaException)
+					{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
-					kOwner.DoGreatPersonExpended(getUnitType(), this);
+						kOwner.DoGreatPersonExpended(getUnitType(), this);
 #else
-					kOwner.DoGreatPersonExpended(getUnitType());
+						kOwner.DoGreatPersonExpended(getUnitType());
 #endif
-					kill(true);
+						kill(true);
+					}
 				}
 				else
 				{
@@ -11191,6 +11297,16 @@ bool CvUnit::DoEnhanceReligion()
 		if(CanEnhanceReligion(pkPlot))
 		{
 			CvPlayerAI& kOwner = GET_PLAYER(getOwner());
+			bool bIndiaException = false;
+			if (kOwner.GetPlayerTraits()->IsProphetFervor())
+			{
+				GetReligionDataMutable()->IncrementSpreadsUsed();
+				if (GetReligionData()->GetSpreadsLeft(this) > 0)
+					bIndiaException = true;
+
+				finishMoves();
+			}
+
 			if(kOwner.isHuman())
 			{
 				CvAssertMsg(pkCity != NULL, "No City??");
@@ -11202,12 +11318,16 @@ bool CvUnit::DoEnhanceReligion()
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_ENHANCE_RELIGION");
 					pNotifications->Add(NOTIFICATION_ENHANCE_RELIGION, strBuffer, strSummary, pkPlot->getX(), pkPlot->getY(), -1, pkCity->GetID());
 				}
+
+				if (!bIndiaException)
+				{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
-				kOwner.DoGreatPersonExpended(getUnitType(), this);
+					kOwner.DoGreatPersonExpended(getUnitType(), this);
 #else
-				kOwner.DoGreatPersonExpended(getUnitType());
+					kOwner.DoGreatPersonExpended(getUnitType());
 #endif
-				kill(true);
+					kill(true);
+				}
 			}
 			else
 			{
@@ -11225,12 +11345,15 @@ bool CvUnit::DoEnhanceReligion()
 
 					pReligions->EnhanceReligion(getOwner(), eReligion, eBelief1, eBelief2);
 
+					if (!bIndiaException)
+					{
 #if defined(MOD_EVENTS_GREAT_PEOPLE)
-					kOwner.DoGreatPersonExpended(getUnitType(), this);
+						kOwner.DoGreatPersonExpended(getUnitType(), this);
 #else
-					kOwner.DoGreatPersonExpended(getUnitType());
+						kOwner.DoGreatPersonExpended(getUnitType());
 #endif
-					kill(true);
+						kill(true);
+					}
 				}
 				else
 				{
@@ -12255,14 +12378,15 @@ bool CvUnit::trade()
 	if (MOD_BALANCE_VP) 
 	{
 		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
+		
+		if (iRestingPointChange != 0)
+		{
+			GET_PLAYER(eMinor).GetMinorCivAI()->ChangeRestingPointChange(getOwner(), iRestingPointChange);
+		}
 
 		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
-		if (m_pUnitInfo->GetNumInfPerEra() > 0 || iRestingPointChange != 0)
+		if (m_pUnitInfo->GetNumInfPerEra() > 0 && iRestingPointChange != 0)
 		{
-			if (iRestingPointChange != 0)
-			{
-				GET_PLAYER(eMinor).GetMinorCivAI()->ChangeRestingPointChange(getOwner(), iRestingPointChange);
-			}
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -13638,7 +13762,7 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		return false;
 	}
 
-	// If prophet has  started spreading religion, can't do other functions
+	// If prophet has started spreading religion, can't do other functions
 	if (m_pUnitInfo->IsSpreadReligion())
 	{
 		if (GetReligionData()->GetReligion() != NO_RELIGION && GetReligionData()->GetSpreadsUsed() > 0)
@@ -14005,48 +14129,59 @@ bool CvUnit::build(BuildTypes eBuild)
 					gDLL->GameplayUnitActivate(pDllUnit.get());
 				}
 
-				if(IsGreatPerson())
+				bool bIndiaException = false;
+				ImprovementTypes eHolySite = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_HOLY_SITE");
+				if (eImprovement == eHolySite && GET_PLAYER(getOwner()).GetPlayerTraits()->IsProphetFervor())
 				{
-#if defined(MOD_EVENTS_GREAT_PEOPLE)
-#if defined(MOD_CIV6_WORKER)
-					if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
+					GetReligionDataMutable()->IncrementSpreadsUsed();
+					if (GetReligionData()->GetSpreadsLeft(this) > 0)
+						bIndiaException = true;
+
+					if (bIndiaException && pPlot->isActiveVisible())
 					{
-						int iBuildCost = pkBuildInfo->getBuilderCost();
-						setBuilderStrength(getBuilderStrength() - iBuildCost);
-						if (getBuilderStrength() <= 0)
+						// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+						gDLL->GameplayUnitResetAnimationState(pDllUnit.get());
+					}
+				}
+
+				if (!bIndiaException)
+				{
+					if (IsGreatPerson())
+					{
+#if defined(MOD_EVENTS_GREAT_PEOPLE)
+						if (MOD_CIV6_WORKER && getBuilderStrength() > 0)
 						{
+							int iBuildCost = pkBuildInfo->getBuilderCost();
+							setBuilderStrength(getBuilderStrength() - iBuildCost);
+							if (getBuilderStrength() <= 0)
+							{
+								kPlayer.DoGreatPersonExpended(getUnitType(), this);
+								kill(true);
+							}
+						}
+						else
 							kPlayer.DoGreatPersonExpended(getUnitType(), this);
+#else
+						kPlayer.DoGreatPersonExpended(getUnitType());
+#endif
+					}
+
+					if (MOD_CIV6_WORKER)
+					{
+						if ((!pkBuildInfo->isKillOnlyCivilian() && !IsGreatPerson()) || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit() && !IsGreatPerson()))
+						{
 							kill(true);
 						}
 					}
-					else
-#endif
-					kPlayer.DoGreatPersonExpended(getUnitType(), this);
-#else
-					kPlayer.DoGreatPersonExpended(getUnitType());
-#endif
-				}
-#if defined(MOD_BALANCE_CORE)
-#if defined(MOD_CIV6_WORKER)
-				if (MOD_CIV6_WORKER)
-				{
-					if ((!pkBuildInfo->isKillOnlyCivilian() && !IsGreatPerson()) || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit() && !IsGreatPerson()))
+					else if (!MOD_CIV6_WORKER)
 					{
-						kill(true);
+						if (!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
+						{
+							kill(true);
+						}
 					}
 				}
-				else if (!MOD_CIV6_WORKER)
-				{
-#endif
-					if (!pkBuildInfo->isKillOnlyCivilian() || (pkBuildInfo->isKillOnlyCivilian() && IsCivilianUnit()))
-					{
-#endif
-
-						kill(true);
-#if defined(MOD_BALANCE_CORE)
-					}
-				}
-#endif
 			}
 
 #if defined(MOD_CIV6_WORKER)
@@ -20279,7 +20414,7 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 			}
 		}
 
-		if(IsCombatUnit())
+		if(IsCombatUnit() && !isDelayedDeath())
 		{
 			oldUnitList.clear();
 
@@ -30361,7 +30496,7 @@ bool CvUnit::CanDoInterfaceMode(InterfaceModeTypes eInterfaceMode, bool bTestVis
 	case INTERFACEMODE_ATTACK:
 		if(IsCanAttackWithMove() && !isOutOfAttacks())
 		{
-			if(GetPlotsWithEnemyInMovementRange(false, IsCityAttackSupport()).size()>0 || bTestVisibility)
+			if(!GetPlotsWithEnemyInMovementRange(false, IsCityAttackSupport()).empty() || bTestVisibility)
 			{
 				return true;
 			}

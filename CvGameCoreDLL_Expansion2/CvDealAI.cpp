@@ -477,6 +477,10 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 	if (pDiploAI->IsDemandTooSoon(eFromPlayer))
 		return DEMAND_RESPONSE_REFUSE_TOO_SOON;
 
+	// Untrustworthy? Never give in.
+	if (pDiploAI->IsUntrustworthy(eFromPlayer))
+		return DEMAND_RESPONSE_REFUSE_HOSTILE;
+
 	// If we're a vassal, check if we can benefit from our master's protection.
 	if (eOurMaster != NO_TEAM && eOurMaster != eFromTeam)
 	{
@@ -529,9 +533,9 @@ DemandResponseTypes CvDealAI::GetDemandResponse(CvDeal* pDeal)
 
 		return DEMAND_RESPONSE_REFUSE_HOSTILE;
 	}
-	// 10 Boldness, or Unforgivable opinion? Never give in.
+	// 10 Boldness? Never give in.
 	// Hostility check is run after the weakness check, because the AI doesn't benefit from prematurely disclosing that they wouldn't be willing to accept regardless.
-	else if (pDiploAI->GetBoldness() == 10 || pDiploAI->GetCivOpinion(eFromPlayer) == CIV_OPINION_UNFORGIVABLE)
+	else if (pDiploAI->GetBoldness() == 10)
 		return DEMAND_RESPONSE_REFUSE_HOSTILE;
 	// Deal valued as impossible? Never give in. This also catches any untradeable items.
 	else if (GetDealValue(pDeal) == INT_MAX)
@@ -1778,7 +1782,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		// don't have prereq tech?
 		// if we're selling, consider also buildings we'll soon be able to build
 		TechTypes ePrereqTech = (TechTypes)pkBuildingInfo->GetPrereqAndTech();
-		if (ePrereqTech != NO_TECH && !(GetPlayer()->HasTech(ePrereqTech) || (bFromMe && GetPlayer()->findPathLength(ePrereqTech, false) < 3)))
+		if (ePrereqTech != NO_TECH && !GetPlayer()->HasTech(ePrereqTech) && (!bFromMe || GetPlayer()->findPathLength(ePrereqTech, false) >= 3))
 			continue;
 
 		// is the building obsolete?
@@ -1945,7 +1949,7 @@ vector<int> CvDealAI::GetStrategicResourceItemList(ResourceTypes eResource, int 
 		// don't have prereq tech?
 		// if we're selling, consider also units we'll soon be able to build
 		TechTypes ePrereqTech = (TechTypes)pkUnitInfo->GetPrereqAndTech();
-		if (ePrereqTech != NO_TECH && !(ePlayer->HasTech(ePrereqTech) || (bFromMe && ePlayer->findPathLength(ePrereqTech, false) < 3)))
+		if (ePrereqTech != NO_TECH && !ePlayer->HasTech(ePrereqTech) && (!bFromMe || ePlayer->findPathLength(ePrereqTech, false) >= 3))
 			continue;
 
 		// is the unit obsolete?
@@ -5527,7 +5531,7 @@ int CvDealAI::GetPotentialDemandValue(PlayerTypes eOtherPlayer, CvDeal* pDeal, i
 	int iTotalValue = GetDealValue(pDeal);
 	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue, false, false);
 	
-	if (pDeal->m_TradedItems.size() <= 0)
+	if (pDeal->m_TradedItems.empty())
 	{
 		return 0;
 	}
@@ -5562,7 +5566,7 @@ bool CvDealAI::IsMakeDemand(PlayerTypes eOtherPlayer, CvDeal* pDeal)
 	int iTotalValue = 0;
 	DoAddItemsToThem(pDeal, eOtherPlayer, iTotalValue, iIdealValue, false, false);
 
-	return (pDeal->m_TradedItems.size() > 0 && iTotalValue > 0);
+	return (!pDeal->m_TradedItems.empty() && iTotalValue > 0);
 }
 
 /// A good time to make an offer for someone's extra Luxury?

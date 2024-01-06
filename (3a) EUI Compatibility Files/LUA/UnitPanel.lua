@@ -1674,6 +1674,30 @@ function ActionToolTipHandler( control )
 		if not gameCanHandleAction then
 			toolTip:insert( "----------------" )
 
+			local eUnitClass = GameInfoTypes[GameInfo.Units[upgradeUnitTypeID].Class];
+			local iMaxPlayerInstances = GameInfo.UnitClasses[eUnitClass].MaxPlayerInstances;
+			local iMaxTeamInstances = GameInfo.UnitClasses[eUnitClass].MaxTeamInstances;
+			local iMaxGlobalInstances = GameInfo.UnitClasses[eUnitClass].MaxGlobalInstances;
+
+			-- Can't upgrade because the world has too many of the upgraded units
+			if Game:IsUnitClassMaxedOut(eUnitClass, 0) then
+
+				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_GLOBAL_UNITCLASS_LIMIT", iMaxGlobalInstances)
+			end
+
+			-- Can't upgrade because our team has too many of the upgraded units
+			if g_activeTeam:IsUnitClassMaxedOut(eUnitClass, 0) then
+
+				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_TEAM_UNITCLASS_LIMIT", iMaxTeamInstances)
+			end
+
+			-- Can't upgrade because we have too many of the upgraded units
+			-- (can't use IsUnitClassMaxedOut here as it also checks the city limit)
+			if g_activePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
+
+				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT", iMaxPlayerInstances)
+			end
+
 			-- Can't upgrade because we're outside our territory
 			if plot:GetOwner() ~= unit:GetOwner() then
 
@@ -1694,6 +1718,8 @@ function ActionToolTipHandler( control )
 
 			-- Can't upgrade because we lack the Resources
 			local resourcesNeeded = table()
+			local resourcesTotalNeeded = table()
+			local resourcesPositiveNeeded = table()
 
 			-- Loop through all resources to see how many we need. If it's > 0 then add to the string
 			for resource in GameInfo.Resources() do
@@ -1868,6 +1894,17 @@ function ActionToolTipHandler( control )
 			elseif(unit:GetTourismBlastLength() > 0) then
 				toolTip:insert( "+" .. unit:GetTourismBlastLength() .. "[ICON_TURNS_REMAINING]" )
 			end
+		end
+	
+	-- Great Admiral
+	elseif action.Type == "MISSION_FREE_LUXURY" then
+
+		toolTip:insertLocalized( "TXT_KEY_MISSION_FREE_LUXURY_HELP" )
+
+		if gameCanHandleAction then
+			toolTip:insert( "----------------" )
+			local resource = GameInfo.Resources[unit:CreateFreeLuxuryCheck()]
+			toolTip:insert( "[COLOR_POSITIVE_TEXT]+" .. unit:CreateFreeLuxuryCheckCopy() .. resource.IconString .. " " .. Locale.ConvertTextKey(resource.Description)  .. "[ENDCOLOR]" )
 		end
 
 	-- Help text

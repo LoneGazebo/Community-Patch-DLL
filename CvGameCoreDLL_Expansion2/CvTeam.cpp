@@ -6154,6 +6154,12 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											if (bResourceImproved)
 											{
 												kLoopPlayer.connectResourcesOnPlot(pLoopPlot, true);
+
+												// Reconnect resource link
+												if (pLoopPlot->getEffectiveOwningCity() != NULL)
+												{
+													pLoopPlot->SetResourceLinkedCityActive(true);
+												}
 											}
 											else
 											{
@@ -6161,11 +6167,6 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 											}
 										}
 
-										// Reconnect resource link
-										if (pLoopPlot->getEffectiveOwningCity() != NULL)
-										{
-											pLoopPlot->SetResourceLinkedCityActive(true);
-										}
 									}
 									// Removing Tech
 									else
@@ -6173,15 +6174,15 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 										if (bResourceImproved)
 										{
 											kLoopPlayer.connectResourcesOnPlot(pLoopPlot, false);
+
+											// Disconnect resource link
+											if (pLoopPlot->getEffectiveOwningCity() != NULL)
+												pLoopPlot->SetResourceLinkedCityActive(false);
 										}
 										else
 										{
 											kLoopPlayer.changeNumResourceUnimprovedPlot(pLoopPlot, false);
 										}
-
-										// Disconnect resource link
-										if (pLoopPlot->getEffectiveOwningCity() != NULL)
-											pLoopPlot->SetResourceLinkedCityActive(false);
 									}
 								}
 							}

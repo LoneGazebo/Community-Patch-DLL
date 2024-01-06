@@ -40,7 +40,6 @@
 	StartingWorkerUnits: Amount of free Worker units at game start. Additive with starting units from other sources. Default 0.
 	StartingDefenseUnits: Amount of free Defense units at game start. Additive with starting units from other sources. Default 0.
 	StartingExploreUnits: Amount of free Recon units at game start. Additive with starting units from other sources. Default 0.
-  SpySecurityModifier: Amount of extra Security in every owned city. Default 0.
 	WorkRateModifier: Multiplicative % modifier to Worker construction speed. Default 0.
 	ImprovementCostPercent: % of normal Tile Improvement Maintenance (100 = normal cost). Default 0; the normal value must be specified.
 	BuildingCostPercent: % of normal Building Maintenance (100 = normal cost). Default 0; the normal value must be specified.
@@ -78,6 +77,7 @@
 	CombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
 	ResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against this player when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
 	VisionBonus: Extra Sight (in tiles) given to this player's non-trade units. This bonus is not applied to units with the Reconnaissance promotion. Default 0.
+	SpySecurityModifier: Amount of extra Security in every owned city. Default 0.
 	DifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_PLAYER_TURNS_PASSED trigger will occur for this player every DifficultyBonusTurnInterval turns. Default 0.
 
 	[AI Bonuses]
@@ -138,6 +138,7 @@
 	AICombatBonus: % modifier to combat strength. Additive with other bonuses. Default 0.
 	AIResistanceCap: Maximum anti-warmonger fervor (a % modifier to enemy combat strength) that can be accumulated against the AI when their units are in the enemy player's lands. Half of this modifier is applied in neutral territory. The modifier is not applied in owned territory. Default 0.
 	AIVisionBonus: Extra Sight (in tiles) given to this player's non-trade units. This bonus is not applied to units with the Reconnaissance promotion. Default 0.
+	AISpySecurityModifier: Amount of extra Security in every AI owned city. Default 0.
 	AIDifficultyBonusTurnInterval: If above 0, the DIFFICULTY_BONUS_AI_TURNS_PASSED trigger will occur for this player every AIDifficultyBonusTurnInterval turns. Default 0.
 
 	[City-States]
@@ -256,15 +257,13 @@
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>35</UnitSupplyPopulationPercent>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
-			<StartingExploreUnits>0</StartingExploreUnits>
-			<SpySecurityModifier>20</SpySecurityModifier>
-			<WorkRateModifier>0</WorkRateModifier>
 			<ImprovementCostPercent>60</ImprovementCostPercent>
 			<BuildingCostPercent>75</BuildingCostPercent>
 			<UnitCostPercent>75</UnitCostPercent>
 			<ResearchPercent>90</ResearchPercent>
 			<PolicyPercent>80</PolicyPercent>
 			<ResistanceCap>16</ResistanceCap>
+			<SpySecurityModifier>20</SpySecurityModifier>
 
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>
@@ -337,15 +336,13 @@
 			<UnitSupplyPerCity>1</UnitSupplyPerCity>
 			<UnitSupplyPopulationPercent>30</UnitSupplyPopulationPercent>
 			<StartingDefenseUnits>1</StartingDefenseUnits>
-			<StartingExploreUnits>0</StartingExploreUnits>
-			<SpySecurityModifier>10</SpySecurityModifier>
-			<WorkRateModifier>0</WorkRateModifier>
 			<ImprovementCostPercent>80</ImprovementCostPercent>
 			<BuildingCostPercent>90</BuildingCostPercent>
 			<UnitCostPercent>90</UnitCostPercent>
 			<ResearchPercent>95</ResearchPercent>
 			<PolicyPercent>90</PolicyPercent>
 			<ResistanceCap>24</ResistanceCap>
+			<SpySecurityModifier>10</SpySecurityModifier>
 
 			<!-- AI Bonuses -->
 			<AIHappinessDefault>8</AIHappinessDefault>

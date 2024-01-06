@@ -4859,24 +4859,23 @@ function AssignStartingPlots:BalanceAndAssign(args)
 	local bDisableStartBias = Game.GetCustomOption("GAMEOPTION_DISABLE_START_BIAS");
 	if bDisableStartBias == 1 then
 		-- print("-"); print("ALERT: Civ Start Biases have been selected to be Disabled!"); print("-");
-		local playerList = {};
+		local playerList, regionList = {}, {};
 		for loop = 1, self.iNumCivs do
 			local player_ID = self.player_ID_list[loop];
 			table.insert(playerList, player_ID);
 		end
 
-		-- If empty regions are needed, use -1 for player ID to mark empties.
-		if iNumRegions > 0 then
-			for _ = 1, iNumRegions do
-				table.insert(playerList, -1);
-			end
+		for loop = 1, iNumRegions do
+			table.insert(regionList, loop);
 		end
 
-		local playerListShuffled = GetShuffledCopyOfTable(playerList);
-		for region_number, player_ID in ipairs(playerListShuffled) do
+		local regionListShuffled = GetShuffledCopyOfTable(regionList);
+		for index, player_ID in ipairs(playerList) do
 			if player_ID >= 0 then
+				local region_number = regionListShuffled[index];
 				local x = self.startingPlots[region_number][1];
 				local y = self.startingPlots[region_number][2];
+				print("Now placing Player#", player_ID, "in Region#", region_number, "at start plot:", x, y);
 				local start_plot = Map.GetPlot(x, y);
 				local player = Players[player_ID];
 				player:SetStartingPlot(start_plot);

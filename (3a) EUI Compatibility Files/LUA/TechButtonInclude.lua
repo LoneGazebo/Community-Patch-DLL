@@ -501,7 +501,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 
 	-- buildings and wonders unlocked by this tech
 	for row in GameInfo.Buildings( thisPrereqTech ) do
-		if row.ShowInPedia == 1 and validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
+		if row.ShowInPedia and validBuildingBuilds[row.BuildingClass] == row.Type and not addSmallArtButton( AdjustArtOnGrantedBuildingButton, row ) then
 			break
 		end
 	end
@@ -587,8 +587,11 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	local bAddedForest = false
 	for row in GameInfo.Build_TechTimeChanges(thisTechType) do
 		if bAddedForest == false and (row.BuildType == "BUILD_REMOVE_JUNGLE" or row.BuildType == "BUILD_REMOVE_FOREST") then
-			bAddedForest = true
 			local tempRow = GameInfo.BuildFeatures{ BuildType = row.BuildType }();
+			if not tempRow then
+				break
+			end
+			bAddedForest = true
 			if not addSmallActionButton( {IconIndex = 31, IconAtlas = "UNIT_ACTION_GOLD_ATLAS", Description = ""}, "",  "TXT_KEY_REMOVE_FOREST_JUNGLE_COST_REDUCTION", DisplayPercentage(row.TimeChange/(tempRow.Time or 100)) ) then
 				break
 			end

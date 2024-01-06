@@ -1,12 +1,12 @@
 ----------------------------------------------------------
--- Unique Ability: Font of Dharma
+-- Unique Ability: Mahatma
 ----------------------------------------------------------
 UPDATE Traits
 SET
-	ShortDescription = 'TXT_KEY_TRAIT_POPULATION_GROWTH_SHORT_CBP',
 	CityUnhappinessModifier = 0,
 	PopulationUnhappinessModifier = 0,
-	PopulationBoostReligion = 1
+	StartsWithPantheon = 1,
+	ProphetFervor = 1
 WHERE Type = 'TRAIT_POPULATION_GROWTH';
 
 INSERT INTO Trait_GreatPersonCostReduction
@@ -59,7 +59,9 @@ VALUES
 	('CIVILIZATION_INDIA', 'BUILDINGCLASS_AQUEDUCT', 'BUILDING_INDUS_CANAL');
 
 UPDATE Buildings
-SET FoodKept = (SELECT FoodKept FROM Buildings WHERE Type = 'BUILDING_AQUEDUCT') + 5
+SET
+	FoodBonusPerCityMajorityFollower = 1,
+	FoodKept = (SELECT FoodKept FROM Buildings WHERE Type = 'BUILDING_AQUEDUCT') + 5
 WHERE Type = 'BUILDING_INDUS_CANAL';
 
 UPDATE Building_YieldChanges
@@ -70,12 +72,6 @@ INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
 VALUES
 	('BUILDING_INDUS_CANAL', 'YIELD_PRODUCTION', 3);
-
-INSERT INTO Building_FeatureYieldChanges
-	(BuildingType, FeatureType, YieldType, Yield)
-VALUES
---	('BUILDING_INDUS_CANAL', 'FEATURE_OASIS', 'YIELD_FOOD', 2),
-	('BUILDING_INDUS_CANAL', 'FEATURE_FLOOD_PLAINS', 'YIELD_PRODUCTION', 1);
 
 INSERT INTO Building_ImprovementYieldChanges
 	(BuildingType, ImprovementType, YieldType, Yield)

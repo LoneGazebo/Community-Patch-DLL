@@ -178,7 +178,7 @@ public:
 	};
 
 	// Requests for specific military operations
-	bool RequestCityAttack(PlayerTypes eEnemy, int iNumUnitsWillingToBuild, bool bCareful=true);
+	bool RequestCityAttack(PlayerTypes eIntendedTarget, int iNumUnitsWillingToBuild, bool bCareful=true);
 	bool RequestPillageAttack(PlayerTypes eEnemy);
 	bool RequestNukeAttack(PlayerTypes eEnemy);
 	bool RequestBullyingOperation(PlayerTypes eEnemy);
@@ -214,7 +214,7 @@ public:
 		return m_iNumAirUnits > 0;
 	};
 	CvUnit* FindUselessShip();
-	CvUnit* FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iScore, bool bOverSupplyCap, bool bInDeficit);
+	CvUnit* FindUnitToScrap(DomainTypes eDomain, bool bCheckObsolete, int& iReturnedScore, bool bOverSupplyCap, bool bInDeficit);
 	bool IsBuildingArmy(ArmyType eType) const;
 	UnitTypes GetUnitTypeForArmy(CvCity* pCity) const;
 	int GetNumEnemyAirUnitsInRange(CvPlot* pCenterPlot, int iRange, bool bCountFighters, bool bCountBombers) const;
@@ -297,7 +297,7 @@ private:
 	void UpdateOperations();
 #if defined(MOD_BALANCE_CORE)
 	void DoNuke(PlayerTypes ePlayer);
-	void CheckLandDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
+	void CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity);
 	void CheckSeaDefenses(PlayerTypes ePlayer, CvCity* pThreatenedCity);
 	void DoCityAttacks(PlayerTypes ePlayer);
 	void SetRecommendedArmyNavySize();

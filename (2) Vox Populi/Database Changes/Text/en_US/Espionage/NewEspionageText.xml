@@ -7,58 +7,61 @@
 		<Row Tag="TXT_KEY_SPY_PASSIVE_1_HELP">
 			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on the center tile of the city[NEWLINE][ICON_BULLET]Each Turn, 3% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
+
 		<Row Tag="TXT_KEY_SPY_PASSIVE_2">
 			<Text>Surveillance II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_2_HELP">
 			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles next to the center tile[NEWLINE][ICON_BULLET]Each Turn, 5% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
+
 		<Row Tag="TXT_KEY_SPY_PASSIVE_3">
 			<Text>Surveillance III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_3_HELP">
 			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles up to 2 tiles away from the center[NEWLINE][ICON_BULLET]Each Turn, 7% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
+
 		<Row Tag="TXT_KEY_SPY_PASSIVE_4">
 			<Text>Surveillance IV</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_4_HELP">
 			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on city tiles up to 3 tiles away from the center[NEWLINE][ICON_BULLET]Each Turn, 10% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
+
 		<Row Tag="TXT_KEY_SPY_PASSIVE_5">
 			<Text>Surveillance V</Text>
 		</Row>
 		<Row Tag="TXT_KEY_SPY_PASSIVE_5_HELP">
 			<Text>[ICON_BULLET]Can view the City Screen[NEWLINE][ICON_BULLET]Gain visibility on all city tiles[NEWLINE][ICON_BULLET]Each Turn, 10% of the City's [ICON_RESEARCH] Science Output is added to your Science per Turn</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_1">
 			<Text>Schmoozing I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_1_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations with the other player[NEWLINE][ICON_BULLET]Can trade World Congress Votes</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_2">
 			<Text>Schmoozing II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_2_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism with them and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_3">
 			<Text>Schmoozing III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_3_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations with the other player[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen[NEWLINE][ICON_BULLET]Can view types and count of their military units[NEWLINE][ICON_BULLET]Trade Routes to them generate +20% [ICON_GOLD] Gold</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen[NEWLINE][ICON_BULLET]Can view types and count of their military units[NEWLINE][ICON_BULLET]Trade Routes to them generate +20% [ICON_GOLD] Gold</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_4">
 			<Text>Schmoozing III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_4_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations with the other player[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen[NEWLINE][ICON_BULLET]Can view types and count of their military units[NEWLINE][ICON_BULLET]Trade Routes to them generate +20% [ICON_GOLD] Gold[NEWLINE][ICON_BULLET]Can view all active trade deals[NEWLINE][ICON_BULLET]Can view their true diplomatic approaches toward all other players</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen[NEWLINE][ICON_BULLET]Can view types and count of their military units[NEWLINE][ICON_BULLET]Trade Routes to them generate +20% [ICON_GOLD] Gold[NEWLINE][ICON_BULLET]Can view all active trade deals[NEWLINE][ICON_BULLET]Can view their true diplomatic approaches toward all other players</Text>
 		</Row>
-	
 	</Language_en_US>
 </GameData>

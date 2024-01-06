@@ -142,7 +142,7 @@ inline DirectionTypes reorderedDirection(DirectionTypes initialDir, int iIndex)
 }
 
 // -----------------------------------------------------------------------------
-DirectionTypes estimateDirection(int iSourceX, int iSourceY, int iDestX, int iDestY);
+DirectionTypes estimateDirection(int iStartX, int iStartY, int iDestX, int iDestY);
 int angularDeviation(int iStartX, int iStartY, int iDestAX, int iDestAY, int iDestBX, int iDestBY);
 
 //	----------------------------------------------------------------------------
@@ -290,10 +290,10 @@ int getTurnYearForGame(int iGameTurn, int iStartYear, CalendarTypes eCalendar, G
 void boolsToString(const bool* pBools, int iNumBools, CvString* szOut);
 void stringToBools(const char* szString, int* iNumBools, bool** ppBools);
 
-void getDirectionTypeString(CvString& szString, DirectionTypes eDirectionType);
-void getActivityTypeString(CvString& szString, ActivityTypes eActivityType);
-void getMissionAIString(CvString& szString, MissionAITypes eMissionAI);
-void getUnitAIString(CvString& szString, UnitAITypes eUnitAI);
+void getDirectionTypeString(CvString& strString, DirectionTypes eDirectionType);
+void getActivityTypeString(CvString& strString, ActivityTypes eActivityType);
+void getMissionAIString(CvString& strString, MissionAITypes eMissionAI);
+void getUnitAIString(CvString& strString, UnitAITypes eUnitAI);
 
 bool ExtractGUID(const char* pszGUID, GUID& kGUID, UINT* puiStartIndex = NULL);
 void ClearGUID(GUID& kGUID);

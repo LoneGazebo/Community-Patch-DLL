@@ -24,7 +24,7 @@ public:
 
 	void setPlayer(PlayerTypes ePlayer);
 	PlayerTypes getPlayer() const;
-	void setText(const CvString& pszText);
+	void setText(const CvString& strText);
 	const CvString& getText() const;
 
 	void addPlot(int iPlotX, int iPlotY);

@@ -20587,7 +20587,7 @@ void CvDiplomacyAI::SelectBestApproachTowardsMajorCiv(PlayerTypes ePlayer, bool 
 	}
 
 	// India - More likely to be friendly than any other civ, everything else equal, plus an extra bonus for players with no warmongering penalty
-	else if (pTraits->IsPopulationBoostReligion())
+	else if (pTraits->IsProphetFervor())
 	{
 		vApproachScores[CIV_APPROACH_FRIENDLY] += vApproachBias[CIV_APPROACH_FRIENDLY] * 2;
 	
@@ -28689,10 +28689,7 @@ bool CvDiplomacyAI::IsWillingToGiveOpenBordersToPlayer(PlayerTypes ePlayer)
 /// Are we willing to swap Open Borders with ePlayer?
 bool CvDiplomacyAI::IsOpenBordersExchangeAcceptable(PlayerTypes ePlayer)
 {
-	if (IsWillingToGiveOpenBordersToPlayer(ePlayer) && IsWantsOpenBordersWithPlayer(ePlayer))
-		return true;
-
-	return false;
+	return IsWillingToGiveOpenBordersToPlayer(ePlayer) && IsWantsOpenBordersWithPlayer(ePlayer);
 }
 
 
@@ -33423,6 +33420,7 @@ void CvDiplomacyAI::DoContactMinorCivs()
 									iValue += itr_quest->GetGeneralPoints() / 2 * iOffenseFlavor / 10;
 									iValue += itr_quest->GetAdmiralPoints() / 2 * iOffenseFlavor / 10;
 									iValue += itr_quest->GetExperience() / 2 * iNumUnits * iOffenseFlavor / 10;
+									iValue += itr_quest->GetJuggernauts() * iOffenseFlavor / 10;
 								}
 							}
 						}
@@ -35164,8 +35162,8 @@ CvDeal* CvDiplomacyAI::DoRenewExpiredDeal(PlayerTypes ePlayer, DiploStatementTyp
 			bool bAbleToEqualize = false;
 			if (!GET_PLAYER(ePlayer).isHuman())
 			{
-				bool bUselessReferenceVariable;
-				bool bCantMatchOffer;
+				bool bUselessReferenceVariable = false;
+				bool bCantMatchOffer = false;
 				bAbleToEqualize = m_pPlayer->GetDealAI()->DoEqualizeDeal(pCurrentDeal, ePlayer, bUselessReferenceVariable, bCantMatchOffer);
 			}
 			else
@@ -49751,7 +49749,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	bool bPlotIsVisibleToOtherTeam = false;
 	if (eTheftType == THEFT_TYPE_TRADE_ROUTE)
 	{
-		bPlotIsVisibleToOtherTeam = (pPlot->getVisibilityCount(GET_PLAYER(ePlayer).getTeam()) > 1);
+		bPlotIsVisibleToOtherTeam = (pPlot->GetKnownVisibilityCount(GET_PLAYER(ePlayer).getTeam()) > 1);
 	}
 
 	// Additional conditions depend on the type of theft we'd be doing

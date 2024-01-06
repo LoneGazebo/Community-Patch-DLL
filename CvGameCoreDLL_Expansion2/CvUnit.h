@@ -133,7 +133,7 @@ public:
 	{
 		m_iStrength = iValue;
 	};
-	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity* pOriginCity);
+	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion);
 	bool IsFullStrength() const;
 
 private:
@@ -283,7 +283,7 @@ public:
 	AutomateTypes GetAutomateType() const;
 	bool IsAutomated() const;
 	void SetAutomateType(AutomateTypes eNewValue);
-	bool CanAutomate(AutomateTypes eAutomate, bool bTestVisible = false) const;
+	bool CanAutomate(AutomateTypes eAutomate, bool bTestVisibility = false) const;
 	void Automate(AutomateTypes eAutomate);
 
 	bool ReadyToSelect() const;
@@ -302,14 +302,14 @@ public:
 	TeamTypes GetDeclareWarRangeStrike(const CvPlot& pPlot) const;
 
 	bool canEnterTerritory(TeamTypes eTeam, bool bEndTurn = true) const;
-	bool canEnterTerrain(const CvPlot& pPlot, int iMoveFlags = 0) const;
+	bool canEnterTerrain(const CvPlot& enterPlot, int iMoveFlags = 0) const;
 	bool canMoveInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 	bool canMoveOrAttackInto(const CvPlot& pPlot, int iMoveFlags = 0) const;
 
 	bool IsAngerFreeUnit() const;
 
 	int getCombatDamage(int iStrength, int iOpponentStrength, bool bIncludeRand, bool bAttackerIsCity, bool bDefenderIsCity) const;
-	void move(CvPlot& pPlot, bool bShow);
+	void move(CvPlot& targetPlot, bool bShow);
 	bool jumpToNearestValidPlot();
 	bool jumpToNearestValidPlotWithinRange(int iRange, CvPlot* pStartPlot=NULL);
 
@@ -323,9 +323,9 @@ public:
 	bool CanDistanceGift(PlayerTypes eToPlayer) const;
 
 	// Cargo/transport methods (units inside other units)
-	bool canLoadUnit(const CvUnit& pUnit, const CvPlot& pPlot) const;
+	bool canLoadUnit(const CvUnit& pUnit, const CvPlot& targetPlot) const;
 	void loadUnit(CvUnit& pUnit);
-	bool canLoad(const CvPlot& pPlot) const;
+	bool canLoad(const CvPlot& targetPlot) const;
 	void load();
 	bool shouldLoadOnMove(const CvPlot* pPlot) const;
 	bool canUnload() const;
@@ -379,12 +379,12 @@ public:
 	int getChangeDamageValue();
 	void ChangeChangeDamageValue(int iChange);
 
-	int getPromotionDuration(PromotionTypes ePromotion) const;
-	void SetPromotionDuration(PromotionTypes ePromotion, int iValue);
-	void ChangePromotionDuration(PromotionTypes ePromotion, int iChange);
+	int getPromotionDuration(PromotionTypes eIndex) const;
+	void SetPromotionDuration(PromotionTypes eIndex, int iValue);
+	void ChangePromotionDuration(PromotionTypes eIndex, int iChange);
 
-	int getTurnPromotionGained(PromotionTypes ePromotion) const;
-	void SetTurnPromotionGained(PromotionTypes ePromotion, int iValue);
+	int getTurnPromotionGained(PromotionTypes eIndex) const;
+	void SetTurnPromotionGained(PromotionTypes eIndex, int iValue);
 
 	int getNegatorPromotion();
 	void SetNegatorPromotion(int iValue);
@@ -455,6 +455,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool canGetFreeLuxury() const;
 	bool createFreeLuxury();
+	int CreateFreeLuxuryCheckCopy();
+	int CreateFreeLuxuryCheck();
 #endif
 
 	int getNumExoticGoods() const;
@@ -527,7 +529,7 @@ public:
 	bool canRepairFleet(const CvPlot *pPlot, bool bTestVisible = false) const;
 	bool repairFleet();
 
-	bool CanBuildSpaceship(const CvPlot* pPlot, bool bTestVisible) const;
+	bool CanBuildSpaceship(const CvPlot* pPlot, bool bVisible) const;
 	bool DoBuildSpaceship();
 
 	bool CanCultureBomb(const CvPlot* pPlot, bool bTestVisible = false) const;
@@ -990,7 +992,7 @@ public:
 	int GetNumFriendlyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	int GetNumEnemyUnitsAdjacent(const CvUnit* pUnitToExclude = NULL) const;
 	bool IsEnemyCityAdjacent(const CvCity* pSpecifyCity = NULL) const;
-	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pUnitCompare = NULL, bool bCombatOnly = true) const;
+	int GetNumOwningPlayerUnitsAdjacent(const CvUnit* pUnitToExclude = NULL, const CvUnit* pExampleUnitType = NULL, bool bCombatOnly = true) const;
 	bool IsFriendlyUnitAdjacent(bool bCombatUnit) const;
 	bool IsCoveringFriendlyCivilian() const;
 
@@ -1083,7 +1085,7 @@ public:
 	bool onMap() const;
 
 #if defined(MOD_BALANCE_CORE)
-	void setOriginCity(int ID);
+	void setOriginCity(int iNewValue);
 	CvCity* getOriginCity() const;
 #endif
 
@@ -1414,8 +1416,8 @@ public:
 	bool IsNearCityAttackSupport(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 	bool IsNearGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
 
-	bool IsStackedGreatGeneral(const CvPlot* pAtPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
-	int GetGreatGeneralStackMovement(const CvPlot* pAtPlot = NULL) const;
+	bool IsStackedGreatGeneral(const CvPlot* pLoopPlot = NULL, const CvUnit* pIgnoreThisGeneral = NULL) const;
+	int GetGreatGeneralStackMovement(const CvPlot* pLoopPlot = NULL) const;
 	int GetReverseGreatGeneralModifier(const CvPlot* pAtPlot = NULL) const;
 	int GetNearbyImprovementModifier(const CvPlot* pAtPlot = NULL) const;
 #if defined(MOD_PROMOTIONS_IMPROVEMENT_BONUS)
@@ -1618,11 +1620,11 @@ public:
 
 	const CvUnit* getCombatUnit() const;
 	CvUnit* getCombatUnit();
-	void setCombatUnit(CvUnit* pUnit, bool bAttacking = false);
+	void setCombatUnit(CvUnit* pCombatUnit, bool bAttacking = false);
 
 	const CvCity* getCombatCity() const;
 	CvCity* getCombatCity();
-	void setCombatCity(CvCity* pCity);
+	void setCombatCity(CvCity* pCombatCity);
 
 	void clearCombat();
 
@@ -1679,7 +1681,7 @@ public:
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
-	void setScriptData(const std::string& szNewValue);
+	void setScriptData(const std::string& strNewValue);
 	int getScenarioData() const;
 	void setScenarioData(int iNewValue);
 
@@ -1747,11 +1749,11 @@ public:
 	int getExtraFeatureDefensePercent(FeatureTypes eIndex) const;
 	void changeExtraFeatureDefensePercent(FeatureTypes eIndex, int iChange);
 
-	int getUnitClassAttackMod(UnitClassTypes eUnitClass) const;
-	void changeUnitClassAttackMod(UnitClassTypes eUnitClass, int iChange);
+	int getUnitClassAttackMod(UnitClassTypes eIndex) const;
+	void changeUnitClassAttackMod(UnitClassTypes eIndex, int iChange);
 
-	int getUnitClassDefenseMod(UnitClassTypes eUnitClass) const;
-	void changeUnitClassDefenseMod(UnitClassTypes eUnitClass, int iChange);
+	int getUnitClassDefenseMod(UnitClassTypes eIndex) const;
+	void changeUnitClassDefenseMod(UnitClassTypes eIndex, int iChange);
 
 	int getYieldFromKills(YieldTypes eIndex) const;
 	void changeYieldFromKills(YieldTypes eIndex, int iChange);
@@ -1837,11 +1839,11 @@ public:
 
 	int GetPower() const;
 
-	bool CanSwapWithUnitHere(const CvPlot& atPlot) const;
-	CvUnit* GetPotentialUnitToSwapWith(const CvPlot& atPlot) const;
+	bool CanSwapWithUnitHere(const CvPlot& swapPlot) const;
+	CvUnit* GetPotentialUnitToSwapWith(const CvPlot& swapPlot) const;
 
-	bool CanPushOutUnitHere(const CvPlot& atPlot) const;
-	CvUnit* GetPotentialUnitToPushOut(const CvPlot& atPlot, CvPlot** ppToPlot=NULL) const;
+	bool CanPushOutUnitHere(const CvPlot& pushPlot) const;
+	CvUnit* GetPotentialUnitToPushOut(const CvPlot& pushPlot, CvPlot** ppToPlot=NULL) const;
 	bool PushBlockingUnitOutOfPlot(const CvPlot& atPlot);
 
 	bool CanStackUnitAtPlot(const CvPlot* pPlot) const;
@@ -1888,7 +1890,7 @@ public:
 	void SetMissionAI(MissionAITypes eNewMissionAI, CvPlot* pNewPlot, CvUnit* pNewUnit);
 	CvUnit* GetMissionAIUnit();
 
-	CvUnit* rangeStrikeTarget(const CvPlot& pPlot, bool bNoncombatAllowed) const;
+	CvUnit* rangeStrikeTarget(const CvPlot& targetPlot, bool bNoncombatAllowed) const;
 
 	bool IsCanAttackWithMove() const;
 	bool IsCanAttackRanged() const;
@@ -2010,8 +2012,8 @@ public:
 	bool IsAdjacentToTerrain(TerrainTypes iTerrainType) const;
 	bool IsWithinDistanceOfTerrain(TerrainTypes iTerrainType, int iDistance) const;
 
-	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iMaxTurns);
-	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iMaxTurns = MAX_INT);
+	int TurnsToReachTarget(const CvPlot* pTarget,int iFlags, int iTargetTurns);
+	int TurnsToReachTarget(const CvPlot* pTarget, bool bIgnoreUnits = false, bool bIgnoreStacking = false, int iTargetTurns = MAX_INT);
 	bool CanSafelyReachInXTurns(const CvPlot* pTarget, int iTurns);
 	void ClearPathCache();
 

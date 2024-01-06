@@ -329,7 +329,7 @@ public:
 	bool IsDoFMessageTooSoon(PlayerTypes ePlayer) const;
 
 	int GetDoFAcceptedTurn(PlayerTypes ePlayer) const;
-	void SetDoFAcceptedTurn(PlayerTypes ePlayer, int iValue);
+	void SetDoFAcceptedTurn(PlayerTypes ePlayer, int iTurn);
 	int GetTurnsSinceBefriendedPlayer(PlayerTypes ePlayer) const;
 
 	DoFLevelTypes GetDoFType(PlayerTypes ePlayer) const;
@@ -505,7 +505,7 @@ public:
 	bool IsFriendDeclaredWarOnUs(PlayerTypes ePlayer) const;
 	void SetFriendDeclaredWarOnUs(PlayerTypes ePlayer, bool bValue);
 	int GetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer) const;
-	void SetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer, int iValue);
+	void SetFriendDeclaredWarOnUsTurn(PlayerTypes ePlayer, int iTurn);
 	int GetWeDeclaredWarOnFriendCount();
 
 	// ------------------------------------
@@ -960,7 +960,7 @@ public:
 	bool IsIgnoreWarmonger() const;
 	void SetIgnoreWarmonger(bool bValue);
 
-	PlayerTypes GetOtherPlayerProtectedMinorBullied(PlayerTypes eBullyPlayer) const;
+	PlayerTypes GetOtherPlayerProtectedMinorBullied(PlayerTypes ePlayer) const;
 	void SetOtherPlayerProtectedMinorBullied(PlayerTypes ePlayer, PlayerTypes eBulliedPlayer);
 
 	PlayerTypes GetOtherPlayerProtectedMinorAttacked(PlayerTypes ePlayer) const;
@@ -1028,10 +1028,10 @@ public:
 	void SetMasterLiberatedMeFromVassalage(PlayerTypes ePlayer, bool bValue);
 
 	int GetVassalagePeacefullyRevokedTurn(PlayerTypes ePlayer) const;
-	void SetVassalagePeacefullyRevokedTurn(PlayerTypes ePlayer, int iValue);
+	void SetVassalagePeacefullyRevokedTurn(PlayerTypes ePlayer, int iTurn);
 
 	int GetVassalageForcefullyRevokedTurn(PlayerTypes ePlayer) const;
-	void SetVassalageForcefullyRevokedTurn(PlayerTypes ePlayer, int iValue);
+	void SetVassalageForcefullyRevokedTurn(PlayerTypes ePlayer, int iTurn);
 
 	bool IsPlayerBrokenVassalAgreement(PlayerTypes ePlayer) const;
 	void SetPlayerBrokenVassalAgreement(PlayerTypes ePlayer, bool bValue);
@@ -1107,7 +1107,7 @@ public:
 
 	void DoUpdateWarmongerThreats(bool bUpdateOnly = false);
 
-	int GetNumberOfThreatenedCities(PlayerTypes eEnemy);
+	int GetNumberOfThreatenedCities(PlayerTypes ePlayer);
 
 	void DoUpdateEasyTargets();
 
@@ -1228,7 +1228,7 @@ public:
 	// ------------------------------------
 
 	void DetermineVassalTaxRates();
-	void DoVassalTaxChanged(TeamTypes eTeam, bool bTaxesLowered);
+	void DoVassalTaxChanged(TeamTypes eMasterTeam, bool bTaxesLowered);
 
 	// ------------------------------------
 	// Demands
@@ -1332,7 +1332,7 @@ public:
 
 	void DoKilledByPlayer(PlayerTypes ePlayer);
 
-	void DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eMessage, int iData1, CvDeal* pDeal);
+	void DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementTypes eStatement, int iData1, CvDeal* pDeal);
 
 	void DoMakePublicDeclaration(PublicDeclarationTypes eDeclaration, int iData1 = -1, int iData2 = -1, PlayerTypes eMustHaveMetPlayer = NO_PLAYER, PlayerTypes eForSpecificPlayer = NO_PLAYER);
 
@@ -1466,7 +1466,7 @@ public:
 	bool IsValidCoopWarTarget(PlayerTypes eTargetPlayer, bool bAtWarException);
 	bool CanRequestCoopWar(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
 
-	bool DoTestCoopWarDesire(PlayerTypes ePlayer, PlayerTypes& eChosenTargetPlayer);
+	bool DoTestCoopWarDesire(PlayerTypes eAllyPlayer, PlayerTypes& eChosenTargetPlayer);
 	int GetCoopWarDesireScore(PlayerTypes eAllyPlayer, PlayerTypes eTargetPlayer);
 
 	CoopWarStates RespondToCoopWarRequest(PlayerTypes eAskingPlayer, PlayerTypes eTargetPlayer);
@@ -1581,7 +1581,7 @@ public:
 	bool IsHappyAboutPlayerVassalagePeacefullyRevoked(PlayerTypes ePlayer);
 	bool IsAngryAboutPlayerVassalageForcefullyRevoked(PlayerTypes ePlayer);
 
-	void DoWeMadeVassalageWithSomeone(TeamTypes eTeam, bool bVoluntary);
+	void DoWeMadeVassalageWithSomeone(TeamTypes eMasterTeam, bool bVoluntary);
 	void DoWeEndedVassalageWithSomeone(TeamTypes eTeam);
 
 	MoveTroopsResponseTypes GetMoveTroopsRequestResponse(PlayerTypes ePlayer, bool bJustChecking = false);
@@ -1764,8 +1764,8 @@ public:
 	int GetNumOurEnemiesPlayerAtWarWith(PlayerTypes ePlayer) const;
 
 	// Minor Civ Log
-	void LogMinorCivGiftTile(PlayerTypes ePlayer);
-	void LogMinorCivGiftGold(PlayerTypes ePlayer, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
+	void LogMinorCivGiftTile(PlayerTypes eMinor);
+	void LogMinorCivGiftGold(PlayerTypes eMinor, int iOldFriendship, int iGold, bool bSaving, bool bWantQuickBoost, PlayerTypes ePlayerTryingToPass);
 	void LogMinorCivBullyGold(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, int iGold, bool bSuccess, int iBullyMetricScore);
 	void LogMinorCivBullyUnit(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, UnitTypes eUnit, bool bSuccess, int iBullyMetricScore);
 	void LogMinorCivBullyHeavy(PlayerTypes eMinor, int iOldFriendshipTimes100, int iNewFriendshipTimes100, YieldTypes eYield, int iValue, bool bSuccess, int iBullyMetricScore);
@@ -1839,7 +1839,7 @@ private:
 	void LogGrandStrategy(CvString& strString);
 
 	void LogMajorCivApproach(CvString& strString, CivApproachTypes eNewMajorCivApproach, CivApproachTypes eSurfaceApproach);
-	void LogMinorCivApproach(CvString& strString, CivApproachTypes eNewMajorCivApproach);
+	void LogMinorCivApproach(CvString& strString, CivApproachTypes eNewMinorCivApproach);
 	void LogMinorCivQuestType(CvString& strString, MinorCivQuestTypes eQuestType);
 	void LogOpinion(CvString& strString, PlayerTypes ePlayer) const;
 	void LogWarmongerThreat(CvString& strString, PlayerTypes ePlayer);

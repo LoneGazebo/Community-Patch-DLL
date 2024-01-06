@@ -449,8 +449,6 @@
 		<!-- Espionage -->
 		<Row>
 			<Type>ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</Type>
-			<Description>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS</Description>
-			<Help>TXT_KEY_ESPIONAGE_EVENT_CHOICE_SELECT_FOCUS_HELP</Help>
 			<CityEventArt>Focus.dds</CityEventArt>
 			<EspionageSetup>true</EspionageSetup>
 		</Row>

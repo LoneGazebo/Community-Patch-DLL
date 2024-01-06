@@ -287,8 +287,10 @@ public:
 	int GetExtraMissionarySpreadsGlobal() const;
 	int GetReligiousPressureModifier() const;
 	int GetEspionageModifier() const;
-	int GetEspionageModifierPerPop() const;
 	int GetGlobalEspionageModifier() const;
+	int GetSpySecurityModifier() const;
+	int GetSpySecurityModifierPerPop() const;
+	int GetGlobalSpySecurityModifier() const;
 	int GetExtraSpies() const;
 	int GetSpyRankChange() const;
 	int GetTradeRouteRecipientBonus() const;
@@ -365,6 +367,7 @@ public:
 	bool IsCorp() const;
 	int GetNukeInterceptionChance() const;
 #endif
+	int GetFoodBonusPerCityMajorityFollower() const;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool IsPlayerBorderGainlessPillage() const;
 	bool IsCityGainlessPillage() const;
@@ -792,8 +795,10 @@ private:
 	int m_iExtraMissionarySpreadsGlobal;
 	int m_iReligiousPressureModifier;
 	int m_iEspionageModifier;
-	int m_iEspionageModifierPerPop;
 	int m_iGlobalEspionageModifier;
+	int m_iSpySecurityModifier;
+	int m_iSpySecurityModifierPerPop;
+	int m_iGlobalSpySecurityModifier;
 	int m_iExtraSpies;
 	int m_iSpyRankChange;
 	int m_iInstantSpyRankChange;
@@ -910,6 +915,7 @@ private:
 	bool m_bIsCorp;
 	int m_iNukeInterceptionChance;
 #endif
+	int m_iFoodBonusPerCityMajorityFollower;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	bool m_bPlayerBorderGainlessPillage;
 	bool m_bCityGainlessPillage;
@@ -1184,7 +1190,7 @@ public:
 	void SetNumFreeBuilding(BuildingTypes eIndex, int iNewValue);
 #if defined(MOD_BALANCE_CORE)
 	int IsFirstTimeBuilding(BuildingTypes eBuilding);
-	void SetFirstTimeBuilding(BuildingTypes eBuilding, int bValue);
+	void SetFirstTimeBuilding(BuildingTypes eBuilding, int iValue);
 #endif
 	int GetBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	void SetBuildingYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield, int iChange);
@@ -1196,9 +1202,9 @@ public:
 	int GetNumGreatWorksInBuilding(BuildingClassTypes eBuildingClass) const;
   
 	bool HasAnyAvailableGreatWorkSlot() const;
-	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot) const;
-	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot = NO_GREAT_WORK_SLOT) const;
-	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eGreatWorkSlot = NO_GREAT_WORK_SLOT) const;
+	bool HasAvailableGreatWorkSlot(GreatWorkSlotType eSlotType) const;
+	int GetNumAvailableGreatWorkSlots(GreatWorkSlotType eSlotType = NO_GREAT_WORK_SLOT) const;
+	int GetNumFilledGreatWorkSlots(GreatWorkSlotType eSlotType = NO_GREAT_WORK_SLOT) const;
 	bool GetNextAvailableGreatWorkSlot(BuildingClassTypes *eBuildingClass, int *iSlot) const;
 	bool GetNextAvailableGreatWorkSlot(GreatWorkSlotType eGreatWorkSlot, BuildingClassTypes *eBuildingClass, int *iSlot) const;
 

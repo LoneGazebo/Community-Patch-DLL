@@ -175,7 +175,7 @@ public:
 	CvPlot* GetTargetPlot() const;
 	void SetTargetPlot(CvPlot* pTarget);
 	CvPlot* GetMusterPlot() const;
-	void SetMusterPlot(CvPlot* pTarget);
+	void SetMusterPlot(CvPlot* pMuster);
 
 	size_t GetNumUnitsNeededToBeBuilt() { return m_viListOfUnitsWeStillNeedToBuild.size(); }
 	size_t GetNumUnitsCommittedToBeBuilt() { return m_viListOfUnitsCitiesHaveCommittedToBuild.size(); }
@@ -204,7 +204,7 @@ public:
 	virtual bool BuyFinalUnit();
 
 	virtual bool RecruitUnit(CvUnit* pUnit);
-	virtual int GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvArmyAI* pThisArmy = NULL);
+	virtual int GrabUnitsFromTheReserves(CvPlot* pMusterPlot, CvPlot* pTargetPlot, CvArmyAI* pArmy = NULL);
 	virtual void UnitWasRemoved(int iArmyID, int iSlotID);
 	virtual CvPlot* ComputeTargetPlotForThisTurn(CvArmyAI* pArmy) const;
 
@@ -516,7 +516,7 @@ public:
 		CvAIOperationCivilian(iID,eOwner,eEnemy,AI_OPERATION_FOUND_CITY, UNITAI_SETTLE) {}
 	virtual ~CvAIOperationCivilianFoundCity() {}
 
-	virtual bool PerformMission(CvUnit* pUnit);
+	virtual bool PerformMission(CvUnit* pSettler);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 
 protected:
@@ -535,7 +535,7 @@ public:
 	CvAIOperationCivilianConcertTour(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
 		CvAIOperationCivilian(iID,eOwner,eEnemy,AI_OPERATION_MUSICIAN_CONCERT_TOUR, UNITAI_MUSICIAN) {}
 	virtual ~CvAIOperationCivilianConcertTour() {}
-	virtual bool PerformMission(CvUnit* pUnit);
+	virtual bool PerformMission(CvUnit* pMusician);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
@@ -552,7 +552,7 @@ public:
 	CvAIOperationCivilianMerchantDelegation(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
 		CvAIOperationCivilian(iID,eOwner,eEnemy,AI_OPERATION_MERCHANT_DELEGATION, UNITAI_MERCHANT) {}
 	virtual ~CvAIOperationCivilianMerchantDelegation() {}
-	virtual bool PerformMission(CvUnit* pUnit);
+	virtual bool PerformMission(CvUnit* pMerchant);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);
@@ -569,7 +569,7 @@ public:
 	CvAIOperationCivilianDiplomatDelegation(int iID, PlayerTypes eOwner, PlayerTypes eEnemy) : 
 		CvAIOperationCivilian(iID,eOwner,eEnemy,AI_OPERATION_DIPLOMAT_DELEGATION, UNITAI_DIPLOMAT) {}
 	virtual ~CvAIOperationCivilianDiplomatDelegation() {}
-	virtual bool PerformMission(CvUnit* pUnit);
+	virtual bool PerformMission(CvUnit* pDiplomat);
 	virtual AIOperationAbortReason VerifyOrAdjustTarget(CvArmyAI* pArmy);
 private:
 	virtual CvPlot* FindBestTargetForUnit(CvUnit* pUnit);

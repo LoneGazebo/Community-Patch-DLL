@@ -159,6 +159,8 @@ INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_ROUTE_MAXIMUM_DISTANCE
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_WONDER_COMPLETION_MAX_TURNS', 30;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_FIND_CITY_MIN_DISTANCE', 16;
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_ARCHAEOLOGY_RANGE', 12;
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_ACQUIRE_CITY_MINIMUM_POP', 6;
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_CIV_QUEST_ACQUIRE_CITY_MINIMUM_TURNS', 10;
 
 
 -- Settler Stuff
@@ -774,6 +776,9 @@ INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_PER_ERA_BA
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND', 200; -- Maximum random extra Barbs per era past Ancient. 100 = 1.
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_BARBS_MIN', 2; -- Minimum # of Barbs
 
+-- Acquire City Quest
+INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_ACQUIRE_CITY_BONUS_XP', 100; -- Amount of extra XP given to Juggernaut unit rewards
+
 -- Misc. Defines
 INSERT INTO Defines (Name, Value) SELECT 'RELIGION_MIN_FAITH_SECOND_PROPHET', 600;
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_GP_RATE', 15; -- Austria new UA (VP)
@@ -781,8 +786,8 @@ INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_RESTING_POINT_INCREAS
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_COST_BASE', 200; -- Austria new UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_MARRIAGE_COST_INCREASE_PER_PREVIOUS_MARRIAGE', 200; -- Austria new UA (VP)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_GROWTH_BONUS', 0; -- India Growth (VP)
-INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_FOOD_BONUS', 1; -- India Food (VP)
-INSERT INTO Defines (Name, Value) SELECT 'RELIGION_FOUND_AUTO_SPREAD_PRESSURE', 1000; -- India Pressure on Found (VP)
+INSERT INTO Defines (Name, Value) SELECT 'BALANCE_FOLLOWER_FOOD_BONUS', 0; -- India Food (VP)
+INSERT INTO Defines (Name, Value) SELECT 'RELIGION_FOUND_AUTO_SPREAD_PRESSURE', 0; -- India Pressure on Found (VP)
 INSERT INTO Defines (Name, Value) SELECT 'GWAM_THRESHOLD_DECREASE', 0; -- Great People Rate Mod (Note, this is a subtraction, so positive = negative)
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_BUILDING_INVESTMENT_BASELINE', -50; -- Building Investments Base Rate
 INSERT INTO Defines (Name, Value) SELECT 'BALANCE_UNIT_INVESTMENT_BASELINE', -50; -- Unit Investments Base Rate
@@ -891,6 +896,7 @@ VALUES
 INSERT INTO Defines (Name, Value) VALUES ('MINOR_BULLY_GOLD_GROWTH_FACTOR', 400);
 
 -- Quest stuff
+INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_KILL_CITY_STATE_FRIENDLY', 1; -- If enabled, Friendly CS can't give out Kill City-State quests
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_FIND_CITY', 1;
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_WAR', 1;
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_CONSTRUCT_NATIONAL_WONDER', 1;
@@ -908,6 +914,7 @@ INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_BUILD_X_BUILDINGS', 1;
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_SPY_ON_MAJOR', 1;
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_COUP', 1;
 INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_ACQUIRE_CITY', 1;
+INSERT INTO Defines (Name, Value) SELECT 'QUEST_DISABLED_ACQUIRE_CITY_MILITARISTIC_ONLY', 1; -- If enabled, non-Militaristic CS can't give out Acquire City quests
 
 INSERT INTO Defines (Name, Value) SELECT 'MINOR_QUEST_REBELLION_TIMER', 20;
 INSERT INTO Defines (Name, Value) SELECT 'INFLUENCE_MINOR_QUEST_BOOST', 20;
@@ -1221,9 +1228,9 @@ INSERT INTO Defines (Name, Value) VALUES
 ('MINOR_CIV_QUEST_COUP_COPIES_HOSTILE', 0),
 ('MINOR_CIV_QUEST_COUP_COPIES_IRRATIONAL', 0),
 
-('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_BASE', 10),
+('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_BASE', 0), -- Non-Militaristic CS will not give out this quest at all
 ('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_CULTURED', 0),
-('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_MILITARISTIC', 20),
+('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_MILITARISTIC', 30),
 ('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_MARITIME', 0),
 ('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_MERCANTILE', 0),
 ('MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_RELIGIOUS', 0),
@@ -1251,7 +1258,7 @@ INSERT INTO Defines (Name, Value) VALUES
 ('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_MARITIME', 0),
 ('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_MERCANTILE', 0),
 ('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_RELIGIOUS', 0),
-('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_FRIENDLY', 0), -- In Community Patch Only, friendly CS will not give this quest at all
+('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_FRIENDLY', 0), -- In Community Patch Only, friendly CS will not give this quest out at all
 ('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_NEUTRAL', -6),
 ('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_HOSTILE', 10),
 ('MINOR_CIV_QUEST_KILL_CITY_STATE_COPIES_IRRATIONAL', 0),
@@ -1447,7 +1454,8 @@ INSERT INTO Defines (Name, Value) SELECT 'HELP_REQUEST_TURN_LIMIT_RAND', 10; -- 
 INSERT INTO Defines (Name, Value) SELECT 'TECH_COST_ERA_EXPONENT', 0.7; -- Additional cost per era.
 
 -- Vassalage
-INSERT INTO Defines (Name, Value) SELECT 'VASSAL_HAPPINESS_PERCENT', 20; -- What % of the vassal's Happiness does the master get? (NOTE: Halved in CBO)
+INSERT INTO Defines (Name, Value) SELECT 'VASSAL_HAPPINESS_PERCENT', 20; -- What % of the vassal's Happiness does the master get? (NOTE: Halved in VP)
+INSERT INTO Defines (Name, Value) SELECT 'VASSAL_PRESSURE_PERCENT', 100; -- What % of the master's majority pressure is applied to Vassal's cities?
 INSERT INTO Defines (Name, Value) SELECT 'VASSALAGE_FREE_YIELD_FROM_VASSAL_PERCENT', 20; -- What % of the vassal's Science/Culture/Faith does the master get?
 INSERT INTO Defines (Name, Value) SELECT 'VASSAL_TOURISM_MODIFIER', 33; -- What % bonus does the master get to Tourism against the vassal?
 INSERT INTO Defines (Name, Value) SELECT 'VASSAL_SCORE_PERCENT', 50; -- What % of the vassal's Land/Population score does the master get?

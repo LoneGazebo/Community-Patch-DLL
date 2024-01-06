@@ -88,6 +88,9 @@ UPDATE Defines SET Value = 40 WHERE Name = 'SAPPED_CITY_ATTACK_MODIFIER';
 -- Unused
 UPDATE Defines SET Value = 2 WHERE Name = 'HEAVY_RESOURCE_THRESHOLD';
 
+-- Vassalage
+UPDATE Defines SET Value = 10 WHERE Name = 'VASSAL_HAPPINESS_PERCENT'; -- (NOTE: Halved in VP) comment in CoreDefines.sql of (1), updated because DLL hid that it was halving it.
+
 -------------------------------------------------------------------------------------------------------------------
 -- City stuff
 -------------------------------------------------------------------------------------------------------------------
@@ -309,6 +312,7 @@ UPDATE Defines
 SET Value = 0
 WHERE Name IN (
 	'QUEST_DISABLED_KILL_CITY_STATE',
+	'QUEST_DISABLED_KILL_CITY_STATE_FRIENDLY', -- Remove the prohibition on Friendly CS giving this quest
 	'QUEST_DISABLED_FIND_CITY',
 	'QUEST_DISABLED_WAR',
 	'QUEST_DISABLED_CONSTRUCT_NATIONAL_WONDER',
@@ -324,7 +328,6 @@ WHERE Name IN (
 	'QUEST_DISABLED_EXPLORE_AREA',
 	'QUEST_DISABLED_BUILD_X_BUILDINGS',
 	'QUEST_DISABLED_SPY_ON_MAJOR',
-	'QUEST_DISABLED_COUP',
 	'QUEST_DISABLED_ACQUIRE_CITY'
 );
 
@@ -565,6 +568,7 @@ UPDATE Defines SET Value = -2 WHERE Name = 'WAR_PROGRESS_PER_UNHAPPY';
 INSERT INTO PostDefines
 	(Name, "Key", "Table")
 VALUES
-	('EMBASSY_IMPROVEMENT', 'IMPROVEMENT_EMBASSY', 'Improvements');
+	('EMBASSY_IMPROVEMENT', 'IMPROVEMENT_EMBASSY', 'Improvements'),
+	('JUGGERNAUT_PROMOTION', 'PROMOTION_JUGGERNAUT', 'UnitPromotions');
 
 UPDATE PostDefines SET "Key" = 'ERA_MODERN' WHERE Name = 'IDEOLOGY_START_ERA';

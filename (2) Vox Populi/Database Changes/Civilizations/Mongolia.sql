@@ -25,7 +25,10 @@ WHERE ID < 6; -- "All" yields
 -- Unique Unit: Khan (Great General)
 ----------------------------------------------------------
 UPDATE Units
-SET Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_GREAT_GENERAL') + 3
+SET
+	Moves = (SELECT Moves FROM Units WHERE Type = 'UNIT_GREAT_GENERAL') + 3,
+	UnitFlagAtlas = 'UNIT_KHAN_FLAG_ATLAS',
+	UnitFlagIconOffset = 0
 WHERE Type = 'UNIT_MONGOLIAN_KHAN';
 
 INSERT INTO Unit_FreePromotions

@@ -48,7 +48,7 @@ public:
 	void CheckRemainingNotifications();
 	void ClearAllRequests();
 #endif
-	bool Add(PlayerTypes ePlayerID, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
+	bool Add(PlayerTypes eFromPlayer, DiploUIStateTypes eDiploType, const char* pszMessage, LeaderheadAnimationTypes eAnimationType, int iExtraGameData = -1);
 
 	void  ActiveRequestComplete();
 

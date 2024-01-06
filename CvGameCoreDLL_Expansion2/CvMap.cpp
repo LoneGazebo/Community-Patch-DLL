@@ -378,6 +378,8 @@ void CvMap::InitPlots()
 	memset(m_pVisibilityCount, 0, iNumTeams*iNumPlots *sizeof(uint8));
 	m_pVisibilityCountThisTurnMax = FNEW(uint8[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pVisibilityCountThisTurnMax, 0, iNumTeams*iNumPlots * sizeof(uint8));
+	m_pKnownVisibilityCount = FNEW(uint8[iNumTeams * iNumPlots], c_eCiv5GameplayDLL, 0);
+	memset(m_pKnownVisibilityCount, 0, iNumTeams * iNumPlots * sizeof(uint8));
 
 	m_pRevealedOwner = FNEW(char[iNumTeams*iNumPlots], c_eCiv5GameplayDLL, 0);
 	memset(m_pRevealedOwner, -1, iNumTeams*iNumPlots *sizeof(char));
@@ -401,6 +403,7 @@ void CvMap::InitPlots()
 	uint8* pPlayerCityRadiusCount = m_pPlayerCityRadiusCount;
 	uint8* pVisibilityCount = m_pVisibilityCount;
 	uint8* pVisibilityCountThisTurnMax = m_pVisibilityCountThisTurnMax;
+	uint8* pKnownVisibilityCount = m_pKnownVisibilityCount;
 	char* pRevealedOwner = m_pRevealedOwner;
 	char* pRevealedImprovementType = m_pRevealedImprovementType;
 	char* pRevealedRouteType = m_pRevealedRouteType;
@@ -416,6 +419,7 @@ void CvMap::InitPlots()
 		m_pMapPlots[i].m_aiPlayerCityRadiusCount = pPlayerCityRadiusCount;
 		m_pMapPlots[i].m_aiVisibilityCount = pVisibilityCount;
 		m_pMapPlots[i].m_aiVisibilityCountThisTurnMax = pVisibilityCountThisTurnMax;
+		m_pMapPlots[i].m_aiKnownVisibilityCount = pKnownVisibilityCount;
 		m_pMapPlots[i].m_aiRevealedOwner = pRevealedOwner;
 		m_pMapPlots[i].m_aeRevealedImprovementType = pRevealedImprovementType;
 		m_pMapPlots[i].m_aeRevealedRouteType = pRevealedRouteType;
@@ -429,6 +433,7 @@ void CvMap::InitPlots()
 		pPlayerCityRadiusCount  += iNumTeams;
 		pVisibilityCount		+= iNumTeams;
 		pVisibilityCountThisTurnMax += iNumTeams;
+		pKnownVisibilityCount   += iNumTeams;
 		pRevealedOwner			+= iNumTeams;
 		pRevealedImprovementType+= iNumTeams;
 		pRevealedRouteType		+= iNumTeams;

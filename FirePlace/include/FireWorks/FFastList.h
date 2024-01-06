@@ -540,7 +540,7 @@ public:
 		return iterator( index, this );
 	};
 	const_iterator get_iterator_const( unsigned int index ) const{ 
-		assert( get_allocator().is_element_valid( index ) )
+		assert( get_allocator().is_element_valid( index ) );
 			return const_iterator( index, this );
 	};
 

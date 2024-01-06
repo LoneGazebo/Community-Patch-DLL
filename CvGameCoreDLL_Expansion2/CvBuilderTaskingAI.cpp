@@ -323,48 +323,52 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	else
 	{
 		int iMaintenancePerTile = pRouteInfo->GetGoldMaintenance()*(100+m_pPlayer->GetImprovementGoldMaintenanceMod());
-		int iGoldForRoute = m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
+		bool bHasCityConnection = m_pPlayer->IsCityConnectedToCity(pPlayerCapital, pTargetCity, eRoute);
+		int iGoldForRoute = !bHasCityConnection ? m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity) : 0;
 
 		//route has side benefits also (movement, village gold, trade route range, religion spread)
 		int iSideBenefits = 500 + iRoadLength * 100;
 
 		//assume one unhappiness is worth gold per turn per city
-		iSideBenefits += pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100);
+		iSideBenefits += bHasCityConnection ? pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100) : 0;
 
 		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
-			iSideBenefits += pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
+			if (!bHasCityConnection)
+			{
+				iSideBenefits += pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
 
 #if defined(MOD_BALANCE_CORE)
-			// Target city would get a production and gold boost from a train station.
-			for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
-			{
-				BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
-				CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
-				if (pkBuilding == NULL)
-					continue;
-
-				bool bRequiresRail = pkBuilding->IsRequiresRail();
-				if (!bRequiresRail)
-					continue;
-
-				int iProductionYield = pTargetCity->getYieldRate(YIELD_PRODUCTION, false);
-				int iGoldYield = pTargetCity->getYieldRate(YIELD_GOLD, false);
-				int iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
-				int iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
-
-				if (pTargetCity->HasBuilding(eBuilding))
+				// Target city would get a production and gold boost from a train station.
+				for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
 				{
-					iSideBenefits += 100 * iProductionYield * iProductionYieldRateModifier / (100 + iProductionYieldRateModifier);
-					iSideBenefits += 100 * iGoldYield * iGoldYieldRateModifier / (100 + iGoldYieldRateModifier);
+					BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
+					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+					if (pkBuilding == NULL)
+						continue;
+
+					bool bRequiresRail = pkBuilding->IsRequiresRail();
+					if (!bRequiresRail)
+						continue;
+
+					int iProductionYield = pTargetCity->getYieldRate(YIELD_PRODUCTION, false);
+					int iGoldYield = pTargetCity->getYieldRate(YIELD_GOLD, false);
+					int iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
+					int iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
+
+					if (pTargetCity->HasBuilding(eBuilding))
+					{
+						iSideBenefits += 100 * iProductionYield * iProductionYieldRateModifier / (100 + iProductionYieldRateModifier);
+						iSideBenefits += 100 * iGoldYield * iGoldYieldRateModifier / (100 + iGoldYieldRateModifier);
+					}
+					else if (m_pPlayer->canConstruct(eBuilding) || eBuilding == pTargetCity->getProductionBuilding())
+					{
+						iSideBenefits += iProductionYield * iProductionYieldRateModifier;
+						iSideBenefits += iGoldYield * iGoldYieldRateModifier;
+					}
 				}
-				else if (m_pPlayer->canConstruct(eBuilding) || eBuilding == pTargetCity->getProductionBuilding())
-				{
-					iSideBenefits += iProductionYield * iProductionYieldRateModifier;
-					iSideBenefits += iGoldYield * iGoldYieldRateModifier;
-				}
-			}
 #endif
+			}
 
 			// railroads have extra benefits over normal roads
 			iSideBenefits += iRoadLength * 150;
@@ -2739,21 +2743,33 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvUnit* pUnit, CvPlot* pPlot, Improvement
 	}
 
 	//Let's get route things on routes, and not elsewhere.
-	int iRouteScore = 0;
+	int iRailroadScore = 0;
+	int iRoadScore = 0;
 	for(int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 	{
 		YieldTypes eYield = (YieldTypes) iI;
 
-		iRouteScore += pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) * 100;
-		iRouteScore += pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) * 100;
+		iRailroadScore += pImprovement->GetRouteYieldChanges(ROUTE_RAILROAD, eYield) * 100;
+		iRoadScore += pImprovement->GetRouteYieldChanges(ROUTE_ROAD, eYield) * 100;
 	}
-	if (iRouteScore > 0)
+	if (iRailroadScore > 0 || iRoadScore > 0)
 	{
-		// If we don't need a route at this plot, it is about to be removed
-		if (pPlot->IsCityConnection(m_pPlayer->GetID()) && (pPlot->IsRouteRailroad() || pPlot->IsRouteRoad()) && NeedRouteAtPlot(pPlot))
-			iSecondaryScore += iRouteScore;
+		if (pPlot->IsCityConnection(m_pPlayer->GetID()))
+		{
+			bool bHaveAndNeedRailroad = pPlot->IsRouteRailroad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_RAILROAD;
+			bool bHaveAndNeedRoad = pPlot->IsRouteRoad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_ROAD && !GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD) == ROUTE_ROAD;
+
+			if (bHaveAndNeedRailroad)
+				iSecondaryScore += iRailroadScore;
+			else if (bHaveAndNeedRoad)
+				iSecondaryScore += iRoadScore;
+			else
+				iSecondaryScore -= max(iRailroadScore, iRoadScore);
+		}
 		else
-			iSecondaryScore -= iRouteScore;
+		{
+			iSecondaryScore -= max(iRailroadScore, iRoadScore);
+		}
 	}
 
 	//City adjacenct improvement? Ramp it up - other stuff can move somewhere else

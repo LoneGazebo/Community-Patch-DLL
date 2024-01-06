@@ -55,6 +55,9 @@ WHERE Tag = 'TXT_KEY_EUPANEL_IMPROVEMENT_NEAR';
 ------------------------------------------------
 -- Top panel
 ------------------------------------------------
+UPDATE Language_en_US
+SET Text = 'Your scientists and theologians have introduced the wonders of the Maya calendar. When the current b''ak''tun ends, you will receive your choice of Great Person as part of the celebration.[NEWLINE][NEWLINE]The current Maya Long Count date is:[NEWLINE]{1_LongMayaCalendarString}[NEWLINE][NEWLINE]A b''ak''tun begins at Turn 33 and restarts at Turn 42/52/62/72/86/101/117/133/152/183/234/432 at Standard game speed.[NEWLINE][NEWLINE]({2_TraditionalDateString} in the rest of the world).'
+WHERE Tag = 'TXT_KEY_MAYA_DATE_TOOLTIP';
 
 -- Science
 UPDATE Language_en_US
@@ -650,6 +653,14 @@ UPDATE Language_en_US
 SET Text = 'The war between {2_CivName:textkey} and {1_TargetName:textkey} has ended, with {2_CivName:textkey} emerging as the clear victor. Your advisors worry that this outcome may lead to future conflict.'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_COMPLETE_KILL_CITY_STATE';
 
+
+------------------------------------------------
+-- Advisor Counsel (suppresses them because we build XP buildings in every city)
+------------------------------------------------
+UPDATE AICityStrategies
+SET Advisor = NULL
+WHERE AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_NEED_NAVAL_GROWTH' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_HAVE_TRAINING_FACILITY' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_ENOUGH_TILE_IMPROVERS' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_NEED_TILE_IMPROVERS' OR AdvisorCounsel = 'TXT_KEY_AICITYSTRATEGY_WANT_TILE_IMPROVERS';
+
 ------------------------------------------------
 -- Tech tree
 ------------------------------------------------
@@ -658,12 +669,28 @@ SET Text = 'Allows Research Agreements (if enabled)'
 WHERE Tag = 'TXT_KEY_ABLTY_R_PACT_STRING';
 
 UPDATE Language_en_US
-SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production'
+SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_ABLTY_TECH_BOOST_CHOP';
+
+UPDATE Language_en_US
+SET Text = 'Embarking/disembarking in Forifications expends only 1 Movement.'
+WHERE Tag = 'TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING';
+
+UPDATE Language_en_US
+SET Text = 'Embarking/disembarking in Forifications expends only 0.1 Movement.'
+WHERE Tag = 'TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING';
+
+UPDATE Language_en_US
+SET Text = '[ICON_INTERNATIONAL_TRADE] Allows establishing an additional trade route.'
+WHERE Tag = 'TXT_KEY_ADDITIONAL_INTERNATIONAL_TRADE_ROUTE';
 
 UPDATE Language_en_US
 SET Text = '+50% empire-wide [ICON_TOURISM] Tourism output.'
 WHERE Tag = 'TXT_KEY_DOUBLE_TOURISM';
+
+UPDATE Language_en_US
+SET Text = '{1_Build}: {2_Turns}% {2_Turns: plural 1?Turn; other?Turns;} Required'
+WHERE Tag = 'TXT_KEY_TECH_HELP_BUILD_REDUCTION';
 
 ------------------------------------------------
 -- Policy tree

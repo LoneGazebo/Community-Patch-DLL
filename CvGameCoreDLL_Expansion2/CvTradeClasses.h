@@ -135,7 +135,7 @@ public:
 	bool IsValidTradeRoutePath (CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut=NULL, bool bWarCheck = true);
 	int GetValidTradeRoutePathLength(CvCity* pOriginCity, CvCity* pDestCity, DomainTypes eDomain, SPath* pPathOut = NULL, bool bWarCheck = true);
 	bool IsDestinationExclusive(const TradeConnection& kTradeConnection);
-	bool IsConnectionInternational (const TradeConnection& kTradeConnection);
+	bool IsConnectionInternational (const TradeConnection& kConnection);
 
 	bool IsCityConnectedToPlayer (CvCity* pCity, PlayerTypes eOtherPlayer, bool bOnlyOwnedByCityOwner);
 	bool IsPlayerConnectedToPlayer (PlayerTypes eFirstPlayer, PlayerTypes eSecondPlayer, bool bFirstPlayerOnly = false);
@@ -198,7 +198,7 @@ public:
 	bool MoveUnit (int iIndex); // move a trade unit along its path for all its movement points
 	bool StepUnit (int iIndex); // move a trade unit a single step along its path (called by MoveUnit)
 
-	void DisplayTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type, DomainTypes eDomain);
+	void DisplayTemporaryPopupTradeRoute(int iDestX, int iDestY, TradeConnectionType type, DomainTypes eDomain);
 	void HideTemporaryPopupTradeRoute(int iPlotX, int iPlotY, TradeConnectionType type) const;
 
 	CvString GetLogFileName() const;
@@ -212,9 +212,9 @@ public:
 
 	const std::map<int, SPath>& GetAllPotentialTradeRoutesFromCity(CvCity* pOrigin, bool bWater);
 	bool HavePotentialTradePath(bool bWater, CvCity* pOriginCity, CvCity* pDestCity, SPath* pPathOut=NULL);
-	void UpdateTradePathCache(PlayerTypes iOriginPlayer);
+	void UpdateTradePathCache(PlayerTypes ePlayer1);
 	void InvalidateTradePathCache();
-	void InvalidateTradePathCache(PlayerTypes iPlayer);
+	void InvalidateTradePathCache(PlayerTypes ePlayer);
 	void InvalidateTradePathTeamCache(TeamTypes eTeam);
 
 	void SetLongestPotentialTradeRoute(int iValue, int iCityIndex, DomainTypes eDomain);

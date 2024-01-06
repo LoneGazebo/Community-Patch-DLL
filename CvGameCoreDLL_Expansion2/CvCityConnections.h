@@ -64,7 +64,7 @@ protected:
 	void UpdateRouteInfo(void);
 	void CheckPlotRouteStateChanges(PlotIndexStore& lastState, PlotIndexStore& newState);
 	CityConnectionTypes GetConnectionState( const CvCity* pCityA, const CvCity* pCityB ) const;
-	bool ShouldConnectToOtherPlayer(PlayerTypes eMinor);
+	bool ShouldConnectToOtherPlayer(PlayerTypes eOtherPlayer);
 
 	AllCityConnectionStore m_connectionState;
 	PlotIndexStore m_plotsWithConnectionToCapital;

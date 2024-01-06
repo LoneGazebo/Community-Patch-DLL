@@ -129,7 +129,7 @@ INSERT INTO Policy_BuildingClassProductionModifiers
 	(PolicyType, BuildingClassType, ProductionModifier)
 VALUES
 	('POLICY_POLICE_STATE', 'BUILDINGCLASS_POLICE_STATION', 100);
-	
+
 INSERT INTO Policy_BuildingClassSecurityChanges
 	(PolicyType, BuildingClassType, SecurityChange)
 VALUES

@@ -1229,7 +1229,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 	{
 		iCurrentValue = iNumFranchises * pkOfficeInfo->GetGPRateModifierPerXFranchises();
 
-		if (szOfficeBenefit != "")
+		if (!szOfficeBenefit.empty())
 		{
 			szOfficeBenefit += ", ";
 		}
@@ -1246,7 +1246,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 		{
 			iCurrentValue = iNumFranchises / pkOfficeInfo->GetResourceQuantityPerXFranchises(eResource);
 
-			if (szOfficeBenefit != "")
+			if (!szOfficeBenefit.empty())
 			{
 				szOfficeBenefit += ", ";
 			}
@@ -1264,7 +1264,7 @@ CvString CvPlayerCorporations::GetCurrentOfficeBenefit()
 		{
 			iCurrentValue = iNumFranchises * pkOfficeInfo->GetYieldPerFranchise(eYield);
 
-			if (szOfficeBenefit != "")
+			if (!szOfficeBenefit.empty())
 			{
 				szOfficeBenefit += ", ";
 			}
@@ -1751,7 +1751,7 @@ bool CvPlayerCorporations::CanCreateFranchiseInCity(CvCity* pOriginCity, CvCity*
 		return false;
 
 	CvLeague* pLeague = GC.getGame().GetGameLeagues()->GetActiveLeague();
-	return !(pLeague != NULL && pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), pTargetCity->getOwner()));
+	return pLeague == NULL || !pLeague->IsTradeEmbargoed(m_pPlayer->GetID(), pTargetCity->getOwner());
 }
 
 int CvPlayerCorporations::GetAdditionalNumFranchises() const

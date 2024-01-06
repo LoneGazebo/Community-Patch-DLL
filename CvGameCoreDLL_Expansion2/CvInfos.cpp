@@ -2777,6 +2777,7 @@ CvSmallAwardInfo::CvSmallAwardInfo() :
 	m_iHappiness(0),
 	m_iGeneralPoints(0),
 	m_iAdmiralPoints(0),
+	m_iJuggernauts(0),
 	m_iRand(0)
 #endif
 {
@@ -2891,6 +2892,11 @@ int CvSmallAwardInfo::GetAdmiralPoints() const
 	return m_iAdmiralPoints;
 }
 //------------------------------------------------------------------------------
+int CvSmallAwardInfo::GetJuggernauts() const
+{
+	return m_iJuggernauts;
+}
+//------------------------------------------------------------------------------
 int CvSmallAwardInfo::GetRandom() const
 {
 	return m_iRand;
@@ -2926,6 +2932,7 @@ bool CvSmallAwardInfo::CacheResults(Database::Results& kResults, CvDatabaseUtili
 	m_iHappiness = kResults.GetInt("Happiness");
 	m_iGeneralPoints = kResults.GetInt("GeneralPoints");
 	m_iAdmiralPoints = kResults.GetInt("AdmiralPoints");
+	m_iJuggernauts = kResults.GetInt("Juggernauts");
 	m_iTourism = kResults.GetInt("Tourism");
 	m_iRand = kResults.GetInt("RandomMod");
 #endif
@@ -3018,7 +3025,6 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iBuildingCostPercent(0),
 	m_iUnitCostPercent(0),
 	m_iInflationPercent(0),
-	m_iSpySecurityModifier(0),
 	m_iUnitUpgradePercent(0),
 	m_iUnitUpgradePerEraModifier(0),
 	m_iGrowthPercent(0),
@@ -3051,6 +3057,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iCombatBonus(0),
 	m_iResistanceCap(0),
 	m_iVisionBonus(0),
+	m_iSpySecurityModifier(0),
 	// VP Difficulty Bonus
 	m_iDifficultyBonusTurnInterval(0),
 
@@ -3112,6 +3119,7 @@ CvHandicapInfo::CvHandicapInfo() :
 	m_iAICombatBonus(0),
 	m_iAIResistanceCap(0),
 	m_iAIVisionBonus(0),
+	m_iAISpySecurityModifier(0),
 	// VP Difficulty Bonus
 	m_iAIDifficultyBonusTurnInterval(0),
 
@@ -3335,11 +3343,6 @@ int CvHandicapInfo::getStartingExploreUnits() const
 	return m_iStartingExploreUnits;
 }
 //------------------------------------------------------------------------------
-int CvHandicapInfo::getSpySecurityModifier() const
-{
-	return m_iSpySecurityModifier;
-}
-//------------------------------------------------------------------------------
 int CvHandicapInfo::getWorkRateModifier() const
 {
 	return m_iWorkRateModifier;
@@ -3523,6 +3526,11 @@ int CvHandicapInfo::getResistanceCap() const
 int CvHandicapInfo::getVisionBonus() const
 {
 	return m_iVisionBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getSpySecurityModifier() const
+{
+	return m_iSpySecurityModifier;
 }
 /// VP DIFFICULTY BONUS
 //------------------------------------------------------------------------------
@@ -3828,6 +3836,11 @@ int CvHandicapInfo::getAIResistanceCap() const
 int CvHandicapInfo::getAIVisionBonus() const
 {
 	return m_iAIVisionBonus;
+}
+//------------------------------------------------------------------------------
+int CvHandicapInfo::getAISpySecurityModifier() const
+{
+	return m_iAISpySecurityModifier;
 }
 /// VP DIFFICULTY BONUS
 //------------------------------------------------------------------------------
@@ -4340,7 +4353,6 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iStartingWorkerUnits = kResults.GetInt("StartingWorkerUnits");
 	m_iStartingDefenseUnits = kResults.GetInt("StartingDefenseUnits");
 	m_iStartingExploreUnits = kResults.GetInt("StartingExploreUnits");
-	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 	m_iWorkRateModifier = kResults.GetInt("WorkRateModifier");
 	m_iImprovementCostPercent = kResults.GetInt("ImprovementCostPercent");
 	m_iBuildingCostPercent = kResults.GetInt("BuildingCostPercent");
@@ -4378,6 +4390,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iCombatBonus = kResults.GetInt("CombatBonus");
 	m_iResistanceCap = kResults.GetInt("ResistanceCap");
 	m_iVisionBonus = kResults.GetInt("VisionBonus");
+	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 	// VP Difficulty Bonus
 	m_iDifficultyBonusTurnInterval = kResults.GetInt("DifficultyBonusTurnInterval");
 
@@ -4439,6 +4452,7 @@ bool CvHandicapInfo::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iAICombatBonus = kResults.GetInt("AICombatBonus");
 	m_iAIResistanceCap = kResults.GetInt("AIResistanceCap");
 	m_iAIVisionBonus = kResults.GetInt("AIVisionBonus");
+	m_iAISpySecurityModifier = kResults.GetInt("AISpySecurityModifier");
 	// VP Difficulty Bonus
 	m_iAIDifficultyBonusTurnInterval = kResults.GetInt("AIDifficultyBonusTurnInterval");
 
@@ -6525,7 +6539,7 @@ int CvResourceInfo::getMonopolyGreatPersonRateChange(SpecialistTypes eSpecialist
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isHasUnitCombatProductionCostModifiersLocal() const
 {
-	return m_piiiUnitCombatProductionCostModifiersLocal.size() > 0;
+	return !m_piiiUnitCombatProductionCostModifiersLocal.empty();
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getUnitCombatProductionCostModifiersLocal(UnitCombatTypes eUnitCombat, EraTypes eUnitEra) const
@@ -6588,7 +6602,7 @@ std::vector<ProductionCostModifiers> CvResourceInfo::getUnitCombatProductionCost
 //------------------------------------------------------------------------------
 bool CvResourceInfo::isHasBuildingProductionCostModifiersLocal() const
 {
-	return m_aiiiBuildingProductionCostModifiersLocal.size() > 0;
+	return !m_aiiiBuildingProductionCostModifiersLocal.empty();
 }
 //------------------------------------------------------------------------------
 int CvResourceInfo::getBuildingProductionCostModifiersLocal(EraTypes eBuildingEra) const
@@ -10217,7 +10231,7 @@ CvEventNotificationInfo *CvModEventChoiceInfo::GetNotificationInfo(int i) const
 //	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (m_paNotificationInfo[0].GetNotificationString() == "" || m_paNotificationInfo[0].GetNotificationString() == NULL)
+	if (m_paNotificationInfo[0].GetNotificationString().empty() || m_paNotificationInfo[0].GetNotificationString() == NULL)
 	{
 		return NULL;
 	}
@@ -12031,7 +12045,7 @@ CvCityEventNotificationInfo *CvModEventCityChoiceInfo::GetNotificationInfo(int i
 //	CvAssertMsg(i < GC.getNumNotificationInfos(), "Index out of bounds");
 	CvAssertMsg(i > -1, "Index out of bounds");
 
-	if (m_paCityNotificationInfo[0].GetNotificationString() == "" || m_paCityNotificationInfo[0].GetNotificationString() == NULL)
+	if (m_paCityNotificationInfo[0].GetNotificationString().empty() || m_paCityNotificationInfo[0].GetNotificationString() == NULL)
 	{
 		return NULL;
 	}

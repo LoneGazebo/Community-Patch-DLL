@@ -29,14 +29,14 @@ public:
 	CustomOption(const char* szOptionName, int iVal);
 	CustomOption(const CustomOption& copy);
 	CustomOption& operator=(const CustomOption&);
-	bool operator ==(const CustomOption& b) const;
+	bool operator ==(const CustomOption& option) const;
 
 	const char* GetName() const;
 	const char* GetName(size_t& bytes) const;
 	int GetValue() const;
 
-	friend FDataStream& operator<<(FDataStream& saveTo, const CustomOption& readFrom);
-	friend FDataStream& operator>>(FDataStream& loadFrom, CustomOption& writeTo);
+	friend FDataStream& operator<<(FDataStream& stream, const CustomOption& option);
+	friend FDataStream& operator>>(FDataStream& stream, CustomOption& option);
 
 private:
 	char m_szOptionName[64];
@@ -176,7 +176,7 @@ void                                       setAdminPassword(const CvString& p);
 void                                       setAdvancedStartPoints(int a);
 void                                       setAlias(const CvString& a);                           // setupdata
 void                                       setArtStyle(PlayerTypes p, ArtStyleTypes a);
-void                                       setAutorun(bool isAutoStart);                        // setupdata
+void                                       setAutorun(bool isEnabled);                        // setupdata
 void                                       setAutorunTurnDelay(float turnDelay);               // setupdata
 void                                       setAutorunTurnLimit(int turnLimit);               // setupdata
 void                                       setBandwidth(BandwidthType b);                      // setupdata
@@ -188,7 +188,7 @@ void                                       setCivilizationAdjective(PlayerTypes 
 void                                       setCivilizationDescription(PlayerTypes p, const CvString& d);
 void                                       setCivilizationPassword(PlayerTypes p, const CvString& pwd);
 void                                       setCivilizationShortDescription(PlayerTypes p, const CvString& d);
-void                                       setCivilizationKey(PlayerTypes p, const CvString& d);
+void                                       setCivilizationKey(PlayerTypes p, const CvString& szKey);
 void										 setCivilizationKeyPackageID(PlayerTypes p, const GUID& kKey);
 void                                       setClimate(ClimateTypes c);
 void                                       setClimate(const CvString& c);
@@ -216,15 +216,15 @@ void                                       setGameType(GameTypes g, GameStartTyp
 void                                       setGameType(const CvString& g);
 void                                       pushGameType(GameTypes g);
 void                                       popGameType();
-void                                       setGameStartType(GameStartTypes g);
+void                                       setGameStartType(GameStartTypes eStartType);
 void                                       setGameUpdateTime(int updateTime);                 // setupdata
 void                                       setHandicap(PlayerTypes p, HandicapTypes h);
 void																			 setLastHumanHandicap(PlayerTypes p, HandicapTypes h);
 void                                       setInternetGame(bool isInternetGame);
 void                                       setLeaderHead(PlayerTypes p, LeaderHeadTypes l);
 void                                       setLeaderName(PlayerTypes p, const CvString& n);
-void                                       setLeaderKey(PlayerTypes p, const CvString& n);
-void                                       setLeaderKeyPackageID(PlayerTypes p, const GUID& n);
+void                                       setLeaderKey(PlayerTypes p, const CvString& szKey);
+void                                       setLeaderKeyPackageID(PlayerTypes p, const GUID& kKey);
 void										 setLoadFileName(const CvString& fileName);
 void										 setLoadFileName(const CvString& fileName, StorageLocation eStorage);
 void                                       setMapNoPlayers(bool p);
@@ -256,15 +256,15 @@ void                                       setQuickHandicap(const CvString& h); 
 void                                       setQuickMovement(bool isQuickMovement);                  // setupdata
 void                                       setQuickstart(bool isQuickStart);                     // setupdata
 void                                       setRandomWorldSize(bool isRandomWorldSize);                // setupdata
-void                                       setRandomMapScript(bool isRandomWorldScript);                // setupdata
+void                                       setRandomMapScript(bool isRandomMapScript);                // setupdata
 void                                       setReady(PlayerTypes p, bool bIsReady);
 void                                       setSeaLevel(SeaLevelTypes s);
 void                                       setSeaLevel(const CvString& s);
-void                                       setSlotClaim(PlayerTypes p, SlotClaim c);
-void                                       setSlotStatus(PlayerTypes eID, SlotStatus eSlotStatus);
+void                                       setSlotClaim(PlayerTypes p, SlotClaim s);
+void                                       setSlotStatus(PlayerTypes p, SlotStatus eSlotStatus);
 void									   setAllSlotStatus(const std::vector<SlotStatus>& vSlotStatus);
 void                                       setSyncRandomSeed(unsigned int newSeed);
-void                                       setTargetScore(int s);
+void                                       setTargetScore(int t);
 void                                       setTeamType(PlayerTypes p, TeamTypes t);
 void                                       setTransferredMap(bool transferred);                 // setupdata
 void                                       setTurnTimer(TurnTimerTypes t);
@@ -281,7 +281,7 @@ void																			 VerifyHandicap(PlayerTypes p);
 void                                       setWorldSize(WorldSizeTypes w, bool bResetSlots=true);
 void                                       setWorldSize(const CvString& w);
 SlotClaim                                  slotClaim(PlayerTypes p);
-SlotStatus                                 slotStatus(PlayerTypes eID);
+SlotStatus                                 slotStatus(PlayerTypes p);
 unsigned int                               syncRandomSeed();
 int                                        targetScore();
 bool                                       transferredMap();                    // setupddata

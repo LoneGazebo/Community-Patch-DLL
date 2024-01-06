@@ -53,6 +53,7 @@ CvMinorCivQuest::CvMinorCivQuest()
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
 	m_iExperience = 0;
+	m_iJuggernauts = 0;
 	m_bPartialQuest = false;
 	m_bHandled = false;
 }
@@ -83,6 +84,7 @@ CvMinorCivQuest::CvMinorCivQuest(PlayerTypes eMinor, PlayerTypes eAssignedPlayer
 	m_iGeneralPoints = 0;
 	m_iAdmiralPoints = 0;
 	m_iExperience = 0;
+	m_iJuggernauts = 0;
 	m_bPartialQuest = false;
 	m_bHandled = false;
 }
@@ -239,6 +241,10 @@ int CvMinorCivQuest::GetExperience() const
 {
 	return m_iExperience;
 }
+int CvMinorCivQuest::GetJuggernauts() const
+{
+	return m_iJuggernauts;
+}
 
 void CvMinorCivQuest::SetInfluence(int iValue)
 {
@@ -303,6 +309,10 @@ void CvMinorCivQuest::SetAdmiralPoints(int iValue)
 void CvMinorCivQuest::SetExperience(int iValue)
 {
 	m_iExperience = iValue;
+}
+void CvMinorCivQuest::SetJuggernauts(int iValue)
+{
+	m_iJuggernauts = iValue;
 }
 
 // Was this quest partially completed?
@@ -819,6 +829,21 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 			SetExperience(iBonus);
 	}
 
+	// Juggernauts (number of units does not scale, but the free XP the unit gets is affected by the modifier)
+	if (pkSmallAwardInfo->GetJuggernauts() > 0)
+	{
+		int iNumUnits = pkSmallAwardInfo->GetJuggernauts();
+		if (bRecalc)
+		{
+			if (iNumUnits > GetJuggernauts())
+			{
+				SetJuggernauts(iNumUnits);
+			}
+		}
+		else
+			SetJuggernauts(iNumUnits);
+	}
+
 	// Log the quest rewards
 	if (GC.getLogging() && GC.getAILogging())
 	{
@@ -855,6 +880,26 @@ void CvMinorCivQuest::CalculateRewards(PlayerTypes ePlayer, bool bRecalc)
 	}
 }
 
+/// Calculates how much bonus XP is given to juggernaut units given as awards
+int CvMinorCivQuest::CalculateJuggernautBonusXP(PlayerTypes ePlayer) const
+{
+	CvPlayer* pMinor = &GET_PLAYER(m_eMinor);
+	int iBaseModifier = pMinor->GetMinorCivAI()->GetQuestRewardModifier(ePlayer);
+	int iBonusXP = /*100*/ GD_INT_GET(MINOR_QUEST_ACQUIRE_CITY_BONUS_XP);
+	if (iBonusXP > 0)
+	{
+		iBonusXP *= iBaseModifier;
+		iBonusXP /= 100;
+	}
+	else
+	{
+		iBonusXP *= 100;
+		iBonusXP /= max(iBaseModifier, 1);
+	}
+
+	return iBonusXP;
+}
+
 /// This quest was completed, distribute rewards to the player who completed it
 void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer, bool bHeavyTribute)
 {
@@ -882,6 +927,7 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer, bool bHeavyTribute)
 		SetGeneralPoints(GetGeneralPoints() / 2);
 		SetAdmiralPoints(GetAdmiralPoints() / 2);
 		SetExperience(GetExperience() / 2);
+		// Juggernaut units instead have their starting XP halved
 	}
 
 	if (GetInfluence() > 0 && !bHeavyTribute)
@@ -992,6 +1038,39 @@ void CvMinorCivQuest::DoRewards(PlayerTypes ePlayer, bool bHeavyTribute)
 		if (MOD_BALANCE_CORE_JFD)
 			kPlayer.doInstantYield(INSTANT_YIELD_TYPE_MINOR_QUEST_REWARD, false, NO_GREATPERSON, NO_BUILDING, GetExperience(), false, NO_PLAYER, NULL, false, kPlayer.getCapitalCity(), false, true, bHeavyTribute, YIELD_JFD_SOVEREIGNTY, NULL, NO_TERRAIN, this);
 	}
+	if (GetJuggernauts() > 0)
+	{
+		int iBonusXP = CalculateJuggernautBonusXP(ePlayer);
+
+		for (int i = 0; i < GetJuggernauts(); i++)
+		{
+			CvUnit* pJuggernaut = GET_PLAYER(m_eMinor).GetMinorCivAI()->DoSpawnUnit(ePlayer, false, false, false, true); // free promotions are given in DoSpawnUnit()
+			if (pJuggernaut)
+			{
+				UnitTypes eSpawnedUnit = pJuggernaut->getUnitType();
+				int iMaxTrainingXP = 0;
+				int iCityLoop = 0;
+				for (CvCity* pLoopCity = kPlayer.firstCity(&iCityLoop); pLoopCity != NULL; pLoopCity = kPlayer.nextCity(&iCityLoop))
+				{
+					int iTrainingXP = pLoopCity->getProductionExperience(eSpawnedUnit);
+					if (iTrainingXP > iMaxTrainingXP)
+						iMaxTrainingXP = iTrainingXP;
+				}
+
+				iMaxTrainingXP += iBonusXP;
+				if (IsPartialQuest())
+					iMaxTrainingXP /= 2;
+
+				if (iMaxTrainingXP > 0 && pJuggernaut->canAcquirePromotionAny())
+				{
+					pJuggernaut->changeExperienceTimes100(iMaxTrainingXP * 100);
+					pJuggernaut->testPromotionReady();
+				}
+
+				pJuggernaut->restoreFullMoves();
+			}
+		}
+	}
 }
 
 void CvMinorCivAI::RecalculateRewards(PlayerTypes ePlayer)
@@ -1039,104 +1118,112 @@ CvString CvMinorCivQuest::GetRewardString(PlayerTypes ePlayer, bool bFinish) con
 	}
 	if (GetGold() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GOLD", GetGold());
 	}
 	if (GetScience() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_SCIENCE", GetScience());
 	}
 	if (GetCulture() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_CULTURE", GetCulture());
 	}
 	if (GetFaith() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_FAITH", GetFaith());
 	}
 	if (GetGoldenAgePoints() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GAP", GetGoldenAgePoints());
 	}
 	if (GetFood() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_FOOD", GetFood());
 	}
 	if (GetProduction() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_PRODUCTION", GetProduction());
 	}
 	if (GetTourism() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_TOURISM", GetTourism());
 	}
 	if (GetHappiness() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_HAPPINESS", GetHappiness());
 	}
 	if (GetGP() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GPP", GetGP());
 	}
 	if (GetGPGlobal() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GPP_GLOBAL", GetGPGlobal());
 	}
 	if (GetGeneralPoints() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_GENERAL", GetGeneralPoints());
 	}
 	if (GetAdmiralPoints() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_ADMIRAL", GetAdmiralPoints());
 	}
 	if (GetExperience() > 0)
 	{
-		if (szTooltip != "")
+		if (!szTooltip.empty())
 			szTooltip += "[NEWLINE]";
 
 		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_EXPERIENCE", GetExperience());
 	}
+	if (GetJuggernauts() > 0)
+	{
+		if (!szTooltip.empty())
+			szTooltip += "[NEWLINE]";
 
-	if (szTooltip != "")
+		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_JUGGERNAUTS", GetJuggernauts());
+		szTooltip += GetLocalizedText("TXT_KEY_CS_QUEST_JUGGERNAUTS_XP", CalculateJuggernautBonusXP(ePlayer));
+	}
+
+	if (!szTooltip.empty())
 		szTooltip = szTooltipHeader + szTooltip;
 
 	return szTooltip;
@@ -2936,7 +3023,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 
 	//Additional Bonuses from Quests here.
 	CvString sExtra = GetRewardString(m_eAssignedPlayer, false);
-	if (sExtra != "")
+	if (!sExtra.empty())
 		sMessage = sMessage + "[NEWLINE]" + sExtra;
 
 	pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer, iNotificationX, iNotificationY);
@@ -2989,7 +3076,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 		//Additional Bonuses from Quests here.
 		CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-		if (sExtra != "")
+		if (!sExtra.empty())
 			sMessage = sMessage + "[NEWLINE]" + sExtra;
 
 		pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer, iNotificationX, iNotificationY);
@@ -3024,7 +3111,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 		//Additional Bonuses from Quests here.
 		CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-		if (sExtra != "")
+		if (!sExtra.empty())
 			sMessage = sMessage + "[NEWLINE]" + sExtra;
 
 		pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer, iNotificationX, iNotificationY);
@@ -3058,7 +3145,7 @@ void CvMinorCivQuest::DoStartQuestUsingExistingData(CvMinorCivQuest* pExistingQu
 
 		//Additional Bonuses from Quests here.
 		CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-		if (sExtra != "")
+		if (!sExtra.empty())
 			sMessage = sMessage + "[NEWLINE]" + sExtra;
 
 		pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer, iNotificationX, iNotificationY);
@@ -3514,7 +3601,7 @@ bool CvMinorCivQuest::DoFinishQuest()
 
 	//Additional Bonuses from Quests here.
 	CvString sExtra = GetRewardString(m_eAssignedPlayer, true);
-	if (sExtra != "")
+	if (!sExtra.empty())
 		sMessage = sMessage + "[NEWLINE]" + sExtra;
 
 	pMinor->GetMinorCivAI()->AddQuestNotification(sMessage, sSummary, m_eAssignedPlayer);
@@ -3798,6 +3885,7 @@ void CvMinorCivQuest::Serialize(MinorCivQuest& minorCivQuest, Visitor& visitor)
 	visitor(minorCivQuest.m_iGeneralPoints);
 	visitor(minorCivQuest.m_iAdmiralPoints);
 	visitor(minorCivQuest.m_iExperience);
+	visitor(minorCivQuest.m_iJuggernauts);
 	visitor(minorCivQuest.m_bPartialQuest);
 	visitor(minorCivQuest.m_bHandled);
 }
@@ -6389,7 +6477,7 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 	case MINOR_CIV_QUEST_GREAT_PERSON:
 		return GD_INT_GET(QUEST_DISABLED_GREAT_PERSON) < 1;
 	case MINOR_CIV_QUEST_KILL_CITY_STATE:
-		return !GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE)) && GD_INT_GET(QUEST_DISABLED_KILL_CITY_STATE) < 1;
+		return !GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && (!MOD_BALANCE_VP || !GC.getGame().isOption(GAMEOPTION_NO_CHANGING_WAR_PEACE)) && GD_INT_GET(QUEST_DISABLED_KILL_CITY_STATE) < 1 && (GD_INT_GET(QUEST_DISABLED_KILL_CITY_STATE_FRIENDLY) < 1 || GetPersonality() != MINOR_CIV_PERSONALITY_FRIENDLY);
 	case MINOR_CIV_QUEST_FIND_PLAYER:
 		return GD_INT_GET(QUEST_DISABLED_FIND_PLAYER) < 1;
 	case MINOR_CIV_QUEST_FIND_CITY:
@@ -6447,7 +6535,7 @@ bool CvMinorCivAI::IsEnabledQuest(MinorCivQuestTypes eQuest)
 	case MINOR_CIV_QUEST_COUP:
 		return !GC.getGame().isOption(GAMEOPTION_NO_ESPIONAGE) && GD_INT_GET(QUEST_DISABLED_COUP) < 1;
 	case MINOR_CIV_QUEST_ACQUIRE_CITY:
-		return !GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && GD_INT_GET(QUEST_DISABLED_ACQUIRE_CITY) < 1;
+		return !GC.getGame().isOption(GAMEOPTION_ALWAYS_PEACE) && GD_INT_GET(QUEST_DISABLED_ACQUIRE_CITY) < 1 && (GD_INT_GET(QUEST_DISABLED_ACQUIRE_CITY_MILITARISTIC_ONLY) < 1 || GetTrait() == MINOR_CIV_TRAIT_MILITARISTIC);
 	default:
 		return false;
 	}
@@ -6712,8 +6800,6 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 					return false;
 			}
 		}
-		else if (GetPersonality() == MINOR_CIV_PERSONALITY_FRIENDLY)
-			return false;
 
 		if (GetBestCityStateTarget(ePlayer, true) == NO_PLAYER)
 			return false;
@@ -8320,7 +8406,7 @@ int CvMinorCivAI::GetNumQuestCopies(MinorCivQuestTypes eQuest) const
 		}
 		else
 		{
-			iNumCopies = /*10*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_BASE);
+			iNumCopies = /*0*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_BASE);
 
 			switch (eTrait)
 			{
@@ -8328,7 +8414,7 @@ int CvMinorCivAI::GetNumQuestCopies(MinorCivQuestTypes eQuest) const
 				iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_CULTURED);
 				break;
 			case MINOR_CIV_TRAIT_MILITARISTIC:
-				iNumCopies += /*20*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_MILITARISTIC);
+				iNumCopies += /*30*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_MILITARISTIC); // only Militaristic City-States can give this quest out
 				break;
 			case MINOR_CIV_TRAIT_MARITIME:
 				iNumCopies += /*0*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_COPIES_MARITIME);
@@ -10697,12 +10783,21 @@ CvCity* CvMinorCivAI::GetBestCityForQuest(PlayerTypes ePlayer)
 			if (pLoopCity->isCapital())
 				continue;
 
+			// Must have at least 6 population
+			if (pLoopCity->getPopulation() < /*6*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_MINIMUM_POP))
+				continue;
+
 			// Must be revealed
 			if (!pLoopCity->plot()->isRevealed(GET_PLAYER(ePlayer).getTeam()))
 				continue;
 
 			// Must not be previously owned by ePlayer
 			if (pLoopCity->GetNumTimesOwned(ePlayer) > 0)
+				continue;
+
+			// Must been founded or acquired at least 10 turns ago
+			int iTurnAcquired = pLoopCity->getGameTurnAcquired();
+			if (iTurnAcquired + /*10*/ GD_INT_GET(MINOR_CIV_QUEST_ACQUIRE_CITY_MINIMUM_TURNS) > GC.getGame().getGameTurn())
 				continue;
 
 			// Check for duplicate quests involving this city
@@ -14872,7 +14967,7 @@ void CvMinorCivAI::SetUnitSpawningDisabled(PlayerTypes ePlayer, bool bValue)
 }
 
 /// Create a unit
-CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore, bool bCityStateAnnexed)
+CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore, bool bCityStateAnnexed, bool bJuggernaut)
 {
 	if (eMajor < 0 || eMajor >= MAX_MAJOR_CIVS) return NULL;
 
@@ -14882,10 +14977,13 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	if (bExplore && !MOD_GLOBAL_CS_GIFTS)
 		return NULL;
 
-	// Unit spawning is not allowed (manually disabled, or major is over supply limit)
-	bool bCanSupply = GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied(); // this works when we're at the limit
-	if (!bCanSupply || (IsUnitSpawningDisabled(eMajor) && !bCityStateAnnexed))
-		return NULL;
+	if (!bJuggernaut)
+	{
+		// Unit spawning is not allowed (manually disabled, or major is over supply limit)
+		bool bCanSupply = GET_PLAYER(eMajor).GetNumUnitsToSupply() < GET_PLAYER(eMajor).GetNumUnitsSupplied(); // this works when we're at the limit
+		if (!bCanSupply || (IsUnitSpawningDisabled(eMajor) && !bCityStateAnnexed))
+			return NULL;
+	}
 
 	// Minor has no capital
 	CvCity* pMinorCapital = NULL;
@@ -14965,7 +15063,8 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 	UnitTypes eUnit = NO_UNIT;
 
 	// If they're our ally, should we give our unique unit?
-	if (GetAlly() == eMajor || bCityStateAnnexed)
+	// The Juggernaut quest reward also grants a UU if available.
+	if (GetAlly() == eMajor || bCityStateAnnexed || bJuggernaut)
 	{
 		UnitTypes eUniqueUnit = GetUniqueUnit();
 		if (eUniqueUnit != NO_UNIT)
@@ -15066,17 +15165,28 @@ CvUnit* CvMinorCivAI::DoSpawnUnit(PlayerTypes eMajor, bool bLocal, bool bExplore
 
 	if (pNewUnit->canMoveInto(*pNewUnit->plot(),CvUnit::MOVEFLAG_DESTINATION) || pNewUnit->jumpToNearestValidPlotWithinRange(3))
 	{
-		// Bonus experience for CS Units (vanilla Siam UA)
-		if (!MOD_ALTERNATE_SIAM_TRAIT && GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
-			pNewUnit->changeExperienceTimes100(1000);
+		if (bJuggernaut)
+		{
+			// Add free promotions here. Bonus XP is handled in CvMinorCivQuest::DoRewards() because it's easier.
+			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(JUGGERNAUT_PROMOTION), true);
+			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MARCH_PROMOTION), true);
+			pNewUnit->setHasPromotion((PromotionTypes)GD_INT_GET(MORALE_PROMOTION), true);
+		}
+		else
+		{
+			// Bonus experience for CS Units (vanilla Siam UA)
+			if (!MOD_ALTERNATE_SIAM_TRAIT && GET_PLAYER(eMajor).GetPlayerTraits()->GetCityStateBonusModifier() > 0)
+				pNewUnit->changeExperienceTimes100(1000);
 
-		if (MOD_BALANCE_VP)
-			pXPCity->addProductionExperience(pNewUnit);
+			if (MOD_BALANCE_VP)
+				pXPCity->addProductionExperience(pNewUnit);
+		}
 
 		if (!bCityStateAnnexed)
 		{
 			// Reseed counter
-			DoSeedUnitSpawnCounter(eMajor);
+			if (!bJuggernaut)
+				DoSeedUnitSpawnCounter(eMajor);
 
 			// Notify the player
 			if (GET_PLAYER(eMajor).GetNotifications())

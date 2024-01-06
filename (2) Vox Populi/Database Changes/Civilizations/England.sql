@@ -7,7 +7,7 @@ SET
 	ExtraEmbarkMoves = 1,
 	StartingSpies = 1,
 	NavalUnitMaintenanceModifier = -25,
-	EspionageRateModifier = 15,
+	SpySecurityModifier = 15,
 	SpyMoveRateModifier = 3,
 	SpyExtraRankBonus = 1
 WHERE Type = 'TRAIT_OCEAN_MOVEMENT';
@@ -43,7 +43,7 @@ INSERT INTO Civilization_BuildingClassOverrides
 VALUES
 	('CIVILIZATION_ENGLAND', 'BUILDINGCLASS_IRONWORKS', 'BUILDING_WHITE_TOWER');
 
-UPDATE Buildings SET Defense = 300 WHERE Type = 'BUILDING_WHITE_TOWER';
+UPDATE Buildings SET Defense = 300, FreeGreatWork = 'GREAT_WORK_THE_CROWN_JEWELS', GreatWorkCount = 1, GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT' WHERE Type = 'BUILDING_WHITE_TOWER';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -62,7 +62,7 @@ INSERT INTO Building_YieldFromSpyDefenseOrID
 VALUES
 	('BUILDING_WHITE_TOWER', 'YIELD_GOLD', 40),
 	('BUILDING_WHITE_TOWER', 'YIELD_SCIENCE', 40);
-	
+
 INSERT INTO Building_YieldFromSpyAttack
 	(BuildingType, YieldType, Yield)
 VALUES

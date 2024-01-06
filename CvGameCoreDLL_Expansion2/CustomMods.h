@@ -22,8 +22,8 @@
  ****************************************************************************
  ****************************************************************************/
 #define MOD_DLL_GUID {0xbf9bf7f0, 0xe078, 0x4d4e, { 0x8a, 0x3e, 0x84, 0x71, 0x2f, 0x85, 0xaa, 0x2b }} //{BF9BF7F0-E078-4d4e-8A3E-84712F85AA2B}
-#define MOD_DLL_NAME "Community Patch v124 (PNM v51+)"
-#define MOD_DLL_VERSION_NUMBER ((uint) 124)
+#define MOD_DLL_NAME "Community Patch v126 (PNM v51+)"
+#define MOD_DLL_VERSION_NUMBER ((uint) 126)
 #define MOD_DLL_VERSION_STATUS ""			// a (alpha), b (beta) or blank (released)
 #define MOD_DLL_CUSTOM_BUILD_NAME ""
 
@@ -453,6 +453,8 @@
 
 // if true, only cities cannot do ranged strikes
 #define MOD_CORE_NO_RANGED_ATTACK_FROM_CITIES		gCustomMods.isCORE_NO_RANGED_ATTACK_FROM_CITIES()
+// if true, units can pass through anyone's territory but still need open borders to stay there
+#define MOD_CORE_RELAXED_BORDER_CHECK			gCustomMods.isCORE_RELAXED_BORDER_CHECK()
 
 // Enables production to be stockpiled (v28)
 #define MOD_PROCESS_STOCKPILE                       gCustomMods.isPROCESS_STOCKPILE()
@@ -1260,8 +1262,8 @@ public:
 	void prefetchCache();
 	void preloadCache();
 	void reloadCache();
-	int getOption(const char* szName, int defValue = 0);
-	int getOption(const std::string& sName, int defValue = 0);
+	int getOption(const char* szOption, int defValue = 0);
+	int getOption(const std::string& sOption, int defValue = 0);
 	int getCivOption(const char* szCiv, const char* szName, int defValue = 0);
 
 	MOD_OPT_DECL(BALANCE_VP);
@@ -1468,6 +1470,7 @@ public:
 	MOD_OPT_DECL(RELIGION_PERMANENT_PANTHEON);
 
 	MOD_OPT_DECL(CORE_NO_RANGED_ATTACK_FROM_CITIES);
+	MOD_OPT_DECL(CORE_RELAXED_BORDER_CHECK);
 	MOD_OPT_DECL(PROCESS_STOCKPILE);
 
 	MOD_OPT_DECL(RESOURCES_PRODUCTION_COST_MODIFIERS);

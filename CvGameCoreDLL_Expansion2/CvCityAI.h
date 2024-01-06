@@ -33,7 +33,7 @@ public:
 	int AI_GetNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer) const;
 	void AI_ChangeNumPlotsAcquiredByOtherPlayer(PlayerTypes ePlayer, int iChange);
 
-	void AI_DoEventChoice(CityEventTypes eEvent);
+	void AI_DoEventChoice(CityEventTypes eChosenEvent);
 
 	template<typename CityAI, typename Visitor>
 	static void Serialize(CityAI& cityAI, Visitor& visitor);

@@ -74,7 +74,7 @@ public:
 	void DLLCALL InitScoreCalculation();
 	void DLLCALL InitTacticalAnalysisMap(int iNumPlots);
 	bool DLLCALL IsCityScreenBlocked();
-	bool DLLCALL CanOpenCityScreen(PlayerTypes eOpener, ICvCity1* pCity);
+	bool DLLCALL CanOpenCityScreen(PlayerTypes eOpener, ICvCity1* pkCity);
 	bool DLLCALL IsDebugMode() const;
 	bool DLLCALL IsFinalInitialized() const;
 	bool DLLCALL IsGameMultiPlayer() const;

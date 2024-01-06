@@ -111,7 +111,6 @@ public:
 	int GetExtraCultureandScienceTradeRoutes() const;
 	int GetTradeRouteLandDistanceModifier() const;
 	int GetTradeRouteSeaDistanceModifier() const;
-	int GetEspionageModifier() const;
 	int GetEspionageNetworkPoints() const;
 	int GetRigElectionInfluenceModifier() const;
 	int GetXCSAlliesLowersPolicyNeedWonders() const;
@@ -819,7 +818,6 @@ private:
 	int m_iExtraCultureandScienceTradeRoutes;
 	int m_iTradeRouteLandDistanceModifier;
 	int m_iTradeRouteSeaDistanceModifier;
-	int m_iEspionageModifier;
 	int m_iEspionageNetworkPoints;
 	int m_iRigElectionInfluenceModifier;
 	int* m_piConquerorYield;
@@ -1145,7 +1143,7 @@ public:
 	bool HasAdoptedIdeology(PolicyBranchTypes eIdeology) const;
 
 	// Ideology change
-	void DoSwitchIdeologies(PolicyBranchTypes eBranchType);
+	void DoSwitchIdeologies(PolicyBranchTypes eNewBranchType);
 	void ClearPolicyBranch(PolicyBranchTypes eBranchType);
 
 	// Finished branches

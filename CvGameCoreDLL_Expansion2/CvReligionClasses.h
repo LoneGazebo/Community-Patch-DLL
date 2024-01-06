@@ -176,7 +176,7 @@ public:
 	void DoTurn();
 	void SpreadReligion();
 	void SpreadReligionToOneCity(CvCity* pCity);
-	bool IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pLoopCity, CvCity* pCity, bool& bConnectedWithTrade, int& iRelativeDistancePercent);
+	bool IsCityConnectedToCity(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity, bool& bConnectedWithTrade, int& iRelativeDistancePercent);
 	bool IsValidTarget(ReligionTypes eReligion, CvCity* pFromCity, CvCity* pToCity);
 	// Functions invoked each player turn
 	EraTypes GetFaithPurchaseGreatPeopleEra(CvPlayer* pPlayer);
@@ -473,7 +473,7 @@ public:
 	void ChangeReligiousPressureModifier(ReligionTypes eReligion, int iNewValue);
 	int GetTotalAccumulatedPressure(bool bIncludePantheon) const;
 	int GetPressureAccumulated(ReligionTypes eReligion) const;
-	int GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities = 0);
+	int GetPressurePerTurn(ReligionTypes eReligion, int* piNumSourceCities = NULL);
 	int GetNumTradeRouteConnections (ReligionTypes eReligion);
 	bool WouldExertTradeRoutePressureToward (CvCity* pTargetCity, ReligionTypes& eReligion, int& iAmount);
 
@@ -602,10 +602,10 @@ private:
 	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot, bool bConsiderFutureTech) const;
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const;
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false) const;
-	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes eYield, bool bConsiderFutureTech) const;
+	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes iI, bool bConsiderFutureTech) const;
 
-	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
-	int ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion) const;
+	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eSpreadReligion) const;
+	int ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const;
 	int ScoreCityForInquisitorDefensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eReligion, vector<PlayerTypes>& vUnfriendlyMajors) const;
 
 	bool AreAllOurCitiesConverted(ReligionTypes eReligion, bool bIncludePuppets) const;

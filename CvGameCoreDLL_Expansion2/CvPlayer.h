@@ -137,15 +137,15 @@ public:
 
 #if defined(MOD_BALANCE_CORE_EVENTS)
 	void DoEvents();
-	void DoCancelEventChoice(EventChoiceTypes eEventChoice);
+	void DoCancelEventChoice(EventChoiceTypes eChosenEventChoice);
 	void CheckActivePlayerEvents(CvCity* pCity);
 	bool IsEventValid(EventTypes eEvent);
-	bool IsEventChoiceValid(EventChoiceTypes eEventChoice, EventTypes eParentEvent);
-	void DoStartEvent(EventTypes eEvent, bool bSendMsg);
+	bool IsEventChoiceValid(EventChoiceTypes eChosenEventChoice, EventTypes eParentEvent);
+	void DoStartEvent(EventTypes eChosenEvent, bool bSendMsg);
 	void DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent = NO_EVENT, bool bSendMsg = true, bool bEspionage = false);
 	void DoEventSyncChoices(EventChoiceTypes eEventChoice, CvCity* pCity);
 	CvString GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYieldsOnly);
-	CvString GetDisabledTooltip(EventChoiceTypes eEventChoice);
+	CvString GetDisabledTooltip(EventChoiceTypes eChosenEventChoice);
 
 	void IncrementEvent(EventTypes eEvent, int iValue);
 	int GetEventIncrement(EventTypes eEvent) const;
@@ -186,7 +186,7 @@ public:
 	void killUnits();
 
 	UnitTypes GetSpecificUnitType(const char* szUnitClass, bool hideAssert = false);
-	UnitTypes GetSpecificUnitType(UnitClassTypes eUnitCass) const;
+	UnitTypes GetSpecificUnitType(UnitClassTypes eUnitClassType) const;
 	BuildingTypes GetSpecificBuildingType(const char* szBuildingClass, bool hideAssert = false);
 
 	CvPlot *GetBestCoastalSpawnPlot (CvUnit *pUnit);
@@ -202,7 +202,7 @@ public:
 
 	int GetNumUnitsWithUnitAI(UnitAITypes eUnitAIType, bool bIncludeBeingTrained);
 	int GetNumUnitsWithDomain(DomainTypes eDomain, bool bMilitaryOnly);
-	int GetNumUnitsWithUnitCombat(UnitCombatTypes eDomain);
+	int GetNumUnitsWithUnitCombat(UnitCombatTypes eUnitCombat);
 	int GetNumUnitsOfType(UnitTypes eUnit, bool bIncludeBeingTrained = false);
 	int GetNumUnitPromotions(PromotionTypes ePromotion);
 	void UpdateDangerPlots(bool bKeepKnownUnits);
@@ -260,10 +260,10 @@ public:
 	bool hasBusyCity() const;
 	bool hasBusyUnitOrCity() const;
 	const CvCity* getBusyCity() const;
-	void chooseTech(int iDiscover = 0, const char* strTxt=0, TechTypes iTechJustDiscovered=NO_TECH);
+	void chooseTech(int iDiscover = 0, const char* strText=0, TechTypes iTechJustDiscovered=NO_TECH);
 
 	// Civ 5 Score
-	int GetScore(bool bFinal = false, bool bVictory = false) const;
+	int GetScore(bool bFinal = false, bool bWinner = false) const;
 
 	int GetScoreFromCities() const;
 	int GetScoreFromPopulation() const;
@@ -560,8 +560,8 @@ public:
 
 	void DoTechFromCityConquer(CvCity* pConqueredCity);
 
-	void DoHealGlobal(int iValue);
-	void DoHealLocal(int iValue, CvPlot* pPlot);
+	void DoHealGlobal(int iHealPercent);
+	void DoHealLocal(int iHealPercent, CvPlot* pPlot);
 #if defined(MOD_BALANCE_CORE)
 	void DoFreeGreatWorkOnConquest(PlayerTypes ePlayer, CvCity* pCity);
 	void DoWarVictoryBonuses();
@@ -694,7 +694,7 @@ public:
 	void DoResetCityRevoltCounter();
 	void DoCityRevolt();
 	CvCity *GetMostUnhappyCity();
-	PlayerTypes GetMostUnhappyCityRecipient(CvCity* pCity);
+	PlayerTypes GetMostUnhappyCityRecipient(CvCity* pMostUnhappyCity);
 
 	int GetHappinessFromPolicies() const;
 	int GetHappinessFromCities() const;
@@ -805,6 +805,8 @@ public:
 	// Espionage
 	int GetEspionageModifier() const;
 	void ChangeEspionageModifier(int iChange);
+	int GetSpySecurityModifier() const;
+	void ChangeSpySecurityModifier(int iChange);
 	int GetEspionageNetworkPoints() const;
 	void ChangeEspionageNetworkPoints(int iChange);
 	int GetRigElectionInfluenceModifier() const;
@@ -913,7 +915,7 @@ public:
 	void setHasPolicy(PolicyTypes eIndex, bool bNewValue, bool bFree=false);
 	int getNextPolicyCost() const;
 	void DoUpdateNextPolicyCost();
-	bool canAdoptPolicy(PolicyTypes ePolicy) const;
+	bool canAdoptPolicy(PolicyTypes eIndex) const;
 	void doAdoptPolicy(PolicyTypes ePolicy);
 	void DoBuyNewBranch(PolicyBranchTypes eBranch);
 
@@ -1123,8 +1125,8 @@ public:
 	int getGPExtra5FromFaith() const;
 	void incrementGPExtra5FromFaith();
 
-	byte getResourceFromGP(ResourceTypes eResource) const;
-	void changeResourceFromGP(ResourceTypes eResource, byte iChange);
+	byte getResourceFromGP(ResourceTypes eIndex) const;
+	void changeResourceFromGP(ResourceTypes eIndex, byte iChange);
 
 	int getResourceModFromReligion(ResourceTypes eIndex) const;
 #endif
@@ -1182,11 +1184,11 @@ public:
 	// Unit Killed in Combat
 	void DoUnitKilledCombat(CvUnit* pKillingUnit, PlayerTypes eKilledPlayer, UnitTypes eUnitType);
 #if defined(MOD_BALANCE_CORE)
-	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes eBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bSeaTrade = false, bool bInternational = true, bool bEvent = false, YieldTypes eYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL, CvUnit* pAttackingUnit = NULL);
+	void doInstantYield(InstantYieldType iType, bool bCityFaith = false, GreatPersonTypes eGreatPerson = NO_GREATPERSON, BuildingTypes ePassBuilding = NO_BUILDING, int iPassYield = 0, bool bEraScale = true, PlayerTypes ePlayer = NO_PLAYER, CvPlot* pPlot = NULL, bool bSuppress = false, CvCity* pCity = NULL, bool bDomainSea = false, bool bInternational = true, bool bEvent = false, YieldTypes ePassYield = NO_YIELD, CvUnit* pUnit = NULL, TerrainTypes ePassTerrain = NO_TERRAIN, CvMinorCivQuest* pQuestData = NULL, CvCity* pOtherCity = NULL, CvUnit* pAttackingUnit = NULL);
 	void addInstantYieldText(InstantYieldType iType, const CvString& strInstantYield);
 	void setInstantYieldText(InstantYieldType iType, const CvString& strInstantYield);
 	CvString getInstantYieldText(InstantYieldType iType)  const;
-	void doInstantGWAM(GreatPersonTypes eGreatPerson, const CvString& strUnitName, bool bConquest = false);
+	void doInstantGWAM(GreatPersonTypes eGreatPerson, const CvString& strName, bool bConquest = false);
 	void doPolicyGEorGM(int iPolicyGEorGM);
 	void doInstantGreatPersonProgress(InstantYieldType iType, bool bSuppress = false, CvCity* pCity = NULL, BuildingTypes eBuilding = NO_BUILDING, int iPassValue = 0, GreatPersonTypes ePassGreatPerson = NO_GREATPERSON);
 	void addInstantGreatPersonProgressText(InstantYieldType iType, const CvString& strInstantYield);
@@ -1377,10 +1379,10 @@ public:
 	int getTradeRouteSeaDistanceModifier() const;
 	void changeTradeRouteSeaDistanceModifier(int iChange);
 
-	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain, int iChange);
-	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eDomain) const;
+	void ChangeDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex, int iChange);
+	int GetDomainFreeExperiencePerGreatWorkGlobal(DomainTypes eIndex) const;
 
-	void ChangeDomainFreeExperience(DomainTypes eDomain, int iChange);
+	void ChangeDomainFreeExperience(DomainTypes eIndex, int iChange);
 	int GetDomainFreeExperience(DomainTypes) const;
 
 	void SetNullifyInfluenceModifier(bool bValue);
@@ -1524,7 +1526,7 @@ public:
 	void DoReformCooldown();
 
 	int GetCurrency() const;
-	void SetCurrency(int iID);
+	void SetCurrency(int iValue);
 
 	bool HasCurrency();
 
@@ -1563,48 +1565,48 @@ public:
 	int GetNoPartisans() const;
 
 	void ChangeSpawnCooldown(int iChange);
-	void SetSpawnCooldown(int iChange);
+	void SetSpawnCooldown(int iValue);
 	int GetSpawnCooldown() const;
 
-	void ChangeTRSpeedBoost(int iValue);
+	void ChangeTRSpeedBoost(int iChange);
 	int GetTRSpeedBoost() const;
-	void SetTRSpeedBoost(int iValue);
+	void SetTRSpeedBoost(int iChange);
 
-	void ChangeVotesPerGPT(int iValue);
+	void ChangeVotesPerGPT(int iChange);
 	int GetVotesPerGPT() const;
 
-	void ChangeTRVisionBoost(int iValue);
+	void ChangeTRVisionBoost(int iChange);
 	int GetTRVisionBoost() const;
-	void SetTRVisionBoost(int iValue);
+	void SetTRVisionBoost(int iChange);
 
-	void ChangeEventTourism(int iValue);
+	void ChangeEventTourism(int iChange);
 	int GetEventTourism() const;
-	void SetEventTourism(int iValue);
+	void SetEventTourism(int iChange);
 
 	int GlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest) const;
 	void SetGlobalTourismAlreadyReceived(MinorCivQuestTypes eQuest, int iValue);
 
-	void ChangeEventTourismCS(int iValue);
+	void ChangeEventTourismCS(int iChange);
 	int GetEventTourismCS() const;
-	void SetEventTourismCS(int iValue);
+	void SetEventTourismCS(int iChange);
 
-	void ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iValue);
+	void ChangeNumHistoricEvents(HistoricEventTypes eHistoricEvent, int iChange);
 	int GetNumHistoricEvents() const;
-	void SetNumHistoricEvents(int iValue);
+	void SetNumHistoricEvents(int iChange);
 
 	int GetHistoricEventTourism(HistoricEventTypes eHistoricEvent, CvCity* pCity = NULL);
 
-	void ChangeSingleLeagueVotes(int iValue);
+	void ChangeSingleLeagueVotes(int iChange);
 	int GetSingleLeagueVotes() const;
-	void SetSingleLeagueVotes(int iValue);
+	void SetSingleLeagueVotes(int iChange);
 
-	void ChangeMonopolyModFlat(int iValue);
+	void ChangeMonopolyModFlat(int iChange);
 	int GetMonopolyModFlat() const;
-	void SetMonopolyModFlat(int iValue);
+	void SetMonopolyModFlat(int iChange);
 
-	void ChangeMonopolyModPercent(int iValue);
+	void ChangeMonopolyModPercent(int iChange);
 	int GetMonopolyModPercent() const;
-	void SetMonopolyModPercent(int iValue);
+	void SetMonopolyModPercent(int iChange);
 
 	int GetCachedValueOfPeaceWithHuman() const;
 	void SetCachedValueOfPeaceWithHuman(int iValue);
@@ -1613,10 +1615,10 @@ public:
 	int GetFaithPurchaseCooldown() const;
 
 	int GetNumCSAllies() const;
-	void SetNumCSAllies(int iValue);
+	void SetNumCSAllies(int iChange);
 
 	int GetNumCSFriends() const;
-	void SetNumCSFriends(int iValue);
+	void SetNumCSFriends(int iChange);
 
 	void RefreshCSAlliesFriends();
 #endif
@@ -1872,21 +1874,21 @@ public:
 	void changeFounderYield(YieldTypes eIndex, int iChange);
 
 	int getArtifactYieldBonus(YieldTypes eIndex) const;
-	void changeArtifactYieldBonus(YieldTypes eYield, int iChange);
+	void changeArtifactYieldBonus(YieldTypes eIndex, int iChange);
 
 	int getArtYieldBonus(YieldTypes eIndex) const;
-	void changeArtYieldBonus(YieldTypes eYield, int iChange);
+	void changeArtYieldBonus(YieldTypes eIndex, int iChange);
 
 	int getMusicYieldBonus(YieldTypes eIndex) const;
-	void changeMusicYieldBonus(YieldTypes eYield, int iChange);
+	void changeMusicYieldBonus(YieldTypes eIndex, int iChange);
 
 	int getLitYieldBonus(YieldTypes eIndex) const;
-	void changeLitYieldBonus(YieldTypes eYield, int iChange);
+	void changeLitYieldBonus(YieldTypes eIndex, int iChange);
 
 	int getFilmYieldBonus(YieldTypes eIndex) const;
-	void changeFilmYieldBonus(YieldTypes eYield, int iChange);
+	void changeFilmYieldBonus(YieldTypes eIndex, int iChange);
 	int getRelicYieldBonus(YieldTypes eIndex) const;
-	void changeRelicYieldBonus(YieldTypes eYield, int iChange);
+	void changeRelicYieldBonus(YieldTypes eIndex, int iChange);
 
 	
 
@@ -2021,10 +2023,10 @@ public:
 	void SetNoXPLossUnitPurchase(int iValue);
 	void ChangeNoXPLossUnitPurchase(int iChange);
 
-	void ChangeCSAlliesLowersPolicyNeedWonders(int iValue);
+	void ChangeCSAlliesLowersPolicyNeedWonders(int iChange);
 	int GetCSAlliesLowersPolicyNeedWonders() const;
 
-	void ChangePositiveWarScoreTourismMod(int iValue);
+	void ChangePositiveWarScoreTourismMod(int iChange);
 	int GetPositiveWarScoreTourismMod() const;
 
 	void ChangeIsNoCSDecayAtWar(int iValue);
@@ -2102,7 +2104,7 @@ public:
 	int GetScienceFromBudgetDeficitTimes100() const;
 
 	bool IsGetsScienceFromPlayer(PlayerTypes ePlayer) const;
-	void SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bValue);
+	void SetGetsScienceFromPlayer(PlayerTypes ePlayer, bool bNewValue);
 
 	// END Science
 
@@ -2172,8 +2174,8 @@ public:
 	void AddIncomingUnit(PlayerTypes eFromPlayer, CvUnit* pUnit);
 	PlayerTypes GetBestGiftTarget(DomainTypes eUnitDomain);
 
-	bool isOption(PlayerOptionTypes eIndex) const;
-	void setOption(PlayerOptionTypes eIndex, bool bNewValue);
+	bool isOption(PlayerOptionTypes eID) const;
+	void setOption(PlayerOptionTypes eID, bool bNewValue);
 
 	bool isPlayable() const;
 	void setPlayable(bool bNewValue);
@@ -2207,8 +2209,8 @@ public:
 	void UpdateMonopolyCache();
 	void UpdatePlotBlockades();
 
-	int getCityYieldModFromMonopoly(YieldTypes eYield) const;
-	void changeCityYieldModFromMonopoly(YieldTypes eYield, int iValue);
+	int getCityYieldModFromMonopoly(YieldTypes eIndex) const;
+	void changeCityYieldModFromMonopoly(YieldTypes eIndex, int iChange);
 
 	int getResourceShortageValue(ResourceTypes eIndex) const;
 	void changeResourceShortageValue(ResourceTypes eIndex, int iChange);
@@ -2300,9 +2302,9 @@ public:
 	bool isBuildingFree(BuildingTypes eIndex) const;
 	void changeFreeBuildingCount(BuildingTypes eIndex, int iChange);
 
-	int GetFreePromotionCount(PromotionTypes eIndex) const;
-	bool IsFreePromotion(PromotionTypes eIndex) const;
-	void ChangeFreePromotionCount(PromotionTypes eIndex, int iChange);
+	int GetFreePromotionCount(PromotionTypes ePromotion) const;
+	bool IsFreePromotion(PromotionTypes ePromotion) const;
+	void ChangeFreePromotionCount(PromotionTypes ePromotion, int iChange);
 
 	int getUnitCombatProductionModifiers(UnitCombatTypes eIndex) const;
 	void changeUnitCombatProductionModifiers(UnitCombatTypes eIndex, int iChange);
@@ -2370,8 +2372,8 @@ public:
 	int getGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	void changeGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2, int iChange);
 
-	int getGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
-	void changeGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1, int iChange);
+	int getGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	void changeGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson, int iChange);
 
 	int GetYieldFromKills(YieldTypes eYield) const;
 	void changeYieldFromKills(YieldTypes eYield, int iChange);
@@ -2398,13 +2400,13 @@ public:
 	void ChangeYieldFromWLTKD(YieldTypes eYield, int iChange);
 
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
-	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2) const;
-	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1) const;
-	void changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2, int iChange);
+	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const;
+	int getSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson) const;
+	void changeSpecificGreatPersonRateModifierFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange);
 
-	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2) const;
-	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eIndex1) const;
-	void changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eIndex1, MonopolyTypes eIndex2, int iChange);
+	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly) const;
+	int getSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson) const;
+	void changeSpecificGreatPersonRateChangeFromMonopoly(GreatPersonTypes eGreatPerson, MonopolyTypes eMonopoly, int iChange);
 #endif
 
 	int getImprovementYieldChange(ImprovementTypes eIndex1, YieldTypes eIndex2) const;
@@ -2525,7 +2527,7 @@ public:
 
 	// Arbitrary Script Data
 	std::string getScriptData() const;
-	void setScriptData(const std::string& szNewValue);
+	void setScriptData(const std::string& strNewValue);
 
 	const CvString& getPbemEmailAddress() const;
 	void setPbemEmailAddress(const char* szAddress);
@@ -2544,7 +2546,7 @@ public:
 
 	int GetYieldPerTurnFromEspionageEvents(YieldTypes eYield, bool bIncoming) const;
 
-	void launch(VictoryTypes victoryType);
+	void launch(VictoryTypes eVictory);
 
 	void invalidatePopulationRankCache();
 	void invalidateYieldRankCache(YieldTypes eYield = NO_YIELD);
@@ -2658,10 +2660,10 @@ public:
 	bool HasCityInDanger(bool bAboutToFall, int iMinDanger) const;
 
 	int GetExtraSupplyPerPopulation() const;
-	void ChangeExtraSupplyPerPopulation(int iValue);
+	void ChangeExtraSupplyPerPopulation(int iChange);
 
 	int GetExtraSupplyFlat() const;
-	void ChangeExtraSupplyFlat(int iValue);
+	void ChangeExtraSupplyFlat(int iChange);
 
 	int getCitySupplyFlatGlobal() const;
 	void changeCitySupplyFlatGlobal(int iChange);
@@ -3137,6 +3139,7 @@ protected:
 	int m_iExtraHappinessPerXPoliciesFromPolicies;
 	int m_iHappinessPerXGreatWorks;
 	int m_iEspionageModifier;
+	int m_iSpySecurityModifier;
 	int m_iEspionageNetworkPoints;
 	int m_iRigElectionInfluenceModifier;
 	int m_iSpyPoints;
@@ -3991,6 +3994,7 @@ SYNC_ARCHIVE_VAR(int, m_iHappinessPerXPolicies)
 SYNC_ARCHIVE_VAR(int, m_iExtraHappinessPerXPoliciesFromPolicies)
 SYNC_ARCHIVE_VAR(int, m_iHappinessPerXGreatWorks)
 SYNC_ARCHIVE_VAR(int, m_iEspionageModifier)
+SYNC_ARCHIVE_VAR(int, m_iSpySecurityModifier)
 SYNC_ARCHIVE_VAR(int, m_iEspionageNetworkPoints)
 SYNC_ARCHIVE_VAR(int, m_iRigElectionInfluenceModifier)
 SYNC_ARCHIVE_VAR(int, m_iSpyPoints)

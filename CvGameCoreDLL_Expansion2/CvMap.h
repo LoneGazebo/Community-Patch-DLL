@@ -51,8 +51,8 @@ public:
 	char GetContinentType() const;
 	void SetContinentType(const char cContinent);
 
-	void ChangeCentroidX(int iDelta);
-	void ChangeCentroidY(int iDelta);
+	void ChangeCentroidX(int iChange);
+	void ChangeCentroidY(int iChange);
 	int GetCentroidX();
 	int GetCentroidY();
 
@@ -121,9 +121,9 @@ public:
 	CvMap();
 	virtual ~CvMap();
 
-	void init(CvMapInitData* pInitData = NULL);
+	void init(CvMapInitData* pInitInfo = NULL);
 	void setupGraphical();
-	void reset(CvMapInitData* pInitData);
+	void reset(CvMapInitData* pInitInfo);
 	void uninit();
 
 protected:
@@ -381,6 +381,7 @@ protected:
 	uint8* m_pPlayerCityRadiusCount;
 	uint8* m_pVisibilityCount;				//actual vis count
 	uint8* m_pVisibilityCountThisTurnMax;	//maximum vis count this turn
+	uint8* m_pKnownVisibilityCount;         //current player's known vis count
 	char*  m_pRevealedOwner;
 #if defined(MOD_BALANCE_CORE)
 	bool*  m_pIsImpassable;

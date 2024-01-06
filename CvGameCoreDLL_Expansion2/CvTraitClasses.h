@@ -202,7 +202,7 @@ public:
 	int GetStartingSpies() const;
 	int GetStartingSpyRank() const;
 	int GetSpyMoveRateBonus() const;
-	int	GetEspionageModifier() const;
+	int GetSpySecurityModifier() const;
 	int GetSpyExtraRankBonus() const;
 	int GetQuestYieldModifier() const;
 	int GetWonderProductionModifierToBuilding() const;
@@ -397,6 +397,8 @@ public:
 	int GetGoldenAgeFromVictory() const;
 	bool IsFreeGreatWorkOnConquest() const;
 	bool IsPopulationBoostReligion() const;
+	bool StartsWithPantheon() const;
+	bool IsProphetFervor() const;
 	bool IsCombatBoostNearNaturalWonder() const;
 	int GetFreePolicyPerXTechs() const;
 	EraTypes GetGPFaithPurchaseEra() const;
@@ -428,11 +430,11 @@ public:
 	int GetSpecialistYieldChanges(SpecialistTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGreatPersonExpendedYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
 	int GetGreatPersonBornYield(GreatPersonTypes eIndex1, YieldTypes eIndex2) const;
-	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
-	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eIndex1) const;
-	int GetGreatPersonCostReduction(GreatPersonTypes eIndex1) const;
-	int GetGreatPersonGWAM(GreatPersonTypes eIndex1) const;
-	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eIndex1) const;
+	int GetGoldenAgeGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetPerPuppetGreatPersonRateModifier(GreatPersonTypes eGreatPerson) const;
+	int GetGreatPersonCostReduction(GreatPersonTypes eGreatPerson) const;
+	int GetGreatPersonGWAM(GreatPersonTypes eGreatPerson) const;
+	int GetGoldenAgeFromGreatPersonBirth(GreatPersonTypes eGreatPerson) const;
 	int GetCityYieldFromUnimprovedFeature(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	int GetUnimprovedFeatureYieldChanges(FeatureTypes eIndex1, YieldTypes eIndex2) const;
 	FreeResourceXCities GetFreeResourceXCities(ResourceTypes eResource) const;
@@ -639,7 +641,7 @@ protected:
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iSpyMoveRateBonus;
-	int m_iEspionageModifier;
+	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
 	int m_iQuestYieldModifier;
 #endif
@@ -752,6 +754,8 @@ protected:
 	int m_iFaithCostModifier;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
+	bool m_bStartsWithPantheon;
+	bool m_bProphetFervor;
 	bool m_bCombatBoostNearNaturalWonder;
 	int* m_piNumPledgesDomainProdMod;
 	int* m_piDomainFreeExperienceModifier;
@@ -1281,9 +1285,9 @@ public:
 	{
 		return m_iSpyMoveRateBonus;
 	};
-	int GetEspionageModifier() const
+	int GetSpySecurityModifier() const
 	{
-		return m_iEspionageModifier;
+		return m_iSpySecurityModifier;
 	};
 	int GetSpyExtraRankBonus() const
 	{
@@ -1909,6 +1913,14 @@ public:
 	{
 		return m_bPopulationBoostReligion;
 	};
+	bool StartsWithPantheon() const
+	{
+		return m_bStartsWithPantheon;
+	};
+	bool IsProphetFervor() const
+	{
+		return m_bProphetFervor;
+	};
 	bool IsCombatBoostNearNaturalWonder() const
 	{
 		return m_bCombatBoostNearNaturalWonder;
@@ -1923,7 +1935,7 @@ public:
 	};
 #endif
 #if defined(MOD_BALANCE_CORE) && defined(MOD_TRAITS_YIELD_FROM_ROUTE_MOVEMENT_IN_FOREIGN_TERRITORY)
-	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eYield, bool bTradePartner) const;
+	int GetYieldFromRouteMovementInForeignTerritory(YieldTypes eIndex, bool bTradePartner) const;
 #endif
 	int GetBuildingClassYieldChange(BuildingClassTypes eBuildingClass, YieldTypes eYield) const;
 	int GetCapitalYieldChanges(YieldTypes eYield) const
@@ -2195,7 +2207,7 @@ private:
 	int m_iStartingSpies;
 	int m_iStartingSpyRank;
 	int m_iSpyMoveRateBonus;
-	int m_iEspionageModifier;
+	int m_iSpySecurityModifier;
 	int m_iSpyExtraRankBonus;
 	int m_iQuestYieldModifier;
 	int m_iWonderProductionModifierToBuilding;
@@ -2393,6 +2405,8 @@ private:
 	int m_iFaithCostModifier;
 	bool m_bFreeGreatWorkOnConquest;
 	bool m_bPopulationBoostReligion;
+	bool m_bStartsWithPantheon;
+	bool m_bProphetFervor;
 	bool m_bCombatBoostNearNaturalWonder;
 	int m_iCultureBonusModifierConquest;
 	int m_iProductionBonusModifierConquest;

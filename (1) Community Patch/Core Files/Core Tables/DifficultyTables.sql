@@ -41,7 +41,6 @@ ALTER TABLE HandicapInfos ADD COLUMN 'StartingGold' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'HappinessDefaultCapital' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'EmpireSizeUnhappinessMod' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'MaintenanceFreeUnits' INTEGER DEFAULT 0;
-ALTER TABLE HandicapInfos ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyBase' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPerCity' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'UnitSupplyPopulationPercent' INTEGER DEFAULT 0;
@@ -80,6 +79,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'FreeXPPercentVSHuman' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'CombatBonus' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'ResistanceCap' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'VisionBonus' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'SpySecurityModifier' INTEGER DEFAULT 0;
 -- VP Difficulty Bonus
 ALTER TABLE HandicapInfos ADD COLUMN 'DifficultyBonusTurnInterval' INTEGER DEFAULT 0;
 
@@ -123,6 +123,7 @@ ALTER TABLE HandicapInfos ADD COLUMN 'AIFreeXPPercentVSHuman' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AICombatBonus' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIResistanceCap' INTEGER DEFAULT 0;
 ALTER TABLE HandicapInfos ADD COLUMN 'AIVisionBonus' INTEGER DEFAULT 0;
+ALTER TABLE HandicapInfos ADD COLUMN 'AISpySecurityModifier' INTEGER DEFAULT 0;
 -- VP Difficulty Bonus
 ALTER TABLE HandicapInfos ADD COLUMN 'AIDifficultyBonusTurnInterval' INTEGER DEFAULT 0;
 

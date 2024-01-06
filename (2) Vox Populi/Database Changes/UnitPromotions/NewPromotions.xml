@@ -1095,5 +1095,12 @@
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
 			<PediaEntry>TXT_KEY_PROMOTION_CONSCRIPT</PediaEntry>
 		</Row>
+		<Row>
+			<Type>PROMOTION_JUGGERNAUT</Type>
+			<Description>TXT_KEY_PROMOTION_JUGGERNAUT</Description>
+			<Help>TXT_KEY_PROMOTION_JUGGERNAUT_HELP</Help>
+			<PediaType>PEDIA_ATTRIBUTES</PediaType>
+			<PediaEntry>TXT_KEY_PROMOTION_JUGGERNAUT</Help>
+		</Row>
 	</UnitPromotions>
 </GameData>

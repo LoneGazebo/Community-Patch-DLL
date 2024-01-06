@@ -278,7 +278,9 @@ void CvPlayerAI::AI_unitUpdate()
 	if(isHuman())
 	{
 		CvUnit::dispatchingNetMessage(true);
+		GetTacticalAI()->UpdateVisibility();
 		GetHomelandAI()->Update();
+		GetTacticalAI()->CleanUp();
 		CvUnit::dispatchingNetMessage(false);
 	}
 	else
@@ -1829,9 +1831,9 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveProphet(CvUnit* pUnit)
 		int iFlavor =  GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_RELIGION"));
 		iFlavor -= GetNumUnitsWithUnitAI(UNITAI_PROPHET,false);
 
-		//Let's use our prophets for improvments instead of wasting them on conversion.
+		//Let's use our prophets for improvements instead of wasting them on conversion.
 		int iNumImprovement = getImprovementCount(eHolySite);
-		if(iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(pUnit)==NULL)
+		if (iNumImprovement <= iFlavor || GetReligionAI()->ChooseProphetConversionCity(pUnit) == NULL || GetPlayerTraits()->IsProphetFervor())
 		{
 			eDirective = GREAT_PEOPLE_DIRECTIVE_CONSTRUCT_IMPROVEMENT;
 		}
@@ -1946,14 +1948,7 @@ bool CvPlayerAI::GreatMerchantWantsCash()
 	{
 		//what would be a sane limit?
 		//FIXME: look at the politics of potential targets ...
-		if (GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3))
-		{
-			return true;
-		}
-		else
-		{
-			return false;
-		}
+		return static_cast<bool>(GetNumPuppetCities() > max(2,GC.getGame().GetNumMinorCivsEver()-3));
 	}
 
 	return true;

@@ -570,7 +570,8 @@ function DoVassalStatistics( ePlayer )
 	local pPlayer = Players[ ePlayer ];
 	
 	-- Population
-	Controls.VassalStatsPopulation:SetText( pPlayer:GetTotalPopulation() );
+	Controls.VassalStatsPopulation:SetText( "([COLOR_NEGATIVE_TEXT]-" .. math.floor(math.pow(pPlayer:GetTotalPopulation(), 0.8)) .. "[ENDCOLOR][ICON_GOLD]) " .. pPlayer:GetTotalPopulation() );
+	Controls.VassalStatsPopulation:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_VO_POPULATION_MAINTENANCE") );
 	local iHappiness = pPlayer:GetExcessHappiness();
 	local szHappinessLabel = "";
 	if(iHappiness < 0) then
@@ -579,11 +580,12 @@ function DoVassalStatistics( ePlayer )
 		szHappinessLabel = "[ICON_HAPPINESS_1] " .. Locale.ConvertTextKey("TXT_KEY_VO_HAPPINESS_STAT");
 	end
 	Controls.VassalStatsHappyLabel:SetText( szHappinessLabel );
-	Controls.VassalStatsHappy:SetText( iHappiness );
+	Controls.VassalStatsHappy:SetText( "[COLOR_POSITIVE_TEXT]" .. pPlayer:GetHappinessFromCitizenNeeds() .. "[ENDCOLOR]" .. "/" .. "[COLOR_NEGATIVE_TEXT]" .. pPlayer:GetUnhappinessFromCitizenNeeds() .. "[ENDCOLOR]"  );
 	
 	-- Economic
 	Controls.VassalStatsGross:SetText( pPlayer:CalculateGrossGold() );
-	Controls.VassalStatsGold:SetText( pPlayer:CalculateGoldRate() );
+	Controls.VassalStatsGold:SetText( "([COLOR_NEGATIVE_TEXT]-" .. math.floor(pPlayer:CalculateUnitCost()*0.1) .. "[ENDCOLOR][ICON_GOLD]) " .. pPlayer:CalculateGoldRate() );
+	Controls.VassalStatsGold:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_VO_UNIT_MAINTENANCE") );
 	Controls.VassalStatsTradeRoutes:LocalizeAndSetText( "TXT_KEY_VO_TRADE_ROUTES_LABEL", pPlayer:GetNumInternationalTradeRoutesUsed(), pPlayer:GetNumInternationalTradeRoutesAvailable() );
 
 	-- Culture
@@ -958,6 +960,7 @@ ContextPtr:SetShowHideHandler( ShowHideHandler );
 local strBenefits = "";
 strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_OPEN_BORDERS" );
 strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_YIELD_PERCENTAGE" );
+strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_HAPPINESS_PERCENTAGE" );
 strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_RELIGION_MOD" );
 strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_TOURISM_MOD" );
 strBenefits = strBenefits .. "[NEWLINE]" .. Locale.ConvertTextKey( "TXT_KEY_VO_BENEFITS_DIPLOMAT" );

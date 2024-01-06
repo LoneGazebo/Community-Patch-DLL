@@ -328,7 +328,12 @@ void CvTacticalAI::Update()
 /// Clear up memory usage
 void CvTacticalAI::CleanUp()
 {
-	m_plotsVisibleToOtherPlayer.clear();
+	CvPlot* pLoopPlot;
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		pLoopPlot->ResetKnownVisibility();
+	}
 	m_AllTargets.clear();
 	m_ZoneTargets.clear();
 }
@@ -396,7 +401,7 @@ void CvTacticalAI::UpdateVisibility()
 		if (!pLoopPlot->isRevealed(eTeam))
 			continue;
 
-		UpdateVisibilityFromBorders(pLoopPlot, false);
+		UpdateVisibilityFromBorders(pLoopPlot);
 
 		if (!pLoopPlot->isVisible(eTeam))
 			continue;
@@ -411,25 +416,32 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 	if (!pPlot)
 		return;
 
-	TeamTypes eTeam = m_pPlayer->getTeam();
+	TeamTypes ePlayerTeam = m_pPlayer->getTeam();
 
 	// If we just revealed the tile, check if it or a nearby plot is owned by another player
 	if (bRevealed)
 	{
-		UpdateVisibilityFromBorders(pPlot, bRevealed);
+		UpdateVisibilityFromBorders(pPlot);
 	}
 
 	if (pPlot->getNumUnits() > 0)
 	{
-		TeamTypes eOtherTeam;
 		CvUnit* pLoopUnit;
+		TeamTypes eLoopUnitTeam;
+		PlayerTypes eLoopUnitOwner;
+		PlayerTypes eMinorCivAlly;
 
 		for (int iI = 0; iI < pPlot->getNumUnits(); iI++)
 		{
 			pLoopUnit = pPlot->getUnitByIndex(iI);
-			eOtherTeam = pLoopUnit->getTeam();
-			if (eOtherTeam != eTeam && !pLoopUnit->isInvisible(eTeam, false))
+			eLoopUnitTeam = pLoopUnit->getTeam();
+			eLoopUnitOwner = pLoopUnit->getOwner();
+
+			if (eLoopUnitTeam != ePlayerTeam && !pLoopUnit->isInvisible(ePlayerTeam, false))
 			{
+				eMinorCivAlly = GET_TEAM(eLoopUnitTeam).isMinorCiv() ? GET_PLAYER(eLoopUnitOwner).GetMinorCivAI()->GetAlly() : NO_PLAYER;
+				bool bHasMetMinorCivAlly = eMinorCivAlly != NO_PLAYER && eMinorCivAlly != ePlayerTeam && GET_TEAM(ePlayerTeam).isHasMet(GET_PLAYER(eMinorCivAlly).getTeam());
+
 				for (int iRange = 2; iRange <= pLoopUnit->visibilityRange(); iRange++)
 				{
 					const vector<CvPlot*>& vPlots = GC.getMap().GetPlotsAtRangeX(pPlot, iRange, true, true);
@@ -439,7 +451,10 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 						if ((vPlots[iJ]) == NULL)
 							continue;
 
-						m_plotsVisibleToOtherPlayer[eOtherTeam].insert(vPlots[iJ]->GetPlotIndex());
+						vPlots[iJ]->IncreaseKnownVisibilityCount(eLoopUnitTeam, 1);
+
+						if (bHasMetMinorCivAlly)
+							vPlots[iJ]->IncreaseKnownVisibilityCount(GET_PLAYER(eMinorCivAlly).getTeam(), 1);
 					}
 				}
 			}
@@ -450,7 +465,7 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 /// Do we know that the other civ can see this tile?
 bool CvTacticalAI::IsVisibleToPlayer(const CvPlot* pPlot, TeamTypes eOther)
 {
-	return m_plotsVisibleToOtherPlayer.count(eOther) > 0 && m_plotsVisibleToOtherPlayer[eOther].count(pPlot->GetPlotIndex()) > 0;
+	return pPlot->GetKnownVisibilityCount(eOther) > 0;
 }
 
 /// Do we know that an enemy civ can see this tile?
@@ -475,41 +490,37 @@ bool CvTacticalAI::IsVisibleToEnemy(const CvPlot* pPlot)
 
 // PRIVATE METHODS
 
-void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot, bool bRevealed)
+void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot)
 {
-	TeamTypes eTeam = m_pPlayer->getTeam();
-	TeamTypes eOtherTeam = pPlot->getTeam();
+	const TeamTypes ePlayerTeam = m_pPlayer->getTeam();
+	const TeamTypes ePlotTeam = pPlot->getTeam();
+	const PlayerTypes ePlotOwner = pPlot->getOwner();
+	PlayerTypes eMinorCivAlly = NO_PLAYER;
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
 	CvPlot* pAdjacentPlot;
 
-	if (eOtherTeam != NO_TEAM && eOtherTeam != eTeam)
+	if (ePlotTeam != NO_TEAM && ePlotTeam != ePlayerTeam && GET_TEAM(ePlayerTeam).isHasMet(ePlotTeam))
 	{
-		// Plot is owned by another player
-		m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pPlot->GetPlotIndex());
+		// Plot is owned by another player, which means that they can see this and all neighboring tiles.
+		// Doesn't matter if we've seen the neighboring tiles, we know they can see it no matter what.
+		pPlot->IncreaseKnownVisibilityCount(ePlotTeam, 1);
 
-		if (bRevealed)
+		eMinorCivAlly = GET_TEAM(ePlotTeam).isMinorCiv() ? GET_PLAYER(ePlotOwner).GetMinorCivAI()->GetAlly() : NO_PLAYER;
+		bool bHasMetMinorCivAlly = eMinorCivAlly != NO_PLAYER && eMinorCivAlly != ePlayerTeam && GET_TEAM(ePlayerTeam).isHasMet(GET_PLAYER(eMinorCivAlly).getTeam());
+
+		if (bHasMetMinorCivAlly)
+			pPlot->IncreaseKnownVisibilityCount(GET_PLAYER(eMinorCivAlly).getTeam(), 1);
+
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 		{
-			for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-			{
-				pAdjacentPlot = aPlotsToCheck[iI];
+			pAdjacentPlot = aPlotsToCheck[iI];
 
-				if (pAdjacentPlot != NULL && pAdjacentPlot->isVisible(eTeam))
-					// We knew about this plot before but we may not previously have known that this player was neighboring it
-					m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pAdjacentPlot->GetPlotIndex());
+			if (pAdjacentPlot != NULL) {
+				pAdjacentPlot->IncreaseKnownVisibilityCount(ePlotTeam, 1);
+
+				if (bHasMetMinorCivAlly)
+					pAdjacentPlot->IncreaseKnownVisibilityCount(GET_PLAYER(eMinorCivAlly).getTeam(), 1);
 			}
-		}
-	}
-
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		pAdjacentPlot = aPlotsToCheck[iI];
-
-		if (pAdjacentPlot != NULL && pAdjacentPlot->isVisible(eTeam)) {
-			eOtherTeam = pAdjacentPlot->getTeam();
-
-			if (eOtherTeam != eTeam && pAdjacentPlot->getTeam() != NO_TEAM)
-				// Neighbors a plot owned by another player
-				m_plotsVisibleToOtherPlayer[eOtherTeam].insert(pAdjacentPlot->GetPlotIndex());
 		}
 	}
 }
@@ -7738,7 +7749,13 @@ int ScoreTurnEnd(const CvUnit* pUnit, eUnitAssignmentType eLastAssignment, const
 
 	//unseen enemies might be hiding behind the edge, so assume danger there
 	if (testPlot.isEdgePlot())
-		iDanger = max( pUnit->GetMaxHitPoints()/2, iDanger);
+	{
+		iDanger = max(pUnit->GetMaxHitPoints() / 2, iDanger);
+
+		//siege units (with limited visibility) should not move there unless covered (the -1 is important)
+		if (pUnit->visibilityRange()<2 && testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit), -1) < 2)
+			return INT_MAX;
+	}
 
 	if (iDanger > 0)
 	{
@@ -7852,13 +7869,6 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	//cannot deal with enemies here, only friendly/empty plots
 	if (testPlot.isEnemy())
 		return result;
-
-	//careful when moving into edge plots, they may hold surprises
-	//so siege units should not move there unless adjacent already
-	//instead move to an intermediate plot and maybe restart the sim if new enemies are revealed
-	if (pUnit->AI_getUnitAIType()== UNITAI_CITY_BOMBARD && testPlot.isEdgePlot())
-		if (testPlot.getNumAdjacentFriendlies(DomainForUnit(pUnit),-1)==0)
-			return result;
 
 	//different contributions
 	int iDamageScore = 0;
@@ -9335,8 +9345,10 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 
 	//if we did not make an attack, see if our units moved in the right way at least
 	//note that this comparison only works because we know we did not kill an enemy, which would change enemyDistance!
-	int iPositive = 0, iNegative = 0; //enemy distance change
-	int iBefore = 0, iAfter = 0; //target distance change
+	int iPositive = 0; //enemy distance change
+	int iNegative = 0; //enemy distance change
+	int iBefore = 0; //target distance change
+	int iAfter = 0; //target distance change
 	int iAttacksNoMove = 0;
 	for (size_t i = nFirstInterestingAssignment; i < assignedMoves.size(); i++)
 	{

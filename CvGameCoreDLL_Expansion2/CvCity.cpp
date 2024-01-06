@@ -205,6 +205,7 @@ CvCity::CvCity() :
 	, m_iMaintenance()
 	, m_iHealRate()
 	, m_iNoOccupiedUnhappinessCount()
+	, m_iFoodBonusPerCityMajorityFollower()
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	, m_iLocalGainlessPillageCount()
 #endif
@@ -235,7 +236,8 @@ CvCity::CvCity() :
 	, m_iCountExtraLuxuries()
 	, m_iCheapestPlotInfluenceDistance()
 	, m_iEspionageModifier()
-	, m_iEspionageModifierPerPop()
+	, m_iSpySecurityModifier()
+	, m_iSpySecurityModifierPerPop()
 	, m_iTradeRouteRecipientBonus()
 	, m_iTradeRouteSeaGoldBonus()
 	, m_iTradeRouteLandGoldBonus()
@@ -1316,12 +1318,14 @@ void CvCity::reset(int iID, PlayerTypes eOwner, int iX, int iY, bool bConstructo
 	m_iMaintenance = 0;
 	m_iHealRate = 0;
 	m_iEspionageModifier = 0;
-	m_iEspionageModifierPerPop = 0;
+	m_iSpySecurityModifier = 0;
+	m_iSpySecurityModifierPerPop = 0;
 	m_iNumPreviousSpyMissions = 0;
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 	m_iConversionModifier = 0;
 #endif
 	m_iNoOccupiedUnhappinessCount = 0;
+	m_iFoodBonusPerCityMajorityFollower = 0;
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 	m_iLocalGainlessPillageCount = 0;
 #endif
@@ -2325,8 +2329,6 @@ void CvCity::kill()
 	if (GetCityReligions()->IsHolyCityAnyReligion())
 		GC.getGame().GetGameReligions()->SetHolyCity(GetCityReligions()->GetReligionForHolyCity(), NULL);
 
-	PreKill();
-
 	// get spies out of city
 	CvCityEspionage* pCityEspionage = GetCityEspionage();
 	if (pCityEspionage)
@@ -2341,6 +2343,8 @@ void CvCity::kill()
 			}
 		}
 	}
+
+	PreKill();
 
 	// Delete the city's information here!!!
 	CvGameTrade* pkGameTrade = GC.getGame().GetGameTrade();
@@ -5398,7 +5402,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			if (iPreValue != 0)
 			{
 				iPreValue *= -1;
-				if (yieldCostTip != "")
+				if (!yieldCostTip.empty())
 				{
 					yieldCostTip += ", ";
 				}
@@ -5433,7 +5437,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 				iYieldValue /= 100;
 				if (iYieldValue != 0)
 				{
-					if (yieldInstantTip != "")
+					if (!yieldInstantTip.empty())
 					{
 						yieldInstantTip += ", ";
 					}
@@ -5461,7 +5465,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			int iCityValue = pkEventChoiceInfo->getCityYield(eIndex);
 			if (iCityValue != 0)
 			{
-				if (yieldCityTip != "")
+				if (!yieldCityTip.empty())
 				{
 					yieldCityTip += ", ";
 				}
@@ -5502,7 +5506,7 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 			}
 			if (iValue != 0)
 			{
-				if (yieldSpecialistTip != "")
+				if (!yieldSpecialistTip.empty())
 				{
 					yieldSpecialistTip += ", ";
 				}
@@ -5643,7 +5647,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 	if (GAMEEVENTINVOKE_TESTALL(GAMEEVENT_CityEventChoiceCanTake, getOwner(), GetID(), eChosenEventChoice) == GAMEEVENTRETURN_FALSE)
 	{
 		CvString strOverrideText = GetLocalizedText(pkEventInfo->getDisabledTooltip());
-		if (strOverrideText != "")
+		if (!strOverrideText.empty())
 		{
 			DisabledTT += strOverrideText;
 		}
@@ -6771,7 +6775,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					int iNumToSteal = pkEventChoiceInfo->getStealGW();
 					while (iNumStolen < iNumToSteal && GWIDs.size() > 0)
 					{
-						int iGrab = GC.getGame().randRangeInclusive(0, GWIDs.size(), CvSeeder::fromRaw(0xd3270c47).mix(GET_PLAYER(eSpyOwner).GetID()).mix(GetID()).mix(GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]));
+						int iGrab = GC.getGame().randRangeInclusive(0, GWIDs.size() - 1, CvSeeder::fromRaw(0xd3270c47).mix(GET_PLAYER(eSpyOwner).GetID()).mix(GetID()).mix(GET_PLAYER(eSpyOwner).GetEspionage()->m_aiNumSpyActionsDone[getOwner()]));
 						GET_PLAYER(eSpyOwner).GetEspionage()->DoStealGW(this, GWIDs[iGrab]);
 						GWIDs.erase(GWIDs.begin() + iGrab);
 						iNumStolen++;
@@ -7537,7 +7541,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					continue;
 
 				CvString strNotificationString = pkEventChoiceInfo->GetNotificationInfo(iI)->GetNotificationString();
-				if (strNotificationString != NULL && strNotificationString != "")
+				if (strNotificationString != NULL && !strNotificationString.empty())
 				{
 					NotificationTypes eNotificationType = (NotificationTypes)FString::Hash(strNotificationString);
 
@@ -9861,7 +9865,7 @@ void CvCity::ChangeNumResourceLocal(ResourceTypes eResource, int iChange, bool b
 					}
 
 					// Combine the list we just made with the header text
-					if (strList != "")
+					if (!strList.empty())
 					{
 						Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_PROD_COST_MOD");
 						strText << getNameKey() << pkResource->GetTextKey() << strList;
@@ -15504,6 +15508,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 		ChangeNoOccupiedUnhappinessCount(pBuildingInfo->IsNoOccupiedUnhappiness() * iChange);
 
+		ChangeFoodBonusPerCityMajorityFollower(pBuildingInfo->GetFoodBonusPerCityMajorityFollower() * iChange);
+
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 		ChangeLocalGainlessPillageCount(pBuildingInfo->IsCityGainlessPillage() * iChange); //bool promotion
 #endif
@@ -15581,7 +15587,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 			if (owningPlayer.GetPlayerPolicies()->HasPolicy(ePolicy) && !owningPlayer.GetPlayerPolicies()->IsPolicyBlocked(ePolicy))
 			{
 				ChangeJONSCulturePerTurnFromPolicies(GC.getPolicyInfo(ePolicy)->GetBuildingClassCultureChange(eBuildingClass) * iChange);
-				ChangeEspionageModifier(GC.getPolicyInfo(ePolicy)->GetBuildingClassSecurityChange(eBuildingClass) * iChange);
+				ChangeSpySecurityModifier(GC.getPolicyInfo(ePolicy)->GetBuildingClassSecurityChange(eBuildingClass) * iChange);
 #if defined(MOD_BALANCE_CORE_POLICIES)
 				changeBuildingClassCultureChange(eBuildingClass, GC.getPolicyInfo(ePolicy)->GetBuildingClassCultureChange(eBuildingClass) * iChange);
 #endif
@@ -15734,7 +15740,8 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 		ChangeWonderProductionModifier(pBuildingInfo->GetWonderProductionModifier() * iChange);
 		changeCapturePlunderModifier(pBuildingInfo->GetCapturePlunderModifier() * iChange);
 		ChangeEspionageModifier(pBuildingInfo->GetEspionageModifier() * iChange);
-		ChangeEspionageModifierPerPop(pBuildingInfo->GetEspionageModifierPerPop() * iChange);
+		ChangeSpySecurityModifier(pBuildingInfo->GetSpySecurityModifier() * iChange);
+		ChangeSpySecurityModifierPerPop(pBuildingInfo->GetSpySecurityModifierPerPop() * iChange);
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
 		ChangeConversionModifier(pBuildingInfo->GetConversionModifier() * iChange);
 		owningPlayer.ChangeConversionModifier(pBuildingInfo->GetGlobalConversionModifier() * iChange);
@@ -20819,17 +20826,31 @@ void CvCity::ChangeEspionageModifier(int iChange)
 }
 
 //	--------------------------------------------------------------------------------
-int CvCity::GetEspionageModifierPerPop() const
+int CvCity::GetSpySecurityModifier() const
 {
 	VALIDATE_OBJECT
-	return m_iEspionageModifierPerPop;
+	return m_iSpySecurityModifier;
 }
 
 //	--------------------------------------------------------------------------------
-void CvCity::ChangeEspionageModifierPerPop(int iChange)
+void CvCity::ChangeSpySecurityModifier(int iChange)
 {
 	VALIDATE_OBJECT
-	m_iEspionageModifierPerPop = (m_iEspionageModifierPerPop + iChange);
+	m_iSpySecurityModifier = (m_iSpySecurityModifier + iChange);
+}
+
+//	--------------------------------------------------------------------------------
+int CvCity::GetSpySecurityModifierPerPop() const
+{
+	VALIDATE_OBJECT
+	return m_iSpySecurityModifierPerPop;
+}
+
+//	--------------------------------------------------------------------------------
+void CvCity::ChangeSpySecurityModifierPerPop(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iSpySecurityModifierPerPop = (m_iSpySecurityModifierPerPop + iChange);
 }
 
 #if defined(MOD_RELIGION_CONVERSION_MODIFIERS)
@@ -20873,6 +20894,19 @@ void CvCity::ChangeNoOccupiedUnhappinessCount(int iChange)
 		m_iNoOccupiedUnhappinessCount += iChange;
 }
 
+//	--------------------------------------------------------------------------------
+/// +x% Food for each follower of the city's majority religion
+int CvCity::GetFoodBonusPerCityMajorityFollower() const
+{
+	VALIDATE_OBJECT
+	return m_iFoodBonusPerCityMajorityFollower;
+}
+
+void CvCity::ChangeFoodBonusPerCityMajorityFollower(int iChange)
+{
+	VALIDATE_OBJECT
+	m_iFoodBonusPerCityMajorityFollower += iChange;
+}
 
 #if defined(HH_MOD_BUILDINGS_FRUITLESS_PILLAGE)
 //	--------------------------------------------------------------------------------
@@ -22852,7 +22886,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 				{
 					strIcon = GC.getReligionInfo(eMajority)->GetIconString();
 				}
-				if (strIcon != "")
+				if (!strIcon.empty())
 				{
 					strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_EO_CITY_RELIGION", iUnhappyCitizens, strIcon);
 				}
@@ -23029,7 +23063,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 		{
 			strIcon = GC.getReligionInfo(eMajority)->GetIconString();
 		}
-		if (iReligiousUnrest != 0 && strIcon != "")
+		if (iReligiousUnrest != 0 && !strIcon.empty())
 		{
 			int iReduction = GetReligiousUnrestFlatReduction() + kPlayer.GetReligiousUnrestFlatReductionGlobal();
 			strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_RELIGIOUS_UNREST_UNHAPPINESS", iReligiousUnrest, strIcon, iReduction);
@@ -23108,7 +23142,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 
 		// Religious Unrest (only shows % modifier, and only shows up if city has a majority religion)
 		int iTotalReligiousUnrestModifier = bReligionOff ? 0 : GetTotalNeedModifierForYield(YIELD_FAITH, false);
-		if (strIcon != "")
+		if (!strIcon.empty())
 		{
 			float fUnhappyPerMinorityPop = 0.00f;
 			fUnhappyPerMinorityPop += /*0.5f*/ GD_FLOAT_GET(UNHAPPINESS_PER_RELIGIOUS_MINORITY_POP);
@@ -23245,7 +23279,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 			if (iArtsModifier != 0)
 				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_ARTS_UNHAPPINESS_MOD", iArtsModifier);
 
-			if (iPrayerModifier != 0 && strIcon != "")
+			if (iPrayerModifier != 0 && !strIcon.empty())
 				strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_PRAYER_UNHAPPINESS_MOD", strIcon, iPrayerModifier);
 
 			// OTHER MODIFIERS
@@ -23289,7 +23323,7 @@ CvString CvCity::GetCityUnhappinessBreakdown(bool bIncludeMedian, bool bCityBann
 					else
 						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_BOREDOM_UNHAPPINESS_MOD", iExtraBoredomMod);
 				}
-				if (iExtraReligiousUnrestMod != 0 && strIcon != "")
+				if (iExtraReligiousUnrestMod != 0 && !strIcon.empty())
 				{
 					if (iExtraReligiousUnrestMod > 0)
 						strTooltip += "[NEWLINE]" + GetLocalizedText("TXT_KEY_MISC_RELIGIOUS_UNREST_UNHAPPINESS_MOD_POS", strIcon, iExtraReligiousUnrestMod);
@@ -24828,13 +24862,19 @@ int CvCity::getBaseYieldRateModifier(YieldTypes eIndex, int iExtra, CvString* to
 	// Trait Yield Rate Modifier per Follower
 	if (eIndex == YIELD_FOOD && eMajority != NO_RELIGION)
 	{
+		iTempMod = 0;
+		int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
 		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsPopulationBoostReligion() && eMajority == GET_PLAYER(getOwner()).GetReligions()->GetStateReligion(true))
 		{
-			int iFollowers = GetCityReligions()->GetNumFollowers(eMajority);
-			iTempMod = iFollowers * /*1*/ GD_INT_GET(BALANCE_FOLLOWER_FOOD_BONUS);
+			iTempMod += iFollowers * /*0*/ GD_INT_GET(BALANCE_FOLLOWER_FOOD_BONUS);
 			iModifier += iTempMod;
-			GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_TRAIT", iTempMod);
 		}
+		if (GetFoodBonusPerCityMajorityFollower() > 0)
+		{
+			iTempMod += iFollowers * GetFoodBonusPerCityMajorityFollower();
+			iModifier += iTempMod;
+		}
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_PRODMOD_YIELD_FOLLOWERS", iTempMod);
 	}
 
 	// Puppet
@@ -27056,7 +27096,7 @@ int CvCity::GetNumPreviousSpyMissions() const
 int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 {
 	VALIDATE_OBJECT
-	if (GET_PLAYER(getOwner()).isMinorCiv())
+	if (!GET_PLAYER(getOwner()).isMajorCiv())
 		return -1;
 
 	int iCitySecurity = 0;
@@ -27067,21 +27107,20 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_BASE_TT", iTempMod);
 	iCitySecurity += iTempMod;
 
-	if (GET_PLAYER(getOwner()).isHuman())
-	{
-		// Difficulty Bonus
-		const CvHandicapInfo& playerHandicap = GET_PLAYER(getOwner()).getHandicapInfo();
-		iTempMod = playerHandicap.getSpySecurityModifier();
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_DIFFICULTY_TT", iTempMod);
-		iCitySecurity += iTempMod;
-	}
+	// Difficulty Bonus
+	const CvHandicapInfo& playerHandicap = GET_PLAYER(getOwner()).getHandicapInfo();
+	const CvHandicapInfo& gameHandicap = GC.getGame().getHandicapInfo();
+	iTempMod = playerHandicap.getSpySecurityModifier();
+	iTempMod += !GET_PLAYER(getOwner()).isHuman() ? gameHandicap.getSpySecurityModifier() : 0;
+	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_DIFFICULTY_TT", iTempMod);
+	iCitySecurity += iTempMod;
 
 	// Not all players have spies
 	bool bAllPlayersHaveSpies = true;
-	for (uint ui2 = 0; ui2 < MAX_MAJOR_CIVS; ui2++)
+	for (uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 	{
-		PlayerTypes ePlayer2 = (PlayerTypes)ui2;
-		if (GET_PLAYER(ePlayer2).isAlive() && GET_PLAYER(ePlayer2).GetEspionage()->GetNumSpies() == 0)
+		PlayerTypes ePlayer = (PlayerTypes)ui;
+		if (GET_PLAYER(ePlayer).isAlive() && GET_PLAYER(ePlayer).GetEspionage()->GetNumSpies() == 0)
 		{
 			bAllPlayersHaveSpies = false;
 			break;
@@ -27095,12 +27134,12 @@ int CvCity::CalculateCitySecurity(CvString* toolTipSink) const
 	}
 
 	// Local Buildings
-	iTempMod = GetEspionageModifier() + getPopulation() * GetEspionageModifierPerPop();
+	iTempMod = GetSpySecurityModifier() + getPopulation() * GetSpySecurityModifierPerPop();
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_BUILDINGS_TT", iTempMod);
 	iCitySecurity += iTempMod;
 
 	// Everything on the player level (Policies, Wonders, Player Traits)
-	iTempMod = GET_PLAYER(getOwner()).GetEspionageModifier();
+	iTempMod = GET_PLAYER(getOwner()).GetSpySecurityModifier();
 	GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_CITY_SECURITY_POLICIES_WONDERS_TT", iTempMod);
 	iCitySecurity += iTempMod;
 
@@ -32083,7 +32122,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				eReligion = GetCityReligions()->GetReligiousMajority();
 			}
 
-			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
+			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion);
 
 			kPlayer.ChangeFaith(-iFaithCost);
 
@@ -32936,6 +32975,7 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iMaintenance);
 	visitor(city.m_iHealRate);
 	visitor(city.m_iNoOccupiedUnhappinessCount);
+	visitor(city.m_iFoodBonusPerCityMajorityFollower);
 	visitor(city.m_iLocalGainlessPillageCount);
 	visitor(city.m_iFood);
 	visitor(city.m_iMaxFoodKeptPercent);
@@ -32970,7 +33010,8 @@ void CvCity::Serialize(City& city, Visitor& visitor)
 	visitor(city.m_iCountExtraLuxuries);
 	visitor(city.m_iCheapestPlotInfluenceDistance);
 	visitor(city.m_iEspionageModifier);
-	visitor(city.m_iEspionageModifierPerPop);
+	visitor(city.m_iSpySecurityModifier);
+	visitor(city.m_iSpySecurityModifierPerPop);
 	visitor(city.m_iNumPreviousSpyMissions);
 	visitor(city.m_iConversionModifier);
 	visitor(city.m_bNeverLost);

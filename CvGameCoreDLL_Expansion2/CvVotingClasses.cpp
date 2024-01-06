@@ -1001,7 +1001,7 @@ CvString CvVoterDecision::GetVotesAsText(CvLeague* pLeague)
 	}
 
 	std::stable_sort(vVoteText.begin(), vVoteText.end(), LeagueHelpers::VoteTextSorter());
-	int iNumToShow = MIN(16, (int)vVoteText.size());
+	int iNumToShow = MIN(43, (int)vVoteText.size()); //Used to be 16, now 43 because there are 43 major possible... no support for small screen really! If it goes out that long then it goes out that long.
 	for (int i = 0; i < iNumToShow; i++)
 	{
 		s += vVoteText[i].sText;
@@ -6878,7 +6878,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		CvUnitClassInfo* pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_WRITER"));
 		if (pInfo != NULL)
 		{
-			if (sList != "")
+			if (!sList.empty())
 				sList += ", ";
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
@@ -6887,7 +6887,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ARTIST"));
 		if (pInfo != NULL)
 		{
-			if (sList != "")
+			if (!sList.empty())
 				sList += ", ";
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
@@ -6896,7 +6896,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MUSICIAN"));
 		if (pInfo != NULL)
 		{
-			if (sList != "")
+			if (!sList.empty())
 				sList += ", ";
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
@@ -6916,7 +6916,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		CvUnitClassInfo* pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_SCIENTIST"));
 		if (pInfo != NULL)
 		{
-			if (sList != "")
+			if (!sList.empty())
 				sList += ", ";
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
@@ -6925,7 +6925,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_ENGINEER"));
 		if (pInfo != NULL)
 		{
-			if (sList != "")
+			if (!sList.empty())
 				sList += ", ";
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();
@@ -6934,7 +6934,7 @@ std::vector<CvString> CvLeague::GetCurrentEffectsSummary(PlayerTypes /*eObserver
 		pInfo = GC.getUnitClassInfo((UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_MERCHANT"));
 		if (pInfo != NULL)
 		{
-			if (sList != "")
+			if (!sList.empty())
 				sList += ", ";
 			Localization::String sEntry = Localization::Lookup("TXT_KEY_LEAGUE_OVERVIEW_EFFECT_SUMMARY_GREAT_PERSON_RATE_ENTRY");
 			sEntry << pInfo->GetDescriptionKey();

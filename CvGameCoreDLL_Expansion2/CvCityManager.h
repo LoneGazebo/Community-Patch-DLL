@@ -10,7 +10,7 @@ public:
 	static void Reset();
 	static void Shutdown();
 
-	static void OnCityCreated(CvCity* pkCity);
+	static void OnCityCreated(CvCity* pkAddCity);
 	static void OnCityDestroyed(CvCity* pkCity);
 
 	typedef std::vector<CvCity*> CityList;
