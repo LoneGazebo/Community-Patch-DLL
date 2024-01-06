@@ -11199,6 +11199,11 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		return eResult;
 
 	bool bOldVisibility = (m_aiVisibilityCount[eTeam]>0);
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+	bool bOldMaxVisibility = m_aiVisibilityCountThisTurnMax[eTeam] > 0;
+#else
+	bool bOldMaxVisibility = bOldVisibility;
+#endif
 
 	//apparently it's legal to decrease sight below zero - so catch that
 	if (iChange<0 && abs(iChange)>m_aiVisibilityCount[eTeam])
@@ -11248,6 +11253,17 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				updateSymbols();
 				updateFog(true);
 				updateVisibility();
+			}
+		}
+
+		// Update tactical AI, let it know that the tile was made visible
+		if (!bOldMaxVisibility)
+		{
+			const CivsList pPlayers = GET_TEAM(eTeam).getPlayers();
+			for (size_t iJ = 0; iJ < pPlayers.size(); iJ++)
+			{
+				if (pPlayers[iJ] == GC.getGame().getActivePlayer())
+					GET_PLAYER(pPlayers[iJ]).GetTacticalAI()->UpdateVisibilityFromUnits(this);
 			}
 		}
 
@@ -11651,20 +11667,12 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 	ICvUserInterface2* pInterface =  GC.GetEngineUserInterface();
 
-	bool bVisbilityUpdated = false;
+	bool bVisibilityUpdated = false;
 	bool bRevealed = isRevealed(eTeam) != bNewValue;
-
-	// Update tactical AI, let it know that the tile was made visible
-	const CivsList pPlayers = GET_TEAM(eTeam).getPlayers();
-	for (size_t iJ = 0; iJ < pPlayers.size(); iJ++)
-	{
-		if (pPlayers[iJ] == GC.getGame().getActivePlayer())
-			GET_PLAYER(pPlayers[iJ]).GetTacticalAI()->NewVisiblePlot(this, bRevealed);
-	}
 
 	if(bRevealed)
 	{
-		bVisbilityUpdated = true;
+		bVisibilityUpdated = true;
 		m_bfRevealed.ToggleBit(eTeam);
 
 		bool bEligibleForAchievement = MOD_API_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman() && !GC.getGame().isGameMultiPlayer() : false;
@@ -11935,6 +11943,15 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						}
 					}
 				}
+
+				// Update tactical AI, let it know that the tile was revealed
+				const CivsList pPlayers = GET_TEAM(eTeam).getPlayers();
+				for (size_t iJ = 0; iJ < pPlayers.size(); iJ++)
+				{
+					if (pPlayers[iJ] == GC.getGame().getActivePlayer())
+						GET_PLAYER(pPlayers[iJ]).GetTacticalAI()->UpdateVisibilityFromBorders(this);
+				}
+
 				if (bEligibleForAchievement)
 				{
 					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TILESDISCOVERED, 1000, ACHIEVEMENT_1000TILES);
@@ -12015,7 +12032,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			bVisibilityChanged |= setRevealedRouteType(eTeam, NO_ROUTE);
 		}
 
-		if (!bVisbilityUpdated && (bVisibilityChanged || bImprovementVisibilityChanged))
+		if (!bVisibilityUpdated && (bVisibilityChanged || bImprovementVisibilityChanged))
 		{
 			if(eTeam == eActiveTeam)
 			{
@@ -12026,7 +12043,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 				updateVisibility();
 			}
 
-			bVisbilityUpdated = true;
+			bVisibilityUpdated = true;
 		}
 	}
 	
@@ -12045,7 +12062,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	}
 #endif
 
-	return bVisbilityUpdated;
+	return bVisibilityUpdated;
 }
 
 //	--------------------------------------------------------------------------------

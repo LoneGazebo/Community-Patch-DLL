@@ -406,23 +406,17 @@ void CvTacticalAI::UpdateVisibility()
 		if (!pLoopPlot->isVisible(eTeam))
 			continue;
 
-		NewVisiblePlot(pLoopPlot, false);
+		UpdateVisibilityFromUnits(pLoopPlot);
 	}
 }
 
 /// Check if there are any units owned by other players in this tile and what they can see
-void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
+void CvTacticalAI::UpdateVisibilityFromUnits(CvPlot* pPlot)
 {
 	if (!pPlot)
 		return;
 
 	const TeamTypes ePlayerTeam = m_pPlayer->getTeam();
-
-	if (bRevealed)
-	{
-		// If we just revealed the tile, check if it is owned by another player
-		UpdateVisibilityFromBorders(pPlot);
-	}
 
 	if (pPlot->getNumUnits() > 0)
 	{
@@ -460,8 +454,6 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 	}
 }
 
-// PRIVATE METHODS
-
 void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot)
 {
 	const TeamTypes ePlayerTeam = m_pPlayer->getTeam();
@@ -477,6 +469,8 @@ void CvTacticalAI::UpdateVisibilityFromBorders(CvPlot* pPlot)
 		pPlot->ChangeKnownAdjacentSight(ePlotTeam, eMinorCivAllyTeam, GD_INT_GET(PLOT_VISIBILITY_RANGE), NO_DIRECTION);
 	}
 }
+
+// PRIVATE METHODS
 
 /// Make lists of everything we might want to target with the tactical AI this turn
 void CvTacticalAI::FindTacticalTargets()

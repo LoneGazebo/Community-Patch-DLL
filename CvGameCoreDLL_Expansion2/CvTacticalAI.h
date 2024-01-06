@@ -343,7 +343,8 @@ public:
 
 	// Knowledge of other civs' vision
 	void UpdateVisibility();
-	void NewVisiblePlot(CvPlot* pPlot, bool bRevealed);
+	void UpdateVisibilityFromUnits(CvPlot* pPlot);
+	void UpdateVisibilityFromBorders(CvPlot* pPlot);
 
 	// For air units
 	bool ShouldRebase(CvUnit* pUnit) const;
@@ -471,7 +472,6 @@ private:
 	bool FindEmbarkedUnitsAroundTarget(CvPlot *pTargetPlot, int iMaxDistance);
 	bool FindCitiesWithinStrikingDistance(CvPlot* pTargetPlot);
 	CvPlot* FindAirTargetNearTarget(CvUnit* pUnit, CvPlot* pApproximateTargetPlot);
-	void UpdateVisibilityFromBorders(CvPlot* pPlot);
 
 	int GetRecruitRange() const;
 
