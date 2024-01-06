@@ -11259,12 +11259,9 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		// Update tactical AI, let it know that the tile was made visible
 		if (!bOldMaxVisibility)
 		{
-			const CivsList pPlayers = GET_TEAM(eTeam).getPlayers();
-			for (size_t iJ = 0; iJ < pPlayers.size(); iJ++)
-			{
-				if (pPlayers[iJ] == GC.getGame().getActivePlayer())
-					GET_PLAYER(pPlayers[iJ]).GetTacticalAI()->UpdateVisibilityFromUnits(this);
-			}
+			PlayerTypes eCurrentPlayer = GetCurrentPlayer();
+			if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
+				GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromUnits(this);
 		}
 
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -11682,6 +11679,11 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
 		}
 
+		// Update tactical AI, let it know that the tile was revealed
+		PlayerTypes eCurrentPlayer = GetCurrentPlayer();
+		if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
+			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
+
 		// Natural Wonder
 		if(eTeam != BARBARIAN_TEAM && bNewValue)
 		{
@@ -11942,14 +11944,6 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 							}
 						}
 					}
-				}
-
-				// Update tactical AI, let it know that the tile was revealed
-				const CivsList pPlayers = GET_TEAM(eTeam).getPlayers();
-				for (size_t iJ = 0; iJ < pPlayers.size(); iJ++)
-				{
-					if (pPlayers[iJ] == GC.getGame().getActivePlayer())
-						GET_PLAYER(pPlayers[iJ]).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 				}
 
 				if (bEligibleForAchievement)
