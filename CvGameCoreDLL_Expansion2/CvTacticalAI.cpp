@@ -328,12 +328,6 @@ void CvTacticalAI::Update()
 /// Clear up memory usage
 void CvTacticalAI::CleanUp()
 {
-	CvPlot* pLoopPlot;
-	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
-	{
-		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		pLoopPlot->ResetKnownVisibility();
-	}
 	m_AllTargets.clear();
 	m_ZoneTargets.clear();
 }
@@ -397,6 +391,12 @@ void CvTacticalAI::UpdateVisibility()
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
+		pLoopPlot->ResetKnownVisibility();
+	}
+
+	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
+	{
+		pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
 
 		if (!pLoopPlot->isRevealed(eTeam))
 			continue;
@@ -444,6 +444,18 @@ void CvTacticalAI::NewVisiblePlot(CvPlot* pPlot, bool bRevealed=false)
 			{
 				pPlot->ChangeKnownAdjacentSight(eLoopUnitTeam, eMinorCivAllyTeam, pLoopUnit->visibilityRange(), pLoopUnit->getFacingDirection(true));
 			}
+		}
+	}
+
+	if (pPlot->IsTradeUnitRoute())
+	{
+		PlotIndexContainer aiTradeUnitsAtPlot = m_pPlayer->GetTrade()->GetOpposingTradeUnitsAtPlot(pPlot, false);
+		for (PlotIndexContainer::iterator it = aiTradeUnitsAtPlot.begin(); it != aiTradeUnitsAtPlot.end(); ++it)
+		{
+			PlayerTypes eTradeUnitOwner = GC.getGame().GetGameTrade()->GetOwnerFromID(*it);
+
+			if (eTradeUnitOwner != NO_PLAYER)
+				pPlot->IncreaseKnownVisibilityCount(GET_PLAYER(eTradeUnitOwner).getTeam(), NO_TEAM);
 		}
 	}
 }
