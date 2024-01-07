@@ -350,7 +350,7 @@ end
 --	RETURNS: the # of small buttons added
 -- ===========================================================================
 
-function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButtons, textureSize, startingButtonNum )
+function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButtons, textureSize, startingButtonNum, playerOverrideID )
 
 	local techType = tech and tech.Type
 
@@ -369,7 +369,11 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	local leaderID = -1;
 	local traitType = "";
 	if(Game ~= nil) then
-		thisPlayer = Players[Game.GetActivePlayer()];
+		if(playerOverrideID ~= nil) then
+			thisPlayer = Players[playerOverrideID];
+		else
+			thisPlayer = Players[Game.GetActivePlayer()];
+		end
 		if thisPlayer ~= nil then
 			leaderID = thisPlayer:GetLeaderType();
 			for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
@@ -580,7 +584,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end
 
-	local playerID = Game.GetActivePlayer();	
+	local playerID;
+	if (playerOverrideID ~= nil) then
+		playerID = playerOverrideID;
+	else
+		playerID = Game.GetActivePlayer();
+	end
 	local player = Players[playerID];
 	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 	

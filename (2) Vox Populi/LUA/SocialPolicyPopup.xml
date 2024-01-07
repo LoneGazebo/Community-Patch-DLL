@@ -106,7 +106,7 @@
 							<Box ID="DisabledBox0" Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,0">
 								<HideOnMouseOver>
 									<Image Anchor="C,T" Offset="0,0" Size="190,290" Color="255,255,255,255" Texture="Assets/UI/Art/Icons/SocialPoliciesTradition.dds"/>
-									<Box Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,0"/>
+									<Box Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,200"/>
 								</HideOnMouseOver>
 							</Box>
 							<!-- Title -->
@@ -144,7 +144,7 @@
 							<Box ID="DisabledBox1" Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,0">
 								<HideOnMouseOver>
 									<Image Anchor="C,T" Offset="0,0" Size="190,290" Color="255,255,255,255" Texture="Assets/UI/Art/Icons/SocialPoliciesLiberty.dds"/>
-									<Box Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,0"/>
+									<Box Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,200"/>
 								</HideOnMouseOver>
 							</Box>
 							<!-- Title -->
@@ -182,7 +182,7 @@
 							<Box ID="DisabledBox2" Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,0">
 								<HideOnMouseOver>
 									<Image Anchor="C,T" Offset="0,0" Size="190,290" Color="255,255,255,255" Texture="SocialPoliciesHonor.dds"/>
-									<Box Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,0"/>
+									<Box Size="190,290" Offset="0,0" Anchor="C,T" Color="0,0,0,200"/>
 								</HideOnMouseOver>
 							</Box>
 							<!-- Title -->

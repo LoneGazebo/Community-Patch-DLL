@@ -78,6 +78,7 @@ local g_eraColumns = {}
 
 local g_maxSmallButtons = 10 -- Original: 5
 
+local g_EspionageViewMode
 local g_activePlayerID, g_activePlayer, g_activeCivType, g_activeTeamID, g_activeTeam, g_activeTeamTechs
 
 local g_connectorSizeX = 32	-- connector texture width
@@ -188,7 +189,7 @@ end
 -------------------------------------------------
 
 local function TechSelected( techID )
-	if GameInfo.Technologies[ techID ] then
+	if GameInfo.Technologies[ techID ] and not g_EspionageViewMode then
 		local shift = UIManager:GetShift()
 		if g_stealingTechTargetPlayer then
 			if g_activePlayer:CanResearch( techID )
@@ -213,7 +214,7 @@ local function TechPedia( techID )
 end
 
 local function setTechToolTip( techID, _, button )
-	button:SetToolTipString( GetHelpTextForTech( techID, g_activePlayer:CanResearch( techID ) ) )
+	button:SetToolTipString( GetHelpTextForTech( techID, g_activePlayer:CanResearch( techID ) and not g_EspionageViewMode, g_activePlayerID ) )
 end
 
 -------------------------------------------------
@@ -261,10 +262,15 @@ local function RefreshDisplayOfSpecificTech( tech )
 	--print("RefreshDisplayOfSpecificTech afw Stuff done")
 	-- Rebuild the small buttons if needed
 	if g_NeedsFullRefresh then
-		AddSmallButtonsToTechButton( thisTechButton, tech, g_maxSmallButtons, 45 )
+		AddSmallButtonsToTechButton( thisTechButton, tech, g_maxSmallButtons, 45, 1, g_activePlayerID)
 	end
-	thisTechButton.TechButton:RegisterCallback( Mouse.eMouseEnter, setTechToolTip )
-
+	if g_EspionageViewMode then
+		thisTechButton.TechButton:SetDisabled(true);
+	else
+		thisTechButton.TechButton:RegisterCallback( Mouse.eMouseEnter, setTechToolTip )
+		thisTechButton.TechButton:SetDisabled(false);
+	end
+	
 	local showAlreadyResearched, showFreeTech, showCurrentlyResearching, showAvailable, showUnavailable, showLocked, queueUpdate, queueText, turnLabel, isClickable
 
 	if g_activeTeamTechs:HasTech( techID ) then
@@ -273,7 +279,7 @@ local function RefreshDisplayOfSpecificTech( tech )
 		-- update the era marker for this tech
 		(g_eraColumns[GameInfoTypes[tech.Era]] or {}).researched = true
 
-	elseif g_stealingTechTargetPlayer or g_activePlayer:GetNumFreeTechs() > 0 then
+	elseif (g_stealingTechTargetPlayer or g_activePlayer:GetNumFreeTechs() > 0) and not g_EspionageViewMode then
 	-- Stealing a tech or Choosing a free tech
 		if canResearchThisTech and (
 			( g_stealingTechTargetPlayer and Teams[ g_stealingTechTargetPlayer:GetTeam() ]:IsHasTech( techID ) )
@@ -424,6 +430,14 @@ local function RefreshDisplayNow()
 	if g_activePlayer:GetLengthResearchQueue() > 1 and showTotalTurns then
 		QueueInfo()
 	end
+	
+	-- reset the era panels
+	for thisEra = 0, #g_eraBlocks  do
+		if g_eraColumns[thisEra] then
+			g_eraColumns[thisEra].researched = false;
+		end
+	end
+	
 	--print("TechTree - RefreshDisplayNow(2)")
 	for tech in GameInfo.Technologies() do
 		RefreshDisplayOfSpecificTech( tech )
@@ -573,6 +587,41 @@ Controls.EraStack:ReprocessAnchoring()
 Controls.TechTreeScrollPanel:CalculateInternalSize()
 
 -------------------------------------------------
+-- Find techs without space to grow (must be before InitActivePlayerData)
+-------------------------------------------------
+for tech in GameInfo.Technologies() do --afw
+	for tech2 in GameInfo.Technologies() do
+		if tech.GridX == tech2.GridX and ( tech.GridY == tech2.GridY + 1 or tech.GridY == tech2.GridY - 1) then
+			g_blockedTechs[tech.ID] = true
+			print("Can't expand tech", tech.ID, L(tech.Description))
+		end
+	end
+end
+
+-------------------------------------------------
+-- Initialize active player data
+-------------------------------------------------
+local function InitActivePlayerData(OverridePlayer)
+	--print("TechTree - InitActivePlayerData")
+	g_activePlayerID = Game.GetActivePlayer()
+	if OverridePlayer then
+		g_activePlayerID = OverridePlayer
+	end
+	g_activePlayer = Players[g_activePlayerID]
+	g_activeCivType = GameInfo.Civilizations[g_activePlayer:GetCivilizationType()].Type
+	g_activeTeamID = g_activePlayer:GetTeam()
+	g_activeTeam = Teams[g_activeTeamID]
+	g_activeTeamTechs = g_activeTeam:GetTeamTechs()
+
+	-- gather info about this active player's unique units and buldings
+	GatherInfoAboutUniqueStuff( g_activeCivType )
+
+	g_NeedsFullRefresh = true
+	return RefreshDisplay("Init")
+end
+InitActivePlayerData()
+
+-------------------------------------------------
 -- Close Tech Tree
 -------------------------------------------------
 CloseTechTree = function()
@@ -580,6 +629,10 @@ CloseTechTree = function()
 		Events.SerialEventGameMessagePopupProcessed.CallImmediate(g_popupInfoType, 0)
 		g_popupInfoType = false
 		UI.decTurnTimerSemaphore()
+	end
+	if g_EspionageViewMode then
+		-- reset to show the tech tree of the currently active player next time
+		InitActivePlayerData()
 	end
 	g_stealingTechTargetPlayerID, g_stealingTechTargetPlayer = -1
 	UIManager:DequeuePopup( ContextPtr )
@@ -604,6 +657,17 @@ function( popupInfo )
 	else
 		return
 	end
+	
+	if popupInfo.Type == ButtonPopupTypes.BUTTONPOPUP_TECH_TREE and popupInfo.Data4 > 0 then
+		-- Espionage view mode
+		g_EspionageViewMode = true;
+		InitActivePlayerData(popupInfo.Data5)
+		print("Espionage View Mode, showing tech tree for Player " .. g_activePlayerID)	
+	else
+		g_EspionageViewMode = false;
+		g_activePlayerID = Game.GetActivePlayer();
+	end
+	
 	g_stealingTechTargetPlayer = Players[ g_stealingTechTargetPlayerID ] -- g_activePlayer:GetNumTechsToSteal( g_stealingTechTargetPlayerID ) > 0
 
 	Events.SerialEventGameMessagePopupShown(popupInfo)
@@ -657,38 +721,6 @@ local function ProcessEvent()
 end
 
 Events.SerialEventResearchDirty.Add( ProcessEvent )
-
--------------------------------------------------
--- Find techs without space to grow (must be before InitActivePlayerData)
--------------------------------------------------
-for tech in GameInfo.Technologies() do --afw
-	for tech2 in GameInfo.Technologies() do
-		if tech.GridX == tech2.GridX and ( tech.GridY == tech2.GridY + 1 or tech.GridY == tech2.GridY - 1) then
-			g_blockedTechs[tech.ID] = true
-			print("Can't expand tech", tech.ID, L(tech.Description))
-		end
-	end
-end
-
--------------------------------------------------
--- Initialize active player data
--------------------------------------------------
-local function InitActivePlayerData()
-	--print("TechTree - InitActivePlayerData")
-	g_activePlayerID = Game.GetActivePlayer()
-	g_activePlayer = Players[g_activePlayerID]
-	g_activeCivType = GameInfo.Civilizations[g_activePlayer:GetCivilizationType()].Type
-	g_activeTeamID = Game.GetActiveTeam()
-	g_activeTeam = Teams[g_activeTeamID]
-	g_activeTeamTechs = g_activeTeam:GetTeamTechs()
-
-	-- gather info about this active player's unique units and buldings
-	GatherInfoAboutUniqueStuff( g_activeCivType )
-
-	g_NeedsFullRefresh = true
-	return RefreshDisplay("Init")
-end
-InitActivePlayerData()
 
 local function UpdateOptions()
 --	g_isAdvisor = not ( g_options and g_options.GetValue and g_options.GetValue( "CityAdvisor" ) == 0 )
