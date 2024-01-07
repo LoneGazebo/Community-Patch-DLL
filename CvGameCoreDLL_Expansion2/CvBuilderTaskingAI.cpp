@@ -1521,6 +1521,10 @@ void CvBuilderTaskingAI::AddRemoveRouteDirectives(vector<OptionWithScore<Builder
 	if (m_eRemoveRouteBuild==NO_BUILD || !kUnitInfo.GetBuilds(m_eRemoveRouteBuild))
 		return;
 
+	// If "Automated Workers Don't Replace Improvements" option is enabled, don't remove roads
+	if (m_pPlayer->isOption(PLAYEROPTION_SAFE_AUTOMATION) && m_pPlayer->isHuman())
+		return;
+
 	// if the player can't build a route, bail out!
 	if (m_pPlayer->getBestRoute() == NO_ROUTE)
 		return;
