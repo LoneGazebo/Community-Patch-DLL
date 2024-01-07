@@ -1,7 +1,7 @@
 -------------------------------------------------
 -- Help text for techs
 -------------------------------------------------
-function GetHelpTextForTech(eTech, bShort)
+function GetHelpTextForTech(eTech, bShort, playerIDOverride)
 	local pTech = GameInfo.Technologies[eTech];
 
 	local strHelpText = "";
@@ -10,6 +10,10 @@ function GetHelpTextForTech(eTech, bShort)
 		if Game then
 			local pActiveTeam = Teams[Game.GetActiveTeam()];
 			local pActivePlayer = Players[Game.GetActivePlayer()];
+			if(playerIDOverride ~= nil) then
+				pActivePlayer = Players[playerIDOverride];
+				pActiveTeam = Teams[pActivePlayer:GetTeam()];
+			end
 			local pTeamTechs = pActiveTeam:GetTeamTechs();
 			local iTechCost = pActivePlayer:GetResearchCost(eTech);
 

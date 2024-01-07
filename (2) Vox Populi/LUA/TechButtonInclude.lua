@@ -91,7 +91,7 @@ function GatherInfoAboutUniqueStuff( civType )
 end
 
 
-function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButtons, textureSize )
+function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButtons, textureSize, playerOverrideID)
 	-- This has a few assumptions, the main one being that the small buttons are named "B1", "B2", "B3"... and that GatherInfoAboutUniqueStuff() has been called before this
 	
 	-- get some info we need
@@ -99,7 +99,11 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 	local leaderID = -1;
 	local traitType = "";
 	if(Game ~= nil) then
-		thisPlayer = Players[Game.GetActivePlayer()];
+		if(playerOverrideID ~= nil) then
+			thisPlayer = Players[playerOverrideID];
+		else
+			thisPlayer = Players[Game.GetActivePlayer()];
+		end
 		if thisPlayer ~= nil then
 			leaderID = thisPlayer:GetLeaderType();
 			for leaderTraits in DB.Query( "SELECT TraitType FROM Leader_Traits INNER JOIN Leaders on Leaders.Type = LeaderType WHERE Leaders.ID = " .. leaderID ) do
@@ -257,7 +261,12 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		end
 	end	
 
-	local playerID = Game.GetActivePlayer();	
+	local playerID;
+	if (playerOverrideID ~= nil) then
+		playerID = playerOverrideID;
+	else
+		playerID = Game.GetActivePlayer();
+	end
 	local player = Players[playerID];
 	local civType = GameInfo.Civilizations[player:GetCivilizationType()].Type;
 
