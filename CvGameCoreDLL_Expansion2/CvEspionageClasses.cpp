@@ -142,7 +142,7 @@ bool CvSpyPassiveBonusDiplomatEntry::CacheResults(Database::Results& kResults, C
 	}
 
 	m_iNetworkPointsNeeded = kResults.GetInt("NetworkPointsNeeded");
-	m_bReceiveIntrigue = kResults.GetBool("ReceiveIntrigue");
+	m_bReceiveIntrigue = kResults.GetBool("ReceiveIntrigues");
 	m_bRevealTrueApproaches = kResults.GetBool("RevealTrueApproaches");
 	m_iTradeRouteGoldBonus = kResults.GetInt("TradeRouteGoldBonus");
 
@@ -5700,6 +5700,15 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 						strNotification << pProjectInfo->GetTextKey();
 					}
 				}
+				else if (kMessage.m_eUnit != NO_UNIT)
+				{
+					CvUnitEntry* pUnitInfo = GC.getUnitInfo(kMessage.m_eUnit);
+					CvAssertMsg(pUnitInfo, "pUnitInfo is null");
+					if (pUnitInfo)
+					{
+						strNotification << pUnitInfo->GetTextKey();
+					}
+				}
 				// don't show in which city the wonder is being built
 				pNotifications->Add(NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER, strNotification.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
@@ -6167,6 +6176,15 @@ Localization::String CvPlayerEspionage::GetIntrigueMessage(uint uiIndex)
 			if (pProjectInfo)
 			{
 				strResult << pProjectInfo->GetTextKey();
+			}
+		}
+		else if (m_aIntrigueNotificationMessages[uiIndex].m_eUnit != NO_UNIT)
+		{
+			CvUnitEntry* pUnitInfo = GC.getUnitInfo(m_aIntrigueNotificationMessages[uiIndex].m_eUnit);
+			CvAssertMsg(pUnitInfo, "pUnitInfo is null");
+			if (pUnitInfo)
+			{
+				strResult << pUnitInfo->GetTextKey();
 			}
 		}
 
