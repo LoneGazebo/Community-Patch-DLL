@@ -65,7 +65,7 @@
 			<Text>{1_Num} NP: {2_Text}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED">
-			<Text>Your spy has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR]. This has unlocked[ the following passive bonuses:[NEWLINE][NEWLINE]{2_PassiveBonuses}</Text>
+			<Text>Your spy has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR]. This has unlocked the following passive bonuses:[NEWLINE][NEWLINE]{2_PassiveBonuses}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_FROM_EARLIER">
 			<Text>The highest number of Network Points once collected by your spy during their stay in this city is [COLOR_CYAN]{1_Num}[ENDCOLOR]. This has unlocked the following passive bonuses:[NEWLINE][NEWLINE]{2_PassiveBonuses}</Text>
