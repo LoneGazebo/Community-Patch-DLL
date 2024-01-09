@@ -481,6 +481,8 @@
 #define MOD_SQUADS									gCustomMods.isSQUADS()
 // NotForSale modmod
 #define MOD_NOT_FOR_SALE							gCustomMods.isNOT_FOR_SALE()
+// NotificationSettings modmod
+#define MOD_NOTIFICATION_SETTINGS					gCustomMods.isNOTIFICATION_SETTINGS()
 // Full map state logging
 #define MOD_LOG_MAP_STATE							gCustomMods.isLOG_MAP_STATE()
 
@@ -1561,6 +1563,7 @@ public:
 	MOD_OPT_DECL(GP_ERA_SCALING);
 	MOD_OPT_DECL(SQUADS);
 	MOD_OPT_DECL(NOT_FOR_SALE);
+	MOD_OPT_DECL(NOTIFICATION_SETTINGS);
 	MOD_OPT_DECL(LOG_MAP_STATE);
 
 protected:

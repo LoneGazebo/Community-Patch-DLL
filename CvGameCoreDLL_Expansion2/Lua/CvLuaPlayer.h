@@ -1538,6 +1538,9 @@ protected:
 
 	LUAAPIEXTN(IsGlobalQuest, bool, eQuest);
 	LUAAPIEXTN(IsPersonalQuest, bool, eQuest);
+
+	static int lIsInstantYieldNotificationDisabled(lua_State* L);
+	static int lSetInstantYieldNotificationDisabled(lua_State* L);
 };
 
 namespace CvLuaArgs
