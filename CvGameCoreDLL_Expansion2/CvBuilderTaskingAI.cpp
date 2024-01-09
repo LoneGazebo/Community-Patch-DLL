@@ -2760,7 +2760,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvUnit* pUnit, CvPlot* pPlot, Improvement
 		if (pPlot->IsCityConnection(m_pPlayer->GetID()))
 		{
 			bool bHaveAndNeedRailroad = pPlot->IsRouteRailroad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_RAILROAD;
-			bool bHaveAndNeedRoad = pPlot->IsRouteRoad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_ROAD && !GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD) == ROUTE_ROAD;
+			bool bHaveAndNeedRoad = (pPlot->IsRouteRoad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_ROAD) || (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver());
 
 			if (bHaveAndNeedRailroad)
 				iSecondaryScore += iRailroadScore;
