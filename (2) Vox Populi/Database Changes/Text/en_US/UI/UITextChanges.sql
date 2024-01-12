@@ -178,11 +178,11 @@ SET Text = '[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} eaten by [ICO
 WHERE Tag = 'TXT_KEY_YIELD_EATEN_BY_POP';
 
 UPDATE Language_en_US
-SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} {1_Num: plural 1?turn; other?turns;}! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
+SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} {1_Num: plural 1?Turn; other?Turns;}! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
 WHERE Tag = 'TXT_KEY_CITY_BURNING';
 
 UPDATE Language_en_US
-SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} {1_Num: plural 1?turn; other?turns;}! While in Resistance, a City cannot do anything useful, Units within its borders will heal slower, and 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
+SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} {1_Num: plural 1?Turn; other?Turns;}! While in Resistance, a City cannot do anything useful, Units within its borders will heal slower, and 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
 WHERE Tag = 'TXT_KEY_CITY_RESISTANCE';
 
 UPDATE Language_en_US
@@ -613,7 +613,7 @@ WHERE Tag = 'TXT_KEY_CITY_STATE_RELIGIOUS_TT';
 
 -- Unit Spawn Counter
 UPDATE Language_en_US
-SET Text = 'You will receive a [COLOR_POSITIVE_TEXT]new military unit[ENDCOLOR] from them approximately every {1_Num} turns. A new military unit will arrive in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns.'
+SET Text = 'You will receive a [COLOR_POSITIVE_TEXT]new Military Unit[ENDCOLOR] from them approximately every {1_Num} {1_Num: plural 1?Turn; other?Turns;}. A new Military Unit will arrive in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;}.'
 WHERE Tag = 'TXT_KEY_CSTATE_MILITARY_BONUS';
 
 -- Quests
@@ -622,11 +622,11 @@ SET Text = 'They will reward the player(s) with the largest number of new Follow
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL';
 
 UPDATE Language_en_US
-SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, you have the lead with [COLOR_POSITIVE_TEXT]{1_PlayerScore} new Followers'
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, you have the lead with [COLOR_POSITIVE_TEXT]{1_PlayerScore} {1_PlayerScore: plural 1?new Follower; other?new Followers;}'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL';
 
 UPDATE Language_en_US
-SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, the leader has {1_LeaderScore} new Followers and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR]'
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, the leader has {1_LeaderScore} {1_LeaderScore: plural 1?new Follower; other?new Followers;} and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL';
 
 UPDATE Language_en_US
@@ -642,7 +642,7 @@ SET Text = 'War breaks out between {2_CivName:textkey} and {1_TargetName:textkey
 WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_KILL_CITY_STATE';
 
 UPDATE Language_en_US
-SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns, so act fast if you intend to intervene!'
+SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;}, so act fast if you intend to intervene!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE';
 
 UPDATE Language_en_US
@@ -673,11 +673,11 @@ SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_ABLTY_TECH_BOOST_CHOP';
 
 UPDATE Language_en_US
-SET Text = 'Embarking/disembarking in Forifications expends only 1 Movement.'
+SET Text = 'Embarking/disembarking in owned Cities and Fortifications expends only 1 Movement.'
 WHERE Tag = 'TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING';
 
 UPDATE Language_en_US
-SET Text = 'Embarking/disembarking in Forifications expends only 0.1 Movement.'
+SET Text = 'Embarking/disembarking in owned Cities and Fortifications expends only 0.1 Movement.'
 WHERE Tag = 'TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING';
 
 UPDATE Language_en_US
