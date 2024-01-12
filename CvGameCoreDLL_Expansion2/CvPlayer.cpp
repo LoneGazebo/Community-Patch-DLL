@@ -7621,8 +7621,11 @@ CvString CvPlayer::GetScaledHelpText(EventChoiceTypes eEventChoice, bool bYields
 	int iDuration = pkEventChoiceInfo->getEventDuration();
 	if(iDuration > 0)
 	{
-		iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iDuration /= 100;
+		if (pkEventChoiceInfo->isEventDurationScaling())
+		{
+			iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iDuration /= 100;
+		}
 		Localization::String localizedDurationText;
 		if(bYieldsOnly)
 		{
@@ -8839,8 +8842,11 @@ void CvPlayer::DoEventChoice(EventChoiceTypes eEventChoice, EventTypes eEvent, b
 
 				//Gamespeed.
 				int iEventDuration = pkEventChoiceInfo->getEventDuration();
-				iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iEventDuration /= 100;
+				if (pkEventChoiceInfo->isEventDurationScaling())
+				{
+					iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iEventDuration /= 100;
+				}
 				ChangeEventChoiceDuration(eEventChoice, iEventDuration);
 			}
 
