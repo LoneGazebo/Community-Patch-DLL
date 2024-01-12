@@ -1812,7 +1812,7 @@ void CvPlot::changeEspionageSight(TeamTypes eTeam, CvCity* pCity, int iRange, bo
 		//if it belongs to the city
 		if (pCity->GetID() == pLoopPlot->getOwningCityID())
 		{
-			changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), NO_INVISIBLE, true, false);
+			pLoopPlot->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), NO_INVISIBLE, true, false);
 		}	
 	}
 }

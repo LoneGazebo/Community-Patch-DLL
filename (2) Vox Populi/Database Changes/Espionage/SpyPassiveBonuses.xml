@@ -39,7 +39,7 @@
 			<Description>TXT_KEY_SPY_PASSIVE_5</Description>
 			<Help>TXT_KEY_SPY_PASSIVE_5_HELP</Help>
 			<NetworkPointsNeeded>2000</NetworkPointsNeeded>
-			<TilesRevealed>3</TilesRevealed>
+			<TilesRevealed>2</TilesRevealed>
 		</Row>
 	</SpyPassiveBonuses>
 </GameData>
