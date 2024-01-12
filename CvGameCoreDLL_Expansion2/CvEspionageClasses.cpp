@@ -4018,7 +4018,7 @@ int CvPlayerEspionage::GetNumAssignedSpies(void)
 			continue;
 		}
 
-		if(IsSpyInCity(ui))
+		if(IsSpyInCity(ui) || m_aSpyList[ui].m_eSpyState == SPY_STATE_IMPRISONED)
 		{
 			iCount++;
 		}
