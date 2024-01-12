@@ -38457,7 +38457,6 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		// At war and able to make peace - increase war weariness by 1% of current city + unit value (minimum 1).
 		int iWarWearinessReceived = max(iCurrentValue / 100, 1);
 		iWarWearinessReceived *= 100 + GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetEnemyWarWearinessModifier();
-		iWarWearinessReceived /= 100;
 		ChangeWarWeariness(eLoopPlayer, iWarWearinessReceived);
 	}
 
