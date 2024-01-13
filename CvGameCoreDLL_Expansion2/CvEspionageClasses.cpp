@@ -7061,7 +7061,6 @@ void CvCityEspionage::AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionag
 	CvPlayer* pPlayer = &GET_PLAYER(eSpyOwner);
 
 	int iPassiveBonusThresholdBefore = GetAmount(eSpyOwner);
-	int iBonusThresholdBefore = GetAmount(eSpyOwner);
 	// how much NP do we need to get the next passive bonus?
 	int iNextPassiveBonus = GetNextPassiveBonus(eSpyOwner);
 	if (iNextPassiveBonus == -1)

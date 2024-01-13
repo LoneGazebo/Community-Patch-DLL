@@ -31163,7 +31163,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeScienceMedianModifier(pProject->GetScienceMedianModifier());
 		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
-		ChangeEspionageModifier(pProject->GetEspionageMod());
+		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
 	}
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);
