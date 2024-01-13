@@ -39,6 +39,11 @@ UPDATE Building_UnitCombatProductionModifiers
 SET Modifier = 50 -- 33
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE';
 
+INSERT INTO Building_UnitCombatFreeExperiences
+	(BuildingType, UnitCombatType, Experience)
+VALUES
+	('BUILDING_DUCAL_STABLE', 'UNITCOMBAT_MOUNTED', 15);
+
 UPDATE Building_ResourceYieldChanges
 SET Yield = (SELECT Yield FROM Building_ResourceYieldChanges WHERE BuildingType = 'BUILDING_STABLE' AND YieldType = 'YIELD_PRODUCTION') + 1
 WHERE BuildingType = 'BUILDING_DUCAL_STABLE' AND YieldType = 'YIELD_PRODUCTION';

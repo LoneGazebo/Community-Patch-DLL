@@ -4466,10 +4466,10 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("WLTKDTurns", "");
 		AnalyzeBuilding("EventTourism", "[ICON_TOURISM]");
 		AnalyzeBuilding("AlwaysHeal", "HP");
-		AnalyzeBuilding("CitySupplyModifier");
-		AnalyzeBuilding("CitySupplyModifierGlobal");
-		AnalyzeBuilding("CitySupplyFlat", "[ICON_SILVER_FIST]");
-		AnalyzeBuilding("CitySupplyFlatGlobal", "[ICON_SILVER_FIST]");
+		AnalyzeBuilding("CitySupplyModifier", "[ICON_SILVER_FIST]");
+		AnalyzeBuilding("CitySupplyModifierGlobal", "[ICON_SILVER_FIST]");
+		AnalyzeBuilding("CitySupplyFlat", "[ICON_WAR]");
+		AnalyzeBuilding("CitySupplyFlatGlobal", "[ICON_WAR]");
 		AnalyzeBuilding("CityRangedStrikeRange", "");
 		AnalyzeBuilding("CityIndirectFire", "");
 		AnalyzeBuilding("RangedStrikeModifier");

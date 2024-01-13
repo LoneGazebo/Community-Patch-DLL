@@ -48,7 +48,7 @@
 			<DefaultBuilding>BUILDING_GROCER</DefaultBuilding>
 			<Description>TXT_KEY_BUILDING_GROCER</Description>
 		</Row>
-		<!-- Wind Farm -->
+		<!-- Wind Power Plant -->
 		<Row>
 			<Type>BUILDINGCLASS_WIND_PLANT</Type>
 			<DefaultBuilding>BUILDING_WIND_PLANT</DefaultBuilding>
@@ -661,7 +661,7 @@
 			<IconAtlas>BW_ATLAS_1</IconAtlas>
 			<PortraitIndex>41</PortraitIndex>
 		</Row>
-		<!-- Wind Farm -->
+		<!-- Wind Power Plant -->
 		<Row>
 			<Type>BUILDING_WIND_PLANT</Type>
 			<BuildingClass>BUILDINGCLASS_WIND_PLANT</BuildingClass>
@@ -986,7 +986,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_MISSION_TEXT</Civilopedia>
 			<Help>TXT_KEY_BUILDING_MISSION_HELP</Help>
 			<Strategy>TXT_KEY_BUILDING_MISSION_STRATEGY</Strategy>
-			<InstantReligiousPressure>9999</InstantReligiousPressure>
+			<InstantReligiousPressure>10000</InstantReligiousPressure>
 			<Defense>200</Defense>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>16</PortraitIndex>
@@ -1229,7 +1229,7 @@
 			<PrereqTech>TECH_ARCHAEOLOGY</PrereqTech>
 			<CivilizationRequired>CIVILIZATION_AMERICA</CivilizationRequired>
 			<GlobalPlotBuyCostModifier>-25</GlobalPlotBuyCostModifier>
-			<FreeBuilding>BUILDINGCLASS_MUSEUM</FreeBuilding>
+			<FreeBuildingThisCity>BUILDINGCLASS_MUSEUM</FreeBuildingThisCity>
 			<SpecialistType>SPECIALIST_SCIENTIST</SpecialistType>
 			<GreatPeopleRateChange>2</GreatPeopleRateChange>
 			<IconAtlas>COMMUNITY_2_ATLAS</IconAtlas>

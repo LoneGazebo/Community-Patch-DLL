@@ -873,7 +873,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 
 	-- Vox Populi Supply Cap
 	if citySupplyFlat ~=0 then
-		tip = S("%s %+d[ICON_SILVER_FIST]", tip, citySupplyFlat )
+		tip = S("%s %+d[ICON_WAR]", tip, citySupplyFlat )
 	end
 	if citySupplyModifier ~=0 then
 		tip = S("%s %+d%%[ICON_SILVER_FIST]", tip, citySupplyModifier )
@@ -883,7 +883,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 		tip = ""
 	end
 	if citySupplyFlatGlobal ~=0 then
-		tip = S("%s %+d[ICON_SILVER_FIST][ICON_SILVER_FIST]", tip, citySupplyFlatGlobal )
+		tip = S("%s %+d[ICON_WAR][ICON_WAR]", tip, citySupplyFlatGlobal )
 	end
 	if citySupplyModifierGlobal ~=0 then
 		tip = S("%s %+d%%[ICON_SILVER_FIST][ICON_SILVER_FIST]", tip, citySupplyModifierGlobal )

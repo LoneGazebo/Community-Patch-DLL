@@ -9833,20 +9833,8 @@ bool CvUnit::canSellExoticGoods(const CvPlot* pPlot, bool bOnlyTestVisibility) c
 				{
 					if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
 					{
-#if defined(MOD_BALANCE_CORE_PORTUGAL_CHANGE)
-						if(MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(eLoopPlotOwner).isMinorCiv())
-						{
-#endif
 						iNumValidPlots++;
 						break;
-#if defined(MOD_BALANCE_CORE_PORTUGAL_CHANGE)
-						}
-						else
-						{
-							iNumValidPlots++;
-							break;
-						}
-#endif
 					}
 				}
 			}

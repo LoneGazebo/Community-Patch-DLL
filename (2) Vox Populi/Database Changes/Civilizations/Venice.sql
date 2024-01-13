@@ -110,7 +110,7 @@ VALUES
 INSERT INTO Building_YieldChangesPerPopInEmpire
 	(BuildingType, YieldType, Yield)
 VALUES
-	('BUILDING_RIALTO_DISTRICT', 'YIELD_GOLD', 33);
+	('BUILDING_RIALTO_DISTRICT', 'YIELD_GOLD', 34);
 
 INSERT INTO Building_HurryModifiers
 	(BuildingType, HurryType, HurryCostModifier)
