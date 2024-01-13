@@ -51,7 +51,10 @@ UPDATE Building_YieldChanges
 SET Yield = (SELECT Yield FROM Building_YieldChanges WHERE BuildingType = 'BUILDING_NATIONAL_COLLEGE' AND YieldType = 'YIELD_CULTURE') + 2
 WHERE BuildingType = 'BUILDING_ROYAL_LIBRARY' AND YieldType = 'YIELD_CULTURE';
 
-UPDATE Building_YieldChangesPerPop SET Yield = 50 WHERE BuildingType = 'BUILDING_ROYAL_LIBRARY';
+INSERT INTO Building_YieldChangesPerPop
+	(BuildingType, YieldType, Yield)
+VALUES
+	('BUILDING_ROYAL_LIBRARY', 'YIELD_SCIENCE', 50);
 
 INSERT INTO Building_BuildingClassYieldChanges
 	(BuildingType, BuildingClassType, YieldType, YieldChange)

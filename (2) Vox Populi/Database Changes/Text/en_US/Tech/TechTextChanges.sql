@@ -91,7 +91,7 @@ WHERE Tag = 'TXT_KEY_TECH_REPLACEABLE_PARTS_HELP';
 
 -- Combustion
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Landship[ENDCOLOR], an incredibly powerful armored Unit that can move after attacking, and the [COLOR_POSITIVE_TEXT]Arsenal[ENDCOLOR], which boosts City defense.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Landship[ENDCOLOR], an incredibly powerful armored Unit that can move after attacking, and the [COLOR_POSITIVE_TEXT]Arsenal[ENDCOLOR], which boosts City Strength.'
 WHERE Tag = 'TXT_KEY_TECH_COMBUSTION_HELP';
 
 -- Plastics
@@ -241,7 +241,7 @@ WHERE Tag = 'TXT_KEY_TECH_ASTRONOMY_HELP';
 
 -- Navigation
 UPDATE Language_en_US
-SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Frigate[ENDCOLOR] and the [COLOR_POSITIVE_TEXT]Corvette[ENDCOLOR], powerful Renaissance-era warships, and the [COLOR_POSITIVE_TEXT]Bastion Fort[ENDCOLOR], which boosts City defense.'
+SET Text = 'Allows you to build the [COLOR_POSITIVE_TEXT]Frigate[ENDCOLOR] and the [COLOR_POSITIVE_TEXT]Corvette[ENDCOLOR], powerful Renaissance-era warships, and the [COLOR_POSITIVE_TEXT]Bastion Fort[ENDCOLOR], which boosts City Strength.'
 WHERE Tag = 'TXT_KEY_TECH_NAVIGATION_HELP';
 
 -- Electricity

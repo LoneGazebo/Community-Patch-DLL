@@ -1215,6 +1215,7 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetInternationalTradeRoutePolicyBonus);
 	Method(GetInternationalTradeRouteOtherTraitBonus);
 	Method(GetInternationalTradeRouteRiverModifier);
+	Method(GetTradeConnectionDiplomatModifierTimes100);
 	Method(GetTradeRouteTurns);
 	Method(GetTradeConnectionDistanceValueModifierTimes100);
 	Method(GetTradeRouteTurns);
@@ -1504,6 +1505,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 
 	Method(IsGlobalQuest);
 	Method(IsPersonalQuest);
+
+	Method(IsInstantYieldNotificationDisabled);
+	Method(SetInstantYieldNotificationDisabled);
 
 	// Debug methods for routes
 	Method(GetMainRouteTiles);
@@ -5126,6 +5130,23 @@ int CvLuaPlayer::lGetInternationalTradeRouteRiverModifier(lua_State* L)
 	kTradeConnection.m_eDomain = eDomain;
 
 	int iResult = pPlayerTrade->GetTradeConnectionRiverValueModifierTimes100(kTradeConnection, YIELD_GOLD, bOrigin);
+	lua_pushinteger(L, iResult);
+	return 1;	
+}
+//------------------------------------------------------------------------------
+int CvLuaPlayer::lGetTradeConnectionDiplomatModifierTimes100(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	CvPlayerTrade* pPlayerTrade = pkPlayer->GetTrade();
+	CvCity* pOriginCity = CvLuaCity::GetInstance(L, 2, true);
+	CvCity* pDestCity = CvLuaCity::GetInstance(L, 3, true);
+	const DomainTypes eDomain = LuaToTradeDomain(L, 4);
+
+	TradeConnection kTradeConnection;
+	kTradeConnection.SetCities(pOriginCity,pDestCity);
+	kTradeConnection.m_eDomain = eDomain;
+
+	int iResult = pPlayerTrade->GetTradeConnectionDiplomatModifierTimes100(kTradeConnection, YIELD_GOLD);
 	lua_pushinteger(L, iResult);
 	return 1;	
 }
@@ -18317,6 +18338,26 @@ int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lIsInstantYieldNotificationDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const InstantYieldType eInstantYield = (InstantYieldType)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->IsInstantYieldNotificationDisabled(eInstantYield);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lSetInstantYieldNotificationDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const InstantYieldType eInstantYield = (InstantYieldType)lua_tointeger(L, 2);
+	const bool bNewValue = (InstantYieldType)lua_toboolean(L, 3);
+
+	pkPlayer->SetInstantYieldNotificationDisabled(eInstantYield, bNewValue);
 	return 1;
 }
 

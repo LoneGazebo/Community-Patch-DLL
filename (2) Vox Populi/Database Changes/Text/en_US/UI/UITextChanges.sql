@@ -178,11 +178,11 @@ SET Text = '[COLOR_NEGATIVE_TEXT]-{1_Num}[ENDCOLOR] {2_IconString} eaten by [ICO
 WHERE Tag = 'TXT_KEY_YIELD_EATEN_BY_POP';
 
 UPDATE Language_en_US
-SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} {1_Num: plural 1?turn; other?turns;}! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
+SET Text = 'City will be [ICON_RAZING] Razed to the ground in {1_Num} {1_Num: plural 1?Turn; other?Turns;}! While the City is being Razed, 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness, but Units within its borders will heal faster!'
 WHERE Tag = 'TXT_KEY_CITY_BURNING';
 
 UPDATE Language_en_US
-SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} {1_Num: plural 1?turn; other?turns;}! While in Resistance, a City cannot do anything useful, Units within its borders will heal slower, and 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
+SET Text = 'City is in [ICON_RESISTANCE] Resistance for {1_Num} {1_Num: plural 1?Turn; other?Turns;}! While in Resistance, a City cannot do anything useful, Units within its borders will heal slower, and 100% of its [ICON_CITIZEN] Population will produce [ICON_HAPPINESS_3] Unhappiness!'
 WHERE Tag = 'TXT_KEY_CITY_RESISTANCE';
 
 UPDATE Language_en_US
@@ -341,16 +341,12 @@ SET Text = '{1_RankName} {2_SpyName} is attempting to rig the election in {3_Cit
 WHERE Tag = 'TXT_KEY_EO_SPY_RIGGING_ELECTIONS_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is conducting a Spy Mission in {3_CityName}. If the city''s owner has a spy in the city, your spy has a chance of being discovered and killed when they try to complete their mission!'
+SET Text = '{1_RankName} {2_SpyName} is gathering intelligence in {3_CityName}. Each turn, they collect Network Points, and the accumulated Network Points unlock passive bonuses or can be spent to perform spy missions.'
 WHERE Tag = 'TXT_KEY_EO_SPY_GATHERING_INTEL_TT';
 
 UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is schmoozing in {3_CityName} as a diplomat.[NEWLINE][NEWLINE]A spy can be a diplomat if they are placed in the capital of another civilization you are not at war with. (If war is declared, your spy will escape the city.) A diplomat will not attempt to conduct Spy Missions but will still provide intrigue. Once the World Congress convenes and the diplomat has begun schmoozing, you will be able to determine their opinion on proposals and trade for their support if needed. Diplomats also conduct propaganda that provides a boost to [ICON_TOURISM] Tourism output to the target civilization.'
+SET Text = '{1_RankName} {2_SpyName} is schmoozing in {3_CityName} as a diplomat, providing a boost to the [ICON_TOURISM] Tourism output to the target civilization.[NEWLINE][NEWLINE]Once the World Congress convenes, you will be able to determine their opinion on proposals and trade for their support if needed. {1_RankName} {2_SpyName} is also collecting Network Points each turn, the accumulated Network Points allow you to gain additional information about the target civilization.'
 WHERE Tag = 'TXT_KEY_SPY_STATE_SCHMOOZING_TT';
-
-UPDATE Language_en_US
-SET Text = '{1_RankName} {2_SpyName} is trying to make all the right connections in {3_CityName} as a diplomat. After they have made their introductions, they will be able to schmooze.[NEWLINE][NEWLINE]A spy can be a diplomat if they are placed in the capital of another civilization. A diplomat will not attempt to conduct Spy Missions but will still provide intrigue. Once the World Congress convenes and the diplomat has begun schmoozing, you will be able to determine their opinion on proposals and trade for their support if needed.'
-WHERE Tag = 'TXT_KEY_SPY_STATE_MAKING_INTRODUCTIONS_TT';
 
 UPDATE Language_en_US
 SET Text = '{1_RankName} {2_SpyName} is conducting counter-intelligence operations in {3_CityName}.'
@@ -613,7 +609,7 @@ WHERE Tag = 'TXT_KEY_CITY_STATE_RELIGIOUS_TT';
 
 -- Unit Spawn Counter
 UPDATE Language_en_US
-SET Text = 'You will receive a [COLOR_POSITIVE_TEXT]new military unit[ENDCOLOR] from them approximately every {1_Num} turns. A new military unit will arrive in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns.'
+SET Text = 'You will receive a [COLOR_POSITIVE_TEXT]new Military Unit[ENDCOLOR] from them approximately every {1_Num} {1_Num: plural 1?Turn; other?Turns;}. A new Military Unit will arrive in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;}.'
 WHERE Tag = 'TXT_KEY_CSTATE_MILITARY_BONUS';
 
 -- Quests
@@ -622,11 +618,11 @@ SET Text = 'They will reward the player(s) with the largest number of new Follow
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL';
 
 UPDATE Language_en_US
-SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, you have the lead with [COLOR_POSITIVE_TEXT]{1_PlayerScore} new Followers'
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, you have the lead with [COLOR_POSITIVE_TEXT]{1_PlayerScore} {1_PlayerScore: plural 1?new Follower; other?new Followers;}'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_WINNING_FORMAL';
 
 UPDATE Language_en_US
-SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, the leader has {1_LeaderScore} new Followers and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR]'
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_FORMAL} So far, the leader has {1_LeaderScore} {1_LeaderScore: plural 1?new Follower; other?new Followers;} and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR]'
 WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_FAITH_LOSING_FORMAL';
 
 UPDATE Language_en_US
@@ -642,7 +638,7 @@ SET Text = 'War breaks out between {2_CivName:textkey} and {1_TargetName:textkey
 WHERE Tag = 'TXT_KEY_NOTIFICATION_SUMMARY_QUEST_KILL_CITY_STATE';
 
 UPDATE Language_en_US
-SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] turns, so act fast if you intend to intervene!'
+SET Text = '{3_TargetName:textkey} has declared war on {1_CivName:textkey}, citing diplomatic concerns. Receive the [COLOR_POSITIVE_TEXT]full[ENDCOLOR] Quest Reward from {1_TargetName:textkey} by [COLOR_NEGATIVE_TEXT]destroying[ENDCOLOR] {3_CivName:textkey}, or a [COLOR_POSITIVE_TEXT]partial[ENDCOLOR] Quest Reward through [COLOR_POSITIVE_TEXT]allying[ENDCOLOR] both City-States. International pressure will force peace in [COLOR_POSITIVE_TEXT]{2_Num}[ENDCOLOR] {2_Num: plural 1?Turn; other?Turns;}, so act fast if you intend to intervene!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_QUEST_KILL_CITY_STATE';
 
 UPDATE Language_en_US
@@ -673,11 +669,11 @@ SET Text = 'Chopping Forests/Jungles: +{1_Num}[ICON_PRODUCTION] Production.'
 WHERE Tag = 'TXT_KEY_ABLTY_TECH_BOOST_CHOP';
 
 UPDATE Language_en_US
-SET Text = 'Embarking/disembarking in Forifications expends only 1 Movement.'
+SET Text = 'Embarking/disembarking in owned Cities and Fortifications expends only 1 Movement.'
 WHERE Tag = 'TXT_KEY_ABLTY_CITY_LESS_EMBARK_COST_STRING';
 
 UPDATE Language_en_US
-SET Text = 'Embarking/disembarking in Forifications expends only 0.1 Movement.'
+SET Text = 'Embarking/disembarking in owned Cities and Fortifications expends only 0.1 Movement.'
 WHERE Tag = 'TXT_KEY_ABLTY_CITY_NO_EMBARK_COST_STRING';
 
 UPDATE Language_en_US
@@ -762,7 +758,7 @@ SET Text = '[NEWLINE][COLOR_POSITIVE_TEXT]Creating a Landmark in a City-State''s
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_LANDMARK_MINOR_CIV';
 
 UPDATE Language_en_US
-SET Text = 'Artifact will be placed in nearest Great Work of Art slot. Artifact provides +' || (SELECT Value FROM Defines WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK') || ' [ICON_CULTURE] Culture and +' || (SELECT Value FROM Defines WHERE Name = 'BASE_TOURISM_PER_GREAT_WORK') || ' [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
+SET Text = 'Artifact will be placed in nearest Great Work of Art or Artifact slot. Artifact provides +' || (SELECT Value FROM Defines WHERE Name = 'BASE_CULTURE_PER_GREAT_WORK') || ' [ICON_CULTURE] Culture and +' || (SELECT Value FROM Defines WHERE Name = 'BASE_TOURISM_PER_GREAT_WORK') || ' [ICON_TOURISM] Tourism. Archaeologist will be consumed.'
 WHERE Tag = 'TXT_KEY_CHOOSE_ARCH_ARTIFACT_RESULT';
 
 UPDATE Language_en_US

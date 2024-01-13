@@ -664,8 +664,11 @@ public:
 	int getNumAdjacentNonrevealed(TeamTypes eTeam) const;
 	bool IsResourceForceReveal(TeamTypes eTeam) const;
 	void SetResourceForceReveal(TeamTypes eTeam, bool bValue);
+	void ChangeKnownAdjacentSight(TeamTypes eTeam, TeamTypes eMinorCivAlly, int iRange, DirectionTypes eFacingDirection);
 	int GetKnownVisibilityCount(TeamTypes eTeam) const;
-	void IncreaseKnownVisibilityCount(TeamTypes eTeam, int iAmount);
+	bool IsKnownVisibleToEnemy(PlayerTypes ePlayer) const;
+	bool IsKnownVisibleToTeam(TeamTypes eTeam) const;
+	void IncreaseKnownVisibilityCount(TeamTypes eTeam, TeamTypes eTeam2=NO_TEAM);
 	void ResetKnownVisibility();
 #if defined(MOD_BALANCE_CORE)
 	bool IsTeamImpassable(TeamTypes eTeam) const;

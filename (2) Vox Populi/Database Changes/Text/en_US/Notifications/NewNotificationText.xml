@@ -1,6 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <GameData>
 	<Language_en_US>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} is constructing {4_WonderOrProject} in one of their cities.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_CONSTRUCTING_WONDER_ANY_CITY_S">
+			<Text>{1_PlayerName} is constructing {2_WonderOrProject}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} has bought votes for the upcoming world congress session from {4_PlayerName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_BOUGHT_VOTES_S">
+			<Text>{1_CivName} has bought votes from {2_CivName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES">
+			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} has sold some of their votes for the upcoming world congress session to {4_PlayerName}.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_INTRIGUE_SOLD_VOTES_S">
+			<Text>{1_CivName} has sold votes to {2_CivName}.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_RESOURCE_WONDER_MOD_LATE">
 			<Text>{2_ResourceName:textkey} is now available in {1_CityName:textkey}! This increases [ICON_PRODUCTION] Production when building pre-Industrial Era Wonders in this city by {3_Num}%!</Text>
 		</Row>
@@ -652,7 +670,7 @@
 			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR] while conducting their mission! Diplomatic Relations with {3_CivName} have worsened. {1_SpyRank} {2_SpyName} may stay in the city and gather intelligence for another mission.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT_S">
-			<Text>{1_SpyRank} {2_SpyName} caught and identified!</Text>
+			<Text>{1_SpyRank} {2_SpyName} caught!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT">
 			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR] while conducting their mission! It will take some time until they are released and can be sent on a mission again.</Text>

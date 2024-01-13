@@ -40,28 +40,28 @@
 			<Text>Schmoozing I</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_1_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations with the other player[NEWLINE][ICON_BULLET]Can trade world congress votes</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_2">
 			<Text>Schmoozing II</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_2_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations with the other player[NEWLINE][ICON_BULLET]Can trade world congress votes[NEWLINE][ICON_BULLET]Receive intrigues[NEWLINE][ICON_BULLET]Can view Tech Tree and Policy Screen of the other player</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_3">
 			<Text>Schmoozing III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_3_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen[NEWLINE][ICON_BULLET]Can view types and count of their military units[NEWLINE][ICON_BULLET]Trade Routes to them generate +20% [ICON_GOLD] Gold</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations with the other player[NEWLINE][ICON_BULLET]Can trade world congress votes[NEWLINE][ICON_BULLET]Receive intrigues[NEWLINE][ICON_BULLET]Can view Tech Tree and Policy Screen of the other player[NEWLINE][ICON_BULLET]Can view types and count of the other player's military units[NEWLINE][ICON_BULLET]Trade Routes to the other player generate +20% [ICON_GOLD] Gold</Text>
 		</Row>
 
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_4">
 			<Text>Schmoozing III</Text>
 		</Row>
 		<Row Tag="TXT_KEY_DIPLOMAT_PASSIVE_4_HELP">
-			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations[NEWLINE][ICON_BULLET]Can trade World Congress Votes[NEWLINE][ICON_BULLET]Receive Intrigues[NEWLINE][ICON_BULLET]Can view their Tech Tree and Policy Screen[NEWLINE][ICON_BULLET]Can view types and count of their military units[NEWLINE][ICON_BULLET]Trade Routes to them generate +20% [ICON_GOLD] Gold[NEWLINE][ICON_BULLET]Can view all active trade deals[NEWLINE][ICON_BULLET]Can view their true diplomatic approaches toward all other players</Text>
+			<Text>[ICON_BULLET]+20% [ICON_TOURISM] Tourism and improved diplomatic relations with the other player[NEWLINE][ICON_BULLET]Can trade world congress votes[NEWLINE][ICON_BULLET]Receive intrigues[NEWLINE][ICON_BULLET]Can view Tech Tree and Policy Screen of the other player[NEWLINE][ICON_BULLET]Can view types and count of the other player's military units[NEWLINE][ICON_BULLET]Trade Routes to the other player generate +20% [ICON_GOLD] Gold[NEWLINE][ICON_BULLET]Can view all active trade deals of the other player[NEWLINE][ICON_BULLET]When asked what they think about a civilization, the other player will always reveal their true opinion</Text>
 		</Row>
 	</Language_en_US>
 </GameData>

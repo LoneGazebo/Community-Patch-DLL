@@ -550,7 +550,7 @@ function ScienceTipHandler( control )
 				strText = strText .. "[NEWLINE]";
 			end
 	
-			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_VASSALS", iScienceFromVassals / 100);
+			strText = strText .. Locale.ConvertTextKey("TXT_KEY_TP_SCIENCE_VASSALS", iScienceFromVassals);
 		end
 
 		-- Science from Allies (CSD MOD)

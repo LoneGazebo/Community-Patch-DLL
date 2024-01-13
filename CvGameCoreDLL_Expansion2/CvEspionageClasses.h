@@ -80,11 +80,13 @@ public:
 
 	int GetNetworkPointsNeededScaled() const;
 	bool IsReceiveIntrigue() const;
+	bool IsRevealTrueApproaches() const;
 	int GetTradeRouteGoldBonus() const;
 
 protected:
 	int m_iNetworkPointsNeeded;
 	bool m_bReceiveIntrigue;
+	bool m_bRevealTrueApproaches;
 	int m_iTradeRouteGoldBonus;
 
 
@@ -169,12 +171,18 @@ enum CLOSED_ENUM CvSpyResult // what was the result of the last spy action
 
 enum CLOSED_ENUM CvIntrigueType // What intrigue was uncovered?
 {
-    INTRIGUE_TYPE_DECEPTION,			    // A civ is lying to another civ
-    INTRIGUE_TYPE_BUILDING_ARMY,		    // A civ is amassing an army
-    INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY, // A civ is amassing an army to attack over the water
-    INTRIGUE_TYPE_ARMY_SNEAK_ATTACK,	    // A civ is sending an army toward another civ
-    INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK,  // a civ is sending a land invasion across the water toward another civ
-	INTRIGUE_TYPE_CONSTRUCTING_WONDER,		// A civ is constructing a wonder
+    INTRIGUE_TYPE_DECEPTION,					// a civ is lying to another civ
+    INTRIGUE_TYPE_BUILDING_ARMY,				// a civ is amassing an army
+    INTRIGUE_TYPE_BUILDING_AMPHIBIOUS_ARMY,		// a civ is amassing an army to attack over the water
+    INTRIGUE_TYPE_ARMY_SNEAK_ATTACK,			// a civ is sending an army toward another civ
+    INTRIGUE_TYPE_AMPHIBIOUS_SNEAK_ATTACK,		// a civ is sending a land invasion across the water toward another civ
+	INTRIGUE_TYPE_BRIBE_WAR,					// a civ has bribed another one or has been bribed by another one to go to war
+	INTRIGUE_TYPE_COOP_WAR,						// a civ has agreed with another one to go to war against a third civ
+	INTRIGUE_TYPE_MILITARY_MIGHT_RISEN,			// the military might of a human player has risen strongly recently
+	INTRIGUE_TYPE_CONSTRUCTING_WONDER_ANY_CITY, // a civ is constructing a wonder or one-time project in one of their cities (VP only)
+	INTRIGUE_TYPE_BOUGHT_VOTES,					// a civ has brought world congress votes from another one (VP only)
+	INTRIGUE_TYPE_SOLD_VOTES,					// a civ has sold world congress votes to another one (VP only)
+	INTRIGUE_TYPE_CONSTRUCTING_WONDER,			// a civ is constructing a wonder
     NUM_INTRIGUE_TYPES ENUM_META_VALUE
 };
 
@@ -267,8 +275,10 @@ struct IntrigueNotificationMessage
 	PlayerTypes m_eDiscoveringPlayer;
 	PlayerTypes m_eSourcePlayer;
 	PlayerTypes m_eTargetPlayer;
+	PlayerTypes m_eDiplomacyPlayer;
 	BuildingTypes m_eBuilding;
 	ProjectTypes m_eProject;
+	UnitTypes m_eUnit;
 	int m_iIntrigueType;
 	int m_iTurnNum;
 	int m_iCityX;
@@ -341,6 +351,8 @@ public:
 	bool HasEstablishedSurveillanceInCity(CvCity* pCity);
 	bool IsAnySurveillanceEstablished(PlayerTypes eTargetPlayer);
 
+	int GetSpyReceivingIntrigues(PlayerTypes eTargetPlayer);
+
 	bool IsDiplomat (uint uiSpyIndex);
 	bool IsSchmoozing (uint uiSpyIndex);
 	bool IsAnySchmoozing (CvCity* pCity);
@@ -377,13 +389,13 @@ public:
 	void UpdateSpyMessage(int iCityX, int iCityY, PlayerTypes eAttackingPlayer, TechTypes eStolenTech = NO_TECH, int iAmountStolen = -1, int iGWID = -1);
 	void ProcessSpyMessages(void);
 
-	void AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, BuildingTypes eBuilding, ProjectTypes eProject, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification);
+	void AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, PlayerTypes eSourcePlayer, PlayerTypes eTargetPlayer, PlayerTypes eDiplomacyPlayer, BuildingTypes eBuilding, ProjectTypes eProject, UnitTypes eUnit, CvIntrigueType eIntrigueType, uint uiSpyIndex, CvCity* pCity, bool bShowNotification);
 	Localization::String GetIntrigueMessage(uint uiIndex);
 	bool HasRecentIntrigueAbout(PlayerTypes eTargetPlayer);
 	IntrigueNotificationMessage* GetRecentIntrigueInfo(PlayerTypes eTargetPlayer);
-	bool HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, CvIntrigueType eIntrigueType);
+	bool HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, PlayerTypes eDiplomacyPlayer, CvIntrigueType eIntrigueType);
 	bool HasSharedIntrigue(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer);
-	int MarkRecentIntrigueAsShared(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, CvIntrigueType eIntrigueType);
+	int MarkRecentIntrigueAsShared(PlayerTypes eTargetPlayer, PlayerTypes eSourcePlayer, PlayerTypes eDiplomacyPlayer, CvIntrigueType eIntrigueType);
 	bool HasSharedIntrigueAboutMe(PlayerTypes eFromPlayer);
 
 	CvString GetLogFileName(void) const;
@@ -466,6 +478,10 @@ public:
 	void SetDiplomatTradeBonus(PlayerTypes ePlayer, int iValue);
 	void ChangeDiplomatTradeBonus(PlayerTypes ePlayer, int iValue);
 	int GetDiplomatTradeBonus(PlayerTypes ePlayer);
+	void SetDiplomatReceiveIntrigues(PlayerTypes ePlayer, bool bValue);
+	bool IsDiplomatReceiveIntrigues(PlayerTypes ePlayer);
+	void SetDiplomatRevealTrueApproaches(PlayerTypes ePlayer, bool bValue);
+	bool IsDiplomatRevealTrueApproaches(PlayerTypes ePlayer);
 	void SetSciencePassivePerTurn(PlayerTypes ePlayer, int iValue);
 	void ChangeSciencePassivePerTurn(PlayerTypes ePlayer, int iValue);
 	int GetSciencePassivePerTurn(PlayerTypes ePlayer);
@@ -473,6 +489,7 @@ public:
 	void ChangeVisionBonus(PlayerTypes ePlayer, int iValue);
 	int GetVisionBonus(PlayerTypes ePlayer);
 	void AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pSpy, int iNetworkPointsAdded);
+	void AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionageSpy* pSpy, int iNetworkPointsAdded);
 	void DoMission(PlayerTypes eSpyOwner, CityEventChoiceTypes eMission);
 	int GetSpyResult(PlayerTypes eSpyOwner);
 
@@ -499,7 +516,9 @@ public:
 	NumTimesCityRobbedList m_aiNumTimesCityRobbed; // how many times has this city had a tech stolen from it?
 	CityPendingEventsList m_aiPendingEventsForPlayer;
 	PassiveBonusBoolList m_abRevealCityScreen;
-	PassiveBonusList m_aiDiplomatTradeBonus; // bonus diplomat trading
+	PassiveBonusList m_aiDiplomatTradeBonus; // gold bonus to trade routes between the diplomat owner and the other civ
+	PassiveBonusList m_abDiplomatReceiveIntrigues; // the diplomat in this city can receives intrigues
+	PassiveBonusList m_abDiplomatRevealTrueApproaches; // the diplomat in this city causes the other player to give honest answers when asked about a third player
 	PassiveBonusList m_aiSciencePassivePerTurn; // percentage of city's science given to the spy owner
 	PassiveBonusList m_aiVisionBonus; // number of tiles visible around city
 };

@@ -101,6 +101,10 @@ void CvUnitProductionAI::AddFlavorWeights(FlavorTypes eFlavor, int iWeight)
 /// Retrieve sum of weights on one item
 int CvUnitProductionAI::GetWeight(UnitTypes eUnit)
 {
+	//dirty hack to allow barbarian cities to build units ... barbarians don't use flavors, so their weights are all zero
+	if (m_pCity->getOwner() == BARBARIAN_PLAYER)
+		return 1;
+
 	return m_UnitAIWeights.GetWeight(eUnit);
 }
 

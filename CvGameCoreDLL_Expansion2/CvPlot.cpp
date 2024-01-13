@@ -1790,6 +1790,276 @@ void CvPlot::changeAdjacentSight(TeamTypes eTeam, int iRange, bool bIncrement, I
 
 }
 
+//	--------------------------------------------------------------------------------
+// Implementation based on changeAdjacentSight
+void CvPlot::ChangeKnownAdjacentSight(TeamTypes eTeam, TeamTypes eMinorCivAlly, int iRange, DirectionTypes eFacingDirection)
+{
+	//do nothing if range is negative, this is invalid
+	if (iRange < 0)
+		return;
+
+	//range zero is dangerous, it can lead to unit stacking problems, should happen only with trade units
+	if (iRange == 0)
+	{
+		//change the visibility of this plot only
+		IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+		return;
+	}
+
+	vector<int>& scratchpad = GC.getMap().GetKnownVisibilityScratchpad();
+
+	//check one extra outer ring
+	int iRangeWithOneExtraRing = iRange + 1;
+
+	// start in the center going NE
+	int thisRing = 0;
+	DirectionTypes eDirectionOfNextTileToCheck = DIRECTION_NORTHWEST;
+	CvPlot* pPlotToCheck = this;
+	int iDX = 0;
+	int iDY = 0;
+	int iCenterLevel = seeFromLevel(eTeam);
+	int iPlotCounter = 0;
+	int iMaxPlotNumberOnThisRing = 0;
+
+	while (thisRing <= iRangeWithOneExtraRing)
+	{
+		if (pPlotToCheck)
+		{
+			// see if this plot is in the visibility wedge
+			if (shouldProcessDisplacementPlot(iDX, iDY, iRange, eFacingDirection))
+			{
+				if (thisRing != 0)
+				{
+					CvPlot* pFirstInwardPlot = NULL;
+					CvPlot* pSecondInwardPlot = NULL;
+					const int INVALID_RING = -1;
+					const int HALF_BLOCKED = 0x01000000;
+					int iRingOfFirstInwardPlot = INVALID_RING;
+					int iRingOfSecondInwardPlot = INVALID_RING;
+					int iFirstInwardLevel = INVALID_RING;
+					int iSecondInwardLevel = INVALID_RING;
+					bool bFirstHalfBlocked = false;
+					bool bSecondHalfBlocked = false;
+
+					// try to look at the two plot inwards
+					switch (eDirectionOfNextTileToCheck)
+					{
+					case NO_DIRECTION:
+						UNREACHABLE();
+					case DIRECTION_NORTHEAST:
+						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_EAST);
+						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_SOUTHEAST);
+						break;
+					case DIRECTION_EAST:
+						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_SOUTHWEST);
+						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_SOUTHEAST);
+						break;
+					case DIRECTION_SOUTHEAST:
+						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_SOUTHWEST);
+						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_WEST);
+						break;
+					case DIRECTION_SOUTHWEST:
+						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_WEST);
+						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_NORTHWEST);
+						break;
+					case DIRECTION_WEST:
+						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_NORTHWEST);
+						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_NORTHEAST);
+						break;
+					case DIRECTION_NORTHWEST:
+						pFirstInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_EAST);
+						pSecondInwardPlot = plotDirection(pPlotToCheck->getX(), pPlotToCheck->getY(), DIRECTION_NORTHEAST);
+						break;
+					}
+					if (pFirstInwardPlot)
+					{
+						iRingOfFirstInwardPlot = plotDistance(getX(), getY(), pFirstInwardPlot->getX(), pFirstInwardPlot->getY());
+						if (iRingOfFirstInwardPlot == thisRing - 1)
+						{
+							iFirstInwardLevel = scratchpad[pFirstInwardPlot->GetPlotIndex()];
+							if (iFirstInwardLevel >= HALF_BLOCKED)
+							{
+								iFirstInwardLevel -= HALF_BLOCKED;
+								bFirstHalfBlocked = true;
+							}
+						}
+					}
+					if (pSecondInwardPlot)
+					{
+						iRingOfSecondInwardPlot = plotDistance(getX(), getY(), pSecondInwardPlot->getX(), pSecondInwardPlot->getY());
+						if (iRingOfSecondInwardPlot == thisRing - 1)
+						{
+							iSecondInwardLevel = scratchpad[pSecondInwardPlot->GetPlotIndex()];
+							if (iSecondInwardLevel >= HALF_BLOCKED)
+							{
+								iSecondInwardLevel -= HALF_BLOCKED;
+								bSecondHalfBlocked = true;
+							}
+						}
+					}
+					int iThisPlotLevel = pPlotToCheck->seeThroughLevel(thisRing != iRangeWithOneExtraRing);
+					if (iFirstInwardLevel != INVALID_RING && iSecondInwardLevel != INVALID_RING && iFirstInwardLevel != iSecondInwardLevel && !bFirstHalfBlocked && !bSecondHalfBlocked)
+					{
+						double fP0X = (double)getX();
+						double fP0Y = (double)getY();
+						double fP1X = (double)pPlotToCheck->getX();
+						double fP1Y = (double)pPlotToCheck->getY();
+						if (getY() & 1)
+						{
+							fP0X += 0.5;
+						}
+						if (pPlotToCheck->getY() & 1)
+						{
+							fP1X += 0.5;
+						}
+
+						double a = fP1Y - fP0Y;
+						double b = fP0X - fP1X;
+						double c = fP0Y * fP1X - fP1Y * fP0X;
+
+						double fFirstInwardX = (double)pFirstInwardPlot->getX();
+						double fFirstInwardY = (double)pFirstInwardPlot->getY();
+						if (pFirstInwardPlot->getY() & 1)
+						{
+							fFirstInwardX += 0.5;
+						}
+						double fFirstDist = a * fFirstInwardX + b * fFirstInwardY + c;
+						fFirstDist = abs(fFirstDist);
+						// skip the extra distance since it is the same for both equations
+
+						double fSecondInwardX = (double)pSecondInwardPlot->getX();
+						double fSecondInwardY = (double)pSecondInwardPlot->getY();
+						if (pSecondInwardPlot->getY() & 1)
+						{
+							fSecondInwardX += 0.5;
+						}
+						double fSecondDist = a * fSecondInwardX + b * fSecondInwardY + c;
+						fSecondDist = abs(fSecondDist);
+						// skip the extra distance since it is the same for both equations
+
+						if (fFirstDist - fSecondDist > 0.05)  // we are closer to the second point
+						{
+							int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
+							scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLevel;
+							if (iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
+							{
+								pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+							}
+						}
+						else if (fSecondDist - fFirstDist > 0.05)   // we are closer to the first point
+						{
+							int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
+							scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLevel;
+							if (iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
+							{
+								pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+							}
+						}
+						else
+						{
+							int iHighestInwardLevel = (iFirstInwardLevel > iSecondInwardLevel) ? iFirstInwardLevel : iSecondInwardLevel;
+							int iLowestInwardLevel = (iFirstInwardLevel > iSecondInwardLevel) ? iSecondInwardLevel : iFirstInwardLevel;
+							int iHighestLevel = (iHighestInwardLevel > iThisPlotLevel) ? iHighestInwardLevel : iThisPlotLevel;
+							int iHighestLowestLevel = (iLowestInwardLevel > iThisPlotLevel) ? iLowestInwardLevel : iThisPlotLevel;
+							if (iHighestInwardLevel > iThisPlotLevel)
+							{
+								scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLowestLevel + HALF_BLOCKED;
+							}
+							else
+							{
+								scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLevel;
+							}
+							if (iLowestInwardLevel < iThisPlotLevel || ((iCenterLevel >= iLowestInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
+							{
+								pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+							}
+						}
+					}
+					else if (iFirstInwardLevel != INVALID_RING && !bFirstHalfBlocked)
+					{
+						int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
+						scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLevel;
+						if (iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
+						{
+							pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+						}
+					}
+					else if (iSecondInwardLevel != INVALID_RING && !bSecondHalfBlocked)
+					{
+						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
+						scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLevel;
+						if (iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
+						{
+							pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+						}
+					}
+					else if (iFirstInwardLevel != INVALID_RING)
+					{
+						int iHighestLevel = (iFirstInwardLevel > iThisPlotLevel) ? iFirstInwardLevel : iThisPlotLevel;
+						scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLevel;
+						if (iFirstInwardLevel < iThisPlotLevel || ((iCenterLevel >= iFirstInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
+						{
+							pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+						}
+					}
+					else if (iSecondInwardLevel != INVALID_RING)
+					{
+						int iHighestLevel = (iSecondInwardLevel > iThisPlotLevel) ? iSecondInwardLevel : iThisPlotLevel;
+						scratchpad[pPlotToCheck->GetPlotIndex()] = iHighestLevel;
+						if (iSecondInwardLevel < iThisPlotLevel || ((iCenterLevel >= iSecondInwardLevel) && (thisRing < iRangeWithOneExtraRing)))
+						{
+							pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+						}
+					}
+					else // I have no idea how this can happen, but...
+					{
+						scratchpad[pPlotToCheck->GetPlotIndex()] = iThisPlotLevel;
+					}
+				}
+				else // this is the center point
+				{
+					pPlotToCheck->IncreaseKnownVisibilityCount(eTeam, eMinorCivAlly);
+					scratchpad[pPlotToCheck->GetPlotIndex()] = 0;
+				}
+			}
+
+		}
+
+		int iNextDX = 0;
+		int iNextDY = 0;
+		if (iPlotCounter >= iMaxPlotNumberOnThisRing)  // we have processed all of the plots in this ring
+		{
+			// if that fails go out one ring in the NE direction traveling E
+			eDirectionOfNextTileToCheck = DIRECTION_NORTHEAST;
+			iNextDX = iDX + GC.getPlotDirectionX()[eDirectionOfNextTileToCheck];
+			iNextDY = iDY + GC.getPlotDirectionY()[eDirectionOfNextTileToCheck];
+			thisRing++;
+			iMaxPlotNumberOnThisRing += thisRing * 6;
+			eDirectionOfNextTileToCheck = DIRECTION_EAST;
+			// (if that is further out than the extended range, we are done)
+		}
+		else
+		{
+			iNextDX = iDX + GC.getPlotDirectionX()[eDirectionOfNextTileToCheck];
+			iNextDY = iDY + GC.getPlotDirectionY()[eDirectionOfNextTileToCheck];
+			if (hexDistance(iNextDX, iNextDY) > thisRing)
+			{
+				// try to turn right
+				eDirectionOfNextTileToCheck = GC.getTurnRightDirection(eDirectionOfNextTileToCheck);
+				iNextDX = iDX + GC.getPlotDirectionX()[eDirectionOfNextTileToCheck];
+				iNextDY = iDY + GC.getPlotDirectionY()[eDirectionOfNextTileToCheck];
+			}
+		}
+
+		iPlotCounter++;
+
+		iDX = iNextDX;
+		iDY = iNextDY;
+		pPlotToCheck = plotXYWithRangeCheck(getX(), getY(), iDX, iDY, iRangeWithOneExtraRing);
+	}
+
+}
+
 void CvPlot::changeEspionageSight(TeamTypes eTeam, CvCity* pCity, int iRange, bool bIncrement)
 {
 	//do nothing if range is negative, this is invalid
@@ -1812,7 +2082,7 @@ void CvPlot::changeEspionageSight(TeamTypes eTeam, CvCity* pCity, int iRange, bo
 		//if it belongs to the city
 		if (pCity->GetID() == pLoopPlot->getOwningCityID())
 		{
-			changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), NO_INVISIBLE, true, false);
+			pLoopPlot->changeVisibilityCount(eTeam, ((bIncrement) ? 1 : -1), NO_INVISIBLE, true, false);
 		}	
 	}
 }
@@ -10929,6 +11199,11 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 		return eResult;
 
 	bool bOldVisibility = (m_aiVisibilityCount[eTeam]>0);
+#if defined(MOD_CORE_DELAYED_VISIBILITY)
+	bool bOldMaxVisibility = m_aiVisibilityCountThisTurnMax[eTeam] > 0;
+#else
+	bool bOldMaxVisibility = bOldVisibility;
+#endif
 
 	//apparently it's legal to decrease sight below zero - so catch that
 	if (iChange<0 && abs(iChange)>m_aiVisibilityCount[eTeam])
@@ -10979,6 +11254,14 @@ PlotVisibilityChangeResult CvPlot::changeVisibilityCount(TeamTypes eTeam, int iC
 				updateFog(true);
 				updateVisibility();
 			}
+		}
+
+		// Update tactical AI, let it know that the tile was made visible
+		if (!bOldMaxVisibility)
+		{
+			PlayerTypes eCurrentPlayer = GetCurrentPlayer();
+			if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
+				GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromUnits(this);
 		}
 
 		for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
@@ -11303,11 +11586,41 @@ int CvPlot::GetKnownVisibilityCount(TeamTypes eTeam) const
 	return m_aiKnownVisibilityCount[eTeam];
 }
 
-void CvPlot::IncreaseKnownVisibilityCount(TeamTypes eTeam, int iAmount)
+//	--------------------------------------------------------------------------------
+/// Is this plot visible to eTeam according to current player knowledge
+bool CvPlot::IsKnownVisibleToTeam(TeamTypes eTeam) const
+{
+	return m_aiKnownVisibilityCount[eTeam] > 0;
+}
+
+//	--------------------------------------------------------------------------------
+/// Is this plot visible to an enemy to ePlayer according to current player knowledge
+bool CvPlot::IsKnownVisibleToEnemy(PlayerTypes ePlayer) const
+{
+	const std::vector<PlayerTypes>& vEnemies = GET_PLAYER(ePlayer).GetPlayersAtWarWith();
+
+	for (std::vector<PlayerTypes>::const_iterator it = vEnemies.begin(); it != vEnemies.end(); ++it)
+	{
+		CvPlayer& kEnemy = GET_PLAYER(*it);
+		if (kEnemy.isAlive() && kEnemy.IsAtWarWith(ePlayer))
+		{
+			if (IsKnownVisibleToTeam(kEnemy.getTeam()))
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
+
+void CvPlot::IncreaseKnownVisibilityCount(TeamTypes eTeam, TeamTypes eTeam2)
 {
 	CvAssertMsg(eTeam >= 0, "eTeam is expected to be non-negative (invalid Index)");
 	CvAssertMsg(eTeam < MAX_TEAMS, "eTeam is expected to be within maximum bounds (invalid Index)");
-	m_aiKnownVisibilityCount[eTeam] += iAmount;
+	m_aiKnownVisibilityCount[eTeam]++;
+	if (eTeam2 != NO_TEAM)
+		m_aiKnownVisibilityCount[eTeam2]++;
 }
 
 void CvPlot::ResetKnownVisibility()
@@ -11351,20 +11664,12 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	TeamTypes eActiveTeam = GC.getGame().getActiveTeam();
 	ICvUserInterface2* pInterface =  GC.GetEngineUserInterface();
 
-	bool bVisbilityUpdated = false;
+	bool bVisibilityUpdated = false;
 	bool bRevealed = isRevealed(eTeam) != bNewValue;
-
-	// Update tactical AI, let it know that the tile was made visible
-	const CivsList pPlayers = GET_TEAM(eTeam).getPlayers();
-	for (size_t iJ = 0; iJ < pPlayers.size(); iJ++)
-	{
-		if (pPlayers[iJ] == GC.getGame().getActivePlayer())
-			GET_PLAYER(pPlayers[iJ]).GetTacticalAI()->NewVisiblePlot(this, bRevealed);
-	}
 
 	if(bRevealed)
 	{
-		bVisbilityUpdated = true;
+		bVisibilityUpdated = true;
 		m_bfRevealed.ToggleBit(eTeam);
 
 		bool bEligibleForAchievement = MOD_API_ACHIEVEMENTS ? GET_PLAYER(GC.getGame().getActivePlayer()).isHuman() && !GC.getGame().isGameMultiPlayer() : false;
@@ -11373,6 +11678,11 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 		{
 			area()->changeNumRevealedTiles(eTeam, (bNewValue ? 1 : -1));
 		}
+
+		// Update tactical AI, let it know that the tile was revealed
+		PlayerTypes eCurrentPlayer = GetCurrentPlayer();
+		if (GET_PLAYER(eCurrentPlayer).getTeam() == eTeam)
+			GET_PLAYER(eCurrentPlayer).GetTacticalAI()->UpdateVisibilityFromBorders(this);
 
 		// Natural Wonder
 		if(eTeam != BARBARIAN_TEAM && bNewValue)
@@ -11635,6 +11945,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 						}
 					}
 				}
+
 				if (bEligibleForAchievement)
 				{
 					gDLL->IncrementSteamStatAndUnlock(ESTEAMSTAT_TILESDISCOVERED, 1000, ACHIEVEMENT_1000TILES);
@@ -11715,7 +12026,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 			bVisibilityChanged |= setRevealedRouteType(eTeam, NO_ROUTE);
 		}
 
-		if (!bVisbilityUpdated && (bVisibilityChanged || bImprovementVisibilityChanged))
+		if (!bVisibilityUpdated && (bVisibilityChanged || bImprovementVisibilityChanged))
 		{
 			if(eTeam == eActiveTeam)
 			{
@@ -11726,7 +12037,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 				updateVisibility();
 			}
 
-			bVisbilityUpdated = true;
+			bVisibilityUpdated = true;
 		}
 	}
 	
@@ -11745,7 +12056,7 @@ bool CvPlot::setRevealed(TeamTypes eTeam, bool bNewValue, CvUnit* pUnit, bool bT
 	}
 #endif
 
-	return bVisbilityUpdated;
+	return bVisibilityUpdated;
 }
 
 //	--------------------------------------------------------------------------------

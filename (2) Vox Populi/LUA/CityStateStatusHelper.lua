@@ -78,43 +78,30 @@ function GetCityStateStatusRow(iMajor, iMinor)
 	local pMajorTeam = Teams[iMajorTeam];
 	local pMinorTeam = Teams[iMinorTeam];
 	
-	local iInf = pMinor:GetMinorCivFriendshipWithMajor(iMajor);
-	local bWar = pMajorTeam:IsAtWar(iMinorTeam);
-	local bCanBully = pMinor:CanMajorBullyGold(iMajor);
-	local bAllies = pMinor:IsAllies(iMajor);
-	
+	-- consistent with how it is in EUI, a city-state is only afraid if we can bully them and they are not our friends/allies
 	-- War
-	if (bWar) then
+	if pMajorTeam:IsAtWar(iMinorTeam) then
 		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_WAR"];
-	end
-	
-	-- Negative INF
-	if (iInf < GameDefines["FRIENDSHIP_THRESHOLD_NEUTRAL"]) then
-		if(bCanBully) then
-			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_AFRAID"];
-		else
-			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_ANGRY"];
-		end
-	-- Neutral
-	elseif (iInf < GameDefines["FRIENDSHIP_THRESHOLD_FRIENDS"]) then
-		if(bCanBully) then
-			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_AFRAID"];
-		else
-			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_NEUTRAL"];
-		end
-	-- Friends
-	elseif (iInf < GameDefines["FRIENDSHIP_THRESHOLD_ALLIES"]) then
-		if(bCanBully) then
-			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_AFRAID"];
-		else
-			return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_FRIENDS"];
-		end
-	-- Friends, but high enough INF to be a potential ally
-	elseif (not bAllies) then
-		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_FRIENDS"];
+
 	-- Allies
-	else
+	elseif pMinor:IsAllies(iMajor) then
 		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_ALLIES"];
+
+	-- Friends
+	elseif pMinor:IsFriends(iMajor) then
+		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_FRIENDS"];
+
+	-- Able to bully?
+	elseif gk_mode and pMinor:CanMajorBullyGold(iMajor) then
+		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_AFRAID"];
+
+	-- Angry
+	elseif pMinor:GetMinorCivFriendshipWithMajor(iMajor) < GameDefines.FRIENDSHIP_THRESHOLD_NEUTRAL then
+		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_ANGRY"];
+
+	-- Neutral
+	else
+		return GameInfo.MinorCivTraits_Status["MINOR_FRIENDSHIP_STATUS_NEUTRAL"];
 	end
 end
 
@@ -133,16 +120,12 @@ function UpdateCityStateStatusBar(iMajor, iMinor, posBarCtrl, negBarCtrl, barMar
 
 	local info = GetCityStateStatusRow(iMajor, iMinor);
 	local iInf = pMinor:GetMinorCivFriendshipWithMajor(iMajor);
-
+	
 	if iInf >= 0 then
 		local percentFull = math.abs(iInf) / kPosInfRange;
 		local xOffset = math.min(percentFull * kPosBarRange, kPosBarRange);
 		barMarkerCtrl:SetOffsetX(xOffset);
-		if pMinor:CanMajorBullyGold(iMajor) then
-			posBarCtrl:SetTexture(info.NegativeStatusMeter);
-		else
-			posBarCtrl:SetTexture(info.PositiveStatusMeter);
-		end	
+		posBarCtrl:SetTexture(info.NegativeStatusMeter or info.PositiveStatusMeter);
 		posBarCtrl:SetPercent(percentFull);
 		posBarCtrl:SetHide(false);
 		negBarCtrl:SetHide(true);
@@ -168,7 +151,6 @@ end
 
 function UpdateCityStateStatusIconBG(iMajor, iMinor, iconBGCtrl)
 	local info = GetCityStateStatusRow(iMajor, iMinor);
-	
 	if (info.StatusIcon ~= nil) then
 		iconBGCtrl:SetTexture(info.StatusIcon);
 	end

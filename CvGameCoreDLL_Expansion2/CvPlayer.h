@@ -2245,6 +2245,9 @@ public:
 	bool IsRefuseResearchAgreementTrade();
 	void SetRefuseResearchAgreementTrade(bool refuseTrade);
 
+	bool IsInstantYieldNotificationDisabled(InstantYieldType eInstantYield);
+	void SetInstantYieldNotificationDisabled(InstantYieldType eInstantYield, bool bNewValue);
+
 	bool IsResourceCityTradeable(ResourceTypes eResource, bool bCheckTeam = true) const;
 	bool IsResourceRevealed(ResourceTypes eResource, bool bCheckTeam = true) const;
 	CvImprovementEntry* GetResourceImprovement(ResourceTypes eResource, bool bCivSpecific = false) const;
@@ -3698,6 +3701,9 @@ protected:
 	bool m_refuseBrokeredPeaceTrade;
 	bool m_refuseResearchAgreementTrade;
 
+	std::vector<bool> m_abInstantYieldNotificationsDisabled;
+
+
 	std::vector<bool> m_pabGetsScienceFromPlayer;
 
 	std::vector< Firaxis::Array<int, NUM_YIELD_TYPES > > m_ppaaiSpecialistExtraYield;
@@ -4476,6 +4482,7 @@ SYNC_ARCHIVE_VAR(int, m_iMilitarySeaMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryAirMight)
 SYNC_ARCHIVE_VAR(int, m_iMilitaryLandMight)
 SYNC_ARCHIVE_VAR(std::vector<ResourceTypes>, m_vResourcesNotForSale)
+SYNC_ARCHIVE_VAR(std::vector<bool>, m_abInstantYieldNotificationsDisabled)
 SYNC_ARCHIVE_VAR(bool, m_refuseOpenBordersTrade)
 SYNC_ARCHIVE_VAR(bool, m_refuseEmbassyTrade)
 SYNC_ARCHIVE_VAR(bool, m_refuseDefensivePactTrade)

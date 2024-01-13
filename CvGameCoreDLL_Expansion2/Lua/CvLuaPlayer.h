@@ -1324,6 +1324,7 @@ protected:
 	static int lGetInternationalTradeRoutePolicyBonus(lua_State* L);
 	static int lGetInternationalTradeRouteOtherTraitBonus(lua_State* L);
 	static int lGetInternationalTradeRouteRiverModifier(lua_State* L);
+	static int lGetTradeConnectionDiplomatModifierTimes100(lua_State* L);
 #if defined(MOD_BALANCE_CORE)
 	static int lGetTradeRouteTurns(lua_State* L);
 	static int lGetTradeConnectionDistanceValueModifierTimes100(lua_State* L);
@@ -1538,6 +1539,9 @@ protected:
 
 	LUAAPIEXTN(IsGlobalQuest, bool, eQuest);
 	LUAAPIEXTN(IsPersonalQuest, bool, eQuest);
+
+	static int lIsInstantYieldNotificationDisabled(lua_State* L);
+	static int lSetInstantYieldNotificationDisabled(lua_State* L);
 };
 
 namespace CvLuaArgs

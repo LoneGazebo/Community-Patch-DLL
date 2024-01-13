@@ -298,6 +298,7 @@ public:
 	int GetTradeConnectionOtherTraitValueTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
 	int GetTradeConnectionDomainValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield);
 	int GetTradeConnectionRiverValueModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);
+	int GetTradeConnectionDiplomatModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield);
 #if defined(MOD_BALANCE_CORE)
 	int GetTradeConnectionDistanceValueModifierTimes100(const TradeConnection& kTradeConnection) const;
 	int GetTradeConnectionCorporationModifierTimes100(const TradeConnection& kTradeConnection, YieldTypes eYield, bool bAsOriginPlayer);

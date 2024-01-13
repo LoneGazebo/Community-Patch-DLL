@@ -46,12 +46,13 @@ public:
 	int GetBranchBuildingHappiness(CvPlayer* pPlayer, PolicyBranchTypes eBranch);
 	int GetNumHappinessPolicies(CvPlayer* pPlayer, PolicyBranchTypes eBranch);
 
+	int WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch);
+	int WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy);
+
 private:
 	// Internal methods
 	void WeightPrereqs(const vector<int>& vTempWeights, int iPropagationPercent);
 	void PropagateWeights(int iPolicy, int iWeight, int iPropagationPercent, int iPropagationLevel);
-	int WeighBranch(CvPlayer* pPlayer, PolicyBranchTypes eBranch);
-	int WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy);
 	Firaxis::Array<int, NUM_YIELD_TYPES> WeightPolicyAttributes(CvPlayer* pPlayer, PolicyTypes ePolicy);
 	bool IsBranchEffectiveInGame(PolicyBranchTypes eBranch);
 

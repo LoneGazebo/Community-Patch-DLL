@@ -1188,6 +1188,10 @@ public:
 	void DoPolicyAI();
 	void DoChooseIdeology();
 
+	//for UI
+	int ScorePolicy(PolicyTypes ePolicy) const;
+	int ScorePolicyBranch(PolicyBranchTypes ePolicyBranch) const;
+
 private:
 	void AddFlavorAsStrategies(int iPropagatePercent);
 

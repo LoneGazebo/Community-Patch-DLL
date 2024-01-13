@@ -65,10 +65,10 @@
 			<Text>{1_Num} NP: {2_Text}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED">
-			<Text>Your spy has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR]. This has [COLOR_CYAN]unlocked[ENDCOLOR] the following passive bonuses:[NEWLINE][NEWLINE][COLOR_CYAN]{2_PassiveBonuses}[ENDCOLOR]</Text>
+			<Text>Your spy has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR]. This has unlocked the following passive bonuses:[NEWLINE][NEWLINE]{2_PassiveBonuses}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_FROM_EARLIER">
-			<Text>The highest number of Network Points once collected by your spy during their stay in this city is [COLOR_CYAN]{1_Num}[ENDCOLOR]. This has [COLOR_CYAN]unlocked[ENDCOLOR] the following passive bonuses:[NEWLINE][NEWLINE][COLOR_CYAN]{2_PassiveBonuses}[ENDCOLOR]</Text>
+			<Text>The highest number of Network Points once collected by your spy during their stay in this city is [COLOR_CYAN]{1_Num}[ENDCOLOR]. This has unlocked the following passive bonuses:[NEWLINE][NEWLINE]{2_PassiveBonuses}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_NOTHING_YET">
 			<Text>Your spy has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR] so far. Keep the spy in the city to collect more Network Points and unlock passive bonuses.</Text>
@@ -125,10 +125,49 @@
 			<Text>Diplomat Bonuses</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_DIPLOMAT_TOOLTIP">
-			<Text>View unlocked passive bonuses and access intelligence information gathered by {1_Rank} {2_Spy} [COLOR_NEGATIVE_TEXT](not implemented yet)[ENDCOLOR]</Text>
+			<Text>View unlocked passive bonuses and access intelligence information gathered by {1_Rank} {2_Spy} [COLOR_NEGATIVE_TEXT][ENDCOLOR]</Text>
 		</Row>
 		<Row Tag="TXT_KEY_EO_DIPLOMAT_TRAVELING_TOOLTIP">
 			<Text>Once {1_Rank} {2_Spy} has arrived in {3_City}, they will start collecting Network Points. Network Points unlock passive bonuses and grant access to intelligence information about the other civilization while {1_Rank} {2_Spy} is schmoozing as a Diplomat in the city.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_DIPLOMAT">
+			<Text>Your diplomat has collected [COLOR_CYAN]{1_Num} Network Points[ENDCOLOR]. This has unlocked the following bonuses:[NEWLINE][NEWLINE]{2_PassiveBonuses}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VIEW_TECH_SCREEN">
+			<Text>View Tech Screen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_VIEW_TECH_SCREEN_NOT_ENOUGH_NP">
+			<Text>You need to have collected at least {1_Num} Network Points to view the tech screen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_VIEW_POLICY_SCREEN">
+			<Text>View Policy Screen</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_VIEW_POLICY_SCREEN_NOT_ENOUGH_NP">
+			<Text>You need to have collected at least {1_Num} Network Points to view the policy screen.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_VIEW_UNIT_LIST">
+			<Text>View Unit List</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_VIEW_UNIT_LIST_NOT_ENOUGH_NP">
+			<Text>You need to have collected at least {1_Num} Network Points to view the list of the military units.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_NUMBER_UNITS">
+			<Text># Units</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_UNIT_LIST">
+			<Text>Unit List</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_VIEW_TRADE_DEALS">
+			<Text>View Active Trade Deals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_VIEW_TRADE_DEALS_NOT_ENOUGH_NP">
+			<Text>You need to have collected at least {1_Num} Network Points to view the active trade deals.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_EO_ACTIVE_TRADE_DEALS">
+			<Text>Active Trade Deals</Text>
+		</Row>
+		<Row Tag="TXT_KEY_CHOOSE_INTERNATIONAL_TRADE_ROUTE_ITEM_TT_DIPLOMAT_MODIFIER">
+			<Text>Diplomat present: +{1_Num}%</Text>
 		</Row>
 		<!-- City Security -->
 		<Row Tag="TXT_KEY_EO_CITY_SECURITY_BASE_TT">

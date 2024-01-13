@@ -1106,6 +1106,7 @@
     <File md5="FE31FBA4C2E0F415B11868580B2A9AA2" import="1">LUA/ProductionPopup.xml</File>
     <File md5="28060DB8C0A3C26C63F6D43700F294DB" import="1">LUA/SocialPolicyPopup.lua</File>
     <File md5="12684E9BB5B297803A690A5795812A44" import="1">LUA/SocialPolicyPopup.xml</File>
+    <File md5="ED27C72B2C4594E2047511334FD34C9E" import="1">LUA/TechTree.lua</File>
     <File md5="ED27C72B2C4594E2047511334FD34C9E" import="1">LUA/TechButtonInclude.lua</File>
     <File md5="8E49FCBD322E66041A5D0917CD2502BD" import="1">LUA/TopPanel.lua</File>
     <File md5="8F5C4A097A6F53AF68A73609B5EBD0FB" import="1">LUA/TopPanel.xml</File>

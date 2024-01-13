@@ -7,16 +7,21 @@ include( "InstanceManager" );
 include( "CityStateStatusHelper" );
 include("FLuaVector.lua")
 include("InfoTooltipInclude");
+include("TradeLogic");
 
 local g_AgentManager = GenerationalInstanceManager:new( "AgentInstance", "Base", Controls.AgentStack);
 local g_MyCityManager = GenerationalInstanceManager:new( "MyCityInstance", "Base", Controls.MyCityStack);
+local g_UnitListManager = GenerationalInstanceManager:new( "UnitListInstance", "Base", Controls.UnitListStack);
 local g_MyCityButtonManager = GenerationalInstanceManager:new("MyCityButtonInstance", "Base", Controls.MyCityStack);
 local g_TheirCityManager = GenerationalInstanceManager:new( "TheirCityInstance", "Base", Controls.TheirCityStack);
 local g_TheirCityButtonManager = GenerationalInstanceManager:new( "TheirCityButtonInstance", "Base", Controls.TheirCityStack);
 local g_IntrigueManager = GenerationalInstanceManager:new( "IntrigueMessageInstance", "Base", Controls.IntrigueMessageStack);
 local g_MissionSelectionManager = GenerationalInstanceManager:new( "MissionSelectionInstance", "Base", Controls.MissionSelectionStack);
 local g_PassiveBonusesManager = GenerationalInstanceManager:new( "PassiveBonusesInstance", "Base", Controls.PassiveBonusesStack);
+local g_DiplomatBonusesManager = GenerationalInstanceManager:new( "DiplomatBonusesInstance", "Base", Controls.DiplomatBonusesStack);
 local g_CounterspyFocusManager = GenerationalInstanceManager:new( "CounterspyFocusInstance", "Base", Controls.CounterspyFocusStack);
+
+local m_Deal = UI.GetScratchDeal();
 
 -- Mission Selection
 SelectedItems = {};
@@ -102,6 +107,40 @@ g_AgentsSortOptions = {
 		Column = "AgentActivity",
 		DefaultDirection = "asc",
 		CurrentDirection = nil,
+	},
+};
+
+g_UnitListSortOptions = {
+	{
+		Button = Controls.ULSortByName,
+		ImageControl = Controls.ULSortByNameImage,
+		Column = "Name",
+		DefaultDirection = "asc",
+		CurrentDirection = nil,
+	},
+	{
+		Button = Controls.ULSortByStrength,
+		ImageControl = Controls.ULSortByStrengthImage,
+		Column = "Strength",
+		SortType = "numeric",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+	},
+	{
+		Button = Controls.ULSortByRangedStrength,
+		ImageControl = Controls.ULSortByRangedStrengthImage,
+		Column = "RangedStrength",
+		SortType = "numeric",
+		DefaultDirection = "desc",
+		CurrentDirection = nil,
+	},
+	{
+		Button = Controls.ULSortByCount,
+		ImageControl = Controls.ULSortByCountImage,
+		Column = "Count",
+		SortType = "numeric",
+		DefaultDirection = "desc",
+		CurrentDirection = "desc",
 	},
 };
 
@@ -197,6 +236,7 @@ g_IntrigueSortOptions = {
 };
 _AgentsSortFunction = nil;
 g_YourCitiesSortFunction = nil;
+g_UnitListSortFunction = nil;
 g_TheirCitiesSortFunction = nil;
 g_IntrigueSortFunction = nil;
 
@@ -206,6 +246,7 @@ g_CurrentTab = nil;		-- The currently selected Tab.
 g_SelectedAgentID = nil;
 g_SelectedCity = nil;
 g_CitiesAvailableToRelocate = nil;
+g_UnitList = nil;
 -- end slewis
 
 -------------------------------------------------
@@ -257,6 +298,12 @@ function InputHandler( uiMsg, wParam, lParam )
 				Controls.ChooseConfirm:SetHide(true);
 			elseif (not Controls.MissionSelectionPopup:IsHidden()) then
 				Controls.MissionSelectionPopup:SetHide(true);
+			elseif (not Controls.DiplomatTradeDealsPopup:IsHidden()) then
+				Controls.DiplomatTradeDealsPopup:SetHide(true);
+			elseif (not Controls.UnitListPopup:IsHidden()) then
+				Controls.UnitListPopup:SetHide(true);
+			elseif (not Controls.DiplomatPopup:IsHidden()) then
+				Controls.DiplomatPopup:SetHide(true);
 			elseif (not Controls.CounterspyFocusPopup:IsHidden()) then
 				Controls.CounterspyFocusPopup:SetHide(true);
 			elseif (not Controls.NotificationPopup:IsHidden()) then
@@ -714,7 +761,6 @@ function RefreshAgents()
 
 				if (city ~= nil) then
 					if(city:GetOwner() == Game.GetActivePlayer()) then
-					  -- counterspy
 						local count = PopulateSelectionList(Controls.CounterspyFocusStack, Game.GetActivePlayer(), city, v);
 							
 						if(count > 0) then					
@@ -734,6 +780,21 @@ function RefreshAgents()
 					print("city == null");
 				end
 			end
+			
+			-- Initialize Diplomat Button
+			local OnDiplomatButtonClicked = function()
+				if (city ~= nil) then
+				  -- spy in enemy city
+					local countpassive = PopulateDiplomatBonusList(Controls.DiplomatBonusesStack, Game.GetActivePlayer(), city, v);
+						
+					if(countpassive > 0) then				
+						Controls.DiplomatPopup:SetHide(false);
+					end
+				else
+					print("city == null");
+				end
+			end
+	
 
 			agentEntry.SpyMissionButton:SetHide(true);
 			agentEntry.CounterspyButton:SetHide(true);
@@ -762,8 +823,8 @@ function RefreshAgents()
 					else
 						agentEntry.DiplomatButton:LocalizeAndSetToolTip("TXT_KEY_EO_DIPLOMAT_TOOLTIP", v.Rank, v.Name);
 						agentEntry.DiplomatButton:SetDisabled(true);
-						--agentEntry.DiplomatButton:SetDisabled(false);
-						--agentEntry.DiplomatButton:RegisterCallback(Mouse.eLClick, OnChangeCounterspyFocusClicked);
+						agentEntry.DiplomatButton:SetDisabled(false);
+						agentEntry.DiplomatButton:RegisterCallback(Mouse.eLClick, OnDiplomatButtonClicked);
 					end
 				else
 					agentEntry.SpyMissionButton:SetHide(false);
@@ -1332,6 +1393,42 @@ function RefreshTheirCities(selectedAgentIndex, selectedAgentCurrentCityPlayerID
 	Controls.TheirCityScrollPanel:CalculateInternalSize();
 end
 
+function RefreshUnitList()
+
+	g_UnitListManager:ResetInstances();
+	
+	unitList = g_UnitList
+	table.sort(unitList, g_UnitListSortFunction);
+	
+	for i,v in ipairs(unitList) do
+		local unitEntry = g_UnitListManager:GetInstance();
+
+		unitEntry.UnitName:SetText(v.Name);
+		if(v.Strength > 0) then
+			unitEntry.UnitStrength:SetText(v.Strength);
+		else
+			unitEntry.UnitStrength:SetText("-");
+		end
+		if(v.RangedStrength > 0) then
+			unitEntry.UnitRangedStrength:SetText(v.RangedStrength);
+		else
+			unitEntry.UnitRangedStrength:SetText("-");
+		end
+		unitEntry.UnitCount:SetText(v.Count);
+
+		-- Dim Text
+		--cityEntry.CivilizationName:SetAlpha(0.4);
+		--cityEntry.CityName:SetAlpha(0.4);
+		--cityEntry.CityPopulation:SetAlpha(0.4);
+
+		bTickTock = not bTickTock;
+	end
+
+	Controls.UnitListStack:CalculateSize();
+	Controls.UnitListStack:ReprocessAnchoring();
+	Controls.UnitListScrollPanel:CalculateInternalSize();
+end
+
 function Refresh()
 
 	function TestEspionageStarted()
@@ -1377,6 +1474,114 @@ function OnNo( )
 	end
 end
 Controls.No:RegisterCallback( Mouse.eLClick, OnNo );
+
+function PendingDealButtonHandler( index, iIsCurrent )
+    local iPlayer = Game.GetActivePlayer();
+
+    if( iIsCurrent == 1 ) then
+        UI.LoadCurrentDeal( iPlayer, index );
+    else
+        UI.LoadHistoricDeal( iPlayer, index );
+    end
+    
+    local iBeginTurn = m_Deal:GetStartTurn();
+    local iDuration  = m_Deal:GetDuration();
+    if( iDuration ~= 0 ) then
+        Controls.TurnStart:SetText( Locale.ConvertTextKey( "TXT_KEY_DO_DEAL_BEGAN", iBeginTurn ) );
+        Controls.TurnEnd:SetHide( false );
+        Controls.TurnEnd:SetText( Locale.ConvertTextKey( "TXT_KEY_DO_DEAL_DURATION", iDuration ) );
+    else
+        Controls.TurnStart:SetText( Locale.ConvertTextKey( "TXT_KEY_DO_ON_TURN", iBeginTurn ) );
+        Controls.TurnEnd:SetHide( true );
+    end
+    
+    OpenDealReview();
+end
+
+function BuildDealButton( iPlayer, controlTable )    
+
+    local iOtherPlayer = m_Deal:GetOtherPlayer( iPlayer );
+    local pOtherPlayer = Players[ iOtherPlayer ];
+    
+    controlTable.TurnsLabel:LocalizeAndSetText( "TXT_KEY_DO_ON_TURN", (m_Deal:GetStartTurn() + m_Deal:GetDuration()) );
+	CivIconHookup( iOtherPlayer, 32, controlTable.CivIcon, controlTable.CivIconBG, controlTable.CivIconShadow, false, true );
+   
+    local civName = Locale.ConvertTextKey( GameInfo.Civilizations[ pOtherPlayer:GetCivilizationType() ].ShortDescription );
+    
+    --if( m_bIsMulitplayer and pOtherPlayer:IsHuman() ) then
+    if( pOtherPlayer:GetNickName() ~= "" and pOtherPlayer:IsHuman() ) then
+	
+        controlTable.PlayerLabel:SetText( pOtherPlayer:GetNickName() );
+        controlTable.CivLabel:SetText( civName );
+    else
+    
+        controlTable.PlayerLabel:SetText( pOtherPlayer:GetName() );
+        controlTable.CivLabel:SetText( civName );
+	end
+    
+end
+
+-------------------------------------------------------------------------------
+-------------------------------------------------------------------------------
+function BuildCurrentDealButton( iPlayer, controlTable )    
+
+    local iOtherPlayer = m_Deal:GetOtherPlayer( iPlayer );
+    local pOtherPlayer = Players[ iOtherPlayer ];
+    
+    controlTable.TurnsLabel:LocalizeAndSetText( "TXT_KEY_DO_ENDS_ON", (m_Deal:GetStartTurn() + m_Deal:GetDuration()) );
+	CivIconHookup( iOtherPlayer, 32, controlTable.CivIcon, controlTable.CivIconBG, controlTable.CivIconShadow, false, true );
+    
+   
+    local civName = Locale.ConvertTextKey( GameInfo.Civilizations[ pOtherPlayer:GetCivilizationType() ].ShortDescription );
+    
+    --if( m_bIsMulitplayer and pOtherPlayer:IsHuman() ) then
+    if( pOtherPlayer:GetNickName() ~= "" and pOtherPlayer:IsHuman() ) then
+	
+        controlTable.PlayerLabel:SetText( pOtherPlayer:GetNickName() );
+        controlTable.CivLabel:SetText( civName );
+    else
+    
+        controlTable.PlayerLabel:SetText( pOtherPlayer:GetName() );
+        controlTable.CivLabel:SetText( civName );
+	end
+    
+end
+
+
+function PopulateDealChooserDiplomat(iPlayer)
+	m_Deal:ClearItems();
+	DoClearTable();
+    DisplayDeal();
+    Controls.CurrentDealsStack:DestroyAllChildren();
+        
+    local iNumCurrentDeals = UI.GetNumCurrentDeals( iPlayer );    
+    if( iNumCurrentDeals > 0 ) then
+        
+        Controls.CurrentDealsStack:SetHide( false );
+        for i = 0, iNumCurrentDeals - 1 do
+        
+            controlTable = {};
+            ContextPtr:BuildInstanceForControl( "DealButtonInstance", controlTable, Controls.CurrentDealsStack );
+            
+            controlTable.DealButton:SetVoids( i, 1 );
+            controlTable.DealButton:RegisterCallback( Mouse.eLClick, PendingDealButtonHandler );
+            
+            UI.LoadCurrentDeal( iPlayer, i );
+            BuildDealButton( iPlayer, controlTable );
+            BuildCurrentDealButton( iPlayer, controlTable );
+        end
+		Controls.NoDealsText:SetHide( true );
+    else
+        Controls.CurrentDealsStack:SetHide( true );
+		Controls.NoDealsText:SetHide( false );
+    end
+    
+    Controls.CurrentDealsStack:CalculateSize();
+    Controls.AllDealsStack:CalculateSize();
+    Controls.ListScrollPanel:CalculateInternalSize();
+    Controls.AllDealsStack:ReprocessAnchoring();
+end
+
 
 PopulateSelectionList = function(stackControl, playerID, city, spy)
 	-- used for choosing a spy mission or a counterspy focus
@@ -1527,7 +1732,7 @@ PopulatePassiveBonusList = function(stackControl, playerID, city, spy)
 	local instance;
 	
 	local strUnlockedPassiveBonusText = "";
-	local iNetworkPointsOfBestUnlockedBonus = 0;
+	local iNetworkPointsOfBestUnlockedBonus = -1;
 	for row in GameInfo.SpyPassiveBonuses() do
 		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
 		if (iNPScaled <= spy.MaxNetworkPointsStored and iNPScaled > iNetworkPointsOfBestUnlockedBonus) then
@@ -1618,7 +1823,200 @@ PopulatePassiveBonusList = function(stackControl, playerID, city, spy)
 			instance.Name:SetText(szDescString);
 			instance.Name:SetAlpha(0.2)
 		else
-			instance.Name:SetText("[COLOR_CYAN]" .. szDescString .. "[ENDCOLOR]");
+			instance.Name:SetText(szDescString);
+			instance.Name:SetAlpha(1)
+		end
+	
+		count = count + 1;
+	end
+	return count;
+end
+
+PopulateDiplomatBonusList = function(stackControl, playerID, city, spy)
+	-- passive bonuses for offensive spies
+	
+	local count = 0;
+	local player = Players[playerID];
+
+	SelectedItems = {};
+	stackControl:DestroyAllChildren();
+	
+	local cityName = city:GetNameKey();
+	local localizedCityName = Locale.ConvertTextKey(cityName);
+
+	local instance;
+	
+	local strUnlockedPassiveBonusText = "";
+	local iNetworkPointsOfBestUnlockedBonus = -1;
+	for row in GameInfo.SpyPassiveBonusesDiplomat() do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		if (iNPScaled <= spy.MaxNetworkPointsStored and iNPScaled > iNetworkPointsOfBestUnlockedBonus) then
+			iNetworkPointsOfBestUnlockedBonus = iNPScaled;
+			strUnlockedPassiveBonusText = Locale.Lookup(row.Help);
+		end
+	end
+	
+	Controls.DiplomatDescription:LocalizeAndSetText("TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_DIPLOMAT", spy.MaxNetworkPointsStored, strUnlockedPassiveBonusText);
+	
+	-- initialize buttons
+			
+	local OnViewTechScreenClicked = function()
+
+		if (city ~= nil) then
+			-- print("Attempting to show city screen");			
+			Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_TECH_TREE , Data2 = -1, Data4 = 1, Data5 = city:GetOwner()} );
+		else
+			print("city == null");
+		end
+	end
+	
+	local OnViewPolicyScreenClicked = function()
+
+		if (city ~= nil) then
+			-- print("Attempting to show city screen");			
+			Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPOLICY, Data3 = 1, Data4 = city:GetOwner() } );
+			print(city:GetOwner());
+		else
+			print("city == null");
+		end
+	end	
+	
+	local OnViewUnitListClicked = function()
+		if (city ~= nil) then
+			local iPlayer = city:GetOwner();
+			local pPlayer = Players[iPlayer];
+			local unitID, count;
+			local UnitList = {}
+			
+			for row in GameInfo.UnitClasses() do
+				count = pPlayer:GetUnitClassCount(row.ID);
+				if count > 0 then
+					unitID = pPlayer:GetSpecificUnitType(row.Type);
+					-- only military units
+					if (GameInfo.Units[unitID].Combat > 0 or GameInfo.Units[unitID].RangedCombat > 0) then
+						local entry = {}
+						entry["Name"] = Locale.Lookup(GameInfo.Units[unitID].Description);
+						entry["Strength"] = GameInfo.Units[unitID].Combat
+						entry["RangedStrength"] = GameInfo.Units[unitID].RangedCombat
+						entry["Count"] = count;
+						table.insert(UnitList, entry);
+					end
+				end
+			end
+			
+			Controls.UnitListPopup:SetHide(false);
+			g_UnitList = UnitList
+			RefreshUnitList();
+		else
+			print("city == null");
+		end
+	end	
+	
+	local OnViewTradeDealsClicked = function()
+		if (city ~= nil) then
+			local iPlayer = city:GetOwner();
+			Controls.DiplomatTradeDealsPopup:SetHide(false);
+			Controls.DealsPanel:SetHide( false );
+			PopulateDealChooserDiplomat(iPlayer);
+			Controls.TradeDetails:SetHide( true )
+			Controls.CloseDiplomatTradeButton:RegisterCallback(Mouse.eLClick, OnCloseDiplomatTradeButton);
+		else
+			print("city == null");
+		end
+	end
+	
+	-- check which buttons are active
+	local iNetworkPointsNeededToViewTechTree = 999999;
+	local iNetworkPointsNeededToViewPolicyTree = 999999;
+	local iNetworkPointsNeededToViewUnitList = 999999;
+	local iNetworkPointsNeededToViewTradeDeals = 999999;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealTechTree") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewTechTree = math.min(iNetworkPointsNeededToViewTechTree, iNPScaled);
+	end;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealPolicyTree") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewPolicyTree = math.min(iNetworkPointsNeededToViewPolicyTree, iNPScaled);
+	end;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealMilitaryUnitCount") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewUnitList = math.min(iNetworkPointsNeededToViewUnitList, iNPScaled);
+	end;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealTradeDeals") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewTradeDeals = math.min(iNetworkPointsNeededToViewTradeDeals, iNPScaled);
+	end;
+	
+	if(iNetworkPointsNeededToViewTechTree == 999999) then
+		Controls.ButtonDiplomatViewTechScreen:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewTechTree) then
+		Controls.ButtonDiplomatViewTechScreen:SetDisabled(false);
+		Controls.ButtonDiplomatViewTechScreen:SetToolTipString("");
+		Controls.ButtonDiplomatViewTechScreen:RegisterCallback(Mouse.eLClick, OnViewTechScreenClicked);
+	else
+		Controls.ButtonDiplomatViewTechScreen:SetDisabled(true);
+		Controls.ButtonDiplomatViewTechScreen:SetToolTipString(Locale.Lookup("TXT_KEY_VIEW_TECH_SCREEN_NOT_ENOUGH_NP", iNetworkPointsNeededToViewTechTree));
+	end
+	if(iNetworkPointsNeededToViewPolicyTree == 999999) then
+		Controls.ButtonDiplomatViewPolicyScreen:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewPolicyTree) then
+		Controls.ButtonDiplomatViewPolicyScreen:SetDisabled(false);
+		Controls.ButtonDiplomatViewPolicyScreen:SetToolTipString("");
+		Controls.ButtonDiplomatViewPolicyScreen:RegisterCallback(Mouse.eLClick, OnViewPolicyScreenClicked);
+	else
+		Controls.ButtonDiplomatViewPolicyScreen:SetDisabled(true);
+		Controls.ButtonDiplomatViewPolicyScreen:SetToolTipString(Locale.Lookup("TXT_KEY_EO_VIEW_POLICY_SCREEN_NOT_ENOUGH_NP", iNetworkPointsNeededToViewPolicyTree));
+	end
+	if(iNetworkPointsNeededToViewUnitList == 999999) then
+		Controls.ButtonDiplomatViewUnitList:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewUnitList) then
+		Controls.ButtonDiplomatViewUnitList:SetDisabled(false);
+		Controls.ButtonDiplomatViewUnitList:SetToolTipString("");
+		Controls.ButtonDiplomatViewUnitList:RegisterCallback(Mouse.eLClick, OnViewUnitListClicked);
+	else
+		Controls.ButtonDiplomatViewUnitList:SetDisabled(true);
+		Controls.ButtonDiplomatViewUnitList:SetToolTipString(Locale.Lookup("TXT_KEY_EO_VIEW_UNIT_LIST_NOT_ENOUGH_NP", iNetworkPointsNeededToViewUnitList));
+	end
+	if(iNetworkPointsNeededToViewTradeDeals == 999999) then
+		Controls.ButtonDiplomatViewTradeDeals:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewTradeDeals) then
+		Controls.ButtonDiplomatViewTradeDeals:SetDisabled(false);
+		Controls.ButtonDiplomatViewTradeDeals:SetToolTipString("");
+		Controls.ButtonDiplomatViewTradeDeals:RegisterCallback(Mouse.eLClick, OnViewTradeDealsClicked);
+	else
+		Controls.ButtonDiplomatViewTradeDeals:SetDisabled(true);
+		Controls.ButtonDiplomatViewTradeDeals:SetToolTipString(Locale.Lookup("TXT_KEY_EO_VIEW_TRADE_DEALS_NOT_ENOUGH_NP", iNetworkPointsNeededToViewTradeDeals));
+	end
+	
+	----------------------------------------------------------------        
+	-- build the passive bonuses list
+	----------------------------------------------------------------
+	
+	local buttonSizeY = 53
+	for row in GameInfo.SpyPassiveBonusesDiplomat() do
+
+		local instance = g_DiplomatBonusesManager:GetInstance();
+
+		local szDescString;
+		local szHelpString;
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		szDescString = Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_NP_REQUIRED", iNPScaled, Locale.Lookup(row.Description));
+		szHelpString = Locale.Lookup(row.Help);
+
+		instance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_THRESHOLD_TT", szHelpString));
+		
+		-- Readjust the offset
+		local sizeYDiff = math.max((instance.Name:GetSizeY()-buttonSizeY),1)
+		if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
+		instance.Base:SetSizeY(buttonSizeY + sizeYDiff)
+		instance.Button:SetSizeY(buttonSizeY + sizeYDiff)
+		instance.Button:SetDisabled(true);
+		
+		if(iNPScaled > spy.MaxNetworkPointsStored) then
+			instance.Name:SetText(szDescString);
+			instance.Name:SetAlpha(0.2)
+		else
+			instance.Name:SetText(szDescString);
 			instance.Name:SetAlpha(1)
 		end
 	
@@ -1777,6 +2175,12 @@ function RegisterSortOptions()
 			v.Button:RegisterCallback(Mouse.eLClick, function() AgentsSortOptionSelected(v); end);
 		end
 	end
+	
+	for i,v in ipairs(g_UnitListSortOptions) do
+		if(v.Button ~= nil) then
+			v.Button:RegisterCallback(Mouse.eLClick, function() UnitListSortOptionSelected(v); end);
+		end
+	end
 
 	for i,v in ipairs(g_YourCitiesSortOptions) do
 		if(v.Button ~= nil) then
@@ -1795,13 +2199,15 @@ function RegisterSortOptions()
 			v.Button:RegisterCallback(Mouse.eLClick, function() IntrigueSortOptionSelected(v); end);
 		end
 	end
-	
+		
 	UpdateSortOptionsDisplay(g_AgentsSortOptions);
+	UpdateSortOptionsDisplay(g_UnitListSortOptions);
 	UpdateSortOptionsDisplay(g_YourCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_TheirCitiesSortOptions);
 	UpdateSortOptionsDisplay(g_IntrigueSortOptions);
 
 	g_AgentsSortFunction = GetSortFunction(g_AgentsSortOptions);
+	g_UnitListSortFunction = GetSortFunction(g_UnitListSortOptions);
 	g_YourCitiesSortFunction = GetSortFunction(g_YourCitiesSortOptions);
 	g_TheirCitiesSortFunction = GetSortFunction(g_TheirCitiesSortOptions);
 	g_IntrigueSortFunction = GetSortFunction(g_IntrigueSortOptions);
@@ -1897,6 +2303,16 @@ function YourCitiesSortOptionSelected(option)
 	RefreshMyCities(g_SelectedAgentID, g_SelectedCity and g_SelectedCity:GetOwner() or nil, g_SelectedCity and g_SelectedCity:GetID() or nil, g_CitiesAvailableToRelocate);
 end
 
+-- Callback for when sort options are selected.
+function UnitListSortOptionSelected(option)
+	local sortOptions = g_UnitListSortOptions;
+	UpdateSortOptionState(sortOptions, option);
+	UpdateSortOptionsDisplay(sortOptions);
+	g_UnitListSortFunction = GetSortFunction(sortOptions);
+
+	RefreshUnitList();
+end
+
 function IntrigueSortOptionSelected(option)
 	local sortOptions = g_IntrigueSortOptions;
 	UpdateSortOptionState(sortOptions, option);
@@ -1982,10 +2398,27 @@ function OnCloseCounterspyFocusButton()
 end
 Controls.CloseCounterspyFocusButton:RegisterCallback(Mouse.eLClick, OnCloseCounterspyFocusButton);
 
+function OnCloseUnitListButton()
+	Controls.UnitListPopup:SetHide(true);
+end
+Controls.CloseUnitListButton:RegisterCallback(Mouse.eLClick, OnCloseUnitListButton);
+
+function OnCloseDiplomatButton()
+	Controls.DiplomatPopup:SetHide(true);
+	TabSelect(g_CurrentTab);
+end
+Controls.CloseDiplomatButton:RegisterCallback(Mouse.eLClick, OnCloseDiplomatButton);
+
 function OnCloseMissionSelectionButton()
 	Controls.MissionSelectionPopup:SetHide(true);
 	TabSelect(g_CurrentTab);
 end
+
+function OnCloseDiplomatTradeButton()
+	Controls.DiplomatTradeDealsPopup:SetHide(true);
+	Controls.DealsPanel:SetHide( true );
+end
+
 Controls.CloseMissionSelectionButton:RegisterCallback(Mouse.eLClick, OnCloseMissionSelectionButton);
 
 

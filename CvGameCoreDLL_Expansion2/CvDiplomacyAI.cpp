@@ -31283,8 +31283,8 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			CvAssertMsg(pNotificationMessage->m_eSourcePlayer != NO_PLAYER, "There is no plotter! What's going on");
 			PlayerTypes ePlotterPlayer = pNotificationMessage->m_eSourcePlayer;
 			CvIntrigueType eIntrigueType = (CvIntrigueType)pNotificationMessage->m_iIntrigueType;
-			// don't share intrigue about two parties if they are already at war
-			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlotterPlayer).getTeam()))
+			// don't share intrigue about two parties if they are already at war, except for the information that someone has been bribed to go to war
+			if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isAtWar(GET_PLAYER(ePlotterPlayer).getTeam()) || eIntrigueType == INTRIGUE_TYPE_BRIBE_WAR)
 			{
 				CvCity* pCity = NULL;
 				if(pNotificationMessage->m_iCityX != -1 && pNotificationMessage->m_iCityY != -1)
@@ -31297,7 +31297,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 				}
 
 				// add the notification to the player
-				GET_PLAYER(ePlayer).GetEspionage()->AddIntrigueMessage(GetID(), ePlotterPlayer, ePlayer, NO_BUILDING, NO_PROJECT, eIntrigueType, 0, pCity, false);
+				GET_PLAYER(ePlayer).GetEspionage()->AddIntrigueMessage(GetID(), ePlotterPlayer, ePlayer, pNotificationMessage->m_eDiplomacyPlayer, NO_BUILDING, NO_PROJECT, NO_UNIT, eIntrigueType, 0, pCity, false);
 
 				if(bHuman)
 				{
@@ -31311,6 +31311,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 						szPlayerName = GET_PLAYER(ePlotterPlayer).getNameKey();
 					}
 
+					const char* szBribedPlayerName = NULL;
 					szText = "";
 
 					switch(eIntrigueType)
@@ -31338,6 +31339,28 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 					case INTRIGUE_TYPE_DECEPTION:
 						szText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_INTRIGUE, NO_PLAYER, szPlayerName);
 						break;
+					case INTRIGUE_TYPE_BRIBE_WAR:
+						if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(pNotificationMessage->m_eDiplomacyPlayer).isHuman())
+						{
+							szBribedPlayerName = GET_PLAYER(pNotificationMessage->m_eDiplomacyPlayer).getNickName();
+						}
+						else
+						{
+							szBribedPlayerName = GET_PLAYER(pNotificationMessage->m_eDiplomacyPlayer).getNameKey();
+						}
+						szText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_INTRIGUE_BRIBE_WAR, NO_PLAYER, szPlayerName, szBribedPlayerName);
+						break;
+					case INTRIGUE_TYPE_COOP_WAR:
+						if (GC.getGame().isGameMultiPlayer() && GET_PLAYER(pNotificationMessage->m_eDiplomacyPlayer).isHuman())
+						{
+							szBribedPlayerName = GET_PLAYER(pNotificationMessage->m_eDiplomacyPlayer).getNickName();
+						}
+						else
+						{
+							szBribedPlayerName = GET_PLAYER(pNotificationMessage->m_eDiplomacyPlayer).getNameKey();
+						}
+						szText = GetDiploStringForMessage(DIPLO_MESSAGE_SHARE_INTRIGUE_COOP_WAR, NO_PLAYER, szPlayerName, szBribedPlayerName);
+						break;
 					default:
 						CvAssertMsg(false, "Unknown intrigue type");
 						break;
@@ -31357,7 +31380,7 @@ void CvDiplomacyAI::DoSendStatementToPlayer(PlayerTypes ePlayer, DiploStatementT
 			for(uint ui = 0; ui < MAX_MAJOR_CIVS; ui++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes)ui;
-				GET_PLAYER(eLoopPlayer).GetEspionage()->MarkRecentIntrigueAsShared(ePlayer, ePlotterPlayer, eIntrigueType);
+				GET_PLAYER(eLoopPlayer).GetEspionage()->MarkRecentIntrigueAsShared(ePlayer, ePlotterPlayer, pNotificationMessage->m_eDiplomacyPlayer, eIntrigueType);
 			}
 		}
 	}
@@ -34391,7 +34414,7 @@ void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatement
 						continue;
 					}
 
-					if(GET_PLAYER(eOtherPlayer).GetEspionage()->HasSharedIntrigue(ePlayer, pNotificationMessage->m_eSourcePlayer, (CvIntrigueType)(pNotificationMessage->m_iIntrigueType)))
+					if(GET_PLAYER(eOtherPlayer).GetEspionage()->HasSharedIntrigue(ePlayer, pNotificationMessage->m_eSourcePlayer, pNotificationMessage->m_eDiplomacyPlayer, (CvIntrigueType)(pNotificationMessage->m_iIntrigueType)))
 					{
 						bIsNewIntrigue = false;
 						break;
@@ -34417,7 +34440,7 @@ void CvDiplomacyAI::DoShareIntrigueStatement(PlayerTypes ePlayer, DiploStatement
 				else
 				{
 					// mark this as shared so it doesn't try to interrupt the player
-					m_pPlayer->GetEspionage()->MarkRecentIntrigueAsShared(ePlayer, pNotificationMessage->m_eSourcePlayer, (CvIntrigueType)(pNotificationMessage->m_iIntrigueType));
+					m_pPlayer->GetEspionage()->MarkRecentIntrigueAsShared(ePlayer, pNotificationMessage->m_eSourcePlayer, pNotificationMessage->m_eDiplomacyPlayer, (CvIntrigueType)(pNotificationMessage->m_iIntrigueType));
 				}
 			}
 		}
@@ -38268,6 +38291,16 @@ const char* CvDiplomacyAI::GetDiploStringForMessage(DiploMessageTypes eDiploMess
 	case DIPLO_MESSAGE_SHARE_INTRIGUE_AMPHIBIOUS_SNEAK_ATTACK_UNKNOWN_CITY:
 		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_AMPHIBIOUS_SNEAK_ATTACK_UNKNOWN_CITY", strOptionalKey1);
 		break;
+		
+		// AI warns human that another civ has bribed a third player to go to war with them
+	case DIPLO_MESSAGE_SHARE_INTRIGUE_BRIBE_WAR:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_BRIBE_WAR", strOptionalKey1, strOptionalKey2);
+		break;
+
+		// AI warns human that another human has agreed with a third player to go to war with them
+	case DIPLO_MESSAGE_SHARE_INTRIGUE_COOP_WAR:
+		strText = GetDiploTextFromTag("RESPONSE_SHARE_INTRIGUE_COOP_WAR", strOptionalKey1, strOptionalKey2);
+		break;
 
 		// Human catches enemy spy and does not forgive the thief
 	case DIPLO_MESSAGE_HUMAN_KILLED_MY_SPY_UNFORGIVEN:
@@ -40329,7 +40362,7 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 		if (CvPlayerAI::IsValid(ePlottingPlayer))
 		{
 			ChangeNumTimesIntrigueSharedBy(eFromPlayer, 1);
-			GET_PLAYER(eFromPlayer).GetEspionage()->MarkRecentIntrigueAsShared(eMyPlayer, ePlottingPlayer, eIntrigueType);
+			GET_PLAYER(eFromPlayer).GetEspionage()->MarkRecentIntrigueAsShared(eMyPlayer, ePlottingPlayer, NO_PLAYER, eIntrigueType);
 
 			if (bActivePlayer)
 			{
@@ -40433,10 +40466,24 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 			PlayerTypes eTargetPlayer = (PlayerTypes) iArg1;
 			bool bHostile = (IsAtWar(eFromPlayer) || IsActHostileTowardsHuman(eFromPlayer) || IsDenouncedPlayer(eFromPlayer) || IsDenouncedByPlayer(eFromPlayer) || IsUntrustworthy(eFromPlayer));
 			bool bAcceptable = (!bHostile && !IsTooEarlyForShareOpinion(eFromPlayer) && !IsAtWar(eFromPlayer) && GET_PLAYER(eFromPlayer).isAlive() && !GET_PLAYER(eFromPlayer).isObserver() && (GetShareOpinionResponse(eFromPlayer) == SHARE_OPINION_RESPONSE_ACCEPTED || IsShareOpinionAcceptable(eFromPlayer)));
+			bool bDiplomat = false;
+			if (MOD_BALANCE_VP && GET_PLAYER(eFromPlayer).GetEspionage() && GET_PLAYER(eFromPlayer).GetEspionage()->IsMyDiplomatVisitingThem(m_pPlayer->GetID()))
+			{
+				// has the diplomat collected enough network points?
+				CvCity* pCapital = GetPlayer()->getCapitalCity();
+				if (pCapital)
+				{
+					CvCityEspionage* pCapitalEspionage = pCapital->GetCityEspionage();
+					if (pCapitalEspionage && pCapitalEspionage->IsDiplomatRevealTrueApproaches(eFromPlayer))
+					{
+						bDiplomat = true;
+					}
+				}
+			}
 			bool bOverride = (IsAtWar(eTargetPlayer) || IsVassal(eFromPlayer) || GC.getGame().IsDiploDebugModeEnabled() || GET_PLAYER(eFromPlayer).isObserver());
 
 			// We refuse! Choose a hostile response.
-			if (bHostile && !bOverride)
+			if (bHostile && !bOverride && !bDiplomat)
 			{
 				if (bActivePlayer)
 				{
@@ -40455,12 +40502,12 @@ void CvDiplomacyAI::DoFromUIDiploEvent(PlayerTypes eFromPlayer, FromUIDiploEvent
 				SetShareOpinionResponse(eFromPlayer, SHARE_OPINION_RESPONSE_REFUSED);
 			}
 			// We accepted! Share our approach towards this player with them.
-			else if (bAcceptable || bOverride)
+			else if (bAcceptable || bDiplomat || bOverride)
 			{
-				if (bAcceptable)
+				if (bAcceptable || bDiplomat)
 					SetShareOpinionResponse(eFromPlayer, SHARE_OPINION_RESPONSE_ACCEPTED);
 
-				bool bHonest = (GetCivApproach(eFromPlayer) == CIV_APPROACH_FRIENDLY && GetCivOpinion(eFromPlayer) >= CIV_OPINION_FRIEND);
+				bool bHonest = (GetCivApproach(eFromPlayer) == CIV_APPROACH_FRIENDLY && GetCivOpinion(eFromPlayer) >= CIV_OPINION_FRIEND) || bDiplomat;
 				CivApproachTypes eTargetApproach = (bHonest || bOverride) ? GetCivApproach(eTargetPlayer) : GetSurfaceApproach(eTargetPlayer);
 
 				if (bActivePlayer)

@@ -55,7 +55,7 @@
 			<ImprovementType>IMPROVEMENT_POLDER_WATER</ImprovementType>
 			<Description>TXT_KEY_BUILD_POLDER</Description>
 			<Help>TXT_KEY_BUILD_POLDER_WATER_HELP</Help>
-			<Recommendation>TXT_KEY_BUILD_FOOD_REC</Recommendation>
+			<Recommendation>TXT_KEY_BUILD_POLDER_WATER_REC</Recommendation>
 			<EntityEvent>ENTITY_EVENT_IRRIGATE</EntityEvent>
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>97</OrderPriority>
@@ -69,7 +69,6 @@
 			<ImprovementType>IMPROVEMENT_MONGOLIA_ORDO</ImprovementType>
 			<Description>TXT_KEY_BUILD_MONGOLIA_ORDO</Description>
 			<Help>TXT_KEY_BUILD_MONGOLIA_ORDO_HELP</Help>
-			<Recommendation>TXT_KEY_BUILD_MONGOLIA_ORDO_REC</Recommendation>
 			<EntityEvent>ENTITY_EVENT_MINE</EntityEvent>
 			<HotKey>KB_E</HotKey>
 			<OrderPriority>95</OrderPriority>
