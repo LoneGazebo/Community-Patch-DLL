@@ -1506,6 +1506,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsGlobalQuest);
 	Method(IsPersonalQuest);
 
+	Method(IsInstantYieldNotificationDisabled);
+	Method(SetInstantYieldNotificationDisabled);
+
 	// Debug methods for routes
 	Method(GetMainRouteTiles);
 	Method(GetShortcutRouteTiles);
@@ -18335,6 +18338,26 @@ int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lIsInstantYieldNotificationDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const InstantYieldType eInstantYield = (InstantYieldType)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->IsInstantYieldNotificationDisabled(eInstantYield);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lSetInstantYieldNotificationDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const InstantYieldType eInstantYield = (InstantYieldType)lua_tointeger(L, 2);
+	const bool bNewValue = (InstantYieldType)lua_toboolean(L, 3);
+
+	pkPlayer->SetInstantYieldNotificationDisabled(eInstantYield, bNewValue);
 	return 1;
 }
 
