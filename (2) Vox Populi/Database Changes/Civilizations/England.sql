@@ -43,7 +43,13 @@ INSERT INTO Civilization_BuildingClassOverrides
 VALUES
 	('CIVILIZATION_ENGLAND', 'BUILDINGCLASS_IRONWORKS', 'BUILDING_WHITE_TOWER');
 
-UPDATE Buildings SET Defense = 300 WHERE Type = 'BUILDING_WHITE_TOWER';
+UPDATE Buildings
+SET
+	Defense = 300,
+	GreatWorkSlotType = 'GREAT_WORK_SLOT_ART_ARTIFACT',
+	GreatWorkCount = 1,
+	FreeGreatWork = 'GREAT_WORK_THE_CROWN_JEWELS'
+WHERE Type = 'BUILDING_WHITE_TOWER';
 
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)

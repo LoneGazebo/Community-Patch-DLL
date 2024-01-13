@@ -1001,15 +1001,11 @@ CvString CvVoterDecision::GetVotesAsText(CvLeague* pLeague)
 	}
 
 	std::stable_sort(vVoteText.begin(), vVoteText.end(), LeagueHelpers::VoteTextSorter());
-	int iNumToShow = MIN(16, (int)vVoteText.size());
-	for (int i = 0; i < iNumToShow; i++)
+	for (std::vector<LeagueHelpers::VoteTextSortElement>::iterator it = vVoteText.begin(); it != vVoteText.end(); it++)
 	{
-		s += vVoteText[i].sText;
-		if (i < iNumToShow - 1)
-		{
-			s += "[NEWLINE]";
-		}
+		s += it->sText;
 	}
+	s += "[NEWLINE]";
 
 	return s;
 }

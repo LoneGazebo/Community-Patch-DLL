@@ -32,10 +32,6 @@ SET Text = '+2 [ICON_CULTURE] Culture from this Natural Wonder for every Era aft
 WHERE Tag = 'TXT_KEY_CIV5_FEATURES_OLDFAITHFUL_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'Workers, Work Boats, Missionaries, Inquisitors, and Settlers produced by the owner of this Natural Wonder gain the [COLOR_POSITIVE_TEXT]Sacred Steps[ENDCOLOR] Promotion, granting them +2 [ICON_MOVES] Movement.'
-WHERE Tag = 'TXT_KEY_CIV5_FEATURES_SRI_PADA_HELP';
-
-UPDATE Language_en_US
 SET Text = '+2 [ICON_FOOD] Food from this Natural Wonder for every Era after the Ancient Era.[NEWLINE][NEWLINE]Towering above Sri Lanka, Sri Pada is a large mountain peak with an unusually conical shape that is held sacred by a number of religions for the "footprint" found at its peak. The footprint, a large depression found in a rock formation on the mountain''s summit, has been attributed to Buddha, Shiva, and the biblical figure Adam, leading to the mountain''s reverence among followers of Buddhism, Hinduism, and Islam. Each year, thousands of pilgrims trek for hours up the mountain to pay their respects at the holy site.'
 WHERE Tag = 'TXT_KEY_CIV5_FEATURES_SRI_PADA_TEXT';
 

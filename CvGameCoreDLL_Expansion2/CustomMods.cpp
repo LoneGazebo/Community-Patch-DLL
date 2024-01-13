@@ -566,6 +566,7 @@ int CustomMods::getOption(const string& sOption, int defValue) {
 		MOD_OPT_CACHE(GP_ERA_SCALING);
 		MOD_OPT_CACHE(SQUADS);
 		MOD_OPT_CACHE(NOT_FOR_SALE);
+		MOD_OPT_CACHE(NOTIFICATION_SETTINGS);
 		MOD_OPT_CACHE(LOG_MAP_STATE);
 
 		m_bInit = true;

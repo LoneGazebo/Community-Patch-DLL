@@ -670,7 +670,7 @@
 			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]identified[ENDCOLOR] while conducting their mission! Diplomatic Relations with {3_CivName} have worsened. {1_SpyRank} {2_SpyName} may stay in the city and gather intelligence for another mission.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT_S">
-			<Text>{1_SpyRank} {2_SpyName} caught and identified!</Text>
+			<Text>{1_SpyRank} {2_SpyName} caught!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SPY_WAS_CAUGHT">
 			<Text>{1_SpyRank} {2_SpyName} was [COLOR_NEGATIVE_TEXT]caught[ENDCOLOR] while conducting their mission! It will take some time until they are released and can be sent on a mission again.</Text>

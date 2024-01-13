@@ -758,12 +758,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 	// Loop through adding the available units
 	for(int iUnitLoop = 0; iUnitLoop < GC.GetGameUnits()->GetNumUnits(); iUnitLoop++)
 	{
-		// Puppets and automated cities cannot build units
-		if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(m_pCity) || m_pCity->isHumanAutomated())
-		{
-			continue;
-		}
-
 		// Make sure this unit can be built now
 		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
 		{
@@ -771,10 +765,6 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 			buildable.m_iIndex = iUnitLoop;
 			buildable.m_iTurnsToConstruct = GetCity()->getProductionTurnsLeft((UnitTypes)iUnitLoop, 0);
 			int iTempWeight = m_pUnitProductionAI->GetWeight((UnitTypes)iUnitLoop);
-
-			//dirty hack to allow barbarian cities to build units ... barbarians don't use flavors, so their weights are all zero
-			if (m_pCity->getOwner() == BARBARIAN_PLAYER)
-				iTempWeight = max(iTempWeight, 1);
 
 			if(iTempWeight > 0)
 			{
@@ -2321,12 +2311,6 @@ bool CityStrategyAIHelpers::IsTestCityStrategy_SmallCity(CvCity* pCity)
 /// "Medium City" City Strategy: Sizes 7 to 14
 bool CityStrategyAIHelpers::IsTestCityStrategy_MediumCity(CvCity* pCity)
 {
-	// Never consider the capital to be a medium city (so with late game starts at least one city retains high flavors for SPACESHIP, etc.)
-	if (pCity->isCapital())
-	{
-		return false;
-	}
-
 	if (pCity->getPopulation() >= /*7*/ GD_INT_GET(AI_CITYSTRATEGY_MEDIUM_CITY_POP_THRESHOLD) &&
 		pCity->getPopulation() < /*15*/ GD_INT_GET(AI_CITYSTRATEGY_LARGE_CITY_POP_THRESHOLD))
 	{

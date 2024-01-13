@@ -124,6 +124,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(CanJoin);
 	Method(CanConstruct);
 
+	Method(CreateFreeLuxuryCheckCopy);
+	Method(CreateFreeLuxuryCheck);
 	Method(CanDiscover);
 	Method(GetDiscoverAmount);
 	Method(GetHurryProduction);
@@ -1844,6 +1846,23 @@ int CvLuaUnit::lIsCityAttackOnly(lua_State* L)
 //}
 //------------------------------------------------------------------------------
 //bool canDiscover(CyPlot* pPlot);
+
+int CvLuaUnit::lCreateFreeLuxuryCheckCopy(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iResult = pkUnit->CreateFreeLuxuryCheckCopy();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaUnit::lCreateFreeLuxuryCheck(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iResult = pkUnit->CreateFreeLuxuryCheck();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
 int CvLuaUnit::lCanDiscover(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);

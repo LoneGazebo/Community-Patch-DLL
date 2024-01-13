@@ -272,7 +272,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			if (city:GetSappedTurns() > 0) then
 				controls.BlockadedIcon:SetHide(false);
 				controls.BlockadedIcon:SetText("[ICON_VP_SAPPED]");
-				controls.BlockadedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_SAPPED", tostring(city:GetSappedTurns())));
+				controls.BlockadedIcon:SetToolTipString(Locale.ConvertTextKey("TXT_KEY_CITY_SAPPED", city:GetSappedTurns()));
 			else
 				controls.BlockadedIcon:SetHide(false);
 				controls.BlockadedIcon:SetText("[ICON_BLOCKADED]")
@@ -285,7 +285,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		-- Being Razed
 		if (city:IsRazing()) then
 			controls.RazingIcon:SetHide(false);
-			controls.RazingIcon:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_BURNING", tostring(city:GetRazingTurns()) ));
+			controls.RazingIcon:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_BURNING", city:GetRazingTurns()));
 		else
 			controls.RazingIcon:SetHide(true);
 		end
@@ -293,7 +293,7 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 		-- In Resistance
 		if (city:IsResistance()) then
 			controls.ResistanceIcon:SetHide(false);
-			controls.ResistanceIcon:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_RESISTANCE", tostring(city:GetResistanceTurns()) ));
+			controls.ResistanceIcon:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_RESISTANCE", city:GetResistanceTurns()));
 		else
 			controls.ResistanceIcon:SetHide(true);
 		end

@@ -49796,7 +49796,7 @@ bool CvDiplomacyAI::IsPlayerBadTheftTarget(PlayerTypes ePlayer, TheftTypes eThef
 	bool bPlotIsVisibleToOtherTeam = false;
 	if (eTheftType == THEFT_TYPE_TRADE_ROUTE)
 	{
-		bPlotIsVisibleToOtherTeam = (pPlot->getVisibilityCount(GET_PLAYER(ePlayer).getTeam()) > 1);
+		bPlotIsVisibleToOtherTeam = (pPlot->GetKnownVisibilityCount(GET_PLAYER(ePlayer).getTeam()) > 1);
 	}
 
 	// Additional conditions depend on the type of theft we'd be doing

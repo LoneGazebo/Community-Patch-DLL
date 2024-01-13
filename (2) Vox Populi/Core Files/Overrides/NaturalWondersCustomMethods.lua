@@ -201,8 +201,7 @@ function NWCustomPlacement(x, y, _, method_number)
 	elseif method_number == 2 then
 		-- This method handles tile changes for the Rock of Gibraltar.
 		local plot = Map.GetPlot(x, y);
-		plot:SetPlotType(PlotTypes.PLOT_LAND, false, false);
-		plot:SetTerrainType(TerrainTypes.TERRAIN_GRASS, false, false);
+		plot:SetPlotType(PlotTypes.PLOT_MOUNTAIN, false, false);
 		local direction_types = {
 			DirectionTypes.DIRECTION_NORTHEAST,
 			DirectionTypes.DIRECTION_EAST,

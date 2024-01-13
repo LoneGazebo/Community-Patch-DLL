@@ -1226,7 +1226,7 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions();
 	return {
-		Name = "Communitu_79a v3.0.0",
+		Name = "Communitu_79a v3.0.2",
 		Description = "Communitas mapscript for Vox Populi (version 4.3+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
@@ -1652,7 +1652,9 @@ end
 -- Generate Plots
 --------------------------
 function StartPlotSystem()
-	AssignStartingPlots.__CustomInit = __CustomInit;
+	if __CustomInit then
+		AssignStartingPlots.__CustomInit = __CustomInit;
+	end
 
 	-- Get Resources setting input by user.
 	local resDensity = Map.GetCustomOption(14) or 2;
@@ -6383,43 +6385,45 @@ function RiverMap:SetJunctionAltitudes()
 			local westNeighbor = self:GetRiverHexNeighbor(vertNeighbor.northJunction, true);
 			local eastNeighbor = self:GetRiverHexNeighbor(vertNeighbor.northJunction, false);
 
-			local westAltitude;
+			local westAltitude = vertAltitude;
 			if westNeighbor then
 				local ii = self.elevationMap:GetIndex(westNeighbor.x, westNeighbor.y);
-				westAltitude = self.elevationMap.data[ii];
-			else
-				westAltitude = vertAltitude;
+				if ii ~= -1 then
+					westAltitude = self.elevationMap.data[ii];
+				end
 			end
 
-			local eastAltitude;
+			local eastAltitude = vertAltitude;
 			if eastNeighbor then
 				local ii = self.elevationMap:GetIndex(eastNeighbor.x, eastNeighbor.y);
-				eastAltitude = self.elevationMap.data[ii];
-			else
-				eastAltitude = vertAltitude;
+				if ii ~= -1 then
+					eastAltitude = self.elevationMap.data[ii];
+				end
 			end
 
-			vertNeighbor.northJunction.altitude = math.min(math.min(vertAltitude, westAltitude), eastAltitude);
+			vertNeighbor.northJunction.altitude = math.min(vertAltitude, westAltitude, eastAltitude);
 
 			-- Then south
 			westNeighbor = self:GetRiverHexNeighbor(vertNeighbor.southJunction, true);
 			eastNeighbor = self:GetRiverHexNeighbor(vertNeighbor.southJunction, false);
 
+			westAltitude = vertAltitude;
 			if westNeighbor then
 				local ii = self.elevationMap:GetIndex(westNeighbor.x, westNeighbor.y);
-				westAltitude = self.elevationMap.data[ii];
-			else
-				westAltitude = vertAltitude;
+				if ii ~= -1 then
+					westAltitude = self.elevationMap.data[ii];
+				end
 			end
 
+			eastAltitude = vertAltitude;
 			if eastNeighbor then
 				local ii = self.elevationMap:GetIndex(eastNeighbor.x, eastNeighbor.y);
-				eastAltitude = self.elevationMap.data[ii];
-			else
-				eastAltitude = vertAltitude;
+				if ii ~= -1 then
+					eastAltitude = self.elevationMap.data[ii];
+				end
 			end
 
-			vertNeighbor.southJunction.altitude = math.min(math.min(vertAltitude, westAltitude), eastAltitude);
+			vertNeighbor.southJunction.altitude = math.min(vertAltitude, westAltitude, eastAltitude);
 		end
 	end
 end
@@ -6605,13 +6609,13 @@ function RiverMap:SiltifyLakes()
 			end
 			if neighbor and self:IsLake(neighbor) then
 				local ii = self.elevationMap:GetIndex(neighbor.x, neighbor.y);
-				if neighbor.isNorth and not onQueueMapNorth[i] then
+				if neighbor.isNorth and not onQueueMapNorth[ii] then
 					Push(lakeList, neighbor);
 					onQueueMapNorth[ii] = true;
 					if debugOn then
 						print(string.format("--pushing (%d,%d) N = %s alt = %f", neighbor.x, neighbor.y, tostring(neighbor.isNorth), neighbor.altitude));
 					end
-				elseif not neighbor.isNorth and not onQueueMapSouth[i] then
+				elseif not neighbor.isNorth and not onQueueMapSouth[ii] then
 					Push(lakeList, neighbor);
 					onQueueMapSouth[ii] = true;
 					if debugOn then
@@ -6690,7 +6694,7 @@ function RiverMap:SetRiverSizes()
 
 	table.sort(junctionList, function (a, b) return a.altitude > b.altitude end);
 
-	for n = 1,#junctionList do
+	for n = 1, #junctionList do
 		local junction = junctionList[n];
 		local nextJunction = junction;
 		local i = self.elevationMap:GetIndex(junction.x, junction.y);

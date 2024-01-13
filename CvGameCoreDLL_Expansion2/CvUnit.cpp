@@ -1095,7 +1095,7 @@ void CvUnit::initWithNameOffset(int iID, UnitTypes eUnit, int iNameOffset, UnitA
 		if (pCity)
 		{
 			ReligionTypes eReligion = pCity->GetCityReligions()->GetReligiousMajority();
-			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion,pCity);
+			m_Religion.SetFullStrength(pCity->getOwner(),getUnitInfo(),eReligion);
 		}
 	}
 	else if (MOD_GLOBAL_RELIGIOUS_SETTLERS && MOD_BALANCE_CORE_SETTLER_ADVANCED && (getUnitInfo().IsFound() || getUnitInfo().IsFoundAbroad() || getUnitInfo().IsFoundMid() || getUnitInfo().IsFoundLate() || getUnitInfo().GetNumColonyFound() > 0))
@@ -9688,6 +9688,90 @@ bool CvUnit::createFreeLuxury()
 
 	return bResult;
 }
+
+int CvUnit::CreateFreeLuxuryCheckCopy()
+{
+	int iNumLuxuries = m_pUnitInfo->GetNumFreeLux() + GET_PLAYER(getOwner()).GetAdmiralLuxuryBonus();
+	return iNumLuxuries;
+}
+
+int CvUnit::CreateFreeLuxuryCheck()
+{
+	int iNumLuxuries = m_pUnitInfo->GetNumFreeLux() + GET_PLAYER(getOwner()).GetAdmiralLuxuryBonus();
+	if(iNumLuxuries > 0)
+	{
+		// Loop through all resources and see if we can find this many unique ones
+		ResourceTypes eResourceToGive = NO_RESOURCE;
+		int iBestFlavor = 0;
+		for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+		{
+			ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+			CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+			if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+			{
+				if(GC.getMap().getNumResources(eResource) <= 0)
+				{
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+					//If we've already got this resource, divide the value by the amount.
+					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
+					{
+						iRandomFlavor = 0;
+					}
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive == NO_RESOURCE)
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+					//If we've already got this resource, divide the value by the amount.
+					if(GET_PLAYER(getOwner()).getNumResourceTotal(eResource, false) > 0)
+					{
+						iRandomFlavor = 0;
+					}
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive == NO_RESOURCE)
+		{
+			for(int iResourceLoop = 0; iResourceLoop < GC.getNumResourceInfos(); iResourceLoop++)
+			{
+				ResourceTypes eResource = (ResourceTypes) iResourceLoop;
+				CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
+				if (pkResource != NULL && pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+				{
+					int iRandomFlavor = GC.getGame().randRangeInclusive(1, 100, CvSeeder(iResourceLoop));
+					if(iRandomFlavor > iBestFlavor)
+					{
+						eResourceToGive = eResource;
+						iBestFlavor = iRandomFlavor;
+					}
+				}
+			}
+		}
+		if (eResourceToGive != NO_RESOURCE)
+		{
+			return eResourceToGive;
+		}
+	}
+
+	return NO_RESOURCE;
+}
 #endif
 //	--------------------------------------------------------------------------------
 int CvUnit::getNumExoticGoods() const
@@ -9749,20 +9833,8 @@ bool CvUnit::canSellExoticGoods(const CvPlot* pPlot, bool bOnlyTestVisibility) c
 				{
 					if (!GET_TEAM(getTeam()).isAtWar(GET_PLAYER(eLoopPlotOwner).getTeam()))
 					{
-#if defined(MOD_BALANCE_CORE_PORTUGAL_CHANGE)
-						if(MOD_BALANCE_CORE_PORTUGAL_CHANGE && GET_PLAYER(eLoopPlotOwner).isMinorCiv())
-						{
-#endif
 						iNumValidPlots++;
 						break;
-#if defined(MOD_BALANCE_CORE_PORTUGAL_CHANGE)
-						}
-						else
-						{
-							iNumValidPlots++;
-							break;
-						}
-#endif
 					}
 				}
 			}
@@ -11033,9 +11105,7 @@ bool CvUnit::DoFoundReligion()
 			if (kOwner.GetPlayerTraits()->IsProphetFervor())
 			{
 				GetReligionDataMutable()->IncrementSpreadsUsed();
-				if (GetReligionData()->GetSpreadsLeft(this) > 0)
-					bIndiaException = true;
-
+				bIndiaException = true;
 				finishMoves();
 			}
 
@@ -12296,14 +12366,15 @@ bool CvUnit::trade()
 	if (MOD_BALANCE_VP) 
 	{
 		int iRestingPointChange = m_pUnitInfo->GetRestingPointChange();
+		
+		if (iRestingPointChange != 0)
+		{
+			GET_PLAYER(eMinor).GetMinorCivAI()->ChangeRestingPointChange(getOwner(), iRestingPointChange);
+		}
 
 		// Great Diplomat? Reduce everyone else's Influence and raise minimum Influence.
-		if (m_pUnitInfo->GetNumInfPerEra() > 0 || iRestingPointChange != 0)
+		if (m_pUnitInfo->GetNumInfPerEra() > 0 && iRestingPointChange != 0)
 		{
-			if (iRestingPointChange != 0)
-			{
-				GET_PLAYER(eMinor).GetMinorCivAI()->ChangeRestingPointChange(getOwner(), iRestingPointChange);
-			}
 			for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 			{
 				PlayerTypes eLoopPlayer = (PlayerTypes) iPlayerLoop;
@@ -14053,6 +14124,13 @@ bool CvUnit::build(BuildTypes eBuild)
 					GetReligionDataMutable()->IncrementSpreadsUsed();
 					if (GetReligionData()->GetSpreadsLeft(this) > 0)
 						bIndiaException = true;
+
+					if (bIndiaException && pPlot->isActiveVisible())
+					{
+						// Because the "Activate" animation will possibly put the animation state into a end-state, we will force a reset, since the unit will still be alive
+						CvInterfacePtr<ICvUnit1> pDllUnit(new CvDllUnit(this));
+						gDLL->GameplayUnitResetAnimationState(pDllUnit.get());
+					}
 				}
 
 				if (!bIndiaException)

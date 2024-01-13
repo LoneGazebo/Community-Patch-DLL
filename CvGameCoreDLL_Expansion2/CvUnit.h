@@ -133,7 +133,7 @@ public:
 	{
 		m_iStrength = iValue;
 	};
-	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion, CvCity* pOriginCity);
+	void SetFullStrength(PlayerTypes eOwner, const CvUnitEntry& kUnitInfo, ReligionTypes eReligion);
 	bool IsFullStrength() const;
 
 private:
@@ -455,6 +455,8 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	bool canGetFreeLuxury() const;
 	bool createFreeLuxury();
+	int CreateFreeLuxuryCheckCopy();
+	int CreateFreeLuxuryCheck();
 #endif
 
 	int getNumExoticGoods() const;

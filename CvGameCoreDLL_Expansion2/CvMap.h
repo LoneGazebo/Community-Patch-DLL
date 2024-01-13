@@ -281,6 +281,7 @@ public:
 	void PrecalcNeighbors();
 
 	vector<int>& GetVisibilityScratchpad() { return m_vVisibilityScratchpad; }
+	vector<int>& GetKnownVisibilityScratchpad() { return m_vKnownVisibilityScratchpad; }
 #endif
 
 	CvPlotManager& plotManager() { return m_kPlotManager; }
@@ -375,12 +376,14 @@ protected:
 	CvPlot** m_pPlotNeighbors;			//precomputed neighbors for each plot
 	CvPlot* m_apShuffledNeighbors[6];	//scratchpad for shuffled access to neighbors
 	vector<int> m_vVisibilityScratchpad;
+	vector<int> m_vKnownVisibilityScratchpad;
 #endif
 
 	uint8* m_pYields;
 	uint8* m_pPlayerCityRadiusCount;
 	uint8* m_pVisibilityCount;				//actual vis count
 	uint8* m_pVisibilityCountThisTurnMax;	//maximum vis count this turn
+	uint8* m_pKnownVisibilityCount;         //current player's known vis count
 	char*  m_pRevealedOwner;
 #if defined(MOD_BALANCE_CORE)
 	bool*  m_pIsImpassable;

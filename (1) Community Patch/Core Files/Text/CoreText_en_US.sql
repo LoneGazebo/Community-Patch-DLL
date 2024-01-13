@@ -10,7 +10,7 @@ VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Uni
 			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT',		'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Player Traits: {1_Num}%'),
 			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT',			'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from City: {1_Num}%'),
 			('TXT_KEY_PRODMOD_WONDER_IMPROVEMENT',							'[NEWLINE][ICON_BULLET]Improvement Modifier for Wonders: {1_Num}%'),
-			('TXT_KEY_RELIGION_TOOLTIP_EXTENDED',							'{1_ReligionIcon} {2_NumFollowers} Followers ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} Source Cities)'),
+			('TXT_KEY_RELIGION_TOOLTIP_EXTENDED',							'{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} Source Cities)'),
 			('TXT_KEY_EUPANEL_EMBARKATION_DEFENSE',							'Embarkation Defense'),
 			('TXT_KEY_EUPANEL_UNITCLASS_NEAR',								'Near Unit'),
 			('TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS',				'Bonus from Nearby Unit'),
@@ -1933,3 +1933,41 @@ WHERE Tag = 'TXT_KEY_TOP_PANEL_INTERNATIONAL_TRADE_ROUTES_TT_UNASSIGNED';
 UPDATE Language_en_US
 SET Text = '{1_CivName:textkey} {1_CivName: plural 1?is; other?are;} their current Ally.  You need another {2_NumInfluence} [ICON_INFLUENCE] Influence to surpass {1CivName:textkey} and become their Ally.[NEWLINE][NEWLINE]If a player becomes the Ally of a City-State, they receive extra bonuses relating to that City-State''s trait, and they will also receive any luxury and strategic Resources the City-State has connected.'
 WHERE Tag = 'TXT_KEY_CITY_STATE_ALLY_TT';
+
+UPDATE Language_en_US
+SET Text = 'You cannot negotiate peace with this player for another {1_Num} {1_Num: plural 1?turn; other?turns;} because of a deal you made with another player.'
+WHERE Tag = 'TXT_KEY_DIPLO_NEGOTIATE_PEACE_BLOCKED_TT';
+
+UPDATE Language_en_US
+SET Text = '{1_Progress}/{2_Threshold}, {3_Turns} {3_Turns: plural 1?Turn; other?Turns;} Remaining'
+WHERE Tag = 'TXT_KEY_GPLIST_PROGRESS';
+
+UPDATE Language_en_US
+SET Text = '{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} {3_PressureString}'
+WHERE Tag = 'TXT_KEY_RELIGION_TOOLTIP_LINE';
+
+UPDATE Language_en_US
+SET Text = '{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} {3_PressureString} ({4_Num} trade routes)'
+WHERE Tag = 'TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE';
+
+UPDATE Language_en_US
+SET Text = 'After this action is performed [COLOR_POSITIVE_TEXT]{2_NumFollowers}[ENDCOLOR] {2_NumFollowers: plural 1?Citizens; other?Citizens;} will be following [COLOR_POSITIVE_TEXT]{1_ReligionName}[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_MISSION_SPREAD_RELIGION_RESULT';
+
+UPDATE Language_en_US
+SET Text = 'All city-states around the world hold elections simultaneously every {1_Num} Turns. The next election will be in {2_Num} {2_Num: plural 1?Turn; other?Turns;}.'
+WHERE Tag = 'TXT_KEY_EO_CITY_STATE_ELECTION';
+
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_FORMAL} So far, you have the lead with [COLOR_POSITIVE_TEXT]{1_PlayerScore}[ENDCOLOR] {1_PlayerScore: plural 1?Technology; other?Technologies;}.'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_WINNING_FORMAL';
+
+UPDATE Language_en_US
+SET Text = '{TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_FORMAL} So far, the leader has {1_LeaderScore}  {1_LeaderScore: plural 1?Technology; other?Technologies;} and you have [COLOR_POSITIVE_TEXT]{2_PlayerScore}[ENDCOLOR].'
+WHERE Tag = 'TXT_KEY_CITY_STATE_QUEST_CONTEST_TECHS_LOSING_FORMAL';
+
+
+
+
+
+

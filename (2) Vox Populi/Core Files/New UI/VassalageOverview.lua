@@ -570,7 +570,7 @@ function DoVassalStatistics( ePlayer )
 	local pPlayer = Players[ ePlayer ];
 	
 	-- Population
-	Controls.VassalStatsPopulation:SetText( pPlayer:GetTotalPopulation() .. "([COLOR_NEGATIVE_TEXT]-" .. math.pow(pPlayer:GetTotalPopulation(), 0.8) .. "[ENDCOLOR][ICON_GOLD]) " );
+	Controls.VassalStatsPopulation:SetText( "([COLOR_NEGATIVE_TEXT]-" .. math.floor(math.pow(pPlayer:GetTotalPopulation(), 0.8)) .. "[ENDCOLOR][ICON_GOLD]) " .. pPlayer:GetTotalPopulation() );
 	Controls.VassalStatsPopulation:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_VO_POPULATION_MAINTENANCE") );
 	local iHappiness = pPlayer:GetExcessHappiness();
 	local szHappinessLabel = "";
@@ -584,7 +584,7 @@ function DoVassalStatistics( ePlayer )
 	
 	-- Economic
 	Controls.VassalStatsGross:SetText( pPlayer:CalculateGrossGold() );
-	Controls.VassalStatsGold:SetText( pPlayer:CalculateGoldRate() .. "([COLOR_NEGATIVE_TEXT]-" .. pPlayer:CalculateUnitCost()*0.1 .. "[ENDCOLOR][ICON_GOLD]) " );
+	Controls.VassalStatsGold:SetText( "([COLOR_NEGATIVE_TEXT]-" .. math.floor(pPlayer:CalculateUnitCost()*0.1) .. "[ENDCOLOR][ICON_GOLD]) " .. pPlayer:CalculateGoldRate() );
 	Controls.VassalStatsGold:SetToolTipString( Locale.ConvertTextKey("TXT_KEY_VO_UNIT_MAINTENANCE") );
 	Controls.VassalStatsTradeRoutes:LocalizeAndSetText( "TXT_KEY_VO_TRADE_ROUTES_LABEL", pPlayer:GetNumInternationalTradeRoutesUsed(), pPlayer:GetNumInternationalTradeRoutesAvailable() );
 

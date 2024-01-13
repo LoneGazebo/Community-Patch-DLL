@@ -399,7 +399,9 @@ protected:
 	static int lDoRepealResolution(lua_State* L);
 	static int lIsBeliefValid(lua_State* L);
 	static int lScoreBelief(lua_State* L);
-	
+	static int lScorePolicy(lua_State* L);
+	static int lScorePolicyBranch(lua_State* L);
+
 	static int lIsProcessingMessages(lua_State* L);
 
 	LUAAPIEXTN(CreateGreatWork, int, iGreatWorkType, iOwningPlayer, iEra, sCreator);

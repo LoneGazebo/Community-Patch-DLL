@@ -6544,6 +6544,16 @@ void CvPlayerPolicies::DoChooseIdeology()
 	m_pPolicyAI->DoChooseIdeology(m_pPlayer);
 }
 
+int CvPlayerPolicies::ScorePolicy(PolicyTypes ePolicy) const
+{
+	return m_pPolicyAI->WeighPolicy(m_pPlayer, ePolicy);
+}
+
+int CvPlayerPolicies::ScorePolicyBranch(PolicyBranchTypes ePolicyBranch) const
+{
+	return m_pPolicyAI->WeighBranch(m_pPlayer, ePolicyBranch);
+}
+
 // PRIVATE METHODS
 
 // Internal method to add all of this leaderheads' flavors as strategies for policy AI

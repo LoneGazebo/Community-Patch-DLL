@@ -2836,12 +2836,16 @@ bool CvPlayerEspionage::ExtractSpyFromCity(uint uiSpyIndex)
 	pSpy->m_iCityX = -1;
 	pSpy->m_iCityY = -1;
 	pSpy->SetSpyState(m_pPlayer->GetID(), uiSpyIndex, SPY_STATE_UNASSIGNED);
+	pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
 
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
 	pCityEspionage->m_aiSpyAssignment[ePlayer] = -1;
 	pCityEspionage->ResetProgress(ePlayer);
 	pCityEspionage->ResetPassiveBonuses(ePlayer);
+
+	pSpy->SetTurnCounterspyMissionChanged(0);
+	pSpy->SetTurnActiveMissionConducted(0);
 
 	if (bHadSurveillance)
 	{
@@ -3241,9 +3245,9 @@ int CvPlayerEspionage::CalcNetworkPointsPerTurn(CvSpyState eSpyState, CvCity* pC
 	int iMyPoliciesEspionageModifier = m_pPlayer->GetPlayerPolicies()->GetNumericModifier(POLICYMOD_STEAL_TECH_FASTER_MODIFIER);
 	if (iMyPoliciesEspionageModifier > 0)
 	{
-		iTemp *= 100 + iMyPoliciesEspionageModifier;
-		iTemp /= 100;
-		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT", iTemp);
+		iNP *= 100 + iMyPoliciesEspionageModifier;
+		iNP /= 100;
+		GC.getGame().BuildProdModHelpText(toolTipSink, "TXT_KEY_EO_NETWORK_POINTS_POLICYMOD_FASTER_TT", iMyPoliciesEspionageModifier);
 	}
 
 	iNP = max(iNP, 0);
@@ -4198,7 +4202,7 @@ int CvPlayerEspionage::GetNumAssignedSpies(void)
 			continue;
 		}
 
-		if(IsSpyInCity(ui))
+		if(IsSpyInCity(ui) || m_aSpyList[ui].m_eSpyState == SPY_STATE_IMPRISONED)
 		{
 			iCount++;
 		}
@@ -7860,8 +7864,20 @@ void CvEspionageAI::PerformSpyMissions()
 			continue;
 
 		CvCity* pCity = pEspionage->GetCityWithSpy(uiSpy);
+
+		if (!pCity)
+		{
+			// spies that are gathering intelligence should always be in a city
+			//UNREACHABLE();
+			//for version 4.4 only: In 4.4.0 and 4.4.1 there's a bug that spies are not reset when the city they're in is razed, so it can happen that spies are gathering intelligence without being in a city. To allow players to continue their started games, we reset those spies here. In the next version, the UNREACHABLE should be activated again
+			pSpy->m_iCityX = -1;
+			pSpy->m_iCityY = -1;
+			pSpy->SetSpyState(m_pPlayer->GetID(), uiSpy, SPY_STATE_UNASSIGNED);
+			pSpy->SetSpyFocus(NO_EVENT_CHOICE_CITY);
+			continue;
+		}
+
 		CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
-		//todo: regular logging of all spies and their status every 5 turns
 
 		// if no mission selected, select one now
 		if (pSpy->GetSpyFocus() == NO_EVENT_CHOICE_CITY)
@@ -7990,7 +8006,7 @@ void CvEspionageAI::PerformSpyMissions()
 					strMsg += GC.getCityEventChoiceInfo(eOpportunityMission)->GetDescription();
 					pEspionage->LogEspionageMsg(strMsg);
 				}
-				pCity->DoEventChoice(eMission, NO_EVENT_CITY, false, uiSpy, ePlayer);
+				pCity->DoEventChoice(eOpportunityMission, NO_EVENT_CITY, false, uiSpy, ePlayer);
 				break;
 			}
 			
@@ -8623,6 +8639,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildOffenseCityList()
 			if (!pCityPlot || !pLoopCity->isRevealed(m_pPlayer->getTeam(),false,true))
 				continue;
 
+			if (pLoopCity->IsRazing())
+				continue;
+
 			ScoreCityEntry kEntry;
 			kEntry.m_pCity = pLoopCity;
 			kEntry.m_bDiplomat = false;
@@ -8725,6 +8744,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildDefenseCityList()
 	int iLoop = 0;
 	for (pLoopCity = GET_PLAYER(ePlayer).firstCity(&iLoop); pLoopCity != NULL; pLoopCity = GET_PLAYER(ePlayer).nextCity(&iLoop))
 	{
+		if (pLoopCity->IsRazing())
+			continue;
+
 		if (!MOD_BALANCE_VP)
 		{
 			ScoreCityEntry kEntry;
@@ -8887,6 +8909,9 @@ std::vector<ScoreCityEntry> CvEspionageAI::BuildMinorCityList()
 				continue;
 
 			if (pMinorCivAI->GetPermanentAlly() != NO_PLAYER)
+				continue;
+
+			if (pLoopCity->IsRazing())
 				continue;
 
 			if (pMinorCivAI->IsAllies(m_pPlayer->GetID()))

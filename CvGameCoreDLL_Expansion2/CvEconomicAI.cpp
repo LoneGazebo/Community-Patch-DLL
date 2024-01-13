@@ -3335,6 +3335,9 @@ bool EconomicAIHelpers::IsTestStrategy_EarlyExpansion(EconomicAIStrategyTypes eS
 		CvPlayer& other = GET_PLAYER((PlayerTypes)i);
 		if (pPlayer->getTeam() == other.getTeam())
 			continue;
+		//continue expanding if our military is good enough
+		if (pPlayer->GetDiplomacyAI()->GetMilitaryStrengthComparedToUs(other.GetID()) <= STRENGTH_AVERAGE)
+			continue;
 		PlayerProximityTypes p = pPlayer->GetProximityToPlayer(other.GetID());
 		if (p > closestNeighborProximity)
 			closestNeighborProximity = p;
@@ -3402,18 +3405,6 @@ bool EconomicAIHelpers::IsTestStrategy_EnoughExpansion(EconomicAIStrategyTypes e
 	if(pPlayer->GetMilitaryAI()->IsUsingStrategy(eBuildCriticalDefenses))
 	{
 		return true;
-	}
-
-	// Don't self-sabotage with too many cities
-	if (pPlayer->GetPlayerTraits()->IsSmaller() || pPlayer->GetPlayerTraits()->IsTourism() || pPlayer->GetDiplomacyAI()->IsGoingForCultureVictory())
-	{
-		int iNonPuppetCities = pPlayer->GetNumEffectiveCities();
-		int iTourismMod = GC.getMap().getWorldInfo().GetNumCitiesTourismCostMod() * (iNonPuppetCities - 1);
-		//the modifier is positive even if the effect is negative, wtf
-		if (iTourismMod > 23 + pPlayer->GetDiplomacyAI()->GetBoldness())
-		{
-			return true;
-		}
 	}
 
 	// If we are running "ECONOMICAISTRATEGY_EXPAND_TO_OTHER_CONTINENTS"

@@ -2329,8 +2329,6 @@ void CvCity::kill()
 	if (GetCityReligions()->IsHolyCityAnyReligion())
 		GC.getGame().GetGameReligions()->SetHolyCity(GetCityReligions()->GetReligionForHolyCity(), NULL);
 
-	PreKill();
-
 	// get spies out of city
 	CvCityEspionage* pCityEspionage = GetCityEspionage();
 	if (pCityEspionage)
@@ -2345,6 +2343,8 @@ void CvCity::kill()
 			}
 		}
 	}
+
+	PreKill();
 
 	// Delete the city's information here!!!
 	CvGameTrade* pkGameTrade = GC.getGame().GetGameTrade();
@@ -8764,6 +8764,13 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	if (!(GET_PLAYER(getOwner()).canTrainUnit(eUnit, bContinue, bTestVisible, bIgnoreCost, false, toolTipSink)))
 	{
 		return false;
+	}
+
+	// Puppets and automated cities cannot build units (except workers)
+	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this) || isHumanAutomated())
+	{
+		if ( pkUnitEntry->GetWorkRate()==0 || pkUnitEntry->GetCombat()>0 || pkUnitEntry->GetRangedCombat() > 0 )
+			return false;
 	}
 
 	if (!bWillPurchase && pkUnitEntry->IsPurchaseOnly())
@@ -32119,7 +32126,7 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 				eReligion = GetCityReligions()->GetReligiousMajority();
 			}
 
-			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion, this);
+			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion);
 
 			kPlayer.ChangeFaith(-iFaithCost);
 

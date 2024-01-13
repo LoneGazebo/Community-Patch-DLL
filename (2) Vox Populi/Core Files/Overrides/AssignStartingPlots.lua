@@ -517,7 +517,7 @@ function AssignStartingPlots:__Init()
 	self.city_state_validity_table = table.fill(false, MAX_MINOR_CIVS); -- Value set to true when a given city state is successfully assigned a start plot
 
 	-- Resources variables
-	self.amounts_of_resources_placed = table.fill(0, self.MAX_RESOURCE_INDEX); -- Stores amounts of each resource ID placed. WARNING: This table uses adjusted resource ID (+1) to account for Lua indexing. Add 1 to all IDs to index this table.
+	self.amounts_of_resources_placed = table.fill(0, self.MAX_RESOURCE_INDEX + 1); -- Stores amounts of each resource ID placed. WARNING: This table uses adjusted resource ID (+1) to account for Lua indexing. Add 1 to all IDs to index this table.
 	self.luxury_assignment_count = table.fill(0, self.MAX_RESOURCE_INDEX); -- Stores amount of each luxury type assigned to regions. WARNING: current implementation will crash if a Luxury is attached to resource ID 0 (default = iron), because this table uses unadjusted resource ID as table index.
 	self.luxury_region_weights = {}; -- Stores weighted assignments for the types of regions
 	self.luxury_fallback_weights = {}; -- In case all options for a given region type got assigned or disabled, also used for Undefined regions
@@ -1632,6 +1632,18 @@ function AssignStartingPlots:GenerateRegions(args)
 		local wrapsX = landmass_data[7];
 		local wrapsY = landmass_data[8];
 
+		---[[ Debug for biggest landmass boundaries
+		print("-");
+		print("Biggest landmass details");
+		print("WestX:", iWestX);
+		print("SouthY:", iSouthY);
+		print("EastX:", iEastX);
+		print("NorthY:", iNorthY);
+		print("Width:", iWidth);
+		print("Height:", iHeight);
+		print("-");
+		--]]
+
 		-- Obtain "Start Placement Fertility" of the landmass. (This measurement is customized for start placement).
 		-- This call returns a table recording fertility of all plots within a rectangle that contains the landmass,
 		-- with a zero value for any plots not part of the landmass -- plus a fertility sum and plot count.
@@ -1875,7 +1887,7 @@ function AssignStartingPlots:GenerateRegions(args)
 	-- Entry point for easier overrides.
 	self:CustomOverride();
 
-	--[[ Printout is for debugging only. Deactivate otherwise.
+	---[[ Printout is for debugging only. Deactivate otherwise.
 	local tempRegionData = self.regionData;
 	for i, data in ipairs(tempRegionData) do
 		print("-");
@@ -4859,24 +4871,23 @@ function AssignStartingPlots:BalanceAndAssign(args)
 	local bDisableStartBias = Game.GetCustomOption("GAMEOPTION_DISABLE_START_BIAS");
 	if bDisableStartBias == 1 then
 		-- print("-"); print("ALERT: Civ Start Biases have been selected to be Disabled!"); print("-");
-		local playerList = {};
+		local playerList, regionList = {}, {};
 		for loop = 1, self.iNumCivs do
 			local player_ID = self.player_ID_list[loop];
 			table.insert(playerList, player_ID);
 		end
 
-		-- If empty regions are needed, use -1 for player ID to mark empties.
-		if iNumRegions > 0 then
-			for _ = 1, iNumRegions do
-				table.insert(playerList, -1);
-			end
+		for loop = 1, iNumRegions do
+			table.insert(regionList, loop);
 		end
 
-		local playerListShuffled = GetShuffledCopyOfTable(playerList);
-		for region_number, player_ID in ipairs(playerListShuffled) do
+		local regionListShuffled = GetShuffledCopyOfTable(regionList);
+		for index, player_ID in ipairs(playerList) do
 			if player_ID >= 0 then
+				local region_number = regionListShuffled[index];
 				local x = self.startingPlots[region_number][1];
 				local y = self.startingPlots[region_number][2];
+				print("Now placing Player#", player_ID, "in Region#", region_number, "at start plot:", x, y);
 				local start_plot = Map.GetPlot(x, y);
 				local player = Players[player_ID];
 				player:SetStartingPlot(start_plot);
@@ -7932,6 +7943,7 @@ function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number,
 		end
 	end
 	-- print("res_ID", res_ID[1], "iNumResourcesToPlace", iNumResourcesToPlace);
+
 	for index = 1, iNumResourcesTypes do
 		-- We'll roll a die and check each resource in turn to see if it is the one to get placed in that particular case.
 		-- The weightings are used to decide how much percentage of the total each represents.
@@ -7940,6 +7952,7 @@ function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number,
 		table.insert(res_threshold, threshold);
 		accumulatedWeight = accumulatedWeight + res_weight[index];
 	end
+
 	-- Main loop
 	local current_index = 1;
 	local avoid_ripples = true;
@@ -8075,6 +8088,7 @@ function AssignStartingPlots:PlaceSpecificNumberOfResources(resource_ID, quantit
 	local iNumLeftToPlace = amount;
 	local iNumPlots = table.maxn(plot_list);
 	local iNumResources = math.min(amount, math.ceil(ratio * iNumPlots));
+
 	-- Main loop
 	for _ = 1, iNumResources do
 		for _, plotIndex in ipairs(plot_list) do
@@ -8176,10 +8190,10 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 						-- MOD.Barathor: Start
 						-- MOD.Barathor: Base required coastal water total off of the target number of regional luxuries to place.
 						local target_list = self:GetRegionLuxuryTargetNumbers();
-						local target = target_list[self.iNumCivs]
-						local water_needed = target * 8
+						local target = target_list[self.iNumCivs];
+						local water_needed = target * 8;
 						-- MOD.Barathor: End
-						if self.regionTerrainCounts[region_number][8] >= water_needed then -- Enough water available.		-- MOD.Barathor: Updated: Existing = 12; increased this very small value so that enough regional water luxuries can be placed and meet their target.
+						if self.regionTerrainCounts[region_number][8] >= water_needed then -- Enough water available.
 							table.insert(resource_IDs, res_ID);
 							local adjusted_weight = resource_options[2] / (1 + self.luxury_assignment_count[res_ID]) -- If selected before, for a different region, reduce weight.
 							table.insert(resource_weights, adjusted_weight);
@@ -8211,6 +8225,7 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 
 	-- If options list is empty, pick from fallback options. First try to respect water-resources not being assigned to regions without coastal starts.
 	if iNumAvailableTypes == 0 then
+		print("Pick from fallback options for region#", region_number);
 		for _, resource_options in ipairs(self.luxury_fallback_weights) do
 			local res_ID = resource_options[1];
 			if self.luxury_assignment_count[res_ID] < 3 then -- This type still eligible.
@@ -8259,9 +8274,9 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 	-- If we get to here and still need to assign a luxury type, it means we have to force a water-based luxury in to this region, period.
 	-- This should be the rarest of the rare emergency assignment cases, unless modifications to the system have tightened things too far.
 	if iNumAvailableTypes == 0 then
-		-- print("-"); print("Having to use emergency Luxury assignment process for Region#", region_number);
-		-- print("This likely means a near-maximum number of civs in this game, and problems with not having enough legal Luxury types to spread around.");
-		-- print("If you are modifying luxury types or number of regions allowed to get the same type, check to make sure your changes haven't violated the math so each region can have a legal assignment.");
+		print("-"); print("Having to use emergency Luxury assignment process for Region#", region_number);
+		print("This likely means a near-maximum number of civs in this game, and problems with not having enough legal Luxury types to spread around.");
+		print("If you are modifying luxury types or number of regions allowed to get the same type, check to make sure your changes haven't violated the math so each region can have a legal assignment.");
 		for _, resource_options in ipairs(self.luxury_fallback_weights) do
 			local res_ID = resource_options[1];
 			if self.luxury_assignment_count[res_ID] < 3 then -- This type still eligible.
@@ -8281,7 +8296,7 @@ function AssignStartingPlots:AssignLuxuryToRegion(region_number)
 
 	-- Choose luxury.
 	local totalWeight = 0;
-	for i, this_weight in ipairs(resource_weights) do
+	for _, this_weight in ipairs(resource_weights) do
 		totalWeight = totalWeight + this_weight;
 	end
 	local accumulatedWeight = 0;

@@ -2032,6 +2032,199 @@ PopulateDiplomatBonusList = function(stackControl, playerID, city, spy)
 	return count;
 end
 
+PopulateDiplomatBonusList = function(stackControl, playerID, city, spy)
+	-- passive bonuses for offensive spies
+	
+	local count = 0;
+	local player = Players[playerID];
+
+	SelectedItems = {};
+	stackControl:DestroyAllChildren();
+	
+	local cityName = city:GetNameKey();
+	local localizedCityName = Locale.ConvertTextKey(cityName);
+
+	local instance;
+	
+	local strUnlockedPassiveBonusText = "";
+	local iNetworkPointsOfBestUnlockedBonus = -1;
+	for row in GameInfo.SpyPassiveBonusesDiplomat() do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		if (iNPScaled <= spy.MaxNetworkPointsStored and iNPScaled > iNetworkPointsOfBestUnlockedBonus) then
+			iNetworkPointsOfBestUnlockedBonus = iNPScaled;
+			strUnlockedPassiveBonusText = Locale.Lookup(row.Help);
+		end
+	end
+	
+	Controls.DiplomatDescription:LocalizeAndSetText("TXT_KEY_EO_PASSIVE_BONUSES_UNLOCKED_DIPLOMAT", spy.MaxNetworkPointsStored, strUnlockedPassiveBonusText);
+	
+	-- initialize buttons
+			
+	local OnViewTechScreenClicked = function()
+
+		if (city ~= nil) then
+			-- print("Attempting to show city screen");			
+			Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_TECH_TREE , Data2 = -1, Data4 = 1, Data5 = city:GetOwner()} );
+		else
+			print("city == null");
+		end
+	end
+	
+	local OnViewPolicyScreenClicked = function()
+
+		if (city ~= nil) then
+			-- print("Attempting to show city screen");			
+			Events.SerialEventGameMessagePopup( { Type = ButtonPopupTypes.BUTTONPOPUP_CHOOSEPOLICY, Data3 = 1, Data4 = city:GetOwner() } );
+			print(city:GetOwner());
+		else
+			print("city == null");
+		end
+	end	
+	
+	local OnViewUnitListClicked = function()
+		if (city ~= nil) then
+			local iPlayer = city:GetOwner();
+			local pPlayer = Players[iPlayer];
+			local unitID, count;
+			local UnitList = {}
+			
+			for row in GameInfo.UnitClasses() do
+				count = pPlayer:GetUnitClassCount(row.ID);
+				if count > 0 then
+					unitID = pPlayer:GetSpecificUnitType(row.Type);
+					-- only military units
+					if (GameInfo.Units[unitID].Combat > 0 or GameInfo.Units[unitID].RangedCombat > 0) then
+						local entry = {}
+						entry["Name"] = Locale.Lookup(GameInfo.Units[unitID].Description);
+						entry["Strength"] = GameInfo.Units[unitID].Combat
+						entry["RangedStrength"] = GameInfo.Units[unitID].RangedCombat
+						entry["Count"] = count;
+						table.insert(UnitList, entry);
+					end
+				end
+			end
+			
+			Controls.UnitListPopup:SetHide(false);
+			g_UnitList = UnitList
+			RefreshUnitList();
+		else
+			print("city == null");
+		end
+	end	
+	
+	local OnViewTradeDealsClicked = function()
+		if (city ~= nil) then
+			local iPlayer = city:GetOwner();
+			Controls.DiplomatTradeDealsPopup:SetHide(false);
+			Controls.DealsPanel:SetHide( false );
+			PopulateDealChooserDiplomat(iPlayer);
+			Controls.TradeDetails:SetHide( true )
+			Controls.CloseDiplomatTradeButton:RegisterCallback(Mouse.eLClick, OnCloseDiplomatTradeButton);
+		else
+			print("city == null");
+		end
+	end
+	
+	-- check which buttons are active
+	local iNetworkPointsNeededToViewTechTree = 999999;
+	local iNetworkPointsNeededToViewPolicyTree = 999999;
+	local iNetworkPointsNeededToViewUnitList = 999999;
+	local iNetworkPointsNeededToViewTradeDeals = 999999;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealTechTree") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewTechTree = math.min(iNetworkPointsNeededToViewTechTree, iNPScaled);
+	end;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealPolicyTree") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewPolicyTree = math.min(iNetworkPointsNeededToViewPolicyTree, iNPScaled);
+	end;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealMilitaryUnitCount") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewUnitList = math.min(iNetworkPointsNeededToViewUnitList, iNPScaled);
+	end;
+	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealTradeDeals") do
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		iNetworkPointsNeededToViewTradeDeals = math.min(iNetworkPointsNeededToViewTradeDeals, iNPScaled);
+	end;
+	
+	if(iNetworkPointsNeededToViewTechTree == 999999) then
+		Controls.ButtonDiplomatViewTechScreen:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewTechTree) then
+		Controls.ButtonDiplomatViewTechScreen:SetDisabled(false);
+		Controls.ButtonDiplomatViewTechScreen:SetToolTipString("");
+		Controls.ButtonDiplomatViewTechScreen:RegisterCallback(Mouse.eLClick, OnViewTechScreenClicked);
+	else
+		Controls.ButtonDiplomatViewTechScreen:SetDisabled(true);
+		Controls.ButtonDiplomatViewTechScreen:SetToolTipString(Locale.Lookup("TXT_KEY_VIEW_TECH_SCREEN_NOT_ENOUGH_NP", iNetworkPointsNeededToViewTechTree));
+	end
+	if(iNetworkPointsNeededToViewPolicyTree == 999999) then
+		Controls.ButtonDiplomatViewPolicyScreen:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewPolicyTree) then
+		Controls.ButtonDiplomatViewPolicyScreen:SetDisabled(false);
+		Controls.ButtonDiplomatViewPolicyScreen:SetToolTipString("");
+		Controls.ButtonDiplomatViewPolicyScreen:RegisterCallback(Mouse.eLClick, OnViewPolicyScreenClicked);
+	else
+		Controls.ButtonDiplomatViewPolicyScreen:SetDisabled(true);
+		Controls.ButtonDiplomatViewPolicyScreen:SetToolTipString(Locale.Lookup("TXT_KEY_EO_VIEW_POLICY_SCREEN_NOT_ENOUGH_NP", iNetworkPointsNeededToViewPolicyTree));
+	end
+	if(iNetworkPointsNeededToViewUnitList == 999999) then
+		Controls.ButtonDiplomatViewUnitList:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewUnitList) then
+		Controls.ButtonDiplomatViewUnitList:SetDisabled(false);
+		Controls.ButtonDiplomatViewUnitList:SetToolTipString("");
+		Controls.ButtonDiplomatViewUnitList:RegisterCallback(Mouse.eLClick, OnViewUnitListClicked);
+	else
+		Controls.ButtonDiplomatViewUnitList:SetDisabled(true);
+		Controls.ButtonDiplomatViewUnitList:SetToolTipString(Locale.Lookup("TXT_KEY_EO_VIEW_UNIT_LIST_NOT_ENOUGH_NP", iNetworkPointsNeededToViewUnitList));
+	end
+	if(iNetworkPointsNeededToViewTradeDeals == 999999) then
+		Controls.ButtonDiplomatViewTradeDeals:SetHide(true);
+	elseif (spy.MaxNetworkPointsStored >= iNetworkPointsNeededToViewTradeDeals) then
+		Controls.ButtonDiplomatViewTradeDeals:SetDisabled(false);
+		Controls.ButtonDiplomatViewTradeDeals:SetToolTipString("");
+		Controls.ButtonDiplomatViewTradeDeals:RegisterCallback(Mouse.eLClick, OnViewTradeDealsClicked);
+	else
+		Controls.ButtonDiplomatViewTradeDeals:SetDisabled(true);
+		Controls.ButtonDiplomatViewTradeDeals:SetToolTipString(Locale.Lookup("TXT_KEY_EO_VIEW_TRADE_DEALS_NOT_ENOUGH_NP", iNetworkPointsNeededToViewTradeDeals));
+	end
+	
+	----------------------------------------------------------------        
+	-- build the passive bonuses list
+	----------------------------------------------------------------
+	
+	local buttonSizeY = 53
+	for row in GameInfo.SpyPassiveBonusesDiplomat() do
+
+		local instance = g_DiplomatBonusesManager:GetInstance();
+
+		local szDescString;
+		local szHelpString;
+		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		szDescString = Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_NP_REQUIRED", iNPScaled, Locale.Lookup(row.Description));
+		szHelpString = Locale.Lookup(row.Help);
+
+		instance.Button:SetToolTipString(Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_THRESHOLD_TT", szHelpString));
+		
+		-- Readjust the offset
+		local sizeYDiff = math.max((instance.Name:GetSizeY()-buttonSizeY),1)
+		if sizeYDiff > 1 then sizeYDiff = sizeYDiff + 20 end
+		instance.Base:SetSizeY(buttonSizeY + sizeYDiff)
+		instance.Button:SetSizeY(buttonSizeY + sizeYDiff)
+		instance.Button:SetDisabled(true);
+		
+		if(iNPScaled > spy.MaxNetworkPointsStored) then
+			instance.Name:SetText(szDescString);
+			instance.Name:SetAlpha(0.2)
+		else
+			instance.Name:SetText(szDescString);
+			instance.Name:SetAlpha(1)
+		end
+	
+		count = count + 1;
+	end
+	return count;
+end
+
 CommitCounterspyFocus = function(selection, playerID, city, spyID)
 	if(city ~= nil) then
 		for i,v in ipairs(selection) do

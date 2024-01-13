@@ -2190,8 +2190,8 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 	if (!pPlot->isOwned() || pPlot->getOwner() != pPlayer->GetID())
 		return 0;
 
-	// We will not build a route here so no village bonus applies
-	if (eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType))
+	// Building a village here removes the route in this case
+	if (pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && eBuilderTaskingAi->GetSameRouteBenefitFromTrait(pPlot, eRouteType))
 		return 0;
 
 	// No villages on resources
@@ -2215,13 +2215,12 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 			}
 		}
 
-		// If this improvement was built by a Great Person, we don't want to build a village here
-		if (pkImprovementInfo->IsCreatedByGreatPerson())
-			return iBonus;
+		if (iBonus)
+			return iBonus * 3;
 	}
 
 	int iBestBonus = 0;
-	int iPotentialVillageBonus;
+	
 	for (int iI = 0; iI < GC.getNumBuildInfos(); iI++)
 	{
 		BuildTypes eBuild = (BuildTypes)iI;
@@ -2241,7 +2240,7 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 		if (pkImprovementInfo == NULL)
 			continue;
 
-		iPotentialVillageBonus = 0;
+		int iPotentialVillageBonus = 0;
 
 		for (int iYield = 0; iYield < NUM_YIELD_TYPES; iYield++)
 		{

@@ -1506,6 +1506,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(IsGlobalQuest);
 	Method(IsPersonalQuest);
 
+	Method(IsInstantYieldNotificationDisabled);
+	Method(SetInstantYieldNotificationDisabled);
+
 	// Debug methods for routes
 	Method(GetMainRouteTiles);
 	Method(GetShortcutRouteTiles);
@@ -7885,8 +7888,9 @@ int CvLuaPlayer::lGetNumUnitsSupplied(lua_State* L)
 int CvLuaPlayer::lGetNumUnitsSuppliedByHandicap(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetNumUnitsSuppliedByHandicap(true);
-	lua_pushinteger(L, iResult);
+	bool bIgnoreReduction = lua_toboolean(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetNumUnitsSuppliedByHandicap(bIgnoreReduction));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -7894,8 +7898,9 @@ int CvLuaPlayer::lGetNumUnitsSuppliedByHandicap(lua_State* L)
 int CvLuaPlayer::lGetNumUnitsSuppliedByCities(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetNumUnitsSuppliedByCities(true);
-	lua_pushinteger(L, iResult);
+	bool bIgnoreReduction = lua_toboolean(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetNumUnitsSuppliedByCities(bIgnoreReduction));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -7903,8 +7908,9 @@ int CvLuaPlayer::lGetNumUnitsSuppliedByCities(lua_State* L)
 int CvLuaPlayer::lGetNumUnitsSuppliedByPopulation(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
-	const int iResult = pkPlayer->GetNumUnitsSuppliedByPopulation(true);
-	lua_pushinteger(L, iResult);
+	bool bIgnoreReduction = lua_toboolean(L, 2);
+
+	lua_pushinteger(L, pkPlayer->GetNumUnitsSuppliedByPopulation(bIgnoreReduction));
 	return 1;
 }
 //------------------------------------------------------------------------------
@@ -18332,6 +18338,26 @@ int CvLuaPlayer::lIsPersonalQuest(lua_State* L)
 
 	const bool bResult = pkPlayer->GetMinorCivAI()->IsPersonalQuest(eQuest);
 	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lIsInstantYieldNotificationDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const InstantYieldType eInstantYield = (InstantYieldType)lua_tointeger(L, 2);
+
+	const bool bResult = pkPlayer->IsInstantYieldNotificationDisabled(eInstantYield);
+	lua_pushboolean(L, bResult);
+	return 1;
+}
+
+int CvLuaPlayer::lSetInstantYieldNotificationDisabled(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const InstantYieldType eInstantYield = (InstantYieldType)lua_tointeger(L, 2);
+	const bool bNewValue = (InstantYieldType)lua_toboolean(L, 3);
+
+	pkPlayer->SetInstantYieldNotificationDisabled(eInstantYield, bNewValue);
 	return 1;
 }
 
