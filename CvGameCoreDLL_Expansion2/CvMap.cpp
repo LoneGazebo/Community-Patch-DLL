@@ -320,6 +320,7 @@ CvMap::CvMap()
 	, m_pMapPlots(NULL)
 	, m_pPlotNeighbors(NULL)
 	, m_vVisibilityScratchpad()
+	, m_vKnownVisibilityScratchpad()
 	, m_pYields(NULL)
 	, m_pPlayerCityRadiusCount(NULL)
 	, m_pVisibilityCount(NULL)
@@ -456,6 +457,7 @@ void CvMap::InitPlots()
 	PrecalcNeighbors();
 
 	m_vVisibilityScratchpad = vector<int>(iNumPlots, 0);
+	m_vKnownVisibilityScratchpad = vector<int>(iNumPlots, 0);
 
 	OutputDebugString("realloc map\n");
 	m_vPlotsAtRange2.clear();
