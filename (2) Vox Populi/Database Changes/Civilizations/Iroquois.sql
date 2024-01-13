@@ -47,6 +47,8 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_LONGHOUSE', 'YIELD_CULTURE', 1);
 
+DELETE FROM Building_YieldPerXFeatureTimes100 WHERE BuildingType = 'BUILDING_LONGHOUSE';
+
 INSERT INTO Building_FeatureYieldChanges
 	(BuildingType, FeatureType, YieldType, Yield)
 VALUES

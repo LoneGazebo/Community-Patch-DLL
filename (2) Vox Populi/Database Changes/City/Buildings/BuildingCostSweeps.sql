@@ -223,7 +223,7 @@ UPDATE Buildings
 SET Cost = 1600
 WHERE BuildingClass = 'BUILDINGCLASS_MINEFIELD';
 
--- Interpretive Center, Solar Farm
+-- Interpretive Center, Solar Power Plant
 UPDATE Buildings
 SET Cost = 2250
 WHERE BuildingClass IN (

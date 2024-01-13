@@ -92,7 +92,7 @@ VALUES
 	('IMPROVEMENT_MONGOLIA_ORDO', 'TECH_STEALTH', 'YIELD_CULTURE', 4);
 
 ----------------------------------------------------------
--- Unique Building: Ger (Lodge)
+-- Unique Building: Ger (Smokehouse)
 ----------------------------------------------------------
 INSERT INTO Civilization_BuildingClassOverrides
 	(CivilizationType, BuildingClassType, BuildingType)

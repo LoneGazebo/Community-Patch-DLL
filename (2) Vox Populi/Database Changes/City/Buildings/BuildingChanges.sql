@@ -1451,7 +1451,7 @@ WHERE a.BuildingClass = 'BUILDINGCLASS_HYDRO_PLANT';
 
 DELETE FROM Helper;
 
--- Solar Farm - Yields to every Land tile, but 3x on Desert
+-- Solar Power Plant - Yields to every Land tile, but 3x on Desert
 INSERT INTO Helper
 	(TerrainType, Yield)
 VALUES
@@ -1474,7 +1474,7 @@ SELECT
 FROM Buildings a, Helper b, Helper2 c
 WHERE a.BuildingClass = 'BUILDINGCLASS_SOLAR_PLANT';
 
--- Wind Farm - Small Yields to every non-Mountain tile
+-- Wind Power Plant - Small Yields to every non-Mountain tile
 INSERT INTO Helper2
 	(YieldType)
 VALUES
