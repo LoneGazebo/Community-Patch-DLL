@@ -4500,6 +4500,19 @@ void CvGameDeals::ActivateDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, C
 	int iLatestItemLastTurn = 0;
 	int iLongestDuration = 0;
 
+	// if this is a renewed deal, the old deal should no longer be considered for renewal. otherwise it could happen that both players in an AI-AI deal renew the same deal and then two identical deals are active
+	if (kDeal.IsCheckedForRenewal())
+	{
+		for (DealList::iterator it = m_CurrentDeals.begin(); it != m_CurrentDeals.end(); ++it)
+		{
+			if (it->m_bConsideringForRenewal && it->m_eFromPlayer == eFromPlayer && it->m_eToPlayer == eToPlayer)
+			{
+				it->m_bConsideringForRenewal = false;
+				break;
+			}
+		}
+	}
+
 	// Set the surrendering player for a human v. human war (based on who puts what where).
 	bool bIsPeaceDeal = kDeal.IsPeaceTreatyTrade(eFromPlayer) || kDeal.IsPeaceTreatyTrade(eToPlayer);
 	bool bHumanToHuman = GET_PLAYER(eFromPlayer).isHuman() && GET_PLAYER(eToPlayer).isHuman();
