@@ -1475,14 +1475,9 @@ function OnNo( )
 end
 Controls.No:RegisterCallback( Mouse.eLClick, OnNo );
 
-function PendingDealButtonHandler( index, iIsCurrent )
-    local iPlayer = Game.GetActivePlayer();
+function PendingDealButtonHandler( iPlayer, index )
 
-    if( iIsCurrent == 1 ) then
-        UI.LoadCurrentDeal( iPlayer, index );
-    else
-        UI.LoadHistoricDeal( iPlayer, index );
-    end
+    UI.LoadCurrentDeal( iPlayer, index );
     
     local iBeginTurn = m_Deal:GetStartTurn();
     local iDuration  = m_Deal:GetDuration();
@@ -1495,7 +1490,7 @@ function PendingDealButtonHandler( index, iIsCurrent )
         Controls.TurnEnd:SetHide( true );
     end
     
-    OpenDealReview();
+    OpenDealReview(iPlayer);
 end
 
 function BuildDealButton( iPlayer, controlTable )    
@@ -1563,7 +1558,7 @@ function PopulateDealChooserDiplomat(iPlayer)
             controlTable = {};
             ContextPtr:BuildInstanceForControl( "DealButtonInstance", controlTable, Controls.CurrentDealsStack );
             
-            controlTable.DealButton:SetVoids( i, 1 );
+            controlTable.DealButton:SetVoids( iPlayer, i);
             controlTable.DealButton:RegisterCallback( Mouse.eLClick, PendingDealButtonHandler );
             
             UI.LoadCurrentDeal( iPlayer, i );
