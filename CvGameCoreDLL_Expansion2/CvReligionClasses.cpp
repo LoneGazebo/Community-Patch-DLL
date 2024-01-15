@@ -6592,10 +6592,12 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 	for(pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
 	{
 		ReligionTypes eMajorityReligion = pLoopCity->GetCityReligions()->GetReligiousMajority();
-		int iHeretics = pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eReligion,true);
+		int iHeretics = pLoopCity->GetCityReligions()->GetFollowersOtherReligions(eReligion,true) + pLoopCity->GetCityReligions()->GetNumFollowers(NO_RELIGION);
 		int iDistanceToHolyCity = plotDistance(pLoopCity->getX(), pLoopCity->getY(), pHolyCity->getX(), pHolyCity->getY());
 
-		if (eMajorityReligion != eReligion)
+		if (eMajorityReligion == eReligion)
+			continue;
+		else
 		{
 			bAnyOwnCityNotConverted = true;
 
@@ -6607,8 +6609,7 @@ CvCity *CvReligionAI::ChooseProphetConversionCity(CvUnit* pUnit, int* piTurns) c
 			}
 		}
 
-		CvTacticalDominanceZone* pZone = m_pPlayer->GetTacticalAI()->GetTacticalAnalysisMap()->GetZoneByCity(pLoopCity,false);
-		if (pZone && pZone->GetOverallEnemyStrength()>0)
+		if (pLoopCity->isUnderSiege())
 			continue;
 
 		if(pUnit && !pUnit->CanSpreadReligion(pLoopCity->plot()))
