@@ -5294,7 +5294,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 			break;
 		case INTRIGUE_TYPE_BRIBE_WAR:
 			{
-				if (GET_PLAYER(kMessage.m_eTargetPlayer).getTeam() == m_pPlayer->GetID())
+				if (kMessage.m_eTargetPlayer == m_pPlayer->GetID())
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR");
 					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
@@ -5378,7 +5378,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 			break;
 		case INTRIGUE_TYPE_COOP_WAR:
 			{
-				if (GET_PLAYER(kMessage.m_eTargetPlayer).getTeam() == m_pPlayer->GetID())
+				if (kMessage.m_eTargetPlayer == m_pPlayer->GetID())
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR");
 					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
