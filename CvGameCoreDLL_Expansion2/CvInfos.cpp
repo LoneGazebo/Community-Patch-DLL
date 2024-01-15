@@ -10046,6 +10046,7 @@ CvModEventChoiceInfo::CvModEventChoiceInfo() :
 	 m_iEventPromotion(-1),
 	 m_iEventTech(-1),
 	 m_iEventDuration(0),
+	 m_bEventDurationScaling(true),
 	 m_iEventChance(0),
 	 m_bEraScaling(false),
 	 m_bExpires(false),
@@ -10177,6 +10178,11 @@ int CvModEventChoiceInfo::getEventPolicy() const
 int CvModEventChoiceInfo::getEventDuration() const
 {
 	return m_iEventDuration;
+}
+//------------------------------------------------------------------------------
+bool CvModEventChoiceInfo::isEventDurationScaling() const
+{
+	return m_bEventDurationScaling;
 }
 //------------------------------------------------------------------------------
 int CvModEventChoiceInfo::getEventChance() const
@@ -10652,6 +10658,7 @@ bool CvModEventChoiceInfo::CacheResults(Database::Results& kResults, CvDatabaseU
 	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);
 
 	m_iEventDuration = kResults.GetInt("EventDuration");
+	m_bEventDurationScaling = kResults.GetBool("EventDurationScaling");
 
 	m_iEventChance = kResults.GetInt("EventChance");
 
@@ -11567,6 +11574,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_bEraScaling(false),
 	 m_bExpires(false),
 	 m_iEventDuration(0),
+	 m_bEventDurationScaling(true),
 	 m_iEventChance(0),
 	 m_iEventBuildingDestruction(-1),
 	 m_piEventYield(NULL),
@@ -11662,6 +11670,7 @@ CvModEventCityChoiceInfo::CvModEventCityChoiceInfo() :
 	 m_iConvertsCityToPlayerReligion(0),
 	 m_iConvertsCityToPlayerMajorityReligion(0),
 	 m_iNetworkPointsNeeded(0),
+	 m_bNetworkPointsScaling(false),
 	 m_iSpyIdentificationChance(0),
 	 m_iSpyCaptureChance(0),
 	 m_iTriggerPlayerEventChoice(NO_EVENT_CHOICE),
@@ -11735,6 +11744,11 @@ int CvModEventCityChoiceInfo::getEventDuration() const
 	return m_iEventDuration;
 }
 //------------------------------------------------------------------------------
+bool CvModEventCityChoiceInfo::isEventDurationScaling() const
+{
+	return m_bEventDurationScaling;
+}
+//------------------------------------------------------------------------------
 int CvModEventCityChoiceInfo::getEventChance() const
 {
 	return m_iEventChance;
@@ -11762,10 +11776,13 @@ int CvModEventCityChoiceInfo::ConvertsCityToPlayerMajorityReligion() const
 
 int CvModEventCityChoiceInfo::GetNetworkPointsNeededScaled() const
 {
-	int iNPNeeded = m_iNetworkPointsNeeded;
-	iNPNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iNPNeeded /= 100;
-	return iNPNeeded;
+	int iNPScaled = m_iNetworkPointsNeeded;
+	if (m_bNetworkPointsScaling)
+	{
+		iNPScaled *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNPScaled /= 100;
+	}
+	return iNPScaled;
 }
 int CvModEventCityChoiceInfo::GetSpyIdentificationChance() const
 {
@@ -12452,7 +12469,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_iEventBuilding =  GC.getInfoTypeForString(szTextVal, true);
 
 	m_iEventDuration = kResults.GetInt("EventDuration");
-
+	m_bEventDurationScaling = kResults.GetBool("EventDurationScaling");
 	m_iEventChance = kResults.GetInt("EventChance");
 
 	m_bEraScaling = kResults.GetBool("EraScaling");
@@ -12467,6 +12484,7 @@ bool CvModEventCityChoiceInfo::CacheResults(Database::Results& kResults, CvDatab
 	m_bIsCounterspyMission = kResults.GetBool("IsCounterSpyMission");
 	m_bIsEspionageMission = kResults.GetBool("IsEspionageMission");
 	m_iNetworkPointsNeeded = kResults.GetInt("NetworkPointsNeeded");
+	m_bNetworkPointsScaling = kResults.GetBool("NetworkPointsScaling");
 	m_iSpyIdentificationChance = kResults.GetInt("SpyIDChance");
 	m_iSpyCaptureChance = kResults.GetInt("SpyCaptureChance");
 	m_iSpyLevelRequired = kResults.GetInt("SpyLevelRequired");

@@ -3252,6 +3252,7 @@ public:
 	int getEventPolicy() const;
 	int getEventBuilding() const;
 	int getEventDuration() const;
+	bool isEventDurationScaling() const;
 	int getEventPromotion() const;
 	int getEventTech() const;
 	int getEventYield(YieldTypes eYield) const;
@@ -3346,6 +3347,7 @@ protected:
 	int m_iEventPromotion;
 	int m_iEventTech;
 	int m_iEventDuration;
+	bool m_bEventDurationScaling; 
 	int m_iEventChance;
 	bool* m_pbParentEventIDs;
 	bool m_bEraScaling;
@@ -3702,6 +3704,7 @@ public:
 	int getEventBuilding() const;
 	int getEventBuildingDestruction() const;
 	int getEventDuration() const;
+	bool isEventDurationScaling() const; 
 	int getEventChance() const;
 	bool IsEraScaling() const;
 	bool Expires() const;
@@ -3844,6 +3847,7 @@ protected:
 	int m_iEventBuilding;
 	int m_iEventBuildingDestruction;
 	int m_iEventDuration;
+	bool m_bEventDurationScaling; 
 	int m_iEventChance;
 	bool m_bEraScaling;
 	bool m_bExpires;
@@ -3902,6 +3906,7 @@ protected:
 
 	// Espionage
 	int m_iNetworkPointsNeeded;
+	int m_bNetworkPointsScaling; 
 	int m_iSpyIdentificationChance;
 	int m_iSpyCaptureChance;
 	int m_iSpyLevelRequired;

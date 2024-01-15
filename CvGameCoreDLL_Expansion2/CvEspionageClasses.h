@@ -30,6 +30,7 @@ public:
 
 protected:
 	int m_iNetworkPointsNeeded;
+	bool m_bNetworkPointsScaling;
 	int m_iSciencePercentAdded;
 	int m_iTilesRevealed;
 	bool m_bRevealCityScreen;
@@ -85,6 +86,7 @@ public:
 
 protected:
 	int m_iNetworkPointsNeeded;
+	bool m_bNetworkPointsScaling;
 	bool m_bReceiveIntrigue;
 	bool m_bRevealTrueApproaches;
 	int m_iTradeRouteGoldBonus;
