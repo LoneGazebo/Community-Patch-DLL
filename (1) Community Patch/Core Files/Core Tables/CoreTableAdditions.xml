@@ -33,6 +33,7 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="NetworkPointsNeeded" type="integer" unique="true"/>
+		<Column name="NetworkPointsScaling" type="boolean" default="false"/>
 		<Column name="SciencePercentAdded" type="integer" default="0"/>
 		<Column name="TilesRevealed" type="integer" default="0"/>
 		<Column name="RevealCityScreen" type="boolean" default="false"/>
@@ -43,6 +44,7 @@
 		<Column name="Description" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="Help" type="text" reference="Language_en_US(Tag)"/>
 		<Column name="NetworkPointsNeeded" type="integer" unique="true"/>
+		<Column name="NetworkPointsScaling" type="boolean" default="false"/>
 		<Column name="TradeRouteGoldBonus" type="integer" default="0"/>
 		<Column name="ReceiveIntrigues" type="boolean" default="false"/>
 		<Column name="RevealTechTree" type="boolean" default="false"/>
