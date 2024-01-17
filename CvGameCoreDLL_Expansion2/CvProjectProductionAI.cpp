@@ -347,7 +347,7 @@ int CvProjectProductionAI::CheckProjectBuildSanity(ProjectTypes eProject, int iT
 			iTempWeight += -5 * pkProjectInfo->GetReligiousUnrestModifier() * iReligiousUnrest * iReligiousUnrest;
 	}
 
-	if (pkProjectInfo->GetEspionageMod() < 0)
+	if (pkProjectInfo->GetSpySecurityModifier() > 0)
 	{
 		int iEsp = /*2000*/ (GD_INT_GET(ESPIONAGE_GATHERING_INTEL_COST_PERCENT) * 2);
 		iTempWeight += (iEsp/2);

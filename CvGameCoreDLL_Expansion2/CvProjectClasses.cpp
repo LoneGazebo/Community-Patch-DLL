@@ -70,7 +70,7 @@ bool CvProjectEntry::CacheResults(Database::Results& kResults, CvDatabaseUtility
 	m_iScienceMedianModifier = kResults.GetInt("ScienceMedianModifier");
 	m_iCultureMedianModifier = kResults.GetInt("CultureMedianModifier");
 	m_iReligiousUnrestModifier = kResults.GetInt("ReligiousUnrestModifier");
-	m_iEspionageMod = kResults.GetInt("EspionageMod");
+	m_iSpySecurityModifier = kResults.GetInt("SpySecurityModifier");
 
 	const char* szFreeBuilding = kResults.GetText("FreeBuildingClassIfFirst");
 	if(szFreeBuilding)
@@ -323,9 +323,9 @@ int CvProjectEntry::GetReligiousUnrestModifier() const
 {
 	return m_iReligiousUnrestModifier;
 }
-int CvProjectEntry::GetEspionageMod() const
+int CvProjectEntry::GetSpySecurityModifier() const
 {
-	return m_iEspionageMod;
+	return m_iSpySecurityModifier;
 }
 #endif
 

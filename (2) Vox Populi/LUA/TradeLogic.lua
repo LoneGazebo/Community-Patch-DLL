@@ -458,11 +458,11 @@ end
 ----------------------------------------------------------------
 -- used by DiploOverview to display active deals
 ----------------------------------------------------------------
-function OpenDealReview()
+function OpenDealReview(OverridePlayer)
 
     --print( "OpenDealReview" );
     
-	g_iUs = Game:GetActivePlayer();
+	g_iUs = OverridePlayer or Game:GetActivePlayer();
 	g_pUs = Players[ g_iUs ];
 	g_iUsTeam = g_pUs:GetTeam();
 	g_pUsTeam = Teams[ g_iUsTeam ];
@@ -480,7 +480,7 @@ function OpenDealReview()
     g_bTradeReview = true;
 
 	DoClearTable();
-	DisplayDeal();
+	DisplayDeal(OverridePlayer);
 end
 
 
@@ -2654,7 +2654,7 @@ end
 
 ----------------------------------------------------------------        
 ----------------------------------------------------------------        
-function DisplayDeal()
+function DisplayDeal(OverridePlayer)
     g_UsTableCitiesIM:ResetInstances();
     g_ThemTableCitiesIM:ResetInstances();
     g_UsTableVoteIM:ResetInstances();
@@ -2694,8 +2694,8 @@ function DisplayDeal()
         local bFromUs = false;
         
 		--print("Adding trade item to active deal: " .. itemType);
-        
-        if( fromPlayer == Game.GetActivePlayer() ) then
+        		
+        if( fromPlayer == (OverridePlayer or Game.GetActivePlayer()) ) then
             bFromUs = true;
             iNumItemsFromUs = iNumItemsFromUs + 1;
         else

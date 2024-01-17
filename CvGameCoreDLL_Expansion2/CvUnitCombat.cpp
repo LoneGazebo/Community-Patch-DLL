@@ -129,6 +129,10 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			iDefenderDamageInflicted = kAttacker.getForcedDamageValue();
 		}
+		else if (iAttackerDamageInflicted > pkCity->GetMaxHitPoints()-pkCity->getDamage())
+		{
+			iDefenderDamageInflicted = (iDefenderDamageInflicted * (pkCity->GetMaxHitPoints() - pkCity->getDamage())) / iAttackerDamageInflicted;
+		}
 		if(kAttacker.getChangeDamageValue() != 0)
 		{
 			iDefenderDamageInflicted += kAttacker.getChangeDamageValue();
@@ -252,6 +256,11 @@ void CvUnitCombat::GenerateMeleeCombatInfo(CvUnit& kAttacker, CvUnit* pkDefender
 		{
 			iDefenderDamageInflicted   = kAttacker.getForcedDamageValue();
 		}
+		else if (iAttackerDamageInflicted > pkDefender->GetCurrHitPoints())
+		{
+			iDefenderDamageInflicted = (iDefenderDamageInflicted * pkDefender->GetCurrHitPoints()) / iAttackerDamageInflicted;
+		}
+
 		if(pkDefender->getForcedDamageValue() != 0)
 		{
 			iAttackerDamageInflicted= pkDefender->getForcedDamageValue();

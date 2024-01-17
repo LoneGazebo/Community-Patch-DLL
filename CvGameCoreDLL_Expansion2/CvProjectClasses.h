@@ -64,7 +64,7 @@ public:
 	int GetScienceMedianModifier() const;
 	int GetCultureMedianModifier() const;
 	int GetReligiousUnrestModifier() const;
-	int GetEspionageMod() const;
+	int GetSpySecurityModifier() const;
 #endif
 
 	const char* GetMovieArtDef() const;
@@ -115,7 +115,7 @@ protected:
 	int m_iScienceMedianModifier;
 	int m_iCultureMedianModifier;
 	int m_iReligiousUnrestModifier;
-	int m_iEspionageMod;
+	int m_iSpySecurityModifier;
 #endif
 
 	CvString m_strCreateSound;

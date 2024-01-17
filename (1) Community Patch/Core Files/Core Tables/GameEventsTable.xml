@@ -343,6 +343,8 @@
 		<Column name="IsOneShot" type="boolean" default="false"/>
 		<!-- Defaults to 30. Set a different duration if the expiration timer matters. Otherwise, leave it at 30, as it is used by the Recent Events overview. -->
 		<Column name="EventDuration" type="integer" default="30"/>
+		<!-- Does event duration scale with game speed? -->
+		<Column name="EventDurationScaling" type="boolean" default="true"/>
 		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
 		<Column name="EventChance" type="integer" default="0"/>
 		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->
@@ -774,6 +776,8 @@
 		<Column name="IsOneShot" type="boolean" default="false"/>
 		<!-- Defaults to 30. Set a different duration if the expiration timer matters. Otherwise, leave it at 30, as it is used by the Recent Events overview. -->
 		<Column name="EventDuration" type="integer" default="30"/>
+		<!-- Does event duration scale with game speed? -->
+		<Column name="EventDurationScaling" type="boolean" default="true"/>
 		<!-- Event Chance: Higher value = higher chance of success. Notification will spawn if an event fails. Default is always successful. -->
 		<Column name="EventChance" type="integer" default="0"/>
 		<!-- Era Scaling: boosts yield value on instant yield, GP Points, and yield costs tables (See below) based on Era. -->
@@ -839,6 +843,8 @@
 		<Column name="IsCounterSpyMission" type="boolean" default="false"/>
 		<!-- Network Points Needed to start the mission -->
 		<Column name="NetworkPointsNeeded" type="integer" default="0"/>
+		<!-- Does the number of network points needed scale with game speed? -->
+		<Column name="NetworkPointsScaling" type="boolean" default="false"/>
 		<!-- Chance to be identified on a spy mission-->
 		<Column name="SpyIDChance" type="integer" default="0"/>
 		<!-- Chance to be captured on a spy mission-->
