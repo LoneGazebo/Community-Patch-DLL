@@ -637,7 +637,7 @@ bool CvBuilderTaskingAI::MayWantVillageOnPlot(CvPlot* pPlot) const
 	if (m_bKeepMarshes && eFeature == FEATURE_MARSH)
 		return false;
 
-	if (m_bMayPutGPTINextToCity && pPlot->IsAdjacentCity())
+	if (!m_bMayPutGPTINextToCity && pPlot->IsAdjacentCity())
 		return false;
 
 	return true;
