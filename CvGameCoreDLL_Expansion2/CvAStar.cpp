@@ -2207,6 +2207,7 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 	if (eImprovement != NO_IMPROVEMENT)
 	{
 		CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+
 		if (pkImprovementInfo != NULL)
 		{
 			for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
@@ -2217,6 +2218,10 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 					return 30;
 			}
 		}
+
+		// If this is a great person improvement, we don't want to replace it (unless it's a town)
+		if (pkImprovementInfo->IsCreatedByGreatPerson())
+			return 0;
 	}
 
 	// Villages and towns can be built pretty much anywhere
