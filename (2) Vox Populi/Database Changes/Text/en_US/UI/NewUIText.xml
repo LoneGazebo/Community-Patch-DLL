@@ -1864,7 +1864,7 @@
 			<Text>[ICON_BULLET] [COLOR_POSITIVE_TEXT][ICON_WAR] Weariness:[ENDCOLOR] They are utterly exhausted.</Text>
 		</Row>
 		<Row Tag="TXT_KEY_WAR_WEARINESS_US_PERCENT">
-			<Text>[COLOR_NEGATIVE_TEXT]Our War Weariness: {1_Num}%[ENDCOLOR]</Text>
+			<Text>[COLOR_NEGATIVE_TEXT]Our War Weariness: {1_Num}% after {2_Num} turns[ENDCOLOR]</Text>
 		</Row>
 
 		<!-- Discussion/Dialogue options -->

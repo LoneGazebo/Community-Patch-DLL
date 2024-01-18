@@ -419,6 +419,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
 
+	Method(GetWarDuration);
+	Method(GetLongestWarDuration);
+
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
 
@@ -4469,6 +4472,29 @@ int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iResult = pkPlayer->GetUnhappinessFromWarWeariness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetWarDuration(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetPlayerNumTurnsAtWar(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetLongestWarDuration(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = 0;
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iI;
+		iResult = max(iResult, pkPlayer->GetPlayerNumTurnsAtWar(ePlayer));
+	}
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }

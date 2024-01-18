@@ -191,7 +191,8 @@ function LeaderMessageHandler( iPlayer, iDiploUIState, szLeaderMessage, iAnimati
 		end
 
 		local iOurWarWeariness = pActivePlayer:GetWarWearinessPercent(g_iAIPlayer);
-		strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey("TXT_KEY_WAR_WEARINESS_US_PERCENT", iOurWarWeariness);
+		local iWarDuration = pActivePlayer:GetWarDuration(g_iAIPlayer);
+		strWarInfo = strWarInfo .. '[NEWLINE]' .. Locale.ConvertTextKey("TXT_KEY_WAR_WEARINESS_US_PERCENT", iOurWarWeariness, iWarDuration);
 
 		Controls.WarScore:SetToolTipString(strWarInfo);
 	else

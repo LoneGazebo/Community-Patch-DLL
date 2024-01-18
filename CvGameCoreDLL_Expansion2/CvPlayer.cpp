@@ -50686,14 +50686,21 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 	return iValue;
 }
 
+int CvPlayer::GetMinAcceptableSettleQuality() const
+{
+	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	//clamp it to a sensible range
+	iFlavorExpansion = range(iFlavorExpansion, 0, 12);
+
+	//should be somewhere between -50 and 0
+	return -3 * iFlavorExpansion;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
 	updatePlotFoundValues();
-
-	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range
-	iFlavorExpansion = range(iFlavorExpansion, 0, 12);
+	int iThreshold = GetMinAcceptableSettleQuality();
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -50703,7 +50710,7 @@ bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 
 		//range from -50 to +50
 		int q = GetSettlePlotQualityMeasure(pPlot);
-		if (q > -3*iFlavorExpansion)
+		if (q > iThreshold)
 			return true;
 	}
 
