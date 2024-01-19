@@ -54,6 +54,10 @@ struct BuilderDirective
 	{
 		return m_eDirectiveType == rhs.m_eDirectiveType && m_eBuild == rhs.m_eBuild && m_eResource == rhs.m_eResource && m_sX == rhs.m_sX && m_sY == rhs.m_sY && m_iScore == rhs.m_iScore;
 	};
+	bool operator<(const BuilderDirective& rhs) const
+	{
+		return m_eDirectiveType < rhs.m_eDirectiveType || m_eBuild < rhs.m_eBuild || m_eResource < rhs.m_eResource || m_sX < rhs.m_sX || m_sY < rhs.m_sY || m_iScore < rhs.m_iScore;
+	};
 };
 FDataStream& operator<<(FDataStream&, const BuilderDirective&);
 FDataStream& operator>>(FDataStream&, BuilderDirective&);
@@ -89,10 +93,10 @@ public:
 	vector<BuilderDirective> GetDirectives();
 	bool ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDirective);
 
-	void AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinValue);
+	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinValue);
+	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot);
+	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot);
 	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 	void AddRepairTilesDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 	void AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
@@ -100,9 +104,9 @@ public:
 	bool ShouldAnyBuilderConsiderPlot(CvPlot* pPlot);  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
 
-	int GetBuildCostWeight(int iWeight, CvPlot* pPlot, BuildTypes eBuild);
-	int GetBuildTimeWeight(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreFeatureTime = false, int iAdditionalTime = 0);
-	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity);
+	int GetBuildCostWeight(CvPlot* pPlot, BuildTypes eBuild);
+	int GetBuildTimeWeight(int iWeight, CvPlot* pPlot, BuildTypes eBuild);
+	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned=0);
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
 	bool NeedRouteAtPlot(const CvPlot* pPlot) const; //build it and keep it
@@ -111,7 +115,7 @@ public:
 	bool GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const;
 	bool MayWantVillageOnPlot(CvPlot* pPlot) const;
 
-	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild);
+	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
 
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
 	BuildTypes GetRepairBuild(void);
@@ -142,7 +146,7 @@ protected:
 	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
 
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
-	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild);
+	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIsCityConnection);
 	bool AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	int GetRouteValue(CvPlot* pPlot);
 
@@ -172,11 +176,8 @@ protected:
 	BuildTypes m_eRemoveRouteBuild;
 
 	//some player dependent flags for unique improvements
-	bool m_bKeepMarshes;
-	bool m_bKeepJungle;
-	bool m_bKeepForest;
-	bool m_bEvaluateAdjacent;
-	bool m_bMayPutGPTINextToCity;
+	TechTypes m_aiSaveFeatureUntilTech[NUM_FEATURE_TYPES]; // serialized, can't be recreated on game load (eID is NO_PLAYER)
+	TechTypes m_iSaveCityAdjacentUntilTech; // serialized, can't be recreated on game load (eID is NO_PLAYER)
 };
 
 FDataStream& operator>>(FDataStream&, CvBuilderTaskingAI&);

@@ -362,7 +362,7 @@ void CvStartPositioner::ComputeTileFertilityValues()
 		// Compute fertility and save off in player 0's found value slot
 		//   (Normally shouldn't be using a hard-coded player reference, but here in the pre-game initialization it is safe to do so.
 		//    Allows us to reuse this data storage instead of jamming even more data into the CvPlot class that will never be used at run-time).
-		int iFertility = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot);
+		int iFertility = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot, NULL);
 		pLoopPlot->setFoundValue((PlayerTypes)0, iFertility);
 
 		if(iFertility > 0)
@@ -785,7 +785,7 @@ bool PlotMeetsFoodRequirement(CvPlot* pPlot, PlayerTypes ePlayer, int iFoodRequi
 		}
 		else
 		{
-			if(pLoopPlot->calculateNatureYield(YIELD_FOOD, ePlayer, pLoopPlot->getOwningCity()) >= iFoodRequirement)
+			if(pLoopPlot->calculateNatureYield(YIELD_FOOD, ePlayer, pPlot->getFeatureType(), pPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pLoopPlot->getOwningCity()) >= iFoodRequirement)
 			{
 				bFoundFoodPlot = true;
 				break;
@@ -940,7 +940,7 @@ void CvStartPositionerMerge::Run(int iNumRegionsRequired)
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
 		CvPlot* pLoopPlot = GC.getMap().plotByIndexUnchecked(iI);
-		int iPlotWorth = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot,true);
+		int iPlotWorth = m_pSiteEvaluator->PlotFertilityValue(pLoopPlot,NULL,true);
 		
 		//the region id is the plot index of the original plot
 		if (iPlotWorth > 0)

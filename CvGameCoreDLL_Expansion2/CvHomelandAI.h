@@ -361,6 +361,16 @@ struct SPatrolTarget {
 	bool operator==(const SPatrolTarget& rhs) const;
 };
 
+struct SBuilderState {
+	map<ResourceTypes, int> mExtraResources;
+	map<int, FeatureTypes> mChangedPlotFeatures;
+	map<int, ImprovementTypes> mChangedPlotImprovements;
+	map<int, int> mExtraDefense;
+	map<int, int> mExtraDamageToAdjacent;
+
+	SBuilderState(){};
+};
+
 namespace HomelandAIHelpers
 {
 bool CvHomelandUnitAuxIntSort(const CvHomelandUnit& obj1, const CvHomelandUnit& obj2);

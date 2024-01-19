@@ -609,7 +609,7 @@ void CvTacticalAI::FindTacticalTargets()
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
 					!pLoopPlot->IsImprovementPillaged())
 				{
-					ResourceTypes eResource = pLoopPlot->getResourceType();
+					ResourceTypes eResource = pLoopPlot->getResourceType(m_pPlayer->getTeam());
 					int iExtraScore = 0;
 					//does this make a difference in the end?
 					if (m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
@@ -7582,7 +7582,7 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 
 		if (TacticalAIHelpers::IsOtherPlayerCitadel(pTestPlot, assumedPosition.getPlayer(), true))
 			result.iScore = 500;
-		else if (pTestPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		else if (pTestPlot->getResourceType(pUnit->getTeam()) != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType(pUnit->getTeam()))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
 		else if (pUnit->getDamage() >= /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT))
 			result.iScore = 100;

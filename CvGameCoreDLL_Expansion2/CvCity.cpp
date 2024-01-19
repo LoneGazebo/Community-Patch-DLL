@@ -909,7 +909,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Add Resource Quantity to total
 	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
 	{
-		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType()))
+		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType(getTeam())))
 		{
 			owningPlayer.connectResourcesOnPlot(plot(), true);
 		}
@@ -4439,7 +4439,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				continue;
 
 			// no resource on plot
-			if (pLoopPlot->getResourceType() == NO_RESOURCE)
+			if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 				continue;
 
 			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
@@ -4448,7 +4448,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			
 			//connected?
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType()) && !pLoopPlot->IsImprovementPillaged())
+			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType(getTeam())) && !pLoopPlot->IsImprovementPillaged())
 			{
 				bImprovementFound = true;
 				break;
@@ -6221,7 +6221,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				continue;
 
 			// no resource on plot
-			if (pLoopPlot->getResourceType() == NO_RESOURCE)
+			if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 				continue;
 
 			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
@@ -6230,7 +6230,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 
 			//connected?
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType()) && !pLoopPlot->IsImprovementPillaged())
+			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType(getTeam())) && !pLoopPlot->IsImprovementPillaged())
 			{
 				bImprovementFound = true;
 				break;
@@ -7255,7 +7255,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 								for (int iI = 0; iI < iRuns; iI++)
 								{
 									CvPlot* pPlot = aBestPlots.GetElement(iI);
-									if (pPlot != NULL && pPlot->getOwner() == getOwner() && pPlot->getResourceType() == eResource && pPlot->getImprovementType() != NO_IMPROVEMENT)
+									if (pPlot != NULL && pPlot->getOwner() == getOwner() && pPlot->getResourceType(getTeam()) == eResource && pPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
 										pPlot->SetImprovementPillaged(true);
 										iNumber++;
@@ -7286,7 +7286,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						continue;
 
 					// no resource on plot
-					if (pLoopPlot->getResourceType() == NO_RESOURCE)
+					if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 						continue;
 
 					ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
@@ -7295,7 +7295,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 					//connected?
 					CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-					if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType()) && !pLoopPlot->IsImprovementPillaged())
+					if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType(getTeam())) && !pLoopPlot->IsImprovementPillaged())
 					{
 						// this is a plot with an improved resource. check if it should be pillaged
 						if (iPillageResourceTilesChance == 100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xbe510f48).mix(iCityID).mix(iCityPlotLoop).mix(GC.getGame().getGameTurn())) <= iPillageResourceTilesChance)
@@ -9496,7 +9496,7 @@ void CvCity::UpdateTerrainImprovementNeed()
 
 				//todo: should we add more of the improvement is very valuable?
 				//for now give extra weight to resource plots
-				if (pLoopPlot->getResourceType() != NO_RESOURCE)
+				if (pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					iImprovablePlots++;
 
 				break;
@@ -10412,7 +10412,7 @@ void CvCity::DoPickResourceDemanded()
 		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
 		if (pLoopPlot != NULL)
 		{
-			ResourceTypes eResource = pLoopPlot->getResourceType();
+			ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
 			if (eResource != NO_RESOURCE)
 			{
 				if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
@@ -14379,7 +14379,7 @@ SPlotStats CvCity::getPlotStats() const
 		if (pLoopPlot->getFeatureType() != NO_FEATURE)
 			result.vFeatureCount[pLoopPlot->getFeatureType()]++;
 
-		if (pLoopPlot->getResourceType()!=NO_RESOURCE && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
+		if (pLoopPlot->getResourceType(getTeam())!=NO_RESOURCE && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
 			result.vResourceCount[pLoopPlot->getResourceType(getTeam())]++;
 	}
 
@@ -15400,7 +15400,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								if (pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() &&
 									pLoopPlot->isValidMovePlot(getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 								{
-									if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
@@ -15420,7 +15420,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) &&
 										!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 									{
-										if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+										if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 										{
 											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 											pLoopPlot->setResourceType(eResourceToGive, 1, false);
@@ -15435,7 +15435,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							}
 							if (iNumResourceGiven < iNumResourceTotal)
 							{
-								ResourceTypes eCurrentResource = plot()->getResourceType();
+								ResourceTypes eCurrentResource = plot()->getResourceType(getTeam());
 								if (eCurrentResource == NO_RESOURCE)
 									plot()->setResourceType(eResourceToGive, 1, false);
 							}
@@ -15817,7 +15817,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 							if (pLoopPlot != NULL && ((pLoopPlot->getOwner() == owningPlayer.GetID()) || (pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isValidMovePlot(getOwner()))) && !pLoopPlot->isCity())
 							{
-								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType() == NO_RESOURCE)
+								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 								{
 									ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
 									if (eImprovement != NO_IMPROVEMENT)
@@ -15931,7 +15931,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 				if (pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 				{
-					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
+					ResourceTypes eLoopResource = pLoopPlot->getResourceType(getTeam());
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
 						if (owningTeam.IsResourceImproveable(eLoopResource))
@@ -29688,7 +29688,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 
-		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), NULL);
+		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), pPlot->getFeatureType(), pPlot->getResourceType(getTeam()), NULL);
 
 		int iTempValue = 0;
 
@@ -35474,7 +35474,7 @@ int CvCity::CountNumWorkedResource(ResourceTypes eResource)
 			continue;
 		}
 
-		if (pLoopPlot->getResourceType() == eResource)
+		if (pLoopPlot->getResourceType(getTeam()) == eResource)
 		{
 			iNum++;
 		}

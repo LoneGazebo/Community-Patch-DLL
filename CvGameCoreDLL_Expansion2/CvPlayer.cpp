@@ -17514,7 +17514,7 @@ int CvPlayer::GetWorldWonderYieldChange(int iYield)
 /// Can we eBuild on pPlot?
 bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
 {
-	if(!(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
+	if(pPlot && !(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
 	{
 		return false;
 	}
@@ -17626,7 +17626,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 	}
 #endif
 
-	if(!bTestVisible)
+	if(pPlot && !bTestVisible)
 	{
 		if(IsBuildBlockedByFeature(eBuild, pPlot->getFeatureType()))
 		{
@@ -50735,7 +50735,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		if (bLogging)
 		{
 			iDanger = pUnit ? pUnit->GetDanger(pPlot) : 0;
-			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
+			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,this,true);
 		}
 
 		if(!pPlot->isRevealed(eTeam))

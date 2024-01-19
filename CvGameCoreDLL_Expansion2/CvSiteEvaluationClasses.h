@@ -34,7 +34,7 @@ public:
 	virtual void ComputeFlavorMultipliers(const CvPlayer* pPlayer);
 	virtual bool CanFoundCity(const CvPlot* pPlot, const CvPlayer* pPlayer, bool bIgnoreDistanceToExistingCities) const;
 	virtual int PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPlayer, const std::vector<int>& ignorePlots, bool bCoastOnly=false, CvString* pDebug=NULL);
-	virtual int PlotFertilityValue(CvPlot* pPlot, bool bIncludeCoast=false);
+	virtual int PlotFertilityValue(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIncludeCoast=false);
 	virtual vector<int> GetAllCitySiteValues(const CvPlayer* pPlayer);
 
 protected:

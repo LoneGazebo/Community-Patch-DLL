@@ -2195,7 +2195,7 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 		return 0;
 
 	// No villages on resources
-	if (pPlot->getResourceType() != NO_RESOURCE)
+	if (pPlot->getResourceType(pPlayer->getTeam()) != NO_RESOURCE)
 		return 0;
 
 	// No villages on mountains
@@ -3427,7 +3427,7 @@ int TradePathWaterValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 		//only single plot canals on plots without resource
 		//not that this is asymmetric, we can build a canal into a city but not out of a city ... shouldn't matter too much
 		if (pPrevPlot->isWater() && !pNewPlot->isWater() && pNewPlot->getOwner() == pCacheData->GetPlayer())
-			return pNewPlot->getResourceType() == NO_RESOURCE;
+			return pNewPlot->getResourceType(pCacheData->GetTeam()) == NO_RESOURCE;
 	}
 
 	return FALSE;

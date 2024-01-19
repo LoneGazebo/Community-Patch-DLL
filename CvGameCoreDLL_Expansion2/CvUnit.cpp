@@ -9941,7 +9941,7 @@ bool CvUnit::sellExoticGoods()
 						{
 
 							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-							if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+							if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
 							{
 								if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -9959,7 +9959,7 @@ bool CvUnit::sellExoticGoods()
 							for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 							{
 								CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-								if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+								if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
 								{
 									//If we can build on an empty spot, do so.
 									if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
@@ -13768,6 +13768,9 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 			return false;
 		}
 	}
+
+	if (!pPlot)
+		return true;
 
 	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold, true, this)))
 	{
@@ -24907,7 +24910,13 @@ void CvUnit::DoFinishBuildIfSafe()
 	{
 		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
 		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+		{
+			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
+			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
+				return;
+
 			CvUnitMission::ContinueMission(this);
+		}
 	}
 }
 #endif 

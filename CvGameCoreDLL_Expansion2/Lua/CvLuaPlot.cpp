@@ -1630,7 +1630,7 @@ int CvLuaPlot::lCalculateNatureYield(lua_State* L)
 	CvPlot* pkPlot = GetInstance(L); CHECK_PLOT_VALID(pkPlot);
 	const YieldTypes eIndex = (YieldTypes)lua_tointeger(L, 2);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
-	const int iResult = pkPlot->calculateNatureYield(eIndex, ePlayer, pkPlot->getPlotCity());
+	const int iResult = pkPlot->calculateNatureYield(eIndex, ePlayer, pkPlot->getFeatureType(), pkPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pkPlot->getPlotCity());
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -1660,7 +1660,10 @@ int CvLuaPlot::lCalculateImprovementYieldChange(lua_State* L)
 	if (lua_gettop(L) == 6)
 		eRoute = (RouteTypes)lua_tointeger(L, 6);
 
-	const int iResult = pkPlot->calculateImprovementYield(eYield, ePlayer, eImprovement, pkPlot->getEffectiveOwningCity(), bOptimal, eRoute);
+	if (eRoute == NUM_ROUTE_TYPES)
+		eRoute = pkPlot->getRouteType();
+
+	const int iResult = pkPlot->calculateImprovementYield(eYield, ePlayer, eImprovement, eRoute, pkPlot->getFeatureType(), pkPlot->getResourceType(GET_PLAYER(ePlayer).getTeam()), pkPlot->IsCityConnection(ePlayer), pkPlot->getEffectiveOwningCity(), bOptimal);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -1699,7 +1702,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 
 		const CvReligion* pReligion = (eMajority != NO_RELIGION) ? GC.getGame().GetGameReligions()->GetReligion(eMajority, pOwningCity->getOwner()) : 0;
 		const CvBeliefEntry* pBelief = (eSecondaryPantheon != NO_BELIEF) ? GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon) : 0;
-		int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pReligion, pBelief);
+		int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, pkPlot->IsCityConnection(ePlayer), ePlayer, pOwningCity, pReligion, pBelief);
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
 		// Mod for civs keeping their pantheon belief forever
 		if (MOD_RELIGION_PERMANENT_PANTHEON)
@@ -1712,7 +1715,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 				{
 					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, pOwningCity->getOwner()))) // check that the our religion does not have our belief, to prevent double counting
 					{
-						iResult += pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, pOwningCity, pPantheon, NULL);
+						iResult += pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, pkPlot->IsCityConnection(ePlayer), ePlayer, pOwningCity, pPantheon, NULL);
 					}
 				}
 			}
@@ -1723,7 +1726,7 @@ int CvLuaPlot::lGetYieldWithBuild(lua_State* L)
 	}
 	else
 	{
-		const int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, ePlayer, NULL, NULL, NULL);
+		const int iResult = pkPlot->getYieldWithBuild(eBuild, eYield, bUpgrade, pkPlot->IsCityConnection(ePlayer), ePlayer, NULL, NULL, NULL);
 		lua_pushinteger(L, iResult);
 		return 1;
 	}

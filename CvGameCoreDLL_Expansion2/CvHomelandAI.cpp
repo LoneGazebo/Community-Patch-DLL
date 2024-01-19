@@ -385,7 +385,7 @@ void CvHomelandAI::FindHomelandTargets()
 							if (!(pImprovement->IsWater() || pImprovement->IsCoastMakesValid()))
 								continue;
 
-							if (pImprovement->IsConnectsResource(pLoopPlot->getResourceType()))
+							if (pImprovement->IsConnectsResource(pLoopPlot->getResourceType(eTeam)))
 							{
 								newTarget.SetTargetType(AI_HOMELAND_TARGET_NAVAL_RESOURCE);
 								newTarget.SetTargetX(pLoopPlot->getX());
@@ -2685,7 +2685,7 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 				iScoreExtra += 25;
 
 			//resources on water are always near land
-			if(pUnit->getDomainType() == DOMAIN_SEA && pEvalPlot->isWater() && (pEvalPlot->getResourceType() != NO_RESOURCE || pEvalPlot->getFeatureType() != NO_FEATURE))
+			if(pUnit->getDomainType() == DOMAIN_SEA && pEvalPlot->isWater() && (pEvalPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE || pEvalPlot->getFeatureType() != NO_FEATURE))
 				iScoreExtra += 25;
 
 			if(pUnit->canSellExoticGoods(pEvalPlot))
@@ -2881,14 +2881,17 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	//   ones with close workers.
 	CvBuilderTaskingAI* pBuilderTaskingAI = m_pPlayer->GetBuilderTaskingAI();
 	vector<BuilderDirective> topDirectives = pBuilderTaskingAI->GetDirectives();
-	vector<BuilderDirective> ignoredDirectives;
+	set<BuilderDirective> ignoredDirectives;
 
-	int iCurrentDirectiveValue = -1; // Current directive value
-	vector<BuilderDirective>::iterator iCurrentDirectiveIndex; // Keeps track of the index of the first directive with a shared score
+	// int iCurrentDirectiveValue = !topDirectives.empty() ? topDirectives[0].m_iScore : 0; // Current directive value
+	// vector<BuilderDirective>::iterator iCurrentDirectiveIndex = topDirectives.begin(); // Keeps track of the index of the first directive with a shared score
 
 	CvUnit* pBestDirectiveBuilder = NULL;
 	BuilderDirective eBestDirective = BuilderDirective();
 	int iBestDirectiveBuilderTotalTurns = INT_MAX;
+
+	// Keep track of some states to recalculate directive scores during processing
+	SBuilderState sState;
 
 	// Cache plot to plot distance calculations for the workers to avoid unnecessary pathfinding calls.
 	// Helps if there are several workers in the same tile. Assumes all workers have the same move speed and haven't used any movement.
@@ -2916,7 +2919,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
 				processedWorkers.insert(iUnitId);
-				ignoredDirectives.push_back(eDirective);
+				ignoredDirectives.insert(eDirective);
 				m_workedPlots.insert(pDirectivePlot->GetPlotIndex());
 			}
 		}
@@ -2924,26 +2927,21 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 	// Loop through all the directives sorted by priority.
 	// Any directives with a shared score will be considered in parallel (and the closest one is chosen).
-	for (vector<BuilderDirective>::iterator directiveIterator = topDirectives.begin(); directiveIterator != topDirectives.end() && allWorkers.size() > processedWorkers.size(); ++directiveIterator)
+	vector<BuilderDirective>::iterator firstSameValueDirectiveIterator = topDirectives.begin();
+	while (firstSameValueDirectiveIterator != topDirectives.end() && allWorkers.size() > processedWorkers.size())
 	{
-		BuilderDirective eDirective = *directiveIterator;
+		vector<BuilderDirective>::iterator directiveIterator = firstSameValueDirectiveIterator;
 
-		bool bIgnore = false;
-		for (vector<BuilderDirective>::iterator dirIter2 = ignoredDirectives.begin(); dirIter2 != ignoredDirectives.end(); ++dirIter2)
-			if ((*dirIter2) == eDirective)
-			{
-				bIgnore = true;
-				break;
-			}
-
-		if (bIgnore)
-			continue;
-
-		if (iCurrentDirectiveValue == eDirective.m_iScore && iBestDirectiveBuilderTotalTurns > 0)
+		while (directiveIterator != topDirectives.end() && (*directiveIterator).m_iScore == (*firstSameValueDirectiveIterator).m_iScore && iBestDirectiveBuilderTotalTurns > 0)
 		{
+			BuilderDirective eDirective = *directiveIterator++;
+
+			if (ignoredDirectives.find(eDirective) != ignoredDirectives.end())
+				continue;
+
 			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
-			if (m_workedPlots.count(pDirectivePlot->GetPlotIndex()) > 0)
+			if (m_workedPlots.find(pDirectivePlot->GetPlotIndex()) != m_workedPlots.end())
 				continue;
 
 			int iBestBuilderTotalTurns = INT_MAX;
@@ -2964,6 +2962,9 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				if (processedWorkers.find(pUnit->GetID()) != processedWorkers.end())
 					continue;
 
+				if (!pBuilderTaskingAI->EvaluateBuilder(pUnit, eDirective))
+					continue;
+
 				int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
 
 				sortedWorkers.push_back(OptionWithScore<int>(iCurrentUnitId, -iPlotDistance));
@@ -2975,9 +2976,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			{
 				int iCurrentUnitId = (*builderIterator).option;
 				CvUnit* pUnit = m_pPlayer->getUnit(iCurrentUnitId);
-
-				if (!pBuilderTaskingAI->EvaluateBuilder(pUnit, eDirective))
-					continue;
 
 				int iBuilderImprovementTime = pBuilderTaskingAI->GetTurnsToBuild(pUnit, eDirective, pDirectivePlot);
 				if (iBuilderImprovementTime == INT_MAX)
@@ -3010,50 +3008,275 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				eBestDirective = eDirective;
 			}
 		}
-		else
+
+		if (iBestDirectiveBuilderTotalTurns < INT_MAX)
 		{
+			iBestDirectiveBuilderTotalTurns = INT_MAX;
+			int iUnitID = pBestDirectiveBuilder->GetID();
 
-			if (iBestDirectiveBuilderTotalTurns < INT_MAX)
+			bool bMoveExecuted = false;
+			bool bIsAutomated = !m_pPlayer->isHuman() || nonAutomatedWorkers.find(iUnitID) == nonAutomatedWorkers.end();
+			if (bIsAutomated)
 			{
-				iBestDirectiveBuilderTotalTurns = INT_MAX;
-				int iUnitID = pBestDirectiveBuilder->GetID();
-
-				if (pBuilderTaskingAI->GetAssignedDirective(pBestDirectiveBuilder).m_eBuild == NO_BUILD)
+				if (pBuilderTaskingAI->ExecuteWorkerMove(pBestDirectiveBuilder, eBestDirective))
 				{
-					bool bIsAutomated = !m_pPlayer->isHuman() || nonAutomatedWorkers.find(iUnitID) == nonAutomatedWorkers.end();
-					if (bIsAutomated)
+					UnitProcessed(iUnitID);
+
+					processedWorkers.insert(iUnitID);
+					m_workedPlots.insert(GC.getMap().plot(eBestDirective.m_sX, eBestDirective.m_sY)->GetPlotIndex());
+
+					bMoveExecuted = true;
+				}
+			}
+			else
+			{
+				// Assign non-automated worker to this directive
+				pBuilderTaskingAI->SetAssignedDirective(pBestDirectiveBuilder, eBestDirective);
+
+				processedWorkers.insert(iUnitID);
+				// ignoredDirectives.insert(eBestDirective);
+				m_workedPlots.insert(GC.getMap().plot(eBestDirective.m_sX, eBestDirective.m_sY)->GetPlotIndex());
+
+				bMoveExecuted = true;
+			}
+			if (bMoveExecuted && allWorkers.size() > processedWorkers.size())
+			{
+				// We may want to recalculate some of the other directive scores
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBestDirective.m_eBuild);
+				ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+				CvPlot* pDirectivePlot = GC.getMap().plot(eBestDirective.m_sX, eBestDirective.m_sY);
+				if (eImprovement == NO_IMPROVEMENT && pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged())
+					eImprovement = pDirectivePlot->getImprovementType();
+				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+
+				bool bValuesUpdated = false;
+				vector<OptionWithScore<BuilderDirective>> aNewBuilderDirectives;
+
+				// Resource considerations
+				ResourceTypes eResourceFromImprovement = pkImprovementInfo ? (ResourceTypes)pkImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
+				ResourceTypes eResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : pDirectivePlot->getResourceType(m_pPlayer->getTeam());
+				int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pDirectivePlot->getNumResource();
+				bool bResourceStateChanged = false;
+
+				if (eResource != NO_RESOURCE && iResourceAmount > 0)
+				{
+					sState.mExtraResources[eResource] += iResourceAmount;
+					bResourceStateChanged = true;
+				}
+
+				// Feature considerations
+				FeatureTypes eFeatureFromImprovement = pkImprovementInfo ? pkImprovementInfo->GetCreatedFeature() : NO_FEATURE;
+				FeatureTypes eFeature = pkBuildInfo->isFeatureRemove(pDirectivePlot->getFeatureType()) ? NO_FEATURE : pDirectivePlot->getFeatureType();
+				eFeature = eFeatureFromImprovement != NO_FEATURE ? eFeatureFromImprovement : eFeature;
+				bool bFeatureStateChanged = false;
+
+				if (!MOD_BALANCE_VP && eFeature != pDirectivePlot->getFeatureType())
+				{
+					sState.mChangedPlotFeatures[pDirectivePlot->GetPlotIndex()] = eFeature;
+					bFeatureStateChanged = true;
+				}
+
+				bool bImprovementStateChanged = false;
+
+				// Improvement considerations
+				if (eImprovement != pDirectivePlot->getImprovementType() || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
+				{
+					sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()] = eImprovement;
+					bImprovementStateChanged = true;
+				}
+
+				// Defense considerations
+				bool bDefenseStateChanged = false;
+				if (bImprovementStateChanged)
+				{
+					ImprovementTypes eOldImprovement = pDirectivePlot->getImprovementType();
+					CvImprovementEntry* pkOldImprovementInfo = GC.getImprovementInfo(eOldImprovement);
+
+					int iOldDefenseModifier = pkOldImprovementInfo ? pkOldImprovementInfo->GetDefenseModifier() : 0;
+					int iOldImprovementDamage = pkOldImprovementInfo ? pkOldImprovementInfo->GetNearbyEnemyDamage() : 0;
+
+					int iNewDefenseModifier = pkImprovementInfo ? pkImprovementInfo->GetDefenseModifier() : 0;
+					int iNewImprovementDamage = pkImprovementInfo ? pkImprovementInfo->GetNearbyEnemyDamage() : 0;
+
+					if (iNewDefenseModifier != iOldDefenseModifier)
 					{
-						if (pBuilderTaskingAI->ExecuteWorkerMove(pBestDirectiveBuilder, eBestDirective))
+						sState.mExtraDefense[pDirectivePlot->GetPlotIndex()] = iNewDefenseModifier - iOldDefenseModifier;
+						bDefenseStateChanged = true;
+					}
+					if (iNewImprovementDamage != iOldImprovementDamage)
+					{
+						sState.mExtraDamageToAdjacent[pDirectivePlot->GetPlotIndex()] = iNewImprovementDamage - iOldImprovementDamage;
+						bDefenseStateChanged;
+					}
+				}
+
+				for (vector<BuilderDirective>::iterator it = firstSameValueDirectiveIterator; it != topDirectives.end(); ++it)
+				{
+					BuilderDirective eOtherDirective = *it;
+					int iNewDirectiveScore = eOtherDirective.m_iScore;
+
+					// Pruning
+					if (eBestDirective.m_sX == eOtherDirective.m_sX && eBestDirective.m_sY == eOtherDirective.m_sY)
+					{
+						// Prune directives that are in the same plot
+						bValuesUpdated = true;
+						continue;
+					}
+					else if (pkImprovementInfo && pkImprovementInfo->IsNoTwoAdjacent())
+					{
+						// Prune directives to ensure we don't try to build two adjacent that cannot be adjacent
+						if (eOtherDirective.m_eBuild == eBestDirective.m_eBuild && plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eBestDirective.m_sX, eBestDirective.m_sY) == 1)
 						{
-							UnitProcessed(iUnitID);
-
-							processedWorkers.insert(iUnitID);
-							ignoredDirectives.push_back(eBestDirective);
-							m_workedPlots.insert(GC.getMap().plot(eBestDirective.m_sX, eBestDirective.m_sY)->GetPlotIndex());
-
-							directiveIterator = iCurrentDirectiveIndex - 1;
+							bValuesUpdated = true;
 							continue;
 						}
 					}
-					else
+
+					bool bDirectiveUpdated = false;
+
+					CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
+					CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
+					ImprovementTypes eOtherImprovement = (ImprovementTypes)pkOtherBuildInfo->getImprovement();
+
+					if (eOtherImprovement == NO_IMPROVEMENT && pkOtherBuildInfo->isRepair())
+						eOtherImprovement = pOtherPlot->getImprovementType();
+
+					CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
+
+					// Reevaluating
+					if (bResourceStateChanged)
 					{
-						// Assign non-automated worker to this directive
-						pBuilderTaskingAI->SetAssignedDirective(pBestDirectiveBuilder, eBestDirective);
+						// Connecting a resource may reduce or increase the value of connecting more instances of the same resource
+						if ((pOtherPlot->getResourceType(m_pPlayer->getTeam()) == eResource && pkOtherImprovementInfo && pkOtherImprovementInfo->IsConnectsResource(eResource)) || (pkOtherImprovementInfo && pkOtherImprovementInfo->GetResourceFromImprovement() == eResource))
+						{
+							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-						processedWorkers.insert(iUnitID);
-						ignoredDirectives.push_back(eBestDirective);
-						m_workedPlots.insert(GC.getMap().plot(eBestDirective.m_sX, eBestDirective.m_sY)->GetPlotIndex());
+							iScore += pBuilderTaskingAI->GetBuildTimeWeight(iScore, pOtherPlot, eOtherDirective.m_eBuild);
+							iScore += pBuilderTaskingAI->GetBuildCostWeight(pOtherPlot, eOtherDirective.m_eBuild);
 
-						directiveIterator = iCurrentDirectiveIndex - 1;
-						continue;
+							iScore = min(iScore, 0x7FFF);
+
+							if (iScore != eOtherDirective.m_iScore)
+							{
+								iNewDirectiveScore = iScore;
+								eOtherDirective.m_iScore = iScore;
+								bValuesUpdated = true;
+								bDirectiveUpdated = true;
+							}
+						}
 					}
+
+					if (bFeatureStateChanged && !bDirectiveUpdated)
+					{
+						// This is only used for vanilla Celts, removing forests will cause faith reduction in cities on certain thresholds
+						CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
+
+						if (pOtherPlot->getFeatureType() == pDirectivePlot->getFeatureType())
+						{
+							FeatureTypes eFeatureFromOtherImprovement = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetCreatedFeature() : NO_FEATURE;
+							FeatureTypes eOtherFeature = pkOtherBuildInfo->isFeatureRemove(pOtherPlot->getFeatureType()) ? NO_FEATURE : pOtherPlot->getFeatureType();
+							eOtherFeature = eFeatureFromOtherImprovement != NO_FEATURE ? eFeatureFromOtherImprovement : eOtherFeature;
+
+							if (eOtherFeature != pOtherPlot->getFeatureType())
+							{
+								int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+
+								iScore += pBuilderTaskingAI->GetBuildTimeWeight(iScore, pOtherPlot, eOtherDirective.m_eBuild);
+								iScore += pBuilderTaskingAI->GetBuildCostWeight(pOtherPlot, eOtherDirective.m_eBuild);
+
+								iScore = min(iScore, 0x7FFF);
+
+								if (iScore != eOtherDirective.m_iScore)
+								{
+									iNewDirectiveScore = iScore;
+									eOtherDirective.m_iScore = iScore;
+									bValuesUpdated = true;
+									bDirectiveUpdated = true;
+								}
+							}
+						}
+					}
+
+					if (bDefenseStateChanged && !bDirectiveUpdated)
+					{
+						// If we are building or removing a defensive improvement, recalculate nearby defensive structure changes
+						int iPlotDistance = plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eBestDirective.m_sX, eBestDirective.m_sY);
+						if (iPlotDistance == 1 || iPlotDistance == 2)
+						{
+							ImprovementTypes eOtherOldImprovement = pOtherPlot->getImprovementType();
+							CvImprovementEntry* pkOtherOldImprovementInfo = GC.getImprovementInfo(eOtherOldImprovement);
+
+							int iOtherOldDefenseModifier = pkOtherOldImprovementInfo ? pkOtherOldImprovementInfo->GetDefenseModifier() : 0;
+							int iOtherOldImprovementDamage = pkOtherOldImprovementInfo ? pkOtherOldImprovementInfo->GetNearbyEnemyDamage() : 0;
+
+							int iOtherNewDefenseModifier = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetDefenseModifier() : 0;
+							int iOtherNewImprovementDamage = pkOtherImprovementInfo ? pkOtherImprovementInfo->GetNearbyEnemyDamage() : 0;
+
+							if (iOtherNewDefenseModifier != iOtherOldDefenseModifier || iOtherNewImprovementDamage != iOtherOldImprovementDamage)
+							{
+								int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+
+								iScore += pBuilderTaskingAI->GetBuildTimeWeight(iScore, pOtherPlot, eOtherDirective.m_eBuild);
+								iScore += pBuilderTaskingAI->GetBuildCostWeight(pOtherPlot, eOtherDirective.m_eBuild);
+
+								iScore = min(iScore, 0x7FFF);
+
+								if (iScore != eOtherDirective.m_iScore)
+								{
+									iNewDirectiveScore = iScore;
+									eOtherDirective.m_iScore = iScore;
+									bValuesUpdated = true;
+									bDirectiveUpdated = true;
+								}
+							}
+						}
+					}
+
+					if (bImprovementStateChanged && !bDirectiveUpdated)
+					{
+						// If we are building or removing an improvement, give all adjacent plot directives yield increases/decreases from this change
+						// TODO check if we will actually change the yield value before we call ScorePlotBuild
+						if (plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eBestDirective.m_sX, eBestDirective.m_sY) == 1)
+						{
+							if (eOtherImprovement != NO_IMPROVEMENT)
+							{
+								int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
+
+								iScore += pBuilderTaskingAI->GetBuildTimeWeight(iScore, pOtherPlot, eOtherDirective.m_eBuild);
+								iScore += pBuilderTaskingAI->GetBuildCostWeight(pOtherPlot, eOtherDirective.m_eBuild);
+
+								iScore = min(iScore, 0x7FFF);
+
+								if (iScore != eOtherDirective.m_iScore)
+								{
+									iNewDirectiveScore = iScore;
+									eOtherDirective.m_iScore = iScore;
+									bValuesUpdated = true;
+									bDirectiveUpdated = true;
+								}
+							}
+						}
+					}
+
+					aNewBuilderDirectives.push_back(OptionWithScore<BuilderDirective>(eOtherDirective, iNewDirectiveScore));
+				}
+
+				if (bValuesUpdated)
+				{
+					std::stable_sort(aNewBuilderDirectives.begin(), aNewBuilderDirectives.end());
+					topDirectives.clear();
+					for (vector<OptionWithScore<BuilderDirective>>::iterator it = aNewBuilderDirectives.begin(); it != aNewBuilderDirectives.end(); ++it)
+					{
+						topDirectives.push_back((*it).option);
+					}
+
+					firstSameValueDirectiveIterator = topDirectives.begin();
 				}
 			}
-
-			ignoredDirectives.clear();
-			iCurrentDirectiveValue = (*directiveIterator).m_iScore;
-			iCurrentDirectiveIndex = directiveIterator;
-			directiveIterator--;
+		}
+		else
+		{
+			firstSameValueDirectiveIterator = directiveIterator;
 		}
 	}
 

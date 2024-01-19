@@ -192,10 +192,10 @@ public:
 	void SetUsingCityStrategy(AICityStrategyTypes eStrategy, bool bValue);
 	int GetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy);
 	void SetTurnCityStrategyAdopted(AICityStrategyTypes eStrategy, int iValue);
-	CvBuildingProductionAI* GetBuildingProductionAI();
-	CvUnitProductionAI* GetUnitProductionAI();
-	CvProjectProductionAI* GetProjectProductionAI();
-	CvProcessProductionAI* GetProcessProductionAI();
+	CvBuildingProductionAI* GetBuildingProductionAI() const;
+	CvUnitProductionAI* GetUnitProductionAI() const;
+	CvProjectProductionAI* GetProjectProductionAI() const;
+	CvProcessProductionAI* GetProcessProductionAI() const;
 	CvString GetLogFileName(CvString& playerName, CvString& cityName) const;
 #if defined(MOD_BALANCE_CORE)
 	CvString GetProductionLogFileName(CvString& playerName, CvString& cityName) const;
@@ -203,8 +203,9 @@ public:
 #endif
 
 #if defined(MOD_BALANCE_CORE)
-	YieldTypes GetMostDeficientYield();
-	YieldTypes GetMostAbundantYield();
+	YieldTypes GetMostDeficientYield() const;
+	YieldTypes GetMostAbundantYield() const;
+	int GetYieldModifierTimes100(YieldTypes eYield) const;
 	void PrecalcYieldStats();
 #endif
 
@@ -250,6 +251,7 @@ private:
 
 	YieldTypes m_eMostDeficientYield;
 	YieldTypes m_eMostAbundantYield;
+	int m_aiYieldModifier[NUM_YIELD_TYPES];
 };
 
 FDataStream& operator>>(FDataStream&, CvCityStrategyAI&);
