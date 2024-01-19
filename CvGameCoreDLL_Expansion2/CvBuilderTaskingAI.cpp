@@ -306,7 +306,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	int iRoadMaintenanceLength = 0;
 	int iNumRoadsNeededToBuild = 0;
 
-	for (size_t i=0; i<path.vPlots.size(); i++)
+	for (size_t i = 1; i < path.vPlots.size() - 1; i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
@@ -431,7 +431,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	int iRoadLength = 0;
 	int iRoadMaintenanceLength = 0;
 
-	for (size_t i = 0; i < newPath.vPlots.size(); i++)
+	for (size_t i = 1; i < newPath.vPlots.size() - 1; i++)
 	{
 		CvPlot* pPlot = newPath.get(i);
 		if (!pPlot)
@@ -441,7 +441,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		if (pPlot->isCity())
 		{
 			// if we are going via a city, that isn't one of the two cities we are connecting, then this shortcut is not needed
-			if (i > 0 && i < newPath.length() - 1 && pPlot->getOwner() == m_pPlayer->GetID())
+			if (pPlot->getOwner() == m_pPlayer->GetID())
 				return;
 			continue;
 		}
@@ -476,10 +476,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (pOriginCity->getOwner() != pTargetPlot->getOwner())
 		return;
 
-	// only connect strategic points to the city they belong to
-	if (pTargetPlot->getOwningCity() != pOriginCity)
-		return;
-
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if (!pRouteInfo)
 		return;
@@ -492,29 +488,70 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (!path)
 		return;
 
-	//and this to see if we actually build it
-	int iCost = pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
-	iCost *= path.length();
-	if (iNetGoldTimes100 - iCost <= 6)
-		return;
+	// go through the route to see how long it is and how many plots already have roads
+	int iRoadMaintenanceLength = 0;
 
-	int iValue = GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES) * 4;
-
-	for (int i = 0; i < path.length(); i++)
+	for (size_t i = 1; i < path.vPlots.size(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
 			break;
 
-		if (pPlot->isCity())
-			continue;
-
 		if (pPlot->getOwner() != m_pPlayer->GetID())
+			return;
+
+		//don't count the cities themselves
+		if (pPlot->isCity())
+		{
+			// strategic routes never need to go through our cities
+			if (pPlot->getOwner() == m_pPlayer->GetID())
+				return;
+			continue;
+		}
+
+		if (!GetSameRouteBenefitFromTrait(pPlot, eRoute))
+			iRoadMaintenanceLength++;
+	}
+
+	//and this to see if we actually build it
+	int iCost = pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
+	iCost *= iRoadMaintenanceLength + 5; // add extra to account for ring tiles around fort
+	if (iNetGoldTimes100 - iCost <= 6)
+		return;
+
+	int iValue = GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES) * 4;
+
+	for (int i = 1; i < path.length(); i++)
+	{
+		CvPlot* pPlot = path.get(i);
+		if (!pPlot)
 			break;
 
 		// remember the plot
 		if (AddRoutePlot(pPlot, eRoute, iValue))
 			m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
+	}
+
+	// Build a ring around the target plot
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(path.get(path.length() - 1));
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+
+		if (pAdjacentPlot->isWater())
+			continue;
+
+		if (pAdjacentPlot->isCity())
+			continue;
+
+		if (pAdjacentPlot->getOwner() != m_pPlayer->GetID())
+			continue;
+
+		if (!pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()))
+			continue;
+
+		if (AddRoutePlot(pAdjacentPlot, eRoute, iValue))
+			m_strategicRoutePlots.insert(pAdjacentPlot->GetPlotIndex());
 	}
 }
 
