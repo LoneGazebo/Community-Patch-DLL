@@ -1731,9 +1731,6 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* /*pCity*/)
 {
 	// the plot was not flagged recently, so ignore
-	if (!NeedRouteAtPlot(pPlot))
-		return;
-
 	RouteTypes eRoute = GetRouteTypeNeededAtPlot(pPlot);
 	if(eRoute == NO_ROUTE)
 		return;
@@ -1989,48 +1986,75 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<Builder
 		return;
 	}
 
+	bool bImprovementPillaged = pPlot->IsImprovementPillaged();
+	bool bRoutePillaged = pPlot->IsRoutePillaged();
+
 	//nothing pillaged here? hmm...
-	if (!pPlot->IsImprovementPillaged() && !pPlot->IsRoutePillaged())
+	if (!bImprovementPillaged && !bRoutePillaged)
 	{
 		return;
 	}
 
-	bool bIsOwned = pPlot->isOwned();
-	bool bIsOwnedByUs = pPlot->getOwner() == m_pPlayer->GetID();
-
-	RouteTypes eRouteNeeded = GetRouteTypeNeededAtPlot(pPlot);
-	RouteTypes eRoute = pPlot->getRouteType();
-	bool bIsPillagedRouteWeWantToRepair = eRouteNeeded > NO_ROUTE && eRouteNeeded <= eRoute && pPlot->IsRoutePillaged() && !GetSameRouteBenefitFromTrait(pPlot, eRoute);
-
-	// For routes, we ignore plot ownership
-	if (!bIsPillagedRouteWeWantToRepair)
+	bool bRepairImprovement = false;
+	if (bImprovementPillaged)
 	{
-		// If it's owned by someone else or is unowned, ignore it
-		if ((bIsOwned && !bIsOwnedByUs) || !bIsOwned)
+		bRepairImprovement = true;
+
+		if (pPlot->getOwner() == NO_PLAYER || pPlot->getOwner() != m_pPlayer->GetID())
 		{
-			return;
+			// If it's owned by someone else or is unowned, ignore it
+			bRepairImprovement = false;
 		}
-
-		CvCity* pOwningCity = pPlot->getOwningCity();
-
-		// If the city owning this plot is being razed, ignore it (check actual owning city instead of working city)
-		if (pOwningCity && pOwningCity->IsRazing())
+		else if (pPlot->getOwningCity()->IsRazing())
 		{
-			return;
+			// If the city owning this plot is being razed, ignore it (check actual owning city instead of working city)
+			bRepairImprovement = false;
 		}
 	}
+
+	bool bRepairRoute = false;
+	if (bRoutePillaged && !bRepairImprovement)
+	{
+		bRepairRoute = true;
+
+		RouteTypes eRouteNeeded = GetRouteTypeNeededAtPlot(pPlot);
+		RouteTypes eRoute = pPlot->getRouteType();
+
+		if (eRouteNeeded == NO_ROUTE)
+		{
+			// Don't repair roads that we don't need
+			bRepairRoute = false;
+		}
+		else if (eRouteNeeded > eRoute)
+		{
+			// We want to replace the route with a better one
+			bRepairRoute = false;
+		}
+		else if (GetSameRouteBenefitFromTrait(pPlot, eRoute))
+		{
+			// We don't need to repair the route since we get the same benefit from our civ trait
+			bRepairRoute = false;
+		}
+	}
+
+	// Nothing we want to repair here
+	if (!bRepairImprovement && !bRepairRoute)
+		return;
 
 	int iWeight = GetBuildCostWeight(100 * /*1000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_REPAIR), pPlot, m_eRepairBuild);
 	iWeight += GetBuildTimeWeight(pPlot, m_eRepairBuild, false);
 
-	if (bIsPillagedRouteWeWantToRepair)
+	if (bRepairRoute)
 		iWeight += GetRouteValue(pPlot);
 
-	if (pPlot->isRevealedFortification(m_pPlayer->getTeam()))
-		iWeight *= 10;
+	if (bRepairImprovement)
+	{
+		if (pPlot->isRevealedFortification(m_pPlayer->getTeam()))
+			iWeight *= 10;
 
-	if (pWorkingCity && pWorkingCity->GetCityCitizens()->IsWorkingPlot(pPlot))
-		iWeight *= 2;
+		if (pWorkingCity && pWorkingCity->GetCityCitizens()->IsWorkingPlot(pPlot))
+			iWeight *= 2;
+	}
 
 	if (iWeight > 0)
 	{

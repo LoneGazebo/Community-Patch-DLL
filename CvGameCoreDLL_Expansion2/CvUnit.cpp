@@ -24907,7 +24907,13 @@ void CvUnit::DoFinishBuildIfSafe()
 	{
 		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
 		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+		{
+			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
+			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
+				return;
+
 			CvUnitMission::ContinueMission(this);
+		}
 	}
 }
 #endif 
