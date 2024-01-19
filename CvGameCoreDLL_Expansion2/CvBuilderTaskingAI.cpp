@@ -558,7 +558,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (!pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()))
 			continue;
 
-		if (AddRoutePlot(pAdjacentPlot, eRoute, iValue))
+		// Add these routes after the main route is completed
+		if (AddRoutePlot(pAdjacentPlot, eRoute, iValue - 1))
 			m_strategicRoutePlots.insert(pAdjacentPlot->GetPlotIndex());
 	}
 }

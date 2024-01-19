@@ -163,7 +163,7 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 			//ignore plots which are not exposed
 			bool bCloseOtherCiv = false;
-			for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
+			for (int i = RING0_PLOTS; i < RING2_PLOTS; i++)
 			{
 				CvPlot* pAdjacentPlot = iterateRingPlots(pLoopPlot, i);
 				if (pAdjacentPlot == NULL)

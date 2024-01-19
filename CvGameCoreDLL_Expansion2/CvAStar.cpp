@@ -2198,6 +2198,10 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 	if (pPlot->getResourceType() != NO_RESOURCE)
 		return 0;
 
+	// No villages on mountains
+	if (pPlot->getTerrainType() == TERRAIN_MOUNTAIN)
+		return 0;
+
 	// No villages for China near cities, no villages for Brazil on jungle/forest, no villages for Netherlands on marshes.
 	if (!eBuilderTaskingAi->MayWantVillageOnPlot(pPlot))
 		return 0;
