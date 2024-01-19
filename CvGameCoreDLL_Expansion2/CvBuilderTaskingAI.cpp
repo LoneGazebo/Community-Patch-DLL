@@ -476,6 +476,10 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (pOriginCity->getOwner() != pTargetPlot->getOwner())
 		return;
 
+	// don't connect razing cities
+	if (pOriginCity->IsRazing())
+		return;
+
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if (!pRouteInfo)
 		return;
