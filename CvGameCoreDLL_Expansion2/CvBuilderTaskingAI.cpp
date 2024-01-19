@@ -520,10 +520,14 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	//and this to see if we actually build it
 	int iCost = pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	iCost *= iRoadMaintenanceLength + 5; // add extra to account for ring tiles around fort
-	if (iNetGoldTimes100 - iCost <= 6)
+
+	int iGoldDelta = iNetGoldTimes100 - iCost;
+
+	if (iGoldDelta < 0)
 		return;
 
-	int iValue = GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES) * 4;
+	// Need a decent gold buffer to build strategic routes, but don't remove them unless we are actually losing gold
+	int iValue = iGoldDelta >= 30 ? GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES) * 4 : 0;
 
 	for (int i = 1; i < path.length(); i++)
 	{
