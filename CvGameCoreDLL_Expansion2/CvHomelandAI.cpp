@@ -2987,10 +2987,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 
 				int iCachedDistance = plotDistanceCache[plotPair];
 				int iBuilderDistance = iCachedDistance ? iCachedDistance - 1 : pBuilderTaskingAI->GetBuilderNumTurnsAway(pUnit, eDirective, iBestBuilderTotalTurns - iBuilderImprovementTime - 1);
-				plotDistanceCache[plotPair] = iBuilderDistance + 1;
 
 				if (iBuilderDistance == INT_MAX)
 					continue;
+
+				plotDistanceCache[plotPair] = iBuilderDistance + 1;
 
 				int iTotalTurns = iBuilderDistance + iBuilderImprovementTime;
 

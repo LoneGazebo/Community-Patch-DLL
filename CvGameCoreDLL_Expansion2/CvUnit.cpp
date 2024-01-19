@@ -3435,7 +3435,7 @@ bool CvUnit::isActionRecommended(int iAction)
 			BuilderDirective eDirective = *it;
 			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
-			if (plot() != pDirectivePlot)
+			if (pPlot != pDirectivePlot)
 				continue;
 
 			bool bCanBuild = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this, eDirective);
@@ -3443,14 +3443,8 @@ bool CvUnit::isActionRecommended(int iAction)
 			if (!bCanBuild)
 				continue;
 
-			if (eDirective.m_eBuild == eBuild)
-			{
-				return true;
-			}
-			else
-			{
-				return false;
-			}
+			// If this is not the best improvement we can build on this tile, return false
+			return eDirective.m_eBuild == eBuild;
 		}
 	}
 

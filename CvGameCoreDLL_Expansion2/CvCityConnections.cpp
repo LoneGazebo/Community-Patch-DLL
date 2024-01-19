@@ -126,9 +126,6 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 {
 	m_plotIdsToConnect.clear();
 
-	bool bIsIndustrial = GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute() == GC.getGame().GetIndustrialRoute();
-	bool bHaveGoldToSpare = m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100() > 1000;
-
 	vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
 	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
@@ -166,22 +163,13 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			if (vUnfriendlyMajors.empty() || !pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyMajors))
 				continue;
 
-			//natural defenses
-			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 25 || pLoopPlot->IsChokePoint())
-			{
-				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
-			}
-			else if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 			{
 				//citadels and forts
 				CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());
 				if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 20)
 					m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}
-
-			//in industrial era, AI becomes much more generous with routes ...
-			if (bIsIndustrial && bHaveGoldToSpare && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), false, true))
-				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 		}
 	}
 

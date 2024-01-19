@@ -498,6 +498,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (iNetGoldTimes100 - iCost <= 6)
 		return;
 
+	int iValue = GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES) * 4;
+
 	for (int i = 0; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
@@ -511,7 +513,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 			break;
 
 		// remember the plot
-		if (AddRoutePlot(pPlot, eRoute, 54))
+		if (AddRoutePlot(pPlot, eRoute, iValue))
 			m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
@@ -2837,44 +2839,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 		}
 	}
-	//Do we have unimproved plots nearby? If so, let's not worry about replacing improvements right now.
-	/*if (pPlot->getImprovementType() != NO_IMPROVEMENT && !pImprovement->IsAdjacentCity())
-	{
-		//first off, reduce the value, because this is time consuming. It had better be worth it!
-		iYieldScore -= iMedBuff;
-
-		//If our current improvement is obsolete, let's half it's value, so that the potential replacement is stronger.
-		CvImprovementEntry* pOldImprovement = GC.getImprovementInfo(pPlot->getImprovementType());
-		if((pOldImprovement->GetObsoleteTech() != NO_TECH) && GET_TEAM(m_pPlayer->getTeam()).GetTeamTechs()->HasTech((TechTypes)pOldImprovement->GetObsoleteTech()))
-		{
-			iYieldScore -= iMedBuff;
-		}
-		int iNumWorkedPlots = 0;
-		int iNumImprovedPlots = 0;
-		// Look at the city we'll be improving to see how essential another improvement is.
-		if(pCity)
-		{
-			for (int iI = 0; iI < GC.getNumImprovementInfos(); iI++)
-			{
-				ImprovementTypes eWorkingImprovement = (ImprovementTypes) iI;
-				if(eWorkingImprovement != NO_IMPROVEMENT)
-				{
-					iNumImprovedPlots += pCity->GetNumImprovementWorked(eWorkingImprovement);
-				}
-			}
-			iNumWorkedPlots = pCity->getPopulation();
-			//if population is higher than # of plots, reduce value. Otherwise, increase it.
-			//one will remove penalty above - more than that and it becomes useful.
-			if (iNumWorkedPlots > iNumImprovedPlots)
-			{
-				iSecondaryScore -= ((iNumWorkedPlots - iNumImprovedPlots) * iSmallBuff);
-			}
-			else
-			{
-				iSecondaryScore += iSmallBuff * (iNumImprovedPlots - iNumWorkedPlots);
-			}
-		}
-	}*/
 
 	//Fort test.
 	static ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
