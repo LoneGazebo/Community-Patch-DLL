@@ -1592,12 +1592,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		int iBuildTimeWeight = GetBuildTimeWeight(pPlot, eBuild, DoesBuildHelpRush(pPlot, eBuild));
 		iWeight += iBuildTimeWeight;
 
-		if (bWillRemoveForest || bWillRemoveJungle)
-		{
-			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
-				iWeight /= 100;
-		}
-
 		if (eFeature != NO_FEATURE && pkBuild->isFeatureRemove(eFeature))
 		{
 			CvCity* pCity = pPlot->getEffectiveOwningCity();
@@ -1631,6 +1625,12 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 
 		//overflow danger here
 		iWeight += iScore;
+
+		if (bWillRemoveForest || bWillRemoveJungle)
+		{
+			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
+				iWeight /= 100;
+		}
 
 		BuilderDirective directive(eDirectiveType, eBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
 
