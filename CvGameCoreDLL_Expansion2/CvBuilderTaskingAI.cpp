@@ -346,7 +346,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 			iValue += 8000 / (iNumRoadsNeededToBuild * iNumRoadsNeededToBuild);
 
 		//assume one unhappiness is worth gold per turn per city
-		iValue += bHasCityConnection ? pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 200 : 100) : 0;
+		iValue += bHasCityConnection ? pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 1000 : 100) : 0;
 
 		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
