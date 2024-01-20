@@ -1564,9 +1564,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		}
 
 		int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
-		if (pCity && pCity->GetCityCitizens()->IsWorkingPlot(pPlot))
-			iScore *= 2;
-
 		iScore = min(iScore,0x7FFF);
 
 		// if we're going backward, bail out!
