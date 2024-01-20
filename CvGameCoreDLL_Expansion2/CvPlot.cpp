@@ -15505,17 +15505,26 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 
 	static const ImprovementTypes eFort = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_FORT");
 	static const ImprovementTypes eCitadel = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_CITADEL");
+	static const ImprovementTypes eOrdo = (ImprovementTypes)GC.getInfoTypeForString("IMPROVEMENT_MONGOLIA_ORDO");
+	static const BuildTypes eFortBuild = GET_PLAYER(eOwner).GetBuilderTaskingAI()->GetBuildTypeFromImprovement(eFort);
 
-	if(eFort == NO_IMPROVEMENT && eCitadel == NO_IMPROVEMENT)
+	if(eFort == NO_IMPROVEMENT && eCitadel == NO_IMPROVEMENT && eOrdo == NO_IMPROVEMENT)
 		return 0;
+
+	bool bHuman = GET_PLAYER(eOwner).isHuman();
+	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(eOwner).GetDiplomacyAI();
 
 	// See how many outside plots are nearby to monitor
 	int iAdjacentUnowned = 0;
+	int iNearbyUnowned = 0;
 	int iAdjacentOwnedOther = 0;
 	int iNearbyForts = 0;
-	int iNearbyOwnedOther = 0;
-	int iBadNearby = 0;
-	int iBadAdjacent = 0;
+	int iThreatNearby = 0;
+	int iThreatAdjacent = 0;
+	int iAdjacentCoast = 0;
+	int iNearbyCoast = 0;
+	int iOwnedLandAdjacent = 0;
+	bool bAdjacentCity = false;
 
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
@@ -15525,18 +15534,24 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		if (pLoopAdjacentPlot != NULL)
 		{	
 			//Adjacent to city? Break!
-			if(pLoopAdjacentPlot->isCity())
-				return 0;
+			if (pLoopAdjacentPlot->isCity())
+				bAdjacentCity = true;
 
 			//impassable is uninteresting
 			if(pLoopAdjacentPlot->isImpassable(eTeam))
 				continue;
 
+			if (pLoopAdjacentPlot->isWater() && !pLoopAdjacentPlot->isLake())
+				iAdjacentCoast++;
+
 			if(pLoopAdjacentPlot->getOwner() == eOwner)
 			{
 				//don't build other defenses near citadels (next to forts is ok)
-				if (pLoopAdjacentPlot->getImprovementType() == eCitadel)
+				if (pLoopAdjacentPlot->getImprovementType() == eCitadel || pLoopAdjacentPlot->getImprovementType() == eOrdo)
 					return 0;
+
+				if (!pLoopAdjacentPlot->isWater())
+					iOwnedLandAdjacent++;
 			}
 			else if(pLoopAdjacentPlot->getOwner() == NO_PLAYER)
 			{
@@ -15545,14 +15560,39 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 			{
 				iAdjacentOwnedOther++;
-				if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetCivOpinion(pLoopAdjacentPlot->getOwner()) <= CIV_OPINION_NEUTRAL)
-					iBadAdjacent++;
+				
+				int iOpinionMultiplier = 1;
+				int iStrengthMultiplier = 1;
+
+				if (GET_PLAYER(eOwner).isHuman())
+				{
+					iOpinionMultiplier = 2;
+				}
+				else
+				{
+					CivOpinionTypes eOpinion = pDiplomacyAI->GetCivOpinion(pLoopAdjacentPlot->getOwner());
+
+					if (eOpinion == CIV_OPINION_NEUTRAL)
+						iOpinionMultiplier = 2;
+					else if (eOpinion < CIV_OPINION_NEUTRAL)
+						iOpinionMultiplier = 4;
+
+					StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopAdjacentPlot->getOwner());
+					if (eStrengthRelativeToUs == STRENGTH_STRONG)
+						iStrengthMultiplier = 2;
+					else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
+						iStrengthMultiplier = 4;
+					else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
+						iStrengthMultiplier = 8;
+				}
+
+				iThreatAdjacent += iOpinionMultiplier * iStrengthMultiplier;
 			}
 		}
 	}
 
 	//if there are no unowned or enemy tiles, don't bother
-	if(iAdjacentUnowned+iAdjacentOwnedOther < 3 && iBadAdjacent == 0)
+	if(iAdjacentUnowned+iAdjacentOwnedOther+iAdjacentCoast < 3 && iThreatAdjacent < 3)
 		return 0;
 
 	//check the wider area for enemy tiles. may also be on another landmass
@@ -15563,50 +15603,105 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner)
 		//Don't want them adjacent to cities, but we do want to check for plot ownership.
 		if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam))
 		{
-			if (!pLoopNearbyPlot->isOwned())
+			//impassable is uninteresting
+			if (pLoopNearbyPlot->isImpassable(eTeam))
 				continue;
+
+			if (pLoopNearbyPlot->isWater() && !pLoopNearbyPlot->isLake())
+				iNearbyCoast++;
+
+			if (!pLoopNearbyPlot->isOwned())
+			{
+				iNearbyUnowned++;
+				continue;
+			}
 
 			if (pLoopNearbyPlot->getOwner() != eOwner)
 			{
 				if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 				{
-					iNearbyOwnedOther++;
-					if (GET_PLAYER(eOwner).GetDiplomacyAI()->GetCivOpinion(pLoopNearbyPlot->getOwner()) <= CIV_OPINION_NEUTRAL)
-						iBadNearby++;
+					int iOpinionMultiplier = 1;
+					int iStrengthMultiplier = 1;
+
+					if (GET_PLAYER(eOwner).isHuman())
+					{
+						iOpinionMultiplier = 2;
+					}
+					else
+					{
+						CivOpinionTypes eOpinion = pDiplomacyAI->GetCivOpinion(pLoopNearbyPlot->getOwner());
+
+						if (eOpinion == CIV_OPINION_NEUTRAL)
+							iOpinionMultiplier = 2;
+						else if (eOpinion < CIV_OPINION_NEUTRAL)
+							iOpinionMultiplier = 4;
+
+						StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopNearbyPlot->getOwner());
+						if (eStrengthRelativeToUs == STRENGTH_STRONG)
+							iStrengthMultiplier = 2;
+						else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
+							iStrengthMultiplier = 4;
+						else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
+							iStrengthMultiplier = 8;
+					}
+
+					iThreatNearby += iOpinionMultiplier * iStrengthMultiplier;
 				}
 			}
 
-				//Let's check for owned nearby forts as well
-			if(pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT && pLoopNearbyPlot->getOwner() == eOwner)
-				if(eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType())
+			//Let's check for owned nearby forts as well
+			if (pLoopNearbyPlot->getOwner() == eOwner)
+			{
+				if (pLoopNearbyPlot->getImprovementType() != NO_IMPROVEMENT)
+				{
+					if (eFort == pLoopNearbyPlot->getImprovementType() || eCitadel == pLoopNearbyPlot->getImprovementType() || eOrdo == pLoopNearbyPlot->getImprovementType())
+						iNearbyForts++;
+				}
+				else if (pLoopNearbyPlot->getBuildProgress(eFortBuild) > 0)
+				{
 					iNearbyForts++;
+				}
+			}
+			
 		}
 	}
 
-	//only build a fort if it's somewhat close to the enemy and there aren't forts nearby. We shouldn't be spamming them.
-	if (iNearbyForts > 2)
+	//Get score for this fortification
+	int iDefensiveValue = 0;
+
+	//Bonus for nearby tiles that are unowned, or are coastal
+	iDefensiveValue += (iNearbyCoast + iNearbyUnowned) * 2;
+
+	//Bonus for adjacent tiles that are unowned, or are coastal
+	iDefensiveValue += (iAdjacentCoast + iAdjacentUnowned) * 3;
+
+	//Big Bonus if near threatening civ.
+	iDefensiveValue += (iThreatNearby * 12);
+
+	//Big Bonus if adjacent to threatening civ.
+	iDefensiveValue += (iThreatAdjacent * 18);
+
+	//Avoid fort spam
+	iDefensiveValue -= (iNearbyForts * 20);
+
+	//Avoid building next to cities
+	if (bAdjacentCity)
+		iDefensiveValue -= 60;
+
+	if (iDefensiveValue <= 0)
 		return 0;
 
-	//Get score for this fortification
-	int iScore = defenseModifier(eTeam, true, true);
-
-	//Bonus for nearby owned tiles
-	iScore += (iNearbyOwnedOther * 3);
-		
-	//Big Bonus if adjacent to territory.
-	iScore += (iAdjacentOwnedOther * 4);
-
-	//Big Bonus if adjacent to enemy territory.
-	iScore += (iBadAdjacent * 16);
-
-	//Big Bonus if adjacent to enemy territory.
-	iScore += (iBadNearby * 10);
+	iDefensiveValue *= (100 + defenseModifier(eTeam, true, true));
+	iDefensiveValue /= 100;
 
 	//Big bonus if chokepoint
 	if(IsChokePoint())
-		iScore += 17;
+		iDefensiveValue *= 3;
 
-	return iScore;
+	// Bonus for plots that are not too exposed
+	int iDefensibility = iOwnedLandAdjacent;
+
+	return iDefensiveValue * iDefensibility * 10;
 }
 
 #endif
