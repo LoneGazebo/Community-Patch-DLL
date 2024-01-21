@@ -907,7 +907,8 @@ public:
 	int countChildren() const;
 	float getAggressionBias() const;
 	bool couldEndTurnAfterThisAssignment(const STacticalAssignment& assignment) const;
-	vector<STacticalUnit> findBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
+	int countBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
+	int getFirstBlockingUnitIDAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const;
 	pair<int,int> doVisibilityUpdate(const STacticalAssignment& newAssignment);
 	bool lastAssignmentIsAfterRestart(int iUnitID) const;
 	const SUnitStats* getAvailableUnitStats(int iUnitID) const;

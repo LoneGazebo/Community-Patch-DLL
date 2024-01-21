@@ -38148,8 +38148,8 @@ void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
 		SetPlayerNumTurnsAtWar(ePlayer, 0);
 		SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(ePlayer, 0);
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
+		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(GetID(), 0);
+		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(GetID(), 0);
 	}
 }
 

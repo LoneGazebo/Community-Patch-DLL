@@ -7954,7 +7954,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED">
-			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Atomic Bomb was intercepted by {2_City}!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CIV}} Atomic Bomb was intercepted by {2_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_S">
 			<Text>Atomic Bomb Interception!</Text>
@@ -7968,7 +7968,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED">
-			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Nuclear Missile was partially intercepted by {2_City}, reducing its damage done!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CIV}} Nuclear Missile was partially intercepted by {2_City}, reducing its damage done!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_S">
 			<Text>Nuke Partial Interception!</Text>

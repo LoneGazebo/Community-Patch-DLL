@@ -644,9 +644,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if (!pRouteInfo)
-	{
 		return;
-	}
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,PURPOSE_SHORTCUT);
