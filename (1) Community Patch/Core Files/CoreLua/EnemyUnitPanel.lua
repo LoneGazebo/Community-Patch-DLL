@@ -1802,7 +1802,7 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 			end
 
 			-- HillsAttackModifier
-			if (pToPlot:IsHills()) then
+			if pToPlot:IsHills() and not bRanged then
 				iModifier = pMyUnit:HillsAttackModifier();
 
 				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
@@ -1818,30 +1818,32 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 			if (pToPlot:IsOpenGround()) then
 
-				-- OpenAttackModifier
-				iModifier = pMyUnit:OpenAttackModifier();
+				if not bRanged then
+					-- OpenAttackModifier
+					iModifier = pMyUnit:OpenAttackModifier();
 
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_MyCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_OPEN_TERRAIN_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-					bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;
-				end
+					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+						controlTable = g_MyCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_OPEN_TERRAIN_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+						bonusCount = bonusCount + 1;
+					elseif (iModifier ~= 0) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;
+					end
+				else
+					-- OpenRangedAttackModifier
+					iModifier = pMyUnit:OpenRangedAttackModifier();
 
-				-- OpenRangedAttackModifier
-				iModifier = pMyUnit:OpenRangedAttackModifier();
-
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_MyCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_OPEN_TERRAIN_RANGE_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-					bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;
+					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+						controlTable = g_MyCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_OPEN_TERRAIN_RANGE_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+						bonusCount = bonusCount + 1;
+					elseif (iModifier ~= 0) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;
+					end
 				end
 			end
 
@@ -1860,42 +1862,13 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 
 			if (pToPlot:IsRoughGround()) then
 
-				-- RoughAttackModifier
-				iModifier = pMyUnit:RoughAttackModifier();
-
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_MyCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ROUGH_TERRAIN_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-					bonusCount = bonusCount + 1;
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;
-				end
-
-				-- RoughRangedAttackModifier
-				iModifier = pMyUnit:RoughRangedAttackModifier();
-
-				if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
-					controlTable = g_MyCombatDataIM:GetInstance();
-					controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ROUGH_TERRAIN_RANGED_BONUS" );
-					controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
-					bonusCount = bonusCount + 1
-				elseif (iModifier ~= 0) then
-					bonusSum = bonusSum + iModifier;
-					bonusCount = bonusCount + 1;
-				end
-			end
-
-			if(pFromPlot ~= nil) then
-				if(pFromPlot:IsRoughGround()) then
-
+				if not bRanged then
 					-- RoughAttackModifier
-					iModifier = pMyUnit:RoughFromModifier();
+					iModifier = pMyUnit:RoughAttackModifier();
 
 					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 						controlTable = g_MyCombatDataIM:GetInstance();
-						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_FROM_TERRAIN_BONUS" );
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ROUGH_TERRAIN_BONUS" );
 						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
 						bonusCount = bonusCount + 1;
 					elseif (iModifier ~= 0) then
@@ -1903,8 +1876,25 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusCount = bonusCount + 1;
 					end
 				else
+					-- RoughRangedAttackModifier
+					iModifier = pMyUnit:RoughRangedAttackModifier();
+
+					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
+						controlTable = g_MyCombatDataIM:GetInstance();
+						controlTable.Text:LocalizeAndSetText( "TXT_KEY_EUPANEL_ROUGH_TERRAIN_RANGED_BONUS" );
+						controlTable.Value:SetText( GetFormattedText(strText, iModifier, true, true) );
+						bonusCount = bonusCount + 1
+					elseif (iModifier ~= 0) then
+						bonusSum = bonusSum + iModifier;
+						bonusCount = bonusCount + 1;
+					end
+				end
+			end
+
+			if(pFromPlot ~= nil) then
+
 					-- RoughAttackModifier
-					iModifier = pMyUnit:OpenFromModifier();
+					iModifier = pMyUnit:OpenFromModifier() + pMyUnit:RoughFromModifier();
 
 					if (iModifier ~= 0 and bonusCount < maxBonusDisplay) then
 						controlTable = g_MyCombatDataIM:GetInstance();
@@ -1915,7 +1905,6 @@ function UpdateCombatOddsUnitVsUnit(pMyUnit, pTheirUnit)
 						bonusSum = bonusSum + iModifier;
 						bonusCount = bonusCount + 1;
 					end
-				end
 			end
 
 			if (pToPlot:GetFeatureType() ~= -1) then

@@ -15413,7 +15413,6 @@ int CvUnit::baseMoves(bool bPretendEmbarked) const
 	int m_iExtraNavalMoves = 0;
 	if(eDomain == DOMAIN_SEA)
 	{
-		m_iExtraNavalMoves += getExtraNavalMoves();
 #if defined(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		if(MOD_BALANCE_CORE_RESOURCE_MONOPOLIES)
 		{
@@ -16843,6 +16842,12 @@ int CvUnit::GetGenericMeleeStrengthModifier(const CvUnit* pOtherUnit, const CvPl
 	if (pOtherUnit != NULL)
 		iModifier += GetResistancePower(pOtherUnit);
 
+	// Stacked with Great General
+	if (IsStackedGreatGeneral())
+	{
+		iModifier += GetGreatGeneralCombatModifier();
+	}
+
 	////////////////////////
 	// KNOWN BATTLE PLOT
 	////////////////////////
@@ -17241,6 +17246,9 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 	// Generic Defense Bonus
 	iModifier += getDefenseModifier(bQuickAndDirty);
 
+	// Fortification
+	iModifier += fortifyModifier();
+
 	// Defense against Ranged
 	if (bFromRangedAttack)
 		iModifier += rangedDefenseModifier();
@@ -17281,9 +17289,6 @@ int CvUnit::GetMaxDefenseStrength(const CvPlot* pInPlot, const CvUnit* pAttacker
 			//only forts & citadels have an effect
 			iTempModifier -= pInPlot->defenseModifier(getTeam(), true, false);
 		iModifier += iTempModifier;
-
-		// Fortification
-		iModifier += fortifyModifier();
 
 		// City Defense
 		if(pInPlot->isCity())
@@ -17544,6 +17549,12 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	if (pOtherUnit != NULL)
 		iModifier += GetResistancePower(pOtherUnit);
 
+	// Stacked with Great General
+	if (IsStackedGreatGeneral())
+	{
+		iModifier += GetGreatGeneralCombatModifier();
+	}
+
 	//resource monopolies
 	iModifier += GET_PLAYER(getOwner()).GetCombatAttackBonusFromMonopolies();
 
@@ -17556,17 +17567,73 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// ATTACKING
 		if (bAttacking)
 		{
-			// Open Ground
-			if (pTargetPlot->isOpenGround())
-				iModifier += openRangedAttackModifier();
-			// Rough Ground
-			else if (pTargetPlot->isRoughGround())
-				iModifier += roughRangedAttackModifier();
-
 			// Flanking
 			if(IsRangedFlankAttack() && !bIgnoreUnitAdjacencyBoni && !bQuickAndDirty)
 			{
 				iModifier += pTargetPlot->GetEffectiveFlankingBonusAtRange(this, pOtherUnit);
+			}
+
+			// These only work when not attacking a city
+			if (pCity == NULL)
+			{
+				// Attacking into Hills
+				if (pTargetPlot->isHills())
+					iModifier += hillsAttackModifier();
+
+				// Attacking into Open Terrain
+				if (pTargetPlot->isOpenGround())
+					iModifier += openRangedAttackModifier();
+				// Attacking into Rough Terrain
+				else if (pTargetPlot->isRoughGround())
+					iModifier += roughRangedAttackModifier();
+
+				// Attacking into a Feature
+				if (pTargetPlot->getFeatureType() != NO_FEATURE)
+				{
+					iModifier += featureAttackModifier(pTargetPlot->getFeatureType());
+				}
+				// No Feature - Use Terrain Attack Mod
+				else
+				{
+					iModifier += terrainAttackModifier(pTargetPlot->getTerrainType());
+
+					// Tack on Hills Attack Mod
+					if (pTargetPlot->isHills())
+						iModifier += terrainAttackModifier(TERRAIN_HILL);
+				}
+			}
+		}
+		else
+		{
+			// City Defense
+			if (pMyPlot->isCity())
+				iModifier += cityDefenseModifier();
+
+			// Hill Defense
+			if (pMyPlot->isHills())
+				iModifier += hillsDefenseModifier();
+
+			// Open Ground Defense
+			if (pMyPlot->isOpenGround())
+				iModifier += openDefenseModifier();
+
+			// Rough Ground Defense
+			if (pMyPlot->isRoughGround())
+				iModifier += roughDefenseModifier();
+
+			// Feature Defense
+			if (pMyPlot->getFeatureType() != NO_FEATURE)
+			{
+				iModifier += featureDefenseModifier(pMyPlot->getFeatureType());
+			}
+			// No Feature - use Terrain Defense Mod
+			else
+			{
+				iModifier += terrainDefenseModifier(pMyPlot->getTerrainType());
+
+				// Tack on Hills Defense Mod
+				if (pMyPlot->isHills())
+					iModifier += terrainDefenseModifier(TERRAIN_HILL);
 			}
 		}
 
@@ -17666,35 +17733,11 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// Domain modifier VS other unit
 		iModifier += domainModifier(pOtherUnit->getDomainType());
 
-		// Bonus VS fortified
-		if(pOtherUnit->IsFortified())
-			iModifier += attackFortifiedModifier();
-
-		// Bonus VS wounded
-		if(pOtherUnit->getDamage() > 0)
-			iModifier += attackWoundedModifier();
-		else
-			iModifier += attackFullyHealedModifier();
-
-		//More than half (integer division accounting for possible odd Max HP)?
-		if (pOtherUnit->getDamage() < ((pOtherUnit->GetMaxHitPoints()+1) / 2))
-			iModifier += attackAbove50HealthModifier();
-		else
-			iModifier += attackBelow50HealthModifier();
-
 		// Bonus against city states?
 		if(GET_PLAYER(pOtherUnit->getOwner()).isMinorCiv())
 		{
 			iModifier += pTraits->GetCityStateCombatModifier();
 			iModifier += kPlayer.GetCityStateCombatModifier();
-		}
-
-		//bonus for attacking same unit over and over in a turn?
-		int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
-		if (iTempModifier != 0)
-		{
-			iTempModifier *= pOtherUnit->GetNumTimesAttackedThisTurn(getOwner());
-			iModifier += iTempModifier;
 		}
 
 		// OTHER UNIT is a Barbarian
@@ -17708,6 +17751,30 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 		// ATTACKING
 		if(bAttacking)
 		{
+			// Bonus VS fortified
+			if (pOtherUnit->IsFortified())
+				iModifier += attackFortifiedModifier();
+
+			// Bonus VS wounded
+			if (pOtherUnit->getDamage() > 0)
+				iModifier += attackWoundedModifier();
+			else
+				iModifier += attackFullyHealedModifier();
+
+			// More/less than half HP
+			if (pOtherUnit->getDamage() < (pOtherUnit->GetMaxHitPoints() + 1) / 2)
+				iModifier += attackAbove50HealthModifier();
+			else
+				iModifier += attackBelow50HealthModifier();
+
+			// Bonus for attacking same unit over and over in a turn
+			int iTempModifier = getMultiAttackBonus() + GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
+			if (iTempModifier != 0)
+			{
+				iTempModifier *= pOtherUnit->GetNumTimesAttackedThisTurn(getOwner());
+				iModifier += iTempModifier;
+			}
+
 			// Unit Class Attack Mod
 			iModifier += unitClassAttackModifier(pOtherUnit->getUnitClassType());
 
@@ -17732,6 +17799,21 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 	// Rough Ground
 	else if (pMyPlot->isRoughGround())
 		iModifier += getExtraRoughFromPercent();
+
+	// Fighting near capital
+	if (GetCapitalDefenseModifier() > 0 || GetCapitalDefenseFalloff() > 0)
+	{
+		CvCity* pCapital = GET_PLAYER(getOwner()).getCapitalCity();
+		if (pCapital)
+		{
+			int iDistanceToCapital = plotDistance(pMyPlot->getX(), pMyPlot->getY(), pCapital->getX(), pCapital->getY());
+			int iTempModifier = GetCapitalDefenseModifier() + iDistanceToCapital * GetCapitalDefenseFalloff();
+			if (iTempModifier > 0)
+			{
+				iModifier += iTempModifier;
+			}
+		}
+	}
 
 	////////////////////////
 	// ATTACKING A CITY
@@ -17792,6 +17874,9 @@ int CvUnit::GetMaxRangedCombatStrength(const CvUnit* pOtherUnit, const CvCity* p
 
 		// Ranged Defense Mod
 		iModifier += rangedDefenseModifier();
+
+		// Fortification
+		iModifier += fortifyModifier();
 
 		// No TERRAIN bonuses for this Unit?
 		int iTempModifier = pMyPlot->defenseModifier(getTeam(), false, false);
