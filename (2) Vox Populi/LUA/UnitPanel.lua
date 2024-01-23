@@ -19,6 +19,7 @@ local g_SecondaryOpen = false;
 local g_WorkerActionPanelOpen = false;
 
 local MaxDamage = GameDefines.MAX_HIT_POINTS;
+local g_UnitDeleteDisabled = GameDefines.UNIT_DELETE_DISABLED;
 
 local promotionsTexture = "Promotions512.dds";
 
@@ -1482,18 +1483,20 @@ function TipHandler( control )
 		
 		strActionHelp = "";
 		
-		-- Add spacing for all entries after the first
-		if (bFirstEntry) then
-			bFirstEntry = false;
-		elseif (not bFirstEntry) then
+		local iGoldToScrap = unit:GetScrapGold();
+		if (iGoldToScrap > 0) then
 			strActionHelp = strActionHelp .. "[NEWLINE]";
+			strActionHelp = strActionHelp .. Locale.ConvertTextKey("TXT_KEY_SCRAP_HELP", iGoldToScrap);
 		end
 		
-		strActionHelp = strActionHelp .. "[NEWLINE]";
-		
-		local iGoldToScrap = unit:GetScrapGold();
-		
-		strActionHelp = strActionHelp .. Locale.ConvertTextKey("TXT_KEY_SCRAP_HELP", iGoldToScrap);
+		if (bDisabled) then
+			strActionHelp = strActionHelp .. "[NEWLINE][NEWLINE]";
+			if (g_UnitDeleteDisabled == 1) then
+				strActionHelp = strActionHelp .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION") .. "[ENDCOLOR]";
+			else
+				strActionHelp = strActionHelp .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES") .. "[ENDCOLOR]";
+			end
+		end;
 		
         strToolTip = strToolTip .. strActionHelp;
 	end
