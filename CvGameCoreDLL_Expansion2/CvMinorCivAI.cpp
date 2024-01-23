@@ -17785,7 +17785,7 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 	if (IsAllyAtWar(eTeam))
 		return true;
 
-	return !GET_TEAM(eTeam).canChangeWarPeace(GetPlayer()->getTeam());
+	return GET_TEAM(GetPlayer()->getTeam()).isAtWar(eTeam) && !GET_TEAM(eTeam).canChangeWarPeace(GetPlayer()->getTeam());
 }
 
 /// eTeam declared war on us
