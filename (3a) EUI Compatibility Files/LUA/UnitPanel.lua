@@ -1915,8 +1915,9 @@ function ActionToolTipHandler( control )
 
 	-- Delete has special help text
 	if action.Type == "COMMAND_DELETE" then
-
-		toolTip:insertLocalized( "TXT_KEY_SCRAP_HELP", unit:GetScrapGold() )
+		if unit:GetScrapGold() > 0 then
+			toolTip:insertLocalized( "TXT_KEY_SCRAP_HELP", unit:GetScrapGold() )
+		end
 	end
 
 	-- Not able to perform action
@@ -2036,6 +2037,14 @@ function ActionToolTipHandler( control )
 
 				disabledTip:insertLocalized( "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", g_activePlayer:GetCultureBombTimer() )
 
+			elseif action.Type == "COMMAND_DELETE" then
+				
+				if GameDefines.UNIT_DELETE_DISABLED == 1 then
+					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION" )
+				else
+					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES" )
+				end
+				
 			elseif action.DisabledHelp and action.DisabledHelp ~= "" then
 
 				disabledTip:insertLocalized( action.DisabledHelp )
