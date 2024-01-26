@@ -79,6 +79,8 @@ public:
 
 	int GetBonusPlotValue(CvPlot* pPlot, YieldTypes eYield, SPrecomputedExpensiveNumbers& cache);
 	int GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& cache);
+	int GetYieldModifierTimes100(YieldTypes eYield);
+	void UpdateCache() const;
 	bool CityShouldEmphasizeFood(int iAssumedExcessFood) const;
 	bool CityShouldEmphasizeProduction() const;
 

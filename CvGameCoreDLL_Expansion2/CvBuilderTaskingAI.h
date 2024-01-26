@@ -87,14 +87,14 @@ public:
 	void UpdateRoutePlots(void);
 	void UpdateImprovementPlots(void);
 
-	bool EvaluateBuilder(CvUnit* pUnit, BuilderDirective eDirective);
+	bool CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective eDirective);
 	int GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, int iMaxDistance=INT_MAX);
 	int GetTurnsToBuild(CvUnit* pUnit, BuilderDirective eDirective, CvPlot* pPlot);
 	vector<BuilderDirective> GetDirectives();
 	bool ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDirective);
 
-	void AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinValue);
-	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinValue);
+	void AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
+	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
 	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot);
 	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot);
 	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
@@ -104,8 +104,6 @@ public:
 	bool ShouldAnyBuilderConsiderPlot(CvPlot* pPlot);  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
 
-	int GetBuildCostWeight(CvPlot* pPlot, BuildTypes eBuild);
-	int GetBuildTimeWeight(int iWeight, CvPlot* pPlot, BuildTypes eBuild);
 	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned=0);
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
@@ -113,7 +111,7 @@ public:
 	RouteTypes GetRouteTypeNeededAtPlot(const CvPlot* pPlot) const;
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 	bool GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes eRoute) const;
-	bool MayWantVillageOnPlot(CvPlot* pPlot) const;
+	bool SavePlotForUniqueImprovement(CvPlot* pPlot) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
 
@@ -146,9 +144,14 @@ protected:
 	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute, int iNetGoldTimes100);
 
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
-	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIsCityConnection);
+	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection);
 	bool AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	int GetRouteValue(CvPlot* pPlot);
+
+	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
+	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
+	int GetMoveSpeedBonus(CvPlot* pPlot, CvPlot* pOtherPlot, RouteTypes eRoute);
+	void GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iRoadMaintenanceLength, int& iNumRoadsNeededToBuild);
 
 	void UpdateCanalPlots();
 
@@ -174,6 +177,7 @@ protected:
 	FeatureTypes m_eFalloutFeature;
 	BuildTypes m_eFalloutRemove;
 	BuildTypes m_eRemoveRouteBuild;
+	int m_iLastUpdatedCityCacheCityID; // Hack to be able to use CvCityCitizen logic to evaluate plot yields
 
 	//some player dependent flags for unique improvements
 	TechTypes m_aiSaveFeatureUntilTech[NUM_FEATURE_TYPES]; // serialized, can't be recreated on game load (eID is NO_PLAYER)

@@ -41,6 +41,7 @@ void CvBuilderTaskingAI::Init(CvPlayer* pPlayer)
 	m_eFalloutFeature = GetFalloutFeature();
 	m_eFalloutRemove = GetFalloutRemove();
 	m_eRemoveRouteBuild = GetRemoveRoute();
+	m_iLastUpdatedCityCacheCityID = -1;
 
 	m_bLogging = GC.getLogging() && GC.getAILogging() && GC.GetBuilderAILogging();
 
@@ -106,6 +107,7 @@ void CvBuilderTaskingAI::Uninit(void)
 	m_eRepairBuild = NO_BUILD;
 	m_eFalloutFeature = NO_FEATURE;
 	m_eFalloutRemove = NO_BUILD;
+	m_iLastUpdatedCityCacheCityID = -1;
 
 	for (int i = 0; i < NUM_FEATURE_TYPES; i++)
 		m_aiSaveFeatureUntilTech[i] = NO_TECH;
@@ -204,6 +206,304 @@ void CvBuilderTaskingAI::Update(void)
 	}
 }
 
+//	---------------------------------------------------------------------------
+int CvBuilderTaskingAI::GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute)
+{
+	if (plotDistance(pFromPlot->getX(), pFromPlot->getY(), pToPlot->getX(), pToPlot->getY()) != 1)
+		return 0;
+
+	if (!pFromPlot || !pToPlot)
+		return 0;
+
+	int iMoveDenominator = GD_INT_GET(MOVE_DENOMINATOR);
+	int iRegularCost = 1;
+
+	CvPlayerTraits* pTraits = m_pPlayer->GetPlayerTraits();
+
+	TeamTypes eTeam = m_pPlayer->getTeam();
+	CvTeam& kTeam = GET_TEAM(eTeam);
+
+	//try to avoid calling directionXY too often
+	bool bRiverCrossing = pFromPlot->getRiverCrossingCount() > 0 && pToPlot->getRiverCrossingCount() > 0 && pFromPlot->isRiverCrossing(directionXY(pFromPlot, pToPlot));
+	FeatureTypes eToFeature = pToPlot->getFeatureType();
+	CvFeatureInfo* pToFeatureInfo = (eToFeature > NO_FEATURE) ? GC.getFeatureInfo(eToFeature) : NULL;
+	TerrainTypes eToTerrain = pToPlot->getTerrainType();
+	CvTerrainInfo* pToTerrainInfo = (eToTerrain > NO_TERRAIN) ? GC.getTerrainInfo(eToTerrain) : NULL;
+	FeatureTypes eFromFeature = pFromPlot->getFeatureType();
+
+	//route preparation
+	bool bRouteTo = eToPlotRoute != NO_ROUTE;
+	bool bRouteFrom = eFromPlotRoute != NO_ROUTE;
+
+	//ideally there'd be a check of the river direction to make sure it's the same river
+	bool bMovingAlongRiver = pToPlot->isRiver() && pFromPlot->isRiver() && !bRiverCrossing;
+	bool bFakeRouteTo = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
+	bool bFakeRouteFrom = (pTraits->IsRiverMovementBonus() && bMovingAlongRiver);
+
+	if (!MOD_SANE_UNIT_MOVEMENT_COST)
+	{
+		//balance patch does not require plot ownership
+		bFakeRouteTo |= (pTraits->IsWoodlandMovementBonus() && (eToFeature == FEATURE_FOREST || eToFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
+		bFakeRouteFrom |= (pTraits->IsWoodlandMovementBonus() && (eFromFeature == FEATURE_FOREST || eFromFeature == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pToPlot->getTeam() == eTeam));
+	}
+
+	//check routes
+	if ((bRouteFrom || bFakeRouteFrom) &&
+		(bRouteTo || bFakeRouteTo) &&
+		(!bRiverCrossing || kTeam.isBridgeBuilding()))
+	{
+		RouteTypes eFromRouteWithFake = bFakeRouteFrom && eFromPlotRoute == NO_ROUTE ? ROUTE_ROAD : eFromPlotRoute;
+		CvRouteInfo* pFromRouteInfo = GC.getRouteInfo(eFromRouteWithFake);
+		int iFromMovementCost = pFromRouteInfo ? pFromRouteInfo->getMovementCost() : 0;
+
+		RouteTypes eToRouteWithFake = bFakeRouteTo && eToPlotRoute == NO_ROUTE ? ROUTE_ROAD : eToPlotRoute;
+		CvRouteInfo* pToRouteInfo = GC.getRouteInfo(eToRouteWithFake);
+		int iToMovementCost = pToRouteInfo ? pToRouteInfo->getMovementCost() : 0;
+
+		int iRouteCost = std::max(iFromMovementCost + kTeam.getRouteChange(eFromRouteWithFake), iToMovementCost + kTeam.getRouteChange(eToRouteWithFake));
+
+		return iRouteCost;
+
+	}
+
+	if (pToPlot->isCity() && (!bRiverCrossing || kTeam.isBridgeBuilding()))
+	{
+		return iMoveDenominator;
+	}
+	else //normal case, check terrain and features
+	{
+		//ignore terrain cost also ignores feature cost, but units may get bonuses from terrain!
+		//difference to flat movement cost is that flat movement units don't get any bonuses
+		bool bIgnoreTerrainCost = false;
+
+		//in some cases we ignore terrain / feature cost
+		if (pTraits->IsFasterInHills() && pToPlot->isHills())
+			bIgnoreTerrainCost = true;
+		else if (pTraits->IsMountainPass() && pToPlot->isMountain())
+			bIgnoreTerrainCost = true;
+
+		//option: river crossings override ignore terrain cost, unless special promotions
+		if (bIgnoreTerrainCost && (!bRiverCrossing || bIgnoreTerrainCost))
+			iRegularCost = 1;
+		else
+		{
+			iRegularCost = ((eToFeature == NO_FEATURE) ? (pToTerrainInfo ? pToTerrainInfo->getMovementCost() : 0) : (pToFeatureInfo ? pToFeatureInfo->getMovementCost() : 0));
+
+			// Hill cost is hardcoded
+			if (pToPlot->isHills() || pToPlot->isMountain())
+			{
+				iRegularCost += /*1*/ GD_INT_GET(HILLS_EXTRA_MOVEMENT);
+			}
+
+			if (bRiverCrossing)
+			{
+				iRegularCost += /*10*/ GD_INT_GET(RIVER_EXTRA_MOVEMENT);
+			}
+		}
+
+		return iRegularCost * iMoveDenominator;
+	}
+}
+
+static int GetYieldBaseModifierTimes100(YieldTypes eYield)
+{
+	switch (eYield)
+	{
+	case NO_YIELD:
+		UNREACHABLE();
+	case YIELD_FOOD:
+		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
+	case YIELD_PRODUCTION:
+		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
+	case YIELD_GOLD:
+		return /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
+	case YIELD_SCIENCE:
+		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
+	case YIELD_CULTURE:
+		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
+	case YIELD_FAITH:
+		return /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
+	case YIELD_TOURISM:
+	case YIELD_GOLDEN_AGE_POINTS:
+	case YIELD_GREAT_GENERAL_POINTS:
+	case YIELD_GREAT_ADMIRAL_POINTS:
+	case YIELD_POPULATION:
+	case YIELD_CULTURE_LOCAL:
+	case YIELD_JFD_HEALTH:
+	case YIELD_JFD_DISEASE:
+	case YIELD_JFD_CRIME:
+	case YIELD_JFD_LOYALTY:
+	case YIELD_JFD_SOVEREIGNTY:
+		return 50;
+	default:
+		return 0;
+	}
+}
+
+int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield)
+{
+	CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
+
+	if (pOwningCity && pOwningCity->GetID() != m_iLastUpdatedCityCacheCityID)
+	{
+		pOwningCity->GetCityCitizens()->UpdateCache();
+		m_iLastUpdatedCityCacheCityID = pOwningCity->GetID();
+	}
+
+	int iCityCitizenRatio = 1;
+	int iBaseRatio = 1;
+
+	int iBaseModifier = GetYieldBaseModifierTimes100(eYield);
+
+	if (!pOwningCity)
+		return iBaseModifier;
+
+	int iCityCitizensModifier = pOwningCity->GetCityCitizens()->GetYieldModifierTimes100(eYield);
+
+	return (iCityCitizenRatio * iCityCitizensModifier + iBaseRatio * iBaseModifier) / (iCityCitizenRatio + iBaseRatio);
+}
+
+// How much of a bonus will we get if we build an eRoute in pPlot, given that we want to move into pOtherPlot
+int CvBuilderTaskingAI::GetMoveSpeedBonus(CvPlot* pPlot, CvPlot* pOtherPlot, RouteTypes eRoute)
+{
+	RouteTypes eOtherPlotRoute = !pOtherPlot->IsRoutePillaged() ? pOtherPlot->getRouteType() : NO_ROUTE;
+
+	// When considering movement speed from railroads, compare with speed from normal routes
+	RouteTypes eRouteUpgradingFrom = (RouteTypes)((int)eRoute - 1);
+
+	// How much would it cost to move to and from the target tile without building this route?
+	int iMoveSpeedPenaltyWithoutRoute = GetMoveCostWithRoute(pPlot, pOtherPlot, eRouteUpgradingFrom, eOtherPlotRoute);
+	iMoveSpeedPenaltyWithoutRoute += GetMoveCostWithRoute(pOtherPlot, pPlot, eOtherPlotRoute, eRouteUpgradingFrom);
+
+	// How much would it cost to move to and from the target tile with this route?
+	int iMoveSpeedPenaltyWithRoute = GetMoveCostWithRoute(pPlot, pOtherPlot, eRoute, eOtherPlotRoute);
+	iMoveSpeedPenaltyWithRoute += GetMoveCostWithRoute(pOtherPlot, pPlot, eOtherPlotRoute, eRoute);
+
+	int iValueForDoubleMoveSpeed = 50;
+
+	if (iMoveSpeedPenaltyWithoutRoute > iMoveSpeedPenaltyWithRoute)
+	{
+		return iMoveSpeedPenaltyWithoutRoute * iValueForDoubleMoveSpeed / (2 * iMoveSpeedPenaltyWithRoute);
+	}
+	else if (iMoveSpeedPenaltyWithRoute > iMoveSpeedPenaltyWithoutRoute)
+	{
+		return iMoveSpeedPenaltyWithRoute * iValueForDoubleMoveSpeed / (2 * iMoveSpeedPenaltyWithoutRoute);
+	}
+	else
+	{
+		return 0;
+	}
+}
+
+void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iRoadMaintenanceLength, int& iNumRoadsNeededToBuild)
+{
+	RouteTypes eRouteUpgradingFrom = (RouteTypes)((int)eRoute - 1);
+
+	for (size_t i = 1; i < path.vPlots.size(); i++)
+	{
+		CvPlot* pPlot = path.get(i);
+		if (!pPlot)
+			break;
+
+		CvPlot* pPreviousPlot = path.get(i - 1);
+		// Calculate move speed bonus we will get for connecting a pair of plots
+		if (pPreviousPlot)
+		{
+			int iMoveSpeedBonusForwards = GetMoveSpeedBonus(pPreviousPlot, pPlot, eRoute);
+			aiMoveSpeedBonuses[i - 1] = iMoveSpeedBonusForwards + aiMoveSpeedBonuses[i - 1];
+
+			int iMoveSpeedBonusBackwards = GetMoveSpeedBonus(pPlot, pPreviousPlot, eRoute);
+			aiMoveSpeedBonuses[i] = iMoveSpeedBonusBackwards + aiMoveSpeedBonuses[i];
+		}
+
+		//don't count the cities themselves
+		if (pPlot->isCity())
+			continue;
+
+		// Bonus if there is a village on the plot
+		ImprovementTypes ePlotImprovement = pPlot->getImprovementType();
+		if (ePlotImprovement != NO_IMPROVEMENT)
+		{
+			CvImprovementEntry* pkPlotImprovementInfo = GC.getImprovementInfo(ePlotImprovement);
+			for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
+			{
+				// Use base modifier to avoid heavy computations
+				int iVillageYieldBonus = pkPlotImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+
+				if (eRouteUpgradingFrom != NO_ROUTE)
+					iVillageYieldBonus -= pkPlotImprovementInfo->GetRouteYieldChanges(eRouteUpgradingFrom, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+
+				if (pPlot->IsCityConnection())
+					aiVillagePlotBonuses[i] = iVillageYieldBonus;
+				iVillageBonusesIfCityConnected += iVillageYieldBonus;
+			}
+		}
+
+		// Bonus if a village can be built on the plot
+		// For Iroquois, don't give any potential village bonuses on forest/jungle tiles, even if we're considering building railroads
+		if ((!m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() || !GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
+			&& (pPlot->getResourceType(m_pPlayer->getTeam()) == NO_RESOURCE)
+			&& (!SavePlotForUniqueImprovement(pPlot))
+			&& pPlot->getOwner() == m_pPlayer->GetID())
+		{
+			for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
+			{
+				BuildTypes eBuild = (BuildTypes)iJ;
+				CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
+
+				if (!pkBuildInfo)
+					continue;
+
+				ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+				CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
+
+				if (!pkImprovementInfo || pkImprovementInfo->IsCreatedByGreatPerson())
+					continue;
+
+				int iVillageYieldBonus = 0;
+				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
+				{
+					// Use base modifier to avoid heavy computations
+					iVillageYieldBonus += pkImprovementInfo->GetRouteYieldChanges(eRoute, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+
+					if (eRouteUpgradingFrom != NO_ROUTE)
+						iVillageYieldBonus -= pkImprovementInfo->GetRouteYieldChanges(eRouteUpgradingFrom, iJ) * GetYieldBaseModifierTimes100((YieldTypes)iJ);
+				}
+
+				if (iVillageYieldBonus != 0 && m_pPlayer->canBuild(pPlot, eBuild))
+				{
+					// Assume we can build a village in 1/3 of tiles
+					iVillageBonusesIfCityConnected += iVillageYieldBonus / 3;
+				}
+			}
+		}
+
+		if (!GetSameRouteBenefitFromTrait(pPlot, eRoute))
+		{
+			iRoadMaintenanceLength++;
+
+			if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+				iNumRoadsNeededToBuild++;
+		}
+	}
+}
+
+static bool IsConnectedToCapitalWithHarborsOnly(CvPlayer* pPlayer, CvCity* pCity)
+{
+	const CvCityConnections::SingleCityConnectionStore& cityConnections = pPlayer->GetCityConnections()->GetDirectConnectionsFromCity(pPlayer->getCapitalCity());
+	for (CvCityConnections::SingleCityConnectionStore::const_iterator it = cityConnections.begin(); it != cityConnections.end(); ++it)
+	{
+		if (it->second & CvCityConnections::CONNECTION_HARBOR)
+		{
+			CvCity* pSecondCity = GET_PLAYER(PlayerTypes(it->first.first)).getCity(it->first.second);
+			if (pSecondCity == pCity)
+				return true;
+		}
+	}
+
+	return false;
+}
+
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute)
 {
 	if (pPlayerCapital->getOwner() != m_pPlayer->GetID())
@@ -239,34 +539,18 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	bool bTargetingMinor = GET_TEAM(pTargetCity->getTeam()).isMinorCiv();
 
 	// There's no reason for building railroads for city state quests
-	if (bTargetingMinor && eRoute == ROUTE_RAILROAD)
+	if (bTargetingMinor && eRoute > ROUTE_ROAD)
 		return;
 
 	// go through the route to see how long it is and how many plots already have roads
-	int iRoadLength = 0;
 	int iRoadMaintenanceLength = 0;
 	int iNumRoadsNeededToBuild = 0;
 
-	for (size_t i = 1; i < path.vPlots.size() - 1; i++)
-	{
-		CvPlot* pPlot = path.get(i);
-		if(!pPlot)
-			break;
+	vector<int> aiVillagePlotBonuses(path.vPlots.size());
+	vector<int> aiMoveSpeedBonuses(path.vPlots.size());
+	int iVillageBonusesIfCityConnected = 0;
 
-		//don't count the cities themselves
-		if (pPlot->isCity())
-			continue;
-
-		iRoadLength++;
-
-		if (!GetSameRouteBenefitFromTrait(pPlot, eRoute))
-		{
-			iRoadMaintenanceLength++;
-
-			if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
-				iNumRoadsNeededToBuild++;
-		}
-	}
+	GetPathValues(path, eRoute, aiVillagePlotBonuses, aiMoveSpeedBonuses, iVillageBonusesIfCityConnected, iRoadMaintenanceLength, iNumRoadsNeededToBuild);
 
 	//see if the new route makes sense economically
 	int iValue = -1;
@@ -277,23 +561,35 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 	else
 	{
-		bool bHasCityConnection = m_pPlayer->IsCityConnectedToCity(pPlayerCapital, pTargetCity, eRoute);
+		// Compute bonus for connecting city (or keeping connected)
+		iValue = 0;
 
-		//route has side benefits also (movement, village gold, trade route range, religion spread)
-		iValue = /*750*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES);
+		// Village bonuses don't require a full railroad city connection
+		if (eRoute == ROUTE_ROAD)
+			iValue += iVillageBonusesIfCityConnected;
 
-		// Focus on almost completed roads first
-		if (iNumRoadsNeededToBuild <= 40 && iNumRoadsNeededToBuild > 0)
-			iValue += 1600 / (iNumRoadsNeededToBuild * iNumRoadsNeededToBuild);
-
-		//assume one unhappiness is worth gold per turn per city
-		iValue += !bHasCityConnection ? pTargetCity->GetUnhappinessFromIsolation() * (m_pPlayer->IsEmpireUnhappy() ? 300 : 100) : 0;
-
-		if(GC.getGame().GetIndustrialRoute() == eRoute)
+		// If we have a direct harbor connection, we don't need to build a route to get happiness/gold/production yields from having the connection
+		if (!IsConnectedToCapitalWithHarborsOnly(m_pPlayer, pTargetCity))
 		{
-			if (!bHasCityConnection)
+			//assume one unhappiness is worth 5 gold per turn per city
+			float fUnhappiness = 0.00f;
+			if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
 			{
-				iValue += pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
+				fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+			}
+			int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
+
+			int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
+
+			iValue += iPotentialUnhappinessFromIsolation * 500;
+			iValue += (m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity) * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
+
+			int iCityGoldYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_GOLD);
+			int iCityProductionYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_PRODUCTION);
+
+			if(GC.getGame().GetIndustrialRoute() == eRoute)
+			{
+				iValue += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD) * iCityProductionYieldModifierTimes100) / 100;
 
 #if defined(MOD_BALANCE_CORE)
 				// Target city would get a production and gold boost from a train station.
@@ -301,11 +597,14 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 				{
 					BuildingTypes eBuilding = (BuildingTypes)iBuildingIndex;
 					CvBuildingEntry* pkBuilding = GC.getBuildingInfo(eBuilding);
+
 					if (pkBuilding == NULL)
 						continue;
 
-					bool bRequiresRail = pkBuilding->IsRequiresRail();
-					if (!bRequiresRail)
+					if (!pkBuilding->IsRequiresRail())
+						continue;
+
+					if (!m_pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
 						continue;
 
 					int iProductionYield = pTargetCity->getYieldRate(YIELD_PRODUCTION, false);
@@ -313,23 +612,27 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 					int iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
 					int iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
 
-					if (pTargetCity->HasBuilding(eBuilding))
-					{
-						iValue += 100 * iProductionYield * iProductionYieldRateModifier / (100 + iProductionYieldRateModifier);
-						iValue += 100 * iGoldYield * iGoldYieldRateModifier / (100 + iGoldYieldRateModifier);
-					}
-					else if (m_pPlayer->canConstruct(eBuilding) || eBuilding == pTargetCity->getProductionBuilding())
-					{
-						iValue += iProductionYield * iProductionYieldRateModifier;
-						iValue += iGoldYield * iGoldYieldRateModifier;
-					}
+					iValue += (iProductionYield * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 100;
+					iValue += (iGoldYield * iGoldYieldRateModifier * iCityGoldYieldModifierTimes100) / 100;
 				}
 #endif
 			}
 		}
 	}
 
-	for (size_t i=0; i<path.vPlots.size(); i++)
+	int iTimeWeightedValue = iNumRoadsNeededToBuild != 0 ? iValue / iNumRoadsNeededToBuild : iValue;
+	int iMaintenanceCostPerTile = pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
+
+	// When we are building railroads, we are comparing their value relative to normal roads
+	if (eRoute > ROUTE_ROAD)
+	{
+		RouteTypes eRouteUpgradingFrom = (RouteTypes)((int)eRoute - 1);
+		iMaintenanceCostPerTile -= GC.getRouteInfo(eRouteUpgradingFrom)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
+	}
+
+	iMaintenanceCostPerTile = (iMaintenanceCostPerTile * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
+
+	for (size_t i=1; i<path.vPlots.size()-1; i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
@@ -338,9 +641,19 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(pPlot->isCity())
 			continue;
 
-		//remember it
-		if (AddRoutePlot(pPlot, eRoute, iValue))
-			m_mainRoutePlots.insert(pPlot->GetPlotIndex());
+		int iPlotBonusValue = !bTargetingMinor ? aiMoveSpeedBonuses[i] + aiVillagePlotBonuses[i] : 0;
+
+		// We may only want to partially build a road (e.g. railroads on villages on existing city connections)
+		if (iValue + iPlotBonusValue * iRoadMaintenanceLength >= iMaintenanceCostPerTile * iRoadMaintenanceLength)
+		{
+			//remember it
+			if (AddRoutePlot(pPlot, eRoute, iTimeWeightedValue + iPlotBonusValue))
+				m_mainRoutePlots.insert(pPlot->GetPlotIndex());
+		}
+		else
+		{
+			continue;
+		}
 	}
 }
 
@@ -362,52 +675,54 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,true);
-	SPath newPath = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
+	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	// cities are not on the same landmass? then give up
-	if(!newPath)
+	if(!path)
 		return;
 
 	// go through the route to see how long it is and how many plots already have roads
-	int iRoadLength = 0;
 	int iRoadMaintenanceLength = 0;
+	int iNumRoadsNeededToBuild = 0;
 
-	for (size_t i = 1; i < newPath.vPlots.size() - 1; i++)
+	vector<int> aiVillagePlotBonuses(path.vPlots.size());
+	vector<int> aiMoveSpeedBonuses(path.vPlots.size());
+	int iVillageBonusesIfCityConnected = 0;
+
+	GetPathValues(path, eRoute, aiVillagePlotBonuses, aiMoveSpeedBonuses, iVillageBonusesIfCityConnected, iRoadMaintenanceLength, iNumRoadsNeededToBuild);
+
+	// Village bonuses don't require a full railroad city connection
+	int iValue = eRoute == ROUTE_ROAD ? iVillageBonusesIfCityConnected : 0;
+	int iTimeWeightedValue = iNumRoadsNeededToBuild > 0 ? iValue / iNumRoadsNeededToBuild : iValue;
+	int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
+
+	// When we are building railroads, we are comparing their value relative to normal roads
+	if (eRoute > ROUTE_ROAD)
 	{
-		CvPlot* pPlot = newPath.get(i);
-		if (!pPlot)
-			break;
-
-		//don't count the cities themselves
-		if (pPlot->isCity())
-		{
-			// if we are going via a city, that isn't one of the two cities we are connecting, then this shortcut is not needed
-			if (pPlot->getOwner() == m_pPlayer->GetID())
-				return;
-			continue;
-		}
-
-		iRoadLength++;
-
-		if (!GetSameRouteBenefitFromTrait(pPlot, eRoute))
-			iRoadMaintenanceLength++;
+		RouteTypes eRouteUpgradingFrom = (RouteTypes)((int)eRoute - 1);
+		iMaintenanceCostPerTile -= GC.getRouteInfo(eRouteUpgradingFrom)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 	}
 
-	//route has side benefits also (movement, village gold, trade route range, religion spread)
-	int iValue = /*750*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES);
+	iMaintenanceCostPerTile = (iMaintenanceCostPerTile * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
 
-	for (size_t i=0; i<newPath.vPlots.size(); i++)
+	for (size_t i=1; i<path.vPlots.size()-1; i++)
 	{
-		CvPlot* pPlot = newPath.get(i);
+		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
 			break;
 
 		if (pPlot->isCity())
 			continue;
 
-		//remember it
-		if (AddRoutePlot(pPlot, eRoute, iValue))
-			m_shortcutRoutePlots.insert(pPlot->GetPlotIndex());
+		int iPlotBonusValue = aiMoveSpeedBonuses[i] + aiVillagePlotBonuses[i];
+
+		// We may only want to partially build a road (e.g. railroads on villages on existing city connections)
+		if (iValue + iPlotBonusValue * iRoadMaintenanceLength >= iMaintenanceCostPerTile * iRoadMaintenanceLength)
+		{
+			//remember it
+			if (AddRoutePlot(pPlot, eRoute, iTimeWeightedValue + iPlotBonusValue))
+				m_shortcutRoutePlots.insert(pPlot->GetPlotIndex());
+		}
 	}
 }
 
@@ -435,40 +750,33 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	// go through the route to see how long it is and how many plots already have roads
 	int iRoadMaintenanceLength = 0;
+	int iNumRoadsNeededToBuild = 0;
+	vector<int> aiMoveSpeedBonuses(path.vPlots.size());
 
-	for (size_t i = 1; i < path.vPlots.size(); i++)
-	{
-		CvPlot* pPlot = path.get(i);
-		if (!pPlot)
-			break;
+	vector<int> aiDummyContainer(path.vPlots.size());
+	int iDummy = 0;
 
-		if (pPlot->getOwner() != m_pPlayer->GetID())
-			return;
-
-		//don't count the cities themselves
-		if (pPlot->isCity())
-		{
-			// strategic routes never need to go through our cities
-			if (pPlot->getOwner() == m_pPlayer->GetID())
-				return;
-			continue;
-		}
-
-		if (!GetSameRouteBenefitFromTrait(pPlot, eRoute))
-			iRoadMaintenanceLength++;
-	}
+	GetPathValues(path, eRoute, aiDummyContainer, aiMoveSpeedBonuses, iDummy, iRoadMaintenanceLength, iNumRoadsNeededToBuild);
 
 	//and this to see if we actually build it
-	int iCost = pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
-	iCost *= iRoadMaintenanceLength + 5; // add extra to account for ring tiles around fort
+	int iMaintenancePerTile = pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
 
-	int iGoldDelta = iNetGoldTimes100 - iCost;
+	// When we are building railroads, we are comparing their value relative to normal roads
+	if (eRoute > ROUTE_ROAD)
+	{
+		RouteTypes eRouteUpgradingFrom = (RouteTypes)((int)eRoute - 1);
+		iMaintenancePerTile -= GC.getRouteInfo(eRouteUpgradingFrom)->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod());
+	}
+
+	iMaintenancePerTile = (iMaintenancePerTile * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
+
+	int iGoldDelta = iNetGoldTimes100 - iMaintenancePerTile * (iNumRoadsNeededToBuild + 6);
 
 	if (iGoldDelta < 0)
 		return;
 
 	// Need a decent gold buffer to build strategic routes, but don't remove them unless we are actually losing gold
-	int iValue = iGoldDelta >= 30 ? 100 : 0;
+	bool bBuildRoute = iGoldDelta >= 30;
 
 	for (int i = 1; i < path.length(); i++)
 	{
@@ -476,13 +784,18 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (!pPlot)
 			break;
 
+		int iPlotValue = aiMoveSpeedBonuses[i] - iMaintenancePerTile;
+
+		if (!bBuildRoute)
+			iPlotValue = min(iPlotValue, 0);
+
 		// remember the plot
-		if (AddRoutePlot(pPlot, eRoute, iValue))
+		if (AddRoutePlot(pPlot, eRoute, iPlotValue))
 			m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 
 	// Build a ring around the target plot
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(path.get(path.length() - 1));
+	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTargetPlot);
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
@@ -498,9 +811,17 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 		if (!pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()))
 			continue;
+		
+		// Move speed gain from building a route in the adjacent plot
+		int iMoveSpeedBonus = GetMoveSpeedBonus(pAdjacentPlot, pTargetPlot, eRoute);
+
+		int iPlotValue = iMoveSpeedBonus - iMaintenancePerTile;
+
+		if (!bBuildRoute)
+			iPlotValue = min(iPlotValue, 0);
 
 		// Add these routes after the main route is completed
-		if (AddRoutePlot(pAdjacentPlot, eRoute, iValue - 1))
+		if (AddRoutePlot(pAdjacentPlot, eRoute, iPlotValue))
 			m_strategicRoutePlots.insert(pAdjacentPlot->GetPlotIndex());
 	}
 }
@@ -539,7 +860,7 @@ bool CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 	if (!pPlot)
 		return false;
 
-	if (iValue <= 0 || eRoute == NO_ROUTE)
+	if (iValue < 0 || eRoute == NO_ROUTE)
 		return false;
 
 	RouteTypes eOldRoute = NO_ROUTE;
@@ -554,17 +875,11 @@ bool CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iVal
 		iOldValue = it->second.second;
 	}
 
-	// if we already want a better route, ignore this
 	if (eOldRoute > eRoute)
-		return false;
+		eRoute = eOldRoute;
 
-	// if we wanted a lower tech route, ignore the old value
-	if (eOldRoute < eRoute)
-		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
-	else
-		m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, max(iOldValue, iValue));
+	m_routeNeededPlots[pPlot->GetPlotIndex()] = make_pair(eRoute, iOldValue + iValue);
 
-	//if it is the right route, add to needed plots
 	return true;
 }
 
@@ -613,17 +928,17 @@ bool CvBuilderTaskingAI::GetSameRouteBenefitFromTrait(CvPlot* pPlot, RouteTypes 
 	return false;
 }
 
-bool CvBuilderTaskingAI::MayWantVillageOnPlot(CvPlot* pPlot) const
+bool CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot) const
 {
 	FeatureTypes eFeature = pPlot->getFeatureType();
 
 	if (eFeature != NO_FEATURE && m_aiSaveFeatureUntilTech[eFeature] != NO_TECH)
-		return false;
+		return true;
 
 	if (m_iSaveCityAdjacentUntilTech != NO_TECH && pPlot->IsAdjacentCity())
-		return false;
+		return true;
 
-	return true;
+	return false;
 }
 
 void CvBuilderTaskingAI::UpdateCanalPlots()
@@ -743,13 +1058,14 @@ void CvBuilderTaskingAI::SetAssignedDirective(CvUnit* pUnit, BuilderDirective eD
 	m_assignedDirectives[pUnit->GetID()] = eDirective;
 }
 
-bool CvBuilderTaskingAI::EvaluateBuilder(CvUnit* pUnit, BuilderDirective eDirective)
+bool CvBuilderTaskingAI::CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective eDirective)
 {
 	CvPlot* pTargetPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
-	if (!pUnit->canBuild(pTargetPlot, eDirective.m_eBuild))
-		return false;
 
 	if (!ShouldBuilderConsiderPlot(pUnit, pTargetPlot))
+		return false;
+
+	if (!pUnit->canBuild(pTargetPlot, eDirective.m_eBuild))
 		return false;
 
 	return true;
@@ -1105,23 +1421,21 @@ void CvBuilderTaskingAI::UpdateImprovementPlots()
 		if (!ShouldAnyBuilderConsiderPlot(pPlot))
 			continue;
 
-		int iExistingImprovementValue = 0;
+		int iBestScore = 0;
 
 		// Evaluate the improvement currently on the tile
-		if (pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
+		if ((pPlot->getOwner() == ePlayer) || (!pPlot->isOwned() && pPlot->isAdjacentPlayer(m_pPlayer->GetID())))
 		{
-			ImprovementTypes eImprovement = pPlot->getImprovementType();
+			if (pPlot->getImprovementType() != NO_IMPROVEMENT && !pPlot->IsImprovementPillaged())
+			{
+				ImprovementTypes eImprovement = pPlot->getImprovementType();
 
-			int iScore = ScorePlotBuild(pPlot, eImprovement, NO_BUILD);
+				int iScore = ScorePlotBuild(pPlot, eImprovement, NO_BUILD);
 
-			// No build time
-			iScore += iScore / 2;
+				iScore = min(iScore, 0x7FFF);
 
-			// No build cost
-
-			iScore = min(iScore, 0x7FFF);
-
-			iExistingImprovementValue = iScore;
+				iBestScore = iScore;
+			}
 		}
 
 		//action may depend on city
@@ -1132,8 +1446,8 @@ void CvBuilderTaskingAI::UpdateImprovementPlots()
 			UpdateCurrentPlotYields(pPlot);
 
 			AddRouteDirective(aDirectives, pPlot);
-			AddImprovingResourcesDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds, iExistingImprovementValue);
-			AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds, iExistingImprovementValue);
+			AddImprovingResourcesDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds, iBestScore);
+			AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds, iBestScore);
 			AddChopDirectives(aDirectives, pPlot, pWorkingCity);
 			AddScrubFalloutDirectives(aDirectives, pPlot, pWorkingCity);
 			AddRepairTilesDirectives(aDirectives, pPlot, pWorkingCity);
@@ -1142,7 +1456,7 @@ void CvBuilderTaskingAI::UpdateImprovementPlots()
 		else if (!pPlot->isOwned() && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))
 		{
 			//some special improvements and roads
-			AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds, iExistingImprovementValue);
+			AddImprovingPlotsDirective(aDirectives, pPlot, pWorkingCity, aPossibleBuilds, iBestScore);
 			AddRouteDirective(aDirectives, pPlot);
 			// May want to repair and remove road tiles outside of our territory
 			AddRepairTilesDirectives(aDirectives, pPlot, pWorkingCity);
@@ -1168,7 +1482,7 @@ void CvBuilderTaskingAI::UpdateImprovementPlots()
 }
 
 /// Evaluating a plot to see if we can build resources there
-void CvBuilderTaskingAI::AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pCity, const vector<BuildTypes> aBuildsToConsider, int iMinValue)
+void CvBuilderTaskingAI::AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore)
 {
 	// check to see if a resource is here. If not, bail out!
 	ResourceTypes eResource = pPlot->getResourceType(m_pPlayer->getTeam());
@@ -1232,9 +1546,6 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirective(vector<OptionWithScore<B
 
 			int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
 
-			iScore += GetBuildTimeWeight(iScore, pPlot, eBuild);
-			iScore += GetBuildCostWeight(pPlot, eBuild);
-
 			iScore = min(iScore, 0x7FFF);
 
 			if (iScore <= 0)
@@ -1257,14 +1568,14 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirective(vector<OptionWithScore<B
 				LogInfo(strTemp, m_pPlayer);
 			}
 
-			if (iScore > iMinValue)
+			if (iScore > iMinScore)
 				aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iScore));
 		}
 	}
 }
 
 /// Evaluating a plot to determine what improvement could be best there
-void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pCity, const vector<BuildTypes> aBuildsToConsider, int iMinValue)
+void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore)
 {
 	ImprovementTypes eExistingImprovement = pPlot->getImprovementType();
 
@@ -1372,9 +1683,6 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 
 		int iScore = ScorePlotBuild(pPlot, eImprovement, eBuild);
 
-		iScore += GetBuildTimeWeight(iScore, pPlot, eBuild);
-		iScore += GetBuildCostWeight(pPlot, eBuild);
-
 		iScore = min(iScore, 0x7FFF);
 
 		// if we're going backward, bail out!
@@ -1388,7 +1696,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
 			{
 				if (GetRouteTypeNeededAtPlot(pPlot) == ROUTE_ROAD && (MOD_BALANCE_VP || pPlot->getTeam() == m_pPlayer->getTeam()))
-					iScore /= 100;
+					iScore /= 20;
 				else
 					iScore /= 10;
 			}
@@ -1408,8 +1716,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 			);
 			LogInfo(strTemp, m_pPlayer);
 		}
-
-		if (iScore > iMinValue)
+		
+		if (iScore > iMinScore)
 			aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iScore));
 	}
 }
@@ -1461,15 +1769,13 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 		return;
 
 	//we want to be aggressive with this because of the cost.
-	int iWeight = /*500*/ GD_INT_GET(BUILDER_TASKING_BASELINE_BUILD_ROUTES);
+	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
+	int iWeight = (pRouteInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
 
 	//if we are in debt, be more aggressive
 	EconomicAIStrategyTypes eStrategyLosingMoney = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_LOSING_MONEY");
 	if (m_pPlayer->GetEconomicAI()->IsUsingStrategy(eStrategyLosingMoney))
 		iWeight *= 3;
-
-	iWeight += GetBuildTimeWeight(iWeight, pPlot, m_eRemoveRouteBuild);
-	iWeight += GetBuildCostWeight(pPlot, m_eRemoveRouteBuild);
 
 	iWeight = min(iWeight, 0x7FFF);
 
@@ -1529,9 +1835,6 @@ void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirecti
 
 	if (iWeight <= 0)
 		return;
-
-	iWeight += GetBuildTimeWeight(iWeight, pPlot, eRouteBuild);
-	iWeight += GetBuildCostWeight(pPlot, eRouteBuild);
 
 	iWeight = min(iWeight, 0x7FFF);
 
@@ -1722,9 +2025,6 @@ void CvBuilderTaskingAI::AddChopDirectives(vector<OptionWithScore<BuilderDirecti
 		iWeight = iWeight * 2;
 	}
 
-	iWeight += GetBuildTimeWeight(iWeight, pPlot, eChopBuild);
-	iWeight += GetBuildCostWeight(pPlot, eChopBuild);
-
 	iWeight = min(iWeight, 0x7FFF);
 
 	if(iWeight > 0)
@@ -1814,9 +2114,6 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<Builder
 			iWeight = iRepairRouteValue;
 	}
 
-	iWeight += GetBuildTimeWeight(iWeight, pPlot, m_eRepairBuild);
-	iWeight += GetBuildCostWeight(pPlot, m_eRepairBuild);
-
 	iWeight = min(iWeight, 0x7FFF);
 
 	if (iWeight > 0)
@@ -1846,8 +2143,6 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<Builde
 	if(pPlot->getFeatureType() == m_eFalloutFeature && m_pPlayer->canBuild(pPlot, m_eFalloutRemove))
 	{
 		int iWeight =/*20000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_SCRUB_FALLOUT);
-		iWeight += GetBuildTimeWeight(iWeight, pPlot, m_eFalloutRemove);
-		iWeight += GetBuildCostWeight(pPlot, m_eFalloutRemove);
 
 		BuilderDirective directive(BuilderDirective::CHOP, m_eFalloutRemove, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
 		aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iWeight));
@@ -1964,30 +2259,6 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 	return true;
 }
 
-/// Get the weight determined by the cost of building the item
-int CvBuilderTaskingAI::GetBuildCostWeight(CvPlot* pPlot, BuildTypes eBuild)
-{
-	return -m_pPlayer->getBuildCost(pPlot, eBuild) / 10;
-}
-
-/// Get the weight determined by the building time of the item
-int CvBuilderTaskingAI::GetBuildTimeWeight(int iWeight, CvPlot* pPlot, BuildTypes eBuild)
-{
-	int iBuildTimeNormal = pPlot->getBuildTime(eBuild, m_pPlayer->GetID());
-	int iBuildProgress= pPlot->getBuildProgress(eBuild);
-	int iBuildTurnsLeft = iBuildTimeNormal - iBuildProgress;
-	int iBuildTime = min(iBuildTimeNormal, iBuildTurnsLeft);
-
-	int iScaledBuildTime = iBuildTime / 300;
-
-	if (2 * iScaledBuildTime <= iWeight && iScaledBuildTime > 0)
-		return iWeight / (2 * iScaledBuildTime);
-	else if (iScaledBuildTime <= 0)
-		return iWeight / 2;
-	else
-		return 0;
-}
-
 /// Return the weight of this resource
 int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned)
 {
@@ -2017,7 +2288,7 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 		}
 	}
 
-	// if the empire is unhappy (or close to it) and this is a luxury resource the player doesn't have, provide a super bonus to getting it
+	// if this is a luxury resource the player doesn't have, provide a bonus to getting it
 	if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 	{
 		int iModifier = (pkResource->getHappiness() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE));
@@ -2035,10 +2306,8 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 	}
 	else if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
-		//if (m_pPlayer->IsResourceCityTradeable(eResource))
-		//{
 		// measure quantity
-		int iModifier = iQuantity * 100;
+		int iModifier = iQuantity * 250;
 
 		int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eResource) + iAdditionalOwned;
 
@@ -2050,7 +2319,6 @@ int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTy
 			iModifier /= 2;
 
 		iWeight += iModifier;
-		//}
 	}
 
 	return iWeight;
@@ -2091,41 +2359,6 @@ bool CvBuilderTaskingAI::DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild)
 	return false;
 }
 
-int GetYieldBaseModifier(YieldTypes eYield)
-{
-	switch (eYield)
-	{
-	case NO_YIELD:
-		UNREACHABLE();
-	case YIELD_FOOD:
-		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FOOD);
-	case YIELD_PRODUCTION:
-		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_PRODUCTION);
-	case YIELD_GOLD:
-		return /*40*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_GOLD);
-	case YIELD_SCIENCE:
-		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_SCIENCE);
-	case YIELD_CULTURE:
-		return /*200*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_CULTURE);
-	case YIELD_FAITH:
-		return /*150*/ GD_INT_GET(BUILDER_TASKING_BASELINE_ADDS_FAITH);
-	case YIELD_TOURISM:
-	case YIELD_GOLDEN_AGE_POINTS:
-	case YIELD_GREAT_GENERAL_POINTS:
-	case YIELD_GREAT_ADMIRAL_POINTS:
-	case YIELD_POPULATION:
-	case YIELD_CULTURE_LOCAL:
-	case YIELD_JFD_HEALTH:
-	case YIELD_JFD_DISEASE:
-	case YIELD_JFD_CRIME:
-	case YIELD_JFD_LOYALTY:
-	case YIELD_JFD_SOVEREIGNTY:
-		return 50;
-	default:
-		return 0;
-	}
-}
-
 int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState)
 {
 	const CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eBuild);
@@ -2143,15 +2376,12 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	const ResourceTypes eResourceFromOldImprovement = pkOldImprovementInfo ? (ResourceTypes)pkOldImprovementInfo->GetResourceFromImprovement() : NO_RESOURCE;
 	const FeatureTypes eFeatureFromOldImprovement = pkOldImprovementInfo ? pkOldImprovementInfo->GetCreatedFeature() : NO_FEATURE;
 
-	const int iImprovementMaintenance = pkImprovementInfo ? pkImprovementInfo->GetGoldMaintenance() : 0;
+	const int iImprovementMaintenanceTimes100 = pkImprovementInfo ? pkImprovementInfo->GetGoldMaintenance() * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) : 0;
 
 	//Some base value.
 	int iYieldScore = 0;
 	int iBaseYieldScore = 0;
 	int iSecondaryScore = 0;
-
-	const int iBigBuff = 1000;
-	const int iSmallBuff = 350;
 
 	const CvCity* pOwningCity = pPlot->getEffectiveOwningCity();
 
@@ -2181,11 +2411,30 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		}
 	}
 
-	const CvCityStrategyAI* pCityStrategy = pOwningCity ? pOwningCity->GetCityStrategyAI() : NULL;
 	const CvReligion* pCityReligion = pOwningCity ? pOwningCity->GetCityReligions()->GetMajorityReligion() : NULL;
 	
 	// Do we have or will we build a road here?
-	bool bWillBeCityConnectingRoad = true;
+	RouteTypes eRouteNeeded = GetRouteTypeNeededAtPlot(pPlot);
+	bool bWillBeCityConnectingRoad = eRouteNeeded != NO_ROUTE;
+
+	int iPlotIndex = pPlot->GetPlotIndex();
+	bool bCityConnectingRoad = m_mainRoutePlots.find(iPlotIndex) != m_mainRoutePlots.end() || m_shortcutRoutePlots.find(iPlotIndex) != m_shortcutRoutePlots.end();
+	if (!bCityConnectingRoad)
+	{
+		bWillBeCityConnectingRoad = false;
+	}
+	if (eRouteNeeded == ROUTE_ROAD)
+	{
+		// Iroquois do not build roads on forests/jungles, and potential villages will remove the city connection
+		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
+		{
+			if (MOD_BALANCE_VP || pPlot->getTeam() == m_pPlayer->getTeam())
+			{
+				bWillBeCityConnectingRoad = false;
+			}
+		}
+	}
+
 	const bool bIsWithinWorkRange = pOwningCity && pOwningCity->IsWithinWorkRange(pPlot);
 	bool bCityIsSated = true;
 
@@ -2255,48 +2504,10 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	if (bIsWithinWorkRange)
 	{
-		RouteTypes eRouteNeeded = GetRouteTypeNeededAtPlot(pPlot);
-		bWillBeCityConnectingRoad = eRouteNeeded != NO_ROUTE; // TODO don't count strategic routes
-		if (eRouteNeeded == ROUTE_ROAD)
-		{
-			int iPlotIndex = pPlot->GetPlotIndex();
-			bool bCityConnectingRoad = m_mainRoutePlots.find(iPlotIndex) != m_mainRoutePlots.end() || m_shortcutRoutePlots.find(iPlotIndex) != m_shortcutRoutePlots.end();
-			if (!bCityConnectingRoad)
-			{
-				bWillBeCityConnectingRoad = false;
-			}
-			else if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
-			{
-				if (MOD_BALANCE_VP || pPlot->getTeam() == m_pPlayer->getTeam())
-				{
-					bWillBeCityConnectingRoad = false;
-				}
-			}
-		}
-
-		RouteTypes eExpectedRoute = !pPlot->IsRoutePillaged() ? pPlot->getRouteType() : NO_ROUTE;
-
-		if (pPlot->getRouteType() != NO_ROUTE && pPlot->IsRoutePillaged() && pkBuildInfo && pkBuildInfo->isRepair())
-		{
-			// Repairing a pillaged route
-			eExpectedRoute = pPlot->getRouteType();
-		}
-		else if (pkBuildInfo && pkBuildInfo->getRoute() != NO_ROUTE)
-		{
-			// Building a route
-			eExpectedRoute = (RouteTypes)pkBuildInfo->getRoute();
-		}
-		else
-		{
-			// If we are building an improvement, evaluate as if road network is completed
-			if (eExpectedRoute == NO_ROUTE && bWillBeCityConnectingRoad)
-				eExpectedRoute = eRouteNeeded;
-			if (!bWillBeCityConnectingRoad)
-				eExpectedRoute = NO_ROUTE;
-		}
+		bool bIgnoreCityConnection = eRouteNeeded == NO_ROUTE;
 
 		if (eBuild != NO_BUILD)
-			UpdateProjectedPlotYields(pPlot, eBuild, bWillBeCityConnectingRoad);
+			UpdateProjectedPlotYields(pPlot, eBuild, bIgnoreCityConnection);
 		else
 			UpdateCurrentPlotYields(pPlot);
 	}
@@ -2310,8 +2521,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			break;
 
 		int iBasePlotYield = bIsWithinWorkRange ? pPlot->calculateNatureYield(eYield, m_pPlayer->GetID(), eNaturalFeature, eNaturalResource, pOwningCity) : 0;
-
-		int iYieldBaseModifier = GetYieldBaseModifier(eYield);
 
 		int iOldYieldTimes100 = bIsWithinWorkRange ? 100 * m_aiCurrentPlotYields[ui] : 0;
 		int iNewYieldTimes100 = iOldYieldTimes100;
@@ -2383,9 +2592,9 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 		}
 
-		if (eYield == YIELD_GOLD && iImprovementMaintenance != 0)
+		if (eYield == YIELD_GOLD && iImprovementMaintenanceTimes100 != 0)
 		{
-			iNewYieldTimes100 -= 100 * iImprovementMaintenance;
+			iNewYieldTimes100 -= iImprovementMaintenanceTimes100;
 		}
 
 		// Bonuses yield that this improvement provides to adjacent improvements
@@ -2415,65 +2624,70 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				if (!pkAdjacentImprovement)
 					continue;
 
-				CvCity* eAdjacentOwningCity = pAdjacentPlot->getEffectiveOwningCity();
-				if (!eAdjacentOwningCity)
+				CvCity* pAdjacentOwningCity = pAdjacentPlot->getEffectiveOwningCity();
+				if (!pAdjacentOwningCity)
 					continue;
 
-				if (!eAdjacentOwningCity->IsWithinWorkRange(pAdjacentPlot))
+				if (!pAdjacentOwningCity->IsWithinWorkRange(pAdjacentPlot))
 					continue;
 
-				if (eAdjacentOwningCity->IsRazing())
+				if (pAdjacentOwningCity->IsRazing())
 					continue;
 
-				CvCityStrategyAI* eAdjacentCityStrategy = eAdjacentOwningCity->GetCityStrategyAI();
-				if (!eAdjacentCityStrategy)
-					continue;
-
-				// Adjacency bonuses are applied to the city the other plot belongs to
-				int iYieldMultiplier = eAdjacentCityStrategy->GetYieldModifierTimes100(eYield);
-				int iYieldModifier = (iYieldBaseModifier * iYieldMultiplier) / 100;
+				int iTempYieldScore = 0;
 
 				if (eAdjacentImprovement == eImprovement)
 				{
-					iYieldScore += pkAdjacentImprovement->GetYieldAdjacentSameType(eYield) * iYieldModifier;
+					iTempYieldScore += pkAdjacentImprovement->GetYieldAdjacentSameType(eYield) * 2;
 					// Add half a yield if there's one adjacent when two are needed
-					iYieldScore += (pkAdjacentImprovement->GetYieldAdjacentTwoSameType(eYield) * iYieldModifier) / 2;
+					iTempYieldScore += pkAdjacentImprovement->GetYieldAdjacentTwoSameType(eYield);
 				}
 				else if (eOldImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eOldImprovement)
 				{
-					iYieldScore -= pkAdjacentImprovement->GetYieldAdjacentSameType(eYield) * iYieldModifier;
-					iYieldScore -= (pkAdjacentImprovement->GetYieldAdjacentTwoSameType(eYield) * iYieldModifier) / 2;
+					iTempYieldScore -= pkAdjacentImprovement->GetYieldAdjacentSameType(eYield) * 2;
+					iTempYieldScore -= pkAdjacentImprovement->GetYieldAdjacentTwoSameType(eYield);
 				}
 
 				if (eImprovement != NO_IMPROVEMENT)
-					iYieldScore += pkAdjacentImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * iYieldModifier;
+					iTempYieldScore += pkAdjacentImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * 2;
 				if (eResourceFromImprovement != NO_RESOURCE)
-					iYieldScore += pkAdjacentImprovement->GetAdjacentResourceYieldChanges(eResourceFromImprovement, eYield) * iYieldModifier;
+					iTempYieldScore += pkAdjacentImprovement->GetAdjacentResourceYieldChanges(eResourceFromImprovement, eYield) * 2;
 				if (eFeatureFromImprovement != NO_FEATURE)
-					iYieldScore += pkAdjacentImprovement->GetAdjacentFeatureYieldChanges(eFeatureFromImprovement, eYield) * iYieldModifier;
+					iTempYieldScore += pkAdjacentImprovement->GetAdjacentFeatureYieldChanges(eFeatureFromImprovement, eYield) * 2;
 
 				if (eOldImprovement != NO_IMPROVEMENT)
 				{
-					iYieldScore -= pkAdjacentImprovement->GetAdjacentImprovementYieldChanges(eOldImprovement, eYield) * iYieldModifier;
+					iTempYieldScore -= pkAdjacentImprovement->GetAdjacentImprovementYieldChanges(eOldImprovement, eYield) * 2;
 					if (eResourceFromOldImprovement != NO_RESOURCE)
-						iYieldScore -= pkAdjacentImprovement->GetAdjacentResourceYieldChanges(eResourceFromOldImprovement, eYield) * iYieldModifier;
+						iTempYieldScore -= pkAdjacentImprovement->GetAdjacentResourceYieldChanges(eResourceFromOldImprovement, eYield) * 2;
 					if (eFeatureFromOldImprovement != NO_FEATURE)
-						iYieldScore -= pkAdjacentImprovement->GetAdjacentFeatureYieldChanges(eFeatureFromOldImprovement, eYield) * iYieldModifier;
+						iTempYieldScore -= pkAdjacentImprovement->GetAdjacentFeatureYieldChanges(eFeatureFromOldImprovement, eYield) * 2;
+				}
+
+				if (iTempYieldScore != 0)
+				{
+					// Adjacency bonuses are applied to the city the other plot belongs to
+					// Use base modifier to avoid expensive computation
+					int iYieldModifier = GetYieldBaseModifierTimes100(eYield);
+
+					iYieldScore += (iTempYieldScore * iYieldModifier) / 2;
 				}
 			}
 		}
 
-		int iYieldMultiplier = pCityStrategy ? pCityStrategy->GetYieldModifierTimes100(eYield) : 100;
-		int iYieldModifier = (iYieldBaseModifier * iYieldMultiplier) / 100;
-
-		if (bCityIsSated)
+		if (iNewYieldTimes100 != iOldYieldTimes100 || iBasePlotYield != 0)
 		{
-			iYieldModifier *= 2;
-			iYieldModifier /= 3;
-		}
+			int iYieldModifier = GetPlotYieldModifierTimes100(pPlot, eYield);
 
-		iYieldScore += ((iNewYieldTimes100 - iOldYieldTimes100) * iYieldModifier) / 100;
-		iBaseYieldScore += iBasePlotYield * iYieldModifier;
+			if (bCityIsSated)
+			{
+				iYieldModifier *= 2;
+				iYieldModifier /= 3;
+			}
+
+			iYieldScore += ((iNewYieldTimes100 - iOldYieldTimes100) * iYieldModifier) / 100;
+			iBaseYieldScore += iBasePlotYield * iYieldModifier;
+		}
 	}
 
 	//Improvement grants or connects resource? Let's weight this based on flavors.
@@ -2518,15 +2732,15 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			// Great person improvements special considerations
 			bool bGreatPersonAvoidLarge = false;
-			if (bSaveCityAdjacent)
-				bGreatPersonAvoidLarge = true;
-			else if (eFeature != NO_FEATURE && m_aiSaveFeatureUntilTech[eFeature] != NO_TECH)
+			if (eFeature != NO_FEATURE && m_aiSaveFeatureUntilTech[eFeature] != NO_TECH)
 				bGreatPersonAvoidLarge = true;
 			else if (pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
 				bGreatPersonAvoidLarge = true;
 
 			bool bGreatPersonAvoidSmall = false;
-			if (eFeature != NO_FEATURE)
+			if (bSaveCityAdjacent)
+				bGreatPersonAvoidSmall = true;
+			else if (eFeature != NO_FEATURE)
 				bGreatPersonAvoidSmall = true;
 			else if (pPlot->isRiver())
 				bGreatPersonAvoidSmall = true;
@@ -2540,28 +2754,31 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 
 			if (bGreatPersonAvoidLarge)
-				iSecondaryScore -= iBigBuff;
+				iYieldScore /= 3;
 			else if (bGreatPersonAvoidSmall)
-				iSecondaryScore -= iSmallBuff;
+				iYieldScore = (iYieldScore * 2) / 3;
 		}
 		else
 		{
 			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			// Non-great person improvements considerations
 			if ((eResource == NO_RESOURCE || pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_BONUS) && bSaveCityAdjacent && !pkImprovementInfo->IsAdjacentCity())
-				iSecondaryScore -= iSmallBuff;
+			{
+				iYieldScore = (iYieldScore * 2) / 3;
+			}
 			else if (eResource != NO_RESOURCE && pkImprovementInfo && !pkImprovementInfo->IsConnectsResource(eResource))
 			{
 				if (pkResourceInfo && pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_BONUS)
-					iSecondaryScore -= iSmallBuff;
+				{
+					iYieldScore = (iYieldScore * 2) / 3;
+				}
 			}
-
-			if (MOD_BALANCE_VP)
+			else if ((bWillBeCityConnectingRoad && !bBenefitsFromRoads) || (!bWillBeCityConnectingRoad && bBenefitsFromRoads))
 			{
-				if (bWillBeCityConnectingRoad && !bBenefitsFromRoads)
-					iSecondaryScore -= iSmallBuff;
-				else if (!bWillBeCityConnectingRoad && bBenefitsFromRoads)
-					iSecondaryScore -= iSmallBuff;
+				if (MOD_BALANCE_VP)
+				{
+					iYieldScore = (iYieldScore * 2) / 3;
+				}
 			}
 		}
 	}
@@ -2579,7 +2796,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		// if it's Iroquois building forests give it even more weight since it connects cities.
 		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeatureFromImprovement == FEATURE_FOREST || eFeatureFromImprovement == FEATURE_JUNGLE))
 		{
-			iSecondaryScore += iSmallBuff;
+			iYieldScore = (iYieldScore * 3) / 2;
 		}
 	}
 #endif
@@ -2625,7 +2842,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 	// Do we want a canal here?
 	if ((pOwningCity || (bIsCultureBomb && pPlot->isAdjacentPlayer(m_pPlayer->GetID()))) && MOD_GLOBAL_PASSABLE_FORTS && pkImprovementInfo && pkImprovementInfo->IsMakesPassable() && WantCanalAtPlot(pPlot) && pkImprovementInfo->GetNearbyEnemyDamage() == 0)
-		iSecondaryScore += iBigBuff * 3;
+		iSecondaryScore += 3000;
 
 	// TODO flesh out culture bomb logic and move it from TacticalAI?
 	// Currently this is only for human player recommendations.
@@ -2964,7 +3181,7 @@ void CvBuilderTaskingAI::UpdateCurrentPlotYields(CvPlot* pPlot)
 }
 
 // looks at the current plot assuming the build to see what it's worth
-void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIsCityConnection)
+void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection)
 {
 	UpdateCurrentPlotYields(pPlot);
 
@@ -2994,7 +3211,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 			if ((YieldTypes)ui <= YIELD_GOLDEN_AGE_POINTS || MOD_BALANCE_CORE_JFD)
 			{
 #endif
-				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIsCityConnection, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
+				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIgnoreCityConnection, m_pPlayer->GetID(), pOwningCity, pReligion, pBelief);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
 #if defined(MOD_RELIGION_PERMANENT_PANTHEON)
@@ -3006,7 +3223,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 						{
 							if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, m_pPlayer->GetID()))) // check that the our religion does not have our belief, to prevent double counting
 							{
-								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIsCityConnection, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
+								m_aiProjectedPlotYields[ui] += pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIgnoreCityConnection, m_pPlayer->GetID(), pOwningCity, pPantheon, NULL);
 								m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 							}
 						}
@@ -3036,7 +3253,7 @@ void CvBuilderTaskingAI::UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBu
 			if ((YieldTypes)ui <= YIELD_GOLDEN_AGE_POINTS || MOD_BALANCE_CORE_JFD)
 			{
 #endif
-				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIsCityConnection, m_pPlayer->GetID(), NULL, NULL, NULL);
+				m_aiProjectedPlotYields[ui] = pPlot->getYieldWithBuild(eBuild, (YieldTypes)ui, false, bIgnoreCityConnection, m_pPlayer->GetID(), NULL, NULL, NULL);
 				m_aiProjectedPlotYields[ui] = max(m_aiProjectedPlotYields[ui], 0);
 
 				if (m_bLogging){

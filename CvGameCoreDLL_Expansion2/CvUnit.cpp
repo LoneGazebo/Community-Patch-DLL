@@ -3438,7 +3438,7 @@ bool CvUnit::isActionRecommended(int iAction)
 			if (pPlot != pDirectivePlot)
 				continue;
 
-			bool bCanBuild = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this, eDirective);
+			bool bCanBuild = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->CanUnitPerformDirective(this, eDirective);
 
 			if (!bCanBuild)
 				continue;

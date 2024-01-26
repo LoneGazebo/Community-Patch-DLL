@@ -2203,7 +2203,7 @@ static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes e
 		return 0;
 
 	// No villages for China near cities, no villages for Brazil on jungle/forest, no villages for Netherlands on marshes.
-	if (!eBuilderTaskingAi->MayWantVillageOnPlot(pPlot))
+	if (eBuilderTaskingAi->SavePlotForUniqueImprovement(pPlot))
 		return 0;
 
 	// If we have a town or village here, give a big bonus

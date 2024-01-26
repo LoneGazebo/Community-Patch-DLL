@@ -533,6 +533,47 @@ int CvCityCitizens::GetPlotValue(CvPlot* pPlot, SPrecomputedExpensiveNumbers& ca
 	return iValue;
 }
 
+void CvCityCitizens::UpdateCache() const
+{
+	gCachedNumbers.update(m_pCity);
+}
+
+int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
+{
+	const SPrecomputedExpensiveNumbers cache = gCachedNumbers;
+
+	CityAIFocusTypes eFocus = GetFocusType();
+	bool bAvoidGrowth = IsAvoidGrowth();
+
+	bool bEmphasizeFood = CityShouldEmphasizeFood(cache.iExcessFoodTimes100);
+	bool bEmphasizeProduction = CityShouldEmphasizeProduction();
+
+	//Simplification - errata yields not worth considering.
+	if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
+		return 50;
+
+	int iModifierTimes100 = 100;
+
+	//how much do we value certain yields
+	if (eYield == YIELD_FOOD)
+	{
+		if (cache.iExcessFoodTimes100 > 0)
+			// if we have growth penalties, pretend the yield is lower
+			iModifierTimes100 += min(0, (iModifierTimes100 * (m_pCity->getYieldRateModifier(YIELD_FOOD) + m_pCity->getGrowthMods())) / 100);
+
+		// even if we don't want to grow we care a little, extra food can help against unhappiness from distress!
+		if (!bEmphasizeFood && bAvoidGrowth)
+			iModifierTimes100 /= 20;
+	}
+
+	int iYieldMod = GetYieldModForFocus(eYield, eFocus, bEmphasizeFood, bEmphasizeProduction, cache);
+
+	if (iYieldMod > 0)
+		return (iModifierTimes100 * iYieldMod) / 10;
+
+	return iModifierTimes100;
+}
+
 bool CvCityCitizens::CityShouldEmphasizeFood(int iAssumedExcessFood) const
 {
 	bool bCityFoodProduction = !GET_PLAYER(GetOwner()).isHuman() && m_pCity->getPopulation() > 3 && m_pCity->isFoodProduction(); //settler!
