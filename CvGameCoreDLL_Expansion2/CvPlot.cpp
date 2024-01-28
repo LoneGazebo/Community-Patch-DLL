@@ -10341,7 +10341,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 			{
 				if (MOD_BALANCE_YIELD_SCALE_ERA)
 				{
-					if (IsCityConnection() && !bIgnoreCityConnection)
+					if (IsCityConnection(ePlayer) && !bIgnoreCityConnection)
 					{
 						if (eRoute == ROUTE_RAILROAD)
 						{
@@ -10555,7 +10555,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
 			if (iBonus > 0)
 			{
-				if ((IsCityConnection() && !bIgnoreCityConnection) || IsTradeUnitRoute())
+				if ((IsCityConnection(ePlayer) && !bIgnoreCityConnection) || IsTradeUnitRoute())
 				{
 					int iScale = 0;
 					int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -10575,7 +10575,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			int iBonus = pTraits->GetTerrainYieldChange(eTerrain, eYield);
 			if (iBonus > 0)
 			{
-				if ((IsCityConnection() && !bIgnoreCityConnection) || IsTradeUnitRoute())
+				if ((IsCityConnection(ePlayer) && !bIgnoreCityConnection) || IsTradeUnitRoute())
 				{
 					int iScale = 0;
 					int iEra = (kPlayer.GetCurrentEra() + 1);
@@ -10595,7 +10595,7 @@ int CvPlot::calculatePlayerYield(YieldTypes eYield, int iCurrentYield, PlayerTyp
 			int iBonus2 = pTraits->GetImprovementYieldChange(eImprovement, eYield);
 			if (iBonus2 > 0)
 			{
-				if ((IsCityConnection() && !bIgnoreCityConnection) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
+				if ((IsCityConnection(ePlayer) && !bIgnoreCityConnection) || IsTradeUnitRoute() || IsAdjacentToTradeRoute())
 				{
 					int iScale = 0;
 					int iEra = (kPlayer.GetCurrentEra() + 1);

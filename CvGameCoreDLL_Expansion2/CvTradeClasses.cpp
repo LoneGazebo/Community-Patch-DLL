@@ -298,7 +298,7 @@ void CvGameTrade::UpdateTradePathCache(PlayerTypes ePlayer1)
 		//now for land routes
 		int iMaxNormDistLand = kPlayer1.GetTrade()->GetTradeRouteRange(DOMAIN_LAND, pOriginCity);
 		data.iMaxNormalizedDistance = iMaxNormDistLand;
-		data.ePathType = PT_TRADE_LAND;
+		data.ePath = PT_TRADE_LAND;
 
 		//get all paths
 		map<int,SPath> landpaths = GC.GetStepFinder().GetMultiplePaths(pCityPlot, vDestPlots, data);

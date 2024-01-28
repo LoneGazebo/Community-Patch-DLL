@@ -43121,6 +43121,71 @@ bool CvPlayer::IsEarlyExpansionPhase() const
 	return GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
 }
 
+
+bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const
+{
+	if (eRoute == ROUTE_ROAD)
+	{
+		if (GetPlayerTraits()->IsWoodlandMovementBonus() && (pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE))
+		{
+			if (MOD_BALANCE_VP || pPlot->getTeam() == getTeam())
+				return true;
+		}
+		else if (GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver())
+			return true;
+	}
+	return false;
+}
+
+bool CvPlayer::IsPlotSafeForRoute(const CvPlot* pPlot, RouteTypes eRoute, bool bIncludeAdjacent) const
+{
+	TeamTypes ePlotTeam = pPlot->getTeam();
+	TeamTypes ePlayerTeam = getTeam();
+	PlayerTypes ePlotOwner = pPlot->getOwner();
+
+	//Free routes from traits are always safe
+	if (GetSameRouteBenefitFromTrait(pPlot, eRoute))
+		return true;
+
+	// Our plots and surrounding plots are safe
+	if (ePlotTeam == ePlayerTeam || (bIncludeAdjacent && pPlot->isAdjacentTeam(getTeam(), false)))
+	{
+		return true;
+	}
+
+	// Our vassal's plots and surrounding plots are safe
+	if (GET_TEAM(ePlotTeam).IsVassal(ePlayerTeam) || (bIncludeAdjacent && pPlot->isAdjacentOwnedByVassal(ePlayerTeam, false)))
+	{
+		return true;
+	}
+
+	// City state plots and surrounding plots are safe
+	if (ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).isMinorCiv() && !GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+	{
+		return true;
+	}
+
+	if (bIncludeAdjacent)
+	{
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+		PlayerTypes eAdjacentOwner;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+			if (pAdjacentPlot != NULL)
+			{
+				eAdjacentOwner = pAdjacentPlot->getOwner();
+				if (eAdjacentOwner != NO_PLAYER && GET_PLAYER(eAdjacentOwner).isMinorCiv() && !GET_PLAYER(eAdjacentOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
 {

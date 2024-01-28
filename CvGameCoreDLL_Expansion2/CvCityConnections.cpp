@@ -297,7 +297,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		if (!pStartCity->IsBlockaded(DOMAIN_LAND))
 		{
 			roadPlots= GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
-			data.eRouteType = ROUTE_RAILROAD;
+			data.eRoute = ROUTE_RAILROAD;
 			railroadPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 		}
 
@@ -308,8 +308,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 				bStartCityAllowsWater = true;
 		if (bStartCityAllowsWater && !pStartCity->IsBlockaded(DOMAIN_SEA))
 		{
-			data.eRouteType = NO_ROUTE;
-			data.ePathType = PT_CITY_CONNECTION_WATER;
+			data.eRoute = NO_ROUTE;
+			data.ePath = PT_CITY_CONNECTION_WATER;
 			waterPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 		}
 
@@ -460,7 +460,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		if ( GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute()==GC.getGame().GetIndustrialRoute() )
 		{
 			//with water and railroad only 
-			data.eRouteType = ROUTE_RAILROAD;
+			data.eRoute = ROUTE_RAILROAD;
 			ReachablePlots capitalRailroadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 			for (ReachablePlots::iterator it = capitalRailroadConnectedPlots.begin(); it != capitalRailroadConnectedPlots.end(); ++it)
 			{
@@ -474,8 +474,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 		}
 
 		//Now set up the city connection flags for the plots with a route
-		data.ePathType = PT_CITY_CONNECTION_LAND;
-		data.eRouteType = ROUTE_ROAD;
+		data.ePath = PT_CITY_CONNECTION_LAND;
+		data.eRoute = ROUTE_ROAD;
 		for (size_t i = 0; i < vConnectedCities.size(); i++)
 		{
 			for (size_t j = i + 1; j < vConnectedCities.size(); j++)

@@ -4906,7 +4906,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 				{
 					//need to use the pathfinder
 					SPathFinderUserData data(pUnit, 0, 6);
-					data.ePathType = PT_AIR_REBASE;
+					data.ePath = PT_AIR_REBASE;
 					SPath path = GC.GetStepFinder().GetPath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data);
 					if (!!path)
 					{
@@ -4993,7 +4993,7 @@ void CvHomelandAI::ExecuteAircraftMoves()
 			{
 				//need to use the pathfinder
 				SPathFinderUserData data(pUnit, 0, 6);
-				data.ePathType = PT_AIR_REBASE;
+				data.ePath = PT_AIR_REBASE;
 				SPath path = GC.GetStepFinder().GetPath(pUnit->getX(),pUnit->getY(),it->pPlot->getX(),it->pPlot->getY(),data);
 				if (!!path)
 				{

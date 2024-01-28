@@ -30338,8 +30338,8 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 	BuildTypes eBestBuild = NO_BUILD;
 	GetBestBuildRoute(plot(), &eBestBuild);
 	RouteTypes eBestRoute = GET_PLAYER(getOwner()).getBestRoute(plot());
-	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(getOwner()).GetBuilderTaskingAI();
-	bool bGetSameBenefitFromTrait = eBuilderTaskingAi->GetSameRouteBenefitFromTrait(plot(), eBestRoute);
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	bool bGetSameBenefitFromTrait = kPlayer.GetSameRouteBenefitFromTrait(plot(), eBestRoute);
 	if(!bGetSameBenefitFromTrait && eBestBuild != NO_BUILD && UnitBuild(eBestBuild))
 		return true;
 
