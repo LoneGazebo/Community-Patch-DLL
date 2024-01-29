@@ -111,7 +111,7 @@ public:
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
-	bool SavePlotForUniqueImprovement(CvPlot* pPlot) const;
+	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
 
@@ -149,7 +149,7 @@ protected:
 
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
-	int GetMoveSpeedBonus(CvPlayer* pPlayer, CvPlot* pPlot, CvPlot* pOtherPlot, RouteTypes eRoute);
+	int GetMoveSpeedBonus(CvPlot* pPlot, CvPlot* pOtherPlot, RouteTypes eRoute);
 	void GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles);
 
 	void UpdateCanalPlots();
@@ -157,8 +157,8 @@ protected:
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
 
-	//plotindex,type,globalValue,globalValueRouteLength,localValue
-	typedef map<int,map<RouteTypes, pair<vector<pair<int,int>>,int>>> RoutePlotContainer;
+	// maps plotindex to a vector of length NUM_ROUTE_TYPES containing globalValue, globalValueRouteLength, localValue
+	typedef map<int,vector<pair<vector<pair<int,int>>,int>>> RoutePlotContainer;
 	RoutePlotContainer m_routeNeededPlots; //want route here. serialized
 	set<int> m_canalWantedPlots; //serialized
 	vector<BuilderDirective> m_directives;
@@ -179,8 +179,10 @@ protected:
 	int m_iLastUpdatedCityCacheCityID; // Hack to be able to use CvCityCitizen logic to evaluate plot yields
 
 	//some player dependent flags for unique improvements
-	TechTypes m_aiSaveFeatureUntilTech[NUM_FEATURE_TYPES]; // serialized, can't be recreated on game load (eID is NO_PLAYER)
-	TechTypes m_iSaveCityAdjacentUntilTech; // serialized, can't be recreated on game load (eID is NO_PLAYER)
+	pair<ImprovementTypes,TechTypes> m_aeSaveFeatureForImprovementUntilTech[NUM_FEATURE_TYPES]; // serialized, can't be recreated on game load (eID is NO_PLAYER)
+	ImprovementTypes m_eSaveCityAdjacentForImprovement; // serialized
+	ImprovementTypes m_eSaveCoastalForImprovement; // serialized
+	ImprovementTypes m_eSaveHillsForImprovement; // serialized
 };
 
 FDataStream& operator>>(FDataStream&, CvBuilderTaskingAI&);

@@ -2818,14 +2818,18 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
 	int iScore = eDirective.m_iScore;
+	int iBuildTime = iBuildTurns + iMoveTurns;
+
+	if (iBuildTime == 0)
+		return iScore * iScore;
 
 	CvBuildInfo* pBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
 	CvImprovementEntry* pImprovementInfo = pBuildInfo ? GC.getImprovementInfo((ImprovementTypes)pBuildInfo->getImprovement()) : NULL;
 
 	if (pImprovementInfo && pImprovementInfo->IsCreatedByGreatPerson())
-		return iScore * 10 - iMoveTurns;
+		return iScore * iScore - iBuildTime;
 
-	return iScore / (iBuildTurns + iMoveTurns + 1);
+	return iScore * iScore / (iBuildTime * iBuildTime);
 }
 
 static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, CvPlot* pPlot, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives, const set<BuilderDirective> ignoredDirectives)

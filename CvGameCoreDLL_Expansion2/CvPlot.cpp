@@ -2983,17 +2983,11 @@ bool CvPlot::canBuild(BuildTypes eBuild, PlayerTypes ePlayer, bool bTestVisible,
 				return false;
 			}
 
-			CvRouteInfo* pkPlotRoute = GC.getRouteInfo(getRouteType());
-			CvRouteInfo* pkBuildRoute = GC.getRouteInfo(eRoute);
-			if(pkPlotRoute && pkBuildRoute)
+			if(eRoute == getRouteType())
 			{
-				// Can't build an older, less useful Route over the top of an existing one
-				if(pkPlotRoute->getValue() >= pkBuildRoute->getValue())
+				if(!IsRoutePillaged())
 				{
-					if(!IsRoutePillaged())
-					{
-						return false;
-					}
+					return false;
 				}
 			}
 		}
