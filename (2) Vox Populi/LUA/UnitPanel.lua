@@ -1108,7 +1108,7 @@ function TipHandler( control )
 
 			-- Can't upgrade because we have too many of the upgraded units
 			-- (can't use IsUnitClassMaxedOut here as it also checks the city limit)
-			if pActivePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
+			if iMaxPlayerInstances >= 0 and pActivePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
 
 				-- Add spacing for all entries after the first
 				if bFirstEntry then
