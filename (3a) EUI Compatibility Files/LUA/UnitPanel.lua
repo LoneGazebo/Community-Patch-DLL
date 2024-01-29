@@ -1693,7 +1693,7 @@ function ActionToolTipHandler( control )
 
 			-- Can't upgrade because we have too many of the upgraded units
 			-- (can't use IsUnitClassMaxedOut here as it also checks the city limit)
-			if g_activePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
+			if iMaxPlayerInstances >= 0 and g_activePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
 
 				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT", iMaxPlayerInstances)
 			end
