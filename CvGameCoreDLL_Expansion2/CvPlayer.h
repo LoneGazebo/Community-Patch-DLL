@@ -2991,7 +2991,7 @@ public:
 	bool unlockedGrowthAnywhereThisTurn() const;
 
 	bool IsEarlyExpansionPhase() const;
-	bool IsPlotSafeForRoute(const CvPlot* pPlot, RouteTypes eRoute, bool bIncludeAdjacent) const;
+	bool IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const;
 	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
 
 protected:

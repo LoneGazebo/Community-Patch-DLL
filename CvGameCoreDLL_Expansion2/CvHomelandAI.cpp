@@ -2860,27 +2860,26 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 // Rescale all directive weights depending on nearest usable worker
 static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirectives(const CvPlayer* pPlayer, const vector<BuilderDirective> aDirectives, const set<BuilderDirective> ignoredDirectives, const set<int> workedPlots, const list<int> allWorkers, const set<int> ignoredWorkers, map<pair<int, int>, int>&plotDistanceCache)
 {
-	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aDistanceWeightedDirectives;
+	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aWeightedDirectives;
+
 	int iBestWeightedScore = -1;
 
 	for (vector<BuilderDirective>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuilderDirective eDirective = *it;
 
+		if (ignoredDirectives.find(eDirective) != ignoredDirectives.end())
+			continue;
+
+		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
+		if (workedPlots.find(pDirectivePlot->GetPlotIndex()) != workedPlots.end())
+			continue;
+
 		// If the score is lower than the best weighted score we have found, it will never be better than the best weighted score
 		if (GetDirectiveWeight(eDirective, 0, 0) > iBestWeightedScore)
 		{
-			if (ignoredDirectives.find(eDirective) != ignoredDirectives.end())
-				continue;
-
 			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
-
-			if (workedPlots.find(pDirectivePlot->GetPlotIndex()) != workedPlots.end())
-				continue;
-
-			int iBestBuilderWeightedScore = -1;
-			int iBestBuilderTotalTurns = INT_MAX;
-			CvUnit* pBestBuilder = NULL;
 
 			list<OptionWithScore<CvUnit*>> sortedWorkers;
 
@@ -2902,9 +2901,14 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 
 				int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
 
-				sortedWorkers.push_back(OptionWithScore<CvUnit*>(pUnit, -iPlotDistance));
+				if (iPlotDistance <= 9)
+					sortedWorkers.push_back(OptionWithScore<CvUnit*>(pUnit, -iPlotDistance));
 			}
 			std::stable_sort(sortedWorkers.begin(), sortedWorkers.end());
+
+			int iBestBuilderWeightedScore = -1;
+			int iBestBuilderTotalTurns = INT_MAX;
+			CvUnit* pBestBuilder = NULL;
 
 			// Loop over the sorted workers to find the one closest to the directive plot (including build time)
 			for (std::list<OptionWithScore<CvUnit*>>::iterator builderIterator = sortedWorkers.begin(); builderIterator != sortedWorkers.end() && iBestBuilderTotalTurns > 0; ++builderIterator)
@@ -2916,7 +2920,7 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 					continue;
 
 				// If the weighted score is lower than the best weighted score we have found with 0 move steps, it will never be better than the best weighted score
-				if (GetDirectiveWeight(eDirective, iBuilderImprovementTime, 0) <= iBestWeightedScore)
+				if (GetDirectiveWeight(eDirective, iBuilderImprovementTime, 0) <= max(iBestBuilderWeightedScore, iBestWeightedScore))
 					continue;
 
 				if (!IsBestDirectiveForBuilderAndPlot(eDirective, pUnit, pDirectivePlot, pPlayer, aDirectives, ignoredDirectives))
@@ -2946,19 +2950,19 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 			if (iBestBuilderWeightedScore > iBestWeightedScore)
 				iBestWeightedScore = iBestBuilderWeightedScore;
 
-			aDistanceWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(pBestBuilder, eDirective), iBestBuilderWeightedScore));
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(pBestBuilder, eDirective), iBestBuilderWeightedScore));
 		}
 		else
 		{
-			aDistanceWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), -1));
+			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), -1));
 		}
 	}
 
-	std::stable_sort(aDistanceWeightedDirectives.begin(), aDistanceWeightedDirectives.end());
+	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
-	CvAssert(aDistanceWeightedDirectives.size() == aDirectives.size())
+	CvAssert(aWeightedDirectives.size() == aDirectives.size())
 
-	return aDistanceWeightedDirectives;
+	return aWeightedDirectives;
 }
 
 /// Moves units to improve plots
@@ -3303,7 +3307,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	map<int, int> mapCityNeed;
 	int iLoop = 0;
 	for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
-		mapCityNeed[pLoopCity->GetID()] = 0;
+		mapCityNeed[pLoopCity->GetID()] = pLoopCity->GetTerrainImprovementNeed();
 
 	for (CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
 	{
@@ -3326,7 +3330,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		if (pBestCity && pUnit->GeneratePath(pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED, 23))
 		{
 			ExecuteMoveToTarget(pUnit, pBestCity->plot(), CvUnit::MOVEFLAG_NO_ENEMY_TERRITORY|CvUnit::MOVEFLAG_PRETEND_ALL_REVEALED);
-			mapCityNeed[pBestCity->GetID()]--; //in case all cities have all tiles improved, try spread the workers over all our cities
+			int iCurrentNeed = mapCityNeed[pBestCity->GetID()];
+			if (iCurrentNeed > 0)
+				mapCityNeed[pBestCity->GetID()] = iCurrentNeed / 2; //reduce the score for this city in case we have multiple workers to distribute
+			else
+				mapCityNeed[pBestCity->GetID()]--; //in case all cities have all tiles improved, try spread the workers over all our cities
 		}
 		else if (pUnit->IsCivilianUnit())
 		{

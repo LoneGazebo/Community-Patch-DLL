@@ -109,7 +109,6 @@ public:
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
 	pair<RouteTypes,int> GetBestRouteAndValueForPlot(const CvPlot* pPlot) const;
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
-	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
 	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
 
@@ -120,7 +119,7 @@ public:
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
 	BuildTypes GetRemoveRoute(void);
-	BuildTypes GetBuildRoute(RouteTypes eRoute);
+	BuildTypes GetBuildRoute(RouteTypes eRoute) const;
 
 	BuilderDirective GetAssignedDirective(CvUnit* pUnit);
 	void SetAssignedDirective(CvUnit* pUnit, BuilderDirective eDirective);
@@ -145,21 +144,20 @@ protected:
 
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection);
-	bool AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iGlobalValue, int iLocalValue, int iRouteLength);
 
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
 	int GetMoveSpeedBonus(CvPlot* pPlot, CvPlot* pOtherPlot, RouteTypes eRoute);
-	void GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles);
+	void GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles);
 
 	void UpdateCanalPlots();
 
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
 
-	// maps plotindex to a vector of length NUM_ROUTE_TYPES containing globalValue, globalValueRouteLength, localValue
-	typedef map<int,vector<pair<vector<pair<int,int>>,int>>> RoutePlotContainer;
-	RoutePlotContainer m_routeNeededPlots; //want route here. serialized
+	typedef pair<RouteTypes,int> RoutePlot;
+	map<RoutePlot,vector<pair<int, int>>> m_plotRouteValuesAndLengths; //serialized
+	map<RoutePlot,int> m_localRouteValues; //serialized
 	set<int> m_canalWantedPlots; //serialized
 	vector<BuilderDirective> m_directives;
 	map<int, BuilderDirective> m_assignedDirectives;

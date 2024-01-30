@@ -2184,7 +2184,7 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 
 //	--------------------------------------------------------------------------------
 /// Prefer building routes that can have villages.
-static int BuildRouteVillageBonus(CvPlayer* pPlayer, CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
+static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
 {
 	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
 		return 0;
@@ -2229,23 +2229,22 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 
 	// cities have a free road we can use
 	if (pPlot->isCity())
-		return 0;
-	
-	RouteTypes eBestRouteForPlot = eBuilderTaskingAI->GetBestRouteAndValueForPlot(pPlot).first;
-	if(eBestRouteForPlot >= eRoute || bGetSameRouteBenefitFromTrait)
+		return 1;
+
+	RouteTypes ePlannedRoute = bGetSameRouteBenefitFromTrait ? eRoute : eBuilderTaskingAI->GetBestRouteAndValueForPlot(pPlot).first;
+	if (!data.bBenefitsVillages && ePlannedRoute >= eRoute)
+	{
+		// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
+		return 1;
+	}
+	else if (bGetSameRouteBenefitFromTrait)
+	{
+		iCost = PATH_BASE_COST / 3;
+	}
+	else if (ePlannedRoute >= eRoute)
 	{
 		// if we are planning to build a road here, provide a discount
-
-		// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
-		if (!data.bBenefitsVillages)
-			return 1;
-
-		iCost = PATH_BASE_COST * 7 / 12;
-	}
-	else if (eBestRouteForPlot != NO_ROUTE)
-	{
-		// if we are planning to build a lower tier route here, provide a smaller discount
-		iCost = PATH_BASE_COST * 3 / 4;
+		iCost = (PATH_BASE_COST * 2) / 3;
 	}
 	else if (pPlot->getRouteType() >= ROUTE_ROAD)
 	{
@@ -2261,7 +2260,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		iCost = PATH_BASE_COST;
 	}
 
-	if (!pPlayer->IsPlotSafeForRoute(pPlot, eRoute, false /*bIncludeAdjacent*/))
+	if (!bGetSameRouteBenefitFromTrait && !pPlayer->IsPlotSafeForRoute(pPlot, false /*bIncludeAdjacent*/))
 	{
 		if (pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam(), false, false, true, true))
 		{
@@ -2274,7 +2273,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	}
 
 	if (data.bBenefitsVillages)
-		iCost -= BuildRouteVillageBonus(pPlayer, pPlot, eRoute, eBuilderTaskingAI);
+		iCost -= BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI);
 
 	if (iCost < 0)
 		iCost = 0;
@@ -2330,11 +2329,14 @@ int BuildRouteValid(const CvAStarNode* parent, const CvAStarNode* node, const SP
 		}
 	}
 
+	if ((ePlotOwnerPlayer == NO_PLAYER || ePlotOwnerPlayer == ePlayer) && kPlayer.GetSameRouteBenefitFromTrait(pNewPlot, eRoute))
+		return true;
+
 	//if the plot and its parent are both too far from our borders, don't build here
-	if (!kPlayer.IsPlotSafeForRoute(pNewPlot, eRoute, true /*bIncludeAdjacent*/))
+	if (!kPlayer.IsPlotSafeForRoute(pNewPlot, true /*bIncludeAdjacent*/))
 	{
 		CvPlot* pFromPlot = GC.getMap().plotUnchecked(parent->m_iX, parent->m_iY);
-		if (!kPlayer.IsPlotSafeForRoute(pFromPlot, eRoute, true /*bIncludeAdjacent*/))
+		if (!kPlayer.IsPlotSafeForRoute(pFromPlot, true /*bIncludeAdjacent*/))
 			return FALSE;
 	}
 

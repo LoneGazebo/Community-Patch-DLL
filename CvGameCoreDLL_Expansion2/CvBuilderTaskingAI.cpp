@@ -129,7 +129,8 @@ void CvBuilderTaskingAI::Uninit(void)
 template<typename BuilderTaskingAI, typename Visitor>
 void CvBuilderTaskingAI::Serialize(BuilderTaskingAI& builderTaskingAI, Visitor& visitor)
 {
-	visitor(builderTaskingAI.m_routeNeededPlots);
+	visitor(builderTaskingAI.m_plotRouteValuesAndLengths);
+	visitor(builderTaskingAI.m_localRouteValues);
 	visitor(builderTaskingAI.m_canalWantedPlots);
 	visitor(builderTaskingAI.m_mainRoutePlots);
 	visitor(builderTaskingAI.m_shortcutRoutePlots);
@@ -390,7 +391,7 @@ int CvBuilderTaskingAI::GetMoveSpeedBonus(CvPlot* pPlot, CvPlot* pOtherPlot, Rou
 	int iMoveSpeedPenaltyWithRoute = GetMoveCostWithRoute(pPlot, pOtherPlot, eRoute, eOtherPlotRoute);
 	iMoveSpeedPenaltyWithRoute += GetMoveCostWithRoute(pOtherPlot, pPlot, eOtherPlotRoute, eRoute);
 
-	int iValueForDoubleMoveSpeed = 50;
+	int iValueForDoubleMoveSpeed = 10;
 
 	if (iMoveSpeedPenaltyWithoutRoute > iMoveSpeedPenaltyWithRoute)
 	{
@@ -406,8 +407,13 @@ int CvBuilderTaskingAI::GetMoveSpeedBonus(CvPlot* pPlot, CvPlot* pOtherPlot, Rou
 	}
 }
 
-void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles)
+void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles)
 {
+	vector<int> aiMovingForwardCostsWithRoute(path.vPlots.size() - 1);
+	vector<int> aiMovingBackwardCostsWithRoute(path.vPlots.size() - 1);
+	vector<int> aiMovingForwardCostsWithoutRoute(path.vPlots.size() - 1);
+	vector<int> aiMovingBackwardCostsWithoutRoute(path.vPlots.size() - 1);
+
 	for (size_t i = 1; i < path.vPlots.size(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
@@ -423,6 +429,11 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 
 			int iMoveSpeedBonusBackwards = GetMoveSpeedBonus(pPlot, pPreviousPlot, eRoute);
 			aiMoveSpeedBonuses[i] += iMoveSpeedBonusBackwards;
+
+			aiMovingForwardCostsWithRoute[i - 1] = GetMoveCostWithRoute(pPreviousPlot, pPlot, eRoute, eRoute);
+			aiMovingBackwardCostsWithRoute[i - 1] += GetMoveCostWithRoute(pPlot, pPreviousPlot, eRoute, eRoute);
+			aiMovingForwardCostsWithoutRoute[i - 1] = GetMoveCostWithRoute(pPreviousPlot, pPlot, NO_ROUTE, NO_ROUTE);
+			aiMovingBackwardCostsWithoutRoute[i - 1] += GetMoveCostWithRoute(pPlot, pPreviousPlot, NO_ROUTE, NO_ROUTE);
 		}
 
 		//don't count the cities themselves
@@ -446,15 +457,14 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 					{
 						if (pPlot->IsCityConnection())
 							aiVillagePlotBonuses[i] += iVillageYieldBonus;
-						else if (eRoute == ROUTE_ROAD)
-							iVillageBonusesIfCityConnected += iVillageYieldBonus;
+						iVillageBonusesIfCityConnected += iVillageYieldBonus;
 					}
 				}
 			}
 		}
 
 		// Bonus if a village can be built on the plot
-		if ((eRoute == ROUTE_ROAD || pPlot->IsCityConnection()) && !WillNeverBuildVillageOnPlot(pPlot, eRoute, true/*bIgnoreUnowned*/))
+		if (eRoute == ROUTE_ROAD && !WillNeverBuildVillageOnPlot(pPlot, eRoute, true/*bIgnoreUnowned*/))
 		{
 			for (int iJ = 0; iJ < GC.getNumBuildInfos(); iJ++)
 			{
@@ -469,6 +479,19 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 
 				if (!pkImprovementInfo || pkImprovementInfo->IsCreatedByGreatPerson())
 					continue;
+
+				if (pkImprovementInfo->IsNoTwoAdjacent())
+				{
+					CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+					for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+					{
+						CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+
+						ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+						if (eImprovement == eAdjacentImprovement)
+							continue;
+					}
+				}
 
 				int iVillageYieldBonus = 0;
 				for (int iJ = 0; iJ <= YIELD_FAITH; iJ++)
@@ -493,13 +516,50 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 				iNumRoadsNeededToBuild++;
 		}
 	}
+
+	const int iMoveDenominator = GD_INT_GET(MOVE_DENOMINATOR);
+	int iMovementUsedForwardsWithRoute = 0;
+	int iMovementUsedBackwardsWithRoute = 0;
+	int iMovementUsedForwardsWithoutRoute = 0;
+	int iMovementUsedBackwardsWithoutRoute = 0;
+	int iNumSteps = aiMovingForwardCostsWithRoute.size();
+
+	int iTotalTurnsWithRoute = 0;
+	int iTotalTurnsWithoutRoute = 0;
+
+	for (int iI = 0; iI < iNumSteps; iI++)
+	{
+		iMovementUsedForwardsWithRoute += aiMovingForwardCostsWithRoute[iI];
+		if (iMovementUsedForwardsWithRoute > 2 * iMoveDenominator)
+		{
+			iMovementUsedForwardsWithRoute = 0;
+			iTotalTurnsWithRoute++;
+		}
+		iMovementUsedForwardsWithoutRoute += aiMovingForwardCostsWithoutRoute[iI];
+		if (iMovementUsedForwardsWithoutRoute > 2 * iMoveDenominator)
+		{
+			iMovementUsedForwardsWithoutRoute = 0;
+			iTotalTurnsWithoutRoute++;
+		}
+		iMovementUsedBackwardsWithRoute += aiMovingBackwardCostsWithRoute[iNumSteps - iI - 1];
+		if (iMovementUsedBackwardsWithRoute > 2 * iMoveDenominator)
+		{
+			iMovementUsedBackwardsWithRoute = 0;
+			iTotalTurnsWithRoute++;
+		}
+		iMovementUsedBackwardsWithoutRoute += aiMovingBackwardCostsWithoutRoute[iNumSteps - iI - 1];
+		if (iMovementUsedBackwardsWithoutRoute > 2 * iMoveDenominator)
+		{
+			iMovementUsedBackwardsWithoutRoute = 0;
+			iTotalTurnsWithoutRoute++;
+		}
+	}
+
+	iMovementBonus = iTotalTurnsWithoutRoute > iTotalTurnsWithRoute ? (iTotalTurnsWithoutRoute * 300) / (iTotalTurnsWithRoute + 1) : 0;
 }
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute)
 {
-	if (pPlayerCapital->getOwner() != m_pPlayer->GetID())
-		return;
-
 	if(pTargetCity->IsRazing())
 	{
 		return;
@@ -554,24 +614,26 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		// Compute bonus for connecting city (or keeping connected)
 
-		//assume one unhappiness is worth 5 gold per turn per city
-		float fUnhappiness = 0.00f;
-		if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
+		if (GC.getGame().GetIndustrialRoute() != eRoute)
 		{
-			fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+			float fUnhappiness = 0.00f;
+			if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
+			{
+				fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+			}
+			int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
+
+			int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
+
+			iConnectionValue += iPotentialUnhappinessFromIsolation * 300;
+			iConnectionValue += (m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity) * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
 		}
-		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
-
-		int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
-
-		iConnectionValue += iPotentialUnhappinessFromIsolation * 500;
-		iConnectionValue += (m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity) * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
-
-		int iCityGoldYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_GOLD);
-		int iCityProductionYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_PRODUCTION);
 
 		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
+			int iCityGoldYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_GOLD);
+			int iCityProductionYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_PRODUCTION);
+
 			iConnectionValue += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD) * iCityProductionYieldModifierTimes100) / 100;
 
 #if defined(MOD_BALANCE_CORE)
@@ -593,7 +655,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 				int iProductionYield = pTargetCity->getYieldRate(YIELD_PRODUCTION, false);
 				int iGoldYield = pTargetCity->getYieldRate(YIELD_GOLD, false);
 				int iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
-				int iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
+ 				int iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
 
 				iConnectionValue += (iProductionYield * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 100;
 				iConnectionValue += (iGoldYield * iGoldYieldRateModifier * iCityGoldYieldModifierTimes100) / 100;
@@ -601,6 +663,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 #endif
 		}
 	}
+
+	if (iConnectionValue < 0)
+		return;
 
 	for (size_t i=1; i<path.vPlots.size()-1; i++)
 	{
@@ -611,8 +676,8 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(pPlot->isCity())
 			continue;
 
-		if (AddRoutePlot(pPlot, eRoute, iConnectionValue, 0, iNumRoadsNeededToBuild))
-			m_mainRoutePlots.insert(pPlot->GetPlotIndex());
+		m_plotRouteValuesAndLengths[make_pair(eRoute, pPlot->GetPlotIndex())].push_back(make_pair(iConnectionValue, iNumRoadsNeededToBuild));
+		m_mainRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 
@@ -626,6 +691,11 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if (pCity1->IsRazing() || pCity2->IsRazing())
 		return;
 
+	int iPlotDistance = plotDistance(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY());
+
+	if (iPlotDistance >= 10)
+		return;
+
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if (!pRouteInfo)
 	{
@@ -634,6 +704,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	// build a path between the two cities - this will tend to re-use existing routes, unless the new path is much shorter
 	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,true);
+	data.iMaxTurns = iPlotDistance * 2;
 	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
 
 	// cities are not on the same landmass? then give up
@@ -647,18 +718,20 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	vector<int> aiVillagePlotBonuses(path.vPlots.size());
 	vector<int> aiMoveSpeedBonuses(path.vPlots.size());
 	int iVillageBonusesIfCityConnected = 0;
+	int iMovementBonus = 0;
 
-	GetPathValues(path, eRoute, aiVillagePlotBonuses, aiMoveSpeedBonuses, iVillageBonusesIfCityConnected, iNumRoadsNeededToBuild, iMaintenanceRoadTiles);
+	GetPathValues(path, eRoute, aiVillagePlotBonuses, aiMoveSpeedBonuses, iVillageBonusesIfCityConnected, iMovementBonus, iNumRoadsNeededToBuild, iMaintenanceRoadTiles);
 
-	int iPotentialVillageValue = iVillageBonusesIfCityConnected;
-	if (iPotentialVillageValue != 0)
+	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
+
+	if (iValue != 0)
 	{
 		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
 
-		iPotentialVillageValue -= iMaintenanceRoadTiles * iMaintenanceCostPerTile;
+		iValue -= iMaintenanceRoadTiles * iMaintenanceCostPerTile;
 
-		if (iPotentialVillageValue < 0)
-			iPotentialVillageValue = 0;
+		if (iValue < 0)
+			iValue = 0;
 	}
 
 	for (size_t i=1; i<path.vPlots.size()-1; i++)
@@ -670,10 +743,13 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		if (pPlot->isCity())
 			continue;
 
-		int iPlotBonusValue = aiMoveSpeedBonuses[i] + aiVillagePlotBonuses[i];
+		int iPlotBonusValue = (iMovementBonus != 0 ? aiMoveSpeedBonuses[i] : 0) + aiVillagePlotBonuses[i];
 
-		if (AddRoutePlot(pPlot, eRoute, 0, iPotentialVillageValue + iPlotBonusValue, 0))
-			m_shortcutRoutePlots.insert(pPlot->GetPlotIndex());
+		if (iValue + iPlotBonusValue < 0)
+			continue;
+
+		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iValue + iPlotBonusValue);
+		m_shortcutRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
 
@@ -685,6 +761,9 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	// don't connect razing cities
 	if (pOriginCity->IsRazing())
+		return;
+
+	if (plotDistance(pOriginCity->getX(), pOriginCity->getY(), pTargetPlot->getX(), pTargetPlot->getY()) >= 6)
 		return;
 
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
@@ -700,13 +779,30 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		return;
 
 	// go through the route to see how long it is and how many plots already have roads
-	// int iRoadMaintenanceLength = 0;
+	int iMaintenanceRoadTiles = 0;
+
 	vector<int> aiMoveSpeedBonuses(path.vPlots.size());
+	int iMovementBonus = 0;
 
 	vector<int> aiDummyContainer(path.vPlots.size());
 	int iDummy = 0;
 
-	GetPathValues(path, eRoute, aiDummyContainer, aiMoveSpeedBonuses, iDummy, iDummy, iDummy);
+	GetPathValues(path, eRoute, aiDummyContainer, aiMoveSpeedBonuses, iDummy, iMovementBonus, iDummy, iMaintenanceRoadTiles);
+
+	int iValue = iMovementBonus;
+
+	if (iValue != 0)
+	{
+		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
+
+		iValue -= iMaintenanceRoadTiles * iMaintenanceCostPerTile;
+
+		if (iValue < 0)
+			iValue = 0;
+	}
+
+	if (iValue <= 0)
+		return;
 
 	for (int i = 1; i < path.length(); i++)
 	{
@@ -714,13 +810,14 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (!pPlot)
 			break;
 
-		int iPlotValue = aiMoveSpeedBonuses[i];
+		int iPlotValue = iMovementBonus != 0 ? iValue + aiMoveSpeedBonuses[i] : -1;
 
-		iPlotValue = min(iPlotValue, 0);
+		if (iPlotValue < 0)
+			continue;
 
 		// remember the plot
-		if (AddRoutePlot(pPlot, eRoute, 0, iPlotValue, 0))
-			m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
+		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iPlotValue);
+		m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 
 	// Build a ring around the target plot
@@ -740,78 +837,145 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 		if (!pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()))
 			continue;
-		
-		// Move speed gain from building a route in the adjacent plot
-		int iMoveSpeedBonus = GetMoveSpeedBonus(pAdjacentPlot, pTargetPlot, eRoute);
 
-		int iPlotValue = iMoveSpeedBonus;
+		m_localRouteValues[make_pair(eRoute, pAdjacentPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pAdjacentPlot->GetPlotIndex())], iValue - 1);
+		m_strategicRoutePlots.insert(pAdjacentPlot->GetPlotIndex());
+	}
+}
 
-		iPlotValue = min(iPlotValue, 0);
+void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute)
+{
+	// don't connect cities from different owners
+	if (pCity1->getOwner() != pCity2->getOwner())
+		return;
 
-		if (AddRoutePlot(pAdjacentPlot, eRoute, 0, iPlotValue, 0))
-			m_strategicRoutePlots.insert(pAdjacentPlot->GetPlotIndex());
+	// if we already have a connection, bail out
+	if (m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, eRoute, true))
+		return;
+
+	// build a path between the two cities
+	SPathFinderUserData data(m_pPlayer->GetID(), PT_BUILD_ROUTE, eBuild, eRoute, false);
+	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
+
+	//  if no path, then bail!
+	if (!path)
+		return;
+
+	for (int i = 0; i < path.length(); i++)
+	{
+		CvPlot* pPlot = path.get(i);
+
+		if (!pPlot)
+			break;
+
+		if (pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
+			continue;
+
+		//remember it
+		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], 100);
 	}
 }
 
 pair<RouteTypes,int> CvBuilderTaskingAI::GetBestRouteAndValueForPlot(const CvPlot* pPlot) const
 {
-	if (!pPlot || m_routeNeededPlots.empty())
+	if (!pPlot)
 		return pair<RouteTypes,int>(NO_ROUTE,-1);
 
-	RouteTypes eBestRoute = NO_ROUTE;
-	int iBestRouteValue = -1;
-	int iBestTimeWeightedRouteValue = -1;
+	int iPlotIndex = pPlot->GetPlotIndex();
 
-	for (int iI = 0; iI < NUM_ROUTE_TYPES; iI++)
+	int iRoadValue = 0;
+	int iRailroadValue = 0;
+	int iWeightedRoadValue = 0;
+	int iWeightedRailroadValue = 0;
+
+	BuildTypes eBuild = GetBuildRoute(ROUTE_ROAD);
+	CvBuildInfo* pkBuild = GC.getBuildInfo(eBuild);
+
+	if (m_pPlayer->HasTech((TechTypes)pkBuild->getTechPrereq()))
 	{
 
-		RouteTypes eRoute = (RouteTypes)iI;
+		map<RoutePlot, int>::const_iterator it1 = m_localRouteValues.find(make_pair(ROUTE_ROAD, iPlotIndex));
 
-		CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
-
-		if (!pRouteInfo)
-			continue;
-
-		RoutePlotContainer::const_iterator it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
-		if (it == m_routeNeededPlots.end())
+		if (it1 != m_localRouteValues.end())
 		{
-			return pair<RouteTypes, int>(NO_ROUTE, -1);
+			int iLocalRouteValue = it1->second;
+			iRoadValue += iLocalRouteValue;
+			iWeightedRoadValue += iLocalRouteValue;
 		}
 
-		vector<pair<vector<pair<int, int>>, int>> mRouteValues = it->second;
-		pair<vector<pair<int, int>>, int> iRouteValues = mRouteValues[eRoute];
-		int iTotalRouteValue = iRouteValues.second;
-		int iTotalTimeWeightedRouteValue = iTotalRouteValue;
+		map<RoutePlot, vector<pair<int, int>>>::const_iterator it2 = m_plotRouteValuesAndLengths.find(make_pair(ROUTE_ROAD, iPlotIndex));
 
-		for (vector<pair<int, int>>::iterator it2 = iRouteValues.first.begin(); it2 != iRouteValues.first.end(); ++it2)
+		if (it2 != m_plotRouteValuesAndLengths.end())
 		{
-			// Route total value divided by route length
-			int iRouteConnectionValue = it2->first;
-			int iNumPlotsNeeded = it2->second;
-			if (iRouteConnectionValue > 0)
+			vector<pair<int, int>> apRoutes = it2->second;
+			for (vector<pair<int, int>>::iterator it3 = apRoutes.begin(); it3 != apRoutes.end(); ++it3)
 			{
-				iTotalRouteValue += iRouteConnectionValue;
-				iTotalTimeWeightedRouteValue += iNumPlotsNeeded != 0 ? iRouteConnectionValue / iNumPlotsNeeded : iRouteConnectionValue;
+				int iRouteValue = it3->first;
+				int iRouteLength = it3->second;
+				iRoadValue += iRouteValue;
+				iRailroadValue += iRouteLength > 0 ? iRouteValue / iRouteLength : 0;
 			}
 		}
 
-		if (iTotalRouteValue < iBestRouteValue)
-			continue;
-
+		CvRouteInfo* pRouteInfo = GC.getRouteInfo(ROUTE_ROAD);
 		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
 
-		iTotalRouteValue -= iMaintenanceCostPerTile;
-		iTotalTimeWeightedRouteValue -= iMaintenanceCostPerTile;
+		iRoadValue -= iMaintenanceCostPerTile;
+		iWeightedRoadValue -= iMaintenanceCostPerTile;
+	}
 
-		if (iTotalRouteValue > iBestRouteValue)
+	eBuild = GetBuildRoute(ROUTE_RAILROAD);
+	pkBuild = GC.getBuildInfo(eBuild);
+
+	if (m_pPlayer->HasTech((TechTypes)pkBuild->getTechPrereq()))
+	{
+		map<RoutePlot, int>::const_iterator it1 = m_localRouteValues.find(make_pair(ROUTE_RAILROAD, iPlotIndex));
+
+		if (it1 != m_localRouteValues.end())
 		{
-			iBestRouteValue = iTotalRouteValue;
-			iBestTimeWeightedRouteValue = iTotalTimeWeightedRouteValue;
-			eBestRoute = eRoute;
+			int iLocalRouteValue = it1->second;
+			iRailroadValue += iLocalRouteValue;
+			iWeightedRailroadValue += iLocalRouteValue;
+		}
+
+		map<RoutePlot, vector<pair<int, int>>>::const_iterator it2 = m_plotRouteValuesAndLengths.find(make_pair(ROUTE_RAILROAD, iPlotIndex));
+
+		if (it2 != m_plotRouteValuesAndLengths.end())
+		{
+			vector<pair<int, int>> apRoutes = it2->second;
+			for (vector<pair<int, int>>::iterator it3 = apRoutes.begin(); it3 != apRoutes.end(); ++it3)
+			{
+				int iRouteValue = it3->first;
+				int iRouteLength = it3->second;
+				iRailroadValue += iRouteValue;
+				iWeightedRailroadValue += iRouteLength > 0 ? iRouteValue / iRouteLength : 0;
+			}
+		}
+
+		CvRouteInfo* pRouteInfo = GC.getRouteInfo(ROUTE_RAILROAD);
+		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
+
+		iRailroadValue -= iMaintenanceCostPerTile;
+		iWeightedRailroadValue -= iMaintenanceCostPerTile;
+	}
+
+	if (iRoadValue > 0 || iRailroadValue > 0)
+	{
+		if (iRoadValue > iRailroadValue)
+		{
+			if (pPlot->getRouteType() == ROUTE_RAILROAD && !pPlot->IsRoutePillaged())
+				iWeightedRoadValue -= iWeightedRailroadValue;
+			return make_pair(ROUTE_ROAD, iWeightedRoadValue);
+		}
+		else
+		{
+			if (pPlot->getRouteType() == ROUTE_ROAD && !pPlot->IsRoutePillaged())
+				iWeightedRoadValue -= iWeightedRoadValue;
+			return make_pair(ROUTE_RAILROAD, iWeightedRailroadValue);
 		}
 	}
 
-	return pair<RouteTypes,int>(eBestRoute, iBestTimeWeightedRouteValue);
+	return make_pair(NO_ROUTE, -1);
 }
 
 bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
@@ -824,51 +988,13 @@ bool CvBuilderTaskingAI::WantCanalAtPlot(const CvPlot* pPlot) const
 	return (it != m_canalWantedPlots.end());
 }
 
-bool CvBuilderTaskingAI::AddRoutePlot(CvPlot* pPlot, RouteTypes eRoute, int iGlobalValue, int iLocalValue, int iRouteLength)
-{
-	if (!pPlot)
-		return false;
-
-	if (eRoute == NO_ROUTE)
-		return false;
-
-	vector<pair<int, int>> iOldGlobalValue;
-	int iOldLocalValue = 0;
-
-	RoutePlotContainer::const_iterator it;
-
-	it = m_routeNeededPlots.find(pPlot->GetPlotIndex());
-	if (it != m_routeNeededPlots.end())
-	{
-		vector<pair<vector<pair<int,int>>, int>> mValuesForRoute = it->second;
-
-		pair<vector<pair<int, int>>, int> iRouteValues = mValuesForRoute[eRoute];
-
-		iOldGlobalValue = iRouteValues.first;
-		iOldLocalValue = iRouteValues.second;
-	}
-	else
-	{
-		// Don't care about ROUTE_ANY
-		m_routeNeededPlots[pPlot->GetPlotIndex()] = vector<pair<vector<pair<int, int>>, int>>(NUM_ROUTE_TYPES - 1);
-	}
-
-	if (iGlobalValue > 0)
-		iOldGlobalValue.push_back(make_pair(iGlobalValue, iRouteLength));
-	int iNewLocalValue = max(iLocalValue, iOldLocalValue);
-
-	m_routeNeededPlots[pPlot->GetPlotIndex()][eRoute] = make_pair(iOldGlobalValue, iNewLocalValue);
-
-	return true;
-}
-
 set<int> CvBuilderTaskingAI::GetMainRoutePlots() const
 {
 	set<int> sRet;
 
 	for (set<int>::const_iterator it = m_mainRoutePlots.begin(); it != m_mainRoutePlots.end(); ++it)
 	{
-		if (GetBestRouteAndValueForPlot(GC.getMap().plotByIndexUnchecked(*it)).first != NO_ROUTE)
+		if (GetBestRouteAndValueForPlot(GC.getMap().plotByIndexUnchecked(*it)).second > 0)
 			sRet.insert(*it);
 	}
 
@@ -881,7 +1007,7 @@ set<int> CvBuilderTaskingAI::GetShortcutRoutePlots() const
 
 	for (set<int>::const_iterator it = m_shortcutRoutePlots.begin(); it != m_shortcutRoutePlots.end(); ++it)
 	{
-		if (GetBestRouteAndValueForPlot(GC.getMap().plotByIndexUnchecked(*it)).first != NO_ROUTE)
+		if (GetBestRouteAndValueForPlot(GC.getMap().plotByIndexUnchecked(*it)).second > 0)
 			sRet.insert(*it);
 	}
 
@@ -894,7 +1020,7 @@ set<int> CvBuilderTaskingAI::GetStrategicRoutePlots() const
 
 	for (set<int>::const_iterator it = m_strategicRoutePlots.begin(); it != m_strategicRoutePlots.end(); ++it)
 	{
-		if (GetBestRouteAndValueForPlot(GC.getMap().plotByIndexUnchecked(*it)).first != NO_ROUTE)
+		if (GetBestRouteAndValueForPlot(GC.getMap().plotByIndexUnchecked(*it)).second > 0)
 			sRet.insert(*it);
 	}
 
@@ -1010,40 +1136,6 @@ void CvBuilderTaskingAI::UpdateCanalPlots()
 				}
 			}
 		}
-	}
-}
-
-
-void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2, BuildTypes eBuild, RouteTypes eRoute)
-{
-	// don't connect cities from different owners
-	if(pCity1->getOwner() != pCity2->getOwner())
-		return;
-
-	// if we already have a connection, bail out
-	if (m_pPlayer->IsCityConnectedToCity(pCity1, pCity2, eRoute, true))
-		return;
-
-	// build a path between the two cities
-	SPathFinderUserData data(m_pPlayer->GetID(),PT_BUILD_ROUTE,eBuild,eRoute,false);
-	SPath path = GC.GetStepFinder().GetPath(pCity1->getX(), pCity1->getY(), pCity2->getX(), pCity2->getY(), data);
-
-	//  if no path, then bail!
-	if(!path)
-		return;
-
-	for (int i=0; i<path.length(); i++)
-	{
-		CvPlot* pPlot = path.get(i);
-
-		if(!pPlot)
-			break;
-
-		if(pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
-			continue;
-
-		//remember it
-		AddRoutePlot(pPlot, eRoute, 0, 100, 0);
 	}
 }
 
@@ -1279,7 +1371,8 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	// updating plots that are part of the road network
 	CvCityConnections* pCityConnections = m_pPlayer->GetCityConnections();
 
-	m_routeNeededPlots.clear();
+	m_plotRouteValuesAndLengths.clear();
+	m_localRouteValues.clear();
 	m_mainRoutePlots.clear();
 	m_shortcutRoutePlots.clear();
 	m_strategicRoutePlots.clear();
@@ -1341,8 +1434,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				// get the two cities
 				CvCity* pFirstCity  = pFirstPlot->getPlotCity();
 				CvCity* pSecondCity  = pSecondPlot->getPlotCity();
-				CvCity* pPlayerCapitalCity = NULL;
-				CvCity* pTargetCity = NULL;
 
 				if (pFirstCity && !pSecondCity)
 				{
@@ -1366,15 +1457,39 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 					// connect cities for bonuses from villages and increased movement
 					if (pFirstCity->getOwner() == m_pPlayer->GetID() && pSecondCity->getOwner() == m_pPlayer->GetID())
 						ConnectCitiesForShortcuts(pFirstCity, pSecondCity, eBuild, eRoute);
+				}
+				else
+				{
+					ConnectCitiesForScenario(pFirstCity, pSecondCity, eBuild, eBestRoute);
+				}
+			}
+		}
 
-					if (pFirstCity->isCapital() || pSecondCity->isCapital())
+		// Connect cities to capital after all other routes have been planned
+		for (uint uiFirstCityIndex = 0; uiFirstCityIndex < plotsToConnect.size(); uiFirstCityIndex++)
+		{
+			for (uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < plotsToConnect.size(); uiSecondCityIndex++)
+			{
+				CvPlot* pFirstPlot = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiFirstCityIndex]);
+				CvPlot* pSecondPlot = GC.getMap().plotByIndexUnchecked(plotsToConnect[uiSecondCityIndex]);
+
+				// get the two cities
+				CvCity* pFirstCity = pFirstPlot->getPlotCity();
+				CvCity* pSecondCity = pSecondPlot->getPlotCity();
+				CvCity* pPlayerCapitalCity = NULL;
+				CvCity* pTargetCity = NULL;
+
+				if (pFirstCity && pSecondCity)
+				{
+					if ((pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID()) ||
+						(pSecondCity->isCapital() && pSecondCity->getOwner() == m_pPlayer->GetID()))
 					{
-						if (pFirstCity->isCapital())
+						if (pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID())
 						{
 							pPlayerCapitalCity = pFirstCity;
 							pTargetCity = pSecondCity;
 						}
-						else if (pSecondCity->isCapital())
+						else if (pSecondCity->isCapital() && pSecondCity->getOwner() == m_pPlayer->GetID())
 						{
 							pPlayerCapitalCity = pSecondCity;
 							pTargetCity = pFirstCity;
@@ -1383,10 +1498,6 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 						// connect city to capital for the money and happiness
 						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eBuild, eRoute);
 					}
-				}
-				else
-				{
-					ConnectCitiesForScenario(pFirstCity, pSecondCity, eBuild, eBestRoute);
 				}
 			}
 		}
@@ -2487,12 +2598,13 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		if (iWorkedUnimproved > 0)
 		{
 			std::vector<int> aOwnedPlots = m_pPlayer->GetPlots();
+			int iWorkDistance = pOwningCity->getWorkPlotDistance();
 
 			for (std::vector<int>::iterator it = aOwnedPlots.begin(); it != aOwnedPlots.end(); ++it)
 			{
 				CvPlot* pOwnedPlot = GC.getMap().plotByIndex(*it);
 
-				if (pOwnedPlot->getEffectiveOwningCity() == pOwningCity && sState.mChangedPlotImprovements.find(pOwnedPlot->GetPlotIndex()) == sState.mChangedPlotImprovements.end())
+				if (plotDistance(pOwningCity->getX(), pOwningCity->getY(), pOwnedPlot->getX(), pOwnedPlot->getY()) <= iWorkDistance && sState.mChangedPlotImprovements.find(pOwnedPlot->GetPlotIndex()) == sState.mChangedPlotImprovements.end())
 					iImprovementsPlanned++;
 			}
 		}
@@ -2732,9 +2844,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			// Great person improvements special considerations
 			bool bGreatPersonAvoidLarge = false;
-			if (pPlot->getResourceType(m_pPlayer->getTeam()) != NO_RESOURCE)
-				bGreatPersonAvoidLarge = true;
-			else if (MOD_BALANCE_VP)
+			if (MOD_BALANCE_VP)
 			{
 				if (bWillBeCityConnectingRoad && !bBenefitsFromRoads)
 					bGreatPersonAvoidLarge = true;
@@ -2767,13 +2877,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			if (eResource == NO_RESOURCE && eImprovementToSavePlotFor != eImprovement)
 			{
 				bAvoidPlot = true;
-			}
-			else if (eResource != NO_RESOURCE && pkImprovementInfo && !pkImprovementInfo->IsConnectsResource(eResource))
-			{
-				if (pkResourceInfo && pkResourceInfo->getResourceUsage() != RESOURCEUSAGE_BONUS)
-				{
-					bAvoidPlot = true;
-				}
 			}
 			else if ((bWillBeCityConnectingRoad && !bBenefitsFromRoads) || (!bWillBeCityConnectingRoad && bBenefitsFromRoads))
 			{
@@ -2926,7 +3029,7 @@ BuildTypes CvBuilderTaskingAI::GetRemoveRoute(void)
 	return eRemoveRouteBuild;
 }
 
-BuildTypes CvBuilderTaskingAI::GetBuildRoute(RouteTypes eRoute)
+BuildTypes CvBuilderTaskingAI::GetBuildRoute(RouteTypes eRoute) const
 {
 	// find the route build
 	BuildTypes eRouteBuild = NO_BUILD;
