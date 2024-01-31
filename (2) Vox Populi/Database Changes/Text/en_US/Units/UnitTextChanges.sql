@@ -413,11 +413,11 @@ WHERE Tag = 'TXT_KEY_UNIT_MACHINE_GUN_STRATEGY';
 
 -- Bazooka
 UPDATE Language_en_US
-SET Text = 'Information era ranged unit. Deals great damage to Armor Units.'
+SET Text = 'Information era ranged unit. Deals great damage to Armored Units.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_BAZOOKA';
 
 UPDATE Language_en_US
-SET Text = 'The Bazooka is the last non-siege ranged unit, and is capable of truly terrfiying amounts of damage, especially to Armor units. Boasting a long range of 3, it is the most powerful ranged unit, but it is slower and defensively weaker than other military units of its era. As such, it should be used as a source of attrition. Like the Machine Gun, it weakens nearby enemy units. When attacking, the Bazooka deals less damage to fortified Units and cities, but deals additional damage to Armored units. This makes it a great defense unit.'
+SET Text = 'The Bazooka is the last non-siege ranged unit, and is capable of truly terrfiying amounts of damage, especially to Armored units. Boasting a long range of 3, it is the most powerful ranged unit, but it is slower and defensively weaker than other military units of its era. As such, it should be used as a source of attrition. Like the Machine Gun, it weakens nearby enemy units. When attacking, the Bazooka deals less damage to fortified Units and cities, but deals additional damage to Armored units. This makes it a great defense unit.'
 WHERE Tag = 'TXT_KEY_UNIT_BAZOOKA_STRATEGY';
 
 -- Artillery
@@ -471,7 +471,7 @@ SET Text = 'The Longbowman can only be gifted by City-States.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_LONGBOWMAN';
 
 UPDATE Language_en_US
-SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing it to attack enemies three hexes away, often destroying them before they can strike back. Like other ranged units, Longbowmen are vulnerable to melee attack, but have increased [ICON_STRENGTH] against Mounted and Armor Units.'
+SET Text = ' The Longbowman has a greater range than the Crossbowman, allowing it to attack enemies three hexes away, often destroying them before they can strike back. Like other ranged units, Longbowmen are vulnerable to melee attack, but have increased [ICON_STRENGTH] against Mounted and Armored Units.'
 WHERE Tag = 'TXT_KEY_UNIT_ENGLISH_LONGBOWMAN_STRATEGY';
 
 -- Foreign Legion

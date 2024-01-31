@@ -767,7 +767,7 @@
 		<Replace>
 			<Type>PROMOTION_SEE_INVISIBLE_SUBMARINE</Type>
 			<Description>TXT_KEY_PROMOTION_SEE_INVISIBLE_SUBMARINE</Description>
-			<Help>TXT_KEY_PROMOTION_SEE_INVISIBLE_SUBMARINE</Help>
+			<Help>TXT_KEY_PROMOTION_SEE_INVISIBLE_SUBMARINE_HELP</Help>
 			<TechPrereq>TECH_RADIO</TechPrereq>
 			<PromotionPrereqOr1>PROMOTION_COASTAL_RAIDER_1</PromotionPrereqOr1>
 			<PromotionPrereqOr2>PROMOTION_BOARDING_PARTY_1</PromotionPrereqOr2>
@@ -934,7 +934,7 @@
 		<Replace>
 			<Type>PROMOTION_MUST_SET_UP</Type>
 			<Description>TXT_KEY_PROMOTION_MUST_SET_UP</Description>
-			<Help>TXT_KEY_PROMOTION_MUST_SET_UP</Help>
+			<Help>TXT_KEY_PROMOTION_MUST_SET_UP_HELP</Help>
 			<PediaType>PEDIA_SIEGE</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_MUST_SET_UP</PediaEntry>
 		</Replace>
@@ -990,7 +990,7 @@
 		<Replace>
 			<Type>PROMOTION_PARADROP</Type>
 			<Description>TXT_KEY_PROMOTION_PARADROP</Description>
-			<Help>TXT_KEY_PROMOTION_PARADROP</Help>
+			<Help>TXT_KEY_PROMOTION_PARADROP_HELP</Help>
 			<PediaType>PEDIA_SCOUTING</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_PARADROP</PediaEntry>
 		</Replace>
@@ -1025,28 +1025,28 @@
 		<Replace>
 			<Type>PROMOTION_CARGO_I</Type>
 			<Description>TXT_KEY_PROMOTION_CARGO_I</Description>
-			<Help>TXT_KEY_PROMOTION_CARGO_I</Help>
+			<Help>TXT_KEY_PROMOTION_CARGO_I_HELP</Help>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CARGO_I</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_CARGO_II</Type>
 			<Description>TXT_KEY_PROMOTION_CARGO_II</Description>
-			<Help>TXT_KEY_PROMOTION_CARGO_II</Help>
+			<Help>TXT_KEY_PROMOTION_CARGO_II_HELP</Help>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CARGO_II</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_CARGO_III</Type>
 			<Description>TXT_KEY_PROMOTION_CARGO_III</Description>
-			<Help>TXT_KEY_PROMOTION_CARGO_III</Help>
+			<Help>TXT_KEY_PROMOTION_CARGO_III_HELP</Help>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CARGO_III</PediaEntry>
 		</Replace>
 		<Replace>
 			<Type>PROMOTION_CARGO_IV</Type>
 			<Description>TXT_KEY_PROMOTION_CARGO_IV</Description>
-			<Help>TXT_KEY_PROMOTION_CARGO_IV</Help>
+			<Help>TXT_KEY_PROMOTION_CARGO_IV_HELP</Help>
 			<PediaType>PEDIA_CARSUB</PediaType>
 			<PediaEntry>TXT_KEY_PEDIA_PROMOTION_CARGO_IV</PediaEntry>
 		</Replace>
