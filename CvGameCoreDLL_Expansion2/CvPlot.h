@@ -120,6 +120,7 @@ public:
 
 	bool isAdjacentToArea(int iAreaID) const;
 	bool isAdjacentToArea(const CvArea* pArea) const;
+	bool isAdjacentToLandmass(int iLandmassID) const;
 	bool shareAdjacentArea(const CvPlot* pPlot) const;
 	bool isAdjacent(const CvPlot* pPlot) const;
 	bool isDeepWater() const;

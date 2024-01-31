@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -43,6 +43,7 @@ void CvLuaMap::RegisterMembers(lua_State* L)
 {
 	Method(Areas);
 	Method(FindBiggestArea);
+	Method(FindBiggestLandmassID);
 	Method(FindWater);
 	Method(GetClimate);
 	Method(GetFractalFlags);
@@ -77,6 +78,7 @@ void CvLuaMap::RegisterMembers(lua_State* L)
 	Method(UpdateDeferredFog);
 	Method(ChangeAIMapHint);
 	Method(GetAIMapHint);
+	Method(GetNumTilesOfLandmass);
 }
 //------------------------------------------------------------------------------
 int CvLuaMap::lAreas(lua_State* L)
@@ -118,6 +120,21 @@ int CvLuaMap::lFindBiggestArea(lua_State* L)
 	if(pkArea)
 	{
 		CvLuaArea::Push(L, pkArea);
+		return 1;
+	}
+
+	return 0;
+}
+//------------------------------------------------------------------------------
+int CvLuaMap::lFindBiggestLandmassID(lua_State* L)
+{
+	// There's no CvLuaLandmass, so the best we can do is return the ID
+	const bool bWater = lua_toboolean(L, 1);
+
+	CvLandmass* pkLandmass = GC.getMap().findBiggestLandmass(bWater);
+	if(pkLandmass)
+	{
+		lua_pushinteger(L, pkLandmass->GetID());
 		return 1;
 	}
 
@@ -446,5 +463,12 @@ int CvLuaMap::lChangeAIMapHint(lua_State* L)
 int CvLuaMap::lGetAIMapHint(lua_State* L)
 {
 	lua_pushinteger(L, GC.getMap().GetAIMapHint());
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaMap::lGetNumTilesOfLandmass(lua_State* L)
+{
+	int iLandmass = lua_tointeger(L, 1);
+	lua_pushinteger(L, GC.getMap().getLandmassById(iLandmass)->getNumTiles());
 	return 1;
 }
