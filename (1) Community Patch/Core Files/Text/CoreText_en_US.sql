@@ -103,11 +103,11 @@ WHERE Tag = 'TXT_KEY_EUPANEL_VISIBLE_AA_UNITS';
 
 -- Great Generals I/II Promotions
 UPDATE Language_en_US
-SET Text = 'Generates 50% [COLOR_POSITIVE_TEXT]more[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points from combat.'
+SET Text = '+50% [ICON_GREAT_GENERAL] Great General Points from combat.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SPAWN_GENERALS_I_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Generates 100% [COLOR_POSITIVE_TEXT]more[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points from combat.'
+SET Text = '+100% [ICON_GREAT_GENERAL] Great General Points from combat.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SPAWN_GENERALS_II_HELP';
 
 -- Naval Melee Units
@@ -126,8 +126,9 @@ SET Text = 'Cannot End Turn on Ocean Tile'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
 
 INSERT INTO Language_en_US
-		(Tag,										Text)
-VALUES	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Can never end turn on an Ocean Tile. May move through visible Ocean Tiles if ending on a visible Coast Tile.');
+	(Tag, Text)
+VALUES
+	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Cannot end turn in [COLOR_NEGATIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]Can move through visible Ocean if destination is visible Coast.');
 
 UPDATE UnitPromotions
 SET Help = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP'
@@ -138,7 +139,7 @@ SET Text = 'Cannot End Turn on Ocean Tile until Astronomy'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO';
 
 UPDATE Language_en_US
-SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through visible Ocean Tiles if ending on a visible Coast Tile.'
+SET Text = 'Cannot end turn in [COLOR_NEGATIVE_TEXT]Ocean[ENDCOLOR] until you have researched [COLOR_CYAN]{TXT_KEY_TECH_ASTRONOMY_TITLE}[ENDCOLOR].[NEWLINE]Can move through visible Ocean if destination is visible Coast.'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
 
 -- Siege Units

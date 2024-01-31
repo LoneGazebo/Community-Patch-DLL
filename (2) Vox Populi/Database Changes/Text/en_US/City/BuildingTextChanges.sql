@@ -606,7 +606,7 @@ WHERE Tag = 'TXT_KEY_WONDER_HAGIA_SOPHIA_HELP';
 
 -- Kremlin
 UPDATE Language_en_US
-SET Text = 'Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +33% [ICON_PRODUCTION] Production when building Armor Units. 1 Free Social Policy. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
+SET Text = 'Requires [COLOR_MAGENTA]Order[ENDCOLOR]. +33% [ICON_PRODUCTION] Production when building [COLOR_POSITIVE_TEXT]Armored Units[ENDCOLOR]. 1 Free Social Policy. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_FOOD] and [ICON_PRODUCTION] Distress in this City.'
 WHERE Tag = 'TXT_KEY_WONDER_KREMLIN_HELP';
 
 -- Borobudur

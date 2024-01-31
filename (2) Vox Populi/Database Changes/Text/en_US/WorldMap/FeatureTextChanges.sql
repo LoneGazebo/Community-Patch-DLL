@@ -64,7 +64,7 @@ SET Text = '+2 [ICON_PRODUCTION] Production from this Natural Wonder for every E
 WHERE Tag = 'TXT_KEY_CIV5_FEATURES_SOLOMONS_MINES_TEXT';
 
 UPDATE Language_en_US
-SET Text = 'All Melee, Recon, Mounted Melee, Gunpowder and Armor Units produced by the owner of this Natural Wonder gain the [COLOR_POSITIVE_TEXT]Everlasting Youth[ENDCOLOR] Promotion, allowing them to heal for much higher amounts than normal.'
+SET Text = 'All Melee, Recon, Mounted Melee, Gunpowder and Armored Units produced by the owner of this Natural Wonder gain the [COLOR_POSITIVE_TEXT]Everlasting Youth[ENDCOLOR] Promotion, allowing them to heal for much higher amounts than normal.'
 WHERE Tag = 'TXT_KEY_CIV5_FEATURES_FOUNTAIN_YOUTH_HELP';
 
 UPDATE Language_en_US
