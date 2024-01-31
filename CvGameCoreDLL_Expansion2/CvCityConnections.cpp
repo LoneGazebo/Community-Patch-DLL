@@ -141,9 +141,8 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 		//select strategically important points
 		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
-		vector<PlayerTypes> vUnfriendlyMajors = GET_PLAYER(ePlayer).GetUnfriendlyMajors();
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
-		TeamTypes eTeam = m_pPlayer->getTeam();
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
 
 		for (size_t j=0; j<vPlots.size(); j++)
 		{
@@ -161,33 +160,12 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			if (!pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 				continue;
 
-			//ignore plots which are not exposed
-			bool bCloseOtherCiv = false;
-			for (int i = RING0_PLOTS; i < RING2_PLOTS; i++)
+			if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true, true, false, true))
 			{
-				CvPlot* pAdjacentPlot = iterateRingPlots(pLoopPlot, i);
-				if (pAdjacentPlot == NULL)
-					continue;
-
-				TeamTypes eAdjacentTeam = pAdjacentPlot->getTeam();
-
-				if (!pAdjacentPlot->isValidMovePlot(pAdjacentPlot->getOwner(), false))
-					continue;
-
-				if (GET_TEAM(eAdjacentTeam).IsVassal(eTeam))
-					continue;
-
-				if (eAdjacentTeam != eTeam && eAdjacentTeam != NO_TEAM)
-				{
-					bCloseOtherCiv = true;
-					break;
-				}
+				//borders
+				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}
-
-			if (!bCloseOtherCiv)
-				continue;
-
-			if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
+			else if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 			{
 				//citadels and forts
 				CvImprovementEntry* pImprovementInfo = GC.getImprovementInfo(pLoopPlot->getImprovementType());

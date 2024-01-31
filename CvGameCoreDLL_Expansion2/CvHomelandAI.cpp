@@ -2827,9 +2827,9 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	CvImprovementEntry* pImprovementInfo = pBuildInfo ? GC.getImprovementInfo((ImprovementTypes)pBuildInfo->getImprovement()) : NULL;
 
 	if (pImprovementInfo && pImprovementInfo->IsCreatedByGreatPerson())
-		return iScore * iScore - iBuildTime;
+		return (iScore * iScore) / iBuildTime;
 
-	return iScore * iScore / (iBuildTime * iBuildTime);
+	return (iScore * iScore) / (iBuildTime * iBuildTime);
 }
 
 static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, CvPlot* pPlot, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives, const set<BuilderDirective> ignoredDirectives)
@@ -2901,8 +2901,7 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 
 				int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
 
-				if (iPlotDistance <= 9)
-					sortedWorkers.push_back(OptionWithScore<CvUnit*>(pUnit, -iPlotDistance));
+				sortedWorkers.push_back(OptionWithScore<CvUnit*>(pUnit, -iPlotDistance));
 			}
 			std::stable_sort(sortedWorkers.begin(), sortedWorkers.end());
 
@@ -2926,10 +2925,25 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 				if (!IsBestDirectiveForBuilderAndPlot(eDirective, pUnit, pDirectivePlot, pPlayer, aDirectives, ignoredDirectives))
 					continue;
 
-				pair<int, int> plotPair = make_pair<int, int>(pUnit->plot()->GetPlotIndex(), pDirectivePlot->GetPlotIndex());
+				CvPlot* pStartPlot = pUnit->plot();
+
+				int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
+
+				pair<int, int> plotPair = make_pair<int, int>(pStartPlot->GetPlotIndex(), pDirectivePlot->GetPlotIndex());
 
 				int iCachedDistance = plotDistanceCache[plotPair];
-				int iBuilderDistance = iCachedDistance ? iCachedDistance - 1 : pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective, iBestBuilderTotalTurns - iBuilderImprovementTime - 1);
+				int iApproximateDistance = (iPlotDistance * 2) / 3;
+
+				int iBuilderDistance;
+
+				if (iCachedDistance)
+					iBuilderDistance = iCachedDistance - 1;
+				else if (iPlotDistance <= 9)
+					iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective, iBestBuilderTotalTurns - iBuilderImprovementTime - 1);
+				else if (pStartPlot->getLandmass() == pDirectivePlot->getLandmass() || pUnit->CanEverEmbark())
+					iBuilderDistance = iApproximateDistance;
+				else
+					continue;
 
 				if (iBuilderDistance == INT_MAX)
 					continue;

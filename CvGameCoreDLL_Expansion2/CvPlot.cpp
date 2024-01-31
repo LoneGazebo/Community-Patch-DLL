@@ -15404,6 +15404,160 @@ int CvPlot::GetNumSpecificPlayerUnitsAdjacent(PlayerTypes ePlayer, const CvUnit*
 ///-------------------------------------
 
 #if defined(MOD_BALANCE_CORE)
+int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
+{
+	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+	if (eTeam == NO_TEAM)
+		return 0;
+
+	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
+
+	// Evaluate based on surrounding plots
+	int iAdjacentUnownedLand = 0;
+	int iNearbyUnownedLand = 0;
+
+	int iAdjacentThreat = 0;
+	int iNearbyThreat = 0;
+
+	int iAdjacentTarget = 0;
+	int iNearbyTarget = 0;
+
+	int iAdjacentCoast = 0;
+	int iNearbyCoast = 0;
+
+	// Directly adjacent tiles
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pLoopAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
+
+		if (pLoopAdjacentPlot != NULL)
+		{
+
+			//impassable is uninteresting
+			if (pLoopAdjacentPlot->isImpassable(eTeam))
+				continue;
+
+			//coasts are easy avenues of attack
+			if (pLoopAdjacentPlot->isWater())
+			{
+				if (!pLoopAdjacentPlot->isLake())
+					iAdjacentCoast++;
+
+				continue;
+			}
+
+			if (!pLoopAdjacentPlot->isOwned())
+			{
+				iAdjacentUnownedLand++;
+			}
+			else if (pLoopAdjacentPlot->getOwner() != ePlayer && GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
+			{
+				int iStrengthMultiplier = 1;
+				int iApproachMultiplier = 1;
+
+				CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopAdjacentPlot->getOwner());
+
+				if (eApproach == CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 2;
+				else if (eApproach > CIV_APPROACH_WAR && eApproach < CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 4;
+				else if (eApproach == CIV_APPROACH_WAR)
+					iApproachMultiplier = 8;
+
+				StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopAdjacentPlot->getOwner());
+				if (eStrengthRelativeToUs == STRENGTH_STRONG)
+					iStrengthMultiplier = 2;
+				else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
+					iStrengthMultiplier = 4;
+				else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
+					iStrengthMultiplier = 8;
+
+				iAdjacentThreat += iApproachMultiplier * iStrengthMultiplier;
+
+				if (eApproach == CIV_APPROACH_WAR)
+					iAdjacentTarget += 16;
+				else if (eApproach == CIV_APPROACH_HOSTILE)
+					iAdjacentTarget += 8;
+			}
+		}
+	}
+
+	// Wider area
+	for (int i = RING1_PLOTS; i < RING2_PLOTS; i++)
+	{
+		CvPlot* pLoopNearbyPlot = iterateRingPlots(this, i);
+
+		if (pLoopNearbyPlot != NULL && pLoopNearbyPlot->isRevealed(eTeam))
+		{
+			//impassable is uninteresting
+			if (pLoopNearbyPlot->isImpassable(eTeam))
+				continue;
+
+			if (pLoopNearbyPlot->isWater())
+			{
+				if (!pLoopNearbyPlot->isLake())
+					iNearbyCoast++;
+
+				continue;
+			}
+
+			if (!pLoopNearbyPlot->isOwned())
+			{
+				iNearbyUnownedLand++;
+			}
+			else if (pLoopNearbyPlot->getOwner() != ePlayer && GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
+			{
+				int iStrengthMultiplier = 1;
+				int iApproachMultiplier = 1;
+
+				CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopNearbyPlot->getOwner());
+
+				if (eApproach == CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 2;
+				else if (eApproach > CIV_APPROACH_WAR && eApproach < CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 4;
+				else if (eApproach == CIV_APPROACH_WAR)
+					iApproachMultiplier = 8;
+
+				StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopNearbyPlot->getOwner());
+				if (eStrengthRelativeToUs == STRENGTH_STRONG)
+					iStrengthMultiplier = 2;
+				else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
+					iStrengthMultiplier = 4;
+				else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
+					iStrengthMultiplier = 8;
+
+				iNearbyThreat += iApproachMultiplier * iStrengthMultiplier;
+
+				if (eApproach == CIV_APPROACH_WAR)
+					iNearbyTarget += 16;
+				else if (eApproach == CIV_APPROACH_HOSTILE)
+					iNearbyTarget += 8;
+			}
+		}
+	}
+
+	//Get score for this fortification
+	int iDefensiveValue = 0;
+
+	// Threatening civs (unfriendly and/or powerful)
+	iDefensiveValue += (iNearbyThreat * 30);
+	iDefensiveValue += (iAdjacentThreat * 60);
+
+	int iOffensiveValue = 0;
+	// Targeted civs
+	iOffensiveValue += (iNearbyTarget * 30);
+	iOffensiveValue += (iAdjacentTarget * 60);
+
+	int iStrategicValue = max(iDefensiveValue, iOffensiveValue);
+
+	// No defensive utility from building here
+	if (iStrategicValue == 0)
+		return 0;
+
+	return iStrategicValue;
+}
+
 int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, ImprovementTypes eImprovement, SBuilderState sState) const
 {
 	TeamTypes eTeam = GET_PLAYER(eOwner).getTeam();
@@ -15418,7 +15572,6 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	int iImprovementDefenseModifier = pkImprovementInfo->GetDefenseModifier();
 	int iImprovementDamage = pkImprovementInfo->GetNearbyEnemyDamage();
 
-	bool bHuman = GET_PLAYER(eOwner).isHuman();
 	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(eOwner).GetDiplomacyAI();
 
 	// Evaluate based on surrounding plots
@@ -15484,35 +15637,29 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			{
 				iAdjacentUnownedLand++;
 			}
-			else if(GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
+			else if(pLoopAdjacentPlot->getOwner() != eOwner && GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 			{
+				int iStrengthMultiplier = 1;
+				int iApproachMultiplier = 1;
 
-				if (bHuman)
-				{
-					iAdjacentThreat += 4;
-				}
-				else
-				{
-					int iOpinionMultiplier = 1;
-					int iStrengthMultiplier = 1;
+				CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopAdjacentPlot->getOwner());
 
-					CivOpinionTypes eOpinion = pDiplomacyAI->GetCivOpinion(pLoopAdjacentPlot->getOwner());
+				if (eApproach == CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 2;
+				else if (eApproach != CIV_APPROACH_AFRAID && eApproach < CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 4;
+				else if (eApproach == CIV_APPROACH_AFRAID)
+					iApproachMultiplier = 8;
 
-					if (eOpinion == CIV_OPINION_NEUTRAL)
-						iOpinionMultiplier = 2;
-					else if (eOpinion < CIV_OPINION_NEUTRAL)
-						iOpinionMultiplier = 4;
+				StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopAdjacentPlot->getOwner());
+				if (eStrengthRelativeToUs == STRENGTH_STRONG)
+					iStrengthMultiplier = 2;
+				else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
+					iStrengthMultiplier = 4;
+				else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
+					iStrengthMultiplier = 8;
 
-					StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopAdjacentPlot->getOwner());
-					if (eStrengthRelativeToUs == STRENGTH_STRONG)
-						iStrengthMultiplier = 2;
-					else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
-						iStrengthMultiplier = 4;
-					else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
-						iStrengthMultiplier = 8;
-
-					iAdjacentThreat += iOpinionMultiplier * iStrengthMultiplier;
-				}
+				iAdjacentThreat += iApproachMultiplier * iStrengthMultiplier;
 			}
 		}
 	}
@@ -15552,37 +15699,29 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			{
 				iNearbyUnownedLand++;
 			}
-			else if (pLoopNearbyPlot->getOwner() != eOwner)
+			else if (pLoopNearbyPlot->getOwner() != eOwner && GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 			{
-				if (GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
-				{
-					if (bHuman)
-					{
-						iNearbyThreat += 4;
-					}
-					else
-					{
-						int iOpinionMultiplier = 1;
-						int iStrengthMultiplier = 1;
+				int iStrengthMultiplier = 1;
+				int iApproachMultiplier = 1;
 
-						CivOpinionTypes eOpinion = pDiplomacyAI->GetCivOpinion(pLoopNearbyPlot->getOwner());
+				CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopNearbyPlot->getOwner());
 
-						if (eOpinion == CIV_OPINION_NEUTRAL)
-							iOpinionMultiplier = 2;
-						else if (eOpinion < CIV_OPINION_NEUTRAL)
-							iOpinionMultiplier = 4;
+				if (eApproach == CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 2;
+				else if (eApproach != CIV_APPROACH_AFRAID && eApproach < CIV_APPROACH_NEUTRAL)
+					iApproachMultiplier = 4;
+				else if (eApproach == CIV_APPROACH_AFRAID)
+					iApproachMultiplier = 8;
 
-						StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopNearbyPlot->getOwner());
-						if (eStrengthRelativeToUs == STRENGTH_STRONG)
-							iStrengthMultiplier = 2;
-						else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
-							iStrengthMultiplier = 4;
-						else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
-							iStrengthMultiplier = 8;
+				StrengthTypes eStrengthRelativeToUs = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopNearbyPlot->getOwner());
+				if (eStrengthRelativeToUs == STRENGTH_STRONG)
+					iStrengthMultiplier = 2;
+				else if (eStrengthRelativeToUs == STRENGTH_POWERFUL)
+					iStrengthMultiplier = 4;
+				else if (eStrengthRelativeToUs == STRENGTH_IMMENSE)
+					iStrengthMultiplier = 8;
 
-						iNearbyThreat += iOpinionMultiplier * iStrengthMultiplier;
-					}
-				}
+				iNearbyThreat += iApproachMultiplier * iStrengthMultiplier;
 			}
 		}
 	}

@@ -349,7 +349,7 @@ static int GetYieldBaseModifierTimes100(YieldTypes eYield)
 	case YIELD_JFD_CRIME:
 	case YIELD_JFD_LOYALTY:
 	case YIELD_JFD_SOVEREIGNTY:
-		return 50;
+		return 20;
 	default:
 		return 0;
 	}
@@ -366,7 +366,7 @@ int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes e
 	}
 
 	int iCityCitizenRatio = 1;
-	int iBaseRatio = 1;
+	int iBaseRatio = 3;
 
 	int iBaseModifier = GetYieldBaseModifierTimes100(eYield);
 
@@ -766,6 +766,10 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (plotDistance(pOriginCity->getX(), pOriginCity->getY(), pTargetPlot->getX(), pTargetPlot->getY()) >= 6)
 		return;
 
+	int iDefensiveValue = pTargetPlot->GetStrategicValue(m_pPlayer->GetID());
+	if (iDefensiveValue < 100)
+		return;
+
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
 	if (!pRouteInfo)
 		return;
@@ -790,6 +794,8 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	GetPathValues(path, eRoute, aiDummyContainer, aiMoveSpeedBonuses, iDummy, iMovementBonus, iDummy, iMaintenanceRoadTiles);
 
 	int iValue = iMovementBonus;
+
+	iValue = (iValue * iDefensiveValue) / 1200;
 
 	if (iValue != 0)
 	{
@@ -818,28 +824,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		// remember the plot
 		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iPlotValue);
 		m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
-	}
-
-	// Build a ring around the target plot
-	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pTargetPlot);
-	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
-	{
-		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-
-		if (pAdjacentPlot->isWater())
-			continue;
-
-		if (pAdjacentPlot->isCity())
-			continue;
-
-		if (pAdjacentPlot->getOwner() != m_pPlayer->GetID())
-			continue;
-
-		if (!pAdjacentPlot->isValidMovePlot(m_pPlayer->GetID()))
-			continue;
-
-		m_localRouteValues[make_pair(eRoute, pAdjacentPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pAdjacentPlot->GetPlotIndex())], iValue - 1);
-		m_strategicRoutePlots.insert(pAdjacentPlot->GetPlotIndex());
 	}
 }
 
@@ -1190,7 +1174,7 @@ int CvBuilderTaskingAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective e
 	if (pUnit->IsCombatUnit())
 		data.iMaxTurns = min(3, iMaxDistance);
 
-	SPath path = GC.GetPathFinder().GetPath(pUnit->plot(), pTargetPlot, data);
+	SPath path = GC.GetPathFinder().GetPath(pStartPlot, pTargetPlot, data);
 
 	if (!!path)
 		return path.iTotalTurns;
@@ -2873,7 +2857,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		{
 			// Non-great person improvements considerations
 			bool bAvoidPlot = false;
-			CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
 			if (eResource == NO_RESOURCE && eImprovementToSavePlotFor != eImprovement)
 			{
 				bAvoidPlot = true;

@@ -550,7 +550,7 @@ int CvCityCitizens::GetYieldModifierTimes100(YieldTypes eYield)
 
 	//Simplification - errata yields not worth considering.
 	if (eYield > YIELD_GOLDEN_AGE_POINTS && !MOD_BALANCE_CORE_JFD)
-		return 50;
+		return 20;
 
 	int iModifierTimes100 = 100;
 
