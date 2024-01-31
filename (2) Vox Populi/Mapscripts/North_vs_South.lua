@@ -486,7 +486,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- Data returned is: fertility table, sum of all fertility, plot count.
 		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityInRectangle(
 			self.inhabited_WestX, self.inhabited_SouthY, self.inhabited_Width, self.inhabited_Height);
-		-- Assemble the Rectangle data table. AreaID -1 means ignore area IDs.
+		-- Assemble the Rectangle data table. AreaID -1 means ignore landmass/area IDs.
 		local rect_table = {self.inhabited_WestX, self.inhabited_SouthY, self.inhabited_Width, self.inhabited_Height, -1, fertCount, plotCount};
 		-- Divide the rectangle.
 		self:DivideIntoRegions(iNumCivsInSouth, fert_table, rect_table);
@@ -500,7 +500,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		-- Data returned is: fertility table, sum of all fertility, plot count.
 		fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityInRectangle(
 			self.inhabited_WestX, self.inhabited_SouthY, self.inhabited_Width, self.inhabited_Height);
-		-- Assemble the Rectangle data table. AreaID -1 means ignore area IDs.
+		-- Assemble the Rectangle data table. AreaID -1 means ignore landmass/area IDs.
 		rect_table = {self.inhabited_WestX, self.inhabited_SouthY, self.inhabited_Width, self.inhabited_Height, -1, fertCount, plotCount};
 		-- Divide the rectangle.
 		self:DivideIntoRegions(iNumCivsInNorth, fert_table, rect_table);
@@ -511,10 +511,9 @@ function AssignStartingPlots:GenerateRegions(args)
 		print("-"); print("Dividing the map at random."); print("-");
 		self.method = RegionDivision.BIGGEST_LANDMASS;
 		-- Identify the biggest landmass.
-		local biggest_area = Map.FindBiggestArea(false);
-		local iAreaID = biggest_area:GetID();
+		local iLandmassID = Map.FindBiggestLandmassID(false);
 		-- We'll need all eight data fields returned in the results table from the boundary finder:
-		local landmass_data = ObtainLandmassBoundaries(iAreaID);
+		local landmass_data = self:GetLandmassBoundaries(iLandmassID);
 		local iWestX = landmass_data[1];
 		local iSouthY = landmass_data[2];
 		local iEastX = landmass_data[3];
@@ -525,9 +524,9 @@ function AssignStartingPlots:GenerateRegions(args)
 		local wrapsY = landmass_data[8];
 
 		-- Obtain "Start Placement Fertility" of the landmass.
-		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(iAreaID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
+		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(iLandmassID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
 		-- Assemble the Rectangle data table:
-		local rect_table = {iWestX, iSouthY, iWidth, iHeight, iAreaID, fertCount, plotCount};
+		local rect_table = {iWestX, iSouthY, iWidth, iHeight, iLandmassID, fertCount, plotCount};
 		-- The data from this call is processed in to self.regionData during the process.
 		self:DivideIntoRegions(self.iNumCivs, fert_table, rect_table);
 		-- The regions have been defined.
@@ -542,7 +541,7 @@ function AssignStartingPlots:GenerateRegions(args)
 		print("SouthY:", data[2]);
 		print("Width:", data[3]);
 		print("Height:", data[4]);
-		print("AreaID:", data[5]);
+		print("LandmassID:", data[5]);
 		print("Fertility:", data[6]);
 		print("Plots:", data[7]);
 		print("Fert/Plot:", data[8]);
