@@ -499,6 +499,11 @@
         <Type>UpdateDatabase</Type>
         <FileName>Modules/MoreGP/ExtraGPs.sql</FileName>
       </Action>
+      <Action>
+        <Set>OnModActivated</Set>
+        <Type>UpdateDatabase</Type>
+        <FileName>Core Files/Core Changes/DatabaseIndexes.sql</FileName>
+      </Action>
     </ModActions>
     <ModContent>
       <Content>
@@ -793,6 +798,10 @@
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>
     <Content Include="Core Files\Core Changes\CoreChanges.xml">
+      <SubType>Lua</SubType>
+      <ImportIntoVFS>False</ImportIntoVFS>
+    </Content>
+    <Content Include="Core Files\Core Changes\DatabaseIndexes.sql">
       <SubType>Lua</SubType>
       <ImportIntoVFS>False</ImportIntoVFS>
     </Content>

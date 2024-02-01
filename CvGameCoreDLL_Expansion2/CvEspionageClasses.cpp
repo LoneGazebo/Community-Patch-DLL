@@ -33,6 +33,7 @@ PlayerTypes g_eSortPlayer = NO_PLAYER; // global - used for the sort
 CvSpyPassiveBonusEntry::CvSpyPassiveBonusEntry(void)
 {
 	m_iNetworkPointsNeeded = 0;
+	m_bNetworkPointsScaling = false;
 	m_iSciencePercentAdded = 0;
 	m_iTilesRevealed = 0;
 	m_bRevealCityScreen = false;
@@ -50,6 +51,7 @@ bool CvSpyPassiveBonusEntry::CacheResults(Database::Results& kResults, CvDatabas
 	}
 
 	m_iNetworkPointsNeeded = kResults.GetInt("NetworkPointsNeeded");
+	m_bNetworkPointsScaling = kResults.GetBool("NetworkPointsScaling");
 	m_iSciencePercentAdded = kResults.GetInt("SciencePercentAdded");
 	m_iTilesRevealed = kResults.GetInt("TilesRevealed");
 	m_bRevealCityScreen = kResults.GetBool("RevealCityScreen");
@@ -60,8 +62,11 @@ bool CvSpyPassiveBonusEntry::CacheResults(Database::Results& kResults, CvDatabas
 int CvSpyPassiveBonusEntry::GetNetworkPointsNeededScaled() const
 {
 	int iNPNeeded = m_iNetworkPointsNeeded;
-	iNPNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iNPNeeded /= 100;
+	if (m_bNetworkPointsScaling)
+	{
+		iNPNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNPNeeded /= 100;
+	}
 	return iNPNeeded;
 }
 int CvSpyPassiveBonusEntry::GetSciencePercentAdded() const
@@ -125,6 +130,7 @@ CvSpyPassiveBonusEntry* CvSpyPassiveBonusXMLEntries::GetEntry(int index)
 CvSpyPassiveBonusDiplomatEntry::CvSpyPassiveBonusDiplomatEntry(void)
 {
 	m_iNetworkPointsNeeded = 0;
+	m_bNetworkPointsScaling = false;
 	m_bReceiveIntrigue = false;
 	m_bRevealTrueApproaches = false;
 	m_iTradeRouteGoldBonus = 0;
@@ -142,6 +148,7 @@ bool CvSpyPassiveBonusDiplomatEntry::CacheResults(Database::Results& kResults, C
 	}
 
 	m_iNetworkPointsNeeded = kResults.GetInt("NetworkPointsNeeded");
+	m_bNetworkPointsScaling = kResults.GetBool("NetworkPointsScaling");
 	m_bReceiveIntrigue = kResults.GetBool("ReceiveIntrigues");
 	m_bRevealTrueApproaches = kResults.GetBool("RevealTrueApproaches");
 	m_iTradeRouteGoldBonus = kResults.GetInt("TradeRouteGoldBonus");
@@ -152,8 +159,11 @@ bool CvSpyPassiveBonusDiplomatEntry::CacheResults(Database::Results& kResults, C
 int CvSpyPassiveBonusDiplomatEntry::GetNetworkPointsNeededScaled() const
 {
 	int iNPNeeded = m_iNetworkPointsNeeded;
-	iNPNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-	iNPNeeded /= 100;
+	if (m_bNetworkPointsScaling)
+	{
+		iNPNeeded *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iNPNeeded /= 100;
+	}
 	return iNPNeeded;
 }
 bool CvSpyPassiveBonusDiplomatEntry::IsReceiveIntrigue() const
@@ -5294,7 +5304,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 			break;
 		case INTRIGUE_TYPE_BRIBE_WAR:
 			{
-				if (GET_PLAYER(kMessage.m_eTargetPlayer).getTeam() == m_pPlayer->GetID())
+				if (kMessage.m_eTargetPlayer == m_pPlayer->GetID())
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR");
 					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
@@ -5378,7 +5388,7 @@ void CvPlayerEspionage::AddIntrigueMessage(PlayerTypes eDiscoveringPlayer, Playe
 			break;
 		case INTRIGUE_TYPE_COOP_WAR:
 			{
-				if (GET_PLAYER(kMessage.m_eTargetPlayer).getTeam() == m_pPlayer->GetID())
+				if (kMessage.m_eTargetPlayer == m_pPlayer->GetID())
 				{
 					Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR");
 					strText << GetSpyRankName(m_aSpyList[uiSpyIndex].m_eRank);
@@ -7061,7 +7071,6 @@ void CvCityEspionage::AddNetworkPointsDiplomat(PlayerTypes eSpyOwner, CvEspionag
 	CvPlayer* pPlayer = &GET_PLAYER(eSpyOwner);
 
 	int iPassiveBonusThresholdBefore = GetAmount(eSpyOwner);
-	int iBonusThresholdBefore = GetAmount(eSpyOwner);
 	// how much NP do we need to get the next passive bonus?
 	int iNextPassiveBonus = GetNextPassiveBonus(eSpyOwner);
 	if (iNextPassiveBonus == -1)

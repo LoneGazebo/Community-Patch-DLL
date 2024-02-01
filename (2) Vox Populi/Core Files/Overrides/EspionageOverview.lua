@@ -249,6 +249,13 @@ g_CitiesAvailableToRelocate = nil;
 g_UnitList = nil;
 -- end slewis
 
+function GetNetworkPointsScaled(info)
+	local iNPScaled = info.NetworkPointsNeeded;
+	if (info.NetworkPointsScaling == true) then
+		iNPScaled = math.floor(iNPScaled * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+	end
+	return iNPScaled;
+end
 -------------------------------------------------
 -------------------------------------------------
 function OnPopupMessage(popupInfo)
@@ -1475,14 +1482,9 @@ function OnNo( )
 end
 Controls.No:RegisterCallback( Mouse.eLClick, OnNo );
 
-function PendingDealButtonHandler( index, iIsCurrent )
-    local iPlayer = Game.GetActivePlayer();
+function PendingDealButtonHandler( iPlayer, index )
 
-    if( iIsCurrent == 1 ) then
-        UI.LoadCurrentDeal( iPlayer, index );
-    else
-        UI.LoadHistoricDeal( iPlayer, index );
-    end
+    UI.LoadCurrentDeal( iPlayer, index );
     
     local iBeginTurn = m_Deal:GetStartTurn();
     local iDuration  = m_Deal:GetDuration();
@@ -1495,7 +1497,7 @@ function PendingDealButtonHandler( index, iIsCurrent )
         Controls.TurnEnd:SetHide( true );
     end
     
-    OpenDealReview();
+    OpenDealReview(iPlayer);
 end
 
 function BuildDealButton( iPlayer, controlTable )    
@@ -1563,7 +1565,7 @@ function PopulateDealChooserDiplomat(iPlayer)
             controlTable = {};
             ContextPtr:BuildInstanceForControl( "DealButtonInstance", controlTable, Controls.CurrentDealsStack );
             
-            controlTable.DealButton:SetVoids( i, 1 );
+            controlTable.DealButton:SetVoids( iPlayer, i);
             controlTable.DealButton:RegisterCallback( Mouse.eLClick, PendingDealButtonHandler );
             
             UI.LoadCurrentDeal( iPlayer, i );
@@ -1642,7 +1644,7 @@ PopulateSelectionList = function(stackControl, playerID, city, spy)
 			end
 	
 			if(info.NetworkPointsNeeded > 0) then
-				local iNPScaled = math.floor(info.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+				local iNPScaled = GetNetworkPointsScaled(info);
 				instance.Name:LocalizeAndSetText("TXT_KEY_EO_MISSION_COST", iNPScaled, szDescString);
 			else
 				instance.Name:SetText(szDescString);
@@ -1734,7 +1736,7 @@ PopulatePassiveBonusList = function(stackControl, playerID, city, spy)
 	local strUnlockedPassiveBonusText = "";
 	local iNetworkPointsOfBestUnlockedBonus = -1;
 	for row in GameInfo.SpyPassiveBonuses() do
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		if (iNPScaled <= spy.MaxNetworkPointsStored and iNPScaled > iNetworkPointsOfBestUnlockedBonus) then
 			iNetworkPointsOfBestUnlockedBonus = iNPScaled;
 			strUnlockedPassiveBonusText = Locale.Lookup(row.Help);
@@ -1755,7 +1757,7 @@ PopulatePassiveBonusList = function(stackControl, playerID, city, spy)
 	-- check if we can view the city screen
 	local iNetworkPointsNeededToViewCityScreen = 999999;
 	for row in GameInfo.SpyPassiveBonuses("RevealCityScreen") do
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		iNetworkPointsNeededToViewCityScreen = math.min(iNetworkPointsNeededToViewCityScreen, iNPScaled);
 	end;
 	
@@ -1806,7 +1808,7 @@ PopulatePassiveBonusList = function(stackControl, playerID, city, spy)
 
 		local szDescString;
 		local szHelpString;
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		szDescString = Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_NP_REQUIRED", iNPScaled, Locale.Lookup(row.Description));
 		szHelpString = Locale.Lookup(row.Help);
 
@@ -1849,7 +1851,7 @@ PopulateDiplomatBonusList = function(stackControl, playerID, city, spy)
 	local strUnlockedPassiveBonusText = "";
 	local iNetworkPointsOfBestUnlockedBonus = -1;
 	for row in GameInfo.SpyPassiveBonusesDiplomat() do
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		if (iNPScaled <= spy.MaxNetworkPointsStored and iNPScaled > iNetworkPointsOfBestUnlockedBonus) then
 			iNetworkPointsOfBestUnlockedBonus = iNPScaled;
 			strUnlockedPassiveBonusText = Locale.Lookup(row.Help);
@@ -1931,19 +1933,19 @@ PopulateDiplomatBonusList = function(stackControl, playerID, city, spy)
 	local iNetworkPointsNeededToViewUnitList = 999999;
 	local iNetworkPointsNeededToViewTradeDeals = 999999;
 	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealTechTree") do
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		iNetworkPointsNeededToViewTechTree = math.min(iNetworkPointsNeededToViewTechTree, iNPScaled);
 	end;
 	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealPolicyTree") do
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		iNetworkPointsNeededToViewPolicyTree = math.min(iNetworkPointsNeededToViewPolicyTree, iNPScaled);
 	end;
 	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealMilitaryUnitCount") do
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		iNetworkPointsNeededToViewUnitList = math.min(iNetworkPointsNeededToViewUnitList, iNPScaled);
 	end;
 	for row in GameInfo.SpyPassiveBonusesDiplomat("RevealTradeDeals") do
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		iNetworkPointsNeededToViewTradeDeals = math.min(iNetworkPointsNeededToViewTradeDeals, iNPScaled);
 	end;
 	
@@ -1999,7 +2001,7 @@ PopulateDiplomatBonusList = function(stackControl, playerID, city, spy)
 
 		local szDescString;
 		local szHelpString;
-		local iNPScaled = math.floor(row.NetworkPointsNeeded * GameInfo.GameSpeeds[Game.GetGameSpeedType()].TrainPercent / 100);
+		local iNPScaled = GetNetworkPointsScaled(row);
 		szDescString = Locale.Lookup("TXT_KEY_EO_PASSIVE_BONUS_NP_REQUIRED", iNPScaled, Locale.Lookup(row.Description));
 		szHelpString = Locale.Lookup(row.Help);
 

@@ -883,6 +883,7 @@
 			<Help>TXT_KEY_ESPIONAGE_EVENT_REPATRIATED_SPECIALISTS_HELP</Help>
 			<SpecialistsGreatPersonPointsPerTurn>1</SpecialistsGreatPersonPointsPerTurn>
 			<EventDuration>15</EventDuration>
+			<EventDurationScaling>false</EventDurationScaling>
 			<Expires>true</Expires>
 			<CapitalEffectOnly>true</CapitalEffectOnly>
 		</Row>

@@ -30,6 +30,7 @@ public:
 
 protected:
 	int m_iNetworkPointsNeeded;
+	bool m_bNetworkPointsScaling;
 	int m_iSciencePercentAdded;
 	int m_iTilesRevealed;
 	bool m_bRevealCityScreen;
@@ -85,6 +86,7 @@ public:
 
 protected:
 	int m_iNetworkPointsNeeded;
+	bool m_bNetworkPointsScaling;
 	bool m_bReceiveIntrigue;
 	bool m_bRevealTrueApproaches;
 	int m_iTradeRouteGoldBonus;
@@ -517,8 +519,8 @@ public:
 	CityPendingEventsList m_aiPendingEventsForPlayer;
 	PassiveBonusBoolList m_abRevealCityScreen;
 	PassiveBonusList m_aiDiplomatTradeBonus; // gold bonus to trade routes between the diplomat owner and the other civ
-	PassiveBonusList m_abDiplomatReceiveIntrigues; // the diplomat in this city can receives intrigues
-	PassiveBonusList m_abDiplomatRevealTrueApproaches; // the diplomat in this city causes the other player to give honest answers when asked about a third player
+	PassiveBonusBoolList m_abDiplomatReceiveIntrigues; // the diplomat in this city can receives intrigues
+	PassiveBonusBoolList m_abDiplomatRevealTrueApproaches; // the diplomat in this city causes the other player to give honest answers when asked about a third player
 	PassiveBonusList m_aiSciencePassivePerTurn; // percentage of city's science given to the spy owner
 	PassiveBonusList m_aiVisionBonus; // number of tiles visible around city
 };

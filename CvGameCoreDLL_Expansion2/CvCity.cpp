@@ -5286,25 +5286,19 @@ CvString CvCity::GetScaledSpyEffectText(CityEventChoiceTypes eEventChoice, bool 
 	if (pkEventChoiceInfo->getRemoveTurnsOfProductionProgress() > 0)
 	{
 		iNumberTip = pkEventChoiceInfo->getRemoveTurnsOfProductionProgress();
-		iNumberTip *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumberTip /= 100;
 	}
 	else if (pkEventChoiceInfo->getNoTourismTurns() > 0)
 	{
 		iNumberTip = pkEventChoiceInfo->getNoTourismTurns();
-		iNumberTip *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumberTip /= 100;
 	}
 	else if (pkEventChoiceInfo->getSapCityTurns() > 0)
 	{
 		iNumberTip = pkEventChoiceInfo->getSapCityTurns();
-		iNumberTip *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iNumberTip /= 100;
 	}
 	else if (pkEventChoiceInfo->getStealFromTreasuryPercent() > 0)
 	{
 		iNumberTip = pkEventChoiceInfo->getStealFromTreasuryPercent();
-		// inverse scaling
+		// inverse scaling with game speed
 		iNumberTip *= 100;
 		iNumberTip /= GC.getGame().getGameSpeedInfo().getTrainPercent();
 
@@ -5318,7 +5312,13 @@ CvString CvCity::GetScaledSpyEffectText(CityEventChoiceTypes eEventChoice, bool 
 	localizedCoreText << "";
 	if (pkEventChoiceInfo->Expires() && !bSpyMissionEnd)
 	{
-		localizedCoreText << GetLocalizedText("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_TURNS", pkEventChoiceInfo->getEventDuration());
+		int iDuration = pkEventChoiceInfo->getEventDuration();
+		if (pkEventChoiceInfo->isEventDurationScaling())
+		{
+			iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iDuration /= 100;
+		}
+		localizedCoreText << GetLocalizedText("TXT_KEY_EVENT_YIELD_SCALED_NOTIFICATION_TURNS", iDuration);
 	}
 	else
 	{
@@ -5536,12 +5536,15 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 		}
 	}
 
-	//Duration
+	//Duration. Don't show event duration is this is a notification that an event has ended
 	if (!bSpyMissionEnd)
 	{
 		int iDuration = pkEventChoiceInfo->getEventDuration();
-		iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-		iDuration /= 100;
+		if (pkEventChoiceInfo->isEventDurationScaling())
+		{
+			iDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iDuration /= 100;
+		}
 
 		if (iDuration > 0)
 		{
@@ -5586,25 +5589,19 @@ CvString CvCity::GetScaledHelpText(CityEventChoiceTypes eEventChoice, bool bYiel
 		if (pkEventChoiceInfo->getRemoveTurnsOfProductionProgress() > 0)
 		{
 			iNumberTip = pkEventChoiceInfo->getRemoveTurnsOfProductionProgress();
-			iNumberTip *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iNumberTip /= 100;
 		}
 		else if (pkEventChoiceInfo->getNoTourismTurns() > 0)
 		{
 			iNumberTip = pkEventChoiceInfo->getNoTourismTurns();
-			iNumberTip *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iNumberTip /= 100;
 		}
 		else if (pkEventChoiceInfo->getSapCityTurns() > 0)
 		{
 			iNumberTip = pkEventChoiceInfo->getSapCityTurns();
-			iNumberTip *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-			iNumberTip /= 100;
 		}
 		else if (pkEventChoiceInfo->getStealFromTreasuryPercent() > 0)
 		{
 			iNumberTip = pkEventChoiceInfo->getStealFromTreasuryPercent();
-			// inverse scaling
+			// inverse scaling with game speed
 			iNumberTip *= 100;
 			iNumberTip /= GC.getGame().getGameSpeedInfo().getTrainPercent();
 			
@@ -6654,8 +6651,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			{
 				//Gamespeed.
 				int iEventDuration = pkEventChoiceInfo->getEventDuration();
-				iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iEventDuration /= 100;
+				if (pkEventChoiceInfo->isEventDurationScaling())
+				{
+					iEventDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+					iEventDuration /= 100;
+				}
 				ChangeEventChoiceDuration(eEventChoice, max(1, iEventDuration));
 			}
 
@@ -6798,15 +6798,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 			if (pkEventChoiceInfo->getSapCityTurns() != 0)
 			{
 				int iTurns = pkEventChoiceInfo->getSapCityTurns();
-				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iTurns /= 100;
 				ChangeSappedTurns(iTurns);
 			}
 			if (pkEventChoiceInfo->getNoTourismTurns() != 0)
 			{
 				int iTurns = pkEventChoiceInfo->getNoTourismTurns();
-				iTurns *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iTurns /= 100;
 				ChangeNoTourismTurns(iTurns);
 			}
 			if (pkEventChoiceInfo->getGrowthMod() != 0)
@@ -7044,8 +7040,11 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 					{
 						int iAmount = getYieldRate(eYield, false) * iSiphonYield / 100;
 						int iEffectDuration = pkEventChoiceInfo->getEventDuration();
-						iEffectDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-						iEffectDuration /= 100;
+						if (pkEventChoiceInfo->isEventDurationScaling())
+						{
+							iEffectDuration *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+							iEffectDuration /= 100;
+						}
 
 						GET_PLAYER(eSpyOwner).AddEspionageEvent(getOwner(), true, GC.getGame().getGameTurn(), GC.getGame().getGameTurn() + iEffectDuration, eYield, iAmount);
 
@@ -7365,8 +7364,6 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 				if (getProductionTimes100() > 0 && getProductionTurnsLeft() != INT_MAX)
 				{
 					int iProduction = getBaseYieldRate(YIELD_PRODUCTION) * iRemoveTurnsOfProductionProgress;
-					iProduction *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-					iProduction /= 100;
 					if (iProduction > 0)
 					{
 						changeProduction(-iProduction);
@@ -31163,7 +31160,7 @@ bool CvCity::CreateProject(ProjectTypes eProjectType)
 		ChangeScienceMedianModifier(pProject->GetScienceMedianModifier());
 		ChangeCultureMedianModifier(pProject->GetCultureMedianModifier());
 		ChangeReligiousUnrestModifier(pProject->GetReligiousUnrestModifier());
-		ChangeEspionageModifier(pProject->GetEspionageMod());
+		ChangeSpySecurityModifier(pProject->GetSpySecurityModifier());
 	}
 
 	GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityProjectComplete, getOwner(), GetID(), eProjectType);

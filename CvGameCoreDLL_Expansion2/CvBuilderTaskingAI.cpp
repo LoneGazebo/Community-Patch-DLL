@@ -2115,10 +2115,6 @@ int CvBuilderTaskingAI::GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 	int iBuildTimeNormal = pPlot->getBuildTime(eBuild, m_pPlayer->GetID());
 	int iBuildTurnsLeft = pPlot->getBuildTurnsLeft(eBuild, m_pPlayer->GetID(), pUnit->workRate(true), pUnit->workRate(true));
 	int iBuildTime = min(iBuildTimeNormal, iBuildTurnsLeft);
-	if(iBuildTime <= 0)
-	{
-		iBuildTime = 1;
-	}
 
 	if(bIgnoreFeatureTime)
 	{
@@ -2126,6 +2122,10 @@ int CvBuilderTaskingAI::GetBuildTimeWeight(CvUnit* pUnit, CvPlot* pPlot, BuildTy
 		{
 			iBuildTime -= GC.getBuildInfo(eBuild)->getFeatureTime(pPlot->getFeatureType());
 		}
+	}
+	if (iBuildTime <= 0)
+	{
+		iBuildTime = 1;
 	}
 
 	return 10000 / ((iBuildTime*100) + iAdditionalTime);
@@ -2760,7 +2760,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvUnit* pUnit, CvPlot* pPlot, Improvement
 		if (pPlot->IsCityConnection(m_pPlayer->GetID()))
 		{
 			bool bHaveAndNeedRailroad = pPlot->IsRouteRailroad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_RAILROAD;
-			bool bHaveAndNeedRoad = pPlot->IsRouteRoad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_ROAD && !GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD) == ROUTE_ROAD;
+			bool bHaveAndNeedRoad = (pPlot->IsRouteRoad() && GetRouteTypeNeededAtPlot(pPlot) == ROUTE_ROAD) || (m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad() && pPlot->isRiver());
 
 			if (bHaveAndNeedRailroad)
 				iSecondaryScore += iRailroadScore;
