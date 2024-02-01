@@ -524,38 +524,16 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 	int iMovementUsedBackwardsWithoutRoute = 0;
 	int iNumSteps = aiMovingForwardCostsWithRoute.size();
 
-	int iTotalTurnsWithRoute = 0;
-	int iTotalTurnsWithoutRoute = 0;
-
 	for (int iI = 0; iI < iNumSteps; iI++)
 	{
-		iMovementUsedForwardsWithRoute += aiMovingForwardCostsWithRoute[iI];
-		if (iMovementUsedForwardsWithRoute > 2 * iMoveDenominator)
-		{
-			iMovementUsedForwardsWithRoute = 0;
-			iTotalTurnsWithRoute++;
-		}
-		iMovementUsedForwardsWithoutRoute += aiMovingForwardCostsWithoutRoute[iI];
-		if (iMovementUsedForwardsWithoutRoute > 2 * iMoveDenominator)
-		{
-			iMovementUsedForwardsWithoutRoute = 0;
-			iTotalTurnsWithoutRoute++;
-		}
-		iMovementUsedBackwardsWithRoute += aiMovingBackwardCostsWithRoute[iNumSteps - iI - 1];
-		if (iMovementUsedBackwardsWithRoute > 2 * iMoveDenominator)
-		{
-			iMovementUsedBackwardsWithRoute = 0;
-			iTotalTurnsWithRoute++;
-		}
-		iMovementUsedBackwardsWithoutRoute += aiMovingBackwardCostsWithoutRoute[iNumSteps - iI - 1];
-		if (iMovementUsedBackwardsWithoutRoute > 2 * iMoveDenominator)
-		{
-			iMovementUsedBackwardsWithoutRoute = 0;
-			iTotalTurnsWithoutRoute++;
-		}
+		// Assume unit with 2 movement points
+		iMovementUsedForwardsWithRoute += min(iMoveDenominator * 2, aiMovingForwardCostsWithRoute[iI]);
+		iMovementUsedForwardsWithoutRoute += min(iMoveDenominator * 2, aiMovingForwardCostsWithoutRoute[iI]);
+		iMovementUsedBackwardsWithRoute += min(iMoveDenominator * 2, aiMovingBackwardCostsWithRoute[iI]);
+		iMovementUsedBackwardsWithoutRoute += min(iMoveDenominator * 2, aiMovingBackwardCostsWithoutRoute[iI]);
 	}
 
-	iMovementBonus = iTotalTurnsWithoutRoute > iTotalTurnsWithRoute ? (iTotalTurnsWithoutRoute * 300) / (iTotalTurnsWithRoute + 1) : 0;
+	iMovementBonus = ((iMovementUsedForwardsWithoutRoute + iMovementUsedBackwardsWithoutRoute) / (iMovementUsedForwardsWithRoute + iMovementUsedBackwardsWithRoute)) * 300;
 }
 
 void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* pTargetCity, BuildTypes eBuild, RouteTypes eRoute)
@@ -767,7 +745,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		return;
 
 	int iDefensiveValue = pTargetPlot->GetStrategicValue(m_pPlayer->GetID());
-	if (iDefensiveValue < 100)
+	if (iDefensiveValue < 40)
 		return;
 
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
@@ -795,7 +773,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	int iValue = iMovementBonus;
 
-	iValue = (iValue * iDefensiveValue) / 1200;
+	iValue = (iValue * iDefensiveValue) / 400;
 
 	if (iValue != 0)
 	{
@@ -2660,7 +2638,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		// Special handling for vanilla celts
 		if (!MOD_BALANCE_VP && eYield == YIELD_FAITH && m_pPlayer->GetPlayerTraits()->IsFaithFromUnimprovedForest())
 		{
-			if (bChangedFeatureState && eFeature == FEATURE_FOREST && eOldImprovement == NO_IMPROVEMENT)
+			if ((bChangedFeatureState || eImprovement != NO_IMPROVEMENT) && eFeature == FEATURE_FOREST && eOldImprovement == NO_IMPROVEMENT)
 			{
 				CvCity* pNextCity = pPlot->GetAdjacentCity();
 				if (pNextCity && pNextCity->getOwner() == m_pPlayer->GetID())
