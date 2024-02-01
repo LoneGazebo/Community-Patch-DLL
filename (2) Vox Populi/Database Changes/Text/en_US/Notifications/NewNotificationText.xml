@@ -288,7 +288,7 @@
 			<Text>Mandate of Heaven</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE">
-			<Text>The acquisition of {1_Resource:textkey} causes the city of {2_CityName:textkey} to enter "We Love the Empress Day" for {3_Num} Turns, increasing their [ICON_FOOD] Growth by +{4_Num}%!</Text>
+			<Text>Because {1_Resource:textkey} is connected to your trade network, the City of {2_CityName:textkey} enters "We Love the Empress Day" for {3_Num} Turns, increasing its [ICON_FOOD] Growth by +{4_Num}%!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_CITY_SUMMARY_WLTKD_UA_ERA_CHANGE">
 			<Text>Dynastic Transition...</Text>

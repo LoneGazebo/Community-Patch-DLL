@@ -172,6 +172,7 @@
     <File md5="D189054DBC0B89454E00137394C4CB1A" import="1">Core Files/CoreLua/playereventdefaultbackground.dds</File>
     <File md5="47D9492129F0335754825A2AFCDE425F" import="1">Core Files/CoreLua/PlayerEventsInfo.xml</File>
     <File md5="A5F8A30B9629E6251072B6A406124856" import="1">Core Files/CoreLua/PlayerEventsInfo.lua</File>
+    <File md5="61EA5FEA4A0F61F81E4443568183C103" import="1">Core Files/CoreLua/PuppetCityPopup.lua</File>
     <File md5="C16A95DB183F4BD7D3236CFDA63855AD" import="1">Core Files/CoreLua/ReplayViewer.lua</File>
     <File md5="56E38F28084CA596462B0C6390936D80" import="1">Core Files/CoreLua/ReplayViewer.xml</File>
     <File md5="2EDB54EB7721D8240EAF44B71BCE74D6" import="1">Core Files/CoreLua/SaveMenu.lua</File>

@@ -3165,7 +3165,13 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (activePlayer.GetNotifications())
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CAPTURED_CITY", pCity->getNameKey()).GetCString();
-				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				if (activePlayer.isObserver())
+				{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST", pCity->getNameKey());
+					CvNotifications* pNotify = activePlayer.GetNotifications();
+					pNotify->Add(NOTIFICATION_CITY_LOST, strBuffer, strSummary, iCityX, iCityY, -1);
+				}
 				if (MOD_WH_MILITARY_LOG)
 					MILITARYLOG(GetID(), strBuffer.c_str(), pCity->plot(), pCity->getOwner());
 			}
@@ -3173,13 +3179,19 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		else
 		{
 			if (activePlayer.isObserver() || 
-				(activePlayer.isAlive() && activePlayer.GetNotifications() && 
+				(activePlayer.isAlive() &&
 					pCity->isRevealed(activePlayer.getTeam(), false, false) && 
 					GET_TEAM(activePlayer.getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) && 
 					GET_TEAM(activePlayer.getTeam()).isHasMet(getTeam())))
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
-				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST", pCity->getNameKey());
+				CvNotifications* pNotify = activePlayer.GetNotifications();
+				if (pNotify)
+				{
+					pNotify->Add(NOTIFICATION_CITY_LOST, strBuffer, strSummary, iCityX, iCityY, -1);
+					//GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				}
 			}
 		}
 
@@ -29040,17 +29052,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_INSTANT:
 			{
@@ -29351,17 +29359,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CULTURE_BOMB");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_REMOVE_HERESY:
 			{
@@ -29369,17 +29373,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REMOVE_HERESY");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
 			{
@@ -29387,17 +29387,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
 			{

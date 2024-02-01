@@ -5093,6 +5093,48 @@ void CvCityReligions::ErodeOtherReligiousPressure(CvReligiousFollowChangeReason 
 	}
 }
 
+/// Simulate inquisitor
+void CvCityReligions::SimulateErodeOtherReligiousPressure(ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists)
+{
+	m_SimulatedStatus = m_ReligionStatus;
+
+	if (iErosionPercent < 1)
+		return;
+
+	ReligionInCityList::iterator it;
+	for (it = m_SimulatedStatus.begin(); it != m_SimulatedStatus.end(); it++)
+	{
+		//ignore atheists if desired
+		if (it->m_eReligion == NO_RELIGION && bLeaveAtheists)
+			continue;
+
+		//do not touch the exempted religion or dead ones
+		if (eExemptedReligion == it->m_eReligion || it->m_iPressure == 0)
+			continue;
+
+		//default
+		int iReductionPercent = min(100, iErosionPercent);
+
+		//some beliefs are resistant
+		if (it->m_eReligion > RELIGION_PANTHEON && bAllowRetention)
+		{
+			const CvReligion* pReligion = GC.getGame().GetGameReligions()->GetReligion(it->m_eReligion, m_pCity->getOwner());
+			if (pReligion)
+			{
+				int iRetentionPercent = pReligion->m_Beliefs.GetInquisitorPressureRetention(m_pCity->getOwner());  // Normally 0
+				iReductionPercent = iReductionPercent * (100 - iRetentionPercent) / 100;
+				iReductionPercent = max(0, iReductionPercent);
+			}
+		}
+
+		//make it so!
+		int iReductionAmount = iReductionPercent * it->m_iPressure / 100;
+		it->m_iPressure -= iReductionAmount;
+	}
+
+	SimulateFollowers();
+}
+
 /// Simulate prophet spread
 void CvCityReligions::SimulateProphetSpread(ReligionTypes eReligion, int iPressure)
 {
@@ -5437,6 +5479,19 @@ int CvCityReligions::GetNumFollowersAfterSpread(ReligionTypes eReligion, int iCo
 	return GetNumSimulatedFollowers(eReligion);
 }
 
+/// How many followers would we have after using an inquisitor here?
+int CvCityReligions::GetNumFollowersAfterInquisitor(ReligionTypes eReligion)
+{
+	SimulateErodeOtherReligiousPressure(eReligion, /*100 in CP, 50 in VP*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true);
+	return GetNumSimulatedFollowers(eReligion);
+}
+/// What would the majority religion be after using an inquisitor here?
+ReligionTypes CvCityReligions::GetMajorityReligionAfterInquisitor(ReligionTypes eReligion)
+{
+	SimulateErodeOtherReligiousPressure(eReligion, /*100 in CP, 50 in VP*/ GD_INT_GET(INQUISITION_EFFECTIVENESS), true, true);
+	return GetSimulatedReligiousMajority();
+}
+
 /// How many followers would we have having a prophet add religious pressure here?
 int CvCityReligions::GetNumFollowersAfterProphetSpread(ReligionTypes eReligion, int iConversionStrength)
 {
@@ -5444,7 +5499,7 @@ int CvCityReligions::GetNumFollowersAfterProphetSpread(ReligionTypes eReligion, 
 	return GetNumSimulatedFollowers(eReligion);
 }
 
-/// What would the majority religion be adding this religious pressure here?
+/// What would the majority religion be after adding this religious pressure here?
 ReligionTypes CvCityReligions::GetMajorityReligionAfterSpread(ReligionTypes eReligion, int iConversionStrength)
 {
 	SimulateReligiousPressure(eReligion, iConversionStrength);

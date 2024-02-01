@@ -659,7 +659,7 @@ protected:
 
 	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
 
-	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, TeamTypes eDefensivePactTeam = NO_TEAM, bool bMinorAllyPact = false);
 	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
 };
 

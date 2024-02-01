@@ -600,6 +600,8 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetConversionStrength);
 	Method(GetSpreadsLeft);
 	Method(GetChargesLeft);
+	Method(GetNumFollowersAfterInquisitor);
+	Method(GetMajorityReligionAfterInquisitor);
 	Method(GetNumFollowersAfterSpread);
 	Method(GetMajorityReligionAfterSpread);
 	Method(SetReligion);
@@ -6137,6 +6139,26 @@ int CvLuaUnit::lGetChargesLeft(lua_State* L)
 	int iCharge = pkUnit->GetNumRepairCharges();
 	lua_pushinteger(L, iCharge);
 
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetNumFollowersAfterInquisitor();
+int CvLuaUnit::lGetNumFollowersAfterInquisitor(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iData = pkUnit->GetNumFollowersAfterInquisitor();
+
+	lua_pushinteger(L, iData);
+	return 1;
+}
+//------------------------------------------------------------------------------
+//int GetNumFollowersAfterInquisitor();
+int CvLuaUnit::lGetMajorityReligionAfterInquisitor(lua_State* L)
+{
+	CvUnit* pkUnit = GetInstance(L);
+	const int iData = pkUnit->GetMajorityReligionAfterInquisitor();
+
+	lua_pushinteger(L, iData);
 	return 1;
 }
 //------------------------------------------------------------------------------
