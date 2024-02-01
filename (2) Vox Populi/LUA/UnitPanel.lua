@@ -1491,11 +1491,11 @@ function TipHandler( control )
 		
 		if (bDisabled) then
 			strActionHelp = strActionHelp .. "[NEWLINE][NEWLINE]";
-			if (g_UnitDeleteDisabled == 1) then
-				strActionHelp = strActionHelp .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION") .. "[ENDCOLOR]";
-			else
-				strActionHelp = strActionHelp .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey("TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES") .. "[ENDCOLOR]";
-			end
+			local textKey =  (g_UnitDeleteDisabled == 1)
+				and "TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION" 
+				or "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES";
+			strActionHelp = strActionHelp .. "[COLOR_WARNING_TEXT]" .. Locale.ConvertTextKey(textKey) .. "[ENDCOLOR]";
+ 
 		end;
 		
         strToolTip = strToolTip .. strActionHelp;
