@@ -745,7 +745,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		return;
 
 	int iDefensiveValue = pTargetPlot->GetStrategicValue(m_pPlayer->GetID());
-	if (iDefensiveValue < 40)
+	if (iDefensiveValue < 200)
 		return;
 
 	CvRouteInfo* pRouteInfo = GC.getRouteInfo(eRoute);
@@ -773,7 +773,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	int iValue = iMovementBonus;
 
-	iValue = (iValue * iDefensiveValue) / 400;
+	iValue = (iValue * iDefensiveValue) / 800;
 
 	if (iValue != 0)
 	{

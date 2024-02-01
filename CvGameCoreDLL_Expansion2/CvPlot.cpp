@@ -15418,6 +15418,8 @@ static int GetDefensiveApproachMultiplier(CivApproachTypes eApproach)
 	case CIV_APPROACH_HOSTILE:
 	case CIV_APPROACH_WAR:
 		return 4;
+	default:
+		return 0;
 	}
 }
 
@@ -15437,6 +15439,8 @@ static int GetDefensiveStrengthMultiplier(StrengthTypes eStrength)
 		return 4;
 	case STRENGTH_IMMENSE:
 		return 8;
+	default:
+		return 0;
 	}
 }
 
@@ -15455,6 +15459,8 @@ static int GetOffensiveApproachMultiplier(CivApproachTypes eApproach)
 		return 2;
 	case CIV_APPROACH_WAR:
 		return 4;
+	default:
+		return 0;
 	}
 }
 
@@ -15473,6 +15479,8 @@ static int GetOffensiveStrengthMultiplier(StrengthTypes eStrength)
 	case STRENGTH_POWERFUL:
 	case STRENGTH_IMMENSE:
 		return 0;
+	default:
+		return 0;
 	}
 }
 
@@ -15485,17 +15493,11 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(ePlayer).GetDiplomacyAI();
 
 	// Evaluate based on surrounding plots
-	int iAdjacentUnownedLand = 0;
-	int iNearbyUnownedLand = 0;
-
 	int iAdjacentThreat = 0;
 	int iNearbyThreat = 0;
 
 	int iAdjacentTarget = 0;
 	int iNearbyTarget = 0;
-
-	int iAdjacentCoast = 0;
-	int iNearbyCoast = 0;
 
 	// Directly adjacent tiles
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -15511,20 +15513,11 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 
 			//coasts are easy avenues of attack
 			if (pLoopAdjacentPlot->isWater())
-			{
-				if (!pLoopAdjacentPlot->isLake())
-					iAdjacentCoast++;
-
 				continue;
-			}
 
-			if (!pLoopAdjacentPlot->isOwned())
+			if (pLoopAdjacentPlot->isOwned() && pLoopAdjacentPlot->getOwner() != ePlayer && GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 			{
-				iAdjacentUnownedLand++;
-			}
-			else if (pLoopAdjacentPlot->getOwner() != ePlayer && GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
-			{
-				CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopAdjacentPlot->getOwner());
+				CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pLoopAdjacentPlot->getOwner());
 				StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopAdjacentPlot->getOwner());
 
 				iAdjacentThreat = max(iAdjacentThreat, GetDefensiveApproachMultiplier(eApproach) * GetDefensiveStrengthMultiplier(eStrength));
@@ -15549,20 +15542,11 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 			continue;
 
 		if (pLoopNearbyPlot->isWater())
-		{
-			if (!pLoopNearbyPlot->isLake())
-				iNearbyCoast++;
-
 			continue;
-		}
 
-		if (!pLoopNearbyPlot->isOwned())
+		if (pLoopNearbyPlot->isOwned() && pLoopNearbyPlot->getOwner() != ePlayer && GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 		{
-			iNearbyUnownedLand++;
-		}
-		else if (pLoopNearbyPlot->getOwner() != ePlayer && GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
-		{
-			CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopNearbyPlot->getOwner());
+			CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pLoopNearbyPlot->getOwner());
 			StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopNearbyPlot->getOwner());
 
 			iNearbyThreat = max(iNearbyThreat, GetDefensiveApproachMultiplier(eApproach) * GetDefensiveStrengthMultiplier(eStrength));
@@ -15571,16 +15555,12 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	}
 
 	//Get score for this fortification
-	int iDefensiveValue = 0;
-
+	
 	// Threatening civs (unfriendly and/or powerful)
-	iDefensiveValue += (iNearbyThreat * 30);
-	iDefensiveValue += (iAdjacentThreat * 60);
+	int iDefensiveValue = max(iNearbyThreat, iAdjacentThreat);
 
-	int iOffensiveValue = 0;
 	// Targeted civs
-	iOffensiveValue += (iNearbyTarget * 30);
-	iOffensiveValue += (iAdjacentTarget * 60);
+	int iOffensiveValue = max(iNearbyTarget, iAdjacentTarget);
 
 	int iStrategicValue = max(iDefensiveValue, iOffensiveValue);
 
@@ -15588,7 +15568,7 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	if (iStrategicValue == 0)
 		return 0;
 
-	return iStrategicValue;
+	return iStrategicValue * 100;
 }
 
 int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, ImprovementTypes eImprovement, SBuilderState sState) const
@@ -15608,22 +15588,16 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	CvDiplomacyAI* pDiplomacyAI = GET_PLAYER(eOwner).GetDiplomacyAI();
 
 	// Evaluate based on surrounding plots
-	int iAdjacentUnownedLand = 0;
-	int iNearbyUnownedLand = 0;
-
-	int iAdjacentThreat = 0;
-	int iNearbyThreat = 0;
-
-	int iAdjacentCoast = 0;
-	int iNearbyCoast = 0;
+	int iMaxAdjacentThreat = 0;
+	int iMaxNearbyThreat = 0;
 
 	bool bAdjacentCity = false;
-	int iNearbyCities = 0;
+	bool bNearbyCity = false;
 
 	int iAdjacentOwnedLand = 0;
-	int iAdjacentDamage = 0;
-	int iAdjacentDefenseModifiers = 0;
-	int iNearbyDefenseModifiers = 0;
+	int iMaxAdjacentDamage = 0;
+	int iMaxAdjacentDefenseModifier = 0;
+	int iMaxNearbyDefenseModifier = 0;
 
 	// Directly adjacent tiles
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
@@ -15639,12 +15613,7 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 
 		//coasts are easy avenues of attack
 		if (pLoopAdjacentPlot->isWater())
-		{
-			if (!pLoopAdjacentPlot->isLake())
-				iAdjacentCoast++;
-
 			continue;
-		}
 
 		if(pLoopAdjacentPlot->getOwner() == eOwner)
 		{
@@ -15659,23 +15628,19 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			int iNearbyDamage = pkAdjacentImprovement ? pkAdjacentImprovement->GetNearbyEnemyDamage() : 0;
 			iNearbyDamage += sState.mExtraDamageToAdjacent[pLoopAdjacentPlot->GetPlotIndex()];
 			if (iNearbyDamage > 0)
-				iAdjacentDamage += iNearbyDamage;
+				iMaxAdjacentDamage = max(iMaxAdjacentDamage, iNearbyDamage);
 
 			int iDefenseModifier = pkAdjacentImprovement ? pkAdjacentImprovement->GetDefenseModifier() : 0;
 			iDefenseModifier += sState.mExtraDefense[pLoopAdjacentPlot->GetPlotIndex()];
 			if (iDefenseModifier > 0)
-				iAdjacentDefenseModifiers += iDefenseModifier;
+				iMaxAdjacentDefenseModifier = max(iMaxAdjacentDefenseModifier, iDefenseModifier);
 		}
-		else if(!pLoopAdjacentPlot->isOwned())
+		else if(pLoopAdjacentPlot->isOwned() && pLoopAdjacentPlot->getOwner() != eOwner && GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 		{
-			iAdjacentUnownedLand++;
-		}
-		else if(pLoopAdjacentPlot->getOwner() != eOwner && GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
-		{
-			CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopAdjacentPlot->getOwner());
+			CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pLoopAdjacentPlot->getOwner());
 			StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopAdjacentPlot->getOwner());
 
-			iAdjacentThreat = max(iAdjacentThreat, GetDefensiveApproachMultiplier(eApproach) * GetDefensiveStrengthMultiplier(eStrength));
+			iMaxAdjacentThreat = max(iMaxAdjacentThreat, GetDefensiveApproachMultiplier(eApproach) * GetDefensiveStrengthMultiplier(eStrength));
 		}
 	}
 
@@ -15695,71 +15660,48 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 			continue;
 
 		if (pLoopNearbyPlot->isWater())
-		{
-			if (!pLoopNearbyPlot->isLake())
-				iNearbyCoast++;
-
 			continue;
-		}
 
 		if (pLoopNearbyPlot->getOwner() == eOwner)
 		{
 			// Avoid building next to cities
 			if (pLoopNearbyPlot->isCity())
-				iNearbyCities++;
+				bNearbyCity = true;
 
 			CvImprovementEntry* pkNearbyImprovement = GC.getImprovementInfo(pLoopNearbyPlot->getImprovementType());
 			int iDefenseModifier = pkNearbyImprovement ? pkNearbyImprovement->GetDefenseModifier() : 0;
 			iDefenseModifier += sState.mExtraDefense[pLoopNearbyPlot->GetPlotIndex()];
 			if (iDefenseModifier > 0)
-				iNearbyDefenseModifiers += iDefenseModifier;
+				iMaxNearbyDefenseModifier += max(iMaxNearbyDefenseModifier, iDefenseModifier);
 		}
-		else if (!pLoopNearbyPlot->isOwned())
+		else if (pLoopNearbyPlot->isOwned() && pLoopNearbyPlot->getOwner() != eOwner && GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
 		{
-			iNearbyUnownedLand++;
-		}
-		else if (pLoopNearbyPlot->getOwner() != eOwner && GET_PLAYER(pLoopNearbyPlot->getOwner()).isMajorCiv())
-		{
-			CivApproachTypes eApproach = pDiplomacyAI->GetCivStrategicApproach(pLoopNearbyPlot->getOwner());
+			CivApproachTypes eApproach = pDiplomacyAI->GetCivApproach(pLoopNearbyPlot->getOwner());
 			StrengthTypes eStrength = pDiplomacyAI->GetMilitaryStrengthComparedToUs(pLoopNearbyPlot->getOwner());
 
-			iNearbyThreat = max(iNearbyThreat, GetDefensiveApproachMultiplier(eApproach) * GetDefensiveStrengthMultiplier(eStrength));
+			iMaxNearbyThreat = max(iMaxNearbyThreat, GetDefensiveApproachMultiplier(eApproach) * GetDefensiveStrengthMultiplier(eStrength));
 		}
 	}
 
 	//Get score for this fortification
-	int iDefensiveValue = 0;
-
-	// When we can cross oceans, start increasing the threat level of coast tiles
-	if (GET_TEAM(eTeam).canEmbarkAllWaterPassage())
-	{
-		//Coastal tiles
-		iDefensiveValue += iNearbyCoast * 1;
-		iDefensiveValue += iAdjacentCoast * 2;
-	}
-
-	// Unowned tiles
-	iDefensiveValue += iNearbyUnownedLand * 1;
-	iDefensiveValue += iAdjacentUnownedLand * 2;
 
 	// Threatening civs (unfriendly and/or powerful)
-	iDefensiveValue += (iNearbyThreat * 30);
-	iDefensiveValue += (iAdjacentThreat * 60);
+	int iDefensiveValue = max(iMaxNearbyThreat, iMaxAdjacentThreat) * 100;
 
 	// No defensive utility from building here
 	if (iDefensiveValue == 0)
 		return 0;
 
 	//Avoid fort spam
-	iDefensiveValue -= iNearbyDefenseModifiers * 2;
-	iDefensiveValue -= iAdjacentDefenseModifiers * 4;
+	iDefensiveValue -= max(iMaxNearbyDefenseModifier * 8, iMaxAdjacentDefenseModifier * 16);
 
 	//Leave room around improvements that deal damage
-	iDefensiveValue -= iAdjacentDamage * 20;
+	iDefensiveValue -= iMaxAdjacentDamage * 30;
 
 	//Avoid building next to cities
-	iDefensiveValue -= iNearbyCities * 100;
 	if (bAdjacentCity)
+		iDefensiveValue -= 400;
+	else if (bNearbyCity)
 		iDefensiveValue -= 200;
 
 	if (iDefensiveValue <= 0)
@@ -15791,16 +15733,12 @@ int CvPlot::GetDefenseBuildValue(PlayerTypes eOwner, BuildTypes eBuild, Improvem
 	// This can be negative, if we are replacing a better defensive improvement
 	int iDefenseMultiplier = (iNewDefenseModifier + iImprovementDamage * 2) - (iOldDefenseModifier + iOldImprovementDamage * 2);
 
-	//Big bonus if chokepoint
-	if(IsChokePoint())
-		iDefenseMultiplier *= 2;
-
 	// Bonus for plots that are not too exposed
 	int iDefensibilityTimes10 = ((iAdjacentOwnedLand / 2) + 2) * 5;
 
 	if (iDefenseMultiplier > 0)
-		return ((iDefensiveValue + iBaseDefenseModifier) * iDefenseMultiplier * iDefensibilityTimes10) / 200;
-	return (iDefensiveValue * iDefenseMultiplier * iDefensibilityTimes10) / 200;
+		return ((iDefensiveValue + iBaseDefenseModifier) * iDefenseMultiplier * iDefensibilityTimes10) / 500;
+	return (iDefensiveValue * iDefenseMultiplier * iDefensibilityTimes10) / 500;
 }
 
 #endif
