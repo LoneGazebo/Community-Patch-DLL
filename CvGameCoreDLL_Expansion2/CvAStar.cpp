@@ -2229,10 +2229,10 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 
 	// cities have a free road we can use
 	if (pPlot->isCity())
-		return 1;
+		return 0;
 
 	RouteTypes ePlannedRoute = bGetSameRouteBenefitFromTrait ? eRoute : eBuilderTaskingAI->GetBestRouteAndValueForPlot(pPlot).first;
-	if (!data.bBenefitsVillages && ePlannedRoute >= eRoute)
+	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && ePlannedRoute >= eRoute)
 	{
 		// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
 		return 1;
@@ -2272,7 +2272,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		}
 	}
 
-	if (data.bBenefitsVillages)
+	if (data.eRoutePurpose == PURPOSE_SHORTCUT)
 		iCost -= BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI);
 
 	if (iCost < 0)
@@ -3634,7 +3634,7 @@ bool IsPlotConnectedToPlot(PlayerTypes ePlayer, CvPlot* pFromPlot, CvPlot* pToPl
 	if (ePlayer==NO_PLAYER || pFromPlot==NULL || pToPlot==NULL)
 		return false;
 
-	SPathFinderUserData data(ePlayer, bAllowHarbors ? PT_CITY_CONNECTION_MIXED : PT_CITY_CONNECTION_LAND, NO_BUILD, eRestrictRoute, false);
+	SPathFinderUserData data(ePlayer, bAllowHarbors ? PT_CITY_CONNECTION_MIXED : PT_CITY_CONNECTION_LAND, NO_BUILD, eRestrictRoute, NO_ROUTE_PURPOSE);
 	data.iFlags = bAssumeOpenBorders ? CvUnit::MOVEFLAG_IGNORE_RIGHT_OF_PASSAGE : 0; //slight misuse but who cares
 
 	SPath result;
@@ -3660,7 +3660,7 @@ SPathFinderUserData::SPathFinderUserData(const CvUnit* pUnit, int _iFlags, int _
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
 	iStartMoves = pUnit ? pUnit->getMoves() : 0;
-	bBenefitsVillages = false;
+	eRoutePurpose = NO_ROUTE_PURPOSE;
 }
 
 //	---------------------------------------------------------------------------
@@ -3678,7 +3678,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
 	iStartMoves = 0;
-	bBenefitsVillages = false;
+	eRoutePurpose = NO_ROUTE_PURPOSE;
 }
 
 //	---------------------------------------------------------------------------
@@ -3696,7 +3696,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
 	iStartMoves = 0;
-	bBenefitsVillages = false;
+	eRoutePurpose = NO_ROUTE_PURPOSE;
 }
 
 //	---------------------------------------------------------------------------
@@ -3714,12 +3714,12 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
 	iStartMoves = 0;
-	bBenefitsVillages = false;
+	eRoutePurpose = NO_ROUTE_PURPOSE;
 }
 
 //	---------------------------------------------------------------------------
 //convenience constructor
-SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, BuildTypes _eBuildType, RouteTypes _eRouteType, bool _bBenefitsVillages)
+SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathType, BuildTypes _eBuildType, RouteTypes _eRouteType, RoutePurpose _eRoutePurpose)
 {
 	ePath = _ePathType;
 	iFlags = 0;
@@ -3732,7 +3732,7 @@ SPathFinderUserData::SPathFinderUserData(PlayerTypes _ePlayer, PathType _ePathTy
 	iMaxNormalizedDistance = INT_MAX;
 	iMinMovesLeft = 0;
 	iStartMoves = 0;
-	bBenefitsVillages = _bBenefitsVillages;
+	eRoutePurpose = _eRoutePurpose;
 }
 
 CvPlot * SPath::get(int i) const

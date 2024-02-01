@@ -271,7 +271,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		ReachablePlots roadPlots;
 		ReachablePlots railroadPlots;
 		ReachablePlots waterPlots;
-		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND,NO_BUILD,ROUTE_ROAD,false);
+		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND,NO_BUILD,ROUTE_ROAD,NO_ROUTE_PURPOSE);
 		if (!pStartCity->IsBlockaded(DOMAIN_LAND))
 		{
 			roadPlots= GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
@@ -419,7 +419,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		//Let's check for road first (railroad also counts as road)
 		//Very important to set up m_connectionState for direct connections first!
-		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, NO_BUILD, ROUTE_ROAD, false);
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, NO_BUILD, ROUTE_ROAD, NO_ROUTE_PURPOSE);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
 		{
