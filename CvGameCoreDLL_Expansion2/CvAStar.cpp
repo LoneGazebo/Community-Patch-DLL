@@ -2205,7 +2205,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 				YieldTypes eYield = (YieldTypes)iI;
 
 				if (pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) > 0)
-					return 20;
+					return 3;
 			}
 		}
 
@@ -2215,7 +2215,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 	}
 
 	// Villages and towns can be built pretty much anywhere
-	return 20;
+	return 2;
 }
 
 //	--------------------------------------------------------------------------------
