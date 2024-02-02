@@ -23931,12 +23931,17 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
+bool CvCity::IsBorderObstacleLand() const
+{
+	VALIDATE_OBJECT
+	return (GetBorderObstacleLand() > 0);
+}
+//	--------------------------------------------------------------------------------
 int CvCity::GetBorderObstacleLand() const
 {
 	VALIDATE_OBJECT
 	return m_iBorderObstacleCity;
 }
-
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeBorderObstacleCity(int iChange)
 {
@@ -23951,12 +23956,17 @@ void CvCity::SetBorderObstacleCity(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvCity::IsBorderObstacleWater() const
+{
+	VALIDATE_OBJECT
+	return (GetBorderObstacleWater() > 0);
+}
+//	--------------------------------------------------------------------------------
 int CvCity::GetBorderObstacleWater() const
 {
 	VALIDATE_OBJECT
 	return m_iBorderObstacleWater;
 }
-
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeBorderObstacleWater(int iChange)
 {
