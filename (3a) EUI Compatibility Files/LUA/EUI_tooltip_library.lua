@@ -1583,39 +1583,7 @@ local function GetHelpTextForBuilding( buildingID, bExcludeName, bExcludeHeader,
 	end
 	tips:insertIf( #buildings > 0 and L"TXT_KEY_PEDIA_BLDG_UNLOCK_LABEL" .. " " .. buildings:concat(", ") )
 
-	-- Limited number can be built
-	local function InsertBuiltLimit( count, text, id, activeTeamID )
-		if (count or 0) > 0 then
-			if activePlayer then
-				for playerID = id or 0, id or (GameDefines.MAX_MAJOR_CIVS - 1) do
-					local player = Players[playerID]
-					if player and player:IsAlive() and (not activeTeamID or player:GetTeam() == activeTeamID) then
-						for city in player:Cities() do
-							local n = city:GetNumBuilding( buildingID )
-							if n > 0 then
-								count = count - n
-								local builderID = city:GetBuildingOriginalOwner( buildingID )
-								local builder = Players[ builderID ] or player
-								tips:insert( (playerID == activePlayerID and "[COLOR_POSITIVE_TEXT]" or "[COLOR_WARNING_TEXT]")..L( "TXT_KEY_EUI_WONDER_BUILT_BY", builderID == activePlayerID and "TXT_KEY_YOU" or (activeTeam:IsHasMet(builder:GetTeam()) and builder:GetName()) or "TXT_KEY_UNMET_PLAYER", city:Plot():IsRevealed( activeTeamID ) and city:GetName() or "TXT_KEY_EUI_UNKNOWN_CITY" ).."[ENDCOLOR]" )
-							end
-							if count < 1 then return true end
-						end
-					end
-				end
-			end
-			if id==false and Game and Game.GetBuildingClassCreatedCount( buildingClassID ) >= maxGlobalInstances then
-				tips:insert( "[COLOR_WARNING_TEXT]"..L"TXT_KEY_RAZED_CITY".."[ENDCOLOR]" )
-			else
-				tips:append( L( text, count ) )
-			end
-			return true
-		end
-	end
-	if not ( InsertBuiltLimit( maxGlobalInstances, "TXT_KEY_NO_ACTION_GAME_COUNT_MAX", false )
-		or InsertBuiltLimit( buildingClass.MaxTeamInstances, "TXT_KEY_NO_ACTION_TEAM_COUNT_MAX", nil, activeTeamID )
-		or InsertBuiltLimit( buildingClass.MaxPlayerInstances, "TXT_KEY_NO_ACTION_PLAYER_COUNT_MAX", activePlayerID ) )
-		and activePlayer
-	then
+	if activePlayer then
 		tips:insertLocalized( "TXT_KEY_EUI_BUILT_IN_X_CITIES", activePlayer:GetBuildingClassCount( buildingClassID ), activePlayer:GetBuildingClassMaking( buildingClassID ) )    --CountNumBuildings( buildingID ) )
 	end
 	-- Pre-written Help text
