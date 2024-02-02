@@ -982,10 +982,12 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iChange);
 	int GetBorderObstacleLand() const;
+	bool IsBorderObstacleLand() const;
 	void SetBorderObstacleCity(int iValue);
 
 	void ChangeBorderObstacleWater(int iChange);
 	int GetBorderObstacleWater() const;
+	bool IsBorderObstacleWater() const;
 	void SetBorderObstacleWater(int iValue);
 
 	void ChangeDeepWaterTileDamage(int iChange);
