@@ -654,6 +654,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(pPlot->isCity())
 			continue;
 
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+			continue;
+
 		m_plotRouteValuesAndLengths[make_pair(eRoute, pPlot->GetPlotIndex())].push_back(make_pair(iConnectionValue, iNumRoadsNeededToBuild));
 		m_mainRoutePlots.insert(pPlot->GetPlotIndex());
 	}
@@ -721,12 +724,15 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		if (pPlot->isCity())
 			continue;
 
-		int iPlotBonusValue = (iMovementBonus != 0 ? aiMoveSpeedBonuses[i] : 0) + aiVillagePlotBonuses[i];
-
-		if (iValue + iPlotBonusValue < 0)
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
 
-		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iValue + iPlotBonusValue);
+		int iPlotBonusValue = iValue + (iMovementBonus != 0 ? aiMoveSpeedBonuses[i] : 0) + aiVillagePlotBonuses[i];
+
+		if (iPlotBonusValue < 0)
+			iPlotBonusValue = 0;
+
+		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iPlotBonusValue);
 		m_shortcutRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
@@ -794,10 +800,13 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (!pPlot)
 			break;
 
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+			continue;
+
 		int iPlotValue = iMovementBonus != 0 ? iValue + aiMoveSpeedBonuses[i] : -1;
 
 		if (iPlotValue < 0)
-			continue;
+			iPlotValue = 0;
 
 		// remember the plot
 		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iPlotValue);
@@ -836,6 +845,11 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		//remember it
 		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], 100);
 	}
+}
+
+bool CvBuilderTaskingAI::AnyRoutePlannedAtPlot(CvPlot* pPlot, RouteTypes eRoute) const
+{
+	return m_localRouteValues.find(make_pair(eRoute, pPlot->GetPlotIndex())) != m_localRouteValues.end();
 }
 
 pair<RouteTypes,int> CvBuilderTaskingAI::GetBestRouteAndValueForPlot(const CvPlot* pPlot) const
@@ -1877,9 +1891,6 @@ void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirecti
 	if(eRoute == NO_ROUTE)
 		return;
 
-	if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
-		return;
-
 	// no matter if pillaged or not
 	if (pPlot->getRouteType() == eRoute)
 		return;
@@ -2156,11 +2167,6 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<Builder
 		else if (eRouteNeeded > eRoute)
 		{
 			// We want to replace the route with a better one
-			bRepairRoute = false;
-		}
-		else if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
-		{
-			// We don't need to repair the route since we get the same benefit from our civ trait
 			bRepairRoute = false;
 		}
 	}
@@ -2490,21 +2496,14 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	bool bWillBeCityConnectingRoad = eRouteNeeded != NO_ROUTE;
 
 	int iPlotIndex = pPlot->GetPlotIndex();
-	bool bCityConnectingRoad = m_shortcutRoutePlots.find(iPlotIndex) != m_shortcutRoutePlots.end();
-	if (!bCityConnectingRoad)
+	if (m_shortcutRoutePlots.find(iPlotIndex) == m_shortcutRoutePlots.end())
 	{
 		bWillBeCityConnectingRoad = false;
 	}
-	if (eRouteNeeded == ROUTE_ROAD)
+	if (eRouteNeeded == NO_ROUTE && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
 	{
-		// Iroquois do not build roads on forests/jungles, and potential villages will remove the city connection
-		if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus() && (eFeature == FEATURE_FOREST || eFeature == FEATURE_JUNGLE))
-		{
-			if (MOD_BALANCE_VP || pPlot->getTeam() == m_pPlayer->getTeam())
-			{
-				bWillBeCityConnectingRoad = false;
-			}
-		}
+		if (pPlot->IsCityConnection() && pPlot->isRiver())
+			bWillBeCityConnectingRoad = true;
 	}
 
 	const bool bIsWithinWorkRange = pOwningCity && pOwningCity->IsWithinWorkRange(pPlot);

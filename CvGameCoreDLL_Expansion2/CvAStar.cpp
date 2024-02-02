@@ -2186,6 +2186,11 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 /// Prefer building routes that can have villages.
 static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
 {
+#if defined(MOD_BALANCE_VP)
+	if (!MOD_BALANCE_VP)
+		return 0;
+#endif
+
 	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
 		return 0;
 
@@ -2202,7 +2207,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 				YieldTypes eYield = (YieldTypes)iI;
 
 				if (pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) > 0)
-					return 30;
+					return 20;
 			}
 		}
 
@@ -2212,7 +2217,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 	}
 
 	// Villages and towns can be built pretty much anywhere
-	return 5;
+	return 20;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2226,13 +2231,16 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	BuildTypes eBuild = data.eBuild;
 	int iCost = 0;
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
+	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
 	// cities have a free road we can use
 	if (pPlot->isCity())
 		return 0;
 
-	RouteTypes ePlannedRoute = bGetSameRouteBenefitFromTrait ? eRoute : eBuilderTaskingAI->GetBestRouteAndValueForPlot(pPlot).first;
-	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && ePlannedRoute >= eRoute)
+	bool bPlannedRoute = bGetSameRouteBenefitFromTrait ? true : eBuilderTaskingAI->AnyRoutePlannedAtPlot(pPlot, eRoute);
+	if (!bPlannedRoute && eRoute == ROUTE_ROAD)
+		bPlannedRoute = eBuilderTaskingAI->AnyRoutePlannedAtPlot(pPlot, ROUTE_RAILROAD);
+	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedRoute)
 	{
 		// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
 		return 1;
@@ -2241,10 +2249,10 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	{
 		iCost = PATH_BASE_COST / 3;
 	}
-	else if (ePlannedRoute >= eRoute)
+	else if (bPlannedRoute)
 	{
 		// if we are planning to build a road here, provide a discount
-		iCost = (PATH_BASE_COST * 2) / 3;
+		iCost = (PATH_BASE_COST * 7) / 12;
 	}
 	else if (pPlot->getRouteType() >= ROUTE_ROAD)
 	{
@@ -2273,7 +2281,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	}
 
 	if (data.eRoutePurpose == PURPOSE_SHORTCUT)
-		iCost -= BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI);
+		iCost -= iVillageBonus;
 
 	if (iCost < 0)
 		iCost = 0;

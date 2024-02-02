@@ -108,6 +108,7 @@ public:
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
 	pair<RouteTypes,int> GetBestRouteAndValueForPlot(const CvPlot* pPlot) const;
+	bool AnyRoutePlannedAtPlot(CvPlot* pPlot, RouteTypes eRoute) const;
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
 	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
