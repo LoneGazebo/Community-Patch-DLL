@@ -28009,6 +28009,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									}
 								}
 							}
+
+							// A unit killed the unit
 							if (pAttackingUnit != NULL)
 							{
 								iKillYield += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, pAttackingUnit->getX(), pAttackingUnit->getY(), GetID());
@@ -28035,6 +28037,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									}
 								}
 							}
+							// A city killed the unit
+							else if (pCity != NULL)
+							{
+								iKillYield += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, pCity->getX(), pCity->getY(), GetID());
+							}
+
 							iKillYield = (iKillYield * iCombatStrength) / 100;
 
 							if (iKillYield > 0)
