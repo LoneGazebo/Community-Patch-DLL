@@ -505,7 +505,7 @@ public:
 
 	bool IsRouteConnectionEstablished(PlayerTypes eMajor) const;
 	void SetRouteConnectionEstablished(PlayerTypes eMajor, bool bValue);
-	CvPlot* GetBestNearbyCampToKill();
+	CvPlot* GetBestNearbyCampToKill(PlayerTypes eMajor);
 
 	CvPlot* GetBestNearbyDig();
 	//Tests
