@@ -2337,7 +2337,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	case MINOR_CIV_QUEST_KILL_CAMP:
 	{
-		CvPlot* pPlot = pMinor->GetMinorCivAI()->GetBestNearbyCampToKill();
+		CvPlot* pPlot = pMinor->GetMinorCivAI()->GetBestNearbyCampToKill(m_eAssignedPlayer);
 		m_iData1 = pPlot->getX();
 		m_iData2 = pPlot->getY();
 
@@ -6758,7 +6758,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_KILL_CAMP:
 	{
 		// Any nearby camps?
-		if (GetBestNearbyCampToKill() == NULL)
+		if (GetBestNearbyCampToKill(ePlayer) == NULL)
 			return false;
 
 		break;
@@ -6815,6 +6815,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_FIND_CITY:
 	{
+		// Stop giving this quest once map trading is unlocked
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isMapTrading())
+			return false;
+
 		if (GetBestCityToFind(ePlayer) == NULL)
 			return false;
 
@@ -7109,6 +7113,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
+		// Give this quest out once the player can embark across oceans (Traits not included).
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbarkAllWaterPassage())
+			return false;
+
 		if (GetTargetPlot(ePlayer) == NULL)
 			return false;
 
@@ -9573,7 +9581,7 @@ void CvMinorCivAI::SetRouteConnectionEstablished(PlayerTypes eMajor, bool bValue
 
 /// Any Camps near us?
 /// NOTE: This should pick a camp deterministically, given the current implementation of distributing global quests
-CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
+CvPlot* CvMinorCivAI::GetBestNearbyCampToKill(PlayerTypes eMajor)
 {
 	CvMap& theMap = GC.getMap();
 	CvWeightedVector<int> viPlotIndexes;
@@ -9582,6 +9590,8 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 	int iCapitalX = GetPlayer()->getCapitalCity()->getX();
 	int iCapitalY = GetPlayer()->getCapitalCity()->getY();
+
+	bool bCanCrossOcean = GET_TEAM(GET_PLAYER(eMajor).getTeam()).canEmbarkAllWaterPassage();
 
 	for (int iI = 0; iI < iNumWorldPlots; iI++)
 	{
@@ -9595,6 +9605,11 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 		// Is it within range?
 		int iDistance = plotDistance(iCapitalX, iCapitalY, pLoopPlot->getX(), pLoopPlot->getY());
 		if (iDistance > iRange)
+			continue;
+
+		// Does player have a city on the same landmass, or can they cross ocean?
+		CvLandmass* pLandmass = GC.getMap().getLandmassById(pLoopPlot->getLandmass());
+		if (!bCanCrossOcean && pLandmass->getCitiesPerPlayer(eMajor) <= 0)
 			continue;
 
 		// Closer camps have higher weight
@@ -11537,8 +11552,6 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 CvCity* CvMinorCivAI::GetBestCityToFind(PlayerTypes ePlayer)
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-	if (GET_TEAM(eTeam).isMapTrading())
-		return NULL;
 
 	bool bCanCrossOcean = GET_PLAYER(ePlayer).CanCrossOcean();
 	CvWeightedVector<CvCity*> CitiesSortedByDistance;
