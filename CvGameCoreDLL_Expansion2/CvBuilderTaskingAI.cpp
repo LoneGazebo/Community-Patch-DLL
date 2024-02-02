@@ -1408,20 +1408,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				CvCity* pFirstCity  = pFirstPlot->getPlotCity();
 				CvCity* pSecondCity  = pSecondPlot->getPlotCity();
 
-				if (pFirstCity && !pSecondCity)
-				{
-					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eBuild, eRoute);
-					continue;
-				}
-
-				if (!pFirstCity && pSecondCity)
-				{
-					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eBuild, eRoute);
-					continue;
-				}
-
-				//we don't do citadel to citadel. or should we?
-				if (!pFirstCity && !pSecondCity)
+				if (!pFirstCity || !pSecondCity)
 					continue;
 
 				bool bConnectOnlyCapitals = /*1*/ GD_INT_GET(CITY_CONNECTIONS_CONNECT_TO_CAPITAL) > 0;
@@ -1438,7 +1425,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 			}
 		}
 
-		// Connect cities to capital after all other routes have been planned
+		// Connect cities to capital and plan strategic routes after the shortcut routes have been planned
 		for (uint uiFirstCityIndex = 0; uiFirstCityIndex < plotsToConnect.size(); uiFirstCityIndex++)
 		{
 			for (uint uiSecondCityIndex = uiFirstCityIndex + 1; uiSecondCityIndex < plotsToConnect.size(); uiSecondCityIndex++)
@@ -1452,25 +1439,38 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 				CvCity* pPlayerCapitalCity = NULL;
 				CvCity* pTargetCity = NULL;
 
-				if (pFirstCity && pSecondCity)
+				if (pFirstCity && !pSecondCity)
 				{
-					if ((pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID()) ||
-						(pSecondCity->isCapital() && pSecondCity->getOwner() == m_pPlayer->GetID()))
-					{
-						if (pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID())
-						{
-							pPlayerCapitalCity = pFirstCity;
-							pTargetCity = pSecondCity;
-						}
-						else if (pSecondCity->isCapital() && pSecondCity->getOwner() == m_pPlayer->GetID())
-						{
-							pPlayerCapitalCity = pSecondCity;
-							pTargetCity = pFirstCity;
-						}
+					ConnectPointsForStrategy(pFirstCity, pSecondPlot, eBuild, eRoute);
+					continue;
+				}
 
-						// connect city to capital for the money and happiness
-						ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eBuild, eRoute);
+				if (!pFirstCity && pSecondCity)
+				{
+					ConnectPointsForStrategy(pSecondCity, pFirstPlot, eBuild, eRoute);
+					continue;
+				}
+
+				//we don't do citadel to citadel. or should we?
+				if (!pFirstCity && !pSecondCity)
+					continue;
+
+				if ((pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID()) ||
+						(pSecondCity->isCapital() && pSecondCity->getOwner() == m_pPlayer->GetID()))
+				{
+					if (pFirstCity->isCapital() && pFirstCity->getOwner() == m_pPlayer->GetID())
+					{
+						pPlayerCapitalCity = pFirstCity;
+						pTargetCity = pSecondCity;
 					}
+					else if (pSecondCity->isCapital() && pSecondCity->getOwner() == m_pPlayer->GetID())
+					{
+						pPlayerCapitalCity = pSecondCity;
+						pTargetCity = pFirstCity;
+					}
+
+					// connect city to capital for the money and happiness
+					ConnectCitiesToCapital(pPlayerCapitalCity, pTargetCity, eBuild, eRoute);
 				}
 			}
 		}
