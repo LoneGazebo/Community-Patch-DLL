@@ -2186,10 +2186,8 @@ int CityConnectionWaterValid(const CvAStarNode* parent, const CvAStarNode* node,
 /// Prefer building routes that can have villages.
 static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilderTaskingAI* eBuilderTaskingAi)
 {
-#if defined(MOD_BALANCE_VP)
 	if (!MOD_BALANCE_VP)
 		return 0;
-#endif
 
 	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
 		return 0;
@@ -2230,14 +2228,15 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	RouteTypes eRoute = data.eRoute;
 	BuildTypes eBuild = data.eBuild;
 	int iCost = 0;
-	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
-	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
 	// cities have a free road we can use
 	if (pPlot->isCity())
 		return 0;
 
-	bool bPlannedRoute = bGetSameRouteBenefitFromTrait ? true : eBuilderTaskingAI->AnyRoutePlannedAtPlot(pPlot, eRoute);
+	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
+	bool bPlannedRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->AnyRoutePlannedAtPlot(pPlot, eRoute);
+	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
+
 	if (!bPlannedRoute && eRoute == ROUTE_ROAD)
 		bPlannedRoute = eBuilderTaskingAI->AnyRoutePlannedAtPlot(pPlot, ROUTE_RAILROAD);
 	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedRoute)

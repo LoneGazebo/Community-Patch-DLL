@@ -455,7 +455,7 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 
 					if (iVillageYieldBonus != 0)
 					{
-						if (pPlot->IsCityConnection())
+						if (pPlot->IsCityConnection(m_pPlayer->GetID()))
 							aiVillagePlotBonuses[i] += iVillageYieldBonus;
 						iVillageBonusesIfCityConnected += iVillageYieldBonus;
 					}
@@ -705,6 +705,9 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
 
+	if (iValue == 0)
+		return;
+
 	if (iValue != 0)
 	{
 		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
@@ -779,6 +782,9 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	int iValue = iMovementBonus;
 
+	if (iValue == 0)
+		return;
+
 	iValue = (iValue * iDefensiveValue) / 800;
 
 	if (iValue != 0)
@@ -806,7 +812,7 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		int iPlotValue = iMovementBonus != 0 ? iValue + aiMoveSpeedBonuses[i] : -1;
 
 		if (iPlotValue < 0)
-			iPlotValue = 0;
+			continue;
 
 		// remember the plot
 		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iPlotValue);
@@ -1787,8 +1793,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		{
 			if (m_pPlayer->GetPlayerTraits()->IsWoodlandMovementBonus())
 			{
-				if (GetBestRouteAndValueForPlot(pPlot).first == ROUTE_ROAD && (MOD_BALANCE_VP || pPlot->getTeam() == m_pPlayer->getTeam()))
-					iScore /= 20;
+				if (pPlot->IsCityConnection(m_pPlayer->GetID()))
+					iScore /= 100;
 				else
 					iScore /= 10;
 			}
@@ -2502,7 +2508,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	}
 	if (eRouteNeeded == NO_ROUTE && m_pPlayer->GetPlayerTraits()->IsRiverTradeRoad())
 	{
-		if (pPlot->IsCityConnection() && pPlot->isRiver())
+		if (pPlot->IsCityConnection(m_pPlayer->GetID()) && pPlot->isRiver())
 			bWillBeCityConnectingRoad = true;
 	}
 
