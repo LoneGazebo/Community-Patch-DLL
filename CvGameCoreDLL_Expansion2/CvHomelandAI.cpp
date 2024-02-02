@@ -2823,13 +2823,10 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	if (iBuildTime == 0)
 		return iScore * iScore;
 
-	CvBuildInfo* pBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
-	CvImprovementEntry* pImprovementInfo = pBuildInfo ? GC.getImprovementInfo((ImprovementTypes)pBuildInfo->getImprovement()) : NULL;
+	const int iScoreWeightSquared = 1;
+	const int iBuildTimeWeightSquared = 100;
 
-	if (pImprovementInfo && pImprovementInfo->IsCreatedByGreatPerson())
-		return (iScore * iScore) / iBuildTime;
-
-	return (iScore * iScore) / (iBuildTime * iBuildTime);
+	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
 }
 
 static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, CvPlot* pPlot, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives, const set<BuilderDirective> ignoredDirectives)

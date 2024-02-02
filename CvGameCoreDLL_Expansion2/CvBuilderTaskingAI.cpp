@@ -705,9 +705,6 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
 
-	if (iValue == 0)
-		return;
-
 	if (iValue != 0)
 	{
 		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
@@ -725,9 +722,6 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			break;
 
 		if (pPlot->isCity())
-			continue;
-
-		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
 
 		int iPlotBonusValue = iValue + (iMovementBonus != 0 ? aiMoveSpeedBonuses[i] : 0) + aiVillagePlotBonuses[i];
@@ -785,9 +779,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	int iValue = iMovementBonus;
 
-	if (iValue == 0)
-		return;
-
 	iValue = (iValue * iDefensiveValue) / 800;
 
 	if (iValue != 0)
@@ -795,10 +786,10 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
 
 		iValue -= iMaintenanceRoadTiles * iMaintenanceCostPerTile;
-
-		if (iValue < 0)
-			iValue = 0;
 	}
+
+	if (iValue < 0)
+		iValue = 0;
 
 	if (iValue <= 0)
 		return;
@@ -808,9 +799,6 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
 			break;
-
-		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
-			continue;
 
 		int iPlotValue = iMovementBonus != 0 ? iValue + aiMoveSpeedBonuses[i] : -1;
 
@@ -1861,6 +1849,9 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 
 	RouteTypes eNeededRoute = GetBestRouteAndValueForPlot(pPlot).first;
 
+	if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eNeededRoute))
+		eNeededRoute = NO_ROUTE;
+
 	if (eNeededRoute != NO_ROUTE)
 		return;
 
@@ -1902,6 +1893,9 @@ void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirecti
 
 	// no matter if pillaged or not
 	if (pPlot->getRouteType() == eRoute)
+		return;
+
+	if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		return;
 
 	BuildTypes eRouteBuild = GetBuildRoute(eRoute);
@@ -2173,9 +2167,13 @@ void CvBuilderTaskingAI::AddRepairTilesDirectives(vector<OptionWithScore<Builder
 			// Don't repair roads that we don't need
 			bRepairRoute = false;
 		}
-		else if (eRouteNeeded > eRoute)
+		else if (eRouteNeeded != eRoute)
 		{
 			// We want to replace the route with a better one
+			bRepairRoute = false;
+		}
+		else if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRouteNeeded))
+		{
 			bRepairRoute = false;
 		}
 	}
