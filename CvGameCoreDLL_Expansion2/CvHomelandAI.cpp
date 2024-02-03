@@ -2824,7 +2824,7 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 		return iScore * iScore;
 
 	const int iScoreWeightSquared = 1;
-	const int iBuildTimeWeightSquared = 100;
+	const int iBuildTimeWeightSquared = 10000;
 
 	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
 }

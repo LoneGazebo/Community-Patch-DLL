@@ -568,7 +568,7 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 			int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
 
-			iConnectionValue += iPotentialUnhappinessFromIsolation * 300;
+			iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
 			iConnectionValue += (m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity) * GetYieldBaseModifierTimes100(YIELD_GOLD)) / 100;
 		}
 
