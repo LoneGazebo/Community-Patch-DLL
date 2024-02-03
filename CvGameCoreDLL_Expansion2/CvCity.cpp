@@ -22296,6 +22296,8 @@ int CvCity::GetUnhappinessAggregated() const
 	// Some of these calls are expensive, so avoid doing them if we've already reached the cap
 	// Order is also nonstandard to save on performance
 	int iSource = GetUnhappinessFromOccupation();
+	if (iSource > 0)
+		iUnhappiness += iSource;
 
 	if (iUnhappiness < iPopulation)
 	{
