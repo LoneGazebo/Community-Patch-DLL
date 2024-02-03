@@ -1029,6 +1029,12 @@
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT">
 			<Text>Only {1_Num} allowed per player.</Text>
 		</Row>
+		<Row Tag="TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION">
+			<Text>Deleting units is disabled in this game.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES">
+			<Text>You cannot delete a unit when there are enemies nearby.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_UPGRADE_HELP_DISABLED_TEAM_UNITCLASS_LIMIT">
 			<Text>Only {1_Num} allowed per team.</Text>
 		</Row>
@@ -2140,6 +2146,9 @@
 		<!-- Plot tooltip -->
 		<Row Tag="TXT_KEY_PLOTROLL_EMBASSY">
 			<Text>of {1_CivName:textkey}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_PLOTROLL_EMBASSY_UNMET">
+			<Text>of Unmet Player</Text>
 		</Row>
 		<Row Tag="TXT_KEY_CITY_STATE_ARCHAEOLOGY_QUEST_LONG">
 			<Text>The City-State of {1_CivName:textkey} wants you to send an archaeologist to study this tile.</Text>

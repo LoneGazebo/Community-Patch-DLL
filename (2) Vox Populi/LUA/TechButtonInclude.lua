@@ -15,9 +15,9 @@ else
 	defaultErrorTextureSheet = "UnitActions.dds";
 end
 
-local validUnitBuilds = nil;
-local validBuildingBuilds = nil;
-local validImprovementBuilds = nil;
+local validUnitBuilds = {};
+local validBuildingBuilds = {};
+local validImprovementBuilds = {};
 
 local g_bResearchAgreementTrading = Game.IsOption("GAMEOPTION_RESEARCH_AGREEMENTS");
 local g_bNoTechTrading = Game.IsOption("GAMEOPTION_NO_TECH_TRADING");
@@ -42,10 +42,6 @@ function GetTechPedia( void1, void2, button )
 end
 
 function GatherInfoAboutUniqueStuff( civType )
-
-	validUnitBuilds = {};
-	validBuildingBuilds = {};
-	validImprovementBuilds = {};
 
 	-- put in the default units for any civ
 	for thisUnitClass in GameInfo.UnitClasses() do
@@ -80,11 +76,9 @@ function GatherInfoAboutUniqueStuff( civType )
 	end
 	
 	-- add in support for unique improvements
-	for thisImprovement in GameInfo.Improvements() do
-		if thisImprovement.CivilizationType == civType or thisImprovement.CivilizationType == nil then
-			validImprovementBuilds[thisImprovement.Type] = thisImprovement.Type;	
-		else
-			validImprovementBuilds[thisImprovement.Type] = nil;	
+	for row in GameInfo.Improvements() do
+		if (not row.CivilizationType or row.CivilizationType == civType) and not row.GraphicalOnly then
+			validImprovementBuilds[row.Type] = row.Type;
 		end
 	end
 	
@@ -705,7 +699,7 @@ function AddSmallButtonsToTechButton( thisTechButtonInstance, tech, maxSmallButt
 		local improvementType = row.ImprovementType;
 
 		local improvement = GameInfo.Improvements[row.ImprovementType];
-		if improvement and (not improvement.CivilizationType or improvement.CivilizationType == civType) then
+		if improvement and (not improvement.CivilizationType or improvement.CivilizationType == civType) and not improvement.GraphicalOnly then
 
 			if(yieldChanges[improvementType] == nil) then
 				yieldChanges[improvementType] = {};

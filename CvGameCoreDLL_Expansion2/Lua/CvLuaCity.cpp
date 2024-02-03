@@ -433,6 +433,8 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 
 	Method(IsBlockaded);
 	Method(IsMined);
+	Method(IsBorderObstacleLand);
+	Method(IsBorderObstacleWater);
 
 	Method(GetWeLoveTheKingDayCounter);
 	Method(SetWeLoveTheKingDayCounter);
@@ -4312,6 +4314,16 @@ int CvLuaCity::lIsMined(lua_State* L)
 
 	lua_pushboolean(L, bResult);
 	return 1;
+}
+
+int CvLuaCity::lIsBorderObstacleLand(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::IsBorderObstacleLand);
+}
+
+int CvLuaCity::lIsBorderObstacleWater(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvCity::IsBorderObstacleWater);
 }
 
 //------------------------------------------------------------------------------

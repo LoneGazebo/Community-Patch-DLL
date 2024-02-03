@@ -900,7 +900,7 @@ SET Text = 'Lebensraum (German for "habitat" or literally "living space") was an
 WHERE Tag = 'TXT_KEY_POLICY_INDUSTRIAL_ESPIONAGE_TEXT';
 
 UPDATE Language_en_US
-SET Text = '[COLOR_POSITIVE_TEXT]Lightning Warfare[ENDCOLOR]: +3 [ICON_MOVES] Movement for Great Generals. Gunpowder units gain +15% attack and ignore enemy ZOC; Armor units gain +15% attack and +1 [ICON_MOVES] Movement.'
+SET Text = '[COLOR_POSITIVE_TEXT]Lightning Warfare[ENDCOLOR]: +3 [ICON_MOVES] Movement for Great Generals. Gunpowder units gain +15% attack and ignore enemy ZOC; Armored units gain +15% attack and +1 [ICON_MOVES] Movement.'
 WHERE Tag = 'TXT_KEY_POLICY_LIGHTNING_WARFARE_HELP';
 
 UPDATE Language_en_US

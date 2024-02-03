@@ -10,7 +10,8 @@ VALUES		('TXT_KEY_PRODMOD_WONDER_UNITPROMOTION',						'[NEWLINE][ICON_BULLET]Uni
 			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_PLAYER_TRAIT',		'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from Player Traits: {1_Num}%'),
 			('TXT_KEY_PRODMOD_WONDER_TO_BUILDING_FROM_CITY_TRAIT',			'[NEWLINE][ICON_BULLET]Trait Wonder Production Modifier for Buildings from City: {1_Num}%'),
 			('TXT_KEY_PRODMOD_WONDER_IMPROVEMENT',							'[NEWLINE][ICON_BULLET]Improvement Modifier for Wonders: {1_Num}%'),
-			('TXT_KEY_RELIGION_TOOLTIP_EXTENDED',							'{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} Source Cities)'),
+			('TXT_KEY_RELIGIOUS_PRESSURE_STRING_EXTENDED',					'({1_Pressure} Pressure, +{2_PressurePerTurn} per Turn)'),
+			('TXT_KEY_RELIGION_TOOLTIP_EXTENDED',							'{1_ReligionIcon} {2_NumFollowers} {2_NumFollowers: plural 1?Follower; other?Followers;} ({3_TotalPressure} + {4_PressurePerTurn} Pressure from {5_Num} {5_Num:plural 1?Source City; other?Source Cities;})'),
 			('TXT_KEY_EUPANEL_EMBARKATION_DEFENSE',							'Embarkation Defense'),
 			('TXT_KEY_EUPANEL_UNITCLASS_NEAR',								'Near Unit'),
 			('TXT_KEY_EUPANEL_NEARBYPROMOTION_COMBAT_BONUS',				'Bonus from Nearby Unit'),
@@ -103,11 +104,11 @@ WHERE Tag = 'TXT_KEY_EUPANEL_VISIBLE_AA_UNITS';
 
 -- Great Generals I/II Promotions
 UPDATE Language_en_US
-SET Text = 'Generates 50% [COLOR_POSITIVE_TEXT]more[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points from combat.'
+SET Text = '+50% [ICON_GREAT_GENERAL] Great General Points from combat.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SPAWN_GENERALS_I_HELP';
 
 UPDATE Language_en_US
-SET Text = 'Generates 100% [COLOR_POSITIVE_TEXT]more[ENDCOLOR] [ICON_GREAT_GENERAL] Great General Points from combat.'
+SET Text = '+100% [ICON_GREAT_GENERAL] Great General Points from combat.'
 WHERE Tag = 'TXT_KEY_PROMOTION_SPAWN_GENERALS_II_HELP';
 
 -- Naval Melee Units
@@ -126,8 +127,9 @@ SET Text = 'Cannot End Turn on Ocean Tile'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE';
 
 INSERT INTO Language_en_US
-		(Tag,										Text)
-VALUES	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Can never end turn on an Ocean Tile. May move through visible Ocean Tiles if ending on a visible Coast Tile.');
+	(Tag, Text)
+VALUES
+	('TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP', 'Cannot end turn in [COLOR_NEGATIVE_TEXT]Ocean[ENDCOLOR].[NEWLINE]Can move through visible Ocean if destination is visible Coast.');
 
 UPDATE UnitPromotions
 SET Help = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_HELP'
@@ -138,7 +140,7 @@ SET Text = 'Cannot End Turn on Ocean Tile until Astronomy'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO';
 
 UPDATE Language_en_US
-SET Text = 'Cannot end turn on an Ocean Tile until you have researched [COLOR_POSITIVE_TEXT]Astronomy[ENDCOLOR]. May move through visible Ocean Tiles if ending on a visible Coast Tile.'
+SET Text = 'Cannot end turn in [COLOR_NEGATIVE_TEXT]Ocean[ENDCOLOR] until you have researched [COLOR_CYAN]{TXT_KEY_TECH_ASTRONOMY_TITLE}[ENDCOLOR].[NEWLINE]Can move through visible Ocean if destination is visible Coast.'
 WHERE Tag = 'TXT_KEY_PROMOTION_OCEAN_IMPASSABLE_ASTRO_HELP';
 
 -- Siege Units

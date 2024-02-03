@@ -4,7 +4,7 @@
 ----------------------------------------------------------------------------------------------------------------------------
 -- Land Melee promotion tree (mix of Melee/Gun/Mounted/Armor) drawn using ASCIIFlow
 --
---                              ┌──► Medic ─────► Medic II
+--                              ┌──► Medic I ─────► Medic II
 --                              │
 --                              ├───► Charge I ────► Charge II
 --                              │
@@ -73,7 +73,7 @@ UPDATE UnitPromotions SET LandAirDefenseBonus = 25 WHERE Type = 'PROMOTION_ANTIA
 -- Land Ranged promotion tree (mix of Archer/Skirmisher) drawn using ASCIIFlow
 --
 --                                                               March
---             ┌────► Medic ────► Medic II                       Parthian Tactics
+--             ┌────► Medic I ────► Medic II                     Parthian Tactics
 --             │                                                 Range
 -- Barrage I ──┴─┬──► Barrage II ─┬───┬──► Barrage III ────────► Firing Doctrine
 --               │                │   │
@@ -152,7 +152,7 @@ UPDATE UnitPromotions SET MovesChange = 1 WHERE RankList = 'HELI_MOBILITY';
 ----------------------------------------------------------------------------------------------------------------------------
 UPDATE UnitPromotions SET RangedAttackModifier = 10, CityAttack = 15 WHERE RankList = 'SIEGE';
 
-UPDATE UnitPromotions SET RangedAttackModifier = 10, OpenAttack = 10 WHERE RankList = 'FIELD';
+UPDATE UnitPromotions SET RangedAttackModifier = 10, OpenRangedAttackMod = 10 WHERE RankList = 'FIELD';
 
 UPDATE UnitPromotions SET CityAttack = 50, AttackFortifiedMod = 50 WHERE Type = 'PROMOTION_VOLLEY';
 
@@ -163,7 +163,7 @@ UPDATE UnitPromotions SET SplashDamage = 5 WHERE RankList = 'SPLASH';
 --
 -- Survivalism I ────► Survivalism II ──┬───► Survivalism III ───────────────────────────────┐
 --                                      │                                                    │
---                                      ├───► Medic ───────► Medic II                        ├───► Frogman
+--                                      ├───► Medic I ──────► Medic II                       ├───► Frogman
 --                                      │                                                    │
 --                                      ├───► Scouting I ───► Scouting II ───► Scouting III  ├───► Screening
 --                                      │                                                    │
@@ -216,7 +216,7 @@ UPDATE UnitPromotions SET ExtraFlankPower = 1, FlankAttackModifier = 10 WHERE Ty
 --                      │
 -- Boarding Party I ──┬─┴─► Boarding Party II ──┬───► Boarding Party III ─────► Pincer
 --                    │                         │                               Supply
---                    │                         └───► Medic ────► Medic II      Blitz
+--                    │                         └───► Medic I ────► Medic II    Blitz
 --                    │                               Piracy
 --                    │                               Encirclement
 --                    │                               Minelayer
@@ -521,7 +521,7 @@ VALUES
 
 UPDATE UnitPromotions SET AllowsEmbarkation = 1, EmbarkedAllWater = 1, EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_ALLWATER_EMBARKATION';
 
-UPDATE UnitPromotions SET ExtraNavalMovement = 1 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
+UPDATE UnitPromotions SET MovesChange = 1 WHERE Type = 'PROMOTION_OCEAN_MOVEMENT';
 
 UPDATE UnitPromotions SET CaptureDefeatedEnemy = 1, CapturedUnitsConscripted = 1 WHERE Type = 'PROMOTION_COERCION';
 
@@ -562,8 +562,10 @@ VALUES
 --------------------------------------------
 UPDATE UnitPromotions SET AllowsEmbarkation = 1 WHERE Type = 'PROMOTION_EMBARKATION';
 
+-- Engineering Corp
 UPDATE UnitPromotions SET CanMoveImpassable = 1 WHERE Type = 'PROMOTION_ICE_BREAKERS';
 
+-- Fallout Resistance
 UPDATE UnitPromotions SET ExtraFeatureDamage = 1 WHERE Type = 'PROMOTION_FALLOUT_REDUCTION';
 
 UPDATE UnitPromotions SET IgnoreFeatureDamage = 1 WHERE Type = 'PROMOTION_FALLOUT_IMMUNITY';
@@ -584,16 +586,19 @@ UPDATE UnitPromotions SET FriendlyLandsModifier = 15 WHERE Type = 'PROMOTION_HIM
 
 UPDATE UnitPromotions SET CityAttack = 25, PlagueIDImmunity = 3 WHERE Type = 'PROMOTION_STATUE_ZEUS';
 
+-- Jinete
 UPDATE UnitPromotions SET AttackMod = 15, ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_ALHAMBRA';
 
 UPDATE UnitPromotions SET AttackMod = 10, VisibilityChange = 1, HealOutsideFriendly = 1 WHERE Type = 'PROMOTION_TREASURE_FLEET';
 
-UPDATE UnitPromotions SET CombatPercent = 10, ExtraNavalMovement = 1 WHERE Type = 'PROMOTION_ARSENALE';
+-- Venetian Craftsmanship
+UPDATE UnitPromotions SET CombatPercent = 10, MovesChange = 1 WHERE Type = 'PROMOTION_ARSENALE';
 
 UPDATE UnitPromotions SET CombatPercent = 10 WHERE Type = 'PROMOTION_MORALE';
 
 UPDATE UnitPromotions SET AttackMod = 10 WHERE Type = 'PROMOTION_IKLWA';
 
+-- Eight Virtues of Bushido
 UPDATE UnitPromotions SET HasPostCombatPromotions = 1 WHERE Type = 'PROMOTION_BUSHIDO';
 INSERT INTO UnitPromotions_PostCombatRandomPromotion
 	(PromotionType, NewPromotion)
@@ -664,7 +669,7 @@ VALUES
 
 UPDATE UnitPromotions SET ExtraFlankPower = 1, RangedDefenseMod = 50 WHERE Type = 'PROMOTION_SKIRMISHER_DOCTRINE';
 
-UPDATE UnitPromotions SET CanMoveAllTerrain = 1, CanMoveImpassable = 1, HoveringUnit = 1, NoAttackInOcean = 1 WHERE Type = 'PROMOTION_HOVERING_UNIT';
+UPDATE UnitPromotions SET CanMoveAllTerrain = 1, CanMoveImpassable = 1, NoAttackInOcean = 1 WHERE Type = 'PROMOTION_HOVERING_UNIT';
 
 UPDATE UnitPromotions SET FlatMovementCost = 1 WHERE Type = 'PROMOTION_FLAT_MOVEMENT_COST';
 
@@ -683,14 +688,19 @@ UPDATE UnitPromotions SET RangeAttackIgnoreLOS = 1, RangedAttackModifier = -10 W
 
 UPDATE UnitPromotions SET IgnoreTerrainCost = 1 WHERE Type = 'PROMOTION_IGNORE_TERRAIN_COST';
 
+-- Reconnaissance
 UPDATE UnitPromotions SET GainsXPFromScouting = 1 WHERE Type = 'PROMOTION_RECON_EXPERIENCE';
 
+-- Ocean Explorer
 UPDATE UnitPromotions SET CanCrossOceans = 1 WHERE Type = 'PROMOTION_OCEAN_CROSSING';
 
+-- Extra Sight While Embarked
 UPDATE UnitPromotions SET EmbarkExtraVisibility = 1 WHERE Type = 'PROMOTION_EMBARKED_SIGHT';
 
+-- Embarkation with Defense
 UPDATE UnitPromotions SET EmbarkDefenseModifier = 100 WHERE Type = 'PROMOTION_DEFENSIVE_EMBARKATION';
 
+-- Scavenger
 UPDATE UnitPromotions SET GainsXPFromPillaging = 1 WHERE Type = 'PROMOTION_SCOUT_XP_PILLAGE';
 
 UPDATE UnitPromotions SET ExtraWithdrawal = 100 WHERE Type = 'PROMOTION_COMMANDO';
@@ -735,6 +745,7 @@ VALUES
 	('PROMOTION_SILENT_HUNTER', 'DOMAIN_LAND', 50),
 	('PROMOTION_SILENT_HUNTER', 'DOMAIN_SEA', 50);
 
+-- Major City Attack Penalty
 UPDATE UnitPromotions SET CityAttack = -75 WHERE Type = 'PROMOTION_BIG_CITY_PENALTY';
 
 UPDATE UnitPromotions SET Invisible = 'INVISIBLE_SUBMARINE' WHERE Type = 'PROMOTION_INVISIBLE_SUBMARINE';
@@ -806,7 +817,7 @@ UPDATE UnitPromotions SET CityAttack = 150 WHERE Type = 'PROMOTION_CITY_ASSAULT'
 -- Battering Ram: City Attack Only
 UPDATE UnitPromotions SET CityAttackOnly = 1 WHERE Type = 'PROMOTION_ONLY_ATTACKS_CITIES';
 
--- Cataphract: Penalty Attacking Cities (25)
+-- Cataphract: Minor City Attack Penalty
 UPDATE UnitPromotions SET CityAttack = -25 WHERE Type = 'PROMOTION_SMALL_CITY_PENALTY';
 
 -- Cataphract: Open Terrain Bonus (30)

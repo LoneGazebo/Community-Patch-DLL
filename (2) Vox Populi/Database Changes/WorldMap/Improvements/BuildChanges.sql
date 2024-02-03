@@ -20,19 +20,11 @@ SET PrereqTech = 'TECH_COMBUSTION'
 WHERE Type = 'BUILD_WELL';
 
 -- Worker repair actions
-INSERT INTO Unit_Builds
-	(UnitType, BuildType)
-VALUES
-	('UNIT_WORKER', 'BUILD_REPAIR_EMBARKED');
-
 UPDATE Builds
 SET
-	Repair = (SELECT Repair FROM Builds WHERE Type = 'BUILD_REPAIR'),
-	Time = (SELECT Time FROM Builds WHERE Type = 'BUILD_REPAIR'),
 	Water = 1,
 	CanBeEmbarked = 1
-WHERE Type = 'BUILD_REPAIR_EMBARKED';
-
+WHERE Type = 'BUILD_REPAIR';
 -- Great People build actions
 INSERT INTO Unit_Builds
 	(UnitType, BuildType)

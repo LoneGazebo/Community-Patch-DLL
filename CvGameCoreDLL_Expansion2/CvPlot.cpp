@@ -806,6 +806,23 @@ bool CvPlot::isAdjacentToArea(const CvArea* pArea) const
 	return isAdjacentToArea(pArea->GetID());
 }
 
+//	--------------------------------------------------------------------------------
+bool CvPlot::isAdjacentToLandmass(int iLandmassID) const
+{
+	CvPlot** aNeighbors = GC.getMap().getNeighborsUnchecked(m_iPlotIndex);
+	for(int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+	{
+		if(aNeighbors[iI] != NULL)
+		{
+			if(aNeighbors[iI]->getLandmass() == iLandmassID)
+			{
+				return true;
+			}
+		}
+	}
+
+	return false;
+}
 
 //	--------------------------------------------------------------------------------
 bool CvPlot::shareAdjacentArea(const CvPlot* pPlot) const
@@ -887,16 +904,10 @@ bool CvPlot::isAdjacentToShallowWater() const
 	//but right now it is called only rarely, so the inefficiency doesn't matter much
 	TerrainTypes eShallowWater = (TerrainTypes) GD_INT_GET(SHALLOW_WATER_TERRAIN);
 
-#if defined(MOD_BALANCE_CORE)
 	CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(this);
 	for(int iI=0; iI<NUM_DIRECTION_TYPES; iI++)
 	{
 		CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
-#else
-	for(iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
-	{
-		pAdjacentPlot = plotDirection(getX(), getY(), ((DirectionTypes)iI));
-#endif
 		if(pAdjacentPlot && pAdjacentPlot->getTerrainType() == eShallowWater)
 		{
 			return true;
@@ -10170,7 +10181,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 	int iYield = 0;
 	int iI = 0;
 
-	if (eImprovement == NO_IMPROVEMENT)
+	if (eImprovement == NO_IMPROVEMENT || (getImprovementType() == eImprovement && IsImprovementPillaged()))
 		return 0;
 
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);

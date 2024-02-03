@@ -312,10 +312,10 @@ function FeatureGenerator:AddAtolls()
 	-- This function added Feb 2011 by Bob Thomas.
 	-- Adds the new feature Atolls in to the game, for oceanic maps.
 	local iW, iH = Map.GetGridSize();
-	local biggest_ocean = Map.FindBiggestArea(true);
+	local biggest_ocean = Map.FindBiggestLandmassID(true);
 	local iNumBiggestOceanPlots = 0;
 	if biggest_ocean then
-		iNumBiggestOceanPlots = biggest_ocean:GetNumTiles();
+		iNumBiggestOceanPlots = Map.GetNumTilesOfLandmass(biggest_ocean);
 	end
 	if iNumBiggestOceanPlots <= (iW * iH) / 4 then -- No major oceans on this world.
 		return;
@@ -357,7 +357,7 @@ function FeatureGenerator:AddAtolls()
 				terrainType == TerrainTypes.TERRAIN_COAST and plot:IsAdjacentToLand() then
 
 				-- Check all adjacent plots and identify adjacent landmasses.
-				local iNumLandAdjacent, biggest_adj_area = 0, 0;
+				local iNumLandAdjacent, biggest_adj_landmass = 0, 0;
 				local bPlotValid = true;
 				for _, direction in ipairs(direction_types) do
 					local adjPlot = Map.PlotDirection(x, y, direction);
@@ -375,32 +375,31 @@ function FeatureGenerator:AddAtolls()
 								bPlotValid = false;
 							end
 							if adjPlotType == PlotTypes.PLOT_LAND or adjPlotType == PlotTypes.PLOT_HILLS then
-								local iArea = adjPlot:GetArea();
-								local adjArea = Map.GetArea(iArea);
-								local iNumAreaPlots = adjArea:GetNumTiles();
-								if iNumAreaPlots > biggest_adj_area then
-									biggest_adj_area = iNumAreaPlots;
+								local iLandmass = adjPlot:GetLandmass();
+								local iNumLandmassPlots = Map.GetNumTilesOfLandmass(iLandmass);
+								if iNumLandmassPlots > biggest_adj_landmass then
+									biggest_adj_landmass = iNumLandmassPlots;
 								end
 							end
 						end
 					end
 				end
 				-- Only plots with a single land plot adjacent can be eligible.
-				if iNumLandAdjacent == 1 and bPlotValid == true then
-					if biggest_adj_area >= 76 then
+				if iNumLandAdjacent == 1 and bPlotValid then
+					if biggest_adj_landmass >= 76 then
 						-- discard this site
-					elseif biggest_adj_area >= 41 then
+					elseif biggest_adj_landmass >= 41 then
 						table.insert(temp_epsilon_list, i);
-					elseif biggest_adj_area >= 17 then
+					elseif biggest_adj_landmass >= 17 then
 						table.insert(temp_delta_list, i);
-					elseif biggest_adj_area >= 8 then
+					elseif biggest_adj_landmass >= 8 then
 						table.insert(temp_gamma_list, i);
-					elseif biggest_adj_area >= 3 then
+					elseif biggest_adj_landmass >= 3 then
 						table.insert(temp_beta_list, i);
-					elseif biggest_adj_area >= 1 then
+					elseif biggest_adj_landmass >= 1 then
 						table.insert(temp_alpha_list, i);
 					else -- Unexpected result
-						-- print("** Area Plot Count =", biggest_adj_area);
+						-- print("** Landmass Plot Count =", biggest_adj_landmass);
 					end
 				end
 			end

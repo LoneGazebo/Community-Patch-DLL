@@ -56,6 +56,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(UpdateFog);
 	Method(UpdateVisibility);
 	Method(IsAdjacentToArea);
+	Method(IsAdjacentToLandmass);
 	Method(ShareAdjacentArea);
 	Method(IsAdjacentToLand);
 	Method(IsAdjacentToShallowWater);
@@ -158,6 +159,7 @@ void CvLuaPlot::PushMethods(lua_State* L, int t)
 	Method(WaterArea);
 	Method(GetArea);
 	Method(SetArea);
+	Method(GetLandmass);
 	Method(GetFeatureVariety);
 
 	Method(GetOwnershipDuration);
@@ -531,6 +533,12 @@ int CvLuaPlot::lIsAdjacentToArea(lua_State* L)
 	lua_pushboolean(L, bResult);
 
 	return 1;
+}
+//------------------------------------------------------------------------------
+//bool isAdjacentToLandmass(int iLandmass);
+int CvLuaPlot::lIsAdjacentToLandmass(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::isAdjacentToLandmass);
 }
 //------------------------------------------------------------------------------
 //bool shareAdjacentArea(CyPlot* pPlot);
@@ -1183,6 +1191,12 @@ int CvLuaPlot::lGetArea(lua_State* L)
 int CvLuaPlot::lSetArea(lua_State* L)
 {
 	return BasicLuaMethod(L, &CvPlot::setArea);
+}
+//------------------------------------------------------------------------------
+//int getLandmass();
+int CvLuaPlot::lGetLandmass(lua_State* L)
+{
+	return BasicLuaMethod(L, &CvPlot::getLandmass);
 }
 //------------------------------------------------------------------------------
 //int getFeatureVariety();

@@ -1100,7 +1100,7 @@
 			<Description>TXT_KEY_PROMOTION_JUGGERNAUT</Description>
 			<Help>TXT_KEY_PROMOTION_JUGGERNAUT_HELP</Help>
 			<PediaType>PEDIA_ATTRIBUTES</PediaType>
-			<PediaEntry>TXT_KEY_PROMOTION_JUGGERNAUT</Help>
+			<PediaEntry>TXT_KEY_PROMOTION_JUGGERNAUT</PediaEntry>
 		</Row>
 	</UnitPromotions>
 </GameData>

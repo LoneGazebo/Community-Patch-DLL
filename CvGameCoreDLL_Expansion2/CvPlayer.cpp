@@ -3165,7 +3165,13 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (activePlayer.GetNotifications())
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CAPTURED_CITY", pCity->getNameKey()).GetCString();
-				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				if (activePlayer.isObserver())
+				{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST", pCity->getNameKey());
+					CvNotifications* pNotify = activePlayer.GetNotifications();
+					pNotify->Add(NOTIFICATION_CITY_LOST, strBuffer, strSummary, iCityX, iCityY, -1);
+				}
 				if (MOD_WH_MILITARY_LOG)
 					MILITARYLOG(GetID(), strBuffer.c_str(), pCity->plot(), pCity->getOwner());
 			}
@@ -3173,13 +3179,19 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		else
 		{
 			if (activePlayer.isObserver() || 
-				(activePlayer.isAlive() && activePlayer.GetNotifications() && 
+				(activePlayer.isAlive() &&
 					pCity->isRevealed(activePlayer.getTeam(), false, false) && 
 					GET_TEAM(activePlayer.getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) && 
 					GET_TEAM(activePlayer.getTeam()).isHasMet(getTeam())))
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
-				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST", pCity->getNameKey());
+				CvNotifications* pNotify = activePlayer.GetNotifications();
+				if (pNotify)
+				{
+					pNotify->Add(NOTIFICATION_CITY_LOST, strBuffer, strSummary, iCityX, iCityY, -1);
+					//GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				}
 			}
 		}
 
@@ -28009,6 +28021,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									}
 								}
 							}
+
+							// A unit killed the unit
 							if (pAttackingUnit != NULL)
 							{
 								iKillYield += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, pAttackingUnit->getX(), pAttackingUnit->getY(), GetID());
@@ -28035,6 +28049,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									}
 								}
 							}
+							// A city killed the unit
+							else if (pCity != NULL)
+							{
+								iKillYield += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, pCity->getX(), pCity->getY(), GetID());
+							}
+
 							iKillYield = (iKillYield * iCombatStrength) / 100;
 
 							if (iKillYield > 0)
@@ -29040,17 +29060,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_INSTANT:
 			{
@@ -29351,17 +29367,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CULTURE_BOMB");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_REMOVE_HERESY:
 			{
@@ -29369,17 +29381,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REMOVE_HERESY");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
 			{
@@ -29387,17 +29395,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
 			{
@@ -38464,6 +38468,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		// At war and able to make peace - increase war weariness by 1% of current city + unit value (minimum 1).
 		int iWarWearinessReceived = max(iCurrentValue / 100, 1);
 		iWarWearinessReceived *= 100 + GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetEnemyWarWearinessModifier();
+		iWarWearinessReceived /= 100;
 		ChangeWarWeariness(eLoopPlayer, iWarWearinessReceived);
 	}
 
@@ -38486,7 +38491,7 @@ int CvPlayer::GetWarWearinessPercent(PlayerTypes ePlayer) const
 		return 0;
 
 	// Divide war weariness by current war value (what we own).
-	int iModifiedWarWeariness = iWarWeariness / max(GetCachedCurrentWarValue(), 1);
+	int iModifiedWarWeariness = 100 * iWarWeariness / max(GetCachedCurrentWarValue(), 1);
 
 	// Apply any modifiers to war weariness.
 	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
@@ -38539,7 +38544,7 @@ int CvPlayer::GetHighestWarWearinessPercent() const
 	}
 
 	// Divide highest war weariness by current war value (what we own).
-	int iModifiedWarWeariness = iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
+	int iModifiedWarWeariness = 100 * iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
 
 	// Apply any modifiers to war weariness.
 	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);

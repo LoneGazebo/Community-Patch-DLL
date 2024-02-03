@@ -2337,7 +2337,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 	}
 	case MINOR_CIV_QUEST_KILL_CAMP:
 	{
-		CvPlot* pPlot = pMinor->GetMinorCivAI()->GetBestNearbyCampToKill();
+		CvPlot* pPlot = pMinor->GetMinorCivAI()->GetBestNearbyCampToKill(m_eAssignedPlayer);
 		m_iData1 = pPlot->getX();
 		m_iData2 = pPlot->getY();
 
@@ -2451,7 +2451,7 @@ void CvMinorCivQuest::DoStartQuest(int iStartTurn, PlayerTypes pCallingPlayer)
 								{
 									locString = Localization::Lookup("TXT_KEY_MISC_SOMEONE_DECLARED_WAR");
 									locString << GET_TEAM(pMinor->getTeam()).getName().GetCString() << GET_TEAM(GET_PLAYER(eTargetCityState).getTeam()).getName().GetCString();
-									GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_WAR, locString.toUTF8(), locString.toUTF8(), -1, -1, GET_TEAM(pMinor->getTeam()).getLeaderID(), eTargetCityState);
+									GET_PLAYER(ePlayer).GetNotifications()->Add(NOTIFICATION_WAR, locString.toUTF8(), locString.toUTF8(), -1, -1, eTargetCityState, GET_TEAM(pMinor->getTeam()).getLeaderID());
 								}
 							}
 						}
@@ -5321,7 +5321,7 @@ void CvMinorCivAI::DoTestEndWarsVSMinors(PlayerTypes eOldAlly, PlayerTypes eNewA
 		if(IsPermanentWar(eLoopTeam))
 			continue;
 
-		GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, false, GetPlayer()->GetID());
+		GET_TEAM(GetPlayer()->getTeam()).makePeace(eLoopTeam, true, true, GetPlayer()->GetID());
 	}
 }
 
@@ -6758,7 +6758,7 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	case MINOR_CIV_QUEST_KILL_CAMP:
 	{
 		// Any nearby camps?
-		if (GetBestNearbyCampToKill() == NULL)
+		if (GetBestNearbyCampToKill(ePlayer) == NULL)
 			return false;
 
 		break;
@@ -6815,6 +6815,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_FIND_CITY:
 	{
+		// Stop giving this quest once map trading is unlocked
+		if (GET_TEAM(GET_PLAYER(ePlayer).getTeam()).isMapTrading())
+			return false;
+
 		if (GetBestCityToFind(ePlayer) == NULL)
 			return false;
 
@@ -7109,6 +7113,10 @@ bool CvMinorCivAI::IsValidQuestForPlayer(PlayerTypes ePlayer, MinorCivQuestTypes
 	}
 	case MINOR_CIV_QUEST_EXPLORE_AREA:
 	{
+		// Give this quest out once the player can embark across oceans (Traits not included).
+		if (!GET_TEAM(GET_PLAYER(ePlayer).getTeam()).canEmbarkAllWaterPassage())
+			return false;
+
 		if (GetTargetPlot(ePlayer) == NULL)
 			return false;
 
@@ -9573,7 +9581,7 @@ void CvMinorCivAI::SetRouteConnectionEstablished(PlayerTypes eMajor, bool bValue
 
 /// Any Camps near us?
 /// NOTE: This should pick a camp deterministically, given the current implementation of distributing global quests
-CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
+CvPlot* CvMinorCivAI::GetBestNearbyCampToKill(PlayerTypes eMajor)
 {
 	CvMap& theMap = GC.getMap();
 	CvWeightedVector<int> viPlotIndexes;
@@ -9582,6 +9590,8 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 	ImprovementTypes eCamp = (ImprovementTypes)GD_INT_GET(BARBARIAN_CAMP_IMPROVEMENT);
 	int iCapitalX = GetPlayer()->getCapitalCity()->getX();
 	int iCapitalY = GetPlayer()->getCapitalCity()->getY();
+
+	bool bCanCrossOcean = GET_TEAM(GET_PLAYER(eMajor).getTeam()).canEmbarkAllWaterPassage();
 
 	for (int iI = 0; iI < iNumWorldPlots; iI++)
 	{
@@ -9595,6 +9605,11 @@ CvPlot* CvMinorCivAI::GetBestNearbyCampToKill()
 		// Is it within range?
 		int iDistance = plotDistance(iCapitalX, iCapitalY, pLoopPlot->getX(), pLoopPlot->getY());
 		if (iDistance > iRange)
+			continue;
+
+		// Does player have a city on the same landmass, or can they cross ocean?
+		CvLandmass* pLandmass = GC.getMap().getLandmassById(pLoopPlot->getLandmass());
+		if (!bCanCrossOcean && pLandmass->getCitiesPerPlayer(eMajor) <= 0)
 			continue;
 
 		// Closer camps have higher weight
@@ -9886,7 +9901,10 @@ void CvMinorCivAI::DoRebellion()
 	int iNumRebels = GetPlayer()->getNumMilitaryUnits() * /*60*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_CS_UNIT); //Based on number of military units of CS.
 	int iExtraRoll = GC.getGame().getCurrentEra(); //Increase possible rebel spawns as game continues.
 	iNumRebels += iExtraRoll * /*0*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_BASE);
-	iNumRebels += GC.getGame().randRangeInclusive(0, iExtraRoll, CvSeeder(m_pPlayer->GetMilitaryMight())) * /*200*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND);
+	if (iExtraRoll > 1)
+	{
+		iNumRebels += GC.getGame().randRangeInclusive(0, iExtraRoll - 1, CvSeeder(m_pPlayer->GetMilitaryMight())) * /*200*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_PER_ERA_RAND);
+	}
 	iNumRebels /= 100;
 
 	if (iNumRebels < /*2*/ GD_INT_GET(MINOR_QUEST_REBELLION_BARBS_MIN))
@@ -11537,8 +11555,6 @@ PlayerTypes CvMinorCivAI::GetBestPlayerToFind(PlayerTypes ePlayer)
 CvCity* CvMinorCivAI::GetBestCityToFind(PlayerTypes ePlayer)
 {
 	TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
-	if (GET_TEAM(eTeam).isMapTrading())
-		return NULL;
 
 	bool bCanCrossOcean = GET_PLAYER(ePlayer).CanCrossOcean();
 	CvWeightedVector<CvCity*> CitiesSortedByDistance;
@@ -11684,9 +11700,10 @@ void CvMinorCivAI::DoFriendship()
 	Localization::String strSummary;
 	const char* strMinorsNameKey = GetPlayer()->getNameKey();
 
+	// first loop: apply the influence changes, but don't change friendship/ally status yet (otherwise we could have multiple status changes during a city-state's turn, that would be annoying)
 	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
 	{
-		PlayerTypes ePlayer = (PlayerTypes) iPlayerLoop;
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 
 		if (!GET_PLAYER(ePlayer).isAlive() || !IsHasMetPlayer(ePlayer))
 			continue;
@@ -11700,19 +11717,28 @@ void CvMinorCivAI::DoFriendship()
 		if (iOldFriendship >= iFriendshipAnchor && iNewFriendship < iFriendshipAnchor)
 		{
 			// If we are at or above anchor, don't let the decay dip us below it
-			SetFriendshipWithMajor(ePlayer, iFriendshipAnchor);
+			SetFriendshipWithMajor(ePlayer, iFriendshipAnchor, false, false, /*bUpdateStatus*/ false);
 		}
 		else if (iChangeThisTurn != 0)
 		{
-			ChangeFriendshipWithMajorTimes100(ePlayer, iChangeThisTurn);
+			ChangeFriendshipWithMajorTimes100(ePlayer, iChangeThisTurn, false, /*bUpdateStatus*/ false);
 		}
-		else
-		{
-			// Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
-			DoFriendshipChangeEffects(ePlayer, iOldFriendship, iNewFriendship);
-		}
+	}
 
+	// second loop: check for each player if friendship/ally status has changed
+	for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+
+		if (!GET_PLAYER(ePlayer).isAlive() || !IsHasMetPlayer(ePlayer))
+			continue;
+		
+		// Friendship amount doesn't change, but ally state could have (ex. current ally decays below our level)
+		int iFrendship = GetBaseFriendshipWithMajor(ePlayer);
+		DoFriendshipChangeEffects(ePlayer, iFrendship, iFrendship);
+		
 		// Notification for status changes
+		int iChangeThisTurn = GetFriendshipChangePerTurnTimes100(ePlayer);
 		if (GetPlayer()->isAlive() && GetPermanentAlly() != ePlayer)
 		{
 			const int iTurnsWarning = 2;
@@ -11962,7 +11988,7 @@ int CvMinorCivAI::GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const
 }
 
 /// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromCoup, bool bFromWar)
+void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromCoup, bool bFromWar, bool bUpdateStatus)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -11975,21 +12001,24 @@ void CvMinorCivAI::SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum,
 	int iNewEffectiveFriendship = bFromCoup ? m_aiFriendshipWithMajorTimes100[ePlayer] : GetEffectiveFriendshipWithMajorTimes100(ePlayer, bFromWar);
 
 	// Has the friendship in effect changed?
-	if(iOldEffectiveFriendship != iNewEffectiveFriendship)
+	if (bUpdateStatus)
 	{
-		DoFriendshipChangeEffects(ePlayer, iOldEffectiveFriendship/100, iNewEffectiveFriendship/100, bFromQuest);
-	}
+		if (iOldEffectiveFriendship != iNewEffectiveFriendship)
+		{
+			DoFriendshipChangeEffects(ePlayer, iOldEffectiveFriendship / 100, iNewEffectiveFriendship / 100, bFromQuest);
+		}
 
-	// Update City banners and game info if this is the active player
-	if(ePlayer == GC.getGame().getActivePlayer())
-	{
-		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-		GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		// Update City banners and game info if this is the active player
+		if (ePlayer == GC.getGame().getActivePlayer())
+		{
+			GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+			GC.GetEngineUserInterface()->setDirty(CityInfo_DIRTY_BIT, true);
+		}
 	}
 }
 
 /// Changes the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest)
+void CvMinorCivAI::ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest, bool bUpdateStatus)
 {
 	CvAssertMsg(ePlayer >= 0, "ePlayer is expected to be non-negative (invalid Index)");
 	CvAssertMsg(ePlayer < MAX_MAJOR_CIVS, "ePlayer is expected to be within maximum bounds (invalid Index)");
@@ -12006,7 +12035,7 @@ void CvMinorCivAI::ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iC
 			}
 		}
 
-		SetFriendshipWithMajorTimes100(ePlayer, GetBaseFriendshipWithMajorTimes100(ePlayer) + iChange, bFromQuest);
+		SetFriendshipWithMajorTimes100(ePlayer, GetBaseFriendshipWithMajorTimes100(ePlayer) + iChange, bFromQuest, false, false, bUpdateStatus);
 	}
 }
 
@@ -12025,9 +12054,9 @@ int CvMinorCivAI::GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const
 }
 
 /// Sets the base level of Friendship between this Minor and the specified Major Civ
-void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromWar)
+void CvMinorCivAI::SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest, bool bFromWar, bool bUpdateStatus)
 {
-	SetFriendshipWithMajorTimes100(ePlayer, iNum * 100, bFromQuest, false, bFromWar);
+	SetFriendshipWithMajorTimes100(ePlayer, iNum * 100, bFromQuest, false, bFromWar, bUpdateStatus);
 }
 
 /// Changes the base level of Friendship between this Minor and the specified Major Civ
@@ -12332,21 +12361,21 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	}
 
 	// Declare war on Ally's enemies
-	if(eNewAlly != NO_PLAYER)
+	if (eNewAlly != NO_PLAYER)
 	{
 		CvPlayerAI& kNewAlly = GET_PLAYER(eNewAlly);
 		CvTeam& kNewAllyTeam = GET_TEAM(kNewAlly.getTeam());
 		CvTeam& kOurTeam = GET_TEAM(GetPlayer()->getTeam());
 
 		TeamTypes eLoopTeam;
-		for(int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
+		for (int iTeamLoop = 0; iTeamLoop < MAX_CIV_TEAMS; iTeamLoop++)
 		{
-			eLoopTeam = (TeamTypes) iTeamLoop;
+			eLoopTeam = (TeamTypes)iTeamLoop;
 
-			if(!GET_TEAM(eLoopTeam).isAlive())
+			if (!GET_TEAM(eLoopTeam).isAlive())
 				continue;
 
-			if(kNewAllyTeam.isAtWar(eLoopTeam))
+			if (kNewAllyTeam.isAtWar(eLoopTeam))
 			{
 				kOurTeam.declareWar(eLoopTeam, true, GetPlayer()->GetID());
 			}
@@ -12360,17 +12389,17 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	if (MOD_BALANCE_CORE && eNewAlly != NO_PLAYER)
 	{
 		int iEra = GET_PLAYER(eNewAlly).GetCurrentEra();
-		if(iEra <= 0)
+		if (iEra <= 0)
 		{
 			iEra = 1;
 		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+			YieldTypes eYield = (YieldTypes)iI;
+			if (GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 			{
 				CvCity* pCapital = GET_PLAYER(eNewAlly).getCapitalCity();
-				if(pCapital != NULL)
+				if (pCapital != NULL)
 				{
 					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, GET_PLAYER(eNewAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * iEra);
 				}
@@ -12381,17 +12410,17 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	if (MOD_BALANCE_CORE && (eOldAlly != NO_PLAYER) && (eOldAlly != eNewAlly))
 	{
 		int iEra = GET_PLAYER(eOldAlly).GetCurrentEra();
-		if(iEra <= 0)
+		if (iEra <= 0)
 		{
 			iEra = 1;
 		}
 		for (int iI = 0; iI < NUM_YIELD_TYPES; iI++)
 		{
-			YieldTypes eYield = (YieldTypes) iI;
-			if(GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
+			YieldTypes eYield = (YieldTypes)iI;
+			if (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) > 0)
 			{
 				CvCity* pCapital = GET_PLAYER(eOldAlly).getCapitalCity();
-				if(pCapital != NULL)
+				if (pCapital != NULL)
 				{
 					pCapital->ChangeBaseYieldRateFromCSAlliance(eYield, (GET_PLAYER(eOldAlly).GetPlayerTraits()->GetYieldFromCSAlly(eYield) * -1 * iEra));
 				}
@@ -12404,7 +12433,7 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 		pCity->updateStrengthValue();
 
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-	if(pkScriptSystem)
+	if (pkScriptSystem)
 	{
 		CvLuaArgsHandle args;
 		args->Push(m_pPlayer->GetID());
@@ -12418,6 +12447,37 @@ void CvMinorCivAI::SetAlly(PlayerTypes eNewAlly)
 	// Test for Domination Victory
 	if (eNewAlly != NO_PLAYER)
 		GC.getGame().DoTestConquestVictory();
+
+	if (eOldAlly != NO_PLAYER)
+	{
+		// Notification for human players who can make peace now
+		for (int iLoopPlayer = 0; iLoopPlayer < MAX_MAJOR_CIVS; iLoopPlayer++)
+		{
+			CvPlayer& kPlayer = GET_PLAYER((PlayerTypes)iLoopPlayer);
+			if (!kPlayer.isAlive())
+				continue;
+
+			if (!kPlayer.isHuman())
+				continue;
+
+			if (!kPlayer.IsAtWarWith(eOldAlly))
+				continue;
+
+			if (!IsPeaceBlocked(kPlayer.getTeam()))
+			{
+				// peace is now possible
+				CvNotifications* pNotifications = kPlayer.GetNotifications();
+				if (pNotifications)
+				{
+					Localization::String strMessage = Localization::Lookup("TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE");
+					strMessage << GetPlayer()->getNameKey();
+					Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE_S");
+					strSummary << GetPlayer()->getNameKey();
+					pNotifications->Add(NOTIFICATION_PEACE_ACTIVE_PLAYER, strMessage.toUTF8(), strSummary.toUTF8(), pCity ? pCity->getX() : -1, pCity ? pCity->getY() : -1, GetPlayer()->GetID());
+				}
+			}
+		}
+	}
 }
 
 /// How many turns has the alliance been active?
@@ -12593,6 +12653,30 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 	{
 		bAdd = false;
 		bAlliesChanged = true;
+	}
+	// we are ally and our influence has decreased. check if this has caused any other player to surpass us
+	else if (eOldAlly == ePlayer && iNewFriendship < iOldFriendship && GetPermanentAlly() != ePlayer)
+	{
+		int iMaxFriendship = GetBaseFriendshipWithMajor(eOldAlly);
+		PlayerTypes eNewAlly = eOldAlly;
+		for (int iPlayerLoop = 0; iPlayerLoop < MAX_MAJOR_CIVS; iPlayerLoop++)
+		{
+			PlayerTypes ePlayerLoop = (PlayerTypes)iPlayerLoop;
+
+			if (!GET_PLAYER(ePlayerLoop).isAlive() || !IsHasMetPlayer(ePlayerLoop))
+				continue;
+
+			if (GetBaseFriendshipWithMajor(ePlayerLoop) > iMaxFriendship)
+			{
+				iMaxFriendship = GetBaseFriendshipWithMajor(ePlayerLoop);
+				eNewAlly = ePlayerLoop;
+			}
+		}
+		if (eNewAlly != eOldAlly)
+		{
+			// apply changed ally status
+			DoFriendshipChangeEffects(eNewAlly, GetBaseFriendshipWithMajor(eNewAlly), GetBaseFriendshipWithMajor(eNewAlly));
+		}
 	}
 
 	if (MOD_EVENTS_MINORS)
@@ -17772,7 +17856,7 @@ bool CvMinorCivAI::IsPeaceBlocked(TeamTypes eTeam) const
 	if (IsAllyAtWar(eTeam))
 		return true;
 
-	return !GET_TEAM(eTeam).canChangeWarPeace(GetPlayer()->getTeam());
+	return GET_TEAM(GetPlayer()->getTeam()).isAtWar(eTeam) && !GET_TEAM(eTeam).canChangeWarPeace(GetPlayer()->getTeam());
 }
 
 /// eTeam declared war on us
