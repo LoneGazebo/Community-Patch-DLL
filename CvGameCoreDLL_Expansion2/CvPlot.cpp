@@ -15499,6 +15499,8 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	int iAdjacentTarget = 0;
 	int iNearbyTarget = 0;
 
+	int iAdjacentUnowned = 0;
+
 	// Directly adjacent tiles
 	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
 	{
@@ -15514,6 +15516,11 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 			//coasts are easy avenues of attack
 			if (pLoopAdjacentPlot->isWater())
 				continue;
+
+			if (pLoopAdjacentPlot->getOwner() != ePlayer)
+			{
+				iAdjacentUnowned++;
+			}
 
 			if (pLoopAdjacentPlot->isOwned() && pLoopAdjacentPlot->getOwner() != ePlayer && GET_PLAYER(pLoopAdjacentPlot->getOwner()).isMajorCiv())
 			{
@@ -15560,7 +15567,7 @@ int CvPlot::GetStrategicValue(PlayerTypes ePlayer) const
 	int iDefensiveValue = max(iNearbyThreat, iAdjacentThreat);
 
 	// Targeted civs
-	int iOffensiveValue = max(iNearbyTarget, iAdjacentTarget);
+	int iOffensiveValue = iAdjacentUnowned > 1 ? max(iNearbyTarget, iAdjacentTarget) : 0;
 
 	int iStrategicValue = max(iDefensiveValue, iOffensiveValue);
 
