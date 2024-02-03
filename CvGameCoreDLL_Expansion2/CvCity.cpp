@@ -10506,25 +10506,58 @@ void CvCity::DoPickResourceDemanded()
 
 	SetResourceDemanded(eResource);
 
-	// Notification
-	CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-	if (pNotifications)
+	// if we already have the resource, immediately enter WLTKD
+	if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 	{
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+		int iWLTKD = MOD_BALANCE_VP ? /*20 in CP, 10 in VP*/ (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2) : GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
+		iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iWLTKD /= 100;
+
+		ChangeWeLoveTheKingDayCounter(iWLTKD);
+
+		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+		if (pNotifications)
 		{
-			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA");
-			strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
-			strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE");
+				strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey() << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE");
+				strSummary << getNameKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
+			else
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
+				strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
+				strSummary << getNameKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
 		}
-		else
+	}
+	else
+	{
+		// Notification
+		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+		if (pNotifications)
 		{
-			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
-			strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
-			strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA");
+				strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
+				strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
+			else
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
+				strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
+				strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
 		}
 	}
 
@@ -10543,7 +10576,10 @@ void CvCity::DoTestResourceDemanded()
 	ResourceTypes eResource = GetResourceDemanded();
 
 	if (eResource == NO_RESOURCE && GetResourceDemandedCountdown() <= 0)
+	{
 		DoPickResourceDemanded();
+		eResource = GetResourceDemanded();
+	}
 
 	if (GetWeLoveTheKingDayCounter() > 0)
 	{
@@ -10552,37 +10588,18 @@ void CvCity::DoTestResourceDemanded()
 		// WLTKD over!
 		if (GetWeLoveTheKingDayCounter() == 0)
 		{
-#if defined(MOD_BALANCE_CORE)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEndsWLTKD, getOwner(), getX(), getY(), 0);
-#endif
-			DoPickResourceDemanded();
-
-			if (getOwner() == GC.getGame().getActivePlayer())
-			{
-				Localization::String localizedText;
-				// Know what the next Demanded Resource is
-				if (GetResourceDemanded() != NO_RESOURCE)
-				{
-					localizedText = Localization::Lookup("TXT_KEY_MISC_CITY_WLTKD_ENDED_KNOWN_RESOURCE");
-					localizedText << getNameKey() << GC.getResourceInfo(GetResourceDemanded())->GetTextKey();
-				}
-				// Don't know what the next Demanded Resource is
-				else
-				{
-					localizedText = Localization::Lookup("TXT_KEY_MISC_CITY_WLTKD_ENDED_UNKNOWN_RESOURCE");
-					localizedText << getNameKey();
-				}
-
-				DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), localizedText.toUTF8());
-			}
+			DoPickResourceDemanded(); // this can immediately start another WLTKD
+			eResource = GetResourceDemanded();
 		}
 	}
-	else
+
+	if (GetWeLoveTheKingDayCounter() == 0)
 	{
 		if (eResource != NO_RESOURCE)
 		{
 			// Do we have the right Resource?
-			if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
+			if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 			{
 				int iWLTKD = MOD_BALANCE_VP ? /*20 in CP, 10 in VP*/ (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2) : GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();

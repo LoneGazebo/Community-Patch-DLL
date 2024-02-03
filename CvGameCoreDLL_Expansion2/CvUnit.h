@@ -498,6 +498,8 @@ public:
 	bool CanRemoveHeresy(const CvPlot* pPlot) const;
 	bool DoRemoveHeresy();
 
+	int GetNumFollowersAfterInquisitor() const;
+	ReligionTypes GetMajorityReligionAfterInquisitor() const;
 	int GetNumFollowersAfterSpread() const;
 	ReligionTypes GetMajorityReligionAfterSpread() const;
 	CvCity *GetSpreadReligionTargetCity() const;

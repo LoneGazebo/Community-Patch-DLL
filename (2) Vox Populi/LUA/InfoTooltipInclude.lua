@@ -1705,24 +1705,22 @@ function GetReligionTooltip(city)
 
 		local iPressure;
 		local iNumTradeRoutesAddingPressure;
-		iPressure, iNumTradeRoutesAddingPressure = city:GetPressurePerTurn(eReligion);
-		if (iPressure > 0) then
-			strPressure = Locale.ConvertTextKey("TXT_KEY_RELIGIOUS_PRESSURE_STRING", math.floor(iPressure/GameDefines["RELIGION_MISSIONARY_PRESSURE_MULTIPLIER"]));
-		end
+		local iExistingPressure;
+		local pressureMultiplier = GameDefines["RELIGION_MISSIONARY_PRESSURE_MULTIPLIER"];
+		iPressure, iNumTradeRoutesAddingPressure, iExistingPressure = city:GetPressurePerTurn(eReligion);
+		local iFollowers = city:GetNumFollowers(eReligion)
 		
-		local iFollowers = city:GetNumFollowers(eReligion)			
+		if (iFollowers > 0 or math.floor(iPressure/pressureMultiplier) > 0) then
+			strPressure = Locale.ConvertTextKey("TXT_KEY_RELIGIOUS_PRESSURE_STRING_EXTENDED", math.floor(iExistingPressure/pressureMultiplier), math.floor(iPressure/pressureMultiplier));
+		end
+					
 		if (not bFirst) then
 			religionToolTip = religionToolTip .. "[NEWLINE]";
 		else
 			bFirst = false;
 		end
 		
-		--local iNumTradeRoutesAddingPressure = city:GetNumTradeRoutesAddingPressure(eReligion);
-		if (iNumTradeRoutesAddingPressure > 0) then
-			religionToolTip = religionToolTip .. Locale.ConvertTextKey("TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE", strIcon, iFollowers, strPressure, iNumTradeRoutesAddingPressure);
-		else
-			religionToolTip = religionToolTip .. Locale.ConvertTextKey("TXT_KEY_RELIGION_TOOLTIP_LINE", strIcon, iFollowers, strPressure);
-		end
+		religionToolTip = religionToolTip .. Locale.ConvertTextKey("TXT_KEY_RELIGION_TOOLTIP_LINE", strIcon, iFollowers, strPressure);
 	end	
 		
 	local iReligionID;
@@ -1745,24 +1743,26 @@ function GetReligionTooltip(city)
 				religionToolTip = religionToolTip .. Locale.ConvertTextKey("TXT_KEY_HOLY_CITY_TOOLTIP_LINE", strIcon, strReligion);			
 			end
 				
-			local iPressure = city:GetPressurePerTurn(iReligionID);
-			if (iPressure > 0) then
-				strPressure = Locale.ConvertTextKey("TXT_KEY_RELIGIOUS_PRESSURE_STRING", math.floor(iPressure/GameDefines["RELIGION_MISSIONARY_PRESSURE_MULTIPLIER"]));
-			end
+			local iPressure;
+			local iNumTradeRoutesAddingPressure;
+			local iExistingPressure;
+			local pressureMultiplier = GameDefines["RELIGION_MISSIONARY_PRESSURE_MULTIPLIER"];
+			iPressure, iNumTradeRoutesAddingPressure, iExistingPressure = city:GetPressurePerTurn(iReligionID);
 			
-			local iFollowers = city:GetNumFollowers(iReligionID)			
+			local iFollowers = city:GetNumFollowers(iReligionID)
+			
+			if (iFollowers > 0 or math.floor(iPressure/pressureMultiplier) > 0) then
+				strPressure = Locale.ConvertTextKey("TXT_KEY_RELIGIOUS_PRESSURE_STRING_EXTENDED", math.floor(iExistingPressure/pressureMultiplier), math.floor(iPressure/pressureMultiplier));
+			end
+					
+						
 			if (not bFirst) then
 				religionToolTip = religionToolTip .. "[NEWLINE]";
 			else
 				bFirst = false;
 			end
 			
-			local iNumTradeRoutesAddingPressure = city:GetNumTradeRoutesAddingPressure(iReligionID);
-			if (iNumTradeRoutesAddingPressure > 0) then
-				religionToolTip = religionToolTip .. Locale.ConvertTextKey("TXT_KEY_RELIGION_TOOLTIP_LINE_WITH_TRADE", strIcon, iFollowers, strPressure, iNumTradeRoutesAddingPressure);
-			else
-				religionToolTip = religionToolTip .. Locale.ConvertTextKey("TXT_KEY_RELIGION_TOOLTIP_LINE", strIcon, iFollowers, strPressure);
-			end
+			religionToolTip = religionToolTip .. Locale.ConvertTextKey("TXT_KEY_RELIGION_TOOLTIP_LINE", strIcon, iFollowers, strPressure);
 		end
 	end
 	

@@ -59,7 +59,7 @@ SET Text = 'You are currently using more {1_Resource:textkey} than you have! All
 WHERE Tag = 'TXT_KEY_NOTIFICATION_OVER_RESOURCE_LIMIT';
 
 UPDATE Language_en_US
-SET Text = 'Because you have {1_Resource:textkey}, the city of {2_CityName:textkey} enters "We Love the King Day", giving it a [ICON_FOOD] growth bonus!'
+SET Text = 'Because {1_Resource:textkey} is connected to your trade network, the City of {2_CityName:textkey} enters "We Love the King Day", giving it a [ICON_FOOD] Growth bonus!'
 WHERE Tag = 'TXT_KEY_NOTIFICATION_CITY_WLTKD';
 
 UPDATE Language_en_US

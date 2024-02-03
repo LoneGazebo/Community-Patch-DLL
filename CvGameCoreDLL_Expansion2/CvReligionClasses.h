@@ -485,6 +485,7 @@ public:
 	void AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, PlayerTypes eResponsiblePlayer=NO_PLAYER);
 	void ErodeOtherReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists, PlayerTypes eResponsiblePlayer=NO_PLAYER);
 
+	void SimulateErodeOtherReligiousPressure(ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists);
 	void SimulateProphetSpread(ReligionTypes eReligion, int iPressure);
 	void SimulateReligiousPressure(ReligionTypes eReligion, int iPressure);
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
@@ -503,6 +504,8 @@ public:
 
 	// Routines to precompute results of possible religion spreads
 	int GetNumFollowersAfterSpread(ReligionTypes eReligion, int iConversionStrength);
+	int GetNumFollowersAfterInquisitor(ReligionTypes eReligion);
+	ReligionTypes GetMajorityReligionAfterInquisitor(ReligionTypes eReligion);
 	int GetNumFollowersAfterProphetSpread(ReligionTypes eReligion, int iConversionStrength);
 	ReligionTypes GetMajorityReligionAfterSpread(ReligionTypes eReligion, int iConversionStrength);
 	ReligionTypes GetMajorityReligionAfterProphetSpread(ReligionTypes eReligion, int iConversionStrength);

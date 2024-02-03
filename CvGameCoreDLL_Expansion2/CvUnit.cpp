@@ -11664,6 +11664,34 @@ bool CvUnit::DoRemoveHeresy()
 }
 
 //	--------------------------------------------------------------------------------
+int CvUnit::GetNumFollowersAfterInquisitor() const
+{
+	int iRtnValue = 0;
+	CvCity* pCity = GetSpreadReligionTargetCity();
+
+	if (pCity != NULL)
+	{
+		iRtnValue = pCity->GetCityReligions()->GetNumFollowersAfterInquisitor(GetReligionData()->GetReligion());
+	}
+
+	return iRtnValue;
+}
+
+//	--------------------------------------------------------------------------------
+ReligionTypes CvUnit::GetMajorityReligionAfterInquisitor() const
+{
+	ReligionTypes eRtnValue = NO_RELIGION;
+	CvCity* pCity = GetSpreadReligionTargetCity();
+
+	if (pCity != NULL)
+	{
+		eRtnValue = pCity->GetCityReligions()->GetMajorityReligionAfterInquisitor(GetReligionData()->GetReligion());
+	}
+
+	return eRtnValue;
+}
+
+//	--------------------------------------------------------------------------------
 int CvUnit::GetNumFollowersAfterSpread() const
 {
 	int iRtnValue = 0;

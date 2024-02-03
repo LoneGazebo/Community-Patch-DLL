@@ -1787,6 +1787,19 @@ function ActionToolTipHandler( control )
 		else
 			toolTip:append( L("TXT_KEY_MISSION_MAJORITY_RELIGION", Game.GetReligionName(eMajorityReligion) ) )
 		end
+	-- Inquisitors have special help text
+	elseif (action.Type == "MISSION_REMOVE_HERESY") then
+
+		local eMajorityReligion = unit:GetMajorityReligionAfterInquisitor()
+
+		toolTip:insertLocalized( "TXT_KEY_MISSION_SPREAD_RELIGION_HELP" )
+		toolTip:insert( "----------------" )
+		toolTip:insert( L("TXT_KEY_MISSION_SPREAD_RELIGION_RESULT", Game.GetReligionName(unit:GetReligion()), unit:GetNumFollowersAfterInquisitor() ) .. " " )
+		if eMajorityReligion < ReligionTypes.RELIGION_PANTHEON then
+			toolTip:append( L("TXT_KEY_MISSION_MAJORITY_RELIGION_NONE") )
+		else
+			toolTip:append( L("TXT_KEY_MISSION_MAJORITY_RELIGION", Game.GetReligionName(eMajorityReligion) ) )
+		end
 
 	-- Create Great Work has special help text
 	elseif bnw_mode and action.Type == "MISSION_CREATE_GREAT_WORK" then

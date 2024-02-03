@@ -1295,6 +1295,24 @@ function TipHandler( control )
 			local majorityReligionName = Locale.Lookup(Game.GetReligionName(eMajorityReligion));
 			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_MISSION_MAJORITY_RELIGION", majorityReligionName);		
 		end
+	-- Inquisitors have special help text
+    elseif (action.Type == "MISSION_REMOVE_HERESY") then
+    
+		local iNumFollowers = unit:GetNumFollowersAfterInquisitor();
+		local religionName = Game.GetReligionName(unit:GetReligion());
+		
+        strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_MISSION_REMOVE_HERESY_HELP");
+        strToolTip = strToolTip .. "[NEWLINE]----------------[NEWLINE]";
+        strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_MISSION_SPREAD_RELIGION_RESULT", religionName, iNumFollowers);
+		strToolTip = strToolTip .. " ";  
+		    
+ 		local eMajorityReligion = unit:GetMajorityReligionAfterInquisitor();
+        if (eMajorityReligion < ReligionTypes.RELIGION_PANTHEON) then
+			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_MISSION_MAJORITY_RELIGION_NONE");
+		else
+			local majorityReligionName = Locale.Lookup(Game.GetReligionName(eMajorityReligion));
+			strToolTip = strToolTip .. Locale.ConvertTextKey("TXT_KEY_MISSION_MAJORITY_RELIGION", majorityReligionName);		
+		end
 
     -- Create Great Work has special help text
 	elseif (action.Type == "MISSION_CREATE_GREAT_WORK") then
