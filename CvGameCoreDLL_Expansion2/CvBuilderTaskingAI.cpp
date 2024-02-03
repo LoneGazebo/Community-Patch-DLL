@@ -378,36 +378,7 @@ int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes e
 	return (iCityCitizenRatio * iCityCitizensModifier + iBaseRatio * iBaseModifier) / (iCityCitizenRatio + iBaseRatio);
 }
 
-// How much of a bonus will we get if we build an eRoute in pPlot, given that we want to move into pOtherPlot
-int CvBuilderTaskingAI::GetMoveSpeedBonus(CvPlot* pPlot, CvPlot* pOtherPlot, RouteTypes eRoute)
-{
-	RouteTypes eOtherPlotRoute = !pOtherPlot->IsRoutePillaged() ? pOtherPlot->getRouteType() : NO_ROUTE;
-
-	// How much would it cost to move to and from the target tile with no route?
-	int iMoveSpeedPenaltyWithoutRoute = GetMoveCostWithRoute(pPlot, pOtherPlot, NO_ROUTE, eOtherPlotRoute);
-	iMoveSpeedPenaltyWithoutRoute += GetMoveCostWithRoute(pOtherPlot, pPlot, eOtherPlotRoute, NO_ROUTE);
-
-	// How much would it cost to move to and from the target tile with this route?
-	int iMoveSpeedPenaltyWithRoute = GetMoveCostWithRoute(pPlot, pOtherPlot, eRoute, eOtherPlotRoute);
-	iMoveSpeedPenaltyWithRoute += GetMoveCostWithRoute(pOtherPlot, pPlot, eOtherPlotRoute, eRoute);
-
-	int iValueForDoubleMoveSpeed = 10;
-
-	if (iMoveSpeedPenaltyWithoutRoute > iMoveSpeedPenaltyWithRoute)
-	{
-		return iMoveSpeedPenaltyWithoutRoute * iValueForDoubleMoveSpeed / (2 * iMoveSpeedPenaltyWithRoute);
-	}
-	else if (iMoveSpeedPenaltyWithRoute > iMoveSpeedPenaltyWithoutRoute)
-	{
-		return iMoveSpeedPenaltyWithRoute * iValueForDoubleMoveSpeed / (2 * iMoveSpeedPenaltyWithoutRoute);
-	}
-	else
-	{
-		return 0;
-	}
-}
-
-void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, vector<int>& aiMoveSpeedBonuses, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles)
+void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles)
 {
 	vector<int> aiMovingForwardCostsWithRoute(path.vPlots.size() - 1);
 	vector<int> aiMovingBackwardCostsWithRoute(path.vPlots.size() - 1);
@@ -424,12 +395,6 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 		// Calculate move speed bonus we will get for connecting a pair of plots
 		if (pPreviousPlot)
 		{
-			int iMoveSpeedBonusForwards = GetMoveSpeedBonus(pPreviousPlot, pPlot, eRoute);
-			aiMoveSpeedBonuses[i - 1] += iMoveSpeedBonusForwards;
-
-			int iMoveSpeedBonusBackwards = GetMoveSpeedBonus(pPlot, pPreviousPlot, eRoute);
-			aiMoveSpeedBonuses[i] += iMoveSpeedBonusBackwards;
-
 			aiMovingForwardCostsWithRoute[i - 1] = GetMoveCostWithRoute(pPreviousPlot, pPlot, eRoute, eRoute);
 			aiMovingBackwardCostsWithRoute[i - 1] += GetMoveCostWithRoute(pPlot, pPreviousPlot, eRoute, eRoute);
 			aiMovingForwardCostsWithoutRoute[i - 1] = GetMoveCostWithRoute(pPreviousPlot, pPlot, NO_ROUTE, NO_ROUTE);
@@ -697,11 +662,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	int iMaintenanceRoadTiles = 0;
 
 	vector<int> aiVillagePlotBonuses(path.vPlots.size());
-	vector<int> aiMoveSpeedBonuses(path.vPlots.size());
 	int iVillageBonusesIfCityConnected = 0;
 	int iMovementBonus = 0;
 
-	GetPathValues(path, eRoute, aiVillagePlotBonuses, aiMoveSpeedBonuses, iVillageBonusesIfCityConnected, iMovementBonus, iNumRoadsNeededToBuild, iMaintenanceRoadTiles);
+	GetPathValues(path, eRoute, aiVillagePlotBonuses, iVillageBonusesIfCityConnected, iMovementBonus, iNumRoadsNeededToBuild, iMaintenanceRoadTiles);
 
 	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
 
@@ -710,9 +674,6 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		int iMaintenanceCostPerTile = (pRouteInfo->GetGoldMaintenance()) * (100 + m_pPlayer->GetImprovementGoldMaintenanceMod()) * GetYieldBaseModifierTimes100(YIELD_GOLD) / 100;
 
 		iValue -= iMaintenanceRoadTiles * iMaintenanceCostPerTile;
-
-		if (iValue < 0)
-			iValue = 0;
 	}
 
 	for (size_t i=1; i<path.vPlots.size()-1; i++)
@@ -724,7 +685,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 		if (pPlot->isCity())
 			continue;
 
-		int iPlotBonusValue = iValue + (iMovementBonus != 0 ? aiMoveSpeedBonuses[i] : 0) + aiVillagePlotBonuses[i];
+		int iPlotBonusValue = iValue + aiVillagePlotBonuses[i];
 
 		if (iPlotBonusValue < 0)
 			iPlotBonusValue = 0;
@@ -769,13 +730,12 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	// go through the route to see how long it is and how many plots already have roads
 	int iMaintenanceRoadTiles = 0;
 
-	vector<int> aiMoveSpeedBonuses(path.vPlots.size());
 	int iMovementBonus = 0;
 
 	vector<int> aiDummyContainer(path.vPlots.size());
 	int iDummy = 0;
 
-	GetPathValues(path, eRoute, aiDummyContainer, aiMoveSpeedBonuses, iDummy, iMovementBonus, iDummy, iMaintenanceRoadTiles);
+	GetPathValues(path, eRoute, aiDummyContainer, iDummy, iMovementBonus, iDummy, iMaintenanceRoadTiles);
 
 	int iValue = iMovementBonus;
 
@@ -788,25 +748,14 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		iValue -= iMaintenanceRoadTiles * iMaintenanceCostPerTile;
 	}
 
-	if (iValue < 0)
-		iValue = 0;
-
-	if (iValue <= 0)
-		return;
-
 	for (int i = 1; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
 			break;
 
-		int iPlotValue = iMovementBonus != 0 ? iValue + aiMoveSpeedBonuses[i] : -1;
-
-		if (iPlotValue < 0)
-			continue;
-
 		// remember the plot
-		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iPlotValue);
+		m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())] = max(m_localRouteValues[make_pair(eRoute, pPlot->GetPlotIndex())], iValue);
 		m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
 	}
 }
