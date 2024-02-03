@@ -523,6 +523,24 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		return;
 	}
 
+	int iMaintenanceRoadTiles = 0;
+
+	for (size_t i = 1; i < path.vPlots.size(); i++)
+	{
+		CvPlot* pPlot = path.get(i);
+		if (!pPlot)
+			break;
+
+		//don't count the cities themselves
+		if (pPlot->isCity())
+			continue;
+
+		if (!m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+		{
+			iMaintenanceRoadTiles++;
+		}
+	}
+
 	// for quests we might be targeting a city state ...
 	bool bTargetingMinor = GET_TEAM(pTargetCity->getTeam()).isMinorCiv();
 
@@ -586,6 +604,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 	if (iConnectionValue < 0)
 		return;
+
+	if (iMaintenanceRoadTiles > 0)
+		iConnectionValue /= iMaintenanceRoadTiles;
 
 	for (size_t i=1; i<path.vPlots.size()-1; i++)
 	{
