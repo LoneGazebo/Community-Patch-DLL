@@ -2879,8 +2879,6 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 			continue;
 		}
 
-		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
-
 		list<OptionWithScore<CvUnit*>> sortedWorkers;
 
 		// First sort by plot distance between worker and directive, it's a good heuristic and reduces the number of needed calls to
