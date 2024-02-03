@@ -10181,7 +10181,7 @@ int CvPlot::calculateImprovementYield(YieldTypes eYield, PlayerTypes ePlayer, Im
 	int iYield = 0;
 	int iI = 0;
 
-	if (eImprovement == NO_IMPROVEMENT || (getImprovementType() == eImprovement && IsImprovementPillaged()))
+	if (eImprovement == NO_IMPROVEMENT)
 		return 0;
 
 	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eImprovement);
