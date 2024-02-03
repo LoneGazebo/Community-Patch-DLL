@@ -38467,6 +38467,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		// At war and able to make peace - increase war weariness by 1% of current city + unit value (minimum 1).
 		int iWarWearinessReceived = max(iCurrentValue / 100, 1);
 		iWarWearinessReceived *= 100 + GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetEnemyWarWearinessModifier();
+		iWarWearinessReceived /= 100;
 		ChangeWarWeariness(eLoopPlayer, iWarWearinessReceived);
 	}
 
@@ -38489,7 +38490,7 @@ int CvPlayer::GetWarWearinessPercent(PlayerTypes ePlayer) const
 		return 0;
 
 	// Divide war weariness by current war value (what we own).
-	int iModifiedWarWeariness = iWarWeariness / max(GetCachedCurrentWarValue(), 1);
+	int iModifiedWarWeariness = 100 * iWarWeariness / max(GetCachedCurrentWarValue(), 1);
 
 	// Apply any modifiers to war weariness.
 	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
@@ -38542,7 +38543,7 @@ int CvPlayer::GetHighestWarWearinessPercent() const
 	}
 
 	// Divide highest war weariness by current war value (what we own).
-	int iModifiedWarWeariness = iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
+	int iModifiedWarWeariness = 100 * iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
 
 	// Apply any modifiers to war weariness.
 	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
