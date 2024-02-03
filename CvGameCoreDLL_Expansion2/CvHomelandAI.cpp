@@ -2858,7 +2858,7 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 {
 	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aWeightedDirectives;
 
-	int iBestWeightedScore = -1;
+	int iBestWeightedScore = INT_MIN;
 
 	for (vector<BuilderDirective>::const_iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
@@ -2903,7 +2903,7 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 		}
 		std::stable_sort(sortedWorkers.begin(), sortedWorkers.end());
 
-		int iBestBuilderWeightedScore = -1;
+		int iBestBuilderWeightedScore = INT_MIN;
 		int iBestBuilderTotalTurns = INT_MAX;
 		CvUnit* pBestBuilder = NULL;
 

@@ -13798,7 +13798,6 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	if(!bTestVisible)
 	{
 		// check for any other units working in this plot
-		pPlot = plot();
 		const IDInfo* pUnitNode = pPlot->headUnitNode();
 		const CvUnit* pLoopUnit = NULL;
 
