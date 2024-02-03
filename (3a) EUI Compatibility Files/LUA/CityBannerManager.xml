@@ -125,8 +125,9 @@
 				<Label ID="CityIsMined" String="[ICON_MINEFIELD]"/>
 				<Label ID="CityIsUnhappy" String="[ICON_HAPPINESS_3]"/>
 				<Label ID="CityHasAirport" String="[ICON_AIRPORT]"/>
-				<Label ID="CityHasFranchise" String="[ICON_VP_FRANCHISE]"/>
 				<Label ID="CityHasOffice" String="[ICON_VP_OFFICE]"/>
+				<Label ID="CityHasFranchise" String="[ICON_VP_FRANCHISE]"/>
+				<Label ID="CityHasObstacle" String="[ICON_VP_BORDER_OBSTRUCTION]"/>
 				<Label ID="CityQuests"/>
 			</Stack>
 			<!--  CityRangeStrikeButton -->
@@ -226,6 +227,7 @@
 				<Label ID="CityHasAirport" String="[ICON_AIRPORT]"/>
 				<Label ID="CityHasOffice" String="[ICON_VP_OFFICE]"/>
 				<Label ID="CityHasFranchise" String="[ICON_VP_FRANCHISE]"/>
+				<Label ID="CityHasObstacle" String="[ICON_VP_BORDER_OBSTRUCTION]"/>
 			</Stack>
 		</WorldAnchor>
 	</Instance>

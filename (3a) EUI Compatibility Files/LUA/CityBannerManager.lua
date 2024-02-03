@@ -590,6 +590,9 @@ local g_cityToolTips = {
 			return FranchiseTT
 		end
 	end,
+	CityHasObstacle = function()
+		return L"TXT_KEY_CITY_HAS_OBSTACLE"
+	end,
 	CityIsAutomated = function()
 		return L"TXT_KEY_CITY_PRODUCTION_AUTOMATED"
 	end,
@@ -1105,6 +1108,9 @@ local function RefreshCityBannersNow()
 			else
 				instance.CityHasFranchise:SetHide( true )
 			end
+			
+			-- Has Krepost ? or Great Wall or something ? like that?
+			instance.CityHasObstacle:SetHide ( not city:IsBorderObstacleLand() ) --city:IsBorderObstacleWater() unused
 
 			-- Blockaded ? / Sapped ?
 			instance.CityIsBlockaded:SetHide( not city:IsBlockaded() )

@@ -405,6 +405,14 @@ function RefreshCityBanner(cityBanner, iActiveTeam, iActivePlayer)
 			controls.CityHasAirport:SetHide(true);
 		end
 
+		-- CityHasObstacle Status
+		if (city:IsBorderObstacleLand()) then
+			controls.CityHasObstacle:SetHide(false);
+			controls.CityHasObstacle:SetToolTipString(Locale.ConvertTextKey( "TXT_KEY_CITY_HAS_OBSTACLE"));
+		else
+			controls.CityHasObstacle:SetHide(true);
+		end
+		
 		-- CityIsAutomated Status
 		if (isAutomated) then
 			controls.CityIsAutomated:SetHide(false);
