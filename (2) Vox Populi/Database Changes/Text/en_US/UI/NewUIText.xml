@@ -1255,6 +1255,13 @@
 		<Row Tag="TXT_KEY_CITY_MINED">
 			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City. Units ending their turn in Ocean tiles owned by this City take [COLOR_NEGATIVE_TEXT]5 Damage[ENDCOLOR].</Text>
 		</Row>
+		<Row Tag="TXT_KEY_CITY_HAS_OBSTACLE">
+			<Text>Enemy Land Units expend all [ICON_MOVES] Movement when entering land territory owned by this City.</Text>
+		</Row>
+		<!-- water not used atm -->
+		<Row Tag="TXT_KEY_CITY_HAS_OBSTACLE_WATER">
+			<Text>Enemy Naval Units and Embarked Units expend all [ICON_MOVES] Movement when entering water territory owned by this City.</Text>
+		</Row>
 		<Row Tag="TXT_KEY_CITY_HAS_AIRPORT">
 			<Text>Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. Increased Air Unit Capacity of the City. +10 [ICON_STRENGTH] Damage to Enemy Air Units during Air Strikes on the City.</Text>
 		</Row>
