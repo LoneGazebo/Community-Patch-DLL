@@ -2829,14 +2829,13 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
 }
 
-static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, CvPlot* pPlot, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives, const set<BuilderDirective> ignoredDirectives)
+static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives)
 {
+	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
 	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuilderDirective eOtherDirective = *it;
-
-		if (ignoredDirectives.find(eOtherDirective) != ignoredDirectives.end())
-			continue;
 
 		CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
 
@@ -2874,99 +2873,98 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 			continue;
 
 		// If the score is lower than the best weighted score we have found, it will never be better than the best weighted score
-		if (GetDirectiveWeight(eDirective, 0, 0) > iBestWeightedScore)
-		{
-			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
-
-			list<OptionWithScore<CvUnit*>> sortedWorkers;
-
-			// First sort by plot distance between worker and directive, it's a good heuristic and reduces the number of needed calls to
-			// the pathfinder (and the max distance sent to the pathfinding algorithm when it is needed).
-			for (std::list<int>::const_iterator builderIterator = allWorkers.begin(); builderIterator != allWorkers.end(); ++builderIterator)
-			{
-				int iCurrentUnitId = *builderIterator;
-				CvUnit* pUnit = pPlayer->getUnit(iCurrentUnitId);
-
-				if (!pUnit)
-					continue;
-
-				if (ignoredWorkers.find(pUnit->GetID()) != ignoredWorkers.end())
-					continue;
-
-				if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eDirective))
-					continue;
-
-				int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
-
-				sortedWorkers.push_back(OptionWithScore<CvUnit*>(pUnit, -iPlotDistance));
-			}
-			std::stable_sort(sortedWorkers.begin(), sortedWorkers.end());
-
-			int iBestBuilderWeightedScore = -1;
-			int iBestBuilderTotalTurns = INT_MAX;
-			CvUnit* pBestBuilder = NULL;
-
-			// Loop over the sorted workers to find the one closest to the directive plot (including build time)
-			for (std::list<OptionWithScore<CvUnit*>>::iterator builderIterator = sortedWorkers.begin(); builderIterator != sortedWorkers.end() && iBestBuilderTotalTurns > 0; ++builderIterator)
-			{
-				CvUnit* pUnit = (*builderIterator).option;
-
-				int iBuilderImprovementTime = pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective, pDirectivePlot);
-				if (iBuilderImprovementTime == INT_MAX)
-					continue;
-
-				// If the weighted score is lower than the best weighted score we have found with 0 move steps, it will never be better than the best weighted score
-				if (GetDirectiveWeight(eDirective, iBuilderImprovementTime, 0) <= max(iBestBuilderWeightedScore, iBestWeightedScore))
-					continue;
-
-				if (!IsBestDirectiveForBuilderAndPlot(eDirective, pUnit, pDirectivePlot, pPlayer, aDirectives, ignoredDirectives))
-					continue;
-
-				CvPlot* pStartPlot = pUnit->plot();
-
-				int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
-
-				pair<int, int> plotPair = make_pair<int, int>(pStartPlot->GetPlotIndex(), pDirectivePlot->GetPlotIndex());
-
-				int iCachedDistance = plotDistanceCache[plotPair];
-				int iApproximateDistance = (iPlotDistance * 2) / 3;
-
-				int iBuilderDistance;
-
-				if (iCachedDistance)
-					iBuilderDistance = iCachedDistance - 1;
-				else if (iPlotDistance <= 9)
-					iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective, iBestBuilderTotalTurns - iBuilderImprovementTime - 1);
-				else if (pStartPlot->getLandmass() == pDirectivePlot->getLandmass() || pUnit->CanEverEmbark())
-					iBuilderDistance = iApproximateDistance;
-				else
-					continue;
-
-				if (iBuilderDistance == INT_MAX)
-					continue;
-
-				plotDistanceCache[plotPair] = iBuilderDistance + 1;
-
-				int iWeightedScore = GetDirectiveWeight(eDirective, iBuilderImprovementTime, iBuilderDistance);
-
-				// Use Unit ID as tie-breaker
-				if (iWeightedScore > iBestBuilderWeightedScore)
-				{
-					iBestBuilderWeightedScore = iWeightedScore;
-					iBestBuilderTotalTurns = iBuilderImprovementTime + iBuilderDistance;
-					pBestBuilder = pUnit;
-				}
-			}
-
-			if (iBestBuilderWeightedScore > iBestWeightedScore)
-				iBestWeightedScore = iBestBuilderWeightedScore;
-
-			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(pBestBuilder, eDirective), iBestBuilderWeightedScore));
-		}
-		else
+		if (GetDirectiveWeight(eDirective, 0, 0) <= iBestWeightedScore)
 		{
 			aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(NULL, eDirective), -1));
+			continue;
 		}
+
+		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
+		list<OptionWithScore<CvUnit*>> sortedWorkers;
+
+		// First sort by plot distance between worker and directive, it's a good heuristic and reduces the number of needed calls to
+		// the pathfinder (and the max distance sent to the pathfinding algorithm when it is needed).
+		for (std::list<int>::const_iterator builderIterator = allWorkers.begin(); builderIterator != allWorkers.end(); ++builderIterator)
+		{
+			int iCurrentUnitId = *builderIterator;
+			CvUnit* pUnit = pPlayer->getUnit(iCurrentUnitId);
+
+			if (!pUnit)
+				continue;
+
+			if (ignoredWorkers.find(pUnit->GetID()) != ignoredWorkers.end())
+				continue;
+
+			if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eDirective))
+				continue;
+
+			int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
+
+			sortedWorkers.push_back(OptionWithScore<CvUnit*>(pUnit, -iPlotDistance));
+		}
+		std::stable_sort(sortedWorkers.begin(), sortedWorkers.end());
+
+		int iBestBuilderWeightedScore = -1;
+		int iBestBuilderTotalTurns = INT_MAX;
+		CvUnit* pBestBuilder = NULL;
+
+		// Loop over the sorted workers to find the one closest to the directive plot (including build time)
+		for (std::list<OptionWithScore<CvUnit*>>::iterator builderIterator = sortedWorkers.begin(); builderIterator != sortedWorkers.end() && iBestBuilderTotalTurns > 0; ++builderIterator)
+		{
+			CvUnit* pUnit = (*builderIterator).option;
+
+			int iBuilderImprovementTime = pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective, pDirectivePlot);
+			if (iBuilderImprovementTime == INT_MAX)
+				continue;
+
+			// If the weighted score is lower than the best weighted score we have found with 0 move steps, it will never be better than the best weighted score
+			if (GetDirectiveWeight(eDirective, iBuilderImprovementTime, 0) <= max(iBestBuilderWeightedScore, iBestWeightedScore))
+				continue;
+
+			if (!IsBestDirectiveForBuilderAndPlot(eDirective, pUnit, pPlayer, aDirectives))
+				continue;
+
+			CvPlot* pStartPlot = pUnit->plot();
+
+			int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
+
+			pair<int, int> plotPair = make_pair<int, int>(pStartPlot->GetPlotIndex(), pDirectivePlot->GetPlotIndex());
+
+			int iCachedDistance = plotDistanceCache[plotPair];
+			int iApproximateDistance = (iPlotDistance * 2) / 3;
+
+			int iBuilderDistance;
+
+			if (iCachedDistance)
+				iBuilderDistance = iCachedDistance - 1;
+			else if (iPlotDistance <= 9)
+				iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective, iBestBuilderTotalTurns - iBuilderImprovementTime - 1);
+			else if (pStartPlot->getLandmass() == pDirectivePlot->getLandmass() || pUnit->CanEverEmbark())
+				iBuilderDistance = iApproximateDistance;
+			else
+				continue;
+
+			if (iBuilderDistance == INT_MAX)
+				continue;
+
+			plotDistanceCache[plotPair] = iBuilderDistance + 1;
+
+			int iWeightedScore = GetDirectiveWeight(eDirective, iBuilderImprovementTime, iBuilderDistance);
+
+			// Use Unit ID as tie-breaker
+			if (iWeightedScore > iBestBuilderWeightedScore)
+			{
+				iBestBuilderWeightedScore = iWeightedScore;
+				iBestBuilderTotalTurns = iBuilderImprovementTime + iBuilderDistance;
+				pBestBuilder = pUnit;
+			}
+		}
+
+		if (iBestBuilderWeightedScore > iBestWeightedScore)
+			iBestWeightedScore = iBestBuilderWeightedScore;
+
+		aWeightedDirectives.push_back(OptionWithScore<pair<CvUnit*, BuilderDirective>>(make_pair<CvUnit*, BuilderDirective>(pBestBuilder, eDirective), iBestBuilderWeightedScore));
 	}
 
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
@@ -3093,11 +3091,11 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				UnitProcessed(iBuilderID);
 
 				processedWorkers.insert(iBuilderID);
-				ignoredDirectives.insert(eDirective);
 				m_workedPlots.insert(GC.getMap().plot(eDirective.m_sX, eDirective.m_sY)->GetPlotIndex());
 
 				bMoveExecuted = true;
 			}
+			ignoredDirectives.insert(eDirective);
 		}
 		else
 		{
