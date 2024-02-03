@@ -2234,21 +2234,28 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		return 0;
 
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
-	bool bPlannedRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->AnyRoutePlannedAtPlot(pPlot, eRoute);
+	bool bPlannedShortcutRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->ShortcutRoutePlannedAtPlot(pPlot, eRoute);
+	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->CapitalRoutePlannedAtPlot(pPlot, eRoute));
 	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
-	if (!bPlannedRoute && eRoute == ROUTE_ROAD)
-		bPlannedRoute = eBuilderTaskingAI->AnyRoutePlannedAtPlot(pPlot, ROUTE_RAILROAD);
-	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedRoute)
+	if (!bPlannedShortcutRoute && eRoute == ROUTE_ROAD)
+		bPlannedShortcutRoute = eBuilderTaskingAI->ShortcutRoutePlannedAtPlot(pPlot, ROUTE_RAILROAD);
+
+	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL)
 	{
 		// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
-		return 1;
+		if (bPlannedCapitalRoute)
+			return 0;
+
+		if (bPlannedShortcutRoute)
+			return 1;
 	}
-	else if (bGetSameRouteBenefitFromTrait)
+
+	if (bGetSameRouteBenefitFromTrait)
 	{
 		iCost = PATH_BASE_COST / 3;
 	}
-	else if (bPlannedRoute)
+	else if (bPlannedShortcutRoute)
 	{
 		// if we are planning to build a road here, provide a discount
 		iCost = (PATH_BASE_COST * 7) / 12;
