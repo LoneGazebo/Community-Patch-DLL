@@ -1606,7 +1606,7 @@ int CvDealAI::GetLuxuryResourceValue(ResourceTypes eResource, int iNumTurns, boo
 						for (int iPlotLoop = 0; iPlotLoop < iNumWorkablePlots; iPlotLoop++)
 						{
 							CvPlot* pLoopPlot = iterateRingPlots(iX, iY, iPlotLoop);
-							if (pLoopPlot && pLoopPlot->getResourceType() == eResource)
+							if (pLoopPlot && pLoopPlot->getResourceType(GetTeam()) == eResource)
 							{
 								iItemValue += OneGPTScaled * iNumYieldChangeBonuses; // Okay to double count; monopoly resources placed between two cities are extra valuable
 							}

@@ -208,7 +208,9 @@ public:
 	// Public turn update routines
 	void RecruitUnits();
 	void FindAutomatedUnits();
-	void Update();
+	void Update(bool bUpdateImprovements);
+	void Invalidate();
+	bool NeedsUpdate();
 
 	// Public exploration routines
 	CvPlot* GetBestExploreTarget(const CvUnit* pUnit, int nMinCandidatesToCheck, int iMaxTurns) const;
@@ -220,6 +222,8 @@ public:
 
 	bool MoveCivilianToGarrison(CvUnit* pUnit);
 	bool MoveCivilianToSafety(CvUnit* pUnit);
+
+	set<int> GetWorkedPlots();
 
 private:
 	// Internal turn update routines - commandeered unit processing
@@ -258,6 +262,7 @@ private:
 #endif
 //-------------------------------------
 
+	void PlanImprovements();
 	void PlotWorkerMoves(bool bSecondary = false);
 	void PlotWorkerSeaMoves(bool bSecondary = false);
 	void PlotWriterMoves();
@@ -313,8 +318,6 @@ private:
 	CvPlot* FindArchaeologistTarget(CvUnit *pUnit);
 
 	void UnitProcessed(int iID);
-	CvPlot* ExecuteWorkerMove(CvUnit* pUnit);
-	CvPlot* ExecuteWorkerMove(CvUnit* pUnit, const map<int,ReachablePlots>& allWorkersReachablePlots);
 	bool ExecuteCultureBlast(CvUnit* pUnit);
 	bool ExecuteGoldenAgeMove(CvUnit* pUnit);
 	bool IsValidExplorerEndTurnPlot(const CvUnit* pUnit, CvPlot* pPlot) const;
@@ -326,7 +329,10 @@ private:
 	// Class data
 	CvPlayer* m_pPlayer;
 	std::list<int> m_CurrentTurnUnits;
+	set<int> m_workedPlots;
+	list<int> m_greatPeopleForImprovements;
 	std::map<UnitAITypes,std::vector<std::pair<int,int>>> m_automatedTargetPlots; //for human units
+	bool m_bNeedsUpdate;
 
 	CHomelandUnitArray m_CurrentMoveUnits;
 
@@ -353,6 +359,16 @@ struct SPatrolTarget {
 	SPatrolTarget(CvPlot* target, CvPlot* neighbor, int iThreat);
 	bool operator<(const SPatrolTarget& rhs) const;
 	bool operator==(const SPatrolTarget& rhs) const;
+};
+
+struct SBuilderState {
+	map<ResourceTypes, int> mExtraResources;
+	map<int, FeatureTypes> mChangedPlotFeatures;
+	map<int, ImprovementTypes> mChangedPlotImprovements;
+	map<int, int> mExtraDefense;
+	map<int, int> mExtraDamageToAdjacent;
+
+	SBuilderState(){};
 };
 
 namespace HomelandAIHelpers

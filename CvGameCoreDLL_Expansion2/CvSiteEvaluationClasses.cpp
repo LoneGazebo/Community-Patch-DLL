@@ -892,16 +892,16 @@ int CvSiteEvaluatorForSettler::PlotFoundValue(CvPlot* pPlot, const CvPlayer* pPl
 }
 
 /// Retrieve the relative fertility of this plot (alone)
-int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, bool bIncludeCoast)
+int CvCitySiteEvaluator::PlotFertilityValue(CvPlot* pPlot, const CvPlayer* pPlayer, bool bIncludeCoast)
 {
 	int rtnValue = 0;
 	if( (!pPlot->isWater() && pPlot->isValidMovePlot(NO_PLAYER)) || (bIncludeCoast && pPlot->isShallowWater() ) )
 	{
-		rtnValue += ComputeFoodValue(pPlot, NULL);
-		rtnValue += ComputeProductionValue(pPlot, NULL);
-		rtnValue += ComputeGoldValue(pPlot, NULL);
-		rtnValue += ComputeScienceValue(pPlot, NULL);
-		rtnValue += ComputeTradeableResourceValue(pPlot, NULL);
+		rtnValue += ComputeFoodValue(pPlot, pPlayer);
+		rtnValue += ComputeProductionValue(pPlot, pPlayer);
+		rtnValue += ComputeGoldValue(pPlot, pPlayer);
+		rtnValue += ComputeScienceValue(pPlot, pPlayer);
+		rtnValue += ComputeTradeableResourceValue(pPlot, pPlayer);
 	}
 
 	if(rtnValue < 0) rtnValue = 0;
@@ -930,8 +930,9 @@ vector<int> CvCitySiteEvaluator::GetAllCitySiteValues(const CvPlayer* pPlayer)
 /// Value of plot for providing food
 int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
+	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 	// From tile yield
-	int rtnValue = pPlot->calculateNatureYield(YIELD_FOOD, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
+	int rtnValue = pPlot->calculateNatureYield(YIELD_FOOD, pPlayer ? pPlayer->GetID() : NO_PLAYER, pPlot->getFeatureType(), pPlot->getResourceType(eTeam), NULL);
 
 	// assume a farm or similar on suitable terrain ... should be build sooner or later. value averages out with other improvements
 	if (((pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS) && pPlot->getFeatureType() == NO_FEATURE) || pPlot->getFeatureType() == FEATURE_FLOOD_PLAINS)
@@ -942,7 +943,6 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 		rtnValue += 1;
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
@@ -961,14 +961,14 @@ int CvCitySiteEvaluator::ComputeFoodValue(CvPlot* pPlot, const CvPlayer* pPlayer
 /// Value of plot for providing hammers
 int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
-	int rtnValue = pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
+	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	int rtnValue = pPlot->calculateNatureYield(YIELD_PRODUCTION, pPlayer ? pPlayer->GetID() : NO_PLAYER, pPlot->getFeatureType(), pPlot->getResourceType(eTeam), NULL);
 
 	// assume a mine or similar in friendly climate. don't run off into the snow
 	if (pPlot->isHills() && (pPlot->getTerrainType()==TERRAIN_GRASS || pPlot->getTerrainType()==TERRAIN_PLAINS || pPlot->getTerrainType()==TERRAIN_TUNDRA) && pPlot->getFeatureType() == NO_FEATURE)
 		rtnValue += 1;
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
@@ -986,10 +986,10 @@ int CvCitySiteEvaluator::ComputeProductionValue(CvPlot* pPlot, const CvPlayer* p
 /// Value of plot for providing gold
 int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
-	int rtnValue = pPlot->calculateNatureYield(YIELD_GOLD, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
+	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	int rtnValue = pPlot->calculateNatureYield(YIELD_GOLD, pPlayer ? pPlayer->GetID() : NO_PLAYER, pPlot->getFeatureType(), pPlot->getResourceType(eTeam), NULL);
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
@@ -1008,10 +1008,10 @@ int CvCitySiteEvaluator::ComputeGoldValue(CvPlot* pPlot, const CvPlayer* pPlayer
 /// Value of plot for providing science
 int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
-	int rtnValue = pPlot->calculateNatureYield(YIELD_SCIENCE, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
+	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	int rtnValue = pPlot->calculateNatureYield(YIELD_SCIENCE, pPlayer ? pPlayer->GetID() : NO_PLAYER, pPlot->getFeatureType(), pPlot->getResourceType(eTeam), NULL);
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{
@@ -1030,10 +1030,10 @@ int CvCitySiteEvaluator::ComputeScienceValue(CvPlot* pPlot, const CvPlayer* pPla
 /// Vale of plot for providing faith
 int CvCitySiteEvaluator::ComputeFaithValue(CvPlot* pPlot, const CvPlayer* pPlayer)
 {
-	int rtnValue = pPlot->calculateNatureYield(YIELD_FAITH, pPlayer ? pPlayer->GetID() : NO_PLAYER, NULL);
+	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
+	int rtnValue = pPlot->calculateNatureYield(YIELD_FAITH, pPlayer ? pPlayer->GetID() : NO_PLAYER, pPlot->getFeatureType(), pPlot->getResourceType(eTeam), NULL);
 
 	// From resource
-	TeamTypes eTeam = pPlayer ? pPlayer->getTeam() : NO_TEAM;
 	ResourceTypes eResource = pPlot->getResourceType(eTeam);
 	if(eResource != NO_RESOURCE)
 	{

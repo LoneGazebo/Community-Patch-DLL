@@ -17526,7 +17526,7 @@ int CvPlayer::GetWorldWonderYieldChange(int iYield)
 /// Can we eBuild on pPlot?
 bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
 {
-	if(!(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
+	if(pPlot && !(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
 	{
 		return false;
 	}
@@ -17638,7 +17638,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 	}
 #endif
 
-	if(!bTestVisible)
+	if(pPlot && !bTestVisible)
 	{
 		if(IsBuildBlockedByFeature(eBuild, pPlot->getFeatureType()))
 		{
@@ -35404,6 +35404,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
 				if (isHuman() || /* if MP, invalidate for AI too */ kGame.isNetworkMultiPlayer()) {
 					GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
+					GetHomelandAI()->Invalidate();
 				}
 
 				// update danger plots before the turn
@@ -43125,6 +43126,71 @@ bool CvPlayer::IsEarlyExpansionPhase() const
 	return GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
 }
 
+
+bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const
+{
+	if (eRoute != ROUTE_ROAD)
+		return false;
+
+	if (GetPlayerTraits()->IsWoodlandMovementBonus())
+	{
+		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pPlot->getTeam() == getTeam()))
+			return true;
+	}
+	else if (GetPlayerTraits()->IsRiverTradeRoad())
+	{
+		if (pPlot->isRiver())
+			return true;
+	}
+
+	return false;
+}
+
+bool CvPlayer::IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const
+{
+	TeamTypes ePlotTeam = pPlot->getTeam();
+	TeamTypes ePlayerTeam = getTeam();
+	PlayerTypes ePlotOwner = pPlot->getOwner();
+
+	// Our plots and surrounding plots are safe
+	if (ePlotTeam == ePlayerTeam || (bIncludeAdjacent && pPlot->isAdjacentTeam(getTeam(), false)))
+	{
+		return true;
+	}
+
+	// Our vassal's plots and surrounding plots are safe
+	if (GET_TEAM(ePlotTeam).IsVassal(ePlayerTeam) || (bIncludeAdjacent && pPlot->isAdjacentOwnedByVassal(ePlayerTeam, false)))
+	{
+		return true;
+	}
+
+	// City state plots and surrounding plots are safe
+	if (ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).isMinorCiv() && !GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+	{
+		return true;
+	}
+
+	if (bIncludeAdjacent)
+	{
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+		PlayerTypes eAdjacentOwner;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+			if (pAdjacentPlot != NULL)
+			{
+				eAdjacentOwner = pAdjacentPlot->getOwner();
+				if (eAdjacentOwner != NO_PLAYER && GET_PLAYER(eAdjacentOwner).isMinorCiv() && !GET_PLAYER(eAdjacentOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 //	--------------------------------------------------------------------------------
 CvCity* CvPlayer::GetFirstCityWithBuildingClass(BuildingClassTypes eBuildingClass)
 {
@@ -50739,7 +50805,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		if (bLogging)
 		{
 			iDanger = pUnit ? pUnit->GetDanger(pPlot) : 0;
-			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
+			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,this,true);
 		}
 
 		if(!pPlot->isRevealed(eTeam))

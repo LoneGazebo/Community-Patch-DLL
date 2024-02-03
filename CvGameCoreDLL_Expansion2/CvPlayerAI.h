@@ -40,7 +40,7 @@ public:
 	void AI_doTurnUnitsPre();
 	void AI_doTurnUnitsPost();
 
-	void AI_unitUpdate();
+	void AI_unitUpdate(bool bUpdateHomelandAI);
 	void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval);
 
 	void AI_chooseFreeGreatPerson();

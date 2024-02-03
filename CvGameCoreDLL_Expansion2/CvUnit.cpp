@@ -3425,16 +3425,26 @@ bool CvUnit::isActionRecommended(int iAction)
 		CvAssert(eBuild != NO_BUILD);
 		CvAssertMsg(eBuild < GC.getNumBuildInfos(), "Invalid Build");
 
-		//fake this, we're really only interested in one plot
-		ReachablePlots plots;
-		plots.insertWithIndex(SMovePlot(plot()->GetPlotIndex()));
-		map<int, ReachablePlots> allplots;
-		allplots[this->GetID()] = plots;
+		vector<BuilderDirective> directives = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->GetDirectives();
 
-		BuilderDirective aDirective = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->EvaluateBuilder(this,allplots);
-		if(aDirective.m_eDirective != BuilderDirective::NUM_DIRECTIVES && aDirective.m_eBuild == eBuild)
+		if (directives.empty())
+			return false;
+
+		for (vector<BuilderDirective>::iterator it = directives.begin(); it != directives.end(); ++it)
 		{
-			return true;
+			BuilderDirective eDirective = *it;
+			CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
+			if (pPlot != pDirectivePlot)
+				continue;
+
+			bool bCanBuild = GET_PLAYER(getOwner()).GetBuilderTaskingAI()->CanUnitPerformDirective(this, eDirective);
+
+			if (!bCanBuild)
+				continue;
+
+			// If this is not the best improvement we can build on this tile, return false
+			return eDirective.m_eBuild == eBuild;
 		}
 	}
 
@@ -9931,7 +9941,7 @@ bool CvUnit::sellExoticGoods()
 						{
 
 							CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-							if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+							if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
 							{
 								if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
 								{
@@ -9949,7 +9959,7 @@ bool CvUnit::sellExoticGoods()
 							for (int iCityPlotLoop = 0; iCityPlotLoop < pCity->GetNumWorkablePlots(); iCityPlotLoop++)
 							{
 								CvPlot* pLoopPlot = pCity->GetCityCitizens()->GetCityPlotFromIndex(iCityPlotLoop);
-								if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType() == NO_RESOURCE))
+								if (pLoopPlot != NULL && (pLoopPlot->getOwner() == ePlotOwner) && !pLoopPlot->isCity() && !pLoopPlot->isWater() && !pLoopPlot->isImpassable(getTeam()) && !pLoopPlot->IsNaturalWonder() && pLoopPlot->isCoastalLand() && (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE))
 								{
 									//If we can build on an empty spot, do so.
 									if (pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
@@ -13787,6 +13797,9 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 		}
 	}
 
+	if (!pPlot)
+		return true;
+
 	if (!(GET_PLAYER(getOwner()).canBuild(pPlot, eBuild, false, bTestVisible, bTestGold, true, this)))
 	{
 		return false;
@@ -13813,7 +13826,6 @@ bool CvUnit::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestVisible,
 	if(!bTestVisible)
 	{
 		// check for any other units working in this plot
-		pPlot = plot();
 		const IDInfo* pUnitNode = pPlot->headUnitNode();
 		const CvUnit* pLoopUnit = NULL;
 
@@ -25010,7 +25022,13 @@ void CvUnit::DoFinishBuildIfSafe()
 	{
 		int iBuildTimeLeft = plot()->getBuildTurnsLeft(eBuild, getOwner(), 0, 0);
 		if (iBuildTimeLeft == 0 && canMove() && GetDanger() == 0)
+		{
+			BuilderDirective eDirective = GET_PLAYER(m_eOwner).GetBuilderTaskingAI()->GetAssignedDirective(this);
+			if (eDirective.m_sX != m_iX || eDirective.m_sY != m_iY || eDirective.m_eBuild != eBuild)
+				return;
+
 			CvUnitMission::ContinueMission(this);
+		}
 	}
 }
 #endif 
@@ -30432,8 +30450,8 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 	BuildTypes eBestBuild = NO_BUILD;
 	GetBestBuildRoute(plot(), &eBestBuild);
 	RouteTypes eBestRoute = GET_PLAYER(getOwner()).getBestRoute(plot());
-	CvBuilderTaskingAI* eBuilderTaskingAi = GET_PLAYER(getOwner()).GetBuilderTaskingAI();
-	bool bGetSameBenefitFromTrait = eBuilderTaskingAi->GetSameRouteBenefitFromTrait(plot(), eBestRoute);
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	bool bGetSameBenefitFromTrait = kPlayer.GetSameRouteBenefitFromTrait(plot(), eBestRoute);
 	if(!bGetSameBenefitFromTrait && eBestBuild != NO_BUILD && UnitBuild(eBestBuild))
 		return true;
 
@@ -30447,7 +30465,7 @@ bool CvUnit::UnitRoadTo(int iX, int iY, int iFlags)
 
 	//ok apparently we both can move and need to move
 	//do not use the path cache here, the step finder tells us where to put the route
-	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,NO_BUILD,eBestRoute,false);
+	SPathFinderUserData data(getOwner(),PT_BUILD_ROUTE,NO_BUILD,eBestRoute,NO_ROUTE_PURPOSE);
 	SPath path = GC.GetStepFinder().GetPath(getX(), getY(), iX, iY, data);
 
 	//index zero is the current plot!
