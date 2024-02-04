@@ -2236,22 +2236,24 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
 	bool bPlannedShortcutRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->ShortcutRoutePlannedAtPlot(pPlot, eRoute);
 	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->CapitalRoutePlannedAtPlot(pPlot, eRoute));
-	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
+	int iVillageBonus = data.eRoutePurpose != PURPOSE_STRATEGIC ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
 	if (!bPlannedShortcutRoute && eRoute == ROUTE_ROAD)
 		bPlannedShortcutRoute = eBuilderTaskingAI->ShortcutRoutePlannedAtPlot(pPlot, ROUTE_RAILROAD);
 
-	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL)
+	// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
+	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedCapitalRoute)
 	{
-		// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
-		if (bPlannedCapitalRoute)
-			return 0;
-
-		if (bPlannedShortcutRoute)
-			return 1;
+		if (pPlot->getRouteType() >= eRoute || pPlot->getBuildProgress(eBuild) > 0)
+			iCost = 5;
+		else
+			iCost = 6;
 	}
-
-	if (bGetSameRouteBenefitFromTrait)
+	else if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedShortcutRoute)
+	{
+		iCost = 7;
+	}
+	else if (bGetSameRouteBenefitFromTrait)
 	{
 		iCost = PATH_BASE_COST / 3;
 	}
@@ -2260,13 +2262,18 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		// if we are planning to build a road here, provide a discount
 		iCost = (PATH_BASE_COST * 7) / 12;
 	}
-	else if (pPlot->getRouteType() >= ROUTE_ROAD)
+	else if (pPlot->getRouteType() >= eRoute)
 	{
-		// if there is already any kind of road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 1;
+		// if there is already a road here, provide a smaller discount
+		iCost = PATH_BASE_COST - 2;
 	}
 	else if (pPlot->getBuildProgress(eBuild) > 0) {
 		// if we are currently building a road here, provide a smaller discount
+		iCost = PATH_BASE_COST - 2;
+	}
+	else if (pPlot->getRouteType() >= ROUTE_ROAD || pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
+	{
+		// if there is already any kind of road here, provide a smaller discount
 		iCost = PATH_BASE_COST - 1;
 	}
 	else
@@ -2286,7 +2293,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		}
 	}
 
-	if (data.eRoutePurpose == PURPOSE_SHORTCUT)
+	if (data.eRoutePurpose != PURPOSE_STRATEGIC)
 		iCost -= iVillageBonus;
 
 	if (iCost < 0)

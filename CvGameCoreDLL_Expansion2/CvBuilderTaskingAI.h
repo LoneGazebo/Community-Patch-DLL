@@ -147,6 +147,9 @@ protected:
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection);
 
+	void AddGlobalRoutePlot(const CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	void AddLocalRoutePlot(const CvPlot* pPlot, RouteTypes eRoute, int iValue);
+	int GetPlotRouteValue(const CvPlot* pPlot, RouteTypes eRoute) const;
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
 	void GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles);
