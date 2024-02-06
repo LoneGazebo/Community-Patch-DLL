@@ -21962,18 +21962,18 @@ void CvUnit::setExperienceTimes100(int iNewValueTimes100, int iMax, bool bDontSh
 	
 	if ((getExperienceTimes100() != iNewValueTimes100) && (getExperienceTimes100() < iMaxTimes100))
 	{
-		int iExperienceChangeTimes100 = iNewValueTimes100 - getExperienceTimes100();
+		int iExperienceChange = (iNewValueTimes100 / 100) - (getExperienceTimes100() / 100);
 
 		m_iExperienceTimes100 = std::min(iMaxTimes100, iNewValueTimes100);
 		CvAssert(getExperienceTimes100() >= 0);
 
-		if(getOwner() == GC.getGame().getActivePlayer() && !bDontShow)
+		if(getOwner() == GC.getGame().getActivePlayer() && !bDontShow && iExperienceChange > 0)
 		{
 			// Don't show XP for unit that's about to bite the dust
 			if(!IsDead())
 			{
 				Localization::String localizedText = Localization::Lookup("TXT_KEY_EXPERIENCE_POPUP");
-				localizedText << iExperienceChangeTimes100 / 100;
+				localizedText << iExperienceChange;
 
 				int iX = m_iX;
 				int iY = m_iY;
