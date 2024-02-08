@@ -6084,11 +6084,7 @@ void CvTeam::announceTechToPlayers(TechTypes eIndex, bool bPartial)
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus)
-#else
-void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce)
-#endif
 {
 	CvCity* pCapitalCity = NULL;
 	CvCity* pCity = NULL;
@@ -6432,11 +6428,7 @@ void CvTeam::setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, b
 				}
 			}
 		}
-#if defined(MOD_BALANCE_CORE)
 		processTech(eIndex, ((bNewValue) ? 1 : -1), bNoBonus);
-#else
-		processTech(eIndex, ((bNewValue) ? 1 : -1));
-#endif
 
 		//Antiquity site notifications.
 		//Notifications for Artifacts and Hidden Artifacts have to come AFTER processTech because they may not have been spawned yet.
@@ -7659,11 +7651,7 @@ void CvTeam::testCircumnavigated()
 }
 
 //	--------------------------------------------------------------------------------
-#if defined(MOD_BALANCE_CORE)
 void CvTeam::processTech(TechTypes eTech, int iChange, bool bNoBonus)
-#else
-void CvTeam::processTech(TechTypes eTech, int iChange)
-#endif
 {
 	CvCity* pCity = NULL;
 	CvPlot* pLoopPlot = NULL;

@@ -3591,36 +3591,23 @@ function OnMouseOverHex( hexX, hexY )
 						-- Can see this plot right now
 						if (pPlot:IsVisible(iTeam, false) and not pHeadUnit:IsCityAttackOnly()) then
 
-							local iNumUnits = pPlot:GetNumUnits();
-							local pUnit;
+							local ePlayer = Game.GetActivePlayer();
+							local pUnit = pPlot:GetBestDefender(-1, ePlayer, pHeadUnit, 1);
 
-							-- Loop through all Units
-							for i = 0, iNumUnits do
-								pUnit = pPlot:GetUnit(i);
-								if (pUnit ~= nil and not pUnit:IsInvisible(iTeam, false)) then
-
-									local validLandAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_LAND) and (not pPlot:IsWater() or (pPlot:IsWater() and pPlot:GetImprovementType() ~= -1 and GameInfo.Improvements[pPlot:GetImprovementType()].AllowsWalkWater)); --Observe this if it causes issues.
-									local validSeaAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_SEA) and (pUnit:GetDomainType() == DomainTypes.DOMAIN_SEA or pUnit:IsEmbarked() or (pPlot:IsWater() and GameInfo.Improvements[pPlot:GetImprovementType()].AllowsWalkWater)); --The behavior of ship being allowed to attack units on Polders/Pontoon Bridges was always there... except no one wanted to fix the UI? Observe this if it causes issues.
-									local validAirAttack = (pHeadUnit:GetDomainType() == DomainTypes.DOMAIN_AIR);
-
-									-- ranged attacks handled elsewhere!
-									if (validLandAttack or validSeaAttack or validAirAttack) then
-
-										if (pUnit:IsCanDefend()) then
-											UpdateUnitPortrait(pUnit);
-											UpdateUnitPromotions(pUnit);
-											UpdateUnitStats(pUnit);
-
-											if (pTeam:IsAtWar(pUnit:GetTeam()) or (UIManager:GetAlt() and pUnit:GetOwner() ~= iTeam)) then
-												UpdateCombatOddsUnitVsUnit(pHeadUnit, pUnit);
-												Controls.MyCombatResultsStack:SetHide(false);
-												Controls.TheirCombatResultsStack:SetHide(false);
-
-												g_bShowPanel = true;
-												break;
-											end
-										end
-									end
+							if pUnit then
+								UpdateUnitPortrait(pUnit);
+								UpdateUnitPromotions(pUnit);
+								UpdateUnitStats(pUnit);
+								UpdateCombatOddsUnitVsUnit(pHeadUnit, pUnit);
+								Controls.MyCombatResultsStack:SetHide(false);
+								Controls.TheirCombatResultsStack:SetHide(false);
+								g_bShowPanel = true;
+							else
+								pUnit = pPlot:GetBestDefender(-1, ePlayer, pHeadUnit, 0);
+								if pUnit then
+									UpdateUnitPortrait(pUnit);
+									UpdateUnitPromotions(pUnit);
+									UpdateUnitStats(pUnit);
 								end
 							end
 						end

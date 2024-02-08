@@ -1905,7 +1905,7 @@ function AssignStartingPlots:GenerateRegions(args)
 			else -- Ties exist! Special handling required to protect against a shortfall in the number of defined regions.
 				local iNumUniqueFertValues = table.maxn(fertility_value_list);
 				for fertLoop = 1, iNumUniqueFertValues do
-					for areaID, fert in pairs(landmass_fert) do
+					for areaID, fert in pairs(area_fert) do
 						if fert == fertility_value_list[fertLoop] then
 							-- Add ties only if there is room!
 							if table.maxn(best_areas) < iNumRelevantAreas then
