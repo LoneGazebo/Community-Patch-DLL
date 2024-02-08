@@ -13008,13 +13008,40 @@ void CvGame::LogMapState() const
 			routeType = 255;
 		}
 
-		strTemp.Format("{\"X\":%d,\"Y\":%d,\"CityId\":%d,\"CityName\":\"%s\",\"Owner\":%d,\"RouteType\":%d}",
+		// Get the combat unit on the tile to display - for now civilian units and aircraft are not considered
+		// due to only having space to display one flag, hence the filtering for combat strength only
+		CvString combatUnit = "";
+		int combatUnitID = 0;
+		int combatUnitOwner = 255;
+		int combatUnitMaxHP = 0;
+		int combatUnitCurrHP = 0;
+		for (int iZ = 0; iZ < pPlot->getNumUnits(); iZ++)
+		{
+			CvUnit* pLoopUnit = pPlot->getUnitByIndex(iZ);
+			if (pLoopUnit && pLoopUnit->GetBaseCombatStrength() > 0)
+			{
+				combatUnitID = pLoopUnit->GetID();
+				combatUnit = GC.getUnitInfo(pLoopUnit->getUnitType())->GetType();
+				combatUnitOwner = pLoopUnit->getOwner();
+				combatUnitMaxHP = pLoopUnit->GetMaxHitPoints();
+				combatUnitCurrHP = pLoopUnit->GetMaxHitPoints() - pLoopUnit->getDamage();
+
+				break;
+			}
+		}
+
+		strTemp.Format("{\"X\":%d,\"Y\":%d,\"CityId\":%d,\"CityName\":\"%s\",\"Owner\":%d,\"RouteType\":%d,\"UnitID\":%d,\"Unit\":\"%s\",\"UnitOwner\":%d,\"UnitMaxHp\":%d,\"UnitCurrHp\":%d}",
 			pPlot->getX(),
 			pPlot->getY(),
 			cityId,
 			cityName.GetCString(),
 			owner,
-			routeType
+			routeType,
+			combatUnitID,
+			combatUnit.c_str(),
+			combatUnitOwner,
+			combatUnitMaxHP,
+			combatUnitCurrHP
 		);
 		outputJson += strTemp;
 
