@@ -693,11 +693,14 @@ void CvPolicyAI::DoChooseIdeology(CvPlayer *pPlayer)
 void CvPolicyAI::DoConsiderIdeologySwitch(CvPlayer* pPlayer)
 {
 	// Gather basic Ideology info
+	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
+	if (eCurrentIdeology == NO_POLICY_BRANCH_TYPE)
+		return;
+
 	bool bVUnhappy = pPlayer->IsEmpireVeryUnhappy();
 	bool bSUnhappy = pPlayer->IsEmpireSuperUnhappy();
 	int iPublicOpinionUnhappiness = pPlayer->GetCulture()->GetPublicOpinionUnhappiness();
 	PolicyBranchTypes ePreferredIdeology = pPlayer->GetCulture()->GetPublicOpinionPreferredIdeology();
-	PolicyBranchTypes eCurrentIdeology = pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree();
 
 	if (GET_TEAM(pPlayer->getTeam()).IsVassalOfSomeone() && pPlayer->GetPlayerPolicies()->GetLateGamePolicyTree() != NO_POLICY_BRANCH_TYPE)
 	{
