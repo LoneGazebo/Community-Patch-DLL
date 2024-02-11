@@ -2236,7 +2236,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
 	bool bPlannedShortcutRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->ShortcutRoutePlannedAtPlot(pPlot, eRoute);
 	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->CapitalRoutePlannedAtPlot(pPlot, eRoute));
-	int iVillageBonus = data.eRoutePurpose != PURPOSE_STRATEGIC ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
+	int iVillageBonus = data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL || data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
 	if (!bPlannedShortcutRoute && eRoute == ROUTE_ROAD)
 		bPlannedShortcutRoute = eBuilderTaskingAI->ShortcutRoutePlannedAtPlot(pPlot, ROUTE_RAILROAD);
@@ -2293,8 +2293,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 		}
 	}
 
-	if (data.eRoutePurpose != PURPOSE_STRATEGIC)
-		iCost -= iVillageBonus;
+	iCost -= iVillageBonus;
 
 	if (iCost < 0)
 		iCost = 0;
