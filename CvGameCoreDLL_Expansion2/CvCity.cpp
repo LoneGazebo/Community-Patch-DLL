@@ -31369,7 +31369,11 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		// Unit
 		if (eUnitType != NO_UNIT)
 		{
-			bool bAlreadyUnderConstruction = getFirstUnitOrder(eUnitType) != -1;
+			//there are weird effects here with units which have an instance limit
+			//because it's unclear whether we're checking the entries in the build option list or in the build queue
+			//so assume we're NOT building one already to be on the safe side
+			//otherwise invalid entries can be shown in the build option list
+			bool bAlreadyUnderConstruction = false; //getFirstUnitOrder(eUnitType) != -1;
 			if (!canTrain(eUnitType, bAlreadyUnderConstruction, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 				return false;
 

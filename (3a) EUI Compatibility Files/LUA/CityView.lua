@@ -1275,7 +1275,8 @@ end
 local function OnSelectionMouseExit( orderID, itemID )
 	-- Only care about buildings 
 	if orderID ~= OrderTypes.ORDER_CONSTRUCT then return end
-	print('No longer hovering over itemID', itemID)
+
+	--print('No longer hovering over itemID', itemID)
 	
 	if g_HoverBuildingID == itemID then 
 		Events.ClearHexHighlightStyle("BoostedResourcePlot")
@@ -1531,12 +1532,11 @@ end)
 			turnsRemaining = city:GetUnitProductionTurnsLeft( itemID, queuedItemNumber )
 			portraitOffset, portraitAtlas = UI_GetUnitPortraitIcon( itemID, cityOwnerID )
 			isReallyRepeat = isRepeat
-			-- Vox Populi invested
-			cashInvested = city:GetUnitInvestment(itemID)
-			-- Vox Populi gold button
-			canBuyWithGoldPQ = cityIsCanPurchase( city, true, true, itemID, -1, -1, g_yieldCurrency )
-			goldCostPQ = cityIsCanPurchase( city, false, false, itemID, -1, -1, g_yieldCurrency )
-						and city:GetUnitPurchaseCost( itemID )
+			-- Vox Populi: cannot invest in units
+			cashInvested = 0
+			-- Vox Populi: don't show buy buttons for units in the queue
+			canBuyWithGoldPQ = false
+			goldCostPQ = false
 		elseif orderID == OrderTypes.ORDER_CONSTRUCT then
 			itemInfo = GameInfo.Buildings
 			turnsRemaining = city:GetBuildingProductionTurnsLeft( itemID, queuedItemNumber )
