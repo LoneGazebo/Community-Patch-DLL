@@ -167,7 +167,7 @@ void CvHomelandAI::FindAutomatedUnits()
 	// Loop through our units
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if(!pLoopUnit->IsAutomated() || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || pLoopUnit->TurnProcessed())
+		if(!pLoopUnit->IsAutomated() || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || pLoopUnit->TurnProcessed() || !pLoopUnit->canMove())
 			continue;
 
 		m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
