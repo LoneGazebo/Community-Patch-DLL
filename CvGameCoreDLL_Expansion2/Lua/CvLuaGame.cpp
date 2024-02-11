@@ -3266,7 +3266,10 @@ int CvLuaGame::lScoreBelief(lua_State* L)
 	{
 		CvBeliefEntry* pBelief = GC.GetGameBeliefs()->GetEntry(eBeliefType);
 		if (pBelief)
-			iScore = GET_PLAYER(ePlayer).GetReligionAI()->ScoreBelief(pBelief);
+		{
+			CvWeightedVector<int> viPlotWeights = GET_PLAYER(ePlayer).GetReligionAI()->CalculatePlotWeightsForBeliefSelection(/*bConsiderExpansion*/ pBelief->IsPantheonBelief());
+			iScore = GET_PLAYER(ePlayer).GetReligionAI()->ScoreBelief(pBelief, viPlotWeights);
+		}
 	}
 
 	lua_pushinteger(L, iScore);

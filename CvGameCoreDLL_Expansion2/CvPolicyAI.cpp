@@ -1034,7 +1034,7 @@ Firaxis::Array< int, NUM_YIELD_TYPES > CvPolicyAI::WeightPolicyAttributes(CvPlay
 			iNumCities++;
 		else if (pPlayerTraits->IsSmaller())
 			iNumCities--;
-		if (GC.getGame().getGameTurn() <= 125)
+		if (GC.getGame().getGameTurn() <= GC.getGame().getEstimateEndTurn() / 4)
 		{
 			//Estimation, because early game we assume we'll expand.
 			iNumCities = (3 + iNumCities);
@@ -4729,7 +4729,7 @@ int CvPolicyAI::WeighPolicy(CvPlayer* pPlayer, PolicyTypes ePolicy)
 				}
 				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_EXPANSION" )
 				{
-					iWeight += iFlavorValue;
+						iWeight += iFlavorValue;
 				}
 				else if (GC.getFlavorTypes((FlavorTypes)iFlavor) == "FLAVOR_PRODUCTION")
 				{
