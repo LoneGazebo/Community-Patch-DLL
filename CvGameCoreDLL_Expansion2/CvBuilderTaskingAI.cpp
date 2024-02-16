@@ -380,12 +380,12 @@ int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes e
 
 void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles)
 {
-	vector<int> aiMovingForwardCostsWithRoute(path.vPlots.size() - 1);
-	vector<int> aiMovingBackwardCostsWithRoute(path.vPlots.size() - 1);
-	vector<int> aiMovingForwardCostsWithoutRoute(path.vPlots.size() - 1);
-	vector<int> aiMovingBackwardCostsWithoutRoute(path.vPlots.size() - 1);
+	vector<int> aiMovingForwardCostsWithRoute(path.length() - 1);
+	vector<int> aiMovingBackwardCostsWithRoute(path.length() - 1);
+	vector<int> aiMovingForwardCostsWithoutRoute(path.length() - 1);
+	vector<int> aiMovingBackwardCostsWithoutRoute(path.length() - 1);
 
-	for (size_t i = 1; i < path.vPlots.size(); i++)
+	for (int i = 1; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
@@ -524,8 +524,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	int iMaintenanceRoadTiles = 0;
+	int iNumRoadsNeededToBuild = 0;
 
-	for (size_t i = 1; i < path.vPlots.size(); i++)
+	for (int i = 0; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
@@ -538,6 +539,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if (!m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		{
 			iMaintenanceRoadTiles++;
+
+			if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+				iNumRoadsNeededToBuild++;
 		}
 	}
 
@@ -602,10 +606,15 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		}
 	}
 
+	if (iMaintenanceRoadTiles > 0)
+		iConnectionValue /= iMaintenanceRoadTiles;
+
 	if (iConnectionValue < 0)
 		return;
 
-	for (size_t i=1; i<path.vPlots.size()-1; i++)
+	iConnectionValue -= iNumRoadsNeededToBuild * 10;
+
+	for (int i=0; i<path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
@@ -651,7 +660,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	int iNumRoadsNeededToBuild = 0;
 	int iMaintenanceRoadTiles = 0;
 
-	vector<int> aiVillagePlotBonuses(path.vPlots.size());
+	vector<int> aiVillagePlotBonuses(path.length());
 	int iVillageBonusesIfCityConnected = 0;
 	int iMovementBonus = 0;
 
@@ -662,7 +671,9 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if (iMaintenanceRoadTiles > 0)
 		iValue /= iMaintenanceRoadTiles;
 
-	for (size_t i=1; i<path.vPlots.size()-1; i++)
+	iValue -= iNumRoadsNeededToBuild * 10;
+
+	for (int i=0; i<path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
@@ -712,13 +723,14 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	// go through the route to see how long it is and how many plots already have roads
 	int iMaintenanceRoadTiles = 0;
+	int iNumRoadsNeededToBuild = 0;
 
 	int iMovementBonus = 0;
 
-	vector<int> aiDummyContainer(path.vPlots.size());
+	vector<int> aiDummyContainer(path.length());
 	int iDummy = 0;
 
-	GetPathValues(path, eRoute, aiDummyContainer, iDummy, iMovementBonus, iDummy, iMaintenanceRoadTiles);
+	GetPathValues(path, eRoute, aiDummyContainer, iDummy, iMovementBonus, iNumRoadsNeededToBuild, iMaintenanceRoadTiles);
 
 	int iValue = iMovementBonus;
 
@@ -727,7 +739,9 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (iMaintenanceRoadTiles > 0)
 		iValue /= iMaintenanceRoadTiles;
 
-	for (int i = 1; i < path.length(); i++)
+	iValue -= iNumRoadsNeededToBuild * 10;
+
+	for (int i = 0; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)

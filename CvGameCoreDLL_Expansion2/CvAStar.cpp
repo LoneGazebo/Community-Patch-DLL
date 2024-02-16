@@ -2238,9 +2238,6 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->CapitalRoutePlannedAtPlot(pPlot, eRoute));
 	int iVillageBonus = data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL || data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
-	if (!bPlannedShortcutRoute && eRoute == ROUTE_ROAD)
-		bPlannedShortcutRoute = eBuilderTaskingAI->ShortcutRoutePlannedAtPlot(pPlot, ROUTE_RAILROAD);
-
 	// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
 	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedCapitalRoute)
 	{

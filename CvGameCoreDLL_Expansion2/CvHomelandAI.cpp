@@ -2833,6 +2833,11 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 {
 	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
+
+	if (!pkBuildInfo)
+		return false;
+
 	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuilderDirective eOtherDirective = *it;
@@ -2843,6 +2848,17 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 			continue;
 
 		if (eOtherDirective.m_iScore <= eDirective.m_iScore)
+			continue;
+
+		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
+
+		if (!pkOtherBuildInfo)
+			continue;
+
+		if (pkBuildInfo->getRoute() != NO_ROUTE && pkOtherBuildInfo->getRoute() == NO_ROUTE)
+			continue;
+
+		if (pkBuildInfo->getRoute() == NO_ROUTE && pkOtherBuildInfo->getRoute() != NO_ROUTE)
 			continue;
 
 		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective))
