@@ -1805,7 +1805,6 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 /// Adds a directive if the unit can construct a road in the plot
 void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot)
 {
-	// the plot was not flagged recently, so ignore
 	pair<RouteTypes,int> pBestRouteAndValue = GetBestRouteAndValueForPlot(pPlot);
 	RouteTypes eRoute = pBestRouteAndValue.first;
 
@@ -1846,6 +1845,25 @@ void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirecti
 
 	if (iWeight <= 0)
 		return;
+
+	bool bAnyAdjacentRoute = false;
+	CvPlot** pPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = pPlotsToCheck[iI];
+
+		if (!pAdjacentPlot)
+			continue;
+
+		if ((pAdjacentPlot->getRouteType() != NO_ROUTE && !pAdjacentPlot->IsRoutePillaged()) || m_pPlayer->GetSameRouteBenefitFromTrait(pAdjacentPlot, ROUTE_ROAD))
+		{
+			bAnyAdjacentRoute = true;
+			break;
+		}
+	}
+
+	if (!bAnyAdjacentRoute)
+		iWeight /= 2;
 
 	BuilderDirective directive(BuilderDirective::BUILD_ROUTE, eRouteBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
 
