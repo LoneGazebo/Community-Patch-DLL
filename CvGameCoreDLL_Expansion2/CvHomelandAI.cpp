@@ -167,7 +167,7 @@ void CvHomelandAI::FindAutomatedUnits()
 	// Loop through our units
 	for(CvUnit* pLoopUnit = m_pPlayer->firstUnit(&iLoop); pLoopUnit != NULL; pLoopUnit = m_pPlayer->nextUnit(&iLoop))
 	{
-		if(!pLoopUnit->IsAutomated() || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || pLoopUnit->TurnProcessed())
+		if(!pLoopUnit->IsAutomated() || pLoopUnit->AI_getUnitAIType() == UNITAI_UNKNOWN || pLoopUnit->TurnProcessed() || !pLoopUnit->canMove())
 			continue;
 
 		m_CurrentTurnUnits.push_back(pLoopUnit->GetID());
@@ -2833,6 +2833,11 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 {
 	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
 
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
+
+	if (!pkBuildInfo)
+		return false;
+
 	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
 	{
 		BuilderDirective eOtherDirective = *it;
@@ -2843,6 +2848,56 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 			continue;
 
 		if (eOtherDirective.m_iScore <= eDirective.m_iScore)
+			continue;
+
+		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
+
+		if (!pkOtherBuildInfo)
+			continue;
+
+		if (pkBuildInfo->getRoute() != NO_ROUTE && pkOtherBuildInfo->getRoute() == NO_ROUTE)
+			continue;
+
+		if (pkBuildInfo->getRoute() == NO_ROUTE && pkOtherBuildInfo->getRoute() != NO_ROUTE)
+			continue;
+
+		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective))
+			continue;
+
+		return false;
+	}
+	return true;
+}
+
+static bool IsBestWeightedDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives, int iDirectiveWeightedScore, int iBuilderDistance)
+{
+	CvPlot* pPlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
+	CvBuildInfo* pkBuildInfo = GC.getBuildInfo(eDirective.m_eBuild);
+
+	if (!pkBuildInfo)
+		return false;
+
+	for (vector<BuilderDirective>::iterator it = aDirectives.begin(); it != aDirectives.end(); ++it)
+	{
+		BuilderDirective eOtherDirective = *it;
+
+		CvPlot* pOtherPlot = GC.getMap().plot(eOtherDirective.m_sX, eOtherDirective.m_sY);
+
+		if (pOtherPlot != pPlot)
+			continue;
+
+		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
+
+		if (!pkOtherBuildInfo)
+			continue;
+
+		int iBuilderImprovementTime = pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eOtherDirective, pPlot);
+		if (iBuilderImprovementTime == INT_MAX)
+			continue;
+
+		int iOtherDirectiveWeightedScore = GetDirectiveWeight(eOtherDirective, iBuilderImprovementTime, iBuilderDistance);
+		if (iOtherDirectiveWeightedScore <= iDirectiveWeightedScore)
 			continue;
 
 		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective))
@@ -2949,6 +3004,9 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 			plotDistanceCache[plotPair] = iBuilderDistance + 1;
 
 			int iWeightedScore = GetDirectiveWeight(eDirective, iBuilderImprovementTime, iBuilderDistance);
+
+			if (!IsBestWeightedDirectiveForBuilderAndPlot(eDirective, pUnit, pPlayer, aDirectives, iWeightedScore, iBuilderDistance))
+				continue;
 
 			// Use Unit ID as tie-breaker
 			if (iWeightedScore > iBestBuilderWeightedScore)
@@ -3176,6 +3234,16 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				}
 			}
 
+			// Road considerations
+			bool bRouteStateChanged = false;
+			if (pkBuildInfo->getRoute() != NO_ROUTE || (pkBuildInfo->isRepair() && pDirectivePlot->IsRoutePillaged() && (pDirectivePlot->getImprovementType() == NO_IMPROVEMENT || !pDirectivePlot->IsImprovementPillaged())))
+			{
+				if (pDirectivePlot->getRouteType() == NO_ROUTE || pDirectivePlot->IsRoutePillaged())
+				{
+					bRouteStateChanged = true;
+				}
+			}
+
 			for (vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>>::iterator it = aDistanceWeightedDirectives.begin(); it != aDistanceWeightedDirectives.end(); ++it)
 			{
 				OptionWithScore<pair<CvUnit*, BuilderDirective>> eOtherDirectiveWithScore = *it;
@@ -3298,6 +3366,19 @@ void CvHomelandAI::ExecuteWorkerMoves()
 								eOtherDirective.m_iScore = iScore;
 								bDirectiveUpdated = true;
 							}
+						}
+					}
+				}
+
+				if (bRouteStateChanged)
+				{
+					// If we are building a road, make sure all neighboring road builds get their value set to their full value.
+					if (plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY) == 1)
+					{
+						RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
+						if (eOtherRoute != NO_ROUTE)
+						{
+							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteAndValueForPlot(pOtherPlot).second;
 						}
 					}
 				}

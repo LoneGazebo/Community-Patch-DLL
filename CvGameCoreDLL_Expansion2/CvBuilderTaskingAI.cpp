@@ -380,12 +380,12 @@ int CvBuilderTaskingAI::GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes e
 
 void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, int& iVillageBonusesIfCityConnected, int& iMovementBonus, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles)
 {
-	vector<int> aiMovingForwardCostsWithRoute(path.vPlots.size() - 1);
-	vector<int> aiMovingBackwardCostsWithRoute(path.vPlots.size() - 1);
-	vector<int> aiMovingForwardCostsWithoutRoute(path.vPlots.size() - 1);
-	vector<int> aiMovingBackwardCostsWithoutRoute(path.vPlots.size() - 1);
+	vector<int> aiMovingForwardCostsWithRoute(path.length() - 1);
+	vector<int> aiMovingBackwardCostsWithRoute(path.length() - 1);
+	vector<int> aiMovingForwardCostsWithoutRoute(path.length() - 1);
+	vector<int> aiMovingBackwardCostsWithoutRoute(path.length() - 1);
 
-	for (size_t i = 1; i < path.vPlots.size(); i++)
+	for (int i = 1; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
@@ -420,8 +420,8 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 
 					if (iVillageYieldBonus != 0)
 					{
-						// if (pPlot->IsCityConnection(m_pPlayer->GetID()))
-						aiVillagePlotBonuses[i] += iVillageYieldBonus;
+						if (pPlot->IsCityConnection(m_pPlayer->GetID()))
+							aiVillagePlotBonuses[i] += iVillageYieldBonus;
 						iVillageBonusesIfCityConnected += iVillageYieldBonus;
 					}
 				}
@@ -524,8 +524,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	}
 
 	int iMaintenanceRoadTiles = 0;
+	int iNumRoadsNeededToBuild = 0;
 
-	for (size_t i = 1; i < path.vPlots.size(); i++)
+	for (int i = 0; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
@@ -538,6 +539,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if (!m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		{
 			iMaintenanceRoadTiles++;
+
+			if (pPlot->getRouteType() < eRoute || pPlot->IsRoutePillaged())
+				iNumRoadsNeededToBuild++;
 		}
 	}
 
@@ -602,16 +606,24 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		}
 	}
 
+	if (iMaintenanceRoadTiles > 0)
+		iConnectionValue /= iMaintenanceRoadTiles;
+
 	if (iConnectionValue < 0)
 		return;
 
-	for (size_t i=1; i<path.vPlots.size()-1; i++)
+	iConnectionValue -= iNumRoadsNeededToBuild * 10;
+
+	for (int i=0; i<path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if(!pPlot)
 			break;
 
 		if(pPlot->isCity())
+			continue;
+
+		if(m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
 
 		AddGlobalRoutePlot(pPlot, eRoute, iConnectionValue);
@@ -651,7 +663,7 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	int iNumRoadsNeededToBuild = 0;
 	int iMaintenanceRoadTiles = 0;
 
-	vector<int> aiVillagePlotBonuses(path.vPlots.size());
+	vector<int> aiVillagePlotBonuses(path.length());
 	int iVillageBonusesIfCityConnected = 0;
 	int iMovementBonus = 0;
 
@@ -662,13 +674,18 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 	if (iMaintenanceRoadTiles > 0)
 		iValue /= iMaintenanceRoadTiles;
 
-	for (size_t i=1; i<path.vPlots.size()-1; i++)
+	iValue -= iNumRoadsNeededToBuild * 10;
+
+	for (int i=0; i<path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
 			break;
 
 		if (pPlot->isCity())
+			continue;
+
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
 
 		int iPlotBonusValue = iValue + aiVillagePlotBonuses[i];
@@ -712,13 +729,14 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 
 	// go through the route to see how long it is and how many plots already have roads
 	int iMaintenanceRoadTiles = 0;
+	int iNumRoadsNeededToBuild = 0;
 
 	int iMovementBonus = 0;
 
-	vector<int> aiDummyContainer(path.vPlots.size());
+	vector<int> aiDummyContainer(path.length());
 	int iDummy = 0;
 
-	GetPathValues(path, eRoute, aiDummyContainer, iDummy, iMovementBonus, iDummy, iMaintenanceRoadTiles);
+	GetPathValues(path, eRoute, aiDummyContainer, iDummy, iMovementBonus, iNumRoadsNeededToBuild, iMaintenanceRoadTiles);
 
 	int iValue = iMovementBonus;
 
@@ -727,11 +745,19 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 	if (iMaintenanceRoadTiles > 0)
 		iValue /= iMaintenanceRoadTiles;
 
-	for (int i = 1; i < path.length(); i++)
+	iValue -= iNumRoadsNeededToBuild * 10;
+
+	for (int i = 0; i < path.length(); i++)
 	{
 		CvPlot* pPlot = path.get(i);
 		if (!pPlot)
 			break;
+
+		if (pPlot->isCity())
+			continue;
+
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+			continue;
 
 		// remember the plot
 		AddLocalRoutePlot(pPlot, eRoute, iValue);
@@ -764,7 +790,10 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		if (!pPlot)
 			break;
 
-		if (pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
+		if (pPlot->isCity())
+			continue;
+
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
 
 		//remember it
@@ -947,7 +976,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot)
 	if (m_eSaveCityAdjacentForImprovement != NO_IMPROVEMENT && pPlot->IsAdjacentCity())
 		return m_eSaveCityAdjacentForImprovement;
 
-	if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
+	if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand())
 		return m_eSaveCoastalForImprovement;
 
 	if (m_eSaveHillsForImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS)
@@ -1791,7 +1820,6 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 /// Adds a directive if the unit can construct a road in the plot
 void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot)
 {
-	// the plot was not flagged recently, so ignore
 	pair<RouteTypes,int> pBestRouteAndValue = GetBestRouteAndValueForPlot(pPlot);
 	RouteTypes eRoute = pBestRouteAndValue.first;
 
@@ -1832,6 +1860,25 @@ void CvBuilderTaskingAI::AddRouteDirective(vector<OptionWithScore<BuilderDirecti
 
 	if (iWeight <= 0)
 		return;
+
+	bool bAnyAdjacentRoute = false;
+	CvPlot** pPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+	for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+	{
+		CvPlot* pAdjacentPlot = pPlotsToCheck[iI];
+
+		if (!pAdjacentPlot)
+			continue;
+
+		if ((pAdjacentPlot->getRouteType() != NO_ROUTE && !pAdjacentPlot->IsRoutePillaged()) || m_pPlayer->GetSameRouteBenefitFromTrait(pAdjacentPlot, ROUTE_ROAD))
+		{
+			bAnyAdjacentRoute = true;
+			break;
+		}
+	}
+
+	if (!bAnyAdjacentRoute)
+		iWeight /= 2;
 
 	BuilderDirective directive(BuilderDirective::BUILD_ROUTE, eRouteBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
 
@@ -2457,6 +2504,12 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			if (!pWorkedPlot)
 				continue;
 
+			if (pWorkedPlot == pPlot)
+			{
+				iWorkedUnimproved++;
+				continue;
+			}
+
 			if (pWorkedPlot->isImpassable(m_pPlayer->getTeam()))
 				continue;
 
@@ -2479,7 +2532,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				CvPlot* pOwnedPlot = GC.getMap().plotByIndex(*it);
 
-				if (plotDistance(pOwningCity->getX(), pOwningCity->getY(), pOwnedPlot->getX(), pOwnedPlot->getY()) <= iWorkDistance && sState.mChangedPlotImprovements.find(pOwnedPlot->GetPlotIndex()) == sState.mChangedPlotImprovements.end())
+				if (plotDistance(pOwningCity->getX(), pOwningCity->getY(), pOwnedPlot->getX(), pOwnedPlot->getY()) <= iWorkDistance && sState.mChangedPlotImprovements.find(pOwnedPlot->GetPlotIndex()) != sState.mChangedPlotImprovements.end())
 					iImprovementsPlanned++;
 			}
 		}
@@ -2729,7 +2782,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 			if (bGreatPersonAvoidLarge)
 			{
-				iYieldScore /= 3;
+				iYieldScore /= 2;
 			}
 			else
 			{
@@ -2741,16 +2794,19 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 					bGreatPersonAvoidSmall = true;
 
 				if (bGreatPersonAvoidSmall)
-					iYieldScore = (iYieldScore * 2) / 3;
+					iYieldScore = (iYieldScore * 9) / 10;
 			}
 		}
 		else
 		{
 			// Non-great person improvements considerations
 			bool bAvoidPlot = false;
-			if (eResource == NO_RESOURCE && eImprovementToSavePlotFor != eImprovement)
+			if (eResource != NO_RESOURCE && pkImprovementInfo && !pkImprovementInfo->IsConnectsResource(eResource))
 			{
-				bAvoidPlot = true;
+				// Avoid building improvements on resources until we have the technology to improve that resource
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (!m_pPlayer->HasTech((TechTypes)pkResourceInfo->getImproveTech()))
+					bAvoidPlot = true;
 			}
 			else if ((bWillBeCityConnectingRoad && !bBenefitsFromRoads) || (!bWillBeCityConnectingRoad && bBenefitsFromRoads))
 			{
@@ -2761,7 +2817,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 
 			if (bAvoidPlot)
-				iYieldScore = (iYieldScore * 2) / 3;
+				iYieldScore = (iYieldScore * 9) / 10;
 		}
 	}
 
