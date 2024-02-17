@@ -14031,22 +14031,19 @@ CombatPredictionTypes CvGame::GetCombatPrediction(const CvUnit* pAttackingUnit, 
 			pFromPlot = pEnd;
 	}
 
+	int iRangedSupportDamageInflicted = 0;
+	if (pAttackingUnit->isRangedSupportFire()) 
+	{
+		iRangedSupportDamageInflicted = pAttackingUnit->GetRangeCombatDamage(pDefendingUnit, NULL, false);
+	}
+
 	int iAttackingStrength = pAttackingUnit->GetMaxAttackStrength(pFromPlot, pToPlot, pDefendingUnit, false, false);
 	if(iAttackingStrength == 0)
 	{
 		return NO_COMBAT_PREDICTION;
 	}
 
-	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false);
-
-	if (pAttackingUnit->isRangedSupportFire()) 
-	{
-		int iDefenderCurrentDamage = pDefendingUnit->getDamage();
-		int iRangedSupportDamageInflicted = pAttackingUnit->GetRangeCombatDamage(pDefendingUnit, NULL, false);
-		int iDefendingDamageModifier = pDefendingUnit->GetDamageCombatModifier(false, iDefenderCurrentDamage + iRangedSupportDamageInflicted);
-		
-		iDefenderStrength = iDefenderStrength * (100 + iDefendingDamageModifier) / 100;
-	}
+	int iDefenderStrength = pDefendingUnit->GetMaxDefenseStrength(pToPlot, pAttackingUnit, pFromPlot, false, false, iRangedSupportDamageInflicted);
 
 	//iMyDamageInflicted = pMyUnit:GetCombatDamage(iMyStrength, iTheirStrength, pMyUnit:GetDamage() + iTheirFireSupportCombatDamage, false, false, false);
 	int iAttackingDamageInflicted = pAttackingUnit->getCombatDamage(iAttackingStrength, iDefenderStrength, false, false, false);

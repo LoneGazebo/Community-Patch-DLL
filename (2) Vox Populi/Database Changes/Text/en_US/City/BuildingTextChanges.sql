@@ -564,7 +564,7 @@ WHERE Tag = 'TXT_KEY_WONDER_TERRA_COTTA_ARMY_HELP';
 
 -- Parthenon
 UPDATE Language_en_US
-SET Text = 'Increases [ICON_SILVER_FIST] Military Units Supplied by this City''s population by 10%. Contains a prebuilt [ICON_VP_GREATART] Great Work of Art in one of the [ICON_GREAT_WORK] Great Work slots. All owned Amphitheaters gain +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in this City. +3 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
+SET Text = '+10% [ICON_SILVER_FIST] Military Supply from Population in this City. Contains a prebuilt [ICON_VP_GREATART] Great Work of Art in one of the [ICON_GREAT_WORK] Great Work slots. All owned Amphitheaters gain +1 [ICON_CULTURE] Culture and +1 [ICON_RESEARCH] Science. -1 [ICON_HAPPINESS_3] Unhappiness from [ICON_CULTURE] Boredom in this City. +3 [ICON_CULTURE] Culture if [COLOR_POSITIVE_TEXT]Themed[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_WONDER_PARTHENON_HELP';
 
 -- Oracle
