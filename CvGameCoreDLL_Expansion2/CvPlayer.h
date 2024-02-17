@@ -3545,7 +3545,7 @@ protected:
 	bool m_bPotentiallyAlive;
 	bool m_bTurnActive;
 	bool m_bAutoMoves;					// Signal that we can process the auto moves when ready.
-	bool						  m_bProcessedAutoMoves;		// Signal that we have processed the auto moves
+	bool m_bProcessedAutoMoves;		// Signal that we have processed the auto moves
 	bool m_bEndTurn;					// Signal that the player has completed their turn.  The turn will still be active until the auto-moves have been processed.
 	bool m_bDynamicTurnsSimultMode;
 	bool m_bPbemNewTurn;

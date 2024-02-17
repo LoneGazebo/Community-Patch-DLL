@@ -29812,6 +29812,41 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 		SetCheapestPlotInfluenceDistance(INT_MAX);
 }
 
+void CvCity::fixBonusFromMinors(bool bRemove)
+{
+	//if a city is founded or conquered we have to make sure it gets the current bonuses so we can subtract the bonus later when it experies
+	//this method should only be called once per city on its first turn or when the capital moves ...
+
+	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		CvMinorCivAI* pMinor = GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).isAlive() ? GET_PLAYER(ePlayer).GetMinorCivAI() : 0;
+		if (pMinor)
+		{
+			bool bFriends = pMinor->IsFriends(getOwner());
+			bool bAllies = pMinor->IsAllies(getOwner());
+			int iSign = bRemove ? -1 : +1;
+
+			if (pMinor->IsAllies(getOwner()))
+			{
+				int iBonus = isCapital() ? pMinor->GetAlliesCapitalFoodBonus() : pMinor->GetAlliesOtherCityFoodBonus();
+				if (iBonus!=0)
+					ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iSign * iBonus / 100);
+			}
+
+			if (pMinor->IsFriends(getOwner()))
+			{
+				int iBonus = isCapital() ? pMinor->GetFriendsCapitalFoodBonus(getOwner()) : pMinor->GetFriendsOtherCityFoodBonus(getOwner());
+				if (iBonus != 0)
+					ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iSign * iBonus / 100);
+			}
+
+			updateYield();
+		}
+	}
+
+}
+
 //	--------------------------------------------------------------------------------
 /// Setting the danger value threat amount
 void CvCity::setThreatValue(int iThreatValue)

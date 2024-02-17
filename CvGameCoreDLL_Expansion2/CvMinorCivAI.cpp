@@ -12818,28 +12818,40 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 	// Maritime
 	else if(eTrait == MINOR_CIV_TRAIT_MARITIME)
 	{
-		int iCapitalFoodTimes100 = 0;
-		int iOtherCitiesFoodTimes100 = 0;
+		CvPlayer& kMajor = GET_PLAYER(ePlayer);
+		int iAllyCapitalFoodTimes100 = 0;
+		int iAllyOtherCitiesFoodTimes100 = 0;
+		int iFriendCapitalFoodTimes100 = 0;
+		int iFriendOtherCitiesFoodTimes100 = 0;
+		int iSign = bAdd ? 1 : -1;
 
 		if(bFriends)	// Friends bonus
 		{
-			iCapitalFoodTimes100 += GetFriendsCapitalFoodBonus(ePlayer);
-			iOtherCitiesFoodTimes100 += GetFriendsOtherCityFoodBonus(ePlayer);
+			iFriendCapitalFoodTimes100 = GetFriendsCapitalFoodBonus(ePlayer) * iSign;
+			iFriendOtherCitiesFoodTimes100 = GetFriendsOtherCityFoodBonus(ePlayer) * iSign;
 		}
 		if(bAllies)		// Allies bonus
 		{
-			iCapitalFoodTimes100 += GetAlliesCapitalFoodBonus();
-			iOtherCitiesFoodTimes100 += GetAlliesOtherCityFoodBonus();
+			iAllyCapitalFoodTimes100 = GetAlliesCapitalFoodBonus() * iSign;
+			iAllyOtherCitiesFoodTimes100 = GetAlliesOtherCityFoodBonus() * iSign;
 		}
 
-		if(!bAdd)		// Flip amount of we're taking bonuses away
+		int iLoop;
+		for (CvCity* pLoopCity = kMajor.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iLoop))
 		{
-			iCapitalFoodTimes100 = -iCapitalFoodTimes100;
-			iOtherCitiesFoodTimes100 = -iOtherCitiesFoodTimes100;
-		}
+			if (pLoopCity->GetID() == kMajor.getCapitalCityID())
+			{
+				pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyCapitalFoodTimes100 / 100);
+				pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendCapitalFoodTimes100 / 100);
+			}
+			else
+			{
+				pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyOtherCitiesFoodTimes100 / 100);
+				pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendOtherCitiesFoodTimes100 / 100);
+			}
 
-		GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iCapitalFoodTimes100);
-		GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iOtherCitiesFoodTimes100);
+			pLoopCity->updateYield();
+		}
 	}
 	// Mercantile
 	else if(eTrait == MINOR_CIV_TRAIT_MERCANTILE)
@@ -14883,17 +14895,15 @@ int CvMinorCivAI::GetCurrentCapitalFoodBonus(PlayerTypes ePlayer)
 	int iAmount = 0;
 
 	if (IsAllies(ePlayer))
-	{
 		iAmount += GetAlliesCapitalFoodBonus();
-		iAmount += GetAlliesOtherCityFoodBonus();
-	}
 
 	if (IsFriends(ePlayer))
-	{
 		iAmount += GetFriendsCapitalFoodBonus(ePlayer);
-		iAmount += GetFriendsOtherCityFoodBonus(ePlayer);
-	}
 
+	/*
+	//do not use those modifiers, they can change from turn to turn and that messes up the bookkeeping
+	//DoSetBonus is based on semi-static GetAlliesCapitalFoodBonus() / GetFriendsCapitalFoodBonus()
+	
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
 	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
@@ -14905,9 +14915,10 @@ int CvMinorCivAI::GetCurrentCapitalFoodBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
+	*/
 
 	return iAmount;
 }
@@ -14927,6 +14938,10 @@ int CvMinorCivAI::GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer)
 	if (IsFriends(ePlayer))
 		iAmount += GetFriendsOtherCityFoodBonus(ePlayer);
 
+	/*
+	//do not use those modifiers, they can change from turn to turn and that messes up the bookkeeping
+	//DoSetBonus is based on semi-static GetAlliesOtherCityFoodBonus() / GetFriendsOtherCityFoodBonus()
+
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
 	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
@@ -14938,9 +14953,10 @@ int CvMinorCivAI::GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer)
 
 	if (MOD_CITY_STATE_SCALE)
 	{
-		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * /*0*/ GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
+	*/
 
 	return iAmount;
 }

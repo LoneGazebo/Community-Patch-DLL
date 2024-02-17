@@ -3022,6 +3022,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
+		pNewCity->fixBonusFromMinors(false);
 
 		GC.getGame().SetClosestCityMapDirty();
 
@@ -24545,31 +24546,33 @@ void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
-		int iFoodInCapitalFromAnnexedMinorsOld = GetFoodInCapitalPerTurnFromAnnexedMinors();
-
 		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MARITIME];
-		int iBonus = 0;
+		int iBonus = GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
 
 		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
 		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 		// Medieval era or sooner
 		if (eCurrentEra < eRenaissance)
 		{
-			iBonus = /*200 in CP, 300 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
+			iBonus += /*200 in CP, 300 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 		}
 		// Renaissance era or later
 		else
 		{
-			iBonus = /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
+			iBonus += /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
-		iBonus += GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
+
+		//new bonus
 		iBonus *= iNumCityStates;
-		int iFoodDiff = iBonus - iFoodInCapitalFromAnnexedMinorsOld;
-		if (iFoodDiff != 0)
+		iBonus /= 100;
+
+		//update if necessary
+		if (iBonus != m_iFoodInCapitalFromAnnexedMinors && getCapitalCity())
 		{
-			ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iFoodDiff);
+			getCapitalCity()->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInCapitalFromAnnexedMinors);
+			m_iFoodInCapitalFromAnnexedMinors = iBonus;
+			updateYield();
 		}
-		m_iFoodInCapitalFromAnnexedMinors = iBonus;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24584,31 +24587,35 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
-		int iFoodInOtherCitiesFromAnnexedMinorsOld = GetFoodInOtherCitiesPerTurnFromAnnexedMinors();
-
 		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MARITIME];
-		int iBonus = 0;
+		int iBonus = GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
 
 		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
 		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 		// Medieval era or sooner
 		if (eCurrentEra < eRenaissance)
 		{
-			iBonus = /*0 in CP, 50 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
+			iBonus += /*0 in CP, 50 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 		}
 		// Renaissance era or later
 		else
 		{
-			iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
+			iBonus += /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
-		iBonus += GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
+
 		iBonus *= iNumCityStates;
-		int iFoodDiff = iBonus - iFoodInOtherCitiesFromAnnexedMinorsOld;
-		if (iFoodDiff != 0)
+		iBonus /= 100;
+
+		//update if necessary
+		if (iBonus != m_iFoodInOtherCitiesFromAnnexedMinors)
 		{
-			ChangeCityYieldChangeTimes100(YIELD_FOOD, iFoodDiff);
+			int iLoop;
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				if (pLoopCity->GetID()!=getCapitalCityID())
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInOtherCitiesFromAnnexedMinors);
+			m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
+			updateYield();
 		}
-		m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -33507,18 +33514,32 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 
 	if (pOldCapitalCity != pNewCapitalCity)
 	{
+		//remove the capital bonus
+		if (pOldCapitalCity)
+			pOldCapitalCity->fixBonusFromMinors(true);
+
 		if (pNewCapitalCity != NULL)
 		{
+			//remove the non-capital bonus
+			pNewCapitalCity->fixBonusFromMinors(true);
+
 			// Need to set our original capital x,y?
 			if (GetOriginalCapitalX() == -1 && pNewCapitalCity->getOriginalOwner() == m_eID)
 				setOriginalCapitalXY(pNewCapitalCity);
 
 			m_iCapitalCityID = pNewCapitalCity->GetID();
+
+			//add the capital bonus
+			pNewCapitalCity->fixBonusFromMinors(false);
 		}
 		else
 		{
 			m_iCapitalCityID = -1;
 		}
+
+		//add the non-capital bonus
+		if (pOldCapitalCity)
+			pOldCapitalCity->fixBonusFromMinors(false);
 	}
 }
 
@@ -36765,17 +36786,15 @@ void CvPlayer::ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange
 
 	if (iChange != 0)
 	{
-		m_aiNumAnnexedCityStates[eIndex] = m_aiNumAnnexedCityStates[eIndex] + iChange;
+		m_aiNumAnnexedCityStates[eIndex] += iChange;
 
 		UpdateFoodInCapitalPerTurnFromAnnexedMinors();
-		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
 		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
 		UpdateGoldPerTurnFromAnnexedMinors();
 		UpdateCulturePerTurnFromAnnexedMinors();
 		UpdateSciencePerTurnFromAnnexedMinors();
 		UpdateFaithPerTurnFromAnnexedMinors();
 		UpdateHappinessFromAnnexedMinors();
-		
 	}
 }
 

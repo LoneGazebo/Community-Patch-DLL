@@ -602,7 +602,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						if (pCityEspionage->HasCounterSpy())
 						{
 							CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
-							if (!pkEventChoiceInfo->isSecretMission())
+							if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
 							{
 								const char* szMissionText = pkEventChoiceInfo->GetHelp();
 								CvNotifications* pNotifications = m_pPlayer->GetNotifications();
@@ -2720,7 +2720,7 @@ void CvPlayerEspionage::ChangeCounterspyMission(uint uiSpyIndex, CityEventChoice
 
 				// notify other players
 				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(ePreviousFocus);
-				if (!pkEventChoiceInfo->isSecretMission())
+				if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
 				{
 					const char* szMissionText = pkEventChoiceInfo->GetHelp();
 					for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
@@ -2753,7 +2753,7 @@ void CvPlayerEspionage::ChangeCounterspyMission(uint uiSpyIndex, CityEventChoice
 
 				// notify other players
 				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eNewMission);
-				if (!pkEventChoiceInfo->isSecretMission())
+				if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
 				{
 					const char* szMissionText = pkEventChoiceInfo->GetHelp();
 					for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
