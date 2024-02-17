@@ -623,6 +623,9 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 		if(pPlot->isCity())
 			continue;
 
+		if(m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+			continue;
+
 		AddGlobalRoutePlot(pPlot, eRoute, iConnectionValue);
 		m_mainRoutePlots.insert(pPlot->GetPlotIndex());
 	}
@@ -680,6 +683,9 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 			break;
 
 		if (pPlot->isCity())
+			continue;
+
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
 
 		int iPlotBonusValue = iValue + aiVillagePlotBonuses[i];
@@ -747,6 +753,12 @@ void CvBuilderTaskingAI::ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* p
 		if (!pPlot)
 			break;
 
+		if (pPlot->isCity())
+			continue;
+
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+			continue;
+
 		// remember the plot
 		AddLocalRoutePlot(pPlot, eRoute, iValue);
 		m_strategicRoutePlots.insert(pPlot->GetPlotIndex());
@@ -778,7 +790,10 @@ void CvBuilderTaskingAI::ConnectCitiesForScenario(CvCity* pCity1, CvCity* pCity2
 		if (!pPlot)
 			break;
 
-		if (pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
+		if (pPlot->isCity())
+			continue;
+
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 			continue;
 
 		//remember it
