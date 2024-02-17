@@ -420,8 +420,8 @@ void CvBuilderTaskingAI::GetPathValues(SPath path, RouteTypes eRoute, vector<int
 
 					if (iVillageYieldBonus != 0)
 					{
-						// if (pPlot->IsCityConnection(m_pPlayer->GetID()))
-						aiVillagePlotBonuses[i] += iVillageYieldBonus;
+						if (pPlot->IsCityConnection(m_pPlayer->GetID()))
+							aiVillagePlotBonuses[i] += iVillageYieldBonus;
 						iVillageBonusesIfCityConnected += iVillageYieldBonus;
 					}
 				}
@@ -961,7 +961,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot)
 	if (m_eSaveCityAdjacentForImprovement != NO_IMPROVEMENT && pPlot->IsAdjacentCity())
 		return m_eSaveCityAdjacentForImprovement;
 
-	if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand(/*10*/ GD_INT_GET(MIN_WATER_SIZE_FOR_OCEAN)))
+	if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand())
 		return m_eSaveCoastalForImprovement;
 
 	if (m_eSaveHillsForImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS)
@@ -2489,6 +2489,12 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			if (!pWorkedPlot)
 				continue;
 
+			if (pWorkedPlot == pPlot)
+			{
+				iWorkedUnimproved++;
+				continue;
+			}
+
 			if (pWorkedPlot->isImpassable(m_pPlayer->getTeam()))
 				continue;
 
@@ -2511,7 +2517,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			{
 				CvPlot* pOwnedPlot = GC.getMap().plotByIndex(*it);
 
-				if (plotDistance(pOwningCity->getX(), pOwningCity->getY(), pOwnedPlot->getX(), pOwnedPlot->getY()) <= iWorkDistance && sState.mChangedPlotImprovements.find(pOwnedPlot->GetPlotIndex()) == sState.mChangedPlotImprovements.end())
+				if (plotDistance(pOwningCity->getX(), pOwningCity->getY(), pOwnedPlot->getX(), pOwnedPlot->getY()) <= iWorkDistance && sState.mChangedPlotImprovements.find(pOwnedPlot->GetPlotIndex()) != sState.mChangedPlotImprovements.end())
 					iImprovementsPlanned++;
 			}
 		}
@@ -2761,7 +2767,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 
 			if (bGreatPersonAvoidLarge)
 			{
-				iYieldScore /= 3;
+				iYieldScore /= 2;
 			}
 			else
 			{
@@ -2773,16 +2779,19 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 					bGreatPersonAvoidSmall = true;
 
 				if (bGreatPersonAvoidSmall)
-					iYieldScore = (iYieldScore * 2) / 3;
+					iYieldScore = (iYieldScore * 9) / 10;
 			}
 		}
 		else
 		{
 			// Non-great person improvements considerations
 			bool bAvoidPlot = false;
-			if (eResource == NO_RESOURCE && eImprovementToSavePlotFor != eImprovement)
+			if (eResource != NO_RESOURCE && pkImprovementInfo && !pkImprovementInfo->IsConnectsResource(eResource))
 			{
-				bAvoidPlot = true;
+				// Avoid building improvements on resources until we have the technology to improve that resource
+				CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+				if (!m_pPlayer->HasTech((TechTypes)pkResourceInfo->getImproveTech()))
+					bAvoidPlot = true;
 			}
 			else if ((bWillBeCityConnectingRoad && !bBenefitsFromRoads) || (!bWillBeCityConnectingRoad && bBenefitsFromRoads))
 			{
@@ -2793,7 +2802,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 			}
 
 			if (bAvoidPlot)
-				iYieldScore = (iYieldScore * 2) / 3;
+				iYieldScore = (iYieldScore * 9) / 10;
 		}
 	}
 
