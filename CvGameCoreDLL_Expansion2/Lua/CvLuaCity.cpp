@@ -562,6 +562,7 @@ void CvLuaCity::PushMethods(lua_State* L, int t)
 	Method(RangeCombatDamage);
 	Method(GetAirStrikeDefenseDamage);
 	Method(GetMultiAttackBonusCity);
+	Method(GetRangeStrikeModifierFromEspionage);
 
 	Method(IsWorkingPlot);
 	Method(AlterWorkingPlot);
@@ -5346,6 +5347,35 @@ int CvLuaCity::lGetMultiAttackBonusCity(lua_State* L)
 	{
 		int iTempModifier = GET_PLAYER(pkCity->getOwner()).GetPlayerTraits()->GetMultipleAttackBonus() * pkUnit->GetNumTimesAttackedThisTurn(pkCity->getOwner());
 		iModifier += iTempModifier;
+	}
+
+	lua_pushinteger(L, iModifier);
+	return 1;
+}
+//------------------------------------------------------------------------------
+int CvLuaCity::lGetRangeStrikeModifierFromEspionage(lua_State* L)
+{
+	CvCity* pCity = GetInstance(L);
+
+	// Only major civs can have this modifier
+	if (pCity->getOwner() >= static_cast<PlayerTypes>(MAX_MAJOR_CIVS))
+		return 0;
+
+	int iModifier = 0;
+	CvCityEspionage* pCityEspionage = pCity->GetCityEspionage();
+	if (pCityEspionage)
+	{
+		CityEventChoiceTypes eSpyFocus = pCityEspionage->GetCounterSpyFocus();
+		if (eSpyFocus != NO_EVENT_CHOICE_CITY)
+		{
+			CvModEventCityChoiceInfo* pEventChoiceInfo = GC.getCityEventChoiceInfo(eSpyFocus);
+			if (pEventChoiceInfo)
+			{
+				iModifier += pEventChoiceInfo->getCityDefenseModifierBase();
+				if (pEventChoiceInfo->getCityDefenseModifier() != 0)
+					iModifier += pEventChoiceInfo->getCityDefenseModifier() * (pCityEspionage->GetCounterSpyRank() + 1);
+			}
+		}
 	}
 
 	lua_pushinteger(L, iModifier);

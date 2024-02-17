@@ -3062,6 +3062,7 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 	CvUnit* pkAttacker = GetInstance(L, 3, false);
 	CvPlot* pFromPlot = CvLuaPlot::GetInstance(L, 4, false);
 	bool bFromRangedAttack = luaL_optbool(L, 5, false);
+	const int iAssumeExtraDamage = luaL_optint(L, 6, 0);
 
 	if (pkAttacker->GeneratePath(pInPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
 	{
@@ -3071,7 +3072,7 @@ int CvLuaUnit::lGetMaxDefenseStrength(lua_State* L)
 			pFromPlot = pEnd;
 	}
 
-	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack);
+	const int iResult = pkUnit->GetMaxDefenseStrength(pInPlot, pkAttacker, pFromPlot, bFromRangedAttack, false, iAssumeExtraDamage);
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4135,13 +4136,7 @@ int CvLuaUnit::lOpenFromModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
 
-	if (pkUnit->plot() == NULL)
-	{
-		lua_pushinteger(L, 0);
-		return 1;
-	}
-
-	const int iResult = pkUnit->plot()->isOpenGround() ? pkUnit->getExtraOpenFromPercent() : 0; 
+	const int iResult = pkUnit->getExtraOpenFromPercent(); 
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -4150,13 +4145,8 @@ int CvLuaUnit::lOpenFromModifier(lua_State* L)
 int CvLuaUnit::lRoughFromModifier(lua_State* L)
 {
 	CvUnit* pkUnit = GetInstance(L);
-	if (pkUnit->plot() == NULL)
-	{
-		lua_pushinteger(L, 0);
-		return 1;
-	}
 
-	const int iResult = pkUnit->plot()->isRoughGround() ? pkUnit->getExtraRoughFromPercent() : 0;
+	const int iResult = pkUnit->getExtraRoughFromPercent();
 	lua_pushinteger(L, iResult);
 	return 1;
 }

@@ -28481,26 +28481,17 @@ void CvCity::updateStrengthValue()
 int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const CvUnit* pDefender) const //result is times 100
 {
 	VALIDATE_OBJECT
-	if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
+
+	// Attacks are weaker
+	if (bForRangeStrike)
 	{
-		// Attacks are weaker
-		if (bForRangeStrike)
+		// Base values
+		int iValue = m_iStrengthValue;
+		int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
+
+		if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
 		{
-			//always ignore building defense here
-			int iValue = m_iStrengthValue;
-
-			//this is kind of stupid but the cached value includes the bonus from the defense process
-			//we need to subtract it again otherwise humans can exploit it
-			if (getProductionProcess() != NO_PROCESS)
-			{
-				CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-				if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
-				{
-					iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
-				}
-			}
-
-			// We also remove the garrisoned unit's strength
+			// Remove the garrisoned unit's strength
 			CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 			if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
 			{
@@ -28509,14 +28500,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				iValue -= (iStrengthFromGarrison * 100);
 			}
 
-			// buildings
-			int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
-			iModifier += getCityBuildingRangeStrikeModifier();
-			if (HasGarrison())
-			{
-				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
-			}
-
+			// Counterspy modifier
 			if (getOwner() < static_cast<PlayerTypes>(MAX_MAJOR_CIVS))
 			{
 				CvCityEspionage* pCityEspionage = GetCityEspionage();
@@ -28533,144 +28517,89 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 					}
 				}
 			}
-
-			// Religion city strike mod
-			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if (eMajority != NO_RELIGION)
-			{
-				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
-				{
-					iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-					eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
-					}
-				}
-			}
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-			// Mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
-			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-					{
-						const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-						{
-							iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
-						}
-					}
-				}
-			}
-#endif
-
-			// OTHER UNIT is a Barbarian
-			if (pDefender != NULL && pDefender->isBarbarian())
-			{
-				// Generic Barb Combat Bonus
-				iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus(false);
-			}
-
-			iValue *= (100 + iModifier);
-			iValue /= 100;
-
-			return iValue;
 		}
-	}
-	else
-	{
-		// Attacks are weaker
-		if (bForRangeStrike)
+		else
 		{
-			//always ignore building defense here
-			int iValue = m_iStrengthValue - m_pCityBuildings->GetBuildingDefense();
+			// Always ignore building defense here
+			iValue -= m_pCityBuildings->GetBuildingDefense();
+		}
 
-			//this is kind of stupid but the cached value includes the bonus from the defense process
-			//we need to subtract it again otherwise humans can exploit it
-			if (getProductionProcess() != NO_PROCESS)
+		// Defense process doesn't boost city strikes
+		if (getProductionProcess() != NO_PROCESS)
+		{
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
-				CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-				if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
-				{
-					iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
-				}
+				iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
 			}
+		}
 
-			int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
-			if (HasGarrison())
-			{
-				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
-			}
+		// Building modifier
+		iModifier += getCityBuildingRangeStrikeModifier();
 
-			//bonus for attacking same unit over and over in a turn?
-			//cannot apply this here because we don't know the defender and cannot change the interface. stupid lua.
-			/*
-			if (pDefender != NULL)
-			{
+		// Garrison modifier
+		if (HasGarrison())
+		{
+			iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
+		}
+
+		// Trait attack bonus against the same target
+		if (pDefender != NULL)
+		{
 			int iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iTempModifier != 0)
 			{
-			iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
-			iModifier += iTempModifier;
+				iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
+				iModifier += iTempModifier;
 			}
-			}
-			*/
-
-			// buildings
-			iModifier += getCityBuildingRangeStrikeModifier();
-
-			// Religion city strike mod
-			int iReligionCityStrikeMod = 0;
-			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if (eMajority != NO_RELIGION)
-			{
-				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
-				{
-					iReligionCityStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-					eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iReligionCityStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
-					}
-					if (iReligionCityStrikeMod > 0)
-					{
-						iModifier += iReligionCityStrikeMod;
-					}
-				}
-			}
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-			// Mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
-			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-					{
-						const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-						{
-							iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
-						}
-					}
-				}
-			}
-#endif
-
-			iValue *= (100 + iModifier);
-			iValue /= 100;
-
-			return iValue;
 		}
+
+		// VS barbarian modifier
+		if (pDefender != NULL && pDefender->isBarbarian())
+		{
+			iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus(false);
+		}
+
+		// Religion city strike mod
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+			if (pReligion)
+			{
+				iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+				eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
+				}
+			}
+		}
+
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					// Check that the our religion does not have our belief, to prevent double counting
+					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())))
+					{
+						iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
+					}
+				}
+			}
+		}
+
+		iValue *= (100 + iModifier);
+		iValue /= 100;
+
+		return iValue;
 	}
 
 	if (bIgnoreBuildings)

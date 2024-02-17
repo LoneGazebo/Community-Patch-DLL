@@ -554,6 +554,7 @@ protected:
 	static int lRangeCombatDamage(lua_State* L);
 	static int lGetAirStrikeDefenseDamage(lua_State* L);
 	static int lGetMultiAttackBonusCity(lua_State* L);
+	static int lGetRangeStrikeModifierFromEspionage(lua_State* L);
 
 	static int lIsWorkingPlot(lua_State* L);
 	static int lAlterWorkingPlot(lua_State* L);
