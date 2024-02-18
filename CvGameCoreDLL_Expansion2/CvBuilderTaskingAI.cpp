@@ -656,12 +656,17 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 
 		if(GC.getGame().GetIndustrialRoute() == eRoute)
 		{
-			int iCityGoldYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_GOLD);
 			int iCityProductionYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_PRODUCTION);
+			int iProductionYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_PRODUCTION);
+			int iProductionYieldRateModifier = /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD);
 
-			iConnectionValue += (pTargetCity->getYieldRate(YIELD_PRODUCTION, false) * /*25 in CP, 0 in VP*/ GD_INT_GET(INDUSTRIAL_ROUTE_PRODUCTION_MOD) * iCityProductionYieldModifierTimes100) / 100;
+			iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 10000;
 
 #if defined(MOD_BALANCE_CORE)
+			int iCityGoldYieldModifierTimes100 = GetPlotYieldModifierTimes100(pTargetCity->plot(), YIELD_GOLD);
+			int iGoldYieldTimes100 = pTargetCity->getBasicYieldRateTimes100(YIELD_GOLD);
+			int iGoldYieldRateModifier = 0;
+
 			// Target city would get a production and gold boost from a train station.
 			for (int iBuildingIndex = 0; iBuildingIndex < GC.getNumBuildingInfos(); iBuildingIndex++)
 			{
@@ -677,20 +682,15 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 				if (!m_pPlayer->HasTech((TechTypes)pkBuilding->GetPrereqAndTech()))
 					continue;
 
-				int iProductionYield = pTargetCity->getYieldRate(YIELD_PRODUCTION, false);
-				int iGoldYield = pTargetCity->getYieldRate(YIELD_GOLD, false);
-				int iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
- 				int iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
+				iProductionYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_PRODUCTION);
+ 				iGoldYieldRateModifier = pkBuilding->GetYieldModifier(YIELD_GOLD);
 
-				iConnectionValue += (iProductionYield * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 100;
-				iConnectionValue += (iGoldYield * iGoldYieldRateModifier * iCityGoldYieldModifierTimes100) / 100;
+				iConnectionValue += (iProductionYieldTimes100 * iProductionYieldRateModifier * iCityProductionYieldModifierTimes100) / 10000;
+				iConnectionValue += (iGoldYieldTimes100 * iGoldYieldRateModifier * iCityGoldYieldModifierTimes100) / 10000;
 			}
 #endif
 		}
 	}
-
-	//if (iNumRoadsNeededToBuild > 0)
-	//	iConnectionValue /= iNumRoadsNeededToBuild;
 
 	iConnectionValue -= iNumRoadsNeededToBuild * 10;
 
@@ -836,13 +836,22 @@ set<int> CvBuilderTaskingAI::GetRoutePlotsForPurpose(RoutePurpose ePurpose) cons
 {
 	set<int> sRet;
 
-	for (map<PlannedRoute, vector<int>>::const_iterator it = m_plannedRoutePlots.begin(); it != m_plannedRoutePlots.end(); ++it)
+	// Need to get the lock since the data structures can be modified while we're accessing them otherwise
+	bool bHadLock = gDLL->HasGameCoreLock();
+	if (!bHadLock)
+		gDLL->GetGameCoreLock();
+
+	map<PlannedRoute, vector<int>> tmpPlannedRoutePlots = map<PlannedRoute, vector<int>>(m_plannedRoutePlots);
+	map<PlannedRoute, set<RoutePurpose>> tmpPlannedRoutePurposes = map<PlannedRoute, set<RoutePurpose>>(m_plannedRoutePurposes);
+
+	if (!bHadLock)
+		gDLL->ReleaseGameCoreLock();
+
+	for (map<PlannedRoute, vector<int>>::const_iterator it = tmpPlannedRoutePlots.begin(); it != tmpPlannedRoutePlots.end(); ++it)
 	{
 		PlannedRoute plannedRoute = it->first;
 
-		map<PlannedRoute, set<RoutePurpose>>::const_iterator it2 = m_plannedRoutePurposes.find(plannedRoute);
-		if (it2 == m_plannedRoutePurposes.end())
-			continue;
+		map<PlannedRoute, set<RoutePurpose>>::const_iterator it2 = tmpPlannedRoutePurposes.find(plannedRoute);
 
 		if (it2->second.find(ePurpose) == it2->second.end())
 			continue;
