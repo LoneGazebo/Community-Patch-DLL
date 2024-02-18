@@ -2814,11 +2814,18 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	}
 }
 
+// Precomputed square root of INT_MAX
+
 // Higher weight means better directive
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
 	int iScore = eDirective.m_iScore;
 	int iBuildTime = iBuildTurns + iMoveTurns;
+
+	const int SQRT_INT_MAX = 46340; // Rounded down to ensure it's within bounds
+
+	if (iScore > SQRT_INT_MAX)
+		return INT_MAX; // Cap at INT_MAX if iScore squared would overflow
 
 	if (iBuildTime == 0)
 		return iScore * iScore;
@@ -2826,7 +2833,14 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 	const int iScoreWeightSquared = 1;
 	const int iBuildTimeWeightSquared = 10000;
 
-	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
+	int scorePart = iScore * iScore * iScoreWeightSquared;
+	int buildTimePart = iBuildTime * iBuildTime * iBuildTimeWeightSquared;
+
+	// Perform subtraction, assuming the constraints ensure no overflow
+	int result = scorePart - buildTimePart;
+
+	// Return the result directly, as constraints ensure it's within int range
+	return result;
 }
 
 static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives)
@@ -2847,18 +2861,18 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 		if (pOtherPlot != pPlot)
 			continue;
 
-		if (eOtherDirective.m_iScore <= eDirective.m_iScore)
-			continue;
-
 		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
 
 		if (!pkOtherBuildInfo)
 			continue;
 
-		if (pkBuildInfo->getRoute() != NO_ROUTE && pkOtherBuildInfo->getRoute() == NO_ROUTE)
+		RouteTypes eRoute = (RouteTypes)pkBuildInfo->getRoute();
+		RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
+
+		if ((eRoute != NO_ROUTE && eOtherRoute == NO_ROUTE) || (eRoute == NO_ROUTE && eOtherRoute != NO_ROUTE))
 			continue;
 
-		if (pkBuildInfo->getRoute() == NO_ROUTE && pkOtherBuildInfo->getRoute() != NO_ROUTE)
+		if (eOtherDirective.m_iScore <= eDirective.m_iScore)
 			continue;
 
 		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective))
@@ -3378,7 +3392,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
 						if (eOtherRoute != NO_ROUTE)
 						{
-							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteAndValueForPlot(pOtherPlot).second;
+							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteTypeAndValue(pOtherPlot).second;
 						}
 					}
 				}
