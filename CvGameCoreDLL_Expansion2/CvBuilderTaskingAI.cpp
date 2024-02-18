@@ -1541,6 +1541,8 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 			}
 		}
 
+		iValue /= 10;
+
 		m_bestRouteTypeAndValue[pPlot->GetPlotIndex()] = make_pair(eRoute, iValue);
 
 		// Reduce value if there are no adjacent routes (directive value is set to full value if a route is planned adjacent to this plot in CvHomelandAI)
@@ -1727,6 +1729,8 @@ void CvBuilderTaskingAI::AddImprovingResourcesDirective(vector<OptionWithScore<B
 				continue;
 			}
 
+			iScore /= 10;
+
 			BuilderDirective directive(BuilderDirective::BUILD_IMPROVEMENT_ON_RESOURCE, eBuild, eResource, pPlot->getX(), pPlot->getY(), iScore);
 
 			if (m_bLogging)
@@ -1874,6 +1878,8 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 			}
 		}
 
+		iScore /= 10;
+
 		BuilderDirective directive(BuilderDirective::BUILD_IMPROVEMENT, eBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iScore);
 
 		if(m_bLogging)
@@ -1890,7 +1896,7 @@ void CvBuilderTaskingAI::AddImprovingPlotsDirective(vector<OptionWithScore<Build
 		}
 		
 		if (iScore > iMinScore)
-			aDirectives.push_back( OptionWithScore<BuilderDirective>(directive, iScore));
+			aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iScore));
 	}
 }
 
@@ -1948,6 +1954,8 @@ void CvBuilderTaskingAI::AddRemoveRouteDirective(vector<OptionWithScore<BuilderD
 	//if we are losing gold, be more aggressive
 	if (iNetGoldTimes100 < -1000)
 		iWeight = iWeight *= 10;
+
+	iWeight /= 10;
 
 	BuilderDirective directive(BuilderDirective::REMOVE_ROAD, m_eRemoveRouteBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
 
@@ -2195,6 +2203,8 @@ void CvBuilderTaskingAI::AddRepairImprovementDirective(vector<OptionWithScore<Bu
 
 	int iWeight = ScorePlotBuild(pPlot, pPlot->getImprovementType(), m_eRepairBuild);
 
+	iWeight /= 10;
+
 	if (iWeight > 0)
 	{
 		BuilderDirective directive(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
@@ -2216,13 +2226,11 @@ void CvBuilderTaskingAI::AddRepairRouteDirective(vector<OptionWithScore<BuilderD
 	if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
 		return;
 
-	int iWeight = iValue;
-
-	if (iWeight > 0)
+	if (iValue > 0)
 	{
-		BuilderDirective directive(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
+		BuilderDirective directive(BuilderDirective::REPAIR, m_eRepairBuild, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iValue);
 
-		aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iWeight));
+		aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iValue));
 	}
 }
 
@@ -2246,6 +2254,8 @@ void CvBuilderTaskingAI::AddScrubFalloutDirectives(vector<OptionWithScore<Builde
 	if(pPlot->getFeatureType() == m_eFalloutFeature && m_pPlayer->canBuild(pPlot, m_eFalloutRemove))
 	{
 		int iWeight =/*20000*/ GD_INT_GET(BUILDER_TASKING_BASELINE_SCRUB_FALLOUT);
+
+		iWeight /= 10;
 
 		BuilderDirective directive(BuilderDirective::CHOP, m_eFalloutRemove, NO_RESOURCE, pPlot->getX(), pPlot->getY(), iWeight);
 		aDirectives.push_back(OptionWithScore<BuilderDirective>(directive, iWeight));
