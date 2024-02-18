@@ -1,9 +1,9 @@
 -----------------------------------------------------------------------------------------------
--- Maritime: Food on capital tile and other city tiles x100
+-- Maritime: Food on capital tile and other city tiles x100 (but use only even multiples!)
 -- Only has pre- and post-Renaissance values, and same value for allies throughout the game
 -----------------------------------------------------------------------------------------------
 UPDATE Defines SET Value = 300 WHERE Name = 'FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE';
-UPDATE Defines SET Value = 50 WHERE Name = 'FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE';
+UPDATE Defines SET Value = 100 WHERE Name = 'FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE';
 
 UPDATE Defines SET Value = 600 WHERE Name = 'FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE';
 UPDATE Defines SET Value = 100 WHERE Name = 'FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE';

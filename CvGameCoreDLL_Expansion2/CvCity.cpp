@@ -26584,12 +26584,26 @@ int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	int iValue = 0;
-	if (GetYieldPerAlly(eIndex) != 0)
+
+	int iValue = m_aiBaseYieldRateFromCSAlliance[eIndex];
+	int iBonus = GetYieldPerAlly(eIndex) != 0 ? GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies() : 0;
+
+	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
+	//policy effects
+	iModifier += kPlayer.GetCSYieldBonusModifier();
+	//cannot check for religion based modifier, we don't know the religion of the originating city state here ...
+
+	if (MOD_CITY_STATE_SCALE)
+		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+
+	if (iModifier > 0)
 	{
-		iValue += (GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies());
+		iValue *= 100 + iModifier;
+		iValue /= 100;
 	}
-	return (m_aiBaseYieldRateFromCSAlliance[eIndex] + iValue);
+
+	return (iValue + iBonus);
 }
 //	--------------------------------------------------------------------------------
 /// Base yield rate from CS Alliances
@@ -26620,12 +26634,26 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	int iValue = 0;
-	if (GetYieldPerFriend(eIndex) != 0)
+	int iValue = m_aiBaseYieldRateFromCSFriendship[eIndex];
+	int iBonus = GetYieldPerFriend(eIndex) != 0 ? GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends() : 0;
+
+	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
+	//policy effects
+	iModifier += kPlayer.GetCSYieldBonusModifier();
+	//cannot check for religion based modifier, we don't know the religion of the originating city state here ...
+
+	if (MOD_CITY_STATE_SCALE)
+		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+
+	if (iModifier > 0)
 	{
-		iValue += (GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends());
+		iValue *= 100 + iModifier;
+		iValue /= 100;
 	}
-	return (m_aiBaseYieldRateFromCSFriendship[eIndex] + iValue);
+
+	return (iValue + iBonus);
+
 }
 void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
 {
@@ -29823,22 +29851,26 @@ void CvCity::fixBonusFromMinors(bool bRemove)
 		CvMinorCivAI* pMinor = GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).isAlive() ? GET_PLAYER(ePlayer).GetMinorCivAI() : 0;
 		if (pMinor)
 		{
-			bool bFriends = pMinor->IsFriends(getOwner());
-			bool bAllies = pMinor->IsAllies(getOwner());
 			int iSign = bRemove ? -1 : +1;
 
 			if (pMinor->IsAllies(getOwner()))
 			{
 				int iBonus = isCapital() ? pMinor->GetAlliesCapitalFoodBonus() : pMinor->GetAlliesOtherCityFoodBonus();
-				if (iBonus!=0)
+				if (iBonus != 0)
+				{
 					ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iSign * iBonus / 100);
+					//CUSTOMLOG("adjusted food in %s by %d/100 for alliance with %s, current value is %d", getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+				}
 			}
 
 			if (pMinor->IsFriends(getOwner()))
 			{
 				int iBonus = isCapital() ? pMinor->GetFriendsCapitalFoodBonus(getOwner()) : pMinor->GetFriendsOtherCityFoodBonus(getOwner());
 				if (iBonus != 0)
+				{
 					ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iSign * iBonus / 100);
+					//CUSTOMLOG("adjusted food in %s by %d/100 for friendship with %s, current value is %d", getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+				}
 			}
 
 			updateYield();

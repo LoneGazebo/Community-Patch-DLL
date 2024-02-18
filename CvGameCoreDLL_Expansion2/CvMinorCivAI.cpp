@@ -12630,7 +12630,27 @@ void CvMinorCivAI::DoFriendshipChangeEffects(PlayerTypes ePlayer, int iOldFriend
 		bFriendsChanged = true;
 		SetFriends(ePlayer, false);
 
-		//todo: should we wake up all units of ePlayer in our territory?
+		//wake up all units of ePlayer in our territory
+		int iLoop;
+		for (CvCity* pLoopCity = m_pPlayer->firstCity(&iLoop); pLoopCity != NULL; pLoopCity = m_pPlayer->nextCity(&iLoop))
+		{
+			for (int iCityPlotLoop = 0; iCityPlotLoop < pLoopCity->GetNumWorkablePlots(); iCityPlotLoop++)
+			{
+				CvPlot* pLoopPlot = iterateRingPlots(pLoopCity->getX(), pLoopCity->getY(), iCityPlotLoop);
+				if (pLoopPlot && pLoopPlot->getOwner() == m_pPlayer->GetID())
+				{
+					for (int i = 0; i < pLoopPlot->getNumUnits(); i++)
+					{
+						CvUnit* pLoopUnit = pLoopPlot->getUnitByIndex(i);
+						if (pLoopUnit && pLoopUnit->getOwner() == ePlayer && pLoopUnit->isHuman())
+						{
+							if (pLoopUnit->GetActivityType() == ACTIVITY_SENTRY || pLoopUnit->GetActivityType() == ACTIVITY_SLEEP)
+								pLoopUnit->SetActivityType(ACTIVITY_AWAKE);
+						}
+					}
+				}
+			}
+		}
 	}
 
 	// Resolve Allies status with sphere of influence or open door
@@ -12841,13 +12861,29 @@ void CvMinorCivAI::DoSetBonus(PlayerTypes ePlayer, bool bAdd, bool bFriends, boo
 		{
 			if (pLoopCity->GetID() == kMajor.getCapitalCityID())
 			{
-				pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyCapitalFoodTimes100 / 100);
-				pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendCapitalFoodTimes100 / 100);
+				if (iAllyCapitalFoodTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyCapitalFoodTimes100 / 100);
+					//("changed capital food in %s by %d/100 for alliance with %s, current value is %d", pLoopCity->getNameKey(), iAllyCapitalFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+				}
+				if (iFriendCapitalFoodTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendCapitalFoodTimes100 / 100);
+					//CUSTOMLOG("changed capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iFriendCapitalFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
+				}
 			}
 			else
 			{
-				pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyOtherCitiesFoodTimes100 / 100);
-				pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendOtherCitiesFoodTimes100 / 100);
+				if (iAllyOtherCitiesFoodTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iAllyOtherCitiesFoodTimes100 / 100);
+					//CUSTOMLOG("changed non-capital food in %s by %d/100 for alliance with %s, current value is %d", pLoopCity->getNameKey(), iAllyOtherCitiesFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+				}
+				if (iFriendOtherCitiesFoodTimes100 != 0)
+				{
+					pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iFriendOtherCitiesFoodTimes100 / 100);
+					//CUSTOMLOG("changed non-capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iFriendOtherCitiesFoodTimes100, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
+				}
 			}
 
 			pLoopCity->updateYield();
@@ -13894,27 +13930,33 @@ bool CvMinorCivAI::DoMajorCivEraChange(PlayerTypes ePlayer, EraTypes eNewEra)
 		// Friends
 		if(IsFriends(ePlayer))
 		{
-			int iOldFood = 0;
-			int iNewFood = 0;
-
 			// Capital
-			iOldFood = GetFriendsCapitalFoodBonus(ePlayer);
-			iNewFood = GetFriendsCapitalFoodBonus(ePlayer, eNewEra);
+			int iCapDelta = GetFriendsCapitalFoodBonus(ePlayer, eNewEra) - GetFriendsCapitalFoodBonus(ePlayer);
+			int iOtherDelta = GetFriendsOtherCityFoodBonus(ePlayer, eNewEra) - GetFriendsOtherCityFoodBonus(ePlayer);
+			bSomethingChanged = iCapDelta || iOtherDelta;
 
-			if(iOldFood != iNewFood)
+			CvPlayer& kMajor = GET_PLAYER(ePlayer);
+			int iLoop;
+			for (CvCity* pLoopCity = kMajor.firstCity(&iLoop); pLoopCity != NULL; pLoopCity = kMajor.nextCity(&iLoop))
 			{
-				bSomethingChanged = true;
-				GET_PLAYER(ePlayer).ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
-			}
+				if (pLoopCity->GetID() == kMajor.getCapitalCityID())
+				{
+					if (iCapDelta != 0)
+					{
+						pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iCapDelta / 100);
+						//CUSTOMLOG("updated capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iCapDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
+					}
+				}
+				else
+				{
+					if (iOtherDelta != 0)
+					{
+						pLoopCity->ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iOtherDelta / 100);
+						//CUSTOMLOG("updated non-capital food in %s by %d/100 for friendship with %s, current value is %d", pLoopCity->getNameKey(), iOtherDelta, m_pPlayer->getNameKey(), pLoopCity->GetBaseYieldRateFromCSFriendship(YIELD_FOOD));
+					}
+				}
 
-			// Other Cities
-			iOldFood = GetFriendsOtherCityFoodBonus(ePlayer);
-			iNewFood = GetFriendsOtherCityFoodBonus(ePlayer, eNewEra);
-
-			if(iOldFood != iNewFood)
-			{
-				bSomethingChanged = true;
-				GET_PLAYER(ePlayer).ChangeCityYieldChangeTimes100(YIELD_FOOD, iNewFood - iOldFood);
+				pLoopCity->updateYield();
 			}
 		}
 	}
@@ -14864,7 +14906,7 @@ int CvMinorCivAI::GetFriendsOtherCityFoodBonus(PlayerTypes ePlayer, EraTypes eAs
 
 	// Medieval era or sooner
 	if (eCurrentEra < eRenaissance)
-		iBonus = /*0 in CP, 50 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
+		iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 
 	// Renaissance era or later
 	else
@@ -14900,10 +14942,6 @@ int CvMinorCivAI::GetCurrentCapitalFoodBonus(PlayerTypes ePlayer)
 	if (IsFriends(ePlayer))
 		iAmount += GetFriendsCapitalFoodBonus(ePlayer);
 
-	/*
-	//do not use those modifiers, they can change from turn to turn and that messes up the bookkeeping
-	//DoSetBonus is based on semi-static GetAlliesCapitalFoodBonus() / GetFriendsCapitalFoodBonus()
-	
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
 	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
@@ -14918,7 +14956,6 @@ int CvMinorCivAI::GetCurrentCapitalFoodBonus(PlayerTypes ePlayer)
 		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
-	*/
 
 	return iAmount;
 }
@@ -14938,10 +14975,6 @@ int CvMinorCivAI::GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer)
 	if (IsFriends(ePlayer))
 		iAmount += GetFriendsOtherCityFoodBonus(ePlayer);
 
-	/*
-	//do not use those modifiers, they can change from turn to turn and that messes up the bookkeeping
-	//DoSetBonus is based on semi-static GetAlliesOtherCityFoodBonus() / GetFriendsOtherCityFoodBonus()
-
 	int iModifier = GET_PLAYER(ePlayer).GetPlayerTraits()->GetCityStateBonusModifier();
 	iModifier += GET_PLAYER(ePlayer).GetCSYieldBonusModifier();
 	iModifier += IsSameReligionAsMajor(ePlayer) ? GET_PLAYER(ePlayer).GetReligions()->GetCityStateYieldModifier(ePlayer) : 0;
@@ -14956,7 +14989,6 @@ int CvMinorCivAI::GetCurrentOtherCityFoodBonus(PlayerTypes ePlayer)
 		iAmount *= 100 + max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
 		iAmount /= 100;
 	}
-	*/
 
 	return iAmount;
 }
