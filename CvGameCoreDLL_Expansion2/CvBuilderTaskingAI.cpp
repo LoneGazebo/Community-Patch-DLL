@@ -519,6 +519,9 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 {
 	vector<int> routePlots;
 
+	if (iValue <= 0)
+		return;
+
 	for (int i = 1; i < path.length() - 1; i++)
 	{
 		CvPlot* pPlot = path.get(i);
@@ -528,9 +531,6 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 
 		m_anyRoutePlanned.insert(make_pair(make_pair(eRoute, pPlot->GetPlotIndex()), ePurpose));
 	}
-
-	if (iValue <= 0)
-		return;
 
 	if (ePurpose != PURPOSE_CONNECT_CAPITAL)
 	{
