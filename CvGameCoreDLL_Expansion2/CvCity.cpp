@@ -8180,7 +8180,7 @@ int CvCity::GetNumWorkablePlots(int iChange) const
 	return iWorkablePlots;
 }
 
-bool CvCity::IsWithinWorkRange(CvPlot * pPlot) const
+bool CvCity::IsWithinWorkRange(const CvPlot * pPlot) const
 {
 	if (pPlot)
 	{
@@ -29680,7 +29680,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	iRtnValue += iYieldValue;
 
-	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->GetBestRouteAndValueForPlot(pPlot).first != NO_ROUTE)
+	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->GetBestRouteTypeAndValue(pPlot).first != NO_ROUTE)
 	{
 		iRtnValue += /*80*/ GD_INT_GET(AI_PLOT_VALUE_STRATEGIC_RESOURCE);
 	}

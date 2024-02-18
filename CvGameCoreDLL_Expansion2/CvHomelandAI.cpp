@@ -2847,18 +2847,18 @@ static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit
 		if (pOtherPlot != pPlot)
 			continue;
 
-		if (eOtherDirective.m_iScore <= eDirective.m_iScore)
-			continue;
-
 		CvBuildInfo* pkOtherBuildInfo = GC.getBuildInfo(eOtherDirective.m_eBuild);
 
 		if (!pkOtherBuildInfo)
 			continue;
 
-		if (pkBuildInfo->getRoute() != NO_ROUTE && pkOtherBuildInfo->getRoute() == NO_ROUTE)
+		RouteTypes eRoute = (RouteTypes)pkBuildInfo->getRoute();
+		RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
+
+		if ((eRoute != NO_ROUTE && eOtherRoute == NO_ROUTE) || (eRoute == NO_ROUTE && eOtherRoute != NO_ROUTE))
 			continue;
 
-		if (pkBuildInfo->getRoute() == NO_ROUTE && pkOtherBuildInfo->getRoute() != NO_ROUTE)
+		if (eOtherDirective.m_iScore <= eDirective.m_iScore)
 			continue;
 
 		if (!pPlayer->GetBuilderTaskingAI()->CanUnitPerformDirective(pUnit, eOtherDirective))
@@ -3378,7 +3378,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						RouteTypes eOtherRoute = (RouteTypes)pkOtherBuildInfo->getRoute();
 						if (eOtherRoute != NO_ROUTE)
 						{
-							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteAndValueForPlot(pOtherPlot).second;
+							eOtherDirective.m_iScore = pBuilderTaskingAI->GetBestRouteTypeAndValue(pOtherPlot).second;
 						}
 					}
 				}

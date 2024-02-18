@@ -240,7 +240,7 @@ public:
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance(int iChange = 0) const;
 	int GetNumWorkablePlots(int iChange = 0) const;
-	bool IsWithinWorkRange(CvPlot* pPlot) const;
+	bool IsWithinWorkRange(const CvPlot* pPlot) const;
 
 	void clearWorkingOverride(int iIndex);
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT) const;

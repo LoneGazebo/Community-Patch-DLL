@@ -95,10 +95,11 @@ public:
 
 	void AddImprovingResourcesDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
 	void AddImprovingPlotsDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity, const vector<BuildTypes> aBuildsToConsider, int iMinScore);
-	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot);
+	void AddRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	void AddRemoveRouteDirective(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, int iNetGoldTimes100);
 	void AddChopDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
-	void AddRepairTilesDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddRepairImprovementDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
+	void AddRepairRouteDirective(vector<OptionWithScore<BuilderDirective>>& aDirectives, CvPlot* pPlot, RouteTypes eRoute, int iValue);
 	void AddScrubFalloutDirectives(vector<OptionWithScore<BuilderDirective>> &aDirectives, CvPlot* pPlot, CvCity* pWorkingCity);
 
 	bool ShouldAnyBuilderConsiderPlot(CvPlot* pPlot);  // general checks for whether the plot should be considered
@@ -107,9 +108,8 @@ public:
 	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned=0);
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
-	pair<RouteTypes,int> GetBestRouteAndValueForPlot(const CvPlot* pPlot) const;
-	bool CapitalRoutePlannedAtPlot(CvPlot* pPlot, RouteTypes eRoute) const;
-	bool ShortcutRoutePlannedAtPlot(CvPlot* pPlot, RouteTypes eRoute) const;
+	pair<RouteTypes, int> GetBestRouteTypeAndValue(const CvPlot* pPlot) const;
+	bool IsRoutePlanned(CvPlot* pPlot, RouteTypes eRoute, RoutePurpose ePurpose) const;
 	bool WantCanalAtPlot(const CvPlot* pPlot) const; //build it and keep it
 	bool WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const;
 	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
@@ -136,6 +136,9 @@ public:
 	//---------------------------------------PROTECTED MEMBER VARIABLES---------------------------------
 protected:
 
+	typedef pair<int, int> PlotPair;
+	typedef pair<PlotPair, RouteTypes> PlannedRoute;
+
 	void LogDirectives(vector<OptionWithScore<BuilderDirective>> directives);
 	void LogDirective(BuilderDirective directive, int iWeight, bool bChosen = false);
 
@@ -144,31 +147,35 @@ protected:
 	void ConnectCitiesForScenario(CvCity* pFirstCity, CvCity* pSecondCity, BuildTypes eBuild, RouteTypes eRoute);
 	void ConnectPointsForStrategy(CvCity* pOriginCity, CvPlot* pTargetPlot, BuildTypes eBuild, RouteTypes eRoute);
 
+	vector<OptionWithScore<BuilderDirective>> GetRouteDirectives();
+	vector<OptionWithScore<BuilderDirective>> GetImprovementDirectives();
+
 	void UpdateCurrentPlotYields(CvPlot* pPlot);
 	void UpdateProjectedPlotYields(CvPlot* pPlot, BuildTypes eBuild, bool bIgnoreCityConnection);
 
-	void AddGlobalRoutePlot(const CvPlot* pPlot, RouteTypes eRoute, int iValue);
-	void AddLocalRoutePlot(const CvPlot* pPlot, RouteTypes eRoute, int iValue);
-	int GetPlotRouteValue(const CvPlot* pPlot, RouteTypes eRoute) const;
+	set<int> GetRoutePlotsForPurpose(RoutePurpose ePurpose) const;
+	void AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, RouteTypes eRoute, int iValue, SPath path, RoutePurpose ePurpose);
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
-	void GetPathValues(SPath path, RouteTypes eRoute, vector<int>& aiVillagePlotBonuses, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild, int& iMaintenanceRoadTiles);
+	void GetPathValues(SPath path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);
 
 	void UpdateCanalPlots();
+
+	PlotPair GetPlotPair(int iPlotId1, int iPlotId2);
 
 	CvPlayer* m_pPlayer;
 	bool m_bLogging;
 
 	typedef pair<RouteTypes,int> RoutePlot;
-	map<RoutePlot,int> m_globalRouteValues; //serialized
-	map<RoutePlot,int> m_localRouteValues; //serialized
+	map<PlannedRoute, int> m_plannedRouteAdditiveValues; //serialized
+	map<PlannedRoute, int> m_plannedRouteNonAdditiveValues; //serialized
+	map<PlannedRoute, vector<int>> m_plannedRoutePlots; //serialized
+	map<PlannedRoute, set<RoutePurpose>> m_plannedRoutePurposes; //serialized
+	set<pair<RoutePlot, RoutePurpose>> m_anyRoutePlanned; //serialized
+	map<int, RoutePlot> m_bestRouteTypeAndValue; //serialized
 	set<int> m_canalWantedPlots; //serialized
 	vector<BuilderDirective> m_directives;
 	map<int, BuilderDirective> m_assignedDirectives;
-
-	set<int> m_mainRoutePlots; //route here between city and capital. serialized
-	set<int> m_shortcutRoutePlots; //route here between two non-capital cities. serialized
-	set<int> m_strategicRoutePlots; //route here for strategic reasons. serialized
 
 	int m_aiCurrentPlotYields[NUM_YIELD_TYPES];
 	int m_aiProjectedPlotYields[NUM_YIELD_TYPES];
