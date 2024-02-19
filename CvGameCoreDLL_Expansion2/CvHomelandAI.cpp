@@ -3289,7 +3289,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					{
 						int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-						iScore = min(iScore, 0x7FFF);
+						iScore /= 10;
 
 						if (iScore != eOtherDirective.m_iScore)
 						{
@@ -3314,7 +3314,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore = min(iScore, 0x7FFF);
+							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
@@ -3344,7 +3344,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore = min(iScore, 0x7FFF);
+							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
@@ -3365,7 +3365,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore = min(iScore, 0x7FFF);
+							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
