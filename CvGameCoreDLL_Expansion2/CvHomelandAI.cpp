@@ -2814,15 +2814,14 @@ bool CvHomelandAI::ExecuteExplorerMoves(CvUnit* pUnit)
 	}
 }
 
-// Precomputed square root of INT_MAX
-
 // Higher weight means better directive
 static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int iMoveTurns)
 {
 	int iScore = eDirective.m_iScore;
 	int iBuildTime = iBuildTurns + iMoveTurns;
 
-	const int SQRT_INT_MAX = 46340; // Rounded down to ensure it's within bounds
+	// Precomputed square root of INT_MAX
+	const int SQRT_INT_MAX = 46340;
 
 	if (iScore > SQRT_INT_MAX)
 		return INT_MAX; // Cap at INT_MAX if iScore squared would overflow
@@ -2831,16 +2830,9 @@ static int GetDirectiveWeight(BuilderDirective eDirective, int iBuildTurns, int 
 		return iScore * iScore;
 
 	const int iScoreWeightSquared = 1;
-	const int iBuildTimeWeightSquared = 10000;
+	const int iBuildTimeWeightSquared = 100;
 
-	int scorePart = iScore * iScore * iScoreWeightSquared;
-	int buildTimePart = iBuildTime * iBuildTime * iBuildTimeWeightSquared;
-
-	// Perform subtraction, assuming the constraints ensure no overflow
-	int result = scorePart - buildTimePart;
-
-	// Return the result directly, as constraints ensure it's within int range
-	return result;
+	return (iScore * iScore) * iScoreWeightSquared - (iBuildTime * iBuildTime) * iBuildTimeWeightSquared;
 }
 
 static bool IsBestDirectiveForBuilderAndPlot(BuilderDirective eDirective, CvUnit* pUnit, const CvPlayer* pPlayer, vector<BuilderDirective> aDirectives)
@@ -3297,7 +3289,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					{
 						int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-						iScore = min(iScore, 0x7FFF);
+						iScore /= 10;
 
 						if (iScore != eOtherDirective.m_iScore)
 						{
@@ -3322,7 +3314,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore = min(iScore, 0x7FFF);
+							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
@@ -3352,7 +3344,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore = min(iScore, 0x7FFF);
+							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
@@ -3373,7 +3365,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 						{
 							int iScore = pBuilderTaskingAI->ScorePlotBuild(pOtherPlot, eOtherImprovement, eOtherDirective.m_eBuild, sState);
 
-							iScore = min(iScore, 0x7FFF);
+							iScore /= 10;
 
 							if (iScore != eOtherDirective.m_iScore)
 							{
