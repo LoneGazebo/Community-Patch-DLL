@@ -116,7 +116,7 @@ public:
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
 
-	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
+	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 	BuildTypes GetRepairBuild(void);
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);

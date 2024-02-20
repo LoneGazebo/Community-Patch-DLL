@@ -932,18 +932,69 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot) const
 {
 	FeatureTypes eFeature = pPlot->getFeatureType();
+	ImprovementTypes eSaveForImprovement = NO_IMPROVEMENT;
 
-	if (eFeature != NO_FEATURE && m_aeSaveFeatureForImprovementUntilTech[eFeature].second != NO_TECH)
-		return m_aeSaveFeatureForImprovementUntilTech[eFeature].first;
+	if (eFeature != NO_FEATURE && m_aeSaveFeatureForImprovementUntilTech[eFeature].second != NO_TECH && pPlot->canHaveImprovement(m_aeSaveFeatureForImprovementUntilTech[eFeature].first, m_pPlayer->GetID()))
+		eSaveForImprovement = m_aeSaveFeatureForImprovementUntilTech[eFeature].first;
+	else if (m_eSaveCityAdjacentForImprovement != NO_IMPROVEMENT && pPlot->IsAdjacentCity() && pPlot->canHaveImprovement(m_eSaveCityAdjacentForImprovement, m_pPlayer->GetID()))
+		eSaveForImprovement = m_eSaveCityAdjacentForImprovement;
+	else if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand() && pPlot->canHaveImprovement(m_eSaveCoastalForImprovement, m_pPlayer->GetID()))
+		eSaveForImprovement = m_eSaveCoastalForImprovement;
+	else if (m_eSaveHillsForImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS && pPlot->canHaveImprovement(m_eSaveHillsForImprovement, m_pPlayer->GetID()))
+		eSaveForImprovement = m_eSaveHillsForImprovement;
 
-	if (m_eSaveCityAdjacentForImprovement != NO_IMPROVEMENT && pPlot->IsAdjacentCity())
-		return m_eSaveCityAdjacentForImprovement;
-
-	if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand())
-		return m_eSaveCoastalForImprovement;
-
-	if (m_eSaveHillsForImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS)
-		return m_eSaveHillsForImprovement;
+	// Adjacency checks are not done in canHaveImprovement, need to do them here
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eSaveForImprovement);
+	if (pkImprovementInfo)
+	{
+		bool bHasLuxuryRequirement = pkImprovementInfo->IsAdjacentLuxury();
+		bool bHasNoAdjacencyRequirement = pkImprovementInfo->IsNoTwoAdjacent();
+		if (pkImprovementInfo && (bHasLuxuryRequirement || bHasNoAdjacencyRequirement))
+		{
+			bool bLuxuryRequirementMet = !bHasLuxuryRequirement;
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+				if (pAdjacentPlot != NULL)
+				{
+					if (bHasLuxuryRequirement)
+					{
+						ResourceTypes eResource = pAdjacentPlot->getResourceType(m_pPlayer->getTeam());
+						if (eResource != NO_RESOURCE)
+						{
+							CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+							if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+							{
+								bLuxuryRequirementMet = true;
+							}
+						}
+					}
+					if (bHasNoAdjacencyRequirement)
+					{
+						ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+						if (eAdjacentImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eSaveForImprovement)
+						{
+							return NO_IMPROVEMENT;
+						}
+						CvImprovementEntry* pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+						if (pkImprovement2 && eAdjacentImprovement != NO_IMPROVEMENT && pkImprovement2->GetImprovementMakesValid(eSaveForImprovement))
+						{
+							return NO_IMPROVEMENT;
+						}
+						int iBuildProgress = pAdjacentPlot->getBuildProgress(GetBuildTypeFromImprovement(eSaveForImprovement));
+						if (iBuildProgress > 0)
+						{
+							return NO_IMPROVEMENT;
+						}
+					}
+				}
+			}
+			if (bHasLuxuryRequirement && !bLuxuryRequirementMet)
+			{
+				return NO_IMPROVEMENT;
+			}
+		}
+	}
 
 	return NO_IMPROVEMENT;
 }
@@ -2946,7 +2997,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	return iYieldScore + iBaseYieldScore + iSecondaryScore;
 }
 
-BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImprovement)
+BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const
 {
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{
