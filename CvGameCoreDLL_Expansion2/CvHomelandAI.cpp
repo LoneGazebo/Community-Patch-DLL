@@ -3077,24 +3077,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 		}
 	}
 
-	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if (!pUnit)
-			continue;
-
-		//fallout also counts as danger, so set the threshold a bit higher than zero
-		if(pUnit->GetDanger()>pUnit->GetCurrHitPoints()/2)
-		{
-			if(MoveCivilianToSafety(pUnit))
-			{
-				UnitProcessed(pUnit->GetID());
-				processedWorkers.insert(pUnit->GetID());
-				continue;
-			}
-		}
-	}
-
 	CvBuilderTaskingAI* pBuilderTaskingAI = m_pPlayer->GetBuilderTaskingAI();
 	vector<BuilderDirective> topDirectives = pBuilderTaskingAI->GetDirectives();
 	set<BuilderDirective> ignoredDirectives;

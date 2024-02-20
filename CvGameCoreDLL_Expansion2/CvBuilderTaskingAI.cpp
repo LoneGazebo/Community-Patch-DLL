@@ -932,20 +932,71 @@ bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes e
 ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot) const
 {
 	FeatureTypes eFeature = pPlot->getFeatureType();
+	ImprovementTypes eSaveForImprovement = NO_IMPROVEMENT;
 
-	if (eFeature != NO_FEATURE && m_aeSaveFeatureForImprovementUntilTech[eFeature].second != NO_TECH)
-		return m_aeSaveFeatureForImprovementUntilTech[eFeature].first;
+	if (eFeature != NO_FEATURE && m_aeSaveFeatureForImprovementUntilTech[eFeature].second != NO_TECH && pPlot->canHaveImprovement(m_aeSaveFeatureForImprovementUntilTech[eFeature].first, m_pPlayer->GetID()))
+		eSaveForImprovement = m_aeSaveFeatureForImprovementUntilTech[eFeature].first;
+	else if (m_eSaveCityAdjacentForImprovement != NO_IMPROVEMENT && pPlot->IsAdjacentCity() && pPlot->canHaveImprovement(m_eSaveCityAdjacentForImprovement, m_pPlayer->GetID()))
+		eSaveForImprovement = m_eSaveCityAdjacentForImprovement;
+	else if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand() && pPlot->canHaveImprovement(m_eSaveCoastalForImprovement, m_pPlayer->GetID()))
+		eSaveForImprovement = m_eSaveCoastalForImprovement;
+	else if (m_eSaveHillsForImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS && pPlot->canHaveImprovement(m_eSaveHillsForImprovement, m_pPlayer->GetID()))
+		eSaveForImprovement = m_eSaveHillsForImprovement;
 
-	if (m_eSaveCityAdjacentForImprovement != NO_IMPROVEMENT && pPlot->IsAdjacentCity())
-		return m_eSaveCityAdjacentForImprovement;
+	// Adjacency checks are not done in canHaveImprovement, need to do them here
+	CvImprovementEntry* pkImprovementInfo = GC.getImprovementInfo(eSaveForImprovement);
+	if (pkImprovementInfo)
+	{
+		bool bHasLuxuryRequirement = pkImprovementInfo->IsAdjacentLuxury();
+		bool bHasNoAdjacencyRequirement = pkImprovementInfo->IsNoTwoAdjacent();
+		if (pkImprovementInfo && (bHasLuxuryRequirement || bHasNoAdjacencyRequirement))
+		{
+			bool bLuxuryRequirementMet = !bHasLuxuryRequirement;
+			for (int iI = 0; iI < NUM_DIRECTION_TYPES; ++iI)
+			{
+				CvPlot* pAdjacentPlot = plotDirection(pPlot->getX(), pPlot->getY(), ((DirectionTypes)iI));
+				if (pAdjacentPlot != NULL)
+				{
+					if (bHasLuxuryRequirement)
+					{
+						ResourceTypes eResource = pAdjacentPlot->getResourceType(m_pPlayer->getTeam());
+						if (eResource != NO_RESOURCE)
+						{
+							CvResourceInfo* pkResourceInfo = GC.getResourceInfo(eResource);
+							if (pkResourceInfo && pkResourceInfo->getResourceUsage() == RESOURCEUSAGE_LUXURY)
+							{
+								bLuxuryRequirementMet = true;
+							}
+						}
+					}
+					if (bHasNoAdjacencyRequirement)
+					{
+						ImprovementTypes eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+						if (eAdjacentImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eSaveForImprovement)
+						{
+							return NO_IMPROVEMENT;
+						}
+						CvImprovementEntry* pkImprovement2 = GC.getImprovementInfo(eAdjacentImprovement);
+						if (pkImprovement2 && eAdjacentImprovement != NO_IMPROVEMENT && pkImprovement2->GetImprovementMakesValid(eSaveForImprovement))
+						{
+							return NO_IMPROVEMENT;
+						}
+						int iBuildProgress = pAdjacentPlot->getBuildProgress(GetBuildTypeFromImprovement(eSaveForImprovement));
+						if (iBuildProgress > 0)
+						{
+							return NO_IMPROVEMENT;
+						}
+					}
+				}
+			}
+			if (bHasLuxuryRequirement && !bLuxuryRequirementMet)
+			{
+				return NO_IMPROVEMENT;
+			}
+		}
+	}
 
-	if (m_eSaveCoastalForImprovement != NO_IMPROVEMENT && pPlot->isCoastalLand())
-		return m_eSaveCoastalForImprovement;
-
-	if (m_eSaveHillsForImprovement != NO_IMPROVEMENT && pPlot->getPlotType() == PLOT_HILLS)
-		return m_eSaveHillsForImprovement;
-
-	return NO_IMPROVEMENT;
+	return eSaveForImprovement;
 }
 
 void CvBuilderTaskingAI::UpdateCanalPlots()
@@ -2373,68 +2424,46 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 }
 
 /// Return the weight of this resource
-int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned)
+int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, int iQuantity, int iAdditionalOwned)
 {
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 	if (!pkResource)
 		return 0;
 
-	int iWeight = 0;
-
-	for (int i = 0; i < GC.getNumFlavorTypes(); i++)
-	{
-		int iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
-		int iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
-		int iResult = iResourceFlavor * iPersonalityFlavorValue;
-
-		if (iResult > 0)
-		{
-			iWeight += iResult * 10;
-		}
-
-		int iImprovementFlavor = eImprovement != NO_IMPROVEMENT ? iImprovementFlavor = GC.getImprovementInfo(eImprovement)->GetFlavorValue(i) : 0;
-
-		int iUsableByCityWeight = iPersonalityFlavorValue * iImprovementFlavor;
-		if (iUsableByCityWeight > 0)
-		{
-			iWeight += iUsableByCityWeight * 10;
-		}
-	}
-
 	// if this is a luxury resource the player doesn't have, provide a bonus to getting it
 	if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 	{
-		int iModifier = (pkResource->getHappiness() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE));
+		int iValue = (pkResource->getHappiness() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE));
 
 		int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eResource) + iAdditionalOwned;
 
 		// We have plenty to spare
 		if (iNumResourceAvailable > 1)
-			iModifier /= 10;
+			iValue /= 10;
 		// We have one already
 		else if (iNumResourceAvailable > 0)
-			iModifier /= 2;
+			iValue /= 2;
 
-		iWeight += iModifier;
+		return iValue;
 	}
 	else if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
 		// measure quantity
-		int iModifier = iQuantity * 250;
+		int iValue = iQuantity * 250;
 
 		int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eResource) + iAdditionalOwned;
 
 		// We have plenty to spare
 		if (iNumResourceAvailable > 5)
-			iModifier /= 10;
+			iValue /= 10;
 		// We have some already
 		else if (iNumResourceAvailable > 0)
-			iModifier /= 2;
+			iValue /= 2;
 
-		iWeight += iModifier;
+		return iValue;
 	}
 
-	return iWeight;
+	return 0;
 }
 
 /// Does this city want to rush a unit?
@@ -2799,7 +2828,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	if (pOwningCity && (eResourceFromImprovement != NO_RESOURCE || (eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource) && !pkImprovementInfo->IsCreatedByGreatPerson())))
 	{
 		ResourceTypes eConnectedResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : eResource;
-		int iResourceWeight = GetResourceWeight(eConnectedResource, eImprovement, pkImprovementInfo->GetResourceQuantityFromImprovement(), iExtraResource);
+		int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+		int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount, iExtraResource);
 		iSecondaryScore += iResourceWeight;
 
 		CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eConnectedResource);
@@ -2946,7 +2976,7 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	return iYieldScore + iBaseYieldScore + iSecondaryScore;
 }
 
-BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImprovement)
+BuildTypes CvBuilderTaskingAI::GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const
 {
 	for(int iBuildIndex = 0; iBuildIndex < GC.getNumBuildInfos(); iBuildIndex++)
 	{

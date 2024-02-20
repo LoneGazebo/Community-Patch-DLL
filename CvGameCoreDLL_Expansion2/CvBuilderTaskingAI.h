@@ -105,7 +105,7 @@ public:
 	bool ShouldAnyBuilderConsiderPlot(CvPlot* pPlot);  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
 
-	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned=0);
+	int GetResourceWeight(ResourceTypes eResource, int iQuantity, int iAdditionalOwned=0);
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
 	pair<RouteTypes, int> GetBestRouteTypeAndValue(const CvPlot* pPlot) const;
@@ -116,7 +116,7 @@ public:
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
 
-	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
+	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 	BuildTypes GetRepairBuild(void);
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
