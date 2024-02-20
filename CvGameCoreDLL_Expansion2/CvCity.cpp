@@ -8767,7 +8767,7 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	}
 
 	// Puppets and automated cities cannot build units (except workers)
-	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this) || isHumanAutomated())
+	if (IsPuppet() || isHumanAutomated())
 	{
 		if ( !MOD_BALANCE_VP || pkUnitEntry->GetWorkRate()==0 || pkUnitEntry->GetCombat()>0 || pkUnitEntry->GetRangedCombat() > 0 )
 			return false;
