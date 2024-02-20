@@ -89,7 +89,7 @@ public:
 
 	bool CanUnitPerformDirective(CvUnit* pUnit, BuilderDirective eDirective);
 	int GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective eDirective, int iMaxDistance=INT_MAX);
-	int GetTurnsToBuild(CvUnit* pUnit, BuilderDirective eDirective, CvPlot* pPlot);
+	int GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, CvPlot* pPlot) const;
 	vector<BuilderDirective> GetDirectives();
 	bool ExecuteWorkerMove(CvUnit* pUnit, BuilderDirective aDirective);
 
@@ -105,7 +105,7 @@ public:
 	bool ShouldAnyBuilderConsiderPlot(CvPlot* pPlot);  // general checks for whether the plot should be considered
 	bool ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot);  // specific checks for this particular worker
 
-	int GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned=0);
+	int GetResourceWeight(ResourceTypes eResource, int iQuantity, int iAdditionalOwned=0);
 
 	bool DoesBuildHelpRush(CvPlot* pPlot, BuildTypes eBuild);
 	pair<RouteTypes, int> GetBestRouteTypeAndValue(const CvPlot* pPlot) const;
@@ -115,8 +115,9 @@ public:
 	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
+	int GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const;
 
-	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement);
+	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
 	BuildTypes GetRepairBuild(void);
 	FeatureTypes GetFalloutFeature(void);
 	BuildTypes GetFalloutRemove(void);
@@ -159,6 +160,9 @@ protected:
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
 	void GetPathValues(SPath path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);
 
+	int GetRouteBuildTime(PlannedRoute plannedRoute, const CvUnit* pUnit = (CvUnit*)NULL) const;
+	bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const;
+
 	void UpdateCanalPlots();
 
 	PlotPair GetPlotPair(int iPlotId1, int iPlotId2);
@@ -173,6 +177,7 @@ protected:
 	map<PlannedRoute, set<RoutePurpose>> m_plannedRoutePurposes; //serialized
 	set<pair<RoutePlot, RoutePurpose>> m_anyRoutePlanned; //serialized
 	map<int, RoutePlot> m_bestRouteTypeAndValue; //serialized
+	map<int, PlannedRoute> m_bestRouteForPlot;
 	set<int> m_canalWantedPlots; //serialized
 	vector<BuilderDirective> m_directives;
 	map<int, BuilderDirective> m_assignedDirectives;

@@ -2898,7 +2898,9 @@ static bool IsBestWeightedDirectiveForBuilderAndPlot(BuilderDirective eDirective
 		if (!pkOtherBuildInfo)
 			continue;
 
-		int iBuilderImprovementTime = pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eOtherDirective, pPlot);
+		int iBuilderImprovementTime = pkBuildInfo->getRoute() == NO_ROUTE
+			? pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eOtherDirective.m_eBuild, pPlot)
+			: pPlayer->GetBuilderTaskingAI()->GetTotalRouteBuildTime(pUnit, pPlot);
 		if (iBuilderImprovementTime == INT_MAX)
 			continue;
 
@@ -2973,7 +2975,9 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 		{
 			CvUnit* pUnit = (*builderIterator).option;
 
-			int iBuilderImprovementTime = pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective, pDirectivePlot);
+			int iBuilderImprovementTime = GC.getBuildInfo(eDirective.m_eBuild)->getRoute() == NO_ROUTE
+				? pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective.m_eBuild, pDirectivePlot)
+				: pPlayer->GetBuilderTaskingAI()->GetTotalRouteBuildTime(pUnit, pDirectivePlot);
 			if (iBuilderImprovementTime == INT_MAX)
 				continue;
 
@@ -3073,24 +3077,6 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			{
 				allWorkers.push_back(pLoopUnit->GetID());
 				nonAutomatedWorkers.insert(pLoopUnit->GetID());
-			}
-		}
-	}
-
-	for(CHomelandUnitArray::iterator it = m_CurrentMoveUnits.begin(); it != m_CurrentMoveUnits.end(); ++it)
-	{
-		CvUnit* pUnit = m_pPlayer->getUnit(it->GetID());
-		if (!pUnit)
-			continue;
-
-		//fallout also counts as danger, so set the threshold a bit higher than zero
-		if(pUnit->GetDanger()>pUnit->GetCurrHitPoints()/2)
-		{
-			if(MoveCivilianToSafety(pUnit))
-			{
-				UnitProcessed(pUnit->GetID());
-				processedWorkers.insert(pUnit->GetID());
-				continue;
 			}
 		}
 	}
@@ -3209,7 +3195,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 			bool bImprovementStateChanged = false;
 
 			// Improvement considerations
-			if (eImprovement != pDirectivePlot->getImprovementType() || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
+			if (eImprovement != NO_IMPROVEMENT && eImprovement != pDirectivePlot->getImprovementType() || (pkBuildInfo->isRepair() && pDirectivePlot->IsImprovementPillaged()))
 			{
 				sState.mChangedPlotImprovements[pDirectivePlot->GetPlotIndex()] = eImprovement;
 				bImprovementStateChanged = true;
@@ -3282,7 +3268,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 				CvImprovementEntry* pkOtherImprovementInfo = GC.getImprovementInfo(eOtherImprovement);
 
 				// Reevaluating
-				if (bResourceStateChanged)
+				if (eOtherImprovement != NO_IMPROVEMENT && bResourceStateChanged)
 				{
 					// Connecting a resource may reduce or increase the value of connecting more instances of the same resource
 					if ((pOtherPlot->getResourceType(m_pPlayer->getTeam()) == eResource && pkOtherImprovementInfo && pkOtherImprovementInfo->IsConnectsResource(eResource)) || (pkOtherImprovementInfo && pkOtherImprovementInfo->GetResourceFromImprovement() == eResource))
@@ -3325,7 +3311,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					}
 				}
 
-				if (bDefenseStateChanged && !bDirectiveUpdated)
+				if (eOtherImprovement != NO_IMPROVEMENT && bDefenseStateChanged && !bDirectiveUpdated)
 				{
 					// If we are building or removing a defensive improvement, recalculate nearby defensive structure changes
 					int iPlotDistance = plotDistance(eOtherDirective.m_sX, eOtherDirective.m_sY, eDirective.m_sX, eDirective.m_sY);
@@ -3355,7 +3341,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 					}
 				}
 
-				if (bImprovementStateChanged && !bDirectiveUpdated)
+				if (eOtherImprovement != NO_IMPROVEMENT && bImprovementStateChanged && !bDirectiveUpdated)
 				{
 					// If we are building or removing an improvement, give all adjacent plot directives yield increases/decreases from this change
 					// TODO check if we will actually change the yield value before we call ScorePlotBuild
