@@ -29850,7 +29850,7 @@ void CvCity::fixBonusFromMinors(bool bRemove)
 	{
 		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
 		CvMinorCivAI* pMinor = GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).isAlive() ? GET_PLAYER(ePlayer).GetMinorCivAI() : 0;
-		if (pMinor)
+		if (pMinor && pMinor->GetTrait() == MINOR_CIV_TRAIT_MARITIME)
 		{
 			int iSign = bRemove ? -1 : +1;
 
