@@ -2205,7 +2205,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 				YieldTypes eYield = (YieldTypes)iI;
 
 				if (pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) > 0)
-					return 3;
+					return 10;
 			}
 		}
 
@@ -2215,7 +2215,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 	}
 
 	// Villages and towns can be built pretty much anywhere
-	return 2;
+	return 5;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2247,13 +2247,13 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedCapitalRoute)
 	{
 		if (pPlot->getRouteType() >= eRoute || pPlot->getBuildProgress(eBuild) > 0)
-			iCost = 5;
+			iCost = 1;
 		else
-			iCost = 6;
+			iCost = 2;
 	}
 	else if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedShortcutRoute)
 	{
-		iCost = 7;
+		iCost = 3;
 	}
 	else if (bGetSameRouteBenefitFromTrait)
 	{
