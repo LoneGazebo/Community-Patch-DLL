@@ -944,12 +944,14 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 	if pTheirUnit then
 		-- Plague (don't add to misc. bonus)
-		local sPlague, iChance = pTheirUnit:GetMovementRules(pMyUnit);
-		if sPlague ~= "" then
-			if iChance >= 0 then
-				nBonus = ProcessModifier(iChance, sPlague, nBonus, nil, false, true, "[COLOR_CYAN]");
-			else
-				nBonus = ProcessModifier(nil, sPlague, nBonus, nil, false);
+		if pMyUnit then
+			local sPlague, iChance = pTheirUnit:GetMovementRules(pMyUnit);
+			if sPlague ~= "" then
+				if iChance >= 0 then
+					nBonus = ProcessModifier(iChance, sPlague, nBonus, nil, false, true, "[COLOR_CYAN]");
+				else
+					nBonus = ProcessModifier(nil, sPlague, nBonus, nil, false);
+				end
 			end
 		end
 
@@ -971,7 +973,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			else
 				-- Capture chance (don't add to misc. bonus)
 				if not bRanged and iWithdrawChance < 100 then
-					iChance = pMyUnit:GetCaptureChance(pTheirUnit);
+					local iChance = pMyUnit:GetCaptureChance(pTheirUnit);
 					if iChance == 100 then
 						nBonus = ProcessModifier(nil, "TXT_KEY_EUPANEL_CAPTURE_CHANCE_100_PERCENT", nBonus, nil, false);
 					elseif iChance > 0 then
