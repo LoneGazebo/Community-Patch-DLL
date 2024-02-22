@@ -444,7 +444,13 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 	Controls.StalemateIndicator:SetHide(true);
 
 	if pMyUnit and pTheirUnit then
-		local eCombatPrediction = Game.GetCombatPrediction(pMyUnit, pTheirUnit);
+		local eCombatPrediction;
+		if pTheirUnit:IsEmbarked() then
+			eCombatPrediction = CombatPredictionTypes.COMBAT_PREDICTION_TOTAL_VICTORY;
+		else
+			eCombatPrediction = Game.GetCombatPrediction(pMyUnit, pTheirUnit);
+		end
+
 		if eCombatPrediction == CombatPredictionTypes.COMBAT_PREDICTION_RANGED then
 			Controls.RangedAttackIndicator:SetHide(false);
 			Controls.RangedAttackButtonLabel:SetText(Locale.ToUpper(Locale.ConvertTextKey("TXT_KEY_INTERFACEMODE_RANGE_ATTACK")));
