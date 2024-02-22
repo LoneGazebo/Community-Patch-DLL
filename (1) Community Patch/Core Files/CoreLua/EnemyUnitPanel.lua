@@ -351,12 +351,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 	-- Estimate the from plot if melee attacking from a distance
 	if pMyUnit and not bRanged then
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
-			local pPlot = Map.GetPlot(v.X, v.Y);
-			if pPlot ~= pToPlot then
-				pFromPlot = pPlot;
-			end
-		end
+		pFromPlot = pMyUnit:GetMeleeAttackFromPlot(pToPlot);
 	end
 
 	-- Highlight the combat plots

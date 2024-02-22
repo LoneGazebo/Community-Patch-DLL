@@ -43,9 +43,9 @@ protected:
 	static int lGetActivePath(lua_State* L);
 	static int lGeneratePathToNextWaypoint(lua_State* L);
 	static int lGetWaypointPath(lua_State* L);
+	static int lGetMeleeAttackFromPlot(lua_State* L);
 
 	static int lCanEnterTerritory(lua_State* L);
-	static int lCanEnterArea(lua_State* L);
 	static int lGetDeclareWarRangeStrike(lua_State* L);
 	static int lCanMoveOrAttackInto(lua_State* L);
 	static int lCanMoveThrough(lua_State* L);
@@ -70,7 +70,6 @@ protected:
 	static int lCanAirPatrol(lua_State* L);
 	static int lIsEmbarked(lua_State* L);
 	static int lSetEmbarked(lua_State* L);
-	static int lCanSeaPatrol(lua_State* L);
 	static int lCanHeal(lua_State* L);
 	static int lCanSentry(lua_State* L);
 	static int lCanEmbark(lua_State* L);
@@ -112,17 +111,11 @@ protected:
 	static int lGetExoticGoodsGoldAmount(lua_State* L);
 	static int lGetExoticGoodsXPAmount(lua_State* L);
 
-	static int lCanAirBomb(lua_State* L);
-	static int lCanAirBombAt(lua_State* L);
-
-	static int lBombardTarget(lua_State* L);
-	static int lCanBombard(lua_State* L);
 	static int lCanPillage(lua_State* L);
 
 	static int lIsSelected(lua_State* L);
 
 	static int lCanFound(lua_State* L);
-	static int lCanSpread(lua_State* L);
 
 	static int lCanJoin(lua_State* L);
 	static int lCanConstruct(lua_State* L);

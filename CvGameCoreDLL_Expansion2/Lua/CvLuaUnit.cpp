@@ -49,6 +49,7 @@ void CvLuaUnit::PushMethods(lua_State* L, int t)
 	Method(GetActivePath);
 	Method(GetWaypointPath);
 	Method(GeneratePathToNextWaypoint);
+	Method(GetMeleeAttackFromPlot);
 
 	Method(CanEnterTerritory);
 	Method(GetDeclareWarRangeStrike);
@@ -964,6 +965,24 @@ int CvLuaUnit::lGeneratePathToNextWaypoint(lua_State* L)
 		lua_rawseti(L, -2, iCount++);
 	}
 
+	return 1;
+}
+//-------------------------------------------------------------------------------------------
+// Returns the estimated "from" plot when this unit melee attacks a unit on the given plot
+int CvLuaUnit::lGetMeleeAttackFromPlot(lua_State* L)
+{
+	CvUnit* pUnit = GetInstance(L);
+	CvPlot* pToPlot = CvLuaPlot::GetInstance(L, 2);
+	CvPlot* pFromPlot = pUnit->plot();
+
+	if (pUnit->GeneratePath(pToPlot, CvUnit::MOVEFLAG_APPROX_TARGET_RING1))
+	{
+		CvPlot* pEnd = pUnit->GetPathLastPlot();
+		if (pEnd)
+			pFromPlot = pEnd;
+	}
+
+	CvLuaPlot::Push(L, pFromPlot);
 	return 1;
 }
 //------------------------------------------------------------------------------
