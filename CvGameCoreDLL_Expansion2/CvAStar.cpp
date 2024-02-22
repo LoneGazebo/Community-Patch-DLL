@@ -2215,7 +2215,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 	}
 
 	// Villages and towns can be built pretty much anywhere
-	return 5;
+	return 2;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2236,7 +2236,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	bool bGetSameRouteBenefitFromTrait = pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute);
 	bool bPlannedShortcutRoute = bGetSameRouteBenefitFromTrait || eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_SHORTCUT);
 	bool bPlannedCapitalRoute = bGetSameRouteBenefitFromTrait || (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && eBuilderTaskingAI->IsRoutePlanned(pPlot, eRoute, PURPOSE_CONNECT_CAPITAL));
-	int iVillageBonus = data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL || data.eRoutePurpose == PURPOSE_SHORTCUT ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
+	int iVillageBonus = data.eRoutePurpose == PURPOSE_SHORTCUT && !bGetSameRouteBenefitFromTrait && !bPlannedShortcutRoute ? BuildRouteVillageBonus(pPlot, eRoute, eBuilderTaskingAI) : 0;
 
 	if (!bPlannedCapitalRoute && eRoute == ROUTE_ROAD)
 	{
