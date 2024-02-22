@@ -2205,13 +2205,13 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 				YieldTypes eYield = (YieldTypes)iI;
 
 				if (pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) > 0)
-					return 10;
+					return 75;
 			}
-		}
 
-		// If this is a great person improvement, we don't want to replace it (unless it's a town)
-		if (pkImprovementInfo->IsCreatedByGreatPerson())
-			return 0;
+			// If this is a great person improvement, we don't want to replace it (unless it's a town)
+			if (pkImprovementInfo->IsCreatedByGreatPerson())
+				return 0;
+		}
 	}
 
 	// Villages and towns can be built pretty much anywhere
