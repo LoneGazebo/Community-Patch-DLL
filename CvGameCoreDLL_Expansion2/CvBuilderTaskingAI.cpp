@@ -2424,68 +2424,46 @@ bool CvBuilderTaskingAI::ShouldBuilderConsiderPlot(CvUnit* pUnit, CvPlot* pPlot)
 }
 
 /// Return the weight of this resource
-int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, ImprovementTypes eImprovement, int iQuantity, int iAdditionalOwned)
+int CvBuilderTaskingAI::GetResourceWeight(ResourceTypes eResource, int iQuantity, int iAdditionalOwned)
 {
 	CvResourceInfo* pkResource = GC.getResourceInfo(eResource);
 	if (!pkResource)
 		return 0;
 
-	int iWeight = 0;
-
-	for (int i = 0; i < GC.getNumFlavorTypes(); i++)
-	{
-		int iResourceFlavor = pkResource->getFlavorValue((FlavorTypes)i);
-		int iPersonalityFlavorValue = m_pPlayer->GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)i);
-		int iResult = iResourceFlavor * iPersonalityFlavorValue;
-
-		if (iResult > 0)
-		{
-			iWeight += iResult * 10;
-		}
-
-		int iImprovementFlavor = eImprovement != NO_IMPROVEMENT ? iImprovementFlavor = GC.getImprovementInfo(eImprovement)->GetFlavorValue(i) : 0;
-
-		int iUsableByCityWeight = iPersonalityFlavorValue * iImprovementFlavor;
-		if (iUsableByCityWeight > 0)
-		{
-			iWeight += iUsableByCityWeight * 10;
-		}
-	}
-
 	// if this is a luxury resource the player doesn't have, provide a bonus to getting it
 	if (pkResource->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 	{
-		int iModifier = (pkResource->getHappiness() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE));
+		int iValue = (pkResource->getHappiness() * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE));
 
 		int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eResource) + iAdditionalOwned;
 
 		// We have plenty to spare
 		if (iNumResourceAvailable > 1)
-			iModifier /= 10;
+			iValue /= 10;
 		// We have one already
 		else if (iNumResourceAvailable > 0)
-			iModifier /= 2;
+			iValue /= 2;
 
-		iWeight += iModifier;
+		return iValue;
 	}
 	else if (pkResource->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 	{
 		// measure quantity
-		int iModifier = iQuantity * 250;
+		int iValue = iQuantity * 250;
 
 		int iNumResourceAvailable = m_pPlayer->getNumResourceAvailable(eResource) + iAdditionalOwned;
 
 		// We have plenty to spare
 		if (iNumResourceAvailable > 5)
-			iModifier /= 10;
+			iValue /= 10;
 		// We have some already
 		else if (iNumResourceAvailable > 0)
-			iModifier /= 2;
+			iValue /= 2;
 
-		iWeight += iModifier;
+		return iValue;
 	}
 
-	return iWeight;
+	return 0;
 }
 
 /// Does this city want to rush a unit?
@@ -2850,7 +2828,8 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 	if (pOwningCity && (eResourceFromImprovement != NO_RESOURCE || (eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource) && !pkImprovementInfo->IsCreatedByGreatPerson())))
 	{
 		ResourceTypes eConnectedResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : eResource;
-		int iResourceWeight = GetResourceWeight(eConnectedResource, eImprovement, pkImprovementInfo->GetResourceQuantityFromImprovement(), iExtraResource);
+		int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
+		int iResourceWeight = GetResourceWeight(eConnectedResource, iResourceAmount, iExtraResource);
 		iSecondaryScore += iResourceWeight;
 
 		CvResourceInfo* pkConnectedResource = GC.getResourceInfo(eConnectedResource);

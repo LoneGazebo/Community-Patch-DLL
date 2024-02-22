@@ -2262,7 +2262,7 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else if (bPlannedShortcutRoute)
 	{
 		// if we are planning to build a road here, provide a discount
-		iCost = (PATH_BASE_COST * 7) / 12;
+		iCost = (PATH_BASE_COST * 5) / 12;
 	}
 	else if (pPlot->getRouteType() >= eRoute)
 	{
