@@ -2898,7 +2898,9 @@ static bool IsBestWeightedDirectiveForBuilderAndPlot(BuilderDirective eDirective
 		if (!pkOtherBuildInfo)
 			continue;
 
-		int iBuilderImprovementTime = pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eOtherDirective, pPlot);
+		int iBuilderImprovementTime = pkBuildInfo->getRoute() == NO_ROUTE
+			? pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eOtherDirective.m_eBuild, pPlot)
+			: pPlayer->GetBuilderTaskingAI()->GetTotalRouteBuildTime(pUnit, pPlot);
 		if (iBuilderImprovementTime == INT_MAX)
 			continue;
 
@@ -2973,7 +2975,9 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 		{
 			CvUnit* pUnit = (*builderIterator).option;
 
-			int iBuilderImprovementTime = pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective, pDirectivePlot);
+			int iBuilderImprovementTime = GC.getBuildInfo(eDirective.m_eBuild)->getRoute() == NO_ROUTE
+				? pPlayer->GetBuilderTaskingAI()->GetTurnsToBuild(pUnit, eDirective.m_eBuild, pDirectivePlot)
+				: pPlayer->GetBuilderTaskingAI()->GetTotalRouteBuildTime(pUnit, pDirectivePlot);
 			if (iBuilderImprovementTime == INT_MAX)
 				continue;
 

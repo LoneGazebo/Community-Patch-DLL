@@ -642,16 +642,19 @@ void CvBuilderTaskingAI::ConnectCitiesToCapital(CvCity* pPlayerCapital, CvCity* 
 	{
 		// Compute bonus for connecting city (or keeping connected)
 
-		float fUnhappiness = 0.00f;
-		if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
+		if (!m_pPlayer->GetPlayerTraits()->IsNoConnectionUnhappiness())
 		{
-			fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+			float fUnhappiness = 0.00f;
+			if (GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP) > 0)
+			{
+				fUnhappiness += (float)pTargetCity->getPopulation() * /*0.34f*/ GD_FLOAT_GET(UNHAPPINESS_PER_ISOLATED_POP);
+			}
+			int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
+
+			int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
+
+			iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
 		}
-		int iLimit = MOD_BALANCE_CORE_UNCAPPED_UNHAPPINESS ? INT_MAX : pTargetCity->getPopulation();
-
-		int iPotentialUnhappinessFromIsolation = range((int)fUnhappiness, 0, iLimit);
-
-		iConnectionValue += iPotentialUnhappinessFromIsolation * /*750*/ GD_INT_GET(BUILDER_TASKING_PLOT_EVAL_MULTIPLIER_LUXURY_RESOURCE);
 		iConnectionValue += m_pPlayer->GetTreasury()->GetCityConnectionRouteGoldTimes100(pTargetCity);
 
 		if(GC.getGame().GetIndustrialRoute() == eRoute)
@@ -897,6 +900,53 @@ bool CvBuilderTaskingAI::IsRoutePlanned(CvPlot* pPlot, RouteTypes eRoute, RouteP
 	return m_anyRoutePlanned.find(make_pair(make_pair(eRoute, pPlot->GetPlotIndex()), ePurpose)) != m_anyRoutePlanned.end();
 }
 
+int CvBuilderTaskingAI::GetRouteBuildTime(pair<pair<int, int>, RouteTypes> plannedRoute, const CvUnit* pUnit) const
+{
+	RouteTypes eRoute = plannedRoute.second;
+	
+	map<PlannedRoute, vector<int>>::const_iterator it = m_plannedRoutePlots.find(plannedRoute);
+	if (it == m_plannedRoutePlots.end())
+		return -1;
+
+	int iTotalBuildTime = 0;
+	for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
+	{
+		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it2);
+
+		if (!pPlot)
+			continue;
+
+		if (m_pPlayer->GetSameRouteBenefitFromTrait(pPlot, eRoute))
+			continue;
+
+		if (pPlot->getRouteType() == eRoute && !pPlot->IsRoutePillaged())
+			continue;
+
+		if (pPlot->getRouteType() == eRoute)
+		{
+			//repair road
+			iTotalBuildTime += GetTurnsToBuild(pUnit, m_eRepairBuild, pPlot);
+		}
+		else
+		{
+			//build road
+			iTotalBuildTime += GetTurnsToBuild(pUnit, GetBuildRoute(eRoute), pPlot);
+		}
+	}
+
+	return iTotalBuildTime;
+}
+
+int CvBuilderTaskingAI::GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const
+{
+	map<int, PlannedRoute>::const_iterator it = m_bestRouteForPlot.find(pPlot->GetPlotIndex());
+
+	if (it == m_bestRouteForPlot.end())
+		return -1;
+
+	return GetRouteBuildTime(it->second, pUnit);
+}
+
 bool CvBuilderTaskingAI::WillNeverBuildVillageOnPlot(CvPlot* pPlot, RouteTypes eRoute, bool bIgnoreUnowned) const
 {
 	if ((pPlot->isOwned() || bIgnoreUnowned) && pPlot->getOwner() != m_pPlayer->GetID())
@@ -1120,17 +1170,15 @@ int CvBuilderTaskingAI::GetBuilderNumTurnsAway(CvUnit* pUnit, BuilderDirective e
 }
 
 
-int CvBuilderTaskingAI::GetTurnsToBuild(CvUnit* pUnit, BuilderDirective eDirective, CvPlot* pPlot)
+int CvBuilderTaskingAI::GetTurnsToBuild(const CvUnit* pUnit, BuildTypes eBuild, CvPlot* pPlot) const
 {
-
-	BuildTypes eBuild = eDirective.m_eBuild;
 	PlayerTypes ePlayer = m_pPlayer->GetID();
 
 	int iBuildLeft = pPlot->getBuildTime(eBuild, ePlayer);
 	if (iBuildLeft == 0)
 		return 0;
 
-	int iBuildRate = pUnit->workRate(true);
+	int iBuildRate = pUnit ? pUnit->workRate(true) : 1; // If no unit, return total build time
 
 	if (iBuildRate == 0)
 	{
@@ -1517,7 +1565,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 	}
 
 	map<CvPlot*, pair<int, int>> plotValues;
-	map<CvPlot*, RouteTypes> plotBestRoute;
+	map<CvPlot*, RouteTypes> plotBestRouteType;
+	map<CvPlot*, PlannedRoute> plotShortestRoute;
+	map<CvPlot*, int> plotShortestRouteBuildTime;
 	// Loop through all the best routes and give their respective plots the best value out of all possible paths
 	for (map<PlannedRoute, pair<int, int>>::const_iterator it = bestRouteTypesAndValues.begin(); it != bestRouteTypesAndValues.end(); ++it)
 	{
@@ -1534,8 +1584,19 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 			if (!pPlot)
 				continue;
 
-			if (eRoute > plotBestRoute[pPlot])
-				plotBestRoute[pPlot] = eRoute;
+			if (eRoute >= plotBestRouteType[pPlot])
+			{
+				int iShortestRouteLength = eRoute == plotBestRouteType[pPlot] && plotShortestRouteBuildTime.find(pPlot) != plotShortestRouteBuildTime.end() ? plotShortestRouteBuildTime[pPlot] : INT_MAX;
+				int iRouteBuildTime = GetRouteBuildTime(plannedRoute);
+				if (iRouteBuildTime < iShortestRouteLength)
+				{
+					plotShortestRouteBuildTime[pPlot] = iRouteBuildTime;
+					m_bestRouteForPlot[pPlot->GetPlotIndex()] = plannedRoute;
+				}
+			}
+
+			if (eRoute > plotBestRouteType[pPlot])
+				plotBestRouteType[pPlot] = eRoute;
 
 			pair<int, int> oldValues = plotValues[pPlot];
 
@@ -1549,7 +1610,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 	{
 		CvPlot* pPlot = it->first;
 		int iValue = it->second.first + it->second.second;
-		RouteTypes eRoute = plotBestRoute[pPlot];
+		RouteTypes eRoute = plotBestRouteType[pPlot];
 
 		if (iValue <= 0)
 			continue;
