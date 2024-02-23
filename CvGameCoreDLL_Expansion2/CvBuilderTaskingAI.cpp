@@ -2807,19 +2807,6 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				if (pAdjacentPlot->getOwner() != m_pPlayer->GetID())
 					continue;
 
-				int iAdjacentPlotIndex = pAdjacentPlot->GetPlotIndex();
-				ImprovementTypes eAdjacentImprovement = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex) != sState.mChangedPlotImprovements.end() ? sState.mChangedPlotImprovements[iAdjacentPlotIndex] : NO_IMPROVEMENT;
-
-				if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
-					eAdjacentImprovement = pAdjacentPlot->getImprovementType();
-
-				if (eAdjacentImprovement == NO_IMPROVEMENT)
-					continue;
-
-				CvImprovementEntry* pkAdjacentImprovement = GC.getImprovementInfo(eAdjacentImprovement);
-				if (!pkAdjacentImprovement)
-					continue;
-
 				CvCity* pAdjacentOwningCity = pAdjacentPlot->getEffectiveOwningCity();
 				if (!pAdjacentOwningCity)
 					continue;
@@ -2830,34 +2817,95 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 				if (pAdjacentOwningCity->IsRazing())
 					continue;
 
+				int iAdjacentPlotIndex = pAdjacentPlot->GetPlotIndex();
+
 				int iTempYieldScore = 0;
 
-				if (eAdjacentImprovement == eImprovement)
+				// How much extra yield we give to adjacent tiles with a certain terrain
+				if (pAdjacentPlot->getTerrainType() != NO_TERRAIN)
 				{
-					iTempYieldScore += pkAdjacentImprovement->GetYieldAdjacentSameType(eYield) * 2;
-					// Add half a yield if there's one adjacent when two are needed
-					iTempYieldScore += pkAdjacentImprovement->GetYieldAdjacentTwoSameType(eYield);
-				}
-				else if (eOldImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eOldImprovement)
-				{
-					iTempYieldScore -= pkAdjacentImprovement->GetYieldAdjacentSameType(eYield) * 2;
-					iTempYieldScore -= pkAdjacentImprovement->GetYieldAdjacentTwoSameType(eYield);
+					int iAdjacentTerrainYieldChange = pkImprovementInfo ? pkImprovementInfo->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), eYield) * 2 : 0;
+					// Losing yield from removing old improvement
+					iAdjacentTerrainYieldChange -= pkOldImprovementInfo ? pkOldImprovementInfo->GetAdjacentTerrainYieldChanges(pAdjacentPlot->getTerrainType(), eYield) * 2 : 0;
+					if (iAdjacentTerrainYieldChange != 0)
+						iTempYieldScore += iAdjacentTerrainYieldChange;
 				}
 
-				if (eImprovement != NO_IMPROVEMENT)
-					iTempYieldScore += pkAdjacentImprovement->GetAdjacentImprovementYieldChanges(eImprovement, eYield) * 2;
-				if (eResourceFromImprovement != NO_RESOURCE)
-					iTempYieldScore += pkAdjacentImprovement->GetAdjacentResourceYieldChanges(eResourceFromImprovement, eYield) * 2;
-				if (eFeatureFromImprovement != NO_FEATURE)
-					iTempYieldScore += pkAdjacentImprovement->GetAdjacentFeatureYieldChanges(eFeatureFromImprovement, eYield) * 2;
+				ImprovementTypes eAdjacentImprovement = sState.mChangedPlotImprovements.find(iAdjacentPlotIndex) != sState.mChangedPlotImprovements.end() ? sState.mChangedPlotImprovements[iAdjacentPlotIndex] : NO_IMPROVEMENT;
 
-				if (eOldImprovement != NO_IMPROVEMENT)
+				// If we are not planning on building an improvement here, use the one that exists already
+				if (eAdjacentImprovement == NO_IMPROVEMENT && !pAdjacentPlot->IsImprovementPillaged())
+					eAdjacentImprovement = pAdjacentPlot->getImprovementType();
+
+				if (eAdjacentImprovement != NO_IMPROVEMENT)
 				{
-					iTempYieldScore -= pkAdjacentImprovement->GetAdjacentImprovementYieldChanges(eOldImprovement, eYield) * 2;
-					if (eResourceFromOldImprovement != NO_RESOURCE)
-						iTempYieldScore -= pkAdjacentImprovement->GetAdjacentResourceYieldChanges(eResourceFromOldImprovement, eYield) * 2;
-					if (eFeatureFromOldImprovement != NO_FEATURE)
-						iTempYieldScore -= pkAdjacentImprovement->GetAdjacentFeatureYieldChanges(eFeatureFromOldImprovement, eYield) * 2;
+					// How much extra yield we give to adjacent tiles with a certain improvement
+					int iAdjacentImprovementYieldChange = pkImprovementInfo ? pkImprovementInfo->GetAdjacentImprovementYieldChanges(eAdjacentImprovement, eYield) * 2 : 0;
+					// Losing yield from removing old improvement
+					iAdjacentImprovementYieldChange -= pkOldImprovementInfo ? pkOldImprovementInfo->GetAdjacentImprovementYieldChanges(eAdjacentImprovement, eYield) * 2 : 0;
+					if (iAdjacentImprovementYieldChange != 0)
+						iTempYieldScore += iAdjacentImprovementYieldChange;
+
+					// How much extra yield we give to an adjacent tile with the same improvement
+					if (eAdjacentImprovement == eImprovement)
+					{
+						int iAdjacentSameTypeYield = pkImprovementInfo ? pkImprovementInfo->GetYieldAdjacentSameType(eYield) * 2 : 0;
+						if (iAdjacentSameTypeYield != 0)
+							iTempYieldScore += iAdjacentSameTypeYield;
+						// Add half a yield if there's one adjacent when two are needed
+						int iAdjacentTwoSameTypeYield = pkImprovementInfo ? pkImprovementInfo->GetYieldAdjacentTwoSameType(eYield) : 0;
+						if (iAdjacentTwoSameTypeYield != 0)
+							iTempYieldScore += iAdjacentTwoSameTypeYield;
+					}
+
+					// Losing adjacency yield from removing old improvement
+					if (eOldImprovement != NO_IMPROVEMENT && eAdjacentImprovement == eOldImprovement)
+					{
+						int iAdjacentSameTypeYield = pkOldImprovementInfo->GetYieldAdjacentSameType(eYield) * 2;
+						if (iAdjacentSameTypeYield != 0)
+							iTempYieldScore -= iAdjacentSameTypeYield;
+						// Add half a yield if there's one adjacent when two are needed
+						int iAdjacentTwoSameTypeYield = pkOldImprovementInfo->GetYieldAdjacentTwoSameType(eYield);
+						if (iAdjacentTwoSameTypeYield != 0)
+							iTempYieldScore -= iAdjacentTwoSameTypeYield;
+					}
+
+					CvImprovementEntry* pkAdjacentImprovementInfo = GC.getImprovementInfo(eAdjacentImprovement);
+
+					if (pkAdjacentImprovementInfo)
+					{
+						// How much extra yield an adjacent improvement will get if we create a resource
+						if (eResourceFromImprovement != NO_RESOURCE)
+						{
+							int iAdjacentResourceYieldChanges = pkAdjacentImprovementInfo->GetAdjacentResourceYieldChanges(eResourceFromImprovement, eYield) * 2;
+							if (iAdjacentResourceYieldChanges != 0)
+								iTempYieldScore += iAdjacentResourceYieldChanges;
+						}
+						// Losing yield from deleting an old resource
+						if (eResourceFromOldImprovement != NO_RESOURCE || (eResource != NO_RESOURCE && eResourceFromImprovement != NO_RESOURCE))
+						{
+							ResourceTypes eOldResource = eResourceFromOldImprovement != NO_RESOURCE ? eResourceFromOldImprovement : eResource;
+							int iAdjacentResourceYieldChanges = pkAdjacentImprovementInfo->GetAdjacentResourceYieldChanges(eOldResource, eYield) * 2;
+							if (iAdjacentResourceYieldChanges != 0)
+								iTempYieldScore -= iAdjacentResourceYieldChanges;
+						}
+
+						// How much extra yield an adjacent improvement will get if we create a feature
+						if (eFeatureFromImprovement != NO_FEATURE)
+						{
+							int iAdjacentFeatureYieldChanges = pkAdjacentImprovementInfo->GetAdjacentFeatureYieldChanges(eFeatureFromImprovement, eYield) * 2;
+							if (iAdjacentFeatureYieldChanges != 0)
+								iTempYieldScore += iAdjacentFeatureYieldChanges;
+						}
+						// Losing yield from removing an old feature
+						if (eFeatureFromOldImprovement != NO_FEATURE || (eFeature != NO_FEATURE && (eFeatureFromImprovement != NO_FEATURE || (pkBuildInfo && pkBuildInfo->isFeatureRemove(eFeature)))))
+						{
+							FeatureTypes eOldFeature = eFeatureFromOldImprovement != NO_FEATURE ? eFeatureFromOldImprovement : eFeature;
+							int iAdjacentFeatureYieldChanges = pkAdjacentImprovementInfo->GetAdjacentFeatureYieldChanges(eOldFeature, eYield) * 2;
+							if (iAdjacentFeatureYieldChanges != 0)
+								iTempYieldScore -= iAdjacentFeatureYieldChanges;
+						}
+					}
 				}
 
 				if (iTempYieldScore != 0)
@@ -2886,8 +2934,9 @@ int CvBuilderTaskingAI::ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovem
 		}
 	}
 
-	//Improvement grants or connects resource? Let's weight this based on flavors.
-	if (pOwningCity && (eResourceFromImprovement != NO_RESOURCE || (eResource != NO_RESOURCE && pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource) && !pkImprovementInfo->IsCreatedByGreatPerson())))
+	//Improvement grants or connects resource
+	//Don't give any bonus if we are creating a resource on top of an existing one
+	if (pOwningCity && ((eResourceFromImprovement != NO_RESOURCE && eResource == NO_RESOURCE) || (eResource != NO_RESOURCE && (pkImprovementInfo && pkImprovementInfo->IsConnectsResource(eResource) && !pkImprovementInfo->IsCreatedByGreatPerson()))))
 	{
 		ResourceTypes eConnectedResource = eResourceFromImprovement != NO_RESOURCE ? eResourceFromImprovement : eResource;
 		int iResourceAmount = eResourceFromImprovement != NO_RESOURCE ? pkImprovementInfo->GetResourceQuantityFromImprovement() : pPlot->getNumResource();
