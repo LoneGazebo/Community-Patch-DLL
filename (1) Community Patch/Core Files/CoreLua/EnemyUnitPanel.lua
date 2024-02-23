@@ -327,6 +327,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			pBattlePlot = pFromPlot;
 		else
 			-- Melee unit
+			pFromPlot = pMyUnit:GetMeleeAttackFromPlot(pToPlot);
 			iMyStrength = pMyUnit:GetMaxAttackStrength(pFromPlot, pToPlot, pTheirUnit);
 		end
 	elseif pMyCity then
@@ -348,16 +349,6 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 
 	pMyPlayer = Players[eMyPlayer];
 	pTheirPlayer = Players[eTheirPlayer];
-
-	-- Estimate the from plot if melee attacking from a distance
-	if pMyUnit and not bRanged then
-		for _, v in pairs(pMyUnit:GeneratePath(pToPlot, 3)) do
-			local pPlot = Map.GetPlot(v.X, v.Y);
-			if pPlot ~= pToPlot then
-				pFromPlot = pPlot;
-			end
-		end
-	end
 
 	-- Highlight the combat plots
 	if pMyUnit then
