@@ -2215,7 +2215,7 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 		return 0;
 
 	// Villages and towns can be built pretty much anywhere
-	return 1;
+	return 2;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2267,16 +2267,16 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else if (pPlot->getRouteType() >= eRoute)
 	{
 		// if there is already a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 3;
+		iCost = PATH_BASE_COST - 4;
 	}
 	else if (pPlot->getBuildProgress(eBuild) > 0) {
 		// if we are currently building a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 3;
+		iCost = PATH_BASE_COST - 4;
 	}
 	else if (pPlot->getRouteType() >= ROUTE_ROAD || pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
 	{
 		// if there is already any kind of road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 2;
+		iCost = PATH_BASE_COST - 3;
 	}
 	else
 	{
@@ -2286,10 +2286,6 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	if (!bGetSameRouteBenefitFromTrait && !pPlayer->IsPlotSafeForRoute(pPlot, false /*bIncludeAdjacent*/))
 	{
 		if (pPlot->IsAdjacentOwnedByTeamOtherThan(pPlayer->getTeam(), false, false, true, true))
-		{
-			iCost += 10;
-		}
-		else
 		{
 			iCost += 1;
 		}
