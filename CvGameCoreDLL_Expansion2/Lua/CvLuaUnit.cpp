@@ -799,12 +799,15 @@ int CvLuaUnit::lGeneratePath(lua_State* L)
 	CvUnit* pkUnit = GetInstance(L);
 	CvPlot* pkPlot = CvLuaPlot::GetInstance(L, 2);
 	const int iMaxTurns = lua_tointeger(L, 3);
+	const bool bIsForMeleeAttack = luaL_optbool(L, 4, false);
 
 	lua_createtable(L, 0, 0);
 	int iCount = 1;
 
+	int iMoveFlags = bIsForMeleeAttack ? CvUnit::MOVEFLAG_ATTACK : CvUnit::MOVEFLAG_IGNORE_STACKING_SELF;
+
 	//no caching!
-	SPathFinderUserData data(pkUnit, CvUnit::MOVEFLAG_IGNORE_STACKING_SELF, iMaxTurns);
+	SPathFinderUserData data(pkUnit, iMoveFlags, iMaxTurns);
 	SPath newPath = GC.GetPathFinder().GetPath(pkUnit->getX(), pkUnit->getY(), pkPlot->getX(), pkPlot->getY(), data, TC_UI);
 
 	for (int i = 0; i < newPath.length(); i++)
