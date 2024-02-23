@@ -1346,6 +1346,7 @@ void CvBuilderTaskingAI::UpdateRoutePlots(void)
 	m_plannedRoutePurposes.clear();
 	m_anyRoutePlanned.clear();
 	m_bestRouteTypeAndValue.clear();
+	m_bestRouteForPlot.clear();
 
 	// if there are fewer than 2 cities, we don't need to run this function
 	std::vector<int> plotsToConnect = pCityConnections->GetPlotsToConnect();
