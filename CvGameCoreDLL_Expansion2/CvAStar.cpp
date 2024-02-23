@@ -2189,9 +2189,6 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 	if (!MOD_BALANCE_VP)
 		return 0;
 
-	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
-		return 0;
-
 	// If we have a town or village here, give a big bonus
 	ImprovementTypes eImprovement = pPlot->getImprovementType();
 	if (eImprovement != NO_IMPROVEMENT)
@@ -2214,8 +2211,11 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 		}
 	}
 
+	if (eBuilderTaskingAi->WillNeverBuildVillageOnPlot(pPlot, eRouteType, false/*bIgnoreUnowned*/))
+		return 0;
+
 	// Villages and towns can be built pretty much anywhere
-	return 2;
+	return 1;
 }
 
 //	--------------------------------------------------------------------------------
@@ -2267,16 +2267,16 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else if (pPlot->getRouteType() >= eRoute)
 	{
 		// if there is already a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 2;
+		iCost = PATH_BASE_COST - 3;
 	}
 	else if (pPlot->getBuildProgress(eBuild) > 0) {
 		// if we are currently building a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 2;
+		iCost = PATH_BASE_COST - 3;
 	}
 	else if (pPlot->getRouteType() >= ROUTE_ROAD || pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
 	{
 		// if there is already any kind of road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 1;
+		iCost = PATH_BASE_COST - 2;
 	}
 	else
 	{
