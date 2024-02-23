@@ -996,7 +996,7 @@ ImprovementTypes CvBuilderTaskingAI::SavePlotForUniqueImprovement(CvPlot* pPlot)
 		}
 	}
 
-	return NO_IMPROVEMENT;
+	return eSaveForImprovement;
 }
 
 void CvBuilderTaskingAI::UpdateCanalPlots()
