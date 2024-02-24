@@ -382,6 +382,7 @@ public:
 	bool IsExtraLuxuries() const;
 	bool IsDiplomaticVoting() const;
 	bool AllowsWaterRoutes() const;
+	bool AllowsAirRoutes() const;
 	bool IsScienceBuilding() const;
 	bool IsUnlockedByBelief() const;
 	bool IsUnlockedByLeague() const;
@@ -929,6 +930,7 @@ private:
 	bool m_bExtraLuxuries;
 	bool m_bDiplomaticVoting;
 	bool m_bAllowsWaterRoutes;
+	bool m_bAllowsAirRoutes;
 	bool m_bCityWall;
 	bool m_bUnlockedByBelief;
 	bool m_bUnlockedByLeague;

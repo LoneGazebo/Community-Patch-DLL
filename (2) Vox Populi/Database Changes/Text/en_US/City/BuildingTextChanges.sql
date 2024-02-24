@@ -339,7 +339,7 @@ WHERE Tag = 'TXT_KEY_BUILDING_HOTEL_HELP';
 
 -- Airport
 UPDATE Language_en_US
-SET Text = 'Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. [COLOR_POSITIVE_TEXT]Increases Air Unit Capacity of the City from 2 to 6.[ENDCOLOR] +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City.'
+SET Text = 'Allows [COLOR_POSITIVE_TEXT]Airlifts[ENDCOLOR] to or from this City. [COLOR_POSITIVE_TEXT]Increases Air Unit Capacity of the City from 2 to 6.[ENDCOLOR] +10 [ICON_STRENGTH] Damage to Air Units during Air Strikes on City.[NEWLINE][NEWLINE]Forms a [ICON_CONNECTED] City Connection with other Cities that have Airports.'
 WHERE Tag = 'TXT_KEY_BUILDING_AIRPORT_HELP';
 
 -- Circus

@@ -1870,7 +1870,8 @@ SET
 	PrereqTech = 'TECH_ROCKETRY',
 	LandmarksTourismPercent = 0,
 	GreatWorksTourismModifier = 0,
-	CityAirStrikeDefense = 10
+	CityAirStrikeDefense = 10,
+	AllowsAirRoutes = 1
 WHERE BuildingClass = 'BUILDINGCLASS_AIRPORT';
 
 -- Courthouse

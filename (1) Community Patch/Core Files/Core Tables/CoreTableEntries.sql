@@ -28,7 +28,7 @@ CREATE TABLE HistoricEventTypes (
 );
 
 INSERT INTO HistoricEventTypes(ID, Type) VALUES (0,'HISTORIC_EVENT_ERA_CHANGE');
-INSERT INTO HistoricEventTypes(Type) VALUES 
+INSERT INTO HistoricEventTypes(Type) VALUES
 ('HISTORIC_EVENT_WORLD_WONDER'), -- 1
 ('HISTORIC_EVENT_GREAT_PERSON'), -- 2
 ('HISTORIC_EVENT_WON_WAR'), -- 3
@@ -201,6 +201,8 @@ ALTER TABLE Buildings ADD COLUMN 'FoodBonusPerCityMajorityFollower' INTEGER DEFA
 ALTER TABLE Buildings ADD PlayerBorderGainlessPillage BOOLEAN DEFAULT 0;
 ALTER TABLE Buildings ADD CityGainlessPillage BOOLEAN DEFAULT 0;
 
+-- Allows city connections via air
+ALTER TABLE Buildings ADD AllowsAirRoutes BOOLEAN DEFAULT 0;
 
 -- Building, Belief, UA
 -- Increase to border growth expansion rate
@@ -598,7 +600,7 @@ ALTER TABLE Policies ADD COLUMN 'CSResourcesCountForMonopolies' BOOLEAN DEFAULT 
 -- Liberating a city gives influence to all CS
 ALTER TABLE Policies ADD COLUMN 'InfluenceAllCSFromLiberation' INTEGER DEFAULT 0;
 
--- Liberating a city gives that city some units 
+-- Liberating a city gives that city some units
 ALTER TABLE Policies ADD COLUMN 'NumUnitsInLiberatedCities' INTEGER DEFAULT 0;
 
 -- Liberating a city gives XP to all units
@@ -955,10 +957,10 @@ ALTER TABLE Buildings ADD COLUMN 'TradeReligionModifier' INTEGER DEFAULT 0;
 -- Allows you to define a building needed by this building (similar to BuildingClassNeeded) -->
 ALTER TABLE Buildings ADD COLUMN 'NeedBuildingThisCity' TEXT DEFAULT NULL;
 
--- Allows you to define a number of WLTKD turns for the City -- 
+-- Allows you to define a number of WLTKD turns for the City --
 ALTER TABLE Buildings ADD COLUMN 'WLTKDTurns' INTEGER DEFAULT 0;
 
--- Allows you to define an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. 
+-- Allows you to define an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed.
 ALTER TABLE Buildings ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
 
 -- Allows you to define an amount that a unit will heal in a city whether or not it took an action this turn.
@@ -1008,13 +1010,13 @@ ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldownReduction' INTEGER DEFAULT 0;
 -- reduces purchase cooldown on civilian units
 ALTER TABLE Buildings ADD COLUMN 'PurchaseCooldownReductionCivilian' INTEGER DEFAULT 0;
 
--- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
+-- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. --
 ALTER TABLE Policies ADD COLUMN 'EventTourismCS' INTEGER DEFAULT 0;
 
--- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. -- 
+-- Allows you to define a an amount of Tourism gained from GP birth, WW creation, and CS quest completion. Scales with gamespeed. --
 ALTER TABLE Policies ADD COLUMN 'EventTourism' INTEGER DEFAULT 0;
 
--- Define a policy as a dummy policy - won't count towards policy total -- 
+-- Define a policy as a dummy policy - won't count towards policy total --
 ALTER TABLE Policies ADD COLUMN 'IsDummy' BOOLEAN DEFAULT 0;
 
 -- Define Opener/Closer Policies - useful for counting elements
@@ -1549,7 +1551,7 @@ ALTER TABLE Policies ADD COLUMN 'ExtraSupplyPerPopulation' INTEGER DEFAULT 0;
 ALTER TABLE Policies ADD COLUMN 'ExtraSupplyFlat' integer DEFAULT 0;
 
 ALTER TABLE Units ADD COLUMN 'NoSupply' INTEGER DEFAULT 0;
-  
+
 ALTER TABLE UnitPromotions ADD COLUMN 'NoSupply' INTEGER DEFAULT 0;
 
 -- Spawn Best Melee Unit on an Improvement during a DOW
@@ -1583,7 +1585,7 @@ ALTER TABLE Policies ADD COLUMN 'NewFoundCityFreeUnit' TEXT DEFAULT NULL REFEREN
 -- Promotion grants a unit with XP if stacked with a Great General (or great admiral if a boat)
 ALTER TABLE UnitPromotions ADD COLUMN 'StackedGreatGeneralXP' INTEGER DEFAULT 0;
 
--- Promotions 
+-- Promotions
 ALTER TABLE UnitPromotions ADD COLUMN 'GoodyHutYieldBonus' INTEGER DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'GainsXPFromScouting' BOOLEAN DEFAULT 0;
 ALTER TABLE UnitPromotions ADD COLUMN 'GainsXPFromPillaging' BOOLEAN DEFAULT 0;
@@ -1777,7 +1779,7 @@ ALTER TABLE UnitPromotions ADD COLUMN 'NoAttackInOcean' BOOLEAN DEFAULT 0;
 
 -- CSD
 
--- Insert SQL Rules Here 
+-- Insert SQL Rules Here
 
 ALTER TABLE Resolutions ADD COLUMN 'OpenDoor' boolean default 0;
 
@@ -1825,7 +1827,7 @@ ALTER TABLE Improvements ADD COLUMN 'IsEmbassy' boolean default 0;
 
 -- C4DF
 
--- Insert SQL Rules Here 
+-- Insert SQL Rules Here
 
 ALTER TABLE GameSpeeds		ADD		TechCostPerTurnMultiplier		float;										-- How much does each turn of research add to tech cost?
 ALTER TABLE GameSpeeds		ADD		MinimumVassalLiberateTurns		integer;									-- Minimum turns of vassalage (before master can liberate them)
@@ -1849,7 +1851,7 @@ ALTER TABLE Traits ADD ExtraSupplyPerCity INTEGER DEFAULT 0;
 ALTER TABLE Traits ADD ExtraSupplyPerPopulation INTEGER DEFAULT 0;
 
 -- De-hardcode New Era Popup splash image with a new column and improved LUA file
--- Add the new column for new era popup splash image	
+-- Add the new column for new era popup splash image
 ALTER TABLE Eras ADD EraSplashImage TEXT DEFAULT 'ERA_Medievel.dds';
 
 -- Update the base eras with the correct values

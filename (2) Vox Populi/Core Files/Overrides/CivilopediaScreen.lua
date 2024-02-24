@@ -4322,6 +4322,7 @@ function SelectBuildingOrWonderArticle( buildingID )
 		AnalyzeBuilding("GoldenAge");
 		AnalyzeBuilding("MapCentering");
 		AnalyzeBuilding("AllowsWaterRoutes");
+		AnalyzeBuilding("AllowsAirRoutes");
 		AnalyzeBuilding("ExtraLuxuries");
 		AnalyzeBuilding("DiplomaticVoting");
 		AnalyzeBuilding("AffectSpiesNow");
@@ -5273,7 +5274,7 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 					end
 				end
 				UpdateButtonFrame( buttonAdded, Controls.StartAlongRegionInnerFrame, Controls.StartAlongRegionFrame );
-				
+
 				g_StartPriorityRegionManager:ResetInstances();
 				buttonAdded = 0;
 				for row in GameInfo.Civilization_Start_Region_Priority( condition ) do
@@ -5307,7 +5308,7 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 					end
 				end
 				UpdateButtonFrame( buttonAdded, Controls.StartPriorityRegionInnerFrame, Controls.StartPriorityRegionFrame );
-				
+
 				g_StartAvoidRegionManager:ResetInstances();
 				buttonAdded = 0;
 				for row in GameInfo.Civilization_Start_Region_Avoid( condition ) do
@@ -5341,7 +5342,7 @@ CivilopediaCategory[CategoryCivilizations].SelectArticle = function( rawCivID, s
 					end
 				end
 				UpdateButtonFrame( buttonAdded, Controls.StartAvoidRegionInnerFrame, Controls.StartAvoidRegionFrame );
-				
+
 				-- list of special abilities
 				buttonAdded = 0;
 
@@ -5800,7 +5801,7 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 				else
 					Controls.YieldLabel:SetText( Locale.ConvertTextKey( yieldString ) );
 				end
-				
+
 				-- Yield per Era
 				Controls.YieldPerEraFrame:SetHide( false );
 				local numYields = 0;
@@ -5816,7 +5817,7 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 					Controls.YieldPerEraLabel:SetText( Locale.ConvertTextKey( yieldString ) );
 					Controls.YieldPerEraFrame:SetHide( false );
 				end
-				
+
 				-- Plot Adjacency Yield
 				Controls.PlotAdjacentTerrainYieldFrame:SetHide( false );
 				Controls.PlotAdjacentTerrainYieldFrame:SetSizeY(36);
@@ -5855,8 +5856,8 @@ CivilopediaCategory[CategoryTerrain].SelectArticle = function( rawTerrainID, sho
 					Controls.PlotAdjacentTerrainYieldLabel:SetText( fullstring );
 					Controls.PlotAdjacentTerrainYieldFrame:SetHide( false );
 				end
-				
-				
+
+
 
 				-- Movement
 				Controls.MovementCostFrame:SetHide( false );
@@ -6457,7 +6458,7 @@ CivilopediaCategory[CategoryImprovements].SelectArticle = function( improvementI
 				Controls.ImprovYieldPerEraFrame:SetHide( false );
 			end
 			--END
-			
+
 			buttonAdded = 0;
 			if thisImprovement.CivilizationType then
 				local thisCiv = GameInfo.Civilizations[thisImprovement.CivilizationType];
@@ -9381,5 +9382,3 @@ end
 SetSelectedCategory(CategoryTerrain); -- this is a dummy so that the trigger for the next one fires
 SetSelectedCategory(CategoryHomePage);
 CivilopediaCategory[CategoryHomePage].DisplayHomePage();
-
-
