@@ -953,7 +953,7 @@ bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const
 
 	map<PlannedRoute, vector<int>>::const_iterator it = m_plannedRoutePlots.find(plannedRoute);
 	if (it == m_plannedRoutePlots.end())
-		return true;
+		return false;
 
 	for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 	{
@@ -1596,7 +1596,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 				bestRouteTypesAndValues[make_pair(plotPair, ROUTE_ROAD)] = plannedRouteTypeValues[plotPair][ROUTE_ROAD];
 
 				int iTotalNegativeModifier = iRoadTotalMaintenance;
-				if (IsRouteCompleted(make_pair(plotPair, ROUTE_RAILROAD)))
+				if (iRailroadValue > 0 && IsRouteCompleted(make_pair(plotPair, ROUTE_RAILROAD)))
 					iTotalNegativeModifier += iRailroadValue;
 
 				bestRouteNegativeModifiers[make_pair(plotPair, ROUTE_ROAD)] = iTotalNegativeModifier;
@@ -1606,7 +1606,7 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 				bestRouteTypesAndValues[make_pair(plotPair, ROUTE_RAILROAD)] = plannedRouteTypeValues[plotPair][ROUTE_RAILROAD];
 
 				int iTotalNegativeModifier = iRailroadTotalMaintenance;
-				if (IsRouteCompleted(make_pair(plotPair, ROUTE_ROAD)))
+				if (iRoadValue > 0 && IsRouteCompleted(make_pair(plotPair, ROUTE_ROAD)))
 					iTotalNegativeModifier += iRoadValue;
 
 				bestRouteNegativeModifiers[make_pair(plotPair, ROUTE_RAILROAD)] = iTotalNegativeModifier;
