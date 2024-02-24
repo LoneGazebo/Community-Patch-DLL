@@ -329,13 +329,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
-				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
-				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
-
-				//a bit ugly but what can you do
-				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second | CONNECTION_ROAD);
+				localConnections[destination] = (CityConnectionTypes)(localConnections[destination] | CONNECTION_ROAD);
 			}
 		}
 
@@ -349,13 +343,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
-				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
-				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
-
-				//a bit ugly but what can you do
-				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second | CONNECTION_RAILROAD);
+				localConnections[destination] = (CityConnectionTypes)(localConnections[destination] | CONNECTION_RAILROAD);
 			}
 		}
 
@@ -376,13 +364,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 					continue;
 				
 				pair<int, int> destination( pEndCity->getOwner(),pEndCity->GetID() );
-				SingleCityConnectionStore::iterator lala = localConnections.find(destination);
-				if ( lala == localConnections.end() )
-					localConnections.insert( std::make_pair(destination,CONNECTION_NONE) );
-
-				//a bit ugly but what can you do
-				lala = localConnections.find(destination);
-				lala->second = (CityConnectionTypes) (lala->second | CONNECTION_HARBOR);
+				localConnections[destination] = (CityConnectionTypes)(localConnections[destination] | CONNECTION_HARBOR);
 			}
 		}
 
@@ -412,13 +394,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 					continue;
 
 				pair<int, int> destination(pEndCity->getOwner(), pEndCity->GetID());
-				SingleCityConnectionStore::iterator it = localConnections.find(destination);
-				if (it == localConnections.end())
-					localConnections.insert(std::make_pair(destination, CONNECTION_NONE));
-
-				//a bit ugly but what can you do
-				it = localConnections.find(destination);
-				it->second = (CityConnectionTypes)(it->second | CONNECTION_AIRPORT);
+				localConnections[destination] = (CityConnectionTypes) (localConnections[destination] | CONNECTION_AIRPORT);
 			}
 		}
 

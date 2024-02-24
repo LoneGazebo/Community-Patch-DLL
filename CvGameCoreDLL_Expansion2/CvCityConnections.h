@@ -41,13 +41,13 @@ public:
 
 	enum CityConnectionTypes
 	{
-		CONNECTION_NONE     = 0b0000,
-		CONNECTION_ROAD     = 0b0001,
-		CONNECTION_RAILROAD = 0b0010,
-		CONNECTION_ANY_LAND = 0b0011,
-		CONNECTION_HARBOR   = 0b0100,
-		CONNECTION_AIRPORT  = 0b1000,
-		CONNECTION_ANY      = 0b1111
+		CONNECTION_NONE = 0,
+		CONNECTION_ROAD = 1,
+		CONNECTION_RAILROAD = 2,
+		CONNECTION_ANY_LAND = 3,
+		CONNECTION_HARBOR = 4,
+		CONNECTION_AIRPORT = 8,
+		CONNECTION_ANY = 15
 	};
 
 	//cities may be connected to other players as well, so we store a pair of owner and id
