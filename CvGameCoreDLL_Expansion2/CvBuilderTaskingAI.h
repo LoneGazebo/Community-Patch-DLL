@@ -115,7 +115,6 @@ public:
 	ImprovementTypes SavePlotForUniqueImprovement(CvPlot* pPlot) const;
 
 	int ScorePlotBuild(CvPlot* pPlot, ImprovementTypes eImprovement, BuildTypes eBuild, SBuilderState sState=SBuilderState());
-	int GetRouteBuildTime(pair<pair<int, int>, RouteTypes> plannedRoute, const CvUnit* pUnit=(CvUnit*)NULL) const;
 	int GetTotalRouteBuildTime(const CvUnit* pUnit, const CvPlot* pPlot) const;
 
 	BuildTypes GetBuildTypeFromImprovement(ImprovementTypes eImprovement) const;
@@ -160,6 +159,9 @@ protected:
 	int GetMoveCostWithRoute(const CvPlot* pFromPlot, const CvPlot* pToPlot, RouteTypes eFromPlotRoute, RouteTypes eToPlotRoute);
 	int GetPlotYieldModifierTimes100(CvPlot* pPlot, YieldTypes eYield);
 	void GetPathValues(SPath path, RouteTypes eRoute, int& iVillageBonusesIfCityConnected, int& iTotalMoveCost, int& iNumRoadsNeededToBuild);
+
+	int GetRouteBuildTime(PlannedRoute plannedRoute, const CvUnit* pUnit = (CvUnit*)NULL) const;
+	bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const;
 
 	void UpdateCanalPlots();
 
