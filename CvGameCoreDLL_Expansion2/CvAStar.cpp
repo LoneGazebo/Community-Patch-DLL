@@ -2267,16 +2267,16 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	else if (pPlot->getRouteType() >= eRoute && !pPlot->IsRoutePillaged())
 	{
 		// if there is already a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 4;
+		iCost = (PATH_BASE_COST * 8) / 12;
 	}
 	else if (pPlot->getBuildProgress(eBuild) > 0) {
 		// if we are currently building a road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 4;
+		iCost = (PATH_BASE_COST * 8) / 12;
 	}
 	else if ((pPlot->getRouteType() >= ROUTE_ROAD && !pPlot->IsRoutePillaged()) || pPlayer->GetSameRouteBenefitFromTrait(pPlot, ROUTE_ROAD))
 	{
 		// if there is already any kind of road here, provide a smaller discount
-		iCost = PATH_BASE_COST - 3;
+		iCost = (PATH_BASE_COST * 11) / 12;
 	}
 	else
 	{
