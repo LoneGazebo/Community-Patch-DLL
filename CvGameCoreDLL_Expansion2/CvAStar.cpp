@@ -2197,13 +2197,19 @@ static int BuildRouteVillageBonus(CvPlot* pPlot, RouteTypes eRouteType, CvBuilde
 
 		if (pkImprovementInfo != NULL)
 		{
+			int iYieldChangeTotal = 0;
 			for (int iI = 0; iI <= YIELD_FAITH; iI++)
 			{
 				YieldTypes eYield = (YieldTypes)iI;
-
-				if (pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield) > 0)
-					return 75;
+				int iYieldChanges = pkImprovementInfo->GetRouteYieldChanges(eRouteType, eYield);
+				if (iYieldChanges > 0)
+				{
+					iYieldChangeTotal += iYieldChanges;
+				}
 			}
+
+			if (iYieldChangeTotal > 0)
+				return 70 + iYieldChangeTotal;
 
 			// If this is a great person improvement, we don't want to replace it (unless it's a town)
 			if (pkImprovementInfo->IsCreatedByGreatPerson())
