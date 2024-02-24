@@ -2250,18 +2250,23 @@ int BuildRouteCost(const CvAStarNode* /*parent*/, const CvAStarNode* node, const
 	}
 
 	// if we only care about reaching the destination, and no other bonuses, heavily reuse existing planned roads and features
-	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedCapitalRoute)
+	if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL)
 	{
-		if (pPlot->getRouteType() >= eRoute || pPlot->getBuildProgress(eBuild) > 0)
-			iCost = 1;
-		else
-			iCost = 2;
+		if (bPlannedCapitalRoute)
+		{
+			if (bGetSameRouteBenefitFromTrait)
+				return 0;
+			else if (pPlot->getRouteType() >= eRoute || pPlot->getBuildProgress(eBuild) > 0)
+				return 1;
+			else
+				return 5;
+		}
+		if (bPlannedShortcutRoute)
+		{
+			return 20;
+		}
 	}
-	else if (data.eRoutePurpose == PURPOSE_CONNECT_CAPITAL && bPlannedShortcutRoute)
-	{
-		iCost = 3;
-	}
-	else if (bGetSameRouteBenefitFromTrait)
+	if (bGetSameRouteBenefitFromTrait)
 	{
 		iCost = PATH_BASE_COST / 3;
 	}
