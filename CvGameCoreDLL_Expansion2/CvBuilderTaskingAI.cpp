@@ -955,7 +955,6 @@ bool CvBuilderTaskingAI::IsRouteCompleted(PlannedRoute plannedRoute) const
 	if (it == m_plannedRoutePlots.end())
 		return true;
 
-	int iTotalBuildTime = 0;
 	for (vector<int>::const_iterator it2 = it->second.begin(); it2 != it->second.end(); ++it2)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it2);
