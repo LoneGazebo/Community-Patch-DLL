@@ -6403,7 +6403,7 @@ void CvPlot::setOwner(PlayerTypes eNewValue, int iAcquiringCityID, bool bCheckUn
 				// Remove Resource Quantity from total
 				if (getResourceType() != NO_RESOURCE)
 				{
-					if (GET_TEAM(getTeam()).IsResourceRevealed(getResourceType()))
+					if (GET_TEAM(getTeam()).IsResourceImproveable(getResourceType()))
 					{
 						if (isCity())
 						{
