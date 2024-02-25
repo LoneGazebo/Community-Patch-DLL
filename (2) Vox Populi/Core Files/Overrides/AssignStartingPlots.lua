@@ -54,6 +54,21 @@ include("NaturalWondersCustomMethods");
 
 -- Bob Thomas  -  April 16, 2010
 
+-- Note from VP dev:
+-- "Area" is used instead of "Landmass" throughout all map-related files thanks to Civ5 devs.
+-- A Landmass is a contiguous set of land (or water) plots,
+-- which may contain multiple Areas which are separated by isthmuses or mountain ranges.
+-- This causes problems in Terra-styled start placement where all civs are placed in the biggest area instead of the biggest landmass,
+-- leaving half of the landmass empty and everyone clumped closely.
+
+-- A project is in progress to change most references of "Area" to "Landmass",
+-- starting from this file (ASP) and will be extended to VP-supported maps.
+-- A side effect is that a region in Terra-styled maps can now span across mountain ranges or isthmuses, making its monopoly hard to get.
+-- Forcing a region to abide to area boundaries is currently too much work, unfortunately. Maybe later.
+-- Regions in Continents-styled maps will still be bounded by areas, but now isolated starts should hopefully be rarer.
+
+-- azum4roll - 2024-01-14
+
 -- There is a Reference section at the end of the file.
 
 ------------------------------------------------------------------------------
@@ -319,8 +334,11 @@ function AssignStartingPlots.Create()
 		GenerateCandidatePlotListsForSpecificNW = AssignStartingPlots.GenerateCandidatePlotListsForSpecificNW,
 		GetNumCityStatesPerRegion = AssignStartingPlots.GetNumCityStatesPerRegion,
 		GetNumCityStatesInUninhabitedRegion = AssignStartingPlots.GetNumCityStatesInUninhabitedRegion,
+		AssignCityStatesToRegions = AssignStartingPlots.AssignCityStatesToRegions,
 		AttemptToPlaceTreesAtResourcePlot = AssignStartingPlots.AttemptToPlaceTreesAtResourcePlot,
 		GetLowFertilityCompensations = AssignStartingPlots.GetLowFertilityCompensations,
+		MeasureStartPlacementFertilityOfArea = AssignStartingPlots.MeasureStartPlacementFertilityOfArea,
+		GetLandmassBoundaries = AssignStartingPlots.GetLandmassBoundaries,
 	};
 
 	findStarts:__Init();
@@ -491,6 +509,9 @@ function AssignStartingPlots:__Init()
 	self.startingPlots = {}; -- Stores x and y coordinates (and "score") of starting plots for civs, indexed by region number
 	self.method = RegionDivision.CONTINENTAL; -- Method of regional division, default is continental
 	self.iNumCivs = 0; -- Number of civs at game start
+	self.iNumFrontiers = 0; -- Number of empty regions
+	self.bArea = false; -- Whether region division is based on landmass or area (true = area-based)
+	self.landmass_areas = {}; -- Stores lists of areas of each landmass
 	self.player_ID_list = {}; -- Correct list of player IDs (includes handling of any 'gaps' that occur in MP games)
 	self.regionData = {}; -- Stores data returned from regional division algorithm
 	self.regionTerrainCounts = {}; -- Stores counts of terrain elements for all regions
@@ -714,6 +735,28 @@ function AssignStartingPlots:__Init()
 	-- Init impact tables
 	for i = 1, NUM_IMPACT_LAYERS do
 		self.impactData[i] = table.fill(0, iW * iH);
+	end
+
+	-- Populate landmass/area relationship table here, since many maps override GenerateRegions() and we cannot do it there.
+	local landmass_IDs = {};
+	local area_IDs = {};
+	for x = 0, iW - 1 do
+		for y = 0, iH - 1 do
+			local plot = Map.GetPlot(x, y);
+			if not plot:IsWater() then -- Land plot, process it.
+				local iLandmass = plot:GetLandmass();
+				local iArea = plot:GetArea();
+				if not TestMembership(landmass_IDs, iLandmass) then -- This plot is the first detected in its landmass.
+					table.insert(landmass_IDs, iLandmass);
+					self.landmass_areas[iLandmass] = {};
+				end
+				if not TestMembership(area_IDs, iArea) then -- This plot is the first detected in its area.
+					table.insert(area_IDs, iArea);
+					table.insert(self.landmass_areas[iLandmass], iArea);
+					-- print("Area#", iArea, "is a new area in landmass#", iLandmass);
+				end
+			end
+		end
 	end
 end
 ------------------------------------------------------------------------------
@@ -1035,7 +1078,7 @@ end
 -- Start of functions tied to GenerateRegions()
 ------------------------------------------------------------------------------
 function AssignStartingPlots:MeasureStartPlacementFertilityOfPlot(x, y, checkForCoastalLand)
-	-- Fertility of plots is used to divide continents or areas in to Regions.
+	-- Fertility of plots is used to divide landmasses into Regions.
 	-- Regions are used to assign starting plots and place some resources.
 	-- Usage: x, y are plot coords, with 0, 0 in SW. The check is a boolean.
 
@@ -1054,8 +1097,8 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfPlot(x, y, checkFor
 	local terrainType = plot:GetTerrainType();
 	local featureType = plot:GetFeatureType();
 	-- Measure Fertility -- Any cases absent from the process have a 0 value.
-	if plotType == PlotTypes.PLOT_MOUNTAIN then -- Note, mountains cannot belong to a landmass AreaID, so they usually go unmeasured.
-		plotFertility = -2;
+	if plotType == PlotTypes.PLOT_MOUNTAIN then
+		plotFertility = -1;
 	elseif terrainType == TerrainTypes.TERRAIN_SNOW then
 		plotFertility = -1;
 	elseif featureType == FeatureTypes.FEATURE_OASIS then
@@ -1084,7 +1127,7 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfPlot(x, y, checkFor
 		elseif featureType == FeatureTypes.FEATURE_MARSH then
 			plotFertility = plotFertility - 2; -- Increasing penalty for Marsh plots. -1/26/2011 BT
 		elseif featureType == FeatureTypes.FEATURE_ICE then
-			plotFertility = plotFertility - 1;
+			plotFertility = plotFertility - 2;
 		end
 		if plot:IsRiverSide() then
 			plotFertility = plotFertility + 1;
@@ -1092,7 +1135,7 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfPlot(x, y, checkFor
 		if plot:IsFreshWater() then
 			plotFertility = plotFertility + 1;
 		end
-		if checkForCoastalLand then -- When measuring only one AreaID, this shortcut helps account for coastal plots not measured.
+		if checkForCoastalLand then -- When measuring only one landmass, this shortcut helps account for coastal plots not measured.
 			if plot:IsCoastalLand() then
 				plotFertility = plotFertility + 2;
 			end
@@ -1106,22 +1149,22 @@ function AssignStartingPlots:MeasureStartPlacementFertilityInRectangle(iWestX, i
 	-- This function is designed to provide initial data for regional division recursion.
 	-- Loop through plots in this rectangle and measure Fertility Rating.
 	-- Results will include a data table of all measured plots.
-	local areaFertilityTable = {};
-	local areaFertilityCount = 0;
+	local landmassFertilityTable = {};
+	local landmassFertilityCount = 0;
 	local plotCount = iWidth * iHeight;
 	for y = iSouthY, iSouthY + iHeight - 1 do -- When generating a plot data table incrementally, process Y first so that plots go row by row.
 		for x = iWestX, iWestX + iWidth - 1 do
 			local plotFertility = self:MeasureStartPlacementFertilityOfPlot(x, y, false); -- Check for coastal land is disabled.
-			table.insert(areaFertilityTable, plotFertility);
-			areaFertilityCount = areaFertilityCount + plotFertility;
+			table.insert(landmassFertilityTable, plotFertility);
+			landmassFertilityCount = landmassFertilityCount + plotFertility;
 		end
 	end
 
 	-- Returns table, integer, integer.
-	return areaFertilityTable, areaFertilityCount, plotCount;
+	return landmassFertilityTable, landmassFertilityCount, plotCount;
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:MeasureStartPlacementFertilityOfLandmass(iAreaID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY)
+function AssignStartingPlots:MeasureStartPlacementFertilityOfLandmass(iLandmassID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY)
 	-- This function is designed to provide initial data for regional division recursion.
 	-- Loop through plots in this landmass and measure Fertility Rating.
 	-- Results will include a data table of all plots within the rectangle that includes the entirety of this landmass.
@@ -1131,6 +1174,57 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfLandmass(iAreaID, i
 	local iW, iH = Map.GetGridSize();
 
 	-- These coordinates will be used in case of wrapping landmass, extending the landmass "off the map", in to imaginary space to process it.
+	-- Modulo math will correct the coordinates for accessing the plot data array.
+	local xEnd, yEnd;
+
+	if wrapsX then
+		xEnd = iEastX + iW;
+	else
+		xEnd = iEastX;
+	end
+	if wrapsY then
+		yEnd = iNorthY + iH;
+	else
+		yEnd = iNorthY;
+	end
+
+	local landmassFertilityTable = {};
+	local landmassFertilityCount = 0;
+	local plotCount = 0;
+	for yLoop = iSouthY, yEnd do -- When generating a plot data table incrementally, process Y first so that plots go row by row.
+		for xLoop = iWestX, xEnd do
+			plotCount = plotCount + 1;
+			local x = xLoop % iW;
+			local y = yLoop % iH;
+			local plot = Map.GetPlot(x, y);
+			local thisPlotsLandmass = plot:GetLandmass();
+			if thisPlotsLandmass ~= iLandmassID then -- This plot is not a member of the landmass, set value to 0
+				table.insert(landmassFertilityTable, 0);
+			else -- This plot is a member, process it.
+				local plotFertility = self:MeasureStartPlacementFertilityOfPlot(x, y, true); -- Check for coastal land is enabled.
+				table.insert(landmassFertilityTable, plotFertility);
+				landmassFertilityCount = landmassFertilityCount + plotFertility;
+			end
+		end
+	end
+
+	-- Note: The table accounts for world wrap, so make sure to translate its index correctly.
+	-- Plots in the table run from the southwest corner along the bottom row, then upward row by row, per normal plot data indexing.
+	return landmassFertilityTable, landmassFertilityCount, plotCount;
+end
+------------------------------------------------------------------------------
+function AssignStartingPlots:MeasureStartPlacementFertilityOfArea(iAreaID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY)
+	-- This function is designed to provide initial data for continental regional division only.
+	-- Biggest landmass method only needs to measure landmass fertility, and doesn't need to take areas into account.
+
+	-- Loop through plots in this area and measure Fertility Rating.
+	-- Results will include a data table of all plots within the rectangle that includes the entirety of this area.
+
+	-- This function will account for any wrapping around the world this area may do.
+
+	local iW, iH = Map.GetGridSize();
+
+	-- These coordinates will be used in case of wrapping area, extending the area "off the map", in to imaginary space to process it.
 	-- Modulo math will correct the coordinates for accessing the plot data array.
 	local xEnd, yEnd;
 
@@ -1155,7 +1249,7 @@ function AssignStartingPlots:MeasureStartPlacementFertilityOfLandmass(iAreaID, i
 			local y = yLoop % iH;
 			local plot = Map.GetPlot(x, y);
 			local thisPlotsArea = plot:GetArea();
-			if thisPlotsArea ~= iAreaID then -- This plot is not a member of the landmass, set value to 0
+			if thisPlotsArea ~= iAreaID then -- This plot is not a member of the area, set value to 0
 				table.insert(areaFertilityTable, 0);
 			else -- This plot is a member, process it.
 				local plotFertility = self:MeasureStartPlacementFertilityOfPlot(x, y, true); -- Check for coastal land is enabled.
@@ -1393,10 +1487,10 @@ function AssignStartingPlots:ChopIntoTwoRegions(fertility_table, rectangle_data_
 	-- Performs the mechanics of dividing a region into two subregions.
 
 	-- Fertility table is a plot data array including data for all plots to be processed here.
-	-- This data already factors any need for processing AreaID.
+	-- This data already factors any need for processing LandmassID/AreaID.
 
 	-- Rectangle table includes seven data fields:
-	-- westX, southY, width, height, AreaID, fertilityCount, plotCount
+	-- westX, southY, width, height, LandmassID/AreaID, fertilityCount, plotCount
 	-- print("-"); print("ChopIntoTwo called.");
 
 	--[[ Log dump of incoming table data. Activate for debug only.
@@ -1617,12 +1711,21 @@ function AssignStartingPlots:GenerateRegions(args)
 	self.iNumCityStatesUnassigned = self.iNumCityStates;
 	-- print("-"); print("Civs:", self.iNumCivs); print("City States:", self.iNumCityStates);
 
+	-- Custom code for Frontier
+	if args.addEmptyRegions and self.iNumCivs <= 22 then
+		local emptyRegionMinCount = {1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 3, 2, 1, 0};
+		local emptyRegionMaxCount = {1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 4, 3, 2, 1, 0};
+		self.iNumFrontiers = self:GetRandomFromRangeInclusive(emptyRegionMinCount[self.iNumCivs], emptyRegionMaxCount[self.iNumCivs]);
+		print("Number of empty regions:", self.iNumFrontiers); print("-");
+	end
+
+	local skip = false;
+
 	if self.method == RegionDivision.BIGGEST_LANDMASS then
 		-- Identify the biggest landmass.
-		local biggest_area = Map.FindBiggestArea(false);
-		local iAreaID = biggest_area:GetID();
+		local iLandmassID = Map.FindBiggestLandmassID(false);
 		-- We'll need all eight data fields returned in the results table from the boundary finder:
-		local landmass_data = ObtainLandmassBoundaries(iAreaID);
+		local landmass_data = self:GetLandmassBoundaries(iLandmassID);
 		local iWestX = landmass_data[1];
 		local iSouthY = landmass_data[2];
 		local iEastX = landmass_data[3];
@@ -1632,35 +1735,23 @@ function AssignStartingPlots:GenerateRegions(args)
 		local wrapsX = landmass_data[7];
 		local wrapsY = landmass_data[8];
 
-		---[[ Debug for biggest landmass boundaries
-		print("-");
-		print("Biggest landmass details");
-		print("WestX:", iWestX);
-		print("SouthY:", iSouthY);
-		print("EastX:", iEastX);
-		print("NorthY:", iNorthY);
-		print("Width:", iWidth);
-		print("Height:", iHeight);
-		print("-");
-		--]]
-
 		-- Obtain "Start Placement Fertility" of the landmass. (This measurement is customized for start placement).
 		-- This call returns a table recording fertility of all plots within a rectangle that contains the landmass,
 		-- with a zero value for any plots not part of the landmass -- plus a fertility sum and plot count.
-		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(iAreaID,
+		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(iLandmassID,
 												 iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
 		-- Now divide this landmass in to regions, one per civ.
 		-- The regional divider requires three arguments:
 		-- 1. Number of divisions. (For "Biggest Landmass" this means number of civs in the game).
 		-- 2. Fertility table. (This was obtained from the last call.)
 		-- 3. Rectangle table. This table includes seven data fields:
-		-- westX, southY, width, height, AreaID, fertilityCount, plotCount
+		-- westX, southY, width, height, LandmassID, fertilityCount, plotCount
 		-- This is why we got the fertCount and plotCount from the fertility function.
 
 		-- Assemble the Rectangle data table:
-		local rect_table = {iWestX, iSouthY, iWidth, iHeight, iAreaID, fertCount, plotCount};
+		local rect_table = {iWestX, iSouthY, iWidth, iHeight, iLandmassID, fertCount, plotCount};
 		-- The data from this call is processed in to self.regionData during the process.
-		self:DivideIntoRegions(self.iNumCivs, fert_table, rect_table);
+		self:DivideIntoRegions(self.iNumCivs + self.iNumFrontiers, fert_table, rect_table);
 		-- The regions have been defined.
 
 	elseif self.method == RegionDivision.RECTANGULAR or self.method == RegionDivision.RECTANGULAR_SELF_DEFINED then
@@ -1679,230 +1770,329 @@ function AssignStartingPlots:GenerateRegions(args)
 												 self.inhabited_SouthY, self.inhabited_Width, self.inhabited_Height);
 		-- Assemble the Rectangle data table:
 		local rect_table = {self.inhabited_WestX, self.inhabited_SouthY, self.inhabited_Width,
-							self.inhabited_Height, -1, fertCount, plotCount}; -- AreaID -1 means ignore area IDs.
+							self.inhabited_Height, -1, fertCount, plotCount}; -- AreaID -1 means ignore landmass/area IDs.
 		-- Divide the rectangle.
-		self:DivideIntoRegions(self.iNumCivs, fert_table, rect_table);
+		self:DivideIntoRegions(self.iNumCivs + self.iNumFrontiers, fert_table, rect_table);
 		-- The regions have been defined.
 
 	else -- Continental.
-		--[[ Loop through all plots on the map, measuring fertility of each land
-			 plot, identifying its AreaID, building a list of landmass AreaIDs, and
-			 tallying the Start Placement Fertility for each landmass. --]]
+		-- Loop through all plots on the map, measuring fertility of each land plot, identifying its LandmassID and AreaID,
+		-- building a list of LandmassIDs and AreaIDs, and tallying the Start Placement Fertility for each landmass/area.
 
-		-- region_data: [WestX, EastX, SouthY, NorthY,
-		-- numLandPlotsinRegion, numCoastalPlotsinRegion,
-		-- numOceanPlotsinRegion, iRegionNetYield,
-		-- iNumLandAreas, iNumPlotsinRegion]
+		self.bArea = true;
 
-		-- Obtain info on all landmasses for comparision purposes.
+		-- Obtain info on all landmasses and areas for comparison purposes.
 		local iGlobalFertilityOfLands = 0;
-		local iNumLandPlots = 0;
-		local iNumLandAreas = 0;
-		local land_area_IDs = {};
-		local land_area_plots = {};
-		local land_area_fert = {};
-		-- Cycle through all plots in the world, checking their Start Placement Fertility and AreaID.
+		local iNumAreas = 0;
+		local landmass_IDs = {};
+		local landmass_fert = {};
+		local area_IDs = {};
+		local area_fert = {};
+		-- Cycle through all plots in the world, checking their Start Placement Fertility, LandmassID, and AreaID.
 		for x = 0, iW - 1 do
 			for y = 0, iH - 1 do
 				local plot = Map.GetPlot(x, y);
 				if not plot:IsWater() then -- Land plot, process it.
-					iNumLandPlots = iNumLandPlots + 1;
+					local iLandmass = plot:GetLandmass();
 					local iArea = plot:GetArea();
 					local plotFertility = self:MeasureStartPlacementFertilityOfPlot(x, y, true); -- Check for coastal land is enabled.
 					iGlobalFertilityOfLands = iGlobalFertilityOfLands + plotFertility;
 
-					if not TestMembership(land_area_IDs, iArea) then -- This plot is the first detected in its AreaID.
-						iNumLandAreas = iNumLandAreas + 1;
-						table.insert(land_area_IDs, iArea);
-						land_area_plots[iArea] = 1;
-						land_area_fert[iArea] = plotFertility;
-					else -- This AreaID already known.
-						land_area_plots[iArea] = land_area_plots[iArea] + 1;
-						land_area_fert[iArea] = land_area_fert[iArea] + plotFertility;
+					if not TestMembership(landmass_IDs, iLandmass) then -- This plot is the first detected in its landmass.
+						table.insert(landmass_IDs, iLandmass);
+						landmass_fert[iLandmass] = plotFertility;
+					else -- This landmass already known.
+						landmass_fert[iLandmass] = landmass_fert[iLandmass] + plotFertility;
+					end
+
+					if not TestMembership(area_IDs, iArea) then -- This plot is the first detected in its area.
+						iNumAreas = iNumAreas + 1;
+						table.insert(area_IDs, iArea);
+						area_fert[iArea] = plotFertility;
+						-- print("Area#", iArea, "is a new area in landmass#", iLandmass);
+					else -- This area already known.
+						area_fert[iArea] = area_fert[iArea] + plotFertility;
 					end
 				end
 			end
 		end
 
-		-- Sort areas, achieving a list of AreaIDs with best areas first.
-
-		-- Fertility data in land_area_fert is stored with areaID index keys.
-		-- Need to generate a version of this table with indices of 1 to n, where n is number of land areas.
+		-- Sort areas, achieving a list of areas with best areas first.
+		-- Add fertility check at 25% of fertility of the largest landmass to prevent tiny islands from being considered, which will result in isolated starts.
+		-- We do these by making a new table storing area fertilities that reach the threshold.
 		local interim_table = {};
-		local min_area_fertility = iGlobalFertilityOfLands / self.iNumCivs * 0.5;
-		print("Minimum area fertility required =", min_area_fertility);
-		for _, data_entry in pairs(land_area_fert) do
-			-- add fertility check to prevent tiny islands from being considered
-			if data_entry >= min_area_fertility then
-				table.insert(interim_table, data_entry);
-			else
-				iNumLandAreas = iNumLandAreas - 1;
-			end
-		end
-
-		--[[
-		for AreaID, fert in ipairs(interim_table) do
-			print("Interim Table ID " .. AreaID .. " has fertility of " .. fert);
-		end
-		print("* * * * * * * * * *");
-		--]]
-
-		-- Sort the fertility values stored in the interim table. Sort order in Lua is lowest to highest.
-		table.sort(interim_table);
-
-		--[[
-		for AreaID, fert in ipairs(interim_table) do
-			print("Interim Table ID " .. AreaID .. " has fertility of " .. fert);
-		end
-		print("* * * * * * * * * *");
-		--]]
-
-		-- If less players than landmasses, we will ignore the extra landmasses.
-		local iNumRelevantLandAreas = math.min(iNumLandAreas, self.iNumCivs);
-		print("Number of relevant areas =", iNumRelevantLandAreas);
-
-		-- Now re-match the AreaID numbers with their corresponding fertility values by comparing the original fertility table with the sorted interim table.
-		-- During this comparison, best_areas will be constructed from sorted AreaIDs, richest stored first.
-		local best_areas = {};
-		-- Currently, the best yields are at the end of the interim table. We need to step backward from there.
-		local end_of_interim_table = table.maxn(interim_table);
-		-- We may not need all entries in the table. Process only iNumRelevantLandAreas worth of table entries.
-		local fertility_value_list = {};
-		local fertility_value_tie = false;
-		for tableConstructionLoop = end_of_interim_table, end_of_interim_table - iNumRelevantLandAreas + 1, -1 do
-			if TestMembership(fertility_value_list, interim_table[tableConstructionLoop]) then
-				fertility_value_tie = true;
-				print("*** WARNING: Fertility Value Tie exists! ***");
-			else
-				table.insert(fertility_value_list, interim_table[tableConstructionLoop]);
-			end
-		end
-
-		if not fertility_value_tie then -- No ties, so no need of special handling for ties.
-			for areaTestLoop = end_of_interim_table, end_of_interim_table - iNumRelevantLandAreas + 1, -1 do
-				for loop_index, AreaID in ipairs(land_area_IDs) do
-					if interim_table[areaTestLoop] == land_area_fert[land_area_IDs[loop_index]] then
-						table.insert(best_areas, AreaID);
-						break;
+		local biggestLandmass = Map.FindBiggestLandmassID(false);
+		local min_landmass_fertility = landmass_fert[biggestLandmass] * 0.25;
+		local iNumLandmass = 0;
+		local area_landmass = {};
+		print("-"); print("Minimum landmass fertility required =", min_landmass_fertility); print("-");
+		for iLandmass, data_entry in pairs(landmass_fert) do
+			if data_entry >= min_landmass_fertility then
+				iNumLandmass = iNumLandmass + 1;
+				for _, iArea in ipairs(self.landmass_areas[iLandmass]) do
+					if area_fert[iArea] > 0 then
+						print("Area#", iArea, "in Landmass#", iLandmass, "is a candidate for start placement, Fertility =", area_fert[iArea]);
+						table.insert(interim_table, area_fert[iArea]);
+						area_landmass[iArea] = iLandmass;
+					else
+						iNumAreas = iNumAreas - 1;
 					end
 				end
+			else
+				-- These landmasses won't be considered
+				iNumAreas = iNumAreas - table.maxn(self.landmass_areas[iLandmass]);
 			end
-		else -- Ties exist! Special handling required to protect against a shortfall in the number of defined regions.
-			local iNumUniqueFertValues = table.maxn(fertility_value_list);
-			for fertLoop = 1, iNumUniqueFertValues do
-				for AreaID, fert in pairs(land_area_fert) do
-					if fert == fertility_value_list[fertLoop] then
-						-- Add ties only if there is room!
-						local best_areas_length = table.maxn(best_areas);
-						if best_areas_length < iNumRelevantLandAreas then
-							table.insert(best_areas, AreaID);
-						else
+		end
+
+		-- If only one relevant landmass, we switch tracks to use biggest landmass division
+		if iNumLandmass <= 1 then
+			print("Only one landmass fertile enough for start placement. Switching to use Biggest Landmass division.");
+			args.method = RegionDivision.BIGGEST_LANDMASS;
+			self.bArea = false;
+			skip = true;
+			self:GenerateRegions(args);
+		else
+			---[[
+			for i, fert in ipairs(interim_table) do
+				print("Interim Table ID " .. i .. " has fertility of " .. fert);
+			end
+			print("* * * * * * * * * *");
+			--]]
+
+			-- Sort the fertility values stored in the interim table. Sort order in Lua is lowest to highest.
+			table.sort(interim_table);
+
+			---[[
+			for i, fert in ipairs(interim_table) do
+				print("Interim Table ID " .. i .. " has fertility of " .. fert);
+			end
+			print("* * * * * * * * * *");
+			--]]
+
+			-- If less players than areas, we will ignore the extra areas.
+			local iNumRelevantAreas = math.min(iNumAreas, self.iNumCivs + self.iNumFrontiers);
+			print("Number of relevant areas =", iNumRelevantAreas);
+
+			-- Now re-match the AreaIDs with their corresponding fertility values by comparing the original fertility table with the sorted interim table.
+			-- During this comparison, best_areas will be constructed from sorted AreaIDs, richest stored first.
+			local best_areas = {};
+			-- Currently, the best yields are at the end of the interim table. We need to step backward from there.
+			local end_of_interim_table = table.maxn(interim_table);
+			-- We may not need all entries in the table. Process only iNumRelevantAreas worth of table entries.
+			local fertility_value_list = {};
+			local fertility_value_tie = false;
+			local relevantFertility = 0;
+			for tableConstructionLoop = end_of_interim_table, end_of_interim_table - iNumRelevantAreas + 1, -1 do
+				relevantFertility = relevantFertility + interim_table[tableConstructionLoop];
+				if TestMembership(fertility_value_list, interim_table[tableConstructionLoop]) then
+					fertility_value_tie = true;
+					print("*** WARNING: Fertility Value Tie exists! ***");
+				else
+					table.insert(fertility_value_list, interim_table[tableConstructionLoop]);
+				end
+			end
+			print("Relevant land fertility =", relevantFertility);
+
+			if not fertility_value_tie then -- No ties, so no need of special handling for ties.
+				for loop = end_of_interim_table, end_of_interim_table - iNumRelevantAreas + 1, -1 do
+					for loop2, areaID in ipairs(area_IDs) do
+						if interim_table[loop] == area_fert[area_IDs[loop2]] then
+							table.insert(best_areas, areaID);
 							break;
 						end
 					end
 				end
-			end
-		end
-
-		-- Assign continents to receive start plots. Record number of civs assigned to each landmass.
-		local inhabitedAreaIDs = {};
-		local numberOfCivsPerArea = table.fill(0, iNumRelevantLandAreas); -- Indexed in synch with best_areas. Use same index to match values from each table.
-		for _ = 1, self.iNumCivs do
-			local bestRemainingArea = -1;
-			local bestRemainingFertility = 0;
-			local bestAreaTableIndex;
-
-			-- Loop through areas, find the one with the best remaining fertility (civs added to a landmass reduces its fertility rating for subsequent civs).
-			-- print("- - Searching landmasses in order to place Civ #", civToAssign); print("-");
-			for area_loop, AreaID in ipairs(best_areas) do
-				-- assume 80% of fertility is in relevant land areas
-				local thisLandmassCurrentFertility = land_area_fert[AreaID] - iGlobalFertilityOfLands * 0.8 * numberOfCivsPerArea[area_loop] / self.iNumCivs;
-				if thisLandmassCurrentFertility > bestRemainingFertility and numberOfCivsPerArea[area_loop] < math.max(self.iNumCivs - 2, 2) then
-					bestRemainingArea = AreaID;
-					bestRemainingFertility = thisLandmassCurrentFertility;
-					bestAreaTableIndex = area_loop;
-					-- print("- Found new candidate landmass with Area ID#:", bestRemainingArea, " with fertility of ", bestRemainingFertility);
+			else -- Ties exist! Special handling required to protect against a shortfall in the number of defined regions.
+				local iNumUniqueFertValues = table.maxn(fertility_value_list);
+				for fertLoop = 1, iNumUniqueFertValues do
+					for areaID, fert in pairs(area_fert) do
+						if fert == fertility_value_list[fertLoop] then
+							-- Add ties only if there is room!
+							if table.maxn(best_areas) < iNumRelevantAreas then
+								table.insert(best_areas, areaID);
+							else
+								break;
+							end
+						end
+					end
 				end
 			end
-			if bestRemainingArea == -1 then
-				print("Failed to find an area somehow, assign to first area as a failsafe");
-				bestRemainingArea = best_areas[1];
-				bestAreaTableIndex = 1;
+			PrintContentsOfTable(fertility_value_list);
+			PrintContentsOfTable(best_areas);
+
+			local inhabitedAreaIDs = {};
+			local numberOfCivsPerArea = {}; -- Indexed in synch with best_areas. Use same index to match values from each table.
+			local fertilityPerCiv = relevantFertility * 0.7 / (self.iNumCivs + self.iNumFrontiers); -- Allow some unused fertility here
+			local numberOfCivsPerLandmass = {};
+			print("Expected fertility per civ =", fertilityPerCiv);
+			for loop, areaID in ipairs(best_areas) do
+				numberOfCivsPerArea[loop] = math.floor(area_fert[areaID] / fertilityPerCiv);
+				print("Area", areaID, "can have", numberOfCivsPerArea[loop], "regions");
+				if numberOfCivsPerLandmass[area_landmass[areaID]] then
+					numberOfCivsPerLandmass[area_landmass[areaID]] = numberOfCivsPerLandmass[area_landmass[areaID]] + numberOfCivsPerArea[loop];
+				else
+					numberOfCivsPerLandmass[area_landmass[areaID]] = numberOfCivsPerArea[loop];
+				end
+				if numberOfCivsPerArea[loop] == 0 then
+					break;
+				end
 			end
 
-			-- Record results for this pass. (A landmass has been assigned to receive one more start point than it previously had).
-			numberOfCivsPerArea[bestAreaTableIndex] = numberOfCivsPerArea[bestAreaTableIndex] + 1;
-			if not TestMembership(inhabitedAreaIDs, bestRemainingArea) then
-				table.insert(inhabitedAreaIDs, bestRemainingArea);
+			local iTotalFertileAreas = 0;
+			local iTotalFertileLandmassAreas = 0; -- Don't count landmasses too infertile for more than one civ to spawn (prevent isolation)
+			for _, numberOfCivs in pairs(numberOfCivsPerLandmass) do
+				iTotalFertileAreas = iTotalFertileAreas + numberOfCivs;
+				if numberOfCivs >= 2 then
+					iTotalFertileLandmassAreas = iTotalFertileLandmassAreas + numberOfCivs;
+				end
 			end
-			-- print("Civ #", civToAssign, "has been assigned to Area#", bestRemainingArea); print("-");
-		end
-		-- print("-"); print("--- End of Initial Readout ---"); print("-");
 
-		-- print("*** Number of Civs per Landmass - Table Readout ***");
-		-- PrintContentsOfTable(numberOfCivsPerArea);
-		-- print("--- End of Civs per Landmass readout ***"); print("-"); print("-");
-
-		-- Loop through the list of inhabited landmasses, dividing each landmass in to regions.
-		-- Note that it is OK to divide a continent with one civ on it:
-		-- this will assign the whole of the landmass to a single region, and is the easiest method of recording such a region.
-		for loop, currentLandmassID in ipairs(inhabitedAreaIDs) do
-			-- Obtain the boundaries of and data for this landmass.
-			local landmass_data = ObtainLandmassBoundaries(currentLandmassID);
-			local iWestX = landmass_data[1];
-			local iSouthY = landmass_data[2];
-			local iEastX = landmass_data[3];
-			local iNorthY = landmass_data[4];
-			local iWidth = landmass_data[5];
-			local iHeight = landmass_data[6];
-			local wrapsX = landmass_data[7];
-			local wrapsY = landmass_data[8];
-
-			-- Obtain "Start Placement Fertility" of the current landmass.
-			-- Necessary to do this again because the fert_table can't be built prior to finding boundaries,
-			-- and we had to ID the proper landmasses via fertility to be able to figure out their boundaries.
-			local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(currentLandmassID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
-
-			-- Assemble the rectangle data for this landmass.
-			local rect_table = {iWestX, iSouthY, iWidth, iHeight, currentLandmassID, fertCount, plotCount};
-
-			-- Divide this landmass in to number of regions equal to civs assigned here.
-			local iNumCivsOnThisLandmass = numberOfCivsPerArea[loop];
-			if iNumCivsOnThisLandmass > 0 and iNumCivsOnThisLandmass <= MAX_MAJOR_CIVS then -- valid number of civs.
-				--[[ Debug printout for regional division inputs.
-				print("-"); print("- Region #: ", loop);
-				print("- Civs on this landmass: ", iNumCivsOnThisLandmass);
-				print("- Area ID#: ", currentLandmassID);
-				print("- Fertility: ", fertCount);
-				print("- Plot Count: ", plotCount); print("-");
-				--]]
-				self:DivideIntoRegions(iNumCivsOnThisLandmass, fert_table, rect_table);
+			-- If not enough fertile areas, the continents are too small for this division method.
+			-- Switch tracks to use rectangular method instead.
+			if iTotalFertileAreas < self.iNumCivs + self.iNumFrontiers then
+				print("Landmasses aren't fertile enough for start placement. Switching to use Rectangular division.");
+				args.method = RegionDivision.RECTANGULAR;
+				self.bArea = false;
+				skip = true;
+				self:GenerateRegions(args);
 			else
-				print("Invalid number of civs assigned to a landmass: ", iNumCivsOnThisLandmass);
+				-- If enough fertile areas in fertile landmasses, disallow landmasses with only one civ
+				if iTotalFertileLandmassAreas >= self.iNumCivs + self.iNumFrontiers then
+					for landmassID, numberOfCivs in pairs(numberOfCivsPerLandmass) do
+						if numberOfCivs <= 1 then
+							numberOfCivsPerLandmass[landmassID] = 0;
+						end
+					end
+				end
+
+				-- Assign areas to receive start plots. Record number of civs assigned to each area.
+				-- Note that area_fert table is being altered here, and should not be relied on after this loop.
+				local landmassID = -1;
+				local inhabitedLandmassIDs = {};
+				local actualNumberOfCivsPerArea = {};
+				for civToAssign = 1, self.iNumCivs + self.iNumFrontiers do
+					local bestRemainingArea = -1;
+					local bestRemainingFertility = 0;
+
+					-- Loop through areas, find the one with the best remaining fertility (civs added to an area reduces its fertility rating for subsequent civs).
+					-- print("- - Searching areas in order to place Civ #", civToAssign); print("-");
+					for _, areaID in ipairs(best_areas) do
+						if area_fert[areaID] > bestRemainingFertility then
+							-- If last assigned area is on a new landmass, always assign another civ to it
+							-- It has been made sure that each landmass can support at least two civs
+							if landmassID == -1 or area_landmass[areaID] == landmassID then
+								-- Last civ cannot be placed on a new landmass
+								if civToAssign ~= self.iNumCivs + self.iNumFrontiers or TestMembership(inhabitedLandmassIDs, area_landmass[areaID]) then
+									bestRemainingArea = areaID;
+									bestRemainingFertility = area_fert[areaID];
+									-- print("- Found new candidate area with Area ID#:", bestRemainingArea, " with fertility of ", bestRemainingFertility);
+								end
+							end
+						end
+					end
+					if bestRemainingArea == -1 then
+						print("Failed to find an area somehow, assign to first area as a failsafe");
+						bestRemainingArea = best_areas[1];
+					end
+
+					-- Record results for this pass
+					if not TestMembership(inhabitedAreaIDs, bestRemainingArea) then
+						table.insert(inhabitedAreaIDs, bestRemainingArea);
+						actualNumberOfCivsPerArea[bestRemainingArea] = 0;
+					end
+					actualNumberOfCivsPerArea[bestRemainingArea] = actualNumberOfCivsPerArea[bestRemainingArea] + 1;
+
+					if not TestMembership(inhabitedLandmassIDs, area_landmass[bestRemainingArea]) then
+						table.insert(inhabitedLandmassIDs, area_landmass[bestRemainingArea]);
+						landmassID = area_landmass[bestRemainingArea];
+					else
+						landmassID = -1;
+					end
+					print("Civ #", civToAssign, "has been assigned to Area#", bestRemainingArea, "on Landmass#", area_landmass[bestRemainingArea]); print("-");
+
+					-- Deduct fertility taken by civ from area fertility
+					area_fert[bestRemainingArea] = area_fert[bestRemainingArea] - fertilityPerCiv;
+				end
+				-- print("-"); print("--- End of Initial Readout ---"); print("-");
+
+				print("*** Number of Civs per Area - Table Readout ***");
+				PrintContentsOfTable(actualNumberOfCivsPerArea);
+				print("--- End of Civs per Area readout ***"); print("-"); print("-");
+
+				-- Loop through the list of inhabited areas, dividing each area into regions.
+				-- Note that it is OK to divide an area with one civ on it:
+				-- this will assign the whole of the area to a single region, and is the easiest method of recording such a region.
+				for _, currentAreaID in ipairs(inhabitedAreaIDs) do
+					-- Obtain the boundaries of and data for this area.
+					local area_data = ObtainLandmassBoundaries(currentAreaID);
+					local iWestX = area_data[1];
+					local iSouthY = area_data[2];
+					local iEastX = area_data[3];
+					local iNorthY = area_data[4];
+					local iWidth = area_data[5];
+					local iHeight = area_data[6];
+					local wrapsX = area_data[7];
+					local wrapsY = area_data[8];
+
+					-- Obtain "Start Placement Fertility" of the current area.
+					-- Necessary to do this again because the fert_table can't be built prior to finding boundaries,
+					-- and we had to ID the proper areas via fertility to be able to figure out their boundaries.
+					local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfArea(currentAreaID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
+
+					-- Now divide this area into regions, one per civ.
+					-- The regional divider requires three arguments:
+					-- 1. Number of civs assigned to this area.
+					-- 2. Fertility table. (This was obtained from the last call.)
+					-- 3. Rectangle table. This table includes seven data fields: westX, southY, width, height, areaID, fertilityCount, plotCount
+					-- Note that the global bArea flag is true here, which means areaID is used.
+					local rect_table = {iWestX, iSouthY, iWidth, iHeight, currentAreaID, fertCount, plotCount};
+
+					-- Divide this area into number of regions equal to civs assigned here.
+					local iNumCivsOnThisArea = actualNumberOfCivsPerArea[currentAreaID];
+					if iNumCivsOnThisArea > 0 and iNumCivsOnThisArea <= MAX_MAJOR_CIVS then -- valid number of civs.
+						--[[ Debug printout for regional division inputs.
+						print("-");
+						print("- Civs on this area: ", iNumCivsOnThisArea);
+						print("- Area ID#: ", currentAreaID);
+						print("- Fertility: ", fertCount);
+						print("- Plot Count: ", plotCount);
+						print("-");
+						--]]
+						self:DivideIntoRegions(iNumCivsOnThisArea, fert_table, rect_table);
+					else
+						print("Invalid number of civs assigned to an area: ", iNumCivsOnThisArea);
+					end
+				end
+				-- The regions have been defined.
 			end
 		end
-		-- The regions have been defined.
 	end
 
-	-- Entry point for easier overrides.
-	self:CustomOverride();
+	if not skip then
+		-- Entry point for easier overrides.
+		self:CustomOverride();
 
-	---[[ Printout is for debugging only. Deactivate otherwise.
-	local tempRegionData = self.regionData;
-	for i, data in ipairs(tempRegionData) do
-		print("-");
-		print("Data for Start Region #", i);
-		print("WestX:", data[1]);
-		print("SouthY:", data[2]);
-		print("Width:", data[3]);
-		print("Height:", data[4]);
-		print("AreaID:", data[5]);
-		print("Fertility:", data[6]);
-		print("Plots:", data[7]);
-		print("Fert/Plot:", data[8]);
-		print("-");
+		---[[ Printout is for debugging only. Deactivate otherwise.
+		local tempRegionData = self.regionData;
+		for i, data in ipairs(tempRegionData) do
+			print("-");
+			print("Data for Start Region #", i);
+			print("WestX:", data[1]);
+			print("SouthY:", data[2]);
+			print("Width:", data[3]);
+			print("Height:", data[4]);
+			if self.bArea then
+				print("AreaID:", data[5]);
+			else
+				print("LandmassID:", data[5]);
+			end
+			print("Fertility:", data[6]);
+			print("Plots:", data[7]);
+			print("Fert/Plot:", data[8]);
+			print("-");
+		end
+		--]]
 	end
-	--]]
 end
 ------------------------------------------------------------------------------
 -- Start of functions tied to ChooseLocations()
@@ -1932,6 +2122,7 @@ function AssignStartingPlots:MeasureTerrainInRegions()
 				local y = (region_loop_y + iSouthY) % iH;
 				local plot = Map.GetPlot(x, y);
 				local area_of_plot = plot:GetArea();
+				local landmass_of_plot = plot:GetLandmass();
 				-- get plot info
 				local plotType = plot:GetPlotType();
 				local terrainType = plot:GetTerrainType();
@@ -1957,7 +2148,7 @@ function AssignStartingPlots:MeasureTerrainInRegions()
 
 				else
 					-- Hills and Flatlands, check plot for region membership. Only process this plot if it is a member.
-					if (area_of_plot == iAreaID) or (iAreaID == -1) then
+					if iAreaID == -1 or (self.bArea and area_of_plot == iAreaID) or (not self.bArea and landmass_of_plot == iAreaID) then
 						areaPlots = areaPlots + 1;
 
 						-- set up coastalLand and nextToCoast index
@@ -2118,7 +2309,7 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- Set each region to "Undefined Type" as default.
 		-- If all efforts fail at determining what type of region this should be, region type will remain Undefined.
 		-- local totalPlots = terrainCounts[1];
-		local areaPlots = terrainCounts[2];
+		local regionPlots = terrainCounts[2];
 		-- local waterCount = terrainCounts[3];
 		local flatlandsCount = terrainCounts[4];
 		local hillsCount = terrainCounts[5];
@@ -2141,10 +2332,10 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- local coastalLandCount = terrainCounts[22];
 		-- local nextToCoastCount = terrainCounts[23];
 
-		-- If Rectangular regional division, then water plots would be included in area plots.
-		-- Let's recalculate area plots based only on flatland and hills plots.
+		-- If Rectangular regional division, then water plots would be included in region plots.
+		-- Let's recalculate region plots based only on flatland and hills plots.
 		if self.method == RegionDivision.RECTANGULAR or self.method == RegionDivision.RECTANGULAR_SELF_DEFINED then
-			areaPlots = flatlandsCount + hillsCount;
+			regionPlots = flatlandsCount + hillsCount;
 		end
 
 
@@ -2169,35 +2360,35 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- MOD.Barathor: Reordered condition checks and modified what some checks include.
 		while not found_region do
 			-- Desert check.
-			if desertCount >= areaPlots * (desert_percent + adjustment) then
+			if desertCount >= regionPlots * (desert_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_DESERT);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a DESERT Region.");
 				found_region = true;
 
 			-- Tundra check.
-			elseif tundraCount >= areaPlots * (tundra_percent + adjustment) then
+			elseif tundraCount >= regionPlots * (tundra_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_TUNDRA);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a TUNDRA Region.");
 				found_region = true;
 
 			-- Jungle check.
-			elseif jungleCount >= areaPlots * (jungle_percent + adjustment) then
+			elseif jungleCount >= regionPlots * (jungle_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_JUNGLE);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a JUNGLE Region.");
 				found_region = true;
 
 			-- Forest check.
-			elseif forestCount >= areaPlots * (forest_percent + adjustment) and tundraCount < areaPlots * tundra_percent then
+			elseif forestCount >= regionPlots * (forest_percent + adjustment) and tundraCount < regionPlots * tundra_percent then
 				table.insert(self.regionTypes, RegionTypes.REGION_FOREST);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a FOREST Region.");
 				found_region = true;
 
 			-- Hills check.
-			elseif hillsCount >= areaPlots * (hills_percent + adjustment) then
+			elseif hillsCount >= regionPlots * (hills_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_HILLS);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a HILLS Region.");
@@ -2206,13 +2397,13 @@ function AssignStartingPlots:DetermineRegionTypes()
 			else
 				if adjustment <= 0 then
 					-- Plains check.
-					if plainsCount >= areaPlots * plains_percent and plainsCount * 0.8 > grassCount then
+					if plainsCount >= regionPlots * plains_percent and plainsCount * 0.8 > grassCount then
 						table.insert(self.regionTypes, RegionTypes.REGION_PLAINS);
 						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 						print("Region #", this_region, " has been defined as a PLAINS Region.");
 						found_region = true;
 					-- Grass check.
-					elseif grassCount >= areaPlots * grass_percent and grassCount * 0.8 > plainsCount then
+					elseif grassCount >= regionPlots * grass_percent and grassCount * 0.8 > plainsCount then
 						table.insert(self.regionTypes, RegionTypes.REGION_GRASSLAND);
 						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 						print("Region #", this_region, " has been defined as a GRASSLAND Region.");
@@ -2233,7 +2424,7 @@ function AssignStartingPlots:DetermineRegionTypes()
 		print("Threshold Values:");
 		print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desert_percent, tundra_percent, jungle_percent, forest_percent, hills_percent, plains_percent, grass_percent));
 		print("Region Values:");
-		print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desertCount / areaPlots, tundraCount / areaPlots, jungleCount / areaPlots, forestCount / areaPlots, hillsCount / areaPlots, plainsCount / areaPlots, grassCount / areaPlots));
+		print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desertCount / regionPlots, tundraCount / regionPlots, jungleCount / regionPlots, forestCount / regionPlots, hillsCount / regionPlots, plainsCount / regionPlots, grassCount / regionPlots));
 		print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 		--]]
 
@@ -2915,8 +3106,9 @@ function AssignStartingPlots:FindStart(region_number)
 					table.insert(two_plots_from_ocean, plotIndex);
 				else
 					local area_of_plot = plot:GetArea();
-					if area_of_plot == iAreaID or iAreaID == -1 then -- This plot is a member, so it goes on at least one candidate list.
-
+					local landmass_of_plot = plot:GetLandmass();
+					if iAreaID == -1 or (self.bArea and area_of_plot == iAreaID) or (not self.bArea and landmass_of_plot == iAreaID) then
+						-- This plot is a member, so it goes on at least one candidate list.
 						-- Test whether plot is in center bias, middle donut, or outer donut.
 						local test_x = region_x + iWestX; -- "Test" coords, ignoring any world wrap and
 						local test_y = region_y + iSouthY; -- reaching in to virtual space if necessary.
@@ -3237,7 +3429,9 @@ function AssignStartingPlots:FindCoastalStart(region_number)
 				local plotType = plot:GetPlotType();
 				if plotType ~= PlotTypes.PLOT_MOUNTAIN then -- Not a mountain plot.
 					local area_of_plot = plot:GetArea();
-					if area_of_plot == iAreaID or iAreaID == -1 then -- This plot is a member, so it goes on at least one candidate list.
+					local landmass_of_plot = plot:GetLandmass();
+					if iAreaID == -1 or (self.bArea and area_of_plot == iAreaID) or (not self.bArea and landmass_of_plot == iAreaID) then
+						-- This plot is a member, so it goes on at least one candidate list.
 						-- Test whether plot is in center bias, middle donut, or outer donut.
 						local test_x = region_x + iWestX; -- "Test" coords, ignoring any world wrap and
 						local test_y = region_y + iSouthY; -- reaching in to virtual space if necessary.
@@ -3483,7 +3677,6 @@ function AssignStartingPlots:FindStartWithoutRegardToAreaID(region_number, bMust
 
 	-- Obtain info on all landmasses wholly or partially within this region, for comparision purposes.
 	local iRegionalFertilityOfLands = 0;
-	local iNumLandPlots = 0;
 	local iNumLandAreas = 0;
 	local land_area_IDs = {};
 	local land_area_plots = {};
@@ -3497,7 +3690,6 @@ function AssignStartingPlots:FindStartWithoutRegardToAreaID(region_number, bMust
 			local plot = Map.GetPlot(x, y);
 			local plotType = plot:GetPlotType();
 			if plotType == PlotTypes.PLOT_HILLS or plotType == PlotTypes.PLOT_LAND then -- Land plot, process it.
-				iNumLandPlots = iNumLandPlots + 1;
 				local iArea = plot:GetArea();
 				local plotFertility = self:MeasureStartPlacementFertilityOfPlot(x, y, false); -- Check for coastal land is disabled.
 				iRegionalFertilityOfLands = iRegionalFertilityOfLands + plotFertility;
@@ -5066,7 +5258,7 @@ function AssignStartingPlots:BalanceAndAssign(args)
 			for _, iPlayerNum1 in ipairs(civs_needing_coastal_start) do
 				local bAdd = true;
 				for _, iPlayerNum2 in ipairs(civs_priority_coastal_start) do
-					if (iPlayerNum1 == iPlayerNum2) then
+					if iPlayerNum1 == iPlayerNum2 then
 						bAdd = false;
 					end
 				end
@@ -5626,13 +5818,13 @@ function AssignStartingPlots:CanBeThisNaturalWonderType(x, y, wn)
 	-- Run root checks.
 	if self.bWorldHasOceans then -- Check to see if this wonder requires or avoids the biggest landmass.
 		if self.RequireBiggestLandmass[wn] then
-			local iAreaID = plot:GetArea();
-			if iAreaID ~= self.iBiggestLandmassID then
+			local iLandmassID = plot:GetLandmass();
+			if iLandmassID ~= self.iBiggestLandmassID then
 				return;
 			end
 		elseif self.AvoidBiggestLandmass[wn] then
-			local iAreaID = plot:GetArea();
-			if iAreaID == self.iBiggestLandmassID then
+			local iLandmassID = plot:GetLandmass();
+			if iLandmassID == self.iBiggestLandmassID then
 				return;
 			end
 		end
@@ -6194,12 +6386,11 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	local iW, iH = Map.GetGridSize();
 
 	-- Set up Landmass check for wonders that avoid the biggest landmass when the world has oceans.
-	local biggest_landmass = Map.FindBiggestArea(false);
-	self.iBiggestLandmassID = biggest_landmass:GetID();
-	local biggest_ocean = Map.FindBiggestArea(true);
+	self.iBiggestLandmassID = Map.FindBiggestLandmassID(false);
+	local biggest_ocean = Map.FindBiggestLandmassID(true);
 	local iNumBiggestOceanPlots = 0;
 	if biggest_ocean then
-		iNumBiggestOceanPlots = biggest_ocean:GetNumTiles();
+		iNumBiggestOceanPlots = Map.GetNumTilesOfLandmass(biggest_ocean);
 	end
 	if iNumBiggestOceanPlots > (iW * iH) / 4 then
 		self.bWorldHasOceans = true;
@@ -6222,7 +6413,7 @@ function AssignStartingPlots:GenerateNaturalWondersCandidatePlotLists(target_num
 	self.wonder_list = table.fill(-1, iNumNW);
 	local next_wonder_number = 1;
 	for row in GameInfo.Features() do
-		if (row.NaturalWonder or row.PseudoNaturalWonder == 1) then
+		if row.NaturalWonder or row.PseudoNaturalWonder == 1 then
 			self.wonder_list[next_wonder_number] = row.Type;
 			next_wonder_number = next_wonder_number + 1;
 		end
@@ -6566,20 +6757,11 @@ function AssignStartingPlots:GetNumCityStatesInUninhabitedRegion(iNumCivLandmass
 	return math.min(self.iNumCityStatesUnassigned, max_by_ratio, max_by_method);
 end
 ------------------------------------------------------------------------------
-function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
-	-- Placement methods include:
-	-- 1. Assign n Per Region
-	-- 2. Assign to uninhabited landmasses
-	-- 3. Assign to regions with shared luxury IDs
-	-- 4. Assign to low fertility regions
-
-	-- Determine number to assign Per Region
-	local iW, iH = Map.GetGridSize();
-	local iNumCityStatesPerRegion = self:GetNumCityStatesPerRegion();
-
+function AssignStartingPlots:AssignCityStatesToRegions(current_cs_index)
+	-- Extracted from AssignCityStatesToRegionsOrToUninhabited() for easy override
 	-- Assign the "Per Region" City States to their regions.
 	-- print("- - - - - - - - - - - - - - - - -"); print("Assigning City States to Regions");
-	local current_cs_index = 1;
+	local iNumCityStatesPerRegion = self:GetNumCityStatesPerRegion();
 	if iNumCityStatesPerRegion > 0 then
 		for current_region = 1, self.iNumCivs do
 			for _ = 1, iNumCityStatesPerRegion do
@@ -6590,6 +6772,19 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 			end
 		end
 	end
+	return current_cs_index;
+end
+------------------------------------------------------------------------------
+function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
+	-- Placement methods include:
+	-- 1. Assign n Per Region
+	-- 2. Assign to uninhabited landmasses
+	-- 3. Assign to regions with shared luxury IDs
+	-- 4. Assign to low fertility regions
+
+	-- Determine number to assign Per Region
+	local iW, iH = Map.GetGridSize();
+	local current_cs_index = self:AssignCityStatesToRegions(1);
 
 	-- Determine how many City States to place on uninhabited landmasses.
 	-- Also generate lists of candidate plots from uninhabited areas.
@@ -6611,8 +6806,18 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 		if self.method == RegionDivision.BIGGEST_LANDMASS or self.method == RegionDivision.CONTINENTAL then
 			for _, region_data in ipairs(self.regionData) do
 				local region_areaID = region_data[5];
-				if not TestMembership(areas_inhabited_by_civs, region_areaID) then
-					table.insert(areas_inhabited_by_civs, region_areaID);
+				if region_areaID ~= -1 then -- -1 means specially-defined region; no area ID is -1 so it can be safely omitted
+					if self.bArea then -- continental division is area-based
+						if not TestMembership(areas_inhabited_by_civs, region_areaID) then
+							table.insert(areas_inhabited_by_civs, region_areaID);
+						end
+					else -- biggest landmass division is landmass-based; each may have multiple areas
+						for _, areaID in ipairs(self.landmass_areas[region_areaID]) do
+							if not TestMembership(areas_inhabited_by_civs, areaID) then
+								table.insert(areas_inhabited_by_civs, areaID);
+							end
+						end
+					end
 				end
 			end
 		end
@@ -6623,8 +6828,11 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 				local plotIndex = y * iW + x + 1;
 				local plot = Map.GetPlot(x, y);
 				local plotType = plot:GetPlotType();
-				if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and self:CanPlaceCityStateAt(x, y, plot:GetArea(), false, false) then -- Habitable land plot, process it.
-					local iArea = plot:GetArea();
+				local iArea = plot:GetArea();
+				if not self.bArea then
+					iArea = plot:GetLandmass();
+				end
+				if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and self:CanPlaceCityStateAt(x, y, iArea, false, false) then -- Habitable land plot, process it.
 					if self.method == RegionDivision.RECTANGULAR_SELF_DEFINED then -- Determine if plot is inside or outside the regional rectangle
 						if (x >= self.inhabited_WestX and x <= self.inhabited_WestX + self.inhabited_Width - 1) and
 						   (y >= self.inhabited_SouthY and y <= self.inhabited_SouthY + self.inhabited_Height - 1) then -- Civ-inhabited rectangle
@@ -6637,13 +6845,13 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 								table.insert(self.uninhabited_areas_inland_plots, plotIndex);
 							end
 						end
-					else -- AreaID-based method must be applied, which cannot all be done in this loop
-						if not TestMembership(land_area_IDs, iArea) then -- This plot is the first detected in its AreaID.
+					else -- AreaID/LandmassID-based method must be applied, which cannot all be done in this loop
+						if not TestMembership(land_area_IDs, iArea) then -- This plot is the first detected in its area/landmass.
 							iNumLandAreas = iNumLandAreas + 1;
 							table.insert(land_area_IDs, iArea);
 							land_area_plot_count[iArea] = 1;
 							land_area_plot_tables[iArea] = {plotIndex};
-						else -- This AreaID already known.
+						else -- This area/landmass already known.
 							land_area_plot_count[iArea] = land_area_plot_count[iArea] + 1;
 							table.insert(land_area_plot_tables[iArea], plotIndex);
 						end
@@ -6652,7 +6860,7 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 			end
 		end
 
-		-- Complete the AreaID-based method.
+		-- Complete the AreaID/LandmassID-based method.
 		if self.method == RegionDivision.BIGGEST_LANDMASS or self.method == RegionDivision.CONTINENTAL then
 			-- Obtain counts of inhabited and uninhabited plots. Identify areas too small to use for City States.
 			for areaID, plot_count in pairs(land_area_plot_count) do
@@ -6779,7 +6987,12 @@ function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore
 	local iW, iH = Map.GetGridSize();
 	local plot = Map.GetPlot(x, y);
 	local area = plot:GetArea();
-	if area ~= area_ID and area_ID ~= -1 then
+	local landmass = plot:GetLandmass();
+	if self.bArea and area ~= area_ID and area_ID ~= -1 then
+		return false;
+	end
+
+	if not self.bArea and landmass ~= area_ID and area_ID ~= -1 then
 		return false;
 	end
 
@@ -6819,7 +7032,7 @@ function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore
 	if self.impactData[ImpactLayers.LAYER_CITY_STATE][plotIndex] > 0 and not force_it then
 		return false;
 	end
-	plotIndex = y * iW + x + 1;
+
 	if self.playerCollisionData[plotIndex] and not ignore_collisions then
 		print("-"); print("City State candidate plot rejected: collided with already-placed civ or City State at", x, y);
 		return false;
@@ -6828,10 +7041,10 @@ function AssignStartingPlots:CanPlaceCityStateAt(x, y, area_ID, force_it, ignore
 end
 ------------------------------------------------------------------------------
 function AssignStartingPlots:ObtainNextSectionInRegion(incoming_west_x, incoming_south_y, incoming_width, incoming_height, iAreaID, force_it, ignore_collisions)
-	-- print("ObtainNextSectionInRegion called, for AreaID", iAreaID, "with SW plot at ", incoming_west_x, incoming_south_y, " Width/Height at", incoming_width, incoming_height);
+	-- print("ObtainNextSectionInRegion called, for Area/Landmass#", iAreaID, "with SW plot at ", incoming_west_x, incoming_south_y, " Width/Height at", incoming_width, incoming_height);
 
 	-- This function carves off the outermost plots in a region, checks them for City State Placement eligibility,
-	-- and returns 7 variables: two plot lists, the coordinates of the inner portion of the area that was not processed on this round,
+	-- and returns 7 variables: two plot lists, the coordinates of the inner portion of the landmass/area that was not processed on this round,
 	-- and a boolean indicating whether the middle of the region was reached.
 
 	-- If this round does not produce a suitable placement site, another round can be executed on the remaining unprocessed plots, recursively,
@@ -6990,11 +7203,11 @@ function AssignStartingPlots:PlaceCityStateInRegion(city_state_number, region_nu
 	while not placed_city_state and not reached_middle do
 		-- Send the remaining unprocessed portion of the region to be processed.
 		local nextWX, nextSY, nextWid, nextHei;
-		eligible_coastal, eligible_inland, nextWX, nextSY, nextWid, nextHei,
-		  reached_middle = self:ObtainNextSectionInRegion(curWX, curSY, curWid, curHei, iAreaID, false, false) -- Don't force it. Yet.
+		eligible_coastal, eligible_inland, nextWX, nextSY, nextWid, nextHei, reached_middle =
+			self:ObtainNextSectionInRegion(curWX, curSY, curWid, curHei, iAreaID, false, false); -- Don't force it. Yet.
 		curWX, curSY, curWid, curHei = nextWX, nextSY, nextWid, nextHei;
 		-- Attempt to place city state using the two plot lists received from the last call.
-		x, y, placed_city_state = self:PlaceCityState(eligible_coastal, eligible_inland, false, false) -- Don't need to re-check collisions.
+		x, y, placed_city_state = self:PlaceCityState(eligible_coastal, eligible_inland, false, false); -- Don't need to re-check collisions.
 	end
 
 	if placed_city_state then
@@ -7122,7 +7335,7 @@ function AssignStartingPlots:PlaceCityStates()
 					print("City State #", cs_num, "not yet placed, adding it to 'last chance' list.");
 				end
 			end
-			for loop, cs_number in ipairs(cs_list) do
+			for _, cs_number in ipairs(cs_list) do
 				local cs_x, cs_y, success;
 				cs_x, cs_y, success = self:PlaceCityState(last_chance_shuffled, {}, true, true);
 				if success then
@@ -7990,15 +8203,15 @@ function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number,
 						-- added by azum4roll: give some variance to strategic amounts
 						if self:IsImpactLayerStrategic(impact_table_number) then
 							local rand = Map.Rand(10000, "ProcessResourceList - Lua") / 10000;
-							if (rand >= 0.75) then
+							if rand >= 0.75 then
 								quantity = quantity * 1.2;
-							elseif (rand < 0.25) then
+							elseif rand < 0.25 then
 								quantity = quantity * 0.8;
 							end
 							quantity = math.floor(quantity + 0.5);
 						end
 						res_plot:SetResourceType(res_ID[use_this_res_index], quantity);
-						if (Game.GetResourceUsageType(res_ID[use_this_res_index]) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY) then
+						if Game.GetResourceUsageType(res_ID[use_this_res_index]) == ResourceUsageTypes.RESOURCEUSAGE_LUXURY then
 							self.totalLuxPlacedSoFar = self.totalLuxPlacedSoFar + 1;
 						end
 						self:PlaceResourceImpact(x, y, impact_table_number, res_min[use_this_res_index] + res_addition);
@@ -8034,9 +8247,9 @@ function AssignStartingPlots:ProcessResourceList(frequency, impact_table_number,
 				-- added by azum4roll: give some variance to strategic amounts
 				if self:IsImpactLayerStrategic(impact_table_number) then
 					local rand = Map.Rand(10000, "ProcessResourceList - Lua") / 10000;
-					if (rand >= 0.75) then
+					if rand >= 0.75 then
 						quantity = quantity * 1.2;
-					elseif (rand < 0.25) then
+					elseif rand < 0.25 then
 						quantity = quantity * 0.8;
 					end
 					quantity = math.floor(quantity + 0.5);
@@ -8818,22 +9031,31 @@ function AssignStartingPlots:GenerateLuxuryPlotListsInRegion(region_number)
 
 			if plotType == PlotTypes.PLOT_OCEAN then
 				if terrainType == TerrainTypes.TERRAIN_COAST then
-					if not plot:IsLake() then
+					if not plot:IsLake() and not plot:IsNaturalWonder(true) then
 						if featureType ~= FeatureTypes.FEATURE_ATOLL and featureType ~= FeatureTypes.FEATURE_ICE then
 							if iAreaID == -1 then
 								if plot:IsAdjacentToLand() then
 									table.insert(plotList, plotIndex);
 								end
-							else
+							elseif self.bArea then
 								if plot:IsAdjacentToArea(region_area_object) then
 									table.insert(plotList, plotIndex);
 								end
+							elseif plot:IsAdjacentToLandmass(iAreaID) then
+								table.insert(plotList, plotIndex);
 							end
 						end
 					end
 				end
-			else
-				table.insert(plotList, plotIndex);
+			elseif plotType ~= PlotTypes.PLOT_MOUNTAIN and not plot:IsNaturalWonder(true) and featureType ~= FeatureTypes.FEATURE_OASIS then
+				if iAreaID ~= -1 then
+					-- Need to check whether the plot is in/adjacent to the correct area/landmass
+					if self.bArea and (plot:GetArea() == iAreaID or plot:IsAdjacentToArea(region_area_object)) then
+						table.insert(plotList, plotIndex);
+					elseif not self.bArea and (plot:GetLandmass() == iAreaID or plot:IsAdjacentToLandmass(iAreaID)) then
+						table.insert(plotList, plotIndex);
+					end
+				end
 			end
 		end
 	end
@@ -8878,7 +9100,7 @@ function AssignStartingPlots:GetIndicesForLuxuryType(resource_ID)
 		-- Tundra and desert only. Snow is backup (to be handled in AdjustTiles).
 		tList = {
 			PlotListTypes.HILLS_TUNDRA_NO_FEATURE,
-			PlotListTypes.HILLS_DESERT_NO_FEATURE,
+			PlotListTypes.HILLS_DESERT,
 			PlotListTypes.FLAT_TUNDRA_NO_FEATURE,
 			PlotListTypes.FLAT_DESERT_NO_FEATURE,
 			PlotListTypes.TUNDRA_FOREST,
@@ -9540,7 +9762,6 @@ function AssignStartingPlots:PlaceLuxuries(args)
 
 	-- For Resource settings other than Sparse, add a second luxury type at start locations.
 	-- This second type will be selected from Random types if possible, CS types if necessary, and other regions' types as a final fallback.
-	-- Marble is included in the types possible to be placed.
 	if self.luxuryDensity ~= 1 then
 		for region_number = 1, self.iNumCivs do
 			local x = self.startingPlots[region_number][1];
@@ -9557,19 +9778,8 @@ function AssignStartingPlots:PlaceLuxuries(args)
 					table.insert(candidate_types, res_ID);
 				end
 			end
-			-- Check to see if any Special Case luxuries are eligible.
-			for _, res_ID in ipairs(self.resourceIDs_assigned_to_special_case) do
-				if allowed_luxuries[res_ID] then
-					-- print("- Found eligible luxury type:", res_ID);
-					iNumTypesAllowed = iNumTypesAllowed + 1;
-					table.insert(candidate_types, res_ID);
-				end
-			end
 
-			if iNumTypesAllowed > 0 then
-				local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
-				use_this_ID = candidate_types[diceroll];
-			else
+			if iNumTypesAllowed == 0 then
 				-- See if any City State types are eligible.
 				for _, res_ID in ipairs(self.resourceIDs_assigned_to_cs) do
 					if allowed_luxuries[res_ID] then
@@ -9578,30 +9788,30 @@ function AssignStartingPlots:PlaceLuxuries(args)
 						table.insert(candidate_types, res_ID);
 					end
 				end
-				if iNumTypesAllowed > 0 then
-					local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
-					use_this_ID = candidate_types[diceroll];
-				else
-					-- See if anybody else's regional type is eligible.
-					local region_lux_ID = self.region_luxury_assignment[region_number];
-					for _, res_ID in ipairs(self.resourceIDs_assigned_to_regions) do
-						if res_ID ~= region_lux_ID then
-							if allowed_luxuries[res_ID] then
-								-- print("- Found eligible luxury type:", res_ID);
-								iNumTypesAllowed = iNumTypesAllowed + 1;
-								table.insert(candidate_types, res_ID);
-							end
+			end
+
+			if iNumTypesAllowed == 0 then
+				-- See if anybody else's regional type is eligible.
+				local region_lux_ID = self.region_luxury_assignment[region_number];
+				for _, res_ID in ipairs(self.resourceIDs_assigned_to_regions) do
+					if res_ID ~= region_lux_ID then
+						if allowed_luxuries[res_ID] then
+							-- print("- Found eligible luxury type:", res_ID);
+							iNumTypesAllowed = iNumTypesAllowed + 1;
+							table.insert(candidate_types, res_ID);
 						end
-					end
-					if iNumTypesAllowed > 0 then
-						local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
-						use_this_ID = candidate_types[diceroll];
-					else
-						-- print("-"); print("Failed to place second Luxury type at start in Region#", region_number, "-- no eligible types!"); print("-");
 					end
 				end
 			end
+
+			if iNumTypesAllowed > 0 then
+				local diceroll = 1 + Map.Rand(iNumTypesAllowed, "Choosing second luxury type at a start location - LUA");
+				use_this_ID = candidate_types[diceroll];
+			else
+				print("-"); print("Failed to place second Luxury type at start in Region#", region_number, "-- no eligible types!"); print("-");
+			end
 			-- print("--- End of Eligible Types list for Second Luxury in Region#", region_number, "---");
+
 			if use_this_ID then -- Place this luxury type at this start.
 				local tList = self:GetIndicesForLuxuryType(use_this_ID);
 				local luxury_plot_lists = self:GenerateLuxuryPlotListsAtCitySite(x, y, 2, false);
@@ -10161,12 +10371,13 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 				local plot = Map.GetPlot(x, y);
 				local plotIndex = y * iW + x + 1;
 				local area_of_plot = plot:GetArea();
+				local landmass_of_plot = plot:GetLandmass();
 				local plotType = plot:GetPlotType();
 				local terrainType = plot:GetTerrainType();
 				local featureType = plot:GetFeatureType();
 				if plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS then
 					-- Check plot for region membership. Only process this plot if it is a member.
-					if (area_of_plot == iAreaID) or (iAreaID == -1) then
+					if iAreaID == -1 or (self.bArea and area_of_plot == iAreaID) or (not self.bArea and landmass_of_plot == iAreaID) then
 						if plot:GetResourceType() == -1 then
 							if featureType == FeatureTypes.FEATURE_JUNGLE then
 								table.insert(jungles, plotIndex);
@@ -10176,7 +10387,7 @@ function AssignStartingPlots:AddExtraBonusesToHillsRegions()
 								table.insert(flat_plains, plotIndex);
 							elseif featureType == FeatureTypes.NO_FEATURE then
 								if plotType == PlotTypes.PLOT_HILLS then
-									if (terrainType == TerrainTypes.TERRAIN_GRASS or terrainType == TerrainTypes.TERRAIN_PLAINS or terrainType == TerrainTypes.TERRAIN_TUNDRA) then
+									if terrainType == TerrainTypes.TERRAIN_GRASS or terrainType == TerrainTypes.TERRAIN_PLAINS or terrainType == TerrainTypes.TERRAIN_TUNDRA then
 										if not plot:IsFreshWater() then
 											table.insert(dry_hills, plotIndex);
 										end
@@ -10454,7 +10665,7 @@ function AssignStartingPlots:AdjustTiles()
 				end
 
 				-- Always want it covered for most tree resources.
-				if (featureType == FeatureTypes.FEATURE_MARSH) then
+				if featureType == FeatureTypes.FEATURE_MARSH then
 					if res_ID == self.sugar_ID or res_ID == self.truffles_ID then
 						-- Keep it marsh for these resources.
 					else
@@ -10498,7 +10709,7 @@ function AssignStartingPlots:AdjustTiles()
 				end
 
 				-- Don't remove flood plains if present for the few that are placed on it, only remove other features, like marsh or any trees.
-				if (featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS) then
+				if featureType ~= FeatureTypes.FEATURE_FLOOD_PLAINS then
 					plot:SetFeatureType(FeatureTypes.NO_FEATURE);
 				end
 
@@ -11106,7 +11317,7 @@ function AssignStartingPlots:PlaceResourcesAndCityStates(args)
 	self:AdjustTiles();
 
 	-- Necessary to implement placement of Natural Wonders, and possibly other plot-type changes.
-	-- This operation must be saved for last, as it invalidates all regional data by resetting Area IDs.
+	-- This operation must be saved for last, as it invalidates all regional data by resetting landmass/area IDs.
 	Map.RecalculateAreas();
 
 	-- Activate for debug only
@@ -11124,9 +11335,9 @@ function AssignStartingPlots:IsEvenMoreResourcesActive()
 	local isUsingCommunityPatch = false;
 
 	for _, mod in pairs(Modding.GetActivatedMods()) do
-		if (mod.ID == communityPatchModID) then -- if Community Patch is not activated, then we are running in modpack mode
+		if mod.ID == communityPatchModID then -- if Community Patch is not activated, then we are running in modpack mode
 			isUsingCommunityPatch = true;
-		elseif (mod.ID == evenMoreResourcesModID) then
+		elseif mod.ID == evenMoreResourcesModID then
 			return true;
 		end
 	end
@@ -11146,9 +11357,9 @@ function AssignStartingPlots:IsReducedSupplyActive()
 	local isUsingCommunityPatch = false;
 
 	for _, mod in pairs(Modding.GetActivatedMods()) do
-		if (mod.ID == communityPatchModID) then -- if Community Patch is not activated, then we are running in modpack mode
+		if mod.ID == communityPatchModID then -- if Community Patch is not activated, then we are running in modpack mode
 			isUsingCommunityPatch = true;
-		elseif (mod.ID == ReducedSupplyModID) then
+		elseif mod.ID == ReducedSupplyModID then
 			return true;
 		end
 	end
@@ -11201,8 +11412,8 @@ function AssignStartingPlots:Plot_GetPlotsInCircle(plot, minR, maxR)
 	local nextPlot = Map.GetPlot(nearX, nearY);
 
 	return function ()
-		while (stepY < 1 + rectH) and nextPlot do
-			while (stepX < 1 + rectW) and nextPlot do
+		while stepY < 1 + rectH and nextPlot do
+			while stepX < 1 + rectW and nextPlot do
 				local thisPlot = nextPlot;
 				local distance = Map.PlotDistance(nearX, nearY, centerX, centerY);
 
@@ -11346,6 +11557,225 @@ function AssignStartingPlots:GetRandomFromRangeInclusive(min, max)
 		return self:GetRandomFromRangeInclusive(max, min);
 	end
 	return min + Map.Rand(max - min + 1, "GetRandomFromRangeInclusive");
+end
+------------------------------------------------------
+-- A copy of ObtainLandmassBoundaries from MapmakerUtilities, but actually works on landmass instead of area
+function AssignStartingPlots:GetLandmassBoundaries(iLandmassID)
+	local iW, iH = Map.GetGridSize();
+	-- Set up variables that will be returned by this function.
+	local wrapsX = false;
+	local wrapsY = false;
+	local iWestX, iEastX, iSouthY, iNorthY, iWidth, iHeight;
+
+	if Map:IsWrapX() then -- Check to see if landmass Wraps X.
+		local foundFirstColumn = false;
+		local foundLastColumn = false;
+		for y = 0, iH - 1 do
+			local plotFirst = Map.GetPlot(0, y);
+			local plotLast = Map.GetPlot(iW - 1, y);
+			local landmass = plotFirst:GetLandmass();
+			if landmass == iLandmassID then -- Found a plot belonging to iLandmassID in first column.
+				foundFirstColumn = true;
+			end
+			landmass = plotLast:GetLandmass();
+			if landmass == iLandmassID then -- Found a plot belonging to iLandmassID in last column.
+				foundLastColumn = true;
+			end
+		end
+		if foundFirstColumn and foundLastColumn then -- Plot on both sides of map edge.
+			wrapsX = true;
+		end
+	end
+
+	if Map:IsWrapY() then -- Check to see if landmass Wraps Y.
+		local foundFirstRow = false;
+		local foundLastRow = false;
+		for x = 0, iW - 1 do
+			local plotFirst = Map.GetPlot(x, 0);
+			local plotLast = Map.GetPlot(x, iH - 1);
+			local landmass = plotFirst:GetLandmass();
+			if landmass == iLandmassID then -- Found a plot belonging to iLandmassID in first row.
+				foundFirstRow = true;
+			end
+			landmass = plotLast:GetLandmass();
+			if landmass == iLandmassID then -- Found a plot belonging to iLandmassID in last row.
+				foundLastRow = true;
+			end
+		end
+		if foundFirstRow and foundLastRow then -- Plot on both sides of map edge.
+			wrapsY = true;
+		end
+	end
+
+	-- Find West and East edges of this landmass.
+	if not wrapsX then -- no X wrap
+		for x = 0, iW - 1 do -- Check for any landmass membership one column at a time, left to right.
+			local foundLandmassInColumn = false;
+			for y = 0, iH - 1 do -- Checking column.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iLandmassID, set WestX to this column.
+					foundLandmassInColumn = true;
+					iWestX = x;
+					break;
+				end
+			end
+			if foundLandmassInColumn then -- Found WestX, done looking.
+				break;
+			end
+		end
+		for x = iW - 1, 0, -1 do -- Check for any landmass membership one column at a time, right to left.
+			local foundLandmassInColumn = false;
+			for y = 0, iH - 1 do -- Checking column.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iLandmassID, set EastX to this column.
+					foundLandmassInColumn = true;
+					iEastX = x;
+					break;
+				end
+			end
+			if foundLandmassInColumn then -- Found EastX, done looking.
+				break;
+			end
+		end
+	else -- Landmass Xwraps.
+		local landmassSpansEntireWorldX = true;
+		for x = iW - 2, 1, -1 do -- Check for end of landmass membership one column at a time, right to left.
+			local foundLandmassInColumn = false;
+			for y = 0, iH - 1 do -- Checking column.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iAreaID, will have to check the next column too.
+					foundLandmassInColumn = true;
+				end
+			end
+			if not foundLandmassInColumn then -- Found empty column, which is just west of WestX.
+				iWestX = x + 1;
+				landmassSpansEntireWorldX = false;
+				break;
+			end
+		end
+		for x = 1, iW - 2 do -- Check for end of landmass membership one column at a time, left to right.
+			local foundLandmassInColumn = false;
+			for y = 0, iH - 1 do -- Checking column.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iLandmassID, will have to check the next column too.
+					foundLandmassInColumn = true;
+				end
+			end
+			if not foundLandmassInColumn then -- Found empty column, which is just east of EastX.
+				iEastX = x - 1;
+				landmassSpansEntireWorldX = false;
+				break;
+			end
+		end
+		-- If landmass spans entire world, we'll treat it as if it does not wrap.
+		if landmassSpansEntireWorldX then
+			wrapsX = false;
+			iWestX = 0;
+			iEastX = iW - 1;
+		end
+	end
+
+	-- Find South and North edges of this landmass.
+	if not wrapsY then -- no Y wrap
+		for y = 0, iH - 1 do -- Check for any landmass membership one row at a time, bottom to top.
+			local foundLandmassInRow = false;
+			for x = 0, iW - 1 do -- Checking row.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iLandmassID, set SouthY to this row.
+					foundLandmassInRow = true;
+					iSouthY = y;
+					break;
+				end
+			end
+			if foundLandmassInRow then -- Found SouthY, done looking.
+				break;
+			end
+		end
+		for y = iH - 1, 0, -1 do -- Check for any landmass membership one row at a time, top to bottom.
+			local foundLandmassInRow = false;
+			for x = 0, iW - 1 do -- Checking row.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iLandmassID, set NorthY to this row.
+					foundLandmassInRow = true;
+					iNorthY = y;
+					break;
+				end
+			end
+			if foundLandmassInRow then -- Found NorthY, done looking.
+				break;
+			end
+		end
+	else -- Landmass Ywraps.
+		local landmassSpansEntireWorldY = true;
+		for y = iH - 2, 1, -1 do -- Check for end of landmass membership one row at a time, top to bottom.
+			local foundLandmassInRow = false;
+			for x = 0, iW - 1 do -- Checking row.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iLandmassID, will have to check the next row too.
+					foundLandmassInRow = true;
+				end
+			end
+			if not foundLandmassInRow then -- Found empty row, which is just south of southY.
+				iSouthY = y + 1;
+				landmassSpansEntireWorldY = false;
+				break
+			end
+		end
+		for y = 1, iH - 2 do -- Check for end of landmass membership one row at a time, bottom to top.
+			local foundLandmassInRow = false;
+			for x = 0, iW - 1 do -- Checking row.
+				local plot = Map.GetPlot(x, y);
+				local landmass = plot:GetLandmass();
+				if landmass == iLandmassID then -- Found a plot belonging to iLandmassID, will have to check the next row too.
+					foundLandmassInRow = true;
+				end
+			end
+			if not foundLandmassInRow then -- Found empty column, which is just north of NorthY.
+				iNorthY = y - 1;
+				landmassSpansEntireWorldY = false;
+				break
+			end
+		end
+		-- If landmass spans entire world, we'll treat it as if it does not wrap.
+		if landmassSpansEntireWorldY then
+			wrapsY = false;
+			iSouthY = 0;
+			iNorthY = iH - 1;
+		end
+	end
+
+	-- Convert EastX and NorthY into width and height.
+	if wrapsX then
+		iWidth = (iEastX + iW) - iWestX + 1;
+	else
+		iWidth = iEastX - iWestX + 1;
+	end
+	if wrapsY then
+		iHeight = (iNorthY + iH) - iSouthY + 1;
+	else
+		iHeight = iNorthY - iSouthY + 1;
+	end
+
+	---[[ Log dump for debug purposes only, disable otherwise.
+	print("--- Landmass Boundary Readout ---");
+	print("West X:", iWestX, "East X:", iEastX);
+	print("South Y:", iSouthY, "North Y:", iNorthY);
+	print("Width:", iWidth, "Height:", iHeight);
+	local plotTotal = iWidth * iHeight;
+	print("Total Plots in 'landmass rectangle':", plotTotal);
+	print("- - - - - - - - - - - - - - - - -");
+	--]]
+
+	-- Insert data into table, then return the table.
+	local data = {iWestX, iSouthY, iEastX, iNorthY, iWidth, iHeight, wrapsX, wrapsY};
+	return data;
 end
 ------------------------------------------------------------------------------
 --                             REFERENCE

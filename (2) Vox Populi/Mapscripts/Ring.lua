@@ -608,7 +608,7 @@ function AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited()
 			local plotIndex = y * iW + x + 1;
 			local plot = Map.GetPlot(x, y);
 			local plotType = plot:GetPlotType();
-			if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and self:CanPlaceCityStateAt(x, y, plot:GetArea(), false, false) then -- Habitable land plot, process it.
+			if (plotType == PlotTypes.PLOT_LAND or plotType == PlotTypes.PLOT_HILLS) and self:CanPlaceCityStateAt(x, y, plot:GetLandmass(), false, false) then -- Habitable land plot, process it.
 				if self.plotDataIsCoastal[plotIndex] then
 					table.insert(self.uninhabited_areas_coastal_plots, plotIndex);
 				else

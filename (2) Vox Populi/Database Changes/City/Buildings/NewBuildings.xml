@@ -1744,6 +1744,7 @@
 			<Description>TXT_KEY_BUILDING_GREAT_ALTAR</Description>
 			<Civilopedia>TXT_KEY_BUILDING_GREAT_ALTAR_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_GREAT_ALTAR_STRATEGY</Strategy>
+			<MilitaryProductionModifier>15</MilitaryProductionModifier>
 			<IsReformation>true</IsReformation>
 			<IconAtlas>COMMUNITY_ATLAS</IconAtlas>
 			<PortraitIndex>34</PortraitIndex>
@@ -1948,6 +1949,7 @@
 			<Civilopedia>TXT_KEY_CIV5_BUILDINGS_CORP_TEXT</Civilopedia>
 			<Strategy>TXT_KEY_BUILDING_HEXXON_REFINERY_STRATEGY</Strategy>
 			<Help>TXT_KEY_BUILDING_HEXXON_REFINERY_HELP</Help>
+			<MilitaryProductionModifier>15</MilitaryProductionModifier>
 			<IconAtlas>CORP_ATLAS</IconAtlas>
 			<PortraitIndex>10</PortraitIndex>
 		</Row>

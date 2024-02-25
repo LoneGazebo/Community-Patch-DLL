@@ -3022,6 +3022,7 @@ CvCity* CvPlayer::initCity(int iX, int iY, bool bBumpUnits, bool bInitialFoundin
 		pNewCity->init(pNewCity->GetID(), GetID(), iX, iY, bBumpUnits, bInitialFounding, eInitialReligion, szName, pkSettlerUnitEntry);
 		pNewCity->GetCityStrategyAI()->UpdateFlavorsForNewCity();
 		pNewCity->DoUpdateCheapestPlotInfluenceDistance();
+		pNewCity->fixBonusFromMinors(false);
 
 		GC.getGame().SetClosestCityMapDirty();
 
@@ -3165,7 +3166,13 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 			if (activePlayer.GetNotifications())
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CAPTURED_CITY", pCity->getNameKey()).GetCString();
-				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), GetID(), true, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				if (activePlayer.isObserver())
+				{
+					CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
+					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST", pCity->getNameKey());
+					CvNotifications* pNotify = activePlayer.GetNotifications();
+					pNotify->Add(NOTIFICATION_CITY_LOST, strBuffer, strSummary, iCityX, iCityY, -1);
+				}
 				if (MOD_WH_MILITARY_LOG)
 					MILITARYLOG(GetID(), strBuffer.c_str(), pCity->plot(), pCity->getOwner());
 			}
@@ -3173,13 +3180,19 @@ CvCity* CvPlayer::acquireCity(CvCity* pCity, bool bConquest, bool bGift)
 		else
 		{
 			if (activePlayer.isObserver() || 
-				(activePlayer.isAlive() && activePlayer.GetNotifications() && 
+				(activePlayer.isAlive() &&
 					pCity->isRevealed(activePlayer.getTeam(), false, false) && 
 					GET_TEAM(activePlayer.getTeam()).isHasMet(GET_PLAYER(eOldOwner).getTeam()) && 
 					GET_TEAM(activePlayer.getTeam()).isHasMet(getTeam())))
 			{
 				CvString strBuffer = GetLocalizedText("TXT_KEY_MISC_CITY_CAPTURED_BY", strName.GetCString(), getCivilizationShortDescriptionKey());
-				GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_SUMMARY_CITY_LOST", pCity->getNameKey());
+				CvNotifications* pNotify = activePlayer.GetNotifications();
+				if (pNotify)
+				{
+					pNotify->Add(NOTIFICATION_CITY_LOST, strBuffer, strSummary, iCityX, iCityY, -1);
+					//GC.GetEngineUserInterface()->AddCityMessage(0, pCity->GetIDInfo(), activePlayer.GetID(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), strBuffer);
+				}
 			}
 		}
 
@@ -17514,7 +17527,7 @@ int CvPlayer::GetWorldWonderYieldChange(int iYield)
 /// Can we eBuild on pPlot?
 bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, bool bTestVisible, bool bTestGold, bool bTestPlotOwner, const CvUnit* pUnit) const
 {
-	if(!(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
+	if(pPlot && !(pPlot->canBuild(eBuild, GetID(), bTestVisible, bTestPlotOwner)))
 	{
 		return false;
 	}
@@ -17626,7 +17639,7 @@ bool CvPlayer::canBuild(const CvPlot* pPlot, BuildTypes eBuild, bool bTestEra, b
 	}
 #endif
 
-	if(!bTestVisible)
+	if(pPlot && !bTestVisible)
 	{
 		if(IsBuildBlockedByFeature(eBuild, pPlot->getFeatureType()))
 		{
@@ -24533,31 +24546,33 @@ void CvPlayer::UpdateFoodInCapitalPerTurnFromAnnexedMinors()
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
-		int iFoodInCapitalFromAnnexedMinorsOld = GetFoodInCapitalPerTurnFromAnnexedMinors();
-
 		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MARITIME];
-		int iBonus = 0;
+		int iBonus = GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
 
 		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
 		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 		// Medieval era or sooner
 		if (eCurrentEra < eRenaissance)
 		{
-			iBonus = /*200 in CP, 300 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
+			iBonus += /*200 in CP, 300 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 		}
 		// Renaissance era or later
 		else
 		{
-			iBonus = /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
+			iBonus += /*200 in CP, 600 in VP*/ GD_INT_GET(FRIENDS_CAPITAL_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
-		iBonus += GD_INT_GET(ALLIES_CAPITAL_FOOD_BONUS_AMOUNT);
+
+		//new bonus
 		iBonus *= iNumCityStates;
-		int iFoodDiff = iBonus - iFoodInCapitalFromAnnexedMinorsOld;
-		if (iFoodDiff != 0)
+		iBonus /= 100;
+
+		//update if necessary
+		if (iBonus != m_iFoodInCapitalFromAnnexedMinors && getCapitalCity())
 		{
-			ChangeCapitalYieldChangeTimes100(YIELD_FOOD, iFoodDiff);
+			getCapitalCity()->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInCapitalFromAnnexedMinors);
+			m_iFoodInCapitalFromAnnexedMinors = iBonus;
+			updateYield();
 		}
-		m_iFoodInCapitalFromAnnexedMinors = iBonus;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -24572,31 +24587,35 @@ void CvPlayer::UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors()
 {
 	if (GetPlayerTraits()->IsAnnexedCityStatesGiveYields())
 	{
-		int iFoodInOtherCitiesFromAnnexedMinorsOld = GetFoodInOtherCitiesPerTurnFromAnnexedMinors();
-
 		int iNumCityStates = m_aiNumAnnexedCityStates[MINOR_CIV_TRAIT_MARITIME];
-		int iBonus = 0;
+		int iBonus = GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
 
 		EraTypes eCurrentEra = GET_TEAM(getTeam()).GetCurrentEra();
 		EraTypes eRenaissance = (EraTypes)GC.getInfoTypeForString("ERA_RENAISSANCE", true);
 		// Medieval era or sooner
 		if (eCurrentEra < eRenaissance)
 		{
-			iBonus = /*0 in CP, 50 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
+			iBonus += /*0 in CP, 50 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_PRE_RENAISSANCE);
 		}
 		// Renaissance era or later
 		else
 		{
-			iBonus = /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
+			iBonus += /*0 in CP, 100 in VP*/ GD_INT_GET(FRIENDS_OTHER_CITIES_FOOD_BONUS_AMOUNT_POST_RENAISSANCE);
 		}
-		iBonus += GD_INT_GET(ALLIES_OTHER_CITIES_FOOD_BONUS_AMOUNT);
+
 		iBonus *= iNumCityStates;
-		int iFoodDiff = iBonus - iFoodInOtherCitiesFromAnnexedMinorsOld;
-		if (iFoodDiff != 0)
+		iBonus /= 100;
+
+		//update if necessary
+		if (iBonus != m_iFoodInOtherCitiesFromAnnexedMinors)
 		{
-			ChangeCityYieldChangeTimes100(YIELD_FOOD, iFoodDiff);
+			int iLoop;
+			for (CvCity* pLoopCity = firstCity(&iLoop); pLoopCity != NULL; pLoopCity = nextCity(&iLoop))
+				if (pLoopCity->GetID()!=getCapitalCityID())
+					pLoopCity->ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iBonus - m_iFoodInOtherCitiesFromAnnexedMinors);
+			m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
+			updateYield();
 		}
-		m_iFoodInOtherCitiesFromAnnexedMinors = iBonus;
 	}
 }
 //	--------------------------------------------------------------------------------
@@ -28009,6 +28028,8 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									}
 								}
 							}
+
+							// A unit killed the unit
 							if (pAttackingUnit != NULL)
 							{
 								iKillYield += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, pAttackingUnit->getX(), pAttackingUnit->getY(), GetID());
@@ -28035,6 +28056,12 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 									}
 								}
 							}
+							// A city killed the unit
+							else if (pCity != NULL)
+							{
+								iKillYield += GC.getGame().GetGameReligions()->GetBeliefYieldForKill(eYield, pCity->getX(), pCity->getY(), GetID());
+							}
+
 							iKillYield = (iKillYield * iCombatStrength) / 100;
 
 							if (iKillYield > 0)
@@ -29040,17 +29067,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_POLICY");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_INSTANT:
 			{
@@ -29351,17 +29374,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_CULTURE_BOMB");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_REMOVE_HERESY:
 			{
@@ -29369,17 +29388,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_REMOVE_HERESY");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_FAITH_PURCHASE:
 			{
@@ -29387,17 +29402,13 @@ void CvPlayer::doInstantYield(InstantYieldType iType, bool bCityFaith, GreatPers
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_YIELD_FAITH_PURCHASE");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
 				else
 				{
 					localizedText = Localization::Lookup("TXT_KEY_INSTANT_ADDENDUM");
 					localizedText << totalyieldString;
-					//We do this at the player level once per turn.
-					addInstantYieldText(iType, localizedText.toUTF8());
 				}
-				return;
+				break;
 			}
 			case INSTANT_YIELD_TYPE_PROMOTION_OBTAINED:
 			{
@@ -33503,18 +33514,32 @@ void CvPlayer::setCapitalCity(CvCity* pNewCapitalCity)
 
 	if (pOldCapitalCity != pNewCapitalCity)
 	{
+		//remove the capital bonus
+		if (pOldCapitalCity)
+			pOldCapitalCity->fixBonusFromMinors(true);
+
 		if (pNewCapitalCity != NULL)
 		{
+			//remove the non-capital bonus
+			pNewCapitalCity->fixBonusFromMinors(true);
+
 			// Need to set our original capital x,y?
 			if (GetOriginalCapitalX() == -1 && pNewCapitalCity->getOriginalOwner() == m_eID)
 				setOriginalCapitalXY(pNewCapitalCity);
 
 			m_iCapitalCityID = pNewCapitalCity->GetID();
+
+			//add the capital bonus
+			pNewCapitalCity->fixBonusFromMinors(false);
 		}
 		else
 		{
 			m_iCapitalCityID = -1;
 		}
+
+		//add the non-capital bonus
+		if (pOldCapitalCity)
+			pOldCapitalCity->fixBonusFromMinors(false);
 	}
 }
 
@@ -35400,6 +35425,7 @@ void CvPlayer::setTurnActive(bool bNewValue, bool bDoTurn) // R: bDoTurn default
 				//no tactical AI for human, only make sure we have current postures in case we want the AI to take over (debugging)
 				if (isHuman() || /* if MP, invalidate for AI too */ kGame.isNetworkMultiPlayer()) {
 					GetTacticalAI()->GetTacticalAnalysisMap()->Invalidate();
+					GetHomelandAI()->Invalidate();
 				}
 
 				// update danger plots before the turn
@@ -36760,17 +36786,15 @@ void CvPlayer::ChangeNumAnnexedCityStates(MinorCivTraitTypes eIndex, int iChange
 
 	if (iChange != 0)
 	{
-		m_aiNumAnnexedCityStates[eIndex] = m_aiNumAnnexedCityStates[eIndex] + iChange;
+		m_aiNumAnnexedCityStates[eIndex] += iChange;
 
 		UpdateFoodInCapitalPerTurnFromAnnexedMinors();
-		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
 		UpdateFoodInOtherCitiesPerTurnFromAnnexedMinors();
 		UpdateGoldPerTurnFromAnnexedMinors();
 		UpdateCulturePerTurnFromAnnexedMinors();
 		UpdateSciencePerTurnFromAnnexedMinors();
 		UpdateFaithPerTurnFromAnnexedMinors();
 		UpdateHappinessFromAnnexedMinors();
-		
 	}
 }
 
@@ -38143,8 +38167,8 @@ void CvPlayer::ResetWarPeaceTurnCounters() // called when a player is killed
 		SetPlayerNumTurnsAtWar(ePlayer, 0);
 		SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
 
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(ePlayer, 0);
-		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(ePlayer, 0);
+		GET_PLAYER(ePlayer).SetPlayerNumTurnsAtWar(GetID(), 0);
+		GET_PLAYER(ePlayer).SetPlayerNumTurnsSinceCityCapture(GetID(), 0);
 	}
 }
 
@@ -38463,6 +38487,7 @@ void CvPlayer::DoUpdateWarDamageAndWeariness(bool bDamageOnly)
 		// At war and able to make peace - increase war weariness by 1% of current city + unit value (minimum 1).
 		int iWarWearinessReceived = max(iCurrentValue / 100, 1);
 		iWarWearinessReceived *= 100 + GET_PLAYER(eLoopPlayer).GetPlayerTraits()->GetEnemyWarWearinessModifier();
+		iWarWearinessReceived /= 100;
 		ChangeWarWeariness(eLoopPlayer, iWarWearinessReceived);
 	}
 
@@ -38485,7 +38510,7 @@ int CvPlayer::GetWarWearinessPercent(PlayerTypes ePlayer) const
 		return 0;
 
 	// Divide war weariness by current war value (what we own).
-	int iModifiedWarWeariness = iWarWeariness / max(GetCachedCurrentWarValue(), 1);
+	int iModifiedWarWeariness = 100 * iWarWeariness / max(GetCachedCurrentWarValue(), 1);
 
 	// Apply any modifiers to war weariness.
 	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
@@ -38538,7 +38563,7 @@ int CvPlayer::GetHighestWarWearinessPercent() const
 	}
 
 	// Divide highest war weariness by current war value (what we own).
-	int iModifiedWarWeariness = iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
+	int iModifiedWarWeariness = 100 * iHighestWarWeariness / max(GetCachedCurrentWarValue(), 1);
 
 	// Apply any modifiers to war weariness.
 	int iWarWearinessModifier = min(GetWarWearinessModifier() + GetPlayerTraits()->GetWarWearinessModifier(), 100);
@@ -43118,6 +43143,71 @@ bool CvPlayer::IsEarlyExpansionPhase() const
 {
 	static EconomicAIStrategyTypes eEarlyExpand = (EconomicAIStrategyTypes)GC.getInfoTypeForString("ECONOMICAISTRATEGY_EARLY_EXPANSION");
 	return GetEconomicAI()->IsUsingStrategy(eEarlyExpand);
+}
+
+
+bool CvPlayer::GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const
+{
+	if (eRoute != ROUTE_ROAD)
+		return false;
+
+	if (GetPlayerTraits()->IsWoodlandMovementBonus())
+	{
+		if ((pPlot->getFeatureType() == FEATURE_FOREST || pPlot->getFeatureType() == FEATURE_JUNGLE) && (MOD_BALANCE_VP || pPlot->getTeam() == getTeam()))
+			return true;
+	}
+	else if (GetPlayerTraits()->IsRiverTradeRoad())
+	{
+		if (pPlot->isRiver())
+			return true;
+	}
+
+	return false;
+}
+
+bool CvPlayer::IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const
+{
+	TeamTypes ePlotTeam = pPlot->getTeam();
+	TeamTypes ePlayerTeam = getTeam();
+	PlayerTypes ePlotOwner = pPlot->getOwner();
+
+	// Our plots and surrounding plots are safe
+	if (ePlotTeam == ePlayerTeam || (bIncludeAdjacent && pPlot->isAdjacentTeam(getTeam(), false)))
+	{
+		return true;
+	}
+
+	// Our vassal's plots and surrounding plots are safe
+	if (GET_TEAM(ePlotTeam).IsVassal(ePlayerTeam) || (bIncludeAdjacent && pPlot->isAdjacentOwnedByVassal(ePlayerTeam, false)))
+	{
+		return true;
+	}
+
+	// City state plots and surrounding plots are safe
+	if (ePlotOwner != NO_PLAYER && GET_PLAYER(ePlotOwner).isMinorCiv() && !GET_PLAYER(ePlotOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+	{
+		return true;
+	}
+
+	if (bIncludeAdjacent)
+	{
+		CvPlot** aPlotsToCheck = GC.getMap().getNeighborsUnchecked(pPlot);
+		PlayerTypes eAdjacentOwner;
+		for (int iI = 0; iI < NUM_DIRECTION_TYPES; iI++)
+		{
+			CvPlot* pAdjacentPlot = aPlotsToCheck[iI];
+			if (pAdjacentPlot != NULL)
+			{
+				eAdjacentOwner = pAdjacentPlot->getOwner();
+				if (eAdjacentOwner != NO_PLAYER && GET_PLAYER(eAdjacentOwner).isMinorCiv() && !GET_PLAYER(eAdjacentOwner).GetMinorCivAI()->IsAtWarWithPlayersTeam(GetID()))
+				{
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
 }
 
 //	--------------------------------------------------------------------------------
@@ -50615,14 +50705,21 @@ int CvPlayer::GetNumNaturalWondersInOwnedPlots()
 	return iValue;
 }
 
+int CvPlayer::GetMinAcceptableSettleQuality() const
+{
+	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
+	//clamp it to a sensible range
+	iFlavorExpansion = range(iFlavorExpansion, 0, 12);
+
+	//should be somewhere between -50 and 0
+	return -3 * iFlavorExpansion;
+}
+
 //	--------------------------------------------------------------------------------
 bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 {
 	updatePlotFoundValues();
-
-	int iFlavorExpansion = GetFlavorManager()->GetPersonalityIndividualFlavor((FlavorTypes)GC.getInfoTypeForString("FLAVOR_EXPANSION"));
-	//clamp it to a sensible range
-	iFlavorExpansion = range(iFlavorExpansion, 0, 12);
+	int iThreshold = GetMinAcceptableSettleQuality();
 
 	for (int iI = 0; iI < GC.getMap().numPlots(); iI++)
 	{
@@ -50632,7 +50729,7 @@ bool CvPlayer::HaveGoodSettlePlot(int iAreaID)
 
 		//range from -50 to +50
 		int q = GetSettlePlotQualityMeasure(pPlot);
-		if (q > -3*iFlavorExpansion)
+		if (q > iThreshold)
 			return true;
 	}
 
@@ -50734,7 +50831,7 @@ CvPlot* CvPlayer::GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgn
 		if (bLogging)
 		{
 			iDanger = pUnit ? pUnit->GetDanger(pPlot) : 0;
-			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,true);
+			iFertility = GC.getGame().GetSettlerSiteEvaluator()->PlotFertilityValue(pPlot,this,true);
 		}
 
 		if(!pPlot->isRevealed(eTeam))

@@ -10,13 +10,13 @@ CREATE INDEX IF NOT EXISTS idx_AIMilitaryStrategy_City_Flavors_ON_AIMilitaryStra
 ON AIMilitaryStrategy_City_Flavors(AIMilitaryStrategyType);
 
 CREATE INDEX IF NOT EXISTS idx_AIEconomicStrategy_Player_Flavors_ON_AIEconomicStrategyType
-ON AIEconomicStrategy_Player_Flavors(AIEconomicStrategyType)
+ON AIEconomicStrategy_Player_Flavors(AIEconomicStrategyType);
 
 CREATE INDEX IF NOT EXISTS idx_AIEconomicStrategy_City_Flavors_ON_AIEconomicStrategyType
-ON AIEconomicStrategy_City_Flavors(AIEconomicStrategyType)
+ON AIEconomicStrategy_City_Flavors(AIEconomicStrategyType);
 
 CREATE INDEX IF NOT EXISTS idx_AICityStrategy_Flavors_ON_AICityStrategyType
-ON AICityStrategy_Flavors(AICityStrategyType)
+ON AICityStrategy_Flavors(AICityStrategyType);
 
 -- Building
 
@@ -58,8 +58,8 @@ ON Concepts_RelatedConcept(ConceptType);
 
 -- EventChoice
 
-CREATE INDEX IF NOT EXISTS idx_EventChoiceFlavors_ON_EventChoiceType
-ON EventChoiceFlavors(EventChoiceType);
+-- CREATE INDEX IF NOT EXISTS idx_EventChoiceFlavors_ON_EventChoiceType
+-- ON EventChoiceFlavors(EventChoiceType);
 
 -- Feature
 CREATE INDEX IF NOT EXISTS idx_Feature_YieldChanges_ON_FeatureType
@@ -160,18 +160,18 @@ CREATE INDEX IF NOT EXISTS idx_Technology_Flavors_ON_TechType
 ON Technology_Flavors(TechType);
 
 CREATE INDEX IF NOT EXISTS idx_Technology_PrereqTechs_ON_TechType
-ON Technology_PrereqTechs(TechType)
+ON Technology_PrereqTechs(TechType);
 
 -- Unit
 
 CREATE INDEX IF NOT EXISTS idx_Unit_AITypes_ON_UnitType
 ON Unit_AITypes(UnitType);
 
-CREATE INDEX IF NOT EXISTS idx_Unit_BuildingClassPurchaseRequireds_ON_UnitType
-ON Unit_BuildingClassPurchaseRequireds(UnitType);
-
-CREATE INDEX IF NOT EXISTS idx_Unit_BuildOnFound_ON_UnitType
-ON Unit_BuildOnFound(UnitType);
+-- CREATE INDEX IF NOT EXISTS idx_Unit_BuildingClassPurchaseRequireds_ON_UnitType
+-- ON Unit_BuildingClassPurchaseRequireds(UnitType);
+--
+-- CREATE INDEX IF NOT EXISTS idx_Unit_BuildOnFound_ON_UnitType
+-- ON Unit_BuildOnFound(UnitType);
 
 CREATE INDEX IF NOT EXISTS idx_Unit_Builds_ON_UnitType
 ON Unit_Builds(UnitType);

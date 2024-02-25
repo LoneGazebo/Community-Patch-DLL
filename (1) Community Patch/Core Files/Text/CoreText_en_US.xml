@@ -4050,7 +4050,7 @@
 		<Row Tag="TXT_KEY_POP_CSTATE_BULLY_FACTOR_NO_CAPITAL">
 			<Text>No Capital City</Text>
 		</Row>
-		
+
 		<!-- New intrigue texts -->
 		<Row Tag="TXT_KEY_GENERIC_RESPONSE_SHARE_INTRIGUE_BRIBE_WAR_1">
 			<Text>Our spies have uncovered that {1_PlayerName} has bribed {2_PlayerName} to go to war with you. We hope that you will share any intrigue your agents discover with us.</Text>
@@ -6956,7 +6956,7 @@
 		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_WAR_OTHER_S">
 			<Text>{1_CivName} brokers war against {2_CivName}!</Text>
 		</Row>
-		
+
 		<Row Tag="TXT_KEY_NOTIFICATION_DIPLOMACY_THIRD_PARTY_BROKER_COOP_WAR">
 			<Text>{1_SpyRank} {2_SpyName} discovered that {3_PlayerName} and {4_CivName} are preparing to go to war with you!</Text>
 		</Row>
@@ -7954,7 +7954,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED">
-			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Atomic Bomb was intercepted by {2_City}!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CIV}} Atomic Bomb was intercepted by {2_City}!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_ATOMIC_BOMB_INTERCEPTED_S">
 			<Text>Atomic Bomb Interception!</Text>
@@ -7968,7 +7968,7 @@
 		</Row>
 
 		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED">
-			<Text>{TXT_KEY_GRAMMAR_A_AN &lt;&lt; {1_CIV}} Nuclear Missile was partially intercepted by {2_City}, reducing its damage done!</Text>
+			<Text>{TXT_KEY_GRAMMAR_UPPER_A_AN &lt;&lt; {1_CIV}} Nuclear Missile was partially intercepted by {2_City}, reducing its damage done!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NUCLEAR_MISSILE_INTERCEPTED_S">
 			<Text>Nuke Partial Interception!</Text>
@@ -7993,6 +7993,67 @@
 		</Row>
 		<Row Tag="TXT_KEY_CHOOSE_CITY_CAPTURE_TT">
 			<Text>Choose the fate of {1_City}...</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_DETAILED">
+			<Text>You have made peace with {1_TeamName}! All allies and vassals of either side have also made peace with each other. {2_OurAllies} {3_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_MADE_PEACE_WITH_MINOR_DETAILED">
+			<Text>You have made peace with {1_TeamName}! Your allies and vassals have also made peace. {2_OurAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_MADE_PEACE_DETAILED">
+			<Text>{1_PlyrName} has made peace with {2_PlyrName}! All allies or vassals of either side have also made peace with each other. {3_FirstPlayerAllies} {4_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_MADE_PEACE_MINOR_DETAILED">
+			<Text>{1_PlyrName} has made peace with {2_PlyrName}! The allies or vassals of {1_PlyrName} have also made peace. {3_FirstPlayerAllies}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_MISC_YOU_DECLARED_WAR_ON_DETAILED">
+			<Text>You have declared war on {1_TeamName}! All allies or vassals of either side are also at war. {2_OurAllies} {3_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_DECLARED_WAR_ON_DEFENSIVE_PACT_DETAILED">
+			<Text>Because of a Defensive Pact, {2_PlyrName} has joined {1_DefensivePactTeam} in the war against you! All allies or vassals of either side are also at war. {3_OurAllies} {4_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_YOU_DECLARED_WAR_ON_MINOR_DETAILED">
+			<Text>You have declared war on {1_TeamName}! Your allies and vassals have also declared war. {2_OurAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_DECLARED_WAR_ON_YOU_DETAILED">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_PlyrName} has declared war on you! All allies and vassals of either side are also at war.[ENDCOLOR] {2_OurAllies} {3_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_DECLARED_WAR_ON_YOU_DEFENSIVE_PACT_DETAILED">
+			<Text>Because of a Defensive Pact, you have joined {1_DefensivePactTeam} in the war against {2_TeamName}! All allies and vassals of either side are also at war.[ENDCOLOR] {3_OurAllies} {4_TheirAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_MINOR_DECLARED_WAR_ON_YOU_DETAILED">
+			<Text>[COLOR_NEGATIVE_TEXT]{1_PlyrName} has declared war on you! Your allies and vassals are also at war with {1_PlyrName}.[ENDCOLOR] {2_OurAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_DETAILED">
+			<Text>{1_PlyrName} has declared war on {2_PlyrName}! All allies and vassals of either side are also at war. {3_FirstPlayerAllies} {4_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_DEFENSIVE_PACT_DETAILED">
+			<Text>Because of a Defensive Pact, {3_PlyrName} has joined {1_DefensivePactTeam} in the war against {2_PlyrName}! All allies and vassals of either side are also at war. {4_FirstPlayerAllies} {5_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_DEFENSIVE_PACT_WITH_YOU_DETAILED">
+			<Text>Because of a Defensive Pact, {2_PlyrName} has joined you in the war against {1_PlyrName}! All allies and vassals of either side are also at war. {3_FirstPlayerAllies} {4_SecondPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOMEONE_DECLARED_WAR_MINOR_DETAILED">
+			<Text>{1_PlyrName} has declared war on {2_PlyrName}! The allies or vassals of {1_PlyrName} are also at war with {2_PlayerName}. {3_FirstPlayerAllies}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_MISC_SOME_MINOR_DECLARED_WAR_DETAILED">
+			<Text>{1_PlyrName} has declared war on {2_PlyrName} and on their allies and vassals! {3_SecondPlayerAllies}</Text>
+		</Row>
+
+		<Row Tag="TXT_KEY_YOUR_ALLIES">
+			<Text>[NEWLINE][NEWLINE]Your vassals and allies: {1_Str}</Text>
+		</Row>
+		<Row Tag="TXT_KEY_OTHER_PLAYER_ALLIES">
+			<Text>[NEWLINE][NEWLINE]The vassals and allies of {1_Civ}: {2_Str}</Text>
+		</Row>
+		
+		<Row Tag="TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE">
+			<Text>{1_Civ} is no longer Allies with a civilization you're at war with. Peace with {1_Civ} is now possible again.</Text>
+		</Row>
+		<Row Tag="TXT_KEY_NOTIFICATION_PEACE_WITH_MINOR_POSSIBLE_S">
+			<Text>Peace with {1_Civ} possible!</Text>
 		</Row>
 	</Language_en_US>
 	<PostDefines>

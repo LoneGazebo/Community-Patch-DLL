@@ -173,8 +173,9 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 	-- the result until the largest landmass occupies 84% or more of the total land.
 	local done = false;
 	local iAttempts = 0;
-	local iWaterThreshold, biggest_area, iNumTotalLandTiles, iNumBiggestAreaTiles, iBiggestID;
-	while done == false do
+	local iWaterThreshold;
+	local iBiggestID;
+	while not done do
 		local grain_dice = Map.Rand(7, "Continental Grain roll - LUA Pangaea");
 		if grain_dice < 4 then
 			grain_dice = 1;
@@ -190,12 +191,12 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 		self:InitFractal{continent_grain = grain_dice, rift_grain = rift_dice};
 		iWaterThreshold = self.continentsFrac:GetHeight(water_percent);
 
-		iNumTotalLandTiles = 0;
+		local iNumTotalLandTiles = 0;
 		for x = 0, self.iNumPlotsX - 1 do
 			for y = 0, self.iNumPlotsY - 1 do
 				local i = y * self.iNumPlotsX + x;
 				local val = self.continentsFrac:GetHeight(x, y);
-				if(val <= iWaterThreshold) then
+				if val <= iWaterThreshold then
 					self.plotTypes[i] = PlotTypes.PLOT_OCEAN;
 				else
 					self.plotTypes[i] = PlotTypes.PLOT_LAND;
@@ -206,13 +207,12 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 
 		SetPlotTypes(self.plotTypes);
 		Map.RecalculateAreas();
+		iBiggestID = Map.FindBiggestLandmassID(false);
 
-		biggest_area = Map.FindBiggestArea(false);
-		iNumBiggestAreaTiles = biggest_area:GetNumTiles();
+		local iNumBiggestLandmassTiles = Map.GetNumTilesOfLandmass(iBiggestID);
 		-- Now test the biggest landmass to see if it is large enough.
-		if iNumBiggestAreaTiles >= iNumTotalLandTiles * 0.84 then
+		if iNumBiggestLandmassTiles >= iNumTotalLandTiles * 0.84 then
 			done = true;
-			iBiggestID = biggest_area:GetID();
 		end
 		iAttempts = iAttempts + 1;
 
@@ -220,8 +220,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 		print("-"); print("--- Pangaea landmass generation, Attempt#", iAttempts, "---");
 		print("- This attempt successful: ", done);
 		print("- Total Land Plots in world:", iNumTotalLandTiles);
-		print("- Land Plots belonging to biggest landmass:", iNumBiggestAreaTiles);
-		print("- Percentage of land belonging to Pangaea: ", 100 * iNumBiggestAreaTiles / iNumTotalLandTiles);
+		print("- Land Plots belonging to biggest landmass:", iNumBiggestLandmassTiles);
+		print("- Percentage of land belonging to Pangaea: ", 100 * iNumBiggestLandmassTiles / iNumTotalLandTiles);
 		print("- Continent Grain for this attempt: ", grain_dice);
 		print("- Rift Grain for this attempt: ", rift_dice);
 		print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
@@ -233,7 +233,7 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 	self.hillsFrac = Fractal.Create(self.iNumPlotsX, self.iNumPlotsY, grain, self.iFlags, self.fracXExp, self.fracYExp);
 	self.mountainsFrac = Fractal.Create(self.iNumPlotsX, self.iNumPlotsY, grain, self.iFlags, self.fracXExp, self.fracYExp);
 	self.hillsFrac:BuildRidges(numPlates, hills_ridge_flags, 1, 2);
-	self.mountainsFrac:BuildRidges((numPlates * 2) / 3, peaks_ridge_flags, 6, 1);
+	self.mountainsFrac:BuildRidges(numPlates * 2 / 3, peaks_ridge_flags, 6, 1);
 	-- Get height values
 	local iHillsBottom1 = self.hillsFrac:GetHeight(hillsBottom1);
 	local iHillsTop1 = self.hillsFrac:GetHeight(hillsTop1);
@@ -248,9 +248,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 	local iMountain97 = self.mountainsFrac:GetHeight(97);
 	local iMountain95 = self.mountainsFrac:GetHeight(95);
 
-	-- Because we haven't yet shifted the plot types, we will not be able to take advantage
-	-- of having water and flatland plots already set. We still have to generate all data
-	-- for hills and mountains, too, then shift everything, then set plots one more time.
+	-- Because we haven't yet shifted the plot types, we will not be able to take advantage of having water and flatland plots already set.
+	-- We still have to generate all data for hills and mountains, too, then shift everything, then set plots one more time.
 	for x = 0, self.iNumPlotsX - 1 do
 		for y = 0, self.iNumPlotsY - 1 do
 
@@ -259,7 +258,7 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 			local mountainVal = self.mountainsFrac:GetHeight(x, y);
 			local hillVal = self.hillsFrac:GetHeight(x, y);
 
-			if(val <= iWaterThreshold) then
+			if val <= iWaterThreshold then
 				self.plotTypes[i] = PlotTypes.PLOT_OCEAN;
 				if tectonic_islands then -- Build islands in oceans along tectonic ridge lines - Brian
 					if mountainVal == iMountain100 then -- Isolated peak in the ocean
@@ -303,8 +302,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 				local i = y * self.iNumPlotsX + x;
 				if self.plotTypes[i] == PlotTypes.PLOT_HILLS or self.plotTypes[i] == PlotTypes.PLOT_LAND then
 					local plot = Map.GetPlot(x, y);
-					local iAreaID = plot:GetArea();
-					if iAreaID == iBiggestID then
+					local iLandmassID = plot:GetLandmass();
+					if iLandmassID == iBiggestID then
 						bFoundPangaea = true;
 						iStartRow = y + 1;
 						if iStartRow < self.iNumPlotsY - 4 then -- Enough rows of water space to do a shift.
@@ -326,8 +325,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 				local i = y * self.iNumPlotsX + x;
 				if self.plotTypes[i] == PlotTypes.PLOT_HILLS or self.plotTypes[i] == PlotTypes.PLOT_LAND then
 					local plot = Map.GetPlot(x, y);
-					local iAreaID = plot:GetArea();
-					if iAreaID == iBiggestID then
+					local iLandmassID = plot:GetLandmass();
+					if iLandmassID == iBiggestID then
 						bFoundPangaea = true;
 						iStartRow = y - 1;
 						if iStartRow > 3 then -- Enough rows of water space to do a shift.
@@ -509,7 +508,6 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 	-- the result until the largest landmass occupies 58% or less of the total land.
 	local done = false;
 	local iAttempts = 0;
-	local iWaterThreshold, biggest_area, iNumTotalLandTiles, iNumBiggestAreaTiles;
 	while not done do
 		local grain_dice = Map.Rand(7, "Continental Grain roll - LUA Continents");
 		if grain_dice < 4 then
@@ -524,9 +522,9 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 
 		self.continentsFrac = nil;
 		self:InitFractal{continent_grain = grain_dice, rift_grain = rift_dice};
-		iWaterThreshold = self.continentsFrac:GetHeight(water_percent);
+		local iWaterThreshold = self.continentsFrac:GetHeight(water_percent);
 
-		iNumTotalLandTiles = 0;
+		local iNumTotalLandTiles = 0;
 		for x = 0, self.iNumPlotsX - 1 do
 			for y = 0, self.iNumPlotsY - 1 do
 				local i = y * self.iNumPlotsX + x;
@@ -546,10 +544,10 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 		SetPlotTypes(self.plotTypes);
 		Map.RecalculateAreas();
 
-		biggest_area = Map.FindBiggestArea(false);
-		iNumBiggestAreaTiles = biggest_area:GetNumTiles();
+		local iBiggestID = Map.FindBiggestLandmassID(false);
+		local iNumBiggestLandmassTiles = Map.GetNumTilesOfLandmass(iBiggestID);
 		-- Now test the biggest landmass to see if it is large enough.
-		if iNumBiggestAreaTiles <= iNumTotalLandTiles * 0.58 then
+		if iNumBiggestLandmassTiles <= iNumTotalLandTiles * 0.58 then
 			done = true;
 		end
 		iAttempts = iAttempts + 1;
@@ -558,8 +556,8 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 		print("-"); print("--- Continents landmass generation, Attempt#", iAttempts, "---");
 		print("- This attempt successful: ", done);
 		print("- Total Land Plots in world:", iNumTotalLandTiles);
-		print("- Land Plots belonging to biggest landmass:", iNumBiggestAreaTiles);
-		print("- Percentage of land belonging to biggest: ", 100 * iNumBiggestAreaTiles / iNumTotalLandTiles);
+		print("- Land Plots belonging to biggest landmass:", iNumBiggestLandmassTiles);
+		print("- Percentage of land belonging to biggest: ", 100 * iNumBiggestLandmassTiles / iNumTotalLandTiles);
 		print("- Continent Grain for this attempt: ", grain_dice);
 		print("- Rift Grain for this attempt: ", rift_dice);
 		print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
@@ -666,254 +664,6 @@ end
 ------------------------------------------------------------------------------
 -- Start Plot System - Needs numerous overwrites to make this concept work.
 ------------------------------------------------------------------------------
-function AssignStartingPlots:GenerateRegions(args)
-	print("Map Generation - Dividing the map in to Regions");
-	args = args or {};
-	local iW, iH = Map.GetGridSize();
-	self.method = RegionDivision.CONTINENTAL; -- Continental method for Frontier.
-	args.resources = args.resources or 2;
-
-	self.resDensity = args.resources; -- Strategic Resource Density setting
-	self.resSize = args.resources; -- Strategic Resource Deposit Size setting
-	self.bonusDensity = args.resources; -- Bonus Resource Density setting
-	self.luxuryDensity = args.resources; -- Luxury Resource Density setting
-	self.legStart = args.legend or (args.resources == 4); -- Legendary Start setting
-	self.resBalance = args.balance or (args.resources == 5); -- Strategic Balance setting
-
-	print("-"); print("Resource settings");
-	print("Strategic Density = ", self.resDensity);
-	print("Strategic Size = ", self.resSize);
-	print("Bonus Density = ", self.bonusDensity);
-	print("Luxury Density = ", self.luxuryDensity);
-	print("Legendary Start = ", self.legStart);
-	print("Strategic Balance = ", self.resBalance);
-
-	-- Determine number of civilizations and city states present in this game.
-	self.iNumCivs, self.iNumCityStates, self.player_ID_list, self.bTeamGame, self.teams_with_major_civs, self.number_civs_per_team = GetPlayerAndTeamInfo()
-	self.iNumCityStatesUnassigned = self.iNumCityStates;
-	print("-"); print("Civs:", self.iNumCivs); print("City States:", self.iNumCityStates);
-
-	-- Custom to Frontier
-	local FrontierRegionMinCount = {1, 1, 1, 1, 1, 2, 2, 2, 2, 3, 3, 3, 3, 3, 4, 4, 4, 4, 3, 2, 1, 0};
-	local FrontierRegionMaxCount = {1, 1, 2, 2, 3, 3, 3, 4, 4, 4, 4, 4, 5, 5, 5, 5, 5, 4, 3, 2, 1, 0};
-	self.iNumFrontiers = self:GetRandomFromRangeInclusive(FrontierRegionMinCount[self.iNumCivs], FrontierRegionMaxCount[self.iNumCivs]);
-	print("Frontiers:", self.iNumFrontiers); print("-");
-
-	-- Continental Method for use in Frontier.
-	-- Loop through all plots on the map, measuring fertility of each land plot, identifying its AreaID, building a list of landmass AreaIDs,
-	-- and tallying the Start Placement Fertility for each landmass.
-
-	-- Obtain info on all landmasses for comparision purposes.
-	local iGlobalFertilityOfLands = 0;
-	local iNumLandPlots = 0;
-	local iNumLandAreas = 0;
-	local land_area_IDs = {};
-	local land_area_plots = {};
-	local land_area_fert = {};
-
-	-- Cycle through all plots in the world, checking their Start Placement Fertility and AreaID.
-	for x = 0, iW - 1 do
-		for y = 0, iH - 1 do
-			local plot = Map.GetPlot(x, y);
-			if not plot:IsWater() then -- Land plot, process it.
-				iNumLandPlots = iNumLandPlots + 1;
-				local iArea = plot:GetArea();
-				local plotFertility = self:MeasureStartPlacementFertilityOfPlot(x, y, true); -- Check for coastal land is enabled.
-				iGlobalFertilityOfLands = iGlobalFertilityOfLands + plotFertility;
-				if not TestMembership(land_area_IDs, iArea) then -- This plot is the first detected in its AreaID.
-					iNumLandAreas = iNumLandAreas + 1;
-					table.insert(land_area_IDs, iArea);
-					land_area_plots[iArea] = 1;
-					land_area_fert[iArea] = plotFertility;
-				else -- This AreaID already known.
-					land_area_plots[iArea] = land_area_plots[iArea] + 1;
-					land_area_fert[iArea] = land_area_fert[iArea] + plotFertility;
-				end
-			end
-		end
-	end
-
-	-- Sort areas, achieving a list of AreaIDs with best areas first.
-
-	-- Fertility data in land_area_fert is stored with areaID index keys.
-	-- Need to generate a version of this table with indices of 1 to n, where n is number of land areas.
-	local interim_table = {};
-	local min_area_fertility = iGlobalFertilityOfLands / self.iNumCivs * 0.5;
-	print("Minimum area fertility required =", min_area_fertility);
-	for _, data_entry in pairs(land_area_fert) do
-		-- add fertility check to prevent tiny islands from being considered
-		if data_entry >= min_area_fertility then
-			table.insert(interim_table, data_entry);
-		else
-			iNumLandAreas = iNumLandAreas - 1;
-		end
-	end
-
-	--[[
-	for AreaID, fert in ipairs(interim_table) do
-		print("Interim Table ID " .. AreaID .. " has fertility of " .. fert);
-	end
-	print("* * * * * * * * * *");
-	--]]
-
-	-- Sort the fertility values stored in the interim table. Sort order in Lua is lowest to highest.
-	table.sort(interim_table);
-
-	--[[
-	for AreaID, fert in ipairs(interim_table) do
-		print("Interim Table ID " .. AreaID .. " has fertility of " .. fert);
-	end
-	print("* * * * * * * * * *");
-	--]]
-
-	-- If less players than landmasses, we will ignore the extra landmasses.
-	local iNumRelevantLandAreas = math.min(iNumLandAreas, self.iNumCivs);
-	print("Number of relevant areas =", iNumRelevantLandAreas);
-
-	-- Now re-match the AreaID numbers with their corresponding fertility values by comparing the original fertility table with the sorted interim table.
-	-- During this comparison, best_areas will be constructed from sorted AreaIDs, richest stored first.
-	local best_areas = {};
-	-- Currently, the best yields are at the end of the interim table. We need to step backward from there.
-	local end_of_interim_table = table.maxn(interim_table);
-	-- We may not need all entries in the table. Process only iNumRelevantLandAreas worth of table entries.
-	local fertility_value_list = {};
-	local fertility_value_tie = false;
-	for tableConstructionLoop = end_of_interim_table, (end_of_interim_table - iNumRelevantLandAreas + 1), -1 do
-		if TestMembership(fertility_value_list, interim_table[tableConstructionLoop]) then
-			fertility_value_tie = true;
-			print("*** WARNING: Fertility Value Tie exists! ***");
-		else
-			table.insert(fertility_value_list, interim_table[tableConstructionLoop]);
-		end
-	end
-
-	if not fertility_value_tie then -- No ties, so no need of special handling for ties.
-		for areaTestLoop = end_of_interim_table, (end_of_interim_table - iNumRelevantLandAreas + 1), -1 do
-			for loop_index, AreaID in ipairs(land_area_IDs) do
-				if interim_table[areaTestLoop] == land_area_fert[land_area_IDs[loop_index]] then
-					table.insert(best_areas, AreaID);
-					break;
-				end
-			end
-		end
-	else -- Ties exist! Special handling required to protect against a shortfall in the number of defined regions.
-		local iNumUniqueFertValues = table.maxn(fertility_value_list);
-		for fertLoop = 1, iNumUniqueFertValues do
-			for AreaID, fert in pairs(land_area_fert) do
-				if fert == fertility_value_list[fertLoop] then
-					-- Add ties only if there is room!
-					local best_areas_length = table.maxn(best_areas);
-					if best_areas_length < iNumRelevantLandAreas then
-						table.insert(best_areas, AreaID);
-					else
-						break;
-					end
-				end
-			end
-		end
-	end
-
-	-- Assign continents to receive start plots. Record number of civs assigned to each landmass.
-	local inhabitedAreaIDs = {};
-	local numberOfCivsPerArea = table.fill(0, iNumRelevantLandAreas); -- Indexed in synch with best_areas. Use same index to match values from each table.
-	for _ = 1, self.iNumCivs + self.iNumFrontiers do
-		local bestRemainingArea = -1;
-		local bestRemainingFertility = 0;
-		local bestAreaTableIndex;
-		-- Loop through areas, find the one with the best remaining fertility (civs added
-		-- to a landmass reduces its fertility rating for subsequent civs).
-
-		-- print("- - Searching landmasses in order to place Civ #", civToAssign); print("-");
-		for area_loop, AreaID in ipairs(best_areas) do
-			-- assume 80% of fertility is in relevant land areas
-			local thisLandmassCurrentFertility = land_area_fert[AreaID] - iGlobalFertilityOfLands * 0.8 * numberOfCivsPerArea[area_loop] / self.iNumCivs;
-			if thisLandmassCurrentFertility > bestRemainingFertility and numberOfCivsPerArea[area_loop] < math.max(self.iNumCivs - 2, 2) then
-				bestRemainingArea = AreaID;
-				bestRemainingFertility = thisLandmassCurrentFertility;
-				bestAreaTableIndex = area_loop;
-				-- print("- Found new candidate landmass with Area ID#:", bestRemainingArea, " with fertility of ", bestRemainingFertility);
-			end
-		end
-		if bestRemainingArea == -1 then
-			print("Failed to find an area somehow, assign to first area as a failsafe");
-			bestRemainingArea = best_areas[1];
-			bestAreaTableIndex = 1;
-		end
-
-		-- Record results for this pass. (A landmass has been assigned to receive one more start point than it previously had).
-		numberOfCivsPerArea[bestAreaTableIndex] = numberOfCivsPerArea[bestAreaTableIndex] + 1;
-		if TestMembership(inhabitedAreaIDs, bestRemainingArea) == false then
-			table.insert(inhabitedAreaIDs, bestRemainingArea);
-		end
-		-- print("Civ #", civToAssign, "has been assigned to Area#", bestRemainingArea); print("-");
-	end
-	-- print("-"); print("--- End of Initial Readout ---"); print("-");
-
-	-- print("*** Number of Civs per Landmass - Table Readout ***");
-	-- PrintContentsOfTable(numberOfCivsPerArea);
-	-- print("--- End of Civs per Landmass readout ***"); print("-"); print("-");
-
-	-- Loop through the list of inhabited landmasses, dividing each landmass in to regions.
-	-- Note that it is OK to divide a continent with one civ on it:
-	-- this will assign the whole of the landmass to a single region, and is the easiest method of recording such a region.
-	for loop, currentLandmassID in ipairs(inhabitedAreaIDs) do
-		-- Obtain the boundaries of and data for this landmass.
-		local landmass_data = ObtainLandmassBoundaries(currentLandmassID);
-		local iWestX = landmass_data[1];
-		local iSouthY = landmass_data[2];
-		local iEastX = landmass_data[3];
-		local iNorthY = landmass_data[4];
-		local iWidth = landmass_data[5];
-		local iHeight = landmass_data[6];
-		local wrapsX = landmass_data[7];
-		local wrapsY = landmass_data[8];
-
-		-- Obtain "Start Placement Fertility" of the current landmass.
-		-- Necessary to do this again because the fert_table can't be built prior to finding boundaries,
-		-- and we had to ID the proper landmasses via fertility to be able to figure out their boundaries.
-		local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(currentLandmassID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
-
-		-- Assemble the rectangle data for this landmass.
-		local rect_table = {iWestX, iSouthY, iWidth, iHeight, currentLandmassID, fertCount, plotCount};
-
-		-- Divide this landmass in to number of regions equal to civs assigned here.
-		local iNumCivsOnThisLandmass = numberOfCivsPerArea[loop];
-		if iNumCivsOnThisLandmass > 0 and iNumCivsOnThisLandmass <= MAX_MAJOR_CIVS then -- valid number of civs.
-			--[[ Debug printout for regional division inputs.
-			print("-"); print("- Region #: ", loop);
-			print("- Civs on this landmass: ", iNumCivsOnThisLandmass);
-			print("- Area ID#: ", currentLandmassID);
-			print("- Fertility: ", fertCount);
-			print("- Plot Count: ", plotCount); print("-");
-			--]]
-			self:DivideIntoRegions(iNumCivsOnThisLandmass, fert_table, rect_table);
-		else
-			print("Invalid number of civs assigned to a landmass: ", iNumCivsOnThisLandmass);
-		end
-		-- The regions have been defined.
-	end
-
-	-- Entry point for easier overrides.
-	self:CustomOverride();
-
-	--[[ Printout is for debugging only. Deactivate otherwise.
-	local tempRegionData = self.regionData;
-	for i, data in ipairs(tempRegionData) do
-		print("-");
-		print("Data for Start Region #", i);
-		print("WestX: ", data[1]);
-		print("SouthY: ", data[2]);
-		print("Width: ", data[3]);
-		print("Height: ", data[4]);
-		print("AreaID: ", data[5]);
-		print("Fertility:", data[6]);
-		print("Plots: ", data[7]);
-		print("Fert/Plot:", data[8]);
-		print("-");
-	end
-	--]]
-end
-------------------------------------------------------------------------------
 function AssignStartingPlots:GetWorldLuxuryTargetNumbers()
 	-- This data was separated out to allow easy replacement in map scripts.
 	--
@@ -997,7 +747,10 @@ function StartPlotSystem()
 	local start_plot_database = AssignStartingPlots.Create();
 
 	print("Dividing the map in to Regions.");
-	start_plot_database:GenerateRegions{resources = res};
+	start_plot_database:GenerateRegions{
+		resources = res,
+		addEmptyRegions = true,
+	};
 
 	print("Choosing start locations for civilizations.");
 	start_plot_database:ChooseLocations();

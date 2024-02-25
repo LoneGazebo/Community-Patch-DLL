@@ -834,8 +834,10 @@ local PlotToolTips = EUI.PlotToolTips or function( plot, isExtraTips )
 				-- Compatibility with Gazebo's City-State Diplomacy Mod (CSD) for Brave New World
 				if csd_mode and row.Type == "IMPROVEMENT_EMBASSY" then
 					local player = Players[plot:GetPlayerThatBuiltImprovement()]
-					if player then
-						txt = txt .. " - ".. player:GetCivilizationShortDescription()
+					if player and activeTeam:IsHasMet(player:GetTeam()) then
+						txt = txt .. " - " .. player:GetCivilizationShortDescription()
+					else
+						txt = txt .. " - " .. L"TXT_KEY_MISC_UNKNOWN"
 					end
 				end
 				if flag then

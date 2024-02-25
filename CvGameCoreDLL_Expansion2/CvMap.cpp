@@ -1153,6 +1153,30 @@ CvArea* CvMap::findBiggestArea(bool bWater)
 
 
 //	--------------------------------------------------------------------------------
+CvLandmass* CvMap::findBiggestLandmass(bool bWater)
+{
+	CvLandmass* pBestLandmass = NULL;
+	int iBestValue = 0;
+	int iLoop = 0;
+	for(CvLandmass* pLoopLandmass = firstLandmass(&iLoop); pLoopLandmass != NULL; pLoopLandmass = nextLandmass(&iLoop))
+	{
+		if(pLoopLandmass->isWater() == bWater)
+		{
+			int iValue = pLoopLandmass->getNumTiles();
+
+			if(iValue > iBestValue)
+			{
+				iBestValue = iValue;
+				pBestLandmass = pLoopLandmass;
+			}
+		}
+	}
+
+	return pBestLandmass;
+}
+
+
+//	--------------------------------------------------------------------------------
 int CvMap::getMapFractalFlags()
 {
 	int wrapX = 0;

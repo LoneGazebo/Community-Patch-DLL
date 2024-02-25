@@ -4295,7 +4295,12 @@ bool CvGameDeals::FinalizeMPDeal(CvDeal kDeal, bool bAccepted)
 		}
 	}
 	
-	FinalizeDealNotify(eFromPlayer, eToPlayer, veNowAtPeacePairs);
+	// Update UI if we were involved in the deal
+	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
+	if (eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
+	{
+		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
+	}
 
 	return bFoundIt && bValid;
 }
@@ -4311,69 +4316,6 @@ void CvGameDeals::FinalizeDealValidAndAccepted(PlayerTypes eFromPlayer, PlayerTy
 	ActivateDeal(eFromPlayer, eToPlayer, kDeal, veNowAtPeacePairs);
 }
 
-void CvGameDeals::FinalizeDealNotify(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, CvWeightedVector<TeamTypes>& veNowAtPeacePairs)
-{
-	// Update UI if we were involved in the deal
-	PlayerTypes eActivePlayer = GC.getGame().getActivePlayer();
-	if (eFromPlayer == eActivePlayer || eToPlayer == eActivePlayer)
-	{
-		GC.GetEngineUserInterface()->setDirty(GameData_DIRTY_BIT, true);
-	}
-
-	// Send out a condensed notification if peace was made with third party minor civs in this deal
-	if (veNowAtPeacePairs.size() > 0)
-	{
-		// Loop through all teams
-		for(int iFromTeamIndex = 0; iFromTeamIndex < MAX_CIV_TEAMS; iFromTeamIndex++)
-		{
-			TeamTypes eFromTeam = (TeamTypes) iFromTeamIndex;
-			TeamTypes eToTeam = NO_TEAM;
-			bool bFromTeamMadePeace = false;
-
-			Localization::String strTemp = Localization::Lookup("TXT_KEY_MISC_MADE_PEACE_WITH_MINOR_ALLIES");
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_MADE_PEACE_WITH_MINOR_ALLIES_SUMMARY");
-			strTemp << GET_TEAM(eFromTeam).getName().GetCString();
-			strSummary << GET_TEAM(eFromTeam).getName().GetCString();
-			CvString strMessage = strTemp.toUTF8();
-
-			// Did this team make peace with someone in this deal?
-			for(int iPairIndex = 0; iPairIndex < veNowAtPeacePairs.size(); iPairIndex++)
-			{
-				if(veNowAtPeacePairs.GetWeight(iPairIndex) == (int) eFromTeam)
-				{
-					eToTeam = veNowAtPeacePairs.GetElement(iPairIndex);
-					strTemp = Localization::Lookup(GET_TEAM(eToTeam).getName().GetCString());
-					strMessage = strMessage + "[NEWLINE]" + strTemp.toUTF8();
-					bFromTeamMadePeace = true;
-				}
-			}
-
-			// Send out notifications if there was a change
-			if(bFromTeamMadePeace)
-			{
-				// Send out the notifications to other players
-				for(int iNotifPlayerLoop = 0; iNotifPlayerLoop < MAX_MAJOR_CIVS; iNotifPlayerLoop++)
-				{
-					PlayerTypes eNotifPlayer = (PlayerTypes) iNotifPlayerLoop;
-
-					if(!GET_PLAYER(eNotifPlayer).isAlive())
-						continue;
-
-					if(GET_PLAYER(eNotifPlayer).getTeam() == eFromTeam)
-						continue;
-
-					if(GET_TEAM(GET_PLAYER(eNotifPlayer).getTeam()).isHasMet(eFromTeam))  //antonjs: consider: what if eNotifPlayer hasn't met one or more of the minors that eFromTeam made peace with?
-					{
-						if(GET_PLAYER(eNotifPlayer).GetNotifications())
-						{
-							GET_PLAYER(eNotifPlayer).GetNotifications()->Add(NOTIFICATION_PEACE, strMessage, strSummary.toUTF8(), -1, -1, GET_TEAM(eFromTeam).getLeaderID(), eToTeam);
-						}
-					}
-				}
-			}
-		}
-	}
-}
 #endif
 
 /// Moves a deal from the proposed list to the active one (returns FALSE if deal not found)
@@ -4436,60 +4378,6 @@ bool CvGameDeals::FinalizeDeal(PlayerTypes eFromPlayer, PlayerTypes eToPlayer, b
 	//update happiness.
 	GET_PLAYER(eFromPlayer).CalculateNetHappiness();
 	GET_PLAYER(eToPlayer).CalculateNetHappiness();
-
-	// Send out a condensed notification if peace was made with third party minor civs in this deal
-	if (veNowAtPeacePairs.size() > 0)
-	{
-		// Loop through all teams
-		for(int iFromTeamIndex = 0; iFromTeamIndex < MAX_CIV_TEAMS; iFromTeamIndex++)
-		{
-			TeamTypes eFromTeam = (TeamTypes) iFromTeamIndex;
-			TeamTypes eToTeam = NO_TEAM;
-			bool bFromTeamMadePeace = false;
-
-			Localization::String strTemp = Localization::Lookup("TXT_KEY_MISC_MADE_PEACE_WITH_MINOR_ALLIES");
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_MISC_MADE_PEACE_WITH_MINOR_ALLIES_SUMMARY");
-			strTemp << GET_TEAM(eFromTeam).getName().GetCString();
-			strSummary << GET_TEAM(eFromTeam).getName().GetCString();
-			CvString strMessage = strTemp.toUTF8();
-
-			// Did this team make peace with someone in this deal?
-			for (int iPairIndex = 0; iPairIndex < veNowAtPeacePairs.size(); iPairIndex++)
-			{
-				if (veNowAtPeacePairs.GetWeight(iPairIndex) == (int) eFromTeam)
-				{
-					eToTeam = veNowAtPeacePairs.GetElement(iPairIndex);
-					strTemp = Localization::Lookup(GET_TEAM(eToTeam).getName().GetCString());
-					strMessage = strMessage + "[NEWLINE]" + strTemp.toUTF8();
-					bFromTeamMadePeace = true;
-				}
-			}
-
-			// Send out notifications if there was a change
-			if (bFromTeamMadePeace)
-			{
-				// Send out the notifications to other players
-				for (int iNotifPlayerLoop = 0; iNotifPlayerLoop < MAX_MAJOR_CIVS; iNotifPlayerLoop++)
-				{
-					PlayerTypes eNotifPlayer = (PlayerTypes) iNotifPlayerLoop;
-
-					if (!GET_PLAYER(eNotifPlayer).isAlive())
-						continue;
-
-					if (GET_PLAYER(eNotifPlayer).getTeam() == eFromTeam)
-						continue;
-
-					if (GET_TEAM(GET_PLAYER(eNotifPlayer).getTeam()).isHasMet(eFromTeam))  //antonjs: consider: what if eNotifPlayer hasn't met one or more of the minors that eFromTeam made peace with?
-					{
-						if (GET_PLAYER(eNotifPlayer).GetNotifications())
-						{
-							GET_PLAYER(eNotifPlayer).GetNotifications()->Add(NOTIFICATION_PEACE, strMessage, strSummary.toUTF8(), -1, -1, GET_TEAM(eFromTeam).getLeaderID(), eToTeam);
-						}
-					}
-				}
-			}
-		}
-	}
 
 	return bFoundIt && bValid;
 }

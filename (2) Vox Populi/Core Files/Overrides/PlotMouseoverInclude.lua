@@ -332,8 +332,12 @@ function GetImprovementString(plot)
 			improvementStr = improvementStr .." " .. Memoize_LocaleLookup("TXT_KEY_PLOTROLL_PILLAGED")
 		end
 		--CSD Addition - Embassy
-		if plot:IsImprovementEmbassy() then 
-			improvementStr = improvementStr .. " " .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_EMBASSY", pPlayer:GetCivilizationShortDescriptionKey());
+		if plot:IsImprovementEmbassy() then
+			if pPlayer and pTeam:IsHasMet(pPlayer:GetTeam()) then
+				improvementStr = improvementStr .. " " .. Locale.ConvertTextKey("TXT_KEY_PLOTROLL_EMBASSY", pPlayer:GetCivilizationShortDescriptionKey());
+			else
+				improvementStr = improvementStr .. " " .. Memoize_LocaleLookup("TXT_KEY_PLOTROLL_EMBASSY_UNMET");
+			end
 		end
 	end
 

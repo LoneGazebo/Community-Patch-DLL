@@ -348,7 +348,7 @@ ALTER TABLE Traits ADD COLUMN 'NoOpenTrade' BOOLEAN DEFAULT 0;
 
 ALTER TABLE Traits ADD COLUMN 'FreeCapitalBuilding' TEXT DEFAULT NULL;
 
--- Combat Bonus vs Higher Pop Civilization.
+-- Combat Bonus vs Higher Pop Civilization. (non-functional)
 
 ALTER TABLE Traits ADD COLUMN 'CombatBonusVsHigherPop' INTEGER DEFAULT 0;
 
@@ -1210,13 +1210,13 @@ ALTER TABLE UnitPromotions ADD COLUMN 'GiveInvisibility' BOOLEAN DEFAULT 0;
 -- Unit only gives these effects at the start of the turn (works for GiveExperiencePercent, GiveCombatMod, GiveDefenseMod, GiveInvisibility, GiveOutsideFriendlyLandsModifier, GiveHPHealedIfEnemyKilled, GiveExtraAttacks)
 ALTER TABLE UnitPromotions ADD COLUMN 'GiveOnlyOnStartingTurn' BOOLEAN DEFAULT 0;
 
--- Unit gains Combat modifier when near cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+-- Unit gains Combat modifier when near cities. Requires NearbyRange Set on this Promotion.
 ALTER TABLE UnitPromotions ADD NearbyCityCombatMod INTEGER DEFAULT 0;
 
--- Unit gains Combat modifier when near friendly cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+-- Unit gains Combat modifier when near friendly cities. Requires NearbyRange Set on this Promotion.
 ALTER TABLE UnitPromotions ADD NearbyFriendlyCityCombatMod INTEGER DEFAULT 0;
 
--- Unit gains Combat modifier when near enemy cities. Requires IsNearbyPromotion and NearbyRange Set on this Promotion.
+-- Unit gains Combat modifier when near enemy cities. Requires NearbyRange Set on this Promotion.
 ALTER TABLE UnitPromotions ADD NearbyEnemyCityCombatMod INTEGER DEFAULT 0;
 
 -- Unit Gives extra healing to nearby units? Must have set IsNearbyPromotion, NearbyRange, and GiveDomain for this promotion.

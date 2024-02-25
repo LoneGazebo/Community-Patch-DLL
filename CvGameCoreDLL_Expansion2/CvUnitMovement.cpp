@@ -183,11 +183,11 @@ int CvUnitMovement::GetCostsForMove(const CvUnit* pUnit, const CvPlot* pFromPlot
 			CvCity* pCity = pToPlot->getOwningCity();
 			if (pCity)
 			{
-				if (!bToIsWater && domain == DOMAIN_LAND && pCity->GetBorderObstacleLand() > 0)
+				if (!bToIsWater && domain == DOMAIN_LAND && pCity->IsBorderObstacleLand())
 				{
 					return INT_MAX;
 				}
-				if (bToIsWater && pCity->GetBorderObstacleWater() > 0 && (domain == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
+				if (bToIsWater && pCity->IsBorderObstacleWater() && (domain == DOMAIN_SEA || pToPlot->needsEmbarkation(pUnit)))
 				{
 					return INT_MAX;
 				}

@@ -100,20 +100,6 @@
 			<IconIndex>0</IconIndex>
 			<IconAtlas>UNIT_ACTION_ENCAMPMENT</IconAtlas>
 		</Row>
-		<!-- Embarked repair -->
-		<Row>
-			<Type>BUILD_REPAIR_EMBARKED</Type>
-			<Description>TXT_KEY_REPAIR_IMPROVEMENT</Description>
-			<Help>TXT_KEY_REPAIR_IMPROVEMENT_HELP</Help>
-			<Recommendation>TXT_KEY_REPAIR_IMPROVEMENT_REC</Recommendation>
-			<EntityEvent>ENTITY_EVENT_BUILD</EntityEvent>
-			<HotKey>KB_P</HotKey>
-			<OrderPriority>99</OrderPriority>
-			<IconIndex>36</IconIndex>
-			<IconAtlas>UNIT_ACTION_ATLAS</IconAtlas>
-			<ShowInPedia>0</ShowInPedia>
-			<ShowInTechTree>0</ShowInTechTree>
-		</Row>
 		<!-- Polynesia UA -->
 		<Row>
 			<Type>BUILD_POLYNESIAN_BOATS</Type>

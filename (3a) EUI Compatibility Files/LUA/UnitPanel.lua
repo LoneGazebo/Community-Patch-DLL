@@ -1693,7 +1693,7 @@ function ActionToolTipHandler( control )
 
 			-- Can't upgrade because we have too many of the upgraded units
 			-- (can't use IsUnitClassMaxedOut here as it also checks the city limit)
-			if g_activePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
+			if iMaxPlayerInstances >= 0 and g_activePlayer:GetUnitClassCount(eUnitClass) >= iMaxPlayerInstances then
 
 				disabledTip:insertLocalized("TXT_KEY_UPGRADE_HELP_DISABLED_PLAYER_UNITCLASS_LIMIT", iMaxPlayerInstances)
 			end
@@ -1782,6 +1782,19 @@ function ActionToolTipHandler( control )
 		toolTip:insertLocalized( "TXT_KEY_MISSION_SPREAD_RELIGION_HELP" )
 		toolTip:insert( "----------------" )
 		toolTip:insert( L("TXT_KEY_MISSION_SPREAD_RELIGION_RESULT", Game.GetReligionName(unit:GetReligion()), unit:GetNumFollowersAfterSpread() ) .. " " )
+		if eMajorityReligion < ReligionTypes.RELIGION_PANTHEON then
+			toolTip:append( L("TXT_KEY_MISSION_MAJORITY_RELIGION_NONE") )
+		else
+			toolTip:append( L("TXT_KEY_MISSION_MAJORITY_RELIGION", Game.GetReligionName(eMajorityReligion) ) )
+		end
+	-- Inquisitors have special help text
+	elseif (action.Type == "MISSION_REMOVE_HERESY") then
+
+		local eMajorityReligion = unit:GetMajorityReligionAfterInquisitor()
+
+		toolTip:insertLocalized( "TXT_KEY_MISSION_SPREAD_RELIGION_HELP" )
+		toolTip:insert( "----------------" )
+		toolTip:insert( L("TXT_KEY_MISSION_SPREAD_RELIGION_RESULT", Game.GetReligionName(unit:GetReligion()), unit:GetNumFollowersAfterInquisitor() ) .. " " )
 		if eMajorityReligion < ReligionTypes.RELIGION_PANTHEON then
 			toolTip:append( L("TXT_KEY_MISSION_MAJORITY_RELIGION_NONE") )
 		else
@@ -1915,8 +1928,9 @@ function ActionToolTipHandler( control )
 
 	-- Delete has special help text
 	if action.Type == "COMMAND_DELETE" then
-
-		toolTip:insertLocalized( "TXT_KEY_SCRAP_HELP", unit:GetScrapGold() )
+		if unit:GetScrapGold() > 0 then
+			toolTip:insertLocalized( "TXT_KEY_SCRAP_HELP", unit:GetScrapGold() )
+		end
 	end
 
 	-- Not able to perform action
@@ -2036,6 +2050,14 @@ function ActionToolTipHandler( control )
 
 				disabledTip:insertLocalized( "TXT_KEY_MISSION_CULTURE_BOMB_DISABLED_COOLDOWN", g_activePlayer:GetCultureBombTimer() )
 
+			elseif action.Type == "COMMAND_DELETE" then
+				
+				if GameDefines.UNIT_DELETE_DISABLED == 1 then
+					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_GAME_OPTION" )
+				else
+					disabledTip:insertLocalized( "TXT_KEY_UNIT_DELETE_DISABLED_ENEMIES" )
+				end
+				
 			elseif action.DisabledHelp and action.DisabledHelp ~= "" then
 
 				disabledTip:insertLocalized( action.DisabledHelp )

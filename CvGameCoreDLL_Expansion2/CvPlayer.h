@@ -2687,6 +2687,7 @@ public:
 	void SetTurnsSinceSettledLastCity(int iValue);
 	void ChangeTurnsSinceSettledLastCity(int iChange);
 
+	int GetMinAcceptableSettleQuality() const;
 	bool HaveGoodSettlePlot(int iAreaID);
 	CvPlot* GetBestSettlePlot(const CvUnit* pUnit, CvAIOperation* pOpToIgnore=NULL, bool bForceLogging=false) const;
 	PlayerTypes GetPlayerWhoStoleMyFavoriteCitySite();
@@ -2919,7 +2920,7 @@ public:
 	virtual void AI_doTurnPost() = 0;
 	virtual void AI_doTurnUnitsPre() = 0;
 	virtual void AI_doTurnUnitsPost() = 0;
-	virtual void AI_unitUpdate() = 0;
+	virtual void AI_unitUpdate(bool bHomelandAINeedsUpdate) = 0;
 	virtual void AI_conquerCity(CvCity* pCity, bool bGift, bool bAllowSphereRemoval) = 0;
 	bool HasSameIdeology(PlayerTypes ePlayer) const;
 
@@ -2991,6 +2992,8 @@ public:
 	bool unlockedGrowthAnywhereThisTurn() const;
 
 	bool IsEarlyExpansionPhase() const;
+	bool IsPlotSafeForRoute(const CvPlot* pPlot, bool bIncludeAdjacent) const;
+	bool GetSameRouteBenefitFromTrait(const CvPlot* pPlot, RouteTypes eRoute) const;
 
 protected:
 	class ConqueredByBoolField
@@ -3542,7 +3545,7 @@ protected:
 	bool m_bPotentiallyAlive;
 	bool m_bTurnActive;
 	bool m_bAutoMoves;					// Signal that we can process the auto moves when ready.
-	bool						  m_bProcessedAutoMoves;		// Signal that we have processed the auto moves
+	bool m_bProcessedAutoMoves;		// Signal that we have processed the auto moves
 	bool m_bEndTurn;					// Signal that the player has completed their turn.  The turn will still be active until the auto-moves have been processed.
 	bool m_bDynamicTurnsSimultMode;
 	bool m_bPbemNewTurn;

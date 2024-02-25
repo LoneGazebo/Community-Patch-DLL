@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -1319,23 +1319,15 @@ int CvLuaTeam::lIsHasTech(lua_State* L)
 }
 
 //------------------------------------------------------------------------------
-//void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce);
+//void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus = false);
 int CvLuaTeam::lSetHasTech(lua_State* L)
 {
 	CvTeam* pkTeam = GetInstance(L);
 	const TechTypes eIndex = (TechTypes)lua_tointeger(L, 2);
 	const bool bNewValue = lua_toboolean(L, 3);
 	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 4);
-
-	bool bFirst = lua_toboolean(L, 4);
-	bool bAnnounce = lua_toboolean(L, 5);
-
-	if (lua_gettop(L) == 6)
-	{
-		bFirst = lua_toboolean(L, 5);
-		bAnnounce = lua_toboolean(L, 6);
-	}
-
+	bool bFirst = lua_toboolean(L, 5);
+	bool bAnnounce = lua_toboolean(L, 6);
 	const bool bNoBonus = luaL_optbool(L, 7, false);
 	pkTeam->setHasTech(eIndex, bNewValue, ePlayer, bFirst, bAnnounce, bNoBonus);
 

@@ -453,11 +453,10 @@ function GenerateTerrain()
 					if testPlot then
 						local type = testPlot:GetPlotType()
 						if type == PlotTypes.PLOT_OCEAN then -- Adjacent plot is water! Check if ocean or lake.
-							-- Have to do a manual check of area size, because lakes have not yet been defined as such.
-							local testAreaID = testPlot:GetArea();
-							local testArea = Map.GetArea(testAreaID);
-							local testArea_size = testArea:GetNumTiles();
-							if testArea_size >= 10 then
+							-- Have to do a manual check of landmass size, because lakes have not yet been defined as such.
+							local testLandmassID = testPlot:GetLandmass();
+							local testLandmassSize = Map.GetNumTilesOfLandmass(testLandmassID);
+							if testLandmassSize >= 10 then
 								adjacent_water_count = adjacent_water_count + 1;
 							end
 						end
@@ -788,18 +787,17 @@ function AssignStartingPlots:GenerateRegions()
 		self.inhabited_Height = math.ceil(iH * 0.27);
 		local fert_table, fertCount, plotCount =
 			self:MeasureStartPlacementFertilityInRectangle(self.inhabited_WestX, self.inhabited_SouthY, self.inhabited_Width, self.inhabited_Height);
-		-- AreaID -1 means ignore area IDs.
+		-- AreaID -1 means ignore landmass/area IDs.
 		local rect_table = {self.inhabited_WestX, self.inhabited_SouthY, self.inhabited_Width, self.inhabited_Height, -1, fertCount, plotCount};
 		self:DivideIntoRegions(1, fert_table, rect_table);
 		iNumCivsRemaining = iNumCivsRemaining - 1;
 	end
 
 	-- Identify the biggest landmass.
-	local biggest_area = Map.FindBiggestArea(false);
-	local iAreaID = biggest_area:GetID();
+	local iLandmassID = Map.FindBiggestLandmassID(false);
 
 	-- We'll need all eight data fields returned in the results table from the boundary finder:
-	local landmass_data = ObtainLandmassBoundaries(iAreaID);
+	local landmass_data = self:GetLandmassBoundaries(iLandmassID);
 	local iWestX = landmass_data[1];
 	local iSouthY = landmass_data[2];
 	local iEastX = landmass_data[3];
@@ -810,13 +808,30 @@ function AssignStartingPlots:GenerateRegions()
 	local wrapsY = landmass_data[8];
 
 	-- Obtain "Start Placement Fertility" of the landmass.
-	local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(iAreaID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
+	local fert_table, fertCount, plotCount = self:MeasureStartPlacementFertilityOfLandmass(iLandmassID, iWestX, iEastX, iSouthY, iNorthY, wrapsX, wrapsY);
 
 	-- Assemble the Rectangle data table:
-	local rect_table = {iWestX, iSouthY, iWidth, iHeight, iAreaID, fertCount, plotCount};
+	local rect_table = {iWestX, iSouthY, iWidth, iHeight, iLandmassID, fertCount, plotCount};
 
 	-- The data from this call is processed in to self.regionData during the process.
 	self:DivideIntoRegions(iNumCivsRemaining, fert_table, rect_table);
+
+	---[[ Printout is for debugging only. Deactivate otherwise.
+	local tempRegionData = self.regionData;
+	for i, data in ipairs(tempRegionData) do
+		print("-");
+		print("Data for Start Region #", i);
+		print("WestX:", data[1]);
+		print("SouthY:", data[2]);
+		print("Width:", data[3]);
+		print("Height:", data[4]);
+		print("LandmassID:", data[5]);
+		print("Fertility:", data[6]);
+		print("Plots:", data[7]);
+		print("Fert/Plot:", data[8]);
+		print("-");
+	end
+	--]]
 end
 -------------------------------------------------------------------------------------------------------------
 function AssignStartingPlots:GenerateCandidatePlotListsForSpecificNW()
@@ -841,33 +856,34 @@ function AssignStartingPlots:GetNumNaturalWondersToPlace()
 	return 2;
 end
 -------------------------------------------------------------------------------------------------------------
+function AssignStartingPlots:AssignCityStatesToRegions(current_cs_index)
+	local starting_region_number = 1;
+	if self.iNumCivs >= 8 then -- Civ in Britain
+		starting_region_number = 2;
+	end
+
+	local iNumCityStatesPerRegion = self:GetNumCityStatesPerRegion();
+	if iNumCityStatesPerRegion > 0 then
+		for current_region = starting_region_number, self.iNumCivs do
+			for _ = 1, iNumCityStatesPerRegion do
+				self.city_state_region_assignments[current_cs_index] = current_region;
+				-- print("-"); print("City State", current_cs_index, "assigned to Region#", current_region);
+				current_cs_index = current_cs_index + 1;
+				self.iNumCityStatesUnassigned = self.iNumCityStatesUnassigned - 1;
+			end
+		end
+	end
+
+	return current_cs_index;
+end
+-------------------------------------------------------------------------------------------------------------
 function ExtraNWEligibilityCheck(x, y)
 	-- Adding this check for Europe in AssignStartingPlots:ExaminePlotForNaturalWondersEligibility, forcing NWs to be in specific areas
 	local iW, iH = Map.GetGridSize();
 	return ((x >= iW * 0.1 and x <= iW * 0.3) and (y >= iH * 0.15 and y <= iH * 0.35)) or (x >= iW * 0.8 and y <= iH * 0.2);
 end
 -------------------------------------------------------------------------------------------------------------
-function ExtraEuropeCheck1(ASP)
-	-- Adding this check for Europe in AssignStartingPlots:AssignCityStatesToRegionsOrToUninhabited, so no CS is assigned to Britian if a civ is assigned there.
-	local iNumCityStatesPerRegion = ASP:GetNumCityStatesPerRegion();
-	local starting_region_number = 1;
-	if ASP.iNumCivs >= 8 then -- Civ in Britain
-		starting_region_number = 2;
-	end
-	local current_cs_index = 1;
-	if iNumCityStatesPerRegion > 0 then
-		for current_region = starting_region_number, ASP.iNumCivs do
-			for _ = 1, iNumCityStatesPerRegion do
-				ASP.city_state_region_assignments[current_cs_index] = current_region;
-				-- print("-"); print("City State", current_cs_index, "assigned to Region#", current_region);
-				current_cs_index = current_cs_index + 1;
-				ASP.iNumCityStatesUnassigned = ASP.iNumCityStatesUnassigned - 1;
-			end
-		end
-	end
-end
--------------------------------------------------------------------------------------------------------------
-function ExtraEuropeCheck2(ASP, x, y)
+function ExtraCityStateCheck(ASP, x, y)
 	-- Adding this check for Europe in AssignStartingPlots:CanPlaceCityStateAt, to keep CS out of British Isles when a Civ is there.
 	local iW, iH = Map.GetGridSize();
 	if ASP.iNumCivs >= 8 then
@@ -884,8 +900,7 @@ function StartPlotSystem()
 	print("Creating start plot database.");
 	local start_plot_database = AssignStartingPlots.Create();
 
-	start_plot_database.ExtraEuropeCheck1 = ExtraEuropeCheck1;
-	start_plot_database.ExtraEuropeCheck2 = ExtraEuropeCheck2;
+	start_plot_database.ExtraCityStateCheck = ExtraCityStateCheck;
 
 	start_plot_database.oldExaminePlotForNaturalWondersEligibility = start_plot_database.ExaminePlotForNaturalWondersEligibility;
 	local newExaminePlotForNaturalWondersEligibility = function (ASP, x, y)
@@ -896,16 +911,9 @@ function StartPlotSystem()
 	end
 	start_plot_database.ExaminePlotForNaturalWondersEligibility = newExaminePlotForNaturalWondersEligibility;
 
-	start_plot_database.oldAssignCityStatesToRegionsOrToUninhabited = start_plot_database.AssignCityStatesToRegionsOrToUninhabited;
-	local newAssignCityStatesToRegionsOrToUninhabited = function (ASP)
-		ASP:ExtraEuropeCheck1();
-		ASP:oldAssignCityStatesToRegionsOrToUninhabited();
-	end
-	start_plot_database.AssignCityStatesToRegionsOrToUninhabited = newAssignCityStatesToRegionsOrToUninhabited;
-
 	start_plot_database.oldCanPlaceCityStateAt = start_plot_database.CanPlaceCityStateAt;
 	local newCanPlaceCityStateAt = function (ASP, x, y, area_ID, force_it, ignore_collisions)
-		if not ASP:ExtraEuropeCheck2(x, y) then
+		if not ASP:ExtraCityStateCheck(x, y) then
 			return false;
 		end
 		return ASP:oldCanPlaceCityStateAt(x, y, area_ID, force_it, ignore_collisions);

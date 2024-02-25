@@ -485,6 +485,7 @@ public:
 	void AddReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eReligion, int iPressureChange, PlayerTypes eResponsiblePlayer=NO_PLAYER);
 	void ErodeOtherReligiousPressure(CvReligiousFollowChangeReason eReason, ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists, PlayerTypes eResponsiblePlayer=NO_PLAYER);
 
+	void SimulateErodeOtherReligiousPressure(ReligionTypes eExemptedReligion, int iErosionPercent, bool bAllowRetention, bool bLeaveAtheists);
 	void SimulateProphetSpread(ReligionTypes eReligion, int iPressure);
 	void SimulateReligiousPressure(ReligionTypes eReligion, int iPressure);
 	void ConvertPercentFollowers(ReligionTypes eToReligion, ReligionTypes eFromReligion, int iPercent);
@@ -503,6 +504,8 @@ public:
 
 	// Routines to precompute results of possible religion spreads
 	int GetNumFollowersAfterSpread(ReligionTypes eReligion, int iConversionStrength);
+	int GetNumFollowersAfterInquisitor(ReligionTypes eReligion);
+	ReligionTypes GetMajorityReligionAfterInquisitor(ReligionTypes eReligion);
 	int GetNumFollowersAfterProphetSpread(ReligionTypes eReligion, int iConversionStrength);
 	ReligionTypes GetMajorityReligionAfterSpread(ReligionTypes eReligion, int iConversionStrength);
 	ReligionTypes GetMajorityReligionAfterProphetSpread(ReligionTypes eReligion, int iConversionStrength);
@@ -579,7 +582,8 @@ public:
 	CvCity *ChooseProphetConversionCity(CvUnit* pUnit = NULL, int* piTurns = NULL) const;
 	ReligionTypes GetReligionToSpread(bool bConsiderForeign) const;
 	ReligionTypes GetFavoriteForeignReligion(bool bForInternalSpread) const;
-	int ScoreBelief(CvBeliefEntry* pEntry, bool bForBonus = false, bool bConsiderFutureTech = true) const;
+	CvWeightedVector<int> CalculatePlotWeightsForBeliefSelection(bool bConsiderExpansion) const;
+	int ScoreBelief(CvBeliefEntry* pEntry, CvWeightedVector<int> viPlotWeights, bool bForBonus = false, bool bConsiderFutureTech = true) const;
 
 private:
 #if defined(MOD_BALANCE_CORE)
@@ -600,9 +604,13 @@ private:
 	bool BuyAnyAvailableFaithBuilding();
 
 	int ScoreBeliefAtPlot(CvBeliefEntry* pEntry, CvPlot* pPlot, bool bConsiderFutureTech) const;
+	int ScorePantheonBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const;
 	int ScoreBeliefAtCity(CvBeliefEntry* pEntry, CvCity* pCity) const;
 	int ScoreBeliefForPlayer(CvBeliefEntry* pEntry, bool bReturnConquest = false, bool bReturnCulture = false, bool bReturnScience = false, bool bReturnDiplo = false) const;
-	int GetValidPlotYield(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes iI, bool bConsiderFutureTech) const;
+	int ScorePantheonBeliefForPlayer(CvBeliefEntry* pEntry) const;
+	int GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot, YieldTypes iI, bool bConsiderFutureTech) const;
+
+	int ScoreYieldForReligionTimes100(YieldTypes eYield) const;
 
 	int ScoreCityForMissionary(CvCity* pCity, CvUnit* pUnit, ReligionTypes eSpreadReligion) const;
 	int ScoreCityForInquisitorOffensive(CvCity* pCity, CvUnit* pUnit, ReligionTypes eMyReligion) const;

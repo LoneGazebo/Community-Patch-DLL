@@ -602,7 +602,7 @@ void CvPlayerEspionage::ProcessSpy(uint uiSpyIndex)
 						if (pCityEspionage->HasCounterSpy())
 						{
 							CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(pCityEspionage->GetCounterSpyFocus());
-							if (!pkEventChoiceInfo->isSecretMission())
+							if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
 							{
 								const char* szMissionText = pkEventChoiceInfo->GetHelp();
 								CvNotifications* pNotifications = m_pPlayer->GetNotifications();
@@ -2720,7 +2720,7 @@ void CvPlayerEspionage::ChangeCounterspyMission(uint uiSpyIndex, CityEventChoice
 
 				// notify other players
 				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(ePreviousFocus);
-				if (!pkEventChoiceInfo->isSecretMission())
+				if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
 				{
 					const char* szMissionText = pkEventChoiceInfo->GetHelp();
 					for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
@@ -2753,7 +2753,7 @@ void CvPlayerEspionage::ChangeCounterspyMission(uint uiSpyIndex, CityEventChoice
 
 				// notify other players
 				CvModEventCityChoiceInfo* pkEventChoiceInfo = GC.getCityEventChoiceInfo(eNewMission);
-				if (!pkEventChoiceInfo->isSecretMission())
+				if (pkEventChoiceInfo && !pkEventChoiceInfo->isSecretMission())
 				{
 					const char* szMissionText = pkEventChoiceInfo->GetHelp();
 					for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
@@ -7015,7 +7015,7 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 					strNotification << m_pCity->getNameKey();
 					strNotification << pPassiveBonusInfo->GetHelp();
 					CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_PASSIVE_BONUS_S");
-					pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary, m_pCity->getX(), m_pCity->getY(), 0);
+					pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary, m_pCity->getX(), m_pCity->getY(), 0);
 				}
 			}
 		}
@@ -7055,7 +7055,7 @@ void CvCityEspionage::AddNetworkPoints(PlayerTypes eSpyOwner, CvEspionageSpy* pS
 			strNotification << iNumMissionsNowActive;
 			strNotification << strMissions;
 			CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_NEW_MISSIONS_AVAILABLE_S");
-			pNotifications->Add(NOTIFICATION_SPY_RIG_ELECTION_SUCCESS, strNotification.toUTF8(), strSummary, m_pCity->getX(), m_pCity->getY(), 0);
+			pNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strNotification.toUTF8(), strSummary, m_pCity->getX(), m_pCity->getY(), 0);
 		}
 	}
 }

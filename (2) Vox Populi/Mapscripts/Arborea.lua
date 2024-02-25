@@ -159,7 +159,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 	-- the result until the largest landmass occupies 84% or more of the total land.
 	local done = false;
 	local iAttempts = 0;
-	local iWaterThreshold, biggest_area, iNumTotalLandTiles, iNumBiggestAreaTiles, iBiggestID;
+	local iWaterThreshold;
+	local iBiggestID;
 	while not done do
 		local grain_dice = Map.Rand(7, "Continental Grain roll - LUA Pangaea");
 		if grain_dice < 4 then
@@ -176,7 +177,7 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 		self:InitFractal{continent_grain = grain_dice, rift_grain = rift_dice};
 		iWaterThreshold = self.continentsFrac:GetHeight(water_percent);
 
-		iNumTotalLandTiles = 0;
+		local iNumTotalLandTiles = 0;
 		for x = 0, self.iNumPlotsX - 1 do
 			for y = 0, self.iNumPlotsY - 1 do
 				local i = y * self.iNumPlotsX + x;
@@ -193,12 +194,11 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 		SetPlotTypes(self.plotTypes);
 		Map.RecalculateAreas();
 
-		biggest_area = Map.FindBiggestArea(false);
-		iNumBiggestAreaTiles = biggest_area:GetNumTiles();
+		iBiggestID = Map.FindBiggestLandmassID(false);
+		local iNumBiggestLandmassTiles = Map.GetNumTilesOfLandmass(iBiggestID);
 		-- Now test the biggest landmass to see if it is large enough.
-		if iNumBiggestAreaTiles >= iNumTotalLandTiles * 0.84 then
+		if iNumBiggestLandmassTiles >= iNumTotalLandTiles * 0.84 then
 			done = true;
-			iBiggestID = biggest_area:GetID();
 		end
 		iAttempts = iAttempts + 1;
 
@@ -206,8 +206,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 		print("-"); print("--- Pangaea landmass generation, Attempt#", iAttempts, "---");
 		print("- This attempt successful: ", done);
 		print("- Total Land Plots in world:", iNumTotalLandTiles);
-		print("- Land Plots belonging to biggest landmass:", iNumBiggestAreaTiles);
-		print("- Percentage of land belonging to Pangaea: ", 100 * iNumBiggestAreaTiles / iNumTotalLandTiles);
+		print("- Land Plots belonging to biggest landmass:", iNumBiggestLandmassTiles);
+		print("- Percentage of land belonging to Pangaea: ", 100 * iNumBiggestLandmassTiles / iNumTotalLandTiles);
 		print("- Continent Grain for this attempt: ", grain_dice);
 		print("- Rift Grain for this attempt: ", rift_dice);
 		print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
@@ -291,8 +291,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 				local i = y * self.iNumPlotsX + x;
 				if self.plotTypes[i] == PlotTypes.PLOT_HILLS or self.plotTypes[i] == PlotTypes.PLOT_LAND then
 					local plot = Map.GetPlot(x, y);
-					local iAreaID = plot:GetArea();
-					if iAreaID == iBiggestID then
+					local iLandmassID = plot:GetLandmass();
+					if iLandmassID == iBiggestID then
 						bFoundPangaea = true;
 						iStartRow = y + 1;
 						if iStartRow < self.iNumPlotsY - 4 then -- Enough rows of water space to do a shift.
@@ -314,8 +314,8 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 				local i = y * self.iNumPlotsX + x;
 				if self.plotTypes[i] == PlotTypes.PLOT_HILLS or self.plotTypes[i] == PlotTypes.PLOT_LAND then
 					local plot = Map.GetPlot(x, y);
-					local iAreaID = plot:GetArea();
-					if iAreaID == iBiggestID then
+					local iLandmassID = plot:GetLandmass();
+					if iLandmassID == iBiggestID then
 						bFoundPangaea = true;
 						iStartRow = y - 1;
 						if iStartRow > 3 then -- Enough rows of water space to do a shift.
@@ -327,7 +327,7 @@ function PangaeaFractalWorld:GeneratePlotTypes()
 			end
 			-- Check to see if we've found the Pangaea.
 			if bFoundPangaea then
-				break
+				break;
 			end
 		end
 	end
@@ -495,7 +495,6 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 	-- the result until the largest landmass occupies 58% or less of the total land.
 	local done = false;
 	local iAttempts = 0;
-	local iWaterThreshold, biggest_area, iNumTotalLandTiles, iNumBiggestAreaTiles;
 	while not done do
 		local grain_dice = Map.Rand(7, "Continental Grain roll - LUA Continents");
 		if grain_dice < 4 then
@@ -510,9 +509,9 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 
 		self.continentsFrac = nil;
 		self:InitFractal{continent_grain = grain_dice, rift_grain = rift_dice};
-		iWaterThreshold = self.continentsFrac:GetHeight(water_percent);
+		local iWaterThreshold = self.continentsFrac:GetHeight(water_percent);
 
-		iNumTotalLandTiles = 0;
+		local iNumTotalLandTiles = 0;
 		for x = 0, self.iNumPlotsX - 1 do
 			for y = 0, self.iNumPlotsY - 1 do
 				local i = y * self.iNumPlotsX + x;
@@ -532,10 +531,10 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 		SetPlotTypes(self.plotTypes);
 		Map.RecalculateAreas();
 
-		biggest_area = Map.FindBiggestArea(false);
-		iNumBiggestAreaTiles = biggest_area:GetNumTiles();
+		local iBiggestID = Map.FindBiggestLandmassID(false);
+		local iNumBiggestLandmassTiles = Map.GetNumTilesOfLandmass(iBiggestID);
 		-- Now test the biggest landmass to see if it is large enough.
-		if iNumBiggestAreaTiles <= iNumTotalLandTiles * 0.58 then
+		if iNumBiggestLandmassTiles <= iNumTotalLandTiles * 0.58 then
 			done = true;
 		end
 		iAttempts = iAttempts + 1;
@@ -544,8 +543,8 @@ function ContinentsFractalWorld:GeneratePlotTypes()
 		print("-"); print("--- Continents landmass generation, Attempt#", iAttempts, "---");
 		print("- This attempt successful: ", done);
 		print("- Total Land Plots in world:", iNumTotalLandTiles);
-		print("- Land Plots belonging to biggest landmass:", iNumBiggestAreaTiles);
-		print("- Percentage of land belonging to biggest: ", 100 * iNumBiggestAreaTiles / iNumTotalLandTiles);
+		print("- Land Plots belonging to biggest landmass:", iNumBiggestLandmassTiles);
+		print("- Percentage of land belonging to biggest: ", 100 * iNumBiggestLandmassTiles / iNumTotalLandTiles);
 		print("- Continent Grain for this attempt: ", grain_dice);
 		print("- Rift Grain for this attempt: ", rift_dice);
 		print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");

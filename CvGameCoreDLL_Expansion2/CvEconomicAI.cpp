@@ -2772,8 +2772,12 @@ void TestExplorationPlot(CvPlot* pPlot, CvPlayer* pPlayer, bool bAllowShallowWat
 		if (iScore <= 0)
 			return;
 
-		if (!bAllowShallowWater && pPlayer->getCapitalCity() && !pPlayer->getCapitalCity()->HasAccessToArea(pPlot->getArea()))
-			return;
+		if (!MOD_BALANCE_VP && !bAllowShallowWater)
+		{
+			CvCity* pCapital = pPlayer->getCapitalCity();
+			if (pCapital && !pCapital->HasAccessToArea(pPlot->getArea()))
+				return;
+		}
 
 		// add an entry for this plot
 		landTargets.push_back(SPlotWithScore(pPlot, iScore));

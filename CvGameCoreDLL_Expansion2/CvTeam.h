@@ -350,11 +350,7 @@ public:
 	bool isTerrainTrade(TerrainTypes eIndex) const;
 	void changeTerrainTradeCount(TerrainTypes eIndex, int iChange);
 
-#if defined(MOD_BALANCE_CORE)
 	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce, bool bNoBonus = false);
-#else
-	void setHasTech(TechTypes eIndex, bool bNewValue, PlayerTypes ePlayer, bool bFirst, bool bAnnounce);
-#endif
 	CvTeamTechs* GetTeamTechs() const;
 
 	int GetTechProgressPercent() const;
@@ -649,17 +645,13 @@ protected:
 	void updateTechShare();
 
 	void testCircumnavigated();
-#if defined(MOD_BALANCE_CORE)
 	void processTech(TechTypes eTech, int iChange, bool bNoBonus = false);
-#else
-	void processTech(TechTypes eTech, int iChange);
-#endif
 	void cancelDefensivePacts();
 	void announceTechToPlayers(TechTypes eIndex, bool bPartial = false);
 
 	void DoNowAtWarOrPeace(TeamTypes eTeam, bool bWar);
 
-	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, bool bMinorAllyPact = false);
+	void DoDeclareWar(PlayerTypes eOriginatingPlayer, bool bAggressor, TeamTypes eTeam, bool bDefensivePact, TeamTypes eDefensivePactTeam = NO_TEAM, bool bMinorAllyPact = false);
 	void DoMakePeace(PlayerTypes eOriginatingPlayer, bool bPacifier, TeamTypes eTeam, bool bBumpUnits, bool bSuppressNotification = false);
 };
 

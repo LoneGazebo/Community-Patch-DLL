@@ -53,7 +53,7 @@ BuildTemp/
 Build/
 Packages/
 Vox Populi Installer Files/(1) Community Patch/
-Vox Populi Installer Files/(1) Community Patch (v 126)/
+Vox Populi Installer Files/(1) Community Patch (v 127)/
 Vox Populi Installer Files/(2) Vox Populi/
 Vox Populi Installer Files/(2) Vox Populi (v 17)/
 Vox Populi Installer Files/(3a) VP - EUI Compatibility Files/
@@ -67,7 +67,6 @@ Vox Populi Installer Files/LUA for (2) VP/LUA/
 Vox Populi Installer Files/Output/
 
 #just to be safe, let's ignore the next 10 releases too
-Vox Populi Installer Files/(1) Community Patch (v 127)/
 Vox Populi Installer Files/(1) Community Patch (v 128)/
 Vox Populi Installer Files/(1) Community Patch (v 129)/
 Vox Populi Installer Files/(1) Community Patch (v 130)/
@@ -77,6 +76,7 @@ Vox Populi Installer Files/(1) Community Patch (v 133)/
 Vox Populi Installer Files/(1) Community Patch (v 134)/
 Vox Populi Installer Files/(1) Community Patch (v 135)/
 Vox Populi Installer Files/(1) Community Patch (v 136)/
+Vox Populi Installer Files/(1) Community Patch (v 137)/
 
 #ignore clang build intermediates
 clang-build/

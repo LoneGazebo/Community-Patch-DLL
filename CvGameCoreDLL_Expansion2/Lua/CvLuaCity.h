@@ -1,5 +1,5 @@
 /*	-------------------------------------------------------------------------------------------------------
-	© 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
+	ï¿½ 1991-2012 Take-Two Interactive Software and its subsidiaries.  Developed by Firaxis Games.  
 	Sid Meier's Civilization V, Civ, Civilization, 2K Games, Firaxis Games, Take-Two Interactive Software 
 	and their respective logos are all trademarks of Take-Two interactive Software, Inc.  
 	All other marks and trademarks are the property of their respective owners.  
@@ -425,6 +425,8 @@ protected:
 
 	static int lIsBlockaded(lua_State* L);
 	static int lIsMined(lua_State* L);
+	static int lIsBorderObstacleLand(lua_State* L);
+	static int lIsBorderObstacleWater(lua_State* L);
 
 	static int lGetWeLoveTheKingDayCounter(lua_State* L);
 	static int lSetWeLoveTheKingDayCounter(lua_State* L);
@@ -552,6 +554,7 @@ protected:
 	static int lRangeCombatDamage(lua_State* L);
 	static int lGetAirStrikeDefenseDamage(lua_State* L);
 	static int lGetMultiAttackBonusCity(lua_State* L);
+	static int lGetRangeStrikeModifierFromEspionage(lua_State* L);
 
 	static int lIsWorkingPlot(lua_State* L);
 	static int lAlterWorkingPlot(lua_State* L);

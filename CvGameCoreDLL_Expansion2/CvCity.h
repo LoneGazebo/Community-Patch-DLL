@@ -240,7 +240,7 @@ public:
 	int getBuyPlotDistance() const;
 	int getWorkPlotDistance(int iChange = 0) const;
 	int GetNumWorkablePlots(int iChange = 0) const;
-	bool IsWithinWorkRange(CvPlot* pPlot) const;
+	bool IsWithinWorkRange(const CvPlot* pPlot) const;
 
 	void clearWorkingOverride(int iIndex);
 	int countNumImprovedPlots(ImprovementTypes eImprovement = NO_IMPROVEMENT) const;
@@ -982,10 +982,12 @@ public:
 #if defined(MOD_BALANCE_CORE)
 	void ChangeBorderObstacleCity(int iChange);
 	int GetBorderObstacleLand() const;
+	bool IsBorderObstacleLand() const;
 	void SetBorderObstacleCity(int iValue);
 
 	void ChangeBorderObstacleWater(int iChange);
 	int GetBorderObstacleWater() const;
+	bool IsBorderObstacleWater() const;
 	void SetBorderObstacleWater(int iValue);
 
 	void ChangeDeepWaterTileDamage(int iChange);
@@ -1545,6 +1547,7 @@ public:
 	void SetCheapestPlotInfluenceDistance(int iValue);
 	void DoUpdateCheapestPlotInfluenceDistance();
 	int calculateInfluenceDistance(CvPlot* pDest, int iMaxRange) const;
+	void fixBonusFromMinors(bool bRemove);
 
 	// End plot acquisition
 

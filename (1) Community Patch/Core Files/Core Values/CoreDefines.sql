@@ -101,6 +101,9 @@ INSERT INTO Defines(Name, Value) SELECT 'BLOCKADED_CITY_ATTACK_MODIFIER', 0;
 UPDATE Defines SET Value = -50 WHERE Name = 'AIR_SWEEP_INTERCEPTION_DAMAGE_MOD';
 UPDATE Defines SET Value = 10 WHERE Name = 'BONUS_PER_ADJACENT_FRIEND';
 
+-- CP changed the wounded penalty from damage penalty to CS penalty. Adjust accordingly so it's actually 1% per 3HP lost.
+UPDATE Defines SET Value = 34 WHERE Name = 'WOUNDED_DAMAGE_MULTIPLIER';
+
 -- AI combat tuning knobs
 
 -- this controls how much damage an attack needs to inflict to be considered worthwhile

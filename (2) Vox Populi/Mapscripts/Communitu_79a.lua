@@ -335,7 +335,7 @@ function MapGlobals:New()
 	else
 		print("Map Starts: Largest Continent");
 		mglobal.offsetAtlanticPercent = 0.35; -- Percent of land to divide at the Atlantic Ocean
-		mglobal.percentLargestContinent = 0.46; -- Eurasia must be this percent of total land (ensures citystates can appear there)
+		mglobal.percentLargestContinent = 0.60; -- Eurasia must be this percent of total land (ensures citystates can appear there)
 		mglobal.terraConnectWeight = 10; -- if Eurasia is too small, connect sub-continents with this (size/distance) from Eurasia
 		mglobal.offshoreCS = 0.75; -- Percent of city states on uninhabited islands
 		mglobal.numNaturalWonders = Round(1.25 * mglobal.numNaturalWonders); -- extra wonders for larger map sizes
@@ -563,8 +563,8 @@ function MapGlobals:New()
 		end
 		------------------------------------------------------------------------------
 		function BuffIslands(ASP)
-			local biggestAreaSize = Map.FindBiggestArea(false):GetNumTiles();
-			if biggestAreaSize < 20 then
+			local biggestLandmassSize = Map.GetNumTilesOfLandmass(Map.FindBiggestLandmassID(false));
+			if biggestLandmassSize < 20 then
 				-- Skip on archipalego maps
 				return;
 			end
@@ -597,12 +597,12 @@ function MapGlobals:New()
 				local plotType = plot:GetPlotType();
 				local terrainType = plot:GetTerrainType();
 				local featureType = plot:GetFeatureType();
-				local area = plot:Area();
-				local areaSize = area:GetNumTiles();
+				local landmassID = plot:GetLandmass();
+				local landmassSize = Map.GetNumTilesOfLandmass(landmassID);
 				if (plotType == PlotTypes.PLOT_HILLS or plotType == PlotTypes.PLOT_LAND) and
 						plot:GetResourceType() == -1 and
-						IsBetween(1, areaSize, 0.05 * biggestAreaSize) and
-						not islandAreaBuffed[area:GetID()] then
+						IsBetween(1, landmassSize, 0.05 * biggestLandmassSize) and
+						not islandAreaBuffed[landmassID] then
 					local resID = GetRandomWeighted(resWeights);
 					local resNum = 1;
 					if resID ~= ASP.stone_ID then
@@ -612,9 +612,9 @@ function MapGlobals:New()
 						end
 					end
 					if resNum > 0 then
-						islandAreaBuffed[area:GetID()] = true
+						islandAreaBuffed[landmassID] = true;
 						if 25 >= Map.Rand(100, "BuffIslands Chance - Lua") then
-							-- adjust terrain/feature for resource about to be placed
+							-- Adjust terrain/feature for resource about to be placed
 							if resID == ASP.stone_ID then
 								if featureType == FeatureTypes.FEATURE_JUNGLE or featureType == FeatureTypes.FEATURE_FOREST then
 									plot:SetFeatureType(FeatureTypes.NO_FEATURE);
@@ -663,8 +663,8 @@ function MapGlobals:New()
 
 			-- Micro-climates for tiny volcanic islands
 			if not plot:IsMountain() and (plotTerrainID == TerrainTypes.TERRAIN_PLAINS or plotTerrainID == TerrainTypes.TERRAIN_GRASS) then
-				local areaSize = plot:Area():GetNumTiles();
-				if areaSize <= 5 and 6 - areaSize >= Map.Rand(5, "Add Island Features - Lua") then
+				local landmassSize = Map.GetNumTilesOfLandmass(plot:GetLandmass());
+				if landmassSize <= 6 - math.max(1, Map.Rand(5, "Add Island Features - Lua")) then
 					local zone = elevationMap:GetZone(y);
 					if zone == MG.NEQUATOR or zone == MG.SEQUATOR then
 						for nearPlot in Plot_GetPlotsInCircle(plot, 1) do
@@ -1189,10 +1189,10 @@ function MapGlobals:New()
 			print("Map Generation - Fix Tile Graphics");
 			ASP:AdjustTiles();
 
-			local largestLand = Map.FindBiggestArea(false);
+			local largestLandmassID = Map.FindBiggestLandmassID(false);
 			if Map.GetCustomOption(5) == 1 then
 				-- Biggest continent placement
-				if largestLand:GetNumTiles() < 0.25 * Map.GetLandPlots() then
+				if Map.GetNumTilesOfLandmass(largestLandmassID) < 0.25 * Map.GetLandPlots() then
 					print("AI Map Strategy - Offshore expansion with navy bias");
 					-- Tell the AI that we should treat this as a offshore expansion map with naval bias
 					Map.ChangeAIMapHint(4 + 1);
@@ -1201,7 +1201,7 @@ function MapGlobals:New()
 					-- Tell the AI that we should treat this as a offshore expansion map
 					Map.ChangeAIMapHint(4);
 				end
-			elseif largestLand:GetNumTiles() < 0.25 * Map.GetLandPlots() then
+			elseif Map.GetNumTilesOfLandmass(largestLandmassID) < 0.25 * Map.GetLandPlots() then
 				print("AI Map Strategy - Navy bias");
 				-- Tell the AI that we should treat this as a map with naval bias
 				Map.ChangeAIMapHint(1);
@@ -1226,8 +1226,8 @@ end
 function GetMapScriptInfo()
 	local world_age, temperature, rainfall, sea_level = GetCoreMapOptions();
 	return {
-		Name = "Communitu_79a v3.0.2",
-		Description = "Communitas mapscript for Vox Populi (version 4.3+)",
+		Name = "Communitu_79a v3.1.0",
+		Description = "Communitas mapscript for Vox Populi (version 4.5+)",
 		IsAdvancedMap = false,
 		SupportsMultiplayer = true,
 		IconIndex = 1,
@@ -2974,7 +2974,7 @@ function GenerateIslands()
 				local numAdjacentLand = 0;
 				-- Don't fill river deltas with land
 				for nearPlot in Plot_GetPlotsInCircle(plot, 1) do
-					if nearPlot:GetPlotType() ~= PlotTypes.PLOT_OCEAN and nearPlot:Area():GetNumTiles() >= 10 then
+					if nearPlot:GetPlotType() ~= PlotTypes.PLOT_OCEAN and Map.GetNumTilesOfLandmass(nearPlot:GetLandmass()) >= 10 then
 						numAdjacentLand = numAdjacentLand + 1;
 						if numAdjacentLand > 1 then
 							isValid = false;
@@ -3824,8 +3824,8 @@ function Plot_AddMainFeatures(plot, zeroTreesThreshold, jungleThreshold)
 
 	-- Micro-climates for tiny volcanic islands
 	if not plot:IsMountain() and (plotTerrainID == TerrainTypes.TERRAIN_PLAINS or plotTerrainID == TerrainTypes.TERRAIN_GRASS) then
-		local areaSize = plot:Area():GetNumTiles();
-		if areaSize <= 6 - math.max(1, Map.Rand(5, "Add Island Features - Lua")) then
+		local landmassSize = Map.GetNumTilesOfLandmass(plot:GetLandmass());
+		if landmassSize <= 6 - math.max(1, Map.Rand(5, "Add Island Features - Lua")) then
 			local zone = elevationMap:GetZone(y);
 			if zone == MG.NEQUATOR or zone == MG.SEQUATOR then
 				for nearPlot in Plot_GetPlotsInCircle(plot, 1) do

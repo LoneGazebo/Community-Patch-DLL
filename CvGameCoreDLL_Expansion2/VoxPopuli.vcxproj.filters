@@ -655,6 +655,7 @@
   <ItemGroup>
     <None Include="CvGameCoreDLL.def" />
     <None Include="NatvisFile.natvis" />
+    <None Include="GAMECORE_OVERVIEW.md" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="interface">

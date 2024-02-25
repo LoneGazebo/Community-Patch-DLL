@@ -56,7 +56,7 @@ SET Text = 'Unique Assyrian replacement for the {TXT_KEY_BUILDING_NATIONAL_COLLE
 WHERE Tag = 'TXT_KEY_BUILDING_ROYAL_LIBRARY_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Unique Assyrian support Unit. Nearby owned Units gain +40% [ICON_STRENGTH] Combat Strength versus Cities if this Unit is adjacent to an enemy City, or +20% if this Unit is two tiles from an enemy City. Starts with [COLOR_POSITIVE_TEXT]Medic[ENDCOLOR] and [COLOR_POSITIVE_TEXT]Medic II[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Cannot attack or defend itself.[ENDCOLOR][NEWLINE][NEWLINE]May only have [COLOR_POSITIVE_TEXT]2[ENDCOLOR] Siege Towers active at one time.'
+SET Text = 'Unique Assyrian support Unit. Nearby owned Units gain +40% [ICON_STRENGTH] Combat Strength versus Cities if this Unit is adjacent to an enemy City, or +20% if this Unit is two tiles from an enemy City. Starts with [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC}[ENDCOLOR] and [COLOR_POSITIVE_TEXT]{TXT_KEY_PROMOTION_MEDIC_II}[ENDCOLOR]. [COLOR_NEGATIVE_TEXT]Cannot attack or defend itself.[ENDCOLOR][NEWLINE][NEWLINE]May only have [COLOR_POSITIVE_TEXT]2[ENDCOLOR] Siege Towers active at one time.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_ASSYRIAN_SIEGE_TOWER';
 
 UPDATE Language_en_US
@@ -201,11 +201,11 @@ SET Text = 'Unique Celtic replacement for the {TXT_KEY_BUILDING_CIRCUS}. In addi
 WHERE Tag = 'TXT_KEY_BUILDING_CEILIDH_HALL_STRATEGY';
 
 UPDATE Language_en_US
-SET Text = 'Unique Celtic {TXT_KEY_UNIT_SPEARMAN} that excels at hills, tundra, and snow warfare. Moves at double speed on hills, tundra, and snow, and additionally gains a [ICON_STRENGTH] Combat Strength bonus if these tiles are featureless. Consumes no [ICON_MOVES] Moves when pillaging, and gains 200% of the opponent''s [ICON_STRENGTH] Combat Strength as [ICON_PEACE] Faith when defeating an enemy Unit. Does not start with [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_FORMATION_1}[ENDCOLOR].'
+SET Text = 'Unique Celtic {TXT_KEY_UNIT_SPEARMAN} that excels at hill, tundra, and snow warfare. Moves at double speed on hill, tundra, and snow, and additionally gains a [ICON_STRENGTH] Combat Strength bonus if these tiles are featureless. Consumes no [ICON_MOVES] Moves when pillaging, and gains 200% of the opponent''s [ICON_STRENGTH] Combat Strength as [ICON_PEACE] Faith when defeating an enemy Unit. Does not start with [COLOR_NEGATIVE_TEXT]{TXT_KEY_PROMOTION_FORMATION_1}[ENDCOLOR].'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_CELT_PICTISH_WARRIOR';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_CELT_PICTISH_WARRIOR} is the Celtic unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It moves and fights better on hills, tundra, and snow; can pillage tiles without spending [ICON_MOVES] movement; and gains [ICON_PEACE] Faith when defeating enemy units. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_MINING_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_SPEARMAN}, but does not start with the {TXT_KEY_PROMOTION_FORMATION_1} promotion, which makes it weaker against mounted units.'
+SET Text = 'The {TXT_KEY_UNIT_CELT_PICTISH_WARRIOR} is the Celtic unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It moves and fights better on hill, tundra, and snow; can pillage tiles without spending [ICON_MOVES] movement; and gains [ICON_PEACE] Faith when defeating enemy units. It is available with the discovery of [COLOR_CYAN]{TXT_KEY_TECH_MINING_TITLE}[ENDCOLOR], earlier than the {TXT_KEY_UNIT_SPEARMAN}, but does not start with the {TXT_KEY_PROMOTION_FORMATION_1} promotion, which makes it weaker against mounted units.'
 WHERE Tag = 'TXT_KEY_UNIT_CELT_PICTISH_WARRIOR_STRATEGY';
 
 --------------------
@@ -319,7 +319,7 @@ SET Text = 'La Grande Armée'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE_SHORT';
 
 UPDATE Language_en_US
-SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_WAR] Unit Supply. +1 [ICON_CULTURE] Culture in every City for every 10 Military Units. +25% [ICON_SILVER_FIST] Unit Supply from [ICON_CITIZEN] Population.'
+SET Text = 'Melee and Gunpowder Units may enlist defeated enemies, which do not consume [ICON_WAR] Unit Supply. +1 [ICON_CULTURE] Culture in every City for every 10 Military Units. +25% [ICON_SILVER_FIST] Military Supply from Population.'
 WHERE Tag = 'TXT_KEY_TRAIT_ENHANCED_CULTURE';
 
 UPDATE Language_en_US
@@ -449,11 +449,11 @@ SET Text = '[ICON_INFLUENCE] Influence degrades at half and recovers at twice th
 WHERE Tag = 'TXT_KEY_TRAIT_CITY_STATE_FRIENDSHIP';
 
 UPDATE Language_en_US
-SET Text = 'Unique Greek {TXT_KEY_UNIT_SPEARMAN} that is stronger and produce double the [ICON_GREAT_GENERAL] Great General Points from combat than normal. Gains [ICON_STRENGTH] Combat Strength for each adjacent friendly land unit.'
+SET Text = 'Unique Greek {TXT_KEY_UNIT_SPEARMAN} that is stronger and produce double the [ICON_GREAT_GENERAL] Great General Points from combat than normal. Gains [ICON_STRENGTH] Combat Strength for each adjacent owned land unit.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_HOPLITE';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more friendly land units, and generates[ICON_GREAT_GENERAL] Great Generals faster through combat.'
+SET Text = 'The {TXT_KEY_UNIT_GREEK_HOPLITE} is the Greek unique unit, replacing the {TXT_KEY_UNIT_SPEARMAN}. It is stronger when adjacent to more owned land units, and generates[ICON_GREAT_GENERAL] Great Generals faster through combat.'
 WHERE Tag = 'TXT_KEY_UNIT_GREEK_HOPLITE_STRATEGY';
 
 --------------------
@@ -495,7 +495,7 @@ SET Text = 'Pata-Pata'
 WHERE Tag = 'TXT_KEY_IMPROVEMENT_TERRACE_FARM';
 
 UPDATE Language_en_US
-SET Text = 'Can only be built on hills. +1 [ICON_FOOD] Food for each adjacent Mountain or {TXT_KEY_IMPROVEMENT_TERRACE_FARM}. All adjacent Farms gain +1 [ICON_FOOD] Food.'
+SET Text = 'Can only be built on Hill. +1 [ICON_FOOD] Food for each adjacent Mountain or {TXT_KEY_IMPROVEMENT_TERRACE_FARM}. All adjacent Farms gain +1 [ICON_FOOD] Food.'
 WHERE Tag = 'TXT_KEY_CIV5_IMPROVEMENTS_TERRACE_FARM_HELP';
 
 UPDATE Language_en_US
@@ -955,11 +955,11 @@ SET Text = 'Adobe, the Spanish word for mud brick, is a natural building materia
 WHERE Tag = 'TXT_KEY_CIV5_BUILDING_MUD_PYRAMID_MOSQUE_PEDIA';
 
 UPDATE Language_en_US
-SET Text = 'Unique Songhai {TXT_KEY_UNIT_KNIGHT} that excels at raiding cities and flanking enemies. Does not have a [ICON_STRENGTH] Combat Strength penalty and steals [ICON_GOLD] Gold when attacking Cities. Can use enemy roads.'
+SET Text = 'Unique Songhai {TXT_KEY_UNIT_KNIGHT} that excels at raiding cities and flanking enemies. Does not have a [ICON_STRENGTH] Combat Strength penalty and steals [ICON_GOLD] Gold when attacking Cities. Can use enemy roads and railroads.'
 WHERE Tag = 'TXT_KEY_UNIT_HELP_MUSLIM_CAVALRY';
 
 UPDATE Language_en_US
-SET Text = 'The {TXT_KEY_UNIT_SONGHAI_MUSLIMCAVALRY} is the Songhai unique unit, replacing the {TXT_KEY_UNIT_KNIGHT}. It has a significant flanking bonus and can use enemy roads against them. It does not suffer from the [ICON_STRENGTH] Combat Strength penalty a regular {TXT_KEY_UNIT_KNIGHT} has when attacking cities, and can steal [ICON_GOLD] Gold based on how much damage it deals to cities.'
+SET Text = 'The {TXT_KEY_UNIT_SONGHAI_MUSLIMCAVALRY} is the Songhai unique unit, replacing the {TXT_KEY_UNIT_KNIGHT}. It has a significant flanking bonus and can use enemy roads/railroads against them. It does not suffer from the [ICON_STRENGTH] Combat Strength penalty a regular {TXT_KEY_UNIT_KNIGHT} has when attacking cities, and can steal [ICON_GOLD] Gold based on how much damage it deals to cities.'
 WHERE Tag = 'TXT_KEY_UNIT_SONGHAI_MUSLIMCAVALRY_STRATEGY';
 
 --------------------

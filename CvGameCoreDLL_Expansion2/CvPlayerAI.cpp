@@ -257,7 +257,7 @@ void CvPlayerAI::AI_doTurnUnitsPost()
 }
 
 //	---------------------------------------------------------------------------
-void CvPlayerAI::AI_unitUpdate()
+void CvPlayerAI::AI_unitUpdate(bool bUpdateHomelandAI)
 {
 	ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 	if(pkScriptSystem)
@@ -279,7 +279,7 @@ void CvPlayerAI::AI_unitUpdate()
 	{
 		CvUnit::dispatchingNetMessage(true);
 		GetTacticalAI()->UpdateVisibility();
-		GetHomelandAI()->Update();
+		GetHomelandAI()->Update(bUpdateHomelandAI);
 		GetTacticalAI()->CleanUp();
 		CvUnit::dispatchingNetMessage(false);
 	}
@@ -288,7 +288,7 @@ void CvPlayerAI::AI_unitUpdate()
 		// Now let the tactical AI run.  Putting it after the operations update allows units who have
 		// just been handed off to the tactical AI to get a move in the same turn they switch between
 		GetTacticalAI()->Update();
-		GetHomelandAI()->Update();
+		GetHomelandAI()->Update(true);
 		GetTacticalAI()->CleanUp();
 	}
 }
@@ -1772,7 +1772,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	int iLoop = 0;
 	for (CvUnit* pLoopUnit = firstUnit(&iLoop); pLoopUnit; pLoopUnit = nextUnit(&iLoop))
 	{
-		if (pLoopUnit->IsGreatGeneral())
+		if (pLoopUnit != pGreatGeneral && pLoopUnit->IsGreatGeneral())
 		{
 			switch (pLoopUnit->GetGreatPeopleDirective())
 			{
@@ -1806,7 +1806,7 @@ GreatPeopleDirectiveTypes CvPlayerAI::GetDirectiveGeneral(CvUnit* pGreatGeneral)
 	{
 		CvPlot* pTargetPlot = FindBestCultureBombPlot(pGreatGeneral, eCitadel, vDummy, false);
 		if (pTargetPlot)
-			return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
+		return GREAT_PEOPLE_DIRECTIVE_USE_POWER;
 	}
 	
 	// default
@@ -2574,6 +2574,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 
 	// we may build in one of our border tiles or in enemy tiles adjacent to them
 	std::set<int> setCandidates;
+	ImprovementTypes eImprovement = NO_IMPROVEMENT;
 	CvImprovementEntry* pkImprovementInfo = NULL;
 	int iRange = 0;
 
@@ -2591,7 +2592,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 		if (!pkBuildInfo)
 			return NULL;
 
-		ImprovementTypes eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
+		eImprovement = (ImprovementTypes)pkBuildInfo->getImprovement();
 		pkImprovementInfo = GC.getImprovementInfo(eImprovement);
 		if (!pkImprovementInfo)
 			return NULL;
@@ -2652,7 +2653,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 				if (!pAdjacentPlot->IsAdjacentOwnedByTeamOtherThan(getTeam()))
 					continue;
 
-				if (pAdjacentPlot->GetDefenseBuildValue(GetID()) <= 0)
+				if (pAdjacentPlot->GetDefenseBuildValue(GetID(), eBuild, eImprovement) <= 0)
 					continue;
 			}
 
@@ -2690,7 +2691,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 	for (std::set<int>::iterator it = setCandidates.begin(); it != setCandidates.end(); ++it)
 	{
 		CvPlot* pPlot = GC.getMap().plotByIndexUnchecked(*it);
-		int iScore = (pkImprovementInfo && pkImprovementInfo->GetDefenseModifier() > 0) ? pPlot->GetDefenseBuildValue(GetID()) : 0;
+		int iScore = (pkImprovementInfo && (pkImprovementInfo->GetDefenseModifier() > 0 || pkImprovementInfo->GetNearbyEnemyDamage() > 0)) ? pPlot->GetDefenseBuildValue(GetID(), eBuild, eImprovement) : 0;
 
 		for (int iI=0; iI<RING_PLOTS[iRange]; iI++)
 		{
@@ -2766,7 +2767,7 @@ CvPlot* CvPlayerAI::FindBestCultureBombPlot(CvUnit* pUnit, BuildTypes eBuild, co
 			}
 
 			// score resource - this may be the dominant factor!
-			ResourceTypes eResource = pAdjacentPlot->getResourceType();
+			ResourceTypes eResource = pAdjacentPlot->getResourceType(getTeam());
 			if(eResource != NO_RESOURCE)
 			{
 				iScore += (GetBuilderTaskingAI()->GetResourceWeight(eResource, NO_IMPROVEMENT, pAdjacentPlot->getNumResource()) * iWeightFactor);

@@ -43,6 +43,7 @@ protected:
 	static int lGetActivePath(lua_State* L);
 	static int lGeneratePathToNextWaypoint(lua_State* L);
 	static int lGetWaypointPath(lua_State* L);
+	static int lGetMeleeAttackFromPlot(lua_State* L);
 
 	static int lCanEnterTerritory(lua_State* L);
 	static int lCanEnterArea(lua_State* L);
@@ -608,6 +609,8 @@ protected:
 	static int lGetConversionStrength(lua_State* L);
 	static int lGetSpreadsLeft(lua_State* L);
 	static int lGetChargesLeft(lua_State* L);
+	static int lGetNumFollowersAfterInquisitor(lua_State* L);
+	static int lGetMajorityReligionAfterInquisitor(lua_State* L);
 	static int lGetNumFollowersAfterSpread(lua_State* L);
 	static int lGetMajorityReligionAfterSpread(lua_State* L);
 	LUAAPIEXTN(SetReligion, void, iReligion);

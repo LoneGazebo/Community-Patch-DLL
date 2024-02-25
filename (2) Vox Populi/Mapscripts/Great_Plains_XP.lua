@@ -888,7 +888,7 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- Set each region to "Undefined Type" as default.
 		-- If all efforts fail at determining what type of region this should be, region type will remain Undefined.
 		-- local totalPlots = terrainCounts[1];
-		local areaPlots = terrainCounts[2];
+		local regionPlots = terrainCounts[2];
 		-- local waterCount = terrainCounts[3];
 		local flatlandsCount = terrainCounts[4];
 		local hillsCount = terrainCounts[5];
@@ -911,10 +911,10 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- local coastalLandCount = terrainCounts[22];
 		-- local nextToCoastCount = terrainCounts[23];
 
-		-- If Rectangular regional division, then water plots would be included in area plots.
-		-- Let's recalculate area plots based only on flatland and hills plots.
+		-- If Rectangular regional division, then water plots would be included in region plots.
+		-- Let's recalculate region plots based only on flatland and hills plots.
 		if self.method == RegionDivision.RECTANGULAR or self.method == RegionDivision.RECTANGULAR_SELF_DEFINED then
-			areaPlots = flatlandsCount + hillsCount;
+			regionPlots = flatlandsCount + hillsCount;
 		end
 
 		local found_region = false;
@@ -933,35 +933,35 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- MOD.Barathor: Reordered condition checks and modified what some checks include.
 		while not found_region do
 			-- Desert check.
-			if desertCount >= areaPlots * (desert_percent + adjustment) then
+			if desertCount >= regionPlots * (desert_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_DESERT);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a DESERT Region.");
 				found_region = true;
 
 			-- Tundra check.
-			elseif tundraCount >= areaPlots * (tundra_percent + adjustment) then
+			elseif tundraCount >= regionPlots * (tundra_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_TUNDRA);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a TUNDRA Region.");
 				found_region = true;
 
 			-- Jungle (now Marsh) check.
-			elseif marshCount >= areaPlots * (jungle_percent + adjustment) then
+			elseif marshCount >= regionPlots * (jungle_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_JUNGLE);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a JUNGLE Region.");
 				found_region = true;
 
 			-- Forest check.
-			elseif forestCount >= areaPlots * (forest_percent + adjustment) and tundraCount < areaPlots * tundra_percent then
+			elseif forestCount >= regionPlots * (forest_percent + adjustment) and tundraCount < regionPlots * tundra_percent then
 				table.insert(self.regionTypes, RegionTypes.REGION_FOREST);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a FOREST Region.");
 				found_region = true;
 
 			-- Hills check.
-			elseif hillsCount >= areaPlots * (hills_percent + adjustment) then
+			elseif hillsCount >= regionPlots * (hills_percent + adjustment) then
 				table.insert(self.regionTypes, RegionTypes.REGION_HILLS);
 				print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 				print("Region #", this_region, " has been defined as a HILLS Region.");
@@ -970,13 +970,13 @@ function AssignStartingPlots:DetermineRegionTypes()
 			else
 				if adjustment <= 0 then
 					-- Plains check.
-					if plainsCount >= areaPlots * plains_percent and plainsCount * 0.8 > grassCount then
+					if plainsCount >= regionPlots * plains_percent and plainsCount * 0.8 > grassCount then
 						table.insert(self.regionTypes, RegionTypes.REGION_PLAINS);
 						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 						print("Region #", this_region, " has been defined as a PLAINS Region.");
 						found_region = true;
 					-- Grass check.
-					elseif grassCount >= areaPlots * grass_percent and grassCount * 0.8 > plainsCount then
+					elseif grassCount >= regionPlots * grass_percent and grassCount * 0.8 > plainsCount then
 						table.insert(self.regionTypes, RegionTypes.REGION_GRASSLAND);
 						print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -");
 						print("Region #", this_region, " has been defined as a GRASSLAND Region.");
@@ -997,7 +997,7 @@ function AssignStartingPlots:DetermineRegionTypes()
 		-- print("Threshold Values:")
 		-- print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desert_percent, tundra_percent, jungle_percent, forest_percent, hills_percent, plains_percent, grass_percent))
 		-- print("Region Values:")
-		-- print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desertCount / areaPlots, tundraCount / areaPlots, marshCount / areaPlots, forestCount / areaPlots, hillsCount / areaPlots, plainsCount / areaPlots, grassCount / areaPlots))
+		-- print(string.format("Desert: %.2f - Tundra: %.2f - Jungle: %.2f - Forest: %.2f - Hills: %.2f - Plains: %.2f - Grass: %.2f", desertCount / regionPlots, tundraCount / regionPlots, marshCount / regionPlots, forestCount / regionPlots, hillsCount / regionPlots, plainsCount / regionPlots, grassCount / regionPlots))
 		-- print("- - - - - - - - - - - - - - - - - - - - - - - - - - - - - -")
 
 	end

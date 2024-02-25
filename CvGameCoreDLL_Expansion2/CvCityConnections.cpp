@@ -126,9 +126,6 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 {
 	m_plotIdsToConnect.clear();
 
-	bool bIsIndustrial = GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute() == GC.getGame().GetIndustrialRoute();
-	bool bHaveGoldToSpare = m_pPlayer->GetTreasury()->CalculateBaseNetGoldTimes100() > 1000;
-
 	vector<PlayerTypes> vTeamPlayers = GET_TEAM(m_pPlayer->getTeam()).getPlayers();
 	for (size_t i = 0; i < vTeamPlayers.size(); i++)
 	{
@@ -144,8 +141,9 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 
 		//select strategically important points
 		//this logic is similar to tactical target selection (AI_TACTICAL_TARGET_DEFENSIVE_BASTION, AI_TACTICAL_TARGET_CITADEL)
-		vector<PlayerTypes> vUnfriendlyMajors = GET_PLAYER(ePlayer).GetUnfriendlyMajors();
 		const PlotIndexContainer& vPlots = GET_PLAYER(ePlayer).GetPlots();
+		TeamTypes eTeam = GET_PLAYER(ePlayer).getTeam();
+
 		for (size_t j=0; j<vPlots.size(); j++)
 		{
 			CvPlot* pLoopPlot = GC.getMap().plotByIndex(vPlots[j]);
@@ -159,16 +157,12 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 			if (pLoopPlot->getOwningCity() && pLoopPlot->getOwningCity()->IsRazing())
 				continue;
 
-			if (pLoopPlot->isImpassable(m_pPlayer->getTeam()))
+			if (!pLoopPlot->isValidMovePlot(m_pPlayer->GetID()))
 				continue;
 
-			//ignore plots which are not exposed
-			if (vUnfriendlyMajors.empty() || !pLoopPlot->IsBorderLand(m_pPlayer->GetID(), vUnfriendlyMajors))
-				continue;
-
-			//natural defenses
-			if (pLoopPlot->defenseModifier(m_pPlayer->getTeam(), false, false) >= 25 || pLoopPlot->IsChokePoint())
+			if (pLoopPlot->IsAdjacentOwnedByTeamOtherThan(eTeam, true, true, false, true))
 			{
+				//borders
 				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}
 			else if (pLoopPlot->getImprovementType() != NO_IMPROVEMENT)
@@ -178,10 +172,6 @@ void CvCityConnections::UpdatePlotsToConnect(void)
 				if (pImprovementInfo && pImprovementInfo->GetDefenseModifier() >= 20)
 					m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 			}
-
-			//in industrial era, AI becomes much more generous with routes ...
-			if (bIsIndustrial && bHaveGoldToSpare && pLoopPlot->IsAdjacentOwnedByTeamOtherThan(m_pPlayer->getTeam(), false, true))
-				m_plotIdsToConnect.push_back(pLoopPlot->GetPlotIndex());
 		}
 	}
 
@@ -281,11 +271,11 @@ void CvCityConnections::UpdateRouteInfo(void)
 		ReachablePlots roadPlots;
 		ReachablePlots railroadPlots;
 		ReachablePlots waterPlots;
-		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND,NO_BUILD,ROUTE_ROAD,false);
+		SPathFinderUserData data(m_pPlayer->GetID(),PT_CITY_CONNECTION_LAND,NO_BUILD,ROUTE_ROAD,NO_ROUTE_PURPOSE);
 		if (!pStartCity->IsBlockaded(DOMAIN_LAND))
 		{
 			roadPlots= GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
-			data.eRouteType = ROUTE_RAILROAD;
+			data.eRoute = ROUTE_RAILROAD;
 			railroadPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 		}
 
@@ -296,8 +286,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 				bStartCityAllowsWater = true;
 		if (bStartCityAllowsWater && !pStartCity->IsBlockaded(DOMAIN_SEA))
 		{
-			data.eRouteType = NO_ROUTE;
-			data.ePathType = PT_CITY_CONNECTION_WATER;
+			data.eRoute = NO_ROUTE;
+			data.ePath = PT_CITY_CONNECTION_WATER;
 			waterPlots = GC.GetStepFinder().GetPlotsInReach( pStartCity->getX(),pStartCity->getY(), data);
 		}
 
@@ -429,7 +419,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 
 		//Let's check for road first (railroad also counts as road)
 		//Very important to set up m_connectionState for direct connections first!
-		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, NO_BUILD, ROUTE_ROAD, false);
+		SPathFinderUserData data(m_pPlayer->GetID(), PT_CITY_CONNECTION_MIXED, NO_BUILD, ROUTE_ROAD, NO_ROUTE_PURPOSE);
 		ReachablePlots capitalRoadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 		for (ReachablePlots::iterator it = capitalRoadConnectedPlots.begin(); it != capitalRoadConnectedPlots.end(); ++it)
 		{
@@ -448,7 +438,7 @@ void CvCityConnections::UpdateRouteInfo(void)
 		if ( GET_TEAM(m_pPlayer->getTeam()).GetBestPossibleRoute()==GC.getGame().GetIndustrialRoute() )
 		{
 			//with water and railroad only 
-			data.eRouteType = ROUTE_RAILROAD;
+			data.eRoute = ROUTE_RAILROAD;
 			ReachablePlots capitalRailroadConnectedPlots = GC.GetStepFinder().GetPlotsInReach( pCapital->getX(),pCapital->getY(), data);
 			for (ReachablePlots::iterator it = capitalRailroadConnectedPlots.begin(); it != capitalRailroadConnectedPlots.end(); ++it)
 			{
@@ -462,8 +452,8 @@ void CvCityConnections::UpdateRouteInfo(void)
 		}
 
 		//Now set up the city connection flags for the plots with a route
-		data.ePathType = PT_CITY_CONNECTION_LAND;
-		data.eRouteType = ROUTE_ROAD;
+		data.ePath = PT_CITY_CONNECTION_LAND;
+		data.eRoute = ROUTE_ROAD;
 		for (size_t i = 0; i < vConnectedCities.size(); i++)
 		{
 			for (size_t j = i + 1; j < vConnectedCities.size(); j++)

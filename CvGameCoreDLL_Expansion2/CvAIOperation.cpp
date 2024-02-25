@@ -2035,17 +2035,18 @@ CvPlot* CvAIOperationCivilianFoundCity::FindBestTargetForUnit(CvUnit* pUnit)
 	if (!pNewTarget)
 		return NULL;
 
+	int iNewScore = GET_PLAYER(m_eOwner).getPlotFoundValue(pNewTarget->getX(), pNewTarget->getY());
+	int iNewQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pNewTarget);
+	if (iNewQ < GET_PLAYER(m_eOwner).GetMinAcceptableSettleQuality())
+		return NULL;
+
 	if (!GetTargetPlot())
 	{
-		int iNewScore = GET_PLAYER(m_eOwner).getPlotFoundValue(pNewTarget->getX(), pNewTarget->getY());
-		int iNewQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pNewTarget);
 		LogOperationSpecialMessage(CvString::format("found target for settler, score %d (q%d)", iNewScore, iNewQ).c_str());
 	}
 	else if (pNewTarget != GetTargetPlot())
 	{
-		int iNewScore = GET_PLAYER(m_eOwner).getPlotFoundValue(pNewTarget->getX(), pNewTarget->getY());
 		int iOldScore = GET_PLAYER(m_eOwner).getPlotFoundValue(m_iTargetX, m_iTargetY);
-		int iNewQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(pNewTarget);
 		int iOldQ = GET_PLAYER(m_eOwner).GetSettlePlotQualityMeasure(GetTargetPlot());
 		LogOperationSpecialMessage(CvString::format("found better target for settler, old score %d (q%d), new score %d (q%d)", iOldScore, iOldQ, iNewScore, iNewQ).c_str());
 	}

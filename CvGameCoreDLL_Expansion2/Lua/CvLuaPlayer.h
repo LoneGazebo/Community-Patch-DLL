@@ -403,6 +403,9 @@ protected:
 	LUAAPIEXTN(GetUnhappinessFromWarWeariness, int);
 	LUAAPIEXTN(GetTechSupplyReduction, int);
 
+	LUAAPIEXTN(GetWarDuration, int);
+	LUAAPIEXTN(GetLongestWarDuration, int);
+
 	static int lGetUnitSupplyFromExpendedGreatPeople(lua_State* L);
 	static int lChangeUnitSupplyFromExpendedGreatPeople(lua_State* L);
 

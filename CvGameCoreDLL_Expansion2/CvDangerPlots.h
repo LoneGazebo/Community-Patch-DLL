@@ -19,23 +19,39 @@ typedef std::vector<std::pair<PlayerTypes,int>> DangerUnitVector;
 typedef std::vector<std::pair<PlayerTypes,int>> DangerCityVector;
 typedef std::set<std::pair<PlayerTypes,int>> UnitSet;
 
-struct SUnitInfo
+struct SCachedUnitDanger
 {
-	SUnitInfo(const CvUnit* pUnit=NULL, const UnitIdContainer& enemyUnitsToIgnore=UnitIdContainer(), int iSelfDamage=0) : m_enemyUnitsToIgnore(enemyUnitsToIgnore)
+	static const size_t maxIgnoredUnits = 5;
+
+	SCachedUnitDanger(const CvUnit* pUnit = NULL, int iSelfDamage = 0)
 	{
 		m_iUnitID = pUnit ? pUnit->GetID() : 0;
 		m_iPlotIndex = pUnit ? pUnit->plot()->GetPlotIndex() : -1;
-		m_damage = pUnit ? pUnit->getDamage()+iSelfDamage : iSelfDamage;
+		m_damage = pUnit ? pUnit->getDamage() + iSelfDamage : iSelfDamage;
+		memset(m_enemyUnitsToIgnore, 0, sizeof(m_enemyUnitsToIgnore));
 	}
-	const bool operator==(const SUnitInfo& rhs) const
+
+	bool addIgnoredUnits(const UnitIdContainer& enemyUnitsToIgnore)
 	{
-		return (m_iUnitID==rhs.m_iUnitID && m_iPlotIndex==rhs.m_iPlotIndex && m_damage==rhs.m_damage && m_enemyUnitsToIgnore==rhs.m_enemyUnitsToIgnore);
+		//don't copy the vector that seems to be expensive
+		if (enemyUnitsToIgnore.size() > maxIgnoredUnits)
+			return false;
+
+		for (size_t i = 0; i < enemyUnitsToIgnore.size(); i++)
+			m_enemyUnitsToIgnore[i] = enemyUnitsToIgnore[i];
+
+		return true;
+	}
+
+	const bool operator==(const SCachedUnitDanger& rhs) const
+	{
+		return (m_iUnitID==rhs.m_iUnitID && m_iPlotIndex==rhs.m_iPlotIndex && m_damage==rhs.m_damage && memcmp(m_enemyUnitsToIgnore, rhs.m_enemyUnitsToIgnore, sizeof(m_enemyUnitsToIgnore))==0);
 	}
 
 	int m_iUnitID;
 	int m_iPlotIndex;
 	int m_damage;
-	UnitIdContainer m_enemyUnitsToIgnore;
+	int m_enemyUnitsToIgnore[maxIgnoredUnits]; //zero if unused
 };
 
 struct CvDangerPlotContents
@@ -58,12 +74,12 @@ struct CvDangerPlotContents
 		m_fogDanger.clear(); if (m_fogDanger.capacity() > 5) { vector<int>().swap(m_fogDanger); }
 
 		//reset cache
-		m_lastResults.clear(); if (m_lastResults.capacity() > 5) { std::vector< std::pair<SUnitInfo, int> >().swap(m_lastResults); }
+		m_lastUnitDangerResults.clear();
 	};
 
 	void resetCache()
 	{
-		m_lastResults.clear();
+		m_lastUnitDangerResults.clear();
 	}
 
 	int GetDanger(const CvUnit* pUnit, const UnitIdContainer& unitsToIgnore, int iExtraDamage, AirActionType iAirAction);
@@ -85,7 +101,7 @@ struct CvDangerPlotContents
 	std::vector<int> m_fogDanger;
 
 	//caching ...
-	std::vector< std::pair<SUnitInfo,int> > m_lastResults;
+	std::deque< std::pair<SCachedUnitDanger,int> > m_lastUnitDangerResults;
 };
 
 /*

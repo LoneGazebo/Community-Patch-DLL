@@ -1004,8 +1004,9 @@ CvString CvVoterDecision::GetVotesAsText(CvLeague* pLeague)
 	for (std::vector<LeagueHelpers::VoteTextSortElement>::iterator it = vVoteText.begin(); it != vVoteText.end(); it++)
 	{
 		s += it->sText;
+		if (it != (--vVoteText.end()))
+			s += "[NEWLINE]";
 	}
-	s += "[NEWLINE]";
 
 	return s;
 }

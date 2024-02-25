@@ -287,13 +287,6 @@ INSERT INTO Building_YieldChanges
 VALUES
 	('BUILDING_GREAT_ALTAR', 'YIELD_FAITH', 5);
 
-INSERT INTO Building_DomainProductionModifiers
-	(BuildingType, DomainType, Modifier)
-VALUES
-	('BUILDING_GREAT_ALTAR', 'DOMAIN_LAND', 15),
-	('BUILDING_GREAT_ALTAR', 'DOMAIN_SEA', 15),
-	('BUILDING_GREAT_ALTAR', 'DOMAIN_AIR', 15);
-
 -- Chartarium
 INSERT INTO Building_YieldChanges
 	(BuildingType, YieldType, Yield)
@@ -1255,13 +1248,6 @@ INSERT INTO Building_ResourceQuantityPerXFranchises
 VALUES
 	('BUILDING_HEXXON_REFINERY', 'RESOURCE_COAL', 3),
 	('BUILDING_HEXXON_REFINERY', 'RESOURCE_OIL', 3);
-
-INSERT INTO Building_DomainProductionModifiers
-	(BuildingType, DomainType, Modifier)
-VALUES
-	('BUILDING_HEXXON_REFINERY', 'DOMAIN_LAND', 15),
-	('BUILDING_HEXXON_REFINERY', 'DOMAIN_SEA', 15),
-	('BUILDING_HEXXON_REFINERY', 'DOMAIN_AIR', 15);
 
 -- Giorgio Armeier
 INSERT INTO Building_YieldPerFranchise

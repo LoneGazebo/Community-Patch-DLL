@@ -909,7 +909,7 @@ void CvCity::init(int iID, PlayerTypes eOwner, int iX, int iY, bool bBumpUnits, 
 	// Add Resource Quantity to total
 	if (plot()->getResourceType(getTeam()) != NO_RESOURCE)
 	{
-		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType()))
+		if (GET_TEAM(getTeam()).IsResourceImproveable(plot()->getResourceType(getTeam())))
 		{
 			owningPlayer.connectResourcesOnPlot(plot(), true);
 		}
@@ -4439,7 +4439,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 				continue;
 
 			// no resource on plot
-			if (pLoopPlot->getResourceType() == NO_RESOURCE)
+			if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 				continue;
 
 			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
@@ -4448,7 +4448,7 @@ bool CvCity::IsCityEventChoiceValid(CityEventChoiceTypes eChosenEventChoice, Cit
 			
 			//connected?
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType()) && !pLoopPlot->IsImprovementPillaged())
+			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType(getTeam())) && !pLoopPlot->IsImprovementPillaged())
 			{
 				bImprovementFound = true;
 				break;
@@ -6221,7 +6221,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 				continue;
 
 			// no resource on plot
-			if (pLoopPlot->getResourceType() == NO_RESOURCE)
+			if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 				continue;
 
 			ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
@@ -6230,7 +6230,7 @@ CvString CvCity::GetDisabledTooltip(CityEventChoiceTypes eChosenEventChoice, int
 
 			//connected?
 			CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType()) && !pLoopPlot->IsImprovementPillaged())
+			if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType(getTeam())) && !pLoopPlot->IsImprovementPillaged())
 			{
 				bImprovementFound = true;
 				break;
@@ -7255,7 +7255,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 								for (int iI = 0; iI < iRuns; iI++)
 								{
 									CvPlot* pPlot = aBestPlots.GetElement(iI);
-									if (pPlot != NULL && pPlot->getOwner() == getOwner() && pPlot->getResourceType() == eResource && pPlot->getImprovementType() != NO_IMPROVEMENT)
+									if (pPlot != NULL && pPlot->getOwner() == getOwner() && pPlot->getResourceType(getTeam()) == eResource && pPlot->getImprovementType() != NO_IMPROVEMENT)
 									{
 										pPlot->SetImprovementPillaged(true);
 										iNumber++;
@@ -7286,7 +7286,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						continue;
 
 					// no resource on plot
-					if (pLoopPlot->getResourceType() == NO_RESOURCE)
+					if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 						continue;
 
 					ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
@@ -7295,7 +7295,7 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 
 					//connected?
 					CvImprovementEntry* pImprovement = GC.getImprovementInfo(eImprovement);
-					if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType()) && !pLoopPlot->IsImprovementPillaged())
+					if (pImprovement && pImprovement->IsConnectsResource(pLoopPlot->getResourceType(getTeam())) && !pLoopPlot->IsImprovementPillaged())
 					{
 						// this is a plot with an improved resource. check if it should be pillaged
 						if (iPillageResourceTilesChance == 100 || GC.getGame().randRangeInclusive(1, 100, CvSeeder::fromRaw(0xbe510f48).mix(iCityID).mix(iCityPlotLoop).mix(GC.getGame().getGameTurn())) <= iPillageResourceTilesChance)
@@ -8180,7 +8180,7 @@ int CvCity::GetNumWorkablePlots(int iChange) const
 	return iWorkablePlots;
 }
 
-bool CvCity::IsWithinWorkRange(CvPlot * pPlot) const
+bool CvCity::IsWithinWorkRange(const CvPlot * pPlot) const
 {
 	if (pPlot)
 	{
@@ -8767,9 +8767,9 @@ bool CvCity::canTrain(UnitTypes eUnit, bool bContinue, bool bTestVisible, bool b
 	}
 
 	// Puppets and automated cities cannot build units (except workers)
-	if (CityStrategyAIHelpers::IsTestCityStrategy_IsPuppetAndAnnexable(this) || isHumanAutomated())
+	if (IsPuppet() || isHumanAutomated())
 	{
-		if ( pkUnitEntry->GetWorkRate()==0 || pkUnitEntry->GetCombat()>0 || pkUnitEntry->GetRangedCombat() > 0 )
+		if ( !MOD_BALANCE_VP || pkUnitEntry->GetWorkRate()==0 || pkUnitEntry->GetCombat()>0 || pkUnitEntry->GetRangedCombat() > 0 )
 			return false;
 	}
 
@@ -9496,7 +9496,7 @@ void CvCity::UpdateTerrainImprovementNeed()
 
 				//todo: should we add more of the improvement is very valuable?
 				//for now give extra weight to resource plots
-				if (pLoopPlot->getResourceType() != NO_RESOURCE)
+				if (pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
 					iImprovablePlots++;
 
 				break;
@@ -10412,7 +10412,7 @@ void CvCity::DoPickResourceDemanded()
 		CvPlot* pLoopPlot = iterateRingPlots(getX(), getY(), iPlotLoop);
 		if (pLoopPlot != NULL)
 		{
-			ResourceTypes eResource = pLoopPlot->getResourceType();
+			ResourceTypes eResource = pLoopPlot->getResourceType(getTeam());
 			if (eResource != NO_RESOURCE)
 			{
 				if (GC.getResourceInfo(eResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
@@ -10506,25 +10506,58 @@ void CvCity::DoPickResourceDemanded()
 
 	SetResourceDemanded(eResource);
 
-	// Notification
-	CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
-	if (pNotifications)
+	// if we already have the resource, immediately enter WLTKD
+	if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 	{
-		if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+		int iWLTKD = MOD_BALANCE_VP ? /*20 in CP, 10 in VP*/ (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2) : GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
+		iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+		iWLTKD /= 100;
+
+		ChangeWeLoveTheKingDayCounter(iWLTKD);
+
+		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+		if (pNotifications)
 		{
-			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA");
-			strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
-			strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD_UA_RESOURCE");
+				strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey() << iWLTKD << /*25*/ GD_INT_GET(WLTKD_GROWTH_MULTIPLIER);
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD_UA_RESOURCE");
+				strSummary << getNameKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
+			else
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_WLTKD");
+				strText << GC.getResourceInfo(eResource)->GetTextKey() << getNameKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_WLTKD");
+				strSummary << getNameKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
 		}
-		else
+	}
+	else
+	{
+		// Notification
+		CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
+		if (pNotifications)
 		{
-			Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
-			strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
-			strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
-			pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			if (GET_PLAYER(getOwner()).GetPlayerTraits()->IsExpansionWLTKD())
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND_UA");
+				strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
+				strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
+			else
+			{
+				Localization::String strText = Localization::Lookup("TXT_KEY_NOTIFICATION_CITY_RESOURCE_DEMAND");
+				strText << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				Localization::String strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_SUMMARY_CITY_RESOURCE_DEMAND");
+				strSummary << getNameKey() << GC.getResourceInfo(eResource)->GetTextKey();
+				pNotifications->Add(NOTIFICATION_REQUEST_RESOURCE, strText.toUTF8(), strSummary.toUTF8(), getX(), getY(), eResource);
+			}
 		}
 	}
 
@@ -10543,7 +10576,10 @@ void CvCity::DoTestResourceDemanded()
 	ResourceTypes eResource = GetResourceDemanded();
 
 	if (eResource == NO_RESOURCE && GetResourceDemandedCountdown() <= 0)
+	{
 		DoPickResourceDemanded();
+		eResource = GetResourceDemanded();
+	}
 
 	if (GetWeLoveTheKingDayCounter() > 0)
 	{
@@ -10552,37 +10588,18 @@ void CvCity::DoTestResourceDemanded()
 		// WLTKD over!
 		if (GetWeLoveTheKingDayCounter() == 0)
 		{
-#if defined(MOD_BALANCE_CORE)
 			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityEndsWLTKD, getOwner(), getX(), getY(), 0);
-#endif
-			DoPickResourceDemanded();
-
-			if (getOwner() == GC.getGame().getActivePlayer())
-			{
-				Localization::String localizedText;
-				// Know what the next Demanded Resource is
-				if (GetResourceDemanded() != NO_RESOURCE)
-				{
-					localizedText = Localization::Lookup("TXT_KEY_MISC_CITY_WLTKD_ENDED_KNOWN_RESOURCE");
-					localizedText << getNameKey() << GC.getResourceInfo(GetResourceDemanded())->GetTextKey();
-				}
-				// Don't know what the next Demanded Resource is
-				else
-				{
-					localizedText = Localization::Lookup("TXT_KEY_MISC_CITY_WLTKD_ENDED_UNKNOWN_RESOURCE");
-					localizedText << getNameKey();
-				}
-
-				DLLUI->AddCityMessage(0, GetIDInfo(), getOwner(), false, /*10*/ GD_INT_GET(EVENT_MESSAGE_TIME), localizedText.toUTF8());
-			}
+			DoPickResourceDemanded(); // this can immediately start another WLTKD
+			eResource = GetResourceDemanded();
 		}
 	}
-	else
+
+	if (GetWeLoveTheKingDayCounter() == 0)
 	{
 		if (eResource != NO_RESOURCE)
 		{
 			// Do we have the right Resource?
-			if (GET_PLAYER(getOwner()).getNumResourceTotal(eResource) > 0)
+			if (GET_PLAYER(getOwner()).getNumResourceAvailable(eResource) > 0)
 			{
 				int iWLTKD = MOD_BALANCE_VP ? /*20 in CP, 10 in VP*/ (GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS) / 2) : GD_INT_GET(CITY_RESOURCE_WLTKD_TURNS);
 				iWLTKD *= GC.getGame().getGameSpeedInfo().getTrainPercent();
@@ -14379,7 +14396,7 @@ SPlotStats CvCity::getPlotStats() const
 		if (pLoopPlot->getFeatureType() != NO_FEATURE)
 			result.vFeatureCount[pLoopPlot->getFeatureType()]++;
 
-		if (pLoopPlot->getResourceType()!=NO_RESOURCE && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
+		if (pLoopPlot->getResourceType(getTeam())!=NO_RESOURCE && pLoopPlot->getResourceType(getTeam()) != NO_RESOURCE)
 			result.vResourceCount[pLoopPlot->getResourceType(getTeam())]++;
 	}
 
@@ -15400,7 +15417,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 								if (pLoopPlot != NULL && pLoopPlot->getOwner() == owningPlayer.GetID() && !pLoopPlot->isCity() &&
 									pLoopPlot->isValidMovePlot(getOwner()) && !pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && !pLoopPlot->isMountain() && (pLoopPlot->getFeatureType() == NO_FEATURE))
 								{
-									if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+									if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 									{
 										pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 										pLoopPlot->setResourceType(eResourceToGive, 1, false);
@@ -15420,7 +15437,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 									if (pLoopPlot != NULL && (pLoopPlot->getOwner() == NO_PLAYER) && pLoopPlot->isValidMovePlot(getOwner()) &&
 										!pLoopPlot->isWater() && !pLoopPlot->IsNaturalWonder() && (pLoopPlot->getFeatureType() != FEATURE_OASIS))
 									{
-										if (pLoopPlot->getResourceType() == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
+										if (pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE && pLoopPlot->getImprovementType() == NO_IMPROVEMENT)
 										{
 											pLoopPlot->setResourceType(NO_RESOURCE, 0, false);
 											pLoopPlot->setResourceType(eResourceToGive, 1, false);
@@ -15435,7 +15452,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							}
 							if (iNumResourceGiven < iNumResourceTotal)
 							{
-								ResourceTypes eCurrentResource = plot()->getResourceType();
+								ResourceTypes eCurrentResource = plot()->getResourceType(getTeam());
 								if (eCurrentResource == NO_RESOURCE)
 									plot()->setResourceType(eResourceToGive, 1, false);
 							}
@@ -15817,7 +15834,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 							pLoopPlot = iterateRingPlots(getX(), getY(), iCityPlotLoop);
 							if (pLoopPlot != NULL && ((pLoopPlot->getOwner() == owningPlayer.GetID()) || (pLoopPlot->getOwner() == NO_PLAYER && pLoopPlot->isValidMovePlot(getOwner()))) && !pLoopPlot->isCity())
 							{
-								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType() == NO_RESOURCE)
+								if (pLoopPlot->canHaveResource(eResource, false, true) && pLoopPlot->getResourceType(getTeam()) == NO_RESOURCE)
 								{
 									ImprovementTypes eImprovement = pLoopPlot->getImprovementType();
 									if (eImprovement != NO_IMPROVEMENT)
@@ -15931,7 +15948,7 @@ void CvCity::processBuilding(BuildingTypes eBuilding, int iChange, bool bFirst, 
 
 				if (pLoopPlot != NULL && pLoopPlot->getOwner() == getOwner())
 				{
-					ResourceTypes eLoopResource = pLoopPlot->getResourceType();
+					ResourceTypes eLoopResource = pLoopPlot->getResourceType(getTeam());
 					if (eLoopResource != NO_RESOURCE && GC.getResourceInfo(eLoopResource)->getResourceUsage() == RESOURCEUSAGE_LUXURY)
 					{
 						if (owningTeam.IsResourceImproveable(eLoopResource))
@@ -22279,6 +22296,8 @@ int CvCity::GetUnhappinessAggregated() const
 	// Some of these calls are expensive, so avoid doing them if we've already reached the cap
 	// Order is also nonstandard to save on performance
 	int iSource = GetUnhappinessFromOccupation();
+	if (iSource > 0)
+		iUnhappiness += iSource;
 
 	if (iUnhappiness < iPopulation)
 	{
@@ -23931,12 +23950,17 @@ void CvCity::SetOwedFoodBuilding(bool bNewValue)
 #if defined(MOD_BALANCE_CORE)
 
 //	--------------------------------------------------------------------------------
+bool CvCity::IsBorderObstacleLand() const
+{
+	VALIDATE_OBJECT
+	return (GetBorderObstacleLand() > 0);
+}
+//	--------------------------------------------------------------------------------
 int CvCity::GetBorderObstacleLand() const
 {
 	VALIDATE_OBJECT
 	return m_iBorderObstacleCity;
 }
-
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeBorderObstacleCity(int iChange)
 {
@@ -23951,12 +23975,17 @@ void CvCity::SetBorderObstacleCity(int iValue)
 }
 
 //	--------------------------------------------------------------------------------
+bool CvCity::IsBorderObstacleWater() const
+{
+	VALIDATE_OBJECT
+	return (GetBorderObstacleWater() > 0);
+}
+//	--------------------------------------------------------------------------------
 int CvCity::GetBorderObstacleWater() const
 {
 	VALIDATE_OBJECT
 	return m_iBorderObstacleWater;
 }
-
 //	--------------------------------------------------------------------------------
 void CvCity::ChangeBorderObstacleWater(int iChange)
 {
@@ -26555,12 +26584,26 @@ int CvCity::GetBaseYieldRateFromCSAlliance(YieldTypes eIndex) const
 	VALIDATE_OBJECT
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
-	int iValue = 0;
-	if (GetYieldPerAlly(eIndex) != 0)
+
+	int iValue = m_aiBaseYieldRateFromCSAlliance[eIndex];
+	int iBonus = GetYieldPerAlly(eIndex) != 0 ? GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies() : 0;
+
+	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
+	//policy effects
+	iModifier += kPlayer.GetCSYieldBonusModifier();
+	//cannot check for religion based modifier, we don't know the religion of the originating city state here ...
+
+	if (MOD_CITY_STATE_SCALE)
+		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+
+	if (iModifier > 0)
 	{
-		iValue += (GetYieldPerAlly(eIndex) * GET_PLAYER(getOwner()).GetNumCSAllies());
+		iValue *= 100 + iModifier;
+		iValue /= 100;
 	}
-	return (m_aiBaseYieldRateFromCSAlliance[eIndex] + iValue);
+
+	return (iValue + iBonus);
 }
 //	--------------------------------------------------------------------------------
 /// Base yield rate from CS Alliances
@@ -26591,12 +26634,26 @@ int CvCity::GetBaseYieldRateFromCSFriendship(YieldTypes eIndex) const
 	CvAssertMsg(eIndex >= 0, "eIndex expected to be >= 0");
 	CvAssertMsg(eIndex < NUM_YIELD_TYPES, "eIndex expected to be < NUM_YIELD_TYPES");
 
-	int iValue = 0;
-	if (GetYieldPerFriend(eIndex) != 0)
+	int iValue = m_aiBaseYieldRateFromCSFriendship[eIndex];
+	int iBonus = GetYieldPerFriend(eIndex) != 0 ? GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends() : 0;
+
+	const CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	int iModifier = kPlayer.GetPlayerTraits()->GetCityStateBonusModifier();
+	//policy effects
+	iModifier += kPlayer.GetCSYieldBonusModifier();
+	//cannot check for religion based modifier, we don't know the religion of the originating city state here ...
+
+	if (MOD_CITY_STATE_SCALE)
+		iModifier += max(0, GetPlayer()->getNumCities() - 1) * GD_INT_GET(CITY_STATE_SCALE_PER_CITY_MOD);
+
+	if (iModifier > 0)
 	{
-		iValue += (GetYieldPerFriend(eIndex) * GET_PLAYER(getOwner()).GetNumCSFriends());
+		iValue *= 100 + iModifier;
+		iValue /= 100;
 	}
-	return (m_aiBaseYieldRateFromCSFriendship[eIndex] + iValue);
+
+	return (iValue + iBonus);
+
 }
 void CvCity::ChangeBaseYieldRateFromCSFriendship(YieldTypes eIndex, int iChange)
 {
@@ -28452,26 +28509,17 @@ void CvCity::updateStrengthValue()
 int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const CvUnit* pDefender) const //result is times 100
 {
 	VALIDATE_OBJECT
-	if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
+
+	// Attacks are weaker
+	if (bForRangeStrike)
 	{
-		// Attacks are weaker
-		if (bForRangeStrike)
+		// Base values
+		int iValue = m_iStrengthValue;
+		int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
+
+		if (MOD_BALANCE_CORE_CITY_DEFENSE_SWITCH)
 		{
-			//always ignore building defense here
-			int iValue = m_iStrengthValue;
-
-			//this is kind of stupid but the cached value includes the bonus from the defense process
-			//we need to subtract it again otherwise humans can exploit it
-			if (getProductionProcess() != NO_PROCESS)
-			{
-				CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-				if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
-				{
-					iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
-				}
-			}
-
-			// We also remove the garrisoned unit's strength
+			// Remove the garrisoned unit's strength
 			CvUnit* pGarrisonedUnit = GetGarrisonedUnit();
 			if (pGarrisonedUnit && pGarrisonedUnit->getDomainType() == DOMAIN_LAND)
 			{
@@ -28480,14 +28528,7 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 				iValue -= (iStrengthFromGarrison * 100);
 			}
 
-			// buildings
-			int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
-			iModifier += getCityBuildingRangeStrikeModifier();
-			if (HasGarrison())
-			{
-				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
-			}
-
+			// Counterspy modifier
 			if (getOwner() < static_cast<PlayerTypes>(MAX_MAJOR_CIVS))
 			{
 				CvCityEspionage* pCityEspionage = GetCityEspionage();
@@ -28504,144 +28545,89 @@ int CvCity::getStrengthValue(bool bForRangeStrike, bool bIgnoreBuildings, const 
 					}
 				}
 			}
-
-			// Religion city strike mod
-			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if (eMajority != NO_RELIGION)
-			{
-				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
-				{
-					iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-					eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
-					}
-				}
-			}
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-			// Mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
-			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-					{
-						const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-						{
-							iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
-						}
-					}
-				}
-			}
-#endif
-
-			// OTHER UNIT is a Barbarian
-			if (pDefender != NULL && pDefender->isBarbarian())
-			{
-				// Generic Barb Combat Bonus
-				iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus(false);
-			}
-
-			iValue *= (100 + iModifier);
-			iValue /= 100;
-
-			return iValue;
 		}
-	}
-	else
-	{
-		// Attacks are weaker
-		if (bForRangeStrike)
+		else
 		{
-			//always ignore building defense here
-			int iValue = m_iStrengthValue - m_pCityBuildings->GetBuildingDefense();
+			// Always ignore building defense here
+			iValue -= m_pCityBuildings->GetBuildingDefense();
+		}
 
-			//this is kind of stupid but the cached value includes the bonus from the defense process
-			//we need to subtract it again otherwise humans can exploit it
-			if (getProductionProcess() != NO_PROCESS)
+		// Defense process doesn't boost city strikes
+		if (getProductionProcess() != NO_PROCESS)
+		{
+			CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
+			if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
 			{
-				CvProcessInfo* pkProcessInfo = GC.getProcessInfo(getProductionProcess());
-				if (pkProcessInfo && pkProcessInfo->getDefenseValue() != 0)
-				{
-					iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
-				}
+				iValue -= ((getYieldRate(YIELD_PRODUCTION, false) * pkProcessInfo->getDefenseValue()) / 100);
 			}
+		}
 
-			int iModifier = /*-40 in CP, 0 in VP*/ GD_INT_GET(CITY_RANGED_ATTACK_STRENGTH_MULTIPLIER);
-			if (HasGarrison())
-			{
-				iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
-			}
+		// Building modifier
+		iModifier += getCityBuildingRangeStrikeModifier();
 
-			//bonus for attacking same unit over and over in a turn?
-			//cannot apply this here because we don't know the defender and cannot change the interface. stupid lua.
-			/*
-			if (pDefender != NULL)
-			{
+		// Garrison modifier
+		if (HasGarrison())
+		{
+			iModifier += GET_PLAYER(m_eOwner).GetGarrisonedCityRangeStrikeModifier();
+		}
+
+		// Trait attack bonus against the same target
+		if (pDefender != NULL)
+		{
 			int iTempModifier = GET_PLAYER(getOwner()).GetPlayerTraits()->GetMultipleAttackBonus();
 			if (iTempModifier != 0)
 			{
-			iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
-			iModifier += iTempModifier;
+				iTempModifier *= pDefender->GetNumTimesAttackedThisTurn(getOwner());
+				iModifier += iTempModifier;
 			}
-			}
-			*/
-
-			// buildings
-			iModifier += getCityBuildingRangeStrikeModifier();
-
-			// Religion city strike mod
-			int iReligionCityStrikeMod = 0;
-			ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
-			BeliefTypes eSecondaryPantheon = NO_BELIEF;
-			if (eMajority != NO_RELIGION)
-			{
-				const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-				if (pReligion)
-				{
-					iReligionCityStrikeMod = pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
-					eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
-					if (eSecondaryPantheon != NO_BELIEF)
-					{
-						iReligionCityStrikeMod += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
-					}
-					if (iReligionCityStrikeMod > 0)
-					{
-						iModifier += iReligionCityStrikeMod;
-					}
-				}
-			}
-#if defined(MOD_RELIGION_PERMANENT_PANTHEON)
-			// Mod for civs keeping their pantheon belief forever
-			if (MOD_RELIGION_PERMANENT_PANTHEON)
-			{
-				if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
-				{
-					const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
-					BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
-					if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
-					{
-						const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
-						if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner()))) // check that the our religion does not have our belief, to prevent double counting
-						{
-							iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
-						}
-					}
-				}
-			}
-#endif
-
-			iValue *= (100 + iModifier);
-			iValue /= 100;
-
-			return iValue;
 		}
+
+		// VS barbarian modifier
+		if (pDefender != NULL && pDefender->isBarbarian())
+		{
+			iModifier += GET_PLAYER(getOwner()).GetBarbarianCombatBonus(false);
+		}
+
+		// Religion city strike mod
+		ReligionTypes eMajority = GetCityReligions()->GetReligiousMajority();
+		BeliefTypes eSecondaryPantheon = NO_BELIEF;
+		if (eMajority != NO_RELIGION)
+		{
+			const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+			if (pReligion)
+			{
+				iModifier += pReligion->m_Beliefs.GetCityRangeStrikeModifier(getOwner(), GET_PLAYER(getOwner()).getCity(GetID()));
+				eSecondaryPantheon = GetCityReligions()->GetSecondaryReligionPantheonBelief();
+				if (eSecondaryPantheon != NO_BELIEF)
+				{
+					iModifier += GC.GetGameBeliefs()->GetEntry(eSecondaryPantheon)->GetCityRangeStrikeModifier();
+				}
+			}
+		}
+
+		// Mod for civs keeping their pantheon belief forever
+		if (MOD_RELIGION_PERMANENT_PANTHEON)
+		{
+			if (GC.getGame().GetGameReligions()->HasCreatedPantheon(getOwner()))
+			{
+				const CvReligion* pPantheon = GC.getGame().GetGameReligions()->GetReligion(RELIGION_PANTHEON, getOwner());
+				BeliefTypes ePantheonBelief = GC.getGame().GetGameReligions()->GetBeliefInPantheon(getOwner());
+				if (pPantheon != NULL && ePantheonBelief != NO_BELIEF && ePantheonBelief != eSecondaryPantheon)
+				{
+					// Check that the our religion does not have our belief, to prevent double counting
+					const CvReligion* pReligion = GetCityReligions()->GetMajorityReligion();
+					if (pReligion == NULL || (pReligion != NULL && !pReligion->m_Beliefs.IsPantheonBeliefInReligion(ePantheonBelief, eMajority, getOwner())))
+					{
+						iModifier += GC.GetGameBeliefs()->GetEntry(ePantheonBelief)->GetCityRangeStrikeModifier();
+					}
+				}
+			}
+		}
+
+		iValue *= (100 + iModifier);
+		iValue /= 100;
+
+		return iValue;
 	}
 
 	if (bIgnoreBuildings)
@@ -29688,7 +29674,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 	{
 		YieldTypes eYield = (YieldTypes)iI;
 
-		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), NULL);
+		int iYield = pPlot->calculateNatureYield(eYield, getOwner(), pPlot->getFeatureType(), pPlot->getResourceType(getTeam()), NULL);
 
 		int iTempValue = 0;
 
@@ -29722,7 +29708,7 @@ int CvCity::GetIndividualPlotScore(const CvPlot* pPlot) const
 
 	iRtnValue += iYieldValue;
 
-	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->WantRouteAtPlot(pPlot))
+	if (GET_PLAYER(getOwner()).GetBuilderTaskingAI()->GetBestRouteTypeAndValue(pPlot).first != NO_ROUTE)
 	{
 		iRtnValue += /*80*/ GD_INT_GET(AI_PLOT_VALUE_STRATEGIC_RESOURCE);
 	}
@@ -29852,6 +29838,45 @@ void CvCity::DoUpdateCheapestPlotInfluenceDistance()
 	}
 	else
 		SetCheapestPlotInfluenceDistance(INT_MAX);
+}
+
+void CvCity::fixBonusFromMinors(bool bRemove)
+{
+	//if a city is founded or conquered we have to make sure it gets the current bonuses so we can subtract the bonus later when it experies
+	//this method should only be called once per city on its first turn or when the capital moves ...
+
+	for (int iPlayerLoop = MAX_MAJOR_CIVS; iPlayerLoop < MAX_CIV_PLAYERS; iPlayerLoop++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iPlayerLoop;
+		CvMinorCivAI* pMinor = GET_PLAYER(ePlayer).isMinorCiv() && GET_PLAYER(ePlayer).isAlive() ? GET_PLAYER(ePlayer).GetMinorCivAI() : 0;
+		if (pMinor)
+		{
+			int iSign = bRemove ? -1 : +1;
+
+			if (pMinor->IsAllies(getOwner()))
+			{
+				int iBonus = isCapital() ? pMinor->GetAlliesCapitalFoodBonus() : pMinor->GetAlliesOtherCityFoodBonus();
+				if (iBonus != 0)
+				{
+					ChangeBaseYieldRateFromCSAlliance(YIELD_FOOD, iSign * iBonus / 100);
+					//CUSTOMLOG("adjusted food in %s by %d/100 for alliance with %s, current value is %d", getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+				}
+			}
+
+			if (pMinor->IsFriends(getOwner()))
+			{
+				int iBonus = isCapital() ? pMinor->GetFriendsCapitalFoodBonus(getOwner()) : pMinor->GetFriendsOtherCityFoodBonus(getOwner());
+				if (iBonus != 0)
+				{
+					ChangeBaseYieldRateFromCSFriendship(YIELD_FOOD, iSign * iBonus / 100);
+					//CUSTOMLOG("adjusted food in %s by %d/100 for friendship with %s, current value is %d", getNameKey(), iSign * iBonus, GET_PLAYER(ePlayer).getNameKey(), GetBaseYieldRateFromCSAlliance(YIELD_FOOD));
+				}
+			}
+
+			updateYield();
+		}
+	}
+
 }
 
 //	--------------------------------------------------------------------------------
@@ -31411,7 +31436,11 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 		// Unit
 		if (eUnitType != NO_UNIT)
 		{
-			bool bAlreadyUnderConstruction = getFirstUnitOrder(eUnitType) != -1;
+			//there are weird effects here with units which have an instance limit
+			//because it's unclear whether we're checking the entries in the build option list or in the build queue
+			//so assume we're NOT building one already to be on the safe side
+			//otherwise invalid entries can be shown in the build option list
+			bool bAlreadyUnderConstruction = false; //getFirstUnitOrder(eUnitType) != -1;
 			if (!canTrain(eUnitType, bAlreadyUnderConstruction, !bTestTrainable, false /*bIgnoreCost*/, true /*bWillPurchase*/))
 				return false;
 
@@ -35474,7 +35503,7 @@ int CvCity::CountNumWorkedResource(ResourceTypes eResource)
 			continue;
 		}
 
-		if (pLoopPlot->getResourceType() == eResource)
+		if (pLoopPlot->getResourceType(getTeam()) == eResource)
 		{
 			iNum++;
 		}

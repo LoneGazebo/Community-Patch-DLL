@@ -609,7 +609,7 @@ void CvTacticalAI::FindTacticalTargets()
 					pLoopPlot->getRevealedImprovementType(m_pPlayer->getTeam()) != NO_IMPROVEMENT &&
 					!pLoopPlot->IsImprovementPillaged())
 				{
-					ResourceTypes eResource = pLoopPlot->getResourceType();
+					ResourceTypes eResource = pLoopPlot->getResourceType(m_pPlayer->getTeam());
 					int iExtraScore = 0;
 					//does this make a difference in the end?
 					if (m_pPlayer->isBarbarian() || m_pPlayer->GetPlayerTraits()->IsWarmonger())
@@ -6852,7 +6852,8 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 	{
 		if (pAttacker->getDomainType() == DOMAIN_AIR)
 		{
-			CvUnit* pInterceptor = pDefenderPlot->GetBestInterceptor(pAttacker->getOwner(), pAttacker, false, true);
+			// ignore interception for quick and dirty mode ...
+			CvUnit* pInterceptor = bQuickAndDirty ? NULL : pDefenderPlot->GetBestInterceptor(pAttacker->getOwner(), pAttacker, false, true);
 			// assume interception is successful - do this before the actual attack
 			iAttackerDamage = pInterceptor ? pInterceptor->GetInterceptionDamage(pDefender, false, pDefenderPlot) : 0;
 
@@ -6880,12 +6881,9 @@ int TacticalAIHelpers::GetSimulatedDamageFromAttackOnUnit(const CvUnit* pDefende
 			iDamage += pAttacker->GetRangeCombatDamage(pDefender, NULL, false, iExtraDefenderDamage, 
 							pDefenderPlot, pAttackerPlot, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
 
-		int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty);
+		int iAttackerStrength = pAttacker->GetMaxAttackStrength(pAttackerPlot, pDefenderPlot, pDefender, bIgnoreUnitAdjacencyBoni, bQuickAndDirty, iExtraDefenderDamage);
 		//do not override defender flanking/general bonus (it is known during combat simulation)
-		int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty); 
-
-		//hack. we modify defender strength again by the modifier for assumed extra damage
-		iDefenderStrength += (pDefender->GetDamageCombatModifier(true, iExtraDefenderDamage) * iDefenderStrength) / 100;
+		int iDefenderStrength = pDefender->GetMaxDefenseStrength(pDefenderPlot, pAttacker, pAttackerPlot, false, bQuickAndDirty, iDamage);
 
 		//just assume the unit can attack from its current location - modifiers might be different, but thats acceptable
 		iDamage += pAttacker->getCombatDamage(
@@ -7582,7 +7580,7 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 
 		if (TacticalAIHelpers::IsOtherPlayerCitadel(pTestPlot, assumedPosition.getPlayer(), true))
 			result.iScore = 500;
-		else if (pTestPlot->getResourceType() != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType())->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
+		else if (pTestPlot->getResourceType(pUnit->getTeam()) != NO_RESOURCE && GC.getResourceInfo(pTestPlot->getResourceType(pUnit->getTeam()))->getResourceUsage() == RESOURCEUSAGE_STRATEGIC)
 			result.iScore = 200;
 		else if (pUnit->getDamage() >= /*25*/ GD_INT_GET(PILLAGE_HEAL_AMOUNT))
 			result.iScore = 100;
@@ -8834,8 +8832,8 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 			//make sure we have a chance to execute this move ... so skip it if there is an unmoveable block
 			if (IsCombatUnit(unit))
 			{
-				vector<STacticalUnit> blocks = findBlockingUnitsAtPlot(testPlot.getPlotIndex(), unit.eMoveStrategy);
-				if (blocks.size() > 1 || (blocks.size() == 1 && getAvailableUnitStats(blocks.front().iUnitID) == NULL))
+				int blocks = countBlockingUnitsAtPlot(testPlot.getPlotIndex(), unit.eMoveStrategy);
+				if (blocks > 1 || (blocks == 1 && getAvailableUnitStats( getFirstBlockingUnitIDAtPlot(testPlot.getPlotIndex(), unit.eMoveStrategy) ) == NULL))
 					continue;
 			}
 
@@ -9036,15 +9034,15 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 		else
 		{
 			 //possibly our target plot is still occupied ...
-			vector<STacticalUnit> blocks = findBlockingUnitsAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType);
-			if (blocks.size() == 0)
+			int blocks = countBlockingUnitsAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType);
+			if (blocks == 0)
 			{
 				gMovesToAdd.push_back(gOverAllChoices[i]);
 			}
-			else if (blocks.size() == 1)
+			else if (blocks == 1)
 			{
 				//find best non-blocked move for blocking unit (search only one level deep)
-				vector<STacticalAssignment> blockingUnitChoices = gChoicePerUnit[blocks.front().iUnitID];
+				vector<STacticalAssignment>& blockingUnitChoices = gChoicePerUnit[ getFirstBlockingUnitIDAtPlot(gOverAllChoices[i].iToPlotIndex, gOverAllChoices[i].eMoveType) ];
 				for (size_t j = 0; j < blockingUnitChoices.size(); j++)
 				{
 					if (blockingUnitChoices[j].eAssignmentType == A_MOVE)
@@ -9171,23 +9169,42 @@ bool CvTacticalPosition::isMoveBlockedByOtherUnit(const STacticalAssignment& mov
 	if (move.eAssignmentType != A_MOVE)
 		return false;
 
-	return !findBlockingUnitsAtPlot(move.iToPlotIndex, move.eMoveType).empty();
+	return countBlockingUnitsAtPlot(move.iToPlotIndex, move.eMoveType)!=0;
 }
 
-vector<STacticalUnit> CvTacticalPosition::findBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const
+int CvTacticalPosition::countBlockingUnitsAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const
 {
-	vector<STacticalUnit> result;
+	int result = 0;
 	const CvTacticalPlot& tactPlot = getTactPlot(iPlotIndex);
 	const vector<STacticalUnit>& units = tactPlot.getUnitsAtPlot();
 
 	for (size_t i = 0; i < units.size(); i++)
 	{
 		if (isCombatUnit(moveType) && isCombatUnit(units[i].eMoveType))
-			result.push_back(units[i]);
+			result++;
 		if (isEmbarkedUnit(moveType) && isEmbarkedUnit(units[i].eMoveType))
-			result.push_back(units[i]);
+			result++;
 		if (isSupportUnit(moveType) && isSupportUnit(units[i].eMoveType))
-			result.push_back(units[i]);
+			result++;
+	}
+
+	return result;
+}
+
+int CvTacticalPosition::getFirstBlockingUnitIDAtPlot(int iPlotIndex, eUnitMovementStrategy moveType) const
+{
+	int result = -1;
+	const CvTacticalPlot& tactPlot = getTactPlot(iPlotIndex);
+	const vector<STacticalUnit>& units = tactPlot.getUnitsAtPlot();
+
+	for (size_t i = 0; i < units.size(); i++)
+	{
+		if (isCombatUnit(moveType) && isCombatUnit(units[i].eMoveType))
+			return units[i].iUnitID;
+		if (isEmbarkedUnit(moveType) && isEmbarkedUnit(units[i].eMoveType))
+			return units[i].iUnitID;
+		if (isSupportUnit(moveType) && isSupportUnit(units[i].eMoveType))
+			return units[i].iUnitID;
 	}
 
 	return result;
@@ -10015,10 +10032,10 @@ const CvTacticalPosition* tacticalPositionIsEquivalent(const CvTacticalPosition*
 	if (ref->getAssignments().size() > other->getAssignments().size())
 		return NULL;
 
-	//now check the scores
+	//now check the scores (ignoring any extra moves in other)
 	int iRefScore = 0;
 	int iOtherScore = 0;
-	for (size_t i = ref->assignedMoves.size() - 1; i >= ref->getFirstInterestingAssignment(); i--)
+	for (size_t i = ref->getFirstInterestingAssignment(); i < ref->assignedMoves.size(); i++)
 	{
 		iRefScore += ref->assignedMoves[i].iScore;
 		iOtherScore += other->assignedMoves[i].iScore;

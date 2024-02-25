@@ -842,10 +842,13 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 
 	//simple caching for speedup
 	//only for combat units - civilian danger depends on cover from other units, hard to cache that
-	SUnitInfo unitStats(pUnit, unitsToIgnore, iExtraDamage);
-	for (size_t i=0; i<m_lastResults.size(); i++)
-		if (unitStats == m_lastResults[i].first)
-			return m_lastResults[i].second;
+	SCachedUnitDanger unitStats(pUnit, iExtraDamage);
+	if (unitStats.addIgnoredUnits(unitsToIgnore))
+	{
+		for (size_t i = 0; i < m_lastUnitDangerResults.size(); i++)
+			if (unitStats == m_lastUnitDangerResults[i].first)
+				return m_lastUnitDangerResults[i].second;
+	}
 
 	// Capturing a city with a garrisoned unit destroys the garrisoned unit
 	if (pFriendlyCity)
@@ -930,9 +933,9 @@ int CvDangerPlotContents::GetDanger(const CvUnit* pUnit, const UnitIdContainer& 
 	iPlotDamage += m_bFlatPlotDamage ? m_pPlot->getTurnDamage(pUnit->ignoreTerrainDamage(), pUnit->ignoreFeatureDamage(), pUnit->extraTerrainDamage(), pUnit->extraFeatureDamage()) : 0;
 
 	//update cache
-	m_lastResults.push_back(std::make_pair(unitStats, iPlotDamage));
-	if (m_lastResults.size() == DANGER_MAX_CACHE_SIZE)
-		m_lastResults.erase(m_lastResults.begin());
+	m_lastUnitDangerResults.push_back(std::make_pair(unitStats, iPlotDamage));
+	if (m_lastUnitDangerResults.size() == DANGER_MAX_CACHE_SIZE)
+		m_lastUnitDangerResults.pop_front();
 
 	//done
 	return iPlotDamage;

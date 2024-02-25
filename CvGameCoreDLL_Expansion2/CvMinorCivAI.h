@@ -505,7 +505,7 @@ public:
 
 	bool IsRouteConnectionEstablished(PlayerTypes eMajor) const;
 	void SetRouteConnectionEstablished(PlayerTypes eMajor, bool bValue);
-	CvPlot* GetBestNearbyCampToKill();
+	CvPlot* GetBestNearbyCampToKill(PlayerTypes eMajor);
 
 	CvPlot* GetBestNearbyDig();
 	//Tests
@@ -574,12 +574,12 @@ public:
 
 	int GetEffectiveFriendshipWithMajorTimes100(PlayerTypes ePlayer, bool bIgnoreWar = false);
 	int GetBaseFriendshipWithMajorTimes100(PlayerTypes ePlayer) const;
-	void SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromCoup = false, bool bFromWar = false);
-	void ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
+	void SetFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromCoup = false, bool bFromWar = false, bool bUpdateStatus = true);
+	void ChangeFriendshipWithMajorTimes100(PlayerTypes ePlayer, int iChange, bool bFromQuest = false, bool bUpdateStatus = true);
 
 	int GetEffectiveFriendshipWithMajor(PlayerTypes ePlayer);
 	int GetBaseFriendshipWithMajor(PlayerTypes ePlayer) const;
-	void SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromWar = false);
+	void SetFriendshipWithMajor(PlayerTypes ePlayer, int iNum, bool bFromQuest = false, bool bFromWar = false, bool bUpdateStatus = true);
 	void ChangeFriendshipWithMajor(PlayerTypes ePlayer, int iChange, bool bFromQuest = false);
 
 	int GetFriendshipAnchorWithMajor(PlayerTypes eMajor);

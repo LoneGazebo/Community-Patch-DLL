@@ -419,6 +419,9 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(GetUnitSupplyFromExpendedGreatPeople);
 	Method(ChangeUnitSupplyFromExpendedGreatPeople);
 
+	Method(GetWarDuration);
+	Method(GetLongestWarDuration);
+
 	Method(GetUnhappinessFromUnits);
 	Method(ChangeUnhappinessFromUnits);
 
@@ -4469,6 +4472,29 @@ int CvLuaPlayer::lGetUnhappinessFromWarWeariness(lua_State* L)
 {
 	CvPlayerAI* pkPlayer = GetInstance(L);
 	const int iResult = pkPlayer->GetUnhappinessFromWarWeariness();
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetWarDuration(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	const PlayerTypes ePlayer = (PlayerTypes)lua_tointeger(L, 2);
+	const int iResult = pkPlayer->GetPlayerNumTurnsAtWar(ePlayer);
+	lua_pushinteger(L, iResult);
+	return 1;
+}
+
+int CvLuaPlayer::lGetLongestWarDuration(lua_State* L)
+{
+	CvPlayerAI* pkPlayer = GetInstance(L);
+	int iResult = 0;
+	for (int iI = 0; iI < MAX_PLAYERS; iI++)
+	{
+		PlayerTypes ePlayer = (PlayerTypes)iI;
+		iResult = max(iResult, pkPlayer->GetPlayerNumTurnsAtWar(ePlayer));
+	}
+
 	lua_pushinteger(L, iResult);
 	return 1;
 }
@@ -11831,36 +11857,29 @@ int CvLuaPlayer::lGetRecommendedWorkerPlots(lua_State* L)
 	if(pWorkerUnit == NULL)
 		return 0;
 
-	//fake the reachable plots, ignore all other workers
-	map<int, ReachablePlots> allplots;
-	SPathFinderUserData data(pWorkerUnit, 0, 3);
-	allplots[pWorkerUnit->GetID()] = GC.GetPathFinder().GetPlotsInReach(pWorkerUnit->plot(), data);
+	BuilderDirective assignedDirective = pkPlayer->GetBuilderTaskingAI()->GetAssignedDirective(pWorkerUnit);
 
-	BuilderDirective aDirective = pkPlayer->GetBuilderTaskingAI()->EvaluateBuilder(pWorkerUnit,allplots);
-	if(aDirective.m_eDirective == BuilderDirective::NUM_DIRECTIVES)
-		return 0;
-
-	//don't look at me ... this is just for stupid lua
-	const size_t cuiMaxDirectives = 3;
-	const size_t cuiDirectiveSize = 1;
-
-	lua_createtable(L, cuiMaxDirectives, 0);
-	int iPositionIndex = lua_gettop(L);
-	int i = 1;
-
-	for(uint ui = 0; ui < cuiDirectiveSize && i < cuiMaxDirectives; ui++)
+	if (assignedDirective.m_eBuild != NO_BUILD)
 	{
-		lua_createtable(L, 0, 2);
-		CvLuaPlot::Push(L, GC.getMap().plot(aDirective.m_sX, aDirective.m_sY));
-		lua_setfield(L, -2, "plot");
-		lua_pushinteger(L, aDirective.m_eBuild);
-		lua_setfield(L, -2, "buildType");
+		lua_createtable(L, 0, 0);
+		int iCount = 1;
 
-		lua_rawseti(L, iPositionIndex, i);
-		i++;
+		CvPlot* pPlot = GC.getMap().plot(assignedDirective.m_sX, assignedDirective.m_sY);
+		if (pPlot)
+		{
+			lua_createtable(L, 0, 0);
+			const int t = lua_gettop(L);
+			CvLuaPlot::Push(L, GC.getMap().plot(assignedDirective.m_sX, assignedDirective.m_sY));
+			lua_setfield(L, t, "plot");
+			lua_pushinteger(L, assignedDirective.m_eBuild);
+			lua_setfield(L, t, "buildType");
+			lua_rawseti(L, -2, iCount++);
+		}
+
+		return 1;
 	}
 
-	return 1;
+	return 0;
 }
 
 typedef CvWeightedVector<CvPlot*> WeightedPlotVector;
