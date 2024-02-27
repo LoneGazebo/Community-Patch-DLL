@@ -223,7 +223,7 @@ VALUES
 UPDATE Policies
 SET
 	ProtectedMinorPerTurnInfluence = 200,
-	FreeWCVotes = 2
+	FreeWCVotes = 4
 WHERE Type = 'POLICY_TREATY_ORGANIZATION';
 
 -- Space Procurements
