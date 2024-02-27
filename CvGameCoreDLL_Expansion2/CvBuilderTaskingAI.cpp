@@ -736,6 +736,10 @@ void CvBuilderTaskingAI::ConnectCitiesForShortcuts(CvCity* pCity1, CvCity* pCity
 
 	GetPathValues(path, eRoute, iVillageBonusesIfCityConnected, iMovementBonus, iNumRoadsNeededToBuild);
 
+	// If one of the cities is connected to the capital, both will be when this route is completed
+	if (!pCity1->IsConnectedToCapital() && !pCity2->IsConnectedToCapital())
+		iVillageBonusesIfCityConnected = 0;
+
 	int iValue = iVillageBonusesIfCityConnected + iMovementBonus;
 
 	iValue -= iNumRoadsNeededToBuild * 10;
