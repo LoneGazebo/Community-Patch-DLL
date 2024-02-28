@@ -780,7 +780,7 @@ void CvCityStrategyAI::ChooseProduction(BuildingTypes eIgnoreBldg, UnitTypes eIg
 		if ((UnitTypes)iUnitLoop != eIgnoreUnit && m_pCity->canTrain((UnitTypes)iUnitLoop, (m_pCity->isProductionUnit() && (UnitTypes)iUnitLoop == m_pCity->getProductionUnit())))
 		{
 			// Automated cities won't build units except workers and work boats, or any other civilian with a work rate
-			CvUnitEntry* pUnitEntry = GC.getUnitInfo(iUnitLoop);
+			CvUnitEntry* pUnitEntry = GC.getUnitInfo((UnitTypes)iUnitLoop);
 			if (m_pCity->isHumanAutomated())
 				if (!MOD_BALANCE_VP || pUnitEntry->GetWorkRate() == 0 || pUnitEntry->GetCombat() > 0 || pUnitEntry->GetRangedCombat() > 0)
 					continue;
