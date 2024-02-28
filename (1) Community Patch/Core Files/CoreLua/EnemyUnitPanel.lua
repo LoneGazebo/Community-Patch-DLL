@@ -1216,6 +1216,18 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_BONUS_DEFENSE_TERRAIN", nBonus, iMiscModifier, false, true, nil, sDescription);
 				end
 
+				-- Plot defense
+				iModifier = pToPlot:DefenseModifier(pTheirUnit:GetTeam(), false, false);
+				if iModifier > 0 and pTheirUnit:NoDefensiveBonus() then
+					-- Only improvements count
+					iModifier = iModifier - pToPlot:DefenseModifier(pTheirUnit:GetTeam(), true, false);
+				end
+				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_TERRAIN_MODIFIER", nBonus, iMiscModifier, false, true);
+
+				-- Fortify bonus
+				iModifier = pTheirUnit:FortifyModifier();
+				nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_FORTIFICATION_BONUS", nBonus, iMiscModifier, false, true);
+
 				-- Ranged defense modifier
 				if bRanged then
 					iModifier = pTheirUnit:GetRangedDefenseModifier();
