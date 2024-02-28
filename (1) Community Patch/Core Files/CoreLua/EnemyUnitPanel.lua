@@ -1237,7 +1237,7 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 	if nBonus > g_iMaxBonusDisplay then
 		controlTable = g_TheirCombatDataIM:GetInstance();
 		controlTable.Text:LocalizeAndSetText("TXT_KEY_MISC_BONUS");
-		controlTable.Value:SetText(GetFormattedText(iMiscModifier, true, true));
+		controlTable.Value:SetText(GetFormattedText(iMiscModifier, false, true));
 	end
 
 	RecalculateSize();
