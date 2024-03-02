@@ -851,10 +851,10 @@ function UpdateCombatSimulator(pMyUnit, pTheirUnit, pMyCity, pTheirCity)
 			-- Target is on rough terrain
 			if pToPlot:IsRoughGround() then
 				if not bRanged then
-					iModifier = pMyUnit:OpenAttackModifier();
+					iModifier = pMyUnit:RoughAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_BONUS", nBonus, iMiscModifier, true, true);
 				else
-					iModifier = pMyUnit:OpenRangedAttackModifier();
+					iModifier = pMyUnit:RoughRangedAttackModifier();
 					nBonus, iMiscModifier = ProcessModifier(iModifier, "TXT_KEY_EUPANEL_ROUGH_TERRAIN_RANGED_BONUS", nBonus, iMiscModifier, true, true);
 				end
 			end
