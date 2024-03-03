@@ -3035,7 +3035,36 @@ static vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> GetWeightedDirec
 
 	std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
-	CvAssert(aWeightedDirectives.size() == aDirectives.size())
+	CvAssert(aWeightedDirectives.size() == aDirectives.size());
+
+	bool bScoreUpdated = false;
+
+	// We need to double check if this best directive is actually reachable safely
+	for (vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>>::iterator it = aWeightedDirectives.begin(); it != aWeightedDirectives.end() && it->score != INT_MIN; ++it)
+	{
+		OptionWithScore<pair<CvUnit*, BuilderDirective>> optionWithScore = *it;
+		CvUnit* pUnit = optionWithScore.option.first;
+		BuilderDirective eDirective = optionWithScore.option.second;
+
+		CvPlot* pDirectivePlot = GC.getMap().plot(eDirective.m_sX, eDirective.m_sY);
+
+		int iPlotDistance = plotDistance(pDirectivePlot->getX(), pDirectivePlot->getY(), pUnit->getX(), pUnit->getY());
+
+		// If we are closer than 9 tiles away, we know that there is a path to the target
+		if (iPlotDistance <= 9)
+			break;
+
+		int iBuilderDistance = pPlayer->GetBuilderTaskingAI()->GetBuilderNumTurnsAway(pUnit, eDirective);
+
+		if (iBuilderDistance == INT_MAX)
+		{
+			it->score = INT_MIN;
+			bScoreUpdated = true;
+		}
+	}
+
+	if (bScoreUpdated)
+		std::stable_sort(aWeightedDirectives.begin(), aWeightedDirectives.end());
 
 	return aWeightedDirectives;
 }
@@ -3122,7 +3151,7 @@ void CvHomelandAI::ExecuteWorkerMoves()
 	vector<OptionWithScore<pair<CvUnit*, BuilderDirective>>> aDistanceWeightedDirectives = GetWeightedDirectives(m_pPlayer, topDirectives, ignoredDirectives, m_workedPlots, allWorkers, processedWorkers, plotDistanceCache);
 
 	// Loop through all the directives sorted by weighted score and distance (see GetDirectiveWeight)
-	while (!aDistanceWeightedDirectives.empty() && aDistanceWeightedDirectives[0].option.first != NULL && allWorkers.size() > processedWorkers.size())
+	while (!aDistanceWeightedDirectives.empty() && aDistanceWeightedDirectives[0].score != INT_MIN && allWorkers.size() > processedWorkers.size())
 	{
 		OptionWithScore<pair<CvUnit*, BuilderDirective>> pUnitAndDirectiveWithScore = aDistanceWeightedDirectives[0];
 

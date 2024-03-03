@@ -1734,6 +1734,9 @@ vector<OptionWithScore<BuilderDirective>> CvBuilderTaskingAI::GetRouteDirectives
 			}
 		}
 
+		if (!ShouldAnyBuilderConsiderPlot(pPlot))
+			continue;
+
 		if (!bAnyAdjacentRoute)
 			iValue /= 2;
 
