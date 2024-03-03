@@ -186,10 +186,10 @@ void CvAStar::Initialize(int iColumns, int iRows, bool bWrapX, bool bWrapY)
 
 	m_iBasicPlotCost = 1;
 
-	m_ppaaNodes = reinterpret_cast<CvAStarNode**>(FMALLOCALIGNED(sizeof(CvAStarNode*)*m_iColumns, 64, c_eCiv5GameplayDLL, 0));
+	m_ppaaNodes = static_cast<CvAStarNode**>(FMALLOCALIGNED(sizeof(CvAStarNode*)*m_iColumns, 64, c_eCiv5GameplayDLL, 0));
 	for(int iI = 0; iI < m_iColumns; iI++)
 	{
-		m_ppaaNodes[iI] = reinterpret_cast<CvAStarNode*>(FMALLOCALIGNED(sizeof(CvAStarNode)*m_iRows, 64, c_eCiv5GameplayDLL, 0));
+		m_ppaaNodes[iI] = static_cast<CvAStarNode*>(FMALLOCALIGNED(sizeof(CvAStarNode)*m_iRows, 64, c_eCiv5GameplayDLL, 0));
 		for(int iJ = 0; iJ < m_iRows; iJ++)
 		{
 			new(&m_ppaaNodes[iI][iJ]) CvAStarNode();
@@ -893,7 +893,7 @@ struct UnitPathCacheData
 // get all information which is constant during a path planning operation
 void UnitPathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 {
-	UnitPathCacheData* pCacheData = reinterpret_cast<UnitPathCacheData*>(finder->GetScratchBufferDirty());
+	UnitPathCacheData* pCacheData = static_cast<UnitPathCacheData*>(finder->GetScratchBufferDirty());
 
 	CvUnit* pUnit = GET_PLAYER(data.ePlayer).getUnit(data.iUnitID);
 	pCacheData->pUnit = pUnit;
@@ -1098,7 +1098,7 @@ int PathDestValid(int iToX, int iToY, const SPathFinderUserData&, const CvAStar*
 		return TRUE;
 
 	//do not use the node data cache here - it is not set up yet - only the unit data cache is available
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
+	const UnitPathCacheData* pCacheData = static_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eTeam = pCacheData->getTeam();
 
@@ -1337,7 +1337,7 @@ int PathCost(const CvAStarNode* parent, const CvAStarNode* node, const SPathFind
 	bool bIsPathDest = finder->IsPathDest(iToPlotX, iToPlotY);
 	bool bCheckZOC =  !finder->HaveFlag(CvUnit::MOVEFLAG_IGNORE_ZOC);
 
-	const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
+	const UnitPathCacheData* pUnitDataCache = static_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pUnitDataCache->pUnit;
 
 	TeamTypes eUnitTeam = pUnitDataCache->getTeam();
@@ -1496,7 +1496,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 	// Cached values for this node that we will use
 	const CvPathNodeCacheData& kToNodeCacheData = node->m_kCostCacheData;
 	const CvPathNodeCacheData& kFromNodeCacheData = parent->m_kCostCacheData;
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
+	const UnitPathCacheData* pCacheData = static_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	CvUnit* pUnit = pCacheData->pUnit;
 	TeamTypes eUnitTeam = pCacheData->getTeam();
 
@@ -1626,7 +1626,7 @@ int PathValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathFin
 /// Node was added to the path
 void CvTwoLayerPathFinder::NodeAddedToPath(CvAStarNode* parent, CvAStarNode* node, int iKnownCost, CvAStarNodeAddOp operation)
 {
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(GetScratchBuffer());
+	const UnitPathCacheData* pCacheData = static_cast<const UnitPathCacheData*>(GetScratchBuffer());
 	const CvUnit* pUnit = pCacheData->pUnit;
 	bool bUpdateCacheForNeighbors = false;
 
@@ -2575,7 +2575,7 @@ bool CvTwoLayerPathFinder::AddStopNodeIfRequired(const CvAStarNode* current, con
 	if (!CanEndTurnAtNode(current))
 		return false;
 
-	const UnitPathCacheData* pUnitDataCache = reinterpret_cast<const UnitPathCacheData*>(GetScratchBuffer());
+	const UnitPathCacheData* pUnitDataCache = static_cast<const UnitPathCacheData*>(GetScratchBuffer());
 
 	//there are two conditions where we might want to end the turn before proceeding
 	// - next nodes is temporarily blocked because of stacking
@@ -3094,7 +3094,7 @@ int RebaseValid(const CvAStarNode* parent, const CvAStarNode* node, const SPathF
 		return TRUE;
 
 	CvPlot* pNewPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
-	const UnitPathCacheData* pCacheData = reinterpret_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
+	const UnitPathCacheData* pCacheData = static_cast<const UnitPathCacheData*>(finder->GetScratchBuffer());
 	const CvUnit* pUnit = pCacheData->pUnit;
 	if (!pUnit)
 		return FALSE;
@@ -3185,7 +3185,7 @@ struct TradePathCacheData
 //	--------------------------------------------------------------------------------
 void TradePathInitialize(const SPathFinderUserData& data, CvAStar* finder)
 {
-	TradePathCacheData* pCacheData = reinterpret_cast<TradePathCacheData*>(finder->GetScratchBufferDirty());
+	TradePathCacheData* pCacheData = static_cast<TradePathCacheData*>(finder->GetScratchBufferDirty());
 
 	if (data.ePlayer!=NO_PLAYER)
 	{
@@ -3237,7 +3237,7 @@ int TradePathLandCost(const CvAStarNode* parent, const CvAStarNode* node, const 
 	CvPlot* pFromPlot = kMap.plotUnchecked(parent->m_iX, parent->m_iY);
 	CvPlot* pToPlot = kMap.plotUnchecked( node->m_iX,  node->m_iY);
 
-	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
+	const TradePathCacheData* pCacheData = static_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	FeatureTypes eFeature = pToPlot->getFeatureType();
 	TerrainTypes eTerrain = pToPlot->getTerrainType();
 
@@ -3290,7 +3290,7 @@ int TradePathLandValid(const CvAStarNode* parent, const CvAStarNode* node, const
 	if(parent == NULL)
 		return TRUE;
 
-	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
+	const TradePathCacheData* pCacheData = static_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	CvPlot* pToPlot = GC.getMap().plotUnchecked(node->m_iX, node->m_iY);
 
 	if (!pToPlot->isRevealed(pCacheData->GetTeam()))
@@ -3334,7 +3334,7 @@ int TradePathLandValid(const CvAStarNode* parent, const CvAStarNode* node, const
 int TradePathWaterCost(const CvAStarNode*, const CvAStarNode* node, const SPathFinderUserData&, CvAStar* finder)
 {
 	CvMap& kMap = GC.getMap();
-	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
+	const TradePathCacheData* pCacheData = static_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 	CvPlot* pToPlot = kMap.plotUnchecked( node->m_iX,  node->m_iY);
 
 	int iCost = PATH_BASE_COST;
@@ -3362,7 +3362,7 @@ int TradePathWaterValid(const CvAStarNode* parent, const CvAStarNode* node, cons
 	if(parent == NULL)
 		return TRUE;
 
-	const TradePathCacheData* pCacheData = reinterpret_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
+	const TradePathCacheData* pCacheData = static_cast<const TradePathCacheData*>(finder->GetScratchBuffer());
 
 	CvMap& kMap = GC.getMap();
 	CvPlot* pNewPlot = kMap.plotUnchecked(node->m_iX, node->m_iY);
