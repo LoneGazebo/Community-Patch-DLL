@@ -1579,7 +1579,7 @@ public:
 	void produce(ProjectTypes eCreateProject, bool bCanOverflow = true);
 	void produce(SpecialistTypes eSpecialist, bool bCanOverflow = true);
 
-	CvUnit* CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT, bool bUseToSatisfyOperation = true, bool bIsPurchase = false);
+	CvUnit* CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType = NO_UNITAI, UnitCreationReason eReason = REASON_DEFAULT);
 	bool CreateBuilding(BuildingTypes eBuildingType);
 	bool CreateProject(ProjectTypes eProjectType);
 
@@ -1590,7 +1590,9 @@ public:
 	bool CanPlaceUnitHere(UnitTypes eUnitType) const;
 	bool IsCanPurchase(bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //slow version
 	bool IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool bTestPurchaseCost, bool bTestTrainable, UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield); //fast version
-	void Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield);
+	CvUnit* PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield);
+	bool PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseYield);
+	bool PurchaseProject(ProjectTypes eProjectType, YieldTypes ePurchaseYield);
 
 	CvCityStrategyAI* GetCityStrategyAI() const;
 	CvCityCitizens* GetCityCitizens() const;

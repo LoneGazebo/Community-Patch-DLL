@@ -17245,12 +17245,12 @@ void CvCity::CheckForOperationUnits()
 							pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
 						GetCityStrategyAI()->LogHurryMessage(strLogString);
 
-						//take the money...
-						kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
-
 						bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 						if (bInvest)
 						{
+							//take the money...
+							kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+
 							const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
 							if (eUnitClass != NO_UNITCLASS)
 							{
@@ -17276,14 +17276,45 @@ void CvCity::CheckForOperationUnits()
 						else
 						{
 							//and train it!
-							UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-							CvUnit* pUnit = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, true);
+							CvUnit* pUnit = PurchaseUnit(eBestUnit, YIELD_GOLD);
 							if (pUnit)
 							{
-								//assume the unit will be recruited automatically?
+								CleanUpQueue();
+
 								kPlayer.GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 
-								CleanUpQueue();
+								//bookkeeping
+								if (m_unitBeingBuiltForOperation.IsValid())
+								{
+									kPlayer.CityFinishedBuildingUnitForOperationSlot(m_unitBeingBuiltForOperation, pUnit);
+									m_unitBeingBuiltForOperation.Invalidate();
+								}
+								else
+								{
+									vector<pair<size_t, size_t>> freeSlotsPerOp;
+									// Check existing armies this unit could fit into if it wasn't automatically added to one.
+									for (size_t i = 0; i < GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
+									{
+										CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
+										if (pOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS)
+										{
+											//only look at the first army ...
+											CvArmyAI* pFirstArmy = pOp->GetArmy(0);
+											if (pFirstArmy)
+												freeSlotsPerOp.push_back(make_pair(pFirstArmy->GetOpenSlots(true).size(), i));
+										}
+									}
+									//try the army which is closest to completion first!
+									if (!freeSlotsPerOp.empty())
+									{
+										//default sort order is ascending by first pair member 
+										std::stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
+										for (size_t i = 0; i < freeSlotsPerOp.size(); i++)
+											if (GET_PLAYER(m_eOwner).getAIOperationByIndex(freeSlotsPerOp[i].second)->RecruitUnit(pUnit))
+												break;
+									}
+								}
+
 								return;
 							}
 						}
@@ -17360,12 +17391,12 @@ void CvCity::CheckForOperationUnits()
 					pkUnitEntry->GetDescription(), getName().c_str(), iGoldCost, GET_PLAYER(getOwner()).GetTreasury()->GetGold());
 				kPlayer.GetHomelandAI()->LogHomelandMessage(strLogString);
 
-				//take the money...
-				kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
-
 				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pkUnitEntry->GetSpaceshipProject() != NO_PROJECT);
 				if (bInvest)
 				{
+					//take the money...
+					kPlayer.GetTreasury()->ChangeGold(-iGoldCost);
+
 					const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitEntry->GetUnitClassType());
 					if (eUnitClass != NO_UNITCLASS)
 					{
@@ -17391,8 +17422,7 @@ void CvCity::CheckForOperationUnits()
 				else
 				{
 					//and train it!
-					UnitAITypes eUnitAI = pkUnitEntry->GetDefaultUnitAIType();
-					CvUnit* pUnit = CreateUnit(eBestUnit, eUnitAI, REASON_BUY, false);
+					CvUnit* pUnit = PurchaseUnit(eBestUnit, YIELD_GOLD);
 					if (pUnit)
 					{
 						CleanUpQueue();
@@ -30878,7 +30908,7 @@ void CvCity::produce(SpecialistTypes eSpecialist, bool bCanOverflow)
 }
 
 //	--------------------------------------------------------------------------------
-CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationReason eReason, bool bUseToSatisfyOperation, bool bIsPurchase)
+CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreationReason eReason)
 {
 	VALIDATE_OBJECT
 	CvPlot* pUnitPlot = GetPlotForNewUnit(eUnitType);
@@ -30898,9 +30928,11 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 		pUnit->changeDamage( min(iUnitDamage,pUnit->GetMaxHitPoints()-1) );
 	}
 
-	addProductionExperience(pUnit, false, bIsPurchase);
+	bool bIsPurchased = (eReason == REASON_BUY || eReason == REASON_FAITH_BUY);
 
-	if ((eReason != REASON_BUY && eReason != REASON_FAITH_BUY) || pUnit->getUnitInfo().CanMoveAfterPurchase())
+	addProductionExperience(pUnit, false, bIsPurchased);
+
+	if ( !bIsPurchased || pUnit->getUnitInfo().CanMoveAfterPurchase())
 		pUnit->restoreFullMoves();
 	else
 		pUnit->finishMoves();
@@ -30925,40 +30957,6 @@ CvUnit* CvCity::CreateUnit(UnitTypes eUnitType, UnitAITypes eAIType, UnitCreatio
 	if (pRallyPlot != NULL)
 	{
 		pUnit->PushMission(CvTypes::getMISSION_MOVE_TO(), pRallyPlot->getX(), pRallyPlot->getY());
-	}
-
-	if (bUseToSatisfyOperation)
-	{
-		if (m_unitBeingBuiltForOperation.IsValid())
-		{
-			thisPlayer.CityFinishedBuildingUnitForOperationSlot(m_unitBeingBuiltForOperation, pUnit);
-			m_unitBeingBuiltForOperation.Invalidate();
-		}
-		else
-		{
-			vector<pair<size_t, size_t>> freeSlotsPerOp;
-			// Check existing armies this unit could fit into if it wasn't automatically added to one.
-			for (size_t i = 0; i < GET_PLAYER(m_eOwner).getNumAIOperations(); i++)
-			{
-				CvAIOperation* pOp = GET_PLAYER(m_eOwner).getAIOperationByIndex(i);
-				if (pOp->GetOperationState() == AI_OPERATION_STATE_RECRUITING_UNITS)
-				{
-					//only look at the first army ...
-					CvArmyAI* pFirstArmy = pOp->GetArmy(0);
-					if (pFirstArmy)
-						freeSlotsPerOp.push_back(make_pair(pFirstArmy->GetOpenSlots(true).size(),i));
-				}
-			}
-			//try the army which is closest to completion first!
-			if (!freeSlotsPerOp.empty())
-			{ 
-				//default sort order is ascending by first pair member 
-				std::stable_sort(freeSlotsPerOp.begin(), freeSlotsPerOp.end());
-				for (size_t i=0; i<freeSlotsPerOp.size(); i++)
-					if (GET_PLAYER(m_eOwner).getAIOperationByIndex( freeSlotsPerOp[i].second )->RecruitUnit(pUnit))
-						break;
-			}
-		}
 	}
 
 	// Any AI unit with explore AI as a secondary unit AI (e.g. warriors) are assigned that unit AI if this AI player needs to explore more
@@ -31819,314 +31817,67 @@ bool CvCity::IsCanPurchase(const std::vector<int>& vPreExistingBuildings, bool b
 
 //	--------------------------------------------------------------------------------
 // purchase something at the city
-void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectTypes eProjectType, YieldTypes ePurchaseYield)
+CvUnit* CvCity::PurchaseUnit(UnitTypes eUnitType, YieldTypes ePurchaseYield)
 {
-	VALIDATE_OBJECT
+	// Can we actually buy this thing?
+	if (eUnitType==NO_UNIT || !IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitType, NO_BUILDING, NO_PROJECT, ePurchaseYield))
+		return NULL;
+
+	CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
+	if (!pGameUnit)
+		return NULL;
 
 	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+	CvUnit* pNewUnit = NULL;
 
 	switch (ePurchaseYield)
 	{
 	case YIELD_GOLD:
 	{
-		// Can we actually buy this thing?
-		if (!IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitType, eBuildingType, eProjectType, YIELD_GOLD))
-			return;
+		int	iGoldCost = GetPurchaseCost(eUnitType);
 
-		int iGoldCost = 0;
-
-		kPlayer.GetTreasury();
-
-		// Unit
-		if (eUnitType != NO_UNIT) {
-			iGoldCost = GetPurchaseCost(eUnitType);
-			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-			if (pGameUnit != NULL)
-			{
-				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameUnit->GetText(), iGoldCost, 2);
-			}
-#if defined(MOD_BALANCE_CORE)
-			bool bCivilian = (pGameUnit->GetCombat() <= 0 && pGameUnit->GetRangedCombat() <= 0);
-			SetUnitPurchaseCooldown(bCivilian, pGameUnit->GetCooldown() - GetUnitPurchaseCooldownMod(bCivilian));
-#endif
-			// Building
-		}
-		else if (eBuildingType != NO_BUILDING) {
-			iGoldCost = GetPurchaseCost(eBuildingType);
-			CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-			if (pGameBuilding != NULL)
-			{
-				kPlayer.GetTreasury()->LogExpenditure((CvString)pGameBuilding->GetText(), iGoldCost, 2);
-			}
-#if defined(MOD_BALANCE_CORE)
-			SetBuildingPurchaseCooldown(pGameBuilding->GetCooldown());
-#endif
-			// Project
-		}
-		else if (eProjectType != NO_PROJECT) {
-			iGoldCost = GetPurchaseCost(eProjectType);
-			kPlayer.GetTreasury()->LogExpenditure((CvString)GC.getProjectInfo(eProjectType)->GetText(), iGoldCost, 2);
-		}
-
-		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
-#if defined(MOD_BALANCE_CORE)
-		if (iGoldCost > 0)
+		bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pGameUnit->GetSpaceshipProject() != NO_PROJECT);
+		if (bInvest)
 		{
-			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
-		}
-#endif
-
-		bool bResult = false;
-		if (eUnitType >= 0)
-		{
-			CvUnitEntry* pGameUnit = GC.getUnitInfo(eUnitType);
-			if (pGameUnit)
+			const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
+			if (eUnitClass != NO_UNITCLASS)
 			{
-				bool bInvest = MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_VP && pGameUnit->GetSpaceshipProject() != NO_PROJECT);
-				if (bInvest)
+				SetUnitInvestment(eUnitClass, true);
+				if (getProductionProcess() != NO_PROCESS)
 				{
-					const UnitClassTypes eUnitClass = (UnitClassTypes)(pGameUnit->GetUnitClassType());
-					if (eUnitClass != NO_UNITCLASS)
-					{
-						SetUnitInvestment(eUnitClass, true);
-						if (getProductionProcess() != NO_PROCESS)
-						{
-							clearOrderQueue();
-						}
-
-						if (!hasOrder(ORDER_TRAIN, eUnitType))
-						{
-							//we purchased it so let's assume it's urgent and put it at the head of the list
-							pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, false);
-						}
-					}
+					clearOrderQueue();
 				}
-				else
+
+				if (!hasOrder(ORDER_TRAIN, eUnitType))
 				{
-					CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY, false, true);
-					if (pUnit)
-					{
-						if (pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
-						{
-							UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
-							if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
-							{
-								pUnit->DoUpgrade(true);
-							}
-						}
-						if (kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
-						{
-							UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
-							UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-							if (pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
-							{
-								CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
-								if (pkcUnitEntry)
-								{
-									UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
-									CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
-									pZuluImpi->convert(pUnit, true);
-								}
-							}
-						}
-						if (pUnit->isTrade())
-						{
-							if (GC.getLogging() && GC.getAILogging())
-							{
-								CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
-								CvString strLogString;
-								strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
-								GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
-							}
-						}
-
-#if defined(MOD_EVENTS_CITY)
-						if (MOD_EVENTS_CITY) {
-							GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), true, false);
-						}
-						else {
-#endif
-							ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-							if (pkScriptSystem)
-							{
-								CvLuaArgsHandle args;
-								args->Push(getOwner());
-								args->Push(GetID());
-								args->Push(pUnit->GetID());
-								args->Push(true); // bGold
-								args->Push(false); // bFaith/bCulture
-
-								bool bScriptResult = false;
-								LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
-							}
-#if defined(MOD_EVENTS_CITY)
-						}
-#endif
-					}
-				}
-#if defined(MOD_BALANCE_CORE_UNIT_INVESTMENTS)
-			}
-#endif
-		}
-		else if (eBuildingType >= 0)
-		{
-			if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
-			{
-				CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
-				if (pGameBuilding)
-				{
-					const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
-					if (eBuildingClass != NO_BUILDINGCLASS)
-					{
-						SetBuildingInvestment(eBuildingClass, true);
-
-						if (!hasOrder(ORDER_CONSTRUCT, eBuildingType, -1))
-						{
-							//we purchased it so let's assume it's urgent and put it at the head of the list
-							pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, false);
-						}
-					}
+					//we purchased it so let's assume it's urgent and put it at the head of the list
+					pushOrder(ORDER_TRAIN, eUnitType, -1, false, false, false);
 				}
 			}
+		}
+		else
+		{
+			CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_BUY);
+			if (pUnit == NULL)
+				return NULL;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit
 			else
+				pNewUnit = pUnit;
+
+			if (pUnit->isTrade())
 			{
-				bResult = CreateBuilding(eBuildingType);
-
-				if (MOD_EVENTS_CITY) {
-					GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, true, false);
+				if (GC.getLogging() && GC.getAILogging())
+				{
+					CvString strCiv = GET_PLAYER(getOwner()).getCivilizationAdjective();
+					CvString strLogString;
+					strLogString.Format("TRADE UNIT BOUGHT: %s %s at %d,d", strCiv.c_str(), pUnit->getName().c_str(), pUnit->getX(), pUnit->getY());
+					GET_PLAYER(getOwner()).GetHomelandAI()->LogHomelandMessage(strLogString);
 				}
-				else {
-
-					CvBuildingEntry* pkPurchasedBuildingInfo = GC.getBuildingInfo(eBuildingType);
-					if (pkPurchasedBuildingInfo)
-					{
-						const BuildingClassTypes ePurchasedClass = (BuildingClassTypes)pkPurchasedBuildingInfo->GetBuildingClassType();
-						if (ePurchasedClass != NO_BUILDINGCLASS)
-						{
-							SetPurchased(ePurchasedClass, true);
-						}
-					}
-
-					ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-					if (pkScriptSystem)
-					{
-						CvLuaArgsHandle args;
-						args->Push(getOwner());
-						args->Push(GetID());
-						args->Push(eBuildingType);
-						args->Push(true); // bGold
-						args->Push(false); // bFaith/bCulture
-
-						bool bScriptResult = false;
-						LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
-					}
-#if defined(MOD_EVENTS_CITY)
-				}
-#endif
-
-				CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
-				CvAssertMsg(bResult, "Unable to create building");
-#if defined(MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
 			}
-#endif
-		}
-		else if (eProjectType >= 0)
-		{
-			bResult = CreateProject(eProjectType);
-			CvAssertMsg(bResult, "Unable to create project");
 
-#if defined(MOD_EVENTS_CITY)
 			if (MOD_EVENTS_CITY) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityCreated, getOwner(), GetID(), eProjectType, true, false);
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), true, false);
 			}
 			else {
-#endif
-				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
-				if (pkScriptSystem)
-				{
-					CvLuaArgsHandle args;
-					args->Push(getOwner());
-					args->Push(GetID());
-					args->Push(eProjectType);
-					args->Push(true); // bGold
-					args->Push(false); // bFaith/bCulture
-
-					bool bScriptResult = false;
-					LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
-				}
-#if defined(MOD_EVENTS_CITY)
-			}
-#endif
-		}
-	}
-	break;
-	case YIELD_FAITH:
-	{
-		int iFaithCost = 0;
-
-		// Can we actually buy this thing?
-		if (!IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eUnitType, eBuildingType, eProjectType, YIELD_FAITH))
-			return;
-
-		// Unit
-		if (eUnitType != NO_UNIT)
-			iFaithCost = GetFaithPurchaseCost(eUnitType, true  /*bIncludeBeliefDiscounts*/);
-		// Building
-		else if (eBuildingType != NO_BUILDING)
-			iFaithCost = GetFaithPurchaseCost(eBuildingType);
-
-		if (eUnitType >= 0)
-		{
-			CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_FAITH_BUY);
-			if (pUnit==NULL)
-				return;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit.
-
-			if (pUnit->getUnitInfo().GetGlobalFaithCooldown() > 0)
-			{
-				int iCooldown = pUnit->getUnitInfo().GetGlobalFaithCooldown();
-				iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iCooldown /= 100;
-				kPlayer.ChangeFaithPurchaseCooldown(iCooldown);
-			}
-			if (pUnit->getUnitInfo().GetLocalFaithCooldown() > 0)
-			{
-				bool bCivilian = (pUnit->getUnitInfo().GetCombat() <= 0 && pUnit->getUnitInfo().GetRangedCombat() <= 0);
-				int iCooldown = pUnit->getUnitInfo().GetLocalFaithCooldown();
-				iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
-				iCooldown /= 100;
-				ChangeUnitFaithPurchaseCooldown(bCivilian, iCooldown);
-			}
-
-			if (pUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
-			{
-				UnitTypes eUpgradeUnit = pUnit->GetUpgradeUnitType();
-				if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
-				{
-					pUnit->DoUpgrade(true);
-				}
-			}
-			if (kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
-			{
-				UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
-				UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
-				if (pUnit != NULL && pUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
-				{
-					CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
-					if (pkcUnitEntry)
-					{
-						UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
-						CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pUnit->getX(), pUnit->getY(), eZuluImpiAI);
-						pZuluImpi->convert(pUnit, true);
-					}
-				}
-			}
-
-#if defined(MOD_EVENTS_CITY)
-			if (MOD_EVENTS_CITY) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), false, true);
-			}
-			else {
-#endif
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 				if (pkScriptSystem)
 				{
@@ -32134,147 +31885,258 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					args->Push(getOwner());
 					args->Push(GetID());
 					args->Push(pUnit->GetID());
-					args->Push(false); // bGold
-					args->Push(true); // bFaith/bCulture
+					args->Push(true); // bGold
+					args->Push(false); // bFaith/bCulture
 
-					bool bResult = false;
-					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
+					bool bScriptResult = false;
+					LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bScriptResult);
 				}
-#if defined(MOD_EVENTS_CITY)
-			}
-#endif
-
-			// Prophets are always of the religion the player founded
-			ReligionTypes eReligion;
-			if (pUnit->getUnitInfo().IsFoundReligion())
-			{
-				eReligion = kPlayer.GetReligions()->GetOwnedReligion();
-			}
-			else
-			{
-				eReligion = GetCityReligions()->GetReligiousMajority();
-			}
-
-			pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion);
-
-			kPlayer.ChangeFaith(-iFaithCost);
-
-			UnitClassTypes eUnitClass = pUnit->getUnitClassType();
-			if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
-			{
-				kPlayer.incrementWritersFromFaith();
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
-			{
-				kPlayer.incrementArtistsFromFaith();
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
-			{
-				kPlayer.incrementMusiciansFromFaith();
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
-			{
-				kPlayer.incrementScientistsFromFaith();
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
-			{
-				kPlayer.incrementMerchantsFromFaith();
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
-			{
-				kPlayer.incrementEngineersFromFaith();
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
-			{
-				kPlayer.incrementGeneralsFromFaith();
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
-			{
-				kPlayer.incrementAdmiralsFromFaith();
-				CvPlot* pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(pUnit);
-				if (pUnit->plot() != pSpawnPlot)
-				{
-					pUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
-				}
-			}
-			else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
-			{
-#if defined(MOD_GLOBAL_TRULY_FREE_GP)
-				kPlayer.GetReligions()->ChangeNumProphetsSpawned(1, false);
-#else
-				kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
-#endif
-			}
-			else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
-			{
-				kPlayer.incrementDiplomatsFromFaith();
-			}
-#if defined(MOD_BALANCE_CORE)
-			else if (pUnit->getUnitInfo().IsGPExtra() == 1)
-			{
-				kPlayer.incrementGPExtra1FromFaith();
-			}
-			else if (pUnit->getUnitInfo().IsGPExtra() == 2)
-			{
-				kPlayer.incrementGPExtra2FromFaith();
-			}
-			else if (pUnit->getUnitInfo().IsGPExtra() == 3)
-			{
-				kPlayer.incrementGPExtra3FromFaith();
-			}
-			else if (pUnit->getUnitInfo().IsGPExtra() == 4)
-			{
-				kPlayer.incrementGPExtra4FromFaith();
-			}
-			else if (pUnit->getUnitInfo().IsGPExtra() == 5)
-			{
-				kPlayer.incrementGPExtra5FromFaith();
-			}
-#endif
-
-			if (GC.getLogging())
-			{
-				CvString strLogMsg;
-				CvString temp;
-				strLogMsg = kPlayer.getCivilizationShortDescription();
-				strLogMsg += ", FAITH UNIT PURCHASE, ";
-				strLogMsg += pUnit->getName();
-				strLogMsg += ", ";
-				strLogMsg += getName();
-				strLogMsg += ", Faith Cost: ";
-				temp.Format("%d", iFaithCost);
-				strLogMsg += temp;
-				strLogMsg += ", Faith Left: ";
-				temp.Format("%d", kPlayer.GetFaith());
-				strLogMsg += temp;
-				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 			}
 		}
 
-		else if (eBuildingType >= 0)
-		{
-			bool bResult = false;
-			bResult = CreateBuilding(eBuildingType);
-			CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
-			CvAssertMsg(bResult, "Unable to create building");
+		kPlayer.GetTreasury()->LogExpenditure(CvString(pGameUnit->GetText()), iGoldCost, 2);
 
-#if defined(MOD_EVENTS_CITY)
-			if (MOD_EVENTS_CITY) {
-				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, false, true);
+		bool bCivilian = (pGameUnit->GetCombat() <= 0 && pGameUnit->GetRangedCombat() <= 0);
+		SetUnitPurchaseCooldown(bCivilian, pGameUnit->GetCooldown() - GetUnitPurchaseCooldownMod(bCivilian));
+
+		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
+		if (iGoldCost > 0)
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
+
+		break;
+	}
+	case YIELD_FAITH:
+	{
+		int	iFaithCost = GetFaithPurchaseCost(eUnitType, true  /*bIncludeBeliefDiscounts*/);
+
+		CvUnit* pUnit = CreateUnit(eUnitType, NO_UNITAI, REASON_FAITH_BUY);
+		if (pUnit == NULL)
+			return NULL;	// Can't create the unit, most likely we have no place for it.  We have not deducted the cost yet so just exit
+		else
+			pNewUnit = pUnit;
+
+		if (pUnit->getUnitInfo().GetGlobalFaithCooldown() > 0)
+		{
+			int iCooldown = pUnit->getUnitInfo().GetGlobalFaithCooldown();
+			iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCooldown /= 100;
+			kPlayer.ChangeFaithPurchaseCooldown(iCooldown);
+		}
+		if (pUnit->getUnitInfo().GetLocalFaithCooldown() > 0)
+		{
+			bool bCivilian = (pUnit->getUnitInfo().GetCombat() <= 0 && pUnit->getUnitInfo().GetRangedCombat() <= 0);
+			int iCooldown = pUnit->getUnitInfo().GetLocalFaithCooldown();
+			iCooldown *= GC.getGame().getGameSpeedInfo().getTrainPercent();
+			iCooldown /= 100;
+			ChangeUnitFaithPurchaseCooldown(bCivilian, iCooldown);
+		}
+
+		if (MOD_EVENTS_CITY) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, getOwner(), GetID(), pUnit->GetID(), false, true);
+		}
+		else {
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(pUnit->GetID());
+				args->Push(false); // bGold
+				args->Push(true); // bFaith/bCulture
+
+				bool bResult = false;
+				LuaSupport::CallHook(pkScriptSystem, "CityTrained", args.get(), bResult);
 			}
-			else {
+		}
+
+		// Prophets are always of the religion the player founded
+		ReligionTypes eReligion = pUnit->getUnitInfo().IsFoundReligion() ? kPlayer.GetReligions()->GetOwnedReligion() : GetCityReligions()->GetReligiousMajority();
+		pUnit->GetReligionDataMutable()->SetFullStrength(pUnit->getOwner(), pUnit->getUnitInfo(), eReligion);
+
+		kPlayer.ChangeFaith(-iFaithCost);
+
+		UnitClassTypes eUnitClass = pUnit->getUnitClassType();
+		if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_WRITER"))
+		{
+			kPlayer.incrementWritersFromFaith();
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ARTIST"))
+		{
+			kPlayer.incrementArtistsFromFaith();
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MUSICIAN"))
+		{
+			kPlayer.incrementMusiciansFromFaith();
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_SCIENTIST"))
+		{
+			kPlayer.incrementScientistsFromFaith();
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_MERCHANT"))
+		{
+			kPlayer.incrementMerchantsFromFaith();
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_ENGINEER"))
+		{
+			kPlayer.incrementEngineersFromFaith();
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_GENERAL"))
+		{
+			kPlayer.incrementGeneralsFromFaith();
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_ADMIRAL"))
+		{
+			kPlayer.incrementAdmiralsFromFaith();
+			CvPlot* pSpawnPlot = kPlayer.GetBestCoastalSpawnPlot(pUnit);
+			if (pUnit->plot() != pSpawnPlot)
+			{
+				pUnit->setXY(pSpawnPlot->getX(), pSpawnPlot->getY());
+			}
+		}
+		else if (eUnitClass == GC.getInfoTypeForString("UNITCLASS_PROPHET"))
+		{
+#if defined(MOD_GLOBAL_TRULY_FREE_GP)
+			kPlayer.GetReligions()->ChangeNumProphetsSpawned(1, false);
+#else
+			kPlayer.GetReligions()->ChangeNumProphetsSpawned(1);
 #endif
-#if defined(MOD_BALANCE_CORE)
+		}
+		else if (MOD_BALANCE_VP && eUnitClass == GC.getInfoTypeForString("UNITCLASS_GREAT_DIPLOMAT"))
+		{
+			kPlayer.incrementDiplomatsFromFaith();
+		}
+		else if (pUnit->getUnitInfo().IsGPExtra() == 1)
+		{
+			kPlayer.incrementGPExtra1FromFaith();
+		}
+		else if (pUnit->getUnitInfo().IsGPExtra() == 2)
+		{
+			kPlayer.incrementGPExtra2FromFaith();
+		}
+		else if (pUnit->getUnitInfo().IsGPExtra() == 3)
+		{
+			kPlayer.incrementGPExtra3FromFaith();
+		}
+		else if (pUnit->getUnitInfo().IsGPExtra() == 4)
+		{
+			kPlayer.incrementGPExtra4FromFaith();
+		}
+		else if (pUnit->getUnitInfo().IsGPExtra() == 5)
+		{
+			kPlayer.incrementGPExtra5FromFaith();
+		}
+
+		if (GC.getLogging())
+		{
+			CvString strLogMsg;
+			CvString temp;
+			strLogMsg = kPlayer.getCivilizationShortDescription();
+			strLogMsg += ", FAITH UNIT PURCHASE, ";
+			strLogMsg += pUnit->getName();
+			strLogMsg += ", ";
+			strLogMsg += getName();
+			strLogMsg += ", Faith Cost: ";
+			temp.Format("%d", iFaithCost);
+			strLogMsg += temp;
+			strLogMsg += ", Faith Left: ";
+			temp.Format("%d", kPlayer.GetFaith());
+			strLogMsg += temp;
+			GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
+		}
+
+		break;
+	}
+	default:
+		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
+		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		return NULL;
+	}
+
+	//autoupgrade
+	if (pNewUnit->isFreeUpgrade() || GET_PLAYER(getOwner()).GetPlayerTraits()->IsFreeUpgrade())
+	{
+		UnitTypes eUpgradeUnit = pNewUnit->GetUpgradeUnitType();
+		if (eUpgradeUnit != NO_UNIT && this->canTrain(eUpgradeUnit, false, false, true))
+		{
+			//return value must not be a zombie
+			pNewUnit = pNewUnit->DoUpgrade(true);
+		}
+	}
+	if (kPlayer.GetPlayerTraits()->IsFreeZuluPikemanToImpi())
+	{
+		UnitClassTypes ePikemanClass = (UnitClassTypes)GC.getInfoTypeForString("UNITCLASS_PIKEMAN");
+		UnitTypes eZuluImpi = (UnitTypes)GC.getInfoTypeForString("UNIT_ZULU_IMPI");
+		if (pNewUnit->getUnitClassType() == ePikemanClass && this->canTrain(eZuluImpi, false, false, true))
+		{
+			CvUnitEntry* pkcUnitEntry = GC.getUnitInfo(eZuluImpi);
+			if (pkcUnitEntry)
+			{
+				UnitAITypes eZuluImpiAI = pkcUnitEntry->GetDefaultUnitAIType();
+				CvUnit* pZuluImpi = kPlayer.initUnit(eZuluImpi, pNewUnit->getX(), pNewUnit->getY(), eZuluImpiAI);
+				pZuluImpi->convert(pNewUnit, true);
+
+				//return value must not be a zombie
+				pNewUnit = pZuluImpi;
+			}
+		}
+	}
+
+	return pNewUnit;
+}
+
+bool CvCity::PurchaseBuilding(BuildingTypes eBuildingType, YieldTypes ePurchaseYield)
+{
+	// Can we actually buy this thing?
+	if (eBuildingType==NO_BUILDING || !IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, eBuildingType, NO_PROJECT, ePurchaseYield))
+		return false;
+	CvBuildingEntry* pGameBuilding = GC.getBuildingInfo(eBuildingType);
+	if (pGameBuilding == NULL)
+		return false;
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	switch (ePurchaseYield)
+	{
+	case YIELD_GOLD:
+	{
+		int iGoldCost = GetPurchaseCost(eBuildingType);
+
+		if (MOD_BALANCE_CORE_BUILDING_INVESTMENTS)
+		{
+			const BuildingClassTypes eBuildingClass = (BuildingClassTypes)(pGameBuilding->GetBuildingClassType());
+			if (eBuildingClass != NO_BUILDINGCLASS)
+			{
+				SetBuildingInvestment(eBuildingClass, true);
+
+				if (!hasOrder(ORDER_CONSTRUCT, eBuildingType, -1))
+				{
+					//we purchased it so let's assume it's urgent and put it at the head of the list
+					pushOrder(ORDER_CONSTRUCT, eBuildingType, -1, false, false, false);
+				}
+			}
+		}
+		else
+		{
+			if (!CreateBuilding(eBuildingType))
+				return false;
+
+			CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
+
+			if (MOD_EVENTS_CITY)
+			{
+				GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, true, false);
+			}
+			else
+			{
 				CvBuildingEntry* pkPurchasedBuildingInfo = GC.getBuildingInfo(eBuildingType);
 				if (pkPurchasedBuildingInfo)
 				{
 					const BuildingClassTypes ePurchasedClass = (BuildingClassTypes)pkPurchasedBuildingInfo->GetBuildingClassType();
 					if (ePurchasedClass != NO_BUILDINGCLASS)
-					{
 						SetPurchased(ePurchasedClass, true);
-					}
 				}
-#endif
+
 				ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
 				if (pkScriptSystem)
 				{
@@ -32282,58 +32144,155 @@ void CvCity::Purchase(UnitTypes eUnitType, BuildingTypes eBuildingType, ProjectT
 					args->Push(getOwner());
 					args->Push(GetID());
 					args->Push(eBuildingType);
-					args->Push(false); // bGold
-					args->Push(true); // bFaith/bCulture
+					args->Push(true); // bGold
+					args->Push(false); // bFaith/bCulture
 
 					bool bScriptResult = false;
 					LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
 				}
-#if defined(MOD_EVENTS_CITY)
 			}
-#endif
+		}
 
-			kPlayer.ChangeFaith(-iFaithCost);
+		kPlayer.GetTreasury()->LogExpenditure((CvString)pGameBuilding->GetText(), iGoldCost, 2);
+		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
+		if (iGoldCost > 0)
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
 
-			if (GC.getLogging())
+		break;
+	}
+	case YIELD_FAITH:
+	{
+		int iFaithCost = GetFaithPurchaseCost(eBuildingType);
+
+		if (!CreateBuilding(eBuildingType))
+			return false;
+
+		CleanUpQueue(); // cleans out items from the queue that may be invalidated by the recent construction
+
+		if (MOD_EVENTS_CITY)
+		{
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityConstructed, getOwner(), GetID(), eBuildingType, false, true);
+		}
+		else
+		{
+			CvBuildingEntry* pkPurchasedBuildingInfo = GC.getBuildingInfo(eBuildingType);
+			if (pkPurchasedBuildingInfo)
 			{
-				CvString strLogMsg;
-				CvString temp;
-				strLogMsg = kPlayer.getCivilizationShortDescription();
-				strLogMsg += ", FAITH BUILDING PURCHASE, ";
-
-				CvBuildingXMLEntries* pGameBuildings = GC.GetGameBuildings();
-				if (pGameBuildings != NULL)
+				const BuildingClassTypes ePurchasedClass = (BuildingClassTypes)pkPurchasedBuildingInfo->GetBuildingClassType();
+				if (ePurchasedClass != NO_BUILDINGCLASS)
 				{
-					CvBuildingEntry* pBuildingEntry = pGameBuildings->GetEntry(eBuildingType);
-					if (pBuildingEntry != NULL)
-					{
-						strLogMsg += pBuildingEntry->GetDescription();
-						strLogMsg += ", ";
-					}
+					SetPurchased(ePurchasedClass, true);
 				}
-				strLogMsg += getName();
-				strLogMsg += ", Faith Cost: ";
-				temp.Format("%d", iFaithCost);
-				strLogMsg += temp;
-				strLogMsg += ", Faith Left: ";
-				temp.Format("%d", kPlayer.GetFaith());
-				strLogMsg += temp;
-				GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 			}
+
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(eBuildingType);
+				args->Push(false); // bGold
+				args->Push(true); // bFaith/bCulture
+
+				bool bScriptResult = false;
+				LuaSupport::CallHook(pkScriptSystem, "CityConstructed", args.get(), bScriptResult);
+			}
+		}
+
+		kPlayer.ChangeFaith(-iFaithCost);
+
+		if (GC.getLogging())
+		{
+			CvString strLogMsg;
+			CvString temp;
+			strLogMsg = kPlayer.getCivilizationShortDescription();
+			strLogMsg += ", FAITH BUILDING PURCHASE, ";
+
+			CvBuildingXMLEntries* pGameBuildings = GC.GetGameBuildings();
+			if (pGameBuildings != NULL)
+			{
+				CvBuildingEntry* pBuildingEntry = pGameBuildings->GetEntry(eBuildingType);
+				if (pBuildingEntry != NULL)
+				{
+					strLogMsg += pBuildingEntry->GetDescription();
+					strLogMsg += ", ";
+				}
+			}
+			strLogMsg += getName();
+			strLogMsg += ", Faith Cost: ";
+			temp.Format("%d", iFaithCost);
+			strLogMsg += temp;
+			strLogMsg += ", Faith Left: ";
+			temp.Format("%d", kPlayer.GetFaith());
+			strLogMsg += temp;
+			GC.getGame().GetGameReligions()->LogReligionMessage(strLogMsg);
 		}
 
 		if (iFaithCost > 0)
-		{
 			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_FAITH_PURCHASE, true, NO_GREATPERSON, NO_BUILDING, iFaithCost, false, NO_PLAYER, NULL, false, this);
-		}
+
+		break;
 	}
-	break;
 	default:
 		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
 		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		return false;
 	}
+
+	return true;
 }
 
+bool CvCity::PurchaseProject(ProjectTypes eProjectType, YieldTypes ePurchaseYield)
+{
+	// Can we actually buy this thing?
+	if (eProjectType==NO_PROJECT || !IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, NO_UNIT, NO_BUILDING, eProjectType, ePurchaseYield))
+		return false;
+
+	CvPlayer& kPlayer = GET_PLAYER(getOwner());
+
+	switch (ePurchaseYield)
+	{
+	case YIELD_GOLD:
+	{
+		int iGoldCost = GetPurchaseCost(eProjectType);
+		kPlayer.GetTreasury()->LogExpenditure((CvString)GC.getProjectInfo(eProjectType)->GetText(), iGoldCost, 2);
+
+		GET_PLAYER(getOwner()).GetTreasury()->ChangeGold(-iGoldCost);
+		if (iGoldCost > 0)
+			GET_PLAYER(getOwner()).doInstantYield(INSTANT_YIELD_TYPE_PURCHASE, false, NO_GREATPERSON, NO_BUILDING, iGoldCost, false, NO_PLAYER, NULL, false, this);
+
+		if (!CreateProject(eProjectType))
+			return false;
+
+		if (MOD_EVENTS_CITY) {
+			GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityCreated, getOwner(), GetID(), eProjectType, true, false);
+		}
+		else {
+			ICvEngineScriptSystem1* pkScriptSystem = gDLL->GetScriptSystem();
+			if (pkScriptSystem)
+			{
+				CvLuaArgsHandle args;
+				args->Push(getOwner());
+				args->Push(GetID());
+				args->Push(eProjectType);
+				args->Push(true); // bGold
+				args->Push(false); // bFaith/bCulture
+
+				bool bScriptResult = false;
+				LuaSupport::CallHook(pkScriptSystem, "CityCreated", args.get(), bScriptResult);
+			}
+		}
+		break;
+	}
+	default:
+		// This function is accessible from Lua scripts and network callbacks so it's incorrect to assume this is unreachable.
+		CvAssertMsg(false, "CvCity::Purchase expects either YIELD_GOLD or YIELD_FAITH as ePurchaseYield");
+		return false;
+	}
+
+	return true;
+}
 
 // Protected Functions...
 

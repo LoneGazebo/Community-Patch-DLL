@@ -538,67 +538,39 @@ CvUnit* CvMilitaryAI::BuyEmergencyUnit(UnitAITypes eUnitType, CvCity* pCity)
 
 	// Get best unit with this AI type
 	UnitTypes eType = pCity->GetCityStrategyAI()->GetUnitProductionAI()->RecommendUnit(eUnitType, true);
+	CvUnit* pUnit = NULL;
+	bool bGold = false;
+
 	if(eType != NO_UNIT)
 	{
 		CvUnitEntry* pUnitInfo = GC.GetGameUnits()->GetEntry(eType);
 		if(pUnitInfo && pUnitInfo->GetUnitAIType(eUnitType))
 		{
-			// Can we buy the primary unit type at the start city?
-			if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eType, NO_BUILDING, NO_PROJECT, YIELD_GOLD))
+			//make sure we want to spend our gold on this
+			int iGoldCost = pCity->GetPurchaseCost(eType);
+			int iPriority = /*500*/ GD_INT_GET(AI_GOLD_PRIORITY_UNIT);
+			if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost, iPriority))
+				//try with gold first
+				pUnit = pCity->PurchaseUnit(eType, YIELD_GOLD);
+
+			if (pUnit)
+				bGold = true;
+			else
 			{
-				int iGoldCost = pCity->GetPurchaseCost(eType);
-				int iPriority = /*500*/ GD_INT_GET(AI_GOLD_PRIORITY_UNIT);
-				if(m_pPlayer->GetEconomicAI()->CanWithdrawMoneyForPurchase(PURCHASE_TYPE_UNIT, iGoldCost, iPriority))
-				{
-					if(pCity->getOwner() == m_pPlayer->GetID())		// Player must own the city or this will create a unit for another player
-					{
-						// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-						CvUnit* pUnit = pCity->CreateUnit(eType, NO_UNITAI, REASON_BUY, false /*bUseToSatisfyOperation*/);
-						if (pUnit)
-						{
-							m_pPlayer->GetTreasury()->LogExpenditure((CvString)pUnit->getUnitInfo().GetText(), iGoldCost, 7);
-							m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
-							CvString szMsg;
-							szMsg.Format("Emergency Unit Purchased: %s, ", pUnit->getUnitInfo().GetDescription());
-							szMsg += pCity->getName();
-							m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
-
-							return pUnit;
-						}
-						else
-						{
-							return NULL;
-						}
-					}
-				}
-			}
-
-			// Try again with Faith
-			if(pCity->IsCanPurchase(/*bTestPurchaseCost*/ true, /*bTestTrainable*/ true, eType, NO_BUILDING, NO_PROJECT, YIELD_FAITH))
-			{
-				int iFaithCost = pCity->GetFaithPurchaseCost(eType, false /*bIncludeBeliefDiscounts*/);
-
-				if(pCity->getOwner() == m_pPlayer->GetID())		// Player must own the city or this will create a unit for another player
-				{
-					m_pPlayer->ChangeFaith(-iFaithCost);
-
-					// This is an EXTRA build for the operation beyond any that are already assigned to this city, so pass in the right flag to CreateUnit()
-					CvUnit* pUnit = pCity->CreateUnit(eType, NO_UNITAI, REASON_FAITH_BUY, false /*bUseToSatisfyOperation*/);
-					if (pUnit)
-					{
-						CvString szMsg;
-						szMsg.Format("Emergency Faith Unit Purchase: %s, ", pUnit->getUnitInfo().GetDescription());
-						szMsg += pCity->getName();
-						m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
-					}
-					return pUnit;
-				}
+				//try again with Faith (only because this is any emergency)
+				pUnit = pCity->PurchaseUnit(eType, YIELD_FAITH);
 			}
 		}
 	}
 
-	return NULL;
+	if (pUnit)
+	{
+		CvString szMsg;
+		szMsg.Format("Emergency %s Unit Purchased: %s, ", bGold?"Gold":"Faith", pUnit->getUnitInfo().GetDescription());
+		szMsg += pCity->getName();
+		m_pPlayer->GetTacticalAI()->LogTacticalMessage(szMsg);
+	}
+	return pUnit;
 }
 
 /// Spend money to quickly add a defensive building to a city

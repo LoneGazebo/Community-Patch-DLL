@@ -1817,19 +1817,17 @@ void CvEconomicAI::DoHurry()
 						}
 					}
 
-					//take the money...
-					m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
-
 					//and train it!
 					if (MOD_BALANCE_CORE_UNIT_INVESTMENTS || (MOD_BALANCE_CORE && pkUnitInfo->GetSpaceshipProject() != NO_PROJECT))
 					{
 						const UnitClassTypes eUnitClass = (UnitClassTypes)(pkUnitInfo->GetUnitClassType());
 						pSelectedCity->SetUnitInvestment(eUnitClass, true);
+						//take the money...
+						m_pPlayer->GetTreasury()->ChangeGold(-iGoldCost);
 					}
 					else
 					{
-						UnitAITypes eUnitAI = pkUnitInfo->GetDefaultUnitAIType();
-						CvUnit* pUnit = pSelectedCity->CreateUnit(eUnitType, eUnitAI, REASON_BUY, false);
+						CvUnit* pUnit = pSelectedCity->PurchaseUnit(eUnitType, YIELD_GOLD);
 						if (pUnit)
 						{
 							if (pkUnitInfo->IsFound())
@@ -1837,15 +1835,8 @@ void CvEconomicAI::DoHurry()
 							if (selection.m_eBuildableType == CITY_BUILDABLE_UNIT_FOR_OPERATION)
 								m_pPlayer->GetMilitaryAI()->ResetNumberOfTimesOpsBuildSkippedOver();
 
-							bool bCivilian = (pkUnitInfo->GetCombat() <= 0 && pkUnitInfo->GetRangedCombat() <= 0);
-							pSelectedCity->SetUnitPurchaseCooldown(bCivilian, pkUnitInfo->GetCooldown());
-
-							if (MOD_EVENTS_CITY) {
-								GAMEEVENTINVOKE_HOOK(GAMEEVENT_CityTrained, pSelectedCity->getOwner(), pSelectedCity->GetID(), pUnit->GetID(), true, false);
-							}
+							pSelectedCity->CleanUpQueue();
 						}
-
-						pSelectedCity->CleanUpQueue();
 					}
 				}
 			}
