@@ -2091,7 +2091,9 @@ int CvLuaCity::lPurchase(lua_State* L)
 	const YieldTypes ePurchaseYield = (YieldTypes) lua_tointeger(L, 5);
 
 	// TODO: throw error for non-gold/faith ePurchaseYield input?
-	pkCity->Purchase(eUnitType, eBuildingType, eProjectType, ePurchaseYield);
+	pkCity->PurchaseUnit(eUnitType, ePurchaseYield);
+	pkCity->PurchaseBuilding(eBuildingType, ePurchaseYield);
+	pkCity->PurchaseProject(eProjectType, ePurchaseYield);
 
 	return 0;
 }
