@@ -519,9 +519,6 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 {
 	vector<int> routePlots;
 
-	if (iValue <= 0)
-		return;
-
 	for (int i = 1; i < path.length() - 1; i++)
 	{
 		CvPlot* pPlot = path.get(i);
@@ -532,12 +529,15 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 		m_anyRoutePlanned.insert(make_pair(make_pair(eRoute, pPlot->GetPlotIndex()), ePurpose));
 	}
 
+	if (iValue <= 0)
+		return;
+
 	if (ePurpose != PURPOSE_CONNECT_CAPITAL)
 	{
 		for (int i = 1; i < path.length() - 1; i++)
 		{
 			CvPlot* pPlot = path.get(i);
-			if (pPlot->isCity())
+			if (pPlot->isCity() && pPlot->getOwner() == m_pPlayer->GetID())
 				return;
 		}
 	}
@@ -551,21 +551,24 @@ void CvBuilderTaskingAI::AddRoutePlots(CvPlot* pStartPlot, CvPlot* pTargetPlot, 
 
 		if (pPlot->isCity())
 		{
-			if (routePlots.size() != 0)
+			if (pPlot->getOwner() == m_pPlayer->GetID())
 			{
-				plotPair = GetPlotPair(pStartPlot->GetPlotIndex(), pPlot->GetPlotIndex());
-				plannedRoute = make_pair(plotPair, eRoute);
+				if (routePlots.size() != 0)
+				{
+					plotPair = GetPlotPair(pStartPlot->GetPlotIndex(), pPlot->GetPlotIndex());
+					plannedRoute = make_pair(plotPair, eRoute);
 
-				if (ePurpose == PURPOSE_CONNECT_CAPITAL)
-					m_plannedRouteAdditiveValues[plannedRoute] += iValue;
-				else
-					m_plannedRouteNonAdditiveValues[plannedRoute] = max(m_plannedRouteNonAdditiveValues[plannedRoute], iValue);
-				m_plannedRoutePurposes[plannedRoute].insert(ePurpose);
-				m_plannedRoutePlots[plannedRoute] = vector<int>(routePlots);
+					if (ePurpose == PURPOSE_CONNECT_CAPITAL)
+						m_plannedRouteAdditiveValues[plannedRoute] += iValue;
+					else
+						m_plannedRouteNonAdditiveValues[plannedRoute] = max(m_plannedRouteNonAdditiveValues[plannedRoute], iValue);
+					m_plannedRoutePurposes[plannedRoute].insert(ePurpose);
+					m_plannedRoutePlots[plannedRoute] = vector<int>(routePlots);
+				}
+
+				pStartPlot = pPlot;
+				routePlots.clear();
 			}
-
-			pStartPlot = pPlot;
-			routePlots.clear();
 
 			continue;
 		}
