@@ -8298,7 +8298,8 @@ int CvEspionageAI::GetMissionScore(CvCity* pCity, CityEventChoiceTypes eMission,
 		}
 		if (pkMissionInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
 		{
-			iScore = pCity->GetCityCitizens()->GetTotalSpecialistCount() + 3 * GET_PLAYER(ePlayer).getCapitalCity()->GetCityCitizens()->GetTotalSpecialistCount();
+			int iCapSpecialists = GET_PLAYER(ePlayer).getCapitalCity() ? GET_PLAYER(ePlayer).getCapitalCity()->GetCityCitizens()->GetTotalSpecialistCount() : 0;
+			iScore = pCity->GetCityCitizens()->GetTotalSpecialistCount() + 3 * iCapSpecialists;
 		}
 		if (pkMissionInfo->getStealFromTreasuryPercent() > 0)
 		{
