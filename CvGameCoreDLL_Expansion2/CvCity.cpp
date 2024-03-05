@@ -4839,6 +4839,12 @@ bool CvCity::IsCityEventChoiceValidEspionage(CityEventChoiceTypes eEventChoice, 
 		}
 	}
 
+	if (pkEventInfo->getSpecialistsGreatPersonPointsPerTurn() != 0)
+	{
+		if (GET_PLAYER(eSpyOwner).getCapitalCity() == NULL)
+			return false;
+	}
+
 	if (!IsCityEventChoiceValid(eEventChoice, eEvent, bIgnoreActive, true))
 		return false;
 
