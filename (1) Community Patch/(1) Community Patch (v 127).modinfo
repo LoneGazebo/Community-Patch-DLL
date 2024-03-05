@@ -234,7 +234,7 @@
     <File md5="B1206645A0294999ABF2C09471623D02" import="0">Core Files/Text/CoreText_en_US.xml</File>
     <File md5="F7B74C928F7C4848D45BA9D4EE6CF9FA" import="0">Core Files/Text/CoreText_en_US.sql</File>
     <File md5="19BE7C4D91EAF1D31B610FF7AC3C3FA8" import="1">CvGameCore_Expansion2.dll</File>
-    <File md5="3F4B08D58AE727DF10D8A34BEC5F398E" import="1">LUA/ActionInfoPanel.lua</File>
+    <File md5="EF335289B8AA94703BFFFE012CDFB931" import="1">LUA/ActionInfoPanel.lua</File>
     <File md5="7D9DF983CA1906B74BAB5DE78618A03C" import="1">LUA/AssignStartingPlots.lua</File>
     <File md5="51BF13A2719619942142DF2A947507AA" import="1">LUA/CityBannerManager.lua</File>
     <File md5="3377B347687C3915177BFE3C72B72F99" import="1">LUA/CityBannerManager.xml</File>
