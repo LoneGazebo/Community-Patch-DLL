@@ -669,14 +669,30 @@ bool MilitaryAIHelpers::ArmyPathIsGood(const SPath & path, PlayerTypes eAttacker
 	return (iThirdPartyPlots < iThresholdForDiscard) && (iWrongCityPlots < iThresholdForDiscard);
 }
 
-bool CvMilitaryAI::IsPossibleAttackTarget(const CvCity* pCity) const
+bool CvMilitaryAI::IsPossibleAttackTarget(const CvCity* pCity, ArmyType eArmyType) const
 {
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
 		return false;
 
+	//cities may be listed multiple times!
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 		if (m_potentialAttackTargets[i].GetTargetPlot() == pCity->plot())
-			return true;
+			if (m_potentialAttackTargets[i].m_armyType == eArmyType || eArmyType == ARMY_TYPE_ANY)
+				return true;
+
+	return false;
+}
+
+bool CvMilitaryAI::IsPossibleMusterCity(const CvCity* pCity, ArmyType eArmyType) const
+{
+	if (!pCity || pCity->getOwner() == m_pPlayer->GetID())
+		return false;
+
+	//cities may be listed multiple times!
+	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
+		if (m_potentialAttackTargets[i].GetMusterPlot() == pCity->plot())
+			if (m_potentialAttackTargets[i].m_armyType == eArmyType || eArmyType == ARMY_TYPE_ANY)
+				return true;
 
 	return false;
 }
@@ -686,6 +702,7 @@ bool CvMilitaryAI::IsPreferredAttackTarget(const CvCity* pCity) const
 	if (!pCity || pCity->getOwner()==m_pPlayer->GetID())
 		return false;
 
+	//cities may be listed multiple times!
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 		if (m_potentialAttackTargets[i].GetTargetPlot() == pCity->plot() && m_potentialAttackTargets[i].IsPreferred())
 			return true;
@@ -693,22 +710,25 @@ bool CvMilitaryAI::IsPreferredAttackTarget(const CvCity* pCity) const
 	return false;
 }
 
-bool CvMilitaryAI::IsExposedToEnemy(const CvCity * pCity, PlayerTypes eOtherPlayer) const
+bool CvMilitaryAI::IsExposedToEnemy(const CvCity * pCity, PlayerTypes eOtherPlayer, ArmyType eArmyType) const
 {
 	//minors don't really explore, so they don't know what's exposed ... just assume all their cities are
 	if (m_pPlayer->isMinorCiv())
 		return true;
 
+	//cities may be listed multiple times!
 	for (size_t i = 0; i < m_exposedCities.size(); i++)
-		if (eOtherPlayer==NO_PLAYER || m_exposedCities[i].first == eOtherPlayer)
-			if (pCity == NULL || m_exposedCities[i].second == pCity->GetID())
-				return true;
+		if (eOtherPlayer==NO_PLAYER || m_exposedCities[i].GetAttacker() == eOtherPlayer)
+			if (pCity == NULL || m_exposedCities[i].GetTargetPlot() == pCity->plot())
+				if (m_exposedCities[i].m_armyType == eArmyType || eArmyType == ARMY_TYPE_ANY)
+					return true;
 
 	return false;
 }
 
 bool CvMilitaryAI::HavePreferredAttackTarget(PlayerTypes eEnemy) const
 {
+	//cities may be listed multiple times!
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 		if (m_potentialAttackTargets[i].GetTargetPlot()->getOwner() == eEnemy && m_potentialAttackTargets[i].IsPreferred())
 			return true;
@@ -718,6 +738,7 @@ bool CvMilitaryAI::HavePreferredAttackTarget(PlayerTypes eEnemy) const
 
 bool CvMilitaryAI::HavePossibleAttackTarget(PlayerTypes eEnemy) const
 {
+	//cities may be listed multiple times!
 	for (size_t i = 0; i < m_potentialAttackTargets.size(); i++)
 		if (m_potentialAttackTargets[i].GetTargetPlot()->getOwner() == eEnemy)
 			return true;
@@ -835,8 +856,8 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 			//mark the best targets
 			target.m_bPreferred = (iScore > iBestScore / 3);
 
-			//don't target a city twice with different army types, only keep the best approach
-			if (IsPossibleAttackTarget(target.GetTargetPlot()->getPlotCity()))
+			//don't target a city twice with the same army type, only keep the best approach
+			if (IsPossibleAttackTarget(target.GetTargetPlot()->getPlotCity(),target.m_armyType))
 				continue;
 
 			m_potentialAttackTargets.push_back(target);
@@ -846,7 +867,7 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 				CvCity* pMuster = target.GetMusterPlot()->getPlotCity();
 				CvCity* pTarget = target.GetTargetPlot()->getPlotCity();
 				CvString msg = CvString::format("%03d, %s, %sattack target: %s, muster: %s, army type: %s, score: %d",
-					GC.getGame().getElapsedGameTurns(), m_pPlayer->getName(), target.IsPreferred() ? "preferred " : "",
+					GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(), target.IsPreferred() ? "preferred " : "",
 					pTarget->getNameNoSpace().c_str(), pMuster->getNameNoSpace().c_str(), ArmyTypeToString(target.m_armyType), iScore);
 				CvString playerName = GetPlayer()->getCivilizationShortDescription();
 				FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
@@ -871,15 +892,15 @@ size_t CvMilitaryAI::UpdateAttackTargets()
 				CvCity* pMuster = target.GetMusterPlot()->getPlotCity();
 				CvCity* pTarget = target.GetTargetPlot()->getPlotCity();
 
-				//store it only once (for one army type)
+				//store it multiple times for multiple potential enemies
 				if (!IsExposedToEnemy(pTarget, pMuster->getOwner()))
 				{
-					m_exposedCities.push_back(make_pair(pMuster->getOwner(), pTarget->GetID()));
+					m_exposedCities.push_back(target);
 
 					if (GC.getLogging() && GC.getAILogging())
 					{
 						CvString msg = CvString::format("%03d, %s, exposed city: %s, muster: %s, army type: %s, score: %d",
-							GC.getGame().getElapsedGameTurns(), m_pPlayer->getName(),
+							GC.getGame().getElapsedGameTurns(), m_pPlayer->getCivilizationShortDescription(),
 							pTarget->getNameNoSpace().c_str(), pMuster->getNameNoSpace().c_str(), ArmyTypeToString(target.m_armyType), iScore);
 						CvString playerName = GetPlayer()->getCivilizationShortDescription();
 						FILogFile* pLog = LOGFILEMGR.GetLog(GetLogFileName(playerName), FILogFile::kDontTimeStamp);
@@ -2259,7 +2280,7 @@ void CvMilitaryAI::CheckLandDefenses(PlayerTypes eEnemy, CvCity* pThreatenedCity
 
 	//first a quick one if necessary
 	bool bHasOperationUnderway = m_pPlayer->getFirstAIOperationOfType(AI_OPERATION_RAPID_RESPONSE, NO_PLAYER, pThreatenedCity->plot()) != NULL;
-	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearHomelandPlot(m_pPlayer->GetID(), eEnemy, DOMAIN_LAND, pThreatenedCity->plot(), 5);
+	CvPlot* pStartPlot = OperationalAIHelpers::FindEnemiesNearHomelandPlot(m_pPlayer->GetID(), eEnemy, DOMAIN_LAND, pThreatenedCity->plot(), 8);
 	if (!bHasOperationUnderway && pStartPlot != NULL && pStartPlot->getOwningCity() != NULL)
 		m_pPlayer->addAIOperation(AI_OPERATION_RAPID_RESPONSE, 1, eEnemy, pStartPlot->getOwningCity());
 
@@ -4276,6 +4297,16 @@ CvPlot* CvAttackTarget::GetStagingPlot() const
 CvPlot* CvAttackTarget::GetTargetPlot() const
 {
 	return GC.getMap().plotByIndex(m_iTargetPlotIndex);
+}
+
+PlayerTypes CvAttackTarget::GetAttacker() const
+{
+	return GC.getMap().plotByIndex(m_iMusterPlotIndex)->getOwner();
+}
+
+PlayerTypes CvAttackTarget::GetDefender() const
+{
+	return GC.getMap().plotByIndex(m_iTargetPlotIndex)->getOwner();
 }
 
 int CvAttackTarget::GetPathLength() const

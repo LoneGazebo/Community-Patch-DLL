@@ -20609,6 +20609,10 @@ void CvUnit::setXY(int iX, int iY, bool bGroup, bool bUpdate, bool bShow, bool b
 					{
 						if(isEnemy(pLoopUnit->getTeam(), pNewPlot) || pLoopUnit->isEnemy(eOurTeam))
 						{
+							//make sure the AI does not ignore their units being sniped
+							if (!GET_PLAYER(pLoopUnit->getOwner()).isHuman())
+								GET_PLAYER(pLoopUnit->getOwner()).AddKnownAttacker(this);
+
 							if(!pLoopUnit->canCoexistWithEnemyUnit(eOurTeam))
 							{
 								// Unit somehow ended up on top of an enemy combat unit

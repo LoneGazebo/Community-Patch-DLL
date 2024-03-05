@@ -39,8 +39,7 @@ const unsigned char TACTICAL_COMBAT_MAX_TARGET_DISTANCE = 4; //not larger than 4
 const int TACTICAL_COMBAT_CITADEL_BONUS = 67; //larger than 60 to override firstline/secondline difference
 const int TACTICAL_COMBAT_IMPOSSIBLE_SCORE = -1000;
 const int TACTSIM_UNIQUENESS_CHECK_GENERATIONS = 3; //higher means check more siblings for permutations
-const int TACTSIM_BREADTH_FIRST_GENERATIONS = 2; //switch to depth-first later
-const int TACTSIM_ANNEALING_FACTOR = 1; //reduce the allowed number of branches by one for each N generations after TACTSIM_BREADTH_FIRST_GENERATIONS
+const int TACTSIM_BREADTH_FIRST_GENERATIONS = 3; //switch to depth-first later
 
 //global memory for tactical simulation
 CvTactPosStorage gTactPosStorage(8000);
@@ -7595,10 +7594,26 @@ STacticalAssignment ScorePlotForPillageMove(const SUnitStats& unit, const CvTact
 	return result;
 }
 
-int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iNumAttacks, const CvTacticalPosition& assumedPosition)
+int ScorePlotForVisibility(const CvUnit* pUnit, const CvTacticalPlot& testPlot)
+{
+	int iVisiblityScore = 0;
+
+	if (pUnit->IsCanAttackRanged())
+	{
+		//ignore range 1, we can always see those plots!
+		//also ignore range 4+, this is too far and we don't have those plots cached
+
+		if (pUnit->GetRange() > 1)
+			iVisiblityScore += testPlot.getNumVisiblePlotsRange2();
+		if (pUnit->GetRange() > 2)
+			iVisiblityScore += testPlot.getNumVisiblePlotsRange3();
+	}
+	return iVisiblityScore;
+}
+
+int ScorePlotForPotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, CvTacticalPlot::eTactPlotDomain eRelevantDomain, int iNumAttacks, const CvTacticalPosition& assumedPosition)
 {
 	int iBestAttackScore = 0;
-	int iVisiblityScore = 0;
 
 	//check how much damage we can do to the enemies around this plot
 	//works for both melee and ranged
@@ -7627,21 +7642,16 @@ int ScorePotentialAttacks(const CvUnit* pUnit, const CvTacticalPlot& testPlot, C
 				ScoreAttack(targetPlot, pUnit, testPlot, level, assumedPosition.getAggressionBias(), gTactPosStorage.getCache(), temp);
 				iBestAttackScore = max(temp.iScore, iBestAttackScore);
 			}
-
-			//give a bonus to plots with high visibility, an enemy might come into range next turn!
-			//however, we are only interested in the "forward" direction ... hard to tell where that is exactly
-			if (iRange > 1 && targetPlot.getEnemyDistance() <= 3)
-				iVisiblityScore++; 
 		}
 	}
 
 	//for simplicity assume we will get the same score for multiple attacks
 	if (iNumAttacks>0)
 		//we want the real attacks to have higher scores than movement to guarantee they are picked so divide by 2!
-		return iNumAttacks * iBestAttackScore / 2 + iVisiblityScore;
+		return iNumAttacks * iBestAttackScore / 2;
 	else
 		//if we can't do it this turn then reduce the score even further because the attack is still hypothetical
-		return (iBestAttackScore / 2 + iVisiblityScore) / 2;
+		return iBestAttackScore / 4;
 }
 
 
@@ -7828,7 +7838,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 	int iPlotTypeScores[5][5] = {
 		{ -1,-1,-1,-1,-1 }, //none (should not occur)
 		{  1, 12, 6, 1, -1 }, //firstline (note that it's ok to evaluate the score in an enemy plot for a firstline unit -> meleekill) 
-		{ -1, 2, 12, 2, -1 }, //secondline
+		{ -1, 6, 12, 2, -1 }, //secondline
 		{ -1, 1, 8, 12, -1 }, //thirdline
 		{ -1, 1, 8,  8, -1 }, //support (can happen for damaged melee units)
 	};
@@ -7871,7 +7881,7 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		//how much damage could we do with our next moves?
 		//check this only during simulation; don't use it for initial/final score as it decreases with enemies killed!
 		int iMaxAttacks = NumAttacksForUnit(movePlot.iMovesLeft, unit.iAttacksLeft);
-		iDamageScore = ScorePotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, assumedPosition);
+		iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, assumedPosition);
 
 		//some indication of danger as a tiebreaker - final danger will be checked later
 		int	iDanger = pUnit->GetDanger(testPlot.getPlot(), assumedPosition.getKilledEnemies(), unit.iSelfDamage);
@@ -7898,9 +7908,12 @@ STacticalAssignment ScorePlotForCombatUnitOffensiveMove(const SUnitStats& unit, 
 		}
 	}
 
-	//final score - danger values are mostly useless but maybe useful as tiebreaker
-	//add a flat base value so that bad moves are not automatically invalid - sometimes all moves are bad
-	result.iScore = iDamageScore * 10 + iPlotScore * 10 + iDangerScore + /*20*/ GD_INT_GET(COMBAT_AI_OFFENSE_SCORE_BIAS);
+	//consider visibility as well
+	iDangerScore += ScorePlotForVisibility(pUnit, testPlot);
+
+	//final score
+	//danger values (typically negative!) are mostly useful as tiebreaker
+	result.iScore = iDamageScore * 10 + iPlotScore * 10 + iDangerScore;
 
 	//often there are multiple identical units which could move into a plot (eg in naval battles)
 	//in that case we want to prefer the one which has more movement points left to make the movement animation look better
@@ -7963,7 +7976,7 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 		//how much damage could we do with our next moves?
 		//for defensive moves we don't expect to kill any enemies, so consider it for all modes (initial, intermediate and final)
 		int iMaxAttacks = NumAttacksForUnit(movePlot.iMovesLeft, unit.iAttacksLeft);
-		iDamageScore = ScorePotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, assumedPosition);
+		iDamageScore = ScorePlotForPotentialAttacks(pUnit, testPlot, eRelevantDomain, iMaxAttacks, assumedPosition);
 	}
 
 	if (evalMode!=EM_INTERMEDIATE)
@@ -7997,9 +8010,11 @@ STacticalAssignment ScorePlotForCombatUnitDefensiveMove(const SUnitStats& unit, 
 		}
 	}
 
-	//introduce some bias so that all valid scores are > 0
-	//tiebreakers to follow
-	result.iScore = iPlotScore*10 + iDamageScore*10 + iDangerScore + /*200*/ GD_INT_GET(COMBAT_AI_DEFENSE_SCORE_BIAS);
+	//consider visibility as well
+	iDangerScore += ScorePlotForVisibility(pUnit, testPlot);
+
+	//final score. dangerscore is typically negative!
+	result.iScore = iPlotScore*10 + iDamageScore*10 + iDangerScore;
 
 	//often there are multiple identical units which could move into a plot
 	//in that case we want to prefer the one which has more movement points left
@@ -8186,13 +8201,16 @@ STacticalAssignment ScorePlotForRangedAttack(const SUnitStats& unit, const CvTac
 		newAssignment.iRemainingMoves = 0;
 	}
 	else
+	{
 		newAssignment.iRemainingMoves -= min(newAssignment.iRemainingMoves, GD_INT_GET(MOVE_DENOMINATOR));
 
-	//a bonus the further we can disengage after attacking
-	newAssignment.iScore += (newAssignment.iRemainingMoves * 2) / GD_INT_GET(MOVE_DENOMINATOR);
+		//a bonus the further we can disengage after attacking
+		newAssignment.iScore += (newAssignment.iRemainingMoves * 2) / GD_INT_GET(MOVE_DENOMINATOR);
+	}
 
-	//times 10 to match with ScorePlotForCombatUnitOffensive()
-	newAssignment.iScore = newAssignment.iScore*10;
+	//bring it into the same range as movement (add 8 so we're always better than just finishing the turn on a frontline plot)
+	//same logic as in ScorePlotForMeleeAttack()
+	newAssignment.iScore = newAssignment.iScore + 8 * 10;;
 
 	//a slight boost for attacking the "real" target
 	if ( enemyPlot.getPlotIndex()==assumedPosition.getTarget()->GetPlotIndex() )
@@ -8284,6 +8302,10 @@ CvTacticalPlot::CvTacticalPlot(const CvPlot* plot, PlayerTypes ePlayer, const ve
 	bfBlockedByNonSimCombatUnit = 0;
 	bHasAirCover = pPlot->HasAirCover(ePlayer);
 	bIsVisibleToEnemy = pPlot->IsKnownVisibleToEnemy(kPlayer.GetID());
+
+	//updated once at the beginning
+	nVisiblePlotsNearEnemyRange2 = 0;
+	nVisiblePlotsNearEnemyRange3 = 0;
 
 	//updated if necessary
 	bEdgeOfTheKnownWorldUnknown = true;
@@ -8858,6 +8880,10 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	if (pUnit->IsCanAttackRanged() && unit.iAttacksLeft>0 && unit.iMovesLeft>0)
 	{
 		const vector<int>& rangeAttackPlots = getRangeAttackPlotsForUnit(unit);
+
+		//what score for simply staying here and doing nothing? pass zero moves to ignore possible attacks
+		STacticalAssignment positionScore = ScorePlotForMove(unit, assumedUnitPlot, SMovePlot(unit.iPlotIndex, 0, 0, 0), *this, EM_INTERMEDIATE);
+
 		for (vector<int>::const_iterator it=rangeAttackPlots.begin(); it!=rangeAttackPlots.end(); ++it)
 		{
 			//the plot we're checking right now
@@ -8901,6 +8927,7 @@ void CvTacticalPosition::getPreferredAssignmentsForUnit(const SUnitStats& unit, 
 	}
 
 	//always add a 'do-nothing' move; this does not guarantee that it will get picked but it allows move-attack-flee for damaged units
+	//order does not matter, the parent function will sort again ...
 	gPossibleMoves.push_back(STacticalAssignment(unit.iPlotIndex, unit.iPlotIndex, unit.iUnitID, unit.iMovesLeft, unit.eMoveStrategy, iBlockedScore, A_BLOCKED));
 }
 
@@ -9088,9 +9115,8 @@ bool CvTacticalPosition::makeNextAssignments(int iMaxBranches, int iMaxChoicesPe
 
 		if (!gMovesToAdd.empty())
 		{
-			//maybe we have a block move following our "primary" move? should be harmless to add them together. this reduces our total search depth
-			//try adding only one block for now ...
-			if (i < gOverAllChoices.size()-1 && gOverAllChoices[i+1].eAssignmentType == A_BLOCKED && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID)
+			//maybe we have a block/finish move following our "primary" move? should be harmless to add them together. this reduces our total search depth
+			while (i < gOverAllChoices.size()-1 && gOverAllChoices[i].iUnitID != gOverAllChoices[i+1].iUnitID && (gOverAllChoices[i + 1].eAssignmentType == A_FINISH_TEMP || gOverAllChoices[i + 1].eAssignmentType == A_BLOCKED))
 				gMovesToAdd.push_back(gOverAllChoices[++i]);
 
 			//we need memory for the new child but we'll commit it only later after the uniqueness check
@@ -9386,7 +9412,7 @@ bool CvTacticalPosition::isKillOrImprovedPosition() const
 }
 
 //this influences how daring we'll be
-void CvTacticalPosition::countEnemies()
+void CvTacticalPosition::countEnemiesAndCheckVisibility()
 {
 	//todo: should we count non-simulated friendlies as well?
 	nOurUnits = availableUnits.size();
@@ -9396,6 +9422,39 @@ void CvTacticalPosition::countEnemies()
 	{
 		if (tactPlots[i].isEnemy())
 			nEnemies++; //units and cities
+
+		//ignore range 1, we can always see those plots so they are boring
+		//ignore range 4+, this is too far out and we don't have those plots cached
+		const vector<CvPlot*>& vSeeToPlots2 = GC.getMap().GetPlotsAtRangeX(tactPlots[i].getPlot(), 2, true, true);
+		const vector<CvPlot*>& vSeeToPlots3 = GC.getMap().GetPlotsAtRangeX(tactPlots[i].getPlot(), 3, true, true);
+		int iVisiblityScore2 = 0;
+		int iVisiblityScore3 = 0;
+
+		//give a bonus to plots with high outward visibility, an enemy might come into range next turn!
+		//however, we are only interested in the direction towards the enemy ... look at enemy distance as a proxy 
+		for (size_t j = 0; j < vSeeToPlots2.size(); j++)
+		{
+			//null is used as a sentinel value
+			if (vSeeToPlots2[j] == NULL)
+				continue;
+
+			const CvTacticalPlot& testPlot = getTactPlot(vSeeToPlots2[j]->GetPlotIndex());
+			if (testPlot.isValid() && testPlot.getEnemyDistance() <= 3)
+				iVisiblityScore2++;
+		}
+		for (size_t j = 0; j < vSeeToPlots3.size(); j++)
+		{
+			//null is used as a sentinel value
+			if (vSeeToPlots3[j] == NULL)
+				continue;
+
+			const CvTacticalPlot& testPlot = getTactPlot(vSeeToPlots3[j]->GetPlotIndex());
+			if (testPlot.isValid() && testPlot.getEnemyDistance() <= 3)
+				iVisiblityScore3++;
+		}
+
+		tactPlots[i].setNumVisiblePlotsRange2(iVisiblityScore2);
+		tactPlots[i].setNumVisiblePlotsRange3(iVisiblityScore3);
 	}
 }
 
@@ -10716,16 +10775,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	//number of enemies influences how aggressive we can be
 	//note that for defensive positioning we do not require any enemies to be nearby
-	initialPosition->countEnemies();
+	initialPosition->countEnemiesAndCheckVisibility();
 
 	//small performance optimization
 	initialPosition->setFirstInterestingAssignment(initialPosition->getAssignments().size());
-
-#if defined(MOD_CORE_DEBUGGING)
-	if (MOD_CORE_DEBUGGING)
-		GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("starting simulation with %d units and %d enemies on %d plots",
-			initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots() ));
-#endif
 
 	openPositionsHeap.clear();
 	completedPositions.clear();
@@ -10740,29 +10793,33 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 	while (!openPositionsHeap.empty())
 	{
 		pop_heap( openPositionsHeap.begin(), openPositionsHeap.end(), heapSort);
-		CvTacticalPosition* current = openPositionsHeap.back(); openPositionsHeap.pop_back();
-		iUsedPositions++;
-
-		//at some point we have seen enough good positions to pick one
-		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
-			break;
+		CvTacticalPosition* current = openPositionsHeap.back();
 
 		//switch our strategy?
 		if (!heapSort.bDepthFirst && current->getGeneration() > TACTSIM_BREADTH_FIRST_GENERATIONS)
 		{
 			heapSort.bDepthFirst = true;
 			make_heap(openPositionsHeap.begin(), openPositionsHeap.end(), heapSort);
+			//pick again after re-sorting
+			continue;
 		}
+		else
+			//go on with the selected position, remove it from the heap
+			openPositionsHeap.pop_back();
 
-		//look at the "generation" of the current position and reduce the branching factor successively
-		int iReduction = max(0,current->getGeneration()-TACTSIM_BREADTH_FIRST_GENERATIONS) / TACTSIM_ANNEALING_FACTOR;
-		int iMaxBranchesNow = max(2, iMaxBranches - iReduction);
-		int iMaxChoicesPerUnitNow = max(2, iMaxChoicesPerUnit - iReduction);
+		//just pick the "best" move in depth first mode
+		int iMaxBranchesNow = heapSort.bDepthFirst ? 1 : iMaxBranches;
+		int iMaxChoicesPerUnitNow = heapSort.bDepthFirst ? 1 : iMaxChoicesPerUnit;
 
 		//here the magic happens!
 		current->makeNextAssignments(iMaxBranchesNow, iMaxChoicesPerUnitNow, storage, openPositionsHeap, completedPositions, heapSort);
 
+		//at some point we have seen enough good positions to pick one
+		if (completedPositions.size() > (size_t)iMaxCompletedPositions)
+			break;
+
 		//be a good citizen and let the UI run in between ... stupid design
+		iUsedPositions++;
 		if ((iUsedPositions % 1000) == 999 && gDLL->HasGameCoreLock())
 		{
 			gDLL->ReleaseGameCoreLock();
@@ -10820,6 +10877,10 @@ vector<STacticalAssignment> TacticalAIHelpers::FindBestUnitAssignments(
 
 	if(GC.getLogging() && GC.getAILogging())
 	{
+		if (false)
+			GET_PLAYER(ePlayer).GetTacticalAI()->LogTacticalMessage(CvString::format("tactsim finished. started with %d units and %d enemies on %d plots. checked %d positions, %d completed.",
+				initialPosition->getAvailableUnits().size(), initialPosition->getNumEnemies(), initialPosition->getNumPlots(), iUsedPositions, completedPositions.size()));
+
 		//debug dump
 #if defined(MOD_CORE_DEBUGGING)
 		if (gCurrentUnitToTrack == -1)

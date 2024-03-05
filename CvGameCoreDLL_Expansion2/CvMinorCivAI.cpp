@@ -15823,8 +15823,8 @@ const ReachablePlots & CvMinorCivAI::GetBullyRelevantPlots()
 			m_bullyRelevantPlots = GC.GetStepFinder().GetPlotsInReach(GetPlayer()->getCapitalCity()->plot(), data);
 			m_iBullyPlotsBuilt = GC.getGame().getGameTurn();
 
-			//make sure we include all adjacent plots even if they are impassable for us ... but they might be passable for the bully (inca!)
-			for (int i = RING0_PLOTS; i < RING1_PLOTS; i++)
+			//make sure we include all close plots even if they are impassable for us ... but they might be passable for the bully (inca!)
+			for (int i = RING0_PLOTS; i < RING3_PLOTS; i++)
 			{
 				CvPlot* pPlot = iterateRingPlots(pCapital->plot(), i);
 				if (pPlot && m_bullyRelevantPlots.find(pPlot->GetPlotIndex()) == m_bullyRelevantPlots.end())

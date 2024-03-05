@@ -62,7 +62,11 @@
 	<Type Name="CvPlayer">
 		<DisplayString>id {m_eID}</DisplayString>
 	</Type>
-	
+
+	<Type Name="CvTacticalPosition">
+		<DisplayString>(id {iID} score {iTotalScore} nmoves {assignedMoves._Mylast - assignedMoves._Myfirst} nunits {availableUnits._Mylast - availableUnits._Myfirst})</DisplayString>
+	</Type>
+
 	<!-- stl types -->
 	
 	<Type Name="std::pair&lt;*&gt;">

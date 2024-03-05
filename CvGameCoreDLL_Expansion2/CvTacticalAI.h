@@ -728,6 +728,12 @@ public:
 	void changeNeighboringUnitCount(CvTacticalPosition& currentPosition, const STacticalAssignment& move, int iChange) const;
 	void setCombatUnitEndTurn(CvTacticalPosition& currentPosition, eTactPlotDomain unitDomain);
 
+	int getNumVisiblePlotsRange2() const { return (int)nVisiblePlotsNearEnemyRange2; }
+	int getNumVisiblePlotsRange3() const { return (int)nVisiblePlotsNearEnemyRange2; }
+	void setNumVisiblePlotsRange2(int count) { nVisiblePlotsNearEnemyRange2 = (unsigned char)count; }
+	void setNumVisiblePlotsRange3(int count) { nVisiblePlotsNearEnemyRange3 = (unsigned char)count; }
+
+
 protected:
 	const CvPlot* pPlot; //null if invalid
 	vector<STacticalUnit> vUnitsHere; //which (simulated) units are in this plot?
@@ -739,6 +745,9 @@ protected:
 	unsigned char aiFriendlyCombatUnitsAdjacentEndTurn[3]; //ranged units need cover. updated every time a unit finishes
 	unsigned char nSupportUnitsAdjacent; //for general bonus (not differentiated by domain)
 	unsigned char iDamageDealt; //damage dealt to this plot in previous simulated attacks
+
+	unsigned char nVisiblePlotsNearEnemyRange2; //what can we see from here
+	unsigned char nVisiblePlotsNearEnemyRange3; //what can we see from here
 
 	//set once and not changed afterwards
 	unsigned char bfBlockedByNonSimCombatUnit; //bitfield per domain
@@ -856,16 +865,19 @@ public:
 
 		PrPositionSortHeapGeneration(bool depthFirst) : bDepthFirst(depthFirst) {}
 
+		//we will pop the *last* element from the heap later
 		bool operator()(const CvTacticalPosition* lhs, const CvTacticalPosition* rhs) const
 		{
-			//tiebreaker
+			//within a generation always sort by (last round) score
+			//continue where it seems most promising right now, ignore "historical" scores
 			if (lhs->getGeneration() == rhs->getGeneration())
 				return lhs->getScoreLastRound() < rhs->getScoreLastRound();
 
-			//we will pop the *last* element from the heap later
 			if (bDepthFirst)
+				//we want to pick the highest generation first
 				return lhs->getGeneration() < rhs->getGeneration();
 			else
+				//we want to pick the lowest generation first
 				return lhs->getGeneration() > rhs->getGeneration();
 		}
 	};
@@ -893,7 +905,7 @@ public:
 	bool isEarlyFinish() const;
 	bool addFinishMovesIfAcceptable(bool bEarlyFinish);
 	bool isKillOrImprovedPosition() const;
-	void countEnemies();
+	void countEnemiesAndCheckVisibility();
 	void refreshVolatilePlotProperties();
 	void dropSuperfluousUnits(int iMaxUnitsToKeep);
 	void addInitialAssignments();
