@@ -1191,7 +1191,6 @@ void CvLuaPlayer::PushMethods(lua_State* L, int t)
 	Method(CanSpyStageCoup);
 	Method(GetAvailableSpyRelocationCities);
 	Method(CanMoveSpyTo);
-	Method(ChangeCounterspyMission);
 	Method(GetNumTechsToSteal);
 	Method(GetIntrigueMessages);
 	Method(HasRecentIntrigueAbout);
@@ -16490,16 +16489,6 @@ int CvLuaPlayer::lCanMoveSpyTo(lua_State* L)
 	uint spyID = luaL_checkinteger(L, 3);
 	bool bAsDiplomat = luaL_optbool(L, 4, false);
 	lua_pushboolean(L, pkPlayerEspionage->CanMoveSpyTo(pkCity, spyID, bAsDiplomat));
-	return 1;
-}
-//------------------------------------------------------------------------------
-int CvLuaPlayer::lChangeCounterspyMission(lua_State* L)
-{
-	CvPlayerAI* pkThisPlayer = GetInstance(L);
-	uint spyID = (uint)lua_tointeger(L, 2);
-	CityEventChoiceTypes eNewMission = (CityEventChoiceTypes)lua_tointeger(L, 3);
-	CvPlayerEspionage* pkPlayerEspionage = pkThisPlayer->GetEspionage();
-	pkPlayerEspionage->ChangeCounterspyMission(spyID, eNewMission);
 	return 1;
 }
 //------------------------------------------------------------------------------

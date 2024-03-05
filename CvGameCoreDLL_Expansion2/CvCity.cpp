@@ -4985,7 +4985,7 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 		ChangeEventChoiceDuration(eChosenEventChoice, -GetEventChoiceDuration(eChosenEventChoice));
 
 		//Let's only reverse if it expires, and it was active.
-		if (IsEventChoiceActive(eChosenEventChoice) && (pkEventChoiceInfo->Expires() || pkEventChoiceInfo->isCounterspyMission()))
+		if (pkEventChoiceInfo->isCounterspyMission() || (IsEventChoiceActive(eChosenEventChoice) && pkEventChoiceInfo->Expires()))
 		{
 			if (pkEventChoiceInfo->getEventBuilding() != -1)
 			{
@@ -5220,6 +5220,35 @@ void CvCity::DoCancelEventChoice(CityEventChoiceTypes eChosenEventChoice)
 				ChangeReligiousUnrestModifier(pkEventChoiceInfo->getReligiousUnrestModifier() * -1);
 				bChanged = true;
 			}
+			if (pkEventChoiceInfo->isCounterspyMission())
+			{
+				// notify other players if they have a spy in the city
+				if (!pkEventChoiceInfo->isSecretMission())
+				{
+					const char* szMissionText = pkEventChoiceInfo->GetHelp();
+					for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+					{
+						const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(i);
+						CvNotifications* pOtherNotifications = GET_PLAYER(eOtherPlayer).GetNotifications();
+						if (pOtherNotifications)
+						{
+							// does the player have a spy in this city?
+							CvPlayerEspionage* pOtherPlayerEspionage = GET_PLAYER(eOtherPlayer).GetEspionage();
+							if (pOtherPlayerEspionage && pOtherPlayerEspionage->GetSpyIndexInCity(this) != -1)
+							{
+								CvEspionageSpy* pOtherSpy = pOtherPlayerEspionage->GetSpyByID(pOtherPlayerEspionage->GetSpyIndexInCity(this));
+								if (pOtherSpy->GetSpyState() == SPY_STATE_GATHERING_INTEL)
+								{
+									CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_ENDED", getNameKey(), szMissionText);
+									CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_ENDED_S", getNameKey());
+									pOtherNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strBuffer, strSummary, getX(), getY(), -1);
+								}
+							}
+						}
+					}
+				}
+			}
+			
 			if (bChanged)
 			{
 				CvNotifications* pNotifications = GET_PLAYER(getOwner()).GetNotifications();
@@ -6693,6 +6722,48 @@ void CvCity::DoEventChoice(CityEventChoiceTypes eEventChoice, CityEventTypes eCi
 						GetCityEspionage()->DoMission(eSpyOwner, eEventChoice);
 						// this is an advanced mission. determine what happens to the spy
 						GET_PLAYER(eSpyOwner).GetEspionage()->ProcessSpyMissionResult(eSpyOwner, this, iSpyID, eEventChoice);
+					}
+					else if (pkEventChoiceInfo->isCounterspyMission())
+					{
+						CityEventChoiceTypes ePreviousMission = pSpy->GetSpyFocus();
+						if (ePreviousMission == eEventChoice)
+						{
+							return;
+						}
+						if (ePreviousMission != NO_EVENT_CHOICE_CITY)
+						{
+							DoCancelEventChoice(ePreviousMission);
+						}
+
+						pSpy->SetSpyFocus(eEventChoice);
+						pSpy->SetTurnCounterspyMissionChanged(GC.getGame().getGameTurn());
+						GetCityEspionage()->SetPendingEvents(eSpyOwner, 0);
+
+						// notify other players
+						if (!pkEventChoiceInfo->isSecretMission())
+						{
+							const char* szMissionText = pkEventChoiceInfo->GetHelp();
+							for (int i = 0; i < MAX_CIV_PLAYERS; ++i)
+							{
+								const PlayerTypes eOtherPlayer = static_cast<PlayerTypes>(i);
+								CvNotifications* pOtherNotifications = GET_PLAYER(eOtherPlayer).GetNotifications();
+								if (pOtherNotifications)
+								{
+									// does the player have a spy in this city?
+									CvPlayerEspionage* pOtherPlayerEspionage = GET_PLAYER(eOtherPlayer).GetEspionage();
+									if (pOtherPlayerEspionage && pOtherPlayerEspionage->GetSpyIndexInCity(this) != -1)
+									{
+										CvEspionageSpy* pOtherSpy = pOtherPlayerEspionage->GetSpyByID(pOtherPlayerEspionage->GetSpyIndexInCity(this));
+										if (pOtherSpy->GetSpyState() == SPY_STATE_GATHERING_INTEL)
+										{
+											CvString strBuffer = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED", getNameKey(), szMissionText);
+											CvString strSummary = GetLocalizedText("TXT_KEY_NOTIFICATION_COUNTERSPY_STARTED_S", getNameKey());
+											pOtherNotifications->Add(NOTIFICATION_SPY_YOU_STAGE_COUP_SUCCESS, strBuffer, strSummary, getX(), getY(), -1);
+										}
+									}
+								}
+							}
+						}
 					}
 				}
 			}
