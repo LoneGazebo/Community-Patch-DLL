@@ -113,7 +113,7 @@
 			<Text>Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_OTHER_PLAYER_MONOPOLY_GAINED">
-			<Text>{3_CivName} {3_CivName: plural 1?controls; other?control;} over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore has a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
+			<Text>{3_CivName} {3_CivName: plural 1?controls; other?control;} over 50% of the World's [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR], and therefore {3_CivName: plural 1?has; other?have;} a Global Monopoly![NEWLINE][NEWLINE]{2_ResourceHelp}</Text>
 		</Row>
 		<Row Tag="TXT_KEY_NOTIFICATION_SUMMARY_OTHER_PLAYER_MONOPOLY_GAINED">
 			<Text>{2_CivName} {2_CivName: plural 1?has; other?have;} a Global Monopoly on [COLOR_POSITIVE_TEXT]{1_ResourceNames}[ENDCOLOR]!</Text>
