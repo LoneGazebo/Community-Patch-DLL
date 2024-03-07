@@ -4583,7 +4583,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_ESPIONAGE_T_ESPIONAGE");
 				strSummary << pCity->getNameKey();
 				strSummary << GET_PLAYER(m_aSpyNotificationMessages[ui].m_eAttackingPlayer).getCivilizationInfo().getAdjectiveKey();
-				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_IDENTIFIED, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, m_aSpyNotificationMessages[ui].m_eAttackingPlayer);
 			}
 			break;
 			case SPY_RESULT_CAUGHT:
@@ -4597,7 +4597,7 @@ void CvPlayerEspionage::ProcessSpyMessages()
 				strMessage << strEffectText;
 				strSummary = Localization::Lookup("TXT_KEY_NOTIFICATION_EVENT_SUCCEEDED_T_ESPIONAGE_UNKNOWN");
 				strSummary << pCity->getNameKey();
-				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_DETECTED, strMessage.toUTF8(), strSummary.toUTF8(), pCity->getX(), pCity->getY(), -1);
+				pNotifications->Add(NOTIFICATION_TECH_STOLEN_SPY_DETECTED, strMessage.toUTF8(), strSummary.toUTF8(), -1, -1, -1);
 			}
 			break;
 			case SPY_RESULT_KILLED:
