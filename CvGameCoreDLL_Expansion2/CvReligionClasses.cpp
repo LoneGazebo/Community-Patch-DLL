@@ -8143,7 +8143,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 							if (pkImprovementInfo->IsSpecificCivRequired())
 							{
 								CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
-								if (eRequiredCiv != m_pPlayer->GetID())
+								if (eRequiredCiv != m_pPlayer->getCivilizationType())
 									continue;
 							}
 
@@ -8323,7 +8323,7 @@ int CvReligionAI::GetValidPlotYieldTimes100(CvBeliefEntry* pEntry, CvPlot* pPlot
 						if (pkImprovementInfo->IsSpecificCivRequired())
 						{
 							CivilizationTypes eRequiredCiv = pkImprovementInfo->GetRequiredCivilization();
-							if (eRequiredCiv != m_pPlayer->GetID())
+							if (eRequiredCiv != m_pPlayer->getCivilizationType())
 								continue;
 						}
 
