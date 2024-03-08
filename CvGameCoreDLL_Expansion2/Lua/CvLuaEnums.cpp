@@ -1253,6 +1253,13 @@ int CvLuaEnums::pRegister(lua_State* L)
 	EnumEnd(L);
 #endif
 
+	EnumStart(L, "RoutePlanTypes");
+	RegisterEnum(NO_PLANNED_ROUTE);
+	RegisterEnum(ROAD_PLANNING_EXCLUDE);
+	RegisterEnum(ROAD_PLANNING_INCLUDE);
+	RegisterEnum(ROAD_PLANNING_PRIORITY_CONSTRUCTION);
+	EnumEnd(L);
+
 	return 0;
 }
 //------------------------------------------------------------------------------

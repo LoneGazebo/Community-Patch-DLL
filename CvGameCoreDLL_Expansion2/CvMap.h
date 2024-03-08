@@ -394,6 +394,7 @@ protected:
 	char* m_pRevealedImprovementType;
 	char* m_pRevealedRouteType;
 	bool* m_pResourceForceReveal;
+	char* m_pHumanPlannedRouteState;
 
 	TContainer<CvArea> m_areas;
 	TContainer<CvLandmass> m_landmasses;
